@@ -457,10 +457,15 @@ public class Scribe {
 				default:
 					if (isNewLine) {
 						if (Character.isWhitespace((char) currentCharacter)) {
+							int previousStartPosition = this.scanner.currentPosition;
 							while(currentCharacter != -1 && currentCharacter != '\r' && currentCharacter != '\n' && Character.isWhitespace((char) currentCharacter)) {
 								previousStart = nextCharacterStart;
+								previousStartPosition = this.scanner.currentPosition;
 								currentCharacter = this.scanner.getNextChar();
 								nextCharacterStart = this.scanner.currentPosition;
+							}
+							if (currentCharacter == '\r' || currentCharacter == '\n') {
+								nextCharacterStart = previousStartPosition;
 							}
 						}
 						this.column = 1;
@@ -471,7 +476,7 @@ public class Scribe {
 						printIndentationIfNecessary(buffer);
 						buffer.append(this.fillingSpace);
 				
-						addReplaceEdit(start, previousStart - 1, String.valueOf(buffer)); //$NON-NLS-1$
+						addReplaceEdit(start, previousStart - 1, String.valueOf(buffer));
 					} else {
 						this.column += (nextCharacterStart - previousStart);
 					}
@@ -525,13 +530,17 @@ public class Scribe {
 								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
 							}
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+						} else if (hasLineComment) {
+							this.preserveEmptyLines(2, this.scanner.getCurrentTokenStartPosition());
+							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						} else if (this.formatter.preferences.preserve_user_linebreaks) {
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 							if (count == 1) {
 								this.printNewLine(this.scanner.getCurrentTokenEndPosition() + 1);
-							} else {
-								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenEndPosition() + 1);
 							}
+						} else if (count != 0 && this.formatter.preferences.number_of_empty_lines_to_preserve != 0) {
+							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+							preserveEmptyLines(count - 1, this.scanner.getCurrentTokenEndPosition() + 1);
 						} else {
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						}
@@ -715,7 +724,7 @@ public class Scribe {
 	}
 
 	public void printModifiers() {
-		
+		this.printComment();
 		try {
 			boolean isFirstModifier = true;
 			int currentTokenStartPosition = this.scanner.currentPosition;
