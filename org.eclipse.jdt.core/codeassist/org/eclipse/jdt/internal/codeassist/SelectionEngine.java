@@ -632,7 +632,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						field.type = new SelectionOnSingleTypeReference(typeName, -1);
 						// position not used
 					} else {
-						qualifiedSelection = typeName;
 						char[][] previousIdentifiers = CharOperation.splitOn('.', typeName, 0, dot);
 						char[] selectionIdentifier =
 							CharOperation.subarray(typeName, dot + 1, typeName.length);
@@ -684,7 +683,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 		} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
 		} finally {
-			qualifiedSelection = null;
 			reset();
 		}
 	}

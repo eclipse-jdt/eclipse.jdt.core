@@ -167,4 +167,26 @@ public void testResolveString() throws JavaModelException {
 		"java.lang.String",
 		this.resultToString(types));	
 }
+/**
+ * Resolve the type "A.Inner".
+ */
+public void testResolveInnerType1() throws JavaModelException {
+	IType type = this.getCompilationUnit("/TypeResolve/src/p4/B.java").getType("B");
+	String[][] types = type.resolveType("A.Inner");
+	assertEquals(
+		"Unexpected result", 
+		"p4.A.Inner",
+		this.resultToString(types));		
+}
+/**
+ * Resolve the type "p4.A.Inner".
+ */
+public void testResolveInnerType2() throws JavaModelException {
+	IType type = this.getCompilationUnit("/TypeResolve/src/p4/B.java").getType("B");
+	String[][] types = type.resolveType("p4.A.Inner");
+	assertEquals(
+		"Unexpected result", 
+		"p4.A.Inner",
+		this.resultToString(types));		
+}
 }
