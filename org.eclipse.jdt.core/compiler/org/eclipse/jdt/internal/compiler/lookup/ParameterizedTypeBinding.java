@@ -162,8 +162,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#isSuperclassOf(ReferenceBinding)
 	 */
-	public boolean isSuperclassOf(ReferenceBinding type) {
-		return this.type.isSuperclassOf(type);
+	public boolean isSuperclassOf(ReferenceBinding referenceTypeBinding) {
+		return this.type.isSuperclassOf(referenceTypeBinding);
 	}
 	
 	/**
