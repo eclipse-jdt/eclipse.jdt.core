@@ -60,6 +60,9 @@ protected boolean computeChildren(OpenableElementInfo info) {
 		String resName = resNames[i];
 		// consider that a .java file is not a non-java resource (see bug 12246 Packages view shows .class and .java files when JAR has source)
 		if (!resName.toLowerCase().endsWith(".java")) { //$NON-NLS-1$
+			if (!this.isDefaultPackage()) {
+				resName = this.getElementName().replace('.', '/') + "/" + resName;//$NON-NLS-1$
+			}
 			res[index++] = new JarEntryFile(resName, zipName);
 		}
 	} 
