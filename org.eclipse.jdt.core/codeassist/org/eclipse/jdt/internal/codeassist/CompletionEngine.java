@@ -3484,29 +3484,20 @@ public final class CompletionEngine
 		}
 	}
 	private void addExpectedType(TypeBinding type){
-		if(type == null || !type.isValidBinding()) return;
-		
-		try {
-			this.expectedTypes[++this.expectedTypesPtr] = type;
-		} catch (IndexOutOfBoundsException e) {
-			int oldLength = this.expectedTypes.length;
-			TypeBinding oldTypes[] = this.expectedTypes;
-			this.expectedTypes = new TypeBinding[oldLength * 2];
-			System.arraycopy(oldTypes, 0, this.expectedTypes, 0, oldLength);
-			this.expectedTypes[this.expectedTypesPtr] = type;
-		}
+		if (type == null || !type.isValidBinding()) return;
+
+		int length = this.expectedTypes.length;
+		if (++this.expectedTypesPtr >= length)
+			System.arraycopy(this.expectedTypes, 0, this.expectedTypes = new TypeBinding[length * 2], 0, length);
+		this.expectedTypes[this.expectedTypesPtr] = type;
 	}
 	private void addUninterestingBindings(Binding binding){
-		if(binding == null) return;
-		try {
-			this.uninterestingBindings[++this.uninterestingBindingsPtr] = binding;
-		} catch (IndexOutOfBoundsException e) {
-			int oldLength = this.uninterestingBindings.length;
-			Binding oldBindings[] = this.uninterestingBindings;
-			this.uninterestingBindings = new Binding[oldLength * 2];
-			System.arraycopy(oldBindings, 0, this.uninterestingBindings, 0, oldLength);
-			this.uninterestingBindings[this.uninterestingBindingsPtr] = binding;
-		}
+		if (binding == null) return;
+
+		int length = this.uninterestingBindings.length;
+		if (++this.uninterestingBindingsPtr >= length)
+			System.arraycopy(this.uninterestingBindings, 0, this.uninterestingBindings = new Binding[length * 2], 0, length);
+		this.uninterestingBindings[this.uninterestingBindingsPtr] = binding;
 	}
 	
 	private char[] computePrefix(SourceTypeBinding declarationType, SourceTypeBinding invocationType, boolean isStatic){
