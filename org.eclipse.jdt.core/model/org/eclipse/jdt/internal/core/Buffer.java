@@ -374,8 +374,13 @@ private char[] normalizeCRs(char[] text) {
 					buffer.append(lineSeparator);
 					if (nextChar == '\n') {
 						nextChar = ' ';
+						lineStart = i+2;
+					} else {
+						// when line separator are mixed in the same file
+						// \r might not be followed by a \n. If not, we should increment
+						// lineStart by one and not by two.
+						lineStart = i+1;
 					}
-					lineStart = i+2;
 				} else {
 					// when line separator are mixed in the same file
 					// we need to prevent NegativeArraySizeException
