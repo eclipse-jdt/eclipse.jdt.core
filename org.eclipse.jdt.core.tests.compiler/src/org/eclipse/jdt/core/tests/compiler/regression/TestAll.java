@@ -49,6 +49,10 @@ public static Test suite() {
 	standardTests.add(UtilTest.class);
 	standardTests.add(XLargeTest.class);
 	standardTests.add(InternalScannerTest.class);
+	// add all javadoc tests
+	for (int i=0, l=JavadocTest.allTestClasses.size(); i<l; i++) {
+		standardTests.add(JavadocTest.allTestClasses.get(i));
+	}
 
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
@@ -65,6 +69,7 @@ public static Test suite() {
 	    ArrayList tests_1_4 = (ArrayList)standardTests.clone();
 		tests_1_4.add(AssertionTest.class);
 		tests_1_4.add(Compliance_1_4.class);
+		tests_1_4.add(JavadocTest_1_4.class);
 		// Reset forgotten subsets tests
 		AbstractRegressionTest.testsNames = null;
 		AbstractRegressionTest.testsNumbers= null;
@@ -75,6 +80,7 @@ public static Test suite() {
 	    ArrayList tests_1_5 = (ArrayList)standardTests.clone();
 		tests_1_5.add(AssertionTest.class);
 		tests_1_5.add(Compliance_1_5.class);	    
+		tests_1_5.add(JavadocTest_1_5.class);
 	    tests_1_5.add(GenericTypeTest.class);
 	    tests_1_5.add(ForeachStatementTest.class);
 	    tests_1_5.add(GenericTypeSignatureTest.class);
@@ -87,8 +93,8 @@ public static Test suite() {
 		AbstractRegressionTest.testsRange = null;
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_5, RegressionTestSetup.class, tests_1_5));
 	}
-	// Add Javadoc test suites
-	all.addTest(JavadocTest.suite());
+//	// Add Javadoc test suites
+//	all.addTest(JavadocTest.suite());
 	return all;
 }
 }

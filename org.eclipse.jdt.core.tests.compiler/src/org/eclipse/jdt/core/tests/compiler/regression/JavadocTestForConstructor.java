@@ -25,7 +25,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 	}
 
 	public static Test suite() {
-		return buildSuite(javadocTestClass());
+		return buildTestSuite(javadocTestClass());
 	}
 	static { // Use this static to initialize testsNames (String[]) , testsRange (int[2]), testsNumbers (int[])
 	}

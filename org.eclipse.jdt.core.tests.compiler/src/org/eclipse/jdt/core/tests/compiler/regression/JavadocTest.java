@@ -12,11 +12,8 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.StringTokenizer;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public abstract class JavadocTest extends AbstractRegressionTest {
@@ -26,8 +23,6 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	public static ArrayList allTestClasses = null;
 	static final String DOC_COMMENT_SUPPORT = System.getProperty("doc.support");
-//	String docCommentSupport;
-	boolean supportJavadoc;
 	static boolean debug = false;
 
 	static {
@@ -51,94 +46,23 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		suite.addTest(innerSuite);
 	}
 
-	public static Test buildSuite(Class testClass) {
-		TestSuite suite = new TestSuite(testClass.getName());
-		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
-		if ((complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
-			suite.addTest(suiteForComplianceLevel(COMPLIANCE_1_3, testClass));
-		}
-		if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0) {
-			suite.addTest(suiteForComplianceLevel(COMPLIANCE_1_4, testClass));
-		}
-		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
-			suite.addTest(suiteForComplianceLevel(COMPLIANCE_1_5, testClass));
-		}
-		return suite;
-	}
-
-	public static Test buildLevelSuite() {
-		TestSuite suite = new TestSuite("JavadocTest_1_x");
-		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
-		if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0 || (complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
-			suite.addTest(suiteForComplianceLevel(COMPLIANCE_1_4, JavadocTest_1_4.class));
-		}
-		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
-			suite.addTest(suiteForComplianceLevel(COMPLIANCE_1_5, JavadocTest_1_5.class));
-		}
-		return suite;
-	}
-	
-	public static Test suiteForComplianceLevel(String level, Class testClass) {
-		TestSuite suite = new TestSuite(level);
-		try {
-			// Default is Javadoc ENABLED
-			if (DOC_COMMENT_SUPPORT == null) {
-				suite.addTest(suiteForJavadocSupport(level, testClass, CompilerOptions.ENABLED));
-			} else {
-				suite.addTest(suiteForJavadocSupport(level, testClass, DOC_COMMENT_SUPPORT));
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		return suite;
-	}
-
-	public static Test suiteForJavadocSupport(String level, Class testClass, String support) {
-		Test suite = buildTestSuite(testClass, "Doc "+support);
-		return new RegressionTestSetup(suite, level, support);
-	}
-
-
 	public static Test suite() {
 		TestSuite suite = new TestSuite(JavadocTest.class.getName());
 		for (int i=0; i<allTestClasses.size(); i++) {
-			suite.addTest(buildSuite((Class) allTestClasses.get(i)));
+			suite.addTest(buildTestSuite((Class) allTestClasses.get(i)));
 		}
-		suite.addTest(buildLevelSuite());
+//		suite.addTest(buildTestSuite());
 		return suite;
 	}
 	
 	public JavadocTest(String name) {
 		super(name);
 	}
-	/**
-	 * @return Returns the docCommentSupport.
-	 */
-	public String getNamePrefix() {
-		return "Doc "+(this.supportJavadoc?"on":"off")+" - ";
-	}
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#getName()
-	 */
-	public String getName() {
-		if (this.docCommentSupport != null) {
-			return getNamePrefix()+super.getName();
-		}
-		return super.getName();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.util.AbstractCompilerTest#initialize(org.eclipse.jdt.core.tests.util.CompilerTestSetup)
-	 */
-	public void initialize(CompilerTestSetup setUp) {
-		super.initialize(setUp);
-		this.supportJavadoc = !CompilerOptions.DISABLED.equals(this.docCommentSupport);
-	}
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-		options.put(CompilerOptions.OPTION_DocCommentSupport, this.docCommentSupport);
+		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 		return options;
 	}
 	
@@ -326,41 +250,5 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			System.arraycopy(testFiles, 0, completedFiles, referencedClasses.length, testFiles.length);
 		}
 		runNegativeTest(completedFiles, expected);
-	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest#runNegativeTest(java.lang.String[], java.lang.String)
-	 */
-	protected void runNegativeTest(String[] testFiles, String expectedProblemLog) {
-		if (this.supportJavadoc) {
-			super.runNegativeTest(testFiles, expectedProblemLog);
-		} else {
-			StringTokenizer tokenizer = new StringTokenizer(expectedProblemLog);
-			int errors=0, javadocs=0;
-			while (tokenizer.hasMoreTokens()) {
-				String token = tokenizer.nextToken();
-				if ("ERROR".equals(token) || "WARNING".equals(token)) {
-					errors++;
-				} else if ("Javadoc:".equals(token)) {
-					javadocs++;
-				}
-			}
-			if (errors == javadocs) {
-				super.runConformTest(testFiles);
-			} else if (javadocs == 0) {
-				super.runNegativeTest(testFiles, expectedProblemLog);
-			} else {
-				if (debug) System.out.println("Test "+getName()+" skipped due to non-javadoc compiler errors...");
-			}
-		}
-	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest#runConformTest(java.lang.String[])
-	 */
-	protected void runConformTest(String[] testFiles) {
-		if (this.supportJavadoc) {
-			super.runConformTest(testFiles);
-		} else {
-			if (debug) System.out.println("Test "+getName()+" skipped as identical when Javadoc is enabled...");
-		}
 	}
 }

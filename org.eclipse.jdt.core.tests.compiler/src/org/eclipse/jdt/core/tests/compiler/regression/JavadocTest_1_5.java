@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocTest_1_5 extends JavadocTest {
 
-	String localDocCommentSupport = CompilerOptions.ENABLED;
+	String docCommentSupport = CompilerOptions.ENABLED;
 	String reportInvalidJavadoc = CompilerOptions.ERROR;
 	String reportMissingJavadocTags = CompilerOptions.ERROR;
 	String reportMissingJavadocComments = null;
@@ -44,12 +44,12 @@ public class JavadocTest_1_5 extends JavadocTest {
 //		testsRange = new int[] { 21, 50 };
 	}
 	public static Test suite() {
-		return buildSuite(javadocTestClass());
+		return buildTestSuite(javadocTestClass());
 	}
 
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
-		options.put(CompilerOptions.OPTION_DocCommentSupport, this.localDocCommentSupport);
+		options.put(CompilerOptions.OPTION_DocCommentSupport, this.docCommentSupport);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, reportInvalidJavadoc);
 		if (reportMissingJavadocComments != null) 
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportMissingJavadocComments);
@@ -70,7 +70,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.localDocCommentSupport = this.docCommentSupport;
+		this.docCommentSupport = CompilerOptions.ENABLED;
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportMissingJavadocTags = CompilerOptions.ERROR;
 		reportMissingJavadocComments = null;

@@ -24,7 +24,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		return JavadocTestForMethod.class;
 	}
 	public static Test suite() {
-		return buildSuite(javadocTestClass());
+		return buildTestSuite(javadocTestClass());
 	}
 
 	// Use this static initializer to specify subset for tests

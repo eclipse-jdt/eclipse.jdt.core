@@ -20,16 +20,10 @@ import junit.framework.TestSuite;
 public class CompilerTestSetup extends TestDecorator {
 
 	String complianceLevel;
-	String docCommentSupport;
 
 	public CompilerTestSetup(Test test, String complianceLevel) {
 		super(test);
 		this.complianceLevel = complianceLevel;
-	}
-	public CompilerTestSetup(Test test, String complianceLevel, String support) {
-		super(test);
-		this.complianceLevel = complianceLevel;
-		this.docCommentSupport = support;
 	}
 
 	protected void initTest(Object test) {
