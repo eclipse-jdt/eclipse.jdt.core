@@ -85,7 +85,7 @@ public final boolean areParameterErasuresEqual(MethodBinding method) {
 		return false;
 
 	for (int i = 0; i < length; i++) {
-	    if (parameters[i].erasure() != args[i].erasure()) return false;
+		if (parameters[i].erasure() != args[i].erasure()) return false;
 	}
 	return true;
 }
@@ -246,30 +246,30 @@ public final char[] constantPoolName() {
  * void bar(X<T> t)   -->   (LX<TT;>;)V
  */
 public char[] genericSignature() {
-    if ((this.modifiers & AccGenericSignature) == 0) return null;
-    StringBuffer sig = new StringBuffer(10);
+	if ((this.modifiers & AccGenericSignature) == 0) return null;
+	StringBuffer sig = new StringBuffer(10);
 	if (this.typeVariables != NoTypeVariables) {
-	    sig = new StringBuffer(10);
-	    sig.append('<');
-	    for (int i = 0, length = this.typeVariables.length; i < length; i++) {
-	        sig.append(this.typeVariables[i].genericSignature());
-	    }
-	    sig.append('>');
+		sig = new StringBuffer(10);
+		sig.append('<');
+		for (int i = 0, length = this.typeVariables.length; i < length; i++) {
+			sig.append(this.typeVariables[i].genericSignature());
+		}
+		sig.append('>');
 	}
-    sig.append('(');
-    for (int i = 0, length = this.parameters.length; i < length; i++) {
-        sig.append(this.parameters[i].genericTypeSignature());
-    }
-    sig.append(')').append(this.returnType.genericTypeSignature());
-    // only append thrown exception if any is generic/parameterized
-    for (int i = 0, length = this.thrownExceptions.length; i < length; i++) {
-        if((this.thrownExceptions[i].modifiers & AccGenericSignature) != 0) {
-		    for (int j = 0; j < length; j++) {
-		        sig.append(this.thrownExceptions[j].genericTypeSignature());
-		    }
-            break;
-        }
-    }
+	sig.append('(');
+	for (int i = 0, length = this.parameters.length; i < length; i++) {
+		sig.append(this.parameters[i].genericTypeSignature());
+	}
+	sig.append(')').append(this.returnType.genericTypeSignature());
+	// only append thrown exception if any is generic/parameterized
+	for (int i = 0, length = this.thrownExceptions.length; i < length; i++) {
+		if((this.thrownExceptions[i].modifiers & AccGenericSignature) != 0) {
+			for (int j = 0; j < length; j++) {
+				sig.append(this.thrownExceptions[j].genericTypeSignature());
+			}
+			break;
+		}
+	}
 	return sig.toString().toCharArray();
 }
 public final int getAccessFlags() {
@@ -286,7 +286,13 @@ public TypeVariableBinding getTypeVariable(char[] variableName) {
  * (see ParameterizedMethodBinding)
  */
 public boolean hasSubstitutedParameters() {
-    return false;
+	return false;
+}
+
+/* Answer true if the return type got substituted.
+ */
+public boolean hasSubstitutedReturnType() {
+	return false;
 }
 
 /* Answer true if the receiver is an abstract method
@@ -441,7 +447,7 @@ public final boolean isViewedAsDeprecated() {
  * Returns the original method (as opposed to parameterized instances)
  */
 public MethodBinding original() {
-    return this;
+	return this;
 }
 
 public char[] readableName() /* foo(int, Thread) */ {

@@ -19,59 +19,66 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  * these methods.
  */
 public class ParameterizedMethodBinding extends MethodBinding {
-    
-    protected MethodBinding originalMethod;
-    
-    /**
-     * Create method of parameterized type, substituting original parameters/exception/return type with type arguments.
-     */
-	public ParameterizedMethodBinding(ParameterizedTypeBinding parameterizedDeclaringClass, MethodBinding originalMethod) {
-	
-	    super(
-	            originalMethod.modifiers, 
-	            originalMethod.selector, 
-	            parameterizedDeclaringClass.substitute(  originalMethod.returnType),
-	            Scope.substitute(parameterizedDeclaringClass, originalMethod.parameters),
-	            Scope.substitute(parameterizedDeclaringClass, originalMethod.thrownExceptions),
-	            parameterizedDeclaringClass);
-	    this.originalMethod = originalMethod;
-	    this.typeVariables = originalMethod.typeVariables;
-	}
-	
-    public ParameterizedMethodBinding() {
-        // no init
-    }
 
-    /**
-     * The type of x.getClass() is substituted from 'Class<? extends Object>' into: 'Class<? extends |X|> where |X| is X's erasure.
-     */
-    public static ParameterizedMethodBinding instantiateGetClass(TypeBinding receiverType, MethodBinding originalMethod, Scope scope){
-        ParameterizedMethodBinding method = new ParameterizedMethodBinding();
-    	method.modifiers = originalMethod.modifiers;
-    	method.selector = originalMethod.selector;
-    	method.declaringClass = originalMethod.declaringClass;
-        method.typeVariables = NoTypeVariables;
-        method.originalMethod = originalMethod;
-        method.parameters = originalMethod.parameters;
-        method.thrownExceptions = originalMethod.thrownExceptions;
-        method.returnType = scope.createParameterizedType(
-	            scope.getJavaLangClass(), 
-	           new TypeBinding[] {  scope.environment().createWildcard(receiverType.erasure(), Wildcard.EXTENDS) }, 
-	            null);
-        return method;
-    }	
-    
+	protected MethodBinding originalMethod;
+
+	/**
+	 * Create method of parameterized type, substituting original parameters/exception/return type with type arguments.
+	 */
+	public ParameterizedMethodBinding(ParameterizedTypeBinding parameterizedDeclaringClass, MethodBinding originalMethod) {
+
+		super(
+				originalMethod.modifiers,
+				originalMethod.selector,
+				parameterizedDeclaringClass.substitute(originalMethod.returnType),
+				Scope.substitute(parameterizedDeclaringClass, originalMethod.parameters),
+				Scope.substitute(parameterizedDeclaringClass, originalMethod.thrownExceptions),
+				parameterizedDeclaringClass);
+		this.originalMethod = originalMethod;
+		this.typeVariables = originalMethod.typeVariables;
+	}
+
+	public ParameterizedMethodBinding() {
+		// no init
+	}
+
+	/**
+	 * The type of x.getClass() is substituted from 'Class<? extends Object>' into: 'Class<? extends |X|> where |X| is X's erasure.
+	 */
+	public static ParameterizedMethodBinding instantiateGetClass(TypeBinding receiverType, MethodBinding originalMethod, Scope scope) {
+		ParameterizedMethodBinding method = new ParameterizedMethodBinding();
+		method.modifiers = originalMethod.modifiers;
+		method.selector = originalMethod.selector;
+		method.declaringClass = originalMethod.declaringClass;
+		method.typeVariables = NoTypeVariables;
+		method.originalMethod = originalMethod;
+		method.parameters = originalMethod.parameters;
+		method.thrownExceptions = originalMethod.thrownExceptions;
+		method.returnType = scope.createParameterizedType(
+			scope.getJavaLangClass(),
+			new TypeBinding[] {  scope.environment().createWildcard(receiverType.erasure(), Wildcard.EXTENDS) },
+			null);
+		return method;
+	}
+
 	/**
 	 * Returns true if some parameters got substituted.
 	 */
 	public boolean hasSubstitutedParameters() {
-	    return this.parameters != originalMethod.parameters;
+		return this.parameters != originalMethod.parameters;
 	}
-	
+
+	/**
+	 * Returns true if the return type got substituted.
+	 */
+	public boolean hasSubstitutedReturnType() {
+		return this.returnType != originalMethod.returnType;
+	}
+
 	/**
 	 * Returns the original method (as opposed to parameterized instances)
 	 */
 	public MethodBinding original() {
-	    return this.originalMethod.original();
+		return this.originalMethod.original();
 	}
 }
