@@ -29,7 +29,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	public static Test suite() {
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());		
 
-		if (false) {
+		if (true) {
 			Class c = ASTConverterTest2.class;
 			Method[] methods = c.getMethods();
 			for (int i = 0, max = methods.length; i < max; i++) {

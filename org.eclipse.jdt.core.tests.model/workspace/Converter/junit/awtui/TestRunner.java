@@ -1,15 +1,13 @@
 package junit.awtui;
 
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.ImageProducer;
+import java.util.Vector;
+
 import junit.framework.*;
 import junit.runner.*;
 
-import java.util.Vector;
-import java.lang.reflect.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
-import java.io.*;
- 
 /**
  * An AWT based user interface to run tests.
  * Enter the name of a class which either provides a static
@@ -25,7 +23,7 @@ import java.io.*;
 	protected Vector fFailedTests;
 	protected Thread fRunner;
 	protected TestResult fTestResult;
-	
+
 	protected TextArea fTraceArea;
 	protected TextField fSuiteField;
 	protected Button fRun;
@@ -39,31 +37,44 @@ import java.io.*;
 	protected Button fRerunButton;
 	protected TextField fStatusLine;
 	protected Checkbox fUseLoadingRunner;
-	
-	protected static Font PLAIN_FONT= new Font("dialog", Font.PLAIN, 12);
+
+	protected static final Font PLAIN_FONT= new Font("dialog", Font.PLAIN, 12);
 	private static final int GAP= 4;
-	private static final String SUITE_METHODNAME= "suite";
-	
+
 	public TestRunner() {
 	}
-	 
+
 	private void about() {
 		AboutDialog about= new AboutDialog(fFrame);
 		about.setModal(true);
 		about.setLocation(300, 300);
 		about.setVisible(true);
 	}
-	
-	public void addError(Test test, Throwable t) {
-		fNumberOfErrors.setText(Integer.toString(fTestResult.errorCount()));
-		appendFailure("Error", test, t);
+
+	public void testStarted(String testName) {
+		showInfo("Running: "+testName);
 	}
 
-	public void addFailure(Test test, AssertionFailedError t) {
-		fNumberOfFailures.setText(Integer.toString(fTestResult.failureCount()));
-		appendFailure("Failure", test, t);
+	public void testEnded(String testName) {
+		setLabelValue(fNumberOfRuns, fTestResult.runCount());
+		synchronized(this) {
+			fProgressIndicator.step(fTestResult.wasSuccessful());
+		}
 	}
-	
+
+	public void testFailed(int status, Test test, Throwable t) {
+		switch (status) {
+			case TestRunListener.STATUS_ERROR:
+				fNumberOfErrors.setText(Integer.toString(fTestResult.errorCount()));
+				appendFailure("Error", test, t);
+				break;
+			case TestRunListener.STATUS_FAILURE:
+				fNumberOfFailures.setText(Integer.toString(fTestResult.failureCount()));
+				appendFailure("Failure", test, t);
+				break;
+		}
+	}
+
 	protected void addGrid(Panel p, Component co, int x, int y, int w, int fill, double wx, int anchor) {
 		GridBagConstraints c= new GridBagConstraints();
 		c.gridx= x; c.gridy= y;
@@ -76,19 +87,19 @@ import java.io.*;
 		c.insets= new Insets(y == 0 ? GAP : 0, x == 0 ? GAP : 0, GAP, GAP);
 		p.add(co, c);
 	}
-	
+
 	private void appendFailure(String kind, Test test, Throwable t) {
 		kind+= ": " + test;
 		String msg= t.getMessage();
 		if (msg != null) {
-			kind+= ":" + truncate(msg); 
+			kind+= ":" + truncate(msg);
 		}
 		fFailureList.add(kind);
 		fExceptions.addElement(t);
 		fFailedTests.addElement(test);
 		if (fFailureList.getItemCount() == 1) {
 			fFailureList.select(0);
-			failureSelected();	
+			failureSelected();
 		}
 	}
 	/**
@@ -106,7 +117,7 @@ import java.io.*;
 		    }
 		);
 		menu.add(mi);
-		
+
 		menu.addSeparator();
 		mi= new MenuItem("Exit");
 		mi.addActionListener(
@@ -119,24 +130,24 @@ import java.io.*;
 		menu.add(mi);
 		return menu;
 	}
-	
+
 	protected void createMenus(MenuBar mb) {
 		mb.add(createJUnitMenu());
 	}
 	protected TestResult createTestResult() {
 		return new TestResult();
 	}
-	
-	protected Frame createUI(String suiteName) {	
+
+	protected Frame createUI(String suiteName) {
 		Frame frame= new Frame("JUnit");
-		Image icon= loadFrameIcon();	
+		Image icon= loadFrameIcon();
 		if (icon != null)
 			frame.setIconImage(icon);
 
 		frame.setLayout(new BorderLayout(0, 0));
 		frame.setBackground(SystemColor.control);
 		final Frame finalFrame= frame;
-		
+
 		frame.addWindowListener(
 			new WindowAdapter() {
 				public void windowClosing(WindowEvent e) {
@@ -144,12 +155,12 @@ import java.io.*;
 					System.exit(0);
 				}
 			}
-		); 
+		);
 
 		MenuBar mb = new MenuBar();
 		createMenus(mb);
 		frame.setMenuBar(mb);
-		
+
 		//---- first section
 		Label suiteLabel= new Label("Test class name:");
 
@@ -186,32 +197,28 @@ import java.io.*;
 		fUseLoadingRunner= new Checkbox("Reload classes every run", useLoader);
 		if (inVAJava())
 			fUseLoadingRunner.setVisible(false);
-			
-		//---- second section
-		fProgressIndicator= new ProgressBar();	
 
-		//---- third section 
+		//---- second section
+		fProgressIndicator= new ProgressBar();
+
+		//---- third section
 		fNumberOfErrors= new Label("0000", Label.RIGHT);
 		fNumberOfErrors.setText("0");
 		fNumberOfErrors.setFont(PLAIN_FONT);
-	
+
 		fNumberOfFailures= new Label("0000", Label.RIGHT);
 		fNumberOfFailures.setText("0");
 		fNumberOfFailures.setFont(PLAIN_FONT);
-	
+
 		fNumberOfRuns= new Label("0000", Label.RIGHT);
 		fNumberOfRuns.setText("0");
 		fNumberOfRuns.setFont(PLAIN_FONT);
-	
-		Panel numbersPanel= new Panel(new FlowLayout());
-		numbersPanel.add(new Label("Runs:"));			numbersPanel.add(fNumberOfRuns);
-		numbersPanel.add(new Label("   Errors:"));		numbersPanel.add(fNumberOfErrors);
-		numbersPanel.add(new Label("   Failures:"));	numbersPanel.add(fNumberOfFailures);
 
-	
+		Panel numbersPanel= createCounterPanel();
+
 		//---- fourth section
 		Label failureLabel= new Label("Errors and Failures:");
-		
+
 		fFailureList= new List(5);
 		fFailureList.addItemListener(
 			new ItemListener() {
@@ -232,7 +239,7 @@ import java.io.*;
 
 		Panel failedPanel= new Panel(new GridLayout(0, 1, 0, 2));
 		failedPanel.add(fRerunButton);
-		
+
 		fTraceArea= new TextArea();
 		fTraceArea.setRows(5);
 		fTraceArea.setColumns(60);
@@ -251,52 +258,112 @@ import java.io.*;
 				}
 			}
 		);
-	
+
 		// ---------
 		fLogo= new Logo();
-	
+
 		//---- overall layout
 		Panel panel= new Panel(new GridBagLayout());
-	
+
 		addGrid(panel, suiteLabel,		 0, 0, 2, GridBagConstraints.HORIZONTAL, 	1.0, GridBagConstraints.WEST);
-		
+
 		addGrid(panel, fSuiteField, 	 0, 1, 2, GridBagConstraints.HORIZONTAL, 	1.0, GridBagConstraints.WEST);
 		addGrid(panel, fRun, 			 2, 1, 1, GridBagConstraints.HORIZONTAL, 	0.0, GridBagConstraints.CENTER);
-		addGrid(panel, fUseLoadingRunner, 0, 2, 2, GridBagConstraints.HORIZONTAL, 	1.0, GridBagConstraints.WEST);
+		addGrid(panel, fUseLoadingRunner, 0, 2, 2, GridBagConstraints.NONE, 	1.0, GridBagConstraints.WEST);
 		addGrid(panel, fProgressIndicator, 0, 3, 2, GridBagConstraints.HORIZONTAL, 	1.0, GridBagConstraints.WEST);
 		addGrid(panel, fLogo, 			 2, 3, 1, GridBagConstraints.NONE, 			0.0, GridBagConstraints.NORTH);
 
-		addGrid(panel, numbersPanel,	 0, 4, 2, GridBagConstraints.NONE, 			0.0, GridBagConstraints.CENTER);
+		addGrid(panel, numbersPanel,	 0, 4, 2, GridBagConstraints.NONE, 			0.0, GridBagConstraints.WEST);
 
 		addGrid(panel, failureLabel, 	 0, 5, 2, GridBagConstraints.HORIZONTAL, 	1.0, GridBagConstraints.WEST);
 		addGrid(panel, fFailureList, 	 0, 6, 2, GridBagConstraints.BOTH, 			1.0, GridBagConstraints.WEST);
 		addGrid(panel, failedPanel, 	 2, 6, 1, GridBagConstraints.HORIZONTAL, 	0.0, GridBagConstraints.CENTER);
 		addGrid(panel, fTraceArea, 	     0, 7, 2, GridBagConstraints.BOTH, 			1.0, GridBagConstraints.WEST);
-		
+
 		addGrid(panel, fStatusLine, 	 0, 8, 2, GridBagConstraints.HORIZONTAL, 	1.0, GridBagConstraints.CENTER);
 		addGrid(panel, fQuitButton, 	 2, 8, 1, GridBagConstraints.HORIZONTAL, 	0.0, GridBagConstraints.CENTER);
-		
+
 		frame.add(panel, BorderLayout.CENTER);
 		frame.pack();
 		return frame;
 	}
-	
+
+	protected Panel createCounterPanel() {
+		Panel numbersPanel= new Panel(new GridBagLayout());
+		addToCounterPanel(
+			numbersPanel,
+			new Label("Runs:"),
+			0, 0, 1, 1, 0.0, 0.0,
+          	GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          	new Insets(0, 0, 0, 0) 
+		);	
+		addToCounterPanel(
+			numbersPanel,
+			fNumberOfRuns, 
+          	1, 0, 1, 1, 0.33, 0.0,
+          	GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+          	new Insets(0, 8, 0, 40)
+		);
+		addToCounterPanel(
+			numbersPanel,
+			new Label("Errors:"),
+          	2, 0, 1, 1, 0.0, 0.0,
+          	GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          	new Insets(0, 8, 0, 0)
+		);
+		addToCounterPanel(
+			numbersPanel,
+			fNumberOfErrors,
+          	3, 0, 1, 1, 0.33, 0.0,
+          	GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+          	new Insets(0, 8, 0, 40)
+		);
+		addToCounterPanel(
+			numbersPanel,
+			new Label("Failures:"),
+          	4, 0, 1, 1, 0.0, 0.0,
+          	GridBagConstraints.CENTER, GridBagConstraints.NONE,
+          	new Insets(0, 8, 0, 0)
+		);	
+		addToCounterPanel(
+			numbersPanel,
+			fNumberOfFailures,
+          	5, 0, 1, 1, 0.33, 0.0,
+          	GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+          	new Insets(0, 8, 0, 0) 
+		);
+		return numbersPanel;
+	}
+
+	private void addToCounterPanel(Panel counter, Component comp,
+	    	int gridx, int gridy, int gridwidth, int gridheight,
+			double weightx, double weighty,
+			int anchor, int fill,
+			Insets insets) {
+		
+		GridBagConstraints constraints= new GridBagConstraints();
+		constraints.gridx= gridx;
+		constraints.gridy= gridy;
+		constraints.gridwidth= gridwidth;
+		constraints.gridheight= gridheight;
+		constraints.weightx= weightx;
+		constraints.weighty= weighty;
+		constraints.anchor= anchor;
+		constraints.fill= fill;
+		constraints.insets= insets;
+		counter.add(comp, constraints);
+	}
+
+
 	public void failureSelected() {
 		fRerunButton.setEnabled(isErrorSelected());
 		showErrorTrace();
 	}
 
-	public void endTest(Test test) {
-		setLabelValue(fNumberOfRuns, fTestResult.runCount());
-		synchronized(this) {
-			fProgressIndicator.step(fTestResult.wasSuccessful());
-		}
-	}
-		
 	private boolean isErrorSelected() {
 		return fFailureList.getSelectedIndex() != -1;
 	}
-	
+
 	private Image loadFrameIcon() {
 		Toolkit toolkit= Toolkit.getDefaultToolkit();
 		try {
@@ -306,44 +373,46 @@ import java.io.*;
 		}
 		return null;
 	}
-	
+
 	public Thread getRunner() {
 		return fRunner;
 	}
-	
+
 	public static void main(String[] args) {
 		new TestRunner().start(args);
 	}
-	 
+
 	public static void run(Class test) {
-		String args[]= { test.getName() };	
+		String args[]= { test.getName() };
 		main(args);
 	}
-	
+
 	public void rerun() {
 		int index= fFailureList.getSelectedIndex();
 		if (index == -1)
 			return;
-	
+
 		Test test= (Test)fFailedTests.elementAt(index);
+		rerunTest(test);
+	}
+
+	private void rerunTest(Test test) {
 		if (!(test instanceof TestCase)) {
 			showInfo("Could not reload "+ test.toString());
 			return;
 		}
 		Test reloadedTest= null;
+		TestCase rerunTest= (TestCase)test;
 		try {
-			Class reloadedTestClass= getLoader().reload(test.getClass());
-			Class[] classArgs= { String.class };
-			Constructor constructor= reloadedTestClass.getConstructor(classArgs);
-			Object[] args= new Object[]{((TestCase)test).getName()};
-			reloadedTest=(Test)constructor.newInstance(args);
+			Class reloadedTestClass= getLoader().reload(test.getClass()); 
+			reloadedTest= TestSuite.createTest(reloadedTestClass, rerunTest.getName());
 		} catch(Exception e) {
 			showInfo("Could not reload "+ test.toString());
 			return;
 		}
 		TestResult result= new TestResult();
 		reloadedTest.run(result);
-		
+
 		String message= reloadedTest.toString();
 		if(result.wasSuccessful())
 			showInfo(message+" was successful");
@@ -352,7 +421,7 @@ import java.io.*;
 		else
 			showStatus(message+" had a failure");
 	}
-	
+
 	protected void reset() {
 		setLabelValue(fNumberOfErrors, 0);
 		setLabelValue(fNumberOfFailures, 0);
@@ -365,29 +434,22 @@ import java.io.*;
 		fTraceArea.setText("");
 
 	}
-	/**
-	 * runs a suite.
-	 * @deprecated use runSuite() instead
-	 */
-	public void run() {
-		runSuite();
-	}
-	
+
 	protected void runFailed(String message) {
 		showStatus(message);
 		fRun.setLabel("Run");
 		fRunner= null;
 	}
-	
+
 	synchronized public void runSuite() {
-		if (fRunner != null) {
+		if (fRunner != null && fTestResult != null) {
 			fTestResult.stop();
 		} else {
 			setLoading(shouldReload());
 			fRun.setLabel("Stop");
 			showInfo("Initializing...");
 			reset();
-			
+
 			showInfo("Load Test Case...");
 
 			final Test testSuite= getTest(fSuiteField.getText());
@@ -398,10 +460,10 @@ import java.io.*;
 						fTestResult.addListener(TestRunner.this);
 						fProgressIndicator.start(testSuite.countTestCases());
 						showInfo("Running...");
-					
+
 						long startTime= System.currentTimeMillis();
 						testSuite.run(fTestResult);
-						
+
 						if (fTestResult.shouldStop()) {
 							showStatus("Stopped");
 						} else {
@@ -419,38 +481,38 @@ import java.io.*;
 			}
 		}
 	}
-	
+
 	private boolean shouldReload() {
 		return !inVAJava() && fUseLoadingRunner.getState();
 	}
-	
+
 	private void setLabelValue(Label label, int value) {
 		label.setText(Integer.toString(value));
 		label.invalidate();
 		label.getParent().validate();
 
 	}
-	
+
 	public void setSuiteName(String suite) {
 		fSuiteField.setText(suite);
 	}
-	
+
 	private void showErrorTrace() {
 		int index= fFailureList.getSelectedIndex();
 		if (index == -1)
 			return;
-	
+
 		Throwable t= (Throwable) fExceptions.elementAt(index);
 		fTraceArea.setText(getFilteredTrace(t));
 	}
-	
+
 
 	private void showInfo(String message) {
 		fStatusLine.setFont(PLAIN_FONT);
 		fStatusLine.setForeground(Color.black);
 		fStatusLine.setText(message);
 	}
-	
+
 	protected void clearStatus() {
 		showStatus("");
 	}
@@ -464,18 +526,14 @@ import java.io.*;
 	 * Starts the TestRunner
 	 */
 	public void start(String[] args) {
-		String suiteName= processArguments(args);			
+		String suiteName= processArguments(args);
 		fFrame= createUI(suiteName);
 		fFrame.setLocation(200, 200);
 		fFrame.setVisible(true);
-	
+
 		if (suiteName != null) {
 			setSuiteName(suiteName);
 			runSuite();
 		}
-	}
-	
-	public void startTest(Test test) {
-		showInfo("Running: "+test);
 	}
 }

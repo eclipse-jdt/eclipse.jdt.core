@@ -16,10 +16,6 @@ import java.lang.reflect.*;
  *     protected double fValue1;
  *     protected double fValue2;
  *
- *     public MathTest(String name) {
- *         super(name);
- *     }
- *
  *    protected void setUp() {
  *         fValue1= 2.0;
  *         fValue2= 3.0;
@@ -29,11 +25,11 @@ import java.lang.reflect.*;
  *
  * For each test implement a method which interacts
  * with the fixture. Verify the expected results with assertions specified
- * by calling <code>assert</code> with a boolean.
+ * by calling <code>assertTrue</code> with a boolean.
  * <pre>
- *    protected void testAdd() {
+ *    public void testAdd() {
  *        double result= fValue1 + fValue2;
- *        assert(result == 5.0);
+ *        assertTrue(result == 5.0);
  *    }
  * </pre>
  * Once the methods are defined you can run them. The framework supports
@@ -41,7 +37,7 @@ import java.lang.reflect.*;
  * In the static way you override the runTest method and define the method to
  * be invoked. A convenient way to do so is with an anonymous inner class.
  * <pre>
- * Test test= new MathTest("add") {
+ * TestCase test= new MathTest("add") {
  *        public void runTest() {
  *            testAdd();
  *        }
@@ -53,7 +49,7 @@ import java.lang.reflect.*;
  * In this case the name of the test case has to correspond to the test method
  * to be run.
  * <pre>
- * Test= new MathTest("testAdd");
+ * TestCase= new MathTest("testAdd");
  * test.run();
  * </pre>
  * The tests to be run can be collected into a TestSuite. JUnit provides
@@ -76,22 +72,20 @@ public abstract class TestCase extends Assert implements Test {
 	 * the name of the test case
 	 */
 	private String fName;
-	
+
 	/**
 	 * No-arg constructor to enable serialization. This method
-	 * is not intended to be used by mere mortals.
+	 * is not intended to be used by mere mortals without calling setName().
 	 */
-	TestCase() {
+	public TestCase() {
 		fName= null;
 	}
-	
 	/**
 	 * Constructs a test case with the given name.
 	 */
 	public TestCase(String name) {
 		fName= name;
 	}
-	
 	/**
 	 * Counts the number of test cases executed by run(TestResult result).
 	 */
@@ -105,13 +99,6 @@ public abstract class TestCase extends Assert implements Test {
 	 */
 	protected TestResult createResult() {
 	    return new TestResult();
-	}
-	/**
-	 * Gets the name of the test case.
-	 * @deprecated use getName()
-	 */
-	public String name() {
-		return fName;
 	}
 	/**
 	 * A convenience method to run this test, collecting the results with a
@@ -148,6 +135,7 @@ public abstract class TestCase extends Assert implements Test {
 	 * @exception Throwable if any exception is thrown
 	 */
 	protected void runTest() throws Throwable {
+		assertNotNull(fName);
 		Method runMethod= null;
 		try {
 			// use getMethod to get all public inherited
@@ -190,7 +178,7 @@ public abstract class TestCase extends Assert implements Test {
 	 * Returns a string representation of the test case
 	 */
 	public String toString() {
-	    return name()+"("+getClass().getName()+")";
+	    return getName() + "(" + getClass().getName() + ")";
 	}
 	/**
 	 * Gets the name of a TestCase
@@ -199,7 +187,6 @@ public abstract class TestCase extends Assert implements Test {
 	public String getName() {
 		return fName;
 	}
-
 	/**
 	 * Sets the name of a TestCase
 	 * @param name The name to set
@@ -207,5 +194,4 @@ public abstract class TestCase extends Assert implements Test {
 	public void setName(String name) {
 		fName= name;
 	}
-
 }

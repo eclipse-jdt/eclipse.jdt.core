@@ -2,8 +2,8 @@ package junit.swingui;
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 
+import javax.swing.*;
 import junit.runner.*;
 
 /**
@@ -17,17 +17,22 @@ class AboutDialog extends JDialog {
 		getContentPane().setLayout(new GridBagLayout());
 		setSize(330, 138);
 		setTitle("About");
-		setLocationRelativeTo(parent);
+		// setLocationRelativeTo is only available in JDK 1.4
+		try {
+			setLocationRelativeTo(parent);
+		} catch (NoSuchMethodError e) {
+			TestSelector.centerWindow(this);
+		}
 
-		JButton button= new JButton("Close");
-		button.addActionListener(
+		JButton close= new JButton("Close");
+		close.addActionListener(
 			new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					dispose();
 				}
 			}
 		);
-		
+		getRootPane().setDefaultButton(close);
 		JLabel label1= new JLabel("JUnit");
 		label1.setFont(new Font("dialog", Font.PLAIN, 36));
 		
@@ -53,7 +58,7 @@ class AboutDialog extends JDialog {
 		constraintsButton1.gridwidth = 2; constraintsButton1.gridheight = 1;
 		constraintsButton1.anchor = GridBagConstraints.CENTER;
 		constraintsButton1.insets= new Insets(8, 0, 8, 0);
-		getContentPane().add(button, constraintsButton1);
+		getContentPane().add(close, constraintsButton1);
 
 		GridBagConstraints constraintsLogo1= new GridBagConstraints();
 		constraintsLogo1.gridx = 2; constraintsLogo1.gridy = 0;

@@ -1,10 +1,10 @@
 package junit.swingui;
 
+import java.util.Vector;
+
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.TreePath;
-import java.util.Vector;
-
 import junit.framework.*;
 
 /**
@@ -12,7 +12,7 @@ import junit.framework.*;
  * The contents of a test suite is shown
  * as a tree.
  */
-class TestHierarchyRunView implements TestRunView {
+public class TestHierarchyRunView implements TestRunView {
 	TestSuitePanel fTreeBrowser;
 	TestRunContext fTestContext;
 	
@@ -69,5 +69,4 @@ class TestHierarchyRunView implements TestRunView {
 	protected void testSelected() {
 		fTestContext.handleTestSelected(getSelectedTest());
 	}
-	
 }

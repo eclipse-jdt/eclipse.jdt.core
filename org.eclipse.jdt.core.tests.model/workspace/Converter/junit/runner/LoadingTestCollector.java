@@ -51,7 +51,7 @@ public class LoadingTestCollector extends ClassPathTestCollector {
 	
 	boolean hasSuiteMethod(Class testClass) {
 		try {
-			Method suiteMethod= testClass.getMethod(BaseTestRunner.SUITE_METHODNAME, new Class[0]);
+			testClass.getMethod(BaseTestRunner.SUITE_METHODNAME, new Class[0]);
 	 	} catch(Exception e) {
 	 		return false;
 		}
@@ -59,14 +59,11 @@ public class LoadingTestCollector extends ClassPathTestCollector {
 	}
 	
 	boolean hasPublicConstructor(Class testClass) {
-		Class[] args= { String.class };
-		Constructor c= null;
 		try {
-			c= testClass.getConstructor(args);
-		} catch(Exception e) {
+			TestSuite.getTestConstructor(testClass);
+		} catch(NoSuchMethodException e) {
 			return false;
 		}
 		return true;
 	}
-
 }
