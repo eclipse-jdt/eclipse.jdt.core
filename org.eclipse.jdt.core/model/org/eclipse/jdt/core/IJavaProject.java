@@ -660,9 +660,10 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * class files for the project may end up scattered across several folders,
 	 * rather than all in the default output folder (which is more standard).
 	 * <p>
-	 * In order to force manual a project classpath refresh, one can simply assign the project classpath using the result of this 
+	 * In order to manually force a project classpath refresh, one can simply assign the project classpath using the result of this 
 	 * method, as follows:
 	 * <code>proj.setRawClasspath(proj.readRawClasspath(), proj.readOutputLocation(), monitor)</code>
+	 * (note that the <code>readRawClasspath/readOutputLocation</code> methods could return <code>null</code>).
 	 * <p>
 	 * @return the workspace-relative absolute path of the default output folder
 	 * @see #getOutputLocation()
@@ -690,9 +691,10 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * file to be considered independantly (unlike <code>getRawClasspath</code> which requires the Java nature to be associated 
 	 * with the project). 
 	 * <p>
-	 * In order to force manual a project classpath refresh, one can simply assign the project classpath using the result of this 
+	 * In order to manually force a project classpath refresh, one can simply assign the project classpath using the result of this 
 	 * method, as follows:
 	 * <code>proj.setRawClasspath(proj.readRawClasspath(), proj.readOutputLocation(), monitor)</code>
+	 * (note that the <code>readRawClasspath/readOutputLocation</code> methods could return <code>null</code>).
 	 * <p>
 	 * @return the raw classpath from disk for the project, as a list of classpath entries
 	 * @see #getRawClasspath()
