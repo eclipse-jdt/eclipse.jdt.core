@@ -251,7 +251,7 @@ public class CorrectionEngine implements ProblemReasons {
 		}
 	}
 
-	private void correct(char[] argument) throws JavaModelException {
+	private void correct(char[] argument) {
 		try {
 			String source = compilationUnit.getSource();
 			Scanner scanner = new Scanner();
