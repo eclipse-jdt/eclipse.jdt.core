@@ -923,7 +923,8 @@ public class JavaModelManager implements ISaveParticipant {
 	 * For use by image builder and evaluation support only
 	 */
 	public Object getLastBuiltState(IProject project, IProgressMonitor monitor) {
-		PerProjectInfo info = getPerProjectInfo(project);
+		if (!JavaProject.hasJavaNature(project)) return null; // should never be requested on non-Java projects
+		PerProjectInfo info = getPerProjectInfo(project, true/*create if missing*/);
 		if (!info.triedRead) {
 			info.triedRead = true;
 			try {
@@ -937,13 +938,6 @@ public class JavaModelManager implements ISaveParticipant {
 		return info.savedState;
 	}
 
-	/*
-	 * Returns the per-project info for the given project. Create the info if the info doesn't exist.
-	 */
-	public PerProjectInfo getPerProjectInfo(IProject project) {
-		return getPerProjectInfo(project, true /* create info */);
-	}
-	
 	/*
 	 * Returns the per-project info for the given project. If specified, create the info if the info doesn't exist.
 	 */
@@ -1454,7 +1448,8 @@ public class JavaModelManager implements ISaveParticipant {
 	
 		IProject savedProject = context.getProject();
 		if (savedProject != null) {
-			PerProjectInfo info = getPerProjectInfo(savedProject);
+			if (!JavaProject.hasJavaNature(savedProject)) return; // ignore
+			PerProjectInfo info = getPerProjectInfo(savedProject, true /* create info */);
 			saveState(info, context);
 			return;
 		}
@@ -1536,7 +1531,8 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Sets the last built state for the given project, or null to reset it.
 	 */
 	public void setLastBuiltState(IProject project, Object state) {
-		PerProjectInfo info = getPerProjectInfo(project);
+		if (!JavaProject.hasJavaNature(project)) return; // should never be requested on non-Java projects
+		PerProjectInfo info = getPerProjectInfo(project, true /*create if missing*/);
 		info.triedRead = true; // no point trying to re-read once using setter
 		info.savedState = state;
 		if (state == null) { // delete state file to ensure a full build happens if the workspace crashes

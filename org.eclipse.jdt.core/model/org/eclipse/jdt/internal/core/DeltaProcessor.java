@@ -1597,6 +1597,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 						return;
 					}
 					Preferences projectPreferences = project.getPreferences();
+					if (projectPreferences == null) return; // not a Java project
 						
 					// compare preferences set to their default
 					String[] defaultProjectPropertyNames = projectPreferences.defaultPropertyNames();

@@ -1136,7 +1136,7 @@ public class JavaProject
 		if (JavaModelManager.OptionNames.contains(optionName)){
 			
 			Preferences preferences = getPreferences();
-			if (preferences.isDefault(optionName)){
+			if (preferences == null || preferences.isDefault(optionName)) {
 				return inheritJavaCoreOptions ? JavaCore.getOption(optionName) : null;
 			}
 			return preferences.getString(optionName).trim();
@@ -1153,6 +1153,7 @@ public class JavaProject
 		Map options = inheritJavaCoreOptions ? JavaCore.getOptions() : new Hashtable(5);
 
 		Preferences preferences = getPreferences();
+		if (preferences == null) return options; // cannot do better (non-Java project)
 		HashSet optionNames = JavaModelManager.OptionNames;
 		
 		// get preferences set to their default
@@ -1374,10 +1375,11 @@ public class JavaProject
 	 * Project preferences may include custom encoding.
 	 */	
 	public Preferences getPreferences(){
-		
-		Preferences preferences;
-		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(getProject(), true);
-		if ((preferences = perProjectInfo.preferences) != null) return preferences;
+		IProject project = getProject();
+		if (!JavaProject.hasJavaNature(project)) return null;
+		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(project, true);
+		Preferences preferences =  perProjectInfo.preferences;
+		if (preferences != null) return preferences;
 		preferences = loadPreferences();
 		if (preferences == null) preferences = new Preferences();
 		perProjectInfo.preferences = preferences;
@@ -1985,7 +1987,10 @@ public class JavaProject
 	 * Save project custom preferences to shareable file (.jprefs)
 	 */
 	private void savePreferences(Preferences preferences) {
-
+		
+		IProject project = getProject();
+		if (!JavaProject.hasJavaNature(project)) return; // ignore
+		
 		if (preferences == null || (!preferences.needsSaving() && preferences.propertyNames().length != 0)) {
 			// nothing to save
 			return;
@@ -1995,7 +2000,7 @@ public class JavaProject
 		// the preferences file is located in the plug-in's state area
 		// at a well-known name (.jprefs)
 //		File prefFile = getProject().getLocation().append(PREF_FILENAME).toFile();
-		File prefFile = getProject().getPluginWorkingLocation(JavaCore.getPlugin().getDescriptor()).append(PREF_FILENAME).toFile();
+		File prefFile = project.getPluginWorkingLocation(JavaCore.getPlugin().getDescriptor()).append(PREF_FILENAME).toFile();
 		if (preferences.propertyNames().length == 0) {
 			// there are no preference settings
 			// rather than write an empty file, just delete any existing file
@@ -2098,7 +2103,9 @@ public class JavaProject
 	 * Set cached preferences, no preference file is saved, only info is updated
 	 */
 	public void setPreferences(Preferences preferences) {
-		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(getProject(), true);
+		IProject project = getProject();
+		if (!JavaProject.hasJavaNature(project)) return; // ignore
+		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(project, true);
 		perProjectInfo.preferences = preferences;
 	}
 
