@@ -342,8 +342,7 @@ class MethodBinding implements IMethodBinding {
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getMethodDeclaration()
 	 */
 	public IMethodBinding getMethodDeclaration() {
-		// TODO (olivier) - missing implementation
-		throw new RuntimeException("Not implemented yet"); //$NON-NLS-1$
+		return this.resolver.getMethodBinding(this.binding.original());
 	}
 	
 	/**
@@ -351,7 +350,7 @@ class MethodBinding implements IMethodBinding {
 	 */
 	// TODO (jeem) - remove before 3.1M5 (bug 80800)
 	public IMethodBinding getErasure() {
-		return getGenericMethod();
+		return getMethodDeclaration();
 	}
 	
 	/**
@@ -359,7 +358,7 @@ class MethodBinding implements IMethodBinding {
 	 */
 	// TODO (jeem) - remove before 3.1M5 (bug 80800)
 	public IMethodBinding getGenericMethod() {
-		return this.resolver.getMethodBinding(this.binding.original());
+		return getMethodDeclaration();
 	}
 	
 	/* (non-Javadoc)

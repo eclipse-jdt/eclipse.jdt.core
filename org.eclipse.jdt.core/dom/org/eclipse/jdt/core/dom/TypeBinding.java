@@ -266,16 +266,16 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeDeclaration()
 	 */
 	public ITypeBinding getTypeDeclaration() {
-		// TODO (olivier) - missing implementation
-		throw new RuntimeException("Not implemented yet"); //$NON-NLS-1$
+		if (this.binding instanceof ParameterizedTypeBinding)
+			return this.resolver.getTypeBinding(((ParameterizedTypeBinding)this.binding).type);
+		return this;
 	}
 
-	/**
-	 * @deprecated Use {@link #getTypeDeclaration()} instead.
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getErasure()
 	 */
-	// TODO (jeem) - remove before 3.1M5 (bug 80800)
 	public ITypeBinding getErasure() {
-		return getGenericType();
+		return this.resolver.getTypeBinding(this.binding.erasure());
 	}
 
 	/**

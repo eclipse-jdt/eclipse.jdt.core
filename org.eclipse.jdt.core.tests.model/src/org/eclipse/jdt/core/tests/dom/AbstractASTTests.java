@@ -130,6 +130,10 @@ public class AbstractASTTests extends ModifyingResourceTests {
 			actual);
 	}
 
+	protected void assertBindingEquals(String expected, IBinding binding) {
+		assertBindingsEqual(expected, new IBinding[] {binding});
+	}
+	
 	protected void assertBindingsEqual(String expected, IBinding[] actualBindings) {
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0, length = actualBindings.length; i < length; i++) {
