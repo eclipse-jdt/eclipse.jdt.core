@@ -37,7 +37,7 @@
  *                                 COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT
  *                                 CORE_INCOMPATIBLE_JDK_LEVEL
  *                                 VERSION_1_5
- *                                 COMPILER_PB_SUPERFLUOUS_SEMICOLON
+ *                                 COMPILER_PB_EMPTY_STATEMENT
  *     IBM Corporation - added the following constants:
  *                                 COMPILER_PB_INDIRECT_STATIC_ACCESS
  *                                 COMPILER_PB_BOOLEAN_METHOD_THROWING_EXCEPTION
@@ -315,8 +315,16 @@ public final class JavaCore extends Plugin {
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
 	 * @since 3.0
+	 * TODO (philippe) remove before M9
+	 * @deprecated - use COMPILER_PB_EMPTY_STATEMENT instead
 	 */
 	public static final String COMPILER_PB_SUPERFLUOUS_SEMICOLON = PLUGIN_ID + ".compiler.problem.superfluousSemicolon"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_EMPTY_STATEMENT = PLUGIN_ID + ".compiler.problem.emptyStatement"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -1604,9 +1612,10 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 * 
-	 * COMPILER / Reporting Superfluous Semicolon
-	 *    When enabled, the compiler will issue an error or a warning if a superfluous semicolon is met.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"
+	 * COMPILER / Reporting Empty Statements and Unnecessary Semicolons
+	 *    When enabled, the compiler will issue an error or a warning if an empty statement or a
+	 *    unnecessary semicolon is encountered.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.emptyStatement"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 * 

@@ -502,7 +502,8 @@ public int computeSeverity(int problemId){
 			return this.options.getSeverity(CompilerOptions.AccidentalBooleanAssign);
 
 		case IProblem.SuperfluousSemicolon:
-			return this.options.getSeverity(CompilerOptions.SuperfluousSemicolon);
+		case IProblem.EmptyControlFlowStatement:
+			return this.options.getSeverity(CompilerOptions.EmptyStatement);
 
 		case IProblem.UndocumentedEmptyBlock:
 			return this.options.getSeverity(CompilerOptions.UndocumentedEmptyBlock);
@@ -847,6 +848,14 @@ public void duplicateTypes(CompilationUnitDeclaration compUnitDecl, TypeDeclarat
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd,
 		compUnitDecl.compilationResult);
+}
+public void emptyControlFlowStatement(int sourceStart, int sourceEnd) {
+	this.handle(
+		IProblem.EmptyControlFlowStatement,
+		NoArgument,
+		NoArgument,
+		sourceStart,
+		sourceEnd);	
 }
 public void errorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeBinding[] params) {
 	StringBuffer buffer = new StringBuffer();
