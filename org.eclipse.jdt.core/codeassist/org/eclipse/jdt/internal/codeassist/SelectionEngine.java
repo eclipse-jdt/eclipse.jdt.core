@@ -208,7 +208,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						if(length == this.acceptedClassesCount) {
 							int newLength = (length + 1)* 2;
 							System.arraycopy(this.acceptedClasses, 0, this.acceptedClasses = new char[newLength][][], 0, length);
-							System.arraycopy(this.acceptedClasses, 0, this.acceptedClassesModifiers = new int[newLength], 0, length);
+							System.arraycopy(this.acceptedClassesModifiers, 0, this.acceptedClassesModifiers = new int[newLength], 0, length);
 						}
 						this.acceptedClassesModifiers[this.acceptedClassesCount] = modifiers;
 						this.acceptedClasses[this.acceptedClassesCount++] = acceptedClass;
