@@ -2454,6 +2454,7 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			recordName(simpleName, typeParameter);
 			recordNodes(typeParameter2, typeParameter);
+			typeParameter2.resolveBinding();
 		}
 		return typeParameter2;
 	}

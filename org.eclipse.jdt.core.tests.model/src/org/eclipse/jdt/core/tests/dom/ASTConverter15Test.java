@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTMatcher;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -87,7 +88,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0086"));
+		suite.addTest(new ASTConverter15Test("test0088"));
 		return suite;
 	}
 		
@@ -2623,5 +2624,37 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
+	}
+	
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79690
+	 */
+	public void test0088() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0088", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("Wrong type", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		Type type = statement.getType();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertEquals("Wrong name", "E", typeBinding.getName());
+		assertTrue("Not a type variable", typeBinding.isTypeVariable());
+		ASTNode node2 = compilationUnit.findDeclaringNode(typeBinding);
+		assertNotNull("No declaring node", node2);
+		ASTNode node3 = compilationUnit.findDeclaringNode(typeBinding.getKey());
+		assertNotNull("No declaring node", node3);
+		assertTrue("Nodes don't match", node2.subtreeMatch(new ASTMatcher(), node3));
+		node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Wrong type", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List typeParameters = methodDeclaration.typeParameters();
+		assertEquals("Wrong size", 1, typeParameters.size());
+		TypeParameter typeParameter = (TypeParameter) typeParameters.get(0);
+		assertTrue("Nodes don't match", typeParameter.subtreeMatch(new ASTMatcher(), node3));
+		assertTrue("Nodes don't match", typeParameter.subtreeMatch(new ASTMatcher(), node2));
 	}
 }
