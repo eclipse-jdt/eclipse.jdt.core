@@ -175,7 +175,7 @@ public void addTypeReference(char[] typeName){
  */
  public static final char[] bestConstructorDeclarationPrefix(char[] typeName, int arity, int matchMode, boolean isCaseSensitive) {
 
-	if (!isCaseSensitive || typeName == null) return CONSTRUCTOR_DECL;
+	if (typeName == null) return CONSTRUCTOR_DECL;
 	switch(matchMode){
 		case EXACT_MATCH :
 			if (arity >= 0){
@@ -213,7 +213,7 @@ public void addTypeReference(char[] typeName){
  */
  public static final char[] bestConstructorReferencePrefix(char[] typeName, int arity, int matchMode, boolean isCaseSensitive) {
 
-	if (!isCaseSensitive || typeName == null) return CONSTRUCTOR_REF;
+	if (typeName == null) return CONSTRUCTOR_REF;
 	switch(matchMode){
 		case EXACT_MATCH :
 			if (arity >= 0){
@@ -251,7 +251,7 @@ public void addTypeReference(char[] typeName){
  */
  public static final char[] bestFieldDeclarationPrefix(char[] name, int matchMode, boolean isCaseSensitive) {
 
-	if (!isCaseSensitive || name == null) return FIELD_DECL;
+	if (name == null) return FIELD_DECL;
 	switch(matchMode){
 		case EXACT_MATCH :
 		case PREFIX_MATCH :
@@ -280,7 +280,7 @@ public void addTypeReference(char[] typeName){
  */
  public static final char[] bestMethodDeclarationPrefix(char[] selector, int arity, int matchMode, boolean isCaseSensitive) {
 
-	if (!isCaseSensitive || selector == null) return METHOD_DECL;
+	if (selector == null) return METHOD_DECL;
 	switch(matchMode){
 		case EXACT_MATCH :
 			if (arity >= 0){
@@ -318,7 +318,7 @@ public void addTypeReference(char[] typeName){
  */
  public static final char[] bestMethodReferencePrefix(char[] selector, int arity, int matchMode, boolean isCaseSensitive) {
 
-	if (!isCaseSensitive || selector == null) return METHOD_REF;
+	if (selector == null) return METHOD_REF;
 	switch(matchMode){
 		case EXACT_MATCH :
 			if (arity >= 0){
@@ -355,7 +355,7 @@ public void addTypeReference(char[] typeName){
  */
  public static final char[] bestReferencePrefix(char[] tag, char[] name, int matchMode, boolean isCaseSensitive) {
 
-	if (!isCaseSensitive || name == null) return tag;
+	if (name == null) return tag;
 	switch(matchMode){
 		case EXACT_MATCH :
 		case PREFIX_MATCH :
@@ -386,10 +386,6 @@ public void addTypeReference(char[] typeName){
  public static final char[] bestTypeDeclarationPrefix(char[] packageName, char[] typeName, char classOrInterface, int matchMode, boolean isCaseSensitive) {
 	// index is case sensitive, thus in case attempting case insensitive search, cannot consider
 	// type name.
-	if (!isCaseSensitive){
-		packageName = null;
-		typeName = null;
-	}
 	switch(classOrInterface){ 
 		default :
 			return TYPE_DECL; // cannot do better given encoding

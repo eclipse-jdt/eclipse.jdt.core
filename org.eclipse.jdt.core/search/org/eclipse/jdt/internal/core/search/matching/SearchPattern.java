@@ -1159,7 +1159,7 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 	
 	/* narrow down a set of entries using prefix criteria */
-	IEntryResult[] entries = input.queryEntriesPrefixedBy(indexEntryPrefix());
+	IEntryResult[] entries = input.queryEntriesPrefixedBy(indexEntryPrefix(), isCaseSensitive);
 	if (entries == null) return;
 	
 	/* only select entries which actually match the entire search pattern */

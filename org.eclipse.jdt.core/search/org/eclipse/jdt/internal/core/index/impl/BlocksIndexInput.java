@@ -301,6 +301,39 @@ public class BlocksIndexInput extends IndexInput {
 		}
 		return entries;
 	}
+	public IEntryResult[] queryEntriesPrefixedBy(char[] prefix, boolean isCaseSensitive) throws IOException {
+		open();
+		
+		int blockLoc = summary.getFirstBlockLocationForPrefix(prefix);
+		if (blockLoc < 0) return null;
+			
+		IEntryResult[] entries = new IEntryResult[5];
+		int count = 0;
+		while(blockLoc >= 0){
+			IndexBlock block = getIndexBlock(summary.getBlockNum(blockLoc));
+			block.reset();
+			boolean found = false;
+			WordEntry entry = new WordEntry();
+			while (block.nextEntry(entry)) {
+				if (CharOperation.prefixEquals(prefix, entry.getWord(), isCaseSensitive)) {
+					if (count == entries.length){
+						System.arraycopy(entries, 0, entries = new IEntryResult[count*2], 0, count);
+					}
+					entries[count++] = new EntryResult(entry.getWord(), entry.getRefs());
+					found = true;
+				} else {
+					if (found) break;
+				}
+			}
+			/* consider next block ? */
+			blockLoc = summary.getNextBlockLocationForPrefix(prefix, blockLoc);				
+		}
+		if (count == 0) return null;
+		if (count != entries.length){
+			System.arraycopy(entries, 0, entries = new IEntryResult[count], 0, count);
+		}
+		return entries;
+	}
 	public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOException {
 		open();
 		

@@ -115,8 +115,9 @@ public abstract class IndexInput {
 	 * Returns the list of the files containing the given word in the index.
 	 */
 	public abstract IQueryResult[] query(String word) throws IOException;
-	public abstract IEntryResult[] queryEntriesPrefixedBy(char[] prefix /*, boolean isCaseSensitive*/) throws IOException;
-public abstract IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOException;
+	public abstract IEntryResult[] queryEntriesPrefixedBy(char[] prefix) throws IOException;
+	public abstract IEntryResult[] queryEntriesPrefixedBy(char[] prefix, boolean isCaseSensitive) throws IOException;
+	public abstract IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOException;
 	/**
 	 * Returns the list of the files whose name contain the given word in the index.
 	 */
