@@ -2203,4 +2203,47 @@ public void test0050() {
 		expected15ProblemLog
 	);
 }
+public void test0051() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	void foo(java.util.List2<String>... args) {}\n" +
+		"}\n"
+	};
+	
+	String expected13ProblemLog =
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	void foo(java.util.List2<String>... args) {}\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error, varargs are only available if source level is 5.0\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	void foo(java.util.List2<String>... args) {}\n" + 
+		"	         ^^^^^^^^^^^^^^^\n" + 
+		"java.util.List2 cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 2)\n" + 
+		"	void foo(java.util.List2<String>... args) {}\n" + 
+		"	                         ^^^^^^\n" + 
+		"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+		"----------\n";
+	String expected14ProblemLog =
+		expected13ProblemLog;
+	
+	String expected15ProblemLog = 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	void foo(java.util.List2<String>... args) {}\n" + 
+		"	         ^^^^^^^^^^^^^^^\n" + 
+		"java.util.List2 cannot be resolved to a type\n" + 
+		"----------\n";
+	
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
+	);
+}
 }

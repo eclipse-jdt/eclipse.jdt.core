@@ -2877,11 +2877,9 @@ public void invalidType(ASTNode location, TypeBinding type) {
 		if (ref.indexOfFirstFieldBinding >= 1)
 			end = (int) ref.sourcePositions[ref.indexOfFirstFieldBinding - 1];
 	} else if (location instanceof ArrayQualifiedTypeReference) {
-		if (!(location instanceof ParameterizedQualifiedTypeReference)) {
-			ArrayQualifiedTypeReference arrayQualifiedTypeReference = (ArrayQualifiedTypeReference) location;
-			long[] positions = arrayQualifiedTypeReference.sourcePositions;
-			end = (int) positions[positions.length - 1];
-		}
+		ArrayQualifiedTypeReference arrayQualifiedTypeReference = (ArrayQualifiedTypeReference) location;
+		long[] positions = arrayQualifiedTypeReference.sourcePositions;
+		end = (int) positions[positions.length - 1];
 	} else if (location instanceof QualifiedTypeReference) {
 		QualifiedTypeReference ref = (QualifiedTypeReference) location;
 		if (type instanceof ReferenceBinding) {
