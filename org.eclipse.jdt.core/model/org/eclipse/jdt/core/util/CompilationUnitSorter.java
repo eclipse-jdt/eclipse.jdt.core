@@ -223,7 +223,6 @@ public class CompilationUnitSorter {
 					FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 					return ((VariableDeclarationFragment) fieldDeclaration.fragments().get(0)).getName().getIdentifier();
 				case ASTNode.INITIALIZER :
-				// TODO: check the number of digit (1 vs 100,....)
 					return ((Integer) node.getProperty(CompilationUnitSorter.SOURCE_START)).toString();
 				case ASTNode.TYPE_DECLARATION :
 					TypeDeclaration typeDeclaration = (TypeDeclaration) node;
