@@ -419,8 +419,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 							break checkIdentical;
 						}
 					}
+					return;
 				}
-				return;
 			}
 			
 			JavaProject jproject = ((JavaProject) getElementsToProcess()[0]);
