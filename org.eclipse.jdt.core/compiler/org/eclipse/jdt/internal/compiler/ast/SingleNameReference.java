@@ -414,7 +414,10 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 	}
 	// perform the actual compound operation
 	int operationTypeID;
-	if ((operationTypeID = implicitConversion >> 4) == T_String) {
+	if ((operationTypeID = implicitConversion >> 4) == T_String || operationTypeID == T_Object) {
+		// we enter here if the single name reference is a field of type java.lang.String or if the type of the 
+		// operation is java.lang.Object
+		// For example: o = o + ""; // where the compiled type of o is java.lang.Object.
 		codeStream.generateStringAppend(currentScope, null, expression);
 	} else {
 		// promote the array reference to the suitable operation type
