@@ -263,6 +263,7 @@ public class OutputFolderTests extends Tests {
 		IPath binLocation = env.getProject(projectPath).getFolder("bin").getLocation(); //$NON-NLS-1$
 		env.setExternalOutputFolder(projectPath2, "externalBin", binLocation); //$NON-NLS-1$
 		env.addExternalJar(projectPath2, Util.getJavaClassLib());
+		env.addRequiredProject(projectPath2, projectPath);
 
 		env.addClass(projectPath2, "p", "B", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;"+ //$NON-NLS-1$
