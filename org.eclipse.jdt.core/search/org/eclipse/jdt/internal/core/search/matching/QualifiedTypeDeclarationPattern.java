@@ -48,15 +48,15 @@ protected void decodeIndexEntry(IEntryResult entryResult){
 		: CharOperation.subarray(word, oldSlash+1, slash);
 	this.decodedSimpleName = CharOperation.subarray(word, slash + 1, slash = CharOperation.indexOf(SEPARATOR, word, slash + 1));
 
-	char[][] enclosingTypeNames;
+	char[][] decodedEnclosingTypeNames;
 	if (slash + 1 < size) {
-		enclosingTypeNames = (slash + 3 == size && word[slash + 1] == ONE_ZERO[0])
+		decodedEnclosingTypeNames = (slash + 3 == size && word[slash + 1] == ONE_ZERO[0])
 			? ONE_ZERO_CHAR
 			: CharOperation.splitOn('/', CharOperation.subarray(word, slash + 1, size - 1));
 	} else {
-		enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
+		decodedEnclosingTypeNames = CharOperation.NO_CHAR_CHAR;
 	}
-	this.decodedQualification = CharOperation.concatWith(pkgName, enclosingTypeNames, '.');
+	this.decodedQualification = CharOperation.concatWith(pkgName, decodedEnclosingTypeNames, '.');
 }
 /**
  * @see SearchPattern#matchesBinary(Object, Object)
