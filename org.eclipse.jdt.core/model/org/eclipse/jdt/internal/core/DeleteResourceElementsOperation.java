@@ -48,7 +48,7 @@ private void deletePackageFragment(IPackageFragment frag)
 			IResource[] resources = new IResource[childrenOfInterest.length];
 			// remove the children
 			for (int i = 0; i < childrenOfInterest.length; i++) {
-				resources[i] = childrenOfInterest[i].getResource();
+				resources[i] = childrenOfInterest[i].getCorrespondingResource();
 			}
 			deleteResources(resources, fForce);
 		}

@@ -154,7 +154,7 @@ public class DeleteElementsOperation extends MultiOperation {
 		IJavaElement[] children = ((IRegion) fChildrenToRemove.get(element)).getElements();
 		for (int i = 0; i < children.length; i++) {
 			IJavaElement child = children[i];
-			if (child.getResource() != null)
+			if (child.getCorrespondingResource() != null)
 				error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, child);
 			if (child.isReadOnly())
 				error(IJavaModelStatusConstants.READ_ONLY, child);
