@@ -5953,5 +5953,26 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			assertTrue(false);
 		}
 	}
-	
+	// 68998 parameterized field constants
+	public void _test216() { 
+		this.runConformTest(
+			new String[] {
+				"test/cheetah/NG.java",
+				"package test.cheetah;\n" +
+				"public class NG extends G {\n" +
+				"		public static void main(String[] args) {\n" + 
+				"			System.out.println(\"SUCCESS\");	\n" + 
+				"		}\n" + 
+				"    public boolean test() {\n" +
+				"        return o == null;\n" +
+				"    }\n" +
+				"}\n",
+				"test/cheetah/G.java",
+				"package test.cheetah;\n" +
+				"public class G<E> {\n" +
+				"    protected Object o;\n" +
+				"}\n",
+			},
+			"SUCCESS");
+	}
 }
