@@ -196,13 +196,11 @@ public final class AST {
      * @since 3.0
 	 */
 	private AST(int level) {
-		switch (level) {
-			case AST.JLS3:
-			case AST.JLS2:
-				break;
-			default:
-				throw new IllegalArgumentException();
+		if ((level != AST.JLS2)
+			&& (level != AST.JLS3)) {
+			throw new IllegalArgumentException();
 		}
+		this.apiLevel = level;
 		// initialize a scanner
 		this.scanner = new Scanner(
 				true /*comment*/, 
