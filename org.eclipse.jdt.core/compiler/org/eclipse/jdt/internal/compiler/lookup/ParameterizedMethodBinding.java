@@ -31,4 +31,11 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	            parameterizedDeclaringClass);
 	    this.originalMethod = originalMethod;
 	}
+	
+	/**
+	 * Returns true if some parameters got substituted.
+	 */
+	public boolean hasSubstitutedParameters() {
+	    return this.parameters != originalMethod.parameters;
+	}
 }

@@ -259,6 +259,13 @@ public char[] genericSignature() {
 public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
 }
+/**
+ * Returns true if method got substituted parameter types
+ * (see ParameterizedMethodBinding)
+ */
+public boolean hasSubstitutedParameters() {
+    return false;
+}
 
 /* Answer true if the receiver is an abstract method
 */
