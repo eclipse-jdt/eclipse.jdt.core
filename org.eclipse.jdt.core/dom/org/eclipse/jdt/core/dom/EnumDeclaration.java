@@ -305,18 +305,10 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 		return enumConstants;
 	}
 
-	/**
-	 * Resolves and returns the binding for the enum declared in
-	 * this enum declaration.
-	 * <p>
-	 * Note that bindings are generally unavailable unless requested when the
-	 * AST is being built.
-	 * </p>
-	 * 
-	 * @return the binding, or <code>null</code> if the binding cannot be 
-	 *    resolved
-	 */	
-	public ITypeBinding resolveBinding() {
+	/* (omit javadoc for this method)
+	 * Method declared on AsbtractTypeDeclaration.
+	 */
+	ITypeBinding internalResolveBinding() {
 		return this.ast.getBindingResolver().resolveType(this);
 	}
 	

@@ -200,6 +200,31 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 		return (parent instanceof TypeDeclarationStatement);
 	}
 	
+	/**
+	 * Resolves and returns the binding for the type declared in this type
+	 * declaration.
+	 * <p>
+	 * Note that bindings are generally unavailable unless requested when the
+	 * AST is being built.
+	 * </p>
+	 * 
+	 * @return the binding, or <code>null</code> if the binding cannot be 
+	 *    resolved
+	 * @since 3.1 Declared in 3.0 on the individual subclasses.
+	 */	
+	public final ITypeBinding resolveBinding() {
+		return internalResolveBinding();
+	}
+	
+	/**
+	 * Resolves and returns the binding for the type declared in this type
+	 * declaration. This method must be implemented by subclasses.
+	 * 
+	 * @return the binding, or <code>null</code> if the binding cannot be 
+	 *    resolved
+	 */	
+	abstract ITypeBinding internalResolveBinding();
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */

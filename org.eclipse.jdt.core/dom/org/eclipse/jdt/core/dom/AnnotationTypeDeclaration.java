@@ -246,18 +246,10 @@ public class AnnotationTypeDeclaration extends AbstractTypeDeclaration {
 		visitor.endVisit(this);
 	}
 	
-	/**
-	 * Resolves and returns the binding for the annotation type declared in
-	 * this annotation type declaration.
-	 * <p>
-	 * Note that bindings are generally unavailable unless requested when the
-	 * AST is being built.
-	 * </p>
-	 * 
-	 * @return the binding, or <code>null</code> if the binding cannot be 
-	 *    resolved
-	 */	
-	public ITypeBinding resolveBinding() {
+	/* (omit javadoc for this method)
+	 * Method declared on AsbtractTypeDeclaration.
+	 */
+	ITypeBinding internalResolveBinding() {
 		return this.ast.getBindingResolver().resolveType(this);
 	}
 	
