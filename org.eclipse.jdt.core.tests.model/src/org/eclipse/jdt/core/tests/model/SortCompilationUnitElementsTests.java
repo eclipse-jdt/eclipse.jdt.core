@@ -83,7 +83,7 @@ public static Test suite() {
 			}
 		}
 	} else {
-		suite.addTest(new SortCompilationUnitElementsTests("test011")); //$NON-NLS-1$
+		suite.addTest(new SortCompilationUnitElementsTests("test014")); //$NON-NLS-1$
 	}	
 	return suite;
 }
@@ -932,6 +932,34 @@ public void test013() throws CoreException {
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedSource); //$NON-NLS-1$
 	} finally {
 		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
+	}
+}
+/**
+ * Preserve comments
+ */
+public void test014() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"  int j;\n" + 
+			"  \n" +
+			"  // start of static field declaration\n" + 
+			"  \n" +
+			"  static int i; // end of static field declaration\n" + 
+			"}"
+		);
+		String expectedResult = 
+			"public class X {\n" +
+			"  \n" +
+			"  // start of static field declaration\n" + 
+			"  \n" +
+			"  static int i; // end of static field declaration\n" + 
+			"  int j;\n" + 
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
 	}
 }
 }

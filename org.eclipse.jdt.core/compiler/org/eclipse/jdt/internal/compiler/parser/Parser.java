@@ -896,16 +896,7 @@ protected void consumeAssignmentOperator(int pos) {
 	// AssignmentOperator ::= '^='
 	// AssignmentOperator ::= '|='
 
-	try {
-		this.intStack[++this.intPtr] = pos;
-	} catch (IndexOutOfBoundsException e) {
-		//this.intPtr is correct 
-		int oldStackLength = this.intStack.length;
-		int oldStack[] = this.intStack;
-		this.intStack = new int[oldStackLength + StackIncrement];
-		System.arraycopy(oldStack, 0, this.intStack, 0, oldStackLength);
-		this.intStack[this.intPtr] = pos;
-	}
+	pushOnIntStack(pos);
 }
 protected void consumeBinaryExpression(int op) {
 	// MultiplicativeExpression ::= MultiplicativeExpression '*' UnaryExpression

@@ -101,7 +101,15 @@ public class ASTConverterTest extends ConverterTestSetup {
 		type.bodyDeclarations().add(methodDeclaration);
 		unit.types().add(type);
 		assertTrue("Both AST trees should be identical", result.subtreeMatch(new ASTMatcher(), unit));//$NON-NLS-1$
-		checkSourceRange(result, new String(source), source);
+		String expected =
+			"package test0001;\n" + 
+			"import java.util.*;\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"Hello\" + \" world\");\n" + 
+			"	}\n" + 
+			"}";
+		checkSourceRange(result, expected, source);
 	}
 	
 	/**
