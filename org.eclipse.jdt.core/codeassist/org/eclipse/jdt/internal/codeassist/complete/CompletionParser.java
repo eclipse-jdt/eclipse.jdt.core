@@ -1257,12 +1257,10 @@ protected void consumeCastExpressionWithNameArray() {
 
 	Expression exp, cast, castType;
 	int end = intStack[intPtr--];
-	
-	// handle type arguments
-	pushOnGenericsLengthStack(0);
-	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
-	
-	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr], castType = getTypeReference(intStack[intPtr--]));
+		
+	expressionPtr--;
+	expressionLengthPtr--;
+	expressionStack[expressionPtr] = cast = new CastExpression(exp = expressionStack[expressionPtr+1], castType = this.expressionStack[this.expressionPtr]);
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = (cast.sourceStart = intStack[intPtr--]) + 1;
 	cast.sourceEnd = exp.sourceEnd;
@@ -1585,6 +1583,12 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 }
 protected void consumeInsideCastExpression() {
 	int end = intStack[intPtr--];
+	if(this.identifierLengthStack[this.identifierLengthPtr] > 0) {
+		pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
+		if(this.genericsLengthPtr < 0) {
+			pushOnGenericsLengthStack(0);
+		}
+	}
 	Expression castType = getTypeReference(intStack[intPtr--]);
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = intStack[intPtr--] + 1;

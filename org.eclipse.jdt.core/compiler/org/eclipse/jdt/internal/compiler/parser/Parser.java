@@ -1690,7 +1690,7 @@ protected ParameterizedQualifiedTypeReference computeQualifiedGenericsFromRightS
 		System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, nameSize);
 		typeArguments[nameSize - 1] = currentTypeArguments;
 	}
-	
+	this.identifierLengthPtr--;
 	return new ParameterizedQualifiedTypeReference(tokens, typeArguments, dim, positions);
 }
 protected void consumeCastExpressionWithQualifiedGenericsArray() {
