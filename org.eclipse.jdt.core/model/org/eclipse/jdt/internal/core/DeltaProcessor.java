@@ -148,6 +148,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 		}
 	}
 
+
+
 	/**
 	 * Closes the given element, which removes it from the cache of open elements.
 	 */
@@ -589,6 +591,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 					fCurrentDelta.added(element);
 				}
 				this.projectsToUpdate.add(element);
+				this.updateRoots(element, delta);
 			}
 		} else {			
 			addToParentInfo(element);
@@ -754,6 +757,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 			case IJavaElement.JAVA_PROJECT :
 				JavaModelManager.getJavaModelManager().removePerProjectInfo(
 					(JavaProject) element);
+				this.updateRoots(element, delta);
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 				JavaProject project = (JavaProject) element.getJavaProject();
@@ -1174,7 +1178,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 						if (wasJavaProject) {
 							this.elementRemoved(element, delta);
 							this.indexManager.discardJobs(element.getElementName());
-							this.indexManager.removeIndex(res.getFullPath());
+							this.indexManager.removeIndexFamily(res.getFullPath());
 							
 						}
 					}
@@ -1195,7 +1199,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 						} else {
 							this.elementRemoved(element, delta);
 							this.indexManager.discardJobs(element.getElementName());
-							this.indexManager.removeIndex(res.getFullPath());
+							this.indexManager.removeIndexFamily(res.getFullPath());
 						}
 						return false; // when a project's nature is added/removed don't process children
 					}
@@ -1629,7 +1633,7 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 					break;
 				case IResourceDelta.REMOVED :
 					this.indexManager.discardJobs(element.getElementName());
-					this.indexManager.removeIndex(element.getJavaProject().getProject().getFullPath());
+					this.indexManager.removeIndexFamily(element.getJavaProject().getProject().getFullPath());
 					break;
 				// NB: Update of index if project is opened, closed, or its java nature is added or removed
 				//     is done in updateCurrentDeltaAndIndex
@@ -1754,6 +1758,35 @@ private void updateRootIndex(IPackageFragmentRoot root, IPackageFragment pkg, IR
 					name + "." + resource.getName(); //$NON-NLS-1$
 			IPackageFragment subpkg = root.getPackageFragment(subpkgName);
 			this.updateRootIndex(root, subpkg, child);
+		}
+	}
+}
+/*
+ * Update the roots that are affected by the addition or the removal of the given project.
+ */
+private void updateRoots(Openable project, IResourceDelta projectDelta) {
+	IPath projectPath = project.getPath();
+	Iterator iterator = this.roots.keySet().iterator();
+	while (iterator.hasNext()) {
+		IPath path = (IPath)iterator.next();
+		if (projectPath.isPrefixOf(path) && !projectPath.equals(path)) {
+			IResourceDelta rootDelta = projectDelta.findMember(path.removeFirstSegments(1));
+			IJavaProject rootProject = (IJavaProject)this.roots.get(path);
+			try {
+				this.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootProject);
+			} catch (JavaModelException e) {
+			}
+			HashSet set = (HashSet)this.otherRoots.get(path);
+			if (set != null) {
+				Iterator otherProjects = set.iterator();
+				while (otherProjects.hasNext()) {
+					rootProject = (IJavaProject)otherProjects.next();
+					try {
+						this.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootProject);
+					} catch (JavaModelException e) {
+					}
+				}
+			}
 		}
 	}
 }

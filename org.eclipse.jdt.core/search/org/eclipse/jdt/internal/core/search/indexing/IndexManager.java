@@ -325,6 +325,27 @@ public synchronized void removeIndex(IPath path) {
 	this.monitors.remove(index);
 }
 /**
+ * Removes all indexes whose paths start with (or are equal to) the given path. 
+ */
+public synchronized void removeIndexFamily(IPath path) {
+	ArrayList toRemove = null;
+	Iterator iterator = this.indexes.keySet().iterator();
+	while (iterator.hasNext()) {
+		IPath indexPath = (IPath)iterator.next();
+		if (path.isPrefixOf(indexPath)) {
+			if (toRemove == null) {
+				toRemove = new ArrayList();
+			}
+			toRemove.add(indexPath);
+		}
+	}
+	if (toRemove != null) {
+		for (int i = 0, length = toRemove.size(); i < length; i++) {
+			this.removeIndex((IPath)toRemove.get(i));
+		}
+	}
+}
+/**
  * Remove the content of the given source folder from the index.
  */
 public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFolder) {
