@@ -126,7 +126,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 			developmentContext.setCurrentState(state);
 		}
 	};
-	public static boolean VERBOSE = true;
+	public static boolean VERBOSE = false;
 
 	/**
 	 * Line separator to use throughout the JavaModel for any source edit operation

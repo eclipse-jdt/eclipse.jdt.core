@@ -329,6 +329,11 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
  */
 protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
 	try {
+		
+		if (JavaModelManager.VERBOSE){
+			System.out.println("OPENING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); 
+		}
+		
 		// 1) Parent must be open - open the parent if necessary
 		Openable openableParent = (Openable)getOpenableParent();
 		if (openableParent != null) {
