@@ -441,7 +441,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public SourceMapper getSourceMapper() {
 		return ((JavaElement)getParent()).getSourceMapper();
 	}
-	public abstract IResource getUnderlyingResource() throws JavaModelException;
+
 	/**
 	 * Returns the workspace associated with this object.
 	 */
