@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -388,6 +389,13 @@ public class ConditionalExpression extends OperatorExpression {
 			valueIfTrue.computeConversion(scope, valueIfFalseType, valueIfTrueType);
 			valueIfFalse.computeConversion(scope, valueIfFalseType, valueIfFalseType);
 			return this.resolvedType = valueIfFalseType;
+		}
+		// 1.5 addition: allow most common type 
+		if (scope.environment().options.sourceLevel >= ClassFileConstants.JDK1_5) {
+			TypeBinding commonType = scope.mostSpecificCommonType(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
+			if (commonType != null) {
+				return this.resolvedType = commonType;
+			}
 		}
 		scope.problemReporter().conditionalArgumentsIncompatibleTypes(
 			this,

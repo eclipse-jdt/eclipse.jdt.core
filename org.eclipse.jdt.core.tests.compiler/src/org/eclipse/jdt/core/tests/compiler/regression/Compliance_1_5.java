@@ -20,21 +20,21 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-public class Compliance_1_4 extends AbstractRegressionTest {
+public class Compliance_1_5 extends AbstractRegressionTest {
 boolean docSupport = false;
 
-public Compliance_1_4(String name) {
+public Compliance_1_5(String name) {
 	super(name);
 }
 
 /*
- * Toggle compiler in mode -1.4
+ * Toggle compiler in mode -1.5
  */
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);	
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);	
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
 	if (docSupport) {
 		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
@@ -2603,13 +2603,45 @@ public void test079() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in Hello.java (at line 7)\n" + 
-		"	public void run() {\n" + 
-		"		}\n" + 
+		"1. ERROR in Hello.java (at line 1)\n" + 
+		"	void ___eval() {\n" + 
+		"	^^^^\n" + 
+		"Syntax error on token \"void\", AT expected\n" + 
+		"----------\n" + 
+		"2. ERROR in Hello.java (at line 1)\n" + 
+		"	void ___eval() {\n" + 
+		"	             ^\n" + 
+		"Syntax error on token \")\", delete this token\n" + 
+		"----------\n" + 
+		"3. ERROR in Hello.java (at line 9)\n" + 
 		"	};\n" + 
-		"}\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Syntax error on tokens, delete these tokens\n" + 
+		"	^\n" + 
+		"Syntax error on token \"}\", { expected\n" + 
+		"----------\n" + 
+		"4. ERROR in Hello.java (at line 23)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error, insert \"}\" to complete ClassBody\n" + 
+		"----------\n" + 
+		"5. ERROR in Hello.java (at line 23)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error, insert \"}\" to complete MemberValueArrayInitializer\n" + 
+		"----------\n" + 
+		"6. ERROR in Hello.java (at line 23)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error, insert \")\" to complete Modifiers\n" + 
+		"----------\n" + 
+		"7. ERROR in Hello.java (at line 23)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" + 
+		"----------\n" + 
+		"8. ERROR in Hello.java (at line 23)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" + 
 		"----------\n"
 	);
 }
@@ -2618,7 +2650,7 @@ public void test079() {
  * from 1.5 source level on most specific common super type is allowed
  */
 public void test080() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"import java.util.ArrayList;\n" + 
@@ -2633,15 +2665,9 @@ public void test080() {
 			"	}\n" + 
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
-		"	ArrayList list = args == null ? new C1(): new C2();\n" + 
-		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Incompatible conditional operand types C1 and C2\n" + 
-		"----------\n");
+		"SUCCESS");
 }
-
 public static Class testClass() {
-	return Compliance_1_4.class;
+	return Compliance_1_5.class;
 }
 }
