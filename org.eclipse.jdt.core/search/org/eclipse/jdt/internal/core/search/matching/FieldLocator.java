@@ -72,6 +72,7 @@ public void match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 		nodeSet.addMatch(node, level);
 }
 //public void match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public void match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
 public void match(Reference node, MatchingNodeSet nodeSet) { // interested in FieldReference, NameReference & its subtypes
 	if (this.pattern.readAccess)
 		matchReference(node, nodeSet, false);

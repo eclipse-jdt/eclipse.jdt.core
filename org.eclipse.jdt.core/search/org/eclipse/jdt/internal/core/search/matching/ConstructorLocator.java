@@ -65,6 +65,7 @@ public void match(Expression node, MatchingNodeSet nodeSet) { // interested in A
 }
 //public void match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 //public void match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public void match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
 //public void match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
 public void match(TypeDeclaration node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return;

@@ -52,6 +52,7 @@ public void match(AstNode node, MatchingNodeSet nodeSet) { // interested in Impo
 //public void match(Expression node, MatchingNodeSet nodeSet) - SKIP IT
 //public void match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 //public void match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+//public void match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
 public void match(Reference node, MatchingNodeSet nodeSet) { // interested in NameReference & its subtypes
 	if (!(node instanceof NameReference)) return;
 
