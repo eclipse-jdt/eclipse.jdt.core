@@ -31,6 +31,7 @@
  *								   UnusedPrivateType
  *								   UnusedPrivateField
  *								   IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod
+ *								   InvalidExplicitConstructorCall
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -323,6 +324,8 @@ public interface IProblem {
 	int InstanceMethodDuringConstructorInvocation = ConstructorRelated + 136;
 	int RecursiveConstructorInvocation = ConstructorRelated + 137;
 	int ThisSuperDuringConstructorInvocation = ConstructorRelated + 138;
+	/** @since 3.0 */
+	int InvalidExplicitConstructorCall = ConstructorRelated + Syntax + 139;
 	// implicit constructor calls
 	int UndefinedConstructorInDefaultConstructor = ConstructorRelated + 140;
 	int NotVisibleConstructorInDefaultConstructor = ConstructorRelated + 141;
