@@ -206,10 +206,20 @@ public class Scribe {
 			switch(current.chunkKind) {
 				case Alignment.CHUNK_METHOD :
 				case Alignment.CHUNK_TYPE :
-					alignment.breakIndentationLevel = this.indentationLevel + continuationIndent * (this.useTab ? 1 : this.tabSize);
+					if ((mode & Alignment.M_INDENT_BY_ONE) != 0) {
+						alignment.breakIndentationLevel = this.indentationLevel + (this.useTab ? 1 : this.tabSize);
+					} else {
+						alignment.breakIndentationLevel = this.indentationLevel + (continuationIndent * (this.useTab ? 1 : this.tabSize));
+					}
+					alignment.update();
 					break;
 				case Alignment.CHUNK_FIELD :
-					alignment.breakIndentationLevel = current.originalIndentationLevel + continuationIndent * (this.useTab ? 1 : this.tabSize);
+					if ((mode & Alignment.M_INDENT_BY_ONE) != 0) {
+						alignment.breakIndentationLevel = current.originalIndentationLevel + (this.useTab ? 1 : this.tabSize);
+					} else {
+						alignment.breakIndentationLevel = current.originalIndentationLevel + (continuationIndent * (this.useTab ? 1 : this.tabSize));
+					}
+					alignment.update();
 					break;
 			}
 		}

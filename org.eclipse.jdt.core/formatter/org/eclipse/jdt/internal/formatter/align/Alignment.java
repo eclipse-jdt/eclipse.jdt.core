@@ -145,20 +145,24 @@ public class Alignment {
 		
 		// initialize the break indentation level, using modes and continuationIndentationLevel preference
 		int indentSize = this.scribe.useTab ? 1 : this.scribe.tabSize;
+		int currentColumn = this.location.outputColumn;
+		if (currentColumn == 1) {
+		    currentColumn = this.location.outputIndentationLevel * (this.scribe.useTab ?  this.scribe.tabSize : 1) + 1;
+		}
 		
 		if ((mode & M_INDENT_ON_COLUMN) != 0) {
 			// indent broken fragments at next indentation level, based on current column
-			this.breakIndentationLevel = this.scribe.getNextIndentationLevel(this.location.outputColumn);
+			this.breakIndentationLevel = this.scribe.getNextIndentationLevel(currentColumn);
 		} else if ((mode & M_INDENT_BY_ONE) != 0) {
 			// indent broken fragments exactly one level deeper than current indentation
 			this.breakIndentationLevel = this.location.outputIndentationLevel + indentSize;
 		} else {
 			// indent broken fragments by one continuation indentation deeper than current indentation
-			this.breakIndentationLevel = this.location.outputIndentationLevel + continuationIndent * (this.scribe.useTab ?  1 : this.scribe.tabSize);
+			this.breakIndentationLevel = this.location.outputIndentationLevel + (continuationIndent * (this.scribe.useTab ?  1 : this.scribe.tabSize));
 		}
 		// reduce indentation of broken fragment in case first fragment would be before the subsequent ones
 		if ((mode & M_NEXT_SHIFTED_SPLIT) != 0) {
-			int firstFragmentNextIndentationLevel =  this.scribe.getNextIndentationLevel(this.location.outputColumn);
+			int firstFragmentNextIndentationLevel =  this.scribe.getNextIndentationLevel(currentColumn);
 			if (firstFragmentNextIndentationLevel < this.breakIndentationLevel) {
 				this.breakIndentationLevel = firstFragmentNextIndentationLevel;
 			}
@@ -251,7 +255,7 @@ public class Alignment {
 				do {
 					if (this.fragmentBreaks[i] == NONE) {
 						this.fragmentBreaks[i] = BREAK;
-						this.fragmentIndentations[i] = this.breakIndentationLevel + this.scribe.formatter.preferences.continuation_indentation * (this.scribe.useTab ? 1 : this.scribe.tabSize);
+						this.fragmentIndentations[i] = this.breakIndentationLevel;
 						return wasSplit = true;
 					}
 				} while (--i >= 0);
@@ -397,5 +401,13 @@ public class Alignment {
 		}
 		buffer.append('\n');	
 		return buffer.toString();
+	}
+	
+	public void update() {
+		for (int i = 1; i < this.fragmentCount; i++){
+		    if (this.fragmentBreaks[i] == BREAK) {
+		        this.fragmentIndentations[i] = this.breakIndentationLevel;
+		    }
+		}
 	}
 }

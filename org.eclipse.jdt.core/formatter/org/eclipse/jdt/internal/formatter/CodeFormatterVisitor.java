@@ -956,6 +956,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.printNewLine();
 		}
 
+		int adjustment = 0;
+		if (array_initializer_brace_position.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
+			adjustment = 1;
+		}
 		final Expression[] expressions = arrayInitializer.expressions;
 		if (expressions != null) {
 			int expressionsLength = expressions.length;
@@ -966,7 +970,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						Alignment.R_OUTERMOST,
 						expressionsLength,
 						this.scribe.scanner.currentPosition,
-						this.preferences.array_initializer_continuation_indentation,
+						this.preferences.array_initializer_continuation_indentation + adjustment,
 						true);
 				
 				if (this.preferences.insert_new_line_after_opening_brace_in_array_initializer) {
