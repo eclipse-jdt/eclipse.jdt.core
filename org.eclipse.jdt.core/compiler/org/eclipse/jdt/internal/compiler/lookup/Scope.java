@@ -421,7 +421,7 @@ public abstract class Scope
 
 		ReferenceBinding currentType = receiverType;
 		MethodBinding matchingMethod = null;
-		ObjectVector found = new ObjectVector();
+		ObjectVector found = new ObjectVector(); //TODO should rewrite to remove #matchingMethod since found is allocated anyway
 
 		compilationUnitScope().recordTypeReference(receiverType);
 		compilationUnitScope().recordTypeReferences(argumentTypes);
