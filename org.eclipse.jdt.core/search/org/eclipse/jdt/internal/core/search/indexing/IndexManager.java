@@ -244,10 +244,31 @@ private SimpleLookupTable getIndexStates() {
 	char[] savedIndexNames = readIndexState();
 	if (savedIndexNames.length > 0) {
 		char[][] names = CharOperation.splitOn('\n', savedIndexNames);
-		for (int i = 0, l = names.length; i < l; i++) {
-			char[] name = names[i];
-			if (name.length > 0)
-				this.indexStates.put(new String(name), SAVED_STATE);
+		if (names.length > 0) {
+			// check to see if workspace has moved, if so then do not trust saved indexes
+			File indexesDirectory = new File(getJavaPluginWorkingLocation().toOSString());
+			char[] dirName = indexesDirectory.getAbsolutePath().toCharArray();
+			int delimiterPos = dirName.length;
+			if (CharOperation.match(names[0], 0, delimiterPos, dirName, 0, delimiterPos, true)) {
+				for (int i = 0, l = names.length; i < l; i++) {
+					char[] name = names[i];
+					if (name.length > 0)
+						this.indexStates.put(new String(name), SAVED_STATE);
+				}
+			} else {
+				savedIndexNamesFile.delete(); // forget saved indexes & delete each index file
+				File[] files = indexesDirectory.listFiles();
+				if (files != null) {
+					for (int i = 0, l = files.length; i < l; i++) {
+						String fileName = files[i].getAbsolutePath();
+						if (fileName.toLowerCase().endsWith(".index")) { //$NON-NLS-1$
+							if (VERBOSE)
+								Util.verbose("Deleting index file " + files[i]); //$NON-NLS-1$
+							files[i].delete();
+						}
+					}
+				}
+			}
 		}
 	}
 	return this.indexStates;
