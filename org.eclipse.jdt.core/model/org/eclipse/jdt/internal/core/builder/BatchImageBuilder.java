@@ -186,7 +186,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 							if (deletedAll) {
 								IResource originalResource = findOriginalResource(partialPath);
 								String id = originalResource.getFullPath().removeFirstSegments(1).toString();
-								createErrorFor(resource, Util.bind("build.duplicateResource", id)); //$NON-NLS-1$
+								createProblemFor(resource, Util.bind("build.duplicateResource", id), javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE, true)); //$NON-NLS-1$
 								return false;
 							}
 							copiedResource.delete(IResource.FORCE, null); // last one wins

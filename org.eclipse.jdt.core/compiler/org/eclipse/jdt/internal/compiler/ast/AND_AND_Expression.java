@@ -212,23 +212,23 @@ public class AND_AND_Expression extends BinaryExpression {
 					false);
 			} else {
 				// x && <something equivalent to false>
-				Label internalTrueLabel = new Label(codeStream);
+				Label internalFalseLabel = new Label(codeStream);
 				left.generateOptimizedBoolean(
 					currentScope,
 					codeStream,
-					internalTrueLabel, // will be false in the end
 					null,
-					false);
+					internalFalseLabel, 
+					true);
 				if (rightInitStateIndex != -1) {
 					codeStream.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
 				}
-				internalTrueLabel.place();
 				right.generateOptimizedBoolean(
 					currentScope,
 					codeStream,
 					trueLabel,
 					falseLabel,
 					false);
+				internalFalseLabel.place();
 				if (valueRequired) {
 					if ((bits & OnlyValueRequiredMASK) != 0) {
 						codeStream.iconst_0();

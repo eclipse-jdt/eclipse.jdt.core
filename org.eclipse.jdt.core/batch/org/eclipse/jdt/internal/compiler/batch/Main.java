@@ -989,7 +989,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						options.put(
 							CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
 							CompilerOptions.WARNING);
-					} else if (token.equals("charConcat") || token.equals("noImplicitStringConversion")/*backward compatible*/) {//$NON-NLS-1$
+					} else if (token.equals("charConcat") || token.equals("noImplicitStringConversion")/*backward compatible*/) {//$NON-NLS-1$ //$NON-NLS-2$
 						options.put(
 							CompilerOptions.OPTION_ReportNoImplicitStringConversion,
 							CompilerOptions.WARNING);

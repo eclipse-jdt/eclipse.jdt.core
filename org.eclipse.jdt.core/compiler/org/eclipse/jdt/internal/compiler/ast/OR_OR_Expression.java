@@ -191,23 +191,23 @@ public class OR_OR_Expression extends BinaryExpression {
 		if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
 			if (condConst.booleanValue() == true) {
 				// x || <something equivalent to true>
-				Label internalFalseLabel = new Label(codeStream);
+				Label internalTrueLabel = new Label(codeStream);
 				left.generateOptimizedBoolean(
 					currentScope,
 					codeStream,
+					internalTrueLabel,
 					null,
-					internalFalseLabel, // will be true in the end
-					false);
+					true); 
 				if (rightInitStateIndex != -1) {
 					codeStream.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
 				}
-				internalFalseLabel.place();
 				right.generateOptimizedBoolean(
 					currentScope,
 					codeStream,
 					trueLabel,
 					falseLabel,
 					false);
+				internalTrueLabel.place();
 				if (valueRequired) {
 					if ((bits & OnlyValueRequiredMASK) != 0) {
 						codeStream.iconst_1();
@@ -253,6 +253,9 @@ public class OR_OR_Expression extends BinaryExpression {
 			if (trueLabel != null) {
 				// implicit falling through the FALSE case
 				left.generateOptimizedBoolean(currentScope, codeStream, trueLabel, null, true); // need value, e.g. if (a == 1 || ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a==1
+				if (rightInitStateIndex != -1) {
+					codeStream.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
+				}
 				right.generateOptimizedBoolean(
 					currentScope,
 					codeStream,

@@ -961,6 +961,88 @@ public class JavaProject
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.IJavaProject#forceClasspathReload()
+	 */
+	public void forceClasspathReload(IProgressMonitor monitor) throws JavaModelException {
+
+		if (monitor != null && monitor.isCanceled()) return;
+		
+		// check if any actual difference
+		flushClasspathProblemMarkers(false, true);
+		boolean wasSuccessful = false; // flag recording if .classpath file change got reflected
+		try {
+			// force to (re)read the property file
+			IClasspathEntry[] fileEntries = readClasspathFile(true/*create markers*/, false/*don't log problems*/);
+			if (fileEntries == null)
+				return; // could not read, ignore 
+			JavaModelManager.PerProjectInfo info = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(getProject());
+			if (info.classpath != null) { // if there is an in-memory classpath
+				if (isClasspathEqualsTo(info.classpath, info.outputLocation, fileEntries)) {
+					wasSuccessful = true;
+					return;
+				}
+			}
+
+			// will force an update of the classpath/output location based on the file information
+			// extract out the output location
+			IPath outputLocation = null;
+			if (fileEntries != null && fileEntries.length > 0) {
+				IClasspathEntry entry = fileEntries[fileEntries.length - 1];
+				if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
+					outputLocation = entry.getPath();
+					IClasspathEntry[] copy = new IClasspathEntry[fileEntries.length - 1];
+					System.arraycopy(fileEntries, 0, copy, 0, copy.length);
+					fileEntries = copy;
+				}
+			}
+			// restore output location				
+			if (outputLocation == null) {
+				outputLocation = SetClasspathOperation.ReuseOutputLocation;
+				// clean mode will also default to reusing current one
+			}
+			setRawClasspath(
+				fileEntries, 
+				outputLocation, 
+				monitor, 
+				true, // canChangeResource
+				getResolvedClasspath(true), // ignoreUnresolvedVariable
+				true, // needValidation
+				false); // no need to save
+			
+			// if reach that far, the classpath file change got absorbed
+			wasSuccessful = true;
+		} catch (RuntimeException e) {
+			// setRawClasspath might fire a delta, and a listener may throw an exception
+			if (getProject().isAccessible()) {
+				Util.log(e, "Could not set classpath for "+ getPath()); //$NON-NLS-1$
+			}
+			throw e; // rethrow 
+		} catch (JavaModelException e) { // CP failed validation
+			if (getProject().isAccessible()) {
+				if (e.getJavaModelStatus().getException() instanceof CoreException) {
+					// happens if the .classpath could not be written to disk
+					createClasspathProblemMarker(new JavaModelStatus(
+							IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+							Util.bind("classpath.couldNotWriteClasspathFile", getElementName(), e.getMessage()))); //$NON-NLS-1$
+				} else {
+					createClasspathProblemMarker(new JavaModelStatus(
+							IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
+							Util.bind("classpath.invalidClasspathInClasspathFile", getElementName(), e.getMessage()))); //$NON-NLS-1$
+				}			
+			}
+			throw e; // rethrow
+		} finally {
+			if (!wasSuccessful) { 
+				try {
+					setRawClasspath0(JavaProject.INVALID_CLASSPATH);
+					updatePackageFragmentRoots();
+				} catch (JavaModelException e) {
+				}
+			}
+		}
+	}
+	
 	/**
 	 * @see Openable
 	 */

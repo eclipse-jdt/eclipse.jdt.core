@@ -79,31 +79,41 @@ public class Util implements SuffixConstants {
 			CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
 		message = new String(messageWithNoDoubleQuotes);
 
-		if (bindings == null)
-			return message;
-
 		int length = message.length();
 		int start = -1;
 		int end = length;
-		StringBuffer output = new StringBuffer(80);
+		StringBuffer output = null;
 		while (true) {
 			if ((end = message.indexOf('{', start)) > -1) {
+				if (output == null) output = new StringBuffer(80);
 				output.append(message.substring(start + 1, end));
 				if ((start = message.indexOf('}', end)) > -1) {
 					int index = -1;
 					try {
 						index = Integer.parseInt(message.substring(end + 1, start));
 						output.append(bindings[index]);
-					} catch (NumberFormatException nfe) {
-						output.append(message.substring(end + 1, start + 1));
+					} catch (NumberFormatException nfe) { // could be nested message ID {compiler.name}
+						String argId = message.substring(end + 1, start);
+						boolean done = false;
+						if (!id.equals(argId)) {
+							String argMessage = null;
+							try {
+								argMessage = bundle.getString(argId);
+								output.append(argMessage);
+								done = true;
+							} catch (MissingResourceException e) {
+							}
+						}
+						if (!done) output.append(message.substring(end + 1, start + 1));
 					} catch (ArrayIndexOutOfBoundsException e) {
-						output.append("{missing " + Integer.toString(index) + "}");	//$NON-NLS-2$ //$NON-NLS-1$
+						output.append("{missing " + Integer.toString(index) + "}"); //$NON-NLS-2$ //$NON-NLS-1$
 					}
 				} else {
 					output.append(message.substring(end, length));
 					break;
 				}
 			} else {
+				if (output == null) return message;
 				output.append(message.substring(start + 1, length));
 				break;
 			}

@@ -315,11 +315,13 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 2, lineNumberTable.length);
+			assertEquals("wrong size", 3, lineNumberTable.length);
 			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
 			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
 			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 8, lineNumberTable[1][1]);
+			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
+			assertEquals("wrong pc[2]", 9, lineNumberTable[2][0]);
+			assertEquals("wrong line[2]", 8, lineNumberTable[2][1]);
 		} finally {
 			removeTempClass("A");
 		}
@@ -472,13 +474,15 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
-			assertEquals("wrong size", 3, lineNumberTable.length);
+			assertEquals("wrong size", 4, lineNumberTable.length);
 			assertEquals("wrong pc[0]", 0, lineNumberTable[0][0]);
 			assertEquals("wrong line[0]", 3, lineNumberTable[0][1]);
 			assertEquals("wrong pc[1]", 3, lineNumberTable[1][0]);
-			assertEquals("wrong line[1]", 6, lineNumberTable[1][1]);
-			assertEquals("wrong pc[2]", 10, lineNumberTable[2][0]);
-			assertEquals("wrong line[2]", 8, lineNumberTable[2][1]);
+			assertEquals("wrong line[1]", 4, lineNumberTable[1][1]);
+			assertEquals("wrong pc[2]", 9, lineNumberTable[2][0]);
+			assertEquals("wrong line[2]", 6, lineNumberTable[2][1]);
+			assertEquals("wrong pc[3]", 16, lineNumberTable[3][0]);
+			assertEquals("wrong line[3]", 8, lineNumberTable[3][1]);
 		} finally {
 			removeTempClass("A");
 		}

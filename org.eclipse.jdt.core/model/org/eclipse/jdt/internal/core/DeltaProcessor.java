@@ -41,7 +41,6 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaModel;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -1576,7 +1575,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 	
 					/* check classpath file change */
 					if (file.getName().equals(JavaProject.CLASSPATH_FILENAME)) {
-						reconcileClasspathFileUpdate(delta, file, project);
+						reconcileClasspathFileUpdate(delta, project);
 						this.rootsAreStale = true;
 						break;
 					}
@@ -1693,100 +1692,40 @@ public class DeltaProcessor implements IResourceChangeListener {
 	/*
 	 * Update the JavaModel according to a .classpath file change. The file can have changed as a result of a previous
 	 * call to JavaProject#setRawClasspath or as a result of some user update (through repository)
+	 * If no delta is passed, then will trigger a reload of the file)
 	 */
-	private void reconcileClasspathFileUpdate(IResourceDelta delta, IFile file, JavaProject project) {
-			
-		switch (delta.getKind()) {
-			case IResourceDelta.REMOVED : // recreate one based on in-memory classpath
-				try {
-					JavaModelManager.PerProjectInfo info = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(project.getProject());
-					if (info.classpath != null) { // if there is an in-memory classpath
-						project.saveClasspath(info.classpath, info.outputLocation);
-					}
-				} catch (JavaModelException e) {
-					if (project.getProject().isAccessible()) {
-						Util.log(e, "Could not save classpath for "+ project.getPath()); //$NON-NLS-1$
-					}
-				}
-				break;
-			case IResourceDelta.CHANGED :
-				if ((delta.getFlags() & IResourceDelta.CONTENT) == 0  // only consider content change
-						&& (delta.getFlags() & IResourceDelta.MOVED_FROM) == 0) // and also move and overide scenario (see http://dev.eclipse.org/bugs/show_bug.cgi?id=21420)
-					break;
-			case IResourceDelta.ADDED :
-				// check if any actual difference
-				project.flushClasspathProblemMarkers(false, true);
-				boolean wasSuccessful = false; // flag recording if .classpath file change got reflected
-				try {
-					// force to (re)read the property file
-					IClasspathEntry[] fileEntries = project.readClasspathFile(true/*create markers*/, false/*don't log problems*/);
-					if (fileEntries == null)
-						break; // could not read, ignore 
-					JavaModelManager.PerProjectInfo info = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(project.getProject());
-					if (info.classpath != null) { // if there is an in-memory classpath
-						if (project.isClasspathEqualsTo(info.classpath, info.outputLocation, fileEntries)) {
-							wasSuccessful = true;
-							break;
-						}
-					}
+	void reconcileClasspathFileUpdate(IResourceDelta delta, JavaProject project) {
 		
-					// will force an update of the classpath/output location based on the file information
-					// extract out the output location
-					IPath outputLocation = null;
-					if (fileEntries != null && fileEntries.length > 0) {
-						IClasspathEntry entry = fileEntries[fileEntries.length - 1];
-						if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
-							outputLocation = entry.getPath();
-							IClasspathEntry[] copy = new IClasspathEntry[fileEntries.length - 1];
-							System.arraycopy(fileEntries, 0, copy, 0, copy.length);
-							fileEntries = copy;
+		boolean reloadClasspath = true;
+		if (delta != null) {
+			reloadClasspath = false; // narrow down need to reload based on delta
+			switch (delta.getKind()) {
+				case IResourceDelta.REMOVED : // recreate one based on in-memory classpath
+					try {
+						JavaModelManager.PerProjectInfo info = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(project.getProject());
+						if (info.classpath != null) { // if there is an in-memory classpath
+							project.saveClasspath(info.classpath, info.outputLocation);
+						}
+					} catch (JavaModelException e) {
+						if (project.getProject().isAccessible()) {
+							Util.log(e, "Could not save classpath for "+ project.getPath()); //$NON-NLS-1$
 						}
 					}
-					// restore output location				
-					if (outputLocation == null) {
-						outputLocation = SetClasspathOperation.ReuseOutputLocation;
-						// clean mode will also default to reusing current one
-					}
-					project.setRawClasspath(
-						fileEntries, 
-						outputLocation, 
-						null, // monitor
-						true, // canChangeResource
-						project.getResolvedClasspath(true), // ignoreUnresolvedVariable
-						true, // needValidation
-						false); // no need to save
-					
-					// if reach that far, the classpath file change got absorbed
-					wasSuccessful = true;
-				} catch (RuntimeException e) {
-					// setRawClasspath might fire a delta, and a listener may throw an exception
-					if (project.getProject().isAccessible()) {
-						Util.log(e, "Could not set classpath for "+ project.getPath()); //$NON-NLS-1$
-					}
 					break;
-				} catch (JavaModelException e) { // CP failed validation
-					if (project.getProject().isAccessible()) {
-						if (e.getJavaModelStatus().getException() instanceof CoreException) {
-							// happens if the .classpath could not be written to disk
-							project.createClasspathProblemMarker(new JavaModelStatus(
-									IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-									Util.bind("classpath.couldNotWriteClasspathFile", project.getElementName(), e.getMessage()))); //$NON-NLS-1$
-						} else {
-							project.createClasspathProblemMarker(new JavaModelStatus(
-									IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-									Util.bind("classpath.invalidClasspathInClasspathFile", project.getElementName(), e.getMessage()))); //$NON-NLS-1$
-						}			
-					}
-					break;
-				} finally {
-					if (!wasSuccessful) { 
-						try {
-							project.setRawClasspath0(JavaProject.INVALID_CLASSPATH);
-							project.updatePackageFragmentRoots();
-						} catch (JavaModelException e) {
-						}
-					}
-				}
+				case IResourceDelta.CHANGED :
+					if ((delta.getFlags() & IResourceDelta.CONTENT) == 0  // only consider content change
+							&& (delta.getFlags() & IResourceDelta.MOVED_FROM) == 0) // and also move and overide scenario (see http://dev.eclipse.org/bugs/show_bug.cgi?id=21420)
+						break;
+				case IResourceDelta.ADDED :
+					reloadClasspath = true;
+			}
+		}
+		if (reloadClasspath) {
+			try {
+				project.forceClasspathReload(null);
+			} catch (RuntimeException e) {
+			} catch (JavaModelException e) {	
+			}
 		}
 	}
 	/*

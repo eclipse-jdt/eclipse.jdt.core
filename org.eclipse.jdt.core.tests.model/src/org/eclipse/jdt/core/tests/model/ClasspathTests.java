@@ -243,6 +243,42 @@ public void testClasspathCorruption() throws CoreException {
 	}
 }
 
+/*
+ * Test classpath forced reload (20931)
+ */
+public void testClasspathForceReload() throws CoreException {
+	try {
+		final JavaProject p1 = (JavaProject)this.createJavaProject("P1", new String[]{""}, new String[]{}, new String[]{}, "");
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			workspace.run(new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor)	throws CoreException {
+
+					p1.getRawClasspath(); // force to read classpath
+					createFolder("P1/src");
+					createFolder("P1/bin"); 
+					String newCPContent = 
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n"
+						+"<classpath>	\n"
+						+"	<classpathentry kind=\"src\" path=\"src\"/>	\n"
+						+"	<classpathentry kind=\"output\" path=\"bin\"/>	\n"
+						+"</classpath>	\n";
+
+					IFile fileRsc = p1.getProject().getFile(JavaProject.CLASSPATH_FILENAME);
+					fileRsc.setContents(new ByteArrayInputStream(newCPContent.getBytes()), true, false, null);
+					
+					p1.close();
+					assertEquals("output location should not have been refreshed", "/P1", p1.getOutputLocation().toString());
+					
+					p1.forceClasspathReload(null);
+					assertEquals("output location should have been refreshed", "/P1/bin", p1.getOutputLocation().toString());
+				}
+			}, null);	
+	} finally {
+		// cleanup  
+		this.deleteProject("P1");
+	}
+}
+
 /**
  * Ensures that the setting the classpath with a library entry
  * changes the kind of the root from K_SOURCE to K_BINARY.
