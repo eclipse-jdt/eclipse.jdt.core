@@ -54,10 +54,18 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					case T_short :
 					case T_byte :
 					case T_char :
-					case T_float :
 					case T_long :
+						if (expr.constant.longValue() != 0) {
+							codeStream.dup();
+							codeStream.generateInlinedValue(i);
+							expr.generateCode(currentScope, codeStream, true);
+							codeStream.arrayAtPut(elementsTypeID, false);
+						}
+						break;
+					case T_float :
 					case T_double :
-						if (expr.constant.doubleValue() != 0) {
+						double constantValue = expr.constant.doubleValue();
+						if (constantValue == -0.0 || constantValue != 0) {
 							codeStream.dup();
 							codeStream.generateInlinedValue(i);
 							expr.generateCode(currentScope, codeStream, true);
