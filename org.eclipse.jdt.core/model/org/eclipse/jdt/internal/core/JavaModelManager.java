@@ -558,16 +558,16 @@ public void doneSaving(ISaveContext context){
 
 			// regular notification
 			if (DeltaProcessor.VERBOSE){
-				String type = "";
+				String type = "";//$NON-NLS-1$
 				switch (eventType) {
 					case ElementChangedEvent.POST_CHANGE:
-						type = "POST_CHANGE"; //$NON-NLS-2$
+						type = "POST_CHANGE"; //$NON-NLS-1$
 						break;
 					case ElementChangedEvent.PRE_AUTO_BUILD:
-						type = "PRE_AUTO_BUILD"; //$NON-NLS-2$
+						type = "PRE_AUTO_BUILD"; //$NON-NLS-1$
 						break;
 					case ElementChangedEvent.POST_RECONCILE:
-						type = "POST_RECONCILE"; //$NON-NLS-2$
+						type = "POST_RECONCILE"; //$NON-NLS-1$
 						break;
 				}
 				System.out.println("FIRING " + type + " Delta ["+Thread.currentThread()+"]:\n" + deltaToNotify);//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$

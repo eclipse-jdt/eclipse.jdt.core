@@ -196,7 +196,7 @@ public class CharacterLiteral extends Expression {
 					case '7' :
 						return '\7';
 					default:
-						throw new IllegalArgumentException("illegal character literal");
+						throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 				}
 			} else if (len == 8) {
 				//handle the case of unicode.
@@ -211,15 +211,15 @@ public class CharacterLiteral extends Expression {
 						|| c3 < 0
 						|| (c4 = Character.getNumericValue(s.charAt(currentPosition++))) > 15
 						|| c4 < 0){
-						throw new IllegalArgumentException("illegal character literal");
+						throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 					} else {
 						return (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
 					}
 				} else {
-					throw new IllegalArgumentException("illegal character literal");
+					throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 				}
 			} else {
-				throw new IllegalArgumentException("illegal character literal");
+				throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 			}
 		}
 		return c;

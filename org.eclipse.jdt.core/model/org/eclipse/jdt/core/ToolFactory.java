@@ -150,7 +150,7 @@ public class ToolFactory {
 			if (zipEntry == null) {
 				return null;
 			}
-			if (!zipEntryName.toLowerCase().endsWith(".class")) {
+			if (!zipEntryName.toLowerCase().endsWith(".class")) {//$NON-NLS-1$
 				return null;
 			}
 			byte classFileBytes[] = Util.getZipEntryByteContent(zipEntry, zipFile);
