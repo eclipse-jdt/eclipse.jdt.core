@@ -14,6 +14,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.internal.core.search.matching.JavaSearchMatch;
 
+/**
+ * TODO add spec
+ * @since 3.0
+ */
 public class TypeReferenceMatch extends JavaSearchMatch {
 
 	public TypeReferenceMatch(IJavaElement enclosingElement, int accuracy,	int sourceStart, int sourceEnd, SearchParticipant participant, IResource resource) {

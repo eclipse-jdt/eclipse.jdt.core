@@ -102,7 +102,7 @@ boolean includesBinaries();
  * 
  * @return whether this scope includes classpaths
  * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) 
- * 				with a java project instead
+ * 				with a Java project instead
  */
 boolean includesClasspaths();
 /**
@@ -120,7 +120,7 @@ public void setIncludesBinaries(boolean includesBinaries);
  * 
  * @return includesClasspaths whether this scope includes classpaths
  * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) 
- * 				with a java project instead
+ * 				with a Java project instead
  */
 public void setIncludesClasspaths(boolean includesClasspaths);
 }
