@@ -876,11 +876,11 @@ public interface IProblem {
 	/** @since 3.1 */
 	int SuperInterfacesCollide = TypeRelated + 540;
 	/** @since 3.1 */
-	int UnsafeWildcardConstructorInvocation = TypeRelated + 541;
+	int WildcardConstructorInvocation = TypeRelated + 541;
 	/** @since 3.1 */
-	int UnsafeWildcardMethodInvocation = TypeRelated + 542;
+	int WildcardMethodInvocation = TypeRelated + 542;
 	/** @since 3.1 */
-	int UnsafeWildcardFieldAssignment = TypeRelated + 543;
+	int WildcardFieldAssignment = TypeRelated + 543;
 	/** @since 3.1 */
 	int GenericMethodTypeArgumentMismatch = TypeRelated + 544;
 	/** @since 3.1 */

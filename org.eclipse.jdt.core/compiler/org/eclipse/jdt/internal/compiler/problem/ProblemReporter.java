@@ -3866,7 +3866,7 @@ public void unsafeWildcardInvocation(ASTNode location, TypeBinding receiverType,
 	
     if (method.isConstructor()) {
 		this.handle(
-			IProblem.UnsafeWildcardConstructorInvocation,
+			IProblem.WildcardConstructorInvocation,
 			new String[] {
 				new String(receiverType.sourceName()),
 				parametersAsString(method.parameters, false),
@@ -3887,7 +3887,7 @@ public void unsafeWildcardInvocation(ASTNode location, TypeBinding receiverType,
 			location.sourceEnd);    
     } else {
 		this.handle(
-			IProblem.UnsafeWildcardMethodInvocation,
+			IProblem.WildcardMethodInvocation,
 			new String[] {
 				new String(method.selector),
 				parametersAsString(method.parameters, false),
@@ -3910,7 +3910,7 @@ public void unsafeWildcardInvocation(ASTNode location, TypeBinding receiverType,
 }
 public void unsafeWildcardAssignment(TypeBinding variableType, TypeBinding expressionType, ASTNode location) {
 	this.handle(
-		IProblem.UnsafeWildcardFieldAssignment,
+		IProblem.WildcardFieldAssignment,
 		new String[] { 
 		        new String(expressionType.readableName()), new String(variableType.readableName()) },
 		new String[] { 
