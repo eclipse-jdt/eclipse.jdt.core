@@ -345,7 +345,10 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 							}
 							break;
 						case IJavaElement.PACKAGE_FRAGMENT:
-							pkgFragment = (IPackageFragment)this.currentElement;
+							Openable pkg = (Openable)this.currentElement;
+							if (pkg.getPath().equals(path.removeLastSegments(1))) {
+								pkgFragment = (IPackageFragment)pkg;
+							} // else case of package x which is a prefix of x.y
 							break;
 						case IJavaElement.COMPILATION_UNIT:
 						case IJavaElement.CLASS_FILE:
