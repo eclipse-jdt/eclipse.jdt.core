@@ -303,8 +303,11 @@ protected void reportDeclaration(ASTNode reference, IJavaElement element, MatchL
 	if (typeBinding instanceof ArrayBinding)
 		typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
 	if (typeBinding == null || typeBinding instanceof BaseTypeBinding) return;
-	if (typeBinding instanceof ProblemReferenceBinding)
-		typeBinding = ((ProblemReferenceBinding) typeBinding).original;
+	if (typeBinding instanceof ProblemReferenceBinding) {
+		ReferenceBinding original = ((ProblemReferenceBinding) typeBinding).original;
+		if (original == null) return; // original may be not set (example in bug 71279)
+		typeBinding = original;
+	}
 	typeBinding = typeBinding.erasure();
 	reportDeclaration((ReferenceBinding) typeBinding, maxType, locator, knownTypes);
 }

@@ -297,20 +297,26 @@ public JavaSearchTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	if (false) {
-		Suite suite = new Suite(JavaSearchTests.class.getName());
-		System.err.println("WARNING: Only subset of test cases are running for "+JavaSearchTests.class.getName());
-		suite.addTest(new JavaSearchTests("testMethodDeclaration08"));
-		suite.addTest(new JavaSearchTests("testBug41018"));
-		return suite;
-	}
-	return new Suite(JavaSearchTests.class);
+	return buildTestSuite(JavaSearchTests.class);
 }
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//	testsNames = new String[] { "testDeclarationOfReferencedTypes10" };
+	// Numbers of tests to run: "test<number>" will be run for each number of this array
+//	testsNumbers = new int[] { 2, 12 };
+	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//	testsRange = new int[] { 16, -1 };
+	}
 IJavaSearchScope getJavaSearchScope() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch")});
 }
 IJavaSearchScope getJavaSearchScope15() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch15")});
+}
+IJavaSearchScope getJavaSearchBugsScope() {
+	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs")});
 }
 protected void search(SearchPattern searchPattern, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 	new SearchEngine().search(
@@ -334,10 +340,12 @@ public void setUpSuite() throws Exception {
 
 	this.javaProject = setUpJavaProject("JavaSearch");
 	setUpJavaProject("JavaSearch15", "1.5");
+	setUpJavaProject("JavaSearchBugs");
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("JavaSearch");
 	deleteProject("JavaSearch15");
+	deleteProject("JavaSearchBugs");
 
 	super.tearDownSuite();
 }
@@ -775,6 +783,31 @@ public void testDeclarationOfReferencedTypes09() throws CoreException {
 	assertSearchResults(
 		"Starting search...\n" + 
 		getExternalJCLPathString() + " java.lang.Object\n" + 
+		"Done searching.",
+		resultCollector);
+}
+
+/**
+ * Declaration of referenced types test.
+ * (Regression test for bug 71279: [Search] NPE in TypeReferenceLocator when moving CU with unresolved type reference
+)
+ */
+public void testDeclarationOfReferencedTypes10() throws CoreException {
+	ICompilationUnit cu = getCompilationUnit("JavaSearchBugs/src/b71279/AA.java");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector() {
+	    public void beginReporting() {
+	        results.append("Starting search...");
+        }
+	    public void endReporting() {
+	        results.append("\nDone searching.");
+        }
+	};
+	searchDeclarationsOfReferencedTypes(
+		cu, 
+		resultCollector
+	);
+	assertSearchResults(
+		"Starting search...\n" + 
 		"Done searching.",
 		resultCollector);
 }
