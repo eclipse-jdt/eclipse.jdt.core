@@ -99,7 +99,7 @@ public class MemberRef extends ASTNode implements IDocElement {
 	 * @return the qualifier name node, or <code>null</code> if there is none
 	 */ 
 	public Name getQualifier() {
-		return optionalQualifier;
+		return this.optionalQualifier;
 	}
 	
 	/**
@@ -125,13 +125,13 @@ public class MemberRef extends ASTNode implements IDocElement {
 	 * @return the member name node
 	 */ 
 	public SimpleName getName() {
-		if (memberName == null) {
+		if (this.memberName == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
 			setName(new SimpleName(getAST()));
 			getAST().setModificationCount(count);
 		}
-		return memberName;
+		return this.memberName;
 	}
 	
 	/**
@@ -181,8 +181,8 @@ public class MemberRef extends ASTNode implements IDocElement {
 	int treeSize() {
 		return
 			memSize()
-			+ (optionalQualifier == null ? 0 : getQualifier().treeSize())
-			+ (memberName == null ? 0 : getName().treeSize());
+			+ (this.optionalQualifier == null ? 0 : getQualifier().treeSize())
+			+ (this.memberName == null ? 0 : getName().treeSize());
 	}
 }
 
