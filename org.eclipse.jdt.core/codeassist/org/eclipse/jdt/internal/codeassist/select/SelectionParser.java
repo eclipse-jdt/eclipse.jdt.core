@@ -123,11 +123,7 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		}
 		// trick to avoid creating a selection on type reference
 		char [] oldIdent = this.assistIdentifier();
-		this.setAssistIdentifier(null);			
-		if (alwaysQualified) {
-			pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
-			pushOnGenericsLengthStack(0);
-		}
+		this.setAssistIdentifier(null);
 		alloc.type = getTypeReference(0);
 		
 		this.setAssistIdentifier(oldIdent);

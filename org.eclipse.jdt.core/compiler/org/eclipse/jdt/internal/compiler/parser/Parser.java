@@ -944,10 +944,6 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 				0, 
 				length); 
 		}
-		if (alwaysQualified) {
-			pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
-			pushOnGenericsLengthStack(0);
-		}
 		alloc.type = getTypeReference(0);
 		
 		//the default constructor with the correct number of argument
@@ -1959,8 +1955,6 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 				0, 
 				length); 
 		}
-		pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
-		pushOnGenericsLengthStack(0);
 		alloc.type = getTypeReference(0);
 
 		length = this.genericsLengthStack[this.genericsLengthPtr--];

@@ -1280,6 +1280,14 @@ public void illegalStaticModifierForMemberType(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
+public void illegalUsageOfQualifiedTypeReference(TypeReference typeReference) {
+	this.handle(
+		IProblem.IllegalUsageOfQualifiedTypeReference,
+		NoArgument,
+		NoArgument,
+		typeReference.sourceStart,
+		typeReference.sourceEnd);	
+}
 public void illegalVisibilityModifierCombinationForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
 	String[] arguments = new String[] {new String(fieldDecl.name)};
 	this.handle(
@@ -2904,11 +2912,10 @@ public void parseError(
 		endPosition);
 }
 public void possibleAccidentalBooleanAssignment(Assignment assignment) {
-	String[] arguments = new String[] {};
 	this.handle(
 		IProblem.PossibleAccidentalBooleanAssignment,
-		arguments,
-		arguments,
+		NoArgument,
+		NoArgument,
 		assignment.sourceStart,
 		assignment.sourceEnd);
 }
@@ -3243,11 +3250,10 @@ public void undefinedLabel(BranchStatement statement) {
 		statement.sourceEnd);
 }
 public void undocumentedEmptyBlock(int blockStart, int blockEnd) {
-	String[] arguments = new String[] {};
 	this.handle(
 		IProblem.UndocumentedEmptyBlock,
-		arguments,
-		arguments,
+		NoArgument,
+		NoArgument,
 		blockStart,
 		blockEnd);
 }
@@ -4084,48 +4090,48 @@ public void wrongSequenceOfExceptionTypesError(TryStatement statement, TypeBindi
 public void invalidUsageOfTypeParameters(TypeParameter firstTypeParameter, TypeParameter lastTypeParameter) {
 	this.handle(
 		IProblem.InvalidUsageOfTypeParameters,
-		new String[] {}, 
-		new String[] {}, 
+		NoArgument, 
+		NoArgument, 
 		firstTypeParameter.declarationSourceStart,
 		lastTypeParameter.declarationSourceEnd);
 }
 public void invalidUsageOfStaticImports(ImportReference staticImport) {
 	this.handle(
 		IProblem.InvalidUsageOfStaticImports,
-		new String[] {}, 
-		new String[] {}, 
+		NoArgument, 
+		NoArgument, 
 		staticImport.declarationSourceStart,
 		staticImport.declarationSourceEnd);
 }
 public void invalidUsageOfForeachStatements(LocalDeclaration elementVariable, Expression collection) {
 	this.handle(
 		IProblem.InvalidUsageOfForeachStatements,
-		new String[] {}, 
-		new String[] {}, 
+		NoArgument, 
+		NoArgument, 
 		elementVariable.declarationSourceStart,
 		collection.sourceEnd);
 }
 public void invalidUsageOfTypeArguments(TypeReference firstTypeReference, TypeReference lastTypeReference) {
 	this.handle(
 		IProblem.InvalidUsageOfTypeArguments,
-		new String[] {}, 
-		new String[] {}, 
+		NoArgument, 
+		NoArgument, 
 		firstTypeReference.sourceStart,
 		lastTypeReference.sourceEnd);
 }
 public void invalidUsageOfEnumsDeclarations(EnumDeclaration enumDeclaration) {
 	this.handle(
 		IProblem.InvalidUsageOfEnumDeclarations,
-		new String[] {}, 
-		new String[] {}, 
+		NoArgument, 
+		NoArgument, 
 		enumDeclaration.modifiersSourceStart,
 		enumDeclaration.sourceEnd);
 }
 public void invalidUsageOfVarargs(Argument argument) {
 	this.handle(
 		IProblem.InvalidUsageOfVarargs,
-		new String[] {}, 
-		new String[] {}, 
+		NoArgument, 
+		NoArgument, 
 		argument.type.sourceStart,
 		argument.sourceEnd);
 }

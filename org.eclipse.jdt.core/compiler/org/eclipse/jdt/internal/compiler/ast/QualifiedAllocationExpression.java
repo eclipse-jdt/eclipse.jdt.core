@@ -189,10 +189,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		// Propagate the type checking to the arguments, and checks if the constructor is defined.
 		// ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
 		// ClassInstanceCreationExpression ::= Name '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
-		// ==> by construction, when there is an enclosing instance the typename may NOT be qualified
-		// ==> therefore by construction the type is always a SingleTypeReferenceType instead of being either 
-		// sometime a SingleTypeReference and sometime a QualifedTypeReference
-
+		
 		constant = NotAConstant;
 		TypeBinding enclosingInstanceType = null;
 		TypeBinding receiverType = null;
@@ -212,10 +209,13 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					enclosingInstanceType,
 					enclosingInstance);
 				hasError = true;
+			} else if (type instanceof QualifiedTypeReference) {
+				scope.problemReporter().illegalUsageOfQualifiedTypeReference(type);
+				hasError = true;
 			} else {
 				receiverType = ((SingleTypeReference) type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingInstanceType);
 				if (receiverType != null && enclosingInstanceContainsCast) {
-						CastExpression.checkNeedForEnclosingInstanceCast(scope, enclosingInstance, enclosingInstanceType, receiverType);
+					CastExpression.checkNeedForEnclosingInstanceCast(scope, enclosingInstance, enclosingInstanceType, receiverType);
 				}
 			}
 		} else {

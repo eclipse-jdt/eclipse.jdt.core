@@ -68,6 +68,8 @@
  *								   JavadocMissing
  *								   JavadocInvalidTag
  *								   JavadocMessagePrefix
+ *     IBM Corporation - added the following constants
+ *								   IllegalUsageOfQualifiedTypeReference
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -441,7 +443,9 @@ public interface IProblem {
 	/** @since 3.0 */
 	int UnusedConstructorDeclaredThrownException = Internal + 186;	
 	/** @since 3.0 */
-	int InvalidCatchBlockSequence = Internal + TypeRelated + 187;	
+	int InvalidCatchBlockSequence = Internal + TypeRelated + 187;
+	/** @since 3.0 */
+	int IllegalUsageOfQualifiedTypeReference = Internal + TypeRelated + 188;
 
 	// inner emulation
 	int NeedToEmulateFieldReadAccess = FieldRelated + 190;

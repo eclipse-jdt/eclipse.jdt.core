@@ -67,10 +67,6 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 				0, 
 				length); 
 		}
-		if (alwaysQualified) {
-			pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
-			pushOnGenericsLengthStack(0);
-		}
 		alloc.type = getTypeReference(0);
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
