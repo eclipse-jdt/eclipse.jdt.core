@@ -280,7 +280,7 @@ ArrayBinding createArrayType(TypeBinding type, int dimensionCount) {
 	while (++index < length) {
 		ArrayBinding currentBinding = arrayBindings[index];
 		if (currentBinding == null) // no matching array, but space left
-			return arrayBindings[index] = new ArrayBinding(type, dimensionCount);
+			return arrayBindings[index] = new ArrayBinding(type, dimensionCount, this);
 		if (currentBinding.leafComponentType == type)
 			return currentBinding;
 	}
@@ -291,7 +291,7 @@ ArrayBinding createArrayType(TypeBinding type, int dimensionCount) {
 		(arrayBindings = new ArrayBinding[length * 2]), 0,
 		length); 
 	uniqueArrayBindings[dimIndex] = arrayBindings;
-	return arrayBindings[length] = new ArrayBinding(type, dimensionCount);
+	return arrayBindings[length] = new ArrayBinding(type, dimensionCount, this);
 }
 public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBinding packageBinding) {
 	return createBinaryTypeFrom(binaryType, packageBinding, true);

@@ -155,7 +155,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			if (qualifiedType.isParameterizedType()) {
 			    scope.problemReporter().illegalArrayOfParameterizedType(qualifiedType, this);
 			}
-			this.resolvedType = scope.createArray(qualifiedType, dimensions);
+			this.resolvedType = scope.createArrayType(qualifiedType, dimensions);
 		}
 		return this.resolvedType;
 	}

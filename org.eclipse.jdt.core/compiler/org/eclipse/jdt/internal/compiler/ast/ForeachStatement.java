@@ -347,7 +347,7 @@ public class ForeachStatement extends Statement {
 		if (!hasError) {
 			if (collectionType.isArrayType()) { // for(E e : E[])
 				this.kind = ARRAY;
-				TypeBinding collectionElementType = ((ArrayBinding) collectionType).elementsType(scope);
+				TypeBinding collectionElementType = ((ArrayBinding) collectionType).elementsType();
 				if (!collectionElementType.isCompatibleWith(elementType)) {
 					scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
 				}

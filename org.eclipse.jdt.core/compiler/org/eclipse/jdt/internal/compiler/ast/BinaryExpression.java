@@ -1687,11 +1687,11 @@ public class BinaryExpression extends OperatorExpression {
 		if (((bits & OperatorMASK) >> OperatorSHIFT) == PLUS) {
 			if (leftTypeId == T_String
 					&& rightType.isArrayType()
-					&& ((ArrayBinding) rightType).elementsType(scope) == CharBinding) {
+					&& ((ArrayBinding) rightType).elementsType() == CharBinding) {
 				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(right);
 					} else if (rightTypeId == T_String
 							&& leftType.isArrayType()
-							&& ((ArrayBinding) leftType).elementsType(scope) == CharBinding) {
+							&& ((ArrayBinding) leftType).elementsType() == CharBinding) {
 				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(left);
 			}
 		}

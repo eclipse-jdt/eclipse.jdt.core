@@ -64,7 +64,7 @@ public char[] constantPoolName() /* java/lang/Object */ {
 
 ArrayBinding createArrayType(int dimensionCount) {
 	if (localArrayBindings == null) {
-		localArrayBindings = new ArrayBinding[] {new ArrayBinding(this, dimensionCount)};
+		localArrayBindings = new ArrayBinding[] {new ArrayBinding(this, dimensionCount, scope.environment())};
 		return localArrayBindings[0];
 	}
 
@@ -76,7 +76,7 @@ ArrayBinding createArrayType(int dimensionCount) {
 
 	// no matching array
 	System.arraycopy(localArrayBindings, 0, localArrayBindings = new ArrayBinding[length + 1], 0, length); 
-	return localArrayBindings[length] = new ArrayBinding(this, dimensionCount);
+	return localArrayBindings[length] = new ArrayBinding(this, dimensionCount, scope.environment());
 }
 
 public char[] readableName() /*java.lang.Object,  p.X<T> */ {

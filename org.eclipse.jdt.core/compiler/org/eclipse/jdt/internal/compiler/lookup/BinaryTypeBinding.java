@@ -593,19 +593,21 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	field.modifiers ^= AccUnresolved;
 	return field;
 }
-private MethodBinding resolveTypesFor(MethodBinding method) {
-	if ((method.modifiers & AccUnresolved) == 0)
-		return method;
-
-	if (!method.isConstructor())
-		method.returnType = resolveType(method.returnType, this.environment, null, 0);
-	for (int i = method.parameters.length; --i >= 0;)
-		method.parameters[i] = resolveType(method.parameters[i], this.environment, null, 0);
-	for (int i = method.thrownExceptions.length; --i >= 0;)
-		method.thrownExceptions[i] = resolveType(method.thrownExceptions[i], this.environment, true);
-	method.modifiers ^= AccUnresolved;
-	return method;
-}
+private MethodBinding resolveTypesFor(MethodBinding method) {  
+    if ((method.modifiers & AccUnresolved) == 0)
+      return method;
+ 
+   if (!method.isConstructor())
+      method.returnType = resolveType(method.returnType, this.environment, null, 0);
+   for (int i = method.parameters.length; --i >= 0;)
+      method.parameters[i] = resolveType(method.parameters[i], this.environment, null, 0);
+   for (int i = method.thrownExceptions.length; --i >= 0;)
+      method.thrownExceptions[i] = resolveType(method.thrownExceptions[i], this.environment, true);
+   for (int i = method.typeVariables.length; --i >= 0;)
+      resolveTypesFor(method.typeVariables[i]);
+   method.modifiers ^= AccUnresolved;
+   return method;
+  }
 private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
 	if ((variable.modifiers & AccUnresolved) == 0)
 		return variable;

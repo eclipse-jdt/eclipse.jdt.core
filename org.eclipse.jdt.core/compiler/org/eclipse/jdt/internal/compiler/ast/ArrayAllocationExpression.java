@@ -162,7 +162,7 @@ public class ArrayAllocationExpression extends Expression {
 			if (referenceType.isParameterizedType()) {
 			    scope.problemReporter().illegalArrayOfParameterizedType(referenceType, this);
 			}
-			this.resolvedType = scope.createArray(referenceType, dimensions.length);
+			this.resolvedType = scope.createArrayType(referenceType, dimensions.length);
 
 			// check the initializer
 			if (initializer != null) {

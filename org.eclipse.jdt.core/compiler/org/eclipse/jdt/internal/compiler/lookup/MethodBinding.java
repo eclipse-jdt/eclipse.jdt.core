@@ -556,6 +556,85 @@ public final int sourceStart() {
 	else
 		return method.sourceStart;
 }
+
+/**
+ * Returns a type, where original type was substituted using the receiver
+ * parameterized type.
+ */
+public TypeBinding substitute(TypeBinding originalType, TypeBinding[] typeArguments) {
+    
+    // TODO (philippe) need to substitute array type
+    
+    if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
+	    if (originalType.isTypeVariable()) {
+	        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
+	        int length = this.typeVariables.length;
+	        // check this variable can be substituted given parameterized type
+   		        if (originalVariable.rank < length && this.typeVariables[originalVariable.rank] == originalVariable) {
+					return typeArguments[originalVariable.rank];
+   		        }
+	    } else if (originalType.isParameterizedType()) {
+	        ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
+	        TypeBinding[] originalArguments = originalParameterizedType.arguments;
+	        TypeBinding[] substitutedArguments = substitute(originalArguments, typeArguments);
+	        if (substitutedArguments != originalArguments) {
+	            return originalParameterizedType.environment.createParameterizedType(
+	                    originalParameterizedType.type, substitutedArguments, originalParameterizedType.enclosingType);
+    	    } 
+	    } else if (originalType.isArrayType()) {
+			TypeBinding originalLeafComponentType = originalType.leafComponentType();
+			TypeBinding substitutedLeafComponentType = substitute(originalLeafComponentType, typeArguments);
+			if (substitutedLeafComponentType != originalLeafComponentType) {
+			    return ((ArrayBinding)originalType).environment().createArrayType(substitutedLeafComponentType, originalType.dimensions());
+			}
+	    }
+    }
+    return originalType;
+}
+
+/**
+ * Returns an array of types, where original types got substituted using the receiver
+ * generic method. Only allocate an array if anything is different.
+ */
+public TypeBinding[] substitute(TypeBinding[] originalTypes, TypeBinding[] typeArguments) {
+    TypeBinding[] substitutedTypes = originalTypes;
+    for (int i = 0, length = originalTypes.length; i < length; i++) {
+        TypeBinding originalType = originalTypes[i];
+        TypeBinding substitutedParameter = this.substitute(originalType, typeArguments);
+        if (substitutedParameter != originalType) {
+            if (substitutedTypes == originalTypes) {
+                System.arraycopy(originalTypes, 0, substitutedTypes = new TypeBinding[length], 0, i);
+            }
+            substitutedTypes[i] = substitutedParameter;
+        } else if (substitutedTypes != originalTypes) {
+            substitutedTypes[i] = originalType;
+        }
+    }
+    return substitutedTypes;
+}
+
+/**
+ * Returns an array of types, where original types got substituted using the receiver
+ * generic method. Only allocate an array if anything is different.
+ */
+public ReferenceBinding[] substitute(ReferenceBinding[] originalTypes, TypeBinding[] typeArguments) {
+    ReferenceBinding[] substitutedTypes = originalTypes;
+    for (int i = 0, length = originalTypes.length; i < length; i++) {
+        ReferenceBinding originalType = originalTypes[i];
+        ReferenceBinding substitutedParameter = (ReferenceBinding)this.substitute(originalType, typeArguments);
+        if (substitutedParameter != originalType) {
+            if (substitutedTypes == originalTypes) {
+                System.arraycopy(originalTypes, 0, substitutedTypes = new ReferenceBinding[length], 0, i);
+            }
+            substitutedTypes[i] = substitutedParameter;
+        } else if (substitutedTypes != originalTypes) {
+            substitutedTypes[i] = originalType;
+        }
+    }
+    return substitutedTypes;
+}
+
+	
 /* During private access emulation, the binding can be requested to loose its
  * private visibility when the class file is dumped.
  */

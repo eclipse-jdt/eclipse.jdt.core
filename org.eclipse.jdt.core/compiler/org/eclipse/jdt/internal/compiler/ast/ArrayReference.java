@@ -190,7 +190,7 @@ public class ArrayReference extends Reference {
 		TypeBinding arrayType = receiver.resolveType(scope);
 		if (arrayType != null) {
 			if (arrayType.isArrayType()) {
-				this.resolvedType = ((ArrayBinding) arrayType).elementsType(scope);
+				this.resolvedType = ((ArrayBinding) arrayType).elementsType();
 			} else {
 				scope.problemReporter().referenceMustBeArrayTypeAt(arrayType, this);
 			}

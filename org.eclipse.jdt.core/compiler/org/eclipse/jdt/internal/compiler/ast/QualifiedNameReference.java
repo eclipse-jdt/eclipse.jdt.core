@@ -797,7 +797,7 @@ public class QualifiedNameReference extends NameReference {
 					if (type.isArrayType()) {
 					    TypeBinding leafComponentType = type.leafComponentType();
 					    if (leafComponentType.isGenericType()) { // raw type
-					        return this.resolvedType = scope.createArray(scope.environment().createRawType((ReferenceBinding)leafComponentType, null), type.dimensions());
+					        return this.resolvedType = scope.createArrayType(scope.environment().createRawType((ReferenceBinding)leafComponentType, null), type.dimensions());
 					    }
 					} else if (type.isGenericType()) {
 				        return this.resolvedType = scope.environment().createRawType((ReferenceBinding)type, null); // raw type

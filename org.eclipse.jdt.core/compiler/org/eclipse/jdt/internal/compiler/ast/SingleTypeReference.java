@@ -61,7 +61,7 @@ public class SingleTypeReference extends TypeReference {
 		if (memberType.isArrayType()) {
 		    TypeBinding leafComponentType = memberType.leafComponentType();
 		    if (leafComponentType.isGenericType()) { // raw type
-		        return this.resolvedType = scope.createArray(scope.environment().createRawType((ReferenceBinding)leafComponentType, null), memberType.dimensions());
+		        return this.resolvedType = scope.createArrayType(scope.environment().createRawType((ReferenceBinding)leafComponentType, null), memberType.dimensions());
 		    }
 		} else if (memberType.isGenericType()) {
 	        return this.resolvedType = scope.environment().createRawType(memberType, null); // raw type

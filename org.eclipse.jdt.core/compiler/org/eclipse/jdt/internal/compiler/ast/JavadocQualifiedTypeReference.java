@@ -76,7 +76,7 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 			if (this.resolvedType.isArrayType()) {
 			    TypeBinding leafComponentType = this.resolvedType.leafComponentType();
 			    if (leafComponentType.isGenericType()) { // raw type
-			        return this.resolvedType = scope.createArray(scope.environment().createRawType((ReferenceBinding)leafComponentType, null), this.resolvedType.dimensions());
+			        return this.resolvedType = scope.createArrayType(scope.environment().createRawType((ReferenceBinding)leafComponentType, null), this.resolvedType.dimensions());
 			    }
 			} else if (this.resolvedType.isGenericType()) {
 		        return this.resolvedType = scope.environment().createRawType((ReferenceBinding)this.resolvedType, null); // raw type

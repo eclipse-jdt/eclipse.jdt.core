@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
@@ -20,22 +21,41 @@ public final class ArrayBinding extends TypeBinding {
 
 	public TypeBinding leafComponentType;
 	public int dimensions;
-
+	LookupEnvironment environment;	
 	char[] constantPoolName;
-public ArrayBinding(TypeBinding type, int dimensions) {
+	
+public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environment) {
 	this.tagBits |= IsArrayType;
 	this.leafComponentType = type;
 	this.dimensions = dimensions;
-
+	this.environment = environment;
 	if (type instanceof UnresolvedReferenceBinding)
 		((UnresolvedReferenceBinding) type).addWrapper(this);
+	else
+    	this.tagBits |= type.tagBits & (HasTypeVariable | HasWildcard);
 }
+
+/**
+ * Collect the substitutes into a map for certain type variables inside the receiver type
+ * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
+ */
+public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
+    if (otherType.isArrayType()) {
+        int otherDim = otherType.dimensions();
+        if (otherDim == this.dimensions) {
+		    this.leafComponentType.collectSubstitutes(otherType.leafComponentType(), substitutes);
+        } else if (otherDim > this.dimensions) {
+            ArrayBinding otherReducedType = this.environment.createArrayType(otherType.leafComponentType(), otherDim - this.dimensions);
+            this.leafComponentType.collectSubstitutes(otherReducedType, substitutes);
+        }
+    } 
+}
+	
 /**
  * Answer the receiver's constant pool name.
  * NOTE: This method should only be used during/after code gen.
  * e.g. '[Ljava/lang/Object;'
  */
-
 public char[] constantPoolName() {
 	if (constantPoolName != null)
 		return constantPoolName;
@@ -59,11 +79,15 @@ public int dimensions() {
 * When the receiver's dimension size is one then answer the leaf component type.
 */
 
-public TypeBinding elementsType(Scope scope) {
+public TypeBinding elementsType() {
 	if (dimensions == 1)
 		return leafComponentType;
 	else
-		return scope.createArray(leafComponentType, dimensions - 1);
+		return this.environment.createArrayType(leafComponentType, dimensions - 1);
+}
+
+public LookupEnvironment environment() {
+    return this.environment;
 }
 
 public PackageBinding getPackage() {
@@ -154,9 +178,10 @@ public char[] sourceName() {
 	}
 	return CharOperation.concat(leafComponentType.sourceName(), brackets);
 }
-public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment environment) {
+public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
 	if (this.leafComponentType == unresolvedType) {
-		this.leafComponentType = resolvedType.isGenericType() ? environment.createRawType(resolvedType, null) : resolvedType;
+		this.leafComponentType = resolvedType.isGenericType() ? env.createRawType(resolvedType, null) : resolvedType;
+		this.tagBits |= this.leafComponentType.tagBits & (HasTypeVariable | HasWildcard);
 	}
 }
 public String toString() {

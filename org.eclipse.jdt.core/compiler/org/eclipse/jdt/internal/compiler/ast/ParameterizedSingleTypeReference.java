@@ -124,7 +124,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			if (currentType.isParameterizedType()) {
 			    scope.problemReporter().illegalArrayOfParameterizedType(currentType, this);
 			}
-			this.resolvedType = scope.createArray(currentType, dimensions);
+			this.resolvedType = scope.createArrayType(currentType, dimensions);
 		}
 		return this.resolvedType;
 	}	

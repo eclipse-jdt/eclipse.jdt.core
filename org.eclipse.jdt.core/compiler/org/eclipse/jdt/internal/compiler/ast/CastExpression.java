@@ -112,10 +112,10 @@ public class CastExpression extends Expression {
 	
 			if (castType.isArrayType()) {
 				//------- (castType.isArray) expressionType.isArray -----------
-				TypeBinding exprElementType = ((ArrayBinding) expressionType).elementsType(scope);
+				TypeBinding exprElementType = ((ArrayBinding) expressionType).elementsType();
 				if (exprElementType.isBaseType()) {
 					// <---stop the recursion------- 
-					if (((ArrayBinding) castType).elementsType(scope) == exprElementType) {
+					if (((ArrayBinding) castType).elementsType() == exprElementType) {
 						this.bits |= NeedRuntimeCheckCastMASK;
 					} else {
 						scope.problemReporter().typeCastError(this, castType, expressionType);
@@ -125,7 +125,7 @@ public class CastExpression extends Expression {
 				// recursively on the elements...
 				return checkCastTypesCompatibility(
 					scope,
-					((ArrayBinding) castType).elementsType(scope),
+					((ArrayBinding) castType).elementsType(),
 					exprElementType);
 			} else if (
 				castType.isClass()) {

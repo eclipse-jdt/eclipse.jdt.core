@@ -138,7 +138,7 @@ public class ArrayInitializer extends Expression {
 			binding = (ArrayBinding) expectedTb;
 			if (expressions == null)
 				return binding;
-			TypeBinding expectedElementsTb = binding.elementsType(scope);
+			TypeBinding expectedElementsTb = binding.elementsType();
 			if (expectedElementsTb.isBaseType()) {
 				for (int i = 0, length = expressions.length; i < length; i++) {
 					Expression expression = expressions[i];
@@ -189,7 +189,7 @@ public class ArrayInitializer extends Expression {
 			}
 		}
 		if (leafElementType != null) {
-			TypeBinding probableTb = scope.createArray(leafElementType, dim);
+			TypeBinding probableTb = scope.createArrayType(leafElementType, dim);
 			scope.problemReporter().typeMismatchErrorActualTypeExpectedType(this, probableTb, expectedTb);
 		}
 		return null;

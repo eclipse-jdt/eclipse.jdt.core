@@ -127,17 +127,16 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 			    currentType = (ParameterizedTypeBinding) enclosing;
 	        }
 	    } else if (originalType.isParameterizedType()) {
-//			// lazy init, since cannot do so during binding creation if during supertype connection
-//			if (this.arguments == null)  initializeArguments();
-//			ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
-//		    TypeBinding[] originalArguments = originalParameterizedType.arguments;
-//		    TypeBinding[] substitutedArguments = substitute(originalArguments);
-//		    if (substitutedArguments != originalArguments) {
 	        ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
 			return this.environment.createRawType(originalParameterizedType.type, originalParameterizedType.enclosingType);
-//		    }
-	    } else  if (originalType.isGenericType()) { 
+	    } else  if (originalType.isGenericType()) {
             return this.environment.createRawType((ReferenceBinding)originalType, null);
+	    } else if (originalType.isArrayType()) {
+			TypeBinding originalLeafComponentType = originalType.leafComponentType();
+			TypeBinding substitutedLeafComponentType = substitute(originalLeafComponentType);
+			if (substitutedLeafComponentType != originalLeafComponentType) {
+			    return this.environment.createArrayType(substitutedLeafComponentType, originalType.dimensions());
+			}
 	    }
 	    return originalType;
 	}	

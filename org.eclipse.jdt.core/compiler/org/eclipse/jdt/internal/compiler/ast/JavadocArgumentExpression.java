@@ -58,7 +58,7 @@ public class JavadocArgumentExpression extends Expression {
 					if (this.resolvedType.isArrayType()) {
 					    TypeBinding leafComponentType = this.resolvedType.leafComponentType();
 					    if (leafComponentType.isGenericType()) { // raw type
-					        this.resolvedType = scope.createArray(scope.environment().createRawType((ReferenceBinding)leafComponentType, null), this.resolvedType.dimensions());
+					        this.resolvedType = scope.createArrayType(scope.environment().createRawType((ReferenceBinding)leafComponentType, null), this.resolvedType.dimensions());
 					    }
 					} else if (this.resolvedType.isGenericType()) {
 				        this.resolvedType = scope.environment().createRawType((ReferenceBinding)this.resolvedType, null); // raw type

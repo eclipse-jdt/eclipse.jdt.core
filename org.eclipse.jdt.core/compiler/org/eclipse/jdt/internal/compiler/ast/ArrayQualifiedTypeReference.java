@@ -38,7 +38,7 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		if (leafComponentType.isParameterizedType()) {
 		    scope.problemReporter().illegalArrayOfParameterizedType(leafComponentType, this);
 		}
-		return scope.createArray(leafComponentType, dimensions);
+		return scope.createArrayType(leafComponentType, dimensions);
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output){

@@ -43,7 +43,7 @@ public class ArrayTypeReference extends SingleTypeReference {
 		if (leafComponentType.isParameterizedType()) {
 		    scope.problemReporter().illegalArrayOfParameterizedType(leafComponentType, this);
 		}
-		return scope.createArray(leafComponentType, dimensions);
+		return scope.createArrayType(leafComponentType, dimensions);
 	
 	}
 	

@@ -76,17 +76,17 @@ public class InstanceOfExpression extends OperatorExpression {
 	
 			if (castType.isArrayType()) {
 				//------- (castType.isArray) expressionType.isArray -----------
-				TypeBinding exprElementType = ((ArrayBinding) expressionType).elementsType(scope);
+				TypeBinding exprElementType = ((ArrayBinding) expressionType).elementsType();
 				if (exprElementType.isBaseType()) {
 					// <---stop the recursion------- 
-					if (((ArrayBinding) castType).elementsType(scope) != exprElementType)
+					if (((ArrayBinding) castType).elementsType() != exprElementType)
 						scope.problemReporter().notCompatibleTypesError(this, expressionType, castType);
 					return true;
 				}
 				// recursively on the elements...
 				return checkCastTypesCompatibility(
 					scope,
-					((ArrayBinding) castType).elementsType(scope),
+					((ArrayBinding) castType).elementsType(),
 					exprElementType);
 			} else if (
 				castType.isClass()) {

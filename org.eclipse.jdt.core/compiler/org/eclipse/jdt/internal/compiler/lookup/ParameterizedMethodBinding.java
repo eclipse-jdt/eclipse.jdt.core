@@ -18,8 +18,11 @@ package org.eclipse.jdt.internal.compiler.lookup;
  */
 public class ParameterizedMethodBinding extends MethodBinding {
     
-    public MethodBinding originalMethod;
+    private MethodBinding originalMethod;
     
+    /**
+     * Create method of parameterized type, substituting original parameters with type arguments.
+     */
 	public ParameterizedMethodBinding(ParameterizedTypeBinding parameterizedDeclaringClass, MethodBinding originalMethod) {
 	
 	    super(
@@ -33,6 +36,22 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	    this.typeVariables = originalMethod.typeVariables;
 	}
 	
+    /**
+     * Create method of parameterized type, substituting original parameters with type arguments.
+     */
+	public ParameterizedMethodBinding(MethodBinding originalMethod, TypeBinding[] typeArguments) {
+
+	    super(
+	            originalMethod.modifiers, 
+	            originalMethod.selector, 
+	            originalMethod.substitute(originalMethod.returnType, typeArguments),
+	            originalMethod.substitute(originalMethod.parameters, typeArguments),
+	            originalMethod.substitute(originalMethod.thrownExceptions, typeArguments),
+	            originalMethod.declaringClass);
+	    this.originalMethod = originalMethod;
+	    this.typeVariables = NoTypeVariables;
+	}
+	
 	/**
 	 * Returns true if some parameters got substituted.
 	 */
@@ -44,6 +63,6 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	 * Returns the original method (as opposed to parameterized instances)
 	 */
 	public MethodBinding original() {
-	    return this.originalMethod;
+	    return this.originalMethod.original();
 	}	
 }

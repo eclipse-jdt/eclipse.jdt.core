@@ -79,12 +79,12 @@ public final boolean areTypesCastCompatible(BlockScope scope, TypeBinding castTy
 	//========ARRAY===============
 	if (expressionType.isArrayType()) {
 		if (castType.isArrayType()) { //------- (castTb.isArray) expressionTb.isArray -----------
-			TypeBinding expressionEltType = ((ArrayBinding) expressionType).elementsType(scope);
+			TypeBinding expressionEltType = ((ArrayBinding) expressionType).elementsType();
 			if (expressionEltType.isBaseType())
 				// <---stop the recursion------- 
-				return ((ArrayBinding) castType).elementsType(scope) == expressionEltType;
+				return ((ArrayBinding) castType).elementsType() == expressionEltType;
 			//recursivly on the elts...
-			return areTypesCastCompatible(scope, ((ArrayBinding) castType).elementsType(scope), expressionEltType);
+			return areTypesCastCompatible(scope, ((ArrayBinding) castType).elementsType(), expressionEltType);
 		}
 		if (castType.isBaseType()) {
 			return false;

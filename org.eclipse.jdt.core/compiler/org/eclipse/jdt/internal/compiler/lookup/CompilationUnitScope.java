@@ -594,7 +594,7 @@ private ReferenceBinding typeToRecord(TypeBinding type) {
 	if (type.isParameterizedType())
 		type = type.erasure();
 	else if (type.isRawType())
-		type = ((RawTypeBinding) type).type.erasure();
+		type = type.erasure();
 
 	if (type.isBaseType()) return null;
 	if (type.isTypeVariable()) return null;

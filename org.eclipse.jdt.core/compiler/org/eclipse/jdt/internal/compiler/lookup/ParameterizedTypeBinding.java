@@ -532,6 +532,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
      */
     public TypeBinding substitute(TypeBinding originalType) {
         
+        // TODO (philippe) need to substitute array type
+        
         if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
     	    if (originalType.isTypeVariable()) {
     	        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
@@ -559,6 +561,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
     	            return this.environment.createParameterizedType(
     	                    originalParameterizedType.type, substitutedArguments, originalParameterizedType.enclosingType);
     	        }
+    	    } else if (originalType.isArrayType()) {
+				TypeBinding originalLeafComponentType = originalType.leafComponentType();
+				TypeBinding substitutedLeafComponentType = substitute(originalLeafComponentType);
+				if (substitutedLeafComponentType != originalLeafComponentType) {
+				    return this.environment.createArrayType(substitutedLeafComponentType, originalType.dimensions());
+				}
     	    }
         }
         return originalType;

@@ -97,8 +97,6 @@ public abstract class Scope
 			return method; // compatible
 		}
 		
-		if (true) return null; // for now
-		
 		// can only be compatible if generic method and inferred types are compatible
 		TypeVariableBinding[] typeVariables = method.typeVariables;
 		if (typeVariables  == NoTypeVariables)
@@ -108,7 +106,7 @@ public abstract class Scope
 		int varLength = typeVariables.length;
 		HashMap substitutes = new HashMap(varLength);
 		for (int i = 0; i < varLength; i++) {
-		    substitutes.put(typeVariables[i], new TypeBinding[2]);
+		    substitutes.put(typeVariables[i], new TypeBinding[1]);
 		}
 		for (int i = 0; i < argLength; i++) {
 	        parameters[i].collectSubstitutes(arguments[i], substitutes);
@@ -119,13 +117,28 @@ public abstract class Scope
             TypeBinding mostSpecificSubstitute = mostSpecificCommonSuperType(variableSubstitutes);
             if (mostSpecificSubstitute == null)
                 return null; // incompatible
+			// verify bound of variable after type inference
+           if (!typeVariables[i].boundCheck(mostSpecificSubstitute)) {
+               // TODO (philippe) must return problem binding if bound check failure : problemReporter().typeMismatchError(mostSpecificSubstitute, typeVariables[i], method, args[j]);
+               return null; // incompatible
+           }
            mostSpecificSubstitutes[i] = mostSpecificSubstitute;
-System.out.println(new String(typeVariables[i].shortReadableName()) + " --> " + new String(mostSpecificSubstitute.shortReadableName())); //$NON-NLS-1$
 		}
 
-		// apply inferred variable substitutions, then recheck argument compatibility
+		// apply inferred variable substitutions
+		ParameterizedMethodBinding methodSubstitute = new ParameterizedMethodBinding(method, mostSpecificSubstitutes);
 		
-		return method;
+		// recheck argument compatibility
+		parameters = methodSubstitute.parameters;
+		argumentCompatibility: {
+		    for (int i = 0; i < argLength; i++)
+				if (parameters[i] != arguments[i])
+					if (!arguments[i].isCompatibleWith(parameters[i])) {
+					    return null;
+					}
+		}
+		
+		return methodSubstitute;
 	}
 	
 	protected boolean connectTypeVariables(TypeParameter[] typeParameters) {
@@ -264,11 +277,11 @@ System.out.println(new String(typeVariables[i].shortReadableName()) + " --> " + 
 		return typeVariableBindings;
 	}
 	
-	public ArrayBinding createArray(TypeBinding type, int dimension) {
+	public ArrayBinding createArrayType(TypeBinding type, int dimension) {
 		if (type.isValidBinding() && !type.isParameterizedType())
 			return environment().createArrayType(type, dimension);
 		else
-			return new ArrayBinding(type, dimension);
+			return new ArrayBinding(type, dimension, environment());
 	}
 	
 	public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] arguments, ReferenceBinding enclosingType) {

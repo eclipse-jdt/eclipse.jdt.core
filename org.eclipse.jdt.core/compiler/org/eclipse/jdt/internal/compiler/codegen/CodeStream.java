@@ -4771,7 +4771,7 @@ final public void newarray(int array_Type) {
 	writeUnsignedByte(array_Type);
 }
 public void newArray(Scope scope, ArrayBinding arrayBinding) {
-	TypeBinding component = arrayBinding.elementsType(scope);
+	TypeBinding component = arrayBinding.elementsType();
 	switch (component.id) {
 		case T_int :
 			this.newarray(10);
