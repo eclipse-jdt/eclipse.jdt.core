@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
@@ -447,7 +448,9 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 			if (binding instanceof ProblemReferenceBinding) {
 				binding = ((ProblemReferenceBinding)binding).original;
 			}
-			if (!(binding instanceof TypeBinding)){
+			if (binding instanceof VariableBinding) {
+				return IMPOSSIBLE_MATCH;
+			} else if (!(binding instanceof TypeBinding)){
 				return INACCURATE_MATCH;
 			} else {
 				return this.matchLevelForType(this.simpleName, this.qualification, (TypeBinding) binding);
