@@ -1011,21 +1011,17 @@ public class JavaProject
 				classpath = readPaths(sharedClasspath);
 			}
 		} catch(JavaModelException e) {
-			/*			
-			if (this.getProject().isAccessible()){
+			if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
 				Util.log(e, 
 					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
 					+"/.classpath, will revert to default output location"); //$NON-NLS-1$
 			}
-			*/
 		} catch(IOException e){
-			/*
-			if (this.getProject().isOpen()){
+			if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
 				Util.log(e, 
 					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
 					+"/.classpath, will revert to default output location"); //$NON-NLS-1$
 			}
-			*/
 		}
 		// extract out the output location
 		if (classpath != null && classpath.length > 0) {
@@ -1237,21 +1233,17 @@ public class JavaProject
 				classpath = readPaths(sharedClasspath);
 			}
 		} catch(JavaModelException e) {
-			/*
-			if (this.getProject().isAccessible()){
+			if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
 				Util.log(e, 
 					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
 					+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
 			}
-			*/
 		} catch(IOException e){
-			/*
-			if (this.getProject().isOpen()){
+			if (JavaModelManager.VERBOSE && this.getProject().isAccessible()){
 				Util.log(e, 
 					"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
 					+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
 			}
-			*/
 		}
 		// extract out the output location
 		if (classpath != null && classpath.length > 0) {
