@@ -328,6 +328,9 @@ public final class AST {
 	public static CompilationUnit parseCompilationUnit(
 		IClassFile classFile,
 		boolean resolveBindings) {
+			if (classFile == null) {
+				throw new IllegalArgumentException();
+			}
 			String source = null;
 			try {
 				source = classFile.getSource();
