@@ -213,7 +213,7 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 		// extract message
 		char c = this.source[nextPos];
 		int start = i; 
-		int msgStart = nextPos;
+		int msgStart = i; // to exlude tag use:   int msgStart = nextPos;
 		int end = -1;
 		for (int j = nextPos; j < commentEnd; j++){
 			if ((c = this.source[j]) == '\n' || c == '\r'){
