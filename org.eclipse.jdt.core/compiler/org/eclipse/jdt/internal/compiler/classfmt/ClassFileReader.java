@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class ClassFileReader extends ClassFileStruct implements AttributeNamesConstants, IBinaryType {
 	private int constantPoolCount;
 	private int[] constantPoolOffsets;
+	private int majorVersion;
 	private int accessFlags;
 	private char[] className;
 	private char[] superclassName;
@@ -60,6 +61,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 	this.classFileName = fileName;
 	int readOffset = 10;
 	try {
+		this.majorVersion = this.u2At(6);
 		constantPoolCount = this.u2At(8);
 		// Pass #1 - Fill in all primitive constants
 		this.constantPoolOffsets = new int[constantPoolCount];
@@ -365,6 +367,14 @@ public IBinaryNestedType[] getMemberTypes() {
  */
 public IBinaryMethod[] getMethods() {
 	return this.methods;
+}
+/**
+ * Answer the major version defined in this class file according to the VM spec.
+ * 
+ * @return the major version found
+ */
+public int getMajorVersion() {
+	return this.majorVersion;
 }
 /**
  * Answer an int whose bits are set according the access constants

@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IContainer;
@@ -24,6 +27,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 
 /**
  * @see IPackageFragmentRoot
@@ -471,7 +476,71 @@ public String getHandleMemento(){
 public int getKind() throws JavaModelException {
 	return ((PackageFragmentRootInfo)getElementInfo()).getRootKind();
 }
-
+/**
+ * Get the jdk level of this root.
+ * The value can be:
+ * <ul>
+ * <li>JavaCore#JDK1_1</li>
+ * <li>JavaCore#JDK1_2</li>
+ * <li>JavaCore#JDK1_3</li>
+ * <li>JavaCore#JDK1_4</li>
+ * <li>-1 if the root is a source package fragment root or if a Java model exception occured</li>
+ * </ul>
+ * Returns the jdk level
+ */
+public int getJdkLevel() {
+	try {
+		switch(getKind()) {
+			case IPackageFragmentRoot.K_BINARY:
+				ClassFileReader reader = null;
+				if (isArchive()) {
+					// root is a jar file or a zip file
+					JarPackageFragmentRoot jarPackageFragmentRoot = (JarPackageFragmentRoot) this;
+					ZipFile jar = null;
+					try {
+						jar = jarPackageFragmentRoot.getJar();
+						for (Enumeration e= jar.entries(); e.hasMoreElements();) {
+							ZipEntry member= (ZipEntry) e.nextElement();
+							String entryName= member.getName();
+							if (Util.isClassFileName(entryName)) {
+								reader = ClassFileReader.read(jar, entryName);
+								break;
+							}
+						}
+					} catch (CoreException e) {
+					} finally {
+						JavaModelManager.getJavaModelManager().closeZipFile(jar);
+					}
+				} else if (hasChildren()) {
+					IJavaElement[] javaElements = getChildren();
+					for (int i = 0, max = javaElements.length; i < max; i++) {
+						IPackageFragment fragment = (IPackageFragment) javaElements[i];
+						if (fragment.hasChildren()) {
+							IClassFile classFile = fragment.getClassFiles()[0];
+							IFile file = (IFile) classFile.getUnderlyingResource();
+							byte[] bytes = Util.getResourceContentsAsByteArray(file);
+							IPath location = file.getLocation();
+							reader = new ClassFileReader(bytes, location == null ? null : location.toString().toCharArray());
+							break;
+						}
+					}
+				}
+				if (reader != null) {
+					int majorVersion = reader.getMajorVersion();
+					switch(majorVersion) {
+						case 45 : return JavaCore.JDK1_1;
+						case 46 : return JavaCore.JDK1_2;
+						case 47 : return JavaCore.JDK1_3;
+						case 48 : return JavaCore.JDK1_4;
+					}
+				}
+		}
+	} catch(JavaModelException e) {
+	} catch(ClassFormatException e) {
+	} catch(IOException e) {
+	}
+	return -1;
+}
 /**
  * Returns an array of non-java resources contained in the receiver.
  */

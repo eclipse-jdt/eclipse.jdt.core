@@ -30,6 +30,11 @@
  *                                 CODEASSIST_STATIC_FIELD_PREFIXES
  *                                 CODEASSIST_STATIC_FIELD_SUFFIXES
  *                                 COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION
+ *     IBM Corporation - added the following constants:
+ * 								   JDK1_1
+ * 								   JDK1_2
+ * 								   JDK1_3
+ * 								   JDK1_4
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -544,6 +549,30 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.0
 	 */
 	public static final String VERSION_1_5 = "1.5"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option value.
+	 * @see #getDefaultOptions
+	 * @since 3.0
+	 */
+	public static final int JDK1_1 = 0;
+	/**
+	 * Possible  configurable option value.
+	 * @see #getDefaultOptions
+	 * @since 3.0
+	 */
+	public static final int JDK1_2 = 1;
+	/**
+	 * Possible  configurable option value.
+	 * @see #getDefaultOptions
+	 * @since 3.0
+	 */
+	public static final int JDK1_3 = 2;
+	/**
+	 * Possible  configurable option value.
+	 * @see #getDefaultOptions
+	 * @since 3.0
+	 */
+	public static final int JDK1_4 = 3;
 	/**
 	 * Possible  configurable option value.
 	 * @see #getDefaultOptions
