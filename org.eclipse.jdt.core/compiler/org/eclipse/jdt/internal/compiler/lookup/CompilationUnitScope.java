@@ -414,8 +414,7 @@ private Binding findSingleTypeImport(char[][] compoundName) {
 		ReferenceBinding typeBinding = findType(compoundName[0], environment.defaultPackage, fPackage);
 		if (typeBinding == null)
 			return new ProblemReferenceBinding(compoundName, NotFound);
-		else
-			return typeBinding;
+		return typeBinding;
 	}
 	return findOnDemandImport(compoundName);
 }

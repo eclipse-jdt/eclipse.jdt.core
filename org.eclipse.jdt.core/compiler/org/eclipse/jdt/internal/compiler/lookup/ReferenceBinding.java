@@ -575,8 +575,7 @@ public ReferenceBinding[] syntheticEnclosingInstanceTypes() {
 	ReferenceBinding enclosingType = enclosingType();
 	if (enclosingType == null)
 		return null;
-	else
-		return new ReferenceBinding[] {enclosingType};
+	return new ReferenceBinding[] {enclosingType};
 }
 public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 	return null;		// is null if no enclosing instances are required

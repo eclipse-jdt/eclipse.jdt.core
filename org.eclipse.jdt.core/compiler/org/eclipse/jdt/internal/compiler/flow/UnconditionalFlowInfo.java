@@ -406,11 +406,10 @@ public class UnconditionalFlowInfo extends FlowInfo {
 				int vectorIndex = (position / BitCacheSize) - 1;
 				if (extraDefiniteInits == null) {
 					return; // nothing to do, it was not yet set 
-				} else {
-					// might need to grow the arrays
-					if (vectorIndex >= extraDefiniteInits.length) {
-						return; // nothing to do, it was not yet set 
-					}
+				}
+				// might need to grow the arrays
+				if (vectorIndex >= extraDefiniteInits.length) {
+					return; // nothing to do, it was not yet set 
 				}
 				long mask;
 				extraDefiniteInits[vectorIndex] &= ~(mask = 1L << (position % BitCacheSize));
@@ -452,9 +451,8 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		if ((this.reachMode & UNREACHABLE) != (otherInits.reachMode & UNREACHABLE)){
 			if ((this.reachMode & UNREACHABLE) != 0){
 				return otherInits;
-			} else {
-				return this;
-			}
+			} 
+			return this;
 		}
 		
 		// if one branch is not fake reachable, then the merged one is reachable

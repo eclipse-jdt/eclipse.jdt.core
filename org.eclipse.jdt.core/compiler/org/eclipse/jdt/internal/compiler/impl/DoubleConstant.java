@@ -48,10 +48,8 @@ public class DoubleConstant extends Constant {
 	
 	public String stringValue() {
 		String s = Double.toString(value);
-		if (s == null)
-			return "null"; //$NON-NLS-1$
-		else
-			return s;
+		if (s == null) return "null"; //$NON-NLS-1$
+		return s;
 	}
 	
 	public String toString() {

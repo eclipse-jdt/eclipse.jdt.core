@@ -877,9 +877,8 @@ public class ClassScope extends Scope {
 			ProblemReporter problemReporter = referenceCompilationUnit().problemReporter;
 			problemReporter.referenceContext = referenceContext;
 			return problemReporter;
-		} else {
-			return outerMethodScope.problemReporter();
 		}
+		return outerMethodScope.problemReporter();
 	}
 
 	/* Answer the reference type of this scope.
@@ -892,8 +891,7 @@ public class ClassScope extends Scope {
 	public String toString() {
 		if (referenceContext != null)
 			return "--- Class Scope ---\n\n"  //$NON-NLS-1$
-			+referenceContext.binding.toString();
-		else
-			return "--- Class Scope ---\n\n Binding not initialized" ; //$NON-NLS-1$
+							+ referenceContext.binding.toString();
+		return "--- Class Scope ---\n\n Binding not initialized" ; //$NON-NLS-1$
 	}
 }

@@ -392,15 +392,15 @@ public class BlockScope extends Scope {
 				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]);
 				invocationSite.setFieldIndex(currentIndex);
 				if (binding == null) {
-					if (currentIndex == length)
+					if (currentIndex == length) {
 						// must be a type if its the last name, otherwise we have no idea if its a package or type
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
 							NotFound);
-					else
-						return new ProblemBinding(
-							CharOperation.subarray(compoundName, 0, currentIndex),
-							NotFound);
+					}
+					return new ProblemBinding(
+						CharOperation.subarray(compoundName, 0, currentIndex),
+						NotFound);
 				}
 				if (binding instanceof ReferenceBinding) {
 					if (!binding.isValidBinding())
@@ -443,19 +443,17 @@ public class BlockScope extends Scope {
 						CharOperation.subarray(compoundName, 0, currentIndex),
 						typeBinding,
 						NotFound);
-				} else {
-					return new ProblemReferenceBinding(
-						CharOperation.subarray(compoundName, 0, currentIndex),
-						typeBinding,
-						NotFound);
-				}
+				} 
+				return new ProblemReferenceBinding(
+					CharOperation.subarray(compoundName, 0, currentIndex),
+					typeBinding,
+					NotFound);
 			}
 			if (!binding.isValidBinding())
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
 					binding.problemId());
 		}
-
 		if ((mask & FIELD) != 0 && (binding instanceof FieldBinding)) {
 			// was looking for a field and found a field
 			FieldBinding field = (FieldBinding) binding;
@@ -497,15 +495,15 @@ public class BlockScope extends Scope {
 				PackageBinding packageBinding = (PackageBinding) binding;
 				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]);
 				if (binding == null) {
-					if (currentIndex == length)
+					if (currentIndex == length) {
 						// must be a type if its the last name, otherwise we have no idea if its a package or type
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
 							NotFound);
-					else
-						return new ProblemBinding(
-							CharOperation.subarray(compoundName, 0, currentIndex),
-							NotFound);
+					}
+					return new ProblemBinding(
+						CharOperation.subarray(compoundName, 0, currentIndex),
+						NotFound);
 				}
 				if (binding instanceof ReferenceBinding) {
 					if (!binding.isValidBinding())
@@ -790,17 +788,16 @@ public class BlockScope extends Scope {
 					}
 					if (methodBinding != null) { // skip it if we did not find anything
 						if (methodBinding.problemId() == Ambiguous) {
-							if (foundMethod == null || foundMethod.problemId() == NotVisible)
+							if (foundMethod == null || foundMethod.problemId() == NotVisible) {
 								// supercedes any potential InheritedNameHidesEnclosingName problem
 								return methodBinding;
-							else
-								// make the user qualify the method, likely wants the first inherited method (javac generates an ambiguous error instead)
-								return new ProblemMethodBinding(
-									selector,
-									argumentTypes,
-									InheritedNameHidesEnclosingName);
+							}
+							// make the user qualify the method, likely wants the first inherited method (javac generates an ambiguous error instead)
+							return new ProblemMethodBinding(
+								selector,
+								argumentTypes,
+								InheritedNameHidesEnclosingName);
 						}
-
 						ProblemMethodBinding fuzzyProblem = null;
 						ProblemMethodBinding insideProblem = null;
 						if (methodBinding.isValidBinding()) {

@@ -57,10 +57,8 @@ public int dimensions() {
 */
 
 public TypeBinding elementsType(Scope scope) {
-	if (dimensions == 1)
-		return leafComponentType;
-	else
-		return scope.createArray(leafComponentType, dimensions - 1);
+	if (dimensions == 1) 	return leafComponentType;
+	return scope.createArray(leafComponentType, dimensions - 1);
 }
 public PackageBinding getPackage() {
 	return leafComponentType.getPackage();

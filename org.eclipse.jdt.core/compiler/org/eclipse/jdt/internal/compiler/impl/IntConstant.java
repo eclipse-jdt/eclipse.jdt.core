@@ -49,10 +49,8 @@ public class IntConstant extends Constant {
 	public String stringValue() {
 		//spec 15.17.11
 		String s = new Integer(value).toString();
-		if (s == null)
-			return "null"; //$NON-NLS-1$
-		else
-			return s;
+		if (s == null) return "null"; //$NON-NLS-1$
+		return s;
 	}
 
 	public String toString() {

@@ -40,20 +40,19 @@ public class Argument extends LocalDeclaration {
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().redefineArgument(this);
 				return;
-			} else {
-				boolean isSpecialArgument = false;
-				if (existingVariable instanceof FieldBinding) {
-					if (scope.isInsideConstructor()) {
-						isSpecialArgument = true; // constructor argument
-					} else {
-						AbstractMethodDeclaration methodDecl = scope.referenceMethod();
-						if (methodDecl != null && CharOperation.prefixEquals(SET, methodDecl.selector)) {
-							isSpecialArgument = true; // setter argument
-						}
+			}
+			boolean isSpecialArgument = false;
+			if (existingVariable instanceof FieldBinding) {
+				if (scope.isInsideConstructor()) {
+					isSpecialArgument = true; // constructor argument
+				} else {
+					AbstractMethodDeclaration methodDecl = scope.referenceMethod();
+					if (methodDecl != null && CharOperation.prefixEquals(SET, methodDecl.selector)) {
+						isSpecialArgument = true; // setter argument
 					}
 				}
-				scope.problemReporter().localVariableHiding(this, existingVariable, isSpecialArgument);
 			}
+			scope.problemReporter().localVariableHiding(this, existingVariable, isSpecialArgument);
 		}
 
 		scope.addLocalVariable(
@@ -98,9 +97,8 @@ public class Argument extends LocalDeclaration {
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().redefineArgument(this);
 				return null;
-			} else {
-				scope.problemReporter().localVariableHiding(this, existingVariable, false);
 			}
+			scope.problemReporter().localVariableHiding(this, existingVariable, false);
 		}
 
 		binding = new LocalVariableBinding(this, tb, modifiers, false); // argument decl, but local var  (where isArgument = false)

@@ -387,8 +387,7 @@ PackageBinding getTopLevelPackage(char[] name) {
 	if (packageBinding != null) {
 		if (packageBinding == TheNotFoundPackage)
 			return null;
-		else
-			return packageBinding;
+		return packageBinding;
 	}
 
 	if (nameEnvironment.isPackage(null, name)) {
@@ -445,8 +444,7 @@ public ReferenceBinding getType(char[][] compoundName) {
 	// compoundName refers to a nested type incorrectly (for example, package1.A$B)
 	if (referenceBinding.isNestedType())
 		return new ProblemReferenceBinding(compoundName, InternalNameProvided);
-	else
-		return referenceBinding;
+	return referenceBinding;
 }
 /* Answer the type corresponding to the name from the binary file.
 * Does not ask the oracle for the type if its not found in the cache... instead an
@@ -531,8 +529,7 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end) {
 
 	if (dimension == 0)
 		return binding;
-	else
-		return createArrayType(binding, dimension);
+	return createArrayType(binding, dimension);
 }
 /* Ask the oracle if a package exists named name in the package named compoundName.
 */
@@ -540,8 +537,7 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end) {
 boolean isPackage(char[][] compoundName, char[] name) {
 	if (compoundName == null || compoundName.length == 0)
 		return nameEnvironment.isPackage(null, name);
-	else
-		return nameEnvironment.isPackage(compoundName, name);
+	return nameEnvironment.isPackage(compoundName, name);
 }
 // The method verifier is lazily initialized to guarantee the receiver, the compiler & the oracle are ready.
 
