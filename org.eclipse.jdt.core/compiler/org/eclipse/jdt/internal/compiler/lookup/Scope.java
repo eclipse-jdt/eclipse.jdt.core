@@ -455,45 +455,28 @@ public abstract class Scope
 	}
 	
 	public TypeVariableBinding[] createTypeVariables(TypeParameter[] typeParameters, Binding declaringElement) {
-
-		PackageBinding unitPackage = compilationUnitScope().fPackage;
-		
 		// do not construct type variables if source < 1.5
 		if (typeParameters == null || environment().options.sourceLevel < ClassFileConstants.JDK1_5)
 			return NoTypeVariables;
+
 		TypeVariableBinding[] typeVariableBindings = NoTypeVariables;
-		
+		PackageBinding unitPackage = compilationUnitScope().fPackage;
 		int length = typeParameters.length;
 		typeVariableBindings = new TypeVariableBinding[length];
-		HashtableOfObject knownTypeParameterNames = new HashtableOfObject(length);
 		int count = 0;
-		nextParameter : for (int i = 0; i < length; i++) {
+		for (int i = 0; i < length; i++) {
 			TypeParameter typeParameter = typeParameters[i];
 			TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, declaringElement, i);
 			parameterBinding.fPackage = unitPackage;
 			typeParameter.binding = parameterBinding;
-			
-			if (knownTypeParameterNames.containsKey(typeParameter.name)) {
-				TypeVariableBinding previousBinding = (TypeVariableBinding) knownTypeParameterNames.get(typeParameter.name);
-				if (previousBinding != null) {
-					for (int j = 0; j < i; j++) {
-						TypeParameter previousParameter = typeParameters[j];
-						if (previousParameter.binding == previousBinding) {
-							problemReporter().duplicateTypeParameterInType(previousParameter);
-							previousParameter.binding = null;
-							break;
-						}
-					}
-				}
-				knownTypeParameterNames.put(typeParameter.name, null); // ensure that the duplicate parameter is found & removed
-				problemReporter().duplicateTypeParameterInType(typeParameter);
-				typeParameter.binding = null;
-			} else {
-				knownTypeParameterNames.put(typeParameter.name, parameterBinding);
-				// remember that we have seen a field with this name
-				if (parameterBinding != null)
-					typeVariableBindings[count++] = parameterBinding;
+
+			// detect duplicates, but keep each variable to reduce secondary errors with instantiating this generic type (assume number of variables is correct)
+			for (int j = 0; j < count; j++) {
+				TypeVariableBinding knownVar = typeVariableBindings[j];
+				if (CharOperation.equals(knownVar.sourceName, typeParameter.name))
+					problemReporter().duplicateTypeParameterInType(typeParameter);
 			}
+			typeVariableBindings[count++] = parameterBinding;
 //				TODO should offer warnings to inform about hiding declaring, enclosing or member types				
 //				ReferenceBinding type = sourceType;
 //				// check that the member does not conflict with an enclosing type
@@ -512,9 +495,8 @@ public abstract class Scope
 //					}
 //				}
 		}
-		if (count != length) {
+		if (count != length)
 			System.arraycopy(typeVariableBindings, 0, typeVariableBindings = new TypeVariableBinding[count], 0, count);
-		}
 		return typeVariableBindings;
 	}
 
