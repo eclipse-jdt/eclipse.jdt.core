@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0598"));
+		suite.addTest(new ASTConverterTestAST3_2("test0599"));
 		return suite;
 	}
 	/**
@@ -6051,5 +6051,26 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=86541
+	 */
+	public void test0599() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0599", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		String expectedResult = 
+			"The type test0599.Zork2 cannot be resolved. It is indirectly referenced from required .class files";
+		assertProblemsSize(compilationUnit, 1, expectedResult);
+		compilationUnit.accept(new ASTVisitor() {
+			public void endVisit(MethodDeclaration methodDeclaration) {
+				Block body = methodDeclaration.getBody();
+				assertNotNull("No body", body);
+				assertTrue("No statements", body.statements().size() != 0);
+			}
+		});
 	}
 }

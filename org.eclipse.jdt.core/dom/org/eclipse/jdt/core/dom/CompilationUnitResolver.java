@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -83,6 +84,8 @@ class CompilationUnitResolver extends Compiler {
 	HashtableOfObject requestedKeys;
 	
 	DefaultBindingResolver.BindingTables bindingTables;
+	
+	boolean hasCompilationAborted;
 
 	/**
 	 * Answer a new CompilationUnitVisitor using the given name environment and compiler options.
@@ -127,6 +130,7 @@ class CompilationUnitResolver extends Compiler {
 		IProblemFactory problemFactory) {
 
 		super(environment, policy, settings, requestor, problemFactory, false);
+		this.hasCompilationAborted = false;
 	}
 	
 	/*
@@ -312,6 +316,7 @@ class CompilationUnitResolver extends Compiler {
 		if (unit != null) {
 			removeUnresolvedBindings(unit);
 		}
+		this.hasCompilationAborted = true;
 	}	
 	
 	public static void parse(ICompilationUnit[] compilationUnits, ASTRequestor astRequestor, int apiLevel, Map options, IProgressMonitor monitor) {
@@ -455,8 +460,7 @@ class CompilationUnitResolver extends Compiler {
 		NodeSearcher nodeSearcher,
 		Map options,
 		WorkingCopyOwner owner,
-		IProgressMonitor monitor)
-		throws JavaModelException {
+		IProgressMonitor monitor) throws JavaModelException {
 	
 		CompilationUnitDeclaration unit = null;
 		CancelableNameEnvironment environment = null;
@@ -479,7 +483,19 @@ class CompilationUnitResolver extends Compiler {
 					nodeSearcher,
 					true, // method verification
 					true, // analyze code
-					true); // generate code					
+					true); // generate code
+			if (resolver.hasCompilationAborted) {
+				// the bindings could not be resolved due to missing types in name environment
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=86541
+				CompilationUnitDeclaration unitDeclaration = parse(sourceUnit, nodeSearcher, options);
+				final int problemCount = unit.compilationResult.problemCount;
+				if (problemCount != 0) {
+					unitDeclaration.compilationResult.problems = new IProblem[problemCount];
+					System.arraycopy(unit.compilationResult.problems, 0, unitDeclaration.compilationResult.problems, 0, problemCount);
+					unitDeclaration.compilationResult.problemCount = problemCount;
+				}
+				return unitDeclaration;
+			}
 			if (NameLookup.VERBOSE)
 				System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
 			return unit;
