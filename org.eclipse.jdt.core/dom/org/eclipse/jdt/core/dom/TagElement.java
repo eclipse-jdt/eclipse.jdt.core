@@ -143,15 +143,15 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * <ul>
 	 * <li>"@see Foo#bar()" - TagElement with tag name "@see";
 	 * fragments() contains a single MethodRef node</li>
-	 * <li>"@deprecated Use {@link #foo foo} instead." - 
-	 * TagElement with tag name "@deprecated";
-	 * 3 fragments: TextElement ("Use "),
-	 * TagElement (for "@link #foo foo"),
-	 * TextElement (" instead.")</li>
 	 * <li>"@param args the program arguments" -
 	 * TagElement with tag name "@param";
 	 * 2 fragments: SimpleName ("args"), TextElement
 	 * (" the program arguments")</li>
+	 * <li>"@return See {@link #foo foo} instead." - 
+	 * TagElement with tag name "@return";
+	 * 3 fragments: TextElement ("See "),
+	 * TagElement (for "@link #foo foo"),
+	 * TextElement (" instead.")</li>
 	 * </ul>
 	 * The use of Name, MethodRef, and MemberRef nodes within
 	 * tag elements allows these fragments to be queried for
