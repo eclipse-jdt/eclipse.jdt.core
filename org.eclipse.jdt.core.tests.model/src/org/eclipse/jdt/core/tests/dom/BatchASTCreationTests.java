@@ -201,7 +201,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Test the batch creation of 2 ASTs without resolving.
+	 * Tests the batch creation of 2 ASTs without resolving.
 	 */
 	public void test001() throws CoreException {
 		ICompilationUnit[] workingCopies = null;
@@ -235,7 +235,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Test the batch creation of 2 ASTs with resolving.
+	 * Tests the batch creation of 2 ASTs with resolving.
 	 */
 	public void test002() throws CoreException {
 		ICompilationUnit[] workingCopies = null;
@@ -278,7 +278,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that ASTs that are required by original source but were not asked for are not handled.
+	 * Ensures that ASTs that are required by original source but were not asked for are not handled.
 	 */
 	public void test003() throws CoreException {
 		ICompilationUnit[] workingCopies = null;
@@ -313,7 +313,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensure that a package binding can be retrieved using its key.
+	 * Ensures that a package binding can be retrieved using its key.
 	 */
 	public void test004() throws CoreException {
 		assertRequestedBindingFound(
@@ -327,7 +327,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that a type binding can be retrieved using its key.
+	 * Ensures that a type binding can be retrieved using its key.
 	 */
 	public void test005() throws CoreException {
 		assertRequestedBindingFound(
@@ -345,7 +345,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that a type binding can be retrieved using its key.
+	 * Ensures that a type binding can be retrieved using its key.
 	 */
 	public void test006() throws CoreException {
 		assertRequestedBindingFound(
@@ -363,7 +363,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensure that a member type binding can be retrieved using its key.
+	 * Ensures that a member type binding can be retrieved using its key.
 	 */
 	public void test007() throws CoreException {
 		assertRequestedBindingFound(
@@ -379,7 +379,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that a member type binding can be retrieved using its key.
+	 * Ensures that a member type binding can be retrieved using its key.
 	 */
 	public void test008() throws CoreException {
 		assertRequestedBindingFound(
@@ -396,7 +396,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			"Lp1/X$Member1$Member2;");
 	}
 	/*
-	 * Ensure that an anonymous type binding can be retrieved using its key.
+	 * Ensures that an anonymous type binding can be retrieved using its key.
 	 */
 	public void test009() throws CoreException {
 		assertRequestedBindingFound(
@@ -413,7 +413,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			"Lp1/X$1;");
 	}
 	/*
-	 * Ensure that a local type binding can be retrieved using its key.
+	 * Ensures that a local type binding can be retrieved using its key.
 	 */
 	public void test010() throws CoreException {
 		assertRequestedBindingFound(
@@ -431,7 +431,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that a package binding can be created using its key.
+	 * Ensures that a package binding can be created using its key.
 	 */
 	public void test011() throws CoreException {
 		assertBindingCreated(
@@ -445,7 +445,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that a type binding can be created using its key.
+	 * Ensures that a type binding can be created using its key.
 	 */
 	public void test012() throws CoreException {
 		assertBindingCreated(
@@ -463,7 +463,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that a type binding can be created using its key.
+	 * Ensures that a type binding can be created using its key.
 	 */
 	public void test013() throws CoreException {
 		assertBindingCreated(
@@ -481,7 +481,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensure that a member type binding can be created using its key.
+	 * Ensures that a member type binding can be created using its key.
 	 */
 	public void test014() throws CoreException {
 		assertBindingCreated(
@@ -497,7 +497,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that a member type binding can be created using its key.
+	 * Ensures that a member type binding can be created using its key.
 	 */
 	public void test015() throws CoreException {
 		assertBindingCreated(
@@ -515,7 +515,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensure that an anonymous type binding can be created using its key.
+	 * Ensures that an anonymous type binding can be created using its key.
 	 */
 	public void test016() throws CoreException {
 		assertBindingCreated(
@@ -533,7 +533,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensure that a local type binding can be created using its key.
+	 * Ensures that a local type binding can be created using its key.
 	 */
 	public void test017() throws CoreException {
 		assertBindingCreated(
@@ -551,7 +551,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensure that a method binding can be created using its key.
+	 * Ensures that a method binding can be created using its key.
 	 */
 	public void test018() throws CoreException {
 		assertBindingCreated(
@@ -567,7 +567,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensure that a method binding can be created using its key.
+	 * Ensures that a method binding can be created using its key.
 	 */
 	public void test019() throws CoreException {
 		assertBindingCreated(
@@ -583,7 +583,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensure that a method binding can be created using its key.
+	 * Ensures that a method binding can be created using its key.
 	 */
 	public void test020() throws CoreException {
 		assertBindingCreated(
@@ -599,7 +599,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that a field binding can be created using its key.
+	 * Ensures that a field binding can be created using its key.
 	 */
 	public void test021() throws CoreException {
 		assertBindingCreated(
@@ -614,14 +614,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that a base type binding can be created using its key.
+	 * Ensures that a base type binding can be created using its key.
 	 */
 	public void test022() throws CoreException {
 		assertBindingCreated(new String[0],"I");
 	}
 	
 	/*
-	 * Ensure that an array binding can be created using its key.
+	 * Ensures that an array binding can be created using its key.
 	 */
 	public void test023() throws CoreException {
 		assertBindingCreated(
@@ -635,14 +635,14 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensure that an array binding can be created using its key.
+	 * Ensures that an array binding can be created using its key.
 	 */
 	public void test024() throws CoreException {
 		assertBindingCreated(new String[0],"[[I");
 	}
 	
 	/* 
-	 * Ensure that a method binding in an anonymous type with several kind of parameters can be created using its key
+	 * Ensures that a method binding in an anonymous type with several kind of parameters can be created using its key
 	 */
 	public void test025() throws CoreException {
 		assertBindingCreated(
@@ -664,7 +664,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensure that a generic type binding can be created using its key.
+	 * Ensures that a generic type binding can be created using its key.
 	 */
 	public void test026() throws CoreException {
 		assertBindingCreated(
@@ -678,7 +678,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that a generic type binding can be created using its key.
+	 * Ensures that a generic type binding can be created using its key.
 	 */
 	public void test027() throws CoreException {
 		assertBindingCreated(
@@ -700,7 +700,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that a parameterized type binding can be created using its key.
+	 * Ensures that a parameterized type binding can be created using its key.
 	 */
 	public void test028() throws CoreException {
 		assertBindingCreated(
@@ -715,7 +715,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that a member parameterized type binding can be created using its key.
+	 * Ensures that a member parameterized type binding can be created using its key.
 	 */
 	public void test029() throws CoreException {
 		assertBindingCreated(
@@ -732,7 +732,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that a raw type binding can be created using its key.
+	 * Ensures that a raw type binding can be created using its key.
 	 */
 	public void test030() throws CoreException {
 		assertBindingCreated(
@@ -747,7 +747,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensure that a member raw type binding can be created using its key.
+	 * Ensures that a member raw type binding can be created using its key.
 	 */
 	public void test031() throws CoreException {
 		assertBindingCreated(
@@ -762,4 +762,21 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			"Lp1/X<Ljava/lang/Error;Ljava/lang/Exception;>.Y;");
 	}
+	
+	/* 
+	 * Ensures that a parameterized method binding can be created using its key
+	 */
+	public void test032() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  <T> void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			"Lp1/X;.foo<T:Ljava/lang/Object;>()V");
+	}
+
 }

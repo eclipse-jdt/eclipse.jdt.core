@@ -56,8 +56,8 @@ public class LocalVariableBinding extends VariableBinding {
 	}
 	
 	/*
-	 * declaringUniqueKey slash scopeIndex slash varName
-	 * p.X { void foo() { int local; } } --> Lp/X;.foo()V/1/local
+	 * declaringUniqueKey # scopeIndex / varName
+	 * p.X { void foo() { int local; } } --> Lp/X;.foo()V#1/local
 	 */
 	public char[] computeUniqueKey() {
 		StringBuffer buffer = new StringBuffer();
@@ -79,7 +79,7 @@ public class LocalVariableBinding extends VariableBinding {
 		}
 
 		// scope index
-		getKey(scope, buffer);
+		getScopeKey(scope, buffer);
 
 		// variable name
 		buffer.append('/');
@@ -91,11 +91,11 @@ public class LocalVariableBinding extends VariableBinding {
 		return uniqueKey;
 	}
 	
-	private void getKey(BlockScope scope, StringBuffer buffer) {
+	private void getScopeKey(BlockScope scope, StringBuffer buffer) {
 		int scopeIndex = scope.scopeIndex();
 		if (scopeIndex != -1) {
-			getKey((BlockScope)scope.parent, buffer);
-			buffer.append('/');
+			getScopeKey((BlockScope)scope.parent, buffer);
+			buffer.append('#');
 			buffer.append(scopeIndex);
 		}
 	}

@@ -114,7 +114,13 @@ class BindingKeyScanner {
 					this.token = ARRAY;
 					return this.token;
 				case '<':
-					this.token = TYPE;
+					if (this.index > this.start && this.source[this.start-1] == '.')
+						if (this.source[this.start-2] == '>')
+							this.token = TYPE;
+						else
+							this.token = METHOD;
+					else
+						this.token = TYPE;
 					return this.token;
 				case '(':
 					this.token = METHOD;
@@ -149,6 +155,11 @@ class BindingKeyScanner {
 		return this.token;
 	}
 	
+	void skipMethodSignature() {
+		while (this.index < this.source.length && this.source[this.index] != '#')
+			this.index++;
+	}
+	
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		switch (this.token) {
@@ -178,22 +189,22 @@ class BindingKeyScanner {
 				break;
 		}
 		if (this.index < 0) {
-			buffer.append("##"); //$NON-NLS-1$
+			buffer.append("**"); //$NON-NLS-1$
 			buffer.append(this.source);
 		} else if (this.index <= this.source.length) {
 			buffer.append(CharOperation.subarray(this.source, 0, this.start));
-			buffer.append('#');
+			buffer.append('*');
 			if (this.start <= this.index) {
 				buffer.append(CharOperation.subarray(this.source, this.start, this.index));
-				buffer.append('#');
+				buffer.append('*');
 				buffer.append(CharOperation.subarray(this.source, this.index, this.source.length));
 			} else {
-				buffer.append('#');
+				buffer.append('*');
 				buffer.append(CharOperation.subarray(this.source, this.start, this.source.length));
 			}
 		} else {
 			buffer.append(this.source);
-			buffer.append("##"); //$NON-NLS-1$
+			buffer.append("**"); //$NON-NLS-1$
 		}
 		return buffer.toString();
 	}

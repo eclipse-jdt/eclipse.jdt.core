@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
-import java.util.ArrayList;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -250,51 +248,14 @@ class BindingKey {
 	 MethodBinding getMethodBinding(MethodBinding[] methods, CompilationUnitResolver resolver) {
 	 	if (methods == null) return null;
 	 	char[] selector = this.scanner.getTokenSource();
-	 	
-	 	// collect parameter type bindings
-	 	ArrayList parameterList = new ArrayList();
-	 	do {
-	 		reset();
-	 		Binding parameterBinding = getCompilerBinding(resolver);
-	 		if (parameterBinding == null) break;
-	 		parameterList.add(parameterBinding);
-	 	} while (this.scanner.token != BindingKeyScanner.END && !this.scanner.isAtParametersStart());
-	 	int parameterLength = parameterList.size();
-	 	TypeBinding[] parameters = new TypeBinding[parameterLength];
-	 	parameterList.toArray(parameters);
-	 	
-	 	
-	 	// collect type parameter bindings
-	 	ArrayList typeParameterList = new ArrayList();
-	 	do {
-	 		reset();
-	 		Binding typeParameterBinding = getCompilerBinding(resolver);
-	 		if (typeParameterBinding == null) break;
-	 		typeParameterList.add(typeParameterBinding);
-	 	} while (this.scanner.token != BindingKeyScanner.END);
-	 	int typeParameterLength = typeParameterList.size();
-	 	TypeBinding[] typeParameters = new TypeBinding[typeParameterLength];
-	 	typeParameterList.toArray(typeParameters);
+	 	this.scanner.skipMethodSignature();
+	 	char[] signature = this.scanner.getTokenSource();
 	 	
 	 	nextMethod: for (int i = 0, methodLength = methods.length; i < methodLength; i++) {
 			MethodBinding method = methods[i];
 			if (CharOperation.equals(selector, method.selector) || (selector.length == 0 && method.isConstructor())) {
-				TypeBinding[] methodParameters = method.parameters;
-				int methodParameterLength = methodParameters == null ? 0 : methodParameters.length;
-				if (methodParameterLength != parameterLength)
-					continue nextMethod;
-				for (int j = 0; j < parameterLength; j++) {
-					if (methodParameters[j] != parameters[j])
-						continue nextMethod;
-				}
-				TypeBinding[] methodTypeParameters = method.typeVariables;
-				int methodTypeParameterLength = methodTypeParameters == null ? 0 : methodTypeParameters.length;
-				if (methodTypeParameterLength != typeParameterLength)
-					continue nextMethod;
-				for (int j = 0; j < typeParameterLength; j++) {
-					if (methodTypeParameters[j] != typeParameters[j])
-						continue nextMethod;
-				}
+				if (CharOperation.equals(signature, method.genericSignature()))
+					return method;
 				return method;
 			}
 		}
