@@ -64,7 +64,7 @@ public CreateTypeHierarchyOperation(IType element, IWorkingCopy[] workingCopies,
 	} else {
 		copies = null;
 	}
-	this.typeHierarchy = new TypeHierarchy(element, scope, computeSubtypes, copies);
+	this.typeHierarchy = new TypeHierarchy(element, copies, scope, computeSubtypes);
 }
 /**
  * Constructs an operation to create a type hierarchy for the
@@ -80,7 +80,7 @@ public CreateTypeHierarchyOperation(IType element, IWorkingCopy[] workingCopies,
 	} else {
 		copies = null;
 	}
-	this.typeHierarchy = new TypeHierarchy(element, project, computeSubtypes, copies);
+	this.typeHierarchy = new TypeHierarchy(element, copies, project, computeSubtypes);
 }
 /**
  * Performs the operation - creates the type hierarchy

@@ -171,18 +171,18 @@ public TypeHierarchy() throws JavaModelException {
 /**
  * Creates a TypeHierarchy on the given type.
  */
-public TypeHierarchy(IType type, IJavaProject project, boolean computeSubtypes, ICompilationUnit[] workingCopies) throws JavaModelException {
-	this(type, SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), computeSubtypes, workingCopies);
+public TypeHierarchy(IType type, ICompilationUnit[] workingCopies, IJavaProject project, boolean computeSubtypes) throws JavaModelException {
+	this(type, workingCopies, SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), computeSubtypes);
 	this.project = project;
 }
 /**
  * Creates a TypeHierarchy on the given type.
  */
-public TypeHierarchy(IType type, IJavaSearchScope scope, boolean computeSubtypes, ICompilationUnit[] workingCopies) throws JavaModelException {
+public TypeHierarchy(IType type, ICompilationUnit[] workingCopies, IJavaSearchScope scope, boolean computeSubtypes) throws JavaModelException {
 	this.focusType = type;
+	this.workingCopies = workingCopies;
 	this.computeSubtypes = computeSubtypes;
 	this.scope = scope;
-	this.workingCopies = workingCopies;
 }
 /**
  * Activates this hierarchy for change listeners
