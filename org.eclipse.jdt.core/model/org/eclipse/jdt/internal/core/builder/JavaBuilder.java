@@ -511,6 +511,8 @@ private void recordNewState(State state) {
  * String representation for debugging purposes
  */
 public String toString() {
-	return "JavaBuilder for " + currentProject.getName(); //$NON-NLS-1$
+	return currentProject == null
+		? "JavaBuilder for unknown project" //$NON-NLS-1$
+		: "JavaBuilder for " + currentProject.getName(); //$NON-NLS-1$
 }
 }
