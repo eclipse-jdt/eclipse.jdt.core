@@ -338,10 +338,18 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 	return null;
 }
 // Internal use only
-public MethodBinding findMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
+public MethodBinding findMethod(
+	ReferenceBinding receiverType,
+	char[] selector,
+	TypeBinding[] argumentTypes,
+	InvocationSite invocationSite) {
+
 	ReferenceBinding currentType = receiverType;
 	MethodBinding matchingMethod = null;
-	ObjectVector found = null;
+	ObjectVector found = new ObjectVector();
+
+	//compilationUnitScope().recordTypeReference(receiverType);
+	//compilationUnitScope().recordTypeReferences(argumentTypes);
 
 	if (currentType.isInterface()) {
 		MethodBinding[] currentMethods = currentType.getMethods(selector);
@@ -349,109 +357,108 @@ public MethodBinding findMethod(ReferenceBinding receiverType, char[] selector, 
 		if (currentLength == 1) {
 			matchingMethod = currentMethods[0];
 		} else if (currentLength > 1) {
-			found = new ObjectVector();
 			for (int f = 0; f < currentLength; f++)
 				found.add(currentMethods[f]);
 		}
-
-		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != NoSuperInterfaces) {
-			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-			int lastPosition = -1;
-			if (++lastPosition == interfacesToVisit.length)
-				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-			interfacesToVisit[lastPosition] = itsInterfaces;
-			
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-				for (int j = 0, length = interfaces.length; j < length; j++) {
-					currentType = interfaces[j];
-					if ((currentType.tagBits & InterfaceVisited) == 0) { // if interface as not already been visited
-						currentType.tagBits |= InterfaceVisited;
-
-						currentMethods = currentType.getMethods(selector);
-						if ((currentLength = currentMethods.length) == 1 && matchingMethod == null && found == null) {
-							matchingMethod = currentMethods[0];
-						} else if (currentLength > 0) {
-							if (found == null) {
-								found = new ObjectVector();
-								if (matchingMethod != null)
-									found.add(matchingMethod);
-							}
-							for (int f = 0; f < currentLength; f++)
-								found.add(currentMethods[f]);
-						}
-
-						itsInterfaces = currentType.superInterfaces();
-						if (itsInterfaces != NoSuperInterfaces) {
-							if (++lastPosition == interfacesToVisit.length)
-								System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-							interfacesToVisit[lastPosition] = itsInterfaces;
-						}
-					}
-				}
-			}
-
-			// bit reinitialization
-			for (int i = 0; i <= lastPosition; i++) {
-				ReferenceBinding[] interfaces = interfacesToVisit[i];
-				for (int j = 0, length = interfaces.length; j < length; j++)
-					interfaces[j].tagBits &= ~InterfaceVisited;
-			}
-		}
-		currentType = (matchingMethod == null && found == null) ? getJavaLangObject() : null;
+		matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
+		currentType = getJavaLangObject();
 	}
 
+	// superclass lookup
+	boolean hierarchyContainsAbstractClasses = false;
+	ReferenceBinding classHierarchyStart = currentType;
+	
 	while (currentType != null) {
 		MethodBinding[] currentMethods = currentType.getMethods(selector);
 		int currentLength = currentMethods.length;
-		if (currentLength == 1 && matchingMethod == null && found == null) {
+		if (currentLength == 1 && matchingMethod == null && found.size == 0) {
 			matchingMethod = currentMethods[0];
 		} else if (currentLength > 0) {
-			if (found == null) {
-				found = new ObjectVector();
-				if (matchingMethod != null)
-					found.add(matchingMethod);
-			}
+			if (found.size == 0 && matchingMethod != null)
+				found.add(matchingMethod);
 			for (int f = 0; f < currentLength; f++)
 				found.add(currentMethods[f]);
 		}
+		if (currentType.isAbstract()) hierarchyContainsAbstractClasses = true;
 		currentType = currentType.superclass();
 	}
 
-	if (found == null)
-		return matchingMethod; // may be null - have not checked arg types or visibility
+	// abstract superclass superinterface lookup (since maybe missing default
+	// abstract methods)
+	if (hierarchyContainsAbstractClasses){
+		currentType = classHierarchyStart;
+		while (currentType != null){
+			if (currentType.isAbstract()){
+				matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
+			}
+			currentType = currentType.superclass();
+		}
+	}
 
 	int foundSize = found.size;
-	MethodBinding[] compatible = new MethodBinding[foundSize];
-	int compatibleIndex = 0;
+	if (foundSize == 0)
+		return matchingMethod; // may be null - have not checked arg types or visibility
+
+	MethodBinding[] candidates = new MethodBinding[foundSize];
+	int candidatesCount = 0;
+
+	// argument type compatibility check
 	for (int i = 0; i < foundSize; i++) {
 		MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
 		if (areParametersAssignable(methodBinding.parameters, argumentTypes))
-			compatible[compatibleIndex++] = methodBinding;
+			candidates[candidatesCount++] = methodBinding;
 	}
-	if (compatibleIndex == 1)
-		return compatible[0]; // have not checked visibility
-	if (compatibleIndex == 0)
+	if (candidatesCount == 1)
+		return candidates[0]; // have not checked visibility
+	if (candidatesCount == 0) { // try to find a close match when the parameter order is wrong or missing some parameters
+		int argLength = argumentTypes.length;
+		nextMethod : for (int i = 0; i < foundSize; i++) {
+			MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
+			TypeBinding[] params = methodBinding.parameters;
+			int paramLength = params.length;
+			nextArg: for (int a = 0; a < argLength; a++) {
+				TypeBinding arg = argumentTypes[a];
+				for (int p = 0; p < paramLength; p++)
+					if (params[p] == arg)
+						continue nextArg;
+				continue nextMethod;
+			}
+			return methodBinding;
+		}
 		return (MethodBinding) found.elementAt(0); // no good match so just use the first one found
+	}
 
-	MethodBinding[] visible = new MethodBinding[compatibleIndex];
-	int visibleIndex = 0;
-	for (int i = 0; i < compatibleIndex; i++) {
-		MethodBinding methodBinding = compatible[i];
-		if (canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this))
-			visible[visibleIndex++] = methodBinding;
+	// visibility check
+	int visiblesCount = 0;
+	for (int i = 0; i < candidatesCount; i++) {
+		MethodBinding methodBinding = candidates[i];
+		if (canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this)){
+			if (visiblesCount != i) {
+				candidates[i] = null;
+				candidates[visiblesCount] = methodBinding;
+			}
+			visiblesCount++;
+		}
 	}
-	if (visibleIndex == 1){
-		return visible[0];
+	if (visiblesCount == 1) {
+		//compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
+		return candidates[0];
 	}
-	if (visibleIndex == 0)
-		return new ProblemMethodBinding(compatible[0].selector, argumentTypes, compatible[0].declaringClass, NotVisible);
-	if (visible[0].declaringClass.isClass())
-		return mostSpecificClassMethodBinding(visible, visibleIndex);
-	else
-		return mostSpecificInterfaceMethodBinding(visible, visibleIndex);
+	if (visiblesCount == 0){
+		return new ProblemMethodBinding(
+			candidates[0].selector,
+			argumentTypes,
+			candidates[0].declaringClass,
+			NotVisible);
+	}
+	if (candidates[0].declaringClass.isClass()) {
+		return mostSpecificClassMethodBinding(candidates, visiblesCount);
+	} else {
+		return mostSpecificInterfaceMethodBinding(candidates, visiblesCount);
+	}
 }
+
+
 // Internal use only
 public MethodBinding findMethodForArray(ArrayBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
 	ReferenceBinding object = getJavaLangObject();

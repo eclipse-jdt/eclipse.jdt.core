@@ -397,10 +397,10 @@ public abstract class Scope
 		ReferenceBinding currentType = receiverType;
 		MethodBinding matchingMethod = null;
 		ObjectVector found = new ObjectVector();
-		//boolean relyOnDefaultAbstractMethods = environment().options.targetJDK < CompilerOptions.JDK1_2;
 
 		compilationUnitScope().recordTypeReference(receiverType);
 		compilationUnitScope().recordTypeReferences(argumentTypes);
+
 		if (currentType.isInterface()) {
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
 			int currentLength = currentMethods.length;
@@ -414,6 +414,10 @@ public abstract class Scope
 			currentType = getJavaLangObject();
 		}
 
+		// superclass lookup
+		boolean hierarchyContainsAbstractClasses = false;
+		ReferenceBinding classHierarchyStart = currentType;
+		
 		while (currentType != null) {
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
 			int currentLength = currentMethods.length;
@@ -425,27 +429,38 @@ public abstract class Scope
 				for (int f = 0; f < currentLength; f++)
 					found.add(currentMethods[f]);
 			}
-
-			//if (!relyOnDefaultAbstractMethods && currentType.isAbstract())
-			if (currentType.isAbstract())
-				matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
+			if (currentType.isAbstract()) hierarchyContainsAbstractClasses = true;
 			currentType = currentType.superclass();
+		}
+
+		// abstract superclass superinterface lookup (since maybe missing default
+		// abstract methods)
+		if (hierarchyContainsAbstractClasses){
+			currentType = classHierarchyStart;
+			while (currentType != null){
+				if (currentType.isAbstract()){
+					matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
+				}
+				currentType = currentType.superclass();
+			}
 		}
 
 		int foundSize = found.size;
 		if (foundSize == 0)
 			return matchingMethod; // may be null - have not checked arg types or visibility
 
-		MethodBinding[] compatible = new MethodBinding[foundSize];
-		int compatibleIndex = 0;
+		MethodBinding[] candidates = new MethodBinding[foundSize];
+		int candidatesCount = 0;
+
+		// argument type compatibility check
 		for (int i = 0; i < foundSize; i++) {
 			MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
 			if (areParametersAssignable(methodBinding.parameters, argumentTypes))
-				compatible[compatibleIndex++] = methodBinding;
+				candidates[candidatesCount++] = methodBinding;
 		}
-		if (compatibleIndex == 1)
-			return compatible[0]; // have not checked visibility
-		if (compatibleIndex == 0) { // try to find a close match when the parameter order is wrong or missing some parameters
+		if (candidatesCount == 1)
+			return candidates[0]; // have not checked visibility
+		if (candidatesCount == 0) { // try to find a close match when the parameter order is wrong or missing some parameters
 			int argLength = argumentTypes.length;
 			nextMethod : for (int i = 0; i < foundSize; i++) {
 				MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
@@ -463,27 +478,34 @@ public abstract class Scope
 			return (MethodBinding) found.elementAt(0); // no good match so just use the first one found
 		}
 
-		MethodBinding[] visible = new MethodBinding[compatibleIndex];
-		int visibleIndex = 0;
-		for (int i = 0; i < compatibleIndex; i++) {
-			MethodBinding methodBinding = compatible[i];
-			if (methodBinding.canBeSeenBy(receiverType, invocationSite, this))
-				visible[visibleIndex++] = methodBinding;
+		// visibility check
+		int visiblesCount = 0;
+		for (int i = 0; i < candidatesCount; i++) {
+			MethodBinding methodBinding = candidates[i];
+			if (methodBinding.canBeSeenBy(receiverType, invocationSite, this)) {
+				if (visiblesCount != i) {
+					candidates[i] = null;
+					candidates[visiblesCount] = methodBinding;
+				}
+				visiblesCount++;
+			}
 		}
-		if (visibleIndex == 1) {
-			compilationUnitScope().recordTypeReferences(visible[0].thrownExceptions);
-			return visible[0];
+		if (visiblesCount == 1) {
+			compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
+			return candidates[0];
 		}
-		if (visibleIndex == 0)
+		if (visiblesCount == 0)
 			return new ProblemMethodBinding(
-				compatible[0].selector,
+				candidates[0].selector,
 				argumentTypes,
-				compatible[0].declaringClass,
+				candidates[0].declaringClass,
 				NotVisible);
-		if (visible[0].declaringClass.isClass())
-			return mostSpecificClassMethodBinding(visible, visibleIndex);
-		else
-			return mostSpecificInterfaceMethodBinding(visible, visibleIndex);
+				
+		if (candidates[0].declaringClass.isClass()) {
+			return mostSpecificClassMethodBinding(candidates, visiblesCount);
+		} else {
+			return mostSpecificInterfaceMethodBinding(candidates, visiblesCount);
+		}
 	}
 
 	public MethodBinding findMethodInSuperInterfaces(
@@ -1082,10 +1104,13 @@ public abstract class Scope
 	* or a closer superclass.
 	*/
 	protected final MethodBinding mostSpecificClassMethodBinding(MethodBinding[] visible, int visibleSize) {
+
 		MethodBinding method = null;
 		MethodBinding previous = null;
+
 		nextVisible : for (int i = 0; i < visibleSize; i++) {
 			method = visible[i];
+						
 			if (previous != null && method.declaringClass != previous.declaringClass)
 				break; // cannot answer a method farther up the hierarchy than the first method found
 			previous = method;
