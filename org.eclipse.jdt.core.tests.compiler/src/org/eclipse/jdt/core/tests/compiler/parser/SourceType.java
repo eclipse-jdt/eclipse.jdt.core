@@ -52,7 +52,7 @@ public SourceType(
 
 	this.enclosingTypeName = enclosingTypeName;
 	this.declarationStart = declarationStart;
-	this.declarationEnd = declarationEnd;
+
 	this.modifiers = modifiers;
 	this.name = name;
 	this.nameSourceStart = nameSourceStart;
