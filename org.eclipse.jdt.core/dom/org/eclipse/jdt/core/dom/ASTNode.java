@@ -147,7 +147,7 @@ public abstract class ASTNode {
 	 * 9. Update the AST test suites.
 	 * 
 	 * The next steps are to update AST.parse* to start generating
-	 * the new type of nodes.
+	 * the new type of nodes, and ASTRewrite to serialize them back out.
 	 */
 	
 	/**
