@@ -48,6 +48,7 @@ PRs Fixed in this Release (since 1.0NL stream)
 
 PRs Fixed in 1.0NL stream (since 0.9)
 ==================================================================================
+1GIRQLA: ITPJCORE:ALL - ClassFormatError for local variable attribute
 1GGCYEU: ITPJCORE:ALL - Using Ant for build skip files
 1GH3218: ITPJUI:WIN - mnuemonic problems
 1GGLLUG: ITPJCORE:WINNT - @deprecated does not work if it is followed by a TAB 
