@@ -362,15 +362,20 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 		} else {
 			if (nameRef instanceof SingleNameReference) {
 				if (this.matchesName(this.simpleName, ((SingleNameReference)nameRef).token)) {
-					return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+					// can only be a possible match since resolution is needed 
+					// to find out if it is a type ref
+					return POSSIBLE_MATCH;
 				} else {
 					return IMPOSSIBLE_MATCH;
 				}
 			} else { // QualifiedNameReference
 				char[][] tokens = ((QualifiedNameReference)nameRef).tokens;
 				for (int i = 0, max = tokens.length; i < max; i++){
-					if (this.matchesName(this.simpleName, tokens[i])) 
-						return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+					if (this.matchesName(this.simpleName, tokens[i])) {
+						// can only be a possible match since resolution is needed 
+						// to find out if it is a type ref
+						return POSSIBLE_MATCH;
+					}
 				}
 				return IMPOSSIBLE_MATCH;
 			}				
@@ -451,7 +456,9 @@ private int matchLevel(TypeReference typeRef, boolean resolve) {
 				char[][] tokens = ((QualifiedTypeReference)typeRef).tokens;
 				for (int i = 0, max = tokens.length; i < max; i++){
 					if (this.matchesName(this.simpleName, tokens[i])) {
-						return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+						// can only be a possible match since resolution is needed 
+						// to find out if it is a type ref
+						return POSSIBLE_MATCH;
 					}
 				}
 				return IMPOSSIBLE_MATCH;

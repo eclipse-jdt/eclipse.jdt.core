@@ -193,16 +193,20 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 				binding instanceof FieldBinding ?
 					 (FieldBinding)binding :
 					 null;
-			int level = this.matchLevel(fieldBinding);
-			switch (level) {
-				case ACCURATE_MATCH:
-					accuracies[indexOfFirstFieldBinding] = IJavaSearchResultCollector.EXACT_MATCH;
-					break;
-				case INACCURATE_MATCH:
-					accuracies[indexOfFirstFieldBinding] = IJavaSearchResultCollector.POTENTIAL_MATCH;
-					break;
-				default:
-					accuracies[indexOfFirstFieldBinding] = -1;
+			if (fieldBinding == null) {
+				accuracies[indexOfFirstFieldBinding] = accuracy;
+			} else {
+				int level = this.matchLevel(fieldBinding);
+				switch (level) {
+					case ACCURATE_MATCH:
+						accuracies[indexOfFirstFieldBinding] = IJavaSearchResultCollector.EXACT_MATCH;
+						break;
+					case INACCURATE_MATCH:
+						accuracies[indexOfFirstFieldBinding] = IJavaSearchResultCollector.POTENTIAL_MATCH;
+						break;
+					default:
+						accuracies[indexOfFirstFieldBinding] = -1;
+				}
 			}
 		} else {
 			accuracies[indexOfFirstFieldBinding] = -1;
@@ -212,16 +216,20 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 			char[] token = qNameRef.tokens[i];
 			if (this.matchesName(this.name, token)) {
 				FieldBinding otherBinding = qNameRef.otherBindings == null ? null : qNameRef.otherBindings[i-(indexOfFirstFieldBinding+1)];
-				int level = this.matchLevel(otherBinding);
-				switch (level) {
-					case ACCURATE_MATCH:
-						accuracies[i] = IJavaSearchResultCollector.EXACT_MATCH;
-						break;
-					case INACCURATE_MATCH:
-						accuracies[i] = IJavaSearchResultCollector.POTENTIAL_MATCH;
-						break;
-					default:
-						accuracies[i] = -1;
+				if (otherBinding == null) {
+					accuracies[i] = accuracy;
+				} else {
+					int level = this.matchLevel(otherBinding);
+					switch (level) {
+						case ACCURATE_MATCH:
+							accuracies[i] = IJavaSearchResultCollector.EXACT_MATCH;
+							break;
+						case INACCURATE_MATCH:
+							accuracies[i] = IJavaSearchResultCollector.POTENTIAL_MATCH;
+							break;
+						default:
+							accuracies[i] = -1;
+					}
 				}
 			} else {
 				accuracies[i] = -1;
@@ -360,24 +368,31 @@ private int matchLevel(FieldDeclaration fieldDecl, boolean resolve) {
 private int matchLevel(NameReference nameRef, boolean resolve) {	
 	if (!resolve) {
 		// field name
-		boolean nameMatch = true;
-		if (this.name != null) {
-			if (nameRef instanceof SingleNameReference) {
-				nameMatch = this.matchesName(this.name, ((SingleNameReference)nameRef).token);
-			} else { // QualifiedNameReference
-				nameMatch = false;
-				QualifiedNameReference qNameRef = (QualifiedNameReference)nameRef;
-				char[][] tokens = qNameRef.tokens;
-				for (int i = qNameRef.indexOfFirstFieldBinding-1, max = tokens.length; i < max && !nameMatch; i++){
-					if (i >= 0) nameMatch = this.matchesName(this.name, tokens[i]);
-				}
-			}				
-		} 
-		if (nameMatch) {
+		if (this.name == null) {
 			return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 		} else {
-			return IMPOSSIBLE_MATCH;
-		}
+			if (nameRef instanceof SingleNameReference) {
+				if (this.matchesName(this.name, ((SingleNameReference)nameRef).token)) {
+					// can only be a possible match since resolution is needed 
+					// to find out if it is a field ref
+					return POSSIBLE_MATCH;
+				} else {
+					return IMPOSSIBLE_MATCH;
+				}
+			} else { // QualifiedNameReference
+				QualifiedNameReference qNameRef = (QualifiedNameReference)nameRef;
+				char[][] tokens = qNameRef.tokens;
+				boolean matchOnFirstToken = false;
+				for (int i = 0, max = tokens.length; i < max; i++){
+					if (this.matchesName(this.name, tokens[i])) {
+						// can only be a possible match since resolution is needed 
+						// to find out if it is a field ref
+						return POSSIBLE_MATCH;
+					}
+				}
+				return IMPOSSIBLE_MATCH;
+			}				
+		} 
 	} else {
 		Binding binding = nameRef.binding;
 		if (binding == null) {
@@ -421,7 +436,16 @@ private int matchLevel(FieldBinding binding) {
 	// receiver type
 	ReferenceBinding receiverBinding = binding.declaringClass;
 	if (receiverBinding == null) {
-		return INACCURATE_MATCH;
+		if (binding == ArrayBinding.LengthField) {
+			// optimized case for length field of an array
+			if (this.declaringQualification == null && this.declaringSimpleName == null) {
+				return ACCURATE_MATCH;
+			} else {
+				return IMPOSSIBLE_MATCH;
+			}
+		} else {
+			return INACCURATE_MATCH;
+		}
 	} else {
 		// Note there is no dynamic lookup for field access
 		level = this.matchLevelForType(this.declaringSimpleName, this.declaringQualification, receiverBinding);

@@ -893,8 +893,8 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 	/**
 	 * Locate the matches amongst the matching openables.
 	 */
-	private void locateMatches(JavaProject previousJavaProject) throws JavaModelException {
-		MatchingOpenable[] openables = this.matchingOpenables.getMatchingOpenables(previousJavaProject.getPackageFragmentRoots());
+	private void locateMatches(JavaProject javaProject) throws JavaModelException {
+		MatchingOpenable[] openables = this.matchingOpenables.getMatchingOpenables(javaProject.getPackageFragmentRoots());
 	
 		// binding creation
 		for (int i = 0, length = openables.length; i < length; i++) { 
