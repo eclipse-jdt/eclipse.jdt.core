@@ -752,19 +752,6 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_NEW_LINE_BEFORE_WHILE_IN_DO_STATEMENT = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_before_while_in_do_statement";	//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a new line in control statements
-	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_in_control_statements"
-	 *     - possible values:   { INSERT, DO_NOT_INSERT }
-	 *     - default:           DO_NOT_INSERT
-	 * </pre>
-	 * @see JavaCore#INSERT
-	 * @see JavaCore#DO_NOT_INSERT
-	 * @since 3.0
-	 * @deprecated Will be removed before M9 please use the specific FORMATTER_INSERT_NEW_LINE_IN_XX_STATEMENT where XX represents the specific statement
-	 */
-	public static final String FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_in_control_statements";	//$NON-NLS-1$
-	/**
-	 * <pre>
 	 * FORMATTER / Option to insert a new line in an empty anonymous type declaration
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_in_empty_anonymous_type_declaration"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
@@ -3067,4 +3054,17 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_REMOVE_UNNECESSARY_SEMICOLON = JavaCore.PLUGIN_ID + ".formatter.remove_unnecessary_semicolon";	//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a new line in control statements
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_in_control_statements"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           DO_NOT_INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.0
+	 * @deprecated Will be removed before M9 please use the specific FORMATTER_INSERT_NEW_LINE_IN_XX_STATEMENT where XX represents the specific statement
+	 */
+	public static final String FORMATTER_INSERT_NEW_LINE_IN_CONTROL_STATEMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_in_control_statements";	//$NON-NLS-1$
 }
