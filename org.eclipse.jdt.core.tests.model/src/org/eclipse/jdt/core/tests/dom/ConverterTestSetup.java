@@ -111,19 +111,34 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	}	
 
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
-		return AST.parseCompilationUnit(unit, resolveBindings, null, null);
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setSource(unit);
+		parser.setResolveBindings(resolveBindings);
+		return parser.createAST(null);
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, int position, boolean resolveBindings) {
-		return AST.parsePartialCompilationUnit(unit, position, resolveBindings, null, null);
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setSource(unit);
+		parser.setFocalPosition(position);
+		parser.setResolveBindings(resolveBindings);
+		return parser.createAST(null);
 	}
 
 	public ASTNode runConversion(IClassFile classFile, int position, boolean resolveBindings) {
-		return AST.parsePartialCompilationUnit(classFile, position, resolveBindings, null, null);
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setSource(classFile);
+		parser.setFocalPosition(position);
+		parser.setResolveBindings(resolveBindings);
+		return parser.createAST(null);
 	}
 	
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
-		return AST.parseCompilationUnit(source, unitName, project, null, null);
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setSource(source);
+		parser.setUnitName(unitName);
+		parser.setProject(project);
+		return parser.createAST(null);
 	}
 	
 

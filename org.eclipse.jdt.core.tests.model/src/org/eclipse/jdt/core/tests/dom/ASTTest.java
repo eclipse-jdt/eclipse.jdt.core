@@ -6262,6 +6262,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 
+	/**
+	 * @deprecated (Uses getLeadingComment() which is deprecated)
+	 */
 	public void testEnhancedForStatement() {
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			// node type introduced in 3.0 API

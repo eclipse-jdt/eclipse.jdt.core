@@ -31,6 +31,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
@@ -272,7 +273,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void _test() {
 		try {
 			char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(new File("D:/workspaces/eclipse/plugins/TestingOlivier/src/FormatterRegressionTests.java"), null);
-			CompilationUnit compilationUnit = AST.parseCompilationUnit(contents);
+			ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
+			c.setSource(contents);
+			CompilationUnit compilationUnit = (CompilationUnit) c.createAST(null);
 			List types = compilationUnit.types();
 			TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
 			MethodDeclaration[] methodDeclarations = typeDeclaration.getMethods();
