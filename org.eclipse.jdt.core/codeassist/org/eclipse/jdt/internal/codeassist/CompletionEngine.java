@@ -2624,7 +2624,7 @@ public final class CompletionEngine
 				case Scope.BLOCK_SCOPE :
 					BlockScope blockScope = (BlockScope) scope;
 
-					next : for (int i = 0, length = blockScope.scopeIndex; i < length; i++) {
+					next : for (int i = 0, length = blockScope.subscopeCount; i < length; i++) {
 
 						if (blockScope.subscopes[i] instanceof ClassScope) {
 							SourceTypeBinding localType =

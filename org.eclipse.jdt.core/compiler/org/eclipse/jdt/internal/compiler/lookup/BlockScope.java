@@ -39,7 +39,7 @@ public class BlockScope extends Scope {
 	public final static VariableBinding[] NoEnclosingInstanceInStaticContext = {};
 
 	public Scope[] subscopes = new Scope[1]; // need access from code assist
-	public int scopeIndex = 0; // need access from code assist
+	public int subscopeCount = 0; // need access from code assist
 
 	protected BlockScope(int kind, Scope parent) {
 
@@ -131,14 +131,14 @@ public class BlockScope extends Scope {
 	}
 
 	public void addSubscope(Scope childScope) {
-		if (scopeIndex == subscopes.length)
+		if (subscopeCount == subscopes.length)
 			System.arraycopy(
 				subscopes,
 				0,
-				(subscopes = new Scope[scopeIndex * 2]),
+				(subscopes = new Scope[subscopeCount * 2]),
 				0,
-				scopeIndex);
-		subscopes[scopeIndex++] = childScope;
+				subscopeCount);
+		subscopes[subscopeCount++] = childScope;
 	}
 
 	/* Answer true if the receiver is suitable for assigning final blank fields.
@@ -202,7 +202,7 @@ public class BlockScope extends Scope {
 		boolean hasMoreVariables = ilocal < maxLocals;
 
 		// scope init
-		int iscope = 0, maxScopes = this.scopeIndex;
+		int iscope = 0, maxScopes = this.subscopeCount;
 		boolean hasMoreScopes = maxScopes > 0;
 
 		// iterate scopes and variables in parallel
@@ -320,7 +320,7 @@ public class BlockScope extends Scope {
 	 */
 	public final ReferenceBinding findLocalType(char[] name) {
 
-		for (int i = 0, length = scopeIndex; i < length; i++) {
+		for (int i = 0, length = subscopeCount; i < length; i++) {
 			if (subscopes[i] instanceof ClassScope) {
 				SourceTypeBinding sourceType =
 					((ClassScope) subscopes[i]).referenceContext.binding;
@@ -1032,6 +1032,20 @@ public class BlockScope extends Scope {
 		return methodScope().referenceType();
 	}
 
+	/*
+	 * Answer the index of this scope relatively to its parent.
+	 * For method scope, answers -1 (not a classScope relative position)
+	 */
+	public int scopeIndex() {
+		if (this instanceof MethodScope) return -1;
+		BlockScope parentScope = (BlockScope)parent;
+		Scope[] parentSubscopes = parentScope.subscopes;
+		for (int i = 0, max = parentScope.subscopeCount; i < max; i++) {
+			if (parentSubscopes[i] == this) return i;
+		}
+		return -1;
+	}
+	
 	// start position in this scope - for ordering scopes vs. variables
 	int startIndex() {
 		return startIndex;
@@ -1044,7 +1058,7 @@ public class BlockScope extends Scope {
 	public String toString(int tab) {
 
 		String s = basicToString(tab);
-		for (int i = 0; i < scopeIndex; i++)
+		for (int i = 0; i < subscopeCount; i++)
 			if (subscopes[i] instanceof BlockScope)
 				s += ((BlockScope) subscopes[i]).toString(tab + 1) + "\n"; //$NON-NLS-1$
 		return s;
