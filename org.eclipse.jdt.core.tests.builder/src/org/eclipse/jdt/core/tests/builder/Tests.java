@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.tests.util.TestVerifier;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  * Base class for Java image builder tests
@@ -66,6 +67,11 @@ public class Tests extends TestCase {
 			System.out.println(Util.displayString(verifier.getExecutionOutput()));
 		}
 		String actualError = verifier.getExecutionError();
+		
+		// workaround pb on 1.3.1 VM (line delimitor is not the platform line delimitor)
+		char[] error = actualError.toCharArray();
+		actualError = new String(CharOperation.replace(error, System.getProperty("line.separator").toCharArray(), new char[] {'\n'}));
+		
 		if (actualError.indexOf(expectedError) == -1){
 			System.out.println("ERRORS\n");
 			System.out.println(Util.displayString(actualError));
