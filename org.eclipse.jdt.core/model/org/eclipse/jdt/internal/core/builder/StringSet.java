@@ -45,6 +45,17 @@ public void clear() {
 	this.elementSize = 0;
 }
 
+public boolean includes(String value) {
+	int length = values.length;
+	int index = (value.hashCode() & 0x7FFFFFFF) % length;
+	String current;
+	while ((current = this.values[index]) != null) {
+		if (value.equals(current)) return true;
+		if (++index == length) index = 0;
+	}
+	return false;
+}
+
 private void rehash() {
 	StringSet newSet = new StringSet(elementSize * 2); // double the number of expected elements
 	String current;
