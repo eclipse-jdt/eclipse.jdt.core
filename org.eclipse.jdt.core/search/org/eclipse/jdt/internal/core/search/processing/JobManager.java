@@ -406,7 +406,9 @@ public abstract class JobManager implements Runnable {
 		Thread thread = this.thread;
 		this.thread = null; // mark the job manager as shutting down so that the thread will stop by itself
 		try {
-			thread.join();
+			if (thread != null) { // see http://bugs.eclipse.org/bugs/show_bug.cgi?id=31858
+				thread.join();
+			}
 		} catch (InterruptedException e) {
 		}
 	}
