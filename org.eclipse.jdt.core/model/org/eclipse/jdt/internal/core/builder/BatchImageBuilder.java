@@ -125,7 +125,7 @@ protected void copyExtraResourcesBack() throws CoreException {
 								createErrorFor(resource, Util.bind("build.duplicateResource")); //$NON-NLS-1$
 							} else {
 								resource.copy(copiedResource.getFullPath(), true, null);
-								resource.setDerived(true);
+								copiedResource.setDerived(true);
 							}
 							return false;
 						case IResource.FOLDER :

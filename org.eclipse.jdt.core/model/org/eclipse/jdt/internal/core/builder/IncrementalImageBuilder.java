@@ -360,7 +360,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 							System.out.println("Copying added file " + resourcePath); //$NON-NLS-1$
 						getOutputFolder(resourcePath.removeLastSegments(1)); // ensure package exists in the output folder
 						resource.copy(outputFile.getFullPath(), true, null);
-						resource.setDerived(true);
+						outputFile.setDerived(true);
 						return;
 					case IResourceDelta.REMOVED :
 						if (outputFile.exists()) {
@@ -381,7 +381,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 							System.out.println("Copying changed file " + resourcePath); //$NON-NLS-1$
 						getOutputFolder(resourcePath.removeLastSegments(1)); // ensure package exists in the output folder
 						resource.copy(outputFile.getFullPath(), true, null);
-						resource.setDerived(true);
+						outputFile.setDerived(true);
 				}
 				return;
 			}
