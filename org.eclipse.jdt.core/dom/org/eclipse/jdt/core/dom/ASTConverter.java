@@ -3369,7 +3369,8 @@ class ASTConverter {
 			while(!(currentNode instanceof AbstractTypeDeclaration)) {
 				currentNode = currentNode.getParent();
 			}
-			if (currentNode instanceof TypeDeclaration) {
+			if (currentNode instanceof TypeDeclaration
+				|| currentNode instanceof EnumDeclaration) {
 				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
 				if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
 					return typeDecl.staticInitializerScope;
@@ -3389,19 +3390,13 @@ class ASTConverter {
 			while(!(currentNode instanceof AbstractTypeDeclaration)) {
 				currentNode = currentNode.getParent();
 			}
-			if (currentNode instanceof TypeDeclaration) {
+			if (currentNode instanceof TypeDeclaration
+					|| currentNode instanceof EnumDeclaration) {
 				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
 				if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
 					return typeDecl.staticInitializerScope;
 				} else {
 					return typeDecl.initializerScope;
-				}
-			} else if (currentNode instanceof EnumDeclaration) {
-				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enumDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
-				if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
-					return enumDecl.staticInitializerScope;
-				} else {
-					return enumDecl.initializerScope;
 				}
 			} else if (currentNode instanceof AnnotationTypeDeclaration) {
 				org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration annotationTypeDecl = (org.eclipse.jdt.internal.compiler.ast.AnnotationTypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);

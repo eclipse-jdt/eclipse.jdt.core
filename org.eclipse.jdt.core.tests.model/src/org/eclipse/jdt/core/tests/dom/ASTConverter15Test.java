@@ -79,7 +79,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0058"));
+		suite.addTest(new ASTConverter15Test("test0059"));
 		return suite;
 	}
 		
@@ -1572,6 +1572,18 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		assertTrue("Not public type declaration", Modifier.isPublic(typeDeclaration.getModifiers()));
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77772
+	 */
+	public void test0059() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0059", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
 	}
 }
 
