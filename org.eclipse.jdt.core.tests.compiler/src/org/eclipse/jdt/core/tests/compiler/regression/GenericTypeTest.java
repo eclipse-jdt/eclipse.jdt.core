@@ -315,29 +315,6 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				runJavac(testFiles, expectedProblemLog);
 		}
 	}
-	// TODO (philippe) same as test001, but every type is now a SourceTypeBinding
-	public void _test001_source() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X<Tx1 extends S, Tx2 extends C>  extends XS<Tx2> {\n" + 
-				"\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        I w = new X<S,I>().get(new I());\n" + 
-				"        System.out.println(\"SUCCESS\");\n" + 
-				"    }\n" + 
-				"}\n" + 
-				"class S {}\n" +
-				"class I implements C<I> {}\n" + // TODO (philippe) NPE with "class I implements C {}\n"
-				"interface C<Tc> {}\n" +
-				"class XS <Txs> {\n" + 
-				"    Txs get(Txs t) {\n" + 
-				"        return t;\n" + 
-				"    }\n" + 
-				"}\n"
-			},
-			"SUCCESS");
-	}
 
 	public void test001() {
 		this.runConformTest(
@@ -1918,7 +1895,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	// raw type: assignments 
 	public void test065() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeRawOperation, CompilerOptions.ERROR);		
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);		
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2618,7 +2595,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 
 	public void test086() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeRawOperation, CompilerOptions.ERROR);			    
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2649,7 +2626,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	
 	public void test087() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeRawOperation, CompilerOptions.ERROR);			    
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2680,7 +2657,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 	
 	public void test088() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeRawOperation, CompilerOptions.ERROR);			    
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2724,7 +2701,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 
 	public void test090() {
 		Map customOptions = getCompilerOptions();
-		customOptions.put(CompilerOptions.OPTION_ReportUnsafeRawOperation, CompilerOptions.ERROR);			    
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);			    
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2824,5 +2801,52 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		"SUCCESS");		
 	}		
 	
-
+	// same as test001, but every type is now a SourceTypeBinding
+	// TODO (kent) NPE is due to the fact that Tc param hierarchy did not get connected when resolving hierarchy of Tx2 param
+	// Tx2 extends C, i.e. Tx2 extends C<bound erasures> (since raw type)
+	public void _test094() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<Tx1 extends S, Tx2 extends C>  extends XS<Tx2> {\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        I w = new X<S,I>().get(new I());\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class S {}\n" +
+				"class I implements C<I> {}\n" + 
+				"interface C<Tc> {}\n" +
+				"class XS <Txs> {\n" + 
+				"    Txs get(Txs t) {\n" + 
+				"        return t;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}
+	// TODO (kent) same issue as test094
+	public void _test095() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<Tx1 extends S, Tx2 extends C>  extends XS<Tx2> {\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        I w = new X<S,I>().get(new I());\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class S {}\n" +
+				"class I implements C {}\n" + 
+				"interface C<Tc> {}\n" +
+				"class XS <Txs> {\n" + 
+				"    Txs get(Txs t) {\n" + 
+				"        return t;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}	
 }

@@ -513,7 +513,7 @@ public int computeSeverity(int problemId){
 		case IProblem.UnsafeConstructorWithRawArguments:
 		case IProblem.UnsafeMethodWithRawArguments:
 		case IProblem.UnsafeRawFieldAssignment:
-			return this.options.getSeverity(CompilerOptions.UnsafeRawOperation);
+			return this.options.getSeverity(CompilerOptions.UnsafeTypeOperation);
 
 		/*
 		 * Javadoc syntax errors

@@ -73,7 +73,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportUnusedDeclaredThrownException = "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding = "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnqualifiedFieldAccess = "org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess"; //$NON-NLS-1$
-	public static final String OPTION_ReportUnsafeRawOperation = "org.eclipse.jdt.core.compiler.problem.unsafeRawOperation"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnsafeTypeOperation = "org.eclipse.jdt.core.compiler.problem.unsafeTypeOperation"; //$NON-NLS-1$
 	public static final String OPTION_Source = "org.eclipse.jdt.core.compiler.source"; //$NON-NLS-1$
 	public static final String OPTION_TargetPlatform = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
 	public static final String OPTION_Compliance = "org.eclipse.jdt.core.compiler.compliance"; //$NON-NLS-1$
@@ -146,7 +146,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long UnnecessaryTypeCheck = ASTNode.Bit27;
 	public static final long UndocumentedEmptyBlock = ASTNode.Bit28;
 	public static final long IndirectStaticAccess = ASTNode.Bit29;
-	public static final long UnsafeRawOperation = ASTNode.Bit30;
+	public static final long UnsafeTypeOperation = ASTNode.Bit30;
 
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -163,7 +163,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		| NoImplicitStringConversion
 		| FinallyBlockNotCompleting
 		| AssertUsedAsAnIdentifier
-		| UnsafeRawOperation;
+		| UnsafeTypeOperation;
 
 	// Debug attributes
 	public static final int Source = 1; // SourceFileAttribute
@@ -297,7 +297,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportUnusedDeclaredThrownException, getSeverityString(UnusedDeclaredThrownException));
 		optionsMap.put(OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, this.reportUnusedDeclaredThrownExceptionWhenOverriding ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportUnqualifiedFieldAccess, getSeverityString(UnqualifiedFieldAccess));
-		optionsMap.put(OPTION_ReportUnsafeRawOperation, getSeverityString(UnsafeRawOperation));
+		optionsMap.put(OPTION_ReportUnsafeTypeOperation, getSeverityString(UnsafeTypeOperation));
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(this.complianceLevel)); 
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(this.sourceLevel)); 
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(this.targetJDK)); 
@@ -517,7 +517,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_ReportFinallyBlockNotCompletingNormally)) != null) updateSeverity(FinallyBlockNotCompleting, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnqualifiedFieldAccess)) != null) updateSeverity(UnqualifiedFieldAccess, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportNoEffectAssignment)) != null) updateSeverity(NoEffectAssignment, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportUnsafeRawOperation)) != null) updateSeverity(UnsafeRawOperation, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnsafeTypeOperation)) != null) updateSeverity(UnsafeTypeOperation, optionValue);
 
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {

@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 public class RawTypeBinding extends ParameterizedTypeBinding {
     
 	public RawTypeBinding(ReferenceBinding type, LookupEnvironment environment){
-		super(type, parameterErasures(type), environment);
+		super(type, null, environment);
 		this.modifiers ^= AccGenericSignature;
 	}    
 	/**
@@ -74,19 +74,31 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		}
 		return readableName;
 	}
+
 	/**
 	 * Returns a type, where original type was substituted using the receiver
 	 * raw type.
+	 * On raw types, all parameterized type denoting same original type are converted
+	 * to raw types. e.g. 
+	 * class X <T> {
+	 *   X<T> foo;
+	 *   X<String> bar;
+	 * } when used in raw fashion, then type of both foo and bar is raw type X.
 	 */
 	public TypeBinding substitute(TypeBinding originalType) {
-	    
-	    // substitute of a raw type is the raw type itself if denoting same type
+
+	    // substitute of a raw type if the raw type itself if denoting same type
 	    if (((originalType.tagBits & TagBits.HasTypeVariable) != 0)
 		        && (originalType.isParameterizedType() && ((ParameterizedTypeBinding)originalType).type == this.type)) {
             return this;
         }
+	    // lazy init, since cannot do so during binding creation if during supertype connection
+	    if (this.arguments == null) { 
+			this.arguments = parameterErasures(this.type);
+		}
 		return super.substitute(originalType);
 	}	
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
 	 */

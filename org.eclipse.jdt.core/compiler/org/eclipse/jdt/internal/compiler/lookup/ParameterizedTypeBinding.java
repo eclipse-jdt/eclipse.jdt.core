@@ -27,7 +27,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	public FieldBinding[] fields;	
 	public MethodBinding[] methods;
 	
-	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] typeArguments, LookupEnvironment environment){
+	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments, LookupEnvironment environment){
 		
 		this.type = type;
 		this.fPackage = type.fPackage;
@@ -35,14 +35,16 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		// expect the fields & methods to be initialized correctly later
 		this.fields = null;
 		this.methods = null;		
-		this.arguments = typeArguments;
 		this.environment = environment;
 		this.modifiers = type.modifiers | AccGenericSignature | AccUnresolved; // until methods() is sent
-		for (int i = 0, length = typeArguments.length; i < length; i++) {
-		    if ((typeArguments[i].tagBits & HasTypeVariable) != 0) {
-		        this.tagBits |= HasTypeVariable;
-		        break;
-		    }
+		if (arguments != null) {
+			this.arguments =arguments;
+			for (int i = 0, length =arguments.length; i < length; i++) {
+			    if ((arguments[i].tagBits & HasTypeVariable) != 0) {
+			        this.tagBits |= HasTypeVariable;
+			        break;
+			    }
+			}
 		}
 		// TODO determine if need to copy other tagBits from type so as to provide right behavior to all predicates
 	}

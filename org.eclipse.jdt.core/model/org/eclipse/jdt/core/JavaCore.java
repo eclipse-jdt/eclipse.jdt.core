@@ -355,6 +355,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_PB_UNSAFE_TYPE_OPERATION = PLUGIN_ID + ".compiler.problem.unsafeTypeOperation"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_INVALID_JAVADOC = PLUGIN_ID + ".compiler.problem.invalidJavadoc"; //$NON-NLS-1$
@@ -1389,6 +1395,33 @@ public final class JavaCore extends Plugin {
 	 * Note: more options might be added in further releases.
 	 * <pre>
 	 * RECOGNIZED OPTIONS:
+	 * 
+	 * COMPILER / Setting Compliance Level
+	 *    Select the compliance level for the compiler. In "1.3" mode, source and target settings
+	 *    should not go beyond "1.3" level.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.compliance"
+	 *     - possible values:   { "1.3", "1.4", "1.5" }
+	 *     - default:           "1.4"
+	 * 
+	 * COMPILER / Setting Source Compatibility Mode
+	 *    Specify whether which source level compatibility is used. From 1.4 on, 'assert' is a keyword
+	 *    reserved for assertion support. Also note, than when toggling to 1.4 mode, the target VM
+	 *   level should be set to "1.4" and the compliance mode should be "1.4".
+	 *   Source level 1.5 is necessary to enable generics, autoboxing, covariance, annotations, enumerations
+	 *   enhanced for loop, static imports and varargs. Once toggled, the target VM level should be set to "1.5"
+	 *   and the compliance mode should be "1.5".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.source"
+	 *     - possible values:   { "1.3", "1.4", "1.5" }
+	 *     - default:           "1.3"
+	 * 
+	 * COMPILER / Defining Target Java Platform
+	 *    For binary compatibility reason, .class files can be tagged to with certain VM versions and later.
+	 *    Note that "1.4" target require to toggle compliance mode to "1.4" too. Similarily, "1.5" target require
+	 *    to toggle compliance mode to "1.5".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.targetPlatform"
+	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4", "1.5" }
+	 *     - default:           "1.2"
+	 *
 	 * COMPILER / Generating Local Variable Debug Attribute
  	 *    When generated, this attribute will enable local variable names 
 	 *    to be displayed in debugger, only in place where variables are 
@@ -1418,13 +1451,6 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "preserve", "optimize out" }
 	 *     - default:           "preserve"
 	 * 
-	 * COMPILER / Defining Target Java Platform
-	 *    For binary compatibility reason, .class files can be tagged to with certain VM versions and later.
-	 *    Note that "1.4" target require to toggle compliance mode to "1.4" too.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.targetPlatform"
-	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4" }
-	 *     - default:           "1.2"
-	 *
 	 * COMPILER / Inline JSR Bytecode Instruction
 	 *    When enabled, the compiler will no longer generate JSR instructions, but rather inline corresponding
 	 *   subroutine code sequences (mostly corresponding to try finally blocks). The generated code will thus
@@ -1673,6 +1699,13 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *
+	 * COMPILER / Reporting Unsafe Type Operation
+	 *    When enabled, the compiler will issue an error or a warning whenever an operation involves generic types, and potentially
+	 *    invalidates type safety since involving raw types (e.g. invoking #foo(X<String>) with arguments  (X)).
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unsafeTypeOperation"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 * 
 	 * COMPILER / Reporting Invalid Javadoc Comment
 	 *    This is the generic control for the severity of Javadoc problems.
 	 *    When enabled, the compiler will issue an error or a warning for a problem in Javadoc.
@@ -1740,21 +1773,6 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
-	 * 
-	 * COMPILER / Setting Source Compatibility Mode
-	 *    Specify whether which source level compatibility is used. From 1.4 on, 'assert' is a keyword
-	 *    reserved for assertion support. Also note, than when toggling to 1.4 mode, the target VM
-	 *   level should be set to "1.4" and the compliance mode should be "1.4".
-	 *     - option id:         "org.eclipse.jdt.core.compiler.source"
-	 *     - possible values:   { "1.3", "1.4" }
-	 *     - default:           "1.3"
-	 * 
-	 * COMPILER / Setting Compliance Level
-	 *    Select the compliance level for the compiler. In "1.3" mode, source and target settings
-	 *    should not go beyond "1.3" level.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.compliance"
-	 *     - possible values:   { "1.3", "1.4" }
-	 *     - default:           "1.4"
 	 * 
 	 * COMPILER / Maximum number of problems reported per compilation unit
 	 *    Specify the maximum number of problems reported on each compilation unit.
