@@ -14875,4 +14875,16 @@ public void test500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}				
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86217
+	public void test528() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends X.M> extends Y {}\n" + 
+				"class Y { static class M {} }\n",
+			},
+			""
+		);
+	}
 }
