@@ -7,7 +7,7 @@
 <body>
 
 <h1>JDT Core 3.0 Porting Guide</h1>
-<p>Last modified 16:45 CET November 18, 2003</p>
+<p>Last modified 18:10 CET November 18, 2003</p>
 
 <a name="bug_36987"></a>
 <h4>Interface IWorkingCopy (package org.eclipse.jdt.core; plug-in org.eclipse.jdt.core)</h4>
@@ -70,12 +70,14 @@
 		<tr>
 		<td>getOriginal(IJavaElement)</td>
 		<td>&nbsp;</td>
-		<td>Use IJavaElement.getPrimaryElement() instead.</td>
+		<td>Use IJavaElement.getPrimaryElement() instead. Note that this no longer returns <code>null</code> if the receiver
+		        is not a working copy but this returns the receiver.</td>
 		</tr>
 		<tr>
 		<td>getOriginalElement()</td>
 		<td>getPrimary()</td>
-		<td>&nbsp;</td>
+		<td>This no longer returns <code>null</code> if the receiver
+		        is not a working copy but this returns the receiver.</td>
 		</tr>
 		<tr>
 		<td>getSharedWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)</td>
