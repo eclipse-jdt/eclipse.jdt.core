@@ -1977,15 +1977,17 @@ private void parseTags(NLSLine line) throws InvalidInputException {
 	while (pos != -1) {
 		int start = pos + TAG_PREFIX_LENGTH;
 		int end = s.indexOf(TAG_POSTFIX, start);
-		String index = s.substring(start, end);
-		int i = 0;
-		try {
-			i = Integer.parseInt(index) - 1; // Tags are one based not zero based.
-		} catch (NumberFormatException e) {
-			i = -1; // we don't want to consider this as a valid NLS tag
-		}
-		if (line.exists(i)) {
-			line.set(i, null);
+		if (end != -1) {
+			String index = s.substring(start, end);
+			int i = 0;
+			try {
+				i = Integer.parseInt(index) - 1; // Tags are one based not zero based.
+			} catch (NumberFormatException e) {
+				i = -1; // we don't want to consider this as a valid NLS tag
+			}
+			if (line.exists(i)) {
+				line.set(i, null);
+			}
 		}
 		pos = s.indexOf(TAG_PREFIX, start);
 	}
