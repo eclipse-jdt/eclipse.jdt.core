@@ -479,16 +479,24 @@ public void saveIndexes() {
 		ReadWriteMonitor monitor = getMonitorFor(index);
 		if (monitor == null) continue; // index got deleted since acquired
 		try {
-			monitor.enterWrite();
-			try {
-				saveIndex(index);
-			} catch(IOException e) {
-				if (VERBOSE) {
-					JobManager.verbose("-> got the following exception while saving:"); //$NON-NLS-1$
-					e.printStackTrace();
+			// take read lock before checking if index has changed
+			// don't take write lock yet since it can cause a deadlock (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=50571)
+			monitor.enterRead(); 
+			if (index.hasChanged()) {
+				monitor.exitRead();
+				monitor.enterWrite();
+				try {
+					saveIndex(index);
+				} catch(IOException e) {
+					if (VERBOSE) {
+						JobManager.verbose("-> got the following exception while saving:"); //$NON-NLS-1$
+						e.printStackTrace();
+					}
+					allSaved = false;
+					//Util.log(e);
+				} finally {
+					monitor.exitWriteEnterRead();
 				}
-				allSaved = false;
-				//Util.log(e);
 			}
 		} finally {
 			monitor.exitWrite();
