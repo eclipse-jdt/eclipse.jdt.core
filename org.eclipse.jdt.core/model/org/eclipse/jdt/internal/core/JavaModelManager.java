@@ -1123,7 +1123,7 @@ public void rollback(ISaveContext context){
 	 * Runs a Java Model Operation
 	 */
 	public void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
-		boolean hadAwaitingDeltas = !fJavaModelDeltas.isEmpty();		try {
+		try {
 			if (operation.isReadOnly()) {
 				operation.run(monitor);
 			} else {
@@ -1143,9 +1143,8 @@ public void rollback(ISaveContext context){
 				throw new JavaModelException(ce);
 			}
 		} finally {
-			// fire only if there were no awaiting deltas (if there were, they would come from a resource modifying operation)
-			// and the operation has not modified any resource
-			if (!hadAwaitingDeltas && !operation.hasModifiedResource()) {
+			// fire only if the operation has not modified any resource
+			if (!operation.hasModifiedResource()) {
 				fire(null, JavaModelManager.DEFAULT_CHANGE_EVENT);
 			} // else deltas are fired while processing the resource delta
 		}
