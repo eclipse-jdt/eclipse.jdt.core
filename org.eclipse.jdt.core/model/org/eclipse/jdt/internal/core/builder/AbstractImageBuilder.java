@@ -381,10 +381,8 @@ protected void updateProblemsFor(String sourceLocation, CompilationResult result
 }
 
 protected char[] writeClassFile(ClassFile classFile, boolean isSecondaryType) throws CoreException {
-	// Before writing out the class file, compare it to the previous file
-	// If structural changes occured then add dependent source files
 	String fileName = new String(classFile.fileName()); // the qualified type name "p1/p2/A"
-	IPath filePath = new Path(fileName);			
+	IPath filePath = new Path(fileName);
 	IContainer container = outputFolder;
 	if (filePath.segmentCount() > 1) {
 		container = getOutputFolder(filePath.removeLastSegments(1));
@@ -392,21 +390,16 @@ protected char[] writeClassFile(ClassFile classFile, boolean isSecondaryType) th
 	}
 
 	IFile file = container.getFile(filePath.addFileExtension(JavaBuilder.CLASS_EXTENSION));
-	byte[] bytes = classFile.getBytes();
-	if (writeClassFileCheck(file, fileName, bytes, isSecondaryType)) {
-		if (JavaBuilder.DEBUG)
-			System.out.println("Writing class file " + file.getName());//$NON-NLS-1$
-		file.create(new ByteArrayInputStream(bytes), IResource.FORCE, null);
-		file.setDerived(true);
-	} else if (JavaBuilder.DEBUG) {
-		System.out.println("Skipped over unchanged class file " + file.getName());//$NON-NLS-1$
-	}
+	writeClassFileBytes(classFile.getBytes(), file, fileName, isSecondaryType);
 	// answer the name of the class file as in Y or Y$M
 	return filePath.lastSegment().toCharArray();
 }
 
-protected boolean writeClassFileCheck(IFile file, String fileName, byte[] bytes, boolean isSecondaryType) throws CoreException {
-	// In Incremental mode, compare the bytes against the previous file for structural changes
-	return true;
+protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isSecondaryType) throws CoreException {
+	// Default implementation just writes out the bytes for the new class file...
+	if (JavaBuilder.DEBUG)
+		System.out.println("Writing new class file " + file.getName());//$NON-NLS-1$
+	file.create(new ByteArrayInputStream(bytes), IResource.FORCE, null);
+	file.setDerived(true);
 }
 }
