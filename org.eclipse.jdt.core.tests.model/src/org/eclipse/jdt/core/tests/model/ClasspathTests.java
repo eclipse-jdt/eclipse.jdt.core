@@ -136,7 +136,7 @@ public static Test suite() {
 
 	if (false){
 		TestSuite suite = new Suite(ClasspathTests.class.getName());
-		suite.addTest(new ClasspathTests("testClasspathValidation7"));
+		suite.addTest(new ClasspathTests("testNoCycleDetection"));
 		return suite;
 	}
 	return new Suite(ClasspathTests.class);	
@@ -2150,6 +2150,14 @@ public void testDenseCycleDetection() throws CoreException {
 	denseCycleDetection(20);
 	//denseCycleDetection(100);
 }
+public void _testNoCycleDetection() throws CoreException { //TODO: reenable post 2.1
+	noCycleDetection(5, false);
+	noCycleDetection(10, false);
+	noCycleDetection(20, false);
+	noCycleDetection(5, true);
+	noCycleDetection(10, true);
+	noCycleDetection(20, true);
+}
 /**
  * Ensures that a duplicate entry created by editing the .classpath is detected.
  * (regression test for bug 24498 Duplicate entries on classpath cause CP marker to no longer refresh)
@@ -2179,6 +2187,11 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 	
 	final IJavaProject[] projects = new IJavaProject[numberOfParticipants];
 	final int[] allProjectsInCycle = new int[numberOfParticipants];
+
+//	final long[] start = new long[1];
+//	final long[] time = new long[1];
+	
+
 	try {
 		JavaCore.run(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -2186,7 +2199,6 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 					projects[i] = createJavaProject("P"+i, new String[]{""}, "");
 					allProjectsInCycle[i] = 1;
 				}		
-				//long start = System.currentTimeMillis();
 				for (int i = 0; i < numberOfParticipants; i++){
 					IClasspathEntry[] extraEntries = new IClasspathEntry[numberOfParticipants-1];
 					int index = 0;
@@ -2202,12 +2214,16 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 						newClasspath[oldClasspath.length+j] = extraEntries[j];
 					}			
 					// set classpath
+//					long start = System.currentTimeMillis(); // time spent in individual CP setting
 					projects[i].setRawClasspath(newClasspath, null);
+//					time[0] += System.currentTimeMillis() - start;
 				};
-				//System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ (System.currentTimeMillis()-start)+" ms");
+//				start[0] = System.currentTimeMillis(); // time spent in delta refresh
 			}
 		}, 
 		null);
+//		time[0] += System.currentTimeMillis()-start[0];
+//		System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ time[0]+" ms");
 		
 		for (int i = 0; i < numberOfParticipants; i++){
 			// check cycle markers
@@ -2223,6 +2239,69 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 		}
 	}
 }
+/*
+ * When using forward references, all projects prereq all of the ones which have a greater index, 
+ * e.g. P0, P1, P2:  P0 prereqs {P1, P2}, P1 prereqs {P2}, P2 prereqs {}
+ * When no using forward references (i.e. backward refs), all projects prereq projects with smaller index
+ * e.g. P0, P1, P2:  P0 prereqs {}, P1 prereqs {P0}, P2 prereqs {P0, P1}
+ */
+private void noCycleDetection(final int numberOfParticipants, final boolean useForwardReferences) throws CoreException {
+	
+	final IJavaProject[] projects = new IJavaProject[numberOfParticipants];
+	final int[] allProjectsInCycle = new int[numberOfParticipants];
+	
+	final long[] start = new long[1];
+	final long[] time = new long[1];
+	
+	try {
+		JavaCore.run(new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				for (int i = 0; i < numberOfParticipants; i++){
+					projects[i] = createJavaProject("P"+i, new String[]{""}, "");
+					allProjectsInCycle[i] = 0;
+				}		
+				for (int i = 0; i < numberOfParticipants; i++){
+					IClasspathEntry[] extraEntries = new IClasspathEntry[useForwardReferences ? numberOfParticipants - i -1 : i];
+					int index = 0;
+					for (int j = useForwardReferences ? i+1 : 0; 
+						useForwardReferences ? (j < numberOfParticipants) : (j < i); 
+						j++){
+						extraEntries[index++] = JavaCore.newProjectEntry(projects[j].getPath());
+					}
+					// append project references			
+					IClasspathEntry[] oldClasspath = projects[i].getRawClasspath();
+					IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length+extraEntries.length];
+					System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
+					for (int j = 0; j < extraEntries.length; j++){
+						newClasspath[oldClasspath.length+j] = extraEntries[j];
+					}			
+					// set classpath
+					long start = System.currentTimeMillis(); // time spent in individual CP setting
+					projects[i].setRawClasspath(newClasspath, null);
+					time[0] += System.currentTimeMillis() - start;
+				}
+				start[0] = System.currentTimeMillis(); // time spent in delta refresh
+			}
+		}, 
+		null);
+		time[0] += System.currentTimeMillis()-start[0];
+		System.out.println("No cycle check ("+numberOfParticipants+" participants) : "+ time[0]+" ms, "+ (useForwardReferences ? "forward references" : "backward references"));
+		
+		for (int i = 0; i < numberOfParticipants; i++){
+			// check cycle markers
+			this.assertCycleMarkers(projects[i], projects, allProjectsInCycle);
+		}
+		
+	} finally {
+		if (projects != null){
+			for (int i = 0; i < numberOfParticipants; i++){
+				if (projects[i] != null)
+					this.deleteProject(projects[i].getElementName());
+			}
+		}
+	}
+}
+
 /*
  * test for bug 32690
  */
