@@ -145,6 +145,14 @@ protected void addAffectedChild(JavaElementDelta child) {
 							JavaElementDelta childsChild = (JavaElementDelta) children[i];
 							((JavaElementDelta) existingChild).addAffectedChild(childsChild);
 						}
+						// add the non-java resource deltas if needed
+						// note that the child delta always takes precedence over this existing child delta
+						// as non-java resource deltas are always created last (by the DeltaProcessor)
+						IResourceDelta[] resDeltas = child.getResourceDeltas();
+						if (resDeltas != null) {
+							((JavaElementDelta)existingChild).resourceDeltas = resDeltas;
+							((JavaElementDelta)existingChild).resourceDeltasCounter = child.resourceDeltasCounter;
+						}
 						return;
 				}
 				break;
