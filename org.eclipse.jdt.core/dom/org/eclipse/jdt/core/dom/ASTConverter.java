@@ -2040,7 +2040,7 @@ class ASTConverter {
 					break;
 				case AST.JLS3 :
 					for (int i = 0, max = allocation.typeArguments.length; i < max; i++) {
-						classInstanceCreation.typeArguments().add(convert(allocation.typeArguments[i]));
+						classInstanceCreation.typeArguments().add(convertType(allocation.typeArguments[i]));
 					}
 			}			
 		}

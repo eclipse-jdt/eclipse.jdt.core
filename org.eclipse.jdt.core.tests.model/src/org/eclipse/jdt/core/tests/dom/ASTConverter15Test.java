@@ -2373,7 +2373,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
-	}	
+	}
 	
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79460
@@ -2596,5 +2596,32 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
-	}	
+	}
+	
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79775
+	 */
+	public void test0087() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			buildAST(
+				"package p;\n" +
+				"public class X<T1> {\n" +
+				"	public <M1> X() {\n" +
+				"	}\n" +
+				"	class Y<T2> {\n" +
+				"		public <M2> Y() {\n" +
+				"		}\n" +
+				"	}\n" +
+				"	void foo() {\n" +
+				"		new <Object>X<Object>().new <Object>Y<Object>();\n" +
+				"	}\n" +
+				"}\n",
+				workingCopy);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }
