@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -224,9 +226,9 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	public abstract String getMainTaskName();
 
 	protected ISchedulingRule getSchedulingRule() {
-		// TODO (jerome) lock the cu only
-		// returns the folder corresponding to the package of the cu
-		return getCompilationUnit().getParent().getSchedulingRule();
+		IResource resource = getCompilationUnit().getResource();
+		IWorkspace workspace = resource.getWorkspace();
+		return workspace.getRuleFactory().modifyRule(resource);
 	}
 	/**
 	 * Sets the default position in which to create the new type

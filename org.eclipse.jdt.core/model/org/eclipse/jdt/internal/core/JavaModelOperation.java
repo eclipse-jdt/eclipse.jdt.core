@@ -352,6 +352,10 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Convenience method to run an operation within this operation
 	 */
 	public void executeNestedOperation(JavaModelOperation operation, int subWorkAmount) throws JavaModelException {
+		IJavaModelStatus status= operation.verify();
+		if (!status.isOK()) {
+			throw new JavaModelException(status);
+		}
 		IProgressMonitor subProgressMonitor = getSubProgressMonitor(subWorkAmount);
 		// fix for 1FW7IKC, part (1)
 		try {
@@ -689,16 +693,11 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			progressMonitor = monitor;
 			pushOperation(this);
 			try {
-				IJavaModelStatus status= verify();
-				if (status.isOK()) {
-					// computes the root infos before executing the operation
-					// noop if aready initialized
-					JavaModelManager.getJavaModelManager().deltaState.initializeRoots();
+				// computes the root infos before executing the operation
+				// noop if aready initialized
+				JavaModelManager.getJavaModelManager().deltaState.initializeRoots();
 				
-					executeOperation();
-				} else {
-					throw new JavaModelException(status);
-				}
+				executeOperation();
 			} finally {
 				if (this.isTopLevelOperation()) {
 					this.runPostActions();
@@ -731,6 +730,10 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * if not read-only.
 	 */
 	public void runOperation(IProgressMonitor monitor) throws JavaModelException {
+		IJavaModelStatus status= verify();
+		if (!status.isOK()) {
+			throw new JavaModelException(status);
+		}
 		try {
 			if (isReadOnly()) {
 				run(monitor);
