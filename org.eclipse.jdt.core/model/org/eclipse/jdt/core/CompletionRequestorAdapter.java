@@ -37,6 +37,7 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		int completionStart,
 		int completionEnd,
 		int relevance) {
+			// default behavior is to ignore
 	}
 
 	/*
@@ -50,12 +51,14 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		int completionStart,
 		int completionEnd,
 		int relevance) {
+			// default behavior is to ignore
 	}
 
 	/*
 	 * @see ICompletionRequestor#acceptError(IProblem)
 	 */
 	public void acceptError(IProblem error) {
+		// default behavior is to ignore
 	}
 
 	/*
@@ -72,6 +75,7 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		int completionStart,
 		int completionEnd,
 		int relevance) {
+			// default behavior is to ignore
 	}
 
 	/*
@@ -85,6 +89,7 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		int completionStart,
 		int completionEnd,
 		int relevance) {
+			// default behavior is to ignore
 	}
 
 	/*
@@ -95,6 +100,7 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		int completionStart,
 		int completionEnd,
 		int relevance) {
+			// default behavior is to ignore
 	}
 
 	/*
@@ -105,6 +111,7 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		int completionStart,
 		int completionEnd,
 		int relevance) {
+			// default behavior is to ignore
 	}
 
 	/*
@@ -118,6 +125,7 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		int completionStart,
 		int completionEnd,
 		int relevance) {
+			// default behavior is to ignore
 	}
 
 	/*
@@ -137,6 +145,7 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		int completionStart,
 		int completionEnd,
 		int relevance) {
+			// default behavior is to ignore
 	}
 
 	/*
@@ -156,6 +165,7 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		int completionStart,
 		int completionEnd,
 		int relevance) {
+			// default behavior is to ignore
 	}
 
 	/*
@@ -166,6 +176,7 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		int completionStart,
 		int completionEnd,
 		int relevance) {
+			// default behavior is to ignore
 	}
 
 	/*
@@ -177,6 +188,7 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		int completionStart,
 		int completionEnd,
 		int relevance) {
+			// default behavior is to ignore
 	}
 
 	/*
@@ -189,6 +201,7 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		int completionStart,
 		int completionEnd,
 		int relevance) {
+			// default behavior is to ignore
 	}
 
 	/*
@@ -202,5 +215,6 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		int completionStart,
 		int completionEnd,
 		int relevance) {
+			// default behavior is to ignore
 	}
 }

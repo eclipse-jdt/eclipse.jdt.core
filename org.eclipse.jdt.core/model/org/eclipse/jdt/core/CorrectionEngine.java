@@ -86,7 +86,7 @@ public class CorrectionEngine implements ProblemReasons {
 	 * 		CURRENTLY THERE IS NO CORRECTION SPECIFIC SETTINGS.
 	 */
 	public CorrectionEngine(Map setting) {
-		
+		// settings ignored for now
 	}
 	
 	/**

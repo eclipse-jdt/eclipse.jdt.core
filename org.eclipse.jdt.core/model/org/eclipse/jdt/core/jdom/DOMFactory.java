@@ -25,7 +25,9 @@ public class DOMFactory implements IDOMFactory {
 /**
  * Creates a new DOM factory.
  */
-public DOMFactory() {}
+public DOMFactory() {
+	// constructor is explicitly API
+}
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */

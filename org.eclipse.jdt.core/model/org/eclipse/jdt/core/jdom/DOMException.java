@@ -20,7 +20,9 @@ public class DOMException extends RuntimeException {
 /**
  * Creates a new exception with no detail message.
  */
-public DOMException() {}
+public DOMException() {
+	// just create a new DOMException with no detail message
+}
 /**
  * Creates a new exception with the given detail message.
  *
