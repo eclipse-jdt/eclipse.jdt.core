@@ -80,28 +80,28 @@ What's new in this drop</h2>
 <ul>
 <li>Added API to register/deregister a pre-processing resource change listener:
 <pre>
-	/**
-	 * Adds the given listener for POST_CHANGE resource change events to the Java core. 
-	 * The listener is guarantied to be notified of the POST_CHANGE resource change event before
-	 * the Java core starts processing the resource change event itself.
-	 * 
-	 * Has no effect if an identical listener is already registered.
-	 * 
-	 * @param listener the listener
-	 * @see #removePreResourceChangeListener(IResourceChangeListener)
-	 * @since 3.0
-	 */
-	public static void addPreProcessingResourceChangedListener(IResourceChangeListener listener);
+/**
+ * Adds the given listener for POST_CHANGE resource change events to the Java core. 
+ * The listener is guarantied to be notified of the POST_CHANGE resource change event before
+ * the Java core starts processing the resource change event itself.
+ * 
+ * Has no effect if an identical listener is already registered.
+ * 
+ * @param listener the listener
+ * @see #removePreResourceChangeListener(IResourceChangeListener)
+ * @since 3.0
+ */
+public static void addPreProcessingResourceChangedListener(IResourceChangeListener listener);
 	
-	/**
-	 * Removes the given pre-processing resource changed listener.
-	 *
-	 * Has no affect if an identical listener is not registered.
-	 *
-	 * @param listener the listener
-	 * @since 3.0
-	 */
-	public static void removePreProcessingResourceChangedListener(IResourceChangeListener listener);
+/**
+ * Removes the given pre-processing resource changed listener.
+ *
+ * Has no affect if an identical listener is not registered.
+ *
+ * @param listener the listener
+ * @since 3.0
+ */
+public static void removePreProcessingResourceChangedListener(IResourceChangeListener listener);
 </pre>
 </li>
 <li>When diagnostic for unnecessary semicolon is enabled, the compiler will also flag empty
@@ -227,35 +227,35 @@ What's new in this drop</h2>
 <li>Added API for User Library Container support in JavaCore:
 <pre>
 
-	/**
-	 * Name of the User Library Container id.
-	 */
-	public static final String USER_LIBRARY_CONTAINER_ID= "org.eclipse.jdt.USER_LIBRARY"; //$NON-NLS-1$
-	
-	/**
-	 * Returns the names of all defined user libraries. The corresponding classpath container path
-	 * is the name appended to the USER_LIBRARY_CONTAINER_ID.  
-	 * @return Return an array containing the names of all known user defined.
-	 */
-	public static String[] getUserLibraryNames();
+/**
+ * Name of the User Library Container id.
+ */
+public static final String USER_LIBRARY_CONTAINER_ID= "org.eclipse.jdt.USER_LIBRARY"; //$NON-NLS-1$
+
+/**
+ * Returns the names of all defined user libraries. The corresponding classpath container path
+ * is the name appended to the USER_LIBRARY_CONTAINER_ID.  
+ * @return Return an array containing the names of all known user defined.
+ */
+public static String[] getUserLibraryNames();
 </pre>
 </li>
 <li>Added API to get classpath container comparison ID in ClasspathContainerInitializer:
 <pre>
-	/**
-	 * Returns an object which identifies a container for comparison purpose. This allows
-	 * to eliminate redundant containers when accumulating classpath entries (e.g. 
-	 * runtime classpath computation). When requesting a container comparison ID, one
-	 * should ensure using its corresponding container initializer. Indeed, a random container
-	 * initializer cannot be held responsible for determining comparison IDs for arbitrary 
-	 * containers.
-	 * <p>
-	 * @param containerPath the path of the container which is being checked
-	 * @param project the project for which the container is to being checked
-	 * @return returns an Object identifying the container for comparison
-	 * @since 3.0
-	 */
-	public Object getComparisonID(IPath containerPath, IJavaProject project);
+/**
+ * Returns an object which identifies a container for comparison purpose. This allows
+ * to eliminate redundant containers when accumulating classpath entries (e.g. 
+ * runtime classpath computation). When requesting a container comparison ID, one
+ * should ensure using its corresponding container initializer. Indeed, a random container
+ * initializer cannot be held responsible for determining comparison IDs for arbitrary 
+ * containers.
+ * <p>
+ * @param containerPath the path of the container which is being checked
+ * @param project the project for which the container is to being checked
+ * @return returns an Object identifying the container for comparison
+ * @since 3.0
+ */
+public Object getComparisonID(IPath containerPath, IJavaProject project);
 </pre>
 By default, containers are identical if they have same container path first segment
 but this may be refined by other container initializer implementations.
@@ -335,18 +335,18 @@ What's new in this drop</h2>
 	 and <code>IClasspathEntry.getInclusionPatterns()</code> for details.</li>
 <li>Added API on WorkingCopyOwner to set the primary buffer provider (for internal use by the jdt-related plug-ins only).
 <pre>
-	/**
-	 * Sets the buffer provider of the primary working copy owner. Note that even if the
-	 * buffer provider is a working copy owner, only its createBuffer(ICompilationUnit)
-	 * method is used by the primary working copy owner. It doesn't replace the internal primary 
-	 * working owner.
- 	 * 
-	 * This method is for internal use by the jdt-related plug-ins.
-	 * Clients outside of the jdt should not reference this method.
-	 * 
-	 * @param primaryBufferProvider the primary buffer provider
-	 */
-	public static void setPrimaryBufferProvider(WorkingCopyOwner primaryBufferProvider);
+/**
+ * Sets the buffer provider of the primary working copy owner. Note that even if the
+ * buffer provider is a working copy owner, only its createBuffer(ICompilationUnit)
+ * method is used by the primary working copy owner. It doesn't replace the internal primary 
+ * working owner.
+ * 
+ * This method is for internal use by the jdt-related plug-ins.
+ * Clients outside of the jdt should not reference this method.
+ * 
+ * @param primaryBufferProvider the primary buffer provider
+ */
+public static void setPrimaryBufferProvider(WorkingCopyOwner primaryBufferProvider);
 </pre></li>
 </ul>
 
@@ -541,11 +541,11 @@ What's new in this drop</h2>
 <li> Added compiler option JavaCore.COMPILER_TASK_CASE_SENSITIVE to control whether the task detection
 should be case sensitive or not. By default, it is.
 <pre>
-	 * COMPILER / Determine whether task tags are case-sensitive
-	 *    When enabled, task tags are considered in a case-sensitive way.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.taskCaseSensitive"
-	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "enabled"
+ * COMPILER / Determine whether task tags are case-sensitive
+ *    When enabled, task tags are considered in a case-sensitive way.
+ *     - option id:         "org.eclipse.jdt.core.compiler.taskCaseSensitive"
+ *     - possible values:   { "enabled", "disabled" }
+ *     - default:           "enabled"
 </pre>
 </li>
 <li> Added 2 default task tags: "FIXME" and "XXX".
@@ -583,27 +583,27 @@ What's new in this drop</h2>
 <ul>
 <li> Added new global JavaCore.COMPILER_DOC_COMMENT_SUPPORT option for doc comment (Javadoc) support. By default, this option is enabled for backward compatibility.
 <pre>
-	 * COMPILER / Javadoc Comment Support
-	 *    When this support is disabled, the compiler will ignore all javadoc problems options settings
-	 *    and will not report any javadoc problem. It will also not find any reference in javadoc comment and
-	 *    DOM AST Javadoc node will be only a flat text instead of having structured tag elements.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.doc.comment.support"
-	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "enabled"
+ * COMPILER / Javadoc Comment Support
+ *    When this support is disabled, the compiler will ignore all javadoc problems options settings
+ *    and will not report any javadoc problem. It will also not find any reference in javadoc comment and
+ *    DOM AST Javadoc node will be only a flat text instead of having structured tag elements.
+ *     - option id:         "org.eclipse.jdt.core.compiler.doc.comment.support"
+ *     - possible values:   { "enabled", "disabled" }
+ *     - default:           "enabled"
 </pre>
 See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52264">52264</a>.
 </li>
 <li> Added new JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE option to allow user to inline subroutine code instead of generating JSR instructions. By default, this option is disabled.
 <pre>
-	 * COMPILER / Inline JSR Bytecode Instruction
-	 *    When enabled, the compiler will no longer generate JSR instructions, but rather inline corresponding
-	 *    subroutine code sequences (mostly corresponding to try finally blocks). The generated code will thus
-	 *    get bigger, but will load faster on virtual machines since the verification process is then much simpler. 
-	 *    This mode is anticipating support for the Java Specification Request 202.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode"
-	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "disabled"
-	 * 
+ * COMPILER / Inline JSR Bytecode Instruction
+ *    When enabled, the compiler will no longer generate JSR instructions, but rather inline corresponding
+ *    subroutine code sequences (mostly corresponding to try finally blocks). The generated code will thus
+ *    get bigger, but will load faster on virtual machines since the verification process is then much simpler. 
+ *    This mode is anticipating support for the Java Specification Request 202.
+ *     - option id:         "org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode"
+ *     - possible values:   { "enabled", "disabled" }
+ *     - default:           "disabled"
+ * 
 </pre>
 Corresponding command line compiler option <code>-noJSR</code> has been renamed to:
 <pre>
