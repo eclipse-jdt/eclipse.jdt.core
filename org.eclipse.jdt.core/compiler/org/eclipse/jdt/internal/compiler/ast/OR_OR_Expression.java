@@ -131,7 +131,6 @@ public class OR_OR_Expression extends BinaryExpression {
 			super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 			return;
 		}
-		int pc = codeStream.position;
 		Constant condConst;
 		if ((condConst = left.optimizedBooleanConstant()) != NotAConstant) {
 			if (condConst.booleanValue() == true) {
