@@ -226,6 +226,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 				suite.addTest(new ASTConverterTest(methods[i].getName()));
 			}
 		}
+//		suite.addTest(new ASTConverterTest("test0358"));
 		return suite;
 	}
 		
@@ -8970,6 +8971,44 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		SimpleName name = typeDeclaration.getName();
 		checkSourceRange(name, "A", source);
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=21768
+	 */
+	public void test0358() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0358", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0,0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration statement", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		SimpleName name = methodDeclaration.getName();
+		checkSourceRange(name, "mdd", source);
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=21768
+	 */
+	public void test0359() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0359", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0,0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration statement", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		SimpleName name = methodDeclaration.getName();
+		checkSourceRange(name, "mdd", source);
 	}
 	
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
