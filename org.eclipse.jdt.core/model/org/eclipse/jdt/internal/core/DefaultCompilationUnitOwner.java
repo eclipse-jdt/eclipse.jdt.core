@@ -14,7 +14,8 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.CompilationUnitOwner;
 
 /**
- * TODO: comment
+ * A default compilation unit owner that wraps an IBufferFactory and an IProblemRequestor.
+ * It also defines the PRIMARY compilation unit owner that is used by JDT/Core.
  */
 public class DefaultCompilationUnitOwner extends CompilationUnitOwner {
 	public static final DefaultCompilationUnitOwner PRIMARY = new DefaultCompilationUnitOwner();
