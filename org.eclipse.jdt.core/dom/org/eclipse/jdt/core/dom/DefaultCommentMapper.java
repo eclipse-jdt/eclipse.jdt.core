@@ -11,7 +11,7 @@
 package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -138,6 +138,52 @@ class DefaultCommentMapper {
 		return null;
 	}
 
+	/**
+	 * Returns the extended start position of the given node. Unlike
+	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()()},
+	 * the extended source range may include comments and whitespace
+	 * immediately before or after the normal source range for the node.
+	 * 
+	 * @param node the node
+	 * @return the 0-based character index, or <code>-1</code>
+	 *    if no source position information is recorded for this node
+	 * @see #getExtendedLength(ASTNode)
+	 * @since 3.0
+	 */
+	public int getExtendedStartPosition(ASTNode node) {
+		if (this.leadingComments != null) {
+			int[] range = (int[]) this.leadingComments.get(node);
+			if (range != null) {
+				return  this.comments[range[0]].getStartPosition() ;
+			}
+		}
+		return node.getStartPosition();
+	}
+
+	/**
+	 * Returns the extended source length of the given node. Unlike
+	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()()},
+	 * the extended source range may include comments and whitespace
+	 * immediately before or after the normal source range for the node.
+	 * 
+	 * @param node the node
+	 * @return a (possibly 0) length, or <code>0</code>
+	 *    if no source position information is recorded for this node
+	 * @see #getExtendedStartPosition(ASTNode)
+	 * @since 3.0
+	 */
+	public int getExtendedLength(ASTNode node) {
+		int lastPosition = lastPosition = node.getStartPosition() + node.getLength();
+		if (this.trailingComments != null) {
+			int[] range = (int[]) this.trailingComments.get(node);
+			if (range != null) {
+				Comment lastComment = this.comments[range[1]];
+				lastPosition = lastComment.getStartPosition() + lastComment.getLength();
+			}
+		}
+		return lastPosition - getExtendedStartPosition(node);
+	}
+
 	/*
 	 * Initialize leading and trailing comments tables in whole nodes hierarchy of a compilation
 	 * unit.
@@ -157,11 +203,8 @@ class DefaultCommentMapper {
 		}
 
 		// Init tables
-		/* TODO (frederic) - HashMap is always more efficient than
-		 * Hashtable, which is implicitly synchronized.
-		 */
-		this.leadingComments = new Hashtable();
-		this.trailingComments = new Hashtable();
+		this.leadingComments = new HashMap();
+		this.trailingComments = new HashMap();
 		
 		// Init scanner and start ranges computing
 		scanner.linePtr = scanner.lineEnds.length-1;

@@ -481,7 +481,7 @@ public class CompilationUnit extends ASTNode {
 		 * new facility a lot. The performance of the implementation would
 		 * be significantly improved by reworking this code so that it
 		 * does not create garbage Comment[].
-		 */
+		 *
 		Comment[] leadingComments = this.commentMapper.getLeadingComments(node);
 		int startPosition;
 		if (leadingComments == null) {
@@ -490,6 +490,8 @@ public class CompilationUnit extends ASTNode {
 			startPosition = leadingComments[0].getStartPosition();
 		}
 		return startPosition;
+		*/
+		return this.commentMapper.getExtendedStartPosition(node);
 	}
 
 	/**
@@ -509,7 +511,7 @@ public class CompilationUnit extends ASTNode {
 		 * new facility a lot. The performance of the implementation would
 		 * be significantly improved by reworking this code so that it
 		 * does not create garbage Comment[].
-		 */
+		 *
 		Comment[] trailingComments = this.commentMapper.getTrailingComments(node);
 		int lastPosition; // exclusive
 		if (trailingComments == null) {
@@ -519,6 +521,8 @@ public class CompilationUnit extends ASTNode {
 			lastPosition = lastComment.getStartPosition() + lastComment.getLength();
 		}
 		return lastPosition - getExtendedStartPosition(node);
+		*/
+		return this.commentMapper.getExtendedLength(node);
 	}
 		
 	/**
