@@ -106,7 +106,7 @@ void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModel
  * <li> The specified sibling is not a child of this compilation unit (INVALID_SIBLING)
  * <li> The name is not a valid import name (INVALID_NAME)
  * </ul>
- * @see #createImport(String, int, IJavaElement, IProgressMonitor)
+ * @see #createImport(String, IJavaElement, int, IProgressMonitor)
  */
 IImportDeclaration createImport(String name, IJavaElement sibling, IProgressMonitor monitor) throws JavaModelException;
 

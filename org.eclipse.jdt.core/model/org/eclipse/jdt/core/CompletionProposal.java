@@ -386,6 +386,7 @@ public class CompletionProposal {
 	 * 
 	 * @param kind one of the kind constants declared on this class
 	 * @param completionOffset original offset of code completion request
+	 * @return a new completion proposal
 	 */
 	public CompletionProposal create(int kind, int completionOffset) {
 		return new CompletionProposal(kind, completionOffset);

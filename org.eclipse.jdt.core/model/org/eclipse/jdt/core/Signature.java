@@ -459,7 +459,7 @@ public static String createArraySignature(String typeSignature, int arrayCount) 
  * @param parameterTypes the list of parameter type signatures
  * @param returnType the return type signature
  * @return the encoded method signature
- * @see #createMethodSignature(char[][], char[][], char[], char[][])
+ * @see #createMethodSignature(char[][], char[], char[][], char[][])
  * @since 2.0
  */
 public static char[] createMethodSignature(char[][] parameterTypes, char[] returnType) {
@@ -473,6 +473,7 @@ public static char[] createMethodSignature(char[][] parameterTypes, char[] retur
  * @param returnType the return type signature
  * @param formalTypeParameters the list of formal type parameter signatures
  * @param thrownExceptions the list of type signatures for thrown exceptions
+ * @return the encoded method signature
  * @since 3.0
  */
 public static char[] createMethodSignature(
@@ -546,7 +547,7 @@ public static char[] createMethodSignature(
  * @param parameterTypes the list of parameter type signatures
  * @param returnType the return type signature
  * @return the encoded method signature
- * @see Signature#createMethodSignature(String[], String[], String, String[])
+ * @see Signature#createMethodSignature(String[], String, String[], String[])
  */
 public static String createMethodSignature(String[] parameterTypes, String returnType) {
 	return createMethodSignature(parameterTypes, returnType, EMPTY_STRING_ARRAY, EMPTY_STRING_ARRAY);
