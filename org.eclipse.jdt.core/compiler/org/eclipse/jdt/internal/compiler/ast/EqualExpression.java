@@ -286,6 +286,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
  * Note this code does not optimize conditional constants !!!!
  */
 public void generateOptimizedBooleanEqual(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {
+
 	int pc = codeStream.position;
 	// optimized cases: true == x, false == x
 	if (left.constant != NotAConstant) {
@@ -325,6 +326,7 @@ public void generateOptimizedBooleanEqual(BlockScope currentScope, CodeStream co
  *
  */
 public void generateOptimizedNonBooleanEqual(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {
+
 	int pc = codeStream.position;
 	Constant inline;
 	if ((inline = right.constant) != NotAConstant) {
