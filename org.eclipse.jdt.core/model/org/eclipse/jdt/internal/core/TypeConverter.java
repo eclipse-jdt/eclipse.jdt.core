@@ -179,11 +179,10 @@ public class TypeConverter {
 			}
 		}
 		boolean isInterface = type.isInterface();
-		if (neededCount != 0 && !isInterface) { // add default constructor in first position
-			typeDeclaration.methods = new AbstractMethodDeclaration[methodCount + neededCount];
+		neededCount = isInterface ? 0 : neededCount;
+		typeDeclaration.methods = new AbstractMethodDeclaration[methodCount + neededCount];
+		if (neededCount != 0) { // add default constructor in first position
 			typeDeclaration.methods[0] = typeDeclaration.createsInternalConstructor(false, false);
-		} else {
-			typeDeclaration.methods = new AbstractMethodDeclaration[methodCount];
 		}
 		for (int i = 0; i < methodCount; i++) {
 			AbstractMethodDeclaration method =convert(methods[i], type, compilationResult);
