@@ -10,6 +10,9 @@ org.eclipse.jdt.core/debug/compiler=true
 # Reports Java model elements opening/closing
 org.eclipse.jdt.core/debug/javamodel=true
 
+# Reports shared working copy use
+org.eclipse.jdt.core/debug/sharedworkingcopy=true
+
 # Reports classpath variable initialization, resolution
 org.eclipse.jdt.core/debug/cpvariable=true
 

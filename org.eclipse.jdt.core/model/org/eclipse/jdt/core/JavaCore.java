@@ -91,6 +91,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	private static final String BUILDER_DEBUG = PLUGIN_ID + "/debug/builder" ; //$NON-NLS-1$
 	private static final String COMPLETION_DEBUG = PLUGIN_ID + "/debug/completion" ; //$NON-NLS-1$
 	private static final String SELECTION_DEBUG = PLUGIN_ID + "/debug/selection" ; //$NON-NLS-1$
+	private static final String SHARED_WC_DEBUG = PLUGIN_ID + "/debug/sharedworkingcopy" ; //$NON-NLS-1$
 	
 	private static Map Variables = new HashMap(5);
 	private final static IPath InitializationInProgress = new Path("Initialization In Progress"); //$NON-NLS-1$
@@ -986,6 +987,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 			option = Platform.getDebugOption(JAVAMODEL_DEBUG);
 			if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+
+			option = Platform.getDebugOption(SHARED_WC_DEBUG);
+			if(option != null) CompilationUnit.SHARED_WC_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 
 			option = Platform.getDebugOption(VARIABLE_DEBUG);
 			if(option != null) JavaModelManager.VARIABLE_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$

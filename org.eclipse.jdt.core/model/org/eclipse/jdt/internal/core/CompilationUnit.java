@@ -24,6 +24,8 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
  */
 
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit {
+	
+	public static boolean SHARED_WC_VERBOSE = false;
 
 /**
  * Constructs a handle to a compilation unit with the given name in the
@@ -419,10 +421,19 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 	WorkingCopy workingCopy = (WorkingCopy)sharedWorkingCopies.get(this);
 	if (workingCopy != null) {
 		workingCopy.useCount++;
+
+		if (SHARED_WC_VERBOSE) {
+			System.out.println("Incrementing use count of shared working copy " + workingCopy.toDebugString());
+		}
+
 		return workingCopy;
 	} else {
 		workingCopy = (WorkingCopy)this.getWorkingCopy(pm, factory);
 		sharedWorkingCopies.put(this, workingCopy);
+
+		if (SHARED_WC_VERBOSE) {
+			System.out.println("Creating shared working copy " + workingCopy.toDebugString());
+		}
 
 		// report added java delta
 		JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());

@@ -20,6 +20,10 @@ What's new in this drop</h2>
      See <code>IWorkingCopy.getSharedWorkingCopy(IProgressMonitor, IBufferFactory)</code>,
      <code>IWorkingCopy.findSharedWorkingCopy()</code>
      and <code>IWorkingCopy.destroy()</code> for more detail.
+<li> Added option to trace use of shared working copies.
+    To enable it, see the following line in the org.eclipse.jdt.core/.options file:
+    <code>org.eclipse.jdt.core/debug/sharedworkingcopy=true</code>
+</li>
 <li> Added extension point to jdtcore so as to allow client plugins to register classpath variable initializers.
   Extension point is "org.eclipse.jdt.core.classpathVariableInitializer").
   (also see <a href="http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/org.eclipse.jdt.core/notes/r2.0/variable%20init/uninit-classpath-vars.html">design notes</a>)
