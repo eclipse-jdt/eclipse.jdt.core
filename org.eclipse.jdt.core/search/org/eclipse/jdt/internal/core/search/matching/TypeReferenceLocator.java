@@ -118,6 +118,25 @@ protected int matchLevel(ImportReference importRef) {
 	}
 	return IMPOSSIBLE_MATCH;
 }
+/**
+ * Reports the match of the given import reference if the resolveLevel is high enough.
+ */
+protected void matchLevelAndReportImportRef(ImportReference importRef, Binding binding, MatchLocator locator) throws CoreException {
+	Binding refBinding = binding;
+	if (importRef.isStatic()) {
+		// for static import, binding can be a field binding or a member type binding
+		// verify that in this case binding is static and use declaring class for fields
+		if (binding instanceof FieldBinding) {
+			FieldBinding fieldBinding = (FieldBinding) binding;
+			if (!fieldBinding.isStatic()) return;
+			refBinding = fieldBinding.declaringClass;
+		} else if (binding instanceof MemberTypeBinding) {
+			MemberTypeBinding memberBinding = (MemberTypeBinding) binding;
+			if (!memberBinding.isStatic()) return;
+		}
+	}
+	super.matchLevelAndReportImportRef(importRef, refBinding, locator);
+}
 protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.pattern.shouldExtendSelection()) {
 		// do not report import ref for generic patterns...
@@ -136,8 +155,12 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 	}
 
 	if (binding instanceof ReferenceBinding) {
-		int lastIndex = importRef.tokens.length - 1;
 		ReferenceBinding typeBinding = (ReferenceBinding) binding;
+		int lastIndex = importRef.tokens.length - 1;
+		if (importRef.isStatic() && !importRef.onDemand && !typeBinding.isMemberType()) {
+			// for field static import, do not use last token
+			lastIndex--;
+		}
 		if (typeBinding instanceof ProblemReferenceBinding) {
 			ProblemReferenceBinding pbBinding = (ProblemReferenceBinding) typeBinding;
 			typeBinding = pbBinding.original;

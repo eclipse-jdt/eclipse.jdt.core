@@ -37,7 +37,26 @@ public FieldLocator(FieldPattern pattern) {
 protected TypeBinding getTypeNameBinding(int index) {
 	return ((FieldPattern) this.pattern).getTypeNameBinding(index);
 }
-//public int match(ASTNode node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(ASTNode node, MatchingNodeSet nodeSet) {
+	int declarationsLevel = IMPOSSIBLE_MATCH;
+	if (this.pattern.findReferences) {
+		if (node instanceof ImportReference) {
+			// With static import, we can have static field reference in import reference
+			ImportReference importRef = (ImportReference) node;
+			int length = importRef.tokens.length-1;
+			if (importRef.isStatic() && !importRef.onDemand && matchesName(this.pattern.name, importRef.tokens[length])) {
+				char[][] compoundName = new char[length][];
+				System.arraycopy(importRef.tokens, 0, compoundName, 0, length);
+				FieldPattern fieldPattern = (FieldPattern) this.pattern;
+				char[] declaringType = CharOperation.concat(fieldPattern.declaringQualification, fieldPattern.declaringSimpleName, '.');
+				if (matchesName(declaringType, CharOperation.concatWith(compoundName, '.'))) {
+					declarationsLevel = ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+				}
+			}
+		}
+	}
+	return nodeSet.addMatch(node, declarationsLevel);
+}
 //public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 public int match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 	int referencesLevel = IMPOSSIBLE_MATCH;
@@ -63,8 +82,8 @@ public int match(FieldDeclaration node, MatchingNodeSet nodeSet) {
 
 protected int matchContainer() {
 	if (this.pattern.findReferences) {
-		// need to look almost everywhere to find in javadocs
-		return CLASS_CONTAINER | METHOD_CONTAINER | FIELD_CONTAINER;
+		// need to look everywhere to find in javadocs and static import
+		return ALL_CONTAINER;
 	}
 	return CLASS_CONTAINER;
 }
@@ -99,6 +118,22 @@ protected int matchField(FieldBinding field, boolean matchName) {
 
 	int typeLevel = resolveLevelForType(fieldBinding.type);
 	return declaringLevel > typeLevel ? typeLevel : declaringLevel; // return the weaker match
+}
+/**
+ * Reports the match of the given import reference if the resolveLevel is high enough.
+ */
+protected void matchLevelAndReportImportRef(ImportReference importRef, Binding binding, MatchLocator locator) throws CoreException {
+	if (importRef.isStatic() && binding instanceof FieldBinding) {
+		// we accept to report match of static field on static import
+		int level = resolveLevel(binding);
+		if (level >= INACCURATE_MATCH) {
+			int accuracy = level == ACCURATE_MATCH
+				? SearchMatch.A_ACCURATE
+				: SearchMatch.A_INACCURATE;
+			SearchMatch match = locator.newFieldReferenceMatch(locator.createImportHandle(importRef), accuracy, importRef.sourceStart, importRef.sourceEnd-importRef.sourceStart+1, importRef);
+			locator.report(match);
+		}
+	}
 }
 protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean writeOnlyAccess) {
 	if (node instanceof FieldReference) {

@@ -550,7 +550,18 @@ protected void consumeSingleStaticImportDeclarationName() {
 	super.consumeSingleStaticImportDeclarationName();
 	ImportReference impt = (ImportReference)astStack[astPtr];
 	if (reportReferenceInfo) {
-		requestor.acceptTypeReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
+		// Name for static import is TypeName '.' Identifier
+		// => accept unknown ref on identifier
+		int length = impt.tokens.length-1;
+		int start = (int) (impt.sourcePositions[length] >>> 32);
+		requestor.acceptUnknownReference(impt.tokens[length], start);
+		// accept type name
+		if (length > 0) {
+			char[][] compoundName = new char[length][];
+			System.arraycopy(impt.tokens, 0, compoundName, 0, length);
+			int end = (int) impt.sourcePositions[length-1];
+			requestor.acceptTypeReference(compoundName, impt.sourceStart, end);
+		}
 	}
 }
 protected void consumeSingleTypeImportDeclarationName() {
@@ -559,6 +570,17 @@ protected void consumeSingleTypeImportDeclarationName() {
 	stored in the identifier stack. */
 
 	super.consumeSingleTypeImportDeclarationName();
+	ImportReference impt = (ImportReference)astStack[astPtr];
+	if (reportReferenceInfo) {
+		requestor.acceptTypeReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
+	}
+}
+protected void consumeStaticImportOnDemandDeclarationName() {
+	// TypeImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
+	/* push an ImportRef build from the last name 
+	stored in the identifier stack. */
+
+	super.consumeStaticImportOnDemandDeclarationName();
 	ImportReference impt = (ImportReference)astStack[astPtr];
 	if (reportReferenceInfo) {
 		requestor.acceptTypeReference(impt.tokens, impt.sourceStart, impt.sourceEnd);

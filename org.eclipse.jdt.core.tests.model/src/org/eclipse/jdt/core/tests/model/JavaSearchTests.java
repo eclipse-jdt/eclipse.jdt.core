@@ -310,7 +310,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "testMethodReferenceBug74776" };
+//	testsNames = new String[] { "testTypeReference39" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	testsNumbers = new int[] { 1, 2, 3, 9, 11, 16 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -1342,6 +1342,20 @@ public void testFieldReference20() throws CoreException { // was testFieldRefere
 	assertSearchResults(
 		"src/s4/X.java int s4.X.foo() [x] OUTSIDE_JAVADOC\n" + 
 		"src/s4/X.java void s4.X.bar() [x] INSIDE_JAVADOC",
+		this.resultCollector);
+}
+/**
+ * Field reference in static import
+ */
+public void testFieldReference21() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15", "src", "s1.j.l", "S.java").getType("S");
+	IField field = type.getField("in");
+	search(field, REFERENCES, getJavaSearchScope15(), resultCollector);
+	assertSearchResults(
+		"src/s1/A.java [s1.j.l.S.in]\n" + 
+		"src/s1/B.java void s1.B.foo() [in]\n" + 
+		"src/s1/D.java [s1.j.l.S.in]\n" + 
+		"src/s1/D.java void s1.D.foo() [in]",
 		this.resultCollector);
 }
 /**
@@ -3531,6 +3545,33 @@ public void testTypeReference38() throws CoreException { // was testTypeReferenc
 		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
 		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
 		"src/s4/X.java void s4.X.fred() [X] OUTSIDE_JAVADOC",
+		this.resultCollector);
+}
+/**
+ * Type reference in static import
+ */
+public void testTypeReference39() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15", "src", "s1.j.l", "S.java").getType("S");
+	search(type, REFERENCES, getJavaSearchScope15(), resultCollector);
+	assertSearchResults(
+		"src/s1/A.java [s1.j.l.S]\n" + 
+		"src/s1/A.java [s1.j.l.S]\n" + 
+		"src/s1/B.java [s1.j.l.S]\n" + 
+		"src/s1/D.java [s1.j.l.S]\n" + 
+		"src/s1/D.java [s1.j.l.S]\n" + 
+		"src/s1/E.java [s1.j.l.S]",
+		this.resultCollector);
+}
+/**
+ * Member type reference in static import
+ */
+public void testTypeReference40() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15", "src", "s1.j.l", "S.java").getType("S");
+	IType member = type.getType("Member");
+	search(member, REFERENCES, getJavaSearchScope15(), resultCollector);
+	assertSearchResults(
+		"src/s1/E.java [s1.j.l.S.Member]\n" + 
+		"src/s1/E.java s1.E.m [Member]",
 		this.resultCollector);
 }
 }
