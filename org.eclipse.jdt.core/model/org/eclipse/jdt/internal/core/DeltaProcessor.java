@@ -11,7 +11,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
 
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaProject;
@@ -47,11 +49,6 @@ public class DeltaProcessor {
 	 * translation is complete.
 	 */
 	protected Hashtable fJavaProjectsToUpdate = null;
-
-	/**
-	 * Flag can be set to avoid processing children of current element
-	 */
-	protected boolean fProcessChildren = true;
 
 	protected IndexManager indexManager =
 		JavaModelManager.ENABLE_INDEXING ? new IndexManager() : null;
@@ -369,8 +366,6 @@ public class DeltaProcessor {
 			if (hasJavaNature(delta.getResource())) {
 				basicElementAdded(element, delta);
 			}
-			fProcessChildren = false;
-			return;
 		} else {
 			basicElementAdded(element, delta);
 		}
@@ -397,8 +392,6 @@ public class DeltaProcessor {
 			close(element);
 			fCurrentDelta.closed(element);
 		}
-		// do not process any children
-		fProcessChildren = false;
 	}
 
 	/**
@@ -548,14 +541,6 @@ public class DeltaProcessor {
 					((PackageFragmentRootInfo) projectRoot.getElementInfo()).setNonJavaResources(
 						null);
 				}
-
-				if (delta
-					.getResource()
-					.getFullPath()
-					.equals(((JavaProject) element).getOutputLocation())) {
-					fProcessChildren = false;
-					return;
-				}
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT :
 				 ((PackageFragmentInfo) info).setNonJavaResources(null);
@@ -604,16 +589,62 @@ public class DeltaProcessor {
 		return filterRealDeltas(translatedDeltas);
 	}
 	
-private void updateCurrentDeltaAndIndex(Openable element, IResourceDelta delta) {
+/*
+ * Update the current delta (ie. add/remove/change the given element) and update the correponding index.
+ * Returns whether the children of the given delta must be processed.
+ */
+private boolean updateCurrentDeltaAndIndex(Openable element, IResourceDelta delta) {
 	switch (delta.getKind()) {
 		case IResourceDelta.ADDED :
 			updateIndex(element, delta);
 			elementAdded(element, delta);
-			break;
+			if (element instanceof IPackageFragmentRoot) {
+				element = (Openable)((IPackageFragmentRoot)element).getPackageFragment("");
+			}
+			if (element instanceof IPackageFragment) {
+				// add subpackages
+				PackageFragmentRoot root = element.getPackageFragmentRoot();
+				String name = element.getElementName();
+				IResourceDelta[] children = delta.getAffectedChildren();
+				for (int i = 0, length = children.length; i < length; i++) {
+					IResourceDelta child = children[i];
+					IResource resource = child.getResource();
+					if (resource instanceof IFolder) {
+						String subpkgName = 
+							name.length() == 0 ? 
+								resource.getName() : 
+								name + "." + resource.getName(); //$NON-NLS-1$
+						Openable subpkg = (Openable)root.getPackageFragment(subpkgName);
+						this.updateCurrentDeltaAndIndex(subpkg, child);
+					}
+				}
+			}
+			return false;
 		case IResourceDelta.REMOVED :
 			updateIndex(element, delta);
 			elementRemoved(element, delta);
-			break;
+			if (element instanceof IPackageFragmentRoot) {
+				element = (Openable)((IPackageFragmentRoot)element).getPackageFragment("");
+			}
+			if (element instanceof IPackageFragment) {
+				// remove subpackages
+				PackageFragmentRoot root = element.getPackageFragmentRoot();
+				String name = element.getElementName();
+				IResourceDelta[] children = delta.getAffectedChildren();
+				for (int i = 0, length = children.length; i < length; i++) {
+					IResourceDelta child = children[i];
+					IResource resource = child.getResource();
+					if (resource instanceof IFolder) {
+						String subpkgName = 
+							name.length() == 0 ? 
+								resource.getName() : 
+								name + "." + resource.getName(); //$NON-NLS-1$
+						Openable subpkg = (Openable)root.getPackageFragment(subpkgName);
+						this.updateCurrentDeltaAndIndex(subpkg, child);
+					}
+				}
+			}
+			return false;
 		case IResourceDelta.CHANGED :
 			int flags = delta.getFlags();
 			if ((flags & IResourceDelta.CONTENT) != 0) {
@@ -626,9 +657,11 @@ private void updateCurrentDeltaAndIndex(Openable element, IResourceDelta delta) 
 				} else {
 					elementClosed(element, delta);
 				}
+				return false; // when a project is open/closed don't process children
 			}
-			break;
+			return true;
 	}
+	return true;
 }
 
 	/**
@@ -682,14 +715,14 @@ private void updateCurrentDeltaAndIndex(Openable element, IResourceDelta delta) 
 		boolean isOnClasspath = this.isOnClasspath(classpath, res);
 		
 		Openable element = null;
-		fProcessChildren = true;
+		boolean processChildren = true;
 		JavaProject project = null;
 		if (isOnClasspath) {
 			Openable[] elements = this.createElements(res);
 			if (elements != null) {
 				for (int i = 0, length = elements.length; i < length; i++) {
 					element = elements[i];
-					this.updateCurrentDeltaAndIndex(element, delta);
+					processChildren = this.updateCurrentDeltaAndIndex(element, delta);
 				}
 			} else {
 				return false;
@@ -698,7 +731,7 @@ private void updateCurrentDeltaAndIndex(Openable element, IResourceDelta delta) 
 			if (res instanceof IProject) {
 				project = (JavaProject)JavaCore.getJavaCore().create((IProject)res);
 				if (project == null) return false; // not a Java project
-				this.updateCurrentDeltaAndIndex(project, delta);
+				processChildren = this.updateCurrentDeltaAndIndex(project, delta);
 				if (delta.getKind() != IResourceDelta.CHANGED 
 						|| (delta.getFlags() & IResourceDelta.OPEN) != 0) {
 					return false; // don't go deeper for added, removed, opened or closed projects
@@ -709,10 +742,10 @@ private void updateCurrentDeltaAndIndex(Openable element, IResourceDelta delta) 
 				}
 			} else {
 				// if classpath is known, we are for sure out of classpath: stop processing children
-				fProcessChildren = classpath != null;
+				processChildren = classpath != null;
 			}
 		}
-		if (fProcessChildren) {
+		if (processChildren) {
 			IResourceDelta[] children = delta.getAffectedChildren();
 			boolean oneChildOnClasspath = false;
 			int length = children.length;
@@ -791,8 +824,9 @@ private boolean isOnClasspath(IClasspathEntry[] classpath, IResource res) {
 
 	}
 
-	protected void updateIndex(Openable element, IResourceDelta delta) {
+protected void updateIndex(Openable element, IResourceDelta delta) {
 
+	try {		
 		if (indexManager == null)
 			return;
 
@@ -801,12 +835,59 @@ private boolean isOnClasspath(IClasspathEntry[] classpath, IResource res) {
 				switch (delta.getKind()) {
 					case IResourceDelta.ADDED :
 					case IResourceDelta.OPEN :
-						indexManager.indexAll((IProject) delta.getResource());
+						indexManager.indexAll(element.getJavaProject().getProject());
+						break;
+				}
+				break;
+			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
+				switch (delta.getKind()) {
+					case IResourceDelta.ADDED:
+					case IResourceDelta.CHANGED:
+						if (element instanceof JarPackageFragmentRoot) {
+							JarPackageFragmentRoot root = (JarPackageFragmentRoot)element;
+							// index jar file only once (if the root is in its declaring project)
+							if (root.getJavaProject().getProject().getFullPath().isPrefixOf(root.getPath())) {
+								indexManager.indexJarFile(root.getPath(), root.getJavaProject().getElementName());
+							}
+						}
+						break;
+					case IResourceDelta.REMOVED:
+						// keep index in case it is added back later in this session
+						break;
+				}
+				// don't break as packages of the package fragment root can be indexed below
+			case IJavaElement.PACKAGE_FRAGMENT :
+				switch (delta.getKind()) {
+					case IResourceDelta.ADDED:
+					case IResourceDelta.REMOVED:
+						IPackageFragment pkg = null;
+						if (element instanceof IPackageFragmentRoot) {
+							IPackageFragmentRoot root = (IPackageFragmentRoot)element;
+							pkg = root.getPackageFragment("");
+						} else {
+							pkg = (IPackageFragment)element;
+						}
+						String name = pkg.getElementName();
+						IResourceDelta[] children = delta.getAffectedChildren();
+						for (int i = 0, length = children.length; i < length; i++) {
+							IResourceDelta child = children[i];
+							IResource resource = child.getResource();
+							if (resource instanceof IFile) {
+								String extension = resource.getFileExtension();
+								if ("java".equalsIgnoreCase(extension)) { //$NON-NLS-1$
+									Openable cu = (Openable)pkg.getCompilationUnit(resource.getName());
+									this.updateIndex(cu, child);
+								} else if ("class".equalsIgnoreCase(extension)) { //$NON-NLS-1$
+									Openable classFile = (Openable)pkg.getClassFile(resource.getName());
+									this.updateIndex(classFile, child);
+								}
+							}
+						}
 						break;
 				}
 				break;
 			case IJavaElement.CLASS_FILE :
-				IFile file = (IFile) delta.getResource();
+				IFile file = (IFile) element.getUnderlyingResource();
 				IJavaProject project = element.getJavaProject();
 				IResource binaryFolder;
 				try {
@@ -849,7 +930,10 @@ private boolean isOnClasspath(IClasspathEntry[] classpath, IResource res) {
 						break;
 				}
 		}
+	} catch (CoreException e) {
+		// ignore: index won't be updated
 	}
+}
 
 	/**
 	 * Adds the given project to the cache of projects requiring classpath

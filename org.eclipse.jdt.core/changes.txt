@@ -111,6 +111,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  5362 Deeper than necessary JavaElementDelta when package added  
 
   PRs Closed in this Release
   ================================================================================
