@@ -58,12 +58,12 @@ public class SwitchStatement extends Statement {
 				for (int i = 0, max = statements.length; i < max; i++) {
 					Statement statement = statements[i];
 					if ((caseIndex < caseCount) && (statement == cases[caseIndex])) { // statement is a case
-						this.scope.switchCase = cases[caseIndex]; // record entering in a switch case block
+						this.scope.enclosingCase = cases[caseIndex]; // record entering in a switch case block
 						caseIndex++;
 						caseInits = caseInits.mergedWith(flowInfo.copy().unconditionalInits());
 						didAlreadyComplain = false; // reset complaint
 					} else if (statement == defaultCase) { // statement is the default case
-						this.scope.switchCase = defaultCase; // record entering in a switch case block
+						this.scope.enclosingCase = defaultCase; // record entering in a switch case block
 						caseInits = caseInits.mergedWith(flowInfo.copy().unconditionalInits());
 						didAlreadyComplain = false; // reset complaint
 					}
@@ -91,7 +91,7 @@ public class SwitchStatement extends Statement {
 				currentScope.methodScope().recordInitializationStates(mergedInfo);
 			return mergedInfo;
 	    } finally {
-	        if (this.scope != null) this.scope.switchCase = null; // no longer inside switch case block
+	        if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 	    }
 	}
 
@@ -167,14 +167,14 @@ public class SwitchStatement extends Statement {
 				for (int i = 0, maxCases = this.statements.length; i < maxCases; i++) {
 					Statement statement = this.statements[i];
 					if ((caseIndex < this.caseCount) && (statement == this.cases[caseIndex])) { // statements[i] is a case
-						this.scope.switchCase = this.cases[caseIndex]; // record entering in a switch case block
+						this.scope.enclosingCase = this.cases[caseIndex]; // record entering in a switch case block
 						if (preSwitchInitStateIndex != -1) {
 							codeStream.removeNotDefinitelyAssignedVariables(currentScope, preSwitchInitStateIndex);
 						}
 						caseIndex++;
 					} else {
 						if (statement == this.defaultCase) { // statements[i] is a case or a default case
-							this.scope.switchCase = this.defaultCase; // record entering in a switch case block
+							this.scope.enclosingCase = this.defaultCase; // record entering in a switch case block
 							if (preSwitchInitStateIndex != -1) {
 								codeStream.removeNotDefinitelyAssignedVariables(currentScope, preSwitchInitStateIndex);
 							}
@@ -198,7 +198,7 @@ public class SwitchStatement extends Statement {
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 	    } finally {
-	        if (this.scope != null) this.scope.switchCase = null; // no longer inside switch case block
+	        if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 	    }		
 	}
 
@@ -246,7 +246,7 @@ public class SwitchStatement extends Statement {
 				return;
 			}
 			if (statements != null) {
-				scope = explicitDeclarations == 0 ? upperScope : new BlockScope(upperScope);
+				scope = /*explicitDeclarations == 0 ? upperScope : */new BlockScope(upperScope);
 				int length;
 				// collection of cases is too big but we will only iterate until caseCount
 				cases = new CaseStatement[length = statements.length];
@@ -313,7 +313,7 @@ public class SwitchStatement extends Statement {
 				}
 			}
 	    } finally {
-	        if (this.scope != null) this.scope.switchCase = null; // no longer inside switch case block
+	        if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 	    }
 	}
 

@@ -37,7 +37,7 @@ public class BlockScope extends Scope {
 	public int subscopeCount = 0; // need access from code assist
 
 	// record the current case statement being processed (for entire switch case block).
-	public CaseStatement switchCase; // from 1.4 on, local types should not be accessed across switch case blocks (52221)
+	public CaseStatement enclosingCase; // from 1.4 on, local types should not be accessed across switch case blocks (52221)
 
 	protected BlockScope(int kind, Scope parent) {
 
@@ -325,7 +325,11 @@ public class BlockScope extends Scope {
 			if (subscopes[i] instanceof ClassScope) {
 				LocalTypeBinding sourceType = (LocalTypeBinding)((ClassScope) subscopes[i]).referenceContext.binding;
 				// from 1.4 on, local types should not be accessed across switch case blocks (52221)				
-				if (compliance >= ClassFileConstants.JDK1_4 && sourceType.switchCase != this.switchCase) continue;
+				if (compliance >= ClassFileConstants.JDK1_4 && sourceType.enclosingCase != null) {
+					if (!this.isInsideCase(sourceType.enclosingCase)) {
+						continue;
+					}
+				}
 				if (CharOperation.equals(sourceType.sourceName(), name))
 					return sourceType;
 			}

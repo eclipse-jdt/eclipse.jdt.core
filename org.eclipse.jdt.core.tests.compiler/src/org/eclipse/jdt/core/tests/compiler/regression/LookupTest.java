@@ -1722,6 +1722,62 @@ public void test051() {
 		"The method finalize() from the type Object is not visible\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87463
+public void test052() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //---------------------------
+			"public class X {\n" + 
+			"	public void test() {\n" + 
+			"		class C {\n" + 
+			"			public C() {\n" + 
+			"			}\n" + 
+			"			public void foo() {\n" + 
+			"				System.out.println(\"hello\");\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		int n = 0;\n" + 
+			"		switch (n) {\n" + 
+			"			case 0 :\n" + 
+			"				if (true) {\n" + 
+			"					C c2 = new C();\n" + 
+			"				}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87463 - variation
+public void test053() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //---------------------------
+			"public class X {\n" + 
+			"	public void test() {\n" + 
+			"		int l = 1;\n" + 
+			"		switch(l) {\n" + 
+			"			case 1: \n" + 
+			"				class C {\n" + 
+			"					public C() {\n" + 
+			"					}\n" + 
+			"					public void foo() {\n" + 
+			"						System.out.println(\"hello\");\n" + 
+			"					}\n" + 
+			"				}\n" + 
+			"				int n = 0;\n" + 
+			"				switch (n) {\n" + 
+			"					case 0 :\n" + 
+			"						if (true) {\n" + 
+			"							C c2 = new C();\n" + 
+			"						}\n" + 
+			"				}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
 public static Class testClass() {
 	return LookupTest.class;
 }

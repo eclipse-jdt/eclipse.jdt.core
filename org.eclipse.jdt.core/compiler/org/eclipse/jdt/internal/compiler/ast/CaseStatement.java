@@ -84,7 +84,7 @@ public class CaseStatement extends Statement {
 		TypeBinding switchExpressionType,
 		SwitchStatement switchStatement) {
 
-	    scope.switchCase = this; // record entering in a switch case block
+	    scope.enclosingCase = this; // record entering in a switch case block
 	    
 		if (constantExpression == null) {
 			// remember the default case into the associated switch statement

@@ -29,7 +29,7 @@ import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 
 public abstract class Scope
 	implements BaseTypes, CompilerModifiers, ProblemReasons, TagBits, TypeConstants, TypeIds {
-
+	
 	public final static int BLOCK_SCOPE = 1;
 	public final static int CLASS_SCOPE = 3;
 	public final static int COMPILATION_UNIT_SCOPE = 4;
@@ -39,6 +39,9 @@ public abstract class Scope
 	public final static int COMPATIBLE = 0;
 	public final static int AUTOBOX_COMPATIBLE = 1;
 	public final static int VARARGS_COMPATIBLE = 2;
+
+	public int kind;
+	public Scope parent;
 
    /* Answer an int describing the relationship between the given types.
 	*
@@ -52,6 +55,90 @@ public abstract class Scope
 		if (right.isCompatibleWith(left))
 			return MoreGeneric;
 		return NotRelated;
+	}
+	
+	public static TypeBinding getBaseType(char[] name) {
+		// list should be optimized (with most often used first)
+		int length = name.length;
+		if (length > 2 && length < 8) {
+			switch (name[0]) {
+				case 'i' :
+					if (length == 3 && name[1] == 'n' && name[2] == 't')
+						return IntBinding;
+					break;
+				case 'v' :
+					if (length == 4 && name[1] == 'o' && name[2] == 'i' && name[3] == 'd')
+						return VoidBinding;
+					break;
+				case 'b' :
+					if (length == 7
+						&& name[1] == 'o'
+						&& name[2] == 'o'
+						&& name[3] == 'l'
+						&& name[4] == 'e'
+						&& name[5] == 'a'
+						&& name[6] == 'n')
+						return BooleanBinding;
+					if (length == 4 && name[1] == 'y' && name[2] == 't' && name[3] == 'e')
+						return ByteBinding;
+					break;
+				case 'c' :
+					if (length == 4 && name[1] == 'h' && name[2] == 'a' && name[3] == 'r')
+						return CharBinding;
+					break;
+				case 'd' :
+					if (length == 6
+						&& name[1] == 'o'
+						&& name[2] == 'u'
+						&& name[3] == 'b'
+						&& name[4] == 'l'
+						&& name[5] == 'e')
+						return DoubleBinding;
+					break;
+				case 'f' :
+					if (length == 5
+						&& name[1] == 'l'
+						&& name[2] == 'o'
+						&& name[3] == 'a'
+						&& name[4] == 't')
+						return FloatBinding;
+					break;
+				case 'l' :
+					if (length == 4 && name[1] == 'o' && name[2] == 'n' && name[3] == 'g')
+						return LongBinding;
+					break;
+				case 's' :
+					if (length == 5
+						&& name[1] == 'h'
+						&& name[2] == 'o'
+						&& name[3] == 'r'
+						&& name[4] == 't')
+						return ShortBinding;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns an array of types, where original types got substituted given a substitution.
+	 * Only allocate an array if anything is different.
+	 */
+	public static ReferenceBinding[] substitute(Substitution substitution, ReferenceBinding[] originalTypes) {
+		if (originalTypes == null) return null;
+	    ReferenceBinding[] substitutedTypes = originalTypes;
+	    for (int i = 0, length = originalTypes.length; i < length; i++) {
+	        ReferenceBinding originalType = originalTypes[i];
+	        ReferenceBinding substitutedParameter = (ReferenceBinding)substitute(substitution, originalType);
+	        if (substitutedParameter != originalType) {
+	            if (substitutedTypes == originalTypes) {
+	                System.arraycopy(originalTypes, 0, substitutedTypes = new ReferenceBinding[length], 0, i);
+	            }
+	            substitutedTypes[i] = substitutedParameter;
+	        } else if (substitutedTypes != originalTypes) {
+	            substitutedTypes[i] = originalType;
+	        }
+	    }
+	    return substitutedTypes;
 	}
 
 	/**
@@ -149,28 +236,6 @@ public abstract class Scope
 		}
 		return originalType;
 	}	
-	
-	/**
-	 * Returns an array of types, where original types got substituted given a substitution.
-	 * Only allocate an array if anything is different.
-	 */
-	public static ReferenceBinding[] substitute(Substitution substitution, ReferenceBinding[] originalTypes) {
-		if (originalTypes == null) return null;
-	    ReferenceBinding[] substitutedTypes = originalTypes;
-	    for (int i = 0, length = originalTypes.length; i < length; i++) {
-	        ReferenceBinding originalType = originalTypes[i];
-	        ReferenceBinding substitutedParameter = (ReferenceBinding)substitute(substitution, originalType);
-	        if (substitutedParameter != originalType) {
-	            if (substitutedTypes == originalTypes) {
-	                System.arraycopy(originalTypes, 0, substitutedTypes = new ReferenceBinding[length], 0, i);
-	            }
-	            substitutedTypes[i] = substitutedParameter;
-	        } else if (substitutedTypes != originalTypes) {
-	            substitutedTypes[i] = originalType;
-	        }
-	    }
-	    return substitutedTypes;
-	}
 
 	/**
 	 * Returns an array of types, where original types got substituted given a substitution.
@@ -193,9 +258,6 @@ public abstract class Scope
 	    }
 	    return substitutedTypes;
 	}
-
-	public int kind;
-	public Scope parent;
 
 	protected Scope(int kind, Scope parent) {
 		this.kind = kind;
@@ -1284,68 +1346,6 @@ public abstract class Scope
 
 	public LocalVariableBinding findVariable(char[] variable) {
 
-		return null;
-	}
-	
-	public static TypeBinding getBaseType(char[] name) {
-		// list should be optimized (with most often used first)
-		int length = name.length;
-		if (length > 2 && length < 8) {
-			switch (name[0]) {
-				case 'i' :
-					if (length == 3 && name[1] == 'n' && name[2] == 't')
-						return IntBinding;
-					break;
-				case 'v' :
-					if (length == 4 && name[1] == 'o' && name[2] == 'i' && name[3] == 'd')
-						return VoidBinding;
-					break;
-				case 'b' :
-					if (length == 7
-						&& name[1] == 'o'
-						&& name[2] == 'o'
-						&& name[3] == 'l'
-						&& name[4] == 'e'
-						&& name[5] == 'a'
-						&& name[6] == 'n')
-						return BooleanBinding;
-					if (length == 4 && name[1] == 'y' && name[2] == 't' && name[3] == 'e')
-						return ByteBinding;
-					break;
-				case 'c' :
-					if (length == 4 && name[1] == 'h' && name[2] == 'a' && name[3] == 'r')
-						return CharBinding;
-					break;
-				case 'd' :
-					if (length == 6
-						&& name[1] == 'o'
-						&& name[2] == 'u'
-						&& name[3] == 'b'
-						&& name[4] == 'l'
-						&& name[5] == 'e')
-						return DoubleBinding;
-					break;
-				case 'f' :
-					if (length == 5
-						&& name[1] == 'l'
-						&& name[2] == 'o'
-						&& name[3] == 'a'
-						&& name[4] == 't')
-						return FloatBinding;
-					break;
-				case 'l' :
-					if (length == 4 && name[1] == 'o' && name[2] == 'n' && name[3] == 'g')
-						return LongBinding;
-					break;
-				case 's' :
-					if (length == 5
-						&& name[1] == 'h'
-						&& name[2] == 'o'
-						&& name[3] == 'r'
-						&& name[4] == 't')
-						return ShortBinding;
-			}
-		}
 		return null;
 	}
 
@@ -2511,6 +2511,7 @@ public abstract class Scope
 		int removed = 0;
 		for (int i = 0; i < length; i++) {
 			TypeBinding iType = result[i];
+			if (iType == null) continue;
 			for (int j = 0; j < length; j++) {
 				if (i == j) continue;
 				TypeBinding jType = result[j];
@@ -2534,6 +2535,19 @@ public abstract class Scope
 			}
 		}
 		return trimmedResult;
+	}
+	
+	/**
+	 * Returns the immediately enclosing switchCase statement (carried by closest blockScope),
+	 */
+	public CaseStatement innermostSwitchCase() {
+		Scope scope = this;
+		do {
+			if (scope instanceof BlockScope)
+				return ((BlockScope) scope).enclosingCase;
+			scope = scope.parent;
+		} while (scope != null);
+		return null;
 	}
 
 	public boolean isBoxingCompatibleWith(TypeBinding left, TypeBinding right) {
@@ -2606,6 +2620,24 @@ public abstract class Scope
 		return false;
 	}
 
+	/** 
+	 * Returns true if the scope or one of its parent is associated to a given caseStatement, denoting
+	 * being part of a given switch case statement.
+	 */
+	public boolean isInsideCase(CaseStatement caseStatement) {
+		Scope scope = this;
+		do {
+			switch (scope.kind) {
+				case Scope.BLOCK_SCOPE :
+					if (((BlockScope) scope).enclosingCase == caseStatement) {
+						return true;
+					}
+			}
+			scope = scope.parent;
+		} while (scope != null);
+		return false;
+	}
+	
 	public boolean isInsideDeprecatedCode(){
 		switch(this.kind){
 			case Scope.BLOCK_SCOPE :
@@ -3180,7 +3212,7 @@ public abstract class Scope
 					}
 				}
 			} else {
-				if (paramLength < argLength) { // all remainig argument types must be compatible with the elementsType of varArgType
+				if (paramLength < argLength) { // all remaining argument types must be compatible with the elementsType of varArgType
 					TypeBinding param = ((ArrayBinding) parameters[lastIndex]).elementsType();
 					for (int i = lastIndex; i < argLength; i++) {
 						TypeBinding arg = arguments[i];
@@ -3231,18 +3263,5 @@ public abstract class Scope
 	// start position in this scope - for ordering scopes vs. variables
 	int startIndex() {
 		return 0;
-	}
-	
-	/**
-	 * Returns the immediately enclosing switchCase statement (carried by closest blockScope),
-	 */
-	public CaseStatement switchCase() {
-		Scope scope = this;
-		do {
-			if (scope instanceof BlockScope)
-				return ((BlockScope) scope).switchCase;
-			scope = scope.parent;
-		} while (scope != null);
-		return null;
 	}
 }

@@ -164,7 +164,7 @@ public class ClassScope extends Scope {
 		referenceContext.initializerScope = new MethodScope(this, referenceContext, false);
 
 		// build the binding or the local type
-		LocalTypeBinding localType = new LocalTypeBinding(this, enclosingType, this.switchCase());
+		LocalTypeBinding localType = new LocalTypeBinding(this, enclosingType, this.innermostSwitchCase());
 		referenceContext.binding = localType;
 		checkAndSetModifiers();
 		buildTypeVariables();

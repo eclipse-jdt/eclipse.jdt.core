@@ -101,7 +101,7 @@ public class CompilationUnitDeclaration
 			    LocalTypeBinding localType = localTypes[i];
 				// null out the type's scope backpointers
 				localType.scope = null; // local members are already in the list
-				localType.switchCase = null;
+				localType.enclosingCase = null;
 			}
 		}
 		ClassFile[] classFiles = compilationResult.getClassFiles();

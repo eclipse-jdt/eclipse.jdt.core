@@ -19,7 +19,7 @@ public final class LocalTypeBinding extends NestedTypeBinding {
 
 	private InnerEmulationDependency[] dependents;
 	public ArrayBinding[] localArrayBindings; // used to cache array bindings of various dimensions for this local type
-	public CaseStatement switchCase; // from 1.4 on, local types should not be accessed across switch case blocks (52221)
+	public CaseStatement enclosingCase; // from 1.4 on, local types should not be accessed across switch case blocks (52221)
 	private int sourceStart; // used by computeUniqueKey to uniquely identify this binding
 	
 public LocalTypeBinding(ClassScope scope, SourceTypeBinding enclosingType, CaseStatement switchCase) {
@@ -32,7 +32,7 @@ public LocalTypeBinding(ClassScope scope, SourceTypeBinding enclosingType, CaseS
 		this.tagBits |= AnonymousTypeMask;
 	else
 		this.tagBits |= LocalTypeMask;
-	this.switchCase = switchCase;
+	this.enclosingCase = switchCase;
 	this.sourceStart = scope.referenceContext.sourceStart;
 }
 /* Record a dependency onto a source target type which may be altered
