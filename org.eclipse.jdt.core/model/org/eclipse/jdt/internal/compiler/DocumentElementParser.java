@@ -450,16 +450,6 @@ protected void consumeEnterVariable() {
 		declaration = 
 			new FieldDeclaration(varName, (int) (namePosition >>> 32), (int) namePosition); 
 	}
-	// consume annotations
-	int length;
-	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
-		System.arraycopy(
-			this.expressionStack, 
-			(this.expressionPtr -= length) + 1, 
-			declaration.annotations = new Annotation[length], 
-			0, 
-			length); 
-	}
 	identifierLengthPtr--;
 	TypeReference type;
 	int variableIndex = variablesCounter[nestedType];
@@ -480,6 +470,16 @@ protected void consumeEnterVariable() {
 			declaration.declarationSourceStart = intStack[intPtr--];
 			declaration.modifiersSourceStart = intStack[intPtr--];
 			declaration.modifiers = intStack[intPtr--];
+		}
+		// consume annotations
+		int length;
+		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+			System.arraycopy(
+				this.expressionStack, 
+				(this.expressionPtr -= length) + 1, 
+				declaration.annotations = new Annotation[length], 
+				0, 
+				length); 
 		}
 	} else {
 		type = (TypeReference) astStack[astPtr - variableIndex];

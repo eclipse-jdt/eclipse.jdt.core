@@ -2526,9 +2526,8 @@ protected void consumeEnhancedForStatementHeader(boolean hasModifiers){
 	pushOnAstStack(iteratorForStatement);
 	
 	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition && 
-			this.expressionLengthStack[this.expressionLengthPtr] == 1) {
-		this.problemReporter().invalidUsageOfForeachStatements(localDeclaration, this.expressionStack[this.expressionPtr]);
+			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
+		this.problemReporter().invalidUsageOfForeachStatements(localDeclaration, collection);
 	}
 }
 protected void consumeEnhancedForStatement() {
