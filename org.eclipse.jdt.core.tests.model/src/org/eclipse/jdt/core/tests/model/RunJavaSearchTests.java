@@ -38,17 +38,20 @@ public static Class[] getJavaSearchTestClasses() {
 public static Test suite() {
 	TestSuite ts = new TestSuite(RunJavaSearchTests.class.getName());
 
+	// Get all classes
 	JavaSearchTests.TEST_SUITES = new ArrayList(Arrays.asList(getJavaSearchTestClasses()));
+	List allClasses = new ArrayList(JavaSearchTests.TEST_SUITES);
+	allClasses.add(JavaSearchBugsTests.class);
+	allClasses.add(JavaSearchMultipleProjectsTests.class);
+	allClasses.add(SearchTests.class);
+
 	// Reset forgotten subsets of tests
 	TestCase.TESTS_PREFIX = null;
 	TestCase.TESTS_NAMES = null;
 	TestCase.TESTS_NUMBERS = null;
 	TestCase.TESTS_RANGE = null;
-	
-	List allClasses = new ArrayList(JavaSearchTests.TEST_SUITES);
-	allClasses.add(JavaSearchBugsTests.class);
-	allClasses.add(JavaSearchMultipleProjectsTests.class);
-	allClasses.add(SearchTests.class);
+
+	// Add all tests suite of tests
 	for (int i = 0, size=allClasses.size(); i < size; i++) {
 		Class testClass = (Class) allClasses.get(i);
 
