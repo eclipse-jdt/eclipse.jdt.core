@@ -71,6 +71,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
  * @param valueRequired boolean
  */
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+
 	int pc = codeStream.position;
 	if (constant != NotAConstant) {
 		if (valueRequired) {
@@ -78,7 +79,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		}
 	} else {
 		boolean isStatic = this.codegenBinding.isStatic();
-		receiver.generateCode(currentScope, codeStream, valueRequired && (!isStatic) && (this.codegenBinding.constant == NotAConstant));
+		receiver.generateCode(currentScope, codeStream, !isStatic);
 		if (valueRequired) {
 			if (this.codegenBinding.constant == NotAConstant) {
 				if (this.codegenBinding.declaringClass == null) { // array length
@@ -100,12 +101,22 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				}
 				codeStream.generateImplicitConversion(implicitConversion);
 			} else {
+				if (!isStatic) {
+					codeStream.invokeObjectGetClass(); // perform null check
+					codeStream.pop();
+				}
 				codeStream.generateConstant(this.codegenBinding.constant, implicitConversion);
+			}
+		} else {
+			if (!isStatic){
+				codeStream.invokeObjectGetClass(); // perform null check
+				codeStream.pop();
 			}
 		}
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
+
 public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion, boolean valueRequired) {
 	
 	boolean isStatic;

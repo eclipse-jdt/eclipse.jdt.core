@@ -158,10 +158,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			}
 		} else {
 			boolean isStatic = this.codegenBinding.isStatic();
-			receiver.generateCode(
-				currentScope,
-				codeStream,
-				valueRequired && (!isStatic) && (this.codegenBinding.constant == NotAConstant));
+			receiver.generateCode(currentScope, codeStream, !isStatic);
 			if (valueRequired) {
 				if (this.codegenBinding.constant == NotAConstant) {
 					if (this.codegenBinding.declaringClass == null) { // array length
@@ -179,7 +176,16 @@ public class FieldReference extends Reference implements InvocationSite {
 					}
 					codeStream.generateImplicitConversion(implicitConversion);
 				} else {
+					if (!isStatic) {
+						codeStream.invokeObjectGetClass(); // perform null check
+						codeStream.pop();
+					}
 					codeStream.generateConstant(this.codegenBinding.constant, implicitConversion);
+				}
+			} else {
+				if (!isStatic){
+					codeStream.invokeObjectGetClass(); // perform null check
+					codeStream.pop();
 				}
 			}
 		}
