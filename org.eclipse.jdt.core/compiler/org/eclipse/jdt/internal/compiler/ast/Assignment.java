@@ -191,7 +191,10 @@ public class Assignment extends Expression {
 			expression.computeConversion(scope, lhsType, rhsType);
 			checkAssignment(scope, lhsType, rhsType);
 			return this.resolvedType;
-		}
+		} else if (scope.isBoxingCompatibleWith(rhsType, lhsType)) {
+			expression.computeConversion(scope, lhsType, rhsType);
+			return this.resolvedType;
+		} 
 		scope.problemReporter().typeMismatchError(rhsType, lhsType, expression);
 		return lhsType;
 	}

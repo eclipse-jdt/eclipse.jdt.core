@@ -163,6 +163,8 @@ public class ArrayInitializer extends Expression {
 						expression.computeConversion(scope, expectedElementsTb, expressionTb);
 					} else if (BaseTypeBinding.isWidening(expectedElementsTb.id, expressionTb.id)) {
 						expression.computeConversion(scope, expectedElementsTb, expressionTb);
+					} else if (scope.isBoxingCompatibleWith(expressionTb, expectedElementsTb)) {
+						expression.computeConversion(scope, expectedElementsTb, expressionTb);
 					} else {
 						scope.problemReporter().typeMismatchError(expressionTb, expectedElementsTb, expression);
 						return null;

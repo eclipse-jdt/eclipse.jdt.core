@@ -84,11 +84,9 @@ private void computeValue() {
  */
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	int pc = codeStream.position;
-	if (valueRequired)
-		if ((implicitConversion >> 4) == T_char)
-			codeStream.generateInlinedValue(value);
-		else
-			codeStream.generateConstant(constant, implicitConversion);
+	if (valueRequired) {
+		codeStream.generateConstant(constant, implicitConversion);
+	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding literalType(BlockScope scope) {

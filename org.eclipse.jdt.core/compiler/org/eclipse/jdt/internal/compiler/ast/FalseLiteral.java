@@ -21,8 +21,8 @@ public FalseLiteral(int s , int e) {
 	super(s,e);
 }
 public void computeConstant() {
-
-	constant = Constant.fromValue(false);}
+	constant = Constant.fromValue(false);
+}
 /**
  * Code generation for false literal
  *
@@ -32,8 +32,9 @@ public void computeConstant() {
  */
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	int pc = codeStream.position;
-	if (valueRequired)
-		codeStream.iconst_0();
+	if (valueRequired) {
+		codeStream.generateConstant(this.constant, this.implicitConversion);
+	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {

@@ -23,8 +23,8 @@ public TrueLiteral(int s , int e) {
 	super(s,e);
 }
 public void computeConstant() {
-
-	constant = Constant.fromValue(true);}
+	this.constant = Constant.fromValue(true);
+}
 /**
  * Code generation for the true literal
  *
@@ -34,8 +34,9 @@ public void computeConstant() {
  */ 
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	int pc = codeStream.position;
-	if (valueRequired)
-		codeStream.iconst_1();
+	if (valueRequired) {
+		codeStream.generateConstant(constant, implicitConversion);
+	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {

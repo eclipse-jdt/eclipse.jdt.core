@@ -31,7 +31,12 @@ public abstract class Scope
 	public final static int CLASS_SCOPE = 3;
 	public final static int COMPILATION_UNIT_SCOPE = 4;
 	public final static int METHOD_SCOPE = 2;
-	
+
+	public final static int NOT_COMPATIBLE = -1;
+	public final static int COMPATIBLE = 0;
+	public final static int AUTOBOX_COMPATIBLE = 1;
+	public final static int VARARGS_COMPATIBLE = 2;
+
    /* Answer an int describing the relationship between the given types.
 	*
 	* 		NotRelated 
@@ -200,6 +205,68 @@ public abstract class Scope
 		return (CompilationUnitScope) lastScope;
 	}
 
+	public TypeBinding computeBoxingType(TypeBinding type) {
+		TypeBinding boxedType;
+		switch (type.id) {
+			case T_JavaLangBoolean :
+				return BooleanBinding;
+			case T_JavaLangByte :
+				return ByteBinding;
+			case T_JavaLangCharacter :
+				return CharBinding;
+			case T_JavaLangShort :
+				return ShortBinding;
+			case T_JavaLangDouble :
+				return DoubleBinding;
+			case T_JavaLangFloat :
+				return FloatBinding;
+			case T_JavaLangInteger :
+				return IntBinding;
+			case T_JavaLangLong :
+				return LongBinding;
+			case T_JavaLangVoid :
+				return VoidBinding;
+
+			case T_int :
+				boxedType = environment().getType(JAVA_LANG_INTEGER);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_INTEGER, NotFound);				
+			case T_byte :
+				boxedType = environment().getType(JAVA_LANG_BYTE);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_BYTE, NotFound);				
+			case T_short :
+				boxedType = environment().getType(JAVA_LANG_SHORT);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_SHORT, NotFound);				
+			case T_char :
+				boxedType = environment().getType(JAVA_LANG_CHARACTER);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_CHARACTER, NotFound);				
+			case T_long :
+				boxedType = environment().getType(JAVA_LANG_LONG);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_LONG, NotFound);				
+			case T_float :
+				boxedType = environment().getType(JAVA_LANG_FLOAT);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_FLOAT, NotFound);				
+			case T_double :
+				boxedType = environment().getType(JAVA_LANG_DOUBLE);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_DOUBLE, NotFound);				
+			case T_boolean :
+				boxedType = environment().getType(JAVA_LANG_BOOLEAN);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_BOOLEAN, NotFound);				
+			case T_void :
+				boxedType = environment().getType(JAVA_LANG_VOID);
+				if (boxedType != null) return boxedType;
+				return new ProblemReferenceBinding(	JAVA_LANG_VOID, NotFound);				
+		}
+		return type;
+	}	
+
 	/**
 	 * Internal use only
 	 * Given a method, returns null if arguments cannot be converted to parameters.
@@ -240,34 +307,8 @@ public abstract class Scope
 			}
 		}
 
-		argumentCompatibility: {
-			int lastIndex = argLength;
-			if (isVarArgs) {
-				lastIndex = paramLength - 1;
-				if (paramLength == argLength) { // accept both X and X[] but not X[][]
-					TypeBinding varArgType = parameters[lastIndex]; // is an ArrayBinding by definition
-					TypeBinding lastArgument = arguments[lastIndex];
-					if (varArgType != lastArgument && !lastArgument.isCompatibleWith(varArgType)) {
-						// expect X[], called with X
-						varArgType = ((ArrayBinding) varArgType).elementsType();
-						if (!lastArgument.isCompatibleWith(varArgType))
-							break argumentCompatibility;
-					}
-				} else if (paramLength < argLength) { // all remainig argument types must be compatible with the elementsType of varArgType
-					TypeBinding varArgType = ((ArrayBinding) parameters[lastIndex]).elementsType();
-					for (int i = lastIndex; i < argLength; i++)
-						if (varArgType != arguments[i] && !arguments[i].isCompatibleWith(varArgType))
-							break argumentCompatibility;
-				} else if (lastIndex != argLength) { // can call foo(int i, X ... x) with foo(1) but NOT foo();
-					break argumentCompatibility;
-				}
-				// now compare standard arguments from 0 to lastIndex
-			}
-			for (int i = 0; i < lastIndex; i++)
-				if (parameters[i] != arguments[i] && !arguments[i].isCompatibleWith(parameters[i]))
-					break argumentCompatibility;
-			return method; // compatible
-		}
+		if (parameterCompatibilityLevel(method, arguments) > NOT_COMPATIBLE)
+			return method;
 		if (genericTypeArguments != null)
 			return new ProblemMethodBinding(method, method.selector, arguments, ParameterizedMethodTypeMismatch);
 		return null; // incompatible
@@ -530,9 +571,11 @@ public abstract class Scope
 			matchingMethod = findMethodInSuperInterfaces(currentType, selector, found, matchingMethod);
 			currentType = currentType.superclass();
 		}
+		CompilationUnitScope unitScope = compilationUnitScope();
 		int foundSize = found.size;
 		if (foundSize == startFoundSize) {
-			if (matchingMethod != null) compilationUnitScope().recordTypeReferences(matchingMethod.thrownExceptions);
+			if (matchingMethod != null)
+				unitScope.recordTypeReferences(matchingMethod.thrownExceptions);
 			return matchingMethod; // maybe null
 		}
 		MethodBinding[] candidates = new MethodBinding[foundSize - startFoundSize];
@@ -551,7 +594,7 @@ public abstract class Scope
 		}
 
 		if (candidatesCount == 1) {
-			compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
+			unitScope.recordTypeReferences(candidates[0].thrownExceptions);
 			return candidates[0]; 
 		}
 		if (candidatesCount == 0) { // try to find a close match when the parameter order is wrong or missing some parameters
@@ -573,6 +616,9 @@ public abstract class Scope
 			return (MethodBinding) found.elementAt(0); // no good match so just use the first one found
 		}
 		// no need to check for visibility - interface methods are public
+		boolean isCompliant14 = unitScope.environment.options.complianceLevel >= ClassFileConstants.JDK1_4;
+		if (isCompliant14)
+			return mostSpecificMethodBinding(candidates, candidatesCount, argumentTypes, invocationSite);
 		return mostSpecificInterfaceMethodBinding(candidates, candidatesCount, invocationSite);
 	}
 
@@ -917,6 +963,7 @@ public abstract class Scope
 					found.add(matchingMethod);
 					matchingMethod = null;
 				}
+				// TODO (kent) should skip inherited methods that are overridden
 				// append currentMethods, filtering out null entries
 				int maxMethod = currentMethods.length;
 				if (maxMethod == currentLength) { // no method was eliminated for 1.4 compliance (see above)
@@ -1526,7 +1573,7 @@ public abstract class Scope
 					TypeConstants.INIT,
 					argumentTypes,
 					NotFound);
-	
+
 			MethodBinding[] compatible = new MethodBinding[methods.length];
 			int compatibleIndex = 0;
 			MethodBinding problemMethod = null;
@@ -1560,7 +1607,8 @@ public abstract class Scope
 					TypeConstants.INIT,
 					compatible[0].parameters,
 					NotVisible);
-			return mostSpecificClassMethodBinding(visible, visibleIndex, invocationSite);
+			// all of visible are from the same declaringClass, even before 1.4 we can call this method instead of mostSpecificClassMethodBinding
+			return mostSpecificMethodBinding(visible, visibleIndex, argumentTypes, invocationSite);
 		} catch (AbortCompilation e) {
 			e.updateContext(invocationSite, referenceCompilationUnit().compilationResult);
 			throw e;
@@ -2420,6 +2468,11 @@ public abstract class Scope
 		return trimmedResult;
 	}
 
+	public boolean isBoxingCompatibleWith(TypeBinding expressionType, TypeBinding methodType) {
+		return expressionType.isBaseType() != methodType.isBaseType()
+			&& computeBoxingType(expressionType).isCompatibleWith(methodType);
+	}
+
 	/* Answer true if the scope is nested inside a given field declaration.
 	 * Note: it works as long as the scope.fieldDeclarationIndex is reflecting the field being traversed 
 	 * e.g. during name resolution.
@@ -2851,46 +2904,32 @@ public abstract class Scope
 	}
 
 	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
-		boolean varargsStatus = visible[0].isVarargs();
-		for (int i = 1; i < visibleSize; i++) {
-			if (visible[i].isVarargs() != varargsStatus) {
-				// visible can be a mix of fixed & variable arity methods, so re-check the varargs methods but consider their last arg as a fixed array
-				MethodBinding[] temp = new MethodBinding[visibleSize];
-				int newSize = 0;
-				int argLength = argumentTypes.length;
-				for (int j = 0; j < visibleSize; j++) {
-					if (visible[j].isVarargs())
-						if (visible[j].parameters.length != argLength
-							|| !argumentTypes[argLength - 1].isCompatibleWith(visible[j].parameters[argLength - 1]))
-								continue; // forget this varargs method since its last arg is not an exact match
-					temp[newSize++] = visible[j];
-				}
-				visible = temp;
-				visibleSize = newSize;
-				break;
-			}
-		}
+		int[] compatibilityLevels = new int[visibleSize];
+		for (int i = 0; i < visibleSize; i++)
+			compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argumentTypes);
 
-		MethodBinding method = null;
-		nextVisible : for (int i = 0; i < visibleSize; i++) {
-			method = visible[i];
-			for (int j = 0; j < visibleSize; j++) {
-				if (i == j) continue;
-				// tiebreak generic methods using variant where type params are substituted by their erasures
-				if (!visible[j].tiebreakMethod().areParametersCompatibleWith(method.tiebreakMethod().parameters)) {
-					if (method.isVarargs() && visible[j].isVarargs()) {
-						int paramLength = method.parameters.length;
-						if (paramLength == visible[j].parameters.length && paramLength == argumentTypes.length + 1) {
-							TypeBinding elementsType = ((ArrayBinding) visible[j].parameters[paramLength - 1]).elementsType();
-							if (method.parameters[paramLength - 1].isCompatibleWith(elementsType))
-								continue; // special case to choose between 2 varargs methods when the last arg is missing
+		for (int level = 0; level <= 2; level++) {
+			nextVisible : for (int i = 0; i < visibleSize; i++) {
+				if (compatibilityLevels[i] != level) continue nextVisible; // skip this method for now
+				MethodBinding method = visible[i];
+				for (int j = 0; j < visibleSize; j++) {
+					if (i == j || compatibilityLevels[j] != level) continue;
+					// tiebreak generic methods using variant where type params are substituted by their erasures
+					if (!visible[j].tiebreakMethod().areParametersCompatibleWith(method.tiebreakMethod().parameters)) {
+						if (method.isVarargs() && visible[j].isVarargs()) {
+							int paramLength = method.parameters.length;
+							if (paramLength == visible[j].parameters.length && paramLength == argumentTypes.length + 1) {
+								TypeBinding elementsType = ((ArrayBinding) visible[j].parameters[paramLength - 1]).elementsType();
+								if (method.parameters[paramLength - 1].isCompatibleWith(elementsType))
+									continue; // special case to choose between 2 varargs methods when the last arg is missing
+							}
 						}
+						continue nextVisible;
 					}
-					continue nextVisible;
 				}
+				compilationUnitScope().recordTypeReferences(method.thrownExceptions);
+				return method;
 			}
-			compilationUnitScope().recordTypeReferences(method.thrownExceptions);
-			return method;
 		}
 		return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, Ambiguous);
 	}	
@@ -2915,6 +2954,55 @@ public abstract class Scope
 			scope = scope.parent;
 		} while (scope != null);
 		return lastMethodScope; // may answer null if no method around
+	}
+
+	protected int parameterCompatibilityLevel(MethodBinding method, TypeBinding[] arguments) {
+		TypeBinding[] parameters = method.parameters;
+		int paramLength = parameters.length;
+		int argLength = arguments.length;
+		int lastIndex = argLength;
+		int level = COMPATIBLE; // no autoboxing or varargs support needed
+		if (method.isVarargs()) {
+			lastIndex = paramLength - 1;
+			if (paramLength == argLength) { // accept X or X[] but not X[][]
+				TypeBinding param = parameters[lastIndex]; // is an ArrayBinding by definition
+				TypeBinding arg = arguments[lastIndex];
+				if (param != arg && !arg.isCompatibleWith(param)) {
+					if (isBoxingCompatibleWith(arg, param)) {
+						level = AUTOBOX_COMPATIBLE; // autoboxing support needed
+					} else {
+						// expect X[], called with X
+						param = ((ArrayBinding) param).elementsType();
+						if (!arg.isCompatibleWith(param) && !isBoxingCompatibleWith(arg, param))
+							return NOT_COMPATIBLE;
+						level = VARARGS_COMPATIBLE; // varargs support needed
+					}
+				}
+			} else {
+				if (paramLength < argLength) { // all remainig argument types must be compatible with the elementsType of varArgType
+					TypeBinding param = ((ArrayBinding) parameters[lastIndex]).elementsType();
+					for (int i = lastIndex; i < argLength; i++) {
+						TypeBinding arg = arguments[i];
+						if (param != arg && !arg.isCompatibleWith(param) && !isBoxingCompatibleWith(arg, param))
+							return NOT_COMPATIBLE;
+					}
+				}  else if (lastIndex != argLength) { // can call foo(int i, X ... x) with foo(1) but NOT foo();
+					return NOT_COMPATIBLE;
+				}
+				level = VARARGS_COMPATIBLE; // varargs support needed
+			}
+			// now compare standard arguments from 0 to lastIndex
+		}
+		for (int i = 0; i < lastIndex; i++) {
+			TypeBinding param = parameters[i];
+			TypeBinding arg = arguments[i];
+			if (arg != param && !arg.isCompatibleWith(param)) {
+				if (!isBoxingCompatibleWith(arg, param))
+					return NOT_COMPATIBLE;
+				level = AUTOBOX_COMPATIBLE; // autoboxing support needed
+			}
+		}
+		return level;
 	}
 
 	public abstract ProblemReporter problemReporter();

@@ -83,6 +83,9 @@ public interface TypeIds {
 	
 	final int NoId = Integer.MAX_VALUE;
 
+	public static final int IMPLICIT_CONVERSION_MASK = 0xFF;
+	public static final int COMPILE_TYPE_MASK = 0xF;
+
 	// implicit conversions: <compileType> to <runtimeType>  (note: booleans are integers at runtime)
 	final int Boolean2Int = T_boolean + (T_int << 4);
 	final int Boolean2String = T_boolean + (T_String << 4);
@@ -147,4 +150,6 @@ public interface TypeIds {
 	final int Object2String = T_Object + (T_String << 4);
 	final int Null2String = T_null + (T_String << 4);
 	final int Object2Object = T_Object + (T_Object << 4);
+	final int BOXING = 0x200;
+	final int UNBOXING = 0x400;
 }

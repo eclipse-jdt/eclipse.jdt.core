@@ -133,6 +133,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 			}
 			codeStream.invokespecial(syntheticAccessor);
 		}
+		codeStream.generateImplicitConversion(this.implicitConversion);
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	/**

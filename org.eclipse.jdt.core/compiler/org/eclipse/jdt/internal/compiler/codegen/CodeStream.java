@@ -1357,43 +1357,128 @@ final public void generateCodeAttributeForProblemMethod(String problemMessage) {
 	athrow();
 }
 public void generateConstant(Constant constant, int implicitConversionCode) {
-	int targetTypeID = implicitConversionCode >> 4;
-	switch (targetTypeID) {
-		case T_boolean :
-			generateInlinedValue(constant.booleanValue());
-			break;
-		case T_char :
-			generateInlinedValue(constant.charValue());
-			break;
-		case T_byte :
-			generateInlinedValue(constant.byteValue());
-			break;
-		case T_short :
-			generateInlinedValue(constant.shortValue());
-			break;
-		case T_int :
-			generateInlinedValue(constant.intValue());
-			break;
-		case T_long :
-			generateInlinedValue(constant.longValue());
-			break;
-		case T_float :
-			generateInlinedValue(constant.floatValue());
-			break;
-		case T_double :
-			generateInlinedValue(constant.doubleValue());
-			break;
-		default : //String or Object
-			ldc(constant.stringValue());
+	if ((implicitConversionCode & BOXING) != 0) {
+		// need to box the constant
+		final int typeId = implicitConversionCode & IMPLICIT_CONVERSION_MASK;
+		switch (typeId) {
+			case T_JavaLangBoolean :
+				generateInlinedValue(constant.booleanValue());
+				break;
+			case T_JavaLangCharacter :
+				generateInlinedValue(constant.charValue());
+				break;
+			case T_JavaLangByte :
+				generateInlinedValue(constant.byteValue());
+				break;
+			case T_JavaLangShort :
+				generateInlinedValue(constant.shortValue());
+				break;
+			case T_JavaLangInteger :
+				generateInlinedValue(constant.intValue());
+				break;
+			case T_JavaLangLong :
+				generateInlinedValue(constant.longValue());
+				break;
+			case T_JavaLangFloat :
+				generateInlinedValue(constant.floatValue());
+				break;
+			case T_JavaLangDouble :
+				generateInlinedValue(constant.doubleValue());
+				break;
+		}
+		// need boxing
+		generateBoxingConversion(typeId);
+		return;
+	}
+	
+	// FIXME (olivier) how can this ever occur ? unboxing a primitive type constant ?!?
+	if ((implicitConversionCode & UNBOXING) != 0) {
+		// need to unbox the constant
+		final int typeId = implicitConversionCode & COMPILE_TYPE_MASK;
+		switch (typeId) {
+			case T_boolean :
+				generateInlinedValue(constant.booleanValue());
+				break;
+			case T_char :
+				generateInlinedValue(constant.charValue());
+				break;
+			case T_byte :
+				generateInlinedValue(constant.byteValue());
+				break;
+			case T_short :
+				generateInlinedValue(constant.shortValue());
+				break;
+			case T_int :
+				generateInlinedValue(constant.intValue());
+				break;
+			case T_long :
+				generateInlinedValue(constant.longValue());
+				break;
+			case T_float :
+				generateInlinedValue(constant.floatValue());
+				break;
+			case T_double :
+				generateInlinedValue(constant.doubleValue());
+				break;
+		}
+		// need unboxing
+		generateUnboxingConversion(typeId);
+	}
+	int targetTypeID = (implicitConversionCode & IMPLICIT_CONVERSION_MASK) >> 4;
+	if (targetTypeID != 0) {
+		switch (targetTypeID) {
+			case T_boolean :
+				generateInlinedValue(constant.booleanValue());
+				break;
+			case T_char :
+				generateInlinedValue(constant.charValue());
+				break;
+			case T_byte :
+				generateInlinedValue(constant.byteValue());
+				break;
+			case T_short :
+				generateInlinedValue(constant.shortValue());
+				break;
+			case T_int :
+				generateInlinedValue(constant.intValue());
+				break;
+			case T_long :
+				generateInlinedValue(constant.longValue());
+				break;
+			case T_float :
+				generateInlinedValue(constant.floatValue());
+				break;
+			case T_double :
+				generateInlinedValue(constant.doubleValue());
+				break;
+			case T_String :
+				ldc(constant.stringValue());
+		}
+	} else {
+		ldc(constant.stringValue());
 	}
 }
+
 /**
  * Generates the sequence of instructions which will perform the conversion of the expression
  * on the stack into a different type (e.g. long l = someInt; --> i2l must be inserted).
  * @param implicitConversionCode int
  */
 public void generateImplicitConversion(int implicitConversionCode) {
-	switch (implicitConversionCode) {
+	if ((implicitConversionCode & BOXING) != 0) {
+		// need to unbox/box the constant
+		final int typeId = implicitConversionCode & IMPLICIT_CONVERSION_MASK;
+		generateBoxingConversion(typeId);
+		// no further implicit conversion when boxing
+		return;
+	}
+	
+	if ((implicitConversionCode & UNBOXING) != 0) {
+		final int typeId = implicitConversionCode & COMPILE_TYPE_MASK;
+		generateUnboxingConversion(typeId);
+		// unboxing can further involve base type conversions
+	}
+	switch (implicitConversionCode & IMPLICIT_CONVERSION_MASK) {
 		case Float2Char :
 			this.f2i();
 			this.i2c();
@@ -2034,6 +2119,172 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessBi
 							this.ireturn();
 	else
 		this.areturn();
+}
+public void generateBoxingConversion(int boxedTypeID) {
+	switch (boxedTypeID) {
+		case T_JavaLangByte :
+			// invokestatic: Byte.valueOf(byte)
+			this.invoke(
+				OPC_invokestatic,
+				1, // argCount
+				1, // return type size
+				QualifiedNamesConstants.JavaLangByteConstantPoolName,
+				QualifiedNamesConstants.ValueOf,
+				QualifiedNamesConstants.byteByteSignature); //$NON-NLS-1$
+			break;
+		case T_JavaLangShort :
+			// invokestatic: Short.valueOf(short)
+			this.invoke(
+				OPC_invokestatic,
+				1, // argCount
+				1, // return type size
+				QualifiedNamesConstants.JavaLangShortConstantPoolName,
+				QualifiedNamesConstants.ValueOf,
+				QualifiedNamesConstants.shortShortSignature); //$NON-NLS-1$
+			break;
+		case T_JavaLangCharacter :
+			// invokestatic: Character.valueOf(char)
+			this.invoke(
+				OPC_invokestatic,
+				1, // argCount
+				1, // return type size
+				QualifiedNamesConstants.JavaLangCharacterConstantPoolName,
+				QualifiedNamesConstants.ValueOf,
+				QualifiedNamesConstants.charCharacterSignature); //$NON-NLS-1$
+			break;
+		case T_JavaLangInteger :
+			// invokestatic: Integer.valueOf(int)
+			this.invoke(
+				OPC_invokestatic,
+				1, // argCount
+				1, // return type size
+				QualifiedNamesConstants.JavaLangIntegerConstantPoolName,
+				QualifiedNamesConstants.ValueOf,
+				QualifiedNamesConstants.IntIntegerSignature); //$NON-NLS-1$
+			break;
+		case T_JavaLangLong :
+			// invokestatic: Long.valueOf(long)
+			this.invoke(
+				OPC_invokestatic,
+				2, // argCount
+				1, // return type size
+				QualifiedNamesConstants.JavaLangLongConstantPoolName,
+				QualifiedNamesConstants.ValueOf,
+				QualifiedNamesConstants.longLongSignature); //$NON-NLS-1$
+			break;
+		case T_JavaLangFloat :
+			// invokestatic: Float.valueOf(float)
+			this.invoke(
+				OPC_invokestatic,
+				1, // argCount
+				1, // return type size
+				QualifiedNamesConstants.JavaLangFloatConstantPoolName,
+				QualifiedNamesConstants.ValueOf,
+				QualifiedNamesConstants.floatFloatSignature); //$NON-NLS-1$
+			break;
+		case T_JavaLangDouble :
+			// invokestatic: Double.valueOf(double)
+			this.invoke(
+				OPC_invokestatic,
+				2, // argCount
+				1, // return type size
+				QualifiedNamesConstants.JavaLangDoubleConstantPoolName,
+				QualifiedNamesConstants.ValueOf,
+				QualifiedNamesConstants.doubleDoubleSignature); //$NON-NLS-1$
+			break;
+		case T_JavaLangBoolean :
+			// invokestatic: Boolean.valueOf(boolean)
+			this.invoke(
+				OPC_invokestatic,
+				1, // argCount
+				1, // return type size
+				QualifiedNamesConstants.JavaLangBooleanConstantPoolName,
+				QualifiedNamesConstants.ValueOf,
+				QualifiedNamesConstants.booleanBooleanSignature); //$NON-NLS-1$
+	}
+}
+public void generateUnboxingConversion(int unboxedTypeID) {
+	switch (unboxedTypeID) {
+		case T_byte :
+			// invokevirtual: byteValue()
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					1, // return type size
+					QualifiedNamesConstants.JavaLangByteConstantPoolName,
+					QualifiedNamesConstants.BYTEVALUE_BYTE_METHOD_NAME,
+					QualifiedNamesConstants.BYTEVALUE_BYTE_METHOD_SIGNATURE);
+			break;
+		case T_short :
+			// invokevirtual: shortValue()
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					1, // return type size
+					QualifiedNamesConstants.JavaLangShortConstantPoolName,
+					QualifiedNamesConstants.SHORTVALUE_SHORT_METHOD_NAME,
+					QualifiedNamesConstants.SHORTVALUE_SHORT_METHOD_SIGNATURE);
+			break;
+		case T_char :
+			// invokevirtual: charValue()
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					1, // return type size
+					QualifiedNamesConstants.JavaLangCharacterConstantPoolName,
+					QualifiedNamesConstants.CHARVALUE_CHARACTER_METHOD_NAME,
+					QualifiedNamesConstants.CHARVALUE_CHARACTER_METHOD_SIGNATURE);
+			break;
+		case T_int :
+			// invokevirtual: intValue()
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					1, // return type size
+					QualifiedNamesConstants.JavaLangIntegerConstantPoolName,
+					QualifiedNamesConstants.INTVALUE_INTEGER_METHOD_NAME,
+					QualifiedNamesConstants.INTVALUE_INTEGER_METHOD_SIGNATURE);
+			break;
+		case T_long :
+			// invokevirtual: longValue()
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					2, // return type size
+					QualifiedNamesConstants.JavaLangLongConstantPoolName,
+					QualifiedNamesConstants.LONGVALUE_LONG_METHOD_NAME,
+					QualifiedNamesConstants.LONGVALUE_LONG_METHOD_SIGNATURE);
+			break;
+		case T_float :
+			// invokevirtual: floatValue()
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					1, // return type size
+					QualifiedNamesConstants.JavaLangFloatConstantPoolName,
+					QualifiedNamesConstants.FLOATVALUE_FLOAT_METHOD_NAME,
+					QualifiedNamesConstants.FLOATVALUE_FLOAT_METHOD_SIGNATURE);
+			break;
+		case T_double :
+			// invokevirtual: doubleValue()
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					2, // return type size
+					QualifiedNamesConstants.JavaLangDoubleConstantPoolName,
+					QualifiedNamesConstants.DOUBLEVALUE_DOUBLE_METHOD_NAME,
+					QualifiedNamesConstants.DOUBLEVALUE_DOUBLE_METHOD_SIGNATURE);
+			break;
+		case T_boolean :
+			// invokevirtual: booleanValue()
+			this.invoke(
+					OPC_invokevirtual,
+					0, // argCount
+					1, // return type size
+					QualifiedNamesConstants.JavaLangBooleanConstantPoolName,
+					QualifiedNamesConstants.BOOLEANVALUE_BOOLEAN_METHOD_NAME,
+					QualifiedNamesConstants.BOOLEANVALUE_BOOLEAN_METHOD_SIGNATURE);
+	}
 }
 final public byte[] getContents() {
 	byte[] contents;
@@ -3282,29 +3533,29 @@ public void invokeJavaLangAssertionErrorConstructor(int typeBindingID) {
 		case T_int :
 		case T_byte :
 		case T_short :
-			signature = QualifiedNamesConstants.AssertionErrorIntConstrSignature;
+			signature = QualifiedNamesConstants.IntConstrSignature;
 			break;
 		case T_long :
-			signature = QualifiedNamesConstants.AssertionErrorLongConstrSignature;
+			signature = QualifiedNamesConstants.LongConstrSignature;
 			argCount = 2;
 			break;
 		case T_float :
-			signature = QualifiedNamesConstants.AssertionErrorFloatConstrSignature;
+			signature = QualifiedNamesConstants.FloatConstrSignature;
 			break;
 		case T_double :
-			signature = QualifiedNamesConstants.AssertionErrorDoubleConstrSignature;
+			signature = QualifiedNamesConstants.DoubleConstrSignature;
 			argCount = 2;
 			break;
 		case T_char :
-			signature = QualifiedNamesConstants.AssertionErrorCharConstrSignature;
+			signature = QualifiedNamesConstants.CharConstrSignature;
 			break;
 		case T_boolean :
-			signature = QualifiedNamesConstants.AssertionErrorBooleanConstrSignature;
+			signature = QualifiedNamesConstants.BooleanConstrSignature;
 			break;
 		case T_Object :
 		case T_String :
 		case T_null :
-			signature = QualifiedNamesConstants.AssertionErrorObjectConstrSignature;
+			signature = QualifiedNamesConstants.ObjectConstrSignature;
 			break;
 	}
 	this.invoke(

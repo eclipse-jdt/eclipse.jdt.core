@@ -297,6 +297,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			if (enclosingInstanceType.isCompatibleWith(expectedType)) {
 				enclosingInstance.computeConversion(scope, expectedType, enclosingInstanceType);
 				return receiverType;
+			} else if (scope.isBoxingCompatibleWith(enclosingInstanceType, expectedType)) {
+				enclosingInstance.computeConversion(scope, expectedType, enclosingInstanceType);
+				return receiverType;
 			}
 			scope.problemReporter().typeMismatchError(enclosingInstanceType, expectedType, this.enclosingInstance);
 			return this.resolvedType = receiverType;

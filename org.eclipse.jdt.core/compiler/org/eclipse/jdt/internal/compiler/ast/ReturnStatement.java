@@ -229,6 +229,9 @@ public class ReturnStatement extends Statement {
 			    scope.problemReporter().unsafeRawConversion(this.expression, expressionType, methodType);
 			}
 			return;
+		} else if (scope.isBoxingCompatibleWith(expressionType, methodType)) {
+			expression.computeConversion(scope, methodType, expressionType);
+			return;
 		}
 		scope.problemReporter().typeMismatchError(expressionType, methodType, expression);
 	}

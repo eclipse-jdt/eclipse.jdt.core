@@ -314,13 +314,28 @@ public class ForeachStatement extends Statement {
 			if (collectionType.isArrayType()) { // for(E e : E[])
 				this.kind = ARRAY;
 				TypeBinding collectionElementType = ((ArrayBinding) collectionType).elementsType();
-				if (!collectionElementType.isCompatibleWith(elementType)) {
+				if (!collectionElementType.isCompatibleWith(elementType)
+						&& !scope.isBoxingCompatibleWith(collectionElementType, elementType)) {
 					scope.problemReporter().notCompatibleTypesErrorInForeach(collection, collectionElementType, elementType);
 				}
 				// in case we need to do a conversion
 				this.arrayElementTypeID = collectionElementType.id;
+				int compileTimeTypeId = this.arrayElementTypeID;
 				if (elementType.isBaseType()) {
-					this.elementVariableImplicitWidening = (elementType.id << 4) + this.arrayElementTypeID;
+					if (!collectionElementType.isBaseType()) {
+						compileTimeTypeId = scope.computeBoxingType(collectionElementType).id;
+						this.elementVariableImplicitWidening = UNBOXING;
+						if (elementType.isBaseType()) {
+							this.elementVariableImplicitWidening |= (elementType.id << 4) + compileTimeTypeId;
+						}
+					} else {
+						this.elementVariableImplicitWidening = (elementType.id << 4) + compileTimeTypeId;
+					}
+				} else {
+					if (collectionElementType.isBaseType()) {
+						compileTimeTypeId = scope.computeBoxingType(collectionElementType).id;
+						this.elementVariableImplicitWidening = BOXING | compileTimeTypeId;
+					}
 				}
 			} else if (collectionType instanceof ReferenceBinding) {
 			    ReferenceBinding iterableType = ((ReferenceBinding)collectionType).findSuperTypeErasingTo(T_JavaLangIterable, false /*Iterable is not a class*/);

@@ -113,6 +113,9 @@ public class CaseStatement extends Statement {
 			} else {
 				return constantExpression.constant;
 			}
+		} else if (scope.isBoxingCompatibleWith(switchExpressionType, caseType)) {
+			constantExpression.computeConversion(scope, caseType, switchExpressionType);
+			return constantExpression.constant;
 		}
 		scope.problemReporter().typeMismatchError(caseType, switchExpressionType, constantExpression);
 		return NotAConstant;

@@ -466,12 +466,29 @@ public abstract class Expression extends Statement {
 		if (runtimeTimeType == null || compileTimeType == null)
 			return;
 		if (this.implicitConversion != 0) return; // already set independantly
-		
+
+
+		// it is possible for a Byte to be unboxed to a byte & then converted to an int
+		// but it is not possible either for a byte to become Byte & then assigned to an Integer,
+		// or to become an int before boxed into an Integer
+		if (runtimeTimeType.isBaseType()) {
+			if (!compileTimeType.isBaseType()) {
+				compileTimeType = scope.computeBoxingType(compileTimeType);
+				this.implicitConversion = UNBOXING;
+			}
+		} else {
+			if (compileTimeType.isBaseType()) {
+				compileTimeType = scope.computeBoxingType(compileTimeType);
+				this.implicitConversion = BOXING | compileTimeType.id;
+				return;
+			}
+		}
+
 		switch (runtimeTimeType.id) {
 			case T_byte :
 			case T_short :
 			case T_char :
-				this.implicitConversion = (T_int << 4) + compileTimeType.id;
+				this.implicitConversion |= (T_int << 4) + compileTimeType.id;
 				break;
 			case T_String :
 			case T_float :
@@ -479,7 +496,7 @@ public abstract class Expression extends Statement {
 			case T_double :
 			case T_int : //implicitConversion may result in i2i which will result in NO code gen
 			case T_long :
-				this.implicitConversion = (runtimeTimeType.id << 4) + compileTimeType.id;
+				this.implicitConversion |= (runtimeTimeType.id << 4) + compileTimeType.id;
 				break;
 			default : // regular object ref
 //				if (compileTimeType.isRawType() && runtimeTimeType.isBoundParameterizedType()) {
@@ -748,7 +765,9 @@ public abstract class Expression extends Statement {
 		if (expressionType == null) return null;
 		if (expressionType == expectedType) return expressionType;
 		
-		if (!expressionType.isCompatibleWith(expectedType)) {
+		if (scope.isBoxingCompatibleWith(expressionType, expectedType)) {
+			this.computeConversion(scope, expectedType, expressionType);
+		} else if (!expressionType.isCompatibleWith(expectedType)) {
 			scope.problemReporter().typeMismatchError(expressionType, expectedType, this);
 			return null;
 		}

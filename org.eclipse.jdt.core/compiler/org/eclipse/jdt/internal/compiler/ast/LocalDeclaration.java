@@ -209,6 +209,8 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 						if (initializationType.needsUncheckedConversion(variableType)) {
 						    scope.problemReporter().unsafeRawConversion(this.initialization, initializationType, variableType);
 						}						
+					} else if (scope.isBoxingCompatibleWith(initializationType, variableType)) {
+						this.initialization.computeConversion(scope, variableType, initializationType);
 					} else {
 						scope.problemReporter().typeMismatchError(initializationType, variableType, this);
 					}

@@ -220,6 +220,8 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 							if (initializationType.needsUncheckedConversion(fieldType)) {
 								    initializationScope.problemReporter().unsafeRawConversion(this.initialization, initializationType, fieldType);
 							}									
+						} else if (initializationScope.isBoxingCompatibleWith(initializationType, fieldType)) {
+							this.initialization.computeConversion(initializationScope, fieldType, initializationType);
 						} else {
 							initializationScope.problemReporter().typeMismatchError(initializationType, fieldType, this);
 						}
