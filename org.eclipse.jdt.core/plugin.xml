@@ -29,6 +29,7 @@
 <runtime>
   <library name="jdtcore.jar">  
      <export name = "*"/>
+     <packages prefixes="org.eclipse.jdt.core,org.eclipse.jdt.internal"/>
   </library> 
 </runtime>
 
