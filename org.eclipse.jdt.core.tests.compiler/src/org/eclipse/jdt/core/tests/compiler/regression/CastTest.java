@@ -874,7 +874,36 @@ public void test025() {
 		null,
 		true,
 		customOptions);
-}		
+}	
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47074
+ */
+public void test026() { 
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    A a = null;\n" + 
+			"    B b = (B) a;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"interface A {\n" + 
+			"  void doSomething();\n" + 
+			"}\n" + 
+			"interface B {\n" + 
+			"  int doSomething();\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	B b = (B) a;\n" + 
+		"	      ^^^^^\n" + 
+		"Cannot cast from A to B\n" + 
+		"----------\n",
+		null,
+		true);
+}
 public static Class testClass() {
 	return CastTest.class;
 }
