@@ -1972,4 +1972,52 @@ public class AnnotationTest extends AbstractComparisonTest {
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79848
+	// TODO (olivier) active once 79848 is fixed
+	public void _test065() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" +
+				"    Class[] classes();\n" +
+				"}\n" +
+				"\n" +
+				"public class X {\n" +
+				"    @I(classes = {X.class, I.class}) public void foo(){\n" +
+				"    }\n" +
+				"}\n"
+			},
+		"");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"  // Method descriptor  #6 ()V\n" +
+			"  // Stack: 0, Locals: 1\n" +
+			"  @I(classes={X,I})\n" +
+			"  public void foo();\n" +
+			"    0  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 7]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
 }
