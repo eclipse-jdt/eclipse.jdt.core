@@ -113,6 +113,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  5200      SetClasspathOperation must close root only when root is removed
   3449      CodeAssist - two type with same name must be qualified (1GLDN3Z)
   4973		Rename package removes first letter of import statements 
   3339      search: java project scope does not work as expected (1GIJU1P)  
