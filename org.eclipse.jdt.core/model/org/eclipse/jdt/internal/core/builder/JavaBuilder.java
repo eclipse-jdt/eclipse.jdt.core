@@ -378,6 +378,14 @@ private void initializeBuilder() throws CoreException {
 		createFolder(this.outputFolder);
 	}
 
+	// Flush the existing external files cache if this is the beginning of a build cycle
+	String projectName = this.currentProject.getName();
+	if (builtProjects == null || builtProjects.contains(projectName)) {
+		JavaModel.flushExternalFileCache();
+		builtProjects = new ArrayList();
+	}
+	builtProjects.add(projectName);
+	
 	ArrayList sourceList = new ArrayList();
 	this.binaryResources = new SimpleLookupTable(3);
 	this.classpath = NameEnvironment.computeLocations(
@@ -393,14 +401,6 @@ private void initializeBuilder() throws CoreException {
 	this.resourceFilters = filterSequence != null && filterSequence.length() > 0
 		? CharOperation.splitOn(',', filterSequence.toCharArray())
 		: null;
-
-	// Flush the existing external files cache if this is the beginning of a build cycle
-	String projectName = this.currentProject.getName();
-	if (builtProjects == null || builtProjects.contains(projectName)) {
-		JavaModel.flushExternalFileCache();
-		builtProjects = new ArrayList();
-	}
-	builtProjects.add(projectName);
 }
 
 private boolean isWorthBuilding() throws CoreException {
