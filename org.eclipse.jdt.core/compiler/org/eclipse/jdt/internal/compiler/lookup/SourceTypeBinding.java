@@ -79,14 +79,13 @@ public void addDefaultAbstractMethods() {
 	if ((tagBits & KnowsDefaultAbstractMethods) != 0) return;
 
 	tagBits |= KnowsDefaultAbstractMethods;
-
 	if (isClass() && isAbstract()) {
-		if (fPackage.environment.options.targetJDK >= ClassFileConstants.JDK1_2) return; // no longer added for post 1.2 targets
+		if (fPackage.environment.options.targetJDK >= ClassFileConstants.JDK1_2)
+			return; // no longer added for post 1.2 targets
 
 		ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
 		int lastPosition = 0;
 		interfacesToVisit[lastPosition] = superInterfaces();
-
 		for (int i = 0; i <= lastPosition; i++) {
 			ReferenceBinding[] interfaces = interfacesToVisit[i];
 			for (int j = 0, length = interfaces.length; j < length; j++) {
@@ -113,14 +112,11 @@ public void addDefaultAbstractMethods() {
 /* Add a new synthetic field for <actualOuterLocalVariable>.
 *	Answer the new field or the existing field if one already existed.
 */
-
 public FieldBinding addSyntheticFieldForInnerclass(LocalVariableBinding actualOuterLocalVariable) {
-	if (synthetics == null) {
+	if (synthetics == null)
 		synthetics = new HashMap[4];
-	}
-	if (synthetics[FIELD_EMUL] == null) {
+	if (synthetics[FIELD_EMUL] == null)
 		synthetics[FIELD_EMUL] = new HashMap(5);
-	}
 	
 	FieldBinding synthField = (FieldBinding) synthetics[FIELD_EMUL].get(actualOuterLocalVariable);
 	if (synthField == null) {
@@ -160,15 +156,11 @@ public FieldBinding addSyntheticFieldForInnerclass(LocalVariableBinding actualOu
 /* Add a new synthetic field for <enclosingType>.
 *	Answer the new field or the existing field if one already existed.
 */
-
 public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingType) {
-
-	if (synthetics == null) {
+	if (synthetics == null)
 		synthetics = new HashMap[4];
-	}
-	if (synthetics[FIELD_EMUL] == null) {
+	if (synthetics[FIELD_EMUL] == null)
 		synthetics[FIELD_EMUL] = new HashMap(5);
-	}
 
 	FieldBinding synthField = (FieldBinding) synthetics[FIELD_EMUL].get(enclosingType);
 	if (synthField == null) {
@@ -211,15 +203,11 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 /* Add a new synthetic field for a class literal access.
 *	Answer the new field or the existing field if one already existed.
 */
-
 public FieldBinding addSyntheticFieldForClassLiteral(TypeBinding targetType, BlockScope blockScope) {
-
-	if (synthetics == null) {
+	if (synthetics == null)
 		synthetics = new HashMap[4];
-	}
-	if (synthetics[CLASS_LITERAL_EMUL] == null) {
+	if (synthetics[CLASS_LITERAL_EMUL] == null)
 		synthetics[CLASS_LITERAL_EMUL] = new HashMap(5);
-	}
 
 	// use a different table than FIELDS, given there might be a collision between emulation of X.this$0 and X.class.
 	FieldBinding synthField = (FieldBinding) synthetics[CLASS_LITERAL_EMUL].get(targetType);
@@ -249,18 +237,14 @@ public FieldBinding addSyntheticFieldForClassLiteral(TypeBinding targetType, Blo
 	}		
 	return synthField;
 }
-
 /* Add a new synthetic field for the emulation of the assert statement.
 *	Answer the new field or the existing field if one already existed.
 */
 public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
-
-	if (synthetics == null) {
+	if (synthetics == null)
 		synthetics = new HashMap[4];
-	}
-	if (synthetics[FIELD_EMUL] == null) {
+	if (synthetics[FIELD_EMUL] == null)
 		synthetics[FIELD_EMUL] = new HashMap(5);
-	}
 
 	FieldBinding synthField = (FieldBinding) synthetics[FIELD_EMUL].get("assertionEmulation"); //$NON-NLS-1$
 	if (synthField == null) {
@@ -296,18 +280,14 @@ public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
 	} while (needRecheck);
 	return synthField;
 }
-
 /* Add a new synthetic field for recording all enum constant values
 *	Answer the new field or the existing field if one already existed.
 */
 public FieldBinding addSyntheticFieldForEnumValues() {
-
-	if (synthetics == null) {
+	if (synthetics == null)
 		synthetics = new HashMap[4];
-	}
-	if (synthetics[FIELD_EMUL] == null) {
+	if (synthetics[FIELD_EMUL] == null)
 		synthetics[FIELD_EMUL] = new HashMap(5);
-	}
 
 	FieldBinding synthField = (FieldBinding) synthetics[FIELD_EMUL].get("enumConstantValues"); //$NON-NLS-1$
 	if (synthField == null) {
@@ -343,19 +323,14 @@ public FieldBinding addSyntheticFieldForEnumValues() {
 	} while (needRecheck);
 	return synthField;
 }
-
 /* Add a new synthetic access method for read/write access to <targetField>.
 	Answer the new method or the existing method if one already existed.
 */
-
 public SyntheticMethodBinding addSyntheticMethod(FieldBinding targetField, boolean isReadAccess) {
-
-	if (synthetics == null) {
+	if (synthetics == null)
 		synthetics = new HashMap[4];
-	}
-	if (synthetics[METHOD_EMUL] == null) {
+	if (synthetics[METHOD_EMUL] == null)
 		synthetics[METHOD_EMUL] = new HashMap(5);
-	}
 
 	SyntheticMethodBinding accessMethod = null;
 	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) synthetics[METHOD_EMUL].get(targetField);
@@ -374,15 +349,11 @@ public SyntheticMethodBinding addSyntheticMethod(FieldBinding targetField, boole
 /* Add a new synthetic method the enum type. Selector can either be 'values' or 'valueOf'.
  * char[] constants from TypeConstants must be used: TypeConstants.VALUES/VALUEOF
 */
-
 public SyntheticMethodBinding addSyntheticEnumMethod(char[] selector) {
-
-	if (synthetics == null) {
+	if (synthetics == null)
 		synthetics = new HashMap[4];
-	}
-	if (synthetics[METHOD_EMUL] == null) {
+	if (synthetics[METHOD_EMUL] == null)
 		synthetics[METHOD_EMUL] = new HashMap(5);
-	}
 
 	SyntheticMethodBinding accessMethod = null;
 	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) synthetics[METHOD_EMUL].get(selector);
@@ -402,15 +373,11 @@ public SyntheticMethodBinding addSyntheticEnumMethod(char[] selector) {
  * Must distinguish access method used for super access from others (need to use invokespecial bytecode)
 	Answer the new method or the existing method if one already existed.
 */
-
 public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boolean isSuperAccess) {
-
-	if (synthetics == null) {
+	if (synthetics == null)
 		synthetics = new HashMap[4];
-	}
-	if (synthetics[METHOD_EMUL] == null) {
+	if (synthetics[METHOD_EMUL] == null)
 		synthetics[METHOD_EMUL] = new HashMap(5);
-	}
 
 	SyntheticMethodBinding accessMethod = null;
 	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) synthetics[METHOD_EMUL].get(targetMethod);
@@ -436,9 +403,8 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 		&& inheritedMethodToBridge.areParameterErasuresEqual(targetMethod)) {
 			return null; // do not need bridge method
 	}
-	if (synthetics == null) {
+	if (synthetics == null)
 		synthetics = new HashMap[4];
-	}
 	if (synthetics[METHOD_EMUL] == null) {
 		synthetics[METHOD_EMUL] = new HashMap(5);
 	} else {
@@ -471,7 +437,6 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 	}
 	return accessMethod;
 }
-
 /**
  * Collect the substitutes into a map for certain type variables inside the receiver type
  * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
@@ -531,12 +496,10 @@ public void collectSubstitutes(Scope currentScope, TypeBinding otherType, Map su
         elements[i].collectSubstitutes(scope, otherElements[i], substitutes, otherElement.isWildcard() ? constraint : CONSTRAINT_EQUAL);
     }
 }
-	
 public int kind() {
 	if (this.typeVariables != NoTypeVariables) return Binding.GENERIC_TYPE;
 	return Binding.TYPE;
-}	
-
+}
 public char[] computeUniqueKey() {
 	char[] uniqueKey = super.computeUniqueKey();
 	if (uniqueKey.length == 2) return uniqueKey; // problem type's unique key is "L;"
@@ -568,7 +531,6 @@ public char[] computeUniqueKey() {
 	}
 	return uniqueKey;
 }
-
 void faultInTypesForFieldsAndMethods() {
 	// check @Deprecated annotation
 	if ((this.getAnnotationTagBits() & AnnotationDeprecated) != 0) {
@@ -577,20 +539,19 @@ void faultInTypesForFieldsAndMethods() {
 		scope.problemReporter().missingDeprecatedAnnotationForType(scope.referenceContext);
 	}
 	ReferenceBinding enclosingType = this.enclosingType();
-	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !this.isDeprecated()) {
-		modifiers |= AccDeprecatedImplicitly;	
-	}
+	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !this.isDeprecated())
+		modifiers |= AccDeprecatedImplicitly;
 	fields();
 	methods();
 
 	for (int i = 0, length = memberTypes.length; i < length; i++)
 		((SourceTypeBinding) memberTypes[i]).faultInTypesForFieldsAndMethods();
 }
-
 // NOTE: the type of each field of a source type is resolved when needed
 public FieldBinding[] fields() {
 	if ((tagBits & AreFieldsComplete) != 0)
 		return fields;	
+
 	int failed = 0;
 	try {
 		boolean isViewedAsDeprecated = isViewedAsDeprecated();
@@ -601,14 +562,14 @@ public FieldBinding[] fields() {
 				fields[i] = null;
 				failed++;
 			} else {
-				if ((field.getAnnotationTagBits() & AnnotationDeprecated) != 0) {
-					field.modifiers |= AccDeprecated;
-				} else if (complyTo15 && (field.modifiers & AccDeprecated) != 0) {
-					scope.problemReporter().missingDeprecatedAnnotationForField(field.sourceField());
+				if (complyTo15) {
+					if ((field.getAnnotationTagBits() & AnnotationDeprecated) != 0)
+						field.modifiers |= AccDeprecated;
+					else if ((field.modifiers & AccDeprecated) != 0)
+						scope.problemReporter().missingDeprecatedAnnotationForField(field.sourceField());
 				}
-				if (isViewedAsDeprecated && !field.isDeprecated()) {
-					field.modifiers |= AccDeprecatedImplicitly;	
-				}
+				if (isViewedAsDeprecated && !field.isDeprecated())
+					field.modifiers |= AccDeprecatedImplicitly;
 			}
 		}
 	} finally {
@@ -617,7 +578,7 @@ public FieldBinding[] fields() {
 			int newSize = fields.length - failed;
 			if (newSize == 0)
 				return fields = NoFields;
-	
+
 			FieldBinding[] newFields = new FieldBinding[newSize];
 			for (int i = 0, j = 0, length = fields.length; i < length; i++)
 				if (fields[i] != null)
@@ -632,9 +593,8 @@ public FieldBinding[] fields() {
  * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#genericTypeSignature()
  */
 public char[] genericTypeSignature() {
-    if (this.genericReferenceTypeSignature == null) {
+    if (this.genericReferenceTypeSignature == null)
     	this.genericReferenceTypeSignature = computeGenericTypeSignature(this.typeVariables);
-    }
     return this.genericReferenceTypeSignature;
 }
 /**
@@ -646,29 +606,25 @@ public char[] genericSignature() {
 	if (this.typeVariables != NoTypeVariables) {
 	    sig = new StringBuffer(10);
 	    sig.append('<');
-	    for (int i = 0, length = this.typeVariables.length; i < length; i++) {
+	    for (int i = 0, length = this.typeVariables.length; i < length; i++)
 	        sig.append(this.typeVariables[i].genericSignature());
-	    }
 	    sig.append('>');
 	} else {
 	    // could still need a signature if any of supertypes is parameterized
 	    noSignature: if (this.superclass == null || !this.superclass.isParameterizedType()) {
-		    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-		        if (this.superInterfaces[i].isParameterizedType()) break noSignature;
-		    }        
+		    for (int i = 0, length = this.superInterfaces.length; i < length; i++)
+		        if (this.superInterfaces[i].isParameterizedType())
+					break noSignature;
 	        return null;
 	    }
 	    sig = new StringBuffer(10);
 	}
-	if (this.superclass != null) {
+	if (this.superclass != null)
 		sig.append(this.superclass.genericTypeSignature());
-	} else {
-		// interface scenario only (as Object cannot be generic) - 65953
+	else // interface scenario only (as Object cannot be generic) - 65953
 		sig.append(scope.getJavaLangObject().genericTypeSignature());
-	}
-    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
+    for (int i = 0, length = this.superInterfaces.length; i < length; i++)
         sig.append(this.superInterfaces[i].genericTypeSignature());
-    }
 	return sig.toString().toCharArray();
 }
 /**
@@ -704,7 +660,6 @@ public MethodBinding[] getDefaultAbstractMethods() {
 	return result;
 }
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
-
 public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	int argCount = argumentTypes.length;
 
@@ -736,7 +691,6 @@ public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 }
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 // searches up the hierarchy as long as no potential (but not exact) match was found.
-
 public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes, CompilationUnitScope refScope) {
 	// sender from refScope calls recordTypeReference(this)
 	int argCount = argumentTypes.length;
@@ -787,7 +741,6 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 	}
 	return null;
 }
-
 // NOTE: the type of a field of a source type is resolved when needed
 public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	// always resolve anyway on source types
@@ -817,7 +770,6 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	}
 	return null;
 }
-
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 public MethodBinding[] getMethods(char[] selector) {
 	int selectorLength = selector.length;
@@ -835,7 +787,8 @@ public MethodBinding[] getMethods(char[] selector) {
 			matchingMethods.add(method);
 		}
 	}
-	if (matchingMethods == null) return NoMethods;
+	if (matchingMethods == null)
+		return NoMethods;
 
 	MethodBinding[] result = new MethodBinding[matchingMethods.size()];
 	matchingMethods.toArray(result);
@@ -858,24 +811,43 @@ public MethodBinding[] getMethods(char[] selector) {
 /* Answer the synthetic field for <actualOuterLocalVariable>
 *	or null if one does not exist.
 */
-
 public FieldBinding getSyntheticField(LocalVariableBinding actualOuterLocalVariable) {
-	
 	if (synthetics == null || synthetics[FIELD_EMUL] == null) return null;
 	return (FieldBinding) synthetics[FIELD_EMUL].get(actualOuterLocalVariable);
+}
+/* Answer the synthetic field for <targetEnclosingType>
+*	or null if one does not exist.
+*/
+public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, boolean onlyExactMatch) {
+
+	if (synthetics == null || synthetics[FIELD_EMUL] == null) return null;
+	FieldBinding field = (FieldBinding) synthetics[FIELD_EMUL].get(targetEnclosingType);
+	if (field != null) return field;
+
+	// type compatibility : to handle cases such as
+	// class T { class M{}}
+	// class S extends T { class N extends M {}} --> need to use S as a default enclosing instance for the super constructor call in N().
+	if (!onlyExactMatch){
+		Iterator accessFields = synthetics[FIELD_EMUL].values().iterator();
+		while (accessFields.hasNext()) {
+			field = (FieldBinding) accessFields.next();
+			if (CharOperation.prefixEquals(TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX, field.name)
+				&& ((ReferenceBinding) field.type).findSuperTypeErasingTo(targetEnclosingType) != null)
+					return field;
+		}
+	}
+	return null;
 }
 /* 
  * Answer the bridge method associated for an  inherited methods or null if one does not exist
  */
 public SyntheticMethodBinding getSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge) {
-    
 	if (synthetics == null) return null;
 	if (synthetics[METHOD_EMUL] == null) return null;
 	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) synthetics[METHOD_EMUL].get(inheritedMethodToBridge);
 	if (accessors == null) return null;
 	return accessors[1];
 }
-
 /**
  * Returns true if a type is identical to another one,
  * or for generic types, true if compared to its raw type.
@@ -883,55 +855,49 @@ public SyntheticMethodBinding getSyntheticBridgeMethod(MethodBinding inheritedMe
 public boolean isEquivalentTo(TypeBinding otherType) {
 
 	if (this == otherType) return true;
-    if (otherType == null) return false;
-    switch(otherType.kind()) {
+	if (otherType == null) return false;
+	switch(otherType.kind()) {
 
-    	case Binding.WILDCARD_TYPE :
+		case Binding.WILDCARD_TYPE :
 			return ((WildcardBinding) otherType).boundCheck(this);
-    	
-    	case Binding.PARAMETERIZED_TYPE :
-	        if ((otherType.tagBits & HasDirectWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
-	        	return false; // should have been identical
-	        ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
-	        if (this != otherParamType.type) 
-	            return false;
-            if (!isStatic()) { // static member types do not compare their enclosing
-		        ReferenceBinding enclosing = enclosingType();
-		        if (enclosing != null && !enclosing.isEquivalentTo(otherParamType.enclosingType()))
-		            return false;
-            }
-	        int length = this.typeVariables == null ? 0 : this.typeVariables.length;
-	        TypeBinding[] otherArguments = otherParamType.arguments;
-	        int otherLength = otherArguments == null ? 0 : otherArguments.length;
-	        if (otherLength != length) 
-	            return false;
-	        for (int i = 0; i < length; i++) {
-	        	if (!this.typeVariables[i].isTypeArgumentContainedBy(otherArguments[i]))
+
+		case Binding.PARAMETERIZED_TYPE :
+			if ((otherType.tagBits & HasDirectWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
+				return false; // should have been identical
+			ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
+			if (this != otherParamType.type) 
+				return false;
+			if (!isStatic()) { // static member types do not compare their enclosing
+				ReferenceBinding enclosing = enclosingType();
+				if (enclosing != null && !enclosing.isEquivalentTo(otherParamType.enclosingType()))
 					return false;
-	        }
-	        return true;
-    	
-    	case Binding.RAW_TYPE :
+			}
+			int length = this.typeVariables == null ? 0 : this.typeVariables.length;
+			TypeBinding[] otherArguments = otherParamType.arguments;
+			int otherLength = otherArguments == null ? 0 : otherArguments.length;
+			if (otherLength != length) 
+				return false;
+			for (int i = 0; i < length; i++)
+				if (!this.typeVariables[i].isTypeArgumentContainedBy(otherArguments[i]))
+					return false;
+			return true;
+
+		case Binding.RAW_TYPE :
 	        return otherType.erasure() == this;
-    }
+	}
 	return false;
 }
-	
 public boolean isGenericType() {
     return this.typeVariables != NoTypeVariables;
 }
-
 public ReferenceBinding[] memberTypes() {
 	return this.memberTypes;
 }
 public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBinding newDeclaringClass) {
-
-	if (this.synthetics == null) {
+	if (this.synthetics == null)
 		this.synthetics = new HashMap[4];
-	}
-	if (this.synthetics[RECEIVER_TYPE_EMUL] == null) {
+	if (this.synthetics[RECEIVER_TYPE_EMUL] == null)
 		this.synthetics[RECEIVER_TYPE_EMUL] = new HashMap(5);
-	}
 
 	Hashtable fieldMap = (Hashtable) this.synthetics[RECEIVER_TYPE_EMUL].get(targetField);
 	if (fieldMap == null) {
@@ -945,16 +911,11 @@ public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBi
 	}
 	return updatedField;
 }
-
 public MethodBinding getUpdatedMethodBinding(MethodBinding targetMethod, ReferenceBinding newDeclaringClass) {
-
-	if (this.synthetics == null) {
+	if (this.synthetics == null)
 		this.synthetics = new HashMap[4];
-	}
-	if (this.synthetics[RECEIVER_TYPE_EMUL] == null) {
+	if (this.synthetics[RECEIVER_TYPE_EMUL] == null)
 		this.synthetics[RECEIVER_TYPE_EMUL] = new HashMap(5);
-	}
-
 
 	Hashtable methodMap = (Hashtable) synthetics[RECEIVER_TYPE_EMUL].get(targetMethod);
 	if (methodMap == null) {
@@ -986,14 +947,14 @@ public MethodBinding[] methods() {
 				methods[i] = null; // unable to resolve parameters
 				failed++;
 			} else {
-				if ((method.getAnnotationTagBits() & AnnotationDeprecated) != 0) {
-					method.modifiers |= AccDeprecated;
-				} else if (complyTo15 && (method.modifiers & AccDeprecated) != 0) {
-					scope.problemReporter().missingDeprecatedAnnotationForMethod(method.sourceMethod());
+				if (complyTo15) {
+					if ((method.getAnnotationTagBits() & AnnotationDeprecated) != 0)
+						method.modifiers |= AccDeprecated;
+					else if ((method.modifiers & AccDeprecated) != 0)
+						scope.problemReporter().missingDeprecatedAnnotationForMethod(method.sourceMethod());
 				}
-				if (isViewedAsDeprecated && !method.isDeprecated()) {
+				if (isViewedAsDeprecated && !method.isDeprecated())
 					method.modifiers |= AccDeprecatedImplicitly;
-				}
 			}
 		}
 
@@ -1111,7 +1072,6 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	return null; // should never reach this point
 }
 private MethodBinding resolveTypesFor(MethodBinding method) {
-    
 	if ((method.modifiers & AccUnresolved) == 0)
 		return method;
 
@@ -1122,9 +1082,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	if (typeParameters != null) {
 		methodDecl.scope.connectTypeVariables(typeParameters);
 		// Perform deferred bound checks for type variables (only done after type variable hierarchy is connected)
-		for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++) {
+		for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++)
 			typeParameters[i].checkBounds(methodDecl.scope);
-		}
 	}
 	TypeReference[] exceptionTypes = methodDecl.thrownExceptions;
 	if (exceptionTypes != null) {
@@ -1135,9 +1094,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 		ReferenceBinding resolvedExceptionType;
 		for (int i = 0; i < size; i++) {
 			resolvedExceptionType = (ReferenceBinding) exceptionTypes[i].resolveType(methodDecl.scope, true /* check bounds*/);
-			if (resolvedExceptionType == null) {
+			if (resolvedExceptionType == null)
 				continue;
-			}
 			if (resolvedExceptionType.isGenericType() || resolvedExceptionType.isParameterizedType()) {
 				methodDecl.scope.problemReporter().invalidParameterizedExceptionType(resolvedExceptionType, exceptionTypes[i]);
 				continue;
@@ -1146,9 +1104,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 				methodDecl.scope.problemReporter().cannotThrowType(this, methodDecl, exceptionTypes[i], resolvedExceptionType);
 				continue;
 			}
-		    if ((resolvedExceptionType.modifiers & AccGenericSignature) != 0) {
+		    if ((resolvedExceptionType.modifiers & AccGenericSignature) != 0)
 				method.modifiers |= AccGenericSignature;
-			}
 			method.thrownExceptions[count++] = resolvedExceptionType;
 		}
 		if (count < size)
@@ -1173,9 +1130,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 				foundArgProblem = true;
 			} else {
 				TypeBinding leafType = parameterType.leafComponentType();
-			    if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & AccGenericSignature) != 0) {
+			    if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & AccGenericSignature) != 0)
 					method.modifiers |= AccGenericSignature;
-				}
 				method.parameters[i] = parameterType;
 			}
 		}
@@ -1200,9 +1156,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			} else {
 				method.returnType = methodType;
 				TypeBinding leafType = methodType.leafComponentType();
-				if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & AccGenericSignature) != 0) {
+				if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & AccGenericSignature) != 0)
 					method.modifiers |= AccGenericSignature;
-				}
 			}
 		}
 	}
@@ -1408,30 +1363,5 @@ void verifyMethods(MethodVerifier verifier) {
 
 	for (int i = memberTypes.length; --i >= 0;)
 		 ((SourceTypeBinding) memberTypes[i]).verifyMethods(verifier);
-}
-
-/* Answer the synthetic field for <targetEnclosingType>
-*	or null if one does not exist.
-*/
-
-public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, boolean onlyExactMatch) {
-
-	if (synthetics == null || synthetics[FIELD_EMUL] == null) return null;
-	FieldBinding field = (FieldBinding) synthetics[FIELD_EMUL].get(targetEnclosingType);
-	if (field != null) return field;
-
-	// type compatibility : to handle cases such as
-	// class T { class M{}}
-	// class S extends T { class N extends M {}} --> need to use S as a default enclosing instance for the super constructor call in N().
-	if (!onlyExactMatch){
-		Iterator accessFields = synthetics[FIELD_EMUL].values().iterator();
-		while (accessFields.hasNext()) {
-			field = (FieldBinding) accessFields.next();
-			if (CharOperation.prefixEquals(TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX, field.name)
-				&& ((ReferenceBinding) field.type).findSuperTypeErasingTo(targetEnclosingType) != null)
-					return field;
-		}
-	}
-	return null;
 }
 }

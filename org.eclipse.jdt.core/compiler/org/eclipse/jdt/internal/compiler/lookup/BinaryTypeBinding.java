@@ -139,11 +139,10 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 public FieldBinding[] availableFields() {
 	if ((tagBits & AreFieldsComplete) != 0)
 		return fields;
-	
+
 	FieldBinding[] availableFields = new FieldBinding[fields.length];
 	int count = 0;
-	
-	for (int i = 0; i < fields.length;i++) {
+	for (int i = 0; i < fields.length; i++) {
 		try {
 			availableFields[count] = resolveTypeFor(fields[i]);
 			count++;
@@ -151,19 +150,17 @@ public FieldBinding[] availableFields() {
 			// silent abort
 		}
 	}
-	
-	System.arraycopy(availableFields, 0, availableFields = new FieldBinding[count], 0, count);
+	if (count < availableFields.length)
+		System.arraycopy(availableFields, 0, availableFields = new FieldBinding[count], 0, count);
 	return availableFields;
 }
-
 public MethodBinding[] availableMethods() {
 	if ((tagBits & AreMethodsComplete) != 0)
 		return methods;
-		
+
 	MethodBinding[] availableMethods = new MethodBinding[methods.length];
 	int count = 0;
-	
-	for (int i = 0; i < methods.length;i++) {
+	for (int i = 0; i < methods.length; i++) {
 		try {
 			availableMethods[count] = resolveTypesFor(methods[i]);
 			count++;
@@ -171,15 +168,10 @@ public MethodBinding[] availableMethods() {
 			// silent abort
 		}
 	}
-	System.arraycopy(availableMethods, 0, availableMethods = new MethodBinding[count], 0, count);
+	if (count < availableMethods.length)
+		System.arraycopy(availableMethods, 0, availableMethods = new MethodBinding[count], 0, count);
 	return availableMethods;
 }
-
-public int kind() {
-	if (this.typeVariables != NoTypeVariables) return Binding.GENERIC_TYPE;
-	return Binding.TYPE;
-}	
-
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 	// default initialization for super-interfaces early, in case some aborting compilation error occurs,
 	// and still want to use binaries passed that point (e.g. type hierarchy resolver, see bug 63748).
@@ -275,39 +267,37 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		this.methods = NoMethods;
 	}
 }
-	private void createFields(IBinaryField[] iFields, long sourceLevel) {
-		this.fields = NoFields;
-		if (iFields != null) {
-			int size = iFields.length;
-			if (size > 0) {
-				this.fields = new FieldBinding[size];
-				boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
-				boolean isViewedAsDeprecated = isViewedAsDeprecated();
-				for (int i = 0; i < size; i++) {
-					IBinaryField binaryField = iFields[i];
-					char[] fieldSignature = use15specifics ? binaryField.getGenericSignature() : null;
-					TypeBinding type = fieldSignature == null 
-							? environment.getTypeFromSignature(binaryField.getTypeName(), 0, -1, false, this) 
-							: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), NoTypeVariables, this);
-					FieldBinding field = 
-						new FieldBinding(
-								binaryField.getName(), 
-								type, 
-								binaryField.getModifiers() | AccUnresolved, 
-								this, 
-								binaryField.getConstant());
-					field.id = i; // ordinal
-					if (use15specifics) {
-						field.tagBits |= binaryField.getTagBits();
-					}
-					if (isViewedAsDeprecated && !field.isDeprecated()) {
-						field.modifiers |= AccDeprecatedImplicitly;
-					}		
-					this.fields[i] = field;
-				}
+private void createFields(IBinaryField[] iFields, long sourceLevel) {
+	this.fields = NoFields;
+	if (iFields != null) {
+		int size = iFields.length;
+		if (size > 0) {
+			this.fields = new FieldBinding[size];
+			boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
+			boolean isViewedAsDeprecated = isViewedAsDeprecated();
+			for (int i = 0; i < size; i++) {
+				IBinaryField binaryField = iFields[i];
+				char[] fieldSignature = use15specifics ? binaryField.getGenericSignature() : null;
+				TypeBinding type = fieldSignature == null 
+					? environment.getTypeFromSignature(binaryField.getTypeName(), 0, -1, false, this) 
+					: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), NoTypeVariables, this);
+				FieldBinding field = 
+					new FieldBinding(
+						binaryField.getName(), 
+						type, 
+						binaryField.getModifiers() | AccUnresolved, 
+						this, 
+						binaryField.getConstant());
+				field.id = i; // ordinal
+				if (use15specifics)
+					field.tagBits |= binaryField.getTagBits();
+				if (isViewedAsDeprecated && !field.isDeprecated())
+					field.modifiers |= AccDeprecatedImplicitly;
+				this.fields[i] = field;
 			}
 		}
 	}
+}
 private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 	int methodModifiers = method.getModifiers() | AccUnresolved;
 	if (sourceLevel < ClassFileConstants.JDK1_5)
@@ -343,7 +333,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 				while ((nextChar = methodDescriptor[++end]) == '['){/*empty*/}
 				if (nextChar == 'L')
 					while ((nextChar = methodDescriptor[++end]) != ';'){/*empty*/}
-	
+
 				if (i >= startIndex)   // skip the synthetic arg if necessary
 					parameters[i - startIndex] = environment.getTypeFromSignature(methodDescriptor, index, end, false, this);
 				index = end + 1;
@@ -458,23 +448,21 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel) {
 	if (total == initialTotal) {
 		for (int i = 0; i < initialTotal; i++) {
 			MethodBinding method = createMethod(iMethods[i], sourceLevel);
-			if (isViewedAsDeprecated && !method.isDeprecated()) {
+			if (isViewedAsDeprecated && !method.isDeprecated())
 				method.modifiers |= AccDeprecatedImplicitly;
-			}		
 			this.methods[i] = method;
 		}
 	} else {
-		for (int i = 0, index = 0; i < initialTotal; i++)
+		for (int i = 0, index = 0; i < initialTotal; i++) {
 			if (iClinit != i && (toSkip == null || toSkip[i] != -1)) {
 				MethodBinding method = createMethod(iMethods[i], sourceLevel);
-				if (isViewedAsDeprecated && !method.isDeprecated()) {
+				if (isViewedAsDeprecated && !method.isDeprecated())
 					method.modifiers |= AccDeprecatedImplicitly;
-				}		
 				this.methods[index++] = method;
 			}
+		}
 	}
 }
-
 private TypeVariableBinding[] createTypeVariables(SignatureWrapper wrapper, Binding declaringElement) {
 	// detect all type variables first
 	char[] typeSignature = wrapper.signature;
@@ -515,12 +503,10 @@ private TypeVariableBinding[] createTypeVariables(SignatureWrapper wrapper, Bind
 	}
 	return result;
 }
-
 /* Answer the receiver's enclosing type... null if the receiver is a top level type.
 *
 * NOTE: enclosingType of a binary type is resolved when needed
 */
-
 public ReferenceBinding enclosingType() {
 	if ((this.tagBits & HasUnresolvedEnclosingType) == 0)
 		return this.enclosingType;
@@ -533,23 +519,21 @@ public ReferenceBinding enclosingType() {
 	return this.enclosingType;
 }
 // NOTE: the type of each field of a binary type is resolved when needed
-
 public FieldBinding[] fields() {
-	if ((tagBits & AreFieldsComplete) == 0) {
-		for (int i = fields.length; --i >= 0;)
-			resolveTypeFor(fields[i]);
-		tagBits |= AreFieldsComplete;
-	}
+	if ((tagBits & AreFieldsComplete) != 0)
+		return fields;
+
+	for (int i = fields.length; --i >= 0;)
+		resolveTypeFor(fields[i]);
+	tagBits |= AreFieldsComplete;
 	return fields;
 }
-
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#genericTypeSignature()
  */
 public char[] genericTypeSignature() {
 	return computeGenericTypeSignature(this.typeVariables);
 }
-
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	int argCount = argumentTypes.length;
@@ -568,7 +552,6 @@ public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 }
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 // searches up the hierarchy as long as no potential (but not exact) match was found.
-
 public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes, CompilationUnitScope refScope) {
 	// sender from refScope calls recordTypeReference(this)
 	int argCount = argumentTypes.length;
@@ -605,7 +588,6 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 	return null;
 }
 // NOTE: the type of a field of a binary type is resolved when needed
-
 public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	int fieldLength = fieldName.length;
 	for (int f = fields.length; --f >= 0;) {
@@ -634,7 +616,6 @@ public ReferenceBinding getMemberType(char[] typeName) {
 	return null;
 }
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
-
 public MethodBinding[] getMethods(char[] selector) {
 	int count = 0;
 	int lastIndex = -1;
@@ -665,7 +646,6 @@ public boolean hasMemberTypes() {
     return this.memberTypes.length > 0;
 }
 // NOTE: member types of binary types are resolved when needed
-
 public TypeVariableBinding getTypeVariable(char[] variableName) {
 	TypeVariableBinding variable = super.getTypeVariable(variableName);
 	variable.resolve(this.environment);
@@ -712,24 +692,25 @@ private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBi
  * or for generic types, true if compared to its raw type.
  */
 public boolean isEquivalentTo(TypeBinding otherType) {
-	
-    if (this == otherType) return true;
-    if (otherType == null) return false;
-    switch(otherType.kind()) {
-
-    	case Binding.WILDCARD_TYPE :
+	if (this == otherType) return true;
+	if (otherType == null) return false;
+	switch(otherType.kind()) {
+		case Binding.WILDCARD_TYPE :
 			return ((WildcardBinding) otherType).boundCheck(this);
-
 		case Binding.RAW_TYPE :
 			return otherType.erasure() == this;
-    }
+	}
 	return false;
 }
 public boolean isGenericType() {
     return this.typeVariables != NoTypeVariables;
 }
+public int kind() {
+	if (this.typeVariables != NoTypeVariables)
+		return Binding.GENERIC_TYPE;
+	return Binding.TYPE;
+}	
 // NOTE: member types of binary types are resolved when needed
-
 public ReferenceBinding[] memberTypes() {
  	if ((this.tagBits & HasUnresolvedMemberTypes) == 0)
 		return this.memberTypes;
@@ -743,13 +724,13 @@ public ReferenceBinding[] memberTypes() {
 	return this.memberTypes;
 }
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
-
 public MethodBinding[] methods() {
-	if ((tagBits & AreMethodsComplete) == 0) {
-		for (int i = methods.length; --i >= 0;)
-			resolveTypesFor(methods[i]);
-		tagBits |= AreMethodsComplete;
-	}
+	if ((tagBits & AreMethodsComplete) != 0)
+		return methods;
+
+	for (int i = methods.length; --i >= 0;)
+		resolveTypesFor(methods[i]);
+	tagBits |= AreMethodsComplete;
 	return methods;
 }
 private FieldBinding resolveTypeFor(FieldBinding field) {
@@ -775,12 +756,10 @@ MethodBinding resolveTypesFor(MethodBinding method) {
 	method.modifiers &= ~AccUnresolved;
 	return method;
 }
-
 /* Answer the receiver's superclass... null if the receiver is Object or an interface.
 *
 * NOTE: superclass of a binary type is resolved when needed
 */
-
 public ReferenceBinding superclass() {
 	if ((this.tagBits & HasUnresolvedSuperclass) == 0)
 		return this.superclass;
@@ -793,7 +772,6 @@ public ReferenceBinding superclass() {
 	return this.superclass;
 }
 // NOTE: superInterfaces of binary types are resolved when needed
-
 public ReferenceBinding[] superInterfaces() {
 	if ((this.tagBits & HasUnresolvedSuperinterfaces) == 0)
 		return this.superInterfaces;

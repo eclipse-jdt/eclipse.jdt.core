@@ -182,8 +182,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (this.isMemberType() && this.enclosingType == null) {
 			ReferenceBinding originalEnclosing = this.type.enclosingType();
 			this.enclosingType = originalEnclosing.isGenericType()
-													? this.environment.createRawType(originalEnclosing, originalEnclosing.enclosingType()) // TODO (need to propagate in depth on enclosing type)
-													: originalEnclosing;
+				? this.environment.createRawType(originalEnclosing, originalEnclosing.enclosingType()) // TODO (need to propagate in depth on enclosing type)
+				: originalEnclosing;
 		}
 	    return this.enclosingType;
 	}
@@ -212,21 +212,22 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#fields()
 	 */
 	public FieldBinding[] fields() {
-		if ((tagBits & AreFieldsComplete) == 0) {
-			try {
-				FieldBinding[] originalFields = this.type.fields();
-				int length = originalFields.length;
-				FieldBinding[] parameterizedFields = new FieldBinding[length];
-				for (int i = 0; i < length; i++)
-					// substitute all fields, so as to get updated declaring class at least
-					parameterizedFields[i] = new ParameterizedFieldBinding(this, originalFields[i]);
-				this.fields = parameterizedFields;	    
-			} finally {
-				// if the original fields cannot be retrieved (ex. AbortCompilation), then assume we do not have any fields
-				if (this.fields == null) 
-					this.fields = NoFields;
-				tagBits |= AreFieldsComplete;
-			}
+		if ((tagBits & AreFieldsComplete) != 0)
+			return this.fields;
+
+		try {
+			FieldBinding[] originalFields = this.type.fields();
+			int length = originalFields.length;
+			FieldBinding[] parameterizedFields = new FieldBinding[length];
+			for (int i = 0; i < length; i++)
+				// substitute all fields, so as to get updated declaring class at least
+				parameterizedFields[i] = new ParameterizedFieldBinding(this, originalFields[i]);
+			this.fields = parameterizedFields;	    
+		} finally {
+			// if the original fields cannot be retrieved (ex. AbortCompilation), then assume we do not have any fields
+			if (this.fields == null) 
+				this.fields = NoFields;
+			tagBits |= AreFieldsComplete;
 		}
 		return this.fields;
 	}
@@ -412,7 +413,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				return result;
 			}
 		}
-		if ((tagBits & AreMethodsComplete) != 0) return NoMethods; // have created all the methods and there are no matches
+		if ((tagBits & AreMethodsComplete) != 0)
+			return NoMethods; // have created all the methods and there are no matches
 
 		MethodBinding[] parameterizedMethods = null;
 		try {
@@ -441,6 +443,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		        this.methods = parameterizedMethods = NoMethods;
 		}
 	}
+
 	public boolean hasMemberTypes() {
 	    return this.type.hasMemberTypes();
 	}
@@ -564,23 +567,24 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#methods()
 	 */
 	public MethodBinding[] methods() {
-		if ((tagBits & AreMethodsComplete) == 0) {
-			try {
-			    MethodBinding[] originalMethods = this.type.methods();
-			    int length = originalMethods.length;
-			    MethodBinding[] parameterizedMethods = new MethodBinding[length];
-			    for (int i = 0; i < length; i++)
-			    	// substitute all methods, so as to get updated declaring class at least
-		            parameterizedMethods[i] = createParameterizedMethod(originalMethods[i]);
-			    this.methods = parameterizedMethods;
-			} finally {
-				// if the original methods cannot be retrieved (ex. AbortCompilation), then assume we do not have any methods
-			    if (this.methods == null) 
-			        this.methods = NoMethods;
-	
-				tagBits |=  AreMethodsComplete;
-			}		
-		}
+		if ((tagBits & AreMethodsComplete) != 0)
+			return this.methods;
+
+		try {
+		    MethodBinding[] originalMethods = this.type.methods();
+		    int length = originalMethods.length;
+		    MethodBinding[] parameterizedMethods = new MethodBinding[length];
+		    for (int i = 0; i < length; i++)
+		    	// substitute all methods, so as to get updated declaring class at least
+	            parameterizedMethods[i] = createParameterizedMethod(originalMethods[i]);
+		    this.methods = parameterizedMethods;
+		} finally {
+			// if the original methods cannot be retrieved (ex. AbortCompilation), then assume we do not have any methods
+		    if (this.methods == null) 
+		        this.methods = NoMethods;
+
+			tagBits |=  AreMethodsComplete;
+		}		
 		return this.methods;
 	}
 	
@@ -668,6 +672,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		nameBuffer.getChars(0, nameLength, shortReadableName, 0);	    
 	    return shortReadableName;
 	}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#signature()
 	 */
@@ -845,6 +850,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return buffer.toString();
 		
 	}
+
 	public TypeVariableBinding[] typeVariables() {
 		if (this.arguments == null) {
 			// retain original type variables if not substituted (member type of parameterized type)
