@@ -7072,12 +7072,12 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(ASTNode.MEMBER_REF == 67);
 		assertTrue(ASTNode.METHOD_REF == 68);
 		assertTrue(ASTNode.METHOD_REF_PARAMETER == 69);
-		assertTrue(ASTNode.ENHANCED_FOR_STATEMENT == 90);
-		assertTrue(ASTNode.ENUM_CONSTANT_DECLARATION == 91);
-		assertTrue(ASTNode.TYPE_PARAMETER == 92);
-		assertTrue(ASTNode.PARAMETERIZED_TYPE == 93);
-		assertTrue(ASTNode.QUALIFIED_TYPE == 94);
-		assertTrue(ASTNode.WILDCARD_TYPE == 95);
+		assertTrue(ASTNode.ENHANCED_FOR_STATEMENT == 70);
+		assertTrue(ASTNode.ENUM_CONSTANT_DECLARATION == 71);
+		assertTrue(ASTNode.TYPE_PARAMETER == 72);
+		assertTrue(ASTNode.PARAMETERIZED_TYPE == 73);
+		assertTrue(ASTNode.QUALIFIED_TYPE == 74);
+		assertTrue(ASTNode.WILDCARD_TYPE == 75);
 		
 		// ensure that all constants are distinct, positive, and small
 		// (this may seem paranoid, but this test did uncover a stupid bug!)
