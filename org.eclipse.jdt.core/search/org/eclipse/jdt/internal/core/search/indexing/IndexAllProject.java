@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IQueryResult;
@@ -73,8 +74,8 @@ public class IndexAllProject extends IndexRequest {
 				indexedFileNames.put(results[i].getPath(), DELETED);
 			final long indexLastModified = max == 0 ? 0L : index.getIndexFile().lastModified();
 
-			IJavaProject javaProject = JavaCore.create(this.project);
-			IClasspathEntry[] entries = javaProject.getRawClasspath();
+			JavaProject javaProject = (JavaProject)JavaCore.create(this.project);
+			IClasspathEntry[] entries = javaProject.getRawClasspath(false/*don't create markers*/, false/*log problems*/);
 			IWorkspaceRoot root = this.project.getWorkspace().getRoot();
 			for (int i = 0, length = entries.length; i < length; i++) {
 				if (this.isCancelled) return false;

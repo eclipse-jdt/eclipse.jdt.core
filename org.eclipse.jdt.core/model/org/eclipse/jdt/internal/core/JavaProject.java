@@ -1580,10 +1580,17 @@ public class JavaProject
 	 */
 	public IClasspathEntry[] getRawClasspath() throws JavaModelException {
 
+		return getRawClasspath(false/*don't create markers*/, true/*log problems*/);
+	}
+	/**
+	 * Internal variant allowing to parameterize problem creation/logging
+	 */
+	public IClasspathEntry[] getRawClasspath(boolean createMarkers, boolean logProblems) throws JavaModelException {
+
 		JavaModelManager.PerProjectInfo perProjectInfo = getPerProjectInfo();
 		IClasspathEntry[] classpath = perProjectInfo.rawClasspath;
 		if (classpath != null) return classpath;
-		classpath = this.readClasspathFile(false/*don't create markers*/, true/*log problems*/);
+		classpath = this.readClasspathFile(createMarkers, logProblems);
 		
 		// extract out the output location
 		IPath outputLocation = null;
@@ -1609,7 +1616,6 @@ public class JavaProject
 		perProjectInfo.outputLocation = outputLocation;
 		return classpath;
 	}
-
 	/**
 	 * @see IJavaProject#getRequiredProjectNames
 	 */
