@@ -236,7 +236,7 @@ public class TryStatement extends SubRoutineStatement {
 		// flag telling if some bytecodes were issued inside the try block
 
 		// natural exit: only if necessary
-		boolean nonReturningSubRoutine = subRoutineStartLabel != null && isSubRoutineEscaping; // TODO: (philippe) simplify
+		boolean nonReturningSubRoutine = subRoutineStartLabel != null && isSubRoutineEscaping; 
 		if ((!tryBlockExit) && tryBlockHasSomeCode) {
 			int position = codeStream.position;
 			if (nonReturningSubRoutine) {
