@@ -162,53 +162,118 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 		Scanner scanner = new Scanner();
 		scanner.setSourceBuffer(source);
-		scanner.resetTo(selectionStart, selectionEnd);
-
+		
 		int lastIdentifierStart = -1;
 		int lastIdentifierEnd = -1;
-		int token, identCount = 0;
 		char[] lastIdentifier = null;
-		boolean expectingIdentifier = true;
-		StringBuffer entireSelection =
-			new StringBuffer(selectionEnd - selectionStart + 1);
-		do {
+		int token, identCount = 0;
+		StringBuffer entireSelection = new StringBuffer(selectionEnd - selectionStart + 1);
+		
+		if(selectionStart > selectionEnd){
+			
+			// compute start position of current line
+			int currentPosition = selectionStart - 1;
+			int nextCharacterPosition = selectionStart;
+			char currentCharacter = ' ';
 			try {
-				token = scanner.getNextToken();
-			} catch (InvalidInputException e) {
+				while(currentPosition > 0 || currentCharacter == '\r' || currentCharacter == '\n'){
+					
+					if(source[currentPosition] == '\\' && source[currentPosition+1] == 'u') {
+						int pos = currentPosition + 2;
+						int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+						while (source[pos] == 'u') {
+							pos++;
+						}
+						if ((c1 = Character.getNumericValue(source[pos++])) > 15
+							|| c1 < 0
+							|| (c2 = Character.getNumericValue(source[pos++])) > 15
+							|| c2 < 0
+							|| (c3 = Character.getNumericValue(source[pos++])) > 15
+							|| c3 < 0
+							|| (c4 = Character.getNumericValue(source[pos++])) > 15
+							|| c4 < 0) {
+							return false;
+						} else {
+							currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+							nextCharacterPosition = pos;
+						}
+					} else {
+						currentCharacter = source[currentPosition];
+						nextCharacterPosition = currentPosition+1;
+					}
+					
+					if(currentCharacter == '\r' || currentCharacter == '\n') {
+						break;
+					}
+					currentPosition--;
+				}
+			}
+			catch (ArrayIndexOutOfBoundsException e) {
 				return false;
 			}
-			switch (token) {
-				case TerminalSymbols.TokenNamethis :
-				case TerminalSymbols.TokenNamesuper :
-				case TerminalSymbols.TokenNameIdentifier :
-					if (!expectingIdentifier)
-						return false;
-					lastIdentifier = scanner.getCurrentTokenSource();
-					lastIdentifierStart = scanner.startPosition;
-					lastIdentifierEnd = scanner.currentPosition - 1;
-					if(lastIdentifierEnd > selectionEnd) {
-						lastIdentifierEnd = selectionEnd;
-						lastIdentifier = CharOperation.subarray(lastIdentifier, 0,lastIdentifierEnd - lastIdentifierStart + 1);
-					}
-					entireSelection.append(lastIdentifier);
-						
-					identCount++;
-					expectingIdentifier = false;
-					break;
-				case TerminalSymbols.TokenNameDOT :
-					if (expectingIdentifier)
-						return false;
-					entireSelection.append('.');
-					expectingIdentifier = true;
-					break;
-				case TerminalSymbols.TokenNameEOF :
-					if (expectingIdentifier)
-						return false;
-					break;
-				default :
+			
+			// compute start and end of the last token
+			scanner.resetTo(nextCharacterPosition, selectionEnd);
+			do {
+				try {
+					token = scanner.getNextToken();
+				} catch (InvalidInputException e) {
 					return false;
-			}
-		} while (token != TerminalSymbols.TokenNameEOF);
+				}
+				if((token == TerminalSymbols.TokenNamethis ||
+					token == TerminalSymbols.TokenNamesuper ||
+					token == TerminalSymbols.TokenNameIdentifier) &&
+					scanner.startPosition < selectionStart &&
+					selectionStart < scanner.currentPosition) {
+					lastIdentifierStart = scanner.startPosition;
+					lastIdentifierEnd = scanner.currentPosition;
+					lastIdentifier = scanner.getCurrentTokenSource();
+				}
+			} while (token != TerminalSymbols.TokenNameEOF);
+		} else {
+			scanner.resetTo(selectionStart, selectionEnd);
+	
+			boolean expectingIdentifier = true;
+			
+			do {
+				try {
+					token = scanner.getNextToken();
+				} catch (InvalidInputException e) {
+					return false;
+				}
+				switch (token) {
+					case TerminalSymbols.TokenNamethis :
+					case TerminalSymbols.TokenNamesuper :
+					case TerminalSymbols.TokenNameIdentifier :
+						if (!expectingIdentifier)
+							return false;
+						lastIdentifier = scanner.getCurrentTokenSource();
+						lastIdentifierStart = scanner.startPosition;
+						lastIdentifierEnd = scanner.currentPosition - 1;
+						if(lastIdentifierEnd > selectionEnd) {
+							lastIdentifierEnd = selectionEnd;
+							lastIdentifier = CharOperation.subarray(lastIdentifier, 0,lastIdentifierEnd - lastIdentifierStart + 1);
+						}
+						entireSelection.append(lastIdentifier);
+							
+						identCount++;
+						expectingIdentifier = false;
+						break;
+					case TerminalSymbols.TokenNameDOT :
+						if (expectingIdentifier)
+							return false;
+						entireSelection.append('.');
+						expectingIdentifier = true;
+						break;
+					case TerminalSymbols.TokenNameEOF :
+						if (expectingIdentifier)
+							return false;
+						break;
+					default :
+						return false;
+				}
+			} while (token != TerminalSymbols.TokenNameEOF);
+		}
 		if (lastIdentifierStart > 0) {
 			actualSelectionStart = lastIdentifierStart;
 			actualSelectionEnd = lastIdentifierEnd;
