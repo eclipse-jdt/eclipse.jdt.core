@@ -80,7 +80,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			.append(fileName)
 			.append("\" -d \"")
 			.append(EVAL_DIRECTORY)
-			.append("\" -preserveAllLocals -nowarn -g -classpath \"")
+			.append("\" -1.4 -source 1.3 -target 1.2 -preserveAllLocals -nowarn -g -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append(SOURCE_DIRECTORY)
 			.append("\"");
