@@ -46,7 +46,7 @@ public ExtendedStringLiteral extendWith(StringLiteral lit){
 public String toStringExpression() {
 	/* slow code */
 
-	String str = "ExtendedStringLiteral{"/*nonNLS*/+ new String(source) +"}"/*nonNLS*/;
+	String str = "ExtendedStringLiteral{"+ new String(source) +"}"; //$NON-NLS-2$ //$NON-NLS-1$
 	return str;
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

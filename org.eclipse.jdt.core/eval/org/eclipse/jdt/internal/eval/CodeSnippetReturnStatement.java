@@ -21,6 +21,15 @@ public class CodeSnippetReturnStatement extends ReturnStatement implements Invoc
 public CodeSnippetReturnStatement(Expression expr, int s, int e, EvaluationContext evaluationContext) {
 	super(expr, s, e);
 }
+
+public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+	FlowInfo info = super.analyseCode(currentScope, flowContext, flowInfo);
+	// we need to remove this optimization in order to prevent the inlining of the return bytecode
+	// 1GH0AU7: ITPJCORE:ALL - Eval - VerifyError in scrapbook page
+	this.expression.bits &= ~ValueForReturnMASK;
+	return info;
+}
+
 /**
  * Dump the suitable return bytecode for a return statement
  *
@@ -82,12 +91,12 @@ public void resolve(BlockScope scope) {
 		if ((this.expressionType = this.expression.resolveType(scope)) != null) {
 			TypeBinding javaLangClass = scope.getJavaLangClass();
 			if (!javaLangClass.isValidBinding()) {
-				scope.problemReporter().codeSnippetMissingClass("java.lang.Class"/*nonNLS*/, this.sourceStart, this.sourceEnd);
+				scope.problemReporter().codeSnippetMissingClass("java.lang.Class", this.sourceStart, this.sourceEnd); //$NON-NLS-1$
 				return;
 			}
 			TypeBinding javaLangObject = scope.getJavaLangObject();
 			if (!javaLangObject.isValidBinding()) {
-				scope.problemReporter().codeSnippetMissingClass("java.lang.Object"/*nonNLS*/, this.sourceStart, this.sourceEnd);
+				scope.problemReporter().codeSnippetMissingClass("java.lang.Object", this.sourceStart, this.sourceEnd); //$NON-NLS-1$
 				return;
 			}
 			TypeBinding[] argumentTypes = new TypeBinding[] {javaLangObject, javaLangClass};

@@ -61,7 +61,7 @@ public void add(PackageElement element) {
 	} else {
 		if (entry.status != NEEDS_COMPILE) {
 			if (entry.status == COMPILED) {
-				System.out.println("Warning: image builder wants to recompile already compiled element: "/*nonNLS*/ + element);
+				System.out.println("Warning: image builder wants to recompile already compiled element: " + element); //$NON-NLS-1$
 			}
 			entry.status = NEEDS_COMPILE;
 			needsCompileList.addElement(element);
@@ -79,7 +79,7 @@ public void compiled(PackageElement element) {
 		entries.put(element, entry);		
 	} else {
 		if (entry.status != NEEDS_COMPILE) {
-			System.out.println("Warning: Java builder compiled the same element twice: "/*nonNLS*/ + element);
+			System.out.println("Warning: Java builder compiled the same element twice: " + element); //$NON-NLS-1$
 		}
 		needsCompileList.removeElement(element);
 	}
@@ -117,6 +117,6 @@ public boolean needsCompile(PackageElement element) {
 	return entry != null && entry.status == NEEDS_COMPILE;
 }
 public String toString() {
-	return "WorkQueue: "/*nonNLS*/ + needsCompileList;
+	return "WorkQueue: " + needsCompileList; //$NON-NLS-1$
 }
 }

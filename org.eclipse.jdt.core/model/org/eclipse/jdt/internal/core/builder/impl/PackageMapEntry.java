@@ -73,9 +73,9 @@ void addFragment(IPath fragment) {
 	 * This method is for debugging purposes only.
 	 */
 	public String toString() {
-		StringBuffer buf = new StringBuffer("PackageMapEntry("/*nonNLS*/);
+		StringBuffer buf = new StringBuffer("PackageMapEntry("); //$NON-NLS-1$
 		buf.append(fPkg);
-		buf.append(")"/*nonNLS*/);
+		buf.append(")"); //$NON-NLS-1$
 		return buf.toString();
 	}
 }

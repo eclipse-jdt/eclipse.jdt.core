@@ -137,7 +137,7 @@ public String toString() {
 	for (int i= 0; i < roots.length; i++) {
 		buffer.append(roots[i].getElementName());
 		if (i < (roots.length - 1)) {
-			buffer.append(", "/*nonNLS*/);
+			buffer.append(", "); //$NON-NLS-1$
 		}
 	}
 	buffer.append(']');

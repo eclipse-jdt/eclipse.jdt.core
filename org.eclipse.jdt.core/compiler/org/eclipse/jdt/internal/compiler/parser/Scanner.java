@@ -4,8 +4,11 @@ package org.eclipse.jdt.internal.compiler.parser;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Iterator;
 import java.io.*;
+import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 
 public class Scanner implements TerminalSymbols {
 
@@ -18,6 +21,11 @@ public class Scanner implements TerminalSymbols {
 	 - currentPosition-1 gives the sourceEnd position into the stream 
 	*/
 
+	// 1.4 feature
+	public boolean assertMode;
+	public boolean useAssertAsAnIndentifier = false;
+	public boolean containsAssertKeyword = false;
+	
 	public boolean recordLineSeparator;
 	public char currentCharacter;
 	public int startPosition;
@@ -62,21 +70,21 @@ public class Scanner implements TerminalSymbols {
 	public int linePtr = -1;
 	public boolean wasAcr = false;
 
-	public static final String END_OF_SOURCE = "End_Of_Source"/*nonNLS*/;
+	public static final String END_OF_SOURCE = "End_Of_Source"; //$NON-NLS-1$
 
-	public static final String INVALID_HEXA = "Invalid_Hexa_Literal"/*nonNLS*/;
-	public static final String INVALID_OCTAL = "Invalid_Octal_Literal"/*nonNLS*/;
+	public static final String INVALID_HEXA = "Invalid_Hexa_Literal"; //$NON-NLS-1$
+	public static final String INVALID_OCTAL = "Invalid_Octal_Literal"; //$NON-NLS-1$
 	public static final String INVALID_CHARACTER_CONSTANT = 
-		"Invalid_Character_Constant"/*nonNLS*/; 
-	public static final String INVALID_ESCAPE = "Invalid_Escape"/*nonNLS*/;
-	public static final String INVALID_INPUT = "Invalid_Input"/*nonNLS*/;
-	public static final String INVALID_UNICODE_ESCAPE = "Invalid_Unicode_Escape"/*nonNLS*/;
-	public static final String INVALID_FLOAT = "Invalid_Float_Literal"/*nonNLS*/;
+		"Invalid_Character_Constant";  //$NON-NLS-1$
+	public static final String INVALID_ESCAPE = "Invalid_Escape"; //$NON-NLS-1$
+	public static final String INVALID_INPUT = "Invalid_Input"; //$NON-NLS-1$
+	public static final String INVALID_UNICODE_ESCAPE = "Invalid_Unicode_Escape"; //$NON-NLS-1$
+	public static final String INVALID_FLOAT = "Invalid_Float_Literal"; //$NON-NLS-1$
 
-	public static final String NULL_SOURCE_STRING = "Null_Source_String"/*nonNLS*/;
-	public static final String UNTERMINATED_STRING = "Unterminated_String"/*nonNLS*/;
-	public static final String UNTERMINATED_COMMENT = "Unterminated_Comment"/*nonNLS*/;
-	public static final String INVALID_CHAR_IN_STRING = "Invalid_Char_In_String"/*nonNLS*/;
+	public static final String NULL_SOURCE_STRING = "Null_Source_String"; //$NON-NLS-1$
+	public static final String UNTERMINATED_STRING = "Unterminated_String"; //$NON-NLS-1$
+	public static final String UNTERMINATED_COMMENT = "Unterminated_Comment"; //$NON-NLS-1$
+	public static final String INVALID_CHAR_IN_STRING = "Invalid_Char_In_String"; //$NON-NLS-1$
 
 	//----------------optimized identifier managment------------------
 	static final char[] charArray_a = new char[] {'a'}, 
@@ -113,9 +121,18 @@ public class Scanner implements TerminalSymbols {
 	public /*static*/ final char[][][][] charArray_length = 
 		new char[OptimizedLength][TableSize][InternalTableSize][]; 
 	// support for detecting non-externalized string literals
+	int currentLineNr= -1;
+	int previousLineNr= -1;
+	NLSLine currentLine= null;
+	List lines= new ArrayList();
+	public static final String TAG_PREFIX= "//$NON-NLS-"; //$NON-NLS-1$
+	public static final int TAG_PREFIX_LENGTH= TAG_PREFIX.length();
+	public static final String TAG_POSTFIX= "$"; //$NON-NLS-1$
+	public static final int TAG_POSTFIX_LENGTH= TAG_POSTFIX.length();
+	public StringLiteral[] nonNLSStrings = null;
 	public boolean checkNonExternalizedStringLiterals = true;
-	public static char[] NonNLS_TAG = "/*nonNLS*/"/*nonNLS*/.toCharArray();
 	public boolean wasNonExternalizedStringLiteral = false;
+	
 	/*static*/ {
 		for (int i = 0; i < 6; i++) {
 			for (int j = 0; j < TableSize; j++) {
@@ -640,9 +657,14 @@ public int getNextToken() throws InvalidInputException {
 					&& (source[currentPosition] == 'u')) {
 					isWhiteSpace = jumpOverUnicodeWhiteSpace();
 				} else {
-					if (recordLineSeparator
-						&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
-						pushLineSeparator();
+					if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
+						checkNonExternalizeString();
+						if (recordLineSeparator) {
+							pushLineSeparator();
+						} else {
+							linePtr++;
+						}
+					}
 					isWhiteSpace = 
 						(currentCharacter == ' ') || Character.isWhitespace(currentCharacter); 
 				}
@@ -916,15 +938,18 @@ public int getNextToken() throws InvalidInputException {
 						}
 						throw e; // rethrow
 					}
-					if (checkNonExternalizedStringLiterals){ // check for presence of	/*nonNLS*/
-						int lookAhead = 0;
-						for (; lookAhead < 10; lookAhead++){
-							if (currentPosition + lookAhead == source.length)
-								break;
-							if (source[currentPosition + lookAhead] != NonNLS_TAG[lookAhead])
-								break;
+					if (checkNonExternalizedStringLiterals){ // check for presence of	NLS tags //$NON-NLS-?$ where ? is an int.
+						currentLineNr = linePtr;
+						if (currentLineNr != previousLineNr) {
+							currentLine= new NLSLine(currentLineNr);
+							lines.add(currentLine);
+							previousLineNr= currentLineNr;
 						}
-						this.wasNonExternalizedStringLiteral = lookAhead != 10;
+						currentLine.add(
+							new StringLiteral(
+								getCurrentTokenSourceString(), 
+								startPosition, 
+								currentPosition - 1));
 					}
 					return TokenNameStringLiteral;
 				case '/' :
@@ -992,13 +1017,18 @@ public int getNextToken() throws InvalidInputException {
 									} //jump over the \\
 								}
 								recordComment(false);
-								if (recordLineSeparator
-									&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
-									if (isUnicode) {
-										pushUnicodeLineSeparator();
+								if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
+									checkNonExternalizeString();
+									if (recordLineSeparator) {
+										if (isUnicode) {
+											pushUnicodeLineSeparator();
+										} else {
+											pushLineSeparator();
+										}
 									} else {
-										pushLineSeparator();
+										linePtr++;
 									}
+								}
 								if (tokenizeComments) {
 									if (!isUnicode) {
 										currentPosition--; // reset one character behind
@@ -1006,10 +1036,10 @@ public int getNextToken() throws InvalidInputException {
 									return TokenNameCOMMENT_LINE;
 								}
 							} catch (IndexOutOfBoundsException e) { //an eof will them be generated
-								if (tokenizeComments) {
-									currentPosition--; // reset one character behind
-									return TokenNameCOMMENT_LINE;
-								}
+									if (tokenizeComments) {
+										currentPosition--; // reset one character behind
+										return TokenNameCOMMENT_LINE;
+									}
 							}
 							break;
 						}
@@ -1030,9 +1060,14 @@ public int getNextToken() throws InvalidInputException {
 								isJavadoc = true;
 								star = true;
 							}
-							if (recordLineSeparator
-								&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
-								pushLineSeparator();
+							if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
+								checkNonExternalizeString();
+								if (recordLineSeparator) {
+									pushLineSeparator();
+								} else {
+									linePtr++;
+								}
+							}
 							try { //get the next char 
 								if (((currentCharacter = source[currentPosition++]) == '\\')
 									&& (source[currentPosition] == 'u')) {
@@ -1050,9 +1085,14 @@ public int getNextToken() throws InvalidInputException {
 								}
 								//loop until end of comment */
 								while ((currentCharacter != '/') || (!star)) {
-									if (recordLineSeparator
-										&& ((currentCharacter == '\r') || (currentCharacter == '\n')))
-										pushLineSeparator();
+									if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
+										checkNonExternalizeString();
+										if (recordLineSeparator) {
+											pushLineSeparator();
+										} else {
+											linePtr++;
+										}
+									}
 									star = currentCharacter == '*';
 									//get next char
 									if (((currentCharacter = source[currentPosition++]) == '\\')
@@ -1085,7 +1125,7 @@ public int getNextToken() throws InvalidInputException {
 					if (atEnd())
 						return TokenNameEOF;
 					//the atEnd may not be <currentPosition == source.length> if source is only some part of a real (external) stream
-					throw new InvalidInputException("Ctrl-Z"/*nonNLS*/);
+					throw new InvalidInputException("Ctrl-Z"); //$NON-NLS-1$
 
 				default :
 					if (Character.isJavaIdentifierStart(currentCharacter))
@@ -1707,11 +1747,9 @@ final char[] optimizedCurrentTokenSource6() {
 	newEntry6 = max;
 	return r;	
 }
-public final void pushLineSeparator() {
+public final void pushLineSeparator() throws InvalidInputException {
 	//see comment on isLineDelimiter(char) for the use of '\n' and '\r'
-
 	final int INCREMENT = 250;
-
 	//currentCharacter is at position currentPosition-1
 
 	// cr 000D
@@ -1848,6 +1886,7 @@ public void resetTo(int begin, int end) {
 	eofPosition = end + 1;
 	commentPtr = -1; // reset comment stack
 }
+
 public final void scanEscapeCharacter() throws InvalidInputException {
 	// the string with "\\u" is a legal string of two chars \ and u
 	//thus we use a direct access to the source (for regular cases).
@@ -1936,7 +1975,7 @@ public int scanIdentifierOrKeyword() throws InvalidInputException {
 	//then the length. If there are several
 	//keywors with the same length AND the same first char, then do another
 	//disptach on the second char :-)...cool....but fast !
-
+	useAssertAsAnIndentifier = false;
 	while (getNextCharAsJavaIdentifierPart()) {};
 
 	int index, length;
@@ -1963,20 +2002,39 @@ public int scanIdentifierOrKeyword() throws InvalidInputException {
 	firstLetter = data[index];
 	switch (firstLetter) {
 
-		case 'a' : //abstract
-			if (length == 8) {
-				if ((data[++index] == 'b')
-					&& (data[++index] == 's')
-					&& (data[++index] == 't')
-					&& (data[++index] == 'r')
-					&& (data[++index] == 'a')
-					&& (data[++index] == 'c')
-					&& (data[++index] == 't')) {
-					return TokenNameabstract;
-				}
+		case 'a' : 
+			switch(length) {
+				case 8: //abstract
+					if ((data[++index] == 'b')
+						&& (data[++index] == 's')
+						&& (data[++index] == 't')
+						&& (data[++index] == 'r')
+						&& (data[++index] == 'a')
+						&& (data[++index] == 'c')
+						&& (data[++index] == 't')) {
+							return TokenNameabstract;
+						} else {
+							return TokenNameIdentifier;
+						}
+				case 6: // assert
+					if ((data[++index] == 's')
+						&& (data[++index] == 's')
+						&& (data[++index] == 'e')
+						&& (data[++index] == 'r')
+						&& (data[++index] == 't')) {
+							if (assertMode) {
+								containsAssertKeyword = true;
+								return TokenNameassert;
+							} else {
+								useAssertAsAnIndentifier = true;
+								return TokenNameIdentifier;								
+							}
+						} else {
+							return TokenNameIdentifier;
+						}
+				default: 
+					return TokenNameIdentifier;
 			}
-			return TokenNameIdentifier;
-
 		case 'b' : //boolean break byte
 			switch (length) {
 				case 4 :
@@ -2648,6 +2706,7 @@ public final void setSourceBuffer(char[] sourceString){
 	source = sourceString;
 	startPosition = -1;
 	initialPosition = currentPosition = 0;
+	containsAssertKeyword = false;
 	if (source == null) {
 		source = new char[0];
 	}
@@ -2655,9 +2714,9 @@ public final void setSourceBuffer(char[] sourceString){
 }
 public String toString() {
 	if (startPosition == source.length)
-		return "EOF\n\n"/*nonNLS*/ + new String(source);
+		return "EOF\n\n" + new String(source); //$NON-NLS-1$
 	if (currentPosition > source.length)
-		return "behind the EOF :-( ....\n\n"/*nonNLS*/ + new String(source);
+		return "behind the EOF :-( ....\n\n" + new String(source); //$NON-NLS-1$
 
 	char front[] = new char[startPosition];
 	System.arraycopy(source, 0, front, 0, startPosition);
@@ -2685,228 +2744,280 @@ public String toString() {
 		source.length - (currentPosition - 1) - 1);
 	
 	return new String(front)
-		+ "\n===============================\nStarts here -->"/*nonNLS*/
+		+ "\n===============================\nStarts here -->" //$NON-NLS-1$
 		+ new String(middle)
-		+ "<-- Ends here\n===============================\n"/*nonNLS*/
+		+ "<-- Ends here\n===============================\n" //$NON-NLS-1$
 		+ new String(end); 
 }
 public final String toStringAction(int act) {
 	switch (act) {
 		case TokenNameIdentifier :
-			return "Identifier("/*nonNLS*/ + new String(getCurrentTokenSource()) + ")"/*nonNLS*/;
+			return "Identifier(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		case TokenNameabstract :
-			return "abstract"/*nonNLS*/;
+			return "abstract"; //$NON-NLS-1$
 		case TokenNameboolean :
-			return "boolean"/*nonNLS*/;
+			return "boolean"; //$NON-NLS-1$
 		case TokenNamebreak :
-			return "break"/*nonNLS*/;
+			return "break"; //$NON-NLS-1$
 		case TokenNamebyte :
-			return "byte"/*nonNLS*/;
+			return "byte"; //$NON-NLS-1$
 		case TokenNamecase :
-			return "case"/*nonNLS*/;
+			return "case"; //$NON-NLS-1$
 		case TokenNamecatch :
-			return "catch"/*nonNLS*/;
+			return "catch"; //$NON-NLS-1$
 		case TokenNamechar :
-			return "char"/*nonNLS*/;
+			return "char"; //$NON-NLS-1$
 		case TokenNameclass :
-			return "class"/*nonNLS*/;
+			return "class"; //$NON-NLS-1$
 		case TokenNamecontinue :
-			return "continue"/*nonNLS*/;
+			return "continue"; //$NON-NLS-1$
 		case TokenNamedefault :
-			return "default"/*nonNLS*/;
+			return "default"; //$NON-NLS-1$
 		case TokenNamedo :
-			return "do"/*nonNLS*/;
+			return "do"; //$NON-NLS-1$
 		case TokenNamedouble :
-			return "double"/*nonNLS*/;
+			return "double"; //$NON-NLS-1$
 		case TokenNameelse :
-			return "else"/*nonNLS*/;
+			return "else"; //$NON-NLS-1$
 		case TokenNameextends :
-			return "extends"/*nonNLS*/;
+			return "extends"; //$NON-NLS-1$
 		case TokenNamefalse :
-			return "false"/*nonNLS*/;
+			return "false"; //$NON-NLS-1$
 		case TokenNamefinal :
-			return "final"/*nonNLS*/;
+			return "final"; //$NON-NLS-1$
 		case TokenNamefinally :
-			return "finally"/*nonNLS*/;
+			return "finally"; //$NON-NLS-1$
 		case TokenNamefloat :
-			return "float"/*nonNLS*/;
+			return "float"; //$NON-NLS-1$
 		case TokenNamefor :
-			return "for"/*nonNLS*/;
+			return "for"; //$NON-NLS-1$
 		case TokenNameif :
-			return "if"/*nonNLS*/;
+			return "if"; //$NON-NLS-1$
 		case TokenNameimplements :
-			return "implements"/*nonNLS*/;
+			return "implements"; //$NON-NLS-1$
 		case TokenNameimport :
-			return "import"/*nonNLS*/;
+			return "import"; //$NON-NLS-1$
 		case TokenNameinstanceof :
-			return "instanceof"/*nonNLS*/;
+			return "instanceof"; //$NON-NLS-1$
 		case TokenNameint :
-			return "int"/*nonNLS*/;
+			return "int"; //$NON-NLS-1$
 		case TokenNameinterface :
-			return "interface"/*nonNLS*/;
+			return "interface"; //$NON-NLS-1$
 		case TokenNamelong :
-			return "long"/*nonNLS*/;
+			return "long"; //$NON-NLS-1$
 		case TokenNamenative :
-			return "native"/*nonNLS*/;
+			return "native"; //$NON-NLS-1$
 		case TokenNamenew :
-			return "new"/*nonNLS*/;
+			return "new"; //$NON-NLS-1$
 		case TokenNamenull :
-			return "null"/*nonNLS*/;
+			return "null"; //$NON-NLS-1$
 		case TokenNamepackage :
-			return "package"/*nonNLS*/;
+			return "package"; //$NON-NLS-1$
 		case TokenNameprivate :
-			return "private"/*nonNLS*/;
+			return "private"; //$NON-NLS-1$
 		case TokenNameprotected :
-			return "protected"/*nonNLS*/;
+			return "protected"; //$NON-NLS-1$
 		case TokenNamepublic :
-			return "public"/*nonNLS*/;
+			return "public"; //$NON-NLS-1$
 		case TokenNamereturn :
-			return "return"/*nonNLS*/;
+			return "return"; //$NON-NLS-1$
 		case TokenNameshort :
-			return "short"/*nonNLS*/;
+			return "short"; //$NON-NLS-1$
 		case TokenNamestatic :
-			return "static"/*nonNLS*/;
+			return "static"; //$NON-NLS-1$
 		case TokenNamesuper :
-			return "super"/*nonNLS*/;
+			return "super"; //$NON-NLS-1$
 		case TokenNameswitch :
-			return "switch"/*nonNLS*/;
+			return "switch"; //$NON-NLS-1$
 		case TokenNamesynchronized :
-			return "synchronized"/*nonNLS*/;
+			return "synchronized"; //$NON-NLS-1$
 		case TokenNamethis :
-			return "this"/*nonNLS*/;
+			return "this"; //$NON-NLS-1$
 		case TokenNamethrow :
-			return "throw"/*nonNLS*/;
+			return "throw"; //$NON-NLS-1$
 		case TokenNamethrows :
-			return "throws"/*nonNLS*/;
+			return "throws"; //$NON-NLS-1$
 		case TokenNametransient :
-			return "transient"/*nonNLS*/;
+			return "transient"; //$NON-NLS-1$
 		case TokenNametrue :
-			return "true"/*nonNLS*/;
+			return "true"; //$NON-NLS-1$
 		case TokenNametry :
-			return "try"/*nonNLS*/;
+			return "try"; //$NON-NLS-1$
 		case TokenNamevoid :
-			return "void"/*nonNLS*/;
+			return "void"; //$NON-NLS-1$
 		case TokenNamevolatile :
-			return "volatile"/*nonNLS*/;
+			return "volatile"; //$NON-NLS-1$
 		case TokenNamewhile :
-			return "while"/*nonNLS*/;
+			return "while"; //$NON-NLS-1$
 
 		case TokenNameIntegerLiteral :
-			return "Integer("/*nonNLS*/ + new String(getCurrentTokenSource()) + ")"/*nonNLS*/;
+			return "Integer(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		case TokenNameLongLiteral :
-			return "Long("/*nonNLS*/ + new String(getCurrentTokenSource()) + ")"/*nonNLS*/;
+			return "Long(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		case TokenNameFloatingPointLiteral :
-			return "Float("/*nonNLS*/ + new String(getCurrentTokenSource()) + ")"/*nonNLS*/;
+			return "Float(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		case TokenNameDoubleLiteral :
-			return "Double("/*nonNLS*/ + new String(getCurrentTokenSource()) + ")"/*nonNLS*/;
+			return "Double(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		case TokenNameCharacterLiteral :
-			return "Char("/*nonNLS*/ + new String(getCurrentTokenSource()) + ")"/*nonNLS*/;
+			return "Char(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		case TokenNameStringLiteral :
-			return "String("/*nonNLS*/ + new String(getCurrentTokenSource()) + ")"/*nonNLS*/;
+			return "String(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 
 		case TokenNamePLUS_PLUS :
-			return "++"/*nonNLS*/;
+			return "++"; //$NON-NLS-1$
 		case TokenNameMINUS_MINUS :
-			return "--"/*nonNLS*/;
+			return "--"; //$NON-NLS-1$
 		case TokenNameEQUAL_EQUAL :
-			return "=="/*nonNLS*/;
+			return "=="; //$NON-NLS-1$
 		case TokenNameLESS_EQUAL :
-			return "<="/*nonNLS*/;
+			return "<="; //$NON-NLS-1$
 		case TokenNameGREATER_EQUAL :
-			return ">="/*nonNLS*/;
+			return ">="; //$NON-NLS-1$
 		case TokenNameNOT_EQUAL :
-			return "!="/*nonNLS*/;
+			return "!="; //$NON-NLS-1$
 		case TokenNameLEFT_SHIFT :
-			return "<<"/*nonNLS*/;
+			return "<<"; //$NON-NLS-1$
 		case TokenNameRIGHT_SHIFT :
-			return ">>"/*nonNLS*/;
+			return ">>"; //$NON-NLS-1$
 		case TokenNameUNSIGNED_RIGHT_SHIFT :
-			return ">>>"/*nonNLS*/;
+			return ">>>"; //$NON-NLS-1$
 		case TokenNamePLUS_EQUAL :
-			return "+="/*nonNLS*/;
+			return "+="; //$NON-NLS-1$
 		case TokenNameMINUS_EQUAL :
-			return "-="/*nonNLS*/;
+			return "-="; //$NON-NLS-1$
 		case TokenNameMULTIPLY_EQUAL :
-			return "*="/*nonNLS*/;
+			return "*="; //$NON-NLS-1$
 		case TokenNameDIVIDE_EQUAL :
-			return "/="/*nonNLS*/;
+			return "/="; //$NON-NLS-1$
 		case TokenNameAND_EQUAL :
-			return "&="/*nonNLS*/;
+			return "&="; //$NON-NLS-1$
 		case TokenNameOR_EQUAL :
-			return "|="/*nonNLS*/;
+			return "|="; //$NON-NLS-1$
 		case TokenNameXOR_EQUAL :
-			return "^="/*nonNLS*/;
+			return "^="; //$NON-NLS-1$
 		case TokenNameREMAINDER_EQUAL :
-			return "%="/*nonNLS*/;
+			return "%="; //$NON-NLS-1$
 		case TokenNameLEFT_SHIFT_EQUAL :
-			return "<<="/*nonNLS*/;
+			return "<<="; //$NON-NLS-1$
 		case TokenNameRIGHT_SHIFT_EQUAL :
-			return ">>="/*nonNLS*/;
+			return ">>="; //$NON-NLS-1$
 		case TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL :
-			return ">>>="/*nonNLS*/;
+			return ">>>="; //$NON-NLS-1$
 		case TokenNameOR_OR :
-			return "||"/*nonNLS*/;
+			return "||"; //$NON-NLS-1$
 		case TokenNameAND_AND :
-			return "&&"/*nonNLS*/;
+			return "&&"; //$NON-NLS-1$
 		case TokenNamePLUS :
-			return "+"/*nonNLS*/;
+			return "+"; //$NON-NLS-1$
 		case TokenNameMINUS :
-			return "-"/*nonNLS*/;
+			return "-"; //$NON-NLS-1$
 		case TokenNameNOT :
-			return "!"/*nonNLS*/;
+			return "!"; //$NON-NLS-1$
 		case TokenNameREMAINDER :
-			return "%"/*nonNLS*/;
+			return "%"; //$NON-NLS-1$
 		case TokenNameXOR :
-			return "^"/*nonNLS*/;
+			return "^"; //$NON-NLS-1$
 		case TokenNameAND :
-			return "&"/*nonNLS*/;
+			return "&"; //$NON-NLS-1$
 		case TokenNameMULTIPLY :
-			return "*"/*nonNLS*/;
+			return "*"; //$NON-NLS-1$
 		case TokenNameOR :
-			return "|"/*nonNLS*/;
+			return "|"; //$NON-NLS-1$
 		case TokenNameTWIDDLE :
-			return "~"/*nonNLS*/;
+			return "~"; //$NON-NLS-1$
 		case TokenNameDIVIDE :
-			return "/"/*nonNLS*/;
+			return "/"; //$NON-NLS-1$
 		case TokenNameGREATER :
-			return ">"/*nonNLS*/;
+			return ">"; //$NON-NLS-1$
 		case TokenNameLESS :
-			return "<"/*nonNLS*/;
+			return "<"; //$NON-NLS-1$
 		case TokenNameLPAREN :
-			return "("/*nonNLS*/;
+			return "("; //$NON-NLS-1$
 		case TokenNameRPAREN :
-			return ")"/*nonNLS*/;
+			return ")"; //$NON-NLS-1$
 		case TokenNameLBRACE :
-			return "{"/*nonNLS*/;
+			return "{"; //$NON-NLS-1$
 		case TokenNameRBRACE :
-			return "}"/*nonNLS*/;
+			return "}"; //$NON-NLS-1$
 		case TokenNameLBRACKET :
-			return "["/*nonNLS*/;
+			return "["; //$NON-NLS-1$
 		case TokenNameRBRACKET :
-			return "]"/*nonNLS*/;
+			return "]"; //$NON-NLS-1$
 		case TokenNameSEMICOLON :
-			return ";"/*nonNLS*/;
+			return ";"; //$NON-NLS-1$
 		case TokenNameQUESTION :
-			return "?"/*nonNLS*/;
+			return "?"; //$NON-NLS-1$
 		case TokenNameCOLON :
-			return ":"/*nonNLS*/;
+			return ":"; //$NON-NLS-1$
 		case TokenNameCOMMA :
-			return ","/*nonNLS*/;
+			return ","; //$NON-NLS-1$
 		case TokenNameDOT :
-			return "."/*nonNLS*/;
+			return "."; //$NON-NLS-1$
 		case TokenNameEQUAL :
-			return "="/*nonNLS*/;
+			return "="; //$NON-NLS-1$
 		case TokenNameEOF :
-			return "EOF"/*nonNLS*/;
+			return "EOF"; //$NON-NLS-1$
 		default :
-			return "not-a-token"/*nonNLS*/;
+			return "not-a-token"; //$NON-NLS-1$
 	}
 }
 
 public Scanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean checkNonExternalizedStringLiterals) {
+	this(tokenizeComments, tokenizeWhiteSpace, checkNonExternalizedStringLiterals, false);
+}
+
+public Scanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean checkNonExternalizedStringLiterals, boolean assertMode) {
 	this.eofPosition = Integer.MAX_VALUE;
 	this.tokenizeComments = tokenizeComments;
 	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
+	this.assertMode = assertMode;
+}
+
+private void checkNonExternalizeString()  throws InvalidInputException {
+	if (currentLine == null || currentLineNr != linePtr)
+		return;
+	parseTags(currentLine);
+}
+
+private void parseTags(NLSLine line) throws InvalidInputException {
+	String s = new String(getCurrentTokenSource());
+	int pos = s.indexOf(TAG_PREFIX);
+	int lineLength = line.size();
+	while (pos != -1) {
+		int start = pos + TAG_PREFIX_LENGTH;
+		int end = s.indexOf(TAG_POSTFIX, start);
+		String index = s.substring(start, end);
+		int i = 0;
+		try {
+			i = Integer.parseInt(index) - 1; // Tags are one based not zero based.
+		} catch (NumberFormatException e) {
+			i = -1; // we don't want to consider this as a valid NLS tag
+		}
+		int listIndex = lineLength - i - 1;
+		if (line.exists(listIndex)) {
+			line.set(listIndex, null);
+		}
+		pos = s.indexOf(TAG_PREFIX, start);
+	}
+
+	this.nonNLSStrings = new StringLiteral[lineLength];
+	int nonNLSCounter = 0;
+	for (Iterator iterator = line.iterator(); iterator.hasNext(); ) {
+		StringLiteral literal = (StringLiteral) iterator.next();
+		if (literal != null) {
+			this.nonNLSStrings[nonNLSCounter++] = literal;
+		}
+	}
+	if (nonNLSCounter == 0) {
+		this.nonNLSStrings = null;
+		currentLine = null;
+		return;
+	} 
+	wasNonExternalizedStringLiteral = true;
+	if (nonNLSCounter != lineLength) {
+		System.arraycopy(this.nonNLSStrings, 0, (this.nonNLSStrings = new StringLiteral[nonNLSCounter]), 0, nonNLSCounter);
+	}
+	currentLine = null;
 }
 }

@@ -202,7 +202,7 @@ public static IPath canonicalizedPath(IPath externalPath) {
 	 * This is the project bin folder
 	 */
 	protected IPath defaultOutputLocation() throws JavaModelException {
-		return getProject().getFullPath().append("bin"/*nonNLS*/);
+		return getProject().getFullPath().append("bin"); //$NON-NLS-1$
 	}
 	/**
 	 * Returns true if this handle represents the same Java project
@@ -245,14 +245,14 @@ public static IPath canonicalizedPath(IPath externalPath) {
 					// default to the first one
 					return pkgFragments[0];
 				}
-			} else if (extension.equalsIgnoreCase("java"/*nonNLS*/) || extension.equalsIgnoreCase("class"/*nonNLS*/)) {
+			} else if (extension.equalsIgnoreCase("java") || extension.equalsIgnoreCase("class")) { //$NON-NLS-1$ //$NON-NLS-2$
 				IPath packagePath= path.removeLastSegments(1);
 				String packageName= packagePath.toString().replace(IPath.SEPARATOR, '.');
 				String typeName= path.lastSegment();
 				typeName= typeName.substring(0, typeName.length() - extension.length() - 1);
 				String qualifiedName= null;
 				if (packageName.length() > 0) {
-					qualifiedName= packageName + "."/*nonNLS*/ + typeName;
+					qualifiedName= packageName + "." + typeName; //$NON-NLS-1$
 				} else {
 					qualifiedName= typeName;
 				}
@@ -437,18 +437,11 @@ public static IPath canonicalizedPath(IPath externalPath) {
 		return getPackageFragmentRoots();
 	}
 	/**
-	 * @see IJavaProject
-	 * @deprecated
-	 */
-	public IClasspathEntry[] getClasspath() throws JavaModelException {
-		return getRawClasspath();
-	}
-	/**
 	 * Returns the XML String encoding of the class path.
 	 */
 	protected String getClasspathAsXMLString(IClasspathEntry[] classpath, IPath outputLocation) throws JavaModelException {
 		Document doc= new DocumentImpl();
-		Element cpElement= doc.createElement("classpath"/*nonNLS*/);
+		Element cpElement= doc.createElement("classpath"); //$NON-NLS-1$
 		doc.appendChild(cpElement);
 
 		for (int i= 0; i < classpath.length; ++i) {
@@ -459,9 +452,9 @@ public static IPath canonicalizedPath(IPath externalPath) {
 		if (outputLocation != null) {
 			outputLocation= outputLocation.removeFirstSegments(1);
 			outputLocation= outputLocation.makeRelative();
-			Element oElement= doc.createElement("classpathentry"/*nonNLS*/);
-			oElement.setAttribute("kind"/*nonNLS*/, kindToString(ClasspathEntry.K_OUTPUT));
-			oElement.setAttribute("path"/*nonNLS*/, outputLocation.toOSString());
+			Element oElement= doc.createElement("classpathentry"); //$NON-NLS-1$
+			oElement.setAttribute("kind", kindToString(ClasspathEntry.K_OUTPUT)); //$NON-NLS-1$
+			oElement.setAttribute("path", outputLocation.toOSString()); //$NON-NLS-1$
 			cpElement.appendChild(oElement);
 		}
 
@@ -495,15 +488,15 @@ public static IPath canonicalizedPath(IPath externalPath) {
 	 * of this project
 	 */
 	public QualifiedName getClasspathPropertyName() {
-		return new QualifiedName(JavaCore.PLUGIN_ID, "classpath"/*nonNLS*/);
+		return new QualifiedName(JavaCore.PLUGIN_ID, "classpath"); //$NON-NLS-1$
 	}
 	/**
 	 * Returns the XML String encoding of the class path.
 	 */
 	protected static Element getEntryAsXMLElement(Document document, IClasspathEntry entry, IPath prefixPath) throws JavaModelException {
 		
-		Element element= document.createElement("classpathentry"/*nonNLS*/);
-		element.setAttribute("kind"/*nonNLS*/, kindToString(entry.getEntryKind()));
+		Element element= document.createElement("classpathentry"); //$NON-NLS-1$
+		element.setAttribute("kind", kindToString(entry.getEntryKind())); //$NON-NLS-1$
 		IPath path= entry.getPath();
 		if (entry.getEntryKind() != IClasspathEntry.CPE_VARIABLE){
 			// translate to project relative from absolute (unless a device path)
@@ -518,12 +511,12 @@ public static IPath canonicalizedPath(IPath externalPath) {
 				}
 			}
 		}
-		element.setAttribute("path"/*nonNLS*/, path.toString());
+		element.setAttribute("path", path.toString()); //$NON-NLS-1$
 		if (entry.getSourceAttachmentPath() != null){
-			element.setAttribute("sourcepath"/*nonNLS*/, entry.getSourceAttachmentPath().toString());
+			element.setAttribute("sourcepath", entry.getSourceAttachmentPath().toString()); //$NON-NLS-1$
 		}
 		if (entry.getSourceAttachmentRootPath() != null){
-			element.setAttribute("rootpath"/*nonNLS*/, entry.getSourceAttachmentRootPath().toString());
+			element.setAttribute("rootpath", entry.getSourceAttachmentRootPath().toString()); //$NON-NLS-1$
 		}
 		return element;
 	}
@@ -597,7 +590,7 @@ public static IPath canonicalizedPath(IPath externalPath) {
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot(IResource resource) {
 		String name= resource.getName();
-		if (Util.endsWithIgnoreCase(name,".jar"/*nonNLS*/) || Util.endsWithIgnoreCase(name,".zip"/*nonNLS*/)) {
+		if (Util.endsWithIgnoreCase(name,".jar") || Util.endsWithIgnoreCase(name,".zip")) { //$NON-NLS-2$ //$NON-NLS-1$
 			return new JarPackageFragmentRoot(resource, this);
 		} else {
 			return new PackageFragmentRoot(resource, this);
@@ -683,7 +676,7 @@ public static IPath canonicalizedPath(IPath externalPath) {
 		if (entry.getContentKind() == IPackageFragmentRoot.K_BINARY) {
 			String ext= path.getFileExtension();
 			IPackageFragmentRoot root= null;
-			if (ext != null && (ext.equalsIgnoreCase("zip"/*nonNLS*/) || ext.equalsIgnoreCase("jar"/*nonNLS*/))) {
+			if (ext != null && (ext.equalsIgnoreCase("zip") || ext.equalsIgnoreCase("jar"))) { //$NON-NLS-1$ //$NON-NLS-2$
 				// jar
 				// removeFirstSegment removes the part relative to the project which is retrieve 
 				// through workspace.getDefaultContentLocation
@@ -938,15 +931,15 @@ public String[] getRequiredProjectNames() throws JavaModelException {
 	 * Returns the kind of a <code>PackageFragmentRoot</code> from its <code>String</code> form.
 	 */
 	static int kindFromString(String kindStr) {
-		if (kindStr.equalsIgnoreCase("prj"/*nonNLS*/))
+		if (kindStr.equalsIgnoreCase("prj")) //$NON-NLS-1$
 			return IClasspathEntry.CPE_PROJECT;
-		if (kindStr.equalsIgnoreCase("var"/*nonNLS*/))
+		if (kindStr.equalsIgnoreCase("var")) //$NON-NLS-1$
 			return IClasspathEntry.CPE_VARIABLE;
-		if (kindStr.equalsIgnoreCase("src"/*nonNLS*/))
+		if (kindStr.equalsIgnoreCase("src")) //$NON-NLS-1$
 			return IClasspathEntry.CPE_SOURCE;
-		if (kindStr.equalsIgnoreCase("lib"/*nonNLS*/))
+		if (kindStr.equalsIgnoreCase("lib")) //$NON-NLS-1$
 			return IClasspathEntry.CPE_LIBRARY;
-		if (kindStr.equalsIgnoreCase("output"/*nonNLS*/))
+		if (kindStr.equalsIgnoreCase("output")) //$NON-NLS-1$
 			return ClasspathEntry.K_OUTPUT;
 		return -1;
 	}
@@ -958,17 +951,17 @@ public String[] getRequiredProjectNames() throws JavaModelException {
 	static String kindToString(int kind) {
 		switch (kind) {
 			case IClasspathEntry.CPE_PROJECT :
-				return "src"/*nonNLS*/; // backward compatibility
+				return "src"; // backward compatibility //$NON-NLS-1$
 			case IClasspathEntry.CPE_SOURCE :
-				return "src"/*nonNLS*/;
+				return "src"; //$NON-NLS-1$
 			case IClasspathEntry.CPE_LIBRARY :
-				return "lib"/*nonNLS*/;
+				return "lib"; //$NON-NLS-1$
 			case IClasspathEntry.CPE_VARIABLE :
-				return "var"/*nonNLS*/;
+				return "var"; //$NON-NLS-1$
 			case ClasspathEntry.K_OUTPUT :
-				return "output"/*nonNLS*/;
+				return "output"; //$NON-NLS-1$
 			default :
-				return "unknown"/*nonNLS*/;
+				return "unknown"; //$NON-NLS-1$
 		}
 	}
 	/**
@@ -990,31 +983,10 @@ public String[] getRequiredProjectNames() throws JavaModelException {
 	}
 	/**
 	 * @see IJavaProject
-	 * @deprecated
-	 */
-	public IClasspathEntry newLibraryEntry(IPath path) {
-		return JavaCore.newLibraryEntry(path, null, null);
-	}
-	/**
-	 * @see IJavaProject
- 	 * @deprecated
-	 */
-	public IClasspathEntry newProjectEntry(IPath path) {
-		return JavaCore.newProjectEntry(path);
-	}
-	/**
-	 * @see IJavaProject
-	 * @deprecated	 
-	 */
-	public IClasspathEntry newSourceEntry(IPath path) {
-		return JavaCore.newSourceEntry(path);
-	}
-	/**
-	 * @see IJavaProject
 	 */
 	public ITypeHierarchy newTypeHierarchy(IRegion region, IProgressMonitor monitor) throws JavaModelException {
 		if (region == null) {
-			throw new IllegalArgumentException(Util.bind("hierarchy.nullRegion"/*nonNLS*/));
+			throw new IllegalArgumentException(Util.bind("hierarchy.nullRegion")); //$NON-NLS-1$
 		}
 		CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(null, region, this, true);
 		runOperation(op, monitor);
@@ -1025,10 +997,10 @@ public String[] getRequiredProjectNames() throws JavaModelException {
 	 */
 	public ITypeHierarchy newTypeHierarchy(IType type, IRegion region, IProgressMonitor monitor) throws JavaModelException {
 		if (type == null) {
-			throw new IllegalArgumentException(Util.bind("hierarchy.nullFocusType"/*nonNLS*/));
+			throw new IllegalArgumentException(Util.bind("hierarchy.nullFocusType")); //$NON-NLS-1$
 		}
 		if (region == null) {
-			throw new IllegalArgumentException(Util.bind("hierarchy.nullRegion"/*nonNLS*/));
+			throw new IllegalArgumentException(Util.bind("hierarchy.nullRegion")); //$NON-NLS-1$
 		}
 		CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(type, region, this, true);
 		runOperation(op, monitor);
@@ -1095,15 +1067,15 @@ public String[] getRequiredProjectNames() throws JavaModelException {
 			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
 		} catch(SAXException e) {
-			throw new IOException(Util.bind("file.badFormat"/*nonNLS*/));
+			throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
 		} catch(ParserConfigurationException e){
 			reader.close();
-			throw new IOException(Util.bind("file.badFormat"/*nonNLS*/));
+			throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
 		} finally {
 			reader.close();
 		}
-		if (!cpElement.getNodeName().equalsIgnoreCase("classpath"/*nonNLS*/)) {
-			throw new IOException(Util.bind("file.badFormat"/*nonNLS*/));
+		if (!cpElement.getNodeName().equalsIgnoreCase("classpath")) { //$NON-NLS-1$
+			throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
 		}
 		NodeList list= cpElement.getChildNodes();
 		Vector paths= new Vector();
@@ -1113,9 +1085,9 @@ public String[] getRequiredProjectNames() throws JavaModelException {
 			short type= node.getNodeType();
 			if (type == Node.ELEMENT_NODE) {
 				Element cpeElement= (Element) node;
-				if (cpeElement.getNodeName().equalsIgnoreCase("classpathentry"/*nonNLS*/)) {
-					String cpeElementKind = cpeElement.getAttribute("kind"/*nonNLS*/);
-					String pathStr = cpeElement.getAttribute("path"/*nonNLS*/);
+				if (cpeElement.getNodeName().equalsIgnoreCase("classpathentry")) { //$NON-NLS-1$
+					String cpeElementKind = cpeElement.getAttribute("kind"); //$NON-NLS-1$
+					String pathStr = cpeElement.getAttribute("path"); //$NON-NLS-1$
 					// ensure path is absolute
 					IPath path= new Path(pathStr);
 					int kind= kindFromString(cpeElementKind);
@@ -1123,10 +1095,10 @@ public String[] getRequiredProjectNames() throws JavaModelException {
 						path= projectPath.append(path);
 					}
 					// source attachment info (optional)
-					String sourceAttachmentPathStr = cpeElement.getAttribute("sourcepath"/*nonNLS*/);
-					IPath sourceAttachmentPath = sourceAttachmentPathStr.equals(""/*nonNLS*/) ? null : new Path(sourceAttachmentPathStr);
-					String sourceAttachmentRootPathStr = cpeElement.getAttribute("rootpath"/*nonNLS*/);
-					IPath sourceAttachmentRootPath = sourceAttachmentRootPathStr.equals(""/*nonNLS*/) ? null : new Path(sourceAttachmentRootPathStr);
+					String sourceAttachmentPathStr = cpeElement.getAttribute("sourcepath"); //$NON-NLS-1$
+					IPath sourceAttachmentPath = sourceAttachmentPathStr.equals("") ? null : new Path(sourceAttachmentPathStr); //$NON-NLS-1$
+					String sourceAttachmentRootPathStr = cpeElement.getAttribute("rootpath"); //$NON-NLS-1$
+					IPath sourceAttachmentRootPath = sourceAttachmentRootPathStr.equals("") ? null : new Path(sourceAttachmentRootPathStr); //$NON-NLS-1$
 					
 					IClasspathEntry entry= createClasspathEntry(path, kind, sourceAttachmentPath, sourceAttachmentRootPath);
 					if (entry == null) return null;
@@ -1251,13 +1223,6 @@ protected void resetNonJavaResourcesForPackageFragmentRoots() throws JavaModelEx
 		}
 	}
 	/**
-	 * @see IJavaProject
-	 * @deprecated
-	 */
-	public void setClasspath(IClasspathEntry[] entries, IProgressMonitor monitor) throws JavaModelException {
-		setRawClasspath(entries, monitor, true);
-	}
-	/**
 	 * Update the Java command in the build spec (replace existing one if present,
 	 * add one first if none).
 	 */
@@ -1292,7 +1257,7 @@ protected void resetNonJavaResourcesForPackageFragmentRoots() throws JavaModelEx
 	 */
 	public void setOutputLocation(IPath outputLocation, IProgressMonitor monitor) throws JavaModelException {
 		if (outputLocation == null) {
-			throw new IllegalArgumentException(Util.bind("path.nullpath"/*nonNLS*/));
+			throw new IllegalArgumentException(Util.bind("path.nullpath")); //$NON-NLS-1$
 		}
 		if (outputLocation.equals(getOutputLocation())) {
 			return;
@@ -1461,9 +1426,9 @@ protected void resetNonJavaResourcesForPackageFragmentRoots() throws JavaModelEx
 	private void createClasspathProblemMarker(IClasspathEntry entry, String message){
 		try {
 			IMarker marker = getProject().createMarker(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER);
-			marker.setAttribute(IMarker.MESSAGE, message);
-			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-			marker.setAttribute(IMarker.LOCATION, Util.bind("classpath.buildPath"/*nonNLS*/));
+			marker.setAttributes(
+				new String[]{ IMarker.MESSAGE, IMarker.SEVERITY, IMarker.LOCATION},
+				new Object[]{message, new Integer(IMarker.SEVERITY_WARNING), Util.bind("classpath.buildPath")}); //$NON-NLS-1$
 		} catch (CoreException e) {
 		}		
 	}
@@ -1482,98 +1447,6 @@ protected void resetNonJavaResourcesForPackageFragmentRoots() throws JavaModelEx
 	}
 
 	/**
-	 * Returns a message describing the problem related to this classpath entry if any, or null if entry is fine 
-	 * (i.e. if the given classpath entry denotes a valid element to be referenced onto a classpath).
-	 */
-	private String getClasspathEntryErrorMessage(IClasspathEntry entry, boolean checkSourceAttachment){
-		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();			
-		IPath path = entry.getPath();
-		
-		switch(entry.getEntryKind()){
-
-			// variable entry check
-			case IClasspathEntry.CPE_VARIABLE :
-				entry = JavaCore.getResolvedClasspathEntry(entry);
-				if (entry == null){
-					return Util.bind("classpath.unboundVariablePath"/*nonNLS*/, path.toString());
-				}
-				return getClasspathEntryErrorMessage(entry, checkSourceAttachment);
-
-
-			// library entry check
-			case IClasspathEntry.CPE_LIBRARY :
-				if (path != null && path.isAbsolute() && !path.isEmpty()) {
-					IPath sourceAttachment = entry.getSourceAttachmentPath();
-					Object target = JavaModel.getTarget(workspaceRoot, path, true);
-					if (target instanceof IResource){
-						IResource resolvedResource = (IResource) target;
-						switch(resolvedResource.getType()){
-							case IResource.FILE :
-								String extension = resolvedResource.getFileExtension();
-								if ("jar"/*nonNLS*/.equalsIgnoreCase(extension) || "zip"/*nonNLS*/.equalsIgnoreCase(extension)){ // internal binary archive
-									if (checkSourceAttachment 
-										&& sourceAttachment != null
-										&& !sourceAttachment.isEmpty()
-										&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
-										return Util.bind("classpath.unboundSourceAttachment"/*nonNLS*/, sourceAttachment.toString());
-									}
-								}
-								break;
-							case IResource.FOLDER :	// internal binary folder
-								if (checkSourceAttachment 
-									&& sourceAttachment != null 
-									&& !sourceAttachment.isEmpty()
-									&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
-									return Util.bind("classpath.unboundSourceAttachment"/*nonNLS*/, sourceAttachment.toString());
-								}
-						}
-					} else if (target instanceof File){
-						if (checkSourceAttachment 
-							&& sourceAttachment != null 
-							&& !sourceAttachment.isEmpty()
-							&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
-							return Util.bind("classpath.unboundSourceAttachment"/*nonNLS*/, sourceAttachment.toString());
-						}
-					} else {
-						return Util.bind("classpath.unboundLibrary"/*nonNLS*/, path.toString());
-					}
-				} else {
-					return Util.bind("classpath.illegalLibraryPath"/*nonNLS*/, path.toString());
-				}
-				break;
-
-			// project entry check
-			case IClasspathEntry.CPE_PROJECT :
-				if (path != null && path.isAbsolute() && !path.isEmpty()) {
-					IProject project = workspaceRoot.getProject(path.segment(0));
-					try {
-						if (!project.exists() || !project.hasNature(JavaCore.NATURE_ID)){
-							return Util.bind("classpath.unboundProject"/*nonNLS*/, path.segment(0).toString());
-						}
-					} catch (CoreException e){
-						return Util.bind("classpath.unboundProject"/*nonNLS*/, path.segment(0).toString());
-					}
-				} else {
-					return Util.bind("classpath.illegalProjectPath"/*nonNLS*/, path.segment(0).toString());
-				}
-				break;
-
-			// project source folder
-			case IClasspathEntry.CPE_SOURCE :
-				if (path != null && path.isAbsolute() && !path.isEmpty()) {
-					IPath projectPath= getProject().getFullPath();
-					if (!projectPath.isPrefixOf(path) || JavaModel.getTarget(workspaceRoot, path, true) == null){
-						return Util.bind("classpath.unboundSourceFolder"/*nonNLS*/, path.toString());
-					}
-				} else {
-					return Util.bind("classpath.illegalSourceFolderPath"/*nonNLS*/, path.toString());
-				}
-				break;
-		}
-		return null;
-	}
-
-	/**
 	 * Internal variant which can create marker on project for invalid entries
 	 */
 	public IClasspathEntry[] getResolvedClasspath(boolean ignoreUnresolvedVariable, boolean generateMarkerOnError) throws JavaModelException {
@@ -1587,6 +1460,12 @@ protected void resetNonJavaResourcesForPackageFragmentRoots() throws JavaModelEx
 			
 			IClasspathEntry entry = classpath[i];
 
+			/* validation if needed */
+			if (generateMarkerOnError){
+				IJavaModelStatus status = JavaConventions.validateClasspathEntry(this, entry, false);
+				if (!status.isOK()) createClasspathProblemMarker(entry, status.getMessage());
+			}
+
 			/* resolve variables if any, unresolved ones are ignored */
 			if (entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE){
 
@@ -1598,15 +1477,12 @@ protected void resetNonJavaResourcesForPackageFragmentRoots() throws JavaModelEx
 				IPath variablePath = entry.getPath(); // for error reporting
 				entry = JavaCore.getResolvedClasspathEntry(entry);
 				if (entry == null){
-					if (generateMarkerOnError) createClasspathProblemMarker(classpath[i], Util.bind("classpath.unboundVariablePath"/*nonNLS*/, variablePath.toString()));
 					if (!ignoreUnresolvedVariable){
 						throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND, variablePath.toString()));
 					}
 				}
 			}
 			if (entry != null){
-				String msg;
-				if (generateMarkerOnError && (msg = getClasspathEntryErrorMessage(entry, false)) != null) createClasspathProblemMarker(classpath[i], msg);
 				resolvedPath[index++] = entry;
 			}
 		}

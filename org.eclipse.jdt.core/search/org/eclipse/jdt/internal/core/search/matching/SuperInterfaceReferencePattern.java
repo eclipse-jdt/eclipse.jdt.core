@@ -15,20 +15,6 @@ public SuperInterfaceReferencePattern(char[] superQualification, char[] superSim
 	super(superQualification, superSimpleName, matchMode, isCaseSensitive);
 }
 /**
- * @see SearchPattern#matches(Binding)
- */
-public boolean matches(Binding binding) {
-	if (!(binding instanceof ReferenceBinding)) return false;
-
-	ReferenceBinding[] superInterfaces = ((ReferenceBinding)binding).superInterfaces();
-	for (int i = 0, max = superInterfaces.length; i < max; i++){
-		if (this.matchesType(this.superSimpleName, this.superQualification, superInterfaces[i])){
-			return true;
-		}
-	}
-	return false;
-}
-/**
  * @see SearchPattern#matchIndexEntry
  */
 protected boolean matchIndexEntry() {
@@ -38,24 +24,24 @@ protected boolean matchIndexEntry() {
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);
-	buffer.append("SuperInterfaceReferencePattern: <"/*nonNLS*/);
+	buffer.append("SuperInterfaceReferencePattern: <"); //$NON-NLS-1$
 	if (superSimpleName != null) buffer.append(superSimpleName);
-	buffer.append(">, "/*nonNLS*/);
+	buffer.append(">, "); //$NON-NLS-1$
 	switch(matchMode){
 		case EXACT_MATCH : 
-			buffer.append("exact match, "/*nonNLS*/);
+			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
 		case PREFIX_MATCH :
-			buffer.append("prefix match, "/*nonNLS*/);
+			buffer.append("prefix match, "); //$NON-NLS-1$
 			break;
 		case PATTERN_MATCH :
-			buffer.append("pattern match, "/*nonNLS*/);
+			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
 	if (isCaseSensitive)
-		buffer.append("case sensitive"/*nonNLS*/);
+		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
-		buffer.append("case insensitive"/*nonNLS*/);
+		buffer.append("case insensitive"); //$NON-NLS-1$
 	return buffer.toString();
 }
 
@@ -77,5 +63,31 @@ public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
 		}
 	}
 	return false;
+}
+
+/**
+ * @see SearchPattern#matchLevel(Binding)
+ */
+public int matchLevel(Binding binding) {
+	if (binding == null) return INACCURATE_MATCH;
+	if (!(binding instanceof ReferenceBinding)) return IMPOSSIBLE_MATCH;
+
+	// super interfaces
+	int level = IMPOSSIBLE_MATCH;
+	ReferenceBinding type = (ReferenceBinding) binding;
+	ReferenceBinding[] superInterfaces = type.superInterfaces();
+	for (int i = 0, max = superInterfaces.length; i < max; i++){
+		int newLevel = this.matchLevelForType(this.superSimpleName, this.superQualification, superInterfaces[i]);
+		switch (newLevel) {
+			case IMPOSSIBLE_MATCH:
+				break;
+			case ACCURATE_MATCH:
+				return ACCURATE_MATCH;
+			default: // ie. INACCURATE_MATCH
+				level = newLevel;
+				break;
+		}
+	}
+	return level;
 }
 }

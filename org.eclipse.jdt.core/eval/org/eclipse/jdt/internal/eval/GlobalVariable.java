@@ -52,13 +52,13 @@ public char[] getTypeName() {
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append(this.typeName);
-	buffer.append(" "/*nonNLS*/);
+	buffer.append(" "); //$NON-NLS-1$
 	buffer.append(this.name);
 	if (this.initializer != null) {
-		buffer.append("= "/*nonNLS*/);
+		buffer.append("= "); //$NON-NLS-1$
 		buffer.append(this.initializer);
 	}
-	buffer.append(";"/*nonNLS*/);
+	buffer.append(";"); //$NON-NLS-1$
 	return buffer.toString();
 }
 }

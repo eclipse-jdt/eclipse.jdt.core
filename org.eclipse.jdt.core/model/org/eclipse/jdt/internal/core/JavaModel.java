@@ -35,7 +35,7 @@ public class JavaModel extends Openable implements IJavaModel {
  * @exception Error if called more than once
  */
 protected JavaModel(IWorkspace workspace) throws Error {
-	super(JAVA_MODEL, null, ""/*nonNLS*/ /*workspace has empty name*/);
+	super(JAVA_MODEL, null, "" /*workspace has empty name*/); //$NON-NLS-1$
 	this.workspace = workspace;
 }
 private void cleanupCycleMarkers() {
@@ -102,10 +102,9 @@ protected int computeDepth(String projectName, StringHashtableOfInt depthTable, 
 			if (generateMarkerOnError) {
 				try {
 					IMarker marker = this.workspace.getRoot().getProject(dependentProjectName).createMarker(IJavaModelMarker.TRANSIENT_PROBLEM);
-					marker.setAttribute(IMarker.MESSAGE, Util.bind("classpath.cycle"/*nonNLS*/));
-					marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-					marker.setAttribute(IMarker.LOCATION, dependentProjectName);
-					marker.setAttribute(IJavaModelMarker.CYCLE_DETECTED, dependentProjectName);
+					marker.setAttributes(
+						new String[]{ IMarker.MESSAGE, IMarker.PRIORITY, IMarker.LOCATION, IJavaModelMarker.CYCLE_DETECTED},
+						new Object[]{ Util.bind("classpath.cycle"), new Integer(IMarker.PRIORITY_HIGH), dependentProjectName, dependentProjectName}); //$NON-NLS-1$
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
@@ -374,7 +373,7 @@ public String getHandleMemento(){
  * contribution to a memento.
  */
 protected char getHandleMementoDelimiter(){
-	Assert.isTrue(false, Util.bind("assert.shouldNotImplement"/*nonNLS*/));
+	Assert.isTrue(false, Util.bind("assert.shouldNotImplement")); //$NON-NLS-1$
 	return 0;
 }
 /**
@@ -411,7 +410,7 @@ public IJavaProject getJavaProject(IResource resource) {
 	} else if (resource.getType() == IResource.PROJECT) {
 		return new JavaProject((IProject)resource, this);
 	} else {
-		throw new IllegalArgumentException(Util.bind("element.invalidResourceForProject"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("element.invalidResourceForProject")); //$NON-NLS-1$
 	}
 }
 /**
@@ -481,9 +480,9 @@ protected void runOperation(MultiOperation op, IJavaElement[] elements, IJavaEle
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
-	buffer.append("Java Model"/*nonNLS*/);
+	buffer.append("Java Model"); //$NON-NLS-1$
 	if (info == null) {
-		buffer.append(" (not open)"/*nonNLS*/);
+		buffer.append(" (not open)"); //$NON-NLS-1$
 	}
 }
 

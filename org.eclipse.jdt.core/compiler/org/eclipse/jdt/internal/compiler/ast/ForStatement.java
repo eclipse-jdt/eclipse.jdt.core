@@ -208,32 +208,32 @@ public void resolve(BlockScope upperScope) {
 public String toString(int tab ){
 	/* slow code */
 	
-	String s = tabString(tab) + "for ("/*nonNLS*/;
+	String s = tabString(tab) + "for ("; //$NON-NLS-1$
 	if (!neededScope)
-		s = s + " //--NO upperscope scope needed\n"/*nonNLS*/ + tabString(tab) + "     "/*nonNLS*/ ;
+		s = s + " //--NO upperscope scope needed\n" + tabString(tab) + "     " ; //$NON-NLS-2$ //$NON-NLS-1$
 	//inits
 	if (initializations != null)
 	{	for (int i = 0 ; i < initializations.length ; i++){
 			//nice only with expressions
 			s = s + initializations[i].toString(0);
-			if (i != (initializations.length -1)) s = s + " , "/*nonNLS*/ ;}};
-	s = s + "; "/*nonNLS*/ ;
+			if (i != (initializations.length -1)) s = s + " , " ;}}; //$NON-NLS-1$
+	s = s + "; " ; //$NON-NLS-1$
 	//cond
 	if (condition != null)
 		s = s + condition.toStringExpression() ;
-	s = s + "; "/*nonNLS*/ ;
+	s = s + "; " ; //$NON-NLS-1$
 	//updates
 	if (increments != null)
 	{	for (int i = 0 ; i < increments.length ; i++){
 			//nice only with expressions
 			s = s + increments[i].toString(0);
-			if (i != (increments.length -1)) s = s + " , "/*nonNLS*/ ;}};
-	s = s + ") "/*nonNLS*/ ;
+			if (i != (increments.length -1)) s = s + " , " ;}}; //$NON-NLS-1$
+	s = s + ") " ; //$NON-NLS-1$
 	//block
 	if (action == null)
-		s = s + "{}"/*nonNLS*/ ;
+		s = s + "{}" ; //$NON-NLS-1$
 	else
-		s = s + "\n"/*nonNLS*/+ action.toString(tab+1) ;
+		s = s + "\n"+ action.toString(tab+1) ; //$NON-NLS-1$
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

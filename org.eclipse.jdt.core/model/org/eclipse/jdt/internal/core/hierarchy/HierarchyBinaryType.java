@@ -162,30 +162,37 @@ public void recordSuperType(char[] superTypeName, char[] superQualification, cha
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	if (this.modifiers == IConstants.AccPublic) {
-		buffer.append("public "/*nonNLS*/);
+		buffer.append("public "); //$NON-NLS-1$
 	}
 	if (this.isClass()) {
-		buffer.append("class "/*nonNLS*/);
+		buffer.append("class "); //$NON-NLS-1$
 	} else {
-		buffer.append("interface "/*nonNLS*/);
+		buffer.append("interface "); //$NON-NLS-1$
 	}
 	if (this.name != null) {
 		buffer.append(this.name);
 	}
 	if (this.superclass != null) {
-		buffer.append("\n  extends "/*nonNLS*/);
+		buffer.append("\n  extends "); //$NON-NLS-1$
 		buffer.append(this.superclass);
 	}
 	int length;
 	if (this.superInterfaces != null && (length = this.superInterfaces.length) != 0) {
-		buffer.append("\n implements "/*nonNLS*/);
+		buffer.append("\n implements "); //$NON-NLS-1$
 		for (int i = 0; i < length; i++) {
 			buffer.append(this.superInterfaces[i]);
 			if (i != length - 1) {
-				buffer.append(", "/*nonNLS*/);
+				buffer.append(", "); //$NON-NLS-1$
 			}
 		}
 	}
 	return buffer.toString();
+}
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.env.IBinaryType.
+ */
+public char[] sourceFileName() {
+	return null;
 }
 }

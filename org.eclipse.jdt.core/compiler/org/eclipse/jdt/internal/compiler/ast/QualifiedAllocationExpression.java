@@ -238,9 +238,9 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpression(int tab) {
 	/*slow code */
 
-	String s = ""/*nonNLS*/;
+	String s = ""; //$NON-NLS-1$
 	if (enclosingInstance != null)
-		s += enclosingInstance.toString() + "."/*nonNLS*/;
+		s += enclosingInstance.toString() + "."; //$NON-NLS-1$
 	s += super.toStringExpression(tab);
 	if (anonymousType != null) {
 		s += anonymousType.toString(tab);

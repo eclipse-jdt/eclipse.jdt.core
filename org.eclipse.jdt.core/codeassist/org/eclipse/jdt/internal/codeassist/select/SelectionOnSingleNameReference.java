@@ -47,6 +47,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	throw new SelectionNodeFound(binding);
 }
 public String toStringExpression() {
-	return "<SelectOnName:"/*nonNLS*/ + super.toStringExpression() + ">"/*nonNLS*/;
+	return "<SelectOnName:" + super.toStringExpression() + ">"; //$NON-NLS-2$ //$NON-NLS-1$
 }
 }

@@ -35,9 +35,9 @@ public String toStringExpression(int tab){
 	/* slow speed */
 
 	String s = super.toStringExpression(tab)  ;
-	if (dimensions == 1 ) return s + "[]"/*nonNLS*/ ;
+	if (dimensions == 1 ) return s + "[]" ; //$NON-NLS-1$
 	for (int i=1 ; i <= dimensions ; i++)
-		s = s + "[]"/*nonNLS*/ ;
+		s = s + "[]" ; //$NON-NLS-1$
 	return s ;
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

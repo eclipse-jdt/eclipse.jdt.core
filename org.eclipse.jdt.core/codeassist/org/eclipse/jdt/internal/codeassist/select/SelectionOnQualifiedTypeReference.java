@@ -42,13 +42,13 @@ public TypeBinding getTypeBinding(Scope scope) {
 public String toStringExpression(int tab) {
 
 	StringBuffer buffer = new StringBuffer();
-	buffer.append("<SelectOnType:"/*nonNLS*/);
+	buffer.append("<SelectOnType:"); //$NON-NLS-1$
 	for (int i = 0, length = tokens.length; i < length; i++) {
 		buffer.append(tokens[i]);
 		if (i != length - 1)
-			buffer.append("."/*nonNLS*/);
+			buffer.append("."); //$NON-NLS-1$
 	}
-	buffer.append(">"/*nonNLS*/);
+	buffer.append(">"); //$NON-NLS-1$
 	return buffer.toString();
 }
 }

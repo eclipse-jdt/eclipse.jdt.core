@@ -214,7 +214,7 @@ public String toString () {
 	for (int i=0; i<elementCount; i++) {
 		if (i != 0) buffer.append (',');
 		if (buffer.length() > 1000) {
-			buffer.append("..."/*nonNLS*/);
+			buffer.append("..."); //$NON-NLS-1$
 			break;
 		}
 		buffer.append (orderedList[i]);

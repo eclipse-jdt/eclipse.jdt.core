@@ -147,5 +147,6 @@ public void traverse(IAbstractSyntaxTreeVisitor visitor, MethodScope scope) {
 		type.traverse(visitor, scope);
 		if (initialization != null) initialization.traverse(visitor, scope);
 	}
+	visitor.endVisit(this, scope);
 }
 }

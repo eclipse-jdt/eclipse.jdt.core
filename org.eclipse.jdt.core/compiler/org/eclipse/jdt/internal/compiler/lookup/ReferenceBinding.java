@@ -252,6 +252,11 @@ public void computeId() {
 		id = T_JavaLangVoid;
 		return;
 	}
+	
+	if (CharOperation.equals(JAVA_LANG_ASSERTIONERROR, compoundName)) {
+		id = T_JavaLangAssertionError;
+		return;
+	}
 }
 /* Answer the receiver's constant pool name.
 *
@@ -259,13 +264,11 @@ public void computeId() {
 */
 
 public char[] constantPoolName() /* java/lang/Object */ {
-	if (constantPoolName != null)
-		return constantPoolName;
-
+	if (constantPoolName != null) 	return constantPoolName;
 	return constantPoolName = CharOperation.concatWith(compoundName, '/');
 }
 String debugName() {
-	return (compoundName != null) ? new String(readableName()) : "UNNAMED TYPE"/*nonNLS*/;
+	return (compoundName != null) ? new String(readableName()) : "UNNAMED TYPE"; //$NON-NLS-1$
 }
 public final int depth() {
 	int depth = 0;

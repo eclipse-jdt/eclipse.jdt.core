@@ -45,9 +45,9 @@ protected boolean computeChildren(OpenableElementInfo info, IResource resource) 
 	int kind = getKind();
 	String extType;
 	if (kind == IPackageFragmentRoot.K_SOURCE) {
-		extType = "java"/*nonNLS*/;
+		extType = "java"; //$NON-NLS-1$
 	} else {
-		extType = "class"/*nonNLS*/;
+		extType = "class"; //$NON-NLS-1$
 	}
 	try {
 		IResource[] members = ((IContainer) resource).members();
@@ -89,7 +89,7 @@ public boolean containsJavaResources() throws JavaModelException {
  */
 public void copy(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullContainer"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("operation.nullContainer")); //$NON-NLS-1$
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] containers= new IJavaElement[] {container};
@@ -229,7 +229,7 @@ public boolean hasSubpackages() throws JavaModelException {
 	IJavaElement[] packages= ((IPackageFragmentRoot)getParent()).getChildren();
 	String name = getElementName();
 	int nameLength = name.length();
-	String packageName = isDefaultPackage() ? name : name+"."/*nonNLS*/;
+	String packageName = isDefaultPackage() ? name : name+"."; //$NON-NLS-1$
 	for (int i= 0; i < packages.length; i++) {
 		String otherName = packages[i].getElementName();
 		if (otherName.length() > nameLength && otherName.startsWith(packageName)) {
@@ -249,7 +249,7 @@ public boolean isDefaultPackage() {
  */
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullContainer"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("operation.nullContainer")); //$NON-NLS-1$
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] containers= new IJavaElement[] {container};
@@ -280,7 +280,7 @@ public void refreshChildren() {
  */
 public void rename(String name, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("element.nullName"/*nonNLS*/));
+		throw new IllegalArgumentException(Util.bind("element.nullName")); //$NON-NLS-1$
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] dests= new IJavaElement[] {this.getParent()};
@@ -300,15 +300,15 @@ protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	if (getElementName().length() == 0) {
-		buffer.append("[default]"/*nonNLS*/);
+		buffer.append("[default]"); //$NON-NLS-1$
 	} else {
 		buffer.append(getElementName());
 	}
 	if (info == null) {
-		buffer.append(" (not open)"/*nonNLS*/);
+		buffer.append(" (not open)"); //$NON-NLS-1$
 	} else {
 		if (tab > 0) {
-			buffer.append(" (...)"/*nonNLS*/);
+			buffer.append(" (...)"); //$NON-NLS-1$
 		}
 	}
 }

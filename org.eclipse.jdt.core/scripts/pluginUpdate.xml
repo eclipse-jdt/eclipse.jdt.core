@@ -30,6 +30,7 @@
 		
 		<echo message="UPDATE jdtcoresrc.zip" />
 		<zip zipfile="${dest}/jdtcoresrc.zip">
+		    <zipfileset dir="Eclipse Java Ant Compiler" />
 		    <zipfileset dir="Eclipse Java Batch Compiler" />
 		    <zipfileset dir="Eclipse Java Code Assist" />
 		    <zipfileset dir="Eclipse Java Compiler" />

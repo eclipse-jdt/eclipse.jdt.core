@@ -77,18 +77,6 @@ protected int matchContainer() {
 			| rightPattern.matchContainer();
 }
 /**
- * @see SearchPattern#matches(AstNode, boolean)
- */
-protected boolean matches(AstNode node, boolean resolve) {
-	return this.leftPattern.matches(node, resolve) || this.rightPattern.matches(node, resolve);
-}
-/**
- * @see SearchPattern#matches(Binding)
- */
-public boolean matches(Binding binding) {
-	return this.leftPattern.matches(binding) || this.rightPattern.matches(binding);
-}
-/**
  * see SearchPattern.matchIndexEntry
  */
 protected boolean matchIndexEntry() {
@@ -100,14 +88,15 @@ protected boolean matchIndexEntry() {
  * @see SearchPattern#matchReportReference
  */
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	if (this.leftPattern.matches(reference)) {
+	int leftLevel = this.leftPattern.matchLevel(reference, true);
+	if (leftLevel == ACCURATE_MATCH || leftLevel == INACCURATE_MATCH) {
 		this.leftPattern.matchReportReference(reference, element, accuracy, locator);
 	} else {
 		this.rightPattern.matchReportReference(reference, element, accuracy, locator);
 	}
 }
 public String toString(){
-	return this.leftPattern.toString() + "\n| "/*nonNLS*/ + this.rightPattern.toString();
+	return this.leftPattern.toString() + "\n| " + this.rightPattern.toString(); //$NON-NLS-1$
 }
 
 /**
@@ -119,5 +108,51 @@ public boolean initializeFromLookupEnvironment(LookupEnvironment env) {
 	boolean leftInit = this.leftPattern.initializeFromLookupEnvironment(env);
 	boolean rightInit = this.rightPattern.initializeFromLookupEnvironment(env);
 	return leftInit || rightInit;
+}
+
+/**
+ * @see SearchPattern#matchLevel(AstNode, boolean)
+ */
+public int matchLevel(AstNode node, boolean resolve) {
+	switch (this.leftPattern.matchLevel(node, resolve)) {
+		case IMPOSSIBLE_MATCH:
+			return this.rightPattern.matchLevel(node, resolve);
+		case POSSIBLE_MATCH:
+			return POSSIBLE_MATCH;
+		case INACCURATE_MATCH:
+			int rightLevel = this.rightPattern.matchLevel(node, resolve);
+			if (rightLevel != IMPOSSIBLE_MATCH) {
+				return rightLevel;
+			} else {
+				return INACCURATE_MATCH;
+			}
+		case ACCURATE_MATCH:
+			return ACCURATE_MATCH;
+		default:
+			return IMPOSSIBLE_MATCH;
+	}
+}
+
+/**
+ * @see SearchPattern#matchLevel(Binding)
+ */
+public int matchLevel(Binding binding) {
+	switch (this.leftPattern.matchLevel(binding)) {
+		case IMPOSSIBLE_MATCH:
+			return this.rightPattern.matchLevel(binding);
+		case POSSIBLE_MATCH:
+			return POSSIBLE_MATCH;
+		case INACCURATE_MATCH:
+			int rightLevel = this.rightPattern.matchLevel(binding);
+			if (rightLevel != IMPOSSIBLE_MATCH) {
+				return rightLevel;
+			} else {
+				return INACCURATE_MATCH;
+			}
+		case ACCURATE_MATCH:
+			return ACCURATE_MATCH;
+		default:
+			return IMPOSSIBLE_MATCH;
+	}
 }
 }

@@ -68,4 +68,11 @@ char[] getName();
 
 char[] getSuperclassName();
 
+/**
+ * Answer the source file attribute, or null if none.
+ *
+ * For example, "String.java"
+ */
+
+char[] sourceFileName();
 }

@@ -41,11 +41,11 @@ public TypeBinding resolveType(BlockScope scope) {
 		throw new CompletionNodeFound(this, targetType, scope);
 }
 public String toStringExpression() {
-	StringBuffer result = new StringBuffer("<CompleteOnClassLiteralAccess:"/*nonNLS*/);
+	StringBuffer result = new StringBuffer("<CompleteOnClassLiteralAccess:"); //$NON-NLS-1$
 	result.append(type.toString());
-	result.append("."/*nonNLS*/);
+	result.append("."); //$NON-NLS-1$
 	result.append(completionIdentifier);
-	result.append(">"/*nonNLS*/);
+	result.append(">"); //$NON-NLS-1$
 	return result.toString();
 }
 }

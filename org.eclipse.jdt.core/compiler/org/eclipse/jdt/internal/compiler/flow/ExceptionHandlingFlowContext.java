@@ -91,7 +91,7 @@ public void complainIfUnusedExceptionHandlers(AstNode[] exceptionHandlers, Block
 	tryStatement.preserveExceptionHandler = isNeeded;
 }
 public String individualToString() {
-	StringBuffer buffer = new StringBuffer("Exception flow context"/*nonNLS*/);
+	StringBuffer buffer = new StringBuffer("Exception flow context"); //$NON-NLS-1$
 	int length = handledExceptions.length;
 	for (int i = 0; i < length; i++) {
 		int cacheIndex = i / BitCacheSize;
@@ -99,12 +99,12 @@ public String individualToString() {
 		buffer.append('[').append(handledExceptions[i].readableName());
 		if ((isReached[cacheIndex] & bitMask) != 0) {
 			if ((isNeeded[cacheIndex] & bitMask) == 0) {
-				buffer.append("-masked"/*nonNLS*/);
+				buffer.append("-masked"); //$NON-NLS-1$
 			} else {
-				buffer.append("-reached"/*nonNLS*/);
+				buffer.append("-reached"); //$NON-NLS-1$
 			}
 		} else {
-			buffer.append("-not reached"/*nonNLS*/);
+			buffer.append("-not reached"); //$NON-NLS-1$
 		}
 		buffer.append('-').append(initsOnExceptions[i].toString()).append(']');
 	}

@@ -42,16 +42,16 @@ public class Util {
 
 	/* Bundle containing messages */
 	protected static ResourceBundle bundle;
-	private final static String bundleName = "org.eclipse.jdt.internal.core.messages"/*nonNLS*/;
+	private final static String bundleName = "org.eclipse.jdt.internal.core.messages"; //$NON-NLS-1$
 
-	public final static char[] SUFFIX_class = ".class"/*nonNLS*/.toCharArray();
-	public final static char[] SUFFIX_CLASS = ".CLASS"/*nonNLS*/.toCharArray();
-	public final static char[] SUFFIX_java = ".java"/*nonNLS*/.toCharArray();
-	public final static char[] SUFFIX_JAVA = ".JAVA"/*nonNLS*/.toCharArray();
+	public final static char[] SUFFIX_class = ".class".toCharArray(); //$NON-NLS-1$
+	public final static char[] SUFFIX_CLASS = ".CLASS".toCharArray(); //$NON-NLS-1$
+	public final static char[] SUFFIX_java = ".java".toCharArray(); //$NON-NLS-1$
+	public final static char[] SUFFIX_JAVA = ".JAVA".toCharArray(); //$NON-NLS-1$
 
 	static {
-		String ver = System.getProperty("java.version"/*nonNLS*/);
-		JDK1_1 = ((ver != null) && ver.startsWith("1.1"/*nonNLS*/));
+		String ver = System.getProperty("java.version"); //$NON-NLS-1$
+		JDK1_1 = ((ver != null) && ver.startsWith("1.1")); //$NON-NLS-1$
 		relocalize();
 	}	
 	/**
@@ -155,8 +155,8 @@ public static int compare(char[] v1, char[] v2) {
 	 * @see concat(String, String)
 	 */
 	public static String concat(String s1, char c, String s2) {
-		if (s1 == null) s1 = "null"/*nonNLS*/;
-		if (s2 == null) s2 = "null"/*nonNLS*/;
+		if (s1 == null) s1 = "null"; //$NON-NLS-1$
+		if (s2 == null) s2 = "null"; //$NON-NLS-1$
 		int l1 = s1.length();
 		int l2 = s2.length();
 		char[] buf = new char[l1 + 1 + l2];
@@ -176,8 +176,8 @@ public static int compare(char[] v1, char[] v2) {
 	 * String constructor copies its argument, but there's no way around this.
 	 */
 	public static String concat(String s1, String s2) {
-		if (s1 == null) s1 = "null"/*nonNLS*/;
-		if (s2 == null) s2 = "null"/*nonNLS*/;
+		if (s1 == null) s1 = "null"; //$NON-NLS-1$
+		if (s2 == null) s2 = "null"; //$NON-NLS-1$
 		int l1 = s1.length();
 		int l2 = s2.length();
 		char[] buf = new char[l1 + l2];
@@ -190,9 +190,9 @@ public static int compare(char[] v1, char[] v2) {
 	 * @see concat(String, String)
 	 */
 	public static String concat(String s1, String s2, String s3) {
-		if (s1 == null) s1 = "null"/*nonNLS*/;
-		if (s2 == null) s2 = "null"/*nonNLS*/;
-		if (s3 == null) s3 = "null"/*nonNLS*/;
+		if (s1 == null) s1 = "null"; //$NON-NLS-1$
+		if (s2 == null) s2 = "null"; //$NON-NLS-1$
+		if (s3 == null) s3 = "null"; //$NON-NLS-1$
 		int l1 = s1.length();
 		int l2 = s2.length();
 		int l3 = s3.length();
@@ -772,14 +772,14 @@ public static String bind(String id) {
  */
 public static String bind(String id, String[] bindings) {
 	if (id == null)
-		return "No message available"/*nonNLS*/;
+		return "No message available"; //$NON-NLS-1$
 	String message = null;
 	try {
 		message = bundle.getString(id);
 	} catch (MissingResourceException e) {
 		// If we got an exception looking for the message, fail gracefully by just returning
 		// the id we were looking for.  In most cases this is semi-informative so is not too bad.
-		return "Missing message: "/*nonNLS*/ + id + " in: "/*nonNLS*/ + bundleName;
+		return "Missing message: " + id + " in: " + bundleName; //$NON-NLS-2$ //$NON-NLS-1$
 	}
 	if (bindings == null)
 		return message;
@@ -798,7 +798,7 @@ public static String bind(String id, String[] bindings) {
 				} catch (NumberFormatException nfe) {
 					output.append(message.substring(end + 1, start + 1));
 				} catch (ArrayIndexOutOfBoundsException e) {
-					output.append("{missing "/*nonNLS*/ + Integer.toString(index) + "}"/*nonNLS*/);
+					output.append("{missing " + Integer.toString(index) + "}"); //$NON-NLS-2$ //$NON-NLS-1$
 				}
 			} else {
 				output.append(message.substring(end, length));
