@@ -81,19 +81,11 @@ public static Test suite() {
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
 		ArrayList tests_1_5 = (ArrayList)standardTests.clone();
-		tests_1_5.add(AutoBoxingTest.class);
+		tests_1_5.addAll(ComparableTests.ALL_CLASSES);
 		tests_1_5.add(AssertionTest.class);
-		tests_1_5.add(Compliance_1_5.class);
-		tests_1_5.add(JavadocTest_1_5.class);
-		tests_1_5.add(GenericTypeTest.class);
-		tests_1_5.add(ForeachStatementTest.class);
 		tests_1_5.add(GenericTypeSignatureTest.class);
 		tests_1_5.add(InternalHexFloatTest.class);
-		tests_1_5.add(StaticImportTest.class);
-		tests_1_5.add(VarargsTest.class);
-		tests_1_5.add(EnumTest.class);
-		tests_1_5.add(MethodVerifyTest.class);
-		tests_1_5.add(AnnotationTest.class);
+		tests_1_5.add(JavadocTest_1_5.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;

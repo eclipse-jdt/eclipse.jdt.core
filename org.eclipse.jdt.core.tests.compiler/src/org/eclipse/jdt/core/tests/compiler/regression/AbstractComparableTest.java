@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.AssertionFailedError;
@@ -25,7 +26,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-public class AbstractComparisonTest extends AbstractRegressionTest {
+public class AbstractComparableTest extends AbstractRegressionTest {
 
 	class Logger extends Thread {
 		StringBuffer buffer;
@@ -53,11 +54,62 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 
 	// to enable set VM args to -Dcompliance=1.5 -Drun.javac=enabled
 	public static final String RUN_SUN_JAVAC = System.getProperty("run.javac");
-	public static boolean runJavac = CompilerOptions.ENABLED.equals(RUN_SUN_JAVAC);
+	public static boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(RUN_SUN_JAVAC);
 	public static String JAVAC_OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "javac";
+	static int[] DIFF_COUNTERS = new int[3];
 	public IPath dirPath;
+	
+	// Summary display
+	static String CURRENT_CLASS_NAME;
+	static Map TESTS_COUNTERS = new HashMap();
 
-	public AbstractComparisonTest(String name) {
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
+	protected void setUp() throws Exception {
+		super.setUp();
+		if (RUN_JAVAC) {
+			if (!getClass().getName().equals(CURRENT_CLASS_NAME)) {
+				CURRENT_CLASS_NAME = getClass().getName();
+				System.out.println("***************************************************************************");
+				System.out.print("* Comparison with Sun Javac compiler for class ");
+				System.out.print(CURRENT_CLASS_NAME.substring(CURRENT_CLASS_NAME.lastIndexOf('.')+1));
+				System.out.println(" ("+TESTS_COUNTERS.get(CURRENT_CLASS_NAME)+" tests)");
+				System.out.println("***************************************************************************");
+				DIFF_COUNTERS[0] = 0;
+				DIFF_COUNTERS[1] = 0;
+				DIFF_COUNTERS[2] = 0;
+			}
+		}
+	}
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
+	 */
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		if (RUN_JAVAC) {
+			Integer count = (Integer)TESTS_COUNTERS.get(CURRENT_CLASS_NAME);
+			if (count != null) {
+				int newCount = count.intValue()-1;
+				TESTS_COUNTERS.put(CURRENT_CLASS_NAME, new Integer(newCount));
+				if (newCount == 0) {
+					if (DIFF_COUNTERS[0]!=0 || DIFF_COUNTERS[1]!=0 || DIFF_COUNTERS[2]!=0) {
+						System.out.println("===========================================================================");
+						System.out.println("Results summary:");
+					}
+					if (DIFF_COUNTERS[0]!=0)
+						System.out.println("	- "+DIFF_COUNTERS[0]+" test(s) where Javac found errors/warnings but Eclipse did not");
+					if (DIFF_COUNTERS[1]!=0)
+						System.out.println("	- "+DIFF_COUNTERS[1]+" test(s) where Eclipse found errors/warnings but Javac did not");
+					if (DIFF_COUNTERS[2]!=0)
+						System.out.println("	- "+DIFF_COUNTERS[2]+" test(s) where Eclipse and Javac did not have same output");
+					System.out.println("\n");
+				}
+			}
+		}
+	}
+
+	public AbstractComparableTest(String name) {
 		super(name);
 	}
 
@@ -66,6 +118,9 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 	 */
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 		options.put(CompilerOptions.OPTION_ReportFinalParameterBound, CompilerOptions.WARNING);
 		options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
 		return options;
@@ -127,7 +182,7 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 		} catch (AssertionFailedError e) {
 			throw e;
 		} finally {
-			if (runJavac)
+			if (RUN_JAVAC)
 				runJavac(testFiles, null, expectedSuccessOutputString, shouldFlushOutputDirectory);
 		}
 	}
@@ -199,15 +254,17 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 				// Compare compilation results
 				if (expectedProblemLog == null) {
 					if (exitValue != 0) {
-						System.out.println("========================================");
-						System.out.println(testName+": javac has found error(s) although we're expecting conform result:\n");
+						System.out.println("----------------------------------------");
+						System.out.println(testName+" - Javac has found error(s) but Eclipse expects conform result:\n");
 						System.out.println(errorLogger.buffer.toString());
 						printFiles(testFiles);
+						DIFF_COUNTERS[0]++;
 					} else if (errorLogger.buffer.length() > 0) {
-						System.out.println("========================================");
-						System.out.println(testName+": javac displays warning(s) although we're expecting conform result:\n");
+						System.out.println("----------------------------------------");
+						System.out.println(testName+" - Javac has found warning(s) but Eclipse expects conform result:\n");
 						System.out.println(errorLogger.buffer.toString());
 						printFiles(testFiles);
+						DIFF_COUNTERS[0]++;
 					} else if (expectedSuccessOutputString != null) {
 						// Compute command line
 						IPath javaPath = jdkDir.append("bin").append("java.exe");
@@ -222,28 +279,31 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 						exitValue = execProcess.waitFor();
 						String javaOutput = logger.buffer.toString().trim();
 						if (!expectedSuccessOutputString.equals(javaOutput)) {
-							System.out.println("========================================");
-							System.out.println(testName+": runtime results don't match:");
+							System.out.println("----------------------------------------");
+							System.out.println(testName+" - Javac and Eclipse runtime output is not the same:");
 							System.out.println(expectedSuccessOutputString);
 							System.out.println(javaOutput);
 							System.out.println("\n");
 							printFiles(testFiles);
+							DIFF_COUNTERS[2]++;
 						}
 					}
 				} else if (exitValue == 0) {
 					if (errorLogger.buffer.length() == 0) {
-						System.out.println("========================================");
-						System.out.println(testName+": javac has found no error/warning although we're expecting negative result:");
+						System.out.println("----------------------------------------");
+						System.out.println(testName+" - Eclipse has found error(s)/warning(s) but Javac did not find any:");
 						System.out.println(expectedProblemLog);
 						printFiles(testFiles);
+						DIFF_COUNTERS[1]++;
 					} else if (expectedProblemLog.indexOf("ERROR") >0 ){
-						System.out.println("========================================");
-						System.out.println(testName+": javac has found warning(s) although we're expecting error(s):");
+						System.out.println("----------------------------------------");
+						System.out.println(testName+" - Eclipse has found error(s) but Javac only found warning(s):");
 						System.out.println("javac:");
 						System.out.println(errorLogger.buffer.toString());
 						System.out.println("eclipse:");
 						System.out.println(expectedProblemLog);
 						printFiles(testFiles);
+						DIFF_COUNTERS[1]++;
 					} else {
 						// TODO (frederic) compare warnings in each result and verify they are similar...
 //						System.out.println(testName+": javac has found warnings :");
@@ -252,10 +312,11 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 //						System.out.println(expectedProblemLog);
 					}
 				} else if (errorLogger.buffer.length() == 0) {
-					System.out.println("========================================");
-					System.out.println(testName+": javac displays no output although we're expecting negative result:\n");
+					System.out.println("----------------------------------------");
+					System.out.println(testName+" - Eclipse has found error(s)/warning(s) but Javac did not find any:");
 					System.out.println(expectedProblemLog);
 					printFiles(testFiles);
+					DIFF_COUNTERS[1]++;
 				}
 			} catch (IOException ioe) {
 				System.out.println(testName+": Not possible to launch Sun javac compilation!");
@@ -287,7 +348,7 @@ public class AbstractComparisonTest extends AbstractRegressionTest {
 		} catch (AssertionFailedError e) {
 			throw e;
 		} finally {
-			if (runJavac)
+			if (RUN_JAVAC)
 				runJavac(testFiles, expectedProblemLog, null, shouldFlushOutputDirectory);
 		}
 	}

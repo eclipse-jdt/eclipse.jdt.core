@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-public class AnnotationTest extends AbstractComparisonTest {
+public class AnnotationTest extends AbstractComparableTest {
 	
 	String reportMissingJavadocComments = null;
 
@@ -39,7 +39,9 @@ public class AnnotationTest extends AbstractComparisonTest {
 //		TESTS_RANGE = new int[] { 21, 50 };
 //	}
 	public static Test suite() {
-		return buildTestSuite(testClass());
+		Test suite = buildTestSuite(testClass());
+		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
+		return suite;
 	}
 
 	public static Class testClass() {  

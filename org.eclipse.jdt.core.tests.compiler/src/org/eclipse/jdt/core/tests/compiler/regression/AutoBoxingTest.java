@@ -10,7 +10,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-public class AutoBoxingTest extends AbstractComparisonTest {
+public class AutoBoxingTest extends AbstractComparableTest {
 
 	public AutoBoxingTest(String name) {
 		super(name);
@@ -30,7 +30,9 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 //		TESTS_RANGE = new int[] { 11, -1 };
 //	}
 	public static Test suite() {
-		return buildTestSuite(testClass());
+		Test suite = buildTestSuite(testClass());
+		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
+		return suite;
 	}
 	
 	public static Class testClass() {

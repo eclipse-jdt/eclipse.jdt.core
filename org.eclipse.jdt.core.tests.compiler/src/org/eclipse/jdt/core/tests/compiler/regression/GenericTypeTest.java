@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-public class GenericTypeTest extends AbstractComparisonTest {
+public class GenericTypeTest extends AbstractComparableTest {
 	
 	public GenericTypeTest(String name) {
 		super(name);
@@ -35,7 +35,9 @@ public class GenericTypeTest extends AbstractComparisonTest {
 //		TESTS_RANGE = new int[] { 379, -1 };
 //	}
 	public static Test suite() {
-		return buildTestSuite(testClass());
+		Test suite = buildTestSuite(testClass());
+		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
+		return suite;
 	}
 
 	public static Class testClass() {  

@@ -12,14 +12,16 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import junit.framework.*;
 
-public class MethodVerifyTest extends AbstractComparisonTest {
+public class MethodVerifyTest extends AbstractComparableTest {
 
 	public MethodVerifyTest(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		return setupSuite(testClass());
+		Test suite = buildTestSuite(testClass());
+		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
+		return suite;
 	}
 	
 	public static Class testClass() {

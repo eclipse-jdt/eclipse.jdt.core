@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 
-public class ForeachStatementTest extends AbstractRegressionTest {
+public class ForeachStatementTest extends AbstractComparableTest {
 	
 public ForeachStatementTest(String name) {
 	super(name);
@@ -33,9 +33,6 @@ public ForeachStatementTest(String name) {
  */
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
 	return options;
 }
@@ -47,7 +44,9 @@ protected Map getCompilerOptions() {
 //		TESTS_RANGE = new int[] { 21, 50 };
 //	}
 	public static Test suite() {
-		return buildTestSuite(testClass());
+		Test suite = buildTestSuite(testClass());
+		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
+		return suite;
 	}
 public void test001() {
 	this.runConformTest(

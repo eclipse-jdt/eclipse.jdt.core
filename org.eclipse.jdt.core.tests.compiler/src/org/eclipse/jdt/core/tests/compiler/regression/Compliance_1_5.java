@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-public class Compliance_1_5 extends AbstractRegressionTest {
+public class Compliance_1_5 extends AbstractComparableTest {
 boolean docSupport = false;
 
 public Compliance_1_5(String name) {
@@ -32,9 +32,7 @@ public Compliance_1_5(String name) {
  */
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.IGNORE);
 	if (docSupport) {
 		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
@@ -42,7 +40,9 @@ protected Map getCompilerOptions() {
 	return options;
 }
 public static Test suite() {
-	return buildTestSuite(testClass());
+	Test suite = buildTestSuite(testClass());
+	TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
+	return suite;
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which does not belong to the class are skipped...

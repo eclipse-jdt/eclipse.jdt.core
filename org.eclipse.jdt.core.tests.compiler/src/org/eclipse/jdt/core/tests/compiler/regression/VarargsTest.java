@@ -2,7 +2,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import junit.framework.Test;
 
-public class VarargsTest extends AbstractComparisonTest {
+public class VarargsTest extends AbstractComparableTest {
 
 	public VarargsTest(String name) {
 		super(name);
@@ -16,7 +16,9 @@ public class VarargsTest extends AbstractComparisonTest {
 //		TESTS_RANGE = new int[] { 11, -1 };
 //	}
 	public static Test suite() {
-		return buildTestSuite(testClass());
+		Test suite = buildTestSuite(testClass());
+		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
+		return suite;
 	}
 	
 	public static Class testClass() {
