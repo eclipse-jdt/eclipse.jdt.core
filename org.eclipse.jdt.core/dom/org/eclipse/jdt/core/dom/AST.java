@@ -1362,8 +1362,8 @@ public final class AST {
 	 * </p>
 	 * <p>
 	 * In all other respects, this method works the same as
-	 * {@link #parseCompilationUnit(ICompilationUnit,boolean,WorkingCopyOwner)
-	 * parseCompilationUnit(ICompilationUnit,boolean,WorkingCopyOwner)}.
+	 * {@link #parseCompilationUnit(ICompilationUnit,boolean,WorkingCopyOwner,IProgressMonitor)
+	 * parseCompilationUnit(ICompilationUnit,boolean,WorkingCopyOwner,IProgressMonitor)}.
 	 * The source string is obtained from the Java model element using
 	 * <code>ICompilationUnit.getSource()</code>.
 	 * </p>
