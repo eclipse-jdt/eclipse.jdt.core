@@ -86,6 +86,11 @@ public void acceptResult(CompilationResult result) {
 			throw internalException(e);
 		}
 
+		if (result.hasInconsistentToplevelHierarchies)
+			// ensure that this file is always retrieved from source for the rest of the build
+			if (!problemSourceFiles.contains(compilationUnit))
+				problemSourceFiles.add(compilationUnit);
+
 		String typeLocator = compilationUnit.typeLocator();
 		ClassFile[] classFiles = result.getClassFiles();
 		int length = classFiles.length;
@@ -93,10 +98,6 @@ public void acceptResult(CompilationResult result) {
 		ArrayList definedTypeNames = new ArrayList(length);
 		for (int i = 0; i < length; i++) {
 			ClassFile classFile = classFiles[i];
-			if (classFile.referenceBinding != null && classFile.referenceBinding.isHierarchyInconsistent())
-				// ensure that this file is always retrieved from source for the rest of the build
-				if (!problemSourceFiles.contains(compilationUnit))
-					problemSourceFiles.add(compilationUnit);
 
 			char[][] compoundName = classFile.getCompoundName();
 			char[] typeName = compoundName[compoundName.length - 1];
