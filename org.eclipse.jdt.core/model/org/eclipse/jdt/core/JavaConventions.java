@@ -433,7 +433,7 @@ public final class JavaConventions {
 	 *   <li> A project entry cannot refer to itself directly (that is, a project cannot prerequisite itself).
      *   <li> Classpath entries or output locations cannot coincidate or be nested in each other, except for the following scenarii listed below:
 	 *      <ul><li> A source folder can coincidate with its own output location, in which case this output can then contain library archives. 
-	 *                     However, an output location cannot coincidate with any library or a distinct source folder than the one referring to it. </li> 
+	 *                     However, a specific output location cannot coincidate with any library or a distinct source folder than the one referring to it. </li> 
 	 *              <li> A source/library folder can be nested in any source folder as long as the nested folder is excluded from the enclosing one. </li>
 	 * 			<li> An output location can be nested in a source folder, if the source folder coincidates with the project itself. </li>
 	 *      </ul>
@@ -641,7 +641,8 @@ public final class JavaConventions {
 				}
 			}
 		}
-		// ensure that no output is coincidating with another source folder (only allowed if matching current source folder)
+		// ensure that no specific output is coincidating with another source folder (only allowed if matching current source folder)
+		// 36465 - for 2.0 backward compatibility, only check specific output locations (the default can still coincidate)
 		// perform one separate iteration so as to not take precedence over previously checked scenarii (in particular should
 		// diagnose nesting source folder issue before this one, for example, [src]"Project/", [src]"Project/source/" and output="Project/" should
 		// first complain about missing exclusion pattern
@@ -653,7 +654,8 @@ public final class JavaConventions {
 
 			if (kind == IClasspathEntry.CPE_SOURCE) {
 				IPath output = entry.getOutputLocation();
-				if (output == null) output = projectOutputLocation; // if no specific output, still need to check using default output
+				if (output == null) continue; // 36465 - for 2.0 backward compatibility, only check specific output locations (the default can still coincidate)
+				// if (output == null) output = projectOutputLocation; // if no specific output, still need to check using default output (this line would check default output)
 				for (int j = 0; j < length; j++) {
 					IClasspathEntry otherEntry = classpath[j];
 					if (otherEntry == entry) continue;

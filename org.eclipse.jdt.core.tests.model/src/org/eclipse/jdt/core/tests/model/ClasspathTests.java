@@ -1115,7 +1115,8 @@ public void testClasspathValidation22() throws CoreException {
 
 /**
  * 33207 - Reject output folder that coincidate with distinct source folder
- * default output scenarii
+ * but 36465 - Unable to create multiple source folders when not using bin for output
+ * default output scenarii is still tolerated
  */
 public void testClasspathValidation23() throws CoreException {
 	try {
@@ -1128,10 +1129,13 @@ public void testClasspathValidation23() throws CoreException {
 		newCP[originalCP.length+1] = JavaCore.newSourceEntry(new Path("/P/src"), new IPath[0], null);
 		
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
-		
+
 		assertEquals(
-			"Source folder 'P/src' cannot output to distinct source folder 'P/'.",
-			status.getMessage());
+			"OK",
+			status.getMessage());		
+//		assertEquals(
+//			"Source folder 'P/src' cannot output to distinct source folder 'P/'.",
+//			status.getMessage());
 	} finally {
 		this.deleteProject("P");
 	}
