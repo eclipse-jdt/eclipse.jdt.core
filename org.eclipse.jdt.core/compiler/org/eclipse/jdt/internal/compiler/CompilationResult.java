@@ -146,13 +146,13 @@ public IProblem[] getProblems() {
 		if (this.problemCount != problems.length) {
 			System.arraycopy(problems, 0, (problems = new IProblem[problemCount]), 0, problemCount);
 		}
-/*				 
+				 
 		if (this.problemCount > Compiler.MaxProblemPerUnit){
 			quickPrioritize(problems, 0, problemCount - 1);
 			this.problemCount = Compiler.MaxProblemPerUnit;
 			System.arraycopy(problems, 0, (problems = new IProblem[problemCount]), 0, problemCount);
 		}
-*/
+
 		// Sort problems per source positions.
 		quicksort(problems, 0, problems.length-1);
 	}
