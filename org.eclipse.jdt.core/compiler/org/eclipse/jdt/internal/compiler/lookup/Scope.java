@@ -432,8 +432,8 @@ public abstract class Scope
 
 		int foundSize = found.size;
 		if (foundSize == 0) {
-			if (matchingMethod != null)
-				return matchingMethod; // have not checked arg types or visibility
+			if (matchingMethod != null && areParametersAssignable(matchingMethod.parameters, argumentTypes))
+				return matchingMethod;
 			return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 		}
 
