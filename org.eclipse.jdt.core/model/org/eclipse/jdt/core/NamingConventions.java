@@ -563,7 +563,7 @@ public final class NamingConventions {
 	 * @return char[] a name.
 	 * 
 	 * @see Flags
-	 * @deprecated
+	 * @deprecated use instead suggestSetterName(IJavaProject, char[], int, boolean, char[][])
 	 */
 	public static char[] suggestSetterName(IJavaProject project, char[] fieldName, int modifiers, char[][] excludedNames) {
 		return suggestSetterName(project, fieldName, modifiers, false, excludedNames);
@@ -619,7 +619,7 @@ public final class NamingConventions {
 	 * @return String a name.
 	 * 
 	 * @see Flags
-	 * @deprecated
+	 * @deprecated use instead suggestSetterName(IJavaProject, String, int, boolean, String[])
 	 */
 	public static String suggestSetterName(IJavaProject project, String fieldName, int modifiers, String[] excludedNames) {
 		return suggestSetterName(project, fieldName, modifiers, false, excludedNames);
