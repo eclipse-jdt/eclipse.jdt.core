@@ -23,31 +23,6 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		super(compilationResult);
 	}
 
-	public void checkName() {
-
-		// look if the name of the method is correct
-		if (binding != null && isTypeUseDeprecated(binding.returnType, scope))
-			scope.problemReporter().deprecatedType(binding.returnType, returnType);
-
-		if (CharOperation.equals(scope.enclosingSourceType().sourceName, selector))
-			scope.problemReporter().methodWithConstructorName(this);
-
-		// by grammatical construction, interface methods are always abstract
-		if (scope.enclosingSourceType().isInterface())
-			return;
-
-		// if a method has an semicolon body and is not declared as abstract==>error
-		// native methods may have a semicolon body 
-		if ((modifiers & AccSemicolonBody) != 0) {
-			if ((modifiers & AccNative) == 0)
-				if ((modifiers & AccAbstract) == 0)
-					scope.problemReporter().methodNeedingAbstractModifier(this);
-		} else {
-			// the method HAS a body --> abstract native modifiers are forbiden
-			if (((modifiers & AccNative) != 0) || ((modifiers & AccAbstract) != 0))
-				scope.problemReporter().methodNeedingNoBody(this);
-		}
-	}
 
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 
@@ -57,21 +32,36 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		parser.parse(this, unit);
 	}
 
-	public void resolve(ClassScope upperScope) {
+	public void resolveStatements(ClassScope upperScope) {
 
-		if (binding == null) {
-			ignoreFurtherInvestigation = true;
-		}
 		// ========= abort on fatal error =============
-		try {
-			if (this.returnType != null && this.binding != null) {
-				this.returnType.binding = this.binding.returnType;
-				// record the return type binding
-			}
-		} catch (AbortMethod e) {
-			this.ignoreFurtherInvestigation = true;
+		if (this.returnType != null && this.binding != null) {
+			this.returnType.binding = this.binding.returnType;
+			// record the return type binding
 		}
-		super.resolve(upperScope);
+		// look if the name of the method is correct
+		if (binding != null && isTypeUseDeprecated(binding.returnType, scope))
+			scope.problemReporter().deprecatedType(binding.returnType, returnType);
+
+		if (CharOperation.equals(scope.enclosingSourceType().sourceName, selector))
+			scope.problemReporter().methodWithConstructorName(this);
+
+		// by grammatical construction, interface methods are always abstract
+		if (!scope.enclosingSourceType().isInterface()){
+
+			// if a method has an semicolon body and is not declared as abstract==>error
+			// native methods may have a semicolon body 
+			if ((modifiers & AccSemicolonBody) != 0) {
+				if ((modifiers & AccNative) == 0)
+					if ((modifiers & AccAbstract) == 0)
+						scope.problemReporter().methodNeedingAbstractModifier(this);
+			} else {
+				// the method HAS a body --> abstract native modifiers are forbiden
+				if (((modifiers & AccNative) != 0) || ((modifiers & AccAbstract) != 0))
+					scope.problemReporter().methodNeedingNoBody(this);
+			}
+		}
+		super.resolveStatements(upperScope); 
 	}
 
 	public String returnTypeToString(int tab) {

@@ -111,28 +111,6 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		}
 	}
 
-	public void checkName() {
-		//look if the name of the method is correct
-		//and proceed with the resolution of the special constructor statement 
-
-		if (!CharOperation.equals(scope.enclosingSourceType().sourceName, selector))
-			scope.problemReporter().missingReturnType(this);
-
-		// if null ==> an error has occurs at parsing time ....
-		if (constructorCall != null && binding != null) {
-			// e.g. using super() in java.lang.Object
-			if ((binding.declaringClass.id == T_Object)
-				&& (constructorCall.accessMode != ExplicitConstructorCall.This)) {
-				if (constructorCall.accessMode == ExplicitConstructorCall.Super) {
-					scope.problemReporter().cannotUseSuperInJavaLangObject(constructorCall);
-				}
-				constructorCall = null;
-				return;
-			}
-			constructorCall.resolve(scope);
-		}
-	}
-
 	/**
 	 * Bytecode generation for a constructor
 	 *
@@ -323,33 +301,44 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	 * Type checking for constructor, just another method, except for special check
 	 * for recursive constructor invocations.
 	 */
-	public void resolve(ClassScope upperScope) {
-
-		if (binding == null) {
-			ignoreFurtherInvestigation = true;
-		}
-
+	public void resolveStatements(ClassScope upperScope) {
+/*
 		// checking for recursive constructor call (protection)
 		if (!ignoreFurtherInvestigation && constructorCall == null){
 			constructorCall = new ExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);
 			constructorCall.sourceStart = sourceStart;
 			constructorCall.sourceEnd = sourceEnd;
 		}
+*/
+		if (!CharOperation.equals(scope.enclosingSourceType().sourceName, selector)){
+			scope.problemReporter().missingReturnType(this);
+		}
 
-		super.resolve(upperScope);
-
-		try {
-			// indirect reference: increment target constructor reference count
-			if (constructorCall != null){
-				if (constructorCall.binding != null
-					&& !constructorCall.isSuperAccess()
-					&& constructorCall.binding.isValidBinding()) {
-					((ConstructorDeclaration)
-							(upperScope.referenceContext.declarationOf(constructorCall.binding))).referenceCount++;
-				}
+		// if null ==> an error has occurs at parsing time ....
+		if (constructorCall != null) {
+			// e.g. using super() in java.lang.Object
+			if (binding != null
+				&& binding.declaringClass.id == T_Object
+				&& constructorCall.accessMode != ExplicitConstructorCall.This) {
+					if (constructorCall.accessMode == ExplicitConstructorCall.Super) {
+						scope.problemReporter().cannotUseSuperInJavaLangObject(constructorCall);
+					}
+					constructorCall = null;
+			} else {
+				constructorCall.resolve(scope);
 			}
-		} catch (AbortMethod e) {
-			this.ignoreFurtherInvestigation = true;
+		}
+		
+		super.resolveStatements(upperScope);
+
+		// indirect reference: increment target constructor reference count
+		if (constructorCall != null){
+			if (constructorCall.binding != null
+				&& !constructorCall.isSuperAccess()
+				&& constructorCall.binding.isValidBinding()) {
+				((ConstructorDeclaration)
+						(upperScope.referenceContext.declarationOf(constructorCall.binding))).referenceCount++;
+			}
 		}
 	}
 

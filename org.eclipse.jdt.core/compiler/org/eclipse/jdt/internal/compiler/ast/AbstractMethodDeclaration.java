@@ -151,10 +151,6 @@ public abstract class AbstractMethodDeclaration
 		}
 	}
 
-	public void checkName() {
-		//check whether the name of the method is correct
-	}
-
 	public CompilationResult compilationResult() {
 		
 		return this.compilationResult;
@@ -312,16 +308,18 @@ public abstract class AbstractMethodDeclaration
 		try {
 			bindArguments(); 
 			bindThrownExceptions();
-			checkName();
-
-			// and then ....deep jump into statements.....
-			if (statements != null) {
-				int i = 0, length = statements.length;
-				while (i < length)
-					statements[i++].resolve(scope);
-			}
+			resolveStatements(upperScope);
 		} catch (AbortMethod e) {	// ========= abort on fatal error =============
 			this.ignoreFurtherInvestigation = true;
+		} 
+	}
+
+	public void resolveStatements(ClassScope upperScope) {
+
+		if (statements != null) {
+			int i = 0, length = statements.length;
+			while (i < length)
+				statements[i++].resolve(scope);
 		}
 	}
 
