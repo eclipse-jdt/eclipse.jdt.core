@@ -112,8 +112,6 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 * This table contains the pkg fragment roots of the project that are being deleted.	 */
 	Map removedRoots;
 
-	static final IJavaElementDelta[] NO_DELTA = new IJavaElementDelta[0];
-
 	public static boolean VERBOSE = false;
 	
 	class OutputsInfo {
@@ -202,7 +200,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 */
 	void addDependentProjects(IPath projectPath, HashSet result) {
 		try {
-			IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
+			IJavaProject[] projects = this.manager.getJavaModel().getJavaProjects();
 			for (int i = 0, length = projects.length; i < length; i++) {
 				IJavaProject project = projects[i];
 				IClasspathEntry[] classpath = project.getResolvedClasspath(true);
@@ -913,7 +911,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				this.indexManager.reset();
 				break;
 			case IJavaElement.JAVA_PROJECT :
-				JavaModelManager.getJavaModelManager().removePerProjectInfo(
+				this.manager.removePerProjectInfo(
 					(JavaProject) element);
 				this.updateRoots(element.getPath(), delta);
 				break;
@@ -1001,43 +999,6 @@ public class DeltaProcessor implements IResourceChangeListener {
 				}
 			default:
 				return NON_JAVA_RESOURCE;
-		}
-	}
-
-	/**
-	 * Filters the generated <code>JavaElementDelta</code>s to remove those
-	 * which should not be fired (because they don't represent a real change
-	 * in the Java Model).
-	 */
-	protected IJavaElementDelta[] filterRealDeltas(IJavaElementDelta[] deltas) {
-
-		int length = deltas.length;
-		IJavaElementDelta[] realDeltas = null;
-		int index = 0;
-		for (int i = 0; i < length; i++) {
-			JavaElementDelta delta = (JavaElementDelta)deltas[i];
-			if (delta == null) {
-				continue;
-			}
-			if (delta.getAffectedChildren().length > 0
-				|| delta.getKind() == IJavaElementDelta.ADDED
-				|| delta.getKind() == IJavaElementDelta.REMOVED
-				|| (delta.getFlags() & IJavaElementDelta.F_CLOSED) != 0
-				|| (delta.getFlags() & IJavaElementDelta.F_OPENED) != 0
-				|| delta.resourceDeltasCounter > 0) {
-
-				if (realDeltas == null) {
-					realDeltas = new IJavaElementDelta[length];
-				}
-				realDeltas[index++] = delta;
-			}
-		}
-		if (index > 0) {
-			IJavaElementDelta[] result = new IJavaElementDelta[index];
-			System.arraycopy(realDeltas, 0, result, 0, index);
-			return result;
-		} else {
-			return NO_DELTA;
 		}
 	}
 
@@ -1278,7 +1239,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 						break;
 					case IResourceDelta.REMOVED:
 						// remove classpath cache so that initializeRoots() will not consider the project has a classpath
-						JavaModelManager.getJavaModelManager().removePerProjectInfo((JavaProject) element);
+						this.manager.removePerProjectInfo((JavaProject) element);
 						
 						this.rootsAreStale = true;
 						break;
@@ -1342,7 +1303,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 * the corresponding set of <code>IJavaElementDelta</code>, rooted in the
 	 * relevant <code>JavaModel</code>s.
 	 */
-	public IJavaElementDelta[] processResourceDelta(IResourceDelta changes) {
+	public IJavaElementDelta processResourceDelta(IResourceDelta changes) {
 
 		try {
 			IJavaModel model = this.manager.getJavaModel();
@@ -1354,25 +1315,24 @@ public class DeltaProcessor implements IResourceChangeListener {
 					if (VERBOSE) {
 						e.printStackTrace();
 					}
-					return NO_DELTA;
+					return null;
 				}
 			}
 			this.initializeRoots();
 			this.currentElement = null;
+			fCurrentDelta = new JavaElementDelta(model);
 			
 			// get the workspace delta, and start processing there.
 			IResourceDelta[] deltas = changes.getAffectedChildren();
-			IJavaElementDelta[] translatedDeltas = new JavaElementDelta[deltas.length];
 			for (int i = 0; i < deltas.length; i++) {
 				IResourceDelta delta = deltas[i];
 				IResource res = delta.getResource();
-				fCurrentDelta = new JavaElementDelta(model);
 				
 				// find out the element type
 				RootInfo rootInfo = null;
 				int elementType;
 				IProject proj = (IProject)res;
-				boolean wasJavaProject = JavaModelManager.getJavaModelManager().getJavaModel().findJavaProject(proj) != null;
+				boolean wasJavaProject = this.manager.getJavaModel().findJavaProject(proj) != null;
 				boolean isJavaProject = JavaProject.hasJavaNature(proj);
 				if (!wasJavaProject && !isJavaProject) {
 					elementType = NON_JAVA_RESOURCE;
@@ -1395,7 +1355,6 @@ public class DeltaProcessor implements IResourceChangeListener {
 					}
 				}
 
-				translatedDeltas[i] = fCurrentDelta;
 			}
 			
 			// update package fragment roots of projects that were affected
@@ -1407,7 +1366,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 	
 			updateDependentNamelookups();
 
-			return filterRealDeltas(translatedDeltas);
+			return fCurrentDelta;
 		} finally {
 			this.projectsToUpdate.clear();
 			this.projectsForDependentNamelookupRefresh.clear();
@@ -1647,11 +1606,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 					try {
 						JavaModelManager.resourceTreeIsLocked();
 						if (delta != null) {
-							IJavaElementDelta[] translatedDeltas = this.processResourceDelta(delta);
-							if (translatedDeltas.length > 0) { 
-								for (int i= 0; i < translatedDeltas.length; i++) {
-									this.manager.registerJavaModelDelta(translatedDeltas[i]);
-								}
+							IJavaElementDelta translatedDelta = this.processResourceDelta(delta);
+							if (translatedDelta != null) { 
+								this.manager.registerJavaModelDelta(translatedDelta);
 							}
 							this.manager.fire(null, ElementChangedEvent.POST_CHANGE);
 						}		
@@ -1952,7 +1909,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 								this.indexManager.indexAll(res);
 							}
 						} else {
-							JavaModel javaModel = JavaModelManager.getJavaModelManager().getJavaModel();
+							JavaModel javaModel = this.manager.getJavaModel();
 							boolean wasJavaProject = javaModel.findJavaProject(res) != null;
 							if (wasJavaProject) {
 								this.elementRemoved(element, delta, rootInfo);
@@ -1965,7 +1922,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 					}
 					if ((flags & IResourceDelta.DESCRIPTION) != 0) {
 						IProject res = (IProject)delta.getResource();
-						JavaModel javaModel = JavaModelManager.getJavaModelManager().getJavaModel();
+						JavaModel javaModel = this.manager.getJavaModel();
 						boolean wasJavaProject = javaModel.findJavaProject(res) != null;
 						boolean isJavaProject = JavaProject.hasJavaNature(res);
 						if (wasJavaProject != isJavaProject) {
