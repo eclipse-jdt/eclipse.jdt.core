@@ -1194,15 +1194,10 @@ public void test034() {
 			"        List list = (List) new ArrayList();\n" + 
 			"        list = (List) new ArrayList();\n" + 
 			"        \n" + 
-			"        String s = (String) \"hello\";\n" + 
-			"        s += (List) new ArrayList();\n" + 
-			"        \n" + 
 			"        ArrayList alist = new ArrayList();\n" + 
 			"        List list2 = (List) alist;\n" + 
 			"        list2 = (List) alist;\n" + 
 			"        \n" + 
-			"        String s2 = (String) \"hello\";\n" + 
-			"        s2 += (List) alist;\n" + 
 			"       System.out.println(\"SUCCESS\");\n" +
 			"    }\n" + 
 			"}\n",
@@ -1227,7 +1222,7 @@ public void test034() {
 	String expectedOutput =
 		"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
 		"  public static void main(String[] args);\n" + 
-		"    /* Stack: 3, Locals: 6 */\n" + 
+		"    /* Stack: 2, Locals: 4 */\n" + 
 		"    Code attribute:\n" + 
 		"       0  new #17 java.util.ArrayList\n" + 
 		"       3  dup\n" + 
@@ -1237,62 +1232,32 @@ public void test034() {
 		"      11  dup\n" + 
 		"      12  invokespecial #18 <Constructor java.util.ArrayList()>\n" + 
 		"      15  astore_1\n" + 
-		"      16  ldc #20 <String \"hello\">\n" + 
-		"      18  astore_2\n" + 
-		"      19  new #22 java.lang.StringBuffer\n" + 
-		"      22  dup\n" + 
-		"      23  aload_2\n" + 
-		"      24  invokestatic #28 <Method java.lang.String#valueOf(java.lang.Object arg) java.lang.String>\n" + 
-		"      27  invokespecial #31 <Constructor java.lang.StringBuffer(java.lang.String arg)>\n" + 
-		"      30  new #17 java.util.ArrayList\n" + 
-		"      33  dup\n" + 
-		"      34  invokespecial #18 <Constructor java.util.ArrayList()>\n" + 
-		"      37  invokevirtual #35 <Method java.lang.StringBuffer#append(java.lang.Object arg) java.lang.StringBuffer>\n" + 
-		"      40  invokevirtual #39 <Method java.lang.StringBuffer#toString() java.lang.String>\n" + 
-		"      43  astore_2\n" + 
-		"      44  new #17 java.util.ArrayList\n" + 
-		"      47  dup\n" + 
-		"      48  invokespecial #18 <Constructor java.util.ArrayList()>\n" + 
-		"      51  astore_3\n" + 
-		"      52  aload_3\n" + 
-		"      53  astore 4\n" + 
-		"      55  aload_3\n" + 
-		"      56  astore 4\n" + 
-		"      58  ldc #20 <String \"hello\">\n" + 
-		"      60  astore 5\n" + 
-		"      62  new #22 java.lang.StringBuffer\n" + 
-		"      65  dup\n" + 
-		"      66  aload 5\n" + 
-		"      68  invokestatic #28 <Method java.lang.String#valueOf(java.lang.Object arg) java.lang.String>\n" + 
-		"      71  invokespecial #31 <Constructor java.lang.StringBuffer(java.lang.String arg)>\n" + 
-		"      74  aload_3\n" + 
-		"      75  invokevirtual #35 <Method java.lang.StringBuffer#append(java.lang.Object arg) java.lang.StringBuffer>\n" + 
-		"      78  invokevirtual #39 <Method java.lang.StringBuffer#toString() java.lang.String>\n" + 
-		"      81  astore 5\n" + 
-		"      83  getstatic #45 <Field java.lang.System#out java.io.PrintStream>\n" + 
-		"      86  ldc #47 <String \"SUCCESS\">\n" + 
-		"      88  invokevirtual #52 <Method java.io.PrintStream#println(java.lang.String arg) void>\n" + 
-		"      91  return\n" + 
+		"      16  new #17 java.util.ArrayList\n" + 
+		"      19  dup\n" + 
+		"      20  invokespecial #18 <Constructor java.util.ArrayList()>\n" + 
+		"      23  astore_2\n" + 
+		"      24  aload_2\n" + 
+		"      25  astore_3\n" + 
+		"      26  aload_2\n" + 
+		"      27  astore_3\n" + 
+		"      28  getstatic #24 <Field java.lang.System#out java.io.PrintStream>\n" + 
+		"      31  ldc #26 <String \"SUCCESS\">\n" + 
+		"      33  invokevirtual #32 <Method java.io.PrintStream#println(java.lang.String arg) void>\n" + 
+		"      36  return\n" + 
 		"\n" + 
 		"    Line number attribute:\n" + 
 		"      [pc: 0, line: 6]\n" + 
 		"      [pc: 8, line: 7]\n" + 
 		"      [pc: 16, line: 9]\n" + 
-		"      [pc: 19, line: 10]\n" + 
-		"      [pc: 44, line: 12]\n" + 
-		"      [pc: 52, line: 13]\n" + 
-		"      [pc: 55, line: 14]\n" + 
-		"      [pc: 58, line: 16]\n" + 
-		"      [pc: 62, line: 17]\n" + 
-		"      [pc: 83, line: 18]\n" + 
-		"      [pc: 91, line: 19]\n" + 
+		"      [pc: 24, line: 10]\n" + 
+		"      [pc: 26, line: 11]\n" + 
+		"      [pc: 28, line: 13]\n" + 
+		"      [pc: 36, line: 14]\n" + 
 		"    Local variable table attribute:\n" + 
-		"      [pc: 0, pc: 92] local: args index: 0 type: java/lang/String[]\n" + 
-		"      [pc: 8, pc: 92] local: list index: 1 type: java/util/List\n" + 
-		"      [pc: 19, pc: 92] local: s index: 2 type: java/lang/String\n" + 
-		"      [pc: 52, pc: 92] local: alist index: 3 type: java/util/ArrayList\n" + 
-		"      [pc: 55, pc: 92] local: list2 index: 4 type: java/util/List\n" + 
-		"      [pc: 62, pc: 92] local: s2 index: 5 type: java/lang/String\n" + 
+		"      [pc: 0, pc: 37] local: args index: 0 type: java/lang/String[]\n" + 
+		"      [pc: 8, pc: 37] local: list index: 1 type: java/util/List\n" + 
+		"      [pc: 24, pc: 37] local: alist index: 2 type: java/util/ArrayList\n" + 
+		"      [pc: 26, pc: 37] local: list2 index: 3 type: java/util/List\n" + 
 		"  \n" + 
 		"}";
 	if (actualOutput.indexOf(expectedOutput) == -1){
