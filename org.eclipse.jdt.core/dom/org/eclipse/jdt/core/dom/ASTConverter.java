@@ -493,6 +493,9 @@ class ASTConverter {
 					// we need to search for the starting position of the first brace in order to set the proper length
 					// PR http://dev.eclipse.org/bugs/show_bug.cgi?id=10759
 					int end = retrieveStartingLeftBracketPosition(sourceStart, sourceStart + length);
+					if (end == -1) {
+						end = sourceStart + length;
+					}
 					simpleName.setSourceRange(sourceStart, end - sourceStart + 1);
 					SimpleType simpleType = this.ast.newSimpleType(simpleName);
 					simpleType.setSourceRange(sourceStart, end - sourceStart + 1);
@@ -746,6 +749,7 @@ class ASTConverter {
 			}
 		}
 		AnonymousClassDeclaration anonymousClassDeclaration = this.ast.newAnonymousClassDeclaration();
+		anonymousClassDeclaration.setSourceRange(expression.bodyStart, expression.bodyEnd - expression.bodyStart + 1);
 		classInstanceCreation.setAnonymousClassDeclaration(anonymousClassDeclaration);
 		buildBodyDeclarations(expression, anonymousClassDeclaration);
 		if (this.resolveBindings) {
@@ -2053,7 +2057,7 @@ class ASTConverter {
 	private int retrieveEndOfDimensionsPosition(int start, int end) {
 		scanner.resetTo(start, end);
 		int dimensions = 0;
-		int foundPosition = 0;
+		int foundPosition = start;
 		try {
 			int token;
 			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
