@@ -144,7 +144,7 @@ public interface IProblem {
 	/**
 	 * Problem Categories
 	 * The high bits of a problem ID contains information about the category of a problem. 
-	 * e.g. (problemID & TypeRelated) != 0, indicates that this problem is type related.
+	 * For example, (problemID & TypeRelated) != 0, indicates that this problem is type related.
 	 * 
 	 * A problem category can help to implement custom problem filters. Indeed, when numerous problems
 	 * are listed, focusing on import related problems first might be relevant.

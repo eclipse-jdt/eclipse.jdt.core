@@ -2795,8 +2795,8 @@ public int scanIdentifierOrKeyword() throws InvalidInputException {
 }
 public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 
-	//when entering this method the currentCharacter is the firt
-	//digit of the number , i.e. it may be preceeded by a . when
+	//when entering this method the currentCharacter is the first
+	//digit of the number. It may be preceeded by a '.' when
 	//dotPrefix is true
 
 	boolean floating = dotPrefix;

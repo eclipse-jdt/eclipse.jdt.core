@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * If a buffer does not have an underlying resource, saving the buffer has no effect. 
  * Buffers can be read-only.
  * <p>
- * Note that java model operations that manipulate an <code>IBuffer</code> (e.g. 
+ * Note that java model operations that manipulate an <code>IBuffer</code> (for example, 
  * <code>IType.createMethod(...)</code>) ensures that the same line delimiter 
  * (either <code>"\n"</code> or <code>"\r"</code> or <code>"\r\n"</code>) is 
  * used across the whole buffer. Thus these operations may change the line delimiter(s) 

@@ -34,7 +34,7 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  * form from which to generate the contents of the document fragment. As attributes
  * of a node are changed, the node attempts to maintain the original formatting
  * by only replacing relevant portions of the shared document with the value
- * of new attributes (i.e. filling in the form with replacement values).
+ * of new attributes (that is, filling in the form with replacement values).
  *
  * <p>When a node is first created, it is considered unfragmented. When any
  * attribute of the node is altered, the node is then considered fragmented

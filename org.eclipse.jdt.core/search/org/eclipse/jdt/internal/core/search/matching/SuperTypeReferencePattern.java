@@ -62,8 +62,8 @@ public SuperTypeReferencePattern(
 	this.needsResolve = superQualification != null;
 }
 /*
- * superRef/Object/java.lang/X/p (i.e. class p.X extends java.lang.Object)
- * superRef/Exception//X/p (i.e. class p.X extends Exception)
+ * "superRef/Object/java.lang/X/p" represents "class p.X extends java.lang.Object"
+ * "superRef/Exception//X/p" represents "class p.X extends Exception"
  */
 public void decodeIndexEntry(IEntryResult entryResult){
 
@@ -145,7 +145,7 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 			char[] word = entry.getWord();
 			if (slash + length >= word.length) continue;
 			
-			// ensure that's the end of the ref (i.e. simple name is not a prefix of ref)
+			// ensure it is the end of the ref (a simple name is not a prefix of ref)
 			if (word[length+slash] != '/') continue; 
 			
 			// compare ref to simple name

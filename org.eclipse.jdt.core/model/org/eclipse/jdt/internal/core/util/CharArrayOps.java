@@ -14,7 +14,7 @@ package org.eclipse.jdt.internal.core.util;
  * A class to do characters operations so that we can use
  * char arrays more effectively.
  */
-public class CharArrayOps {
+public class CharArrayOps { // TODO: should promote to CharOperation
 /**
  * Returns the char arrays as an array of Strings
  */
@@ -127,8 +127,8 @@ public static char[] subarray(char[] src, int start, int length) {
  *  1. the src array is null
  *  2. the start index is out of bounds
  *  3. the length parameter specifies a end point which is out of bounds
- * Does not return a copy of the array if possible, i.e. if start is zero
- * and length equals the length of the src array.
+ * Does not return a copy of the array if possible (if start is zero
+ * and length equals the length of the src array).
  *
  * @param src - the array from which elements need to be copied
  * @param start - the start index in the src array

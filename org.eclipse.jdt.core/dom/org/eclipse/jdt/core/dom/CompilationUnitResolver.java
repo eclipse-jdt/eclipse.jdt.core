@@ -38,7 +38,7 @@ class CompilationUnitResolver extends Compiler {
 	 *  @param environment org.eclipse.jdt.internal.compiler.api.env.INameEnvironment
 	 *      Environment used by the compiler in order to resolve type and package
 	 *      names. The name environment implements the actual connection of the compiler
-	 *      to the outside world (e.g. in batch mode the name environment is performing
+	 *      to the outside world (for example, in batch mode the name environment is performing
 	 *      pure file accesses, reuse previous build state or connection to repositories).
 	 *      Note: the name environment is responsible for implementing the actual classpath
 	 *            rules.

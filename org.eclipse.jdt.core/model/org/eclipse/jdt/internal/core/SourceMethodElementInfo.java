@@ -19,10 +19,10 @@ import org.eclipse.jdt.internal.compiler.env.ISourceMethod;
 /* package */ class SourceMethodElementInfo extends MemberElementInfo implements ISourceMethod {
 
 	/**
-	 * For a source method (i.e. method contained in a comilation unit)
+	 * For a source method (that is, a method contained in a compilation unit)
 	 * this is a collection of the names of the parameters for this method,
-	 * in the order the parameters are delcared. For a binary method (i.e.
-	 * method declared in a binary type), these names are invented as
+	 * in the order the parameters are delcared. For a binary method (that is, 
+	 * a method declared in a binary type), these names are invented as
 	 * "arg"i where i starts at 1. This is an empty array if this method
 	 * has no parameters.
 	 */
