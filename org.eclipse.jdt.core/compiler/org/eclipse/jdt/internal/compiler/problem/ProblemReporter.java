@@ -524,8 +524,8 @@ public int computeSeverity(int problemId){
 		case IProblem.SuperfluousSemicolon:
 			return this.options.getSeverity(CompilerOptions.SuperfluousSemicolon);
 
-		case IProblem.UncommentedEmptyBlock:
-			return this.options.getSeverity(CompilerOptions.UncommentedEmptyBlock);
+		case IProblem.UndocumentedEmptyBlock:
+			return this.options.getSeverity(CompilerOptions.UndocumentedEmptyBlock);
 			
 		case IProblem.UnnecessaryCast:
 		case IProblem.UnnecessaryArgumentCast:
@@ -2820,15 +2820,6 @@ public void typeMismatchErrorActualTypeExpectedType(Expression expression, TypeB
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void uncommentedEmptyBlock(Block block) {
-	String[] arguments = new String[] {};
-	this.handle(
-		IProblem.UncommentedEmptyBlock,
-		arguments,
-		arguments,
-		block.sourceStart,
-		block.sourceEnd);
-}
 public void undefinedLabel(BranchStatement statement) {
 	String[] arguments = new String[] {new String(statement.label)};
 	this.handle(
@@ -2837,6 +2828,15 @@ public void undefinedLabel(BranchStatement statement) {
 		arguments,
 		statement.sourceStart,
 		statement.sourceEnd);
+}
+public void undocumentedEmptyBlock(Block block) {
+	String[] arguments = new String[] {};
+	this.handle(
+		IProblem.UndocumentedEmptyBlock,
+		arguments,
+		arguments,
+		block.sourceStart,
+		block.sourceEnd);
 }
 public void unexpectedStaticModifierForField(SourceTypeBinding type, FieldDeclaration fieldDecl) {
 	String[] arguments = new String[] {new String(fieldDecl.name)};

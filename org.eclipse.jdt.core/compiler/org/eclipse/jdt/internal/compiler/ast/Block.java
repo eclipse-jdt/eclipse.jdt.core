@@ -90,7 +90,7 @@ public class Block extends Statement {
 	public void resolve(BlockScope upperScope) {
 
 		if ((this.bits & UncommentedEmptyBlockMASK) != 0) {
-			upperScope.problemReporter().uncommentedEmptyBlock(this);
+			upperScope.problemReporter().undocumentedEmptyBlock(this);
 		}
 		if (statements != null) {
 			scope =
@@ -106,7 +106,7 @@ public class Block extends Statement {
 	public void resolveUsing(BlockScope givenScope) {
 
 		if ((this.bits & UncommentedEmptyBlockMASK) != 0) {
-			givenScope.problemReporter().uncommentedEmptyBlock(this);
+			givenScope.problemReporter().undocumentedEmptyBlock(this);
 		}
 		// this optimized resolve(...) is sent only on none empty blocks
 		scope = givenScope;

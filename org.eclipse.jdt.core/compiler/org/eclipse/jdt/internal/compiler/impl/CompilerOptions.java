@@ -58,7 +58,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportNonStaticAccessToStatic = "org.eclipse.jdt.core.compiler.problem.staticAccessReceiver"; //$NON-NLS-1$
 	public static final String OPTION_ReportIndirectStaticAccess = "org.eclipse.jdt.core.compiler.problem.indirectStaticAccess"; //$NON-NLS-1$
 	public static final String OPTION_ReportSuperfluousSemicolon = "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"; //$NON-NLS-1$
-	public static final String OPTION_ReportUncommentedEmptyBlock = "org.eclipse.jdt.core.compiler.problem.uncommentedEmptyBlock"; //$NON-NLS-1$
+	public static final String OPTION_ReportUndocumentedEmptyBlock = "org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnnecessaryTypeCheck = "org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck"; //$NON-NLS-1$
 	public static final String OPTION_Source = "org.eclipse.jdt.core.compiler.source"; //$NON-NLS-1$
 	public static final String OPTION_TargetPlatform = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
@@ -115,7 +115,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long AccidentalBooleanAssign = 0x40000000L;
 	public static final long SuperfluousSemicolon = 0x80000000L;
 	public static final long IndirectStaticAccess = 0x100000000L;
-	public static final long UncommentedEmptyBlock = 0x200000000L;
+	public static final long UndocumentedEmptyBlock = 0x200000000L;
 	public static final long UnnecessaryTypeCheck = 0x400000000L;
 	
 	// Default severity level for handlers
@@ -431,8 +431,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				continue;
 			} 
 			// Report boolean method throwing exception
-			if(optionID.equals(OPTION_ReportUncommentedEmptyBlock)){
-				updateSeverity(UncommentedEmptyBlock, optionValue);
+			if(optionID.equals(OPTION_ReportUndocumentedEmptyBlock)){
+				updateSeverity(UndocumentedEmptyBlock, optionValue);
 				continue;
 			} 
 			// Report unnecessary cast
@@ -494,7 +494,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportPossibleAccidentalBooleanAssignment, getSeverityString(AccidentalBooleanAssign)); 
 		optionsMap.put(OPTION_ReportSuperfluousSemicolon, getSeverityString(SuperfluousSemicolon)); 
 		optionsMap.put(OPTION_ReportAssertIdentifier, getSeverityString(AssertUsedAsAnIdentifier)); 
-		optionsMap.put(OPTION_ReportUncommentedEmptyBlock, getSeverityString(UncommentedEmptyBlock)); 
+		optionsMap.put(OPTION_ReportUndocumentedEmptyBlock, getSeverityString(UndocumentedEmptyBlock)); 
 		optionsMap.put(OPTION_ReportUnnecessaryTypeCheck, getSeverityString(UnnecessaryTypeCheck)); 
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(complianceLevel)); 
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(sourceLevel)); 
@@ -562,7 +562,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n-field hiding another variable: ").append(getSeverityString(FieldHiding)); //$NON-NLS-1$
 		buf.append("\n-possible accidental boolean assignment: ").append(getSeverityString(AccidentalBooleanAssign)); //$NON-NLS-1$
 		buf.append("\n-superfluous semicolon: ").append(getSeverityString(SuperfluousSemicolon)); //$NON-NLS-1$
-		buf.append("\n-uncommented empty block: ").append(getSeverityString(UncommentedEmptyBlock)); //$NON-NLS-1$
+		buf.append("\n-uncommented empty block: ").append(getSeverityString(UndocumentedEmptyBlock)); //$NON-NLS-1$
 		buf.append("\n-JDK compliance level: "+ versionFromJdkLevel(complianceLevel)); //$NON-NLS-1$
 		buf.append("\n-JDK source level: "+ versionFromJdkLevel(sourceLevel)); //$NON-NLS-1$
 		buf.append("\n-JDK target level: "+ versionFromJdkLevel(targetJDK)); //$NON-NLS-1$

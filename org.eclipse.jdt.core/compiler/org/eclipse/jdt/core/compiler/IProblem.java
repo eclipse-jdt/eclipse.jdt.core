@@ -38,7 +38,7 @@
  *								   IndirectAccessToStaticField
  *								   IndirectAccessToStaticMethod
  *								   IndirectAccessToStaticType
- *								   UncommentedEmptyBlock
+ *								   UndocumentedEmptyBlock
  *								   UnnecessaryCast
  *								   UnnecessaryArgumentCast
  *								   UnnecessaryInstanceof
@@ -643,5 +643,5 @@ public interface IProblem {
 	
 	// block
 	/** @since 3.0 */
-	int UncommentedEmptyBlock = Internal + 460;
+	int UndocumentedEmptyBlock = Internal + 460;
 }

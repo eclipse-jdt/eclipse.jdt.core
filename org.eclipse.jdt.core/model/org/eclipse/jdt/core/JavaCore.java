@@ -294,6 +294,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_UNDOCUMENTED_EMPTY_BLOCK = PLUGIN_ID + ".compiler.problem.undocumentedEmptyBlock"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION = PLUGIN_ID + ".compiler.problem.noImplicitStringConversion"; //$NON-NLS-1$
@@ -1515,11 +1521,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 * 
-	 * COMPILER / Reporting Boolean Method Declaring Thrown Exceptions
-	 *    When enabled, the compiler will issue an error or a warning when a boolean method declaration 
-	 *    is specifying a clause for thrown exceptions. Some of them are predicates, and these should only 
-	 *    return a boolean value  and not raise exceptions.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.booleanMethodThrowingException"
+	 * COMPILER / Reporting Undocumented Empty Block
+	 *    When enabled, the compiler will issue an error or a warning when an empty block is detected and it is not
+	 *    documented with any comment.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *

@@ -834,7 +834,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							CompilerOptions.WARNING);
 					} else if (token.equals("emptyBlock")) {//$NON-NLS-1$ 
 						options.put(
-							CompilerOptions.OPTION_ReportUncommentedEmptyBlock,
+							CompilerOptions.OPTION_ReportUndocumentedEmptyBlock,
 							CompilerOptions.WARNING);
 					} else if (token.equals("uselessTypeCheck")) {//$NON-NLS-1$ 
 						options.put(
