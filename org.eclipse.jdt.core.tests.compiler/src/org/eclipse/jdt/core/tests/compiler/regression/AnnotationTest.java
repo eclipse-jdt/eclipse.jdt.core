@@ -2481,4 +2481,181 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"Annotation type declaration cannot have a constructor\n" + 
 			"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80014
+	public void test079() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import static java.lang.annotation.RetentionPolicy.*;\n" +
+				"import static java.lang.annotation.ElementType.*;\n" +
+				"\n" +
+				"@Retention(RUNTIME)\n" +
+				"@Target({TYPE})\n" +
+				"@interface Attr {\n" +
+				"  public int tst() default -1;\n" +
+				"}\n" +
+				"\n" +
+				"@Attr \n" +
+				"public class X {\n" +
+				"  public static void main(String args[]) {\n" +
+				"  	Object e = X.class.getAnnotation(Attr.class);\n" +
+				"  	System.out.print(e);\n" +
+				"  }\n" +
+				"}"
+			},
+			"@Attr(tst=-1)");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80014
+	public void test080() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import static java.lang.annotation.RetentionPolicy.*;\n" +
+				"import static java.lang.annotation.ElementType.*;\n" +
+				"\n" +
+				"@Retention(CLASS)\n" +
+				"@Target({TYPE})\n" +
+				"@interface Attr {\n" +
+				"  public int tst() default -1;\n" +
+				"}\n" +
+				"\n" +
+				"@Attr \n" +
+				"public class X {\n" +
+				"  public static void main(String args[]) {\n" +
+				"  	Object e = X.class.getAnnotation(Attr.class);\n" +
+				"  	System.out.print(e);\n" +
+				"  }\n" +
+				"}"
+			},
+			"null");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80014
+	public void test081() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import static java.lang.annotation.RetentionPolicy.*;\n" +
+				"import static java.lang.annotation.ElementType.*;\n" +
+				"\n" +
+				"@Retention(SOURCE)\n" +
+				"@Target({TYPE})\n" +
+				"@interface Attr {\n" +
+				"  public int tst() default -1;\n" +
+				"}\n" +
+				"\n" +
+				"@Attr \n" +
+				"public class X {\n" +
+				"  public static void main(String args[]) {\n" +
+				"  	Object e = X.class.getAnnotation(Attr.class);\n" +
+				"  	System.out.print(e);\n" +
+				"  }\n" +
+				"}"
+			},
+			"null");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80014
+	public void test082() {
+		this.runConformTest(
+			new String[] {
+				"Attr.java",
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import static java.lang.annotation.RetentionPolicy.*;\n" +
+				"import static java.lang.annotation.ElementType.*;\n" +
+				"\n" +
+				"@Retention(SOURCE)\n" +
+				"@Target({TYPE})\n" +
+				"@interface Attr {\n" +
+				"  public int tst() default -1;\n" +
+				"}",
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@Attr \n" +
+				"public class X {\n" +
+				"  public static void main(String args[]) {\n" +
+				"  	Object e = X.class.getAnnotation(Attr.class);\n" +
+				"  	System.out.print(e);\n" +
+				"  }\n" +
+				"}"
+			},
+			"null",
+			null,
+			false,
+			null);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80014
+	public void test083() {
+		this.runConformTest(
+			new String[] {
+				"Attr.java",
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import static java.lang.annotation.RetentionPolicy.*;\n" +
+				"import static java.lang.annotation.ElementType.*;\n" +
+				"\n" +
+				"@Retention(CLASS)\n" +
+				"@Target({TYPE})\n" +
+				"@interface Attr {\n" +
+				"  public int tst() default -1;\n" +
+				"}",
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@Attr \n" +
+				"public class X {\n" +
+				"  public static void main(String args[]) {\n" +
+				"  	Object e = X.class.getAnnotation(Attr.class);\n" +
+				"  	System.out.print(e);\n" +
+				"  }\n" +
+				"}"
+			},
+			"null",
+			null,
+			false,
+			null);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80014
+	public void test084() {
+		this.runConformTest(
+			new String[] {
+				"Attr.java",
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import static java.lang.annotation.RetentionPolicy.*;\n" +
+				"import static java.lang.annotation.ElementType.*;\n" +
+				"\n" +
+				"@Retention(RUNTIME)\n" +
+				"@Target({TYPE})\n" +
+				"@interface Attr {\n" +
+				"  public int tst() default -1;\n" +
+				"}",
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@Attr \n" +
+				"public class X {\n" +
+				"  public static void main(String args[]) {\n" +
+				"  	Object e = X.class.getAnnotation(Attr.class);\n" +
+				"  	System.out.print(e);\n" +
+				"  }\n" +
+				"}"
+			},
+			"@Attr(tst=-1)",
+			null,
+			false,
+			null);
+	}
 }
