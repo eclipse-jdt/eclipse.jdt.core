@@ -1489,9 +1489,13 @@ Catchesopt -> Catches
 -----------------------------------------------
 -- 1.5 features : enum type
 -----------------------------------------------
-EnumDeclaration ::= Modifiersopt 'enum' Identifier ClassHeaderImplementsopt EnumBody
+EnumDeclaration ::= EnumHeader ClassHeaderImplementsopt EnumBody
 /. $putCase consumeEnumDeclaration(); $break ./
 /:$readableName EnumDeclaration:/
+
+EnumHeader ::= Modifiersopt 'enum' Identifier
+/. $putCase consumeEnumHeader(); $break ./
+/:$readableName EnumHeader:/
 
 EnumBody ::= '{' EnumBodyDeclarationsopt '}'
 /. $putCase consumeEnumBody(); $break ./
@@ -1508,8 +1512,10 @@ EnumConstants ::= EnumConstants ',' EnumConstant
 /.$putCase consumeEnumConstants(); $break ./
 /:$readableName EnumConstants:/
 
-EnumConstant ::= Identifier Argumentsopt ClassBodyopt
+EnumConstant ::= Identifier Argumentsopt ClassBody
 /.$putCase consumeEnumConstant(); $break ./
+EnumConstant ::= Identifier Argumentsopt
+/.$putCase consumeEnumConstantNoClassBody(); $break ./
 /:$readableName EnumConstant:/
 
 Arguments ::= '(' ArgumentListopt ')'
