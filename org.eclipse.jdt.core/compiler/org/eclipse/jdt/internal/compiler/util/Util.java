@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.io.*;
+import java.util.zip.*;
 
 public class Util {
 	/* Bundle containing messages */
@@ -92,22 +93,61 @@ public static void relocalize() {
  */
 public static char[] bytesToChar(byte[] bytes) throws IOException {
 
-	return getInputStreamAsCharArray(new ByteArrayInputStream(bytes));
+	return getInputStreamAsCharArray(new ByteArrayInputStream(bytes), bytes.length);
 
 }
 /**
+ * Returns the contents of the given file as a byte array.
+ * @throws IOException if a problem occured reading the file.
+ */
+public static byte[] getFileByteContent(File file) throws IOException {
+	InputStream stream = null;
+	try {
+		stream = new BufferedInputStream(new FileInputStream(file));
+		return getInputStreamAsByteArray(stream, (int) file.length());
+	} finally {
+		if (stream != null) {
+			try {
+				stream.close();
+			} catch (IOException e) {
+			}
+		}
+	}
+}
+/**
+ * Returns the contents of the given file as a char array.
+ * @throws IOException if a problem occured reading the file.
+ */
+public static char[] getFileCharContent(File file) throws IOException {
+	InputStream stream = null;
+	try {
+		stream = new BufferedInputStream(new FileInputStream(file));
+		return Util.getInputStreamAsCharArray(stream, (int) file.length());
+	} finally {
+		if (stream != null) {
+			try {
+				stream.close();
+			} catch (IOException e) {
+			}
+		}
+	}
+}
+/**
  * Returns the given input stream's contents as a byte array.
- * Closes the stream before returning;
+ * If a length is specified (ie. if length != -1), only length bytes
+ * are returned. Otherwise all bytes in the stream are returned.
+ * Note this doesn't close the stream.
  * @throws IOException if a problem occured reading the stream.
  */
-public static byte[] getInputStreamAsByteArray(InputStream stream) throws IOException {
-	byte[] contents = new byte[0];
-	try {
+public static byte[] getInputStreamAsByteArray(InputStream stream, int length) throws IOException {
+	byte[] contents;
+	if (length == -1) {
+		contents = new byte[0];
 		int contentsLength = 0;
 		int bytesRead = -1;
 		do {
 			int available= stream.available();
-			
+		
 			// resize contents if needed
 			if (contentsLength + available > contents.length) {
 				System.arraycopy(contents, 0, contents = new byte[contentsLength + available], 0, contentsLength);
@@ -121,34 +161,43 @@ public static byte[] getInputStreamAsByteArray(InputStream stream) throws IOExce
 				contentsLength += bytesRead;
 			}
 		} while (bytesRead > 0);
-		
+	
 		// resize contents if necessary
 		if (contentsLength < contents.length) {
 			System.arraycopy(contents, 0, contents = new byte[contentsLength], 0, contentsLength);
 		}
-	} finally {
-		try {
-			stream.close();
-		} catch (IOException e) {
+	} else {
+		contents = new byte[length];
+		int len = 0;
+		int readSize = 0;
+		while ((readSize != -1) && (len != length)) {
+			// See PR 1FMS89U
+			// We record first the read size. In this case len is the actual read size.
+			len += readSize;
+			readSize = stream.read(contents, len, length - len);
 		}
 	}
+
 	return contents;
 }
 /**
  * Returns the given input stream's contents as a character array.
- * Closes the stream before returning;
+ * If a length is specified (ie. if length != -1), only length chars
+ * are returned. Otherwise all chars in the stream are returned.
+ * Note this doesn't close the stream.
  * @throws IOException if a problem occured reading the stream.
  */
-public static char[] getInputStreamAsCharArray(InputStream stream) throws IOException {
+public static char[] getInputStreamAsCharArray(InputStream stream, int length) throws IOException {
 	InputStreamReader reader= null;
 	reader= new InputStreamReader(stream);
-	char[] contents = new char[0];
-	try {
+	char[] contents;
+	if (length == -1) {
+		contents = new char[0];
 		int contentsLength = 0;
 		int charsRead = -1;
 		do {
 			int available= stream.available();
-			
+		
 			// resize contents if needed
 			if (contentsLength + available > contents.length) {
 				System.arraycopy(contents, 0, contents = new char[contentsLength + available], 0, contentsLength);
@@ -162,18 +211,48 @@ public static char[] getInputStreamAsCharArray(InputStream stream) throws IOExce
 				contentsLength += charsRead;
 			}
 		} while (charsRead > 0);
-		
+	
 		// resize contents if necessary
 		if (contentsLength < contents.length) {
 			System.arraycopy(contents, 0, contents = new char[contentsLength], 0, contentsLength);
 		}
+	} else {
+		contents = new char[length];
+		int len = 0;
+		int readSize = 0;
+		while ((readSize != -1) && (len != length)) {
+			// See PR 1FMS89U
+			// We record first the read size. In this case len is the actual read size.
+			len += readSize;
+			readSize = reader.read(contents, len, length - len);
+		}
+		// See PR 1FMS89U
+		// Now we need to resize in case the default encoding used more than one byte for each
+		// character
+		if (len != length)
+			System.arraycopy(contents, 0, (contents = new char[len]), 0, len);		
+	}
+
+	return contents;
+}
+/**
+ * Returns the contents of the given zip entry as a byte array.
+ * @throws IOException if a problem occured reading the zip entry.
+ */
+public static byte[] getZipEntryByteContent(ZipEntry ze, ZipFile zip) throws IOException {
+	InputStream stream = null;
+	byte classFileBytes[] = null;
+	try {
+		stream = new BufferedInputStream(zip.getInputStream(ze));
+		return getInputStreamAsByteArray(stream, (int) ze.getSize());
 	} finally {
-		try {
-			reader.close();
-		} catch (IOException e) {
+		if (stream != null) {
+			try {
+				stream.close();
+			} catch (IOException e) {
+			}
 		}
 	}
-	return contents;
 }
 public static void main(String[] arg){
 	System.out.println(bind("test")); //$NON-NLS-1$

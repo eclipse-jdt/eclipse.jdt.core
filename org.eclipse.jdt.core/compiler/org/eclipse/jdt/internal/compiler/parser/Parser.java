@@ -466,14 +466,9 @@ public final static void buildFilesFromLPG(String dataFilename)	throws java.io.I
 
 	//[org.eclipse.jdt.internal.compiler.parser.Parser.buildFilesFromLPG("d:/leapfrog/grammar/javadcl.java")]
 
-	File file = new File(dataFilename);
-	FileReader reader = null;
 	char[] contents = new char[] {};
 	try {
-		reader = new FileReader(file);
-		contents = new char[(int) file.length()];
-		reader.read(contents, 0, contents.length);
-		reader.close();
+		contents = Util.getFileCharContent(new File(dataFilename));
 	} catch (IOException ex) {
 		System.out.println(Util.bind("parser.incorrectPath")); //$NON-NLS-1$
 		return;
@@ -6725,36 +6720,33 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 
 	//files are located at Parser.class directory
 
-	InputStream stream = Parser.class.getResourceAsStream(filename);
+	InputStream stream = new BufferedInputStream(Parser.class.getResourceAsStream(filename));
 	if (stream == null) {
 		throw new java.io.IOException(Util.bind("parser.missingFile",filename)); //$NON-NLS-1$
 	}
-
-	ByteArrayOutputStream os = new ByteArrayOutputStream(32000);
-	// the largest file is 30K
-	byte[] buffer = new byte[10000];
-
-	int streamLength = 0;
-	int lastReadSize = 0;
-	while ((lastReadSize = stream.read(buffer)) > 0) {
-		streamLength += lastReadSize;
-		os.write(buffer, 0, lastReadSize);
+	byte[] bytes = null;
+	try {
+		bytes = Util.getInputStreamAsByteArray(stream, -1);
+	} finally {
+		try {
+			stream.close();
+		} catch (IOException e) {
+		}
 	}
-	byte[] bytes = os.toByteArray();
-	stream.close();
 
 	//minimal integrity check (even size expected)
-	if (streamLength % 2 != 0)
+	int length = bytes.length;
+	if (length % 2 != 0)
 		throw new java.io.IOException(Util.bind("parser.corruptedFile",filename)); //$NON-NLS-1$
 
 	// convert bytes into chars
-	char[] chars = new char[streamLength / 2];
+	char[] chars = new char[length / 2];
 	int i = 0;
 	int charIndex = 0;
 
 	while (true) {
 		chars[charIndex++] = (char) (((bytes[i++] & 0xFF) << 8) + (bytes[i++] & 0xFF));
-		if (i == streamLength)
+		if (i == length)
 			break;
 	}
 	return chars;

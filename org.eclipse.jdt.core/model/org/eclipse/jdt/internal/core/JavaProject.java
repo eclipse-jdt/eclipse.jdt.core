@@ -836,14 +836,10 @@ public String[] getRequiredProjectNames() throws JavaModelException {
 	public String getSharedProperty(QualifiedName key) throws CoreException {
 
 		String property = null;
-		try {
-			String propertyFileName= computeSharedPropertyFileName(key);					
-			IFile rscFile = getProject().getFile(propertyFileName);
-			if (rscFile.exists()){
-				InputStream input = rscFile.getContents(true);
-				property = new String(Util.readContentsAsBytes(input));
-			}
-		} catch (IOException e) {
+		String propertyFileName= computeSharedPropertyFileName(key);					
+		IFile rscFile = getProject().getFile(propertyFileName);
+		if (rscFile.exists()){
+			property = new String(Util.getResourceContentsAsByteArray(rscFile));
 		}
 		return property;
 	}

@@ -15,9 +15,7 @@ import org.eclipse.jdt.internal.core.builder.IState;
 import org.eclipse.jdt.internal.core.builder.IType;
 import org.eclipse.jdt.internal.core.Util;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -136,12 +134,10 @@ public byte[] getBinary(TypeStructureEntry tsEntry, IType type) {
 	IPath path = getPathForBinary(type);
 	IFile file = getFile(path);
 	try {
-		InputStream input = file.getContents(true);
-		return Util.readContentsAsBytes(input);
-	} catch (IOException e) {
-		return new byte[0];
+		return Util.getResourceContentsAsByteArray(file);
 	} catch (CoreException e) {
-		return new byte[0];	}
+		return new byte[0];
+	}
 }
 /**
  * Returns the container for a path.

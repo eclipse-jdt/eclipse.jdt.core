@@ -428,19 +428,9 @@ public boolean isNestedType() {
  * @param file The file you want to read
  * @return org.eclipse.jdt.internal.compiler.classfmt.DietClassFile
  */
-public static ClassFileReader read(java.io.File file) throws ClassFormatException, java.io.IOException {
-	int fileLength;
-	byte classFileBytes[] = new byte[fileLength = (int) file.length()];
-	java.io.FileInputStream stream = new java.io.FileInputStream(file);
-	int bytesRead = 0;
-	int lastReadSize = 0;
-	while ((lastReadSize != -1) && (bytesRead != fileLength)) {
-		lastReadSize = stream.read(classFileBytes, bytesRead, fileLength - bytesRead);
-		bytesRead += lastReadSize;
-	}
-	ClassFileReader classFile = new ClassFileReader(classFileBytes, file.getAbsolutePath().toCharArray());
-	stream.close();
-	return classFile;
+public static ClassFileReader read(File file) throws ClassFormatException, IOException {
+	byte classFileBytes[] = Util.getFileByteContent(file);
+	return new ClassFileReader(classFileBytes, file.getAbsolutePath().toCharArray());
 }
 /**
  * (c)1998 Object Technology International.
@@ -449,19 +439,7 @@ public static ClassFileReader read(java.io.File file) throws ClassFormatExceptio
  * @param String fileName
  */
 public static ClassFileReader read(String fileName) throws ClassFormatException, java.io.IOException {
-	int fileLength;
-	File file = new File(fileName);
-	byte classFileBytes[] = new byte[fileLength = (int) file.length()];
-	java.io.FileInputStream stream = new java.io.FileInputStream(file);
-	int bytesRead = 0;
-	int lastReadSize = 0;
-	while ((lastReadSize != -1) && (bytesRead != fileLength)) {
-		lastReadSize = stream.read(classFileBytes, bytesRead, fileLength - bytesRead);
-		bytesRead += lastReadSize;
-	}
-	ClassFileReader classFile = new ClassFileReader(classFileBytes, fileName.toCharArray());
-	stream.close();
-	return classFile;
+	return read(new File(fileName));
 }
 /**
  * (c)1998 Object Technology International.
@@ -478,16 +456,7 @@ public static ClassFileReader read(
 	java.util.zip.ZipEntry ze = zip.getEntry(filename);
 	if (ze == null)
 		return null;
-	java.io.InputStream zipInputStream = zip.getInputStream(ze);
-	byte classFileBytes[] = new byte[(int) ze.getSize()];
-	int length = classFileBytes.length;
-	int len = 0;
-	int readSize = 0;
-	while ((readSize != -1) && (len != length)) {
-		readSize = zipInputStream.read(classFileBytes, len, length - len);
-		len += readSize;
-	}
-	zipInputStream.close();
+	byte classFileBytes[] = Util.getZipEntryByteContent(ze, zip);
 	return new ClassFileReader(classFileBytes, filename.toCharArray());
 }
 /**

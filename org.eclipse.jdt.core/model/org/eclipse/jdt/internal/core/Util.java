@@ -403,14 +403,19 @@ public static int getParameterCount(char[] sig) {
 public static byte[] getResourceContentsAsByteArray(IFile file) throws JavaModelException {
 	InputStream stream= null;
 	try {
-		stream = file.getContents(true);
+		stream = new BufferedInputStream(file.getContents(true));
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
 	}
 	try {
-		return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream);
+		return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream, -1);
 	} catch (IOException e) {
 		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+	} finally {
+		try {
+			stream.close();
+		} catch (IOException e) {
+		}
 	}
 }
 /**
@@ -419,14 +424,19 @@ public static byte[] getResourceContentsAsByteArray(IFile file) throws JavaModel
 public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModelException {
 	InputStream stream= null;
 	try {
-		stream = file.getContents(true);
+		stream = new BufferedInputStream(file.getContents(true));
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
 	}
 	try {
-		return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream);
+		return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1);
 	} catch (IOException e) {
 		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+	} finally {
+		try {
+			stream.close();
+		} catch (IOException e) {
+		}
 	}
 }
 	/**
@@ -604,40 +614,6 @@ private static void quickSortReverse(String[] sortedCollection, int left, int ri
 	}
 	if (left < original_right) {
 		quickSortReverse(sortedCollection, left, original_right);
-	}
-}
-public static byte[] readContentsAsBytes(InputStream input) throws IOException {
-	BufferedInputStream bufferedInputStream = null;
-	try {
-		final int BUF_SIZE = 8192;
-		byte[] buf = new byte[BUF_SIZE];
-		int read;
-		int totalRead = 0;
-		bufferedInputStream = new BufferedInputStream(input);
-		while (totalRead < BUF_SIZE && (read = bufferedInputStream.read(buf, totalRead, BUF_SIZE - totalRead)) != -1) {
-			totalRead += read;
-		}
-		if (totalRead < BUF_SIZE) {
-			byte[] result = new byte[totalRead];
-			System.arraycopy(buf, 0, result, 0, totalRead);
-			return result;
-		}
-		ByteArrayOutputStream out = new ByteArrayOutputStream(BUF_SIZE*2);
-		out.write(buf);
-		while ((read = bufferedInputStream.read(buf, 0, BUF_SIZE)) != -1) {
-			out.write(buf, 0, read);
-		}
-		return out.toByteArray();
-	}
-	finally {
-		try {
-			if (bufferedInputStream != null) {
-				bufferedInputStream.close();
-			}
-		}
-		catch (IOException e) {
-			// Ignore
-		}
 	}
 }
 /**

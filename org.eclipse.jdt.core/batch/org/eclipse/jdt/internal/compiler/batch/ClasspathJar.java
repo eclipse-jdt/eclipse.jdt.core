@@ -10,6 +10,7 @@ import java.util.zip.*;
 
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 class ClasspathJar implements FileSystem.Classpath {
 	ZipFile zipFile;
@@ -61,22 +62,22 @@ public NameEnvironmentAnswer readClassFile(String filename, char[][] packageName
 	}
 }
 public NameEnvironmentAnswer readJavaFile(String filename, char[][] packageName) {
+	InputStream stream = null;
 	try {
 		String fullName = FileSystem.assembleName(filename, packageName, '/');
 		ZipEntry entry = zipFile.getEntry(fullName);
-		InputStreamReader reader = new InputStreamReader(zipFile.getInputStream(entry));
-		int length;
-		char[] contents = new char[length = (int) entry.getSize()];
-		int len = 0;
-		int readSize = 0;
-		while ((readSize != -1) && (len != length)) {
-			readSize = reader.read(contents, len, length - len);
-			len += readSize;
-		}
-		reader.close();
+		stream = new BufferedInputStream(zipFile.getInputStream(entry));
+		char[] contents = Util.getInputStreamAsCharArray(stream, (int) entry.getSize());
 		return new NameEnvironmentAnswer(new CompilationUnit(contents, fullName));
 	} catch (Exception e) {
 		return null; // treat as if source file is missing
+	} finally {
+		if (stream != null) {
+			try {
+				stream.close();
+			} catch (IOException e) {
+			}
+		}
 	}
 }
 public String toString() {

@@ -480,7 +480,11 @@ public class SourceMapper
 			entry = zip.getEntry(fullName);
 			if (entry != null) {
 				// now read the source code
-				byte[] bytes = readEntry(zip, entry);
+				byte[] bytes = null;
+				try {
+					bytes = Util.getZipEntryByteContent(entry, zip);
+				} catch (IOException e) {
+				}
 				if (bytes != null) {
 					try {
 						source = Util.bytesToChar(bytes);
@@ -632,38 +636,6 @@ public class SourceMapper
 			this.typeDeclarationStarts = null;
 			this.typeNameRanges = null;
 			this.typeDepth = -1;
-		}
-	}
-	
-	/**
-	 * Returns the contents of the specified zip entry
-	 */
-	protected byte[] readEntry(ZipFile zip, ZipEntry entry) {
-		InputStream stream = null;
-		try {
-			stream = zip.getInputStream(entry);
-			int remaining = (int) entry.getSize();
-			byte[] bytes = new byte[remaining];
-			int offset = 0;
-			while (remaining > 0) {
-				int read = stream.read(bytes, offset, remaining);
-				if (read == -1)
-					break;
-				remaining -= read;
-				offset += read;
-			}
-			return bytes;
-		} catch (IOException e) {
-			return null;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return null;
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException ioe) {
-				}
-			}
 		}
 	}
 	
