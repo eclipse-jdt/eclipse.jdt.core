@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -32,6 +35,30 @@ import org.eclipse.jdt.core.util.ISignatureAttribute;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class GenericTypeSignatureTest extends AbstractRegressionTest {
+	class Logger extends Thread {
+		StringBuffer buffer;
+		InputStream inputStream;
+		String type;
+		Logger(InputStream inputStream, String type) {
+			this.inputStream = inputStream;
+			this.type = type;
+			this.buffer = new StringBuffer();
+		}
+
+		public void run() {
+			try {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(this.inputStream));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					buffer.append(this.type).append("->").append(line);
+				}
+				reader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	static final String RUN_SUN_JAVAC = System.getProperty("run.javac");
 	static boolean RunJavac = CompilerOptions.ENABLED.equals(RUN_SUN_JAVAC);
 	static {
@@ -127,7 +154,20 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 						// System.out.println(testName+": "+cmdLine.toString());
 						// Launch process
 						process = Runtime.getRuntime().exec(cmdLine.toString(), null, GenericTypeSignatureTest.this.dirPath.toFile());
+			            // Log errors
+			            Logger errorLogger = new Logger(process.getErrorStream(), "ERROR");            
+			            
+			            // Log output
+			            Logger outputLogger = new Logger(process.getInputStream(), "OUTPUT");
+			                
+			            // start the threads to run outputs (standard/error)
+			            errorLogger.start();
+			            outputLogger.start();
 						process.waitFor();
+						int exitValue = process.exitValue();
+						if (exitValue != 0) {
+							System.out.println(testName+": javac has found error(s)!");
+						}
 					} catch (IOException ioe) {
 						System.out.println(testName+": Not possible to launch Sun javac compilation!");
 					} catch (InterruptedException e1) {

@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -24,6 +28,31 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class GenericTypeTest extends AbstractRegressionTest {
+	
+	class Logger extends Thread {
+		StringBuffer buffer;
+		InputStream inputStream;
+		String type;
+		Logger(InputStream inputStream, String type) {
+			this.inputStream = inputStream;
+			this.type = type;
+			this.buffer = new StringBuffer();
+		}
+
+		public void run() {
+			try {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(this.inputStream));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					buffer.append(this.type).append("->").append(line);
+				}
+				reader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	static final String RUN_SUN_JAVAC = System.getProperty("run.javac");
 	static boolean runJavac = CompilerOptions.ENABLED.equals(RUN_SUN_JAVAC);
 	IPath dirPath;
@@ -55,7 +84,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		if (testsNames != null || testsNumbers!=null || testsRange!=null) {
 			return new RegressionTestSetup(suite(testClass(), testClass().getName()), highestComplianceLevels());
 		} else {
-			return setupSuite(testClass());
+			if (true) {
+				return setupSuite(testClass());
+			}
+			TestSuite suite = new TestSuite(testClass().getName());
+			suite.addTest(new GenericTypeTest("test006"));
+			return suite;
 		}
 	}
 
@@ -154,7 +188,11 @@ public class GenericTypeTest extends AbstractRegressionTest {
 						StringBuffer cp = new StringBuffer();
 						int length = classpath.length;
 						for (int i = 0; i < length; i++) {
-							cp.append(classpath[i]);
+							if (classpath[i].indexOf(" ") != -1) {
+								cp.append("\"" + classpath[i] + "\"");
+							} else {
+								cp.append(classpath[i]);
+							}
 							if (i<(length-1)) cp.append(";");
 						}
 						// Compute command line
@@ -172,8 +210,19 @@ public class GenericTypeTest extends AbstractRegressionTest {
 							cmdLine.append(subDirName);
 						}
 //						System.out.println(testName+": "+cmdLine.toString());
+//						System.out.println(GenericTypeTest.this.dirPath.toFile().getAbsolutePath());
 						// Launch process
 						process = Runtime.getRuntime().exec(cmdLine.toString(), null, GenericTypeTest.this.dirPath.toFile());
+			            // Log errors
+			            Logger errorLogger = new Logger(process.getErrorStream(), "ERROR");            
+			            
+			            // Log output
+			            Logger outputLogger = new Logger(process.getInputStream(), "OUTPUT");
+			                
+			            // start the threads to run outputs (standard/error)
+			            errorLogger.start();
+			            outputLogger.start();
+			            
 						process.waitFor();
 						// Compare compilation results
 						int exitValue = process.exitValue();
@@ -196,7 +245,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			// Run thread and wait 5 seconds for end of compilation
 			waitThread.start();
 			try {
-				waitThread.join(2000);
+				waitThread.join(5000);
 
 			} catch (InterruptedException e1) {
 				// do nothing
