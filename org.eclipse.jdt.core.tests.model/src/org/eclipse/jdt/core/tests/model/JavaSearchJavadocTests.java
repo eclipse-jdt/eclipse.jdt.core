@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -28,18 +29,42 @@ import org.eclipse.jdt.core.search.SearchEngine;
 public class JavaSearchJavadocTests extends JavaSearchTests {
 
 	Map originalOptions;
+	final String docCommentSupport;
+	static final String DOC_COMMENT_SUPPORT = System.getProperty("doc.support");
 
 	/**
 	 * @param name
 	 */
-	public JavaSearchJavadocTests(String name) {
+	public JavaSearchJavadocTests(String name, String support) {
 		super(name);
+		this.docCommentSupport = support;
 	}
-	private void resetProjectOptions() {
+	public JavaSearchJavadocTests(String name) {
+		this(name, JavaCore.ENABLED);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#setUpSuite()
+	 */
+	public void setUp() throws Exception {
+		super.setUp();
+		this.originalOptions = this.javaProject.getOptions(true);
+		this.javaProject.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, this.docCommentSupport);
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
+	 */
+	public void tearDown() throws Exception {
+		super.tearDown();
 		this.javaProject.setOptions(originalOptions);
 	}
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#getName()
+	 */
+	public String getName() {
+		return "Doc "+this.docCommentSupport+" - "+super.getName();
+	}
 	private void setJavadocOptions() {
-		this.originalOptions = this.javaProject.getOptions(true);
 		this.javaProject.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
 		this.javaProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, JavaCore.ERROR);
 	}
@@ -47,69 +72,104 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		// NOTE: cannot use 'new Suite(JavaSearchJavadocTests.class)' as this would include tests from super class
 		TestSuite suite = new Suite(JavaSearchJavadocTests.class.getName());
 
-		// Tests on type declarations
-		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeDeclaration"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeDeclarationWithJavadoc"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeStringDeclaration"));
-		
-		// Tests on field declarations
-		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldDeclaration"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldDeclarationWithJavadoc"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldStringDeclaration"));
-
-		// Tests on method declarations
-		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodDeclaration"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgDeclaration"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodDeclarationWithJavadoc"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgDeclarationWithJavadoc"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodStringDeclaration"));
-
-		// Tests on type references
-		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeReference"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeReferenceWithJavadoc"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeStringReference"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeStringReferenceWithJavadoc"));
-
-		// Tests on field references
-		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldReference"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldReferenceWithJavadoc"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldStringReference"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldStringReferenceWithJavadoc"));
-
-		// Tests on method references
-		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodReference"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgReference"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodReferenceWithJavadoc"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgReferenceWithJavadoc"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodStringReference"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodStringReferenceWithJavadoc"));
-
-		// Tests on constructor references
-		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorReference"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorArgReference"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorReferenceWithJavadoc"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorArgReferenceWithJavadoc"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorStringReference"));
-		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorStringReferenceWithJavadoc"));
-
-		// Tests on bugs
-		suite.addTest(new JavaSearchJavadocTests("testBug47909"));
-		suite.addTest(new JavaSearchJavadocTests("testBug47968type"));
-		suite.addTest(new JavaSearchJavadocTests("testBug47968field"));
-		suite.addTest(new JavaSearchJavadocTests("testBug47968method"));
-		suite.addTest(new JavaSearchJavadocTests("testBug47968constructor"));
-		suite.addTest(new JavaSearchJavadocTests("testBug47209type"));
-		suite.addTest(new JavaSearchJavadocTests("testBug47209field"));
-		suite.addTest(new JavaSearchJavadocTests("testBug47209method"));
-		suite.addTest(new JavaSearchJavadocTests("testBug47209constructor"));
-		suite.addTest(new JavaSearchJavadocTests("testBug49994"));
-		suite.addTest(new JavaSearchJavadocTests("testBug49994field"));
-		suite.addTest(new JavaSearchJavadocTests("testBug49994method"));
-		suite.addTest(new JavaSearchJavadocTests("testBug49994constructor"));
+		if (DOC_COMMENT_SUPPORT == null) {
+			// Default is to test both Doc Comment Support ON and OFF
+			buildSuite(suite, JavaCore.ENABLED);
+			buildSuite(suite, JavaCore.DISABLED);
+		} else {
+			// Test specified with Doc Comment Support
+			String support = DOC_COMMENT_SUPPORT==null ? JavaCore.DISABLED : (DOC_COMMENT_SUPPORT.equals(JavaCore.DISABLED)?JavaCore.DISABLED:JavaCore.ENABLED);
+			buildSuite(suite, support);
+		}
 		
 		return suite;
 	}
 
+	public static void buildSuite(TestSuite suite, String support) {
+//		TestSuite suite = new Suite("Doc "+support);
+		// Tests on type declarations
+		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeDeclaration", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeDeclarationWithJavadoc", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeStringDeclaration", support));
+		
+		// Tests on field declarations
+		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldDeclaration", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldDeclarationWithJavadoc", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldStringDeclaration", support));
+
+		// Tests on method declarations
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodDeclaration", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgDeclaration", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodDeclarationWithJavadoc", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgDeclarationWithJavadoc", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodStringDeclaration", support));
+
+		// Tests on type references
+		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeReference", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeReferenceWithJavadoc", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeStringReference", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeStringReferenceWithJavadoc", support));
+
+		// Tests on field references
+		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldReference", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldReferenceWithJavadoc", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldStringReference", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldStringReferenceWithJavadoc", support));
+
+		// Tests on method references
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodReference", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgReference", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodReferenceWithJavadoc", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgReferenceWithJavadoc", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodStringReference", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodStringReferenceWithJavadoc", support));
+
+		// Tests on constructor references
+		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorReference", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorArgReference", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorReferenceWithJavadoc", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorArgReferenceWithJavadoc", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorStringReference", support));
+		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorStringReferenceWithJavadoc", support));
+
+		// Tests on bugs
+		suite.addTest(new JavaSearchJavadocTests("testBug47909", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug47968type", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug47968field", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug47968method", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug47968constructor", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug47209type", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug47209field", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug47209method", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug47209constructor", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug49994", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug49994field", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug49994method", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug49994constructor", support));
+		
+//		return suite;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#assertSearchResults(java.lang.String, java.lang.Object)
+	 */
+	protected void assertSearchResults(String message, String expected, Object collector) {
+		if (JavaCore.ENABLED.equals(this.docCommentSupport)) {
+			super.assertSearchResults(message, expected, collector);
+		} else {
+			StringTokenizer tokenizer = new StringTokenizer(expected, "\n");
+			StringBuffer buffer = new StringBuffer(expected.length());
+			while (tokenizer.hasMoreTokens()) {
+				String token = tokenizer.nextToken();
+				if (token.startsWith("src/j1/JavadocSearched.java") || token.startsWith("test47909.jar")) {
+					if (buffer.length() > 0) buffer.append('\n');
+					buffer.append(token);
+				}
+			}
+//			System.out.println(getName()+" - Expected: "+buffer.toString());
+			super.assertSearchResults(message, buffer.toString(), collector);
+		}
+	}
 	/*
 	 * Test search of type declaration in javadoc comments
 	 * ===================================================
@@ -146,7 +206,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testJavadocTypeDeclarationWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -160,9 +220,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			assertSearchResults(
 					"src/j1/JavadocSearched.java j1.JavadocSearched [JavadocSearched] EXACT_MATCH",
 					result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 
 	/*
@@ -203,7 +263,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public void testJavadocFieldDeclarationWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		IField field = type.getField("javadocSearchedVar");
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -217,9 +277,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			assertSearchResults(
 					"src/j1/JavadocSearched.java j1.JavadocSearched.javadocSearchedVar [javadocSearchedVar] EXACT_MATCH",
 					result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 
 	/*
@@ -276,7 +336,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testJavadocMethodDeclarationWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-		try {
+//		try {
 			setJavadocOptions();
 			IMethod method = type.getMethod("javadocSearchedMethod", null);
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -291,13 +351,13 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			assertSearchResults(
 					"src/j1/JavadocSearched.java void j1.JavadocSearched.javadocSearchedMethod() [javadocSearchedMethod] EXACT_MATCH",
 					result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testJavadocMethodArgDeclarationWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-		try {
+//		try {
 			setJavadocOptions();
 			IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -312,9 +372,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			assertSearchResults(
 					"src/j1/JavadocSearched.java void j1.JavadocSearched.javadocSearchedMethod(String) [javadocSearchedMethod] EXACT_MATCH",
 					result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 
 	/*
@@ -373,7 +433,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testJavadocTypeReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -397,12 +457,12 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
 				result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testJavadocTypeStringReferenceWithJavadoc() throws CoreException {
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -427,9 +487,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n"+
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
 				result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 
 	/*
@@ -473,7 +533,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public void testJavadocFieldReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
 		IField field = type.getField("javadocSearchedVar");
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -488,12 +548,12 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 					"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH\n" + 
 					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedVar] EXACT_MATCH",
 					result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testJavadocFieldStringReferenceWithJavadoc() throws CoreException {
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -510,9 +570,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 					"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedVar] POTENTIAL_MATCH\n" + 
 					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedVar] EXACT_MATCH",
 					result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 
 	/*
@@ -572,7 +632,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testJavadocMethodReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-		try {
+//		try {
 			setJavadocOptions();
 			IMethod method = type.getMethod("javadocSearchedMethod", null);
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -588,13 +648,13 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 					"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [javadocSearchedMethod] POTENTIAL_MATCH\n" + 
 					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod] EXACT_MATCH",
 					result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testJavadocMethodArgReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-		try {
+//		try {
 			setJavadocOptions();
 			IMethod method = type.getMethod("javadocSearchedMethod", new String[] { "QString;" });
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -609,12 +669,12 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			assertSearchResults(
 					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod] EXACT_MATCH",
 					result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testJavadocMethodStringReferenceWithJavadoc() throws CoreException {
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -632,9 +692,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod] EXACT_MATCH\n" + 
 					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [javadocSearchedMethod] EXACT_MATCH",
 					result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 
 	/*
@@ -692,7 +752,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	}
 	public void testJavadocConstructorReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-		try {
+//		try {
 			setJavadocOptions();
 			IMethod method = type.getMethod("JavadocSearched", null);
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -707,13 +767,13 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			assertSearchResults(
 					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
 					result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testJavadocConstructorArgReferenceWithJavadoc() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j1", "JavadocSearched.java").getType("JavadocSearched");
-		try {
+//		try {
 			setJavadocOptions();
 			IMethod method = type.getMethod("JavadocSearched", new String[] { "QString;" });
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -728,12 +788,12 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			assertSearchResults(
 					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
 					result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testJavadocConstructorStringReferenceWithJavadoc() throws CoreException {
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -750,9 +810,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n" + 
 				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
 				result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 
 	/**
@@ -762,7 +822,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	 */
 	public void testBug47909() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j3", "Y.java").getType("Y");
-		try {
+//		try {
 			setJavadocOptions();
 			IMethod method = type.getMethod("Y", new String[] { "I" });
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -777,9 +837,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			assertSearchResults(
 				"test47909.jar void j3.X.bar() EXACT_MATCH",
 				result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	
 	/**
@@ -789,7 +849,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	 */
 	public void testBug47968type() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j2", "Bug47968.java").getType("Bug47968");
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -820,13 +880,13 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 				"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH\n" + 
 				"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH",
 				result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testBug47968field() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j2", "Bug47968.java").getType("Bug47968");
-		try {
+//		try {
 			setJavadocOptions();
 			IField field = type.getField("x");
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -844,13 +904,13 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 				"src/j2/Bug47968s.java j2.Bug47968s() [x] EXACT_MATCH\n" + 
 				"src/j2/Bug47968s.java void j2.Bug47968s.bar() [x] EXACT_MATCH",
 				result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testBug47968method() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j2", "Bug47968.java").getType("Bug47968");
-		try {
+//		try {
 			setJavadocOptions();
 			IMethod method = type.getMethod("foo", new String[] { "I" });
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -868,13 +928,13 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 				"src/j2/Bug47968s.java j2.Bug47968s() [foo] EXACT_MATCH\n" + 
 				"src/j2/Bug47968s.java void j2.Bug47968s.bar() [foo] EXACT_MATCH",
 				result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testBug47968constructor() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j2", "Bug47968.java").getType("Bug47968");
-		try {
+//		try {
 			setJavadocOptions();
 			IMethod method = type.getMethod("Bug47968", new String[] { "QString;" });
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
@@ -892,9 +952,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 				"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH\n" + 
 				"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH",
 				result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 
 	/**
@@ -903,7 +963,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	 * @throws CoreException
 	 */
 	public void testBug47209type() throws CoreException {
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -921,12 +981,12 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 					"src/j4/TC47209.java j4.TC47209(String) [TC47209] EXACT_MATCH\n" +
 					"src/j4/TM47209.java void j4.TM47209.m47209(int) [TM47209] EXACT_MATCH",
 				result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testBug47209field() throws CoreException {
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -944,12 +1004,12 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 					"src/j4/FC47209.java j4.FC47209(String) [FC47209] EXACT_MATCH\n" +
 					"src/j4/FM47209.java void j4.FM47209.m47209(int) [FM47209] EXACT_MATCH",
 				result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testBug47209method() throws CoreException {
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -967,12 +1027,12 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 					"src/j4/MC47209.java j4.MC47209(String) [MC47209] EXACT_MATCH\n" +
 					"src/j4/MM47209.java void j4.MM47209.m47209(int) [MM47209] EXACT_MATCH",
 				result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testBug47209constructor() throws CoreException {
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -990,9 +1050,9 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 					"src/j4/CC47209.java j4.CC47209(String) [CC47209] EXACT_MATCH\n" +
 					"src/j4/CM47209.java void j4.CM47209.m47209(int) [CM47209] EXACT_MATCH",
 				result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 
 	/**
@@ -1001,19 +1061,19 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	 * @throws CoreException
 	 */
 	public void testBug49994() throws CoreException {
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
 			IType type = getCompilationUnit("JavaSearch", "src", "j5", "Bug49994.java").getType("Bug49994");
 			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
 			assertSearchResults("", result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testBug49994field() throws CoreException {
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -1021,12 +1081,12 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			IField field = type.getField("field");
 			new SearchEngine().search(getWorkspace(), field, REFERENCES, getJavaSearchScope(), result);
 			assertSearchResults("src/j5/Bug49994.java void j5.Bug49994.foo() [field] EXACT_MATCH", result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testBug49994method() throws CoreException {
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -1034,12 +1094,12 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			IMethod method = type.getMethod("bar", new String[0]);
 			new SearchEngine().search(getWorkspace(), method, REFERENCES, getJavaSearchScope(), result);
 			assertSearchResults("src/j5/Bug49994.java void j5.Bug49994.foo() [bar] EXACT_MATCH", result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 	public void testBug49994constructor() throws CoreException {
-		try {
+//		try {
 			setJavadocOptions();
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
@@ -1047,8 +1107,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			IMethod method = type.getMethod("Bug49994", new String[] { "QString;" });
 			new SearchEngine().search(getWorkspace(), method, REFERENCES, getJavaSearchScope(), result);
 			assertSearchResults("src/j5/Bug49994.java void j5.Bug49994.foo() [Bug49994] EXACT_MATCH", result);
-		} finally {
-			resetProjectOptions();
-		}
+//		} finally {
+//			resetProjectOptions();
+//		}
 	}
 }

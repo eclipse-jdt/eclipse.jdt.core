@@ -533,7 +533,11 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocInvalidSeeHref:
 		case IProblem.JavadocInvalidSeeArgs:
 		case IProblem.JavadocInvalidTag:
-			return this.options.getSeverity(CompilerOptions.InvalidJavadoc);
+			if (this.options.docCommentSupport) {
+				return this.options.getSeverity(CompilerOptions.InvalidJavadoc);
+			} else {
+				return ProblemSeverities.Ignore;
+			}
 
 		/*
 		 * Javadoc tags resolved references errors
@@ -565,10 +569,11 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocInternalTypeNameProvided:
 		case IProblem.JavadocNoMessageSendOnArrayType:
 		case IProblem.JavadocNoMessageSendOnBaseType:
-			if (!this.options.reportInvalidJavadocTags)
-				return ProblemSeverities.Ignore;
-			else
+			if (this.options.docCommentSupport && this.options.reportInvalidJavadocTags) {
 				return this.options.getSeverity(CompilerOptions.InvalidJavadoc);
+			} else {
+				return ProblemSeverities.Ignore;
+			}
 
 		/*
 		 * Javadoc missing tags errors
@@ -576,13 +581,21 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocMissingParamTag:
 		case IProblem.JavadocMissingReturnTag:
 		case IProblem.JavadocMissingThrowsTag:
-			return this.options.getSeverity(CompilerOptions.MissingJavadocTags);
+			if (this.options.docCommentSupport) {
+				return this.options.getSeverity(CompilerOptions.MissingJavadocTags);
+			} else {
+				return ProblemSeverities.Ignore;
+			}
 
 		/*
 		 * Missing Javadoc errors
 		 */
 		case IProblem.JavadocMissing:
-			return this.options.getSeverity(CompilerOptions.MissingJavadocComments);
+			if (this.options.docCommentSupport) {
+				return this.options.getSeverity(CompilerOptions.MissingJavadocComments);
+			} else {
+				return ProblemSeverities.Ignore;
+			}
 
 		// by default problems are errors.
 		default:

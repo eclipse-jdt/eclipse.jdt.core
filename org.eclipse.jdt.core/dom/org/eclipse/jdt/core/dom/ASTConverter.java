@@ -44,6 +44,7 @@ class ASTConverter {
 	private IProgressMonitor monitor;
 	// comments
 	private boolean insideComments;
+	private DocCommentParser docParser;
 	private Comment[] commentsTable;
 
 	public ASTConverter(Map options, boolean resolveBindings, IProgressMonitor monitor) {
@@ -56,11 +57,12 @@ class ASTConverter {
 					null /*taskTags*/,
 					null/*taskPriorities*/);
 		this.monitor = monitor;
-		this.insideComments = true;
+		this.insideComments = JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT));
 	}
 	
 	public void setAST(AST ast) {
 		this.ast = ast;
+		this.docParser = new DocCommentParser(this.ast, this.scanner, this.insideComments);
 	}
 
 	/*
@@ -132,7 +134,7 @@ class ASTConverter {
 
 		// Parse comments
 		int[][] comments = unit.comments;
-		if (comments != null && this.insideComments) {
+		if (comments != null) {
 			buildCommentsTable(compilationUnit, comments);
 		}
 
@@ -3094,8 +3096,7 @@ class ASTConverter {
 		int end = positions[1];
 		if (positions[1]>0) { // Javadoc comments have positive end position
 			this.ast.newJavadoc();
-			DocCommentParser docParser = new DocCommentParser(this.ast, this.scanner);
-			Javadoc docComment = docParser.parse(positions);
+			Javadoc docComment = this.docParser.parse(positions);
 			if (docComment == null) return null;
 			comment = docComment;
 		} else {

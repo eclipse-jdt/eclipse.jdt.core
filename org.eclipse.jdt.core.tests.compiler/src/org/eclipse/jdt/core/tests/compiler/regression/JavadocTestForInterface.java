@@ -13,36 +13,24 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocTestForInterface extends JavadocTest {
-	public static Test suite() {
-		if (false) {
-			TestSuite ts;
-			//some of the tests depend on the order of this suite.
-			ts = new TestSuite();
-			for (int i = 61; i <= 61; i++) {
-				String meth = "test";
-				if (i < 10) {
-					meth += "0";
-				}
-				if (i < 100) {
-					meth += "0";
-				}
-				meth += i;
-				ts.addTest(new JavadocTestForInterface(meth));
-			}
-			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
-		}
-		return setupSuite(testClass());
-	}
 	public JavadocTestForInterface(String name) {
 		super(name);
 	}
-	public static Class testClass() {
+	public JavadocTestForInterface(String name, String support) {
+		super(name, support);
+	}
+	public static Class javadocTestClass() {
 		return JavadocTestForInterface.class;
+	}
+
+	public static Test suite() {
+		return buildSuite(javadocTestClass());
+	}
+	static { // Use this static to initialize testNames (String[]) , testRange (int[2]), testNumbers (int[])
 	}
 
 	protected Map getCompilerOptions() {

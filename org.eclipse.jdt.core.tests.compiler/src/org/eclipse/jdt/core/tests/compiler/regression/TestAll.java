@@ -28,7 +28,7 @@ public TestAll(String testName) {
 }
 public static Test suite() {
 	ArrayList standardTests = new ArrayList();
-	standardTests.addAll(JavadocTest.allTestClasses);
+//	standardTests.addAll(JavadocTest.allTestClasses);
 	standardTests.add(ArrayTest.class);
 	standardTests.add(AssignmentTest.class);
 	standardTests.add(BatchCompilerTest.class);
@@ -65,6 +65,8 @@ public static Test suite() {
 	    ArrayList tests_1_5 = (ArrayList)standardTests.clone();
 		all.addTest(AbstractCompilerTest.suiteForComplianceLevel(AbstractCompilerTest.COMPLIANCE_1_5, RegressionTestSetup.class, tests_1_5));
 	}
+	// Add Javadoc test suites
+	all.addTest(JavadocTest.suite());
 	return all;
 }
 }

@@ -13,7 +13,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -26,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
  */
 public class JavadocTestOptions extends JavadocTest {
 
+	String localDocCommentSupport = null;
 	String reportInvalidJavadoc = null;
 	String reportInvalidJavadocTagsVisibility = null;
 	String reportInvalidJavadocTags = null;
@@ -1513,24 +1513,34 @@ public class JavadocTestOptions extends JavadocTest {
 	public JavadocTestOptions(String name) {
 		super(name);
 	}
-
-	public static Class testClass() {
+	public JavadocTestOptions(String name, String support) {
+		super(name, support);
+	}
+	public static Class javadocTestClass() {
 		return JavadocTestOptions.class;
 	}
-
 	public static Test suite() {
-		if (false) {
-			TestSuite ts = new TestSuite();
-			ts.addTest(new JavadocTestOptions("testMissingTagsErrorPrivate"));
-			ts.addTest(new JavadocTestOptions("testMissingCommentsErrorPrivate"));
-			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
-		}
-		return setupSuite(testClass());
+		return buildSuite(javadocTestClass());
 	}
+	static { // Use this static to initialize testNames (String[]) , testRange (int[2]), testNumbers (int[])
+	}
+	/**
+	 * @return Returns the docCommentSupport.
+	 *
+	public String getNamePrefix() {
+		if (this.localDocCommentSupport == null) {
+			return super.getNamePrefix();
+		} else {
+			return this.localDocCommentSupport;
+		}
+	}
+	*/
 
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		// Set javadoc options if non null
+		if (this.localDocCommentSupport != null) 
+			options.put(CompilerOptions.OPTION_DocCommentSupport, this.localDocCommentSupport);
 		if (reportInvalidJavadoc != null)
 			options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, reportInvalidJavadoc);
 		if (reportInvalidJavadocTagsVisibility != null)
@@ -1881,4 +1891,34 @@ public class JavadocTestOptions extends JavadocTest {
 		reportInvalidJavadocTagsVisibility = CompilerOptions.PRIVATE;
 		runConformTest(MissingTags);
 	}
+
+	/**
+	 * Test fix for bug 52264.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52264">52264</a>
+	 */
+	// Test invalid javadoc "error" with javadoc comment support disabled
+	public void testInvalidTagsReferencesJavadocSupportDisabled() {
+		this.localDocCommentSupport = CompilerOptions.DISABLED;
+		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocTags = CompilerOptions.ERROR;
+		runConformTest(InvalidReferencesClassJavadocComments);
+		runConformTest(InvalidReferencesFieldJavadocComments);
+		runConformTest(InvalidReferencesMethodJavadocComments);
+		runConformTest(InvalidReferencesConstructorJavadocComments);
+	}
+
+	// Test missing javadoc comments "error" with javadoc comment support disabled
+	public void testMissingCommentsJavadocSupportDisabled() {
+		this.localDocCommentSupport = CompilerOptions.DISABLED;
+		reportMissingJavadocComments = CompilerOptions.ERROR;
+		runConformReferenceTest(MissingComments);
+	}
+
+	// Test missing javadoc tags "error" with javadoc comment support disabled
+	public void testMissingTagsJavadocSupportDisabled() {
+		this.localDocCommentSupport = CompilerOptions.DISABLED;
+		reportMissingJavadocTags = CompilerOptions.ERROR;
+		runConformReferenceTest(MissingTags);
+	}
+
 }

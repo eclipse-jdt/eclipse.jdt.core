@@ -43,10 +43,26 @@ Eclipse SDK 3.0M8 Build - ?th March 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added new global option for doc comment (Javadoc) support. By default, this option is enabled for backward compatibility.
+<pre>
+	 * COMPILER / Javadoc Comment Support
+	 *    When this support is disabled, the compiler will ignore all javadoc problems options settings
+	 *    and will not report any javadoc problem. It will also not find any reference in javadoc comment and
+	 *    DOM AST Javadoc node will be only a flat text instead of having structured tag elements.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.doc.comment.support"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
+</pre>
+See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52264">52264</a>.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53477">53477</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52264">52264</a>
+Need a global preference to enable Javadoc support
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51529">51529</a>
+"Organize imports" is confused by references inside Javadoc
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53477">53477</a>
 AnonymousClassDeclaration has wrong range
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53624">53624</a>
 StackOverFlow in Code assist 

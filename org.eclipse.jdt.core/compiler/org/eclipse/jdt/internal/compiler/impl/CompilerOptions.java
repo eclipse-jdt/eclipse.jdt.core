@@ -31,6 +31,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_LineNumberAttribute = "org.eclipse.jdt.core.compiler.debug.lineNumber"; //$NON-NLS-1$
 	public static final String OPTION_SourceFileAttribute = "org.eclipse.jdt.core.compiler.debug.sourceFile"; //$NON-NLS-1$
 	public static final String OPTION_PreserveUnusedLocal = "org.eclipse.jdt.core.compiler.codegen.unusedLocal"; //$NON-NLS-1$
+	public static final String OPTION_DocCommentSupport= "org.eclipse.jdt.core.compiler.doc.comment.support"; //$NON-NLS-1$
 	public static final String OPTION_ReportMethodWithConstructorName = "org.eclipse.jdt.core.compiler.problem.methodWithConstructorName"; //$NON-NLS-1$
 	public static final String OPTION_ReportOverridingPackageDefaultMethod = "org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeprecation = "org.eclipse.jdt.core.compiler.problem.deprecation"; //$NON-NLS-1$
@@ -230,6 +231,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	// JSR bytecode usage
 	public boolean useJsrBytecode = true;
 	
+	// javadoc comment support
+	public boolean docCommentSupport = false;
+	
 	
 	/** 
 	 * Initializing the compiler options with defaults
@@ -254,6 +258,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_LineNumberAttribute, (this.produceDebugAttributes & Lines) != 0 ? GENERATE : DO_NOT_GENERATE);
 		optionsMap.put(OPTION_SourceFileAttribute, (this.produceDebugAttributes & Source) != 0 ? GENERATE : DO_NOT_GENERATE);
 		optionsMap.put(OPTION_PreserveUnusedLocal, this.preserveAllLocalVariables ? PRESERVE : OPTIMIZE_OUT);
+		optionsMap.put(OPTION_DocCommentSupport, this.docCommentSupport ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportMethodWithConstructorName, getSeverityString(MethodWithConstructorName)); 
 		optionsMap.put(OPTION_ReportOverridingPackageDefaultMethod, getSeverityString(OverriddenPackageDefaultMethod)); 
 		optionsMap.put(OPTION_ReportDeprecation, getSeverityString(UsingDeprecatedAPI)); 
@@ -497,6 +502,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_ReportNoEffectAssignment)) != null) updateSeverity(NoEffectAssignment, optionValue);
 
 		// Javadoc options
+		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.docCommentSupport = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.docCommentSupport = false;
+			}
+		}
 		if ((optionValue = optionsMap.get(OPTION_ReportInvalidJavadoc)) != null) {
 			updateSeverity(InvalidJavadoc, optionValue);
 		}
@@ -589,15 +601,16 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- superfluous semicolon: ").append(getSeverityString(SuperfluousSemicolon)); //$NON-NLS-1$
 		buf.append("\n\t- uncommented empty block: ").append(getSeverityString(UndocumentedEmptyBlock)); //$NON-NLS-1$
 		buf.append("\n\t- unnecessary type check: ").append(getSeverityString(UnnecessaryTypeCheck)); //$NON-NLS-1$
-		buf.append("\n\t- invalid javadoc: ").append(getSeverityString(InvalidJavadoc)); //$NON-NLS-1$
-		buf.append("\n\t- report invalid javadoc tags: ").append(this.reportInvalidJavadocTags ? ENABLED : DISABLED); //$NON-NLS-1$
-		buf.append("\n\t- visibility level to report invalid javadoc tags: ").append(getVisibilityString(this.reportInvalidJavadocTagsVisibility)); //$NON-NLS-1$
-		buf.append("\n\t- missing javadoc tags: ").append(getSeverityString(MissingJavadocTags)); //$NON-NLS-1$
-		buf.append("\n\t- visibility level to report missing javadoc tags: ").append(getVisibilityString(this.reportMissingJavadocTagsVisibility)); //$NON-NLS-1$
-		buf.append("\n\t- report missing javadoc tags in overriding methods: ").append(this.reportMissingJavadocTagsOverriding ? ENABLED : DISABLED); //$NON-NLS-1$
-		buf.append("\n\t- missing javadoc comments: ").append(getSeverityString(MissingJavadocComments)); //$NON-NLS-1$
-		buf.append("\n\t- visibility level to report missing javadoc comments: ").append(getVisibilityString(this.reportMissingJavadocCommentsVisibility)); //$NON-NLS-1$
-		buf.append("\n\t- report missing javadoc comments in overriding methods: ").append(this.reportMissingJavadocCommentsOverriding ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t- javadoc comment support: ").append(this.docCommentSupport ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t\t+ invalid javadoc: ").append(getSeverityString(InvalidJavadoc)); //$NON-NLS-1$
+		buf.append("\n\t\t+ report invalid javadoc tags: ").append(this.reportInvalidJavadocTags ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t\t+ visibility level to report invalid javadoc tags: ").append(getVisibilityString(this.reportInvalidJavadocTagsVisibility)); //$NON-NLS-1$
+		buf.append("\n\t\t+ missing javadoc tags: ").append(getSeverityString(MissingJavadocTags)); //$NON-NLS-1$
+		buf.append("\n\t\t+ visibility level to report missing javadoc tags: ").append(getVisibilityString(this.reportMissingJavadocTagsVisibility)); //$NON-NLS-1$
+		buf.append("\n\t\t+ report missing javadoc tags in overriding methods: ").append(this.reportMissingJavadocTagsOverriding ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t\t+ missing javadoc comments: ").append(getSeverityString(MissingJavadocComments)); //$NON-NLS-1$
+		buf.append("\n\t\t+ visibility level to report missing javadoc comments: ").append(getVisibilityString(this.reportMissingJavadocCommentsVisibility)); //$NON-NLS-1$
+		buf.append("\n\t\t+ report missing javadoc comments in overriding methods: ").append(this.reportMissingJavadocCommentsOverriding ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- finally block not completing normally: ").append(getSeverityString(FinallyBlockNotCompleting)); //$NON-NLS-1$
 		buf.append("\n\t- unused declared thrown exception: ").append(getSeverityString(UnusedDeclaredThrownException)); //$NON-NLS-1$
 		buf.append("\n\t- unused declared thrown exception when overriding ").append(this.reportUnusedDeclaredThrownExceptionWhenOverriding ? ENABLED : DISABLED); //$NON-NLS-1$

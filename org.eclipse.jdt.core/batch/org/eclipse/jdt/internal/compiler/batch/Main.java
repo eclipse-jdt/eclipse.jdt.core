@@ -832,39 +832,51 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else if (token.equals("javadoc")) {//$NON-NLS-1$ 
 						this.options.put(
-							CompilerOptions.OPTION_ReportInvalidJavadoc,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportInvalidJavadocTags,
-							isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
-						this.options.put(
-							CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
-							isEnabling ? CompilerOptions.PRIVATE : CompilerOptions.PUBLIC);
-						this.options.put(
-							CompilerOptions.OPTION_ReportMissingJavadocTags,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
-							isEnabling ? CompilerOptions.PRIVATE : CompilerOptions.PUBLIC);
+							CompilerOptions.OPTION_DocCommentSupport,
+							isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
+						// if disabling then it's not necessary to set other javadoc options
+						if (isEnabling) {
+							this.options.put(
+								CompilerOptions.OPTION_ReportInvalidJavadoc,
+								CompilerOptions.WARNING);
+							this.options.put(
+								CompilerOptions.OPTION_ReportInvalidJavadocTags,
+								CompilerOptions.ENABLED);
+							this.options.put(
+								CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
+								CompilerOptions.PRIVATE);
+							this.options.put(
+								CompilerOptions.OPTION_ReportMissingJavadocTags,
+								CompilerOptions.WARNING);
+							this.options.put(
+								CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
+								CompilerOptions.PRIVATE);
+						}
 					} else if (token.equals("allJavadoc")) { //$NON-NLS-1$
 						this.options.put(
+							CompilerOptions.OPTION_DocCommentSupport,
+							isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
+						// if disabling then it's not necessary to set other javadoc options
+						if (isEnabling) {
+							this.options.put(
 							CompilerOptions.OPTION_ReportInvalidJavadoc,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportInvalidJavadocTags,
-							isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
-						this.options.put(
-							CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
-							isEnabling ? CompilerOptions.PRIVATE : CompilerOptions.PUBLIC);
-						this.options.put(
-							CompilerOptions.OPTION_ReportMissingJavadocTags,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
-							isEnabling ? CompilerOptions.PRIVATE : CompilerOptions.PUBLIC);
-						this.options.put(
-							CompilerOptions.OPTION_ReportMissingJavadocComments,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+							CompilerOptions.WARNING);
+							this.options.put(
+								CompilerOptions.OPTION_ReportInvalidJavadocTags,
+								CompilerOptions.ENABLED);
+							this.options.put(
+								CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
+								CompilerOptions.PRIVATE);
+							this.options.put(
+								CompilerOptions.OPTION_ReportMissingJavadocTags,
+								CompilerOptions.WARNING);
+							this.options.put(
+								CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
+								CompilerOptions.PRIVATE);
+							this.options.put(
+								CompilerOptions.OPTION_ReportMissingJavadocComments,
+								CompilerOptions.WARNING);
+						}
 					} else if (token.startsWith("tasks")) { //$NON-NLS-1$
 						String taskTags = ""; //$NON-NLS-1$
 						int start = token.indexOf('(');

@@ -69,7 +69,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
@@ -1432,31 +1431,6 @@ public class JavaProject
 			if (optionNames.contains(propertyName)){
 				options.put(propertyName, value);
 			}		
-			// bug 45112 backward compatibility.
-			// TODO (frederic) remove after 3.0 M6
-			else if (CompilerOptions.OPTION_ReportInvalidAnnotation.equals(propertyName)) {
-				options.put(JavaCore.COMPILER_PB_INVALID_JAVADOC, value);
-			}
-			else if (CompilerOptions.OPTION_ReportMissingAnnotation.equals(propertyName)) {
-				if (JavaCore.ENABLED.equals(value)) {
-					value = preferences.getString(JavaCore.COMPILER_PB_INVALID_JAVADOC);
-				} else {
-					value = JavaCore.IGNORE;
-				}
-				options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, value);
-			}
-			// end bug 45112
-			// bug 46854 backward compatibility
-			// TODO (frederic) remove after 3.0 M7
-			else if (CompilerOptions.OPTION_ReportMissingJavadoc.equals(propertyName)) {
-				if (JavaCore.ENABLED.equals(value)) {
-					value = preferences.getString(JavaCore.COMPILER_PB_INVALID_JAVADOC);
-				} else {
-					value = JavaCore.IGNORE;
-				}
-				options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, value);
-			}
-			// end bug 46854
 			// TODO (olivier) Remove after M7
 			else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
 				Util.convertFormatterDeprecatedOptions(propertyName, value, options);
@@ -2521,24 +2495,16 @@ public class JavaProject
 			}
 		}
 
-		// Backward compatibility
+		/* Test OPTION_DocCommentSupport
 		String[] propertyNames = preferences.propertyNames();
 		for (int i = 0; i < propertyNames.length; i++){
 			String propertyName = propertyNames[i];
-			// bug 45112
-			if (CompilerOptions.OPTION_ReportInvalidAnnotation.equals(propertyName)) {
-				preferences.setToDefault(JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION);
+			// set same value than missing javadoc comments overriding
+			if (CompilerOptions.OPTION_ReportMissingJavadocCommentsOverriding.equals(propertyName)) {
+				preferences.setValue(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, preferences.getString(propertyName));
 			}
-			else if (CompilerOptions.OPTION_ReportMissingAnnotation.equals(propertyName)) {
-				preferences.setToDefault(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION);
-			}
-			// end bug 45112
-			// bug 46854
-			else if (CompilerOptions.OPTION_ReportMissingJavadoc.equals(propertyName)) {
-				preferences.setToDefault(JavaCore.OLD_COMPILER_PB_MISSING_JAVADOC);
-			}
-			// end bug 46854
 		}
+		*/
 
 		// persist options
 		savePreferences(preferences);	

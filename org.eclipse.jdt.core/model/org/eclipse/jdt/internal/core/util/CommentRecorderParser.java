@@ -35,7 +35,6 @@ public class CommentRecorderParser extends Parser {
 	 */
 	public CommentRecorderParser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 		super(problemReporter, optimizeStringLiterals);
-		this.javadocParser.checkDocComment = true;
 	}
 
 	// old javadoc style check which doesn't include all leading comments into declaration
