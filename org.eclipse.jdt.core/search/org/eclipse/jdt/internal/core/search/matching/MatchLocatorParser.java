@@ -108,7 +108,7 @@ public void checkComment() {
 		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
 		for (int i = 0; i < throwsTagsNbre; i++) {
 			TypeReference typeRef = thrownExceptions[i];
-			patternLocator.match(typeRef, nodeSet);
+			this.patternLocator.match(typeRef, this.nodeSet);
 		}
 
 		// Search for pattern locator matches in javadoc comment @see tags
@@ -118,26 +118,26 @@ public void checkComment() {
 			Expression reference = references[i];
 			if (reference instanceof TypeReference) {
 				TypeReference typeRef = (TypeReference) reference;
-				patternLocator.match(typeRef, nodeSet);
+				this.patternLocator.match(typeRef, this.nodeSet);
 			} else if (reference instanceof JavadocFieldReference) {
 				JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
-				patternLocator.match(fieldRef, nodeSet);
-				if (fieldRef.receiver instanceof TypeReference) {
+				this.patternLocator.match(fieldRef, this.nodeSet);
+				if (fieldRef.receiver instanceof TypeReference && !fieldRef.receiver.isThis()) {
 					TypeReference typeRef = (TypeReference) fieldRef.receiver;
-					patternLocator.match(typeRef, nodeSet);
+					this.patternLocator.match(typeRef, this.nodeSet);
 				}
 			} else if (reference instanceof JavadocMessageSend) {
 				JavadocMessageSend messageSend = (JavadocMessageSend) reference;
-				patternLocator.match(messageSend, nodeSet);
-				if (messageSend.receiver instanceof TypeReference) {
+				this.patternLocator.match(messageSend, this.nodeSet);
+				if (messageSend.receiver instanceof TypeReference && !messageSend.receiver.isThis()) {
 					TypeReference typeRef = (TypeReference) messageSend.receiver;
-					patternLocator.match(typeRef, nodeSet);
+					this.patternLocator.match(typeRef, this.nodeSet);
 				}
 			} else if (reference instanceof JavadocAllocationExpression) {
 				JavadocAllocationExpression constructor = (JavadocAllocationExpression) reference;
-				patternLocator.match(constructor, nodeSet);
-				if (constructor.type != null) {
-					patternLocator.match(constructor.type, nodeSet);
+				this.patternLocator.match(constructor, this.nodeSet);
+				if (constructor.type != null && !constructor.type.isThis()) {
+					this.patternLocator.match(constructor.type, this.nodeSet);
 				}
 			}
 		}

@@ -38,7 +38,9 @@ public class JavadocMessageSend extends MessageSend {
 		// Answer the signature return type
 		// Base type promotion
 		this.constant = NotAConstant;
-		if (scope.kind == Scope.CLASS_SCOPE) {
+		if (this.receiver == null) {
+			this.receiverType = scope.enclosingSourceType();
+		} else if (scope.kind == Scope.CLASS_SCOPE) {
 			this.receiverType = this.receiver.resolveType((ClassScope) scope);
 		} else {
 			this.receiverType = this.receiver.resolveType((BlockScope) scope);

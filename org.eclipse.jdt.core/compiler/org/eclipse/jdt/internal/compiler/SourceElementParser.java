@@ -126,18 +126,26 @@ public void checkComment() {
 			if (reference instanceof JavadocFieldReference) {
 				JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
 				this.requestor.acceptFieldReference(fieldRef.token, fieldRef.sourceStart);
-				acceptJavadocTypeReference(fieldRef.receiver);
+				if (fieldRef.receiver != null && !fieldRef.receiver.isThis()) {
+					acceptJavadocTypeReference(fieldRef.receiver);
+				}
 			} else if (reference instanceof JavadocMessageSend) {
 				JavadocMessageSend messageSend = (JavadocMessageSend) reference;
 				int argCount = messageSend.arguments == null ? 0 : messageSend.arguments.length;
 				this.requestor.acceptMethodReference(messageSend.selector, argCount, messageSend.sourceStart);
-				acceptJavadocTypeReference(messageSend.receiver);
+				if (messageSend.receiver != null && !messageSend.receiver.isThis()) {
+					acceptJavadocTypeReference(messageSend.receiver);
+				}
 			} else if (reference instanceof JavadocAllocationExpression) {
 				JavadocAllocationExpression constructor = (JavadocAllocationExpression) reference;
 				int argCount = constructor.arguments == null ? 0 : constructor.arguments.length;
-				char[][] compoundName = constructor.type.getTypeName();
-				this.requestor.acceptConstructorReference(compoundName[compoundName.length-1], argCount, constructor.sourceStart);
-				acceptJavadocTypeReference(constructor.type);
+				if (constructor.type != null) {
+					char[][] compoundName = constructor.type.getTypeName();
+					this.requestor.acceptConstructorReference(compoundName[compoundName.length-1], argCount, constructor.sourceStart);
+					if (!constructor.type.isThis()) {
+						acceptJavadocTypeReference(constructor.type);
+					}
+				}
 			}
 		}
 	}
