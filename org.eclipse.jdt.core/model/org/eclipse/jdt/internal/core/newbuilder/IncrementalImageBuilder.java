@@ -23,6 +23,7 @@ import java.util.*;
 public class IncrementalImageBuilder extends AbstractImageBuilder {
 
 protected ArrayList locations;
+protected ArrayList previousLocations;
 protected ArrayList typeNames;
 protected ArrayList qualifiedStrings;
 protected ArrayList simpleStrings;
@@ -34,6 +35,7 @@ protected IncrementalImageBuilder(JavaBuilder javaBuilder) {
 	this.newState.copyFrom(javaBuilder.lastState);
 
 	this.locations = new ArrayList(33);
+	this.previousLocations = null;
 	this.typeNames = new ArrayList(33);
 	this.qualifiedStrings = new ArrayList(33);
 	this.simpleStrings = new ArrayList(33);
@@ -122,7 +124,8 @@ protected void addAffectedSourceFiles() {
 		char[] key = keyTable[i];
 		if (key != null) {
 			String location = new String(key);
-			// must add previously compiled locations, otherwise we do not find hierarchy related problems
+			if (compiledAllAtOnce && previousLocations != null && previousLocations.contains(location))
+				continue next; // can skip previously compiled locations since already saw hierarchy related problems
 			if (locations.contains(location))
 				continue next; // already know to compile this file so skip it
 
@@ -179,6 +182,7 @@ protected void cleanUp() {
 	super.cleanUp();
 
 	this.locations = null;
+	this.previousLocations = null;
 	this.typeNames = null;
 	this.qualifiedStrings = null;
 	this.simpleStrings = null;
@@ -409,6 +413,8 @@ protected boolean isClassFileChanged(IFile file, String fileName, byte[] newByte
 }
 
 protected void resetCollections() {
+	previousLocations = locations.isEmpty() ? null : (ArrayList) locations.clone();
+
 	locations.clear();
 	typeNames.clear();
 	qualifiedStrings.clear();

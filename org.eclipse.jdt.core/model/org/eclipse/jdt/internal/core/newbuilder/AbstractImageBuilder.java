@@ -41,6 +41,7 @@ protected NameEnvironment nameEnvironment;
 protected Compiler compiler;
 protected WorkQueue workQueue;
 protected ArrayList problemTypeLocations;
+protected boolean compiledAllAtOnce;
 
 private boolean inCompiler;
 
@@ -126,7 +127,7 @@ protected void cleanUp() {
 */
 protected void compile(String[] filenames, String[] initialTypeNames) {
 	int toDo = filenames.length;
-	if (toDo <= MAX_AT_ONCE) {
+	if (this.compiledAllAtOnce = toDo <= MAX_AT_ONCE) {
 		// do them all now
 		SourceFile[] toCompile = new SourceFile[toDo];
 		for (int i = 0; i < toDo; i++) {
