@@ -488,10 +488,11 @@ public static final boolean match(char[] pattern, int patternStart, int patternL
  * Path pattern matching is enhancing regular pattern matching in supporting extra rule where '**' represent
  * any folder combination.
  * Special rules: 
- * - foo\  is equivalent to foo\**
+ * - foo\  is equivalent to foo\**   TODO: implement pathMatch special rules
  * - *.java is equivalent to **\*.java
  * When not case sensitive, the pattern is assumed to already be lowercased, the
  * name will be lowercased character per character as comparing.
+ * TODO: should improve to avoid creating subarrays (use offset pattern match).
  */
 public static final boolean pathMatch(char[] pattern, char[] path, boolean isCaseSensitive, char pathSeparator) {
 
