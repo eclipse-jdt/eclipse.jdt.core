@@ -44,7 +44,8 @@ public abstract class IndexRequest implements IJob {
 		/* if index has changed, commit these before querying */
 		if (index.hasChanged()) {
 			try {
-				monitor.exitReadEnterWrite(); // free read lock, and ask permission to write
+				monitor.exitRead(); // free read lock
+				monitor.enterWrite(); // ask permission to write
 				this.manager.saveIndex(index);
 			} finally {
 				monitor.exitWriteEnterRead(); // finished writing and reacquire read permission
