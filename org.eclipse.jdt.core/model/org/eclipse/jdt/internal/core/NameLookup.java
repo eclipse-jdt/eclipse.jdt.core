@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -38,6 +39,7 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.ITypeNameRequestor;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -81,7 +83,7 @@ public class NameLookup implements SuffixConstants {
 	 * with the same name, values are arrays of package fragments
 	 * ordered as they appear on the classpath.
 	 */
-	protected Map packageFragments;
+	protected HashtableOfArrayToObject packageFragments;
 
 	/**
 	 * A map from compilation unit handles to units to look inside (compilation
@@ -90,7 +92,7 @@ public class NameLookup implements SuffixConstants {
 	 */
 	protected HashMap unitsToLookInside;
 
-	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, Map packageFragments, ICompilationUnit[] workingCopies) {
+	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashtableOfArrayToObject packageFragments, ICompilationUnit[] workingCopies) {
 		this.packageFragmentRoots = packageFragmentRoots;
 		this.packageFragments = packageFragments;
 		if (workingCopies != null) {
@@ -168,12 +170,12 @@ public class NameLookup implements SuffixConstants {
 	 * The name must be fully qualified (eg "java.lang.Object", "java.util.Hashtable$Entry")
 	 */
 	public ICompilationUnit findCompilationUnit(String qualifiedTypeName) {
-		String pkgName= IPackageFragment.DEFAULT_PACKAGE_NAME;
+		String[] pkgName= CharOperation.NO_STRINGS;
 		String cuName= qualifiedTypeName;
 
 		int index= qualifiedTypeName.lastIndexOf('.');
 		if (index != -1) {
-			pkgName= qualifiedTypeName.substring(0, index);
+			pkgName= Signature.getSimpleNames(qualifiedTypeName.substring(0, index));
 			cuName= qualifiedTypeName.substring(index + 1);
 		}
 		index= cuName.indexOf('$');
@@ -259,7 +261,7 @@ public class NameLookup implements SuffixConstants {
 						if (entry != null) {
 							IPackageFragmentRoot root =
 								project.getPackageFragmentRoot(project.getResource());
-							IPackageFragment[] pkgs = (IPackageFragment[]) this.packageFragments.get(IPackageFragment.DEFAULT_PACKAGE_NAME);
+							IPackageFragment[] pkgs = (IPackageFragment[]) this.packageFragments.get(CharOperation.NO_STRINGS);
 							if (pkgs == null) {
 								return null;
 							}
@@ -319,7 +321,7 @@ public class NameLookup implements SuffixConstants {
 				}
 			}
 		} else {
-			IPackageFragment[] fragments= (IPackageFragment[]) this.packageFragments.get(name);
+			IPackageFragment[] fragments= (IPackageFragment[]) this.packageFragments.get(Signature.getSimpleNames(name));
 			if (fragments != null) {
 				IPackageFragment[] result = new IPackageFragment[fragments.length];
 				int resultLength = 0; 

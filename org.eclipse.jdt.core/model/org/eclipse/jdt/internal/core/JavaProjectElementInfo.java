@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -22,6 +21,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 
 /** 
  * Info for IJavaProject.
@@ -48,9 +48,9 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	
 	/*
 	 * A cache of all package fragments in this project.
-	 * (a map from String (the package name) to IPackageFragment[] (the package fragments with this name)
+	 * (a map from String[] (the package name) to IPackageFragment[] (the package fragments with this name)
 	 */
-	private HashMap allPkgFragmentsCache;
+	private HashtableOfArrayToObject allPkgFragmentsCache;
 
 	/**
 	 * Create and initialize a new instance of the receiver
@@ -173,14 +173,14 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		return this.allPkgFragmentRootsCache;
 	}
 	
-	HashMap getAllPackageFragments(JavaProject project) {
+	HashtableOfArrayToObject getAllPackageFragments(JavaProject project) {
 		if (this.allPkgFragmentsCache == null) {
-			HashMap cache = new HashMap();
+			HashtableOfArrayToObject cache = new HashtableOfArrayToObject();
 			IPackageFragmentRoot[] roots = getAllPackageFragmentRoots(project);
 			IPackageFragment[] frags = this.getPackageFragmentsInRoots(roots, project);
 			for (int i= 0; i < frags.length; i++) {
-				IPackageFragment fragment= frags[i];
-				String pkgName = fragment.getElementName();
+				PackageFragment fragment= (PackageFragment) frags[i];
+				String[] pkgName = fragment.names;
 				IPackageFragment[] entry= (IPackageFragment[]) cache.get(pkgName);
 				if (entry == null) {
 					entry= new IPackageFragment[1];
