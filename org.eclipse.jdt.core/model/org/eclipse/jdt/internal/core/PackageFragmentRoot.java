@@ -480,15 +480,16 @@ public int getKind() throws JavaModelException {
  * Get the jdk level of this root.
  * The value can be:
  * <ul>
- * <li>JavaCore#JDK1_1</li>
- * <li>JavaCore#JDK1_2</li>
- * <li>JavaCore#JDK1_3</li>
- * <li>JavaCore#JDK1_4</li>
- * <li>-1 if the root is a source package fragment root or if a Java model exception occured</li>
+ * <li>JavaCore#VERSION_1_1</li>
+ * <li>JavaCore#VERSION_1_2</li>
+ * <li>JavaCore#VERSION_1_3</li>
+ * <li>JavaCore#VERSION_1_4</li>
+ * <li>JavaCore#VERSION_1_5</li>
+ * <li><code>null</null> if the root is a source package fragment root or if a Java model exception occured</li>
  * </ul>
  * Returns the jdk level
  */
-public int getJdkLevel() {
+public String getJdkLevel() {
 	try {
 		switch(getKind()) {
 			case IPackageFragmentRoot.K_BINARY:
@@ -528,10 +529,11 @@ public int getJdkLevel() {
 				if (reader != null) {
 					int majorVersion = reader.getMajorVersion();
 					switch(majorVersion) {
-						case 45 : return JavaCore.JDK1_1;
-						case 46 : return JavaCore.JDK1_2;
-						case 47 : return JavaCore.JDK1_3;
-						case 48 : return JavaCore.JDK1_4;
+						case 45 : return JavaCore.VERSION_1_1;
+						case 46 : return JavaCore.VERSION_1_2;
+						case 47 : return JavaCore.VERSION_1_3;
+						case 48 : return JavaCore.VERSION_1_4;
+						// TODO (olivier) add version 1.5 
 					}
 				}
 		}
@@ -539,7 +541,7 @@ public int getJdkLevel() {
 	} catch(ClassFormatException e) {
 	} catch(IOException e) {
 	}
-	return -1;
+	return null;
 }
 /**
  * Returns an array of non-java resources contained in the receiver.

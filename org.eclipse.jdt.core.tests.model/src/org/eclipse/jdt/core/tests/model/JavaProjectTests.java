@@ -925,6 +925,6 @@ public void testSourceMethodCorrespondingResource() throws JavaModelException {
 public void testJdkLevelRoot() throws JavaModelException {
 	IPackageFragmentRoot root= getPackageFragmentRoot("JavaProjectLibTests", "lib/");
 	assertEquals("wrong type", IPackageFragmentRoot.K_BINARY, root.getKind());
-	assertEquals("Wrong jdk level", JavaCore.JDK1_1, ((PackageFragmentRoot) root).getJdkLevel());
+	assertEquals("Wrong jdk level", JavaCore.VERSION_1_1, ((PackageFragmentRoot) root).getJdkLevel());
 }
 }

@@ -548,7 +548,7 @@ public void testRootPath11() throws JavaModelException {
 		cf.getSource());	
 
 	assertTrue("Not a binary root", root.getKind() == IPackageFragmentRoot.K_BINARY);
-	assertEquals("wrong jdk level", JavaCore.JDK1_2, ((PackageFragmentRoot) root).getJdkLevel());
+	assertEquals("wrong jdk level", JavaCore.VERSION_1_2, ((PackageFragmentRoot) root).getJdkLevel());
 	this.attachSource(root, null, null); // detach source
 	root.close();
 }
