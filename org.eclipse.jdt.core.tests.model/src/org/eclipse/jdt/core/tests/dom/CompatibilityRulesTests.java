@@ -502,4 +502,23 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		}
 	}
 
+	/*
+	 * Ensures that a base type is assignment compatible with its wrapper type
+	 * (regression test for bug 80455 [5.0] ITypeBinding.canAssign not aware of type boxing)
+	 */
+	public void test023() throws JavaModelException {
+		ITypeBinding[] bindings = createTypeBindings(
+			new String[] {
+				"/P/java/lang/Integer.java",
+				"package java.lang;\n" +
+				"public class Integer {\n" +
+				"}",
+			},
+			new String[] {
+				"Ljava/lang/Integer;",
+				"I"
+			});	
+		assertTrue("int should be assignment compatible with Integer", bindings[1].isAssignmentCompatible(bindings[0]));
+	}
+	
 }

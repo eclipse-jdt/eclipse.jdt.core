@@ -738,7 +738,9 @@ class TypeBinding implements ITypeBinding {
 	public boolean isAssignmentCompatible(ITypeBinding type) {
 		if (this == type) return true;
 		TypeBinding other = (TypeBinding) type;
-		return this.binding.isCompatibleWith(other.binding);
+		Scope scope = this.resolver.scope();
+		if (scope == null) return false;
+		return this.binding.isCompatibleWith(other.binding) || scope.isBoxingCompatibleWith(other.binding, this.binding);
 	}
 	
 	/* (non-Javadoc)
