@@ -102,8 +102,6 @@ private static char[] scannedIdentifier(String id) {
  * <li> it must not be null
  * <li> it must include the <code>".java"</code> suffix
  * <li> its prefix must be a valid identifier
- * <li> it must not contain any characters or substrings that are not valid 
- *		   on the filesystem on which workspace root is located.
  * </ul>
  * </p>
  * @param name the name of a compilation unit
@@ -129,10 +127,6 @@ public static IStatus validateCompilationUnitName(String name) {
 	if (!Util.isJavaFileName(name)) {
 		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"), null); //$NON-NLS-1$
 	}
-	status = ResourcesPlugin.getWorkspace().validateName(name, IResource.FILE);
-	if (!status.isOK()) {
-		return status;
-	}
 	return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null); //$NON-NLS-1$
 }
 /**
@@ -142,8 +136,6 @@ public static IStatus validateCompilationUnitName(String name) {
  * <li> it must not be null
  * <li> it must include the <code>".class"</code> suffix
  * <li> its prefix must be a valid identifier
- * <li> it must not contain any characters or substrings that are not valid 
- *		   on the filesystem on which workspace root is located.
  * </ul>
  * </p>
  * @param name the name of a .class file
@@ -168,10 +160,6 @@ public static IStatus validateClassFileName(String name) {
 	}
 	if (!Util.isClassFileName(name)) {
 		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.notClassFileName"), null); //$NON-NLS-1$
-	}
-	status = ResourcesPlugin.getWorkspace().validateName(name, IResource.FILE);
-	if (!status.isOK()) {
-		return status;
 	}
 	return new Status(IStatus.OK, JavaCore.PLUGIN_ID, -1, "OK", null); //$NON-NLS-1$
 }
@@ -271,10 +259,6 @@ public static IStatus validateJavaTypeName(String name) {
 	}
 
 	if (scannedID != null) {
-		IStatus status = ResourcesPlugin.getWorkspace().validateName(new String(scannedID), IResource.FILE);
-		if (!status.isOK()) {
-			return status;
-		}
 		if (CharOperation.contains('$', scannedID)) {
 			return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.dollarName"), null); //$NON-NLS-1$
 		}
@@ -309,8 +293,6 @@ public static IStatus validateMethodName(String name) {
  * <p>
  * Note that the given name must be a non-empty package name (ie. attempting to
  * validate the default package will return an error status.)
- * Also it must not contain any characters or substrings that are not valid 
- * on the filesystem on which workspace root is located.
  *
  * @param name the name of a package
  * @return a status object with code <code>IStatus.OK</code> if
@@ -337,16 +319,11 @@ public static IStatus validatePackageName(String name) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.consecutiveDotsName"), null); //$NON-NLS-1$
 			}
 	}
-	IWorkspace workspace = ResourcesPlugin.getWorkspace();
 	StringTokenizer st = new StringTokenizer(name, new String(new char[] {fgDot}));
 	while (st.hasMoreTokens()) {
 		String typeName = st.nextToken();
 		typeName = typeName.trim(); // grammar allows spaces
 		IStatus status = validateIdentifier(typeName);
-		if (!status.isOK()) {
-			return status;
-		}
-		status = workspace.validateName(typeName, IResource.FOLDER);
 		if (!status.isOK()) {
 			return status;
 		}
