@@ -126,11 +126,7 @@ protected void addDelta(IJavaElementDelta delta) {
  * @see IProgressMonitor
  */
 public void beginTask(String name, int totalWork) {
-	if (fMonitor == null) return;
-	if (fMonitor instanceof SubProgressMonitor){
-		fMonitor.beginTask("", totalWork); //$NON-NLS-1$
-		fMonitor.subTask(name);
-	} else {
+	if (fMonitor != null) {
 		fMonitor.beginTask(name, totalWork);
 	}
 }

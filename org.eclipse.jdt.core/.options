@@ -1,7 +1,21 @@
+# Turn on debug tracing for org.eclipse.jdt.core plugin
 org.eclipse.jdt.core/debug=true
+
+# Reports background indexer activity
 org.eclipse.jdt.core/debug/indexmanager=true
+
+# Reports compiler activity
 org.eclipse.jdt.core/debug/compiler=true
+
+# Reports Java model elements opening/closing
 org.eclipse.jdt.core/debug/javamodel=true
+
+# Prints fired Java element deltas
 org.eclipse.jdt.core/debug/javadelta=true
+
+# Report type hierarchies computation 
 org.eclipse.jdt.core/debug/hierarchy=true
+
+# Reports incremental builder activity
+# (nature of build, built state reading, indictment process)
 org.eclipse.jdt.core/debug/builder=true
