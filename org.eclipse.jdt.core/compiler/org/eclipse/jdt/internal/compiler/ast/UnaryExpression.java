@@ -218,7 +218,8 @@ public class UnaryExpression extends OperatorExpression {
 		int result = ResolveTypeTables[tableId][(expressionId << 4) + expressionId];
 		expression.implicitConversion = result >>> 12;
 		TypeBinding type;
-		switch (result & 0x0000F) { // only switch on possible result type.....
+		bits |= result & 0xF;
+		switch (result & 0xF) { // only switch on possible result type.....
 			case T_boolean :
 				type = BooleanBinding;
 				break;

@@ -94,29 +94,6 @@ public final void addLocalVariable(LocalVariableBinding binding) {
 	// update local variable binding 
 	binding.declaringScope = this;
 	binding.id = this.outerMostMethodScope().analysisIndex++; // share the outermost method scope analysisIndex
-
-/*	
-	// update localIndex
-	TypeBinding resolvedType;
-	if (((resolvedType = binding.type) == LongBinding) || (resolvedType == DoubleBinding)) {
-		localIndex += 2;
-	} else {
-		localIndex++; 
-	};
-*/
-/*
-	if (binding.isArgument) {
-		// check argument count < 255 words  
-		if (localIndex > 255) {
-			problemReporter().noMoreAvailableSpaceForArgument(binding);
-		}
-	} else {
-		// ensure local index < 65535 words 
-		if (localIndex > 65535) {
-			problemReporter().noMoreAvailableSpaceForLocalVariable(binding);
-		}
-	}
-*/
 }
 private void addSubscope(Scope childScope) {
 	if (scopeIndex == subscopes.length)
@@ -277,7 +254,7 @@ public void emulateOuterAccess(ReferenceBinding targetEnclosingType, boolean use
 	ReferenceBinding currentType = enclosingSourceType();
 	if (currentType.isNestedType() 
 		&& currentType != targetEnclosingType 
-		&& !targetEnclosingType.isSuperclassOf(currentType)) {
+		/*&& !targetEnclosingType.isSuperclassOf(currentType)*/) {
 
 		NestedTypeBinding currentNestedType = (NestedTypeBinding) currentType;		
 		if (useDirectReference) {
