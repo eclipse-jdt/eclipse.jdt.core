@@ -46,7 +46,7 @@ public class JavaSearchScope extends AbstractSearchScope {
 	   if the resources are projects) */
 	private IPath[] paths;
 	private boolean[] pathWithSubFolders;
-	private AccessRuleSet[] pathRestrictions;
+	protected AccessRuleSet[] pathRestrictions;
 	private int pathsCount;
 	
 	private IPath[] enclosingProjectsAndJars;
@@ -262,16 +262,21 @@ private void add(IPath path, boolean withSubFolders, AccessRuleSet access) {
 			this.pathWithSubFolders = new boolean[this.pathsCount * 2],
 			0,
 			this.pathsCount);
-		System.arraycopy(
-			this.pathRestrictions,
-			0,
-			this.pathRestrictions = new AccessRuleSet[this.pathsCount * 2],
-			0,
-			this.pathsCount);
+		if (this.pathRestrictions != null)
+			System.arraycopy(
+				this.pathRestrictions,
+				0,
+				this.pathRestrictions = new AccessRuleSet[this.pathsCount * 2],
+				0,
+				this.pathsCount);
+		else if (access != null)
+			this.pathRestrictions = new AccessRuleSet[this.pathsCount * 2];
 	}
 	this.paths[this.pathsCount] = path;
 	this.pathWithSubFolders[this.pathsCount] = withSubFolders; 
-	this.pathRestrictions[this.pathsCount++] = access;
+	if (this.pathRestrictions != null)
+		this.pathRestrictions[this.pathsCount] = access;
+	this.pathsCount++;
 }
 
 /* (non-Javadoc)
@@ -372,13 +377,15 @@ public AccessRuleSet getAccessRuleSet(String path) {
 		// this search scope does not enclose given path
 		return NOT_INITIALIZED_RESTRICTION;
 	}
+	if (this.pathRestrictions == null)
+		return null;
 	return this.pathRestrictions[index];
 }
 
 protected void initialize() {
 	this.paths = new IPath[1];
 	this.pathWithSubFolders = new boolean[1];
-	this.pathRestrictions = new AccessRuleSet[1];
+	this.pathRestrictions = null;
 	this.pathsCount = 0;
 	this.enclosingProjectsAndJars = new IPath[0];
 }

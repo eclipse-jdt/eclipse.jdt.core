@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.core.IJavaProject;
@@ -67,6 +68,11 @@ public IPath[] enclosingProjectsAndJars() {
 }
 public boolean equals(Object o) {
   return o instanceof JavaWorkspaceScope;
+}
+public AccessRuleSet getAccessRuleSet(String path) {
+	if (this.pathRestrictions == null) 
+		return null;
+	return super.getAccessRuleSet(path);
 }
 public int hashCode() {
 	return JavaWorkspaceScope.class.hashCode();
