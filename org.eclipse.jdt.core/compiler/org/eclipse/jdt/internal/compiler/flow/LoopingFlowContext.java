@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.compiler.flow;
 
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
-import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.codegen.Label;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;

@@ -11,9 +11,7 @@
 package org.eclipse.jdt.internal.compiler.flow;
 
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
-import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
-import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
