@@ -101,7 +101,7 @@ public void checkComment() {
 	super.checkComment();
 	if (this.javadocParser.checkDocComment && this.javadoc != null) {
 		// Search for pattern locator matches in javadoc comment @throws/@exception tags
-		TypeReference[] thrownExceptions = this.javadoc.thrownExceptions;
+		TypeReference[] thrownExceptions = this.javadoc.exceptionReferences;
 		int throwsTagsLength = thrownExceptions == null ? 0 : thrownExceptions.length;
 		for (int i = 0; i < throwsTagsLength; i++) {
 			TypeReference typeRef = thrownExceptions[i];
@@ -109,7 +109,7 @@ public void checkComment() {
 		}
 
 		// Search for pattern locator matches in javadoc comment @see tags
-		Expression[] references = this.javadoc.references;
+		Expression[] references = this.javadoc.seeReferences;
 		int seeTagsLength = references == null ? 0 : references.length;
 		for (int i = 0; i < seeTagsLength; i++) {
 			Expression reference = references[i];

@@ -40,6 +40,8 @@ import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
 	public static String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
+	public static int INDENT = 2;
+	public static boolean SHIFT = false;
 
 	protected INameEnvironment javaClassLib;
 	protected String[] classpaths;
@@ -267,7 +269,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			}
 		} else {
 			System.out.println(getClass().getName() + '#' + getName());
-			System.out.println(Util.displayString(requestor.problemLog, 2));
+			System.out.println(Util.displayString(requestor.problemLog, INDENT, SHIFT));
 			for (int i = 0; i < testFiles.length; i += 2) {
 				System.out.print(testFiles[i]);
 				System.out.println(" ["); //$NON-NLS-1$
@@ -391,7 +393,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		String platformIndependantExpectedLog = Util.convertToIndependantLineDelimiter(expectedProblemLog);
 		if (!platformIndependantExpectedLog.equals(computedProblemLog)) {
 			System.out.println(getClass().getName() + '#' + getName());
-			System.out.println(Util.displayString(computedProblemLog, 2));
+			System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
 			for (int i = 0; i < testFiles.length; i += 2) {
 				System.out.print(testFiles[i]);
 				System.out.println(" ["); //$NON-NLS-1$

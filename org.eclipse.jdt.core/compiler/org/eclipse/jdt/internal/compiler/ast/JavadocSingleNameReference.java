@@ -17,8 +17,10 @@ public class JavadocSingleNameReference extends SingleNameReference {
 
 	public int tagSourceStart, tagSourceEnd;
 
-	public JavadocSingleNameReference(char[] name, int startPosition, int endPosition) {
-		super(name, (((long) startPosition) << 32) + endPosition);
+	public JavadocSingleNameReference(char[] source, long pos, int tagStart, int tagEnd) {
+		super(source, pos);
+		this.tagSourceStart = tagStart;
+		this.tagSourceEnd = tagEnd;
 		this.bits |= InsideJavadoc;
 	}
 
@@ -39,10 +41,10 @@ public class JavadocSingleNameReference extends SingleNameReference {
 		if (warn) {
 			try {
 				MethodScope methScope = (MethodScope) scope;
-				scope.problemReporter().javadocInvalidParamName(this, methScope.referenceMethod().modifiers);
+				scope.problemReporter().javadocUndeclaredParamTagName(this.token, this.sourceStart, this.sourceEnd, methScope.referenceMethod().modifiers);
 			}
 			catch (Exception e) {
-				scope.problemReporter().javadocInvalidParamName(this, -1);
+				scope.problemReporter().javadocUndeclaredParamTagName(this.token, this.sourceStart, this.sourceEnd, -1);
 			}
 		}
 	}

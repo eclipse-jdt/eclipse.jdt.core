@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public abstract class JavadocTest extends AbstractRegressionTest {
@@ -62,21 +61,28 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	
 		for (int i = 0, l=allTestClasses.size(); i < l; i++) {
 			Class testClass = (Class) allTestClasses.get(i);
-	
-			// call the suite() method and add the resulting suite to the suite
-			try {
-				Method suiteMethod = testClass.getDeclaredMethod("suite", new Class[0]); //$NON-NLS-1$
-				Test suite = (Test)suiteMethod.invoke(null, new Object[0]);
-				ts.addTest(suite);
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.getTargetException().printStackTrace();
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			}
+			Test suite = buildTestSuite(testClass);
+			ts.addTest(suite);
+		}
+		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+		if ((complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
+			Test suite = buildTestSuite(JavadocTest_1_3.class);
+			ts.addTest(new RegressionTestSetup(suite, COMPLIANCE_1_3));
+		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0) {
+			Test suite = buildTestSuite(JavadocTest_1_4.class);
+			ts.addTest(new RegressionTestSetup(suite, COMPLIANCE_1_4));
+		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
+			Test suite = buildTestSuite(JavadocTest_1_5.class);
+			ts.addTest(new RegressionTestSetup(suite, COMPLIANCE_1_5));
 		}
 		return ts;
+	}
+	
+	public static Test suiteForComplianceLevel(String level, Class testClass) {
+		Test suite = buildTestSuite(testClass);
+		return new RegressionTestSetup(suite, level);
 	}
 	
 	public JavadocTest(String name) {

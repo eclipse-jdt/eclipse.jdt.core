@@ -136,18 +136,20 @@ public void checkComment() {
 		// check deprecation in last comment if javadoc (can be followed by non-javadoc comments which are simply ignored)	
 		while (lastComment >= 0 && this.scanner.commentStops[lastComment] < 0) lastComment--; // non javadoc comment have negative end positions
 		if (lastComment >= 0 && this.javadocParser != null) {
-			if (this.javadocParser.checkDeprecation(
-					this.scanner.commentStarts[lastComment],
-					this.scanner.commentStops[lastComment] - 1)) { //stop is one over,
+			int commentEnd = this.scanner.commentStops[lastComment] - 1; //stop is one over,
+			// do not report problem before last parsed comment while recovering code...
+			this.javadocParser.reportProblems = this.currentElement == null || commentEnd > this.lastJavadocEnd;
+			if (this.javadocParser.checkDeprecation(this.scanner.commentStarts[lastComment], commentEnd)) {
 				checkAndSetModifiers(AccDeprecated);
 			}
-			this.javadoc = this.javadocParser.docComment;	// null if check javadoc is not activated 
+			this.javadoc = this.javadocParser.docComment;	// null if check javadoc is not activated
+			if (currentElement == null) this.lastJavadocEnd = commentEnd;
 		}
 	}
 
 	if (this.reportReferenceInfo && this.javadocParser.checkDocComment && this.javadoc != null) {
 		// Report reference info in javadoc comment @throws/@exception tags
-		TypeReference[] thrownExceptions = this.javadoc.thrownExceptions;
+		TypeReference[] thrownExceptions = this.javadoc.exceptionReferences;
 		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
 		for (int i = 0; i < throwsTagsNbre; i++) {
 			TypeReference typeRef = thrownExceptions[i];
@@ -161,7 +163,7 @@ public void checkComment() {
 		}
 
 		// Report reference info in javadoc comment @see tags
-		Expression[] references = this.javadoc.references;
+		Expression[] references = this.javadoc.seeReferences;
 		int seeTagsNbre = references == null ? 0 : references.length;
 		for (int i = 0; i < seeTagsNbre; i++) {
 			Expression reference = references[i];

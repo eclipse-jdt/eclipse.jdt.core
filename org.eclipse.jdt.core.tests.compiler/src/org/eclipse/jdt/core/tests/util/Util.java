@@ -271,12 +271,16 @@ public static String displayString(String inputString){
  * @return the displayed string
 */
 public static String displayString(String inputString, int indent) {
+	return displayString(inputString, indent, false);
+}
+public static String displayString(String inputString, int indent, boolean shift) {
 	if (inputString == null)
 		return "null";
 	int length = inputString.length();
 	StringBuffer buffer = new StringBuffer(length);
 	java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(inputString, "\n\r", true);
 	for (int i = 0; i < indent; i++) buffer.append("\t");
+	if (shift) indent++;
 	buffer.append("\"");
 	while (tokenizer.hasMoreTokens()){
 

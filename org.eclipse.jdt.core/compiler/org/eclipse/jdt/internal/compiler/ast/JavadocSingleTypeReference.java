@@ -51,10 +51,8 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
 	}
-	/*
-	 * 
-	 */
-	private TypeBinding internalResolveType(Scope scope) {
+
+	TypeBinding internalResolveType(Scope scope) {
 		// handle the error here
 		this.constant = NotAConstant;
 		if (this.resolvedType != null)// is a shared type reference which was already resolved

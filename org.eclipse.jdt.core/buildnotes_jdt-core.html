@@ -51,10 +51,17 @@ Eclipse SDK 3.1M4 - ?th November 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Compiler is now able to parse 1.5 syntax in Javadoc comments (see bugs <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70891">70891</a>
+and <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892">70892</a>).<br>
+Note: these changes only apply to <a href="http://java.sun.com/j2se/1.5.0/docs/tooldocs/solaris/javadoc.html#@param">@param</a> and
+<a href="http://java.sun.com/j2se/1.5.0/docs/tooldocs/solaris/javadoc.html#{@value}">{@value}</a> tags.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=78858">78858</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70891">70891</a>
+[1.5][javadoc] Compiler should accept new 1.5 syntax for @param
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=78858">78858</a>
 [1.5] Internal compiler error: java.lang.NullPointerException at ParameterizedTypeBinding.getMethods
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=78905">78905</a>
 [1.5][compiler] Wrong hex decimal floating point literal is not rejected

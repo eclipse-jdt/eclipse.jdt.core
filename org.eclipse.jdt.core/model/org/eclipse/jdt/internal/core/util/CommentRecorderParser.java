@@ -65,6 +65,8 @@ public class CommentRecorderParser extends Parser {
 			checkDeprecated = true;
 			int commentSourceEnd = this.scanner.commentStops[lastCommentIndex] - 1; //stop is one over
 			
+			// do not report problem before last parsed comment while recovering code...
+			this.javadocParser.reportProblems = this.currentElement == null || commentSourceEnd > this.lastJavadocEnd;
 			deprecated = this.javadocParser.checkDeprecation(commentSourceStart, commentSourceEnd);
 			this.javadoc = this.javadocParser.docComment;
 			break nextComment;
@@ -79,7 +81,6 @@ public class CommentRecorderParser extends Parser {
 				this.modifiersSourceStart = -this.modifiersSourceStart;
 			}
 		}
-
 	}
 
 	/* (non-Javadoc)

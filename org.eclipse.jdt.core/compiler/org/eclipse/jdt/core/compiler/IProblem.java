@@ -850,6 +850,10 @@ public interface IProblem {
 	int JavadocInvalidValueReference = Javadoc + Internal + 516;
 	/** @since 3.1 */
 	int JavadocUnexpectedText = Javadoc + Internal + 517;
+	/** @since 3.1 */
+	int JavadocInvalidParamTagName = Javadoc + Internal + 518;
+	/** @since 3.1 */
+	int JavadocInvalidParamTagTypeParameter = Javadoc + Internal + 469;
 	/** @since 3.0 */
 	int JavadocMessagePrefix = Internal + 519;
 

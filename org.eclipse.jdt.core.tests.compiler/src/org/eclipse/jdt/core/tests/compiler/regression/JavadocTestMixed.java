@@ -35,8 +35,8 @@ public class JavadocTestMixed extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX = "testBug77602";
-//		TESTS_NAMES = new String[] { "testBug77510" };
-//		TESTS_NUMBERS = new int[] { 3, 7, 10, 21 };
+//		TESTS_NAMES = new String[] { "testBug78091" };
+//		TESTS_NUMBERS = new int[] { 31, 32, 33 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -4492,6 +4492,48 @@ public class JavadocTestMixed extends JavadocTest {
 				"	* @see UnknownClass\n" + 
 				"	       ^^^^^^^^^^^^\n" + 
 				"Javadoc: UnknownClass cannot be resolved to a type\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 78091: [1.5][javadoc] Compiler should accept new 1.5 syntax for @param
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=78091">78091</a>
+	 */
+	public void testBug78091() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * Valid type parameter reference\n" + 
+					"	 * @param xxx.yyy invalid\n" + 
+					"	 * @param obj(x) invalid\n" + 
+					"	 */\n" + 
+					"	public void foo(int xxx, Object obj) {}\n" + 
+					"}"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	* @param xxx.yyy invalid\n" + 
+				"	         ^^^^^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	* @param obj(x) invalid\n" + 
+				"	         ^^^^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	public void foo(int xxx, Object obj) {}\n" + 
+				"	                    ^^^\n" + 
+				"Javadoc: Missing tag for parameter xxx\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 7)\n" + 
+				"	public void foo(int xxx, Object obj) {}\n" + 
+				"	                                ^^^\n" + 
+				"Javadoc: Missing tag for parameter obj\n" + 
 				"----------\n"
 		);
 	}

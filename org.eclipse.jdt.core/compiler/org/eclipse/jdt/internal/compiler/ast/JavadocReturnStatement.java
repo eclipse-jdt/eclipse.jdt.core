@@ -24,6 +24,9 @@ public class JavadocReturnStatement extends ReturnStatement {
 		this.bits |= InsideJavadoc;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.ast.Statement#resolve(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
 	public void resolve(BlockScope scope) {
 		MethodScope methodScope = scope.methodScope();
 		MethodBinding methodBinding = null;
@@ -38,6 +41,16 @@ public class JavadocReturnStatement extends ReturnStatement {
 		} else if (this.empty) {
 			scope.problemReporter().javadocEmptyReturnTag(this.sourceStart, this.sourceEnd);
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.ast.Statement#printStatement(int, java.lang.StringBuffer)
+	 */
+	public StringBuffer printStatement(int tab, StringBuffer output) {
+		printIndent(tab, output).append("return"); //$NON-NLS-1$
+		if (description != null )
+			output.append(' ').append(description);
+		return output;
 	}
 
 	/* (non-Javadoc)

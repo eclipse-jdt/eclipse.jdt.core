@@ -554,6 +554,8 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocDuplicateReturnTag:
 		case IProblem.JavadocInvalidThrowsClass:
 		case IProblem.JavadocInvalidReference:
+		case IProblem.JavadocInvalidParamTagName:
+		case IProblem.JavadocInvalidParamTagTypeParameter:
 		case IProblem.JavadocMalformedSeeReference:
 		case IProblem.JavadocInvalidSeeHref:
 		case IProblem.JavadocInvalidSeeArgs:
@@ -2843,10 +2845,10 @@ public void javadocDeprecatedType(TypeBinding type, ASTNode location, int modifi
 			location.sourceEnd);
 	}
 }
-public void javadocDuplicatedParamTag(JavadocSingleNameReference param, int modifiers) {
+public void javadocDuplicatedParamTag(char[] token, int sourceStart, int sourceEnd, int modifiers) {
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
-		String[] arguments = new String[] {String.valueOf(param.token)};
-		this.handle(IProblem.JavadocDuplicateParamName, arguments, arguments, param.sourceStart, param.sourceEnd);
+		String[] arguments = new String[] {String.valueOf(token)};
+		this.handle(IProblem.JavadocDuplicateParamName, arguments, arguments, sourceStart, sourceEnd);
 	}
 }
 public void javadocDuplicatedReturnTag(int sourceStart, int sourceEnd){
@@ -3013,11 +3015,11 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 		(int) (messageSend.nameSourcePosition >>> 32),
 		(int) messageSend.nameSourcePosition);
 }
-public void javadocInvalidParamName(JavadocSingleNameReference param, int modifiers) {
-	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
-		String[] arguments = new String[] {String.valueOf(param.token)};
-		this.handle(IProblem.JavadocInvalidParamName, arguments, arguments, param.sourceStart, param.sourceEnd);
-	}
+public void javadocInvalidParamTagName(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocInvalidParamTagName, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void javadocInvalidParamTypeParameter(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocInvalidParamTagTypeParameter, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocInvalidReference(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidReference, NoArgument, NoArgument, sourceStart, sourceEnd);
@@ -3099,13 +3101,13 @@ public void javadocMissingParamName(int sourceStart, int sourceEnd, int modifier
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))
 		this.handle(IProblem.JavadocMissingParamName, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
-public void javadocMissingParamTag(Argument param, int modifiers) {
+public void javadocMissingParamTag(char[] name, int sourceStart, int sourceEnd, int modifiers) {
 	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing+CompilerModifiers.AccOverriding)) != 0;
 	boolean report = (this.options.getSeverity(CompilerOptions.MissingJavadocTags) != ProblemSeverities.Ignore)
 					&& (!overriding || this.options.reportMissingJavadocTagsOverriding);
 	if (report && javadocVisibility(this.options.reportMissingJavadocTagsVisibility, modifiers)) {
-		String[] arguments = new String[] { String.valueOf(param.name) };
-		this.handle(IProblem.JavadocMissingParamTag, arguments, arguments, param.sourceStart, param.sourceEnd);
+		String[] arguments = new String[] { String.valueOf(name) };
+		this.handle(IProblem.JavadocMissingParamTag, arguments, arguments, sourceStart, sourceEnd);
 	}
 }
 public void javadocMissingReference(int sourceStart, int sourceEnd, int modifiers){
@@ -3131,6 +3133,12 @@ public void javadocMissingThrowsTag(TypeReference typeRef, int modifiers){
 	if (report && javadocVisibility(this.options.reportMissingJavadocTagsVisibility, modifiers)) {
 		String[] arguments = new String[] { String.valueOf(typeRef.resolvedType.sourceName()) };
 		this.handle(IProblem.JavadocMissingThrowsTag, arguments, arguments, typeRef.sourceStart, typeRef.sourceEnd);
+	}
+}
+public void javadocUndeclaredParamTagName(char[] token, int sourceStart, int sourceEnd, int modifiers) {
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
+		String[] arguments = new String[] {String.valueOf(token)};
+		this.handle(IProblem.JavadocInvalidParamName, arguments, arguments, sourceStart, sourceEnd);
 	}
 }
 public void javadocUnexpectedTag(int sourceStart, int sourceEnd) {

@@ -59,6 +59,7 @@ public static Test suite() {
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_3) != 0) {
 	    ArrayList tests_1_3 = (ArrayList)standardTests.clone();
 		tests_1_3.add(Compliance_1_3.class);
+		tests_1_3.add(JavadocTest_1_3.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;

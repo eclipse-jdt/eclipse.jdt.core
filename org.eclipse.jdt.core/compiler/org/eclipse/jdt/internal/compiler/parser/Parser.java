@@ -178,8 +178,12 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Compiler
 	protected int synchronizedBlockSourceStart;
 	protected int[] variablesCounter;
 
+	// javadoc
 	public Javadoc javadoc;
 	public JavadocParser javadocParser;
+	// used for recovery
+	protected int lastJavadocEnd;
+
 	static {
 		try{
 			initTables();
@@ -872,12 +876,14 @@ public void checkComment() {
 		// check deprecation in last comment if javadoc (can be followed by non-javadoc comments which are simply ignored)	
 		while (lastComment >= 0 && this.scanner.commentStops[lastComment] < 0) lastComment--; // non javadoc comment have negative end positions
 		if (lastComment >= 0 && this.javadocParser != null) {
-			if (this.javadocParser.checkDeprecation(
-					this.scanner.commentStarts[lastComment],
-					this.scanner.commentStops[lastComment] - 1)) { //stop is one over,
+			int commentEnd = this.scanner.commentStops[lastComment] - 1; //stop is one over,
+			// do not report problem before last parsed comment while recovering code...
+			this.javadocParser.reportProblems = this.currentElement == null || commentEnd > this.lastJavadocEnd;
+			if (this.javadocParser.checkDeprecation(this.scanner.commentStarts[lastComment], commentEnd)) {
 				checkAndSetModifiers(AccDeprecated);
 			}
-			this.javadoc = this.javadocParser.docComment;	// null if check javadoc is not activated 
+			this.javadoc = this.javadocParser.docComment;	// null if check javadoc is not activated
+			if (currentElement == null) this.lastJavadocEnd = commentEnd;
 		}
 	}
 }
@@ -8080,6 +8086,7 @@ public void initialize() {
 	this.lastIgnoredToken = -1;
 	this.lastErrorEndPosition = -1;
 	this.lastErrorEndPositionBeforeRecovery = -1;
+	this.lastJavadocEnd = -1;
 	this.listLength = 0;
 	this.listTypeParameterLength = 0;
 	
@@ -9092,9 +9099,6 @@ protected void resetStacks() {
  */
 protected boolean resumeAfterRecovery() {
 
-	// Reset javadoc before restart parsing after recovery
-	this.javadoc = null;
-
 	// reset internal stacks 
 	this.resetStacks();
 	
@@ -9112,16 +9116,15 @@ protected boolean resumeAfterRecovery() {
 	// does not know how to restart
 	return false;
 }
-/*
- * Syntax error was detected. Will attempt to perform some recovery action in order
- * to resume to the regular parse loop.
- */
 protected boolean resumeOnSyntaxError() {
 
 	/* request recovery initialization */
 	if (this.currentElement == null){
-		this.currentElement = 
-			this.buildInitialRecoveryState(); // build some recovered elements
+		// Reset javadoc before restart parsing after recovery
+		this.javadoc = null;
+
+		// build some recovered elements
+		this.currentElement = buildInitialRecoveryState(); 
 	}
 	/* do not investigate deeper in recovery when no recovered element */
 	if (this.currentElement == null) return false;

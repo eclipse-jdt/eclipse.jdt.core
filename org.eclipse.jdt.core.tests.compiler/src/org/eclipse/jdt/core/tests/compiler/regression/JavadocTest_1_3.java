@@ -16,19 +16,19 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-public class JavadocTest_1_5 extends JavadocTest {
+public class JavadocTest_1_3 extends JavadocTest {
 
 	String docCommentSupport = CompilerOptions.ENABLED;
 	String reportInvalidJavadoc = CompilerOptions.ERROR;
 	String reportMissingJavadocTags = CompilerOptions.ERROR;
 	String reportMissingJavadocComments = null;
 
-	public JavadocTest_1_5(String name) {
+	public JavadocTest_1_3(String name) {
 		super(name);
 	}
 
 	public static Class javadocTestClass() {
-		return JavadocTest_1_5.class;
+		return JavadocTest_1_3.class;
 	}
 
 	// Use this static initializer to specify subset for tests
@@ -37,10 +37,10 @@ public class JavadocTest_1_5 extends JavadocTest {
 		SHIFT = true;
 		INDENT = 3;
 //		TESTS_NAMES = new String[] {
-//			"testBug70892negative1", "testBug70892negative2"
+//			"testBug70892conform1", "testBug70892conform2"
 //		};
 //		TESTS_NUMBERS = new int[] { 21 };
-//		TESTS_RANGE = new int[] { 23, -1 };
+//		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
 		return buildTestSuite(javadocTestClass());
@@ -78,11 +78,12 @@ public class JavadocTest_1_5 extends JavadocTest {
 	/**
 	 * Test fix for bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892">70892</a>
-	 * These two tests fail for 1.5 source level but should pass for 1.3 or 1.4
-	 * @see JavadocTest_1_4
+	 * These two tests pass for 1.3 or 1.4 source level but should fail for 1.5
+	 * @see JavadocTest_1_5
 	 */
 	public void test001() {
 		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -98,36 +99,12 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"	void foo() {}\n" + 
 					"}\n"
 			},
-			"----------\n" + 
-				"1. ERROR in X.java (at line 2)\n" + 
-				"	* {@value \"invalid\"}\n" + 
-				"	          ^^^^^^^^^\n" + 
-				"Javadoc: Only static field reference is allowed for @value tag\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 3)\n" + 
-				"	* {@value <a href=\"invalid\">invalid</a>} invalid\n" + 
-				"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Only static field reference is allowed for @value tag\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 4)\n" + 
-				"	* {@value #field}\n" + 
-				"	           ^^^^^\n" + 
-				"Javadoc: Only static field reference is allowed for @value tag\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 5)\n" + 
-				"	* {@value #foo}\n" + 
-				"	           ^^^\n" + 
-				"Javadoc: Only static field reference is allowed for @value tag\n" + 
-				"----------\n" + 
-				"5. ERROR in X.java (at line 6)\n" + 
-				"	* {@value #foo()}\n" + 
-				"	           ^^^\n" + 
-				"Javadoc: Only static field reference is allowed for @value tag\n" + 
-				"----------\n"
+			""	// No failure in fact...
 		);
 	}
 	public void test002() {
 		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -144,42 +121,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"	void foo() {}\n" + 
 					"}\n"	
 			},
-			"----------\n" + 
-				"1. ERROR in X.java (at line 2)\n" + 
-				"	* {@value \"invalid}\n" + 
-				"	         ^^^^^^^^^^\n" + 
-				"Javadoc: Invalid reference\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 3)\n" + 
-				"	* {@value <a href}\n" + 
-				"	          ^^^^^^^\n" + 
-				"Javadoc: Only static field reference is allowed for @value tag\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 4)\n" + 
-				"	* {@value <a href=\"invalid\">invalid</a} invalid\n" + 
-				"	          ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Only static field reference is allowed for @value tag\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 5)\n" + 
-				"	* {@value #fild}\n" + 
-				"	           ^^^^\n" + 
-				"Javadoc: fild cannot be resolved or is not a field\n" + 
-				"----------\n" + 
-				"5. ERROR in X.java (at line 6)\n" + 
-				"	* {@value #fo}\n" + 
-				"	           ^^\n" + 
-				"Javadoc: fo cannot be resolved or is not a field\n" + 
-				"----------\n" + 
-				"6. ERROR in X.java (at line 7)\n" + 
-				"	* {@value #f()}\n" + 
-				"	           ^\n" + 
-				"Javadoc: The method f() is undefined for the type X\n" + 
-				"----------\n" + 
-				"7. ERROR in X.java (at line 7)\n" + 
-				"	* {@value #f()}\n" + 
-				"	           ^\n" + 
-				"Javadoc: Only static field reference is allowed for @value tag\n" + 
-				"----------\n"
+			""	// No failure in fact...
 		);
 	}
 
@@ -187,13 +129,13 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Test fix for bug 70891: [1.5][javadoc] Compiler should accept new 1.5 syntax for @param
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70891">70891</a>
 	 * These two tests fail for 1.5 source level but should pass for 1.3 or 1.4
-	 * @see JavadocTest_1_4
+	 * @see JavadocTest_1_3
 	 */
 	/* (non-Javadoc)
 	 * Test @param for generic class type parameter
 	 */
 	public void test003() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 					" /**\n" + 
@@ -201,11 +143,22 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"  * @param <E> Type\n" + 
 					"  */\n" + 
 					" public class X<E> {}"
-			}
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 3)\r\n" + 
+				"	* @param <E> Type\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\r\n" + 
+				"	public class X<E> {}\r\n" + 
+				"	               ^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
+				"----------\n"
 		);
 	}
 	public void test004() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 					" /**\n" + 
@@ -213,11 +166,23 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"  * @param <E> Type extends RuntimeException\n" + 
 					"  */\n" + 
 					" public class X<E extends RuntimeException> {}"
-			}
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 3)\r\n" + 
+				"	* @param <E> Type extends RuntimeException\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\r\n" + 
+				"	public class X<E extends RuntimeException> {}\r\n" + 
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
+				"----------\n"
+
 		);
 	}
 	public void test005() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 					" /**\n" + 
@@ -227,7 +192,28 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"  * @param <V> Type parameter 3\n" + 
 					"  */\n" + 
 					" public class X<T, U, V> {}"
-			}
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 3)\r\n" + 
+				"	* @param <T> Type parameter 1\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\r\n" + 
+				"	* @param <U> Type parameter 2\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\r\n" + 
+				"	* @param <V> Type parameter 3\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 7)\r\n" + 
+				"	public class X<T, U, V> {}\r\n" + 
+				"	               ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
+				"----------\n"
 		);
 	}
 	public void test006() {
@@ -243,8 +229,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	* @param <E> Type parameter\n" + 
-				"	   ^^^^^\n" + 
-				"Javadoc: Unexpected tag\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n"
 		);
 	}
@@ -259,10 +245,15 @@ public class JavadocTest_1_5 extends JavadocTest {
 					" public class X<E, F> {}",
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @param <E> Type parameter\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
 				"	public class X<E, F> {}\n" + 
-				"	                  ^\n" + 
-				"Javadoc: Missing tag for parameter F\n" + 
+				"	               ^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
@@ -279,15 +270,25 @@ public class JavadocTest_1_5 extends JavadocTest {
 					" public class X<T> {}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	* @param <U> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: U cannot be resolved to a type\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @param <T> Type parameter 1\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 5)\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	* @param <U> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
 				"	* @param <V> Type parameter 3\n" + 
-				"	          ^\n" + 
-				"Javadoc: V cannot be resolved to a type\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 7)\n" + 
+				"	public class X<T> {}\n" + 
+				"	               ^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
@@ -306,20 +307,40 @@ public class JavadocTest_1_5 extends JavadocTest {
 					" public class X<T, U, V> {}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	* @param <X> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: Parameter X is not declared\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @param <T> Type parameter 1\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	* @param <X> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	* @param <U> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 6)\n" + 
 				"	* @param <E> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: E cannot be resolved to a type\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 7)\n" + 
+				"	* @param <V> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 9)\n" + 
+				"	public class X<T, U, V> {}\n" + 
+				"	               ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
 	public void test010() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 					" /**\n" + 
@@ -329,7 +350,28 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"  * @param <T> Type parameter 1\n" + 
 					"  */\n" + 
 					" public class X<T, U, V> {}"
-			}
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 3)\r\n" + 
+				"	* @param <V> Type parameter 3\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\r\n" + 
+				"	* @param <U> Type parameter 2\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\r\n" + 
+				"	* @param <T> Type parameter 1\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 7)\r\n" + 
+				"	public class X<T, U, V> {}\r\n" + 
+				"	               ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
+				"----------\n"
 		);
 	}
 	public void test011() {
@@ -347,15 +389,35 @@ public class JavadocTest_1_5 extends JavadocTest {
 					" public class X<T, U, V> {}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	* @param <E> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: E cannot be resolved to a type\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @param <U> Type parameter 1\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	* @param <E> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	* @param <V> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 6)\n" + 
 				"	* @param <U> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: Duplicate tag for parameter\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 7)\n" + 
+				"	* @param <T> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 9)\n" + 
+				"	public class X<T, U, V> {}\n" + 
+				"	               ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
@@ -371,18 +433,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 4)\n" + 
 				"	public class X<T, U, V> {}\n" + 
-				"	               ^\n" + 
-				"Javadoc: Missing tag for parameter T\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	public class X<T, U, V> {}\n" + 
-				"	                  ^\n" + 
-				"Javadoc: Missing tag for parameter U\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 4)\n" + 
-				"	public class X<T, U, V> {}\n" + 
-				"	                     ^\n" + 
-				"Javadoc: Missing tag for parameter V\n" + 
+				"	               ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
@@ -397,15 +449,15 @@ public class JavadocTest_1_5 extends JavadocTest {
 					" public class X<T, U, V> {}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	public class X<T, U, V> {}\n" + 
-				"	                  ^\n" + 
-				"Javadoc: Missing tag for parameter U\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @param <T> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 5)\n" + 
 				"	public class X<T, U, V> {}\n" + 
-				"	                     ^\n" + 
-				"Javadoc: Missing tag for parameter V\n" + 
+				"	               ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
@@ -420,15 +472,15 @@ public class JavadocTest_1_5 extends JavadocTest {
 					" public class X<T, U, V> {}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	public class X<T, U, V> {}\n" + 
-				"	               ^\n" + 
-				"Javadoc: Missing tag for parameter T\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @param <U> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 5)\n" + 
 				"	public class X<T, U, V> {}\n" + 
-				"	                     ^\n" + 
-				"Javadoc: Missing tag for parameter V\n" + 
+				"	               ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
@@ -444,10 +496,20 @@ public class JavadocTest_1_5 extends JavadocTest {
 					" public class X<T, U, V> {}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @param <U> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	* @param <V> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
 				"	public class X<T, U, V> {}\n" + 
-				"	               ^\n" + 
-				"Javadoc: Missing tag for parameter T\n" + 
+				"	               ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
@@ -463,10 +525,20 @@ public class JavadocTest_1_5 extends JavadocTest {
 					" public class X<T, U, V> {}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @param <T> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	* @param <V> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
 				"	public class X<T, U, V> {}\n" + 
-				"	                  ^\n" + 
-				"Javadoc: Missing tag for parameter U\n" + 
+				"	               ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
@@ -482,10 +554,20 @@ public class JavadocTest_1_5 extends JavadocTest {
 					" public class X<T, U, V> {}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @param <T> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	* @param <U> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
 				"	public class X<T, U, V> {}\n" + 
-				"	                     ^\n" + 
-				"Javadoc: Missing tag for parameter V\n" + 
+				"	               ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
@@ -500,15 +582,15 @@ public class JavadocTest_1_5 extends JavadocTest {
 					" public class X<T, U, V> {}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	public class X<T, U, V> {}\n" + 
-				"	               ^\n" + 
-				"Javadoc: Missing tag for parameter T\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @param <V> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 5)\n" + 
 				"	public class X<T, U, V> {}\n" + 
-				"	                  ^\n" + 
-				"Javadoc: Missing tag for parameter U\n" + 
+				"	               ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
@@ -527,25 +609,35 @@ public class JavadocTest_1_5 extends JavadocTest {
 					" public class X<T, U, V> {}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @param <V> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
 				"	* @param <X> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: Parameter X is not declared\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	* @param <U> Type parameter 1\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 6)\n" + 
 				"	* @param <E> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: E cannot be resolved to a type\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"3. ERROR in X.java (at line 7)\n" + 
+				"5. ERROR in X.java (at line 7)\n" + 
 				"	* @param <U> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: Duplicate tag for parameter\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"4. ERROR in X.java (at line 9)\n" + 
+				"6. ERROR in X.java (at line 9)\n" + 
 				"	public class X<T, U, V> {}\n" + 
-				"	               ^\n" + 
-				"Javadoc: Missing tag for parameter T\n" + 
+				"	               ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
@@ -562,15 +654,25 @@ public class JavadocTest_1_5 extends JavadocTest {
 					" public class X<T, U, V> {}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @param <V> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
 				"	* @param\n" + 
 				"	   ^^^^^\n" + 
 				"Javadoc: Missing parameter name\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 7)\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	* @param <U> Type parameter 1\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 7)\n" + 
 				"	public class X<T, U, V> {}\n" + 
-				"	               ^\n" + 
-				"Javadoc: Missing tag for parameter T\n" + 
+				"	               ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
@@ -587,20 +689,30 @@ public class JavadocTest_1_5 extends JavadocTest {
 					" public class X<T, , V> {}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @param <T> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
 				"	* @param <V> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: V cannot be resolved to a type\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 5)\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
 				"	* @param <U> Type parameter 1\n" + 
-				"	          ^\n" + 
-				"Javadoc: U cannot be resolved to a type\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"3. ERROR in X.java (at line 7)\n" + 
+				"4. ERROR in X.java (at line 7)\n" + 
 				"	public class X<T, , V> {}\n" + 
-				"	                  ^\n" + 
-				"Syntax error on token \",\", delete this token\n" + 
+				"	              ^^\n" + 
+				"Syntax error on tokens, delete these tokens\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 7)\n" + 
+				"	public class X<T, , V> {}\n" + 
+				"	               ^\n" + 
+				"Syntax error, insert \"ClassBody\" to complete CompilationUnit\n" + 
 				"----------\n"
 		);
 	}
@@ -617,12 +729,32 @@ public class JavadocTest_1_5 extends JavadocTest {
 					" public class X<T, U, V extend Exception> {}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 7)\n" + 
-				"	public class X<T, U, V extend Exception> {}\n" + 
-				"	                       ^^^^^^\n" + 
-				"Syntax error on token \"extend\", extends expected\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* @param <T> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 7)\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	* @param <V> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	* @param <U> Type parameter 1\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 7)\n" + 
+				"	public class X<T, U, V extend Exception> {}\n" + 
+				"	              ^^^^^^\n" + 
+				"Syntax error on tokens, delete these tokens\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 7)\n" + 
+				"	public class X<T, U, V extend Exception> {}\n" + 
+				"	                   ^\n" + 
+				"Syntax error, insert \"ClassBody\" to complete CompilationUnit\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 7)\n" + 
 				"	public class X<T, U, V extend Exception> {}\n" + 
 				"	                       ^^^^^^\n" + 
 				"extend cannot be resolved to a type\n" + 
@@ -634,7 +766,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Test @param for generic method type parameter
 	 */
 	public void test023() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				" public class X {\n" +
@@ -644,11 +776,22 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"	 */\n" + 
 					"	public <E> void foo() {}\n" +
 					"}"
-			}
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 4)\r\n" + 
+				"	* @param <E> Type\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\r\n" + 
+				"	public <E> void foo() {}\r\n" + 
+				"	        ^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
+				"----------\n"
 		);
 	}
 	public void test024() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				" public class X {\n" +
@@ -660,11 +803,22 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"	 */\n" + 
 					"	public <E extends RuntimeException> void foo(int val, Object obj) {}\n" +
 					"}"
-			}
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 4)\r\n" + 
+				"	* @param <E> Type extends RuntimeException\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\r\n" + 
+				"	public <E extends RuntimeException> void foo(int val, Object obj) {}\r\n" + 
+				"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
+				"----------\n"
 		);
 	}
 	public void test025() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				" public class X {\n" +
@@ -678,7 +832,28 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"	 */\n" + 
 					"	public <T, U, V> void foo(int val, Object obj) {}\n" +
 					"}"
-			}
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 6)\r\n" + 
+				"	* @param <T> Type parameter 1\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\r\n" + 
+				"	* @param <U> Type parameter 2\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 8)\r\n" + 
+				"	* @param <V> Type parameter 3\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 10)\r\n" + 
+				"	public <T, U, V> void foo(int val, Object obj) {}\r\n" + 
+				"	        ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
+				"----------\n"
 		);
 	}
 	public void test026() {
@@ -698,8 +873,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 5)\n" + 
 				"	* @param <E> Type parameter\n" + 
-				"	   ^^^^^\n" + 
-				"Javadoc: Unexpected tag\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n"
 		);
 	}
@@ -716,17 +891,22 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
-				"	public <E, F> void foo(int val, Object obj) {}\n" + 
-				"	           ^\n" + 
-				"Javadoc: Missing tag for parameter F\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	* @param <E> Type parameter\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 6)\n" + 
+				"	public <E, F> void foo(int val, Object obj) {}\n" + 
+				"	        ^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
 				"	public <E, F> void foo(int val, Object obj) {}\n" + 
 				"	                           ^^^\n" + 
 				"Javadoc: Missing tag for parameter val\n" + 
 				"----------\n" + 
-				"3. ERROR in X.java (at line 6)\n" + 
+				"4. ERROR in X.java (at line 6)\n" + 
 				"	public <E, F> void foo(int val, Object obj) {}\n" + 
 				"	                                       ^^^\n" + 
 				"Javadoc: Missing tag for parameter obj\n" + 
@@ -750,32 +930,42 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	* @param <T> Type parameter 1\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
 				"	* @param <U> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: U cannot be resolved to a type\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
 				"	* @param <V> Type parameter 3\n" + 
-				"	          ^\n" + 
-				"Javadoc: V cannot be resolved to a type\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"3. ERROR in X.java (at line 7)\n" + 
+				"4. ERROR in X.java (at line 7)\n" + 
 				"	* @param xxx int\n" + 
 				"	         ^^^\n" + 
 				"Javadoc: Parameter xxx is not declared\n" + 
 				"----------\n" + 
-				"4. ERROR in X.java (at line 8)\n" + 
+				"5. ERROR in X.java (at line 8)\n" + 
 				"	* @param Obj Object\n" + 
 				"	         ^^^\n" + 
 				"Javadoc: Parameter Obj is not declared\n" + 
 				"----------\n" + 
-				"5. ERROR in X.java (at line 10)\n" + 
+				"6. ERROR in X.java (at line 10)\n" + 
+				"	public <T> void foo(int val, Object obj) {}\n" + 
+				"	        ^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 10)\n" + 
 				"	public <T> void foo(int val, Object obj) {}\n" + 
 				"	                        ^^^\n" + 
 				"Javadoc: Missing tag for parameter val\n" + 
 				"----------\n" + 
-				"6. ERROR in X.java (at line 10)\n" + 
+				"8. ERROR in X.java (at line 10)\n" + 
 				"	public <T> void foo(int val, Object obj) {}\n" + 
 				"	                                    ^^^\n" + 
 				"Javadoc: Missing tag for parameter obj\n" + 
@@ -801,20 +991,40 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	* @param <X> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: Parameter X is not declared\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	* @param <T> Type parameter 1\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 8)\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	* @param <X> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	* @param <U> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
 				"	* @param <E> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: E cannot be resolved to a type\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 10)\n" + 
+				"	* @param <V> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 12)\n" + 
+				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
+				"	        ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
 	public void test030() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				" public class X {\n" +
@@ -828,7 +1038,28 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"	 */\n" + 
 					"	public <T, U, V> void foo(int val, Object obj) {}\n" +
 					"}"
-			}
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 4)\r\n" + 
+				"	* @param <V> Type parameter 3\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\r\n" + 
+				"	* @param <U> Type parameter 2\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 8)\r\n" + 
+				"	* @param <T> Type parameter 1\r\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 10)\r\n" + 
+				"	public <T, U, V> void foo(int val, Object obj) {}\r\n" + 
+				"	        ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
+				"----------\n"
 		);
 	}
 	public void test031() {
@@ -845,25 +1076,15 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 5)\n" + 
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
-				"	        ^\n" + 
-				"Javadoc: Missing tag for parameter T\n" + 
+				"	        ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 5)\n" + 
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
-				"	           ^\n" + 
-				"Javadoc: Missing tag for parameter U\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 5)\n" + 
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
-				"	              ^\n" + 
-				"Javadoc: Missing tag for parameter V\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 5)\n" + 
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
 				"	                              ^^^\n" + 
 				"Javadoc: Missing tag for parameter val\n" + 
 				"----------\n" + 
-				"5. ERROR in X.java (at line 5)\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
 				"	                                          ^^^\n" + 
 				"Javadoc: Missing tag for parameter obj\n" + 
@@ -884,15 +1105,15 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 7)\n" + 
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
-				"	           ^\n" + 
-				"Javadoc: Missing tag for parameter U\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	* @param <T> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 7)\n" + 
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
-				"	              ^\n" + 
-				"Javadoc: Missing tag for parameter V\n" + 
+				"	        ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 7)\n" + 
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
@@ -916,12 +1137,22 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 8)\n" + 
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
-				"	        ^\n" + 
-				"Javadoc: Missing tag for parameter T\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	* @param <U> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 8)\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	* @param <V> Type parameter 3\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 8)\n" + 
+				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
+				"	        ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
 				"	                              ^^^\n" + 
 				"Javadoc: Missing tag for parameter val\n" + 
@@ -948,37 +1179,47 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
-				"	* @param <X> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: Parameter X is not declared\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	* @param <V> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 8)\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	* @param <X> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	* @param <U> Type parameter 1\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
 				"	* @param Object obj\n" + 
 				"	         ^^^^^^\n" + 
 				"Javadoc: Parameter Object is not declared\n" + 
 				"----------\n" + 
-				"3. ERROR in X.java (at line 9)\n" + 
+				"5. ERROR in X.java (at line 9)\n" + 
 				"	* @param <E> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: E cannot be resolved to a type\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"4. ERROR in X.java (at line 10)\n" + 
+				"6. ERROR in X.java (at line 10)\n" + 
 				"	* @param <U> Type parameter 2\n" + 
-				"	          ^\n" + 
-				"Javadoc: Duplicate tag for parameter\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"5. ERROR in X.java (at line 11)\n" + 
+				"7. ERROR in X.java (at line 11)\n" + 
 				"	* @param val int\n" + 
 				"	         ^^^\n" + 
 				"Javadoc: Duplicate tag for parameter\n" + 
 				"----------\n" + 
-				"6. ERROR in X.java (at line 13)\n" + 
+				"8. ERROR in X.java (at line 13)\n" + 
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
-				"	        ^\n" + 
-				"Javadoc: Missing tag for parameter T\n" + 
+				"	        ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n" + 
-				"7. ERROR in X.java (at line 13)\n" + 
+				"9. ERROR in X.java (at line 13)\n" + 
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
 				"	                                          ^^^\n" + 
 				"Javadoc: Missing tag for parameter obj\n" + 
@@ -1000,22 +1241,32 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	* @param <V> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
 				"	* @param\n" + 
 				"	   ^^^^^\n" + 
 				"Javadoc: Missing parameter name\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 8)\n" + 
-				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
-				"	        ^\n" + 
-				"Javadoc: Missing tag for parameter T\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	* @param <U> Type parameter 1\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
-				"3. ERROR in X.java (at line 8)\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
+				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
+				"	        ^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 8)\n" + 
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
 				"	                              ^^^\n" + 
 				"Javadoc: Missing tag for parameter val\n" + 
 				"----------\n" + 
-				"4. ERROR in X.java (at line 8)\n" + 
+				"6. ERROR in X.java (at line 8)\n" + 
 				"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
 				"	                                          ^^^\n" + 
 				"Javadoc: Missing tag for parameter obj\n" + 
@@ -1043,23 +1294,23 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 4)\n" + 
 				"	* @param <T> Type parameter 2\n" + 
-				"	   ^^^^^\n" + 
-				"Javadoc: Unexpected tag\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 5)\n" + 
 				"	* @param <V> Type parameter 2\n" + 
-				"	   ^^^^^\n" + 
-				"Javadoc: Unexpected tag\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 6)\n" + 
 				"	* @param <U> Type parameter 1\n" + 
-				"	   ^^^^^\n" + 
-				"Javadoc: Unexpected tag\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 10)\n" + 
 				"	public <T, , V> void foo(int val, Object obj) {}\n" + 
-				"	           ^\n" + 
-				"Syntax error on token \",\", delete this token\n" + 
+				"	       ^^^^^^^^\n" + 
+				"Syntax error on tokens, delete these tokens\n" + 
 				"----------\n"
 		);
 	}
@@ -1080,10 +1331,25 @@ public class JavadocTest_1_5 extends JavadocTest {
 					"}"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 10)\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	* @param <T> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	* @param <V> Type parameter 2\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	* @param <U> Type parameter 1\n" + 
+				"	         ^^^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 10)\n" + 
 				"	public <T, U, V extends Exceptions> void foo(int val, Object obj) {}\n" + 
-				"	                        ^^^^^^^^^^\n" + 
-				"Exceptions cannot be resolved to a type\n" + 
+				"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
@@ -1104,33 +1370,33 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	* @param < Type\n" + 
-				"	         ^^^^^^\n" + 
-				"Javadoc: Invalid param tag type parameter name\n" + 
+				"	         ^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	* @param < Type for parameterization\n" + 
-				"	         ^^^^^^\n" + 
-				"Javadoc: Invalid param tag type parameter name\n" + 
+				"	         ^\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 5)\n" + 
 				"	* @param <> Type\n" + 
 				"	         ^^\n" + 
-				"Javadoc: Invalid param tag type parameter name\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 6)\n" + 
 				"	* @param <?> Type\n" + 
 				"	         ^^^\n" + 
-				"Javadoc: Invalid param tag type parameter name\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"5. ERROR in X.java (at line 7)\n" + 
 				"	* @param <*> Type\n" + 
 				"	         ^^^\n" + 
-				"Javadoc: Invalid param tag type parameter name\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"6. ERROR in X.java (at line 9)\n" + 
 				"	public class X<E> {}\n" + 
 				"	               ^\n" + 
-				"Javadoc: Missing tag for parameter E\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}
@@ -1140,7 +1406,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"X.java",
 				" /**\n" + 
 					"  * Invalid type parameter reference\n" + 
-					"  * @param <E Type\n" + 
+					"  * @param <E Type parameter of class X\n" + 
 					"  * @param E> Type\n" + 
 					"  * @param <<E> Type\n" + 
 					"  * @param <<<E> Type\n" + 
@@ -1150,9 +1416,9 @@ public class JavadocTest_1_5 extends JavadocTest {
 			},
 			"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
-				"	* @param <E Type\n" + 
+				"	* @param <E Type parameter of class X\n" + 
 				"	         ^^\n" + 
-				"Javadoc: Invalid param tag type parameter name\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	* @param E> Type\n" + 
@@ -1162,22 +1428,22 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"3. ERROR in X.java (at line 5)\n" + 
 				"	* @param <<E> Type\n" + 
 				"	         ^^^^\n" + 
-				"Javadoc: Invalid param tag type parameter name\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 6)\n" + 
 				"	* @param <<<E> Type\n" + 
 				"	         ^^^^^\n" + 
-				"Javadoc: Invalid param tag type parameter name\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"5. ERROR in X.java (at line 7)\n" + 
 				"	* @param <E>> Type\n" + 
 				"	         ^^^^\n" + 
-				"Javadoc: Invalid param tag type parameter name\n" + 
+				"Javadoc: Invalid param tag name\n" + 
 				"----------\n" + 
 				"6. ERROR in X.java (at line 9)\n" + 
 				"	public class X<E> {}\n" + 
 				"	               ^\n" + 
-				"Javadoc: Missing tag for parameter E\n" + 
+				"Syntax error, type parameters are only available if source level is 1.5\n" + 
 				"----------\n"
 		);
 	}

@@ -36,6 +36,7 @@ class DocCommentParser extends AbstractCommentParser {
 		super(null);
 		this.ast = ast;
 		this.scanner = scanner;
+		this.jdk15 = this.ast.apiLevel() >= AST.JLS3;
 		this.checkDocComment = check;
 		this.kind = DOM_PARSER;
 	}
@@ -431,7 +432,7 @@ class DocCommentParser extends AbstractCommentParser {
 						}
 					break;
 					case 'v':
-						if (CharOperation.equals(tag, TAG_VALUE) && this.ast.apiLevel() >= AST.JLS3) {
+						if (this.jdk15 && CharOperation.equals(tag, TAG_VALUE)) {
 							this.tagValue = TAG_VALUE_VALUE;
 							if (this.inlineTagStarted) {
 								valid = parseReference();
@@ -515,12 +516,14 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushParamName(java.lang.Object)
 	 */
-	protected boolean pushParamName() {
-		SimpleName name = this.ast.newSimpleName(new String(this.scanner.getCurrentIdentifierSource()));
-		name.setSourceRange(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition()-this.scanner.getCurrentTokenStartPosition()+1);
+	protected boolean pushParamName(boolean isTypeParam) {
+		SimpleName name = this.ast.newSimpleName(new String(this.identifierStack[0]));
+		int start = (int) (this.identifierPositionStack[0] >>> 32);
+		int end = (int) (this.identifierPositionStack[0] & 0x00000000FFFFFFFFL);
+		name.setSourceRange(start, end-start+1);
 		TagElement paramTag = this.ast.newTagElement();
 		paramTag.setTagName(TagElement.TAG_PARAM);
-		paramTag.setSourceRange(this.tagSourceStart, this.scanner.getCurrentTokenEndPosition()-this.tagSourceStart+1);
+		paramTag.setSourceRange(this.tagSourceStart, end-this.tagSourceStart+1);
 		paramTag.fragments().add(name);
 		pushOnAstStack(paramTag, true);
 		return true;
