@@ -211,7 +211,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 				suite.addTest(new ASTConverterTest(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest("test0361"));
+//		suite.addTest(new ASTConverterTest("test0365"));
 		return suite;
 	}
 		
@@ -9086,6 +9086,80 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		
 		assertTrue("Both AST trees should be identical", forStatement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "for (int i=0, j=0, k=0; i<10 ; i++, j++, k++) {}", source); //$NON-NLS-1$
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22939
+	 
+	public void test0363() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0363", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 1);
+		assertNotNull(node);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
+		List fragments = variableDeclarationStatement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = variableDeclarationFragment.getInitializer();
+		assertTrue("Not a parenthesized expression", expression.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION);
+		Expression expression2 = ((ParenthesizedExpression) expression).getExpression();
+		checkSourceRange(expression2, "xxxx", source);
+	}*/
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11529
+	 */
+	public void test0364() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0364", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
+		List fragments = variableDeclarationStatement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
+		checkSourceRange(variableDeclarationStatement, "int local;", source);
+		SimpleName simpleName = variableDeclarationFragment.getName();
+		IBinding binding = simpleName.resolveBinding();
+		assertNotNull("No binding", binding);
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11529
+	 */
+	public void test0365() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0365", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT);
+		ForStatement forStatement = (ForStatement) node;
+		List initializers = forStatement.initializers();
+		assertEquals("Wrong size", 1, initializers.size());
+		VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) initializers.get(0);
+		List fragments = variableDeclarationExpression.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
+		SimpleName simpleName = variableDeclarationFragment.getName();
+		IBinding binding = simpleName.resolveBinding();
+		assertNotNull("No binding", binding);
 	}
 		
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {

@@ -2488,6 +2488,7 @@ class ASTConverter {
 		variableDeclarationFragment.setExtraDimensions(retrieveExtraDimension(localDeclaration.sourceEnd + 1, this.compilationUnitSource.length));
 		if (this.resolveBindings) {
 			recordNodes(variableDeclarationFragment, localDeclaration);
+			recordNodes(name, localDeclaration);
 			variableDeclarationFragment.resolveBinding();
 		}
 		return variableDeclarationFragment;
