@@ -164,24 +164,24 @@ private void deployCodeSnippetClassIfNeeded(IRequestor requestor) {
  */
 public void evaluate(
 	char[] codeSnippet, 
-	char[][] localVariableTypeNames,
-	char[][] localVariableNames, 
-	int[] localVariableModifiers,
-	char[] declaringTypeName,
-	boolean isStatic,
-	boolean isConstructorCall,
+	char[][] contextLocalVariableTypeNames,
+	char[][] contextLocalVariableNames, 
+	int[] contextLocalVariableModifiers,
+	char[] contextDeclaringTypeName,
+	boolean contextIsStatic,
+	boolean contextIsConstructorCall,
 	INameEnvironment environment, 
 	Map options, 
 	final IRequestor requestor, 
 	IProblemFactory problemFactory) throws InstallException {
 
 	// Initialialize context
-	this.localVariableTypeNames = localVariableTypeNames;
-	this.localVariableNames = localVariableNames;
-	this.localVariableModifiers = localVariableModifiers;
-	this.declaringTypeName = declaringTypeName;
-	this.isStatic = isStatic;
-	this.isConstructorCall = isConstructorCall;
+	this.localVariableTypeNames = contextLocalVariableTypeNames;
+	this.localVariableNames = contextLocalVariableNames;
+	this.localVariableModifiers = contextLocalVariableModifiers;
+	this.declaringTypeName = contextDeclaringTypeName;
+	this.isStatic = contextIsStatic;
+	this.isConstructorCall = contextIsConstructorCall;
 
 	this.deployCodeSnippetClassIfNeeded(requestor);
 
