@@ -60,7 +60,7 @@ public void checkParse(
 					buffer.append("----------\n");
 				problemCount++;
 				buffer.append(problemCount + (problems[i].isError() ? ". ERROR" : ". WARNING"));
-				buffer.append(" in " + new String(problems[i].getOriginatingFileName()));
+				buffer.append(" in " + new String(problems[i].getOriginatingFileName()).replace('/', '\\'));
 				try {
 					buffer.append(((DefaultProblem)problems[i]).errorReportSource(compilationResult.compilationUnit));
 					buffer.append("\n");

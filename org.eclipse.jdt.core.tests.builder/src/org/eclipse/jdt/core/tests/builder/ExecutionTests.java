@@ -42,14 +42,14 @@ public class ExecutionTests extends Tests {
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class Hello {\n"+ //$NON-NLS-1$
 			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
-			"      System.out.println(\"Hello world\");\n"+ //$NON-NLS-1$
+			"      System.out.print(\"Hello world\");\n"+ //$NON-NLS-1$
 			"   }\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
 			
 		incrementalBuild(projectPath);
 		expectingNoProblems();
-		executeClass(projectPath, "p1.Hello", "Hello world\r\n", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		executeClass(projectPath, "p1.Hello", "Hello world", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	
 	public void testFailure() throws JavaModelException {
