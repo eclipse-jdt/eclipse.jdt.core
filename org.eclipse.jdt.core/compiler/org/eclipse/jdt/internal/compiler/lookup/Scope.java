@@ -1100,26 +1100,29 @@ public abstract class Scope
 		if ((mask & TYPE) != 0) {
 			// check single type imports.
 			ImportBinding[] imports = unitScope.imports;
-			if (imports != null){
+			if (imports != null) {
 				// copy the list, since single type imports are removed if they cannot be resolved
 				for (int i = 0, length = imports.length; i < length; i++) {
 					ImportBinding typeImport = imports[i];
-					if (!typeImport.onDemand)
-						if (CharOperation.equals(typeImport.compoundName[typeImport.compoundName.length - 1], name))
+					if (!typeImport.onDemand) {
+						if (CharOperation.equals(typeImport.compoundName[typeImport.compoundName.length - 1], name)) {
 							if (unitScope.resolveSingleTypeImport(typeImport) != null) {
 								if (typeImport.reference != null) typeImport.reference.used = true;
 								return typeImport.resolvedImport; // already know its visible
 							}
+						}
+					}
 				}
 			}
 			// check if the name is in the current package, skip it if its a sub-package
+			unitScope.recordReference(unitScope.fPackage.compoundName, name);
 			Binding binding = unitScope.fPackage.getTypeOrPackage(name);
-			if (binding instanceof ReferenceBinding) return binding;
+			if (binding instanceof ReferenceBinding) return binding; // type is always visible to its own package
 
 			// check on demand imports
 			boolean foundInImport = false;
 			ReferenceBinding type = null;
-			if (imports != null){
+			if (imports != null) {
 				for (int i = 0, length = imports.length; i < length; i++) {
 					ImportBinding someImport = imports[i];
 					if (someImport.onDemand) {
@@ -1139,22 +1142,17 @@ public abstract class Scope
 					}
 				}
 			}
-			if (type != null)
-				return type;
-		}
-		// see if the name is a package
-		if ((mask & PACKAGE) != 0) {
-			compilationUnitScope().recordSimpleReference(name);
-			PackageBinding packageBinding = unitScope.environment.getTopLevelPackage(name);
-			if (packageBinding != null)
-				return packageBinding;
+			if (type != null) return type;
 		}
 
-		compilationUnitScope().recordSimpleReference(name);
-		// Answer error binding -- could not find name
-		if (foundType != null){
-			return foundType;
+		unitScope.recordSimpleReference(name);
+		if ((mask & PACKAGE) != 0) {
+			PackageBinding packageBinding = unitScope.environment.getTopLevelPackage(name);
+			if (packageBinding != null) return packageBinding;
 		}
+
+		// Answer error binding -- could not find name
+		if (foundType != null) return foundType; // problem type from above
 		return new ProblemReferenceBinding(name, NotFound);
 	}
 
