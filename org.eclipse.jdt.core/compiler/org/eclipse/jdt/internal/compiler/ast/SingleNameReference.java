@@ -147,9 +147,9 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 		&& !this.actualReceiverType.isArrayType()	
 		&& fieldBinding.declaringClass != null
 		&& fieldBinding.constant == NotAConstant
-		&& (/*scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
-				comply to jck lang/BINC/binc02301 (seems a bug)
-			||*/ !fieldBinding.declaringClass.canBeSeenBy(scope))){
+		&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4 && !fieldBinding.isStatic())
+				//comply to jck lang/BINC/binc02301 (seems a bug)
+			|| !fieldBinding.declaringClass.canBeSeenBy(scope))){
 		binding = new FieldBinding(fieldBinding, (ReferenceBinding)this.actualReceiverType);
 	}
 

@@ -517,7 +517,8 @@ public class QualifiedNameReference extends NameReference {
 				&& !this.actualReceiverType.isArrayType()			
 				&& fieldBinding.declaringClass != null
 				&& fieldBinding.constant == NotAConstant
-				&& (scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+				&& ((scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4
+						&& (indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic()))
 					|| !fieldBinding.declaringClass.canBeSeenBy(scope))){
 				binding = new FieldBinding(fieldBinding, (ReferenceBinding)this.actualReceiverType);
 			}
