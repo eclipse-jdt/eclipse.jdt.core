@@ -1028,7 +1028,7 @@ public class SourceMapper
 	 * If a non-null java element is passed, finds the name range for the 
 	 * given java element without storing it.
 	 */
-	public ISourceRange mapSource(
+	public synchronized ISourceRange mapSource(
 		IType type,
 		char[] contents,
 		IJavaElement searchedElement) {
