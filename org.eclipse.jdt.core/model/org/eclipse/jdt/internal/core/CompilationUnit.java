@@ -552,8 +552,7 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
 		// report added java delta
 		JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
 		delta.added(workingCopy);
-		manager.registerJavaModelDelta(delta);
-		manager.fire();
+		manager.fire(delta, JavaModelManager.DEFAULT_CHANGE_EVENT);
 
 		return workingCopy;
 	}

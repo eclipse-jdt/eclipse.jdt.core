@@ -114,10 +114,46 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * Adds the given listener for changes to Java elements.
 	 * Has no effect if an identical listener is already registered.
 	 *
+	 * This listener will only be notified during the POST_CHANGE resource change notification
+	 * and any reconcile operation (POST_RECONCILE).
+	 * For finer control of the notification, use <code>addElementChangedListener(IElementChangedListener,int)</code>
+	 * which allows to specify a different eventMask.
+	 * 
+	 * @see ElementChangeEvent
 	 * @param listener the listener
 	 */
 	public static void addElementChangedListener(IElementChangedListener listener) {
-		JavaModelManager.getJavaModelManager().addElementChangedListener(listener);
+		addElementChangedListener(listener, ElementChangedEvent.POST_CHANGE | ElementChangedEvent.POST_RECONCILE);
+	}
+
+	/**
+	 * Adds the given listener for changes to Java elements.
+	 * Has no effect if an identical listener is already registered.
+	 * After completion of this method, the given listener will be registered for exactly the
+	 * the specified events.  If they were previously registered for other events, they
+	 * will be deregistered.  
+	 * <p>
+	 * Once registered, a listener starts receiving notification of changes to
+	 * java elements in the model. The listener continues to receive 
+	 * notifications until it is replaced or removed. 
+	 * </p>
+	 * <p>
+	 * Listeners can listen for several types of event as defined in <code>ElementChangeEvent</code>.
+	 * Clients are free to register for any number of event types however if they register
+	 * for more than one, it is their responsibility to ensure they correctly handle the
+	 * case where the same java element change shows up in multiple notifications.  
+	 * Clients are guaranteed to receive only the events for which they are registered.
+	 * </p>
+	 * 
+	 * @param listener the listener
+	 * @param eventMask the bit-wise OR of all event types of interest to the listener
+	 * @see IElementChangeListener
+	 * @see ElementChangeEvent
+	 * @see #removeElementChangeListener
+	 *	@since 2.0
+	 */
+	public static void addElementChangedListener(IElementChangedListener listener, int eventMask ) {
+		JavaModelManager.getJavaModelManager().addElementChangedListener(listener, eventMask);
 	}
 
 	/**
@@ -1182,6 +1218,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					if (monitor != null && monitor.isCanceled()) return;
 
 					JavaProject project = (JavaProject) projectsToUpdate.next();
+					
+					if (!projectsToUpdate.hasNext()) {
+						// re-enable firing for the last operation
+						if (wasFiring) {
+							wasFiring = false;
+							manager.startDeltas();
+						}
+					}
 					project
 						.setRawClasspath(
 							project.getRawClasspath(),
@@ -1193,10 +1237,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 							(IClasspathEntry[]) affectedProjects.get(project));
 				}
 			} finally {
-				manager.mergeDeltas();
 				if (wasFiring) {
 					manager.startDeltas();
-					manager.fire();
+					// in case of exception traversing, deltas may be fired only in the next #fire() iteration
 				}
 			}
 		}

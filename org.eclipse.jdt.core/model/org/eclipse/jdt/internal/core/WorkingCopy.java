@@ -95,8 +95,7 @@ public void destroy() {
 			// report removed java delta
 			JavaElementDelta delta = new JavaElementDelta(this.getJavaModel());
 			delta.removed(this);
-			manager.registerJavaModelDelta(delta);
-			manager.fire();
+			manager.fire(delta, JavaModelManager.DEFAULT_CHANGE_EVENT);
 		}
 		
 	} catch (JavaModelException e) {
@@ -316,16 +315,10 @@ public IMarker[] reconcile() throws JavaModelException {
 	deltaBuilder.buildDeltas();
 	
 	// fire the deltas
-	boolean shouldFire = false;
-	JavaModelManager manager = null;
-	if (deltaBuilder.delta != null) {
-		manager = (JavaModelManager)JavaModelManager.getJavaModelManager();
-		if (deltaBuilder.delta.getAffectedChildren().length > 0) {
-			manager.registerJavaModelDelta(deltaBuilder.delta);
-			shouldFire = true;
-		}
+	if ((deltaBuilder.delta != null) && (deltaBuilder.delta.getAffectedChildren().length > 0)) {
+		JavaModelManager.getJavaModelManager().
+			fire(deltaBuilder.delta, ElementChangedEvent.POST_RECONCILE);
 	}
-	if (shouldFire) manager.fire();
 
 	return null;
 }

@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.ITypeHierarchyChangedListener;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.*;
@@ -143,7 +144,7 @@ protected void activate() {
 		}
 		checkCanceled();
 	}
-	JavaModelManager.getJavaModelManager().addElementChangedListener(this);
+	JavaCore.addElementChangedListener(this);
 	this.isActivated = true;
 }
 /**

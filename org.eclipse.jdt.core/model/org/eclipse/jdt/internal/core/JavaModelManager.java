@@ -305,7 +305,11 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 	/**
 	 * Collection of listeners for Java element deltas
 	 */
-	protected ArrayList fElementChangedListeners= new ArrayList();
+	private IElementChangedListener[] elementChangedListeners = new IElementChangedListener[5];
+	private int[] elementChangedListenerMasks = new int[5];
+	private int elementChangedListenerCount = 0;
+	public int currentChangeEventType = ElementChangedEvent.PRE_AUTO_BUILD;
+	public static final int DEFAULT_CHANGE_EVENT = 0; // must not collide with ElementChangedEvent event masks
 
 	/**
 	 * Collection of projects that are in the process of being deleted.
@@ -386,12 +390,32 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 	}
 	/**
 	 * addElementChangedListener method comment.
+	 * Need to clone defensively the listener information, in case some listener is reacting to some notification iteration by adding/changing/removing
+	 * any of the other (i.e. it deregisters itself).
 	 */
-	public void addElementChangedListener(IElementChangedListener listener) {
-		if (fElementChangedListeners.indexOf(listener) < 0) {
-			fElementChangedListeners.add(listener);
+	public void addElementChangedListener(IElementChangedListener listener, int eventMask) {
+		for (int i = 0; i < this.elementChangedListenerCount; i++){
+			if (this.elementChangedListeners[i].equals(listener)){
+				
+				// only clone the masks, since we could be in the middle of notifications and one listener decide to change
+				// any event mask of another listeners (yet not notified).
+				int cloneLength = this.elementChangedListenerMasks.length;
+				System.arraycopy(this.elementChangedListenerMasks, 0, this.elementChangedListenerMasks = new int[cloneLength], 0, cloneLength);
+				this.elementChangedListenerMasks[i] = eventMask; // could be different
+				return;
+			}
 		}
+		// may need to grow, no need to clone, since iterators will have cached original arrays and max boundary and we only add to the end.
+		int length;
+		if ((length = this.elementChangedListeners.length) == this.elementChangedListenerCount){
+			System.arraycopy(this.elementChangedListeners, 0, this.elementChangedListeners = new IElementChangedListener[length*2], 0, length);
+			System.arraycopy(this.elementChangedListenerMasks, 0, this.elementChangedListenerMasks = new int[length*2], 0, length);
+		}
+		this.elementChangedListeners[this.elementChangedListenerCount] = listener;
+		this.elementChangedListenerMasks[this.elementChangedListenerCount] = eventMask;
+		this.elementChangedListenerCount++;
 	}
+
 	/**
 	 * Starts caching ZipFiles.
 	 * Ignores if there are already clients.
@@ -458,39 +482,80 @@ public void doneSaving(ISaveContext context){
 
 	
 	/**
-	 * Fire Java Model deltas, flushing them after the fact. 
+	 * Fire Java Model delta, flushing them after the fact after post_change notification.
 	 * If the firing mode has been turned off, this has no effect. 
 	 */
-	public void fire() {
+	public void fire(JavaElementDelta customDelta, int originalEventType) {
+
 		if (fFire) {
-			this.mergeDeltas();
-			try {
-				Iterator iterator = fJavaModelDeltas.iterator();
-				while (iterator.hasNext()) {
-					IJavaElementDelta delta= (IJavaElementDelta) iterator.next();
-					if (DeltaProcessor.VERBOSE){
-						System.out.println("FIRING Delta ["+Thread.currentThread()+"]:\n" + delta);//$NON-NLS-1$//$NON-NLS-2$
+
+			int eventType;
+			
+			/* DEFAULT event type is used when operation doesn't know actual event type and needed to fire immediately:
+			 * e.g. non-resource modifying operation, create/destroy shared working copies
+			 *
+			 * this is mapped to a POST-change + PRE-build change for all interested listeners
+			 */
+			if (originalEventType == DEFAULT_CHANGE_EVENT){
+				eventType = ElementChangedEvent.POST_CHANGE;
+			} else {
+				eventType = originalEventType;
+			}
+			
+			JavaElementDelta deltaToNotify;
+			if (customDelta == null){
+				this.mergeDeltas();
+				if (fJavaModelDeltas.size() > 0){ 
+
+					// cannot be more than 1 after merge
+					deltaToNotify = (JavaElementDelta)fJavaModelDeltas.get(0);
+
+					// empty the queue only after having fired final volley of deltas and no custom deltas was superposed
+					if (eventType == ElementChangedEvent.POST_CHANGE){
+						// flush now so as to keep listener reactions to post their own deltas for subsequent iteration
+						this.flush();
 					}
-					
-					// Refresh internal scopes
-					Iterator scopes = this.scopes.keySet().iterator();
-					while (scopes.hasNext()) {
-						AbstractSearchScope scope = (AbstractSearchScope)scopes.next();
-						scope.processDelta(delta);
-					}
-					
-					ElementChangedEvent event= new ElementChangedEvent(delta);
-					// Clone the listeners since they could remove themselves when told about the event 
-					// (eg. a type hierarchy becomes invalid (and thus it removes itself) when the type is removed
-					ArrayList listeners= (ArrayList) fElementChangedListeners.clone();
-					for (int i= 0; i < listeners.size(); i++) {
-						IElementChangedListener listener= (IElementChangedListener) listeners.get(i);
-						listener.elementChanged(event);
+				} else {
+					return;
+				}
+			} else {
+				deltaToNotify = customDelta;
+			}
+			if (DeltaProcessor.VERBOSE){
+				System.out.println("FIRING Delta ["+Thread.currentThread()+"]:\n" + deltaToNotify);//$NON-NLS-1$//$NON-NLS-2$
+			}
+				
+			// Refresh internal scopes
+			Iterator scopes = this.scopes.keySet().iterator();
+			while (scopes.hasNext()) {
+				AbstractSearchScope scope = (AbstractSearchScope)scopes.next();
+				scope.processDelta(deltaToNotify);
+			}
+				
+			// Notification
+
+			// Important: if any listener reacts to notification by updating the listeners list or mask, these lists will
+			// be duplicated, so it is necessary to remember original lists in a variable (since field values may change under us)
+			IElementChangedListener[] listeners = this.elementChangedListeners;
+			int[] listenerMask = this.elementChangedListenerMasks;
+			int listenerCount = this.elementChangedListenerCount;
+
+			// in case using a DEFAULT change event, will notify also all listeners also interested in PRE-build events
+			if (originalEventType == DEFAULT_CHANGE_EVENT){
+				ElementChangedEvent extraEvent = new ElementChangedEvent(deltaToNotify, ElementChangedEvent.PRE_AUTO_BUILD);
+				for (int i= 0; i < listenerCount; i++) {
+					if ((listenerMask[i] & ElementChangedEvent.PRE_AUTO_BUILD) != 0){
+						listeners[i].elementChanged(extraEvent);
 					}
 				}
-			} finally {
-				// empty the queue
-				this.flush();
+			}
+
+			// regular notification
+			ElementChangedEvent event = new ElementChangedEvent(deltaToNotify, eventType);
+			for (int i= 0; i < listenerCount; i++) {
+				if ((listenerMask[i] & eventType) != 0){
+					listeners[i].elementChanged(event);
+				}
 			}
 		}
 	}
@@ -933,8 +998,35 @@ public void mergeDeltas() {
 	 * removeElementChangedListener method comment.
 	 */
 	public void removeElementChangedListener(IElementChangedListener listener) {
-		fElementChangedListeners.remove(listener);
+		
+		for (int i = 0; i < this.elementChangedListenerCount; i++){
+			
+			if (this.elementChangedListeners[i].equals(listener)){
+				
+				// need to clone defensively since we might be in the middle of listener notifications (#fire)
+				int length = this.elementChangedListeners.length;
+				IElementChangedListener[] newListeners = new IElementChangedListener[length];
+				System.arraycopy(this.elementChangedListeners, 0, newListeners, 0, i);
+				int[] newMasks = new int[length];
+				System.arraycopy(this.elementChangedListenerMasks, 0, newMasks, 0, i);
+				
+				// copy trailing listeners
+				int trailingLength = this.elementChangedListenerCount - i - 1;
+				if (trailingLength > 0){
+					System.arraycopy(this.elementChangedListeners, i+1, newListeners, i, trailingLength);
+					System.arraycopy(this.elementChangedListenerMasks, i+1, newMasks, i, trailingLength);
+				}
+				
+				// update manager listener state (#fire need to iterate over original listeners through a local variable to hold onto
+				// the original ones)
+				this.elementChangedListeners = newListeners;
+				this.elementChangedListenerMasks = newMasks;
+				this.elementChangedListenerCount--;
+				return;
+			}
+		}
 	}
+	
 	protected void removeInfo(IJavaElement element) {
 		this.cache.removeInfo(element);
 	}
@@ -959,6 +1051,8 @@ public void mergeDeltas() {
 		if (event.getSource() instanceof IWorkspace) {
 			IResource resource = event.getResource();
 			IResourceDelta delta = event.getDelta();
+			int javaEventType;
+			
 			switch(event.getType()){
 				case IResourceChangeEvent.PRE_DELETE :
 					try {
@@ -968,34 +1062,42 @@ public void mergeDeltas() {
 						}
 					} catch(CoreException e){
 					}
-					break;
+					return;
+					
 				case IResourceChangeEvent.PRE_AUTO_BUILD :
 					if(delta != null) {
 						this.checkProjectBeingAdded(delta);
 						DeltaProcessor.performPreBuildCheck(delta, null); // will close project if affected by the property file change
 					}
+					javaEventType = ElementChangedEvent.PRE_AUTO_BUILD;
 					break;
+					
 				case IResourceChangeEvent.POST_CHANGE :
-					if (delta != null) {
-						try {
-							IJavaElementDelta[] translatedDeltas = fDeltaProcessor.processResourceDelta(delta);
-							if (translatedDeltas.length > 0) {
-								for (int i= 0; i < translatedDeltas.length; i++) {
-									registerJavaModelDelta(translatedDeltas[i]);
-								}
-							}
-							fire();
-						} finally {
-							// fix for 1FWIAEQ: ITPJCORE:ALL - CRITICAL - "projects being deleted" cache not cleaned up when solution deleted
-							if (!fProjectsBeingDeleted.isEmpty()) {
-								fProjectsBeingDeleted= new ArrayList(1);
-							}
-						}
-					}				
+					javaEventType = ElementChangedEvent.POST_CHANGE;
 					break;
+					
+				default : // unhandled event
+					return;
 			}
+			if (delta != null) {
+				try {
+					IJavaElementDelta[] translatedDeltas = fDeltaProcessor.processResourceDelta(delta);
+					if (translatedDeltas.length > 0) {
+						for (int i= 0; i < translatedDeltas.length; i++) {
+							registerJavaModelDelta(translatedDeltas[i]);
+						}
+					}
+					fire(null, javaEventType);
+				} finally {
+					// fix for 1FWIAEQ: ITPJCORE:ALL - CRITICAL - "projects being deleted" cache not cleaned up when solution deleted
+					if (javaEventType == ElementChangedEvent.POST_CHANGE && !fProjectsBeingDeleted.isEmpty()) {
+						fProjectsBeingDeleted= new ArrayList(1);
+					}
+				}			
+			}		
 		}
 	}
+	
 /**
  * @see ISaveParticipant
  */
@@ -1028,7 +1130,7 @@ public void rollback(ISaveContext context){
 			// fire only if there were no awaiting deltas (if there were, they would come from a resource modifying operation)
 			// and the operation has not modified any resource
 			if (!hadAwaitingDeltas && !operation.hasModifiedResource()) {
-				fire();
+				fire(null, JavaModelManager.DEFAULT_CHANGE_EVENT);
 			} // else deltas are fired while processing the resource delta
 		}
 	}
