@@ -687,7 +687,7 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 	// only for this possible match and its required types.
 	this.nameEnvironment = possibleMatchSize == 1
 		? (INameEnvironment) searchableEnvironment
-		: (INameEnvironment) new JavaSearchNameEnvironment(project);
+		: (INameEnvironment) new JavaSearchNameEnvironment(project, this.workingCopies);
 
 	// create lookup environment
 	this.options = new CompilerOptions(project.getOptions(true));
