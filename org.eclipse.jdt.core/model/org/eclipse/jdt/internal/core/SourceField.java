@@ -38,8 +38,43 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
  * @see IField
  */
 public Object getConstant() throws JavaModelException {
+	Object constant = null;	
 	SourceFieldElementInfo info = (SourceFieldElementInfo) getElementInfo();
-	return info.initializationSource;
+	if (info.initializationSource == null) {
+		return null;
+	}
+			
+	String constantSource = new String(info.initializationSource);
+	String signature = info.getTypeSignature();
+	if (signature.equals(Signature.SIG_INT)) {
+		constant = new Integer(constantSource);
+	} else if (signature.equals(Signature.SIG_SHORT)) {
+		constant = new Short(constantSource);
+	} else if (signature.equals(Signature.SIG_BYTE)) {
+		constant = new Byte(constantSource);
+	} else if (signature.equals(Signature.SIG_BOOLEAN)) {
+		constant = Boolean.valueOf(constantSource);
+	} else if (signature.equals(Signature.SIG_CHAR)) {
+		constant = new Character(constantSource.charAt(0));
+	} else if (signature.equals(Signature.SIG_DOUBLE)) {
+		constant = new Double(constantSource);
+	} else if (signature.equals(Signature.SIG_FLOAT)) {
+		constant = new Float(constantSource);
+	} else if (signature.equals(Signature.SIG_LONG)) {
+		if (constantSource.endsWith("L") || constantSource.endsWith("l")) { //$NON-NLS-1$ //$NON-NLS-2$
+			int index = constantSource.lastIndexOf("L");//$NON-NLS-1$
+			if (index != -1) {
+				constant = new Long(constantSource.substring(0, index));
+			} else {
+				constant = new Long(constantSource.substring(0, constantSource.lastIndexOf("l")));//$NON-NLS-1$
+			}
+		} else {
+			constant = new Long(constantSource);
+		}
+	} else if (signature.equals("QString;")) {//$NON-NLS-1$
+		constant = constantSource;
+	}
+	return constant;
 }
 /**
  * @see JavaElement#getHandleMemento()

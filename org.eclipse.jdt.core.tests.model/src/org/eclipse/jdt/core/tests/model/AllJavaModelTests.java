@@ -128,7 +128,10 @@ public static Test suite() {
 
 	// Java Model Factory tests
 	suite.addTest(FactoryTests.suite());
-			
+
+	// Java Model Source test
+	suite.addTest(GetSourceTests.suite());
+	
 	// Java Element persistence tests
 	suite.addTest(MementoTests.suite());
 	

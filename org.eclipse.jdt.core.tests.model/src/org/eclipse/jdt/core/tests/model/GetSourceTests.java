@@ -94,51 +94,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 		String expectedSource = "import java.lang.*;";
 		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 	}
-	
-	/*
-	 * Ensures the source for a local variable contains the modifiers, type and name.
-	 */
-	public void testLocalVariable1() throws JavaModelException {
-		ILocalVariable var = getLocalVariable("/P/p/X.java", "var1 = 2;", "var1");
-		
-		String actualSource = ((ISourceReference)var).getSource();
-		String expectedSource = "final int var1 = 2;";
-		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
-	}
-	
-	/*
-	 * Ensures the source for a local variable contains the modifiers, type and name.
-	 */
-	public void testLocalVariable2() throws JavaModelException {
-		ILocalVariable var = getLocalVariable("/P/p/X.java", "var2;", "var2");
-		
-		String actualSource = ((ISourceReference)var).getSource();
-		String expectedSource = "Object var2;";
-		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
-	}
-	
-	/*
-	 * Ensures the source for a local variable contains the modifiers, type and name.
-	 */
-	public void testLocalVariable3() throws JavaModelException {
-		ILocalVariable var = getLocalVariable("/P/p/X.java", "i = 0;", "i");
-		
-		String actualSource = ((ISourceReference)var).getSource();
-		String expectedSource = "int i = 0"; // semi-colon is not part of the local declaration in a for statement
-		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
-	}
-	
-	/*
-	 * Ensures the source for a local variable contains the modifiers, type and name.
-	 */
-	public void testLocalVariable4() throws JavaModelException {
-		ILocalVariable var = getLocalVariable("/P/p/X.java", "s) {", "s");
-		
-		String actualSource = ((ISourceReference)var).getSource();
-		String expectedSource = "String s";
-		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
-	}
-	
+
 	/**
 	 * Ensure the source for a method contains the modifiers, return
 	 * type, selector, and terminator.
@@ -153,56 +109,6 @@ public class GetSourceTests extends ModifyingResourceTests {
 			"    return 1;\n" + 
 			"  }";
 		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
-	}
-	
-	/*
-	 * Ensures the name range for a method with syntax errors in its header is correct.
-	 * (regression test for bug 43139 Delete member in Outliner not working)
-	 */
-	public void testNameRangeMethodWithSyntaxError() throws CoreException {
-		try {
-			String cuSource = 
-				"package p;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"  }\n" +
-				"  void static bar() {}\n" +
-				"}";
-			createFile("/P/p/Y.java", cuSource);
-			IMethod method= getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("bar", new String[0]);
-		
-			String actualSource = getNameSource(cuSource, method);
-			String expectedSource = "bar";
-			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
-		} finally {
-			deleteFile("/P/p/Y.java");
-		}
-	}
-	
-	/*
-	 * Ensures the name range for an anonymous class is correct.
-	 * (regression test for bug 44450 Strange name range for anonymous classes)
-	 */
-	public void testNameRangeAnonymous() throws CoreException {
-		try {
-			String cuSource = 
-				"package p;\n" +
-				"public class Y {\n" +
-				"  void foo() {\n" +
-				"    Y y = new Y() {};\n" +
-				"    class C {\n" +
-				"    }\n"+
-				"  }\n" +
-				"}";
-			createFile("/P/p/Y.java", cuSource);
-			IType anoymous = getCompilationUnit("/P/p/Y.java").getType("Y").getMethod("foo", new String[0]).getType("", 1);
-		
-			String actualSource = getNameSource(cuSource, anoymous);
-			String expectedSource = "Y";
-			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
-		} finally {
-			deleteFile("/P/p/Y.java");
-		}
 	}
 	
 	private String getNameSource(String cuSource, IMember member) throws JavaModelException {
@@ -278,7 +184,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 			constant = field.getConstant();
 			assertNotNull("No constant", constant);
 			assertTrue("Not a Long", constant instanceof Long);
-
+			
 			field = type.getField("field3");
 		
 			actualSource = field.getSource();
