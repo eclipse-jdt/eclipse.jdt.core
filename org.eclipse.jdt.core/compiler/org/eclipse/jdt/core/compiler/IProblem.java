@@ -6,8 +6,9 @@ package org.eclipse.jdt.core.compiler;
  
 import org.eclipse.jdt.internal.compiler.*;
 
-public interface IProblem { // max: 500     
-	// categories
+public interface IProblem { 
+	
+	// problem categories
 	final int TypeRelated = 0x01000000;
 	final int FieldRelated = 0x02000000;
 	final int MethodRelated = 0x04000000;
@@ -24,6 +25,7 @@ public interface IProblem { // max: 500
 	final int AmbiguousType = TypeRelated + 4;
 	final int UsingDeprecatedType = TypeRelated + 5;
 	final int InternalTypeNameProvided = TypeRelated + 6;
+
 	// type compatibilities
 	final int IncompatibleTypesInEqualityOperator = TypeRelated + 15;
 	final int IncompatibleTypesInConditionalOperator = TypeRelated + 16;
@@ -172,18 +174,18 @@ public interface IProblem { // max: 500
 	final int NoFieldOnBaseType = FieldRelated + 221;
 	final int InvalidExpressionAsStatement = Internal + 222;
     
-	// constants
-	final int END_OF_SOURCE = Internal + 250;
-	final int INVALID_HEXA = Internal + 251;
-	final int INVALID_OCTAL = Internal + 252;
-	final int INVALID_CHARACTER_CONSTANT = Internal + 253;
-	final int INVALID_ESCAPE = Internal + 254;
-	final int INVALID_INPUT = Internal + 255;
-	final int INVALID_UNICODE_ESCAPE = Internal + 256;
-	final int INVALID_FLOAT = Internal + 257;
-	final int NULL_SOURCE_STRING = Internal + 258;
-	final int UNTERMINATED_STRING = Internal + 259;
-	final int UNTERMINATED_COMMENT = Internal + 260;
+	// scanner errors
+	final int EndOfSource = Internal + 250;
+	final int InvalidHexa = Internal + 251;
+	final int InvalidOctal = Internal + 252;
+	final int InvalidCharacterConstant = Internal + 253;
+	final int InvalidEscape = Internal + 254;
+	final int InvalidInput = Internal + 255;
+	final int InvalidUnicodeEscape = Internal + 256;
+	final int InvalidFloat = Internal + 257;
+	final int NullSourceString = Internal + 258;
+	final int UnterminatedString = Internal + 259;
+	final int UnterminatedComment = Internal + 260;
 
 	// type related problems
 	final int InterfaceCannotHaveInitializers = TypeRelated + 300;
@@ -193,7 +195,7 @@ public interface IProblem { // max: 500
 	final int IllegalModifierForMemberClass = TypeRelated + 304;
 	final int IllegalModifierForMemberInterface = TypeRelated + 305;
 	final int IllegalModifierForLocalClass = TypeRelated + 306;
-//  final int IllegalModifierForLocalInterface = TypeRelated + 307; 
+	//  final int IllegalModifierForLocalInterface = TypeRelated + 307; 
 	final int IllegalModifierCombinationFinalAbstractForClass = TypeRelated + 308;
 	final int IllegalVisibilityModifierForInterfaceMemberType = TypeRelated + 309;
 	final int IllegalVisibilityModifierCombinationForMemberType = TypeRelated + 310;

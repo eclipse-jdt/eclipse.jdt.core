@@ -140,6 +140,7 @@ public static String[] loadMessageTemplates(Locale loc) {
 		try {
 			templates[i] = bundle.getString(String.valueOf(i));
 		} catch (MissingResourceException e) {
+			System.out.println("Missing problem message : " + i); //$NON-NLS-1$
 		}
 	}
 	return templates;
