@@ -136,21 +136,7 @@ public class SearchMatch {
 	 * 
 	 * @return <code>true</code> if this search match is inside a Java doc
 	 * comment, and <code>false</code> otherwise
-	 * @deprecated Use {@link #isInsideDocComment()} instead.
 	 */
-	 // TODO (jerome) - remove this method before M9
-	public boolean insideDocComment() {
-		return isInsideDocComment();
-	}
-
-	/**
-	 * Returns whether this search match is inside a doc comment of a Java
-	 * source file.
-	 * 
-	 * @return <code>true</code> if this search match is inside a Java doc
-	 * comment, and <code>false</code> otherwise
-	 */
-	//	 TODO (jerome) - it would be better to provide a private field and a public final get/set methods
 	public boolean isInsideDocComment() {
 		// default is outside a doc comment
 		return false;
