@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0496"));
+		suite.addTest(new ASTConverterTest2("test0499"));
 		return suite;
 	}
 	/**
@@ -2747,5 +2747,35 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=45199
+	 */
+	public void test0499() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0499", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0, 1);
+		assertNotNull(node);
+		assertTrue("Not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		Expression expression = ((ExpressionStatement) node).getExpression();
+		assertTrue("Not an assignment", expression.getNodeType() == ASTNode.ASSIGNMENT); //$NON-NLS-1$
+		Assignment assignment = (Assignment) expression;
+		Expression expression2 = assignment.getRightHandSide();
+		assertTrue("Not an infix expression", expression2.getNodeType() == ASTNode.INFIX_EXPRESSION); //$NON-NLS-1$
+		InfixExpression infixExpression = (InfixExpression) expression2;
+		Expression expression3 = infixExpression.getLeftOperand();
+		assertTrue("Not a simple name", expression3.getNodeType() == ASTNode.SIMPLE_NAME); //$NON-NLS-1$
+		ITypeBinding binding = expression3.resolveTypeBinding();
+		assertNotNull("No binding", binding);
+		Expression expression4 = assignment.getLeftHandSide();
+		assertTrue("Not a simple name", expression4.getNodeType() == ASTNode.SIMPLE_NAME); //$NON-NLS-1$
+		ITypeBinding binding2 = expression4.resolveTypeBinding();
+		assertNotNull("No binding", binding2);
+		assertTrue("Should be the same", binding == binding2);
+	}
+	
 }
 
