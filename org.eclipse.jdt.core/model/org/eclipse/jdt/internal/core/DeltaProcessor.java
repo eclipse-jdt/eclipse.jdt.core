@@ -486,12 +486,15 @@ public class DeltaProcessor {
 	 */
 	private void contentChanged(Openable element) {
 
-		close(element);
-		int flags = IJavaElementDelta.F_CONTENT;
-		if (element instanceof JarPackageFragmentRoot){
-			flags |= IJavaElementDelta.F_ARCHIVE_CONTENT_CHANGED;
+		// filter out changes to primary compilation unit in working copy mode
+		if (!isPrimaryWorkingCopy(element, element.getElementType())) {
+			close(element);
+			int flags = IJavaElementDelta.F_CONTENT;
+			if (element instanceof JarPackageFragmentRoot){
+				flags |= IJavaElementDelta.F_ARCHIVE_CONTENT_CHANGED;
+			}
+			currentDelta().changed(element, flags);
 		}
-		currentDelta().changed(element, flags);
 	}
 	/*
 	 * Creates the openables corresponding to this resource.
@@ -922,7 +925,10 @@ public class DeltaProcessor {
 					currentDelta().movedTo(element, movedFromElement);
 				}
 			} else {
-				currentDelta().added(element);
+				// filter out changes to primary compilation unit in working copy mode
+				if (!isPrimaryWorkingCopy(element, elementType)) {
+					currentDelta().added(element);
+				}
 			}
 			
 			switch (elementType) {
@@ -1023,7 +1029,10 @@ public class DeltaProcessor {
 				currentDelta().movedFrom(element, movedToElement);
 			}
 		} else {
-			currentDelta().removed(element);
+			// filter out changes to primary compilation unit in working copy mode
+			if (!isPrimaryWorkingCopy(element, elementType)) {
+				currentDelta().removed(element);
+			}
 		}
 
 		switch (elementType) {
@@ -2114,11 +2123,7 @@ public class DeltaProcessor {
 					return false;
 				}
 				updateIndex(element, delta);
-				
-				// filter out changes to primary compilation unit in working copy mode
-				if (!isPrimaryWorkingCopy(element, elementType)) {
-					elementAdded(element, delta, rootInfo);
-				}
+				elementAdded(element, delta, rootInfo);
 				return false;
 			case IResourceDelta.REMOVED :
 				deltaRes = delta.getResource();
@@ -2129,11 +2134,7 @@ public class DeltaProcessor {
 					return false;
 				}
 				updateIndex(element, delta);
-
-				// filter out changes to primary compilation unit in working copy mode
-				if (!isPrimaryWorkingCopy(element, elementType)) {
-					elementRemoved(element, delta, rootInfo);
-				}
+				elementRemoved(element, delta, rootInfo);
 	
 				if (deltaRes.getType() == IResource.PROJECT){			
 					// reset the corresponding project built state, since cannot reuse if added back
@@ -2147,11 +2148,7 @@ public class DeltaProcessor {
 					element = createElement(delta.getResource(), elementType, rootInfo);
 					if (element == null) return false;
 					updateIndex(element, delta);
-					
-					// filter out changes to primary compilation unit in working copy mode
-					if (!isPrimaryWorkingCopy(element, elementType)) {
-						contentChanged(element);
-					}
+					contentChanged(element);
 				} else if (elementType == IJavaElement.JAVA_PROJECT) {
 					if ((flags & IResourceDelta.OPEN) != 0) {
 						// project has been opened or closed

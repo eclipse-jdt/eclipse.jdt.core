@@ -750,6 +750,39 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	/*
+	 * Ensures that moving a primary working copy from one package to another removes that 
+	 * working copy from the original package.
+	 * (regression test for bug 43847 IPackageFragment not updated after CUs have moved)
+	 */
+	public void testMoveWorkingCopy() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			createFolder("/P/p1");
+			createFile(
+				"/P/p1/Y.java",
+				"package p1;\n" +
+				"public class Y {\n" +
+				"}"
+			);
+			createFolder("/P/p2");
+			workingCopy = getCompilationUnit("P/p1/Y.java");
+			workingCopy.becomeWorkingCopy(null, null);
+			
+			workingCopy.move(getPackage("/P/p2"), null, null, false, null);
+			assertElementDescendants(
+				"Unexpected content of /P/p1",
+				"p1",
+				getPackage("/P/p1"));
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+			deleteFolder("P/p1");
+			deleteFolder("P/p2");
+		}
+	}
+	
+	/*
 	 * Ensures that using AST.parseCompilationUint(ICompilationUnit, boolean, WorkingCopyOwner) and 
 	 * computing the bindings takes the owner's working copies into account.
 	 * (regression test for bug 39533 Working copy with no corresponding file not considered by NameLookup)
