@@ -45,11 +45,11 @@ What's new in this drop</h2>
 <li> Added optional compiler diagnosis for predicate method declaring thrown exceptions
 (matching problem ID is <code>IProblem.PredicateThrowingException</code>)
 <pre>
-* COMPILER / Reporting Predicate Declaring Thrown Exceptions
+* COMPILER / Reporting Boolean Method Declaring Thrown Exceptions
 *    When enabled, the compiler will issue an error or a warning when a boolean method declaration 
-*    (aka predicate) is specifying a clause for thrown exceptions. Usually, predicates should only return
+*    is specifying a clause for thrown exceptions. Usually, predicates should only return
 *    a boolean value and not raise exceptions.
-*     - option id:         "org.eclipse.jdt.core.compiler.problem.predicateThrowingException"
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.booleanMethodThrowingException"
 *     - possible values:   { "error", "warning", "ignore" }
 *     - default:           "ignore"
 </pre>
