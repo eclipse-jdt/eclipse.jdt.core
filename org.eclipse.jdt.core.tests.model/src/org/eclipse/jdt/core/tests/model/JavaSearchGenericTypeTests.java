@@ -1353,11 +1353,11 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_wld [NonGeneric.GenericMember<?>] EXACT_MATCH\n" +
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_thr [NonGeneric.GenericMember<? extends Throwable>] EXACT_MATCH\n" +
 			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.gen_run [NonGeneric.GenericMember<? super RuntimeException>] EXACT_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [t.s.def.NonGeneric.GenericMember] EXACT_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_exc [t.s.def.NonGeneric.GenericMember<Exception>] EXACT_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_wld [t.s.def.NonGeneric.GenericMember<?>] EXACT_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_thr [t.s.def.NonGeneric.GenericMember<? extends Throwable>] EXACT_MATCH\n" +
-			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_run [t.s.def.NonGeneric.GenericMember<? super RuntimeException>] EXACT_MATCH",
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen [g1.t.s.def.NonGeneric.GenericMember] EXACT_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_exc [g1.t.s.def.NonGeneric.GenericMember<Exception>] EXACT_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_wld [g1.t.s.def.NonGeneric.GenericMember<?>] EXACT_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_thr [g1.t.s.def.NonGeneric.GenericMember<? extends Throwable>] EXACT_MATCH\n" +
+			"src/g1/t/s/ref/R2.java g1.t.s.ref.R2.qgen_run [g1.t.s.def.NonGeneric.GenericMember<? super RuntimeException>] EXACT_MATCH",
 			resultCollector);
 	}
 	public void testSingleParameterizedElementPattern04() throws CoreException {
@@ -1445,11 +1445,11 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_exc [NonGeneric.GenericMember<Exception, Exception, RuntimeException>] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_wld [NonGeneric.GenericMember<?, ?, ?>] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.gen_run [NonGeneric.GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [t.m.def.NonGeneric.GenericMember] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_obj [t.m.def.NonGeneric.GenericMember<Object, Exception, RuntimeException>] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_exc [t.m.def.NonGeneric.GenericMember<Exception, Exception, RuntimeException>] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_wld [t.m.def.NonGeneric.GenericMember<?, ?, ?>] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_run [t.m.def.NonGeneric.GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] EXACT_MATCH",
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen [g1.t.m.def.NonGeneric.GenericMember] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_obj [g1.t.m.def.NonGeneric.GenericMember<Object, Exception, RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_exc [g1.t.m.def.NonGeneric.GenericMember<Exception, Exception, RuntimeException>] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_wld [g1.t.m.def.NonGeneric.GenericMember<?, ?, ?>] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R2.java g1.t.m.ref.R2.qgen_run [g1.t.m.def.NonGeneric.GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>] EXACT_MATCH",
 			resultCollector);
 	}
 	public void testMultipleParameterizedElementPattern04() throws CoreException {

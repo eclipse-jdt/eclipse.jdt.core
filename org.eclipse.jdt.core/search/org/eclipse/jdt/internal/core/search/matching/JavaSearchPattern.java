@@ -65,7 +65,7 @@ public class JavaSearchPattern extends SearchPattern {
 	 */
 	void computeSignature(String signature) {
 		// In case of IJavaElement signature, replace '/' by '.'
-		char[] source = signature.replace('/','.').toCharArray();
+		char[] source = signature.replace('/','.').replace('$','.').toCharArray();
 
 		// Init counters and arrays
 		char[][] signatures = new char[10][];
