@@ -79,6 +79,7 @@ public static Test suite() {
 	    tests_1_5.add(ForeachStatementTest.class);
 	    tests_1_5.add(GenericTypeSignatureTest.class);
 	    tests_1_5.add(InternalHexFloatTest.class);
+	    tests_1_5.add(StaticImportTest.class);
 		// Reset forgotten subsets tests
 		AbstractRegressionTest.testsNames = null;
 		AbstractRegressionTest.testsNumbers= null;

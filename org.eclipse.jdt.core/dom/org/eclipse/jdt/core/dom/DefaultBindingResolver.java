@@ -272,7 +272,7 @@ class DefaultBindingResolver extends BindingResolver {
 			if (indexInImportReference >= 0) {
 				Binding binding = null;
 				try {
-					binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, indexInImportReference), true);
+					binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, indexInImportReference), true, importReference.isStatic());
 				} catch (RuntimeException e) {
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 				}
@@ -783,7 +783,7 @@ class DefaultBindingResolver extends BindingResolver {
 			if (node instanceof ImportReference) {
 				ImportReference importReference = (ImportReference) node;
 				if (importReference.onDemand) {
-					Binding binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length), true);
+					Binding binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length), true, importReference.isStatic());
 					if (binding != null) {
 						if (binding.bindingType() == BindingIds.PACKAGE) {
 							IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
@@ -801,7 +801,7 @@ class DefaultBindingResolver extends BindingResolver {
 						}
 					}
 				} else {
-					Binding binding = this.scope.getImport(importReference.tokens, false);
+					Binding binding = this.scope.getImport(importReference.tokens, false, importReference.isStatic());
 					if (binding != null && binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
 						ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
 						return typeBinding == null ? null : typeBinding;

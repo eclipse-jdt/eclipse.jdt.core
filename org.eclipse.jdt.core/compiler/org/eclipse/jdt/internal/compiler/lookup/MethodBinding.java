@@ -96,6 +96,16 @@ public final boolean areParameterErasuresEqual(MethodBinding method) {
 public final int bindingType() {
 	return METHOD;
 }
+/* Answer true if the receiver is visible to the invocationPackage.
+*/
+
+public final boolean canBeSeenBy(PackageBinding invocationPackage) {
+	if (isPublic()) return true;
+	if (isPrivate()) return false;
+
+	// isProtected() or isDefault()
+	return invocationPackage == declaringClass.getPackage();
+}
 /* Answer true if the receiver is visible to the type provided by the scope.
 * InvocationSite implements isSuperAccess() to provide additional information
 * if the receiver is protected.

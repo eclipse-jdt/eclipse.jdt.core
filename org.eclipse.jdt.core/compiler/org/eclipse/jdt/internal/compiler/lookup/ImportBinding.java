@@ -33,6 +33,9 @@ public ImportBinding(char[][] compoundName, boolean isOnDemand, Binding binding,
 public final int bindingType() {
 	return IMPORT;
 }
+public boolean isStatic() {
+	return this.reference != null && this.reference.isStatic();
+}
 public char[] readableName() {
 	if (onDemand)
 		return CharOperation.concat(CharOperation.concatWith(compoundName, '.'), ".*".toCharArray()); //$NON-NLS-1$

@@ -1431,8 +1431,8 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 
 				ImportReference importRef = (ImportReference) node;
 				Binding binding = importRef.onDemand
-					? unit.scope.compilationUnitScope().getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true)
-					: unit.scope.compilationUnitScope().getImport(importRef.tokens, false);
+					? unit.scope.compilationUnitScope().getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, importRef.isStatic())
+					: unit.scope.compilationUnitScope().getImport(importRef.tokens, false, importRef.isStatic());
 				this.patternLocator.matchLevelAndReportImportRef(importRef, binding, this);
 			}
 			nodeSet.addMatch(node, this.patternLocator.resolveLevel(node));
