@@ -38,7 +38,7 @@
  *								   IndirectAccessToStaticField
  *								   IndirectAccessToStaticMethod
  *								   IndirectAccessToStaticType
- *								   UndocumentedEmptyBlock
+ *								   BooleanMethodThrowingException
  *								   UnnecessaryCast
  *								   UnnecessaryArgumentCast
  *								   UnnecessaryInstanceof
@@ -327,6 +327,7 @@ public interface IProblem {
 	int UnusedPrivateMethod = Internal + MethodRelated + 118;
 	/** @since 3.0 */
 	int IndirectAccessToStaticMethod = Internal + MethodRelated + 119;
+
 	    
 	// constructors
 	int UndefinedConstructor = ConstructorRelated + 130;
@@ -644,4 +645,15 @@ public interface IProblem {
 	// block
 	/** @since 3.0 */
 	int UndocumentedEmptyBlock = Internal + 460;
+		
+	// annotation
+	/** @since 3.0 */
+	int InconsistentAnnotationParam = Internal + 470;
+	/** @since 3.0 */
+	int InconsistentAnnotationReturn = Internal + 471;
+	/** @since 3.0 */
+	int InconsistentAnnotationThrow = Internal + 472;
+	/** @since 3.0 */
+	int UnboundAnnotationReference = Internal + 473;
+	
 }

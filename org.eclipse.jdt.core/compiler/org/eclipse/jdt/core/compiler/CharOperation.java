@@ -1094,6 +1094,67 @@ public final class CharOperation {
 				return false;
 		return true;
 	}
+	
+	/**
+	 * Answers true if the first array is identical character by character to a portion of the second array
+	 * delimited from position secondStart (inclusive) to secondEnd(exclusive), otherwise false.
+	 * The equality is case sensitive.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    first = null
+	 *    second = null
+	 *    secondStart = 0
+	 *    secondEnd = 0
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { }
+	 *    second = null
+	 *    secondStart = 0
+	 *    secondEnd = 0
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { 'a' }
+	 *    second = { 'a' }
+	 *    secondStart = 0
+	 *    secondEnd = 1
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    first = { 'a' }
+	 *    second = { 'A' }
+	 *    secondStart = 0
+	 *    secondEnd = 1
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * @param first the first array
+	 * @param second the second array
+	 * @param secondStart inclusive start position in the second array to compare
+	 * @param secondEnd exclusive end position in the second array to compare
+	 * @return true if the first array is identical character by character to fragment of second array ranging from secondStart to secondEnd-1, otherwise false
+	 */
+	public static final boolean equals(char[] first, char[] second, int secondStart, int secondEnd) {
+		if (first == second)
+			return true;
+		if (first == null || second == null)
+			return false;
+		if (first.length != secondEnd - secondStart)
+			return false;
+
+		for (int i = first.length; --i >= 0;)
+			if (first[i] != second[i+secondStart])
+				return false;
+		return true;
+	}
 
 	/**
 	 * If isCaseSensite is true, answers true if the two arrays are identical character

@@ -58,8 +58,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportNonStaticAccessToStatic = "org.eclipse.jdt.core.compiler.problem.staticAccessReceiver"; //$NON-NLS-1$
 	public static final String OPTION_ReportIndirectStaticAccess = "org.eclipse.jdt.core.compiler.problem.indirectStaticAccess"; //$NON-NLS-1$
 	public static final String OPTION_ReportSuperfluousSemicolon = "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"; //$NON-NLS-1$
-	public static final String OPTION_ReportUndocumentedEmptyBlock = "org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnnecessaryTypeCheck = "org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck"; //$NON-NLS-1$
+	public static final String OPTION_ReportUndocumentedEmptyBlock = "org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock"; //$NON-NLS-1$
+	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
 	public static final String OPTION_Source = "org.eclipse.jdt.core.compiler.source"; //$NON-NLS-1$
 	public static final String OPTION_TargetPlatform = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
 	public static final String OPTION_Compliance = "org.eclipse.jdt.core.compiler.compliance"; //$NON-NLS-1$
@@ -117,6 +118,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long IndirectStaticAccess = 0x100000000L;
 	public static final long UndocumentedEmptyBlock = 0x200000000L;
 	public static final long UnnecessaryTypeCheck = 0x400000000L;
+	public static final long InvalidAnnotation = 0x800000000L;
 	
 	// Default severity level for handlers
 	public long errorThreshold = 
@@ -184,6 +186,10 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 
 	// constructor/setter parameter hiding
 	public boolean reportSpecialParameterHidingField = false;
+	
+	// check javadoc annotations
+	public boolean checkAnnotation = false; 
+	
 	
 	/** 
 	 * Initializing the compiler options with defaults
@@ -437,9 +443,14 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				updateSeverity(UndocumentedEmptyBlock, optionValue);
 				continue;
 			} 
-			// Report unnecessary cast
+			// Report unnecessary cast/instance of
 			if(optionID.equals(OPTION_ReportUnnecessaryTypeCheck)){
 				updateSeverity(UnnecessaryTypeCheck, optionValue);
+				continue;
+			} 
+			// Report inconsistent javadoc annotation
+			if(optionID.equals(OPTION_ReportInvalidAnnotation)){
+				updateSeverity(InvalidAnnotation, optionValue);
 				continue;
 			} 
 			// Report task
@@ -498,6 +509,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportAssertIdentifier, getSeverityString(AssertUsedAsAnIdentifier)); 
 		optionsMap.put(OPTION_ReportUndocumentedEmptyBlock, getSeverityString(UndocumentedEmptyBlock)); 
 		optionsMap.put(OPTION_ReportUnnecessaryTypeCheck, getSeverityString(UnnecessaryTypeCheck)); 
+		optionsMap.put(OPTION_ReportInvalidAnnotation, getSeverityString(InvalidAnnotation));
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(complianceLevel)); 
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(sourceLevel)); 
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(targetJDK)); 
@@ -565,6 +577,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n-possible accidental boolean assignment: ").append(getSeverityString(AccidentalBooleanAssign)); //$NON-NLS-1$
 		buf.append("\n-superfluous semicolon: ").append(getSeverityString(SuperfluousSemicolon)); //$NON-NLS-1$
 		buf.append("\n-uncommented empty block: ").append(getSeverityString(UndocumentedEmptyBlock)); //$NON-NLS-1$
+		buf.append("\n-unnecessary type check: ").append(getSeverityString(UnnecessaryTypeCheck)); //$NON-NLS-1$
+		buf.append("\n-invalid annotation: ").append(getSeverityString(InvalidAnnotation)); //$NON-NLS-1$
 		buf.append("\n-JDK compliance level: "+ versionFromJdkLevel(complianceLevel)); //$NON-NLS-1$
 		buf.append("\n-JDK source level: "+ versionFromJdkLevel(sourceLevel)); //$NON-NLS-1$
 		buf.append("\n-JDK target level: "+ versionFromJdkLevel(targetJDK)); //$NON-NLS-1$

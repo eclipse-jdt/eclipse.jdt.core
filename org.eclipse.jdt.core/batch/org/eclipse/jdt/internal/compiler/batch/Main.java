@@ -840,6 +840,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						options.put(
 							CompilerOptions.OPTION_ReportUnnecessaryTypeCheck,
 							CompilerOptions.WARNING);
+					} else if (token.equals("javadoc")) {//$NON-NLS-1$ 
+						options.put(
+							CompilerOptions.OPTION_ReportInvalidAnnotation,
+							CompilerOptions.WARNING);
 					} else if (token.startsWith("tasks")) { //$NON-NLS-1$
 						String taskTags = ""; //$NON-NLS-1$
 						int start = token.indexOf('(');
