@@ -590,13 +590,7 @@ public int getCachedFlags(IType type) {
  * @see ITypeHierarchy
  */
 public IType[] getExtendingInterfaces(IType type) {
-	try {
-		if (!this.isInterface(type)) {
-			return new IType[] {};
-		}
-	} catch (JavaModelException npe) {
-		return new IType[] {};
-	}
+	if (!this.isInterface(type)) return NO_TYPE;
 	return getExtendingInterfaces0(type);
 }
 /**
@@ -608,11 +602,7 @@ private IType[] getExtendingInterfaces0(IType extendedInterface) {
 	ArrayList interfaceList = new ArrayList();
 	while (iter.hasNext()) {
 		IType type = (IType) iter.next();
-		try {
-			if (!this.isInterface(type)) {
-				continue;
-			}
-		} catch (JavaModelException npe) {
+		if (!this.isInterface(type)) {
 			continue;
 		}
 		IType[] superInterfaces = (IType[]) this.typeToSuperInterfaces.get(type);
@@ -633,11 +623,7 @@ private IType[] getExtendingInterfaces0(IType extendedInterface) {
  * @see ITypeHierarchy
  */
 public IType[] getImplementingClasses(IType type) {
-	try {
-		if (!this.isInterface(type)) {
-			return NO_TYPE;
-		}
-	} catch (JavaModelException npe) {
+	if (!this.isInterface(type)) {
 		return NO_TYPE;
 	}
 	return getImplementingClasses0(type);
@@ -652,11 +638,7 @@ private IType[] getImplementingClasses0(IType interfce) {
 	ArrayList iMenters = new ArrayList();
 	while (iter.hasNext()) {
 		IType type = (IType) iter.next();
-		try {
-			if (this.isInterface(type)) {
-				continue;
-			}
-		} catch (JavaModelException npe) {
+		if (this.isInterface(type)) {
 			continue;
 		}
 		IType[] types = (IType[]) this.typeToSuperInterfaces.get(type);
@@ -700,12 +682,8 @@ public IType[] getRootInterfaces() {
  * @see ITypeHierarchy
  */
 public IType[] getSubclasses(IType type) {
-	try {
-		if (this.isInterface(type)) {
-			return NO_TYPE;
-		}
-	} catch (JavaModelException npe) {
-		return new IType[] {};
+	if (this.isInterface(type)) {
+		return NO_TYPE;
 	}
 	TypeVector vector = (TypeVector)this.typeToSubtypes.get(type);
 	if (vector == null)
@@ -733,15 +711,10 @@ private IType[] getSubtypesForType(IType type) {
  * @see ITypeHierarchy
  */
 public IType getSuperclass(IType type) {
-	try {
-		if (this.isInterface(type)) {
-			return null;
-		}
-		return (IType) this.classToSuperclass.get(type);
-
-	} catch (JavaModelException npe) {
+	if (this.isInterface(type)) {
 		return null;
 	}
+	return (IType) this.classToSuperclass.get(type);
 }
 /**
  * @see ITypeHierarchy
@@ -1158,10 +1131,14 @@ protected boolean isAffectedByType(IJavaElementDelta delta, IType type, boolean 
 	}
 	return false;
 } 
-private boolean isInterface(IType type) throws JavaModelException {
+private boolean isInterface(IType type) {
 	int flags = this.getCachedFlags(type);
 	if (flags == -1) {
-		return type.isInterface();
+		try {
+			return type.isInterface();
+		} catch (JavaModelException e) {
+			return false;
+		}
 	} else {
 		return Flags.isInterface(flags);
 	}

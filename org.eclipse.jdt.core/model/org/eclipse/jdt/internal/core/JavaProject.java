@@ -1874,8 +1874,7 @@ public class JavaProject
 	 * Compare current classpath with given one to see if any different.
 	 * Note that the argument classpath contains its binary output.
 	 */
-	public boolean isClasspathEqualsTo(IClasspathEntry[] newClasspath, IPath newOutputLocation, IClasspathEntry[] otherClasspathWithOutput)
-		throws JavaModelException {
+	public boolean isClasspathEqualsTo(IClasspathEntry[] newClasspath, IPath newOutputLocation, IClasspathEntry[] otherClasspathWithOutput) {
 
 		if (otherClasspathWithOutput != null && otherClasspathWithOutput.length > 0) {
 

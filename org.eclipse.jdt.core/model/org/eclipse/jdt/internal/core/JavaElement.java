@@ -120,7 +120,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * Returns true if this <code>JavaElement</code> is equivalent to the given
 	 * <code>IDOMNode</code>.
 	 */
-	protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
+	protected boolean equalsDOMNode(IDOMNode node) {
 		return false;
 	}
 	/**
@@ -159,13 +159,9 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				element = element.getParent();
 			}
 			if (path.size() == 0) {
-				try {
-					if (equalsDOMNode(dom)) {
-						return dom;
-					} else {
-						return null;
-					}
-				} catch(JavaModelException e) {
+				if (equalsDOMNode(dom)) {
+					return dom;
+				} else {
 					return null;
 				}
 			}
@@ -178,27 +174,22 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	protected IDOMNode followPath(ArrayList path, int position, IDOMNode node) {
 	
-		try {
-			if (equalsDOMNode(node)) {
-				if (position == (path.size() - 1)) {
-					return node;
-				} else {
-					if (node.getFirstChild() != null) {
-						position++;
-						return ((JavaElement)path.get(position)).followPath(path, position, node.getFirstChild());
-					} else {
-						return null;
-					}
-				}
-			} else if (node.getNextNode() != null) {
-				return followPath(path, position, node.getNextNode());
+		if (equalsDOMNode(node)) {
+			if (position == (path.size() - 1)) {
+				return node;
 			} else {
-				return null;
+				if (node.getFirstChild() != null) {
+					position++;
+					return ((JavaElement)path.get(position)).followPath(path, position, node.getFirstChild());
+				} else {
+					return null;
+				}
 			}
-		} catch (JavaModelException e) {
+		} else if (node.getNextNode() != null) {
+			return followPath(path, position, node.getNextNode());
+		} else {
 			return null;
 		}
-	
 	}
 	/**
 	 * Generates the element infos for this element, its ancestors (if they are not opened) and its children (if it is an Openable).

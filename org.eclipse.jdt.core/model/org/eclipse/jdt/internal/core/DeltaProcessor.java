@@ -606,7 +606,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 * Check if external archives have changed and create the corresponding deltas.
 	 * Returns whether at least on delta was created.
 	 */
-	private boolean createExternalArchiveDelta(IProgressMonitor monitor) throws JavaModelException {
+	private boolean createExternalArchiveDelta(IProgressMonitor monitor) {
 		
 		if (this.refreshedElements == null) return false;
 			
@@ -629,22 +629,38 @@ public class DeltaProcessor implements IResourceChangeListener {
 							// project is not accessible or has lost its Java nature
 							break;
 						}
-						IClasspathEntry[] classpath = project.getResolvedClasspath(true);
-						for (int j = 0, cpLength = classpath.length; j < cpLength; j++){
-							if (classpath[j].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
-								archivePathsToRefresh.add(classpath[j].getPath());
+						IClasspathEntry[] classpath;
+						try {
+							classpath = project.getResolvedClasspath(true);
+							for (int j = 0, cpLength = classpath.length; j < cpLength; j++){
+								if (classpath[j].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
+									archivePathsToRefresh.add(classpath[j].getPath());
+								}
 							}
+						} catch (JavaModelException e) {
+							// project doesn't exist -> ignore
 						}
 						break;
 					case IJavaElement.JAVA_MODEL :
-						IJavaProject[] projects = manager.getJavaModel().getOldJavaProjectsList();
+						IJavaProject[] projects;
+						try {
+							projects = manager.getJavaModel().getOldJavaProjectsList();
+						} catch (JavaModelException e1) {
+							// cannot retrieve old projects list -> ignore
+							continue;
+						}
 						for (int j = 0, projectsLength = projects.length; j < projectsLength; j++){
 							project = projects[j];
 							if (!JavaProject.hasJavaNature(project.getProject())) {
 								// project is not accessible or has lost its Java nature
 								continue;
 							}
-							classpath = project.getResolvedClasspath(true);
+							try {
+								classpath = project.getResolvedClasspath(true);
+							} catch (JavaModelException e2) {
+								// project doesn't exist -> ignore
+								continue;
+							}
 							for (int k = 0, cpLength = classpath.length; k < cpLength; k++){
 								if (classpath[k].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
 									archivePathsToRefresh.add(classpath[k].getPath());
@@ -659,7 +675,13 @@ public class DeltaProcessor implements IResourceChangeListener {
 		}
 		
 		// perform refresh
-		IJavaProject[] projects = manager.getJavaModel().getOldJavaProjectsList();
+		IJavaProject[] projects;
+		try {
+			projects = manager.getJavaModel().getOldJavaProjectsList();
+		} catch (JavaModelException e) {
+			// cannot retrieve old projects list -> give up
+			return false;
+		}
 		IWorkspaceRoot wksRoot = ResourcesPlugin.getWorkspace().getRoot();
 		for (int i = 0, length = projects.length; i < length; i++) {
 			
@@ -670,7 +692,13 @@ public class DeltaProcessor implements IResourceChangeListener {
 				// project is not accessible or has lost its Java nature
 				continue;
 			}
-			IClasspathEntry[] entries = project.getResolvedClasspath(true);
+			IClasspathEntry[] entries;
+			try {
+				entries = project.getResolvedClasspath(true);
+			} catch (JavaModelException e1) {
+				// project does not exist -> ignore
+				continue;
+			}
 			for (int j = 0; j < entries.length; j++){
 				if (entries[j].getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 					
@@ -1895,11 +1923,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 					if (isAffectedBy(delta)) {
 						try {
 							if (this.refreshedElements != null) {
-								try {
-									createExternalArchiveDelta(null);
-								} catch (JavaModelException e) {
-									e.printStackTrace();
-								}
+								createExternalArchiveDelta(null);
 							}
 							IJavaElementDelta translatedDelta = this.processResourceDelta(delta);
 							if (translatedDelta != null) { 

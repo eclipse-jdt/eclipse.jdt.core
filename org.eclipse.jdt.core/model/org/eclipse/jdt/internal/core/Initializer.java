@@ -40,9 +40,13 @@ public boolean equals(Object o) {
 /**
  * @see JavaElement#equalsDOMNode
  */
-protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
+protected boolean equalsDOMNode(IDOMNode node) {
 	if (node.getNodeType() == IDOMNode.INITIALIZER) {
-		return node.getContents().trim().equals(getSource());
+		try {
+			return node.getContents().trim().equals(getSource());
+		} catch (JavaModelException e) {
+			return false;
+		}
 	} else {
 		return false;
 	}

@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IPackageDeclaration;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 
 /**
@@ -30,7 +29,7 @@ public boolean equals(Object o) {
 /**
  * @see JavaElement#equalsDOMNode
  */
-protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
+protected boolean equalsDOMNode(IDOMNode node) {
 	return (node.getNodeType() == IDOMNode.PACKAGE) && getElementName().equals(node.getName());
 }
 /**

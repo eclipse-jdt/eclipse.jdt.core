@@ -52,15 +52,19 @@ public boolean equals(Object o) {
 /**
  * @see JavaElement#equalsDOMNode
  */
-protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
+protected boolean equalsDOMNode(IDOMNode node) {
 	if (node.getNodeType() == IDOMNode.METHOD) {
-		IDOMMethod m = (IDOMMethod)node;
-		if (isConstructor()) {
-			return 
-				(m.isConstructor() || m.getName().equals(this.getElementName()) /* case of a constructor that is being renamed */) 
-					&& signatureEquals(m);
-		} else {
-			return super.equalsDOMNode(node) && signatureEquals(m);
+		try {
+			IDOMMethod m = (IDOMMethod)node;
+			if (isConstructor()) {
+				return 
+					(m.isConstructor() || m.getName().equals(this.getElementName()) /* case of a constructor that is being renamed */) 
+						&& signatureEquals(m);
+			} else {
+				return super.equalsDOMNode(node) && signatureEquals(m);
+			}
+		} catch (JavaModelException e) {
+			return false;
 		}
 	} else {
 		return false;
@@ -200,7 +204,7 @@ public String readableName() {
  * Returns <code>true</code> if the signature of this <code>SourceMethod</code> matches that of the given
  * <code>IDOMMethod</code>, otherwise <code>false</code>. 
  */
-protected boolean signatureEquals(IDOMMethod method) throws JavaModelException {
+protected boolean signatureEquals(IDOMMethod method) {
 	String[] otherTypes= method.getParameterTypes();
 	String[] types= getParameterTypes();
 	boolean ok= true;

@@ -417,7 +417,7 @@ public boolean equals(Object obj) {
 /**
  * @see JavaElement#equalsDOMNode(IDOMNode)
  */
-protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
+protected boolean equalsDOMNode(IDOMNode node) {
 	String name = getElementName();
 	if (node.getNodeType() == IDOMNode.COMPILATION_UNIT && name != null ) {
 		String nodeName = node.getName();
@@ -425,13 +425,17 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 		if (name.equals(nodeName)) {
 			return true;
 		} else {
-			// iterate through all the types inside the receiver and see if one of them can fit
-			IType[] types = getTypes();
-			String typeNodeName = nodeName.substring(0, nodeName.indexOf(SUFFIX_STRING_java));
-			for (int i = 0, max = types.length; i < max; i++) {
-				if (types[i].getElementName().equals(typeNodeName)) {
-					return true;
+			try {
+				// iterate through all the types inside the receiver and see if one of them can fit
+				IType[] types = getTypes();
+				String typeNodeName = nodeName.substring(0, nodeName.indexOf(SUFFIX_STRING_java));
+				for (int i = 0, max = types.length; i < max; i++) {
+					if (types[i].getElementName().equals(typeNodeName)) {
+						return true;
+					}
 				}
+			} catch (JavaModelException e) {
+				return false;
 			}
 		}
 	}

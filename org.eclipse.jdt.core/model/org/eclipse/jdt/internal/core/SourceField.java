@@ -36,7 +36,7 @@ public boolean equals(Object o) {
 /**
  * @see JavaElement#equalsDOMNode
  */
-protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
+protected boolean equalsDOMNode(IDOMNode node) {
 	return (node.getNodeType() == IDOMNode.FIELD) && super.equalsDOMNode(node);
 }
 /**

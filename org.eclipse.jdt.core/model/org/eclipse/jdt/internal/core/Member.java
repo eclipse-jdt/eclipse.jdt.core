@@ -92,7 +92,7 @@ protected static Object convertConstant(Constant constant) {
 /**
  * @see JavaElement#equalsDOMNode
  */
-protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
+protected boolean equalsDOMNode(IDOMNode node) {
 	return getElementName().equals(node.getName());
 }
 /*
