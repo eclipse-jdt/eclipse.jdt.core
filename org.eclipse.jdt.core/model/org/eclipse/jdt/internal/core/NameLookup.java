@@ -101,9 +101,9 @@ public class NameLookup implements SuffixConstants {
 	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashtableOfArrayToObject packageFragments, ICompilationUnit[] workingCopies, Map rootToResolvedEntries) {
 		if (VERBOSE) {
 			System.out.println(Thread.currentThread() + " BUILDING NameLoopkup");  //$NON-NLS-1$
-			System.out.println(Thread.currentThread() + " -> pkg roots size: " + packageFragmentRoots.length);  //$NON-NLS-1$
-			System.out.println(Thread.currentThread() + " -> pkgs size: " + packageFragments.size());  //$NON-NLS-1$
-			System.out.println(Thread.currentThread() + " -> working copy size: " + workingCopies.length);  //$NON-NLS-1$
+			System.out.println(Thread.currentThread() + " -> pkg roots size: " + packageFragmentRoots == null ? 0 : packageFragmentRoots.length);  //$NON-NLS-1$
+			System.out.println(Thread.currentThread() + " -> pkgs size: " + packageFragments == null ? 0 : packageFragments.size());  //$NON-NLS-1$
+			System.out.println(Thread.currentThread() + " -> working copy size: " + workingCopies == null ? 0 : workingCopies.length);  //$NON-NLS-1$
 		}
 		this.packageFragmentRoots = packageFragmentRoots;
 		this.packageFragments = packageFragments;
