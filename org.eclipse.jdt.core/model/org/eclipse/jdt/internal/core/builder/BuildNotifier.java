@@ -46,7 +46,7 @@ public BuildNotifier(IProgressMonitor monitor, IProject project) {
  * Notification before a compile that a unit is about to be compiled.
  */
 public void aboutToCompile(SourceFile unit) {
-	String message = Util.bind("build.compiling", unit.resource.getFullPath().removeLastSegments(1).toString()); //$NON-NLS-1$
+	String message = Util.bind("build.compiling", unit.resource.getFullPath().removeLastSegments(1).makeRelative().toString()); //$NON-NLS-1$
 	subTask(message);
 }
 
@@ -82,7 +82,7 @@ public void checkCancelWithinCompiler() {
  * Notification while within a compile that a unit has finished being compiled.
  */
 public void compiled(SourceFile unit) {
-	String message = Util.bind("build.compiling", unit.resource.getFullPath().removeLastSegments(1).toString()); //$NON-NLS-1$
+	String message = Util.bind("build.compiling", unit.resource.getFullPath().removeLastSegments(1).makeRelative().toString()); //$NON-NLS-1$
 	subTask(message);
 	updateProgressDelta(progressPerCompilationUnit);
 	checkCancelWithinCompiler();
