@@ -2123,13 +2123,19 @@ private void updateRoots(IPath containerPath, IResourceDelta containerDelta) {
 			IResourceDelta rootDelta = containerDelta.findMember(path.removeFirstSegments(1));
 			if (rootDelta == null) continue;
 			RootInfo rootInfo = (RootInfo)this.roots.get(path);
-			this.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootInfo);
+
+			if (!rootInfo.project.getPath().isPrefixOf(path)) { // only consider roots that are not included in the container
+				this.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootInfo);
+			}
+			
 			ArrayList rootList = (ArrayList)this.otherRoots.get(path);
 			if (rootList != null) {
 				Iterator otherProjects = rootList.iterator();
 				while (otherProjects.hasNext()) {
 					rootInfo = (RootInfo)otherProjects.next();
-					this.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootInfo);
+					if (!rootInfo.project.getPath().isPrefixOf(path)) { // only consider roots that are not included in the container
+						this.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootInfo);
+					}
 				}
 			}
 		}
