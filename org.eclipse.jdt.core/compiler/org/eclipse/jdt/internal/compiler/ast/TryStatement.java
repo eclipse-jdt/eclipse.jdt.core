@@ -460,7 +460,7 @@ public class TryStatement extends Statement {
 			for (int i = 0; i < length; i++) {
 				caughtExceptionTypes[i] = (ReferenceBinding) argumentTypes[i];
 				for (int j = 0; j < i; j++) {
-					if (scope.areTypesCompatible(caughtExceptionTypes[i], argumentTypes[j])) {
+					if (Scope.areTypesCompatible(caughtExceptionTypes[i], argumentTypes[j])) {
 						scope.problemReporter().wrongSequenceOfExceptionTypesError(this, i, j);
 						// cannot return - since may still proceed if unreachable code is ignored (21203)
 					}

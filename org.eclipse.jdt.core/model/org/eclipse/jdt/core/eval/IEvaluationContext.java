@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.eval;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.ICodeCompletionRequestor;
 import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -333,7 +332,7 @@ public interface IEvaluationContext {
 	public void codeComplete(
 		String codeSnippet,
 		int position,
-		ICodeCompletionRequestor requestor)
+		org.eclipse.jdt.core.ICodeCompletionRequestor requestor)
 		throws JavaModelException;
 
 }

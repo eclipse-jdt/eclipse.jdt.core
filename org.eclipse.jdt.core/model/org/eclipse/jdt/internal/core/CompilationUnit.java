@@ -26,7 +26,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IBufferFactory;
-import org.eclipse.jdt.core.ICodeCompletionRequestor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IImportContainer;
@@ -846,7 +845,7 @@ public void triggerSourceRangeOffset(int amount, int nameStart, int nameEnd) {
  * @see ICodeAssist#codeComplete(int, ICodeCompletionRequestor)
  * @deprecated - use codeComplete(int, ICompletionRequestor)
  */
-public void codeComplete(int offset, final ICodeCompletionRequestor requestor) throws JavaModelException {
+public void codeComplete(int offset, final org.eclipse.jdt.core.ICodeCompletionRequestor requestor) throws JavaModelException {
 	
 	if (requestor == null){
 		codeComplete(offset, (ICompletionRequestor)null);

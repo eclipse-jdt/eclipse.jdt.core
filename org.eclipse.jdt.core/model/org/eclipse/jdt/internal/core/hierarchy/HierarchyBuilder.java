@@ -222,7 +222,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 			this.hierarchy.addInterface(typeHandle);
 		}
 		if (interfaceHandles == null) {
-			interfaceHandles = this.hierarchy.NO_TYPE;
+			interfaceHandles = TypeHierarchy.NO_TYPE;
 		}
 		this.hierarchy.cacheSuperInterfaces(typeHandle, interfaceHandles);
 		 
@@ -275,9 +275,9 @@ protected IWorkingCopy[] getWokingCopies() {
 		int flag;
 		String qualifiedName;
 		if (typeInfo.isClass()) {
-			flag = this.nameLookup.ACCEPT_CLASSES;
+			flag = NameLookup.ACCEPT_CLASSES;
 		} else {
-			flag = this.nameLookup.ACCEPT_INTERFACES;
+			flag = NameLookup.ACCEPT_INTERFACES;
 		}
 		char[] bName = typeInfo.getName();
 		qualifiedName = new String(ClassFile.translatedName(bName));

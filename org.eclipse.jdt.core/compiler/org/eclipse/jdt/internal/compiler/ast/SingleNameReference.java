@@ -172,7 +172,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 
 	MethodScope ms = scope.methodScope();
 	if (ms.enclosingSourceType() == fieldBinding.declaringClass
-		&& ms.fieldDeclarationIndex != ms.NotInFieldDecl
+		&& ms.fieldDeclarationIndex != MethodScope.NotInFieldDecl
 		&& fieldBinding.id >= ms.fieldDeclarationIndex) {
 		//if the field is static and ms is not .... then it is valid
 		if (!fieldBinding.isStatic() || ms.isStatic)

@@ -39,12 +39,12 @@ public PackageBinding(LookupEnvironment environment) {
 	this(NoCharChar, null, environment);
 }
 private void addNotFoundPackage(char[] simpleName) {
-	knownPackages.put(simpleName, environment.theNotFoundPackage);
+	knownPackages.put(simpleName, LookupEnvironment.theNotFoundPackage);
 }
 private void addNotFoundType(char[] simpleName) {
 	if (knownTypes == null)
 		knownTypes = new HashtableOfType(25);
-	knownTypes.put(simpleName, environment.theNotFoundType);
+	knownTypes.put(simpleName, LookupEnvironment.theNotFoundType);
 }
 void addPackage(PackageBinding element) {
 	knownPackages.put(element.compoundName[element.compoundName.length - 1], element);
@@ -79,7 +79,7 @@ private PackageBinding findPackage(char[] name) {
 PackageBinding getPackage(char[] name) {
 	PackageBinding binding = getPackage0(name);
 	if (binding != null) {
-		if (binding == environment.theNotFoundPackage)
+		if (binding == LookupEnvironment.theNotFoundPackage)
 			return null;
 		else
 			return binding;
@@ -120,7 +120,7 @@ ReferenceBinding getType(char[] name) {
 		}
 	}
 
-	if (binding == environment.theNotFoundType)
+	if (binding == LookupEnvironment.theNotFoundType)
 		return null;
 	if (binding instanceof UnresolvedReferenceBinding)
 		binding = ((UnresolvedReferenceBinding) binding).resolve(environment);
@@ -153,11 +153,11 @@ ReferenceBinding getType0(char[] name) {
 
 public Binding getTypeOrPackage(char[] name) {
 	PackageBinding packageBinding = getPackage0(name);
-	if (packageBinding != null && packageBinding != environment.theNotFoundPackage)
+	if (packageBinding != null && packageBinding != LookupEnvironment.theNotFoundPackage)
 		return packageBinding;
 
 	ReferenceBinding typeBinding = getType0(name);
-	if (typeBinding != null && typeBinding != environment.theNotFoundType) {
+	if (typeBinding != null && typeBinding != LookupEnvironment.theNotFoundType) {
 		if (typeBinding instanceof UnresolvedReferenceBinding)
 			typeBinding = ((UnresolvedReferenceBinding) typeBinding).resolve(environment);
 		if (typeBinding.isNestedType())
@@ -182,9 +182,9 @@ public Binding getTypeOrPackage(char[] name) {
 		addNotFoundPackage(name);
 		addNotFoundType(name);
 	} else {
-		if (packageBinding == environment.theNotFoundPackage)
+		if (packageBinding == LookupEnvironment.theNotFoundPackage)
 			packageBinding = null;
-		if (typeBinding == environment.theNotFoundType)
+		if (typeBinding == LookupEnvironment.theNotFoundType)
 			typeBinding = null;
 	}
 

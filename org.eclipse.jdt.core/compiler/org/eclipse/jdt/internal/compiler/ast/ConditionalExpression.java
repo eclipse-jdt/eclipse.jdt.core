@@ -377,13 +377,13 @@ public class ConditionalExpression extends OperatorExpression {
 				valueIfFalseType);
 			return null;
 		}
-		if (scope.areTypesCompatible(valueIfFalseType, valueIfTrueType)) {
+		if (Scope.areTypesCompatible(valueIfFalseType, valueIfTrueType)) {
 			valueIfTrue.implicitWidening(valueIfTrueType, valueIfTrueType);
 			valueIfFalse.implicitWidening(valueIfTrueType, valueIfFalseType);
 			this.typeBinding = valueIfTrueType;
 			return valueIfTrueType;
 		}
-		if (scope.areTypesCompatible(valueIfTrueType, valueIfFalseType)) {
+		if (Scope.areTypesCompatible(valueIfTrueType, valueIfFalseType)) {
 			valueIfTrue.implicitWidening(valueIfFalseType, valueIfTrueType);
 			valueIfFalse.implicitWidening(valueIfFalseType, valueIfFalseType);
 			this.typeBinding = valueIfFalseType;

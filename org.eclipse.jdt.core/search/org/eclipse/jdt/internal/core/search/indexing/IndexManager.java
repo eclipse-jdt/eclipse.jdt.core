@@ -70,7 +70,7 @@ public class IndexManager extends JobManager implements IIndexConstants {
  */
 public void activateProcessing() {
 	try {
-		Thread.currentThread().sleep(10000); // wait 10 seconds so as not to interfere with plugin startup
+		Thread.sleep(10000); // wait 10 seconds so as not to interfere with plugin startup
 	} catch (InterruptedException ie) {
 	}	
 	checkIndexConsistency();

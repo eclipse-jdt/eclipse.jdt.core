@@ -177,7 +177,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 				if (initTb != null) {
 					if (initialization.isConstantValueOfTypeAssignableToType(initTb, tb)
 						|| (tb.isBaseType() && BaseTypeBinding.isWidening(tb.id, initTb.id))
-						|| scope.areTypesCompatible(initTb, tb))
+						|| Scope.areTypesCompatible(initTb, tb))
 						initialization.implicitWidening(tb, initTb);
 					else
 						scope.problemReporter().typeMismatchError(initTb, tb, this);

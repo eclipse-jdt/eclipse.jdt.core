@@ -140,7 +140,7 @@ protected void addEvaluationResultForCompilationProblem(Map resultsByIDs, IProbl
  * @see org.eclipse.jdt.internal.eval.Evaluator
  */
 protected char[] getClassName() {
-	return CharOperation.concat(this.context.GLOBAL_VARS_CLASS_NAME_PREFIX, Integer.toString(this.context.VAR_CLASS_COUNTER + 1).toCharArray());
+	return CharOperation.concat(EvaluationContext.GLOBAL_VARS_CLASS_NAME_PREFIX, Integer.toString(EvaluationContext.VAR_CLASS_COUNTER + 1).toCharArray());
 }
 /**
  * Creates and returns a compiler for this evaluator.

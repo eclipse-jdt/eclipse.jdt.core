@@ -1429,6 +1429,18 @@ public class JavaProject
 		IClasspathEntry[] resolvedPath = new IClasspathEntry[resolvedEntries.size()];
 		resolvedEntries.toArray(resolvedPath);
 
+		if (generateMarkerOnError) {
+			IJavaModelStatus status =
+				JavaConventions.validateClasspath(this, resolvedPath, this.getOutputLocation());
+			if (!status.isOK()) {
+				String incompleteCPOption = JavaCore.getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH);
+				createClasspathProblemMarker(
+					status.getMessage(), 
+					JavaCore.ERROR.equals(incompleteCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING,
+					false,
+					false);
+			}
+		}
 		return resolvedPath;
 	}
 

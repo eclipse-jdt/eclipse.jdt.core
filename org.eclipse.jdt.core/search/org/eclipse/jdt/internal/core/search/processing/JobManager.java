@@ -95,7 +95,7 @@ public abstract class JobManager implements Runnable {
 				// wait until current active job has finished
 				while (thread != null && executing){
 					try {
-						Thread.currentThread().sleep(50);
+						Thread.sleep(50);
 					} catch(InterruptedException e){
 					}
 				}
@@ -313,7 +313,7 @@ public abstract class JobManager implements Runnable {
 						if (idlingStart < 0)
 							idlingStart = System.currentTimeMillis();
 						notifyIdle(System.currentTimeMillis() - idlingStart);
-						Thread.currentThread().sleep(500);
+						Thread.sleep(500);
 						continue;
 					} else {
 						idlingStart = -1;
