@@ -1683,7 +1683,6 @@ public void test049() {
 		"Cannot make a static reference to the non-static method format(Date) from the type DateFormat\n" + 
 		"----------\n");
 }
-// 
 public void test050() {
 	this.runConformTest(
 		new String[] {
@@ -1703,6 +1702,25 @@ public void test050() {
 			"}\n",
 		},
 		"SUCCESS");
+}
+
+public void test051() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //---------------------------
+			"public class X {\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        args.finalize();\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	args.finalize();\n" + 
+		"	     ^^^^^^^^\n" + 
+		"The method finalize() from the type Object is not visible\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return LookupTest.class;
