@@ -5017,6 +5017,10 @@ public void initialize() {
 	lastIgnoredToken = -1;
 	lastErrorEndPosition = -1;
 	listLength = 0;
+	
+	rBraceStart = 0;
+	rBraceEnd = 0;
+	rBraceSuccessorStart = 0;
 }
 public void initializeScanner(){
 	this.scanner = new Scanner(
