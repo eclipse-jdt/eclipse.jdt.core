@@ -869,8 +869,10 @@ public final class CompletionEngine
 			boolean prefixRequired = false;
 
 			for (int i = fieldsFound.size; --i >= 0;) {
-				FieldBinding otherField = (FieldBinding) fieldsFound.elementAt(i);
-				if (field == otherField)
+				Object[] other = (Object[])fieldsFound.elementAt(i);
+				FieldBinding otherField = (FieldBinding) other[0];
+				ReferenceBinding otherReceiverType = (ReferenceBinding) other[1];
+				if (field == otherField && receiverType == otherReceiverType)
 					continue next;
 				if (CharOperation.equals(field.name, otherField.name, true)) {
 					if (field.declaringClass.isSuperclassOf(otherField.declaringClass))
@@ -895,7 +897,7 @@ public final class CompletionEngine
 				}
 			}
 			
-			fieldsFound.add(field);
+			fieldsFound.add(new Object[]{field, receiverType});
 			
 			char[] completion = field.name;
 			
@@ -1472,9 +1474,10 @@ public final class CompletionEngine
 			boolean prefixRequired = false;
 			
 			for (int i = methodsFound.size; --i >= 0;) {
-
-				MethodBinding otherMethod = (MethodBinding) methodsFound.elementAt(i);
-				if (method == otherMethod)
+				Object[] other = (Object[]) methodsFound.elementAt(i);
+				MethodBinding otherMethod = (MethodBinding) other[0];
+				ReferenceBinding otherReceiverType = (ReferenceBinding) other[1];
+				if (method == otherMethod && receiverType == otherReceiverType)
 					continue next;
 
 				if (CharOperation.equals(method.selector, otherMethod.selector, true)
@@ -1498,7 +1501,7 @@ public final class CompletionEngine
 				}
 			}
 
-			methodsFound.add(method);
+			methodsFound.add(new Object[]{method, receiverType});
 			int length = method.parameters.length;
 			char[][] parameterPackageNames = new char[length][];
 			char[][] parameterTypeNames = new char[length][];
@@ -1609,8 +1612,8 @@ public final class CompletionEngine
 			}
 
 			for (int i = methodsFound.size; --i >= 0;) {
-
-				MethodBinding otherMethod = (MethodBinding) methodsFound.elementAt(i);
+				Object[] other = (Object[]) methodsFound.elementAt(i);
+				MethodBinding otherMethod = (MethodBinding) other[0];
 				if (method == otherMethod)
 					continue next;
 
@@ -1634,7 +1637,7 @@ public final class CompletionEngine
 				}
 			}
 
-			methodsFound.add(method);
+			methodsFound.add(new Object[]{method, receiverType});
 			
 			int length = method.parameters.length;
 			char[][] parameterPackageNames = new char[length][];
