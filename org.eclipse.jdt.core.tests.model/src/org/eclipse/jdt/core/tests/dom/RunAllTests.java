@@ -29,6 +29,8 @@ public static Class[] getAllTestClasses() {
 		org.eclipse.jdt.core.tests.dom.ASTMatcherTest.class,
 		org.eclipse.jdt.core.tests.dom.ASTStructuralPropertyTest.class,
 		org.eclipse.jdt.core.tests.dom.ASTParserTest.class,
+		org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest.class,
+		org.eclipse.jdt.core.tests.rewrite.modifying.ASTRewritingModifyingTest.class,
 	};
 }
 public static Test suite() {
