@@ -34,8 +34,8 @@ public SanityTestEvaluationResult(String name) {
  */
 protected void setUp() {
 	IRequestor requestor = new Requestor() {
-		public void acceptResult(EvaluationResult result) {
-			SanityTestEvaluationResult.this.result = result;
+		public void acceptResult(EvaluationResult evalResult) {
+			SanityTestEvaluationResult.this.result = evalResult;
 		}
 	};
 	try {

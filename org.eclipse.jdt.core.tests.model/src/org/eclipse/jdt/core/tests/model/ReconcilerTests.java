@@ -543,9 +543,9 @@ public void testMethodWithError4() throws JavaModelException, CoreException {
 	CancelingProblemRequestor myPbRequestor = new CancelingProblemRequestor();
 	
 	this.workingCopy.destroy();
-	ICompilationUnit cu = getCompilationUnit("Reconciler", "src", "p1", "X.java");
-	 this.problemRequestor = myPbRequestor;
-	this.workingCopy = (ICompilationUnit) cu.getWorkingCopy(null, null,this.problemRequestor);
+	ICompilationUnit x = getCompilationUnit("Reconciler", "src", "p1", "X.java");
+	this.problemRequestor = myPbRequestor;
+	this.workingCopy = (ICompilationUnit) x.getWorkingCopy(null, null,this.problemRequestor);
 													
 	this.workingCopy.getBuffer().setContents(
 		"package p1;\n" +
@@ -621,9 +621,9 @@ public void testMethodWithError5() throws JavaModelException, CoreException {
 			"	int indexOf(long value);	\n"+
 			"}	\n");
 	
-		ICompilationUnit cu = getCompilationUnit("Reconciler", "src", "tests", "AbstractSearchableSource.java");
+		ICompilationUnit compilationUnit = getCompilationUnit("Reconciler", "src", "tests", "AbstractSearchableSource.java");
 		ProblemRequestor pbReq =  new ProblemRequestor();
-		IWorkingCopy wc = (ICompilationUnit)cu.getWorkingCopy(null, null, pbReq);
+		IWorkingCopy wc = (ICompilationUnit)compilationUnit.getWorkingCopy(null, null, pbReq);
 		pbReq.initialize();
 		this.startDeltas();
 		wc.reconcile(true, null);

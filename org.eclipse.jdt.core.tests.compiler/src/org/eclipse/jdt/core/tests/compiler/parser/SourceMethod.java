@@ -49,26 +49,26 @@ public SourceMethod(
 	this.exceptionTypeNames = exceptionTypeNames;
 	this.source = source;
 }
-public String displayModifiers(int modifiers) {
+public String displayModifiers() {
 	StringBuffer buffer = new StringBuffer();
 
-	if (modifiers == 0)
+	if (this.modifiers == 0)
 		return null;
-	if ((modifiers & AccPublic) != 0)
+	if ((this.modifiers & AccPublic) != 0)
 		buffer.append("public ");
-	if ((modifiers & AccProtected) != 0)
+	if ((this.modifiers & AccProtected) != 0)
 		buffer.append("protected ");
-	if ((modifiers & AccPrivate) != 0)
+	if ((this.modifiers & AccPrivate) != 0)
 		buffer.append("private ");
-	if ((modifiers & AccFinal) != 0)
+	if ((this.modifiers & AccFinal) != 0)
 		buffer.append("final ");
-	if ((modifiers & AccStatic) != 0)
+	if ((this.modifiers & AccStatic) != 0)
 		buffer.append("static ");
-	if ((modifiers & AccAbstract) != 0)
+	if ((this.modifiers & AccAbstract) != 0)
 		buffer.append("abstract ");
-	if ((modifiers & AccNative) != 0)
+	if ((this.modifiers & AccNative) != 0)
 		buffer.append("native ");
-	if ((modifiers & AccSynchronized) != 0)
+	if ((this.modifiers & AccSynchronized) != 0)
 		buffer.append("synchronized ");
 	if (buffer.toString().trim().equals(""))
 		return null;
@@ -132,8 +132,9 @@ public String toString() {
 public String toString(int tab) {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append(tabString(tab));
-	if (displayModifiers(modifiers) != null) {
-		buffer.append(displayModifiers(modifiers)).append(" ");
+	String displayModifiers = displayModifiers();
+	if (displayModifiers != null) {
+		buffer.append(displayModifiers).append(" ");
 	}
 	if (returnTypeName != null) {
 		buffer.append(returnTypeName).append(" ");

@@ -26,8 +26,8 @@ public BufferTests(String name) {
 /**
  * Cache the event
  */
-public void bufferChanged(BufferChangedEvent event) {
-	this.event= event;
+public void bufferChanged(BufferChangedEvent bufferChangedEvent) {
+	this.event= bufferChangedEvent;
 }
 protected IBuffer createBuffer(String path, String content) throws CoreException {
 	this.createFile(path, content);

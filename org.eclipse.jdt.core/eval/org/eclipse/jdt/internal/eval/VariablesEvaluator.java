@@ -145,8 +145,8 @@ protected char[] getClassName() {
 /**
  * Creates and returns a compiler for this evaluator.
  */
-Compiler getCompiler(ICompilerRequestor requestor) {
-	Compiler compiler = super.getCompiler(requestor);
+Compiler getCompiler(ICompilerRequestor compilerRequestor) {
+	Compiler compiler = super.getCompiler(compilerRequestor);
 	
 	// Initialize the compiler's lookup environment with the already compiled super class
 	IBinaryType binaryType = this.context.getRootCodeSnippetBinary();

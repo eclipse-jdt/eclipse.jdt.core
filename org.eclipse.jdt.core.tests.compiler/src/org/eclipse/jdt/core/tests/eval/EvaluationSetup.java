@@ -38,12 +38,12 @@ public class EvaluationSetup extends TestDecorator {
 public EvaluationSetup(Test test) {
 	super(test);
 }
-protected void initTest(Object test, EvaluationContext context, TargetInterface target, LocalVirtualMachine launchedVM, INameEnvironment env) {
+protected void initTest(Object test, EvaluationContext evalContext, TargetInterface targetInterface, LocalVirtualMachine localVM, INameEnvironment env) {
 	if (test instanceof EvaluationTest) {
 		EvaluationTest evalTest = (EvaluationTest)test;
-		evalTest.context = context;
-		evalTest.target = target;
-		evalTest.launchedVM = launchedVM;
+		evalTest.context = evalContext;
+		evalTest.target = targetInterface;
+		evalTest.launchedVM = localVM;
 		evalTest.env = env;
 		return;
 	}
@@ -51,7 +51,7 @@ protected void initTest(Object test, EvaluationContext context, TargetInterface 
 		TestSuite evaluationTestClassSuite = (TestSuite) test;
 		Enumeration evaluationTestClassTests = evaluationTestClassSuite.tests();
 		while (evaluationTestClassTests.hasMoreElements()) {
-			initTest(evaluationTestClassTests.nextElement(), context, target, launchedVM, env);
+			initTest(evaluationTestClassTests.nextElement(), evalContext, targetInterface, localVM, env);
 		}
 		return;
 	}

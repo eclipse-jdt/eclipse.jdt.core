@@ -23,10 +23,10 @@ public class RegressionTestSetup extends TestDecorator {
 public RegressionTestSetup(Test test) {
 	super(test);
 }
-private void initTest(Object test, TestVerifier verifier, INameEnvironment javaClassLib) {
+private void initTest(Object test, TestVerifier testVerifier, INameEnvironment javaClassLib) {
 	if (test instanceof AbstractRegressionTest) {
 		AbstractRegressionTest regressionTest = (AbstractRegressionTest)test;
-		regressionTest.verifier = verifier;
+		regressionTest.verifier = testVerifier;
 		regressionTest.javaClassLib = javaClassLib;
 		return;
 	}
@@ -34,7 +34,7 @@ private void initTest(Object test, TestVerifier verifier, INameEnvironment javaC
 		TestSuite regressionTestClassSuite = (TestSuite) test;
 		Enumeration regressionTestClassTests = regressionTestClassSuite.tests();
 		while (regressionTestClassTests.hasMoreElements()) {
-			initTest(regressionTestClassTests.nextElement(), verifier, javaClassLib);
+			initTest(regressionTestClassTests.nextElement(), testVerifier, javaClassLib);
 		}
 		return;
 	}

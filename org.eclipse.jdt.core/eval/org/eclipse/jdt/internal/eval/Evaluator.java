@@ -158,12 +158,12 @@ abstract protected char[] getClassName();
 /**
  * Creates and returns a compiler for this evaluator.
  */
-Compiler getCompiler(ICompilerRequestor requestor) {
+Compiler getCompiler(ICompilerRequestor compilerRequestor) {
 	return new Compiler(
 		this.environment, 
 		DefaultErrorHandlingPolicies.exitAfterAllProblems(), 
 		this.options, 
-		requestor, 
+		compilerRequestor, 
 		this.problemFactory);
 }
 /**

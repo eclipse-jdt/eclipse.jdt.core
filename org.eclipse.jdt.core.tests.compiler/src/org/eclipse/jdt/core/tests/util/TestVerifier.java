@@ -21,7 +21,7 @@ public class TestVerifier {
 	public String failureReason;
 	
 	boolean reuseVM = true;
-	String[] classpaths;
+	String[] classpathCache;
 	LocalVirtualMachine vm;
 	StringBuffer outputBuffer;
 	StringBuffer errorBuffer;
@@ -314,7 +314,7 @@ private void launchAndRun(String className, String[] classpaths, String[] progra
 		} catch (TargetException e) {
 		}
 	}
-	this.classpaths = null;
+	this.classpathCache = null;
 
 	// launch a new one
 	LocalVMLauncher launcher = LocalVMLauncher.getLauncher();
@@ -375,10 +375,10 @@ private void launchAndRun(String className, String[] classpaths, String[] progra
 }
 private void launchVerifyTestsIfNeeded(String[] classpaths, String[] vmArguments) {
 	// determine if we can reuse the vm
-	if (this.vm != null && this.vm.isRunning() && this.classpaths != null) {
+	if (this.vm != null && this.vm.isRunning() && this.classpathCache != null) {
 		boolean sameClasspaths = true;
 		for (int i = 0; i < classpaths.length; i++) {
-			if (!this.classpaths[i].equals(classpaths[i])) {
+			if (!this.classpathCache[i].equals(classpaths[i])) {
 				sameClasspaths = false;
 				break;
 			}
@@ -396,7 +396,7 @@ private void launchVerifyTestsIfNeeded(String[] classpaths, String[] vmArguments
 		}
 	}
 
-	this.classpaths = classpaths;
+	this.classpathCache = classpaths;
 
 	// launch a new one
 	LocalVMLauncher launcher = LocalVMLauncher.getLauncher();

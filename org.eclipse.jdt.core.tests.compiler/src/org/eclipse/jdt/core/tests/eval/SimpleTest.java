@@ -114,13 +114,13 @@ public class SimpleTest {
 						int line = problem.getSourceLineNumber();
 						if (line == -1) {
 							System.out.print("variable type");
-							source = findVar(context, fragmentSource).getTypeName();
+							source = findVar(fragmentSource).getTypeName();
 						} else if (line == 0) {
 							System.out.print("variable name");
-							source = findVar(context, fragmentSource).getName();
+							source = findVar(fragmentSource).getName();
 						} else {
 							System.out.print("variable initializer");
-							source = findVar(context, fragmentSource).getInitializer();
+							source = findVar(fragmentSource).getInitializer();
 						}
 						break;
 				}
@@ -221,8 +221,8 @@ protected String errorReportSource(DefaultProblem problem, char[] source) {
 		) + 
 		"\n\t" + new String(extract) + "\n\t" + new String(underneath);
 }
-protected GlobalVariable findVar(EvaluationContext context, char[] varName) {
-	GlobalVariable[] vars = context.allVariables();
+protected GlobalVariable findVar(char[] varName) {
+	GlobalVariable[] vars = this.context.allVariables();
 	for (int i = 0; i < vars.length; i++) {
 		GlobalVariable var = vars[i];
 		if (CharOperation.equals(var.getName(), varName)) {

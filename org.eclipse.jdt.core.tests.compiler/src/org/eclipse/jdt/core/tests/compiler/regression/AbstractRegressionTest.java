@@ -44,14 +44,14 @@ protected CompilationUnit[] compilationUnits(String[] testFiles) {
 	}
 	return result;
 }
-protected INameEnvironment[] getClassLibs(String[] classpaths) {
+protected INameEnvironment[] getClassLibs() {
 	String encoding = (String) getCompilerOptions().get(CompilerOptions.OPTION_Encoding);
 	if ("".equals(encoding)) encoding = null;
 	
-	int length = classpaths.length;
+	int length = this.classpaths.length;
 	INameEnvironment[] classLibs = new INameEnvironment[length];
 	for (int i = 0; i < length; i++) {
-		String classpath = classpaths[i];
+		String classpath = this.classpaths[i];
 		if (classpath.equals(JAVA_CLASS_LIB_PATH)) {
 			if (this.javaClassLib == null) {
 				this.javaClassLib =
@@ -124,7 +124,7 @@ protected INameEnvironment getNameEnvironment(final String[] testFiles, String[]
 	return 
 		new InMemoryNameEnvironment(
 			testFiles, 
-			this.getClassLibs(this.classpaths)
+			this.getClassLibs()
 		);
 }
 protected IProblemFactory getProblemFactory() {
