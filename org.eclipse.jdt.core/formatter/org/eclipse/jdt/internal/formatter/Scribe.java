@@ -483,6 +483,7 @@ public class Scribe {
 					isNewLine = false;
 			}
 			previousStart = nextCharacterStart;
+			this.scanner.currentPosition = nextCharacterStart;
 		}
 		this.lastNumberOfNewLines = 0;
 		needSpace = false;
