@@ -18,10 +18,12 @@ public int elementSize; // number of elements in the table
 public int threshold;
 
 public StringSet(int size) {
-	if (size < 3) size = 3;
 	this.elementSize = 0;
-	this.threshold = size + 1; // size is the expected number of elements
-	this.values = new String[2 * size + 1];
+	this.threshold = size; // size represents the expected number of elements
+	int extraRoom = (int) (size * 1.5f);
+	if (this.threshold == extraRoom)
+		extraRoom++;
+	this.values = new String[extraRoom];
 }
 
 public boolean add(String value) {

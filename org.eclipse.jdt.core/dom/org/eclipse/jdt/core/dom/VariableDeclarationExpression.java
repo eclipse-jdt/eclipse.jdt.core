@@ -45,7 +45,7 @@ public class VariableDeclarationExpression extends Expression {
 	 * The "modifiers" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the JLS3 API.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the JLS3 API.
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		new SimplePropertyDescriptor(VariableDeclarationExpression.class, "modifiers", int.class, MANDATORY); //$NON-NLS-1$
 	
@@ -338,7 +338,7 @@ public class VariableDeclarationExpression extends Expression {
 	 * an AST later than JLS2
 	 * @see Modifier
 	 */ 
-	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>modifiers()</code> which contains a list of a <code>Modifier</code> nodes.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>modifiers()</code> which contains a list of a <code>Modifier</code> nodes.
 	public void setModifiers(int modifiers) {
 	    supportedOnlyIn2();
 		preValueChange(MODIFIERS_PROPERTY);

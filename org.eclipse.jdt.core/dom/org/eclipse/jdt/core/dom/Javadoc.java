@@ -32,7 +32,7 @@ public class Javadoc extends Comment {
 	 * The "comment" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #TAGS_PROPERTY} in the JLS3 API.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #TAGS_PROPERTY} in the JLS3 API.
 	public static final SimplePropertyDescriptor COMMENT_PROPERTY = 
 		new SimplePropertyDescriptor(Javadoc.class, "comment", String.class, MANDATORY); //$NON-NLS-1$
 	

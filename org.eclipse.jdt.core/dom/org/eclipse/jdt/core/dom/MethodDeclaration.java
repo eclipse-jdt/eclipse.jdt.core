@@ -73,7 +73,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * The "modifiers" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the JLS3 API.
+    // TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the JLS3 API.
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		internalModifiersPropertyFactory(MethodDeclaration.class);
 	
@@ -102,7 +102,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * The "returnType" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #RETURN_TYPE2_PROPERTY} in the JLS3 API.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #RETURN_TYPE2_PROPERTY} in the JLS3 API.
 	public static final ChildPropertyDescriptor RETURN_TYPE_PROPERTY = 
 		new ChildPropertyDescriptor(MethodDeclaration.class, "returnType", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
@@ -664,7 +664,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>getReturnType2</code>, which may return <code>null</code>.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>getReturnType2</code>, which may return <code>null</code>.
 	public Type getReturnType() {
 	    supportedOnlyIn2();
 		if (this.returnType == null) {
@@ -698,7 +698,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>setReturnType2</code>, which accepts <code>null</code>.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>setReturnType2</code>, which accepts <code>null</code>.
 	public void setReturnType(Type type) {
 	    supportedOnlyIn2();
 		if (type == null) {

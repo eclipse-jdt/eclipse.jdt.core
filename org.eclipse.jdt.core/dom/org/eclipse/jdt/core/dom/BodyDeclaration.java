@@ -209,7 +209,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * an AST later than JLS2
 	 * @see Modifier
 	 */ 
-	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>modifiers()</code> which contains a list of a <code>Modifier</code> nodes.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>modifiers()</code> which contains a list of a <code>Modifier</code> nodes.
 	public void setModifiers(int modifiers) {
 		// more efficient than just calling supportedOnlyIn2() to check
 		if (this.modifiers != null) {
