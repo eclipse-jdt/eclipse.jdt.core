@@ -382,11 +382,20 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 			} else { // QualifiedNameReference
 				QualifiedNameReference qNameRef = (QualifiedNameReference)nameRef;
 				char[][] tokens = qNameRef.tokens;
-				for (int i = 0, max = tokens.length; i < max; i++){
-					if (this.matchesName(this.name, tokens[i])) {
+				if (this.writeAccess && !this.readAccess) {
+					// in the case of the assigment of a qualified name reference, the match must be on the last token
+					if (this.matchesName(this.name, tokens[tokens.length-1])) {
 						// can only be a possible match since resolution is needed 
 						// to find out if it is a field ref
 						return POSSIBLE_MATCH;
+					}
+				} else {
+					for (int i = 0, max = tokens.length; i < max; i++){
+						if (this.matchesName(this.name, tokens[i])) {
+							// can only be a possible match since resolution is needed 
+							// to find out if it is a field ref
+							return POSSIBLE_MATCH;
+						}
 					}
 				}
 				return IMPOSSIBLE_MATCH;
