@@ -172,6 +172,8 @@
 	<super type="org.eclipse.core.resources.textmarker"/>
 	<persistent value="true"/>
 	<attribute name ="cycleDetected"/>
+	<attribute name ="unboundVariable"/>
+	<attribute name ="unboundContainer"/>
 </extension>   
 
 <!-- Java transient problems -->

@@ -453,13 +453,15 @@ public class JavaProject
 	/**
 	 * Record a new marker denoting a classpath problem 
 	 */
-	void createClasspathProblemMarker(
+	IMarker createClasspathProblemMarker(
 		String message,
 		int severity,
 		boolean isCycleProblem,		
 		boolean isClasspathFileFormatProblem) {
+			
+		IMarker marker = null;
 		try {
-			IMarker marker = getProject().createMarker(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER);
+			marker = getProject().createMarker(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER);
 			marker.setAttributes(
 				new String[] { 
 					IMarker.MESSAGE, 
@@ -475,6 +477,7 @@ public class JavaProject
 					isClasspathFileFormatProblem ? "true" : "false"});//$NON-NLS-1$ //$NON-NLS-2$
 		} catch (CoreException e) {
 		}
+		return marker;
 	}
 
 	/**
@@ -1391,12 +1394,13 @@ public class JavaProject
 			IClasspathEntry rawEntry = classpathEntries[i];
 
 			/* validation if needed */
+			IMarker marker = null;
 			if (generateMarkerOnError) {
 				IJavaModelStatus status =
 					JavaConventions.validateClasspathEntry(this, rawEntry, false);
 				if (!status.isOK()) {
 					String incompleteCPOption = this.getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, true);
-					createClasspathProblemMarker(
+					marker = createClasspathProblemMarker(
 						status.getMessage(), 
 						JavaCore.ERROR.equals(incompleteCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING,
 						false,
@@ -1410,6 +1414,12 @@ public class JavaProject
 				
 					IClasspathEntry resolvedEntry = JavaCore.getResolvedClasspathEntry(rawEntry);
 					if (resolvedEntry == null) {
+						if (marker != null) {
+							try {
+								marker.setAttribute(IJavaModelMarker.UNBOUND_VARIABLE, rawEntry.getPath().segment(0));
+							} catch(CoreException e) {
+							}
+						}
 						if (!ignoreUnresolvedEntry) {
 							throw new JavaModelException(
 								new JavaModelStatus(
@@ -1426,6 +1436,12 @@ public class JavaProject
 					IClasspathContainer container = JavaCore.getClasspathContainer(rawEntry.getPath(), this);
 					if (container == null){
 						// unbound container
+						if (marker != null) {
+							try {
+								marker.setAttribute(IJavaModelMarker.UNBOUND_CONTAINER, rawEntry.getPath().makeRelative().toString());
+							} catch(CoreException e) {
+							}
+						}
 						if (!ignoreUnresolvedEntry) {
 							throw new JavaModelException(
 								new JavaModelStatus(

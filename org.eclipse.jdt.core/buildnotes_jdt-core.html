@@ -41,6 +41,11 @@ Eclipse SDK 2.1 Build - ?th February 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Classpath problem markers generated for unbound variable or container will have an extra attribute
+(respectively IJavaModelMarker.UNBOUND_VARIABLE or IJavaModelMarker.UNBOUND_CONTAINER) which value is
+the unbound variable or container names. This allows clients to recognize these problems, and contribute 
+suitable recovery actions for these.
+</li>
 <li> Project cycles can now be built as soon as the compiler severity for circular
 dependencies is lowered to a warning (see Preferences>Java>Compiler>Other>Circular dependencies>Warning).
 </li>
