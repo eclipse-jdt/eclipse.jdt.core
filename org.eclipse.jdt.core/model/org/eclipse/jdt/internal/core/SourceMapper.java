@@ -292,8 +292,7 @@ public class SourceMapper
 		return typeSigs;
 	}
 	
-	private void computeAllRootPaths(IType type) {
-		IPackageFragmentRoot root = (IPackageFragmentRoot) type.getPackageFragment().getParent();
+	private void computeAllRootPaths(IPackageFragmentRoot root) {
 		if (this.rootPaths == null) {
 			this.rootPaths = new HashSet();
 		}
@@ -792,7 +791,7 @@ public class SourceMapper
 		char[] source = null;
 		
 		if (!areRootPathsComputed) {
-			computeAllRootPaths(type);
+			computeAllRootPaths((IPackageFragmentRoot) type.getPackageFragment().getParent());
 		}
 		
 		if (this.rootPath != null) {

@@ -103,9 +103,9 @@ public ClasspathJar(ZipFile zipFile) {
 }
 
 public void cleanup() {
-	if (zipFile != null && this.closeZipFileAtEnd) {
+	if (this.zipFile != null && this.closeZipFileAtEnd) {
 		try {
-			zipFile.close();
+			this.zipFile.close();
 		} catch(IOException e) { // ignore it
 		}
 		this.zipFile = null;
@@ -124,7 +124,7 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	if (!isPackage(qualifiedPackageName)) return null; // most common case
 
 	try {
-		ClassFileReader reader = ClassFileReader.read(zipFile, qualifiedBinaryFileName);
+		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		if (reader != null) return new NameEnvironmentAnswer(reader);
 	} catch (Exception e) { // treat as if class file is missing
 	}
@@ -132,24 +132,24 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 }
 
 public IPath getProjectRelativePath() {
-	if (resource == null) return null;
-	return	resource.getProjectRelativePath();
+	if (this.resource == null) return null;
+	return	this.resource.getProjectRelativePath();
 }
 
 public boolean isPackage(String qualifiedPackageName) {
-	if (knownPackageNames != null)
-		return knownPackageNames.includes(qualifiedPackageName);
+	if (this.knownPackageNames != null)
+		return this.knownPackageNames.includes(qualifiedPackageName);
 
 	try {
 		if (this.zipFile == null) {
 			this.zipFile = new ZipFile(zipFilename);
 			this.closeZipFileAtEnd = true;
 		}
-		this.knownPackageNames = findPackageSet(zipFile);
+		this.knownPackageNames = findPackageSet(this.zipFile);
 	} catch(Exception e) {
 		this.knownPackageNames = new SimpleSet(); // assume for this build the zipFile is empty
 	}
-	return knownPackageNames.includes(qualifiedPackageName);
+	return this.knownPackageNames.includes(qualifiedPackageName);
 }
 
 public String toString() {
