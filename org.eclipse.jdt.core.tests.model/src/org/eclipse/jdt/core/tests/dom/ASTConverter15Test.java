@@ -1103,7 +1103,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong name", "T", typeBinding.getName());
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertEquals("Wrong key", "T:test0037/X", typeBinding.getKey());
+		assertEquals("Wrong key", "T:test0037/X<T:java.lang/Object,U:java.lang/Object,>", typeBinding.getKey());
 		SimpleName simpleName = typeParameter.getName();
 		assertEquals("Wrong name", "T", simpleName.getIdentifier());
 		IBinding binding2 = simpleName.resolveBinding();
@@ -1123,7 +1123,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong name", "U", typeBinding.getName());
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertEquals("Wrong key", "U:test0037/X", typeBinding.getKey());
+		assertEquals("Wrong key", "U:test0037/X<T:java.lang/Object,U:java.lang/Object,>", typeBinding.getKey());
 		simpleName = typeParameter.getName();
 		assertEquals("Wrong name", "U", simpleName.getIdentifier());
 		binding2 = simpleName.resolveBinding();
@@ -1587,7 +1587,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 	
 	/*
-	 * Ensures that the type parameters of a method are included in it binding key.
+	 * Ensures that the type parameters of a method are included in its binding key.
 	 * (regression test for 73970 [1.5][dom] overloaded parameterized methods have same method binding key)
 	 */
 	public void test0060() throws JavaModelException {
@@ -1624,5 +1624,50 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		}
 	}
 
+	/*
+	 * Ensures that the type parameters of a parameterized type are included in its binding key.
+	 * (regression test for 77808 [1.5][dom] type bindings for raw List and List<E> have same key)
+	 */
+	public void test0061() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p;\n" +
+				"/*start*/public class X<T> {\n" +
+				"}/*end*/",
+				workingCopy);
+			IBinding binding = ((TypeDeclaration) node).resolveBinding();
+			assertBindingKeyEquals(
+				"p/X<T:java.lang/Object,>",
+				binding.getKey());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+
+	/*
+	 * Ensures that the type parameters of a parameterized type are included in its binding key.
+	 */
+	public void test0062() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p;\n" +
+				"public class X<T> {\n" +
+				"  /*start*/X<Class>/*end*/ f;\n" +
+				"}",
+				workingCopy);
+			IBinding binding = ((Type) node).resolveBinding();
+			assertBindingKeyEquals(
+				"p/X<java.lang/Class,>",
+				binding.getKey());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }
 

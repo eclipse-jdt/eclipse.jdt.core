@@ -265,9 +265,9 @@ class MethodBinding implements IMethodBinding {
 			ITypeBinding[] parameters = getParameterTypes();
 			buffer.append('(');
 			for (int i = 0, max = parameters.length; i < max; i++) {
-				final ITypeBinding parameter = parameters[i];
+				TypeBinding parameter = (TypeBinding) parameters[i];
 				if (parameter != null) {
-					addParameterKey(buffer, parameter);
+					parameter.appendParameterKey(buffer);
 					buffer.append(',');
 				}
 			}
@@ -276,13 +276,13 @@ class MethodBinding implements IMethodBinding {
 			if (types.length > 0) {
 				buffer.append('<');
 				for (int i = 0, max = types.length; i < max; i++) {
-					ITypeBinding typeParameter = types[i];
-					addParameterKey(buffer, typeParameter);
-					ITypeBinding[] bounds = ((TypeBinding) typeParameter).getTypeBounds();
+					TypeBinding typeParameter = (TypeBinding) types[i];
+					typeParameter.appendParameterKey(buffer);
+					ITypeBinding[] bounds = typeParameter.getTypeBounds();
 					for (int j = 0, length = bounds.length; j < length; j++) {
-						ITypeBinding bound = bounds[j];
+						TypeBinding bound = (TypeBinding) bounds[j];
 						buffer.append(':');
-						addParameterKey(buffer, bound);
+						bound.appendParameterKey(buffer);
 					}
 					buffer.append(',');
 				}
@@ -293,22 +293,6 @@ class MethodBinding implements IMethodBinding {
 		return this.key;
 	}
 	
-	private void addParameterKey(StringBuffer buffer, final ITypeBinding parameter) {
-		if (parameter.isTypeVariable()) {
-			TypeBinding typeBinding = (TypeBinding) parameter;
-			buffer.append(typeBinding.getTypeVariableKey(false/*don't include declaring element*/));
-		} else if (parameter.isArray() && parameter.getElementType().isTypeVariable()) {
-			int dimensions = parameter.getDimensions();
-			TypeBinding typeBinding = (TypeBinding) parameter.getElementType();
-			buffer.append(typeBinding.getTypeVariableKey(false/*don't include declaring element*/));
-			for (int j = 0; j < dimensions; j++) {
-				buffer.append('[').append(']');
-			}
-		} else {
-			buffer.append(parameter.getKey());
-		}
-	}
-
 	/*
 	 * @see IBinding#isEqualTo(Binding)
 	 * @since 3.1

@@ -410,6 +410,21 @@ class TypeBinding implements ITypeBinding {
 		return NO_TYPE_BINDINGS;
 	}
 	
+	public void appendParameterKey(StringBuffer buffer) {
+		if (isTypeVariable()) {
+			appendTypeVariableKey(buffer, false/*don't include declaring element*/);
+		} else if (isArray() && getElementType().isTypeVariable()) {
+			int dimensions = getDimensions();
+			TypeBinding typeBinding = (TypeBinding) getElementType();
+			typeBinding.appendTypeVariableKey(buffer, false/*don't include declaring element*/);
+			for (int j = 0; j < dimensions; j++) {
+				buffer.append('[').append(']');
+			}
+		} else {
+			appendKey(buffer, true/*raw type only*/);
+		}
+	}
+
 	/*
 	 * @see ITypeBinding#getBinaryName()
 	 * @since 3.0
@@ -589,108 +604,128 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public String getKey() {
 		if (this.key == null) {
-			if (isLocal()) {
-				StringBuffer buffer = new StringBuffer();
-				
-				// declaring method or type
-				SourceTypeBinding sourceBinding = (SourceTypeBinding) this.binding; // per construction, a local type can only be defined in source
-				ClassScope scope = sourceBinding.scope;
-				ClassScope classScope = scope.enclosingClassScope();
-				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration referenceContext = classScope.referenceContext;
-				org.eclipse.jdt.internal.compiler.lookup.TypeBinding internalBinding = referenceContext.binding;
-				ITypeBinding typeBinding = this.resolver.getTypeBinding(internalBinding);
-				if (typeBinding != null) {
-					buffer.append(typeBinding.getKey());
-				}
-				buffer.append('$');
-				CompilationUnitScope compilationUnitScope = scope.compilationUnitScope();
-				CompilationUnitDeclaration compilationUnitDeclaration = compilationUnitScope.referenceContext;
-				LocalTypeBinding[] localTypeBindings = compilationUnitDeclaration.localTypes;
-				for (int i = 0, max = compilationUnitDeclaration.localTypeCount; i < max; i++) {
-					if (localTypeBindings[i] == sourceBinding) {
-						buffer.append(i+1);
-						if (!isAnonymous()) {
-							buffer.append('$');
-							buffer.append(sourceBinding.sourceName);
-						}
-						break;
-					}
-				}
-				
-				this.key = buffer.toString();
-			} else {
-				if (this.binding.isTypeVariable()) {
-					return getTypeVariableKey(true/*include declaring element*/);
-				} else if (this.binding.isWildcard()) {
-					WildcardBinding wildcardBinding = (WildcardBinding) binding;
-					org.eclipse.jdt.internal.compiler.lookup.TypeBinding bound = wildcardBinding.bound;
-					if (bound != null) {
-						return this.resolver.getTypeBinding(bound).getKey();
-					}
-					return new String(wildcardBinding.genericTypeSignature());
-				} else if (this.isClass()
-						|| this.isInterface()
-						|| this.isEnum()
-						|| this.isAnnotation()) {
-					StringBuffer buffer = new StringBuffer();
-					char[] qualifiedSourceName = this.binding.qualifiedSourceName();
-					if (qualifiedSourceName != null) {
-						CharOperation.replace(qualifiedSourceName, '.', '$');
-						buffer
-							.append(getPackage().getName())
-							.append('/')
-							.append(qualifiedSourceName);
-					} else {
-						buffer
-							.append(getPackage().getName())
-							.append('/')
-							.append(getName());
-					}
-					ITypeBinding[] typeArgs = this.getTypeArguments();
-					final int typeArgsLength = typeArgs.length;
-					if (typeArgsLength != 0) {
-						buffer.append('<');
-						for (int i = 0; i < typeArgsLength; i++) {
-							buffer.append(typeArgs[i].getKey());
-							if (i != typeArgsLength - 1) {
-								buffer.append(',');
-							}							
-						}
-						buffer.append('>');
-					}
-					this.key = String.valueOf(buffer);
-				} else if (this.binding.isArrayType()) {
-					if (this.getElementType() != null) {
-						StringBuffer buffer = new StringBuffer(this.getElementType().getKey());
-						int dimensions = this.getDimensions();
-						for (int j = 0; j < dimensions; j++) {
-							buffer.append('[').append(']');
-						}
-						this.key = String.valueOf(buffer);
-					} else {
-						StringBuffer buffer = new StringBuffer();
-						int dimensions = this.getDimensions();
-						for (int j = 0; j < dimensions; j++) {
-							buffer.append('[').append(']');
-						}
-						this.key = String.valueOf(buffer);
-					}
-				} else {
-					// this is a primitive type
-					this.key = getName();
-				}
-			}
+			StringBuffer buffer = new StringBuffer();
+			appendKey(buffer);
+			this.key = buffer.toString();
 		}
 		return this.key;
 	}
+	public void appendKey(StringBuffer buffer) {
+		appendKey(buffer, false/*not only raw type*/);
+	}
+	public void appendKey(StringBuffer buffer, boolean rawTypeOnly) {
+		if (this.key != null && !rawTypeOnly) {
+			buffer.append(this.key);
+			return;
+		}
+		if (isLocal()) {
+			// declaring method or type
+			SourceTypeBinding sourceBinding = (SourceTypeBinding) this.binding; // per construction, a local type can only be defined in source
+			ClassScope scope = sourceBinding.scope;
+			ClassScope classScope = scope.enclosingClassScope();
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration referenceContext = classScope.referenceContext;
+			org.eclipse.jdt.internal.compiler.lookup.TypeBinding internalBinding = referenceContext.binding;
+			ITypeBinding typeBinding = this.resolver.getTypeBinding(internalBinding);
+			if (typeBinding != null) {
+				((TypeBinding) typeBinding).appendKey(buffer);
+			}
+			buffer.append('$');
+			CompilationUnitScope compilationUnitScope = scope.compilationUnitScope();
+			CompilationUnitDeclaration compilationUnitDeclaration = compilationUnitScope.referenceContext;
+			LocalTypeBinding[] localTypeBindings = compilationUnitDeclaration.localTypes;
+			for (int i = 0, max = compilationUnitDeclaration.localTypeCount; i < max; i++) {
+				if (localTypeBindings[i] == sourceBinding) {
+					buffer.append(i+1);
+					if (!isAnonymous()) {
+						buffer.append('$');
+						buffer.append(sourceBinding.sourceName);
+					}
+					break;
+				}
+			}
+		} else {
+			if (this.binding.isTypeVariable()) {
+				appendTypeVariableKey(buffer, true/*include declaring element*/);
+			} else if (this.binding.isWildcard()) {
+				WildcardBinding wildcardBinding = (WildcardBinding) binding;
+				org.eclipse.jdt.internal.compiler.lookup.TypeBinding bound = wildcardBinding.bound;
+				if (bound != null)
+					((TypeBinding) this.resolver.getTypeBinding(bound)).appendKey(buffer);
+				else
+					buffer.append(wildcardBinding.genericTypeSignature());
+			} else if (this.isClass()
+					|| this.isInterface()
+					|| this.isEnum()
+					|| this.isAnnotation()) {
+				char[] qualifiedSourceName = this.binding.qualifiedSourceName();
+				if (qualifiedSourceName != null) {
+					CharOperation.replace(qualifiedSourceName, '.', '$');
+					buffer
+						.append(getPackage().getName())
+						.append('/')
+						.append(qualifiedSourceName);
+				} else {
+					buffer
+						.append(getPackage().getName())
+						.append('/')
+						.append(getName());
+				}
+				if (!rawTypeOnly) {
+					ITypeBinding[] typeParameters = getTypeParameters();
+					int typeParametersLength = typeParameters.length;
+					if (typeParametersLength != 0) {
+						buffer.append('<');
+						for (int i = 0; i < typeParametersLength; i++) {
+							TypeBinding typeParameter = (TypeBinding) typeParameters[i];
+							typeParameter.appendParameterKey(buffer);
+							ITypeBinding[] bounds = typeParameter.getTypeBounds();
+							for (int j = 0, length = bounds.length; j < length; j++) {
+								TypeBinding bound = (TypeBinding) bounds[j];
+								buffer.append(':');
+								bound.appendParameterKey(buffer);
+							}
+							buffer.append(',');
+						}
+						buffer.append('>');
+					}
+					ITypeBinding[] typeArgs = getTypeArguments();
+					int typeArgsLength = typeArgs.length;
+					if (typeArgsLength != 0) {
+						buffer.append('<');
+						for (int i = 0; i < typeArgsLength; i++) {
+							TypeBinding typeArg = (TypeBinding) typeArgs[i];
+							typeArg.appendParameterKey(buffer);
+							buffer.append(',');
+						}
+						buffer.append('>');
+					}
+				}
+			} else if (this.binding.isArrayType()) {
+				if (getElementType() != null) {
+					((TypeBinding) getElementType()).appendKey(buffer);
+					int dimensions = getDimensions();
+					for (int j = 0; j < dimensions; j++) {
+						buffer.append('[').append(']');
+					}
+				} else {
+					int dimensions = this.getDimensions();
+					for (int j = 0; j < dimensions; j++) {
+						buffer.append('[').append(']');
+					}
+				}
+			} else {
+				// this is a primitive type
+				buffer.append(getName());
+			}
+		}
+	}
 
 	/*
-	 * Returns the key for this type variable binding.
+	 * Appends the key for this type variable binding to the given buffer.
 	 * Include the declaring element if specified
 	 */
-	public String getTypeVariableKey(boolean includeDeclaringElement) {
+	public void appendTypeVariableKey(StringBuffer buffer, boolean includeDeclaringElement) {
 		TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
-		StringBuffer buffer = new StringBuffer();
 		buffer.append(typeVariableBinding.sourceName);
 		if (includeDeclaringElement) {
 			Binding declaringElement = typeVariableBinding.declaringElement;
@@ -701,7 +736,6 @@ class TypeBinding implements ITypeBinding {
 				buffer.append(getNonRecursiveKey(this.resolver.getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) declaringElement)));						
 			}
 		}
-		return String.valueOf(buffer);
 	}
 
 	/*
