@@ -344,6 +344,9 @@ public abstract class JobManager implements Runnable {
 				try {
 					IJob job;
 					synchronized (this) {
+						// handle shutdown case when processing thread is set to null
+						if (this.processingThread == null) continue;
+
 						if ((job = currentJob()) == null) {
 							if (idlingStart < 0)
 								idlingStart = System.currentTimeMillis();
@@ -408,12 +411,13 @@ public abstract class JobManager implements Runnable {
 		disable();
 		discardJobs(null); // will wait until current executing job has completed
 		Thread thread = this.processingThread;
-		this.processingThread = null; // mark the job manager as shutting down so that the thread will stop by itself
 		try {
 			if (thread != null) { // see http://bugs.eclipse.org/bugs/show_bug.cgi?id=31858
 				synchronized (this) {
+					this.processingThread = null; // mark the job manager as shutting down so that the thread will stop by itself
 					this.notifyAll(); // ensure its awake so it can be shutdown
 				}
+				// in case processing thread is handling a job
 				thread.join();
 			}
 		} catch (InterruptedException e) {
