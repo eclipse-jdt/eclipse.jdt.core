@@ -23,31 +23,28 @@ import org.eclipse.jdt.core.IJavaElement;
 	 * object. This is an empty array if this element has
 	 * no children.
 	 */
-	protected IJavaElement[] fChildren;
+	protected IJavaElement[] children;
 
-	/**
-	 * Shared empty collection used for efficiency.
-	 */
-	protected static JavaElement[] NO_CHILDREN = new JavaElement[]{};
 	/**
 	 * Is the structure of this element known
 	 * @see IJavaElement#isStructureKnown()
 	 */
-	protected boolean fIsStructureKnown = false;
+	protected boolean isStructureKnown = false;
 
 	/**
 	 * Shared empty collection used for efficiency.
 	 */
 	static Object[] NO_NON_JAVA_RESOURCES = new Object[] {};	
+	
 	protected JavaElementInfo() {
-		fChildren = NO_CHILDREN;
+		this.children = JavaElement.NO_ELEMENTS;
 	}
 	public void addChild(IJavaElement child) {
-		if (fChildren == NO_CHILDREN) {
+		if (this.children == JavaElement.NO_ELEMENTS) {
 			setChildren(new IJavaElement[] {child});
 		} else {
 			if (!includesChild(child)) {
-				setChildren(growAndAddToArray(fChildren, child));
+				setChildren(growAndAddToArray(this.children, child));
 			}
 		}
 	}
@@ -60,7 +57,7 @@ import org.eclipse.jdt.core.IJavaElement;
 		}
 	}
 	public IJavaElement[] getChildren() {
-		return fChildren;
+		return this.children;
 	}
 	/**
 	 * Adds the new element to a new array that contains all of the elements of the old array.
@@ -78,8 +75,8 @@ import org.eclipse.jdt.core.IJavaElement;
 	 */
 	protected boolean includesChild(IJavaElement child) {
 		
-		for (int i= 0; i < fChildren.length; i++) {
-			if (fChildren[i].equals(child)) {
+		for (int i= 0; i < this.children.length; i++) {
+			if (this.children[i].equals(child)) {
 				return true;
 			}
 		}
@@ -89,7 +86,7 @@ import org.eclipse.jdt.core.IJavaElement;
 	 * @see IJavaElement#isStructureKnown()
 	 */
 	public boolean isStructureKnown() {
-		return fIsStructureKnown;
+		return this.isStructureKnown;
 	}
 	/**
 	 * Returns an array with all the same elements as the specified array except for
@@ -112,17 +109,17 @@ import org.eclipse.jdt.core.IJavaElement;
 	}
 	public void removeChild(IJavaElement child) {
 		if (includesChild(child)) {
-			setChildren(removeAndShrinkArray(fChildren, child));
+			setChildren(removeAndShrinkArray(this.children, child));
 		}
 	}
 	public void setChildren(IJavaElement[] children) {
-		fChildren = children;
+		this.children = children;
 	}
 	/**
 	 * Sets whether the structure of this element known
 	 * @see IJavaElement#isStructureKnown()
 	 */
 	public void setIsStructureKnown(boolean newIsStructureKnown) {
-		fIsStructureKnown = newIsStructureKnown;
+		this.isStructureKnown = newIsStructureKnown;
 	}
 }

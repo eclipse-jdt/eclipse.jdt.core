@@ -85,12 +85,12 @@ public ISourceType getEnclosingType() {
  * @see ISourceType
  */
 public ISourceField[] getFields() {
-	int length = this.fChildren.length;
+	int length = this.children.length;
 	if (length == 0) return NO_FIELDS;
 	ISourceField[] fields = new ISourceField[length];
 	int fieldIndex = 0;
 	for (int i = 0; i < length; i++) {
-		IJavaElement child = this.fChildren[i];
+		IJavaElement child = this.children[i];
 		if (child instanceof SourceField) {
 			try {
 				ISourceField field = (ISourceField)((SourceField)child).getElementInfo();
@@ -152,12 +152,12 @@ public char[][] getInterfaceNames() {
  * @see ISourceType
  */
 public ISourceType[] getMemberTypes() {
-	int length = this.fChildren.length;
+	int length = this.children.length;
 	if (length == 0) return NO_TYPES;
 	ISourceType[] memberTypes = new ISourceType[length];
 	int typeIndex = 0;
 	for (int i = 0; i < length; i++) {
-		IJavaElement child = fChildren[i];
+		IJavaElement child = this.children[i];
 		if (child instanceof SourceType) {
 			try {
 				ISourceType type = (ISourceType)((SourceType)child).getElementInfo();
@@ -175,12 +175,12 @@ public ISourceType[] getMemberTypes() {
  * @see ISourceType
  */
 public ISourceMethod[] getMethods() {
-	int length = fChildren.length;
+	int length = this.children.length;
 	if (length == 0) return NO_METHODS;
 	ISourceMethod[] methods = new ISourceMethod[length];
 	int methodIndex = 0;
 	for (int i = 0; i < length; i++) {
-		IJavaElement child = fChildren[i];
+		IJavaElement child = this.children[i];
 		if (child instanceof SourceMethod) {
 			try {
 				ISourceMethod method = (ISourceMethod)((SourceMethod)child).getElementInfo();

@@ -33,7 +33,7 @@ public PackageFragmentInfo() {
 /**
  */
 boolean containsJavaResources() {
-	return fChildren.length != 0;
+	return this.children.length != 0;
 }
 /**
  * Returns an array of non-java resources contained in the receiver.

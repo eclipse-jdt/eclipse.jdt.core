@@ -240,7 +240,7 @@ public class JavaProject
 	protected void closing(Object info) throws JavaModelException {
 		
 		// forget source attachment recommendations
-		Object[] children = ((JavaElementInfo)info).fChildren;
+		Object[] children = ((JavaElementInfo)info).children;
 		for (int i = 0, length = children.length; i < length; i++) {
 			Object child = children[i];
 			if (child instanceof JarPackageFragmentRoot){

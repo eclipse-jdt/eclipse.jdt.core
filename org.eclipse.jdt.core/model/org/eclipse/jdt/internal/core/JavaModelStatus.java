@@ -69,7 +69,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 	 */
 	public JavaModelStatus(int code) {
 		super(ERROR, JavaCore.PLUGIN_ID, code, "JavaModelStatus", null); //$NON-NLS-1$
-		this.elements= JavaElementInfo.NO_CHILDREN;
+		this.elements= JavaElement.NO_ELEMENTS;
 	}
 	/**
 	 * Constructs an Java model status with the given corresponding
@@ -91,7 +91,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 	 */
 	public JavaModelStatus(int severity, int code, String string) {
 		super(severity, JavaCore.PLUGIN_ID, code, "JavaModelStatus", null); //$NON-NLS-1$
-		this.elements= JavaElementInfo.NO_CHILDREN;
+		this.elements= JavaElement.NO_ELEMENTS;
 		this.path= null;
 		this.string = string;
 	}	
@@ -100,14 +100,14 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 	 */
 	public JavaModelStatus(int code, Throwable throwable) {
 		super(ERROR, JavaCore.PLUGIN_ID, code, "JavaModelStatus", throwable); //$NON-NLS-1$
-		this.elements= JavaElementInfo.NO_CHILDREN;
+		this.elements= JavaElement.NO_ELEMENTS;
 	}
 	/**
 	 * Constructs an Java model status with no corresponding elements.
 	 */
 	public JavaModelStatus(int code, IPath path) {
 		super(ERROR, JavaCore.PLUGIN_ID, code, "JavaModelStatus", null); //$NON-NLS-1$
-		this.elements= JavaElementInfo.NO_CHILDREN;
+		this.elements= JavaElement.NO_ELEMENTS;
 		this.path= path;
 	}
 	/**
@@ -148,7 +148,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 	 */
 	public JavaModelStatus(CoreException coreException) {
 		super(ERROR, JavaCore.PLUGIN_ID, CORE_EXCEPTION, "JavaModelStatus", coreException); //$NON-NLS-1$
-		elements= JavaElementInfo.NO_CHILDREN;
+		elements= JavaElement.NO_ELEMENTS;
 	}
 	protected int getBits() {
 		int severity = 1 << (getCode() % 100 / 33);

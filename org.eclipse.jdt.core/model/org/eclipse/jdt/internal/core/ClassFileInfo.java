@@ -55,7 +55,7 @@ ClassFileInfo(IClassFile classFile) {
  * Creates the handles and infos for the fields of the given binary type.
  * Adds new handles to the given vector.
  */
-private void generateFieldInfos(IType type, IBinaryType typeInfo, HashMap newElements, ArrayList children) {
+private void generateFieldInfos(IType type, IBinaryType typeInfo, HashMap newElements, ArrayList childrenHandles) {
 	// Make the fields
 	IBinaryField[] fields = typeInfo.getFields();
 	if (fields == null) {
@@ -65,14 +65,14 @@ private void generateFieldInfos(IType type, IBinaryType typeInfo, HashMap newEle
 		IBinaryField fieldInfo = fields[i];
 		IField field = new BinaryField((JavaElement)type, new String(fieldInfo.getName()));
 		newElements.put(field, fieldInfo);
-		children.add(field);
+		childrenHandles.add(field);
 	}
 }
 /**
  * Creates the handles for the inner types of the given binary type.
  * Adds new handles to the given vector.
  */
-private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayList children) {
+private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayList childrenHandles) {
 	// Add inner types
 	// If the current type is an inner type, innerClasses returns
 	// an extra entry for the current type.  This entry must be removed.
@@ -83,7 +83,7 @@ private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayLi
 			IBinaryNestedType binaryType = innerTypes[i];
 			IClassFile parentClassFile= ((IPackageFragment)this.classFile.getParent()).getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) + SUFFIX_STRING_class);
 			IType innerType = new BinaryType((JavaElement)parentClassFile, new String(ClassFile.simpleName(binaryType.getName())));
-			children.add(innerType);
+			childrenHandles.add(innerType);
 		}
 	}
 }
@@ -91,7 +91,7 @@ private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayLi
  * Creates the handles and infos for the methods of the given binary type.
  * Adds new handles to the given vector.
  */
-private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newElements, ArrayList children) {
+private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newElements, ArrayList childrenHandles) {
 	IBinaryMethod[] methods = typeInfo.getMethods();
 	if (methods == null) {
 		return;
@@ -112,7 +112,7 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 			pNames[j]= new String(parameterTypes[j]);
 		}
 		IMethod method = new BinaryMethod((JavaElement)type, selector, pNames);
-		children.add(method);
+		childrenHandles.add(method);
 		newElements.put(method, methodInfo);
 	}
 }
@@ -139,7 +139,7 @@ boolean hasReadBinaryChildren() {
  * <code>JavaModelManager</code>'s cache.
  */
 protected void readBinaryChildren(HashMap newElements, IBinaryType typeInfo) {
-	ArrayList children = new ArrayList();
+	ArrayList childrenHandles = new ArrayList();
 	BinaryType type = null;
 	try {
 		type = (BinaryType) this.classFile.getType();
@@ -150,13 +150,13 @@ protected void readBinaryChildren(HashMap newElements, IBinaryType typeInfo) {
 		return;
 	}
 	if (typeInfo != null) { //may not be a valid class file
-		generateFieldInfos(type, typeInfo, newElements, children);
-		generateMethodInfos(type, typeInfo, newElements, children);
-		generateInnerClassHandles(type, typeInfo, children); // Note inner class are separate openables that are not opened here: no need to pass in newElements
+		generateFieldInfos(type, typeInfo, newElements, childrenHandles);
+		generateMethodInfos(type, typeInfo, newElements, childrenHandles);
+		generateInnerClassHandles(type, typeInfo, childrenHandles); // Note inner class are separate openables that are not opened here: no need to pass in newElements
 	}
 	
-	this.binaryChildren = new JavaElement[children.size()];
-	children.toArray(this.binaryChildren);
+	this.binaryChildren = new JavaElement[childrenHandles.size()];
+	childrenHandles.toArray(this.binaryChildren);
 }
 /**
  * Removes the binary children handles and remove their infos from
@@ -173,7 +173,7 @@ void removeBinaryChildren() throws JavaModelException {
 				manager.removeInfoAndChildren(child);
 			}
 		}
-		this.binaryChildren = NO_CHILDREN;
+		this.binaryChildren = JavaElement.NO_ELEMENTS;
 	}
 }
 }

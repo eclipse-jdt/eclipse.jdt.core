@@ -52,7 +52,7 @@ protected boolean computeChildren(OpenableElementInfo info) {
 		vChildren.toArray(children);
 		info.setChildren(children);
 	} else {
-		info.setChildren(JavaElementInfo.NO_CHILDREN);
+		info.setChildren(NO_ELEMENTS);
 	}
 	return true;
 }
