@@ -50,38 +50,23 @@ public class SearchMatch {
 	/**
 	 * Creates a new search match.
 	 * 
-	 * @param offset the offset the match starts at, or -1 if unknown
-	 * @param length the length of the match, or -1 if unknown
-	 * @deprecated Use {@link #SearchMatch(IJavaElement, int, int, int, SearchParticipant, IResource)
-	 */
-	// TODO (jerome) - delete this constructor
-	public SearchMatch(Object element, int offset, 	int length) {
-		this.element = element;
-		this.offset = offset;
-		this.length = length;
-	}
-	
-	/**
-	 * Creates a new search match.
-	 * 
 	 * @param element the element that encloses or corresponds to the match
 	 * @param accuracy one of A_ACCURATE or A_INACCURATE
-	 * @param sourceStart the start position of the match, -1 if it is unknown
-	 * @param sourceEnd the end position of the match, -1 if it is unknown;
-	 * 	the ending offset is exclusive, meaning that the actual range of characters 
-	 * 	covered is <code>[start, end]</code>
+	 * @param offset the offset the match starts at, or -1 if unknown
+	 * @param length the length of the match, or -1 if unknown
 	 * @param participant the search participant that created the match
 	 * @param resource the resource of the element, or <code>null</code> if none
 	 */
-	// TODO (jerome) - Change this constructor to be offset-length based
 	public SearchMatch(
 			IJavaElement element,
 			int accuracy,
-			int sourceStart,  
-			int sourceEnd,
+			int offset,  
+			int length,
 			SearchParticipant participant, 
 			IResource resource) {
-		this(element, sourceStart, sourceEnd-sourceStart);
+		this.element = element;
+		this.offset = offset;
+		this.length = length;
 		this.accuracy = accuracy;
 		this.participant = participant;
 		this.resource = resource;

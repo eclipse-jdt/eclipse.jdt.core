@@ -122,10 +122,13 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 	} else if (reference instanceof FieldReference) {
 		FieldReference fieldReference = (FieldReference) reference;
 		long position = fieldReference.nameSourcePosition;
-		SearchMatch match = locator.newFieldReferenceMatch(element, accuracy, ((int) (position >>> 32)), ((int) position)+1, fieldReference);
+		int start = (int) (position >>> 32);
+		int end = (int) position;
+		SearchMatch match = locator.newFieldReferenceMatch(element, accuracy, start, end-start+1, fieldReference);
 		locator.report(match);
 	} else if (reference instanceof SingleNameReference) {
-		SearchMatch match = locator.newFieldReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+		int offset = reference.sourceStart;
+		SearchMatch match = locator.newFieldReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 		locator.report(match);
 	} else if (reference instanceof QualifiedNameReference) {
 		QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
@@ -215,7 +218,8 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 				}
 			} 
 			if (fieldDecl != null) {
-				SearchMatch match = new FieldDeclarationMatch(field, SearchMatch.A_ACCURATE, fieldDecl.sourceStart, fieldDecl.sourceEnd+1, locator.getParticipant(), resource);
+				int offset = fieldDecl.sourceStart;
+				SearchMatch match = new FieldDeclarationMatch(field, SearchMatch.A_ACCURATE, offset, fieldDecl.sourceEnd-offset+1, locator.getParticipant(), resource);
 				locator.report(match);
 
 			}

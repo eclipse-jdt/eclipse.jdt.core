@@ -26,15 +26,13 @@ public class LocalVariableDeclarationMatch extends SearchMatch {
 	 * 
 	 * @param element the local variable declaration
 	 * @param accuracy one of A_ACCURATE or A_INACCURATE
-	 * @param sourceStart the start position of the match, -1 if it is unknown
-	 * @param sourceEnd the end position of the match, -1 if it is unknown;
-	 * 	the ending offset is exclusive, meaning that the actual range of characters 
-	 * 	covered is <code>[start, end]</code>
+	 * @param offset the offset the match starts at, or -1 if unknown
+	 * @param length the length of the match, or -1 if unknown
 	 * @param participant the search participant that created the match
 	 * @param resource the resource of the element
 	 */
-	public LocalVariableDeclarationMatch(IJavaElement element, int accuracy, int sourceStart, int sourceEnd, SearchParticipant participant, IResource resource) {
-		super(element, accuracy, sourceStart, sourceEnd, participant, resource);
+	public LocalVariableDeclarationMatch(IJavaElement element, int accuracy, int offset, int length, SearchParticipant participant, IResource resource) {
+		super(element, accuracy, offset, length, participant, resource);
 	}
 
 }

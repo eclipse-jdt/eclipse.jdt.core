@@ -137,7 +137,9 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 			if (resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, typeBinding) == ACCURATE_MATCH) {
 				if (locator.encloses(element)) {
 					long[] positions = importRef.sourcePositions;
-					SearchMatch match = locator.newTypeReferenceMatch(element, accuracy, ((int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32)), ((int) positions[lastIndex])+1, importRef);
+					int start = (int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32);
+					int end = (int) positions[lastIndex];
+					SearchMatch match = locator.newTypeReferenceMatch(element, accuracy, start, end-start+1, importRef);
 					locator.report(match);
 				}
 				return;
@@ -151,7 +153,8 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 protected void matchReportReference(ArrayTypeReference arrayRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.pattern.simpleName == null) {
 		if (locator.encloses(element)) {
-			SearchMatch match = locator.newTypeReferenceMatch(element, accuracy, arrayRef.sourceStart, arrayRef.sourceEnd+1, arrayRef);
+			int offset = arrayRef.sourceStart;
+			SearchMatch match = locator.newTypeReferenceMatch(element, accuracy, offset, arrayRef.sourceEnd-offset+1, arrayRef);
 			locator.report(match);
 		}
 	} else
@@ -171,7 +174,8 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 	else if (reference instanceof ArrayTypeReference)
 		matchReportReference((ArrayTypeReference) reference, element, accuracy, locator);
 	else {
-		SearchMatch match = locator.newTypeReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+		int offset = reference.sourceStart;
+		SearchMatch match = locator.newTypeReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 		locator.report(match);
 	}
 }
@@ -212,7 +216,9 @@ protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElemen
 			if (resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, refBinding) == ACCURATE_MATCH) {
 				if (locator.encloses(element)) {
 					long[] positions = qNameRef.sourcePositions;
-					SearchMatch match = locator.newTypeReferenceMatch(element, accuracy, ((int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32)), ((int) positions[lastIndex])+1, qNameRef);
+					int start = (int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32);
+					int end = (int) positions[lastIndex];
+					SearchMatch match = locator.newTypeReferenceMatch(element, accuracy, start, end-start+1, qNameRef);
 					locator.report(match);
 				}
 				return;
@@ -240,7 +246,9 @@ protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElemen
 			if (resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, refBinding) == ACCURATE_MATCH) {
 				if (locator.encloses(element)) {
 					long[] positions = qTypeRef.sourcePositions;
-					SearchMatch match = locator.newTypeReferenceMatch(element, accuracy, ((int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32)), ((int) positions[lastIndex])+1, qTypeRef);
+					int start = (int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32);
+					int end = (int) positions[lastIndex];
+					SearchMatch match = locator.newTypeReferenceMatch(element, accuracy, start, end-start+1, qTypeRef);
 					locator.report(match);
 				}
 				return;
@@ -319,7 +327,8 @@ protected void reportDeclaration(ReferenceBinding typeBinding, int maxType, Matc
 				ClassScope scope = ((SourceTypeBinding) typeBinding).scope;
 				if (scope != null) {
 					TypeDeclaration typeDecl = scope.referenceContext;
-					SearchMatch match = new TypeDeclarationMatch(type, SearchMatch.A_ACCURATE, typeDecl.sourceStart, typeDecl.sourceEnd+1, locator.getParticipant(), resource);
+					int offset = typeDecl.sourceStart;
+					SearchMatch match = new TypeDeclarationMatch(type, SearchMatch.A_ACCURATE, offset, typeDecl.sourceEnd-offset+1, locator.getParticipant(), resource);
 					locator.report(match);
 				}
 			}

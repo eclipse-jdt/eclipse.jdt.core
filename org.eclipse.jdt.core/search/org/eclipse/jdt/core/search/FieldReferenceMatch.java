@@ -30,18 +30,16 @@ public class FieldReferenceMatch extends SearchMatch {
 	 * 
 	 * @param enclosingElement the inner-most enclosing member that references this field
 	 * @param accuracy one of A_ACCURATE or A_INACCURATE
-	 * @param sourceStart the start position of the match, -1 if it is unknown
-	 * @param sourceEnd the end position of the match, -1 if it is unknown;
-	 * 	the ending offset is exclusive, meaning that the actual range of characters 
-	 * 	covered is <code>[start, end]</code>
+	 * @param offset the offset the match starts at, or -1 if unknown
+	 * @param length the length of the match, or -1 if unknown
 	 * @param isReadAccess whether the match represents a read access
 	 * @param isWriteAccess whethre the match represents a write access
 	 * @param insideDocComment whether the match is inside a doc comment
 	 * @param participant the search participant that created the match
 	 * @param resource the resource of the element
 	 */
-	public FieldReferenceMatch(IJavaElement enclosingElement, int accuracy, int sourceStart, int sourceEnd, boolean isReadAccess, boolean isWriteAccess, boolean insideDocComment, SearchParticipant participant, IResource resource) {
-		super(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
+	public FieldReferenceMatch(IJavaElement enclosingElement, int accuracy, int offset, int length, boolean isReadAccess, boolean isWriteAccess, boolean insideDocComment, SearchParticipant participant, IResource resource) {
+		super(enclosingElement, accuracy, offset, length, participant, resource);
 		this.isReadAccess = isReadAccess;
 		this.isWriteAccess = isWriteAccess;
 		this.insideDocComment = insideDocComment;

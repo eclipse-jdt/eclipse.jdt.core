@@ -858,31 +858,31 @@ protected IType lookupType(ReferenceBinding typeBinding) {
 public SearchMatch newDeclarationMatch(
 		IJavaElement element,
 		int accuracy,
-		int sourceStart,  
-		int sourceEnd) {
+		int offset,  
+		int length) {
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
-	return newDeclarationMatch(element, accuracy, sourceStart, sourceEnd, participant, resource);
+	return newDeclarationMatch(element, accuracy, offset, length, participant, resource);
 }
 
 public SearchMatch newDeclarationMatch(
 		IJavaElement element,
 		int accuracy,
-		int sourceStart,  
-		int sourceEnd,
+		int offset,  
+		int length,
 		SearchParticipant participant, 
 		IResource resource) {
 	switch (element.getElementType()) {
 		case IJavaElement.PACKAGE_FRAGMENT:
-			return new PackageDeclarationMatch(element, accuracy, sourceStart, sourceEnd, participant, resource);
+			return new PackageDeclarationMatch(element, accuracy, offset, length, participant, resource);
 		case IJavaElement.TYPE:
-			return new TypeDeclarationMatch(element, accuracy, sourceStart, sourceEnd, participant, resource);
+			return new TypeDeclarationMatch(element, accuracy, offset, length, participant, resource);
 		case IJavaElement.FIELD:
-			return new FieldDeclarationMatch(element, accuracy, sourceStart, sourceEnd, participant, resource);
+			return new FieldDeclarationMatch(element, accuracy, offset, length, participant, resource);
 		case IJavaElement.METHOD:
-			return new MethodDeclarationMatch(element, accuracy, sourceStart, sourceEnd, participant, resource);
+			return new MethodDeclarationMatch(element, accuracy, offset, length, participant, resource);
 		case IJavaElement.LOCAL_VARIABLE:
-			return new LocalVariableDeclarationMatch(element, accuracy, sourceStart, sourceEnd, participant, resource);
+			return new LocalVariableDeclarationMatch(element, accuracy, offset, length, participant, resource);
 		default:
 			return null;
 	}
@@ -891,8 +891,8 @@ public SearchMatch newDeclarationMatch(
 public SearchMatch newFieldReferenceMatch(
 		IJavaElement enclosingElement,
 		int accuracy,
-		int sourceStart,  
-		int sourceEnd,
+		int offset,  
+		int length,
 		ASTNode reference) {
 	int bits = reference.bits;
 	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssignedMASK) != 0;
@@ -901,53 +901,53 @@ public SearchMatch newFieldReferenceMatch(
 	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
-	return new FieldReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
+	return new FieldReferenceMatch(enclosingElement, accuracy, offset, length, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
 }
 
 public SearchMatch newLocalVariableReferenceMatch(
 		IJavaElement enclosingElement,
 		int accuracy,
-		int sourceStart,  
-		int sourceEnd,
+		int offset,  
+		int length,
 		ASTNode reference) {
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
-	return new LocalVariableReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
+	return new LocalVariableReferenceMatch(enclosingElement, accuracy, offset, length, participant, resource);
 }
 
 public SearchMatch newMethodReferenceMatch(
 		IJavaElement enclosingElement,
 		int accuracy,
-		int sourceStart,  
-		int sourceEnd,
+		int offset,  
+		int length,
 		ASTNode reference) {
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
 	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
-	return new MethodReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, insideDocComment, participant, resource);
+	return new MethodReferenceMatch(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
 }
 
 public SearchMatch newPackageReferenceMatch(
 		IJavaElement enclosingElement,
 		int accuracy,
-		int sourceStart,  
-		int sourceEnd,
+		int offset,  
+		int length,
 		ASTNode reference) {
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
-	return new PackageReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
+	return new PackageReferenceMatch(enclosingElement, accuracy, offset, length, participant, resource);
 }
 
 public SearchMatch newTypeReferenceMatch(
 		IJavaElement enclosingElement,
 		int accuracy,
-		int sourceStart,  
-		int sourceEnd,
+		int offset,  
+		int length,
 		ASTNode reference) {
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
 	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
-	return new TypeReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, insideDocComment, participant, resource);
+	return new TypeReferenceMatch(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
 }
 
 /*
@@ -1078,12 +1078,13 @@ protected void reportAccurateTypeReference(ASTNode typeRef, char[] name, IJavaEl
 			// ignore
 		}
 		if (token == TerminalTokens.TokenNameIdentifier && this.pattern.matchesName(name, scanner.getCurrentTokenSource())) {
-			SearchMatch match = newTypeReferenceMatch(element, accuracy, currentPosition, scanner.currentPosition, typeRef);
+			int length = scanner.currentPosition-currentPosition;
+			SearchMatch match = newTypeReferenceMatch(element, accuracy, currentPosition, length, typeRef);
 			report(match);
 			return;
 		}
 	} while (token != TerminalTokens.TokenNameEOF);
-	SearchMatch match = newTypeReferenceMatch(element, accuracy, sourceStart, sourceEnd+1, typeRef);
+	SearchMatch match = newTypeReferenceMatch(element, accuracy, sourceStart, sourceEnd-sourceStart+1, typeRef);
 	report(match);
 }
 /**
@@ -1141,10 +1142,10 @@ protected void reportAccurateFieldReference(QualifiedNameReference qNameRef, IJa
 		if (accuracies[accuracyIndex] != -1) {
 			// accept reference
 			if (refSourceStart != -1) {
-				SearchMatch match = newFieldReferenceMatch(element, accuracies[accuracyIndex], refSourceStart, refSourceEnd+1, qNameRef);
+				SearchMatch match = newFieldReferenceMatch(element, accuracies[accuracyIndex], refSourceStart, refSourceEnd-refSourceStart+1, qNameRef);
 				report(match);
 			} else {
-				SearchMatch match = newFieldReferenceMatch(element, accuracies[accuracyIndex], sourceStart, sourceEnd+1, qNameRef);
+				SearchMatch match = newFieldReferenceMatch(element, accuracies[accuracyIndex], sourceStart, sourceEnd-sourceStart+1, qNameRef);
 				report(match);
 			}
 			i = 0;
@@ -1171,10 +1172,8 @@ protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryM
 			}
 		}
 	}
-	int startIndex = range.getOffset();
-	int endIndex = startIndex + range.getLength();
 	if (resource == null) resource =  this.currentPossibleMatch.resource;
-	SearchMatch match = newDeclarationMatch(binaryMember, accuracy, startIndex, endIndex, getParticipant(), resource);
+	SearchMatch match = newDeclarationMatch(binaryMember, accuracy, range.getOffset(), range.getLength(), getParticipant(), resource);
 	report(match);
 }
 /**
@@ -1197,9 +1196,9 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 			} catch (InvalidInputException e) {
 				// ignore
 			}
-			int nameSourceEnd = scanner.currentPosition - 1;
 			if (encloses(enclosingElement)) {
-				SearchMatch match = newDeclarationMatch(enclosingElement, accuracy, nameSourceStart, nameSourceEnd+1);
+				int length = scanner.currentPosition - nameSourceStart;
+				SearchMatch match = newDeclarationMatch(enclosingElement, accuracy, nameSourceStart, length);
 				report(match);
 			}
 		}
@@ -1306,7 +1305,8 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 	if (accuracy > -1) {
 		enclosingElement = createHandle(field, type, parent);
 		if (encloses(enclosingElement)) {
-			SearchMatch match = newDeclarationMatch(enclosingElement, accuracy, field.sourceStart, field.sourceEnd+1);
+			int offset = field.sourceStart;
+			SearchMatch match = newDeclarationMatch(enclosingElement, accuracy, offset, field.sourceEnd-offset+1);
 			report(match);
 		}
 	}
@@ -1364,7 +1364,8 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 
 	// report the type declaration
 	if (accuracy > -1 && encloses(enclosingElement)) {
-		SearchMatch match = newDeclarationMatch(enclosingElement, accuracy, type.sourceStart, type.sourceEnd+1);
+		int offset = type.sourceStart;
+		SearchMatch match = newDeclarationMatch(enclosingElement, accuracy, offset, type.sourceEnd-offset+1);
 		report(match);
 	}
 

@@ -144,11 +144,12 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 		if (element != null)
 			reportDeclaration(((MessageSend) reference).binding, locator, declPattern.knownMethods);
 	} else if (this.pattern.findReferences && reference instanceof MessageSend) {
-		int sourceStart = (int) (((MessageSend) reference).nameSourcePosition >>> 32);
-		SearchMatch match = locator.newMethodReferenceMatch(element, accuracy, sourceStart, reference.sourceEnd+1, reference);
+		int offset = (int) (((MessageSend) reference).nameSourcePosition >>> 32);
+		SearchMatch match = locator.newMethodReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 		locator.report(match);
 	} else {
-		SearchMatch match = locator.newMethodReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+		int offset = reference.sourceStart;
+		SearchMatch match = locator.newMethodReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 		locator.report(match);
 	}
 }
@@ -191,7 +192,8 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 				}
 			} 
 			if (methodDecl != null) {
-				SearchMatch match = new MethodDeclarationMatch(method, SearchMatch.A_ACCURATE, methodDecl.sourceStart, methodDecl.sourceEnd+1, locator.getParticipant(), resource);
+				int offset = methodDecl.sourceStart;
+				SearchMatch match = new MethodDeclarationMatch(method, SearchMatch.A_ACCURATE, offset, methodDecl.sourceEnd-offset+1, locator.getParticipant(), resource);
 				locator.report(match);
 			}
 		}
