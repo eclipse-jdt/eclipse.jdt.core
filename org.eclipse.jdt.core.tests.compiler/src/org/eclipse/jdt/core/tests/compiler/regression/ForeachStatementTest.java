@@ -1055,7 +1055,6 @@ public void test021() {
 		assertTrue(false);
 	}
 }
-// TODO (olivier) verify error
 public void test022() { 
 	this.runConformTest(
 		new String[] {
