@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -743,11 +742,8 @@ public void test21() {
 					}
 					public char[] getCharContent() throws IOException { return null; }
 					public String getName() { return "Z.class"; }
-					public String getProperty(String property) { return null; }
-					public Enumeration getPropertyNames() { return null; }
 					public String getStringContent() throws IOException { return null; }
 					public String getType() { return "class"; }
-					public void setProperty(String attribute, String value) { }
 					public String getEncoding() { return null; }
 				}, 
 				new IIndexerOutput() {
