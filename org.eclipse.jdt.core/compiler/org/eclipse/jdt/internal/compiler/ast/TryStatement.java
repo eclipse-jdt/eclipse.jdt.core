@@ -193,9 +193,9 @@ public class TryStatement extends SubRoutineStatement {
 			return;
 		}
 		int pc = codeStream.position;
-		final int NoFinally = 0;							// no finally block
+		final int NoFinally = 0;								// no finally block
 		final int FinallySubroutine = 1; 				// finally is generated as a subroutine (using jsr/ret bytecodes)
-		final int FinallyDoesNotComplete = 2;	// non returning finally is optimized with only one instance of finally block
+		final int FinallyDoesNotComplete = 2;		// non returning finally is optimized with only one instance of finally block
 		final int FinallyMustBeInlined = 3;			// finally block must be inlined since cannot use jsr/ret bytecodes >1.5
 		int finallyMode;
 		if (subRoutineStartLabel == null) { 
