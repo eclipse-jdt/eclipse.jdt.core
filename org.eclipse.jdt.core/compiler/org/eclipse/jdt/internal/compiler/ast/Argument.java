@@ -30,8 +30,9 @@ public class Argument extends LocalDeclaration {
 
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
 
-		if (this.type != null)
+		/*if (this.type != null)
 			this.type.resolvedType = typeBinding; // TODO (philippe) no longer necessary as when binding got resolved, it was recorded already (SourceTypeBinding#resolveTypesFor(MethodBinding))
+		*/
 		// record the resolved type into the type reference
 		int modifierFlag = this.modifiers;
 

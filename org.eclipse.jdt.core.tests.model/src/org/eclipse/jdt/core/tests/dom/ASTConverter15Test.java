@@ -94,7 +94,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0137"));
+		suite.addTest(new ASTConverter15Test("test0138"));
 		return suite;
 	}
 	
@@ -4091,4 +4091,71 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = name.resolveTypeBinding();
 		assertEquals("Wrong name", "test0137.Source", typeBinding.getQualifiedName());
 	}
+
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=81544
+	public void test0138() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"class X {\n" +
+    		"	java.util.List<URL> method(java.util.List<URL> list) {\n" +
+    		"		java.util.List<URL> url= new java.util.List<URL>();\n" +
+    		"		return url;\n" +
+    		"	}\n" +
+    		"}";
+    	ASTNode node = buildAST(
+			contents,
+			this.workingCopy,
+			false);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 4,
+    		"URL cannot be resolved to a type\n" + 
+			"URL cannot be resolved to a type\n" + 
+			"URL cannot be resolved to a type\n" + 
+			"URL cannot be resolved to a type");
+    	compilationUnit.accept(new ASTVisitor() {
+    		public boolean visit(QualifiedName qualifiedName) {
+    			IBinding binding = qualifiedName.resolveBinding();
+    			assertNotNull("No binding", binding);
+    			return true;
+    		}
+    		public boolean visit(SimpleName simpleName) {
+				if (simpleName.getIdentifier().equals("URL")
+						|| simpleName.getIdentifier().equals("method")) {
+					return false;
+				}
+    			IBinding binding = simpleName.resolveBinding();
+    			assertNotNull("No binding", binding);
+    			return true;
+    		}
+    		public boolean visit(ParameterizedType type) {
+    			ITypeBinding typeBinding = type.resolveBinding();
+    			assertNotNull("No binding", typeBinding);
+    			return true;
+    		}
+    		public boolean visit(SimpleType type) {
+    			ITypeBinding typeBinding = type.resolveBinding();
+    			Name name = type.getName();
+    			if (name.isSimpleName()) {
+    				SimpleName simpleName = (SimpleName) name;
+    				if (simpleName.getIdentifier().equals("URL")) {
+    					return false;
+    				}
+    			}
+    			assertNotNull("No binding", typeBinding);
+    			return true;
+    		}
+    		public boolean visit(TypeParameter typeParameter) {
+    			ITypeBinding typeBinding = typeParameter.resolveBinding();
+    			assertNotNull("No binding", typeBinding);
+    			return true;
+    		}
+    		public boolean visit(QualifiedType type) {
+    			ITypeBinding typeBinding = type.resolveBinding();
+    			assertNotNull("No binding", typeBinding);
+    			return true;
+    		}
+    	});
+    }
 }
