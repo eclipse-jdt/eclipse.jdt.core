@@ -36,7 +36,7 @@
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.0M4 Build - ?th September 2003
+Eclipse SDK 3.0M4 Build - 1st September 2003
 <br>Project org.eclipse.jdt.core v_368 
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_368">cvs</a>).
 <h2>
@@ -79,9 +79,10 @@ name and better diagnose the cause of the problem. Also changed problem source r
 to rather highlight the caught exception type instead of entire catch block. 
 <pre></pre>
 </li>
-<li>Added two new API methods <code>readRawClasspath()</code> and <code>readOutputLocation()</code> on IJavaProject
-interface to allow user to read .classpath file contents even if project is not opened yet (for example just after
-a new Java project creation and before that reconciliation mechanism has been performed).
+<li>Added two new API methods <code>readRawClasspath()</code> and <code>readOutputLocation()</code> on <code>IJavaProject</code>
+interface so as to allow user to read classpath directly from disk (<code>.classpath</code> file contents). This is useful to configure
+a Java project before it is associated with the Java nature, or before the automatic classpath reconciliation mechanism has performed (within
+a resource modifying operation, and prior to the change notification).
 </li>
 </ul>
 
