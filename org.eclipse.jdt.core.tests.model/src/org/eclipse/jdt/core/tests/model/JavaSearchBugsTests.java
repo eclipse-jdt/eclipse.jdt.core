@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
+
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
 
@@ -43,9 +44,10 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//		BasicSearchEngine.VERBOSE = true;
-//		TESTS_PREFIX =  "testBug80194";
-//		TESTS_NAMES = new String[] { "testBug79803" };
+//		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
+//		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
+//		TESTS_PREFIX =  "testBug83304_Constructor";
+//		TESTS_NAMES = new String[] { "testBug83304" };
 //		TESTS_NUMBERS = new int[] { 81084 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
 		}
@@ -1081,6 +1083,197 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b82088/c/Test.java b82088.c.Test [A] EXACT_MATCH\n" + 
 			"src/b82088/c/Test.java b82088.c.Test.a [A] EXACT_MATCH\n" + 
 			"src/b82088/c/Test.java b82088.c.Test(A) [A] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 83304: [search] correct results are missing in java search
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83304"
+	 */
+	public void testBug83304() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Test.java",
+			"package b83304;\n" + 
+			"public class Test {\n" + 
+			"	void foo() {\n" + 
+			"		Class<? extends Throwable> l1= null;\n" + 
+			"		Class<Exception> l2= null;\n" + 
+			"		\n" + 
+			"		Class<String> string_Class;\n" + 
+			"	}\n" + 
+			"}\n"
+			);
+		IType type = selectType(workingCopies[0], "Class", 3);
+		search(type, REFERENCES, ERASURE_RULE);
+		assertSearchResults(
+			"src/b83304/Test.java void b83304.Test.foo() [Class] ERASURE_MATCH\n" + 
+			"src/b83304/Test.java void b83304.Test.foo() [Class] ERASURE_MATCH\n" + 
+			"src/b83304/Test.java void b83304.Test.foo() [Class] EXACT_MATCH\n" + 
+			getExternalJCLPathString("1.5") + " java.lang.Class java.lang.Object.getClass() EQUIVALENT_ERASURE_MATCH"
+		);
+	}
+	public void testBug83304_TypeParameterizedElementPattern() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Types.java",
+			"package b83304;\n" + 
+			"import g1.t.s.def.Generic;\n" + 
+			"public class Types {\n" + 
+			"	public Generic gen;\n" + 
+			"	public Generic<Object> gen_obj;\n" + 
+			"	public Generic<Exception> gen_exc;\n" + 
+			"	public Generic<?> gen_wld;\n" + 
+			"	public Generic<? extends Throwable> gen_thr;\n" + 
+			"	public Generic<? super RuntimeException> gen_run;\n" + 
+			"}\n"
+			);
+		IType type = selectType(workingCopies[0], "Generic", 4);
+		search(type, REFERENCES, ERASURE_RULE);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b83304/Types.java [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_obj [Generic] ERASURE_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_exc [Generic] EXACT_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_thr [Generic] EQUIVALENT_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_run [Generic] EQUIVALENT_MATCH\n" + 
+			"lib/JavaSearch15.jar g1.t.s.def.Generic<T> g1.t.s.def.Generic.foo() ERASURE_MATCH"
+		);
+	}
+	public void testBug83304_TypeGenericElementPattern() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IType type = getClassFile("JavaSearchBugs", "lib/JavaSearch15.jar", "g1.t.s.def", "Generic.class").getType();
+		search(type, REFERENCES, ERASURE_RULE);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b83304/Types.java [g1.t.s.def.Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_obj [Generic] ERASURE_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_exc [Generic] ERASURE_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_wld [Generic] ERASURE_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_thr [Generic] ERASURE_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_run [Generic] ERASURE_MATCH\n" + 
+			"lib/JavaSearch15.jar g1.t.s.def.Generic<T> g1.t.s.def.Generic.foo() ERASURE_MATCH"
+		);
+	}
+	public void testBug83304_TypeStringPattern() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		search("Generic<? super Exception>", TYPE, REFERENCES, ERASURE_RULE);
+		assertSearchResults(
+			"src/b83304/Types.java [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen [Generic] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_obj [Generic] EQUIVALENT_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_exc [Generic] EQUIVALENT_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_wld [Generic] EQUIVALENT_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_thr [Generic] ERASURE_MATCH\n" + 
+			"src/b83304/Types.java b83304.Types.gen_run [Generic] ERASURE_MATCH\n" + 
+			"lib/JavaSearch15.jar g1.t.s.def.Generic<T> g1.t.s.def.Generic.foo() ERASURE_MATCH"
+		);
+	}
+	public void testBug83304_MethodParameterizedElementPattern() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Methods.java",
+			"package b83304;\n" + 
+			"import g5.m.def.Single;\n" + 
+			"public class Methods {\n" + 
+			"	void test() {\n" + 
+			"		Single<Exception> gs = new Single<Exception>();\n" + 
+			"		Exception exc = new Exception();\n" + 
+			"		gs.<Throwable>generic(exc);\n" + 
+			"		gs.<Exception>generic(exc);\n" + 
+			"		gs.<String>generic(\"\");\n" + 
+			"	}\n" + 
+			"}\n"
+			);
+		IMethod method = selectMethod(workingCopies[0], "generic", 2);
+		search(method, REFERENCES, ERASURE_RULE);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" + 
+			"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] EXACT_MATCH\n" + 
+			"src/b83304/Methods.java void b83304.Methods.test() [generic(\"\")] ERASURE_MATCH"
+		);
+	}
+	public void testBug83304_MethodGenericElementPattern() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IType type = getClassFile("JavaSearchBugs", "lib/JavaSearch15.jar", "g5.m.def", "Single.class").getType();
+		IMethod method = type.getMethod("generic", new String[] { "TU;" });
+		search(method, REFERENCES, ERASURE_RULE);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" + 
+			"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" + 
+			"src/b83304/Methods.java void b83304.Methods.test() [generic(\"\")] ERASURE_MATCH"
+		);
+	}
+	public void testBug83304_MethodStringPattern() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		search("generic%<Exception>", METHOD, REFERENCES, ERASURE_RULE);
+		assertSearchResults(
+			"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" + 
+			"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] EXACT_MATCH\n" + 
+			"src/b83304/Methods.java void b83304.Methods.test() [generic(\"\")] ERASURE_MATCH"
+		);
+	}
+	public void testBug83304_ConstructorGenericElementPattern() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83304/Constructors.java",
+			"package b83304;\n" + 
+			"import g5.c.def.Single;\n" + 
+			"public class Constructors {\n" + 
+			"	void test() {\n" + 
+			"		Exception exc= new Exception();\n" + 
+			"		new <Throwable>Single<String>(\"\", exc);\n" + 
+			"		new <Exception>Single<String>(\"\", exc);\n" + 
+			"		new <String>Single<String>(\"\", \"\");\n" + 
+			"	}\n" + 
+			"}\n"
+			);
+		IMethod method = selectMethod(workingCopies[0], "Single", 3);
+		search(method, REFERENCES, ERASURE_RULE);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
+			"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] EXACT_MATCH\n" + 
+			"src/b83304/Constructors.java void b83304.Constructors.test() [new <String>Single<String>(\"\", \"\")] ERASURE_MATCH"
+		);
+	}
+	public void testBug83304_ConstructorParameterizedElementPattern() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IType type = getClassFile("JavaSearchBugs", "lib/JavaSearch15.jar", "g5.c.def", "Single.class").getType();
+		IMethod method = type.getMethod("Single", new String[] { "TT;", "TU;" });
+		search(method, REFERENCES, ERASURE_RULE);
+		discard = false; // use working copy for next test
+		assertSearchResults(
+			"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
+			"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
+			"src/b83304/Constructors.java void b83304.Constructors.test() [new <String>Single<String>(\"\", \"\")] ERASURE_MATCH"
+		);
+	}
+	public void testBug83304_ConstructorStringPattern() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		search("Single%<Exception>", CONSTRUCTOR, REFERENCES, ERASURE_RULE);
+		assertSearchResults(
+			"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
+			"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] EXACT_MATCH\n" + 
+			"src/b83304/Constructors.java void b83304.Constructors.test() [new <String>Single<String>(\"\", \"\")] ERASURE_MATCH\n" + 
+			"lib/JavaSearch15.jar g5.m.def.Single<T> g5.m.def.Single.returnParamType() ERASURE_MATCH"
 		);
 	}
 }

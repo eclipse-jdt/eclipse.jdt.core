@@ -18,8 +18,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.core.ParameterizedSourceMethod;
-import org.eclipse.jdt.internal.core.ParameterizedSourceType;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
 
@@ -80,10 +79,15 @@ public class JavaSearchPattern extends SearchPattern {
 		return this.isErasureMatch;
 	}
 
+	/*
+	 * Extract method arguments using unique key for parameterized methods
+	 * and type parameters for non-generic ones.
+	 */
 	char[][] extractMethodArguments(IMethod method) {
 		if (method instanceof ParameterizedSourceMethod) {
-			// Use unique key to extract signatures and type arguments
 			return Util.extractMethodArguments(((ParameterizedSourceMethod)method).uniqueKey);
+		} else if (method instanceof ParameterizedBinaryMethod) {
+			return Util.extractMethodArguments(((ParameterizedBinaryMethod)method).uniqueKey);
 		} else {
 			try {
 				ITypeParameter[] parameters = method.getTypeParameters();
@@ -201,10 +205,17 @@ public class JavaSearchPattern extends SearchPattern {
 			}
 		}
 	}
+
+	/*
+	 * Extract and store type signatures and arguments using unique key for parameterized types
+	 * and type parameters for non-generic ones
+	 */
 	void storeTypeSignaturesAndArguments(IType type) {
 		if (type instanceof ParameterizedSourceType) {
-			// Use unique key to extract signatures and type arguments
 			this.typeSignatures = Util.splitTypeLevelsSignature(((ParameterizedSourceType)type).uniqueKey);
+			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
+		} else if (type instanceof ParameterizedBinaryType) {
+			this.typeSignatures = Util.splitTypeLevelsSignature(((ParameterizedBinaryType)type).uniqueKey);
 			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
 		} else {
 			// Scan hierachy to store type arguments at each level

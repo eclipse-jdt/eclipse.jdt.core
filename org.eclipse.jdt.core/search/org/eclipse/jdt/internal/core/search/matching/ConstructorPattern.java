@@ -15,6 +15,7 @@ import java.io.IOException;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.core.ParameterizedBinaryMethod;
 import org.eclipse.jdt.internal.core.ParameterizedSourceMethod;
 import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.index.Index;
@@ -113,9 +114,19 @@ public ConstructorPattern(
 		varargs,
 		matchRule);
 
-	// Store type signature and arguments for declaring type
+	// Get unique key for parameterized constructors
+	String uniqueKey = null;
 	if (method instanceof ParameterizedSourceMethod) {
-		String methodReceiverType = Util.extractMethodReceiverType(((ParameterizedSourceMethod)method).uniqueKey);
+		uniqueKey = ((ParameterizedSourceMethod)method).uniqueKey;
+	} else if (method instanceof ParameterizedBinaryMethod) {
+		uniqueKey = ((ParameterizedBinaryMethod)method).uniqueKey;
+	} else {
+		constructorParameters = true;
+	}
+
+	// Store type signature and arguments for declaring type
+	if (uniqueKey != null) {
+		String methodReceiverType = Util.extractMethodReceiverType(uniqueKey);
 		if (methodReceiverType != null) {
 			this.typeSignatures = Util.splitTypeLevelsSignature(methodReceiverType);
 			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
@@ -141,7 +152,6 @@ public ConstructorPattern(
 
 	// Store type signatures and arguments for method
 	constructorArguments = extractMethodArguments(method);
-	constructorParameters = !(method instanceof ParameterizedSourceMethod);
 	if (hasConstructorArguments())  ((InternalSearchPattern)this).mustResolve = true;
 }
 /*
