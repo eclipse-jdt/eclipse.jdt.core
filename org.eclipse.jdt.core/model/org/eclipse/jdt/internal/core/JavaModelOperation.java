@@ -327,6 +327,12 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	protected void execute() throws JavaModelException {
 		IJavaModelStatus status= verify();
 		if (status.isOK()) {
+			// if first time here, computes the root infos before executing the operation
+			DeltaProcessor deltaProcessor = JavaModelManager.getJavaModelManager().deltaProcessor;
+			if (deltaProcessor.roots == null) {
+				deltaProcessor.initializeRoots();
+			}
+
 			executeOperation();
 		} else {
 			throw new JavaModelException(status);

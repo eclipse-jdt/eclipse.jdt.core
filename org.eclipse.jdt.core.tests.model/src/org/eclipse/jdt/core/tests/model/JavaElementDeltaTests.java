@@ -1370,11 +1370,10 @@ public void testRemoveAddBinaryProject() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" + 
-			"	/P/lib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	/P/lib.jar[-]: {}\n" + 
 			"	[project root][*]: {ADDED TO CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]\n" + 
-			"	ResourceDelta(/P/.project)[*]\n" + 
-			"	ResourceDelta(/P/lib.jar)[-]"
+			"	ResourceDelta(/P/.project)[*]"
 		);
 	} finally {
 		this.stopDeltas();
@@ -1436,9 +1435,8 @@ public void testRemoveCPEntryAndRoot1() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" + 
-			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	ResourceDelta(/P/.classpath)[*]\n" + 
-			"	ResourceDelta(/P/src)[-]"
+			"	src[-]: {}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
 		);
 	} finally {
 		this.stopDeltas();
@@ -1469,9 +1467,8 @@ public void testRemoveCPEntryAndRoot2() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" + 
-			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	ResourceDelta(/P/.classpath)[*]\n" + 
-			"	ResourceDelta(/P/src)[-]"
+			"	src[-]: {}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
 		);
 	} finally {
 		this.stopDeltas();
@@ -1502,9 +1499,8 @@ public void testRemoveCPEntryAndRoot3() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" + 
-			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	ResourceDelta(/P/.classpath)[*]\n" + 
-			"	ResourceDelta(/P/src)[-]"
+			"	src[-]: {}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
 		);
 	} finally {
 		this.stopDeltas();

@@ -282,9 +282,8 @@ public void testDeleteJarFile1() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	/P/myLib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	ResourceDelta(/P/.classpath)[*]\n" + 
-			"	ResourceDelta(/P/myLib.jar)[-]"
+			"	/P/myLib.jar[-]: {}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
 		);
 		assertJavaProject(
 			"P\n" + 
@@ -314,11 +313,10 @@ public void testDeleteJarFile2() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
-			"	/P1/myLib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	/P1/myLib.jar[-]: {}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"	ResourceDelta(/P1/myLib.jar)[-]\n" + 
 			"P2[*]: {CHILDREN}\n" + 
-			"	/P1/myLib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	/P1/myLib.jar[-]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(
@@ -358,13 +356,11 @@ public void testDeleteSourceFolder1() throws CoreException {
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P/src");
 		this.startDeltas();
 		root.delete(IResource.NONE, true, null);
-		// TODO: (jerome) Improve deltas (it should really only show root deltas)
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	ResourceDelta(/P/.classpath)[*]\n" + 
-			"	ResourceDelta(/P/src)[-]"
+			"	src[-]: {}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
 		);
 		assertJavaProject(
 			"P\n" + 
@@ -402,6 +398,7 @@ public void testDeleteSourceFolder2() throws CoreException {
 		this.startDeltas();
 		root.delete(IResource.NONE, true, null);
 		
+		// TODO: Improve delta (should not have a ResourceDelta)
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
@@ -447,15 +444,13 @@ public void testMoveSourceFolder1() throws CoreException {
 		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/src");
 		this.startDeltas();
 		root.move(new Path("/P2/src"), IResource.NONE, true, null, null);
-		// TODO: (jerome) Improve deltas (it should really only show root deltas)
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
-			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	src[-]: {MOVED_TO(src [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"	ResourceDelta(/P1/src)[-]\n" + 
 			"P2[*]: {CHILDREN}\n" + 
-			"	src[+]: {}\n" + 
+			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(
@@ -500,11 +495,10 @@ public void testMoveSourceFolder2() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
-			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	src[-]: {MOVED_TO(src2 [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"	ResourceDelta(/P1/src)[-]\n" + 
 			"P2[*]: {CHILDREN}\n" + 
-			"	src2[+]: {}\n" + 
+			"	src2[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		
@@ -555,6 +549,7 @@ public void testMoveSourceFolder3() throws CoreException {
 		this.startDeltas();
 		root.move(new Path("/P2/src1"), IResource.NONE, true, null, null);
 		
+		// TODO: (jerome) Move delta should have MOVED_FROM and MOVED_TO
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
@@ -609,11 +604,10 @@ public void testMoveSourceFolder4() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
-			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	src[-]: {MOVED_TO(src [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"	ResourceDelta(/P1/src)[-]\n" + 
 			"P2[*]: {CHILDREN}\n" + 
-			"	src[+]: {}\n" + 
+			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(
@@ -655,11 +649,10 @@ public void testMoveSourceFolder5() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
-			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	src[-]: {MOVED_TO(src [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"	ResourceDelta(/P1/src)[-]\n" + 
 			"P2[*]: {CHILDREN}\n" + 
-			"	src[+]: {}\n" + 
+			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(
@@ -700,11 +693,10 @@ public void testMoveSourceFolder6() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
-			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	src[-]: {MOVED_TO(src [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"	ResourceDelta(/P1/src)[-]\n" + 
 			"P2[*]: {CHILDREN}\n" + 
-			"	src[+]: {}\n" + 
+			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(
@@ -749,10 +741,9 @@ public void testRenameSourceFolder1() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	src1[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	src2[+]: {}\n" + 
-			"	ResourceDelta(/P/.classpath)[*]\n" + 
-			"	ResourceDelta(/P/src1)[-]"
+			"	src1[-]: {MOVED_TO(src2 [in P])}\n" + 
+			"	src2[+]: {MOVED_FROM(src1 [in P])}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
 		);
 		assertJavaProject(
 			"P\n" + 
@@ -783,10 +774,9 @@ public void testRenameJarFile1() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	/P/myLib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	/P/myLib2.jar[+]: {}\n" + 
-			"	ResourceDelta(/P/.classpath)[*]\n" + 
-			"	ResourceDelta(/P/myLib.jar)[-]"
+			"	/P/myLib.jar[-]: {MOVED_TO(/P/myLib2.jar [in P])}\n" + 
+			"	/P/myLib2.jar[+]: {MOVED_FROM(/P/myLib.jar [in P])}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
 		);
 		assertJavaProject(
 			"P\n" + 
@@ -817,13 +807,12 @@ public void testRenameJarFile2() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
-			"	/P1/myLib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	/P1/myLib2.jar[+]: {}\n" + 
+			"	/P1/myLib.jar[-]: {MOVED_TO(/P1/myLib2.jar [in P1])}\n" + 
+			"	/P1/myLib2.jar[+]: {MOVED_FROM(/P1/myLib.jar [in P1])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
-			"	ResourceDelta(/P1/myLib.jar)[-]\n" + 
 			"P2[*]: {CHILDREN}\n" + 
-			"	/P1/myLib.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	/P1/myLib2.jar[+]: {}\n" + 
+			"	/P1/myLib.jar[-]: {MOVED_TO(/P1/myLib2.jar [in P1])}\n" + 
+			"	/P1/myLib2.jar[+]: {MOVED_FROM(/P1/myLib.jar [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(
