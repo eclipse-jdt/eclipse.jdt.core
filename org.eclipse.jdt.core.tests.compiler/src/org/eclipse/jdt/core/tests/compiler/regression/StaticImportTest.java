@@ -400,6 +400,25 @@ public class StaticImportTest extends AbstractComparisonTest {
 //				"}\n",
 //			},
 //			"3");
+//
+// another static method case
+//		this.runConformTest( // 80280
+//			new String[] {
+//				"X.java",
+//				"import static p1.C.F;\n" +
+//				"import p2.*;\n" +
+//				"public class X implements F {}\n",
+//				"p1/C.java",
+//				"package p1;\n" +
+//				"public class C {\n" +
+//				"	public static int F() { return 0; }\n" +
+//				"}\n",
+//				"p2/F.java",
+//				"package p2;\n" +
+//				"public interface F {}\n"
+//			},
+//			""
+//		);
 	}
 
 	public void test013() { // 77955

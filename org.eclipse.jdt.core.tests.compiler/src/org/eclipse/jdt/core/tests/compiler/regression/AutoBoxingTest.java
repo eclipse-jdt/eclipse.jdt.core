@@ -215,4 +215,70 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"12"
 		);
 	}
+
+	public void test008() { // local declaration assignment tests
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		int i = Y.test();\n" +
+				"		System.out.print(i);\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static Byte test() { return new Byte((byte) 1); }\n" +
+				"}\n",
+			},
+			"1"
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Object o = Y.test();\n" +
+				"		System.out.print(o);\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static int test() { return 1; }\n" +
+				"}\n",
+			},
+			"1"
+		);
+	}
+
+	public void test009() { // field declaration assignment tests
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	static int i = Y.test();\n" +
+				"	public static void main(String[] s) {\n" +
+				"		System.out.print(i);\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static Byte test() { return new Byte((byte) 1); }\n" +
+				"}\n",
+			},
+			"1"
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	static Object o = Y.test();\n" +
+				"	public static void main(String[] s) {\n" +
+				"		System.out.print(o);\n" +
+				"	}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	public static int test() { return 1; }\n" +
+				"}\n",
+			},
+			"1"
+		);
+	}
 }
