@@ -3709,7 +3709,7 @@ protected void consumeStatementSwitch() {
 	int length;
 	SwitchStatement switchStatement = new SwitchStatement();
 	expressionLengthPtr--;
-	switchStatement.testExpression = expressionStack[expressionPtr--];
+	switchStatement.expression = expressionStack[expressionPtr--];
 	if ((length = astLengthStack[astLengthPtr--]) != 0) {
 		astPtr -= length;
 		System.arraycopy(

@@ -3524,7 +3524,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.space();
 		}
 		
-		switchStatement.testExpression.traverse(this, scope);
+		switchStatement.expression.traverse(this, scope);
 		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_in_switch_condition);
 		/*
 		 * Type body

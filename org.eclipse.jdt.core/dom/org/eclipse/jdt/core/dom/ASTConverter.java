@@ -2021,7 +2021,7 @@ class ASTConverter {
 	public SwitchStatement convert(org.eclipse.jdt.internal.compiler.ast.SwitchStatement statement) {
 		SwitchStatement switchStatement = this.ast.newSwitchStatement();
 		switchStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);	
-		switchStatement.setExpression(convert(statement.testExpression));
+		switchStatement.setExpression(convert(statement.expression));
 		org.eclipse.jdt.internal.compiler.ast.Statement[] statements = statement.statements;
 		if (statements != null) {
 			int statementsLength = statements.length;
