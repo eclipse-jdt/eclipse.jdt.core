@@ -102,7 +102,7 @@ public class MethodRef extends ASTNode implements IDocElement {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getQualifier());
 			acceptChild(visitor, getName());
-			acceptChildren(visitor, parameters);
+			acceptChildren(visitor, this.parameters);
 		}
 		visitor.endVisit(this);
 	}
@@ -114,7 +114,7 @@ public class MethodRef extends ASTNode implements IDocElement {
 	 * @return the qualifier name node, or <code>null</code> if there is none
 	 */ 
 	public Name getQualifier() {
-		return optionalQualifier;
+		return this.optionalQualifier;
 	}
 	
 	/**
@@ -140,13 +140,13 @@ public class MethodRef extends ASTNode implements IDocElement {
 	 * @return the method or constructor name node
 	 */ 
 	public SimpleName getName() {
-		if (methodName == null) {
+		if (this.methodName == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
 			setName(new SimpleName(getAST()));
 			getAST().setModificationCount(count);
 		}
-		return methodName;
+		return this.methodName;
 	}
 	
 	/**
@@ -177,7 +177,7 @@ public class MethodRef extends ASTNode implements IDocElement {
 	 *    (element type: <code>MethodRefParameter</code>)
 	 */ 
 	public List parameters() {
-		return parameters;
+		return this.parameters;
 	}
 	
 	/**
@@ -208,9 +208,9 @@ public class MethodRef extends ASTNode implements IDocElement {
 	int treeSize() {
 		return
 			memSize()
-			+ (optionalQualifier == null ? 0 : getQualifier().treeSize())
-			+ (methodName == null ? 0 : getName().treeSize())
-			+ parameters.listSize();
+			+ (this.optionalQualifier == null ? 0 : getQualifier().treeSize())
+			+ (this.methodName == null ? 0 : getName().treeSize())
+			+ this.parameters.listSize();
 	}
 }
 

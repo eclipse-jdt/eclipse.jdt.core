@@ -109,9 +109,9 @@ public final class TextElement extends ASTNode implements IDocElement {
 	 */
 	int memSize() {
 		int size = BASE_NODE_SIZE + 1 * 4;
-		if (text != EMPTY_STRING) {
+		if (this.text != EMPTY_STRING) {
 			// everything but our empty string costs
-			size += stringSize(text);
+			size += stringSize(this.text);
 		}
 		return size;
 	}

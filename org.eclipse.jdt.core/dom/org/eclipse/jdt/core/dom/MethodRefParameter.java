@@ -95,13 +95,13 @@ public class MethodRefParameter extends ASTNode {
 	 * @return the parameter type
 	 */ 
 	public Type getType() {
-		if (type == null) {
+		if (this.type == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
 			setType(getAST().newPrimitiveType(PrimitiveType.INT));
 			getAST().setModificationCount(count);
 		}
-		return type;
+		return this.type;
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class MethodRefParameter extends ASTNode {
 	 * @return the parameter name node, or <code>null</code> if there is none
 	 */ 
 	public SimpleName getName() {
-		return optionalParameterName;
+		return this.optionalParameterName;
 	}
 	
 	/**
@@ -162,7 +162,7 @@ public class MethodRefParameter extends ASTNode {
 	int treeSize() {
 		return 
 			memSize()
-			+ (type == null ? 0 : getType().treeSize())
-			+ (optionalParameterName == null ? 0 : getName().treeSize());
+			+ (this.type == null ? 0 : getType().treeSize())
+			+ (this.optionalParameterName == null ? 0 : getName().treeSize());
 	}
 }
