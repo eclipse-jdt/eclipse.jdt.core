@@ -11325,4 +11325,86 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Type safety: The return type Long of the method get() of type new A<Long>(){} needs unchecked conversion to conform to the return type T of inherited method\n" + 
 			"----------\n");
 	}		
+
+	public void test429() { // 78293
+		this.runConformTest(
+			new String[] {
+				"X1.java",
+				"class X1 <T extends Y & Comparable<Y>> {}\n" +
+				"abstract class Y implements Comparable<Y> {}",
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"X2.java",
+				"class X2 <T extends Y & Comparable<Y>> {}\n" +
+				"abstract class Y extends Z {}\n" +
+				"abstract class Z implements Comparable<Y> {}",
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"X3.java",
+				"class X3 <T extends Y & Comparable<Z>> {}\n" +
+				"abstract class Y extends Z {}\n" +
+				"abstract class Z implements Comparable<Z> {}",
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"X4.java",
+				"class X4 <T extends Comparable<Z> & Comparable<Z>> {}\n" +
+				"abstract class Y extends Z {}\n" +
+				"abstract class Z implements Comparable<Z> {}",
+			},
+			"" // no complaints about duplicates
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X5.java",
+				"class X5 <T extends Y & Comparable<X5>> {}\n" +
+				"abstract class Y implements Comparable<Y> {}",
+			},
+			"----------\n" + 
+			"1. ERROR in X5.java (at line 1)\n" + 
+			"	class X5 <T extends Y & Comparable<X5>> {}\n" + 
+			"	                        ^^^^^^^^^^\n" + 
+			"Bound conflict: Comparable<X5> is inherited with conflicting arguments\n" + 
+			"----------\n"
+			// Comparable cannot be inherited with different arguments: <X5> and <Y>
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X6.java",
+				"class X6 <T extends Y & Comparable<X6>> {}\n" +
+				"abstract class Y extends Z {}\n" +
+				"abstract class Z implements Comparable<Z> {}",
+			},
+			"----------\n" + 
+			"1. ERROR in X6.java (at line 1)\r\n" + 
+			"	class X6 <T extends Y & Comparable<X6>> {}\r\n" + 
+			"	                        ^^^^^^^^^^\n" + 
+			"Bound conflict: Comparable<X6> is inherited with conflicting arguments\n" + 
+			"----------\n"
+			// Comparable cannot be inherited with different arguments: <X6> and <Y>
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X7.java",
+				"class X7 <T extends Comparable<Z> & Comparable<X7>> {}\n" +
+				"abstract class Y extends Z {}\n" +
+				"abstract class Z implements Comparable<Z> {}",
+			},
+			"----------\n" + 
+			"1. ERROR in X7.java (at line 1)\r\n" + 
+			"	class X7 <T extends Comparable<Z> & Comparable<X7>> {}\r\n" + 
+			"	                                    ^^^^^^^^^^\n" + 
+			"Bound conflict: Comparable<X7> is inherited with conflicting arguments\n" + 
+			"----------\n"
+			// Comparable cannot be inherited with different arguments: <Z> and <X7>
+		);
+	}	
 }

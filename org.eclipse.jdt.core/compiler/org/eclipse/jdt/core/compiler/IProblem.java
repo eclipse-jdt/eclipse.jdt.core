@@ -929,7 +929,9 @@ public interface IProblem {
 	int MissingArgumentsForParameterizedMemberType = TypeRelated + 562;	
 	/** @since 3.1 */
 	int StaticMemberOfParameterizedType = TypeRelated + 563;	
-	
+    /** @since 3.1 */
+	int BoundHasConflictingArguments = TypeRelated + 564;	
+
 	/**
 	 * Foreach
 	 */

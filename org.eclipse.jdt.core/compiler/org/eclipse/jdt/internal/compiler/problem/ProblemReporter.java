@@ -212,6 +212,14 @@ public void attemptToReturnVoidValue(ReturnStatement returnStatement) {
 		returnStatement.sourceStart,
 		returnStatement.sourceEnd);
 }
+public void boundHasConflictingArguments(ASTNode location, TypeBinding type) {
+	this.handle(
+		IProblem.BoundHasConflictingArguments,
+		new String[] {new String(type.readableName())},
+		new String[] {new String(type.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void boundsMustBeAnInterface(ASTNode location, TypeBinding type) {
 	this.handle(
 		IProblem.BoundsMustBeAnInterface,

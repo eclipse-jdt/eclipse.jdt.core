@@ -342,6 +342,20 @@ public abstract class Scope
 						noProblems = false;
 						continue nextVariable;
 					}
+					if (superType.isParameterizedType()) {
+						ReferenceBinding match = typeVariable.superclass.findSuperTypeErasingTo((ReferenceBinding) superType.erasure());
+						boolean isCollision = match != null && match != superType;
+						for (int index = typeVariable.superInterfaces.length; !isCollision && --index >= 0;) {
+							ReferenceBinding temp = typeVariable.superInterfaces[index];
+							isCollision = superType != temp && superType.erasure() == temp.erasure();
+						}
+						if (isCollision) {
+							problemReporter().boundHasConflictingArguments(typeRef, superType);
+							typeVariable.tagBits |= HierarchyHasProblems;
+							noProblems = false;
+							continue nextVariable;
+						}
+					}
 					int size = typeVariable.superInterfaces.length;
 					System.arraycopy(typeVariable.superInterfaces, 0, typeVariable.superInterfaces = new ReferenceBinding[size + 1], 0, size);
 					typeVariable.superInterfaces[size] = superType;
@@ -2342,35 +2356,34 @@ public abstract class Scope
 		}
 		// binding is now a ReferenceBinding
 		ReferenceBinding qualifiedType = null;
-	   
-		ReferenceBinding originalTypeBinding = (ReferenceBinding) binding;
-		// ReferenceBinding currentType = originalTypeBinding;
-		if (originalTypeBinding.isGenericType()) {
-			qualifiedType = this.environment().createRawType(originalTypeBinding, qualifiedType);
+
+		ReferenceBinding typeBinding = (ReferenceBinding) binding;
+		if (typeBinding.isGenericType()) {
+			qualifiedType = this.environment().createRawType(typeBinding, qualifiedType);
 		} else {
 			qualifiedType = (qualifiedType != null && (qualifiedType.isRawType() || qualifiedType.isParameterizedType()))
-				? this.createParameterizedType(originalTypeBinding, null, qualifiedType)
-				: originalTypeBinding;
+				? this.createParameterizedType(typeBinding, null, qualifiedType)
+				: typeBinding;
 		}
-		
+
 		if (checkVisibility) // handles the fall through case
-			if (!originalTypeBinding.canBeSeenBy(this))
+			if (!typeBinding.canBeSeenBy(this))
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
-					originalTypeBinding,
+					typeBinding,
 					NotVisible);
 
 		while (currentIndex < nameLength) {
-			originalTypeBinding = getMemberType(compoundName[currentIndex++], originalTypeBinding);
-	         
-			if (originalTypeBinding.isGenericType()) {
-				qualifiedType = this.environment().createRawType(originalTypeBinding, qualifiedType);
+			typeBinding = getMemberType(compoundName[currentIndex++], typeBinding);
+
+			if (typeBinding.isGenericType()) {
+				qualifiedType = this.environment().createRawType(typeBinding, qualifiedType);
 			} else {
 				qualifiedType = (qualifiedType != null && (qualifiedType.isRawType() || qualifiedType.isParameterizedType()))
-										? this.createParameterizedType(originalTypeBinding, null, qualifiedType)
-										: originalTypeBinding;
+					? this.createParameterizedType(typeBinding, null, qualifiedType)
+					: typeBinding;
 			}
-	         
+
 			// checks visibility
 			if (!qualifiedType.isValidBinding())
 				return new ProblemReferenceBinding(
