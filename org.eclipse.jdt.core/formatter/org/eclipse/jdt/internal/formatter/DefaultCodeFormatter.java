@@ -26,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -37,7 +36,6 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 	public static final boolean DEBUG = false;
 	
 	private CodeFormatterVisitor newCodeFormatter;
-	private Map options;
 	private FormattingPreferences preferences;
 
 	private static AstNode[] parseClassBodyDeclarations(char[] source, Map settings) {
@@ -69,8 +67,8 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 			throw new IllegalArgumentException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		Parser parser =
-			new Parser(
+		CodeFormatterParser parser =
+			new CodeFormatterParser(
 				new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
@@ -134,7 +132,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
 					new DefaultProblemFactory(Locale.getDefault()));
-		Parser parser = new Parser(problemReporter, false);
+		CodeFormatterParser parser = new CodeFormatterParser(problemReporter, false);
 		ICompilationUnit sourceUnit = 
 			new CompilationUnit(
 				source, 
@@ -156,12 +154,10 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 	
 	public DefaultCodeFormatter() {
 		this.preferences = FormattingPreferences.getDefault();
-		this.options = JavaCore.getOptions();
 	}
 	
-	public DefaultCodeFormatter(FormattingPreferences preferences, Map options) {
+	public DefaultCodeFormatter(FormattingPreferences preferences) {
 		this.preferences = preferences;
-		this.options = options;
 	}
 
 	/**
@@ -172,17 +168,18 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 			String source,
 			int indentationLevel,
 			int[] positions,
-			String lineSeparator) {
+			String lineSeparator,
+			Map options) {
 				
 		switch(kind) {
 			case K_CLASS_BODY_DECLARATIONS :
-				return formatClassBodyDeclarations(source, indentationLevel, positions, lineSeparator);
+				return formatClassBodyDeclarations(source, indentationLevel, positions, lineSeparator, options);
 			case K_COMPILATION_UNIT :
-				return formatCompilationUnit(source, indentationLevel, positions, lineSeparator);
+				return formatCompilationUnit(source, indentationLevel, positions, lineSeparator, options);
 			case K_EXPRESSION :
-				return formatExpression(source, indentationLevel, positions, lineSeparator);
+				return formatExpression(source, indentationLevel, positions, lineSeparator, options);
 			case K_STATEMENTS :
-				return formatStatements(source, indentationLevel, positions, lineSeparator);
+				return formatStatements(source, indentationLevel, positions, lineSeparator, options);
 		}
 		this.positionsMapping = positions;
 		return source;
@@ -207,16 +204,16 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		int indentationLevel,
 		int[] positions,
 		String lineSeparator) {
-			return format(K_COMPILATION_UNIT, source, indentationLevel, positions, lineSeparator);
+			return format(K_COMPILATION_UNIT, source, indentationLevel, positions, lineSeparator, JavaCore.getOptions());
 	}
 
-	private String formatClassBodyDeclarations(String source, int indentationLevel, int[] positions, String lineSeparator) {
-		AstNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), this.options);
+	private String formatClassBodyDeclarations(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
+		AstNode[] bodyDeclarations = parseClassBodyDeclarations(source.toCharArray(), options);
 		
 		this.preferences.line_delimiter = lineSeparator;
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);
 		
 		String result = this.newCodeFormatter.format(source, positions, bodyDeclarations);
 		if (positions != null) {
@@ -225,13 +222,13 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		return result;
 	}
 
-	private String formatCompilationUnit(String source, int indentationLevel, int[] positions, String lineSeparator) {
-		CompilationUnitDeclaration compilationUnitDeclaration = parseCompilationUnit(source.toCharArray(), this.options);
+	private String formatCompilationUnit(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
+		CompilationUnitDeclaration compilationUnitDeclaration = parseCompilationUnit(source.toCharArray(), options);
 		
 		this.preferences.line_delimiter = lineSeparator;
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);
 		
 		String result = this.newCodeFormatter.format(source, positions, compilationUnitDeclaration);
 		if (positions != null) {
@@ -240,13 +237,13 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		return result;
 	}
 
-	private String formatExpression(String source, int indentationLevel, int[] positions, String lineSeparator) {
-		Expression expression = parseExpression(source.toCharArray(), this.options);
+	private String formatExpression(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
+		Expression expression = parseExpression(source.toCharArray(), options);
 		
 		this.preferences.line_delimiter = lineSeparator;
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);
 		
 		String result = this.newCodeFormatter.format(source, positions, expression);
 		if (positions != null) {
@@ -255,13 +252,13 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		return result;
 	}
 
-	private String formatStatements(String source, int indentationLevel, int[] positions, String lineSeparator) {
-		ConstructorDeclaration constructorDeclaration = parseStatements(source.toCharArray(), this.options);
+	private String formatStatements(String source, int indentationLevel, int[] positions, String lineSeparator, Map options) {
+		ConstructorDeclaration constructorDeclaration = parseStatements(source.toCharArray(), options);
 		
 		this.preferences.line_delimiter = lineSeparator;
 		this.preferences.initial_indentation_level = indentationLevel;
 
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options);
+		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options);
 		
 		String result = this.newCodeFormatter.format(source, positions, constructorDeclaration);;
 		if (positions != null) {
