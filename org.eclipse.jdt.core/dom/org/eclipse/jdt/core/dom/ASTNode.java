@@ -1316,10 +1316,9 @@ public abstract class ASTNode {
 
 	/**
 	 * Accepts the given visitor on a visit of the current node.
-	 * This method much be implemented in all concrete AST node types.
 	 * 
 	 * @param visitor the visitor object
-	 * @exception IllegalArgumentException if the argument is incorrect
+	 * @exception IllegalArgumentException if the visitor is null
 	 */
 	public final void accept(ASTVisitor visitor) {
 		if (visitor == null) {
@@ -1350,9 +1349,8 @@ public abstract class ASTNode {
 	 * visitor.endVisit(this);
 	 * </code>
 	 * </pre>
-	 * Note that <code>accept</code>, <code>acceptChild</code>,
-	 * and <code>acceptChildren</code> take care of invoking
-	 * <code>visitor.preVisit</code> and <code>visitor.postVisit</code>.
+	 * Note that the caller (<code>accept</code>) take cares of invoking
+	 * <code>visitor.preVisit(this)</code> and <code>visitor.postVisit(this)</code>.
 	 * </p>
 	 * 
 	 * @param visitor the visitor object
@@ -1364,7 +1362,7 @@ public abstract class ASTNode {
 	 * <p>
 	 * This method should be used by the concrete implementations of
 	 * <code>accept0</code> to traverse optional properties. Equivalent
-	 * to <code>child.accept0(visitor)</code> if <code>child</code>
+	 * to <code>child.accept(visitor)</code> if <code>child</code>
 	 * is not <code>null</code>.
 	 * </p>
 	 * 
@@ -1376,12 +1374,7 @@ public abstract class ASTNode {
 		if (child == null) {
 			return;
 		}
-		// begin with the generic pre-visit
-		visitor.preVisit(this);
-		// dynamic dispatch to internal method for type-specific visit/endVisit
-		child.accept0(visitor);
-		// end with the generic post-visit
-		visitor.postVisit(this);
+		child.accept(visitor);
 	}
 
 	/**
@@ -1389,7 +1382,7 @@ public abstract class ASTNode {
 	 * child nodes. 
 	 * <p>
 	 * This method must be used by the concrete implementations of
-	 * <code>accept0</code> to traverse list-values properties; it
+	 * <code>accept</code> to traverse list-values properties; it
 	 * encapsulates the proper handling of on-the-fly changes to the list.
 	 * </p>
 	 * 
@@ -1404,13 +1397,7 @@ public abstract class ASTNode {
 		try {
 			while (cursor.hasNext()) {
 				ASTNode child = (ASTNode) cursor.next();
-				// dynamic dispatch to internal method
-				// begin with the generic pre-visit
-				visitor.preVisit(this);
-				// dynamic dispatch to internal method for type-specific visit/endVisit
-				child.accept0(visitor);
-				// end with the generic post-visit
-				visitor.postVisit(this);
+				child.accept(visitor);
 			}
 		} finally {
 			children.releaseCursor(cursor);
