@@ -113,7 +113,6 @@ public static IStatus validateCompilationUnitName(String name) {
 	if (name == null) {
 		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.nullName"), null); //$NON-NLS-1$
 	}
-	String extension;
 	String identifier;
 	int index;
 	index = name.lastIndexOf('.');
@@ -121,7 +120,6 @@ public static IStatus validateCompilationUnitName(String name) {
 		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"), null); //$NON-NLS-1$
 	}
 	identifier = name.substring(0, index);
-	extension = name.substring(index + 1);
 	IStatus status = validateIdentifier(identifier);
 	if (!status.isOK()) {
 		return status;
@@ -149,7 +147,6 @@ public static IStatus validateClassFileName(String name) {
 	if (name == null) {
 		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.nullName"), null); //$NON-NLS-1$
 	}
-	String extension;
 	String identifier;
 	int index;
 	index = name.lastIndexOf('.');
@@ -157,7 +154,6 @@ public static IStatus validateClassFileName(String name) {
 		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.notJavaName"), null); //$NON-NLS-1$
 	}
 	identifier = name.substring(0, index);
-	extension = name.substring(index + 1);
 	IStatus status = validateIdentifier(identifier);
 	if (!status.isOK()) {
 		return status;

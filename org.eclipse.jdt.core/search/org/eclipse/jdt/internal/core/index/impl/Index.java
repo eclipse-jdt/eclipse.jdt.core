@@ -223,7 +223,6 @@ public class Index implements IIndex {
 		//initialisation of tempIndex
 		File tempFile= new File(indexFile.getAbsolutePath() + "TempVA"); //$NON-NLS-1$
 
-		boolean exists= indexFile.exists();
 		IndexInput mainIndexInput= new BlocksIndexInput(indexFile);
 		BlocksIndexOutput tempIndexOutput= new BlocksIndexOutput(tempFile);
 

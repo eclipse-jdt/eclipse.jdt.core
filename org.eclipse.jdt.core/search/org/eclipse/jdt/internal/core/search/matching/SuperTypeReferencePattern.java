@@ -52,7 +52,6 @@ public void decodeIndexEntry(IEntryResult entryResult){
 
 	char[] word = entryResult.getWord();
 	int slash = SUPER_REF.length - 1;
-	int size = word.length;
 	decodedSuperSimpleName = CharOperation.subarray(word, slash+1, slash = CharOperation.indexOf(SEPARATOR, word, slash+1));
 	int oldSlash = slash;
 	slash = CharOperation.indexOf(SEPARATOR, word, slash+1);

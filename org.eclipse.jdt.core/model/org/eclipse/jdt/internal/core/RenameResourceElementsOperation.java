@@ -48,7 +48,6 @@ protected boolean isRename() {
 protected void verify(IJavaElement element) throws JavaModelException {
 	super.verify(element);
 
-	String newName = getNewNameFor(element);
 	int elementType = element.getElementType();
 	
 	if (!(elementType == IJavaElement.COMPILATION_UNIT || elementType == IJavaElement.PACKAGE_FRAGMENT)) {

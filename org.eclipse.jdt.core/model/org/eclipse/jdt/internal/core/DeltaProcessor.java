@@ -660,7 +660,6 @@ private JavaModelException newInvalidElementType() {
 			JavaElementInfo info = element.getElementInfo();
 			switch (element.getElementType()) {
 				case IJavaElement.JAVA_PROJECT :
-					IResource resource = delta.getResource();
 					((JavaProjectElementInfo) info).setNonJavaResources(null);
 	
 					// if a package fragment root is the project, clear it too
@@ -1081,7 +1080,6 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 					} else {
 						pkg = (IPackageFragment)element;
 					}
-					String name = pkg.getElementName();
 					IResourceDelta[] children = delta.getAffectedChildren();
 					for (int i = 0, length = children.length; i < length; i++) {
 						IResourceDelta child = children[i];

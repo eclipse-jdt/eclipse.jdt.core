@@ -29,7 +29,6 @@ protected Initializer(IType parent, int occurrenceCount) {
  */
 protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 	if (node.getNodeType() == IDOMNode.INITIALIZER) {
-		IDOMInitializer i = (IDOMInitializer) node;
 		return node.getContents().trim().equals(getSource());
 	} else {
 		return false;

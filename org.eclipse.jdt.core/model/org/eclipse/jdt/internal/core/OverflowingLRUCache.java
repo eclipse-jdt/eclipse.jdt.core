@@ -223,7 +223,6 @@ public void printStats() {
 	System.out.println("Backward length: " + backwardListLength); //$NON-NLS-1$
 
 	Enumeration keys = fEntryTable.keys();
-	ArrayList v = new ArrayList();
 	class Temp {
 		public Class fClass;
 		public int fCount;

@@ -61,7 +61,6 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 * @see IPackageFragmentRoot
 	 */
 	public void attachSource(IPath zipPath, IPath rootPath, IProgressMonitor monitor) throws JavaModelException {
-		QualifiedName qName= getSourceAttachmentPropertyName();
 		try {
 			verifyAttachSource(zipPath);
 			if (monitor != null) {
@@ -94,10 +93,6 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				manager.registerResourceDelta(attachedSourceDelta );
 				manager.fire(); // maybe you want to fire the change later. Let us know about it.
 			 */
-				String rootPathString= null;
-				if (rootPath == null) {
-					rootPath= new Path(IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH);
-				}
 
 				//check if different from the current attachment
 				IPath storedZipPath= getSourceAttachmentPath();
@@ -656,7 +651,6 @@ public IJavaElement rootedAt(IJavaProject project) {
 	 * </ul>
 	 */
 	protected void verifyAttachSource(IPath zipPath) throws JavaModelException {
-		IJavaModelStatus status= null;
 		if (!exists0()) {
 			throw newNotPresentException();
 		} else if (zipPath != null && !zipPath.isAbsolute()) {

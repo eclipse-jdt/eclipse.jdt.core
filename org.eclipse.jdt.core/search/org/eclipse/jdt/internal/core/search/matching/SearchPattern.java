@@ -75,7 +75,6 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 	String declaringQualification = null, typeName = null, parameterType = null;
 	String[] parameterTypes = null;
 	int parameterCount = -1;
-	String returnType = null;
 	boolean foundClosingParenthesis = false;
 	int mode = InsideName;
 	int token;
@@ -261,7 +260,6 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 	
 	String declaringType = null, fieldName = null;
 	String type = null;
-	boolean foundClosingParenthesis = false;
 	int mode = InsideDeclaringPart;
 	int token;
 	try {

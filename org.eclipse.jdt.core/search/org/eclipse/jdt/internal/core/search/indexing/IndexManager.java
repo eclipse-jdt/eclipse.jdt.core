@@ -325,7 +325,6 @@ public void saveIndexes(){
 
 	ArrayList indexList = new ArrayList();
 	synchronized(this){
-		IIndex[] indexArray = new IIndex[indexes.size()];
 		for (Iterator iter = indexes.values().iterator(); iter.hasNext();){
 			indexList.add(iter.next());
 		}

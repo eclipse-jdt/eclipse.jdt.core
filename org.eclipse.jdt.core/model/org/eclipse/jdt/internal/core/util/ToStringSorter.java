@@ -28,7 +28,6 @@ private void quickSort(int left, int right) {
 	int originalLeft = left;
 	int originalRight = right;
 	int midIndex =  (left + right) / 2;
-	Object mid = this.sortedObjects[midIndex];
 	String midToString = this.sortedStrings[midIndex];
 	
 	do {

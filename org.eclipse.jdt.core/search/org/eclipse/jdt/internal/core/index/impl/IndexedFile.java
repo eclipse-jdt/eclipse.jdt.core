@@ -92,7 +92,6 @@ public class IndexedFile implements IQueryResult {
 		if (index == -1)
 			return pathString;
 			
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		Path jarPath = new Path(pathString.substring(0, index));
 		if (!jarPath.isAbsolute()) {
 			return jarPath.makeAbsolute().toString() + pathString.substring(index, pathString.length());

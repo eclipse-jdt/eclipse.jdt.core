@@ -479,7 +479,6 @@ public static int getParameterCount(String methodSignature) throws IllegalArgume
 		int i = methodSignature.indexOf(C_PARAM_START) + 1;
 		if (i == 0)
 			throw new IllegalArgumentException();
-		int start = i;
 		for (;;) {
 			char c = methodSignature.charAt(i++);
 			switch (c) {

@@ -308,7 +308,6 @@ protected int matchLevelForType(char[] simpleNamePattern, char[] qualificationPa
 	if (enclosingNamePattern == null) {
 		return this.matchLevelForType(simpleNamePattern, qualificationPattern, type);
 	} else {
-		char[] pattern;
 		if (qualificationPattern == null) {
 			return matchLevelForType(simpleNamePattern, enclosingNamePattern, type);
 		} else {

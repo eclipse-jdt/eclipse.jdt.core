@@ -441,9 +441,6 @@ public Object clone() {
 }
 private DOMNode cloneSharingDocument(char[] document, int rootOffset) {
 
-	int length = 0;
-	int offset = fSourceRange[0];
-		
 	DOMNode clone = newDOMNode();
 	clone.shareContents(this);
 	clone.fDocument = document;

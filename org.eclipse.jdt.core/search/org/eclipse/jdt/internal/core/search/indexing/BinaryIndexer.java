@@ -418,8 +418,6 @@ private void indexClassFile(byte[] contents, char[] documentName) throws IOExcep
 	try {
 		ClassFileReader reader = new ClassFileReader(contents, documentName);
 
-		int[] constantPoolOffsets = reader.getConstantPoolOffsets();
-
 		// first add type references
 		char[] className = replace('/', '.', reader.getName()); // looks like java/lang/String
 		// need to extract the package name and the simple name

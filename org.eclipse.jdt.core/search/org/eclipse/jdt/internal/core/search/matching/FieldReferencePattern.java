@@ -382,7 +382,6 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
 			} else { // QualifiedNameReference
 				QualifiedNameReference qNameRef = (QualifiedNameReference)nameRef;
 				char[][] tokens = qNameRef.tokens;
-				boolean matchOnFirstToken = false;
 				for (int i = 0, max = tokens.length; i < max; i++){
 					if (this.matchesName(this.name, tokens[i])) {
 						// can only be a possible match since resolution is needed 

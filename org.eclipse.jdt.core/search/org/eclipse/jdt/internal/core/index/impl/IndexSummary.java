@@ -291,7 +291,6 @@ public int getNextBlockLocationForPrefix(char[] prefix, int blockLoc) {
 	 * Saves the summary on the disk.
 	 */
 	public void write(RandomAccessFile raf) throws IOException {
-		long fp= raf.getFilePointer();
 		raf.writeInt(numFiles);
 		raf.writeInt(numWords);
 		raf.writeInt(firstWordBlockNum);

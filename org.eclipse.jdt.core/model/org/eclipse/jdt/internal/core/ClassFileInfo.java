@@ -72,7 +72,6 @@ private void generateInnerClassInfos(IType type, IBinaryType typeInfo, HashMap n
 	if (innerTypes != null) {
 		for (int i = 0, typeCount = innerTypes.length; i < typeCount; i++) {
 			IBinaryNestedType binaryType = innerTypes[i];
-			String innerQualifiedName = new String(binaryType.getName());
 			IClassFile classFile= ((IPackageFragment)fClassFile.getParent()).getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) + ".class"); //$NON-NLS-1$
 			IType innerType = new BinaryType(classFile, new String(ClassFile.simpleName(binaryType.getName())));
 			children.add(innerType);

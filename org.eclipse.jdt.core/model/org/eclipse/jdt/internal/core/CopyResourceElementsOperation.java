@@ -298,9 +298,6 @@ protected void processElements() throws JavaModelException {
  */
 private void processPackageFragmentResource(IPackageFragment source, IPackageFragmentRoot root, String newName) throws JavaModelException {
 	try {
-		// grab the members before applying the rename (covers nested cases: p --> p.p.p
-		IResource[] members = ((IContainer) source.getUnderlyingResource()).members();
-
 		String newFragName = (newName == null) ? source.getElementName() : newName;
 		createNeededPackageFragments(root, newFragName);
 		IPackageFragment newFrag = root.getPackageFragment(newFragName);
@@ -499,13 +496,6 @@ protected void verify(IJavaElement element) throws JavaModelException {
 	verifyDestination(element, dest);
 	if (fRenamings != null) {
 		verifyRenaming(element);
-	}
-
-	IContainer folder = (IContainer) dest.getUnderlyingResource();
-	String name = element.getElementName();
-	String rename = getNewNameFor(element);
-	if (rename != null) {
-		name = rename;
 	}
 }
 }

@@ -459,7 +459,6 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 			if (searchPattern instanceof PackageDeclarationPattern) {
 				PackageDeclarationPattern pkgPattern =
 					(PackageDeclarationPattern) searchPattern;
-				String pkgName = new String(pkgPattern.pkgName);
 				IJavaProject[] projects =
 					JavaModelManager.getJavaModel(workspace).getJavaProjects();
 				for (int i = 0, length = projects.length; i < length; i++) {

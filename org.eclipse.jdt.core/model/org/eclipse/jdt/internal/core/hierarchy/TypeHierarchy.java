@@ -1000,7 +1000,7 @@ protected boolean isAffectedByType(IJavaElementDelta delta, IType type, boolean 
 			break;
 	}
 	IJavaElementDelta[] children = delta.getAffectedChildren();
-	for (int i = 0, length = children.length; i < 0; i++) {
+	for (int i = 0, length = children.length; i < length; i++) {
 		IJavaElementDelta child = children[i];
 		IJavaElement childElement = child.getElement();
 		if (childElement instanceof IType) {

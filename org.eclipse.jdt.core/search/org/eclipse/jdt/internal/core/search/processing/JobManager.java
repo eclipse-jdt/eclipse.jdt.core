@@ -263,7 +263,7 @@ public abstract class JobManager implements Runnable {
 				}
 				try {
 					executing = true;
-					boolean status = job.execute(null);
+					/*boolean status = */job.execute(null);
 					//if (status == FAILED) request(job);
 					moveToNextJob();
 				} finally {

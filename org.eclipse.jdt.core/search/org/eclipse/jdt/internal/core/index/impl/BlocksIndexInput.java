@@ -302,8 +302,6 @@ public IQueryResult[] queryFilesReferringToPrefix(char[] prefix) throws IOExcept
 	int blockLoc = summary.getFirstBlockLocationForPrefix(prefix);
 	if (blockLoc < 0) return null;
 		
-	IEntryResult[] entries = new IEntryResult[5];
-
 	// each filename must be returned already once
 	org.eclipse.jdt.internal.compiler.util.HashtableOfInt fileMatches = new org.eclipse.jdt.internal.compiler.util.HashtableOfInt(20);
 	int count = 0; 
