@@ -94,7 +94,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0532"));
+		suite.addTest(new ASTConverterTest2("test0533"));
 		return suite;
 	}
 	/**
@@ -3389,6 +3389,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, bodyDeclarations.size());
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
 		assertTrue(declaration.subtreeMatch(new ASTMatcher(), bodyDeclaration));
+		ASTNode root = bodyDeclaration.getRoot();
+		assertNotNull("No root", root);
+		assertTrue("not a compilation unit", root.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) root;
+		assertEquals("wrong problem size", 0, compilationUnit.getProblems().length);
 	}	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
@@ -3411,6 +3416,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, bodyDeclarations.size());
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
 		assertTrue(declaration.subtreeMatch(new ASTMatcher(), bodyDeclaration));
+		ASTNode root = bodyDeclaration.getRoot();
+		assertNotNull("No root", root);
+		assertTrue("not a compilation unit", root.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) root;
+		assertEquals("wrong problem size", 0, compilationUnit.getProblems().length);
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
@@ -3433,6 +3443,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, bodyDeclarations.size());
 		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
 		assertTrue(declaration.subtreeMatch(new ASTMatcher(), bodyDeclaration));
+		ASTNode root = bodyDeclaration.getRoot();
+		assertNotNull("No root", root);
+		assertTrue("not a compilation unit", root.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) root;
+		assertEquals("wrong problem size", 0, compilationUnit.getProblems().length);
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
@@ -3454,6 +3469,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, statements.size());
 		Statement statement2 = (Statement) statements.get(0);
 		assertTrue(statement.subtreeMatch(new ASTMatcher(), statement2));
+		ASTNode root = statement2.getRoot();
+		assertNotNull("No root", root);
+		assertTrue("not a compilation unit", root.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) root;
+		assertEquals("wrong problem size", 0, compilationUnit.getProblems().length);
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
@@ -3473,6 +3493,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", result2);
 		assertTrue("not a method invocation", result2.getNodeType() == ASTNode.METHOD_INVOCATION);
 		assertTrue(expression.subtreeMatch(new ASTMatcher(), result2));
+		ASTNode root = result2.getRoot();
+		assertNotNull("No root", root);
+		assertTrue("not a compilation unit", root.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) root;
+		assertEquals("wrong problem size", 0, compilationUnit.getProblems().length);
 	}
 	/*
 	 * Ensure an OperationCanceledException is correcly thrown when progress monitor is canceled
@@ -4004,5 +4029,62 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		block = methodDeclaration.getBody();
 		statements = block.statements();
 		assertEquals("Wrong size", 0, statements.size());
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
+	 */
+	public void test0533() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0533", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, false);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		assertNotNull("No node", result2);
+		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result2;
+		assertEquals("wrong problem size", 1, compilationUnit.getProblems().length);
+	}	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
+	 */
+	public void test0534() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0534", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, false);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+		FieldDeclaration declaration = (FieldDeclaration) node;
+		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		assertNotNull("No node", result2);
+		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result2;
+		assertEquals("wrong problem size", 1, compilationUnit.getProblems().length);
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48489
+	 */
+	public void test0535() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0535", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, false);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not an initializer", node.getNodeType() == ASTNode.INITIALIZER);
+		Initializer declaration = (Initializer) node;
+		ASTNode result2 = AST.parse(AST.K_CLASS_BODY_DECLARATIONS, source, declaration.getStartPosition(), declaration.getLength(), JavaCore.getOptions());
+		assertNotNull("No node", result2);
+		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result2;
+		assertEquals("wrong problem size", 1, compilationUnit.getProblems().length);
 	}
 }

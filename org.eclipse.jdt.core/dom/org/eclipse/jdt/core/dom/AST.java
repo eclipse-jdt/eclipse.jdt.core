@@ -21,6 +21,8 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
@@ -212,110 +214,6 @@ public final class AST {
 	 * Parses the given source between the bounds specified by the given offset (inclusive)
 	 * and the given length and creates and returns a corresponding abstract syntax tree.
 	 * <p>
-	 * The type of result is a function of the given kind:
-	 * <ul>
-	 * <li>{@link #K_CLASS_BODY_DECLARATIONS K_CLASS_BODY_DECLARATIONS}: The result node
-	 * is a {@link TypeDeclaration TypeDeclaration} whose
-	 * {@link TypeDeclaration#bodyDeclarations() bodyDeclarations}
-	 * are the new trees. Other aspects of the type declaration are unspecified.</li>
-	 * <li>{@link #K_STATEMENTS K_STATEMENTS}: The result node is a
-	 * {@link Block Block} whose {@link Block#statements() statements}
-	 * are the new trees. Other aspects of the block are unspecified.</li>
-	 * <li>{@link #K_EXPRESSION K_EXPRESSION}: The result node is a subclass of
-	 * {@link Expression Expression}. Other aspects of the expression are unspecified.</li>
-	 * </ul>
-	 * </p>
-	 * 
-	 * <p>Each node in the subtree carries source range(s) information relating back
-	 * to positions in the given source (the given source itself
-	 * is not remembered with the AST). 
-	 * The source range usually begins at the first character of the first token 
-	 * corresponding to the node; leading whitespace and comments are <b>not</b>
-	 * included. The source range usually extends through the last character of
-	 * the last token corresponding to the node; trailing whitespace and
-	 * comments are <b>not</b> included. There are a handful of exceptions
-	 * (including the various body declarations); the
-	 * specification for these node type spells out the details.
-	 * Source ranges nest properly: the source range for a child is always
-	 * within the source range of its parent, and the source ranges of sibling
-	 * nodes never overlap.
-	 * </p>
-	 * <p>
-	 * This method does not compute binding information; all <code>resolveBinding</code>
-	 * methods applied to nodes of the resulting AST return <code>null</code>.
-	 * </p>
-	 * <p><code>null</code> is returned:
-	 * <ol>
-	 * <li>If a syntax error is detected while parsing,</li>
-	 * <li>If the given source doesn't correspond to the given kind.</li>
-	 * </ol>
-	 * </p>
-	 * 
-	 * @param kind the kind of construct to parse: one of 
-	 * {@link #K_CLASS_BODY_DECLARATIONS K_CLASS_BODY_DECLARATIONS},
-	 * {@link #K_EXPRESSION K_EXPRESSION},
-	 * {@link #K_STATEMENTS K_STATEMENTS}
-	 * @param source the source string to be parsed
-	 * @param offset the starting offset
-	 * @param length the length
-	 * @param options the options; if null, <code>JavaCore.getOptions()</code> is used
-	 * @param monitor the progress monitor used to check if the AST creation needs to be canceled
-	 * @return ASTNode
-	 * @see ASTNode#getStartPosition()
-	 * @see ASTNode#getLength()
-	 * @see JavaCore#getOptions()
-	 * @since 3.0
-	 * @deprecated Replaced by parse(int kind, char[] source, int offset, int length, Map options), which
-	 * (a) returns a different result in the case of severe errors,
-	 * and (b) does not take a progress monitor.
-	 * TODO (olivier) remove this method before 3.0 ships
-	 */
-	public static ASTNode parse(int kind, char[] source, int offset, int length, Map options, IProgressMonitor monitor) {
-		if (options == null) {
-			options = JavaCore.getOptions();
-		}
-		ASTConverter converter = new ASTConverter(options, false, monitor);
-		converter.compilationUnitSource = source;
-		converter.scanner.setSource(source);
-		
-		AST ast = new AST();
-		ast.setBindingResolver(new BindingResolver());
-		converter.setAST(ast);
-		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
-		switch(kind) {
-			case K_STATEMENTS :
-				ConstructorDeclaration constructorDeclaration = codeSnippetParsingUtil.parseStatements(source, offset, length, options);
-				if (constructorDeclaration != null) {
-					Block block = ast.newBlock();
-					Statement[] statements = constructorDeclaration.statements;
-					if (statements != null) {
-						int statementsLength = statements.length;
-						for (int i = 0; i < statementsLength; i++) {
-							block.statements().add(converter.convert(statements[i]));
-						}
-					}
-					return block;
-				}
-				break;
-			case K_EXPRESSION :
-				org.eclipse.jdt.internal.compiler.ast.Expression expression = codeSnippetParsingUtil.parseExpression(source, offset, length, options);
-				if (expression != null) {
-					return converter.convert(expression);
-				}
-				break;
-			case K_CLASS_BODY_DECLARATIONS :
-				final org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes = codeSnippetParsingUtil.parseClassBodyDeclarations(source, offset, length, options);
-				if (nodes != null) {
-					return converter.convert(nodes);
-				}
-		}
-		return null;
-	}
-
-	/**
-	 * Parses the given source between the bounds specified by the given offset (inclusive)
-	 * and the given length and creates and returns a corresponding abstract syntax tree.
-	 * <p>
 	 * When the parse is successful the result returned includes the ASTs for the
 	 * requested source:
 	 * <ul>
@@ -418,10 +316,9 @@ public final class AST {
 		AST ast = new AST();
 		ast.setBindingResolver(new BindingResolver());
 		converter.setAST(ast);
-		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
 		switch(kind) {
 			case K_STATEMENTS :
-				ConstructorDeclaration constructorDeclaration = codeSnippetParsingUtil.parseStatements(source, offset, length, options);
+				ConstructorDeclaration constructorDeclaration = CodeSnippetParsingUtil.parseStatements(source, offset, length, options, true);
 				if (constructorDeclaration != null) {
 					Block block = ast.newBlock();
 					Statement[] statements = constructorDeclaration.statements;
@@ -431,27 +328,28 @@ public final class AST {
 							block.statements().add(converter.convert(statements[i]));
 						}
 					}
-					// TODO Root the block to a compilation unit
-					// record the problems, comments and line numbers
+					rootNodeToCompilationUnit(ast, converter, block);
 					return block;
+				} else {
+					return handledSevereErrorsWhileParsing(ast);
 				}
-				break;
 			case K_EXPRESSION :
-				org.eclipse.jdt.internal.compiler.ast.Expression expression = codeSnippetParsingUtil.parseExpression(source, offset, length, options);
+				org.eclipse.jdt.internal.compiler.ast.Expression expression = CodeSnippetParsingUtil.parseExpression(source, offset, length, options, true);
 				if (expression != null) {
 					Expression expression2 = converter.convert(expression);
-					// TODO Root the expression to a compilation unit
-					// record the problems, comments and line numbers
+					rootNodeToCompilationUnit(ast, converter, expression2);
 					return expression2;
+				} else {
+					return handledSevereErrorsWhileParsing(ast);
 				}
-				break;
 			case K_CLASS_BODY_DECLARATIONS :
-				final org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes = codeSnippetParsingUtil.parseClassBodyDeclarations(source, offset, length, options);
+				final org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes = CodeSnippetParsingUtil.parseClassBodyDeclarations(source, offset, length, options, true);
 				if (nodes != null) {
 					TypeDeclaration typeDeclaration = converter.convert(nodes);
-					// TODO Root the expression to a compilation unit
-					// record the problems, comments and line numbers
+					rootNodeToCompilationUnit(ast, converter, typeDeclaration);
 					return typeDeclaration;
+				} else {
+					return handledSevereErrorsWhileParsing(ast);
 				}
 		}
 		throw new IllegalArgumentException();
@@ -1499,7 +1397,104 @@ public final class AST {
 			return compilationUnit;
 		}
 	}
-		
+	
+	private static CompilationUnit handledSevereErrorsWhileParsing(AST ast) {
+		CompilationUnit compilationUnit = ast.newCompilationUnit();
+		CompilationResult compilationResult = CodeSnippetParsingUtil.RecordedCompilationResult;
+		final int problemsCount = compilationResult.problemCount;
+		if (problemsCount != 0) {
+			// record problems
+			IProblem[] resizedProblems = null;
+			final IProblem[] problems = compilationResult.problems;
+			if (problems.length == problemsCount) {
+				resizedProblems = problems;
+			} else {
+				System.arraycopy(problems, 0, (resizedProblems = new IProblem[problemsCount]), 0, problemsCount);
+			}
+			compilationUnit.setProblems(resizedProblems);
+		}
+		CodeSnippetParsingUtil.reset();
+		return compilationUnit;
+	}
+	
+	private static void rootNodeToCompilationUnit(AST ast, ASTConverter converter, ASTNode node) {
+		// TODO record the comments information
+		CompilationUnit compilationUnit = ast.newCompilationUnit();
+		CompilationResult compilationResult = CodeSnippetParsingUtil.RecordedCompilationResult;
+		final int problemsCount = compilationResult.problemCount;
+		switch(node.getNodeType()) {
+			case ASTNode.BLOCK :
+				{
+					Block block = (Block) node;
+					if (problemsCount != 0) {
+						// propagate and record problems
+						IProblem[] resizedProblems = null;
+						final IProblem[] problems = compilationResult.problems;
+						if (problems.length == problemsCount) {
+							resizedProblems = problems;
+						} else {
+							System.arraycopy(problems, 0, (resizedProblems = new IProblem[problemsCount]), 0, problemsCount);
+						}
+						for (int i = 0, max = block.statements().size(); i < max; i++) {
+							converter.propagateErrors((ASTNode) block.statements().get(i), resizedProblems);
+						}
+						compilationUnit.setProblems(resizedProblems);
+					}
+					TypeDeclaration typeDeclaration = ast.newTypeDeclaration();
+					Initializer initializer = ast.newInitializer();
+					initializer.setBody(block);
+					typeDeclaration.bodyDeclarations().add(initializer);
+					compilationUnit.types().add(typeDeclaration);
+				}
+				break;
+			case ASTNode.TYPE_DECLARATION :
+				{
+					TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+					if (problemsCount != 0) {
+						// propagate and record problems
+						IProblem[] resizedProblems = null;
+						final IProblem[] problems = compilationResult.problems;
+						if (problems.length == problemsCount) {
+							resizedProblems = problems;
+						} else {
+							System.arraycopy(problems, 0, (resizedProblems = new IProblem[problemsCount]), 0, problemsCount);
+						}
+						for (int i = 0, max = typeDeclaration.bodyDeclarations().size(); i < max; i++) {
+							converter.propagateErrors((ASTNode) typeDeclaration.bodyDeclarations().get(i), resizedProblems);
+						}
+						compilationUnit.setProblems(resizedProblems);
+					}
+					compilationUnit.types().add(typeDeclaration);
+				}
+				break;
+			default :
+				if (node instanceof Expression) {
+					Expression expression = (Expression) node;
+					if (problemsCount != 0) {
+						// propagate and record problems
+						IProblem[] resizedProblems = null;
+						final IProblem[] problems = compilationResult.problems;
+						if (problems.length == problemsCount) {
+							resizedProblems = problems;
+						} else {
+							System.arraycopy(problems, 0, (resizedProblems = new IProblem[problemsCount]), 0, problemsCount);
+						}
+						converter.propagateErrors(expression, resizedProblems);
+						compilationUnit.setProblems(resizedProblems);
+					}
+					ExpressionStatement expressionStatement = ast.newExpressionStatement(expression);
+					Block block = ast.newBlock();
+					block.statements().add(expressionStatement);
+					Initializer initializer = ast.newInitializer();
+					initializer.setBody(block);
+					TypeDeclaration typeDeclaration = ast.newTypeDeclaration();
+					typeDeclaration.bodyDeclarations().add(initializer);
+					compilationUnit.types().add(typeDeclaration);
+				}
+		}
+		compilationUnit.setLineEndTable(compilationResult.lineSeparatorPositions);
+		CodeSnippetParsingUtil.reset();
+	}
 	/**
 	 * The binding resolver for this AST. Initially a binding resolver that
 	 * does not resolve names at all.

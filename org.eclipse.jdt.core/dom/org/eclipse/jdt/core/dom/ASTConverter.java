@@ -66,28 +66,26 @@ class ASTConverter {
 		int nodesLength = nodes.length;
 		for (int i = 0; i < nodesLength; i++) {
 			org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodes[i];
-			if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
-				if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
-					org.eclipse.jdt.internal.compiler.ast.Initializer oldInitializer = (org.eclipse.jdt.internal.compiler.ast.Initializer) node;
-					Initializer initializer = this.ast.newInitializer();
-					initializer.setBody(convert(oldInitializer.block));
-					initializer.setModifiers(oldInitializer.modifiers);
-					initializer.setSourceRange(oldInitializer.declarationSourceStart, oldInitializer.sourceEnd - oldInitializer.declarationSourceStart + 1);
-					setJavaDocComment(initializer);
-					typeDecl.bodyDeclarations().add(initializer);
+			if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
+				org.eclipse.jdt.internal.compiler.ast.Initializer oldInitializer = (org.eclipse.jdt.internal.compiler.ast.Initializer) node;
+				Initializer initializer = this.ast.newInitializer();
+				initializer.setBody(convert(oldInitializer.block));
+				initializer.setModifiers(oldInitializer.modifiers);
+				initializer.setSourceRange(oldInitializer.declarationSourceStart, oldInitializer.sourceEnd - oldInitializer.declarationSourceStart + 1);
+				setJavaDocComment(initializer);
+				typeDecl.bodyDeclarations().add(initializer);
+			} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
+				org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
+				if (i > 0
+					&& (nodes[i - 1] instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration)
+					&& ((org.eclipse.jdt.internal.compiler.ast.FieldDeclaration)nodes[i - 1]).declarationSourceStart == fieldDeclaration.declarationSourceStart) {
+					// we have a multiple field declaration
+					// We retrieve the existing fieldDeclaration to add the new VariableDeclarationFragment
+					FieldDeclaration currentFieldDeclaration = (FieldDeclaration) typeDecl.bodyDeclarations().get(typeDecl.bodyDeclarations().size() - 1);
+					currentFieldDeclaration.fragments().add(convertToVariableDeclarationFragment(fieldDeclaration));
 				} else {
-					org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
-					if (i > 0
-						&& (nodes[i - 1] instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration)
-						&& ((org.eclipse.jdt.internal.compiler.ast.FieldDeclaration)nodes[i - 1]).declarationSourceStart == fieldDeclaration.declarationSourceStart) {
-						// we have a multiple field declaration
-						// We retrieve the existing fieldDeclaration to add the new VariableDeclarationFragment
-						FieldDeclaration currentFieldDeclaration = (FieldDeclaration) typeDecl.bodyDeclarations().get(typeDecl.bodyDeclarations().size() - 1);
-						currentFieldDeclaration.fragments().add(convertToVariableDeclarationFragment(fieldDeclaration));
-					} else {
-						// we can create a new FieldDeclaration
-						typeDecl.bodyDeclarations().add(convertToFieldDeclaration(fieldDeclaration));
-					}
+					// we can create a new FieldDeclaration
+					typeDecl.bodyDeclarations().add(convertToFieldDeclaration(fieldDeclaration));
 				}
 			} else if(node instanceof org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration) {
 				AbstractMethodDeclaration nextMethodDeclaration = (AbstractMethodDeclaration) node;
@@ -130,8 +128,17 @@ class ASTConverter {
 		}
 		compilationUnit.setSourceRange(unit.sourceStart, unit.sourceEnd - unit.sourceStart  + 1);
 		
-		if (unit.compilationResult.problemCount != 0) {
-			propagateErrors(compilationUnit, unit.compilationResult.problems, unit.compilationResult.problemCount);
+		int problemLength = unit.compilationResult.problemCount;
+		if (problemLength != 0) {
+			IProblem[] resizedProblems = null;
+			final IProblem[] problems = unit.compilationResult.problems;
+			if (problems.length == problemLength) {
+				resizedProblems = problems;
+			} else {
+				System.arraycopy(problems, 0, (resizedProblems = new IProblem[problemLength]), 0, problemLength);
+			}
+			propagateErrors(compilationUnit, resizedProblems);
+			compilationUnit.setProblems(resizedProblems);
 		}
 		if (resolveBindings) {
 			lookupForScopes();
@@ -3006,18 +3013,9 @@ class ASTConverter {
 		javadocComment.setComment(new String(contents));
 	}
 
-	private void propagateErrors(CompilationUnit unit, IProblem[] problems, int problemLength) {
-		// resize the problem array to the proper size
-		IProblem[] resizeProblems = null;
-		if (problems.length == problemLength) {
-			resizeProblems = problems;
-		} else {
-			System.arraycopy(problems, 0, (resizeProblems = new IProblem[problemLength]), 0, problemLength);
-		}
-		ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(resizeProblems);
-		unit.accept(syntaxErrorPropagator);
-		// store the messages error on the compulation unit
-		unit.setProblems(resizeProblems);
+	void propagateErrors(ASTNode astNode, IProblem[] problems) {
+		ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(problems);
+		astNode.accept(syntaxErrorPropagator);
 	}
 	
 	private void recordNodes(ASTNode node, org.eclipse.jdt.internal.compiler.ast.ASTNode oldASTNode) {
