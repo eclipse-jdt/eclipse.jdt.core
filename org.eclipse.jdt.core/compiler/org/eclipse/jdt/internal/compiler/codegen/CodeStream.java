@@ -1839,25 +1839,22 @@ public void generateSyntheticArgumentValues(BlockScope currentScope, ReferenceBi
 
 	// generate the enclosing instance first
 	if ((syntheticArgumentTypes = targetType.syntheticEnclosingInstanceTypes()) != null) {
-		ReferenceBinding targetEnclosingType = targetType.enclosingType();
+
+		ReferenceBinding targetEnclosingType = targetType.isAnonymousType() ? 
+				targetType.superclass().enclosingType() // supplying enclosing instance for the anonymous type's superclass
+				: targetType.enclosingType();
+				
 		for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
 			ReferenceBinding syntheticArgType = syntheticArgumentTypes[i];
 			if (enclosingInstance != null && i == 0) {
-				boolean enclosingInstanceRequired = targetType.isAnonymousType() ? syntheticArgType == targetType.superclass().enclosingType() // supplying enclosing instance for the anonymous type's superclass
-				: syntheticArgType == targetEnclosingType;
-				if (!enclosingInstanceRequired) {
+				if (syntheticArgType != targetEnclosingType) {
 					currentScope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, targetType);
 				}
-				enclosingInstance.generateCode(currentScope, this, enclosingInstanceRequired);
+				enclosingInstance.generateCode(currentScope, this, syntheticArgType == targetEnclosingType);
 			} else {
 				Object[] emulationPath = currentScope.getCompatibleEmulationPath(syntheticArgType);
 				if (emulationPath == null) {
-					// could not emulate a path to a given enclosing instance (must specify one - if direct enclosing instance)
-					if (syntheticArgType == targetEnclosingType) { //  missing direct enclosing instance
-						currentScope.problemReporter().missingEnclosingInstanceSpecification(targetEnclosingType, invocationSite);
-					} else {
-						currentScope.problemReporter().needImplementation();
-					}
+					currentScope.problemReporter().missingEnclosingInstanceSpecification(syntheticArgType, invocationSite);
 				} else {
 					this.generateOuterAccess(emulationPath, invocationSite, currentScope);
 				}
