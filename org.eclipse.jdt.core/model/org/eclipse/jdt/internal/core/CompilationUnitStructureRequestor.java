@@ -422,8 +422,6 @@ protected void enterType(
 	char[] superclass,
 	char[][] superinterfaces) {
 
-	char[] qualifiedName= null;
-	
 	JavaElementInfo parentInfo = (JavaElementInfo) infoStack.peek();
 	JavaElement parentHandle= (JavaElement)handleStack.peek();
 	IType handle = null;
@@ -432,23 +430,14 @@ protected void enterType(
 	switch(parentHandle.getElementType()) {
 		case IJavaElement.COMPILATION_UNIT:
 			handle = ((ICompilationUnit) parentHandle).getType(nameString);
-			if (packageName == null) {
-				qualifiedName= nameString.toCharArray();
-			} else {
-				qualifiedName= (new String(packageName) + "." + nameString).toCharArray(); //$NON-NLS-1$
-			}
 			break;
 		case IJavaElement.TYPE:
 			handle = ((IType) parentHandle).getType(nameString);
-			qualifiedName= (new String(((SourceTypeElementInfo)parentInfo).getQualifiedName()) + "." + nameString).toCharArray(); //$NON-NLS-1$
 			break;
 		case IJavaElement.FIELD:
 		case IJavaElement.INITIALIZER:
 		case IJavaElement.METHOD:
 			handle = ((IMember) parentHandle).getType(nameString, 1); //NB: occurenceCount is computed in resolveDuplicates
-			IType declaringType = (IType)parentHandle.getParent();
-			// TODO: (jerome) compute qualified name
-			qualifiedName= (declaringType.getFullyQualifiedName() + ".1." + nameString).toCharArray(); //$NON-NLS-1$
 			break;
 		default:
 			Assert.isTrue(false); // Should not happen
@@ -466,7 +455,6 @@ protected void enterType(
 	info.setSuperInterfaceNames(superinterfaces);
 	info.setSourceFileName(sourceFileName);
 	info.setPackageName(packageName);
-	info.setQualifiedName(qualifiedName);
 	parentInfo.addChild(handle);
 	newElements.put(handle, info);
 

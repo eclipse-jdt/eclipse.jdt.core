@@ -12,6 +12,8 @@ package org.eclipse.jdt.internal.codeassist;
 
 import java.util.*;
 
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.codeassist.impl.*;
 import org.eclipse.jdt.internal.codeassist.select.*;
@@ -22,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 
 /**
  * The selection engine is intended to infer the nature of a selected name in some
@@ -400,6 +403,41 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		return parser;
 	}
 
+	/*
+	 * Finds the TypeDeclaration in the given ast corresponding to the given type handle.
+	 * Returns null if not found.
+	 */
+	private TypeDeclaration findDeclarationOfType(IType typeHandle, CompilationUnitDeclaration parsedUnit) {
+		IJavaElement parent = typeHandle.getParent();
+		char[] typeName = typeHandle.getElementName().toCharArray();
+		switch (parent.getElementType()) {
+			case IJavaElement.COMPILATION_UNIT:
+				TypeDeclaration[] types = parsedUnit.types;
+				if (types != null) {
+					for (int i = 0, length = types.length; i < length; i++) {
+						TypeDeclaration type = types[i];
+						if (CharOperation.equals(typeName, type.name)) {
+							return type;
+						}
+					}
+				}
+				break;
+			case IJavaElement.TYPE:
+				TypeDeclaration parentDecl = findDeclarationOfType((IType)parent, parsedUnit);
+				types = parentDecl.memberTypes;
+				if (types != null) {
+					for (int i = 0, length = types.length; i < length; i++) {
+						TypeDeclaration type = types[i];
+						if (CharOperation.equals(typeName, type.name)) {
+							return type;
+						}
+					}
+				}
+				break;
+		}
+		return null;
+	}
+
 	/**
 	 * Ask the engine to compute the selection at the specified position
 	 * of the given compilation unit.
@@ -654,19 +692,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					System.out.println(parsedUnit.toString());
 				}
 				// find the type declaration that corresponds to the original source type
-				char[] packageName = sourceType.getPackageName();
-				char[] sourceTypeName = sourceType.getQualifiedName();
-				// the fully qualified name without the package name
-				if (packageName != null) {
-					// remove the package name if necessary
-					sourceTypeName =
-						CharOperation.subarray(
-							sourceType.getQualifiedName(),
-							packageName.length + 1,
-							sourceTypeName.length);
-				}
-				TypeDeclaration typeDecl =
-					parsedUnit.declarationOfType(CharOperation.splitOn('.', sourceTypeName));
+				if (!(sourceType instanceof SourceTypeElementInfo)) return;
+				IType typeHandle = ((SourceTypeElementInfo)sourceType).getHandle();
+				TypeDeclaration typeDecl = findDeclarationOfType(typeHandle, parsedUnit);
+
 				if (typeDecl != null) {
 
 					// add fake field with the type we're looking for

@@ -55,11 +55,6 @@ public class SourceTypeElementInfo extends MemberElementInfo implements ISourceT
 	protected char[] packageName;
 
 	/**
-	 * The qualified name of this type.
-	 */
-	protected char[] qualifiedName;
-
-	/**
 	 * The infos of the imports in this type's compilation unit
 	 */
 	private ISourceImport[] imports;
@@ -202,12 +197,6 @@ public char[] getPackageName() {
 /**
  * @see ISourceType
  */
-public char[] getQualifiedName() {
-	return this.qualifiedName;
-}
-/**
- * @see ISourceType
- */
 public char[] getSuperclassName() {
 	return superclassName;
 }
@@ -240,12 +229,6 @@ protected void setHandle(IType handle) {
  */
 protected void setPackageName(char[] name) {
 	this.packageName= name;
-}
-/**
- * Sets this type's qualified name.
- */
-protected void setQualifiedName(char[] name) {
-	this.qualifiedName= name;
 }
 /**
  * Sets the name of the source file this type is declared in.
