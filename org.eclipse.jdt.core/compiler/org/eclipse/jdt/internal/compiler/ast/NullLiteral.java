@@ -38,8 +38,10 @@ public class NullLiteral extends MagicLiteral {
 	 */ 
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 		int pc = codeStream.position;
-		if (valueRequired)
+		if (valueRequired) {
 			codeStream.aconst_null();
+			codeStream.generateImplicitConversion(this.implicitConversion);
+		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	public TypeBinding literalType(BlockScope scope) {

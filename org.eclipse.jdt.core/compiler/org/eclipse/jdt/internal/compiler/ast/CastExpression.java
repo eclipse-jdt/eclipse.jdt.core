@@ -283,7 +283,7 @@ public class CastExpression extends Expression {
 		BlockScope currentScope,
 		CodeStream codeStream,
 		boolean valueRequired) {
-
+	
 		int pc = codeStream.position;
 		boolean needRuntimeCheckcast = (this.bits & NeedRuntimeCheckCastMASK) != 0;
 		if (constant != NotAConstant) {
@@ -291,8 +291,11 @@ public class CastExpression extends Expression {
 				codeStream.generateConstant(constant, implicitConversion);
 				if (needRuntimeCheckcast) {
 					codeStream.checkcast(this.resolvedType);
-					if (!valueRequired)
+					if (valueRequired) {
+						codeStream.generateImplicitConversion(this.implicitConversion);
+					} else {
 						codeStream.pop();
+					}
 				}
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);

@@ -470,12 +470,9 @@ public class EqualExpression extends BinaryExpression {
 			} else {
 				constant = NotAConstant;
 			}
-			if (rightType.id == T_JavaLangString) {
-				right.implicitConversion = String2String;
-			}
-			if (leftType.id == T_JavaLangString) {
-				left.implicitConversion = String2String;
-			}
+			TypeBinding objectType = scope.getJavaLangObject();
+			left.computeConversion(scope, objectType, leftType);
+			right.computeConversion(scope, objectType, rightType);
 			// check need for operand cast
 			boolean unnecessaryLeftCast = (left.bits & UnnecessaryCastMask) != 0;
 			boolean unnecessaryRightCast = (right.bits & UnnecessaryCastMask) != 0;

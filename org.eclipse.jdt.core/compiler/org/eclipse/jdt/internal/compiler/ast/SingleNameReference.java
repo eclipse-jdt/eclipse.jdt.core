@@ -430,25 +430,29 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		}
 		// perform the actual compound operation
 		int operationTypeID;
-		if ((operationTypeID = (implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) == T_JavaLangString || operationTypeID == T_JavaLangObject) {
-			// we enter here if the single name reference is a field of type java.lang.String or if the type of the 
-			// operation is java.lang.Object
-			// For example: o = o + ""; // where the compiled type of o is java.lang.Object.
-			codeStream.generateStringConcatenationAppend(currentScope, null, expression);
-			// no need for generic cast on previous #getfield since using Object string buffer methods.			
-		} else {
-			// promote the array reference to the suitable operation type
-			codeStream.generateImplicitConversion(implicitConversion);
-			// generate the increment value (will by itself  be promoted to the operation value)
-			if (expression == IntLiteral.One){ // prefix operation
-				codeStream.generateConstant(expression.constant, implicitConversion);			
-			} else {
-				expression.generateCode(currentScope, codeStream, true);
-			}		
-			// perform the operation
-			codeStream.sendOperator(operator, operationTypeID);
-			// cast the value back to the array reference type
-			codeStream.generateImplicitConversion(assignmentImplicitConversion);
+		switch(operationTypeID = (implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) {
+			case T_JavaLangString :
+			case T_JavaLangObject :
+			case T_undefined :
+				// we enter here if the single name reference is a field of type java.lang.String or if the type of the 
+				// operation is java.lang.Object
+				// For example: o = o + ""; // where the compiled type of o is java.lang.Object.
+				codeStream.generateStringConcatenationAppend(currentScope, null, expression);
+				// no need for generic cast on previous #getfield since using Object string buffer methods.			
+				break;
+			default :
+				// promote the array reference to the suitable operation type
+				codeStream.generateImplicitConversion(implicitConversion);
+				// generate the increment value (will by itself  be promoted to the operation value)
+				if (expression == IntLiteral.One){ // prefix operation
+					codeStream.generateConstant(expression.constant, implicitConversion);			
+				} else {
+					expression.generateCode(currentScope, codeStream, true);
+				}		
+				// perform the operation
+				codeStream.sendOperator(operator, operationTypeID);
+				// cast the value back to the array reference type
+				codeStream.generateImplicitConversion(assignmentImplicitConversion);
 		}
 		// store the result back into the variable
 		switch (bits & RestrictiveFlagMASK) {

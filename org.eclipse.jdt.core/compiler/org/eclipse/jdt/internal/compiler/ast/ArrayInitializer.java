@@ -101,7 +101,9 @@ public class ArrayInitializer extends Expression {
 				}
 			}
 		}
-		if (!valueRequired) {
+		if (valueRequired) {
+			codeStream.generateImplicitConversion(this.implicitConversion);
+		} else {
 			codeStream.pop();
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
