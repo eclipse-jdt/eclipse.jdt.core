@@ -116,7 +116,10 @@ public void acceptResult(CompilationResult result) {
 			notifier.compiled(compilationUnit);
 		} catch (CoreException e) {
 			Util.log(e, "JavaBuilder handling CoreException"); //$NON-NLS-1$
-			createProblemFor(compilationUnit.resource, Util.bind("build.inconsistentClassFile"), JavaCore.ERROR); //$NON-NLS-1$
+			if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS)
+				createProblemFor(compilationUnit.resource, Util.bind("build.classFileCollision", e.getMessage()), JavaCore.ERROR); //$NON-NLS-1$
+			else
+				createProblemFor(compilationUnit.resource, Util.bind("build.inconsistentClassFile"), JavaCore.ERROR); //$NON-NLS-1$
 		}
 	}
 }
