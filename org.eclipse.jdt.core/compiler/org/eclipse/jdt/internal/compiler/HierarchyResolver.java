@@ -25,6 +25,8 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
+import java.util.Locale;
+
 public class HierarchyResolver implements ITypeRequestor {
 	IHierarchyRequestor requestor;
 	LookupEnvironment lookupEnvironment;
@@ -260,7 +262,8 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 			ICompilationUnit sourceUnit = sourceUnits[i];
 			sourceUnits[i] = null; // no longer needed pass this point
 			CompilationResult unitResult = new CompilationResult(sourceUnit, suppliedLength+i, suppliedLength+sourceLength); 
-			Parser parser = new Parser(lookupEnvironment.problemReporter);
+			CompilerOptions options = new CompilerOptions(Compiler.getDefaultOptions(Locale.getDefault()));
+			Parser parser = new Parser(lookupEnvironment.problemReporter, false, options.getAssertMode());
 			CompilationUnitDeclaration parsedUnit = parser.dietParse(sourceUnit, unitResult);
 			if (parsedUnit != null) {
 				units[++count] = parsedUnit;
