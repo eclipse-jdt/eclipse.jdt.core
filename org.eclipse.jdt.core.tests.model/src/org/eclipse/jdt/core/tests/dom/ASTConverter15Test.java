@@ -50,6 +50,7 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.WildcardType;
 
 public class ASTConverter15Test extends ConverterTestSetup {
 	
@@ -62,7 +63,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0019"));
+		suite.addTest(new ASTConverter15Test("test0022"));
 		return suite;
 	}
 		
@@ -658,6 +659,82 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		QualifiedName qualifiedName = (QualifiedName) name;
 		checkSourceRange(qualifiedName.getQualifier(), "test0019", source);
 		checkSourceRange(qualifiedName.getName(), "A", source);		
+	}
+	
+	public void test0020() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0020", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		List parameters = declaration.parameters();
+		assertEquals("Wrong size", 1, parameters.size());
+		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+		Type type = singleVariableDeclaration.getType();
+		assertTrue("Not a parameterized type", type.getNodeType() == ASTNode.PARAMETERIZED_TYPE);
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		List typeArguments = parameterizedType.typeArguments();
+		assertEquals("Wrong size", 1, typeArguments.size());
+		Type typeArgument = (Type) typeArguments.get(0);
+		checkSourceRange(typeArgument, "?", source);
+	}
+	
+	public void test0021() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0021", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		List parameters = declaration.parameters();
+		assertEquals("Wrong size", 1, parameters.size());
+		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+		Type type = singleVariableDeclaration.getType();
+		assertTrue("Not a parameterized type", type.getNodeType() == ASTNode.PARAMETERIZED_TYPE);
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		List typeArguments = parameterizedType.typeArguments();
+		assertEquals("Wrong size", 1, typeArguments.size());
+		Type typeArgument = (Type) typeArguments.get(0);
+		checkSourceRange(typeArgument, "? extends E", source);
+		assertTrue("Not a wildcard type", typeArgument.getNodeType() == ASTNode.WILDCARD_TYPE);
+		WildcardType wildcardType = (WildcardType) typeArgument;
+		Type bound = wildcardType.getBound();
+		checkSourceRange(bound, "E", source);
+		assertTrue("Not an upper bound", wildcardType.isUpperBound());
+	}
+	
+	public void test0022() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0022", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
+		char[] source = sourceUnit.getSource().toCharArray();
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		List parameters = declaration.parameters();
+		assertEquals("Wrong size", 1, parameters.size());
+		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+		Type type = singleVariableDeclaration.getType();
+		assertTrue("Not a parameterized type", type.getNodeType() == ASTNode.PARAMETERIZED_TYPE);
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		List typeArguments = parameterizedType.typeArguments();
+		assertEquals("Wrong size", 1, typeArguments.size());
+		Type typeArgument = (Type) typeArguments.get(0);
+		checkSourceRange(typeArgument, "? super E", source);
+		assertTrue("Not a wildcard type", typeArgument.getNodeType() == ASTNode.WILDCARD_TYPE);
+		WildcardType wildcardType = (WildcardType) typeArgument;
+		Type bound = wildcardType.getBound();
+		checkSourceRange(bound, "E", source);
+		assertFalse("Is an upper bound", wildcardType.isUpperBound());
 	}
 }
 

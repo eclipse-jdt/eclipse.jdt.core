@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -519,6 +520,17 @@ class ASTConverter2 extends ASTConverter {
 	}
 
 	public Type convertType(TypeReference typeReference) {
+		if (typeReference instanceof Wildcard) {
+			Wildcard wildcard = (Wildcard) typeReference;
+			WildcardType wildcardType = this.ast.newWildcardType();
+			if (wildcard.bound != null) {
+				wildcardType.setBound(convertType(wildcard.bound), wildcard.kind == Wildcard.EXTENDS);
+			}
+			int start = wildcard.sourceStart;
+			int end = wildcard.sourceEnd;
+			wildcardType.setSourceRange(start, end - start + 1);
+			return wildcardType;
+		}
 		Type type = null;				
 		int sourceStart = -1;
 		int length = 0;

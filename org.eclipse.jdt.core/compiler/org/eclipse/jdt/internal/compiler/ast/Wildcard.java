@@ -23,7 +23,7 @@ public class Wildcard extends SingleTypeReference {
     public static final int SUPER = 2;
     
 	public TypeReference bound;
-	int kind;
+	public int kind;
 
 	public Wildcard(int kind) {
 		super(null, 0);
