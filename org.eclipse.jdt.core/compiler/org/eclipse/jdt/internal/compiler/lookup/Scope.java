@@ -669,6 +669,12 @@ public abstract class Scope
 		TypeBinding[] argumentTypes,
 		InvocationSite invocationSite) {
 
+		TypeBinding leafType = receiverType.leafComponentType();
+		if (leafType instanceof ReferenceBinding) {
+			if (!((ReferenceBinding) leafType).canBeSeenBy(this))
+				return new ProblemMethodBinding(selector, MethodBinding.NoParameters, (ReferenceBinding)leafType, ReceiverTypeNotVisible);
+		}
+
 		ReferenceBinding object = getJavaLangObject();
 		MethodBinding methodBinding = object.getExactMethod(selector, argumentTypes);
 		if (methodBinding != null) {
