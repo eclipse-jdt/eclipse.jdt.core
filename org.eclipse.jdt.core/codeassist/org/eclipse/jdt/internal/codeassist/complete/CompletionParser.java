@@ -94,8 +94,8 @@ protected void attachOrphanCompletionNode(){
 				/* generate a pseudo field with a completion on type reference */	
 				if (orphan instanceof TypeReference){
 					CompletionOnFieldType fieldDeclaration = new CompletionOnFieldType((TypeReference)orphan);
-					fieldDeclaration.modifiersSourceStart = intStack[intPtr-1];
-					fieldDeclaration.modifiers = intStack[intPtr-2];
+					//fieldDeclaration.modifiersSourceStart = intStack[intPtr-1];
+					//fieldDeclaration.modifiers = intStack[intPtr-2];
 					currentElement = currentElement.add(fieldDeclaration, 0);
 					return;
 				}

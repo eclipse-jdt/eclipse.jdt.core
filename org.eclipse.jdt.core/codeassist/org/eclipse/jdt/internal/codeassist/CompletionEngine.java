@@ -27,17 +27,18 @@ import org.eclipse.jdt.internal.compiler.impl.*;
 public final class CompletionEngine
 	extends Engine
 	implements ISearchRequestor, TypeConstants {
+		
 	AssistOptions options;
 	CompletionParser parser;
 	ISearchableNameEnvironment nameEnvironment;
 	ICompletionRequestor requestor;
-
 	CompilationUnitScope unitScope;
 	char[] source;
 	boolean resolvingImports = false;
 	boolean insideQualifiedReference = false;
 	int startPosition, actualCompletionPosition, endPosition;
 	HashtableOfObject knownPkgs = new HashtableOfObject(10);
+
 	/*
 		static final char[][] mainDeclarations =
 			new char[][] {
@@ -97,7 +98,6 @@ public final class CompletionEngine
 	 *  @param options com.ibm.compiler.java.api.ConfigurableOptions
 	 *		set of options used to configure the code assist engine.
 	 */
-
 	public CompletionEngine(
 		ISearchableNameEnvironment nameEnvironment,
 		ICompletionRequestor requestor,
@@ -120,12 +120,12 @@ public final class CompletionEngine
 				}
 			}
 		};
-
 		this.parser =
 			new CompletionParser(problemReporter, compilerOptions.getAssertMode());
 		this.lookupEnvironment =
 			new LookupEnvironment(this, compilerOptions, problemReporter, nameEnvironment);
 	}
+
 	/**
 	 * One result of the search consists of a new class.
 	 *
@@ -135,6 +135,7 @@ public final class CompletionEngine
 	 *    The default package is represented by an empty array.
 	 */
 	public void acceptClass(char[] packageName, char[] className, int modifiers) {
+
 		char[] completionName = CharOperation.concat(packageName, className, '.');
 		if (resolvingImports) {
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
@@ -157,6 +158,7 @@ public final class CompletionEngine
 			startPosition,
 			endPosition);
 	}
+	
 	/**
 	 * One result of the search consists of a new interface.
 	 *
@@ -169,7 +171,9 @@ public final class CompletionEngine
 		char[] packageName,
 		char[] interfaceName,
 		int modifiers) {
+
 		char[] completionName = CharOperation.concat(packageName, interfaceName, '.');
+
 		if (resolvingImports) {
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
 		} else
@@ -191,6 +195,7 @@ public final class CompletionEngine
 			startPosition,
 			endPosition);
 	}
+
 	/**
 	 * One result of the search consists of a new package.
 	 *
@@ -199,9 +204,11 @@ public final class CompletionEngine
 	 *    The default package is represented by an empty array.
 	 */
 	public void acceptPackage(char[] packageName) {
-		if (this.knownPkgs.containsKey(packageName))
-			return;
+
+		if (this.knownPkgs.containsKey(packageName)) return;
+
 		this.knownPkgs.put(packageName, this);
+
 		requestor.acceptPackage(
 			packageName,
 			resolvingImports
@@ -210,6 +217,7 @@ public final class CompletionEngine
 			startPosition,
 			endPosition);
 	}
+
 	/**
 	 * One result of the search consists of a new type.
 	 *
@@ -219,7 +227,9 @@ public final class CompletionEngine
 	 *    The default package is represented by an empty array.
 	 */
 	public void acceptType(char[] packageName, char[] typeName) {
+
 		char[] completionName = CharOperation.concat(packageName, typeName, '.');
+
 		if (resolvingImports) {
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
 		} else
@@ -240,162 +250,229 @@ public final class CompletionEngine
 			startPosition,
 			endPosition);
 	}
+
 	private void complete(AstNode astNode, Binding qualifiedBinding, Scope scope) {
+
 		setSourceRange(astNode.sourceStart, astNode.sourceEnd);
+
 		// defaults... some nodes will change these
-			if (astNode instanceof CompletionOnFieldType) {
-				CompletionOnFieldType field = (CompletionOnFieldType) astNode;
-				CompletionOnSingleTypeReference type = (CompletionOnSingleTypeReference) field.type;
-				char[] token = type.token;
-				setSourceRange(type.sourceStart, type.sourceEnd);
-				//		findKeywords(token, modifiers, scope); // could be the start of a field, method or member type
+		if (astNode instanceof CompletionOnFieldType) {
+
+			CompletionOnFieldType field = (CompletionOnFieldType) astNode;
+			CompletionOnSingleTypeReference type = (CompletionOnSingleTypeReference) field.type;
+			char[] token = type.token;
+			setSourceRange(type.sourceStart, type.sourceEnd);
+			//		findKeywords(token, modifiers, scope); // could be the start of a field, method or member type
+			findTypesAndPackages(token, scope);
+			
+			if(field.modifiers == CompilerModifiers.AccDefault) {
+				findMethods(token,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null);
+			}
+		} else {
+
+			if (astNode instanceof CompletionOnSingleNameReference) {
+
+				char[] token = ((CompletionOnSingleNameReference) astNode).token;
+				findVariablesAndMethods(
+					token,
+					scope,
+					(CompletionOnSingleNameReference) astNode,
+					scope);
+				// can be the start of a qualified type name
 				findTypesAndPackages(token, scope);
-				
-				if(field.modifiers == CompilerModifiers.AccDefault)
-					findMethods(token,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null);
-			} else
-				if (astNode instanceof CompletionOnSingleNameReference) {
-					char[] token = ((CompletionOnSingleNameReference) astNode).token;
-					findVariablesAndMethods(
-						token,
-						scope,
-						(CompletionOnSingleNameReference) astNode,
-						scope);
-					findTypesAndPackages(token, scope);
+
+			} else {
+
+				if (astNode instanceof CompletionOnSingleTypeReference) {
+
+					char[] token = ((CompletionOnSingleTypeReference) astNode).token;
+
 					// can be the start of a qualified type name
-				} else
-					if (astNode instanceof CompletionOnSingleTypeReference) {
-						char[] token = ((CompletionOnSingleTypeReference) astNode).token;
-						if (qualifiedBinding == null)
-							findTypesAndPackages(token, scope);
-						// can be the start of a qualified type name
-						else
+					if (qualifiedBinding == null) {
+						findTypesAndPackages(token, scope);
+						} else {
 							findMemberTypes(
-								token,
-								(ReferenceBinding) qualifiedBinding,
-								scope,
-								scope.enclosingSourceType());
-					} else
-						if (astNode instanceof CompletionOnQualifiedNameReference) {
-							insideQualifiedReference = true;
-							CompletionOnQualifiedNameReference ref =
-								(CompletionOnQualifiedNameReference) astNode;
-							char[] token = ref.completionIdentifier;
-							long completionPosition = ref.sourcePositions[ref.sourcePositions.length - 1];
-							if (qualifiedBinding instanceof VariableBinding) {
+							token,
+							(ReferenceBinding) qualifiedBinding,
+							scope,
+							scope.enclosingSourceType());
+					}
+				} else {
+					
+					if (astNode instanceof CompletionOnQualifiedNameReference) {
+
+						insideQualifiedReference = true;
+						CompletionOnQualifiedNameReference ref =
+							(CompletionOnQualifiedNameReference) astNode;
+						char[] token = ref.completionIdentifier;
+						long completionPosition = ref.sourcePositions[ref.sourcePositions.length - 1];
+
+						if (qualifiedBinding instanceof VariableBinding) {
+
+							setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+							TypeBinding receiverType = ((VariableBinding) qualifiedBinding).type;
+							if (receiverType != null) {
+								findFieldsAndMethods(token, receiverType, scope, ref, scope);
+							}
+
+						} else {
+
+							if (qualifiedBinding instanceof ReferenceBinding) {
+
+								ReferenceBinding receiverType = (ReferenceBinding) qualifiedBinding;
 								setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
-								TypeBinding receiverType = ((VariableBinding) qualifiedBinding).type;
-								if (receiverType != null)
-									findFieldsAndMethods(token, receiverType, scope, ref, scope);
-							} else
-								if (qualifiedBinding instanceof ReferenceBinding) {
-									ReferenceBinding receiverType = (ReferenceBinding) qualifiedBinding;
-									setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
-									findMemberTypes(token, receiverType, scope, scope.enclosingSourceType());
-									findClassField(token, (TypeBinding) qualifiedBinding);
-									findFields(
-										token,
-										receiverType,
-										scope,
-										new ObjectVector(),
-										new ObjectVector(),
-										true,
-										ref,
-										scope);
-									findMethods(
-										token,
-										null,
-										receiverType,
-										scope,
-										new ObjectVector(),
-										true,
-										false,
-										false,
-										ref);
-								} else
-									if (qualifiedBinding instanceof PackageBinding) {
-										setSourceRange(astNode.sourceStart, (int) completionPosition);
-										// replace to the end of the completion identifier
-										findTypesAndSubpackages(token, (PackageBinding) qualifiedBinding);
-									}
-						} else
+
+								findMemberTypes(token, receiverType, scope, scope.enclosingSourceType());
+
+								findClassField(token, (TypeBinding) qualifiedBinding);
+
+								findFields(
+									token,
+									receiverType,
+									scope,
+									new ObjectVector(),
+									new ObjectVector(),
+									true,
+									ref,
+									scope);
+
+								findMethods(
+									token,
+									null,
+									receiverType,
+									scope,
+									new ObjectVector(),
+									true,
+									false,
+									false,
+									ref);
+
+							} else {
+
+								if (qualifiedBinding instanceof PackageBinding) {
+
+									setSourceRange(astNode.sourceStart, (int) completionPosition);
+									// replace to the end of the completion identifier
+									findTypesAndSubpackages(token, (PackageBinding) qualifiedBinding);
+								}
+							}
+						}
+
+					} else {
+
 							if (astNode instanceof CompletionOnQualifiedTypeReference) {
-								insideQualifiedReference = true;
-								CompletionOnQualifiedTypeReference ref =
-									(CompletionOnQualifiedTypeReference) astNode;
-								char[] token = ref.completionIdentifier;
-								long completionPosition = ref.sourcePositions[ref.tokens.length];
-								// get the source positions of the completion identifier
-								if (qualifiedBinding instanceof ReferenceBinding) {
-									setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
-									findMemberTypes(
-										token,
-										(ReferenceBinding) qualifiedBinding,
-										scope,
-										scope.enclosingSourceType());
-								} else
-									if (qualifiedBinding instanceof PackageBinding) {
-										setSourceRange(astNode.sourceStart, (int) completionPosition);
-										// replace to the end of the completion identifier
-										findTypesAndSubpackages(token, (PackageBinding) qualifiedBinding);
+
+							insideQualifiedReference = true;
+							CompletionOnQualifiedTypeReference ref =
+								(CompletionOnQualifiedTypeReference) astNode;
+							char[] token = ref.completionIdentifier;
+							long completionPosition = ref.sourcePositions[ref.tokens.length];
+
+							// get the source positions of the completion identifier
+							if (qualifiedBinding instanceof ReferenceBinding) {
+
+								setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+								findMemberTypes(
+									token,
+									(ReferenceBinding) qualifiedBinding,
+									scope,
+									scope.enclosingSourceType());
+
+							} else {
+
+								if (qualifiedBinding instanceof PackageBinding) {
+
+									setSourceRange(astNode.sourceStart, (int) completionPosition);
+									// replace to the end of the completion identifier
+									findTypesAndSubpackages(token, (PackageBinding) qualifiedBinding);
+								}
+							}
+
+						} else {
+
+							if (astNode instanceof CompletionOnMemberAccess) {
+
+								CompletionOnMemberAccess access = (CompletionOnMemberAccess) astNode;
+								long completionPosition = access.nameSourcePosition;
+								setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+
+								findFieldsAndMethods(
+									access.token,
+									(TypeBinding) qualifiedBinding,
+									scope,
+									access,
+									scope);
+
+							} else {
+
+								if (astNode instanceof CompletionOnMessageSend) {
+
+									CompletionOnMessageSend messageSend = (CompletionOnMessageSend) astNode;
+									TypeBinding[] argTypes =
+										computeTypes(messageSend.arguments, (BlockScope) scope);
+									if (qualifiedBinding == null) {
+
+										findMessageSends(messageSend.selector, argTypes, scope, messageSend);
+									} else {
+
+										findMethods(
+											messageSend.selector,
+											argTypes,
+											(ReferenceBinding) qualifiedBinding,
+											scope,
+											new ObjectVector(),
+											false,
+											true,
+											false,
+											messageSend);
 									}
-							} else
-								if (astNode instanceof CompletionOnMemberAccess) {
-									CompletionOnMemberAccess access = (CompletionOnMemberAccess) astNode;
-									long completionPosition = access.nameSourcePosition;
-									setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
-									findFieldsAndMethods(
-										access.token,
-										(TypeBinding) qualifiedBinding,
-										scope,
-										access,
-										scope);
-								} else
-									if (astNode instanceof CompletionOnMessageSend) {
-										CompletionOnMessageSend messageSend = (CompletionOnMessageSend) astNode;
+
+								} else {
+
+									if (astNode instanceof CompletionOnExplicitConstructorCall) {
+
+										CompletionOnExplicitConstructorCall constructorCall =
+											(CompletionOnExplicitConstructorCall) astNode;
 										TypeBinding[] argTypes =
-											computeTypes(messageSend.arguments, (BlockScope) scope);
-										if (qualifiedBinding == null)
-											findMessageSends(messageSend.selector, argTypes, scope, messageSend);
-										else
-											findMethods(
-												messageSend.selector,
-												argTypes,
-												(ReferenceBinding) qualifiedBinding,
-												scope,
-												new ObjectVector(),
-												false,
-												true,
-												false,
-												messageSend);
-									} else
-										if (astNode instanceof CompletionOnExplicitConstructorCall) {
-											CompletionOnExplicitConstructorCall constructorCall =
-												(CompletionOnExplicitConstructorCall) astNode;
+											computeTypes(constructorCall.arguments, (BlockScope) scope);
+										findConstructors(
+											(ReferenceBinding) qualifiedBinding,
+											argTypes,
+											scope,
+											constructorCall);
+
+									} else {
+
+										if (astNode instanceof CompletionOnQualifiedAllocationExpression) {
+
+											CompletionOnQualifiedAllocationExpression allocExpression =
+												(CompletionOnQualifiedAllocationExpression) astNode;
 											TypeBinding[] argTypes =
-												computeTypes(constructorCall.arguments, (BlockScope) scope);
+												computeTypes(allocExpression.arguments, (BlockScope) scope);
 											findConstructors(
 												(ReferenceBinding) qualifiedBinding,
 												argTypes,
 												scope,
-												constructorCall);
-										} else
-											if (astNode instanceof CompletionOnQualifiedAllocationExpression) {
-												CompletionOnQualifiedAllocationExpression allocExpression =
-													(CompletionOnQualifiedAllocationExpression) astNode;
-												TypeBinding[] argTypes =
-													computeTypes(allocExpression.arguments, (BlockScope) scope);
-												findConstructors(
-													(ReferenceBinding) qualifiedBinding,
-													argTypes,
-													scope,
-													allocExpression);
-											} else
-												if (astNode instanceof CompletionOnClassLiteralAccess) {
-													char[] token = ((CompletionOnClassLiteralAccess) astNode).completionIdentifier;
-													findClassField(token, (TypeBinding) qualifiedBinding);
-												}
+												allocExpression);
+
+										} else {
+
+											if (astNode instanceof CompletionOnClassLiteralAccess) {
+
+												char[] token = ((CompletionOnClassLiteralAccess) astNode).completionIdentifier;
+												findClassField(token, (TypeBinding) qualifiedBinding);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
+
 	/**
 	 * Ask the engine to compute a completion at the specified position
 	 * of the given compilation unit.
@@ -411,6 +488,7 @@ public final class CompletionEngine
 	 *      This position is relative to the source provided.
 	 */
 	public void complete(ICompilationUnit sourceUnit, int completionPosition) {
+
 		try {
 			actualCompletionPosition = completionPosition - 1;
 			// for now until we can change the UI.
@@ -419,11 +497,13 @@ public final class CompletionEngine
 
 			//		boolean completionNodeFound = false;
 			if (parsedUnit != null) {
+
 				// scan the package & import statements first
 				if (parsedUnit.currentPackage instanceof CompletionOnPackageReference) {
 					findPackages((CompletionOnPackageReference) parsedUnit.currentPackage);
 					return;
 				}
+
 				ImportReference[] imports = parsedUnit.imports;
 				if (imports != null) {
 					for (int i = 0, length = imports.length; i < length; i++) {
@@ -438,6 +518,7 @@ public final class CompletionEngine
 				if (parsedUnit.types != null) {
 					try {
 						lookupEnvironment.buildTypeBindings(parsedUnit);
+
 						if ((unitScope = parsedUnit.scope) != null) {
 							source = sourceUnit.getContents();
 							lookupEnvironment.completeTypeBindings(parsedUnit, true);
@@ -472,7 +553,9 @@ public final class CompletionEngine
 			reset();
 		}
 	}
+
 	private TypeBinding[] computeTypes(Expression[] arguments, BlockScope scope) {
+
 		if (arguments == null)
 			return null;
 
@@ -482,7 +565,9 @@ public final class CompletionEngine
 			argTypes[a] = arguments[a].resolveType(scope);
 		return argTypes;
 	}
+
 	private void findClassField(char[] token, TypeBinding receiverType) {
+
 		if (token == null)
 			return;
 
@@ -500,11 +585,13 @@ public final class CompletionEngine
 				startPosition,
 				endPosition);
 	}
+
 	private void findConstructors(
 		ReferenceBinding currentType,
 		TypeBinding[] argTypes,
 		Scope scope,
 		InvocationSite invocationSite) {
+
 		// No visibility checks can be performed without the scope & invocationSite
 		MethodBinding[] methods = currentType.methods();
 		int minArgLength = argTypes == null ? 0 : argTypes.length;
@@ -537,6 +624,7 @@ public final class CompletionEngine
 					|| source.length <= endPosition
 					|| source[endPosition] != ')')
 					completion = new char[] { ')' };
+
 				requestor.acceptMethod(
 					currentType.qualifiedPackageName(),
 					currentType.qualifiedSourceName(),
@@ -599,19 +687,26 @@ public final class CompletionEngine
 
 			for (int l = localsFound.size; --l >= 0;) {
 				LocalVariableBinding local = (LocalVariableBinding) localsFound.elementAt(l);
+
 				if (CharOperation.equals(field.name, local.name, true)) {
 					char[] completion = field.name;
 					SourceTypeBinding enclosing = scope.enclosingSourceType();
+
 					if (field.isStatic()) {
 						char[] name = enclosing.compoundName[enclosing.compoundName.length - 1];
 						completion = CharOperation.concat(name, completion, '.');
+
 					} else if (enclosing == invocationScope.enclosingSourceType()) {
 						completion = CharOperation.concat(THIS, completion, '.');
+
 					} else {
+
 						char[] name = enclosing.compoundName[enclosing.compoundName.length - 1];
+
 						if (!enclosing.isNestedType()) {
 							completion = CharOperation.concat(THIS, completion, '.');
 							completion = CharOperation.concat(name, completion, '.');
+
 						} else if (enclosing.isAnonymousType()) {
 							continue next;
 						} else {
@@ -621,6 +716,7 @@ public final class CompletionEngine
 							completion = CharOperation.concat(shortName, completion, '.');
 						}
 					}
+
 					requestor
 						.acceptField(
 							field.declaringClass.qualifiedPackageName(),
@@ -629,6 +725,7 @@ public final class CompletionEngine
 							field.type.qualifiedPackageName(),
 							field.type.qualifiedSourceName(),
 							completion,
+
 					// may include some qualification to resolve ambiguities
 					field.modifiers, startPosition, endPosition);
 					continue next;
@@ -647,6 +744,7 @@ public final class CompletionEngine
 			field.modifiers, startPosition, endPosition);
 		}
 	}
+
 	private void findFields(
 		char[] fieldName,
 		ReferenceBinding receiverType,
@@ -664,10 +762,13 @@ public final class CompletionEngine
 		ReferenceBinding[][] interfacesToVisit = null;
 		int lastPosition = -1;
 		do {
+
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (itsInterfaces != NoSuperInterfaces) {
+
 				if (interfacesToVisit == null)
 					interfacesToVisit = new ReferenceBinding[5][];
+
 				if (++lastPosition == interfacesToVisit.length)
 					System.arraycopy(
 						interfacesToVisit,
@@ -695,6 +796,7 @@ public final class CompletionEngine
 			for (int i = 0; i <= lastPosition; i++) {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
 				for (int j = 0, length = interfaces.length; j < length; j++) {
+
 					ReferenceBinding anInterface = interfaces[j];
 					if ((anInterface.tagBits & TagBits.InterfaceVisited) == 0) {
 						// if interface as not already been visited
@@ -734,21 +836,25 @@ public final class CompletionEngine
 			}
 		}
 	}
+
 	private void findFieldsAndMethods(
 		char[] token,
 		TypeBinding receiverType,
 		Scope scope,
 		InvocationSite invocationSite,
 		Scope invocationScope) {
+
 		if (token == null)
 			return;
 
 		if (receiverType.isBaseType())
 			return; // nothing else is possible with base types
+
 		if (receiverType.isArrayType()) {
 			if (token.length <= lengthField.length
 				&& CharOperation.prefixEquals(token, lengthField, false /* ignore case */
 				))
+
 				requestor.acceptField(
 					NoChar,
 					NoChar,
@@ -772,6 +878,7 @@ public final class CompletionEngine
 			false,
 			invocationSite,
 			invocationScope);
+
 		findMethods(
 			token,
 			null,
@@ -783,10 +890,14 @@ public final class CompletionEngine
 			false,
 			invocationSite);
 	}
+
 	private void findImports(CompletionOnImportReference importReference) {
+
 		char[] importName = CharOperation.concatWith(importReference.tokens, '.');
+
 		if (importName.length == 0)
 			return;
+
 		resolvingImports = true;
 		setSourceRange(
 			importReference.sourceStart,
@@ -797,7 +908,6 @@ public final class CompletionEngine
 	}
 
 	// Helper method for findMethods(char[], MethodBinding[], Scope, ObjectVector, boolean, boolean, boolean, TypeBinding)
-
 	private void findLocalMethodDeclarations(
 		char[] methodName,
 		MethodBinding[] methods,
@@ -810,12 +920,13 @@ public final class CompletionEngine
 
 		// Inherited methods which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
-
 		int methodLength = methodName.length;
 		next : for (int f = methods.length; --f >= 0;) {
+
 			MethodBinding method = methods[f];
 			if (method.isConstructor())
 				continue next;
+
 			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
 			if (onlyStaticMethods && !method.isStatic())
 				continue next;
@@ -828,9 +939,12 @@ public final class CompletionEngine
 				if (!CharOperation.equals(methodName, method.selector, false /* ignore case */
 					))
 					continue next;
+
 			} else {
+
 				if (methodLength > method.selector.length)
 					continue next;
+
 				if (!CharOperation.prefixEquals(methodName, method.selector, false
 					/* ignore case */
 					))
@@ -838,13 +952,17 @@ public final class CompletionEngine
 			}
 
 			for (int i = methodsFound.size; --i >= 0;) {
+
 				MethodBinding otherMethod = (MethodBinding) methodsFound.elementAt(i);
 				if (method == otherMethod)
 					continue next;
+
 				if (CharOperation.equals(method.selector, otherMethod.selector, true)
 					&& method.areParametersEqual(otherMethod)) {
+
 					if (method.declaringClass.isSuperclassOf(otherMethod.declaringClass))
 						continue next;
+
 					if (otherMethod.declaringClass.isInterface())
 						if (method
 							.declaringClass
@@ -864,6 +982,7 @@ public final class CompletionEngine
 				parameterPackageNames[i] = type.qualifiedPackageName();
 				parameterTypeNames[i] = type.qualifiedSourceName();
 			}
+
 			char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
 			// default parameters name
 			if(parameterNames == null) {
@@ -876,6 +995,7 @@ public final class CompletionEngine
 			StringBuffer completion = new StringBuffer(10);
 			// flush uninteresting modifiers
 			int insertedModifiers = method.modifiers & ~(CompilerModifiers.AccNative | CompilerModifiers.AccAbstract);
+
 			if (!exactMatch) {
 				if(insertedModifiers != CompilerModifiers.AccDefault){
 					completion.append(AstNode.modifiersString(insertedModifiers));
@@ -884,6 +1004,7 @@ public final class CompletionEngine
 				completion.append(' ');
 				completion.append(method.selector);
 				completion.append('(');
+
 				for(int i = 0; i < length ; i++){
 					completion.append(parameterTypeNames[i]);
 					completion.append(' ');
@@ -893,6 +1014,7 @@ public final class CompletionEngine
 				}
 				completion.append(')');
 			}
+
 			requestor.acceptMethodDeclaration(
 				method.declaringClass.qualifiedPackageName(),
 				method.declaringClass.qualifiedSourceName(),
@@ -912,6 +1034,7 @@ public final class CompletionEngine
 	// what about onDemand types? Ignore them since it does not happen!
 	// import p1.p2.A.*;
 	private void findKeywords(char[] keyword, char[][] choices, Scope scope) {
+
 		int length = keyword.length;
 		if (length > 0)
 			for (int i = 0; i < choices.length; i++)
@@ -931,7 +1054,6 @@ public final class CompletionEngine
 
 		// Inherited member types which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
-
 		int typeLength = typeName.length;
 		next : for (int m = memberTypes.length; --m >= 0;) {
 			ReferenceBinding memberType = memberTypes[m];
@@ -939,6 +1061,7 @@ public final class CompletionEngine
 			//		if (!wantInterfaces && memberType.isInterface()) continue next;
 			if (typeLength > memberType.sourceName.length)
 				continue next;
+
 			if (!CharOperation.prefixEquals(typeName, memberType.sourceName, false
 				/* ignore case */
 				))
@@ -950,21 +1073,26 @@ public final class CompletionEngine
 
 			for (int i = typesFound.size; --i >= 0;) {
 				ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(i);
+
 				if (memberType == otherType)
 					continue next;
+
 				if (CharOperation.equals(memberType.sourceName, otherType.sourceName, true)) {
+
 					if (memberType.enclosingType().isSuperclassOf(otherType.enclosingType()))
 						continue next;
+
 					if (otherType.enclosingType().isInterface())
-						if (memberType
-							.enclosingType()
+
+						if (memberType.enclosingType()
 							.implementsInterface(otherType.enclosingType(), true))
 							continue next;
 				}
 			}
 
 			typesFound.add(memberType);
-			if (memberType.isClass())
+
+			if (memberType.isClass()) {
 				requestor.acceptClass(
 					memberType.qualifiedPackageName(),
 					memberType.qualifiedSourceName(),
@@ -972,7 +1100,9 @@ public final class CompletionEngine
 					memberType.modifiers,
 					startPosition,
 					endPosition);
-			else
+
+			} else {
+
 				requestor.acceptInterface(
 					memberType.qualifiedPackageName(),
 					memberType.qualifiedSourceName(),
@@ -980,8 +1110,10 @@ public final class CompletionEngine
 					memberType.modifiers,
 					startPosition,
 					endPosition);
+			}
 		}
 	}
+
 	private void findMemberTypes(
 		char[] typeName,
 		ReferenceBinding receiverType,
@@ -991,12 +1123,14 @@ public final class CompletionEngine
 		ReferenceBinding currentType = receiverType;
 		if (typeName == null)
 			return;
+
 		if (currentType.superInterfaces() == null)
 			return; // we're trying to find a supertype
 
 		ObjectVector typesFound = new ObjectVector();
 		if (insideQualifiedReference
 			|| typeName.length == 0) { // do not search up the hierarchy
+
 			findMemberTypes(
 				typeName,
 				currentType.memberTypes(),
@@ -1008,11 +1142,15 @@ public final class CompletionEngine
 
 		ReferenceBinding[][] interfacesToVisit = null;
 		int lastPosition = -1;
+
 		do {
+
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (itsInterfaces != NoSuperInterfaces) {
+
 				if (interfacesToVisit == null)
 					interfacesToVisit = new ReferenceBinding[5][];
+
 				if (++lastPosition == interfacesToVisit.length)
 					System.arraycopy(
 						interfacesToVisit,
@@ -1030,12 +1168,14 @@ public final class CompletionEngine
 				receiverType,
 				typeInvocation);
 			currentType = currentType.superclass();
+
 		} while (currentType != null);
 
 		if (interfacesToVisit != null) {
 			for (int i = 0; i <= lastPosition; i++) {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
 				for (int j = 0, length = interfaces.length; j < length; j++) {
+
 					ReferenceBinding anInterface = interfaces[j];
 					if ((anInterface.tagBits & TagBits.InterfaceVisited) == 0) {
 						// if interface as not already been visited
@@ -1050,6 +1190,7 @@ public final class CompletionEngine
 
 						ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
 						if (itsInterfaces != NoSuperInterfaces) {
+
 							if (++lastPosition == interfacesToVisit.length)
 								System.arraycopy(
 									interfacesToVisit,
@@ -1071,11 +1212,13 @@ public final class CompletionEngine
 			}
 		}
 	}
+
 	private void findMessageSends(
 		char[] token,
 		TypeBinding[] argTypes,
 		Scope scope,
 		InvocationSite invocationSite) {
+
 		if (token == null)
 			return;
 
@@ -1083,13 +1226,17 @@ public final class CompletionEngine
 		// need to know if we're in a static context (or inside a constructor)
 		int tokenLength = token.length;
 		ObjectVector methodsFound = new ObjectVector();
+
 		done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
+
 			switch (scope.kind) {
+
 				case Scope.METHOD_SCOPE :
 					// handle the error case inside an explicit constructor call (see MethodScope>>findField)
 					MethodScope methodScope = (MethodScope) scope;
 					staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
 					break;
+
 				case Scope.CLASS_SCOPE :
 					ClassScope classScope = (ClassScope) scope;
 					SourceTypeBinding enclosingType = classScope.referenceContext.binding;
@@ -1105,6 +1252,7 @@ public final class CompletionEngine
 						invocationSite);
 					staticsOnly |= enclosingType.isStatic();
 					break;
+
 				case Scope.COMPILATION_UNIT_SCOPE :
 					break done;
 			}
@@ -1119,8 +1267,7 @@ public final class CompletionEngine
 		MethodBinding[] methods,
 		Scope scope,
 		ObjectVector methodsFound,
-	//	boolean noVoidReturnType, how do you know?
-	boolean onlyStaticMethods,
+		boolean onlyStaticMethods,
 		boolean exactMatch,
 		TypeBinding receiverType,
 		InvocationSite invocationSite) {
@@ -1130,10 +1277,13 @@ public final class CompletionEngine
 
 		int methodLength = methodName.length;
 		int minArgLength = argTypes == null ? 0 : argTypes.length;
+
 		next : for (int f = methods.length; --f >= 0;) {
 			MethodBinding method = methods[f];
+
 			if (method.isConstructor())
 				continue next;
+
 			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
 			if (onlyStaticMethods && !method.isStatic())
 				continue next;
@@ -1146,9 +1296,12 @@ public final class CompletionEngine
 				if (!CharOperation.equals(methodName, method.selector, false /* ignore case */
 					))
 					continue next;
+
 			} else {
+
 				if (methodLength > method.selector.length)
 					continue next;
+
 				if (!CharOperation.prefixEquals(methodName, method.selector, false
 					/* ignore case */
 					))
@@ -1156,19 +1309,26 @@ public final class CompletionEngine
 			}
 			if (minArgLength > method.parameters.length)
 				continue next;
-			for (int a = minArgLength; --a >= 0;)
-				if (argTypes[a] != null) // can be null if it could not be resolved properly
-					if (!scope.areTypesCompatible(argTypes[a], method.parameters[a]))
-						continue next;
 
+			for (int a = minArgLength; --a >= 0;){
+				if (argTypes[a] != null){ // can be null if it could not be resolved properly
+					if (!scope.areTypesCompatible(argTypes[a], method.parameters[a])) {
+						continue next;
+					}
+				}
+			}
 			for (int i = methodsFound.size; --i >= 0;) {
+
 				MethodBinding otherMethod = (MethodBinding) methodsFound.elementAt(i);
 				if (method == otherMethod)
 					continue next;
+
 				if (CharOperation.equals(method.selector, otherMethod.selector, true)
 					&& method.areParametersEqual(otherMethod)) {
+
 					if (method.declaringClass.isSuperclassOf(otherMethod.declaringClass))
 						continue next;
+
 					if (otherMethod.declaringClass.isInterface())
 						if (method
 							.declaringClass
@@ -1181,11 +1341,13 @@ public final class CompletionEngine
 			int length = method.parameters.length;
 			char[][] parameterPackageNames = new char[length][];
 			char[][] parameterTypeNames = new char[length][];
+
 			for (int i = 0; i < length; i++) {
 				TypeBinding type = method.parameters[i];
 				parameterPackageNames[i] = type.qualifiedPackageName();
 				parameterTypeNames[i] = type.qualifiedSourceName();
 			}
+
 			char[] completion = TypeConstants.NoChar;
 			// nothing to insert - do not want to replace the existing selector & arguments
 			if (!exactMatch) {
@@ -1196,6 +1358,7 @@ public final class CompletionEngine
 				else
 					completion = CharOperation.concat(method.selector, new char[] { '(', ')' });
 			}
+
 			requestor.acceptMethod(
 				method.declaringClass.qualifiedPackageName(),
 				method.declaringClass.qualifiedSourceName(),
@@ -1210,6 +1373,7 @@ public final class CompletionEngine
 				endPosition);
 		}
 	}
+
 	private void findMethods(
 		char[] selector,
 		TypeBinding[] argTypes,
@@ -1247,12 +1411,16 @@ public final class CompletionEngine
 
 				for (int i = 0; i <= lastPosition; i++) {
 					ReferenceBinding[] interfaces = interfacesToVisit[i];
+
 					for (int j = 0, length = interfaces.length; j < length; j++) {
 						currentType = interfaces[j];
+
 						if ((currentType.tagBits & TagBits.InterfaceVisited) == 0) {
 							// if interface as not already been visited
 							currentType.tagBits |= TagBits.InterfaceVisited;
+
 							if(isCompletingDeclaration){
+
 								findLocalMethodDeclarations(
 									selector,
 									currentType.methods(),
@@ -1261,7 +1429,9 @@ public final class CompletionEngine
 									onlyStaticMethods,
 									exactMatch,
 									receiverType);
+
 							} else {
+
 								findLocalMethods(
 									selector,
 									argTypes,
@@ -1276,6 +1446,7 @@ public final class CompletionEngine
 
 							itsInterfaces = currentType.superInterfaces();
 							if (itsInterfaces != NoSuperInterfaces) {
+
 								if (++lastPosition == interfacesToVisit.length)
 									System.arraycopy(
 										interfacesToVisit,
@@ -1292,8 +1463,10 @@ public final class CompletionEngine
 				// bit reinitialization
 				for (int i = 0; i <= lastPosition; i++) {
 					ReferenceBinding[] interfaces = interfacesToVisit[i];
-					for (int j = 0, length = interfaces.length; j < length; j++)
+
+					for (int j = 0, length = interfaces.length; j < length; j++){
 						interfaces[j].tagBits &= ~TagBits.InterfaceVisited;
+					}
 				}
 			}
 			currentType = scope.getJavaLangObject();
@@ -1303,7 +1476,9 @@ public final class CompletionEngine
 			currentType = currentType.superclass();
 		
 		while (currentType != null) {
+
 			if(isCompletingDeclaration){
+
 				findLocalMethodDeclarations(
 					selector,
 					currentType.methods(),
@@ -1312,7 +1487,9 @@ public final class CompletionEngine
 					onlyStaticMethods,
 					exactMatch,
 					receiverType);
+
 			} else{
+
 				findLocalMethods(
 					selector,
 					argTypes,
@@ -1325,7 +1502,6 @@ public final class CompletionEngine
 					invocationSite);
 			}
 			currentType = currentType.superclass();
-				
 		}
 	}
 	
@@ -1335,19 +1511,24 @@ public final class CompletionEngine
 		
 		char[][] parameterNames = null;
 		int length = parameterTypeNames.length;
+
 		if (length == 0){
 			return TypeConstants.NoCharChar;
 		}
 		// look into the corresponding unit if it is available
 		if (bindingType instanceof SourceTypeBinding){
 			SourceTypeBinding sourceType = (SourceTypeBinding) bindingType;
+
 			if (sourceType.scope != null){
 				TypeDeclaration parsedType;
+
 				if ((parsedType = sourceType.scope.referenceContext) != null){
 					AbstractMethodDeclaration methodDecl = parsedType.declarationOf(method);
+
 					if (methodDecl != null){
 						Argument[] arguments = methodDecl.arguments;
 						parameterNames = new char[length][];
+
 						for(int i = 0 ; i < length ; i++){
 							parameterNames[i] = arguments[i].name;
 						}
@@ -1358,13 +1539,16 @@ public final class CompletionEngine
 		// look into the model		
 		if(parameterNames == null){
 			NameEnvironmentAnswer answer = nameEnvironment.findType(bindingType.compoundName);
+
 			if(answer != null){
 				if(answer.isSourceType()) {
 					ISourceType sourceType = answer.getSourceTypes()[0];
 					ISourceMethod[] sourceMethods = sourceType.getMethods();
+
 					for(int i = 0; i < sourceMethods.length ; i++){
 						ISourceMethod sourceMethod = sourceMethods[i];
 						char[][] argTypeNames = sourceMethod.getArgumentTypeNames();
+
 						if(argTypeNames != null &&
 							CharOperation.equals(method.selector,sourceMethod.getSelector()) &&
 							CharOperation.equals(argTypeNames,parameterTypeNames)){
@@ -1387,15 +1571,21 @@ public final class CompletionEngine
 			return;
 
 		int typeLength = typeName.length;
+
 		while (scope != null) { // done when a COMPILATION_UNIT_SCOPE is found
+
 			switch (scope.kind) {
+
 				case Scope.METHOD_SCOPE :
 				case Scope.BLOCK_SCOPE :
 					BlockScope blockScope = (BlockScope) scope;
+
 					next : for (int i = 0, length = blockScope.scopeIndex; i < length; i++) {
+
 						if (blockScope.subscopes[i] instanceof ClassScope) {
 							SourceTypeBinding localType =
 								((ClassScope) blockScope.subscopes[i]).referenceContext.binding;
+
 							if (!localType.isAnonymousType()) {
 								if (typeLength > localType.sourceName.length)
 									continue next;
@@ -1415,18 +1605,22 @@ public final class CompletionEngine
 						}
 					}
 					break;
+
 				case Scope.CLASS_SCOPE :
 					findMemberTypes(typeName, scope.enclosingSourceType(), scope, currentType);
 					if (typeLength == 0)
 						return; // do not search outside the class scope if no prefix was provided
 					break;
+
 				case Scope.COMPILATION_UNIT_SCOPE :
 					return;
 			}
 			scope = scope.parent;
 		}
 	}
+
 	private void findPackages(CompletionOnPackageReference packageStatement) {
+
 		char[] packageName = CharOperation.concatWith(packageStatement.tokens, '.');
 		if (packageName.length == 0)
 			return;
@@ -1434,7 +1628,9 @@ public final class CompletionEngine
 		setSourceRange(packageStatement.sourceStart, packageStatement.sourceEnd);
 		nameEnvironment.findPackages(CharOperation.toLowerCase(packageName), this);
 	}
+
 	private void findTypesAndPackages(char[] token, Scope scope) {
+
 		if (token == null)
 			return;
 
@@ -1444,10 +1640,13 @@ public final class CompletionEngine
 		if (unitScope != null) {
 			int typeLength = token.length;
 			SourceTypeBinding[] types = unitScope.topLevelTypes;
+
 			for (int i = 0, length = types.length; i < length; i++) {
 				SourceTypeBinding sourceType = types[i];
+
 				if (typeLength > sourceType.sourceName.length)
 					continue;
+
 				if (!CharOperation.prefixEquals(token, sourceType.sourceName, false
 					/* ignore case */
 					))
@@ -1464,15 +1663,19 @@ public final class CompletionEngine
 
 		if (token.length == 0)
 			return;
+
 		findKeywords(token, baseTypes, scope);
 		nameEnvironment.findTypes(token, this);
 		nameEnvironment.findPackages(token, this);
 	}
+
 	private void findTypesAndSubpackages(
 		char[] token,
 		PackageBinding packageBinding) {
+
 		char[] qualifiedName =
 			CharOperation.concatWith(packageBinding.compoundName, token, '.');
+
 		if (token == null || token.length == 0) {
 			int length = qualifiedName.length;
 			System.arraycopy(
@@ -1486,11 +1689,13 @@ public final class CompletionEngine
 		nameEnvironment.findTypes(qualifiedName, this);
 		nameEnvironment.findPackages(qualifiedName, this);
 	}
+
 	private void findVariablesAndMethods(
 		char[] token,
 		Scope scope,
 		InvocationSite invocationSite,
 		Scope invocationScope) {
+
 		if (token == null)
 			return;
 
@@ -1507,23 +1712,32 @@ public final class CompletionEngine
 		ObjectVector methodsFound = new ObjectVector();
 
 		Scope currentScope = scope;
+
 		done1 : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
+
 			switch (currentScope.kind) {
+
 				case Scope.METHOD_SCOPE :
 					// handle the error case inside an explicit constructor call (see MethodScope>>findField)
 					MethodScope methodScope = (MethodScope) currentScope;
 					staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
+
 				case Scope.BLOCK_SCOPE :
 					BlockScope blockScope = (BlockScope) currentScope;
+
 					next : for (int i = 0, length = blockScope.locals.length; i < length; i++) {
 						LocalVariableBinding local = blockScope.locals[i];
+
 						if (local == null)
 							break next;
+
 						if (tokenLength > local.name.length)
 							continue next;
+
 						if (!CharOperation.prefixEquals(token, local.name, false /* ignore case */
 							))
 							continue next;
+
 						if (local.isSecret())
 							continue next;
 
@@ -1547,6 +1761,7 @@ public final class CompletionEngine
 							endPosition);
 					}
 					break;
+
 				case Scope.COMPILATION_UNIT_SCOPE :
 					break done1;
 			}
@@ -1554,8 +1769,11 @@ public final class CompletionEngine
 		}
 
 		currentScope = scope;
+
 		done2 : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
+
 			switch (currentScope.kind) {
+
 				case Scope.CLASS_SCOPE :
 					ClassScope classScope = (ClassScope) currentScope;
 					SourceTypeBinding enclosingType = classScope.referenceContext.binding;
@@ -1573,6 +1791,7 @@ public final class CompletionEngine
 						staticsOnly,
 						invocationSite,
 						invocationScope);
+
 					findMethods(
 						token,
 						null,
@@ -1586,42 +1805,56 @@ public final class CompletionEngine
 					staticsOnly |= enclosingType.isStatic();
 					//				}
 					break;
+
 				case Scope.COMPILATION_UNIT_SCOPE :
 					break done2;
 			}
 			currentScope = currentScope.parent;
 		}
 	}
+
 	public AssistParser getParser() {
+
 		return parser;
 	}
+
 	private boolean mustQualifyType(
 		char[][] packageName,
 		char[] readableTypeName) {
+
 		// If there are no types defined into the current CU yet.
 		if (unitScope == null)
 			return true;
+
 		if (CharOperation.equals(unitScope.fPackage.compoundName, packageName))
 			return false;
 
 		ImportBinding[] imports = unitScope.imports;
+
 		for (int i = 0, length = imports.length; i < length; i++) {
+
 			if (imports[i].onDemand) {
+
 				if (CharOperation.equals(imports[i].compoundName, packageName))
 					return false; // how do you match p1.p2.A.* ?
+
 			} else
+
 				if (CharOperation.equals(imports[i].readableName(), readableTypeName)) {
 					return false;
 				}
 		}
 		return true;
 	}
+
 	protected void reset() {
+
 		super.reset();
 		this.knownPkgs = new HashtableOfObject(10);
-		
 	}
+
 	private void setSourceRange(int start, int end) {
+
 		this.startPosition = start;
 		this.endPosition = end + 1;
 	}
