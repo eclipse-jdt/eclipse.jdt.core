@@ -1107,7 +1107,7 @@ public class JavaProject
 	protected void flushClasspathProblemMarkers(boolean flushCycleMarkers, boolean flushClasspathFormatMarkers) {
 		try {
 			IProject project = getProject();
-			if (project.exists()) {
+			if (project.isAccessible()) {
 				IMarker[] markers = project.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 				for (int i = 0, length = markers.length; i < length; i++) {
 					IMarker marker = markers[i];
@@ -1267,7 +1267,7 @@ public class JavaProject
 	public IMarker getCycleMarker(){
 		try {
 			IProject project = getProject();
-			if (project.exists()) {
+			if (project.isAccessible()) {
 				IMarker[] markers = project.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 				for (int i = 0, length = markers.length; i < length; i++) {
 					IMarker marker = markers[i];
@@ -2321,7 +2321,7 @@ public class JavaProject
 	 */
 	public boolean saveClasspath(IClasspathEntry[] newClasspath, IPath newOutputLocation) throws JavaModelException {
 
-		if (!getProject().exists()) return false;
+		if (!getProject().isAccessible()) return false;
 
 		IClasspathEntry[] fileEntries = readClasspathFile(false /*don't create markers*/, false/*don't log problems*/);
 		if (fileEntries != null && isClasspathEqualsTo(newClasspath, newOutputLocation, fileEntries)) {
