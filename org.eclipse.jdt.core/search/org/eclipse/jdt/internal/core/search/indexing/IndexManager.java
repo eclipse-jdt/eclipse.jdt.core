@@ -406,7 +406,7 @@ public void saveIndexes(){
 				index.save();
 			} catch(IOException e){
 				if (IndexManager.VERBOSE) {
-					JobManager.log("-> got the following exception while merging:");
+					JobManager.log("-> got the following exception while merging:"); //$NON-NLS-1$
 					e.printStackTrace();
 				}
 				//org.eclipse.jdt.internal.core.Util.log(e);

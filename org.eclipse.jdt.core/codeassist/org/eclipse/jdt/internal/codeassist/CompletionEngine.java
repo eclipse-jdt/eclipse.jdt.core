@@ -44,13 +44,16 @@ public final class CompletionEngine
 	
 	public static boolean DEBUG = false;
 	
-	private static int DEFAULTRELEVANCE = 5;
-	private static int CASEMATCHRELEVANCE = 5;
-	private static int EXPECTEDTYPEMATCHRELEVANCE = 20;
-	private static int INTERFACERELEVANCE = 5;
-	private static int CLASSRELEVANCE = 5;
-	private static int EXCEPTIONRELEVANCE = 5;
-	
+	private final static int DEFAULTRELEVANCE = 5;
+	private final static int CASEMATCHRELEVANCE = 5;
+	private final static int EXPECTEDTYPEMATCHRELEVANCE = 20;
+	private final static int INTERFACERELEVANCE = 5;
+	private final static int CLASSRELEVANCE = 5;
+	private final static int EXCEPTIONRELEVANCE = 5;
+
+	private final static char[] ERROR = "*error*".toCharArray();  //$NON-NLS-1$
+	private final static char[] EXCEPTION = "*exception*".toCharArray();  //$NON-NLS-1$
+		
 	TypeBinding[] expectedTypes;
 	
 	boolean assistNodeIsClass;
@@ -1770,8 +1773,8 @@ public final class CompletionEngine
 	private int computeRelevanceForException(char[] proposalName){
 		
 		if(assistNodeIsException &&
-			(CharOperation.match("*exception*".toCharArray(), proposalName, false) ||
-			CharOperation.match("*error*".toCharArray(), proposalName, false))) {
+			(CharOperation.match(EXCEPTION, proposalName, false) ||
+			CharOperation.match(ERROR, proposalName, false))) { 
 			return EXCEPTIONRELEVANCE;
 		}
 		return 0;
