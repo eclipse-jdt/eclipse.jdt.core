@@ -495,18 +495,20 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	}
 	
 	/*
-	 * Process the given delta and look for projects being added, opened or closed.
+	 * Process the given delta and look for projects being added, opened, closed or
+	 * with a java nature being added or removed.
+	 * Note that projects being deleted are checked in deleting(IProject).
 	 * In this case of a project being added, removes it from the list of projects being deleted.
 	 * In all cases, add the project's dependents to the list of projects to update
 	 * so that the classpath related markers can be updated.
 	 */
-	public void checkProjectsBeingAddedOpenedOrClosed(IResourceDelta delta) {
+	public void checkProjectsBeingAddedOrRemoved(IResourceDelta delta) {
 		IResource resource = delta.getResource();
 		switch (resource.getType()) {
 			case IResource.ROOT :
 				IResourceDelta[] children = delta.getAffectedChildren();
 				for (int i = 0, length = children.length; i < length; i++) {
-					this.checkProjectsBeingAddedOpenedOrClosed(children[i]);
+					this.checkProjectsBeingAddedOrRemoved(children[i]);
 				}
 				break;
 			case IResource.PROJECT :
@@ -528,6 +530,15 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 					if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
 						// project opened or closed: remember dependents
 						this.deltaProcessor.addDependentsToProjectsToUpdate(resource.getFullPath());
+					}
+					if ((delta.getFlags() & IResourceDelta.DESCRIPTION) != 0) {
+						IProject project = (IProject)resource;
+						boolean wasJavaProject = this.getJavaModel().findJavaProject(project) != null;
+						boolean isJavaProject = this.deltaProcessor.hasJavaNature(project);
+						if (wasJavaProject != isJavaProject) {
+							// java nature added or removed: remember dependents
+							this.deltaProcessor.addDependentsToProjectsToUpdate(resource.getFullPath());
+						}
 					}
 				}
 				break;
@@ -1219,7 +1230,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 					
 				case IResourceChangeEvent.PRE_AUTO_BUILD :
 					if(delta != null) {
-						this.checkProjectsBeingAddedOpenedOrClosed(delta);
+						this.checkProjectsBeingAddedOrRemoved(delta);
 						
 						// the following will close project if affected by the property file change
 						// and update the classpath related markers

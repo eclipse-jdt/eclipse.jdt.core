@@ -70,6 +70,23 @@ public void delete(IJavaElement[] elements, boolean force, IProgressMonitor moni
 		runOperation(new DeleteElementsOperation(elements, force), monitor);
 	}
 }
+/**
+ * Finds the given project in the list of the java model's children.
+ * Returns null if not found.
+ */
+public IJavaProject findJavaProject(IProject project) {
+	try {
+		IJavaProject[] projects = this.getJavaProjects();
+		for (int i = 0, length = projects.length; i < length; i++) {
+			IJavaProject javaProject = projects[i];
+			if (project.equals(javaProject.getProject())) {
+				return javaProject;
+			}
+		}
+	} catch (JavaModelException e) {
+	}
+	return null;
+}
 
 /**
  */

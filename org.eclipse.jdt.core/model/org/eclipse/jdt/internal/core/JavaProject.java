@@ -477,28 +477,6 @@ public class JavaProject
 
 		// register Java builder
 		addToBuildSpec(JavaCore.BUILDER_ID);
-
-		// add project as child of java model
-		JavaModel model = (JavaModel) getJavaModel();
-		JavaElementInfo jmi = model.getElementInfo();
-		jmi.addChild(this);
-
-		// notify Java delta (Java project added) 
-		JavaModelManager manager =
-			(JavaModelManager) JavaModelManager.getJavaModelManager();
-		IProject project = this.getProject();
-		if (!manager.isBeingDeleted(project)) {
-			// create java delta 
-			JavaElementDelta projectDelta = new JavaElementDelta(model);
-			projectDelta.added(this);
-			manager.registerJavaModelDelta(projectDelta);
-			
-			// index project
-			manager.getIndexManager().indexAll(project);
-			
-		} // else project is removed then added 
-		  // -> it will be a changed delta reported by delta processor
-
 	}
 
 	/**
@@ -544,21 +522,6 @@ public class JavaProject
 
 		// deregister Java builder
 		removeFromBuildSpec(JavaCore.BUILDER_ID);
-		
-		// notify Java delta (Java project removed) 
-		JavaModelManager manager =
-			(JavaModelManager) JavaModelManager.getJavaModelManager();
-		JavaModel model = (JavaModel) getJavaModel();
-		JavaElementDelta projectDelta = new JavaElementDelta(model);
-		projectDelta.removed(this);
-		manager.registerJavaModelDelta(projectDelta);
-		
-		// remove index
-		manager.getIndexManager().removeIndex(this.getProject().getFullPath());
-		
-		// remove project from java model
-		JavaElementInfo jmi = model.getElementInfo();
-		jmi.removeChild(this);
 	}
 
 	/**

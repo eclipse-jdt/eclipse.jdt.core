@@ -501,49 +501,9 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 		}
 	}
 
-	/**
-	 * Processing for the closing of an element - there are two cases:<ul>
-	 * <li>when a project is closed (in the platform sense), the
-	 * 		JavaModel reports this as if the JavaProject has been removed.
-	 * <li>otherwise, the JavaModel reports this
-	 *		as a the element being closed (CHANGED + F_CLOSED).
-	 * </ul>
-	 * <p>In both cases, the children of the element are not processed. When
-	 * a resource is closed, the platform reports all children as removed. This
-	 * would effectively delete the classpath if we processed children.
-	 */
-	protected void elementClosed(Openable element, IResourceDelta delta) {
 
-		if (element.getElementType() == IJavaElement.JAVA_PROJECT) {
-			// treat project closing as removal
-			elementRemoved(element, delta);
-		} else {
-			removeFromParentInfo(element);
-			close(element);
-			fCurrentDelta.closed(element);
-		}
-	}
 
-	/**
-	 * Processing for the opening of an element - there are two cases:<ul>
-	 * <li>when a project is opened (in the platform sense), the
-	 * 		JavaModel reports this as if the JavaProject has been added.
-	 * <li>otherwise, the JavaModel reports this
-	 *		as a the element being opened (CHANGED + F_CLOSED).
-	 * </ul>
-	 */
-	protected void elementOpened(Openable element, IResourceDelta delta) {
 
-		if (element.getElementType() == IJavaElement.JAVA_PROJECT) {
-			// treat project opening as addition
-			if (hasJavaNature(delta.getResource())) {
-				elementAdded(element, delta);
-			}
-		} else {
-			addToParentInfo(element);
-			fCurrentDelta.opened(element);
-		}
-	}
 
 	/**
 	 * Generic processing for a removed element:<ul>
@@ -861,19 +821,47 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 				if (element == null) throw newInvalidElementType();
 				this.updateIndex(element, delta);
 				this.contentChanged(element, delta);
-			} else if (elementType == IJavaElement.JAVA_PROJECT
-					&& (flags & IResourceDelta.OPEN) != 0) {
-				// project has been opened or closed
-				IProject res = (IProject)delta.getResource();
-				element = this.createElement(res, elementType, project);
-				if (element == null) throw newInvalidElementType();
-				if (res.isOpen()) {
-					this.elementOpened(element, delta);
-				} else {
-					this.elementClosed(element, delta);
+			} else if (elementType == IJavaElement.JAVA_PROJECT) {
+				if ((flags & IResourceDelta.OPEN) != 0) {
+					// project has been opened or closed
+					IProject res = (IProject)delta.getResource();
+					element = this.createElement(res, elementType, project);
+					if (element == null) throw newInvalidElementType();
+					if (res.isOpen()) {
+						if (this.hasJavaNature(res)) {
+							this.elementAdded(element, delta);
+							this.indexManager.indexAll(res);
+						}
+					} else {
+						JavaModel javaModel = JavaModelManager.getJavaModelManager().getJavaModel();
+						boolean wasJavaProject = javaModel.findJavaProject(res) != null;
+						if (wasJavaProject) {
+							this.elementRemoved(element, delta);
+							this.indexManager.removeIndex(res.getFullPath());
+							
+						}
+					}
+					return false; // when a project is open/closed don't process children
 				}
-				this.updateIndex(element, delta);
-				return false; // when a project is open/closed don't process children
+				if ((flags & IResourceDelta.DESCRIPTION) != 0) {
+					IProject res = (IProject)delta.getResource();
+					JavaModel javaModel = JavaModelManager.getJavaModelManager().getJavaModel();
+					boolean wasJavaProject = javaModel.findJavaProject(res) != null;
+					boolean isJavaProject = this.hasJavaNature(res);
+					if (wasJavaProject != isJavaProject) {
+						// project's nature has been added or removed
+						element = this.createElement(res, elementType, project);
+						if (element == null) throw newInvalidElementType();
+						if (isJavaProject) {
+							this.elementAdded(element, delta);
+							this.indexManager.indexAll(res);
+						} else {
+							this.elementRemoved(element, delta);
+							this.indexManager.removeIndex(res.getFullPath());
+						}
+						return false; // when a project's nature is added/removed don't process children
+					}
+				}
 			}
 			return true;
 	}
@@ -1088,8 +1076,9 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 		switch (parentType) {
 			case IJavaElement.JAVA_MODEL:
 				if (kind != IResourceDelta.CHANGED
-					|| (flags & IResourceDelta.OPEN) != 0) {
-					// project is added, removed, opened or closed
+					|| (flags & IResourceDelta.OPEN) != 0
+					|| (flags & IResourceDelta.DESCRIPTION) != 0) {
+					// project is added, removed, opened or closed, or its nature is changed
 					return IJavaElement.JAVA_PROJECT;
 				} // else see below
 			case IJavaElement.JAVA_PROJECT:
@@ -1174,12 +1163,13 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 		case IJavaElement.JAVA_PROJECT :
 			switch (delta.getKind()) {
 				case IResourceDelta.ADDED :
-				case IResourceDelta.OPEN :
 					indexManager.indexAll(element.getJavaProject().getProject());
 					break;
 				case IResourceDelta.REMOVED :
 					indexManager.removeIndex(element.getJavaProject().getProject().getFullPath());
 					break;
+				// NB: Update of index if project is opened, closed, or its java nature is added or removed
+				//     is done in updateCurrentDeltaAndIndex
 			}
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT :
