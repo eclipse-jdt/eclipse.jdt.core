@@ -36,6 +36,7 @@ public interface IIndexConstants {
 	char SEPARATOR= '/';
 
 	char[] ONE_STAR = new char[] {'*'};
+	char[][] ONE_STAR_CHAR = new char[][] {ONE_STAR};
 	char[] NO_CHAR = new char[0];
 	char[][] NO_CHAR_CHAR = new char[0][];
 

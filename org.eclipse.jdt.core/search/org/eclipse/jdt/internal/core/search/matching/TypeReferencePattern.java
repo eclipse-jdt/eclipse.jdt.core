@@ -67,7 +67,7 @@ public TypeReferencePattern(
 	this.simpleName = isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
 
 	if (simpleName == null) {
-		this.segments = CharOperation.splitOn('.', qualification);
+		this.segments = qualification == null ? ONE_STAR_CHAR : CharOperation.splitOn('.', qualification);
 	}
 	
 	this.needsResolve = qualification != null;
