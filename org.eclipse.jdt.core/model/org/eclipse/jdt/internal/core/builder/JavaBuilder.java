@@ -103,9 +103,6 @@ public static void writeState(Object state, DataOutputStream out) throws IOExcep
 	((State) state).write(out);
 }
 
-public JavaBuilder() {
-}
-
 protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) throws CoreException {
 	this.currentProject = getProject();
 	if (currentProject == null || !currentProject.isAccessible()) return new IProject[0];
