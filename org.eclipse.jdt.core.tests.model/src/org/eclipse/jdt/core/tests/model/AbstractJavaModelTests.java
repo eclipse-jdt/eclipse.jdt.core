@@ -1303,20 +1303,12 @@ protected void assertDeltas(String message, String expected) {
 		}
 	}
 	/**
-	 * Check locally for the required JCL files, jclMin.jar and jclMinsrc.zip.
-	 * If not available, copy from the project resources.
-	 */
-	public void setupExternalJCL() throws IOException {
-		if (EXTERNAL_JAR_DIR_PATH != null) return;
-		EXTERNAL_JAR_DIR_PATH = getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
-		setupExternalJCL("jclMin");
-		setupExternalJCL("jclMin1.5");
-	}
-	/**
 	 * Check locally for the required JCL files, <jclName>.jar and <jclName>src.zip.
 	 * If not available, copy from the project resources.
 	 */
 	public void setupExternalJCL(String jclName) throws IOException {
+		if (EXTERNAL_JAR_DIR_PATH == null)
+			EXTERNAL_JAR_DIR_PATH = getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
 		String separator = java.io.File.separator;
 		String resourceJCLDir = getPluginDirectoryPath() + separator + "JCL";
 		java.io.File jclDir = new java.io.File(EXTERNAL_JAR_DIR_PATH);
@@ -1395,7 +1387,7 @@ protected void assertDeltas(String message, String expected) {
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		setupExternalJCL();
+		setupExternalJCL("jclMin");
 		
 		// ensure autobuilding is turned off
 		IWorkspaceDescription description = getWorkspace().getDescription();

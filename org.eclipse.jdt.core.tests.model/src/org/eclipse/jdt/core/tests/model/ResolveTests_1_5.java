@@ -42,6 +42,7 @@ public ResolveTests_1_5(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
+	setupExternalJCL("jclMin1.5");
 	setUpJavaProject("Resolve", "1.5");
 	
 	waitUntilIndexesReady();
