@@ -333,11 +333,11 @@ SearchEngine.search(SearchPattern, SearchParticipant[], IJavaSearchScope, Search
 This first asks each search participant for the indexes needed by this query using 
 SearchParticipant.selectIndexes(SearchPattern, IJavaSearchScope). For each index entry that matches
 the given pattern, a search document is created by asking the search participant (see getDocument(String)).
-All these documents are passed to the search particpant so that it can locate matches using 
+All these documents are passed to the search participant so that it can locate matches using 
 locateMatches(SearchDocument[], SearchPattern, IJavaSearchScope, SearchRequestor, IProgressMonitor).
 The search participant notifies the SearchRequestor of search matches using acceptSearchMatch(SearchMatch)
 and passing an instance of a subclass of SearchMatch.</p>
-<p>A search particpant can delegate part of its work to the default Java search participant. An instance of
+<p>A search participant can delegate part of its work to the default Java search participant. An instance of
 this default participant is obtained using SearchEngine.getDefaultSearchParticipant(). For example when asked to
 locate matches, an SQLJ participant can create documents .java documents from its .sqlj documents and
 delegate the work to the default participant passing it the .java documents.</p>
