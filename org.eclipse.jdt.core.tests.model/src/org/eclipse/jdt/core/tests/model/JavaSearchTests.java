@@ -1176,7 +1176,7 @@ public void testInnacurateTypeReference3() throws CoreException {
 		getJavaSearchScope(), 
 		resultCollector);
 	assertEquals(
-		"src/r4/B21485.java [A21485] POTENTIAL_MATCH\n" +
+		"src/r4/B21485.java [r3.A21485] EXACT_MATCH\n" +
 		"src/r4/B21485.java r4.B21485 [A21485] POTENTIAL_MATCH",
 		resultCollector.toString());
 }
@@ -1319,10 +1319,10 @@ public void testMemberTypeReference() throws JavaModelException, CoreException {
 		resultCollector);
 	assertEquals(
 		"References to type BMember",
-		"src/MemberTypeReference/Azz.java MemberTypeReference.Azz.poo() -> void [B.BMember] EXACT_MATCH\n" +
+		"src/MemberTypeReference/Azz.java MemberTypeReference.Azz.poo() -> void [BMember] EXACT_MATCH\n" +
 		"src/MemberTypeReference/Azz.java MemberTypeReference.Azz$AzzMember [BMember] EXACT_MATCH\n" +
-		"src/MemberTypeReference/Azz.java MemberTypeReference.X.val [Azz.AzzMember.BMember] EXACT_MATCH\n" +
-		"src/MemberTypeReference/B.java MemberTypeReference.B.foo() -> void [Azz.AzzMember.BMember] EXACT_MATCH",
+		"src/MemberTypeReference/Azz.java MemberTypeReference.X.val [BMember] EXACT_MATCH\n" +
+		"src/MemberTypeReference/B.java MemberTypeReference.B.foo() -> void [BMember] EXACT_MATCH",
 		resultCollector.toString());
 
 	// references to first level member type
@@ -1337,8 +1337,8 @@ public void testMemberTypeReference() throws JavaModelException, CoreException {
 		resultCollector);
 	assertEquals(
 		"References to type AzzMember",
-		"src/MemberTypeReference/Azz.java MemberTypeReference.X.val [Azz.AzzMember] EXACT_MATCH\n" +
-		"src/MemberTypeReference/B.java MemberTypeReference.B.foo() -> void [Azz.AzzMember] EXACT_MATCH",
+		"src/MemberTypeReference/Azz.java MemberTypeReference.X.val [AzzMember] EXACT_MATCH\n" +
+		"src/MemberTypeReference/B.java MemberTypeReference.B.foo() -> void [AzzMember] EXACT_MATCH",
 		resultCollector.toString());
 
 	// no reference to a field with same name as member type
@@ -2340,7 +2340,7 @@ public void testTypeDeclarationInJar2() throws JavaModelException, CoreException
 		scope, 
 		resultCollector);
 	assertEquals(
-		"test20631.jar X$1$Y", 
+		"test20631.jar X.foo() -> void", 
 		resultCollector.toString());
 }
 /**

@@ -88,26 +88,26 @@ public int match(TypeReference node, MatchingNodeSet nodeSet) {
 }
 
 protected int matchLevel(ImportReference importRef) {
-	if (this.pattern.qualification != null) {
+	if (this.pattern.qualification == null) {
+		if (this.pattern.simpleName == null) return ACCURATE_MATCH;
 		char[][] tokens = importRef.tokens;
-		char[] patternName = this.pattern.simpleName == null
+		for (int i = 0, length = tokens.length; i < length; i++)
+			if (matchesName(this.pattern.simpleName, tokens[i])) return ACCURATE_MATCH;
+	} else {
+		char[][] tokens = importRef.tokens;
+		char[] qualifiedPattern = this.pattern.simpleName == null
 			? this.pattern.qualification
 			: CharOperation.concat(this.pattern.qualification, this.pattern.simpleName, '.');
 		char[] qualifiedTypeName = CharOperation.concatWith(tokens, '.');
 		switch (this.matchMode) {
 			case IJavaSearchConstants.EXACT_MATCH :
 			case IJavaSearchConstants.PREFIX_MATCH :
-				if (CharOperation.prefixEquals(patternName, qualifiedTypeName, this.isCaseSensitive)) return POSSIBLE_MATCH;
+				if (CharOperation.prefixEquals(qualifiedPattern, qualifiedTypeName, this.isCaseSensitive)) return POSSIBLE_MATCH;
 				break;
 			case IJavaSearchConstants.PATTERN_MATCH:
-				if (CharOperation.match(patternName, qualifiedTypeName, this.isCaseSensitive)) return POSSIBLE_MATCH;
+				if (CharOperation.match(qualifiedPattern, qualifiedTypeName, this.isCaseSensitive)) return POSSIBLE_MATCH;
 				break;
 		}
-	} else {
-		if (this.pattern.simpleName == null) return ACCURATE_MATCH;
-		char[][] tokens = importRef.tokens;
-		for (int i = 0, length = tokens.length; i < length; i++)
-			if (matchesName(this.pattern.simpleName, tokens[i])) return ACCURATE_MATCH;
 	}
 	return IMPOSSIBLE_MATCH;
 }
@@ -124,42 +124,32 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 		return;
 	}
 
-	ReferenceBinding typeBinding = null;
-	if (binding instanceof ReferenceBinding)
-		typeBinding = (ReferenceBinding) binding;
-
-	char[][] typeTokens = importRef.tokens;
-	int lastIndex = typeTokens.length-1;
-	char[][] tokens = null;
-	// try to match all enclosing types for which the token matches as well.
-	while (typeBinding != null && lastIndex >= 0) {
-		if (matchesName(this.pattern.simpleName, typeTokens[lastIndex--])) {
-			int level = resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, typeBinding);
-			if (level != IMPOSSIBLE_MATCH) {
-				tokens = new char[lastIndex+2][];
-				System.arraycopy(typeTokens, 0, tokens, 0, lastIndex+2);
-				break;
+	if (binding instanceof ReferenceBinding) {
+		int lastIndex = importRef.tokens.length - 1;
+		ReferenceBinding typeBinding = (ReferenceBinding) binding;
+		if (typeBinding instanceof ProblemReferenceBinding) {
+			ProblemReferenceBinding pbBinding = (ProblemReferenceBinding) typeBinding;
+			typeBinding = pbBinding.original;
+			lastIndex = pbBinding.compoundName.length - 1;
+		}
+		// try to match all enclosing types for which the token matches as well.
+		while (typeBinding != null && lastIndex >= 0) {
+			if (resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, typeBinding) == ACCURATE_MATCH) {
+				long[] positions = importRef.sourcePositions;
+				locator.report(positions[this.pattern.qualification == null ? lastIndex : 0], positions[lastIndex], element, accuracy);
+				return;
 			}
-		}
-		typeBinding = typeBinding.enclosingType();
-	}
-	if (tokens == null) {
-		tokens = typeBinding == null || typeBinding instanceof ProblemReferenceBinding
-			? new char[][] {this.pattern.simpleName}
-			: importRef.tokens;
-		if (!this.isCaseSensitive) {
-			int length = tokens.length;
-			char[][] lowerCaseTokens = new char[length][];
-			for (int i = 0; i < length; i++)
-				lowerCaseTokens[i] = CharOperation.toLowerCase(tokens[i]);
-			tokens = lowerCaseTokens;
+			lastIndex--;
+			typeBinding = typeBinding.enclosingType();
 		}
 	}
-	locator.reportAccurateReference(importRef.sourceStart, importRef.sourceEnd, tokens, element, accuracy);
+	locator.reportAccurateReference(importRef.sourceStart, importRef.sourceEnd, this.pattern.simpleName, element, accuracy);
 }
 protected void matchReportReference(ArrayTypeReference arrayRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	char[][] tokens = this.pattern.simpleName == null ? CharOperation.NO_CHAR_CHAR : new char[][] {this.pattern.simpleName};
-	locator.reportAccurateReference(arrayRef.sourceStart, arrayRef.sourceEnd, tokens, element, accuracy);
+	if (this.pattern.simpleName == null)
+		locator.report(arrayRef.sourceStart, arrayRef.sourceEnd, element, accuracy);
+	else
+		locator.reportAccurateReference(arrayRef.sourceStart, arrayRef.sourceEnd, this.pattern.simpleName, element, accuracy);
 }
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfReferencedTypesPattern) {
@@ -178,105 +168,74 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 		super.matchReportReference(reference, element, accuracy, locator);
 }
 protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	char[][] tokens = null;
 	Binding binding = qNameRef.binding;
 	TypeBinding typeBinding = null;
-	char[][] nameTokens = qNameRef.tokens;
-	int lastIndex = nameTokens.length-1;
+	int lastIndex = qNameRef.tokens.length - 1;
 	switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
 		case BindingIds.FIELD : // reading a field
 			typeBinding = qNameRef.actualReceiverType;
-			int otherBindingsCount = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;			
-			lastIndex -= otherBindingsCount + 1;
+			lastIndex -= qNameRef.otherBindings == null ? 1 : qNameRef.otherBindings.length + 1;
 			break;
 		case BindingIds.TYPE : //=============only type ==============
-			if (binding instanceof ProblemBinding) {
-				ProblemBinding pbBinding = (ProblemBinding) binding;
-				typeBinding = pbBinding.searchType; // second chance with recorded type so far
-				char[] partialQualifiedName = pbBinding.name;
-				lastIndex = CharOperation.occurencesOf('.', partialQualifiedName) - 1; // index of last bound token is one before the pb token
-			} else {
-				typeBinding = (TypeBinding)binding;
-			}
+			if (binding instanceof TypeBinding)
+				typeBinding = (TypeBinding) binding;
 			break;
 		case BindingIds.VARIABLE : //============unbound cases===========
-		case BindingIds.TYPE | BindingIds.VARIABLE :						
-			if (binding instanceof ProblemBinding) {
-				ProblemBinding pbBinding = (ProblemBinding) binding;
-				typeBinding = pbBinding.searchType; // second chance with recorded type so far
-				char[] partialQualifiedName = pbBinding.name;
-				lastIndex = CharOperation.occurencesOf('.', partialQualifiedName) - 1; // index of last bound token is one before the pb token
+		case BindingIds.TYPE | BindingIds.VARIABLE :
+			if (binding instanceof ProblemReferenceBinding) {
+				typeBinding = (TypeBinding) binding;
+			} else if (binding instanceof ProblemFieldBinding) {
+				typeBinding = qNameRef.actualReceiverType;
+				lastIndex -= qNameRef.otherBindings == null ? 1 : qNameRef.otherBindings.length + 1;
+			} else if (binding instanceof ProblemBinding) {
+				typeBinding = ((ProblemBinding) binding).searchType;
 			}
-			break;
+			break;					
+	}
+	if (typeBinding instanceof ProblemReferenceBinding) {
+		ProblemReferenceBinding pbBinding = (ProblemReferenceBinding) typeBinding;
+		typeBinding = pbBinding.original;
+		lastIndex = pbBinding.compoundName.length - 1;
 	}
 	// try to match all enclosing types for which the token matches as well.
-	while (typeBinding != null && lastIndex >= 0) {
-		if (matchesName(this.pattern.simpleName, nameTokens[lastIndex--])) {
-			int level = resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, typeBinding);
-			if (level != IMPOSSIBLE_MATCH) {
-				tokens = new char[lastIndex+2][];
-				System.arraycopy(nameTokens, 0, tokens, 0, lastIndex+2);
-				break;
+	if (typeBinding instanceof ReferenceBinding) {
+		ReferenceBinding refBinding = (ReferenceBinding) typeBinding; 
+		while (refBinding != null && lastIndex >= 0) {
+			if (resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, refBinding) == ACCURATE_MATCH) {
+				long[] positions = qNameRef.sourcePositions;
+				locator.report(positions[this.pattern.qualification == null ? lastIndex : 0], positions[lastIndex], element, accuracy);
+				return;
 			}
-		}
-		typeBinding = typeBinding instanceof ReferenceBinding
-			? ((ReferenceBinding)typeBinding).enclosingType()
-			: null;
-	} 
-	if (tokens == null) {
-		tokens = binding == null || binding instanceof ProblemBinding
-			? new char[][] {this.pattern.simpleName}
-			: qNameRef.tokens;
-		if (!this.isCaseSensitive) {
-			int length = tokens.length;
-			char[][] lowerCaseTokens = new char[length][];
-			for (int i = 0; i < length; i++) {
-				char[] token = tokens[i];
-				lowerCaseTokens[i] = CharOperation.toLowerCase(token);
-			}
-			tokens = lowerCaseTokens;
+			lastIndex--;
+			refBinding = refBinding.enclosingType();
 		}
 	}
-	locator.reportAccurateReference(qNameRef.sourceStart, qNameRef.sourceEnd, tokens, element, accuracy);
+	locator.reportAccurateReference(qNameRef.sourceStart, qNameRef.sourceEnd, this.pattern.simpleName, element, accuracy);
 }
 protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	char[][] tokens = null;
 	TypeBinding typeBinding = qTypeRef.resolvedType;
+	int lastIndex = qTypeRef.tokens.length - 1;
 	if (typeBinding instanceof ArrayBinding)
 		typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
-	char[][] typeTokens = qTypeRef.tokens;
-	int lastIndex = typeTokens.length-1;
-	// try to match all enclosing types for which the token matches as well.
-	while (typeBinding != null && lastIndex >= 0) {
-		if (matchesName(this.pattern.simpleName, typeTokens[lastIndex--])) {
-			int level = resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, typeBinding);
-			if (level != IMPOSSIBLE_MATCH) {
-				tokens = new char[lastIndex+2][];
-				System.arraycopy(typeTokens, 0, tokens, 0, lastIndex+2);
-				break;
-			}
-		}
-		if (typeBinding instanceof ReferenceBinding)
-			typeBinding = ((ReferenceBinding)typeBinding).enclosingType();
-		else
-			typeBinding = null;
+	if (typeBinding instanceof ProblemReferenceBinding) {
+		ProblemReferenceBinding pbBinding = (ProblemReferenceBinding) typeBinding;
+		typeBinding = pbBinding.original;
+		lastIndex = pbBinding.compoundName.length - 1;
 	}
-	if (tokens == null) {
-		if (typeBinding == null || typeBinding instanceof ProblemReferenceBinding)
-			tokens = new char[][] {this.pattern.simpleName};
-		else
-			tokens = qTypeRef.tokens;
-		if (!this.isCaseSensitive) {
-			int length = tokens.length;
-			char[][] lowerCaseTokens = new char[length][];
-			for (int i = 0; i < length; i++) {
-				char[] token = tokens[i];
-				lowerCaseTokens[i] = CharOperation.toLowerCase(token);
+	// try to match all enclosing types for which the token matches as well
+	if (typeBinding instanceof ReferenceBinding) {
+		ReferenceBinding refBinding = (ReferenceBinding) typeBinding; 
+		while (refBinding != null && lastIndex >= 0) {
+			if (resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, refBinding) == ACCURATE_MATCH) {
+				long[] positions = qTypeRef.sourcePositions;
+				locator.report(positions[this.pattern.qualification == null ? lastIndex : 0], positions[lastIndex], element, accuracy);
+				return;
 			}
-			tokens = lowerCaseTokens;
+			lastIndex--;
+			refBinding = refBinding.enclosingType();
 		}
 	}
-	locator.reportAccurateReference(qTypeRef.sourceStart, qTypeRef.sourceEnd, tokens, element, accuracy);
+	locator.reportAccurateReference(qTypeRef.sourceStart, qTypeRef.sourceEnd, this.pattern.simpleName, element, accuracy);
 }
 protected void reportDeclaration(AstNode reference, IJavaElement element, MatchLocator locator, SimpleSet knownTypes) throws CoreException {
 	int maxType = -1;
@@ -291,23 +250,18 @@ protected void reportDeclaration(AstNode reference, IJavaElement element, MatchL
 		switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
 			case BindingIds.FIELD : // reading a field
 				typeBinding = qNameRef.actualReceiverType;
-				int otherBindingsCount = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;			
-				maxType -= otherBindingsCount + 1;
+				maxType -= qNameRef.otherBindings == null ? 1 : qNameRef.otherBindings.length + 1;
 				break;
 			case BindingIds.TYPE : //=============only type ==============
-				if (binding instanceof ProblemBinding) {
-					ProblemBinding pbBinding = (ProblemBinding) binding;
-					typeBinding = pbBinding.searchType; // second chance with recorded type so far
-					char[] partialQualifiedName = pbBinding.name;
-					maxType = CharOperation.occurencesOf('.', partialQualifiedName) - 1; // index of last bound token is one before the pb token
-					if (typeBinding == null || maxType < 0) return;
-				} else {
-					typeBinding = (TypeBinding)binding;
-				}
+				if (binding instanceof TypeBinding)
+					typeBinding = (TypeBinding) binding;
 				break;
 			case BindingIds.VARIABLE : //============unbound cases===========
-			case BindingIds.TYPE | BindingIds.VARIABLE :						
-				if (binding instanceof ProblemBinding) {
+			case BindingIds.TYPE | BindingIds.VARIABLE :
+				if (binding instanceof ProblemFieldBinding) {
+					typeBinding = qNameRef.actualReceiverType;
+					maxType -= qNameRef.otherBindings == null ? 1 : qNameRef.otherBindings.length + 1;
+				} else if (binding instanceof ProblemBinding) {
 					ProblemBinding pbBinding = (ProblemBinding) binding;
 					typeBinding = pbBinding.searchType; // second chance with recorded type so far
 					char[] partialQualifiedName = pbBinding.name;
@@ -317,18 +271,21 @@ protected void reportDeclaration(AstNode reference, IJavaElement element, MatchL
 				break;
 		}
 	} else if (reference instanceof SingleNameReference) {
-		typeBinding = (TypeBinding)((SingleNameReference) reference).binding;
+		typeBinding = (TypeBinding) ((SingleNameReference) reference).binding;
 		maxType = 1;
 	}
 	
-	if (typeBinding == null || typeBinding instanceof BaseTypeBinding) return;
 	if (typeBinding instanceof ArrayBinding)
 		typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
-	this.reportDeclaration(typeBinding, maxType, locator, knownTypes);
+	if (typeBinding == null || typeBinding instanceof BaseTypeBinding) return;
+	if (typeBinding instanceof ProblemReferenceBinding)
+		typeBinding = ((ProblemReferenceBinding) typeBinding).original;
+	reportDeclaration((ReferenceBinding) typeBinding, maxType, locator, knownTypes);
 }
-protected void reportDeclaration(TypeBinding typeBinding, int maxType, MatchLocator locator, SimpleSet knownTypes) throws CoreException {
+protected void reportDeclaration(ReferenceBinding typeBinding, int maxType, MatchLocator locator, SimpleSet knownTypes) throws CoreException {
 	IType type = locator.lookupType(typeBinding);
 	if (type == null) return; // case of a secondary type
+
 	IResource resource = type.getResource();
 	boolean isBinary = type.isBinary();
 	IBinaryType info = null;
@@ -375,16 +332,10 @@ public int resolveLevel(Binding binding) {
 	TypeBinding typeBinding = (TypeBinding) binding;
 	if (typeBinding instanceof ArrayBinding)
 		typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
-	if (typeBinding instanceof ProblemReferenceBinding) return INACCURATE_MATCH;
+	if (typeBinding instanceof ProblemReferenceBinding)
+		typeBinding = ((ProblemReferenceBinding) typeBinding).original;
 
-	while (typeBinding != null) {
-		int level = resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, typeBinding);
-		if (level != IMPOSSIBLE_MATCH) return level;
-		if (typeBinding instanceof ReferenceBinding)
-			typeBinding = ((ReferenceBinding) typeBinding).enclosingType();
-		else return IMPOSSIBLE_MATCH;
-	}
-	return IMPOSSIBLE_MATCH;
+	return resolveLevelForTypeOrEnclosingTypes(this.pattern.simpleName, this.pattern.qualification, typeBinding);
 }
 protected int resolveLevel(NameReference nameRef) {
 	Binding binding = nameRef.binding;
@@ -392,95 +343,77 @@ protected int resolveLevel(NameReference nameRef) {
 	if (nameRef instanceof SingleNameReference) {
 		if (binding instanceof ProblemReferenceBinding)
 			binding = ((ProblemReferenceBinding) binding).original;
-		if (binding instanceof VariableBinding) return IMPOSSIBLE_MATCH;
-		if (!(binding instanceof TypeBinding)) return INACCURATE_MATCH;
-		return resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, (TypeBinding) binding);
+		if (binding instanceof ReferenceBinding)
+			return resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, (ReferenceBinding) binding);
+		return binding == null || binding instanceof ProblemBinding ? INACCURATE_MATCH : IMPOSSIBLE_MATCH;
 	}
 
 	TypeBinding typeBinding = null;
 	QualifiedNameReference qNameRef = (QualifiedNameReference) nameRef;
-	char[][] tokens = qNameRef.tokens;
-	int lastIndex = tokens.length-1;
 	switch (qNameRef.bits & AstNode.RestrictiveFlagMASK) {
 		case BindingIds.FIELD : // reading a field
+			if (qNameRef.tokens.length < (qNameRef.otherBindings == null ? 2 : qNameRef.otherBindings.length + 2))
+				return IMPOSSIBLE_MATCH; // must be at least A.x
 			typeBinding = nameRef.actualReceiverType;
-			// no valid match amongst fields
-			int otherBindingsCount = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;			
-			lastIndex -= otherBindingsCount + 1;
-			if (lastIndex < 0) return IMPOSSIBLE_MATCH;
 			break;
 		case BindingIds.LOCAL : // reading a local variable
 			return IMPOSSIBLE_MATCH; // no type match in it
 		case BindingIds.TYPE : //=============only type ==============
-			if (binding instanceof ProblemReferenceBinding)
-				binding = ((ProblemReferenceBinding) binding).original;
-			if (!(binding instanceof TypeBinding)) return INACCURATE_MATCH;
-			typeBinding = (TypeBinding) binding;
+			if (binding instanceof TypeBinding)
+				typeBinding = (TypeBinding) binding;
 			break;
 		/*
 		 * Handling of unbound qualified name references. The match may reside in the resolved fragment,
 		 * which is recorded inside the problem binding, along with the portion of the name until it became a problem.
 		 */
 		case BindingIds.VARIABLE : //============unbound cases===========
-		case BindingIds.TYPE | BindingIds.VARIABLE :						
-			if (binding instanceof ProblemBinding) {
-				ProblemBinding pbBinding = (ProblemBinding) binding;
-				typeBinding = pbBinding.searchType; // second chance with recorded type so far
-				char[] partialQualifiedName = pbBinding.name;
-				lastIndex = CharOperation.occurencesOf('.', partialQualifiedName) - 1; // index of last bound token is one before the pb token
-				if (typeBinding == null || lastIndex < 0) return INACCURATE_MATCH;
-			} else if (binding instanceof ProblemReferenceBinding) {
-				ProblemReferenceBinding pbBinding = (ProblemReferenceBinding)binding;
-				binding = pbBinding.original;
-				if (!(binding instanceof TypeBinding)) return INACCURATE_MATCH;
+		case BindingIds.TYPE | BindingIds.VARIABLE :
+			if (binding instanceof ProblemReferenceBinding) {
 				typeBinding = (TypeBinding) binding;
-				char[][] partialQualifiedName = pbBinding.compoundName;
-				lastIndex = partialQualifiedName == null ? -1 : partialQualifiedName.length - 1; // index of last bound token is one before the pb token
-				if (typeBinding == null || lastIndex < 0) return INACCURATE_MATCH;
+			} else if (binding instanceof ProblemFieldBinding) {
+				if (qNameRef.tokens.length < (qNameRef.otherBindings == null ? 2 : qNameRef.otherBindings.length + 2))
+					return IMPOSSIBLE_MATCH; // must be at least A.x
+				typeBinding = nameRef.actualReceiverType;
+			} else if (binding instanceof ProblemBinding) {
+				ProblemBinding pbBinding = (ProblemBinding) binding;
+				if (CharOperation.occurencesOf('.', pbBinding.name) <= 0) // index of last bound token is one before the pb token
+					return INACCURATE_MATCH;
+				typeBinding = pbBinding.searchType;
 			}
 			break;
 	}
-	// try to match all enclosing types for which the token matches as well.
-	while (typeBinding != null && lastIndex >= 0) {
-		if (matchesName(this.pattern.simpleName, tokens[lastIndex--])) {
-			int level = resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, typeBinding);
-			if (level != IMPOSSIBLE_MATCH) return level;
-		}
-		if (typeBinding instanceof ReferenceBinding)
-			typeBinding = ((ReferenceBinding) typeBinding).enclosingType();
-		else
-			typeBinding = null;
-	}
-	return IMPOSSIBLE_MATCH;
+	return resolveLevel(typeBinding);
 }
 protected int resolveLevel(TypeReference typeRef) {
 	TypeBinding typeBinding = typeRef.resolvedType;
 	if (typeBinding instanceof ArrayBinding)
 		typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
-	if (typeBinding instanceof ProblemReferenceBinding) {
-		Binding binding = ((ProblemReferenceBinding) typeBinding).original;
-		if (binding instanceof TypeBinding)
-			typeBinding = (TypeBinding) binding;
-		else if (binding == null)
-			typeBinding = null;
-	}
-	if (typeBinding == null) return INACCURATE_MATCH;
+	if (typeBinding instanceof ProblemReferenceBinding)
+		typeBinding = ((ProblemReferenceBinding) typeBinding).original;
 
 	if (typeRef instanceof SingleTypeReference)
 		return resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, typeBinding);
+	else
+		return resolveLevelForTypeOrEnclosingTypes(this.pattern.simpleName, this.pattern.qualification, typeBinding);
+}
+/**
+ * Returns whether the given type binding or one of its enclosing types
+ * matches the given simple name pattern and qualification pattern.
+ * Returns ACCURATE_MATCH if it does.
+ * Returns INACCURATE_MATCH if resolve failed.
+ * Returns IMPOSSIBLE_MATCH if it doesn't.
+ */
+protected int resolveLevelForTypeOrEnclosingTypes(char[] simpleNamePattern, char[] qualificationPattern, TypeBinding binding) {
+	if (binding == null) return INACCURATE_MATCH;
 
-	QualifiedTypeReference qTypeRef = (QualifiedTypeReference) typeRef;
-	char[][] tokens = qTypeRef.tokens;
-	int lastIndex = tokens.length-1;
-	// try to match all enclosing types for which the token matches as well.
-	while (typeBinding != null && lastIndex >= 0) {
-		if (matchesName(this.pattern.simpleName, tokens[lastIndex--])) {
-			int level = resolveLevelForType(this.pattern.simpleName, this.pattern.qualification, typeBinding);
-			if (level != IMPOSSIBLE_MATCH) return level;
+	if (binding instanceof ReferenceBinding) {
+		ReferenceBinding type = (ReferenceBinding) binding;
+		char[] qualifiedPattern = qualifiedPattern(simpleNamePattern, qualificationPattern);
+		while (type != null) {
+			if (resolveLevelForType(qualifiedPattern, type) == ACCURATE_MATCH) return ACCURATE_MATCH;
+	
+			type = type.enclosingType();
 		}
-		if (typeBinding instanceof ReferenceBinding)
-			typeBinding = ((ReferenceBinding)typeBinding).enclosingType();
-		else return IMPOSSIBLE_MATCH;
 	}
 	return IMPOSSIBLE_MATCH;
 }

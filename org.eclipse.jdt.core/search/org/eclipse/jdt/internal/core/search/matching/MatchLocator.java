@@ -122,7 +122,7 @@ public static ClassFileReader classFileReader(IType type) {
 		return (ClassFileReader) manager.getInfo(type);
 
 	IPackageFragment pkg = type.getPackageFragment();
-	IPackageFragmentRoot root = (IPackageFragmentRoot)pkg.getParent();
+	IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
 	try {
 		if (!root.isArchive())
 			return ClassFileReader.read(type.getPath().toOSString());
@@ -150,32 +150,6 @@ public static ClassFileReader classFileReader(IType type) {
 		// cannot read class file: return null
 	}
 	return null;
-}
-public static IType getTopLevelType(IType binaryType) {
-	// ensure it is not a local or anoymous type (see bug 28752  J Search resports non-existent Java element)
-	String typeName = binaryType.getElementName();
-	int lastDollar = typeName.lastIndexOf('$');
-	int length = typeName.length();
-	if (lastDollar != -1 && lastDollar < length-1) {
-		if (Character.isDigit(typeName.charAt(lastDollar+1))) {
-			// local or anonymous type
-			typeName = typeName.substring(0, lastDollar);
-			IClassFile classFile = binaryType.getPackageFragment().getClassFile(typeName + SuffixConstants.SUFFIX_STRING_class);
-			try {
-				binaryType = classFile.getType();
-			} catch (JavaModelException e) {
-				// ignore as implementation of getType() cannot throw this exception
-			}
-		}
-	}
-
-	// ensure it is a top level type
-	IType declaringType = binaryType.getDeclaringType();
-	while (declaringType != null) {
-		binaryType = declaringType;
-		declaringType = binaryType.getDeclaringType();
-	}
-	return binaryType;
 }
 
 public MatchLocator(
@@ -458,22 +432,32 @@ protected IJavaElement createImportHandle(ImportReference importRef) {
 	char[] importName = CharOperation.concatWith(importRef.getImportName(), '.');
 	if (importRef.onDemand)
 		importName = CharOperation.concat(importName, ".*" .toCharArray()); //$NON-NLS-1$
-	Openable currentOpenable = this.currentPossibleMatch.openable;
-	if (currentOpenable instanceof CompilationUnit)
-		return ((CompilationUnit) currentOpenable).getImport(new String(importName));
+	Openable openable = this.currentPossibleMatch.openable;
+	if (openable instanceof CompilationUnit)
+		return ((CompilationUnit) openable).getImport(new String(importName));
 
-	return ((ClassFile) currentOpenable).getType();
+	// binary types do not contain import statements so just answer the type as the element
+	return ((ClassFile) openable).getType();
 }
 /**
  * Creates an IType from the given simple top level type name. 
  */
-protected IType createTypeHandle(char[] simpleTypeName) {
-	Openable currentOpenable = this.currentPossibleMatch.openable;
-	if (currentOpenable instanceof CompilationUnit)
-		return ((CompilationUnit) currentOpenable).getType(new String(simpleTypeName));
+protected IType createTypeHandle(String simpleTypeName) {
+	Openable openable = this.currentPossibleMatch.openable;
+	if (openable instanceof CompilationUnit)
+		return ((CompilationUnit) openable).getType(simpleTypeName);
 
-	// ensure this is a top level type (see bug 20011  Searching for Inner Classes gives bad search results)
-	return getTopLevelType(((ClassFile) currentOpenable).getType());
+	IType binaryType = ((ClassFile) openable).getType();
+	if (simpleTypeName.equals(binaryType.getTypeQualifiedName()))
+		return binaryType; // answer only top-level types, sometimes the classFile is for a member/local type
+
+	try {
+		IClassFile classFile = binaryType.getPackageFragment().getClassFile(simpleTypeName + SuffixConstants.SUFFIX_STRING_class);
+		return classFile.getType();
+	} catch (JavaModelException e) {
+		// ignore as implementation of getType() cannot throw this exception
+	}
+	return null;
 }
 protected IBinaryType getBinaryInfo(ClassFile classFile, IResource resource) throws CoreException {
 	BinaryType binaryType = (BinaryType) classFile.getType();
@@ -804,12 +788,12 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, IWorkspace
 		}
 	}
 }
-protected IType lookupType(TypeBinding typeBinding) {
+protected IType lookupType(ReferenceBinding typeBinding) {
 	char[] packageName = typeBinding.qualifiedPackageName();
 	IPackageFragment[] pkgs = this.nameLookup.findPackageFragments(
 		(packageName == null || packageName.length == 0)
 			? IPackageFragment.DEFAULT_PACKAGE_NAME
-			: new String(packageName), 
+			: new String(packageName),
 		false);
 
 	// iterate type lookup in each package fragment
@@ -821,15 +805,17 @@ protected IType lookupType(TypeBinding typeBinding) {
 			pkgs[i], 
 			false, 
 			typeBinding.isClass() ? NameLookup.ACCEPT_CLASSES : NameLookup.ACCEPT_INTERFACES);
-		if (type != null) return type;	
+		if (type != null) return type;
 	}
 
 	// search inside enclosing element
 	char[][] qualifiedName = CharOperation.splitOn('.', sourceName);
 	int length = qualifiedName.length;
 	if (length == 0) return null;
-	IType type = createTypeHandle(qualifiedName[0]);
+
+	IType type = createTypeHandle(new String(qualifiedName[0])); // find the top-level type
 	if (type == null) return null;
+
 	for (int i = 1; i < length; i++) {
 		type = type.getType(new String(qualifiedName[i]));
 		if (type == null) return null;
@@ -847,7 +833,7 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 		if (unit.isEmpty()) {
 			if (this.currentPossibleMatch.openable instanceof ClassFile) {
 				ClassFile classFile = (ClassFile) this.currentPossibleMatch.openable;
-				IBinaryType info = this.getBinaryInfo(classFile, this.currentPossibleMatch.resource);
+				IBinaryType info = getBinaryInfo(classFile, this.currentPossibleMatch.resource);
 				if (info != null)
 					new ClassFileMatchLocator().locateMatches(this, classFile, info);
 			}
@@ -1028,69 +1014,6 @@ protected void reportAccurateReference(int sourceStart, int sourceEnd, char[][] 
 		previousValid = -1;
 		if (accuracyIndex < accuracies.length - 1)
 			accuracyIndex++;
-	} while (token != TerminalTokens.TokenNameEOF);
-
-}
-/**
- * Finds the accurate positions of the sequence of tokens given by qualifiedName
- * in the source and reports a reference to this this qualified name
- * to the search requestor.
- */
-protected void reportAccurateReference(int sourceStart, int sourceEnd, char[][] qualifiedName, IJavaElement element, int accuracy) throws CoreException {
-	if (accuracy == -1) return;
-
-	// compute source positions of the qualified reference 
-	Scanner scanner = this.parser.scanner;
-	scanner.setSource(this.currentPossibleMatch.getContents());
-	scanner.resetTo(sourceStart, sourceEnd);
-
-	int refSourceStart = -1, refSourceEnd = -1;
-	int tokenNumber = qualifiedName.length;
-	int token = -1;
-	int previousValid = -1;
-	int i = 0;
-	int currentPosition;
-	do {
-		// find first token that is an identifier (parenthesized expressions include parenthesises in source range - see bug 20693 - Finding references to variables does not find all occurrences  )
-		do {
-			currentPosition = scanner.currentPosition;
-			try {
-				token = scanner.getNextToken();
-			} catch (InvalidInputException e) {
-				// ignore
-			}
-		} while (token !=  TerminalTokens.TokenNameIdentifier && token !=  TerminalTokens.TokenNameEOF);
-
-		if (token != TerminalTokens.TokenNameEOF) {
-			char[] currentTokenSource = scanner.getCurrentTokenSource();
-			boolean equals = false;
-			while (i < tokenNumber && !(equals = this.pattern.matchesName(qualifiedName[i++], currentTokenSource)));
-			if (equals && (previousValid == -1 || previousValid == i - 2)) {
-				previousValid = i - 1;
-				if (refSourceStart == -1)
-					refSourceStart = currentPosition;
-				refSourceEnd = scanner.currentPosition - 1;
-			} else {
-				i = 0;
-				refSourceStart = -1;
-				previousValid = -1;
-			}
-			// read '.'
-			try {
-				token = scanner.getNextToken();
-			} catch (InvalidInputException e) {
-				// ignore
-			}
-		}
-		if (i == tokenNumber) {
-			// accept reference
-			if (refSourceStart != -1) {
-				report(refSourceStart, refSourceEnd, element, accuracy);
-			} else {
-				report(sourceStart, sourceEnd, element, accuracy);
-			}
-			return;
-		}
 	} while (token != TerminalTokens.TokenNameEOF);
 
 }
@@ -1281,15 +1204,13 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
  */
 protected void reportMatching(TypeDeclaration type, IJavaElement parent, int accuracy, MatchingNodeSet nodeSet) throws CoreException {
 	// create type handle
-	IJavaElement enclosingElement;
-	if (parent == null) {
-		enclosingElement = createTypeHandle(type.name);
-	} else if (parent instanceof IType) {
+	IJavaElement enclosingElement = parent;
+	if (enclosingElement == null) {
+		enclosingElement = createTypeHandle(new String(type.name));
+	} else if (enclosingElement instanceof IType) {
 		enclosingElement = ((IType) parent).getType(new String(type.name));
-		if (enclosingElement == null) return;
-	} else {
-		enclosingElement = parent;
 	}
+	if (enclosingElement == null) return;
 
 	// report the type declaration
 	if (accuracy > -1)
