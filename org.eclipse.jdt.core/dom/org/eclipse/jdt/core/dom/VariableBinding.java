@@ -134,4 +134,11 @@ class VariableBinding implements IVariableBinding {
 		return this.binding.id;
 	}
 
+	/* 
+	 * For debugging purpose only.
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return this.binding.toString();
+	}
 }

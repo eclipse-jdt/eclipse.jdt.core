@@ -120,5 +120,13 @@ class PackageBinding implements IPackageBinding {
 			buffer.append(compoundName[length - 1]);
 			name = buffer.toString();
 		}
-	}		
+	}
+	
+	/* 
+	 * For debugging purpose only.
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return this.binding.toString();
+	}	
 }

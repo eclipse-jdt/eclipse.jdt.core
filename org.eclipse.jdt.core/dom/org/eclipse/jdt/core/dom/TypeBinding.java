@@ -449,5 +449,12 @@ class TypeBinding implements ITypeBinding {
 		}
 		return NO_NAME;
 	}
-
+	
+	/* 
+	 * For debugging purpose only.
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return this.binding.toString();
+	}
 }
