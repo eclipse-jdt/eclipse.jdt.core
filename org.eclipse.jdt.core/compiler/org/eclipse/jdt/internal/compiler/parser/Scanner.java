@@ -230,12 +230,10 @@ public void checkToDoTag(int commentStart, int commentEnd) {
 			}
 			
 			// trim message
-			int msgStart = nextPos;
-			while (source[msgStart] == ' ' && msgStart < end) msgStart++;
-			while (source[end] == ' ' && msgStart <= end) end--;
+			while (source[end] == ' ' && start <= end) end--;
 			
-			char[] message = new char[end-msgStart+1];
-			System.arraycopy(source, msgStart, message, 0, end-msgStart+1);
+			char[] message = new char[end-start+1];
+			System.arraycopy(source, start, message, 0, end-start+1);
 					
 			if (this.todoMessages == null){
 				this.todoMessages = new char[5][];

@@ -2583,11 +2583,10 @@ public void superinterfaceMustBeAnInterface(SourceTypeBinding type, TypeDeclarat
 		typeDecl.sourceEnd);
 }
 public void todo(String message, int start, int end){
-	String tag = new String(this.options.toDoTag);
 	this.handle(
 		IProblem.ToDo,
-		new String[] { tag, message },
-		new String[] { tag, message },
+		new String[] { message },
+		new String[] { message },
 		start,
 		end);
 }
