@@ -208,9 +208,8 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 		return;
 	}
 	int foundTaskIndex = this.foundTaskCount;
-	char previous = '/';
-	nextChar : for (
-		int i = commentStart + 1; i < commentEnd && i < this.eofPosition; i++) {
+	char previous = commentStart==0 ? 0 : this.source[commentStart-1];
+	nextChar : for (int i = commentStart; i < commentEnd && i < this.eofPosition; i++) {
 		char[] tag = null;
 		char[] priority = null;
 		// check for tag occurrence only if not ambiguous with javadoc tag
@@ -229,6 +228,7 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 	
 				for (int t = 0; t < tagLength; t++) {
 					char sc, tc;
+					if ((i+t) >= this.eofPosition) continue nextTag;
 					if ((sc = src[i + t]) != (tc = tag[t])) { 																					// case sensitive check
 						if (this.isTaskCaseSensitive || (Character.toLowerCase(sc) != Character.toLowerCase(tc))) { 	// case insensitive check
 							continue nextTag;
