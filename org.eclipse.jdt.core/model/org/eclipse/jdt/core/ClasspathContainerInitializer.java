@@ -125,7 +125,8 @@ public abstract class ClasspathContainerInitializer {
 	 * 
 	 * @param containerPath the path of the container which requires a readable description
 	 * @return a string description of the container
-	 * @deprecated
+	 * @deprecated - use getDescription(IPath, IJavaProject) instead
+	 * TODO: (philippe) remove before RC1
 	 * @since 2.1
 	 */
     public String getDescription(IPath containerPath) {
