@@ -9224,4 +9224,20 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			"Bound mismatch: Cannot assign expression of type ? to wildcard type ?. The wildcard type has no lower bound, and may actually be more restrictive than expression type\n" + 
 			"----------\n");
 	}
+	// 75328
+	public void test351() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface Intf<D extends Comparable<D>, I extends Comparable<D>> { \n" + 
+				"  public void f(Intf<D,?> val);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X <M extends Comparable<M>, P extends Comparable<M>>  implements Intf<M,P> {\n" + 
+				"\n" + 
+				"  public void f(Intf<M,?> val) { } \n" + 
+				"}\n",
+			},
+			"");
+	}	
 }

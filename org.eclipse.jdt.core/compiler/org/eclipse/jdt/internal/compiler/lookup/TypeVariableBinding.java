@@ -49,22 +49,32 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * Returns true if the argument type satisfies all bounds of the type parameter
 	 */
 	public boolean boundCheck(Substitution substitution, TypeBinding argumentType) {
-		if (argumentType == NullBinding) 
+		if (argumentType == NullBinding || this == argumentType) 
 			return true;
 		if (!(argumentType instanceof ReferenceBinding || argumentType.isArrayType()))
 			return false;	
+		
+	    if (argumentType.isWildcard()) {
+	        WildcardBinding wildcard = (WildcardBinding) argumentType;
+	        switch (wildcard.kind) {
+	        	case Wildcard.SUPER :
+		            if (!boundCheck(substitution, wildcard.bound)) return false;
+		            break;
+				case Wildcard.UNBOUND :
+					if (this == wildcard.typeVariable()) 
+						return true;
+					break;	        		
+	        }
+	    }
+//		if (this == argumentType) 
+//			return true;
+		
 		if (this.superclass.id != T_Object && !argumentType.isCompatibleWith(substitution.substitute(this.superclass))) {
 		    return false;
 		}
 	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
 	        if (!argumentType.isCompatibleWith(substitution.substitute(this.superInterfaces[i]))) {
 				return false;
-	        }
-	    }
-	    if (argumentType.isWildcard()) {
-	        WildcardBinding wildcard = (WildcardBinding) argumentType;
-	        if (wildcard.kind == Wildcard.SUPER) {
-	            if (!boundCheck(substitution, wildcard.bound)) return false;
 	        }
 	    }
 	    return true;
