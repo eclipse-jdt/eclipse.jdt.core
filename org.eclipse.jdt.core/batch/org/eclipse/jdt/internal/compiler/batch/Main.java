@@ -591,7 +591,7 @@ protected ICompilerRequestor getBatchRequestor() {
 						} else {
 							globalWarningsCount++;
 						}
-						out.print(" ");
+						out.print(" "/*nonNLS*/);
 						out.print(Main.bind("requestor.in"/*nonNLS*/,new String(problems[i].getOriginatingFileName())));
 						try {
 							out.println(((DefaultProblem)problems[i]).errorReportSource(compilationResult.compilationUnit));
@@ -731,7 +731,8 @@ protected void performCompilation() throws InvalidInputException {
 	batchCompiler.compile(getCompilationUnits());
 }
 private void printUsage() {
-	out.println(
+	out.println(Main.bind("misc.usage"/*nonNLS*/,this.versionID));
+	/*out.println(
 		"Eclipse Java Compiler "+ this.versionID + ", Copyright IBM Corp 2000\n\n" +
 		"Usage: <options> <source files | directories>\n\n" +
 					"where options include:\n" +
@@ -759,7 +760,7 @@ private void printUsage() {
 					"-proceedOnError\tkeep compiling when error, \n\t\tdumping class files with problem methods\n" +
 					"-referenceInfo\tcompute reference info\n" +
 					"-preserveAllLocals\trequest code gen preserve all local variables\n" +
-					"-repeat <n>\trepeat compilation process for performance analysis\n");
+					"-repeat <n>\trepeat compilation process for performance analysis\n");*/
 	out.flush();
 }
 
