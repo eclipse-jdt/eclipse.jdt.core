@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 
 
@@ -36,6 +37,11 @@ public class JavadocArrayQualifiedTypeReference extends ArrayQualifiedTypeRefere
 	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
+	}
+	
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
 	}

@@ -2406,7 +2406,7 @@ public void test073() {
 		"1. ERROR in X.java (at line 14)\n" + 
 		"	System.out.println(new Local());\n" + 
 		"	                       ^^^^^\n" + 
-		"Local cannot be resolved or is not a type\n" + 
+		"Local cannot be resolved to a type\n" + 
 		"----------\n");
 }
 
@@ -2446,12 +2446,12 @@ public void test074() {
 		"1. ERROR in X.java (at line 15)\n" + 
 		"	System.out.print(new Local());	\n" + 
 		"	                     ^^^^^\n" + 
-		"Local cannot be resolved or is not a type\n" + 
+		"Local cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 17)\n" + 
 		"	System.out.println(new Local(){	\n" + 
 		"	                       ^^^^^\n" + 
-		"Local cannot be resolved or is not a type\n" + 
+		"Local cannot be resolved to a type\n" + 
 		"----------\n");
 }
 public void test075() {
@@ -2613,6 +2613,34 @@ public void test079() {
 		"----------\n"
 	);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=67643
+ * from 1.5 source level on most specific common super type is allowed
+ */
+public void test080() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X {\n" + 
+			"    private static class C1 extends ArrayList {\n" + 
+			"    }\n" + 
+			"    private static class C2 extends ArrayList {\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"		ArrayList list = args == null ? new C1(): new C2();\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	ArrayList list = args == null ? new C1(): new C2();\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Incompatible conditional operand types C1 and C2\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return Compliance_1_4.class;
 }

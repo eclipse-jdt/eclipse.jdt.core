@@ -121,7 +121,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		int nameSourceStart,
 		int nameSourceEnd,
 		char[] superclass,
-		char[][] superinterfaces) {
+		char[][] superinterfaces,
+		char[][] typeParameterNames,
+		char[][][] typeParameterBounds) {
 		// default implementation: do nothing
 	}
 
@@ -143,7 +145,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		int nameSourceEnd,
 		char[][] parameterTypes,
 		char[][] parameterNames,
-		char[][] exceptionTypes) {
+		char[][] exceptionTypes,
+		char[][] typeParameterNames, 
+		char[][][] typeParameterBounds) {
 		// default implementation: do nothing
 	}
 
@@ -176,7 +180,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		char[] name,
 		int nameSourceStart,
 		int nameSourceEnd,
-		char[][] superinterfaces) {
+		char[][] superinterfaces,
+		char[][] typeParameterNames,
+		char[][][] typeParameterBounds) {
 		// default implementation: do nothing
 	}
 
@@ -192,7 +198,9 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 		int nameSourceEnd,
 		char[][] parameterTypes,
 		char[][] parameterNames,
-		char[][] exceptionTypes) {
+		char[][] exceptionTypes,
+		char[][] typeParameterNames, 
+		char[][][] typeParameterBounds) {
 		// default implementation: do nothing
 	}
 

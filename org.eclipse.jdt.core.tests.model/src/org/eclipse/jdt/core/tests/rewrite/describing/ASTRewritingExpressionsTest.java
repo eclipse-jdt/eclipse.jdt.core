@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2004 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
+ * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/cpl-v10.html
@@ -9,7 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
-
 import java.util.List;
 
 import junit.framework.Test;
@@ -20,6 +19,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
 public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	private static final Class THIS= ASTRewritingExpressionsTest.class;
@@ -33,11 +33,11 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	}
 	
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return allTests();
 		}
 		TestSuite suite= new Suite("one test");
-		suite.addTest(new ASTRewritingExpressionsTest("testThisExpression"));
+		suite.addTest(new ASTRewritingExpressionsTest("testClassInstanceCreation2"));
 		return suite;
 	}
 	
@@ -640,6 +640,73 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 		
 	}
+	
+	public void testClassInstanceCreation2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E<A> {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        new Inner();\n");
+		buf.append("        new <A>Inner();\n");
+		buf.append("        new <A, A>Inner();\n");
+		buf.append("    }\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		
+		AST ast= astRoot.getAST();
+		
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List statements= block.statements();
+		assertTrue("Number of statements not 3", statements.size() == 3);
+		{ // add type argument
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(0);
+			ClassInstanceCreation creation= (ClassInstanceCreation) stmt.getExpression();
+			
+			Type newTypeArg= ast.newSimpleType(ast.newSimpleName("A"));
+			ListRewrite listRewrite= rewrite.getListRewrite(creation, ClassInstanceCreation.TYPE_ARGUMENTS_PROPERTY);
+			listRewrite.insertFirst(newTypeArg, null);
+			
+		}
+		{ // remove type argument
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(1);
+			ClassInstanceCreation creation= (ClassInstanceCreation) stmt.getExpression();
+
+			List typeArgs= creation.typeArguments();
+			rewrite.remove((ASTNode) typeArgs.get(0), null);
+		}
+		
+		{ // add type argument to existing
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(2);
+			ClassInstanceCreation creation= (ClassInstanceCreation) stmt.getExpression();
+
+			Type newTypeArg= ast.newSimpleType(ast.newSimpleName("String"));
+
+			ListRewrite listRewrite= rewrite.getListRewrite(creation, ClassInstanceCreation.TYPE_ARGUMENTS_PROPERTY);
+			listRewrite.insertLast(newTypeArg, null);
+		}
+		
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E<A> {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        new <A> Inner();\n");
+		buf.append("        new Inner();\n");
+		buf.append("        new <A, A, String>Inner();\n");
+		buf.append("    }\n");
+		buf.append("}\n");	
+		assertEqualString(preview, buf.toString());
+	}
+
+	
 	
 	public void testConditionalExpression() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);

@@ -259,9 +259,9 @@ public class MultiProjectTests extends Tests {
 		expectingCompilingOrder(new String[]{"p1.X", "p3.Z", "p2.Y"}); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 		IPath workspaceRootPath = env.getWorkspaceRootPath();
 		expectingOnlySpecificProblemsFor(workspaceRootPath,new Problem[]{
-				new Problem("p3", "W cannot be resolved (or is not a valid type) for the field Z.w", c3),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p2", "W cannot be resolved (or is not a valid type) for the field Y.w", c2),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p1", "W cannot be resolved (or is not a valid type) for the field X.w", c1)//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p3", "W cannot be resolved to a type", c3),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p2", "W cannot be resolved to a type", c2),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p1", "W cannot be resolved to a type", c1)//$NON-NLS-1$ //$NON-NLS-2$
 		});	
 		JavaCore.setOptions(options);
 	}
@@ -646,13 +646,13 @@ public class MultiProjectTests extends Tests {
 			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project: P1", p1));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemsFor(p2,new Problem[]{
 				new Problem("p2", "The import p1 cannot be resolved", c2),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p2", "X cannot be resolved (or is not a valid return type) for the method zork", c2),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p2", "X cannot be resolved or is not a type", c2),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p2", "X cannot be resolved to a type", c2),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p2", "X cannot be resolved to a type", c2),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p2", "The method foo() is undefined for the type Y", c2),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p2", "A cycle was detected in the build path of project: P2", p2)//$NON-NLS-1$ //$NON-NLS-2$
 			});
 			expectingOnlySpecificProblemsFor(p3,new Problem[]{
-				new Problem("p3", "X cannot be resolved (or is not a valid return type) for the method foo", c3),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p3", "X cannot be resolved to a type", c3),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p3", "The import p1 cannot be resolved", c3),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p3", "A cycle was detected in the build path of project: P3", p3)//$NON-NLS-1$ //$NON-NLS-2$
 			});

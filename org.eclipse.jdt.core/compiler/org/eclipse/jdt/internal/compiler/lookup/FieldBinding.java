@@ -136,6 +136,15 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	} while ((currentType = currentType.superclass()) != null);
 	return false;
 }
+
+/**
+ * X<T> t   -->  LX<TT;>;
+ */
+public char[] genericSignature() {
+    if ((this.modifiers & AccGenericSignature) == 0) return null;
+    return this.type.genericTypeSignature();
+}
+
 public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
 }

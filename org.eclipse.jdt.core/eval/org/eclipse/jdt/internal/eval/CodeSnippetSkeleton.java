@@ -58,37 +58,30 @@ public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 			this.exceptionTypeNames = exceptionTypeNames;
 			this.isConstructor = isConstructor;
 		}
-		
 		public char[][] getExceptionTypeNames() {
 			return this.exceptionTypeNames;
 		}
-		
 		public char[] getMethodDescriptor() {
 			return this.methodDescriptor;
 		}
-		
 		public int getModifiers() {
 			return IConstants.AccPublic;
 		}
-		
 		public char[] getSelector() {
 			return this.selector;
 		}
-		
 		public boolean isClinit() {
 			return false;
 		}
-		
 		public boolean isConstructor() {
 			return this.isConstructor;
 		}
-		/**
-		 * @see org.eclipse.jdt.internal.compiler.env.IGenericMethod#getArgumentNames()
-		 */
 		public char[][] getArgumentNames() {
 			return null;
 		}
-
+		public char[] getGenericSignature() {
+			return null;
+		}
 }
 	
 /**
@@ -105,6 +98,9 @@ public IBinaryField[] getFields() {
 }
 public char[] getFileName() {
 	return CharOperation.concat(CODE_SNIPPET_NAME, SuffixConstants.SUFFIX_java); //$NON-NLS-1$
+}
+public char[] getGenericSignature() {
+	return null;
 }
 public char[][] getInterfaceNames() {
 	return null;

@@ -216,7 +216,19 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				options,
 				requestor, 
 				problemFactory);
-		batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
+		try {
+			batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
+		} catch(RuntimeException e) {
+			System.out.println(getClass().getName() + '#' + getName());
+			e.printStackTrace();
+			for (int i = 0; i < testFiles.length; i += 2) {
+				System.out.print(testFiles[i]);
+				System.out.println(" ["); //$NON-NLS-1$
+				System.out.println(testFiles[i + 1]);
+				System.out.println("]"); //$NON-NLS-1$
+			}
+			throw e;
+		}
 		if (!requestor.hasErrors) {
 			String sourceFile = testFiles[0];
 

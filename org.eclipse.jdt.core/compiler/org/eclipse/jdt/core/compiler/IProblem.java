@@ -69,6 +69,8 @@
  *								   JavadocInvalidTag
  *								   JavadocMessagePrefix
  *								   EmptyControlFlowStatement
+ *     IBM Corporation - added the following constants
+ *								   IllegalUsageOfQualifiedTypeReference
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -229,7 +231,7 @@ public interface IProblem {
 	int InternalTypeNameProvided = TypeRelated + 6;
 	/** @since 2.1 */
 	int UnusedPrivateType = Internal + TypeRelated + 7;
-	
+
 	int IncompatibleTypesInEqualityOperator = TypeRelated + 15;
 	int IncompatibleTypesInConditionalOperator = TypeRelated + 16;
 	int TypeMismatch = TypeRelated + 17;
@@ -445,7 +447,7 @@ public interface IProblem {
 	/** @since 3.0 */
 	int UnusedConstructorDeclaredThrownException = Internal + 186;	
 	/** @since 3.0 */
-	int InvalidCatchBlockSequence = Internal + TypeRelated + 187;	
+	int InvalidCatchBlockSequence = Internal + TypeRelated + 187;
 	/** @since 3.0 */
 	int EmptyControlFlowStatement = Internal + TypeRelated + 188;	
 	/** @since 3.0 */
@@ -461,6 +463,9 @@ public interface IProblem {
 	int InheritedMethodHidesEnclosingName = MethodRelated + 195;
 	int InheritedFieldHidesEnclosingName = FieldRelated + 196;
 	int InheritedTypeHidesEnclosingName = TypeRelated + 197;
+
+	/** @since 3.1 */
+	int IllegalUsageOfQualifiedTypeReference = Internal + Syntax + 198;
 
 	// miscellaneous
 	int ThisInStaticContext = Internal + 200;
@@ -560,18 +565,26 @@ public interface IProblem {
 	/** @since 2.1 */
 	int ObjectCannotHaveSuperTypes = 329;
 
-	// int InvalidSuperclassBase = TypeRelated + 329; // reserved to 334 included
+	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int SuperclassNotFound =  TypeRelated + 329 + ProblemReasons.NotFound; // TypeRelated + 330
+	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int SuperclassNotVisible =  TypeRelated + 329 + ProblemReasons.NotVisible; // TypeRelated + 331
+	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
 	int SuperclassAmbiguous =  TypeRelated + 329 + ProblemReasons.Ambiguous; // TypeRelated + 332
+	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
 	int SuperclassInternalNameProvided =  TypeRelated + 329 + ProblemReasons.InternalNameProvided; // TypeRelated + 333
+	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int SuperclassInheritedNameHidesEnclosingName =  TypeRelated + 329 + ProblemReasons.InheritedNameHidesEnclosingName; // TypeRelated + 334
 
-	// int InvalidInterfaceBase = TypeRelated + 334; // reserved to 339 included
+	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int InterfaceNotFound =  TypeRelated + 334 + ProblemReasons.NotFound; // TypeRelated + 335
+	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int InterfaceNotVisible =  TypeRelated + 334 + ProblemReasons.NotVisible; // TypeRelated + 336
+	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
 	int InterfaceAmbiguous =  TypeRelated + 334 + ProblemReasons.Ambiguous; // TypeRelated + 337
+	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
 	int InterfaceInternalNameProvided =  TypeRelated + 334 + ProblemReasons.InternalNameProvided; // TypeRelated + 338
+	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int InterfaceInheritedNameHidesEnclosingName =  TypeRelated + 334 + ProblemReasons.InheritedNameHidesEnclosingName; // TypeRelated + 339
 
 	// field related problems
@@ -583,11 +596,15 @@ public interface IProblem {
 	int IllegalModifierCombinationFinalVolatileForField = FieldRelated + 345;
 	int UnexpectedStaticModifierForField = FieldRelated + 346;
 
-	// int FieldTypeProblemBase = FieldRelated + 349; //reserved to 354
+	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int FieldTypeNotFound =  FieldRelated + 349 + ProblemReasons.NotFound; // FieldRelated + 350
+	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int FieldTypeNotVisible =  FieldRelated + 349 + ProblemReasons.NotVisible; // FieldRelated + 351
+	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
 	int FieldTypeAmbiguous =  FieldRelated + 349 + ProblemReasons.Ambiguous; // FieldRelated + 352
+	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
 	int FieldTypeInternalNameProvided =  FieldRelated + 349 + ProblemReasons.InternalNameProvided; // FieldRelated + 353
+	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int FieldTypeInheritedNameHidesEnclosingName =  FieldRelated + 349 + ProblemReasons.InheritedNameHidesEnclosingName; // FieldRelated + 354
 	
 	// method related problems
@@ -606,25 +623,37 @@ public interface IProblem {
 	int NativeMethodsCannotBeStrictfp = MethodRelated + 367;
 	int DuplicateModifierForArgument = MethodRelated + 368;
 
-	//	int ArgumentProblemBase = MethodRelated + 369; // reserved to 374 included.
+	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int ArgumentTypeNotFound =  MethodRelated + 369 + ProblemReasons.NotFound; // MethodRelated + 370
+	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int ArgumentTypeNotVisible =  MethodRelated + 369 + ProblemReasons.NotVisible; // MethodRelated + 371
+	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
 	int ArgumentTypeAmbiguous =  MethodRelated + 369 + ProblemReasons.Ambiguous; // MethodRelated + 372
+	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
 	int ArgumentTypeInternalNameProvided =  MethodRelated + 369 + ProblemReasons.InternalNameProvided; // MethodRelated + 373
+	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int ArgumentTypeInheritedNameHidesEnclosingName =  MethodRelated + 369 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 374
 
-	//	int ExceptionTypeProblemBase = MethodRelated + 374; // reserved to 379 included.
+	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int ExceptionTypeNotFound =  MethodRelated + 374 + ProblemReasons.NotFound; // MethodRelated + 375
+	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int ExceptionTypeNotVisible =  MethodRelated + 374 + ProblemReasons.NotVisible; // MethodRelated + 376
+	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
 	int ExceptionTypeAmbiguous =  MethodRelated + 374 + ProblemReasons.Ambiguous; // MethodRelated + 377
+	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
 	int ExceptionTypeInternalNameProvided =  MethodRelated + 374 + ProblemReasons.InternalNameProvided; // MethodRelated + 378
+	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int ExceptionTypeInheritedNameHidesEnclosingName =  MethodRelated + 374 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 379
 
-	//	int ReturnTypeProblemBase = MethodRelated + 379;
+	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
 	int ReturnTypeNotFound =  MethodRelated + 379 + ProblemReasons.NotFound; // MethodRelated + 380
+	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int ReturnTypeNotVisible =  MethodRelated + 379 + ProblemReasons.NotVisible; // MethodRelated + 381
+	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
 	int ReturnTypeAmbiguous =  MethodRelated + 379 + ProblemReasons.Ambiguous; // MethodRelated + 382
+	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
 	int ReturnTypeInternalNameProvided =  MethodRelated + 379 + ProblemReasons.InternalNameProvided; // MethodRelated + 383
+	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int ReturnTypeInheritedNameHidesEnclosingName =  MethodRelated + 379 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 384
 
 	// import related problems
@@ -633,11 +662,14 @@ public interface IProblem {
 	int CannotImportPackage = ImportRelated + 387;
 	int UnusedImport = ImportRelated + 388;
 
-	//	int ImportProblemBase = ImportRelated + 389;
 	int ImportNotFound =  ImportRelated + 389 + ProblemReasons.NotFound; // ImportRelated + 390
+	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
 	int ImportNotVisible =  ImportRelated + 389 + ProblemReasons.NotVisible; // ImportRelated + 391
+	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
 	int ImportAmbiguous =  ImportRelated + 389 + ProblemReasons.Ambiguous; // ImportRelated + 392
+	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
 	int ImportInternalNameProvided =  ImportRelated + 389 + ProblemReasons.InternalNameProvided; // ImportRelated + 393
+	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
 	int ImportInheritedNameHidesEnclosingName =  ImportRelated + 389 + ProblemReasons.InheritedNameHidesEnclosingName; // ImportRelated + 394
 
 	// local variable related problems
@@ -797,4 +829,123 @@ public interface IProblem {
 	int JavadocMalformedSeeReference = Javadoc + Internal + 513;
 	/** @since 3.0 */
 	int JavadocMessagePrefix = Internal + 515;
+
+	/**
+	 * Generics
+	 */
+	/** @since 3.1 */
+	int DuplicateTypeVariable = Internal + 520;
+	/** @since 3.1 */
+	int IllegalTypeVariableSuperReference = Internal + 521;
+	/** @since 3.1 */
+	int TypeVariableReferenceFromStaticContext = Internal + 522;
+	/** @since 3.1 */
+	int ObjectCannotBeGeneric = Internal + 523;
+	/** @since 3.1 */
+	int NonGenericType = TypeRelated + 524;
+	/** @since 3.1 */
+	int IncorrectArityForParameterizedType = TypeRelated + 525;
+	/** @since 3.1 */
+	int TypeArgumentMismatch = TypeRelated + 526;
+	/** @since 3.1 */
+	int DuplicateMethodErasure = TypeRelated + 527;
+	/** @since 3.1 */
+	int ReferenceToForwardTypeVariable = TypeRelated + 528;
+    /** @since 3.1 */
+	int BoundsMustBeAnInterface = TypeRelated + 529;	
+    /** @since 3.1 */
+	int UnsafeRawConstructorInvocation = TypeRelated + 530;
+    /** @since 3.1 */
+	int UnsafeRawMethodInvocation = TypeRelated + 531;
+    /** @since 3.1 */
+	int UnsafeRawExpressionAssignment = TypeRelated + 532;
+    /** @since 3.1 */
+	int UnsafeConstructorWithRawArguments = TypeRelated + 533;
+    /** @since 3.1 */
+	int UnsafeMethodWithRawArguments = TypeRelated + 534;
+	/** @since 3.1 */
+	int IllegalArrayOfParameterizedType = TypeRelated + 535;
+	/** @since 3.1 */
+	int UnsafeRawFieldAssignment = TypeRelated + 536;
+	/** @since 3.1 */
+	int InvalidClassInstantiationWithWildcards = Internal + 537;
+	/** @since 3.1 */
+	int FinalBoundForTypeVariable = TypeRelated + 538;
+	/** @since 3.1 */
+	int UndefinedTypeVariable = Internal + 539;
+	/** @since 3.1 */
+	int SuperInterfacesCollide = TypeRelated + 540;
+	/** @since 3.1 */
+	int UnsafeWildcardConstructorInvocation = TypeRelated + 541;
+	/** @since 3.1 */
+	int UnsafeWildcardMethodInvocation = TypeRelated + 542;
+	/** @since 3.1 */
+	int UnsafeWildcardFieldAssignment = TypeRelated + 543;
+	/** @since 3.1 */
+	int GenericMethodTypeArgumentMismatch = TypeRelated + 544;
+	/** @since 3.1 */
+	int GenericConstructorTypeArgumentMismatch = TypeRelated + 545;
+	/** @since 3.1 */
+	int UnsafeGenericCast = TypeRelated + 546;
+	/** @since 3.1 */
+	int UnsafeRawReturnValue = TypeRelated + 547;
+	/** @since 3.1 */
+	int IllegalInstanceofParameterizedType = Internal + 548;
+	/** @since 3.1 */
+	int IllegalInstanceofTypeParameter = Internal + 549;
+	/** @since 3.1 */
+	int NonGenericMethod = TypeRelated + 550;
+	/** @since 3.1 */
+	int IncorrectArityForParameterizedMethod = TypeRelated + 551;
+	/** @since 3.1 */
+	int ParameterizedMethodArgumentTypeMismatch = TypeRelated + 552;
+	/** @since 3.1 */
+	int NonGenericConstructor = TypeRelated + 553;
+	/** @since 3.1 */
+	int IncorrectArityForParameterizedConstructor = TypeRelated + 554;
+	/** @since 3.1 */
+	int ParameterizedConstructorArgumentTypeMismatch = TypeRelated + 555;
+	/** @since 3.1 */
+	int InvalidParameterizedExceptionType = TypeRelated + 556;
+	
+	/**
+	 * Foreach
+	 */
+	/** @since 3.1 */	
+	int IncompatibleTypesInForeach = TypeRelated + 580;	
+	/** @since 3.1 */
+	int InvalidTypeForCollection = Internal + 581;
+	
+	/**
+	 * 1.5 Syntax errors (when source level < 1.5)
+	 */
+	/** @since 3.1 */
+    int InvalidUsageOfTypeParameters = Syntax + Internal + 590;
+    /** @since 3.1 */
+    int InvalidUsageOfStaticImports = Syntax + Internal + 591;
+    /** @since 3.1 */
+    int InvalidUsageOfForeachStatements = Syntax + Internal + 592;
+    /** @since 3.1 */
+    int InvalidUsageOfTypeArguments = Syntax + Internal + 593;
+    /** @since 3.1 */
+    int InvalidUsageOfEnumDeclarations = Syntax + Internal + 594;
+    /** @since 3.1 */
+    int InvalidUsageOfVarargs = Syntax + Internal + 595;
+    /** @since 3.1 */
+    int InvalidUsageOfAnnotations = Syntax + Internal + 596;
+    
+    /**
+     * Annotation
+     */
+    /** @since 3.0 */
+    int AnnotationButConstructorName = MethodRelated + 600;
+    /** @since 3.0 */
+    int IllegalExtendedDimensions = MethodRelated + 601;
+    /** @since 3.0 */
+	int InvalidFileNameForPackageAnnotations = Syntax + Internal + 602;
+	
+	/**
+	 * Corrupted binaries
+	 */
+	int CorruptedSignature = Internal + 700;
 }

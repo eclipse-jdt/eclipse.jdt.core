@@ -31,7 +31,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -921,6 +920,8 @@ public class DeltaProcessor {
 			}
 			this.removeFromParentInfo(javaProject);
 
+			// remove preferences from per project info
+			this.manager.resetProjectPreferences(javaProject);	
 		} catch (JavaModelException e) {
 			// java project doesn't exist: ignore
 		}
@@ -1731,65 +1732,7 @@ public class DeltaProcessor {
 				}
 		}
 	}
-	/*
-	 * Update the JavaModel according to a .jprefs file change. The file can have changed as a result of a previous
-	 * call to JavaProject#setOptions or as a result of some user update (through repository)
-	 * Unused until preference file get shared (.jpref)
-	 */
-	void reconcilePreferenceFileUpdate(IResourceDelta delta, IFile file, JavaProject project) {
-			
-		switch (delta.getKind()) {
-			case IResourceDelta.REMOVED : // flush project custom settings
-				project.setOptions(null);
-				return;
-			case IResourceDelta.CHANGED :
-				if ((delta.getFlags() & IResourceDelta.CONTENT) == 0  // only consider content change
-						&& (delta.getFlags() & IResourceDelta.MOVED_FROM) == 0) // and also move and overide scenario
-					break;
-				identityCheck : { // check if any actual difference
-					// force to (re)read the property file
-					Preferences filePreferences = project.loadPreferences();
-					if (filePreferences == null){ 
-						project.setOptions(null); // should have got removed delta.
-						return;
-					}
-					Preferences projectPreferences = project.getPreferences();
-					if (projectPreferences == null) return; // not a Java project
-						
-					// compare preferences set to their default
-					String[] defaultProjectPropertyNames = projectPreferences.defaultPropertyNames();
-					String[] defaultFilePropertyNames = filePreferences.defaultPropertyNames();
-					if (defaultProjectPropertyNames.length == defaultFilePropertyNames.length) {
-						for (int i = 0; i < defaultProjectPropertyNames.length; i++){
-							String propertyName = defaultProjectPropertyNames[i];
-							if (!projectPreferences.getString(propertyName).trim().equals(filePreferences.getString(propertyName).trim())){
-								break identityCheck;
-							}
-						}		
-					} else break identityCheck;
 
-					// compare custom preferences not set to their default
-					String[] projectPropertyNames = projectPreferences.propertyNames();
-					String[] filePropertyNames = filePreferences.propertyNames();
-					if (projectPropertyNames.length == filePropertyNames.length) {
-						for (int i = 0; i < projectPropertyNames.length; i++){
-						String propertyName = projectPropertyNames[i];
-							if (!projectPreferences.getString(propertyName).trim().equals(filePreferences.getString(propertyName).trim())){
-								break identityCheck;
-							}
-						}		
-					} else break identityCheck;
-					
-					// identical - do nothing
-					return;
-				}
-			case IResourceDelta.ADDED :
-				// not identical, create delta and reset cached preferences
-				project.setPreferences(null);
-				// create delta
-				//fCurrentDelta.changed(project, IJavaElementDelta.F_OPTIONS_CHANGED);				
-		}
-	}
 	/*
 	 * Traverse the set of projects which have changed namespace, and reset their 
 	 * caches and their dependents

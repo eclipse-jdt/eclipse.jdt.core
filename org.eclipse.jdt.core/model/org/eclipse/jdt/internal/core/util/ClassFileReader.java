@@ -28,30 +28,30 @@ import org.eclipse.jdt.core.util.ISourceAttribute;
 
 public class ClassFileReader extends ClassFileStruct implements IClassFileReader {
 	private static final IFieldInfo[] NO_FIELD_INFOS = new IFieldInfo[0];
-	private static final IMethodInfo[] NO_METHOD_INFOS = new IMethodInfo[0];
 	private static final int[] NO_INTERFACE_INDEXES = new int[0];
 	private static final char[][] NO_INTERFACES_NAMES = CharOperation.NO_CHAR_CHAR;
+	private static final IMethodInfo[] NO_METHOD_INFOS = new IMethodInfo[0];
+	private int accessFlags;
+	private IClassFileAttribute[] attributes;
+	private int attributesCount;
+	private char[] className;
+	private int classNameIndex;
 
 	private IConstantPool constantPool;
-	private int magicNumber;
-	private int accessFlags;
-	private char[] className;
-	private char[] superclassName;
-	private int interfacesCount;
-	private char[][] interfaceNames;
-	private int[] interfaceIndexes;
-	private int fieldsCount;
 	private IFieldInfo[] fields;
-	private int methodsCount;
-	private IMethodInfo[] methods;
+	private int fieldsCount;
 	private IInnerClassesAttribute innerClassesAttribute;
-	private ISourceAttribute sourceFileAttribute;
-	private int classNameIndex;
+	private int[] interfaceIndexes;
+	private char[][] interfaceNames;
+	private int interfacesCount;
+	private int magicNumber;
 	private int majorVersion;
+	private IMethodInfo[] methods;
+	private int methodsCount;
 	private int minorVersion;
+	private ISourceAttribute sourceFileAttribute;
+	private char[] superclassName;
 	private int superclassNameIndex;
-	private int attributesCount;
-	private IClassFileAttribute[] attributes;
 	
 	/**
 	 * Constructor for ClassFileReader.
@@ -74,6 +74,10 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 		int[] constantPoolOffsets;
 		try {
 			this.magicNumber = (int) u4At(classFileBytes, 0, 0);
+			if (this.magicNumber != 0xCAFEBABE) {
+				throw new ClassFormatException(ClassFormatException.INVALID_MAGIC_NUMBER);
+			}
+			
 			int readOffset = 10;
 			this.minorVersion = this.u2At(classFileBytes, 4, 0);
 			this.majorVersion = this.u2At(classFileBytes, 6, 0);
@@ -156,7 +160,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 			if (superclassNameIndex != 0) {
 				this.superclassName = getConstantClassNameAt(classFileBytes, constantPoolOffsets, this.superclassNameIndex);
 			}
-
+	
 			// Read the interfaces, use exception handlers to catch bad format
 			this.interfacesCount = u2At(classFileBytes, readOffset, 0);
 			readOffset += 2;
@@ -231,7 +235,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 			// Read the attributes
 			this.attributesCount = u2At(classFileBytes, readOffset, 0);
 			readOffset += 2;
-
+	
 			int attributesIndex = 0;
 			this.attributes = ClassFileAttribute.NO_ATTRIBUTES;
 			if (this.attributesCount != 0) {
@@ -240,16 +244,20 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 					for (int i = 0; i < attributesCount; i++) {
 						int utf8Offset = constantPoolOffsets[u2At(classFileBytes, readOffset, 0)];
 						char[] attributeName = utf8At(classFileBytes, utf8Offset + 3, 0, u2At(classFileBytes, utf8Offset + 1, 0));
-						if (equals(attributeName, IAttributeNamesConstants.DEPRECATED)) {
-							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
-						} else if (equals(attributeName, IAttributeNamesConstants.INNER_CLASSES)) {
+						if (equals(attributeName, IAttributeNamesConstants.INNER_CLASSES)) {
 							this.innerClassesAttribute = new InnerClassesAttribute(classFileBytes, this.constantPool, readOffset);
 							this.attributes[attributesIndex++] = this.innerClassesAttribute;
 						} else if (equals(attributeName, IAttributeNamesConstants.SOURCE)) {
-								this.sourceFileAttribute = new SourceFileAttribute(classFileBytes, this.constantPool, readOffset);
-								this.attributes[attributesIndex++] = this.sourceFileAttribute;
-						} else if (equals(attributeName, IAttributeNamesConstants.SYNTHETIC)) {
-								this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
+							this.sourceFileAttribute = new SourceFileAttribute(classFileBytes, this.constantPool, readOffset);
+							this.attributes[attributesIndex++] = this.sourceFileAttribute;
+						} else if (equals(attributeName, IAttributeNamesConstants.ENCLOSING_METHOD)) {
+							this.attributes[attributesIndex++] = new EnclosingMethodAttribute(classFileBytes, this.constantPool, readOffset);
+						} else if (equals(attributeName, IAttributeNamesConstants.SIGNATURE)) {
+							this.attributes[attributesIndex++] = new SignatureAttribute(classFileBytes, this.constantPool, readOffset);
+						} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS)) {
+							this.attributes[attributesIndex++] = new RuntimeVisibleAnnotationsAttribute(classFileBytes, this.constantPool, readOffset);
+						} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS)) {
+							this.attributes[attributesIndex++] = new RuntimeInvisibleAnnotationsAttribute(classFileBytes, this.constantPool, readOffset);
 						} else {
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						}
@@ -277,12 +285,37 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	public int getAccessFlags() {
 		return this.accessFlags;
 	}
+	/**
+	 * @see IClassFileReader#getAttributeCount()
+	 */
+	public int getAttributeCount() {
+		return this.attributesCount;
+	}
 
 	/**
-	 * @see IClassFileReader#getSourceFileAttribute()
+	 * @see IClassFileReader#getAttributes()
 	 */
-	public ISourceAttribute getSourceFileAttribute() {
-		return this.sourceFileAttribute;
+	public IClassFileAttribute[] getAttributes() {
+		return this.attributes;
+	}
+
+	/**
+	 * @see IClassFileReader#getClassIndex()
+	 */
+	public int getClassIndex() {
+		return this.classNameIndex;
+	}
+
+	/**
+	 * @see IClassFileReader#getClassName()
+	 */
+	public char[] getClassName() {
+		return this.className;
+	}
+
+	private char[] getConstantClassNameAt(byte[] classFileBytes, int[] constantPoolOffsets, int constantPoolIndex) {
+		int utf8Offset = constantPoolOffsets[u2At(classFileBytes, constantPoolOffsets[constantPoolIndex] + 1, 0)];
+		return utf8At(classFileBytes, utf8Offset + 3, 0, u2At(classFileBytes, utf8Offset + 1, 0));
 	}
 
 	/**
@@ -291,12 +324,18 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	public IConstantPool getConstantPool() {
 		return this.constantPool;
 	}
-
 	/**
 	 * @see IClassFileReader#getFieldInfos()
 	 */
 	public IFieldInfo[] getFieldInfos() {
 		return this.fields;
+	}
+
+	/**
+	 * @see IClassFileReader#getFieldsCount()
+	 */
+	public int getFieldsCount() {
+		return this.fieldsCount;
 	}
 
 	/**
@@ -307,10 +346,31 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	}
 
 	/**
+	 * @see IClassFileReader#getInterfaceIndexes()
+	 */
+	public int[] getInterfaceIndexes() {
+		return this.interfaceIndexes;
+	}
+
+	/**
 	 * @see IClassFileReader#getInterfaceNames()
 	 */
 	public char[][] getInterfaceNames() {
 		return this.interfaceNames;
+	}
+
+	/**
+	 * @see IClassFileReader#getMagic()
+	 */
+	public int getMagic() {
+		return this.magicNumber;
+	}
+
+	/**
+	 * @see IClassFileReader#getMajorVersion()
+	 */
+	public int getMajorVersion() {
+		return this.majorVersion;
 	}
 
 	/**
@@ -321,10 +381,31 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	}
 
 	/**
-	 * @see IClassFileReader#getClassName()
+	 * @see IClassFileReader#getMethodsCount()
 	 */
-	public char[] getClassName() {
-		return this.className;
+	public int getMethodsCount() {
+		return this.methodsCount;
+	}
+
+	/**
+	 * @see IClassFileReader#getMinorVersion()
+	 */
+	public int getMinorVersion() {
+		return this.minorVersion;
+	}
+
+	/**
+	 * @see IClassFileReader#getSourceFileAttribute()
+	 */
+	public ISourceAttribute getSourceFileAttribute() {
+		return this.sourceFileAttribute;
+	}
+
+	/**
+	 * @see IClassFileReader#getSuperclassIndex()
+	 */
+	public int getSuperclassIndex() {
+		return this.superclassNameIndex;
 	}
 
 	/**
@@ -346,79 +427,4 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	public boolean isInterface() {
 		return (getAccessFlags() & IModifierConstants.ACC_INTERFACE) != 0;
 	}
-
-	/**
-	 * @see IClassFileReader#getMajorVersion()
-	 */
-	public int getMajorVersion() {
-		return this.majorVersion;
-	}
-
-	/**
-	 * @see IClassFileReader#getMinorVersion()
-	 */
-	public int getMinorVersion() {
-		return this.minorVersion;
-	}
-
-	private char[] getConstantClassNameAt(byte[] classFileBytes, int[] constantPoolOffsets, int constantPoolIndex) {
-		int utf8Offset = constantPoolOffsets[u2At(classFileBytes, constantPoolOffsets[constantPoolIndex] + 1, 0)];
-		return utf8At(classFileBytes, utf8Offset + 3, 0, u2At(classFileBytes, utf8Offset + 1, 0));
-	}
-	/**
-	 * @see IClassFileReader#getAttributeCount()
-	 */
-	public int getAttributeCount() {
-		return this.attributesCount;
-	}
-
-	/**
-	 * @see IClassFileReader#getClassIndex()
-	 */
-	public int getClassIndex() {
-		return this.classNameIndex;
-	}
-
-	/**
-	 * @see IClassFileReader#getInterfaceIndexes()
-	 */
-	public int[] getInterfaceIndexes() {
-		return this.interfaceIndexes;
-	}
-
-	/**
-	 * @see IClassFileReader#getSuperclassIndex()
-	 */
-	public int getSuperclassIndex() {
-		return this.superclassNameIndex;
-	}
-
-	/**
-	 * @see IClassFileReader#getMagic()
-	 */
-	public int getMagic() {
-		return this.magicNumber;
-	}
-
-	/**
-	 * @see IClassFileReader#getFieldsCount()
-	 */
-	public int getFieldsCount() {
-		return this.fieldsCount;
-	}
-
-	/**
-	 * @see IClassFileReader#getMethodsCount()
-	 */
-	public int getMethodsCount() {
-		return this.methodsCount;
-	}
-
-	/**
-	 * @see IClassFileReader#getAttributes()
-	 */
-	public IClassFileAttribute[] getAttributes() {
-		return this.attributes;
-	}
-
 }

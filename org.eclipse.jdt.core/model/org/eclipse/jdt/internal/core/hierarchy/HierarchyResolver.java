@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -213,6 +214,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 private IGenericType findSuperClass(IGenericType type, ReferenceBinding typeBinding) {
 	ReferenceBinding superBinding = typeBinding.superclass();
 	if (superBinding != null) {
+		superBinding = (ReferenceBinding) superBinding.erasure();
 		if (superBinding.id == TypeIds.T_JavaLangObject && typeBinding.isHierarchyInconsistent()) {
 			char[] superclassName;
 			char separator;
@@ -292,17 +294,21 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 	next : for (int i = 0; i < length; i++) {
 		char[] superInterfaceName = superInterfaceNames[i];
 		int lastSeparator = CharOperation.lastIndexOf(separator, superInterfaceName);
-		char[] simpleName = lastSeparator == -1 ? superInterfaceName : CharOperation.subarray(superInterfaceName, lastSeparator+1, superInterfaceName.length);
+		int start = lastSeparator + 1; 
+		int end = superInterfaceName.length;
 		
 		// case of binary inner type -> take the last part
-		int start = CharOperation.lastIndexOf('$', simpleName) + 1;
-		if (start != 0) {
-			int nameLength = simpleName.length - start;
-			System.arraycopy(simpleName, start, simpleName = new char[nameLength], 0, nameLength);
-		}
+		int lastDollar = CharOperation.lastIndexOf('$', superInterfaceName, start);
+		if (lastDollar != -1) start = lastDollar + 1;
+		
+		// case of a parameterized type -> take the first part
+		int genericStart = CharOperation.indexOf(Signature.C_GENERIC_START, superInterfaceName, start);
+		if (genericStart != -1) end = genericStart;
+		
+		char[] simpleName = CharOperation.subarray(superInterfaceName, start, end);
 		
 		if (bindingIndex < bindingLength) {
-			ReferenceBinding interfaceBinding = interfaceBindings[bindingIndex];
+			ReferenceBinding interfaceBinding = (ReferenceBinding) interfaceBindings[bindingIndex].erasure();
 
 			// ensure that the binding corresponds to the interface defined by the user
 			if (CharOperation.equals(simpleName, interfaceBinding.sourceName)) {
@@ -769,12 +775,14 @@ private boolean subTypeOfType(ReferenceBinding subType, ReferenceBinding typeBin
 	if (typeBinding == null || subType == null) return false;
 	if (subType == typeBinding) return true;
 	ReferenceBinding superclass = subType.superclass();
+	if (superclass != null) superclass = (ReferenceBinding) superclass.erasure();
 //	if (superclass != null && superclass.id == TypeIds.T_JavaLangObject && subType.isHierarchyInconsistent()) return false;
 	if (this.subTypeOfType(superclass, typeBinding)) return true;
 	ReferenceBinding[] superInterfaces = subType.superInterfaces();
 	if (superInterfaces != null) {
 		for (int i = 0, length = superInterfaces.length; i < length; i++) {
-			if (this.subTypeOfType(superInterfaces[i], typeBinding)) return true;
+			ReferenceBinding superInterface = (ReferenceBinding) superInterfaces[i].erasure();
+			if (this.subTypeOfType(superInterface, typeBinding)) return true;
 		} 
 	}
 	return false;

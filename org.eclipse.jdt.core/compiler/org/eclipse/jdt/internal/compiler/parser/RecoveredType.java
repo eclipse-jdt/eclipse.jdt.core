@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 
@@ -179,7 +180,11 @@ public int bodyEnd(){
 public boolean bodyStartsAtHeaderEnd(){
 	if (typeDeclaration.superInterfaces == null){
 		if (typeDeclaration.superclass == null){
-			return typeDeclaration.bodyStart == typeDeclaration.sourceEnd+1;
+			if(typeDeclaration.typeParameters == null) {
+				return typeDeclaration.bodyStart == typeDeclaration.sourceEnd+1;
+			} else {
+				return typeDeclaration.bodyStart == typeDeclaration.typeParameters[typeDeclaration.typeParameters.length-1].sourceEnd+1;
+			}
 		} else {
 			return typeDeclaration.bodyStart == typeDeclaration.superclass.sourceEnd+1;
 		}
@@ -409,6 +414,30 @@ public void updateFromParserState(){
 				// will reset typeListLength to zero
 				// thus this check will only be performed on first errorCheck after class X implements Y,Z,
 			}
+		} else if (parser.listTypeParameterLength > 0) {
+			int length = parser.listTypeParameterLength;
+			int genericsPtr = parser.genericsPtr;
+			boolean canConsume = genericsPtr + 1 >= length && parser.astPtr > -1;
+			if(canConsume) {
+				if (!(parser.astStack[parser.astPtr] instanceof TypeDeclaration)) {
+					canConsume = false;
+				}
+				while(genericsPtr + 1 > length && !(parser.genericsStack[genericsPtr] instanceof TypeParameter)) {
+					genericsPtr--;
+				}
+				for (int i = 0; i < length; i++) {
+					if(!(parser.genericsStack[genericsPtr - i] instanceof TypeParameter)) {
+						canConsume = false;
+					}
+				}
+			}
+			if(canConsume) {
+				TypeDeclaration typeDecl = (TypeDeclaration)parser.astStack[parser.astPtr];
+				System.arraycopy(parser.genericsStack, genericsPtr - length + 1, typeDecl.typeParameters = new TypeParameter[length], 0, length);
+				typeDecl.bodyStart = typeDecl.typeParameters[length-1].declarationSourceEnd + 1;
+				parser.listTypeParameterLength = 0;
+				parser.lastCheckPoint = typeDecl.bodyStart;
+			}
 		}
 	}
 }
@@ -440,6 +469,9 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 			case -1 :
 			case TokenNameextends :
 			case TokenNameimplements :
+			case TokenNameGREATER :
+			case TokenNameRIGHT_SHIFT :
+			case TokenNameUNSIGNED_RIGHT_SHIFT :
 				if (parser.recoveredStaticInitializerStart == 0) break;
 			default:
 				this.foundOpeningBrace = true;				

@@ -22,16 +22,15 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
-import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.osgi.service.prefs.BackingStoreException;
 
 /**
  *
@@ -43,10 +42,10 @@ public class UserLibraryManager {
 
 	private static Map userLibraries;
 	private static final boolean logProblems= false;
-	private static IPropertyChangeListener listener= new IPropertyChangeListener() {
+	private static IEclipsePreferences.IPreferenceChangeListener listener= new IEclipsePreferences.IPreferenceChangeListener() {
 
-		public void propertyChange(PropertyChangeEvent event) {
-			String key= event.getProperty();
+		public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
+			String key= event.getKey();
 			if (key.startsWith(CP_USERLIBRARY_PREFERENCES_PREFIX)) {
 				try {
 					recreatePersistedUserLibraryEntry(key, (String) event.getNewValue(), false, true);
@@ -58,7 +57,6 @@ public class UserLibraryManager {
 				}
 			}
 		}
-		
 	};
 	
 	private UserLibraryManager() {
@@ -126,20 +124,26 @@ public class UserLibraryManager {
 		if (userLibraries == null) {
 			userLibraries= new HashMap();
 			// load variables and containers from preferences into cache
-			Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
-			preferences.addPropertyChangeListener(listener);
+			IEclipsePreferences instancePreferences = JavaCore.getInstancePreferences();
+			instancePreferences.addPreferenceChangeListener(listener);
 
 			// only get variable from preferences not set to their default
-			String[] propertyNames = preferences.propertyNames();
-			for (int i = 0; i < propertyNames.length; i++) {
-				String propertyName = propertyNames[i];
-				if (propertyName.startsWith(CP_USERLIBRARY_PREFERENCES_PREFIX)) {
-					try {
-						recreatePersistedUserLibraryEntry(propertyName, preferences.getString(propertyName), false, false);
-					} catch (JavaModelException e) {
-						// won't happen: no rebinding
+			try {
+				String[] propertyNames = instancePreferences.keys();
+				for (int i = 0; i < propertyNames.length; i++) {
+					String propertyName = propertyNames[i];
+					if (propertyName.startsWith(CP_USERLIBRARY_PREFERENCES_PREFIX)) {
+						try {
+							String propertyValue = instancePreferences.get(propertyName, null);
+							if (propertyValue != null)
+								recreatePersistedUserLibraryEntry(propertyName,propertyValue, false, false);
+						} catch (JavaModelException e) {
+							// won't happen: no rebinding
+						}
 					}
 				}
+			} catch (BackingStoreException e) {
+				// TODO (frederic) see if it's necessary to report this exception
 			}
 		}
 		return userLibraries;
@@ -178,7 +182,7 @@ public class UserLibraryManager {
 			}
 		}
 		
-		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
+		IEclipsePreferences instancePreferences = JavaCore.getInstancePreferences();
 		String containerKey = CP_USERLIBRARY_PREFERENCES_PREFIX+name;
 		String containerString = CP_ENTRY_IGNORE;
 		if (library != null) {
@@ -188,19 +192,23 @@ public class UserLibraryManager {
 				// could not encode entry: leave it as CP_ENTRY_IGNORE
 			}
 		}
-		preferences.removePropertyChangeListener(listener);
+		instancePreferences.removePreferenceChangeListener(listener);
 		try {
-			preferences.setDefault(containerKey, CP_ENTRY_IGNORE); // use this default to get rid of removed ones
-			preferences.setValue(containerKey, containerString);
+			JavaCore.getDefaultPreferences().put(containerKey, CP_ENTRY_IGNORE); // TODO (frederic) verify if this is really necessary...
+			instancePreferences.put(containerKey, containerString);
 			if (save) {
-				JavaCore.getPlugin().savePluginPreferences();
+				try {
+					instancePreferences.flush();
+				} catch (BackingStoreException e) {
+					// TODO (frederic) see if it's necessary to report this exception
+				}
 			}
 			if (rebind) {
 				rebindClasspathEntries(name, library==null, monitor);
 			}
 			
 		} finally {
-			preferences.addPropertyChangeListener(listener);
+			instancePreferences.addPreferenceChangeListener(listener);
 		}
 	}
 

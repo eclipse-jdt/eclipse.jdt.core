@@ -26,7 +26,7 @@ public class JavadocArgumentExpression extends Expression {
 		this.sourceStart = startPos;
 		this.sourceEnd = endPos;
 		long pos = (((long) startPos) << 32) + endPos;
-		this.argument = new Argument(name, pos, typeRef, IConstants.AccDefault);
+		this.argument = new Argument(name, pos, typeRef, IConstants.AccDefault, false);
 		this.bits |= InsideJavadoc;
 	}
 
@@ -54,6 +54,15 @@ public class JavadocArgumentExpression extends Expression {
 						scope.problemReporter().javadocDeprecatedType(this.resolvedType, typeRef, scope.getDeclarationModifiers());
 						return null;
 					}
+					// check raw type
+					if (this.resolvedType.isArrayType()) {
+					    TypeBinding leafComponentType = this.resolvedType.leafComponentType();
+					    if (leafComponentType.isGenericType()) { // raw type
+					        this.resolvedType = scope.createArrayType(scope.environment().createRawType((ReferenceBinding)leafComponentType, null), this.resolvedType.dimensions());
+					    }
+					} else if (this.resolvedType.isGenericType()) {
+				        this.resolvedType = scope.environment().createRawType((ReferenceBinding)this.resolvedType, null); // raw type
+					}		
 					return this.resolvedType;
 				}
 			}

@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 
 import java.util.*;
 
@@ -56,6 +57,7 @@ public class CompilationResult {
 	public int unitIndex, totalUnitsKnown;
 	public boolean hasBeenAccepted = false;
 	public char[] fileName;
+	public boolean hasInconsistentToplevelHierarchies = false; // record the fact some toplevel types have inconsistent hierarchies
 	
 	public CompilationResult(
 		char[] fileName,
@@ -358,6 +360,10 @@ public class CompilationResult {
 	 */
 	public void record(char[] typeName, ClassFile classFile) {
 
+	    SourceTypeBinding sourceType = classFile.referenceBinding;
+	    if (!sourceType.isLocalType() && sourceType.isHierarchyInconsistent()) {
+	        this.hasInconsistentToplevelHierarchies = true;
+	    }
 		compiledTypes.put(typeName, classFile);
 	}
 

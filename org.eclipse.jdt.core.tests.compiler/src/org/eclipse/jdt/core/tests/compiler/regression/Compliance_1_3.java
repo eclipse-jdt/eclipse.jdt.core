@@ -85,7 +85,7 @@ public void test001() {
 		"1. ERROR in p1\\Test.java (at line 10)\n" + 
 		"	M m; \n" + 
 		"	^\n" + 
-		"The field type M is defined in an inherited type and an enclosing scope\n" + 
+		"The type M is defined in an inherited type and an enclosing scope\n" + 
 		"----------\n"
 	);
 }
@@ -1486,12 +1486,12 @@ public void test040() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	class Y extends Homonym {};	\n" + 
 		"	                ^^^^^^^\n" + 
-		"Superclass Homonym is defined in an inherited type and an enclosing scope\n" + 
+		"The type Homonym is defined in an inherited type and an enclosing scope\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 13)\n" + 
 		"	class Y extends Homonym {};	\n" + 
 		"	                ^^^^^^^\n" + 
-		"Superclass Homonym is defined in an inherited type and an enclosing scope\n" + 
+		"The type Homonym is defined in an inherited type and an enclosing scope\n" + 
 		"----------\n");
 }
 /*
@@ -1641,7 +1641,7 @@ public void test044() {
 	}
 	
 	String expectedOutput = 
-		"     1  invokevirtual #19 <Method java/lang/Object.clone()Ljava/lang/Object;>\n";
+		"     1  invokevirtual #19 <Method java/lang/Object.clone()Ljava/lang/Object;>\n"; 
 		
 	if (actualOutput.indexOf(expectedOutput) == -1) {
 		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -2192,7 +2192,7 @@ public void test061() {
 		"1. ERROR in p\\X.java (at line 6)\n" + 
 		"	Z someField;	\n" + 
 		"	^\n" + 
-		"The field type Z is defined in an inherited type and an enclosing scope\n" + 
+		"The type Z is defined in an inherited type and an enclosing scope\n" + 
 		"----------\n" + 
 		"----------\n" + 
 		"1. WARNING in q\\Y.java (at line 3)\n" + 
@@ -2789,6 +2789,33 @@ public void test079() {
 		"Syntax error on tokens, delete these tokens\n" + 
 		"----------\n"
 	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=67643
+ * from 1.5 source level on most specific common super type is allowed
+ */
+public void test080() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"public class X {\n" + 
+			"    private static class C1 extends ArrayList {\n" + 
+			"    }\n" + 
+			"    private static class C2 extends ArrayList {\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"		ArrayList list = args == null ? new C1(): new C2();\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	ArrayList list = args == null ? new C1(): new C2();\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Incompatible conditional operand types C1 and C2\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return Compliance_1_3.class;

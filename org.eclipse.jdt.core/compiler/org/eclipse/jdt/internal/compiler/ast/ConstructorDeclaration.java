@@ -26,6 +26,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	public ExplicitConstructorCall constructorCall;
 	public final static char[] ConstantPoolName = "<init>".toCharArray(); //$NON-NLS-1$
 	public boolean isDefaultConstructor = false;
+	public TypeParameter[] typeParameters;
 
 	public ConstructorDeclaration(CompilationResult compilationResult){
 		super(compilationResult);
@@ -430,7 +431,19 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		ASTVisitor visitor,
 		ClassScope classScope) {
 
+		
 		if (visitor.visit(this, classScope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
+			if (this.typeParameters != null) {
+				int typeParametersLength = this.typeParameters.length;
+				for (int i = 0; i < typeParametersLength; i++) {
+					this.typeParameters[i].traverse(visitor, scope);
+				}
+			}			
 			if (arguments != null) {
 				int argumentLength = arguments.length;
 				for (int i = 0; i < argumentLength; i++)
@@ -451,4 +464,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		}
 		visitor.endVisit(this, classScope);
 	}
+	public TypeParameter[] typeParameters() {
+	    return this.typeParameters;
+	}		
 }

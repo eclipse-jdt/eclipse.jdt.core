@@ -124,7 +124,7 @@ public class ArrayReference extends Reference {
 		codeStream.arrayAt(this.resolvedType.id);
 		int operationTypeID;
 		if ((operationTypeID = implicitConversion >> 4) == T_String) {
-			codeStream.generateStringAppend(currentScope, null, expression);
+			codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 		} else {
 			// promote the array reference to the suitable operation type
 			codeStream.generateImplicitConversion(implicitConversion);
@@ -189,14 +189,14 @@ public class ArrayReference extends Reference {
 		TypeBinding arrayType = receiver.resolveType(scope);
 		if (arrayType != null) {
 			if (arrayType.isArrayType()) {
-				this.resolvedType = ((ArrayBinding) arrayType).elementsType(scope);
+				this.resolvedType = ((ArrayBinding) arrayType).elementsType();
 			} else {
 				scope.problemReporter().referenceMustBeArrayTypeAt(arrayType, this);
 			}
 		}
 		TypeBinding positionType = position.resolveTypeExpecting(scope, IntBinding);
 		if (positionType != null) {
-			position.implicitWidening(IntBinding, positionType);
+			position.computeConversion(scope, IntBinding, positionType);
 		}
 		return this.resolvedType;
 	}

@@ -999,7 +999,7 @@ public void test029() {
 		"1. ERROR in p1\\X.java (at line 4)\n" + 
 		"	Member field;	\n" + 
 		"	^^^^^^\n" + 
-		"The type Member is not visible for the field X.field\n" + 
+		"The type Member is not visible\n" + 
 		"----------\n");
 }
 /*
@@ -1568,6 +1568,42 @@ public void test045() {
 		false,
 		null);
 }
+public void test046() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", //================================
+			"public class X {\n" + 
+			"     private XY foo(XY t) {\n" + 
+			"        System.out.println(t);\n" + 
+			"        return t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X() {\n" + 
+			"            void run() {\n" + 
+			"                foo(new XY());\n" + 
+			"            }\n" + 
+			"        }.run();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class XY {\n" + 
+			"    public String toString() {\n" + 
+			"        return \"SUCCESS\";\n" + 
+			"    }\n" + 
+			"}\n"
+		}, // TODO (philippe) should eliminate first problem if still used incorrectly
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	private XY foo(XY t) {\n" + 
+		"	           ^^^^^^^^^\n" + 
+		"The private method foo(XY) from the type X is never used locally\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	foo(new XY());\n" + 
+		"	^^^\n" + 
+		"Cannot make a static reference to the non-static method foo(XY) from the type X\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return LookupTest.class;
 }

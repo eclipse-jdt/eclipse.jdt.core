@@ -72,15 +72,19 @@ public class QualifiedThisReference extends ThisReference {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		constant = NotAConstant;
-		this.resolvedType = this.qualification.resolveType(scope);
-		if (this.resolvedType == null) return null;
-
+		TypeBinding type = this.resolvedType = this.qualification.resolveType(scope);
+		if (type == null) return null;
+		// X.this is not a raw type as denoting enclosing instance
+		if (type.isRawType()) {
+		    RawTypeBinding rawType = (RawTypeBinding) type;
+		    type = this.resolvedType = rawType.type; // unwrap
+		}
 		// the qualification MUST exactly match some enclosing type name
 		// Its possible to qualify 'this' by the name of the current class
 		int depth = 0;
 		this.currentCompatibleType = scope.referenceType().binding;
 		while (this.currentCompatibleType != null
-			&& this.currentCompatibleType != this.resolvedType) {
+			&& this.currentCompatibleType != type) {
 			depth++;
 			this.currentCompatibleType = this.currentCompatibleType.isStatic() ? null : this.currentCompatibleType.enclosingType();
 		}
@@ -88,15 +92,15 @@ public class QualifiedThisReference extends ThisReference {
 		bits |= (depth & 0xFF) << DepthSHIFT; // encoded depth into 8 bits
 
 		if (this.currentCompatibleType == null) {
-			scope.problemReporter().noSuchEnclosingInstance(this.resolvedType, this, false);
-			return this.resolvedType;
+			scope.problemReporter().noSuchEnclosingInstance(type, this, false);
+			return type;
 		}
 
 		// Ensure one cannot write code like: B() { super(B.this); }
 		if (depth == 0) {
 			checkAccess(scope.methodScope());
 		} // if depth>0, path emulation will diagnose bad scenarii
-		return this.resolvedType;
+		return type;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {

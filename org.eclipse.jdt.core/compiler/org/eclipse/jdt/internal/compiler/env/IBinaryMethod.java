@@ -29,13 +29,19 @@ char[][] getExceptionTypeNames();
 
 /**
  * Answer the receiver's method descriptor which describes the parameter &
- * return types as specified in section 4.3.3 of the Java 2 VM spec.
+ * return types as specified in section 4.4.3 of the Java 2 VM spec.
  *
  * For example:
  *   - int foo(String) is (Ljava/lang/String;)I
  *   - Object[] foo(int) is (I)[Ljava/lang/Object;
  */
 char[] getMethodDescriptor();
+
+/**
+ * Answer the receiver's signature which describes the parameter &
+ * return types as specified in section 4.4.4 of the Java 2 VM spec.
+ */
+char[] getGenericSignature();
 
 /**
  * Answer whether the receiver represents a class initializer method.

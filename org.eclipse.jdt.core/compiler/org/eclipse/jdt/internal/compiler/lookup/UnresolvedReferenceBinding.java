@@ -13,29 +13,56 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class UnresolvedReferenceBinding extends ReferenceBinding {
-	ReferenceBinding resolvedType;
+
+ReferenceBinding resolvedType;
+TypeBinding[] wrappers;
+
 UnresolvedReferenceBinding(char[][] compoundName, PackageBinding packageBinding) {
 	this.compoundName = compoundName;
 	this.sourceName = compoundName[compoundName.length - 1]; // reasonable guess
 	this.fPackage = packageBinding;
+	this.wrappers = null;
 }
-String debugName() {
+void addWrapper(TypeBinding wrapper) {
+	if (this.wrappers == null) {
+		this.wrappers = new TypeBinding[] {wrapper};
+	} else {
+		int length = this.wrappers.length;
+		System.arraycopy(this.wrappers, 0, this.wrappers = new TypeBinding[length + 1], 0, length);
+		this.wrappers[length] = wrapper;
+	}
+}
+public String debugName() {
 	return toString();
 }
-ReferenceBinding resolve(LookupEnvironment environment) {
-	if (resolvedType != null) return resolvedType;
-
-	ReferenceBinding environmentType = fPackage.getType0(compoundName[compoundName.length - 1]);
-	if (environmentType == this)
-		environmentType = environment.askForType(compoundName);
-	if (environmentType != null && environmentType != this) { // could not resolve any better, error was already reported against it
-		resolvedType = environmentType;
-		environment.updateArrayCache(this, environmentType);
-		return environmentType; // when found, it replaces the unresolved type in the cache
+ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericToRawType) {
+    ReferenceBinding targetType = this.resolvedType;
+	if (targetType == null) {
+		targetType = this.fPackage.getType0(this.compoundName[this.compoundName.length - 1]);
+		if (targetType == this)
+			targetType = environment.askForType(this.compoundName);
+		if (targetType != null && targetType != this) { // could not resolve any better, error was already reported against it
+			setResolvedType(targetType, environment);
+		} else {
+			environment.problemReporter.isClassPathCorrect(this.compoundName, null);
+			return null; // will not get here since the above error aborts the compilation
+		}
 	}
+	if (convertGenericToRawType && targetType.isGenericType()) // raw reference to generic ?
+	    return environment.createRawType(targetType, null);
+	return targetType;
+}
+void setResolvedType(ReferenceBinding targetType, LookupEnvironment environment) {
+	if (this.resolvedType == targetType) return; // already resolved
 
-	environment.problemReporter.isClassPathCorrect(compoundName, null);
-	return null; // will not get here since the above error aborts the compilation
+	// targetType may be a source or binary type
+	this.resolvedType = targetType;
+	// must ensure to update any other type bindings that can contain the resolved type
+	// otherwise we could create 2 : 1 for this unresolved type & 1 for the resolved type
+	if (this.wrappers != null)
+		for (int i = 0, l = this.wrappers.length; i < l; i++)
+			this.wrappers[i].swapUnresolved(this, targetType, environment);
+	environment.updateCaches(this, targetType);
 }
 public String toString() {
 	return "Unresolved type " + ((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED"); //$NON-NLS-1$ //$NON-NLS-2$

@@ -12,14 +12,13 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
-import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstants {
 	public CompilerOptions options;
@@ -35,6 +34,9 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	private INameEnvironment nameEnvironment;
 	private MethodVerifier verifier;
 	private ArrayBinding[][] uniqueArrayBindings;
+	private SimpleLookupTable uniqueParameterizedTypeBindings;
+	private SimpleLookupTable uniqueRawTypeBindings;
+	private SimpleLookupTable uniqueWildcardBindings;
 
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
 	private int lastUnitIndex = -1;
@@ -66,6 +68,9 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions options, 
 	this.knownPackages = new HashtableOfPackage();
 	this.uniqueArrayBindings = new ArrayBinding[5][];
 	this.uniqueArrayBindings[0] = new ArrayBinding[50]; // start off the most common 1 dimension array @ 50
+	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(3);
+	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
+	this.uniqueWildcardBindings = new SimpleLookupTable(3);
 }
 /* Ask the oracle for a type which corresponds to the compoundName.
 * Answer null if the name cannot be found.
@@ -280,7 +285,7 @@ ArrayBinding createArrayType(TypeBinding type, int dimensionCount) {
 	while (++index < length) {
 		ArrayBinding currentBinding = arrayBindings[index];
 		if (currentBinding == null) // no matching array, but space left
-			return arrayBindings[index] = new ArrayBinding(type, dimensionCount);
+			return arrayBindings[index] = new ArrayBinding(type, dimensionCount, this);
 		if (currentBinding.leafComponentType == type)
 			return currentBinding;
 	}
@@ -291,7 +296,7 @@ ArrayBinding createArrayType(TypeBinding type, int dimensionCount) {
 		(arrayBindings = new ArrayBinding[length * 2]), 0,
 		length); 
 	uniqueArrayBindings[dimIndex] = arrayBindings;
-	return arrayBindings[length] = new ArrayBinding(type, dimensionCount);
+	return arrayBindings[length] = new ArrayBinding(type, dimensionCount, this);
 }
 public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBinding packageBinding) {
 	return createBinaryTypeFrom(binaryType, packageBinding, true);
@@ -305,9 +310,7 @@ public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBin
 		if (cachedType.isBinaryBinding()) // sanity check before the cast... at this point the cache should ONLY contain unresolved types
 			return (BinaryTypeBinding) cachedType;
 
-		UnresolvedReferenceBinding unresolvedType = (UnresolvedReferenceBinding) cachedType;
-		unresolvedType.resolvedType = binaryBinding;
-		updateArrayCache(unresolvedType, binaryBinding);
+		((UnresolvedReferenceBinding) cachedType).setResolvedType(binaryBinding, this);
 	}
 
 	packageBinding.addType(binaryBinding);
@@ -348,6 +351,113 @@ PackageBinding createPackage(char[][] compoundName) {
 	}
 	return packageBinding;
 }
+
+public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType) {
+
+	// cached info is array of already created parameterized types for this type
+	ParameterizedTypeBinding[] cachedInfo = (ParameterizedTypeBinding[])this.uniqueParameterizedTypeBindings.get(genericType);
+	int argLength = typeArguments == null ? 0: typeArguments.length;
+	boolean needToGrow = false;
+	if (cachedInfo != null){
+		nextCachedType : 
+			// iterate existing parameterized for reusing one with same type arguments if any
+			for (int i = 0, max = cachedInfo.length; i < max; i++){
+			    ParameterizedTypeBinding cachedType = cachedInfo[i];
+			    if (cachedType.type != genericType) continue nextCachedType; // remain of unresolved type
+			    if (cachedType.enclosingType != enclosingType) continue nextCachedType;
+				TypeBinding[] cachedArguments = cachedType.arguments;
+				int cachedArgLength = cachedArguments == null ? 0 : cachedArguments.length;
+				if (argLength != cachedArgLength) continue nextCachedType; // would be an error situation (from unresolved binaries)
+				for (int j = 0; j < cachedArgLength; j++){
+					if (typeArguments[j] != cachedArguments[j]) continue nextCachedType;
+				}
+				// all arguments match, reuse current
+				return cachedType;
+		}
+		needToGrow = true;
+	} else {
+		cachedInfo = new ParameterizedTypeBinding[1];
+		this.uniqueParameterizedTypeBindings.put(genericType, cachedInfo);
+	}
+	// grow cache ?
+	if (needToGrow){
+		int length = cachedInfo.length;
+		System.arraycopy(cachedInfo, 0, cachedInfo = new ParameterizedTypeBinding[length+1], 0, length);
+		this.uniqueParameterizedTypeBindings.put(genericType, cachedInfo);
+	}
+	// add new binding
+	ParameterizedTypeBinding parameterizedType = new ParameterizedTypeBinding(genericType,typeArguments, enclosingType, this);
+	cachedInfo[cachedInfo.length-1] = parameterizedType;
+	return parameterizedType;
+}
+
+public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBinding enclosingType) {
+
+	// cached info is array of already created raw types for this type
+	RawTypeBinding[] cachedInfo = (RawTypeBinding[])this.uniqueRawTypeBindings.get(genericType);
+	boolean needToGrow = false;
+	if (cachedInfo != null){
+		nextCachedType : 
+			// iterate existing parameterized for reusing one with same type arguments if any
+			for (int i = 0, max = cachedInfo.length; i < max; i++){
+			    RawTypeBinding cachedType = cachedInfo[i];
+			    if (cachedType.type != genericType) continue nextCachedType; // remain of unresolved type
+			    if (cachedType.enclosingType != enclosingType) continue nextCachedType;
+				// all enclosing type match, reuse current
+				return cachedType;
+		}
+		needToGrow = true;
+	} else {
+		cachedInfo = new RawTypeBinding[1];
+		this.uniqueRawTypeBindings.put(genericType, cachedInfo);
+	}
+	// grow cache ?
+	if (needToGrow){
+		int length = cachedInfo.length;
+		System.arraycopy(cachedInfo, 0, cachedInfo = new RawTypeBinding[length+1], 0, length);
+		this.uniqueRawTypeBindings.put(genericType, cachedInfo);
+	}
+	// add new binding
+	RawTypeBinding rawType = new RawTypeBinding(genericType, enclosingType, this);
+	cachedInfo[cachedInfo.length-1] = rawType;
+	return rawType;
+	
+}
+
+public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, int kind) {
+	
+	// cached info is array of already created wildcard  types for this type
+	WildcardBinding[] cachedInfo = (WildcardBinding[])this.uniqueWildcardBindings.get(genericType);
+	boolean needToGrow = false;
+	if (cachedInfo != null){
+		nextCachedType : 
+			// iterate existing wildcards for reusing one with same information if any
+			for (int i = 0, max = cachedInfo.length; i < max; i++){
+			    WildcardBinding cachedType = cachedInfo[i];
+			    if (cachedType.genericType != genericType) continue nextCachedType; // remain of unresolved type
+			    if (cachedType.rank != rank) continue nextCachedType;
+			    if (cachedType.kind != kind) continue nextCachedType;
+			    if (cachedType.bound != bound) continue nextCachedType;
+				// all match, reuse current
+				return cachedType;
+		}
+		needToGrow = true;
+	} else {
+		cachedInfo = new WildcardBinding[1];
+		this.uniqueWildcardBindings.put(genericType, cachedInfo);
+	}
+	// grow cache ?
+	if (needToGrow){
+		int length = cachedInfo.length;
+		System.arraycopy(cachedInfo, 0, cachedInfo = new WildcardBinding[length+1], 0, length);
+		this.uniqueWildcardBindings.put(genericType, cachedInfo);
+	}
+	// add new binding
+	WildcardBinding wildcard = new WildcardBinding(genericType, rank, bound, kind, this);
+	cachedInfo[cachedInfo.length-1] = wildcard;
+	return wildcard;
+}
+
 /* Answer the type for the compoundName if it exists in the cache.
 * Answer theNotFoundType if it could not be resolved the first time
 * it was looked up, otherwise answer null.
@@ -444,13 +554,23 @@ public ReferenceBinding getType(char[][] compoundName) {
 
 	if (referenceBinding == null || referenceBinding == TheNotFoundType)
 		return null;
-	if (referenceBinding instanceof UnresolvedReferenceBinding)
-		referenceBinding = ((UnresolvedReferenceBinding) referenceBinding).resolve(this);
+	referenceBinding = BinaryTypeBinding.resolveType(referenceBinding, this, false); // no raw conversion for now
 
 	// compoundName refers to a nested type incorrectly (for example, package1.A$B)
 	if (referenceBinding.isNestedType())
 		return new ProblemReferenceBinding(compoundName, InternalNameProvided);
 	return referenceBinding;
+}
+private TypeBinding[] getTypeArgumentsFromSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType, ReferenceBinding genericType) {
+	java.util.ArrayList args = new java.util.ArrayList(2);
+	int rank = 0;
+	do {
+		args.add(getTypeFromVariantTypeSignature(wrapper, staticVariables, enclosingType, genericType, rank++));
+	} while (wrapper.signature[wrapper.start] != '>');
+	wrapper.start++; // skip '>'
+	TypeBinding[] typeArguments = new TypeBinding[args.size()];
+	args.toArray(typeArguments);
+	return typeArguments;
 }
 /* Answer the type corresponding to the name from the binary file.
 * Does not ask the oracle for the type if its not found in the cache... instead an
@@ -461,7 +581,7 @@ public ReferenceBinding getType(char[][] compoundName) {
 * NOTE: Aborts compilation if the class file cannot be found.
 */
 
-ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end) {
+ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end, boolean isParameterized) {
 	if (end == -1)
 		end = signature.length;
 
@@ -474,6 +594,9 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 	} else if (binding == TheNotFoundType) {
 		problemReporter.isClassPathCorrect(compoundName, null);
 		return null; // will not get here since the above error aborts the compilation
+	} else if (!isParameterized && binding.isGenericType()) {
+	    // check raw type, only for resolved types
+        binding = createRawType(binding, null);
 	}
 	return binding;
 }
@@ -486,7 +609,7 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 * NOTE: Aborts compilation if the class file cannot be found.
 */
 
-TypeBinding getTypeFromSignature(char[] signature, int start, int end) {
+TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean isParameterized, TypeBinding enclosingType) {
 	int dimension = 0;
 	while (signature[start] == '[') {
 		start++;
@@ -527,15 +650,101 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end) {
 				binding = ShortBinding;
 				break;
 			default :
-				throw new Error(Util.bind("error.undefinedBaseType",String.valueOf(signature[start]))); //$NON-NLS-1$
+				problemReporter.corruptedSignature(enclosingType, signature, start);
+				// will never reach here, since error will cause abort
 		}
 	} else {
-		binding = getTypeFromConstantPoolName(signature, start + 1, end);
+		binding = getTypeFromConstantPoolName(signature, start + 1, end, isParameterized);
 	}
 
 	if (dimension == 0)
 		return binding;
 	return createArrayType(binding, dimension);
+}
+TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType) {
+	// TypeVariableSignature = 'T' Identifier ';'
+	// ArrayTypeSignature = '[' TypeSignature
+	// ClassTypeSignature = 'L' Identifier TypeArgs(optional) ';'
+	//   or ClassTypeSignature '.' 'L' Identifier TypeArgs(optional) ';'
+	// TypeArgs = '<' VariantTypeSignature VariantTypeSignatures '>'
+	int dimension = 0;
+	while (wrapper.signature[wrapper.start] == '[') {
+		wrapper.start++;
+		dimension++;
+	}
+
+	if (wrapper.signature[wrapper.start] == 'T') {
+	    int varStart = wrapper.start + 1;
+	    int varEnd = wrapper.computeEnd();
+		for (int i = staticVariables.length; --i >= 0;)
+			if (CharOperation.equals(staticVariables[i].sourceName, wrapper.signature, varStart, varEnd))
+				return dimension == 0 ? (TypeBinding) staticVariables[i] : createArrayType(staticVariables[i], dimension);
+	    ReferenceBinding initialType = enclosingType;
+		do {
+		    if (enclosingType instanceof BinaryTypeBinding) { // per construction can only be binary type binding
+				TypeVariableBinding[] enclosingVariables = ((BinaryTypeBinding)enclosingType).typeVariables; // do not trigger resolution of variables
+				for (int i = enclosingVariables.length; --i >= 0;)
+					if (CharOperation.equals(enclosingVariables[i].sourceName, wrapper.signature, varStart, varEnd))
+						return dimension == 0 ? (TypeBinding) enclosingVariables[i] : createArrayType(enclosingVariables[i], dimension);
+		    }
+		} while ((enclosingType = enclosingType.enclosingType()) != null);
+		problemReporter.undefinedTypeVariableSignature(CharOperation.subarray(wrapper.signature, varStart, varEnd), initialType);
+		return null; // cannot reach this, since previous problem will abort compilation
+	}
+
+	TypeBinding type = getTypeFromSignature(wrapper.signature, wrapper.start, wrapper.computeEnd(), true, enclosingType);
+	if (wrapper.end != wrapper.bracket)
+		return dimension == 0 ? type : createArrayType(type, dimension);
+
+	// type must be a ReferenceBinding at this point, cannot be a BaseTypeBinding or ArrayTypeBinding
+	ReferenceBinding actualType = (ReferenceBinding) type;
+	TypeBinding[] typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, actualType);
+	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, null);
+
+	while (wrapper.signature[wrapper.start] == '.') {
+		wrapper.start++; // skip '.'
+		char[] memberName = wrapper.nextWord();
+		BinaryTypeBinding.resolveType(parameterizedType, this, false);
+		ReferenceBinding memberType = parameterizedType.type.getMemberType(memberName);
+		if (wrapper.signature[wrapper.start] == '<') {
+			wrapper.start++; // skip '<'
+			typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, memberType);
+		} else {
+			typeArguments = null;
+		}
+		parameterizedType = createParameterizedType(memberType, typeArguments, parameterizedType);
+	}
+	wrapper.start++; // skip ';'
+	return dimension == 0 ? (TypeBinding) parameterizedType : createArrayType(parameterizedType, dimension);
+}
+TypeBinding getTypeFromVariantTypeSignature(
+	SignatureWrapper wrapper,
+	TypeVariableBinding[] staticVariables,
+	ReferenceBinding enclosingType,
+	ReferenceBinding genericType,
+	int rank) {
+	// VariantTypeSignature = '-' TypeSignature
+	//   or '+' TypeSignature
+	//   or TypeSignature
+	//   or '*'
+	switch (wrapper.signature[wrapper.start]) {
+		case '-' :
+			// ? super aType
+			wrapper.start++;
+			TypeBinding bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
+			return createWildcard(genericType, rank, bound, Wildcard.SUPER);
+		case '+' :
+			// ? extends aType
+			wrapper.start++;
+			bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
+			return createWildcard(genericType, rank, bound, Wildcard.EXTENDS);
+		case '*' :
+			// ?
+			wrapper.start++;
+			return createWildcard(genericType, rank, null, Wildcard.UNBOUND);
+		default :
+			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
+	}
 }
 /* Ask the oracle if a package exists named name in the package named compoundName.
 */
@@ -558,31 +767,44 @@ public void reset() {
 	this.knownPackages = new HashtableOfPackage();
 
 	this.verifier = null;
-	for (int i = this.uniqueArrayBindings.length; --i >= 0;)
-		this.uniqueArrayBindings[i] = null;
-	this.uniqueArrayBindings[0] = new ArrayBinding[50]; // start off the most common 1 dimension array @ 50
+	for (int i = this.uniqueArrayBindings.length; --i >= 0;) {
+		ArrayBinding[] arrayBindings = this.uniqueArrayBindings[i];
+		if (arrayBindings != null)
+			for (int j = arrayBindings.length; --j >= 0;)
+				arrayBindings[j] = null;
+	}
+	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(3);
+	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
+	this.uniqueWildcardBindings = new SimpleLookupTable(3);
 
 	for (int i = this.units.length; --i >= 0;)
 		this.units[i] = null;
 	this.lastUnitIndex = -1;
 	this.lastCompletedUnitIndex = -1;
 	this.unitBeingCompleted = null; // in case AbortException occurred
-	
+
 	// name environment has a longer life cycle, and must be reset in
 	// the code which created it.
 }
-void updateArrayCache(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
-	nextDimension : for (int i = 0, length = uniqueArrayBindings.length; i < length; i++) {
-		ArrayBinding[] arrayBindings = uniqueArrayBindings[i];
-		if (arrayBindings != null) {
-			for (int j = 0, max = arrayBindings.length; j < max; j++) {
-				ArrayBinding currentBinding = arrayBindings[j];
-				if (currentBinding == null)
-					continue nextDimension;
-				if (currentBinding.leafComponentType == unresolvedType) {
-					currentBinding.leafComponentType = resolvedType;
-					continue nextDimension;
-				}
+void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
+	// walk all the unique collections & replace the unresolvedType with the resolvedType
+	// must prevent 2 entries so == still works (1 containing the unresolvedType and the other containing the resolvedType)
+	if (uniqueParameterizedTypeBindings.get(unresolvedType) != null) { // update the key
+		Object[] keys = uniqueParameterizedTypeBindings.keyTable;
+		for (int i = 0, l = keys.length; i < l; i++) {
+			if (keys[i] == unresolvedType) {
+				keys[i] = resolvedType; // hashCode is based on compoundName so this works - cannot be raw since type of parameterized type
+				break;
+			}
+		}
+	}
+
+	if (uniqueWildcardBindings.get(unresolvedType) != null) { // update the key
+		Object[] keys = uniqueWildcardBindings.keyTable;
+		for (int i = 0, l = keys.length; i < l; i++) {
+			if (keys[i] == unresolvedType) {
+				keys[i] = resolvedType.isGenericType() ? createRawType(resolvedType, null) : resolvedType; // hashCode is based on compoundName so this works
+				break;
 			}
 		}
 	}

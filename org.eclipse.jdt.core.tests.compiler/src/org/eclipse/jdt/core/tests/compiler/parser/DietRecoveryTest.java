@@ -5650,7 +5650,7 @@ public void test100() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
-public void test101() {
+public void _test101() {
 	String s = 
 		"public class X {	\n"+
 		"    Object foo(Stack<X> s) {	\n"+

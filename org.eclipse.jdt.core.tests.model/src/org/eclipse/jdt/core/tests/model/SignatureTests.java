@@ -102,6 +102,14 @@ public void testCreateTypeSignature() {
 			Signature.createTypeSignature("floattest.MyData".toCharArray(), true));
 	assertEquals("Signature#createTypeSignature is not correct17", "Lvoidtest.MyData;",
 			Signature.createTypeSignature("voidtest.MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct18", "QList<QList<QString;>;>;",
+			Signature.createTypeSignature("List<List<String>>".toCharArray(), false));
+	assertEquals("Signature#createTypeSignature is not correct19", "QList<QList<I>;>;",
+			Signature.createTypeSignature("List<List<int>>".toCharArray(), false));
+	assertEquals("Signature#createTypeSignature is not correct20", "[QList<QList<[I>;>;",
+			Signature.createTypeSignature("List<List<int[]>>[]".toCharArray(), false));
+	assertEquals("Signature#createTypeSignature is not correct21", "Qjava.y.Map<[QObject;QString;>.MapEntry<[Qp.K<QT;>;[Qq.r.V2;>;",
+			Signature.createTypeSignature("java.y.Map<Object[],String>.MapEntry<p.K<T>[],q.r.V2[]>".toCharArray(), false));	
 }
 /**
  * Ensures that creating an invalid type signature throws an IllegalArgumentException.
@@ -247,8 +255,27 @@ public void testGetParameterTypes() {
 			Signature.getParameterTypes(methodSig).length);
 	assertEquals("Signature#getParameterTypes 6", "La/b/c<TE;>.d<TF;>;",
 			Signature.getParameterTypes(methodSig)[0]);
-
 }
+/**
+ * @see Signature
+ */
+public void testGetTypeParameters() {
+	String sig = "<X:TF;Y::Ljava.lang.Cloneable;>";
+	assertEquals("Signature#getTypeParameters 1", 2,
+			Signature.getTypeParameters(sig).length);
+	assertEquals("Signature#getTypeParameters 2", "X:TF;",
+			Signature.getTypeParameters(sig)[0]);
+	assertEquals("Signature#getTypeParameters 3", "Y::Ljava.lang.Cloneable;",
+			Signature.getTypeParameters(sig)[1]);
+	sig = "<X:TF;Y::Ljava.lang.Cloneable;>()V";
+	assertEquals("Signature#getTypeParameters 4", 2,
+			Signature.getTypeParameters(sig).length);
+	assertEquals("Signature#getTypeParameters 5", "X:TF;",
+			Signature.getTypeParameters(sig)[0]);
+	assertEquals("Signature#getTypeParameters 6", "Y::Ljava.lang.Cloneable;",
+			Signature.getTypeParameters(sig)[1]);	
+}
+
 /**
  * @see Signature
  */
@@ -274,14 +301,36 @@ public void testGetReturnType() {
 	}
 	
 	// tests with 1.5-specific elements
-	methodSig = "<X:Qlist<Qstring;>;>(Qstring;Qobject;I)I^Qexception;^Qerror;";
+	methodSig = "<X:Qlist<Qstring;>;>(Qstring;Qobject;I)IQexception;Qerror;";
 	assertEquals("Signature#getReturnType is not correct2", "I",
 			Signature.getReturnType(methodSig));
-	methodSig = "<X:Qlist<Qstring;>;>(Qlist<Qstring;>;)Qlist<Qxxx;>;^Qexception;^Qerror;";
+	methodSig = "<X:Qlist<Qstring;>;>(Qlist<Qstring;>;)Qlist<Qxxx;>;Qexception;Qerror;";
 	assertEquals("Signature#getReturnType is not correct3", "Qlist<Qxxx;>;",
 			Signature.getReturnType(methodSig));
 }
 
+/**
+ * @see Signature
+ */
+public void testGetThrownExceptionTypes() {
+	String methodSig = "(QString;QObject;I)I";
+	assertStringsEqual("Signature#getThrownExceptionTypes is not correct1", "",
+			Signature.getThrownExceptionTypes(methodSig));
+	try {
+		Signature.getThrownExceptionTypes("");
+		assertTrue("Signature#getThrownExceptionTypes is not correct: exception", false);
+	} catch (IllegalArgumentException iae) {
+		// do nothing
+	}
+	
+	// tests with 1.5-specific elements
+	methodSig = "<X:Qlist<Qstring;>;>(Qstring;Qobject;I)IQexception;Qerror;";
+	assertStringsEqual("Signature#getThrownExceptionTypes is not correct2", "Qexception;\nQerror;\n",
+			Signature.getThrownExceptionTypes(methodSig));
+	methodSig = "<X:Qlist<Qstring;>;>(Qlist<Qstring;>;)Qlist<Qxxx;>;Qexception<TT;>;Qerror;";
+	assertStringsEqual("Signature#getThrownExceptionTypes is not correct3", "Qexception<TT;>;\nQerror;\n",
+			Signature.getThrownExceptionTypes(methodSig));
+}
 /**
  * @see Signature
  * @since 3.0
@@ -347,10 +396,16 @@ public void testGetTypeParameterBounds() {
  * @see Signature
  */
 public void testGetSimpleName() {
-	assertEquals("Signature#getSimpleName is not correct1", "Object",
+	assertEquals("Signature#getSimpleName is not correct 1", "Object",
 			Signature.getSimpleName("java.lang.Object"));
-	assertEquals("Signature#getSimpleName is not correct2", "",
+	assertEquals("Signature#getSimpleName is not correct 2", "",
 			Signature.getSimpleName(""));
+	assertEquals("Signature#getSimpleName is not correct 3", 
+			"MapEntry<K<T>[],V2[]>",
+			Signature.getSimpleName("java.y.Map<Object[],String>.MapEntry<p.K<T>[],q.r.V2[]>"));
+	assertEquals("Signature#getSimpleName is not correct 4", 
+			"MapEntry<K<T>[],? extends V2>",
+			Signature.getSimpleName("java.y.Map<Object[],String>.MapEntry<p.K<T>[],? extends q.r.V2>"));	
 }
 /**
  * @see Signature
@@ -468,7 +523,14 @@ public void testToString1() {
 		"Signature#toString is not correct 21", 
 		"a<V>.b<W>.c<X>",
 		Signature.toString("La<TV;>.b<QW;>.c<LX;>;"));
-	
+	assertEquals(
+		"Signature#toString is not correct 22", 
+		"java.y.Map<Object[],String>.MapEntry<p.K<T>[],q.r.V2[]>",
+		Signature.toString("Qjava.y.Map<[QObject;QString;>.MapEntry<[Qp.K<QT;>;[Qq.r.V2;>;"));
+	assertEquals(
+		"Signature#toString is not correct 23", 
+		"Stack<List<Object>>",
+		Signature.toString("QStack<QList<QObject;>;>;"));
 }
 /**
  * @see Signature.toString(String, String, String[], boolean, boolean)

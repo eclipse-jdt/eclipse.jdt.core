@@ -21,6 +21,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -33,6 +34,7 @@ import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.osgi.service.prefs.BackingStoreException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -536,7 +538,7 @@ public class JavaModelManager implements ISaveParticipant {
 		public IClasspathEntry[] resolvedClasspath;
 		public Map resolvedPathToRawEntries; // reverse map from resolved path to raw entries
 		public IPath outputLocation;
-		public Preferences preferences;
+		public IEclipsePreferences preferences;
 		
 		public PerProjectInfo(IProject project) {
 
@@ -616,7 +618,7 @@ public class JavaModelManager implements ISaveParticipant {
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append("Info for "); //$NON-NLS-1$
-			buffer.append(((JavaElement)workingCopy).toStringWithAncestors());
+			buffer.append(((JavaElement)this.workingCopy).toStringWithAncestors());
 			buffer.append("\nUse count = "); //$NON-NLS-1$
 			buffer.append(this.useCount);
 			buffer.append("\nProblem requestor:\n  "); //$NON-NLS-1$
@@ -639,13 +641,12 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * Update the classpath variable cache
 	 */
-	public static class PluginPreferencesListener implements Preferences.IPropertyChangeListener {
+	public static class EclipsePreferencesListener implements IEclipsePreferences.IPreferenceChangeListener {
 		/**
-		 * @see org.eclipse.core.runtime.Preferences.IPropertyChangeListener#propertyChange(Preferences.PropertyChangeEvent)
+		 * @see org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener#preferenceChange(org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent)
 		 */
-		public void propertyChange(Preferences.PropertyChangeEvent event) {
-
-			String propertyName = event.getProperty();
+		public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
+			String propertyName = event.getKey();
 			if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)) {
 				String varName = propertyName.substring(CP_VARIABLE_PREFERENCES_PREFIX.length());
 				String newValue = (String)event.getNewValue();
@@ -759,7 +760,7 @@ public class JavaModelManager implements ISaveParticipant {
 			deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
 		}
 		PerWorkingCopyInfo info = null;
-		synchronized(perWorkingCopyInfos) {
+		synchronized(this.perWorkingCopyInfos) {
 			WorkingCopyOwner owner = workingCopy.owner;
 			Map workingCopyToInfos = (Map)this.perWorkingCopyInfos.get(owner);
 			if (workingCopyToInfos == null) return -1;
@@ -870,7 +871,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Returns the handle to the active Java Model.
 	 */
 	public final JavaModel getJavaModel() {
-		return javaModel;
+		return this.javaModel;
 	}
 
 	/**
@@ -906,11 +907,11 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Returns the per-project info for the given project. If specified, create the info if the info doesn't exist.
 	 */
 	public PerProjectInfo getPerProjectInfo(IProject project, boolean create) {
-		synchronized(perProjectInfos) { // use the perProjectInfo collection as its own lock
-			PerProjectInfo info= (PerProjectInfo) perProjectInfos.get(project);
+		synchronized(this.perProjectInfos) { // use the perProjectInfo collection as its own lock
+			PerProjectInfo info= (PerProjectInfo) this.perProjectInfos.get(project);
 			if (info == null && create) {
 				info= new PerProjectInfo(project);
-				perProjectInfos.put(project, info);
+				this.perProjectInfos.put(project, info);
 			}
 			return info;
 		}
@@ -939,7 +940,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Returns null if it doesn't exist and not create.
 	 */
 	public PerWorkingCopyInfo getPerWorkingCopyInfo(CompilationUnit workingCopy,boolean create, boolean recordUsage, IProblemRequestor problemRequestor) {
-		synchronized(perWorkingCopyInfos) { // use the perWorkingCopyInfo collection as its own lock
+		synchronized(this.perWorkingCopyInfos) { // use the perWorkingCopyInfo collection as its own lock
 			WorkingCopyOwner owner = workingCopy.owner;
 			Map workingCopyToInfos = (Map)this.perWorkingCopyInfos.get(owner);
 			if (workingCopyToInfos == null && create) {
@@ -1089,11 +1090,11 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Returns null if it has none.
 	 */
 	public ICompilationUnit[] getWorkingCopies(WorkingCopyOwner owner, boolean addPrimary) {
-		synchronized(perWorkingCopyInfos) {
+		synchronized(this.perWorkingCopyInfos) {
 			ICompilationUnit[] primaryWCs = addPrimary && owner != DefaultWorkingCopyOwner.PRIMARY 
 				? getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, false) 
 				: null;
-			Map workingCopyToInfos = (Map)perWorkingCopyInfos.get(owner);
+			Map workingCopyToInfos = (Map)this.perWorkingCopyInfos.get(owner);
 			if (workingCopyToInfos == null) return primaryWCs;
 			int primaryLength = primaryWCs == null ? 0 : primaryWCs.length;
 			int size = workingCopyToInfos.size(); // note size is > 0 otherwise pathToPerWorkingCopyInfos would be null
@@ -1402,23 +1403,31 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		
 		// load variables and containers from preferences into cache
-		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
+		IEclipsePreferences preferences = JavaCore.getInstancePreferences();
 
 		// only get variable from preferences not set to their default
-		String[] propertyNames = preferences.propertyNames();
-		int variablePrefixLength = CP_VARIABLE_PREFERENCES_PREFIX.length();
-		for (int i = 0; i < propertyNames.length; i++){
-			String propertyName = propertyNames[i];
-			if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)){
-				String varName = propertyName.substring(variablePrefixLength);
-				IPath varPath = new Path(preferences.getString(propertyName).trim());
-				
-				this.variables.put(varName, varPath); 
-				this.previousSessionVariables.put(varName, varPath);
+		try {
+			String[] propertyNames = preferences.keys();
+			int variablePrefixLength = CP_VARIABLE_PREFERENCES_PREFIX.length();
+			for (int i = 0; i < propertyNames.length; i++){
+				String propertyName = propertyNames[i];
+				if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)){
+					String varName = propertyName.substring(variablePrefixLength);
+					String propertyValue = preferences.get(propertyName, null);
+					if (propertyValue != null) {
+						IPath varPath = new Path(propertyValue.trim());
+						this.variables.put(varName, varPath); 
+						this.previousSessionVariables.put(varName, varPath);
+					}
+				}
+				if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)){
+					String propertyValue = preferences.get(propertyName, null);
+					if (propertyValue != null)
+						recreatePersistedContainer(propertyName, propertyValue, true/*add to container values*/);
+				}
 			}
-			if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)){
-				recreatePersistedContainer(propertyName, preferences.getString(propertyName), true/*add to container values*/);
-			}
+		} catch (BackingStoreException e1) {
+			// TODO (frederic) see if it's necessary to report this failure...
 		}
 		// override persisted values for variables which have a registered initializer
 		String[] registeredVariables = getRegisteredVariableNames();
@@ -1603,11 +1612,24 @@ public class JavaModelManager implements ISaveParticipant {
 	}	
 
 	public void removePerProjectInfo(JavaProject javaProject) {
-		synchronized(perProjectInfos) { // use the perProjectInfo collection as its own lock
+		synchronized(this.perProjectInfos) { // use the perProjectInfo collection as its own lock
 			IProject project = javaProject.getProject();
-			PerProjectInfo info= (PerProjectInfo) perProjectInfos.get(project);
+			PerProjectInfo info= (PerProjectInfo) this.perProjectInfos.get(project);
 			if (info != null) {
-				perProjectInfos.remove(project);
+				this.perProjectInfos.remove(project);
+			}
+		}
+	}
+
+	/*
+	 * Reset project preferences stored in info cache.
+	 */
+	public void resetProjectPreferences(JavaProject javaProject) {
+		synchronized(this.perProjectInfos) { // use the perProjectInfo collection as its own lock
+			IProject project = javaProject.getProject();
+			PerProjectInfo info= (PerProjectInfo) this.perProjectInfos.get(project);
+			if (info != null) {
+				info.preferences = null;
 			}
 		}
 	}
@@ -1689,7 +1711,6 @@ public class JavaModelManager implements ISaveParticipant {
 	public void saving(ISaveContext context) throws CoreException {
 		
 	    // save container values on snapshot/full save
-		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
 		IJavaProject[] projects = getJavaModel().getJavaProjects();
 		for (int i = 0, length = projects.length; i < length; i++) {
 		    IJavaProject project = projects[i];
@@ -1708,11 +1729,17 @@ public class JavaModelManager implements ISaveParticipant {
 				} catch(JavaModelException e){
 					// could not encode entry: leave it as CP_ENTRY_IGNORE
 				}
-				preferences.setDefault(containerKey, CP_ENTRY_IGNORE); // use this default to get rid of removed ones
-				preferences.setValue(containerKey, containerString);
+				JavaCore.getDefaultPreferences().put(containerKey, CP_ENTRY_IGNORE); // TODO (frederic) verify if this is really necessary...
+				JavaCore.getInstancePreferences().put(containerKey, containerString);
 			}
 		}
-		JavaCore.getPlugin().savePluginPreferences();
+		try {
+			JavaCore.getInstancePreferences().flush();
+		} catch (BackingStoreException e) {
+			// TODO (frederic) see if it's necessary to report this exception
+			// IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving context", e); //$NON-NLS-1$
+			// throw new CoreException(status);
+		}
 		
 		if (context.getKind() == ISaveContext.FULL_SAVE) {
 			// will need delta since this save (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658)
@@ -1735,7 +1762,7 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 
 		ArrayList vStats= null; // lazy initialized
-		for (Iterator iter =  perProjectInfos.values().iterator(); iter.hasNext();) {
+		for (Iterator iter =  this.perProjectInfos.values().iterator(); iter.hasNext();) {
 			try {
 				PerProjectInfo info = (PerProjectInfo) iter.next();
 				saveState(info, context);
@@ -2044,11 +2071,16 @@ public class JavaModelManager implements ISaveParticipant {
 			this.previousSessionVariables.remove(variableName);
 		}
 
-		Preferences preferences = JavaCore.getPlugin().getPluginPreferences();
 		String variableKey = CP_VARIABLE_PREFERENCES_PREFIX+variableName;
 		String variableString = variablePath == null ? CP_ENTRY_IGNORE : variablePath.toString();
-		preferences.setDefault(variableKey, CP_ENTRY_IGNORE); // use this default to get rid of removed ones
-		preferences.setValue(variableKey, variableString);
-		JavaCore.getPlugin().savePluginPreferences();
+		JavaCore.getDefaultPreferences().put(variableKey, CP_ENTRY_IGNORE); // TODO (frederic) verify if this is really necessary...
+		JavaCore.getInstancePreferences().put(variableKey, variableString);
+		try {
+			JavaCore.getInstancePreferences().flush();
+		} catch (BackingStoreException e) {
+			// TODO (frederic) see if it's necessary to report this exception
+//			IStatus status = new Status(IStatus.ERROR, Platform.PI_RUNTIME, IStatus.ERROR, "Problems while saving context", e); //$NON-NLS-1$
+//			throw new CoreException(status);
+		}
 	}
 }

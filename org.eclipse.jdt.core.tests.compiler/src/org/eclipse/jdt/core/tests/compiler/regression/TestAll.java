@@ -72,6 +72,11 @@ public static Test suite() {
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
 	    ArrayList tests_1_5 = (ArrayList)standardTests.clone();
+		tests_1_5.add(AssertionTest.class);
+		tests_1_5.add(Compliance_1_5.class);	    
+	    tests_1_5.add(GenericTypeTest.class);
+	    tests_1_5.add(ForeachStatementTest.class);
+	    tests_1_5.add(GenericTypeSignatureTest.class);
 		// Reset forgotten subsets tests
 		AbstractRegressionTest.testsNames = null;
 		AbstractRegressionTest.testsNumbers= null;

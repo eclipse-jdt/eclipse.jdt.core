@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.util;
 
 import java.io.*;
 import java.net.ServerSocket;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -24,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 public class Util {
 	public static String OUTPUT_DIRECTORY = "comptest";
@@ -162,6 +164,33 @@ public static void createJar(String[] pathsAndContents, Map options, String jarP
 	compile(pathsAndContents, options, classesPath);
 	zip(classesDir, jarPath);
 }
+public static void create1_5Jar(String[] pathsAndContents, String jarPath) throws IOException {
+	Map options = new HashMap();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+	createJar(pathsAndContents, options, jarPath);
+}
+public static void createFile(String path, String contents) throws IOException {
+	FileOutputStream output = new FileOutputStream(path);
+	try {
+		output.write(contents.getBytes());
+	} finally {
+		output.close();
+	}
+}
+public static void createSourceZip(String[] pathsAndContents, String zipPath) throws IOException {
+	String sourcesPath = getOutputDirectory() + File.separator + "sources";
+	File sourcesDir = new File(sourcesPath);
+	flushDirectoryContent(sourcesDir);
+	for (int i = 0, length = pathsAndContents.length; i < length; i+=2) {
+		String sourcePath = sourcesPath + File.separator + pathsAndContents[i];
+		File sourceFile = new File(sourcePath);
+		sourceFile.getParentFile().mkdirs();
+		createFile(sourcePath, pathsAndContents[i+1]);
+	}
+	zip(sourcesDir, zipPath);
+}
 /**
  * Generate a display string from the given String.
  * @param indent number of tabs are added at the begining of each line.
@@ -297,11 +326,12 @@ public static String displayString(String inputString, int indent) {
 	return buffer.toString();
 }
 /**
- * Reads the content of the given source file and converts it to a display string.
+ * Reads the content of the given source file.
+ * Returns null if enable to read given source file.
  *
- * Example of use: [org.eclipse.jdt.core.tests.util.Util.fileContentToDisplayString("c:/temp/X.java", 0)]
+ * Example of use: [org.eclipse.jdt.core.tests.util.Util.fileContent("c:/temp/X.java")]
 */
-public static String fileContentToDisplayString(String sourceFilePath, int indent, boolean independantLineDelimiter) {
+public static String fileContent(String sourceFilePath) {
 	File sourceFile = new File(sourceFilePath);
 	if (!sourceFile.exists()) {
 		System.out.println("File " + sourceFilePath + " does not exists.");
@@ -336,7 +366,16 @@ public static String fileContentToDisplayString(String sourceFilePath, int inden
 		} catch (IOException e2) {
 		}
 	}
-	String sourceString = sourceContentBuffer.toString();
+	return sourceContentBuffer.toString();
+}
+
+/**
+ * Reads the content of the given source file and converts it to a display string.
+ *
+ * Example of use: [org.eclipse.jdt.core.tests.util.Util.fileContentToDisplayString("c:/temp/X.java", 0)]
+*/
+public static String fileContentToDisplayString(String sourceFilePath, int indent, boolean independantLineDelimiter) {
+	String sourceString = fileContent(sourceFilePath);
 	if (independantLineDelimiter) {
 		sourceString = convertToIndependantLineDelimiter(sourceString);
 	}

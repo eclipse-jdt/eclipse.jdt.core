@@ -357,7 +357,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "5. ERROR in test\\IX.java (at line 9)\n"
 				+ "	* @see Unknown Invalid ref: unknown class \n"
 				+ "	       ^^^^^^^\n"
-				+ "Javadoc: Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Unknown cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -694,12 +694,12 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "5. ERROR in IX.java (at line 8)\n"
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
 				+ "	                ^^^^^^^^^\n"
-				+ "Javadoc: Hashtable cannot be resolved or is not a type\n"
+				+ "Javadoc: Hashtable cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "6. ERROR in IX.java (at line 8)\n"
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
 				+ "	                             ^^^^^^\n"
-				+ "Javadoc: Vector cannot be resolved or is not a type\n"
+				+ "Javadoc: Vector cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -794,12 +794,12 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "3. ERROR in test\\IX.java (at line 7)\n"
 				+ "	* @see Unknown#vm_public() Invalid ref: non-existent class\n"
 				+ "	       ^^^^^^^\n"
-				+ "Javadoc: Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Unknown cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "4. ERROR in test\\IX.java (at line 8)\n"
 				+ "	* @see Visibility.Unknown#vm_public() Invalid ref: non existent inner class\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Visibility.Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Visibility.Unknown cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -1102,7 +1102,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "2. ERROR in IX.java (at line 7)\n"
 				+ "	* @throws Unknown\n"
 				+ "	          ^^^^^^^\n"
-				+ "Javadoc: Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Unknown cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "3. ERROR in IX.java (at line 8)\n"
 				+ "	* @see \"Invalid\n"
@@ -1112,7 +1112,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "4. ERROR in IX.java (at line 9)\n"
 				+ "	* @see Unknown\n"
 				+ "	       ^^^^^^^\n"
-				+ "Javadoc: Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Unknown cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "5. ERROR in IX.java (at line 10)\n"
 				+ "	* @param x\n"
@@ -1316,12 +1316,12 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "1. ERROR in IX.java (at line 3)\n"
 				+ "	* @throws java.awt.AWTexception Invalid exception: unknown type\n"
 				+ "	          ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: java.awt.AWTexception cannot be resolved or is not a type\n"
+				+ "Javadoc: java.awt.AWTexception cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "2. ERROR in IX.java (at line 4)\n"
 				+ "	* @throws IOException Invalid exception: unknown type\n"
 				+ "	          ^^^^^^^^^^^\n"
-				+ "Javadoc: IOException cannot be resolved or is not a type\n"
+				+ "Javadoc: IOException cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -1376,7 +1376,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "1. ERROR in IX.java (at line 13)\n"
 				+ "	InvalidException, \n"
 				+ "	^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved (or is not an exception type) for the method foo\n"
+				+ "InvalidException cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "2. ERROR in IX.java (at line 14)\n"
 				+ "	String, \n"
@@ -1396,7 +1396,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "5. ERROR in IX.java (at line 17)\n"
 				+ "	IOException;\n"
 				+ "	^^^^^^^^^^^\n"
-				+ "IOException cannot be resolved (or is not an exception type) for the method foo\n"
+				+ "IOException cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -1619,7 +1619,7 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "5. ERROR in test\\IX.java (at line 10)\n"
 				+ "	* @see Unknown Invalid ref: unknown class \n"
 				+ "	       ^^^^^^^\n"
-				+ "Javadoc: Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Unknown cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -1959,12 +1959,12 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "5. ERROR in IX.java (at line 9)\n"
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
 				+ "	                ^^^^^^^^^\n"
-				+ "Javadoc: Hashtable cannot be resolved or is not a type\n"
+				+ "Javadoc: Hashtable cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "6. ERROR in IX.java (at line 9)\n"
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
 				+ "	                             ^^^^^^\n"
-				+ "Javadoc: Vector cannot be resolved or is not a type\n"
+				+ "Javadoc: Vector cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -2059,12 +2059,12 @@ public class JavadocTestForInterface extends JavadocTest {
 				+ "3. ERROR in test\\IX.java (at line 8)\n"
 				+ "	* @see Unknown#vm_public() Invalid ref: non-existent class\n"
 				+ "	       ^^^^^^^\n"
-				+ "Javadoc: Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Unknown cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "4. ERROR in test\\IX.java (at line 9)\n"
 				+ "	* @see Visibility.Unknown#vm_public() Invalid ref: non existent inner class\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Visibility.Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Visibility.Unknown cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 

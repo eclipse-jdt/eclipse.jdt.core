@@ -144,8 +144,16 @@ public String[] getParameterTypes() {
  * @since 3.0
  */
 public String[] getTypeParameterSignatures() throws JavaModelException {
-	// TODO (jerome) - missing implementation
-	return new String[0];
+	SourceMethodElementInfo info = (SourceMethodElementInfo) getElementInfo();
+	char[][] signatures = info.getTypeParameterSignatures();
+	if (signatures == null) 
+		return EmptyStringList;
+	int length = signatures.length;
+	String[] stringSignatures = new String[length];
+	for (int i = 0; i < length; i++) {
+		stringSignatures[i] = new String(signatures[i]);
+	}
+	return stringSignatures;
 }
 
 /*

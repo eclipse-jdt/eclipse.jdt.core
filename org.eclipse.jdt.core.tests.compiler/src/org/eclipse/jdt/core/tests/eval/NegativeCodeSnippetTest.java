@@ -77,7 +77,7 @@ public static Class testClass() {
  * in one of its methods.
  */
 public void testExpressionInInnerClass() {
-	//TODO Syntax error diagnose should be improved in this case.
+	//TODO (david) Syntax error diagnose should be improved in this case.
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"class X {",
 		"	int foo() {",
@@ -91,7 +91,7 @@ public void testExpressionInInnerClass() {
  * Test extra closing curly bracket.
  */
 public void testExtraClosingCurlyBracket() {
-	//TODO Syntax error diagnose should be improved in this case.
+	//TODO (david) Syntax error diagnose should be improved in this case.
 	// just an expression with an extra curly bracket
 	evaluateWithExpectedProblem(
 		"1 + 2}".toCharArray(), 
@@ -212,7 +212,7 @@ public void testProblemInExpression() {
 public void testProblemInExpression2() {
 	evaluateWithExpectedProblem(
 		"new UnknownClass()".toCharArray(), 
-		newProblem(IProblem.UndefinedType, Error, 4, 15, 1)); // UnknownClass cannot be resolved or is not a type
+		newProblem(IProblem.UndefinedType, Error, 4, 15, 1)); // UnknownClass cannot be resolved to a type
 }
 /**
  * Test a code snippet which declares a class that has a problem.
@@ -224,7 +224,7 @@ public void testProblemInInnerClass() {
 		"	Y foo = new Y();",
 		"}",
 		"return new X().foo;"}), 
-		newProblem(IProblem.FieldTypeNotFound, Error, 11, 11, 2)); // The type Y is undefined for the field X.foo
+		newProblem(IProblem.UndefinedType, Error, 11, 11, 2)); // The type Y is undefined
 
 	// class declared as part of the last expression
 	evaluateWithExpectedWarningAndDisplayString(buildCharArray(new String[] {
@@ -243,7 +243,7 @@ public void testProblemInInnerClass() {
  * Test a problem in the statement before the returned expression.
  */
 public void testProblemInPreviousStatement() {
-	//TODO Syntax error diagnose should be improved in this case.
+	//TODO (david) Syntax error diagnose should be improved in this case.
 	evaluateWithExpectedProblem(buildCharArray(new String[] {
 		"return foo(a a);",
 		"1 + 3"}), 

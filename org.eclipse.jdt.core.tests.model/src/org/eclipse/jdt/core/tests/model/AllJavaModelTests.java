@@ -46,8 +46,10 @@ static Class[] getAllTestClasses() {
 		ExternalJarDeltaTests.class,
 		ExistenceTests.class,
 		ResolveTests.class,
+		ResolveTests_1_5.class,
 		CompletionTests.class,
 		CompletionTests2.class,
+		CompletionTests_1_5.class,
 		SnippetCompletionTests.class,
 		NamingConventionTests.class,
 		CodeCorrectionTests.class,
@@ -74,7 +76,8 @@ static Class[] getAllTestClasses() {
 		LocalElementTests.class,
 		GetSourceTests.class,
 		CreatePackageTests.class,
-		CreateCompilationUnitTests.class
+		CreateCompilationUnitTests.class,
+		ClassFileTests.class
 	};
 }
 public static Test suite() {
@@ -145,11 +148,13 @@ public static Test suite() {
 	
 	// Support for "open on" feature tests
 	suite.addTest(ResolveTests.suite());
+	suite.addTest(ResolveTests_1_5.suite());
 	
 	// Support for completion tests
 	suite.addTest(CompletionTests.suite());
 	suite.addTest(CompletionTests2.suite());
 	suite.addTest(SnippetCompletionTests.suite());
+	suite.addTest(CompletionTests_1_5.suite());
 	
 	// Prefix and suffix tests
 	suite.addTest(NamingConventionTests.suite());
@@ -225,6 +230,11 @@ public static Test suite() {
 	
 	// Create search participant tests
 	suite.addTest(SearchParticipantTests.suite());
+	
+	// Class file tests
+	suite.addTest(ClassFileTests.suite());
+
+	includeDeprecatedJDOMTests(suite);
 
 	includeDeprecatedJDOMTests(suite);
 

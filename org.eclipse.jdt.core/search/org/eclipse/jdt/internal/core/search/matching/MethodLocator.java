@@ -210,7 +210,7 @@ public int resolveLevel(Binding binding) {
 	if (binding == null) return INACCURATE_MATCH;
 	if (!(binding instanceof MethodBinding)) return IMPOSSIBLE_MATCH;
 
-	MethodBinding method = (MethodBinding) binding;
+	MethodBinding method = ((MethodBinding) binding).original();
 	int methodLevel = matchMethod(method);
 	if (methodLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
 
@@ -225,8 +225,9 @@ public int resolveLevel(Binding binding) {
 }
 protected int resolveLevel(MessageSend messageSend) {
 	MethodBinding method = messageSend.binding;
+	if (method != null) method = method.original();
 	if (method == null) return INACCURATE_MATCH;
-
+	
 	int methodLevel = matchMethod(method);
 	if (methodLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
 

@@ -188,7 +188,7 @@ public class HandleFactory {
 			public void endVisit(ConstructorDeclaration node, ClassScope scope) {
 				pop(node);
 			}
-
+			
 			public boolean visit(FieldDeclaration node, MethodScope scope) {
 			    push(node);
 				if (node == toBeFound) throw new EndVisit();
@@ -246,7 +246,7 @@ public class HandleFactory {
 			public void endVisit(MethodDeclaration node, ClassScope scope) {
 				pop(node);
 			}
-
+			
 			public boolean visit(TypeDeclaration node, CompilationUnitScope scope) {
 			    push(node);
 				if (node == toBeFound) throw new EndVisit();

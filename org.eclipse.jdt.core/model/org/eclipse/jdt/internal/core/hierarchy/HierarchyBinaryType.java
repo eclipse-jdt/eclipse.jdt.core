@@ -68,6 +68,9 @@ public IBinaryField[] getFields() {
 public char[] getFileName() {
 	return null;
 }
+public char[] getGenericSignature() {
+	return null;
+}
 /**
  * Answer the resolved names of the receiver's interfaces in the
  * class file format as specified in section 4.2 of the Java 2 VM spec

@@ -33,7 +33,6 @@ package org.eclipse.jdt.internal.codeassist.complete;
  
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnFieldType extends FieldDeclaration {
 	public boolean isLocalVariable;
@@ -45,15 +44,12 @@ public CompletionOnFieldType(TypeReference type, boolean isLocalVariable){
 	this.type = type;
 	this.name = CharOperation.NO_CHAR;
 	this.isLocalVariable = isLocalVariable;
+	if (type instanceof CompletionOnSingleTypeReference) {
+	    ((CompletionOnSingleTypeReference) type).fieldTypeCompletionNode = this;
+	}
 }
-public TypeBinding getTypeBinding(Scope scope) {
-	if(type instanceof CompletionOnSingleTypeReference)
-		throw new CompletionNodeFound(this, scope);
-	else // handle the qualified type ref directly
-		return type.getTypeBinding(scope);
-}
-public StringBuffer printStatement(int tab, StringBuffer output) {
 
+public StringBuffer printStatement(int tab, StringBuffer output) {
 	return type.print(tab, output).append(';'); 
 }
 }

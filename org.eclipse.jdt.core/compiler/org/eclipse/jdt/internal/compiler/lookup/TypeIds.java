@@ -11,9 +11,10 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 public interface TypeIds {
-	//base type void null undefined Object String
-	//should have an id that is 0<= id <= 15
 
+    //base type void null undefined Object String
+	//should have an id that is 0<= id <= 15
+    // The IDs below must be representable using 4 bits so as to fit in operator signatures.
 	final int T_undefined = 0; // should not be changed
 	final int T_Object = 1;
 	final int T_char = 2;
@@ -27,8 +28,6 @@ public interface TypeIds {
 	final int T_int = 10;
 	final int T_String = 11;
 	final int T_null = 12;
-	//final int T_extendedDouble = 13;
-	//final int T_extendedLong = 14
 
 	//=========end of 4 bits constraint===========
 
@@ -58,12 +57,17 @@ public interface TypeIds {
 	final int T_JavaLangBoolean = 33;
 	final int T_JavaLangVoid = 34;
 
-	// 1.4 feature
+	// 1.4 features
 	final int T_JavaLangAssertionError = 35;
-
+	
 	// array interfaces
 	final int T_JavaLangCloneable = 36;
 	final int T_JavaIoSerializable = 37;
+	    
+	// 1.5 features
+	final int T_JavaLangIterable = 38;
+	final int T_JavaUtilIterator = 39;
+	final int T_JavaLangStringBuilder = 40;
 	
 	final int NoId = Integer.MAX_VALUE;
 

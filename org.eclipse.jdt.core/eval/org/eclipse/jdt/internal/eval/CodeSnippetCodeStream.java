@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 public class CodeSnippetCodeStream extends CodeStream {
 	static InvocationSite NO_INVOCATION_SITE = 
 		new InvocationSite(){	
+			public TypeBinding[] genericTypeArguments() { return null; }
 			public boolean isSuperAccess(){ return false; }
 			public boolean isTypeAccess() { return false; }
 			public void setActualReceiverType(ReferenceBinding receiverType) {}
@@ -37,7 +38,7 @@ public class CodeSnippetCodeStream extends CodeStream {
  * @param classFile org.eclipse.jdt.internal.compiler.ClassFile
  */
 public CodeSnippetCodeStream(org.eclipse.jdt.internal.compiler.ClassFile classFile) {
-	super(classFile);
+	super(classFile, JDK1_4);
 }
 protected void checkcast(int baseId) {
 	this.countLabels = 0;
@@ -98,7 +99,7 @@ public void generateEmulationForConstructor(Scope scope, MethodBinding methodBin
 	this.invokeClassForName();
 	int paramLength = methodBinding.parameters.length;
 	this.generateInlinedValue(paramLength);
-	this.newArray(scope, new ArrayBinding(scope.getType(TypeConstants.JAVA_LANG_CLASS), 1));
+	this.newArray(scope, scope.createArrayType(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
 	if (paramLength > 0) {
 		this.dup();
 		for (int i = 0; i < paramLength; i++) {
@@ -154,7 +155,7 @@ public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding)
 	this.ldc(String.valueOf(methodBinding.selector));
 	int paramLength = methodBinding.parameters.length;
 	this.generateInlinedValue(paramLength);
-	this.newArray(scope, new ArrayBinding(scope.getType(TypeConstants.JAVA_LANG_CLASS), 1));
+	this.newArray(scope, scope.createArrayType(scope.getType(TypeConstants.JAVA_LANG_CLASS, 3), 1));
 	if (paramLength > 0) {
 		this.dup();
 		for (int i = 0; i < paramLength; i++) {
@@ -223,7 +224,7 @@ public void generateObjectWrapperForType(TypeBinding valueType) {
 			wrapperTypeCompoundName = new char[][] {"java".toCharArray(), "lang".toCharArray(), "Long".toCharArray()}; //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-3$
 			break;
 	}
-	TypeBinding wrapperType = this.methodDeclaration.scope.getType(wrapperTypeCompoundName);
+	TypeBinding wrapperType = this.methodDeclaration.scope.getType(wrapperTypeCompoundName, wrapperTypeCompoundName.length);
 	new_(wrapperType);
 	if (valueType.id == T_long || valueType.id == T_double) {
 		dup_x2();

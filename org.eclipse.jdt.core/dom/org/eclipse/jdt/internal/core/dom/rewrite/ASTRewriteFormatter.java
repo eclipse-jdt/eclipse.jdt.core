@@ -14,6 +14,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import org.eclipse.text.edits.DeleteEdit;
+import org.eclipse.text.edits.InsertEdit;
+import org.eclipse.text.edits.MultiTextEdit;
+import org.eclipse.text.edits.ReplaceEdit;
+import org.eclipse.text.edits.TextEdit;
+
 import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPositionCategoryException;
@@ -21,20 +27,15 @@ import org.eclipse.jface.text.DefaultPositionUpdater;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.Position;
 
-import org.eclipse.text.edits.DeleteEdit;
-import org.eclipse.text.edits.InsertEdit;
-import org.eclipse.text.edits.MultiTextEdit;
-import org.eclipse.text.edits.ReplaceEdit;
-import org.eclipse.text.edits.TextEdit;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.formatter.CodeFormatter;
-import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 /* package */ class ASTRewriteFormatter {
 
@@ -327,7 +328,8 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 					// not supported:
 				    return null;
 				default:
-					Assert.isTrue(false, "Node type not covered: " + node.getClass().getName()); //$NON-NLS-1$
+					//Assert.isTrue(false, "Node type not covered: " + node.getClass().getName()); //$NON-NLS-1$
+					// TODO: fill in the 1.5 nodes
 					return null;
 			}
 		}

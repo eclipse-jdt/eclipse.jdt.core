@@ -97,7 +97,7 @@ public class BinaryExpression extends OperatorExpression {
 			case PLUS :
 				switch (bits & ReturnTypeIDMASK) {
 					case T_String :
-						codeStream.generateStringAppend(currentScope, left, right);
+						codeStream.generateStringConcatenationAppend(currentScope, left, right);
 						if (!valueRequired)
 							codeStream.pop();
 						break;
@@ -1525,7 +1525,7 @@ public class BinaryExpression extends OperatorExpression {
 		codeStream.updateLastRecordedEndPC(codeStream.position);					
 	}
 	
-	public void generateOptimizedStringBuffer(
+	public void generateOptimizedStringConcatenation(
 		BlockScope blockScope,
 		CodeStream codeStream,
 		int typeID) {
@@ -1539,27 +1539,27 @@ public class BinaryExpression extends OperatorExpression {
 			&& ((bits & ReturnTypeIDMASK) == T_String)) {
 			if (constant != NotAConstant) {
 				codeStream.generateConstant(constant, implicitConversion);
-				codeStream.invokeStringBufferAppendForType(implicitConversion & 0xF);
+				codeStream.invokeStringConcatenationAppendForType(implicitConversion & 0xF);
 			} else {
 				int pc = codeStream.position;
-				left.generateOptimizedStringBuffer(
+				left.generateOptimizedStringConcatenation(
 					blockScope,
 					codeStream,
 					left.implicitConversion & 0xF);
 				codeStream.recordPositionsFrom(pc, left.sourceStart);
 				pc = codeStream.position;
-				right.generateOptimizedStringBuffer(
+				right.generateOptimizedStringConcatenation(
 					blockScope,
 					codeStream,
 					right.implicitConversion & 0xF);
 				codeStream.recordPositionsFrom(pc, right.sourceStart);
 			}
 		} else {
-			super.generateOptimizedStringBuffer(blockScope, codeStream, typeID);
+			super.generateOptimizedStringConcatenation(blockScope, codeStream, typeID);
 		}
 	}
 	
-	public void generateOptimizedStringBufferCreation(
+	public void generateOptimizedStringConcatenationCreation(
 		BlockScope blockScope,
 		CodeStream codeStream,
 		int typeID) {
@@ -1572,27 +1572,27 @@ public class BinaryExpression extends OperatorExpression {
 		if ((((bits & OperatorMASK) >> OperatorSHIFT) == PLUS)
 			&& ((bits & ReturnTypeIDMASK) == T_String)) {
 			if (constant != NotAConstant) {
-				codeStream.newStringBuffer(); // new: java.lang.StringBuffer
+				codeStream.newStringContatenation(); // new: java.lang.StringBuffer
 				codeStream.dup();
 				codeStream.ldc(constant.stringValue());
-				codeStream.invokeStringBufferStringConstructor();
+				codeStream.invokeStringConcatenationStringConstructor();
 				// invokespecial: java.lang.StringBuffer.<init>(Ljava.lang.String;)V
 			} else {
 				int pc = codeStream.position;
-				left.generateOptimizedStringBufferCreation(
+				left.generateOptimizedStringConcatenationCreation(
 					blockScope,
 					codeStream,
 					left.implicitConversion & 0xF);
 				codeStream.recordPositionsFrom(pc, left.sourceStart);
 				pc = codeStream.position;
-				right.generateOptimizedStringBuffer(
+				right.generateOptimizedStringConcatenation(
 					blockScope,
 					codeStream,
 					right.implicitConversion & 0xF);
 				codeStream.recordPositionsFrom(pc, right.sourceStart);
 			}
 		} else {
-			super.generateOptimizedStringBufferCreation(blockScope, codeStream, typeID);
+			super.generateOptimizedStringConcatenationCreation(blockScope, codeStream, typeID);
 		}
 	}
 	
@@ -1687,11 +1687,11 @@ public class BinaryExpression extends OperatorExpression {
 		if (((bits & OperatorMASK) >> OperatorSHIFT) == PLUS) {
 			if (leftTypeId == T_String
 					&& rightType.isArrayType()
-					&& ((ArrayBinding) rightType).elementsType(scope) == CharBinding) {
+					&& ((ArrayBinding) rightType).elementsType() == CharBinding) {
 				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(right);
 					} else if (rightTypeId == T_String
 							&& leftType.isArrayType()
-							&& ((ArrayBinding) leftType).elementsType(scope) == CharBinding) {
+							&& ((ArrayBinding) leftType).elementsType() == CharBinding) {
 				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(left);
 			}
 		}

@@ -29,6 +29,8 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnSingleTypeReference extends SingleTypeReference {
 public boolean isCompletionNode;
+public CompletionOnFieldType fieldTypeCompletionNode;
+
 public CompletionOnSingleTypeReference(char[] source, long pos) {
 	super(source, pos);
 	isCompletionNode = true;
@@ -42,7 +44,10 @@ public void aboutToResolve(Scope scope) {
 public TypeReference copyDims(int dim){
 	return this;
 }
-public TypeBinding getTypeBinding(Scope scope) {
+protected TypeBinding getTypeBinding(Scope scope) {
+    if (this.fieldTypeCompletionNode != null) {
+		throw new CompletionNodeFound(this.fieldTypeCompletionNode, scope);
+    }
 	if(isCompletionNode) {
 		throw new CompletionNodeFound(this, scope);
 	} else {
@@ -53,6 +58,9 @@ public StringBuffer printExpression(int indent, StringBuffer output){
 	return output.append("<CompleteOnType:").append(token).append('>'); //$NON-NLS-1$
 }
 public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
+    if (this.fieldTypeCompletionNode != null) {
+		throw new CompletionNodeFound(this.fieldTypeCompletionNode, scope);
+    }
 	if(isCompletionNode) {
 		throw new CompletionNodeFound(this, enclosingType, scope);
 	} else {

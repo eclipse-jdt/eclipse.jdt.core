@@ -29,7 +29,7 @@ public abstract class Binding implements BindingIds, CompilerModifiers, ProblemR
 	* Answer the problem id associated with the receiver.
 	* NoError if the receiver is a valid binding.
 	*/
-	
+	// TODO (philippe) should rename into problemReason()
 	public int problemId() {
 		return NoError;
 	}

@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.*;
 
 import junit.framework.Test;
 
-public class TypeHierarchyTests extends AbstractJavaModelTests {
+public class TypeHierarchyTests extends ModifyingResourceTests {
 	/**
 	 * A placeholder for a type hierarchy used in some test cases.
 	 */
@@ -48,6 +48,34 @@ public void setUpSuite() throws Exception {
 	IRegion region = JavaCore.newRegion();
 	region.add(root);
 	this.typeHierarchy = project.newTypeHierarchy(region, null);
+	
+	IJavaProject project15 = createJavaProject("TypeHierarchy15", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
+	add1_5Library(project15, "lib15.jar", "lib15src.zip", new String[] {
+		"util/AbstractList.java",
+		"package util;\n" + 
+		"public class AbstractList<E> {\n" + 
+		"}",
+		"util/ArrayList.java",
+		"package util;\n" + 
+		"public class ArrayList<E> extends AbstractList<E> implements List<E> {\n" + 
+		"}",
+		"util/List.java",
+		"package util;\n" + 
+		"public interface List<E> {\n" + 
+		"}"
+	});
+	createFile(
+		"/TypeHierarchy15/src/X.java", 
+		"import util.*;\n" +
+		"public class X<E> extends ArrayList<E> implements List<E> {\n" +
+		"}"
+	);
+	createFile(
+		"/TypeHierarchy15/src/Y.java", 
+		"import util.*;\n" +
+		"public class Y extends ArrayList implements List {\n" +
+		"}"
+	);
 }
 
 /* (non-Javadoc)
@@ -56,6 +84,7 @@ public void setUpSuite() throws Exception {
 public void tearDownSuite() throws Exception {
 	this.typeHierarchy = null;
 	deleteProject("TypeHierarchy");
+	deleteProject("TypeHierarchy15");
 	
 	super.tearDownSuite();
 }
@@ -698,6 +727,60 @@ public void testCancel() throws JavaModelException {
 		isCanceled = true;
 	}
 	assertTrue("Operation should have thrown an operation canceled exception", isCanceled);
+}
+/*
+ * Ensures that a hierarchy on a generic type can be opened
+ */
+public void testGeneric1() throws JavaModelException {
+	IType type = getCompilationUnit("/TypeHierarchy15/src/X.java").getType("X");
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: X [in X.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"Super types:\n" + 
+		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"  ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"    List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"    AbstractList [in AbstractList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy
+	);
+}
+/*
+ * Ensures that a hierarchy on a generic type can be opened
+ */
+public void testGeneric2() throws JavaModelException {
+	IType type = getPackageFragmentRoot("/TypeHierarchy15/lib15.jar").getPackageFragment("util").getClassFile("ArrayList.class").getType();
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"Super types:\n" + 
+		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"  AbstractList [in AbstractList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n" + 
+		"  X [in X.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"  Y [in Y.java [in <default> [in src [in TypeHierarchy15]]]]\n",
+		hierarchy
+	);
+}
+/*
+ * Ensures that a hierarchy on a generic type can be opened
+ */
+public void testGeneric3() throws JavaModelException {
+	IType type = getCompilationUnit("/TypeHierarchy15/src/Y.java").getType("Y");
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Y [in Y.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"Super types:\n" + 
+		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"  ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"    List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"    AbstractList [in AbstractList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy
+	);
 }
 /**
  * Ensures the correctness of all classes in a type hierarchy based on a region.

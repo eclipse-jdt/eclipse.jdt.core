@@ -305,6 +305,7 @@ protected void reportDeclaration(ASTNode reference, IJavaElement element, MatchL
 	if (typeBinding == null || typeBinding instanceof BaseTypeBinding) return;
 	if (typeBinding instanceof ProblemReferenceBinding)
 		typeBinding = ((ProblemReferenceBinding) typeBinding).original;
+	typeBinding = typeBinding.erasure();
 	reportDeclaration((ReferenceBinding) typeBinding, maxType, locator, knownTypes);
 }
 protected void reportDeclaration(ReferenceBinding typeBinding, int maxType, MatchLocator locator, SimpleSet knownTypes) throws CoreException {

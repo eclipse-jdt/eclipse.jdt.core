@@ -54,11 +54,9 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 
 	 	// consider that A$B is a member type: so replace '$' with '.'
 	 	// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=40116)
-		if (CharOperation.indexOf('$', typeName) > 0) {
-			System.arraycopy(typeName, 0, typeName = new char[length], 0, length); // copy it so the original is not modified
-			CharOperation.replace(typeName, '$', '.');
-		}
-	 	super.addTypeReference(typeName);
+		typeName = CharOperation.replaceOnCopy(typeName, '$', '.'); // copy it so the original is not modified
+
+		super.addTypeReference(typeName);
 	}
 	/**
 	 * For example:

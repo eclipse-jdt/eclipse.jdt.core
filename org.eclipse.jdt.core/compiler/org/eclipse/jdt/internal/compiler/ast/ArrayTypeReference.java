@@ -10,8 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ArrayTypeReference extends SingleTypeReference {
 	public int dimensions;
@@ -28,24 +32,34 @@ public class ArrayTypeReference extends SingleTypeReference {
 		this.dimensions = dimensions ;
 	}
 	
-	public ArrayTypeReference(char[] source, TypeBinding tb, int dimensions, long pos) {
-		
-		super(source, tb, pos);
-		this.dimensions = dimensions ;
-	}
-	
 	public int dimensions() {
 		
 		return dimensions;
 	}
-	
-	public TypeBinding getTypeBinding(Scope scope) {
+	/**
+	 * @return char[][]
+	 */
+	public char [][] getParameterizedTypeName(){
+		int dim = this.dimensions;
+		char[] dimChars = new char[dim*2];
+		for (int i = 0; i < dim; i++) {
+			int index = i*2;
+			dimChars[index] = '[';
+			dimChars[index+1] = ']';
+		}
+		return new char[][]{ CharOperation.concat(token, dimChars) };
+	}	
+	protected TypeBinding getTypeBinding(Scope scope) {
 		
 		if (this.resolvedType != null) return this.resolvedType;
 		if (dimensions > 255) {
 			scope.problemReporter().tooManyDimensions(this);
 		}
-		return scope.createArray(scope.getType(token), dimensions);
+		TypeBinding leafComponentType = scope.getType(token);
+		if (leafComponentType.isParameterizedType()) {
+		    scope.problemReporter().illegalArrayOfParameterizedType(leafComponentType, this);
+		}
+		return scope.createArrayType(leafComponentType, dimensions);
 	
 	}
 	
@@ -59,6 +73,12 @@ public class ArrayTypeReference extends SingleTypeReference {
 	}
 	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
+	}
+	
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);

@@ -60,7 +60,9 @@ class DocCommentParser extends AbstractCommentParser {
 			parseComment(start, start+length-1);
 		}
 		this.docComment.setSourceRange(start, length);
-		setComment(start, length);  // backward compatibility
+		if (this.ast.apiLevel == AST.JLS2) {
+			setComment(start, length);  // backward compatibility
+		}
 		return this.docComment;
 	}
 

@@ -43,7 +43,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	if (onDemand) {
 		importName+=".*"; //$NON-NLS-1$
 	}
-	fNode= new DOMImport(fDocument, sourceRange, importName, onDemand);
+	fNode= new DOMImport(fDocument, sourceRange, importName, onDemand, modifiers);
 	addChild(fNode);	
 }
 public void acceptPackage(int declarationStart, int declarationEnd, char[] name) {
@@ -95,13 +95,13 @@ protected void enterAbstractMethod(int declarationStart, int modifiers,
 }
 /**
  */
-public void enterClass(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[] superclass, char[][] superinterfaces) {
+public void enterClass(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[] superclass, char[][] superinterfaces, char[][] typeParameterNames, char[][][] typeParameterBounds) {
 	enterType(declarationStart, modifiers, name, nameStart, nameEnd, superclass,
 		superinterfaces, true);
 }
 /**
  */
-public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {
+public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes, char[][] typeParameterNames, char[][][] typeParameterBounds) {
 	/* see 1FVIIQZ */
 	String nameString = new String(fDocument, nameStart, nameEnd - nameStart);
 	int openParenPosition = nameString.indexOf('(');
@@ -138,13 +138,13 @@ public void enterInitializer(int declarationSourceStart, int modifiers) {
 }
 /**
  */
-public void enterInterface(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] superinterfaces) {
+public void enterInterface(int declarationStart, int modifiers, char[] name, int nameStart, int nameEnd, char[][] superinterfaces, 	char[][] typeParameterNames, 	char[][][] typeParameterBounds) {
 	enterType(declarationStart, modifiers, name, nameStart, nameEnd, null,
 		superinterfaces, false);
 }
 /**
  */
-public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameStart, int nameEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {
+public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameStart, int nameEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes, char[][] typeParameterNames, char[][][] typeParameterBounds) {
 	enterAbstractMethod(declarationStart, modifiers, 
 		returnType, name, nameStart, nameEnd, parameterTypes,
 		parameterNames, exceptionTypes,false);

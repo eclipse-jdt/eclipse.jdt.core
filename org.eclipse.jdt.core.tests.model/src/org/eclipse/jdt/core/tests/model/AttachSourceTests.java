@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
+
 import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -34,6 +36,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class AttachSourceTests extends ModifyingResourceTests {
 
 	private IPackageFragmentRoot pkgFragmentRoot;
+	private IType genericType;
 	
 public AttachSourceTests(String name) {
 	super(name);
@@ -60,12 +63,31 @@ public void setUpSuite() throws Exception {
 	
 	IJavaProject project = setUpJavaProject("AttachSourceTests");
 	this.pkgFragmentRoot = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/attach.jar"));
+	setUpGenericJar();
+}
+private void setUpGenericJar() throws IOException, CoreException {
+	String[] pathAndContents = new String[] {
+		"generic/X.java", 
+		"package generic;\n" +
+		"public class X<T> {\n" + 
+		"  void foo(X<T> x) {\n" +
+		"  }\n" +
+		"  <K, V> V foo(K key, V value) {\n" +
+		"    return value;\n" +
+		"  }\n" +
+		"}"
+	};
+	IJavaProject project = getJavaProject("AttachSourceTests");
+	add1_5Library(project, "generic.jar", "genericsrc.zip", pathAndContents);
+	IFile jar = getFile("/AttachSourceTests/generic.jar");
+	this.genericType = project.getPackageFragmentRoot(jar).getPackageFragment("generic").getClassFile("X.class").getType();
 }
 protected void tearDown() throws Exception {
 	IJavaProject project = this.getJavaProject("/AttachSourceTests");
 	IPackageFragmentRoot[] roots = project.getAllPackageFragmentRoots();
 	for (int i = 0; i < roots.length; i++) {
 		IPackageFragmentRoot root = roots[i];
+		if (this.genericType != null && root.equals(this.genericType.getPackageFragment().getParent())) continue;
 		if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
 			this.attachSource(root, null, null); // detach source
 		}
@@ -214,6 +236,29 @@ public void testDetachSource() throws JavaModelException {
 	assertTrue("source range should no longer exist for A", cf.getType().getSourceRange().getOffset() == -1);
 	assertTrue("Source attachment path should be null", null == this.pkgFragmentRoot.getSourceAttachmentPath());
 	assertTrue("Source attachment root path should be null", null ==this.pkgFragmentRoot.getSourceAttachmentRootPath());
+}
+/*
+ * Ensures that the source of a generic method can be retrieved.
+ */
+public void testGeneric1() throws JavaModelException {
+	IMethod method = this.genericType.getMethod("foo", new String[] {"QX<QT;>;"});
+	assertSourceEquals(
+		"Unexpected source",
+		"void foo(X<T> x) {\n" + 
+		"  }",
+		method.getSource());
+}
+/*
+ * Ensures that the source of a generic method can be retrieved.
+ */
+public void testGeneric2() throws JavaModelException {
+	IMethod method = this.genericType.getMethod("foo", new String[] {"QK;", "QV;"});
+	assertSourceEquals(
+		"Unexpected source",
+		"<K, V> V foo(K key, V value) {\n" + 
+		"    return value;\n" + 
+		"  }",
+		method.getSource());
 }
 /**
  * Ensures that name ranges exists for BinaryMembers that have

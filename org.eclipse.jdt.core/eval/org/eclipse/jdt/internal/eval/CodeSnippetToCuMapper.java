@@ -292,6 +292,13 @@ public ISelectionRequestor getSelectionRequestor(final ISelectionRequestor origi
 		public void acceptPackage(char[] packageName) {
 			originalRequestor.acceptPackage(packageName);
 		}
+		
+		public void acceptTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] typeParameterName, boolean isDeclaration, int start, int end) {
+			originalRequestor.acceptTypeParameter(declaringTypePackageName, declaringTypeName, typeParameterName, isDeclaration, start, end);
+		}
+		public void acceptMethodTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor, char[] typeParameterName, boolean isDeclaration, int start, int end) {
+			originalRequestor.acceptMethodTypeParameter(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, isConstructor, typeParameterName, isDeclaration, start, end);
+		}
 	};
 }
 }

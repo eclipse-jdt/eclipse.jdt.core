@@ -122,6 +122,8 @@ public void test005() {
 	}
 	
 	String expectedOutput = 
+		"  // Method descriptor  #7 ()V\n" + 
+		"  // Stack: 1, Locals: 0\n" + 
 		"  static {};\n" + 
 		"    0  iconst_2\n" + 
 		"    1  anewarray #4 java/lang/Object\n" + 

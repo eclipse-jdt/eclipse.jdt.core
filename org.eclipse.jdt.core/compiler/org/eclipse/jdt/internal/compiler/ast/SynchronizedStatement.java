@@ -41,6 +41,8 @@ public class SynchronizedStatement extends SubRoutineStatement {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
+	    // TODO (philippe) shouldn't it be protected by a check whether reachable statement ?
+	    
 		// mark the synthetic variable as being used
 		synchroVariable.useFlag = LocalVariableBinding.USED;
 
@@ -105,14 +107,16 @@ public class SynchronizedStatement extends SubRoutineStatement {
 			if (!blockExit) {
 				codeStream.load(synchroVariable);
 				codeStream.monitorexit();
+				this.exitAnyExceptionHandler();				
 				codeStream.goto_(endLabel);
+				this.enterAnyExceptionHandler(codeStream);
 			}
 			// generate the body of the exception handler
-			this.exitAnyExceptionHandler();
 			this.placeAllAnyExceptionHandlers();
 			codeStream.incrStackSize(1);
 			codeStream.load(synchroVariable);
 			codeStream.monitorexit();
+			this.exitAnyExceptionHandler();
 			codeStream.athrow();
 			if (!blockExit) {
 				endLabel.place();
@@ -164,7 +168,7 @@ public class SynchronizedStatement extends SubRoutineStatement {
 		synchroVariable = new LocalVariableBinding(SecretLocalDeclarationName, type, AccDefault, false);
 		scope.addLocalVariable(synchroVariable);
 		synchroVariable.constant = NotAConstant; // not inlinable
-		expression.implicitWidening(type, type);
+		expression.computeConversion(scope, type, type);
 		block.resolveUsing(scope);
 	}
 

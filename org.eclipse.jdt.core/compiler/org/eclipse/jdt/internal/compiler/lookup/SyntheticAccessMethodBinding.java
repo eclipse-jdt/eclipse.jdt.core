@@ -27,6 +27,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 	public final static int MethodAccess = 3; 		// normal method 
 	public final static int ConstructorAccess = 4; 	// constructor
 	public final static int SuperMethodAccess = 5; // super method
+	public final static int BridgeMethodAccess = 6; // bridge method
 
 	final static char[] AccessMethodPrefix = { 'a', 'c', 'c', 'e', 's', 's', '$' };
 
@@ -135,6 +136,24 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 		}
 	}
 
+	/*
+	 * Construct a bridge method
+	 */
+	public SyntheticAccessMethodBinding(MethodBinding overridenMethodToBridge, MethodBinding localTargetMethod) {
+	    this.declaringClass = localTargetMethod.declaringClass;
+	    this.selector = overridenMethodToBridge.selector;
+	    this.modifiers = overridenMethodToBridge.modifiers | AccBridge | AccSynthetic;
+	    this.modifiers &= ~(AccAbstract | AccNative);
+	    this.returnType = overridenMethodToBridge.returnType;
+	    this.parameters = overridenMethodToBridge.parameters;
+	    this.thrownExceptions = overridenMethodToBridge.thrownExceptions;
+	    this.targetMethod = localTargetMethod;
+	    this.accessType = BridgeMethodAccess;
+		SyntheticAccessMethodBinding[] knownAccessMethods = ((SourceTypeBinding)this.declaringClass).syntheticAccessMethods();
+		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
+		this.index = methodId;	    
+	}
+	
 	/**
 	 * An constructor accessor is a constructor with an extra argument (declaringClass), in case of
 	 * collision with an existing constructor, then add again an extra argument (declaringClass again).

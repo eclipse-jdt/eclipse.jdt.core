@@ -176,7 +176,9 @@ public void enterClass(
 	int nameSourceStart, 
 	int nameSourceEnd, 
 	char[] superclass, 
-	char[][] superinterfaces) {
+	char[][] superinterfaces,
+	char[][] typeParameterNames,
+	char[][][] typeParameterBounds) {
 
 	if (currentType == null) {
 		// top level type
@@ -227,7 +229,9 @@ public void enterConstructor(
 	int nameSourceEnd, 
 	char[][] parameterTypes, 
 	char[][] parameterNames, 
-	char[][] exceptionTypes) {
+	char[][] exceptionTypes,
+	char[][] typeParameterNames,
+	char[][][] typeParameterBounds) {
 
 	currentType.addMethod(
 		currentMethod = 
@@ -241,6 +245,8 @@ public void enterConstructor(
 				parameterTypes, 
 				parameterNames, 
 				exceptionTypes, 
+				typeParameterNames,
+				typeParameterBounds,
 				source)); 
 }
 /**
@@ -292,7 +298,9 @@ public void enterInterface(
 	char[] name, 
 	int nameSourceStart, 
 	int nameSourceEnd, 
-	char[][] superinterfaces) {
+	char[][] superinterfaces,
+	char[][] typeParameterNames,
+	char[][][] typeParameterBounds) {
 
 	if (currentType == null) {
 		// top level type
@@ -340,7 +348,9 @@ public void enterMethod(
 	int nameSourceEnd, 
 	char[][] parameterTypes, 
 	char[][] parameterNames, 
-	char[][] exceptionTypes) {
+	char[][] exceptionTypes,
+	char[][] typeParameterNames,
+	char[][][] typeParameterBounds) {
 
 	currentType.addMethod(
 		currentMethod = 
@@ -354,6 +364,8 @@ public void enterMethod(
 				parameterTypes, 
 				parameterNames, 
 				exceptionTypes, 
+				typeParameterNames,
+				typeParameterBounds,
 				source)); 
 }
 /**

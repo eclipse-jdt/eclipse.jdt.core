@@ -91,7 +91,7 @@ public class ClassFile
 		ClassFile enclosingClassFile,
 		boolean creatingProblemType) {
 	    
-		referenceBinding = aType;
+		this.referenceBinding = aType;
 		initByteArrays();
 
 		// generate the magic numbers inside the header
@@ -100,7 +100,8 @@ public class ClassFile
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 		
-		this.targetJDK = referenceBinding.scope.environment().options.targetJDK;
+		final CompilerOptions options = aType.scope.environment().options;
+		this.targetJDK = options.targetJDK;
 		header[headerOffset++] = (byte) (this.targetJDK >> 8); // minor high
 		header[headerOffset++] = (byte) (this.targetJDK >> 0); // minor low
 		header[headerOffset++] = (byte) (this.targetJDK >> 24); // major high
@@ -160,10 +161,10 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) (interfaceIndex >> 8);
 			contents[contentsOffset++] = (byte) interfaceIndex;
 		}
-		produceDebugAttributes = referenceBinding.scope.environment().options.produceDebugAttributes;
+		produceDebugAttributes = options.produceDebugAttributes;
 		innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
 		this.creatingProblemType = creatingProblemType;
-		codeStream = new CodeStream(this);
+		codeStream = new CodeStream(this, options.sourceLevel);
 
 		// retrieve the enclosing one guaranteed to be the one matching the propagated flow info
 		// 1FF9ZBU: LFCOM:ALL - Local variable attributes busted (Sanity check)
@@ -321,6 +322,30 @@ public class ClassFile
 			}
 			attributeNumber++;
 		}
+		// add signature attribute
+		char[] genericSignature = referenceBinding.genericSignature();
+		if (genericSignature != null) {
+			// check that there is enough space to write all the bytes for the field info corresponding
+			// to the @fieldBinding
+			if (contentsOffset + 8 >= contents.length) {
+				resizeContents(8);
+			}
+			int signatureAttributeNameIndex =
+				constantPool.literalIndex(AttributeNamesConstants.SignatureName);
+			contents[contentsOffset++] = (byte) (signatureAttributeNameIndex >> 8);
+			contents[contentsOffset++] = (byte) signatureAttributeNameIndex;
+			// the length of a signature attribute is equals to 2
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 2;
+			int signatureIndex =
+				constantPool.literalIndex(genericSignature);
+			contents[contentsOffset++] = (byte) (signatureIndex >> 8);
+			contents[contentsOffset++] = (byte) signatureIndex;
+			attributeNumber++;
+		}
+		
 		// update the number of attributes
 		if (attributeOffset + 2 >= this.contents.length) {
 			resizeContents(2);
@@ -364,10 +389,13 @@ public class ClassFile
 		if (contentsOffset + 30 >= contents.length) {
 			resizeContents(30);
 		}
-		// Generate two attribute: constantValueAttribute and SyntheticAttribute
 		// Now we can generate all entries into the byte array
 		// First the accessFlags
 		int accessFlags = fieldBinding.getAccessFlags();
+		if (targetJDK < ClassFileConstants.JDK1_5) {
+		    // pre 1.5, synthetic was an attribute, not a modifier
+		    accessFlags &= ~AccSynthetic;
+		}		
 		contents[contentsOffset++] = (byte) (accessFlags >> 8);
 		contents[contentsOffset++] = (byte) accessFlags;
 		// Then the nameIndex
@@ -382,7 +410,11 @@ public class ClassFile
 		int fieldAttributeOffset = contentsOffset;
 		contentsOffset += 2;
 		// 4.7.2 only static constant fields get a ConstantAttribute
+		// Generate the constantValueAttribute
 		if (fieldBinding.constant != Constant.NotAConstant){
+			if (contentsOffset + 8 >= contents.length) {
+				resizeContents(8);
+			}
 			// Now we generate the constant attribute corresponding to the fieldBinding
 			int constantValueNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.ConstantValueName);
@@ -457,7 +489,10 @@ public class ClassFile
 					}
 			}
 		}
-		if (fieldBinding.isSynthetic()) {
+		if (this.targetJDK < ClassFileConstants.JDK1_5 && fieldBinding.isSynthetic()) {
+			if (contentsOffset + 6 >= contents.length) {
+				resizeContents(6);
+			}
 			int syntheticAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
 			contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
@@ -470,6 +505,9 @@ public class ClassFile
 			attributeNumber++;
 		}
 		if (fieldBinding.isDeprecated()) {
+			if (contentsOffset + 6 >= contents.length) {
+				resizeContents(6);
+			}
 			int deprecatedAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.DeprecatedName);
 			contents[contentsOffset++] = (byte) (deprecatedAttributeNameIndex >> 8);
@@ -481,6 +519,29 @@ public class ClassFile
 			contents[contentsOffset++] = 0;
 			attributeNumber++;
 		}
+		// add signature attribute
+		char[] genericSignature = fieldBinding.genericSignature();
+		if (genericSignature != null) {
+			// check that there is enough space to write all the bytes for the field info corresponding
+			// to the @fieldBinding
+			if (contentsOffset + 8 >= contents.length) {
+				resizeContents(8);
+			}
+			int signatureAttributeNameIndex =
+				constantPool.literalIndex(AttributeNamesConstants.SignatureName);
+			contents[contentsOffset++] = (byte) (signatureAttributeNameIndex >> 8);
+			contents[contentsOffset++] = (byte) signatureAttributeNameIndex;
+			// the length of a signature attribute is equals to 2
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 2;
+			int signatureIndex =
+				constantPool.literalIndex(genericSignature);
+			contents[contentsOffset++] = (byte) (signatureIndex >> 8);
+			contents[contentsOffset++] = (byte) signatureIndex;
+			attributeNumber++;
+		}				
 		contents[fieldAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[fieldAttributeOffset] = (byte) attributeNumber;
 	}
@@ -773,12 +834,13 @@ public class ClassFile
 	 * - default abstract methods
 	 */
 	public void addSpecialMethods() {
+	    
 		// add all methods (default abstract methods and synthetic)
 
 		// default abstract methods
-		SourceTypeBinding currentBinding = referenceBinding;
-		MethodBinding[] defaultAbstractMethods =
-			currentBinding.getDefaultAbstractMethods();
+		generateMissingAbstractMethods(referenceBinding.scope.referenceType().missingAbstractMethods, referenceBinding.scope.referenceCompilationUnit().compilationResult);
+
+		MethodBinding[] defaultAbstractMethods = this.referenceBinding.getDefaultAbstractMethods();
 		for (int i = 0, max = defaultAbstractMethods.length; i < max; i++) {
 			generateMethodInfoHeader(defaultAbstractMethods[i]);
 			int methodAttributeOffset = contentsOffset;
@@ -786,8 +848,7 @@ public class ClassFile
 			completeMethodInfo(methodAttributeOffset, attributeNumber);
 		}
 		// add synthetic methods infos
-		SyntheticAccessMethodBinding[] syntheticAccessMethods =
-			currentBinding.syntheticAccessMethods();
+		SyntheticAccessMethodBinding[] syntheticAccessMethods = this.referenceBinding.syntheticAccessMethods();
 		if (syntheticAccessMethods != null) {
 			for (int i = 0, max = syntheticAccessMethods.length; i < max; i++) {
 				SyntheticAccessMethodBinding accessMethodBinding = syntheticAccessMethods[i];
@@ -795,21 +856,23 @@ public class ClassFile
 					case SyntheticAccessMethodBinding.FieldReadAccess :
 						// generate a method info to emulate an reading access to
 						// a non-accessible field
-						addSyntheticFieldReadAccessMethod(syntheticAccessMethods[i]);
+						addSyntheticFieldReadAccessMethod(accessMethodBinding);
 						break;
 					case SyntheticAccessMethodBinding.FieldWriteAccess :
 						// generate a method info to emulate an writing access to
 						// a non-accessible field
-						addSyntheticFieldWriteAccessMethod(syntheticAccessMethods[i]);
+						addSyntheticFieldWriteAccessMethod(accessMethodBinding);
 						break;
 					case SyntheticAccessMethodBinding.MethodAccess :
 					case SyntheticAccessMethodBinding.SuperMethodAccess :
-						// generate a method info to emulate an access to a non-accessible method / super-method
-						addSyntheticMethodAccessMethod(syntheticAccessMethods[i]);
+					case SyntheticAccessMethodBinding.BridgeMethodAccess :
+						// generate a method info to emulate an access to a non-accessible method / super-method or bridge method
+						addSyntheticMethodAccessMethod(accessMethodBinding);
 						break;
 					case SyntheticAccessMethodBinding.ConstructorAccess :
 						// generate a method info to emulate an access to a non-accessible constructor
-						addSyntheticConstructorAccessMethod(syntheticAccessMethods[i]);
+						addSyntheticConstructorAccessMethod(accessMethodBinding);
+						break;
 				}
 			}
 		}
@@ -1300,8 +1363,14 @@ public class ClassFile
 			int numberOfEntries = 0;
 			int localVariableNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LocalVariableTableName);
-			if (localContentsOffset + 8 >= this.contents.length) {
-				resizeContents(8);
+			final boolean methodDeclarationIsStatic = codeStream.methodDeclaration.isStatic();
+			int maxOfEntries = 8 + 10 * (methodDeclarationIsStatic ? 0 : 1);
+			for (int i = 0; i < codeStream.allLocalsCounter; i++) {
+				maxOfEntries += 10 * codeStream.locals[i].initializationCount;
+			}
+			// reserve enough space
+			if (localContentsOffset + maxOfEntries >= this.contents.length) {
+				resizeContents(maxOfEntries);
 			}
 			this.contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) localVariableNameIndex;
@@ -1309,11 +1378,9 @@ public class ClassFile
 			// leave space for attribute_length and local_variable_table_length
 			int nameIndex;
 			int descriptorIndex;
-			if (!codeStream.methodDeclaration.isStatic()) {
+			SourceTypeBinding declaringClassBinding = null;
+			if (!methodDeclarationIsStatic) {
 				numberOfEntries++;
-				if (localContentsOffset + 10 >= this.contents.length) {
-					resizeContents(10);
-				}
 				this.contents[localContentsOffset++] = 0; // the startPC for this is always 0
 				this.contents[localContentsOffset++] = 0;
 				this.contents[localContentsOffset++] = (byte) (code_length >> 8);
@@ -1321,16 +1388,31 @@ public class ClassFile
 				nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
 				this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) nameIndex;
+				declaringClassBinding = (SourceTypeBinding) codeStream.methodDeclaration.binding.declaringClass;
 				descriptorIndex =
 					constantPool.literalIndex(
-						codeStream.methodDeclaration.binding.declaringClass.signature());
+						declaringClassBinding.signature());
 				this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) descriptorIndex;
 				this.contents[localContentsOffset++] = 0;// the resolved position for this is always 0
 				this.contents[localContentsOffset++] = 0;
 			}
-			for (int i = 0; i < codeStream.allLocalsCounter; i++) {
+			// used to remember the local variable with a generic type
+			int genericLocalVariablesCounter = 0;
+			LocalVariableBinding[] genericLocalVariables = null;
+			int numberOfGenericEntries = 0;
+			
+			for (int i = 0, max = codeStream.allLocalsCounter; i < max; i++) {
 				LocalVariableBinding localVariable = codeStream.locals[i];
+				final TypeBinding localVariableTypeBinding = localVariable.type;
+				boolean isParameterizedType = localVariableTypeBinding.isParameterizedType() || localVariableTypeBinding.isTypeVariable();
+				if (localVariable.initializationCount != 0 && isParameterizedType) {
+					if (genericLocalVariables == null) {
+						// we cannot have more than max locals
+						genericLocalVariables = new LocalVariableBinding[max];
+					}
+					genericLocalVariables[genericLocalVariablesCounter++] = localVariable;
+				}
 				for (int j = 0; j < localVariable.initializationCount; j++) {
 					int startPC = localVariable.initializationPCs[j << 1];
 					int endPC = localVariable.initializationPCs[(j << 1) + 1];
@@ -1340,8 +1422,8 @@ public class ClassFile
 								Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
 								(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 						}
-						if (localContentsOffset + 10 >= this.contents.length) {
-							resizeContents(10);
+						if (isParameterizedType) {
+							numberOfGenericEntries++;
 						}
 						// now we can safely add the local entry
 						numberOfEntries++;
@@ -1353,7 +1435,7 @@ public class ClassFile
 						nameIndex = constantPool.literalIndex(localVariable.name);
 						this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 						this.contents[localContentsOffset++] = (byte) nameIndex;
-						descriptorIndex = constantPool.literalIndex(localVariable.type.signature());
+						descriptorIndex = constantPool.literalIndex(localVariableTypeBinding.signature());
 						this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 						this.contents[localContentsOffset++] = (byte) descriptorIndex;
 						int resolvedPosition = localVariable.resolvedPosition;
@@ -1371,6 +1453,72 @@ public class ClassFile
 			this.contents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
 			this.contents[localVariableTableOffset] = (byte) numberOfEntries;
 			attributeNumber++;
+			
+			final boolean currentInstanceIsGeneric = 
+				!methodDeclarationIsStatic
+				&& declaringClassBinding != null 
+				&& declaringClassBinding.typeVariables != NoTypeVariables;
+			if (genericLocalVariablesCounter != 0 || currentInstanceIsGeneric) {
+				// add the local variable type table attribute
+				numberOfGenericEntries += (currentInstanceIsGeneric ? 1 : 0);
+				maxOfEntries = 8 + numberOfGenericEntries * 10;
+				// reserve enough space
+				if (localContentsOffset + maxOfEntries >= this.contents.length) {
+					resizeContents(maxOfEntries);
+				}
+				int localVariableTypeNameIndex =
+					constantPool.literalIndex(AttributeNamesConstants.LocalVariableTypeTableName);
+				this.contents[localContentsOffset++] = (byte) (localVariableTypeNameIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) localVariableTypeNameIndex;
+				value = numberOfGenericEntries * 10 + 2;
+				this.contents[localContentsOffset++] = (byte) (value >> 24);
+				this.contents[localContentsOffset++] = (byte) (value >> 16);
+				this.contents[localContentsOffset++] = (byte) (value >> 8);
+				this.contents[localContentsOffset++] = (byte) value;
+				this.contents[localContentsOffset++] = (byte) (numberOfGenericEntries >> 8);
+				this.contents[localContentsOffset++] = (byte) numberOfGenericEntries;
+				if (currentInstanceIsGeneric) {
+					this.contents[localContentsOffset++] = 0; // the startPC for this is always 0
+					this.contents[localContentsOffset++] = 0;
+					this.contents[localContentsOffset++] = (byte) (code_length >> 8);
+					this.contents[localContentsOffset++] = (byte) code_length;
+					nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
+					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+					this.contents[localContentsOffset++] = (byte) nameIndex;
+					descriptorIndex = constantPool.literalIndex(declaringClassBinding.genericTypeSignature());
+					this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+					this.contents[localContentsOffset++] = (byte) descriptorIndex;
+					this.contents[localContentsOffset++] = 0;// the resolved position for this is always 0
+					this.contents[localContentsOffset++] = 0;
+				}
+				
+				for (int i = 0; i < genericLocalVariablesCounter; i++) {
+					LocalVariableBinding localVariable = genericLocalVariables[i];
+					for (int j = 0; j < localVariable.initializationCount; j++) {
+						int startPC = localVariable.initializationPCs[j << 1];
+						int endPC = localVariable.initializationPCs[(j << 1) + 1];
+						if (startPC != endPC) {
+							// only entries for non zero length
+							// now we can safely add the local entry
+							this.contents[localContentsOffset++] = (byte) (startPC >> 8);
+							this.contents[localContentsOffset++] = (byte) startPC;
+							int length = endPC - startPC;
+							this.contents[localContentsOffset++] = (byte) (length >> 8);
+							this.contents[localContentsOffset++] = (byte) length;
+							nameIndex = constantPool.literalIndex(localVariable.name);
+							this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+							this.contents[localContentsOffset++] = (byte) nameIndex;
+							descriptorIndex = constantPool.literalIndex(localVariable.type.genericTypeSignature());
+							this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+							this.contents[localContentsOffset++] = (byte) descriptorIndex;
+							int resolvedPosition = localVariable.resolvedPosition;
+							this.contents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
+							this.contents[localContentsOffset++] = (byte) resolvedPosition;
+						}
+					}
+				}
+				attributeNumber++;
+			}
 		}
 		// update the number of attributes
 		// ensure first that there is enough space available inside the localContents array
@@ -1534,11 +1682,27 @@ public class ClassFile
 				this.contents[localContentsOffset++] = (byte) (localVariableNameIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) localVariableNameIndex;
 				localContentsOffset += 6;
+
 				// leave space for attribute_length and local_variable_table_length
 				int nameIndex;
 				int descriptorIndex;
-				for (int i = 0; i < codeStream.allLocalsCounter; i++) {
+
+				// used to remember the local variable with a generic type
+				int genericLocalVariablesCounter = 0;
+				LocalVariableBinding[] genericLocalVariables = null;
+				int numberOfGenericEntries = 0;
+
+				for (int i = 0, max = codeStream.allLocalsCounter; i < max; i++) {
 					LocalVariableBinding localVariable = codeStream.locals[i];
+					final TypeBinding localVariableTypeBinding = localVariable.type;
+					boolean isParameterizedType = localVariableTypeBinding.isParameterizedType() || localVariableTypeBinding.isTypeVariable();
+					if (localVariable.initializationCount != 0 && isParameterizedType) {
+						if (genericLocalVariables == null) {
+							// we cannot have more than max locals
+							genericLocalVariables = new LocalVariableBinding[max];
+						}
+						genericLocalVariables[genericLocalVariablesCounter++] = localVariable;
+					}
 					for (int j = 0; j < localVariable.initializationCount; j++) {
 						int startPC = localVariable.initializationPCs[j << 1];
 						int endPC = localVariable.initializationPCs[(j << 1) + 1];
@@ -1553,6 +1717,9 @@ public class ClassFile
 							}
 							// now we can safely add the local entry
 							numberOfEntries++;
+							if (isParameterizedType) {
+								numberOfGenericEntries++;
+							}
 							this.contents[localContentsOffset++] = (byte) (startPC >> 8);
 							this.contents[localContentsOffset++] = (byte) startPC;
 							int length = endPC - startPC;
@@ -1561,7 +1728,7 @@ public class ClassFile
 							nameIndex = constantPool.literalIndex(localVariable.name);
 							this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 							this.contents[localContentsOffset++] = (byte) nameIndex;
-							descriptorIndex = constantPool.literalIndex(localVariable.type.signature());
+							descriptorIndex = constantPool.literalIndex(localVariableTypeBinding.signature());
 							this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 							this.contents[localContentsOffset++] = (byte) descriptorIndex;
 							int resolvedPosition = localVariable.resolvedPosition;
@@ -1579,6 +1746,52 @@ public class ClassFile
 				this.contents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
 				this.contents[localVariableTableOffset] = (byte) numberOfEntries;
 				attributeNumber++;
+
+				if (genericLocalVariablesCounter != 0) {
+					// add the local variable type table attribute
+					// reserve enough space
+					int maxOfEntries = 8 + numberOfGenericEntries * 10;
+
+					if (localContentsOffset + maxOfEntries >= this.contents.length) {
+						resizeContents(maxOfEntries);
+					}
+					int localVariableTypeNameIndex =
+						constantPool.literalIndex(AttributeNamesConstants.LocalVariableTypeTableName);
+					this.contents[localContentsOffset++] = (byte) (localVariableTypeNameIndex >> 8);
+					this.contents[localContentsOffset++] = (byte) localVariableTypeNameIndex;
+					value = numberOfGenericEntries * 10 + 2;
+					this.contents[localContentsOffset++] = (byte) (value >> 24);
+					this.contents[localContentsOffset++] = (byte) (value >> 16);
+					this.contents[localContentsOffset++] = (byte) (value >> 8);
+					this.contents[localContentsOffset++] = (byte) value;
+					this.contents[localContentsOffset++] = (byte) (numberOfGenericEntries >> 8);
+					this.contents[localContentsOffset++] = (byte) numberOfGenericEntries;
+					for (int i = 0; i < genericLocalVariablesCounter; i++) {
+						LocalVariableBinding localVariable = genericLocalVariables[i];
+						for (int j = 0; j < localVariable.initializationCount; j++) {
+							int startPC = localVariable.initializationPCs[j << 1];
+							int endPC = localVariable.initializationPCs[(j << 1) + 1];
+							if (startPC != endPC) { // only entries for non zero length
+								// now we can safely add the local entry
+								this.contents[localContentsOffset++] = (byte) (startPC >> 8);
+								this.contents[localContentsOffset++] = (byte) startPC;
+								int length = endPC - startPC;
+								this.contents[localContentsOffset++] = (byte) (length >> 8);
+								this.contents[localContentsOffset++] = (byte) length;
+								nameIndex = constantPool.literalIndex(localVariable.name);
+								this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+								this.contents[localContentsOffset++] = (byte) nameIndex;
+								descriptorIndex = constantPool.literalIndex(localVariable.type.genericTypeSignature());
+								this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+								this.contents[localContentsOffset++] = (byte) descriptorIndex;
+								int resolvedPosition = localVariable.resolvedPosition;
+								this.contents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
+								this.contents[localContentsOffset++] = (byte) resolvedPosition;
+							}
+						}
+					}
+					attributeNumber++;
+				}
 			}
 		}
 		// update the number of attributes
@@ -1803,7 +2016,10 @@ public class ClassFile
 			localContentsOffset += 6;
 			// leave space for attribute_length and local_variable_table_length
 			int descriptorIndex;
-			if (!codeStream.methodDeclaration.isStatic()) {
+			int nameIndex;
+			SourceTypeBinding declaringClassBinding = null;
+			final boolean methodDeclarationIsStatic = codeStream.methodDeclaration.isStatic();
+			if (!methodDeclarationIsStatic) {
 				numberOfEntries++;
 				if (localContentsOffset + 10 >= this.contents.length) {
 					resizeContents(10);
@@ -1812,28 +2028,41 @@ public class ClassFile
 				this.contents[localContentsOffset++] = 0;
 				this.contents[localContentsOffset++] = (byte) (code_length >> 8);
 				this.contents[localContentsOffset++] = (byte) code_length;
-				int nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
+				nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
 				this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) nameIndex;
+				declaringClassBinding = (SourceTypeBinding) codeStream.methodDeclaration.binding.declaringClass;
 				descriptorIndex =
-					constantPool.literalIndex(
-						codeStream.methodDeclaration.binding.declaringClass.signature());
+					constantPool.literalIndex(declaringClassBinding.signature());
 				this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) descriptorIndex;
 				// the resolved position for this is always 0
 				this.contents[localContentsOffset++] = 0;
 				this.contents[localContentsOffset++] = 0;
 			}
+			// used to remember the local variable with a generic type
+			int genericLocalVariablesCounter = 0;
+			LocalVariableBinding[] genericLocalVariables = null;
+			int numberOfGenericEntries = 0;
+			
 			if (binding.isConstructor()) {
 				ReferenceBinding declaringClass = binding.declaringClass;
 				if (declaringClass.isNestedType()) {
 					NestedTypeBinding methodDeclaringClass = (NestedTypeBinding) declaringClass;
 					argSize = methodDeclaringClass.enclosingInstancesSlotSize;
 					SyntheticArgumentBinding[] syntheticArguments;
-					if ((syntheticArguments = methodDeclaringClass.syntheticEnclosingInstances())
-						!= null) {
+					if ((syntheticArguments = methodDeclaringClass.syntheticEnclosingInstances()) != null) {
 						for (int i = 0, max = syntheticArguments.length; i < max; i++) {
 							LocalVariableBinding localVariable = syntheticArguments[i];
+							final TypeBinding localVariableTypeBinding = localVariable.type;
+							if (localVariableTypeBinding.isParameterizedType() || localVariableTypeBinding.isTypeVariable()) {
+								if (genericLocalVariables == null) {
+									// we cannot have more than max locals
+									genericLocalVariables = new LocalVariableBinding[max];
+								}
+								genericLocalVariables[genericLocalVariablesCounter++] = localVariable;
+								numberOfGenericEntries++;								
+							}
 							if (localContentsOffset + 10 >= this.contents.length) {
 								resizeContents(10);
 							}
@@ -1843,10 +2072,10 @@ public class ClassFile
 							this.contents[localContentsOffset++] = 0;
 							this.contents[localContentsOffset++] = (byte) (code_length >> 8);
 							this.contents[localContentsOffset++] = (byte) code_length;
-							int nameIndex = constantPool.literalIndex(localVariable.name);
+							nameIndex = constantPool.literalIndex(localVariable.name);
 							this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 							this.contents[localContentsOffset++] = (byte) nameIndex;
-							descriptorIndex = constantPool.literalIndex(localVariable.type.signature());
+							descriptorIndex = constantPool.literalIndex(localVariableTypeBinding.signature());
 							this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 							this.contents[localContentsOffset++] = (byte) descriptorIndex;
 							int resolvedPosition = localVariable.resolvedPosition;
@@ -1860,6 +2089,12 @@ public class ClassFile
 			} else {
 				argSize = binding.isStatic() ? 0 : 1;
 			}
+			
+			int genericArgumentsCounter = 0;
+			int[] genericArgumentsNameIndexes = null;
+			int[] genericArgumentsResolvedPositions = null;
+			TypeBinding[] genericArgumentsTypeBindings = null;
+
 			if (method.binding != null) {
 				TypeBinding[] parameters = method.binding.parameters;
 				Argument[] arguments = method.arguments;
@@ -1875,13 +2110,24 @@ public class ClassFile
 						this.contents[localContentsOffset++] = 0;
 						this.contents[localContentsOffset++] = (byte) (code_length >> 8);
 						this.contents[localContentsOffset++] = (byte) code_length;
-						int nameIndex = constantPool.literalIndex(arguments[i].name);
+						nameIndex = constantPool.literalIndex(arguments[i].name);
 						this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 						this.contents[localContentsOffset++] = (byte) nameIndex;
+						int resolvedPosition = argSize;
+						if (argumentBinding.isParameterizedType() || argumentBinding.isTypeVariable()) {
+							if (genericArgumentsCounter == 0) {
+								// we cannot have more than max locals
+								genericArgumentsNameIndexes = new int[max];
+								genericArgumentsResolvedPositions = new int[max];
+								genericArgumentsTypeBindings = new TypeBinding[max];
+							}
+							genericArgumentsNameIndexes[genericArgumentsCounter] = nameIndex;
+							genericArgumentsResolvedPositions[genericArgumentsCounter] = resolvedPosition;
+							genericArgumentsTypeBindings[genericArgumentsCounter++] = argumentBinding;
+						}
 						descriptorIndex = constantPool.literalIndex(argumentBinding.signature());
 						this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 						this.contents[localContentsOffset++] = (byte) descriptorIndex;
-						int resolvedPosition = argSize;
 						if ((argumentBinding == BaseTypes.LongBinding)
 							|| (argumentBinding == BaseTypes.DoubleBinding))
 							argSize += 2;
@@ -1901,6 +2147,79 @@ public class ClassFile
 			this.contents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
 			this.contents[localVariableTableOffset] = (byte) numberOfEntries;
 			attributeNumber++;
+			
+			final boolean currentInstanceIsGeneric = 
+				!methodDeclarationIsStatic
+				&& declaringClassBinding != null
+				&& declaringClassBinding.typeVariables != NoTypeVariables;
+			if (genericLocalVariablesCounter != 0 || genericArgumentsCounter != 0 || currentInstanceIsGeneric) {
+				// add the local variable type table attribute
+				numberOfEntries = numberOfGenericEntries + genericArgumentsCounter + (currentInstanceIsGeneric ? 1 : 0);
+				// reserve enough space
+				int maxOfEntries = 8 + numberOfEntries * 10;
+				if (localContentsOffset + maxOfEntries >= this.contents.length) {
+					resizeContents(maxOfEntries);
+				}
+				int localVariableTypeNameIndex =
+					constantPool.literalIndex(AttributeNamesConstants.LocalVariableTypeTableName);
+				this.contents[localContentsOffset++] = (byte) (localVariableTypeNameIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) localVariableTypeNameIndex;
+				value = numberOfEntries * 10 + 2;
+				this.contents[localContentsOffset++] = (byte) (value >> 24);
+				this.contents[localContentsOffset++] = (byte) (value >> 16);
+				this.contents[localContentsOffset++] = (byte) (value >> 8);
+				this.contents[localContentsOffset++] = (byte) value;
+				this.contents[localContentsOffset++] = (byte) (numberOfEntries >> 8);
+				this.contents[localContentsOffset++] = (byte) numberOfEntries;
+				if (currentInstanceIsGeneric) {
+					numberOfEntries++;
+					this.contents[localContentsOffset++] = 0; // the startPC for this is always 0
+					this.contents[localContentsOffset++] = 0;
+					this.contents[localContentsOffset++] = (byte) (code_length >> 8);
+					this.contents[localContentsOffset++] = (byte) code_length;
+					nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
+					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+					this.contents[localContentsOffset++] = (byte) nameIndex;
+					descriptorIndex = constantPool.literalIndex(declaringClassBinding.genericTypeSignature());
+					this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+					this.contents[localContentsOffset++] = (byte) descriptorIndex;
+					this.contents[localContentsOffset++] = 0;// the resolved position for this is always 0
+					this.contents[localContentsOffset++] = 0;
+				}
+				
+				for (int i = 0; i < genericLocalVariablesCounter; i++) {
+					LocalVariableBinding localVariable = genericLocalVariables[i];
+					this.contents[localContentsOffset++] = 0;
+					this.contents[localContentsOffset++] = 0;
+					this.contents[localContentsOffset++] = (byte) (code_length >> 8);
+					this.contents[localContentsOffset++] = (byte) code_length;
+					nameIndex = constantPool.literalIndex(localVariable.name);
+					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+					this.contents[localContentsOffset++] = (byte) nameIndex;
+					descriptorIndex = constantPool.literalIndex(localVariable.type.genericTypeSignature());
+					this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+					this.contents[localContentsOffset++] = (byte) descriptorIndex;
+					int resolvedPosition = localVariable.resolvedPosition;
+					this.contents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
+					this.contents[localContentsOffset++] = (byte) resolvedPosition;
+				}
+				for (int i = 0; i < genericArgumentsCounter; i++) {
+					this.contents[localContentsOffset++] = 0;
+					this.contents[localContentsOffset++] = 0;
+					this.contents[localContentsOffset++] = (byte) (code_length >> 8);
+					this.contents[localContentsOffset++] = (byte) code_length;
+					nameIndex = genericArgumentsNameIndexes[i];
+					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+					this.contents[localContentsOffset++] = (byte) nameIndex;
+					descriptorIndex = constantPool.literalIndex(genericArgumentsTypeBindings[i].genericTypeSignature());
+					this.contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+					this.contents[localContentsOffset++] = (byte) descriptorIndex;
+					int resolvedPosition = genericArgumentsResolvedPositions[i];
+					this.contents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
+					this.contents[localContentsOffset++] = (byte) resolvedPosition;
+				}				
+				attributeNumber++;
+			}			
 		}
 		// update the number of attributes// ensure first that there is enough space available inside the localContents array
 		if (codeAttributeAttributeOffset + 2 >= this.contents.length) {
@@ -2005,8 +2324,23 @@ public class ClassFile
 			// leave space for attribute_length and local_variable_table_length
 			int nameIndex;
 			int descriptorIndex;
-			for (int i = 0; i < codeStream.allLocalsCounter; i++) {
+
+			// used to remember the local variable with a generic type
+			int genericLocalVariablesCounter = 0;
+			LocalVariableBinding[] genericLocalVariables = null;
+			int numberOfGenericEntries = 0;
+			
+			for (int i = 0, max = codeStream.allLocalsCounter; i < max; i++) {
 				LocalVariableBinding localVariable = codeStream.locals[i];
+				final TypeBinding localVariableTypeBinding = localVariable.type;
+				boolean isParameterizedType = localVariableTypeBinding.isParameterizedType() || localVariableTypeBinding.isTypeVariable();
+				if (localVariable.initializationCount != 0 && isParameterizedType) {
+					if (genericLocalVariables == null) {
+						// we cannot have more than max locals
+						genericLocalVariables = new LocalVariableBinding[max];
+					}
+					genericLocalVariables[genericLocalVariablesCounter++] = localVariable;
+				}
 				for (int j = 0; j < localVariable.initializationCount; j++) {
 					int startPC = localVariable.initializationPCs[j << 1];
 					int endPC = localVariable.initializationPCs[(j << 1) + 1];
@@ -2021,6 +2355,9 @@ public class ClassFile
 						}
 						// now we can safely add the local entry
 						numberOfEntries++;
+						if (isParameterizedType) {
+							numberOfGenericEntries++;
+						}
 						contents[localContentsOffset++] = (byte) (startPC >> 8);
 						contents[localContentsOffset++] = (byte) startPC;
 						int length = endPC - startPC;
@@ -2029,7 +2366,7 @@ public class ClassFile
 						nameIndex = constantPool.literalIndex(localVariable.name);
 						contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 						contents[localContentsOffset++] = (byte) nameIndex;
-						descriptorIndex = constantPool.literalIndex(localVariable.type.signature());
+						descriptorIndex = constantPool.literalIndex(localVariableTypeBinding.signature());
 						contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 						contents[localContentsOffset++] = (byte) descriptorIndex;
 						int resolvedPosition = localVariable.resolvedPosition;
@@ -2047,6 +2384,52 @@ public class ClassFile
 			contents[localVariableTableOffset++] = (byte) (numberOfEntries >> 8);
 			contents[localVariableTableOffset] = (byte) numberOfEntries;
 			attributeNumber++;
+
+			if (genericLocalVariablesCounter != 0) {
+				// add the local variable type table attribute
+				int maxOfEntries = 8 + numberOfGenericEntries * 10;
+				// reserve enough space
+				if (localContentsOffset + maxOfEntries >= this.contents.length) {
+					resizeContents(maxOfEntries);
+				}
+				int localVariableTypeNameIndex =
+					constantPool.literalIndex(AttributeNamesConstants.LocalVariableTypeTableName);
+				contents[localContentsOffset++] = (byte) (localVariableTypeNameIndex >> 8);
+				contents[localContentsOffset++] = (byte) localVariableTypeNameIndex;
+				value = numberOfGenericEntries * 10 + 2;
+				contents[localContentsOffset++] = (byte) (value >> 24);
+				contents[localContentsOffset++] = (byte) (value >> 16);
+				contents[localContentsOffset++] = (byte) (value >> 8);
+				contents[localContentsOffset++] = (byte) value;
+				contents[localContentsOffset++] = (byte) (numberOfGenericEntries >> 8);
+				contents[localContentsOffset++] = (byte) numberOfGenericEntries;
+
+				for (int i = 0; i < genericLocalVariablesCounter; i++) {
+					LocalVariableBinding localVariable = genericLocalVariables[i];
+					for (int j = 0; j < localVariable.initializationCount; j++) {
+						int startPC = localVariable.initializationPCs[j << 1];
+						int endPC = localVariable.initializationPCs[(j << 1) + 1];
+						if (startPC != endPC) { // only entries for non zero length
+							// now we can safely add the local entry
+							contents[localContentsOffset++] = (byte) (startPC >> 8);
+							contents[localContentsOffset++] = (byte) startPC;
+							int length = endPC - startPC;
+							contents[localContentsOffset++] = (byte) (length >> 8);
+							contents[localContentsOffset++] = (byte) length;
+							nameIndex = constantPool.literalIndex(localVariable.name);
+							contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+							contents[localContentsOffset++] = (byte) nameIndex;
+							descriptorIndex = constantPool.literalIndex(localVariable.type.genericTypeSignature());
+							contents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
+							contents[localContentsOffset++] = (byte) descriptorIndex;
+							int resolvedPosition = localVariable.resolvedPosition;
+							contents[localContentsOffset++] = (byte) (resolvedPosition >> 8);
+							contents[localContentsOffset++] = (byte) resolvedPosition;
+						}
+					}
+				}
+				attributeNumber++;
+			}
 		}
 		// update the number of attributes
 		// ensure first that there is enough space available inside the contents array
@@ -2300,6 +2683,29 @@ public class ClassFile
 
 			attributeNumber++;
 		}
+		// add signature attribute
+		char[] genericSignature = methodBinding.genericSignature();
+		if (genericSignature != null) {
+			// check that there is enough space to write all the bytes for the field info corresponding
+			// to the @fieldBinding
+			if (contentsOffset + 8 >= this.contents.length) {
+				resizeContents(8);
+			}
+			int signatureAttributeNameIndex =
+				constantPool.literalIndex(AttributeNamesConstants.SignatureName);
+			contents[contentsOffset++] = (byte) (signatureAttributeNameIndex >> 8);
+			contents[contentsOffset++] = (byte) signatureAttributeNameIndex;
+			// the length of a signature attribute is equals to 2
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 2;
+			int signatureIndex =
+				constantPool.literalIndex(genericSignature);
+			contents[contentsOffset++] = (byte) (signatureIndex >> 8);
+			contents[contentsOffset++] = (byte) signatureIndex;
+			attributeNumber++;
+		}		
 		return attributeNumber;
 	}
 

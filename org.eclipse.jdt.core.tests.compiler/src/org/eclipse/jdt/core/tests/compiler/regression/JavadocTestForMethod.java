@@ -26,7 +26,18 @@ public class JavadocTestForMethod extends JavadocTest {
 	public static Test suite() {
 		return buildSuite(javadocTestClass());
 	}
-	static { // Use this static to initialize testNames (String[]) , testRange (int[2]), testNumbers (int[])
+
+	// Use this static initializer to specify subset for tests
+	// All specified tests which does not belong to the class are skipped...
+	static {
+		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		testsNames = new String[] { "Bug51529a", "Bug51529b" };
+		// Numbers of tests to run: "test<number>" will be run for each number of this array
+		testsNumbers = new int[] { 117, 124, 132, 137 };
+		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//		testsRange = new int[] { 21, 50 };
+//		testsRange = new int[] { -1, 50 }; // run all tests with a number less or equals to 50
+//		testsRange = new int[] { 10, -1 }; // run all tests with a number greater or equals to 10
 	}
 
 	protected Map getCompilerOptions() {
@@ -207,7 +218,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"2. ERROR in Z.java (at line 7)\n" + 
 		"	* @throws Unknown\n" + 
 		"	          ^^^^^^^\n" + 
-		"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+		"Javadoc: Unknown cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"3. ERROR in Z.java (at line 8)\n" + 
 		"	* @see \"Invalid\n" + 
@@ -217,7 +228,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"4. ERROR in Z.java (at line 9)\n" + 
 		"	* @see Unknown\n" + 
 		"	       ^^^^^^^\n" + 
-		"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+		"Javadoc: Unknown cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"5. ERROR in Z.java (at line 10)\n" + 
 		"	* @param x\n" + 
@@ -312,7 +323,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"2. ERROR in Z.java (at line 8)\n" + 
 		"	* @throws Unknown\n" + 
 		"	          ^^^^^^^\n" + 
-		"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+		"Javadoc: Unknown cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"3. ERROR in Z.java (at line 10)\n" + 
 		"	* @see \"Invalid\n" + 
@@ -322,7 +333,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"4. ERROR in Z.java (at line 11)\n" + 
 		"	* @see Unknown\n" + 
 		"	       ^^^^^^^\n" + 
-		"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+		"Javadoc: Unknown cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"5. ERROR in Z.java (at line 12)\n" + 
 		"	* @param x\n" + 
@@ -416,7 +427,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"2. ERROR in Z.java (at line 7)\n" + 
 		"	* @throws Unknown\n" + 
 		"	          ^^^^^^^\n" + 
-		"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+		"Javadoc: Unknown cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"3. ERROR in Z.java (at line 9)\n" + 
 		"	* @see \"Invalid\n" + 
@@ -426,7 +437,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"4. ERROR in Z.java (at line 11)\n" + 
 		"	* @see Unknown\n" + 
 		"	       ^^^^^^^\n" + 
-		"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+		"Javadoc: Unknown cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"5. ERROR in Z.java (at line 13)\n" + 
 		"	public String foo(int x) { \n" + 
@@ -914,7 +925,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in X.java (at line 8)\n"
 				+ "	public void p_foo(inr a, int b, int c) {\n"
 				+ "	                  ^^^\n"
-				+ "inr cannot be resolved (or is not a valid type) for the parameter a of the method p_foo\n"
+				+ "inr cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -936,17 +947,17 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in X.java (at line 8)\n"
 				+ "	public void p_foo(inr a, inx b, inq c) {\n"
 				+ "	                  ^^^\n"
-				+ "inr cannot be resolved (or is not a valid type) for the parameter a of the method p_foo\n"
+				+ "inr cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 8)\n"
 				+ "	public void p_foo(inr a, inx b, inq c) {\n"
 				+ "	                         ^^^\n"
-				+ "inx cannot be resolved (or is not a valid type) for the parameter b of the method p_foo\n"
+				+ "inx cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "3. ERROR in X.java (at line 8)\n"
 				+ "	public void p_foo(inr a, inx b, inq c) {\n"
 				+ "	                                ^^^\n"
-				+ "inq cannot be resolved (or is not a valid type) for the parameter c of the method p_foo\n"
+				+ "inq cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -1067,12 +1078,12 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in X.java (at line 3)\n"
 				+ "	* @throws java.awt.AWTexception Invalid exception: unknown type\n"
 				+ "	          ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: java.awt.AWTexception cannot be resolved or is not a type\n"
+				+ "Javadoc: java.awt.AWTexception cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 4)\n"
 				+ "	* @throws IOException Invalid exception: unknown type\n"
 				+ "	          ^^^^^^^^^^^\n"
-				+ "Javadoc: IOException cannot be resolved or is not a type\n"
+				+ "Javadoc: IOException cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -1121,7 +1132,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in X.java (at line 9)\n"
 				+ "	public void t_foo() throws InvalidException {\n"
 				+ "	                           ^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved (or is not an exception type) for the method t_foo\n"
+				+ "InvalidException cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -1141,7 +1152,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in X.java (at line 3)\n"
 				+ "	* @throws IllegalArgumenException._ Invalid exception: invalid class name\n"
 				+ "	          ^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: IllegalArgumenException cannot be resolved or is not a type\n"
+				+ "Javadoc: IllegalArgumenException cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 4)\n"
 				+ "	* @exception IllegalArgumen.*.Exception.. Invalid exception: invalid class name\n"
@@ -1151,7 +1162,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "3. ERROR in X.java (at line 6)\n"
 				+ "	public void t_foo() throws InvalidException {\n"
 				+ "	                           ^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved (or is not an exception type) for the method t_foo\n"
+				+ "InvalidException cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -1171,17 +1182,17 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in X.java (at line 3)\n"
 				+ "	* @throws java.awt.AWTexception Invalid exception: unknown type\n"
 				+ "	          ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: java.awt.AWTexception cannot be resolved or is not a type\n"
+				+ "Javadoc: java.awt.AWTexception cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 4)\n"
 				+ "	* @throws IOException Invalid exception: unknown type\n"
 				+ "	          ^^^^^^^^^^^\n"
-				+ "Javadoc: IOException cannot be resolved or is not a type\n"
+				+ "Javadoc: IOException cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "3. ERROR in X.java (at line 6)\n"
 				+ "	public void t_foo() throws InvalidException {\n"
 				+ "	                           ^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved (or is not an exception type) for the method t_foo\n"
+				+ "InvalidException cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -1212,7 +1223,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "3. ERROR in X.java (at line 7)\n"
 				+ "	public void t_foo() throws InvalidException {\n"
 				+ "	                           ^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved (or is not an exception type) for the method t_foo\n"
+				+ "InvalidException cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -1285,12 +1296,12 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in X.java (at line 3)\n"
 				+ "	* @throws java.awt.AWTexception Invalid exception: unknown type\n"
 				+ "	          ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: java.awt.AWTexception cannot be resolved or is not a type\n"
+				+ "Javadoc: java.awt.AWTexception cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 4)\n"
 				+ "	* @throws IOException Invalid exception: unknown type\n"
 				+ "	          ^^^^^^^^^^^\n"
-				+ "Javadoc: IOException cannot be resolved or is not a type\n"
+				+ "Javadoc: IOException cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "3. ERROR in X.java (at line 6)\n"
 				+ "	public void t_foo() throws IllegalAccessException {\n"
@@ -1327,7 +1338,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "3. ERROR in X.java (at line 6)\n"
 				+ "	* @throws IOException Invalid exception: unknown type\n"
 				+ "	          ^^^^^^^^^^^\n"
-				+ "Javadoc: IOException cannot be resolved or is not a type\n"
+				+ "Javadoc: IOException cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "4. ERROR in X.java (at line 8)\n"
 				+ "	public void t_foo() throws IllegalAccessException {\n"
@@ -1360,7 +1371,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in X.java (at line 12)\n"
 				+ "	InvalidException, \n"
 				+ "	^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved (or is not an exception type) for the method t_foo\n"
+				+ "InvalidException cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 13)\n"
 				+ "	String, \n"
@@ -1410,7 +1421,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "5. ERROR in X.java (at line 9)\n"
 				+ "	InvalidException, \n"
 				+ "	^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved (or is not an exception type) for the method t_foo\n"
+				+ "InvalidException cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "6. ERROR in X.java (at line 10)\n"
 				+ "	String, \n"
@@ -1444,12 +1455,12 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in X.java (at line 3)\n"
 				+ "	* @throws java.awt.AWTexception Invalid exception: unknown type\n"
 				+ "	          ^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: java.awt.AWTexception cannot be resolved or is not a type\n"
+				+ "Javadoc: java.awt.AWTexception cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 4)\n"
 				+ "	* @throws IOException Invalid exception: unknown type\n"
 				+ "	          ^^^^^^^^^^^\n"
-				+ "Javadoc: IOException cannot be resolved or is not a type\n"
+				+ "Javadoc: IOException cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "3. ERROR in X.java (at line 7)\n"
 				+ "	IllegalAccessException, \n"
@@ -1459,7 +1470,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "4. ERROR in X.java (at line 8)\n"
 				+ "	InvalidException, \n"
 				+ "	^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved (or is not an exception type) for the method t_foo\n"
+				+ "InvalidException cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "5. ERROR in X.java (at line 9)\n"
 				+ "	String, \n"
@@ -1509,7 +1520,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "4. ERROR in X.java (at line 9)\n"
 				+ "	InvalidException, \n"
 				+ "	^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved (or is not an exception type) for the method t_foo\n"
+				+ "InvalidException cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "5. ERROR in X.java (at line 10)\n"
 				+ "	String, \n"
@@ -1550,7 +1561,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "2. ERROR in X.java (at line 7)\n"
 				+ "	InvalidException, \n"
 				+ "	^^^^^^^^^^^^^^^^\n"
-				+ "InvalidException cannot be resolved (or is not an exception type) for the method t_foo\n"
+				+ "InvalidException cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "3. ERROR in X.java (at line 8)\n"
 				+ "	String, \n"
@@ -1570,7 +1581,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "6. ERROR in X.java (at line 11)\n"
 				+ "	IOException, \n"
 				+ "	^^^^^^^^^^^\n"
-				+ "IOException cannot be resolved (or is not an exception type) for the method t_foo\n"
+				+ "IOException cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "7. ERROR in X.java (at line 12)\n"
 				+ "	IllegalArgumentException\n"
@@ -2000,7 +2011,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "5. ERROR in test\\X.java (at line 10)\n"
 				+ "	* @see Unknown Invalid ref: unknown class \n"
 				+ "	       ^^^^^^^\n"
-				+ "Javadoc: Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Unknown cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -2427,47 +2438,47 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in test\\X.java (at line 6)\n"
 				+ "	* @see VisibilityPublic#unknown Invalid ref to non existent field of other package class\n"
 				+ "	       ^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved or is not a type\n"
+				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 7)\n"
 				+ "	* @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n"
 				+ "	       ^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved or is not a type\n"
+				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "3. ERROR in test\\X.java (at line 8)\n"
 				+ "	* @see VisibilityPublic#vf_public Valid ref to not visible field of other package class\n"
 				+ "	       ^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved or is not a type\n"
+				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "4. ERROR in test\\X.java (at line 9)\n"
 				+ "	* @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved or is not a type\n"
+				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "5. ERROR in test\\X.java (at line 10)\n"
 				+ "	* @see VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved or is not a type\n"
+				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "6. ERROR in test\\X.java (at line 11)\n"
 				+ "	* @see VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved or is not a type\n"
+				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "7. ERROR in test\\X.java (at line 12)\n"
 				+ "	* @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved or is not a type\n"
+				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "8. ERROR in test\\X.java (at line 13)\n"
 				+ "	* @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved or is not a type\n"
+				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "9. ERROR in test\\X.java (at line 14)\n"
 				+ "	* @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: VisibilityPublic cannot be resolved or is not a type\n"
+				+ "Javadoc: VisibilityPublic cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -3318,22 +3329,22 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in X.java (at line 6)\n"
 				+ "	* @see #smr_foo(Hashtable,java.util.Vector,boolean) Invalid reference: unresolved argument type\n"
 				+ "	                ^^^^^^^^^\n"
-				+ "Javadoc: Hashtable cannot be resolved or is not a type\n"
+				+ "Javadoc: Hashtable cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 7)\n"
 				+ "	* @see #smr_foo(Hashtable,Vector,boolean) Invalid reference: unresolved argument type\n"
 				+ "	                ^^^^^^^^^\n"
-				+ "Javadoc: Hashtable cannot be resolved or is not a type\n"
+				+ "Javadoc: Hashtable cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "3. ERROR in X.java (at line 8)\n"
 				+ "	* @see #smr_foo(Hashtable a, java.util.Vector b, boolean c) Invalid reference: unresolved argument type\n"
 				+ "	                ^^^^^^^^^\n"
-				+ "Javadoc: Hashtable cannot be resolved or is not a type\n"
+				+ "Javadoc: Hashtable cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "4. ERROR in X.java (at line 9)\n"
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
 				+ "	                ^^^^^^^^^\n"
-				+ "Javadoc: Hashtable cannot be resolved or is not a type\n"
+				+ "Javadoc: Hashtable cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "5. ERROR in X.java (at line 10)\n"
 				+ "	* @see #smr_foo(java.util.Hashtable a, java.util.Vector b, boolean) Invalid reference: mixed argument declaration\n"
@@ -3531,7 +3542,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "3. ERROR in X.java (at line 8)\n"
 				+ "	* @see X#smr_foo(Hashtable,Vector,boolean) Invalid reference: unresolved argument type\n"
 				+ "	                 ^^^^^^^^^\n"
-				+ "Javadoc: Hashtable cannot be resolved or is not a type\n"
+				+ "Javadoc: Hashtable cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "4. ERROR in X.java (at line 9)\n"
 				+ "	* @see X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration\n"
@@ -3782,12 +3793,12 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "3. ERROR in test\\X.java (at line 8)\n"
 				+ "	* @see Unknown#vm_public() Invalid ref: non-existent class\n"
 				+ "	       ^^^^^^^\n"
-				+ "Javadoc: Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Unknown cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "4. ERROR in test\\X.java (at line 9)\n"
 				+ "	* @see Visibility.Unknown#vm_public() Invalid ref: non existent inner class\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Visibility.Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Visibility.Unknown cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -4246,7 +4257,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in test\\X.java (at line 2)\n"
 				+ "	import test.copy.VisibilityPackage;\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "The imported type test.copy.VisibilityPackage is not visible\n"
+				+ "The type test.copy.VisibilityPackage is not visible\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 7)\n"
 				+ "	* @see VisibilityPackage#vm_private(boolean-) Invalid ref: invalid argument declaration\n"

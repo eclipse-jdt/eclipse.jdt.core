@@ -11,21 +11,23 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 public class ProblemMethodBinding extends MethodBinding {
-	private int problemId;
-	public MethodBinding closestMatch;
-public ProblemMethodBinding(char[] selector, TypeBinding[] args, int problemId) {
+    
+	private int problemReason;
+	public MethodBinding closestMatch; // TODO (philippe) should rename into #alternateMatch
+	
+public ProblemMethodBinding(char[] selector, TypeBinding[] args, int problemReason) {
 	this.selector = selector;
 	this.parameters = (args == null || args.length == 0) ? NoParameters : args;
-	this.problemId = problemId;
+	this.problemReason = problemReason;
 }
-public ProblemMethodBinding(char[] selector, TypeBinding[] args, ReferenceBinding declaringClass, int problemId) {
+public ProblemMethodBinding(char[] selector, TypeBinding[] args, ReferenceBinding declaringClass, int problemReason) {
 	this.selector = selector;
 	this.parameters = (args == null || args.length == 0) ? NoParameters : args;
 	this.declaringClass = declaringClass;
-	this.problemId = problemId;
+	this.problemReason = problemReason;
 }
-public ProblemMethodBinding(MethodBinding closestMatch, char[] selector, TypeBinding[] args, int problemId) {
-	this(selector, args, problemId);
+public ProblemMethodBinding(MethodBinding closestMatch, char[] selector, TypeBinding[] args, int problemReason) {
+	this(selector, args, problemReason);
 	this.closestMatch = closestMatch;
 	if (closestMatch != null) this.declaringClass = closestMatch.declaringClass;
 }
@@ -35,6 +37,6 @@ public ProblemMethodBinding(MethodBinding closestMatch, char[] selector, TypeBin
 */
 
 public final int problemId() {
-	return problemId;
+	return this.problemReason;
 }
 }

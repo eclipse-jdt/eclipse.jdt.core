@@ -1048,21 +1048,26 @@ public class SearchEngine {
 		IResource resource = this.getResource(enclosingElement);
 		try {
 			if (resource instanceof IFile) {
-				if (VERBOSE) {
-					System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
+				try {
+					requestor.beginReporting();
+					if (VERBOSE) {
+						System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
+					}
+					SearchParticipant participant = getDefaultSearchParticipant();
+					SearchDocument[] documents = MatchLocator.addWorkingCopies(
+						pattern,
+						new SearchDocument[] {new JavaSearchDocument(enclosingElement.getPath().toString(), participant)},
+						getWorkingCopies(enclosingElement),
+						participant);
+					participant.locateMatches(
+						documents, 
+						pattern, 
+						scope, 
+						requestor, 
+						monitor);
+				} finally {
+					requestor.endReporting();
 				}
-				SearchParticipant participant = getDefaultSearchParticipant();
-				SearchDocument[] documents = MatchLocator.addWorkingCopies(
-					pattern,
-					new SearchDocument[] {new JavaSearchDocument(enclosingElement.getPath().toString(), participant)},
-					getWorkingCopies(enclosingElement),
-					participant);
-				participant.locateMatches(
-					documents, 
-					pattern, 
-					scope, 
-					requestor, 
-					monitor);
 			} else {
 				search(
 					pattern, 

@@ -28,6 +28,7 @@ public class TypeDeclaration
 
 	public int modifiers = AccDefault;
 	public int modifiersSourceStart;
+	public Annotation[] annotations;
 	public char[] name;
 	public TypeReference superclass;
 	public TypeReference[] superInterfaces;
@@ -46,11 +47,15 @@ public class TypeDeclaration
 	public int bodyEnd; // doesn't include the trailing comment if any.
 	protected boolean hasBeenGenerated = false;
 	public CompilationResult compilationResult;
-	private MethodDeclaration[] missingAbstractMethods;
+	public MethodDeclaration[] missingAbstractMethods;
 	public Javadoc javadoc;	
 
 	public QualifiedAllocationExpression allocation; // for anonymous only
 	public TypeDeclaration enclosingType; // for member types only
+	
+	// 1.5 support
+	public EnumDeclaration[] enums;
+	public TypeParameter[] typeParameters;
 	
 	public TypeDeclaration(CompilationResult compilationResult){
 		this.compilationResult = compilationResult;
@@ -128,7 +133,7 @@ public class TypeDeclaration
 			String baseName = "arg";//$NON-NLS-1$
 			Argument[] arguments = (methodDeclaration.arguments = new Argument[argumentsLength]);
 			for (int i = argumentsLength; --i >= 0;) {
-				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault);
+				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault, false /*not vararg*/);
 			}
 		}
 
@@ -371,7 +376,7 @@ public class TypeDeclaration
 		if (argumentsLength > 0) {
 			Argument[] arguments = (cd.arguments = new Argument[argumentsLength]);
 			for (int i = argumentsLength; --i >= 0;) {
-				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault);
+				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault, false /*not vararg*/);
 			}
 		}
 
@@ -550,10 +555,7 @@ public class TypeDeclaration
 					methods[i].generateCode(scope, classFile);
 				}
 			}
-			
-			classFile.generateMissingAbstractMethods(this.missingAbstractMethods, scope.referenceCompilationUnit().compilationResult);
-
-			// generate all methods
+			// generate all synthetic and abstract methods
 			classFile.addSpecialMethods();
 
 			if (ignoreFurtherInvestigation) { // trigger problem type generation for code gen errors
@@ -660,14 +662,14 @@ public class TypeDeclaration
 					if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
 						initializerScope.problemReporter().initializerMustCompleteNormally(field);
 						nonStaticFieldInfo = FlowInfo.initial(maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
-					}
+					} 
 				}
 			}
 		}
 		if (memberTypes != null) {
 			for (int i = 0, count = memberTypes.length; i < count; i++) {
 				if (flowContext != null){ // local type
-					memberTypes[i].analyseCode(scope, flowContext, nonStaticFieldInfo.copy());
+					memberTypes[i].analyseCode(scope, flowContext, nonStaticFieldInfo.copy().setReachMode(flowInfo.reachMode())); // reset reach mode in case initializers did abrupt completely
 				} else {
 					memberTypes[i].analyseCode(scope);
 				}
@@ -684,10 +686,10 @@ public class TypeDeclaration
 					if (method.isStatic()) { // <clinit>
 						method.analyseCode(
 							scope, 
-							staticInitializerContext, 
-							staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
+							staticInitializerContext,  
+							staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo).setReachMode(flowInfo.reachMode()));  // reset reach mode in case initializers did abrupt completely
 					} else { // constructor
-						method.analyseCode(scope, initializerContext, constructorInfo.copy());
+						method.analyseCode(scope, initializerContext, constructorInfo.copy().setReachMode(flowInfo.reachMode())); // reset reach mode in case initializers did abrupt completely
 					}
 				} else { // regular method
 					method.analyseCode(scope, null, flowInfo.copy());
@@ -846,6 +848,14 @@ public class TypeDeclaration
 		printModifiers(this.modifiers, output);
 		output.append(isInterface() ? "interface " : "class "); //$NON-NLS-1$ //$NON-NLS-2$
 		output.append(name);
+		if (typeParameters != null) {
+			output.append("<");//$NON-NLS-1$
+			for (int i = 0; i < typeParameters.length; i++) {
+				if (i > 0) output.append( ", "); //$NON-NLS-1$
+				typeParameters[i].print(0, output);
+			}
+			output.append(">");//$NON-NLS-1$
+		}
 		if (superclass != null) {
 			output.append(" extends ");  //$NON-NLS-1$
 			superclass.print(0, output);
@@ -874,17 +884,6 @@ public class TypeDeclaration
 			if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd);
 			}
-			// check superclass & interfaces
-			if (this.binding.superclass != null) // watch out for Object ! (and other roots)	
-				if (isTypeUseDeprecated(this.binding.superclass, this.scope))
-					this.scope.problemReporter().deprecatedType(this.binding.superclass, this.superclass);
-			if (this.superInterfaces != null)
-				for (int i = this.superInterfaces.length; --i >= 0;)
-					if (this.superInterfaces[i].resolvedType != null)
-						if (isTypeUseDeprecated(this.superInterfaces[i].resolvedType, this.scope))
-							this.scope.problemReporter().deprecatedType(
-								this.superInterfaces[i].resolvedType,
-								this.superInterfaces[i]);
 			this.maxFieldCount = 0;
 			int lastVisibleFieldID = -1;
 			if (this.fields != null) {
@@ -988,33 +987,49 @@ public class TypeDeclaration
 			return;
 		try {
 			if (visitor.visit(this, unitScope)) {
-				if (superclass != null)
-					superclass.traverse(visitor, scope);
-				if (superInterfaces != null) {
-					int superInterfaceLength = superInterfaces.length;
-					for (int i = 0; i < superInterfaceLength; i++)
-						superInterfaces[i].traverse(visitor, scope);
+				if (this.annotations != null) {
+					int annotationsLength = this.annotations.length;
+					for (int i = 0; i < annotationsLength; i++)
+						this.annotations[i].traverse(visitor, scope);
 				}
-				if (memberTypes != null) {
-					int memberTypesLength = memberTypes.length;
-					for (int i = 0; i < memberTypesLength; i++)
-						memberTypes[i].traverse(visitor, scope);
+				if (this.superclass != null)
+					this.superclass.traverse(visitor, scope);
+				if (this.superInterfaces != null) {
+					int length = this.superInterfaces.length;
+					for (int i = 0; i < length; i++)
+						this.superInterfaces[i].traverse(visitor, scope);
 				}
-				if (fields != null) {
-					int fieldsLength = fields.length;
-					for (int i = 0; i < fieldsLength; i++) {
+				if (this.typeParameters != null) {
+					int length = this.typeParameters.length;
+					for (int i = 0; i < length; i++) {
+						this.typeParameters[i].traverse(visitor, scope);
+					}
+				}				
+				if (this.memberTypes != null) {
+					int length = this.memberTypes.length;
+					for (int i = 0; i < length; i++)
+						this.memberTypes[i].traverse(visitor, scope);
+				}
+				if (this.enums != null) {
+					int length = this.enums.length;
+					for (int i = 0; i < length; i++)
+						this.enums[i].traverse(visitor, scope);
+				}
+				if (this.fields != null) {
+					int length = this.fields.length;
+					for (int i = 0; i < length; i++) {
 						FieldDeclaration field;
-						if ((field = fields[i]).isStatic()) {
+						if ((field = this.fields[i]).isStatic()) {
 							field.traverse(visitor, staticInitializerScope);
 						} else {
 							field.traverse(visitor, initializerScope);
 						}
 					}
 				}
-				if (methods != null) {
-					int methodsLength = methods.length;
-					for (int i = 0; i < methodsLength; i++)
-						methods[i].traverse(visitor, scope);
+				if (this.methods != null) {
+					int length = this.methods.length;
+					for (int i = 0; i < length; i++)
+						this.methods[i].traverse(visitor, scope);
 				}
 			}
 			visitor.endVisit(this, unitScope);
@@ -1032,33 +1047,49 @@ public class TypeDeclaration
 			return;
 		try {
 			if (visitor.visit(this, blockScope)) {
-				if (superclass != null)
-					superclass.traverse(visitor, scope);
-				if (superInterfaces != null) {
-					int superInterfaceLength = superInterfaces.length;
-					for (int i = 0; i < superInterfaceLength; i++)
-						superInterfaces[i].traverse(visitor, scope);
+				if (this.annotations != null) {
+					int annotationsLength = this.annotations.length;
+					for (int i = 0; i < annotationsLength; i++)
+						this.annotations[i].traverse(visitor, scope);
 				}
-				if (memberTypes != null) {
-					int memberTypesLength = memberTypes.length;
-					for (int i = 0; i < memberTypesLength; i++)
-						memberTypes[i].traverse(visitor, scope);
+				if (this.superclass != null)
+					this.superclass.traverse(visitor, scope);
+				if (this.superInterfaces != null) {
+					int length = this.superInterfaces.length;
+					for (int i = 0; i < length; i++)
+						this.superInterfaces[i].traverse(visitor, scope);
 				}
-				if (fields != null) {
-					int fieldsLength = fields.length;
-					for (int i = 0; i < fieldsLength; i++) {
+				if (this.typeParameters != null) {
+					int length = this.typeParameters.length;
+					for (int i = 0; i < length; i++) {
+						this.typeParameters[i].traverse(visitor, scope);
+					}
+				}				
+				if (this.memberTypes != null) {
+					int length = this.memberTypes.length;
+					for (int i = 0; i < length; i++)
+						this.memberTypes[i].traverse(visitor, scope);
+				}
+				if (this.enums != null) {
+					int length = this.enums.length;
+					for (int i = 0; i < length; i++)
+						this.enums[i].traverse(visitor, scope);
+				}				
+				if (this.fields != null) {
+					int length = this.fields.length;
+					for (int i = 0; i < length; i++) {
 						FieldDeclaration field;
-						if ((field = fields[i]).isStatic()) {
+						if ((field = this.fields[i]).isStatic()) {
 							// local type cannot have static fields
 						} else {
 							field.traverse(visitor, initializerScope);
 						}
 					}
 				}
-				if (methods != null) {
-					int methodsLength = methods.length;
-					for (int i = 0; i < methodsLength; i++)
-						methods[i].traverse(visitor, scope);
+				if (this.methods != null) {
+					int length = this.methods.length;
+					for (int i = 0; i < length; i++)
+						this.methods[i].traverse(visitor, scope);
 				}
 			}
 			visitor.endVisit(this, blockScope);
@@ -1076,33 +1107,49 @@ public class TypeDeclaration
 			return;
 		try {
 			if (visitor.visit(this, classScope)) {
-				if (superclass != null)
-					superclass.traverse(visitor, scope);
-				if (superInterfaces != null) {
-					int superInterfaceLength = superInterfaces.length;
-					for (int i = 0; i < superInterfaceLength; i++)
-						superInterfaces[i].traverse(visitor, scope);
+				if (this.annotations != null) {
+					int annotationsLength = this.annotations.length;
+					for (int i = 0; i < annotationsLength; i++)
+						this.annotations[i].traverse(visitor, scope);
 				}
-				if (memberTypes != null) {
-					int memberTypesLength = memberTypes.length;
-					for (int i = 0; i < memberTypesLength; i++)
-						memberTypes[i].traverse(visitor, scope);
+				if (this.superclass != null)
+					this.superclass.traverse(visitor, scope);
+				if (this.superInterfaces != null) {
+					int length = this.superInterfaces.length;
+					for (int i = 0; i < length; i++)
+						this.superInterfaces[i].traverse(visitor, scope);
 				}
-				if (fields != null) {
-					int fieldsLength = fields.length;
-					for (int i = 0; i < fieldsLength; i++) {
+				if (this.typeParameters != null) {
+					int length = this.typeParameters.length;
+					for (int i = 0; i < length; i++) {
+						this.typeParameters[i].traverse(visitor, scope);
+					}
+				}				
+				if (this.memberTypes != null) {
+					int length = this.memberTypes.length;
+					for (int i = 0; i < length; i++)
+						this.memberTypes[i].traverse(visitor, scope);
+				}
+				if (this.enums != null) {
+					int length = this.enums.length;
+					for (int i = 0; i < length; i++)
+						this.enums[i].traverse(visitor, scope);
+				}					
+				if (this.fields != null) {
+					int length = this.fields.length;
+					for (int i = 0; i < length; i++) {
 						FieldDeclaration field;
-						if ((field = fields[i]).isStatic()) {
+						if ((field = this.fields[i]).isStatic()) {
 							field.traverse(visitor, staticInitializerScope);
 						} else {
 							field.traverse(visitor, initializerScope);
 						}
 					}
 				}
-				if (methods != null) {
-					int methodsLength = methods.length;
-					for (int i = 0; i < methodsLength; i++)
-						methods[i].traverse(visitor, scope);
+				if (this.methods != null) {
+					int length = this.methods.length;
+					for (int i = 0; i < length; i++)
+						this.methods[i].traverse(visitor, scope);
 				}
 			}
 			visitor.endVisit(this, classScope);

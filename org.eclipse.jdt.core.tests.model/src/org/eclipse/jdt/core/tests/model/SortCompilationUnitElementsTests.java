@@ -74,7 +74,7 @@ public static Test suite() {
 		return new Suite(SortCompilationUnitElementsTests.class);
 	}
 	TestSuite suite = new Suite(SortCompilationUnitElementsTests.class.getName());
-	suite.addTest(new SortCompilationUnitElementsTests("test017")); //$NON-NLS-1$
+	suite.addTest(new SortCompilationUnitElementsTests("test007")); //$NON-NLS-1$
 	return suite;
 }
 public void tearDownSuite() throws Exception {

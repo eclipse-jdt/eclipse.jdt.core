@@ -148,7 +148,7 @@ public class ArrayAllocationExpression extends Expression {
 			if (dimensions[i] != null) {
 				TypeBinding dimensionType = dimensions[i].resolveTypeExpecting(scope, IntBinding);
 				if (dimensionType != null) {
-					dimensions[i].implicitWidening(IntBinding, dimensionType);
+					dimensions[i].computeConversion(scope, IntBinding, dimensionType);
 				}
 			}
 		}
@@ -158,7 +158,10 @@ public class ArrayAllocationExpression extends Expression {
 			if (dimensions.length > 255) {
 				scope.problemReporter().tooManyDimensions(this);
 			}
-			this.resolvedType = scope.createArray(referenceType, dimensions.length);
+			if (referenceType.isParameterizedType()) {
+			    scope.problemReporter().illegalArrayOfParameterizedType(referenceType, this);
+			}
+			this.resolvedType = scope.createArrayType(referenceType, dimensions.length);
 
 			// check the initializer
 			if (initializer != null) {

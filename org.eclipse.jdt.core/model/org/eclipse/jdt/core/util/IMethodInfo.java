@@ -14,7 +14,7 @@ package org.eclipse.jdt.core.util;
  * Description of a method info as described in the JVM 
  * specifications.
  *  
- * This interface may be implemented by clients. 
+ * This interface may be implemented by clients.
  * 
  * @since 2.0
  */
@@ -114,7 +114,7 @@ public interface IMethodInfo {
 	 * 	@return the exception attribute of this method info, null is none
 	 */
 	IExceptionAttribute getExceptionAttribute();
-	
+
 	/**
 	 * Answer back the attribute number of the method info. It includes the CodeAttribute
 	 * if any even if the decoding flags doesn't include METHOD_BODIES.

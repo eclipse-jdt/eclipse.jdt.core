@@ -65,11 +65,15 @@ public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, Bas
 	public boolean wideMode = false;
 	public static final CompilationResult RESTART_IN_WIDE_MODE = new CompilationResult((char[])null, 0, 0, 0);
 	
-public CodeStream(ClassFile classFile) {
-	generateLineNumberAttributes = (classFile.produceDebugAttributes & CompilerOptions.Lines) != 0;
-	generateLocalVariableTableAttributes = (classFile.produceDebugAttributes & CompilerOptions.Vars) != 0;
-	if (generateLineNumberAttributes) {
-		lineSeparatorPositions = classFile.referenceBinding.scope.referenceCompilationUnit().compilationResult.lineSeparatorPositions;
+	// target level to manage different code generation between different source levels
+	private long targetLevel;
+	
+public CodeStream(ClassFile classFile, long sourceLevel) {
+	this.targetLevel = sourceLevel;
+	this.generateLineNumberAttributes = (classFile.produceDebugAttributes & CompilerOptions.Lines) != 0;
+	this.generateLocalVariableTableAttributes = (classFile.produceDebugAttributes & CompilerOptions.Vars) != 0;
+	if (this.generateLineNumberAttributes) {
+		this.lineSeparatorPositions = classFile.referenceBinding.scope.referenceCompilationUnit().compilationResult.lineSeparatorPositions;
 	}
 }
 final public void aaload() {
@@ -1260,80 +1264,85 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 		this.getTYPE(accessedType.id);
 		return;
 	}
-	endLabel = new Label(this);
 
-	if (syntheticFieldBinding != null) { // non interface case
-		this.getstatic(syntheticFieldBinding);
-		this.dup();
-		this.ifnonnull(endLabel);
-		this.pop();
-	}
-
-	/* Macro for building a class descriptor object... using or not a field cache to store it into...
-	this sequence is responsible for building the actual class descriptor.
-	
-	If the fieldCache is set, then it is supposed to be the body of a synthetic access method
-	factoring the actual descriptor creation out of the invocation site (saving space).
-	If the fieldCache is nil, then we are dumping the bytecode on the invocation site, since
-	we have no way to get a hand on the field cache to do better. */
-
-
-	// Wrap the code in an exception handler to convert a ClassNotFoundException into a NoClassDefError
-
-	anyExceptionHandler = new ExceptionLabel(this, BaseTypes.NullBinding /* represents ClassNotFoundException*/);
-	this.ldc(accessedType == BaseTypes.NullBinding ? "java.lang.Object" : String.valueOf(accessedType.constantPoolName()).replace('/', '.')); //$NON-NLS-1$
-	this.invokeClassForName();
-
-	/* See https://bugs.eclipse.org/bugs/show_bug.cgi?id=37565
-	if (accessedType == BaseTypes.NullBinding) {
-		this.ldc("java.lang.Object"); //$NON-NLS-1$
-	} else if (accessedType.isArrayType()) {
-		this.ldc(String.valueOf(accessedType.constantPoolName()).replace('/', '.'));
+	if (this.targetLevel >= ClassFileConstants.JDK1_5) {
+		// generation using the new ldc_w bytecode
+		this.ldc(accessedType);
 	} else {
-		// we make it an array type (to avoid class initialization)
-		this.ldc("[L" + String.valueOf(accessedType.constantPoolName()).replace('/', '.') + ";"); //$NON-NLS-1$//$NON-NLS-2$
+		endLabel = new Label(this);
+		if (syntheticFieldBinding != null) { // non interface case
+			this.getstatic(syntheticFieldBinding);
+			this.dup();
+			this.ifnonnull(endLabel);
+			this.pop();
+		}
+
+		/* Macro for building a class descriptor object... using or not a field cache to store it into...
+		this sequence is responsible for building the actual class descriptor.
+		
+		If the fieldCache is set, then it is supposed to be the body of a synthetic access method
+		factoring the actual descriptor creation out of the invocation site (saving space).
+		If the fieldCache is nil, then we are dumping the bytecode on the invocation site, since
+		we have no way to get a hand on the field cache to do better. */
+	
+	
+		// Wrap the code in an exception handler to convert a ClassNotFoundException into a NoClassDefError
+	
+		anyExceptionHandler = new ExceptionLabel(this, BaseTypes.NullBinding /* represents ClassNotFoundException*/);
+		this.ldc(accessedType == BaseTypes.NullBinding ? "java.lang.Object" : String.valueOf(accessedType.constantPoolName()).replace('/', '.')); //$NON-NLS-1$
+		this.invokeClassForName();
+	
+		/* See https://bugs.eclipse.org/bugs/show_bug.cgi?id=37565
+		if (accessedType == BaseTypes.NullBinding) {
+			this.ldc("java.lang.Object"); //$NON-NLS-1$
+		} else if (accessedType.isArrayType()) {
+			this.ldc(String.valueOf(accessedType.constantPoolName()).replace('/', '.'));
+		} else {
+			// we make it an array type (to avoid class initialization)
+			this.ldc("[L" + String.valueOf(accessedType.constantPoolName()).replace('/', '.') + ";"); //$NON-NLS-1$//$NON-NLS-2$
+		}
+		this.invokeClassForName();
+		if (!accessedType.isArrayType()) { // extract the component type, which doesn't initialize the class
+			this.invokeJavaLangClassGetComponentType();
+		}	
+		*/
+		/* We need to protect the runtime code from binary inconsistencies
+		in case the accessedType is missing, the ClassNotFoundException has to be converted
+		into a NoClassDefError(old ex message), we thus need to build an exception handler for this one. */
+		anyExceptionHandler.placeEnd();
+	
+		if (syntheticFieldBinding != null) { // non interface case
+			this.dup();
+			this.putstatic(syntheticFieldBinding);
+		}
+		this.goto_(endLabel);
+	
+	
+		// Generate the body of the exception handler
+		saveStackSize = stackDepth;
+		stackDepth = 1;
+		/* ClassNotFoundException on stack -- the class literal could be doing more things
+		on the stack, which means that the stack may not be empty at this point in the
+		above code gen. So we save its state and restart it from 1. */
+	
+		anyExceptionHandler.place();
+	
+		// Transform the current exception, and repush and throw a 
+		// NoClassDefFoundError(ClassNotFound.getMessage())
+	
+		this.newNoClassDefFoundError();
+		this.dup_x1();
+		this.swap();
+	
+		// Retrieve the message from the old exception
+		this.invokeThrowableGetMessage();
+	
+		// Send the constructor taking a message string as an argument
+		this.invokeNoClassDefFoundErrorStringConstructor();
+		this.athrow();
+		stackDepth = saveStackSize;
+		endLabel.place();
 	}
-	this.invokeClassForName();
-	if (!accessedType.isArrayType()) { // extract the component type, which doesn't initialize the class
-		this.invokeJavaLangClassGetComponentType();
-	}	
-	*/
-	/* We need to protect the runtime code from binary inconsistencies
-	in case the accessedType is missing, the ClassNotFoundException has to be converted
-	into a NoClassDefError(old ex message), we thus need to build an exception handler for this one. */
-	anyExceptionHandler.placeEnd();
-
-	if (syntheticFieldBinding != null) { // non interface case
-		this.dup();
-		this.putstatic(syntheticFieldBinding);
-	}
-	this.goto_(endLabel);
-
-
-	// Generate the body of the exception handler
-	saveStackSize = stackDepth;
-	stackDepth = 1;
-	/* ClassNotFoundException on stack -- the class literal could be doing more things
-	on the stack, which means that the stack may not be empty at this point in the
-	above code gen. So we save its state and restart it from 1. */
-
-	anyExceptionHandler.place();
-
-	// Transform the current exception, and repush and throw a 
-	// NoClassDefFoundError(ClassNotFound.getMessage())
-
-	this.newNoClassDefFoundError();
-	this.dup_x1();
-	this.swap();
-
-	// Retrieve the message from the old exception
-	this.invokeThrowableGetMessage();
-
-	// Send the constructor taking a message string as an argument
-	this.invokeNoClassDefFoundErrorStringConstructor();
-	this.athrow();
-	endLabel.place();
-	stackDepth = saveStackSize;
 }
 /**
  * This method generates the code attribute bytecode
@@ -1377,6 +1386,8 @@ public void generateConstant(Constant constant, int implicitConversionCode) {
 	}
 }
 /**
+ * Generates the sequence of instructions which will perform the conversion of the expression
+ * on the stack into a different type (e.g. long l = someInt; --> i2l must be inserted).
  * @param implicitConversionCode int
  */
 public void generateImplicitConversion(int implicitConversionCode) {
@@ -1699,27 +1710,27 @@ public void generateOuterAccess(Object[] mappingSequence, ASTNode invocationSite
  * @param oper1 the first expression
  * @param oper2 the second expression
  */
-public void generateStringAppend(BlockScope blockScope, Expression oper1, Expression oper2) {
+public void generateStringConcatenationAppend(BlockScope blockScope, Expression oper1, Expression oper2) {
 	int pc;
 	if (oper1 == null) {
 		/* Operand is already on the stack, and maybe nil:
 		note type1 is always to  java.lang.String here.*/
-		this.newStringBuffer();
+		this.newStringContatenation();
 		this.dup_x1();
 		this.swap();
 		// If argument is reference type, need to transform it 
 		// into a string (handles null case)
 		this.invokeStringValueOf(T_Object);
-		this.invokeStringBufferStringConstructor();
+		this.invokeStringConcatenationStringConstructor();
 	} else {
 		pc = position;
-		oper1.generateOptimizedStringBufferCreation(blockScope, this, oper1.implicitConversion & 0xF);
+		oper1.generateOptimizedStringConcatenationCreation(blockScope, this, oper1.implicitConversion & 0xF);
 		this.recordPositionsFrom(pc, oper1.sourceStart);
 	}
 	pc = position;
-	oper2.generateOptimizedStringBuffer(blockScope, this, oper2.implicitConversion & 0xF);
+	oper2.generateOptimizedStringConcatenation(blockScope, this, oper2.implicitConversion & 0xF);
 	this.recordPositionsFrom(pc, oper2.sourceStart);
-	this.invokeStringBufferToString();
+	this.invokeStringConcatenationToString();
 }
 /**
  * Code responsible to generate the suitable code to supply values for the synthetic enclosing
@@ -1885,6 +1896,9 @@ public void generateSyntheticBodyForMethodAccess(SyntheticAccessMethodBinding ac
 	MethodBinding methodBinding = accessBinding.targetMethod;
 	TypeBinding[] parameters = methodBinding.parameters;
 	int length = parameters.length;
+	TypeBinding[] arguments = accessBinding.accessType == SyntheticAccessMethodBinding.BridgeMethodAccess 
+													? accessBinding.parameters
+													: null;
 	int resolvedPosition;
 	if (methodBinding.isStatic())
 		resolvedPosition = 0;
@@ -1893,8 +1907,16 @@ public void generateSyntheticBodyForMethodAccess(SyntheticAccessMethodBinding ac
 		resolvedPosition = 1;
 	}
 	for (int i = 0; i < length; i++) {
-		load(parameters[i], resolvedPosition);
-		if ((parameters[i] == DoubleBinding) || (parameters[i] == LongBinding))
+	    TypeBinding parameter = parameters[i];
+	    if (arguments != null) { // for bridge methods
+		    TypeBinding argument = arguments[i];
+			load(argument, resolvedPosition);
+			if (argument != parameter) 
+			    checkcast(parameter);
+	    } else {
+			load(parameter, resolvedPosition);
+		}
+		if ((parameter == DoubleBinding) || (parameter == LongBinding))
 			resolvedPosition += 2;
 		else
 			resolvedPosition++;
@@ -2805,7 +2827,6 @@ public void invokeClassForName() {
 	bCodeStream[classFileOffset++] = OPC_invokestatic;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangClassForName());
 }
-
 public void invokeJavaLangClassDesiredAssertionStatus() {
 	// invokevirtual: java.lang.Class.desiredAssertionStatus()Z;
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Class.desiredAssertionStatus()Z;"); //$NON-NLS-1$
@@ -2984,25 +3005,37 @@ final public void invokestatic(MethodBinding methodBinding) {
  * The equivalent code performs a string conversion of the TOS
  * @param typeID <CODE>int</CODE>
  */
-public void invokeStringBufferAppendForType(int typeID) {
-	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.StringBuffer.append(...)"); //$NON-NLS-1$
+public void invokeStringConcatenationAppendForType(int typeID) {
+	if (DEBUG) {
+		if (this.targetLevel >= JDK1_5) {
+			System.out.println(position + "\t\tinvokevirtual: java.lang.StringBuilder.append(...)"); //$NON-NLS-1$
+		} else {
+			System.out.println(position + "\t\tinvokevirtual: java.lang.StringBuffer.append(...)"); //$NON-NLS-1$
+		}
+	}
 	countLabels = 0;
 	int usedTypeID;
-	if (typeID == T_null)
+	if (typeID == T_null) {
 		usedTypeID = T_String;
-	else
+	} else {
 		usedTypeID = typeID;
+	}
 	// invokevirtual
 	if (classFileOffset + 2 >= bCodeStream.length) {
 		resizeByteArray();
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferAppend(typeID));
-	if ((usedTypeID == T_long) || (usedTypeID == T_double))
+	if (this.targetLevel >= JDK1_5) {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderAppend(typeID));
+	} else {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferAppend(typeID));
+	}
+	if ((usedTypeID == T_long) || (usedTypeID == T_double)) {
 		stackDepth -= 2;
-	else
+	} else {
 		stackDepth--;
+	}
 }
 
 public void invokeJavaLangAssertionErrorConstructor(int typeBindingID) {
@@ -3030,42 +3063,99 @@ public void invokeJavaLangAssertionErrorDefaultConstructor() {
 	writeUnsignedShort(constantPool.literalIndexForJavaLangAssertionErrorDefaultConstructor());
 	stackDepth --;
 }
-
-public void invokeStringBufferDefaultConstructor() {
+public void invokeJavaUtilIteratorHasNext() {
+	// invokeinterface java.util.Iterator.hasNext()Z
+	if (DEBUG) System.out.println(position + "\t\tinvokeinterface: java.util.Iterator.hasNext()Z"); //$NON-NLS-1$
+	countLabels = 0;
+	if (classFileOffset + 4 >= bCodeStream.length) {
+		resizeByteArray();
+	}
+	position += 3;
+	bCodeStream[classFileOffset++] = OPC_invokeinterface;
+	writeUnsignedShort(constantPool.literalIndexForJavaUtilIteratorHasNext());
+	bCodeStream[classFileOffset++] = 1;
+	// Generate a  0 into the byte array. Like the array is already fill with 0, we just need to increment
+	// the number of bytes.
+	bCodeStream[classFileOffset++] = 0;
+}
+public void invokeJavaUtilIteratorNext() {
+	// invokeinterface java.util.Iterator.next()java.lang.Object
+	if (DEBUG) System.out.println(position + "\t\tinvokeinterface: java.util.Iterator.next()java.lang.Object"); //$NON-NLS-1$
+	countLabels = 0;
+	if (classFileOffset + 4 >= bCodeStream.length) {
+		resizeByteArray();
+	}
+	position += 3;
+	bCodeStream[classFileOffset++] = OPC_invokeinterface;
+	writeUnsignedShort(constantPool.literalIndexForJavaUtilIteratorNext());
+	bCodeStream[classFileOffset++] = 1;
+	// Generate a  0 into the byte array. Like the array is already fill with 0, we just need to increment
+	// the number of bytes.
+	bCodeStream[classFileOffset++] = 0;
+}
+public void invokeStringConcatenationDefaultConstructor() {
 	// invokespecial: java.lang.StringBuffer.<init>()V
-	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.StringBuffer.<init>()V"); //$NON-NLS-1$
+	if (DEBUG) {
+		if (this.targetLevel >= JDK1_5) {
+			System.out.println(position + "\t\tinvokespecial: java.lang.StringBuilder.<init>()V"); //$NON-NLS-1$
+		} else {
+			System.out.println(position + "\t\tinvokespecial: java.lang.StringBuffer.<init>()V"); //$NON-NLS-1$
+		}
+	}
 	countLabels = 0;
 	if (classFileOffset + 2 >= bCodeStream.length) {
 		resizeByteArray();
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_invokespecial;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferDefaultConstructor());
+	if (this.targetLevel >= JDK1_5) {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderDefaultConstructor());
+	} else {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferDefaultConstructor());
+	}
 	stackDepth--;
 }
-public void invokeStringBufferStringConstructor() {
-	// invokespecial: java.lang.StringBuffer.<init>(Ljava.lang.String;)V
-	if (DEBUG) System.out.println(position + "\t\tjava.lang.StringBuffer.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
+public void invokeStringConcatenationStringConstructor() {
+	if (DEBUG) {
+		if (this.targetLevel >= JDK1_5) {
+			System.out.println(position + "\t\tjava.lang.StringBuilder.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
+		} else {
+			System.out.println(position + "\t\tjava.lang.StringBuffer.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
+		}
+	}
 	countLabels = 0;
 	if (classFileOffset + 2 >= bCodeStream.length) {
 		resizeByteArray();
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_invokespecial;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferConstructor());
+	if (this.targetLevel >= JDK1_5) {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderConstructor());
+	} else {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferConstructor());
+	}
 	stackDepth -= 2;
 }
 
-public void invokeStringBufferToString() {
-	// invokevirtual: StringBuffer.toString()Ljava.lang.String;
-	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: StringBuffer.toString()Ljava.lang.String;"); //$NON-NLS-1$
+public void invokeStringConcatenationToString() {
+	if (DEBUG) {
+		if (this.targetLevel >= JDK1_5) {
+			System.out.println(position + "\t\tinvokevirtual: StringBuilder.toString()Ljava.lang.String;"); //$NON-NLS-1$
+		} else {
+			System.out.println(position + "\t\tinvokevirtual: StringBuffer.toString()Ljava.lang.String;"); //$NON-NLS-1$
+		}
+	}
 	countLabels = 0;
 	if (classFileOffset + 2 >= bCodeStream.length) {
 		resizeByteArray();
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferToString());
+	if (this.targetLevel >= JDK1_5) {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderToString());
+	} else {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferToString());
+	}
 }
 public void invokeStringIntern() {
 	// invokevirtual: java.lang.String.intern()
@@ -3433,13 +3523,13 @@ final public void lconst_1() {
 	bCodeStream[classFileOffset++] = OPC_lconst_1;
 }
 final public void ldc(float constant) {
-	if (DEBUG) System.out.println(position + "\t\tldc:"+constant); //$NON-NLS-1$
 	countLabels = 0;
 	int index = constantPool.literalIndex(constant);
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
 	if (index > 255) {
+		if (DEBUG) System.out.println(position + "\t\tldc_w:"+constant); //$NON-NLS-1$
 		// Generate a ldc_w
 		if (classFileOffset + 2 >= bCodeStream.length) {
 			resizeByteArray();
@@ -3448,6 +3538,7 @@ final public void ldc(float constant) {
 		bCodeStream[classFileOffset++] = OPC_ldc_w;
 		writeUnsignedShort(index);
 	} else {
+		if (DEBUG) System.out.println(position + "\t\tldc:"+constant); //$NON-NLS-1$
 		// Generate a ldc
 		if (classFileOffset + 1 >= bCodeStream.length) {
 			resizeByteArray();
@@ -3458,13 +3549,13 @@ final public void ldc(float constant) {
 	}
 }
 final public void ldc(int constant) {
-	if (DEBUG) System.out.println(position + "\t\tldc:"+constant); //$NON-NLS-1$
 	countLabels = 0;
 	int index = constantPool.literalIndex(constant);
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
 	if (index > 255) {
+		if (DEBUG) System.out.println(position + "\t\tldc_w:"+constant); //$NON-NLS-1$
 		// Generate a ldc_w
 		if (classFileOffset + 2 >= bCodeStream.length) {
 			resizeByteArray();
@@ -3473,6 +3564,7 @@ final public void ldc(int constant) {
 		bCodeStream[classFileOffset++] = OPC_ldc_w;
 		writeUnsignedShort(index);
 	} else {
+		if (DEBUG) System.out.println(position + "\t\tldc:"+constant); //$NON-NLS-1$
 		// Generate a ldc
 		if (classFileOffset + 1 >= bCodeStream.length) {
 			resizeByteArray();
@@ -3483,7 +3575,6 @@ final public void ldc(int constant) {
 	}
 }
 final public void ldc(String constant) {
-	if (DEBUG) System.out.println(position + "\t\tldc:"+constant); //$NON-NLS-1$
 	countLabels = 0;
 	int currentConstantPoolIndex = constantPool.currentIndex;
 	int currentConstantPoolOffset = constantPool.currentOffset;
@@ -3496,6 +3587,7 @@ final public void ldc(String constant) {
 		if (stackDepth > stackMax)
 			stackMax = stackDepth;
 		if (index > 255) {
+			if (DEBUG) System.out.println(position + "\t\tldc_w:"+constant); //$NON-NLS-1$
 			// Generate a ldc_w
 			if (classFileOffset + 2 >= bCodeStream.length) {
 				resizeByteArray();
@@ -3504,6 +3596,7 @@ final public void ldc(String constant) {
 			bCodeStream[classFileOffset++] = OPC_ldc_w;
 			writeUnsignedShort(index);
 		} else {
+			if (DEBUG) System.out.println(position + "\t\tldc:"+constant); //$NON-NLS-1$
 			// Generate a ldc
 			if (classFileOffset + 1 >= bCodeStream.length) {
 				resizeByteArray();
@@ -3554,7 +3647,7 @@ final public void ldc(String constant) {
 		}
 		// check if all the string is encoded (PR 1PR2DWJ)
 		// the string is too big to be encoded in one pass
-		newStringBuffer();
+		newStringContatenation();
 		dup();
 		// write the first part
 		char[] subChars = new char[i];
@@ -3582,7 +3675,7 @@ final public void ldc(String constant) {
 			bCodeStream[classFileOffset++] = (byte) index;
 		}
 		// write the remaining part
-		invokeStringBufferStringConstructor();
+		invokeStringConcatenationStringConstructor();
 		while (i < constantLength) {
 			length = 0;
 			utf8encoding = new byte[Math.min(constantLength - i + 100, 65535)];
@@ -3637,10 +3730,36 @@ final public void ldc(String constant) {
 				bCodeStream[classFileOffset++] = (byte) index;
 			}
 			// now on the stack it should be a StringBuffer and a string.
-			invokeStringBufferAppendForType(T_String);
+			invokeStringConcatenationAppendForType(T_String);
 		}
-		invokeStringBufferToString();
+		invokeStringConcatenationToString();
 		invokeStringIntern();
+	}
+}
+final public void ldc(TypeBinding typeBinding) {
+	countLabels = 0;
+	int index = constantPool.literalIndex(typeBinding);
+	stackDepth++;
+	if (stackDepth > stackMax)
+		stackMax = stackDepth;
+	if (index > 255) {
+		if (DEBUG) System.out.println(position + "\t\tldc_w:"+ typeBinding); //$NON-NLS-1$
+		// Generate a ldc_w
+		if (classFileOffset + 2 >= bCodeStream.length) {
+			resizeByteArray();
+		}
+		position++;
+		bCodeStream[classFileOffset++] = OPC_ldc_w;
+		writeUnsignedShort(index);
+	} else {
+		if (DEBUG) System.out.println(position + "\t\tldw:"+ typeBinding); //$NON-NLS-1$
+		// Generate a ldc
+		if (classFileOffset + 1 >= bCodeStream.length) {
+			resizeByteArray();
+		}
+		position += 2;
+		bCodeStream[classFileOffset++] = OPC_ldc;
+		bCodeStream[classFileOffset++] = (byte) index;
 	}
 }
 final public void ldc2_w(double constant) {
@@ -4317,7 +4436,7 @@ final public void newarray(int array_Type) {
 	bCodeStream[classFileOffset++] = (byte) array_Type;
 }
 public void newArray(Scope scope, ArrayBinding arrayBinding) {
-	TypeBinding component = arrayBinding.elementsType(scope);
+	TypeBinding component = arrayBinding.elementsType();
 	switch (component.id) {
 		case T_int :
 			this.newarray(10);
@@ -4391,19 +4510,31 @@ public void newNoClassDefFoundError() {
 	bCodeStream[classFileOffset++] = OPC_new;
 	writeUnsignedShort(constantPool.literalIndexForJavaLangNoClassDefFoundError());
 }
-public void newStringBuffer() {
+public void newStringContatenation() {
 	// new: java.lang.StringBuffer
-	if (DEBUG) System.out.println(position + "\t\tnew: java.lang.StringBuffer"); //$NON-NLS-1$
+	// new: java.lang.StringBuilder
+	if (DEBUG) {
+		if (this.targetLevel >= JDK1_5) {
+			System.out.println(position + "\t\tnew: java.lang.StringBuilder"); //$NON-NLS-1$
+		} else {
+			System.out.println(position + "\t\tnew: java.lang.StringBuffer"); //$NON-NLS-1$
+		}
+	}
 	countLabels = 0;
 	stackDepth++;
-	if (stackDepth > stackMax)
+	if (stackDepth > stackMax) {
 		stackMax = stackDepth;
+	}
 	if (classFileOffset + 2 >= bCodeStream.length) {
 		resizeByteArray();
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_new;
-	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuffer());
+	if (this.targetLevel >= JDK1_5) {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilder());
+	} else {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuffer());
+	}
 }
 public void newWrapperFor(int typeID) {
 	countLabels = 0;
@@ -4574,15 +4705,14 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
 					if (existingEntryIndex != -1) {
 						// widen existing entry
 						pcToSourceMap[existingEntryIndex] = startPC;
-					} else {
+					} else if (insertionIndex < 1 || pcToSourceMap[insertionIndex - 1] != newLine) {
 						// we have to add an entry that won't be sorted. So we sort the pcToSourceMap.
 						System.arraycopy(pcToSourceMap, insertionIndex, pcToSourceMap, insertionIndex + 2, pcToSourceMapSize - insertionIndex);
 						pcToSourceMap[insertionIndex++] = startPC;
 						pcToSourceMap[insertionIndex] = newLine;
 						pcToSourceMapSize += 2;
 					}
-				}
-				if (position != lastEntryPC) { // no bytecode since last entry pc
+				} else if (position != lastEntryPC) { // no bytecode since last entry pc
 					pcToSourceMap[pcToSourceMapSize++] = lastEntryPC;
 					pcToSourceMap[pcToSourceMapSize++] = newLine;
 				}

@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -37,7 +38,9 @@ import org.eclipse.jdt.internal.core.util.Util;
 				int nameSourceEnd,
 				char[][] paramTypes,
 				char[][] paramNames,
-				char[][] exceptions) {
+				char[][] exceptions, 
+				char[][] typeParameterNames, 
+				char[][][] typeParameterBounds) {
 					if (paramNames != null) {
 						int length = paramNames.length;
 						this.parametersNames = new String[length];
@@ -55,7 +58,9 @@ import org.eclipse.jdt.internal.core.util.Util;
 				int nameSourceEnd,
 				char[][] paramTypes,
 				char[][] paramNames,
-				char[][] exceptions) {
+				char[][] exceptions, 
+				char[][] typeParameterNames, 
+				char[][][] typeParameterBounds) {
 					if (paramNames != null) {
 						int length = paramNames.length;
 						this.parametersNames = new String[length];
@@ -106,20 +111,27 @@ public boolean equals(Object o) {
 public String[] getExceptionTypes() throws JavaModelException {
 	if (this.exceptionTypes == null) {
 		IBinaryMethod info = (IBinaryMethod) getElementInfo();
-		char[][] eTypeNames = info.getExceptionTypeNames();
-		if (eTypeNames == null || eTypeNames.length == 0) {
-			this.exceptionTypes = NO_TYPES;
-		} else {
-			eTypeNames = ClassFile.translatedNames(eTypeNames);
-			this.exceptionTypes = new String[eTypeNames.length];
-			for (int j = 0, length = eTypeNames.length; j < length; j++) {
-				// 1G01HRY: ITPJCORE:WINNT - method.getExceptionType not in correct format
-				int nameLength = eTypeNames[j].length;
-				char[] convertedName = new char[nameLength + 2];
-				System.arraycopy(eTypeNames[j], 0, convertedName, 1, nameLength);
-				convertedName[0] = 'L';
-				convertedName[nameLength + 1] = ';';
-				this.exceptionTypes[j] = new String(convertedName);
+		char[] genericSignature = info.getGenericSignature();
+		if (genericSignature != null) {
+			char[] dotBasedSignature = CharOperation.replaceOnCopy(genericSignature, '/', '.');
+			this.exceptionTypes = Signature.getThrownExceptionTypes(new String(dotBasedSignature));
+		}
+		if (this.exceptionTypes == null || this.exceptionTypes.length == 0) {
+			char[][] eTypeNames = info.getExceptionTypeNames();
+			if (eTypeNames == null || eTypeNames.length == 0) {
+				this.exceptionTypes = NO_TYPES;
+			} else {
+				eTypeNames = ClassFile.translatedNames(eTypeNames);
+				this.exceptionTypes = new String[eTypeNames.length];
+				for (int j = 0, length = eTypeNames.length; j < length; j++) {
+					// 1G01HRY: ITPJCORE:WINNT - method.getExceptionType not in correct format
+					int nameLength = eTypeNames[j].length;
+					char[] convertedName = new char[nameLength + 2];
+					System.arraycopy(eTypeNames[j], 0, convertedName, 1, nameLength);
+					convertedName[0] = 'L';
+					convertedName[nameLength + 1] = ';';
+					this.exceptionTypes[j] = new String(convertedName);
+				}
 			}
 		}
 	}
@@ -222,8 +234,20 @@ public String[] getParameterTypes() {
  * @since 3.0
  */
 public String[] getTypeParameterSignatures() throws JavaModelException {
-	// TODO (jerome) - missing implementation
-	return new String[0];
+	IBinaryMethod info = (IBinaryMethod) getElementInfo();
+	char[] genericSignature = info.getGenericSignature();
+	if (genericSignature == null) 
+		return EmptyStringList;
+	char[] dotBasedSignature = CharOperation.replaceOnCopy(genericSignature, '/', '.');
+	char[][] typeParams = Signature.getTypeParameters(dotBasedSignature);
+	int length = typeParams.length;
+	if (length == 0)
+		return EmptyStringList;
+	String[] stringSignatures = new String[length];
+	for (int i = 0; i < length; i++) {
+		stringSignatures[i] = new String(typeParams[i]);
+	}
+	return stringSignatures;
 }
 
 /*
@@ -232,7 +256,10 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
 public String getReturnType() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	if (this.returnType == null) {
-		String returnTypeName= Signature.getReturnType(new String(info.getMethodDescriptor()));
+		char[] genericSignature = info.getGenericSignature();
+		char[] signature = genericSignature == null ? info.getMethodDescriptor() : genericSignature;
+		char[] dotBasedSignature = CharOperation.replaceOnCopy(signature, '/', '.');
+		String returnTypeName= Signature.getReturnType(new String(dotBasedSignature));
 		this.returnType= new String(ClassFile.translatedName(returnTypeName.toCharArray()));
 	}
 	return this.returnType;

@@ -25,7 +25,6 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
  */
 class BindingResolver {
 	
-	protected long modificationCount;
 	/**
 	 * Creates a binding resolver.
 	 */
@@ -33,15 +32,6 @@ class BindingResolver {
 		// default implementation: do nothing
 	}
 
-	/**
-	 * Store the number of modifications done using the ast. This is used to validate
-	 * resolveBinding methods. If the number changed, all resolve bindings methods
-	 * simply return null.
-	 */
-	protected void storeModificationCount(long modificationCounter) {
-		this.modificationCount = modificationCounter;
-	}
-	
 	/**
 	 * Allows the user to store information about the given old/new pair of
 	 * AST nodes.

@@ -11,15 +11,12 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -28,11 +25,9 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -43,13 +38,18 @@ import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -74,6 +74,7 @@ import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jdt.internal.eval.EvaluationContext;
+import org.osgi.service.prefs.BackingStoreException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -124,6 +125,10 @@ public class JavaProject
 
 	/**
 	 * Name of file containing custom project preferences
+	 * @deprecated WARNING Visibility will be reduce to private before M9
+	 * 	If you use this variable, change your implementation to avoid future comilation error...
+	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=59258">bug 59258</a>
+	 * TODO (frederic) set visibility from public to private
 	 */
 	public static final String PREF_FILENAME = ".jprefs";  //$NON-NLS-1$
 	
@@ -131,8 +136,6 @@ public class JavaProject
 	 * Value of the project's raw classpath if the .classpath file contains invalid entries.
 	 */
 	public static final IClasspathEntry[] INVALID_CLASSPATH = new IClasspathEntry[0];
-
-	private static final String CUSTOM_DEFAULT_OPTION_VALUE = "#\r\n\r#custom-non-empty-default-value#\r\n\r#"; //$NON-NLS-1$
 	
 	/*
 	 * Value of project's resolved classpath while it is being resolved
@@ -1407,11 +1410,11 @@ public class JavaProject
 		
 		String propertyName = optionName;
 		if (JavaModelManager.getJavaModelManager().optionNames.contains(propertyName)){
-			Preferences preferences = getPreferences();
-			if (preferences == null || preferences.isDefault(propertyName)) {
-				return inheritJavaCoreOptions ? JavaCore.getOption(propertyName) : null;
-			}
-			return preferences.getString(propertyName).trim();
+			IEclipsePreferences preferences = getEclipsePreferences();
+			String javaCoreDefault = inheritJavaCoreOptions ? JavaCore.getOption(propertyName) : null;
+			if (preferences == null) return javaCoreDefault;
+			String value = preferences.get(propertyName, javaCoreDefault);
+			return value == null ? null : value.trim();
 		}
 		return null;
 	}
@@ -1424,21 +1427,25 @@ public class JavaProject
 		// initialize to the defaults from JavaCore options pool
 		Map options = inheritJavaCoreOptions ? JavaCore.getOptions() : new Hashtable(5);
 
-		Preferences preferences = getPreferences();
+		IEclipsePreferences preferences = getEclipsePreferences();
 		if (preferences == null) return options; // cannot do better (non-Java project)
 		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
 		
 		// project cannot hold custom preferences set to their default, as it uses CUSTOM_DEFAULT_OPTION_VALUE
 
 		// get custom preferences not set to their default
-		String[] propertyNames = preferences.propertyNames();
-		for (int i = 0; i < propertyNames.length; i++){
-			String propertyName = propertyNames[i];
-			String value = preferences.getString(propertyName).trim();
-			if (optionNames.contains(propertyName)){
-				options.put(propertyName, value);
-			}
-		}		
+		try {
+			String[] propertyNames = preferences.keys();
+			for (int i = 0; i < propertyNames.length; i++){
+				String propertyName = propertyNames[i];
+				String value = preferences.get(propertyName, null);
+				if (value != null && optionNames.contains(propertyName)){
+					options.put(propertyName, value.trim());
+				}
+			}		
+		} catch (BackingStoreException e) {
+			// nothing to do
+		}
 
 		return options;
 	}
@@ -1647,7 +1654,7 @@ public class JavaProject
 	public JavaModelManager.PerProjectInfo getPerProjectInfo() throws JavaModelException {
 		return JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.project);
 	}
-	
+
 	/**
 	 * @see IJavaProject#getProject()
 	 */
@@ -1658,9 +1665,32 @@ public class JavaProject
 	/**
 	 * Returns the project custom preference pool.
 	 * Project preferences may include custom encoding.
-	 * @return Preferences
+	 * @return IEclipsePreferences
 	 */	
+	public IEclipsePreferences getEclipsePreferences(){
+		if (!JavaProject.hasJavaNature(this.project)) return null;
+		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(this.project, true);
+		IEclipsePreferences eclipsePreferences =  perProjectInfo.preferences;
+		if (eclipsePreferences != null) return eclipsePreferences;
+		IScopeContext context = new ProjectScope(getProject());
+		eclipsePreferences = context.getNode(JavaCore.PLUGIN_ID);
+		updatePreferences(eclipsePreferences);
+		perProjectInfo.preferences = eclipsePreferences;
+		return eclipsePreferences;
+	}
+
+	/**
+	 * Returns the project custom preference pool.
+	 * Project preferences may include custom encoding.
+	 * @return Preferences
+	 * @deprecated WARNING:  this method do nothing from now and will be removed soon!
+	 * 	If you use it, switch as soon as possible to new preferences API by using 
+	 * 	{@link #getEclipsePreferences()} to avoid future compilation error...
+	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=59258">bug 59258</a>
+	 * TODO (frederic) remove for 3.1...
+	 */
 	public Preferences getPreferences(){
+		/*
 		if (!JavaProject.hasJavaNature(this.project)) return null;
 		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(this.project, true);
 		Preferences preferences =  perProjectInfo.preferences;
@@ -1669,6 +1699,8 @@ public class JavaProject
 		if (preferences == null) preferences = new Preferences();
 		perProjectInfo.preferences = preferences;
 		return preferences;
+		*/
+		return new Preferences();
 	}
 
 	/**
@@ -2150,14 +2182,42 @@ public class JavaProject
 	}	
 
 	/*
+	 * Update eclipse preferences from old preferences.
+	 */
+	 private void updatePreferences(IEclipsePreferences preferences) {
+	 	
+	 	Preferences oldPreferences = loadPreferences();
+	 	IPreferencesService service = Platform.getPreferencesService();
+	 	if (oldPreferences != null) {
+	 		String[] propertyNames = oldPreferences.propertyNames();
+			for (int i = 0; i < propertyNames.length; i++){
+				String propertyName = propertyNames[i];
+			    String propertyValue = oldPreferences.getString(propertyName);
+				String defaultValue = service.get(propertyName, null, JavaCore.preferencesLookup);
+			    if (!"".equals(propertyValue) && (defaultValue == null || !propertyValue.equals(defaultValue))) { //$NON-NLS-1$
+				    preferences.put(propertyName, propertyValue);
+			    }
+			}
+			try {
+				// save immediately old preferences
+				preferences.flush();
+			} catch (BackingStoreException e) {
+				// fails silently
+			}
+		}
+	 }
+
+	/**
 	 * load preferences from a shareable format (VCM-wise)
+	 * @deprecated WARNING, visibility of this method will be decreased soon
+	 * 	to private and won't be usable in the future.
+	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=59258">bug 59258</a>
+	 * TODO (frederic) set visibility from public to private
 	 */
 	 public Preferences loadPreferences() {
 	 	
 	 	Preferences preferences = new Preferences();
-	 	
-//		File prefFile = this.project.getLocation().append(PREF_FILENAME).toFile();
-		IPath projectMetaLocation = getPluginWorkingLocation();
+	 	IPath projectMetaLocation = getPluginWorkingLocation();
 		if (projectMetaLocation != null) {
 			File prefFile = projectMetaLocation.append(PREF_FILENAME).toFile();
 			if (prefFile.exists()) { // load preferences from file
@@ -2165,7 +2225,6 @@ public class JavaProject
 				try {
 					in = new BufferedInputStream(new FileInputStream(prefFile));
 					preferences.load(in);
-					return preferences;
 				} catch (IOException e) { // problems loading preference store - quietly ignore
 				} finally {
 					if (in != null) {
@@ -2175,11 +2234,14 @@ public class JavaProject
 						}
 					}
 				}
+				// one shot read, delete old preferences
+				prefFile.delete();
+				return preferences;
 			}
 		}
 		return null;
 	 }
-	 
+
 	/**
 	 * @see IJavaProject#newEvaluationContext()
 	 */
@@ -2448,49 +2510,6 @@ public class JavaProject
 			throw new JavaModelException(e);
 		}
 	}
-	/**
-	 * Save project custom preferences to shareable file (.jprefs)
-	 */
-	private void savePreferences(Preferences preferences) {
-		
-		if (!JavaProject.hasJavaNature(this.project)) return; // ignore
-		
-		if (preferences == null || (!preferences.needsSaving() && preferences.propertyNames().length != 0)) {
-			// nothing to save
-			return;
-		}
-	
-		// preferences need to be saved
-		// the preferences file is located in the plug-in's state area
-		// at a well-known name (.jprefs)
-//		File prefFile = this.project.getLocation().append(PREF_FILENAME).toFile();
-		File prefFile = getPluginWorkingLocation().append(PREF_FILENAME).toFile();
-		if (preferences.propertyNames().length == 0) {
-			// there are no preference settings
-			// rather than write an empty file, just delete any existing file
-			if (prefFile.exists()) {
-				prefFile.delete(); // don't worry if delete unsuccessful
-			}
-			return;
-		}
-		
-		// write file, overwriting an existing one
-		OutputStream out = null;
-		try {
-			// do it as carefully as we know how so that we don't lose/mangle
-			// the setting in times of stress
-			out = new BufferedOutputStream(new FileOutputStream(prefFile));
-			preferences.store(out, null);
-		} catch (IOException e) { // problems saving preference store - quietly ignore
-		} finally {
-			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException e) { // ignore problems with close
-				}
-			}
-		}
-	}
 
 	/**
 	 * Update the Java command in the build spec (replace existing one if present,
@@ -2525,10 +2544,16 @@ public class JavaProject
 	 */
 	public void setOption(String optionName, String optionValue) {
 		if (!JavaModelManager.getJavaModelManager().optionNames.contains(optionName)) return; // unrecognized option
-		Preferences preferences = getPreferences();
-		preferences.setDefault(optionName, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)
-		preferences.setValue(optionName, optionValue);
-		savePreferences(preferences);
+		IEclipsePreferences projectPreferences = getEclipsePreferences();
+		String defaultValue = JavaCore.getOption(optionName);
+		if (defaultValue == null || !defaultValue.equals(optionValue)) {
+			projectPreferences.put(optionName, optionValue);
+			try {
+				projectPreferences.flush();
+			} catch (BackingStoreException e) {
+				// problem with pref store - quietly ignore
+			}
+		}
 	}
 
 	/**
@@ -2536,33 +2561,42 @@ public class JavaProject
 	 */
 	public void setOptions(Map newOptions) {
 
-		Preferences preferences = getPreferences();
-		if (newOptions != null){
-			Iterator keys = newOptions.keySet().iterator();
-			while (keys.hasNext()){
-				String key = (String)keys.next();
-				if (!JavaModelManager.getJavaModelManager().optionNames.contains(key)) continue; // unrecognized option
-				// no filtering for encoding (custom encoding for project is allowed)
-				String value = (String)newOptions.get(key);
-				preferences.setDefault(key, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)
-				preferences.setValue(key, value);
+		IEclipsePreferences projectPreferences = getEclipsePreferences();
+		try {
+			if (newOptions == null){
+				projectPreferences.clear();
+			} else {
+				Iterator keys = newOptions.keySet().iterator();
+				while (keys.hasNext()){
+					String key = (String)keys.next();
+					if (!JavaModelManager.getJavaModelManager().optionNames.contains(key)) continue; // unrecognized option
+					// no filtering for encoding (custom encoding for project is allowed)
+					String value = (String)newOptions.get(key);
+					projectPreferences.put(key, value);
+				}
+				
+				// reset to default all options not in new map
+				// @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=26255
+				// @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49691
+				String[] pNames = projectPreferences.keys();
+				int ln = pNames.length;
+				for (int i=0; i<ln; i++) {
+					String key = pNames[i];
+					if (!newOptions.containsKey(key)) {
+						projectPreferences.remove(key); // old preferences => remove from preferences table
+					}
+				}
 			}
-		}
-			
-		// reset to default all options not in new map
-		// @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=26255
-		// @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49691
-		String[] pNames = preferences.propertyNames();
-		int ln = pNames.length;
-		for (int i=0; i<ln; i++) {
-			String key = pNames[i];
-			if (newOptions == null || !newOptions.containsKey(key)) {
-				preferences.setToDefault(key); // set default => remove from preferences table
-			}
-		}
 
-		// persist options
-		savePreferences(preferences);	
+			// persist options
+			projectPreferences.flush();
+			if (newOptions == null) {
+				// Uncache preferences
+				JavaModelManager.getJavaModelManager().resetProjectPreferences(this);
+			}
+		} catch (BackingStoreException e) {
+			// problem with pref store - quietly ignore
+		}
 	}
 
 	/**
@@ -2578,15 +2612,6 @@ public class JavaProject
 			return;
 		}
 		this.setRawClasspath(SetClasspathOperation.ReuseClasspath, path, monitor);
-	}
-
-	/*
-	 * Set cached preferences, no preference file is saved, only info is updated
-	 */
-	public void setPreferences(Preferences preferences) {
-		if (!JavaProject.hasJavaNature(this.project)) return; // ignore
-		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(this.project, true);
-		perProjectInfo.preferences = preferences;
 	}
 
 	/**

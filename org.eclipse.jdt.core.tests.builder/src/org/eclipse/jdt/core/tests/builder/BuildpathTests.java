@@ -58,7 +58,7 @@ public class BuildpathTests extends Tests {
 		);
 
 		fullBuild();
-		expectingSpecificProblemFor(classTest1, new Problem("src", "Zork1 cannot be resolved or is not a valid superclass", classTest1)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(classTest1, new Problem("src", "Zork1 cannot be resolved to a type", classTest1)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		//----------------------------
 		//           Step 2
@@ -119,7 +119,7 @@ public class BuildpathTests extends Tests {
 		expectingOnlySpecificProblemsFor(project3Path,
 			new Problem[] {
 				new Problem("", "The project cannot be built until build path errors are resolved", project3Path), //$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("Build path", "Project CP3 is missing required library: 'CP1/temp.jar'", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("Build path", "Project CP3 is missing required library: '/CP1/temp.jar'", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 
@@ -141,7 +141,7 @@ public class BuildpathTests extends Tests {
 			new Problem("Build path", "Project CP2 is missing required Java project: 'CP1'", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
 		);
 		expectingOnlySpecificProblemFor(project3Path,
-			new Problem("Build path", "Project CP3 is missing required library: 'CP1/temp.jar'", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("Build path", "Project CP3 is missing required library: '/CP1/temp.jar'", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
 		);
 
 		env.openProject(project1Path);

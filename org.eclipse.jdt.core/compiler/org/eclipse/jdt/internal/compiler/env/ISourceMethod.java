@@ -59,4 +59,14 @@ int getNameSourceStart();
  */
 
 char[] getReturnTypeName();
+/**
+ * Answer the names of the receiver's type parameters
+ * or null if the array is empty.
+ */
+char[][] getTypeParameterNames();
+/**
+ * Answer the array of bound names of the receiver's type parameters
+ * or null if the array is empty.
+ */
+char[][][] getTypeParameterBounds();
 }

@@ -220,7 +220,7 @@ protected void consumeClassHeader() {
 
 	}
 }
-protected void consumeClassHeaderName() {
+protected void consumeClassHeaderName1() {
 	// ClassHeaderName ::= Modifiersopt 'class' 'Identifier'
 	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (nestedMethod[nestedType] == 0) {
@@ -250,6 +250,16 @@ protected void consumeClassHeaderName() {
 	typeDecl.modifiers = intStack[intPtr--];
 	if (typeDecl.declarationSourceStart > declSourceStart) {
 		typeDecl.declarationSourceStart = declSourceStart;
+	}
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			typeDecl.annotations = new Annotation[length], 
+			0, 
+			length); 
 	}
 	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
 	pushOnAstStack(typeDecl);
@@ -370,6 +380,16 @@ protected void consumeConstructorHeaderName() {
 	cd.declarationSourceStart = intStack[intPtr--];
 	cd.modifiersSourceStart = intStack[intPtr--];
 	cd.modifiers = intStack[intPtr--];
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			cd.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
 	// javadoc
 	cd.javadoc = this.javadoc;
 	this.javadoc = null;
@@ -388,6 +408,7 @@ protected void consumeDefaultModifiers() {
 	pushOnIntStack(
 		declarationSourceStart >= 0 ? declarationSourceStart : scanner.startPosition); 
 	resetModifiers();
+	pushOnExpressionStackLengthStack(0);
 }
 protected void consumeDiet() {
 	// Diet ::= $empty
@@ -449,6 +470,16 @@ protected void consumeEnterVariable() {
 			declaration.declarationSourceStart = intStack[intPtr--];
 			declaration.modifiersSourceStart = intStack[intPtr--];
 			declaration.modifiers = intStack[intPtr--];
+		}
+		// consume annotations
+		int length;
+		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+			System.arraycopy(
+				this.expressionStack, 
+				(this.expressionPtr -= length) + 1, 
+				declaration.annotations = new Annotation[length], 
+				0, 
+				length); 
 		}
 	} else {
 		type = (TypeReference) astStack[astPtr - variableIndex];
@@ -538,7 +569,7 @@ protected void consumeFieldDeclaration() {
 		requestor.exitField(lastFieldBodyEndPosition, lastFieldEndPosition);
 	}
 }
-protected void consumeFormalParameter() {
+protected void consumeFormalParameter(boolean isVarArgs) {
 	// FormalParameter ::= Type VariableDeclaratorId ==> false
 	// FormalParameter ::= Modifiers Type VariableDeclaratorId ==> true
 	/*
@@ -561,7 +592,18 @@ protected void consumeFormalParameter() {
 			parameterName, 
 			namePositions, 
 			type, 
-			intStack[intPtr + 1]); // modifiers
+			intStack[intPtr + 1], // modifiers
+			isVarArgs);
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			arg.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
 	pushOnAstStack(arg);
 	intArrayPtr--;
 }
@@ -627,7 +669,7 @@ protected void consumeInterfaceHeader() {
 		interfacenameEnds, 
 		scanner.currentPosition - 1); 
 }
-protected void consumeInterfaceHeaderName() {
+protected void consumeInterfaceHeaderName1() {
 	// InterfaceHeaderName ::= Modifiersopt 'interface' 'Identifier'
 	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (nestedMethod[nestedType] == 0) {
@@ -657,6 +699,16 @@ protected void consumeInterfaceHeaderName() {
 	typeDecl.modifiers = intStack[intPtr--];
 	if (typeDecl.declarationSourceStart > declSourceStart) {
 		typeDecl.declarationSourceStart = declSourceStart;
+	}
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			typeDecl.annotations = new Annotation[length], 
+			0, 
+			length); 
 	}
 	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
 	pushOnAstStack(typeDecl);
@@ -816,6 +868,16 @@ protected void consumeMethodHeaderName() {
 	md.declarationSourceStart = intStack[intPtr--];
 	md.modifiersSourceStart = intStack[intPtr--];
 	md.modifiers = intStack[intPtr--];
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			md.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
 	// javadoc
 	md.javadoc = this.javadoc;
 	this.javadoc = null;
@@ -851,6 +913,24 @@ protected void consumePackageDeclarationName() {
 		CharOperation.concatWith(importReference.getImportName(), '.'),
 		importReference.sourceStart);
 }
+/*
+*
+* INTERNAL USE-ONLY
+*/
+protected void consumePackageDeclarationNameWithModifiers() {
+	/* persisting javadoc positions */
+	pushOnIntArrayStack(this.getJavaDocPositions());
+
+	super.consumePackageDeclarationNameWithModifiers();
+	ImportReference importReference = compilationUnit.currentPackage;
+
+	requestor.acceptPackage(
+		importReference.declarationSourceStart, 
+		importReference.declarationSourceEnd, 
+		intArrayStack[intArrayPtr--], 
+		CharOperation.concatWith(importReference.getImportName(), '.'),
+		importReference.sourceStart);
+}
 protected void consumePushModifiers() {
 	checkComment(); // might update modifiers with AccDeprecated
 	pushOnIntStack(modifiers); // modifiers
@@ -864,6 +944,38 @@ protected void consumePushModifiers() {
 			declarationSourceStart >= 0 ? declarationSourceStart : modifiersSourceStart); 
 	}
 	resetModifiers();
+	pushOnExpressionStackLengthStack(0);
+}
+protected void consumePushRealModifiers() {
+	checkComment(); // might update modifiers with AccDeprecated
+	pushOnIntStack(modifiers); // modifiers
+	if (modifiersSourceStart < 0) {
+		pushOnIntStack(-1);
+		pushOnIntStack(
+			declarationSourceStart >= 0 ? declarationSourceStart : scanner.startPosition); 
+	} else {
+		pushOnIntStack(modifiersSourceStart);
+		pushOnIntStack(
+			declarationSourceStart >= 0 ? declarationSourceStart : modifiersSourceStart); 
+	}
+	resetModifiers();
+}
+protected void consumeSingleStaticImportDeclarationName() {
+	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
+
+	/* persisting javadoc positions */
+	pushOnIntArrayStack(this.getJavaDocPositions());
+
+	super.consumeSingleStaticImportDeclarationName();
+	ImportReference importReference = (ImportReference) astStack[astPtr];
+	requestor.acceptImport(
+		importReference.declarationSourceStart, 
+		importReference.declarationSourceEnd,
+		intArrayStack[intArrayPtr--],
+		CharOperation.concatWith(importReference.getImportName(), '.'),
+		importReference.sourceStart,
+		false,
+		AccStatic);
 }
 /*
  *
@@ -883,7 +995,25 @@ protected void consumeSingleTypeImportDeclarationName() {
 		intArrayStack[intArrayPtr--],
 		CharOperation.concatWith(importReference.getImportName(), '.'),
 		importReference.sourceStart,
-		false);
+		false,
+		AccDefault);
+}
+protected void consumeStaticImportOnDemandDeclarationName() {
+	// SingleTypeImportDeclarationName ::= 'import' 'static' Name '.' '*'
+
+	/* persisting javadoc positions */
+	pushOnIntArrayStack(this.getJavaDocPositions());
+
+	super.consumeStaticImportOnDemandDeclarationName();
+	ImportReference importReference = (ImportReference) astStack[astPtr];
+	requestor.acceptImport(
+		importReference.declarationSourceStart, 
+		importReference.declarationSourceEnd,
+		intArrayStack[intArrayPtr--],
+		CharOperation.concatWith(importReference.getImportName(), '.'),
+		importReference.sourceStart,
+		true,
+		AccStatic);
 }
 /*
  *
@@ -933,13 +1063,8 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		intArrayStack[intArrayPtr--],
 		CharOperation.concatWith(importReference.getImportName(), '.'), 
 		importReference.sourceStart,
-		true);
-}
-public CompilationUnitDeclaration endParse(int act) {
-	if (scanner.recordLineSeparator) {
-		requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
-	}
-	return super.endParse(act);
+		true,
+		AccDefault);
 }
 /*
  * Flush javadocs defined prior to a given positions.
@@ -958,57 +1083,13 @@ public int flushCommentsDefinedPriorTo(int position) {
 
 	return lastFieldEndPosition = super.flushCommentsDefinedPriorTo(position);
 }
-protected TypeReference getTypeReference(int dim) { /* build a Reference on a variable that may be qualified or not
-This variable is a type reference and dim will be its dimensions*/
-
-	int length;
-	TypeReference ref;
-	if ((length = identifierLengthStack[identifierLengthPtr--]) == 1) {
-		// single variable reference
-		if (dim == 0) {
-			ref = 
-				new SingleTypeReference(
-					identifierStack[identifierPtr], 
-					identifierPositionStack[identifierPtr--]); 
-		} else {
-			ref = 
-				new ArrayTypeReference(
-					identifierStack[identifierPtr], 
-					dim, 
-					identifierPositionStack[identifierPtr--]); 
-			ref.sourceEnd = endPosition;
-		}
-	} else {
-		if (length < 0) { //flag for precompiled type reference on base types
-			ref = TypeReference.baseTypeReference(-length, dim);
-			ref.sourceStart = intStack[intPtr--];
-			if (dim == 0) {
-				ref.sourceEnd = intStack[intPtr--];
-			} else {
-				intPtr--;
-				ref.sourceEnd = endPosition;
-			}
-		} else { //Qualified variable reference
-			char[][] tokens = new char[length][];
-			identifierPtr -= length;
-			long[] positions = new long[length];
-			System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
-			System.arraycopy(
-				identifierPositionStack, 
-				identifierPtr + 1, 
-				positions, 
-				0, 
-				length); 
-			if (dim == 0) {
-				ref = new QualifiedTypeReference(tokens, positions);
-			} else {
-				ref = new ArrayQualifiedTypeReference(tokens, dim, positions);
-				ref.sourceEnd = endPosition;
-			}
-		}
+public CompilationUnitDeclaration endParse(int act) {
+	if (scanner.recordLineSeparator) {
+		requestor.acceptLineSeparatorPositions(scanner.getLineEnds());
 	}
-	return ref;
+	return super.endParse(act);
 }
+
 public void initialize() {
 	//positionning the parser for a new compilation unit
 	//avoiding stack reallocation and all that....
@@ -1267,8 +1348,7 @@ public String toString() {
 	buffer.append(super.toString());
 	return buffer.toString();
 }
-/*
- * 
+/**
  * INTERNAL USE ONLY
  */
 protected TypeReference typeReference(

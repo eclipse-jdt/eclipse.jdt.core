@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
@@ -313,6 +314,15 @@ public class MethodScope extends BlockScope {
 			checkAndSetModifiersForMethod(method.binding);
 		}
 		this.isStatic = method.binding.isStatic();
+		
+		TypeParameter[] typeParameters = method.typeParameters();
+	    // do not construct type variables if source < 1.5
+		if (typeParameters == null || environment().options.sourceLevel < ClassFileConstants.JDK1_5) {
+		    method.binding.typeVariables = NoTypeVariables;
+		} else {
+			method.binding.typeVariables = createTypeVariables(typeParameters, method.binding);
+			method.binding.modifiers |= AccGenericSignature;
+		}
 		return method.binding;
 	}
 

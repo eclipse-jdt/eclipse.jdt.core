@@ -15,15 +15,16 @@ import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 
 public class MethodInfo extends ClassFileStruct implements IBinaryMethod, AttributeNamesConstants, Comparable {
-	private char[][] exceptionNames;
-	private int[] constantPoolOffsets;
-	private boolean isDeprecated;
-	private boolean isSynthetic;
+	static private final char[][] noException = CharOperation.NO_CHAR_CHAR;
 	private int accessFlags;
+	private int attributeBytes;
+	private int[] constantPoolOffsets;
+	private char[] descriptor;
+	private char[][] exceptionNames;
 	private char[] name;
 	private char[] signature;
-	private int attributeBytes;
-	static private final char[][] noException = CharOperation.NO_CHAR_CHAR;
+	private int signatureUtf8Offset;
+	
 /**
  * @param classFileBytes byte[]
  * @param offsets int[]
@@ -35,10 +36,27 @@ public MethodInfo (byte classFileBytes[], int offsets[], int offset) {
 	accessFlags = -1;
 	int attributesCount = u2At(6);
 	int readOffset = 8;
+	this.signatureUtf8Offset = -1;
 	for (int i = 0; i < attributesCount; i++) {
+		// check the name of each attribute
+		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
+		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+		if (CharOperation.equals(AttributeNamesConstants.SignatureName, attributeName)) {
+			this.signatureUtf8Offset = constantPoolOffsets[u2At(readOffset + 6)] - structOffset;
+		}
 		readOffset += (6 + u4At(readOffset + 2));
 	}
 	attributeBytes = readOffset;
+}
+public int compareTo(Object o) {
+	if (!(o instanceof MethodInfo)) {
+		throw new ClassCastException();
+	}
+
+	MethodInfo otherMethod = (MethodInfo) o;
+	int result = new String(this.getSelector()).compareTo(new String(otherMethod.getSelector()));
+	if (result != 0) return result;
+	return new String(this.getMethodDescriptor()).compareTo(new String(otherMethod.getMethodDescriptor()));
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.env.IGenericMethod#getArgumentNames()
@@ -60,6 +78,16 @@ public char[][] getExceptionTypeNames() {
 	}
 	return exceptionNames;
 }
+public char[] getGenericSignature() {
+	if (this.signatureUtf8Offset != -1) {
+		if (this.signature == null) {
+			// decode the signature
+			this.signature = utf8At(this.signatureUtf8Offset + 3, u2At(this.signatureUtf8Offset + 1));
+		}
+		return this.signature;
+	}
+	return null;
+}
 /**
  * Answer the receiver's method descriptor which describes the parameter &
  * return types as specified in section 4.3.3 of the Java 2 VM spec.
@@ -70,12 +98,12 @@ public char[][] getExceptionTypeNames() {
  * @return char[]
  */
 public char[] getMethodDescriptor() {
-	if (signature == null) {
+	if (descriptor == null) {
 		// read the name
 		int utf8Offset = constantPoolOffsets[u2At(4)] - structOffset;
-		signature = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+		descriptor = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 	}
-	return signature;
+	return descriptor;
 }
 /**
  * Answer an int whose bits are set according the access constants
@@ -84,18 +112,12 @@ public char[] getMethodDescriptor() {
  * @return int
  */
 public int getModifiers() {
-	if (accessFlags == -1) {
+	if (this.accessFlags == -1) {
 		// compute the accessflag. Don't forget the deprecated attribute
-		accessFlags = u2At(0);
+		this.accessFlags = u2At(0);
 		readDeprecatedAndSyntheticAttributes();
-		if (isDeprecated) {
-			accessFlags |= AccDeprecated;
-		}
-		if (isSynthetic) {
-			accessFlags |= AccSynthetic;
-		}
 	}
-	return accessFlags;
+	return this.accessFlags;
 }
 /**
  * Answer the name of the method.
@@ -110,6 +132,18 @@ public char[] getSelector() {
 		name = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 	}
 	return name;
+}
+/**
+ * This method is used to fully initialize the contents of the receiver. All methodinfos, fields infos
+ * will be therefore fully initialized and we can get rid of the bytes.
+ */
+void initialize() {
+	getModifiers();
+	getSelector();
+	getMethodDescriptor();
+	getExceptionTypeNames();
+	getGenericSignature();
+	reset();
 }
 /**
  * Answer true if the method is a class initializer, false otherwise.
@@ -141,9 +175,9 @@ private void readDeprecatedAndSyntheticAttributes() {
 		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
 		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 		if (CharOperation.equals(attributeName, DeprecatedName)) {
-			isDeprecated = true;
+			this.accessFlags |= AccDeprecated;
 		} else if (CharOperation.equals(attributeName, SyntheticName)) {
-			isSynthetic = true;
+			this.accessFlags |= AccSynthetic;
 		}
 		readOffset += (6 + u4At(readOffset + 2));
 	}
@@ -180,6 +214,10 @@ private void readExceptionAttributes() {
 		exceptionNames = noException;
 	}
 }
+protected void reset() {
+	this.constantPoolOffsets = null;
+	super.reset();
+}
 /**
  * Answer the size of the receiver in bytes.
  * 
@@ -190,6 +228,9 @@ public int sizeInBytes() {
 }
 public String toString() {
 	int modifiers = getModifiers();
+	char[] desc = getGenericSignature();
+	if (desc == null)
+		desc = getMethodDescriptor();
 	StringBuffer buffer = new StringBuffer(this.getClass().getName());
 	return buffer
 		.append("{") //$NON-NLS-1$
@@ -203,34 +244,8 @@ public String toString() {
 				+ ((modifiers & 0x0040) == 0x0040 ? "volatile " : "") //$NON-NLS-1$ //$NON-NLS-2$
 				+ ((modifiers & 0x0080) == 0x0080 ? "transient " : "")) //$NON-NLS-1$ //$NON-NLS-2$
 		.append(getSelector())
-		.append(getMethodDescriptor())
+		.append(desc)
 		.append("}") //$NON-NLS-1$
 		.toString(); 
-}
-public int compareTo(Object o) {
-	if (!(o instanceof MethodInfo)) {
-		throw new ClassCastException();
-	}
-
-	MethodInfo otherMethod = (MethodInfo) o;
-	int result = new String(this.getSelector()).compareTo(new String(otherMethod.getSelector()));
-	if (result != 0) return result;
-	return new String(this.getMethodDescriptor()).compareTo(new String(otherMethod.getMethodDescriptor()));
-}
-
-/**
- * This method is used to fully initialize the contents of the receiver. All methodinfos, fields infos
- * will be therefore fully initialized and we can get rid of the bytes.
- */
-void initialize() {
-	getModifiers();
-	getSelector();
-	getMethodDescriptor();
-	getExceptionTypeNames();
-	reset();
-}
-protected void reset() {
-	this.constantPoolOffsets = null;
-	super.reset();
 }
 }

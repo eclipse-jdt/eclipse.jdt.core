@@ -858,7 +858,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		this.lastLocalDeclarationSourceStart = -1;
 		try {
-			expression.traverse(this, null);
+			expression.traverse(this, (BlockScope) null);
 			this.scribe.printComment();
 		} catch(AbortFormatting e){
 			return failedToFormat();

@@ -255,6 +255,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 							((CodeSnippetCodeStream)codeStream).generateEmulatedReadAccessForField(fieldBinding);
 						}
 						codeStream.generateImplicitConversion(this.implicitConversion);
+						if (this.genericCast != null) codeStream.checkcast(this.genericCast);						
 					} else { // directly use the inlined value
 						codeStream.generateConstant(fieldBinding.constant, this.implicitConversion);
 					}
@@ -332,7 +333,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 			// using incr bytecode if possible
 			switch (localBinding.type.id) {
 				case T_String :
-					codeStream.generateStringAppend(currentScope, this, expression);
+					codeStream.generateStringConcatenationAppend(currentScope, this, expression);
 					if (valueRequired) {
 						codeStream.dup();
 					}
@@ -365,7 +366,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 	// perform the actual compound operation
 	int operationTypeID;
 	if ((operationTypeID = this.implicitConversion >> 4) == T_String || operationTypeID == T_Object) {
-		codeStream.generateStringAppend(currentScope, null, expression);
+		codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 	} else {
 		// promote the array reference to the suitable operation type
 		codeStream.generateImplicitConversion(this.implicitConversion);
@@ -550,33 +551,29 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 			}
 	}
 }
-public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
+public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo, boolean isReadAccess) {
 
 	if (this.delegateThis == null) {
-		super.manageSyntheticReadAccessIfNecessary(currentScope, flowInfo);
+		super.manageSyntheticAccessIfNecessary(currentScope, flowInfo, isReadAccess);
 		return;
 	}
-	
+
 	if (!flowInfo.isReachable()) return;
 	//If inlinable field, forget the access emulation, the code gen will directly target it
 	if (this.constant != NotAConstant)
-		return;
+		return;	
+	// if field from parameterized type got found, use the original field at codegen time
+	if (this.binding instanceof ParameterizedFieldBinding) {
+	    ParameterizedFieldBinding parameterizedField = (ParameterizedFieldBinding) this.binding;
+	    this.codegenBinding = parameterizedField.originalField;
+	    FieldBinding fieldCodegenBinding = (FieldBinding)this.codegenBinding;
+	    // extra cast needed if field type was type variable
+	    if ((fieldCodegenBinding.type.tagBits & TagBits.HasTypeVariable) != 0) {
+	        this.genericCast = fieldCodegenBinding.type.genericCast(parameterizedField.type);
+	    }		    
+	}		
 	if ((this.bits & FIELD) != 0) {
 		FieldBinding fieldBinding = (FieldBinding) this.binding;
-//			if (((this.bits & DepthMASK) != 0)
-//				&& (fieldBinding.isPrivate() // private access
-//					|| (fieldBinding.isProtected() // implicit protected access
-//							&& fieldBinding.declaringClass.getPackage() 
-//								!= this.delegateThis.type.getPackage()))) {
-//				if (this.syntheticAccessors == null)
-//					this.syntheticAccessors = new MethodBinding[2];
-//				this.syntheticAccessors[READ] = 
-//					((SourceTypeBinding)currentScope.enclosingSourceType().
-//						enclosingTypeAt((this.bits & DepthMASK) >> DepthSHIFT)).
-//							addSyntheticMethod(fieldBinding, true);
-//				currentScope.problemReporter().needToEmulateFieldReadAccess(fieldBinding, this);
-//				return;
-//			}
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
@@ -588,46 +585,7 @@ public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope, FlowIn
 					&& !fieldBinding.isStatic()
 					&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
 				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
-			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)this.delegateThis.type);
-		}
-	}
-}
-public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
-
-	if (this.delegateThis == null) {
-		super.manageSyntheticWriteAccessIfNecessary(currentScope, flowInfo);
-		return;
-	}
-
-	if (!flowInfo.isReachable()) return;
-	if ((this.bits & FIELD) != 0) {
-		FieldBinding fieldBinding = (FieldBinding) this.binding;
-//		if (((this.bits & DepthMASK) != 0) 
-//			&& (fieldBinding.isPrivate() // private access
-//				|| (fieldBinding.isProtected() // implicit protected access
-//						&& fieldBinding.declaringClass.getPackage() 
-//							!= currentScope.enclosingSourceType().getPackage()))) {
-//			if (this.syntheticAccessors == null)
-//				this.syntheticAccessors = new MethodBinding[2];
-//			this.syntheticAccessors[WRITE] = 
-//				((SourceTypeBinding)currentScope.enclosingSourceType().
-//					enclosingTypeAt((this.bits & DepthMASK) >> DepthSHIFT)).
-//						addSyntheticMethod(fieldBinding, false);
-//			currentScope.problemReporter().needToEmulateFieldWriteAccess(fieldBinding, this);
-//			return;
-//		}
-		// if the binding declaring class is not visible, need special action
-		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
-		// and not from Object or implicit static field access.	
-		if (fieldBinding.declaringClass != this.delegateThis.type
-			&& fieldBinding.declaringClass != null
-			&& fieldBinding.constant == NotAConstant
-			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
-					&& !fieldBinding.isStatic()
-					&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
-				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
-			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)this.delegateThis.type);
+			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding((FieldBinding)this.codegenBinding, (ReferenceBinding)this.delegateThis.type.erasure());
 		}
 	}
 }

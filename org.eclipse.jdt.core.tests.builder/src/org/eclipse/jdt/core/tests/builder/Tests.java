@@ -246,6 +246,7 @@ public class Tests extends TestCase {
 				if(expectedProblem.equals(rootProblems[j])) {
 					found = true;
 					rootProblems[j] = null;
+					break;
 				}
 			}
 			if (!found) {

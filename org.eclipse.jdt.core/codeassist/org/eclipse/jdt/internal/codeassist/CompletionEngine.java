@@ -135,6 +135,7 @@ public final class CompletionEngine
 	static final char[] THROWS = "throws".toCharArray();  //$NON-NLS-1$
 	
 	static InvocationSite FakeInvocationSite = new InvocationSite(){
+		public TypeBinding[] genericTypeArguments() { return null; }
 		public boolean isSuperAccess(){ return false; }
 		public boolean isTypeAccess(){ return false; }
 		public void setActualReceiverType(ReferenceBinding receiverType) {}
@@ -411,7 +412,7 @@ public final class CompletionEngine
 		
 		computeUninterestingBindings(astNodeParent, scope);
 		if(astNodeParent != null) {
-			computeExpectedTypes(astNodeParent, scope);
+			computeExpectedTypes(astNodeParent, astNode, scope);
 		}
 		
 		if (astNode instanceof CompletionOnFieldType) {
@@ -435,7 +436,7 @@ public final class CompletionEngine
 				SingleTypeReference type = (CompletionOnSingleTypeReference) method.returnType;
 				completionToken = type.token;
 				setSourceRange(type.sourceStart, type.sourceEnd);
-				findTypesAndPackages(completionToken, scope);
+				findTypesAndPackages(completionToken, scope.parent);
 				findKeywordsForMember(completionToken, method.modifiers);
 			
 				if(method.modifiers == CompilerModifiers.AccDefault) {
@@ -757,6 +758,23 @@ public final class CompletionEngine
 																if(astNode instanceof CompletionOnKeyword) {
 																	CompletionOnKeyword keyword = (CompletionOnKeyword)astNode;
 																	findKeywords(keyword.getToken(), keyword.getPossibleKeywords());
+																} else if(astNode instanceof CompletionOnParameterizedQualifiedTypeReference) {
+																	CompletionOnParameterizedQualifiedTypeReference ref = (CompletionOnParameterizedQualifiedTypeReference) astNode;
+																	
+																	insideQualifiedReference = true;
+							
+																	assistNodeIsClass = ref.isClass();
+																	assistNodeIsException = ref.isException();
+																	assistNodeIsInterface = ref.isInterface();
+																	
+																	completionToken = ref.completionIdentifier;
+																	long completionPosition = ref.sourcePositions[ref.tokens.length];
+																	setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+																	findMemberTypes(
+																		completionToken,
+																		(ReferenceBinding) qualifiedBinding,
+																		scope,
+																		scope.enclosingSourceType());
 																}
 															}
 														}
@@ -983,9 +1001,25 @@ public final class CompletionEngine
 					}
 			*/
 		} catch (IndexOutOfBoundsException e) { // work-around internal failure - 1GEMF6D
+			if(DEBUG) {
+				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
+				e.printStackTrace(System.out);
+			}
 		} catch (InvalidCursorLocation e) { // may eventually report a usefull error
+			if(DEBUG) {
+				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
+				e.printStackTrace(System.out);
+			}
 		} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
+			if(DEBUG) {
+				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
+				e.printStackTrace(System.out);
+			}
 		} catch (CompletionNodeFound e){ // internal failure - bugs 5618
+			if(DEBUG) {
+				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
+				e.printStackTrace(System.out);
+			}
 		} finally {
 			reset();
 		}
@@ -2716,13 +2750,68 @@ public final class CompletionEngine
 		nameEnvironment.findPackages(CharOperation.toLowerCase(completionToken), this);
 	}
 
+	private void findTypeParameters(char[] token, Scope scope) {
+		TypeParameter[] typeParameters = null;
+		while (scope != null) { // done when a COMPILATION_UNIT_SCOPE is found
+			typeParameters = null;
+			switch (scope.kind) {
+				case Scope.METHOD_SCOPE :
+					MethodScope methodScope = (MethodScope) scope;
+					if(methodScope.referenceContext instanceof MethodDeclaration) {
+						MethodDeclaration methodDeclaration = (MethodDeclaration) methodScope.referenceContext;
+						typeParameters = methodDeclaration.typeParameters;
+					} else if(methodScope.referenceContext instanceof ConstructorDeclaration) {
+						ConstructorDeclaration methodDeclaration = (ConstructorDeclaration) methodScope.referenceContext;
+						typeParameters = methodDeclaration.typeParameters;
+					}
+					break;
+				case Scope.CLASS_SCOPE :
+					ClassScope classScope = (ClassScope) scope;
+					typeParameters = classScope.referenceContext.typeParameters;
+					break;
+				case Scope.COMPILATION_UNIT_SCOPE :
+					return;
+			}
+			if(typeParameters != null) {
+				for (int i = 0; i < typeParameters.length; i++) {
+					int typeLength = token.length;
+					TypeParameter typeParameter = typeParameters[i];
+					
+					if (typeLength > typeParameter.name.length) continue;
+					
+					if (!CharOperation.prefixEquals(token, typeParameter.name, false)) continue;
+	
+					int relevance = computeBaseRelevance();
+					relevance += computeRelevanceForInterestingProposal();
+					relevance += computeRelevanceForCaseMatching(token, typeParameter.name);
+					relevance += computeRelevanceForExpectingType(typeParameter.type == null ? null :typeParameter.type.resolvedType);
+					relevance += computeRelevanceForQualification(false);
+					relevance += computeRelevanceForException(typeParameter.name);
+					
+					noProposal = false;
+					requestor.acceptClass(
+						CharOperation.NO_CHAR,
+						typeParameter.name,
+						typeParameter.name,
+						typeParameter.modifiers,
+						startPosition - offset, 
+						endPosition - offset,
+						relevance);
+				}
+			}
+			scope = scope.parent;
+		}
+	}
+	
 	private void findTypesAndPackages(char[] token, Scope scope) {
 
 		if (token == null)
 			return;
 
-		if (scope.enclosingSourceType() != null)
+		if (scope.enclosingSourceType() != null) {
 			findNestedTypes(token, scope.enclosingSourceType(), scope);
+			findTypeParameters(token, scope);
+		}
 
 		if (unitScope != null) {
 			int typeLength = token.length;
@@ -3202,7 +3291,7 @@ public final class CompletionEngine
 	int computeBaseRelevance(){
 		return R_DEFAULT;
 	}
-	private void computeExpectedTypes(ASTNode parent, Scope scope){
+	private void computeExpectedTypes(ASTNode parent, ASTNode node, Scope scope){
 		
 		// default filter
 		expectedTypesFilter = SUBTYPE;
@@ -3313,6 +3402,20 @@ public final class CompletionEngine
 						addExpectedType(BaseTypes.ByteBinding);
 						break;
 				}
+				BinaryExpression binaryExpression = (BinaryExpression) parent;
+				if(operator == OperatorIds.LESS) {
+					if(binaryExpression.left instanceof SingleNameReference){
+						SingleNameReference name = (SingleNameReference) binaryExpression.left;
+						Binding b = scope.getBinding(name.token, BindingIds.VARIABLE | BindingIds.TYPE, name, false);
+						if(b instanceof ReferenceBinding) {
+							TypeVariableBinding[] typeVariableBindings =((ReferenceBinding)b).typeVariables();
+							if(typeVariableBindings != null && typeVariableBindings.length > 0) {
+								addExpectedType(typeVariableBindings[0].firstBound);
+							}
+							
+						}
+					}
+				}
 			} else if(parent instanceof UnaryExpression) {
 				switch(operator) {
 					case OperatorIds.NOT :
@@ -3343,6 +3446,31 @@ public final class CompletionEngine
 			addExpectedType(BaseTypes.ShortBinding);
 			addExpectedType(BaseTypes.IntBinding);
 			addExpectedType(BaseTypes.LongBinding);
+		} else if(parent instanceof ParameterizedSingleTypeReference) {
+			ParameterizedSingleTypeReference ref = (ParameterizedSingleTypeReference) parent;
+			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
+			int length = ref.typeArguments == null ? 0 : ref.typeArguments.length;
+			if(typeVariables != null && typeVariables.length >= length) {
+				int index = length - 1;
+				while(index > -1 && ref.typeArguments[index] != node) index--;
+				addExpectedType(typeVariables[index].firstBound);
+			}
+		} else if(parent instanceof ParameterizedQualifiedTypeReference) {
+			ParameterizedQualifiedTypeReference ref = (ParameterizedQualifiedTypeReference) parent;
+			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
+			TypeReference[][] arguments = ref.typeArguments;
+			if(typeVariables != null) {
+				int iLength = arguments == null ? 0 : arguments.length;
+				done: for (int i = 0; i < iLength; i++) {
+					int jLength = arguments[i] == null ? 0 : arguments[i].length;
+					for (int j = 0; j < jLength; j++) {
+						if(arguments[i][j] == node && typeVariables.length >= j) {
+							addExpectedType(typeVariables[j].firstBound);
+							break done;
+						}
+					}
+				}
+			}
 		}
 		
 		if(expectedTypesPtr + 1 != expectedTypes.length) {

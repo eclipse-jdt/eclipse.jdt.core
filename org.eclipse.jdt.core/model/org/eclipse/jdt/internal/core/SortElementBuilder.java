@@ -1008,7 +1008,9 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		int nameSourceStart,
 		int nameSourceEnd,
 		char[] superclass,
-		char[][] superinterfaces) {
+		char[][] superinterfaces,
+		char[][] typeParameterNames,
+		char[][][] typeParameterBounds) {
 			SortType type = new SortClassDeclaration(declarationStart, modifiers, name, superclass, superinterfaces);
 			this.currentElement.addChild(type);
 			push(type);
@@ -1033,7 +1035,9 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		int nameSourceEnd,
 		char[][] parameterTypes,
 		char[][] parameterNames,
-		char[][] exceptionTypes) {
+		char[][] exceptionTypes, 
+		char[][] typeParameterNames, 
+		char[][][] typeParameterBounds) {
 		if ((this.currentElement.id & SortJavaElement.TYPE) != 0) {
 			SortConstructorDeclaration constructorDeclaration = new SortConstructorDeclaration(declarationStart, modifiers, name, parameterNames, parameterTypes, exceptionTypes);
 			this.currentElement.addChild(constructorDeclaration);
@@ -1092,7 +1096,9 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		char[] name,
 		int nameSourceStart,
 		int nameSourceEnd,
-		char[][] superinterfaces) {
+		char[][] superinterfaces,
+		char[][] typeParameterNames,
+		char[][][] typeParameterBounds) {
 			SortType type = new SortInterfaceDeclaration(declarationStart, modifiers, name, superinterfaces);
 			this.currentElement.addChild(type);
 			push(type);
@@ -1110,7 +1116,9 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		int nameSourceEnd,
 		char[][] parameterTypes,
 		char[][] parameterNames,
-		char[][] exceptionTypes) {
+		char[][] exceptionTypes, 
+		char[][] typeParameterNames, 
+		char[][][] typeParameterBounds) {
 			if ((this.currentElement.id & SortJavaElement.TYPE) != 0) {
 				SortMethodDeclaration methodDeclaration = new SortMethodDeclaration(declarationStart, modifiers, name, parameterNames, parameterTypes, exceptionTypes, returnType);
 				this.currentElement.addChild(methodDeclaration);

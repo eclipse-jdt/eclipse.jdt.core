@@ -63,7 +63,7 @@ public void test002() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	foo.bar	abar; \n" + 
 		"	^^^^^^^\n" + 
-		"foo.bar cannot be resolved (or is not a valid type) for the field X.abar\n" + 
+		"foo.bar cannot be resolved to a type\n" + 
 		"----------\n");
 }
 }

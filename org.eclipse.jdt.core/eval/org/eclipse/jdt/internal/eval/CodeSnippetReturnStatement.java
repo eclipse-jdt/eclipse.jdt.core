@@ -56,7 +56,7 @@ public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 	codeStream.aload_0();
 
 	// push the 2 parameters of "setResult(Object, Class)"
-	if (this.expression == null || this.expressionType == VoidBinding) { // expressionType == VoidBinding if code snippet is the expression "System.out.println()"
+	if (this.expression == null || this.expression.resolvedType == VoidBinding) { // expressionType == VoidBinding if code snippet is the expression "System.out.println()"
 		// push null
 		codeStream.aconst_null();
 
@@ -64,7 +64,7 @@ public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 		codeStream.generateClassLiteralAccessForType(VoidBinding, null);
 	} else {
 		// swap with expression
-		int valueTypeID = this.expressionType.id;
+		int valueTypeID = this.expression.resolvedType.id;
 		if (valueTypeID == T_long || valueTypeID == T_double) {
 			codeStream.dup_x2();
 			codeStream.pop();
@@ -73,16 +73,22 @@ public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 		}
 
 		// generate wrapper if needed
-		if (this.expressionType.isBaseType() && this.expressionType != NullBinding) { 
-			((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(this.expressionType);
+		if (this.expression.resolvedType.isBaseType() && this.expression.resolvedType != NullBinding) { 
+			((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(this.expression.resolvedType);
 		}
 
 		// generate the expression type
-		codeStream.generateClassLiteralAccessForType(this.expressionType, null);
+		codeStream.generateClassLiteralAccessForType(this.expression.resolvedType, null);
 	}
 
 	// generate the invoke virtual to "setResult(Object,Class)"
 	codeStream.invokevirtual(this.setResultMethod);
+}
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
+ */
+public TypeBinding[] genericTypeArguments() {
+	return null;
 }
 public boolean isSuperAccess() {
 	return false;
@@ -99,7 +105,7 @@ public void prepareSaveValueLocation(TryStatement targetTryStatement){
 }
 public void resolve(BlockScope scope) {
 	if (this.expression != null) {
-		if ((this.expressionType = this.expression.resolveType(scope)) != null) {
+		if (this.expression.resolveType(scope) != null) {
 			TypeBinding javaLangClass = scope.getJavaLangClass();
 			if (!javaLangClass.isValidBinding()) {
 				scope.problemReporter().codeSnippetMissingClass("java.lang.Class", this.sourceStart, this.sourceEnd); //$NON-NLS-1$

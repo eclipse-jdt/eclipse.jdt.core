@@ -209,7 +209,8 @@ public class ElementInfoConverter implements CompilerModifiers {
 					argumentNames[i],
 					position,
 					createTypeReference(argumentTypeNames[i], start, end),
-					AccDefault);
+					AccDefault,
+					false);
 			// do not care whether was final or not
 		}
 

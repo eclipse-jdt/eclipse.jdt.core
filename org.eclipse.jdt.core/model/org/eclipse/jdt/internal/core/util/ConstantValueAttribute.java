@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.core.util.ClassFormatException;
-import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.IConstantValueAttribute;
@@ -30,7 +29,7 @@ public class ConstantValueAttribute
 	ConstantValueAttribute(byte[] classFileBytes, IConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
 		this.constantValueIndex = u2At(classFileBytes, 6, offset);
-		this.constantPool = constantPool;	
+		this.constantPool = constantPool;
 	}
 	/**
 	 * @see IConstantValueAttribute#getConstantValue()
@@ -44,12 +43,5 @@ public class ConstantValueAttribute
 	 */
 	public int getConstantValueIndex() {
 		return this.constantValueIndex;
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.util.IClassFileAttribute#getAttributeName()
-	 */
-	public char[] getAttributeName() {
-		return IAttributeNamesConstants.CONSTANT_VALUE;
 	}
 }

@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /*
  * Not all fields defined by this type (& its subclasses) are initialized when it is created.
@@ -38,13 +40,20 @@ public boolean canBeInstantiated() {
 	return !isBaseType();
 }
 /**
+ * Collect the substitutes into a map for certain type variables inside the receiver type
+ * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
+ */
+public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
+    // no substitute by default
+}
+/**
  *  Answer the receiver's constant pool name.
  *  NOTE: This method should only be used during/after code gen.
  *  e.g. 'java/lang/Object' 
  */
 public abstract char[] constantPoolName();
 
-String debugName() {
+public String debugName() {
 	return new String(readableName());
 }
 /*
@@ -53,16 +62,30 @@ String debugName() {
 public int dimensions(){
 	return 0;
 }
+public TypeBinding erasure() {
+    return this;
+}
+/**
+ * Returns the type to use for generic cast, or null if none required
+ */
+public TypeBinding genericCast(TypeBinding otherType) {
+    if (this == otherType) return null;
+	if (otherType.isWildcard() && ((WildcardBinding)otherType).kind != Wildcard.EXTENDS) return null;
+	TypeBinding otherErasure = otherType.erasure();
+	if (otherErasure == this.erasure()) return null;
+	return otherErasure;
+}
+public char[] genericTypeSignature() {
+    return signature();
+}
 public abstract PackageBinding getPackage();
 /* Answer true if the receiver is an array
 */
-
 public final boolean isArrayType() {
 	return (tagBits & IsArrayType) != 0;
 }
 /* Answer true if the receiver is a base type
 */
-
 public final boolean isBaseType() {
 	return (tagBits & IsBaseType) != 0;
 }
@@ -71,16 +94,38 @@ public boolean isClass() {
 }
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
-	
 public abstract boolean isCompatibleWith(TypeBinding right);
+
+/**
+ * Returns true if a type is identical to another one,
+ * or for generic types, true if compared to its raw type.
+ */
+public boolean isEquivalentTo(TypeBinding otherType) {
+    return this == otherType;
+}
+
+public boolean isGenericType() {
+    return false;
+}
+
 /* Answer true if the receiver's hierarchy has problems (always false for arrays & base types)
 */
-
 public final boolean isHierarchyInconsistent() {
 	return (tagBits & HierarchyHasProblems) != 0;
 }
 public boolean isInterface() {
 	return false;
+}
+public final boolean isLocalType() {
+	return (tagBits & IsLocalType) != 0;
+}
+
+public final boolean isMemberType() {
+	return (tagBits & IsMemberType) != 0;
+}
+
+public final boolean isNestedType() {
+	return (tagBits & IsNestedType) != 0;
 }
 public final boolean isNumericType() {
 	switch (id) {
@@ -97,6 +142,27 @@ public final boolean isNumericType() {
 	}
 }
 
+/**
+ * Returns true if the type is parameterized, e.g. List<String>
+ */
+public boolean isParameterizedType() {
+    return false;
+}
+	
+/**
+ * Returns true if the type was declared as a type variable
+ */
+public boolean isTypeVariable() {
+    return false;
+}
+
+/**
+ * Returns true if the type is a wildcard
+ */
+public boolean isWildcard() {
+    return false;
+}
+	
 public TypeBinding leafComponentType(){
 	return this;
 }
@@ -121,6 +187,11 @@ public char[] qualifiedPackageName() {
 */
 
 public abstract char[] qualifiedSourceName();
+
+public boolean isRawType() {
+    return false;
+}
+
 /* Answer the receiver's signature.
 *
 * Arrays & base types do not distinguish between signature() & constantPoolName().
@@ -131,8 +202,12 @@ public abstract char[] qualifiedSourceName();
 public char[] signature() {
 	return constantPoolName();
 }
+
 public abstract char[] sourceName();
 
+public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment environment) {
+	// subclasses must override if they wrap another type binding
+}
 /**
  * Match a well-known type id to its binding
  */

@@ -191,4 +191,89 @@ public interface ISelectionRequestor {
 	 *    The default package is represented by an empty array.
 	 */
 	void acceptPackage(char[] packageName);
+	/**
+	 * Code assist notification of a type parameter selection.
+	 * 
+	 * @param declaringTypePackageName char[]
+	 * 		Name of the package in which the type that contains this new method is declared.
+	 * 
+	 * @param declaringTypeName char[]
+	 * 		Name of the type declaring this new method.
+	 * 
+	 * @param typeParameterName char[]
+	 * 		Name of the type parameter.
+	 * 
+	 * @param isDeclaration boolean
+	 *  	Answer if the selected type parameter is a declaration
+	 * 
+	 * @param start
+	 *  	Start of the selection
+	 * 
+	 * @param end
+	 *  	End of the selection
+	 *
+	 * NOTE - All package and type names are presented in their readable form:
+	 *    Package names are in the form "a.b.c".
+	 *    Nested type names are in the qualified form "A.M".
+	 *    The default package is represented by an empty array.
+	 */
+	void acceptTypeParameter(
+		char[] declaringTypePackageName,
+		char[] declaringTypeName,
+		char[] typeParameterName,
+		boolean isDeclaration,
+		int start,
+		int end);
+	
+	/**
+	 * Code assist notification of a type parameter selection.
+	 * 
+	 * @param declaringTypePackageName char[]
+	 * 		Name of the package in which the type that contains this new method is declared.
+	 * 
+	 * @param declaringTypeName char[]
+	 * 		Name of the type declaring this new method.
+	 * 
+	 * @param selector char[]
+	 * 		Name of the new method.
+	 * 
+	 * @param parameterPackageNames char[][]
+	 * 		Names of the packages in which the parameter types are declared.
+	 *    	Should contain as many elements as parameterTypeNames.
+	 * 
+	 * @param parameterTypeNames char[][]
+	 * 		Names of the parameters types.
+	 *    	Should contain as many elements as parameterPackageNames.
+	 * 
+	 * @param isConstructor boolean
+	 * 		Answer if the method is a constructor.
+	 * 
+	 * @param typeParameterName char[]
+	 * 		Name of the type parameter.
+	 * 
+	 * @param isDeclaration boolean
+	 *  	Answer if the selected type parameter is a declaration
+	 * 
+	 * @param start
+	 *  	Start of the selection
+	 * 
+	 * @param end
+	 *  	End of the selection
+	 *
+	 * NOTE - All package and type names are presented in their readable form:
+	 *    Package names are in the form "a.b.c".
+	 *    Nested type names are in the qualified form "A.M".
+	 *    The default package is represented by an empty array.
+	 */
+	void acceptMethodTypeParameter(
+		char[] declaringTypePackageName,
+		char[] declaringTypeName,
+		char[] selector,
+		char[][] parameterPackageNames,
+		char[][] parameterTypeNames,
+		boolean isConstructor,
+		char[] typeParameterName,
+		boolean isDeclaration,
+		int start,
+		int end);
 }

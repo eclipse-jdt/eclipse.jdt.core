@@ -189,7 +189,7 @@ public void testCorrectFieldType3() throws CoreException {
 	CorrectionEngine engine = new CorrectionEngine(JavaCore.getOptions());
 	CodeCorrectionTestsRequestor requestor = new CodeCorrectionTestsRequestor();
 	ICompilationUnit cu= getCompilationUnit("CodeCorrection", "src", "", "CorrectFieldType3.java");
-	IMarker marker = getMarker(cu, "AClassz cannot be resolved (or is not a valid type) for the field CorrectFieldType3.field");
+	IMarker marker = getMarker(cu, "AClassz cannot be resolved to a type");
 	assertTrue("Marker not found", marker != null);
 	try {
 		engine.computeCorrections(marker, null, 0, requestor);

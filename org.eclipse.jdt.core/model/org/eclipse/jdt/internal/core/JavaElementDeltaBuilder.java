@@ -216,9 +216,10 @@ private void findContentChange(JavaElementInfo oldInfo, JavaElementInfo newInfo,
 		if (((MemberElementInfo)oldInfo).getModifiers() != ((MemberElementInfo)newInfo).getModifiers()) {
 			this.delta.changed(newElement, IJavaElementDelta.F_MODIFIERS);
 		} else if (oldInfo instanceof SourceMethodElementInfo && newInfo instanceof SourceMethodElementInfo) {
-			if (!CharOperation.equals(
-					((SourceMethodElementInfo)oldInfo).getReturnTypeName(), 
-					((SourceMethodElementInfo)newInfo).getReturnTypeName())) {
+			SourceMethodElementInfo oldSourceMethodInfo = (SourceMethodElementInfo)oldInfo;
+			SourceMethodElementInfo newSourceMethodInfo = (SourceMethodElementInfo)newInfo;
+			if (!CharOperation.equals(oldSourceMethodInfo.getReturnTypeName(), newSourceMethodInfo.getReturnTypeName())
+					|| !CharOperation.equals(oldSourceMethodInfo.getTypeParameterSignatures(), newSourceMethodInfo.getTypeParameterSignatures())) {
 				this.delta.changed(newElement, IJavaElementDelta.F_CONTENT);
 			}
 		} else if (oldInfo instanceof SourceFieldElementInfo && newInfo instanceof SourceFieldElementInfo) {
@@ -233,8 +234,11 @@ private void findContentChange(JavaElementInfo oldInfo, JavaElementInfo newInfo,
 		SourceTypeElementInfo oldSourceTypeInfo = (SourceTypeElementInfo)oldInfo;
 		SourceTypeElementInfo newSourceTypeInfo = (SourceTypeElementInfo)newInfo;
 		if (!CharOperation.equals(oldSourceTypeInfo.getSuperclassName(), newSourceTypeInfo.getSuperclassName()) 
-			|| !CharOperation.equals(oldSourceTypeInfo.getInterfaceNames(), newSourceTypeInfo.getInterfaceNames())) {
+				|| !CharOperation.equals(oldSourceTypeInfo.getInterfaceNames(), newSourceTypeInfo.getInterfaceNames())) {
 			this.delta.changed(newElement, IJavaElementDelta.F_SUPER_TYPES);
+		}
+		if (!CharOperation.equals(oldSourceTypeInfo.getTypeParameterSignatures(), newSourceTypeInfo.getTypeParameterSignatures())) {
+			this.delta.changed(newElement, IJavaElementDelta.F_CONTENT);
 		}
 	}
 }

@@ -232,15 +232,17 @@ public class Clinit extends AbstractMethodDeclaration {
 	}
 
 	// 1.4 feature
-	public void setAssertionSupport(FieldBinding assertionSyntheticFieldBinding) {
+	public void setAssertionSupport(FieldBinding assertionSyntheticFieldBinding, boolean needClassLiteralField) {
 
 		this.assertionSyntheticFieldBinding = assertionSyntheticFieldBinding;
 
 		// we need to add the field right now, because the field infos are generated before the methods
 		SourceTypeBinding sourceType =
 			this.scope.outerMostMethodScope().enclosingSourceType();
-		this.classLiteralSyntheticField =
-			sourceType.addSyntheticField(sourceType, scope);
+		if (needClassLiteralField) {
+			this.classLiteralSyntheticField =
+				sourceType.addSyntheticField(sourceType, scope);
+		}
 	}
 
 }

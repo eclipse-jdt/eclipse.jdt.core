@@ -156,6 +156,117 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 
 	}
+	
+	public void testTypeDeclChanges2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
+		buf.append("    public static class EInner {\n");
+		buf.append("        public void xee() {\n");
+		buf.append("        }\n");		
+		buf.append("    }\n");		
+		buf.append("    private int i;\n");	
+		buf.append("    private int k;\n");	
+		buf.append("    public E() {\n");
+		buf.append("    }\n");
+		buf.append("    public void gee() {\n");
+		buf.append("    }\n");
+		buf.append("    public void hee() {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		buf.append("final class F implements Runnable {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("    }\n");		
+		buf.append("}\n");
+		buf.append("interface G {\n");
+		buf.append("}\n");		
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
+
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		
+		{  // rename type, rename supertype, rename first interface, replace inner class with field
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			SimpleName name= type.getName();
+			SimpleName newName= ast.newSimpleName("X");
+			
+			rewrite.replace(name, newName, null);
+			
+			Type superClass= type.getSuperclassType();
+			assertTrue("Has super type", superClass != null);
+			
+			Type newSuperclass= ast.newSimpleType(ast.newSimpleName("Object"));
+			rewrite.replace(superClass, newSuperclass, null);
+
+			List superInterfaces= type.superInterfaceTypes();
+			assertTrue("Has super interfaces", !superInterfaces.isEmpty());
+			
+			Type newSuperinterface= ast.newSimpleType(ast.newSimpleName("Cloneable"));
+			rewrite.replace((ASTNode) superInterfaces.get(0), newSuperinterface, null);
+			
+			List members= type.bodyDeclarations();
+			assertTrue("Has declarations", !members.isEmpty());
+			
+			FieldDeclaration newFieldDecl= createNewField(ast, "fCount");
+			
+			rewrite.replace((ASTNode) members.get(0), newFieldDecl, null);
+		}
+		{ // replace method in F, change to interface
+			TypeDeclaration type= findTypeDeclaration(astRoot, "F");
+			
+			rewrite.remove((ASTNode) type.modifiers().get(0), null);
+			
+			// change to interface
+			rewrite.set(type, TypeDeclaration.INTERFACE_PROPERTY, Boolean.TRUE, null);
+			
+			List members= type.bodyDeclarations();
+			assertTrue("Has declarations", members.size() == 1);
+
+			MethodDeclaration methodDecl= createNewMethod(ast, "newFoo", true);
+
+			rewrite.replace((ASTNode) members.get(0), methodDecl, null);
+		}
+		
+		{ // add modifier, change to class, add supertype
+			TypeDeclaration type= findTypeDeclaration(astRoot, "G");
+			
+			rewrite.getListRewrite(type, TypeDeclaration.MODIFIERS2_PROPERTY).insertFirst(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+						
+			// change to class
+			rewrite.set(type, TypeDeclaration.INTERFACE_PROPERTY, Boolean.FALSE, null);
+			
+			
+			Type newSuperclass= ast.newSimpleType(ast.newSimpleName("Object"));
+			rewrite.set(type, TypeDeclaration.SUPERCLASS_TYPE_PROPERTY, newSuperclass, null);
+		}			
+					
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class X extends Object implements Cloneable, Serializable {\n");
+		buf.append("    private double fCount;\n");
+		buf.append("    private int i;\n");	
+		buf.append("    private int k;\n");
+		buf.append("    public E() {\n");
+		buf.append("    }\n");
+		buf.append("    public void gee() {\n");
+		buf.append("    }\n");
+		buf.append("    public void hee() {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		buf.append("interface F extends Runnable {\n");
+		buf.append("    private abstract void newFoo(String str);\n");
+		buf.append("}\n");				
+		buf.append("final class G extends Object {\n");
+		buf.append("}\n");			
+		assertEqualString(preview, buf.toString());
+
+	}
+
 
 
 	

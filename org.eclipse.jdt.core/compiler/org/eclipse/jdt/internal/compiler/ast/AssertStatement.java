@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -176,7 +177,7 @@ public class AssertStatement extends Statement {
 		for (int i = 0, max = methods.length; i < max; i++) {
 			AbstractMethodDeclaration method = methods[i];
 			if (method.isClinit()) {
-				((Clinit) method).setAssertionSupport(assertionSyntheticFieldBinding);
+				((Clinit) method).setAssertionSupport(assertionSyntheticFieldBinding, currentScope.environment().options.sourceLevel < ClassFileConstants.JDK1_5);
 				break;
 			}
 		}

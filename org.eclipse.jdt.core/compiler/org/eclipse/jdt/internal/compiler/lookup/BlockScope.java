@@ -319,7 +319,7 @@ public class BlockScope extends Scope {
 	 */
 	public final ReferenceBinding findLocalType(char[] name) {
 
-	    long compliance = environment().options.complianceLevel;
+		long compliance = environment().options.complianceLevel;
 		for (int i = 0, length = subscopeCount; i < length; i++) {
 			if (subscopes[i] instanceof ClassScope) {
 				LocalTypeBinding sourceType = (LocalTypeBinding)((ClassScope) subscopes[i]).referenceContext.binding;

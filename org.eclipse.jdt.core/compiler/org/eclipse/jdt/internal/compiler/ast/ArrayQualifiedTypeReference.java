@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 	int dimensions;
@@ -22,25 +24,46 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		dimensions = dim ;
 	}
 	
-	public ArrayQualifiedTypeReference(char[][] sources , TypeBinding tb, int dim, long[] poss) {
-		
-		super( sources , tb, poss);
-		dimensions = dim ;
-	}
-	
 	public int dimensions() {
 		
 		return dimensions;
 	}
+
+	/**
+	 * @return char[][]
+	 */
+	public char [][] getParameterizedTypeName(){
+		int dim = this.dimensions;
+		char[] dimChars = new char[dim*2];
+		for (int i = 0; i < dim; i++) {
+			int index = i*2;
+			dimChars[index] = '[';
+			dimChars[index+1] = ']';
+		}
+		int length = this.tokens.length;
+		char[][] qParamName = new char[length][];
+		System.arraycopy(this.tokens, 0, qParamName, 0, length-1);
+		qParamName[length-1] = CharOperation.concat(this.tokens[length-1], dimChars);
+		return qParamName;
+	}	
 	
-	public TypeBinding getTypeBinding(Scope scope) {
+	protected TypeBinding getTypeBinding(Scope scope) {
 		
 		if (this.resolvedType != null)
 			return this.resolvedType;
 		if (dimensions > 255) {
 			scope.problemReporter().tooManyDimensions(this);
 		}
-		return scope.createArray(scope.getType(tokens), dimensions);
+		try {
+			TypeBinding leafComponentType = scope.getType(this.tokens, this.tokens.length);
+			if (leafComponentType.isParameterizedType()) {
+			    scope.problemReporter().illegalArrayOfParameterizedType(leafComponentType, this);
+			}
+			return scope.createArrayType(leafComponentType, dimensions);
+		} catch (AbortCompilation e) {
+			e.updateContext(this, scope.referenceCompilationUnit().compilationResult);
+			throw e;
+		}
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output){

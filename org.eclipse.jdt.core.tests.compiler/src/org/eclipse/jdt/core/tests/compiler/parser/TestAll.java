@@ -45,6 +45,7 @@ public class TestAll extends TestCase {
 		testClasses.add(ReferenceTypeCompletionTest.class);
 		testClasses.add(CompletionParserTest2.class);
 		testClasses.add(CompletionParserTestKeyword.class);
+		testClasses.add(GenericsCompletionParserTest.class);
 
 		/* selection tests */
 		testClasses.add(ExplicitConstructorInvocationSelectionTest.class);
@@ -53,6 +54,7 @@ public class TestAll extends TestCase {
 
 		/* recovery tests */
 		testClasses.add(DietRecoveryTest.class);
+		testClasses.add(GenericDietRecoveryTest.class);
 
 		/* source element parser tests */
 		testClasses.add(SourceElementParserTest.class);
@@ -61,6 +63,7 @@ public class TestAll extends TestCase {
 		testClasses.add(SyntaxErrorTest.class);
 		testClasses.add(DualParseSyntaxErrorTest.class);
 		testClasses.add(ParserTest.class);
+		testClasses.add(ComplianceDiagnoseTest.class);
 
 		return AbstractCompilerTest.suite(TestAll.class.getName(), CompilerTestSetup.class, testClasses);
 	}

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -35,9 +36,10 @@ public class ClassLiteralAccess extends Expression {
 		// if reachable, request the addition of a synthetic field for caching the class descriptor
 		SourceTypeBinding sourceType =
 			currentScope.outerMostMethodScope().enclosingSourceType();
-		if (!(sourceType.isInterface()
-			// no field generated in interface case (would'nt verify) see 1FHHEZL
-			|| sourceType.isBaseType())) {
+		if ((!(sourceType.isInterface()
+				// no field generated in interface case (would'nt verify) see 1FHHEZL
+				|| sourceType.isBaseType()))
+				&& currentScope.environment().options.sourceLevel <= ClassFileConstants.JDK1_5) {
 			syntheticField = sourceType.addSyntheticField(targetType, currentScope);
 		}
 		return flowInfo;
@@ -57,8 +59,9 @@ public class ClassLiteralAccess extends Expression {
 		int pc = codeStream.position;
 
 		// in interface case, no caching occurs, since cannot make a cache field for interface
-		if (valueRequired)
+		if (valueRequired) {
 			codeStream.generateClassLiteralAccessForType(type.resolvedType, syntheticField);
+		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
@@ -78,8 +81,14 @@ public class ClassLiteralAccess extends Expression {
 			scope.problemReporter().cannotAllocateVoidArray(this);
 			return null;
 		}
-
-		return this.resolvedType = scope.getJavaLangClass();
+		ReferenceBinding classType = scope.getJavaLangClass();
+		if (classType.isGenericType()) {
+		    // Integer.class is of type Class<Integer>
+		    this.resolvedType = scope.createParameterizedType(classType, new TypeBinding[]{ targetType }, null);
+		} else {
+		    this.resolvedType = classType;
+		}
+		return this.resolvedType;
 	}
 
 	public void traverse(

@@ -48,17 +48,19 @@ public MethodVerifier(LookupEnvironment environment) {
 	this.errorException = null;
 	this.environment = environment;
 }
-private boolean areParametersEqual(MethodBinding one, MethodBinding two) {
+private boolean areParameterErasuresEqual(MethodBinding one, MethodBinding two) {
 	TypeBinding[] oneArgs = one.parameters;
 	TypeBinding[] twoArgs = two.parameters;
 	if (oneArgs == twoArgs) return true;
 
 	int length = oneArgs.length;
 	if (length != twoArgs.length) return false;
-
 	for (int i = 0; i < length; i++)
-		if (!areTypesEqual(oneArgs[i], twoArgs[i])) return false;
+		if (!areTypesEqual(oneArgs[i].erasure(), twoArgs[i].erasure())) return false;
 	return true;
+}
+private boolean areReturnTypeErasuresEqual(MethodBinding one, MethodBinding two) {
+	return areTypesEqual(one.returnType.erasure(), two.returnType.erasure());
 }
 private boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 	if (one == two) return true;
@@ -82,31 +84,43 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 	currentMethod.modifiers |= CompilerModifiers.AccOverriding;
 	nextMethod : for (int i = length; --i >= 0;) {
 		MethodBinding inheritedMethod = methods[i];
+		if (currentMethod.isStatic() != inheritedMethod.isStatic()) {  // Cannot override a static method or hide an instance method
+			this.problemReporter(currentMethod).staticAndInstanceConflict(currentMethod, inheritedMethod);
+			continue nextMethod;
+		}
+
 		if (!currentMethod.isAbstract() && inheritedMethod.isAbstract())
 			currentMethod.modifiers |= CompilerModifiers.AccImplementing;
 
-		if (!areTypesEqual(currentMethod.returnType, inheritedMethod.returnType)) {
+		boolean addBridgeMethod = inheritedMethod.hasSubstitutedReturnType()
+			&& isSameOrSubTypeOf(currentMethod.returnType, inheritedMethod.returnType);
+		if (!addBridgeMethod && !areTypesEqual(currentMethod.returnType, inheritedMethod.returnType)) {
 			this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
-		} else if (currentMethod.isStatic() != inheritedMethod.isStatic()) {  // Cannot override a static method or hide an instance method
-			this.problemReporter(currentMethod).staticAndInstanceConflict(currentMethod, inheritedMethod);
-		} else {
-			if (currentMethod.thrownExceptions != NoExceptions)
-				this.checkExceptions(currentMethod, inheritedMethod);
-			if (inheritedMethod.isFinal())
-				this.problemReporter(currentMethod).finalMethodCannotBeOverridden(currentMethod, inheritedMethod);
-			if (!this.isAsVisible(currentMethod, inheritedMethod))
-				this.problemReporter(currentMethod).visibilityConflict(currentMethod, inheritedMethod);
-			if (environment.options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isViewedAsDeprecated()) {
-				if (!currentMethod.isViewedAsDeprecated() || environment.options.reportDeprecationInsideDeprecatedCode) {
-					// check against the other inherited methods to see if they hide this inheritedMethod
-					ReferenceBinding declaringClass = inheritedMethod.declaringClass;
-					if (declaringClass.isInterface())
-						for (int j = length; --j >= 0;)
-							if (i != j && methods[j].declaringClass.implementsInterface(declaringClass, false))
-								continue nextMethod;
+			continue nextMethod;
+		}
 
-					this.problemReporter(currentMethod).overridesDeprecatedMethod(currentMethod, inheritedMethod);
-				}
+		if (addBridgeMethod || inheritedMethod.hasSubstitutedParameters()) {
+		    MethodBinding original = inheritedMethod.original();
+		    if (!areReturnTypeErasuresEqual(original, currentMethod) || !areParameterErasuresEqual(original, currentMethod))
+				this.type.addSyntheticBridgeMethod(original, currentMethod);
+		}
+
+		if (currentMethod.thrownExceptions != NoExceptions)
+			this.checkExceptions(currentMethod, inheritedMethod);
+		if (inheritedMethod.isFinal())
+			this.problemReporter(currentMethod).finalMethodCannotBeOverridden(currentMethod, inheritedMethod);
+		if (!this.isAsVisible(currentMethod, inheritedMethod))
+			this.problemReporter(currentMethod).visibilityConflict(currentMethod, inheritedMethod);
+		if (environment.options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isViewedAsDeprecated()) {
+			if (!currentMethod.isViewedAsDeprecated() || environment.options.reportDeprecationInsideDeprecatedCode) {
+				// check against the other inherited methods to see if they hide this inheritedMethod
+				ReferenceBinding declaringClass = inheritedMethod.declaringClass;
+				if (declaringClass.isInterface())
+					for (int j = length; --j >= 0;)
+						if (i != j && methods[j].declaringClass.implementsInterface(declaringClass, false))
+							continue nextMethod;
+
+				this.problemReporter(currentMethod).overridesDeprecatedMethod(currentMethod, inheritedMethod);
 			}
 		}
 	}
@@ -130,9 +144,9 @@ private void checkExceptions(MethodBinding newMethod, MethodBinding inheritedMet
 	}
 }
 private void checkInheritedMethods(MethodBinding[] methods, int length) {
-	TypeBinding returnType = methods[0].returnType;
+	MethodBinding first = methods[0];
 	int index = length;
-	while (--index > 0 && areTypesEqual(returnType, methods[index].returnType)){/*empty*/}
+	while (--index > 0 && areReturnTypeErasuresEqual(first, methods[index])){/*empty*/}
 	if (index > 0) {  // All inherited methods do NOT have the same vmSignature
 		this.problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
 		return;
@@ -226,7 +240,8 @@ private void checkMethods() {
 				while (index >= 0) matchingInherited[index--] = null; // clear the previous contents of the matching methods
 				MethodBinding currentMethod = current[i];
 				for (int j = 0, length2 = inherited.length; j < length2; j++) {
-					if (inherited[j] != null && areParametersEqual(currentMethod, inherited[j])) {
+					MethodBinding inheritedMethod = inherited[j];
+					if (inherited[j] != null && areParameterErasuresEqual(currentMethod, inheritedMethod)) {
 						matchingInherited[++index] = inherited[j];
 						inherited[j] = null; // do not want to find it again
 					}
@@ -238,10 +253,11 @@ private void checkMethods() {
 
 		for (int i = 0, length = inherited.length; i < length; i++) {
 			while (index >= 0) matchingInherited[index--] = null; // clear the previous contents of the matching methods
-			if (inherited[i] != null) {
-				matchingInherited[++index] = inherited[i];
+			MethodBinding inheritedMethod = inherited[i];
+			if (inheritedMethod != null) {
+				matchingInherited[++index] = inheritedMethod;
 				for (int j = i + 1; j < length; j++) {
-					if (inherited[j] != null && areParametersEqual(inherited[i], inherited[j])) {
+					if (inherited[j] != null && areParameterErasuresEqual(inheritedMethod, inherited[j])) {
 						matchingInherited[++index] = inherited[j];
 						inherited[j] = null; // do not want to find it again
 					}
@@ -264,7 +280,7 @@ private void checkPackagePrivateAbstractMethod(MethodBinding abstractMethod) {
 		MethodBinding[] methods = superType.getMethods(selector);
 		nextMethod : for (int m = methods.length; --m >= 0;) {
 			MethodBinding method = methods[m];
-			if (!areTypesEqual(method.returnType, abstractMethod.returnType) || !areParametersEqual(method, abstractMethod))
+			if (!areReturnTypeErasuresEqual(method, abstractMethod) || !areParameterErasuresEqual(method, abstractMethod))
 				continue nextMethod;
 			if (method.isPrivate() || method.isConstructor() || method.isDefaultAbstract())
 				continue nextMethod;
@@ -316,7 +332,7 @@ private void computeInheritedMethods() {
 					MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(method.selector);
 					if (existingMethods != null) {
 						for (int i = 0, length = existingMethods.length; i < length; i++) {
-							if (areTypesEqual(method.returnType, existingMethods[i].returnType) && areParametersEqual(method, existingMethods[i])) {
+							if (areReturnTypeErasuresEqual(method, existingMethods[i]) && areParameterErasuresEqual(method, existingMethods[i])) {
 								if (method.isDefault() && method.isAbstract() && method.declaringClass.fPackage != type.fPackage)
 									checkPackagePrivateAbstractMethod(method);
 								continue nextMethod;
@@ -326,8 +342,8 @@ private void computeInheritedMethods() {
 					if (nonVisibleDefaultMethods != null)
 						for (int i = 0; i < nonVisibleCount; i++)
 							if (CharOperation.equals(method.selector, nonVisibleDefaultMethods[i].selector)
-								&& areTypesEqual(method.returnType, nonVisibleDefaultMethods[i].returnType)
-								&& areParametersEqual(method, nonVisibleDefaultMethods[i])) 
+								&& areReturnTypeErasuresEqual(method, nonVisibleDefaultMethods[i])
+								&& areParameterErasuresEqual(method, nonVisibleDefaultMethods[i])) 
 									continue nextMethod;
 
 					if (!method.isDefault() || method.declaringClass.fPackage == type.fPackage) {
@@ -352,7 +368,7 @@ private void computeInheritedMethods() {
 						MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(method.selector);
 						if (current != null) { // non visible methods cannot be overridden so a warning is issued
 							foundMatch : for (int i = 0, length = current.length; i < length; i++) {
-								if (areTypesEqual(method.returnType, current[i].returnType) && areParametersEqual(method, current[i])) {
+								if (areReturnTypeErasuresEqual(method, current[i]) && areParameterErasuresEqual(method, current[i])) {
 									this.problemReporter().overridesPackageDefaultMethod(current[i], method);
 									break foundMatch;
 								}
@@ -442,6 +458,23 @@ private boolean isSameClassOrSubclassOf(ReferenceBinding testClass, ReferenceBin
 	} while ((testClass = testClass.superclass()) != null);
 	return false;
 }
+private boolean isSameOrSubTypeOf(TypeBinding one, TypeBinding two) {
+	if (one.isArrayType() || two.isArrayType()) {
+		if (one.isArrayType() != two.isArrayType()) return false;
+		ArrayBinding arrayOne = (ArrayBinding) one;
+		ArrayBinding arrayTwo = (ArrayBinding) two;
+		if (arrayOne.dimensions != arrayTwo.dimensions) return false;
+		one = arrayOne.leafComponentType;
+		two = arrayTwo.leafComponentType;
+	}
+	if (one.isBaseType() || two.isBaseType()) return false;
+
+	ReferenceBinding subType = (ReferenceBinding) one;
+	ReferenceBinding superType = (ReferenceBinding) two;
+	if (superType.isInterface())
+		return subType.implementsInterface(superType, true);
+	return subType.isClass() && isSameClassOrSubclassOf(subType, superType);
+}
 private boolean mustImplementAbstractMethod(MethodBinding abstractMethod) {
 	// if the type's superclass is an abstract class, then all abstract methods must be implemented
 	// otherwise, skip it if the type's superclass must implement any of the inherited methods
@@ -470,18 +503,16 @@ private ProblemReporter problemReporter(MethodBinding currentMethod) {
 		reporter.referenceContext = currentMethod.sourceMethod();
 	return reporter;
 }
-ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
+private ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
 	ReferenceBinding[] exceptions = method.thrownExceptions;
 	if ((method.modifiers & CompilerModifiers.AccUnresolved) == 0)
 		return exceptions;
 
 	if (!(method.declaringClass instanceof BinaryTypeBinding))
 		return TypeConstants.NoExceptions; // safety check
-	BinaryTypeBinding binaryType = (BinaryTypeBinding) method.declaringClass;
 
 	for (int i = exceptions.length; --i >= 0;)
-		if (exceptions[i] instanceof UnresolvedReferenceBinding)
-			exceptions[i] = (ReferenceBinding) binaryType.resolveType(exceptions[i]);
+		exceptions[i] = BinaryTypeBinding.resolveType(exceptions[i], this.environment, true);
 	return exceptions;
 }
 private ReferenceBinding runtimeException() {

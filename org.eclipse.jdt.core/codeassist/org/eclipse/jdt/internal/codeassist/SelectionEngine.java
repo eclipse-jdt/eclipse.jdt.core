@@ -402,8 +402,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			actualSelectionStart = lastIdentifierStart;
 			actualSelectionEnd = lastIdentifierEnd;
 			selectedIdentifier = lastIdentifier;
-			if (identCount > 1)
-				qualifiedSelection = entireSelection.toString().toCharArray();
+			if (identCount > 1) {
+				int entireSelectionLength = entireSelection.length();
+				qualifiedSelection = new char[entireSelectionLength];
+				entireSelection.getChars(0, entireSelectionLength, qualifiedSelection, 0);
+			}
 			return true;
 		}
 		return false;
@@ -554,7 +557,46 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	}
 
 	private void selectFrom(Binding binding, CompilationUnitDeclaration parsedUnit, boolean isDeclaration) {
-		if (binding instanceof ReferenceBinding) {
+		if(binding instanceof TypeVariableBinding) {
+			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) binding;
+			Binding enclosingElement = typeVariableBinding.declaringElement;
+			this.noProposal = false;
+			
+			if(enclosingElement instanceof SourceTypeBinding) {
+				SourceTypeBinding enclosingType = (SourceTypeBinding) enclosingElement;
+				this.requestor.acceptTypeParameter(
+					enclosingType.qualifiedPackageName(),
+					enclosingType.qualifiedSourceName(),
+					typeVariableBinding.sourceName(),
+					false,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+			} else if(enclosingElement instanceof MethodBinding) {
+				MethodBinding enclosingMethod = (MethodBinding) enclosingElement;
+				
+				TypeBinding[] parameterTypes = enclosingMethod.parameters;
+				int length = parameterTypes.length;
+				char[][] parameterPackageNames = new char[length][];
+				char[][] parameterTypeNames = new char[length][];
+				for (int i = 0; i < length; i++) {
+					parameterPackageNames[i] = parameterTypes[i].qualifiedPackageName();
+					parameterTypeNames[i] = parameterTypes[i].qualifiedSourceName();
+				}
+				
+				this.requestor.acceptMethodTypeParameter(
+					enclosingMethod.declaringClass.qualifiedPackageName(),
+					enclosingMethod.declaringClass.qualifiedSourceName(),
+					enclosingMethod.selector,
+					parameterPackageNames,
+					parameterTypeNames,
+					enclosingMethod.isConstructor(),
+					typeVariableBinding.sourceName(),
+					false,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+			}
+			this.acceptedAnswer = true;
+		} else if (binding instanceof ReferenceBinding) {
 			ReferenceBinding typeBinding = (ReferenceBinding) binding;
 			if (qualifiedSelection != null
 				&& !CharOperation.equals(qualifiedSelection, typeBinding.readableName())) {
@@ -964,6 +1006,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 		for (int i = 0, length = methods == null ? 0 : methods.length; i < length; i++){
 			AbstractMethodDeclaration method = methods[i];
+			
 			if (method.selector == assistIdentifier){
 				char[] qualifiedSourceName = null;
 				
@@ -987,7 +1030,63 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				this.noProposal = false;
 				return true;
 			}
+			
+			TypeParameter[] methodTypeParameters = method.typeParameters();
+			for (int j = 0, length2 = methodTypeParameters == null ? 0 : methodTypeParameters.length; j < length2; j++){
+				TypeParameter methodTypeParameter = methodTypeParameters[j];
+				
+				if(methodTypeParameter.name == assistIdentifier) {
+					char[] qualifiedSourceName = null;
+					
+					TypeDeclaration enclosingType = typeDeclaration;
+					while(enclosingType != null) {
+						qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
+						enclosingType = enclosingType.enclosingType;
+					}
+					
+					this.requestor.acceptMethodTypeParameter(
+						packageName,
+						qualifiedSourceName,
+						method.selector,
+						null, // SelectionRequestor does not need of parameters type for declaration
+						null, // SelectionRequestor does not need of parameters type for declaration
+						method.isConstructor(),
+						methodTypeParameter.name,
+						true,
+						this.actualSelectionStart,
+						this.actualSelectionEnd);
+					
+					this.noProposal = false;
+					return true;
+				}
+			}
 		}
+		
+		TypeParameter[] typeParameters = typeDeclaration.typeParameters;
+		for (int i = 0, length = typeParameters == null ? 0 : typeParameters.length; i < length; i++){
+			TypeParameter typeParameter = typeParameters[i];
+			if(typeParameter.name == assistIdentifier) {
+				char[] qualifiedSourceName = null;
+				
+				TypeDeclaration enclosingType = typeDeclaration;
+				while(enclosingType != null) {
+					qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
+					enclosingType = enclosingType.enclosingType;
+				}
+				
+				this.requestor.acceptTypeParameter(
+					packageName,
+					qualifiedSourceName,
+					typeParameter.name,
+					true,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+				
+				this.noProposal = false;
+				return true;
+			}
+		}
+		
 		return false;
 	}
 }

@@ -68,7 +68,7 @@ public class ThrowStatement extends Statement {
 			// if compliant with 1.4, this problem will not be reported
 			scope.problemReporter().cannotThrowNull(this);
 	 	}
-		exception.implicitWidening(exceptionType, exceptionType);
+		exception.computeConversion(scope, exceptionType, exceptionType);
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {

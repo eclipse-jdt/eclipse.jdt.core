@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import java.util.ArrayList;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
@@ -197,12 +199,28 @@ public final class Signature {
 	public static final char C_TYPE_VARIABLE	= 'T';
 	
 	/**
-	 * Character constant indicating a wildcard type argument 
+	 * Character constant indicating an unbound wildcard type argument 
 	 * in a signature.
 	 * Value is <code>'&ast;'</code>.
 	 * @since 3.0
 	 */
 	public static final char C_STAR	= '*';
+	
+	/**
+	 * Character constant indicating a bound wildcard type argument 
+	 * in a signature with extends clause.
+	 * Value is <code>'+'</code>.
+	 * @since 3.1
+	 */
+	public static final char C_EXTENDS	= '+';
+	
+	/**
+	 * Character constant indicating a bound wildcard type argument 
+	 * in a signature with super clause.
+	 * Value is <code>'-'</code>.
+	 * @since 3.1
+	 */
+	public static final char C_SUPER	= '-';
 	
 	/** 
 	 * Character constant indicating the dot in a signature. 
@@ -348,15 +366,17 @@ public final class Signature {
 	 */
 	public static int ARRAY_TYPE_SIGNATURE = 4;
 
-	private static final char[] BOOLEAN = {'b', 'o', 'o', 'l', 'e', 'a', 'n'};
-	private static final char[] BYTE = {'b', 'y', 't', 'e'};
-	private static final char[] CHAR = {'c', 'h', 'a', 'r'};
-	private static final char[] DOUBLE = {'d', 'o', 'u', 'b', 'l', 'e'};
-	private static final char[] FLOAT = {'f', 'l', 'o', 'a', 't'};
-	private static final char[] INT = {'i', 'n', 't'};
-	private static final char[] LONG = {'l', 'o', 'n', 'g'};
-	private static final char[] SHORT = {'s', 'h', 'o', 'r', 't'};
-	private static final char[] VOID = {'v', 'o', 'i', 'd'};
+	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
+	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
+	private static final char[] CHAR = "char".toCharArray(); //$NON-NLS-1$
+	private static final char[] DOUBLE = "double".toCharArray(); //$NON-NLS-1$
+	private static final char[] FLOAT = "float".toCharArray(); //$NON-NLS-1$
+	private static final char[] INT = "int".toCharArray(); //$NON-NLS-1$
+	private static final char[] LONG = "long".toCharArray(); //$NON-NLS-1$
+	private static final char[] SHORT = "short".toCharArray(); //$NON-NLS-1$
+	private static final char[] VOID = "void".toCharArray(); //$NON-NLS-1$
+	private static final char[] EXTENDS = "extends".toCharArray(); //$NON-NLS-1$
+	private static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
 	
 	private static final String EMPTY = new String(CharOperation.NO_CHAR);
 		
@@ -364,12 +384,26 @@ private Signature() {
 	// Not instantiable
 }
 
-private static boolean checkPrimitiveType(char[] primitiveTypeName, char[] typeName) {
-	return CharOperation.fragmentEquals(primitiveTypeName, typeName, 0, true) &&
-		(typeName.length == primitiveTypeName.length
-		 || Character.isWhitespace(typeName[primitiveTypeName.length])
-		 || typeName[primitiveTypeName.length] == C_ARRAY
-		 || typeName[primitiveTypeName.length] == C_DOT);
+private static int checkName(char[] name, char[] typeName, int pos, int length) {
+    if (CharOperation.fragmentEquals(name, typeName, pos, true)) {
+        pos += name.length;
+        if (pos == length) return pos;
+        char currentChar = typeName[pos];
+        switch (currentChar) {
+            case ' ' :
+            case '.' :
+            case '<' :
+            case '>' :
+            case '[' :
+            case ',' :
+                return pos;
+			default:
+			    if (Character.isWhitespace(currentChar))
+			    	return pos;
+			    
+        }
+    }
+    return -1;
 }
 
 /**
@@ -457,6 +491,55 @@ public static String createMethodSignature(String[] parameterTypes, String retur
 }
 
 /**
+ * Creates a new type parameter signature with the given name and bounds.
+ *
+ * @param typeParameterName the type parameter name
+ * @param boundSignatures the signatures of associated bounds or empty array if none
+ * @return the encoded type parameter signature
+ * 
+ * @since 3.1
+ */
+public static char[] createTypeParameterSignature(char[] typeParameterName, char[][] boundSignatures) {
+	int length = boundSignatures.length;
+	if (length == 0) {
+		return CharOperation.append(typeParameterName, C_COLON); // param signature with no bounds still gets trailing colon
+	}
+	int boundsSize = 0;
+	for (int i = 0; i < length; i++) {
+		boundsSize += boundSignatures[i].length + 1;
+	}
+	int nameLength = typeParameterName.length;
+	char[] result = new char[nameLength + boundsSize];
+	System.arraycopy(typeParameterName, 0, result, 0, nameLength);
+	int index = nameLength;
+	for (int i = 0; i < length; i++) {
+		result[index++] = C_COLON;
+		int boundLength = boundSignatures[i].length;
+		System.arraycopy(boundSignatures[i], 0, result, index, boundLength);
+		index += boundLength;
+	}
+	return result;
+}
+
+/**
+ * Creates a new type parameter signature with the given name and bounds.
+ *
+ * @param typeParameterName the type parameter name
+ * @param boundSignatures the signatures of associated bounds or empty array if none
+ * @return the encoded type parameter signature
+ * 
+ * @since 3.1
+ */
+public static String createTypeParameterSignature(String typeParameterName, String[] boundSignatures) {
+	int length = boundSignatures.length;
+	char[][] boundSignatureChars = new char[length][];
+	for (int i = 0; i < length; i++) {
+		boundSignatureChars[i] = boundSignatures[i].toCharArray();
+	}
+	return new String(createTypeParameterSignature(typeParameterName.toCharArray(), boundSignatureChars));
+}
+
+/**
  * Creates a new type signature from the given type name encoded as a character
  * array. The type name may contain primitive types or array types. However,
  * parameterized types are not supported.
@@ -476,10 +559,10 @@ public static String createMethodSignature(String[] parameterTypes, String retur
 public static String createTypeSignature(char[] typeName, boolean isResolved) {
 	return new String(createCharArrayTypeSignature(typeName, isResolved));
 }
+
 /**
  * Creates a new type signature from the given type name encoded as a character
- * array. The type name may contain primitive types or array types. However,
- * parameterized types are not supported.
+ * array. The type name may contain primitive types or array types. 
  * This method is equivalent to
  * <code>createTypeSignature(new String(typeName),isResolved).toCharArray()</code>,
  * although more efficient for callers with character arrays rather than strings.
@@ -499,129 +582,237 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
 	if (typeName == null) throw new IllegalArgumentException("null"); //$NON-NLS-1$
 	int length = typeName.length;
 	if (length == 0) throw new IllegalArgumentException(new String(typeName));
+	StringBuffer buffer = new StringBuffer(5);
+	int pos = encodeTypeSignature(typeName, 0, isResolved, length, buffer);
+	pos = consumeWhitespace(typeName, pos, length);
+	if (pos < length) throw new IllegalArgumentException(new String(typeName));
+	char[] result = new char[length = buffer.length()];
+	buffer.getChars(0, length, result, 0);
+	return result;	
+}
+private static int consumeWhitespace(char[] typeName, int pos, int length) {
+    while (pos < length) {
+        char currentChar = typeName[pos];
+        if (currentChar != ' ' && !CharOperation.isWhitespace(currentChar)) {
+            break;
+        }
+        pos++;
+    }
+    return pos;
+}
+private static int encodeQualifiedName(char[] typeName, int pos, int length, StringBuffer buffer) {
+    int count = 0;
+    char lastAppendedChar = 0;
+    nameLoop: while (pos < length) {
+	    char currentChar = typeName[pos];
+		switch (currentChar) {
+		    case '<' :
+		    case '>' :
+		    case '[' :
+		    case ',' :
+		        break nameLoop;
+			case '.' :
+			    buffer.append(C_DOT);
+				lastAppendedChar = C_DOT;
+			    count++;
+			    break;
+			default:
+			    if (currentChar == ' ' || Character.isWhitespace(currentChar)) {
+			        if (lastAppendedChar == C_DOT) { // allow spaces after a dot
+			            pos = consumeWhitespace(typeName, pos, length) - 1; // will be incremented
+			            break; 
+			        }
+			        // allow spaces before a dot
+				    int checkPos = checkNextChar(typeName, '.', pos, length, true);
+				    if (checkPos > 0) {
+				        buffer.append(C_DOT);			// process dot immediately to avoid one iteration
+				        lastAppendedChar = C_DOT;
+				        count++;
+				        pos = checkPos;
+				        break;
+				    }
+				    break nameLoop;
+			    }
+			    buffer.append(currentChar);
+			    lastAppendedChar = currentChar;
+				count++;
+			    break;
+		}
+	    pos++;
+    }
+    if (count == 0) throw new IllegalArgumentException(new String(typeName));
+	return pos;
+}
 
-	int arrayCount = CharOperation.occurencesOf('[', typeName);
-	char[] sig;
-	
-	switch (typeName[0]) {
+private static int encodeArrayDimension(char[] typeName, int pos, int length, StringBuffer buffer) {
+    int checkPos;
+    while (pos < length && (checkPos = checkNextChar(typeName, '[', pos, length, true)) > 0) {
+        pos = checkNextChar(typeName, ']', checkPos, length, false);
+        buffer.append(C_ARRAY);
+    }
+    return pos;
+}
+private static int checkArrayDimension(char[] typeName, int pos, int length) {
+    int genericBalance = 0;
+    while (pos < length) {
+		switch(typeName[pos]) {
+		    case '<' :
+		        genericBalance++;
+		        break;
+		    case ',' :
+			    if (genericBalance == 0) return -1;
+			    break;
+			case '>':
+			    if (genericBalance == 0) return -1;
+			    genericBalance--;
+		        break;
+			case '[':
+			    if (genericBalance == 0) {
+			        return pos;
+			    }
+		}
+		pos++;
+    }
+    return -1;
+}
+private static int checkNextChar(char[] typeName, char expectedChar, int pos, int length, boolean isOptional) {
+    pos = consumeWhitespace(typeName, pos, length);
+    if (pos < length && typeName[pos] == expectedChar) 
+        return pos + 1;
+    if (!isOptional) throw new IllegalArgumentException(new String(typeName));
+    return -1;
+}
+
+private static int encodeTypeSignature(char[] typeName, int start, boolean isResolved, int length, StringBuffer buffer) {
+    int pos = start;
+    pos = consumeWhitespace(typeName, pos, length);
+    if (pos >= length) throw new IllegalArgumentException(new String(typeName));
+    int checkPos;
+    char currentChar = typeName[pos];
+    switch (currentChar) {
 		// primitive type?
 		case 'b' :
-			if (checkPrimitiveType(BOOLEAN, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_BOOLEAN;
-				break;
-			} else if (checkPrimitiveType(BYTE, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_BYTE;
-				break;
+		    checkPos = checkName(BOOLEAN, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_BOOLEAN);
+			    return pos;
+			} 
+		    checkPos = checkName(BYTE, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_BYTE);
+			    return pos;
 			}
+		    break;
 		case 'c':
-			if (checkPrimitiveType(CHAR, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_CHAR;
-				break;
-			}
+		    checkPos = checkName(CHAR, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_CHAR);
+			    return pos;
+			} 
+		    break;
 		case 'd':
-			if (checkPrimitiveType(DOUBLE, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_DOUBLE;
-				break;
-			}
+		    checkPos = checkName(DOUBLE, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_DOUBLE);
+			    return pos;
+			} 
+		    break;
 		case 'f':
-			if (checkPrimitiveType(FLOAT, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_FLOAT;
-				break;
-			}
+		    checkPos = checkName(FLOAT, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_FLOAT);
+			    return pos;
+			} 
+		    break;
 		case 'i':
-			if (checkPrimitiveType(INT, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_INT;
-				break;
-			}
+		    checkPos = checkName(INT, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_INT);
+			    return pos;
+			} 
+		    break;
 		case 'l':
-			if (checkPrimitiveType(LONG, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_LONG;
-				break;
-			}
+		    checkPos = checkName(LONG, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_LONG);
+			    return pos;
+			} 
+		    break;
 		case 's':
-			if (checkPrimitiveType(SHORT, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_SHORT;
-				break;
-			}
+		    checkPos = checkName(SHORT, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_SHORT);
+			    return pos;
+			} 
+		    break;
 		case 'v':
-			if (checkPrimitiveType(VOID, typeName)) {
-				sig = new char[arrayCount+1];
-				sig[arrayCount] = C_VOID;
-				break;
+		    checkPos = checkName(VOID, typeName, pos, length);
+		    if (checkPos > 0) {
+		        pos = encodeArrayDimension(typeName, checkPos, length, buffer);
+			    buffer.append(C_VOID);
+			    return pos;
 			}
-		default:
-			// non primitive type
-			int sigLength = arrayCount + 1 + length + 1; // for example '[[[Ljava.lang.String;'
-			sig = new char[sigLength];
-			int sigIndex = arrayCount+1; // index in sig
-			int startID = 0; // start of current ID in typeName
-			int index = 0; // index in typeName
-			while (index < length) {
-				char currentChar = typeName[index];
-				switch (currentChar) {
-					case '.':
-						if (startID == -1) throw new IllegalArgumentException(new String(typeName));
-						if (startID < index) {
-							sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
-							sigIndex += index-startID;
-						}
-						sig[sigIndex++] = C_DOT;
-						index++;
-						startID = index;
-						break;
-					case '[':
-						if (startID != -1) {
-							if (startID < index) {
-								sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
-								sigIndex += index-startID;
-							}
-							startID = -1; // no more id after []
-						}
-						index++;
-						break;
-					default :
-						if (startID != -1 && CharOperation.isWhitespace(currentChar)) {
-							if (startID < index) {
-								sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
-								sigIndex += index-startID;
-							}
-							startID = index+1;
-						}
-						index++;
-						break;
-				}
+		    break;
+		case '?':
+			// wildcard
+			pos = consumeWhitespace(typeName, pos+1, length);
+			checkPos = checkName(EXTENDS, typeName, pos, length);
+			if (checkPos > 0) {
+				buffer.append(C_EXTENDS);
+				pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
+				return pos;
 			}
-			// last id
-			if (startID != -1 && startID < index) {
-				sig = CharOperation.append(sig, sigIndex, typeName, startID, index);
-				sigIndex += index-startID;
+			checkPos = checkName(SUPER, typeName, pos, length);
+			if (checkPos > 0) {
+				buffer.append(C_SUPER);
+				pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
+				return pos;
 			}
-			
-			// add L (or Q) at the beigininig and ; at the end
-			sig[arrayCount] = isResolved ? C_RESOLVED : C_UNRESOLVED;
-			sig[sigIndex++] = C_NAME_END;
-			
-			// resize if needed
-			if (sigLength > sigIndex) {
-				System.arraycopy(sig, 0, sig = new char[sigIndex], 0, sigIndex);
-			}
+			buffer.append(C_STAR);
+			return pos;
+    }		    
+    // non primitive type
+    checkPos = checkArrayDimension(typeName, pos, length);
+	int end;
+	if (checkPos > 0) {
+	    end = encodeArrayDimension(typeName, checkPos, length, buffer);
+	} else {
+	    end = -1;
 	}
-
-	// add array info
-	for (int i = 0; i < arrayCount; i++) {
-		sig[i] = C_ARRAY;
+	buffer.append(isResolved ? C_RESOLVED : C_UNRESOLVED);
+	while (true) { // loop on qualifiedName[<args>][.qualifiedName[<args>]*
+	    pos = encodeQualifiedName(typeName, pos, length, buffer);
+		checkPos = checkNextChar(typeName, '<', pos, length, true);
+		if (checkPos > 0) {
+			buffer.append(C_GENERIC_START);
+		    pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
+		    while ((checkPos = checkNextChar(typeName, ',', pos, length, true)) > 0) {
+			    pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
+		    }
+		    pos = checkNextChar(typeName, '>', pos, length, false);
+			buffer.append(C_GENERIC_END);
+		}
+		checkPos = checkNextChar(typeName, '.', pos, length, true);
+		if (checkPos > 0) {
+			buffer.append(C_DOT);
+			pos = checkPos;
+		} else {
+			break;
+		}
 	}
-	
-	return sig;
+	buffer.append(C_NAME_END);
+	if (end > 0) pos = end; // skip array dimension which were preprocessed
+    return pos;
 }
+
 /**
  * Creates a new type signature from the given type name. If the type name is qualified,
  * then it is expected to be dot-based. The type name may contain primitive
@@ -1138,6 +1329,7 @@ private static int scanTypeArgumentSignature(char[] string, int start) {
 public static int getParameterCount(String methodSignature) throws IllegalArgumentException {
 	return getParameterCount(methodSignature.toCharArray());
 }
+
 /**
  * Extracts the parameter type signatures from the given method signature. 
  * The method signature is expected to be dot-based.
@@ -1179,6 +1371,7 @@ public static char[][] getParameterTypes(char[] methodSignature) throws IllegalA
 		throw new IllegalArgumentException();
 	}
 }
+
 /**
  * Extracts the parameter type signatures from the given method signature. 
  * The method signature is expected to be dot-based.
@@ -1194,6 +1387,124 @@ public static String[] getParameterTypes(String methodSignature) throws IllegalA
 	String[] result = new String[length];
 	for (int i = 0; i < length; i++) {
 		result[i] = new String(parameterTypes[i]);
+	}
+	return result;
+}
+
+/**
+ * Extracts the thrown exception type signatures from the given method signature if any
+ * The method signature is expected to be dot-based.
+ *
+ * @param methodSignature the method signature
+ * @return the list of thrown exception type signatures
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ */
+public static String[] getThrownExceptionTypes(String methodSignature) throws IllegalArgumentException {
+	char[][] parameterTypes = getThrownExceptionTypes(methodSignature.toCharArray());
+	int length = parameterTypes.length;
+	String[] result = new String[length];
+	for (int i = 0; i < length; i++) {
+		result[i] = new String(parameterTypes[i]);
+	}
+	return result;
+}
+
+/**
+ * Extracts the thrown exception type signatures from the given method signature if any
+ * The method signature is expected to be dot-based.
+ *
+ * @param methodSignature the method signature
+ * @return the list of thrown exception type signatures
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ */
+public static char[][] getThrownExceptionTypes(char[] methodSignature) throws IllegalArgumentException {
+	// skip type parameters
+	int paren = CharOperation.lastIndexOf(C_PARAM_END, methodSignature);
+	if (paren == -1) {
+		throw new IllegalArgumentException();
+	}
+	// ignore return type
+	int exceptionStart = scanTypeSignature(methodSignature, paren+1) + 1;
+	int length = methodSignature.length;
+	if (exceptionStart == length) return CharOperation.NO_CHAR_CHAR;
+	
+	ArrayList exceptionList = new ArrayList(1);
+	int i = exceptionStart;
+	while (i < length) {
+		i = scanTypeSignature(methodSignature, i) + 1;
+		exceptionList.add(CharOperation.subarray(methodSignature, exceptionStart,i));	
+		exceptionStart = i;
+	}
+	char[][] result;
+	exceptionList.toArray(result = new char[exceptionList.size()][]);
+	return result;
+}
+
+/**
+ * Extracts the type parameter signatures from the given method or type signature. 
+ * The method or type signature is expected to be dot-based.
+ *
+ * @param methodOrTypeSignature the method or type signature
+ * @return the list of type parameter signatures
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ * 
+ * @since 3.1
+ */
+public static char[][] getTypeParameters(char[] methodOrTypeSignature) throws IllegalArgumentException {
+	try {
+		int length = methodOrTypeSignature.length;
+		if (length == 0) return CharOperation.NO_CHAR_CHAR;
+		if (methodOrTypeSignature[0] != C_GENERIC_START) return CharOperation.NO_CHAR_CHAR;
+		
+		ArrayList paramList = new ArrayList(1);
+		int paramStart = 1, i = 1;  // start after leading '<'
+		while (i < length) {
+			if (methodOrTypeSignature[i] == C_GENERIC_END) {
+				int size = paramList.size();
+				if (size == 0) throw new IllegalArgumentException(); 
+				char[][] result;
+				paramList.toArray(result = new char[size][]);
+				return result;
+			}
+			i = CharOperation.indexOf(C_COLON, methodOrTypeSignature, i);
+			if (i < 0 || i >= length) throw new IllegalArgumentException();
+			// iterate over bounds
+			nextBound: while (methodOrTypeSignature[i] == ':') {
+				i++; // skip colon
+				if (methodOrTypeSignature[i] == ':') {
+					continue nextBound; // empty bound
+				}
+				i = scanTypeSignature(methodOrTypeSignature, i);
+				i++; // position at start of next param if any
+			}
+			paramList.add(CharOperation.subarray(methodOrTypeSignature, paramStart, i));
+			paramStart = i; // next param start from here
+		}
+	} catch (ArrayIndexOutOfBoundsException e) {
+		// invalid signature, fall through
+	}
+	throw new IllegalArgumentException();
+}
+/**
+ * Extracts the type parameter signatures from the given method or type signature. 
+ * The method or type signature is expected to be dot-based.
+ *
+ * @param methodOrTypeSignature the method or type signature
+ * @return the list of type parameter signatures
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ * 
+ * @since 3.1
+ */
+public static String[] getTypeParameters(String methodOrTypeSignature) throws IllegalArgumentException {
+	char[][] params = getTypeParameters(methodOrTypeSignature.toCharArray());
+	int length = params.length;
+	String[] result = new String[length];
+	for (int i = 0; i < length; i++) {
+		result[i] = new String(params[i]);
 	}
 	return result;
 }
@@ -1361,14 +1672,13 @@ public static String getQualifier(String name) {
  */
 public static char[] getReturnType(char[] methodSignature) throws IllegalArgumentException {
 	// skip type parameters
-	int i = CharOperation.lastIndexOf(C_PARAM_END, methodSignature);
-	if (i == -1) {
+	int paren = CharOperation.lastIndexOf(C_PARAM_END, methodSignature);
+	if (paren == -1) {
 		throw new IllegalArgumentException();
 	}
-	// ignore any thrown exceptions
-	int j = CharOperation.indexOf('^', methodSignature);
-	int last = (j == -1 ? methodSignature.length : j);
-	return CharOperation.subarray(methodSignature, i + 1, last);
+	// there could be thrown exceptions behind, thus scan one type exactly
+	int last = scanTypeSignature(methodSignature, paren+1);
+	return CharOperation.subarray(methodSignature, paren + 1, last+1);
 }
 /**
  * Extracts the return type from the given method signature. The method signature is 
@@ -1400,11 +1710,42 @@ public static String getReturnType(String methodSignature) throws IllegalArgumen
  * @since 2.0
  */
 public static char[] getSimpleName(char[] name) {
-	int lastDot = CharOperation.lastIndexOf(C_DOT, name);
-	if (lastDot == -1) {
-		return name;
+
+	int lastDot = -1, lastGenericStart = -1, lastGenericEnd = -1;
+	int depth = 0;
+	int length = name.length;
+	lastDotLookup: for (int i = length -1; i >= 0; i--) {
+		switch (name[i]) {
+			case '.':
+				if (depth == 0) {
+					lastDot = i;
+					break lastDotLookup;
+				}
+				break;
+			case '<':
+				depth--;
+				if (depth == 0) lastGenericStart = i;
+				break;
+			case '>':
+				if (depth == 0) lastGenericEnd = i;
+				depth++;
+				break;
+		}
 	}
-	return CharOperation.subarray(name, lastDot + 1, name.length);
+	if (lastGenericStart < 0) {
+		if (lastDot < 0) {
+			return name;
+		}
+		return  CharOperation.subarray(name, lastDot + 1, length);
+	}
+	StringBuffer buffer = new StringBuffer(10);
+	int nameStart = lastDot < 0 ? 0 : lastDot+1;
+	buffer.append(name, nameStart, lastGenericStart - nameStart);
+	appendArgumentSimpleNames(name, lastGenericStart, lastGenericEnd, buffer);
+	buffer.append(name, lastGenericEnd+1, length-lastGenericEnd-1); // copy trailing portion, may contain dimensions	
+	char[] result = new char[length = buffer.length()];
+	buffer.getChars(0, length, result, 0);
+	return result;	
 }
 /**
  * Returns the last segment of the given dot-separated qualified name.
@@ -1415,6 +1756,9 @@ public static char[] getSimpleName(char[] name) {
  * <code>
  * getSimpleName("java.lang.Object") -> "Object"
  * </code>
+ * <code>
+ * getSimpleName("java.util.Map<java.lang.String, java.lang.Object>") -> "Map<String,Object>"
+ * </code>
  * </pre>
  * </p>
  *
@@ -1423,11 +1767,125 @@ public static char[] getSimpleName(char[] name) {
  * @exception NullPointerException if name is null
  */
 public static String getSimpleName(String name) {
-	int lastDot = name.lastIndexOf(C_DOT);
-	if (lastDot == -1) {
-		return name;
+	int lastDot = -1, lastGenericStart = -1, lastGenericEnd = -1;
+	int depth = 0;
+	int length = name.length();
+	lastDotLookup: for (int i = length -1; i >= 0; i--) {
+		switch (name.charAt(i)) {
+			case '.':
+				if (depth == 0) {
+					lastDot = i;
+					break lastDotLookup;
+				}
+				break;
+			case '<':
+				depth--;
+				if (depth == 0) lastGenericStart = i;
+				break;
+			case '>':
+				if (depth == 0) lastGenericEnd = i;
+				depth++;
+				break;
+		}
 	}
-	return name.substring(lastDot + 1, name.length());
+	if (lastGenericStart < 0) {
+		if (lastDot < 0) {
+			return name;
+		}
+		return name.substring(lastDot + 1, length);
+	}
+	StringBuffer buffer = new StringBuffer(10);
+	char[] nameChars = name.toCharArray();
+	int nameStart = lastDot < 0 ? 0 : lastDot+1;
+	buffer.append(nameChars, nameStart, lastGenericStart - nameStart);
+	appendArgumentSimpleNames(nameChars, lastGenericStart, lastGenericEnd, buffer);
+	buffer.append(nameChars, lastGenericEnd+1, length-lastGenericEnd-1); // copy trailing portion, may contain dimensions	
+	return buffer.toString();
+}
+
+private static void appendSimpleName(char[] name, int start, int end, StringBuffer buffer) {
+	int lastDot = -1, lastGenericStart = -1, lastGenericEnd = -1;
+	int depth = 0;
+	if (name[start] == '?') { // wildcard
+		buffer.append("? "); //$NON-NLS-1$
+		int index = consumeWhitespace(name, start+1, end+1);
+		switch (name[index]) {
+			case 'e' :
+				int checkPos = checkName(EXTENDS, name, index, end);
+			    if (checkPos > 0) {
+			        buffer.append(EXTENDS).append(' ');
+			        index = consumeWhitespace(name, checkPos, end+1);
+				}
+				break;
+			case 's' :
+				checkPos = checkName(SUPER, name, index, end+1);
+			    if (checkPos > 0) {
+			        buffer.append(SUPER).append(' ');
+			        index = consumeWhitespace(name, checkPos, end+1);
+				}
+				break;
+		}
+		start = index; // leading segment got processed
+	}
+	lastDotLookup: for (int i = end; i >= start; i--) {
+		switch (name[i]) {
+			case '.':
+				if (depth == 0) {
+					lastDot = i;
+					break lastDotLookup;
+				}
+				break;
+			case '<':
+				depth--;
+				if (depth == 0) lastGenericStart = i;
+				break;
+			case '>':
+				if (depth == 0) lastGenericEnd = i;
+				depth++;
+				break;
+		}
+	}
+	int nameStart = lastDot < 0 ? start : lastDot+1;
+	int nameEnd = lastGenericStart < 0 ? end+1 : lastGenericStart;
+	buffer.append(name, nameStart, nameEnd - nameStart);
+	if (lastGenericStart >= 0) {
+		appendArgumentSimpleNames(name, lastGenericStart, lastGenericEnd, buffer);
+		buffer.append(name, lastGenericEnd+1, end - lastGenericEnd); // copy trailing portion, may contain dimensions
+	}
+}
+// <x.y.z, a.b<c>.d<e.f>> --> <z,d<f>>
+private static void appendArgumentSimpleNames(char[] name, int start, int end, StringBuffer buffer) {
+	buffer.append('<');
+	int depth = 0;
+	int argumentStart = -1;
+	int argumentCount = 0;
+	for (int i = start; i <= end; i++) {
+		switch(name[i]) {
+			case '<' :
+				depth++;
+				if (depth == 1) {
+					argumentStart = i+1;
+				}
+				break;
+			case '>' : 
+				if (depth == 1) {
+					if (argumentCount > 0) buffer.append(',');
+					appendSimpleName(name, argumentStart, i-1, buffer);
+					argumentCount++;
+				}
+				depth--;
+				break;
+			case ',' :
+				if (depth == 1) {
+					if (argumentCount > 0) buffer.append(',');
+					appendSimpleName(name, argumentStart, i-1, buffer);
+					argumentCount++;
+					argumentStart = i+1;					
+				}
+				break;
+		}
+	}
+	buffer.append('>');
 }
 /**
  * Returns all segments of the given dot-separated qualified name.

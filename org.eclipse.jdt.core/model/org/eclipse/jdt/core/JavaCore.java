@@ -64,6 +64,10 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -71,6 +75,7 @@ import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.prefs.BackingStoreException;
 
 /**
  * The plug-in runtime class for the Java model plug-in containing the core
@@ -367,6 +372,18 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_UNQUALIFIED_FIELD_ACCESS = PLUGIN_ID + ".compiler.problem.unqualifiedFieldAccess"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_PB_UNSAFE_TYPE_OPERATION = PLUGIN_ID + ".compiler.problem.unsafeTypeOperation"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_PB_FINAL_PARAMETER_BOUND = PLUGIN_ID + ".compiler.problem.finalParameterBound"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -871,6 +888,14 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String PRIVATE = "private"; //$NON-NLS-1$
 	
+	/**
+	 * New Preferences API
+	 * @since 3.1
+	 */
+	public static final IEclipsePreferences[] preferencesLookup = new IEclipsePreferences[2];
+	static final int PREF_INSTANCE = 0;
+	static final int PREF_DEFAULT = 1;
+
 	/**
 	 * Creates the Java core plug-in.
 	 * <p>
@@ -1399,6 +1424,33 @@ public final class JavaCore extends Plugin {
 	 * Note: more options might be added in further releases.
 	 * <pre>
 	 * RECOGNIZED OPTIONS:
+	 * 
+	 * COMPILER / Setting Compliance Level
+	 *    Select the compliance level for the compiler. In "1.3" mode, source and target settings
+	 *    should not go beyond "1.3" level.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.compliance"
+	 *     - possible values:   { "1.3", "1.4", "1.5" }
+	 *     - default:           "1.4"
+	 * 
+	 * COMPILER / Setting Source Compatibility Mode
+	 *    Specify whether which source level compatibility is used. From 1.4 on, 'assert' is a keyword
+	 *    reserved for assertion support. Also note, than when toggling to 1.4 mode, the target VM
+	 *   level should be set to "1.4" and the compliance mode should be "1.4".
+	 *   Source level 1.5 is necessary to enable generics, autoboxing, covariance, annotations, enumerations
+	 *   enhanced for loop, static imports and varargs. Once toggled, the target VM level should be set to "1.5"
+	 *   and the compliance mode should be "1.5".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.source"
+	 *     - possible values:   { "1.3", "1.4", "1.5" }
+	 *     - default:           "1.3"
+	 * 
+	 * COMPILER / Defining Target Java Platform
+	 *    For binary compatibility reason, .class files can be tagged to with certain VM versions and later.
+	 *    Note that "1.4" target require to toggle compliance mode to "1.4" too. Similarily, "1.5" target require
+	 *    to toggle compliance mode to "1.5".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.targetPlatform"
+	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4", "1.5" }
+	 *     - default:           "1.2"
+	 *
 	 * COMPILER / Generating Local Variable Debug Attribute
  	 *    When generated, this attribute will enable local variable names 
 	 *    to be displayed in debugger, only in place where variables are 
@@ -1428,18 +1480,13 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "preserve", "optimize out" }
 	 *     - default:           "preserve"
 	 * 
-	 * COMPILER / Defining Target Java Platform
-	 *    For binary compatibility reason, .class files can be tagged to with certain VM versions and later.
-	 *    Note that "1.4" target require to toggle compliance mode to "1.4" too.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.targetPlatform"
-	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4" }
-	 *     - default:           "1.2"
-	 *
 	 * COMPILER / Inline JSR Bytecode Instruction
 	 *    When enabled, the compiler will no longer generate JSR instructions, but rather inline corresponding
 	 *   subroutine code sequences (mostly corresponding to try finally blocks). The generated code will thus
 	 *   get bigger, but will load faster on virtual machines since the verification process is then much simpler. 
 	 *  This mode is anticipating support for the Java Specification Request 202.
+	 *  Note that JSR inlining is optional only for target platform lesser than 1.5. From 1.5 on, the JSR
+	 *  inlining is mandatory (also see related setting "org.eclipse.jdt.core.compiler.codegen.targetPlatform").
 	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
@@ -1691,6 +1738,20 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 *
+	 * COMPILER / Reporting Unsafe Type Operation
+	 *    When enabled, the compiler will issue an error or a warning whenever an operation involves generic types, and potentially
+	 *    invalidates type safety since involving raw types (e.g. invoking #foo(X<String>) with arguments  (X)).
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unsafeTypeOperation"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 * 
+	 * COMPILER / Reporting final Bound for Type Parameter
+	 *    When enabled, the compiler will issue an error or a warning whenever a generic type parameter is associated with a 
+	 *    bound corresponding to a final type; since final types cannot be further extended, the parameter is pretty useless.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.finalParameterBound"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
 	 * COMPILER / Reporting Invalid Javadoc Comment
 	 *    This is the generic control for the severity of Javadoc problems.
 	 *    When enabled, the compiler will issue an error or a warning for a problem in Javadoc.
@@ -1758,21 +1819,6 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
-	 * 
-	 * COMPILER / Setting Source Compatibility Mode
-	 *    Specify whether which source level compatibility is used. From 1.4 on, 'assert' is a keyword
-	 *    reserved for assertion support. Also note, than when toggling to 1.4 mode, the target VM
-	 *   level should be set to "1.4" and the compliance mode should be "1.4".
-	 *     - option id:         "org.eclipse.jdt.core.compiler.source"
-	 *     - possible values:   { "1.3", "1.4" }
-	 *     - default:           "1.3"
-	 * 
-	 * COMPILER / Setting Compliance Level
-	 *    Select the compliance level for the compiler. In "1.3" mode, source and target settings
-	 *    should not go beyond "1.3" level.
-	 *     - option id:         "org.eclipse.jdt.core.compiler.compliance"
-	 *     - possible values:   { "1.3", "1.4" }
-	 *     - default:           "1.4"
 	 * 
 	 * COMPILER / Maximum number of problems reported per compilation unit
 	 *    Specify the maximum number of problems reported on each compilation unit.
@@ -2031,14 +2077,15 @@ public final class JavaCore extends Plugin {
 		Hashtable defaultOptions = new Hashtable(10);
 
 		// see #initializeDefaultPluginPreferences() for changing default settings
-		Preferences preferences = getPlugin().getPluginPreferences();
+		IEclipsePreferences defaultPreferences = getDefaultPreferences();
 		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
 		
 		// initialize preferences to their default
 		Iterator iterator = optionNames.iterator();
 		while (iterator.hasNext()) {
 		    String propertyName = (String) iterator.next();
-		    defaultOptions.put(propertyName, preferences.getDefaultString(propertyName));
+		    String value = defaultPreferences.get(propertyName, null);
+		    if (value != null) defaultOptions.put(propertyName, value);
 		}
 		// get encoding through resource plugin
 		defaultOptions.put(CORE_ENCODING, getEncoding());
@@ -2047,6 +2094,26 @@ public final class JavaCore extends Plugin {
 		defaultOptions.put(COMPILER_PB_UNREACHABLE_CODE, ERROR);
 		
 		return defaultOptions;
+	}
+ 
+	/**
+	 * @since 3.1
+	 */
+	public static IEclipsePreferences getInstancePreferences() {
+		if (preferencesLookup[PREF_INSTANCE] == null) {
+			preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(PLUGIN_ID);
+		}
+		return preferencesLookup[PREF_INSTANCE];
+	}
+ 
+	/**
+	 * @since 3.1
+	 */
+	public static IEclipsePreferences getDefaultPreferences() {
+		if (preferencesLookup[PREF_DEFAULT] == null) {
+			preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(PLUGIN_ID);
+		}
+		return preferencesLookup[PREF_DEFAULT];
 	}
 
 	/**
@@ -2090,6 +2157,7 @@ public final class JavaCore extends Plugin {
 	 * @param optionName the name of an option
 	 * @return the String value of a given option
 	 * @see JavaCore#getDefaultOptions()
+	 * @see #initializeDefaultPreferences() for changing default settings
 	 * @since 2.0
 	 */
 	public static String getOption(String optionName) {
@@ -2104,8 +2172,9 @@ public final class JavaCore extends Plugin {
 		}
 		String propertyName = optionName;
 		if (JavaModelManager.getJavaModelManager().optionNames.contains(propertyName)){
-			Preferences preferences = getPlugin().getPluginPreferences();
-			return preferences.getString(propertyName).trim();
+			IPreferencesService service = Platform.getPreferencesService();
+			String value =  service.get(optionName, null, preferencesLookup);
+			return value==null ? null : value.trim();
 		}
 		return null;
 	}
@@ -2119,39 +2188,34 @@ public final class JavaCore extends Plugin {
 	 * 
 	 * @return table of current settings of all options 
 	 *   (key type: <code>String</code>; value type: <code>String</code>)
-	 * @see JavaCore#getDefaultOptions()
+	 * @see #getDefaultOptions()
+	 * @see #initializeDefaultPreferences() for changing default settings
 	 */
 	public static Hashtable getOptions() {
-		
-		Hashtable options = new Hashtable(10);
 
-		// see #initializeDefaultPluginPreferences() for changing default settings
-		Plugin plugin = getPlugin();
-		if (plugin != null) {
-			Preferences preferences = getPlugin().getPluginPreferences();
-			HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
-			
-			// initialize preferences to their default
-			Iterator iterator = optionNames.iterator();
-			while (iterator.hasNext()) {
-			    String propertyName = (String) iterator.next();
-			    options.put(propertyName, preferences.getDefaultString(propertyName));
-			}
-			// get preferences not set to their default
-			String[] propertyNames = preferences.propertyNames();
-			for (int i = 0; i < propertyNames.length; i++){
-				String propertyName = propertyNames[i];
-				String value = preferences.getString(propertyName).trim();
-				if (optionNames.contains(propertyName)){
-					options.put(propertyName, value);
-				}
-			}
-			// get encoding through resource plugin
-			options.put(CORE_ENCODING, getEncoding()); 
-			// backward compatibility
-			options.put(COMPILER_PB_INVALID_IMPORT, ERROR);
-			options.put(COMPILER_PB_UNREACHABLE_CODE, ERROR);
+		// init
+		Hashtable options = new Hashtable(10);
+		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
+		IPreferencesService service = Platform.getPreferencesService();
+
+		// set options using preferences service lookup
+		Iterator iterator = optionNames.iterator();
+		while (iterator.hasNext()) {
+		    String propertyName = (String) iterator.next();
+		    String propertyValue = service.get(propertyName, null, preferencesLookup);
+		    if (propertyValue != null) {
+			    options.put(propertyName, propertyValue);
+		    }
 		}
+
+		// get encoding through resource plugin
+		options.put(CORE_ENCODING, getEncoding()); 
+
+		// backward compatibility
+		options.put(COMPILER_PB_INVALID_IMPORT, ERROR);
+		options.put(COMPILER_PB_UNREACHABLE_CODE, ERROR);
+
+		// return built map
 		return options;
 	}
 
@@ -2332,13 +2396,15 @@ public final class JavaCore extends Plugin {
 		if (result == null) return JavaModelManager.NO_WORKING_COPY;
 		return result;
 	}
-		
-	/**
+
+	/*
 	 * Initializes the default preferences settings for this plug-in.
 	 */
-	protected void initializeDefaultPluginPreferences() {
+	protected void initializeDefaultPreferences() {
 		
-		Preferences preferences = getPluginPreferences();
+		// Init and store default and instance preferences
+		IEclipsePreferences defaultPreferences = getDefaultPreferences();
+		
 		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
 		
 		// Compiler settings
@@ -2346,47 +2412,47 @@ public final class JavaCore extends Plugin {
 		for (Iterator iter = compilerOptionsMap.entrySet().iterator(); iter.hasNext();) {
 			Map.Entry entry = (Map.Entry) iter.next();
 			String optionName = (String) entry.getKey();
-			preferences.setDefault(optionName, (String)entry.getValue());
+			defaultPreferences.put(optionName, (String)entry.getValue());
 			optionNames.add(optionName);
 		}
 		// override some compiler defaults
-		preferences.setDefault(COMPILER_LOCAL_VARIABLE_ATTR, GENERATE);
-		preferences.setDefault(COMPILER_CODEGEN_UNUSED_LOCAL, PRESERVE);
-		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAGS);
-		preferences.setDefault(COMPILER_TASK_PRIORITIES, DEFAULT_TASK_PRIORITIES);
-		preferences.setDefault(COMPILER_TASK_CASE_SENSITIVE, ENABLED);
-		preferences.setDefault(COMPILER_DOC_COMMENT_SUPPORT, ENABLED);
+		defaultPreferences.put(COMPILER_LOCAL_VARIABLE_ATTR, GENERATE);
+		defaultPreferences.put(COMPILER_CODEGEN_UNUSED_LOCAL, PRESERVE);
+		defaultPreferences.put(COMPILER_TASK_TAGS, DEFAULT_TASK_TAGS);
+		defaultPreferences.put(COMPILER_TASK_PRIORITIES, DEFAULT_TASK_PRIORITIES);
+		defaultPreferences.put(COMPILER_TASK_CASE_SENSITIVE, ENABLED);
+		defaultPreferences.put(COMPILER_DOC_COMMENT_SUPPORT, ENABLED);
 
 		// Builder settings
-		preferences.setDefault(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, ""); //$NON-NLS-1$
+		defaultPreferences.put(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, ""); //$NON-NLS-1$
 		optionNames.add(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER);
 
-		preferences.setDefault(CORE_JAVA_BUILD_INVALID_CLASSPATH, ABORT); 
+		defaultPreferences.put(CORE_JAVA_BUILD_INVALID_CLASSPATH, ABORT); 
 		optionNames.add(CORE_JAVA_BUILD_INVALID_CLASSPATH);
 	
-		preferences.setDefault(CORE_JAVA_BUILD_DUPLICATE_RESOURCE, WARNING); 
+		defaultPreferences.put(CORE_JAVA_BUILD_DUPLICATE_RESOURCE, WARNING); 
 		optionNames.add(CORE_JAVA_BUILD_DUPLICATE_RESOURCE);
 		
-		preferences.setDefault(CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, CLEAN); 
+		defaultPreferences.put(CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, CLEAN); 
 		optionNames.add(CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER);
 
 		// JavaCore settings
-		preferences.setDefault(CORE_JAVA_BUILD_ORDER, IGNORE); 
+		defaultPreferences.put(CORE_JAVA_BUILD_ORDER, IGNORE); 
 		optionNames.add(CORE_JAVA_BUILD_ORDER);
 	
-		preferences.setDefault(CORE_INCOMPLETE_CLASSPATH, ERROR); 
+		defaultPreferences.put(CORE_INCOMPLETE_CLASSPATH, ERROR); 
 		optionNames.add(CORE_INCOMPLETE_CLASSPATH);
 		
-		preferences.setDefault(CORE_CIRCULAR_CLASSPATH, ERROR); 
+		defaultPreferences.put(CORE_CIRCULAR_CLASSPATH, ERROR); 
 		optionNames.add(CORE_CIRCULAR_CLASSPATH);
 		
-		preferences.setDefault(CORE_INCOMPATIBLE_JDK_LEVEL, IGNORE); 
+		defaultPreferences.put(CORE_INCOMPATIBLE_JDK_LEVEL, IGNORE); 
 		optionNames.add(CORE_INCOMPATIBLE_JDK_LEVEL);
 		
-		preferences.setDefault(CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, ENABLED); 
+		defaultPreferences.put(CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, ENABLED); 
 		optionNames.add(CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS);
 
-		preferences.setDefault(CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, ENABLED); 
+		defaultPreferences.put(CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, ENABLED); 
 		optionNames.add(CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS);
 
 		// encoding setting comes from resource plug-in
@@ -2397,68 +2463,68 @@ public final class JavaCore extends Plugin {
 		for (Iterator iter = codeFormatterOptionsMap.entrySet().iterator(); iter.hasNext();) {
 			Map.Entry entry = (Map.Entry) iter.next();
 			String optionName = (String) entry.getKey();
-			preferences.setDefault(optionName, (String)entry.getValue());
+			defaultPreferences.put(optionName, (String)entry.getValue());
 			optionNames.add(optionName);
 		}		
-		preferences.setDefault(FORMATTER_NEWLINE_OPENING_BRACE, DO_NOT_INSERT); 
+		defaultPreferences.put(FORMATTER_NEWLINE_OPENING_BRACE, DO_NOT_INSERT); 
 		optionNames.add(FORMATTER_NEWLINE_OPENING_BRACE);
 
-		preferences.setDefault(FORMATTER_NEWLINE_CONTROL, DO_NOT_INSERT);
+		defaultPreferences.put(FORMATTER_NEWLINE_CONTROL, DO_NOT_INSERT);
 		optionNames.add(FORMATTER_NEWLINE_CONTROL);
 
-		preferences.setDefault(FORMATTER_CLEAR_BLANK_LINES, PRESERVE_ONE); 
+		defaultPreferences.put(FORMATTER_CLEAR_BLANK_LINES, PRESERVE_ONE); 
 		optionNames.add(FORMATTER_CLEAR_BLANK_LINES);
 
-		preferences.setDefault(FORMATTER_NEWLINE_ELSE_IF, DO_NOT_INSERT);
+		defaultPreferences.put(FORMATTER_NEWLINE_ELSE_IF, DO_NOT_INSERT);
 		optionNames.add(FORMATTER_NEWLINE_ELSE_IF);
 
-		preferences.setDefault(FORMATTER_NEWLINE_EMPTY_BLOCK, INSERT); 
+		defaultPreferences.put(FORMATTER_NEWLINE_EMPTY_BLOCK, INSERT); 
 		optionNames.add(FORMATTER_NEWLINE_EMPTY_BLOCK);
 
-		preferences.setDefault(FORMATTER_LINE_SPLIT, "80"); //$NON-NLS-1$
+		defaultPreferences.put(FORMATTER_LINE_SPLIT, "80"); //$NON-NLS-1$
 		optionNames.add(FORMATTER_LINE_SPLIT);
 
-		preferences.setDefault(FORMATTER_COMPACT_ASSIGNMENT, NORMAL); 
+		defaultPreferences.put(FORMATTER_COMPACT_ASSIGNMENT, NORMAL); 
 		optionNames.add(FORMATTER_COMPACT_ASSIGNMENT);
 
-		preferences.setDefault(FORMATTER_TAB_CHAR, TAB); 
+		defaultPreferences.put(FORMATTER_TAB_CHAR, TAB); 
 		optionNames.add(FORMATTER_TAB_CHAR);
 
-		preferences.setDefault(FORMATTER_TAB_SIZE, "4"); //$NON-NLS-1$ 
+		defaultPreferences.put(FORMATTER_TAB_SIZE, "4"); //$NON-NLS-1$ 
 		optionNames.add(FORMATTER_TAB_SIZE);
 		
-		preferences.setDefault(FORMATTER_SPACE_CASTEXPRESSION, INSERT); //$NON-NLS-1$ 
+		defaultPreferences.put(FORMATTER_SPACE_CASTEXPRESSION, INSERT); //$NON-NLS-1$ 
 		optionNames.add(FORMATTER_SPACE_CASTEXPRESSION);
 
 		// CodeAssist settings
-		preferences.setDefault(CODEASSIST_VISIBILITY_CHECK, DISABLED); //$NON-NLS-1$
+		defaultPreferences.put(CODEASSIST_VISIBILITY_CHECK, DISABLED); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_VISIBILITY_CHECK);
 
-		preferences.setDefault(CODEASSIST_IMPLICIT_QUALIFICATION, DISABLED); //$NON-NLS-1$
+		defaultPreferences.put(CODEASSIST_IMPLICIT_QUALIFICATION, DISABLED); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_IMPLICIT_QUALIFICATION);
 		
-		preferences.setDefault(CODEASSIST_FIELD_PREFIXES, ""); //$NON-NLS-1$
+		defaultPreferences.put(CODEASSIST_FIELD_PREFIXES, ""); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_FIELD_PREFIXES);
 		
-		preferences.setDefault(CODEASSIST_STATIC_FIELD_PREFIXES, ""); //$NON-NLS-1$
+		defaultPreferences.put(CODEASSIST_STATIC_FIELD_PREFIXES, ""); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_STATIC_FIELD_PREFIXES);
 		
-		preferences.setDefault(CODEASSIST_LOCAL_PREFIXES, ""); //$NON-NLS-1$
+		defaultPreferences.put(CODEASSIST_LOCAL_PREFIXES, ""); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_LOCAL_PREFIXES);
 		
-		preferences.setDefault(CODEASSIST_ARGUMENT_PREFIXES, ""); //$NON-NLS-1$
+		defaultPreferences.put(CODEASSIST_ARGUMENT_PREFIXES, ""); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_ARGUMENT_PREFIXES);
 		
-		preferences.setDefault(CODEASSIST_FIELD_SUFFIXES, ""); //$NON-NLS-1$
+		defaultPreferences.put(CODEASSIST_FIELD_SUFFIXES, ""); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_FIELD_SUFFIXES);
 		
-		preferences.setDefault(CODEASSIST_STATIC_FIELD_SUFFIXES, ""); //$NON-NLS-1$
+		defaultPreferences.put(CODEASSIST_STATIC_FIELD_SUFFIXES, ""); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_STATIC_FIELD_SUFFIXES);
 		
-		preferences.setDefault(CODEASSIST_LOCAL_SUFFIXES, ""); //$NON-NLS-1$
+		defaultPreferences.put(CODEASSIST_LOCAL_SUFFIXES, ""); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_LOCAL_SUFFIXES);
 		
-		preferences.setDefault(CODEASSIST_ARGUMENT_SUFFIXES, ""); //$NON-NLS-1$
+		defaultPreferences.put(CODEASSIST_ARGUMENT_SUFFIXES, ""); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_ARGUMENT_SUFFIXES);
 	}
 	
@@ -3562,26 +3628,37 @@ public final class JavaCore extends Plugin {
 	 * @param newOptions the new options (key type: <code>String</code>; value type: <code>String</code>),
 	 *   or <code>null</code> to reset all options to their default values
 	 * @see JavaCore#getDefaultOptions()
+	 * @see #initializeDefaultPreferences() for changing default settings
 	 */
 	public static void setOptions(Hashtable newOptions) {
 		
-		// see #initializeDefaultPluginPreferences() for changing default settings
-		Preferences preferences = getPlugin().getPluginPreferences();
+		try {
+			IEclipsePreferences defaultPreferences = getDefaultPreferences();
+			IEclipsePreferences instancePreferences = getInstancePreferences();
 
-		if (newOptions == null){
-			newOptions = JavaCore.getDefaultOptions();
-		}
-		Enumeration keys = newOptions.keys();
-		while (keys.hasMoreElements()){
-			String key = (String)keys.nextElement();
-			if (!JavaModelManager.getJavaModelManager().optionNames.contains(key)) continue; // unrecognized option
-			if (key.equals(CORE_ENCODING)) continue; // skipped, contributed by resource prefs
-			String value = (String)newOptions.get(key);
-			preferences.setValue(key, value);
-		}
+			if (newOptions == null){
+				instancePreferences.clear();
+			} else {
+				Enumeration keys = newOptions.keys();
+				while (keys.hasMoreElements()){
+					String key = (String)keys.nextElement();
+					if (!JavaModelManager.getJavaModelManager().optionNames.contains(key)) continue; // unrecognized option
+					if (key.equals(CORE_ENCODING)) continue; // skipped, contributed by resource prefs
+					String value = (String)newOptions.get(key);
+					String defaultValue = defaultPreferences.get(key, null);
+					if (defaultValue != null && defaultValue.equals(value)) {
+						instancePreferences.remove(key);
+					} else {
+						instancePreferences.put(key, value);
+					}
+				}
+			}
 
-		// persist options
-		getPlugin().savePluginPreferences();
+			// persist options
+			instancePreferences.flush();
+		} catch (BackingStoreException e) {
+			// fails silently
+		}
 	}
 
 	/* (non-Javadoc)
@@ -3626,6 +3703,9 @@ public final class JavaCore extends Plugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		
+		// init preferences
+		initializeDefaultPreferences();
+
 		final JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			manager.configurePluginDebugOptions();
@@ -3634,7 +3714,7 @@ public final class JavaCore extends Plugin {
 			JavaCore.getPlugin().getStateLocation();
 
 			// retrieve variable values
-			JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(new JavaModelManager.PluginPreferencesListener());
+			getInstancePreferences().addPreferenceChangeListener(new JavaModelManager.EclipsePreferencesListener());
 			manager.loadVariablesAndContainers();
 
 			final IWorkspace workspace = ResourcesPlugin.getWorkspace();

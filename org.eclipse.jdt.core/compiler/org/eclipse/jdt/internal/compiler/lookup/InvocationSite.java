@@ -11,6 +11,8 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 public interface InvocationSite {
+	
+	TypeBinding[] genericTypeArguments();
 	boolean isSuperAccess();
 	boolean isTypeAccess();
 	void setDepth(int depth);

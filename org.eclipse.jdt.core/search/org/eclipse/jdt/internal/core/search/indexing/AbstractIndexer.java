@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.core.search.matching.*;
@@ -24,21 +25,30 @@ public abstract class AbstractIndexer implements IIndexConstants {
 	public void addClassDeclaration(int modifiers, char[] packageName,char[] name,  char[][] enclosingTypeNames, char[] superclass, char[][] superinterfaces) {
 		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(name, packageName, enclosingTypeNames, CLASS_SUFFIX));
 
-		if (superclass != null)
+		if (superclass != null) {
+			superclass = erasure(superclass);
 			addTypeReference(superclass);
+		}
 		addIndexEntry(
 			SUPER_REF, 
 			SuperTypeReferencePattern.createIndexKey(
 				modifiers, packageName, name, enclosingTypeNames, CLASS_SUFFIX, superclass, CLASS_SUFFIX));
 		if (superinterfaces != null) {
 			for (int i = 0, max = superinterfaces.length; i < max; i++) {
-				addTypeReference(superinterfaces[i]);
+				char[] superinterface = erasure(superinterfaces[i]);
+				addTypeReference(superinterface);
 				addIndexEntry(
 					SUPER_REF,
 					SuperTypeReferencePattern.createIndexKey(
 						modifiers, packageName, name, enclosingTypeNames, CLASS_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
 			}
 		}
+	}
+	private char[] erasure(char[] typeName) {
+		int genericStart = CharOperation.indexOf(Signature.C_GENERIC_START, typeName);
+		if (genericStart > -1) 
+			typeName = CharOperation.subarray(typeName, 0, genericStart);
+		return typeName;
 	}
 	public void addConstructorDeclaration(char[] typeName, char[][] parameterTypes, char[][] exceptionTypes) {
 		int argCount = parameterTypes == null ? 0 : parameterTypes.length;
@@ -70,7 +80,8 @@ public abstract class AbstractIndexer implements IIndexConstants {
 
 		if (superinterfaces != null) {
 			for (int i = 0, max = superinterfaces.length; i < max; i++) {
-				addTypeReference(superinterfaces[i]);
+				char[] superinterface = erasure(superinterfaces[i]);
+				addTypeReference(superinterface);
 				addIndexEntry(
 					SUPER_REF,
 					SuperTypeReferencePattern.createIndexKey(

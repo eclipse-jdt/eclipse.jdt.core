@@ -1129,11 +1129,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	}
 
 	private char[] getSignatureForField(char[] fieldDescriptor) {
-		final int length = fieldDescriptor.length;
-		char[] newFieldDescriptor = new char[length];
-		System.arraycopy(fieldDescriptor, 0, newFieldDescriptor, 0, length);
-		CharOperation.replace(newFieldDescriptor, '/', '.');
-		CharOperation.replace(newFieldDescriptor, '$', '~');
+		char[] newFieldDescriptor = CharOperation.replaceOnCopy(fieldDescriptor, '/', '.');
+		newFieldDescriptor = CharOperation.replaceOnCopy(newFieldDescriptor, '$', '~');
 		char[] fieldDescriptorSignature = Signature.toCharArray(newFieldDescriptor);
 		CharOperation.replace(fieldDescriptorSignature, '~', '$');
 		return fieldDescriptorSignature;

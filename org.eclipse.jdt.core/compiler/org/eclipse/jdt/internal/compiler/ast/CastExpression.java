@@ -23,6 +23,7 @@ public class CastExpression extends Expression {
 
 	public Expression expression;
 	public Expression type;
+	public TypeBinding expectedType; // when assignment conversion to a given expected type: String s = (String) t;
 	
 	//expression.implicitConversion holds the cast for baseType casting 
 	public CastExpression(Expression expression, Expression type) {
@@ -76,7 +77,7 @@ public class CastExpression extends Expression {
 		if (castType.isBaseType()) {
 			if (expressionType.isBaseType()) {
 				if (expressionType == castType) {
-					expression.implicitWidening(castType, expressionType);
+					expression.computeConversion(scope, castType, expressionType);
 					constant = expression.constant; //use the same constant
 					return false;
 				}
@@ -112,10 +113,10 @@ public class CastExpression extends Expression {
 	
 			if (castType.isArrayType()) {
 				//------- (castType.isArray) expressionType.isArray -----------
-				TypeBinding exprElementType = ((ArrayBinding) expressionType).elementsType(scope);
+				TypeBinding exprElementType = ((ArrayBinding) expressionType).elementsType();
 				if (exprElementType.isBaseType()) {
 					// <---stop the recursion------- 
-					if (((ArrayBinding) castType).elementsType(scope) == exprElementType) {
+					if (((ArrayBinding) castType).elementsType() == exprElementType) {
 						this.bits |= NeedRuntimeCheckCastMASK;
 					} else {
 						scope.problemReporter().typeCastError(this, castType, expressionType);
@@ -125,7 +126,7 @@ public class CastExpression extends Expression {
 				// recursively on the elements...
 				return checkCastTypesCompatibility(
 					scope,
-					((ArrayBinding) castType).elementsType(scope),
+					((ArrayBinding) castType).elementsType(),
 					exprElementType);
 			} else if (
 				castType.isClass()) {
@@ -158,14 +159,27 @@ public class CastExpression extends Expression {
 				if (castType.isCompatibleWith(expressionType)) {
 					// potential runtime  error
 					this.bits |= NeedRuntimeCheckCastMASK;
+					if (castType.isParameterizedType() || castType.isGenericType()) {
+						ReferenceBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
+						if (!match.isParameterizedType() && !match.isGenericType()) {
+							scope.problemReporter().unsafeCast(this);
+						}
+					}
 					return true;
 				}
 			} else { // ----- (castType.isInterface) expressionType.isClass -------  
-				if (expressionType.isCompatibleWith(castType)) 
+				if (expressionType.isCompatibleWith(castType)) {
 					return false;
+				}
 				if (!((ReferenceBinding) expressionType).isFinal()) {
 					// a subclass may implement the interface ==> no check at compile time
 					this.bits |= NeedRuntimeCheckCastMASK;
+					if (castType.isParameterizedType() || castType.isGenericType()) {
+						ReferenceBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
+						if (!match.isParameterizedType() && !match.isGenericType()) {
+							scope.problemReporter().unsafeCast(this);
+						}
+					}
 					return true;				    
 				}
 				// no subclass for expressionType, thus compile-time check is valid
@@ -386,6 +400,7 @@ public class CastExpression extends Expression {
 	private static void checkAlternateBinding(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding binding, Expression[] arguments, TypeBinding[] originalArgumentTypes, TypeBinding[] alternateArgumentTypes, final InvocationSite invocationSite) {
 
 			InvocationSite fakeInvocationSite = new InvocationSite(){	
+				public TypeBinding[] genericTypeArguments() { return null; }
 				public boolean isSuperAccess(){ return invocationSite.isSuperAccess(); }
 				public boolean isTypeAccess() { return invocationSite.isTypeAccess(); }
 				public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
@@ -480,23 +495,50 @@ public class CastExpression extends Expression {
 				&& ((type.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0) { // no extra parenthesis around type: ((A))exp
 
 			this.resolvedType = type.resolveType(scope);
+			expression.setExpectedType(this.resolvedType); // needed in case of generic method invocation			
 			TypeBinding expressionType = expression.resolveType(scope);
 			if (this.resolvedType != null && expressionType != null) {
 				boolean necessary = checkCastTypesCompatibility(scope, this.resolvedType, expressionType);
 				if (!necessary && this.expression.resolvedType != null) { // cannot do better if expression is not bound
 					this.bits |= UnnecessaryCastMask;
 					if ((this.bits & IgnoreNeedForCastCheckMASK) == 0) {
-						scope.problemReporter().unnecessaryCast(this);
+						if (!usedForGenericMethodReturnTypeInference()) // used for generic type inference ?
+							scope.problemReporter().unnecessaryCast(this);
 					}
 				}
 			}
 			return this.resolvedType;
-		} else { // expression as a cast !!!!!!!!
+		} else { // expression as a cast
 			TypeBinding expressionType = expression.resolveType(scope);
 			if (expressionType == null) return null;
 			scope.problemReporter().invalidTypeReference(type);
 			return null;
 		}
+	}
+	
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#setExpectedType(org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
+	 */
+	public void setExpectedType(TypeBinding expectedType) {
+		this.expectedType = expectedType;
+	}
+
+	/**
+	 * Determines whether apparent unnecessary cast wasn't actually used to
+	 * perform return type inference of generic method invocation.
+	 */
+	private boolean usedForGenericMethodReturnTypeInference() {
+		if (this.expression instanceof MessageSend) {
+			MethodBinding method = ((MessageSend)this.expression).binding;
+			if (method instanceof ParameterizedGenericMethodBinding
+						&& ((ParameterizedGenericMethodBinding)method).inferredReturnType) {
+				if (this.expectedType == null) 
+					return true;
+				if (this.resolvedType != this.expectedType)
+					return true;
+			}
+		}
+		return false;
 	}
 
 	public void traverse(

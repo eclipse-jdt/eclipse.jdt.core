@@ -63,14 +63,14 @@ public DOMBuilder() {
  * @see IDocumentElementRequestor#acceptImport(int declarationStart, int declarationEnd, int[] javaDocPositions, char[] name, int nameStartPosition, boolean onDemand)
  */
 public void acceptImport(int declarationStart, int declarationEnd, int[] javaDocPositions, char[] name, 
-	int nameStart, boolean onDemand) {
+	int nameStart, boolean onDemand, int modifiers) {
 	int[] sourceRange = {declarationStart, declarationEnd};
 	int[] nameRange = {nameStart, declarationEnd - 1};
 	
 	/* See 1FVII1P */
 	String importName = new String(CharOperation.subarray(fDocument, nameRange[0], nameRange[1] + 1));
 
-	fNode= new DOMImport(fDocument, sourceRange, importName, nameRange, onDemand);
+	fNode= new DOMImport(fDocument, sourceRange, importName, nameRange, onDemand, modifiers);
 	addChild(fNode);
 	if (fBuildingSingleMember) {
 		fFinishedSingleMember= true;

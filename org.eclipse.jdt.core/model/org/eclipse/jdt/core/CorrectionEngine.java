@@ -196,27 +196,6 @@ public class CorrectionEngine implements ProblemReasons {
 		try {
 			switch (id) {
 				// Type correction
-				case IProblem.FieldTypeNotFound :
-				case IProblem.ArgumentTypeNotFound :
-					this.filter = CLASSES | INTERFACES;
-					argument = arguments[2];
-					break;
-				case IProblem.SuperclassNotFound :
-					this.filter = CLASSES;
-					argument = arguments[0];
-					break;
-				case IProblem.InterfaceNotFound :
-					this.filter = INTERFACES;
-					argument = arguments[0];
-					break;
-				case IProblem.ExceptionTypeNotFound :
-					this.filter = CLASSES;
-					argument = arguments[1];
-					break;
-				case IProblem.ReturnTypeNotFound :
-					this.filter = CLASSES | INTERFACES;
-					argument = arguments[1];
-					break;
 				case IProblem.ImportNotFound :
 					this.filter = IMPORT;
 					argument = arguments[0];

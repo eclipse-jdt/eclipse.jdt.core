@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -21,6 +22,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 
@@ -89,6 +91,7 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	public void tearDownSuite() throws Exception {
 		ast = null;
 		this.deleteProject("Converter"); //$NON-NLS-1$
+		this.deleteProject("Converter15"); //$NON-NLS-1$
 		
 		super.tearDown();
 	}	
@@ -101,6 +104,13 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		setupConverterJCL();
 		ast = AST.newAST(AST.JLS2);
 		setUpJavaProject("Converter"); //$NON-NLS-1$
+		
+		Map options = JavaCore.getDefaultOptions();
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		
+		setUpJavaProject("Converter15", options); //$NON-NLS-1$
 		// ensure variables are set
 		if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$
 			JavaCore.setClasspathVariables(
@@ -108,33 +118,67 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 				new Path[] {new Path(ConverterTestSetup.getConverterJCLPath()), new Path(ConverterTestSetup.getConverterJCLSourcePath()), new Path(ConverterTestSetup.getConverterJCLRootSourcePath())},
 				null);
 		}		
-	}	
+	}
 
+	protected IJavaProject setUpJavaProject(final String projectName, Map options) throws CoreException, IOException {
+		IJavaProject javaProject = setUpJavaProject(projectName);
+		javaProject.setOptions(options);
+		return javaProject;
+	}
+	
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
-		ASTParser parser = ASTParser.newParser(AST.JLS2);
+		return runConversion(AST.JLS2, unit, resolveBindings);
+	}
+
+	public ASTNode runConversion(ICompilationUnit unit, int position, boolean resolveBindings) {
+		return runConversion(AST.JLS2, unit, position, resolveBindings);
+	}
+
+	public ASTNode runConversion(IClassFile classFile, int position, boolean resolveBindings) {
+		return runConversion(AST.JLS2, classFile, position, resolveBindings);
+	}
+	
+	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
+		return runConversion(AST.JLS2, source, unitName, project);
+	}
+	
+	public ASTNode runConversion(int astLevel, ICompilationUnit unit, boolean resolveBindings) {
+		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		return parser.createAST(null);
 	}
 
-	public ASTNode runConversion(ICompilationUnit unit, int position, boolean resolveBindings) {
+	public ASTNode runJLS3Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2) {
 		ASTParser parser = ASTParser.newParser(AST.JLS2);
+		parser.setSource(unit);
+		parser.setResolveBindings(resolveBindings);
+		parser.createAST(null);
+		
+		parser = ASTParser.newParser(AST.JLS3);
+		parser.setSource(unit);
+		parser.setResolveBindings(resolveBindings);
+		return parser.createAST(null);
+	}
+	
+	public ASTNode runConversion(int astLevel, ICompilationUnit unit, int position, boolean resolveBindings) {
+		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(unit);
 		parser.setFocalPosition(position);
 		parser.setResolveBindings(resolveBindings);
 		return parser.createAST(null);
 	}
 
-	public ASTNode runConversion(IClassFile classFile, int position, boolean resolveBindings) {
-		ASTParser parser = ASTParser.newParser(AST.JLS2);
+	public ASTNode runConversion(int astLevel, IClassFile classFile, int position, boolean resolveBindings) {
+		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(classFile);
 		parser.setFocalPosition(position);
 		parser.setResolveBindings(resolveBindings);
 		return parser.createAST(null);
 	}
 	
-	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
-		ASTParser parser = ASTParser.newParser(AST.JLS2);
+	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project) {
+		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(source);
 		parser.setUnitName(unitName);
 		parser.setProject(project);
@@ -189,7 +233,7 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 		char[] actualContents = new char[length];
 		System.arraycopy(source, start, actualContents, 0, length);
 		String actualContentsString = new String(actualContents);
-		assertSourceEquals("Unexpected source", expectedContents, actualContentsString);
+		assertSourceEquals("Unexpected source", Util.convertToIndependantLineDelimiter(expectedContents), Util.convertToIndependantLineDelimiter(actualContentsString));
 	}
 		
 	protected boolean isMalformed(ASTNode node) {

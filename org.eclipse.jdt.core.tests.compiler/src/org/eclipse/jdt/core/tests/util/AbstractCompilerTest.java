@@ -37,6 +37,21 @@ public class AbstractCompilerTest extends TestCase {
 	protected String docCommentSupport;
 
 	/*
+	 * Returns the highest compliance level this VM instance can run.
+	 */
+	public static String highestComplianceLevels() {
+		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
+			return COMPLIANCE_1_5;
+		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
+			return COMPLIANCE_1_3;
+		}
+		// default
+		return COMPLIANCE_1_4;
+	}
+
+	/*
 	 * Returns the possible compliance levels this VM instance can run.
 	 */
 	public static int getPossibleComplianceLevels() {

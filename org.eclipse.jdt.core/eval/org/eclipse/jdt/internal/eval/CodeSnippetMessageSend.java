@@ -15,7 +15,6 @@ import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BindingIds;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -25,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class CodeSnippetMessageSend extends MessageSend implements ProblemReasons, EvaluationConstants {
 	EvaluationContext evaluationContext;
@@ -49,9 +49,9 @@ public void generateCode(
 
 	int pc = codeStream.position;
 
-	if (this.binding.canBeSeenBy(this.receiverType, this, currentScope)) {
+	if (this.codegenBinding.canBeSeenBy(this.receiverType, this, currentScope)) {
 		// generate receiver/enclosing instance access
-		boolean isStatic = this.binding.isStatic();
+		boolean isStatic = this.codegenBinding.isStatic();
 		// outer access ?
 		if (!isStatic && ((this.bits & DepthMASK) != 0)) {
 			// outer method can be reached through emulation
@@ -74,22 +74,22 @@ public void generateCode(
 		}
 		// actual message invocation
 		if (isStatic) {
-			codeStream.invokestatic(this.binding);
+			codeStream.invokestatic(this.codegenBinding);
 		} else {
 			if (this.receiver.isSuper()) {
-				codeStream.invokespecial(this.binding);
+				codeStream.invokespecial(this.codegenBinding);
 			} else {
-				if (this.binding.declaringClass.isInterface()) {
-					codeStream.invokeinterface(this.binding);
+				if (this.codegenBinding.declaringClass.isInterface()) {
+					codeStream.invokeinterface(this.codegenBinding);
 				} else {
-					codeStream.invokevirtual(this.binding);
+					codeStream.invokevirtual(this.codegenBinding);
 				}
 			}
 		}
 	} else {
-		((CodeSnippetCodeStream) codeStream).generateEmulationForMethod(currentScope, this.binding);
+		((CodeSnippetCodeStream) codeStream).generateEmulationForMethod(currentScope, this.codegenBinding);
 		// generate receiver/enclosing instance access
-		boolean isStatic = this.binding.isStatic();
+		boolean isStatic = this.codegenBinding.isStatic();
 		// outer access ?
 		if (!isStatic && ((this.bits & DepthMASK) != 0)) {
 			// not supported yet
@@ -105,14 +105,14 @@ public void generateCode(
 		if (this.arguments != null) {
 			int argsLength = this.arguments.length;
 			codeStream.generateInlinedValue(argsLength);
-			codeStream.newArray(currentScope, new ArrayBinding(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT), 1));
+			codeStream.newArray(currentScope, currentScope.createArrayType(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT, 3), 1));
 			codeStream.dup();
 			for (int i = 0; i < argsLength; i++) {
 				codeStream.generateInlinedValue(i);
 				this.arguments[i].generateCode(currentScope, codeStream, true);
-				TypeBinding parameterBinding = this.binding.parameters[i];
+				TypeBinding parameterBinding = this.codegenBinding.parameters[i];
 				if (parameterBinding.isBaseType() && parameterBinding != NullBinding) {
-					((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(this.binding.parameters[i]);
+					((CodeSnippetCodeStream)codeStream).generateObjectWrapperForType(this.codegenBinding.parameters[i]);
 				}
 				codeStream.aastore();
 				if (i < argsLength - 1) {
@@ -121,13 +121,13 @@ public void generateCode(
 			}
 		} else {
 			codeStream.generateInlinedValue(0);
-			codeStream.newArray(currentScope, new ArrayBinding(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT), 1));			
+			codeStream.newArray(currentScope, currentScope.createArrayType(currentScope.getType(TypeConstants.JAVA_LANG_OBJECT, 3), 1));			
 		}
 		((CodeSnippetCodeStream) codeStream).invokeJavaLangReflectMethodInvoke();
 
 		// convert the return value to the appropriate type for primitive types
-		if (this.binding.returnType.isBaseType()) {
-			int typeID = this.binding.returnType.id;
+		if (this.codegenBinding.returnType.isBaseType()) {
+			int typeID = this.codegenBinding.returnType.id;
 			if (typeID == T_void) {
 				// remove the null from the stack
 				codeStream.pop();
@@ -135,7 +135,7 @@ public void generateCode(
 			((CodeSnippetCodeStream) codeStream).checkcast(typeID);
 			((CodeSnippetCodeStream) codeStream).getBaseTypeValue(typeID);
 		} else {
-			codeStream.checkcast(this.binding.returnType);
+			codeStream.checkcast(this.codegenBinding.returnType);
 		}
 	}
 	// operation on the returned value
@@ -144,7 +144,7 @@ public void generateCode(
 		codeStream.generateImplicitConversion(this.implicitConversion);
 	} else {
 		// pop return value if any
-		switch (this.binding.returnType.id) {
+		switch (this.codegenBinding.returnType.id) {
 			case T_long :
 			case T_double :
 				codeStream.pop2();
@@ -155,11 +155,24 @@ public void generateCode(
 				codeStream.pop();
 		}
 	}
+	// TODO (philippe) need to revise codegen to include genericCast
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
 	if (!flowInfo.isReachable()) return;
+
+	// if method from parameterized type got found, use the original method at codegen time
+	this.codegenBinding = this.binding.original();
+	if (this.codegenBinding != this.binding) {
+	    // extra cast needed if method return type was type variable
+	    if (this.codegenBinding.returnType.isTypeVariable()) {
+	        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
+	        if (variableReturnType.firstBound != this.binding.returnType) { // no need for extra cast if same as first bound anyway
+			    this.genericCast = this.binding.returnType;
+	        }
+	    }
+	} 
 	
 	// if the binding declaring class is not visible, need special action
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
@@ -168,10 +181,10 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	if (this.binding.declaringClass != this.qualifyingType
 		&& !this.qualifyingType.isArrayType()
 		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
-				&& (!this.receiver.isImplicitThis() || !this.binding.isStatic())
+				&& (!this.receiver.isImplicitThis() || !this.codegenBinding.isStatic())
 				&& this.binding.declaringClass.id != T_Object) // no change for Object methods
 			|| !this.binding.declaringClass.canBeSeenBy(currentScope))) {
-		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(this.binding, (ReferenceBinding) this.qualifyingType);
+		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(this.codegenBinding, (ReferenceBinding) this.qualifyingType.erasure());
 	}	
 }
 public TypeBinding resolveType(BlockScope scope) {
@@ -263,7 +276,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (this.arguments != null)
 		for (int i = 0; i < this.arguments.length; i++)
-			this.arguments[i].implicitWidening(this.binding.parameters[i], argumentTypes[i]);
+			this.arguments[i].computeConversion(scope, this.binding.parameters[i], argumentTypes[i]);
 
 	//-------message send that are known to fail at compile time-----------
 	if (this.binding.isAbstract()) {

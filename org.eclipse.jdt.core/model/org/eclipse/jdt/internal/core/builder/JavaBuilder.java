@@ -68,8 +68,7 @@ public static IMarker[] getTasksFor(IResource resource) {
  * This hook is invoked during PRE_AUTO_BUILD notification
  */
 public static void buildStarting() {
-	// do nothing
-	// TODO (philippe) is it still needed?
+	// build is about to start
 }
 
 /**

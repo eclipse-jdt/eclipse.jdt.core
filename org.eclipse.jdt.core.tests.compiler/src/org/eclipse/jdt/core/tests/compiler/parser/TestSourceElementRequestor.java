@@ -67,7 +67,7 @@ public void acceptUnknownReference(char[] name, int sourcePosition) {}
 /**
  * enterClass method comment.
  */
-public void enterClass(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[] superclass, char[][] superinterfaces) {}
+public void enterClass(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[] superclass, char[][] superinterfaces, char[][] typeParameterNames, char[][][] typeParameterBounds) {}
 /**
  * enterCompilationUnit method comment.
  */
@@ -75,7 +75,7 @@ public void enterCompilationUnit() {}
 /**
  * enterConstructor method comment.
  */
-public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {}
+public void enterConstructor(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes, char[][] typeParameterNames, char[][][] typeParameterBounds) {}
 /**
  * enterField method comment.
  */
@@ -83,11 +83,11 @@ public void enterField(int declarationStart, int modifiers, char[] type, char[] 
 /**
  * enterInterface method comment.
  */
-public void enterInterface(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces) {}
+public void enterInterface(int declarationStart, int modifiers, char[] name, int nameSourceStart, int nameSourceEnd, char[][] superinterfaces, char[][] typeParameterNames, char[][][] typeParameterBounds) {}
 /**
  * enterMethod method comment.
  */
-public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes) {}
+public void enterMethod(int declarationStart, int modifiers, char[] returnType, char[] name, int nameSourceStart, int nameSourceEnd, char[][] parameterTypes, char[][] parameterNames, char[][] exceptionTypes, char[][] typeParameterNames, char[][][] typeParameterBounds) {}
 /**
  * exitClass method comment.
  */

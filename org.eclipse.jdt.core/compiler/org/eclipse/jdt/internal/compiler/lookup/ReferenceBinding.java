@@ -194,6 +194,8 @@ public void computeId() {
 	if (!CharOperation.equals(LANG, compoundName[1])) {
 		if (CharOperation.equals(JAVA_IO_PRINTSTREAM, compoundName))
 			id = T_JavaIoPrintStream;
+		else if (CharOperation.equals(JAVA_UTIL_ITERATOR, compoundName))
+			id = T_JavaUtilIterator;
 		else if (CharOperation.equals(JAVA_IO_SERIALIZABLE, compoundName))
 		    id = T_JavaIoSerializable;
 		return;
@@ -240,6 +242,8 @@ public void computeId() {
 		case 'I' :
 			if (CharOperation.equals(typeName, JAVA_LANG_INTEGER[2]))
 				id = T_JavaLangInteger;
+			else if (CharOperation.equals(typeName, JAVA_LANG_ITERABLE[2]))
+				id = T_JavaLangIterable;
 			return;
 		case 'L' :
 			if (CharOperation.equals(typeName, JAVA_LANG_LONG[2]))
@@ -258,6 +262,8 @@ public void computeId() {
 				id = T_JavaLangString;
 			else if (CharOperation.equals(typeName, JAVA_LANG_STRINGBUFFER[2]))
 				id = T_JavaLangStringBuffer;
+			else if (CharOperation.equals(typeName, JAVA_LANG_STRINGBUILDER[2])) 
+				id = T_JavaLangStringBuilder;
 			else if (CharOperation.equals(typeName, JAVA_LANG_SYSTEM[2]))
 				id = T_JavaLangSystem;
 			else if (CharOperation.equals(typeName, JAVA_LANG_SHORT[2]))
@@ -282,7 +288,7 @@ public char[] constantPoolName() /* java/lang/Object */ {
 	if (constantPoolName != null) 	return constantPoolName;
 	return constantPoolName = CharOperation.concatWith(compoundName, '/');
 }
-String debugName() {
+public String debugName() {
 	return (compoundName != null) ? new String(readableName()) : "UNNAMED TYPE"; //$NON-NLS-1$
 }
 public final int depth() {
@@ -304,12 +310,55 @@ public final ReferenceBinding enclosingTypeAt(int relativeDepth) {
 		current = current.enclosingType();
 	return current;
 }
+
 public int fieldCount() {
 	return fields().length;
 }
 public FieldBinding[] fields() {
 	return NoFields;
 }
+
+/**
+ * Find supertype which erases to a given type, or null if not found
+ */
+public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
+
+    if (erasure() == erasure) return this;
+    ReferenceBinding currentType = this;
+    if (erasure.isClass()) {
+		while ((currentType = currentType.superclass()) != null) {
+			if (currentType.erasure() == erasure) return currentType;
+		}
+		return null;
+    }
+	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
+	int lastPosition = -1;
+	do {
+		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+		if (itsInterfaces != NoSuperInterfaces) {
+			if (++lastPosition == interfacesToVisit.length)
+				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+			interfacesToVisit[lastPosition] = itsInterfaces;
+		}
+	} while ((currentType = currentType.superclass()) != null);
+			
+	for (int i = 0; i <= lastPosition; i++) {
+		ReferenceBinding[] interfaces = interfacesToVisit[i];
+		for (int j = 0, length = interfaces.length; j < length; j++) {
+			if ((currentType = interfaces[j]).erasure() == erasure)
+				return currentType;
+
+			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			if (itsInterfaces != NoSuperInterfaces) {
+				if (++lastPosition == interfacesToVisit.length)
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+				interfacesToVisit[lastPosition] = itsInterfaces;
+			}
+		}
+	}
+	return null;
+}
+
 public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
 }
@@ -352,6 +401,21 @@ public PackageBinding getPackage() {
 public boolean hasMemberTypes() {
     return false;
 }
+public TypeVariableBinding getTypeVariable(char[] variableName) {
+	TypeVariableBinding[] typeVariables = typeVariables();
+	for (int i = typeVariables.length; --i >= 0;)
+		if (CharOperation.equals(typeVariables[i].sourceName, variableName))
+			return typeVariables[i];
+	return null;
+}
+public int hashCode() {
+	// ensure ReferenceBindings hash to the same posiiton as UnresolvedReferenceBindings so they can be replaced without rehashing
+	// ALL ReferenceBindings are unique when created so equals() is the same as ==
+	return (this.compoundName == null || this.compoundName.length == 0)
+		? super.hashCode()
+		: CharOperation.hashCode(this.compoundName[this.compoundName.length - 1]);
+}
+
 /* Answer true if the receiver implements anInterface or is identical to anInterface.
 * If searchHierarchy is true, then also search the receiver's superclasses.
 *
@@ -377,7 +441,7 @@ public boolean implementsInterface(ReferenceBinding anInterface, boolean searchH
 	for (int i = 0; i <= lastPosition; i++) {
 		ReferenceBinding[] interfaces = interfacesToVisit[i];
 		for (int j = 0, length = interfaces.length; j < length; j++) {
-			if ((currentType = interfaces[j]) == anInterface)
+			if ((currentType = interfaces[j]).isEquivalentTo(anInterface))
 				return true;
 
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
@@ -415,26 +479,35 @@ public final boolean isAnonymousType() {
 public final boolean isBinaryBinding() {
 	return (tagBits & IsBinaryBinding) != 0;
 }
-public final boolean isClass() {
+public boolean isClass() {
 	return (modifiers & AccInterface) == 0;
+}
+/*
+ * Returns true if the type hierarchy is being connected
+ */
+public boolean isHierarchyBeingConnected() {
+	return (this.tagBits & EndHierarchyCheck) == 0 && (this.tagBits & BeginHierarchyCheck) != 0;
 }
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
-	
-public boolean isCompatibleWith(TypeBinding right) {
-	if (right == this)
+public boolean isCompatibleWith(TypeBinding otherType) {
+    
+	if (otherType == this)
 		return true;
-	if (right.id == T_Object)
+	if (otherType.id == T_Object)
 		return true;
-	if (!(right instanceof ReferenceBinding))
+	if (!(otherType instanceof ReferenceBinding))
 		return false;
-
-	ReferenceBinding referenceBinding = (ReferenceBinding) right;
-	if (referenceBinding.isInterface())
-		return implementsInterface(referenceBinding, true);
+	ReferenceBinding otherReferenceType = (ReferenceBinding) otherType;
+	if (this.isEquivalentTo(otherReferenceType)) return true;
+	if (otherReferenceType.isWildcard()) {
+	    return ((WildcardBinding) otherReferenceType).boundCheck(this);
+	}
+	if (otherReferenceType.isInterface())
+		return implementsInterface(otherReferenceType, true);
 	if (isInterface())  // Explicit conversion from an interface to a class is not allowed
 		return false;
-	return referenceBinding.isSuperclassOf(this);
+	return otherReferenceType.isSuperclassOf(this);
 }
 /* Answer true if the receiver has default visibility
 */
@@ -450,22 +523,13 @@ public final boolean isDeprecated() {
 }
 /* Answer true if the receiver is final and cannot be subclassed
 */
-
 public final boolean isFinal() {
 	return (modifiers & AccFinal) != 0;
 }
-public final boolean isInterface() {
+public boolean isInterface() {
 	return (modifiers & AccInterface) != 0;
 }
-public final boolean isLocalType() {
-	return (tagBits & IsLocalType) != 0;
-}
-public final boolean isMemberType() {
-	return (tagBits & IsMemberType) != 0;
-}
-public final boolean isNestedType() {
-	return (tagBits & IsNestedType) != 0;
-}
+
 /* Answer true if the receiver has private visibility
 */
 
@@ -508,13 +572,13 @@ public final boolean isStrictfp() {
 * NOTE: Object.isSuperclassOf(Object) -> false
 */
 
-public boolean isSuperclassOf(ReferenceBinding type) {
-	do {
-		if (this == (type = type.superclass())) return true;
-	} while (type != null);
-
+public boolean isSuperclassOf(ReferenceBinding otherType) {
+	while ((otherType = otherType.superclass()) != null) {
+		if (this.isEquivalentTo(otherType)) return true;
+	}
 	return false;
 }
+
 /* Answer true if the receiver is deprecated (or any of its enclosing types)
 */
 
@@ -540,16 +604,50 @@ public char[] qualifiedSourceName() {
 	return sourceName();
 }
 
-public char[] readableName() /*java.lang.Object*/ {
-	if (isMemberType())
-		return CharOperation.concat(enclosingType().readableName(), sourceName, '.');
-	return CharOperation.concatWith(compoundName, '.');
+public char[] readableName() /*java.lang.Object,  p.X<T> */ {
+    char[] readableName;
+	if (isMemberType()) {
+		readableName = CharOperation.concat(enclosingType().readableName(), sourceName, '.');
+	} else {
+		readableName = CharOperation.concatWith(compoundName, '.');
+	}
+	TypeVariableBinding[] typeVars;
+	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
+	    StringBuffer nameBuffer = new StringBuffer(10);
+	    nameBuffer.append(readableName).append('<');
+	    for (int i = 0, length = typeVars.length; i < length; i++) {
+	        if (i > 0) nameBuffer.append(',');
+	        nameBuffer.append(typeVars[i].readableName());
+	    }
+	    nameBuffer.append('>');
+		int nameLength = nameBuffer.length();
+		readableName = new char[nameLength];
+		nameBuffer.getChars(0, nameLength, readableName, 0);  
+	}
+	return readableName;
 }
 
 public char[] shortReadableName() /*Object*/ {
-	if (isMemberType())
-		return CharOperation.concat(enclosingType().shortReadableName(), sourceName, '.');
-	return sourceName;
+    char[] shortReadableName;
+	if (isMemberType()) {
+		shortReadableName = CharOperation.concat(enclosingType().shortReadableName(), sourceName, '.');
+	} else {
+		shortReadableName = this.sourceName;
+	}
+	TypeVariableBinding[] typeVars;
+	if ((typeVars = this.typeVariables()) != NoTypeVariables) {
+	    StringBuffer nameBuffer = new StringBuffer(10);
+	    nameBuffer.append(shortReadableName).append('<');
+	    for (int i = 0, length = typeVars.length; i < length; i++) {
+	        if (i > 0) nameBuffer.append(',');
+	        nameBuffer.append(typeVars[i].shortReadableName());
+	    }
+	    nameBuffer.append('>');
+		int nameLength = nameBuffer.length();
+		shortReadableName = new char[nameLength];
+		nameBuffer.getChars(0, nameLength, shortReadableName, 0);	    
+	}
+	return shortReadableName;
 }
 
 /* Answer the receiver's signature.
@@ -566,6 +664,7 @@ public char[] signature() /* Ljava/lang/Object; */ {
 public char[] sourceName() {
 	return sourceName;
 }
+
 public ReferenceBinding superclass() {
 	return null;
 }
@@ -583,6 +682,11 @@ public ReferenceBinding[] syntheticEnclosingInstanceTypes() {
 public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 	return null;		// is null if no enclosing instances are required
 }
+
+public TypeVariableBinding[] typeVariables() {
+	return NoTypeVariables;
+}
+
 MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types
 	return methods();
 }

@@ -26,18 +26,18 @@ import org.eclipse.jdt.core.util.IModifierConstants;
  * Default implementation of IMethodInfo.
  */
 public class MethodInfo extends ClassFileStruct implements IMethodInfo {
+	private int accessFlags;
+	private int attributeBytes;
+	private IClassFileAttribute[] attributes;
+	private int attributesCount;
+	private ICodeAttribute codeAttribute;
+	private char[] descriptor;
+	private int descriptorIndex;
+	private IExceptionAttribute exceptionAttribute;
 	private boolean isDeprecated;
 	private boolean isSynthetic;
-	private int accessFlags;
 	private char[] name;
-	private char[] descriptor;
 	private int nameIndex;
-	private int descriptorIndex;
-	private int attributesCount;
-	private int attributeBytes;
-	private ICodeAttribute codeAttribute;
-	private IExceptionAttribute exceptionAttribute;
-	private IClassFileAttribute[] attributes;
 	
 	/**
 	 * @param classFileBytes byte[]
@@ -49,7 +49,11 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 		throws ClassFormatException {
 			
 		boolean no_code_attribute = (decodingFlags & IClassFileReader.METHOD_BODIES) == 0;
-		this.accessFlags = u2At(classFileBytes, 0, offset);
+		final int flags = u2At(classFileBytes, 0, offset);
+		this.accessFlags = flags;
+		if ((flags & IModifierConstants.ACC_SYNTHETIC) != 0) {
+			this.isSynthetic = true;
+		}
 		
 		this.nameIndex = u2At(classFileBytes, 2, offset);
 		IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(this.nameIndex);
@@ -98,6 +102,18 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 			} else if (equals(attributeName, IAttributeNamesConstants.EXCEPTIONS)) {
 				this.exceptionAttribute = new ExceptionAttribute(classFileBytes, constantPool, offset + readOffset);
 				this.attributes[attributesIndex++] = this.exceptionAttribute;
+			} else if (equals(attributeName, IAttributeNamesConstants.SIGNATURE)) {
+				this.attributes[attributesIndex++] = new SignatureAttribute(classFileBytes, constantPool, offset + readOffset);
+			} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS)) {
+				this.attributes[attributesIndex++] = new RuntimeVisibleAnnotationsAttribute(classFileBytes, constantPool, readOffset);
+			} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS)) {
+				this.attributes[attributesIndex++] = new RuntimeInvisibleAnnotationsAttribute(classFileBytes, constantPool, readOffset);
+			} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS)) {
+				this.attributes[attributesIndex++] = new RuntimeVisibleParameterAnnotationsAttribute(classFileBytes, constantPool, readOffset);
+			} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS)) {
+				this.attributes[attributesIndex++] = new RuntimeInvisibleParameterAnnotationsAttribute(classFileBytes, constantPool, readOffset);
+			} else if (equals(attributeName, IAttributeNamesConstants.ANNOTATION_DEFAULT)) {
+				this.attributes[attributesIndex++] = new AnnotationDefaultAttribute(classFileBytes, constantPool, readOffset);
 			} else {
 				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			}
@@ -110,6 +126,19 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	 */
 	public int getAccessFlags() {
 		return this.accessFlags;
+	}
+
+	/**
+	 * @see IMethodInfo#getAttributeCount()
+	 */
+	public int getAttributeCount() {
+		return this.attributesCount;
+	}
+	/**
+	 * @see IMethodInfo#getAttributes()
+	 */
+	public IClassFileAttribute[] getAttributes() {
+		return this.attributes;
 	}
 
 	/**
@@ -127,10 +156,35 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	}
 
 	/**
+	 * @see IMethodInfo#getDescriptorIndex()
+	 */
+	public int getDescriptorIndex() {
+		return this.descriptorIndex;
+	}
+
+	/**
+	 * @see IMethodInfo#getExceptionAttribute()
+	 */
+	public IExceptionAttribute getExceptionAttribute() {
+		return this.exceptionAttribute;
+	}
+
+	/**
 	 * @see IMethodInfo#getName()
 	 */
 	public char[] getName() {
 		return this.name;
+	}
+
+	/**
+	 * @see IMethodInfo#getNameIndex()
+	 */
+	public int getNameIndex() {
+		return this.nameIndex;
+	}
+
+	private boolean isAbstract() {
+		return (this.accessFlags & IModifierConstants.ACC_ABSTRACT) != 0;
 	}
 
 	/**
@@ -153,6 +207,10 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	public boolean isDeprecated() {
 		return this.isDeprecated;
 	}
+	
+	private boolean isNative() {
+		return (this.accessFlags & IModifierConstants.ACC_NATIVE) != 0;
+	}
 
 	/**
 	 * @see IMethodInfo#isSynthetic()
@@ -161,49 +219,7 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 		return this.isSynthetic;
 	}
 
-	/**
-	 * @see IMethodInfo#getExceptionAttribute()
-	 */
-	public IExceptionAttribute getExceptionAttribute() {
-		return this.exceptionAttribute;
-	}
-
-	/**
-	 * @see IMethodInfo#getAttributeCount()
-	 */
-	public int getAttributeCount() {
-		return this.attributesCount;
-	}
-
-	/**
-	 * @see IMethodInfo#getDescriptorIndex()
-	 */
-	public int getDescriptorIndex() {
-		return this.descriptorIndex;
-	}
-
-	/**
-	 * @see IMethodInfo#getNameIndex()
-	 */
-	public int getNameIndex() {
-		return this.nameIndex;
-	}
-
 	int sizeInBytes() {
 		return this.attributeBytes;
-	}
-	/**
-	 * @see IMethodInfo#getAttributes()
-	 */
-	public IClassFileAttribute[] getAttributes() {
-		return this.attributes;
-	}
-
-	private boolean isAbstract() {
-		return (this.accessFlags & IModifierConstants.ACC_ABSTRACT) != 0;
-	}
-	
-	private boolean isNative() {
-		return (this.accessFlags & IModifierConstants.ACC_NATIVE) != 0;
 	}
 }

@@ -1969,7 +1969,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"    29  ireturn\n" + 
 			"      Exception Table:\n" + 
 			"        [pc: 0, pc: 7] -> 14 when : any\n" + 
-			"        [pc: 9, pc: 14] -> 14 when : any\n" + 
+			"        [pc: 9, pc: 18] -> 14 when : any\n" +
 			"        [pc: 25, pc: 28] -> 14 when : any\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 6]\n" + 

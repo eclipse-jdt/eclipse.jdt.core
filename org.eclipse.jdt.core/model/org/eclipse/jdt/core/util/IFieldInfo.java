@@ -28,7 +28,7 @@ public interface IFieldInfo {
 	 * null otherwise
 	 */
 	IConstantValueAttribute getConstantValueAttribute();
-
+	
 	/**
 	 * Answer back the access flag of this field info.
 	 * 

@@ -20,12 +20,9 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 
@@ -68,25 +65,6 @@ File createDirectory(File parent, String name) {
 	File dir = new File(parent, name);
 	dir.mkdirs();
 	return dir;
-}
-void addLibraryEntry(IJavaProject project, String path, boolean exported) throws JavaModelException {
-	this.addLibraryEntry(project, new Path(path), null, null, exported);
-} 
-void addLibraryEntry(IJavaProject project, String path, String srcAttachmentPath, String srcAttachmentPathRoot, boolean exported) throws JavaModelException{
-	this.addLibraryEntry(
-		project,
-		new Path(path),
-		srcAttachmentPath == null ? null : new Path(srcAttachmentPath),
-		srcAttachmentPathRoot == null ? null : new Path(srcAttachmentPathRoot),
-		exported
-	);
-}
-void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, boolean exported) throws JavaModelException{
-	IClasspathEntry[] entries = project.getRawClasspath();
-	int length = entries.length;
-	System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 1, length);
-	entries[0] = JavaCore.newLibraryEntry(path, srcAttachmentPath, srcAttachmentPathRoot, exported);
-	project.setRawClasspath(entries, null);
 }
 /**
  * Test for bug 29832

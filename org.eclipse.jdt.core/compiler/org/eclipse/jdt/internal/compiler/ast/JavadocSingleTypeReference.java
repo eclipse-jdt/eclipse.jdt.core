@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -46,7 +47,11 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
 	}
-
+	
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
+	}
 	/*
 	 * 
 	 */
@@ -71,6 +76,15 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 			if (isTypeUseDeprecated(this.resolvedType, scope)) {
 				reportDeprecatedType(scope);
 			}
+			// check raw type
+			if (this.resolvedType.isArrayType()) {
+			    TypeBinding leafComponentType = this.resolvedType.leafComponentType();
+			    if (leafComponentType.isGenericType()) { // raw type
+			        return this.resolvedType = scope.createArrayType(scope.environment().createRawType((ReferenceBinding)leafComponentType, null), this.resolvedType.dimensions());
+			    }
+			} else if (this.resolvedType.isGenericType()) {
+		        return this.resolvedType = scope.environment().createRawType((ReferenceBinding)this.resolvedType, null); // raw type
+			}		
 		}
 		return this.resolvedType;
 	}

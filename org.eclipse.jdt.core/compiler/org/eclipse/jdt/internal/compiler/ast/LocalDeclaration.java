@@ -134,16 +134,16 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 	public void resolve(BlockScope scope) {
 
 		// create a binding and add it to the scope
-		TypeBinding typeBinding = type.resolveType(scope);
+		TypeBinding variableType = type.resolveType(scope);
 
 		checkModifiers();
 
-		if (typeBinding != null) {
-			if (typeBinding == VoidBinding) {
+		if (variableType != null) {
+			if (variableType == VoidBinding) {
 				scope.problemReporter().variableTypeCannotBeVoid(this);
 				return;
 			}
-			if (typeBinding.isArrayType() && ((ArrayBinding) typeBinding).leafComponentType == VoidBinding) {
+			if (variableType.isArrayType() && ((ArrayBinding) variableType).leafComponentType == VoidBinding) {
 				scope.problemReporter().variableTypeCannotBeVoidArray(this);
 				return;
 			}
@@ -164,14 +164,14 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 			if ((modifiers & AccFinal)!= 0 && this.initialization == null) {
 				modifiers |= AccBlankFinal;
 			}
-			binding = new LocalVariableBinding(this, typeBinding, modifiers, false);
+			binding = new LocalVariableBinding(this, variableType, modifiers, false);
 			scope.addLocalVariable(binding);
 			binding.constant = NotAConstant;
 			// allow to recursivelly target the binding....
 			// the correct constant is harmed if correctly computed at the end of this method
 		}
 
-		if (typeBinding == null) {
+		if (variableType == null) {
 			if (initialization != null)
 				initialization.resolveType(scope); // want to report all possible errors
 			return;
@@ -180,20 +180,25 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 		// store the constant for final locals 	
 		if (initialization != null) {
 			if (initialization instanceof ArrayInitializer) {
-				TypeBinding initializationType = initialization.resolveTypeExpecting(scope, typeBinding);
+				TypeBinding initializationType = initialization.resolveTypeExpecting(scope, variableType);
 				if (initializationType != null) {
 					((ArrayInitializer) initialization).binding = (ArrayBinding) initializationType;
-					initialization.implicitWidening(typeBinding, initializationType);
+					initialization.computeConversion(scope, variableType, initializationType);
 				}
 			} else {
-				TypeBinding initializationType = initialization.resolveType(scope);
+			    this.initialization.setExpectedType(variableType);
+				TypeBinding initializationType = this.initialization.resolveType(scope);
 				if (initializationType != null) {
-					if (initialization.isConstantValueOfTypeAssignableToType(initializationType, typeBinding)
-						|| (typeBinding.isBaseType() && BaseTypeBinding.isWidening(typeBinding.id, initializationType.id))
-						|| initializationType.isCompatibleWith(typeBinding))
-						initialization.implicitWidening(typeBinding, initializationType);
-					else
-						scope.problemReporter().typeMismatchError(initializationType, typeBinding, this);
+					if (initialization.isConstantValueOfTypeAssignableToType(initializationType, variableType)
+						|| (variableType.isBaseType() && BaseTypeBinding.isWidening(variableType.id, initializationType.id))
+						|| initializationType.isCompatibleWith(variableType)) {
+						this.initialization.computeConversion(scope, variableType, initializationType);
+						if (initializationType.isRawType() && (variableType.isParameterizedType() || variableType.isGenericType())) {
+							    scope.problemReporter().unsafeRawAssignment(this.initialization, initializationType, variableType);
+						}						
+					} else {
+						scope.problemReporter().typeMismatchError(initializationType, variableType, this);
+					}
 				}
 			}
 
@@ -203,7 +208,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 			if (binding != null) {
 				binding.constant =
 					binding.isFinal()
-						? initialization.constant.castTo((typeBinding.id << 4) + initialization.constant.typeID())
+						? initialization.constant.castTo((variableType.id << 4) + initialization.constant.typeID())
 						: NotAConstant;
 			}
 		}

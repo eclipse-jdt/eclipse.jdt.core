@@ -83,7 +83,16 @@ public void test001() {
 		"     6  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
 		"     9  ldc #23 <String \"SUCCESS\">\n" + 
 		"    11  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
-		"    14  return\n";
+		"    14  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 4, line: 4]\n" + 
+		"        [pc: 6, line: 5]\n" + 
+		"        [pc: 14, line: 6]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 15] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 4, pc: 15] local: c1 index: 1 type: Ljava/lang/Cloneable;\n" + 
+		"        [pc: 6, pc: 15] local: c2 index: 2 type: Ljava/lang/Cloneable;\n";
 	if (actualOutput.indexOf(expectedOutput) == -1){
 		System.out.println(Util.displayString(actualOutput, 2));
 	}
@@ -527,7 +536,7 @@ public void test014() {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	boolean b = new Cloneable() {} instanceof Cloneable;\n" + 
 		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The expression of type <anonymous implementation of Cloneable> is already an instance of type Cloneable\n" + 
+		"The expression of type new Cloneable(){} is already an instance of type Cloneable\n" + 
 		"----------\n",
 		null,
 		true,
@@ -631,17 +640,12 @@ public void test018() {
 			"}\n" +
 			"public class X extends Y {\n" + 
 			"	Y[] bar() {\n" +
-			"		return (Y[]) Y.foo(new double[] {});\n" + 
+			"		return (Y[]) Y.foo(new double[] {});\n" + // no cast warning until method is applicable
 			"	}\n" +
 			"}\n"
 		},
 		"----------\n" + 
 		"1. ERROR in X.java (at line 8)\n" + 
-		"	return (Y[]) Y.foo(new double[] {});\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type Y[] for expression of type Y[]\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 8)\n" + 
 		"	return (Y[]) Y.foo(new double[] {});\n" + 
 		"	               ^^^\n" + 
 		"The method foo(int[]) in the type Y is not applicable for the arguments (double[])\n" + 
@@ -1270,6 +1274,7 @@ public void test034() {
 	}
 	assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 }
+
 public static Class testClass() {
 	return CastTest.class;
 }

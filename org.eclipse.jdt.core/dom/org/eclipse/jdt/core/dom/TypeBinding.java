@@ -107,14 +107,13 @@ class TypeBinding implements ITypeBinding {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			if (referenceBinding.isAnonymousType()) {
 				return NO_NAME;
-			} else if (referenceBinding.isMemberType()) {
-				char[] name = referenceBinding.compoundName[referenceBinding.compoundName.length - 1];
-				return new String(CharOperation.subarray(name, CharOperation.lastIndexOf('$', name) + 1, name.length));
-			} else if (referenceBinding.isLocalType()) {
-				char[] name = referenceBinding.compoundName[referenceBinding.compoundName.length - 1];
-				return new String(CharOperation.subarray(name, CharOperation.lastIndexOf('$', name) + 1, name.length));
 			} else {
-				return new String(referenceBinding.compoundName[referenceBinding.compoundName.length - 1]);
+				char[] shortName = referenceBinding.shortReadableName();
+				if (referenceBinding.isMemberType() || referenceBinding.isLocalType()) {
+					return new String(CharOperation.subarray(shortName, CharOperation.lastIndexOf('.', shortName) + 1, shortName.length));
+				} else {
+					return new String(shortName);
+				}
 			}
 		} else if (this.binding.isArrayType()) {
 			ArrayBinding arrayBinding = (ArrayBinding) this.binding;
@@ -128,14 +127,11 @@ class TypeBinding implements ITypeBinding {
 			org.eclipse.jdt.internal.compiler.lookup.TypeBinding leafComponentTypeBinding = arrayBinding.leafComponentType;
 			if (leafComponentTypeBinding.isClass() || leafComponentTypeBinding.isInterface()) {
 				ReferenceBinding referenceBinding2 = (ReferenceBinding) leafComponentTypeBinding;
-				if (referenceBinding2.isMemberType()) {
-					char[] name = referenceBinding2.compoundName[referenceBinding2.compoundName.length - 1];
-					buffer.append(CharOperation.subarray(name, CharOperation.lastIndexOf('$', name) + 1, name.length));
-				} else if (referenceBinding2.isLocalType()) {
-					char[] name = referenceBinding2.compoundName[referenceBinding2.compoundName.length - 1];
-					buffer.append(CharOperation.subarray(name, CharOperation.lastIndexOf('$', name) + 1, name.length));
+				char[] shortName = referenceBinding2.shortReadableName();
+				if (referenceBinding2.isMemberType() || referenceBinding2.isLocalType()) {
+					buffer.append(CharOperation.subarray(shortName, CharOperation.lastIndexOf('.', shortName) + 1, shortName.length));
 				} else {
-					buffer.append(referenceBinding2.compoundName[referenceBinding2.compoundName.length - 1]);
+					buffer.append(shortName);
 				}
 			} else {
 				buffer.append(leafComponentTypeBinding.readableName());
@@ -352,10 +348,7 @@ class TypeBinding implements ITypeBinding {
 	public String getBinaryName() {
 		char[] constantPoolName = this.binding.constantPoolName();
 		if (constantPoolName == null) return null;
-		int length = constantPoolName.length;
-		char[] dotSeparated = new char[length];
-		System.arraycopy(constantPoolName, 0, dotSeparated, 0, length);
-		CharOperation.replace(dotSeparated, '/', '.');
+		char[] dotSeparated = CharOperation.replaceOnCopy(constantPoolName, '/', '.');
 		return new String(dotSeparated);
 	}
 

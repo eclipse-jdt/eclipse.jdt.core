@@ -448,13 +448,27 @@ public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
 	return strings;
 }
 
+
 /**
  * @see IType#getTypeParameterSignatures()
  * @since 3.0
  */
 public String[] getTypeParameterSignatures() throws JavaModelException {
-	// TODO (jerome) - missing implementation
-	return new String[0];
+	IBinaryType info = (IBinaryType) getElementInfo();
+	char[] genericSignature = info.getGenericSignature();
+	if (genericSignature == null) 
+		return EmptyStringList;
+	
+	char[] dotBaseSignature = CharOperation.replaceOnCopy(genericSignature, '/', '.');
+	char[][] typeParams = Signature.getTypeParameters(dotBaseSignature);
+	int length = typeParams.length;
+	if (length == 0)
+		return EmptyStringList;
+	String[] stringSignatures = new String[length];
+	for (int i = 0; i < length; i++) {
+		stringSignatures[i] = new String(typeParams[i]);
+	}
+	return stringSignatures;
 }
 
 /*

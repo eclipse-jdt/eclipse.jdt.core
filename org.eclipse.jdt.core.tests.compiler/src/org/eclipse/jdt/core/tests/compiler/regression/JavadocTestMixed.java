@@ -1505,7 +1505,7 @@ public class JavadocTestMixed extends JavadocTest {
 			"1. ERROR in Y.java (at line 3)\n" + 
 			"	* @see X#X(STRING)\n" + 
 			"	           ^^^^^^\n" + 
-			"Javadoc: STRING cannot be resolved or is not a type\n" + 
+			"Javadoc: STRING cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"2. ERROR in Y.java (at line 5)\n" + 
 			"	public Y(String str) {super(str);}\n" + 
@@ -1534,7 +1534,7 @@ public class JavadocTestMixed extends JavadocTest {
 			"1. ERROR in Y.java (at line 3)\n" + 
 			"	* @see X#foo(STRING)\n" + 
 			"	             ^^^^^^\n" + 
-			"Javadoc: STRING cannot be resolved or is not a type\n" + 
+			"Javadoc: STRING cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"2. ERROR in Y.java (at line 5)\n" + 
 			"	public void foo(String str) {super.foo(str);}\n" + 
@@ -1722,17 +1722,17 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in X.java (at line 6)\n" + 
 				"	*  2) {@link CharOperation Label not empty} tag description not empty\n" + 
 				"	             ^^^^^^^^^^^^^\n" + 
-				"Javadoc: CharOperation cannot be resolved or is not a type\n" + 
+				"Javadoc: CharOperation cannot be resolved to a type\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 12)\n" + 
 				"	*  2) {@linkplain CharOperation Label not empty} tag description not empty\n" + 
 				"	                  ^^^^^^^^^^^^^\n" + 
-				"Javadoc: CharOperation cannot be resolved or is not a type\n" + 
+				"Javadoc: CharOperation cannot be resolved to a type\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 20)\n" + 
 				"	*  2) {@link CharOperation Label not empty} tag description not empty\n" + 
 				"	             ^^^^^^^^^^^^^\n" + 
-				"Javadoc: CharOperation cannot be resolved or is not a type\n" + 
+				"Javadoc: CharOperation cannot be resolved to a type\n" + 
 				"----------\n"
 		);
 	}
@@ -1781,22 +1781,22 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in X.java (at line 8)\n" + 
 				"	* 				CharOperation Label not empty} tag description not empty\n" + 
 				"	  				^^^^^^^^^^^^^\n" + 
-				"Javadoc: CharOperation cannot be resolved or is not a type\n" + 
+				"Javadoc: CharOperation cannot be resolved to a type\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 15)\n" + 
 				"	* 				CharOperation}\n" + 
 				"	  				^^^^^^^^^^^^^\n" + 
-				"Javadoc: CharOperation cannot be resolved or is not a type\n" + 
+				"Javadoc: CharOperation cannot be resolved to a type\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 18)\n" + 
 				"	*  2) {@link CharOperation Label not empty} tag description not empty\n" + 
 				"	             ^^^^^^^^^^^^^\n" + 
-				"Javadoc: CharOperation cannot be resolved or is not a type\n" + 
+				"Javadoc: CharOperation cannot be resolved to a type\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 32)\n" + 
 				"	*  2) {@link CharOperation Label not empty} tag description not empty\n" + 
 				"	             ^^^^^^^^^^^^^\n" + 
-				"Javadoc: CharOperation cannot be resolved or is not a type\n" + 
+				"Javadoc: CharOperation cannot be resolved to a type\n" + 
 				"----------\n"
 		);
 	}
@@ -1828,7 +1828,7 @@ public class JavadocTestMixed extends JavadocTest {
 				"2. ERROR in X.java (at line 5)\n" + 
 				"	*  2) {@link Unknown} Cannot be resolved\n" + 
 				"	             ^^^^^^^\n" + 
-				"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+				"Javadoc: Unknown cannot be resolved to a type\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 6)\n" + 
 				"	*  3) {@link *} Missing reference\n" + 
@@ -1983,7 +1983,7 @@ public class JavadocTestMixed extends JavadocTest {
 				"5. ERROR in X.java (at line 16)\n" + 
 				"	* @see Unknown\n" + 
 				"	       ^^^^^^^\n" + 
-				"Javadoc: Unknown cannot be resolved or is not a type\n" + 
+				"Javadoc: Unknown cannot be resolved to a type\n" + 
 				"----------\n"
 		);
 	}
@@ -2052,7 +2052,7 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	* @see java.unknown\n" + 
 				"	       ^^^^^^^^^^^^\n" + 
-				"Javadoc: java.unknown cannot be resolved or is not a type\n" + 
+				"Javadoc: java.unknown cannot be resolved to a type\n" + 
 				"----------\n"
 		);
 	}
@@ -3017,7 +3017,7 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in Test.java (at line 3)\n" + 
 				"	* @see Local\n" + 
 				"	       ^^^^^\n" + 
-				"Javadoc: Local cannot be resolved or is not a type\n" + 
+				"Javadoc: Local cannot be resolved to a type\n" + 
 				"----------\n"
 		);
 	}

@@ -15,16 +15,16 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class AllocationExpression
-	extends Expression
-	implements InvocationSite {
+public class AllocationExpression extends Expression implements InvocationSite {
 		
 	public TypeReference type;
 	public Expression[] arguments;
-	public MethodBinding binding;
-
-	MethodBinding syntheticAccessor;
-
+	public MethodBinding binding;							// exact binding resulting from lookup
+	protected MethodBinding codegenBinding;	// actual binding used for code generation (if no synthetic accessor)
+	MethodBinding syntheticAccessor;						// synthetic accessor for inner-emulation
+	public TypeReference[] typeArguments;	
+	public TypeBinding[] genericTypeArguments;
+	
 	public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
@@ -88,7 +88,7 @@ public class AllocationExpression
 		boolean valueRequired) {
 
 		int pc = codeStream.position;
-		ReferenceBinding allocatedType = binding.declaringClass;
+		ReferenceBinding allocatedType = this.codegenBinding.declaringClass;
 
 		codeStream.new_(allocatedType);
 		if (valueRequired) {
@@ -120,11 +120,11 @@ public class AllocationExpression
 		}
 		// invoke constructor
 		if (syntheticAccessor == null) {
-			codeStream.invokespecial(binding);
+			codeStream.invokespecial(this.codegenBinding);
 		} else {
 			// synthetic accessor got some extra arguments appended to its signature, which need values
 			for (int i = 0,
-				max = syntheticAccessor.parameters.length - binding.parameters.length;
+				max = syntheticAccessor.parameters.length - this.codegenBinding.parameters.length;
 				i < max;
 				i++) {
 				codeStream.aconst_null();
@@ -133,7 +133,13 @@ public class AllocationExpression
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
-
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
+	 */
+	public TypeBinding[] genericTypeArguments() {
+		return this.genericTypeArguments;
+	}
+	
 	public boolean isSuperAccess() {
 
 		return false;
@@ -174,19 +180,20 @@ public class AllocationExpression
 	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
 		if (!flowInfo.isReachable()) return;
+
+		// if constructor from parameterized type got found, use the original constructor at codegen time
+		this.codegenBinding = this.binding.original();
+
 		if (binding.isPrivate()
 			&& (currentScope.enclosingSourceType() != binding.declaringClass)) {
 
-			if (currentScope
-				.environment()
-				.options
-				.isPrivateConstructorAccessChangingVisibility) {
-				binding.tagForClearingPrivateModifier();
+			if (currentScope.environment().options.isPrivateConstructorAccessChangingVisibility) {
+				this.codegenBinding.tagForClearingPrivateModifier();
 				// constructor will not be dumped as private, no emulation required thus
 			} else {
 				syntheticAccessor =
-					((SourceTypeBinding) binding.declaringClass).addSyntheticMethod(binding, isSuperAccess());
-				currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
+					((SourceTypeBinding) binding.declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
+				currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
 			}
 		}
 	}
@@ -194,6 +201,16 @@ public class AllocationExpression
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		output.append("new "); //$NON-NLS-1$
+		if (typeArguments != null) {
+			output.append('<');//$NON-NLS-1$
+			int max = typeArguments.length - 1;
+			for (int j = 0; j < max; j++) {
+				typeArguments[j].print(0, output);
+				output.append(", ");//$NON-NLS-1$
+			}
+			typeArguments[max].print(0, output);
+			output.append('>');
+		}
 		type.printExpression(0, output); 
 		output.append('(');
 		if (arguments != null) {
@@ -212,6 +229,21 @@ public class AllocationExpression
 		this.resolvedType = type.resolveType(scope);
 		// will check for null after args are resolved
 
+		// resolve type arguments (for generic constructor call)
+		if (this.typeArguments != null) {
+			int length = this.typeArguments.length;
+			boolean argHasError = false; // typeChecks all arguments
+			this.genericTypeArguments = new TypeBinding[length];
+			for (int i = 0; i < length; i++) {
+				if ((this.genericTypeArguments[i] = this.typeArguments[i].resolveType(scope)) == null) {
+					argHasError = true;
+				}
+			}
+			if (argHasError) {
+				return null;
+			}
+		}
+		
 		// buffering the arguments' types
 		boolean argsContainCast = false;
 		TypeBinding[] argumentTypes = NoParameters;
@@ -240,9 +272,12 @@ public class AllocationExpression
 			scope.problemReporter().cannotInstantiate(type, this.resolvedType);
 			return this.resolvedType;
 		}
+		if ((this.resolvedType.tagBits & TagBits.HasWildcard) != 0) {
+		    scope.problemReporter().cannotInstantiateWithWildcards(type, (ParameterizedTypeBinding)this.resolvedType);
+		    return this.resolvedType;
+		}
 		ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
-		if (!(binding = scope.getConstructor(allocationType, argumentTypes, this))
-			.isValidBinding()) {
+		if (!(binding = scope.getConstructor(allocationType, argumentTypes, this)).isValidBinding()) {
 			if (binding.declaringClass == null)
 				binding.declaringClass = allocationType;
 			scope.problemReporter().invalidConstructor(this, binding);
@@ -250,15 +285,8 @@ public class AllocationExpression
 		}
 		if (isMethodUseDeprecated(binding, scope))
 			scope.problemReporter().deprecatedMethod(binding, this);
-
-		if (arguments != null) {
-			for (int i = 0; i < arguments.length; i++) {
-				arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
-			}
-			if (argsContainCast) {
-				CastExpression.checkNeedForArgumentCasts(scope, null, allocationType, binding, this.arguments, argumentTypes, this);
-			}
-		}
+		if (this.arguments != null)
+			checkInvocationArguments(scope, null, allocationType, this.binding, this.arguments, argumentTypes, argsContainCast, this);
 		return allocationType;
 	}
 
@@ -277,12 +305,15 @@ public class AllocationExpression
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 
 		if (visitor.visit(this, scope)) {
-			int argumentsLength;
-			type.traverse(visitor, scope);
-			if (arguments != null) {
-				argumentsLength = arguments.length;
-				for (int i = 0; i < argumentsLength; i++)
-					arguments[i].traverse(visitor, scope);
+			if (this.typeArguments != null) {
+				for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
+					this.typeArguments[i].traverse(visitor, scope);
+				}
+			}
+			this.type.traverse(visitor, scope);
+			if (this.arguments != null) {
+				for (int i = 0, argumentsLength = this.arguments.length; i < argumentsLength; i++)
+					this.arguments[i].traverse(visitor, scope);
 			}
 		}
 		visitor.endVisit(this, scope);

@@ -108,7 +108,7 @@ public class JavadocMessageSend extends MessageSend {
 			// record the closest match, for clients who may still need hint about possible method match
 			if (this.binding instanceof ProblemMethodBinding){
 				MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
-				if (closestMatch != null) this.codegenBinding = this.binding = closestMatch;
+				if (closestMatch != null) this.binding = closestMatch;
 			}
 			return this.resolvedType = this.binding == null ? null : this.binding.returnType;
 		}

@@ -3,11 +3,7 @@
 	<name>org.eclipse.jdt.core</name>
 	<comment></comment>
 	<projects>
-		<project>org.apache.ant</project>
-		<project>org.eclipse.core.resources</project>
-		<project>org.eclipse.core.runtime.compatibility</project>
-		<project>org.eclipse.team.core</project>
-		<project>org.eclipse.text</project>
+		<project>org.eclipse.ant.core</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

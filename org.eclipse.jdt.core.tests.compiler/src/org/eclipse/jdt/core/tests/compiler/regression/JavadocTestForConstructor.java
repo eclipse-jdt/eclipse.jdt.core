@@ -27,7 +27,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 	public static Test suite() {
 		return buildSuite(javadocTestClass());
 	}
-	static { // Use this static to initialize testNames (String[]) , testRange (int[2]), testNumbers (int[])
+	static { // Use this static to initialize testsNames (String[]) , testsRange (int[2]), testsNumbers (int[])
 	}
 
 	protected Map getCompilerOptions() {
@@ -149,7 +149,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 				+ "3. ERROR in Z.java (at line 7)\n"
 				+ "	* @throws Unknown\n"
 				+ "	          ^^^^^^^\n"
-				+ "Javadoc: Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Unknown cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "4. ERROR in Z.java (at line 8)\n"
 				+ "	* @see \"Invalid\n"
@@ -159,7 +159,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 				+ "5. ERROR in Z.java (at line 9)\n"
 				+ "	* @see Unknown\n"
 				+ "	       ^^^^^^^\n"
-				+ "Javadoc: Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Unknown cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "6. ERROR in Z.java (at line 10)\n"
 				+ "	* @param x\n"
@@ -322,7 +322,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 				+ "5. ERROR in test\\X.java (at line 10)\n"
 				+ "	* @see Unknown Invalid ref: unknown class \n"
 				+ "	       ^^^^^^^\n"
-				+ "Javadoc: Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Unknown cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -670,12 +670,12 @@ public class JavadocTestForConstructor extends JavadocTest {
 				+ "4. ERROR in X.java (at line 8)\n"
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
 				+ "	                ^^^^^^^^^\n"
-				+ "Javadoc: Hashtable cannot be resolved or is not a type\n"
+				+ "Javadoc: Hashtable cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "5. ERROR in X.java (at line 8)\n"
 				+ "	* @see #smr_foo(Hashtable a, Vector b, boolean c) Invalid reference: unresolved argument type\n"
 				+ "	                             ^^^^^^\n"
-				+ "Javadoc: Vector cannot be resolved or is not a type\n"
+				+ "Javadoc: Vector cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 
@@ -786,12 +786,12 @@ public class JavadocTestForConstructor extends JavadocTest {
 				+ "3. ERROR in test\\X.java (at line 8)\n"
 				+ "	* @see Unknown#vm_public() Invalid ref: non-existent class\n"
 				+ "	       ^^^^^^^\n"
-				+ "Javadoc: Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Unknown cannot be resolved to a type\n"
 				+ "----------\n"
 				+ "4. ERROR in test\\X.java (at line 9)\n"
 				+ "	* @see Visibility.Unknown#vm_public() Invalid ref: non existent inner class\n"
 				+ "	       ^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Visibility.Unknown cannot be resolved or is not a type\n"
+				+ "Javadoc: Visibility.Unknown cannot be resolved to a type\n"
 				+ "----------\n");
 	}
 

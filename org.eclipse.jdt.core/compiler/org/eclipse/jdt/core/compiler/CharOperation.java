@@ -490,7 +490,7 @@ public final class CharOperation {
 
 	/**
 	 * Answers the concatenation of the three arrays inserting the sep1 character between the 
-	 * two arrays and sep2 between the last two.
+	 * first two arrays and sep2 between the last two.
 	 * It answers null if the three arrays are null.
 	 * If the first array is null, then it answers the concatenation of second and third inserting
 	 * the sep2 character between them.
@@ -2267,6 +2267,58 @@ public final class CharOperation {
 			outStart += replacementLength;
 		}
 		System.arraycopy(array, inStart, result, outStart, max - inStart);
+		return result;
+	}
+	
+	/**
+	 * Replace all occurrence of the character to be replaced with the remplacement character 
+	 * in a copy of the given array. Returns the given array if no occurrences of the character
+	 * to be replaced are found.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    toBeReplaced = 'b'
+	 *    replacementChar = 'a'
+	 *    result => A new array that is equals to { 'a' , 'a', 'a', 'a', 'a', 'a' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    toBeReplaced = 'c'
+	 *    replacementChar = 'a'
+	 *    result => The original array that remains unchanged.
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param array the given array
+	 * @param toBeReplaced the character to be replaced
+	 * @param replacementChar the replacement character
+	 * @throws NullPointerException if the given array is null
+	 * @since 3.1
+	 */
+	public static final char[] replaceOnCopy(
+		char[] array,
+		char toBeReplaced,
+		char replacementChar) {
+		
+		char[] result = null;
+		for (int i = 0, length = array.length; i < length; i++) {
+			char c = array[i];
+			if (c == toBeReplaced) {
+				if (result == null) {
+					result = new char[length];
+					System.arraycopy(array, 0, result, 0, i);
+				}
+				result[i] = replacementChar;
+			} else if (result != null) {
+				result[i] = c;
+			}
+		}
+		if (result == null) return array;
 		return result;
 	}
 

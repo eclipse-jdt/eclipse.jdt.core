@@ -166,7 +166,7 @@ public void checkComment() {
 				JavadocAllocationExpression constructor = (JavadocAllocationExpression) reference;
 				int argCount = constructor.arguments == null ? 0 : constructor.arguments.length;
 				if (constructor.type != null) {
-					char[][] compoundName = constructor.type.getTypeName();
+					char[][] compoundName = constructor.type.getParameterizedTypeName();
 					this.requestor.acceptConstructorReference(compoundName[compoundName.length-1], argCount, constructor.sourceStart);
 					if (!constructor.type.isThis()) {
 						acceptJavadocTypeReference(constructor.type);
@@ -197,7 +197,7 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		requestor.acceptConstructorReference(
 			typeRef instanceof SingleTypeReference 
 				? ((SingleTypeReference) typeRef).token
-				: CharOperation.concatWith(alloc.type.getTypeName(), '.'),
+				: CharOperation.concatWith(alloc.type.getParameterizedTypeName(), '.'),
 			alloc.arguments == null ? 0 : alloc.arguments.length, 
 			alloc.sourceStart);
 	}
@@ -223,6 +223,16 @@ protected void consumeConstructorHeaderName() {
 	//modifiers
 	cd.declarationSourceStart = intStack[intPtr--];
 	cd.modifiers = intStack[intPtr--];
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			cd.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
 	// javadoc
 	cd.javadoc = this.javadoc;
 	this.javadoc = null;
@@ -243,6 +253,64 @@ protected void consumeConstructorHeaderName() {
 			|| cd.modifiers != 0){
 			currentElement = currentElement.add(cd, 0);
 			lastIgnoredToken = -1;
+		}
+	}	
+}
+protected void consumeConstructorHeaderNameWithTypeParameters() {
+
+	/* recovering - might be an empty message send */
+	if (this.currentElement != null){
+		if (this.lastIgnoredToken == TokenNamenew){ // was an allocation expression
+			this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position				
+			this.restartRecovery = true;
+			return;
+		}
+	}
+	
+	// ConstructorHeaderName ::=  Modifiersopt TypeParameters 'Identifier' '('
+	SourceConstructorDeclaration cd = new SourceConstructorDeclaration(this.compilationUnit.compilationResult);
+
+	//name -- this is not really revelant but we do .....
+	cd.selector = this.identifierStack[this.identifierPtr];
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+
+	// consume type parameters
+	int length = this.genericsLengthStack[this.genericsLengthPtr--];
+	this.genericsPtr -= length;
+	System.arraycopy(this.genericsStack, this.genericsPtr + 1, cd.typeParameters = new TypeParameter[length], 0, length);
+	
+	//modifiers
+	cd.declarationSourceStart = this.intStack[this.intPtr--];
+	cd.modifiers = this.intStack[this.intPtr--];
+	// consume annotations
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			cd.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
+	// javadoc
+	cd.javadoc = this.javadoc;
+	this.javadoc = null;
+
+	//highlight starts at the selector starts
+	cd.sourceStart = (int) (selectorSourcePositions >>> 32);
+	cd.selectorSourceEnd = (int) selectorSourcePositions;
+	pushOnAstStack(cd);
+	cd.sourceEnd = this.lParenPos;
+	cd.bodyStart = this.lParenPos+1;
+	this.listLength = 0; // initialize listLength before reading parameters/throws
+
+	// recovery
+	if (this.currentElement != null){
+		this.lastCheckPoint = cd.bodyStart;
+		if ((this.currentElement instanceof RecoveredType && this.lastIgnoredToken != TokenNameDOT)
+			|| cd.modifiers != 0){
+			this.currentElement = this.currentElement.add(cd, 0);
+			this.lastIgnoredToken = -1;
 		}
 	}	
 }
@@ -287,14 +355,24 @@ protected void consumeMethodHeaderName() {
 	SourceMethodDeclaration md = new SourceMethodDeclaration(this.compilationUnit.compilationResult);
 
 	//name
-	md.selector = identifierStack[identifierPtr];
-	long selectorSourcePositions = identifierPositionStack[identifierPtr--];
-	identifierLengthPtr--;
+	md.selector = this.identifierStack[identifierPtr];
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
 	//type
-	md.returnType = getTypeReference(intStack[intPtr--]);
+	md.returnType = getTypeReference(this.intStack[this.intPtr--]);
 	//modifiers
-	md.declarationSourceStart = intStack[intPtr--];
-	md.modifiers = intStack[intPtr--];
+	md.declarationSourceStart = this.intStack[this.intPtr--];
+	md.modifiers = this.intStack[this.intPtr--];
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			md.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
 	// javadoc
 	md.javadoc = this.javadoc;
 	this.javadoc = null;
@@ -303,22 +381,77 @@ protected void consumeMethodHeaderName() {
 	md.sourceStart = (int) (selectorSourcePositions >>> 32);
 	md.selectorSourceEnd = (int) selectorSourcePositions;
 	pushOnAstStack(md);
-	md.sourceEnd = lParenPos;
-	md.bodyStart = lParenPos+1;
-	listLength = 0; // initialize listLength before reading parameters/throws
+	md.sourceEnd = this.lParenPos;
+	md.bodyStart = this.lParenPos+1;
+	this.listLength = 0; // initialize listLength before reading parameters/throws
 	
 	// recovery
-	if (currentElement != null){
-		if (currentElement instanceof RecoveredType 
+	if (this.currentElement != null){
+		if (this.currentElement instanceof RecoveredType 
 			//|| md.modifiers != 0
-			|| (scanner.getLineNumber(md.returnType.sourceStart)
-					== scanner.getLineNumber(md.sourceStart))){
-			lastCheckPoint = md.bodyStart;
-			currentElement = currentElement.add(md, 0);
-			lastIgnoredToken = -1;			
+			|| (this.scanner.getLineNumber(md.returnType.sourceStart)
+					== this.scanner.getLineNumber(md.sourceStart))){
+			this.lastCheckPoint = md.bodyStart;
+			this.currentElement = currentElement.add(md, 0);
+			this.lastIgnoredToken = -1;			
 		} else {
-			lastCheckPoint = md.sourceStart;
-			restartRecovery = true;
+			this.lastCheckPoint = md.sourceStart;
+			this.restartRecovery = true;
+		}
+	}		
+}
+protected void consumeMethodHeaderNameWithTypeParameters() {
+	// MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
+	SourceMethodDeclaration md = new SourceMethodDeclaration(this.compilationUnit.compilationResult);
+
+	//name
+	md.selector = this.identifierStack[this.identifierPtr];
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr--];
+	this.identifierLengthPtr--;
+	//type
+	md.returnType = getTypeReference(this.intStack[this.intPtr--]);
+	
+	// consume type parameters
+	int length = this.genericsLengthStack[this.genericsLengthPtr--];
+	this.genericsPtr -= length;
+	System.arraycopy(this.genericsStack, this.genericsPtr + 1, md.typeParameters = new TypeParameter[length], 0, length);
+	
+	//modifiers
+	md.declarationSourceStart = this.intStack[this.intPtr--];
+	md.modifiers = this.intStack[this.intPtr--];
+	// consume annotations
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			md.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}	
+	// javadoc
+	md.javadoc = this.javadoc;
+	this.javadoc = null;
+
+	//highlight starts at selector start
+	md.sourceStart = (int) (selectorSourcePositions >>> 32);
+	md.selectorSourceEnd = (int) selectorSourcePositions;
+	pushOnAstStack(md);
+	md.sourceEnd = this.lParenPos;
+	md.bodyStart = this.lParenPos+1;
+	this.listLength = 0; // initialize this.listLength before reading parameters/throws
+	
+	// recovery
+	if (this.currentElement != null){
+		if (this.currentElement instanceof RecoveredType 
+			//|| md.modifiers != 0
+			|| (this.scanner.getLineNumber(md.returnType.sourceStart)
+					== this.scanner.getLineNumber(md.sourceStart))){
+			this.lastCheckPoint = md.bodyStart;
+			this.currentElement = this.currentElement.add(md, 0);
+			this.lastIgnoredToken = -1;
+		} else {
+			this.lastCheckPoint = md.sourceStart;
+			this.restartRecovery = true;
 		}
 	}		
 }
@@ -328,9 +461,23 @@ protected void consumeMethodHeaderName() {
  */
 protected void consumeMethodInvocationName() {
 	// MethodInvocation ::= Name '(' ArgumentListopt ')'
+	super.consumeMethodInvocationName();
 
 	// when the name is only an identifier...we have a message send to "this" (implicit)
-	super.consumeMethodInvocationName();
+	MessageSend messageSend = (MessageSend) expressionStack[expressionPtr];
+	Expression[] args = messageSend.arguments;
+	if (reportReferenceInfo) {
+		requestor.acceptMethodReference(
+			messageSend.selector, 
+			args == null ? 0 : args.length, 
+			(int)(messageSend.nameSourcePosition >>> 32));
+	}
+}
+protected void consumeMethodInvocationNameWithTypeArguments() {
+	// MethodInvocation ::= Name '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
+	super.consumeMethodInvocationNameWithTypeArguments();
+
+	// when the name is only an identifier...we have a message send to "this" (implicit)
 	MessageSend messageSend = (MessageSend) expressionStack[expressionPtr];
 	Expression[] args = messageSend.arguments;
 	if (reportReferenceInfo) {
@@ -359,6 +506,21 @@ protected void consumeMethodInvocationPrimary() {
  *
  * INTERNAL USE-ONLY
  */
+protected void consumeMethodInvocationPrimaryWithTypeArguments() {
+	super.consumeMethodInvocationPrimaryWithTypeArguments();
+	MessageSend messageSend = (MessageSend) expressionStack[expressionPtr];
+	Expression[] args = messageSend.arguments;
+	if (reportReferenceInfo) {
+		requestor.acceptMethodReference(
+			messageSend.selector, 
+			args == null ? 0 : args.length, 
+			(int)(messageSend.nameSourcePosition >>> 32));
+	}
+}
+/*
+ *
+ * INTERNAL USE-ONLY
+ */
 protected void consumeMethodInvocationSuper() {
 	// MethodInvocation ::= 'super' '.' 'Identifier' '(' ArgumentListopt ')'
 	super.consumeMethodInvocationSuper();
@@ -369,6 +531,26 @@ protected void consumeMethodInvocationSuper() {
 			messageSend.selector, 
 			args == null ? 0 : args.length, 
 			(int)(messageSend.nameSourcePosition >>> 32));
+	}
+}
+protected void consumeMethodInvocationSuperWithTypeArguments() {
+	// MethodInvocation ::= 'super' '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
+	super.consumeMethodInvocationSuperWithTypeArguments();
+	MessageSend messageSend = (MessageSend) expressionStack[expressionPtr];
+	Expression[] args = messageSend.arguments;
+	if (reportReferenceInfo) {
+		requestor.acceptMethodReference(
+			messageSend.selector, 
+			args == null ? 0 : args.length, 
+			(int)(messageSend.nameSourcePosition >>> 32));
+	}
+}
+protected void consumeSingleStaticImportDeclarationName() {
+	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
+	super.consumeSingleStaticImportDeclarationName();
+	ImportReference impt = (ImportReference)astStack[astPtr];
+	if (reportReferenceInfo) {
+		requestor.acceptTypeReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
 	}
 }
 protected void consumeSingleTypeImportDeclarationName() {
@@ -404,6 +586,7 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 	m.selector = c.selector;
 	m.statements = c.statements;
 	m.modifiers = c.modifiers;
+	m.annotations = c.annotations;
 	m.arguments = c.arguments;
 	m.thrownExceptions = c.thrownExceptions;
 	m.explicitDeclarations = c.explicitDeclarations;
@@ -435,45 +618,61 @@ public TypeReference getTypeReference(int dim) {
 	/* build a Reference on a variable that may be qualified or not
 	 * This variable is a type reference and dim will be its dimensions
 	 */
-	int length;
-	if ((length = identifierLengthStack[identifierLengthPtr--]) == 1) {
-		// single variable reference
+	int length = identifierLengthStack[identifierLengthPtr--];
+	if (length < 0) { //flag for precompiled type reference on base types
+		TypeReference ref = TypeReference.baseTypeReference(-length, dim);
+		ref.sourceStart = intStack[intPtr--];
 		if (dim == 0) {
-			SingleTypeReference ref = 
-				new SingleTypeReference(
-					identifierStack[identifierPtr], 
-					identifierPositionStack[identifierPtr--]);
-			if (reportReferenceInfo) {
-				requestor.acceptTypeReference(ref.token, ref.sourceStart);
-			}
-			return ref;
+			ref.sourceEnd = intStack[intPtr--];
 		} else {
-			ArrayTypeReference ref = 
-				new ArrayTypeReference(
-					identifierStack[identifierPtr], 
-					dim, 
-					identifierPositionStack[identifierPtr--]); 
+			intPtr--; // no need to use this position as it is an array
 			ref.sourceEnd = endPosition;
-			if (reportReferenceInfo) {
-				requestor.acceptTypeReference(ref.token, ref.sourceStart);
-			}
-			return ref;
 		}
+		if (reportReferenceInfo){
+				requestor.acceptTypeReference(ref.getParameterizedTypeName(), ref.sourceStart, ref.sourceEnd);
+		}
+		return ref;
 	} else {
-		if (length < 0) { //flag for precompiled type reference on base types
-			TypeReference ref = TypeReference.baseTypeReference(-length, dim);
-			ref.sourceStart = intStack[intPtr--];
-			if (dim == 0) {
-				ref.sourceEnd = intStack[intPtr--];
-			} else {
-				intPtr--; // no need to use this position as it is an array
-				ref.sourceEnd = endPosition;
-			}
-			if (reportReferenceInfo){
-					requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
+		int numberOfIdentifiers = this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr--];
+		if (length != numberOfIdentifiers || this.genericsLengthStack[this.genericsLengthPtr] != 0) {
+			// generic type
+			TypeReference ref = getTypeReferenceForGenericType(dim, length, numberOfIdentifiers);
+			if (reportReferenceInfo) {
+				if (length == 1 && numberOfIdentifiers == 1) {
+					ParameterizedSingleTypeReference parameterizedSingleTypeReference = (ParameterizedSingleTypeReference) ref;
+					requestor.acceptTypeReference(parameterizedSingleTypeReference.token, parameterizedSingleTypeReference.sourceStart);
+				} else {
+					ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference = (ParameterizedQualifiedTypeReference) ref;
+					requestor.acceptTypeReference(parameterizedQualifiedTypeReference.tokens, parameterizedQualifiedTypeReference.sourceStart, parameterizedQualifiedTypeReference.sourceEnd);
+				}
 			}
 			return ref;
-		} else { //Qualified variable reference
+		} else if (length == 1) {
+			// single variable reference
+			this.genericsLengthPtr--; // pop the 0
+			if (dim == 0) {
+				SingleTypeReference ref = 
+					new SingleTypeReference(
+						identifierStack[identifierPtr], 
+						identifierPositionStack[identifierPtr--]);
+				if (reportReferenceInfo) {
+					requestor.acceptTypeReference(ref.token, ref.sourceStart);
+				}
+				return ref;
+			} else {
+				ArrayTypeReference ref = 
+					new ArrayTypeReference(
+						identifierStack[identifierPtr], 
+						dim, 
+						identifierPositionStack[identifierPtr--]); 
+				ref.sourceEnd = endPosition;
+				if (reportReferenceInfo) {
+					requestor.acceptTypeReference(ref.token, ref.sourceStart);
+				}
+				return ref;
+			}
+		} else {//Qualified variable reference
+			this.genericsLengthPtr--;
 			char[][] tokens = new char[length][];
 			identifierPtr -= length;
 			long[] positions = new long[length];
@@ -754,7 +953,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		argumentTypes = new char[argumentLength][];
 		argumentNames = new char[argumentLength][];
 		for (int i = 0; i < argumentLength; i++) {
-			argumentTypes[i] = returnTypeName(arguments[i].type);
+			argumentTypes[i] = CharOperation.concatWith(arguments[i].type.getParameterizedTypeName(), '.');
 			argumentNames[i] = arguments[i].name;
 		}
 	}
@@ -765,7 +964,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		thrownExceptionTypes = new char[thrownExceptionLength][];
 		for (int i = 0; i < thrownExceptionLength; i++) {
 			thrownExceptionTypes[i] = 
-				CharOperation.concatWith(thrownExceptions[i].getTypeName(), '.'); 
+				CharOperation.concatWith(thrownExceptions[i].getParameterizedTypeName(), '.'); 
 		}
 	}
 	// by default no selector end position
@@ -776,6 +975,27 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 				((SourceConstructorDeclaration) methodDeclaration).selectorSourceEnd; 
 		}
 		if (isInRange){
+			TypeParameter[] typeParameters = methodDeclaration.typeParameters();
+			char[][] typeParameterNames = null;
+			char[][][] typeParameterBounds = null;
+			if (typeParameters != null) {
+				int typeParametersLength = typeParameters.length;
+				typeParameterNames = new char[typeParametersLength][];
+				typeParameterBounds = new char[typeParametersLength][][];
+				for (int i = 0; i < typeParametersLength; i++) {
+					typeParameterNames[i] = typeParameters[i].name;
+					TypeReference[] bounds = typeParameters[i].bounds;
+					if (bounds != null) {
+						int boundLength = bounds.length;
+						char[][] boundNames = new char[boundLength][];
+						for (int j = 0; j < boundLength; j++) {
+							boundNames[j] = 
+								CharOperation.concatWith(bounds[i].getParameterizedTypeName(), '.'); 
+						}
+						typeParameterBounds[i] = boundNames;
+					}
+				}
+			}			
 			requestor.enterConstructor(
 				methodDeclaration.declarationSourceStart, 
 				methodDeclaration.modifiers, 
@@ -784,7 +1004,9 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 				selectorSourceEnd, 
 				argumentTypes, 
 				argumentNames, 
-				thrownExceptionTypes);
+				thrownExceptionTypes,
+				typeParameterNames,
+				typeParameterBounds);
 		}
 		if (reportReferenceInfo) {
 			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
@@ -818,19 +1040,60 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 			((SourceMethodDeclaration) methodDeclaration).selectorSourceEnd; 
 	}
 	if (isInRange) {
+		TypeParameter[] typeParameters = methodDeclaration.typeParameters();
+		char[][] typeParameterNames = null;
+		char[][][] typeParameterBounds = null;
+		if (typeParameters != null) {
+			int typeParametersLength = typeParameters.length;
+			typeParameterNames = new char[typeParametersLength][];
+			typeParameterBounds = new char[typeParametersLength][][];
+			for (int i = 0; i < typeParametersLength; i++) {
+				typeParameterNames[i] = typeParameters[i].name;
+				TypeReference[] bounds = typeParameters[i].bounds;
+				if (bounds != null) {
+					int boundLength = bounds.length;
+					char[][] boundNames = new char[boundLength][];
+					for (int j = 0; j < boundLength; j++) {
+						boundNames[j] = 
+							CharOperation.concatWith(bounds[i].getParameterizedTypeName(), '.'); 
+					}
+					typeParameterBounds[i] = boundNames;
+				}
+			}
+		}
 		int currentModifiers = methodDeclaration.modifiers;
 		boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
-		requestor.enterMethod(
-			methodDeclaration.declarationSourceStart, 
-			deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-			returnTypeName(((MethodDeclaration) methodDeclaration).returnType), 
-			methodDeclaration.selector, 
-			methodDeclaration.sourceStart, 
-			selectorSourceEnd, 
-			argumentTypes, 
-			argumentNames, 
-			thrownExceptionTypes); 
+		if (methodDeclaration instanceof MethodDeclaration) {
+			TypeReference returnType = ((MethodDeclaration) methodDeclaration).returnType;
+			requestor.enterMethod(
+				methodDeclaration.declarationSourceStart, 
+				deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
+				returnType == null ? null : CharOperation.concatWith(returnType.getParameterizedTypeName(), '.'),
+				methodDeclaration.selector, 
+				methodDeclaration.sourceStart, 
+				selectorSourceEnd, 
+				argumentTypes, 
+				argumentNames, 
+				thrownExceptionTypes,
+				typeParameterNames,
+				typeParameterBounds);
+		} else {
+			TypeReference returnType = ((AnnotationTypeMemberDeclaration) methodDeclaration).returnType;
+			requestor.enterMethod(
+				methodDeclaration.declarationSourceStart, 
+				deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
+				returnType == null ? null : CharOperation.concatWith(returnType.getParameterizedTypeName(), '.'),
+				methodDeclaration.selector, 
+				methodDeclaration.sourceStart, 
+				selectorSourceEnd, 
+				argumentTypes, 
+				argumentNames, 
+				thrownExceptionTypes,
+				typeParameterNames,
+				typeParameterBounds);
+		}
 	}		
+		
 	this.visitIfNeeded(methodDeclaration);
 
 	if (isInRange){	
@@ -862,7 +1125,7 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration) {
 			requestor.enterField(
 				fieldDeclaration.declarationSourceStart, 
 				deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag, 
-				returnTypeName(fieldDeclaration.type), 
+				CharOperation.concatWith(fieldDeclaration.type.getParameterizedTypeName(), '.'),
 				fieldDeclaration.name, 
 				fieldDeclaration.sourceStart, 
 				fieldDeclaration.sourceEnd); 
@@ -954,7 +1217,28 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 		if (superInterfaces != null) {
 			for (int i = 0; i < superInterfacesLength; i++) {
 				interfaceNames[i] = 
-					CharOperation.concatWith(superInterfaces[i].getTypeName(), '.'); 
+					CharOperation.concatWith(superInterfaces[i].getParameterizedTypeName(), '.'); 
+			}
+		}
+		TypeParameter[] typeParameters = typeDeclaration.typeParameters;
+		char[][] typeParameterNames = null;
+		char[][][] typeParameterBounds = null;
+		if (typeParameters != null) {
+			int typeParametersLength = typeParameters.length;
+			typeParameterNames = new char[typeParametersLength][];
+			typeParameterBounds = new char[typeParametersLength][][];
+			for (int i = 0; i < typeParametersLength; i++) {
+				typeParameterNames[i] = typeParameters[i].name;
+				TypeReference[] bounds = typeParameters[i].bounds;
+				if (bounds != null) {
+					int boundLength = bounds.length;
+					char[][] boundNames = new char[boundLength][];
+					for (int j = 0; j < boundLength; j++) {
+						boundNames[j] = 
+							CharOperation.concatWith(bounds[i].getParameterizedTypeName(), '.'); 
+					}
+					typeParameterBounds[i] = boundNames;
+				}
 			}
 		}
 		if (isInterface) {
@@ -967,7 +1251,9 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 					typeDeclaration.name, 
 					typeDeclaration.sourceStart, 
 					sourceEnd(typeDeclaration), 
-					interfaceNames);
+					interfaceNames,
+					typeParameterNames,
+					typeParameterBounds);
 			}
 			if (nestedTypeIndex == typeNames.length) {
 				// need a resize
@@ -987,7 +1273,9 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 						typeDeclaration.sourceStart, 
 						sourceEnd(typeDeclaration), 
 						null, 
-						interfaceNames); 
+						interfaceNames,
+						typeParameterNames,
+						typeParameterBounds);
 				}
 			} else {
 				if (isInRange){
@@ -997,8 +1285,10 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 						typeDeclaration.name, 
 						typeDeclaration.sourceStart, 
 						sourceEnd(typeDeclaration), 
-						CharOperation.concatWith(superclass.getTypeName(), '.'), 
-						interfaceNames); 
+						CharOperation.concatWith(superclass.getParameterizedTypeName(), '.'), 
+						interfaceNames,
+						typeParameterNames,
+						typeParameterBounds);
 				}
 			}
 			if (nestedTypeIndex == typeNames.length) {
@@ -1007,7 +1297,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 				System.arraycopy(superTypeNames, 0, (superTypeNames = new char[nestedTypeIndex * 2][]), 0, nestedTypeIndex);
 			}
 			typeNames[nestedTypeIndex] = typeDeclaration.name;
-			superTypeNames[nestedTypeIndex++] = superclass == null ? JAVA_LANG_OBJECT : CharOperation.concatWith(superclass.getTypeName(), '.');
+			superTypeNames[nestedTypeIndex++] = superclass == null ? JAVA_LANG_OBJECT : CharOperation.concatWith(superclass.getParameterizedTypeName(), '.');
 		}
 	}
 	while ((fieldIndex < fieldCounter)
@@ -1259,30 +1549,6 @@ private static void quickSort(ASTNode[] sortedCollection, int left, int right) {
 		quickSort(sortedCollection, left, original_right);
 	}
 }
-/*
- * Answer a char array representation of the type name formatted like:
- * - type name + dimensions
- * Example:
- * "A[][]".toCharArray()
- * "java.lang.String".toCharArray()
- */
-private char[] returnTypeName(TypeReference type) {
-	if (type == null)
-		return null;
-	int dimension = type.dimensions();
-	if (dimension != 0) {
-		char[] dimensionsArray = new char[dimension * 2];
-		for (int i = 0; i < dimension; i++) {
-			dimensionsArray[i * 2] = '[';
-			dimensionsArray[(i * 2) + 1] = ']';
-		}
-		return CharOperation.concat(
-			CharOperation.concatWith(type.getTypeName(), '.'), 
-			dimensionsArray); 
-	}
-	return CharOperation.concatWith(type.getTypeName(), '.');
-}
-
 public void addUnknownRef(NameReference nameRef) {
 	if (this.unknownRefs.length == this.unknownRefsCounter) {
 		// resize
@@ -1311,7 +1577,7 @@ private void visitIfNeeded(FieldDeclaration field) {
 	if (this.localDeclarationVisitor != null 
 		&& (field.bits & ASTNode.HasLocalTypeMASK) != 0) {
 			if (field.initialization != null) {
-				field.initialization.traverse(this.localDeclarationVisitor, null);
+				field.initialization.traverse(this.localDeclarationVisitor, (MethodScope) null);
 			}
 	}
 }

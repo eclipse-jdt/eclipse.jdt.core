@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 public class QualifiedTypeReference extends TypeReference {
 
@@ -25,24 +26,23 @@ public class QualifiedTypeReference extends TypeReference {
 		sourceStart = (int) (sourcePositions[0]>>>32) ;
 		sourceEnd = (int)(sourcePositions[sourcePositions.length-1] & 0x00000000FFFFFFFFL ) ;
 	}
-	
-	public QualifiedTypeReference(char[][] sources , TypeBinding type , long[] poss) {
 		
-		this(sources,poss);
-		this.resolvedType = type;
-	}
-	
 	public TypeReference copyDims(int dim){
 		//return a type reference copy of me with some dimensions
 		//warning : the new type ref has a null binding
-		return new ArrayQualifiedTypeReference(tokens,null,dim,sourcePositions) ;
+		return new ArrayQualifiedTypeReference(tokens, dim, sourcePositions);
 	}
 	
-	public TypeBinding getTypeBinding(Scope scope) {
+	protected TypeBinding getTypeBinding(Scope scope) {
 		
 		if (this.resolvedType != null)
 			return this.resolvedType;
-		return scope.getType(tokens);
+		try {
+			return scope.getType(this.tokens, this.tokens.length);
+		} catch (AbortCompilation e) {
+			e.updateContext(this, scope.referenceCompilationUnit().compilationResult);
+			throw e;
+		}
 	}
 	
 	public char[][] getTypeName(){

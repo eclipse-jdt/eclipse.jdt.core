@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
@@ -18,41 +19,6 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class Expression extends Statement {
-	
-	//Some expression may not be used - from a java semantic point
-	//of view only - as statements. Other may. In order to avoid the creation
-	//of wrappers around expression in order to tune them as expression
-	//Expression is a subclass of Statement. See the message isValidJavaStatement()
-
-	public int implicitConversion;
-	public TypeBinding resolvedType;
-	
-	public Constant constant;
-
-	public Expression() {
-		super();
-	}
-
-	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-
-		return flowInfo;
-	}
-
-	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, boolean valueRequired) {
-
-		return analyseCode(currentScope, flowContext, flowInfo);
-	}
-
-	/**
-	 * Constant usable for bytecode pattern optimizations, but cannot be inlined
-	 * since it is not strictly equivalent to the definition of constant expressions.
-	 * In particular, some side-effects may be required to occur (only the end value
-	 * is known).
-	 * @return Constant known to be of boolean type
-	 */ 
-	public Constant optimizedBooleanConstant() {
-		return this.constant;
-	}
 
 	public static final boolean isConstantValueRepresentable(
 		Constant constant,
@@ -208,6 +174,60 @@ public abstract class Expression extends Statement {
 				return false; //boolean
 		} 
 	}
+	
+	public Constant constant;
+	
+	//Some expression may not be used - from a java semantic point
+	//of view only - as statements. Other may. In order to avoid the creation
+	//of wrappers around expression in order to tune them as expression
+	//Expression is a subclass of Statement. See the message isValidJavaStatement()
+
+	public int implicitConversion;
+	public TypeBinding resolvedType;
+
+	public Expression() {
+		super();
+	}
+
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+
+		return flowInfo;
+	}
+
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, boolean valueRequired) {
+
+		return analyseCode(currentScope, flowContext, flowInfo);
+	}
+
+	/**
+	 * Base types need that the widening is explicitly done by the compiler using some bytecode like i2f.
+	 * Also check unsafe type operations.
+	 */ 
+	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
+
+		if (runtimeTimeType == null || compileTimeType == null)
+			return;
+
+		switch (runtimeTimeType.id) {
+			case T_byte :
+			case T_short :
+			case T_char :
+				this.implicitConversion = (T_int << 4) + compileTimeType.id;
+				break;
+			case T_String :
+			case T_float :
+			case T_boolean :
+			case T_double :
+			case T_int : //implicitConversion may result in i2i which will result in NO code gen
+			case T_long :
+				this.implicitConversion = (runtimeTimeType.id << 4) + compileTimeType.id;
+				break;
+			default : // regular object ref
+//				if (compileTimeType.isRawType() && runtimeTimeType.isParameterizedType()) {
+//				    scope.problemReporter().unsafeRawExpression(this, compileTimeType, runtimeTimeType);
+//				}		
+		}
+	}	
 
 	/**
 	 * Expression statements are plain expressions, however they generate like
@@ -317,23 +337,23 @@ public abstract class Expression extends Statement {
 	 * creation, further operands should rather be only appended to the current one.
 	 * By default: no optimization.
 	 */
-	public void generateOptimizedStringBuffer(
+	public void generateOptimizedStringConcatenation(
 		BlockScope blockScope,
-		org.eclipse.jdt.internal.compiler.codegen.CodeStream codeStream,
+		CodeStream codeStream,
 		int typeID) {
 
 		if (typeID == T_String && this.constant != NotAConstant && this.constant.stringValue().length() == 0) {
 			return; // optimize str + ""
 		}
 		generateCode(blockScope, codeStream, true);
-		codeStream.invokeStringBufferAppendForType(typeID);
+		codeStream.invokeStringConcatenationAppendForType(typeID);
 	}
 
 	/* Optimized (java) code generation for string concatenations that involve StringBuffer
 	 * creation: going through this path means that there is no need for a new StringBuffer
 	 * creation, further operands should rather be only appended to the current one.
 	 */
-	public void generateOptimizedStringBufferCreation(
+	public void generateOptimizedStringConcatenationCreation(
 		BlockScope blockScope,
 		CodeStream codeStream,
 		int typeID) {
@@ -342,20 +362,20 @@ public abstract class Expression extends Statement {
 		if (typeID == T_Object) {
 			// in the case the runtime value of valueOf(Object) returns null, we have to use append(Object) instead of directly valueOf(Object)
 			// append(Object) returns append(valueOf(Object)), which means that the null case is handled by append(String).
-			codeStream.newStringBuffer();
+			codeStream.newStringContatenation();
 			codeStream.dup();
-			codeStream.invokeStringBufferDefaultConstructor();
+			codeStream.invokeStringConcatenationDefaultConstructor();
 			generateCode(blockScope, codeStream, true);
-			codeStream.invokeStringBufferAppendForType(T_Object);
+			codeStream.invokeStringConcatenationAppendForType(T_Object);
 			return;
 		}
-		codeStream.newStringBuffer();
+		codeStream.newStringContatenation();
 		codeStream.dup();
 		if (typeID == T_String || typeID == T_null) {
 			if (constant != NotAConstant) {
 				String stringValue = constant.stringValue();
 				if (stringValue.length() == 0) {  // optimize ""+<str> 
-					codeStream.invokeStringBufferDefaultConstructor();
+					codeStream.invokeStringConcatenationDefaultConstructor();
 					return;
 				}
 				codeStream.ldc(stringValue);
@@ -367,43 +387,7 @@ public abstract class Expression extends Statement {
 			generateCode(blockScope, codeStream, true);
 			codeStream.invokeStringValueOf(typeID);
 		}
-		codeStream.invokeStringBufferStringConstructor();
-	}
-
-	// Base types need that the widening is explicitly done by the compiler using some bytecode like i2f
-	public void implicitWidening(
-		TypeBinding runtimeTimeType,
-		TypeBinding compileTimeType) {
-
-		if (runtimeTimeType == null || compileTimeType == null)
-			return;
-
-//		if (compileTimeType.id == T_null) {
-//			// this case is possible only for constant null
-//			// The type of runtime is a reference type
-//			// The code gen use the constant id thus any value
-//			// for the runtime id (akak the <<4) could be used.
-//			// T_Object is used as some general T_reference
-//			implicitConversion = (T_Object << 4) + T_null;
-//			return;
-//		}
-
-		switch (runtimeTimeType.id) {
-			case T_byte :
-			case T_short :
-			case T_char :
-				implicitConversion = (T_int << 4) + compileTimeType.id;
-				break;
-			case T_String :
-			case T_float :
-			case T_boolean :
-			case T_double :
-			case T_int : //implicitConversion may result in i2i which will result in NO code gen
-			case T_long :
-				implicitConversion = (runtimeTimeType.id << 4) + compileTimeType.id;
-				break;
-			default : //nothing on regular object ref
-		}
+		codeStream.invokeStringConcatenationStringConstructor();
 	}
 
 	public boolean isCompactableOperation() {
@@ -413,11 +397,9 @@ public abstract class Expression extends Statement {
 
 	//Return true if the conversion is done AUTOMATICALLY by the vm
 	//while the javaVM is an int based-machine, thus for example pushing
-	//a byte onto the stack , will automatically creates a int on the stack
+	//a byte onto the stack , will automatically create an int on the stack
 	//(this request some work d be done by the VM on signed numbers)
-	public boolean isConstantValueOfTypeAssignableToType(
-		TypeBinding constantType,
-		TypeBinding targetType) {
+	public boolean isConstantValueOfTypeAssignableToType(TypeBinding constantType, TypeBinding targetType) {
 
 		if (constant == Constant.NotAConstant)
 			return false;
@@ -437,6 +419,28 @@ public abstract class Expression extends Statement {
 
 	public boolean isTypeReference() {
 		return false;
+	}
+	
+	/**
+	 * Constant usable for bytecode pattern optimizations, but cannot be inlined
+	 * since it is not strictly equivalent to the definition of constant expressions.
+	 * In particular, some side-effects may be required to occur (only the end value
+	 * is known).
+	 * @return Constant known to be of boolean type
+	 */ 
+	public Constant optimizedBooleanConstant() {
+		return this.constant;
+	}
+
+	public StringBuffer print(int indent, StringBuffer output) {
+		printIndent(indent, output);
+		return printExpression(indent, output);
+	}
+
+	public abstract StringBuffer printExpression(int indent, StringBuffer output);
+	
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+		return print(indent, output).append(";"); //$NON-NLS-1$
 	}
 
 	public void resolve(BlockScope scope) {
@@ -461,6 +465,7 @@ public abstract class Expression extends Statement {
 		BlockScope scope,
 		TypeBinding expectedType) {
 
+		this.setExpectedType(expectedType); // needed in case of generic method invocation
 		TypeBinding expressionType = this.resolveType(scope);
 		if (expressionType == null) return null;
 		if (expressionType == expectedType) return expressionType;
@@ -472,17 +477,15 @@ public abstract class Expression extends Statement {
 		return expressionType;
 	}
 
-	public StringBuffer print(int indent, StringBuffer output) {
-		printIndent(indent, output);
-		return printExpression(indent, output);
+	/**
+	 * Record the type expectation before this expression is typechecked.
+	 * e.g. String s = foo();, foo() will be tagged as being expected of type String
+	 * Used to trigger proper inference of generic method invocations.
+	 */
+	public void setExpectedType(TypeBinding expectedType) {
+	    // do nothing by default
 	}
-
-	public abstract StringBuffer printExpression(int indent, StringBuffer output);
 	
-	public StringBuffer printStatement(int indent, StringBuffer output) {
-		return print(indent, output).append(";"); //$NON-NLS-1$
-	}
-
 	public Expression toTypeReference() {
 		//by default undefined
 
@@ -492,5 +495,15 @@ public abstract class Expression extends Statement {
 		//--starts with the same pattern.....
 
 		return this;
+	}
+	
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		// do nothing by default
+	}
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		// do nothing by default
+	}
+	public void traverse(ASTVisitor visitor, CompilationUnitScope scope) {
+		// do nothing by default
 	}
 }

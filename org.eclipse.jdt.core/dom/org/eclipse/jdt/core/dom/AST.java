@@ -252,7 +252,6 @@ public final class AST {
 	
 		CompilationUnit cu = converter.convert(compilationUnitDeclaration, source);
 		cu.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
-		resolver.storeModificationCount(ast.modificationCount());
 		ast.setDefaultNodeFlag(savedDefaultNodeFlag);
 		return cu;
 	}

@@ -230,8 +230,9 @@ public void acceptMethodDeclaration(char[] declaringTypePackageName, char[] decl
 				completion.append(CharOperation.subarray(completionName, start, completionName.length));
 			}
 		}
-		
-		completionName = completion.toString().toCharArray();
+		int nameLength = completion.length();
+		completionName = new char[nameLength];
+		completion.getChars(0, nameLength, completionName, 0);
 	}	
 	
 	if(CompletionEngine.DEBUG) {

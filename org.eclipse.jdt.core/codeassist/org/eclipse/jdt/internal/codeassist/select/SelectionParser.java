@@ -123,8 +123,9 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		}
 		// trick to avoid creating a selection on type reference
 		char [] oldIdent = this.assistIdentifier();
-		this.setAssistIdentifier(null);			
+		this.setAssistIdentifier(null);
 		alloc.type = getTypeReference(0);
+		
 		this.setAssistIdentifier(oldIdent);
 		
 		//the default constructor with the correct number of argument
@@ -158,9 +159,7 @@ protected void consumeArrayCreationExpressionWithoutInitializer() {
 		this.isOrphanCompletionNode = true;
 	}
 }
-
 protected void consumeArrayCreationExpressionWithInitializer() {
-	// ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
 	// ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
 
 	super.consumeArrayCreationExpressionWithInitializer();
@@ -181,6 +180,13 @@ protected void consumeEnterAnonymousClassBody() {
 		super.consumeEnterAnonymousClassBody();
 		return;
 	}
+	
+	// trick to avoid creating a selection on type reference
+	char [] oldIdent = this.assistIdentifier();
+	this.setAssistIdentifier(null);		
+	TypeReference typeReference = getTypeReference(0);
+	this.setAssistIdentifier(oldIdent);		
+
 	QualifiedAllocationExpression alloc;
 	TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult); 
 		anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
@@ -200,11 +206,69 @@ protected void consumeEnterAnonymousClassBody() {
 			0, 
 			argumentLength); 
 	}
+
+	alloc.type = typeReference;	
+
+	anonymousType.sourceEnd = alloc.sourceEnd;
+	//position at the type while it impacts the anonymous declaration
+	anonymousType.sourceStart = anonymousType.declarationSourceStart = alloc.type.sourceStart;
+	alloc.sourceStart = intStack[intPtr--];
+	pushOnExpressionStack(alloc);
+
+	assistNode = alloc;
+	this.lastCheckPoint = alloc.sourceEnd + 1;
+	if (!diet){
+		this.restartRecovery	= true;	// force to restart in recovery mode
+		this.lastIgnoredToken = -1;
+		currentToken = 0; // opening brace already taken into account
+		hasReportedError = true;
+	}
+
+	anonymousType.bodyStart = scanner.currentPosition;
+	listLength = 0; // will be updated when reading super-interfaces
+	// recovery
+	if (currentElement != null){
+		lastCheckPoint = anonymousType.bodyStart;
+		currentElement = currentElement.add(anonymousType, 0);
+		currentToken = 0; // opening brace already taken into account
+		lastIgnoredToken = -1;		
+	}
+}
+protected void consumeEnterAnonymousClassBodySimpleName() {
+	// EnterAnonymousClassBody ::= $empty
+
+	if (this.indexOfAssistIdentifier() < 0) {
+		super.consumeEnterAnonymousClassBodySimpleName();
+		return;
+	}
+	pushOnGenericsLengthStack(0);
+	pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 	// trick to avoid creating a selection on type reference
 	char [] oldIdent = this.assistIdentifier();
-	this.setAssistIdentifier(null);			
-	alloc.type = getTypeReference(0);
-	this.setAssistIdentifier(oldIdent);		
+	this.setAssistIdentifier(null);		
+	TypeReference typeReference = getTypeReference(0);
+	this.setAssistIdentifier(oldIdent);	
+
+	QualifiedAllocationExpression alloc;
+	TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult); 
+		anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+		anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
+		alloc = anonymousType.allocation = new SelectionOnQualifiedAllocationExpression(anonymousType); 
+	markEnclosingMemberWithLocalType();
+	pushOnAstStack(anonymousType);
+
+	alloc.sourceEnd = rParenPos; //the position has been stored explicitly
+	int argumentLength;
+	if ((argumentLength = expressionLengthStack[expressionLengthPtr--]) != 0) {
+		expressionPtr -= argumentLength;
+		System.arraycopy(
+			expressionStack, 
+			expressionPtr + 1, 
+			alloc.arguments = new Expression[argumentLength], 
+			0, 
+			argumentLength); 
+	}
+	alloc.type = typeReference;
 
 	anonymousType.sourceEnd = alloc.sourceEnd;
 	//position at the type while it impacts the anonymous declaration
@@ -292,9 +356,9 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 	}
 	this.isOrphanCompletionNode = true;	
 }
-protected void consumeFormalParameter() {
+protected void consumeFormalParameter(boolean isVarArgs) {
 	if (this.indexOfAssistIdentifier() < 0) {
-		super.consumeFormalParameter();
+		super.consumeFormalParameter(isVarArgs);
 		if((!diet || dietInt != 0) && astPtr > -1) {
 			Argument argument = (Argument) astStack[astPtr];
 			if(argument.type == assistNode) {
@@ -316,7 +380,8 @@ protected void consumeFormalParameter() {
 				identifierName, 
 				namePositions, 
 				type, 
-				intStack[intPtr + 1] & ~AccDeprecated); // modifiers
+				intStack[intPtr + 1] & ~AccDeprecated,
+				isVarArgs); // modifiers
 		arg.declarationSourceStart = modifierPositions;
 		pushOnAstStack(arg);
 		
@@ -337,6 +402,16 @@ protected void consumeFormalParameter() {
 protected void consumeInstanceOfExpression(int op) {
 	if (indexOfAssistIdentifier() < 0) {
 		super.consumeInstanceOfExpression(op);
+	} else {
+		getTypeReference(intStack[intPtr--]);
+		this.isOrphanCompletionNode = true;
+		this.restartRecovery = true;
+		this.lastIgnoredToken = -1;
+	}
+}
+protected void consumeInstanceOfExpressionWithName(int op) {
+	if (indexOfAssistIdentifier() < 0) {
+		super.consumeInstanceOfExpressionWithName(op);
 	} else {
 		getTypeReference(intStack[intPtr--]);
 		this.isOrphanCompletionNode = true;
@@ -456,6 +531,58 @@ protected void consumeMethodInvocationPrimary() {
 	this.lastCheckPoint = constructorCall.sourceEnd + 1;
 	this.isOrphanCompletionNode = true;
 }
+protected void consumeStaticImportOnDemandDeclarationName() {
+	// TypeImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
+	/* push an ImportRef build from the last name 
+	stored in the identifier stack. */
+
+	int index;
+
+	/* no need to take action if not inside assist identifiers */
+	if ((index = indexOfAssistIdentifier()) < 0) {
+		super.consumeStaticImportOnDemandDeclarationName();
+		return;
+	}
+	/* retrieve identifiers subset and whole positions, the assist node positions
+		should include the entire replaced source. */
+	int length = identifierLengthStack[identifierLengthPtr];
+	char[][] subset = identifierSubSet(index+1); // include the assistIdentifier
+	identifierLengthPtr--;
+	identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(
+		identifierPositionStack, 
+		identifierPtr + 1, 
+		positions, 
+		0, 
+		length); 
+
+	/* build specific assist node on import statement */
+	ImportReference reference = this.createAssistImportReference(subset, positions, AccStatic);
+	reference.onDemand = true;
+	assistNode = reference;
+	this.lastCheckPoint = reference.sourceEnd + 1;
+	
+	pushOnAstStack(reference);
+
+	if (currentToken == TokenNameSEMICOLON){
+		reference.declarationSourceEnd = scanner.currentPosition - 1;
+	} else {
+		reference.declarationSourceEnd = (int) positions[length-1];
+	}
+	//endPosition is just before the ;
+	reference.declarationSourceStart = intStack[intPtr--];
+	// flush annotations defined prior to import statements
+	reference.declarationSourceEnd = this.flushCommentsDefinedPriorTo(reference.declarationSourceEnd);
+
+	// recovery
+	if (currentElement != null){
+		lastCheckPoint = reference.declarationSourceEnd+1;
+		currentElement = currentElement.add(reference, 0);
+		lastIgnoredToken = -1;
+		restartRecovery = true; // used to avoid branching back into the regular automaton		
+	}
+}
 protected void consumeTypeImportOnDemandDeclarationName() {
 	// TypeImportOnDemandDeclarationName ::= 'import' Name '.' '*'
 	/* push an ImportRef build from the last name 
@@ -536,6 +663,11 @@ public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentif
 					assistName, 
 					positions); 	
 }
+public TypeReference createParameterizedQualifiedAssistTypeReference(
+		char[][] tokens, TypeReference[][] typeArguments, char[] assistname, long[] positions) {
+	return new SelectionOnParameterizedQualifiedTypeReference(tokens, assistname, typeArguments, positions);
+
+}
 public NameReference createSingleAssistNameReference(char[] assistName, long position) {
 	return new SelectionOnSingleNameReference(assistName, position);
 }
@@ -569,6 +701,8 @@ protected NameReference getUnspecifiedReference() {
 			// discard 'super' from identifier stacks
 			identifierLengthStack[identifierLengthPtr] = completionIndex;
 			int ptr = identifierPtr -= (length - completionIndex);
+			pushOnGenericsLengthStack(0);
+			pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 			reference = 
 				new SelectionOnQualifiedSuperReference(
 					getTypeReference(0), 

@@ -23,14 +23,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 public class ClassFileMatchLocator implements IIndexConstants {
 
 public static char[] convertClassFileFormat(char[] name) {
-	for (int i = 0, l = name.length; i < l; i++) {
-		if (name[i] == '/') {
-			char[] newName = (char[]) name.clone();
-			CharOperation.replace(newName, '/', '.');
-			return newName;
-		}
-	}
-	return name;
+	return CharOperation.replaceOnCopy(name, '/', '.');
 }
 
 boolean checkDeclaringType(IBinaryType enclosingBinaryType, char[] simpleName, char[] qualification, boolean isCaseSensitive) {
@@ -107,8 +100,18 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 		for (int i = 0, l = methods.length; i < l; i++) {
 			IBinaryMethod method = methods[i];
 			if (matchBinary(pattern, method, info)) {
+				char[] name;
+				if (method.isConstructor()) {
+					name = info.getName();
+					int lastSlash = CharOperation.lastIndexOf('/', name);
+					if (lastSlash != -1) {
+						name = CharOperation.subarray(name, lastSlash+1, name.length);
+					}
+				} else {
+					name = method.getSelector();
+				}
 				IMethod methodHandle = binaryType.getMethod(
-					new String(method.isConstructor() ? info.getName() : method.getSelector()),
+					new String(name),
 					CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(method.getMethodDescriptor()))));
 				locator.reportBinaryMemberDeclaration(null, methodHandle, info, accuracy);
 			}

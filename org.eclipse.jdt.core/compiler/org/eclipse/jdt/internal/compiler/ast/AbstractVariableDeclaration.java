@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public abstract class AbstractVariableDeclaration extends Statement implements InvocationSite {
 	public int declarationEnd;
@@ -24,6 +25,7 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	public Expression initialization;
 	public int modifiers;
 	public int modifiersSourceStart;
+	public Annotation[] annotations;
 
 	public char[] name;
 
@@ -32,6 +34,14 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		return flowInfo;
 	}
+	
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
+	 */
+	public TypeBinding[] genericTypeArguments() {
+		return null;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
 	 */

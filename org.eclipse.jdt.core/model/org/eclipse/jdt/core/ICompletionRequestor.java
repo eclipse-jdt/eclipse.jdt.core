@@ -21,6 +21,8 @@ import org.eclipse.jdt.core.compiler.IProblem;
  *
  * @see ICodeAssist
  * @since 2.0
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor}, an abstract class
+ * with all the same methods (and more).
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor}, an abstract class with all the same methods (and more).
 public interface ICompletionRequestor {
@@ -54,6 +56,7 @@ public interface ICompletionRequestor {
  *    The default package is represented by an empty array.
  *
  * NOTE: parameter names can be retrieved from the source model after the user selects a specific method.
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptAnonymousType(char[], char[], char[][], char[][], char[][], char[], int, int, int, int)} instead.
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptAnonymousType(char[], char[], char[][], char[][], char[][], char[], int, int, int, int)} instead.
 void acceptAnonymousType(
@@ -85,6 +88,7 @@ void acceptAnonymousType(
  *    Package names are in the form "a.b.c".
  *    Nested type names are in the qualified form "A.M".
  *    The default package is represented by an empty array.
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptClass(char[], char[], char[], int, int, int, int)} instead.
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptClass(char[], char[], char[], int, int, int, int)} instead.
 void acceptClass(
@@ -105,6 +109,7 @@ void acceptClass(
  *		detected (might be in another compilation unit, if it was indirectly requested
  *		during the code assist process).
  *      Note: the problem knows its originating file name.
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptError(IProblem)} instead.
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptError(IProblem)} instead.
 void acceptError(IProblem error);
@@ -131,6 +136,7 @@ void acceptError(IProblem error);
  *    Array types are in the qualified form "M[]" or "int[]".
  *    Nested type names are in the qualified form "A.M".
  *    The default package is represented by an empty array.
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptField(char[], char[], char[], char[], char[], char[], int, int, int, int)} instead.
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptField(char[], char[], char[], char[], char[], char[], int, int, int, int)} instead.
 void acceptField(
@@ -162,6 +168,7 @@ void acceptField(
  *    Package names are in the form "a.b.c".
  *    Nested type names are in the qualified form "A.M".
  *    The default package is represented by an empty array.
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptInterface(char[], char[], char[], int, int, int, int)} instead.
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptInterface(char[], char[], char[], int, int, int, int)} instead.
 void acceptInterface(
@@ -181,6 +188,7 @@ void acceptInterface(
  * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
  * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
  * 		value is higher.
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptKeyword(char[], int, int, int)} instead.
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptKeyword(char[], int, int, int)} instead.
 void acceptKeyword(char[] keywordName, int completionStart, int completionEnd, int relevance);
@@ -194,6 +202,7 @@ void acceptKeyword(char[] keywordName, int completionStart, int completionEnd, i
  * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
  * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
  * 		value is higher.
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptLabel(char[], int, int, int)} instead.
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptLabel(char[], int, int, int)} instead.
 void acceptLabel(char[] labelName, int completionStart, int completionEnd, int relevance);
@@ -217,6 +226,7 @@ void acceptLabel(char[] labelName, int completionStart, int completionEnd, int r
  *    Array types are in the qualified form "M[]" or "int[]".
  *    Nested type names are in the qualified form "A.M".
  *    The default package is represented by an empty array.
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptLocalVariable(char[], char[], char[], int, int, int, int)} instead.
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptLocalVariable(char[], char[], char[], int, int, int, int)} instead.
 void acceptLocalVariable(
@@ -258,6 +268,7 @@ void acceptLocalVariable(
  *    The default package is represented by an empty array.
  *
  * NOTE: parameter names can be retrieved from the source model after the user selects a specific method.
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptMethod(char[], char[], char[], char[][], char[][], char[][], char[], char[], char[], int, int, int, int)} instead.
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptMethod(char[], char[], char[], char[][], char[][], char[][], char[], char[], char[], int, int, int, int)} instead.
 void acceptMethod(
@@ -306,6 +317,7 @@ void acceptMethod(
  *    The default package is represented by an empty array.
  *
  * NOTE: parameter names can be retrieved from the source model after the user selects a specific method.
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptMethodDeclaration(char[], char[], char[], char[][], char[][], char[][], char[], char[], char[], int, int, int, int)} instead.
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptMethodDeclaration(char[], char[], char[], char[][], char[][], char[][], char[], char[], char[], int, int, int, int)} instead.
 void acceptMethodDeclaration(
@@ -332,6 +344,7 @@ void acceptMethodDeclaration(
  * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
  * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
  * 		value is higher.
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptModifier(char[], int, int, int)} instead.
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptModifier(char[], int, int, int)} instead.
 void acceptModifier(char[] modifierName, int completionStart, int completionEnd, int relevance);
@@ -350,6 +363,7 @@ void acceptModifier(char[] modifierName, int completionStart, int completionEnd,
  * NOTE - All package names are presented in their readable form:
  *    Package names are in the form "a.b.c".
  *    The default package is represented by an empty array.
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptPackage(char[], char[], int, int, int)} instead.
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptPackage(char[], char[], int, int, int)} instead.
 void acceptPackage(
@@ -375,6 +389,7 @@ void acceptPackage(
  *    Package names are in the form "a.b.c".
  *    Nested type names are in the qualified form "A.M".
  *    The default package is represented by an empty array.
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptType(char[], char[], char[], int, int, int)} instead.
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptType(char[], char[], char[], int, int, int)} instead.
 void acceptType(
@@ -405,6 +420,7 @@ void acceptType(
  *    Array types are in the qualified form "M[]" or "int[]".
  *    Nested type names are in the qualified form "A.M".
  *    The default package is represented by an empty array.
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptTypeVariable(char[], int, int, int)} instead.
  */
 // TODO (jerome - once CompletionRequestor is working) @ deprecated Use {@link CompletionRequestor#acceptTypeVariable(char[], int, int, int)} instead.
 void acceptVariableName(

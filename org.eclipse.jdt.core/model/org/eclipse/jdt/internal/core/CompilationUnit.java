@@ -1086,9 +1086,8 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 		// client asking for level 2 AST; these are supported
 		createAST = true;
 	} else if (astLevel == AST.JLS3) {
-		// client asking for level 3 ASTs; these are not supported
-		// TODO (jerome) - these should also be supported in 1.5 stream
-		createAST = false;
+		// client asking for level 3 ASTs; these are supported
+		createAST = true;
 	} else {
 		// client asking for no AST (0) or unknown ast level
 		// either way, request denied

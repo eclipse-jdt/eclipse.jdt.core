@@ -110,7 +110,6 @@ public class WhileStatement extends Statement {
 			if (!actionInfo.isReachable() && !loopingContext.initsOnContinue.isReachable()) {
 				continueLabel = null;
 			} else {
-				// TODO (philippe) should simplify in one Loop context
 				condLoopContext.complainOnFinalAssignmentsInLoop(currentScope, postCondInfo);
 				actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits());
 				loopingContext.complainOnFinalAssignmentsInLoop(currentScope, actionInfo);
@@ -178,9 +177,7 @@ public class WhileStatement extends Statement {
 			action.generateCode(currentScope, codeStream);
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (preCondInitStateIndex != -1) {
-				codeStream.removeNotDefinitelyAssignedVariables(
-					currentScope,
-					preCondInitStateIndex);
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, preCondInitStateIndex);
 			}
 
 		}
@@ -207,7 +204,7 @@ public class WhileStatement extends Statement {
 	public void resolve(BlockScope scope) {
 
 		TypeBinding type = condition.resolveTypeExpecting(scope, BooleanBinding);
-		condition.implicitWidening(type, type);
+		condition.computeConversion(scope, type, type);
 		if (action != null)
 			action.resolve(scope);
 	}

@@ -391,7 +391,7 @@ public void updateFromParserState(){
 						}
 					}
 					if(canConsume) {
-						parser.consumeMethodHeaderParameters();
+						parser.consumeMethodHeaderRightParen();
 						/* fix-up positions, given they were updated against rParenPos, which did not get set */
 						if (parser.currentElement == this){ // parameter addition might have added an awaiting (no return type) method - see 1FVXQZ4 */
 							methodDeclaration.sourceEnd = methodDeclaration.arguments[methodDeclaration.arguments.length-1].sourceEnd;

@@ -138,7 +138,7 @@ public class ArrayInitializer extends Expression {
 			binding = (ArrayBinding) expectedTb;
 			if (expressions == null)
 				return binding;
-			TypeBinding expectedElementsTb = binding.elementsType(scope);
+			TypeBinding expectedElementsTb = binding.elementsType();
 			if (expectedElementsTb.isBaseType()) {
 				for (int i = 0, length = expressions.length; i < length; i++) {
 					Expression expression = expressions[i];
@@ -151,11 +151,11 @@ public class ArrayInitializer extends Expression {
 	
 					// Compile-time conversion required?
 					if (expression.isConstantValueOfTypeAssignableToType(expressionTb, expectedElementsTb)) {
-						expression.implicitWidening(expectedElementsTb, expressionTb);
+						expression.computeConversion(scope, expectedElementsTb, expressionTb);
 					} else if (BaseTypeBinding.isWidening(expectedElementsTb.id, expressionTb.id)) {
-						expression.implicitWidening(expectedElementsTb, expressionTb);
+						expression.computeConversion(scope, expectedElementsTb, expressionTb);
 					} else {
-						scope.problemReporter().typeMismatchErrorActualTypeExpectedType(expression, expressionTb, expectedElementsTb);
+						scope.problemReporter().typeMismatchError(expressionTb, expectedElementsTb, expression);
 						return null;
 					}
 				}
@@ -189,8 +189,8 @@ public class ArrayInitializer extends Expression {
 			}
 		}
 		if (leafElementType != null) {
-			TypeBinding probableTb = scope.createArray(leafElementType, dim);
-			scope.problemReporter().typeMismatchErrorActualTypeExpectedType(this, probableTb, expectedTb);
+			TypeBinding probableTb = scope.createArrayType(leafElementType, dim);
+			scope.problemReporter().typeMismatchError(probableTb, expectedTb, this);
 		}
 		return null;
 	}

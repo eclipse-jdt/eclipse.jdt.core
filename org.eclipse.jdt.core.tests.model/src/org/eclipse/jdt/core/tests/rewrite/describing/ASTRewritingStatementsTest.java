@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2004 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
+ * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/cpl-v10.html
@@ -9,7 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
-
 import java.util.List;
 
 import junit.framework.Test;
@@ -25,6 +24,7 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	private static final Class THIS= ASTRewritingStatementsTest.class;
+	private static final boolean BUG_67790= true;
 
 	public ASTRewritingStatementsTest(String name) {
 		super(name);
@@ -38,7 +38,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			return allTests();
 		}
 		TestSuite suite= new Suite("one test");
-		suite.addTest(new ASTRewritingStatementsTest("testInsert2"));
+		suite.addTest(new ASTRewritingStatementsTest("testConstructorInvocation2"));
 		return suite;
 	}
 
@@ -550,6 +550,73 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 
 	}
+	
+	public void testConstructorInvocation2() throws Exception {
+		if (BUG_67790) {
+			return;
+		}
+		
+		
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public <A, B>E(String e, String f) {\n");
+		buf.append("        this();\n");
+		buf.append("    }\n");
+		buf.append("    public E() {\n");
+		buf.append("        <String, String>this(\"Hello\", true);\n");
+		buf.append("    }\n");		
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		
+		AST ast= astRoot.getAST();
+		
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration[] declarations= type.getMethods();
+		assertTrue("Number of declarations not 2", declarations.length == 2);			
+
+		{ // add type argument
+			Block block= declarations[0].getBody();
+			List statements= block.statements();
+			assertTrue("Number of statements not 1", statements.size() == 1);
+			
+			Type newTypeArg= ast.newSimpleType(ast.newSimpleName("A"));
+			ConstructorInvocation invocation= (ConstructorInvocation) statements.get(0);
+			ListRewrite listRewrite= rewrite.getListRewrite(invocation, ConstructorInvocation.TYPE_ARGUMENTS_PROPERTY);
+			listRewrite.insertLast(newTypeArg, null);
+		}
+		{ //remove type argument
+			Block block= declarations[1].getBody();
+			List statements= block.statements();
+			assertTrue("Number of statements not 1", statements.size() == 1);			
+			ConstructorInvocation invocation= (ConstructorInvocation) statements.get(0);
+	
+			List typeArguments= invocation.typeArguments();
+			
+			rewrite.remove((ASTNode) typeArguments.get(0), null);
+			rewrite.remove((ASTNode) typeArguments.get(1), null);
+		}		
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public <A, B>E(String e, String f) {\n");
+		buf.append("        <A>this();\n");
+		buf.append("    }\n");
+		buf.append("    public E() {\n");
+		buf.append("        this(\"Hello\", true);\n");
+		buf.append("    }\n");		
+		buf.append("}\n");	
+		assertEqualString(preview, buf.toString());
+
+	}
+
 	
 	public void testContinueStatement() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);

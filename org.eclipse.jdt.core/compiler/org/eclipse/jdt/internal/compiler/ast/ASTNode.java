@@ -26,7 +26,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit2 = 0x2; 						// return type (operator) | name reference kind (name ref) | has local type (type, method, field decl)
 	public final static int Bit3 = 0x4; 						// return type (operator) | name reference kind (name ref) | implicit this (this ref)
 	public final static int Bit4 = 0x8; 						// return type (operator) | first assignment to local (local decl) | undocumented empty block (block, type and method decl)
-	public final static int Bit5 = 0x10; 						// value for return (expression) | has all method bodies (unit)
+	public final static int Bit5 = 0x10; 					// value for return (expression) | has all method bodies (unit) | supertype ref (type ref)
 	public final static int Bit6 = 0x20; 						// depth (name ref, msg) | only value required (binary expression) | ignore need cast check (cast expression)
 	public final static int Bit7 = 0x40; 						// depth (name ref, msg) | operator (operator) | need runtime checkcast (cast expression)
 	public final static int Bit8 = 0x80; 						// depth (name ref, msg) | operator (operator) 
@@ -136,7 +136,31 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 		super();
 	}
-
+	public static void checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
+		boolean warnRawArgs = false, wildcardInvocation = false;
+		for (int i = 0; i < arguments.length; i++) {
+		    TypeBinding parameterType = method.parameters[i];
+		    TypeBinding argumentType = argumentTypes[i];
+			arguments[i].computeConversion(scope, parameterType, argumentType);
+			if (parameterType.isWildcard() && argumentType != NullBinding) {
+			    wildcardInvocation = true;
+			} else if (argumentType != parameterType 
+			        && argumentType.isRawType() 
+			        && (parameterType.isParameterizedType() || parameterType.isGenericType())) {
+			    warnRawArgs = true;
+			}
+		}
+		if (argsContainCast) {
+			CastExpression.checkNeedForArgumentCasts(scope, receiver, receiverType, method, arguments, argumentTypes, invocationSite);
+		}
+		if (wildcardInvocation) {
+		    scope.problemReporter().unsafeWildcardInvocation((ASTNode)invocationSite, receiverType, method, argumentTypes);
+		} else if (receiverType.isRawType() && method.hasSubstitutedParameters()) {
+		    scope.problemReporter().unsafeRawInvocation((ASTNode)invocationSite, receiverType, method);
+		} else if (warnRawArgs) {
+		    scope.problemReporter().unsafeInvocationWithRawArguments((ASTNode)invocationSite, receiverType, method, argumentTypes);
+		}
+	}
 	public ASTNode concreteStatement() {
 		return this;
 	}

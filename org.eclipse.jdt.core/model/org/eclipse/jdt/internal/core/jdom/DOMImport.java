@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  */
 // TODO (jerome) - add implementation support for 1.5 features
 class DOMImport extends DOMNode implements IDOMImport {
+	
 	/**
 	 * Indicates if this import is an on demand type import
 	 */
@@ -64,9 +65,10 @@ DOMImport() {
  *		or -1's if this node does not have a name.
  * @param onDemand - indicates if this import is an on demand style import
  */
-DOMImport(char[] document, int[] sourceRange, String name, int[] nameRange, boolean onDemand) {
+DOMImport(char[] document, int[] sourceRange, String name, int[] nameRange, boolean onDemand, int modifiers) {
 	super(document, sourceRange, name, nameRange);
 	fOnDemand = onDemand;
+	fFlags = modifiers;
 	setMask(MASK_DETAILED_SOURCE_INDEXES, true);
 }
 /**
@@ -83,8 +85,8 @@ DOMImport(char[] document, int[] sourceRange, String name, int[] nameRange, bool
  *		<code>null</code> if this node does not have a name
  * @param onDemand - indicates if this import is an on demand style import
  */
-DOMImport(char[] document, int[] sourceRange, String name, boolean onDemand) {
-	this(document, sourceRange, name, new int[] {-1, -1}, onDemand);
+DOMImport(char[] document, int[] sourceRange, String name, boolean onDemand, int modifiers) {
+	this(document, sourceRange, name, new int[] {-1, -1}, onDemand, modifiers);
 	fOnDemand = onDemand;
 	setMask(MASK_DETAILED_SOURCE_INDEXES, false);
 }

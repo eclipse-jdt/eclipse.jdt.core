@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2004 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
+ * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/cpl-v10.html
@@ -9,7 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
-
 import java.util.List;
 
 import junit.framework.Test;
@@ -89,9 +88,16 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		deleteProject("P");
 		super.tearDown();
 	}
-	
+		
 	protected CompilationUnit createAST(ICompilationUnit cu) {
 		ASTParser parser= ASTParser.newParser(AST.JLS2);
+		parser.setSource(cu);
+		parser.setResolveBindings(false);
+		return (CompilationUnit) parser.createAST(null);
+	}
+	
+	protected CompilationUnit createAST3(ICompilationUnit cu) {
+		ASTParser parser= ASTParser.newParser(AST.JLS3);
 		parser.setSource(cu);
 		parser.setResolveBindings(false);
 		return (CompilationUnit) parser.createAST(null);
@@ -142,7 +148,11 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		VariableDeclarationFragment frag= ast.newVariableDeclarationFragment();
 		frag.setName(ast.newSimpleName(name));
 		FieldDeclaration newFieldDecl= ast.newFieldDeclaration(frag);
-		newFieldDecl.setModifiers(Modifier.PRIVATE);
+		if (ast.apiLevel() == AST.JLS2) {
+			newFieldDecl.setModifiers(Modifier.PRIVATE);
+		} else {
+			newFieldDecl.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD));
+		}
 		newFieldDecl.setType(ast.newPrimitiveType(PrimitiveType.DOUBLE));
 		return newFieldDecl;
 	}
@@ -150,8 +160,16 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	protected MethodDeclaration createNewMethod(AST ast, String name, boolean isAbstract) {
 		MethodDeclaration decl= ast.newMethodDeclaration();
 		decl.setName(ast.newSimpleName(name));
-		decl.setReturnType(ast.newPrimitiveType(PrimitiveType.VOID));
-		decl.setModifiers(isAbstract ? (Modifier.ABSTRACT | Modifier.PRIVATE) : Modifier.PRIVATE);
+		if (ast.apiLevel() == AST.JLS2) {
+			decl.setModifiers(isAbstract ? (Modifier.ABSTRACT | Modifier.PRIVATE) : Modifier.PRIVATE);
+			decl.setReturnType(ast.newPrimitiveType(PrimitiveType.VOID));
+		} else {
+			decl.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD));
+			if (isAbstract) {
+				decl.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD));
+			}
+			decl.setReturnType2(ast.newPrimitiveType(PrimitiveType.VOID));
+		}
 		SingleVariableDeclaration param= ast.newSingleVariableDeclaration();
 		param.setName(ast.newSimpleName("str"));
 		param.setType(ast.newSimpleType(ast.newSimpleName("String")));
