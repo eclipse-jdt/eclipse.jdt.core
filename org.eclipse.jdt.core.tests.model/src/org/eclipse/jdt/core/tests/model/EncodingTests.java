@@ -494,6 +494,10 @@ public class EncodingTests extends ModifyingResourceTests {
 		zipFile.setCharset(null);
 	}
 
+	/**
+	 * Test for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=55930.
+	 * Verify Buffer.save(IProgressMonitor, boolean) method.
+	 */
 	public void test016() throws JavaModelException, CoreException {
 		ICompilationUnit workingCopy = null;
 		try {
@@ -536,6 +540,10 @@ public class EncodingTests extends ModifyingResourceTests {
 
 	}
 
+	/**
+	 * Test for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=55930.
+	 * Verify CommitWorkingCopyOperation.executeOperation() method.
+	 */
 	public void test017() throws JavaModelException, CoreException {
 		ICompilationUnit workingCopy = null;
 		try {
