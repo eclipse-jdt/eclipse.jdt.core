@@ -418,7 +418,14 @@ public void move(IJavaElement[] elements, IJavaElement[] containers, IJavaElemen
  * @see IJavaModel#refreshExternalJARs(IProgressMonitor)
  */
 public void refreshExternalJARs(IProgressMonitor monitor) throws JavaModelException {
-	getJavaModelManager().deltaProcessor.checkExternalJarChanges(monitor);
+	refreshExternalJARs(null, monitor);
+}
+
+/**
+ * @see IJavaModel#refreshExternalJARs(IJavaProject[], IProgressMonitor)
+ */
+public void refreshExternalJARs(IJavaProject[] projects, IProgressMonitor monitor) throws JavaModelException {
+	getJavaModelManager().deltaProcessor.checkExternalJarChanges(projects, monitor);
 }
 
 /**

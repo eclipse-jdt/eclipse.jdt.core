@@ -177,10 +177,30 @@ void move(IJavaElement[] elements, IJavaElement[] containers, IJavaElement[] sib
  * </ul>
  * 
  * @see IJavaElementDelta
+ * @deprecated - use refreshExternalJARs(IJavaProject[], IProgressMonitor) instead
  * @since 2.0
  */
 void refreshExternalJARs(IProgressMonitor monitor) throws JavaModelException;
 
+/**
+ * Triggers an update of the JavaModel with respect to the referenced external JARs.
+ * This operation will issue a JavaModel delta describing the discovered changes, in term
+ * of Java element package fragment roots added, removed or changed.
+ * Note that a collection of projects can be passed in so as to limit the scope of the
+ * refresh. If passing in <code>null</code>, all the projects will be refreshed.
+ * 
+ * @param projects - a collection of projects for which external JAR references 
+ * 	are to be refreshed (will consider all projects if set to <code>null</code>)
+ * @param monitor - a progress monitor used to report progress
+ * @exception JavaModelException in one of the corresponding situation:
+ * <ul>
+ *    <li> an exception occurs while accessing project resources </li>
+ * </ul>
+ * 
+ * @see IJavaElementDelta
+ * @since 2.0
+ */
+void refreshExternalJARs(IJavaProject[] projects, IProgressMonitor monitor) throws JavaModelException;
 
 /**
  * Renames the given elements as specified.
