@@ -813,22 +813,6 @@ public class CompletionProposal {
 	}
 	
 	/**
-	 * Finds the Java element on which this proposal is based.
-	 * <p>
-	 * <b>Note that this is an expensive thing to compute, which may require
-	 * parsing Java source files, etc. Use sparingly.
-	 * </p>
-	 * 
-	 * @param monitor the progress monitor, or <code>null</code> if none
-	 * @return the relevant Java element, or <code>null</code> if none
-	 * or not available
-	 */
-	public IJavaElement findJavaElement(IProgressMonitor monitor) {
-		// TODO (jerome) - Missing implementation
-		return null;
-	}
-	
-	/**
 	 * Finds the method parameter names.
 	 * This information is relevant to method reference (and
 	 * method declaration proposals). Returns <code>null</code>
