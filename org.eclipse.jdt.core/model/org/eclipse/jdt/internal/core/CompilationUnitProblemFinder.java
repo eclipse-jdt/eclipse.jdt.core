@@ -106,7 +106,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 
 		if (unit != null) {
 			this.lookupEnvironment.buildTypeBindings(unit);
-			this.lookupEnvironment.completeTypeBindings(unit, true);
+			this.lookupEnvironment.completeTypeBindings(unit);
 		}
 	}
 
