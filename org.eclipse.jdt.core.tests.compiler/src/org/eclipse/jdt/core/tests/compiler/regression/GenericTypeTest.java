@@ -12114,4 +12114,30 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Cannot allocate the member type X<String>.Inner<Integer> using a parameterized compound name; use its simple name and an enclosing instance of type X<String>\n" + 
 			"----------\n");
 	}	
+		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82187
+	public void test452() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	\n" + 
+				"	 public <E extends Object, S extends Collection<E>> S test1(S param){\n" + 
+				"	 	System.out.println(\"SUCCESS\");\n" + 
+				"	 	return null;\n" + 
+				"	 }\n" + 
+				"	 \n" + 
+				"	 public void test2() {\n" + 
+				"	 	test1(new Vector<String>());\n" + 
+				"	 }\n" + 
+				"\n" + 
+				"	 public static void main(String[] args) {\n" + 
+				"		new X().test2();\n" + 
+				"	}\n" + 
+				"}\n" ,
+			},
+			"SUCCESS");
+	}	
 }

@@ -93,23 +93,34 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
 		// cannot infer anything from a null type
 		if (otherType == NullBinding) return;
+		// only collect for method type parameters
+		if (!(this.declaringElement instanceof MethodBinding)) return;
 		
 	    TypeBinding[] variableSubstitutes = (TypeBinding[])substitutes.get(this);
 	    if (variableSubstitutes != null) {
-	        int length = variableSubstitutes.length;
-	        for (int i = 0; i < length; i++) {
-	        	TypeBinding substitute = variableSubstitutes[i];
-	            if (substitute == otherType) return; // already there
-	            if (substitute == null) {
-	                variableSubstitutes[i] = otherType;
-	                return;
-	            }
-	        }
-	        // no free spot found, need to grow
-	        System.arraycopy(variableSubstitutes, 0, variableSubstitutes = new TypeBinding[2*length], 0, length);
-	        variableSubstitutes[length] = otherType;
-	        substitutes.put(this, variableSubstitutes);
+		    insertLoop: {
+		        int length = variableSubstitutes.length;
+		        for (int i = 0; i < length; i++) {
+		        	TypeBinding substitute = variableSubstitutes[i];
+		            if (substitute == otherType) return; // already there
+		            if (substitute == null) {
+		                variableSubstitutes[i] = otherType;
+		                break insertLoop;
+		            }
+		        }
+		        // no free spot found, need to grow
+		        System.arraycopy(variableSubstitutes, 0, variableSubstitutes = new TypeBinding[2*length], 0, length);
+		        variableSubstitutes[length] = otherType;
+		        substitutes.put(this, variableSubstitutes);
+		    }
 	    }
+	    // recurse in variable bounds (82187)
+	    if (this.superclass != null && this.firstBound == this.superclass) {
+	    	this.superclass.collectSubstitutes(otherType, substitutes);
+	    }
+	   	for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
+	   		this.superInterfaces[i].collectSubstitutes(otherType, substitutes);
+	   	}
 	}
 	
 	public char[] constantPoolName() { /* java/lang/Object */ 
