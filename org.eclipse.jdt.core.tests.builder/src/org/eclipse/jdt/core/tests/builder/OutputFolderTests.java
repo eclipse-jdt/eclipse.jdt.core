@@ -114,7 +114,7 @@ public class OutputFolderTests extends Tests {
 			"    <classpathentry kind=\"src\" path=\"src\"/>\n" + //$NON-NLS-1$
 			"    <classpathentry kind=\"var\" path=\"" + Util.getJavaClassLib() + "\"/>\n" + //$NON-NLS-1$ //$NON-NLS-2$
 			"    <classpathentry kind=\"output\" path=\"\"/>\n" + //$NON-NLS-1$
-			"</classpath>"
+			"</classpath>" //$NON-NLS-1$
 		);
 		
 		// simulate exit/restart
