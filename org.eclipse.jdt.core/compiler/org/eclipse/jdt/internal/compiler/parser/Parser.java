@@ -289,7 +289,7 @@ private static void buildFileForCompliance(
 		int length,
 		String[] tokens) throws java.io.IOException {
 
-		byte[] result = new byte[length * 2];
+		byte[] result = new byte[length * 8];
 		
 		for (int i = 0; i < tokens.length; i = i + 3) {
 			if("2".equals(tokens[i])) { //$NON-NLS-1$
@@ -304,8 +304,15 @@ private static void buildFileForCompliance(
 					compliance = ClassFileConstants.JDK_DEFERRED;
 				}
 				
-				result[index * 2] = (byte)(compliance >> 16);
-				result[index * 2 + 1] = (byte) compliance;
+				int j = index * 8;
+				result[j] = 	(byte)(compliance >>> 56);
+				result[j + 1] = (byte)(compliance >>> 48);
+				result[j + 2] = (byte)(compliance >>> 40);
+				result[j + 3] = (byte)(compliance >>> 32);
+				result[j + 4] = (byte)(compliance >>> 24);
+				result[j + 5] = (byte)(compliance >>> 16);
+				result[j + 6] = (byte)(compliance >>> 8);
+				result[j + 7] = (byte)(compliance);
 			}
 		}
 
@@ -502,11 +509,7 @@ public final static void initTables() throws java.io.IOException {
 	
 	name = readNameTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
 	
-	byte[] bytes = readByteTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
-	rules_compliance = new long[bytes.length / 2];
-	for (int j = 0; j < rules_compliance.length; j++) {
-		rules_compliance[j] = (long)(bytes[j * 2]  << 16) + bytes[j * 2 + 1];
-	}
+	rules_compliance = readLongTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
 	
 	readableName = readReadableNameTable(READABLE_NAMES_FILE_NAME);
 	
@@ -582,38 +585,6 @@ protected static String[] readReadableNameTable(String filename) {
 	}
 	return result;
 }
-protected static long[] readComplianceTable(String filename) {
-	int length = rhs.length;
-	long[] result = new long[length];
-
-	ResourceBundle bundle;
-	try {
-		bundle = ResourceBundle.getBundle(filename, Locale.getDefault());
-	} catch(MissingResourceException e) {
-		System.out.println("Missing resource : " + filename.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
-		throw e;
-	}
-
-	for (int i = 0; i < length; i++) {
-		try {
-			String n = bundle.getString(String.valueOf(i));
-			if(n != null && n.length() > 0) {
-				if("1.4".equals(n)) { //$NON-NLS-1$
-					result[i] = ClassFileConstants.JDK1_4;
-				} else if("1.5".equals(n)) { //$NON-NLS-1$
-					result[i] = ClassFileConstants.JDK1_5;
-				} else {
-					result[i] = 0;
-				}
-			} else {
-				result[i] = 0;
-			}
-		} catch(MissingResourceException e) {
-			result[i] = 0;
-		}
-	}
-	return result;
-}
 protected static char[] readTable(String filename) throws java.io.IOException {
 
 	//files are located at Parser.class directory
@@ -650,6 +621,52 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 			break;
 	}
 	return chars;
+}
+protected static long[] readLongTable(String filename) throws java.io.IOException {
+
+	//files are located at Parser.class directory
+
+	InputStream stream = Parser.class.getResourceAsStream(filename);
+	if (stream == null) {
+		throw new java.io.IOException(Util.bind("parser.missingFile",filename)); //$NON-NLS-1$
+	}
+	byte[] bytes = null;
+	try {
+		stream = new BufferedInputStream(stream);
+		bytes = Util.getInputStreamAsByteArray(stream, -1);
+	} finally {
+		try {
+			stream.close();
+		} catch (IOException e) {
+			// ignore
+		}
+	}
+
+	//minimal integrity check (even size expected)
+	int length = bytes.length;
+	if (length % 8 != 0)
+		throw new java.io.IOException(Util.bind("parser.corruptedFile",filename)); //$NON-NLS-1$
+
+	// convert bytes into longs
+	long[] longs = new long[length / 8];
+	int i = 0;
+	int longIndex = 0;
+
+	while (true) {
+		longs[longIndex++] = 
+		  (((long) (bytes[i++] & 0xFF)) << 56)
+		+ (((long) (bytes[i++] & 0xFF)) << 48)
+		+ (((long) (bytes[i++] & 0xFF)) << 40)
+		+ (((long) (bytes[i++] & 0xFF)) << 32)
+		+ (((long) (bytes[i++] & 0xFF)) << 24)
+		+ (((long) (bytes[i++] & 0xFF)) << 16)
+		+ (((long) (bytes[i++] & 0xFF)) << 8)
+		+ (bytes[i++] & 0xFF);
+		
+		if (i == length)
+			break;
+	}
+	return longs;
 }
 public static int tAction(int state, int sym) {
 	return term_action[term_check[base_action[state]+sym] == sym ? base_action[state] + sym : base_action[state]];
