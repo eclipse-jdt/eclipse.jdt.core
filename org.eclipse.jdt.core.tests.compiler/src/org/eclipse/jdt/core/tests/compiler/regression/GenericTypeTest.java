@@ -2775,19 +2775,14 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. WARNING in X.java (at line 8)\n" + 
 			"	X<String> xs2 = (X<String>) xs;\n" + 
 			"	                ^^^^^^^^^^^^^^\n" + 
-			"Unsafe type operation: Should not cast from X<String> to X<String>. Generic type information will be erased at runtime\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 8)\n" + 
-			"	X<String> xs2 = (X<String>) xs;\n" + 
-			"	                ^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast to type X<String> for expression of type X<String>\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 10)\n" + 
+			"2. WARNING in X.java (at line 10)\n" + 
 			"	((X)xs).t = this;\n" + 
 			"	        ^\n" + 
 			"Unsafe type operation: Should not assign expression of type X<T> to the field t of raw type X. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 12)\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
 			"	System.out.prinln((T) this.t);\n" + 
 			"	           ^^^^^^\n" + 
 			"The method prinln(T) is undefined for the type PrintStream\n" + 
@@ -4801,14 +4796,9 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	ax = (AX<X>)bar(ax);\n" + 
 			"	     ^^^^^^^^^^^^^^\n" + 
-			"Unsafe type operation: Should not cast from AX<X> to AX<X>. Generic type information will be erased at runtime\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 6)\n" + 
-			"	ax = (AX<X>)bar(ax);\n" + 
-			"	     ^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast to type AX<X> for expression of type AX<X>\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 9)\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
 			"	return a.get();\n" + 
 			"	       ^^^^^^^\n" + 
 			"Type mismatch: cannot convert from ? to T\n" + 
@@ -5097,20 +5087,27 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			new String[] {
 				"X.java",
 				"public class X<E> {\n" + 
-				"    X<E> self() {\n" + 
+				"    X<E> foo() {\n" + 
 				"    	return (X<E>) this;\n" + 
 				"    }\n" + 
-				"    X<String> string1() {\n" + 
+				"    X<String> bar() {\n" + 
 				"    	return (AX<String>) new X<String>();\n" + 
 				"    }\n" + 
-				"    X<String> string2(Object o) {\n" + 
+				"    X<String> bar(Object o) {\n" + 
 				"    	return (AX<String>) o;\n" + 
 				"    }\n" + 
-				"    X<E> him(Object o) {\n" + 
+				"    X<E> foo(Object o) {\n" + 
 				"    	return (AX<E>) o;\n" + 
+				"    }    \n" + 
+				"    X<E> baz(Object o) {\n" + 
+				"    	return (AX<E>) null;\n" + 
 				"    }\n" + 
+				"    X<String> baz2(BX bx) {\n" + 
+				"    	return (X<String>) bx;\n" + 
+				"    }    \n" + 
 				"}\n" + 
-				"class AX<F> extends X<F> {}\n", 
+				"class AX<F> extends X<F> {}\n" + 
+				"class BX extends AX<String> {}\n", 
 			},
 			"----------\n" + 
 			"1. WARNING in X.java (at line 3)\n" + 
