@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,8 +72,40 @@ public abstract class Expression extends ASTNode {
 	 * @return the binding for the type of this expression, or
 	 *    <code>null</code> if the type cannot be resolved
 	 */	
-	public ITypeBinding resolveTypeBinding() {
+	public final ITypeBinding resolveTypeBinding() {
 		return this.ast.getBindingResolver().resolveExpressionType(this);
 	}
+	
+	/**
+	 * Returns whether this expression node is the site of a boxing
+	 * conversion (JLS3 5.1.7). This information is available only
+	 * when bindings are requested when the AST is being built.
+	 * 
+	 * @return <code>true</code> if this expression is the site of a
+	 * boxing conversion, or <code>false</code> if either no boxing conversion
+	 * is involved or if bindings were not requested when the AST was created
+	 * @since 3.1
+	 */
+	public final boolean resolveBoxing() {
+		// TODO (olivier) - missing implementation
+		return false;
+	}
+	
+	/**
+	 * Returns whether this expression node is the site of an unboxing
+	 * conversion (JLS3 5.1.8). This information is available only
+	 * when bindings are requested when the AST is being built.
+	 * 
+	 * @return <code>true</code> if this expression is the site of an
+	 * unboxing conversion, or <code>false</code> if either no unboxing
+	 * conversion is involved or if bindings were not requested when the
+	 * AST was created
+	 * @since 3.1
+	 */
+	public final boolean resolveUnboxing() {
+		// TODO (olivier) - missing implementation
+		return false;
+	}
+	
 }
 
