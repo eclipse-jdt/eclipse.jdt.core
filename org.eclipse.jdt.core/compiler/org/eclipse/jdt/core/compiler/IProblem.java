@@ -8,20 +8,20 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added the following constants
- *                                 NonStaticAccessToStaticField
- *                                 NonStaticAccessToStaticMethod
- *                                 Task
- * 								   ExpressionShouldBeAVariable
- * 								   AssignmentHasNoEffect
+ *								   NonStaticAccessToStaticField
+ *								   NonStaticAccessToStaticMethod
+ *								   Task
+ *								   ExpressionShouldBeAVariable
+ *								   AssignmentHasNoEffect
  *     IBM Corporation - added the following constants
- * 								   TooManySyntheticArgumentSlots
- * 								   TooManyArrayDimensions
- * 								   TooManyBytesForStringConstant
- * 								   TooManyMethods
- * 								   TooManyFields
- * 								   NonBlankFinalLocalAssignment
- * 								   ObjectCannotHaveSuperTypes
- * 								   MissingSemiColon
+ *								   TooManySyntheticArgumentSlots
+ *								   TooManyArrayDimensions
+ *								   TooManyBytesForStringConstant
+ *								   TooManyMethods
+ *								   TooManyFields
+ *								   NonBlankFinalLocalAssignment
+ *								   ObjectCannotHaveSuperTypes
+ *								   MissingSemiColon
  *								   InvalidParenthesizedExpression
  *								   EnclosingInstanceInConstructorCall
  *								   BytecodeExceeds64KLimitForConstructor
