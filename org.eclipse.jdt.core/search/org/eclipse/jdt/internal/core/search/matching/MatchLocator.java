@@ -1480,9 +1480,9 @@ protected void reportAccurateParameterizedTypeReference(TypeReference typeRef, i
 		char[] source = this.currentPossibleMatch.getContents();
 		scanner.setSource(source);
 
-		
-		JavaSearchPattern javaSearchPattern = (JavaSearchPattern)this.pattern;
-		if (javaSearchPattern.isErasureMatch || !javaSearchPattern.hasSignatures()) {
+		boolean isErasureMatch = (pattern instanceof OrPattern) ? ((OrPattern)pattern).isErasureMatch : ((JavaSearchPattern)pattern).isErasureMatch;
+		boolean hasSignatures = (pattern instanceof OrPattern) ? ((OrPattern)pattern).hasSignatures() : ((JavaSearchPattern)pattern).hasSignatures();
+		if (isErasureMatch || !hasSignatures) {
 			// if pattern is erasure only, then select the end of the reference
 			if (typeRef instanceof QualifiedTypeReference && index >= 0) {
 				long[] positions = ((QualifiedTypeReference) typeRef).sourcePositions;

@@ -28,7 +28,7 @@ public class JavaSearchPattern extends SearchPattern {
 	 * Whether this pattern is case sensitive.
 	 */
 	boolean isCaseSensitive;
-	
+
 	/*
 	 * Whether this pattern is erasure match.
 	 */
@@ -84,10 +84,11 @@ public class JavaSearchPattern extends SearchPattern {
 	 * and type parameters for non-generic ones.
 	 */
 	char[][] extractMethodArguments(IMethod method) {
+		String[] argumentsSignatures = null;
 		if (method instanceof ParameterizedSourceMethod) {
-			return Util.extractMethodArguments(((ParameterizedSourceMethod)method).uniqueKey);
+			argumentsSignatures = ((ParameterizedSourceMethod)method).genericTypeArgumentsSignatures;
 		} else if (method instanceof ParameterizedBinaryMethod) {
-			return Util.extractMethodArguments(((ParameterizedBinaryMethod)method).uniqueKey);
+			argumentsSignatures = ((ParameterizedBinaryMethod)method).genericTypeArgumentsSignatures;
 		} else {
 			try {
 				ITypeParameter[] parameters = method.getTypeParameters();
@@ -105,6 +106,18 @@ public class JavaSearchPattern extends SearchPattern {
 			}
 			return null;
 		}
+
+		// Parameterized method
+		int length = argumentsSignatures==null ? 0 : argumentsSignatures.length;
+		if (length > 0) {
+			char[][] methodArguments = new char[length][];
+			for (int i=0; i<length; i++) {
+				methodArguments[i] = argumentsSignatures[i].toCharArray();
+				CharOperation.replace(methodArguments[i], new char[] { '$', '/' }, '.');
+			}
+			return methodArguments;
+		}
+		return null;
 	}
 
 	/**
@@ -212,10 +225,10 @@ public class JavaSearchPattern extends SearchPattern {
 	 */
 	void storeTypeSignaturesAndArguments(IType type) {
 		if (type instanceof ParameterizedSourceType) {
-			this.typeSignatures = Util.splitTypeLevelsSignature(((ParameterizedSourceType)type).uniqueKey);
+			this.typeSignatures = Util.splitTypeLevelsSignature(((ParameterizedSourceType)type).genericTypeSignature);
 			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
 		} else if (type instanceof ParameterizedBinaryType) {
-			this.typeSignatures = Util.splitTypeLevelsSignature(((ParameterizedBinaryType)type).uniqueKey);
+			this.typeSignatures = Util.splitTypeLevelsSignature(((ParameterizedBinaryType)type).genericTypeSignature);
 			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
 		} else {
 			// Scan hierachy to store type arguments at each level

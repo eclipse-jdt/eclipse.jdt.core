@@ -140,24 +140,24 @@ public MethodPattern(
 		matchRule);
 
 	// Get unique key for parameterized constructors
-	String uniqueKey = null;
+	String genericDeclaringTypeSignature = null;
+//	String genericSignature = null;
 	if (method instanceof ParameterizedSourceMethod) {
-		uniqueKey = ((ParameterizedSourceMethod)method).uniqueKey;
+		ParameterizedSourceMethod parameterizedMethod = (ParameterizedSourceMethod) method;
+		genericDeclaringTypeSignature = parameterizedMethod.genericDeclaringTypeSignature;
+//		genericSignature = parameterizedMethod.genericSignature;
 	} else if (method instanceof ParameterizedBinaryMethod) {
-		uniqueKey = ((ParameterizedBinaryMethod)method).uniqueKey;
+		ParameterizedBinaryMethod parameterizedMethod = (ParameterizedBinaryMethod) method;
+		genericDeclaringTypeSignature = parameterizedMethod.genericDeclaringTypeSignature;
+//		genericSignature = parameterizedMethod.genericSignature;
 	} else {
 		methodParameters = true;
 	}
 
 	// Store type signature and arguments for declaring type
-	if (uniqueKey != null) {
-		String methodReceiverType = Util.extractMethodReceiverType(uniqueKey);
-		if (methodReceiverType != null) {
-			this.typeSignatures = Util.splitTypeLevelsSignature(methodReceiverType);
-			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
-		} else {
-			storeTypeSignaturesAndArguments(declaringType);
-		}
+	if (genericDeclaringTypeSignature != null) {
+		this.typeSignatures = Util.splitTypeLevelsSignature(genericDeclaringTypeSignature);
+		setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
 	} else {
 		storeTypeSignaturesAndArguments(declaringType);
 	}

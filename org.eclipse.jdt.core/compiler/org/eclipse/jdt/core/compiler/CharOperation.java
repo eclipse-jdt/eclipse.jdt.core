@@ -2225,6 +2225,34 @@ public final class CharOperation {
 	}
 
 	/**
+	 * Replace all occurrence of characters to be replaced with the remplacement character in the
+	 * given array.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    array = { 'a' , 'b', 'b', 'c', 'a', 'b', 'c', 'a' }
+	 *    toBeReplaced = { 'b', 'c' }
+	 *    replacementChar = 'a'
+	 *    result => No returned value, but array is now equals to { 'a' , 'a', 'a', 'a', 'a', 'a', 'a', 'a' }
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param array the given array
+	 * @param toBeReplaced characters to be replaced
+	 * @param replacementChar the replacement character
+	 * @throws NullPointerException if arrays are null.
+	 */
+	public static final void replace(char[] array, char[] toBeReplaced, char replacementChar) {
+		for (int i = array.length; --i >= 0;)
+			for (int j = toBeReplaced.length; --j >= 0;)
+				if (array[i] == toBeReplaced[j])
+					array[i] = replacementChar;
+	}
+
+	/**
 	 * Answers a new array of characters with substitutions. No side-effect is operated on the original
 	 * array, in case no substitution happened, then the result is the same as the
 	 * original one.

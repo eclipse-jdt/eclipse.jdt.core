@@ -23,7 +23,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.ParameterizedType;
@@ -40,11 +39,8 @@ import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.Assert;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -2401,17 +2397,17 @@ public class Util {
 	 * 		['L','X','<','L','Y','<','L','Z',';'>',';','L','V','<','L','W',';'>',';','L','U','>',';'],
 	 * 		['L','A','<','L','B',';','>',';']
 	 * 
-	 * @param uniqueKey ParameterizedSourceType unique key
+	 * @param typeSignature ParameterizedSourceType type signature
 	 * @return char[][] Array of signatures for each level of given unique key
 	 */
-	public final static char[][] splitTypeLevelsSignature(String uniqueKey) {
+	public final static char[][] splitTypeLevelsSignature(String typeSignature) {
 		// In case of IJavaElement signature, replace '$' by '.'
-		char[] source = uniqueKey.replace('$','.').toCharArray();
+		char[] source = typeSignature.replace('$','.').toCharArray();
 
 		// Init counters and arrays
 		char[][] signatures = new char[10][];
 		int signaturesCount = 0;
-		int[] lengthes = new int [10];
+//		int[] lengthes = new int [10];
 		int typeArgsCount = 0;
 		int paramOpening = 0;
 		
@@ -2421,11 +2417,11 @@ public class Util {
 				case '>':
 					paramOpening--;
 					if (paramOpening == 0)  {
-						if (signaturesCount == lengthes.length) {
+						if (signaturesCount == signatures.length) {
 							System.arraycopy(signatures, 0, signatures = new char[signaturesCount+10][], 0, signaturesCount);
-							System.arraycopy(lengthes, 0, lengthes = new int[signaturesCount+10], 0, signaturesCount);
+//							System.arraycopy(lengthes, 0, lengthes = new int[signaturesCount+10], 0, signaturesCount);
 						}
-						lengthes[signaturesCount] = typeArgsCount;
+//						lengthes[signaturesCount] = typeArgsCount;
 						typeArgsCount = 0;
 					}
 					break;
@@ -2441,9 +2437,9 @@ public class Util {
 					break;
 				case '.':
 					if (paramOpening == 0)  {
-						if (signaturesCount == lengthes.length) {
+						if (signaturesCount == signatures.length) {
 							System.arraycopy(signatures, 0, signatures = new char[signaturesCount+10][], 0, signaturesCount);
-							System.arraycopy(lengthes, 0, lengthes = new int[signaturesCount+10], 0, signaturesCount);
+//							System.arraycopy(lengthes, 0, lengthes = new int[signaturesCount+10], 0, signaturesCount);
 						}
 						signatures[signaturesCount] = new char[idx+1];
 						System.arraycopy(source, 0, signatures[signaturesCount], 0, idx);
@@ -2489,58 +2485,5 @@ public class Util {
 			typeArguments += Signature.C_SEMICOLON;
 		}
 		return Signature.getTypeArguments(typeArguments.toCharArray());
-	}
-	
-	/**
-	 * Extract method receiver type from its unique key.
-	 * 
-	 * For methods, receiver type is located at the beginning of the unique key.
-	 * So receiver type signature is unique key substring starting at beginning and
-	 * ended at first ';' character not included in type arguments definition (ie.
-	 * outside <...>).
-	 * 
-	 * @param uniqueKey ParameterizedSourceMethod unique key
-	 * @throws IllegalArgumentException If receiver type signature of unique key is malformed
-	 * @return String Receiver type signature
-	 */
-	public final static String extractMethodReceiverType(String uniqueKey) {
-		// scan method unique key until first ';' outside <>
-		Scanner scanner = new Scanner(false, true, false, ClassFileConstants.JDK1_3, null, null, true); 
-		scanner.setSource(uniqueKey.toCharArray());
-		int token;
-		try {
-			token = scanner.getNextToken();
-			int argCount = 0;
-			tokensLoop: while (token != TerminalTokens.TokenNameEOF) {
-				if (argCount == 0) {
-					switch (token) {
-						case TerminalTokens.TokenNameLESS:
-							argCount++;
-							break;
-						case TerminalTokens.TokenNameSEMICOLON:
-							break tokensLoop;
-						default:
-							break;
-					}
-				} else {
-					switch (token) {
-						case TerminalTokens.TokenNameGREATER:
-						case TerminalTokens.TokenNameRIGHT_SHIFT:
-						case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
-							argCount--;
-							break;
-						case TerminalTokens.TokenNameLESS:
-							argCount++;
-							break;
-					}
-				}
-				token = scanner.getNextToken();
-			}
-		} catch (InvalidInputException e) {
-			throw new IllegalArgumentException();
-		}
-		// return extracted type
-		if (scanner.atEnd()) throw new IllegalArgumentException();
-		return uniqueKey.substring(0, scanner.currentPosition);
 	}
 }
