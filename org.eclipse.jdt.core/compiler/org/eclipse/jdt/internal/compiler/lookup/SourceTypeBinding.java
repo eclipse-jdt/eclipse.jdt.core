@@ -349,6 +349,16 @@ public SyntheticAccessMethodBinding addSyntheticBridgeMethod(MethodBinding inher
 	}
 	if (synthetics[METHOD_EMUL] == null) {
 		synthetics[METHOD_EMUL] = new HashMap(5);
+	} else {
+		// TODO (philippe) MethodBindings do not implement equals() so how do we prevent adding 2 'equal' inherited methods?
+		// check to see if there is another equivalent inheritedMethod already added
+		Iterator synthMethods = synthetics[METHOD_EMUL].keySet().iterator();
+		while (synthMethods.hasNext()) {
+			Object method = synthMethods.next();
+			if (method instanceof MethodBinding)
+				if (inheritedMethodToBridge.areParameterErasuresEqual((MethodBinding) method))
+					return null;
+		}
 	}
 
 	SyntheticAccessMethodBinding accessMethod = null;
