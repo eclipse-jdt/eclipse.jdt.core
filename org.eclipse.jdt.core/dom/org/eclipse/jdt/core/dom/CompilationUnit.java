@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -81,11 +82,12 @@ public class CompilationUnit extends ASTNode {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(CompilationUnit.class);
-		addProperty(PACKAGE_PROPERTY);
-		addProperty(IMPORTS_PROPERTY);
-		addProperty(TYPES_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(4);
+		createPropertyList(CompilationUnit.class, properyList);
+		addProperty(PACKAGE_PROPERTY, properyList);
+		addProperty(IMPORTS_PROPERTY, properyList);
+		addProperty(TYPES_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

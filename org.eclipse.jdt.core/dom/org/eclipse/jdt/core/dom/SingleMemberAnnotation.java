@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -56,10 +57,11 @@ public final class SingleMemberAnnotation extends Annotation {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(SingleMemberAnnotation.class);
-		addProperty(TYPE_NAME_PROPERTY);
-		addProperty(VALUE_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(3);
+		createPropertyList(SingleMemberAnnotation.class, propertyList);
+		addProperty(TYPE_NAME_PROPERTY, propertyList);
+		addProperty(VALUE_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 	
 	/**

@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -120,20 +121,22 @@ public class ClassInstanceCreation extends Expression {
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
 	static {
-		createPropertyList(ClassInstanceCreation.class);
-		addProperty(EXPRESSION_PROPERTY);
-		addProperty(NAME_PROPERTY);
-		addProperty(ARGUMENTS_PROPERTY);
-		addProperty(ANONYMOUS_CLASS_DECLARATION_PROPERTY);
-		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		List properyList = new ArrayList(5);
+		createPropertyList(ClassInstanceCreation.class, properyList);
+		addProperty(EXPRESSION_PROPERTY, properyList);
+		addProperty(NAME_PROPERTY, properyList);
+		addProperty(ARGUMENTS_PROPERTY, properyList);
+		addProperty(ANONYMOUS_CLASS_DECLARATION_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(properyList);
 		
-		createPropertyList(ClassInstanceCreation.class);
-		addProperty(EXPRESSION_PROPERTY);
-		addProperty(TYPE_ARGUMENTS_PROPERTY);
-		addProperty(TYPE_PROPERTY);
-		addProperty(ARGUMENTS_PROPERTY);
-		addProperty(ANONYMOUS_CLASS_DECLARATION_PROPERTY);
-		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+		properyList = new ArrayList(6);
+		createPropertyList(ClassInstanceCreation.class, properyList);
+		addProperty(EXPRESSION_PROPERTY, properyList);
+		addProperty(TYPE_ARGUMENTS_PROPERTY, properyList);
+		addProperty(TYPE_PROPERTY, properyList);
+		addProperty(ARGUMENTS_PROPERTY, properyList);
+		addProperty(ANONYMOUS_CLASS_DECLARATION_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(properyList);
 	}
 
 	/**

@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -59,11 +60,12 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	private static final List PROPERTY_DESCRIPTORS;
 		
 	static {
-		createPropertyList(VariableDeclarationFragment.class);
-		addProperty(NAME_PROPERTY);
-		addProperty(EXTRA_DIMENSIONS_PROPERTY);
-		addProperty(INITIALIZER_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(4);
+		createPropertyList(VariableDeclarationFragment.class, propertyList);
+		addProperty(NAME_PROPERTY, propertyList);
+		addProperty(EXTRA_DIMENSIONS_PROPERTY, propertyList);
+		addProperty(INITIALIZER_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
 	/**

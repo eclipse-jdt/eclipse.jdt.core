@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -81,12 +82,13 @@ public class AnnotationTypeDeclaration extends AbstractTypeDeclaration {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(AnnotationTypeDeclaration.class);
-		addProperty(JAVADOC_PROPERTY);
-		addProperty(MODIFIERS2_PROPERTY);
-		addProperty(NAME_PROPERTY);
-		addProperty(BODY_DECLARATIONS_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(5);
+		createPropertyList(AnnotationTypeDeclaration.class, properyList);
+		addProperty(JAVADOC_PROPERTY, properyList);
+		addProperty(MODIFIERS2_PROPERTY, properyList);
+		addProperty(NAME_PROPERTY, properyList);
+		addProperty(BODY_DECLARATIONS_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,9 +43,10 @@ public final class TextElement extends ASTNode implements IDocElement {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(TextElement.class);
-		addProperty(TEXT_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(2);
+		createPropertyList(TextElement.class, propertyList);
+		addProperty(TEXT_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 	
 	/**

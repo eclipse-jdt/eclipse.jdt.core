@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -174,11 +175,12 @@ public class Assignment extends Expression {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(Assignment.class);
-		addProperty(LEFT_HAND_SIDE_PROPERTY);
-		addProperty(OPERATOR_PROPERTY);
-		addProperty(RIGHT_HAND_SIDE_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(4);
+		createPropertyList(Assignment.class, properyList);
+		addProperty(LEFT_HAND_SIDE_PROPERTY, properyList);
+		addProperty(OPERATOR_PROPERTY, properyList);
+		addProperty(RIGHT_HAND_SIDE_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,10 +48,11 @@ public class CastExpression extends Expression {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(CastExpression.class);
-		addProperty(TYPE_PROPERTY);
-		addProperty(EXPRESSION_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(3);
+		createPropertyList(CastExpression.class, properyList);
+		addProperty(TYPE_PROPERTY, properyList);
+		addProperty(EXPRESSION_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,10 +53,11 @@ public final class NormalAnnotation extends Annotation {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(NormalAnnotation.class);
-		addProperty(TYPE_NAME_PROPERTY);
-		addProperty(VALUES_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(3);
+		createPropertyList(NormalAnnotation.class, propertyList);
+		addProperty(TYPE_NAME_PROPERTY, propertyList);
+		addProperty(VALUES_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 	
 	/**

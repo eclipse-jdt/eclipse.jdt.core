@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -78,18 +79,20 @@ public class MethodInvocation extends Expression {
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
 	static {
-		createPropertyList(MethodInvocation.class);
-		addProperty(EXPRESSION_PROPERTY);
-		addProperty(NAME_PROPERTY);
-		addProperty(ARGUMENTS_PROPERTY);
-		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		List properyList = new ArrayList(4);
+		createPropertyList(MethodInvocation.class, properyList);
+		addProperty(EXPRESSION_PROPERTY, properyList);
+		addProperty(NAME_PROPERTY, properyList);
+		addProperty(ARGUMENTS_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(properyList);
 		
-		createPropertyList(MethodInvocation.class);
-		addProperty(EXPRESSION_PROPERTY);
-		addProperty(TYPE_ARGUMENTS_PROPERTY);
-		addProperty(NAME_PROPERTY);
-		addProperty(ARGUMENTS_PROPERTY);
-		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+		properyList = new ArrayList(5);
+		createPropertyList(MethodInvocation.class, properyList);
+		addProperty(EXPRESSION_PROPERTY, properyList);
+		addProperty(TYPE_ARGUMENTS_PROPERTY, properyList);
+		addProperty(NAME_PROPERTY, properyList);
+		addProperty(ARGUMENTS_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(properyList);
 	}
 
 	/**

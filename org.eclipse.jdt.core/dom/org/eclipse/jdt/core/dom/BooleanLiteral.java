@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,9 +42,10 @@ public class BooleanLiteral extends Expression {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(BooleanLiteral.class);
-		addProperty(BOOLEAN_VALUE_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(2);
+		createPropertyList(BooleanLiteral.class, properyList);
+		addProperty(BOOLEAN_VALUE_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

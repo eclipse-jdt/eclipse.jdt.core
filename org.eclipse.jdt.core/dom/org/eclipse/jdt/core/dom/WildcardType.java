@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,10 +58,11 @@ public class WildcardType extends Type {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(WildcardType.class);
-		addProperty(BOUND_PROPERTY);
-		addProperty(UPPER_BOUND_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(3);
+		createPropertyList(WildcardType.class, propertyList);
+		addProperty(BOUND_PROPERTY, propertyList);
+		addProperty(UPPER_BOUND_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
 	/**

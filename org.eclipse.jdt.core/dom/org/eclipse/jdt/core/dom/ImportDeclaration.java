@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -68,16 +69,18 @@ public class ImportDeclaration extends ASTNode {
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
 	static {
-		createPropertyList(ImportDeclaration.class);
-		addProperty(NAME_PROPERTY);
-		addProperty(ON_DEMAND_PROPERTY);
-		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		List properyList = new ArrayList(3);
+		createPropertyList(ImportDeclaration.class, properyList);
+		addProperty(NAME_PROPERTY, properyList);
+		addProperty(ON_DEMAND_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(properyList);
 		
-		createPropertyList(ImportDeclaration.class);
-		addProperty(STATIC_PROPERTY);
-		addProperty(NAME_PROPERTY);
-		addProperty(ON_DEMAND_PROPERTY);
-		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+		properyList = new ArrayList(4);
+		createPropertyList(ImportDeclaration.class, properyList);
+		addProperty(STATIC_PROPERTY, properyList);
+		addProperty(NAME_PROPERTY, properyList);
+		addProperty(ON_DEMAND_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(properyList);
 	}
 
 	/**

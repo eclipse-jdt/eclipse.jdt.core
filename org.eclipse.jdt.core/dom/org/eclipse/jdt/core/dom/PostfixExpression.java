@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,10 +125,11 @@ public class PostfixExpression extends Expression {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(PostfixExpression.class);
-		addProperty(OPERAND_PROPERTY);
-		addProperty(OPERATOR_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(3);
+		createPropertyList(PostfixExpression.class, propertyList);
+		addProperty(OPERAND_PROPERTY, propertyList);
+		addProperty(OPERATOR_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
 	/**

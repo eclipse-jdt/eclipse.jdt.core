@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -69,13 +70,15 @@ public class TypeDeclarationStatement extends Statement {
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
 	static {
-		createPropertyList(TypeDeclarationStatement.class);
-		addProperty(TYPE_DECLARATION_PROPERTY);
-		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		List propertyList = new ArrayList(2);
+		createPropertyList(TypeDeclarationStatement.class, propertyList);
+		addProperty(TYPE_DECLARATION_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(propertyList);
 		
-		createPropertyList(TypeDeclarationStatement.class);
-		addProperty(DECLARATION_PROPERTY);
-		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+		propertyList = new ArrayList(2);
+		createPropertyList(TypeDeclarationStatement.class, propertyList);
+		addProperty(DECLARATION_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(propertyList);
 	}
 
 	/**

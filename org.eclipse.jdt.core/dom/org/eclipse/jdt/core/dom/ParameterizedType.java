@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -56,10 +57,11 @@ public class ParameterizedType extends Type {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(ParameterizedType.class);
-		addProperty(TYPE_PROPERTY);
-		addProperty(TYPE_ARGUMENTS_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(3);
+		createPropertyList(ParameterizedType.class, propertyList);
+		addProperty(TYPE_PROPERTY, propertyList);
+		addProperty(TYPE_ARGUMENTS_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
 	/**

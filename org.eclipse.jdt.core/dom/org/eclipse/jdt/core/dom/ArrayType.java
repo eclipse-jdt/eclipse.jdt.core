@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,9 +43,10 @@ public class ArrayType extends Type {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(ArrayType.class);
-		addProperty(COMPONENT_TYPE_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(2);
+		createPropertyList(ArrayType.class, properyList);
+		addProperty(COMPONENT_TYPE_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

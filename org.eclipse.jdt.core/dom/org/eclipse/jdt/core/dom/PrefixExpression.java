@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -140,10 +141,11 @@ public class PrefixExpression extends Expression {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(PrefixExpression.class);
-		addProperty(OPERATOR_PROPERTY);
-		addProperty(OPERAND_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(3);
+		createPropertyList(PrefixExpression.class, propertyList);
+		addProperty(OPERATOR_PROPERTY, propertyList);
+		addProperty(OPERAND_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
 	/**

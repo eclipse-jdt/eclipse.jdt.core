@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -77,10 +78,11 @@ public class FieldAccess extends Expression {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(FieldAccess.class);
-		addProperty(EXPRESSION_PROPERTY);
-		addProperty(NAME_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(3);
+		createPropertyList(FieldAccess.class, properyList);
+		addProperty(EXPRESSION_PROPERTY, properyList);
+		addProperty(NAME_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,8 +42,9 @@ public final class BlockComment extends Comment {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(BlockComment.class);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List properyList = new ArrayList(1);
+		createPropertyList(BlockComment.class, properyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	/**

@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,9 +168,10 @@ public class PrimitiveType extends Type {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	static {
-		createPropertyList(PrimitiveType.class);
-		addProperty(PRIMITIVE_TYPE_CODE_PROPERTY);
-		PROPERTY_DESCRIPTORS = reapPropertyList();
+		List propertyList = new ArrayList(2);
+		createPropertyList(PrimitiveType.class, propertyList);
+		addProperty(PRIMITIVE_TYPE_CODE_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
 	/**

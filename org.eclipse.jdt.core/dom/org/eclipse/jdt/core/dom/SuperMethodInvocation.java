@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -78,18 +79,20 @@ public class SuperMethodInvocation extends Expression {
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 	
 	static {
-		createPropertyList(SuperMethodInvocation.class);
-		addProperty(QUALIFIER_PROPERTY);
-		addProperty(NAME_PROPERTY);
-		addProperty(ARGUMENTS_PROPERTY);
-		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		List propertyList = new ArrayList(4);
+		createPropertyList(SuperMethodInvocation.class, propertyList);
+		addProperty(QUALIFIER_PROPERTY, propertyList);
+		addProperty(NAME_PROPERTY, propertyList);
+		addProperty(ARGUMENTS_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(propertyList);
 		
-		createPropertyList(SuperMethodInvocation.class);
-		addProperty(QUALIFIER_PROPERTY);
-		addProperty(TYPE_ARGUMENTS_PROPERTY);
-		addProperty(NAME_PROPERTY);
-		addProperty(ARGUMENTS_PROPERTY);
-		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+		propertyList = new ArrayList(5);
+		createPropertyList(SuperMethodInvocation.class, propertyList);
+		addProperty(QUALIFIER_PROPERTY, propertyList);
+		addProperty(TYPE_ARGUMENTS_PROPERTY, propertyList);
+		addProperty(NAME_PROPERTY, propertyList);
+		addProperty(ARGUMENTS_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(propertyList);
 	}
 
 	/**
