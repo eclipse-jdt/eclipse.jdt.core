@@ -790,6 +790,7 @@ InterfaceMemberDeclaration -> ClassDeclaration
 --1.1 feature
 InterfaceMemberDeclaration -> InterfaceDeclaration
 InterfaceMemberDeclaration -> EnumDeclaration
+InterfaceMemberDeclaration -> AnnotationTypeDeclaration
 /:$readableName InterfaceMemberDeclaration:/
 
 ConstantDeclaration -> FieldDeclaration
