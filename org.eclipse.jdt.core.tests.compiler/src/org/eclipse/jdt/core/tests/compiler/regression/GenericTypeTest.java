@@ -4193,4 +4193,26 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}		
+	// method compatibility
+	// TODO (kent) need to improve error message
+	public void test149() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Collection;\n" + 
+				"\n" + 
+				"public abstract class X implements Collection<Object> {\n" + 
+				"\n" + 
+				"	public Object[] toArray(Object[] a) {\n" + 
+				"		return a;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	public Object[] toArray(Object[] a) {\n" + 
+			"	                ^^^^^^^^^^^^^^^^^^^\n" + 
+			"The return type is incompatible with Collection<Object>.toArray(T[])\n" + 
+			"----------\n");
+	}			
 }
