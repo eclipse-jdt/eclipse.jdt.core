@@ -1329,6 +1329,7 @@ private static int scanTypeArgumentSignature(char[] string, int start) {
 public static int getParameterCount(String methodSignature) throws IllegalArgumentException {
 	return getParameterCount(methodSignature.toCharArray());
 }
+
 /**
  * Extracts the parameter type signatures from the given method signature. 
  * The method signature is expected to be dot-based.
@@ -1370,6 +1371,7 @@ public static char[][] getParameterTypes(char[] methodSignature) throws IllegalA
 		throw new IllegalArgumentException();
 	}
 }
+
 /**
  * Extracts the parameter type signatures from the given method signature. 
  * The method signature is expected to be dot-based.
@@ -1385,6 +1387,78 @@ public static String[] getParameterTypes(String methodSignature) throws IllegalA
 	String[] result = new String[length];
 	for (int i = 0; i < length; i++) {
 		result[i] = new String(parameterTypes[i]);
+	}
+	return result;
+}
+
+/**
+ * Extracts the type parameter signatures from the given method or type signature. 
+ * The method or type signature is expected to be dot-based.
+ *
+ * @param methodOrTypeSignature the method or type signature
+ * @return the list of type parameter signatures
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ * 
+ * @since 3.1
+ */
+public static char[][] getTypeParameters(char[] methodOrTypeSignature) throws IllegalArgumentException {
+	try {
+		int length = methodOrTypeSignature.length;
+		if (length == 0) return CharOperation.NO_CHAR_CHAR;
+		if (methodOrTypeSignature[0] != C_GENERIC_START) return CharOperation.NO_CHAR_CHAR;
+		
+		// for method signature, located argument start
+		int paren = CharOperation.indexOf(C_PARAM_START, methodOrTypeSignature);
+		length = paren < 0 ? methodOrTypeSignature.length : paren;
+		ArrayList paramList = new ArrayList(1);
+		int paramStart = 1, i = 1;  // start after leading '<'
+		while (i < length) {
+			if (i == length-1) {
+				if (methodOrTypeSignature[i] == C_GENERIC_END) {
+					char[][] result;
+					paramList.toArray(result = new char[paramList.size()][]);
+					return result;
+				}
+				break;
+			}
+			i = CharOperation.indexOf(C_COLON, methodOrTypeSignature, i);
+			if (i < 0 || i >= length) throw new IllegalArgumentException();
+			// iterate over bounds
+			nextBound: while (methodOrTypeSignature[i] == ':') {
+				if (++i >= length) throw new IllegalArgumentException();
+				if (methodOrTypeSignature[i] == ':') {
+					continue nextBound; // empty bound
+				}
+				i = scanTypeSignature(methodOrTypeSignature, i);
+				if (i < 0 || i >= length) throw new IllegalArgumentException();
+				i++;
+			}
+			paramList.add(CharOperation.subarray(methodOrTypeSignature, paramStart, i));
+			paramStart = i; // next param start from here
+		}
+	} catch (ArrayIndexOutOfBoundsException e) {
+		// invalid signature, fall through
+	}
+	throw new IllegalArgumentException();
+}
+/**
+ * Extracts the type parameter signatures from the given method or type signature. 
+ * The method or type signature is expected to be dot-based.
+ *
+ * @param methodOrTypeSignature the method or type signature
+ * @return the list of type parameter signatures
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ * 
+ * @since 3.1
+ */
+public static String[] getTypeParameters(String methodOrTypeSignature) throws IllegalArgumentException {
+	char[][] params = getTypeParameters(methodOrTypeSignature.toCharArray());
+	int length = params.length;
+	String[] result = new String[length];
+	for (int i = 0; i < length; i++) {
+		result[i] = new String(params[i]);
 	}
 	return result;
 }
@@ -1484,66 +1558,6 @@ public static String[] getTypeParameterBounds(String formalTypeParameterSignatur
 	String[] result = new String[length];
 	for (int i = 0; i < length; i++) {
 		result[i] = new String(bounds[i]);
-	}
-	return result;
-}
-
-/**
- * Extracts the type parameter signatures from the given generic signature. 
- * The generic signature is expected to be dot-based.
- *
- * @param genericSignature the generic signature
- * @return the (possibly empty) list of type parameter signatures
- * @exception IllegalArgumentException if the signature is syntactically
- *   incorrect
- * @since 3.1
-*/
-public static char[][] getTypeParameters(char[] genericSignature) throws IllegalArgumentException {
-		if (genericSignature[0] != C_GENERIC_START) return CharOperation.NO_CHAR_CHAR;
-		ArrayList list = new ArrayList();
-		int depth = -1;
-		int typeParamStart = 1;
-		loop: for (int i = 0, length = genericSignature.length; i < length; i++) {
-			char c = genericSignature[i];
-			switch (c) {
-				case C_GENERIC_START:
-					depth++;
-					break;
-				case C_GENERIC_END:
-					if (--depth == -1) break loop;
-					break;
-				case C_NAME_END:
-					if (depth == 0) {
-						char[] typeParam = CharOperation.subarray(genericSignature, typeParamStart, i+1);
-						list.add(typeParam);
-						typeParamStart = i+1;
-					}
-			}
-		}
-		int size = list.size();
-		if (size == 0) return CharOperation.NO_CHAR_CHAR;
-		char[][] result = new char[size][];
-		list.toArray(result);
-		return result;
-	
-}
-
-/**
- * Extracts the type parameter signatures from the given generic signature. 
- * The generic signature is expected to be dot-based.
- *
- * @param genericSignature the generic signature
- * @return the (possibly empty) list of type parameter signatures
- * @exception IllegalArgumentException if the signature is syntactically
- *   incorrect
- * @since 3.1
-*/
-public static String[] getTypeParameters(String genericSignature) throws IllegalArgumentException {
-	char[][] signatures = getTypeParameters(genericSignature.toCharArray());
-	int length = signatures.length;
-	String[] result = new String[length];
-	for (int i = 0; i < length; i++) {
-		result[i] = new String(signatures[i]);
 	}
 	return result;
 }
