@@ -804,14 +804,14 @@ public class MultiProjectTests extends Tests {
 			"}\n" //$NON-NLS-1$
 			);
 			
-		IPath y = env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+		env.addClass(root2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"import p3.*;\n"+ //$NON-NLS-1$
 			"public class Y extends Z {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
 
-		IPath z = env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
+		env.addClass(root3, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p3;\n"+ //$NON-NLS-1$
 			"public class Z {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
