@@ -490,7 +490,7 @@ public final class CharOperation {
 
 	/**
 	 * Answers the concatenation of the three arrays inserting the sep1 character between the 
-	 * two arrays and sep2 between the last two.
+	 * first two arrays and sep2 between the last two.
 	 * It answers null if the three arrays are null.
 	 * If the first array is null, then it answers the concatenation of second and third inserting
 	 * the sep2 character between them.
