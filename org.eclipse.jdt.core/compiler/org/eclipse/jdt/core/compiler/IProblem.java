@@ -107,18 +107,18 @@ public interface IProblem {
 	 * When a problem is tagged as Internal, it means that no change other than a local source code change
 	 * can  fix the corresponding problem.
 	 */
-	final int TypeRelated = 0x01000000;
-	final int FieldRelated = 0x02000000;
-	final int MethodRelated = 0x04000000;
-	final int ConstructorRelated = 0x08000000;
-	final int ImportRelated = 0x10000000;
-	final int Internal = 0x20000000;
-	final int Syntax =  0x40000000;
+	int TypeRelated = 0x01000000;
+	int FieldRelated = 0x02000000;
+	int MethodRelated = 0x04000000;
+	int ConstructorRelated = 0x08000000;
+	int ImportRelated = 0x10000000;
+	int Internal = 0x20000000;
+	int Syntax =  0x40000000;
 	
 	/**
 	 * Mask to use in order to filter out the category portion of the problem ID.
 	 */
-	final int IgnoreCategoriesMask = 0xFFFFFF;
+	int IgnoreCategoriesMask = 0xFFFFFF;
 
 	/**
 	 * Below are listed all available problem IDs. Note that this list could be augmented in the future, 
@@ -129,318 +129,327 @@ public interface IProblem {
 	 * ID reserved for referencing an internal error inside the JavaCore implementation which
 	 * may be surfaced as a problem associated with the compilation unit which caused it to occur.
 	 */
-	final int Unclassified = 0;
+	int Unclassified = 0;
 
 	/**
 	 * Generic type related problems
 	 */
-	final int ObjectHasNoSuperclass = TypeRelated + 1;
-	final int UndefinedType = TypeRelated + 2;
-	final int NotVisibleType = TypeRelated + 3;
-	final int AmbiguousType = TypeRelated + 4;
-	final int UsingDeprecatedType = TypeRelated + 5;
-	final int InternalTypeNameProvided = TypeRelated + 6;
+	int ObjectHasNoSuperclass = TypeRelated + 1;
+	int UndefinedType = TypeRelated + 2;
+	int NotVisibleType = TypeRelated + 3;
+	int AmbiguousType = TypeRelated + 4;
+	int UsingDeprecatedType = TypeRelated + 5;
+	int InternalTypeNameProvided = TypeRelated + 6;
 
-	final int IncompatibleTypesInEqualityOperator = TypeRelated + 15;
-	final int IncompatibleTypesInConditionalOperator = TypeRelated + 16;
-	final int TypeMismatch = TypeRelated + 17;
+	int IncompatibleTypesInEqualityOperator = TypeRelated + 15;
+	int IncompatibleTypesInConditionalOperator = TypeRelated + 16;
+	int TypeMismatch = TypeRelated + 17;
 
 	/**
 	 * Inner types related problems
 	 */
-	final int MissingEnclosingInstanceForConstructorCall = TypeRelated + 20;
-	final int MissingEnclosingInstance = TypeRelated + 21;
-	final int IncorrectEnclosingInstanceReference = TypeRelated + 22;
-	final int IllegalEnclosingInstanceSpecification = TypeRelated + 23; 
-	final int CannotDefineStaticInitializerInLocalType = Internal + 24;
-	final int OuterLocalMustBeFinal = Internal + 25;
-	final int CannotDefineInterfaceInLocalType = Internal + 26;
-	final int IllegalPrimitiveOrArrayTypeForEnclosingInstance = TypeRelated + 27;
-	final int AnonymousClassCannotExtendFinalClass = TypeRelated + 29;
+	int MissingEnclosingInstanceForConstructorCall = TypeRelated + 20;
+	int MissingEnclosingInstance = TypeRelated + 21;
+	int IncorrectEnclosingInstanceReference = TypeRelated + 22;
+	int IllegalEnclosingInstanceSpecification = TypeRelated + 23; 
+	int CannotDefineStaticInitializerInLocalType = Internal + 24;
+	int OuterLocalMustBeFinal = Internal + 25;
+	int CannotDefineInterfaceInLocalType = Internal + 26;
+	int IllegalPrimitiveOrArrayTypeForEnclosingInstance = TypeRelated + 27;
+	int AnonymousClassCannotExtendFinalClass = TypeRelated + 29;
 
 	// variables
-	final int UndefinedName = 50;
-	final int UninitializedLocalVariable = Internal + 51;
-	final int VariableTypeCannotBeVoid = Internal + 52;
-	final int VariableTypeCannotBeVoidArray = Internal + 53;
-	final int CannotAllocateVoidArray = Internal + 54;
+	int UndefinedName = 50;
+	int UninitializedLocalVariable = Internal + 51;
+	int VariableTypeCannotBeVoid = Internal + 52;
+	int VariableTypeCannotBeVoidArray = Internal + 53;
+	int CannotAllocateVoidArray = Internal + 54;
 	// local variables
-	final int RedefinedLocal = Internal + 55;
-	final int RedefinedArgument = Internal + 56;
-	final int DuplicateFinalLocalInitialization = Internal + 57;
+	int RedefinedLocal = Internal + 55;
+	int RedefinedArgument = Internal + 56;
+	int DuplicateFinalLocalInitialization = Internal + 57;
 	// final local variables
-	final int FinalOuterLocalAssignment = Internal + 60;
-	final int LocalVariableIsNeverUsed = Internal + 61;
-	final int ArgumentIsNeverUsed = Internal + 62;
-	final int BytecodeExceeds64KLimit = Internal + 63;
-	final int BytecodeExceeds64KLimitForClinit = Internal + 64;
-	final int TooManyArgumentSlots = Internal + 65;
-	final int TooManyLocalVariableSlots = Internal + 66;
+	int FinalOuterLocalAssignment = Internal + 60;
+	int LocalVariableIsNeverUsed = Internal + 61;
+	int ArgumentIsNeverUsed = Internal + 62;
+	int BytecodeExceeds64KLimit = Internal + 63;
+	int BytecodeExceeds64KLimitForClinit = Internal + 64;
+	int TooManyArgumentSlots = Internal + 65;
+	int TooManyLocalVariableSlots = Internal + 66;
 
 	// fields
-	final int UndefinedField = FieldRelated + 70;
-	final int NotVisibleField = FieldRelated + 71;
-	final int AmbiguousField = FieldRelated + 72;
-	final int UsingDeprecatedField = FieldRelated + 73;
-	final int NonStaticFieldFromStaticInvocation = FieldRelated + 74;
-	final int ReferenceToForwardField = FieldRelated + Internal + 75;
+	int UndefinedField = FieldRelated + 70;
+	int NotVisibleField = FieldRelated + 71;
+	int AmbiguousField = FieldRelated + 72;
+	int UsingDeprecatedField = FieldRelated + 73;
+	int NonStaticFieldFromStaticInvocation = FieldRelated + 74;
+	int ReferenceToForwardField = FieldRelated + Internal + 75;
 
 	// blank final fields
-	final int FinalFieldAssignment = FieldRelated + 80;
-	final int UninitializedBlankFinalField = FieldRelated + 81;
-	final int DuplicateBlankFinalFieldInitialization = FieldRelated + 82;
+	int FinalFieldAssignment = FieldRelated + 80;
+	int UninitializedBlankFinalField = FieldRelated + 81;
+	int DuplicateBlankFinalFieldInitialization = FieldRelated + 82;
 
 	// methods
-	final int UndefinedMethod = MethodRelated + 100;
-	final int NotVisibleMethod = MethodRelated + 101;
-	final int AmbiguousMethod = MethodRelated + 102;
-	final int UsingDeprecatedMethod = MethodRelated + 103;
-	final int DirectInvocationOfAbstractMethod = MethodRelated + 104;
-	final int VoidMethodReturnsValue = MethodRelated + 105;
-	final int MethodReturnsVoid = MethodRelated + 106;
-	final int MethodRequiresBody = Internal + MethodRelated + 107;
-	final int ShouldReturnValue = Internal + MethodRelated + 108;
-	final int MethodButWithConstructorName = MethodRelated + 110;
-	final int MissingReturnType = TypeRelated + 111;
-	final int BodyForNativeMethod = Internal + MethodRelated + 112;
-	final int BodyForAbstractMethod = Internal + MethodRelated + 113;
-	final int NoMessageSendOnBaseType = MethodRelated + 114;
-	final int ParameterMismatch = MethodRelated + 115;
-	final int NoMessageSendOnArrayType = MethodRelated + 116;
+	int UndefinedMethod = MethodRelated + 100;
+	int NotVisibleMethod = MethodRelated + 101;
+	int AmbiguousMethod = MethodRelated + 102;
+	int UsingDeprecatedMethod = MethodRelated + 103;
+	int DirectInvocationOfAbstractMethod = MethodRelated + 104;
+	int VoidMethodReturnsValue = MethodRelated + 105;
+	int MethodReturnsVoid = MethodRelated + 106;
+	int MethodRequiresBody = Internal + MethodRelated + 107;
+	int ShouldReturnValue = Internal + MethodRelated + 108;
+	int MethodButWithConstructorName = MethodRelated + 110;
+	int MissingReturnType = TypeRelated + 111;
+	int BodyForNativeMethod = Internal + MethodRelated + 112;
+	int BodyForAbstractMethod = Internal + MethodRelated + 113;
+	int NoMessageSendOnBaseType = MethodRelated + 114;
+	int ParameterMismatch = MethodRelated + 115;
+	int NoMessageSendOnArrayType = MethodRelated + 116;
     
 	// constructors
-	final int UndefinedConstructor = ConstructorRelated + 130;
-	final int NotVisibleConstructor = ConstructorRelated + 131;
-	final int AmbiguousConstructor = ConstructorRelated + 132;
-	final int UsingDeprecatedConstructor = ConstructorRelated + 133;
+	int UndefinedConstructor = ConstructorRelated + 130;
+	int NotVisibleConstructor = ConstructorRelated + 131;
+	int AmbiguousConstructor = ConstructorRelated + 132;
+	int UsingDeprecatedConstructor = ConstructorRelated + 133;
 	// explicit constructor calls
-	final int InstanceFieldDuringConstructorInvocation = ConstructorRelated + 135;
-	final int InstanceMethodDuringConstructorInvocation = ConstructorRelated + 136;
-	final int RecursiveConstructorInvocation = ConstructorRelated + 137;
-	final int ThisSuperDuringConstructorInvocation = ConstructorRelated + 138;
-
+	int InstanceFieldDuringConstructorInvocation = ConstructorRelated + 135;
+	int InstanceMethodDuringConstructorInvocation = ConstructorRelated + 136;
+	int RecursiveConstructorInvocation = ConstructorRelated + 137;
+	int ThisSuperDuringConstructorInvocation = ConstructorRelated + 138;
+	// implicit constructor calls
+	int UndefinedConstructorInDefaultConstructor = ConstructorRelated + 140;
+	int NotVisibleConstructorInDefaultConstructor = ConstructorRelated + 141;
+	int AmbiguousConstructorInDefaultConstructor = ConstructorRelated + 142;
+	int UndefinedConstructorInImplicitConstructorCall = ConstructorRelated + 143;
+	int NotVisibleConstructorInImplicitConstructorCall = ConstructorRelated + 144;
+	int AmbiguousConstructorInImplicitConstructorCall = ConstructorRelated + 145;
+	int UnhandledExceptionInDefaultConstructor = TypeRelated + 146;
+	int UnhandledExceptionInImplicitConstructorCall = TypeRelated + 147;
+				
 	// expressions
-	final int ArrayReferenceRequired = Internal + 150;
-	final int NoImplicitStringConversionForCharArrayExpression = Internal + 151;
+	int ArrayReferenceRequired = Internal + 150;
+	int NoImplicitStringConversionForCharArrayExpression = Internal + 151;
 	// constant expressions
-	final int StringConstantIsExceedingUtf8Limit = Internal + 152;
-	final int NonConstantExpression = 153;
-	final int NumericValueOutOfRange = Internal + 154;
+	int StringConstantIsExceedingUtf8Limit = Internal + 152;
+	int NonConstantExpression = 153;
+	int NumericValueOutOfRange = Internal + 154;
 	// cast expressions
-	final int IllegalCast = TypeRelated + 156;
+	int IllegalCast = TypeRelated + 156;
 	// allocations
-	final int InvalidClassInstantiation = TypeRelated + 157;
-	final int CannotDefineDimensionExpressionsWithInit = Internal + 158;
-	final int MustDefineEitherDimensionExpressionsOrInitializer = Internal + 159;
+	int InvalidClassInstantiation = TypeRelated + 157;
+	int CannotDefineDimensionExpressionsWithInit = Internal + 158;
+	int MustDefineEitherDimensionExpressionsOrInitializer = Internal + 159;
 	// operators
-	final int InvalidOperator = Internal + 160;
+	int InvalidOperator = Internal + 160;
 	// statements
-	final int CodeCannotBeReached = Internal + 161;
-	final int CannotReturnInInitializer = Internal + 162;
-	final int InitializerMustCompleteNormally = Internal + 163;
+	int CodeCannotBeReached = Internal + 161;
+	int CannotReturnInInitializer = Internal + 162;
+	int InitializerMustCompleteNormally = Internal + 163;
 	
 	// assert
-	final int InvalidVoidExpression = Internal + 164;
+	int InvalidVoidExpression = Internal + 164;
 	// try
-	final int MaskedCatch = TypeRelated + 165;
-	final int DuplicateDefaultCase = 166;
-	final int UnreachableCatch = TypeRelated + MethodRelated + 167;
-	final int UnhandledException = TypeRelated + 168;
+	int MaskedCatch = TypeRelated + 165;
+	int DuplicateDefaultCase = 166;
+	int UnreachableCatch = TypeRelated + MethodRelated + 167;
+	int UnhandledException = TypeRelated + 168;
 	// switch       
-	final int IncorrectSwitchType = TypeRelated + 169;
-	final int DuplicateCase = FieldRelated + 170;
+	int IncorrectSwitchType = TypeRelated + 169;
+	int DuplicateCase = FieldRelated + 170;
 	// labelled
-	final int DuplicateLabel = Internal + 171;
-	final int InvalidBreak = Internal + 172;
-	final int InvalidContinue = Internal + 173;
-	final int UndefinedLabel = Internal + 174;
+	int DuplicateLabel = Internal + 171;
+	int InvalidBreak = Internal + 172;
+	int InvalidContinue = Internal + 173;
+	int UndefinedLabel = Internal + 174;
 	//synchronized
-	final int InvalidTypeToSynchronized = Internal + 175;
-	final int InvalidNullToSynchronized = Internal + 176;
+	int InvalidTypeToSynchronized = Internal + 175;
+	int InvalidNullToSynchronized = Internal + 176;
 	// throw
-	final int CannotThrowNull = Internal + 177;
+	int CannotThrowNull = Internal + 177;
 
 	// inner emulation
-	final int NeedToEmulateFieldReadAccess = FieldRelated + 190;
-	final int NeedToEmulateFieldWriteAccess = FieldRelated + 191;
-	final int NeedToEmulateMethodAccess = MethodRelated + 192;
-	final int NeedToEmulateConstructorAccess = MethodRelated + 193;
+	int NeedToEmulateFieldReadAccess = FieldRelated + 190;
+	int NeedToEmulateFieldWriteAccess = FieldRelated + 191;
+	int NeedToEmulateMethodAccess = MethodRelated + 192;
+	int NeedToEmulateConstructorAccess = MethodRelated + 193;
 
 	//inherited name hides enclosing name (sort of ambiguous)
-	final int InheritedMethodHidesEnclosingName = MethodRelated + 195;
-	final int InheritedFieldHidesEnclosingName = FieldRelated + 196;
-	final int InheritedTypeHidesEnclosingName = TypeRelated + 197;
+	int InheritedMethodHidesEnclosingName = MethodRelated + 195;
+	int InheritedFieldHidesEnclosingName = FieldRelated + 196;
+	int InheritedTypeHidesEnclosingName = TypeRelated + 197;
 
 	// miscellaneous
-	final int ThisInStaticContext = Internal + 200;
-	final int StaticMethodRequested = Internal + MethodRelated + 201;
-	final int IllegalDimension = Internal + 202;
-	final int InvalidTypeExpression = Internal + 203;
-	final int ParsingError = Syntax + Internal + 204;
-	final int ParsingErrorNoSuggestion = Syntax + Internal + 205;
-	final int InvalidUnaryExpression = Syntax + Internal + 206;
+	int ThisInStaticContext = Internal + 200;
+	int StaticMethodRequested = Internal + MethodRelated + 201;
+	int IllegalDimension = Internal + 202;
+	int InvalidTypeExpression = Internal + 203;
+	int ParsingError = Syntax + Internal + 204;
+	int ParsingErrorNoSuggestion = Syntax + Internal + 205;
+	int InvalidUnaryExpression = Syntax + Internal + 206;
 
 	// syntax errors
-	final int InterfaceCannotHaveConstructors = Syntax + Internal + 207;
-	final int ArrayConstantsOnlyInArrayInitializers = Syntax + Internal + 208;
-	final int ParsingErrorOnKeyword = Syntax + Internal + 209;	
-	final int ParsingErrorOnKeywordNoSuggestion = Syntax + Internal + 210;
+	int InterfaceCannotHaveConstructors = Syntax + Internal + 207;
+	int ArrayConstantsOnlyInArrayInitializers = Syntax + Internal + 208;
+	int ParsingErrorOnKeyword = Syntax + Internal + 209;	
+	int ParsingErrorOnKeywordNoSuggestion = Syntax + Internal + 210;
 
-	final int UnmatchedBracket = Syntax + Internal + 220;
-	final int NoFieldOnBaseType = FieldRelated + 221;
-	final int InvalidExpressionAsStatement = Syntax + Internal + 222;
+	int UnmatchedBracket = Syntax + Internal + 220;
+	int NoFieldOnBaseType = FieldRelated + 221;
+	int InvalidExpressionAsStatement = Syntax + Internal + 222;
     
 	// scanner errors
-	final int EndOfSource = Syntax + Internal + 250;
-	final int InvalidHexa = Syntax + Internal + 251;
-	final int InvalidOctal = Syntax + Internal + 252;
-	final int InvalidCharacterConstant = Syntax + Internal + 253;
-	final int InvalidEscape = Syntax + Internal + 254;
-	final int InvalidInput = Syntax + Internal + 255;
-	final int InvalidUnicodeEscape = Syntax + Internal + 256;
-	final int InvalidFloat = Syntax + Internal + 257;
-	final int NullSourceString = Syntax + Internal + 258;
-	final int UnterminatedString = Syntax + Internal + 259;
-	final int UnterminatedComment = Syntax + Internal + 260;
+	int EndOfSource = Syntax + Internal + 250;
+	int InvalidHexa = Syntax + Internal + 251;
+	int InvalidOctal = Syntax + Internal + 252;
+	int InvalidCharacterConstant = Syntax + Internal + 253;
+	int InvalidEscape = Syntax + Internal + 254;
+	int InvalidInput = Syntax + Internal + 255;
+	int InvalidUnicodeEscape = Syntax + Internal + 256;
+	int InvalidFloat = Syntax + Internal + 257;
+	int NullSourceString = Syntax + Internal + 258;
+	int UnterminatedString = Syntax + Internal + 259;
+	int UnterminatedComment = Syntax + Internal + 260;
 
 	// type related problems
-	final int InterfaceCannotHaveInitializers = TypeRelated + 300;
-	final int DuplicateModifierForType = TypeRelated + 301;
-	final int IllegalModifierForClass = TypeRelated + 302;
-	final int IllegalModifierForInterface = TypeRelated + 303;
-	final int IllegalModifierForMemberClass = TypeRelated + 304;
-	final int IllegalModifierForMemberInterface = TypeRelated + 305;
-	final int IllegalModifierForLocalClass = TypeRelated + 306;
+	int InterfaceCannotHaveInitializers = TypeRelated + 300;
+	int DuplicateModifierForType = TypeRelated + 301;
+	int IllegalModifierForClass = TypeRelated + 302;
+	int IllegalModifierForInterface = TypeRelated + 303;
+	int IllegalModifierForMemberClass = TypeRelated + 304;
+	int IllegalModifierForMemberInterface = TypeRelated + 305;
+	int IllegalModifierForLocalClass = TypeRelated + 306;
 
-	final int IllegalModifierCombinationFinalAbstractForClass = TypeRelated + 308;
-	final int IllegalVisibilityModifierForInterfaceMemberType = TypeRelated + 309;
-	final int IllegalVisibilityModifierCombinationForMemberType = TypeRelated + 310;
-	final int IllegalStaticModifierForMemberType = TypeRelated + 311;
-	final int SuperclassMustBeAClass = TypeRelated + 312;
-	final int ClassExtendFinalClass = TypeRelated + 313;
-	final int DuplicateSuperInterface = TypeRelated + 314;
-	final int SuperInterfaceMustBeAnInterface = TypeRelated + 315;
-	final int HierarchyCircularitySelfReference = TypeRelated + 316;
-	final int HierarchyCircularity = TypeRelated + 317;
-	final int HidingEnclosingType = TypeRelated + 318;
-	final int DuplicateNestedType = TypeRelated + 319;
-	final int CannotThrowType = TypeRelated + 320;
-	final int PackageCollidesWithType = TypeRelated + 321;
-	final int TypeCollidesWithPackage = TypeRelated + 322;
-	final int DuplicateTypes = TypeRelated + 323;
-	final int IsClassPathCorrect = TypeRelated + 324;
-	final int PublicClassMustMatchFileName = TypeRelated + 325;
-	final int MustSpecifyPackage = 326;
-	final int HierarchyHasProblems = TypeRelated + 327;
-	final int PackageIsNotExpectedPackage = 328;
+	int IllegalModifierCombinationFinalAbstractForClass = TypeRelated + 308;
+	int IllegalVisibilityModifierForInterfaceMemberType = TypeRelated + 309;
+	int IllegalVisibilityModifierCombinationForMemberType = TypeRelated + 310;
+	int IllegalStaticModifierForMemberType = TypeRelated + 311;
+	int SuperclassMustBeAClass = TypeRelated + 312;
+	int ClassExtendFinalClass = TypeRelated + 313;
+	int DuplicateSuperInterface = TypeRelated + 314;
+	int SuperInterfaceMustBeAnInterface = TypeRelated + 315;
+	int HierarchyCircularitySelfReference = TypeRelated + 316;
+	int HierarchyCircularity = TypeRelated + 317;
+	int HidingEnclosingType = TypeRelated + 318;
+	int DuplicateNestedType = TypeRelated + 319;
+	int CannotThrowType = TypeRelated + 320;
+	int PackageCollidesWithType = TypeRelated + 321;
+	int TypeCollidesWithPackage = TypeRelated + 322;
+	int DuplicateTypes = TypeRelated + 323;
+	int IsClassPathCorrect = TypeRelated + 324;
+	int PublicClassMustMatchFileName = TypeRelated + 325;
+	int MustSpecifyPackage = 326;
+	int HierarchyHasProblems = TypeRelated + 327;
+	int PackageIsNotExpectedPackage = 328;
 
-	// final int InvalidSuperclassBase = TypeRelated + 329; // reserved to 334 included
-	final int SuperclassNotFound =  TypeRelated + 329 + ProblemReasons.NotFound; // TypeRelated + 330
-	final int SuperclassNotVisible =  TypeRelated + 329 + ProblemReasons.NotVisible; // TypeRelated + 331
-	final int SuperclassAmbiguous =  TypeRelated + 329 + ProblemReasons.Ambiguous; // TypeRelated + 332
-	final int SuperclassInternalNameProvided =  TypeRelated + 329 + ProblemReasons.InternalNameProvided; // TypeRelated + 333
-	final int SuperclassInheritedNameHidesEnclosingName =  TypeRelated + 329 + ProblemReasons.InheritedNameHidesEnclosingName; // TypeRelated + 334
+	// int InvalidSuperclassBase = TypeRelated + 329; // reserved to 334 included
+	int SuperclassNotFound =  TypeRelated + 329 + ProblemReasons.NotFound; // TypeRelated + 330
+	int SuperclassNotVisible =  TypeRelated + 329 + ProblemReasons.NotVisible; // TypeRelated + 331
+	int SuperclassAmbiguous =  TypeRelated + 329 + ProblemReasons.Ambiguous; // TypeRelated + 332
+	int SuperclassInternalNameProvided =  TypeRelated + 329 + ProblemReasons.InternalNameProvided; // TypeRelated + 333
+	int SuperclassInheritedNameHidesEnclosingName =  TypeRelated + 329 + ProblemReasons.InheritedNameHidesEnclosingName; // TypeRelated + 334
 
-	// final int InvalidInterfaceBase = TypeRelated + 334; // reserved to 339 included
-	final int InterfaceNotFound =  TypeRelated + 334 + ProblemReasons.NotFound; // TypeRelated + 335
-	final int InterfaceNotVisible =  TypeRelated + 334 + ProblemReasons.NotVisible; // TypeRelated + 336
-	final int InterfaceAmbiguous =  TypeRelated + 334 + ProblemReasons.Ambiguous; // TypeRelated + 337
-	final int InterfaceInternalNameProvided =  TypeRelated + 334 + ProblemReasons.InternalNameProvided; // TypeRelated + 338
-	final int InterfaceInheritedNameHidesEnclosingName =  TypeRelated + 334 + ProblemReasons.InheritedNameHidesEnclosingName; // TypeRelated + 339
+	// int InvalidInterfaceBase = TypeRelated + 334; // reserved to 339 included
+	int InterfaceNotFound =  TypeRelated + 334 + ProblemReasons.NotFound; // TypeRelated + 335
+	int InterfaceNotVisible =  TypeRelated + 334 + ProblemReasons.NotVisible; // TypeRelated + 336
+	int InterfaceAmbiguous =  TypeRelated + 334 + ProblemReasons.Ambiguous; // TypeRelated + 337
+	int InterfaceInternalNameProvided =  TypeRelated + 334 + ProblemReasons.InternalNameProvided; // TypeRelated + 338
+	int InterfaceInheritedNameHidesEnclosingName =  TypeRelated + 334 + ProblemReasons.InheritedNameHidesEnclosingName; // TypeRelated + 339
 
 	// field related problems
-	final int DuplicateField = FieldRelated + 340;
-	final int DuplicateModifierForField = FieldRelated + 341;
-	final int IllegalModifierForField = FieldRelated + 342;
-	final int IllegalModifierForInterfaceField = FieldRelated + 343;
-	final int IllegalVisibilityModifierCombinationForField = FieldRelated + 344;
-	final int IllegalModifierCombinationFinalVolatileForField = FieldRelated + 345;
-	final int UnexpectedStaticModifierForField = FieldRelated + 346;
+	int DuplicateField = FieldRelated + 340;
+	int DuplicateModifierForField = FieldRelated + 341;
+	int IllegalModifierForField = FieldRelated + 342;
+	int IllegalModifierForInterfaceField = FieldRelated + 343;
+	int IllegalVisibilityModifierCombinationForField = FieldRelated + 344;
+	int IllegalModifierCombinationFinalVolatileForField = FieldRelated + 345;
+	int UnexpectedStaticModifierForField = FieldRelated + 346;
 
-	// final int FieldTypeProblemBase = FieldRelated + 349; //reserved to 354
-	final int FieldTypeNotFound =  FieldRelated + 349 + ProblemReasons.NotFound; // FieldRelated + 350
-	final int FieldTypeNotVisible =  FieldRelated + 349 + ProblemReasons.NotVisible; // FieldRelated + 351
-	final int FieldTypeAmbiguous =  FieldRelated + 349 + ProblemReasons.Ambiguous; // FieldRelated + 352
-	final int FieldTypeInternalNameProvided =  FieldRelated + 349 + ProblemReasons.InternalNameProvided; // FieldRelated + 353
-	final int FieldTypeInheritedNameHidesEnclosingName =  FieldRelated + 349 + ProblemReasons.InheritedNameHidesEnclosingName; // FieldRelated + 354
+	// int FieldTypeProblemBase = FieldRelated + 349; //reserved to 354
+	int FieldTypeNotFound =  FieldRelated + 349 + ProblemReasons.NotFound; // FieldRelated + 350
+	int FieldTypeNotVisible =  FieldRelated + 349 + ProblemReasons.NotVisible; // FieldRelated + 351
+	int FieldTypeAmbiguous =  FieldRelated + 349 + ProblemReasons.Ambiguous; // FieldRelated + 352
+	int FieldTypeInternalNameProvided =  FieldRelated + 349 + ProblemReasons.InternalNameProvided; // FieldRelated + 353
+	int FieldTypeInheritedNameHidesEnclosingName =  FieldRelated + 349 + ProblemReasons.InheritedNameHidesEnclosingName; // FieldRelated + 354
 	
 	// method related problems
-	final int DuplicateMethod = MethodRelated + 355;
-	final int IllegalModifierForArgument = MethodRelated + 356;
-	final int DuplicateModifierForMethod = MethodRelated + 357;
-	final int IllegalModifierForMethod = MethodRelated + 358;
-	final int IllegalModifierForInterfaceMethod = MethodRelated + 359;
-	final int IllegalVisibilityModifierCombinationForMethod = MethodRelated + 360;
-	final int UnexpectedStaticModifierForMethod = MethodRelated + 361;
-	final int IllegalAbstractModifierCombinationForMethod = MethodRelated + 362;
-	final int AbstractMethodInAbstractClass = MethodRelated + 363;
-	final int ArgumentTypeCannotBeVoid = MethodRelated + 364;
-	final int ArgumentTypeCannotBeVoidArray = MethodRelated + 365;
-	final int ReturnTypeCannotBeVoidArray = MethodRelated + 366;
-	final int NativeMethodsCannotBeStrictfp = MethodRelated + 367;
+	int DuplicateMethod = MethodRelated + 355;
+	int IllegalModifierForArgument = MethodRelated + 356;
+	int DuplicateModifierForMethod = MethodRelated + 357;
+	int IllegalModifierForMethod = MethodRelated + 358;
+	int IllegalModifierForInterfaceMethod = MethodRelated + 359;
+	int IllegalVisibilityModifierCombinationForMethod = MethodRelated + 360;
+	int UnexpectedStaticModifierForMethod = MethodRelated + 361;
+	int IllegalAbstractModifierCombinationForMethod = MethodRelated + 362;
+	int AbstractMethodInAbstractClass = MethodRelated + 363;
+	int ArgumentTypeCannotBeVoid = MethodRelated + 364;
+	int ArgumentTypeCannotBeVoidArray = MethodRelated + 365;
+	int ReturnTypeCannotBeVoidArray = MethodRelated + 366;
+	int NativeMethodsCannotBeStrictfp = MethodRelated + 367;
 
-	//	final int ArgumentProblemBase = MethodRelated + 369; // reserved to 374 included.
-	final int ArgumentTypeNotFound =  MethodRelated + 369 + ProblemReasons.NotFound; // MethodRelated + 370
-	final int ArgumentTypeNotVisible =  MethodRelated + 369 + ProblemReasons.NotVisible; // MethodRelated + 371
-	final int ArgumentTypeAmbiguous =  MethodRelated + 369 + ProblemReasons.Ambiguous; // MethodRelated + 372
-	final int ArgumentTypeInternalNameProvided =  MethodRelated + 369 + ProblemReasons.InternalNameProvided; // MethodRelated + 373
-	final int ArgumentTypeInheritedNameHidesEnclosingName =  MethodRelated + 369 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 374
+	//	int ArgumentProblemBase = MethodRelated + 369; // reserved to 374 included.
+	int ArgumentTypeNotFound =  MethodRelated + 369 + ProblemReasons.NotFound; // MethodRelated + 370
+	int ArgumentTypeNotVisible =  MethodRelated + 369 + ProblemReasons.NotVisible; // MethodRelated + 371
+	int ArgumentTypeAmbiguous =  MethodRelated + 369 + ProblemReasons.Ambiguous; // MethodRelated + 372
+	int ArgumentTypeInternalNameProvided =  MethodRelated + 369 + ProblemReasons.InternalNameProvided; // MethodRelated + 373
+	int ArgumentTypeInheritedNameHidesEnclosingName =  MethodRelated + 369 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 374
 
-	//	final int ExceptionTypeProblemBase = MethodRelated + 374; // reserved to 379 included.
-	final int ExceptionTypeNotFound =  MethodRelated + 374 + ProblemReasons.NotFound; // MethodRelated + 375
-	final int ExceptionTypeNotVisible =  MethodRelated + 374 + ProblemReasons.NotVisible; // MethodRelated + 376
-	final int ExceptionTypeAmbiguous =  MethodRelated + 374 + ProblemReasons.Ambiguous; // MethodRelated + 377
-	final int ExceptionTypeInternalNameProvided =  MethodRelated + 374 + ProblemReasons.InternalNameProvided; // MethodRelated + 378
-	final int ExceptionTypeInheritedNameHidesEnclosingName =  MethodRelated + 374 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 379
+	//	int ExceptionTypeProblemBase = MethodRelated + 374; // reserved to 379 included.
+	int ExceptionTypeNotFound =  MethodRelated + 374 + ProblemReasons.NotFound; // MethodRelated + 375
+	int ExceptionTypeNotVisible =  MethodRelated + 374 + ProblemReasons.NotVisible; // MethodRelated + 376
+	int ExceptionTypeAmbiguous =  MethodRelated + 374 + ProblemReasons.Ambiguous; // MethodRelated + 377
+	int ExceptionTypeInternalNameProvided =  MethodRelated + 374 + ProblemReasons.InternalNameProvided; // MethodRelated + 378
+	int ExceptionTypeInheritedNameHidesEnclosingName =  MethodRelated + 374 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 379
 
-	//	final int ReturnTypeProblemBase = MethodRelated + 379;
-	final int ReturnTypeNotFound =  MethodRelated + 379 + ProblemReasons.NotFound; // MethodRelated + 380
-	final int ReturnTypeNotVisible =  MethodRelated + 379 + ProblemReasons.NotVisible; // MethodRelated + 381
-	final int ReturnTypeAmbiguous =  MethodRelated + 379 + ProblemReasons.Ambiguous; // MethodRelated + 382
-	final int ReturnTypeInternalNameProvided =  MethodRelated + 379 + ProblemReasons.InternalNameProvided; // MethodRelated + 383
-	final int ReturnTypeInheritedNameHidesEnclosingName =  MethodRelated + 379 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 384
+	//	int ReturnTypeProblemBase = MethodRelated + 379;
+	int ReturnTypeNotFound =  MethodRelated + 379 + ProblemReasons.NotFound; // MethodRelated + 380
+	int ReturnTypeNotVisible =  MethodRelated + 379 + ProblemReasons.NotVisible; // MethodRelated + 381
+	int ReturnTypeAmbiguous =  MethodRelated + 379 + ProblemReasons.Ambiguous; // MethodRelated + 382
+	int ReturnTypeInternalNameProvided =  MethodRelated + 379 + ProblemReasons.InternalNameProvided; // MethodRelated + 383
+	int ReturnTypeInheritedNameHidesEnclosingName =  MethodRelated + 379 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 384
 
 	// import related problems
-	final int ConflictingImport = ImportRelated + 385;
-	final int DuplicateImport = ImportRelated + 386;
-	final int CannotImportPackage = ImportRelated + 387;
+	int ConflictingImport = ImportRelated + 385;
+	int DuplicateImport = ImportRelated + 386;
+	int CannotImportPackage = ImportRelated + 387;
 
-	//	final int ImportProblemBase = ImportRelated + 389;
-	final int ImportNotFound =  ImportRelated + 389 + ProblemReasons.NotFound; // ImportRelated + 390
-	final int ImportNotVisible =  ImportRelated + 389 + ProblemReasons.NotVisible; // ImportRelated + 391
-	final int ImportAmbiguous =  ImportRelated + 389 + ProblemReasons.Ambiguous; // ImportRelated + 392
-	final int ImportInternalNameProvided =  ImportRelated + 389 + ProblemReasons.InternalNameProvided; // ImportRelated + 393
-	final int ImportInheritedNameHidesEnclosingName =  ImportRelated + 389 + ProblemReasons.InheritedNameHidesEnclosingName; // ImportRelated + 394
+	//	int ImportProblemBase = ImportRelated + 389;
+	int ImportNotFound =  ImportRelated + 389 + ProblemReasons.NotFound; // ImportRelated + 390
+	int ImportNotVisible =  ImportRelated + 389 + ProblemReasons.NotVisible; // ImportRelated + 391
+	int ImportAmbiguous =  ImportRelated + 389 + ProblemReasons.Ambiguous; // ImportRelated + 392
+	int ImportInternalNameProvided =  ImportRelated + 389 + ProblemReasons.InternalNameProvided; // ImportRelated + 393
+	int ImportInheritedNameHidesEnclosingName =  ImportRelated + 389 + ProblemReasons.InheritedNameHidesEnclosingName; // ImportRelated + 394
 		
 	// local variable related problems
-	final int DuplicateModifierForVariable = MethodRelated + 395;
-	final int IllegalModifierForVariable = MethodRelated + 396;
+	int DuplicateModifierForVariable = MethodRelated + 395;
+	int IllegalModifierForVariable = MethodRelated + 396;
 
 	// method verifier problems
-	final int AbstractMethodMustBeImplemented = MethodRelated + 400;
-	final int FinalMethodCannotBeOverridden = MethodRelated + 401;
-	final int IncompatibleExceptionInThrowsClause = MethodRelated + 402;
-	final int IncompatibleExceptionInInheritedMethodThrowsClause = MethodRelated + 403;
-	final int IncompatibleReturnType = MethodRelated + 404;
-	final int InheritedMethodReducesVisibility = MethodRelated + 405;
-	final int CannotOverrideAStaticMethodWithAnInstanceMethod = MethodRelated + 406;
-	final int CannotHideAnInstanceMethodWithAStaticMethod = MethodRelated + 407;
-	final int StaticInheritedMethodConflicts = MethodRelated + 408;
-	final int MethodReducesVisibility = MethodRelated + 409;
-	final int OverridingNonVisibleMethod = MethodRelated + 410;
-	final int AbstractMethodCannotBeOverridden = MethodRelated + 411;
-	final int OverridingDeprecatedMethod = MethodRelated + 412;
+	int AbstractMethodMustBeImplemented = MethodRelated + 400;
+	int FinalMethodCannotBeOverridden = MethodRelated + 401;
+	int IncompatibleExceptionInThrowsClause = MethodRelated + 402;
+	int IncompatibleExceptionInInheritedMethodThrowsClause = MethodRelated + 403;
+	int IncompatibleReturnType = MethodRelated + 404;
+	int InheritedMethodReducesVisibility = MethodRelated + 405;
+	int CannotOverrideAStaticMethodWithAnInstanceMethod = MethodRelated + 406;
+	int CannotHideAnInstanceMethodWithAStaticMethod = MethodRelated + 407;
+	int StaticInheritedMethodConflicts = MethodRelated + 408;
+	int MethodReducesVisibility = MethodRelated + 409;
+	int OverridingNonVisibleMethod = MethodRelated + 410;
+	int AbstractMethodCannotBeOverridden = MethodRelated + 411;
+	int OverridingDeprecatedMethod = MethodRelated + 412;
 
 	// code snippet support
-	final int CodeSnippetMissingClass = Internal + 420;
-	final int CodeSnippetMissingMethod = Internal + 421;
-	final int NonExternalizedStringLiteral = Internal + 261;
-	final int CannotUseSuperInCodeSnippet = Internal + 422;
+	int CodeSnippetMissingClass = Internal + 420;
+	int CodeSnippetMissingMethod = Internal + 421;
+	int NonExternalizedStringLiteral = Internal + 261;
+	int CannotUseSuperInCodeSnippet = Internal + 422;
 	
 	//constant pool
-	final int TooManyConstantsInConstantPool = Internal + 430;
+	int TooManyConstantsInConstantPool = Internal + 430;
 	
 	// 1.4 features
 	// assertion warning
-	final int UseAssertAsAnIdentifier = Internal + 440;
+	int UseAssertAsAnIdentifier = Internal + 440;
 }

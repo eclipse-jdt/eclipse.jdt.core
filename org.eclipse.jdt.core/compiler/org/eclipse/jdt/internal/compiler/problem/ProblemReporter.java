@@ -1194,23 +1194,43 @@ public void invalidBreak(AstNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void invalidConstructor(Statement statement, MethodBinding method) {
-	// CODE should be UPDATED according to error coding in the different method binding errors
-	// The different targetted errors should be :
-	// UndefinedConstructor
-	//	NotVisibleConstructor
-	//	AmbiguousConstructor
+public void invalidConstructor(Statement statement, MethodBinding targetConstructor) {
+
+	boolean insideDefaultConstructor = 
+		(referenceContext instanceof ConstructorDeclaration)
+			&& ((ConstructorDeclaration)referenceContext).isDefaultConstructor();
+	boolean insideImplicitConstructorCall =
+		(statement instanceof ExplicitConstructorCall)
+			&& (((ExplicitConstructorCall) statement).accessMode == ExplicitConstructorCall.ImplicitSuper);
 
 	int flag = IProblem.UndefinedConstructor; //default...
-	switch (method.problemId()) {
+	switch (targetConstructor.problemId()) {
 		case NotFound :
-			flag = IProblem.UndefinedConstructor;
+			if (insideDefaultConstructor){
+				flag = IProblem.UndefinedConstructorInDefaultConstructor;
+			} else if (insideImplicitConstructorCall){
+				flag = IProblem.UndefinedConstructorInImplicitConstructorCall;
+			} else {
+				flag = IProblem.UndefinedConstructor;
+			}
 			break;
 		case NotVisible :
-			flag = IProblem.NotVisibleConstructor;
+			if (insideDefaultConstructor){
+				flag = IProblem.NotVisibleConstructorInDefaultConstructor;
+			} else if (insideImplicitConstructorCall){
+				flag = IProblem.NotVisibleConstructorInImplicitConstructorCall;
+			} else {
+				flag = IProblem.NotVisibleConstructor;
+			}
 			break;
 		case Ambiguous :
-			flag = IProblem.AmbiguousConstructor;
+			if (insideDefaultConstructor){
+				flag = IProblem.AmbiguousConstructorInDefaultConstructor;
+			} else if (insideImplicitConstructorCall){
+				flag = IProblem.AmbiguousConstructorInImplicitConstructorCall;
+			} else {
+				flag = IProblem.AmbiguousConstructor;
+			}
 			break;
 		case NoError : // 0
 		default :
@@ -1218,9 +1238,10 @@ public void invalidConstructor(Statement statement, MethodBinding method) {
 			break;
 	}
 
+	
 	this.handle(
 		flag,
-		new String[] {new String(method.declaringClass.readableName()), parametersAsString(method)},
+		new String[] {new String(targetConstructor.declaringClass.readableName()), parametersAsString(targetConstructor)},
 		statement.sourceStart,
 		statement.sourceEnd);
 }
@@ -1232,12 +1253,6 @@ public void invalidContinue(AstNode location) {
 		location.sourceEnd);
 }
 public void invalidEnclosingType(Expression expression, TypeBinding type, TypeBinding enclosingType) {
-	//CODE should be UPDATED according to error coding in the different type binding errors
-	//The different targetted errors should be :
-		//UndefinedType
-		//NotVisibleType
-		//AmbiguousType
-		//InternalNameProvided
 
 	int flag = IProblem.UndefinedType; // default
 	switch (type.problemId()) {
@@ -2191,9 +2206,21 @@ public void unexpectedStaticModifierForMethod(ReferenceBinding type, AbstractMet
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void unhandledException(TypeBinding exceptionType, AstNode location, Scope scope) {
+public void unhandledException(TypeBinding exceptionType, AstNode location) {
+
+	boolean insideDefaultConstructor = 
+		(referenceContext instanceof ConstructorDeclaration)
+			&& ((ConstructorDeclaration)referenceContext).isDefaultConstructor();
+	boolean insideImplicitConstructorCall =
+		(location instanceof ExplicitConstructorCall)
+			&& (((ExplicitConstructorCall) location).accessMode == ExplicitConstructorCall.ImplicitSuper);
+
 	this.handle(
-		IProblem.UnhandledException,
+		insideDefaultConstructor
+			? IProblem.UnhandledExceptionInDefaultConstructor
+			: (insideImplicitConstructorCall 
+					? IProblem.UndefinedConstructorInImplicitConstructorCall
+					: IProblem.UnhandledException),
 		new String[] {new String(exceptionType.readableName())},
 		location.sourceStart,
 		location.sourceEnd);

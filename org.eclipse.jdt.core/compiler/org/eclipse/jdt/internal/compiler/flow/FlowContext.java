@@ -155,7 +155,7 @@ public class FlowContext implements TypeConstants {
 		for (int i = 0; i < raisedCount; i++) {
 			TypeBinding exception;
 			if ((exception = raisedExceptions[i]) != null) {
-				scope.problemReporter().unhandledException(exception, location, scope);
+				scope.problemReporter().unhandledException(exception, location);
 			}
 		}
 	}
@@ -238,7 +238,7 @@ public class FlowContext implements TypeConstants {
 			traversedContext = traversedContext.parent;
 		}
 		// if reaches this point, then there are some remaining unhandled exception types.
-		scope.problemReporter().unhandledException(raisedException, location, scope);
+		scope.problemReporter().unhandledException(raisedException, location);
 	}
 
 	public Label continueLabel() {
