@@ -297,9 +297,6 @@ public class JavaProject
 		}
 		visitedProjects.add(this);
 
-		if (generateMarkerOnError && !this.equals(initialProject)){
-			generateMarkerOnError = false;
-		}
 		IClasspathEntry[] preferredClasspath = preferredClasspaths != null ? (IClasspathEntry[])preferredClasspaths.get(this) : null;
 		IPath preferredOutput = preferredOutputs != null ? (IPath)preferredOutputs.get(this) : null;
 		IClasspathEntry[] immediateClasspath = 
@@ -326,7 +323,7 @@ public class JavaProject
 							project.computeExpandedClasspath(
 								initialProject, 
 								ignoreUnresolvedVariable, 
-								generateMarkerOnError,
+								false /* no marker when recursing in prereq*/,
 								visitedProjects, 
 								accumulatedEntries,
 								preferredClasspaths,
@@ -2667,10 +2664,10 @@ public class JavaProject
 		 // force classpath marker refresh
 		 if (classpath != null && output != null) {
 		 	for (int i = 0; i < classpath.length; i++) {
-				IJavaModelStatus status = JavaConventions.validateClasspathEntry(this, classpath[i], false/*src attach*/);
+				IJavaModelStatus status = ClasspathEntry.validateClasspathEntry(this, classpath[i], false/*src attach*/, true /*recurse in container*/);
 				if (!status.isOK()) this.createClasspathProblemMarker(status);					 
 			 }
-			IJavaModelStatus status = JavaConventions.validateClasspath(this, classpath, output);
+			IJavaModelStatus status = ClasspathEntry.validateClasspath(this, classpath, output);
 			if (!status.isOK()) this.createClasspathProblemMarker(status);
 		 }
 	}

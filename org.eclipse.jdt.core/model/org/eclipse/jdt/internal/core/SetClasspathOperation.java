@@ -822,7 +822,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			}
 					
 			// perform validation
-			return JavaConventions.validateClasspath(
+			return ClasspathEntry.validateClasspath(
 				project,
 				entries,
 				outputLocation);
