@@ -219,7 +219,7 @@ public interface ITypeBinding extends IBinding {
 	 * <code>Collection&lt;String&gt;</code> typically resolves to a
 	 * parameterized type binding whose erasure is a type binding for the class 
 	 * <code>java.util.Collection</code> and whose type argument is a type
-	 * binding for the class <code>java.util.Collection</code>.
+	 * binding for the class <code>java.lang.String</code>.
 	 * </p>
 	 * <p>
 	 * Note: Support for new language features proposed for the upcoming 1.5
