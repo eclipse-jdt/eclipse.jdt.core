@@ -741,6 +741,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *              character.
 	 *     - option id:			"org.eclipse.jdt.core.builder.resourceCopyExclusionFilter"
 	 *     - possible values:	{ "<name>[,<name>]* } where <name> is a file name pattern (only * wild-cards allowed)
+	 *       or the name of a folder which ends with '/'
 	 *     - default:			""
 	 * 
 	 * BUILDER / Abort if Invalid Classpath

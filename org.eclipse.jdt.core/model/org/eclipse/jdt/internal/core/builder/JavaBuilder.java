@@ -31,7 +31,8 @@ IContainer[] sourceFolders;
 SimpleLookupTable binaryResources; // maps a project to its binary resources (output folder, class folders, zip/jar files)
 State lastState;
 BuildNotifier notifier;
-char[][] resourceFilters;
+char[][] fileFilters;
+String[] folderFilters;
 
 public static final String JAVA_EXTENSION = "java"; //$NON-NLS-1$
 public static final String CLASS_EXTENSION = "class"; //$NON-NLS-1$
@@ -209,14 +210,22 @@ private void createFolder(IContainer folder) throws CoreException {
 }
 
 boolean filterResource(IResource resource) {
-	if (resourceFilters != null) {
-//		char[] path = resource.getProjectRelativePath().setDevice(null).toString().toCharArray();
-//		for (int i = 0, length = resourceFilters.length; i < length; i++)
-//			if (CharOperation.match(resourceFilters[i], path, true))
+	if (fileFilters != null) {
 		char[] name = resource.getName().toCharArray();
-		for (int i = 0, length = resourceFilters.length; i < length; i++)
-			if (CharOperation.match(resourceFilters[i], name, true))
+		for (int i = 0, length = fileFilters.length; i < length; i++)
+			if (CharOperation.match(fileFilters[i], name, true))
 				return true;
+	}
+	if (folderFilters != null) {
+		IPath path = resource.getProjectRelativePath();
+		String pathName = path.toString();
+		int count = path.segmentCount();
+		if (resource.getType() == IResource.FILE) count--;
+		for (int i = 0, l = folderFilters.length; i < l; i++)
+			if (pathName.indexOf(folderFilters[i]) != -1)
+				for (int j = 0; j < count; j++)
+					if (folderFilters[i].equals(path.segment(j)))
+						return true;
 	}
 	return false;
 }
@@ -244,7 +253,7 @@ private SimpleLookupTable findDeltas() {
 		IProject p = (IProject) keyTable[i];
 		if (p != null && p != currentProject) {
 			State s = getLastState(p);
-			if (!lastState.isStructurallyChanged(p, s)) { // see if we can skip its delta
+			if (!lastState.wasStructurallyChanged(p, s)) { // see if we can skip its delta
 				if (s.wasNoopBuild())
 					continue nextProject; // project has no source folders and can be skipped
 				IResource[] classFoldersAndJars = (IResource[]) valueTable[i];
@@ -385,7 +394,7 @@ private void initializeBuilder() throws CoreException {
 		builtProjects = new ArrayList();
 	}
 	builtProjects.add(projectName);
-	
+
 	ArrayList sourceList = new ArrayList();
 	this.binaryResources = new SimpleLookupTable(3);
 	this.classpath = NameEnvironment.computeLocations(
@@ -398,9 +407,28 @@ private void initializeBuilder() throws CoreException {
 	sourceList.toArray(this.sourceFolders);
 
 	String filterSequence = (String) JavaCore.getOptions().get(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER);
-	this.resourceFilters = filterSequence != null && filterSequence.length() > 0
+	char[][] filters = filterSequence != null && filterSequence.length() > 0
 		? CharOperation.splitOn(',', filterSequence.toCharArray())
 		: null;
+	if (filters == null) {
+		this.fileFilters = null;
+		this.folderFilters = null;
+	} else {
+		int fileCount = 0, folderCount = 0;
+		for (int i = 0, length = filters.length; i < length; i++) {
+			char[] f = filters[i];
+			if (f[f.length - 1] == '/') folderCount++; else fileCount++;
+		}
+		this.fileFilters = new char[fileCount][];
+		this.folderFilters = new String[folderCount];
+		for (int i = 0, length = filters.length; i < length; i++) {
+			char[] f = filters[i];
+			if (f[f.length - 1] == '/')
+				folderFilters[--folderCount] = new String(CharOperation.subarray(f, 0, f.length - 1));
+			else
+				fileFilters[--fileCount] = f;
+		}
+	}
 }
 
 private boolean isWorthBuilding() throws CoreException {
