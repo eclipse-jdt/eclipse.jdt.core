@@ -168,4 +168,34 @@ public void test0008() throws JavaModelException {
 		"element:XYXSuper    completion:XYXSuper    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
+public void test0009() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0009", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "/**/T_";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("should have one class",
+		"element:T_1    completion:T_1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:T_2    completion:T_2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
+}
+public void test0010() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0010", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "/**/T_";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("should have one class",
+		"element:T_1    completion:T_1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:T_2    completion:T_2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:T_3    completion:T_3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:T_4    completion:T_4    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
+}
 }

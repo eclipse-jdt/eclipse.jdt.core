@@ -432,7 +432,7 @@ public final class CompletionEngine
 				SingleTypeReference type = (CompletionOnSingleTypeReference) method.returnType;
 				completionToken = type.token;
 				setSourceRange(type.sourceStart, type.sourceEnd);
-				findTypesAndPackages(completionToken, scope);
+				findTypesAndPackages(completionToken, scope.parent);
 				findKeywordsForMember(completionToken, method.modifiers);
 			
 				if(method.modifiers == CompilerModifiers.AccDefault) {
@@ -2701,13 +2701,64 @@ public final class CompletionEngine
 		nameEnvironment.findPackages(CharOperation.toLowerCase(completionToken), this);
 	}
 
+	private void findTypeParameters(char[] token, Scope scope) {
+		TypeVariableBinding[] typeVariables = null;
+		while (scope != null) { // done when a COMPILATION_UNIT_SCOPE is found
+			typeVariables = null;
+			switch (scope.kind) {
+				case Scope.METHOD_SCOPE :
+					MethodScope methodScope = (MethodScope) scope;
+					if(methodScope.referenceContext instanceof AbstractMethodDeclaration) {
+						typeVariables = ((AbstractMethodDeclaration)methodScope.referenceContext).binding.typeVariables;
+					}
+					break;
+				case Scope.CLASS_SCOPE :
+					SourceTypeBinding sourceTypeBinding = scope.enclosingSourceType();
+					typeVariables = sourceTypeBinding.typeVariables;
+					break;
+				case Scope.COMPILATION_UNIT_SCOPE :
+					return;
+			}
+			if(typeVariables != null) {
+				for (int i = 0; i < typeVariables.length; i++) {
+					int typeLength = token.length;
+					TypeVariableBinding typeVariable = typeVariables[i];
+					
+					if (typeLength > typeVariable.sourceName.length) continue;
+					
+					if (!CharOperation.prefixEquals(token, typeVariable.sourceName, false)) continue;
+	
+					int relevance = computeBaseRelevance();
+					relevance += computeRelevanceForInterestingProposal();
+					relevance += computeRelevanceForCaseMatching(token, typeVariable.sourceName);
+					relevance += computeRelevanceForExpectingType(typeVariable.superclass);
+					relevance += computeRelevanceForQualification(false);
+					relevance += computeRelevanceForException(typeVariable.sourceName);
+					
+					noProposal = false;
+					requestor.acceptClass(
+						CharOperation.NO_CHAR,
+						typeVariable.sourceName(),
+						typeVariable.sourceName(),
+						typeVariable.modifiers,
+						startPosition - offset, 
+						endPosition - offset,
+						relevance);
+				}
+			}
+			scope = scope.parent;
+		}
+	}
+	
 	private void findTypesAndPackages(char[] token, Scope scope) {
 
 		if (token == null)
 			return;
 
-		if (scope.enclosingSourceType() != null)
+		if (scope.enclosingSourceType() != null) {
 			findNestedTypes(token, scope.enclosingSourceType(), scope);
+			findTypeParameters(token, scope);
+		}
 
 		if (unitScope != null) {
 			int typeLength = token.length;
