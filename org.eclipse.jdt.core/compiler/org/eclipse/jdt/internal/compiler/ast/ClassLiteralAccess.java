@@ -42,7 +42,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	// in interface case, no caching occurs, since cannot make a cache field for interface
 	if (valueRequired)
 		codeStream.generateClassLiteralAccessForType(type.binding, syntheticField);
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding resolveType(BlockScope scope) {
 	constant = NotAConstant;

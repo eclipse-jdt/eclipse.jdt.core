@@ -227,7 +227,7 @@ public abstract class Expression extends Statement {
 			// generate a constant expression
 			int pc = codeStream.position;
 			codeStream.generateConstant(constant, implicitConversion);
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} else {
 			// actual non-constant code generation
 			throw new ShouldNotImplement(Util.bind("ast.missingCode")); //$NON-NLS-1$
@@ -269,7 +269,7 @@ public abstract class Expression extends Statement {
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		generateCode(currentScope, codeStream, valueRequired);

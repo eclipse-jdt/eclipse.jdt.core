@@ -68,7 +68,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (mergedInitStateIndex != -1) {
 		codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public void resolve(BlockScope scope) {
 	statement.resolve(scope);

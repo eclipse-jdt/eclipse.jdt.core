@@ -229,8 +229,8 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 			Expression lastExpression = (Expression) methodDecl.statements[last];
 			methodDecl.statements[last] = new CodeSnippetReturnStatement(
 											lastExpression, 
-											lastExpression.sourceStart(), 
-											lastExpression.sourceEnd(),
+											lastExpression.sourceStart, 
+											lastExpression.sourceEnd,
 											evaluationContext);
 		}
 	}
@@ -409,8 +409,8 @@ protected void consumeStatementReturn() {
 		pushOnAstStack(
 			new CodeSnippetReturnStatement(
 				expression, 
-				expression.sourceStart(), 
-				expression.sourceEnd(),
+				expression.sourceStart, 
+				expression.sourceEnd,
 				evaluationContext));
 	} else {
 		super.consumeStatementReturn();

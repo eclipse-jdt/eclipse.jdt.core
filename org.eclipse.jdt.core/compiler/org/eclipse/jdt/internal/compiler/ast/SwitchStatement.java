@@ -168,7 +168,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (scope != currentScope) {
 		codeStream.exitUserScope(scope);
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public void resolve(BlockScope upperScope) {
 	TypeBinding testType = testExpression.resolveType(upperScope);

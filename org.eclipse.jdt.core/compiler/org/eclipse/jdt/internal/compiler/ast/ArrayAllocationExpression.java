@@ -73,7 +73,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.pop();
 	}
 
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding resolveType(BlockScope scope) {
 	// Build an array type reference using the current dimensions

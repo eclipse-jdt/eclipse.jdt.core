@@ -75,7 +75,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			codeStream.putfield(binding);
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding getTypeBinding(Scope scope) {
 	return type.getTypeBinding(scope);

@@ -71,7 +71,7 @@ public class AND_AND_Expression extends BinaryExpression {
 			// inlined value
 			if (valueRequired)
 				codeStream.generateConstant(constant, implicitConversion);
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		bits |= OnlyValueRequiredMASK;
@@ -104,7 +104,7 @@ public class AND_AND_Expression extends BinaryExpression {
 		if (valueRequired) {
 			codeStream.generateImplicitConversion(implicitConversion);
 		}
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
 	/**
@@ -164,7 +164,7 @@ public class AND_AND_Expression extends BinaryExpression {
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			if (mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(
 					currentScope,
@@ -222,7 +222,7 @@ public class AND_AND_Expression extends BinaryExpression {
 					}
 				}
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			if (mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(
 					currentScope,
@@ -269,7 +269,7 @@ public class AND_AND_Expression extends BinaryExpression {
 				// no implicit fall through TRUE/FALSE --> should never occur
 			}
 		}
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		if (mergedInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(
 				currentScope,

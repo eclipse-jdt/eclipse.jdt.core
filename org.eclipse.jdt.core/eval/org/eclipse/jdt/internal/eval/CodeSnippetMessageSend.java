@@ -139,7 +139,7 @@ public void generateCode(
 				codeStream.pop();
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope) {
 }

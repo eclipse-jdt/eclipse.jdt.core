@@ -123,7 +123,7 @@ public class ExplicitConstructorCall
 			} else {
 				codeStream.invokespecial(binding);
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {
 			((MethodScope) currentScope).isConstructorCall = false;
 		}

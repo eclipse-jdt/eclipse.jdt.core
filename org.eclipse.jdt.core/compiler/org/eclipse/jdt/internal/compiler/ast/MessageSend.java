@@ -112,7 +112,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				codeStream.pop();
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, (int)(this.nameSourcePosition >>> 32)); // highlight selector
 }
 public boolean isSuperAccess() {	
 	return receiver.isSuper();

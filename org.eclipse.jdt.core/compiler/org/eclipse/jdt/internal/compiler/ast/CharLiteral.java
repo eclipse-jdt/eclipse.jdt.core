@@ -83,7 +83,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			codeStream.generateInlinedValue(value);
 		else
 			codeStream.generateConstant(constant, implicitConversion);
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding literalType(BlockScope scope) {
 	return CharBinding;

@@ -28,7 +28,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	int pc = codeStream.position;
 	if (valueRequired)
 		codeStream.iconst_0();
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, Label trueLabel, Label falseLabel, boolean valueRequired) {
 
@@ -43,7 +43,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 			}
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding literalType(BlockScope scope) {
 	return BooleanBinding;

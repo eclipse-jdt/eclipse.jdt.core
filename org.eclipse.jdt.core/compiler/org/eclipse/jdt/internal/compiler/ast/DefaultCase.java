@@ -36,7 +36,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	int pc = codeStream.position;
 	targetLabel.place();
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 	
 }
 public Constant resolveCase(BlockScope scope, TypeBinding testType, SwitchStatement switchStatement) {

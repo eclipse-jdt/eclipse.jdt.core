@@ -86,7 +86,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	if (!valueRequired) {
 		codeStream.pop();
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTb) {
 	// Array initializers can only occur on the right hand side of an assignment

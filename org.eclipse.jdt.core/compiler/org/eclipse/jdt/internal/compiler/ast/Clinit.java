@@ -181,7 +181,7 @@ public class Clinit extends AbstractMethodDeclaration {
 					codeStream.updateLocalVariablesAttribute(oldPosition);
 				}
 				// Record the end of the clinit: point to the declaration of the class
-				codeStream.recordPositionsFrom(0, declaringType);
+				codeStream.recordPositionsFrom(0, declaringType.sourceStart);
 				classFile.completeCodeAttributeForClinit(codeAttributeOffset);
 			}
 	}

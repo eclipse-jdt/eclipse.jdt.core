@@ -55,7 +55,7 @@ public class UnaryExpression extends OperatorExpression {
 			if (valueRequired) {
 				codeStream.generateConstant(constant, implicitConversion);
 			}
-			codeStream.recordPositionsFrom(pc, this);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
 		switch ((bits & OperatorMASK) >> OperatorSHIFT) {
@@ -146,7 +146,7 @@ public class UnaryExpression extends OperatorExpression {
 		if (valueRequired) {
 			codeStream.generateImplicitConversion(implicitConversion);
 		}
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
 	/**

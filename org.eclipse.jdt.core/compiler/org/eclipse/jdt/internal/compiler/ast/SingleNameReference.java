@@ -325,7 +325,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				}
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 /*
  * Regular API for compound assignment, relies on the fact that there is only one reference to the

@@ -246,7 +246,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 					} else {
 						codeStream.pop();
 					}
-					codeStream.recordPositionsFrom(varPC, catchArguments[i]);
+					codeStream.recordPositionsFrom(varPC, catchArguments[i].sourceStart);
 					// Keep track of the pcs at diverging point for computing the local attribute
 					// since not passing the catchScope, the block generation will exitUserScope(catchScope)
 					catchBlocks[i].generateCode(scope, codeStream);	
@@ -310,7 +310,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				codeStream.incrStackSize(1);
 				codeStream.store(returnAddressVariable, false);
 			}
-			codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock); // entire sequence for finally is associated to finally block
+			codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock.sourceStart); // entire sequence for finally is associated to finally block
 			finallyBlock.generateCode(scope, codeStream);
 			if (!nonReturningSubRoutine) {
 				int position = codeStream.position;
@@ -332,7 +332,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public void resolve(BlockScope upperScope) {
 

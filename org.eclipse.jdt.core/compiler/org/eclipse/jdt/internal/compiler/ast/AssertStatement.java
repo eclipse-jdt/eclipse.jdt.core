@@ -104,7 +104,7 @@ public class AssertStatement extends Statement {
 		if (preAssertInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, preAssertInitStateIndex);
 		}	
-		codeStream.recordPositionsFrom(pc, this);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
 	public void resolve(BlockScope scope) {

@@ -43,7 +43,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	int pc = codeStream.position;
 	if (valueRequired)
 		codeStream.ldc(constant.stringValue());
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public TypeBinding literalType(BlockScope scope) {
 	return scope.getJavaLangString();

@@ -74,7 +74,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			if (binding.resolvedPosition != -1){ // may need to preserve variable
 				int initPC = codeStream.position;
 				codeStream.generateConstant(inlinedValue, initialization.implicitConversion);
-				codeStream.recordPositionsFrom(initPC, initialization);
+				codeStream.recordPositionsFrom(initPC, initialization.sourceStart);
 				codeStream.store(binding, false);
 				binding.recordInitializationStartPC(codeStream.position);
 //				codeStream.lastInitStateIndexWhenRemovingInits = -2; // reinitialize remove index 
@@ -102,7 +102,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			}
 		}
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public String name(){
 

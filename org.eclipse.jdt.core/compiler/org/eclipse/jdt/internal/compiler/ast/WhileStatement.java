@@ -108,7 +108,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		if (!(((condition.constant != NotAConstant) && (condition.constant.booleanValue() == true)) || (action == null) || action.isEmptyBlock())){
 			int jumpPC = codeStream.position;
 			codeStream.goto_(continueLabel);
-			codeStream.recordPositionsFrom(jumpPC, condition);
+			codeStream.recordPositionsFrom(jumpPC, condition.sourceStart);
 		}
 	}
 	// generate the action
@@ -137,7 +137,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (mergedInitStateIndex != -1) {
 		codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public void resolve(BlockScope scope) {
 	TypeBinding type = condition.resolveTypeExpecting(scope, BooleanBinding);

@@ -1821,11 +1821,11 @@ public void generateStringAppend(BlockScope blockScope, Expression oper1, Expres
 	} else {
 		pc = position;
 		oper1.generateOptimizedStringBufferCreation(blockScope, this, oper1.implicitConversion & 0xF);
-		this.recordPositionsFrom(pc, oper1);
+		this.recordPositionsFrom(pc, oper1.sourceStart);
 	}
 	pc = position;
 	oper2.generateOptimizedStringBuffer(blockScope, this, oper2.implicitConversion & 0xF);
-	this.recordPositionsFrom(pc, oper2);
+	this.recordPositionsFrom(pc, oper2.sourceStart);
 	this.invokeStringBufferToString();
 }
 /**
@@ -4705,7 +4705,7 @@ public void record(LocalVariableBinding local) {
 	local.initializationPCs = new int[4];
 	local.initializationCount = 0;
 }
-public void recordPositionsFrom(int startPC, AstNode node) {
+public void recordPositionsFrom(int startPC, int sourcePos) {
 
 	/* Record positions in the table, only if nothing has 
 	 * already been recorded. Since we output them on the way 
@@ -4713,10 +4713,9 @@ public void recordPositionsFrom(int startPC, AstNode node) {
 	 * The pcToSourceMap table is always sorted.
 	 */
 
-	int startPos;
 	if (!generateLineNumberAttributes)
 		return;
-	if ((startPos = node.sourceStart()) == 0)
+	if (sourcePos == 0)
 		return;
 
 	// no code generated for this node. e.g. field without any initialization
@@ -4728,7 +4727,7 @@ public void recordPositionsFrom(int startPC, AstNode node) {
 		// resize the array pcToSourceMap
 		System.arraycopy(pcToSourceMap, 0, (pcToSourceMap = new int[pcToSourceMapSize << 1]), 0, pcToSourceMapSize);
 	}
-	int newLine = ClassFile.searchLineNumber(lineSeparatorPositions, startPos);
+	int newLine = ClassFile.searchLineNumber(lineSeparatorPositions, sourcePos);
 	// lastEntryPC represents the endPC of the lastEntry.
 	if (pcToSourceMapSize > 0) {
 		// in this case there is already an entry in the table

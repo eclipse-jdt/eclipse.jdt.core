@@ -1885,8 +1885,8 @@ protected void consumeEnterVariable() {
 		int baseType;
 		if ((baseType = identifierLengthStack[identifierLengthPtr + 1]) < 0) {
 			//it was a baseType
-			int typeSourceStart = type.sourceStart();
-			int typeSourceEnd = type.sourceEnd();
+			int typeSourceStart = type.sourceStart;
+			int typeSourceEnd = type.sourceEnd;
 			type = TypeReference.baseTypeReference(-baseType, dimension);
 			type.sourceStart = typeSourceStart;
 			type.sourceEnd = typeSourceEnd;
@@ -2390,8 +2390,8 @@ protected void consumeMethodHeaderExtendedDims() {
 		int baseType;
 		if ((baseType = identifierLengthStack[identifierLengthPtr + 1]) < 0) {
 			//it was a baseType
-			int sourceStart = returnType.sourceStart();
-			int sourceEnd =  returnType.sourceEnd();
+			int sourceStart = returnType.sourceStart;
+			int sourceEnd =  returnType.sourceEnd;
 			returnType = TypeReference.baseTypeReference(-baseType, dims);
 			returnType.sourceStart = sourceStart;
 			returnType.sourceEnd = sourceEnd;
@@ -6017,7 +6017,7 @@ protected void ignoreExpressionAssignment() {
 	ArrayInitializer arrayInitializer = (ArrayInitializer) expressionStack[expressionPtr--];
 	expressionLengthPtr -- ;
 	// report a syntax error and abort parsing
-	problemReporter().arrayConstantsOnlyInArrayInitializers(arrayInitializer.sourceStart(), arrayInitializer.sourceEnd()); 	
+	problemReporter().arrayConstantsOnlyInArrayInitializers(arrayInitializer.sourceStart, arrayInitializer.sourceEnd); 	
 }
 protected void ignoreInterfaceDeclaration() {
 	// BlockStatement ::= InvalidInterfaceDeclaration
@@ -7089,12 +7089,12 @@ protected void updateSourceDeclarationParts(int variableDeclaratorsCounter) {
 
 	FieldDeclaration field;
 	int endTypeDeclarationPosition = 
-		-1 + astStack[astPtr - variableDeclaratorsCounter + 1].sourceStart(); 
+		-1 + astStack[astPtr - variableDeclaratorsCounter + 1].sourceStart; 
 	for (int i = 0; i < variableDeclaratorsCounter - 1; i++) {
 		//last one is special(see below)
 		field = (FieldDeclaration) astStack[astPtr - i - 1];
 		field.endPart1Position = endTypeDeclarationPosition;
-		field.endPart2Position = -1 + astStack[astPtr - i].sourceStart();
+		field.endPart2Position = -1 + astStack[astPtr - i].sourceStart;
 	}
 	//last one
 	(field = (FieldDeclaration) astStack[astPtr]).endPart1Position = 

@@ -57,7 +57,7 @@ public void generateCode(
 		codeStream.dup();
 	}
 	// better highlight for allocation: display the type individually
-	codeStream.recordPositionsFrom(pc, type);
+	codeStream.recordPositionsFrom(pc, type.sourceStart);
 
 	// handling innerclass instance allocation
 	if (allocatedType.isNestedType()) {
@@ -83,7 +83,7 @@ public void generateCode(
 		}
 		codeStream.invokespecial(syntheticAccessor);
 	}
-	codeStream.recordPositionsFrom(pc, this);
+	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 public boolean isSuperAccess() {
 	return false;
