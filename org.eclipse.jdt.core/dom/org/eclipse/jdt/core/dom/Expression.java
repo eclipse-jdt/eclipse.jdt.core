@@ -76,7 +76,7 @@ public abstract class Expression extends ASTNode {
 	 * and qualified names that refer to constant variables (JLS2 4.12.4).
 	 * </p>
 	 * <p>
-	 * Note 1: enum constants are not considered constant expressions either.
+	 * Note 1: enum constants are not considered constant expressions.
 	 * The result is always <code>null</code> for these.
 	 * </p>
 	 * <p>
