@@ -25,6 +25,11 @@ public class BuildpathTests extends Tests {
 	}
 
 	public static Test suite() {
+		if (false) {
+			TestSuite suite = new TestSuite(BuildpathTests.class.getName());
+			suite.addTest(new BuildpathTests("testClasspathFileChange")); //$NON-NLS-1$
+			return suite;
+		}
 		return new TestSuite(BuildpathTests.class);
 	}
 
