@@ -181,18 +181,18 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		int indentationLevel,
 		int[] positions,
 		String lineSeparator) {
-			return format(source, indentationLevel, positions, lineSeparator, K_COMPILATION_UNIT);
+			return format(K_COMPILATION_UNIT, source, indentationLevel, positions, lineSeparator);
 	}
 
 	/**
 	 * @see CodeFormatter#format(String, int, int[], String, int)
 	 */
 	public String format(
+			int kind,
 			String source,
 			int indentationLevel,
 			int[] positions,
-			String lineSeparator,
-			int kind) {
+			String lineSeparator) {
 		switch(kind) {
 			case K_CLASS_BODY_DECLARATIONS :
 				return formatClassBodyDeclarations(source, indentationLevel, positions, lineSeparator);

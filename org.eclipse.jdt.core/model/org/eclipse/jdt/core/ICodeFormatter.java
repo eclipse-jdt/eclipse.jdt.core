@@ -38,7 +38,7 @@ public interface ICodeFormatter {
 	 * @param lineSeparator the line separator to use in formatted source,
 	 *     if set to <code>null</code>, then the platform default one will be used.
 	 * @return the formatted output string.
-	 * @deprecated Use format(String string, int indentationLevel, int[] positions, String lineSeparator, int kind)
+	 * @deprecated Use CodeFormatter#format(int kind, String string, int indentationLevel, int[] positions, String lineSeparator)
 	 */
 	String format(String string, int indentationLevel, int[] positions, String lineSeparator);
 }

@@ -41,6 +41,8 @@ public abstract class CodeFormatter {
 	 * Formats the String <code>sourceString</code>,
 	 * and returns a string containing the formatted version.
 	 * 
+	 * @param kind Use to specify the kind of the code snippet to format. It can be any of these:
+	 * 		  K_EXPRESSION, K_STATEMENTS, K_CLASS_BODY_DECLARATIONS, K_COMPILATION_UNIT
 	 * @param string the string to format
 	 * @param indentationLevel the initial indentation level, used 
 	 *      to shift left/right the entire source fragment. An initial indentation
@@ -53,9 +55,7 @@ public abstract class CodeFormatter {
 	 *     positions. If set to <code>null</code>, then no positions are mapped.
 	 * @param lineSeparator the line separator to use in formatted source,
 	 *     if set to <code>null</code>, then the platform default one will be used.
-	 * @param kind Use to specify the kind of the code snippet to format. It can be any of these:
-	 * 		  K_EXPRESSION, K_STATEMENTS, K_CLASS_BODY_DECLARATIONS, K_COMPILATION_UNIT
 	 * @return the formatted output string
 	 */
-	public abstract String format(String string, int indentationLevel, int[] positions, String lineSeparator, int kind);
+	public abstract String format(int kind, String string, int indentationLevel, int[] positions, String lineSeparator);
 }
