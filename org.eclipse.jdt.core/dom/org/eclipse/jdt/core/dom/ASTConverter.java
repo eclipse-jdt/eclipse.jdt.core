@@ -34,7 +34,7 @@ class ASTConverter {
 
 	private AST ast;
 	char[] compilationUnitSource;
-	private Scanner scanner;
+	Scanner scanner;
 	private boolean resolveBindings;
 	private Set pendingThisExpressionScopeResolution;
 	private Set pendingNameScopeResolution;	

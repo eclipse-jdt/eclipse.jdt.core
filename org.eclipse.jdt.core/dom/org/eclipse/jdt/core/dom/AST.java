@@ -208,10 +208,10 @@ public final class AST {
 	 * The root node of the new AST depends on the given kind.
 	 * <ul>
 	 * <li>org.eclipse.jdt.core.dom.AST.K_CLASS_BODY_DECLARATIONS: The root node is an instance of
-	 * <code>org.eclipse.jdt.core.dom.TypeDeclaration</code>. The type declaration itself doesn't contain any position informations.
+	 * <code>org.eclipse.jdt.core.dom.TypeDeclaration</code>. The type declaration itself doesn't contain any information.
 	 * It is simply used to return all class body declarations inside the bodyDeclaratins() collection.</li>
 	 * <li>org.eclipse.jdt.core.dom.AST.K_STATEMENTS: The root node is an instance of
-	 * <code>org.eclipse.jdt.core.dom.Block</code>. The block itself doesn't contain any position informations.
+	 * <code>org.eclipse.jdt.core.dom.Block</code>. The block itself doesn't contain any information.
 	 * It is simply used to return all the statements.</li>
 	 * <li>org.eclipse.jdt.core.dom.AST.K_EXPRESSION: The root node is an instance of a subclass of
 	 * <code>org.eclipse.jdt.core.dom.Expression</code>.</li>
