@@ -907,7 +907,7 @@ public class BlockScope extends Scope {
 // is this needed? Or when the type is resolved, is it recorded?
 		compilationUnitScope().recordTypeReference(receiverType);
 // replaces call to addTypeReferences
-		compilationUnitScope().recordReferences(argumentTypes);
+		compilationUnitScope().recordTypeReferences(argumentTypes);
 		compilationUnitScope().addTypeReferences(argumentTypes);
 		MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
 		if (methodBinding != null)

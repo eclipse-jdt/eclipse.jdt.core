@@ -760,7 +760,7 @@ public class ClassScope extends Scope {
 		typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
 		char[][] compoundName = typeReference.getTypeName();
 // replaces 2 calls to addNamespaceReference
-		compilationUnitScope().recordReference(compoundName);
+		compilationUnitScope().recordQualifiedReference(compoundName);
 		SourceTypeBinding sourceType = referenceContext.binding;
 		int size = compoundName.length;
 		int n = 1;

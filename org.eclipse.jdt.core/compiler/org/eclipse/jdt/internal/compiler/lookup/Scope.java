@@ -151,12 +151,12 @@ public abstract class Scope
 		compilationUnitScope().recordTypeReference(receiverType);
 		compilationUnitScope().addTypeReference(receiverType);
 // replaces call to addTypeReferences
-		compilationUnitScope().recordReferences(argumentTypes);
+		compilationUnitScope().recordTypeReferences(argumentTypes);
 		compilationUnitScope().addTypeReferences(argumentTypes);
 		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes);
 		if (exactMethod != null) {
 // replaces call to addTypeReferences
-			compilationUnitScope().recordReferences(exactMethod.thrownExceptions);
+			compilationUnitScope().recordTypeReferences(exactMethod.thrownExceptions);
 			compilationUnitScope().addTypeReferences(exactMethod.thrownExceptions);
 			if (receiverType.isInterface() || exactMethod.canBeSeenBy(receiverType, invocationSite, this))
 				return exactMethod;
@@ -425,7 +425,7 @@ public abstract class Scope
 		compilationUnitScope().recordTypeReference(receiverType);
 		compilationUnitScope().addTypeReference(receiverType);
 // replaces call to addTypeReferences
-		compilationUnitScope().recordReferences(argumentTypes);
+		compilationUnitScope().recordTypeReferences(argumentTypes);
 		compilationUnitScope().addTypeReferences(argumentTypes);
 		if (currentType.isInterface()) {
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
@@ -540,7 +540,7 @@ public abstract class Scope
 		}
 		if (visibleIndex == 1) {
 // replaces call to addTypeReferences
-			compilationUnitScope().recordReferences(visible[0].thrownExceptions);
+			compilationUnitScope().recordTypeReferences(visible[0].thrownExceptions);
 			compilationUnitScope().addTypeReferences(visible[0].thrownExceptions);
 			return visible[0];
 		}
@@ -692,7 +692,7 @@ public abstract class Scope
 	}
 
 	public final ReferenceBinding getJavaIoSerializable() {
-		compilationUnitScope().recordReference(JAVA_IO_SERIALIZABLE);
+		compilationUnitScope().recordQualifiedReference(JAVA_IO_SERIALIZABLE);
 		ReferenceBinding type = environment().getType(JAVA_IO_SERIALIZABLE);
 		if (type != null) return type;
 	
@@ -701,7 +701,7 @@ public abstract class Scope
 	}
 
 	public final ReferenceBinding getJavaLangClass() {
-		compilationUnitScope().recordReference(JAVA_LANG_CLASS);
+		compilationUnitScope().recordQualifiedReference(JAVA_LANG_CLASS);
 		ReferenceBinding type = environment().getType(JAVA_LANG_CLASS);
 		if (type != null) return type;
 	
@@ -710,7 +710,7 @@ public abstract class Scope
 	}
 
 	public final ReferenceBinding getJavaLangCloneable() {
-		compilationUnitScope().recordReference(JAVA_LANG_CLONEABLE);
+		compilationUnitScope().recordQualifiedReference(JAVA_LANG_CLONEABLE);
 		ReferenceBinding type = environment().getType(JAVA_LANG_CLONEABLE);
 		if (type != null) return type;
 	
@@ -719,7 +719,7 @@ public abstract class Scope
 	}
 
 	public final ReferenceBinding getJavaLangError() {
-		compilationUnitScope().recordReference(JAVA_LANG_ERROR);
+		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ERROR);
 		ReferenceBinding type = environment().getType(JAVA_LANG_ERROR);
 		if (type != null) return type;
 	
@@ -728,7 +728,7 @@ public abstract class Scope
 	}
 
 	public final ReferenceBinding getJavaLangAssertionError() {
-		compilationUnitScope().recordReference(JAVA_LANG_ASSERTIONERROR);
+		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ASSERTIONERROR);
 		ReferenceBinding type = environment().getType(JAVA_LANG_ASSERTIONERROR);
 		if (type != null) return type;
 		problemReporter().isClassPathCorrect(JAVA_LANG_ASSERTIONERROR, referenceCompilationUnit());
@@ -736,7 +736,7 @@ public abstract class Scope
 	}
 
 	public final ReferenceBinding getJavaLangObject() {
-		compilationUnitScope().recordReference(JAVA_LANG_OBJECT);
+		compilationUnitScope().recordQualifiedReference(JAVA_LANG_OBJECT);
 		ReferenceBinding type = environment().getType(JAVA_LANG_OBJECT);
 		if (type != null) return type;
 	
@@ -745,7 +745,7 @@ public abstract class Scope
 	}
 
 	public final ReferenceBinding getJavaLangRuntimeException() {
-		compilationUnitScope().recordReference(JAVA_LANG_RUNTIMEEXCEPTION);
+		compilationUnitScope().recordQualifiedReference(JAVA_LANG_RUNTIMEEXCEPTION);
 		ReferenceBinding type = environment().getType(JAVA_LANG_RUNTIMEEXCEPTION);
 		if (type != null) return type;
 	
@@ -754,7 +754,7 @@ public abstract class Scope
 	}
 
 	public final ReferenceBinding getJavaLangString() {
-		compilationUnitScope().recordReference(JAVA_LANG_STRING);
+		compilationUnitScope().recordQualifiedReference(JAVA_LANG_STRING);
 		ReferenceBinding type = environment().getType(JAVA_LANG_STRING);
 		if (type != null) return type;
 	
@@ -763,7 +763,7 @@ public abstract class Scope
 	}
 
 	public final ReferenceBinding getJavaLangThrowable() {
-		compilationUnitScope().recordReference(JAVA_LANG_THROWABLE);
+		compilationUnitScope().recordQualifiedReference(JAVA_LANG_THROWABLE);
 		ReferenceBinding type = environment().getType(JAVA_LANG_THROWABLE);
 		if (type != null) return type;
 	
@@ -793,7 +793,7 @@ public abstract class Scope
 		}
 
 // replaces 3 calls to addNamespaceReference & 1 to addTypeReference
-		compilationUnitScope().recordReference(compoundName);
+		compilationUnitScope().recordQualifiedReference(compoundName);
 		Binding binding =
 			getTypeOrPackage(compoundName[0], typeNameLength == 1 ? TYPE : TYPE | PACKAGE);
 		if (binding == null)
@@ -1110,7 +1110,7 @@ public abstract class Scope
 					continue nextVisible;
 			}
 // replaces call to addTypeReferences
-			compilationUnitScope().recordReferences(method.thrownExceptions);
+			compilationUnitScope().recordTypeReferences(method.thrownExceptions);
 			compilationUnitScope().addTypeReferences(method.thrownExceptions);
 			return method;
 		}
@@ -1157,7 +1157,7 @@ public abstract class Scope
 					continue nextVisible;
 			}
 // replaces call to addTypeReferences
-			compilationUnitScope().recordReferences(method.thrownExceptions);
+			compilationUnitScope().recordTypeReferences(method.thrownExceptions);
 			compilationUnitScope().addTypeReferences(method.thrownExceptions);
 			return method;
 		}
