@@ -39,9 +39,13 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SelectionOnMessageSend extends MessageSend {
-	private MethodBinding findNotDefaultAbstractMethod(MethodBinding binding) {
+
+	/*
+	 * Cannot answer default abstract match, iterate in superinterfaces of declaring class
+	 * for a better match (default abstract match came from scope lookups).	 */
+	private MethodBinding findNonDefaultAbstractMethod(MethodBinding binding) {
+
 		ReferenceBinding[] itsInterfaces = binding.declaringClass.superInterfaces();
-		
 		if (itsInterfaces != NoSuperInterfaces) {
 			ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
 			int lastPosition = 0;
@@ -86,6 +90,7 @@ public class SelectionOnMessageSend extends MessageSend {
 	}
 	
 	public TypeBinding resolveType(BlockScope scope) {
+
 		super.resolveType(scope);
 
 		// tolerate some error cases
@@ -98,7 +103,7 @@ public class SelectionOnMessageSend extends MessageSend {
 			throw new SelectionNodeFound();
 		} else {
 			if(binding.isDefaultAbstract()) {
-				throw new SelectionNodeFound(findNotDefaultAbstractMethod(binding));
+				throw new SelectionNodeFound(findNonDefaultAbstractMethod(binding)); // 23594
 			} else {
 				throw new SelectionNodeFound(binding);
 			}
@@ -106,6 +111,7 @@ public class SelectionOnMessageSend extends MessageSend {
 	}
 	
 	public String toStringExpression() {
+
 		String s = "<SelectOnMessageSend:"; //$NON-NLS-1$
 		if (receiver != ThisReference.ThisImplicit)
 			s = s + receiver.toStringExpression() + "."; //$NON-NLS-1$
