@@ -400,7 +400,7 @@ private void computeInheritedMethods() {
 
 	ReferenceBinding superType;
 	if (this.type.isClass()) {
-		superType = this.type;
+		superType = this.type.superclass();
 	} else { // check interface methods against Object
 		superType = this.type.scope.getJavaLangObject();
 	}
