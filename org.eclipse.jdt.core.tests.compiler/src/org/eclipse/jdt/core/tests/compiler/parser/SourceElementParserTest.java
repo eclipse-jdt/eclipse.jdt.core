@@ -138,7 +138,12 @@ public void dietParse(String s, String testName) {
 	this.source = s.toCharArray();
 	reset();
 	SourceElementParser parser = 
-		new SourceElementParser(this, new DefaultProblemFactory(Locale.getDefault()), new CompilerOptions(getCompilerOptions())); 
+		new SourceElementParser(
+			this, 
+			new DefaultProblemFactory(Locale.getDefault()), 
+			new CompilerOptions(getCompilerOptions()),
+			false/*don't record local declarations*/,
+			true/*optimize string literals*/); 
 
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 
@@ -295,7 +300,11 @@ public void fullParse(String s, String testName) {
 	this.source = s.toCharArray();
 	reset();
 	SourceElementParser parser = 
-		new SourceElementParser(this, new DefaultProblemFactory(Locale.getDefault()), new CompilerOptions(getCompilerOptions())); 
+		new SourceElementParser(
+			this, new DefaultProblemFactory(Locale.getDefault()), 
+			new CompilerOptions(getCompilerOptions()),
+			false/*don't record local declarations*/,
+			true/*optimize string literals*/); 
 
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 

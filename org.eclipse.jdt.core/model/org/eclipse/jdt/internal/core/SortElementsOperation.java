@@ -89,7 +89,7 @@ public class SortElementsOperation extends JavaModelOperation {
 		CompilerOptions options = new CompilerOptions(unit.getJavaProject().getOptions(true));
 		SortElementBuilder builder = new SortElementBuilder(source, positionsToMap, this.comparator, options);
 		SourceElementParser parser = new SourceElementParser(builder,
-			ProblemFactory.getProblemFactory(Locale.getDefault()), options, true);
+			ProblemFactory.getProblemFactory(Locale.getDefault()), options, true/*report local declarations*/, true/*optimize string literals*/);
 		
 		if (unit.exists()) {
 			PackageFragment packageFragment = (PackageFragment)unit.getAncestor(IJavaElement.PACKAGE_FRAGMENT);

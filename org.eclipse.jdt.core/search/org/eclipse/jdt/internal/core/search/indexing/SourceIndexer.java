@@ -55,7 +55,8 @@ public class SourceIndexer extends AbstractIndexer implements SuffixConstants {
 			requestor, 
 			this.problemFactory, 
 			new CompilerOptions(JavaCore.create(project).getOptions(true)), 
-			true); // index local declarations
+			true/*index local declarations*/,
+			true/*optimize string literals*/);
 		parser.reportOnlyOneSyntaxError = true;
 	
 		// Always check javadoc while indexing

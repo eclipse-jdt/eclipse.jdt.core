@@ -185,6 +185,6 @@ public void exitType(int declarationEnd) {
  * Creates a new parser.
  */
 protected SourceElementParser getParser(Map settings) {
-	return new SourceElementParser(this, new DefaultProblemFactory(), new CompilerOptions(settings));
+	return new SourceElementParser(this, new DefaultProblemFactory(), new CompilerOptions(settings), false/*don't report local declarations*/, true/*optimize string literals*/);
 }
 }

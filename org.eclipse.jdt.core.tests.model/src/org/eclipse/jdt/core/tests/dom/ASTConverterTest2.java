@@ -5264,6 +5264,24 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
-
+	/*
+	 * Ensures that strings are not optimized when creating the AST through a reconcile.
+	 * (regression test for bug 82830 AST: String concatenation represented as single node)
+	 */
+	public void test0574() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode string = buildAST(
+				"public class X {\n" +
+				"  String s = /*start*/\"a\" + \"b\"/*end*/;\n" +
+				"}",
+				workingCopy);
+			assertEquals("Unexpected node type", ASTNode.INFIX_EXPRESSION, string.getNodeType());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 
 }

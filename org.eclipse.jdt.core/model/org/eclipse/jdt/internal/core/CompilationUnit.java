@@ -105,11 +105,13 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	boolean computeProblems = JavaProject.hasJavaNature(project.getProject()) && perWorkingCopyInfo != null && perWorkingCopyInfo.isActive();
 	IProblemFactory problemFactory = new DefaultProblemFactory();
 	Map options = project.getOptions(true);
+	boolean createAST = info instanceof ASTHolderCUInfo;
 	SourceElementParser parser = new SourceElementParser(
 		requestor, 
 		problemFactory, 
 		new CompilerOptions(options),
-		true/*report local declarations*/);
+		true/*report local declarations*/,
+		!createAST /*optimize string literals only if not creating a DOM AST*/);
 	parser.reportOnlyOneSyntaxError = !computeProblems;
 	requestor.parser = parser;
 	CompilationUnitDeclaration unit = parser.parseCompilationUnit(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
@@ -136,7 +138,6 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	// compute other problems if needed
 	CompilationUnitDeclaration compilationUnitDeclaration = null;
 	try {
-		boolean createAST = info instanceof ASTHolderCUInfo;
 		if (computeProblems){
 			perWorkingCopyInfo.beginReporting();
 			compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, perWorkingCopyInfo, !createAST/*reset env if not creating AST*/, pm);

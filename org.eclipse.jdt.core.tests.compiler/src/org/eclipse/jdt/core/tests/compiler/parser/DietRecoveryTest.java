@@ -133,7 +133,9 @@ public void checkParse(
 			new SourceElementParser(
 				new TestSourceElementRequestor(),
 				new DefaultProblemFactory(Locale.getDefault()),
-				new CompilerOptions(getCompilerOptions()));
+				new CompilerOptions(getCompilerOptions()),
+				false/*don't record local declarations*/,
+				true/*optimize string literals*/);
 			
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
@@ -154,7 +156,9 @@ public void checkParse(
 			new SourceElementParser(
 				new TestSourceElementRequestor(),
 				new DefaultProblemFactory(Locale.getDefault()),
-				new CompilerOptions(getCompilerOptions()));
+				new CompilerOptions(getCompilerOptions()),
+				false/*don't record local declarations*/,
+				true/*optimize string literals*/);
 			
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	

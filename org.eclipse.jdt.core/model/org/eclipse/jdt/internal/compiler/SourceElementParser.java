@@ -86,9 +86,11 @@ public class LocalDeclarationVisitor extends ASTVisitor {
 }
 
 public SourceElementParser(
-	final ISourceElementRequestor requestor, 
-	IProblemFactory problemFactory,
-	CompilerOptions options) {
+		final ISourceElementRequestor requestor, 
+		IProblemFactory problemFactory,
+		CompilerOptions options,
+		boolean reportLocalDeclarations,
+		boolean optimizeStringLiterals) {
 	// we want to notify all syntax error with the acceptProblem API
 	// To do so, we define the record method of the ProblemReporter
 	super(new ProblemReporter(
@@ -100,23 +102,15 @@ public SourceElementParser(
 			requestor.acceptProblem(problem);
 		}
 	},
-	true);
+	optimizeStringLiterals);
 	this.requestor = requestor;
 	typeNames = new char[4][];
 	superTypeNames = new char[4][];
 	nestedTypeIndex = 0;
 	this.options = options;
-}
-
-public SourceElementParser(
-	final ISourceElementRequestor requestor, 
-	IProblemFactory problemFactory,
-	CompilerOptions options,
-	boolean reportLocalDeclarations) {
-		this(requestor, problemFactory, options);
-		if (reportLocalDeclarations) {
-			this.localDeclarationVisitor = new LocalDeclarationVisitor();
-		}
+	if (reportLocalDeclarations) {
+		this.localDeclarationVisitor = new LocalDeclarationVisitor();
+	}
 }
 
 public void checkComment() {
