@@ -585,8 +585,25 @@ class TypeBinding implements ITypeBinding {
 			StringBuffer buffer = new StringBuffer();
 			buffer
 				.append(getDeclaringClass().getQualifiedName())
-				.append('.')
-				.append(getName());
+				.append('.');
+			if (isParameterizedType()) {
+				ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) this.binding;
+				buffer.append(parameterizedTypeBinding.sourceName());
+				ITypeBinding[] typeArguments = getTypeArguments();
+				final int typeArgumentsLength = typeArguments.length;
+				if (typeArgumentsLength != 0) {
+					buffer.append('<');
+					for (int i = 0, max = typeArguments.length; i < max; i++) {
+						if (i > 0) {
+							buffer.append(',');
+						}
+						buffer.append(typeArguments[i].getQualifiedName());
+					}
+					buffer.append('>');	
+				}
+			} else {
+				buffer.append(getName());
+			}
 			return String.valueOf(buffer);
 		}
 		if (isParameterizedType()) {
