@@ -22,34 +22,30 @@ public class TypeConverter {
 	/**
 	 * Convert a type into an AST type declaration and put it in the given compilation unit.
 	 */
-	public static TypeDeclaration buildTypeDeclaration(IType type, CompilationUnitDeclaration compilationUnit, CompilationResult compilationResult, ProblemReporter problemReporter)  {
-		try {
-			char[] packageName = type.getPackageFragment().getElementName().toCharArray();
-			
-			if (packageName != null && packageName.length > 0) { 
-				compilationUnit.currentPackage = new ImportReference(CharOperation.splitOn('.', packageName), new long[]{0}, false);
-			}
+	public static TypeDeclaration buildTypeDeclaration(IType type, CompilationUnitDeclaration compilationUnit, CompilationResult compilationResult, ProblemReporter problemReporter)  throws JavaModelException {
+		char[] packageName = type.getPackageFragment().getElementName().toCharArray();
 		
-			/* convert type */
-			TypeDeclaration typeDeclaration = convert(type, null, null, compilationResult);
-			
-			IType alreadyComputedMember = type;
-			IType parent = type.getDeclaringType();
-			TypeDeclaration previousDeclaration = typeDeclaration;
-			while(parent != null) {
-				TypeDeclaration declaration = convert(parent, alreadyComputedMember, (MemberTypeDeclaration)previousDeclaration, compilationResult);
-				
-				alreadyComputedMember = parent;
-				previousDeclaration = declaration;
-				parent = parent.getDeclaringType();
-			}
-			
-			compilationUnit.types = new TypeDeclaration[]{previousDeclaration};
-
-			return typeDeclaration;
-		} catch(JavaModelException e) {
-			return null;
+		if (packageName != null && packageName.length > 0) { 
+			compilationUnit.currentPackage = new ImportReference(CharOperation.splitOn('.', packageName), new long[]{0}, false);
 		}
+	
+		/* convert type */
+		TypeDeclaration typeDeclaration = convert(type, null, null, compilationResult);
+		
+		IType alreadyComputedMember = type;
+		IType parent = type.getDeclaringType();
+		TypeDeclaration previousDeclaration = typeDeclaration;
+		while(parent != null) {
+			TypeDeclaration declaration = convert(parent, alreadyComputedMember, (MemberTypeDeclaration)previousDeclaration, compilationResult);
+			
+			alreadyComputedMember = parent;
+			previousDeclaration = declaration;
+			parent = parent.getDeclaringType();
+		}
+		
+		compilationUnit.types = new TypeDeclaration[]{previousDeclaration};
+
+		return typeDeclaration;
 	}
 	
 	private static FieldDeclaration convert(IField field, IType type) throws JavaModelException {

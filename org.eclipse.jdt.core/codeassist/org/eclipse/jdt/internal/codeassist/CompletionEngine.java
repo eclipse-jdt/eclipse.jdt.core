@@ -642,42 +642,46 @@ public final class CompletionEngine
 		CompilationResult compilationResult = new CompilationResult((topLevelType.getElementName() + ".java").toCharArray(), 1, 1);
 	
 		CompilationUnitDeclaration compilationUnit = new CompilationUnitDeclaration(problemReporter, compilationResult, 0);
-		
-		TypeDeclaration typeDeclaration = converter.buildTypeDeclaration(type, compilationUnit, compilationResult, problemReporter);
-		
-		if(compilationUnit != null) {	
-			// build AST from snippet
-			Initializer fakeInitializer = parseSnippeInitializer(snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
-			
-			// merge AST
-			FieldDeclaration[] oldFields = typeDeclaration.fields;
-			FieldDeclaration[] newFields = new FieldDeclaration[oldFields.length + 1];
-			System.arraycopy(oldFields, 0, newFields, 0, oldFields.length);
-			newFields[oldFields.length] = fakeInitializer;
-			typeDeclaration.fields = newFields;
 	
-			if(DEBUG) {
-				System.out.println("SNIPPET COMPLETION AST :");
-				System.out.println(compilationUnit.toString());
-			}
-			
-			if (compilationUnit.types != null) {
-				try {
-					lookupEnvironment.buildTypeBindings(compilationUnit);
-			
-					if ((unitScope = compilationUnit.scope) != null) {
-						lookupEnvironment.completeTypeBindings(compilationUnit, true);
-						compilationUnit.scope.faultInTypes();
-						compilationUnit.resolve();
-					}
-				} catch (CompletionNodeFound e) {
-					//					completionNodeFound = true;
-					if (e.astNode != null) {
-						// if null then we found a problem in the completion node
-						complete(e.astNode, e.qualifiedBinding, e.scope);
+		try {
+			TypeDeclaration typeDeclaration = converter.buildTypeDeclaration(type, compilationUnit, compilationResult, problemReporter);
+		
+			if(typeDeclaration != null) {	
+				// build AST from snippet
+				Initializer fakeInitializer = parseSnippeInitializer(snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
+				
+				// merge AST
+				FieldDeclaration[] oldFields = typeDeclaration.fields;
+				FieldDeclaration[] newFields = new FieldDeclaration[oldFields.length + 1];
+				System.arraycopy(oldFields, 0, newFields, 0, oldFields.length);
+				newFields[oldFields.length] = fakeInitializer;
+				typeDeclaration.fields = newFields;
+		
+				if(DEBUG) {
+					System.out.println("SNIPPET COMPLETION AST :");
+					System.out.println(compilationUnit.toString());
+				}
+				
+				if (compilationUnit.types != null) {
+					try {
+						lookupEnvironment.buildTypeBindings(compilationUnit);
+				
+						if ((unitScope = compilationUnit.scope) != null) {
+							lookupEnvironment.completeTypeBindings(compilationUnit, true);
+							compilationUnit.scope.faultInTypes();
+							compilationUnit.resolve();
+						}
+					} catch (CompletionNodeFound e) {
+						//					completionNodeFound = true;
+						if (e.astNode != null) {
+							// if null then we found a problem in the completion node
+							complete(e.astNode, e.qualifiedBinding, e.scope);
+						}
 					}
 				}
 			}
+		} catch(JavaModelException e) {
+			// Do nothing
 		}
 	}
 	
