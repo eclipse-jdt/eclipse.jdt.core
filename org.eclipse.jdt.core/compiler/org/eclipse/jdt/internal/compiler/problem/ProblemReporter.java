@@ -288,6 +288,14 @@ public void autoboxing(Expression expression, TypeBinding originalType, TypeBind
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void boundCannotBeArray(ASTNode location, TypeBinding type) {
+	this.handle(
+		IProblem.BoundCannotBeArray,
+		new String[] {new String(type.readableName())},
+		new String[] {new String(type.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void boundHasConflictingArguments(ASTNode location, TypeBinding type) {
 	this.handle(
 		IProblem.BoundHasConflictingArguments,
@@ -296,9 +304,9 @@ public void boundHasConflictingArguments(ASTNode location, TypeBinding type) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void boundsMustBeAnInterface(ASTNode location, TypeBinding type) {
+public void boundMustBeAnInterface(ASTNode location, TypeBinding type) {
 	this.handle(
-		IProblem.BoundsMustBeAnInterface,
+		IProblem.BoundMustBeAnInterface,
 		new String[] {new String(type.readableName())},
 		new String[] {new String(type.shortReadableName())},
 		location.sourceStart,

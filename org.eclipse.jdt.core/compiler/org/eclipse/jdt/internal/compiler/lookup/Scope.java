@@ -310,12 +310,17 @@ public abstract class Scope
 			TypeReference typeRef = typeParameter.type;
 			if (typeRef == null)
 				continue nextVariable;
-			ReferenceBinding superType = this.kind == METHOD_SCOPE
-				? (ReferenceBinding) typeRef.resolveType((BlockScope)this, false/*no bound check*/)
-				: (ReferenceBinding) typeRef.resolveType((ClassScope)this);
+			TypeBinding superType = this.kind == METHOD_SCOPE
+				? typeRef.resolveType((BlockScope)this, false/*no bound check*/)
+				: typeRef.resolveType((ClassScope)this);
 			if (superType == null) {
 				typeVariable.tagBits |= HierarchyHasProblems;
 				noProblems = false;
+				continue nextVariable;
+			}
+			typeRef.resolvedType = superType; // hold onto the problem type
+			if (superType.isArrayType()) {
+				problemReporter().boundCannotBeArray(typeRef, superType);
 				continue nextVariable;
 			}
 			if (superType.isTypeVariable()) {
@@ -327,32 +332,37 @@ public abstract class Scope
 					continue nextVariable;
 				}
 			}
-			if (superType.isFinal())
+			ReferenceBinding superRefType = (ReferenceBinding) superType;
+			if (superRefType.isFinal())
 				problemReporter().finalVariableBound(typeVariable, typeRef);
-			typeRef.resolvedType = superType; // hold onto the problem type
 			if (superType.isClass()) {
-				typeVariable.superclass = superType;
+				typeVariable.superclass = superRefType;
 			} else {
-				typeVariable.superInterfaces = new ReferenceBinding[] {superType};
+				typeVariable.superInterfaces = new ReferenceBinding[] {superRefType};
 				typeVariable.modifiers |= AccInterface;
 			}
-			typeVariable.firstBound = superType; // first bound used to compute erasure
+			typeVariable.firstBound = superRefType; // first bound used to compute erasure
 
 			TypeReference[] boundRefs = typeParameter.bounds;
 			if (boundRefs != null) {
 				for (int j = 0, k = boundRefs.length; j < k; j++) {
 					typeRef = boundRefs[j];
 					superType = this.kind == METHOD_SCOPE
-						? (ReferenceBinding) typeRef.resolveType((BlockScope)this, false)
-						: (ReferenceBinding) typeRef.resolveType((ClassScope)this);
+						? typeRef.resolveType((BlockScope)this, false)
+						: typeRef.resolveType((ClassScope)this);
 					if (superType == null) {
 						typeVariable.tagBits |= HierarchyHasProblems;
 						noProblems = false;
 						continue nextVariable;
 					}
 					typeRef.resolvedType = superType; // hold onto the problem type
+					if (superType.isArrayType()) {
+						problemReporter().boundCannotBeArray(typeRef, superType);
+						continue nextVariable;
+					}
+					superRefType = (ReferenceBinding) superType;
 					if (superType.isClass()) {
-						problemReporter().boundsMustBeAnInterface(typeRef, superType);
+						problemReporter().boundMustBeAnInterface(typeRef, superType);
 						typeVariable.tagBits |= HierarchyHasProblems;
 						noProblems = false;
 						continue nextVariable;
@@ -381,7 +391,7 @@ public abstract class Scope
 					}
 					int size = typeVariable.superInterfaces.length;
 					System.arraycopy(typeVariable.superInterfaces, 0, typeVariable.superInterfaces = new ReferenceBinding[size + 1], 0, size);
-					typeVariable.superInterfaces[size] = superType;
+					typeVariable.superInterfaces[size] = superRefType;
 				}
 			}
 		}

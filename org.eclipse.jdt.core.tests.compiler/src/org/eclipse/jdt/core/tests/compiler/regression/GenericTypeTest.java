@@ -12379,5 +12379,21 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	                            ^\n" + 
 			"Type mismatch: cannot convert from Class<? extends Object> to Class<? extends Collection>\n" + 
 			"----------\n"	);
-	}		
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82844
+	public void test461() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends int[]> {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X<T extends int[]> {\n" + 
+			"	                         ^^^^^\n" + 
+			"The array type int[] cannot be used as a type parameter bound\n" + 
+			"----------\n");
+	}			
 }

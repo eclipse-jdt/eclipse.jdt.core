@@ -861,7 +861,7 @@ public interface IProblem {
 	/** @since 3.1 */
 	int ReferenceToForwardTypeVariable = TypeRelated + 528;
     /** @since 3.1 */
-	int BoundsMustBeAnInterface = TypeRelated + 529;	
+	int BoundMustBeAnInterface = TypeRelated + 529;	
     /** @since 3.1 */
 	int UnsafeRawConstructorInvocation = TypeRelated + 530;
     /** @since 3.1 */
@@ -938,7 +938,8 @@ public interface IProblem {
 	int IllegalQualifiedParameterizedTypeAllocation = TypeRelated + 566;
 	/** @since 3.1 */
 	int DuplicateBounds = TypeRelated + 567;
-
+	/** @since 3.1 */
+	int BoundCannotBeArray = TypeRelated + 568;
 	
 	/**
 	 * Foreach
