@@ -242,7 +242,9 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	        /*
 			 * Add extra argument on the command line
 			 */
-	        cmd.addArguments(compilerArgs);
+			if (compilerArgs.length != 0) {
+		        cmd.addArguments(compilerArgs);
+			}
 	   	}
 
 	   	/*
