@@ -622,13 +622,13 @@ public void checkComment() {
 	
 		// check deprecation in last comment if javadoc (can be followed by non-javadoc comments which are simply ignored)	
 		while (lastComment >= 0 && this.scanner.commentStops[lastComment] < 0) lastComment--; // non javadoc comment have negative end positions
-		if (lastComment >= 0) {
+		if (lastComment >= 0 && this.javadocParser != null) {
 			if (this.javadocParser.checkDeprecation(
 					this.scanner.commentStarts[lastComment],
 					this.scanner.commentStops[lastComment] - 1)) { //stop is one over,
 				checkAndSetModifiers(AccDeprecated);
 			}
-			this.javadoc = this.javadocParser.javadoc;	// null if check javadoc is not activated 
+			this.javadoc = this.javadocParser.docComment;	// null if check javadoc is not activated 
 		}
 	}
 }
@@ -1089,6 +1089,8 @@ protected void consumeClassBodyDeclaration() {
 	int javadocCommentStart = this.intStack[this.intPtr--];
 	if (javadocCommentStart != -1) {
 		initializer.declarationSourceStart = javadocCommentStart;
+		initializer.javadoc = this.javadoc;
+		this.javadoc = null;
 	}
 	this.astStack[this.astPtr] = initializer;
 	initializer.bodyEnd = this.endPosition;
@@ -3839,6 +3841,9 @@ protected void consumeStaticInitializer() {
 	initializer.declarationSourceStart = this.intStack[this.intPtr--];
 	initializer.bodyStart = this.intStack[this.intPtr--];
 	initializer.bodyEnd = this.endPosition;
+	// doc comment
+	initializer.javadoc = this.javadoc;
+	this.javadoc = null;
 	
 	// recovery
 	if (this.currentElement != null){
@@ -4637,7 +4642,7 @@ public int[] getJavaDocPositions() {
 		this.scanner.lineEnds = lineSeparatorPositions;
 		this.scanner.linePtr = lineSeparatorPositions.length - 1;
 
-		if (this.javadocParser.checkJavadoc) {
+		if (this.javadocParser != null && this.javadocParser.checkDocComment) {
 			this.javadocParser.scanner.setSource(contents);
 		}
 		if (unit.types != null) {
@@ -5669,7 +5674,7 @@ public CompilationUnitDeclaration parse(
 		char[] contents = sourceUnit.getContents();
 		this.scanner.setSource(contents);
 		if (end != -1) this.scanner.resetTo(start, end);
-		if (this.javadocParser.checkJavadoc) {
+		if (this.javadocParser != null && this.javadocParser.checkDocComment) {
 			this.javadocParser.scanner.setSource(contents);
 			if (end != -1) {
 				this.javadocParser.scanner.resetTo(start, end);

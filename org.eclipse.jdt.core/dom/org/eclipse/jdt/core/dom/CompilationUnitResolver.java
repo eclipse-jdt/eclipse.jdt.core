@@ -93,58 +93,13 @@ class CompilationUnitResolver extends Compiler {
 				SourceTypeConverter.FIELD_AND_METHOD // need field and methods
 				| SourceTypeConverter.MEMBER_TYPE // need member types
 				| SourceTypeConverter.FIELD_INITIALIZATION, // need field initialization: see bug 40476
-				lookupEnvironment.problemReporter,
+				this.lookupEnvironment.problemReporter,
 				result);
 
 		if (unit != null) {
 			this.lookupEnvironment.buildTypeBindings(unit);
 			this.lookupEnvironment.completeTypeBindings(unit, true);
 		}
-	}
-
-	private static Parser createDomParser(ProblemReporter problemReporter) {
-		
-		return new Parser(problemReporter, false) {
-			// old annotation style check which doesn't include all leading comments into declaration
-			// for backward compatibility with 2.1 DOM 
-			public void checkComment() {
-
-				if (this.currentElement != null && this.scanner.commentPtr >= 0) {
-					flushCommentsDefinedPriorTo(endStatementPosition); // discard obsolete comments
-				}
-				boolean deprecated = false;
-				boolean checkDeprecated = false;
-				int lastCommentIndex = -1;
-			
-				//since jdk1.2 look only in the last java doc comment...
-				nextComment : for (lastCommentIndex = scanner.commentPtr; lastCommentIndex >= 0; lastCommentIndex--){
-					//look for @deprecated into the first javadoc comment preceeding the declaration
-					int commentSourceStart = scanner.commentStarts[lastCommentIndex];
-					// javadoc only (non javadoc comment have negative end positions.)
-					if (modifiersSourceStart != -1 && modifiersSourceStart < commentSourceStart) {
-						continue nextComment;
-					}
-					if (scanner.commentStops[lastCommentIndex] < 0) {
-						continue nextComment;
-					}
-					checkDeprecated = true;
-					int commentSourceEnd = scanner.commentStops[lastCommentIndex] - 1; //stop is one over
-			
-					deprecated =
-						this.javadocParser.checkDeprecation(commentSourceStart, commentSourceEnd);
-					this.javadoc = this.javadocParser.javadoc;
-					break nextComment;
-				}
-				if (deprecated) {
-					checkAndSetModifiers(AccDeprecated);
-				}
-				// modify the modifier source start to point at the first comment
-				if (lastCommentIndex >= 0 && checkDeprecated) {
-					modifiersSourceStart = scanner.commentStarts[lastCommentIndex]; 
-				}
-
-			}
-		};
 	}
 
 	/*
@@ -178,7 +133,7 @@ class CompilationUnitResolver extends Compiler {
 	 * @see org.eclipse.jdt.internal.compiler.Compiler#initializeParser()
 	 */
 	public void initializeParser() {
-		this.parser = createDomParser(this.problemReporter);
+		this.parser = new DOMParser(this.problemReporter, false);
 	}
 	/*
 	 * Compiler crash recovery in case of unexpected runtime exceptions
@@ -280,11 +235,12 @@ class CompilationUnitResolver extends Compiler {
 			throw new IllegalArgumentException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		Parser parser = createDomParser(
+		Parser parser = new DOMParser(
 			new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
-					new DefaultProblemFactory()));
+					new DefaultProblemFactory()),
+			false);
 		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
 			new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
 				source, 
@@ -314,11 +270,12 @@ class CompilationUnitResolver extends Compiler {
 			throw new IllegalArgumentException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		Parser parser = createDomParser(
+		Parser parser = new DOMParser(
 			new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
-					new DefaultProblemFactory()));
+					new DefaultProblemFactory()),
+			false);
 		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
 			new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
 				source, 
@@ -597,10 +554,10 @@ class CompilationUnitResolver extends Compiler {
 		CompilationUnitDeclaration unit = null;
 		try {
 
-			parseThreshold = 0; // will request a diet parse
+			this.parseThreshold = 0; // will request a diet parse
 			beginToCompile(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { compilationUnit});
 			// process all units (some more could be injected in the loop by the lookup environment)
-			unit = unitsToProcess[0];
+			unit = this.unitsToProcess[0];
 
 			int searchPosition = nodeSearcher.position;
 			if (searchPosition >= 0 && searchPosition <= compilationUnit.getContents().length) {
@@ -611,12 +568,12 @@ class CompilationUnitResolver extends Compiler {
 	 			if (node != null) {
 					org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
 	  				if (node instanceof AbstractMethodDeclaration) {
-						((AbstractMethodDeclaration)node).parseStatements(parser, unit);
+						((AbstractMethodDeclaration)node).parseStatements(this.parser, unit);
 	 				} else if (enclosingTypeDeclaration != null) {
 						if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
-		 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(parser, enclosingTypeDeclaration, unit);
+		 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(this.parser, enclosingTypeDeclaration, unit);
 	 					} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {  					
-							((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(parser, unit);
+							((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(this.parser, unit);
 						} 				
 	 				}
 	 			}
@@ -627,7 +584,7 @@ class CompilationUnitResolver extends Compiler {
 				if (unit.scope != null && verifyMethods) {
 					// http://dev.eclipse.org/bugs/show_bug.cgi?id=23117
  					// verify inherited methods
-					unit.scope.verifyMethods(lookupEnvironment.methodVerifier());
+					unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
 				}
 				// type checking
 				unit.resolve();		
@@ -638,8 +595,8 @@ class CompilationUnitResolver extends Compiler {
 				// code generation
 				if (generateCode) unit.generateCode();
 			}
-			if (unitsToProcess != null) unitsToProcess[0] = null; // release reference to processed unit declaration
-			requestor.acceptResult(unit.compilationResult.tagAsAccepted());
+			if (this.unitsToProcess != null) this.unitsToProcess[0] = null; // release reference to processed unit declaration
+			this.requestor.acceptResult(unit.compilationResult.tagAsAccepted());
 			return unit;
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
@@ -690,16 +647,16 @@ class CompilationUnitResolver extends Compiler {
 		try {
 			if (unit == null) {
 				// build and record parsed units
-				parseThreshold = 0; // will request a full parse
+				this.parseThreshold = 0; // will request a full parse
 				beginToCompile(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { sourceUnit });
 				// process all units (some more could be injected in the loop by the lookup environment)
-				unit = unitsToProcess[0];
+				unit = this.unitsToProcess[0];
 			} else {
 				// initial type binding creation
-				lookupEnvironment.buildTypeBindings(unit);
+				this.lookupEnvironment.buildTypeBindings(unit);
 
 				// binding resolution
-				lookupEnvironment.completeTypeBindings();
+				this.lookupEnvironment.completeTypeBindings();
 			}
 			this.parser.getMethodBodies(unit);
 			if (unit.scope != null) {
@@ -708,7 +665,7 @@ class CompilationUnitResolver extends Compiler {
 				if (unit.scope != null && verifyMethods) {
 					// http://dev.eclipse.org/bugs/show_bug.cgi?id=23117
  					// verify inherited methods
-					unit.scope.verifyMethods(lookupEnvironment.methodVerifier());
+					unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
 				}
 				// type checking
 				unit.resolve();		
@@ -719,12 +676,12 @@ class CompilationUnitResolver extends Compiler {
 				// code generation
 				if (generateCode) unit.generateCode();
 			}
-			if (unitsToProcess != null) unitsToProcess[0] = null; // release reference to processed unit declaration
-			requestor.acceptResult(unit.compilationResult.tagAsAccepted());
+			if (this.unitsToProcess != null) this.unitsToProcess[0] = null; // release reference to processed unit declaration
+			this.requestor.acceptResult(unit.compilationResult.tagAsAccepted());
 			return unit;
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
-			return unit == null ? unitsToProcess[0] : unit;
+			return unit == null ? this.unitsToProcess[0] : unit;
 		} catch (Error e) {
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow

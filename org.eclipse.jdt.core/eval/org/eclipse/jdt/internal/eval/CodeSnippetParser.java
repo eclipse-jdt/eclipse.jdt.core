@@ -37,7 +37,7 @@ public CodeSnippetParser(ProblemReporter problemReporter, EvaluationContext eval
 	this.codeSnippetEnd = codeSnippetEnd;
 	this.evaluationContext = evaluationContext;
 	this.reportOnlyOneSyntaxError = true;
-	this.javadocParser.checkJavadoc = false;
+	this.javadocParser.checkDocComment = false;
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt

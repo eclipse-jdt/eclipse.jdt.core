@@ -102,7 +102,7 @@ public SourceElementParser(
 
 public void checkComment() {
 	super.checkComment();
-	if (this.reportReferenceInfo && this.javadocParser.checkJavadoc && this.javadoc != null) {
+	if (this.reportReferenceInfo && this.javadocParser.checkDocComment && this.javadoc != null) {
 		// Report reference info in javadoc comment @throws/@exception tags
 		TypeReference[] thrownExceptions = this.javadoc.thrownExceptions;
 		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;

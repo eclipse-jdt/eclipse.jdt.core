@@ -955,8 +955,45 @@ class DefaultBindingResolver extends BindingResolver {
      * @since 3.0
 	 */
 	IBinding resolveReference(MemberRef ref) {
-		// TODO (frederic) missing implementation
-		throw new RuntimeException("Missing implementation"); //$NON-NLS-1$
+		/*
+		if (ref.getParent() != null) {
+			Javadoc docComment = ref.getJavadoc();
+			if (docComment != null) {
+				org.eclipse.jdt.internal.compiler.ast.Javadoc javadoc = (org.eclipse.jdt.internal.compiler.ast.Javadoc) this.newAstToOldAst.get(docComment);
+				if (javadoc != null) {
+					int start = ref.getStartPosition();
+					// search for compiler ast nodes with same position
+					if (ref.getName() == null) {
+						for (int i=0; i<javadoc.thrownExceptions.length; i++) {
+							TypeReference typeRef = javadoc.thrownExceptions[i];
+							if (typeRef.sourceStart==start) {
+								return getTypeBinding(typeRef.resolvedType);
+							}
+						}
+					}
+					for (int i=0; i<javadoc.references.length; i++) {
+						org.eclipse.jdt.internal.compiler.ast.Expression expression = javadoc.references[i];
+						if (expression.sourceStart==start) {
+							if (expression instanceof TypeReference) {
+								return getTypeBinding(expression.resolvedType);
+							}
+							else if (expression instanceof JavadocFieldReference) {
+								return getVariableBinding(((JavadocFieldReference)expression).binding);
+							}
+						}
+					}
+				}
+			}
+		}
+		*/
+		org.eclipse.jdt.internal.compiler.ast.Expression expression = (org.eclipse.jdt.internal.compiler.ast.Expression) this.newAstToOldAst.get(ref);
+		if (expression instanceof TypeReference) {
+			return getTypeBinding(expression.resolvedType);
+		}
+		else if (expression instanceof JavadocFieldReference) {
+			return getVariableBinding(((JavadocFieldReference)expression).binding);
+		}
+		return null;
 	}
 
 	/* (non-Javadoc)
@@ -964,8 +1001,38 @@ class DefaultBindingResolver extends BindingResolver {
      * @since 3.0
 	 */
 	IBinding resolveReference(MethodRef ref) {
-		// TODO (frederic) missing implementation
-		throw new RuntimeException("Missing implementation"); //$NON-NLS-1$
+		/*
+		if (ref.getParent() != null) {
+			Javadoc docComment = ref.getJavadoc();
+			if (docComment != null) {
+				org.eclipse.jdt.internal.compiler.ast.Javadoc javadoc = (org.eclipse.jdt.internal.compiler.ast.Javadoc) this.newAstToOldAst.get(docComment);
+				if (javadoc != null) {
+					int start = ref.getStartPosition();
+					// search for compiler ast nodes with same position
+					org.eclipse.jdt.internal.compiler.lookup.MethodBinding binding = null;
+					for (int i=0; binding==null && i<javadoc.references.length; i++) {
+						org.eclipse.jdt.internal.compiler.ast.Expression expression = javadoc.references[i];
+						if (expression.sourceStart==start) {
+							if (expression instanceof JavadocMessageSend) {
+								return this.getMethodBinding(((JavadocMessageSend)expression).binding);
+							}
+							else if (expression instanceof JavadocAllocationExpression) {
+								return this.getMethodBinding(((JavadocAllocationExpression)expression).binding);
+							}
+						}
+					}
+				}
+			}
+		}
+		*/
+		org.eclipse.jdt.internal.compiler.ast.Expression expression = (org.eclipse.jdt.internal.compiler.ast.Expression) this.newAstToOldAst.get(ref);
+		if (expression instanceof JavadocMessageSend) {
+			return this.getMethodBinding(((JavadocMessageSend)expression).binding);
+		}
+		else if (expression instanceof JavadocAllocationExpression) {
+			return this.getMethodBinding(((JavadocAllocationExpression)expression).binding);
+		}
+		return null;
 	}
 
 }

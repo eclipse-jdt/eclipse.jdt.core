@@ -532,7 +532,7 @@ protected void getMethodBodies(CompilationUnitDeclaration unit) {
 		this.parser.scanner.lineEnds = lineSeparatorPositions;
 		this.parser.scanner.linePtr = lineSeparatorPositions.length - 1;
 
-		if (this.parser.javadocParser.checkJavadoc) {
+		if (this.parser.javadocParser.checkDocComment) {
 			this.parser.javadocParser.scanner.setSource(contents);
 		}
 		this.parser.nodeSet = this.currentPossibleMatch.nodeSet;

@@ -98,11 +98,11 @@ protected MatchLocatorParser(ProblemReporter problemReporter, MatchLocator locat
 	}
 
 	// Always check javadoc while matching indexes
-	this.javadocParser.checkJavadoc = true;
+	this.javadocParser.checkDocComment = true;
 }
 public void checkComment() {
 	super.checkComment();
-	if (this.javadocParser.checkJavadoc && this.javadoc != null) {
+	if (this.javadocParser.checkDocComment && this.javadoc != null) {
 		// Search for pattern locator matches in javadoc comment @throws/@exception tags
 		TypeReference[] thrownExceptions = this.javadoc.thrownExceptions;
 		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;

@@ -79,7 +79,7 @@ public abstract class AssistParser extends Parser {
 
 public AssistParser(ProblemReporter problemReporter) {
 	super(problemReporter, true);
-	this.javadocParser.checkJavadoc = false;
+	this.javadocParser.checkDocComment = false;
 }
 public abstract char[] assistIdentifier();
 public int bodyEnd(AbstractMethodDeclaration method){

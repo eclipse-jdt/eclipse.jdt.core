@@ -395,7 +395,7 @@ public final char[] getRawTokenSource() {
 }
 	
 public final char[] getRawTokenSourceEnd() {
-	int length = this.eofPosition - this.currentPosition;
+	int length = this.eofPosition - this.currentPosition - 1;
 	char[] sourceEnd = new char[length];
 	System.arraycopy(this.source, this.currentPosition, sourceEnd, 0, length);
 	return sourceEnd;	
@@ -1328,7 +1328,7 @@ public int getNextToken() throws InvalidInputException {
 										}
 									}
 							   	}
-								recordComment(false);
+								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
 									checkNonExternalizedString();
@@ -1347,7 +1347,7 @@ public int getNextToken() throws InvalidInputException {
 								}
 							} catch (IndexOutOfBoundsException e) {
 								this.currentPosition--;
-								recordComment(false);
+								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if (this.tokenizeComments) {
 									return TokenNameCOMMENT_LINE;
@@ -1434,12 +1434,16 @@ public int getNextToken() throws InvalidInputException {
 											this.currentPosition++;
 									} //jump over the \\
 								}
-								recordComment(isJavadoc);
+								int token = isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK;
+								recordComment(token);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if (this.tokenizeComments) {
+									/*
 									if (isJavadoc)
 										return TokenNameCOMMENT_JAVADOC;
 									return TokenNameCOMMENT_BLOCK;
+									*/
+									return token;
 								}
 							} catch (IndexOutOfBoundsException e) {
 								throw new InvalidInputException(UNTERMINATED_COMMENT);
@@ -2237,17 +2241,17 @@ public final void pushUnicodeLineSeparator() {
 		}
 	}
 }
-public final void recordComment(boolean isJavadoc) {
+public void recordComment(int token) {
 
 	// a new comment is recorded
 	try {
-		this.commentStops[++this.commentPtr] = isJavadoc ? this.currentPosition : -this.currentPosition;
+		this.commentStops[++this.commentPtr] = (token==TokenNameCOMMENT_JAVADOC) ? this.currentPosition : -this.currentPosition;
 	} catch (IndexOutOfBoundsException e) {
 		int oldStackLength = this.commentStops.length;
 		int[] oldStack = this.commentStops;
 		this.commentStops = new int[oldStackLength + 30];
 		System.arraycopy(oldStack, 0, this.commentStops, 0, oldStackLength);
-		this.commentStops[this.commentPtr] = isJavadoc ? this.currentPosition : -this.currentPosition;
+		this.commentStops[this.commentPtr] = (token==TokenNameCOMMENT_JAVADOC) ? this.currentPosition : -this.currentPosition;
 		//grows the positions buffers too
 		int[] old = this.commentStarts;
 		this.commentStarts = new int[oldStackLength + 30];

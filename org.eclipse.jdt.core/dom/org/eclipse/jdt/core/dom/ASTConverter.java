@@ -11,10 +11,10 @@
 
 package org.eclipse.jdt.core.dom;
 
-import java.util.*;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -41,10 +41,13 @@ class ASTConverter {
 	private Set pendingThisExpressionScopeResolution;
 	private Set pendingNameScopeResolution;	
 	private IProgressMonitor monitor;
-	
+	// comments
+	private boolean insideComments;
+	private Comment[] commentsTable;
+
 	public ASTConverter(Map options, boolean resolveBindings, IProgressMonitor monitor) {
 		this.resolveBindings = resolveBindings;
-		scanner = new Scanner(
+		this.scanner = new Scanner(
 					true /*comment*/,
 					false /*whitespace*/,
 					false /*nls*/,
@@ -52,11 +55,13 @@ class ASTConverter {
 					null /*taskTags*/,
 					null/*taskPriorities*/);
 		this.monitor = monitor;
+		this.insideComments = true;
 	}
 	
 	public void setAST(AST ast) {
 		this.ast = ast;
 	}
+
 	/*
 	 * Internal use only
 	 * Used to convert class body declarations
@@ -72,7 +77,8 @@ class ASTConverter {
 				initializer.setBody(convert(oldInitializer.block));
 				initializer.setModifiers(oldInitializer.modifiers);
 				initializer.setSourceRange(oldInitializer.declarationSourceStart, oldInitializer.sourceEnd - oldInitializer.declarationSourceStart + 1);
-				setJavaDocComment(initializer);
+//				setJavaDocComment(initializer);
+				initializer.setJavadoc(convert(oldInitializer.javadoc));
 				typeDecl.bodyDeclarations().add(initializer);
 			} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
 				org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
@@ -99,13 +105,15 @@ class ASTConverter {
 		}
 		return typeDecl;
 	}
+	
 	public CompilationUnit convert(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration unit, char[] source) {
 		this.compilationUnitSource = source;
-		scanner.setSource(source);
+		this.scanner.setSource(source);
+		this.scanner.lineEnds = unit.compilationResult().lineSeparatorPositions;
 		CompilationUnit compilationUnit = this.ast.newCompilationUnit();
 		// handle the package declaration immediately
 		// There is no node corresponding to the package declaration
-		if (resolveBindings) {
+		if (this.resolveBindings) {
 			recordNodes(compilationUnit, unit);
 		}
 		if (unit.currentPackage != null) {
@@ -119,6 +127,28 @@ class ASTConverter {
 				compilationUnit.imports().add(convertImport(imports[i]));
 			}
 		}
+		// Parse comments
+		int[][] comments = unit.comments;
+		if (comments != null && this.insideComments) {
+			// Build comment table
+			this.commentsTable = new Comment[comments.length];
+			int nbr = 0;
+			for (int i = 0; i < comments.length; i++) {
+				Comment comment = createComment(comments[i]);
+				if (comment != null) {
+					comment.setAlternateRoot(compilationUnit);
+					this.commentsTable[nbr++] = comment;
+				}
+			}
+			// Resize table if  necessary
+			if (nbr<comments.length) {
+				Comment[] newCommentsTable = new Comment[nbr];
+				System.arraycopy(this.commentsTable, 0, newCommentsTable, 0, nbr);
+				this.commentsTable = newCommentsTable;
+			}
+			compilationUnit.setCommentTable(this.commentsTable);
+		}
+
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = unit.types;
 		if (types != null) {
 			int typesLength = types.length;
@@ -140,7 +170,7 @@ class ASTConverter {
 			propagateErrors(compilationUnit, resizedProblems);
 			compilationUnit.setProblems(resizedProblems);
 		}
-		if (resolveBindings) {
+		if (this.resolveBindings) {
 			lookupForScopes();
 		}
 		return compilationUnit;
@@ -163,7 +193,7 @@ class ASTConverter {
 		}
 		packageDeclaration.setSourceRange(importReference.declarationSourceStart, importReference.declarationEnd - importReference.declarationSourceStart + 1);
 		packageDeclaration.setName(name);
-		if (resolveBindings) {
+		if (this.resolveBindings) {
 			recordNodes(packageDeclaration, importReference);
 			recordNodes(name, compilationUnitDeclaration);
 		}
@@ -188,7 +218,7 @@ class ASTConverter {
 		importDeclaration.setSourceRange(importReference.declarationSourceStart, importReference.declarationEnd - importReference.declarationSourceStart + 1);
 		importDeclaration.setName(name);
 		importDeclaration.setOnDemand(onDemand);
-		if (resolveBindings) {
+		if (this.resolveBindings) {
 			recordNodes(importDeclaration, importReference);
 		}
 		return importDeclaration;
@@ -236,7 +266,8 @@ class ASTConverter {
 		}
 		
 		buildBodyDeclarations(typeDeclaration, typeDecl);
-		setJavaDocComment(typeDecl);
+		// The javadoc comment is now got from list store in compilation unit declaration
+//		setJavaDocComment(typeDecl);
 		if (this.resolveBindings) {
 			recordNodes(typeDecl, typeDeclaration);
 			recordNodes(typeName, typeDeclaration);
@@ -304,6 +335,8 @@ class ASTConverter {
 					typeDecl.bodyDeclarations().add(convert(nextMemberDeclaration));
 			}
 		}
+		// Convert javadoc
+		typeDecl.setJavadoc(convert(typeDeclaration.javadoc));
 	}
 	
 	private void checkAndAddMultipleFieldDeclaration(org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields, int index, List bodyDeclarations) {
@@ -313,7 +346,9 @@ class ASTConverter {
 			initializer.setBody(convert(oldInitializer.block));
 			initializer.setModifiers(oldInitializer.modifiers);
 			initializer.setSourceRange(oldInitializer.declarationSourceStart, oldInitializer.sourceEnd - oldInitializer.declarationSourceStart + 1);
-			setJavaDocComment(initializer);
+			// The javadoc comment is now got from list store in compilation unit declaration
+//			setJavaDocComment(initializer);
+			initializer.setJavadoc(convert(oldInitializer.javadoc));
 			bodyDeclarations.add(initializer);
 			return;
 		}
@@ -347,7 +382,7 @@ class ASTConverter {
 			blockStatements.add(convertToVariableDeclarationStatement((org.eclipse.jdt.internal.compiler.ast.LocalDeclaration)stmts[index]));
 		}
 	}
-	
+
 	private void checkCanceled() {
 		if (this.monitor != null && this.monitor.isCanceled())
 			throw new OperationCanceledException();
@@ -580,7 +615,7 @@ class ASTConverter {
 					PrimitiveType primitiveType = this.ast.newPrimitiveType(getPrimitiveTypeCode(name));
 					primitiveType.setSourceRange(sourceStart, end - sourceStart + 1);
 					type = this.ast.newArrayType(primitiveType, dimensions);
-					if (resolveBindings) {
+					if (this.resolveBindings) {
 						// store keys for inner types
 						completeRecord((ArrayType) type, typeReference);
 					}
@@ -778,7 +813,9 @@ class ASTConverter {
 			}			
 		}
 		
-		setJavaDocComment(methodDecl);
+		// The javadoc comment is now got from list store in compilation unit declaration
+//		setJavaDocComment(methodDecl);
+		methodDecl.setJavadoc(convert(methodDeclaration.javadoc));
 		if (this.resolveBindings) {
 			recordNodes(methodDecl, methodDeclaration);
 			recordNodes(methodName, methodDeclaration);
@@ -1828,7 +1865,7 @@ class ASTConverter {
 			end = exceptionArgument.sourceEnd + 1;
 		}
 		int start = statement.sourceStart;
-		int sourceEnd = retrieveEndingSemiColonPosition(end, compilationUnitSource.length);
+		int sourceEnd = retrieveEndingSemiColonPosition(end, this.compilationUnitSource.length);
 		assertStatement.setSourceRange(start, sourceEnd - start + 1);
 		return assertStatement;
 	}
@@ -2236,7 +2273,7 @@ class ASTConverter {
 		throw new IllegalArgumentException("Not a primitive type");//$NON-NLS-1$
 	}
 	
-	/**
+	/*
 	 * This method is used to set the right end position for expression
 	 * statement. The actual AST nodes don't include the trailing semicolon.
 	 * This method fixes the length of the corresponding node.
@@ -2246,14 +2283,14 @@ class ASTConverter {
 		int length = node.getLength();
 		int end = start + length;
 		int count = 0;
-		scanner.resetTo(end, this.compilationUnitSource.length);
+		this.scanner.resetTo(end, this.compilationUnitSource.length);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameSEMICOLON:
 						if (count == 0) {
-							node.setSourceRange(start, scanner.currentPosition - start);
+							node.setSourceRange(start, this.scanner.currentPosition - start);
 							return;
 						}
 						break;
@@ -2290,13 +2327,13 @@ class ASTConverter {
 		int start = node.getStartPosition();
 		int length = node.getLength();
 		int end = start + length;
-		scanner.resetTo(end, this.compilationUnitSource.length);
+		this.scanner.resetTo(end, this.compilationUnitSource.length);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameCOLON:
-						node.setSourceRange(start, scanner.currentPosition - start);
+						node.setSourceRange(start, this.scanner.currentPosition - start);
 						return;
 				}
 			}
@@ -2307,14 +2344,14 @@ class ASTConverter {
 
 	private int retrieveEndingSemiColonPosition(int start, int end) {
 		int count = 0;
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameSEMICOLON:
 						if (count == 0) {
-							return scanner.currentPosition - 1;
+							return this.scanner.currentPosition - 1;
 						}
 						break;
 					case TerminalTokens.TokenNameLBRACE :
@@ -2351,11 +2388,11 @@ class ASTConverter {
 	 * @return int the dimension found
 	 */
 	private int retrieveExtraDimension(int start, int end) {
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 		int dimensions = 0;
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameRBRACKET://166 
 						dimensions++;
@@ -2382,11 +2419,11 @@ class ASTConverter {
 	 * @return int the dimension found
 	 */
 	private int retrieveEndOfDimensionsPosition(int start, int end) {
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 		int foundPosition = -1;
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameLBRACKET:
 					case TerminalTokens.TokenNameCOMMENT_BLOCK:
@@ -2394,7 +2431,7 @@ class ASTConverter {
 					case TerminalTokens.TokenNameCOMMENT_LINE:
 						break;
 					case TerminalTokens.TokenNameRBRACKET://166
-						foundPosition = scanner.currentPosition - 1;
+						foundPosition = this.scanner.currentPosition - 1;
 						break;
 					default:
 						return foundPosition;
@@ -2411,13 +2448,13 @@ class ASTConverter {
 	 * @return int the dimension found, -1 if none
 	 */
 	private int retrieveStartingCatchPosition(int start, int end) {
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNamecatch://225
-						return scanner.startPosition;
+						return this.scanner.startPosition;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -2431,10 +2468,10 @@ class ASTConverter {
 	 * @return int the dimension found, -1 if none
 	 */
 	private int retrieveEndOfElementTypeNamePosition(int start, int end) {
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameIdentifier:
 					case TerminalTokens.TokenNamebyte:
@@ -2444,7 +2481,7 @@ class ASTConverter {
 					case TerminalTokens.TokenNameint:
 					case TerminalTokens.TokenNamelong:
 					case TerminalTokens.TokenNameshort:
-						return scanner.currentPosition - 1;
+						return this.scanner.currentPosition - 1;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -2458,13 +2495,13 @@ class ASTConverter {
 	 * @return int the dimension found, -1 if none
 	 */
 	private int retrieveRightBracketPosition(int start, int end) {
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameRBRACKET:
-						return scanner.currentPosition - 1;
+						return this.scanner.currentPosition - 1;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -2478,13 +2515,13 @@ class ASTConverter {
 	 * @return int the position found
 	 */
 	private int retrieveEndOfRightParenthesisPosition(int start, int end) {
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameRPAREN:
-						return scanner.currentPosition;
+						return this.scanner.currentPosition;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -2494,15 +2531,15 @@ class ASTConverter {
 	}
 
 	private int retrieveProperRightBracketPosition(int bracketNumber, int start, int end) {
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 		try {
 			int token, count = 0;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameRBRACKET:
 						count++;
 						if (count == bracketNumber) {
-							return scanner.currentPosition - 1;
+							return this.scanner.currentPosition - 1;
 						}
 				}
 			}
@@ -2517,13 +2554,13 @@ class ASTConverter {
 	 * @return int the dimension found, -1 if none
 	 */
 	private int retrieveStartBlockPosition(int start, int end) {
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameLBRACE://110
-						return scanner.startPosition;
+						return this.scanner.startPosition;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -2537,13 +2574,13 @@ class ASTConverter {
 	 * @return int the dimension found, -1 if none
 	 */
 	private int retrieveIdentifierEndPosition(int start, int end) {
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameIdentifier://110
-						return scanner.getCurrentTokenEndPosition();
+						return this.scanner.getCurrentTokenEndPosition();
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -2557,11 +2594,11 @@ class ASTConverter {
 	 * @return int the dimension found, -1 if none
 	 */
 	private int retrieveEndBlockPosition(int start, int end) {
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 		int count = 0;
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameLBRACE://110
 						count++;
@@ -2569,7 +2606,7 @@ class ASTConverter {
 					case TerminalTokens.TokenNameRBRACE://95
 						count--;
 						if (count == 0) {
-							return scanner.currentPosition - 1;
+							return this.scanner.currentPosition - 1;
 						}
 				}
 			}
@@ -2585,11 +2622,11 @@ class ASTConverter {
 	 */
 	private int retrieveRightBraceOrSemiColonPosition(MethodDeclaration node, org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration methodDeclaration) {
 		int start = node.getStartPosition();
-		scanner.resetTo(start, methodDeclaration.declarationSourceEnd);
+		this.scanner.resetTo(start, methodDeclaration.declarationSourceEnd);
 		try {
 			int token;
 			int braceCounter = 0;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameLBRACE :
 						braceCounter++;
@@ -2597,12 +2634,12 @@ class ASTConverter {
 					case TerminalTokens.TokenNameRBRACE :
 						braceCounter--;
 						if (braceCounter == 0) {
-							return scanner.currentPosition;
+							return this.scanner.currentPosition;
 						}
 						break;
 					case TerminalTokens.TokenNameSEMICOLON :
 						if (braceCounter == 0) {
-							return scanner.currentPosition;
+							return this.scanner.currentPosition;
 						}
 				}
 			}
@@ -2617,11 +2654,11 @@ class ASTConverter {
 	 * @return int the position found.
 	 */
 	private int retrievePositionBeforeNextCommaOrSemiColon(int start, int end) {
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 		int braceCounter = 0;
 		try {
 			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameLBRACE :
 						braceCounter++;
@@ -2644,7 +2681,7 @@ class ASTConverter {
 					case TerminalTokens.TokenNameCOMMA :
 					case TerminalTokens.TokenNameSEMICOLON :
 						if (braceCounter == 0) {
-							return scanner.startPosition - 1;
+							return this.scanner.startPosition - 1;
 						}
 				}
 			}
@@ -2729,7 +2766,9 @@ class ASTConverter {
 			fieldDeclaration.setModifiers(fieldDecl.modifiers & legalModifiers);
 			fieldDeclaration.setFlags(ASTNode.MALFORMED);
 		}
-		setJavaDocComment(fieldDeclaration);
+		// The javadoc comment is now got from list store in compilation unit declaration
+//		setJavaDocComment(fieldDeclaration);
+		fieldDeclaration.setJavadoc(convert(fieldDecl.javadoc));
 		return fieldDeclaration;
 	}
 
@@ -2977,40 +3016,122 @@ class ASTConverter {
 			variableDeclarationExpression.setType(type);
 		}
 	}
-	
+
+	/*
 	private void setJavaDocComment(BodyDeclaration bodyDeclaration) {
-		scanner.resetTo(bodyDeclaration.getStartPosition(), bodyDeclaration.getStartPosition() + bodyDeclaration.getLength());
-		try {
-			int token;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
-				switch(token) {
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC: //1003
-						Javadoc javadocComment = this.ast.newJavadoc();
-						int start = scanner.startPosition;
-						int length = scanner.currentPosition - start;
-						char[] contents = new char[length];
-						System.arraycopy(this.compilationUnitSource, start, contents, 0, length);
-						setDeprecatedComment(javadocComment, contents);
-						javadocComment.setSourceRange(start, length);
-						bodyDeclaration.setJavadoc(javadocComment);
-						return;
-					default :
-						return;
+		CompilationUnit cu = bodyDeclaration.getCompilationUnit();
+		if (cu == null || !this.insideComments) {
+			this.scanner.resetTo(bodyDeclaration.getStartPosition(), bodyDeclaration.getStartPosition() + bodyDeclaration.getLength());
+			try {
+				int token;
+				while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+					switch(token) {
+						case TerminalTokens.TokenNameCOMMENT_JAVADOC: //1003
+//							Javadoc docComment = this.ast.newJavadoc();
+//							int start = this.scanner.startPosition;
+//							int length = this.scanner.currentPosition - start;
+//							char[] contents = new char[length];
+//							System.arraycopy(this.compilationUnitSource, start, contents, 0, length);
+							DocCommentParser docParser = new DocCommentParser(this.ast, this.scanner);
+							Javadoc docComment = docParser.parse(this.scanner.startPosition, this.scanner.currentPosition-1);
+//							docComment.setSourceRange(start, length);
+							docComment.setAlternateRoot(bodyDeclaration);
+							bodyDeclaration.setJavadoc(docComment);
+							return;
+						default :
+							return;
+					}
 				}
+			} catch(InvalidInputException e) {
+				// ignore
 			}
-		} catch(InvalidInputException e) {
-			// ignore
+		} else {
+			DefaultCommentMapper mapper = new DefaultCommentMapper(this.commentsTable);
+			Comment comment = mapper.getComment(bodyDeclaration.getStartPosition());
+			if (comment.isDocComment()) {
+				comment.setAlternateRoot(bodyDeclaration);
+				bodyDeclaration.setJavadoc((Javadoc)comment);
+			}
 		}
 	}
-	
-	/**
-	 * Sets the deprecated comment string on the given java doc.
-	 * <p>
-	 * Note the only purpose of this method is to hide deprecated warnings.
-	 * @deprecated mark deprecated to hide deprecated usage
-	 */
-	private void setDeprecatedComment(Javadoc javadocComment, char[] contents) {
-		javadocComment.setComment(new String(contents));
+	*/
+
+	public Javadoc convert(org.eclipse.jdt.internal.compiler.ast.Javadoc javadoc) {
+		if (javadoc != null) {
+			DefaultCommentMapper mapper = new DefaultCommentMapper(this.commentsTable);
+			Comment comment = mapper.getComment(javadoc.sourceStart);
+			if (comment != null && comment.isDocComment()) {
+				Javadoc docComment = (Javadoc) comment;
+				if (this.resolveBindings) {
+					recordNodes(docComment, javadoc);
+					// resolve member and method references binding
+					Iterator tags = docComment.tags().listIterator();
+					while (tags.hasNext()) {
+						TagElement tagElement = (TagElement) tags.next();
+						Iterator fragments = tagElement.fragments().listIterator();
+						while (fragments.hasNext()) {
+							ASTNode node = (ASTNode) fragments.next();
+							if (node.getNodeType() == ASTNode.MEMBER_REF) {
+								int start = node.getStartPosition();
+								Name name = ((MemberRef)node).getName();
+								if (name != null) start = name.getStartPosition();
+								org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(start);
+								if (compilerNode != null) {
+									recordNodes(node, compilerNode);
+								}
+							} else if (node.getNodeType() == ASTNode.METHOD_REF) {
+								org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(node.getStartPosition());
+								if (compilerNode != null) {
+									recordNodes(node, compilerNode);
+								}
+							} else if (node.getNodeType() == ASTNode.TAG_ELEMENT) {
+								// resolve member and method references binding
+								TagElement inlineTag = (TagElement) node;
+								Iterator inlineFragments = inlineTag.fragments().listIterator();
+								while (inlineFragments.hasNext()) {
+									ASTNode inlineNode = (ASTNode) inlineFragments.next();
+									if (inlineNode.getNodeType() == ASTNode.MEMBER_REF || inlineNode.getNodeType() == ASTNode.METHOD_REF) {
+										org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(inlineNode.getStartPosition());
+										if (compilerNode != null) {
+											recordNodes(inlineNode, compilerNode);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				return docComment;
+			}
+		}
+		return null;
+	}
+
+
+	private Comment createComment(int[] positions) {
+		// Create comment node
+		Comment comment = null;
+		int start = positions[0];
+		int end = positions[1];
+		if (positions[1]>0) { // Javadoc comments have positive end position
+			this.ast.newJavadoc();
+			DocCommentParser docParser = new DocCommentParser(this.ast, this.scanner);
+			Javadoc docComment = docParser.parse(positions);
+//			String contents = new String(this.compilationUnitSource, start, end - start + 1);
+//			javadoc.parseComment(contents);
+			if (docComment == null) return null;
+			comment = docComment;
+		} else {
+			end = -end;
+			if (positions[0]>0) { // Block comment have positive start position
+				comment = this.ast.newBlockComment();
+			} else { // Line comment have negative start and end position
+				start = -start;
+				comment = this.ast.newLineComment();
+			}
+			comment.setSourceRange(start, end - start);
+		}
+		return comment;
 	}
 
 	void propagateErrors(ASTNode astNode, IProblem[] problems) {
@@ -3068,12 +3189,12 @@ class ASTConverter {
 		int end = expression.sourceEnd;
 		int leftParentCount = 1;
 		int rightParentCount = 0;
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 		try {
-			int token = scanner.getNextToken();
-			expression.sourceStart = scanner.currentPosition;
+			int token = this.scanner.getNextToken();
+			expression.sourceStart = this.scanner.currentPosition;
 			boolean stop = false;
-			while (!stop && ((token  = scanner.getNextToken()) != TerminalTokens.TokenNameEOF)) {
+			while (!stop && ((token  = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)) {
 				switch(token) {
 					case TerminalTokens.TokenNameLPAREN:
 						leftParentCount++;
@@ -3086,20 +3207,20 @@ class ASTConverter {
 						}
 				}
 			}
-			expression.sourceEnd = scanner.startPosition - 1;
+			expression.sourceEnd = this.scanner.startPosition - 1;
 		} catch(InvalidInputException e) {
 			// ignore
 		}
 	}
 
 	private void retrieveIdentifierAndSetPositions(int start, int end, Name name) {
-		scanner.resetTo(start, end);
+		this.scanner.resetTo(start, end);
 		int token;
 		try {
-			while((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
+			while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
 				if (token == TerminalTokens.TokenNameIdentifier) {
-					int startName = scanner.startPosition;
-					int endName = scanner.currentPosition - 1;
+					int startName = this.scanner.startPosition;
+					int endName = this.scanner.currentPosition - 1;
 					name.setSourceRange(startName, endName - startName + 1);
 					return;
 				}
@@ -3114,11 +3235,11 @@ class ASTConverter {
 	 */
 	private void removeTrailingCommentFromExpressionEndingWithAParen(ASTNode node) {
 		int start = node.getStartPosition();
-		scanner.resetTo(start, start + node.getLength());
+		this.scanner.resetTo(start, start + node.getLength());
 		int token;
 		int parenCounter = 0;
 		try {
-			while((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
+			while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
 				switch(token) {
 					case TerminalTokens.TokenNameLPAREN :
 						parenCounter++;
@@ -3126,7 +3247,7 @@ class ASTConverter {
 					case TerminalTokens.TokenNameRPAREN :
 						parenCounter--;
 						if (parenCounter == 0) {
-							int end = scanner.currentPosition - 1;
+							int end = this.scanner.currentPosition - 1;
 							node.setSourceRange(start, end - start + 1);
 						}
 				}
@@ -3141,11 +3262,11 @@ class ASTConverter {
 	 */
 	private void removeLeadingAndTrailingCommentsFromLiteral(ASTNode node) {
 		int start = node.getStartPosition();
-		scanner.resetTo(start, start + node.getLength());
+		this.scanner.resetTo(start, start + node.getLength());
 		int token;
 		int startPosition = -1;
 		try {
-			while((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
+			while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
 				switch(token) {
 					case TerminalTokens.TokenNameIntegerLiteral :
 					case TerminalTokens.TokenNameFloatingPointLiteral :
@@ -3153,13 +3274,13 @@ class ASTConverter {
 					case TerminalTokens.TokenNameDoubleLiteral :
 					case TerminalTokens.TokenNameCharacterLiteral :
 						if (startPosition == -1) {
-							startPosition = scanner.startPosition;
+							startPosition = this.scanner.startPosition;
 						}
-						int end = scanner.currentPosition;
+						int end = this.scanner.currentPosition;
 						node.setSourceRange(startPosition, end - startPosition);
 						return;
 					case TerminalTokens.TokenNameMINUS :
-						startPosition = scanner.startPosition;
+						startPosition = this.scanner.startPosition;
 						break;
 				}
 			}

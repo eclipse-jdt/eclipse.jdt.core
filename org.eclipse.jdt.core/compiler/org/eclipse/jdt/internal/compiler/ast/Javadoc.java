@@ -359,4 +359,21 @@ public class Javadoc extends ASTNode {
 			}
 		}
 	}
+	
+	public ASTNode getNodeStartingAt(int start) {
+		// search for compiler ast nodes with same position
+		for (int i=0; i<this.thrownExceptions.length; i++) {
+			TypeReference typeRef = this.thrownExceptions[i];
+			if (typeRef.sourceStart==start) {
+				return typeRef;
+			}
+		}
+		for (int i=0; i<this.references.length; i++) {
+			org.eclipse.jdt.internal.compiler.ast.Expression expression = this.references[i];
+			if (expression.sourceStart==start) {
+				return expression;
+			}
+		}
+		return null;
+	}
 }

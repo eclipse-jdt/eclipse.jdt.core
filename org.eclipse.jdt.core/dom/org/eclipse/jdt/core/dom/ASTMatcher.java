@@ -868,8 +868,14 @@ public class ASTMatcher {
 		// for backwards compatibility, treat the deprecated comment string
 		// and the new list of tags as separate properties, and
 		// compare both
-		return compareDeprecatedComment(node, o)
-		       && safeSubtreeListMatch(node.tags(), o.tags());
+		if (compareDeprecatedComment(node, o)) {
+			if (node.tags().size() > 0 && o.tags().size() > 0) {
+				return safeSubtreeListMatch(node.tags(), o.tags());
+			} else {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
