@@ -27,13 +27,17 @@ public class UserLibraryClasspathContainer implements IClasspathContainer {
 		this.name= libName;
 	}
 	
+	private UserLibrary getUserLibrary() {
+		return UserLibraryManager.getUserLibrary(this.name);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.IClasspathContainer#getClasspathEntries()
 	 */
 	public IClasspathEntry[] getClasspathEntries() {
-		IClasspathContainer library= UserLibraryManager.getUserLibrary(this.name);
+		UserLibrary library= getUserLibrary();
 		if (library != null) {
-			return library.getClasspathEntries();
+			return library.getEntries();
 		}
 		return new IClasspathEntry[0];
 		
@@ -50,9 +54,9 @@ public class UserLibraryClasspathContainer implements IClasspathContainer {
 	 * @see org.eclipse.jdt.core.IClasspathContainer#getKind()
 	 */
 	public int getKind() {
-		IClasspathContainer library= UserLibraryManager.getUserLibrary(this.name);
-		if (library != null) {
-			return library.getKind();
+		UserLibrary library= getUserLibrary();
+		if (library != null && library.isSystemLibrary()) {
+			return K_SYSTEM;
 		}
 		return K_APPLICATION;
 	}

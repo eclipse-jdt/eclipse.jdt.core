@@ -29,9 +29,10 @@ public class UserLibraryClasspathContainerInitializer extends ClasspathContainer
 		if (isUserLibraryContainer(containerPath)) {
 			String userLibName= containerPath.segment(1);
 						
-			IClasspathContainer library = UserLibraryManager.getUserLibrary(userLibName);
-			if (library != null) {
-				JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project }, 	new IClasspathContainer[] { library }, null);
+			UserLibrary entries= UserLibraryManager.getUserLibrary(userLibName);
+			if (entries != null) {
+				UserLibraryClasspathContainer container= new UserLibraryClasspathContainer(userLibName);
+				JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project }, 	new IClasspathContainer[] { container }, null);
 			}
 		}
 	}
