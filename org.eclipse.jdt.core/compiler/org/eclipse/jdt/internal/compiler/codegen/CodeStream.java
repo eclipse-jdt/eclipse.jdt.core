@@ -4579,6 +4579,7 @@ public void record(LocalVariableBinding local) {
 	}
 	locals[allLocalsCounter++] = local;
 	local.initializationPCs = new int[4];
+	local.initializationCount = 0;
 }
 public void recordPositionsFrom(int startPC, AstNode node) {
 
@@ -5419,54 +5420,54 @@ public final void writeSignedShort(int pos, int b) {
 public final void writeSignedWord(int value) {
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = (byte) (value >> 24);
+		bCodeStream[classFileOffset++] = (byte) ((value & 0xFF000000) >> 24);
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) (value >> 24));
+		resizeByteArray((byte) ((value & 0xFF000000) >> 24));
 	}
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = (byte) (value >> 16);
+		bCodeStream[classFileOffset++] = (byte) ((value & 0xFF0000) >> 16);
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) (value >> 16));
+		resizeByteArray((byte) ((value & 0xFF0000) >> 16));
 	}
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = (byte) (value >> 8);
+		bCodeStream[classFileOffset++] = (byte) ((value & 0xFF00) >> 8);
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) (value >> 8));
+		resizeByteArray((byte) ((value & 0xFF00) >> 8));
 	}
 	try {
 		position++;
-		bCodeStream[classFileOffset++] = (byte) value;
+		bCodeStream[classFileOffset++] = (byte) (value & 0xFF);
 	} catch (IndexOutOfBoundsException e) {
-		resizeByteArray((byte) value);
+		resizeByteArray((byte) (value & 0xFF));
 	}
 }
 public final void writeSignedWord(int pos, int value) {
 	int currentOffset = startingClassFileOffset + pos;
 	try {
-		bCodeStream[currentOffset] = (byte) (value >> 24);
+		bCodeStream[currentOffset++] = (byte) ((value & 0xFF000000) >> 24);
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray();
-		bCodeStream[currentOffset] = (byte) (value >> 24);
+		bCodeStream[currentOffset-1] = (byte) ((value & 0xFF000000) >> 24);
 	}
 	try {
-		bCodeStream[currentOffset + 1] = (byte) (value >> 16);
+		bCodeStream[currentOffset++] = (byte) ((value & 0xFF0000) >> 16);
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray();
-		bCodeStream[currentOffset + 1] = (byte) (value >> 16);
+		bCodeStream[currentOffset-1] = (byte) ((value & 0xFF0000) >> 16);
 	}
 	try {
-		bCodeStream[currentOffset + 2] = (byte) (value >> 8);
+		bCodeStream[currentOffset++] = (byte) ((value & 0xFF00) >> 8);
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray();
-		bCodeStream[currentOffset + 2] = (byte) (value >> 8);
+		bCodeStream[currentOffset-1] = (byte) ((value & 0xFF00) >> 8);
 	}
 	try {
-		bCodeStream[currentOffset + 3] = (byte) value;
+		bCodeStream[currentOffset++] = (byte) (value & 0xFF);
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray();
-		bCodeStream[currentOffset + 3] = (byte) value;
+		bCodeStream[currentOffset-1] = (byte) (value & 0xFF);
 	}
 }
 /**
