@@ -90,6 +90,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 	
 	public HashMap externalTimeStamps = new HashMap();
 	public HashSet projectsToUpdate = new HashSet();
+	// list of root projects which namelookup caches need to be updated for dependents
+	public HashSet projectsForDependentNamelookupRefresh = new HashSet();  
 	
 	JavaModelManager manager;
 
@@ -105,7 +107,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 * Adds the dependents of the given project to the list of the projects
 	 * to update.
 	 */
-	void addDependentsToProjectsToUpdate(IPath projectPath) {
+	void addDependentProjects(IPath projectPath, HashSet result) {
 		try {
 			IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
 			for (int i = 0, length = projects.length; i < length; i++) {
@@ -115,7 +117,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 					IClasspathEntry entry = classpath[j];
 					if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
 							&& entry.getPath().equals(projectPath)) {
-						this.projectsToUpdate.add(project);
+						result.add(project);
 					}
 				}
 			}
@@ -128,7 +130,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 	 */
 	void addToProjectsToUpdateWithDependents(IProject project) {
 		this.projectsToUpdate.add(JavaCore.create(project));
-		this.addDependentsToProjectsToUpdate(project.getFullPath());
+		this.addDependentProjects(project.getFullPath(), this.projectsToUpdate);
 	}
 	
 	/**
@@ -668,7 +670,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 		} catch (JavaModelException e) {
 		}
 		
-		this.addDependentsToProjectsToUpdate(project.getFullPath());
+		this.addDependentProjects(project.getFullPath(), this.projectsToUpdate);
 	}
 
 	/**
@@ -752,13 +754,17 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 			switch (elementType) {
 				case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 					// when a root is added, and is on the classpath, the project must be updated
-					this.projectsToUpdate.add(element.getJavaProject());
+					JavaProject project = (JavaProject) element.getJavaProject();
+					this.projectsToUpdate.add(project);
+					this.projectsForDependentNamelookupRefresh.add(project);
+					
 					break;
 				case IJavaElement.PACKAGE_FRAGMENT :
 					// get rid of namelookup since it holds onto obsolete cached info 
-					JavaProject project = (JavaProject) element.getJavaProject();
+					project = (JavaProject) element.getJavaProject();
 					try {
 						project.getJavaProjectElementInfo().setNameLookup(null);
+						this.projectsForDependentNamelookupRefresh.add(project);						
 					} catch (JavaModelException e) {
 					}
 					// add subpackages
@@ -859,13 +865,16 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 					(JavaProject) element);
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
-				this.projectsToUpdate.add(element.getJavaProject());
+				JavaProject project = (JavaProject) element.getJavaProject();
+				this.projectsToUpdate.add(project);
+				this.projectsForDependentNamelookupRefresh.add(project);				
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT :
 				//1G1TW2T - get rid of namelookup since it holds onto obsolete cached info 
-				JavaProject project = (JavaProject) element.getJavaProject();
+				project = (JavaProject) element.getJavaProject();
 				try {
 					project.getJavaProjectElementInfo().setNameLookup(null); 
+					this.projectsForDependentNamelookupRefresh.add(project);
 				} catch (JavaModelException e) { 
 				}
 				// remove subpackages
@@ -1081,9 +1090,12 @@ private JavaModelException newInvalidElementType() {
 				project.updatePackageFragmentRoots();
 			}
 	
+			updateDependentNamelookups();
+
 			return filterRealDeltas(translatedDeltas);
 		} finally {
-			this.projectsToUpdate = new HashSet();
+			this.projectsToUpdate.clear();
+			this.projectsForDependentNamelookupRefresh.clear();
 		}
 	}
 	
@@ -1462,9 +1474,32 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 		} finally {
 			this.projectsToUpdate = new HashSet();
 		}
-	
 	}
 
+	/**
+	 * Traverse the set of projects which have changed namespace, and refresh their dependents
+	 */
+	public void updateDependentNamelookups() {
+		Iterator iterator;
+		// update namelookup of dependent projects
+		iterator = this.projectsForDependentNamelookupRefresh.iterator();
+		HashSet affectedDependents = new HashSet();
+		while (iterator.hasNext()) {
+			JavaProject project = (JavaProject)iterator.next();
+			addDependentProjects(project.getPath(), affectedDependents);
+		}
+		iterator = affectedDependents.iterator();
+		while (iterator.hasNext()) {
+			JavaProject project = (JavaProject) iterator.next();
+			if (project.isOpen()){
+				try {
+					((JavaProjectElementInfo)project.getElementInfo()).setNameLookup(null);
+				} catch (JavaModelException e) {
+				}
+			}
+		}
+	}
+	
 	/*
 	 * Returns the type of the java element the given delta matches to.
 	 * Returns -1 if unknown (e.g. a non-java resource.)
