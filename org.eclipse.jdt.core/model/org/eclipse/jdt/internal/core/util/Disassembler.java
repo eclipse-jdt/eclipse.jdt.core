@@ -409,6 +409,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				buffer.append(Util.bind("classfileformat.targetoption", "1.3"));//$NON-NLS-1$//$NON-NLS-2$
 			} else if (minorVersion == 0 && majorVersion == 48) {
 				buffer.append(Util.bind("classfileformat.targetoption", "1.4"));//$NON-NLS-1$//$NON-NLS-2$
+			} else if (minorVersion == 0 && majorVersion == 49) {
+				buffer.append(Util.bind("classfileformat.targetoption", "1.5"));//$NON-NLS-1$//$NON-NLS-2$
 			}
 			writeNewLine(buffer, lineSeparator, 0);
 			buffer.append(Util.bind("disassembler.begincommentline"));			 //$NON-NLS-1$
