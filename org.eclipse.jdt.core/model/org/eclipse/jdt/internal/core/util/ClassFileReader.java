@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.core.util;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
-import org.eclipse.jdt.core.util.IClassFileDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;

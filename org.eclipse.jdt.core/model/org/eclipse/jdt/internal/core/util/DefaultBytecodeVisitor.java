@@ -10,11 +10,7 @@
  *********************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
-import java.io.IOException;
-import java.io.Writer;
-
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.util.ByteCodeVisitorAdapter;
 import org.eclipse.jdt.core.util.IBytecodeVisitor;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;
 import org.eclipse.jdt.core.util.IConstantPoolEntry;

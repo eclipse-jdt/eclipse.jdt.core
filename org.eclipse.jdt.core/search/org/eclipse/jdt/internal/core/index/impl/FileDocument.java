@@ -13,8 +13,6 @@ package org.eclipse.jdt.internal.core.index.impl;
 import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.jdt.internal.compiler.util.Util;
-
 /**
  * A <code>FileDocument</code> represents a java.io.File.
  */

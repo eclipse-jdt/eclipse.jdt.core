@@ -10,8 +10,6 @@
  *********************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
-import org.eclipse.jdt.core.util.ClassFormatException;
-
 /**
  * Abstract class that defines helpers methods for decoding .class file.
  */

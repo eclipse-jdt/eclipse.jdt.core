@@ -11,8 +11,6 @@
 
 package org.eclipse.jdt.core.dom;
 
-import java.util.ArrayList;
-
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 /**

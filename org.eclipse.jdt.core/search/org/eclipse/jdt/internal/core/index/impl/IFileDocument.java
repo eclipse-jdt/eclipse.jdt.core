@@ -14,7 +14,6 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * An <code>IFileDocument</code> represents an IFile.

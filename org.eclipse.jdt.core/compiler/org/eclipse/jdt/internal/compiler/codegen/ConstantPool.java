@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
-import java.io.*;
-
 import org.eclipse.jdt.internal.compiler.ClassFile;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;

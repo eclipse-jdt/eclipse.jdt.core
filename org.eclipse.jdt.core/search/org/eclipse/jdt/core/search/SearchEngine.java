@@ -10,8 +10,6 @@ package org.eclipse.jdt.core.search;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
-
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.HierarchyScope;

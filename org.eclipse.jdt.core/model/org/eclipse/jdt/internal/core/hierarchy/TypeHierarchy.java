@@ -33,7 +33,6 @@ import org.eclipse.jdt.core.ITypeHierarchyChangedListener;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.ImportContainer;
 import org.eclipse.jdt.internal.core.JavaElement;

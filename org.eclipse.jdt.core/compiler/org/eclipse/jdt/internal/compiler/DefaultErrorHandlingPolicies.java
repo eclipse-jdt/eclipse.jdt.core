@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
-import org.eclipse.jdt.internal.compiler.problem.ProblemHandler; 
-
 public class DefaultErrorHandlingPolicies {
  
 /*

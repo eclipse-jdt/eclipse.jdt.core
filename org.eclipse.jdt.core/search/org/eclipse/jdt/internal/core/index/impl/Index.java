@@ -20,7 +20,6 @@ import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IIndexer;
 import org.eclipse.jdt.internal.core.index.IQueryResult;
-import org.eclipse.jdt.internal.core.search.Util;
 
 /**
  * An Index is used to create an index on the disk, and to make queries. It uses a set of 

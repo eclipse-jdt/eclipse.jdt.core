@@ -14,11 +14,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
-
-import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**
  * This class is used by <code>JavaModelManager</code> to update the JavaModel

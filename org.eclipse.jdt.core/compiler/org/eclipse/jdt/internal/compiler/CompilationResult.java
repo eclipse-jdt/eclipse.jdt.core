@@ -35,7 +35,6 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
-import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 
 import java.util.*;
 

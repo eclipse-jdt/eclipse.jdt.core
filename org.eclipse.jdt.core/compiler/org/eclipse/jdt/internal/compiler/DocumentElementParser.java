@@ -34,8 +34,6 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
-import java.util.Locale;
- 
 public class DocumentElementParser extends Parser {
 	IDocumentElementRequestor requestor;
 	private int localIntPtr;

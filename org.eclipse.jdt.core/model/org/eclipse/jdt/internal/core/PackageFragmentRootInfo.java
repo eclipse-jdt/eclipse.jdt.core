@@ -18,8 +18,6 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 
-import java.util.Enumeration;
-
 /**
  * The element info for <code>PackageFragmentRoot</code>s.
  */

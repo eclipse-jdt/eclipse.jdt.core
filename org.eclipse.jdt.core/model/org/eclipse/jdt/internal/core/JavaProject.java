@@ -22,18 +22,13 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
-import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
-import org.eclipse.jdt.internal.core.search.indexing.*;
-import org.eclipse.jdt.internal.core.util.*;
 import org.eclipse.jdt.internal.eval.EvaluationContext;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import javax.xml.parsers.*;
 import org.apache.xerces.dom.*;

@@ -26,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
-import java.io.*;
 import java.util.*;
 
 class CompilationUnitResolver extends Compiler {

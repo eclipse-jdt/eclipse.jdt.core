@@ -18,20 +18,6 @@ import org.eclipse.jdt.core.util.IConstantPoolConstant;
 import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.IConstantValueAttribute;
 import org.eclipse.jdt.core.util.IFieldInfo;
-import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
-import org.eclipse.jdt.internal.compiler.env.IBinaryField;
-import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
-import org.eclipse.jdt.internal.compiler.impl.ByteConstant;
-import org.eclipse.jdt.internal.compiler.impl.CharConstant;
-import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.impl.DoubleConstant;
-import org.eclipse.jdt.internal.compiler.impl.FloatConstant;
-import org.eclipse.jdt.internal.compiler.impl.IntConstant;
-import org.eclipse.jdt.internal.compiler.impl.LongConstant;
-import org.eclipse.jdt.internal.compiler.impl.ShortConstant;
-import org.eclipse.jdt.internal.compiler.impl.StringConstant;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
-import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  * Default implementation of IFieldInfo.

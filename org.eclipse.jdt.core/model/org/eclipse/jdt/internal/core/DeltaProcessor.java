@@ -43,7 +43,6 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**

@@ -12,7 +12,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaModelException;
 
 /**
  * A <code>IJavaSearchResultCollector<code> collects search results from a <code>search</code>

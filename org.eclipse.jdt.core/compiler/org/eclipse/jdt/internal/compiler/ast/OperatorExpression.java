@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public abstract class OperatorExpression extends Expression implements OperatorIds {

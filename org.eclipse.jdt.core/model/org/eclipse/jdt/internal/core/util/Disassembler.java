@@ -10,18 +10,7 @@
  *********************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileDisassembler;

@@ -7,8 +7,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
-import org.eclipse.jdt.internal.core.*; 
-
 /**
  * A listener, which gets notified when the contents of a specific buffer
  * have changed, or when the buffer is closed.

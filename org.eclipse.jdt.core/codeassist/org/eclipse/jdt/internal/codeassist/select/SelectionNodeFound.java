@@ -10,10 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.select;
 
-import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.env.*;
-
-import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class SelectionNodeFound extends RuntimeException {

@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class NameReference extends Reference implements InvocationSite, BindingIds {

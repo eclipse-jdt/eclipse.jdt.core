@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-import org.eclipse.jdt.internal.core.ClassFile;
 
 public class DeclarationOfReferencedMethodsPattern extends MethodReferencePattern {
 	HashSet knownMethods;

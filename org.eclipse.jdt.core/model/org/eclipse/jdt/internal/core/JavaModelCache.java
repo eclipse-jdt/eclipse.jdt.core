@@ -10,12 +10,9 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModel;
-import org.eclipse.jdt.core.IOpenable;
 
 /**
  * The cache of java elements to their respective info.

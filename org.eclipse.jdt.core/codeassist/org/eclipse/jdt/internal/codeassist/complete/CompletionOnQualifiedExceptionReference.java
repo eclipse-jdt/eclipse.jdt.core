@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
-import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
-
 /*
  * Completion node build by the parser in any case it was intending to
  * reduce an exception type reference containing the completion identifier 

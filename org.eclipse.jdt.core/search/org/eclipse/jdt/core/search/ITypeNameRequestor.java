@@ -7,8 +7,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.search;
 
-import org.eclipse.jdt.core.*;
-
 /**
  * A <code>ITypeNameRequestor<code> collects search results from a <code>searchAllTypeNames</code>
  * query to a <code>SearchEngine</code>. Clients must implement this interface and pass

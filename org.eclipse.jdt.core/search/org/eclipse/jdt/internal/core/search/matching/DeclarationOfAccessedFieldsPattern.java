@@ -31,7 +31,6 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-import org.eclipse.jdt.internal.core.ClassFile;
 
 public class DeclarationOfAccessedFieldsPattern extends FieldReferencePattern {
 	HashSet knownFields;

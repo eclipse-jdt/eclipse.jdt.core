@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
