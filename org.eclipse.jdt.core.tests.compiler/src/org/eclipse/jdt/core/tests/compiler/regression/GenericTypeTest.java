@@ -461,6 +461,41 @@ public void test018() {
 		},
 		"SUCCESS");
 }
+public void test019() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"     private T foo(T t) {\n" + 
+			"        System.out.println(t);\n" + 
+			"        return t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<XY>() {\n" + 
+			"            void run() {\n" + 
+			"                foo(new XY());\n" + 
+			"            }\n" + 
+			"        }.run();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class XY {\n" + 
+			"    public String toString() {\n" + 
+			"        return \"SUCCESS\";\n" + 
+			"    }\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + // TODO (philippe) should eliminate 1st diagnosis, as foo is still used even if incorrectly
+		"	private T foo(T t) {\n" + 
+		"	          ^^^^^^^^\n" + 
+		"The private method foo(T) from the type X<T> is never used locally\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	foo(new XY());\n" + 
+		"	^^^\n" + 
+		"Cannot make a static reference to the non-static method foo(T) from the type new X<XY>(){}\n" + 
+		"----------\n");
+}
 
 public static Class testClass() {
 	return GenericTypeTest.class;
