@@ -128,7 +128,7 @@ public class EnumTest extends AbstractComparableTest {
 					"   int age;\n" + 
 					"	Role role;\n" + 
 					"\n" + 
-					"	T() { this(YODA.age()); }\n" + 
+					"	T() { this(YODA.age()); }\n" +  // TODO (philippe) should this not complain: illegal reference to static field from initializer
 					"	T(int age) {\n" + 
 					"		this.age = age;\n" + 
 					"	}\n" + 
@@ -2002,5 +2002,301 @@ public class EnumTest extends AbstractComparableTest {
 		} catch (IOException e) {
 			assertTrue("IOException", false);
 		}
+	}
+
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83901
+	public void test071() {
+		this.runConformTest( // no methods to implement
+			new String[] {
+				"X1.java",
+				"public enum X1 implements I {\n" +
+				"	;\n" +
+				"}\n" +
+				"interface I {}\n"
+			},
+			""
+		);
+		this.runConformTest( // no methods to implement with constant
+			new String[] {
+				"X1a.java",
+				"public enum X1a implements I {\n" +
+				"	A;\n" +
+				"}\n" +
+				"interface I {}\n"
+			},
+			""
+		);
+		this.runConformTest( // no methods to implement with constant body
+			new String[] {
+				"X1b.java",
+				"public enum X1b implements I {\n" +
+				"	A() { void random() {} };\n" +
+				"}\n" +
+				"interface I {}\n"
+			},
+			""
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83901
+	public void test072() {
+		this.runConformTest( // implement inherited method
+			new String[] {
+				"X2.java",
+				"public enum X2 implements I {\n" +
+				"	;\n" +
+				"	public void test() {}\n" +
+				"}\n" +
+				"interface I { void test(); }\n"
+			},
+			""
+		);
+		this.runConformTest( // implement inherited method with constant
+			new String[] {
+				"X2a.java",
+				"public enum X2a implements I {\n" +
+				"	A;\n" +
+				"	public void test() {}\n" +
+				"}\n" +
+				"interface I { void test(); }\n"
+			},
+			""
+		);
+		this.runConformTest( // implement inherited method with constant body
+			new String[] {
+				"X2b.java",
+				"public enum X2b implements I {\n" +
+				"	A() { public void test() {} };\n" +
+				"	public void test() {}\n" +
+				"}\n" +
+				"interface I { void test(); }\n"
+			},
+			""
+		);
+		this.runConformTest( // implement inherited method with random constant body
+			new String[] {
+				"X2c.java",
+				"public enum X2c implements I {\n" +
+				"	A() { void random() {} };\n" +
+				"	public void test() {}\n" +
+				"}\n" +
+				"interface I { void test(); }\n"
+			},
+			""
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83901
+	public void test073() {
+		this.runNegativeTest( // implement inherited method but as abstract
+			new String[] {
+				"X3.java",
+				"public enum X3 implements I {\n" +
+				"	;\n" +
+				"	public abstract void test();\n" +
+				"}\n" +
+				"interface I { void test(); }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X3.java (at line 3)\r\n" + 
+			"	public abstract void test();\r\n" + 
+			"	                     ^^^^^^\n" + 
+			"The enum X3 can only define the abstract method test() if it also defines enum constants with corresponding implementations\n" + 
+			"----------\n"
+			// X3 is not abstract and does not override abstract method test() in X3
+		);
+		this.runNegativeTest( // implement inherited method as abstract with constant
+			new String[] {
+				"X3a.java",
+				"public enum X3a implements I {\n" +
+				"	A;\n" +
+				"	public abstract void test();\n" +
+				"}\n" +
+				"interface I { void test(); }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X3a.java (at line 3)\r\n" + 
+			"	public abstract void test();\r\n" + 
+			"	                     ^^^^^^\n" + 
+			"The enum X3a can only define the abstract method test() if it also defines enum constants with corresponding implementations\n" + 
+			"----------\n"
+			// X3a is not abstract and does not override abstract method test() in X3a
+		);
+		this.runConformTest( // implement inherited method as abstract with constant body
+			new String[] {
+				"X3b.java",
+				"public enum X3b implements I {\n" +
+				"	A() { public void test() {} };\n" +
+				"	public abstract void test();\n" +
+				"}\n" +
+				"interface I { void test(); }\n"
+			},
+			""
+		);
+		this.runNegativeTest( // implement inherited method as abstract with random constant body
+			new String[] {
+				"X3c.java",
+				"public enum X3c implements I {\n" +
+				"	A() { void random() {} };\n" +
+				"	public abstract void test();\n" +
+				"}\n" +
+				"interface I { void test(); }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X3c.java (at line 2)\r\n" + 
+			"	A() { void random() {} };\r\n" + 
+			"	    ^\n" + 
+			"The type new X3c(){} must implement the inherited abstract method X3c.test()\n" + 
+			"----------\n"
+			// <anonymous X3c$1> is not abstract and does not override abstract method test() in X3c
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83901
+	public void test074() {
+		this.runNegativeTest( // define abstract method
+			new String[] {
+				"X4.java",
+				"public enum X4 {\n" +
+				"	;\n" +
+				"	public abstract void test();\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X4.java (at line 3)\r\n" + 
+			"	public abstract void test();\r\n" + 
+			"	                     ^^^^^^\n" + 
+			"The enum X4 can only define the abstract method test() if it also defines enum constants with corresponding implementations\n" + 
+			"----------\n"
+			// X4 is not abstract and does not override abstract method test() in X4
+		);
+		this.runNegativeTest( // define abstract method with constant
+			new String[] {
+				"X4a.java",
+				"public enum X4a {\n" +
+				"	A;\n" +
+				"	public abstract void test();\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X4a.java (at line 3)\r\n" + 
+			"	public abstract void test();\r\n" + 
+			"	                     ^^^^^^\n" + 
+			"The enum X4a can only define the abstract method test() if it also defines enum constants with corresponding implementations\n" + 
+			"----------\n"
+			// X4a is not abstract and does not override abstract method test() in X4a
+		);
+		this.runConformTest( // define abstract method with constant body
+			new String[] {
+				"X4b.java",
+				"public enum X4b {\n" +
+				"	A() { public void test() {} };\n" +
+				"	public abstract void test();\n" +
+				"}\n"
+			},
+			""
+		);
+		this.runNegativeTest( // define abstract method with random constant body
+			new String[] {
+				"X4c.java",
+				"public enum X4c {\n" +
+				"	A() { void random() {} };\n" +
+				"	public abstract void test();\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X4c.java (at line 2)\r\n" + 
+			"	A() { void random() {} };\r\n" + 
+			"	    ^\n" + 
+			"The type new X4c(){} must implement the inherited abstract method X4c.test()\n" + 
+			"----------\n"
+			// <anonymous X4c$1> is not abstract and does not override abstract method test() in X4c
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83901
+	public void test075() {
+		this.runNegativeTest( // do not implement inherited method
+			new String[] {
+				"X5.java",
+				"public enum X5 implements I {\n" +
+				"	;\n" +
+				"}\n" +
+				"interface I { void test(); }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X5.java (at line 1)\r\n" + 
+			"	public enum X5 implements I {\r\n" + 
+			"	            ^^\n" + 
+			"The type X5 must implement the inherited abstract method I.test()\n" + 
+			"----------\n"
+			// X5 is not abstract and does not override abstract method test() in I
+		);
+		this.runNegativeTest( // do not implement inherited method & have constant with no body
+			new String[] {
+				"X5a.java",
+				"public enum X5a implements I {\n" +
+				"	A;\n" +
+				"}\n" +
+				"interface I { void test(); }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X5a.java (at line 1)\r\n" + 
+			"	public enum X5a implements I {\r\n" + 
+			"	            ^^^\n" + 
+			"The type X5a must implement the inherited abstract method I.test()\n" + 
+			"----------\n"
+			// X5a is not abstract and does not override abstract method test() in I
+		);
+		this.runConformTest( // do not implement inherited method & have constant with body
+			new String[] {
+				"X5b.java",
+				"public enum X5b implements I {\n" +
+				"	A() { public void test() {} };\n" +
+				"	;\n" +
+				"}\n" +
+				"interface I { void test(); }\n"
+			},
+			""
+		);
+		this.runNegativeTest( // do not implement inherited method & have constant with random body
+			new String[] {
+				"X5c.java",
+				"public enum X5c implements I {\n" +
+				"	A() { void random() {} };\n" +
+				"	;\n" +
+				"	private X5c() {}\n" +
+				"}\n" +
+				"interface I { void test(); }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X5c.java (at line 2)\r\n" + 
+			"	A() { void random() {} };\r\n" + 
+			"	    ^\n" + 
+			"The type new X5c(){} must implement the inherited abstract method I.test()\n" + 
+			"----------\n"
+			// <anonymous X5c$1> is not abstract and does not override abstract method test() in I
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
+	public void test076() { // bridge method needed
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] args) { ((I) E.A).foo(); }\n" +
+				"}\n" +
+				"interface I { I foo(); }\n" +
+				"enum E implements I {\n" +
+				"	A;\n" +
+				"	public E foo() {\n" +
+				"		System.out.println(\"SUCCESS\");\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"SUCCESS"
+		);
 	}
 }
