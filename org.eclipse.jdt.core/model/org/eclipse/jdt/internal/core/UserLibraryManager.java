@@ -80,8 +80,8 @@ public class UserLibraryManager {
 	 * @param name The name of the library
 	 * @return The library registered for the given name or <code>null</code>.
 	 */
-	public static IClasspathContainer getUserLibrary(String name) {
-		return (IClasspathContainer) getLibraryMap().get(name);
+	public static UserLibrary getUserLibrary(String name) {
+		return (UserLibrary) getLibraryMap().get(name);
 	}
 
 	/**

@@ -77,6 +77,11 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	 * This is a cache of the projects before any project addition/deletion has started.
 	 */
 	public IJavaProject[] modelProjectsCache;
+	
+	/*
+	 * Type of event that is being processed.
+	 */
+	public int eventType = -1;
 		
 	/*
 	 * Need to clone defensively the listener information, in case some listener is reacting to some notification iteration by adding/changing/removing
@@ -237,12 +242,14 @@ public class DeltaProcessingState implements IResourceChangeListener {
 
 	public void resourceChanged(IResourceChangeEvent event) {
 		try {
-			getDeltaProcessor().resourceChanged(event);
+			if (this.eventType == -1) this.eventType = event.getType();
+			getDeltaProcessor().resourceChanged(event, this.eventType);
 		} finally {
 			// TODO (jerome) see 47631, may want to get rid of following so as to reuse delta processor ? 
-			if (event.getType() == IResourceChangeEvent.POST_CHANGE) {
+			if (this.eventType == IResourceChangeEvent.POST_CHANGE) {
 				this.deltaProcessors.set(null);
 			}
+			this.eventType = -1;
 		}
 
 	}

@@ -126,13 +126,13 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_&ast;</code> constants
+	 * <code>AST.JLS&ast;</code> constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.LEVEL_2_0) {
+		if (apiLevel == AST.JLS2) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -201,7 +201,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */
 	SingleVariableDeclaration(AST ast) {
 		super(ast);
-		if (ast.apiLevel >= AST.LEVEL_3_0) {
+		if (ast.apiLevel >= AST.JLS3) {
 			this.modifiers = new ASTNode.NodeList(MODIFIERS2_PROPERTY);
 		}
 	}
@@ -309,7 +309,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	ASTNode clone0(AST target) {
 		SingleVariableDeclaration result = new SingleVariableDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		if (this.ast.apiLevel == AST.LEVEL_2_0) {
+		if (this.ast.apiLevel == AST.JLS2) {
 			result.setModifiers(getModifiers());
 		} else {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
@@ -338,7 +338,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			if (this.ast.apiLevel >= AST.LEVEL_3_0) {
+			if (this.ast.apiLevel >= AST.JLS3) {
 				acceptChildren(visitor, this.modifiers);
 			}
 			acceptChild(visitor, getType());
@@ -354,12 +354,6 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * <p>
 	 * Note that the final modifier is the only meaningful modifier for local
 	 * variable and formal parameter declarations.
-	 * </p>
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
 	 * </p>
 	 * 
 	 * @return the live list of modifiers and annotations
@@ -502,10 +496,10 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Returns whether this declaration declares the last parameter of
 	 * a variable arity method (added in 3.0 API).
 	 * <p>
-	 * Note: Varible arity methods are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
+	 * Note: This API element is only needed for dealing with Java code that uses
+	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
+	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
+	 * may change slightly before reaching its final form.
 	 * </p>
 	 * 
 	 * @return <code>true</code> if this is a variable arity parameter declaration,
@@ -526,10 +520,10 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Sets whether this declaration declares the last parameter of
 	 * a variable arity method (added in 3.0 API).
 	 * <p>
-	 * Note: Varible arity methods are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
+	 * Note: This API element is only needed for dealing with Java code that uses
+	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
+	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
+	 * may change slightly before reaching its final form.
 	 * </p>
 	 * 
 	 * @param variableArity <code>true</code> if this is a variable arity

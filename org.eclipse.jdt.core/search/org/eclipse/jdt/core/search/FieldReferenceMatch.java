@@ -16,6 +16,9 @@ import org.eclipse.jdt.core.IJavaElement;
 /**
  * A Java search match that represents a field reference.
  * The element is the inner-most enclosing member that references this field.
+ * <p>
+ * This class is intended to be instantiated and subclassed by clients.
+ * </p>
  * 
  * @since 3.0
  */
@@ -48,7 +51,7 @@ public class FieldReferenceMatch extends SearchMatch {
 	/**
 	 * @see org.eclipse.jdt.core.search.SearchMatch#isInsideDocComment()
 	 */
-	public boolean isInsideDocComment() {
+	public final boolean isInsideDocComment() {
 		return this.insideDocComment;
 	}
 
@@ -58,7 +61,7 @@ public class FieldReferenceMatch extends SearchMatch {
 	 * 
 	 * @return whether the field reference is a read access to the field.
 	 */
-	public boolean isReadAccess() {
+	public final boolean isReadAccess() {
 		return this.isReadAccess;
 	}
 
@@ -68,7 +71,7 @@ public class FieldReferenceMatch extends SearchMatch {
 	 * 
 	 * @return whether the field reference is a write access to the field.
 	 */
-	public boolean isWriteAccess() {
+	public final boolean isWriteAccess() {
 		return this.isWriteAccess;
 	}
 	

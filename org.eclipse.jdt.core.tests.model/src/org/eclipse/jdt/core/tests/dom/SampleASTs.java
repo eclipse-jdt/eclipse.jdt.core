@@ -50,7 +50,7 @@ public class SampleASTs {
 		Initializer in = target.newInitializer();
 		td.bodyDeclarations().add(in);	
 
-		if (target.apiLevel() >= AST.LEVEL_3_0) {
+		if (target.apiLevel() >= AST.JLS3) {
 			EnumDeclaration ed = target.newEnumDeclaration();
 			td.bodyDeclarations().add(ed);	
 			EnumConstantDeclaration ec = target.newEnumConstantDeclaration();
@@ -70,7 +70,7 @@ public class SampleASTs {
 		ArrayType at = target.newArrayType(pt);
 		fd.setType(at);
 
-		if (target.apiLevel() >= AST.LEVEL_3_0) {
+		if (target.apiLevel() >= AST.JLS3) {
 			SimpleType st = target.newSimpleType(qn);
 			QualifiedType qt = target.newQualifiedType(st, target.newSimpleName("x")); //$NON-NLS-1$
 			WildcardType wt = target.newWildcardType();
@@ -103,7 +103,7 @@ public class SampleASTs {
 		b.statements().add(expressionStatement);
 		ForStatement forStatement = target.newForStatement();
 		b.statements().add(forStatement);
-		if (target.apiLevel() >= AST.LEVEL_3_0) {
+		if (target.apiLevel() >= AST.JLS3) {
 			EnhancedForStatement foreachStatement = target.newEnhancedForStatement();
 			b.statements().add(foreachStatement);
 		}
@@ -201,7 +201,7 @@ public class SampleASTs {
 		z.add(variableDeclarationExpression);
 		
 		// annotations
-		if (target.apiLevel() >= AST.LEVEL_3_0) {
+		if (target.apiLevel() >= AST.JLS3) {
 			AnnotationTypeDeclaration atd = target.newAnnotationTypeDeclaration();
 			cu.types().add(atd);
 			atd.bodyDeclarations().add(target.newAnnotationTypeMemberDeclaration());

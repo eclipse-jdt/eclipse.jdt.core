@@ -29,8 +29,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.LEVEL_2_0));
-				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.LEVEL_3_0));
+				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS2));
+				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS3));
 			}
 		}
 		return suite;
@@ -154,7 +154,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		
 		JD1 = ast.newJavadoc();
 		JD2 = ast.newJavadoc();
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			JD1.setComment("/**X*/"); //$NON-NLS-1$
 			JD2.setComment("/**Y*/"); //$NON-NLS-1$
 		}
@@ -179,7 +179,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		MPARM1 = ast.newMethodRefParameter();
 		MPARM1.setType(ast.newPrimitiveType(PrimitiveType.CHAR));
 
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+		if (ast.apiLevel() >= AST.JLS3) {
 			PT1 = ast.newParameterizedType(ast.newSimpleType(ast.newSimpleName("Z"))); //$NON-NLS-1$
 			PT1S = "[(tM[(tS[(nSZZnS)]tS)]tM)]"; //$NON-NLS-1$
 
@@ -638,7 +638,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testParameterizedType() {
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			return;
 		}
 		ParameterizedType x1 = ast.newParameterizedType(ast.newSimpleType(ast.newSimpleName("X"))); //$NON-NLS-1$
@@ -648,7 +648,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testQualifiedType() {
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			return;
 		}
 		Type x1 = ast.newQualifiedType(T1, N1);
@@ -656,7 +656,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testWildcardType() {
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			return;
 		}
 		WildcardType x1 = ast.newWildcardType();
@@ -745,7 +745,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testClassInstanceCreation() {
 		ClassInstanceCreation x1 = ast.newClassInstanceCreation();
 		x1.setExpression(E1);
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			x1.setName(N1);
 		} else {
 			x1.typeArguments().add(PT1);
@@ -772,7 +772,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testConstructorInvocation() {
 		ConstructorInvocation x1 = ast.newConstructorInvocation();
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+		if (ast.apiLevel() >= AST.JLS3) {
 			x1.typeArguments().add(PT1);
 		}
 		x1.arguments().add(E1);
@@ -795,7 +795,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 	public void testEnhancedForStatement() {
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			return;
 		}
 		EnhancedForStatement x1 = ast.newEnhancedForStatement();
@@ -805,7 +805,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 	public void testEnumConstantDeclaration() {
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			return;
 		}
 		EnumConstantDeclaration x1 = ast.newEnumConstantDeclaration();
@@ -820,7 +820,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 	public void testEnumDeclaration() {
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			return;
 		}
 		EnumDeclaration x1 = ast.newEnumDeclaration();
@@ -847,7 +847,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testFieldDeclaration() {
 		FieldDeclaration x1 = ast.newFieldDeclaration(W1);
 		x1.setJavadoc(JD1);
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+		if (ast.apiLevel() >= AST.JLS3) {
 			x1.modifiers().add(MOD1);
 			x1.modifiers().add(MOD2);
 		}
@@ -889,7 +889,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testInitializer() {
 		Initializer x1 = ast.newInitializer();
 		x1.setJavadoc(JD1);
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+		if (ast.apiLevel() >= AST.JLS3) {
 			x1.modifiers().add(MOD1);
 			x1.modifiers().add(MOD2);
 		}
@@ -903,7 +903,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	 */
 	public void testJavadoc() {
 		Javadoc x1 = ast.newJavadoc();
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			x1.setComment("/**?*/"); //$NON-NLS-1$
 		}
 		x1.tags().add(TAG1);
@@ -933,7 +933,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testMethodDeclaration() {
 		MethodDeclaration x1 = ast.newMethodDeclaration();
 		x1.setJavadoc(JD1);
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			x1.setReturnType(T1);
 		} else {
 			x1.modifiers().add(MOD1);
@@ -953,7 +953,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testMethodInvocation() {
 		MethodInvocation x1 = ast.newMethodInvocation();
 		x1.setExpression(N1);
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+		if (ast.apiLevel() >= AST.JLS3) {
 			x1.typeArguments().add(PT1);
 		}
 		x1.setName(N2);
@@ -986,7 +986,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testPackageDeclaration() {
 		PackageDeclaration x1 = ast.newPackageDeclaration();
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+		if (ast.apiLevel() >= AST.JLS3) {
 			x1.setJavadoc(JD1);
 			x1.annotations().add(ANO1);
 			x1.annotations().add(ANO2);
@@ -1016,7 +1016,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testSingleVariableDeclaration() {
 		SingleVariableDeclaration x1 = ast.newSingleVariableDeclaration();
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+		if (ast.apiLevel() >= AST.JLS3) {
 			x1.modifiers().add(MOD1);
 			x1.modifiers().add(MOD2);
 		}
@@ -1033,7 +1033,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testSuperConstructorInvocation() {
 		SuperConstructorInvocation x1 = ast.newSuperConstructorInvocation();
 		x1.setExpression(N1);
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+		if (ast.apiLevel() >= AST.JLS3) {
 			x1.typeArguments().add(PT1);
 		}
 		x1.arguments().add(E1);
@@ -1049,7 +1049,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testSuperMethodInvocation() {
 		SuperMethodInvocation x1 = ast.newSuperMethodInvocation();
 		x1.setQualifier(N1);
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+		if (ast.apiLevel() >= AST.JLS3) {
 			x1.typeArguments().add(PT1);
 		}
 		x1.setName(N2);
@@ -1119,7 +1119,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		TypeDeclaration x1 = ast.newTypeDeclaration();
 		x1.setJavadoc(JD1);
 		x1.setName(N1);
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			x1.setSuperclass(N2);
 			x1.superInterfaces().add(N3);
 			x1.superInterfaces().add(N4);
@@ -1146,7 +1146,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 	public void testTypeParameter() {
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			return;
 		}
 		TypeParameter x1 = ast.newTypeParameter();
@@ -1163,7 +1163,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testVariableDeclarationExpression() {
 		VariableDeclarationExpression x1 = ast.newVariableDeclarationExpression(W1);
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+		if (ast.apiLevel() >= AST.JLS3) {
 			x1.modifiers().add(MOD1);
 			x1.modifiers().add(MOD2);
 		}
@@ -1173,7 +1173,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testVariableDeclarationStatement() {
 		VariableDeclarationStatement x1 = ast.newVariableDeclarationStatement(W1);
-		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+		if (ast.apiLevel() >= AST.JLS3) {
 			x1.modifiers().add(MOD1);
 			x1.modifiers().add(MOD2);
 		}
@@ -1190,7 +1190,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	
 	// annotation-related
 	public void testAnnotationTypeDeclaration() {
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			return;
 		}
 		AnnotationTypeDeclaration x1 = ast.newAnnotationTypeDeclaration();
@@ -1204,7 +1204,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testAnnotationTypeMemberDeclaration() {
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			return;
 		}
 		AnnotationTypeMemberDeclaration x1 = ast.newAnnotationTypeMemberDeclaration();
@@ -1218,7 +1218,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testNormalAnnotation() {
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			return;
 		}
 		NormalAnnotation x1 = ast.newNormalAnnotation();
@@ -1229,7 +1229,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testMarkerAnnotation() {
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			return;
 		}
 		MarkerAnnotation x1 = ast.newMarkerAnnotation();
@@ -1238,7 +1238,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testSingleMemberAnnotation() {
-		if (ast.apiLevel() == AST.LEVEL_2_0) {
+		if (ast.apiLevel() == AST.JLS2) {
 			return;
 		}
 		SingleMemberAnnotation x1 = ast.newSingleMemberAnnotation();

@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.core.index.Index;
-import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -69,7 +68,7 @@ public class IndexBinaryFolder extends IndexRequest {
 							if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
 								IFile file = (IFile) proxy.requestResource();
 								if (file.getLocation() != null)
-									indexedFileNames.put(new JavaSearchDocument(file, null).getPath(), file);
+									indexedFileNames.put(file.getFullPath().toString(), file);
 							}
 							return false;
 						}
@@ -90,7 +89,7 @@ public class IndexBinaryFolder extends IndexRequest {
 									IFile file = (IFile) proxy.requestResource();
 									IPath location = file.getLocation();
 									if (location != null) {
-										String path = new JavaSearchDocument(file, null).getPath();
+										String path = file.getFullPath().toString();
 										indexedFileNames.put(path,
 											indexedFileNames.get(path) == null || indexLastModified < location.toFile().lastModified()
 												? (Object) file

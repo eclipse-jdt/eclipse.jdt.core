@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -403,6 +404,33 @@ public void testContainerInitializer6() throws CoreException {
 		this.deleteProject("P2");
 	}
 }
+/*
+ * Ensure that an OperationCanceledException goes through
+ * (regression test for bug 59363 Should surface cancellation exceptions)
+ */
+public void testContainerInitializer7() throws CoreException {
+	try {
+		boolean gotException = false;
+		try {
+			ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}) {
+				public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
+					throw new OperationCanceledException("test");
+				}});
+			IJavaProject p1 = this.createJavaProject(
+					"P1", 
+					new String[] {}, 
+					new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+					"");
+			p1.getResolvedClasspath(true);
+		} catch (OperationCanceledException e) {
+			gotException = true;
+		}
+		assertTrue("Should get an OperationCanceledException", gotException);
+	} finally {
+		stopDeltas();
+		this.deleteProject("P1");
+	}
+}
 public void testVariableInitializer1() throws CoreException {
 	try {
 		this.createProject("P1");
@@ -590,6 +618,31 @@ public void testVariableInitializer7() throws CoreException {
 		stopDeltas();
 		this.deleteProject("P1");
 		this.deleteProject("P2");
+		VariablesInitializer.reset();
+	}
+}
+/*
+ * Ensure that an OperationCanceledException goes through
+ * (regression test for bug 59363 Should surface cancellation exceptions)
+ */
+
+public void testVariableInitializer8() throws CoreException {
+	try {
+		boolean gotException = false;
+		try {
+			VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {"TEST_LIB", "/P1/lib.jar"}) {
+				public void initialize(String variable) throws JavaModelException {
+					throw new OperationCanceledException("test");
+				}
+			});
+			IJavaProject p1 = this.createJavaProject("P1", new String[] {}, new String[] {"TEST_LIB"}, "");
+			p1.getResolvedClasspath(true);
+		} catch (OperationCanceledException e) {
+			gotException = true;
+		}
+		assertTrue("Should get an OperationCanceledException", gotException);
+	} finally {
+		this.deleteProject("P1");
 		VariablesInitializer.reset();
 	}
 }

@@ -92,7 +92,7 @@ class BindingResolver {
 	 * Resolves the given well known type by name and returns the type binding
 	 * for it.
 	 * <p>
-	 * The implementation of <code>ASTNode.resolveWellKnownType</code>
+	 * The implementation of <code>AST.resolveWellKnownType</code>
 	 * forwards to this method.
 	 * </p>
 	 * <p>
@@ -145,12 +145,6 @@ class BindingResolver {
 	 * The default implementation of this method returns <code>null</code>.
 	 * Subclasses may reimplement.
 	 * </p>
-	 * <p>
-	 * Note: Enum declarations are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @param type the enum declaration of interest
 	 * @return the binding for the given enum declaration, or <code>null</code>
@@ -195,12 +189,6 @@ class BindingResolver {
 	 * <p>
 	 * The default implementation of this method returns <code>null</code>.
 	 * Subclasses may reimplement.
-	 * </p>
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
 	 * </p>
 	 * 
 	 * @param type the annotation type declaration of interest
@@ -303,12 +291,6 @@ class BindingResolver {
 	 * The default implementation of this method returns <code>null</code>.
 	 * Subclasses may reimplement.
 	 * </p>
-	 * <p>
-	 * Note: Enhanced for statements are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @param statement the enhanced for statement of interest
 	 * @return the binding for the loop variable for the given enhanced for
@@ -320,27 +302,6 @@ class BindingResolver {
 	}
 
 	/**
-	 * Resolves the given field declaration and returns the binding for it.
-	 * <p>
-	 * The implementation of <code>FieldDeclaration.resolveBinding</code>
-	 * forwards to this method. How the field declaration resolves is often
-	 * a function of the context in which the variable declaration node is 
-	 * embedded as well as the variable declaration subtree itself.
-	 * </p>
-	 * <p>
-	 * The default implementation of this method returns <code>null</code>.
-	 * Subclasses may reimplement.
-	 * </p>
-	 * 
-	 * @param variable the field declaration of interest
-	 * @return the binding for the given field declaration, or 
-	 *    <code>null</code> if no binding is available
-	 */
-	IVariableBinding resolveVariable(FieldDeclaration variable) {
-		return null;
-	}
-		
-	/**
 	 * Resolves the given enum constant declaration and returns the binding for
 	 * the field.
 	 * <p>
@@ -350,12 +311,6 @@ class BindingResolver {
 	 * <p>
 	 * The default implementation of this method returns <code>null</code>.
 	 * Subclasses may reimplement.
-	 * </p>
-	 * <p>
-	 * Note: Enum declarations are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
 	 * </p>
 	 * 
 	 * @param enumConstant the enum constant declaration of interest
@@ -379,12 +334,6 @@ class BindingResolver {
 	 * <p>
 	 * The default implementation of this method returns <code>null</code>.
 	 * Subclasses may reimplement.
-	 * </p>
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
 	 * </p>
 	 * 
 	 * @param member the annotation type member declaration of interest

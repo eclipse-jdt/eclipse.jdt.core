@@ -2400,23 +2400,20 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		CompilationUnitDeclaration compilationUnitDeclaration,
 		CompilationUnitScope scope) {
 		
+		// fake new line to handle empty lines before package declaration or import declarations
+		this.scribe.lastNumberOfNewLines = 1;
 		/* 
 		 * Package declaration
 		 */
 		if (compilationUnitDeclaration.currentPackage != null) {
 			if (hasComments()) {
 				this.scribe.printComment();
-				// add a fake new line to add potential blank lines
-				int blankLinesBeforePackage = this.preferences.blank_lines_before_package;
-				if (blankLinesBeforePackage > 0) {
-					this.scribe.printEmptyLines(blankLinesBeforePackage);
-				}
-			} else {
-				int blankLinesBeforePackage = this.preferences.blank_lines_before_package;
-				if (blankLinesBeforePackage > 0) {
-					this.scribe.printEmptyLines(blankLinesBeforePackage - 1);
-				}
 			}
+			int blankLinesBeforePackage = this.preferences.blank_lines_before_package;
+			if (blankLinesBeforePackage > 0) {
+				this.scribe.printEmptyLines(blankLinesBeforePackage);
+			}
+
 			// dump the package keyword
 			this.scribe.printNextToken(TerminalTokens.TokenNamepackage);
 			this.scribe.space();

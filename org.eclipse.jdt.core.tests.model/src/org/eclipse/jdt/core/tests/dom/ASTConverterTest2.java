@@ -3382,7 +3382,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
 		MethodDeclaration declaration = (MethodDeclaration) node;
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
@@ -3418,7 +3418,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
 		FieldDeclaration declaration = (FieldDeclaration) node;
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
@@ -3452,7 +3452,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not an initializer", node.getNodeType() == ASTNode.INITIALIZER);
 		Initializer declaration = (Initializer) node;
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
@@ -3487,7 +3487,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertNotNull("No node", node);
 		ASTNode statement = node;
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setKind(ASTParser.K_STATEMENTS);
 		parser.setSource(source);
 		parser.setSourceRange(statement.getStartPosition(), statement.getLength());
@@ -3524,7 +3524,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a block", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT);
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression = expressionStatement.getExpression();
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setKind(ASTParser.K_EXPRESSION);
 		parser.setSource(source);
 		parser.setSourceRange(expression.getStartPosition(), expression.getLength());
@@ -3564,7 +3564,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			public void worked(int work) {}
 		}
 		Counter counter = new Counter();
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setSource(sourceUnit);
 		parser.setResolveBindings(true);
 		parser.setWorkingCopyOwner(owner);
@@ -3590,7 +3590,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		for (int i = 0; i < counter.count; i++) {
 			boolean gotException = false;
 			try {
-				parser = ASTParser.newParser(AST.LEVEL_2_0);
+				parser = ASTParser.newParser(AST.JLS2);
 				parser.setSource(sourceUnit);
 				parser.setResolveBindings(true);
 				parser.setWorkingCopyOwner(owner);
@@ -3602,7 +3602,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		}
 		
 		// last should not throw an OperationCanceledException
-		parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser = ASTParser.newParser(AST.JLS2);
 		parser.setSource(sourceUnit);
 		parser.setResolveBindings(true);
 		parser.setWorkingCopyOwner(owner);
@@ -4097,7 +4097,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
 		MethodDeclaration declaration = (MethodDeclaration) node;
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
@@ -4121,7 +4121,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
 		FieldDeclaration declaration = (FieldDeclaration) node;
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
@@ -4145,7 +4145,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not an initializer", node.getNodeType() == ASTNode.INITIALIZER);
 		Initializer declaration = (Initializer) node;
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
@@ -4201,10 +4201,10 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"  int i;\n" +
 				"}"
 			);
-			CompilationUnit unit = sourceUnit.reconcile(AST.LEVEL_2_0, false, null, null);
+			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
 			assertNotNull("No level 2 compilation unit", unit);
-			assertEquals("Compilation unit has wrong AST level (2)", AST.LEVEL_2_0, unit.getAST().apiLevel());
-			// TODO improve test for AST.LEVEL_3_0
+			assertEquals("Compilation unit has wrong AST level (2)", AST.JLS2, unit.getAST().apiLevel());
+			// TODO improve test for AST.JLS3
 		} finally {
 			sourceUnit.discardWorkingCopy();
 		}
@@ -4235,9 +4235,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		try {
 			sourceUnit.becomeWorkingCopy(null, null);
-			CompilationUnit unit = sourceUnit.reconcile(AST.LEVEL_2_0, false, null, null);
+			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
 			assertNull("Unexpected compilation unit", unit);
-			// TODO improve test for AST.LEVEL_3_0
+			// TODO improve test for AST.JLS3
 		} finally {
 			sourceUnit.discardWorkingCopy();
 		}
@@ -4256,8 +4256,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"  Object field;\n" +
 				"}"
 			);
-			// TODO improve test for AST.LEVEL_3_0
-			CompilationUnit unit = sourceUnit.reconcile(AST.LEVEL_2_0, false, null, null);
+			// TODO improve test for AST.JLS3
+			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
 			ASTNode node = getASTNode(unit, 0, 0);
 			assertNotNull("No node", node);
 			assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
@@ -4278,8 +4278,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		try {
 			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor();
 			sourceUnit.becomeWorkingCopy(pbRequestor, null);
-			// TODO improve test for AST.LEVEL_3_0
-			CompilationUnit unit = sourceUnit.reconcile(AST.LEVEL_2_0, true/*force pb detection*/, null, null);
+			// TODO improve test for AST.JLS3
+			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, true/*force pb detection*/, null, null);
 			ASTNode node = getASTNode(unit, 0);
 			assertNotNull("No node", node);
 			assertTrue("not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
@@ -4312,8 +4312,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"  }\n" +
 				"}"
 			);
-			// TODO improve test for AST.LEVEL_3_0
-			CompilationUnit unit = sourceUnit.reconcile(AST.LEVEL_2_0, true/*force pb detection*/, null, null);
+			// TODO improve test for AST.JLS3
+			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, true/*force pb detection*/, null, null);
 			ASTNode node = getASTNode(unit, 0);
 			assertNotNull("No node", node);
 		} finally {
@@ -4342,8 +4342,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"}"
 			);
 			sourceUnit.reconcile(ICompilationUnit.NO_AST, false/* don't force pb detection*/, null, null);
-			// TODO improve test for AST.LEVEL_3_0
-			CompilationUnit unit = sourceUnit.reconcile(AST.LEVEL_2_0, true/*force pb detection*/, null, null);
+			// TODO improve test for AST.JLS3
+			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, true/*force pb detection*/, null, null);
 			ASTNode node = getASTNode(unit, 0);
 			assertNotNull("No node", node);
 		} finally {

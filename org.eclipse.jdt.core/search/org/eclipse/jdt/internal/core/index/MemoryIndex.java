@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core.index;
 
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.core.search.indexing.InternalSearchDocument;
 import org.eclipse.jdt.internal.core.util.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
@@ -39,7 +40,7 @@ void addDocumentNames(String substring, SimpleSet results) {
 				results.add(paths[i]);
 	}
 }
-void addIndexEntry(char[] category, char[] key, SearchDocument document) {
+void addIndexEntry(char[] category, char[] key, InternalSearchDocument document) {
 	// assumed a document was removed before its reindexed
 	String documentName = document.getPath();
 	HashtableOfObject referenceTable = (HashtableOfObject) this.docsToReferences.get(documentName);

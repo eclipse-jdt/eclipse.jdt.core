@@ -1822,13 +1822,13 @@ public class DeltaProcessor {
 	 * @see IResourceDelta
 	 * @see IResource 
 	 */
-	public void resourceChanged(IResourceChangeEvent event) {
+	public void resourceChanged(IResourceChangeEvent event, int eventType) {
 	
 		if (event.getSource() instanceof IWorkspace) {
 			IResource resource = event.getResource();
 			IResourceDelta delta = event.getDelta();
 			
-			switch(event.getType()){
+			switch(eventType){
 				case IResourceChangeEvent.PRE_DELETE :
 					try {
 						if(resource.getType() == IResource.PROJECT 

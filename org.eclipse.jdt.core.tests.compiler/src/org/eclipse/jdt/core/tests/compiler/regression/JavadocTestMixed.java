@@ -20,6 +20,7 @@ public class JavadocTestMixed extends JavadocTest {
 
 	String localDocCommentSupport = CompilerOptions.ENABLED;
 	String reportInvalidJavadoc = CompilerOptions.ERROR;
+	String reportMissingJavadocTags = CompilerOptions.ERROR;
 	String reportMissingJavadocComments = null;
 
 	public JavadocTestMixed(String name) {
@@ -52,7 +53,10 @@ public class JavadocTestMixed extends JavadocTest {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportMissingJavadocComments);
 		else
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportInvalidJavadoc);
-		options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportInvalidJavadoc);
+		if (reportMissingJavadocTags != null) 
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportMissingJavadocTags);
+		else
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportInvalidJavadoc);
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -66,6 +70,7 @@ public class JavadocTestMixed extends JavadocTest {
 		super.setUp();
 		this.localDocCommentSupport = this.docCommentSupport;
 		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportMissingJavadocTags = CompilerOptions.ERROR;
 		reportMissingJavadocComments = null;
 	}
 	
@@ -2190,6 +2195,81 @@ public class JavadocTestMixed extends JavadocTest {
 				"	       ^^^^^^^^^^^^^^^^\n" + 
 				"The import java.util.Vector is never used\n" + 
 				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 51911.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51911">51911</a>
+	 */
+	public void testBug51911() {
+		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
+		// Warn an ambiguous method reference
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"/**\n" +
+					" * @see #foo\n" +
+					" */\n" +
+					"public class X {\n" +
+					"	public void foo(int i, float f) {}\n" +
+					"	public void foo(String str) {}\n" +
+					"}\n"
+		 	},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	* @see #foo\n" + 
+				"	        ^^^\n" + 
+				"Javadoc: foo is an ambiguous method reference or is not a field\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug51911a() {
+		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
+		// Accept unambiguous method reference
+		runConformTest(
+			new String[] {
+				"X.java",
+				"/**\n" +
+					" * @see #foo\n" +
+					" */\n" +
+					"public class X {\n" +
+					"	public void foo(String str) {}\n" +
+					"}\n"
+		 	}
+		);
+	}
+	public void testBug51911b() {
+		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
+		// Accept field reference with method name
+		runConformTest(
+			new String[] {
+				"X.java",
+				"/**\n" +
+					" * @see #foo\n" +
+					" */\n" +
+					"public class X {\n" +
+					"	public int foo;\n" +
+					"	public void foo(String str) {}\n" +
+					"}\n"
+		 	}
+		);
+	}
+	public void testBug51911c() {
+		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
+		// Accept field reference with ambiguous method name
+		runConformTest(
+			new String[] {
+				"X.java",
+					"/**\n" +
+					" * @see #foo\n" +
+					" */\n" +
+					"public class X {\n" +
+					"	public int foo;\n" +
+					"	public void foo() {}\n" +
+					"	public void foo(String str) {}\n" +
+					"}\n"
+		 	}
 		);
 	}
 }

@@ -191,7 +191,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setSource(source);
 		parser.setUnitName(unitName);
 		parser.setProject(project);
@@ -1386,6 +1386,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 	/**
 	 * Verify DefaultCommentMapper heuristic to get leading and trailing comments
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=53445
 	 */
 	public void test100() throws JavaModelException {
 		verifyMapper("test100", 16, new int[] {2,7,8,15});

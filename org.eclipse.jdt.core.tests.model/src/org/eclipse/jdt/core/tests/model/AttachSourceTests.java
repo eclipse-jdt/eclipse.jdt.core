@@ -40,7 +40,7 @@ public static Test suite() {
 	return new Suite(AttachSourceTests.class);
 }
 public ASTNode runConversion(IClassFile classFile, boolean resolveBindings) {
-	ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+	ASTParser parser = ASTParser.newParser(AST.JLS2);
 	parser.setSource(classFile);
 	parser.setResolveBindings(resolveBindings);
 	parser.setWorkingCopyOwner(null);

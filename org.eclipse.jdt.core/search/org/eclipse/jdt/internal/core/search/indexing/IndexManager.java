@@ -32,6 +32,9 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class IndexManager extends JobManager implements IIndexConstants {
 
 	public SimpleLookupTable indexNames = new SimpleLookupTable();
+	/*
+	 * key = an IPath, value = an Index
+	 */
 	private Map indexes = new HashMap(5);
 
 	/* need to save ? */
@@ -72,7 +75,7 @@ public synchronized void aboutToUpdateIndex(IPath path, Integer newIndexState) {
 public void addBinary(IFile resource, IPath indexPath) {
 	if (JavaCore.getPlugin() == null) return;	
 	SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
-	SearchDocument document = participant.getDocument(resource);
+	SearchDocument document = participant.getDocument(resource.getFullPath().toString());
 	participant.scheduleDocumentIndexing(document, indexPath);
 }
 /**
@@ -82,7 +85,7 @@ public void addBinary(IFile resource, IPath indexPath) {
 public void addSource(IFile resource, IPath indexPath) {
 	if (JavaCore.getPlugin() == null) return;	
 	SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
-	SearchDocument document = participant.getDocument(resource);
+	SearchDocument document = participant.getDocument(resource.getFullPath().toString());
 	participant.scheduleDocumentIndexing(document, indexPath);
 }
 /*
@@ -231,10 +234,10 @@ private IPath getJavaPluginWorkingLocation() {
 }
 public void indexDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexPath) throws IOException {
 	try {
-		searchDocument.index = index;
+		((InternalSearchDocument) searchDocument).index = index;
 		searchParticipant.indexDocument(searchDocument, indexPath);
 	} finally {
-		searchDocument.index = null;
+		((InternalSearchDocument) searchDocument).index = null;
 	}
 }
 /**

@@ -1181,20 +1181,20 @@ public final class JavaCore extends Plugin {
 				JavaModelManager.getJavaModelManager().containerPut(project, containerPath, JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
 				boolean ok = false;
 				try {
-					// wrap initializer call with Safe runnable in case initializer would be causing some grief
-					Platform.run(new ISafeRunnable() {
-						public void handleException(Throwable exception) {
-							Util.log(exception, "Exception occurred in classpath container initializer: "+initializer); //$NON-NLS-1$
-						}
-						public void run() throws Exception {
-							initializer.initialize(containerPath, project);
-						}
-					});
+					// let OperationCanceledException go through
+					// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59363)
+					initializer.initialize(containerPath, project);
 					
 					// retrieve value (if initialization was successful)
 					container = JavaModelManager.getJavaModelManager().containerGet(project, containerPath);
 					if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) return null; // break cycle
 					ok = true;
+				} catch (CoreException e) {
+					if (e instanceof JavaModelException) {
+						throw (JavaModelException) e;
+					} else {
+						throw new JavaModelException(e);
+					}
 				} catch (RuntimeException e) {
 					if (JavaModelManager.CP_RESOLVE_VERBOSE) {
 						e.printStackTrace();
@@ -1351,15 +1351,10 @@ public final class JavaCore extends Plugin {
 			JavaModelManager.getJavaModelManager().variablePut(variableName, JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
 			boolean ok = false;
 			try {
-				// wrap initializer call with Safe runnable in case initializer would be causing some grief
-				Platform.run(new ISafeRunnable() {
-					public void handleException(Throwable exception) {
-						Util.log(exception, "Exception occurred in classpath variable initializer: "+initializer+" while initializing variable: "+variableName); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-					public void run() throws Exception {
-						initializer.initialize(variableName);
-					}
-				});
+				// let OperationCanceledException go through
+				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59363)
+				initializer.initialize(variableName);
+				
 				variablePath = JavaModelManager.getJavaModelManager().variableGet(variableName); // initializer should have performed side-effect
 				if (variablePath == JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS) return null; // break cycle (initializer did not init or reentering call)
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
@@ -1369,6 +1364,16 @@ public final class JavaCore extends Plugin {
 						"	variable path: " + variablePath); //$NON-NLS-1$
 				}
 				ok = true;
+			} catch (RuntimeException e) {
+				if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+					e.printStackTrace();
+				}
+				throw e;
+			} catch (Error e) {
+				if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+					e.printStackTrace();
+				}
+				throw e;
 			} finally {
 				if (!ok) JavaModelManager.getJavaModelManager().variablePut(variableName, null); // flush cache
 			}
@@ -2378,9 +2383,7 @@ public final class JavaCore extends Plugin {
 	 * @return Return an array containing the names of all known user defined.
 	 */
 	public static String[] getUserLibraryNames() {
-		return new String[0];
-	 	// TODO (frederic) to be finalized in coordination with jdt-ui
-		// return UserLibraryManager.getUserLibraryNames();
+		 return UserLibraryManager.getUserLibraryNames();
 	}
 
 	/**
@@ -3688,7 +3691,15 @@ public final class JavaCore extends Plugin {
 					| IResourceChangeEvent.PRE_CLOSE);
 
 			startIndexing();
-			workspace.addSaveParticipant(this, manager);
+			
+			// process deltas since last activated
+			ISavedState savedState = workspace.addSaveParticipant(this, manager);
+			if (savedState != null) {
+				// the event type coming from the saved state is always POST_AUTO_BUILD
+				// force it to be POST_CHANGE so that the delta processor can handle it
+				manager.deltaState.eventType = IResourceChangeEvent.POST_CHANGE;
+				savedState.processResourceChangeEvents(manager.deltaState);
+			}
 		} catch (RuntimeException e) {
 			manager.shutdown();
 			throw e;

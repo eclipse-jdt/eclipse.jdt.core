@@ -932,7 +932,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			);
 			workingCopy2.makeConsistent(null);
 			
-			ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+			ASTParser parser = ASTParser.newParser(AST.JLS2);
 			parser.setSource(workingCopy1);
 			parser.setResolveBindings(true);
 			parser.setWorkingCopyOwner(owner);
@@ -972,7 +972,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			char[] source = (
 				"public class Z extends Y {\n" +
 				"}").toCharArray();
-			ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+			ASTParser parser = ASTParser.newParser(AST.JLS2);
 			parser.setSource(source);
 			parser.setUnitName("Z.java");
 			parser.setProject(getJavaProject("P"));
@@ -1040,7 +1040,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 			// parse and resolve class file
 			IClassFile classFile = getClassFile("P1/lib/X.class");
-			ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+			ASTParser parser = ASTParser.newParser(AST.JLS2);
 			parser.setSource(classFile);
 			parser.setResolveBindings(true);
 			parser.setWorkingCopyOwner(owner);

@@ -1083,10 +1083,10 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 	if (workingCopyOwner == null) workingCopyOwner = DefaultWorkingCopyOwner.PRIMARY;
 	
 	boolean createAST = false;
-	if (astLevel == AST.LEVEL_2_0) {
+	if (astLevel == AST.JLS2) {
 		// client asking for level 2 AST; these are supported
 		createAST = true;
-	} else if (astLevel == AST.LEVEL_3_0) {
+	} else if (astLevel == AST.JLS3) {
 		// client asking for level 3 ASTs; these are not supported
 		// TODO (jerome) - these should also be supported in 1.5 stream
 		createAST = false;

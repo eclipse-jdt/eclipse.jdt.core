@@ -646,12 +646,6 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type 
 	 * <code>EnhancedForStatement</code>.
-	 * <p>
-	 * Note: Enhanced for statements are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * @see EnhancedForStatement
 	 * @since 3.0
 	 */
@@ -660,12 +654,6 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type 
 	 * <code>EnumDeclaration</code>.
-	 * <p>
-	 * Note: Enum declarations are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * @see EnumDeclaration
 	 * @since 3.0
 	 */
@@ -674,12 +662,6 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type 
 	 * <code>EnumConstantDeclaration</code>.
-	 * <p>
-	 * Note: Enum declarations are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * @see EnumConstantDeclaration
 	 * @since 3.0
 	 */
@@ -688,12 +670,6 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type 
 	 * <code>TypeParameter</code>.
-	 * <p>
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * @see TypeParameter
 	 * @since 3.0
 	 */
@@ -702,12 +678,6 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type 
 	 * <code>ParameterizedType</code>.
-	 * <p>
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * @see ParameterizedType
 	 * @since 3.0
 	 */
@@ -716,12 +686,6 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type 
 	 * <code>QualifiedType</code>.
-	 * <p>
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * @see QualifiedType
 	 * @since 3.0
 	 */
@@ -730,12 +694,6 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type 
 	 * <code>WildcardType</code>.
-	 * <p>
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * @see WildcardType
 	 * @since 3.0
 	 */
@@ -744,12 +702,6 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type 
 	 * <code>NormalAnnotation</code>.
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * @see NormalAnnotation
 	 * @since 3.0
 	 */
@@ -758,12 +710,6 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type 
 	 * <code>MarkerAnnotation</code>.
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * @see MarkerAnnotation
 	 * @since 3.0
 	 */
@@ -772,12 +718,6 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type 
 	 * <code>SingleMemberAnnotation</code>.
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * @see SingleMemberAnnotation
 	 * @since 3.0
 	 */
@@ -786,12 +726,6 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type 
 	 * <code>MemberValuePair</code>.
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * @see MemberValuePair
 	 * @since 3.0
 	 */
@@ -800,12 +734,6 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type 
 	 * <code>AnnotationTypeDeclaration</code>.
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * @see AnnotationTypeDeclaration
 	 * @since 3.0
 	 */
@@ -814,12 +742,6 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type 
 	 * <code>AnnotationTypeMemberDeclaration</code>.
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * @see AnnotationTypeMemberDeclaration
 	 * @since 3.0
 	 */
@@ -828,12 +750,6 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type 
 	 * <code>Modifier</code>.
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * @see Modifier
 	 * @since 3.0
 	 */
@@ -1778,7 +1694,7 @@ public abstract class ASTNode {
 	 * clutter up the API doc.
 	 * </p>
 	 * 
-	 * @param apiLevel the API level; one of the <code>AST.LEVEL_&ast;</code> constants
+	 * @param apiLevel the API level; one of the <code>AST.JLS&ast;</code> constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0
@@ -1842,7 +1758,7 @@ public abstract class ASTNode {
 	 * @since 3.0
      */
 	final void unsupportedIn2() {
-	  if (this.ast.apiLevel == AST.LEVEL_2_0) {
+	  if (this.ast.apiLevel == AST.JLS2) {
 	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
 	  }
 	}
@@ -1855,7 +1771,7 @@ public abstract class ASTNode {
 	 * @since 3.0
      */
 	final void supportedOnlyIn2() {
-	  if (this.ast.apiLevel != AST.LEVEL_2_0) {
+	  if (this.ast.apiLevel != AST.JLS2) {
 	  	throw new UnsupportedOperationException("Operation only supported in 2.0 AST"); //$NON-NLS-1$
 	  }
 	}

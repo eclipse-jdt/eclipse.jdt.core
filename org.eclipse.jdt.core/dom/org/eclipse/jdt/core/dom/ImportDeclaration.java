@@ -26,13 +26,6 @@ import java.util.List;
  * ImportDeclaration:
  *    <b>import</b> [ <b>static</b> ] Name [ <b>.</b> <b>*</b> ] <b>;</b>
  * </pre>
- * 
- * <p>
- * Note: Static imports are an experimental language feature 
- * under discussion in JSR-201 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
- * </p>
  * @since 2.0
  */
 public class ImportDeclaration extends ASTNode {
@@ -92,14 +85,14 @@ public class ImportDeclaration extends ASTNode {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_&ast;</code> constants
+	 * <code>AST.JLS&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.LEVEL_2_0) {
+		if (apiLevel == AST.JLS2) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -201,7 +194,7 @@ public class ImportDeclaration extends ASTNode {
 		ImportDeclaration result = new ImportDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setOnDemand(isOnDemand());
-		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
+		if (this.ast.apiLevel >= AST.JLS3) {
 			result.setStatic(isStatic());
 		}
 		result.setName((Name) getName().clone(target));
@@ -308,10 +301,10 @@ public class ImportDeclaration extends ASTNode {
 	/**
 	 * Returns whether this import declaration is a static import (added in 3.0 API).
 	 * <p>
-	 * Note: Static imports are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
+	 * Note: This API element is only needed for dealing with Java code that uses
+	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
+	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
+	 * may change slightly before reaching its final form.
 	 * </p>
 	 * 
 	 * @return <code>true</code> if this is a static import,
@@ -328,10 +321,10 @@ public class ImportDeclaration extends ASTNode {
 	/**
 	 * Sets whether this import declaration is a static import (added in 3.0 API).
 	 * <p>
-	 * Note: Static imports are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
+	 * Note: This API element is only needed for dealing with Java code that uses
+	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
+	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
+	 * may change slightly before reaching its final form.
 	 * </p>
 	 * 
 	 * @param isStatic <code>true</code> if this is a static import,

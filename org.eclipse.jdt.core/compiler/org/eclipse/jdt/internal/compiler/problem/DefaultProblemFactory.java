@@ -60,7 +60,8 @@ public DefaultProblemFactory(Locale loc) {
  * </ul>
  * @param originatingFileName char[]
  * @param problemId int
- * @param arguments String[]
+ * @param problemArguments String[]
+ * @param messageArguments String[]
  * @param severity int
  * @param startPosition int
  * @param endPosition int
@@ -95,14 +96,10 @@ private final static int keyFromID(int id) {
  * @return java.util.Locale
  */
 public Locale getLocale() {
-	return locale;
+	return this.locale;
 }
 public final String getLocalizedMessage(int id, String[] problemArguments) {
-	StringBuffer output = new StringBuffer(80);
-	if ((id & IProblem.Javadoc) != 0) {
-		output.append((String)messageTemplates.get(keyFromID(IProblem.JavadocMessagePrefix & IProblem.IgnoreCategoriesMask)));
-	}
-	String message = (String)messageTemplates.get(keyFromID(id & IProblem.IgnoreCategoriesMask)); 
+	String message = (String) this.messageTemplates.get(keyFromID(id & IProblem.IgnoreCategoriesMask)); 
 	if (message == null) {
 		return "Unable to retrieve the error message for problem id: " //$NON-NLS-1$
 			+ (id & IProblem.IgnoreCategoriesMask)
@@ -112,19 +109,29 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 	// for compatibility with MessageFormat which eliminates double quotes in original message
 	char[] messageWithNoDoubleQuotes =
 		CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
-	message = new String(messageWithNoDoubleQuotes);
 
-	int length = message.length();
-	int start = -1, end = length;
+	if (problemArguments == null) return new String(messageWithNoDoubleQuotes);
+
+	int length = messageWithNoDoubleQuotes.length;
+	int start = 0;
+	int end = length;
+	StringBuffer output = null;
+	if ((id & IProblem.Javadoc) != 0) {
+		if (output == null) output = new StringBuffer(10+length+problemArguments.length*20);
+		output.append((String) this.messageTemplates.get(keyFromID(IProblem.JavadocMessagePrefix & IProblem.IgnoreCategoriesMask)));
+	}
 	while (true) {
-		if ((end = message.indexOf('{', start)) > -1) {
-			output.append(message.substring(start + 1, end));
-			if ((start = message.indexOf('}', end)) > -1) {
+		if ((end = CharOperation.indexOf('{', messageWithNoDoubleQuotes, start)) > -1) {
+			if (output == null) output = new StringBuffer(length+problemArguments.length*20);
+			output.append(messageWithNoDoubleQuotes, start, end - start);
+			if ((start = CharOperation.indexOf('}', messageWithNoDoubleQuotes, end + 1)) > -1) {
+				int index = -1;
+				String argId = new String(messageWithNoDoubleQuotes, end + 1, start - end - 1);
 				try {
-					output.append(
-						problemArguments[Integer.parseInt(message.substring(end + 1, start))]); 
+					index = Integer.parseInt(argId);
+					output.append(problemArguments[index]);
 				} catch (NumberFormatException nfe) {
-					output.append(message.substring(end + 1, start + 1));
+					output.append(messageWithNoDoubleQuotes, end + 1, start - end);
 				} catch (ArrayIndexOutOfBoundsException e) {
 					return "Cannot bind message for problem (id: " //$NON-NLS-1$
 						+ (id & IProblem.IgnoreCategoriesMask)
@@ -134,15 +141,18 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 						+ Util.toString(problemArguments)
 						+"}"; //$NON-NLS-1$
 				}
+				start++;
 			} else {
-				output.append(message.substring(end, length));
+				output.append(messageWithNoDoubleQuotes, end, length);
 				break;
 			}
 		} else {
-			output.append(message.substring(start + 1, length));
+			if (output == null) return new String(messageWithNoDoubleQuotes);
+			output.append(messageWithNoDoubleQuotes, start, length - start);
 			break;
 		}
 	}
+
 	return output.toString();
 }
 /**
@@ -156,6 +166,8 @@ public final String localizedMessage(IProblem problem) {
 /**
  * This method initializes the MessageTemplates class variable according
  * to the current Locale.
+ * @param loc Locale
+ * @return HashtableOfInt
  */
 public static HashtableOfInt loadMessageTemplates(Locale loc) {
 	ResourceBundle bundle = null;

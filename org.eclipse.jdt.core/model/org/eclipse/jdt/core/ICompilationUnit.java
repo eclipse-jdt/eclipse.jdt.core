@@ -136,10 +136,10 @@ IImportDeclaration createImport(String name, IJavaElement sibling, IProgressMoni
  * is defined, are not treated as special cases.  If they are specified, they are
  * included in the result.
  * <p>
- * Note: Static imports are an experimental language feature 
- * under discussion in JSR-201 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
+ * Note: This API element is only needed for dealing with Java code that uses
+ * new language features of J2SE 1.5. It is included in anticipation of J2SE
+ * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
+ * may change slightly before reaching its final form.
  * </p>
  *
  * @param name the name of the import declaration to add as defined by JLS2 7.5. (For example: <code>"java.io.File"</code> or
@@ -511,6 +511,10 @@ boolean isWorkingCopy();
  * problem detection is forced. This method returns <code>null</code> if the
  * creation of the DOM AST was not requested, or if the requested level of AST
  * API is not supported, or if the working copy was already consistent.
+ * </p>
+ * <b>NOTE:</b>In Eclipse 3.0, there is no reconciler support for
+ * level AST.JLS3. This support is planned for the follow-on release of
+ * Eclipse which includes support for J2SE 1.5.
  * </p>
  *
  * @param astLevel either {@link #NO_AST} if no AST is wanted,

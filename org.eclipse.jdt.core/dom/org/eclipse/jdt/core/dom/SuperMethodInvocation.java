@@ -97,14 +97,14 @@ public class SuperMethodInvocation extends Expression {
 	 * Clients must not modify the result.
 	 * 
 	 * @param apiLevel the API level; one of the
-	 * <code>AST.LEVEL_&ast;</code> constants
+	 * <code>AST.JLS&ast;</code> constants
 
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.LEVEL_2_0) {
+		if (apiLevel == AST.JLS2) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_3_0;
@@ -146,7 +146,7 @@ public class SuperMethodInvocation extends Expression {
 	 */
 	SuperMethodInvocation(AST ast) {
 		super(ast);	
-		if (ast.apiLevel >= AST.LEVEL_3_0) {
+		if (ast.apiLevel >= AST.JLS3) {
 			this.typeArguments = new ASTNode.NodeList(TYPE_ARGUMENTS_PROPERTY);
 		}
 	}
@@ -211,7 +211,7 @@ public class SuperMethodInvocation extends Expression {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setName((SimpleName) getName().clone(target));
 		result.setQualifier((Name) ASTNode.copySubtree(target, getQualifier()));
-		if (this.ast.apiLevel >= AST.LEVEL_3_0) {
+		if (this.ast.apiLevel >= AST.JLS3) {
 			result.typeArguments().addAll(ASTNode.copySubtrees(target, typeArguments()));
 		}
 		result.arguments().addAll(ASTNode.copySubtrees(target, arguments()));
@@ -234,7 +234,7 @@ public class SuperMethodInvocation extends Expression {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getQualifier());
-			if (this.ast.apiLevel >= AST.LEVEL_3_0) {
+			if (this.ast.apiLevel >= AST.JLS3) {
 				acceptChildren(visitor, this.typeArguments);
 			}
 			acceptChild(visitor, getName());
@@ -275,10 +275,10 @@ public class SuperMethodInvocation extends Expression {
 	 * Returns the live ordered list of type arguments of this method
 	 * invocation (added in 3.0 API).
 	 * <p>
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
+	 * Note: This API element is only needed for dealing with Java code that uses
+	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
+	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
+	 * may change slightly before reaching its final form.
 	 * </p>
 	 * 
 	 * @return the live list of type arguments

@@ -16,6 +16,9 @@ import org.eclipse.jdt.core.IJavaElement;
 /**
  * A Java search match that represents a package declaration.
  * The element is an <code>IPackageFragment</code>.
+ * <p>
+ * This class is intended to be instantiated and subclassed by clients.
+ * </p>
  * 
  * @since 3.0
  */

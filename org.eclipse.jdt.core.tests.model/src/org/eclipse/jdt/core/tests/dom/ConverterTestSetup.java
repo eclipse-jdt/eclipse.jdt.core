@@ -103,7 +103,7 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		setupConverterJCL();
-		ast = AST.newAST(AST.LEVEL_2_0);
+		ast = AST.newAST(AST.JLS2);
 		setUpJavaProject("Converter"); //$NON-NLS-1$
 		
 		Map options = JavaCore.getDefaultOptions();
@@ -128,19 +128,19 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	}
 	
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
-		return runConversion(AST.LEVEL_2_0, unit, resolveBindings);
+		return runConversion(AST.JLS2, unit, resolveBindings);
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, int position, boolean resolveBindings) {
-		return runConversion(AST.LEVEL_2_0, unit, position, resolveBindings);
+		return runConversion(AST.JLS2, unit, position, resolveBindings);
 	}
 
 	public ASTNode runConversion(IClassFile classFile, int position, boolean resolveBindings) {
-		return runConversion(AST.LEVEL_2_0, classFile, position, resolveBindings);
+		return runConversion(AST.JLS2, classFile, position, resolveBindings);
 	}
 	
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
-		return runConversion(AST.LEVEL_2_0, source, unitName, project);
+		return runConversion(AST.JLS2, source, unitName, project);
 	}
 	
 	public ASTNode runConversion(int astLevel, ICompilationUnit unit, boolean resolveBindings) {
@@ -175,7 +175,7 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options) {
-		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser = ASTParser.newParser(AST.JLS2);
 		parser.setSource(source);
 		parser.setUnitName(unitName);
 		parser.setProject(project);

@@ -10,78 +10,109 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.search;
 
+import org.eclipse.jdt.internal.core.search.indexing.InternalSearchDocument;
+
 /**
  * A search document encapsulates a content to be either indexed or searched in.
  * A search particpant creates a search document.
+ * <p>
+ * This class is intended to be subclassed by clients.
+ * </p>
  * 
  * @since 3.0
  */
-public class SearchDocument {
-	protected String documentPath;
-	protected SearchParticipant participant;
+public abstract class SearchDocument extends InternalSearchDocument {
+	private String documentPath;
+	private SearchParticipant participant;
 	
 	/**
-	 * Internal field: do not use
-	 */
-	public org.eclipse.jdt.internal.core.index.Index index;
-
-	/**
-	 * Creates a new search document.
+	 * Creates a new search document. The given document path is a string that uniquely identifies the document.
+	 * Most of the time it is a workspace-relative path, but it can also be a file system path, or a path inside a zip file.
 	 * 
-	 * @param documentPath the path to the document on disk or <code>null</code> if not provided
+	 * @param documentPath the path to the document,
+	 * or <code>null</code> if none
 	 * @param participant the participant that creates the search document
 	 */
-	public SearchDocument(String documentPath, SearchParticipant participant) {
+	protected SearchDocument(String documentPath, SearchParticipant participant) {
 		this.documentPath = documentPath;
 		this.participant = participant;
 	}
 
 	/**
-	 * Returns the contents of this document.
-	 * Contents may be different from actual resource at corresponding document path,
-	 * in case of preprocessing.
+	 * Adds the given index entry (category and key) coming from this
+	 * document to the index. This method must be called from
+	 * {@link SearchParticipant#indexDocument(SearchDocument document, org.eclipse.core.runtime.IPath indexPath).
 	 * 
-	 * @return the contents of this document.
+	 * @param category the category of the index entry
+	 * @param key the key of the index entry
 	 */
-	public byte[] getByteContents() {
-		return null;
+	public void addIndexEntry(char[] category, char[] key) {
+		super.addIndexEntry(category, key);
 	}
-
+	
 	/**
 	 * Returns the contents of this document.
 	 * Contents may be different from actual resource at corresponding document path,
 	 * in case of preprocessing.
+	 * <p>
+	 * This method must be implemented in subclasses.
+	 * </p>
 	 * 
-	 * @return the contents of this document.
+	 * @return the contents of this document,
+	 * or <code>null</code> if none
 	 */
-	public char[] getCharContents() {
-		return null;
-	}
+	public abstract byte[] getByteContents();
 
 	/**
-	 * Returns the encoding for this document
+	 * Returns the contents of this document.
+	 * Contents may be different from actual resource at corresponding document
+	 * path due to preprocessing.
+	 * <p>
+	 * This method must be implemented in subclasses.
+	 * </p>
 	 * 
-	 * @return the encoding for this document
+	 * @return the contents of this document,
+	 * or <code>null</code> if none
 	 */
-	public String getEncoding() {
-		return null;
-	}
+	public abstract char[] getCharContents();
 
 	/**
-	 * Returns the participant that created this document
+	 * Returns the encoding for this document.
+	 * <p>
+	 * This method must be implemented in subclasses.
+	 * </p>
+	 * 
+	 * @return the encoding for this document,
+	 * or <code>null</code> if none
+	 */
+	public abstract String getEncoding();
+
+	/**
+	 * Returns the participant that created this document.
 	 * 
 	 * @return the participant that created this document
 	 */
-	public SearchParticipant getParticipant() {
+	public final SearchParticipant getParticipant() {
 		return this.participant;
 	}
 	
 	/**
-	 * Returns the path to the original document to publicly mention in index or search results.
+	 * Returns the path to the original document to publicly mention in index
+	 * or search results. This path is a string that uniquely identifies the document.
+	 * Most of the time it is a workspace-relative path, but it can also be a file system path, 
+	 * or a path inside a zip file.
 	 * 
 	 * @return the path to the document
 	 */	
-	public String getPath() {
+	public final String getPath() {
 		return this.documentPath;
+	}
+	/**
+	 * Removes all index entries from the index for the given document.
+	 * This method must be called from 
+	 * {@link SearchParticipant#indexDocument(SearchDocument document, org.eclipse.core.runtime.IPath indexPath).
+	 */
+	public void removeAllIndexEntries() {
+		super.removeAllIndexEntries();
 	}
 }

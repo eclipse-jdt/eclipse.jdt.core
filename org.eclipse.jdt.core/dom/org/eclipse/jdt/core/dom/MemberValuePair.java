@@ -24,10 +24,10 @@ import java.util.List;
  * including other annotations.
  * </p>
  * <p>
- * Note: Support for annotation metadata is an experimental language feature 
- * under discussion in JSR-175 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
+ * Note: This API element is only needed for dealing with Java code that uses
+ * new language features of J2SE 1.5. It is included in anticipation of J2SE
+ * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
+ * may change slightly before reaching its final form.
  * </p>
  * @see NormalAnnotation
  * @since 3.0
@@ -66,7 +66,7 @@ public class MemberValuePair extends ASTNode {
 	 * Returns a list of structural property descriptors for this node type.
 	 * Clients must not modify the result.
 	 * 
-	 * @param apiLevel the API level; one of the AST.LEVEL_* constants
+	 * @param apiLevel the API level; one of the AST.JLS* constants
 	 * @return a list of property descriptors (element type: 
 	 * {@link StructuralPropertyDescriptor})
 	 */

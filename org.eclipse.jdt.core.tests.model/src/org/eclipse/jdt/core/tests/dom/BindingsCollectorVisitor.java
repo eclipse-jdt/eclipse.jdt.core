@@ -14,8 +14,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-
 /**
  * @author oliviert
  *

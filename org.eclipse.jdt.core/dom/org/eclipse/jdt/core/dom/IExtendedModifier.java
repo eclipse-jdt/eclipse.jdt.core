@@ -18,12 +18,6 @@ package org.eclipse.jdt.core.dom;
  *   Modifier
  *   Annotation
  * </pre>
- * <p>
- * Note: Support for annotation metadata is an experimental language feature 
- * under discussion in JSR-175 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
- * </p>
  * @since 3.0
  */
 public interface IExtendedModifier {

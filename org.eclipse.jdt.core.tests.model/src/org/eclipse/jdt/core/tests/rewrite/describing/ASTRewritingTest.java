@@ -98,7 +98,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	}
 	
 	protected CompilationUnit createAST(ICompilationUnit cu) {
-		ASTParser parser= ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser parser= ASTParser.newParser(AST.JLS2);
 		parser.setSource(cu);
 		parser.setResolveBindings(false);
 		return (CompilationUnit) parser.createAST(null);

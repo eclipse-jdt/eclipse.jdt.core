@@ -81,7 +81,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		boolean resolveBindings) {
 
 		try {
-			ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
+			ASTParser c = ASTParser.newParser(AST.JLS2);
 			c.setSource(unit);
 			c.setResolveBindings(resolveBindings);
 			ASTNode result = c.createAST(null);
@@ -96,7 +96,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
+		ASTParser c = ASTParser.newParser(AST.JLS2);
 		c.setSource(source);
 		ASTNode result = c.createAST(null);
 		return (CompilationUnit) result;

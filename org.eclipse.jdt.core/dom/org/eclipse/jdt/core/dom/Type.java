@@ -49,12 +49,6 @@ package org.eclipse.jdt.core.dom;
  *    <b>?</b> [ ( <b>extends</b> | <b>super</b>) Type ] 
  * </pre>
  * </p>
- * <p>
- * Note: Support for generic types is an experimental language feature 
- * under discussion in JSR-014 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
- * </p>
  * 
  * @since 2.0
  */
