@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
 
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.Util;
 
@@ -34,6 +35,7 @@ public static final String JAVA_EXTENSION = "java"; //$NON-NLS-1$
 public static final String CLASS_EXTENSION = "class"; //$NON-NLS-1$
 public static final String JAR_EXTENSION = "jar"; //$NON-NLS-1$
 public static final String ZIP_EXTENSION = "zip"; //$NON-NLS-1$
+public static final String OPTION_InvalidClasspathSwitch = "org.eclipse.jdt.core.builder.invalidClasspath"; //$NON-NLS-1$
 public static final String OPTION_ResourceCopyFilter = "org.eclipse.jdt.core.builder.resourceCopyExclusionFilter"; //$NON-NLS-1$
 
 public static boolean DEBUG = false;
@@ -74,7 +76,7 @@ public JavaBuilder() {
 
 protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) throws CoreException {
 	this.currentProject = getProject();
-	if (currentProject == null || !currentProject.exists()) return new IProject[0];
+	if (currentProject == null || !currentProject.isAccessible()) return new IProject[0];
 
 	if (DEBUG)
 		System.out.println("\nStarting build of " + currentProject.getName() //$NON-NLS-1$
@@ -86,27 +88,29 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		notifier.checkCancel();
 		initializeBuilder();
 
-		if (kind == FULL_BUILD) {
-			buildAll();
-		} else {
-			if ((this.lastState = getLastState(currentProject)) == null) {
-				if (DEBUG)
-					System.out.println("Performing full build since last saved state was not found"); //$NON-NLS-1$
+		if (isWorthBuilding()) {
+			if (kind == FULL_BUILD) {
 				buildAll();
-			} else if (hasClasspathChanged() || hasOutputLocationChanged()) {
-				// if the output location changes, do not delete the binary files from old location
-				// the user may be trying something
-				buildAll();
-			} else if (sourceFolders.length > 0) { // if there is no source to compile & no classpath changes then we are done
-				clearLastState(); // clear the previously built state so if the build fails, a full build will occur next time
-				SimpleLookupTable deltas = findDeltas();
-				if (deltas == null)
+			} else {
+				if ((this.lastState = getLastState(currentProject)) == null) {
+					if (DEBUG)
+						System.out.println("Performing full build since last saved state was not found"); //$NON-NLS-1$
 					buildAll();
-				else
-					buildDeltas(deltas);
+				} else if (hasClasspathChanged() || hasOutputLocationChanged()) {
+					// if the output location changes, do not delete the binary files from old location
+					// the user may be trying something
+					buildAll();
+				} else if (sourceFolders.length > 0) { // if there is no source to compile & no classpath changes then we are done
+					clearLastState(); // clear the previously built state so if the build fails, a full build will occur next time
+					SimpleLookupTable deltas = findDeltas();
+					if (deltas == null)
+						buildAll();
+					else
+						buildDeltas(deltas);
+				}
 			}
+			ok = true;
 		}
-		ok = true;
 	} catch (CoreException e) {
 		Util.log(e, "JavaBuilder handling CoreException"); //$NON-NLS-1$
 		try {
@@ -117,7 +121,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 			throw e;
 		}
 	} catch (ImageBuilderInternalException e) {
-		Util.log(e, "JavaBuilder handling ImageBuilderInternalException"); //$NON-NLS-1$
+		Util.log(e.getThrowable(), "JavaBuilder handling ImageBuilderInternalException"); //$NON-NLS-1$
 		try {
 			IMarker marker = currentProject.createMarker(ProblemMarkerTag);
 			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentProject")); //$NON-NLS-1$
@@ -125,13 +129,17 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		} catch (CoreException ignore) {
 			throw e.getThrowable();
 		}
-	} catch (IncompleteClassPathException e) {
-		if (DEBUG) Util.log(e, "JavaBuilder handling IncompleteClassPathException"); //$NON-NLS-1$
+	} catch (MissingClassFileException e) {
+		// do not log this exception since its thrown to handle aborted compiles because of missing class files
+		if (DEBUG)
+			System.out.println(Util.bind("build.incompleteClassPath", e.missingClassFile)); //$NON-NLS-1$
 		IMarker marker = currentProject.createMarker(ProblemMarkerTag);
 		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.incompleteClassPath", e.missingClassFile)); //$NON-NLS-1$
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 	} catch (MissingSourceFileException e) {
-		if (DEBUG) Util.log(e, "JavaBuilder handling MissingSourceFileException"); //$NON-NLS-1$
+		// do not log this exception since its thrown to handle aborted compiles because of missing source files
+		if (DEBUG)
+			System.out.println(Util.bind("build.missingSourceFile", e.missingSourceFile)); //$NON-NLS-1$
 		removeProblemsFor(currentProject); // make this the only problem for this project
 		IMarker marker = currentProject.createMarker(ProblemMarkerTag);
 		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.missingSourceFile", e.missingSourceFile)); //$NON-NLS-1$
@@ -273,7 +281,6 @@ private IProject[] getRequiredProjects() {
 				if (p != null && !projects.contains(p))
 					projects.add(p);
 			}
-			this.binaryResources = null;
 		}
 	} catch(JavaModelException e) {
 		return new IProject[0];
@@ -357,12 +364,12 @@ private void initializeBuilder() throws CoreException {
 		binaryResources);
 	this.sourceFolders = new IContainer[sourceList.size()];
 	sourceList.toArray(this.sourceFolders);
-	
+
 	String filterSequence = (String) JavaCore.getOptions().get(OPTION_ResourceCopyFilter);
 	this.resourceFilters = filterSequence != null && filterSequence.length() > 0
 		? CharOperation.splitOn(',', filterSequence.toCharArray())
 		: null;
-		
+
 	// Flush the existing external files cache if this is the beginning of a build cycle
 	String projectName = this.currentProject.getName();
 	if (builtProjects == null || builtProjects.contains(projectName)) {
@@ -370,6 +377,46 @@ private void initializeBuilder() throws CoreException {
 		builtProjects = new ArrayList();
 	}
 	builtProjects.add(projectName);
+}
+
+private boolean isWorthBuilding() throws CoreException {
+//	boolean abortBuilds = JavaCore.ABORT.equals(JavaCore.getOptions().get(OPTION_InvalidClasspathSwitch));
+//	if (abortBuilds) {
+//		IMarker[] markers =
+//			currentProject.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
+//		if (markers.length > 0) {
+//			if (DEBUG)
+//				System.out.println("Aborted build because project is involved in a cycle or has classpath problems"); //$NON-NLS-1$
+//
+//			// remove all existing class files... causes all dependent projects to do the same
+//			new BatchImageBuilder(this).scrubOutputFolder();
+//
+//			removeProblemsFor(currentProject); // make this the only problem for this project
+//			return false;
+//		}
+//	}
+//
+//	// make sure all prereq projects have valid build states
+//	IProject[] requiredProjects = getRequiredProjects();
+//	next : for (int i = 0, length = requiredProjects.length; i < length; i++) {
+//		IProject p = requiredProjects[i];
+//		if (getLastState(p) == null)  {
+//			if (!abortBuilds && !p.isOpen()) continue next; // skip closed projects if we're not aborting builds because of classpath problems
+//			if (DEBUG)
+//				System.out.println("Aborted build because prereq project " + p.getName() //$NON-NLS-1$
+//					+ " was not built"); //$NON-NLS-1$
+//
+//			// remove all existing class files... causes all dependent projects to do the same
+//			new BatchImageBuilder(this).scrubOutputFolder();
+//
+//			removeProblemsFor(currentProject); // make this the only problem for this project
+//			IMarker marker = currentProject.createMarker(ProblemMarkerTag);
+//			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.prereqProjectWasNotBuilt", p.getName())); //$NON-NLS-1$
+//			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+//			return false;
+//		}
+//	}
+	return true;
 }
 
 private void recordNewState(State state) {
