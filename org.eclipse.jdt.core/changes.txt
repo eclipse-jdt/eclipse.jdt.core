@@ -110,24 +110,41 @@ STREAM: 2.0
   
   What's new in this drop
   ================================================================================
-  * New API on ICompletionRequestor for answering method declaration completions:
-    void acceptMethodDeclaration(
-        char[] declaringTypePackageName,
-        char[] declaringTypeName,
-        char[] selector,
-        char[][] parameterPackageNames,
-        char[][] parameterTypeNames,
-        char[][] parameterNames,
-        char[] returnTypePackageName,
-        char[] returnTypeName,
-        char[] completionName,
-        int modifiers,
-        int completionStart,
-        int completionEnd);
+  * CodeAssist inserts qualification on field/method references in case of ambiguities.
+  * API Changes on ICompletionRequestor
+  	+ Added API for answering method declaration completions:
+      void acceptMethodDeclaration(
+          char[] declaringTypePackageName,
+          char[] declaringTypeName,
+          char[] selector,
+          char[][] parameterPackageNames,
+          char[][] parameterTypeNames,
+          char[][] parameterNames,
+          char[] returnTypePackageName,
+          char[] returnTypeName,
+          char[] completionName,
+          int modifiers,
+          int completionStart,
+          int completionEnd);
+    + Added parameterNames to normal method results API:
+      void acceptMethod(
+          char[] declaringTypePackageName,
+          char[] declaringTypeName,
+          char[] selector,
+          char[][] parameterPackageNames,
+          char[][] parameterTypeNames,
+          char[][] parameterNames,<<<<<<<<<<<<<<<< ADDED
+          char[] returnTypePackageName,
+          char[] returnTypeName,
+          char[] completionName,
+          int modifiers,
+          int completionStart,
+          int completionEnd);
+        
   * Search for field read and field write references. Two new constants have been added
     on IJavaSearchConstants to be used when creating a field reference search pattern:
-    - READ_REFERENCES: the search results contain only read access to a field.
-    - WRITE_REFERENCES: the search results contain only write access to a field.
+    - READ_REFERENCES: the search results contain *only* read access to a field.
+    - WRITE_REFERENCES: the search results contain *only* write access to a field.
     Note that if REFERENCES is used, then search results contain both read and write
     accesss to a field.
   
@@ -151,6 +168,7 @@ STREAM: 2.0
   1GKRLZ4: ITPJCORE:WIN2000 - Compiler overzealous with commas
   1GF98R4: ITPJUI:WINNT - JM - why is a file A.B.java seen as a compilation unit?
 
+
 **********************************************************************************
 *** STABLE CONTENT (2.0 STREAM, v_202_01) ****************************************
 **********************************************************************************
@@ -158,7 +176,8 @@ STREAM: 2.0
   What's new in this drop
   ================================================================================
   * OpenOnSelection can now locate selected declarations which have a corresponding
-    Java element (i.e. no local declaration is found).
+    Java element (i.e. no local declaration is found), and is more tolerant of
+    incorrect code.
   
   PRs Fixed in this Release
   ================================================================================
