@@ -1434,27 +1434,56 @@ class ASTConverter {
 				infixExpression.setOperator(InfixExpression.Operator.LESS);
 		};
 		
-		if (expression.left instanceof BinaryExpression) {
+		if (expression.left instanceof BinaryExpression && !checkForParenthesis(expression.left)) {
 			// create an extended string literal equivalent => use the extended operands list
 			infixExpression.extendedOperands().add(convert(expression.right));
 			org.eclipse.jdt.internal.compiler.ast.Expression leftOperand = expression.left;
 			org.eclipse.jdt.internal.compiler.ast.Expression rightOperand = null;
 			do {
 				rightOperand = ((BinaryExpression) leftOperand).right;
-				if (((leftOperand.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) != expressionOperatorID
-				 || (rightOperand instanceof BinaryExpression && ((rightOperand.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) != expressionOperatorID)
-				 || checkForParenthesis(leftOperand)) {
-					infixExpression.extendedOperands().clear();
-					Expression leftExpression = convert(expression.left);
-					infixExpression.setLeftOperand(leftExpression);
-					infixExpression.setRightOperand(convert(expression.right));
-					int startPosition = leftExpression.getStartPosition();
+				if ((((leftOperand.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) != expressionOperatorID && !checkForParenthesis(leftOperand))
+				 || ((rightOperand instanceof BinaryExpression && ((rightOperand.bits & OperatorExpression.OperatorMASK) >> OperatorExpression.OperatorSHIFT) != expressionOperatorID) && !checkForParenthesis(rightOperand))) {
+				 	List extendedOperands = infixExpression.extendedOperands();
+				 	InfixExpression temp = this.ast.newInfixExpression();
+					if (this.resolveBindings) {
+						this.recordNodes(temp, expression);
+					}
+				 	temp.setOperator(getOperatorFor(expressionOperatorID));
+				 	Expression leftSide = convert(leftOperand);
+					temp.setLeftOperand(leftSide);
+					temp.setSourceRange(leftSide.getStartPosition(), leftSide.getLength());
+					int size = extendedOperands.size();
+				 	for (int i = 0; i < size - 1; i++) {
+				 		Expression expr = temp;
+				 		temp = this.ast.newInfixExpression();
+				 		
+						if (this.resolveBindings) {
+							this.recordNodes(temp, expression);
+						}				 	
+				 		temp.setLeftOperand(expr);
+					 	temp.setOperator(getOperatorFor(expressionOperatorID));
+						temp.setSourceRange(expr.getStartPosition(), expr.getLength());
+				 	}
+				 	infixExpression = temp;
+				 	for (int i = 0; i < size; i++) {
+				 		Expression extendedOperand = (Expression) extendedOperands.remove(size - 1 - i);
+				 		temp.setRightOperand(extendedOperand);
+				 		int startPosition = temp.getLeftOperand().getStartPosition();
+				 		temp.setSourceRange(startPosition, extendedOperand.getStartPosition() + extendedOperand.getLength() - startPosition);
+				 		if (temp.getLeftOperand().getNodeType() == ASTNode.INFIX_EXPRESSION) {
+				 			temp = (InfixExpression) temp.getLeftOperand();
+				 		}
+				 	}
+					int startPosition = infixExpression.getLeftOperand().getStartPosition();
 					infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+					if (this.resolveBindings) {
+						this.recordNodes(infixExpression, expression);
+					}
 					return infixExpression;
 				}
 				infixExpression.extendedOperands().add(0, convert(rightOperand));
 				leftOperand = ((BinaryExpression) leftOperand).left;
-			} while (leftOperand instanceof BinaryExpression);
+			} while (leftOperand instanceof BinaryExpression && !(checkForParenthesis(leftOperand)));
 			Expression leftExpression = convert(leftOperand);
 			infixExpression.setLeftOperand(leftExpression);
 			infixExpression.setRightOperand((Expression)infixExpression.extendedOperands().remove(0));
@@ -3251,6 +3280,50 @@ class ASTConverter {
 			}
 		}
 		
+	}
+	
+	private InfixExpression.Operator getOperatorFor(int operatorID) {
+		switch (operatorID) {
+			case OperatorIds.EQUAL_EQUAL :
+				return InfixExpression.Operator.EQUALS;
+			case OperatorIds.LESS_EQUAL :
+				return InfixExpression.Operator.LESS_EQUALS;
+			case OperatorIds.GREATER_EQUAL :
+				return InfixExpression.Operator.GREATER_EQUALS;
+			case OperatorIds.NOT_EQUAL :
+				return InfixExpression.Operator.NOT_EQUALS;
+			case OperatorIds.LEFT_SHIFT :
+				return InfixExpression.Operator.LEFT_SHIFT;
+			case OperatorIds.RIGHT_SHIFT :
+				return InfixExpression.Operator.RIGHT_SHIFT_SIGNED;
+			case OperatorIds.UNSIGNED_RIGHT_SHIFT :
+				return InfixExpression.Operator.RIGHT_SHIFT_UNSIGNED;
+			case OperatorIds.OR_OR :
+				return InfixExpression.Operator.CONDITIONAL_OR;
+			case OperatorIds.AND_AND :
+				return InfixExpression.Operator.CONDITIONAL_AND;
+			case OperatorIds.PLUS :
+				return InfixExpression.Operator.PLUS;
+			case OperatorIds.MINUS :
+				return InfixExpression.Operator.MINUS;
+			case OperatorIds.REMAINDER :
+				return InfixExpression.Operator.REMAINDER;
+			case OperatorIds.XOR :
+				return InfixExpression.Operator.XOR;
+			case OperatorIds.AND :
+				return InfixExpression.Operator.AND;
+			case OperatorIds.MULTIPLY :
+				return InfixExpression.Operator.TIMES;
+			case OperatorIds.OR :
+				return InfixExpression.Operator.OR;
+			case OperatorIds.DIVIDE :
+				return InfixExpression.Operator.DIVIDE;
+			case OperatorIds.GREATER :
+				return InfixExpression.Operator.GREATER;
+			case OperatorIds.LESS :
+				return InfixExpression.Operator.LESS;
+		};
+		return null;
 	}
 }
 
