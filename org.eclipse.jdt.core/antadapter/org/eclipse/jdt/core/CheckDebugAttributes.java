@@ -22,7 +22,21 @@ import org.eclipse.jdt.core.util.ICodeAttribute;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.antadapter.AntAdapterMessages;
 
-public class CheckDebugAttributes extends Task {
+/**
+ * <p>An Ant task to find out if a class file or a jar contains debug attributes. If this is the case,
+ * the property contains the value "has debug" after the call.
+ * </p> 
+ * <p>
+ * <code>&lt;eclipse.checkDebugAttributes property="hasDebug" file="${basedir}/bin/p/A.class"/&gt;</code>
+ * </p>
+ * <p>
+ * For more information on Ant check out the website at http://jakarta.apache.org/ant/ .
+ * </p>
+ * 
+ * This is not intended to be subclassed by users.
+ * @since 2.0
+ */
+public final class CheckDebugAttributes extends Task {
 
 	private String file;
 	private String property;
