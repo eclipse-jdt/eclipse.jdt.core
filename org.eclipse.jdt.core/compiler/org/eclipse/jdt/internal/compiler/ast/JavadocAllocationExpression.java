@@ -20,10 +20,13 @@ public class JavadocAllocationExpression extends AllocationExpression {
 	public int tagValue;
 	public boolean superAccess = false;
 	
-	public JavadocAllocationExpression(long pos) {
-		this.sourceStart = (int) (pos >>> 32);
-		this.sourceEnd = (int) pos;
+	public JavadocAllocationExpression(int start, int end) {
+		this.sourceStart = start;
+		this.sourceEnd = end;
 		this.bits |= InsideJavadoc;
+	}
+	public JavadocAllocationExpression(long pos) {
+		this((int) (pos >>> 32), (int) pos);
 	}
 
 	private TypeBinding internalResolveType(Scope scope) {
@@ -73,6 +76,18 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
 		this.binding = scope.getConstructor(allocationType, argumentTypes, this);
 		if (!this.binding.isValidBinding()) {
+			ReferenceBinding enclosingTypeBinding = allocationType;
+			MethodBinding contructorBinding = this.binding;
+			while (!contructorBinding.isValidBinding() && (enclosingTypeBinding.isMemberType() || enclosingTypeBinding.isLocalType())) {
+				enclosingTypeBinding = enclosingTypeBinding.enclosingType();
+				contructorBinding = scope.getConstructor(enclosingTypeBinding, argumentTypes, this);
+			}
+			if (contructorBinding.isValidBinding()) {
+				this.binding = contructorBinding;
+			}
+		}
+		if (!this.binding.isValidBinding()) {
+			// First try to search a method instead
 			MethodBinding methodBinding = scope.getMethod(this.resolvedType, this.resolvedType.sourceName(), argumentTypes, this);
 			if (methodBinding.isValidBinding()) {
 				this.binding = methodBinding;
@@ -83,6 +98,12 @@ public class JavadocAllocationExpression extends AllocationExpression {
 				scope.problemReporter().javadocInvalidConstructor(this, this.binding, scope.getDeclarationModifiers());
 			}
 			return this.resolvedType;
+		} else if (binding.isVarargs()) {
+			int length = argumentTypes.length;
+			if (!(binding.parameters.length == length && argumentTypes[length-1].isArrayType())) {
+				MethodBinding problem = new ProblemMethodBinding(this.binding, this.binding.selector, argumentTypes, ProblemReasons.NotFound);
+				scope.problemReporter().javadocInvalidConstructor(this, problem, scope.getDeclarationModifiers());
+			}
 		} else if (hasTypeVarArgs) {
 			MethodBinding problem = new ProblemMethodBinding(this.binding, this.binding.selector, argumentTypes, ProblemReasons.NotFound);
 			scope.problemReporter().javadocInvalidConstructor(this, problem, scope.getDeclarationModifiers());
