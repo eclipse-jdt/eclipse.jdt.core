@@ -177,8 +177,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	 */
 	class TestMatcher extends ASTMatcher {
 
-		public Object receiver;
-		public Object other;
+		public Object receiverNode;
+		public Object otherNode;
 		public boolean result;
 		public boolean superMatch;
 		public boolean superMatchResult;
@@ -189,8 +189,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 		boolean standardBody(ASTNode receiver, Object other, boolean superMatchResult) {
 			matchCalls++;
-			this.receiver = receiver;
-			this.other = other;
+			this.receiverNode = receiver;
+			this.otherNode = other;
 			this.superMatchResult = superMatchResult;
 			if (superMatch) {
 				return this.superMatchResult;
@@ -425,8 +425,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		m1.result = true;
 		boolean result = node.subtreeMatch(m1, o1);
 		assertTrue(m1.matchCalls == 1);
-		assertTrue(m1.receiver == node);
-		assertTrue(m1.other == o1);
+		assertTrue(m1.receiverNode == node);
+		assertTrue(m1.otherNode == o1);
 		assertTrue(result == true);
 		
 		// check that matcher was called with right arguments
@@ -436,8 +436,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		m1.result = false;
 		result = node.subtreeMatch(m1, o1);
 		assertTrue(m1.matchCalls == 1);
-		assertTrue(m1.receiver == node);
-		assertTrue(m1.other == o1);
+		assertTrue(m1.receiverNode == node);
+		assertTrue(m1.otherNode == o1);
 		assertTrue(result == false);
 		
 		// check that ASTMatcher default implementations delegate
