@@ -3,11 +3,8 @@ package org.eclipse.jdt.core.tests.formatter;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -15,6 +12,7 @@ import java.util.List;
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IWorkspaceDescription;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -62,7 +60,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				}
 			}
 		} else {
-			suite.addTest(new FormatterRegressionTests("test353"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test354"));  //$NON-NLS-1$
 		}
 		return suite;
 	}
@@ -75,23 +73,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 * Returns the OS path to the directory that contains this plugin.
 	 */
 	protected String getPluginDirectoryPath() {
-		CodeSource javaCoreCodeSource = JavaCore.class.getProtectionDomain().getCodeSource();
-		if (javaCoreCodeSource != null) {
-			URL javaCoreUrl = javaCoreCodeSource.getLocation();
-			String javaCorePath = javaCoreUrl.getFile();
-			int index = javaCorePath.indexOf(JavaCore.PLUGIN_ID);
-			if (index != -1) {
-				String pluginsPath = javaCorePath.substring(0, index);
-				File pluginsFile = new File(pluginsPath);
-				String[] list = pluginsFile.list(new FilenameFilter() {
-					public boolean accept(File dir, String name) {
-						return name.startsWith( "org.eclipse.jdt.core.tests.model");
-					}
-				});
-				if (list != null && list.length > 0) {
-					return pluginsPath + list[0];
-				}
-			}
+		try {
+			return new File(Platform.resolve(Platform.getPlugin("org.eclipse.jdt.core.tests.model").getDescriptor().getInstallURL()).getFile()).getAbsolutePath();
+		} catch (IOException e) {
+			//Error
 		}
 		return null;
 	}
@@ -3845,5 +3830,14 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test353", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
+	}	
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44642
+	 */
+	public void test354() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test354", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}	
 }
