@@ -1772,6 +1772,14 @@ public void illegalUsageOfQualifiedTypeReference(QualifiedTypeReference qualifie
 		qualifiedTypeReference.sourceStart,
 		qualifiedTypeReference.sourceEnd);	
 }
+public void illegalQualifiedParameterizedTypeAllocation(TypeReference qualifiedTypeReference, TypeBinding allocatedType) {
+	this.handle(
+		IProblem.IllegalQualifiedParameterizedTypeAllocation,
+		new String[] { new String(allocatedType.readableName()), new String(allocatedType.enclosingType().readableName()), },
+		new String[] { new String(allocatedType.shortReadableName()), new String(allocatedType.enclosingType().shortReadableName()), },
+		qualifiedTypeReference.sourceStart,
+		qualifiedTypeReference.sourceEnd);	
+}
 public void illegalVararg(Argument argType, AbstractMethodDeclaration methodDecl) {
 	String[] arguments = new String[] {CharOperation.toString(argType.type.getTypeName()), new String(methodDecl.selector)};
 	this.handle(

@@ -8447,7 +8447,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	                       ^\n" + 
 			"Type mismatch: cannot convert from X<Exception>.Item<Thread> to X<String>.Item<Thread>\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 12)\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	X<Exception>.Item<Thread> j = new X<Exception>.Item<Thread>();\n" + 
+			"	                                  ^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot allocate the member type X<Exception>.Item<Thread> using a parameterized compound name; use its simple name and an enclosing instance of type X<Exception>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
 			"	X.Item k = new X.Item();\n" + 
 			"	           ^^^^^^^^^^^^\n" + 
 			"No enclosing instance of type X<T> is accessible. Must qualify the allocation with an enclosing instance of type X<T> (e.g. x.new A() where x is an instance of X<T>).\n" + 
@@ -11920,4 +11925,193 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159
+	public void test446() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<A> {\n" + 
+				"  class Inner<B> { }\n" + 
+				"\n" + 
+				"  void method() {\n" + 
+				"    X<String>.Inner<Integer> a= new X<String>().new Inner<Integer>();\n" + 
+				"    Inner<Integer> b= new X<A>().new Inner<Integer>();\n" + 
+				"    Inner<Integer> c= new Inner<Integer>();\n" + 
+				"    //OK for javac and eclipse\n" + 
+				"\n" + 
+				"    X<String>.Inner<Integer> d= new X<String>.Inner<Integer>();\n" + 
+				"    //eclipse: OK\n" + 
+				"    //javac: error: \'(\' or \'[\' expected\n" + 
+				"\n" + 
+				"    X<A>.Inner<Integer> e= new X<A>().new Inner<Integer>();\n" + 
+				"    X<A>.Inner<Integer> f= new Inner<Integer>();\n" + 
+				"    e= b;\n" + 
+				"    f= c;\n" + 
+				"    //javac: OK\n" + 
+				"    //eclipse: Type mismatch: cannot convert from X<A>.Inner<Integer> to X<A>.Inner<Integer>\n" + 
+				"\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class External {\n" + 
+				"  void m() {\n" + 
+				"    X<String>.Inner<Integer> x= new X<String>().new Inner<Integer>();\n" + 
+				"    //OK for javac and eclipse\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	X<String>.Inner<Integer> d= new X<String>.Inner<Integer>();\n" + 
+			"	                                ^^^^^^^^^^^^^^^\n" + 
+			"Cannot allocate the member type X<String>.Inner<Integer> using a parameterized compound name; use its simple name and an enclosing instance of type X<String>\n" + 
+			"----------\n");
+	}		
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
+	public void test447() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<A> {\n" + 
+				"  class Inner<B> { }\n" + 
+				"\n" + 
+				"  void method() {\n" + 
+				"    X<String>.Inner<Integer> d1 = new X<String>.Inner<Integer>();\n" + 
+				"    X.Inner d2 = new X.Inner();\n" + 
+				"    X.Inner<Integer> d3 = new X.Inner<Integer>();\n" + 
+				"    d1 = d2;\n" +
+				"    d2 = d1;\n" +
+				"    d1 = d3;\n" +
+				"    d3 = d1;\n" +
+				"    d2 = d3;\n" +
+				"    d3 = d2;\n" +
+				"\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	X<String>.Inner<Integer> d1 = new X<String>.Inner<Integer>();\n" + 
+			"	                                  ^^^^^^^^^^^^^^^\n" + 
+			"Cannot allocate the member type X<String>.Inner<Integer> using a parameterized compound name; use its simple name and an enclosing instance of type X<String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	X.Inner<Integer> d3 = new X.Inner<Integer>();\n" + 
+			"	^^^^^^^\n" + 
+			"The member type X.Inner<Integer> must be qualified with a parameterized type, since it is not static\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	X.Inner<Integer> d3 = new X.Inner<Integer>();\n" + 
+			"	                          ^^^^^^^\n" + 
+			"The member type X.Inner<Integer> must be qualified with a parameterized type, since it is not static\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 8)\n" + 
+			"	d1 = d2;\n" + 
+			"	     ^^\n" + 
+			"Type safety: The expression of type X.Inner is converted to X<String>.Inner<Integer> using a raw conversion. References to generic type X<A>.Inner<B> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 10)\n" + 
+			"	d1 = d3;\n" + 
+			"	     ^^\n" + 
+			"Type safety: The expression of type X.Inner<Integer> is converted to X<String>.Inner<Integer> using a raw conversion. References to generic type X<A>.Inner<B> should be parameterized\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 13)\n" + 
+			"	d3 = d2;\n" + 
+			"	     ^^\n" + 
+			"Type safety: The expression of type X.Inner is converted to X.Inner<Integer> using a raw conversion. References to generic type X<A>.Inner<B> should be parameterized\n" + 
+			"----------\n");
+	}			
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
+	public void test448() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<A> {\n" + 
+				"  static class Inner<B> { }\n" + 
+				"\n" + 
+				"  void method() {\n" + 
+				"    X.Inner<Integer> d = new X.Inner<Integer>();    \n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"");
+	}			
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
+	public void test449() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<A> {\n" + 
+				"  class Inner<B> { \n" + 
+				"  }\n" + 
+				"\n" + 
+				"  void method() {\n" + 
+				"    X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\n" + 
+				"  }\n" + 
+				"}\n" ,
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\r\n" + 
+			"	X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\r\n" + 
+			"	                              ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type X.Inner<Integer> is converted to X<String>.Inner<Integer> using a raw conversion. References to generic type X<A>.Inner<B> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\r\n" + 
+			"	X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\r\n" + 
+			"	                                  ^^^^^^^\n" + 
+			"The member type X.Inner<Integer> must be qualified with a parameterized type, since it is not static\n" + 
+			"----------\n");
+	}			
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
+	public void test450() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<A> {\n" + 
+				"  static class Inner<B> { \n" + 
+				"  }\n" + 
+				"\n" + 
+				"  void method() {\n" + 
+				"    X<String>.Inner<Integer> d4 = new X<String>.Inner<Integer>();\n" + 
+				"  }\n" + 
+				"}\n" ,
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\r\n" + 
+			"	X<String>.Inner<Integer> d4 = new X<String>.Inner<Integer>();\r\n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"The member type X<String>.Inner cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\r\n" + 
+			"	X<String>.Inner<Integer> d4 = new X<String>.Inner<Integer>();\r\n" + 
+			"	                                  ^^^^^^^^^^^^^^^\n" + 
+			"The member type X<String>.Inner cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<String>\n" + 
+			"----------\n");
+	}		
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
+	public void test451() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<A> {\n" + 
+				"  class Inner<B> { \n" + 
+				"  }\n" + 
+				"\n" + 
+				"  void method() {\n" + 
+				"    X<String>.Inner<Integer> d4 = new X<String>.Inner<Integer>() {};\n" + 
+				"  }\n" + 
+				"}\n" ,
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	X<String>.Inner<Integer> d4 = new X<String>.Inner<Integer>() {};\n" + 
+			"	                                  ^^^^^^^^^^^^^^^\n" + 
+			"Cannot allocate the member type X<String>.Inner<Integer> using a parameterized compound name; use its simple name and an enclosing instance of type X<String>\n" + 
+			"----------\n");
+	}	
 }

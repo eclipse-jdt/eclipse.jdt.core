@@ -238,6 +238,23 @@ public class AllocationExpression extends Expression implements InvocationSite {
 			this.resolvedType = scope.enclosingSourceType();
 		} else {
 			this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
+			checkParameterizedAllocation: {
+				if (this.type instanceof ParameterizedQualifiedTypeReference) { // disallow new X<String>.Y<Integer>()
+					ReferenceBinding currentType = (ReferenceBinding)this.resolvedType;
+					do {
+						// isStatic() is answering true for toplevel types
+						if ((currentType.modifiers & AccStatic) != 0) break checkParameterizedAllocation;
+						if (currentType.isRawType()) break checkParameterizedAllocation;
+					} while ((currentType = currentType.enclosingType())!= null);
+					ParameterizedQualifiedTypeReference qRef = (ParameterizedQualifiedTypeReference) this.type;
+					for (int i = qRef.typeArguments.length - 2; i >= 0; i--) {
+						if (qRef.typeArguments[i] != null) {
+							scope.problemReporter().illegalQualifiedParameterizedTypeAllocation(this.type, this.resolvedType);
+							break;
+						}
+					}
+				}
+			}
 		}
 		// will check for null after args are resolved
 

@@ -934,7 +934,10 @@ public interface IProblem {
 	int BoundHasConflictingArguments = TypeRelated + 564;	
     /** @since 3.1 */
 	int DuplicateParameterizedMethods = MethodRelated + 565;
-
+	/** @since 3.1 */
+	int IllegalQualifiedParameterizedTypeAllocation = TypeRelated + 566;
+	
+	
 	/**
 	 * Foreach
 	 */
