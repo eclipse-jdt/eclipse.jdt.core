@@ -15365,4 +15365,117 @@ public void test500(){
 			},
 			"");
 	}		
+	public void test543() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Object obj = null;\n" + 
+				"		List<String> ls = (List<String>) obj;\n" + 
+				"	}\n" + 
+				"  Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	List<String> ls = (List<String>) obj;\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from Object to List<String> is actually checking against the erased type List\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}		
+	public void test544() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Vector;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Vector<Integer> a = new Vector<Integer>();\n" + 
+				"		Vector b = new Vector();\n" + 
+				"		b.add(new Object());\n" + 
+				"		a = b;\n" + 
+				"		Zork z;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	b.add(new Object());\n" + 
+			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type Vector. References to generic type Vector<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	a = b;\n" + 
+			"	    ^\n" + 
+			"Type safety: The expression of type Vector needs unchecked conversion to conform to Vector<Integer>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86898
+	public void test545() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class B extends A<Object> {\n" + 
+				"	void m2() {\n" + 
+				"		m3((X2) m());  // A<Object>.m() --> X<? extends Object> - cannot cast to X2\n" + 
+				"	}\n" + 
+				"	void m3(X2 i) {}\n" + 
+				"}\n" + 
+				"class A<T> {\n" + 
+				"	X<? extends T> m() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class X2 extends X<String> {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"	void foo(X<String> lhs, X<? extends Object> rhs) {\n" + 
+				"		lhs = rhs; // cannot convert\n" + 
+				"	}\n" + 
+				"	void bar(X2 lhs, X<? extends Object> rhs) {\n" + 
+				"		lhs = rhs; // cannot convert\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class C {\n" + 
+				"	void foo(X<? extends Object> xo) {}\n" + 
+				"	void bar(X<String> xs) {}\n" + 
+				"}\n" + 
+				"class D extends C {\n" + 
+				"	void foo(X<String> xs) {}\n" + 
+				"	void bar(X<? extends Object> xo) {}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	b.add(new Object());\n" + 
+			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type Vector. References to generic type Vector<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	a = b;\n" + 
+			"	    ^\n" + 
+			"Type safety: The expression of type Vector needs unchecked conversion to conform to Vector<Integer>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}		
 }
