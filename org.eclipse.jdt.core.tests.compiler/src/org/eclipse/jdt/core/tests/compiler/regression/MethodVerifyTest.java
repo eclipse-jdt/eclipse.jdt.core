@@ -2522,4 +2522,26 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 	}		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87157
+	public void test047() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface Interface {\n" + 
+				"    Number getValue();\n" + 
+				"}\n" + 
+				"class C1 {\n" + 
+				"    public Double getValue() {\n" + 
+				"        return 0.0;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"public class X extends C1 implements Interface{\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Interface i=new X();\n" + 
+				"        System.out.println(i.getValue());\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+		"0.0");
+	}	
 }
