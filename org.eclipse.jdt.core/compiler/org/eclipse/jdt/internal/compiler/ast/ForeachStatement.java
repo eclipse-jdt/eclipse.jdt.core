@@ -205,6 +205,7 @@ public class ForeachStatement extends Statement {
 			case RAW_ITERABLE :
 			case GENERIC_ITERABLE :
 				collection.generateCode(scope, codeStream, true);
+				codeStream.dup();
 				codeStream.store(this.collectionVariable, false);
 				// declaringClass.iterator();
 				MethodBinding iteratorMethodBinding =

@@ -3269,6 +3269,15 @@ public void invokeJavaUtilIteratorHasNext() {
 		resizeByteArray(OPC_invokeinterface);
 	}
 	writeUnsignedShort(constantPool.literalIndexForJavaUtilIteratorHasNext());
+	writeUnsignedByte(1);
+	// Generate a  0 into the byte array. Like the array is already fill with 0, we just need to increment
+	// the number of bytes.
+	try {
+		position++;
+		bCodeStream[classFileOffset++] = 0;
+	} catch (IndexOutOfBoundsException e) {
+		resizeByteArray((byte)0);
+	}
 }
 public void invokeJavaUtilIteratorNext() {
 	// invokeinterface java.util.Iterator.next()java.lang.Object
@@ -3281,6 +3290,15 @@ public void invokeJavaUtilIteratorNext() {
 		resizeByteArray(OPC_invokeinterface);
 	}
 	writeUnsignedShort(constantPool.literalIndexForJavaUtilIteratorNext());
+	writeUnsignedByte(1);
+	// Generate a  0 into the byte array. Like the array is already fill with 0, we just need to increment
+	// the number of bytes.
+	try {
+		position++;
+		bCodeStream[classFileOffset++] = 0;
+	} catch (IndexOutOfBoundsException e) {
+		resizeByteArray((byte)0);
+	}
 }
 public void invokeStringBufferDefaultConstructor() {
 	// invokespecial: java.lang.StringBuffer.<init>()V

@@ -1056,7 +1056,7 @@ public void test021() {
 	}
 }
 // TODO (olivier) verify error
-public void _test022() { 
+public void test022() { 
 	this.runConformTest(
 		new String[] {
 			"X.java",

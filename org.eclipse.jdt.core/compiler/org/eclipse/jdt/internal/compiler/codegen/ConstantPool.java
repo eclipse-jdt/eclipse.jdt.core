@@ -2652,7 +2652,7 @@ public int literalIndexForJavaUtilIteratorNext() {
 			writeU2(nameIndex);
 			writeU2(typeIndex);
 		}
-		index = wellKnownMethods[ITERATOR_HASNEXT_METHOD] = currentIndex++;
+		index = wellKnownMethods[ITERATOR_NEXT_METHOD] = currentIndex++;
 		if (index > 0xFFFF){
 			this.classFile.referenceBinding.scope.problemReporter().noMoreAvailableSpaceInConstantPool(this.classFile.referenceBinding.scope.referenceType());
 		}
