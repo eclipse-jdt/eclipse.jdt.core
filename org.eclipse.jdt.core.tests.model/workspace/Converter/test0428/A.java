@@ -1,14 +1,12 @@
-package test0419;
+package test0428;
 
 class C {
   private int fCoo;
 }
 
-public class A {
+public class A extends C {
   public static void goo(C c) {
-    fCoo= 1;
-/*    super.fCoo= 1;
     C.fCoo= 1;
-    c.fCoo= 1;*/
+//    c.fCoo= 1;
   }
 }

@@ -36,7 +36,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				suite.addTest(new ASTConverterTest2(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest2("test0421"));			
+//		suite.addTest(new ASTConverterTest2("test0429"));			
 		return suite;
 	}
 	/**
@@ -759,6 +759,101 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		Expression expression3 = infixExpression2.getRightOperand();
 		assertTrue("not a parenthesized expression", expression3.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION); //$NON-NLS-1$
 		checkSourceRange(expression3, "( 2 + 3 )", source);
+	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24449
+	 */
+	public void test0426() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0426", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 1, 0, 0);
+		assertEquals("Not a variable declaration statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		Type type = statement.getType();
+		assertTrue("not a simple type", type.getNodeType() == ASTNode.SIMPLE_TYPE);
+		SimpleType simpleType = (SimpleType) type;
+		Name name = simpleType.getName();
+		assertNotNull("No name", name);
+		IBinding binding = name.resolveBinding();
+		assertNotNull("No binding", binding);
+	}	
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24449
+	 */
+	public void test0427() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0427", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 1, 0, 0);
+		assertEquals("Not an expression statement", node.getNodeType(), ASTNode.EXPRESSION_STATEMENT);
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+		assertEquals("Not an assignment", expression.getNodeType(), ASTNode.ASSIGNMENT);
+		Assignment assignment = (Assignment) expression;
+		Expression expression2 = assignment.getLeftHandSide();
+		assertEquals("Not a super field access", expression2.getNodeType(), ASTNode.SUPER_FIELD_ACCESS);
+		SuperFieldAccess superFieldAccess = (SuperFieldAccess) expression2;
+		Name name = superFieldAccess.getName();
+		assertNotNull("No name", name);
+		IBinding binding = name.resolveBinding();
+		assertNull("Got a binding", binding);
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24449
+	 */
+	public void test0428() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0428", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 1, 0, 0);
+		assertEquals("Not an expression statement", node.getNodeType(), ASTNode.EXPRESSION_STATEMENT);
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+		assertEquals("Not an assignment", expression.getNodeType(), ASTNode.ASSIGNMENT);
+		Assignment assignment = (Assignment) expression;
+		Expression expression2 = assignment.getLeftHandSide();
+		assertEquals("Not a qualified name", expression2.getNodeType(), ASTNode.QUALIFIED_NAME);
+		QualifiedName name = (QualifiedName) expression2;
+		SimpleName simpleName = name.getName();
+		IBinding binding = simpleName.resolveBinding();
+		assertNotNull("No binding", binding);
+		IBinding binding2 = name.resolveBinding();
+		assertNotNull("No binding2", binding2);
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=24449
+	 */
+	public void test0429() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0429", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 1, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 1, 0, 0);
+		assertEquals("Not an expression statement", node.getNodeType(), ASTNode.EXPRESSION_STATEMENT);
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+		assertEquals("Not an assignment", expression.getNodeType(), ASTNode.ASSIGNMENT);
+		Assignment assignment = (Assignment) expression;
+		Expression expression2 = assignment.getLeftHandSide();
+		assertEquals("Not a qualified name", expression2.getNodeType(), ASTNode.QUALIFIED_NAME);
+		QualifiedName name = (QualifiedName) expression2;
+		SimpleName simpleName = name.getName();
+		IBinding binding = simpleName.resolveBinding();
+		assertNotNull("No binding", binding);
+		IBinding binding2 = name.resolveBinding();
+		assertNotNull("No binding2", binding2);
 	}	
 }
 
