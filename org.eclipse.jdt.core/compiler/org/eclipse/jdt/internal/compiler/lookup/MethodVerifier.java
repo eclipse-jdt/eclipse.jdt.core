@@ -79,11 +79,14 @@ private void checkAbstractMethod(MethodBinding abstractMethod) {
 	}
 }
 private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length) {
-	currentMethod.modifiers |= CompilerModifiers.AccOverriding;
 	nextMethod : for (int i = length; --i >= 0;) {
 		MethodBinding inheritedMethod = methods[i];
-		if (!currentMethod.isAbstract() && inheritedMethod.isAbstract())
-			currentMethod.modifiers |= CompilerModifiers.AccImplementing;
+		if (!currentMethod.isAbstract() && inheritedMethod.isAbstract()) {
+			if ((currentMethod.modifiers & CompilerModifiers.AccOverriding) == 0)
+				currentMethod.modifiers |= CompilerModifiers.AccImplementing;
+		} else {
+			currentMethod.modifiers |= CompilerModifiers.AccOverriding;
+		}
 
 		if (!areTypesEqual(currentMethod.returnType, inheritedMethod.returnType)) {
 			this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
@@ -299,13 +302,17 @@ private void computeInheritedMethods() {
 		? this.type.superclass()
 		: this.type.scope.getJavaLangObject(); // check interface methods against Object
 	HashtableOfObject nonVisibleDefaultMethods = new HashtableOfObject(3); // maps method selectors to an array of methods
+	boolean allSuperclassesAreAbstract = true;
 
 	while (superType != null) {
 		if (superType.isValidBinding()) {
-			if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
-				if (++lastPosition == interfacesToVisit.length)
-					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-				interfacesToVisit[lastPosition] = itsInterfaces;
+			if (allSuperclassesAreAbstract = allSuperclassesAreAbstract && superType.isAbstract()) {
+				// only need to include superinterfaces if immediate superclasses are abstract
+				if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
+					if (++lastPosition == interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+					interfacesToVisit[lastPosition] = itsInterfaces;
+				}
 			}
 
 			MethodBinding[] methods = superType.unResolvedMethods();
@@ -380,13 +387,18 @@ private void computeInheritedMethods() {
 					}
 
 					MethodBinding[] methods = superType.unResolvedMethods();
-					for (int m = methods.length; --m >= 0;) { // Interface methods are all abstract public
+					nextMethod : for (int m = methods.length; --m >= 0;) { // Interface methods are all abstract public
 						MethodBinding method = methods[m];
 						MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(method.selector);
 						if (existingMethods == null) {
 							existingMethods = new MethodBinding[] {method};
 						} else {
 							int length = existingMethods.length;
+							for (int e = 0; e < length; e++) {
+								MethodBinding existing = existingMethods[e];
+								if (areParametersEqual(method, existing) && existing.declaringClass.implementsInterface(superType, true))
+									continue nextMethod; // skip interface method with the same signature if visible to its declaringClass
+							}
 							System.arraycopy(existingMethods, 0, existingMethods = new MethodBinding[length + 1], 0, length);
 							existingMethods[length] = method;
 						}
