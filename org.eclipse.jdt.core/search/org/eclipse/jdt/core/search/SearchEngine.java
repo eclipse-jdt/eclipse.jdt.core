@@ -250,6 +250,42 @@ public static IJavaSearchScope createWorkspaceScope() {
 	return new JavaWorkspaceScope();
 }
 /**
+ * Returns the underlying resource of the given element.
+ */
+private IResource getResource(IJavaElement element) throws JavaModelException {
+	if (element instanceof IMember) {
+		ICompilationUnit cu = ((IMember)element).getCompilationUnit();
+		if (cu != null) {
+			if (cu.isWorkingCopy()) {
+				return cu.getOriginalElement().getUnderlyingResource();
+			} else {
+				return cu.getUnderlyingResource();
+			}
+		} 
+	} 
+	return element.getUnderlyingResource();
+}
+/**
+ * Returns the list of working copies used to do the search on the given java element.
+ */
+private IWorkingCopy[] getWorkingCopies(IJavaElement element) {
+	if (element instanceof IMember) {
+		ICompilationUnit cu = ((IMember)element).getCompilationUnit();
+		if (cu != null && cu.isWorkingCopy()) {
+			int length = this.workingCopies == null ? 0 : this.workingCopies.length;
+			if (length > 0) {
+				IWorkingCopy[] newWorkingCopies = new IWorkingCopy[length+1];
+				System.arraycopy(this.workingCopies, 0, newWorkingCopies, 0, length);
+				newWorkingCopies[length] = cu;
+				return newWorkingCopies;
+			} else {
+				return new IWorkingCopy[] {cu};
+			}
+		}
+	}
+	return this.workingCopies;
+}
+/**
  * Searches for the Java element determined by the given signature. The signature
  * can be incomplete. For example, a call like 
  * <code>search(ws,"run()",METHOD,REFERENCES,col)</code>
@@ -515,7 +551,7 @@ public void searchAllTypeNames(
 public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 	SearchPattern pattern = new DeclarationOfAccessedFieldsPattern(enclosingElement);
 	IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
-	IResource resource = enclosingElement.getUnderlyingResource();
+	IResource resource = this.getResource(enclosingElement);
 	if (resource instanceof IFile) {
 		MatchLocator locator = new MatchLocator(
 			pattern,
@@ -525,7 +561,7 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
 		locator.locateMatches(
 			new String[] {resource.getFullPath().toString()}, 
 			workspace,
-			this.workingCopies);
+			this.getWorkingCopies(enclosingElement));
 	} else {
 		search(workspace, pattern, scope, resultCollector);
 	}
@@ -569,7 +605,7 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
 public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 	SearchPattern pattern = new DeclarationOfReferencedTypesPattern(enclosingElement);
 	IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
-	IResource resource = enclosingElement.getUnderlyingResource();
+	IResource resource = this.getResource(enclosingElement);
 	if (resource instanceof IFile) {
 		MatchLocator locator = new MatchLocator(
 			pattern,
@@ -579,7 +615,7 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
 		locator.locateMatches(
 			new String[] {resource.getFullPath().toString()}, 
 			workspace,
-			this.workingCopies);
+			this.getWorkingCopies(enclosingElement));
 	} else {
 		search(workspace, pattern, scope, resultCollector);
 	}
@@ -626,7 +662,7 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
 public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 	SearchPattern pattern = new DeclarationOfReferencedMethodsPattern(enclosingElement);
 	IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
-	IResource resource = enclosingElement.getUnderlyingResource();
+	IResource resource = this.getResource(enclosingElement);
 	if (resource instanceof IFile) {
 		MatchLocator locator = new MatchLocator(
 			pattern,
@@ -636,7 +672,7 @@ public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement 
 		locator.locateMatches(
 			new String[] {resource.getFullPath().toString()}, 
 			workspace,
-			this.workingCopies);
+			this.getWorkingCopies(enclosingElement));
 	} else {
 		search(workspace, pattern, scope, resultCollector);
 	}
