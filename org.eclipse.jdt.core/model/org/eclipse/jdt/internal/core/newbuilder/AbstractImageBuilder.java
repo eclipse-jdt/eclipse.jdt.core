@@ -171,8 +171,8 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 					if (JavaBuilder.DEBUG)
 						System.out.println("About to compile " + filename);//$NON-NLS-1$
 					String typeName = initialTypeNames[i];
-					initialNamesInLoop[index++] = typeName;
-					toCompile[index] = new SourceFile(filename,
+					initialNamesInLoop[index] = typeName;
+					toCompile[index++] = new SourceFile(filename,
 						CharOperation.splitOn('/', typeName.toCharArray(), 0, typeName.lastIndexOf('/') - 1));
 				}
 				i++;
