@@ -374,7 +374,7 @@ public void testAccessRestriction1() throws Exception {
 			"  }\n"+
 			"}");
 		
-		this.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
@@ -456,7 +456,7 @@ public void testAccessRestriction2() throws Exception {
 			"  }\n"+
 			"}");
 		
-		this.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
@@ -536,7 +536,7 @@ public void testAccessRestriction3() throws Exception {
 			"  }\n"+
 			"}");
 		
-		this.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
@@ -617,7 +617,7 @@ public void testAccessRestriction4() throws Exception {
 			"  }\n"+
 			"}");
 		
-		this.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
@@ -697,7 +697,7 @@ public void testAccessRestriction5() throws Exception {
 			"  }\n"+
 			"}");
 		
-		this.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
@@ -801,7 +801,7 @@ public void testAccessRestriction6() throws Exception {
 			"  }\n"+
 			"}");
 		
-		this.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
@@ -898,7 +898,7 @@ public void testAccessRestriction7() throws Exception {
 			null,
 			"1.4");
 		
-		this.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
@@ -995,7 +995,7 @@ public void testAccessRestriction8() throws Exception {
 			null,
 			"1.4");
 		
-		this.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
@@ -1139,7 +1139,7 @@ public void testAccessRestriction9() throws Exception {
 				"  }\n"+
 				"}");
 		
-		this.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
@@ -1286,7 +1286,7 @@ public void testAccessRestriction10() throws Exception {
 				"  }\n"+
 				"}");
 		
-		this.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
@@ -1435,7 +1435,7 @@ public void testAccessRestriction11() throws Exception {
 				"  }\n"+
 				"}");
 		
-		this.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
@@ -1582,7 +1582,7 @@ public void testAccessRestriction12() throws Exception {
 				"  }\n"+
 				"}");
 		
-		this.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
@@ -1664,7 +1664,7 @@ public void testAccessRestriction12() throws Exception {
 //			"  }\n"+
 //			"}");
 //		
-//		this.waitUntilIndexesReady();
+//		waitUntilIndexesReady();
 //		
 //		// do completion
 //		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();

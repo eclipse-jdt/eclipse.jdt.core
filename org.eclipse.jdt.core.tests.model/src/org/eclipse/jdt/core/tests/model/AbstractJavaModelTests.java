@@ -1948,7 +1948,7 @@ protected void assertDeltas(String message, String expected) {
 			}
 		} while (wasInterrupted);
 	}
-	protected void waitUntilIndexesReady() {
+	public static void waitUntilIndexesReady() {
 		// dummy query for waiting until the indexes are ready
 		SearchEngine engine = new SearchEngine();
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
