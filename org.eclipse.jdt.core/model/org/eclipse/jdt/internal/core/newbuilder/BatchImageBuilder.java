@@ -106,6 +106,14 @@ protected void copyExtraResourcesBack() throws CoreException {
 
 	final IPath outputPath = outputFolder.getFullPath();
 	for (int i = 0, length = sourceFolders.length; i < length; i++) {
+		if (sourceFolders[i].getFullPath().equals(outputPath)){
+			// if one source folder corresponds to the output location, then do nothing
+			// since some resource could be duplicated amongst source folders,
+			// or if the project == src == bin, then nothing is required anyway
+			return;
+		}
+	}
+	for (int i = 0, length = sourceFolders.length; i < length; i++) {
 		IContainer sourceFolder = sourceFolders[i];
 		final IPath sourcePath = sourceFolder.getFullPath();
 		final int segmentCount = sourcePath.segmentCount();
