@@ -90,10 +90,10 @@
      + JavaCore.newLibraryEntry(IPath, IPath, IPath, boolean)
      + JavaCore.newVariableEntry(IPath, boolean)
            
-  * Search for field read and field write references. Two new constants have been added
+  * Search for field read and field write accesses. Two new constants have been added
     on IJavaSearchConstants to be used when creating a field reference search pattern:
-    - READ_REFERENCES: the search results contain *only* read access to a field.
-    - WRITE_REFERENCES: the search results contain *only* write access to a field.
+    - READ_ACCESSES: the search results contain *only* read access to a field.
+    - WRITE_ACCESSES: the search results contain *only* write access to a field.
     Note that if REFERENCES is used, then search results contain both read and write
     accesss to a field.
 
