@@ -7,6 +7,7 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.jdom.*;
 import java.util.Hashtable;
 
@@ -85,14 +86,14 @@ protected JavaModelOperation getNestedOperation(IJavaElement element) {
 				if (isRenamingMainType(element, dest)) {
 					return new RenameResourceElementsOperation(new IJavaElement[] {dest}, new IJavaElement[] {dest.getParent()}, new String[]{getNewNameFor(element) + ".java"}, fForce); //$NON-NLS-1$
 				} else {
-					return new CreateTypeOperation(dest, getSourceFor(element) + JavaModelManager.LINE_SEPARATOR, fForce);
+					return new CreateTypeOperation(dest, getSourceFor(element) + Util.LINE_SEPARATOR, fForce);
 				}
 			case IJavaElement.METHOD :
-				return new CreateMethodOperation((IType) dest, getSourceFor(element) + JavaModelManager.LINE_SEPARATOR, fForce);
+				return new CreateMethodOperation((IType) dest, getSourceFor(element) + Util.LINE_SEPARATOR, fForce);
 			case IJavaElement.FIELD :
-				return new CreateFieldOperation((IType) dest, getSourceFor(element) + JavaModelManager.LINE_SEPARATOR, fForce);
+				return new CreateFieldOperation((IType) dest, getSourceFor(element) + Util.LINE_SEPARATOR, fForce);
 			case IJavaElement.INITIALIZER :
-				return new CreateInitializerOperation((IType) dest, getSourceFor(element) + JavaModelManager.LINE_SEPARATOR);
+				return new CreateInitializerOperation((IType) dest, getSourceFor(element) + Util.LINE_SEPARATOR);
 			default :
 				return null;
 		}

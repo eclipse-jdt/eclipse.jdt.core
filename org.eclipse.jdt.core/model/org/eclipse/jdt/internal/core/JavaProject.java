@@ -1317,9 +1317,11 @@ public class JavaProject
 	 */
 	public boolean hasBuildState() {
 
-		return JavaModelManager.getJavaModelManager().getLastBuiltState(this.getProject(), null) != null
-			// TEMPORARY
-			|| JavaModelManager.getJavaModelManager().getLastBuiltState2(this.getProject(), null) != null;
+		if (JavaModelManager.USING_NEW_BUILDER){
+			return JavaModelManager.getJavaModelManager().getLastBuiltState2(this.getProject(), null) != null;
+		} else {
+			return JavaModelManager.getJavaModelManager().getLastBuiltState(this.getProject(), null) != null;
+		}
 	}
 
 	/**

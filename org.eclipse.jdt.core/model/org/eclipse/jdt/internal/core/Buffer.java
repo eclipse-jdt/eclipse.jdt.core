@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 import java.io.*;
@@ -244,7 +245,7 @@ private String getLineSeparator(char[] text) {
 			this.lineSeparator = this.findLineSeparator(text);
 			if (this.lineSeparator == null) {
 				// default to system line separator
-				return JavaModelManager.LINE_SEPARATOR;
+				return Util.LINE_SEPARATOR;
 			}
 		}
 	}

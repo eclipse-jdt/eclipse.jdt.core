@@ -12,6 +12,12 @@ import java.util.zip.*;
 
 public class Util {
 
+	public static String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
+	public final static char[] SUFFIX_class = ".class".toCharArray(); //$NON-NLS-1$
+	public final static char[] SUFFIX_CLASS = ".CLASS".toCharArray(); //$NON-NLS-1$
+	public final static char[] SUFFIX_java = ".java".toCharArray(); //$NON-NLS-1$
+	public final static char[] SUFFIX_JAVA = ".JAVA".toCharArray(); //$NON-NLS-1$
+		
 	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
 	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
 
@@ -289,7 +295,36 @@ public class Util {
 			}
 		}
 	}
-	public static void main(String[] arg) {
-		System.out.println(bind("test")); //$NON-NLS-1$
+	/**
+	 * Returns true iff str.toLowerCase().endsWith(".class")
+	 * implementation is not creating extra strings.
+	 */
+	public final static boolean isClassFileName(String name) {
+		int nameLength = name == null ? 0 : name.length();
+		int suffixLength = SUFFIX_CLASS.length;
+		if (nameLength < suffixLength) return false;
+
+		for (int i = 0; i < suffixLength; i++) {
+			char c = name.charAt(nameLength - i - 1);
+			int suffixIndex = suffixLength - i - 1;
+			if (c != SUFFIX_class[suffixIndex] && c != SUFFIX_CLASS[suffixIndex]) return false;
+		}
+		return true;		
+	}	
+	/**
+	 * Returns true iff str.toLowerCase().endsWith(".java")
+	 * implementation is not creating extra strings.
+	 */
+	public final static boolean isJavaFileName(String name) {
+		int nameLength = name == null ? 0 : name.length();
+		int suffixLength = SUFFIX_JAVA.length;
+		if (nameLength < suffixLength) return false;
+
+		for (int i = 0; i < suffixLength; i++) {
+			char c = name.charAt(nameLength - i - 1);
+			int suffixIndex = suffixLength - i - 1;
+			if (c != SUFFIX_java[suffixIndex] && c != SUFFIX_JAVA[suffixIndex]) return false;
+		}
+		return true;		
 	}
 }

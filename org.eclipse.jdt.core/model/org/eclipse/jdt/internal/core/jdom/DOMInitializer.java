@@ -8,8 +8,8 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.jdom.IDOMInitializer;
 import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 import org.eclipse.jdt.internal.core.util.CharArrayOps;
 
@@ -102,7 +102,7 @@ protected void appendMemberBodyContents(CharArrayBuffer buffer) {
 			.append(getBody())
 			.append(fDocument, fBodyRange[1] + 1, fSourceRange[1] - fBodyRange[1]);
 	} else {
-		buffer.append("{}").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
+		buffer.append("{}").append(Util.LINE_SEPARATOR); //$NON-NLS-1$
 	}
 }
 /**

@@ -45,19 +45,26 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	 */
 	public static boolean USING_NEW_BUILDER = false;
 	static {
-		IExtensionPoint xPoint = ResourcesPlugin.getPlugin().getDescriptor().getExtensionPoint("builders");		
-		if (xPoint != null){
-			IExtension javaBuilderExtension = xPoint.getExtension("org.eclipse.jdt.core.javabuilder");
-			if (javaBuilderExtension != null){
-				IConfigurationElement[] elements = javaBuilderExtension.getConfigurationElements();
-				for (int i = 0; i < elements.length; i++) {
-					if ("builder".equals(elements[i].getName())){
-						IConfigurationElement[] elements2 = elements[i].getChildren();
-						for (int j = 0; j < elements2.length; j++) {
-							if ("run".equals(elements2[j].getName())){
-								String builderClass = elements2[j].getAttribute("class");
-								if ("org.eclipse.jdt.internal.core.newbuilder.JavaBuilder".equals(builderClass)){
-									USING_NEW_BUILDER = true;
+try {		
+		ResourcesPlugin rscPlugin = ResourcesPlugin.getPlugin();
+		if (rscPlugin != null){
+			IPluginDescriptor descr = rscPlugin.getDescriptor();
+			if (descr != null){
+				IExtensionPoint extPoint = descr.getExtensionPoint("builders");		//$NON-NLS-1$
+				if (extPoint != null){
+					IExtension builderExtension = extPoint.getExtension("org.eclipse.jdt.core.javabuilder"); //$NON-NLS-1$
+					if (builderExtension != null){
+						IConfigurationElement[] elements = builderExtension.getConfigurationElements();
+						for (int i = 0; i < elements.length; i++) {
+							if ("builder".equals(elements[i].getName())){//$NON-NLS-1$
+								IConfigurationElement[] elements2 = elements[i].getChildren();
+								for (int j = 0; j < elements2.length; j++) {
+									if ("run".equals(elements2[j].getName())){//$NON-NLS-1$
+										String builderClass = elements2[j].getAttribute("class");//$NON-NLS-1$
+										if ("org.eclipse.jdt.internal.core.newbuilder.JavaBuilder".equals(builderClass)){//$NON-NLS-1$
+											USING_NEW_BUILDER = true;
+										}
+									}
 								}
 							}
 						}
@@ -65,9 +72,13 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 				}
 			}
 		}
-		if (org.eclipse.jdt.internal.core.newbuilder.JavaBuilder.DEBUG){
-			System.out.println(USING_NEW_BUILDER ? "NEW Java builder enabled" : "OLD Java builder enabled");
-		}
+} catch(Error e){
+	e.printStackTrace();
+	throw e;
+} catch(RuntimeException e){
+	e.printStackTrace();
+	throw e;
+}
 	}
 	/**
 	 * The singleton manager
@@ -160,7 +171,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	/**
 	 * Line separator to use throughout the JavaModel for any source edit operation
 	 */
-	public static String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
+//	public static String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 	/**
 	 * Constructs a new JavaModelManager
 	 */

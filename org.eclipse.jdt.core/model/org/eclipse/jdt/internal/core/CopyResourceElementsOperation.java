@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.util.*;
 
 import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.core.*;
 
 /**
@@ -428,7 +429,7 @@ private void updatePackageStatement(IDOMCompilationUnit domCU, String pkgName) t
 	if (!seenPackageNode && !defaultPackage) {
 		//the cu was in a default package...no package declaration
 		//create the new package declaration as the first child of the cu
-		IDOMPackage pkg = fFactory.createPackage("package " + pkgName + ";" + JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$ //$NON-NLS-2$
+		IDOMPackage pkg = fFactory.createPackage("package " + pkgName + ";" + Util.LINE_SEPARATOR); //$NON-NLS-1$ //$NON-NLS-2$
 		domCU.getFirstChild().insertSibling(pkg);
 	}
 }

@@ -8,8 +8,8 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.core.jdom.IDOMPackage;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
@@ -73,8 +73,8 @@ protected void appendFragmentedContents(CharArrayBuffer buffer) {
 			.append("package ") //$NON-NLS-1$
 			.append(fName)
 			.append(';')
-			.append(JavaModelManager.LINE_SEPARATOR)
-			.append(JavaModelManager.LINE_SEPARATOR);
+			.append(Util.LINE_SEPARATOR)
+			.append(Util.LINE_SEPARATOR);
 	} else {
 		buffer
 			.append(fDocument, fSourceRange[0], fNameRange[0] - fSourceRange[0])

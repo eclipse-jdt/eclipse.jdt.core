@@ -11,6 +11,7 @@ import org.eclipse.jdt.internal.codeassist.*;
 import org.eclipse.jdt.internal.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
 /**
@@ -71,7 +72,7 @@ private void buildCUSource() {
 	if (this.packageName != null && this.packageName.length != 0) {
 		buffer.append("package "); //$NON-NLS-1$
 		buffer.append(this.packageName);
-		buffer.append(";").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
+		buffer.append(";").append(Util.LINE_SEPARATOR); //$NON-NLS-1$
 		this.lineNumberOffset++;
 	}
 
@@ -80,7 +81,7 @@ private void buildCUSource() {
 	for (int i = 0; i < imports.length; i++) {
 		buffer.append("import "); //$NON-NLS-1$
 		buffer.append(imports[i]);
-		buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
+		buffer.append(';').append(Util.LINE_SEPARATOR);
 		this.lineNumberOffset++;
 	}
 
@@ -98,7 +99,7 @@ private void buildCUSource() {
 		buffer.append("."); //$NON-NLS-1$
 		buffer.append(ROOT_CLASS_NAME);
 	}
-	buffer.append(" {").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
+	buffer.append(" {").append(Util.LINE_SEPARATOR); //$NON-NLS-1$
 	this.lineNumberOffset++;
 
 	if (this.declaringTypeName != null){
@@ -106,7 +107,7 @@ private void buildCUSource() {
 		buffer.append(this.declaringTypeName);
 		buffer.append(" "); //$NON-NLS-1$
 		buffer.append(DELEGATE_THIS); // val$this
-		buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
+		buffer.append(';').append(Util.LINE_SEPARATOR);
 		this.lineNumberOffset++;
 	}
 	// add some storage location for local variable persisted state
@@ -117,19 +118,19 @@ private void buildCUSource() {
 			buffer.append(" "); //$NON-NLS-1$
 			buffer.append(LOCAL_VAR_PREFIX); // val$...
 			buffer.append(localVarNames[i]);
-			buffer.append(';').append(JavaModelManager.LINE_SEPARATOR);
+			buffer.append(';').append(Util.LINE_SEPARATOR);
 			this.lineNumberOffset++;
 		}
 	}
 	// run() method declaration
-	buffer.append("public void run() throws Throwable {").append(JavaModelManager.LINE_SEPARATOR); //$NON-NLS-1$
+	buffer.append("public void run() throws Throwable {").append(Util.LINE_SEPARATOR); //$NON-NLS-1$
 	this.lineNumberOffset++;
 	startPosOffset = buffer.length();
 	buffer.append(codeSnippet);
-	buffer.append('}').append(JavaModelManager.LINE_SEPARATOR);
+	buffer.append('}').append(Util.LINE_SEPARATOR);
 
 	// end of class declaration
-	buffer.append('}').append(JavaModelManager.LINE_SEPARATOR);
+	buffer.append('}').append(Util.LINE_SEPARATOR);
 
 	// store result
 	int length = buffer.length();
