@@ -18,6 +18,12 @@ import org.eclipse.jdt.internal.compiler.env.IConstants;
  * This class provides static methods only; it is not intended to be
  * instantiated or subclassed by clients.
  * </p>
+ * <p>
+ * Note that the numeric values of these flags match the ones for class files
+ * as described in the Java Virtual Machine Specification. The AST class
+ * <code>Modifier</code> provides the same functionality as this class, only in
+ * the <code>org.eclipse.jdt.core.dom</code> package.
+ * </p>
  *
  * @see IMember#getFlags
  */

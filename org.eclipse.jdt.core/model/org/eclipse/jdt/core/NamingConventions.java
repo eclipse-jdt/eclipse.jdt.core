@@ -167,8 +167,10 @@ public final class NamingConventions {
 	 * 
 	 * @param javaProject project which contains the field.
 	 * @param fieldName field's name.
-	 * @param modifiers field's modifiers.
+	 * @param modifiers field's modifiers as defined by the class
+	 * <code>Flags</code>.
 	 * @return char[] the name without prefix and suffix.
+	 * @see Flags
 	 */
 	public static char[] removePrefixAndSuffixForFieldName(IJavaProject javaProject, char[] fieldName, int modifiers) {
 		boolean isStatic = Flags.isStatic(modifiers);
@@ -184,8 +186,10 @@ public final class NamingConventions {
 	 * 
 	 * @param javaProject project which contains the field.
 	 * @param fieldName field's name.
-	 * @param modifiers field's modifiers.
+	 * @param modifiers field's modifiers as defined by the class
+	 * <code>Flags</code>.
 	 * @return String the name without prefix and suffix.
+	 * @see Flags
 	 */
 	public static String removePrefixAndSuffixForFieldName(IJavaProject javaProject, String fieldName, int modifiers) {
 		return String.valueOf(removePrefixAndSuffixForFieldName(javaProject, fieldName.toCharArray(), modifiers));
@@ -269,10 +273,12 @@ public final class NamingConventions {
 	 * @param packageName package of the field's type.
 	 * @param qualifiedTypeName field's type.
 	 * @param dim field's dimension (0 if the field is not an array).
-	 * @param modifiers field's modifiers.
+	 * @param modifiers field's modifiers as defined by the class
+	 * <code>Flags</code>.
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
+	 * @see Flags
 	 */
 	public static char[][] suggestFieldNames(IJavaProject javaProject, char[] packageName, char[] qualifiedTypeName, int dim, int modifiers, char[][] excludedNames) {
 		boolean isStatic = Flags.isStatic(modifiers);
@@ -299,10 +305,12 @@ public final class NamingConventions {
 	 * @param packageName package of the field's type.
 	 * @param qualifiedTypeName field's type.
 	 * @param dim field's dimension (0 if the field is not an array).
-	 * @param modifiers field's modifiers.
+	 * @param modifiers field's modifiers as defined by the class
+	 * <code>Flags</code>.
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return String[] an array of names.
+	 * @see Flags
 	 */
 	public static String[] suggestFieldNames(IJavaProject javaProject, String packageName, String qualifiedTypeName, int dim, int modifiers, String[] excludedNames) {
 		return convertCharsToString(
@@ -489,11 +497,13 @@ public final class NamingConventions {
 	 * 
 	 * @param project project which contains the field.
 	 * @param fieldName field's name's.
-	 * @param modifiers field's modifiers.
+	 * @param modifiers field's modifiers as defined by the class
+	 * <code>Flags</code>.
 	 * @param isBoolean <code>true</code> if the field's type is boolean
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[] a name.
+	 * @see Flags
 	 */
 	public static char[] suggestGetterName(IJavaProject project, char[] fieldName, int modifiers, boolean isBoolean, char[][] excludedNames) {
 		if (isBoolean) {
@@ -521,11 +531,13 @@ public final class NamingConventions {
 	 * 
 	 * @param project project which contains the field.
 	 * @param fieldName field's name's.
-	 * @param modifiers field's modifiers.
+	 * @param modifiers field's modifiers as defined by the class
+	 * <code>Flags</code>.
 	 * @param isBoolean <code>true</code> if the field's type is boolean
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return String a name.
+	 * @see Flags
 	 */
 	public static String suggestGetterName(IJavaProject project, String fieldName, int modifiers, boolean isBoolean, String[] excludedNames) {
 		return String.valueOf(
@@ -541,10 +553,12 @@ public final class NamingConventions {
 	 * 
 	 * @param project project which contains the field.
 	 * @param fieldName field's name's.
-	 * @param modifiers field's modifiers.
+	 * @param modifiers field's modifiers as defined by the class
+	 * <code>Flags</code>.
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[] a name.
+	 * @see Flags
 	 */
 	public static char[] suggestSetterName(IJavaProject project, char[] fieldName, int modifiers, char[][] excludedNames) {
 		return suggestNewName(
@@ -558,10 +572,12 @@ public final class NamingConventions {
 	 * 
 	 * @param project project which contains the field.
 	 * @param fieldName field's name's.
-	 * @param modifiers field's modifiers.
+	 * @param modifiers field's modifiers as defined by the class
+	 * <code>Flags</code>.
 	 * @param excludedNames a list of names which can not be suggest (already use names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return String a name.
+	 * @see Flags
 	 */
 	public static String suggestSetterName(IJavaProject project, String fieldName, int modifiers, String[] excludedNames) {
 		return String.valueOf(

@@ -8,7 +8,6 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
-//TODO: (jim) why do we have this class, isn't it a dup of org.eclipse.jdt.core.Flags ?
 package org.eclipse.jdt.core.dom;
 
 /**
@@ -33,6 +32,10 @@ package org.eclipse.jdt.core.dom;
  * <p>
  * This class provides constants and static methods only; it is not intended
  * to be instantiated or subclassed.
+ * </p>
+ * <p>
+ * Note that Java model class <code>Flags</code> provides the same functionality
+ * as this class, only in the <code>org.eclipse.jdt.core</code> package.
  * </p>
  * 
  * @since 2.0
