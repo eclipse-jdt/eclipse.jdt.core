@@ -107,6 +107,7 @@ import org.eclipse.jdt.core.jdom.IDOMMethod;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.core.jdom.IDOMType;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+import org.eclipse.jdt.core.util.IModifierConstants;
 
 public class ASTConverterTest extends AbstractJavaModelTests {
 	
@@ -209,7 +210,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 				suite.addTest(new ASTConverterTest(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest("test0376"));
+//		suite.addTest(new ASTConverterTest("test0380"));
 		return suite;
 	}
 		
@@ -360,6 +361,9 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		classInstanceCreation.setAnonymousClassDeclaration(anonymousClassDeclaration);
 		assertTrue("Both AST trees should be identical", classInstanceCreation.subtreeMatch(new ASTMatcher(), expression));		//$NON-NLS-1$
 		checkSourceRange(expression, "new java.lang.Object() {}", source); //$NON-NLS-1$
+		ClassInstanceCreation classInstanceCreation2 = (ClassInstanceCreation) expression;
+		Name name2 = classInstanceCreation2.getName();
+		checkSourceRange(name2, "java.lang.Object", source);
 	}
 	
 				
@@ -9407,7 +9411,93 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		Type type = ((CastExpression) expression).getType();
 		checkSourceRange(type, "A", source);
 	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23050
+	 */
+	public void test0377() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0377", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
+		List fragments = variableDeclarationStatement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding variableBinding = variableDeclarationFragment.resolveBinding();
+		assertNotNull("No variable binding", variableBinding);
+		assertEquals("Wrong modifier", IModifierConstants.ACC_FINAL, variableBinding.getModifiers());
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22161
+	 */
+	public void test0378() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0378", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		SimpleName name = typeDeclaration.getName();
+		checkSourceRange(name, "B", source);
+	}
 	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22161
+	 */
+	public void test0379() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0379", "Test.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode expression = getASTNodeToCompare((CompilationUnit) result);
+		assertNotNull("Expression should not be null", expression); //$NON-NLS-1$
+		assertTrue("Not a class instance creation", expression.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION);		//$NON-NLS-1$
+		ClassInstanceCreation classInstanceCreation2 = (ClassInstanceCreation) expression;
+		Name name2 = classInstanceCreation2.getName();
+		checkSourceRange(name2, "Object", source);
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22054
+	 */
+	public void test0380() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0380", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a return statement", node.getNodeType() == ASTNode.RETURN_STATEMENT);
+		ReturnStatement returnStatement = (ReturnStatement) node;
+		Expression expression = returnStatement.getExpression();
+		assertTrue("Not a super method invocation", expression.getNodeType() == ASTNode.SUPER_METHOD_INVOCATION);
+		SuperMethodInvocation superMethodInvocation = (SuperMethodInvocation) expression;
+		ITypeBinding typeBinding = superMethodInvocation.resolveTypeBinding();
+		assertNotNull("no type binding", typeBinding);
+		assertEquals("wrong declaring class", typeBinding.getSuperclass().getName(), "Object");
+		SimpleName simpleName = superMethodInvocation.getName();
+		IBinding binding = simpleName.resolveBinding();
+		assertNotNull("no binding", binding);
+		assertEquals("Wrong type", IBinding.METHOD, binding.getKind());
+		IMethodBinding methodBinding = (IMethodBinding) binding;
+		assertEquals("Wrong declaring class", methodBinding.getDeclaringClass().getName(), "Object");
+	}
+		
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
 		return (ASTNode) ((MethodInvocation) statement.getExpression()).arguments().get(0);

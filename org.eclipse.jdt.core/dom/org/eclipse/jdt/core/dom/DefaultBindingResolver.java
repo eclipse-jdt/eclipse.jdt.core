@@ -531,7 +531,8 @@ class DefaultBindingResolver extends BindingResolver {
 				return null;
 			}
 			return this.getTypeBinding(thisReference.resolveType(blockScope));
-		} else if (expression instanceof MethodInvocation) {
+		} else if (expression instanceof MethodInvocation
+				|| expression instanceof SuperMethodInvocation) {
 			MessageSend messageSend = (MessageSend)  this.newAstToOldAst.get(expression);
 			IMethodBinding methodBinding = this.getMethodBinding(messageSend.binding);
 			if (methodBinding == null) {
