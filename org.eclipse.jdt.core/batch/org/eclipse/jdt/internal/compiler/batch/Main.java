@@ -192,73 +192,57 @@ public static void compile(String commandLine) {
  * Internal IDE API for test harness purpose
  */
 public static void compile(String commandLine, PrintWriter writer) {
-	int count = 0;
-	String[] argv = new String[10];
-	int startIndex = 0;
-	int lastIndex = commandLine.indexOf('"');
-	boolean insideQuotes = false;
-	boolean insideClasspath = false;
-	StringTokenizer tokenizer;
-	while (lastIndex != -1) {
-		if (insideQuotes) {
-			if (count == argv.length) {
-				System.arraycopy(argv, 0, (argv = new String[count * 2]), 0, count);
-			}
-			if (insideClasspath) {
-				argv[count-1] += commandLine.substring(startIndex, lastIndex);
-				insideClasspath = false;
-			} else {
-				argv[count++] = commandLine.substring(startIndex, lastIndex);
-			}
-		} else {
-			String subCommandLine = commandLine.substring(startIndex, lastIndex);
-			if (subCommandLine.equals(File.pathSeparator)) {
-				argv[count-1] += File.pathSeparator;
-				insideClasspath = true;
-			} else {
-				tokenizer = new StringTokenizer(subCommandLine, File.pathSeparator + " "); //$NON-NLS-1$
-				while (tokenizer.hasMoreTokens()) {
-					if (count == argv.length) {
-						System.arraycopy(argv, 0, (argv = new String[count * 2]), 0, count);
-					}
-					argv[count++] = tokenizer.nextToken();
-				}
-			}
-		}
-		startIndex = lastIndex + 1;
-		lastIndex = commandLine.indexOf('"', startIndex);
-		insideQuotes = !insideQuotes;
-	}
-	if (startIndex == 0) {
-		tokenizer = new StringTokenizer(commandLine);
-		while (tokenizer.hasMoreTokens()) {
-			if (count == argv.length) {
-				System.arraycopy(argv, 0, (argv = new String[count * 2]), 0, count);
-			}
-			argv[count++] = tokenizer.nextToken();
-		}
-	} else {
-		if (startIndex + 1 <= commandLine.length()) {
-			if (insideQuotes) {
-				if (count == argv.length) {
-					System.arraycopy(argv, 0, (argv = new String[count * 2]), 0, count);
-				}
-				argv[count++] = commandLine.substring(startIndex, commandLine.length());
-			} else {
-				tokenizer = new StringTokenizer(commandLine.substring(startIndex, commandLine.length()), File.pathSeparator + " "); //$NON-NLS-1$
-				while (tokenizer.hasMoreTokens()) {
-					if (count == argv.length) {
-						System.arraycopy(argv, 0, (argv = new String[count * 2]), 0, count);
-					}
-					argv[count++] = tokenizer.nextToken();
-				}
-			}
-		}
-	}
-	System.arraycopy(argv, 0, argv = new String[count], 0, count);
-	new Main(writer, false).compile(argv);
-}
 
+	new Main(writer, false).compile(tokenize(commandLine));
+}
+public static String[] tokenize(String commandLine){
+	int count = 0;
+	String[] arguments = new String[10];
+	StringTokenizer tokenizer = new StringTokenizer(commandLine, " \"", true); //$NON-NLS-1$
+	String token = "",lastToken;
+	boolean insideQuotes = false;
+	boolean startNewToken = true;
+	
+	// take care to quotes on the command line
+	// 'xxx "aaa bbb";ccc yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
+	// 'xxx "aaa bbb;ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
+	// 'xxx "aaa bbb";"ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
+	// 'xxx/"aaa bbb";"ccc" yyy' --->  {"xxx/aaa bbb;ccc", "yyy" }
+	while (tokenizer.hasMoreTokens()){
+		lastToken = token;
+		token = tokenizer.nextToken();
+
+		if (token.equals(" ")){//$NON-NLS-1$
+			if (insideQuotes){ 
+				arguments[count-1] += token; 	
+				startNewToken = false;	
+			} else {
+				startNewToken = true;
+			}
+		} else if (token.equals("\"")){//$NON-NLS-1$
+			if (!insideQuotes && startNewToken){//$NON-NLS-1$
+				if (count == arguments.length) System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
+				arguments[count++] = "";//$NON-NLS-1$
+			}
+			insideQuotes = !insideQuotes;
+			startNewToken = false;	
+		} else {
+			if (insideQuotes){
+				arguments[count-1] += token; 			
+			} else {
+				if (token.length() > 0 && !startNewToken){
+					arguments[count-1] += token;
+				} else {
+					if (count == arguments.length) System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
+					arguments[count++] = token;
+				}
+			}
+			startNewToken = false;	
+		}
+	}
+	System.arraycopy(arguments, 0, arguments = new String[count], 0, count);
+	return arguments;	
+}	
 /*
 Decode the command line arguments 
  */
