@@ -483,10 +483,16 @@ public class JavaProject
 		// notify Java delta (Java project added) 
 		JavaModelManager manager =
 			(JavaModelManager) JavaModelManager.getJavaModelManager();
-		if (!manager.isBeingDeleted(this.getProject())) { 
+		IProject project = this.getProject();
+		if (!manager.isBeingDeleted(project)) {
+			// create java delta 
 			JavaElementDelta projectDelta = new JavaElementDelta(model);
 			projectDelta.added(this);
 			manager.registerJavaModelDelta(projectDelta);
+			
+			// index project
+			manager.getIndexManager().indexAll(project);
+			
 		} // else project is removed then added 
 		  // -> it will be a changed delta reported by delta processor
 
@@ -538,9 +544,14 @@ public class JavaProject
 		JavaModel model = (JavaModel) getJavaModel();
 		JavaElementDelta projectDelta = new JavaElementDelta(model);
 		projectDelta.removed(this);
+		manager.registerJavaModelDelta(projectDelta);
+		
+		// remove index
+		manager.getIndexManager().removeIndex(this.getProject().getFullPath());
+		
+		// remove project from java model
 		JavaElementInfo jmi = model.getElementInfo();
 		jmi.removeChild(this);
-		manager.registerJavaModelDelta(projectDelta);
 	}
 
 	/**
