@@ -1,9 +1,9 @@
 /*******************************************************************************
- * Copyright (c) 2001, 2002 International Business Machines Corp. and others.
- * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0 
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v10.html
+ * Copyright (c) 2001-2003 International Business Machines Corp. and others. All
+ * rights reserved. This program and the accompanying materials are made
+ * available under the terms of the Common Public License v1.0 which accompanies
+ * this distribution, and is available at http://www.eclipse.org/legal/cpl-v10.
+ * html
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -52,6 +52,8 @@ public abstract class Statement extends ASTNode {
 	/**
 	 * The leading comment, or <code>null</code> if none.
 	 * Defaults to none.
+	 * 
+	 * @deprecated The leading comment feature was removed in 2.1.
 	 */
 	private String optionalLeadingComment = null;
 	
@@ -80,6 +82,13 @@ public abstract class Statement extends ASTNode {
 	 * </p>
 	 * 
 	 * @return the comment string, or <code>null</code> if none
+	 * @deprecated This feature was removed in the 2.1 release because it was
+	 * only a partial, and inadequate, solution to the issue of associating
+	 * comments with statements. Furthermore, AST.parseCompilationUnit did not
+	 * associate leading comments, making this moot. Clients that need to access
+	 * comments preceding a statement should use a scanner to reanalyze the
+	 * source text immediately preceding the statement's source range. Clients
+	 * that need to associate a comment with a statement should use a property.
 	 */
 	public String getLeadingComment() {
 		return optionalLeadingComment;
@@ -114,6 +123,10 @@ public abstract class Statement extends ASTNode {
 	 * 
 	 * @param comment the comment string, or <code>null</code> if none
 	 * @exception IllegalArgumentException if the comment string is invalid
+	 * @deprecated This feature was removed in the 2.1 release because it was
+	 * only a partial, and inadequate, solution to the issue of associating
+	 * comments with statements. Clients that need to associate a comment with
+	 * a statement should use a property.
 	 */
 	public void setLeadingComment(String comment) {
 		if (comment != null) {
