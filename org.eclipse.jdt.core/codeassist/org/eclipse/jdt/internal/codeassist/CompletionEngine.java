@@ -1822,6 +1822,10 @@ public final class CompletionEngine
 	private int computeRelevanceForExpectingType(TypeBinding proposalType){
 		if(expectedTypes != null && proposalType != null) {
 			for (int i = 0; i <= expectedTypesPtr; i++) {
+				if(CharOperation.equals(expectedTypes[i].qualifiedPackageName(), proposalType.qualifiedPackageName()) &&
+					CharOperation.equals(expectedTypes[i].qualifiedSourceName(), proposalType.qualifiedSourceName())) {
+					return R_EXACT_EXPECTED_TYPE;
+				}
 				if((expectedTypesFilter & SUBTYPE) != 0
 					&& Scope.areTypesCompatible(proposalType, expectedTypes[i])) {
 						return R_EXPECTED_TYPE;
@@ -1839,7 +1843,7 @@ public final class CompletionEngine
 			for (int i = 0; i <= expectedTypesPtr; i++) {
 				if(CharOperation.equals(expectedTypes[i].qualifiedPackageName(), packageName) &&
 					CharOperation.equals(expectedTypes[i].qualifiedSourceName(), typeName)) {
-					return R_EXPECTED_TYPE;
+					return R_EXACT_EXPECTED_TYPE;
 				}
 			}
 		} 

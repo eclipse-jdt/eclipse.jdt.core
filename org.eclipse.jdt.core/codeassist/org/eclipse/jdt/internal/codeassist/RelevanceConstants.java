@@ -15,6 +15,7 @@ public interface RelevanceConstants {
 	int R_DEFAULT = 0;
 	int R_CASE = 10;
 	int R_EXPECTED_TYPE = 20;
+	int R_EXACT_EXPECTED_TYPE = 30;
 	int R_INTERFACE = 20;
 	int R_CLASS = 20;
 	int R_EXCEPTION = 20;
