@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ArrayType;
@@ -53,11 +54,13 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	// Current compilation unit
 	ICompilationUnit sourceUnit;
 	// Test package binding
-	boolean packageBinding = true;
+	protected boolean resolveBinding = true;
+	protected boolean packageBinding = true;
 	// Debug
 	protected String prefix = "";
-	protected static boolean debug = false;
-	protected static boolean problems = false;
+	protected boolean debug = false;
+	protected String problems = JavaCore.IGNORE;
+	protected String compilerOption = JavaCore.IGNORE;
 
 	/**
 	 * @param name
@@ -719,22 +722,35 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	private void verifyNameBindings(Name name) {
 		if (name != null) {
-			assertNotNull(name+" binding was not found!", name.resolveBinding());
+			IBinding binding = name.resolveBinding();
+			if (name.toString().indexOf("Unknown") > 0) {
+				assertNull(this.prefix+name+" binding should be null!", binding);
+			} else {
+				assertNotNull(this.prefix+name+" binding was not found!", binding);
+			}
 			SimpleName simpleName = null;
 			int index = 0;
 			while (name.isQualifiedName()) {
 				simpleName = ((QualifiedName) name).getName();
-				IBinding binding = simpleName.resolveBinding();
-				assertNotNull(simpleName+" binding was not found!", binding);
+				binding = simpleName.resolveBinding();
+				if (simpleName.getIdentifier().equalsIgnoreCase("Unknown")) {
+					assertNull(this.prefix+simpleName+" binding should be null!", binding);
+				} else {
+					assertNotNull(this.prefix+simpleName+" binding was not found!", binding);
+				}
 				if (index > 0 && this.packageBinding) {
-					assertEquals("Wrong binding type", IBinding.PACKAGE, binding.getKind());
+					assertEquals(this.prefix+"Wrong binding type", IBinding.PACKAGE, binding.getKind());
 				}
 				index++;
 				name = ((QualifiedName) name).getQualifier();
 				binding = name.resolveBinding();
-				assertNotNull(name+" binding was not found!", binding);
+				if (name.toString().indexOf("Unknown") > 0) {
+					assertNull(this.prefix+name+" binding should be null!", binding);
+				} else {
+					assertNotNull(this.prefix+name+" binding was not found!", binding);
+				}
 				if (this.packageBinding) {
-					assertEquals("Wrong binding type", IBinding.PACKAGE, binding.getKind());
+					assertEquals(this.prefix+"Wrong binding type", IBinding.PACKAGE, binding.getKind());
 				}
 			}
 		}
@@ -746,31 +762,45 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	protected void verifyComments(ICompilationUnit unit) throws JavaModelException {
 		// Get test file
 		this.sourceUnit = unit;
+		this.prefix = unit.getElementName()+": ";
 
 		// Create DOM AST nodes hierarchy
 		String sourceStr = this.sourceUnit.getSource();
 		IJavaProject project = this.sourceUnit.getJavaProject();
 		Map originalOptions = project.getOptions(true);
 		Comment[] unitComments = null;
-		if (problems) {
-			try {
-				project.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.ERROR);
-				project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, JavaCore.ERROR);
-				project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, JavaCore.ERROR);
-				CompilationUnit compilUnit = (CompilationUnit) runConversion(this.sourceUnit, true); // resolve bindings
-				assertEquals(this.prefix+"Unexpected problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
+		try {
+				project.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, this.compilerOption);
+				project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, this.compilerOption);
+				project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, this.compilerOption);
+				project.setOption(JavaCore.COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME, JavaCore.IGNORE);
+				CompilationUnit compilUnit = (CompilationUnit) runConversion(this.sourceUnit, this.resolveBinding); // resolve bindings
+				if (problems.equals(JavaCore.ERROR)) {
+					assertEquals(this.prefix+"Unexpected problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
+				} else if (problems.equals(JavaCore.WARNING)) {
+					IProblem[] problemsList = compilUnit.getProblems();
+					int length = problemsList.length;
+					System.out.println(this.prefix+length+" unexpected problems:"); //$NON-NLS-1$
+					for (int i = 0; i < problemsList.length; i++) {
+						System.out.println("  - "+problemsList[i]);
+					}
+				}
 				unitComments = compilUnit.getCommentTable();
-			} finally {
-				project.setOptions(originalOptions);
-			}
-		} else {
-				CompilationUnit compilUnit = (CompilationUnit) runConversion(this.sourceUnit, true); // resolve bindings
-				unitComments = compilUnit.getCommentTable();
+		} finally {
+			project.setOptions(originalOptions);
 		}
 		assertNotNull(this.prefix+"Unexpected problems", unitComments);
-
-		// Get comments infos from test file
+		
+		// Verify source regardings converted comments
 		char[] source = sourceStr.toCharArray();
+		verifyComments(sourceStr, source, unitComments);
+	}
+
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
+	protected void verifyComments(String sourceStr, char[] source, Comment[] unitComments) throws JavaModelException {
+		// Get comments infos from test file
 		setSourceComment(source);
 		
 		// Basic comments verification
@@ -791,7 +821,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				Javadoc docComment = (Javadoc)comment;
 				assertEquals(this.prefix+"Invalid tags number in javadoc:\n"+docComment+"\n", tags.size(), allTags(docComment));
 				verifyPositions(docComment, source);
-				verifyBindings(docComment);
+				if (this.resolveBinding) {
+					verifyBindings(docComment);
+				}
 			}
 		}
 		
