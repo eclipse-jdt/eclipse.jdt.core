@@ -1408,6 +1408,20 @@ public class JavaProject
 						false,	//  cycle error
 						false);	//	file format error
 				}
+
+			// remember the timestamps of external libraries
+			for (int i = 0, length = resolvedPath.length; i < length; i++) {
+				IClasspathEntry entry = resolvedPath[i];
+				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+					IPath path = entry.getPath();
+					Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
+					if (target instanceof java.io.File) {
+						long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
+						JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps.put(path, new Long(timestamp));							
+					}
+				}
+			}							
+		
 			perProjectInfo.lastResolvedClasspath = resolvedPath;
 		}
 		return resolvedPath;
