@@ -223,7 +223,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		IClassFileAttribute classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
 		assertNotNull(classFileAttribute);
 		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
-		assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
+		char[] signature = signatureAttribute.getSignature();
+		assertNotNull("no signature", signature);
+		assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Lp/A<TT;>;", new String(signature));
 		IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 		int length = methodInfos.length;
 		assertEquals("Wrong size", 2, length);
@@ -250,7 +252,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			}
 		}
 		assertNotNull(xsEntry);
-		assertEquals("Wrong signature", "LX<LX<Ljava/lang/String;>;>;", new String(xsEntry.getSignature()));
+		signature = xsEntry.getSignature();
+		assertNotNull("no signature", signature);
+		assertEquals("Wrong signature", "LX<LX<Ljava/lang/String;>;>;", new String(signature));
 
 		IMethodInfo constructorMethod = null;
 		for (int i = 0; i < length; i++) {
@@ -275,7 +279,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			}
 		}
 		assertNotNull(thisEntry);
-		assertEquals("Wrong signature", "LX<TT;>;", new String(thisEntry.getSignature()));
+		signature = thisEntry.getSignature();
+		assertNotNull("no signature", signature);
+		assertEquals("Wrong signature", "LX<TT;>;", new String(signature));
 		ILocalVariableTypeTableEntry tEntry = null;
 		for (int i = 0, max = entries.length; i < max; i++) {
 			ILocalVariableTypeTableEntry entry = entries[i];
@@ -285,7 +291,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			}
 		}
 		assertNotNull(tEntry);
-		assertEquals("Wrong signature", "TT;", new String(tEntry.getSignature()));
+		signature = tEntry.getSignature();
+		assertNotNull("no signature", signature);
+		assertEquals("Wrong signature", "TT;", new String(signature));
 		
 		if (!RunJavac) return;
 		
@@ -298,7 +306,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
 		assertNotNull(classFileAttribute);
 		signatureAttribute = (ISignatureAttribute) classFileAttribute;
-		assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
+		signature = signatureAttribute.getSignature();
+		assertNotNull("no signature", signature);
+		assertEquals("Wrong signature", "<T:Ljava/lang/Object;>Lp/A<TT;>;", new String(signature));
 		methodInfos = classFileReader.getMethodInfos();
 		length = methodInfos.length;
 		assertEquals("Wrong size", 2, length);
@@ -325,7 +335,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			}
 		}
 		assertNotNull(xsEntry);
-		assertEquals("Wrong signature", "LX<LX<Ljava/lang/String;>;>;", new String(xsEntry.getSignature()));
+		signature = xsEntry.getSignature();
+		assertNotNull("no signature", signature);
+		assertEquals("Wrong signature", "LX<LX<Ljava/lang/String;>;>;", new String(signature));
 
 		constructorMethod = null;
 		for (int i = 0; i < length; i++) {
@@ -350,7 +362,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			}
 		}
 		assertNotNull(thisEntry);
-		assertEquals("Wrong signature", "LX<TT;>;", new String(thisEntry.getSignature()));
+		signature = thisEntry.getSignature();
+		assertNotNull("no signature", signature);
+		assertEquals("Wrong signature", "LX<TT;>;", new String(signature));
 		tEntry = null;
 		for (int i = 0, max = entries.length; i < max; i++) {
 			ILocalVariableTypeTableEntry entry = entries[i];
@@ -360,7 +374,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			}
 		}
 		assertNotNull(tEntry);
-		assertEquals("Wrong signature", "TT;", new String(tEntry.getSignature()));
+		signature = tEntry.getSignature();
+		assertNotNull("no signature", signature);
+		assertEquals("Wrong signature", "TT;", new String(signature));
 	}
 	
 	public void test002() {
@@ -392,7 +408,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
 		assertNotNull(classFileAttribute);
 		signatureAttribute = (ISignatureAttribute) classFileAttribute;
-		assertEquals("Wrong signature", "<P:Ljava/lang/Object;>Ljava/lang/Object;", new String(signatureAttribute.getSignature()));
+		char[] signature = signatureAttribute.getSignature();
+		assertNotNull("No signature", signature);
+		assertEquals("Wrong signature", "<P:Ljava/lang/Object;>Ljava/lang/Object;", new String(signature));
 
 		IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 		int length = methodInfos.length;
@@ -422,7 +440,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			}
 		}
 		assertNotNull(tEntry);
-		assertEquals("Wrong signature", "TP;", new String(tEntry.getSignature()));
+		signature = tEntry.getSignature();
+		assertNotNull("No signature", signature);
+		assertEquals("Wrong signature", "TP;", new String(signature));
 
 		if (!RunJavac) return;
 
@@ -442,7 +462,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
 		assertNotNull(classFileAttribute);
 		signatureAttribute = (ISignatureAttribute) classFileAttribute;
-		assertEquals("Wrong signature", "<P:Ljava/lang/Object;>Ljava/lang/Object;", new String(signatureAttribute.getSignature()));
+		signature = signatureAttribute.getSignature();
+		assertNotNull("No signature", signature);
+		assertEquals("Wrong signature", "<P:Ljava/lang/Object;>Ljava/lang/Object;", new String(signature));
 
 		methodInfos = classFileReader.getMethodInfos();
 		length = methodInfos.length;
@@ -462,7 +484,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			}
 		}
 		assertNotNull(thisEntry);
-		assertEquals("Wrong signature", "Lp/A<TP;>;", new String(thisEntry.getSignature()));
+		signature = thisEntry.getSignature();
+		assertNotNull("No signature", signature);
+		assertEquals("Wrong signature", "Lp/A<TP;>;", new String(signature));
 		tEntry = null;
 		for (int i = 0, max = entries.length; i < max; i++) {
 			ILocalVariableTypeTableEntry entry = entries[i];
@@ -472,7 +496,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			}
 		}
 		assertNotNull(tEntry);
-		assertEquals("Wrong signature", "TP;", new String(tEntry.getSignature()));
+		signature = tEntry.getSignature();
+		assertNotNull("No signature", signature);
+		assertEquals("Wrong signature", "TP;", new String(signature));
 	}
 	
 	public void test003() {
@@ -601,7 +627,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		IClassFileAttribute classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
 		assertNotNull(classFileAttribute);
 		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
-		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B;:Lp/C;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
+		char[] signature = signatureAttribute.getSignature();
+		assertNotNull("No signature", signature);
+		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B;:Lp/C;>Lp/A<TT;>;", new String(signature));
 
 		if (!RunJavac) return;
 
@@ -614,7 +642,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
 		assertNotNull(classFileAttribute);
 		signatureAttribute = (ISignatureAttribute) classFileAttribute;
-		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B;:Lp/C;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
+		signature = signatureAttribute.getSignature();
+		assertNotNull("No signature", signature);
+		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B;:Lp/C;>Lp/A<TT;>;", new String(signature));
 	}
 	
 	public void test006() {
@@ -646,13 +676,17 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertNotNull("No fields", fields);
 			assertEquals("Wrong size", 2, fields.length);
 			assertEquals("Wrong name", "field", new String(fields[1].getName()));
-			assertEquals("Wrong signature", "TT;", new String(fields[1].getGenericSignature()));
+			char[] signature = fields[1].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "TT;", new String(signature));
 
 			IBinaryMethod[] methods = classFileReader.getMethods();
 			assertNotNull("No methods", methods);
 			assertEquals("Wrong size", 3, methods.length);
 			assertEquals("Wrong name", "foo", new String(methods[1].getSelector()));
-			assertEquals("Wrong signature", "(TT;)TT;", new String(methods[1].getGenericSignature()));
+			signature = methods[1].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "(TT;)TT;", new String(signature));
 		} catch (ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {
@@ -689,13 +723,17 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertNotNull("No fields", fields);
 			assertEquals("Wrong size", 2, fields.length);
 			assertEquals("Wrong name", "field", new String(fields[1].getName()));
-			assertEquals("Wrong signature", "LX<TT;>;", new String(fields[1].getGenericSignature()));
+			char[] signature = fields[1].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "LX<TT;>;", new String(signature));
 
 			IBinaryMethod[] methods = classFileReader.getMethods();
 			assertNotNull("No methods", methods);
 			assertEquals("Wrong size", 3, methods.length);
 			assertEquals("Wrong name", "foo", new String(methods[1].getSelector()));
-			assertEquals("Wrong signature", "(LX<TT;>;)TT;", new String(methods[1].getGenericSignature()));
+			signature = methods[1].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "(LX<TT;>;)TT;", new String(signature));
 		} catch (ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {
@@ -725,7 +763,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertNotNull("No methods", methods);
 			assertEquals("Wrong size", 3, methods.length);
 			assertEquals("Wrong name", "newInstance", new String(methods[1].getSelector()));
-			assertEquals("Wrong signature", "()TT;", new String(methods[1].getGenericSignature()));
+			char[] signature = methods[1].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "()TT;", new String(signature));
 		} catch (ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {
@@ -758,7 +798,9 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertNotNull("No methods", methods);
 			assertEquals("Wrong size", 3, methods.length);
 			assertEquals("Wrong name", "foo", new String(methods[2].getSelector()));
-			assertEquals("Wrong signature", "(LX<Ljava/lang/String;>.MX<Ljava/lang/Thread;>;)V", new String(methods[2].getGenericSignature()));
+			char[] signature = methods[2].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "(LX<Ljava/lang/String;>.MX<Ljava/lang/Thread;>;)V", new String(signature));
 		} catch (ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {
@@ -791,7 +833,44 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertNotNull("No methods", methods);
 			assertEquals("Wrong size", 3, methods.length);
 			assertEquals("Wrong name", "foo", new String(methods[2].getSelector()));
-			assertEquals("Wrong signature", "(LX$MX<Ljava/lang/Thread;>;)V", new String(methods[2].getGenericSignature()));
+			char[] signature = methods[2].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "(LX$MX<Ljava/lang/Thread;>;)V", new String(signature));
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}
+	
+	public void test011() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"  class MX<U> {\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" + 
+			"  }\n" + 
+			"  void foo(X<String>.MX mx) {\n" + 
+			"	System.out.println(\"SUCCESS\");\n" + 
+			"  }\n" + 
+			"}",
+		};
+		this.runConformTest(
+			testsSource,
+			"SUCCESS");
+
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+			IBinaryMethod[] methods = classFileReader.getMethods();
+			assertNotNull("No methods", methods);
+			assertEquals("Wrong size", 3, methods.length);
+			assertEquals("Wrong name", "foo", new String(methods[2].getSelector()));
+			char[] signature = methods[2].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "(LX<Ljava/lang/String;>.MX;)V", new String(signature));
 		} catch (ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {
@@ -825,6 +904,39 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				}
 			}
 			Util.writeToFile(contents, filePath.toString());
+		}
+	}
+
+	public void test012() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"  class MX<U> {\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" + 
+			"  }\n" + 
+			"  void foo(X.MX mx) {			// pas de signature\n" + 
+			"	System.out.println(\"SUCCESS\");\n" + 
+			"  }\n" + 
+			"}",
+		};
+		this.runConformTest(
+			testsSource,
+			"SUCCESS");
+	
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+			IBinaryMethod[] methods = classFileReader.getMethods();
+			assertNotNull("No methods", methods);
+			assertEquals("Wrong size", 3, methods.length);
+			assertEquals("Wrong name", "foo", new String(methods[2].getSelector()));
+			assertNull("Wrong signature", methods[2].getGenericSignature());
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
 		}
 	}
 }
