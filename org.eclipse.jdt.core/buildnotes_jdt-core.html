@@ -41,10 +41,14 @@ What's new in this drop</h2>
 <li>The compiler is now reporting line comments which are not closed with a line break as a compile error. See <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23096">23096</a> for further details.
 The line break is part of the line comment source range.
 </li>
+<li>The API setLeadingComment(String) on org.eclipse.jdt.core.dom.Statement class has been updated to reflect the changes made for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23096">23096</a>.
+See <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25206">25206</a> for further details.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25229">25229</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25206">25206</a>
+DOM/AST: Statement.setLeadingComment specification is inconsistent with the JLS
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25229">25229</a>
 Compiler should not reject innerclass scenario
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25183">25183</a>
 AST: ITypeBinding of interface returns constructor
