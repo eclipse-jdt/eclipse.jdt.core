@@ -93,8 +93,8 @@ public String[] getParameterNames();
  */
 public String[] getParameterTypes();
 /**
- * Returns the return type name, or <code>"void"</code>. 
- * Returns <code>"void"</code> for constructors.
+ * Returns the return type name, or <code>null</code>. 
+ * Returns <code>null</code> for constructors.
  * The syntax for return type name corresponds to ReturnType in 
  * MethodDeclaration (JLS2 8.4). Names are returned as they appear in the source
  * code; for example: <code>"File"</code>, <code>"java.io.File"</code>,
