@@ -213,6 +213,12 @@ public void assertDeletion(IJavaElement elementToDelete) throws JavaModelExcepti
 public void clearDeltas() {
 	this.deltaListener.deltas = new IJavaElementDelta[0];
 }
+protected IJavaElement[] codeSelect(ISourceReference sourceReference, String selectAt, String selection) throws JavaModelException {
+	String str = sourceReference.getSource();
+	int start = str.indexOf(selectAt);
+	int length = selection.length();
+	return ((ICodeAssist)sourceReference).codeSelect(start, length);
+}
 /**
  * Copy file from src (path to the original file) to dest (path to the destination file).
  */
@@ -569,6 +575,9 @@ public IClassFile getClassFile(String projectName, String rootPath, String packa
 		return pkg.getClassFile(className);
 	}
 }
+protected ICompilationUnit getCompilationUnit(String path) {
+	return (ICompilationUnit)JavaCore.create(getFile(path));
+}
 /**
  * Returns the specified compilation unit in the given project, root, and
  * package fragment or <code>null</code> if it does not exist.
@@ -648,6 +657,9 @@ protected IPath getExternalJCLRootSourcePath() {
  */
 protected IPath getExternalJCLSourcePath() {
 	return new Path(EXTERNAL_JAR_DIR_PATH + File.separator + "jclMinsrc.zip");
+}
+protected IFile getFile(String path) {
+	return getWorkspaceRoot().getFile(new Path(path));
 }
 /**
  * Returns the Java Model this test suite is running on.

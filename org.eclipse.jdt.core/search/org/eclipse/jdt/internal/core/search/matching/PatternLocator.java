@@ -57,6 +57,8 @@ public static PatternLocator patternLocator(SearchPattern pattern) {
 			return new MethodLocator((MethodPattern) pattern);
 		case IIndexConstants.OR_PATTERN :
 			return new OrLocator((OrPattern) pattern);
+		case IIndexConstants.LOCAL_VAR_PATTERN :
+			return new LocalVariableLocator((LocalVariablePattern) pattern);
 	}
 	return null;
 }
@@ -96,6 +98,10 @@ public int match(AstNode node, MatchingNodeSet nodeSet) { // needed for some gen
 	// each subtype should override if needed
 	return IMPOSSIBLE_MATCH;
 }
+public int match(Argument node, MatchingNodeSet nodeSet) {
+	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
+}
 public int match(ConstructorDeclaration node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
 	return IMPOSSIBLE_MATCH;
@@ -105,6 +111,10 @@ public int match(Expression node, MatchingNodeSet nodeSet) {
 	return IMPOSSIBLE_MATCH;
 }
 public int match(FieldDeclaration node, MatchingNodeSet nodeSet) {
+	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
+}
+public int match(LocalDeclaration node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
 	return IMPOSSIBLE_MATCH;
 }

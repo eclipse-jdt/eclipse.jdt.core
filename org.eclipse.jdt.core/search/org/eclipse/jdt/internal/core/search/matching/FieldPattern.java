@@ -19,15 +19,8 @@ import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 
-public class FieldPattern extends SearchPattern {
+public class FieldPattern extends VariablePattern {
 
-protected boolean findDeclarations;
-protected boolean findReferences;
-protected boolean readAccess;
-protected boolean writeAccess;
-
-protected char[] name;
-	
 // declaring type
 protected char[] declaringQualification;
 protected char[] declaringSimpleName;
@@ -63,14 +56,8 @@ public FieldPattern(
 	char[] typeQualification, 
 	char[] typeSimpleName) {
 
-	super(FIELD_PATTERN, matchMode, isCaseSensitive);
+	super(FIELD_PATTERN, findDeclarations, readAccess, writeAccess, name, matchMode, isCaseSensitive);
 
-	this.findDeclarations = findDeclarations; // set to find declarations & all occurences
-	this.readAccess = readAccess; // set to find any reference, read only references & all occurences
-	this.writeAccess = writeAccess; // set to find any reference, write only references & all occurences
-	this.findReferences = readAccess || writeAccess;
-
-	this.name = isCaseSensitive ? name : CharOperation.toLowerCase(name);
 	this.declaringQualification = isCaseSensitive ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
 	this.declaringSimpleName = isCaseSensitive ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
 	this.typeQualification = isCaseSensitive ? typeQualification : CharOperation.toLowerCase(typeQualification);
@@ -130,8 +117,7 @@ protected boolean matchIndexEntry() {
  * find out if this method pattern matches it.
  */
 protected boolean mustResolve() {
-	// would like to change this so that we only do it if generic references are found
-	if (this.findReferences) return true; // always resolve (in case of a simple name reference being a potential match)
+	if (super.mustResolve()) return true;
 
 	// declaring type
 	if (this.declaringSimpleName != null || this.declaringQualification != null) return true;

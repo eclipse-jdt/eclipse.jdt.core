@@ -108,9 +108,9 @@ public void testAddNewType() throws CoreException {
 		DECLARATIONS, 
 		scope, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/wc/X.java wc.NewType [NewType]", 
-		resultCollector.toString());
+		resultCollector);
 }
 
 /*
@@ -140,11 +140,11 @@ public void testAllTypeNames1() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null		
 	);
-	assertEquals(
+	assertSearchResults(
 		"Unexpected all type names",
 		"wc.Y\n" +
 		"wc.Y$I",
-		requestor.toString());
+		requestor);
 }
 
 /*
@@ -173,11 +173,11 @@ public void testAllTypeNames2() throws CoreException {
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null		
 	);
-	assertEquals(
+	assertSearchResults(
 		"Unexpected all type names",
 		"wc.Y\n" +
 		"wc.Y$I",
-		requestor.toString());
+		requestor);
 }
 
 /**
@@ -198,9 +198,9 @@ public void testDeclarationOfReferencedTypes() throws CoreException {
 		method,
 		resultCollector
 	);
-	assertEquals(
+	assertSearchResults(
 		"src/wc/X.java wc.X [X]", 
-		resultCollector.toString());
+		resultCollector);
 }
 
 /**
@@ -244,9 +244,9 @@ public void testMoveType() throws CoreException {
 			DECLARATIONS, 
 			scope2, 
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			"src/wc2/Y.java wc2.X [X]", 
-			resultCollector.toString());
+			resultCollector);
 	} finally {
 		workingCopy1.destroy();
 		workingCopy2.destroy();
@@ -273,9 +273,9 @@ public void testRemoveType() throws CoreException {
 		DECLARATIONS, 
 		scope, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"", 
-		resultCollector.toString());
+		resultCollector);
 		
 	// ensure the type is still present in the compilation unit
 	resultCollector = new JavaSearchResultCollector();
@@ -286,9 +286,9 @@ public void testRemoveType() throws CoreException {
 		DECLARATIONS, 
 		scope, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/wc/X.java wc.X [X]", 
-		resultCollector.toString());
+		resultCollector);
 
 }
 

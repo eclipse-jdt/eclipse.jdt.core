@@ -212,14 +212,8 @@ protected void sortDeltas(IJavaElementDelta[] deltas) {
 	};
 	org.eclipse.jdt.internal.core.Util.sort(deltas, comparer);
 }
-protected ICompilationUnit getCompilationUnit(String path) {
-	return (ICompilationUnit)JavaCore.create(this.getFile(path));
-}
 protected IClassFile getClassFile(String path) {
-	return (IClassFile)JavaCore.create(this.getFile(path));
-}
-protected IFile getFile(String path) {
-	return getWorkspaceRoot().getFile(new Path(path));
+	return (IClassFile)JavaCore.create(getFile(path));
 }
 protected IFolder getFolder(String path) {
 	return getWorkspaceRoot().getFolder(new Path(path));

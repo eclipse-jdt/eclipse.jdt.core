@@ -26,12 +26,6 @@ public static Test suite() {
 public ResolveTests(String name) {
 	super(name);
 }
-private IJavaElement[] codeSelect(ISourceReference sourceReference, String selectAt, String selection) throws JavaModelException {
-	String str = sourceReference.getSource();
-	int start = str.indexOf(selectAt);
-	int length = selection.length();
-	return ((ICodeAssist)sourceReference).codeSelect(start, length);
-}
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	

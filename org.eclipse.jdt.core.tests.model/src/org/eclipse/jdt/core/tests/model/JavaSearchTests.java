@@ -173,8 +173,33 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 public JavaSearchTests(String name) {
 	super(name);
 }
+protected void assertSearchResults(String expected, Object collector) {
+	assertSearchResults("Unexpected search results", expected, collector);
+}
+protected void assertSearchResults(String message, String expected, Object collector) {
+	String actual = collector.toString();
+	if (!expected.equals(actual)) {
+		System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual, 2));
+		System.out.println(",");
+	}
+	assertEquals(
+		message,
+		expected,
+		actual
+	);
+}
 private IJavaSearchScope getJavaSearchScope() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch")});
+}
+protected ILocalVariable getLocalVariable(String cuPath, String selectAt, String selection) throws JavaModelException {
+	ISourceReference cu = (ISourceReference)getCompilationUnit(cuPath);
+	IJavaElement[] elements = codeSelect(cu, selectAt, selection);
+	if (elements.length == 0) return null;
+	if (elements[0] instanceof ILocalVariable) {
+		return (ILocalVariable)elements[0];
+	} else {
+		return null;
+	}
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
@@ -192,7 +217,7 @@ public static Test suite() {
 	TestSuite suite = new Suite(JavaSearchTests.class.getName());
 	
 	if (false) {
-		suite.addTest(new JavaSearchTests("testConstructorReferenceDefaultConstructorOfMemberClass"));
+		suite.addTest(new JavaSearchTests("testLocalVariableReference1"));
 		return suite;
 	}
 	
@@ -328,6 +353,10 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testFieldReferenceInBrackets"));
 	suite.addTest(new JavaSearchTests("testAccurateFieldReference1"));
 	
+	// local variable reference
+	suite.addTest(new JavaSearchTests("testLocalVariableReference1"));
+	suite.addTest(new JavaSearchTests("testLocalVariableReference2"));
+	
 	// or pattern
 	suite.addTest(new JavaSearchTests("testOrPattern"));
 	
@@ -378,14 +407,14 @@ public void testAccurateFieldReference1() throws CoreException {
 			getPackageFragment("JavaSearch", "src", "d6")
 		}), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/d6/Y.java d6.Y.T [CONSTANT]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Regression test for 1GBK7B2: ITPJCORE:WINNT - package references: could be more precise
  */
-public void testAccuratePackageReference() throws JavaModelException, CoreException {
+public void testAccuratePackageReference() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "p3.p2");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -394,9 +423,9 @@ public void testAccuratePackageReference() throws JavaModelException, CoreExcept
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/PackageReference/K.java [p3.p2]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference test.
@@ -412,16 +441,16 @@ public void testAccurateTypeReference() throws CoreException {
 			getPackageFragment("JavaSearch", "src", "d5")
 		}), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/d5/Y.java d5.Y.T [d5.X]\n" +
 		"src/d5/Y.java d5.Y.c [d5.X]\n" +
 		"src/d5/Y.java d5.Y.o [d5.X]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Constructor declaration in jar file test.
  */
-public void testConstructorDeclarationInJar() throws JavaModelException, CoreException {
+public void testConstructorDeclarationInJar() throws CoreException {
 	IType type = getClassFile("JavaSearch", "MyJar.jar", "p1", "A.class").getType();
 	IMethod method = type.getMethod("A", new String[] {"Ljava.lang.String;"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -431,15 +460,15 @@ public void testConstructorDeclarationInJar() throws JavaModelException, CoreExc
 		DECLARATIONS, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"MyJar.jar p1.A(java.lang.String) [No source]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Constructor reference in case of default constructor of member type
  * (regression test for bug 43276)
  */
-public void testConstructorReferenceDefaultConstructorOfMemberClass() throws JavaModelException, CoreException {
+public void testConstructorReferenceDefaultConstructorOfMemberClass() throws CoreException {
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
 		getWorkspace(), 
@@ -448,13 +477,13 @@ public void testConstructorReferenceDefaultConstructorOfMemberClass() throws Jav
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/c10/X.java c10.B() [new X().super()]", 
-		resultCollector.toString());
+		resultCollector);
 }/**
  * Constructor reference using an explicit constructor call.
  */
-public void testConstructorReferenceExplicitConstructorCall1() throws JavaModelException, CoreException {
+public void testConstructorReferenceExplicitConstructorCall1() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "Y.java").getType("Y");
 	IMethod method = type.getMethod("Y", new String[] {"I"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -464,14 +493,14 @@ public void testConstructorReferenceExplicitConstructorCall1() throws JavaModelE
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p/Z.java p.Z(int) [super(i)]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Constructor reference using an explicit constructor call.
  */
-public void testConstructorReferenceExplicitConstructorCall2() throws JavaModelException, CoreException {
+public void testConstructorReferenceExplicitConstructorCall2() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	IMethod method = type.getMethod("X", new String[] {"I"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -481,16 +510,16 @@ public void testConstructorReferenceExplicitConstructorCall2() throws JavaModelE
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p/Y.java p.Y(int) [super(i)]\n" +
 		"src/p/Y.java p.Y(boolean) [super(1)]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Constructor reference using an implicit constructor call.
  * (regression test for bug 23112 search: need a way to search for references to the implicit non-arg constructor)
  */
-public void testConstructorReferenceImplicitConstructorCall1() throws JavaModelException, CoreException {
+public void testConstructorReferenceImplicitConstructorCall1() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "c7", "X.java").getType("X");
 	IMethod method = type.getMethod("X", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -500,15 +529,15 @@ public void testConstructorReferenceImplicitConstructorCall1() throws JavaModelE
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/c7/Y.java c7.Y() [Y]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Constructor reference using an implicit constructor call.
  * (regression test for bug 23112 search: need a way to search for references to the implicit non-arg constructor)
  */
-public void testConstructorReferenceImplicitConstructorCall2() throws JavaModelException, CoreException {
+public void testConstructorReferenceImplicitConstructorCall2() throws CoreException {
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
 		getWorkspace(), 
@@ -517,15 +546,15 @@ public void testConstructorReferenceImplicitConstructorCall2() throws JavaModelE
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/c8/Y.java c8.Y [Y]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Constructor reference in a field initializer.
  * (regression test for PR 1GKZ8VZ: ITPJCORE:WINNT - Search - did not find references to member constructor)
  */
-public void testConstructorReferenceInFieldInitializer() throws JavaModelException, CoreException {
+public void testConstructorReferenceInFieldInitializer() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "", "A.java").getType("A").getType("Inner");
 	IMethod method = type.getMethod("Inner", new String[] {"I"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -535,16 +564,16 @@ public void testConstructorReferenceInFieldInitializer() throws JavaModelExcepti
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/A.java A.field [new Inner(1)]\n" +
 		"src/A.java A.field [new Inner(2)]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * CoreException thrown during accept.
  * (regression test for PR #1G3UI7A)
  */
-public void testCoreException() throws JavaModelException, CoreException {
+public void testCoreException() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	IJavaSearchResultCollector resultCollector = new IJavaSearchResultCollector() {
 		public void accept(IResource resource, int start, int end, IJavaElement enclosingElement, int accuracy) throws CoreException {
@@ -575,7 +604,7 @@ public void testCoreException() throws JavaModelException, CoreException {
  * Declaration of accessed fields test.
  * (regression test for bug 6538 searchDeclarationsOf* incorrect)
  */
-public void testDeclarationOfAccessedFields1() throws JavaModelException, CoreException {
+public void testDeclarationOfAccessedFields1() throws CoreException {
 	IMethod method = 
 		getCompilationUnit("JavaSearch", "src", "a5", "B.java").
 			getType("C").getMethod("i", new String[] {});
@@ -585,15 +614,15 @@ public void testDeclarationOfAccessedFields1() throws JavaModelException, CoreEx
 		method,
 		resultCollector
 	);
-	assertEquals(
+	assertSearchResults(
 		"", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Declaration of accessed fields test.
  * (regression test for bug 6538 searchDeclarationsOf* incorrect)
  */
-public void testDeclarationOfAccessedFields2() throws JavaModelException, CoreException {
+public void testDeclarationOfAccessedFields2() throws CoreException {
 	IMethod method = 
 		getCompilationUnit("JavaSearch", "src", "a6", "A.java").
 			getType("B").getMethod("m", new String[] {});
@@ -603,15 +632,15 @@ public void testDeclarationOfAccessedFields2() throws JavaModelException, CoreEx
 		method,
 		resultCollector
 	);
-	assertEquals(
+	assertSearchResults(
 		"src/a6/A.java a6.B.f [f]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Declaration of accessed fields test.
  * (regression test for bug 10386 NPE in MatchLocator.lookupType)
  */
-public void testDeclarationOfAccessedFields3() throws JavaModelException, CoreException {
+public void testDeclarationOfAccessedFields3() throws CoreException {
 	IMethod method = 
 		getCompilationUnit("JavaSearch", "src", "b6", "A.java").
 			getType("A").getMethod("foo", new String[] {});
@@ -621,14 +650,14 @@ public void testDeclarationOfAccessedFields3() throws JavaModelException, CoreEx
 		method,
 		resultCollector
 	);
-	assertEquals(
+	assertSearchResults(
 		"src/b6/A.java b6.A.field [field]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Declaration of referenced types test.
  */
-public void testDeclarationOfReferencedTypes1() throws JavaModelException, CoreException {
+public void testDeclarationOfReferencedTypes1() throws CoreException {
 	IMethod method = 
 		getCompilationUnit("JavaSearch", "src", "a3", "References.java").
 			getType("References").getMethod("foo", new String[] {});
@@ -638,7 +667,7 @@ public void testDeclarationOfReferencedTypes1() throws JavaModelException, CoreE
 		method,
 		resultCollector
 	);
-	assertEquals(
+	assertSearchResults(
 		"src/a3/X.java a3.X [X]\n" +
 		"src/a3/Z.java a3.Z [Z]\n" +
 		"src/a3/b/A.java a3.b.A [A]\n" +
@@ -647,7 +676,7 @@ public void testDeclarationOfReferencedTypes1() throws JavaModelException, CoreE
 		getExternalJCLPathString() + " java.lang.Object\n" +
 		"src/a3/Y.java a3.Y [Y]\n" +
 		"src/a3/b/B.java a3.b.B [B]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Declaration of referenced types test.
@@ -663,9 +692,9 @@ public void testDeclarationOfReferencedTypes2() throws CoreException {
 		method,
 		resultCollector
 	);
-	assertEquals(
+	assertSearchResults(
 		"src/a7/X.java a7.MyException [MyException]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Declaration of referenced types test.
@@ -679,9 +708,9 @@ public void testDeclarationOfReferencedTypes3() throws CoreException {
 		unit,
 		resultCollector
 	);
-	assertEquals(
+	assertSearchResults(
 		"src/c1/I.java c1.I [I]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Declaration of referenced types test.
@@ -695,9 +724,9 @@ public void testDeclarationOfReferencedTypes4() throws CoreException {
 		unit,
 		resultCollector
 	);
-	assertEquals(
+	assertSearchResults(
 		"src/c1/I.java c1.I [I]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Declaration of referenced types test.
@@ -711,9 +740,9 @@ public void testDeclarationOfReferencedTypes5() throws CoreException {
 		unit,
 		resultCollector
 	);
-	assertEquals(
+	assertSearchResults(
 		"src/c3/C.java c3.C [C]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Declaration of referenced types test.
@@ -728,9 +757,9 @@ public void testDeclarationOfReferencedTypes6() throws CoreException {
 		innerType,
 		resultCollector
 	);
-	assertEquals(
+	assertSearchResults(
 		"src/d2/Y.java d2.Y [Y]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Declaration of referenced types test.
@@ -745,16 +774,16 @@ public void testDeclarationOfReferencedTypes7() throws CoreException {
 		pkg,
 		resultCollector
 	);
-	assertEquals(
+	assertSearchResults(
 		"", 
-		resultCollector.toString());
+		resultCollector);
 }
 
 /**
  * Declaration of sent messages test.
  * (regression test for bug 6538 searchDeclarationsOf* incorrect)
  */
-public void testDeclarationOfSentMessages() throws JavaModelException, CoreException {
+public void testDeclarationOfSentMessages() throws CoreException {
 	IMethod method = 
 		getCompilationUnit("JavaSearch", "src", "a5", "B.java").
 			getType("C").getMethod("i", new String[] {});
@@ -764,9 +793,9 @@ public void testDeclarationOfSentMessages() throws JavaModelException, CoreExcep
 		method,
 		resultCollector
 	);
-	assertEquals(
+	assertSearchResults(
 		"", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Java search scope on java element in external jar test.
@@ -797,9 +826,9 @@ public void testExternalJarScope() throws CoreException, IOException {
 			DECLARATIONS,
 			scope,
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			externalJar.getCanonicalPath()+ " p0.X",
-			resultCollector.toString());
+			resultCollector);
 			
 		IClassFile classFile = pkg.getClassFile("X.class");
 		scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {classFile});
@@ -810,9 +839,9 @@ public void testExternalJarScope() throws CoreException, IOException {
 			DECLARATIONS,
 			scope,
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			externalJar.getCanonicalPath()+ " p0.X",
-			resultCollector.toString());
+			resultCollector);
 		
 	} finally {
 		externalJar.delete();
@@ -826,7 +855,7 @@ public void testExternalJarScope() throws CoreException, IOException {
  * Field declaration with array type test.
  * (regression test for PR 1GKEG73: ITPJCORE:WIN2000 - search (136): missing field declaration)
  */
-public void testFieldDeclarationArrayType() throws JavaModelException, CoreException {
+public void testFieldDeclarationArrayType() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "", "B.java").getType("B");
 	IField field = type.getField("open");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -836,14 +865,14 @@ public void testFieldDeclarationArrayType() throws JavaModelException, CoreExcep
 		DECLARATIONS, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/B.java B.open [open]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Field declaration in jar file test.
  */
-public void testFieldDeclarationInJar() throws JavaModelException, CoreException {
+public void testFieldDeclarationInJar() throws CoreException {
 	IType type = getClassFile("JavaSearch", "MyJar.jar", "p1", "A.class").getType();
 	IField field = type.getField("field");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -853,15 +882,15 @@ public void testFieldDeclarationInJar() throws JavaModelException, CoreException
 		DECLARATIONS, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"MyJar.jar p1.A.field [No source]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Field declaration with wild card test.
  * (regression test for bug 21763 Problem in Java search [search]  )
  */
-public void testFieldDeclarationWithWildCard() throws JavaModelException, CoreException {
+public void testFieldDeclarationWithWildCard() throws CoreException {
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
 		getWorkspace(), 
@@ -870,15 +899,15 @@ public void testFieldDeclarationWithWildCard() throws JavaModelException, CoreEx
 		DECLARATIONS, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/c5/Test.java c5.Test.class_path [class_path]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Multiple field references in one ast test.
  * (regression test for PR 1GD79XM: ITPJCORE:WINNT - Search - search for field references - not all found)
  */
-public void testMultipleFieldReference() throws JavaModelException, CoreException {
+public void testMultipleFieldReference() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p5", "A.java").getType("A");
 	IField field = type.getField("x");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -888,17 +917,17 @@ public void testMultipleFieldReference() throws JavaModelException, CoreExceptio
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p5/A.java p5.A.k() -> void [x]\n" +
 		"src/p5/A.java p5.A.k() -> void [x]\n" +
 		"src/p5/A.java p5.A.k() -> void [x]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Field reference in inner class test.
  * (regression test for PR 1GL11J6: ITPJCORE:WIN2000 - search: missing field references (nested types))
  */
-public void testFieldReferenceInInnerClass() throws JavaModelException, CoreException {
+public void testFieldReferenceInInnerClass() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "", "O.java").getType("O");
 	IField field = type.getField("y");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -908,15 +937,15 @@ public void testFieldReferenceInInnerClass() throws JavaModelException, CoreExce
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/O.java O$I.y() -> void [y]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Field reference test.
  * (regression test for bug #3433 search: missing field occurrecnces (1GKZ8J6))
  */
-public void testFieldReference() throws JavaModelException, CoreException {
+public void testFieldReference() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p8", "A.java").getType("A");
 	IField field = type.getField("g");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -926,16 +955,16 @@ public void testFieldReference() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p8/A.java p8.A.m() -> void [g]\n" +
 		"src/p8/A.java p8.B.m() -> void [g]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Field reference test.
  * (regression test for PR 1GK8TXE: ITPJCORE:WIN2000 - search: missing field reference)
  */
-public void testFieldReference2() throws JavaModelException, CoreException {
+public void testFieldReference2() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p9", "X.java").getType("X");
 	IField field = type.getField("f");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -945,15 +974,15 @@ public void testFieldReference2() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p9/X.java p9.X.m() -> void [f]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Field reference test.
  * (regression test for bug 5821 Refactor > Rename renames local variable instead of member in case of name clash  )
  */
-public void testFieldReference3() throws JavaModelException, CoreException {
+public void testFieldReference3() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "q8", "EclipseTest.java").getType("EclipseTest");
 	IField field = type.getField("test");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -963,15 +992,15 @@ public void testFieldReference3() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/q8/EclipseTest.java q8.EclipseTest.main(String[]) -> void [test]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Field reference test.
  * (regression test for bug 5923 Search for "length" field refs finds [].length)
  */
-public void testFieldReference4() throws JavaModelException, CoreException {
+public void testFieldReference4() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "a2", "X.java").getType("X");
 	IField field = type.getField("length");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -981,15 +1010,15 @@ public void testFieldReference4() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/a2/X.java a2.X.foo() -> void [length]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Field reference test.
  * (regression test for bug 7987 Field reference search should do lookup in 1.4 mode)
  */
-public void testFieldReference5() throws JavaModelException, CoreException {
+public void testFieldReference5() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "b1", "A.java").getType("A");
 	IField field = type.getField("x");
 	
@@ -1007,9 +1036,9 @@ public void testFieldReference5() throws JavaModelException, CoreException {
 			REFERENCES, 
 			getJavaSearchScope(), 
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			"src/b1/B.java b1.B.foo() -> void [x]", 
-			resultCollector.toString());
+			resultCollector);
 	} finally {
 		// Restore compliance level
 		options.put("org.eclipse.jdt.core.compiler.compliance", currentOption);
@@ -1020,7 +1049,7 @@ public void testFieldReference5() throws JavaModelException, CoreException {
  * Field reference test.
  * (regression test for bug 20693 Finding references to variables does not find all occurances)
  */
-public void testFieldReference6() throws JavaModelException, CoreException {
+public void testFieldReference6() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "c4", "X.java").getType("X");
 	IField field = type.getField("x");
 	
@@ -1031,15 +1060,15 @@ public void testFieldReference6() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/c4/X.java c4.X.foo() -> int [x]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Field reference in anonymous class test.
  * (regression test for PR 1GL12XE: ITPJCORE:WIN2000 - search: missing field references in inner class)
  */
-public void testFieldReferenceInAnonymousClass() throws JavaModelException, CoreException {
+public void testFieldReferenceInAnonymousClass() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "", "D.java").getType("D");
 	IField field = type.getField("h");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1049,15 +1078,15 @@ public void testFieldReferenceInAnonymousClass() throws JavaModelException, Core
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/D.java D.g() -> void [h]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Field reference in brackets test.
  * (regression test for bug 23329 search: incorrect range for type references in brackets)
  */
-public void testFieldReferenceInBrackets() throws JavaModelException, CoreException {
+public void testFieldReferenceInBrackets() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "s3", "A.java").getType("A");
 	IField field = type.getField("field");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1067,15 +1096,15 @@ public void testFieldReferenceInBrackets() throws JavaModelException, CoreExcept
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/s3/A.java s3.A.bar() -> int [field]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Field reference through subclass test.
  * (regression test for PR 1GKB9YH: ITPJCORE:WIN2000 - search for field refs - incorrect results)
  */
-public void testFieldReferenceThroughSubclass() throws JavaModelException, CoreException {
+public void testFieldReferenceThroughSubclass() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p6", "A.java").getType("A");
 	IField field = type.getField("f");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1085,11 +1114,11 @@ public void testFieldReferenceThroughSubclass() throws JavaModelException, CoreE
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p6/A.java p6.A.m() -> void [f]\n" +
 		"src/p6/A.java p6.B.m() -> void [f]\n" +
 		"src/p6/A.java p6.B.m() -> void [f]", 
-		resultCollector.toString());
+		resultCollector);
 		
 	type = getCompilationUnit("JavaSearch", "src", "p6", "A.java").getType("AA");
 	field = type.getField("f");
@@ -1100,16 +1129,16 @@ public void testFieldReferenceThroughSubclass() throws JavaModelException, CoreE
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p6/A.java p6.B.m() -> void [f]", 
-		resultCollector.toString());
+		resultCollector);
 		
 }
 /**
  * Hierarchy scope test.
  * (regression test for bug 3445 search: type hierarchy scope incorrect (1GLC8VS))
  */
-public void testHierarchyScope() throws JavaModelException, CoreException {
+public void testHierarchyScope() throws CoreException {
 	ICompilationUnit cu = this. getCompilationUnit("JavaSearch", "src", "a9", "A.java");
 	IType type = cu.getType("C");
 	IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
@@ -1122,7 +1151,7 @@ public void testHierarchyScope() throws JavaModelException, CoreException {
  * Type reference test.
  * (Regression test for bug 9642 Search - missing inaccurate type matches)
  */
-public void testInnacurateTypeReference1() throws JavaModelException, CoreException {
+public void testInnacurateTypeReference1() throws CoreException {
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
 		getWorkspace(), 
@@ -1133,18 +1162,18 @@ public void testInnacurateTypeReference1() throws JavaModelException, CoreExcept
 			getPackageFragment("JavaSearch", "src", "b5")
 		}), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/b5/A.java [Zork]\n" +
 		"src/b5/A.java b5.A.{} [Zork]\n" +
 		"src/b5/A.java b5.A.{} [Zork]\n" +
 		"src/b5/A.java b5.A.{} [Zork]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference test.
  * (Regression test for bug 9642 Search - missing inaccurate type matches)
  */
-public void testInnacurateTypeReference2() throws JavaModelException, CoreException {
+public void testInnacurateTypeReference2() throws CoreException {
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
 		getWorkspace(), 
@@ -1155,11 +1184,11 @@ public void testInnacurateTypeReference2() throws JavaModelException, CoreExcept
 			getPackageFragment("JavaSearch", "src", "b5")
 		}), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/b5/A.java b5.A.{} [Zork]\n" +
 		"src/b5/A.java b5.A.{} [Zork]\n" +
 		"src/b5/A.java b5.A.{} [Zork]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference test.
@@ -1175,17 +1204,17 @@ public void testInnacurateTypeReference3() throws CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/r4/B21485.java [r3.A21485] EXACT_MATCH\n" +
 		"src/r4/B21485.java r4.B21485 [A21485] POTENTIAL_MATCH",
-		resultCollector.toString());
+		resultCollector);
 }
 
 
 /**
  * Inner method declaration test.
  */
-public void testInnerMethodDeclaration() throws JavaModelException, CoreException {
+public void testInnerMethodDeclaration() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X").getType("Inner");
 	IMethod method = type.getMethod("foo", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1195,14 +1224,14 @@ public void testInnerMethodDeclaration() throws JavaModelException, CoreExceptio
 		DECLARATIONS, 
 		getJavaSearchScope(),  
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p/X.java p.X$Inner.foo() -> String [foo]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Inner method reference test.
  */
-public void testInnerMethodReference() throws JavaModelException, CoreException {
+public void testInnerMethodReference() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X").getType("Inner");
 	IMethod method = type.getMethod("foo", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1212,14 +1241,14 @@ public void testInnerMethodReference() throws JavaModelException, CoreException 
 		REFERENCES, 
 		getJavaSearchScope(),  
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p/A.java p.A.foo(int, String, X) -> void [foo()]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Interface implementors test.
  */
-public void testInterfaceImplementors() throws JavaModelException, CoreException {
+public void testInterfaceImplementors() throws CoreException {
 	// implementors of an interface
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "I.java").getType("I");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1229,10 +1258,10 @@ public void testInterfaceImplementors() throws JavaModelException, CoreException
 		IMPLEMENTORS, 
 		getJavaSearchScope(),  
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/InterfaceImplementors.java InterfaceImplementors [p.I]\n" +
 		"src/p/X.java p.X [I]", 
-		resultCollector.toString());
+		resultCollector);
 
 	// implementors of a class should give no match
 	// (regression test for 1G5HBQA: ITPJUI:WINNT - Search - search for implementors of a class finds subclasses)
@@ -1244,15 +1273,15 @@ public void testInterfaceImplementors() throws JavaModelException, CoreException
 		IMPLEMENTORS, 
 		getJavaSearchScope(),  
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"", 
-		resultCollector.toString());	
+		resultCollector);	
 }
 /**
  * Interface implementors test.
  * (regression test for bug 22102 Not all implementors found for IPartListener)
  */
-public void testInterfaceImplementors2() throws JavaModelException, CoreException {
+public void testInterfaceImplementors2() throws CoreException {
 	// implementors of an interface
 	IType type = getCompilationUnit("JavaSearch", "src", "r2", "I.java").getType("I");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1262,15 +1291,49 @@ public void testInterfaceImplementors2() throws JavaModelException, CoreExceptio
 		IMPLEMENTORS, 
 		getJavaSearchScope(),  
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/r2/X.java r2.X.field [I]", 
-		resultCollector.toString());
+		resultCollector);
+}
+/*
+ * Local variable reference test.
+ * (SingleNameReference)
+ */
+public void testLocalVariableReference1() throws JavaModelException {
+	ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var1 = 1;", "var1");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		localVar, 
+		REFERENCES, 
+		getJavaSearchScope(),  
+		resultCollector);
+	assertSearchResults(
+		"src/f1/X.java f1.X.foo1() -> void [var1]",
+		resultCollector);
+}
+/*
+ * Local variable reference test.
+ * (QualifiedNameReference)
+ */
+public void testLocalVariableReference2() throws JavaModelException {
+	ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var2 = new X();", "var2");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		localVar, 
+		REFERENCES, 
+		getJavaSearchScope(),  
+		resultCollector);
+	assertSearchResults(
+		"src/f1/X.java f1.X.foo2() -> void [var2]",
+		resultCollector);
 }
 /**
  * Long declaration (>255) test.
  * (regression test for bug 25859 Error doing Java Search)
  */
-public void testLongDeclaration() throws JavaModelException, CoreException {
+public void testLongDeclaration() throws CoreException {
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
 		getWorkspace(), 
@@ -1279,15 +1342,15 @@ public void testLongDeclaration() throws JavaModelException, CoreException {
 		DECLARATIONS, 
 		getJavaSearchScope(),  
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/c9/X.java c9.AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz [AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Memeber type declaration test.
  * (regression test for bug 9992 Member class declaration not found)
  */
-public void testMemberTypeDeclaration() throws JavaModelException, CoreException {
+public void testMemberTypeDeclaration() throws CoreException {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[]{
 		this.getPackageFragment("JavaSearch", "src", "b4")
 	});
@@ -1299,14 +1362,14 @@ public void testMemberTypeDeclaration() throws JavaModelException, CoreException
 		DECLARATIONS, 
 		scope, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/b4/A.java b4.A$B [B]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Member type reference test.
  */
-public void testMemberTypeReference() throws JavaModelException, CoreException {
+public void testMemberTypeReference() throws CoreException {
 	// references to second level member type
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	resultCollector.showAccuracy = true;
@@ -1317,13 +1380,13 @@ public void testMemberTypeReference() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"References to type BMember",
 		"src/MemberTypeReference/Azz.java MemberTypeReference.Azz.poo() -> void [BMember] EXACT_MATCH\n" +
 		"src/MemberTypeReference/Azz.java MemberTypeReference.Azz$AzzMember [BMember] EXACT_MATCH\n" +
 		"src/MemberTypeReference/Azz.java MemberTypeReference.X.val [BMember] EXACT_MATCH\n" +
 		"src/MemberTypeReference/B.java MemberTypeReference.B.foo() -> void [BMember] EXACT_MATCH",
-		resultCollector.toString());
+		resultCollector);
 
 	// references to first level member type
 	resultCollector = new JavaSearchResultCollector();
@@ -1335,11 +1398,11 @@ public void testMemberTypeReference() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"References to type AzzMember",
 		"src/MemberTypeReference/Azz.java MemberTypeReference.X.val [AzzMember] EXACT_MATCH\n" +
 		"src/MemberTypeReference/B.java MemberTypeReference.B.foo() -> void [AzzMember] EXACT_MATCH",
-		resultCollector.toString());
+		resultCollector);
 
 	// no reference to a field with same name as member type
 	resultCollector = new JavaSearchResultCollector();
@@ -1351,16 +1414,16 @@ public void testMemberTypeReference() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"References to field BMember",
 		"",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Member type reference test.
  * (regression test for PR 1GL0MN9: ITPJCORE:WIN2000 - search: not consistent results for nested types)
  */
-public void testMemberTypeReference2() throws JavaModelException, CoreException {
+public void testMemberTypeReference2() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "a", "A.java").getType("A").getType("X");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -1369,10 +1432,10 @@ public void testMemberTypeReference2() throws JavaModelException, CoreException 
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/a/A.java a.B.ax [A.X]\n" +
 		"src/a/A.java a.B.sx [S.X]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method declaration test.
@@ -1388,14 +1451,14 @@ public void testMethodDeclaration() throws CoreException {
 		DECLARATIONS, 
 		SearchEngine.createJavaSearchScope(new IJavaElement[] {type}), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/e2/X.java e2.X.foo(String, String) -> void [foo]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method declaration in hierarchy test.
  */
-public void testMethodDeclarationInHierarchyScope1() throws JavaModelException, CoreException {
+public void testMethodDeclarationInHierarchyScope1() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -1405,16 +1468,16 @@ public void testMethodDeclarationInHierarchyScope1() throws JavaModelException, 
 		DECLARATIONS, 
 		SearchEngine.createHierarchyScope(type), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p/X.java p.X.foo(int, String, X) -> void [foo]\n" +
 		"src/p/Z.java p.Z.foo(int, String, X) -> void [foo]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method declaration in hierarchy that contains elements in external jar.
  * (regression test for PR #1G2E4F1)
  */
-public void testMethodDeclarationInHierarchyScope2() throws JavaModelException, CoreException {
+public void testMethodDeclarationInHierarchyScope2() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	IMethod method = type.getMethod("foo", new String[] {"I", "QString;", "QX;"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1424,15 +1487,15 @@ public void testMethodDeclarationInHierarchyScope2() throws JavaModelException, 
 		DECLARATIONS, 
 		SearchEngine.createHierarchyScope(type), // java.lang.Object is in external jcl
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p/X.java p.X.foo(int, String, X) -> void [foo]\n" +
 		"src/p/Z.java p.Z.foo(int, String, X) -> void [foo]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method declaration in hierarchy on a secondary type.
  */
-public void testMethodDeclarationInHierarchyScope3() throws JavaModelException, CoreException {
+public void testMethodDeclarationInHierarchyScope3() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "d3", "A.java").getType("B");
 	IMethod method = type.getMethod("foo", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1442,9 +1505,9 @@ public void testMethodDeclarationInHierarchyScope3() throws JavaModelException, 
 		DECLARATIONS, 
 		SearchEngine.createHierarchyScope(type),
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/d3/A.java d3.B.foo() -> void [foo]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method declaration in field initialzer.
@@ -1459,14 +1522,14 @@ public void testMethodDeclarationInInitializer() throws CoreException {
 		DECLARATIONS, 
 		getJavaSearchScope(),
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/c6/X.java c6.X.x [foo24346]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method declaration in jar file test.
  */
-public void testMethodDeclarationInJar() throws JavaModelException, CoreException {
+public void testMethodDeclarationInJar() throws CoreException {
 	IType type = getClassFile("JavaSearch", "MyJar.jar", "p1", "A.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"Ljava.lang.String;"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1476,16 +1539,16 @@ public void testMethodDeclarationInJar() throws JavaModelException, CoreExceptio
 		DECLARATIONS, 
 		getJavaSearchScope(), 
 		resultCollector);
-	// System.out.println(displayString(resultCollector.toString(), 2));
-	assertEquals(
+	// System.out.println(displayString(resultCollector, 2));
+	assertSearchResults(
 		"MyJar.jar p1.A.foo(java.lang.String) -> boolean [No source]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method declaration in package test.
  * (regression tets for PR #1G2KA97)
  */
-public void testMethodDeclarationInPackageScope() throws JavaModelException, CoreException {
+public void testMethodDeclarationInPackageScope() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1496,9 +1559,9 @@ public void testMethodDeclarationInPackageScope() throws JavaModelException, Cor
 		DECLARATIONS, 
 		scope, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p/A.java p.A.main(String[]) -> void [main]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /*
  * Method declaration with a missing return type.
@@ -1515,15 +1578,15 @@ public void testMethodDeclarationNoReturnType() throws JavaModelException {
 		DECLARATIONS, 
 		scope, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/e8/A.java e8.A.m() -> void [m]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type declaration using a package scope test.
  * (check that subpackages are not included)
  */
-public void testTypeDeclarationInPackageScope() throws JavaModelException, CoreException {
+public void testTypeDeclarationInPackageScope() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p3", "X.java").getType("X");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1534,15 +1597,15 @@ public void testTypeDeclarationInPackageScope() throws JavaModelException, CoreE
 		DECLARATIONS, 
 		scope, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p3/X.java p3.X [X]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type declaration using a binary package scope test.
  * (check that subpackages are not included)
  */
-public void testTypeDeclarationInPackageScope2() throws JavaModelException, CoreException {
+public void testTypeDeclarationInPackageScope2() throws CoreException {
 	IType type = getClassFile("JavaSearch", "MyJar.jar", "p0", "X.class").getType();
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1553,14 +1616,14 @@ public void testTypeDeclarationInPackageScope2() throws JavaModelException, Core
 		DECLARATIONS, 
 		scope, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"MyJar.jar p0.X [No source]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method reference through super test.
  */
-public void testMethodReferenceThroughSuper() throws JavaModelException, CoreException {
+public void testMethodReferenceThroughSuper() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "sd", "AQ.java").getType("AQ");
 	IMethod method = type.getMethod("k", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1570,15 +1633,15 @@ public void testMethodReferenceThroughSuper() throws JavaModelException, CoreExc
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/sd/AQ.java sd.AQE.k() -> void [k()]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method reference test.
  * (regression test for bug 5068 search: missing method reference)
  */
-public void testMethodReference1() throws JavaModelException, CoreException {
+public void testMethodReference1() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "q5", "AQ.java").getType("I");
 	IMethod method = type.getMethod("k", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1588,15 +1651,15 @@ public void testMethodReference1() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/q5/AQ.java q5.T.m() -> void [k()]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method reference test.
  * (regression test for bug 5069 search: method reference in super missing)
  */
-public void testMethodReference2() throws JavaModelException, CoreException {
+public void testMethodReference2() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "q6", "CD.java").getType("AQ");
 	IMethod method = type.getMethod("k", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1606,15 +1669,15 @@ public void testMethodReference2() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/q6/CD.java q6.AQE.k() -> void [k()]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method reference test.
  * (regression test for bug 5070 search: missing interface method reference  )
  */
-public void testMethodReference3() throws JavaModelException, CoreException {
+public void testMethodReference3() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "q7", "AQ.java").getType("I");
 	IMethod method = type.getMethod("k", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1624,15 +1687,15 @@ public void testMethodReference3() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/q7/AQ.java q7.D.h() -> void [k()]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method reference test.
  * (regression test for bug 8928 Unable to find references or declarations of methods that use static inner classes in the signature)
  */
-public void testMethodReference4() throws JavaModelException, CoreException {
+public void testMethodReference4() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "b2", "Y.java").getType("Y");
 	IMethod method = type.getMethod("foo", new String[] {"QX.Inner;"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1642,15 +1705,15 @@ public void testMethodReference4() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/b2/Z.java b2.Z.bar() -> void [foo(inner)]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method reference through array test.
  * (regression test for 1GHDA2V: ITPJCORE:WINNT - ClassCastException when doing a search)
  */
-public void testMethodReferenceThroughArray() throws JavaModelException, CoreException {
+public void testMethodReferenceThroughArray() throws CoreException {
 	IType type = getClassFile("JavaSearch", getExternalJCLPathString(), "java.lang", "Object.class").getType();
 	IMethod method = type.getMethod("clone", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1660,14 +1723,14 @@ public void testMethodReferenceThroughArray() throws JavaModelException, CoreExc
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/E.java E.foo() -> Object [clone()]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method reference in inner class test.
  */
-public void testMethodReferenceInInnerClass() throws JavaModelException, CoreException {
+public void testMethodReferenceInInnerClass() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "", "CA.java").getType("CA");
 	IMethod method = type.getMethod("m", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1677,16 +1740,16 @@ public void testMethodReferenceInInnerClass() throws JavaModelException, CoreExc
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/CA.java CA$CB.f() -> void [m()]\n" +
 		"src/CA.java CA$CB$CC.f() -> void [m()]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Method reference in anonymous class test.
  * (regression test for PR 1GGNOTF: ITPJCORE:WINNT - Search doesn't find method referenced in anonymous inner class)
  */
-public void testMethodReferenceInAnonymousClass() throws JavaModelException, CoreException {
+public void testMethodReferenceInAnonymousClass() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "", "PR_1GGNOTF.java").getType("PR_1GGNOTF");
 	IMethod method = type.getMethod("method", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1696,15 +1759,15 @@ public void testMethodReferenceInAnonymousClass() throws JavaModelException, Cor
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/PR_1GGNOTF.java PR_1GGNOTF.method2() -> void [method()]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Member type named "Object" reference test.
  * (regression test for 1G4GHPS: ITPJUI:WINNT - Strange error message in search)
  */
-public void testObjectMemberTypeReference() throws JavaModelException, CoreException {
+public void testObjectMemberTypeReference() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "ObjectMemberTypeReference", "A.java")
 		.getType("A")
 		.getType("Object");
@@ -1716,9 +1779,9 @@ public void testObjectMemberTypeReference() throws JavaModelException, CoreExcep
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/ObjectMemberTypeReference/A.java ObjectMemberTypeReference.A.foo() -> void [Object] EXACT_MATCH",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * OrPattern test.
@@ -1739,17 +1802,17 @@ public void testOrPattern() throws CoreException {
 		orPattern,
 		getJavaSearchScope(),
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/e8/A.java e8.A.m() -> void [m] POTENTIAL_MATCH\n" +
 		"src/q9/I.java q9.I.m() -> void [m] EXACT_MATCH\n" +
 		"src/q9/I.java q9.A1.m() -> void [m] EXACT_MATCH",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Package reference test.
  * (regression test for PR 1GK90H4: ITPJCORE:WIN2000 - search: missing package reference)
  */
-public void testPackageReference1() throws JavaModelException, CoreException {
+public void testPackageReference1() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "q2");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -1758,15 +1821,15 @@ public void testPackageReference1() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/q1/B.java q1.B.m(AA) -> void [q2]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Package reference test.
  * (regression test for bug 17906 Rename package fails when inner classes are imported)
  */
-public void testPackageReference2() throws JavaModelException, CoreException {
+public void testPackageReference2() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "b8");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -1775,15 +1838,15 @@ public void testPackageReference2() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/b9/Foo.java [b8]", 
-		resultCollector.toString());
+		resultCollector);
 }
 
 /**
  * Test pattern match package references
  */
-public void testPatternMatchPackageReference() throws JavaModelException, CoreException {
+public void testPatternMatchPackageReference() throws CoreException {
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
 		getWorkspace(), 
@@ -1792,7 +1855,7 @@ public void testPatternMatchPackageReference() throws JavaModelException, CoreEx
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/PackageReference/A.java [p3.p2.p]\n" +
 		"src/PackageReference/B.java [p3.p2.p]\n" +
 		"src/PackageReference/C.java PackageReference.C [p3.p2.p]\n" +
@@ -1803,7 +1866,7 @@ public void testPatternMatchPackageReference() throws JavaModelException, CoreEx
 		"src/PackageReference/H.java PackageReference.H.foo() -> void [p3.p2.p]\n" +
 		"src/PackageReference/I.java PackageReference.I.foo() -> void [p3.p2.p]\n" +
 		"src/PackageReference/J.java PackageReference.J.foo() -> void [p3.p2.p]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Test pattern match type declaration
@@ -1818,7 +1881,7 @@ public void testPatternMatchTypeDeclaration() throws CoreException {
 		DECLARATIONS, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals("src/r5/XYZ.java r5.XYZ [XYZ]", resultCollector.toString());
+	assertSearchResults("src/r5/XYZ.java r5.XYZ [XYZ]", resultCollector);
 }
 /**
  * Test pattern match type reference in binary
@@ -1833,16 +1896,16 @@ public void testPatternMatchTypeReference() throws CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"test24741.jar q24741.B", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Test that we find potential matches in binaries even if we can't resolve the entire
  * class file.
  * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration) 
  */
-public void testPotentialMatchInBinary() throws JavaModelException, CoreException {
+public void testPotentialMatchInBinary() throws CoreException {
 	IJavaProject project = this.getJavaProject("JavaSearch");
 	IClasspathEntry[] classpath = project.getRawClasspath();
 	try {
@@ -1863,11 +1926,11 @@ public void testPotentialMatchInBinary() throws JavaModelException, CoreExceptio
 			DECLARATIONS, 
 			getJavaSearchScope(), 
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] POTENTIAL_MATCH\n" +
 			"AbortCompilation.jar AbortCompilation.MissingFieldType.missing [No source] POTENTIAL_MATCH\n" +
 			"AbortCompilation.jar AbortCompilation.MissingFieldType.otherField [No source] POTENTIAL_MATCH", 
-			resultCollector.toString());
+			resultCollector);
 	
 		// potential match for a method declaration
 		resultCollector = new JavaSearchResultCollector();
@@ -1879,11 +1942,11 @@ public void testPotentialMatchInBinary() throws JavaModelException, CoreExceptio
 			DECLARATIONS, 
 			getJavaSearchScope(), 
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			"AbortCompilation.jar AbortCompilation.MissingArgumentType.foo() -> void [No source] POTENTIAL_MATCH\n" +
 			"AbortCompilation.jar AbortCompilation.MissingArgumentType.foo(java.util.EventListener) -> void [No source] POTENTIAL_MATCH\n" +
 			"AbortCompilation.jar AbortCompilation.MissingArgumentType.foo2() -> void [No source] POTENTIAL_MATCH", 
-			resultCollector.toString());
+			resultCollector);
 	
 		// potential match for a type declaration
 		resultCollector = new JavaSearchResultCollector();
@@ -1895,11 +1958,11 @@ public void testPotentialMatchInBinary() throws JavaModelException, CoreExceptio
 			DECLARATIONS, 
 			getJavaSearchScope(), 
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			"AbortCompilation.jar AbortCompilation.EnclosingType$MissingEnclosingType [No source] EXACT_MATCH\n" +
 			"AbortCompilation.jar AbortCompilation.MissingArgumentType [No source] EXACT_MATCH\n" +
 			"AbortCompilation.jar AbortCompilation.MissingFieldType [No source] EXACT_MATCH", 
-			resultCollector.toString());
+			resultCollector);
 	} finally {
 		// reset classpath
 		project.setRawClasspath(classpath, null);
@@ -1909,7 +1972,7 @@ public void testPotentialMatchInBinary() throws JavaModelException, CoreExceptio
  * Read and write access reference in compound expression test.
  * (regression test for bug 6158 Search - Prefix and postfix expression not found as write reference)
  */
-public void testReadWriteFieldReferenceInCompoundExpression() throws JavaModelException, CoreException {
+public void testReadWriteFieldReferenceInCompoundExpression() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "a4", "X.java").getType("X");
 	IField field = type.getField("field");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1921,9 +1984,9 @@ public void testReadWriteFieldReferenceInCompoundExpression() throws JavaModelEx
 		READ_ACCESSES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/a4/X.java a4.X.foo() -> void [field]", 
-		resultCollector.toString());
+		resultCollector);
 		
 	// Write reference
 	resultCollector = new JavaSearchResultCollector();
@@ -1933,15 +1996,15 @@ public void testReadWriteFieldReferenceInCompoundExpression() throws JavaModelEx
 		WRITE_ACCESSES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/a4/X.java a4.X.foo() -> void [field]", 
-		resultCollector.toString());
+		resultCollector);
 		
 }
 /**
  * Simple constructor declaration test.
  */
-public void testSimpleConstructorDeclaration() throws JavaModelException, CoreException {
+public void testSimpleConstructorDeclaration() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	IMethod constructor = type.getMethod("A", new String[] {"QX;"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1951,12 +2014,12 @@ public void testSimpleConstructorDeclaration() throws JavaModelException, CoreEx
 		DECLARATIONS, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals("src/p/A.java p.A(X) [A]", resultCollector.toString());
+	assertSearchResults("src/p/A.java p.A(X) [A]", resultCollector);
 }
 /**
  * Simple constructor reference test.
  */
-public void testSimpleConstructorReference1() throws JavaModelException, CoreException {
+public void testSimpleConstructorReference1() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	IMethod constructor = type.getMethod("A", new String[] {"QX;"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -1966,12 +2029,12 @@ public void testSimpleConstructorReference1() throws JavaModelException, CoreExc
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals("src/Test.java Test.main(String[]) -> void [new p.A(y)]", resultCollector.toString());
+	assertSearchResults("src/Test.java Test.main(String[]) -> void [new p.A(y)]", resultCollector);
 }
 /**
  * Simple constructor reference test.
  */
-public void testSimpleConstructorReference2() throws JavaModelException, CoreException {
+public void testSimpleConstructorReference2() throws CoreException {
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
 		getWorkspace(), 
@@ -1980,29 +2043,29 @@ public void testSimpleConstructorReference2() throws JavaModelException, CoreExc
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals("src/Test.java Test.main(String[]) -> void [new p.A(y)]", resultCollector.toString());
+	assertSearchResults("src/Test.java Test.main(String[]) -> void [new p.A(y)]", resultCollector);
 }
 /**
  * Simple declarations of sent messages test.
  */
-public void testSimpleDeclarationsOfSentMessages() throws JavaModelException, CoreException {
+public void testSimpleDeclarationsOfSentMessages() throws CoreException {
 	ICompilationUnit cu = getCompilationUnit("JavaSearch", "src", "", "Test.java");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().searchDeclarationsOfSentMessages(
 		getWorkspace(), 
 		cu, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p/X.java p.X.foo(int, String, X) -> void [foo(int i, String s, X x)]\n" +
 		"src/p/Y.java p.Y.bar() -> void [bar()]\n" +
 		"src/p/Z.java p.Z.foo(int, String, X) -> void [foo(int i, String s, X x)]\n" +
 		"src/p/A.java p.A.foo(int, String, X) -> void [foo()]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Simple field declaration test.
  */
-public void testSimpleFieldDeclaration() throws JavaModelException, CoreException {
+public void testSimpleFieldDeclaration() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	IField field = type.getField("x");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2012,14 +2075,14 @@ public void testSimpleFieldDeclaration() throws JavaModelException, CoreExceptio
 		DECLARATIONS, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p/A.java p.A.x [x]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Simple field reference test.
  */
-public void testSimpleFieldReference() throws JavaModelException, CoreException {
+public void testSimpleFieldReference() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	IField field = type.getField("x");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2029,15 +2092,15 @@ public void testSimpleFieldReference() throws JavaModelException, CoreException 
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/Test.java Test.main(String[]) -> void [x]\n" +
 		"src/p/A.java p.A(X) [x]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Simple write field access reference test.
  */
-public void testSimpleWriteFieldReference() throws JavaModelException, CoreException {
+public void testSimpleWriteFieldReference() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	IField field = type.getField("x");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2047,15 +2110,15 @@ public void testSimpleWriteFieldReference() throws JavaModelException, CoreExcep
 		WRITE_ACCESSES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p/A.java p.A(X) [x]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Sub-cu java search scope test.
  * (regression test for bug 9041 search: cannot create a sub-cu scope)
  */
-public void testSubCUSearchScope1() throws JavaModelException, CoreException {
+public void testSubCUSearchScope1() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "b3", "X.java").getType("X");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2065,18 +2128,18 @@ public void testSubCUSearchScope1() throws JavaModelException, CoreException {
 		REFERENCES, 
 		scope, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/b3/X.java b3.X.field [X]\n" +
 		"src/b3/X.java b3.X.foo() -> Object [X]\n" +
 		"src/b3/X.java b3.X$Y.field2 [X]\n" +
 		"src/b3/X.java b3.X$Y.foo2() -> Object [X]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Sub-cu java search scope test.
  * (regression test for bug 9041 search: cannot create a sub-cu scope)
  */
-public void testSubCUSearchScope2() throws JavaModelException, CoreException {
+public void testSubCUSearchScope2() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "b3", "X.java").getType("X");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getField("field")});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2086,15 +2149,15 @@ public void testSubCUSearchScope2() throws JavaModelException, CoreException {
 		REFERENCES, 
 		scope, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/b3/X.java b3.X.field [X]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Sub-cu java search scope test.
  * (regression test for bug 9041 search: cannot create a sub-cu scope)
  */
-public void testSubCUSearchScope3() throws JavaModelException, CoreException {
+public void testSubCUSearchScope3() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "b3", "X.java").getType("X");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getType("Y")});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2104,16 +2167,16 @@ public void testSubCUSearchScope3() throws JavaModelException, CoreException {
 		REFERENCES, 
 		scope, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/b3/X.java b3.X$Y.field2 [X]\n" +
 		"src/b3/X.java b3.X$Y.foo2() -> Object [X]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type declaration test.
  * (regression test for bug 29524 Search for declaration via patterns adds '"*")
  */
-public void testTypeDeclaration() throws JavaModelException, CoreException {
+public void testTypeDeclaration() throws CoreException {
 	IPackageFragment pkg = this.getPackageFragment("JavaSearch", "src", "d8");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2124,12 +2187,12 @@ public void testTypeDeclaration() throws JavaModelException, CoreException {
 		DECLARATIONS, 
 		scope, 
 		resultCollector);
-	assertEquals("src/d8/A.java d8.A [A]", resultCollector.toString());
+	assertSearchResults("src/d8/A.java d8.A [A]", resultCollector);
 }
 /**
  * Simple method declaration test.
  */
-public void testSimpleMethodDeclaration() throws JavaModelException, CoreException {
+public void testSimpleMethodDeclaration() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	IMethod method = type.getMethod("foo", new String[] {"I", "QString;", "QX;"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2139,15 +2202,15 @@ public void testSimpleMethodDeclaration() throws JavaModelException, CoreExcepti
 		DECLARATIONS, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p/X.java p.X.foo(int, String, X) -> void [foo]\n" +
 		"src/p/Z.java p.Z.foo(int, String, X) -> void [foo]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Simple method reference test.
  */
-public void testSimpleMethodReference() throws JavaModelException, CoreException {
+public void testSimpleMethodReference() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	IMethod method = type.getMethod("foo", new String[] {"I", "QString;", "QX;"});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2157,16 +2220,16 @@ public void testSimpleMethodReference() throws JavaModelException, CoreException
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/Test.java Test.main(String[]) -> void [foo(1, \"a\", y)]\n" +
 		"src/Test.java Test.main(String[]) -> void [foo(1, \"a\", z)]\n" +
 		"src/p/Z.java p.Z.foo(int, String, X) -> void [foo(i, s, new Y(true))]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Simple package declaration test.
  */
-public void testSimplePackageDeclaration() throws JavaModelException, CoreException {
+public void testSimplePackageDeclaration() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "p");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2175,14 +2238,14 @@ public void testSimplePackageDeclaration() throws JavaModelException, CoreExcept
 		DECLARATIONS, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p p", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Simple package reference test.
  */
-public void testSimplePackageReference() throws JavaModelException, CoreException {
+public void testSimplePackageReference() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "p");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2191,7 +2254,7 @@ public void testSimplePackageReference() throws JavaModelException, CoreExceptio
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/InterfaceImplementors.java InterfaceImplementors [p]\n" +
 		"src/Test.java Test.main(String[]) -> void [p]\n" +
 		"src/Test.java Test.main(String[]) -> void [p]\n" +
@@ -2201,12 +2264,12 @@ public void testSimplePackageReference() throws JavaModelException, CoreExceptio
 		"src/Test.java Test.main(String[]) -> void [p]\n" +
 		"src/Test.java Test.main(String[]) -> void [p]\n" +
 		"src/TypeReferenceInImport/X.java [p]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Simple field read access reference test.
  */
-public void testSimpleReadFieldReference() throws JavaModelException, CoreException {
+public void testSimpleReadFieldReference() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	IField field = type.getField("x");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2216,14 +2279,14 @@ public void testSimpleReadFieldReference() throws JavaModelException, CoreExcept
 		READ_ACCESSES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/Test.java Test.main(String[]) -> void [x]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Simple type declaration test.
  */
-public void testSimpleTypeDeclaration() throws JavaModelException, CoreException {
+public void testSimpleTypeDeclaration() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2232,12 +2295,12 @@ public void testSimpleTypeDeclaration() throws JavaModelException, CoreException
 		DECLARATIONS, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals("src/p/X.java p.X [X]", resultCollector.toString());
+	assertSearchResults("src/p/X.java p.X [X]", resultCollector);
 }
 /**
  * Simple type reference test.
  */
-public void testSimpleTypeReference() throws JavaModelException, CoreException {
+public void testSimpleTypeReference() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2246,7 +2309,7 @@ public void testSimpleTypeReference() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p/A.java p.A.x [X]\n" +
 		"src/p/A.java p.A(X) [X]\n" +
 		"src/p/A.java p.A.foo(int, String, X) -> void [X]\n" +
@@ -2254,13 +2317,13 @@ public void testSimpleTypeReference() throws JavaModelException, CoreException {
 		"src/p/X.java p.X.foo(int, String, X) -> void [X]\n" +
 		"src/p/Y.java p.Y [X]\n" +
 		"src/p/Z.java p.Z.foo(int, String, X) -> void [X]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Static field reference test.
  * (regression test for PR #1G2P5EP)
  */
-public void testStaticFieldReference() throws JavaModelException, CoreException {
+public void testStaticFieldReference() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	IField field = type.getField("DEBUG");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2270,14 +2333,14 @@ public void testStaticFieldReference() throws JavaModelException, CoreException 
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p/A.java p.A.foo() -> void [DEBUG]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Static method reference test.
  */
-public void testStaticMethodReference1() throws JavaModelException, CoreException {
+public void testStaticMethodReference1() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "Y.java").getType("Y");
 	IMethod method = type.getMethod("bar", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2287,14 +2350,14 @@ public void testStaticMethodReference1() throws JavaModelException, CoreExceptio
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/Test.java Test.main(String[]) -> void [bar()]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Static method reference test.
  */
-public void testStaticMethodReference2() throws JavaModelException, CoreException {
+public void testStaticMethodReference2() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	IMethod method = type.getMethod("bar", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2304,14 +2367,14 @@ public void testStaticMethodReference2() throws JavaModelException, CoreExceptio
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type declaration in jar file test.
  */
-public void testTypeDeclarationInJar() throws JavaModelException, CoreException {
+public void testTypeDeclarationInJar() throws CoreException {
 	IType type = getClassFile("JavaSearch", "MyJar.jar", "p1", "A.class").getType();
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2320,15 +2383,15 @@ public void testTypeDeclarationInJar() throws JavaModelException, CoreException 
 		DECLARATIONS, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"MyJar.jar p1.A [No source]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type declaration in jar file and in anonymous class test.
  * (regression test for 20631 Declaration of local binary type not found)
  */
-public void testTypeDeclarationInJar2() throws JavaModelException, CoreException {
+public void testTypeDeclarationInJar2() throws CoreException {
 	IPackageFragmentRoot root = getPackageFragmentRoot("JavaSearch", "test20631.jar");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {root});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2339,15 +2402,15 @@ public void testTypeDeclarationInJar2() throws JavaModelException, CoreException
 		DECLARATIONS, 
 		scope, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"test20631.jar X.foo() -> void", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type ocurrence test.
  * (regression test for PR 1GKAQJS: ITPJCORE:WIN2000 - search: incorrect results for nested types)
  */
-public void testTypeOccurence() throws JavaModelException, CoreException {
+public void testTypeOccurence() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "r", "A.java").getType("A").getType("X");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2356,14 +2419,14 @@ public void testTypeOccurence() throws JavaModelException, CoreException {
 		ALL_OCCURRENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/r/A.java r.A.m() -> A [X]\n" +
 		"src/r/A.java r.A$X [X]\n" +
 		"src/r/A.java r.A$X(X) [X]\n" +
 		"src/r/A.java r.A$X(X) [X]\n" +
 		"src/r/A.java r.B.ax [A.X]\n" +
 		"src/r/A.java r.B.ax [X]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type ocuurence in unresolvable import test.
@@ -2379,9 +2442,9 @@ public void testTypeOccurence2() throws CoreException {
 		ALL_OCCURRENCES, 
 		scope, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/r8/A.java [B]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type occurences test.
@@ -2396,20 +2459,20 @@ public void testTypeOccurence3() throws CoreException {
 		ALL_OCCURRENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/e4/A.java e4.A$Inner [Inner]\n" +
 		"src/e5/A1.java [e4.A.Inner]\n" +
 		"src/e5/A1.java e5.A1.a [e4.A.Inner]\n" +
 		"src/e5/A1.java e5.A1.a1 [e4.A.Inner]\n" +
 		"src/e5/A1.java e5.A1.a2 [Inner]\n" +
 		"src/e5/A1.java e5.A1.a3 [Inner]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type name with $ ocurrence test.
  * (regression test for bug 3310 Smoke 124: Compile errors introduced with rename refactoring (1GFBK2G))
  */
-public void testTypeOccurenceWithDollar() throws JavaModelException, CoreException {
+public void testTypeOccurenceWithDollar() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "q3", "A$B.java").getType("A$B");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2418,16 +2481,16 @@ public void testTypeOccurenceWithDollar() throws JavaModelException, CoreExcepti
 		ALL_OCCURRENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/q3/A$B.java q3.A$B [A$B]\n" +
 		"src/q4/C.java q4.C.foo() -> Object [q3.A$B]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference test.
  * (Regression test for PR 1GK7K17: ITPJCORE:WIN2000 - search: missing type reference)
  */
-public void testTypeReference1() throws JavaModelException, CoreException {
+public void testTypeReference1() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "", "X.java").getType("X");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2436,15 +2499,15 @@ public void testTypeReference1() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/X.java AA() [X]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference test.
  * (Regression test for bug 29516 SearchEngine regressions in 20030114)
  */
-public void testTypeReference2() throws JavaModelException, CoreException {
+public void testTypeReference2() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "d7", "A.java").getType("A");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2453,17 +2516,17 @@ public void testTypeReference2() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/d7/A.java d7.A.A [A]\n" +
 		"src/d7/A.java d7.A.A(A) -> A [A]\n" +
 		"src/d7/A.java d7.A.A(A) -> A [A]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference test.
  * (Regression test for bug 31985 NPE searching non-qualified and case insensitive type ref)
  */
-public void testTypeReference3() throws JavaModelException, CoreException {
+public void testTypeReference3() throws CoreException {
 	ISearchPattern pattern = SearchEngine.createSearchPattern("x31985", TYPE, REFERENCES, false);
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	resultCollector.showAccuracy = true;
@@ -2472,16 +2535,16 @@ public void testTypeReference3() throws JavaModelException, CoreException {
 		pattern,
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/e3/X31985.java e3.X31985.CONSTANT [X31985] EXACT_MATCH\n" +
 		"src/e3/Y31985.java e3.Y31985.foo() -> Object [X31985] EXACT_MATCH",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference test.
  * (Regression test for bug 31997 Refactoring d.n. work for projects with brackets in name.)
  */
-public void testTypeReference4() throws JavaModelException, CoreException {
+public void testTypeReference4() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "otherSrc()", "", "X31997.java").getType("X31997");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2490,14 +2553,14 @@ public void testTypeReference4() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"otherSrc()/Y31997.java Y31997 [X31997]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference as a single name reference test.
  */
-public void testTypeReferenceAsSingleNameReference() throws JavaModelException, CoreException {
+public void testTypeReferenceAsSingleNameReference() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "", "TypeReferenceAsSingleNameReference.java").getType("TypeReferenceAsSingleNameReference");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2506,16 +2569,16 @@ public void testTypeReferenceAsSingleNameReference() throws JavaModelException, 
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/TypeReferenceAsSingleNameReference.java TypeReferenceAsSingleNameReference.hasReference() -> void [TypeReferenceAsSingleNameReference]\n" +
 		"src/TypeReferenceAsSingleNameReference.java TypeReferenceAsSingleNameReference.hasReference() -> void [TypeReferenceAsSingleNameReference]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference in array test.
  * (regression test for PR #1GAL424)
  */
-public void testTypeReferenceInArray() throws JavaModelException, CoreException {
+public void testTypeReferenceInArray() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "TypeReferenceInArray", "A.java").getType("A");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2524,16 +2587,16 @@ public void testTypeReferenceInArray() throws JavaModelException, CoreException 
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/TypeReferenceInArray/A.java TypeReferenceInArray.A.a [A]\n" +
 		"src/TypeReferenceInArray/A.java TypeReferenceInArray.A.b [TypeReferenceInArray.A]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference in array test.
  * (regression test for bug 3230 Search - Too many type references for query ending with * (1GAZVGI)  )
  */
-public void testTypeReferenceInArray2() throws JavaModelException, CoreException {
+public void testTypeReferenceInArray2() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "s1", "X.java").getType("X");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2542,15 +2605,15 @@ public void testTypeReferenceInArray2() throws JavaModelException, CoreException
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/s1/Y.java s1.Y.f [X]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference in cast test.
  * (regression test for bug 23329 search: incorrect range for type references in brackets)
  */
-public void testTypeReferenceInCast() throws JavaModelException, CoreException {
+public void testTypeReferenceInCast() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "s3", "A.java").getType("B");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2559,15 +2622,15 @@ public void testTypeReferenceInCast() throws JavaModelException, CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/s3/A.java s3.A.foo() -> Object [B]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference in hierarchy test.
  * (regression test for bug 28236 Search for refs to class in hierarchy matches class outside hierarchy )
  */
-public void testTypeReferenceInHierarchy() throws JavaModelException, CoreException {
+public void testTypeReferenceInHierarchy() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "d9.p1", "A.java").getType("A");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
@@ -2577,15 +2640,15 @@ public void testTypeReferenceInHierarchy() throws JavaModelException, CoreExcept
 		REFERENCES, 
 		scope, 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference in import test.
  * (regression test for PR #1GA7PAS)
  */
-public void testTypeReferenceInImport() throws JavaModelException, CoreException {
+public void testTypeReferenceInImport() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p2", "Z.java").getType("Z");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2594,15 +2657,15 @@ public void testTypeReferenceInImport() throws JavaModelException, CoreException
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/TypeReferenceInImport/X.java [p2.Z]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference in import test.
  * (regression test for bug 23077 search: does not find type references in some imports)
  */
-public void testTypeReferenceInImport2() throws JavaModelException, CoreException {
+public void testTypeReferenceInImport2() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "r6", "A.java").getType("A");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2611,20 +2674,20 @@ public void testTypeReferenceInImport2() throws JavaModelException, CoreExceptio
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/r6/B.java [r6.A]\n" +
 		"src/r6/B.java [r6.A]\n" +
 		"src/r6/B.java [r6.A]\n" +
 		"src/r6/B.java [r6.A]\n" +
 		"src/r6/B.java [r6.A]\n" +
 		"src/r6/B.java [r6.A]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference in initializer test.
  * (regression test for PR #1G4GO4O)
  */
-public void testTypeReferenceInInitializer() throws JavaModelException, CoreException {
+public void testTypeReferenceInInitializer() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "", "Test.java").getType("Test");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2633,17 +2696,17 @@ public void testTypeReferenceInInitializer() throws JavaModelException, CoreExce
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/Test.java Test.static {} [Test]\n" +
 		"src/Test.java Test.static {} [Test]\n" +
 		"src/Test.java Test.{} [Test]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference inside a qualified name reference test.
  * (Regression test for PR #1G4TSC0)
  */
-public void testTypeReferenceInQualifiedNameReference() throws JavaModelException, CoreException {
+public void testTypeReferenceInQualifiedNameReference() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2652,17 +2715,17 @@ public void testTypeReferenceInQualifiedNameReference() throws JavaModelExceptio
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/Test.java Test.main(String[]) -> void [p.A]\n" +
 		"src/Test.java Test.main(String[]) -> void [p.A]\n" +
 		"src/p/A.java p.A.foo() -> void [A]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference inside a qualified name reference test.
  * (Regression test for PR #1GLBP65)
  */
-public void testTypeReferenceInQualifiedNameReference2() throws JavaModelException, CoreException {
+public void testTypeReferenceInQualifiedNameReference2() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p4", "A.java").getType("A");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2671,17 +2734,17 @@ public void testTypeReferenceInQualifiedNameReference2() throws JavaModelExcepti
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p4/A.java p4.A.A [A]\n" +
 		"src/p4/A.java p4.X [p4.A]\n" +
 		"src/p4/A.java p4.X.x() -> void [p4.A]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference inside a qualified name reference test.
  * (Regression test for PR 1GL9UMH: ITPJCORE:WIN2000 - search: missing type occurrences)
  */
-public void testTypeReferenceInQualifiedNameReference3() throws JavaModelException, CoreException {
+public void testTypeReferenceInQualifiedNameReference3() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "", "W.java").getType("W");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2690,9 +2753,9 @@ public void testTypeReferenceInQualifiedNameReference3() throws JavaModelExcepti
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/W.java W.m() -> int [W]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference inside a qualified name reference test.
@@ -2707,15 +2770,15 @@ public void testTypeReferenceInQualifiedNameReference4() throws CoreException {
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/b7/X.java b7.Test.main(String[]) -> void [SubClass]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference in a throw clause test.
  * (Regression test for bug 6779 searchDeclarationsOfReferencedTyped - missing exception types)
  */
-public void testTypeReferenceInThrows() throws JavaModelException, CoreException {
+public void testTypeReferenceInThrows() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "a7", "X.java").getType("MyException");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	resultCollector.showAccuracy = true;
@@ -2725,14 +2788,14 @@ public void testTypeReferenceInThrows() throws JavaModelException, CoreException
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/a7/X.java a7.X.foo() -> void [MyException] EXACT_MATCH",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference test (not case sensitive)
  */
-public void testTypeReferenceNotCaseSensitive() throws JavaModelException, CoreException {
+public void testTypeReferenceNotCaseSensitive() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "d4");
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
 	ISearchPattern pattern = SearchEngine.createSearchPattern("Y", TYPE, REFERENCES, false);
@@ -2742,15 +2805,15 @@ public void testTypeReferenceNotCaseSensitive() throws JavaModelException, CoreE
 		pattern, 
 		scope,
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/d4/X.java d4.X.foo() -> Object [Y]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference in a folder that is not in the classpath.
  * (regression test for PR #1G5N8KS)
  */
-public void testTypeReferenceNotInClasspath() throws JavaModelException, CoreException {
+public void testTypeReferenceNotInClasspath() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2759,7 +2822,7 @@ public void testTypeReferenceNotInClasspath() throws JavaModelException, CoreExc
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p/A.java p.A.x [X]\n" +
 		"src/p/A.java p.A(X) [X]\n" +
 		"src/p/A.java p.A.foo(int, String, X) -> void [X]\n" +
@@ -2767,13 +2830,13 @@ public void testTypeReferenceNotInClasspath() throws JavaModelException, CoreExc
 		"src/p/X.java p.X.foo(int, String, X) -> void [X]\n" +
 		"src/p/Y.java p.Y [X]\n" +
 		"src/p/Z.java p.Z.foo(int, String, X) -> void [X]",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference with corrupt jar on the classpath test.
  * (Regression test for bug 39831 Search finds only "inexact" matches)
  */
-public void testTypeReferenceWithCorruptJar() throws JavaModelException, CoreException {
+public void testTypeReferenceWithCorruptJar() throws CoreException {
 	IJavaProject project = getJavaProject("JavaSearch");
 	IClasspathEntry[] originalCP = project.getRawClasspath();
 	try {
@@ -2793,9 +2856,9 @@ public void testTypeReferenceWithCorruptJar() throws JavaModelException, CoreExc
 			REFERENCES, 
 			SearchEngine.createJavaSearchScope(new IJavaElement[] {project}), 
 			resultCollector);
-		assertEquals(
+		assertSearchResults(
 			"src/e7/A.java e7.A.a [A] EXACT_MATCH",
-			resultCollector.toString());
+			resultCollector);
 	} finally {
 		project.setRawClasspath(originalCP, null);
 	}
@@ -2804,7 +2867,7 @@ public void testTypeReferenceWithCorruptJar() throws JavaModelException, CoreExc
  * Type reference with problem test.
  * (Regression test for bug 36479 Rename operation during refactoring fails)
  */
-public void testTypeReferenceWithProblem() throws JavaModelException, CoreException {
+public void testTypeReferenceWithProblem() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "e6", "A.java").getType("A");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	resultCollector.showAccuracy = true;
@@ -2815,15 +2878,15 @@ public void testTypeReferenceWithProblem() throws JavaModelException, CoreExcept
 		REFERENCES, 
 		SearchEngine.createJavaSearchScope(new IJavaElement[] {type}), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/e6/A.java e6.A.foo() -> Object [B36479] POTENTIAL_MATCH",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference with recovery test.
  * (Regression test for bug 29366 Search reporting invalid inaccurate match )
  */
-public void testTypeReferenceWithRecovery() throws JavaModelException, CoreException {
+public void testTypeReferenceWithRecovery() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "e1", "A29366.java").getType("A29366");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	resultCollector.showAccuracy = true;
@@ -2833,15 +2896,15 @@ public void testTypeReferenceWithRecovery() throws JavaModelException, CoreExcep
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/e1/A29366.java e1.A29366.foo() -> void [A29366] EXACT_MATCH",
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Negative type reference test.
  * (regression test for 1G52F7P: ITPJCORE:WINNT - Search - finds bogus references to class)
  */
-public void testNegativeTypeReference() throws JavaModelException, CoreException {
+public void testNegativeTypeReference() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "p7", "A.java").getType("A");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2850,15 +2913,15 @@ public void testNegativeTypeReference() throws JavaModelException, CoreException
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"",
-		resultCollector.toString());
+		resultCollector);
 }
 
 /**
  * Various package declarations test.
  */
-public void testVariousPackageDeclarations() throws JavaModelException, CoreException {
+public void testVariousPackageDeclarations() throws CoreException {
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
 		getWorkspace(), 
@@ -2867,15 +2930,15 @@ public void testVariousPackageDeclarations() throws JavaModelException, CoreExce
 		DECLARATIONS, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/p3 p3\n" +
 		"src/p3/p2/p p3.p2.p", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Various package reference test.
  */
-public void testVariousPackageReference() throws JavaModelException, CoreException {
+public void testVariousPackageReference() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "p3.p2.p");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2884,7 +2947,7 @@ public void testVariousPackageReference() throws JavaModelException, CoreExcepti
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"src/PackageReference/A.java [p3.p2.p]\n" +
 		"src/PackageReference/B.java [p3.p2.p]\n" +
 		"src/PackageReference/C.java PackageReference.C [p3.p2.p]\n" +
@@ -2895,13 +2958,13 @@ public void testVariousPackageReference() throws JavaModelException, CoreExcepti
 		"src/PackageReference/H.java PackageReference.H.foo() -> void [p3.p2.p]\n" +
 		"src/PackageReference/I.java PackageReference.I.foo() -> void [p3.p2.p]\n" +
 		"src/PackageReference/J.java PackageReference.J.foo() -> void [p3.p2.p]", 
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Type reference inside an argument, a return type or a field type.
  * (Regression test for PR #1GA7QA1)
  */
-public void testVariousTypeReferences() throws JavaModelException, CoreException {
+public void testVariousTypeReferences() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "NoReference", "A.java").getType("A");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 	new SearchEngine().search(
@@ -2910,15 +2973,15 @@ public void testVariousTypeReferences() throws JavaModelException, CoreException
 		REFERENCES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"", // no reference should be found
-		resultCollector.toString());
+		resultCollector);
 }
 /**
  * Write access reference in a qualified name reference test.
  * (regression test for bug 7344 Search - write acces give wrong result)
  */
-public void testReadWriteAccessInQualifiedNameReference() throws JavaModelException, CoreException {
+public void testReadWriteAccessInQualifiedNameReference() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "a8", "A.java").getType("A");
 	IField field = type.getField("a");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -2930,9 +2993,9 @@ public void testReadWriteAccessInQualifiedNameReference() throws JavaModelExcept
 		WRITE_ACCESSES, 
 		getJavaSearchScope(), 
 		resultCollector);
-	assertEquals(
+	assertSearchResults(
 		"", 
-		resultCollector.toString());
+		resultCollector);
 		
 }
 }

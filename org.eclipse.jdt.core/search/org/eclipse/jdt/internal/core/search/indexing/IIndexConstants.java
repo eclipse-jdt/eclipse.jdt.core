@@ -52,4 +52,5 @@ public interface IIndexConstants {
 	int FIELD_PATTERN = 64;
 	int METHOD_PATTERN = 128;
 	int OR_PATTERN = 256;
+	int LOCAL_VAR_PATTERN = 512;
 }

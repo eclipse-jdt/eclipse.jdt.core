@@ -24,7 +24,8 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 
 public class LocalVariable extends JavaElement implements ILocalVariable, ISourceReference {
 
-	int declarationSourceStart, declarationEnd;
+	public int declarationSourceStart;
+	int declarationEnd;
 	int nameStart, nameEnd;
 	
 	public LocalVariable(

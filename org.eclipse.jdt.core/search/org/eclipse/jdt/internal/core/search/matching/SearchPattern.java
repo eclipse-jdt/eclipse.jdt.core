@@ -741,6 +741,61 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 						limitTo);
 			}
 			break;
+		case IJavaElement.LOCAL_VARIABLE :
+			ILocalVariable localVar = (ILocalVariable) element;
+			switch (limitTo) {
+				case IJavaSearchConstants.DECLARATIONS :
+					searchPattern = 
+						new LocalVariablePattern(
+							true, // declarations
+							false, // no read access
+							false, // no write access
+							localVar, 
+							EXACT_MATCH, 
+							CASE_SENSITIVE);
+					break;
+				case IJavaSearchConstants.REFERENCES :
+					searchPattern = 
+						new LocalVariablePattern(
+							false,
+							true, // read access
+							true, // write access
+							localVar, 
+							EXACT_MATCH, 
+							CASE_SENSITIVE);
+					break;
+				case IJavaSearchConstants.READ_ACCESSES :
+					searchPattern = 
+						new LocalVariablePattern(
+							false,
+							true, // read access only
+							false,
+							localVar, 
+							EXACT_MATCH, 
+							CASE_SENSITIVE);
+					break;
+				case IJavaSearchConstants.WRITE_ACCESSES :
+					searchPattern = 
+						new LocalVariablePattern(
+							false,
+							false,
+							true, // write access only
+							localVar, 
+							EXACT_MATCH, 
+							CASE_SENSITIVE);
+					break;
+				case IJavaSearchConstants.ALL_OCCURRENCES :
+					searchPattern =
+						new LocalVariablePattern(
+							true,
+							true, // read access
+							true, // write access
+							localVar, 
+							EXACT_MATCH, 
+							CASE_SENSITIVE);
+					break;
+			}
+			break;
 		case IJavaElement.METHOD :
 			IMethod method = (IMethod) element;
 			boolean isConstructor;
@@ -786,7 +841,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 						? signature.substring(0, lastDot).toCharArray()
 						// prefix with a '*' as the full qualification could be bigger (because of an import)
 						: CharOperation.concat(ONE_STAR, signature.substring(0, lastDot).toCharArray());
-				}
+			}
 			}
 			switch (limitTo) {
 				case IJavaSearchConstants.DECLARATIONS :
@@ -1029,7 +1084,7 @@ private static char[][] enclosingTypeNames(IType type) {
 				new char[][] {declaringClass.getElementName().toCharArray(), new char[] {'1'}});
 		case IJavaElement.TYPE:
 			return CharOperation.arrayConcat(
-				enclosingTypeNames((IType) parent), 
+				enclosingTypeNames((IType)parent), 
 				parent.getElementName().toCharArray());
 		default:
 			return null;
