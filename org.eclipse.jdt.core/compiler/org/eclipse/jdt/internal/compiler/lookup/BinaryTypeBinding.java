@@ -30,6 +30,7 @@ null is NOT a valid value for a non-public field... it just means the field is n
 */
 
 public final class BinaryTypeBinding extends ReferenceBinding {
+    
 	// all of these fields are ONLY guaranteed to be initialized if accessed using their public accessor method
 	private ReferenceBinding superclass;
 	private ReferenceBinding enclosingType;
@@ -37,7 +38,8 @@ public final class BinaryTypeBinding extends ReferenceBinding {
 	private FieldBinding[] fields;
 	private MethodBinding[] methods;
 	private ReferenceBinding[] memberTypes;
-
+    public TypeVariableBinding[] typeVariables;
+    
 	// For the link with the principle structure
 	private LookupEnvironment environment;
 public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, LookupEnvironment environment) {

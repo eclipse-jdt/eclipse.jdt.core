@@ -185,16 +185,13 @@ public class AllocationExpression
 		if (binding.isPrivate()
 			&& (currentScope.enclosingSourceType() != binding.declaringClass)) {
 
-			if (currentScope
-				.environment()
-				.options
-				.isPrivateConstructorAccessChangingVisibility) {
-				binding.tagForClearingPrivateModifier();
+			if (currentScope.environment().options.isPrivateConstructorAccessChangingVisibility) {
+				this.codegenBinding.tagForClearingPrivateModifier();
 				// constructor will not be dumped as private, no emulation required thus
 			} else {
 				syntheticAccessor =
-					((SourceTypeBinding) binding.declaringClass).addSyntheticMethod(binding, isSuperAccess());
-				currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
+					((SourceTypeBinding) binding.declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
+				currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
 			}
 		}
 	}

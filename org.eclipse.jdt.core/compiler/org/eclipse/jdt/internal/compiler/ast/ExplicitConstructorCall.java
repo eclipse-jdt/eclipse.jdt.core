@@ -194,15 +194,15 @@ public class ExplicitConstructorCall
 		}
 		
 		// perform some emulation work in case there is some and we are inside a local type only
-		if (binding.isPrivate() && (accessMode != This)) {
+		if (binding.isPrivate() && accessMode != This) {
 
 			if (currentScope.environment().options.isPrivateConstructorAccessChangingVisibility) {
-				binding.tagForClearingPrivateModifier();
+				this.codegenBinding.tagForClearingPrivateModifier();
 				// constructor will not be dumped as private, no emulation required thus
 			} else {
 				syntheticAccessor =
-					((SourceTypeBinding) binding.declaringClass).addSyntheticMethod(binding, isSuperAccess());
-				currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
+					((SourceTypeBinding) binding.declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
+				currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
 			}
 		}
 	}

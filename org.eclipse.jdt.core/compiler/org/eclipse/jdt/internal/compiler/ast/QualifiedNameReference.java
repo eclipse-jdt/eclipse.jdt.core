@@ -28,6 +28,7 @@ public class QualifiedNameReference extends NameReference {
 	SyntheticAccessMethodBinding syntheticWriteAccessor;
 	SyntheticAccessMethodBinding[] syntheticReadAccessors;
 	protected FieldBinding lastFieldBinding;
+	
 	public QualifiedNameReference(
 		char[][] sources,
 		long[] positions,
@@ -39,6 +40,7 @@ public class QualifiedNameReference extends NameReference {
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
 	}
+	
 	public FlowInfo analyseAssignment(
 		BlockScope currentScope,
 		FlowContext flowContext,
@@ -621,7 +623,7 @@ public class QualifiedNameReference extends NameReference {
 							new SyntheticAccessMethodBinding[otherBindings.length + 1];
 				}
 				syntheticReadAccessors[index] = ((SourceTypeBinding) fieldBinding.declaringClass).addSyntheticMethod(fieldBinding, true);
-				currentScope.problemReporter().needToEmulateFieldReadAccess(fieldBinding, this);
+				currentScope.problemReporter().needToEmulateFieldAccess(fieldBinding, this, true /*write-access*/);
 				return;
 			}
 		} else if (fieldBinding.isProtected()){
@@ -639,7 +641,7 @@ public class QualifiedNameReference extends NameReference {
 				syntheticReadAccessors[index] =
 					((SourceTypeBinding) currentScope.enclosingSourceType().enclosingTypeAt(depth))
 											.addSyntheticMethod(fieldBinding, true);
-				currentScope.problemReporter().needToEmulateFieldReadAccess(fieldBinding, this);
+				currentScope.problemReporter().needToEmulateFieldAccess(fieldBinding, this, true /*read-access*/);
 				return;
 			}
 		}
@@ -655,13 +657,13 @@ public class QualifiedNameReference extends NameReference {
 					&& fieldBinding.declaringClass.id != T_Object)
 				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
 			if (index == 0){
-				this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType);
+				this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
 			} else {
 				if (this.otherCodegenBindings == this.otherBindings){
 					int l = this.otherBindings.length;
 					System.arraycopy(this.otherBindings, 0, this.otherCodegenBindings = new FieldBinding[l], 0, l);
 				}
-				this.otherCodegenBindings[index-1] = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType);
+				this.otherCodegenBindings[index-1] = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
 			}
 		}
 	}
@@ -678,7 +680,7 @@ public class QualifiedNameReference extends NameReference {
 			if (fieldBinding.declaringClass != currentScope.enclosingSourceType()) {
 				syntheticWriteAccessor = ((SourceTypeBinding) fieldBinding.declaringClass)
 											.addSyntheticMethod(fieldBinding, false);
-				currentScope.problemReporter().needToEmulateFieldWriteAccess(fieldBinding, this);
+				currentScope.problemReporter().needToEmulateFieldAccess(fieldBinding, this, false /*write-access*/);
 				return;
 			}
 		} else if (fieldBinding.isProtected()){
@@ -687,7 +689,7 @@ public class QualifiedNameReference extends NameReference {
 								!= currentScope.enclosingSourceType().getPackage())) {
 				syntheticWriteAccessor = ((SourceTypeBinding) currentScope.enclosingSourceType().enclosingTypeAt(depth))
 											.addSyntheticMethod(fieldBinding, false);
-				currentScope.problemReporter().needToEmulateFieldWriteAccess(fieldBinding, this);
+				currentScope.problemReporter().needToEmulateFieldAccess(fieldBinding, this, false /*write-access*/);
 				return;
 			}
 		}
@@ -703,13 +705,13 @@ public class QualifiedNameReference extends NameReference {
 					&& fieldBinding.declaringClass.id != T_Object)
 				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
 			if (fieldBinding == binding){
-				this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType);
+				this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
 			} else {
 				if (this.otherCodegenBindings == this.otherBindings){
 					int l = this.otherBindings.length;
 					System.arraycopy(this.otherBindings, 0, this.otherCodegenBindings = new FieldBinding[l], 0, l);
 				}
-				this.otherCodegenBindings[this.otherCodegenBindings.length-1] = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType);
+				this.otherCodegenBindings[this.otherCodegenBindings.length-1] = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
 			}
 		}
 		

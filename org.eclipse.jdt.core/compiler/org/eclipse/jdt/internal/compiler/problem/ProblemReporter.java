@@ -2508,17 +2508,11 @@ public void nativeMethodsCannotBeStrictfp(ReferenceBinding type, AbstractMethodD
 public void needImplementation() {
 	this.abortDueToInternalError(Util.bind("abort.missingCode")); //$NON-NLS-1$
 }
-public void needToEmulateFieldReadAccess(FieldBinding field, ASTNode location) {
+public void needToEmulateFieldAccess(FieldBinding field, ASTNode location, boolean isReadAccess) {
 	this.handle(
-		IProblem.NeedToEmulateFieldReadAccess,
-		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
-		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
-		location.sourceStart,
-		location.sourceEnd);
-}
-public void needToEmulateFieldWriteAccess(FieldBinding field, ASTNode location) {
-	this.handle(
-		IProblem.NeedToEmulateFieldWriteAccess,
+		isReadAccess 
+			? IProblem.NeedToEmulateFieldReadAccess
+			: IProblem.NeedToEmulateFieldWriteAccess,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
 		location.sourceStart,

@@ -139,14 +139,13 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	} else {
 	    this.codegenBinding = this.binding;
 	}
-	// TODO (philippe) determine whether code below should use binding or codegenBinding
 	if (this.binding.isPrivate()){
 
 		// depth is set for both implicit and explicit access (see MethodBinding#canBeSeenBy)		
 		if (currentScope.enclosingSourceType() != binding.declaringClass){
 		
-			syntheticAccessor = ((SourceTypeBinding)binding.declaringClass).addSyntheticMethod(binding, isSuperAccess());
-			currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
+			syntheticAccessor = ((SourceTypeBinding)binding.declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
+			currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
 			return;
 		}
 
@@ -154,20 +153,20 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 
 		// qualified super need emulation always
 		SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedSuperReference)receiver).currentCompatibleType);
-		syntheticAccessor = destinationType.addSyntheticMethod(binding, isSuperAccess());
-		currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
+		syntheticAccessor = destinationType.addSyntheticMethod(this.codegenBinding, isSuperAccess());
+		currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
 		return;
 
 	} else if (binding.isProtected()){
 
 		SourceTypeBinding enclosingSourceType;
 		if (((bits & DepthMASK) != 0) 
-				&& binding.declaringClass.getPackage() 
+				&& this.codegenBinding.declaringClass.getPackage() 
 					!= (enclosingSourceType = currentScope.enclosingSourceType()).getPackage()){
 
 			SourceTypeBinding currentCompatibleType = (SourceTypeBinding)enclosingSourceType.enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
-			syntheticAccessor = currentCompatibleType.addSyntheticMethod(binding, isSuperAccess());
-			currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
+			syntheticAccessor = currentCompatibleType.addSyntheticMethod(this.codegenBinding, isSuperAccess());
+			currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
 			return;
 		}
 	}
@@ -176,16 +175,15 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
 	// and not from Object or implicit static method call.	
-	TypeBinding rawQualifyingType = this.qualifyingType.rawType();
-	if (this.codegenBinding.declaringClass != rawQualifyingType
+	if (this.binding.declaringClass != this.qualifyingType
 		&& !this.qualifyingType.isArrayType()
 		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& (!receiver.isImplicitThis() || !this.codegenBinding.isStatic())
-				&& this.codegenBinding.declaringClass.id != T_Object) // no change for Object methods
+				&& this.binding.declaringClass.id != T_Object) // no change for Object methods
 			|| !this.binding.declaringClass.canBeSeenBy(currentScope))) {
 
 		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(
-		        										this.codegenBinding, (ReferenceBinding) rawQualifyingType);
+		        										this.codegenBinding, (ReferenceBinding) this.qualifyingType.rawType());
 
 		// Post 1.4.0 target, array clone() invocations are qualified with array type 
 		// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)

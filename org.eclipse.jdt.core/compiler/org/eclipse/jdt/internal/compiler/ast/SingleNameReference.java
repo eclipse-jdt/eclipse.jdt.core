@@ -46,7 +46,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 							currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 						}
 					}
-					manageSyntheticReadAccessIfNecessary(currentScope, flowInfo);
+					manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 					break;
 				case LOCAL : // reading a local variable
 					// check if assigning a final blank field
@@ -67,7 +67,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		}
 		switch (bits & RestrictiveFlagMASK) {
 			case FIELD : // assigning to a field
-				manageSyntheticWriteAccessIfNecessary(currentScope, flowInfo);
+				manageSyntheticAccessIfNecessary(currentScope, flowInfo, false /*write-access*/);
 	
 				// check if assigning a final field
 				FieldBinding fieldBinding;
@@ -119,7 +119,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		switch (bits & RestrictiveFlagMASK) {
 			case FIELD : // reading a field
 				if (valueRequired) {
-					manageSyntheticReadAccessIfNecessary(currentScope, flowInfo);
+					manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 				}
 				// check if reading a final blank field
 				FieldBinding fieldBinding;
@@ -539,7 +539,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			currentScope.emulateOuterAccess((LocalVariableBinding) binding);
 		}
 	}
-	public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
+	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo, boolean isReadAccess) {
 	
 		if (!flowInfo.isReachable()) return;
 	
@@ -565,82 +565,31 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			if (((bits & DepthMASK) != 0)
 				&& (fieldBinding.isPrivate() // private access
 					|| (fieldBinding.isProtected() // implicit protected access
-							&& fieldBinding.declaringClass.getPackage() 
-								!= currentScope.enclosingSourceType().getPackage()))) {
+							&& fieldBinding.declaringClass.getPackage() != currentScope.enclosingSourceType().getPackage()))) {
 				if (syntheticAccessors == null)
 					syntheticAccessors = new MethodBinding[2];
-				syntheticAccessors[READ] = 
-					((SourceTypeBinding)currentScope.enclosingSourceType().
-						enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT)).
-							addSyntheticMethod(fieldBinding, true);
-				currentScope.problemReporter().needToEmulateFieldReadAccess(fieldBinding, this);
+				syntheticAccessors[isReadAccess ? READ : WRITE] = 
+				    ((SourceTypeBinding)currentScope.enclosingSourceType().
+						enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT)).addSyntheticMethod((FieldBinding) this.codegenBinding, isReadAccess);
+				currentScope.problemReporter().needToEmulateFieldAccess((FieldBinding)this.codegenBinding, this, isReadAccess);
 				return;
 			}
 			// if the binding declaring class is not visible, need special action
 			// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 			// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
 			// and not from Object or implicit static field access.	
-			TypeBinding rawReceiverType = this.actualReceiverType.rawType();
-			FieldBinding fieldCodegenBinding = (FieldBinding)this.codegenBinding;
-			if (fieldCodegenBinding.declaringClass != rawReceiverType
+			if (fieldBinding.declaringClass != this.actualReceiverType
 				&& !this.actualReceiverType.isArrayType()	
-				&& fieldCodegenBinding.declaringClass != null
-				&& fieldCodegenBinding.constant == NotAConstant
+				&& fieldBinding.declaringClass != null
+				&& fieldBinding.constant == NotAConstant
 				&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
-						&& !fieldCodegenBinding.isStatic()
-						&& fieldCodegenBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
+						&& !fieldBinding.isStatic()
+						&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
 					|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
-				this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldCodegenBinding, (ReferenceBinding)rawReceiverType);
-			}
-		}
-	}
-	public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
-	
-		if (!flowInfo.isReachable()) return;
-		// if field from parameterized type got found, use the original field at codegen time
-		if (this.binding instanceof ParameterizedFieldBinding) {
-		    ParameterizedFieldBinding parameterizedField = (ParameterizedFieldBinding) this.binding;
-		    this.codegenBinding = parameterizedField.originalField;
-		    FieldBinding fieldCodegenBinding = (FieldBinding)this.codegenBinding;
-		    // extra cast needed if field type was type variable
-		    if (fieldCodegenBinding.type.isTypeVariable()) {
-		        TypeVariableBinding variableReturnType = (TypeVariableBinding) fieldCodegenBinding.type;
-		        if (variableReturnType.firstBound != parameterizedField.type) { // no need for extra cast if same as first bound anyway
-				    this.genericCast = parameterizedField.type;
-		        }
-		    }
-		}		
-		if ((bits & FIELD) != 0) {
-			FieldBinding fieldBinding = (FieldBinding) binding;
-			if (((bits & DepthMASK) != 0) 
-				&& (fieldBinding.isPrivate() // private access
-					|| (fieldBinding.isProtected() // implicit protected access
-							&& fieldBinding.declaringClass.getPackage() 
-								!= currentScope.enclosingSourceType().getPackage()))) {
-				if (syntheticAccessors == null)
-					syntheticAccessors = new MethodBinding[2];
-				syntheticAccessors[WRITE] = 
-					((SourceTypeBinding)currentScope.enclosingSourceType().
-						enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT)).
-							addSyntheticMethod(fieldBinding, false);
-				currentScope.problemReporter().needToEmulateFieldWriteAccess(fieldBinding, this);
-				return;
-			}
-			// if the binding declaring class is not visible, need special action
-			// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-			// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
-			// and not from Object or implicit static field access.	
-			TypeBinding rawReceiverType = this.actualReceiverType.rawType();
-			FieldBinding fieldCodegenBinding = (FieldBinding)this.codegenBinding;
-			if (fieldCodegenBinding.declaringClass != rawReceiverType
-				&& !this.actualReceiverType.isArrayType()	
-				&& fieldCodegenBinding.declaringClass != null
-				&& fieldCodegenBinding.constant == NotAConstant
-				&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 
-						&& !fieldCodegenBinding.isStatic()
-						&& fieldCodegenBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)
-					|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
-				this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldCodegenBinding, (ReferenceBinding)rawReceiverType);
+				this.codegenBinding = 
+				    currentScope.enclosingSourceType().getUpdatedFieldBinding(
+					        (FieldBinding) this.codegenBinding, 
+					        (ReferenceBinding)this.actualReceiverType.rawType());
 			}
 		}
 	}

@@ -181,14 +181,13 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
 	// and not from Object or implicit static method call.	
-	TypeBinding rawQualifyingType = this.qualifyingType.rawType();
-	if (this.codegenBinding.declaringClass != rawQualifyingType
+	if (this.binding.declaringClass != this.qualifyingType
 		&& !this.qualifyingType.isArrayType()
 		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& (!this.receiver.isImplicitThis() || !this.codegenBinding.isStatic())
-				&& this.codegenBinding.declaringClass.id != T_Object) // no change for Object methods
+				&& this.binding.declaringClass.id != T_Object) // no change for Object methods
 			|| !this.binding.declaringClass.canBeSeenBy(currentScope))) {
-		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(this.codegenBinding, (ReferenceBinding) rawQualifyingType);
+		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(this.codegenBinding, (ReferenceBinding) this.qualifyingType.rawType());
 	}	
 }
 public TypeBinding resolveType(BlockScope scope) {

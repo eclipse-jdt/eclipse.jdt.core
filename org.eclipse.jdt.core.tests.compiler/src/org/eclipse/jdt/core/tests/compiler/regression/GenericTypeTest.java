@@ -1210,6 +1210,95 @@ public void test051() {
 		},
 		"SUCCESS");
 }
+public void test052() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T> extends p.A<T> {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"SUCCESS:\");\n" + 
+			"	}\n" + 
+			"}\n", 
+			"p/A.java",
+			"package p; \n" +
+			"public class A<P> {\n" + 
+			"}\n", 
+		},
+		"SUCCESS");
+}
+public void test053() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T> extends p.A<T> {\n" + 
+			"    protected T t;\n" + 
+			"    X(T t) {\n" + 
+			"        this.t = t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<String>(\"OUTER\").bar();\n" + 
+			"    }\n" + 
+			"    void bar() {\n" + 
+			"        new X<X>(this) {\n" + 
+			"            void run() {\n" + 
+			"                new Object() {\n" + 
+			"                    void run() {\n" + 
+			"                        print(t);\n" + 
+			"                    }\n" + 
+			"                }.run();\n" + 
+			"            }\n" + 
+			"        }.run();\n" + 
+			"    }\n" + 
+			"}\n", 
+			"p/A.java",
+			"package p; \n" +
+			"public class A<P> {\n" + 
+			"    protected void print(P p) {\n" + 
+			"        System.out.println(\"SUCCESS\"+p);\n" + 
+			"    }\n" + 
+			"}\n", 
+		},
+		"SUCCESS");
+}
+public void test054() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T> extends p.A<T> {\n" + 
+			"    protected T t;\n" + 
+			"    X(T t) {\n" + 
+			"        this.t = t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<String>(\"OUTER\").bar();\n" + 
+			"    }\n" + 
+			"    void bar() {\n" + 
+			"        new X<X>(this) {\n" + 
+			"            void run() {\n" + 
+			"                new Object() {\n" + 
+			"                    void run() {\n" + 
+			"                        print(X.this.t);\n" + 
+			"                    }\n" + 
+			"                }.run();\n" + 
+			"            }\n" + 
+			"        }.run();\n" + 
+			"    }\n" + 
+			"}\n", 
+			"p/A.java",
+			"package p; \n" +
+			"public class A<P> {\n" + 
+			"    protected void print(P p) {\n" + 
+			"        System.out.println(\"SUCCESS\"+p);\n" + 
+			"    }\n" + 
+			"}\n", 
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	print(X.this.t);\n" + 
+		"	^^^^^\n" + 
+		"The method print(X) in the type A<X> is not applicable for the arguments (T)\n" + 
+		"----------\n");
+}
 
 public static Class testClass() {
 	return GenericTypeTest.class;
