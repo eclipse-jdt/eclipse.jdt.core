@@ -687,6 +687,7 @@ public class NameLookup implements SuffixConstants {
 
 		// replace with working copies to look inside
 		int length= compilationUnits.length;
+		boolean[] isWorkingCopy = new boolean[length];
 		Map workingCopies = (Map) this.unitsToLookInside.getCurrent();
 		int workingCopiesSize;
 		if (workingCopies != null && (workingCopiesSize = workingCopies.size()) > 0) {
@@ -697,6 +698,7 @@ public class NameLookup implements SuffixConstants {
 				ICompilationUnit workingCopy = (ICompilationUnit)temp.remove(unit);
 				if (workingCopy != null) {
 					compilationUnits[i] = workingCopy;
+					isWorkingCopy[i] = true;
 				}
 			}
 			// add remaining working copies that belong to this package
@@ -711,12 +713,15 @@ public class NameLookup implements SuffixConstants {
 						index = length;
 						length += valuesLength;
 						System.arraycopy(compilationUnits, 0, compilationUnits = new ICompilationUnit[length], 0, index);
+						System.arraycopy(isWorkingCopy, 0, isWorkingCopy = new boolean[length], 0, index);
 					}
+					isWorkingCopy[index] = true; 
 					compilationUnits[index++] = workingCopy;
 				}
 			}
 			if (index > 0 && index < length) {
 				System.arraycopy(compilationUnits, 0, compilationUnits = new ICompilationUnit[index], 0, index);
+				System.arraycopy(isWorkingCopy, 0, isWorkingCopy = new boolean[index], 0, index);
 				length = index;
 			}
 		}
@@ -747,7 +752,7 @@ public class NameLookup implements SuffixConstants {
 				return;
 			ICompilationUnit compilationUnit= compilationUnits[i];
 			
-			if ((!potentialMemberType && workingCopies != null && workingCopies.containsValue(compilationUnit))
+			if ((isWorkingCopy[i] && !potentialMemberType)
 					|| nameMatches(unitName, compilationUnit, partialMatch)) {
 						
 				IType[] types= null;

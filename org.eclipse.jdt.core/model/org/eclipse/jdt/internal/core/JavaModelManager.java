@@ -981,19 +981,21 @@ public class JavaModelManager implements ISaveParticipant {
 	/*
 	 * Returns all the working copies which have the given owner.
 	 * Adds the working copies of the primary owner if specified.
-	 * Returns an empty array if it has none.
+	 * Returns null if it has none.
 	 */
 	public ICompilationUnit[] getWorkingCopies(WorkingCopyOwner owner, boolean addPrimary) {
 		synchronized(perWorkingCopyInfos) {
 			ICompilationUnit[] primaryWCs = addPrimary && owner != DefaultWorkingCopyOwner.PRIMARY 
 				? getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, false) 
-				: NoWorkingCopy;
+				: null;
 			Map pathToPerWorkingCopyInfos = (Map)perWorkingCopyInfos.get(owner);
 			if (pathToPerWorkingCopyInfos == null) return primaryWCs;
-			int primaryLength = primaryWCs.length;
+			int primaryLength = primaryWCs == null ? 0 : primaryWCs.length;
 			int size = pathToPerWorkingCopyInfos.size(); // note size is > 0 otherwise pathToPerWorkingCopyInfos would be null
 			ICompilationUnit[] result = new ICompilationUnit[primaryLength + size];
-			System.arraycopy(primaryWCs, 0, result, 0, primaryLength);
+			if (primaryWCs != null) {
+				System.arraycopy(primaryWCs, 0, result, 0, primaryLength);
+			}
 			Iterator iterator = pathToPerWorkingCopyInfos.values().iterator();
 			int index = primaryLength;
 			while(iterator.hasNext()) {

@@ -482,17 +482,20 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner ow
 		throw new IllegalArgumentException(Util.bind("hierarchy.nullProject")); //$NON-NLS-1$
 	}
 	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
-	int length = workingCopies.length;
-	ICompilationUnit[] projectWCs = new ICompilationUnit[length];
-	int index = 0;
-	for (int i = 0; i < length; i++) {
-		ICompilationUnit wc = workingCopies[i];
-		if (project.equals(wc.getJavaProject())) {
-			projectWCs[index++] = wc;
+	ICompilationUnit[] projectWCs = null;
+	if (workingCopies != null) {
+		int length = workingCopies.length;
+		projectWCs = new ICompilationUnit[length];
+		int index = 0;
+		for (int i = 0; i < length; i++) {
+			ICompilationUnit wc = workingCopies[i];
+			if (project.equals(wc.getJavaProject())) {
+				projectWCs[index++] = wc;
+			}
 		}
-	}
-	if (index != length) {
-		System.arraycopy(projectWCs, 0, projectWCs = new ICompilationUnit[index], 0, index);
+		if (index != length) {
+			System.arraycopy(projectWCs, 0, projectWCs = new ICompilationUnit[index], 0, index);
+		}
 	}
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(
 		this, 

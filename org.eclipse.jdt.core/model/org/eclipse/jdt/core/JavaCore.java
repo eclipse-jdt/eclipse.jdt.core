@@ -2003,7 +2003,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static ICompilationUnit[] getWorkingCopies(WorkingCopyOwner owner){
 		
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		return manager.getWorkingCopies(owner, false/*don't add primary WCs*/);
+		ICompilationUnit[] result = manager.getWorkingCopies(owner, false/*don't add primary WCs*/);
+		if (result == null) return JavaModelManager.NoWorkingCopy;
+		return result;
 	}
 		
 	/**
