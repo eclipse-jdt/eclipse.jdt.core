@@ -14759,5 +14759,56 @@ public void test500(){
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
+	}
+	// ensure there is no unchecked warning (javac incorrectly reports one)
+	public void test524(){
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"class MyList extends ArrayList<String> {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        List<? extends String> a = new MyList();\n" + 
+				"        List<String> b = (MyList) a;     \n" + 
+				"    }\n" + 
+				"	Zork z;\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	class MyList extends ArrayList<String> {\n" + 
+			"	      ^^^^^^\n" + 
+			"The serializable class MyList does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}				
+	public void test525(){
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			List list = new ArrayList();\n" + 
+				"			String s = \"this shouldn\'t work\";\n" + 
+				"			list.add(s);\n" + 
+				"			List<Integer> listInt = list;\n" + 
+				"			int i = listInt.get(0);\n" + 
+				"		} catch(ClassCastException e) {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"SUCCESS");
 	}				
 }
