@@ -24,7 +24,7 @@ public final class CharOperation {
 	 * Constant for an empty char array with two dimensions.
 	 */
 	public static final char[][] NO_CHAR_CHAR = new char[0][];
-
+	
 	/**
 	 * Returns a new array with appending the suffix character at the end of the array.
 	 * <br>
@@ -439,7 +439,40 @@ public final class CharOperation {
 		return result;
 	}
 	
-	// TODO:
+	/**
+	 * Returns the concatenation of the given array parts using the given separator between each
+	 * part and appending the given name at the end.
+	 * <br>
+	 * <br>
+	 * For example:<br>
+	 * <ol>
+	 * <li><pre>
+	 *    name = { 'c' }
+	 *    array = { { 'a' }, { 'b' } }
+	 *    separator = '.'
+	 *    => result = { 'a', '.', 'b' , '.', 'c' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    name = null
+	 *    array = { { 'a' }, { 'b' } }
+	 *    separator = '.'
+	 *    => result = { 'a', '.', 'b' }
+	 * </pre></li>
+	 * <li><pre>
+	 *    name = { ' c' }
+	 *    array = null
+	 *    separator = '.'
+	 *    => result = { 'c' }
+	 * </pre></li>
+	 * </ol>
+	 * 
+	 * @param name the given name
+	 * @param array the given array
+	 * @param separator the given separator
+	 * @return the concatenation of the given array parts using the given separator between each
+	 * part and appending the given name at the end
+	 */
 	public static final char[] concatWith(
 		char[] name,
 		char[][] array,
@@ -470,6 +503,41 @@ public final class CharOperation {
 		System.arraycopy(name, 0, result, 0, nameLength);
 		return result;
 	}
+
+	/**
+	 * Returns the concatenation of the given array parts using the given separator between each
+	 * part and appending the given name at the end.
+	 * <br>
+	 * <br>
+	 * For example:<br>
+	 * <ol>
+	 * <li><pre>
+	 *    name = { 'c' }
+	 *    array = { { 'a' }, { 'b' } }
+	 *    separator = '.'
+	 *    => result = { 'a', '.', 'b' , '.', 'c' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    name = null
+	 *    array = { { 'a' }, { 'b' } }
+	 *    separator = '.'
+	 *    => result = { 'a', '.', 'b' }
+	 * </pre></li>
+	 * <li><pre>
+	 *    name = { ' c' }
+	 *    array = null
+	 *    separator = '.'
+	 *    => result = { 'c' }
+	 * </pre></li>
+	 * </ol>
+	 * 
+	 * @param array the given array
+	 * @param name the given name
+	 * @param separator the given separator
+	 * @return the concatenation of the given array parts using the given separator between each
+	 * part and appending the given name at the end
+	 */
 	public static final char[] concatWith(
 		char[][] array,
 		char[] name,
@@ -500,6 +568,30 @@ public final class CharOperation {
 		System.arraycopy(name, 0, result, index, nameLength);
 		return result;
 	}
+
+	/**
+	 * Returns the concatenation of the given array parts using the given separator between each part.
+	 * <br>
+	 * <br>
+	 * For example:<br>
+	 * <ol>
+	 * <li><pre>
+	 *    array = { { 'a' }, { 'b' } }
+	 *    separator = '.'
+	 *    => result = { 'a', '.', 'b' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = null
+	 *    separator = '.'
+	 *    => result = { }
+	 * </pre></li>
+	 * </ol>
+	 * 
+	 * @param array the given array
+	 * @param separator the given separator
+	 * @return the concatenation of the given array parts using the given separator between each part
+	 */
 	public static final char[] concatWith(char[][] array, char separator) {
 		int length = array == null ? 0 : array.length;
 		if (length == 0)
@@ -1015,11 +1107,11 @@ public final class CharOperation {
 	 */
 	public static boolean isWhitespace(char c) {
 		switch (c) {
-			case 10 : /* \u000a: LINE FEED               */
-			case 12 : /* \u000c: FORM FEED               */
-			case 13 : /* \u000d: CARRIAGE RETURN         */
-			case 32 : /* \u0020: SPACE                   */
-			case 9 : /* \u0009: HORIZONTAL TABULATION   */
+			case 10 : /* \ u000a: LINE FEED               */
+			case 12 : /* \ u000c: FORM FEED               */
+			case 13 : /* \ u000d: CARRIAGE RETURN         */
+			case 32 : /* \ u0020: SPACE                   */
+			case 9 : /* \ u0009: HORIZONTAL TABULATION   */
 				return true;
 			default :
 				return false;
@@ -1027,12 +1119,31 @@ public final class CharOperation {
 	}
 	
 	/**
-	 * Returns the first index in the array.
-	 * TODO: to complete
+	 * Returns the first index in the array for which the corresponding character is
+	 * equal to toBeFound. Returns -1 if no occurrence of this character is found.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    toBeFound = 'c'
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    result => 2
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = 'e'
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    result => -1
+	 * </pre>
+	 * </li>
+	 * </ol>
 	 * 
-	 * @param toBeFound
-	 * @param array
-	 * @return int
+	 * @param toBeFound the character to search
+	 * @param array the array to be searched
+	 * @return the first index in the array for which the corresponding character is
+	 * equal to toBeFound, -1 otherwise
+	 * @exception NullPointerException if array is null
 	 */
 	public static final int indexOf(char toBeFound, char[] array) {
 		for (int i = 0; i < array.length; i++)
@@ -1040,18 +1151,127 @@ public final class CharOperation {
 				return i;
 		return -1;
 	}
+
+	/**
+	 * Returns the first index in the array for which the corresponding character is
+	 * equal to toBeFound starting the search at index start.
+	 * Returns -1 if no occurrence of this character is found.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    toBeFound = 'c'
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    start = 2
+	 *    result => 2
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = 'c'
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    start = 3
+	 *    result => -1
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = 'e'
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    start = 1
+	 *    result => -1
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param toBeFound the character to search
+	 * @param array the array to be searched
+	 * @param start the starting index
+	 * @return the first index in the array for which the corresponding character is
+	 * equal to toBeFound, -1 otherwise
+	 * @exception NullPointerException if array is null
+	 * @exception ArrayIndexOutOfBoundsException if  start is lower than 0
+	 */
 	public static final int indexOf(char toBeFound, char[] array, int start) {
 		for (int i = start; i < array.length; i++)
 			if (toBeFound == array[i])
 				return i;
 		return -1;
 	}
+
+	/**
+	 * Returns the last index in the array for which the corresponding character is
+	 * equal to toBeFound starting from the end of the array.
+	 * Returns -1 if no occurrence of this character is found.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    toBeFound = 'c'
+	 *    array = { ' a', 'b', 'c', 'd' , 'c', 'e' }
+	 *    result => 4
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = 'e'
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    result => -1
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 *
+	 * @param toBeFound the character to search
+	 * @param array the array to be searched
+	 * @return the last index in the array for which the corresponding character is
+	 * equal to toBeFound starting from the end of the array, -1 otherwise
+	 * @exception NullPointerException if array is null
+	 */
 	public static final int lastIndexOf(char toBeFound, char[] array) {
 		for (int i = array.length; --i >= 0;)
 			if (toBeFound == array[i])
 				return i;
 		return -1;
 	}
+
+	/**
+	 * Returns the last index in the array for which the corresponding character is
+	 * equal to toBeFound stopping at the index startIndex.
+	 * Returns -1 if no occurrence of this character is found.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    toBeFound = 'c'
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    startIndex = 2
+	 *    result => 2
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = 'c'
+	 *    array = { ' a', 'b', 'c', 'd', 'e' }
+	 *    startIndex = 3
+	 *    result => -1
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = 'e'
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    startIndex = 0
+	 *    result => -1
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 *
+	 * @param toBeFound the character to search
+	 * @param array the array to be searched
+	 * @param startIndex the stopping index
+	 * @return the last index in the array for which the corresponding character is
+	 * equal to toBeFound stopping at the index startIndex, -1 otherwise
+	 * @exception NullPointerException if array is null
+	 * @exception ArrayIndexOutOfBoundsException if startIndex is lower than 0
+	 */
 	public static final int lastIndexOf(
 		char toBeFound,
 		char[] array,
@@ -1061,6 +1281,50 @@ public final class CharOperation {
 				return i;
 		return -1;
 	}
+
+	/**
+	 * Returns the last index in the array for which the corresponding character is
+	 * equal to toBeFound starting from endIndex to startIndex.
+	 * Returns -1 if no occurrence of this character is found.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    toBeFound = 'c'
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    startIndex = 2
+	 *    endIndex = 2
+	 *    result => 2
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = 'c'
+	 *    array = { ' a', 'b', 'c', 'd', 'e' }
+	 *    startIndex = 3
+	 *    endIndex = 4
+	 *    result => -1
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = 'e'
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    startIndex = 0
+	 *    endIndex = 3
+	 *    result => -1
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param toBeFound the character to search
+	 * @param array the array to be searched
+	 * @param startIndex the stopping index
+	 * @param endIndex the starting index
+	 * @return the last index in the array for which the corresponding character is
+	 * equal to toBeFound starting from endIndex to startIndex, -1 otherwise
+	 * @exception NullPointerException if array is null
+	 * @exception ArrayIndexOutOfBoundsException if endIndex is greater or equals to array length or starting is lower than 0
+	 */
 	public static final int lastIndexOf(
 		char toBeFound,
 		char[] array,
@@ -1071,6 +1335,7 @@ public final class CharOperation {
 				return i;
 		return -1;
 	}
+	
 	/**
 	 * Answers the last portion of a name given a separator.
 	 * <br>
@@ -1079,6 +1344,11 @@ public final class CharOperation {
 	 * <pre>
 	 * 	lastSegment("java.lang.Object".toCharArray(),'.') --> Object
 	 * </pre>
+	 * 
+	 * @param array the array
+	 * @param separator the given separator
+	 * @return the last portion of a name given a separator
+	 * @exception NullPointerException if array is null
 	 */
 	final static public char[] lastSegment(char[] array, char separator) {
 		int pos = lastIndexOf(separator, array);
@@ -1088,10 +1358,44 @@ public final class CharOperation {
 	}
 
 	/**
-	 * char[] pattern matching, accepting wild-cards '*' and '?'.
+	 * Returns true if the pattern matches the given name, false otherwise. This char[] pattern matching
+	 * accepts wild-cards '*' and '?'.
 	 *
 	 * When not case sensitive, the pattern is assumed to already be lowercased, the
 	 * name will be lowercased character per character as comparing.
+	 * If name is null, the answer is false.
+	 * If pattern is null, the answer is true if name is not null.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    pattern = { '?', 'b', '*' }
+	 *    name = { 'a', 'b', 'c' , 'd' }
+	 *    isCaseSensitive = true
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    pattern = { '?', 'b', '?' }
+	 *    name = { 'a', 'b', 'c' , 'd' }
+	 *    isCaseSensitive = true
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    pattern = { 'b', '*' }
+	 *    name = { 'a', 'b', 'c' , 'd' }
+	 *    isCaseSensitive = true
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param pattern the given pattern
+	 * @param name the given name
+	 * @param isCaseSensitive flag to know whether or not the matching should be case sensitive
+	 * @return true if the pattern matches the given name, false otherwise
 	 */
 	public static final boolean match(
 		char[] pattern,
@@ -1114,10 +1418,48 @@ public final class CharOperation {
 	}
 
 	/**
+	 * Returns true if the a sub-pattern matches the subpart of the given name, false otherwise.
 	 * char[] pattern matching, accepting wild-cards '*' and '?'. Can match only subset of name/pattern.
 	 * end positions are non-inclusive.
+	 * The subpattern is defined by the patternStart and pattternEnd positions.
 	 * When not case sensitive, the pattern is assumed to already be lowercased, the
 	 * name will be lowercased character per character as comparing.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    pattern = { '?', 'b', '*' }
+	 *    patternStart = 1
+	 *    patternEnd = 3
+	 *    name = { 'a', 'b', 'c' , 'd' }
+	 *    nameStart = 1
+	 *    nameEnd = 4
+	 *    isCaseSensitive = true
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    pattern = { '?', 'b', '*' }
+	 *    patternStart = 1
+	 *    patternEnd = 2
+	 *    name = { 'a', 'b', 'c' , 'd' }
+	 *    nameStart = 1
+	 *    nameEnd = 2
+	 *    isCaseSensitive = true
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param pattern the given pattern
+	 * @param patternStart the given pattern start
+	 * @param patternEnd the given pattern end
+	 * @param name the given name
+	 * @param nameStart the given name start
+	 * @param nameEnd the given name end
+	 * @param isCaseSensitive flag to know if the matching should be case sensitive
+	 * @return true if the a sub-pattern matches the subpart of the given name, false otherwise
 	 */
 	public static final boolean match(
 		char[] pattern,
@@ -1191,6 +1533,8 @@ public final class CharOperation {
 	}
 
 	/**
+	 * Returns true if the pattern matches the filepath using the pathSepatator, false otherwise.
+	 * 
 	 * Path char[] pattern matching, accepting wild-cards '**', '*' and '?'.
 	 * Path pattern matching is enhancing regular pattern matching in supporting extra rule where '**' represent
 	 * any folder combination.
@@ -1199,6 +1543,12 @@ public final class CharOperation {
 	 * - *.java is equivalent to **\*.java
 	 * When not case sensitive, the pattern is assumed to already be lowercased, the
 	 * name will be lowercased character per character as comparing.
+	 * 
+	 * @param pattern the given pattern
+	 * @param filepath the given path
+	 * @param isCaseSensitive to find out whether or not the matching should be case sensitive
+	 * @param pathSeparator the given path separator
+	 * @return true if the pattern matches the filepath using the pathSepatator, false otherwise
 	 */
 	public static final boolean pathMatch(
 		char[] pattern,
@@ -1373,6 +1723,32 @@ public final class CharOperation {
 			|| (pSegmentStart == pLength && freeTrailingDoubleStar);
 	}
 
+	/**
+	 * Returns the number of occurrences of the given character in the given array, 0 if any.
+	 * 
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    toBeFound = 'b'
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    result => 3
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = 'c'
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    result => 0
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param toBeFound the given character
+	 * @param array the given array
+	 * @return the number of occurrences of the given character in the given array, 0 if any
+	 * @exception NullPointerException if array is null
+	 */
 	public static final int occurencesOf(char toBeFound, char[] array) {
 		int count = 0;
 		for (int i = 0; i < array.length; i++)
@@ -1380,6 +1756,37 @@ public final class CharOperation {
 				count++;
 		return count;
 	}
+
+	/**
+	 * Returns the number of occurrences of the given character in the given array starting
+	 * at the given index, 0 if any.
+	 * 
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    toBeFound = 'b'
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    start = 2
+	 *    result => 2
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = 'c'
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    start = 0
+	 *    result => 0
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param toBeFound the given character
+	 * @param array the given array
+	 * @return the number of occurrences of the given character in the given array, 0 if any
+	 * @exception NullPointerException if array is null
+	 * @exception ArrayIndexOutOfBoundsException if start is lower than 0
+	 */
 	public static final int occurencesOf(
 		char toBeFound,
 		char[] array,
@@ -1390,6 +1797,33 @@ public final class CharOperation {
 				count++;
 		return count;
 	}
+
+	/**
+	 * Returns true if the given name starts with the given prefix, false otherwise.
+	 * The comparison is case sensitive.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    prefix = { 'a' , 'b' }
+	 *    name = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    prefix = { 'a' , 'c' }
+	 *    name = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param prefix the given prefix
+	 * @param name the given name
+	 * @return true if the given name starts with the given prefix, false otherwise
+	 * @exception NullPointerException if the given name is null or if the given prefix is null
+	 */
 	public static final boolean prefixEquals(char[] prefix, char[] name) {
 
 		int max = prefix.length;
@@ -1402,6 +1836,36 @@ public final class CharOperation {
 				return false;
 		return true;
 	}
+
+	/**
+	 * Returns true if the given name starts with the given prefix, false otherwise.
+	 * isCaseSensitive is used to find out whether or not the comparison should be case sensitive.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    prefix = { 'a' , 'B' }
+	 *    name = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    isCaseSensitive = false
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    prefix = { 'a' , 'B' }
+	 *    name = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    isCaseSensitive = true
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param prefix the given prefix
+	 * @param name the given name
+	 * @param isCaseSensitive to find out whether or not the comparison should be case sensitive
+	 * @return true if the given name starts with the given prefix, false otherwise
+	 * @exception NullPointerException if the given name is null or if the given prefix is null
+	 */
 	public static final boolean prefixEquals(
 		char[] prefix,
 		char[] name,
@@ -1427,6 +1891,35 @@ public final class CharOperation {
 				return false;
 		return true;
 	}
+
+	/**
+	 * Replace all occurrence of the character to be replaced with the remplacement character in the
+	 * given array.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    toBeReplaced = 'b'
+	 *    replacementChar = 'a'
+	 *    result => No returned value, but array is now equals to { 'a' , 'a', 'a', 'a', 'a', 'a' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    toBeReplaced = 'c'
+	 *    replacementChar = 'a'
+	 *    result => No returned value, but array is now equals to { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param array the given array
+	 * @param toBeReplaced the character to be replaced
+	 * @param replacementChar the replacement character
+	 * @exception NullPointerException if the given array is null
+	 */
 	public static final void replace(
 		char[] array,
 		char toBeReplaced,
@@ -1439,11 +1932,35 @@ public final class CharOperation {
 		}
 	}
 
-	/*
-	 * Returns a char[] with substitutions. No side-effect is operated on the original
-	 * array, in case no substitution happened, then the result might be the same as the
+	/**
+	 * Returns a new array of characters with substitutions. No side-effect is operated on the original
+	 * array, in case no substitution happened, then the result is the same as the
 	 * original one.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    toBeReplaced = { 'b' }
+	 *    replacementChar = { 'a', 'a' }
+	 *    result => { 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    toBeReplaced = { 'c' }
+	 *    replacementChar = { 'a' }
+	 *    result => { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 * </pre>
+	 * </li>
+	 * </ol>
 	 * 
+	 * @param the given array
+	 * @param toBeReplaced characters to be replaced
+	 * @param the replacement characters
+	 * @return a new array of characters with substitutions or the given array if none
+	 * @exception NullPointerException if the given array is null
 	 */
 	public static final char[] replace(
 		char[] array,
@@ -1502,6 +2019,44 @@ public final class CharOperation {
 		return result;
 	}
 
+	/**
+	 * Return a new array which is the split of the given array using the given divider and triming each subarray to remove
+	 * whitespaces equals to ' '.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    divider = 'b'
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    result => { { 'a' }, {  }, { 'a' }, { 'a' } }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    divider = 'c'
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    result => { { 'a', 'b', 'b', 'a', 'b', 'a' } }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    divider = 'b'
+	 *    array = { 'a' , ' ', 'b', 'b', 'a', 'b', 'a' }
+	 *    result => { { 'a' }, {  }, { 'a' }, { 'a' } }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    divider = 'c'
+	 *    array = { ' ', ' ', 'a' , 'b', 'b', 'a', 'b', 'a', ' ' }
+	 *    result => { { 'a', 'b', 'b', 'a', 'b', 'a' } }
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param divider the given divider
+	 * @param array the given array
+	 * @return a new array which is the split of the given array using the given divider and triming each subarray to remove
+	 * whitespaces equals to ' '
+	 */
 	public static final char[][] splitAndTrimOn(char divider, char[] array) {
 		int length = array == null ? 0 : array.length;
 		if (length == 0)
@@ -1545,6 +2100,36 @@ public final class CharOperation {
 		return split;
 	}
 
+	/**
+	 * Return a new array which is the split of the given array using the given divider.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    divider = 'b'
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    result => { { 'a' }, {  }, { 'a' }, { 'a' } }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    divider = 'c'
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    result => { { 'a', 'b', 'b', 'a', 'b', 'a' } }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    divider = 'c'
+	 *    array = { ' ', ' ', 'a' , 'b', 'b', 'a', 'b', 'a', ' ' }
+	 *    result => { { ' ', 'a', 'b', 'b', 'a', 'b', 'a', ' ' } }
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param divider the given divider
+	 * @param array the given array
+	 * @return a new array which is the split of the given array using the given divider
+	 */
 	public static final char[][] splitOn(char divider, char[] array) {
 		int length = array == null ? 0 : array.length;
 		if (length == 0)
@@ -1572,6 +2157,31 @@ public final class CharOperation {
 		System.arraycopy(array, last, split[currentWord], 0, length - last);
 		return split;
 	}
+
+	/**
+	 * Return a new array which is the split of the given array using the given divider. The given end 
+	 * is exclusive and the given start is inclusive.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    divider = 'b'
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    start = 2
+	 *    end = 5
+	 *    result => { {  }, {  }, { 'a' } }
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param divider the given divider
+	 * @param array the given array
+	 * @param start the given starting index
+	 * @param end the given ending index
+	 * @return a new array which is the split of the given array using the given divider
+	 * @exception ArrayIndexOutOfBoundsException if start is lower than 0 or end is greater than the array length
+	 */
 	public static final char[][] splitOn(
 		char divider,
 		char[] array,
@@ -1599,10 +2209,37 @@ public final class CharOperation {
 				last = i + 1;
 			}
 		}
-		split[currentWord] = new char[end - last + 1];
-		System.arraycopy(array, last, split[currentWord], 0, end - last + 1);
+		split[currentWord] = new char[end - last];
+		System.arraycopy(array, last, split[currentWord], 0, end - last);
 		return split;
 	}
+
+	/**
+	 * Returns true if the given array starts with the given characters, false otherwise.
+	 * The comparison is case sensitive.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    toBeFound = { 'a' , 'b' }
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = { 'a' , 'c' }
+	 *    array = { 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param array the given array
+	 * @param toBeFound the given character to search
+	 * @return true if the given array starts with the given characters, false otherwise
+	 * @exception NullPointerException if the given array is null or if the given characters array to be found is null
+	 */
 	public static final boolean startsWith(char[] array, char[] toBeFound) {
 		int i = toBeFound.length;
 		if (i > array.length)
@@ -1612,8 +2249,38 @@ public final class CharOperation {
 				return false;
 		return true;
 	}
-	/*
-	 * copies from array[start] through array[end - 1] (does not copy array[end])
+	
+	/**
+	 * Returns a new array which is a copy of the given array starting at the given start and 
+	 * ending at the given end. The given start is inclusive and the given end is exclusive.
+	 * Returns null if start is greater than end, if start is lower than 0 or if end is greater 
+	 * than the length of the given array. If end  equals -1, it is converted to the array length.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    array = { { 'a' } , { 'b' } }
+	 *    start = 0
+	 *    end = 1
+	 *    result => { { 'a' } }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = { { 'a' } , { 'b' } }
+	 *    start = 0
+	 *    end = -1
+	 *    result => { { 'a' }, { 'b' } }
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 *  
+	 * @param array the given array
+	 * @param start the given starting index
+	 * @param end the given ending index
+	 * @return a new array which is a copy of the given array starting at the given start and 
+	 * ending at the given end
+	 * @exception NullPointerException if the given array is null
 	 */
 	public static final char[][] subarray(char[][] array, int start, int end) {
 		if (end == -1)
@@ -1626,15 +2293,41 @@ public final class CharOperation {
 			return null;
 
 		char[][] result = new char[end - start][];
-		/* if we do not trust System.arraycopy on our VM with char[][]'s
-			for (int i = 0, s = start; s < end; i++, s++)
-				result[i] = array[s];
-		*/
 		System.arraycopy(array, start, result, 0, end - start);
 		return result;
 	}
-	/*
-	 * copies from array[start] through array[end - 1] (does not copy array[end])
+
+	/**
+	 * Returns a new array which is a copy of the given array starting at the given start and 
+	 * ending at the given end. The given start is inclusive and the given end is exclusive.
+	 * Returns null if start is greater than end, if start is lower than 0 or if end is greater 
+	 * than the length of the given array. If end  equals -1, it is converted to the array length.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    array = { 'a' , 'b' }
+	 *    start = 0
+	 *    end = 1
+	 *    result => { 'a' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = { 'a', 'b' }
+	 *    start = 0
+	 *    end = -1
+	 *    result => { 'a' , 'b' }
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 *  
+	 * @param array the given array
+	 * @param start the given starting index
+	 * @param end the given ending index
+	 * @return a new array which is a copy of the given array starting at the given start and 
+	 * ending at the given end
+	 * @exception NullPointerException if the given array is null
 	 */
 	public static final char[] subarray(char[] array, int start, int end) {
 		if (end == -1)
@@ -1651,8 +2344,27 @@ public final class CharOperation {
 		return result;
 	}
 	/**
-	 *	Answers the result of a char[] conversion to lowercase.
-	 *	NOTE: if no conversion was necessary, then answers back the argument one.
+	 * Answers the result of a char[] conversion to lowercase. Returns null if the given chars array is null.
+	 * <br>
+	 * NOTE: if no conversion was necessary, then answers back the argument one.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    chars = { 'a' , 'b' }
+	 *    result => { 'a' , 'b' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = { 'A', 'b' }
+	 *    result => { 'a' , 'b' }
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param chars the chars to convert
+	 * @return the result of a char[] conversion to lowercase
 	 */
 	final static public char[] toLowerCase(char[] chars) {
 		if (chars == null)
@@ -1678,7 +2390,26 @@ public final class CharOperation {
 	}
 
 	/**
-	 * Remove leading and trailing spaces
+	 * Returns a new array removing leading and trailing spaces (' '). Returns the given array if there is no
+	 * space characters to remove.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    chars = { ' ', 'a' , 'b', ' ',  ' ' }
+	 *    result => { 'a' , 'b' }
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = { 'A', 'b' }
+	 *    result => { 'A' , 'b' }
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param chars the given array
+	 * @return a new array removing leading and trailing spaces (' ')
 	 */
 	final static public char[] trim(char[] chars) {
 
@@ -1697,10 +2428,30 @@ public final class CharOperation {
 		}
 		return chars;
 	}
+
+	/**
+	 * Returns a string which is the concatenation of the given array using the '.' as a separator.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    array = { { 'a' } , { 'b' } }
+	 *    result => "a.b"
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    array = { { ' ',  'a' } , { 'b' } }
+	 *    result => " a.b"
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param chars the given array
+	 * @return a string which is the concatenation of the given array using the '.' as a separator
+	 */
 	final static public String toString(char[][] array) {
 		char[] result = concatWith(array, '.');
-		if (result == null)
-			return ""; //$NON-NLS-1$
 		return new String(result);
 	}
 }
