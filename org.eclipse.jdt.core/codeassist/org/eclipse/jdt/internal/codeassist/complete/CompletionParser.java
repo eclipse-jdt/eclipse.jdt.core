@@ -1013,7 +1013,7 @@ protected void pushBlockInvocationPtr() {
 		this.blockInvocationStack[++this.blockInvocationPtr] = this.invocationPtr+1;
 	} catch (IndexOutOfBoundsException e) {
 		int oldStackLength = this.blockInvocationStack.length;
-		int[] oldStack = this.labelCounterStack;
+		int[] oldStack = this.blockInvocationStack;
 		this.blockInvocationStack = new int[oldStackLength + StackIncrement];
 		System.arraycopy(oldStack, 0, this.blockInvocationStack, 0, oldStackLength);
 		this.blockInvocationStack[this.blockInvocationPtr] = this.invocationPtr+1;
