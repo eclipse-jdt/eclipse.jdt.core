@@ -18,7 +18,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
@@ -87,9 +86,10 @@ public class SortElementsOperation extends JavaModelOperation {
 	 * @param source
 	 */
 	private String processElement(ICompilationUnit unit, int[] positionsToMap, char[] source) {
-		SortElementBuilder builder = new SortElementBuilder(source, positionsToMap, this.comparator);
+		CompilerOptions options = new CompilerOptions(unit.getJavaProject().getOptions(true));
+		SortElementBuilder builder = new SortElementBuilder(source, positionsToMap, this.comparator, options);
 		SourceElementParser parser = new SourceElementParser(builder,
-			ProblemFactory.getProblemFactory(Locale.getDefault()), new CompilerOptions(JavaCore.getOptions()), true);
+			ProblemFactory.getProblemFactory(Locale.getDefault()), options, true);
 		
 		if (unit.exists()) {
 			PackageFragment packageFragment = (PackageFragment)unit.getAncestor(IJavaElement.PACKAGE_FRAGMENT);

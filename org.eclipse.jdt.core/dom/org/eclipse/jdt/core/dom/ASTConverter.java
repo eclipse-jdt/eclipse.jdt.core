@@ -64,14 +64,22 @@ class ASTConverter {
 
 	public ASTConverter(Map options, boolean resolveBindings, IProgressMonitor monitor) {
 		this.resolveBindings = resolveBindings;
+		Object sourceModeSetting = options.get(JavaCore.COMPILER_SOURCE);
+		long sourceLevel = ClassFileConstants.JDK1_3;
+		if (JavaCore.VERSION_1_4.equals(sourceModeSetting)) {
+			sourceLevel = ClassFileConstants.JDK1_4;
+		} else if (JavaCore.VERSION_1_5.equals(sourceModeSetting)) {
+			sourceLevel = ClassFileConstants.JDK1_5;
+		}
+
 		this.scanner = new Scanner(
-					true /*comment*/,
-					false /*whitespace*/,
-					false /*nls*/,
-					JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) ? ClassFileConstants.JDK1_4 : ClassFileConstants.JDK1_3 /*sourceLevel*/, 
-					null /*taskTags*/,
-					null/*taskPriorities*/,
-					true/*taskCaseSensitive*/);
+			true /*comment*/,
+			false /*whitespace*/,
+			false /*nls*/,
+			sourceLevel /*sourceLevel*/,
+			null /*taskTags*/,
+			null/*taskPriorities*/,
+			true/*taskCaseSensitive*/);
 		this.monitor = monitor;
 		this.insideComments = JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT));
 	}

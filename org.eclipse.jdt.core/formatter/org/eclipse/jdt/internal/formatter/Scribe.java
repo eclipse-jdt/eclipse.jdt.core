@@ -75,20 +75,14 @@ public class Scribe {
 
 	Scribe(CodeFormatterVisitor formatter, Map settings, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
 		if (settings != null) {
-			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
+			Object sourceLevelOption = settings.get(JavaCore.COMPILER_SOURCE);
 			long sourceLevel = ClassFileConstants.JDK1_3;
-			if (JavaCore.VERSION_1_4.equals(assertModeSetting)) {
+			if (JavaCore.VERSION_1_4.equals(sourceLevelOption)) {
 				sourceLevel = ClassFileConstants.JDK1_4;
-			} else if (JavaCore.VERSION_1_5.equals(assertModeSetting)) {
+			} else if (JavaCore.VERSION_1_5.equals(sourceLevelOption)) {
 				sourceLevel = ClassFileConstants.JDK1_5;
-			} else {
-				sourceLevel = ClassFileConstants.JDK1_3;
 			}
-			if (assertModeSetting != null) {
-				this.scanner = new Scanner(true, true, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-			} else {
-				this.scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-			}
+			this.scanner = new Scanner(true, true, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		} else {
 			this.scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		}

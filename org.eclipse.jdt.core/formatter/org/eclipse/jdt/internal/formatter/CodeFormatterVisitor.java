@@ -176,11 +176,13 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	public CodeFormatterVisitor(DefaultCodeFormatterOptions preferences, Map settings, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
 		if (settings != null) {
 			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
-			if (assertModeSetting != null) {
-				this.localScanner = new Scanner(true, false, false/*nls*/, JavaCore.VERSION_1_4.equals(assertModeSetting) ? ClassFileConstants.JDK1_4 : ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-			} else {
-				this.localScanner = new Scanner(true, false, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-			}
+			long sourceLevel = ClassFileConstants.JDK1_3;
+			if (JavaCore.VERSION_1_4.equals(assertModeSetting)) {
+				sourceLevel = ClassFileConstants.JDK1_4;
+			} else if (JavaCore.VERSION_1_5.equals(assertModeSetting)) {
+				sourceLevel = ClassFileConstants.JDK1_5;
+			}		
+			this.localScanner = new Scanner(true, false, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		} else {
 			this.localScanner = new Scanner(true, false, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		}

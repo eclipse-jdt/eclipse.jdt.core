@@ -282,17 +282,22 @@ public final class AST {
 	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Clients should port their code to use the new JLS3 API and call {@link #newAST(int)} instead of using this constructor.
 	public AST(Map options) {
 		this(JLS2);
-		// override scanner if 1.4 asked for
-		if (JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE))) {
-			this.scanner = new Scanner(
-				true /*comment*/, 
-				true /*whitespace*/, 
-				false /*nls*/, 
-				ClassFileConstants.JDK1_4 /*sourceLevel*/, 
-				null/*taskTag*/, 
-				null/*taskPriorities*/,
-				true/*taskCaseSensitive*/);
+		Object sourceLevelOption = options.get(JavaCore.COMPILER_SOURCE);
+		long sourceLevel = ClassFileConstants.JDK1_3;
+		if (JavaCore.VERSION_1_4.equals(sourceLevelOption)) {
+			sourceLevel = ClassFileConstants.JDK1_4;
+		} else if (JavaCore.VERSION_1_5.equals(sourceLevelOption)) {
+			sourceLevel = ClassFileConstants.JDK1_5;
 		}
+		// override scanner if 1.4 or 1.5 asked for
+		this.scanner = new Scanner(
+			true /*comment*/, 
+			true /*whitespace*/, 
+			false /*nls*/, 
+			sourceLevel /*sourceLevel*/,
+			null/*taskTag*/, 
+			null/*taskPriorities*/,
+			true/*taskCaseSensitive*/);
 	}
 		
 	/**
