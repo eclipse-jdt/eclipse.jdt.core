@@ -26,6 +26,48 @@ public class IncrementalTests extends Tests {
 		return new TestSuite(IncrementalTests.class);
 	}
 
+	public void testDefaultPackage() {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.setOutputFolder(projectPath, ""); //$NON-NLS-1$
+
+		env.addClass(projectPath, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class A {}"); //$NON-NLS-1$
+
+		env.addClass(projectPath, "", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class B {}"); //$NON-NLS-1$
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(projectPath, "", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class B {A a;}"); //$NON-NLS-1$
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
+
+	public void testDefaultPackage2() {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		env.addClass(projectPath, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class A {}"); //$NON-NLS-1$
+
+		env.addClass(projectPath, "", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class B {}"); //$NON-NLS-1$
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(projectPath, "", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class B {A a;}"); //$NON-NLS-1$
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=17329
 	 */
