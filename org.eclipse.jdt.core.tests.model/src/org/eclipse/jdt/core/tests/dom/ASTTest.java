@@ -783,7 +783,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			
 			// /** Spec. \n @deprecated Use {@link #foo() bar} instead. */public class MyClass {}
 			TypeDeclaration td = localAst.newTypeDeclaration();
-			td.modifiers().add(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
+			td.modifiers().add(localAst.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
 			td.setInterface(false); 
 			td.setName(localAst.newSimpleName("MyClass")); //$NON-NLS-1$
 			{ 
@@ -822,15 +822,15 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			f1.setInitializer(localAst.newBooleanLiteral(true));
 			FieldDeclaration fd = localAst.newFieldDeclaration(f1);
 			fd.setType(localAst.newPrimitiveType(PrimitiveType.BOOLEAN));
-			fd.modifiers().add(Modifier.ModifierKeyword.PRIVATE_KEYWORD);
-			fd.modifiers().add(Modifier.ModifierKeyword.STATIC_KEYWORD);
+			fd.modifiers().add(localAst.newModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD));
+			fd.modifiers().add(localAst.newModifier(Modifier.ModifierKeyword.STATIC_KEYWORD));
 			td.bodyDeclarations().add(fd);
 			assertTrue(fd.getRoot() == cu);
 			
 			// public static void main();
 			MethodDeclaration md = localAst.newMethodDeclaration();
-			md.modifiers().add(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
-			md.modifiers().add(Modifier.ModifierKeyword.STATIC_KEYWORD);
+			md.modifiers().add(localAst.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
+			md.modifiers().add(localAst.newModifier(Modifier.ModifierKeyword.STATIC_KEYWORD));
 			md.setConstructor(false);
 			md.setName(localAst.newSimpleName("main")); //$NON-NLS-1$
 			md.setReturnType(localAst.newPrimitiveType(PrimitiveType.VOID));
@@ -907,7 +907,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			cr2.setAnonymousClassDeclaration(ad1);
 			cr2.setType(localAst.newSimpleType(localAst.newSimpleName("Listener"))); //$NON-NLS-1$
 			MethodDeclaration md0 = localAst.newMethodDeclaration();
-			md0.modifiers().add(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
+			md0.modifiers().add(localAst.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
 			md0.setName(localAst.newSimpleName("handleEvent")); //$NON-NLS-1$
 			md0.setBody(localAst.newBlock());
 			ad1.bodyDeclarations().add(md0);
