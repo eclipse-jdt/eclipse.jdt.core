@@ -483,9 +483,9 @@ private boolean isWorthBuilding() throws CoreException {
 		// only if the .classpath file could be read
 		if (classpath != JavaProject.INVALID_CLASSPATH)
 			new BatchImageBuilder(this).cleanOutputFolders();
-			
+
 		JavaModelManager.getJavaModelManager().deltaProcessor.addForRefresh(javaProject);
-		
+
 		removeProblemsAndTasksFor(currentProject); // remove all compilation problems
 
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);

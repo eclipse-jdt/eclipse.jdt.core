@@ -32,9 +32,7 @@ public void build() {
 
 	try {
 		notifier.subTask(Util.bind("build.cleaningOutput")); //$NON-NLS-1$
-		
-		JavaModelManager.getJavaModelManager().deltaProcessor.addForRefresh(JavaCore.create(javaBuilder.currentProject));
-		
+		JavaModelManager.getJavaModelManager().deltaProcessor.addForRefresh(javaBuilder.javaProject);
 		JavaBuilder.removeProblemsAndTasksFor(javaBuilder.currentProject);
 		cleanOutputFolders();
 		notifier.updateProgressDelta(0.1f);
