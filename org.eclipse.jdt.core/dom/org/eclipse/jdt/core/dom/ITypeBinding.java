@@ -462,8 +462,7 @@ public interface ITypeBinding extends IBinding {
 	 * or statement in which this type is declared.
 	 * </p>
 	 * <p>The declaring class of a type variable is the class in which the type variable
-	 * is declared if it is declared on a type. It returns null otherwise. In this case, the
-	 * resulting binding cannot be an enum type binding.
+	 * is declared if it is declared on a type. It returns null otherwise.
 	 * </p>
 	 * <p>Array types, primitive types, the null type, top-level types,
 	 * and wildcard types have no declaring class.
@@ -475,9 +474,21 @@ public interface ITypeBinding extends IBinding {
 	public ITypeBinding getDeclaringClass();
 
 	/**
-	 * Returns the method binding representing the method in which this binding is 
-	 * defined.
-	 * <p>It returns null if this binding is not a type variable or a local type.
+	 * Returns the method binding representing the method that declares this binding
+	 * of a local type or type variable.
+	 * <p>
+	 * The declaring method of a local class or interface (including anonymous
+	 * classes) is the innermost method containing the expression or statement in
+	 * which this type is declared. Returns <code>null</code> if the type
+	 * is declared in an initializer.
+	 * </p>
+	 * <p>
+	 * The declaring method of a type variable is the method in which the type
+	 * variable is declared if it is declared on a method. It
+	 * returns <code>null</code> otherwise.
+	 * </p>
+	 * <p>Array types, primitive types, the null type, top-level types,
+	 * and wildcard types have no declaring method.
 	 * </p>
 	 * 
 	 * @return the binding of the method that declares this type, or
