@@ -1,5 +1,5 @@
 --main options
-%options ACTION, AN=JavaAction.java, GP=java, 
+%options ACTION, AN=JavaAction.java, GP=java, CONFLICTS, WARNINGS,
 %options FILE-PREFIX=java, ESCAPE=$, PREFIX=TokenName, OUTPUT-SIZE=125 ,
 %options NOGOTO-DEFAULT, SINGLE-PRODUCTIONS, LALR=1 , TABLE=TIME , 
 
@@ -249,14 +249,12 @@ ReferenceType3 ::= ReferenceType '>>>'
 
 TypeParameters ::= '<' TypeParameterList1
 
-TypeParameterList -> TypeParameter
-TypeParameterList ::= TypeParameterList ',' TypeParameter
-
 TypeParameterList1 -> TypeParameter1
-TypeParameterList1 ::= TypeParameterList ',' TypeParameter1
+TypeParameterList1 ::= TypeParameterList1 ',' TypeParameter1
 
 TypeParameter1 ::= TypeParameter '>'
 TypeParameter1 ::= TypeVariable 'extends' ReferenceType2
+
 -- following isn't supported
 -- TypeParameter1 ::= TypeVariable 'implements' ReferenceType2
 
@@ -1035,7 +1033,7 @@ UnaryExpressionNotPlusMinus -> CastExpression
 
 CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN UnaryExpression
 /.$putCase consumeCastExpression(); $break ./
- CastExpression ::= PushLPAREN Name Dims PushRPAREN UnaryExpressionNotPlusMinus
+CastExpression ::= PushLPAREN Name Dims PushRPAREN UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpression(); $break ./
 -- Expression is here only in order to make the grammar LL1
 CastExpression ::= PushLPAREN Expression PushRPAREN UnaryExpressionNotPlusMinus
@@ -1064,7 +1062,7 @@ ShiftExpression ::= ShiftExpression '>>>' AdditiveExpression
 /.$putCase consumeBinaryExpression(OperatorExpression.UNSIGNED_RIGHT_SHIFT); $break ./
 
 RelationalExpression -> ShiftExpression
-RelationalExpression ::= RelationalExpression '<'  ShiftExpression
+RelationalExpression ::= RelationalExpression '<'  ShiftExpression 
 /.$putCase consumeBinaryExpression(OperatorExpression.LESS); $break ./
 RelationalExpression ::= RelationalExpression '>'  ShiftExpression
 /.$putCase consumeBinaryExpression(OperatorExpression.GREATER); $break ./
