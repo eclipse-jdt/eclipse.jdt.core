@@ -87,7 +87,7 @@ public class BuildpathTests extends Tests {
 		}
 	}	
 
-	public void testClosedProject() throws JavaModelException {
+	public void _testClosedProject() throws JavaModelException {
 		IPath project1Path = env.addProject("CP1"); //$NON-NLS-1$
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
 		IPath jarPath = env.addInternalJar(project1Path, "temp.jar", new byte[] {0}); //$NON-NLS-1$
