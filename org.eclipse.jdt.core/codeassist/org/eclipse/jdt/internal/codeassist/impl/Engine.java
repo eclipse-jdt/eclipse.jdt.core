@@ -120,7 +120,8 @@ public abstract class Engine implements ITypeRequestor {
 	}
 
 	protected void parseMethod(CompilationUnitDeclaration unit, int position) {
-		for (int i = unit.types.length; --i >= 0;) {
+		int length = unit.types.length;
+		for (int i = 0; i < length; i++) {
 			TypeDeclaration type = unit.types[i];
 			if (type.declarationSourceStart < position
 				&& type.declarationSourceEnd >= position) {
@@ -138,7 +139,8 @@ public abstract class Engine implements ITypeRequestor {
 		//members
 		TypeDeclaration[] memberTypes = type.memberTypes;
 		if (memberTypes != null) {
-			for (int i = memberTypes.length; --i >= 0;) {
+			int length = memberTypes.length;
+			for (int i = 0; i < length; i++) {
 				TypeDeclaration memberType = memberTypes[i];
 				if (memberType.bodyStart > position)
 					continue;
@@ -151,7 +153,8 @@ public abstract class Engine implements ITypeRequestor {
 		//methods
 		AbstractMethodDeclaration[] methods = type.methods;
 		if (methods != null) {
-			for (int i = methods.length; --i >= 0;) {
+			int length = methods.length;
+			for (int i = 0; i < length; i++) {
 				AbstractMethodDeclaration method = methods[i];
 				if (method.bodyStart > position)
 					continue;
@@ -164,7 +167,8 @@ public abstract class Engine implements ITypeRequestor {
 		//initializers
 		FieldDeclaration[] fields = type.fields;
 		if (fields != null) {
-			for (int i = fields.length; --i >= 0;) {
+			int length = fields.length;
+			for (int i = 0; i < length; i++) {
 				if (!(fields[i] instanceof Initializer))
 					continue;
 				Initializer initializer = (Initializer) fields[i];
