@@ -873,6 +873,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 			int length = children.length;
 			IResourceDelta[] orphanChildren = new IResourceDelta[length];
 			Openable parent = null;
+			boolean isValidParent = true;
 			for (int i = 0; i < length; i++) {
 				IResourceDelta child = children[i];
 				IResource childRes = child.getResource();
@@ -889,7 +890,8 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 				if (childType == -1
 					|| !this.traverseDelta(child, childType, (currentProject == null && isPkgFragmentRoot) ? projectOfRoot : currentProject)) {
 					try {
-						if (currentProject != null) { 
+						if (currentProject != null) {
+							if (!isValidParent) continue; 
 							if (parent == null) {
 								if (this.currentElement == null || !this.currentElement.getJavaProject().equals(currentProject)) {
 									// force the currentProject to be used
@@ -902,7 +904,10 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 								} else {
 									parent = this.createElement(res, elementType, currentProject);
 								}
-								if (parent == null) continue;
+								if (parent == null) {
+									isValidParent = false;
+									continue;
+								}
 							}
 							// add child as non java resource
 							nonJavaResourcesChanged(parent, child);
@@ -949,7 +954,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 					}
 				}
 			} // else resource delta will be added by parent
-			return currentProject != null || oneChildOnClasspath;
+			return isValidParent && (currentProject != null || oneChildOnClasspath);
 		} else {
 			// if not on classpath or if the element type is -1, 
 			// it's a non-java resource

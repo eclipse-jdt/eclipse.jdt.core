@@ -480,23 +480,7 @@ public void doneSaving(ISaveContext context){
 			throw new CoreException(new JavaModelStatus(IJavaModelStatusConstants.NO_LOCAL_CONTENTS, resource.getFullPath()));
 		}
 	}
-	private void fire(ArrayList deltas) {
-		Iterator iterator = deltas.iterator();
-		while (iterator.hasNext()) {
-			IJavaElementDelta delta= (IJavaElementDelta) iterator.next();
-			if (DeltaProcessor.VERBOSE){
-				System.out.println("FIRING Delta ("+ Thread.currentThread()+"):"+ delta);//$NON-NLS-1$//$NON-NLS-2$
-			}
-			ElementChangedEvent event= new ElementChangedEvent(delta);
-			// Clone the listeners since they could remove themselves when told about the event 
-			// (eg. a type hierarchy becomes invalid (and thus it removes itself) when the type is removed
-			ArrayList listeners= (ArrayList) fElementChangedListeners.clone();
-			for (int i= 0; i < listeners.size(); i++) {
-				IElementChangedListener listener= (IElementChangedListener) listeners.get(i);
-				listener.elementChanged(event);
-			}
-		}
-	}
+
 	
 	/**
 	 * Fire Java Model deltas, flushing them after the fact. 
@@ -506,7 +490,21 @@ public void doneSaving(ISaveContext context){
 		if (fFire) {
 			this.mergeDeltas();
 			try {
-				this.fire(fJavaModelDeltas);
+				Iterator iterator = fJavaModelDeltas.iterator();
+				while (iterator.hasNext()) {
+					IJavaElementDelta delta= (IJavaElementDelta) iterator.next();
+					if (DeltaProcessor.VERBOSE){
+						System.out.println("FIRING Delta ("+ Thread.currentThread()+"):"+ delta);//$NON-NLS-1$//$NON-NLS-2$
+					}
+					ElementChangedEvent event= new ElementChangedEvent(delta);
+					// Clone the listeners since they could remove themselves when told about the event 
+					// (eg. a type hierarchy becomes invalid (and thus it removes itself) when the type is removed
+					ArrayList listeners= (ArrayList) fElementChangedListeners.clone();
+					for (int i= 0; i < listeners.size(); i++) {
+						IElementChangedListener listener= (IElementChangedListener) listeners.get(i);
+						listener.elementChanged(event);
+					}
+				}
 			} finally {
 				// empty the queue
 				this.flush();
