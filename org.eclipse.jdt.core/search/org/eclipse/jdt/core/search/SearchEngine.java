@@ -44,6 +44,7 @@ import java.util.*;
  * <p>
  * This class may be instantiated; it is not intended to be subclassed.
  * </p>
+ * TODO: remove IWorkspace argument on the search methods before 3.0
  */
 public class SearchEngine {
 
