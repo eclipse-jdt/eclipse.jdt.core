@@ -40,6 +40,7 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 
 	// for statements only
 	public static final int IsReachableMASK = 0x80000000; // highest bit
+	public static final int IsLocalDeclarationReachableMASK = 0x40000000; // below highest bit
 
 	// for type declaration only
 	public static final int AddAssertionMASK = 1; // lowest bit
