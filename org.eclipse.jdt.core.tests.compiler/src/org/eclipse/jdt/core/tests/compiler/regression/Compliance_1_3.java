@@ -1681,7 +1681,106 @@ public void test45() {
 		"SUCCESS"
 	);
 }
-
+/**
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=39467
+ * should diagnose missing abstract method implementation
+ */
+public void test46() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X extends Y {\n" + 
+			"}\n" + 
+			"abstract class Y extends Z {\n" + 
+			"  public abstract void foo();\n" + 
+			"}\n" + 
+			"abstract class Z extends T {\n" + 
+			"}\n" + 
+			"class T implements I {\n" + 
+			"  public void foo(){}\n" + 
+			"}\n" + 
+			"interface I {\n" + 
+			"    public void foo ();\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X extends Y {\n" + 
+		"	             ^\n" + 
+		"Class must implement the inherited abstract method Y.foo()\n" + 
+		"----------\n"
+	);
+}
+/**
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=40442
+ * Abstract class fails to invoke interface-defined method in 1.4 compliance mode.
+ */
+public void test47() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends AbstractDoubleAlgorithm {\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		((ObjectAlgorithm)(new X())).operate(new Double(0));\n" + 
+			"	}\n" + 
+			"    public void operate(Double pDouble)\n" + 
+			"    {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"abstract class AbstractDoubleAlgorithm implements DoubleAlgorithm {\n" + 
+			"    public void operate(Object pObject)\n" + 
+			"    {\n" + 
+			"        operate((Double)pObject);\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"interface DoubleAlgorithm extends ObjectAlgorithm {\n" + 
+			"    void operate(Double pDouble);\n" + 
+			"}\n" + 
+			"interface ObjectAlgorithm {\n" + 
+			"    void operate(Object pObject);\n" + 
+			"}"
+		},
+		"SUCCESS"
+	);
+}
+/**
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=40442
+ * Abstract class fails to invoke interface-defined method in 1.4 compliance mode.
+ * variation with 2 found methods
+ */
+public void test48() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends AbstractDoubleAlgorithm {\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		((ObjectAlgorithm)(new X())).operate(new Double(0));\n" + 
+			"	}\n" + 
+			"    public void operate(Double pDouble)\n" + 
+			"    {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"abstract class AbstractDoubleAlgorithm implements DoubleAlgorithm {\n" + 
+			"    public void operate(Object pObject)\n" + 
+			"    {\n" + 
+			"        operate((Double)pObject);\n" + 
+			"    }\n" + 
+			"    public void operate(X x) {}\n" + 
+			"}\n" + 
+			"interface DoubleAlgorithm extends ObjectAlgorithm {\n" + 
+			"    void operate(Double pDouble);\n" + 
+			"}\n" + 
+			"interface ObjectAlgorithm {\n" + 
+			"    void operate(Object pObject);\n" + 
+			"}"
+		},
+		"SUCCESS"
+	);
+}
 public static Class testClass() {
 	return Compliance_1_3.class;
 }

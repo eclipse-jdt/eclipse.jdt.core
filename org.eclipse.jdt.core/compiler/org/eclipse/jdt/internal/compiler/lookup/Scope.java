@@ -501,6 +501,7 @@ public abstract class Scope
 					// ignore matching method (to be consistent with multiple matches, none visible (matching method is then null)
 					MethodBinding interfaceMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, null, found);						
 					if (interfaceMethod != null) return interfaceMethod;
+					compilationUnitScope().recordTypeReferences(matchingMethod.thrownExceptions);
 					return matchingMethod;
 				}
 			} 
@@ -516,8 +517,15 @@ public abstract class Scope
 				candidates[candidatesCount++] = methodBinding;
 		}
 		if (candidatesCount == 1) {
-			compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
-			return candidates[0]; // have not checked visibility
+				// (if no default abstract) must explicitly look for one instead, which could be a better match
+				if (!candidates[0].canBeSeenBy(receiverType, invocationSite, this)) {
+					// ignore matching method (to be consistent with multiple matches, none visible (matching method is then null)
+					MethodBinding interfaceMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, null, found);						
+					if (interfaceMethod != null) return interfaceMethod;
+					compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
+					return candidates[0];
+				}
+				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, candidates[0], found); // have not checked visibility
 		}
 		if (candidatesCount == 0) { // try to find a close match when the parameter order is wrong or missing some parameters
 			MethodBinding interfaceMethod =
@@ -588,8 +596,10 @@ public abstract class Scope
 			currentType = currentType.superclass();
 		}
 		int foundSize = found.size;
-		if (foundSize == startFoundSize) return matchingMethod; // maybe null
-
+		if (foundSize == startFoundSize) {
+			if (matchingMethod != null) compilationUnitScope().recordTypeReferences(matchingMethod.thrownExceptions);
+			return matchingMethod; // maybe null
+		}
 		MethodBinding[] candidates = new MethodBinding[foundSize - startFoundSize];
 		int candidatesCount = 0;
 		// argument type compatibility check
