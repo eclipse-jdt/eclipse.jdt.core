@@ -20,25 +20,41 @@ public AND_AND_Expression(Expression left, Expression right,int operator) {
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
-	Constant inlinedValue;
-	if ((inlinedValue = left.constant) == NotAConstant) inlinedValue = left.conditionalConstant();
-	if (inlinedValue != NotAConstant){
-		if (inlinedValue.booleanValue() == false){ 
+	Constant opConstant;
+	if ((opConstant = left.constant) != NotAConstant) {
+		if (opConstant.booleanValue() == true) { 
+			// TRUE && anything
+			FlowInfo mergedInfo = right.analyseCode(currentScope, flowContext, flowInfo);
+			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
+			return mergedInfo;
+		} else { 
 			// FALSE && anything
+			return flowInfo;
+		}
+	}
+	if ((opConstant = right.constant) != NotAConstant) {
+		if (opConstant.booleanValue() == true) { 
+			// anything && TRUE
+			FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo);
+			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
+			return mergedInfo;
+		} else { 
+			// anything && FALSE
+			// whatever is on the left, we will fail, so the result must merge the left inits when answering
+			// initsWhenFalse. the initsWhenTrue are undetermined, since this path will be fake reachable...
+			FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
+			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
+			return mergedInfo;			
+		}
+	}
+	if ((opConstant = left.conditionalConstant()) != NotAConstant){
+		if (opConstant.booleanValue() == false){ 
+			// something eq. FALSE && anything
 			FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo);
 			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 			right.analyseCode(currentScope, flowContext, mergedInfo.copy().markAsFakeReachable(true));
 			return mergedInfo;
 		} 
-	} else {
-		if ((inlinedValue = right.constant) == NotAConstant) inlinedValue = right.conditionalConstant();
-	}
-	if (inlinedValue != NotAConstant){
-		// TRUE && anything, anything && TRUE, anything && FALSE
-		FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo);
-		mergedInfo = right.analyseCode(currentScope, flowContext, mergedInfo);
-		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
-		return mergedInfo;
 	}
 	FlowInfo leftInfo = left.analyseCode(currentScope, flowContext, flowInfo);
 	FlowInfo rightInfo = leftInfo.initsWhenTrue().copy();
