@@ -1714,7 +1714,7 @@ protected void consumeToken(int token) {
 				pushOnElementStack(K_BETWEEN_CATCH_AND_RIGHT_PAREN);
 				break;
 			case TokenNameLPAREN:
-				if (this.invocationType == NO_RECEIVER || this.invocationType == NAME_RECEIVER) {
+				if (this.invocationType == NO_RECEIVER || this.invocationType == NAME_RECEIVER || this.invocationType == SUPER_RECEIVER) {
 					this.qualifier = this.expressionPtr; // remenber the last expression so that arguments are correctly computed
 				}
 				switch (previous) {
