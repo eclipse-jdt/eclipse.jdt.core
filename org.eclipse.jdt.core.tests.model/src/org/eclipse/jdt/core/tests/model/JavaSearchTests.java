@@ -135,12 +135,12 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 					switch (match.getAccuracy()) {
 						case SearchMatch.A_ACCURATE:
 							if (this.showRule) {
-								int rule = match.getRule();
-								if ((rule & SearchMatch.A_COMPATIBLE) != 0) {
-									this.results.append("COMPATIBLE_");
-									if ((rule & SearchMatch.A_ERASURE) != 0)
+								int rule = match.getMatchRule();
+								if ((rule & SearchPattern.R_EQUIVALENT_MATCH) != 0) {
+									this.results.append("EQUIVALENT_");
+									if ((rule & SearchPattern.R_ERASURE_MATCH) != 0)
 										this.results.append("ERASURE_");
-								} else if ((rule & SearchMatch.A_ERASURE) != 0) {
+								} else if ((rule & SearchPattern.R_ERASURE_MATCH) != 0) {
 									this.results.append("ERASURE_");
 								} else {
 									results.append("EXACT_");

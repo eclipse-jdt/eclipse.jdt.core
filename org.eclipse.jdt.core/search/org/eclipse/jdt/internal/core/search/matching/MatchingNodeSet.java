@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfLong;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -32,7 +33,7 @@ SimpleLookupTable matchingNodes = new SimpleLookupTable(3); // node -> accuracy
 private HashtableOfLong matchingNodesKeys = new HashtableOfLong(3); // sourceRange -> node
 static Integer EXACT_MATCH = new Integer(SearchMatch.A_ACCURATE);
 static Integer POTENTIAL_MATCH = new Integer(SearchMatch.A_INACCURATE);
-static Integer ERASURE_MATCH = new Integer(SearchMatch.A_ERASURE);
+static Integer ERASURE_MATCH = new Integer(SearchPattern.R_ERASURE_MATCH);
 
 /**
  * Set of possible matching ast nodes. They need to be resolved
@@ -162,7 +163,7 @@ public String toString() {
 			case SearchMatch.A_INACCURATE:
 				result.append("INACCURATE_MATCH: "); //$NON-NLS-1$
 				break;
-			case SearchMatch.A_ERASURE:
+			case SearchPattern.R_ERASURE_MATCH:
 				result.append("ERASURE_MATCH: "); //$NON-NLS-1$
 				break;
 		}

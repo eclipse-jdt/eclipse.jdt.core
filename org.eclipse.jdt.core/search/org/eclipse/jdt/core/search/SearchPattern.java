@@ -69,15 +69,38 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 */
 	public static final int R_CASE_SENSITIVE = 8;
 	/**
-	 * Match rule: The search pattern matches type parameters for parameterized search results.
+	 * Match rule: The search pattern matches search results as raw types or parameterized types with same erasure.
+	 * Example:
+	 * 	<ul>
+	 * 	<li>search pattern: <code>List&lt;Exception&gt;</code></li>
+	 * 	<li>match: <code>List&lt;Object&gt;</code></li>
+	 * 	</ul>
 	 * Can be combined to all other match rules, e.g. {@link #R_EXACT_MATCH} | {@link #R_ERASURE_MATCH}
-	 * This rule is not activated by default, so when pattern is List&lt;String&gt;,
-	 * match selection will be only "List&lt;String&gt;" on parameterized types <code>List&lt;String&gt;</code>
-	 * found in the code. 
-	 * Conversely, when this rule is activated the match selection will be "List".
+	 * This rule is not activated by default, so raw types or parameterized types with same erasure will not be found
+	 * for pattern List&lt;String&gt;,
+	 * Note that with this pattern, the match selection will be only on the erasure even for parameterized types.
 	 * @since 3.1
 	 */
 	public static final int R_ERASURE_MATCH = 16;
+	/**
+	 * Match rule: The search pattern matches search results as raw types or parameterized types with equivalent type parameters.
+	 * Example:
+	 * <ul>
+	 * 	<li>search pattern: <code>List&lt;Exception&gt;</code></li>
+	 * 	<li>match:
+	 * 		<ul>
+	 * 		<li><code>List&lt;? extends Throwable&gt;</code></li>
+	 * 		<li><code>List&lt;? super RuntimeException&gt;</code></li>
+	 * 		<li><code>List&lt;?&gt;</code></li>
+	 * 	</li>
+	 * 	</ul>
+	 * Can be combined to all other match rules, e.g. {@link #R_EXACT_MATCH} | {@link #R_EQUIVALENT_MATCH}
+	 * This rule is not activated by default, so raw types or equivalent parameterized types will not be found
+	 * for pattern List&lt;String&gt;,
+	 * .
+	 * @since 3.1
+	 */
+	public static final int R_EQUIVALENT_MATCH = 32;
 
 	private int matchRule;
 
@@ -795,8 +818,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * 	the search engine finds all types whose erasures match the given pattern erasure.
 	 * 	By default, the search engine only finds exact or compatible matches for generic or parameterized types.
 	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
-	 * @see SearchMatch for more details on match rule values when reported (specially {@link SearchMatch#A_COMPATIBLE}
-	 * 	and {@link SearchMatch#A_ERASURE}).
 	 * @since 3.1
 	 */
 	public static SearchPattern createPattern(IJavaElement element, int limitTo, int matchRule) {

@@ -1231,7 +1231,10 @@ public SearchMatch newTypeReferenceMatch(
 		int offset,  
 		int length,
 		ASTNode reference) {
-	return newTypeReferenceMatch(enclosingElement, accuracy, offset, length, 0/*exact match*/, reference);
+	SearchParticipant participant = getParticipant(); 
+	IResource resource = this.currentPossibleMatch.resource;
+	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
+	return new TypeReferenceMatch(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
 }
 
 public SearchMatch newTypeReferenceMatch(
@@ -1241,10 +1244,9 @@ public SearchMatch newTypeReferenceMatch(
 		int length,
 		int rule,
 		ASTNode reference) {
-	SearchParticipant participant = getParticipant(); 
-	IResource resource = this.currentPossibleMatch.resource;
-	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
-	return new TypeReferenceMatch(enclosingElement, accuracy, offset, length, insideDocComment, rule, participant, resource);
+	SearchMatch match = newTypeReferenceMatch(enclosingElement, accuracy, offset, length, reference);
+	match.setMatchRule(rule);
+	return match;
 }
 
 /*

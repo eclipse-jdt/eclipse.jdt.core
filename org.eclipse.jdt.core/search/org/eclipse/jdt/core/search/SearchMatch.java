@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.search;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.internal.compiler.parser.NLSLine;
 import org.eclipse.jdt.internal.core.JavaElement;
 
 /**
@@ -21,19 +22,6 @@ import org.eclipse.jdt.internal.core.JavaElement;
  * merely potential matches (<code>A_INACCURATE</code>). The latter occurs when
  * a compile-time problem prevents the search engine from completely resolving
  * the match.
- * [TODO (frederic) The class spec speaks of a match being either A_ACCURATE
- * or A_INACCURATE. The names A_COMPATIBLE and A_ERASURE, their bit values,
- * and RULE_MASK all suggest that these are additional values that would be
- * returned by getAccuracy(). If this were true, it would be a *breaking* API
- * change to the contract for getAccuracy(). But the fact that you added
- * get/setRule suggests that A_COMPATIBLE and A_ERASURE are only intended to be
- * used with them, and not affect get/setAccuracy. Assuming this is the case,
- * the constants should be renamed to start in something other than "A_", and
- * the specs for get/setRule should specify that these are the allowed values.
- * The initial value of the getRule() will need to be specified for rules
- * created via the existing constructor. Also, consider adding a new constructor
- * that takes rule as a parameter.]
- * </p>
  * <p>
  * This class is intended to be instantiated and subclassed by clients.
  * </p>
@@ -58,60 +46,6 @@ public class SearchMatch {
 	 * @see #getAccuracy()
 	 */
 	public static final int A_INACCURATE = 1;
-
-	/**
-	 * The search result match and search pattern are compatible.
-	 * Note this is always the case when either pattern or reference is a raw type.
-	 * Example:
-	 * <ul>
-	 * 	<li>search pattern: <code>List&lt;Exception&gt;</code></li>
-	 * 	<li>match:
-	 * 		<ul>
-	 * 		<li><code>List&lt;? extends Throwable&gt;</code></li>
-	 * 		<li><code>List&lt;? super RuntimeException&gt;</code></li>
-	 * 		<li><code>List&lt;?&gt;</code></li>
-	 * 	</li>
-	 * 	</ul>
-	 * 
-	 * [TODO (frederic) Should be renamed xxx_RAW where xxx is the new prefix for rule constants.]
-	 * [TODO (frederic) Include @see #getRule() if that is where it is used.]
-	 * @since 3.1
-	 */
-	public static final int A_COMPATIBLE = 2;
-
-	/**
-	 * The search result match and search pattern has only the erasure in common.
-	 * Note this is always the case when either pattern or reference is a raw type.
-	 * Example:
-	 * 	<ul>
-	 * 	<li>search pattern: <code>List&lt;Exception&gt;</code></li>
-	 * 	<li>match: <code>List&lt;Object&gt;</code></li>
-	 * 	</ul>
-	 * 
-	 * [TODO (frederic) Should be renamed xxx_RAW where xxx is the new prefix for rule constants.]
-	 * [TODO (frederic) Include @see #getRule() if that is where it is used.]
-	 * @since 3.1
-	 */
-	public static final int A_ERASURE = 4;
-
-	/**
-	 * Rule for raw match: compatible *and* erasure.
-	 * 
-	 * [TODO (frederic) "MASK" is a bit level term, which isn't really necessary in this case.
-	 * It's simple the rule that the clients specify for raw matches.
-	 * Should be renamed xxx_RAW where xxx is the new prefix for rule constants.]
-	 * [TODO (frederic) Include @see #getRule() if that is where it is used.]
-	 * @since 3.1
-	 */
-	public static final int RAW_MASK = A_COMPATIBLE + A_ERASURE;
-
-	/**
-	 * Mask used to get rule signifigant bits.
-	 * 
-	 * [TODO (frederic) This does not need to be API.]
-	 * @since 3.1
-	 */
-	public static final int RULE_MASK = RAW_MASK; // no other values for the while...
 	
 	private Object element;
 	private int length;
@@ -124,8 +58,7 @@ public class SearchMatch {
 	private boolean insideDocComment = false;
 	
 	// store the rule used while reporting the match
-	// [TODO (frederic) For compatibility, this field must have a well-defined default and legal default value.]
-	private int rule;
+	private int matchRule = SearchPattern.R_EXACT_MATCH;
 
 	/**
 	 * Creates a new search match.
@@ -215,13 +148,16 @@ public class SearchMatch {
 	/**
 	 * Returns the rule used while creating the match.
 	 * 
-	 * @return the rule of the match
+	 * @return the rule of the match. Legal values are combination of following
+	 * {@link SearchPattern} constants:
+	 * <ul>
+	 * 	<li>{@link SearchPattern#R_ERASURE_MATCH}</li>
+	 * 	<li>{@link SearchPattern#R_EQUIVALENT_MATCH}</li>
+	 * </ul>
 	 * @since 3.1
-	 * [TODO (frederic) Spec needs to include legal return values.]
-	 * TODO (frederic) currently only set to A_COMPATIBLE, A_ERASURE. Should be finalized for M5.
 	 */
-	public final int getRule() {
-		return rule;
+	public final int getMatchRule() {
+		return this.matchRule;
 	}
 
 	/**
@@ -305,23 +241,36 @@ public class SearchMatch {
 	/**
 	 * Returns the rule used while creating the match.
 	 * 
-	 * @param rule the rule to set
+	 * @param rule the rule to set. Legal values are combination of following
+	 * {@link SearchPattern} constants:
+	 * <ul>
+	 * 	<li>{@link SearchPattern#R_ERASURE_MATCH}</li>
+	 * 	<li>{@link SearchPattern#R_EQUIVALENT_MATCH}</li>
+	 * </ul>
 	 * @since 3.1
-	 * [TODO (frederic) Spec needs to include legal rule values.]
 	 */
-	public final void setRule(int rule) {
-		this.rule = rule;
+	public final void setMatchRule(int rule) {
+		this.matchRule = rule;
 	}
 
 	/* (non-javadoc)
 	 * @see java.lang.Object#toString()
-	 * [TODO (frederic) probably want to print rule field too.]
 	 */
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("Search match"); //$NON-NLS-1$
 		buffer.append("\n  accuracy="); //$NON-NLS-1$
 		buffer.append(this.accuracy == A_ACCURATE ? "ACCURATE" : "INACCURATE"); //$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("\n  rule="); //$NON-NLS-1$
+		if ((this.matchRule & SearchPattern.R_EQUIVALENT_MATCH) != 0) {
+			buffer.append("EQUIVALENT"); //$NON-NLS-1$
+			if ((this.matchRule & SearchPattern.R_ERASURE_MATCH) != 0)
+				buffer.append("+ERASURE"); //$NON-NLS-1$
+		} else if ((this.matchRule & SearchPattern.R_ERASURE_MATCH) != 0) {
+			buffer.append("ERASURE"); //$NON-NLS-1$
+		} else {
+			buffer.append("EXACT"); //$NON-NLS-1$
+		}
 		buffer.append("\n  offset="); //$NON-NLS-1$
 		buffer.append(this.offset);
 		buffer.append("\n  length="); //$NON-NLS-1$

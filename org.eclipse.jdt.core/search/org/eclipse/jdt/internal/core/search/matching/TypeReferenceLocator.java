@@ -26,6 +26,7 @@ protected TypeReferencePattern pattern;
 protected boolean isDeclarationOfReferencedTypesPattern;
 
 public TypeReferenceLocator(TypeReferencePattern pattern) {
+
 	super(pattern);
 
 	this.pattern = pattern;
@@ -150,7 +151,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 		patternHasParameters = this.pattern.typeArguments[0] != null && this.pattern.typeArguments[0].length != 0;
 	}
 	if (patternHasParameters) { // binding has no type params, compatible erasure if pattern does
-		rule = SearchMatch.A_COMPATIBLE | SearchMatch.A_ERASURE;
+		rule = SearchPattern.R_EQUIVALENT_MATCH | SearchPattern.R_ERASURE_MATCH;
 	}
 	
 	// Try to find best selection for match
@@ -344,14 +345,14 @@ void matchReportReference(Expression expr, IJavaElement element, int accuracy, i
 		// Try to refine accuracy
 		ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)refBinding;
 		refinedAccuracy = refineAccuracy(accuracy, parameterizedBinding, this.pattern.typeArguments, this.pattern.typeSignatures==null, 0, locator);
-		if (refinedAccuracy == -1 || (refinedAccuracy == SearchMatch.A_ERASURE && !this.isErasureMatch)) {
+		if (refinedAccuracy == -1 || (refinedAccuracy == SearchPattern.R_ERASURE_MATCH && !this.isErasureMatch)) {
 			// refined accuracy shows an impossible match...
 			return;
 		}
 
 		// Set rule
-		rule |= refinedAccuracy & SearchMatch.RULE_MASK;
-		refinedAccuracy = refinedAccuracy & (~SearchMatch.RULE_MASK);
+		rule |= refinedAccuracy & RULE_MASK;
+		refinedAccuracy = refinedAccuracy & (~RULE_MASK);
 
 		// Make a special report for parameterized types if necessary
 		 if (refBinding.isParameterizedType() && this.pattern.isParameterized())  {
@@ -371,7 +372,7 @@ void matchReportReference(Expression expr, IJavaElement element, int accuracy, i
 			}
 		}
 	} else if (patternHasParameters) { // binding has no type params, compatible erasure if pattern does
-		rule = SearchMatch.A_ERASURE;
+		rule = SearchPattern.R_ERASURE_MATCH;
 	}
 
 	// Report match
