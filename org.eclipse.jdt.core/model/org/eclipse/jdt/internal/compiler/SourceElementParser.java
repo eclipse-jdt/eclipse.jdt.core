@@ -1035,10 +1035,14 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 				((SourceConstructorDeclaration) methodDeclaration).selectorSourceEnd; 
 		}
 		if (isInRange){
+			int currentModifiers = methodDeclaration.modifiers;
+			if (isVarArgs)
+				currentModifiers |= AccVarargs;
+			boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
 			ISourceElementRequestor.MethodInfo methodInfo = new ISourceElementRequestor.MethodInfo();
 			methodInfo.isConstructor = true;
 			methodInfo.declarationStart = methodDeclaration.declarationSourceStart;
-			methodInfo.modifiers = methodDeclaration.modifiers;
+			methodInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;
 			methodInfo.name = methodDeclaration.selector;
 			methodInfo.nameSourceStart = methodDeclaration.sourceStart;
 			methodInfo.nameSourceEnd = selectorSourceEnd;

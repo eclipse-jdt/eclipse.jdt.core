@@ -53,6 +53,8 @@ public void setUpSuite() throws Exception {
 		"  }\n" +
 		"  void testIsVarArgs(String s, Object ... args) {\n" +
 		"  }\n" +
+		"  X(String... s) {\n" +
+		"  }\n" +
 		"}\n" +
 		"/** @deprecated\n */" +
 		"interface I {\n" +
@@ -316,7 +318,15 @@ public void testGetMethod2() throws JavaModelException {
 	IMethod method = type.getMethod("testIsVarArgs", new String[]{"QString;", "[QObject;"});
 	assertTrue("Should have the AccVarargs flag set", Flags.isVarargs(method.getFlags()));
 }
-
+/**
+ * Ensures that a constructor has the correct AccVarargs flag set.
+ * (regression test for bug 77422 [1.5] ArrayIndexOutOfBoundsException with vararg constructor of generic superclass)
+ */
+public void testGetMethod3() throws JavaModelException {
+	IType type = this.cu.getType("X");
+	IMethod method = type.getMethod("X", new String[]{"[QString;"});
+	assertTrue("Should have the AccVarargs flag set", Flags.isVarargs(method.getFlags()));
+}
 /**
  * Ensures that correct number of methods with the correct names and modifiers
  * exist in a type.
@@ -324,8 +334,8 @@ public void testGetMethod2() throws JavaModelException {
 public void testGetMethods() throws JavaModelException {
 	IType type = this.cu.getType("X");
 	IMethod[] methods= type.getMethods();
-	String[] methodNames = new String[] {"foo", "bar", "fred", "testIsVarArgs"};
-	String[] flags = new String[] {"public", "protected static", "private", ""};
+	String[] methodNames = new String[] {"foo", "bar", "fred", "testIsVarArgs", "X"};
+	String[] flags = new String[] {"public", "protected static", "private", "", ""};
 	assertEquals("Wrong number of methods returned", methodNames.length, methods.length);
 	for (int i = 0; i < methods.length; i++) {
 		assertEquals("Incorrect name for the " + i + " method", methodNames[i], methods[i].getElementName());
