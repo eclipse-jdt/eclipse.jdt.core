@@ -15,11 +15,12 @@ import org.eclipse.jdt.core.compiler.IProblem;
 /**
  * Adapter of the requestor interface <code>ICompletionRequestor</code>.
  * <p>
- * This class is intended to be instanciated and subclassed by clients.
+ * This class is intended to be instantiated and subclassed by clients.
  * </p>
  *
  * @see ICompletionRequestor
  * @since 2.0
+ * TODO (jerome - once CompletionRequestor is working) @ deprecated Subclass {@link CompletionRequestor} instead.
  */
 public class CompletionRequestorAdapter implements ICompletionRequestor {
 

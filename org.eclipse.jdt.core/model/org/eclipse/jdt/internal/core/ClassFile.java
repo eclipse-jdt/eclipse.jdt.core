@@ -112,6 +112,23 @@ public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopy
 		codeComplete(cu, cu, offset, requestor, owner);
 	}
 }
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor)
+ */
+public void codeComplete(int offset, CompletionRequestor requestor) throws JavaModelException {
+	// TODO (jerome) - Missing implementation
+	throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
+}
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner)
+ */
+public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner wcowner) throws JavaModelException {
+	// TODO (jerome) - Missing implementation
+	throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
+}
+
 /**
  * @see ICodeAssist#codeSelect(int, int)
  */

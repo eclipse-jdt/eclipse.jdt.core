@@ -20,7 +20,7 @@ import org.eclipse.core.resources.IMarker;
  * </p>
  *
  * @see ICodeAssist
- * @deprecated Use an ICompletionRequestor instead
+ * @deprecated Use {@link CompletionRequestor} instead.
  */
 public interface ICodeCompletionRequestor {
 /**

@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     IBM Corporation - added J2SE 1.5 support
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -26,9 +27,18 @@ import org.eclipse.jdt.core.compiler.*;
  *   | "S"  // short
  *   | "V"  // void
  *   | "Z"  // boolean
- *   | "L" + binaryTypeName + ";"  // resolved named type (in compiled code)
- *   | "Q" + sourceTypeName + ";"  // unresolved named type (in source code)
+ *   | "T" + typeVariableName + ";" // type variable
+ *   | "L" + binaryTypeName + optionalTypeArguments + ";"  // resolved named type (in compiled code)
+ *   | "Q" + sourceTypeName + optionalTypeArguments + ";"  // unresolved named type (in source code)
  *   | "[" + typeSignature  // array of type denoted by typeSignature
+ * optionalTypeArguments ::=
+ *     "&lt;" + typeArgument+ + "&gt;" 
+ *   |
+ * typeArgument ::=
+ *   | typeSignature
+ *   | "*" 
+ *   | "+" typeSignature
+ *   | "-" typeSignature
  * </pre>
  * </p>
  * <p>
@@ -39,14 +49,21 @@ import org.eclipse.jdt.core.compiler.*;
  *   <li><code>"QString;"</code> denotes <code>String</code> in source code</li>
  *   <li><code>"Qjava.lang.String;"</code> denotes <code>java.lang.String</code> in source code</li>
  *   <li><code>"[QString;"</code> denotes <code>String[]</code> in source code</li>
+ *   <li><code>"QMap&lt;QString;&ast;&gt;;"</code> denotes <code>Map&lt;String,?&gt;</code> in source code</li>
+ *   <li><code>"Ljava.util.List&ltTV;&gt;;"</code> denotes <code>java.util.List&lt;V&gt;</code> in source code</li>
  * </ul>
  * </p>
  * <p>
- * The syntax for a method signature is:
+ * The syntax for a method signature is: 
  * <pre>
- * methodSignature ::= "(" + paramTypeSignature* + ")" + returnTypeSignature
+ * methodSignature ::= 
+ *    optionalFormalTypeParameters + "(" + paramTypeSignature* + ")" + returnTypeSignature + throwsSignature*
  * paramTypeSignature ::= typeSignature
  * returnTypeSignature ::= typeSignature
+ * throwsSignature ::= "^" + typeSignature
+ * optionalFormalTypeParameters ::=
+ *     "&lt;" + formalTypeParameter+ + "&gt;" 
+ *   |
  * </pre>
  * <p>
  * Examples:
@@ -54,6 +71,25 @@ import org.eclipse.jdt.core.compiler.*;
  *   <li><code>"()I"</code> denotes <code>int foo()</code></li>
  *   <li><code>"([Ljava.lang.String;)V"</code> denotes <code>void foo(java.lang.String[])</code> in compiled code</li>
  *   <li><code>"(QString;)QObject;"</code> denotes <code>Object foo(String)</code> in source code</li>
+ * </ul>
+ * </p>
+ * <p>
+ * The syntax for a format type parameter signature is:
+ * <pre>
+ * formalTypeParameter ::=
+ *     typeVariableName + optionalClassBound + interfaceBound*
+ * optionalClassBound ::=
+ *     ":"
+ *   | ":" + typeSignature
+ * interfaceBound ::=
+ *     ":" + typeSignature
+ * </pre>
+ * <p>
+ * Examples:
+ * <ul>
+ *   <li><code>"X:"</code> denotes <code>X</code></li>
+ *   <li><code>"X:QReader;"</code> denotes <code>X extends Reader</code> in compiled code</li>
+ *   <li><code>"X:QReader;QSerializable;"</code> denotes <code>X extends Reader & Serializable</code> in source code</li>
  * </ul>
  * </p>
  * <p>
@@ -106,6 +142,13 @@ public final class Signature {
 	public static final char C_SEMICOLON 			= ';';
 
 	/**
+	 * Character constant indicating the colon in a signature.
+	 * Value is <code>':'</code>.
+	 * @since 3.0
+	 */
+	public static final char C_COLON 			= ':';
+
+	/**
 	 * Character constant indicating the primitive type long in a signature.
 	 * Value is <code>'J'</code>.
 	 */
@@ -122,6 +165,45 @@ public final class Signature {
 	 * Value is <code>'V'</code>.
 	 */
 	public static final char C_VOID			= 'V';
+	
+	/**
+	 * Character constant indicating the start of a resolved type variable in a 
+	 * signature. Value is <code>'T'</code>.
+	 * @since 3.0
+	 */
+	public static final char C_TYPE_VARIABLE	= 'T';
+	
+	/**
+	 * Character constant indicating a wildcard type argument 
+	 * in a signature.
+	 * Value is <code>'&ast;'</code>.
+	 * @since 3.0
+	 */
+	public static final char C_STAR	= '*';
+	
+	/**
+	 * Character constant indicating the start of a bounded wildcard type argument
+	 * in a signature.
+	 * Value is <code>'+'</code>.
+	 * @since 3.0
+	 * TODO (jeem) - is this 'super' or 'extends' ?
+	 */
+	public static final char C_PLUS	= '+';
+	
+	/**
+	 * Character constant indicating the start of a bounded wildcard type argument
+	 * in a signature. Value is <code>'-'</code>.
+	 * @since 3.0
+	 * TODO (jeem) - is this 'super' or 'extends' ?
+	 */
+	public static final char C_MINUS	= '-';
+	
+	/**
+	 * Character constant indicating the start of a thrown exception in a
+	 * method signature. Value is <code>'^'</code>.
+	 * @since 3.0
+	 */
+	public static final char C_THROWS	= '^';
 	
 	/** 
 	 * Character constant indicating the dot in a signature. 
@@ -170,6 +252,20 @@ public final class Signature {
 	 * signature. Value is <code>')'</code>.
 	 */
 	public static final char C_PARAM_END	= ')';
+
+	/**
+	 * Character constant indicating the start of a formal type parameter
+	 * (or type argument) list in a signature. Value is <code>'&lt;'</code>.
+	 * @since 3.0
+	 */
+	public static final char C_GENERIC_START	= '<';
+
+	/**
+	 * Character constant indicating the end of a generic type list in a 
+	 * signature. Value is <code>'%gt;'</code>.
+	 * @since 3.0
+	 */
+	public static final char C_GENERIC_END	= '>';
 
 	/**
 	 * String constant for the signature of the primitive type boolean.
@@ -235,7 +331,8 @@ public final class Signature {
 	private static final char[] VOID = {'v', 'o', 'i', 'd'};
 	
 	private static final String EMPTY = new String(CharOperation.NO_CHAR);
-	
+	private static final String[] EMPTY_STRING_ARRAY = new String[0];
+		
 private Signature() {
 	// Not instantiable
 }
@@ -357,34 +454,18 @@ public static String createArraySignature(String typeSignature, int arrayCount) 
 }
 /**
  * Creates a method signature from the given parameter and return type 
- * signatures. The encoded method signature is dot-based.
+ * signatures. The encoded method signature is dot-based. This method
+ * is equivalent to
+ * <code>createMethodSignature(new char[0][], parameterTypes, returnType, new char[0][])</code>.
  *
  * @param parameterTypes the list of parameter type signatures
  * @param returnType the return type signature
  * @return the encoded method signature
- * 
+ * @see #createMethodSignature(char[][], char[][], char[], char[][])
  * @since 2.0
  */
 public static char[] createMethodSignature(char[][] parameterTypes, char[] returnType) {
-	int parameterTypesLength = parameterTypes.length;
-	int parameterLength = 0;
-	for (int i = 0; i < parameterTypesLength; i++) {
-		parameterLength += parameterTypes[i].length;
-		
-	}
-	int returnTypeLength = returnType.length;
-	char[] result = new char[1 + parameterLength + 1 + returnTypeLength];
-	result[0] = C_PARAM_START;
-	int index = 1;
-	for (int i = 0; i < parameterTypesLength; i++) {
-		char[] parameterType = parameterTypes[i];
-		int length = parameterType.length;
-		System.arraycopy(parameterType, 0, result, index, length);
-		index += length;
-	}
-	result[index] = C_PARAM_END;
-	System.arraycopy(returnType, 0, result, index+1, returnTypeLength);
-	return result;
+	return createMethodSignature(parameterTypes, returnType, CharOperation.NO_CHAR_CHAR, CharOperation.NO_CHAR_CHAR);
 }
 /**
  * Creates a method signature from the given parameter and return type 
@@ -392,16 +473,118 @@ public static char[] createMethodSignature(char[][] parameterTypes, char[] retur
  *
  * @param parameterTypes the list of parameter type signatures
  * @param returnType the return type signature
+ * @param formalTypeParameters the list of formal type parameter signatures
+ * @param thrownExceptions the list of type signatures for thrown exceptions
+ * @since 3.0
+ */
+public static char[] createMethodSignature(
+		char[][] parameterTypes,
+		char[] returnType,
+		char[][] formalTypeParameters,
+		char[][] thrownExceptions) {
+	int formalTypeParameterCount = formalTypeParameters.length;
+	int formalTypeLength = 0;
+	for (int i = 0; i < formalTypeParameterCount; i++) {
+		formalTypeLength += formalTypeParameters[i].length;
+	}
+	int parameterTypesCount = parameterTypes.length;
+	int parameterLength = 0;
+	for (int i = 0; i < parameterTypesCount; i++) {
+		parameterLength += parameterTypes[i].length;
+	}
+	int returnTypeLength = returnType.length;
+	int thrownExceptionsCount = thrownExceptions.length;
+	int exceptionsLength = 0;
+	for (int i = 0; i < thrownExceptionsCount; i++) {
+		exceptionsLength += thrownExceptions[i].length;
+	}
+	int extras = 2; // "(" and ")"
+	if (formalTypeParameterCount > 0) {
+		extras += 2;   // "<" and ">"
+	}
+	if (thrownExceptionsCount > 0) {
+		extras += thrownExceptionsCount;   // one "^" per
+	}
+	char[] result = new char[extras+ formalTypeLength + parameterLength + returnTypeLength + exceptionsLength];
+	int index = 0;
+	if (formalTypeParameterCount > 0) {
+		result[index++] = C_GENERIC_START;
+		for (int i = 0; i < formalTypeParameterCount; i++) {
+			char[] formalTypeParameter = formalTypeParameters[i];
+			int length = formalTypeParameter.length;
+			System.arraycopy(formalTypeParameter, 0, result, index, length);
+			index += length;
+		}
+		result[index++] = C_GENERIC_END;
+	}
+	result[index++] = C_PARAM_START;
+	for (int i = 0; i < parameterTypesCount; i++) {
+		char[] parameterType = parameterTypes[i];
+		int length = parameterType.length;
+		System.arraycopy(parameterType, 0, result, index, length);
+		index += length;
+	}
+	result[index++] = C_PARAM_END;
+	System.arraycopy(returnType, 0, result, index, returnTypeLength);
+	index += returnTypeLength;
+	if (thrownExceptionsCount > 0) {
+		for (int i = 0; i < thrownExceptionsCount; i++) {
+			result[index++] = C_THROWS;
+			char[] thrownException = thrownExceptions[i];
+			int length = thrownException.length;
+			System.arraycopy(thrownException, 0, result, index, length);
+			index += length;
+		}
+	}
+	return result;
+}
+
+/**
+ * Creates a method signature from the given parameter and return type 
+ * signatures. The encoded method signature is dot-based. This method
+ * is equivalent to
+ * <code>createMethodSignature(new String[0], parameterTypes, returnType, new String[0])</code>.
+ *
+ * @param parameterTypes the list of parameter type signatures
+ * @param returnType the return type signature
  * @return the encoded method signature
+ * @see Signature#createMethodSignature(String[], String[], String, String[])
  */
 public static String createMethodSignature(String[] parameterTypes, String returnType) {
-	int parameterTypesLenth = parameterTypes.length;
-	char[][] parameters = new char[parameterTypesLenth][];
-	for (int i = 0; i < parameterTypesLenth; i++) {
+	return createMethodSignature(parameterTypes, returnType, EMPTY_STRING_ARRAY, EMPTY_STRING_ARRAY);
+}
+
+/**
+ * Creates a method signature. The encoded method signature is dot-based.
+ *
+ * @param parameterTypes the list of parameter type signatures
+ * @param returnType the return type signature
+ * @param formalTypeParameters the list of formal type parameter signatures
+ * @param thrownExceptions the list of type signatures for thrown exceptions
+ * @return the encoded method signature
+ * @since 3.0
+ */
+public static String createMethodSignature(
+		String[] parameterTypes,
+		String returnType,
+		String[] formalTypeParameters,
+		String[] thrownExceptions) {
+	char[][] formalTypes = new char[formalTypeParameters.length][];
+	for (int i = 0; i < formalTypeParameters.length; i++) {
+		formalTypes[i] = formalTypeParameters[i].toCharArray();
+	}
+	char[][] parameters = new char[parameterTypes.length][];
+	for (int i = 0; i < parameterTypes.length; i++) {
 		parameters[i] = parameterTypes[i].toCharArray();
 	}
-	return new String(createMethodSignature(parameters, returnType.toCharArray()));
+	char[][] exceptionTypes = new char[thrownExceptions.length][];
+	for (int i = 0; i < thrownExceptions.length; i++) {
+		exceptionTypes[i] = thrownExceptions[i].toCharArray();
+	}
+	return new String(createMethodSignature(parameters, returnType.toCharArray(), formalTypes, exceptionTypes));
 }
+
+
 /**
  * Creates a new type signature from the given type name encoded as a character
  * array. This method is equivalent to
@@ -438,7 +621,8 @@ public static String createTypeSignature(char[] typeName, boolean isResolved) {
  * @since 2.0
  */
 public static char[] createCharArrayTypeSignature(char[] typeName, boolean isResolved) {
-
+	// TODO (jerome) - needs to be reworked for parameterized types like List<String[]>[]
+	
 	if (typeName == null) throw new IllegalArgumentException("null"); //$NON-NLS-1$
 	int length = typeName.length;
 	if (length == 0) throw new IllegalArgumentException(new String(typeName));
@@ -577,6 +761,10 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
  * createTypeSignature("String", false) -> "QString;"
  * createTypeSignature("java.lang.String", false) -> "Qjava.lang.String;"
  * createTypeSignature("int []", false) -> "[I"
+ * createTypeSignature("List&lt;String&gt;", false) -> "QList&lt;QString;&gt;;"
+ * createTypeSignature("List&lt;?&gt;", false) -> "QList&lt;&ast;&gt;;"
+ * createTypeSignature("List&lt;? extends EventListener&gt;", false) -> "QList&lt;-QEventListener;&gt;;"
+ * createTypeSignature("List&lt;? super Reader&gt;", false) -> "QList&lt;+QReader;&gt;;"
  * </code>
  * </pre>
  * </p>
@@ -587,10 +775,12 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
  *   <code>false</code> if the type name is to be considered unresolved
  *   (for example, a type name found in source code)
  * @return the encoded type signature
+ * TODO (jeem) - fundamental problem with resolve types involving type variables which are syntactically indistinguishable for type in default package
  */
 public static String createTypeSignature(String typeName, boolean isResolved) {
 	return createTypeSignature(typeName == null ? null : typeName.toCharArray(), isResolved);
 }
+
 /**
  * Returns the array count (array nesting depth) of the given type signature.
  *
@@ -699,8 +889,10 @@ public static int getParameterCount(char[] methodSignature) throws IllegalArgume
 				case C_VOID :
 					++count;
 					break;
+				case C_TYPE_VARIABLE :
 				case C_RESOLVED :
 				case C_UNRESOLVED :
+					// TODO (jeem) - rework to handle type arguments like QList<QString;>;
 					i = CharOperation.indexOf(C_SEMICOLON, methodSignature, i) + 1;
 					if (i == 0)
 						throw new IllegalArgumentException();
@@ -798,8 +990,10 @@ public static char[][] getParameterTypes(char[] methodSignature) throws IllegalA
 					}
 					start = i;
 					break;
+				case C_TYPE_VARIABLE :
 				case C_RESOLVED :
 				case C_UNRESOLVED :
+					// TODO (jeem) - rework to handle type arguments like QList<QString;>;
 					i = CharOperation.indexOf(C_SEMICOLON, methodSignature, i) + 1;
 					if (i == 0)
 						throw new IllegalArgumentException();
@@ -834,6 +1028,167 @@ public static String[] getParameterTypes(String methodSignature) throws IllegalA
 	}
 	return result;
 }
+
+/**
+ * Extracts the type variable name from the given formal type parameter
+ * signature. The signature is expected to be dot-based.
+ *
+ * @param formalTypeParameterSignature the formal type parameter signature
+ * @return the name of the type variable
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ * @since 3.0
+ */
+public static String getTypeVariable(String formalTypeParameterSignature) throws IllegalArgumentException {
+	return new String(getTypeVariable(formalTypeParameterSignature.toCharArray()));
+}
+
+/**
+ * Extracts the type variable name from the given formal type parameter
+ * signature. The signature is expected to be dot-based.
+ *
+ * @param formalTypeParameterSignature the formal type parameter signature
+ * @return the name of the type variable
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ * @since 3.0
+ */
+public static char[] getTypeVariable(char[] formalTypeParameterSignature) throws IllegalArgumentException {
+	int p = CharOperation.indexOf(C_COLON, formalTypeParameterSignature);
+	if (p < 0) {
+		// no ":" means can't be a formal type parameter signature
+		throw new IllegalArgumentException();
+	}
+	return CharOperation.subarray(formalTypeParameterSignature, 0, p);
+}
+
+/**
+ * Extracts the class bound from the given formal type parameter
+ * signature. The signature is expected to be dot-based.
+ * <p>
+ * Note that for types coming from source files, the first bound
+ * may be incorrectly classified as the class bound when it should
+ * in fact be an interface bound (and there is no class bound).
+ * This stems from the fact that it is impossible to make a correct
+ * classification based on syntactic information alone. In contrast,
+ * for formal type parameter signatures coming from class files, the
+ * classification of the first bound should be accurate.
+ * </p>
+ *
+ * @param formalTypeParameterSignature the formal type parameter signature
+ * @return the class bound type signature, or <code>null</code> if none
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ * @since 3.0
+ * TODO (jeem) should be merged with interface bounds into #getTypeParameterBounds(). Clients will know which is class, and which is interface. No need to distinguish from API, and better handle source cases.
+ */
+public static String getClassBound(String formalTypeParameterSignature) throws IllegalArgumentException {
+	char[] result = getClassBound(formalTypeParameterSignature.toCharArray());
+	if (result == null) {
+		return null;
+	} else {
+		return new String(result);
+	}
+}
+
+/**
+ * Extracts the class bound from the given formal type parameter
+ * signature. The signature is expected to be dot-based.
+ * <p>
+ * Note that for types coming from source files, the first bound
+ * may be incorrectly classified as the class bound when it should
+ * in fact be an interface bound (and there is no class bound).
+ * This stems from the fact that it is impossible to make a correct
+ * classification based on syntactic information alone. In contrast,
+ * for formal type parameter signatures coming from class files, the
+ * classification of the first bound should be accurate.
+ * </p>
+ *
+ * @param formalTypeParameterSignature the formal type parameter signature
+ * @return the class bound type signature, or <code>null</code> if none
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ * @since 3.0
+ * TODO (jeem) should be merged with interface bounds into #getTypeParameterBounds(). Clients will know which is class, and which is interface. No need to distinguish from API, and better handle source cases.
+ */
+public static char[] getClassBound(char[] formalTypeParameterSignature) throws IllegalArgumentException {
+	int p1 = CharOperation.indexOf(C_COLON, formalTypeParameterSignature);
+	if (p1 < 0) {
+		// no ":" means can't be a formal type parameter signature
+		throw new IllegalArgumentException();
+	}
+	int p2 = CharOperation.indexOf(C_COLON, formalTypeParameterSignature, p1 + 1);
+	if (p2 < 0 || p2 == p1 + 1) {
+		// no class bound
+		return null;
+	}
+	return CharOperation.subarray(formalTypeParameterSignature, p1 + 1, p2);
+}
+
+/**
+ * Extracts the interface bounds from the given formal type parameter
+ * signature. The signature is expected to be dot-based.
+ * <p>
+ * Note that for types coming from source files, the first bound
+ * may be incorrectly classified as the class bound when it should
+ * in fact be an interface bound (and there is no class bound).
+ * This stems from the fact that it is impossible to make a correct
+ * classification based on syntactic information alone. In contrast,
+ * for formal type parameter signatures coming from class files, the
+ * classification of the first bound should be accurate.
+ * </p>
+ *
+ * @param formalTypeParameterSignature the formal type parameter signature
+ * @return the (possibly empty) interface bound type signatures
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ * @since 3.0
+ * TODO (jeem) should be merged with interface bounds into #getTypeParameterBounds(). Clients will know which is class, and which is interface. No need to distinguish from API, and better handle source cases.
+ */
+public static String[] getInterfaceBounds(String formalTypeParameterSignature) throws IllegalArgumentException {
+	char[][] bounds = getInterfaceBounds(formalTypeParameterSignature.toCharArray());
+	int length = bounds.length;
+	String[] result = new String[length];
+	for (int i = 0; i < length; i++) {
+		result[i] = new String(bounds[i]);
+	}
+	return result;
+}
+
+/**
+ * Extracts the interface bounds from the given formal type parameter
+ * signature. The signature is expected to be dot-based.
+ * <p>
+ * Note that for types coming from source files, the first bound
+ * may be incorrectly classified as the class bound when it should
+ * in fact be an interface bound (and there is no class bound).
+ * This stems from the fact that it is impossible to make a correct
+ * classification based on syntactic information alone. In contrast,
+ * for formal type parameter signatures coming from class files, the
+ * classification of the first bound should be accurate.
+ * </p>
+ *
+ * @param formalTypeParameterSignature the formal type parameter signature
+ * @return the (possibly empty) interface bound type signatures
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ * @since 3.0
+ * TODO (jeem) should be merged with interface bounds into #getTypeParameterBounds(). Clients will know which is class, and which is interface. No need to distinguish from API, and better handle source cases.
+ */
+public static char[][] getInterfaceBounds(char[] formalTypeParameterSignature) throws IllegalArgumentException {
+	int p1 = CharOperation.indexOf(C_COLON, formalTypeParameterSignature);
+	if (p1 < 0) {
+		// no ":" means can't be a formal type parameter signature
+		throw new IllegalArgumentException();
+	}
+	int p2 = CharOperation.indexOf(C_COLON, formalTypeParameterSignature, p1 + 1);
+	if (p2 < 0) {
+		// no class or interface bounds
+		return CharOperation.NO_CHAR_CHAR;
+	}
+	return CharOperation.splitOn(C_COLON, formalTypeParameterSignature, p2 + 1, formalTypeParameterSignature.length);
+}
+
 /**
  * Returns a char array containing all but the last segment of the given 
  * dot-separated qualified name. Returns the empty char array if it is not qualified.
@@ -897,11 +1252,15 @@ public static String getQualifier(String name) {
  * @since 2.0
  */
 public static char[] getReturnType(char[] methodSignature) throws IllegalArgumentException {
+	// skip type parameters
 	int i = CharOperation.lastIndexOf(C_PARAM_END, methodSignature);
 	if (i == -1) {
 		throw new IllegalArgumentException();
 	}
-	return CharOperation.subarray(methodSignature, i + 1, methodSignature.length);
+	// ignore any thrown exceptions
+	int j = CharOperation.indexOf(C_THROWS, methodSignature);
+	int last = (j == -1 ? methodSignature.length : j);
+	return CharOperation.subarray(methodSignature, i + 1, last);
 }
 /**
  * Extracts the return type from the given method signature. The method signature is 
@@ -1057,6 +1416,47 @@ public static String[] getSimpleNames(String name) {
  * @since 2.0
  */
 public static char[] toCharArray(char[] methodSignature, char[] methodName, char[][] parameterNames, boolean fullyQualifyTypeNames, boolean includeReturnType) {
+	return toCharArray(methodSignature, methodName, parameterNames, fullyQualifyTypeNames, includeReturnType, false, false);
+}
+
+/**
+ * Converts the given method signature to a readable form. The method signature is expected to
+ * be dot-based.
+ * <p>
+ * For example:
+ * <pre>
+ * <code>
+ * toString("([Ljava.lang.String;)V", "main", new String[] {"args"}, false, true) -> "void main(String[] args)"
+ * </code>
+ * </pre>
+ * </p>
+ * 
+ * @param methodSignature the method signature to convert
+ * @param methodName the name of the method to insert in the result, or 
+ *   <code>null</code> if no method name is to be included
+ * @param parameterNames the parameter names to insert in the result, or 
+ *   <code>null</code> if no parameter names are to be included; if supplied,
+ *   the number of parameter names must match that of the method signature
+ * @param fullyQualifyTypeNames <code>true</code> if type names should be fully
+ *   qualified, and <code>false</code> to use only simple names
+ * @param includeReturnType <code>true</code> if the return type is to be
+ *   included
+ * @param includeFormalTypeParameters <code>true</code> if any formal type
+ * parameters are to be included
+ * @param includeThrownExceptions <code>true</code> if any thrown exceptions
+ * are to be included
+ * @return the char array representation of the method signature
+ * @since 3.0
+ */
+public static char[] toCharArray(
+		char[] methodSignature,
+		char[] methodName,
+		char[][] parameterNames,
+		boolean fullyQualifyTypeNames,
+		boolean includeReturnType,
+		boolean includeFormalTypeParameters,
+		boolean includeThrownExceptions) {
+	// TODO (jeem) - needs to handle includeFormalTypeParameters and includeThrownExceptions
 	try {
 		int firstParen = CharOperation.indexOf(C_PARAM_START, methodSignature);
 		if (firstParen == -1) throw new IllegalArgumentException();
@@ -1207,6 +1607,8 @@ public static char[] toCharArray(char[] methodSignature, char[] methodName, char
 		throw new IllegalArgumentException();
 	}		
 }
+
+
 /**
  * Converts the given type signature to a readable string. The signature is expected to
  * be dot-based.
@@ -1239,7 +1641,7 @@ public static char[] toCharArray(char[] signature) throws IllegalArgumentExcepti
 	try {
 		int sigLength = signature.length;
 
-		if (sigLength == 0 || signature[0] == C_PARAM_START) {
+		if (sigLength == 0 || signature[0] == C_PARAM_START || signature[0] == C_GENERIC_START) {
 			return toCharArray(signature, CharOperation.NO_CHAR, null, true, true);
 		}
 		
@@ -1277,8 +1679,10 @@ public static char[] toCharArray(char[] signature) throws IllegalArgumentExcepti
 			case C_VOID :
 				resultLength += VOID.length;
 				break;
+			case C_TYPE_VARIABLE :
 			case C_RESOLVED :
 			case C_UNRESOLVED :
+				// TODO (jeem) - needs to handle type arguments
 				int end = CharOperation.indexOf(C_SEMICOLON, signature, index);
 				if (end == -1) throw new IllegalArgumentException();
 				int start = index + 1;
@@ -1401,12 +1805,41 @@ public static String toString(String signature) throws IllegalArgumentException 
 }
 /**
  * Converts the given method signature to a readable string. The method signature is expected to
+ * be dot-based. This method is equivalent to
+ * <code>toString(methodSignature, methodName, parameterNames, fullyQualifyTypeNames, includeReturnType, false, false)</code>.
+ * 
+ * @param methodSignature the method signature to convert
+ * @param methodName the name of the method to insert in the result, or 
+ *   <code>null</code> if no method name is to be included
+ * @param parameterNames the parameter names to insert in the result, or 
+ *   <code>null</code> if no parameter names are to be included; if supplied,
+ *   the number of parameter names must match that of the method signature
+ * @param fullyQualifyTypeNames <code>true</code> if type names should be fully
+ *   qualified, and <code>false</code> to use only simple names
+ * @param includeReturnType <code>true</code> if the return type is to be
+ *   included
+ * @see #toString(String, String, String[], boolean, boolean, boolean, boolean)
+ * @return the string representation of the method signature
+ */
+public static String toString(String methodSignature, String methodName, String[] parameterNames, boolean fullyQualifyTypeNames, boolean includeReturnType) {
+	return new String(toString(
+			methodSignature,
+			methodName,
+			parameterNames,
+			fullyQualifyTypeNames,
+			includeReturnType,
+			false,
+			false));
+}
+
+/**
+ * Converts the given method signature to a readable string. The method signature is expected to
  * be dot-based.
  * <p>
  * For example:
  * <pre>
  * <code>
- * toString("([Ljava.lang.String;)V", "main", new String[] {"args"}, false, true) -> "void main(String[] args)"
+ * toString("([Ljava.lang.String;)V", "main", new String[] {"args"}, false, true, false, false) -> "void main(String[] args)"
  * </code>
  * </pre>
  * </p>
@@ -1421,9 +1854,21 @@ public static String toString(String signature) throws IllegalArgumentException 
  *   qualified, and <code>false</code> to use only simple names
  * @param includeReturnType <code>true</code> if the return type is to be
  *   included
+ * @param includeFormalTypeParameters <code>true</code> if any formal type
+ * parameters are to be included
+ * @param includeThrownExceptions <code>true</code> if any thrown exceptions
+ * are to be included
  * @return the string representation of the method signature
+ * @since 3.0
  */
-public static String toString(String methodSignature, String methodName, String[] parameterNames, boolean fullyQualifyTypeNames, boolean includeReturnType) {
+public static String toString(
+		String methodSignature,
+		String methodName,
+		String[] parameterNames,
+		boolean fullyQualifyTypeNames,
+		boolean includeReturnType,
+		boolean includeFormalTypeParameters,
+		boolean includeThrownExceptions) {
 	char[][] params;
 	if (parameterNames == null) {
 		params = null;
@@ -1434,6 +1879,14 @@ public static String toString(String methodSignature, String methodName, String[
 			params[i] = parameterNames[i].toCharArray();
 		}
 	}
-	return new String(toCharArray(methodSignature.toCharArray(), methodName == null ? null : methodName.toCharArray(), params, fullyQualifyTypeNames, includeReturnType));
+	return new String(toCharArray(
+			methodSignature.toCharArray(),
+			methodName == null ? null : methodName.toCharArray(),
+			params,
+			fullyQualifyTypeNames,
+			includeReturnType,
+			includeFormalTypeParameters,
+			includeThrownExceptions));
 }
+
 }

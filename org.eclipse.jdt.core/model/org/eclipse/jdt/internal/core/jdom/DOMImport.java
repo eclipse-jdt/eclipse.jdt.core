@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.jdom;
 
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.jdom.IDOMImport;
@@ -22,12 +23,20 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  *
  * @see IDOMImport
  * @see DOMNode
+ * TODO (jerome) - add implementation support for 1.5 features
  */
 class DOMImport extends DOMNode implements IDOMImport {
 	/**
 	 * Indicates if this import is an on demand type import
 	 */
 	protected boolean fOnDemand;
+	
+	/**
+	 * Modifiers for this import.
+	 * @since 3.0
+	 */
+	protected int fFlags = Flags.AccDefault;
+	
 /**
  * Creates a new empty IMPORT node.
  */
@@ -154,5 +163,21 @@ public void setName(String name) {
  */
 public String toString() {
 	return "IMPORT: " + getName(); //$NON-NLS-1$
+}
+
+/**
+ * @see org.eclipse.jdt.core.jdom.IDOMImport#getFlags()
+ * @since 3.0
+ */
+public int getFlags() {
+	return this.fFlags;
+}
+
+/**
+ * @see org.eclipse.jdt.core.jdom.IDOMImport#setFlags(int)
+ * @since 3.0
+ */
+public void setFlags(int flags) {
+	this.fFlags = flags;
 }
 }

@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     IBM Corporation - added J2SE 1.5 support
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -94,7 +95,9 @@ public Object getConstant() throws JavaModelException;
  */
 String getElementName();
 /**
- * Returns the type signature of this field.
+ * Returns the type signature of this field. For enum constants,
+ * this returns the signature of the declaring enum class.
+
  *
  * @return the type signature of this field.
  * @exception JavaModelException if this element does not exist or if an

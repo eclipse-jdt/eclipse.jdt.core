@@ -137,11 +137,16 @@ public final class JavaConventions {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"), null); //$NON-NLS-1$
 		}
 		identifier = name.substring(0, index);
-		IStatus status = validateIdentifier(identifier);
-		if (!status.isOK()) {
-			return status;
+		// JSR-175 metadata strongly recommends "package-info.java" as the
+		// file in which to store package annotations and
+		// the package-level spec (replaces package.html)
+		if (!identifier.equals("package-info")) { //$NON-NLS-1$
+			IStatus status = validateIdentifier(identifier);
+			if (!status.isOK()) {
+				return status;
+			}
 		}
-		status = ResourcesPlugin.getWorkspace().validateName(name, IResource.FILE);
+		IStatus status = ResourcesPlugin.getWorkspace().validateName(name, IResource.FILE);
 		if (!status.isOK()) {
 			return status;
 		}

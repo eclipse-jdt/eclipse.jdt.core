@@ -80,11 +80,13 @@ public interface IMethodInfo {
 	boolean isConstructor();
 
 	/**
-	 * Answer true if this method info has a synthetic attribute,
-	 * false otherwise.
+	 * Return true if the method info is synthetic according to the JVM specification, false otherwise.
+	 * <p>Note that prior to JDK 1.5, synthetic fields were always marked using
+	 * an attribute; with 1.5, synthetic fields can also be marked using 
+	 * the {@link IModifierConstants#ACC_SYNTHETIC} flag.
+	 * </p>
 	 * 
-	 * @return true if this method info has a synthetic attribute,
-	 * false otherwise
+	 * @return true if the method info is synthetic according to the JVM specification, false otherwise
 	 */
 	boolean isSynthetic();
 

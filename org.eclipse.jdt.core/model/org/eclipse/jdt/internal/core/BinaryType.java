@@ -50,12 +50,14 @@ protected void closing(Object info) throws JavaModelException {
 	ClassFileInfo cfi = getClassFileInfo();
 	cfi.removeBinaryChildren();
 }
+
 /*
  * @see IType#codeComplete(char[], int, int, char[][], char[][], int[], boolean, ICompletionRequestor)
  */
 public void codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,ICompletionRequestor requestor) throws JavaModelException {
 	codeComplete(snippet, insertion, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic, requestor, DefaultWorkingCopyOwner.PRIMARY);
 }
+
 /*
  * @see IType#codeComplete(char[], int, int, char[][], char[][], int[], boolean, ICompletionRequestor, WorkingCopyOwner)
  */
@@ -89,6 +91,7 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 		engine.complete(this, snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
 	}
 }
+
 /*
  * @see IType#createField(String, IJavaElement, boolean, IProgressMonitor)
  */
@@ -383,6 +386,20 @@ public IPackageFragment getPackageFragment() {
 	Assert.isTrue(false);  // should not happen
 	return null;
 }
+
+/**
+ * @see IType#getSuperclassType()
+ * @since 3.0
+ */
+public String getSuperclassType() throws JavaModelException {
+	IBinaryType info = (IBinaryType) getElementInfo();
+	char[] superclassName = info.getSuperclassName();
+	if (superclassName == null) {
+		return null;
+	}
+	return new String(Signature.createTypeSignature(ClassFile.translatedName(superclassName), true));
+}
+
 /*
  * @see IType#getSuperclassName()
  */
@@ -411,6 +428,35 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
 	}
 	return strings;
 }
+
+/**
+ * @see IType#getSuperInterfaceTypes()
+ * @since 3.0
+ */
+public String[] getSuperInterfaceTypes() throws JavaModelException {
+	IBinaryType info = (IBinaryType) getElementInfo();
+	char[][] names= info.getInterfaceNames();
+	int length;
+	if (names == null || (length = names.length) == 0) {
+		return NO_STRINGS;
+	}
+	names= ClassFile.translatedNames(names);
+	String[] strings= new String[length];
+	for (int i= 0; i < length; i++) {
+		strings[i]= new String(Signature.createTypeSignature(names[i], true));
+	}
+	return strings;
+}
+
+/**
+ * @see IType#getTypeParameters()
+ * @since 3.0
+ */
+public String[] getTypeParameters() throws JavaModelException {
+	// TODO (jerome) - missing implementation
+	return new String[0];
+}
+
 /*
  * @see IType#getType(String)
  */
@@ -459,6 +505,7 @@ public IType[] getTypes() throws JavaModelException {
 		return array;
 	}
 }
+
 /*
  * @see IType#isAnonymous()
  */
@@ -470,14 +517,35 @@ public boolean isAnonymous() throws JavaModelException {
  * @see IType#isClass()
  */
 public boolean isClass() throws JavaModelException {
+	// TODO (jerome) - isClass should only return true for classes other than enum classes
 	return !isInterface();
 }
+
+/**
+ * @see IType#isEnum()
+ * @since 3.0
+ */
+public boolean isEnum() throws JavaModelException {
+	// TODO (jerome) - missing implementation - should only return true for enum classes
+	return false;
+}
+
 /*
  * @see IType#isInterface()
  */
 public boolean isInterface() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
+	// TODO (jerome) - isInterface should not return true for annotation types
 	return info.isInterface();
+}
+
+/**
+ * @see IType#isAnnotation()
+ * @since 3.0
+ */
+public boolean isAnnotation() throws JavaModelException {
+	// TODO (jerome) - missing implementation - should only return true for annotation types
+	return false;
 }
 
 /*

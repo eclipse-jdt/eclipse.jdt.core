@@ -25,6 +25,16 @@ public class ClassFormatException extends Exception {
 	public static final int INVALID_BYTECODE = 6;
 	
 	/**
+	 * @since 3.0
+	 */
+	public static final int INVALID_TAG_CONSTANT = 7;
+
+	/**
+	 * @since 3.0
+	 */
+	public static final int INVALID_MAGIC_NUMBER = 8;
+
+	/**
 	 * Constructor for ClassFormatException.
 	 * @param errorID the given error ID
 	 */

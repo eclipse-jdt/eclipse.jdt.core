@@ -237,8 +237,10 @@ public void testGetImports() throws JavaModelException {
 		assertTrue("Import does not exist " + imprts[i], imprts[i].exists());
 		if (i == 0) {
 			assertTrue("Import is not on demand " + imprts[i], imprts[i].isOnDemand());
+			assertTrue("Import should be non-static " + imprts[i], imprts[i].getFlags() == Flags.AccDefault);
 		} else {
 			assertTrue("Import is on demand " + imprts[i], !imprts[i].isOnDemand());
+			assertTrue("Import should be non-static " + imprts[i], imprts[i].getFlags() == Flags.AccDefault);
 		}
 		assertTrue("Container import does not equal import", container.getImport(imprts[i].getElementName()).equals(imprts[i]));
 	}
@@ -364,12 +366,36 @@ public void testGetTypes() throws JavaModelException {
 	IType[] types = this.cu.getTypes();
 	String[] typeNames = new String[] {"X", "I"};
 	String[] flags = new String[] {"public", ""};
+	boolean[] isClass = new boolean[] {true, false};
+	boolean[] isInterface = new boolean[] {false, true};
+	boolean[] isAnnotation = new boolean[] {false, false};
+	boolean[] isEnum = new boolean[] {false, false};
+	String[] superclassName = new String[] {null, null};
+	String[] superclassType = new String[] {null, null};
+	String[][] superInterfaceNames = new String[][] {
+			new String[] {"Runnable"}, new String[0]
+	};
+	String[][] superInterfaceTypes = new String[][] {
+			new String[] {"QRunnable;"}, new String[0]
+	};
+	String[][] formalTypeParameters = new String[][] {
+		new String[0], new String[0]};
+	
 	assertEquals("Wrong number of types returned", typeNames.length, types.length);
 	for (int i = 0; i < types.length; i++) {
 		assertEquals("Incorrect name for the " + i + " type", typeNames[i], types[i].getElementName());
 		String mod= Flags.toString(types[i].getFlags());
 		assertEquals("Unexpected modifier for " + types[i].getElementName(), flags[i], mod);
 		assertTrue("Type does not exist " + types[i], types[i].exists());
+		assertEquals("Incorrect isClass for the " + i + " type", isClass[i], types[i].isClass());
+		assertEquals("Incorrect isInterface for the " + i + " type", isInterface[i], types[i].isInterface());
+		assertEquals("Incorrect isAnnotation for the " + i + " type", isAnnotation[i], types[i].isAnnotation());
+		assertEquals("Incorrect isEnum for the " + i + " type", isEnum[i], types[i].isEnum());
+		assertEquals("Incorrect superclassName for the " + i + " type", superclassName[i], types[i].getSuperclassName());
+		assertEquals("Incorrect superclassType for the " + i + " type", superclassType[i], types[i].getSuperclassType());
+		assertEquals("Incorrect superInterfaceNames for the " + i + " type", superInterfaceNames[i].length, types[i].getSuperInterfaceNames().length);
+		assertEquals("Incorrect superInterfaceTypes for the " + i + " type", superInterfaceTypes[i].length, types[i].getSuperInterfaceTypes().length);
+		assertEquals("Incorrect formalTypeParameters for the " + i + " type", formalTypeParameters[i].length, types[i].getTypeParameters().length);
 	}
 }
 /**

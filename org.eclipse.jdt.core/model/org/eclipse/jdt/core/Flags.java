@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added constant AccDefault
+ *     IBM Corporation - added constants AccBridge and AccVarargs for J2SE 1.5 
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -111,6 +112,36 @@ public final class Flags {
 	 */
 	public static final int AccDeprecated = IConstants.AccDeprecated;
 	
+	/**
+	 * Bridge method property flag (added in J2SE 1.5). Used to flag a compiler-generated
+	 * bridge methods.
+	 * See The Java Virtual Machine Specification for more details.
+	 * @since 3.0
+	 */
+	public static final int AccBridge = IConstants.AccBridge;
+
+	/**
+	 * Varargs method property flag (added in J2SE 1.5).
+	 * Used to flag variable arity method declarations.
+	 * See The Java Virtual Machine Specification for more details.
+	 * @since 3.0
+	 */
+	public static final int AccVarargs = IConstants.AccVarargs;
+
+	/**
+	 * Enum property flag (added in J2SE 1.5).
+	 * See The Java Virtual Machine Specification for more details.
+	 * @since 3.0
+	 */
+	public static final int AccEnum = 0x4000;
+
+	/**
+	 * Annotation property flag (added in J2SE 1.5).
+	 * See The Java Virtual Machine Specification for more details.
+	 * @since 3.0
+	 */
+	public static final int AccAnnotation = 0x2000;
+
 	/**
 	 * Not instantiable.
 	 */

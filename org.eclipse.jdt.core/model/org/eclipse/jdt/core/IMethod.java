@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     IBM Corporation - added J2SE 1.5 support
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -43,6 +44,24 @@ String getElementName();
  * @see Signature
  */
 String[] getExceptionTypes() throws JavaModelException;
+
+/**
+ * Returns the formal type parameter signatures for this method.
+ * Returns an empty array if this method has no formal type parameters.
+ * 
+ * <p>For example, a source method with formal type parameters
+ * <code>"&lt;D1,C1 extends A1 & B1&gt;"</code>,
+ * would return the array <code>{"&lt;D1:&gt;", "&lt;C1:QA1;:QB1;&gt;"}</code>.
+ *
+ * @exception JavaModelException if this element does not exist or if an
+ *      exception occurs while accessing its corresponding resource.
+ * @return the formal type parameter signatures of this method,
+ * in the order declared in the source, an empty array if none
+ * @see Signature
+ * @since 3.0
+ */
+String[] getTypeParameters() throws JavaModelException;
+
 /**
  * Returns the number of parameters of this method.
  * This is a handle-only method.
@@ -58,6 +77,7 @@ int getNumberOfParameters();
  *
  * <p>For example, a method declared as <code>public void foo(String text, int length)</code>
  * would return the array <code>{"text","length"}</code>.
+ * </p>
  *
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
@@ -112,6 +132,7 @@ String getSignature() throws JavaModelException;
  * @return true if this method is a constructor, false otherwise
  */
 boolean isConstructor() throws JavaModelException;
+
 /**
  * Returns whether this method is a main method.
  * It is a main method if:

@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     IBM Corporation - added J2SE 1.5 support
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -87,6 +88,29 @@ void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor moni
  */
 void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModelException;
 /**
+ * Creates and returns an non-static import declaration in this compilation unit
+ * with the given name. This method is equivalent to 
+ * <code>createImport(name, Flags.AccDefault, sibling, monitor)</code>.
+ *
+ * @param name the name of the import declaration to add as defined by JLS2 7.5. (For example: <code>"java.io.File"</code> or
+ *  <code>"java.awt.*"</code>)
+ * @param sibling the existing element which the import declaration will be inserted immediately before (if
+ *	<code> null </code>, then this import will be inserted as the last import declaration.
+ * @param monitor the progress monitor to notify
+ * @return the newly inserted import declaration (or the previously existing one in case attempting to create a duplicate)
+ *
+ * @throws JavaModelException if the element could not be created. Reasons include:
+ * <ul>
+ * <li> This Java element does not exist or the specified sibling does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+ * <li> A <code>CoreException</code> occurred while updating an underlying resource
+ * <li> The specified sibling is not a child of this compilation unit (INVALID_SIBLING)
+ * <li> The name is not a valid import name (INVALID_NAME)
+ * </ul>
+ * @see #createImport(String, int, IJavaElement, IProgressMonitor)
+ */
+IImportDeclaration createImport(String name, IJavaElement sibling, IProgressMonitor monitor) throws JavaModelException;
+
+/**
  * Creates and returns an import declaration in this compilation unit
  * with the given name.
  * <p>
@@ -103,11 +127,20 @@ void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModel
  * Importing <code>"java.lang.*"</code>, or the package in which the compilation unit
  * is defined, are not treated as special cases.  If they are specified, they are
  * included in the result.
+ * <p>
+ * Note: Static imports are an experimental language feature 
+ * under discussion in JSR-201 and under consideration for inclusion
+ * in the 1.5 release of J2SE. The support here is therefore tentative
+ * and subject to change.
+ * </p>
  *
  * @param name the name of the import declaration to add as defined by JLS2 7.5. (For example: <code>"java.io.File"</code> or
  *  <code>"java.awt.*"</code>)
  * @param sibling the existing element which the import declaration will be inserted immediately before (if
  *	<code> null </code>, then this import will be inserted as the last import declaration.
+ * @param flags <code>Flags.AccStatic</code> for static imports, or
+ * <code>Flags.AccDefault</code> for regular imports; other modifier flags
+ * are ignored
  * @param monitor the progress monitor to notify
  * @return the newly inserted import declaration (or the previously existing one in case attempting to create a duplicate)
  *
@@ -118,8 +151,11 @@ void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModel
  * <li> The specified sibling is not a child of this compilation unit (INVALID_SIBLING)
  * <li> The name is not a valid import name (INVALID_NAME)
  * </ul>
+ * @see Flags
+ * @since 3.0
  */
-IImportDeclaration createImport(String name, IJavaElement sibling, IProgressMonitor monitor) throws JavaModelException;
+IImportDeclaration createImport(String name, IJavaElement sibling, int flags, IProgressMonitor monitor) throws JavaModelException;
+
 /**
  * Creates and returns a package declaration in this compilation unit
  * with the given package name.

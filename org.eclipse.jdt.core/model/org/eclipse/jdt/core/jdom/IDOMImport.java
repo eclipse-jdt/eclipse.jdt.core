@@ -34,6 +34,37 @@ public String getName();
  * @return <code>true</code> if this in an on-demand import
  */
 public boolean isOnDemand();
+
+/**
+ * Returns the modifier flags for this import. The flags can be examined using class
+ * <code>Flags</code>. Only the static flag is meaningful for import declarations.
+ * <p>
+ * Note: Static imports are an experimental language feature 
+ * under discussion in JSR-201 and under consideration for inclusion
+ * in the 1.5 release of J2SE. The support here is therefore tentative
+ * and subject to change.
+ * </p>
+ * @return the modifier flags for this import
+ * @see Flags
+ * @since 3.0
+ */
+int getFlags();
+
+/**
+ * Sets the modifier flags for this import. The flags can be examined using class
+ * <code>Flags</code>. Only the static flag is meaningful for import declarations.
+ * <p>
+ * Note: Static imports are an experimental language feature 
+ * under discussion in JSR-201 and under consideration for inclusion
+ * in the 1.5 release of J2SE. The support here is therefore tentative
+ * and subject to change.
+ * </p>
+ * @param flags the modifier flags for this import
+ * @see Flags
+ * @since 3.0
+ */
+void setFlags(int flags);
+
 /**
  * The <code>IDOMImport</code> refinement of this <code>IDOMNode</code>
  * method sets the name of this import. The syntax for an import name 

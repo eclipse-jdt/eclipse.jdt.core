@@ -269,6 +269,23 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
 			}
 		});
 }
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor)
+ */
+public void codeComplete(int offset, CompletionRequestor requestor) throws JavaModelException {
+	// TODO (jerome) - Missing implementation
+	throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
+}
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner)
+ */
+public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner wcowner) throws JavaModelException {
+	// TODO (jerome) - Missing implementation
+	throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
+}
+
 /**
  * @see ICodeAssist#codeSelect(int, int)
  */
@@ -320,6 +337,15 @@ protected Object createElementInfo() {
  * @see ICompilationUnit#createImport(String, IJavaElement, IProgressMonitor)
  */
 public IImportDeclaration createImport(String importName, IJavaElement sibling, IProgressMonitor monitor) throws JavaModelException {
+	return createImport(importName, sibling, Flags.AccDefault, monitor);
+}
+
+/**
+ * @see ICompilationUnit#createImport(String, IJavaElement, int, IProgressMonitor)
+ * @since 3.0
+ */
+public IImportDeclaration createImport(String importName, IJavaElement sibling, int flags, IProgressMonitor monitor) throws JavaModelException {
+	// TODO (jerome) - consult flags to create static imports
 	CreateImportOperation op = new CreateImportOperation(importName, this);
 	if (sibling != null) {
 		op.createBefore(sibling);
@@ -327,6 +353,7 @@ public IImportDeclaration createImport(String importName, IJavaElement sibling, 
 	op.runOperation(monitor);
 	return getImport(importName);
 }
+
 /**
  * @see ICompilationUnit#createPackageDeclaration(String, IProgressMonitor)
  */

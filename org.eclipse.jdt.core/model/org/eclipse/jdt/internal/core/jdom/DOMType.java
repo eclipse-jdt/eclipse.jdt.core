@@ -29,8 +29,8 @@ import org.eclipse.jdt.internal.core.util.Util;
  *
  * @see IDOMType
  * @see DOMNode
- */
- 
+ * TODO (jerome) - add implementation support for 1.5 features
+ */ 
 /* package */ class DOMType extends DOMMember implements IDOMType {
 
 	private static final String[] EMPTY_SUPERINTERFACES = new String[] {};
@@ -115,6 +115,24 @@ import org.eclipse.jdt.internal.core.util.Util;
 	 * or implement any interfaces.
 	 */
 	protected String[] fSuperInterfaces= new String[0];
+	
+	/**
+	 * The formal type parameters.
+	 * @since 3.0
+	 */
+	protected String[] fTypeParameters = new String[0];
+
+	/**
+	 * Indicates this type is an enum class.
+	 * @since 3.0
+	 */
+	protected boolean fIsEnum= false;
+	
+	/**
+	 * Indicates this type is an annotatation type (interface).
+	 * @since 3.0
+	 */
+	protected boolean fIsAnnotation= false;
 	
 	/**
 	 * This position is the position of the end of the last line separator before the closing brace starting
@@ -714,5 +732,64 @@ protected void shareContents(DOMNode node) {
  */
 public String toString() {
 	return "TYPE: " + getName(); //$NON-NLS-1$
+}
+
+/**
+ * @see org.eclipse.jdt.core.jdom.IDOMType#getTypeParameters()
+ * @since 3.0
+ */
+public String[] getTypeParameters() {
+	return this.fTypeParameters;
+}
+
+/**
+ * @see org.eclipse.jdt.core.jdom.IDOMType#isEnum()
+ * @since 3.0
+ */
+public boolean isEnum() {
+	return this.fIsEnum;
+}
+
+/**
+ * @see org.eclipse.jdt.core.jdom.IDOMType#isAnnotation()
+ * @since 3.0
+ */
+public boolean isAnnotation() {
+	return this.fIsAnnotation;
+}
+
+/**
+ * @see org.eclipse.jdt.core.jdom.IDOMType#setEnum(boolean)
+ * @since 3.0
+ */
+public void setEnum(boolean b) {
+	this.fIsEnum = b;
+	if (this.fIsEnum) {
+		// enums are always classes with no superclass
+		setClass(true);
+		setSuperclass(null);
+	}
+}
+
+/**
+ * @see org.eclipse.jdt.core.jdom.IDOMType#setAnnotation(boolean)
+ * @since 3.0
+ */
+public void setAnnotation(boolean b) {
+	this.fIsAnnotation= b;
+	if (this.fIsAnnotation) {
+		// annotation types are always interface with no superclass or superinterfaces
+		setClass(false);
+		setSuperclass(null);
+		setSuperInterfaces(new String[0]);
+	}
+}
+
+/**
+ * @see org.eclipse.jdt.core.jdom.IDOMType#setTypeParameters(java.lang.String[])
+ * @since 3.0
+ */
+public void setTypeParameters(String[] typeParameters) {
+	this.fTypeParameters = typeParameters;
 }
 }

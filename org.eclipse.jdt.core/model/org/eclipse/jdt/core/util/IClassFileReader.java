@@ -13,6 +13,14 @@ package org.eclipse.jdt.core.util;
 /**
  * Description of a .class file. This class reifies the internal structure of a .class
  * file following the JVM specifications.
+ * <p>
+ * Note that several changes were introduced with J2SE 1.5.
+ * Class file reader implementations should use support these
+ * new class file attributes by returning objects implementing
+ * the appropriate specialized attribute interfaces. Class
+ * file reader clients can search for these new attributes
+ * and downcast to the new interfaces as appropriate.
+ * </p>
  *  
  * This interface may be implemented by clients. 
  * 

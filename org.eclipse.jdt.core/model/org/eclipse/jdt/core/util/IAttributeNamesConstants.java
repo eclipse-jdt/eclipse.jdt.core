@@ -18,13 +18,115 @@ package org.eclipse.jdt.core.util;
  * @since 2.0
  */
 public interface IAttributeNamesConstants {
-	char[] SYNTHETIC = new char[] {'S', 'y', 'n', 't', 'h', 'e', 't', 'i', 'c'};
-	char[] CONSTANT_VALUE = new char[] {'C', 'o', 'n', 's', 't', 'a', 'n', 't', 'V', 'a', 'l', 'u', 'e'};
-	char[] LINE_NUMBER= new char[] {'L', 'i', 'n', 'e', 'N', 'u', 'm', 'b', 'e', 'r', 'T', 'a', 'b', 'l', 'e'};
-	char[] LOCAL_VARIABLE = new char[] {'L', 'o', 'c', 'a', 'l', 'V', 'a', 'r', 'i', 'a', 'b', 'l', 'e', 'T', 'a', 'b', 'l', 'e'};
-	char[] INNER_CLASSES = new char[] {'I', 'n', 'n', 'e', 'r', 'C', 'l', 'a', 's', 's', 'e', 's'};
-	char[] CODE = new char[] {'C', 'o', 'd', 'e'};
-	char[] EXCEPTIONS = new char[] {'E', 'x', 'c', 'e', 'p', 't', 'i', 'o', 'n', 's'};
-	char[] SOURCE = new char[] {'S', 'o', 'u', 'r', 'c', 'e', 'F', 'i', 'l', 'e'};
-	char[] DEPRECATED = new char[] {'D', 'e', 'p', 'r', 'e', 'c', 'a', 't', 'e', 'd'};
+	/**
+	 * "Synthetic" attribute.
+	 * <p>Note that prior to JDK 1.5, synthetic elements were always marked
+	 * using an attribute; with 1.5, synthetic elements can also be marked
+	 * using the {@link IModifierConstants#ACC_SYNTHETIC} flag.
+	 * </p>
+	 * @since 2.0
+	 */
+	char[] SYNTHETIC = "Synthetic".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "ConstantValue" attribute.
+	 * @since 2.0
+	 */
+	char[] CONSTANT_VALUE = "ConstantValue".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "LineNumberTable" attribute.
+	 * @since 2.0
+	 */
+	char[] LINE_NUMBER = "LineNumberTable".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "LocalVariableTable" attribute.
+	 * @since 2.0
+	 */
+	char[] LOCAL_VARIABLE = "LocalVariableTable".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "InnerClasses" attribute.
+	 * @since 2.0
+	 */
+	char[] INNER_CLASSES = "InnerClasses".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "Code" attribute.
+	 * @since 2.0
+	 */
+	char[] CODE = "Code".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "Exceptions" attribute.
+	 * @since 2.0
+	 */
+	char[] EXCEPTIONS = "Exceptions".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "SourceFile" attribute.
+	 * @since 2.0
+	 */
+	char[] SOURCE = "SourceFile".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "Deprecated" attribute.
+	 * @since 2.0
+	 */
+	char[] DEPRECATED = "Deprecated".toCharArray(); //$NON-NLS-1$
+	
+	/**
+	 * "Signature" attribute (added in J2SE 1.5).
+	 * Class file readers which support J2SE 1.5 return 
+	 * attributes with this name represented by objects
+	 * implementing {@link ISignatureAttribute}.
+	 * @since 3.0
+	 */
+	char[] SIGNATURE = "Signature".toCharArray(); //$NON-NLS-1$
+	
+	/**
+	 * "EnclosingMethod" attribute (added in J2SE 1.5).
+	 * Class file readers which support J2SE 1.5 return 
+	 * attributes with this name represented by objects
+	 * implementing {@link IEnclosingMethodAttribute}.
+	 * @since 3.0
+	 */
+	char[] ENCLOSING_METHOD = "EnclosingMethod".toCharArray(); //$NON-NLS-1$
+	
+	/**
+	 * "LocalVariableTypeTable" attribute (added in J2SE 1.5).
+	 * @since 3.0
+	 */
+	char[] LOCAL_VARIABLE_TYPE_TABLE = "LocalVariableTypeTable".toCharArray(); //$NON-NLS-1$
+	
+	/**
+	 * "RuntimeVisibleAnnotations" attribute (added in J2SE 1.5).
+	 * @since 3.0
+	 */
+	char[] RUNTIME_VISIBLE_ANNOTATIONS = "RuntimeVisibleAnnotations".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "RuntimeInvisibleAnnotations" attribute (added in J2SE 1.5).
+	 * @since 3.0
+	 */
+	char[] RUNTIME_INVISIBLE_ANNOTATIONS = "RuntimeInvisibleAnnotations".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "RuntimeVisibleParameterAnnotations" attribute (added in J2SE 1.5).
+	 * @since 3.0
+	 */
+	char[] RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS = "RuntimeVisibleParameterAnnotations".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "RuntimeInvisibleParameterAnnotations" attribute (added in J2SE 1.5).
+	 * @since 3.0
+	 */
+	char[] RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS = "RuntimeInvisibleParameterAnnotations".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "AnnotationDefault" attribute (added in J2SE 1.5).
+	 * @since 3.0
+	 */
+	char[] ANNOTATION_DEFAULT = "AnnotationDefault".toCharArray(); //$NON-NLS-1$
 }
