@@ -33,7 +33,7 @@ public TypeReferenceLocator(TypeReferencePattern pattern) {
 }
 protected IJavaElement findElement(IJavaElement element, int accuracy) {
 	// need exact match to be able to open on type ref
-	if (accuracy != IJavaSearchResultCollector.EXACT_MATCH) return null;
+	if (accuracy != SearchMatch.A_ACCURATE) return null;
 
 	// element that references the type must be included in the enclosing element
 	DeclarationOfReferencedTypesPattern declPattern = (DeclarationOfReferencedTypesPattern) this.pattern; 
@@ -314,12 +314,12 @@ protected void reportDeclaration(ReferenceBinding typeBinding, int maxType, Matc
 	while (maxType >= 0 && type != null) {
 		if (!knownTypes.includes(type)) {
 			if (isBinary) {
-				locator.reportBinaryMemberDeclaration(resource, type, info, IJavaSearchResultCollector.EXACT_MATCH);
+				locator.reportBinaryMemberDeclaration(resource, type, info, SearchMatch.A_ACCURATE);
 			} else {
 				ClassScope scope = ((SourceTypeBinding) typeBinding).scope;
 				if (scope != null) {
 					TypeDeclaration typeDecl = scope.referenceContext;
-					SearchMatch match = new TypeDeclarationMatch(type, IJavaSearchResultCollector.EXACT_MATCH, typeDecl.sourceStart, typeDecl.sourceEnd+1, locator.getParticipant(), resource);
+					SearchMatch match = new TypeDeclarationMatch(type, SearchMatch.A_ACCURATE, typeDecl.sourceStart, typeDecl.sourceEnd+1, locator.getParticipant(), resource);
 					locator.report(match);
 				}
 			}

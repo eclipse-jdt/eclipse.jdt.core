@@ -781,7 +781,7 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 			this.currentPossibleMatch = new PossibleMatch(this, resource, null, document);
 			IJavaElement element = searchPattern.focus;
 			if (encloses(element)) {
-				SearchMatch match = newDeclarationMatch(element, IJavaSearchResultCollector.EXACT_MATCH, -1, -1);
+				SearchMatch match = newDeclarationMatch(element, SearchMatch.A_ACCURATE, -1, -1);
 				report(match);
 			}
 			return;
@@ -804,7 +804,7 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 						this.currentPossibleMatch = new PossibleMatch(this, resource, null, document);
 						try {
 							if (encloses(pkg)) {
-								SearchMatch match = newDeclarationMatch(pkg, IJavaSearchResultCollector.EXACT_MATCH, -1, -1);
+								SearchMatch match = newDeclarationMatch(pkg, SearchMatch.A_ACCURATE, -1, -1);
 								report(match);
 							}
 						} catch (JavaModelException e) {
@@ -1043,7 +1043,7 @@ protected void report(SearchMatch match) throws CoreException {
 		System.out.println("\tResource: " + match.getResource()); //$NON-NLS-2$//$NON-NLS-1$
 		System.out.println("\tPositions: [offset=" + match.getOffset() + ", length=" + match.getLength() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		System.out.println("\tJava element: " + ((JavaElement)match.getElement()).toStringWithAncestors()); //$NON-NLS-1$
-		System.out.println(match.getAccuracy() == IJavaSearchResultCollector.EXACT_MATCH
+		System.out.println(match.getAccuracy() == SearchMatch.A_ACCURATE
 			? "\tAccuracy: EXACT_MATCH" //$NON-NLS-1$
 			: "\tAccuracy: POTENTIAL_MATCH"); //$NON-NLS-1$
 	}

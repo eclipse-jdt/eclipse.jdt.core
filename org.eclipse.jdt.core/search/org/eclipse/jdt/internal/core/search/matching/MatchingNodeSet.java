@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import java.util.ArrayList;
 
-import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
+import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfLong;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
@@ -30,8 +30,8 @@ public class MatchingNodeSet {
  */
 SimpleLookupTable matchingNodes = new SimpleLookupTable(3);
 private HashtableOfLong matchingNodesKeys = new HashtableOfLong(3);
-static Integer EXACT_MATCH = new Integer(IJavaSearchResultCollector.EXACT_MATCH);
-static Integer POTENTIAL_MATCH = new Integer(IJavaSearchResultCollector.POTENTIAL_MATCH);
+static Integer EXACT_MATCH = new Integer(SearchMatch.A_ACCURATE);
+static Integer POTENTIAL_MATCH = new Integer(SearchMatch.A_INACCURATE);
 
 /**
  * Set of possible matching ast nodes. They need to be resolved

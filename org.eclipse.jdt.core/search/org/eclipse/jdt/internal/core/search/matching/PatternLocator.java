@@ -208,8 +208,8 @@ protected void matchLevelAndReportImportRef(ImportReference importRef, Binding b
 			binding, 
 			locator.createImportHandle(importRef), 
 			level == ACCURATE_MATCH
-				? IJavaSearchResultCollector.EXACT_MATCH
-				: IJavaSearchResultCollector.POTENTIAL_MATCH,
+				? SearchMatch.A_ACCURATE
+				: SearchMatch.A_INACCURATE,
 			locator);
 	}
 }
