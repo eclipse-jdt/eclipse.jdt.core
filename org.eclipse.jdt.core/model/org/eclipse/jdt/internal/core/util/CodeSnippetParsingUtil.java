@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -47,7 +46,7 @@ public class CodeSnippetParsingUtil {
 					compilerOptions, 
 					new DefaultProblemFactory(Locale.getDefault()));
 					
-		Parser parser = new CommentRecorderParser(problemReporter, false);
+		CommentRecorderParser parser = new CommentRecorderParser(problemReporter, false);
 
 		ICompilationUnit sourceUnit = 
 			new CompilationUnit(
@@ -71,7 +70,7 @@ public class CodeSnippetParsingUtil {
 			throw new IllegalArgumentException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		Parser parser =
+		CommentRecorderParser parser =
 			new CommentRecorderParser(
 				new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
@@ -119,7 +118,7 @@ public class CodeSnippetParsingUtil {
 					compilerOptions, 
 					new DefaultProblemFactory(Locale.getDefault()));
 					
-		Parser parser = new CommentRecorderParser(problemReporter, false);
+		CommentRecorderParser parser = new CommentRecorderParser(problemReporter, false);
 
 		ICompilationUnit sourceUnit = 
 			new CompilationUnit(
@@ -149,7 +148,7 @@ public class CodeSnippetParsingUtil {
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
 					new DefaultProblemFactory(Locale.getDefault()));
-		Parser parser = new Parser(problemReporter, false);
+		CommentRecorderParser parser = new CommentRecorderParser(problemReporter, false);
 		
 		ICompilationUnit sourceUnit = 
 			new CompilationUnit(
