@@ -55,10 +55,17 @@ What's new in this drop</h2>
 <li>Once 1.5 source compliance is enabled, the typecheck rules for conditional operator (a ? b : c) 
 allows scenario where 'b' and 'c' have a common supertype (there is no longer a need for
 one to be assignable to the other as in the past). This is required by JLS 3rd edition.
+</li>
+<li>Fix for bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69028">69028</a>
+     requires the index version to be incremented. Indexes will be automatically regenerated upon
+     subsequent search queries (accounting for indexing notification in search progress dialogs).
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69375">69375</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69028">69028</a>
+Anonymous type in argument of super() is not in type hierarchy 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69375">69375</a>
 [1.5] wildcards: no error for incorrect assignment
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68698">68698</a>
 Bug in inner class emulation:compiler doesn't reject illegal code.

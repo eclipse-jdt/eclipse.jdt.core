@@ -1565,6 +1565,12 @@ public void addUnknownRef(NameReference nameRef) {
 private void visitIfNeeded(AbstractMethodDeclaration method) {
 	if (this.localDeclarationVisitor != null 
 		&& (method.bits & ASTNode.HasLocalTypeMASK) != 0) {
+			if (method instanceof ConstructorDeclaration) {
+				ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) method;
+				if (constructorDeclaration.constructorCall != null) {
+					constructorDeclaration.constructorCall.traverse(this.localDeclarationVisitor, method.scope);
+				}
+			}
 			if (method.statements != null) {
 				int statementsLength = method.statements.length;
 				for (int i = 0; i < statementsLength; i++)
