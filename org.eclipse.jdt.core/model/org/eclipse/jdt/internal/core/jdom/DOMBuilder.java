@@ -7,6 +7,7 @@ package org.eclipse.jdt.internal.core.jdom;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.*;
@@ -599,7 +600,7 @@ public void exitMethod(int bodyEnd, int declarationEnd) {
  * Creates a new parser.
  */
 protected DocumentElementParser getParser() {
-	return new DocumentElementParser(this, new NullProblemFactory(), new CompilerOptions(JavaCore.getOptions()));
+	return new DocumentElementParser(this, new DefaultProblemFactory(), new CompilerOptions(JavaCore.getOptions()));
 }
 /**
  * Initializes the builder to create a document fragment.
