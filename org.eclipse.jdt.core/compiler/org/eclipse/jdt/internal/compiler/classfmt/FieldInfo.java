@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
@@ -23,6 +24,8 @@ import org.eclipse.jdt.internal.compiler.impl.IntConstant;
 import org.eclipse.jdt.internal.compiler.impl.LongConstant;
 import org.eclipse.jdt.internal.compiler.impl.ShortConstant;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -33,9 +36,10 @@ public class FieldInfo extends ClassFileStruct implements AttributeNamesConstant
 	private int[] constantPoolOffsets;
 	private char[] descriptor;
 	private char[] name;
-	private Object wrappedConstantValue;
 	private char[] signature;
 	private int signatureUtf8Offset;
+	private long tagBits;	
+	private Object wrappedConstantValue;
 /**
  * @param classFileBytes byte[]
  * @param offsets int[]
@@ -52,8 +56,18 @@ public FieldInfo (byte classFileBytes[], int offsets[], int offset) {
 		// check the name of each attribute
 		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
 		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-		if (CharOperation.equals(AttributeNamesConstants.SignatureName, attributeName)) {
-			this.signatureUtf8Offset = constantPoolOffsets[u2At(readOffset + 6)] - structOffset;
+		if (attributeName.length > 0) {
+			switch(attributeName[0]) {
+				case 'S' :
+					if (CharOperation.equals(AttributeNamesConstants.SignatureName, attributeName)) {
+						this.signatureUtf8Offset = constantPoolOffsets[u2At(readOffset + 6)] - structOffset;
+					}
+					break;
+				case 'R' :
+					if (CharOperation.equals(attributeName, RuntimeVisibleAnnotationsName)) {
+						decodeStandardAnnotations(readOffset);
+					}
+			}
 		}
 		readOffset += (6 + u4At(readOffset + 2));
 	}
@@ -65,6 +79,76 @@ public int compareTo(Object o) {
 		throw new ClassCastException();
 	}
 	return new String(this.getName()).compareTo(new String(((FieldInfo) o).getName()));
+}
+private int decodeAnnotation(int offset) {
+	int readOffset = offset;
+	int utf8Offset = this.constantPoolOffsets[u2At(offset)] - structOffset;
+	char[] typeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+	typeName = Signature.toCharArray(typeName);
+	CharOperation.replace(typeName, '/', '.');
+	char[][] qualifiedTypeName = CharOperation.splitOn('.', typeName);
+	int numberOfPairs = u2At(offset + 2);
+	readOffset += 4;
+	if (qualifiedTypeName.length == 3) {
+		char[] lastPart = qualifiedTypeName[2];
+		if (lastPart[0] == 'D') {
+			if (CharOperation.equals(qualifiedTypeName, TypeConstants.JAVA_LANG_DEPRECATED)) {
+				this.tagBits |= TagBits.AnnotationDeprecated;
+				return readOffset;		
+			}
+		}
+	}
+	for (int i = 0; i < numberOfPairs; i++) {
+		readOffset += 2;
+		readOffset = decodeElementValue(readOffset);
+	}
+	return readOffset;
+}
+private int decodeElementValue(int offset) {
+	int readOffset = offset;
+	int tag = u1At(readOffset);
+	readOffset++;
+	switch(tag) {
+		case 'B' :
+		case 'C' :
+		case 'D' :
+		case 'F' :
+		case 'I' :
+		case 'J' :
+		case 'S' :
+		case 'Z' :
+		case 's' :
+			readOffset += 2;
+			break;
+		case 'e' :
+			readOffset += 4;
+			break;
+		case 'c' :
+			readOffset += 2;
+			break;
+		case '@' :
+			readOffset += decodeAnnotation(readOffset);
+			break;
+		case '[' :
+			int numberOfValues = u2At(readOffset);
+			readOffset += 2;
+			for (int i = 0; i < numberOfValues; i++) {
+				readOffset = decodeElementValue(readOffset);
+			}
+			break;
+	}
+	return readOffset;
+}
+/**
+ * @param offset the offset is located at the beginning of the runtime visible 
+ * annotation attribute.
+ */
+private void decodeStandardAnnotations(int offset) {
+	int numberOfAnnotations = u2At(offset + 6);
+	int readOffset = offset + 8;
+	for (int i = 0; i < numberOfAnnotations; i++) {
+		readOffset = decodeAnnotation(readOffset);
+	}
 }
 /**
  * Return the constant of the field.
@@ -113,6 +197,9 @@ public char[] getName() {
 		name = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 	}
 	return name;
+}
+public long getTagBits() {
+	return this.tagBits;
 }
 /**
  * Answer the resolved name of the receiver's type in the

@@ -84,7 +84,10 @@ char[] getGenericSignature();
  */
 
 char[] getSuperclassName();
-
+/**
+ * Answer the tagbits set according to the bits for annotations.
+ */
+long getTagBits();
 /**
  * Answer true if the receiver is an anonymous class.
  * false otherwise

@@ -44,6 +44,11 @@ char[] getMethodDescriptor();
 char[] getGenericSignature();
 
 /**
+ * Answer the tagbits set according to the bits for annotations.
+ */
+long getTagBits();
+
+/**
  * Answer whether the receiver represents a class initializer method.
  */
 boolean isClinit();

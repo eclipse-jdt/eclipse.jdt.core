@@ -14,34 +14,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClassFileReader extends ClassFileStruct implements AttributeNamesConstants, IBinaryType {
-	private int accessFlags;
-	private char[] classFileName;
-	private char[] className;
-	private int classNameIndex;
-	private int constantPoolCount;
-	private int[] constantPoolOffsets;
-	private FieldInfo[] fields;
-	private int fieldsCount;
-	// initialized in case the .class file is a nested type
-	private InnerClassInfo innerInfo;
-	private int innerInfoIndex;
-	private InnerClassInfo[] innerInfos;
-	private char[][] interfaceNames;
-	private int interfacesCount;
-	private MethodInfo[] methods;
-	private int methodsCount;
-	private char[] signature;
-	private char[] sourceFileName;
-	private char[] superclassName;
-	private long version;
 public static ClassFileReader read(File file) throws ClassFormatException, IOException {
 	return read(file, false);
 }
@@ -80,6 +64,27 @@ public static ClassFileReader read(String fileName) throws ClassFormatException,
 public static ClassFileReader read(String fileName, boolean fullyInitialize) throws ClassFormatException, java.io.IOException {
 	return read(new File(fileName), fullyInitialize);
 }
+	private int accessFlags;
+	private char[] classFileName;
+	private char[] className;
+	private int classNameIndex;
+	private int constantPoolCount;
+	private int[] constantPoolOffsets;
+	private FieldInfo[] fields;
+	private int fieldsCount;
+	// initialized in case the .class file is a nested type
+	private InnerClassInfo innerInfo;
+	private int innerInfoIndex;
+	private InnerClassInfo[] innerInfos;
+	private char[][] interfaceNames;
+	private int interfacesCount;
+	private MethodInfo[] methods;
+	private int methodsCount;
+	private char[] signature;
+	private char[] sourceFileName;
+	private char[] superclassName;
+	private long tagBits;
+	private long version;
 
 /**
  * @param classFileBytes Actual bytes of a .class file
@@ -226,32 +231,62 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 		for (int i = 0; i < attributesCount; i++) {
 			int utf8Offset = this.constantPoolOffsets[u2At(readOffset)];
 			char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-			if (CharOperation.equals(attributeName, DeprecatedName)) {
-				this.accessFlags |= AccDeprecated;
-			} else if (CharOperation.equals(attributeName, InnerClassName)) {
-				int innerOffset = readOffset + 6;
-				int number_of_classes = u2At(innerOffset);
-				if (number_of_classes != 0) {
-					innerOffset+= 2;
-					this.innerInfos = new InnerClassInfo[number_of_classes];
-					for (int j = 0; j < number_of_classes; j++) {
-						this.innerInfos[j] = 
-							new InnerClassInfo(reference, this.constantPoolOffsets, innerOffset); 
-						if (this.classNameIndex == this.innerInfos[j].innerClassNameIndex) {
-							this.innerInfo = this.innerInfos[j];
-							this.innerInfoIndex = j;
-						}
-						innerOffset += 8;
+			if (attributeName.length == 0) {
+				readOffset += (6 + u4At(readOffset + 2));
+				continue;
+			}
+			switch(attributeName[0] ) {
+				case 'D' :
+					if (CharOperation.equals(attributeName, DeprecatedName)) {
+						this.accessFlags |= AccDeprecated;
 					}
-				}
-			} else if (CharOperation.equals(attributeName, SourceName)) {
-				utf8Offset = this.constantPoolOffsets[u2At(readOffset + 6)];
-				this.sourceFileName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-			} else if (CharOperation.equals(attributeName, SyntheticName)) {
-				this.accessFlags |= AccSynthetic;
-			} else if (CharOperation.equals(attributeName, SignatureName)) {
-				utf8Offset = this.constantPoolOffsets[u2At(readOffset + 6)];
-				this.signature = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));				
+					break;
+				case 'I' :
+					if (CharOperation.equals(attributeName, InnerClassName)) {
+						int innerOffset = readOffset + 6;
+						int number_of_classes = u2At(innerOffset);
+						if (number_of_classes != 0) {
+							innerOffset+= 2;
+							this.innerInfos = new InnerClassInfo[number_of_classes];
+							for (int j = 0; j < number_of_classes; j++) {
+								this.innerInfos[j] = 
+									new InnerClassInfo(reference, this.constantPoolOffsets, innerOffset); 
+								if (this.classNameIndex == this.innerInfos[j].innerClassNameIndex) {
+									this.innerInfo = this.innerInfos[j];
+									this.innerInfoIndex = j;
+								}
+								innerOffset += 8;
+							}
+						}
+					}
+					break;
+				case 'S' :
+					if (attributeName.length > 2) {
+						switch(attributeName[1]) {
+							case 'o' :
+								if (CharOperation.equals(attributeName, SourceName)) {
+									utf8Offset = this.constantPoolOffsets[u2At(readOffset + 6)];
+									this.sourceFileName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+								}
+								break;
+							case 'y' :
+								if (CharOperation.equals(attributeName, SyntheticName)) {
+									this.accessFlags |= AccSynthetic;
+								}
+								break;
+							case 'i' :
+								if (CharOperation.equals(attributeName, SignatureName)) {
+									utf8Offset = this.constantPoolOffsets[u2At(readOffset + 6)];
+									this.signature = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));				
+								}
+						}
+					}
+					break;
+				case 'R' :
+					if (CharOperation.equals(attributeName, RuntimeVisibleAnnotationsName)) {
+						decodeStandardAnnotations(readOffset);
+					}
+					break;
 			}
 			readOffset += (6 + u4At(readOffset + 2));
 		}
@@ -274,6 +309,188 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
  */
 public int accessFlags() {
 	return this.accessFlags;
+}
+private int decodeAnnotation(int offset) {
+	int readOffset = offset;
+	int utf8Offset = this.constantPoolOffsets[u2At(offset)];
+	char[] typeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+	typeName = Signature.toCharArray(typeName);
+	CharOperation.replace(typeName, '/', '.');
+	char[][] qualifiedTypeName = CharOperation.splitOn('.', typeName);
+	int numberOfPairs = u2At(offset + 2);
+	readOffset += 4;
+	switch(qualifiedTypeName.length) {
+		case 3 :
+			if (CharOperation.equals(qualifiedTypeName, TypeConstants.JAVA_LANG_DEPRECATED)) {
+				this.tagBits |= TagBits.AnnotationDeprecated;
+				return readOffset;		
+			}
+			break;
+		case 4 :
+			char[] lastPart = qualifiedTypeName[3];
+			if (lastPart.length > 0) {
+				switch(lastPart[0]) {
+					case 'R' :
+						if (CharOperation.equals(qualifiedTypeName, TypeConstants.JAVA_LANG_ANNOTATION_RETENTION)) {
+							for (int i = 0; i < numberOfPairs; i++) {
+								readOffset += 2;
+								readOffset = decodeElementValueForJavaLangAnnotationRetention(readOffset);
+							}
+							return readOffset;
+						}
+						break;
+					case 'T' :
+						if (CharOperation.equals(qualifiedTypeName, TypeConstants.JAVA_LANG_ANNOTATION_TARGET)) {
+							for (int i = 0; i < numberOfPairs; i++) {
+								readOffset += 2;
+								readOffset = decodeElementValueForJavaLangAnnotationTarget(readOffset);
+							}
+							return readOffset;		
+						}
+						break;
+					case 'D' :
+						if (CharOperation.equals(qualifiedTypeName, TypeConstants.JAVA_LANG_ANNOTATION_DOCUMENTED)) {
+							this.tagBits |= TagBits.AnnotationDocumented;
+							return readOffset;		
+						}
+						break;
+					case 'I' :
+						if (CharOperation.equals(qualifiedTypeName, TypeConstants.JAVA_LANG_ANNOTATION_INHERITED)) {
+							this.tagBits |= TagBits.AnnotationInherited;
+							return readOffset;		
+						}
+				}
+			}
+	}
+	for (int i = 0; i < numberOfPairs; i++) {
+		readOffset += 2;
+		readOffset = decodeElementValue(readOffset);
+	}
+	return readOffset;
+}
+private int decodeElementValue(int offset) {
+	int readOffset = offset;
+	int tag = u1At(readOffset);
+	readOffset++;
+	switch(tag) {
+		case 'B' :
+		case 'C' :
+		case 'D' :
+		case 'F' :
+		case 'I' :
+		case 'J' :
+		case 'S' :
+		case 'Z' :
+		case 's' :
+			readOffset += 2;
+			break;
+		case 'e' :
+			readOffset += 4;
+			break;
+		case 'c' :
+			readOffset += 2;
+			break;
+		case '@' :
+			readOffset += decodeAnnotation(readOffset);
+			break;
+		case '[' :
+			int numberOfValues = u2At(readOffset);
+			readOffset += 2;
+			for (int i = 0; i < numberOfValues; i++) {
+				readOffset = decodeElementValueForJavaLangAnnotationTarget(readOffset);
+			}
+			break;
+	}
+	return readOffset;
+}
+private int decodeElementValueForJavaLangAnnotationTarget(int offset) {
+	int readOffset = offset;
+	int tag = u1At(readOffset);
+	readOffset++;
+	switch(tag) {
+		case 'B' :
+		case 'C' :
+		case 'D' :
+		case 'F' :
+		case 'I' :
+		case 'J' :
+		case 'S' :
+		case 'Z' :
+		case 's' :
+			readOffset += 2;
+			break;
+		case 'e' :
+			readOffset += 2;
+			int utf8Offset = this.constantPoolOffsets[u2At(readOffset)];
+			char[] constName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+			readOffset += 2;
+			this.tagBits |= Annotation.getTargetElementType(constName);
+			break;
+		case 'c' :
+			readOffset += 2;
+			break;
+		case '@' :
+			readOffset += decodeAnnotation(readOffset);
+			break;
+		case '[' :
+			int numberOfValues = u2At(readOffset);
+			readOffset += 2;
+			for (int i = 0; i < numberOfValues; i++) {
+				readOffset = decodeElementValueForJavaLangAnnotationTarget(readOffset);
+			}
+			break;
+	}
+	return readOffset;
+}
+private int decodeElementValueForJavaLangAnnotationRetention(int offset) {
+	int readOffset = offset;
+	int tag = u1At(readOffset);
+	readOffset++;
+	switch(tag) {
+		case 'B' :
+		case 'C' :
+		case 'D' :
+		case 'F' :
+		case 'I' :
+		case 'J' :
+		case 'S' :
+		case 'Z' :
+		case 's' :
+			readOffset += 2;
+			break;
+		case 'e' :
+			readOffset += 2;
+			int utf8Offset = this.constantPoolOffsets[u2At(readOffset)];
+			char[] constName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+			readOffset += 2;
+			this.tagBits |= Annotation.getRetentionPolicy(constName);
+			break;
+		case 'c' :
+			readOffset += 2;
+			break;
+		case '@' :
+			readOffset += decodeAnnotation(readOffset);
+			break;
+		case '[' :
+			int numberOfValues = u2At(readOffset);
+			readOffset += 2;
+			for (int i = 0; i < numberOfValues; i++) {
+				readOffset = decodeElementValueForJavaLangAnnotationRetention(readOffset);
+			}
+			break;
+	}
+	return readOffset;
+}
+/**
+ * @param offset the offset is located at the beginning of the runtime visible 
+ * annotation attribute.
+ */
+private void decodeStandardAnnotations(int offset) {
+	int numberOfAnnotations = u2At(offset + 6);
+	int readOffset = offset + 8;
+	for (int i = 0; i < numberOfAnnotations; i++) {
+		readOffset = decodeAnnotation(readOffset);
+	}
 }
 /**
  * Answer the char array that corresponds to the class name of the constant class.
@@ -356,6 +573,16 @@ public char[] getInnerSourceName() {
  */
 public char[][] getInterfaceNames() {
 	return this.interfaceNames;
+}
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
+ */
+public int getKind() {
+	int modifiers = getModifiers();
+	if ((modifiers & AccInterface) != 0) return IGenericType.INTERFACE_DECL;
+	if ((modifiers & AccEnum) != 0) return IGenericType.ENUM_DECL;
+	return IGenericType.CLASS_DECL;
 }
 /**
  * Answer the receiver's nested types or null if the array is empty.
@@ -452,6 +679,9 @@ public char[] getName() {
  */
 public char[] getSuperclassName() {
 	return this.superclassName;
+}
+public long getTagBits() {
+	return this.tagBits;
 }
 /**
  * Answer the major/minor version defined in this class file according to the VM spec.
@@ -752,16 +982,6 @@ public boolean isBinaryType() {
 }
 
 /**
- * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
- */
-public int getKind() {
-	int modifiers = getModifiers();
-	if ((modifiers & AccInterface) != 0) return IGenericType.INTERFACE_DECL;
-	if ((modifiers & AccEnum) != 0) return IGenericType.ENUM_DECL;
-	return IGenericType.CLASS_DECL;
-}
-
-/**
  * Answer true if the receiver is a local type, false otherwise
  *
  * @return <CODE>boolean</CODE>
@@ -806,12 +1026,10 @@ public char[] sourceFileName() {
 public String toString() {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
 	java.io.PrintWriter print = new java.io.PrintWriter(out);
-	
 	print.println(this.getClass().getName() + "{"); //$NON-NLS-1$
 	print.println(" this.className: " + new String(getName())); //$NON-NLS-1$
 	print.println(" this.superclassName: " + (getSuperclassName() == null ? "null" : new String(getSuperclassName()))); //$NON-NLS-2$ //$NON-NLS-1$
 	print.println(" access_flags: " + ClassFileStruct.printTypeModifiers(this.accessFlags()) + "(" + this.accessFlags() + ")"); //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
-
 	print.flush();
 	return out.toString();
 }

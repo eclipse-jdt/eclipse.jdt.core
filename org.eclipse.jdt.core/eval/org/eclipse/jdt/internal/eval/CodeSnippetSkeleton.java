@@ -83,6 +83,9 @@ public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 		public char[] getGenericSignature() {
 			return null;
 		}
+		public long getTagBits() {
+			return 0;
+		}
 }
 	
 /**
@@ -144,5 +147,8 @@ public boolean isMember() {
 }
 public char[] sourceFileName() {
 	return null;
+}
+public long getTagBits() {
+	return 0;
 }
 }

@@ -249,4 +249,8 @@ public String toString() {
 public char[] sourceFileName() {
 	return null;
 }
+// TODO (jerome) please verify that we don't need the tagbits for the receiver
+public long getTagBits() {
+	return 0;
+}
 }
