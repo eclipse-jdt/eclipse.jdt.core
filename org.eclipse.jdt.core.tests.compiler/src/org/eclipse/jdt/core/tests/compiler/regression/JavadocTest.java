@@ -91,7 +91,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		return suite;
 	}
 
-	public static Test suiteForJavadocSupport(String level, Class testClass, Constructor constructor, String support) throws InvocationTargetException, IllegalAccessException, InstantiationException {
+	public static Test suiteForJavadocSupport(String level, Class testClass, Constructor constructor, String support) {
 		Test suite = suite(testClass, "Doc "+support);
 		return new RegressionTestSetup(suite, level, support);
 	}
