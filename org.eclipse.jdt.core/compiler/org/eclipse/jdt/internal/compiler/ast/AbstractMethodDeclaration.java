@@ -363,11 +363,13 @@ public abstract class AbstractMethodDeclaration
 		
 		if (this.binding == null) return;
 		if (this.javadoc != null) {
-				this.javadoc.resolve(this.scope);
-				return;
+			this.javadoc.resolve(this.scope);
+			return;
 		}
 		if (this.binding.isPublic()) {
-			this.scope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd);
+			if (this.binding.declaringClass != null && !this.binding.declaringClass.isLocalType()) {
+				this.scope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd);
+			}
 		}
 	}
 
