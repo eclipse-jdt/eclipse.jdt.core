@@ -451,13 +451,11 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 
 	private String failedToFormat(final char[] compilationUnitSource) {
-		StringBuffer buffer = new StringBuffer(this.scribe.formattedSource());
-		buffer.append(compilationUnitSource, this.scribe.scanner.getCurrentTokenEndPosition(), this.scribe.scannerEndPosition - this.scribe.scanner.getCurrentTokenEndPosition());
-		System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
 		if (DEBUG) {
+			System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
 			System.out.println(this.scribe);
 		}
-		return buffer.toString();
+		return new String(compilationUnitSource);
 	}
 
 	private void format(

@@ -64,11 +64,12 @@ public abstract class CodeFormatter {
 	public abstract String format(int kind, String string, int indentationLevel, int[] positions, String lineSeparator, Map options);
 	
 	/** 
-	 * Formats the String <code>sourceString</code>, and returns a string containing the formatted version.
+	 * Formats the String <code>sourceString</code>, and returns a string containing the formatted version corresponding
+	 * to the sourceString located between the given start and end positions.
 	 * 
 	 * @param string the compilation unit source to format
 	 * @param start the beginning of the selected code (inclusive)
-	 * @param end the end of the selected code (exclusive)
+	 * @param end the end of the selected code (inclusive)
 	 * @param indentationLevel the initial indentation level, used 
 	 *      to shift left/right the entire source fragment. An initial indentation
 	 *      level of zero has no effect.
@@ -76,11 +77,13 @@ public abstract class CodeFormatter {
 	 *      character-based source positions inside the original source,
 	 * 		arranged in non-decreasing order, for which corresponding positions in 
 	 *     the formatted source will be computed (so as to relocate elements associated 
-	 *     with the original source). It updates the positions array with updated 
-	 *     positions. If set to <code>null</code>, then no positions are mapped.
+	 *     with the original source). All positions need to be located between the given start 
+	 *     and end values. It updates the positions array with updated positions. If set to
+	 *     <code>null</code>, then no positions are mapped.
 	 * @param lineSeparator the line separator to use in formatted source,
 	 *     if set to <code>null</code>, then the platform default one will be used.
+	 * @param options options used to set the source level
 	 * @return the formatted output string of the selected code
 	 */
-	public abstract String format(String string, int start, int end, int indentationLevel, int[] positions, String lineSeparator);
+	public abstract String format(String string, int start, int end, int indentationLevel, int[] positions, String lineSeparator, Map options);
 }

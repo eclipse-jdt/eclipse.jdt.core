@@ -192,9 +192,26 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		int end,
 		int indentationLevel,
 		int[] positions,
-		String lineSeparator) {
-		// TODO: Auto-generated method stub
-		return null;
+		String lineSeparator,
+		Map options) {
+		
+		int[] newPositions = null;	
+		final int length = positions == null ? 0 : positions.length;
+		if (positions == null) {
+			newPositions = new int[] { start, end };
+		} else {
+			newPositions = new int[length + 2];
+			System.arraycopy(positions, 0, newPositions, 1, length);
+			newPositions[0] = start;
+			newPositions[length] = end;
+		}
+		String formattedString = formatCompilationUnit(string, indentationLevel, newPositions, lineSeparator, options);
+		if (positions != null) {
+			this.positionsMapping = positions;
+			System.arraycopy(newPositions, 1, this.positionsMapping, 0, length);
+		}
+		
+		return formattedString.substring(newPositions[0], newPositions[newPositions.length - 1] + 1);
 	}
 	
 	/**
