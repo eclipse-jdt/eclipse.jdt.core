@@ -306,12 +306,16 @@ private void computeInheritedMethods() {
 
 	while (superType != null) {
 		if (superType.isValidBinding()) {
-			if (allSuperclassesAreAbstract = allSuperclassesAreAbstract && superType.isAbstract()) {
-				// only need to include superinterfaces if immediate superclasses are abstract
-				if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
-					if (++lastPosition == interfacesToVisit.length)
-						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-					interfacesToVisit[lastPosition] = itsInterfaces;
+		    if (allSuperclassesAreAbstract) {
+			    if (superType.isAbstract()) {
+					// only need to include superinterfaces if immediate superclasses are abstract
+					if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
+						if (++lastPosition == interfacesToVisit.length)
+							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+						interfacesToVisit[lastPosition] = itsInterfaces;
+					}
+				} else {
+				    allSuperclassesAreAbstract = false;
 				}
 			}
 
