@@ -99,10 +99,9 @@ boolean isKnownPackage(String qualifiedPackageName) {
 		Object[] keyTable = typeLocations.keyTable;
 		for (int i = 0, l = keyTable.length; i < l; i++) {
 			if (keyTable[i] != null) {
-				String packageName = (String) keyTable[i];
+				String packageName = (String) keyTable[i]; // is a type name of the form p1/p2/A
 				int last = packageName.lastIndexOf('/');
-				if (last > 0)
-					packageName = packageName.substring(0, last);
+				packageName = last == -1 ? null : packageName.substring(0, last);
 				while (packageName != null && !names.contains(packageName)) {
 					names.add(packageName);
 					last = packageName.lastIndexOf('/');
