@@ -58,23 +58,23 @@ public class NestedTypeBinding extends SourceTypeBinding {
 	/* Add a new synthetic argument for <enclosingType>.
 	* Answer the new argument or the existing argument if one already existed.
 	*/
-	public SyntheticArgumentBinding addSyntheticArgument(ReferenceBinding enclosingType) {
+	public SyntheticArgumentBinding addSyntheticArgument(ReferenceBinding targetEnclosingType) {
 		SyntheticArgumentBinding synthLocal = null;
 		if (enclosingInstances == null) {
-			synthLocal = new SyntheticArgumentBinding(enclosingType);
+			synthLocal = new SyntheticArgumentBinding(targetEnclosingType);
 			enclosingInstances = new SyntheticArgumentBinding[] {synthLocal};
 		} else {
 			int size = enclosingInstances.length;
 			int newArgIndex = size;
 			for (int i = size; --i >= 0;) {
-				if (enclosingInstances[i].type == enclosingType)
+				if (enclosingInstances[i].type == targetEnclosingType)
 					return enclosingInstances[i]; // already exists
-				if (this.enclosingType() == enclosingType)
+				if (this.enclosingType() == targetEnclosingType)
 					newArgIndex = 0;
 			}
 			SyntheticArgumentBinding[] newInstances = new SyntheticArgumentBinding[size + 1];
 			System.arraycopy(enclosingInstances, 0, newInstances, newArgIndex == 0 ? 1 : 0, size);
-			newInstances[newArgIndex] = synthLocal = new SyntheticArgumentBinding(enclosingType);
+			newInstances[newArgIndex] = synthLocal = new SyntheticArgumentBinding(targetEnclosingType);
 			enclosingInstances = newInstances;
 		}
 		//System.out.println("Adding synth arg for enclosing type: " + new String(enclosingType.readableName()) + " to: " + new String(this.readableName()));
@@ -98,12 +98,12 @@ public class NestedTypeBinding extends SourceTypeBinding {
 	/* Add a new synthetic argument and field for <enclosingType>.
 	* Answer the new argument or the existing argument if one already existed.
 	*/
-	public SyntheticArgumentBinding addSyntheticArgumentAndField(ReferenceBinding enclosingType) {
-		SyntheticArgumentBinding synthLocal = addSyntheticArgument(enclosingType);
+	public SyntheticArgumentBinding addSyntheticArgumentAndField(ReferenceBinding targetEnclosingType) {
+		SyntheticArgumentBinding synthLocal = addSyntheticArgument(targetEnclosingType);
 		if (synthLocal == null) return null;
 	
 		if (synthLocal.matchingField == null)
-			synthLocal.matchingField = addSyntheticField(enclosingType);
+			synthLocal.matchingField = addSyntheticField(targetEnclosingType);
 		return synthLocal;
 	}
 
@@ -114,10 +114,9 @@ public class NestedTypeBinding extends SourceTypeBinding {
 	
 		int slotSize = 0; 
 		// insert enclosing instances first, followed by the outerLocals
-		SyntheticArgumentBinding[] enclosingInstances = this.syntheticEnclosingInstances();
-		int enclosingInstancesCount = enclosingInstances == null ? 0 : enclosingInstances.length;
+		int enclosingInstancesCount = this.enclosingInstances == null ? 0 : this.enclosingInstances.length;
 		for (int i = 0; i < enclosingInstancesCount; i++){
-			SyntheticArgumentBinding argument = enclosingInstances[i];
+			SyntheticArgumentBinding argument = this.enclosingInstances[i];
 			// position the enclosing instance synthetic arg
 			argument.resolvedPosition = slotSize + 1; // shift by 1 to leave room for aload0==this
 			if (slotSize + 1 > 0xFF) { // no more than 255 words of arguments
@@ -132,10 +131,9 @@ public class NestedTypeBinding extends SourceTypeBinding {
 		this.enclosingInstancesSlotSize = slotSize; 
 		
 		slotSize = 0; // reset, outer local are not positionned yet, since will be appended to user arguments
-		SyntheticArgumentBinding[] outerLocals = this.syntheticOuterLocalVariables();
-		int outerLocalsCount = outerLocals == null ? 0 : outerLocals.length;
+		int outerLocalsCount = this.outerLocalVariables == null ? 0 : this.outerLocalVariables.length;
 			for (int i = 0; i < outerLocalsCount; i++){
-			SyntheticArgumentBinding argument = outerLocals[i];
+			SyntheticArgumentBinding argument = this.outerLocalVariables[i];
 			// do NOT position the outerlocal synthetic arg yet,  since will be appended to user arguments
 			if ((argument.type == LongBinding) || (argument.type == DoubleBinding)){
 				slotSize += 2;

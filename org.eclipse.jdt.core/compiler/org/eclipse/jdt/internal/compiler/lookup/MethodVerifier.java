@@ -432,8 +432,8 @@ private ReferenceBinding runtimeException() {
 		this.runtimeException = this.type.scope.getJavaLangRuntimeException();
 	return runtimeException;
 }
-public void verify(SourceTypeBinding type) {
-	this.type = type;
+public void verify(SourceTypeBinding someType) {
+	this.type = someType;
 	this.computeMethods();
 	this.computeInheritedMethods();
 	this.checkMethods();

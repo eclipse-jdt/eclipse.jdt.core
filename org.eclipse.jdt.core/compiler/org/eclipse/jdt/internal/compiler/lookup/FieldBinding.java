@@ -126,12 +126,12 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	// receiverType can be an array binding in one case... see if you can change it
 	if (receiverType instanceof ArrayBinding)
 		return false;
-	ReferenceBinding type = (ReferenceBinding) receiverType;
+	ReferenceBinding currentType = (ReferenceBinding) receiverType;
 	PackageBinding declaringPackage = declaringClass.fPackage;
 	do {
-		if (declaringClass == type) return true;
-		if (declaringPackage != type.fPackage) return false;
-	} while ((type = type.superclass()) != null);
+		if (declaringClass == currentType) return true;
+		if (declaringPackage != currentType.fPackage) return false;
+	} while ((currentType = currentType.superclass()) != null);
 	return false;
 }
 public final int getAccessFlags() {

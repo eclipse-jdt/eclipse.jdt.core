@@ -92,7 +92,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 				}
 			}
 			if (needRename) { // retry with a selector postfixed by a growing methodId
-				this.selector(CharOperation.concat(AccessMethodPrefix, String.valueOf(++methodId).toCharArray()));
+				this.setSelector(CharOperation.concat(AccessMethodPrefix, String.valueOf(++methodId).toCharArray()));
 			}
 		} while (needRename);
 	
@@ -266,7 +266,7 @@ public class SyntheticAccessMethodBinding extends MethodBinding {
 				}
 			}
 			if (needRename) { // retry with a selector & a growing methodId
-				this.selector(CharOperation.concat(AccessMethodPrefix, String.valueOf(++methodId).toCharArray()));
+				this.setSelector(CharOperation.concat(AccessMethodPrefix, String.valueOf(++methodId).toCharArray()));
 			}
 		} while (needRename);
 	

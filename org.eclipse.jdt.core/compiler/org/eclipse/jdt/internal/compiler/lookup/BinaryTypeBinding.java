@@ -163,7 +163,7 @@ private void createFields(IBinaryField[] iFields) {
 	}
 }
 private MethodBinding createMethod(IBinaryMethod method) {
-	int modifiers = method.getModifiers() | AccUnresolved;
+	int methodModifiers = method.getModifiers() | AccUnresolved;
 
 	ReferenceBinding[] exceptions = NoExceptions;
 	char[][] exceptionTypes = method.getExceptionTypeNames();
@@ -177,15 +177,15 @@ private MethodBinding createMethod(IBinaryMethod method) {
 	}
 
 	TypeBinding[] parameters = NoParameters;
-	char[] signature = method.getMethodDescriptor();   // of the form (I[Ljava/jang/String;)V
+	char[] methodSignature = method.getMethodDescriptor();   // of the form (I[Ljava/jang/String;)V
 	int numOfParams = 0;
 	char nextChar;
 	int index = 0;   // first character is always '(' so skip it
-	while ((nextChar = signature[++index]) != ')') {
+	while ((nextChar = methodSignature[++index]) != ')') {
 		if (nextChar != '[') {
 			numOfParams++;
 			if (nextChar == 'L')
-				while ((nextChar = signature[++index]) != ';');
+				while ((nextChar = methodSignature[++index]) != ';');
 		}
 	}
 
@@ -197,24 +197,24 @@ private MethodBinding createMethod(IBinaryMethod method) {
 		index = 1;
 		int end = 0;   // first character is always '(' so skip it
 		for (int i = 0; i < numOfParams; i++) {
-			while ((nextChar = signature[++end]) == '[');
+			while ((nextChar = methodSignature[++end]) == '[');
 			if (nextChar == 'L')
-				while ((nextChar = signature[++end]) != ';');
+				while ((nextChar = methodSignature[++end]) != ';');
 
 			if (i >= startIndex)   // skip the synthetic arg if necessary
-				parameters[i - startIndex] = environment.getTypeFromSignature(signature, index, end);
+				parameters[i - startIndex] = environment.getTypeFromSignature(methodSignature, index, end);
 			index = end + 1;
 		}
 	}
 
 	MethodBinding binding = null;
 	if (method.isConstructor())
-		binding = new MethodBinding(modifiers, parameters, exceptions, this);
+		binding = new MethodBinding(methodModifiers, parameters, exceptions, this);
 	else
 		binding = new MethodBinding(
-			modifiers,
+			methodModifiers,
 			method.getSelector(),
-			environment.getTypeFromSignature(signature, index + 1, -1),   // index is currently pointing at the ')'
+			environment.getTypeFromSignature(methodSignature, index + 1, -1),   // index is currently pointing at the ')'
 			parameters,
 			exceptions,
 			this);

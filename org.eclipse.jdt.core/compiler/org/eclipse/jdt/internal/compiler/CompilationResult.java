@@ -115,18 +115,18 @@ public class CompilationResult {
 
 	
 	public IProblem[] getAllProblems() {
-		IProblem[] problems = this.getProblems();
-		int problemCount = problems != null ? problems.length : 0;
-		IProblem[] tasks = this.getTasks();
-		int taskCount = tasks != null ? tasks.length : 0;
-		if (taskCount == 0) {
-			return problems;
+		IProblem[] onlyProblems = this.getProblems();
+		int onlyProblemCount = onlyProblems != null ? onlyProblems.length : 0;
+		IProblem[] onlyTasks = this.getTasks();
+		int onlyTaskCount = onlyTasks != null ? onlyTasks.length : 0;
+		if (onlyTaskCount == 0) {
+			return onlyProblems;
 		}
-		if (problemCount == 0) {
-			return tasks;
+		if (onlyProblemCount == 0) {
+			return onlyTasks;
 		}
 
-		int totalNumberOfProblem = problemCount + taskCount;
+		int totalNumberOfProblem = onlyProblemCount + onlyTaskCount;
 		IProblem[] allProblems = new IProblem[totalNumberOfProblem];
 		int allProblemIndex = 0;
 		int taskIndex = 0;
@@ -134,11 +134,11 @@ public class CompilationResult {
 		while (taskIndex + problemIndex < totalNumberOfProblem) {
 			IProblem nextTask = null;
 			IProblem nextProblem = null;
-			if (taskIndex < taskCount) {
-				nextTask = tasks[taskIndex];
+			if (taskIndex < onlyTaskCount) {
+				nextTask = onlyTasks[taskIndex];
 			}
-			if (problemIndex < problemCount) {
-				nextProblem = problems[problemIndex];
+			if (problemIndex < onlyProblemCount) {
+				nextProblem = onlyProblems[problemIndex];
 			}
 			// select the next problem
 			IProblem currentProblem = null;
@@ -195,16 +195,16 @@ public class CompilationResult {
 	 */
 	public IProblem[] getErrors() {
 	
-		IProblem[] problems = getProblems();
+		IProblem[] reportedProblems = getProblems();
 		int errorCount = 0;
 		for (int i = 0; i < this.problemCount; i++) {
-			if (problems[i].isError()) errorCount++;
+			if (reportedProblems[i].isError()) errorCount++;
 		}
-		if (errorCount == this.problemCount) return problems;
+		if (errorCount == this.problemCount) return reportedProblems;
 		IProblem[] errors = new IProblem[errorCount];
 		int index = 0;
 		for (int i = 0; i < this.problemCount; i++) {
-			if (problems[i].isError()) errors[index++] = problems[i];
+			if (reportedProblems[i].isError()) errors[index++] = reportedProblems[i];
 		}
 		return errors;
 	}
