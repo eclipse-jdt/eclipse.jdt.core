@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -262,17 +262,26 @@ class TypeBinding implements ITypeBinding {
 		return resolver.getTypeBinding(arrayBinding.leafComponentType);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeDeclaration()
+	 */
+	public ITypeBinding getTypeDeclaration() {
+		// TODO (olivier) - missing implementation
+		throw new RuntimeException("Not implemented yet"); //$NON-NLS-1$
+	}
+
 	/**
-	 * @deprecated Use {@link #getGenericType()} instead.
+	 * @deprecated Use {@link #getTypeDeclaration()} instead.
 	 */
 	// TODO (jeem) - remove before 3.1M5 (bug 80800)
 	public ITypeBinding getErasure() {
 		return getGenericType();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getGenericType()
+	/**
+	 * @deprecated Use {@link #getTypeDeclaration()} instead.
 	 */
+	// TODO (jeem) - remove before 3.1M5 (bug 80800)
 	public ITypeBinding getGenericType() {
 		return this.resolver.getTypeBinding(this.binding.erasure());
 	}

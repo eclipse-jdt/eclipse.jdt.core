@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -393,16 +393,25 @@ class MethodBinding implements IMethodBinding {
 	}
 
 	/**
-	 * @deprecated Use {@link #getGenericMethod()} instead.
+	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getMethodDeclaration()
+	 */
+	public IMethodBinding getMethodDeclaration() {
+		// TODO (olivier) - missing implementation
+		throw new RuntimeException("Not implemented yet"); //$NON-NLS-1$
+	}
+	
+	/**
+	 * @deprecated Use {@link #getMethodDeclaration()} instead.
 	 */
 	// TODO (jeem) - remove before 3.1M5 (bug 80800)
 	public IMethodBinding getErasure() {
 		return getGenericMethod();
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getGenericMethod()
+	/**
+	 * @deprecated Use {@link #getMethodDeclaration()} instead.
 	 */
+	// TODO (jeem) - remove before 3.1M5 (bug 80800)
 	public IMethodBinding getGenericMethod() {
 		return this.resolver.getMethodBinding(this.binding.original());
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,12 +32,11 @@ package org.eclipse.jdt.core.dom;
  * possibly with type bounds</li>
  * <li>a wildcard type - represents a wild card used as a type argument in
  * a parameterized type reference</li>
+ * <li>a raw type - represents a legacy non-parameterized reference to
+ * a generic type</li>
+ * <li>a parameterized type - represents an copy of a type declaration
+ * with substitutions for its type parameters</li>
  * </ul>
- * Type bindings usually correspond directly to class or
- * interface declarations found in the source code. However,
- * in some cases of references to a type declared in a generic type,
- * the type binding corresponds to an copy of a type declaration
- * with substitutions for its type parameters.
  * <p>
  * This interface is not intended to be implemented by clients.
  * </p>
@@ -320,16 +319,20 @@ public interface ITypeBinding extends IBinding {
 	
 	/**
 	 * Returns the erasure of this type binding.
-	 * In the presense of generic types, some bindings correspond to
-	 * types declarations in the context of a particular instance of
-	 * the generic type. In those cases, this method returns
-	 * the generic type binding from which this type binding
-	 * was instantiated. For other type bindings, this method returns
-	 * the identical type binding.
-	 * Note that the resulting type binding will answer true to
-	 * {@link #isGenericType()} iff this type binding would return true
-	 * to either {@link #isGenericType()}, {@link #isParameterizedType()},
-	 * or {@link #isRawType()}.
+	 * <ul>
+	 * <li>For parameterized types ({@link #isParameterizedType()})
+	 * - returns the binding for the corresponding generic type.</li>
+	 * <li>For raw types ({@link #isRawType()})
+	 * - returns the binding for the corresponding generic type.</li>
+	 * <li>For wildcard types ({@link #isWildcardType()})
+	 * - returns the binding for the upper bound if it has one and
+	 * java.lang.Object in other cases.
+	 * </li>
+	 * <li>For type variables ({@link #isTypeVariable()})
+	 * - returns the binding for the erasure of the leftmost bound
+	 * if it has bounds and java.lang.Object if it does not.</li>
+	 * <li>For all other type bindings - returns the identical binding.</li>
+	 * </ul>
 	 * <p>
 	 * Note: Support for new language features proposed for the upcoming 1.5
 	 * release of J2SE is tentative and subject to change.
@@ -337,23 +340,22 @@ public interface ITypeBinding extends IBinding {
 	 *
 	 * @return the erasure type binding
 	 * @since 3.0
-	 * @deprecated Use {@link #getGenericType()} instead.
 	 */
-	// TODO (jeem) - remove before 3.1M5 (bug 80800)
 	public ITypeBinding getErasure();
 	
 	/**
-	 * Returns the generic type corresponding to this type binding.
-	 * In the presense of generic types, some bindings correspond to
-	 * types declarations in the context of a particular instance of
-	 * the generic type. In those cases, this method returns
-	 * the generic type binding from which this type binding
-	 * was instantiated. For other type bindings, this method returns
-	 * the identical type binding.
-	 * Note that the resulting type binding will answer true to
-	 * {@link #isGenericType()} iff this type binding would return true
-	 * to either {@link #isGenericType()}, {@link #isParameterizedType()},
-	 * or {@link #isRawType()}.
+	 * @since 3.1
+	 * @deprecated Use {@link #getTypeDeclaration()} instead.
+	 */
+	// TODO (jeem) - remove before 3.1M5 (bug 80800)
+	public ITypeBinding getGenericType();
+	
+	/**
+	 * Returns the binding for the type declaration corresponding to this type
+	 * binding. For parameterized types ({@link #isParameterizedType()})
+	 * and raw types ({@link #isRawType()}), this method returns the binding
+	 * for the corresponding generic type. For other type bindings, this
+	 * returns the same binding.
 	 * <p>
 	 * Note: Support for new language features proposed for the upcoming 1.5
 	 * release of J2SE is tentative and subject to change.
@@ -362,7 +364,7 @@ public interface ITypeBinding extends IBinding {
 	 * @return the generic type binding
 	 * @since 3.1
 	 */
-	public ITypeBinding getGenericType();
+	public ITypeBinding getTypeDeclaration();
 	
 	/**
 	 * Returns whether this type binding represents an instance of

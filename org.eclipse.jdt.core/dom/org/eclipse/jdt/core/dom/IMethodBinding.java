@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -216,39 +216,18 @@ public interface IMethodBinding extends IBinding {
 	public ITypeBinding[] getTypeArguments();
 	
 	/**
-	 * Returns the erasure of this method binding.
-	 * Some bindings correspond to method declarations in the context of
-	 * a particular instance of a generic method. In those cases, this method
-	 * returns the generic method binding from which this method binding
-	 * was instantiated.
-	 * For other type bindings, this method returns the identical type binding.
-	 * Note that the resulting method binding will answer true to
-	 * {@link #isGenericMethod()} iff this method binding would return true
-	 * to either {@link #isGenericMethod()}, {@link #isParameterizedMethod()},
-	 * or {@link #isRawMethod()}.
-	 * <p>
-	 * Note: Support for new language features proposed for the upcoming 1.5
-	 * release of J2SE is tentative and subject to change.
-	 * </p>
-	 *
-	 * @return the erasure method binding
 	 * @since 3.1
-	 * @deprecated Use {@link #getGenericMethod()} instead.
+	 * @deprecated Use {@link #getMethodDeclaration()} instead.
 	 */
 	// TODO (jeem) - remove before 3.1M5 (bug 80800)
 	public IMethodBinding getErasure();
 	
 	/**
-	 * Returns the generic method corresponding to this method binding.
-	 * Some bindings correspond to method declarations in the context of
-	 * a particular instance of a generic method. In those cases, this method
-	 * returns the generic method binding from which this method binding
-	 * was instantiated.
-	 * For other method bindings, this method returns the identical method binding.
-	 * Note that the resulting method binding will answer true to
-	 * {@link #isGenericMethod()} iff this method binding would return true
-	 * to either {@link #isGenericMethod()}, {@link #isParameterizedMethod()},
-	 * or {@link #isRawMethod()}.
+	 * Returns the binding for the method declaration corresponding to this
+	 * method binding. For parameterized methods ({@link #isParameterizedMethod()})
+	 * and raw methods ({@link #isRawMethod()}), this method returns the binding
+	 * for the corresponding generic method. For other method bindings, this
+	 * returns the same binding.
 	 * <p>
 	 * Note: Support for new language features proposed for the upcoming 1.5
 	 * release of J2SE is tentative and subject to change.
@@ -257,6 +236,13 @@ public interface IMethodBinding extends IBinding {
 	 * @return the generic method binding
 	 * @since 3.1
 	 */
+	public IMethodBinding getMethodDeclaration();
+
+	/**
+	 * @since 3.1
+	 * @deprecated Use {@link #getMethodDeclaration()} instead.
+	 */
+	// TODO (jeem) - remove before 3.1M5 (bug 80800)
 	public IMethodBinding getGenericMethod();
 	
 	/**
