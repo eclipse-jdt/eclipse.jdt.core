@@ -47,7 +47,7 @@ public class CodeSnippetParsingUtil {
 					compilerOptions, 
 					new DefaultProblemFactory(Locale.getDefault()));
 					
-		Parser parser = new Parser(problemReporter, false);
+		Parser parser = new CommentRecorderParser(problemReporter, false);
 
 		ICompilationUnit sourceUnit = 
 			new CompilationUnit(
@@ -72,7 +72,7 @@ public class CodeSnippetParsingUtil {
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
 		Parser parser =
-			new Parser(
+			new CommentRecorderParser(
 				new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
@@ -119,7 +119,7 @@ public class CodeSnippetParsingUtil {
 					compilerOptions, 
 					new DefaultProblemFactory(Locale.getDefault()));
 					
-		Parser parser = new Parser(problemReporter, false);
+		Parser parser = new CommentRecorderParser(problemReporter, false);
 
 		ICompilationUnit sourceUnit = 
 			new CompilationUnit(

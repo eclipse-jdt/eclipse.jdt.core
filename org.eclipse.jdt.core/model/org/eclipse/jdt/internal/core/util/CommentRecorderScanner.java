@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.dom;
+package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
@@ -17,9 +17,9 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
  * 
  * @since 3.0
  */
-class DOMScanner extends Scanner {
+public class CommentRecorderScanner extends Scanner {
 
-	public DOMScanner(
+	public CommentRecorderScanner(
 		boolean tokenizeComments,
 		boolean tokenizeWhiteSpace,
 		boolean checkNonExternalizedStringLiterals,

@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.dom;
+package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
  * 
  * @since 3.0
  */
-class DOMParser extends Parser {
+public class CommentRecorderParser extends Parser {
 	
 	// support for comments
 	int[] commentStops = new int[10];
@@ -35,7 +35,7 @@ class DOMParser extends Parser {
 	 * @param problemReporter
 	 * @param optimizeStringLiterals
 	 */
-	public DOMParser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
+	public CommentRecorderParser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 		super(problemReporter, optimizeStringLiterals);
 		this.javadocParser.checkDocComment = true;
 	}
@@ -216,7 +216,7 @@ class DOMParser extends Parser {
 	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#initializeScanner()
 	 */
 	public void initializeScanner() {
-		this.scanner = new DOMScanner(
+		this.scanner = new CommentRecorderScanner(
 				false /*comment*/, 
 				false /*whitespace*/, 
 				this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/, 
