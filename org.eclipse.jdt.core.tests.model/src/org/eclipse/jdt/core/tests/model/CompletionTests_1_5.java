@@ -1217,4 +1217,91 @@ public void test0069() throws JavaModelException {
 			"putValue[METHOD_REF]{putValue(), Ltest0069.Test<Ljava.lang.String;>;, (Ljava.lang.String;)V, putValue, (value), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77573
+ */
+public void test0070() throws JavaModelException {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0070", "Test.java");
+
+	String str = cu.getSource();
+	String completeBehind = "test0070";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"test0070.p[PACKAGE_REF]{test0070.p.*;, test0070.p, null, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"test0070[PACKAGE_REF]{test0070.*;, test0070, null, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77573
+ */
+public void test0071() throws JavaModelException {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0071", "Test.java");
+
+	String str = cu.getSource();
+	String completeBehind = "test0071.p.Im";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"ImportedClass[TYPE_REF]{test0071.p.ImportedClass;, test0071.p, Ltest0071.p.ImportedClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77573
+ */
+public void test0072() throws JavaModelException {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0072", "Test.java");
+
+	String str = cu.getSource();
+	String completeBehind = "test0072.p.ImportedClass.ZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"ZZZ1[FIELD_REF]{test0072.p.ImportedClass.ZZZ1;, Ltest0072.p.ImportedClass;, I, ZZZ1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[METHOD_IMPORT]{test0072.p.ImportedClass.ZZZ2;, Ltest0072.p.ImportedClass;, ()V, ZZZ2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[METHOD_IMPORT]{test0072.p.ImportedClass.ZZZ2;, Ltest0072.p.ImportedClass;, (I)V, ZZZ2, (i), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77573
+ */
+public void test0073() throws JavaModelException {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0073", "Test.java");
+
+	String str = cu.getSource();
+	String completeBehind = "test0073.p.ImportedClass.Inner.ZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"ZZZ1[FIELD_REF]{test0073.p.ImportedClass.Inner.ZZZ1;, Ltest0073.p.ImportedClass$Inner;, I, ZZZ1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[METHOD_IMPORT]{test0073.p.ImportedClass.Inner.ZZZ2;, Ltest0073.p.ImportedClass$Inner;, ()V, ZZZ2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[METHOD_IMPORT]{test0073.p.ImportedClass.Inner.ZZZ2;, Ltest0073.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77573
+ */
+public void test0074() throws JavaModelException {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0074", "Test.java");
+
+	String str = cu.getSource();
+	String completeBehind = "test0074.p.ImportedClass.Inner.ZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"ZZZ1[FIELD_REF]{test0074.p.ImportedClass.Inner.ZZZ1;, Ltest0074.p.ImportedClass$Inner;, I, ZZZ1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[METHOD_IMPORT]{test0074.p.ImportedClass.Inner.ZZZ2;, Ltest0074.p.ImportedClass$Inner;, ()V, ZZZ2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[METHOD_IMPORT]{test0074.p.ImportedClass.Inner.ZZZ2;, Ltest0074.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 }

@@ -79,7 +79,7 @@ public abstract class CompletionRequestor {
 	 */
 	public final boolean isIgnored(int completionProposalKind) {
 		if (completionProposalKind < CompletionProposal.ANONYMOUS_CLASS_DECLARATION
-			|| completionProposalKind > CompletionProposal.VARIABLE_DECLARATION) {
+			|| completionProposalKind > CompletionProposal.METHOD_NAME_REFERENCE) {
 				throw new IllegalArgumentException();
 		}
 		return 0 != (this.ignoreSet & (1 << completionProposalKind));

@@ -338,6 +338,34 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	public static final int POTENTIAL_METHOD_DECLARATION = 11;
 	
 	/**
+	 * Completion is a reference to a method name.
+	 * This kind of completion might occur in a context like
+	 * <code>"import p.X.fo^"</code> and complete it to
+	 * <code>"import p.X.foo;"</code>.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the method that is referenced
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags of the method that is referenced
+	 * </li>
+	 * <li>{@link #getName()} -
+	 * the simple name of the method that is referenced
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the method signature of the method that is referenced
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see #getKind()
+	 */
+	public static final int METHOD_NAME_REFERENCE = 12;
+	
+	/**
 	 * Kind of completion request.
 	 */
 	private int completionKind;
@@ -459,7 +487,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 */
 	CompletionProposal(int kind, int completionLocation) {
 		if ((kind < CompletionProposal.ANONYMOUS_CLASS_DECLARATION)
-				|| (kind > CompletionProposal.POTENTIAL_METHOD_DECLARATION)) {
+				|| (kind > CompletionProposal.METHOD_NAME_REFERENCE)) {
 			throw new IllegalArgumentException();
 		}
 		if (this.completion == null || completionLocation < 0) {
