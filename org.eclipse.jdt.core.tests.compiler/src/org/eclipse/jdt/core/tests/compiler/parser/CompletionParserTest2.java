@@ -7404,4 +7404,87 @@ public void test0131(){
 		expectedReplacedSource,
 		"full ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44647
+ */
+public void test0132(){
+	String str =
+		"public class A\n" +
+		"{\n" +
+		"   public A(final String str1, final String str2)\n" +
+		"   {\n" +
+		"      \n" +	
+		"   }\n" +
+		"   \n" +
+		"   private A[] methodA(final String str1, final String str2)\n" +
+		"      {\n" +
+		"         return new A[]\n" +
+		"         {\n" +
+		"            new A(str1, str2)\n" +
+		"            {\n" +
+		"               //initialiser!\n" +
+		"               {\n" +
+		"                  methodA(\"1\", \"2\");\n" +
+		"               }\n" +
+		"            },\n" +
+		"            new A(\"hello\".c) //<--------code complete to \"hello\".concat()\n" +
+		"         };\n" +
+		"      \n" +
+		"      }\n" +
+		"}\n";
+
+
+	String completeBehind = "\"2\");";
+	int cursorLocation = str.indexOf("\"2\");") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class A {\n" + 
+		"  public A(final String str1, final String str2) {\n" + 
+		"  }\n" + 
+		"  private A[] methodA(final String str1, final String str2) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
+
+	expectedCompletionNodeToString = "<CompleteOnName:>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "";
+	expectedUnitDisplayString =
+		"public class A {\n" + 
+		"  public A(final String str1, final String str2) {\n" + 
+		"  }\n" + 
+		"  private A[] methodA(final String str1, final String str2) {\n" + 
+		"    new A(str1, str2) {\n" + 
+		"      {\n" + 
+		"        <CompleteOnName:>;\n" + 
+		"      }\n" + 
+		"      () {\n" + 
+		"      }\n" + 
+		"    };\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"full ast");
+}
 }

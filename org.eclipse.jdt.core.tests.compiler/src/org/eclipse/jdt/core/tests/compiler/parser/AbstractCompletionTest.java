@@ -95,18 +95,27 @@ public void checkDietParse(
 	//System.out.println(Util.displayString(computedUnitToString));
 	//System.out.println(expectedUnitToString);
 	
+	if (!expectedCompletion.equals(computedCompletion)) {
+		System.out.println(Util.displayString(computedCompletion));
+	}
 	assertEquals(
 		"invalid completion node-" + testName,
 		expectedCompletion,
 		computedCompletion);
 	
 	if(expectedParentCompletion != null) {
+		if (!expectedParentCompletion.equals(computedParentCompletion)) {
+			System.out.println(Util.displayString(computedParentCompletion));
+		}
 		assertEquals(
 		"invalid completion parent node-" + testName,
 		expectedParentCompletion,
 		computedParentCompletion);
 	}
 
+	if (!expectedUnitToString.equals(computedUnitToString)) {
+		System.out.println(Util.displayString(computedUnitToString));
+	}
 	assertEquals(
 		"invalid completion tree-" + testName,
 		expectedUnitToString,

@@ -399,7 +399,7 @@ private void buildMoreCompletionContext(Expression expression) {
 
 					allocationExpression.initializer = arrayInitializer;
 					assistNodeParent = allocationExpression;
-				} else if(currentElement instanceof RecoveredField) {
+				} else if(currentElement instanceof RecoveredField && !(currentElement instanceof RecoveredInitializer)) {
 					RecoveredField recoveredField = (RecoveredField) currentElement;
 					if(recoveredField.fieldDeclaration.type.dimensions() == 0) {
 						Block block = new Block(0);
@@ -490,7 +490,7 @@ private void buildMoreCompletionContext(Expression expression) {
 	if(assistNodeParent != null) {
 		currentElement = currentElement.add((Statement)assistNodeParent, 0);
 	} else {
-		if(currentElement instanceof RecoveredField
+		if(currentElement instanceof RecoveredField && !(currentElement instanceof RecoveredInitializer)
 			&& ((RecoveredField) currentElement).fieldDeclaration.initialization == null) {
 			
 			assistNodeParent = ((RecoveredField) currentElement).fieldDeclaration;
