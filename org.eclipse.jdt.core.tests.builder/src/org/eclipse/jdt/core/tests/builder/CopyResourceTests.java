@@ -43,12 +43,13 @@ public class CopyResourceTests extends Tests {
 		expectingPresenceOf(projectPath.append("z.txt")); //$NON-NLS-1$
 
 		env.removeFile(src.append("z.txt")); //$NON-NLS-1$
-		env.addFile(src, "zz.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath p = env.addFolder(src, "p"); //$NON-NLS-1$
+		env.addFile(p, "p.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
 		incrementalBuild();
 		expectingNoProblems();
 		expectingNoPresenceOf(projectPath.append("z.txt")); //$NON-NLS-1$
-		expectingPresenceOf(projectPath.append("zz.txt")); //$NON-NLS-1$
+		expectingPresenceOf(p.append("p.txt")); //$NON-NLS-1$
 	}
 
 	public void testProjectWithBin() {
@@ -67,7 +68,8 @@ public class CopyResourceTests extends Tests {
 		});
 
 		env.removeFile(src.append("z.txt")); //$NON-NLS-1$
-		env.addFile(src, "zz.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath p = env.addFolder(src, "p"); //$NON-NLS-1$
+		env.addFile(p, "p.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
 		incrementalBuild();
 		expectingNoProblems();
@@ -76,8 +78,8 @@ public class CopyResourceTests extends Tests {
 			projectPath.append("bin/z.txt") //$NON-NLS-1$
 		});
 		expectingPresenceOf(new IPath[] {
-			projectPath.append("zz.txt"), //$NON-NLS-1$
-			projectPath.append("bin/zz.txt") //$NON-NLS-1$
+			projectPath.append("p/p.txt"), //$NON-NLS-1$
+			projectPath.append("bin/p/p.txt") //$NON-NLS-1$
 		});
 	}
 
@@ -133,7 +135,8 @@ public class CopyResourceTests extends Tests {
 		});
 
 		env.removeFile(src2.append("zz.txt")); //$NON-NLS-1$
-		env.addFile(src2, "zzz.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath p = env.addFolder(src2, "p"); //$NON-NLS-1$
+		env.addFile(p, "p.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
 
 		incrementalBuild();
 		expectingNoProblems();
@@ -142,8 +145,8 @@ public class CopyResourceTests extends Tests {
 			projectPath.append("bin/zz.txt") //$NON-NLS-1$
 		});
 		expectingPresenceOf(new IPath[] {
-			projectPath.append("src2/zzz.txt"), //$NON-NLS-1$
-			projectPath.append("bin/zzz.txt") //$NON-NLS-1$
+			projectPath.append("src2/p/p.txt"), //$NON-NLS-1$
+			projectPath.append("bin/p/p.txt") //$NON-NLS-1$
 		});
 	}
 

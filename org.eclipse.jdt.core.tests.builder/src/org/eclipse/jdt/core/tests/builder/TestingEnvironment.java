@@ -191,7 +191,7 @@ public class TestingEnvironment {
 	
 	/** Adds a folder.
 	 */
-	public IPath addFolder(IPath root, String folderName, String contents){
+	public IPath addFolder(IPath root, String folderName){
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IPath folderPath = root.append(folderName);
 		createFolder(folderPath);
