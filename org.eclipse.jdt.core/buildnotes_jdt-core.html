@@ -53,7 +53,7 @@ Eclipse SDK 3.1 - ?th July 2004 - J2SE 1.5 Preview - Codename "Cheetah"
 What's new in this drop</h2>
 <ul>
 <li>Once 1.5 source compliance is enabled, the typecheck rules for conditional operator (a ? b : c) 
-allows scenario where 'b' and 'c' have a common supertype (there is no longer a need for
+allows scenario where 'b' and 'c' have a common supertype (i.e. it is no longer required for
 one to be assignable to the other as in the past). This is required by JLS 3rd edition.
 </li>
 <li>Fix for bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69028">69028</a>
@@ -63,7 +63,11 @@ one to be assignable to the other as in the past). This is required by JLS 3rd e
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69658">69658</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69542">69542</a>
+[1.5] ByteCode differs from javac ByteCode in behaviour
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69554">69554</a>
+Eclipse Java compiler is not completely compliant to Javac
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69658">69658</a>
 typo in javadoc of ClassInstanceCreation
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69308">69308</a>
 All ASTNodes that deal with modifiers should offer a method setModifiers(List modifiers)
