@@ -57,9 +57,13 @@ public FileSystem(String[] classpathNames, String[] initialFileNames, String enc
 					}
 					pathNames[i] = ((ClasspathDirectory) this.classpaths[i]).path;
 				}
-			} else if (classpathNames[i].endsWith(SUFFIX_STRING_jar) | (classpathNames[i].endsWith(SUFFIX_STRING_zip))) {
-				this.classpaths[i] = this.getClasspathJar(file); // will throw an IOException if file does not exist
-				pathNames[i] = classpathNames[i].substring(0, classpathNames[i].lastIndexOf('.'));
+			} else {
+				String lowercaseClasspathName = classpathNames[i].toLowerCase();
+				if (lowercaseClasspathName.endsWith(SUFFIX_STRING_jar)
+					  || lowercaseClasspathName.endsWith(SUFFIX_STRING_zip)) {
+					this.classpaths[i] = this.getClasspathJar(file); // will throw an IOException if file does not exist
+					pathNames[i] = classpathNames[i].substring(0, classpathNames[i].lastIndexOf('.'));
+				}
 			}
 		} catch (IOException e) {
 			this.classpaths[i] = null;

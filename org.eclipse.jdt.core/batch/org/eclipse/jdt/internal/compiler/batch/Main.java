@@ -1371,7 +1371,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	private File[] getFilesFrom(File f, final String extension) {
 		return f.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
-				if (name.endsWith(extension)) {
+				if (name.toLowerCase().endsWith(extension)) {
 					return true;
 				}
 				return false;
