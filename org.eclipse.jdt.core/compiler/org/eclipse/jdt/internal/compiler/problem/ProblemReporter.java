@@ -920,6 +920,20 @@ public void expressionShouldBeAVariable(Expression expression) {
 }
 public void fieldHiding(FieldDeclaration fieldDecl, Binding hiddenVariable) {
 	FieldBinding field = fieldDecl.binding;
+	if (CharOperation.equals(TypeConstants.SERIALVERSIONUID, field.name)
+			&& field.isStatic()
+			&& field.isFinal()
+			&& BaseTypes.LongBinding == field.type) {
+				return; // do not report unused serialVersionUID field
+	}
+	if (CharOperation.equals(TypeConstants.SERIALPERSISTENTFIELDS, field.name)
+			&& field.isStatic()
+			&& field.isFinal()
+			&& field.type.dimensions() == 1
+			&& CharOperation.equals(TypeConstants.CharArray_JAVA_IO_OBJECTSTREAMFIELD, field.type.leafComponentType().readableName())) {
+				return; // do not report unused serialPersistentFields field
+	}
+	
 	if (hiddenVariable instanceof LocalVariableBinding) {
 		this.handle(
 			IProblem.FieldHidingLocalVariable,
@@ -3535,14 +3549,14 @@ public void unusedPrivateField(FieldDeclaration fieldDecl) {
 			&& field.isFinal()
 			&& BaseTypes.LongBinding == field.type) {
 				return; // do not report unused serialVersionUID field
-		}
+	}
 	if (CharOperation.equals(TypeConstants.SERIALPERSISTENTFIELDS, field.name)
 			&& field.isStatic()
 			&& field.isFinal()
 			&& field.type.dimensions() == 1
 			&& CharOperation.equals(TypeConstants.CharArray_JAVA_IO_OBJECTSTREAMFIELD, field.type.leafComponentType().readableName())) {
 				return; // do not report unused serialPersistentFields field
-		}
+	}
 	this.handle(
 			IProblem.UnusedPrivateField,
 		new String[] {
