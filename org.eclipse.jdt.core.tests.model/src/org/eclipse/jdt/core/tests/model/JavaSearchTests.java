@@ -290,6 +290,16 @@ protected void assertSearchResults(String message, String expected, Object colle
 private IJavaSearchScope getJavaSearchScope() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch")});
 }
+protected ILocalVariable getLocalVariable(String cuPath, String selectAt, String selection) throws JavaModelException {
+	ISourceReference cu = (ISourceReference)getCompilationUnit(cuPath);
+	IJavaElement[] elements = codeSelect(cu, selectAt, selection);
+	if (elements.length == 0) return null;
+	if (elements[0] instanceof ILocalVariable) {
+		return (ILocalVariable)elements[0];
+	} else {
+		return null;
+	}
+}
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
