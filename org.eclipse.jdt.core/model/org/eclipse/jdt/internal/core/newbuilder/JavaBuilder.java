@@ -221,8 +221,8 @@ private boolean hasClasspathChanged() {
 }
 
 private boolean hasOutputLocationChanged() {
-	return !outputFolder.getLocation().toString().equalsIgnoreCase(lastState.outputLocationString);
-}
+	return !outputFolder.getLocation().toString().equals(lastState.outputLocationString);
+} 
 
 private void initializeBuilder() throws CoreException {
 	this.javaProject = JavaCore.create(currentProject);

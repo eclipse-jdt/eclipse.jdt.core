@@ -61,8 +61,8 @@ public boolean equals(Object o) {
 	if (this == o) return true;
 	if (!(o instanceof ClasspathJar)) return false;
 
-	return zipFilename.equalsIgnoreCase(((ClasspathJar) o).zipFilename);
-}
+	return zipFilename.equals(((ClasspathJar) o).zipFilename);
+} 
 
 NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
 	if (directoryCache == null) buildDirectoryStructure();

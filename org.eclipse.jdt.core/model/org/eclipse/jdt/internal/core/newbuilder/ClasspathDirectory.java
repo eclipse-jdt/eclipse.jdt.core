@@ -62,8 +62,8 @@ public boolean equals(Object o) {
 	if (this == o) return true;
 	if (!(o instanceof ClasspathDirectory)) return false;
 
-	return binaryPath.equalsIgnoreCase(((ClasspathDirectory) o).binaryPath);
-}
+	return binaryPath.equals(((ClasspathDirectory) o).binaryPath);
+} 
 
 boolean exists(String pathPrefix, String filename, char[][] packageName) {
 	String[] dirList = directoryList(pathPrefix, packageName, null);

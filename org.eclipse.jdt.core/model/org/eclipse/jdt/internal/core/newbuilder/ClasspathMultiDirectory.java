@@ -31,8 +31,8 @@ public boolean equals(Object o) {
 	if (!(o instanceof ClasspathMultiDirectory)) return false;
 
 	ClasspathMultiDirectory md = (ClasspathMultiDirectory) o;
-	return binaryPath.equalsIgnoreCase(md.binaryPath) && sourcePath.equalsIgnoreCase(md.sourcePath);
-}
+	return binaryPath.equals(md.binaryPath) && sourcePath.equals(md.sourcePath);
+} 
 
 NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
 	if (nameEnvironment.additionalSourceFilenames != null) {
