@@ -396,7 +396,7 @@ public final class AST {
 		}
 		try {
 			this.disableEvents++;
-			this.eventHandler.preRemoveChildEvent(node, child, property);
+			this.eventHandler.postRemoveChildEvent(node, child, property);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has not been changed yet
 		} finally {
@@ -470,7 +470,7 @@ public final class AST {
 		}
 		try {
 			this.disableEvents++;
-			this.eventHandler.postAddChildEvent(node, child, property);
+			this.eventHandler.preAddChildEvent(node, child, property);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has already been changed
 		} finally {
@@ -518,7 +518,7 @@ public final class AST {
 		}
 		try {
 			this.disableEvents++;
-			this.eventHandler.postValueChangeEvent(node, property);
+			this.eventHandler.preValueChangeEvent(node, property);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has already been changed
 		} finally {
