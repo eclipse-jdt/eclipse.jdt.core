@@ -327,4 +327,39 @@ public void test06() throws CoreException {
 		this.deleteProject("B");
 	}
 }
-}
+/**
+ * Custom options must replace existing ones completely
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26255
+ */
+public void test07() throws CoreException {
+	try {
+		IJavaProject projectA = 
+			this.createJavaProject(
+				"A", 
+				new String[] {}, // source folders
+				new String[] {}, // lib folders
+				new String[] {}, // projects
+				"");
+				
+		Hashtable options = new Hashtable();
+		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.ENABLED);
+		options.put(JavaCore.COMPILER_COMPLIANCE, "10.0");
+		projectA.setOptions(options);
+
+		// check project A custom options		
+		assertEquals("projA:unexpected custom value for deprecation option", JavaCore.ENABLED, projectA.getOptions(false).get(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE));
+		assertEquals("projA:unexpected custom value for compliance option", "10.0", projectA.getOptions(false).get(JavaCore.COMPILER_COMPLIANCE));
+		assertEquals("projA:unexpected inherited value1 for hidden-catch option", null, projectA.getOptions(false).get(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
+		
+		// change custom options to have one less
+		options.clear();
+		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.ENABLED);
+		projectA.setOptions(options);
+		assertEquals("projA:unexpected custom value for deprecation option", JavaCore.ENABLED, projectA.getOptions(false).get(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE));
+		assertEquals("projA:unexpected custom value for compliance option", null, projectA.getOptions(false).get(JavaCore.COMPILER_COMPLIANCE));
+		assertEquals("projA:unexpected inherited value1 for hidden-catch option", null, projectA.getOptions(false).get(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
+
+	} finally {
+		this.deleteProject("A");
+	}
+}}
