@@ -3004,20 +3004,22 @@ public final int getLineNumber(int position) {
 	}
 	return m+2;
 }
-public final void setSource(char[] source){
+public final void setSource(char[] sourceString){
 	//the source-buffer is set to sourceString
 
-	if (source == null) {
+	int sourceLength;
+	if (sourceString == null) {
 		this.source = CharOperation.NO_CHAR;
+		sourceLength = 0;
 	} else {
-		this.source = source;
+		this.source = sourceString;
+		sourceLength = sourceString.length;
 	}
 	startPosition = -1;
-	eofPosition = source.length;
+	eofPosition = sourceLength;
 	initialPosition = currentPosition = 0;
 	containsAssertKeyword = false;
-	withoutUnicodeBuffer = new char[this.source.length];
-
+	withoutUnicodeBuffer = new char[sourceLength];
 }
 
 public String toString() {
