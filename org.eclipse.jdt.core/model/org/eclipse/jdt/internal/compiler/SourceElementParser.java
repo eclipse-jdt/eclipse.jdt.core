@@ -223,6 +223,22 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 			alloc.sourceStart);
 	}
 }
+protected void consumeAnnotationTypeMemberDeclarationHeader() {
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
+	int selectorSourceEnd = (int) selectorSourcePositions;
+	int currentAstPtr = this.astPtr;
+	super.consumeAnnotationTypeMemberDeclarationHeader();
+	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
+}
+protected void consumeAnnotationTypeMemberDeclarationHeaderWithTypeParameters() {
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
+	int selectorSourceEnd = (int) selectorSourcePositions;
+	int currentAstPtr = this.astPtr;
+	super.consumeAnnotationTypeMemberDeclarationHeaderWithTypeParameters();
+	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
+}
 protected void consumeConstructorHeaderName() {
 	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
 	int selectorSourceEnd = (int) selectorSourcePositions;
