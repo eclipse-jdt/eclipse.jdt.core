@@ -296,8 +296,18 @@ public abstract class Expression extends Statement {
 					((ArrayBinding) castType).elementsType(),
 					exprElementType,
 					expression);
-			} else if (
-				castType.isClass()) {
+			} else if (castType.isTypeVariable()) {
+				TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType);
+				if (match == null) {
+					checkUnsafeCast(scope, castType, expressionType, match, true);
+				}
+				// recursively on the type variable upper bound
+				return checkCastTypesCompatibility(
+					scope,
+					castType.erasure(),
+					expressionType,
+					expression);
+			} else if (castType.isClass()) {
 				//------(castType.isClass) expressionType.isArray ---------------	
 				if (castType.id == T_JavaLangObject) {
 					tagAsUnnecessaryCast(scope, castType);
@@ -312,7 +322,20 @@ public abstract class Expression extends Statement {
 			reportIllegalCast(scope, castType, expressionType);
 			return false;
 		}
-	
+		if (expressionType.isTypeVariable() || expressionType.isWildcard()) {
+			TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType);
+			if (match != null) {
+				tagAsUnnecessaryCast(scope, castType);
+				return true;
+			}
+			// recursively on the type variable upper bound
+			return checkCastTypesCompatibility(
+				scope,
+				castType,
+				expressionType.erasure(),
+				expression);
+		}
+		
 		if (expressionType.isClass()) {
 			if (castType.isArrayType()) {
 				// ---- (castType.isArray) expressionType.isClass -------
@@ -320,30 +343,37 @@ public abstract class Expression extends Statement {
 					tagAsNeedCheckCast();
 					return true;
 				}
+			} else if (castType.isTypeVariable()) {
+				TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType);
+				if (match == null) {
+					checkUnsafeCast(scope, castType, expressionType, match, true);
+				}
+				// recursively on the type variable upper bound
+				return checkCastTypesCompatibility(
+					scope,
+					castType.erasure(),
+					expressionType,
+					expression);
 			} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isClass ------
-				TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo(castType.isTypeVariable() ? (ReferenceBinding)castType : (ReferenceBinding)castType.erasure());
+				TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
 				if (match != null) {
 					if (expression != null && castType.id == T_JavaLangString) this.constant = expression.constant; // (String) cst is still a constant
 					return checkUnsafeCast(scope, castType, expressionType, match, false);
 				}
 				match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
 				if (match != null) {
-					if (!castType.isTypeVariable() || (((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure()) == null)) {
-						tagAsNeedCheckCast();
-					}
+					tagAsNeedCheckCast();
 					return checkUnsafeCast(scope, castType, expressionType, match, true);
 				}
 			} else { // ----- (castType.isInterface) expressionType.isClass -------  
 
-				TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo(castType.isTypeVariable() ? (ReferenceBinding)castType : (ReferenceBinding)castType.erasure());
+				TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
 				if (match != null) {
 					return checkUnsafeCast(scope, castType, expressionType, match, false);
 				}
 				// a subclass may implement the interface ==> no check at compile time
 				if (!((ReferenceBinding) expressionType).isFinal()) {
-					if (!castType.isTypeVariable() || (((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure()) == null)) {
-						tagAsNeedCheckCast();
-					}
+					tagAsNeedCheckCast();
 					match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
 					if (match != null) {
 						return checkUnsafeCast(scope, castType, expressionType, match, true);
@@ -367,6 +397,17 @@ public abstract class Expression extends Statement {
 				reportIllegalCast(scope, castType, expressionType);
 				return false;
 			}
+		} else if (castType.isTypeVariable()) {
+			TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType);
+			if (match == null) {
+				checkUnsafeCast(scope, castType, expressionType, match, true);
+			}
+			// recursively on the type variable upper bound
+			return checkCastTypesCompatibility(
+				scope,
+				castType.erasure(),
+				expressionType,
+				expression);
 		} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isInterface --------
 
 			if (castType.id == T_JavaLangObject) { // no runtime error
@@ -375,7 +416,7 @@ public abstract class Expression extends Statement {
 			}
 			if (((ReferenceBinding) castType).isFinal()) {
 				// no subclass for castType, thus compile-time check is valid
-				TypeBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo(expressionType.isTypeVariable() ? (ReferenceBinding)expressionType : (ReferenceBinding)expressionType.erasure());
+				TypeBinding match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
 				if (match == null) {
 					// potential runtime error
 					reportIllegalCast(scope, castType, expressionType);
@@ -384,16 +425,14 @@ public abstract class Expression extends Statement {
 			}
 		} else { // ----- (castType.isInterface) expressionType.isInterface -------
 
-			TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo(castType.isTypeVariable() ? (ReferenceBinding)castType : (ReferenceBinding)castType.erasure());
+			TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
 			if (match != null) {
 				return checkUnsafeCast(scope, castType, expressionType, match, false);
 			}
 			
 			match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
 			if (match != null) {
-				if (!castType.isTypeVariable() || (((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure()) == null)) {
-					tagAsNeedCheckCast();
-				}
+				tagAsNeedCheckCast();
 				return checkUnsafeCast(scope, castType, expressionType, match, true);
 			}  else {
 				MethodBinding[] castTypeMethods = getAllInheritedMethods((ReferenceBinding) castType);

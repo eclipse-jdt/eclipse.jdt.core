@@ -248,7 +248,9 @@ public class CastExpression extends Expression {
 	
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
 		if (match == castType) {
-			if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
+			if (!isNarrowing && castType == this.resolvedType.leafComponentType()) { // do not tag as unnecessary when recursing through upper bounds
+				tagAsUnnecessaryCast(scope, castType);
+			}
 			return true;
 		}
 		if (castType.isBoundParameterizedType() || castType.isGenericType()) {
@@ -271,7 +273,9 @@ public class CastExpression extends Expression {
 			scope.problemReporter().unsafeCast(this, scope);
 			return true;
 		}
-		if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
+		if (!isNarrowing && castType == this.resolvedType.leafComponentType()) { // do not tag as unnecessary when recursing through upper bounds
+			tagAsUnnecessaryCast(scope, castType);
+		}
 		return true;
 	}	
 	

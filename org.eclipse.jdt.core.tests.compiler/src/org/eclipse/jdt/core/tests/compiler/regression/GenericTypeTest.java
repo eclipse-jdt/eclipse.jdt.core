@@ -11751,7 +11751,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n");
 	}		
 
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78592
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78592
 	public void test439() {
 		this.runNegativeTest(
 			new String[] {
@@ -11779,4 +11779,30 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}	
+	
+	public void test440() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	class Y<U> {\n" + 
+				"		public void foo(X<T> xt) {\n" + 
+				"			U u = (U) xt;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"  Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	U u = (U) xt;\n" + 
+			"	      ^^^^^^\n" + 
+			"Type safety: The cast from X<T> to U is actually checking against the erased type Object\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}		
 }
