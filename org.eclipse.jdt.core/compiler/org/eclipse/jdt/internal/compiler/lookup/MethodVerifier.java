@@ -451,10 +451,12 @@ private void computeInheritedMethods() {
 						for (int i = 0, length = existingMethods.length; i < length; i++) {
 							MethodBinding existingMethod = existingMethods[i];
 							if (method.returnType == existingMethod.returnType
-									&& !(method.isDefault() // (31398,30805) keep non-visible default abstract, if no implementation exists in same package
-												&& method.isAbstract() 
-												&& method.declaringClass.fPackage != existingMethod.declaringClass.fPackage)
 									&& method.areParametersEqual(existingMethod)) {
+										
+									if (method.isAbstract() // (31398,30805) report non-visible default abstract, if no implementation is available
+												&&  (method.isDefault() && method.declaringClass.fPackage != existingMethod.declaringClass.fPackage)) {
+											break;
+									}
 								continue nextMethod;
 							}
 						}
