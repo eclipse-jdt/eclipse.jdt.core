@@ -43,6 +43,9 @@ protected IDOMNode generateElementDOM() throws JavaModelException {
 			fDOMNode.setName(fAlteredName);
 		}
 	}
+	if (!(fDOMNode instanceof IDOMField)) {
+		return null;
+	}
 	return fDOMNode;
 }
 /**

@@ -41,7 +41,11 @@ public CreateInitializerOperation(IType parentElement, String source) {
 protected IDOMNode generateElementDOM() throws JavaModelException {
 	IDOMInitializer domInitializer = (new DOMFactory()).createInitializer(fSource);
 	if (domInitializer == null) {
-		domInitializer = (IDOMInitializer) generateSyntaxIncorrectDOM();
+		IDOMNode node = generateSyntaxIncorrectDOM();
+		if (!(node instanceof IDOMInitializer)) {
+			return null;
+		}
+		domInitializer = (IDOMInitializer) node;
 	}
 	return domInitializer;
 }
