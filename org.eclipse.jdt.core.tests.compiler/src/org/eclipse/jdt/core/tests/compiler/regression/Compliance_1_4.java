@@ -2017,6 +2017,36 @@ public void test055() {
 	);
 }
 
+/*
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11435
+ * variant - must still complain when targeting super abstract method
+ */
+public void test062() {
+
+	this.runNegativeTest(
+		new String[] {
+			"p1/Y.java",
+			"package p1;	\n"+
+			"public class Y extends AbstractT {	\n"+
+			"	public void init(){	\n"+
+			"		super.init();	\n"+
+			"	}	\n"+
+			"}	\n"+
+			"abstract class AbstractT implements J {	\n"+
+			"}	\n"+
+			"interface J {	\n"+
+			"	void init();	\n"+
+			"}	\n"	
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\Y.java (at line 4)\n" + 
+		"	super.init();	\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"Cannot directly invoke the abstract method init() for the type J\n" + 
+		"----------\n"); // expected log
+}
+
+
 public static Class testClass() {
 	return Compliance_1_4.class;
 }
