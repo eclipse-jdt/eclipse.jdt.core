@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.*;
 
@@ -27,11 +28,14 @@ ClasspathLocation[] classpathLocations;
 String[] initialTypeNames; // assumed that each name is of the form "a/b/ClassName"
 String[] additionalSourceFilenames; // assumed that each name is of the form "d:/eclipse/Test/a/b/ClassName.java"
 
+boolean isIncrementalBuild;
+
 ClasspathLocation[] binaryLocations;
 ClasspathMultiDirectory[] sourceLocations;
 
 public NameEnvironment(ClasspathLocation[] classpathLocations) {
 	this.classpathLocations = classpathLocations;
+	this.isIncrementalBuild = false;
 	splitLocations();
 	setNames(new String[0], new String[0]);
 }
@@ -44,6 +48,7 @@ public NameEnvironment(IJavaProject javaProject) {
 		if (outputFolder != null && outputFolder.exists())
 			outputFolderLocation = outputFolder.getLocation().toString();
 		this.classpathLocations = computeLocations(workspaceRoot, javaProject, outputFolderLocation, null, null);
+		this.isIncrementalBuild = false;
 	} catch(JavaModelException e) {
 		this.classpathLocations = new ClasspathLocation[0];
 	}
@@ -176,9 +181,14 @@ public void cleanup() {
 
 private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName) {
 	if (initialTypeNames != null) {
-		for (int i = 0, length = initialTypeNames.length; i < length; i++)
-			if (qualifiedTypeName.equals(initialTypeNames[i]))
+		for (int i = 0, length = initialTypeNames.length; i < length; i++) {
+			if (qualifiedTypeName.equals(initialTypeNames[i])) {
+				if (isIncrementalBuild)
+					// catch the case that a type inside a source file has been renamed but other class files are looking for it
+					throw new AbortCompilation(true, new AbortIncrementalBuildException(qualifiedTypeName));
 				return null; // looking for a file which we know was provided at the beginning of the compilation
+			}
+		}
 	}
 
 	String qBinaryFileName = qualifiedTypeName + ".class"; //$NON-NLS-1$
@@ -265,5 +275,9 @@ private void splitLocations() {
 	}
 	this.binaryLocations = new ClasspathLocation[bLocations.size()];
 	bLocations.toArray(this.binaryLocations);
+}
+
+void tagAsIncrementalBuild() {
+	this.isIncrementalBuild = true;
 }
 }

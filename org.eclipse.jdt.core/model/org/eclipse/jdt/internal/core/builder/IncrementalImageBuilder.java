@@ -36,6 +36,7 @@ public static int MaxCompileLoop = 5; // perform a full build if it takes more t
 
 protected IncrementalImageBuilder(JavaBuilder javaBuilder) {
 	super(javaBuilder);
+	this.nameEnvironment.tagAsIncrementalBuild();
 	this.newState.copyFrom(javaBuilder.lastState);
 
 	this.locations = new ArrayList(33);
@@ -106,6 +107,12 @@ public boolean build(SimpleLookupTable deltas) {
 			compile(allSourceFiles, initialTypeStrings);
 			addAffectedSourceFiles();
 		}
+	} catch (AbortIncrementalBuildException e) {
+		// abort the incremental build and let the batch builder handle the problem
+		if (JavaBuilder.DEBUG)
+			System.out.println("ABORTING incremental build... cannot find " + e.qualifiedTypeName + //$NON-NLS-1$
+				". Could have been renamed inside its existing source file."); //$NON-NLS-1$
+		return false;
 	} catch (CoreException e) {
 		throw internalException(e);
 	} finally {
@@ -117,7 +124,7 @@ public boolean build(SimpleLookupTable deltas) {
 protected void addAffectedSourceFiles() {
 	if (qualifiedStrings.isEmpty() && simpleStrings.isEmpty()) return;
 
-	// the qualifiedStrings are of the form 'p1/p1' & the simpleStrings are just 'X'
+	// the qualifiedStrings are of the form 'p1/p2' & the simpleStrings are just 'X'
 	char[][][] qualifiedNames = ReferenceCollection.internQualifiedNames(qualifiedStrings);
 	// if a well known qualified name was found then we can skip over these
 	if (qualifiedNames.length < qualifiedStrings.size())
