@@ -620,17 +620,7 @@ class TypeBinding implements ITypeBinding {
 				this.key = buffer.toString();
 			} else {
 				if (this.binding.isTypeVariable()) {
-					TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
-					Binding declaringElement = typeVariableBinding.declaringElement;
-					StringBuffer buffer = new StringBuffer();
-					buffer.append(typeVariableBinding.sourceName);
-					buffer.append(':');
-					if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
-						buffer.append(this.resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement).getKey());
-					} else if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
-						buffer.append(getNonRecursiveKey(this.resolver.getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) declaringElement)));						
-					}
-					return String.valueOf(buffer);
+					return getTypeVariableKey(true/*include declaring element*/);
 				} else if (this.binding.isWildcard()) {
 					WildcardBinding wildcardBinding = (WildcardBinding) binding;
 					org.eclipse.jdt.internal.compiler.lookup.TypeBinding bound = wildcardBinding.bound;
@@ -692,6 +682,26 @@ class TypeBinding implements ITypeBinding {
 			}
 		}
 		return this.key;
+	}
+
+	/*
+	 * Returns the key for this type variable binding.
+	 * Include the declaring element if specified
+	 */
+	public String getTypeVariableKey(boolean includeDeclaringElement) {
+		TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(typeVariableBinding.sourceName);
+		if (includeDeclaringElement) {
+			Binding declaringElement = typeVariableBinding.declaringElement;
+			buffer.append(':');
+			if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+				buffer.append(this.resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement).getKey());
+			} else if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
+				buffer.append(getNonRecursiveKey(this.resolver.getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) declaringElement)));						
+			}
+		}
+		return String.valueOf(buffer);
 	}
 
 	/*

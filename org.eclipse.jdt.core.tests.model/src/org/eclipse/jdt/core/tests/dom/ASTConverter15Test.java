@@ -79,7 +79,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0059"));
+		suite.addTest(new ASTConverter15Test("test0060"));
 		return suite;
 	}
 		
@@ -1585,5 +1585,44 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
 	}
+	
+	/*
+	 * Ensures that the type parameters of a method are included in it binding key.
+	 * (regression test for 73970 [1.5][dom] overloaded parameterized methods have same method binding key)
+	 */
+	public void test0060() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p;\n" +
+				"/*start*/public class X {\n" +
+				"  <T> void foo(T t) {\n" +
+				"  }\n" +
+				"  <T extends X> void foo(T t) {\n" +
+				"  }\n" +
+				"  <T extends Class> void foo(T t) {\n" +
+				"  }\n" +
+				"  <T extends Exception & Runnable> void foo(T t) {\n" +
+				"  }\n" +
+				"}/*end*/",
+				workingCopy);
+			MethodDeclaration[] methods = ((TypeDeclaration) node).getMethods();
+			int length = methods.length;
+			String[] keys = new String[length];
+			for (int i = 0; i < length; i++)
+				keys[i] = methods[i].resolveBinding().getKey();
+			assertBindingKeysEqual(
+				"p/X/foo(T,)<T:java.lang/Object,>\n" + 
+				"p/X/foo(T,)<T:p/X,>\n" + 
+				"p/X/foo(T,)<T:java.lang/Class,>\n" + 
+				"p/X/foo(T,)<T:java.lang/Exception:java.lang/Runnable,>",
+				keys);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+
 }
 

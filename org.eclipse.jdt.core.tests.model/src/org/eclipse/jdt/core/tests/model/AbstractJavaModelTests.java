@@ -44,14 +44,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			initialize(null);
 		}
 		public void acceptProblem(IProblem problem) {
-			problems.append(++problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
-			problems.append(" in " + new String(problem.getOriginatingFileName()));
-			if (this.unitSource != null) {
-				problems.append(((DefaultProblem)problem).errorReportSource(this.unitSource));
-			}
-			problems.append("\n");
-			problems.append(problem.getMessage());
-			problems.append("\n");
+			org.eclipse.jdt.core.tests.util.Util.appendProblem(this.problems, problem, this.unitSource, ++this.problemCount);
 		}
 		public void beginReporting() {
 			this.problems.append("----------\n");

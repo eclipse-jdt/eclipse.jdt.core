@@ -13,12 +13,16 @@ package org.eclipse.jdt.core.tests.dom;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.tests.model.ModifyingResourceTests;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public class AbstractASTTests extends ModifyingResourceTests {
 
@@ -50,7 +54,6 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		}
 	}
 	
-
 	protected void assertASTNodeEquals(String expected, ASTNode node) {
 		String actual = node.toString();
 		if (!expected.equals(actual)) {
@@ -84,6 +87,49 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		assertEquals("Unexpected ast nodes", expected, actual);
 	}
 		
+	protected void assertBindingKeyEquals(String expected, String actual) {
+		assertBindingKeysEqual(expected, new String[] {actual});
+	}
+
+	protected void assertBindingKeysEqual(String expected, String[] actualKeys) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0, length = actualKeys.length; i < length; i++) {
+			if (i > 0) buffer.append('\n');
+			buffer.append(actualKeys[i]);
+		}
+		String actual = buffer.toString();
+		if (!expected.equals(actual)) {
+			System.out.print(displayString(actual, 4));
+			System.out.println(',');
+		}
+		assertEquals(
+			"Unexpected binding keys",
+			expected,
+			actual);
+	}
+
+	/*
+	 * Removes the marker comments "*start*" and "*end*" from the given contents,
+	 * builds an AST from the resulting source, and returns the AST node that was delimited
+	 * by "*start*" and "*end*".
+	 */
+	protected ASTNode buildAST(String contents, ICompilationUnit cu) throws JavaModelException {
+		MarkerInfo markerInfo = new MarkerInfo(contents);
+		contents = markerInfo.source;
+
+		cu.getBuffer().setContents(contents);
+		CompilationUnit unit = cu.reconcile(AST.JLS3, false, null, null);
+		
+		StringBuffer buffer = new StringBuffer();
+		IProblem[] problems = unit.getProblems();
+		for (int i = 0, length = problems.length; i < length; i++)
+			Util.appendProblem(buffer, problems[i], contents.toCharArray(), i+1);
+		if (buffer.length() > 0)
+			System.err.println(buffer.toString());
+
+		return findNode(unit, markerInfo);
+	}
+	
 	protected ASTNode findNode(CompilationUnit unit, final MarkerInfo markerInfo) {
 		class EndVisit extends RuntimeException {
 			private static final long serialVersionUID = 1L;

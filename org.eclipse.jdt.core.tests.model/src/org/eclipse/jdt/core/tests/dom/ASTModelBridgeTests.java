@@ -18,9 +18,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import junit.framework.Test;
 
@@ -45,13 +43,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * by "*start*" and "*end*".
 	 */
 	private ASTNode buildAST(String contents) throws JavaModelException {
-		MarkerInfo markerInfo = new MarkerInfo(contents);
-		contents = markerInfo.source;
-
-		this.workingCopy.getBuffer().setContents(contents);
-		CompilationUnit unit = this.workingCopy.reconcile(AST.JLS3, false, null, null);
-
-		return findNode(unit, markerInfo);
+		return buildAST(contents, this.workingCopy);
 	}
 	
 	public void setUpSuite() throws Exception {

@@ -19,6 +19,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.compiler.regression.Requestor;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
@@ -27,9 +28,21 @@ import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 public class Util {
 	public static String OUTPUT_DIRECTORY = "comptest";
+
+public static void appendProblem(StringBuffer problems, IProblem problem, char[] source, int problemCount) {
+	problems.append(problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
+	problems.append(" in " + new String(problem.getOriginatingFileName()));
+	if (source != null) {
+		problems.append(((DefaultProblem)problem).errorReportSource(source));
+	}
+	problems.append("\n");
+	problems.append(problem.getMessage());
+	problems.append("\n");
+}
 
 public static CompilationUnit[] compilationUnits(String[] testFiles) {
 	int length = testFiles.length / 2;
