@@ -13400,7 +13400,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84593
-	public void _test496() {
+	public void test496() {
 		this.runConformTest(
 			new String[] {
 				"X.java",//====================================
@@ -13424,8 +13424,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}		
 	
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84593 - variation
-	public void _test497() {
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84593 - variation - uncheck warnings
+	public void test497() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",//====================================
@@ -13446,6 +13446,16 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	}\n" + 
 				"}\n"
 			},
-			"SUCCESS");
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	take(new A());\n" + 
+			"	     ^^^^^^^\n" + 
+			"Type safety: The expression of type Super<Double>.A needs unchecked conversion to conform to Super<Double>.A<Double>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
 	}		
 }

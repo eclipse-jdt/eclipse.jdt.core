@@ -412,13 +412,16 @@ public abstract class Scope
 		int dimension = type.dimensions();
 		TypeBinding originalType = type.leafComponentType();
 		if (originalType instanceof ReferenceBinding) {
+			boolean needToConvert =
+				originalType.isGenericType() || (originalType.isParameterizedType() && ((ParameterizedTypeBinding)originalType).arguments == null);
+			
 			ReferenceBinding convertedType = (ReferenceBinding) originalType;
 			ReferenceBinding originalEnclosing = originalType.enclosingType();
 			ReferenceBinding convertedEnclosing = originalEnclosing;
-			if (originalEnclosing != null && convertedType.isStatic() && originalEnclosing.isGenericType()) {
+			if (originalEnclosing != null && (needToConvert || convertedType.isStatic() && originalEnclosing.isGenericType())) {
 				convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing);
 			}
-			if (originalType.isGenericType()) {
+			if (needToConvert) {
 				convertedType = environment().createRawType(convertedType, convertedEnclosing);
 			} else if (originalEnclosing != convertedEnclosing) {
 				convertedType = createParameterizedType(convertedType, null, convertedEnclosing);
