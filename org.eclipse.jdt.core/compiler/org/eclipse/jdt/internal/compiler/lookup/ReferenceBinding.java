@@ -372,6 +372,14 @@ public MethodBinding[] getMethods(char[] selector) {
 public PackageBinding getPackage() {
 	return fPackage;
 }
+public TypeVariableBinding getTypeVariable(char[] variableName) {
+	TypeVariableBinding[] typeVariables = typeVariables();
+	for (int i = typeVariables.length; --i >= 0;)
+		if (CharOperation.equals(typeVariables[i].sourceName, variableName))
+			return typeVariables[i];
+	return null;
+}
+
 /* Answer true if the receiver implements anInterface or is identical to anInterface.
 * If searchHierarchy is true, then also search the receiver's superclasses.
 *
