@@ -167,9 +167,11 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 			
 			this.type.resolvedType = this.binding.type; // update binding for type reference
 
-			int previous = initializationScope.fieldDeclarationIndex;
+			FieldBinding previousField = initializationScope.initializedField;
+			int previousFieldID = initializationScope.lastVisibleFieldID;
 			try {
-				initializationScope.fieldDeclarationIndex = this.binding.id;
+				initializationScope.initializedField = this.binding;
+				initializationScope.lastVisibleFieldID = this.binding.id;
 
 				if (isTypeUseDeprecated(this.binding.type, initializationScope)) {
 					initializationScope.problemReporter().deprecatedType(this.binding.type, this.type);
@@ -224,7 +226,8 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 					initializationScope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd, this.binding.modifiers);
 				}
 			} finally {
-				initializationScope.fieldDeclarationIndex = previous;
+				initializationScope.initializedField = previousField;
+				initializationScope.lastVisibleFieldID = previousFieldID;
 				if (this.binding.constant == null)
 					this.binding.constant = Constant.NotAConstant;
 			}

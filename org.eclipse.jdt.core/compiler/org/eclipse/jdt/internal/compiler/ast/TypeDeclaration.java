@@ -891,7 +891,7 @@ public class TypeDeclaration
 								this.superInterfaces[i].resolvedType,
 								this.superInterfaces[i]);
 			this.maxFieldCount = 0;
-			int lastFieldID = -1;
+			int lastVisibleFieldID = -1;
 			if (this.fields != null) {
 				for (int i = 0, count = this.fields.length; i < count; i++) {
 					FieldDeclaration field = this.fields[i];
@@ -903,9 +903,9 @@ public class TypeDeclaration
 							continue;
 						}
 						this.maxFieldCount++;
-						lastFieldID = field.binding.id;
+						lastVisibleFieldID = field.binding.id;
 					} else { // initializer
-						 ((Initializer) field).lastFieldID = lastFieldID + 1;
+						 ((Initializer) field).lastVisibleFieldID = lastVisibleFieldID + 1;
 					}
 					field.resolve(field.isStatic() ? this.staticInitializerScope : this.initializerScope);
 				}

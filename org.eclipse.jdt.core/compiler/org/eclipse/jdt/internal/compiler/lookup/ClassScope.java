@@ -317,16 +317,10 @@ public class ClassScope extends Scope {
 				SourceTypeBinding type = ((TypeDeclaration) refContext).binding;
 
 				// inside field declaration ? check field modifier to see if deprecated
-				if (methodScope.fieldDeclarationIndex != MethodScope.NotInFieldDecl) {
-					for (int i = 0; i < type.fields.length; i++){
-					    FieldBinding field = type.fields[i];
-						if (field.id == methodScope.fieldDeclarationIndex) {
-							// currently inside this field initialization
-							if (field.isViewedAsDeprecated() && !sourceType.isDeprecated()){
-								modifiers |= AccDeprecatedImplicitly;
-							}
-							break;
-						}
+				if (methodScope.initializedField != null) {
+						// currently inside this field initialization
+					if (methodScope.initializedField.isViewedAsDeprecated() && !sourceType.isDeprecated()){
+						modifiers |= AccDeprecatedImplicitly;
 					}
 				} else {
 					if (type.isStrictfp())

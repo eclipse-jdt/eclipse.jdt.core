@@ -34,9 +34,10 @@ public class MethodScope extends BlockScope {
 	public boolean isStatic; // method modifier or initializer one
 
 	//fields used during name resolution
-	public static final int NotInFieldDecl = -1; //must be a negative value 
 	public boolean isConstructorCall = false; 
-	public int fieldDeclarationIndex = NotInFieldDecl; 
+	public FieldBinding initializedField; // the field being initialized
+	public int lastVisibleFieldID = -1; // the ID of the last field which got declared 
+	// note that #initializedField can be null AND lastVisibleFieldID >= 0, when processing instance field initializers.
 
 	// flow analysis
 	public int analysisIndex; // for setting flow-analysis id
@@ -481,7 +482,8 @@ public class MethodScope extends BlockScope {
 			s += newLine + "\t" + locals[i].toString(); //$NON-NLS-1$
 		s += newLine + "startIndex = " + startIndex; //$NON-NLS-1$
 		s += newLine + "isConstructorCall = " + isConstructorCall; //$NON-NLS-1$
-		s += newLine + "fieldDeclarationIndex = " + fieldDeclarationIndex; //$NON-NLS-1$
+		s += newLine + "initializedField = " + initializedField; //$NON-NLS-1$
+		s += newLine + "lastVisibleFieldID = " + lastVisibleFieldID; //$NON-NLS-1$
 		s += newLine + "referenceContext = " + referenceContext; //$NON-NLS-1$
 		return s;
 	}

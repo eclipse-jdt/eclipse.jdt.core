@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 public class Initializer extends FieldDeclaration {
 	
 	public Block block;
-	public int lastFieldID;
+	public int lastVisibleFieldID;
 	public int bodyStart;
 	public int bodyEnd;
 	
@@ -91,9 +91,9 @@ public class Initializer extends FieldDeclaration {
 	
 	public void resolve(MethodScope scope) {
 
-		int previous = scope.fieldDeclarationIndex;
+		int previous = scope.lastVisibleFieldID;
 		try {
-			scope.fieldDeclarationIndex = lastFieldID;
+			scope.lastVisibleFieldID = lastVisibleFieldID;
 			if (isStatic()) {
 				ReferenceBinding declaringType = scope.enclosingSourceType();
 				if (declaringType.isNestedType() && !declaringType.isStatic())
@@ -103,7 +103,7 @@ public class Initializer extends FieldDeclaration {
 			}
 			block.resolve(scope);
 		} finally {
-			scope.fieldDeclarationIndex = previous;
+			scope.lastVisibleFieldID = previous;
 		}
 	}
 
