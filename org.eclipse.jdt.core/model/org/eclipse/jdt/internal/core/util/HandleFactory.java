@@ -421,7 +421,7 @@ public class HandleFactory {
 							newElement = member.getType(new String(scope.enclosingSourceType().sourceName), 1);
 							// increment occurrence count if collision is detected
 							if (newElement != null) {
-								while (!existingElements.add(newElement)) ((JavaElement)newElement).occurrenceCount++;
+								while (!existingElements.add(newElement)) ((SourceRefElement)newElement).occurrenceCount++;
 							}
 					    }
 						break;						

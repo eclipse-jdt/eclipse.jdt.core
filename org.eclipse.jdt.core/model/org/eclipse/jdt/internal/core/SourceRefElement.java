@@ -82,9 +82,9 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
 	getJavaModel().delete(elements, force, monitor);
 }
 public boolean equals(Object o) {
-	if (!super.equals(o)) return false;
 	if (!(o instanceof SourceRefElement)) return false;
-	return this.occurrenceCount == ((SourceRefElement)o).occurrenceCount;
+	return this.occurrenceCount == ((SourceRefElement)o).occurrenceCount &&
+			super.equals(o);
 }
 /*
  * @see JavaElement#generateInfos

@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.SourceRefElement;
 import org.eclipse.jdt.internal.core.SourceType;
 
 /**
@@ -63,7 +63,7 @@ public class ASTNodeFinder {
 		if (typeDecl == null) return null;
 		FieldDeclaration[] fields = typeDecl.fields;
 		if (fields != null) {
-			int occurenceCount = ((JavaElement)initializerHandle).occurrenceCount;
+			int occurenceCount = ((SourceRefElement)initializerHandle).occurrenceCount;
 			for (int i = 0, length = fields.length; i < length; i++) {
 				FieldDeclaration field = fields[i];
 				if (field instanceof Initializer && --occurenceCount == 0) {
