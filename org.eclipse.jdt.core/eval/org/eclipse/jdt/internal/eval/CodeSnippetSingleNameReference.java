@@ -322,7 +322,10 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 					codeStream.store(localBinding, false);
 					return;
 				case T_int :
-					if (((assignConstant = expression.constant) != NotAConstant) && ((increment = assignConstant.intValue()) == (short) increment)) { // 16 bits value
+					if (((assignConstant = expression.constant) != NotAConstant) 
+						&& (assignConstant.typeID() != T_float) // only for integral types
+						&& (assignConstant.typeID() != T_double)		
+						&& ((increment = assignConstant.intValue()) == (short) increment)) { // 16 bits value
 						switch (operator) {
 							case PLUS :
 								codeStream.iinc(localBinding.resolvedPosition, increment);
