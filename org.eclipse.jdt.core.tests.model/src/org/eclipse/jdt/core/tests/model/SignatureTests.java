@@ -247,41 +247,25 @@ public void testGetTypeVariable() {
  * @see Signature
  * @since 3.0
  */
-public void testGetClassBound() {
+public void testGetTypeParameterBounds() {
 	// tests with 1.5-specific elements
 	String formalTypeParameterSignature = "Hello:";
-	assertTrue("Signature#getClassBound is not correct1", Signature.getClassBound(formalTypeParameterSignature) == null);
+	assertTrue("Signature#getTypeParameterBounds is not correct1", Signature.getTypeParameterBounds(formalTypeParameterSignature).length == 0);
 	formalTypeParameterSignature = "Hello::Qi1;:Qi2;";
-	assertTrue("Signature#getClassBound is not correct2", Signature.getClassBound(formalTypeParameterSignature) == null);
+	assertTrue("Signature#getTypeParameterBounds is not correct2", Signature.getTypeParameterBounds(formalTypeParameterSignature).length == 2);
+	assertEquals("Signature#getTypeParameterBounds is not correct2a", Signature.getTypeParameterBounds(formalTypeParameterSignature)[0], "Qi1;");
+	assertEquals("Signature#getTypeParameterBounds is not correct2b", Signature.getTypeParameterBounds(formalTypeParameterSignature)[1], "Qi2;");
 	formalTypeParameterSignature = "Hello:Qlist<Qstring;>;:Qi1;:Qi2;";
-	assertTrue("Signature#getClassBound is not correct3", Signature.getClassBound(formalTypeParameterSignature).equals("Qlist<Qstring;>;"));
+	assertTrue("Signature#getTypeParameterBounds is not correct3", Signature.getTypeParameterBounds(formalTypeParameterSignature).length == 3);
+	assertEquals("Signature#getTypeParameterBounds is not correct3a", Signature.getTypeParameterBounds(formalTypeParameterSignature)[0], "Qlist<Qstring;>;");
+	assertEquals("Signature#getTypeParameterBounds is not correct3b", Signature.getTypeParameterBounds(formalTypeParameterSignature)[1], "Qi1;");
+	assertEquals("Signature#getTypeParameterBounds is not correct3c", Signature.getTypeParameterBounds(formalTypeParameterSignature)[2], "Qi2;");
+	formalTypeParameterSignature = "Hello:Qi1;";
+	assertTrue("Signature#getTypeParameterBounds is not correct4", Signature.getTypeParameterBounds(formalTypeParameterSignature).length == 1);
+	assertEquals("Signature#getTypeParameterBounds is not correct4a", Signature.getTypeParameterBounds(formalTypeParameterSignature)[0], "Qi1;");
 	try {
-		Signature.getClassBound("");
-		assertTrue("Signature#getClassBound is not correct: exception", false);
-	} catch (IllegalArgumentException iae) {
-		// do nothing
-	}
-}
-
-/**
- * @see Signature
- * @since 3.0
- */
-public void testGetInterfaceBounds() {
-	// tests with 1.5-specific elements
-	String formalTypeParameterSignature = "Hello:";
-	assertTrue("Signature#getInterfaceBounds is not correct1", Signature.getInterfaceBounds(formalTypeParameterSignature).length == 0);
-	formalTypeParameterSignature = "Hello::Qi1;:Qi2;";
-	assertTrue("Signature#getInterfaceBounds is not correct2", Signature.getInterfaceBounds(formalTypeParameterSignature).length == 2);
-	assertEquals("Signature#getInterfaceBounds is not correct2a", Signature.getInterfaceBounds(formalTypeParameterSignature)[0], "Qi1;");
-	assertEquals("Signature#getInterfaceBounds is not correct2b", Signature.getInterfaceBounds(formalTypeParameterSignature)[1], "Qi2;");
-	formalTypeParameterSignature = "Hello:Qlist<Qstring;>;:Qi1;:Qi2;";
-	assertTrue("Signature#getInterfaceBounds is not correct3", Signature.getInterfaceBounds(formalTypeParameterSignature).length == 2);
-	assertEquals("Signature#getInterfaceBounds is not correct3a", Signature.getInterfaceBounds(formalTypeParameterSignature)[0], "Qi1;");
-	assertEquals("Signature#getInterfaceBounds is not correct3b", Signature.getInterfaceBounds(formalTypeParameterSignature)[1], "Qi2;");
-	try {
-		Signature.getInterfaceBounds("");
-		assertTrue("Signature#getInterfaceBounds is not correct: exception", false);
+		Signature.getTypeParameterBounds("");
+		assertTrue("Signature#getTypeParameterBounds is not correct: exception", false);
 	} catch (IllegalArgumentException iae) {
 		// do nothing
 	}
