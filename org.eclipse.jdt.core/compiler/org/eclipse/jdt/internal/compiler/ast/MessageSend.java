@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -301,6 +302,21 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (isMethodUseDeprecated(binding, scope))
 		scope.problemReporter().deprecatedMethod(binding, this);
 
+	// special treatment for usage of Object.getClass(): Class<? extends Object>
+	//   x.getClass() --> Class<? extends X>
+		if (binding.declaringClass.id == T_Object 
+		        && receiverType.id != T_Object
+		        && selector.length == 8
+		        && argumentTypes.length == 0
+		        && scope.environment().options.sourceLevel >= 1.5
+		        && CharOperation.equals(selector, TypeConstants.GETCLASS)) {
+		    this.resolvedType = scope.createParameterizedType(
+		            scope.getJavaLangClass(), 
+		           new TypeBinding[] {  scope.environment().createWildcard(receiverType, Wildcard.EXTENDS) }, 
+		            null);
+		    return this.resolvedType;
+		}
+	
 	return this.resolvedType = this.binding.returnType;
 }
 public void setActualReceiverType(ReferenceBinding receiverType) {

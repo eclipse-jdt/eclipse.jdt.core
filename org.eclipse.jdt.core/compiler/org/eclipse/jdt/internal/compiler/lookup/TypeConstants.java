@@ -18,6 +18,7 @@ public interface TypeConstants {
 	final char[] CharArray_JAVA_LANG_OBJECT = "java.lang.Object".toCharArray(); //$NON-NLS-1$
 	final char[] LENGTH = "length".toCharArray(); //$NON-NLS-1$
 	final char[] CLONE = "clone".toCharArray(); //$NON-NLS-1$
+	final char[] GETCLASS = "getClass".toCharArray(); //$NON-NLS-1$
 	final char[] OBJECT = "Object".toCharArray(); //$NON-NLS-1$
 	final char[] MAIN = "main".toCharArray(); //$NON-NLS-1$
 	final char[] SERIALVERSIONUID = "serialVersionUID".toCharArray(); //$NON-NLS-1$

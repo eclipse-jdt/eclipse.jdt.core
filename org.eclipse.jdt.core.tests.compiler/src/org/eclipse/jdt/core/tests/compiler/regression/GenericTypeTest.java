@@ -3628,4 +3628,28 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}	
+	// 58666: special treatment for Object#getClass declared of type: Class<? extends Object>
+	// but implicitly converted to Class<? extends X> for free.
+	public void test128() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		X x = new X();\n" + 
+				"		Class c1 = x.getClass();\n" + 
+				"		Class<? extends X> c2 = x.getClass();\n" + 
+				"		String s = \"hello\";\n" + 
+				"		Class<? extends X> c3 = s.getClass();\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	Class<? extends X> c3 = s.getClass();\n" + 
+			"	                   ^^\n" + 
+			"Type mismatch: cannot convert from Class<? extends String> to Class<? extends X>\n" + 
+			"----------\n");
+	}		
 }
