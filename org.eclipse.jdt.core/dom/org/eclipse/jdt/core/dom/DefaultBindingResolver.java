@@ -828,7 +828,7 @@ class DefaultBindingResolver extends BindingResolver {
 		if (binding != null) {
 			return binding;
 		}
-		binding = new PackageBinding(this, packageBinding);
+		binding = new PackageBinding(packageBinding);
 		this.compilerBindingsToASTBindings.put(packageBinding, binding);
 		return binding;
 	}

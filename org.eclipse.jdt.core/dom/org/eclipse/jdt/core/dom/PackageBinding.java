@@ -23,13 +23,11 @@ class PackageBinding implements IPackageBinding {
 	private static final char PACKAGE_NAME_SEPARATOR = '.';
 	
 	private org.eclipse.jdt.internal.compiler.lookup.PackageBinding binding;
-	private BindingResolver resolver; // TODO: (olivier) is this used?
 	private String name;
 	private String[] components;
 		
-	PackageBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.PackageBinding binding) {
+	PackageBinding(org.eclipse.jdt.internal.compiler.lookup.PackageBinding binding) {
 		this.binding = binding;
-		this.resolver = resolver;
 	}
 	
 	/*
