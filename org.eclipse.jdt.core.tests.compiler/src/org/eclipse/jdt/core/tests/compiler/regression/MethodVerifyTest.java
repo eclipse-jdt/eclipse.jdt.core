@@ -2726,7 +2726,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"		     return null; \n" + 
 				"		   }\n" + 
 				"		 public static <N extends Number> N foo() { \n" + 
-				"		     System.out.println(\"Number\");\n" + 
+				"		     System.out.print(\"Number\");\n" + 
 				"		     return null; \n" + 
 				"		 }\n" + 
 				"		 public static void main(String[] args) {\n" + 
@@ -2737,7 +2737,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"		 }\n" + 
 				"}\n"
 			},
-			"StringNumber"
+			"StringNumberNumber"
 		);
 	}	
 }

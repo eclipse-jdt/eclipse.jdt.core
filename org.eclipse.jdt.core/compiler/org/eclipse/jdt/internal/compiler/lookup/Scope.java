@@ -734,10 +734,11 @@ public abstract class Scope
 			    }
 				// targeting a generic method could find an exact match with variable return type
 				if (exactMethod.typeVariables != NoTypeVariables || invocationSite.genericTypeArguments() != null) {
-					exactMethod = computeCompatibleMethod(exactMethod, argumentTypes, invocationSite);
-					if (!exactMethod.isValidBinding()) {
+					MethodBinding compatibleMethod = computeCompatibleMethod(exactMethod, argumentTypes, invocationSite);
+					if (!compatibleMethod.isValidBinding() && exactMethod.typeVariables != NoTypeVariables) {
 						return null; // could be a better generic method match (90423), which will be found by non exact match
 					}
+					exactMethod = compatibleMethod;
 				}
 				return exactMethod;
 			}
