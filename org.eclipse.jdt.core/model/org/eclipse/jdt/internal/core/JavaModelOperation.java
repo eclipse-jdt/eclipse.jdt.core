@@ -38,6 +38,10 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	protected static final int APPEND = 1; // insert at the end
 	protected static final int REMOVEALL_APPEND = 2; // remove all existing ones with same ID, and add new one at the end
 	protected static final int KEEP_EXISTING = 3; // do not insert if already existing with same ID
+	
+	/*
+	 * Whether tracing post actions is enabled.	 */
+	protected static boolean POST_ACTION_VERBOSE;
 
 	/*
 	 * A list of IPostActions.	 */
@@ -535,6 +539,21 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * - the action should be ignored if there is already an action with the same id (KEEP_EXISTING),
 	 * - the action should be queued at the end without looking at existing actions (APPEND)	 */
 	protected void postAction(IPostAction action, int insertionMode) {
+		if (POST_ACTION_VERBOSE) {
+			System.out.print("(" + Thread.currentThread() + ") [JavaModelOperation.postAction(IPostAction, int)] Posting action " + action.getID()); //$NON-NLS-1$ //$NON-NLS-2$
+			switch(insertionMode) {
+				case REMOVEALL_APPEND:
+					System.out.println(" (REMOVEALL_APPEND)"); //$NON-NLS-1$
+					break;
+				case KEEP_EXISTING:
+					System.out.println(" (KEEP_EXISTING)"); //$NON-NLS-1$
+					break;
+				case APPEND:
+					System.out.println(" (APPEND)"); //$NON-NLS-1$
+					break;
+			}
+		}
+		
 		JavaModelOperation topLevelOp = (JavaModelOperation)getCurrentOperationStack().get(0);
 		IPostAction[] postActions = topLevelOp.actions;
 		if (postActions == null) {
@@ -614,6 +633,9 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	protected void runPostActions() throws JavaModelException {
 		while (this.actionsStart <= this.actionsEnd) {
 			IPostAction postAction = this.actions[this.actionsStart++];
+			if (POST_ACTION_VERBOSE) {
+				System.out.println("(" + Thread.currentThread() + ") [JavaModelOperation.runPostActions()] Running action " + postAction.getID()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			postAction.run();
 		}
 	}
