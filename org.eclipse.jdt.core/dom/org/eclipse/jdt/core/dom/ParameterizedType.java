@@ -34,6 +34,10 @@ import java.util.List;
  * @since 3.0
  */
 public class ParameterizedType extends Type {
+    /**
+     * This index represents the position inside a parameterized qualified type.
+     */
+    int index;
 	
 	/**
 	 * The "type" structural property of this node type.
@@ -157,6 +161,7 @@ public class ParameterizedType extends Type {
 		result.setType((Type) ((ASTNode) getType()).clone(target));
 		result.typeArguments().addAll(
 			ASTNode.copySubtrees(target, typeArguments()));
+		result.index = this.index;
 		return result;
 	}
 

@@ -44,6 +44,10 @@ import java.util.List;
  * @since 3.0
  */
 public class QualifiedType extends Type {
+    /**
+     * This index represents the position inside a parameterized qualified type.
+     */
+    int index;
 	
 	/**
 	 * The "qualifier" structural property of this node type.
@@ -160,6 +164,7 @@ public class QualifiedType extends Type {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setQualifier((Type) ((ASTNode) getQualifier()).clone(target));
 		result.setName((SimpleName) ((ASTNode) getName()).clone(target));
+		result.index = this.index;
 		return result;
 	}
 

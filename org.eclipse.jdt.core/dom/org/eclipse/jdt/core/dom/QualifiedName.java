@@ -148,6 +148,7 @@ public class QualifiedName extends Name {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setQualifier((Name) getQualifier().clone(target));
 		result.setName((SimpleName) getName().clone(target));
+		result.index = this.index;
 		return result;
 	}
 

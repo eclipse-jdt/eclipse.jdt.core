@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.OperatorExpression;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
@@ -706,19 +707,16 @@ class DefaultBindingResolver extends BindingResolver {
 		if (node instanceof QualifiedNameReference) {
 			QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
 			final char[][] tokens = qualifiedNameReference.tokens;
-			int qualifiedNameLength = tokens.length;
-			int indexInQualifiedName = qualifiedNameLength - index; // one-based
 			int indexOfFirstFieldBinding = qualifiedNameReference.indexOfFirstFieldBinding; // one-based
-			int otherBindingLength = qualifiedNameLength - indexOfFirstFieldBinding;
-			if (indexInQualifiedName < indexOfFirstFieldBinding) {
+			if (index < indexOfFirstFieldBinding) {
 				// a extra lookup is required
 				BlockScope internalScope = (BlockScope) this.astNodesToBlockScope.get(name);
 				Binding binding = null;
 				try {
 					if (internalScope == null) {
-						binding = this.scope.getTypeOrPackage(CharOperation.subarray(tokens, 0, indexInQualifiedName));
+						binding = this.scope.getTypeOrPackage(CharOperation.subarray(tokens, 0, index));
 					} else {
-						binding = internalScope.getTypeOrPackage(CharOperation.subarray(tokens, 0, indexInQualifiedName));
+						binding = internalScope.getTypeOrPackage(CharOperation.subarray(tokens, 0, index));
 					}
 				} catch (RuntimeException e) {
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
@@ -731,7 +729,7 @@ class DefaultBindingResolver extends BindingResolver {
 					// it is a type
 					return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
 				}
-			} else if (indexInQualifiedName == indexOfFirstFieldBinding) {
+			} else if (index == indexOfFirstFieldBinding) {
 				if (qualifiedNameReference.isTypeReference()) {
 					return this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
 				} else {
@@ -739,27 +737,25 @@ class DefaultBindingResolver extends BindingResolver {
 					if (binding != null) {
 						if (binding.isValidBinding()) {
 							return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) binding);				
-						} else {
-							if (binding instanceof ProblemFieldBinding) {
-								ProblemFieldBinding problemFieldBinding = (ProblemFieldBinding) binding;
-								switch(problemFieldBinding.problemId()) {
-									case ProblemReasons.NotVisible : 
-									case ProblemReasons.NonStaticReferenceInStaticContext :
-										ReferenceBinding declaringClass = problemFieldBinding.declaringClass;
-										if (declaringClass != null) {
-											FieldBinding exactBinding = declaringClass.getField(tokens[tokens.length - 1], true /*resolve*/);
-											if (exactBinding != null) {
-												IVariableBinding variableBinding = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(exactBinding);
-												if (variableBinding != null) {
-													return variableBinding;
-												}
-												variableBinding = new VariableBinding(this, exactBinding);
-												this.bindingTables.compilerBindingsToASTBindings.put(exactBinding, variableBinding);
+						} else  if (binding instanceof ProblemFieldBinding) {
+							ProblemFieldBinding problemFieldBinding = (ProblemFieldBinding) binding;
+							switch(problemFieldBinding.problemId()) {
+								case ProblemReasons.NotVisible : 
+								case ProblemReasons.NonStaticReferenceInStaticContext :
+									ReferenceBinding declaringClass = problemFieldBinding.declaringClass;
+									if (declaringClass != null) {
+										FieldBinding exactBinding = declaringClass.getField(tokens[tokens.length - 1], true /*resolve*/);
+										if (exactBinding != null) {
+											IVariableBinding variableBinding = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(exactBinding);
+											if (variableBinding != null) {
 												return variableBinding;
 											}
+											variableBinding = new VariableBinding(this, exactBinding);
+											this.bindingTables.compilerBindingsToASTBindings.put(exactBinding, variableBinding);
+											return variableBinding;
 										}
-										break;
-								}
+									}
+									break;
 							}
 						}
 					}
@@ -768,10 +764,10 @@ class DefaultBindingResolver extends BindingResolver {
 				/* This is the case for a name which is part of a qualified name that
 				 * cannot be resolved. See PR 13063.
 				 */
-				if (qualifiedNameReference.otherBindings == null || (otherBindingLength - index - 1) < 0) {
+				if (qualifiedNameReference.otherBindings == null || (index - 2) < 0) {
 					return null;
 				} else {
-					return this.getVariableBinding(qualifiedNameReference.otherBindings[otherBindingLength - index - 1]);				
+					return this.getVariableBinding(qualifiedNameReference.otherBindings[index - 2]);				
 				}
 			}
 		} else if (node instanceof QualifiedTypeReference) {
@@ -779,7 +775,7 @@ class DefaultBindingResolver extends BindingResolver {
 			if (qualifiedTypeReference.resolvedType == null) {
 				return null;
 			}
-			if (index == 0) {
+			if (index == qualifiedTypeReference.tokens.length) {
 				if (!qualifiedTypeReference.resolvedType.isValidBinding() && qualifiedTypeReference instanceof JavadocQualifiedTypeReference) {
 					JavadocQualifiedTypeReference typeRef = (JavadocQualifiedTypeReference) node;
 					if (typeRef.packageBinding != null) {
@@ -788,16 +784,14 @@ class DefaultBindingResolver extends BindingResolver {
 				}
 				return this.getTypeBinding(qualifiedTypeReference.resolvedType.leafComponentType());
 			} else {
-				int qualifiedTypeLength = qualifiedTypeReference.tokens.length;
-				int indexInQualifiedName = qualifiedTypeLength - index; // one-based
-				if (indexInQualifiedName >= 0) {
+				if (index >= 0) {
 					BlockScope internalScope = (BlockScope) this.astNodesToBlockScope.get(name);
 					Binding binding = null;
 					try {
 						if (internalScope == null) {
-							binding = this.scope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, indexInQualifiedName));
+							binding = this.scope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, index));
 						} else {
-							binding = internalScope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, indexInQualifiedName));
+							binding = internalScope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, index));
 						}
 					} catch (RuntimeException e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
@@ -815,18 +809,17 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof ImportReference) {
 			ImportReference importReference = (ImportReference) node;
 			int importReferenceLength = importReference.tokens.length;
-			int indexInImportReference = importReferenceLength - index; // one-based
-			if (indexInImportReference >= 0) {
+			if (index >= 0) {
 				Binding binding = null;
-				if (importReferenceLength == indexInImportReference) {
+				if (importReferenceLength == index) {
 					try {
-						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, indexInImportReference), importReference.onDemand, importReference.isStatic());
+						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), importReference.onDemand, importReference.isStatic());
 					} catch (RuntimeException e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
 				} else {
 					try {
-						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, indexInImportReference), true, importReference.isStatic());
+						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), true, importReference.isStatic());
 					} catch (RuntimeException e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
@@ -1099,7 +1092,29 @@ class DefaultBindingResolver extends BindingResolver {
 		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(type);
 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = null;
 		if (node != null) {
-			if (node instanceof TypeReference) {
+            if (node instanceof ParameterizedQualifiedTypeReference) {
+ 				ParameterizedQualifiedTypeReference typeReference = (ParameterizedQualifiedTypeReference) node;
+ 				org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding = typeReference.resolvedType;
+ 				int index;
+ 				if (type.isQualifiedType()) {
+ 					index = ((QualifiedType) type).index;
+ 				} else if (type.isParameterizedType()) {
+ 					index = ((ParameterizedType) type).index;
+ 				} else {
+ 					index = 1;
+ 				}
+ 				final int numberOfTypeArgumentsNotNull = getTypeArguments(typeReference);
+ 				if (index != numberOfTypeArgumentsNotNull) {
+	 				int  i = numberOfTypeArgumentsNotNull;
+	 				while (i != index) {
+	 					typeBinding = typeBinding.enclosingType();
+	 					i --;
+	 				}
+	 				binding = typeBinding;
+ 				} else {
+					binding = typeBinding;
+ 				}
+            } else if (node instanceof TypeReference) {
 				TypeReference typeReference = (TypeReference) node;
 				binding = typeReference.resolvedType;
 			} else if (node instanceof SingleNameReference && ((SingleNameReference)node).isTypeReference()) {
@@ -1137,6 +1152,17 @@ class DefaultBindingResolver extends BindingResolver {
 		}
 		return null;
 	}
+	private int getTypeArguments(ParameterizedQualifiedTypeReference typeReference) {
+		TypeReference[][] typeArguments = typeReference.typeArguments;
+		int value = 0;
+		for (int i = 0, max = typeArguments.length; i < max; i++) {
+			if ((typeArguments[i] != null) || (value != 0)) {
+				value++;
+			}
+		}
+		return value;
+	}
+
 	/*
 	 * Method declared on BindingResolver.
 	 */

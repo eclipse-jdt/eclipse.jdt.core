@@ -38,7 +38,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 			return new Suite(ASTConverterTest.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest.class.getName());
-		suite.addTest(new ASTConverterTest("test0172"));
+		suite.addTest(new ASTConverterTest("test0206"));
 		return suite;
 	}
 		
@@ -4799,7 +4799,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0206", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
-		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 2, 0);
+		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 5, 0);
 		assertTrue("ReturnStatement", node2 instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node2;
 		Expression expr = returnStatement.getExpression();
@@ -4808,7 +4808,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		ITypeBinding typeBinding = expr.resolveTypeBinding();
 		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
 		assertEquals("Not an int (typeBinding)", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		checkSourceRange(qualifiedName, "field.field.field.field.i", source); //$NON-NLS-1$
+		checkSourceRange(qualifiedName, "field1.field2.field3.field4.i", source); //$NON-NLS-1$
 		assertTrue("Not a simple name", qualifiedName.getName().isSimpleName()); //$NON-NLS-1$
 		SimpleName simpleName = qualifiedName.getName();
 		assertTrue("a declaration", !simpleName.isDeclaration()); //$NON-NLS-1$
@@ -4824,41 +4824,41 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertEquals("Not default", Modifier.PUBLIC, variableBinding.getModifiers()); //$NON-NLS-1$
 		Name qualifierName = qualifiedName.getQualifier();
 		assertTrue("Not a qualified name", qualifierName.isQualifiedName()); //$NON-NLS-1$
-		checkSourceRange(qualifierName, "field.field.field.field", source); //$NON-NLS-1$
+		checkSourceRange(qualifierName, "field1.field2.field3.field4", source); //$NON-NLS-1$
 		ITypeBinding typeBinding5 = qualifierName.resolveTypeBinding();
 		assertNotNull("No binding5", typeBinding5); //$NON-NLS-1$
 		assertEquals("Not Test", "Test", typeBinding5.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 
 		qualifiedName = (QualifiedName) qualifierName;
 		simpleName = qualifiedName.getName();
-		checkSourceRange(simpleName, "field", source); //$NON-NLS-1$
+		checkSourceRange(simpleName, "field4", source); //$NON-NLS-1$
 		ITypeBinding typeBinding6 = simpleName.resolveTypeBinding();
 		assertNotNull("No binding6", typeBinding6); //$NON-NLS-1$
 		assertEquals("Not Test", "Test", typeBinding6.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		qualifierName = qualifiedName.getQualifier();
 		assertTrue("Not a qualified name", qualifierName.isQualifiedName()); //$NON-NLS-1$
-		checkSourceRange(qualifierName, "field.field.field", source); //$NON-NLS-1$
+		checkSourceRange(qualifierName, "field1.field2.field3", source); //$NON-NLS-1$
 		ITypeBinding typeBinding7 = qualifierName.resolveTypeBinding();
 		assertNotNull("No binding7", typeBinding7); //$NON-NLS-1$
 		assertEquals("Not Test", "Test", typeBinding7.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		qualifiedName = (QualifiedName) qualifierName;
 		simpleName = qualifiedName.getName();
-		checkSourceRange(simpleName, "field", source); //$NON-NLS-1$
+		checkSourceRange(simpleName, "field3", source); //$NON-NLS-1$
 		qualifierName = qualifiedName.getQualifier();
 		assertTrue("Not a qualified name", qualifierName.isQualifiedName()); //$NON-NLS-1$
-		checkSourceRange(qualifierName, "field.field", source); //$NON-NLS-1$
+		checkSourceRange(qualifierName, "field1.field2", source); //$NON-NLS-1$
 		ITypeBinding typeBinding3 = qualifierName.resolveTypeBinding();
 		assertNotNull("No binding3", typeBinding3); //$NON-NLS-1$
 		assertEquals("Not Test", "Test", typeBinding3.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		qualifiedName = (QualifiedName) qualifierName;
 		simpleName = qualifiedName.getName();
-		checkSourceRange(simpleName, "field", source); //$NON-NLS-1$
+		checkSourceRange(simpleName, "field2", source); //$NON-NLS-1$
 		qualifierName = qualifiedName.getQualifier();
 		assertTrue("Not a simple name", qualifierName.isSimpleName()); //$NON-NLS-1$
 		assertTrue("a declaration", !((SimpleName)qualifierName).isDeclaration()); //$NON-NLS-1$
-		checkSourceRange(qualifierName, "field", source); //$NON-NLS-1$
+		checkSourceRange(qualifierName, "field1", source); //$NON-NLS-1$
 		ITypeBinding typeBinding4 = qualifierName.resolveTypeBinding();
 		assertNotNull("No binding4", typeBinding4); //$NON-NLS-1$
 		assertEquals("Not Test", "Test", typeBinding4.getName()); //$NON-NLS-1$ //$NON-NLS-2$

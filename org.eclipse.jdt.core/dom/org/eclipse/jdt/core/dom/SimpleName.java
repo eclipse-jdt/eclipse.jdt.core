@@ -129,6 +129,7 @@ public class SimpleName extends Name {
 		SimpleName result = new SimpleName(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setIdentifier(getIdentifier());
+		result.index = this.index;
 		return result;
 	}
 	

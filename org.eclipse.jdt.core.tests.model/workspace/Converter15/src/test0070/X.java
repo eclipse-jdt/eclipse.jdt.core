@@ -1,14 +1,12 @@
 package test0070;
 
 class Outer<A> {
-	class Inner<B> {
-		class InnerInner<C> {
+		class Inner<C> {
 		}
-	}
 }
 
 public class X {
 	void foo() {
-		Outer<String>.Inner<Integer>.InnerInner<Number> in = new Outer<String>().new Inner<Integer>().new InnerInner<Number>();
+		Outer<String>.Inner<Number> in = new Outer<String>().new Inner<Number>();
 	}
 }

@@ -308,16 +308,20 @@ class DocCommentParser extends AbstractCommentParser {
 		// Update references of each simple name
 		if (size > 1) {
 			Name name = (Name)typeRef;
-			for (int i=this.identifierPtr; i>pos; i--) {
+			int nameIndex = size;
+			for (int i=this.identifierPtr; i>pos; i--, nameIndex--) {
 				int s = (int) (this.identifierPositionStack[i] >>> 32);
 				int e = (int) this.identifierPositionStack[i];
+				name.index = nameIndex;
 				SimpleName simpleName = ((QualifiedName)name).getName();
+				simpleName.index = nameIndex;
 				simpleName.setSourceRange(s, e-s+1);
 				name.setSourceRange(start, e-start+1);
 				name =  ((QualifiedName)name).getQualifier();
 			}
 			int end = (int) this.identifierPositionStack[pos];
 			name.setSourceRange(start, end-start+1);
+			name.index = nameIndex;
 		} else {
 			int end = (int) this.identifierPositionStack[pos];
 			typeRef.setSourceRange(start, end-start+1);
