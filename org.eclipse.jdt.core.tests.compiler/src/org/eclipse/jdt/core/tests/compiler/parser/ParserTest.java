@@ -219,4 +219,24 @@ public void test010() {
 		"----------\n"
 	);
 }
+public void test011() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void foo(X, Object o, String s) {\n" +
+			"	}\n" +
+			"   public void bar(){}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public void foo(X, Object o, String s) {\n" + 
+		"	                 ^\n" + 
+		"Syntax error on token \",\", . expected\n" + 
+		"----------\n"
+	);
+}
+
+
 }
