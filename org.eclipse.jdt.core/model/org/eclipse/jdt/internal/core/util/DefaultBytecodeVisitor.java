@@ -1084,6 +1084,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 			.append(returnDeclaringClassName(constantFieldref))
 			.append(Util.bind("disassembler.classmemberseparator")) //$NON-NLS-1$
 			.append(constantFieldref.getFieldName())
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(returnFieldrefDescriptor(constantFieldref))
 			.append(Util.bind("classformat.getstaticclose")); //$NON-NLS-1$
 		writeNewLine();
@@ -1686,7 +1687,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 
 		char[] methodDescriptor = constantInterfaceMethodref.getMethodDescriptor();
 		CharOperation.replace(methodDescriptor, '/', '.');
-
+		char[] returnType = Signature.getReturnType(methodDescriptor);
+		CharOperation.replace(returnType, '/', '.');
+		
 		writeTabs();
 		buffer
 			.append(pc)
@@ -1705,7 +1708,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 					constantInterfaceMethodref.getMethodName(),
 					getParameterNames(methodDescriptor),
 					true,
-					true))
+					false))
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
+			.append(Signature.toCharArray(returnType))
 			.append(Util.bind("classformat.invokeinterfacemethodclose")); //$NON-NLS-1$
 		writeNewLine();
 	}
@@ -1714,10 +1719,13 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 * @see IBytecodeVisitor#_invokespecial(int, int, IConstantPoolEntry)
 	 */
 	public void _invokespecial(int pc, int index, IConstantPoolEntry constantMethodref) {
+
 		char[] methodDescriptor = constantMethodref.getMethodDescriptor();
 		CharOperation.replace(methodDescriptor, '/', '.');
 		char[] methodName = constantMethodref.getMethodName();
-
+		char[] returnType = Signature.getReturnType(methodDescriptor);
+		CharOperation.replace(returnType, '/', '.');
+		
 		if (CharOperation.equals(INIT, methodName)) {
 			methodName = EMPTY_NAME;
 			writeTabs();
@@ -1755,7 +1763,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 						constantMethodref.getMethodName(),
 						getParameterNames(methodDescriptor),
 						true,
-						true))
+						false))
+				.append(Util.bind("disassembler.space")) //$NON-NLS-1$
+			.append(Signature.toCharArray(returnType))
 				.append(Util.bind("classformat.invokespecialmethodclose")); //$NON-NLS-1$
 			writeNewLine();
 		}
@@ -1765,8 +1775,12 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 * @see IBytecodeVisitor#_invokestatic(int, int, IConstantPoolEntry)
 	 */
 	public void _invokestatic(int pc, int index, IConstantPoolEntry constantMethodref) {
+
 		char[] methodDescriptor = constantMethodref.getMethodDescriptor();
 		CharOperation.replace(methodDescriptor, '/', '.');
+		char[] returnType = Signature.getReturnType(methodDescriptor);
+		CharOperation.replace(returnType, '/', '.');
+		
 		writeTabs();
 		buffer
 			.append(pc)
@@ -1783,7 +1797,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 					constantMethodref.getMethodName(),
 					getParameterNames(methodDescriptor),
 					true,
-					true))
+					false))
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
+			.append(Signature.toCharArray(returnType))
 			.append(Util.bind("classformat.invokestaticmethodclose")); //$NON-NLS-1$
 		writeNewLine();
 	}
@@ -1792,8 +1808,12 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 * @see IBytecodeVisitor#_invokevirtual(int, int, IConstantPoolEntry)
 	 */
 	public void _invokevirtual(int pc, int index, IConstantPoolEntry constantMethodref) {
+
 		char[] methodDescriptor = constantMethodref.getMethodDescriptor();
 		CharOperation.replace(methodDescriptor, '/', '.');
+		char[] returnType = Signature.getReturnType(methodDescriptor);
+		CharOperation.replace(returnType, '/', '.');
+		
 		writeTabs();
 		buffer
 			.append(pc)
@@ -1810,7 +1830,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 					constantMethodref.getMethodName(),
 					getParameterNames(methodDescriptor),
 					true,
-					true))
+					false))
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
+			.append(Signature.toCharArray(returnType))
 			.append(Util.bind("classformat.invokevirtualmethodclose")); //$NON-NLS-1$
 		writeNewLine();
 	}
