@@ -298,8 +298,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 						if (this.parser == null) {
 							this.parser = new Parser(this.problemReporter, true);
 						}
-						// TODO (jerome) handle Annotation and MemberValusArrayInitializer)
-						Expression expression =  this.parser.parseExpression(defaultValueSource, 0, defaultValueSource.length, this.unit);
+						Expression expression =  this.parser.parseMemberValue(defaultValueSource, 0, defaultValueSource.length, this.unit);
 						if (expression != null) {
 							annotationMethodDeclaration.defaultValue = expression;
 							modifiers |= AccAnnotationDefault;
