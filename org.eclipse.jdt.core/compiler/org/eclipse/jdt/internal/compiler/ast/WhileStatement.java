@@ -75,7 +75,7 @@ public class WhileStatement extends Statement {
 					breakLabel,
 					continueLabel,
 					currentScope);
-			FlowInfo actionInfo =
+			FlowInfo actionInfo = // TODO: shouldn't it use optimized constant here?
 				((condConstant != Constant.NotAConstant) && (condConstant.booleanValue() == false))
 					? FlowInfo.DeadEnd
 					: postCondInfo.initsWhenTrue().copy();

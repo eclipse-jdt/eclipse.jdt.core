@@ -68,13 +68,14 @@ public class IfStatement extends Statement {
 		// process the condition
 		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo);
 		Constant condConstant = this.condition.constant; 
-
+		Constant optimizedConstant = this.condition.optimizedBooleanConstant();
+		
 		// process the THEN part
 		if (this.thenStatement == null) {
 			thenFlowInfo = flowInfo.initsWhenTrue();
 		} else {
 			thenFlowInfo =
-				(condConstant != NotAConstant && condConstant.booleanValue() == false)
+				(optimizedConstant != NotAConstant && optimizedConstant.booleanValue() == false)
 					? flowInfo.initsWhenTrue().copy().markAsFakeReachable(true)
 					: flowInfo.initsWhenTrue().copy();
 			// Save info for code gen
@@ -93,7 +94,7 @@ public class IfStatement extends Statement {
 			elseFlowInfo = flowInfo.initsWhenFalse();
 		} else {
 			elseFlowInfo =
-				(condConstant != NotAConstant && condConstant.booleanValue() == true)
+				(optimizedConstant != NotAConstant && optimizedConstant.booleanValue() == true)
 					? flowInfo.initsWhenFalse().copy().markAsFakeReachable(true)
 					: flowInfo.initsWhenFalse().copy();
 			// Save info for code gen
