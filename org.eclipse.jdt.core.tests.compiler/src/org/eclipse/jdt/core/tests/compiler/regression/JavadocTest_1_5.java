@@ -1511,7 +1511,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
-	public void _testBug83127g() {
+	public void testBug83127g() {
 		reportMissingJavadocTags = CompilerOptions.IGNORE;
 		runNegativeTest(
 			new String[] {

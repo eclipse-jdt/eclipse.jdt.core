@@ -86,14 +86,19 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		} else if (hasTypeVarArgs) {
 			MethodBinding problem = new ProblemMethodBinding(this.binding, this.binding.selector, argumentTypes, ProblemReasons.NotFound);
 			scope.problemReporter().javadocInvalidConstructor(this, problem, scope.getDeclarationModifiers());
-//		} else if (this.binding instanceof ParameterizedMethodBinding) {
-//			if (allocationType.isGenericType() || allocationType.isRawType() || allocationType.isParameterizedType()) {
-//				MethodBinding exactMethod = scope.getConstructor(allocationType, argumentTypes, this);
-//				if (exactMethod == null) {
-//					MethodBinding problem = new ProblemMethodBinding(this.binding, this.binding.selector, argumentTypes, ProblemReasons.NotFound);
-//					scope.problemReporter().javadocInvalidConstructor(this, problem, scope.getDeclarationModifiers());
-//				}
-//			}
+		} else if (this.binding instanceof ParameterizedMethodBinding) {
+			ParameterizedMethodBinding paramMethodBinding = (ParameterizedMethodBinding) this.binding;
+			if (paramMethodBinding.hasSubstitutedParameters()) {
+				int length = argumentTypes.length;
+				for (int i=0; i<length; i++) {
+					if (paramMethodBinding.parameters[i] != argumentTypes[i] &&
+							paramMethodBinding.parameters[i].erasure() != argumentTypes[i].erasure()) {
+						MethodBinding problem = new ProblemMethodBinding(this.binding, this.binding.selector, argumentTypes, ProblemReasons.NotFound);
+						scope.problemReporter().javadocInvalidConstructor(this, problem, scope.getDeclarationModifiers());
+						break;
+					}
+				}
+			}
 		}
 		if (isMethodUseDeprecated(this.binding, scope)) {
 			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getDeclarationModifiers());
