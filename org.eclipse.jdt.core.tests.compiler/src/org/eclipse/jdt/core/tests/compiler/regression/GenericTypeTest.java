@@ -7112,5 +7112,20 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	                             ^^^^^^^^^\n" + 
 			"The generic class X<T,U> may not subclass java.lang.Throwable\n" + 
 			"----------\n");		
+	}
+	// 70618 - reference to variable allowed in parameterized super type
+	//TODO (kent) reenable once addressed
+	public void _test257() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.AbstractList;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"	\n" + 
+				"	class L extends AbstractList<T> {}\n" + 
+				"}\n"
+			},
+			"should only complain about missing abstract method impl.");		
 	}			
 }
