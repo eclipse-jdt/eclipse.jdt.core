@@ -89,7 +89,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 
 		// Get all tests from "test%" methods
-		Method[] methods = evaluationTestClass.getMethods();
+		Method[] methods = evaluationTestClass.getDeclaredMethods();
 		for (int m = 0, max = methods.length; m < max; m++) {
 			try {
 				if (methods[m].getModifiers() == 1 /* public */ &&
