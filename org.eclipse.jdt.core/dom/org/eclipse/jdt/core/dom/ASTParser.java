@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
  * Example: Create basic AST from source string
  * <pre>
  * char[] source = ...;
- * ASTParser parser = ASTParser.newParser(AST.LEVEL_3_0);  // handles JLS3 (J2SE 1.5)
+ * ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);  // handles JLS2 (J2SE 1.4)
  * parser.setSource(source);
  * CompilationUnit result = (CompilationUnit) parser.createAST(null);
  * </pre>
@@ -98,8 +98,13 @@ public class ASTParser {
 	
 	/**
 	 * Creates a new object for creating a Java abstract syntax tree
-     * (AST) following the specified set of API rules. 
- 
+     * (AST) following the specified set of API rules.
+     * <p>
+     * <b>NOTE:</b>In Eclipse 3.0, there is no parser support for
+     * AST.LEVEL_3_0. This support is planned for the follow-on release of
+     * Eclipse which includes support for J2SE 1.5.
+     * </p>
+     *  
  	 * @param level the API level; one of the LEVEL constants
      * declared on <code>AST</code>
 	 */

@@ -512,6 +512,10 @@ boolean isWorkingCopy();
  * creation of the DOM AST was not requested, or if the requested level of AST
  * API is not supported, or if the working copy was already consistent.
  * </p>
+ * <b>NOTE:</b>In Eclipse 3.0, there is no reconciler support for
+ * AST.LEVEL_3_0. This support is planned for the follow-on release of
+ * Eclipse which includes support for J2SE 1.5.
+ * </p>
  *
  * @param astLevel either {@link #NO_AST} if no AST is wanted,
  * or the {@linkplain AST#AST(int) AST API level} of the AST if one is wanted

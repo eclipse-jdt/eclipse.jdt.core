@@ -63,11 +63,17 @@ public interface ICodeAssist {
 		throws JavaModelException;
 	
 	/**
+	 * <b>DO NOT USE</b>: This API element was added in anticipation of J2SE
+	 * 1.5 support, which is planned for the next release of Eclipse after 3.0.
+	 * It is currently unimplemented, and the API may change slightly before
+	 * reaching its final form.
+	 * <p>
 	 * Performs code completion at the given offset position in this compilation unit,
 	 * reporting results to the given completion requestor. The <code>offset</code>
 	 * is the 0-based index of the character, after which code assist is desired.
 	 * An <code>offset</code> of -1 indicates to code assist at the beginning of this
 	 * compilation unit.
+	 * <p>
 	 *
 	 * @param offset the given offset position
 	 * @param requestor the given completion requestor
@@ -114,6 +120,11 @@ public interface ICodeAssist {
 		throws JavaModelException;
 
 	/**
+	 * <b>DO NOT USE</b>: This API element was added in anticipation of J2SE
+	 * 1.5 support, which is planned for the next release of Eclipse after 3.0.
+	 * It is currently unimplmemented, and the API may change slightly before
+	 * reaching its final form.
+	 * <p>
 	 * Performs code completion at the given offset position in this compilation unit,
 	 * reporting results to the given completion requestor. The <code>offset</code>
 	 * is the 0-based index of the character, after which code assist is desired.
