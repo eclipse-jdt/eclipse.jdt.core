@@ -148,13 +148,14 @@ public class WildcardBinding extends ReferenceBinding {
 	        		WildcardBinding otherWildcard = (WildcardBinding) otherType;
 	        		switch (otherWildcard.kind) {
 	        			case Wildcard.UNBOUND :
+	        				return true;
 	        			default : // SUPER :
 	        				return false;
 	        			case Wildcard.EXTENDS :
 	        				return this.bound.isCompatibleWith(otherWildcard.bound);
 	        		}
 	        	} else {
-		            return otherType.isCompatibleWith(this.bound);
+		            return this.bound.isCompatibleWith(otherType);
 	        	}
 	    }        
 	}
