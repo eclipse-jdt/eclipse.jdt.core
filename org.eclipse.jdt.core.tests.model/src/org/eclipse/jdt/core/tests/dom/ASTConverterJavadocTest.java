@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.dom.MethodRefParameter;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TextElement;
 
@@ -48,7 +49,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		TestSuite suite = new Suite(ASTConverterTest.class.getName());		
+		TestSuite suite = new Suite(ASTConverterJavadocTest.class.getName());		
 
 		if (true) {
 			Class c = ASTConverterJavadocTest.class;
@@ -60,7 +61,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterJavadocTest("testJavadoc03"));			
+		suite.addTest(new ASTConverterJavadocTest("testJavadoc05"));			
 		return suite;
 	}
 
@@ -445,6 +446,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					if (previousBinding != null) {
 						assertNotNull(methodRef.getName()+" binding was not found!", methodRef.getName().resolveBinding());
 						verifyName(methodRef.getQualifier());
+						verifyParameters(methodRef.parameters());
 					}
 				}
 				previousFragment = fragment;
@@ -463,6 +465,20 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				name = ((QualifiedName) name).getQualifier();
 				assertNotNull(name+" binding was not found!", name.resolveBinding());
 			}
+		}
+	}
+	
+	void verifyParameters(List parametersList) {
+		Iterator parameters = parametersList.listIterator();
+		while (parameters.hasNext()) {
+			MethodRefParameter param = (MethodRefParameter) parameters.next();
+//				if (param.getName() != null) {
+//					assertNotNull(param.getName()+" binding was not found!", param.getName().resolveBinding());
+//				}
+				assertNotNull(param.getType()+" binding was not found!", param.getType().resolveBinding());
+				if (param.getType().isSimpleType()) {
+					verifyName(((SimpleType)param.getType()).getName());
+				}
 		}
 	}
 	
@@ -548,5 +564,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testJavadoc04() throws JavaModelException {
 		verifyComments("004");
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50838
+	 */
+	public void testJavadoc05() throws JavaModelException {
+		verifyComments("005");
 	}
 }
