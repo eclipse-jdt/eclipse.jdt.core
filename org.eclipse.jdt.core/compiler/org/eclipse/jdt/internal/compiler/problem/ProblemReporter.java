@@ -528,7 +528,11 @@ public int computeSeverity(int problemId){
 		
 		case IProblem.ForbiddenReference:
 			return this.options.getSeverity(CompilerOptions.ForbiddenReference);
-		
+
+		case IProblem.NullParameterToVarargsConstructor :
+		case IProblem.NullParameterToVarargsMethod :
+			return Warning; // TODO (philippe) need this to default to a warning this.options.getSeverity(CompilerOptions.NullParameterToVarargs);
+
 		/*
 		 * Javadoc syntax errors
 		 */
