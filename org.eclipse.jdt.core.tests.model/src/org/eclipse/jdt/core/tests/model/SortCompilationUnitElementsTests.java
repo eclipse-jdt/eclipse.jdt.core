@@ -18,7 +18,6 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.util.CompilationUnitSorter;
 import org.eclipse.jdt.core.util.CompilationUnitSorter.DefaultJavaElementComparator;
@@ -53,9 +52,9 @@ private void sortUnit(ICompilationUnit unit, String expectedResult, boolean test
 			positions[i] = i;
 		}
 	}
-	IJavaElement element = unit.getWorkingCopy();
-	CompilationUnitSorter.sort(new IJavaElement[] { element }, new int[][] { positions }, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), new NullProgressMonitor());
-	String sortedSource = ((ICompilationUnit) element).getBuffer().getContents();
+	ICompilationUnit copy = (ICompilationUnit) unit.getWorkingCopy();
+	CompilationUnitSorter.sort(new ICompilationUnit[] { copy }, new int[][] { positions }, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), new NullProgressMonitor());
+	String sortedSource = copy.getBuffer().getContents();
 	assertEquals("Different output", sortedSource, expectedResult); //$NON-NLS-1$
 	if (testPositions) {
 		for (int i = 0, max = positions.length; i < max; i++) {
