@@ -98,6 +98,7 @@ public Map getOptions() {
 	Map options = super.getOptions();
 	options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);	
 	return options;
 }
 public void removeTempClass(String className) {
