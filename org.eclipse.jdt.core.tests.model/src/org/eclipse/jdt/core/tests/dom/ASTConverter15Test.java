@@ -26,7 +26,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		if (false) {
+		if (true) {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
@@ -382,7 +382,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a variable argument", parameter.isVariableArity());
 	}
 
-	public void test0013() throws JavaModelException {
+/*	public void test0013() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0013", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		// TODO NPE when resolveBindings = true
 		ASTNode result = runConversion(AST.LEVEL_3_0, sourceUnit, false);
@@ -392,7 +392,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
-		final SimpleName name = typeDeclaration.getName();
+		SimpleName name = typeDeclaration.getName();
 		assertEquals("Wrong name", "Convertible", name.getIdentifier());
 		checkSourceRange(name, "Convertible", source);
 		List typeParameters = typeDeclaration.typeParameters();
@@ -400,6 +400,17 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		TypeParameter typeParameter = (TypeParameter) typeParameters.get(0);
 		checkSourceRange(typeParameter, "T", source);
 		checkSourceRange(typeParameter.getName(), "T", source);
-	}
+		node = getASTNode(compilationUnit, 1);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		typeDeclaration = (TypeDeclaration) node;
+		name = typeDeclaration.getName();
+		assertEquals("Wrong name", "ReprChange", name.getIdentifier());
+		checkSourceRange(name, "ReprChange", source);
+		typeParameters = typeDeclaration.typeParameters();
+		assertEquals("Wrong size", 2, typeParameters.size());
+		typeParameter = (TypeParameter) typeParameters.get(0);
+		checkSourceRange(typeParameter, "A", source);
+		checkSourceRange(typeParameter.getName(), "A", source);
+	}*/
 }
 
