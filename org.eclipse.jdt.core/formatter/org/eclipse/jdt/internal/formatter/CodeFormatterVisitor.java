@@ -940,7 +940,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		this.scribe.printTrailingComment();
-		this.scribe.printNewLine();
 	}
 
 	private void formatGuardClauseBlock(Block block, BlockScope scope) {
@@ -1051,6 +1050,16 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		} else {
 			this.scribe.printNextToken(ITerminalSymbols.TokenNameRPAREN, spaceBetweenEmptyArgument); 
 		}
+		/*
+		 * Check for extra dimensions
+		 */
+		int extraDimensions = getExtraDimension();
+		if (extraDimensions != 0) {
+			 for (int i = 0; i < extraDimensions; i++) {
+			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
+			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
+			 }
+		}		
 	}
 
 	private void formatOpeningBrace(String bracePosition, boolean insertSpaceBeforeBrace) {
@@ -2858,17 +2867,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		 */
 		this.scribe.printNextToken(ITerminalSymbols.TokenNameIdentifier, true); 
 
-		/*
-		 * Check for extra dimensions
-		 */
-		int extraDimensions = getExtraDimension();
-		if (extraDimensions != 0) {
-			 for (int i = 0; i < extraDimensions; i++) {
-			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameLBRACKET);
-			 	this.scribe.printNextToken(ITerminalSymbols.TokenNameRBRACKET);
-			 }
-		}
-
 		formatMethodArguments(
 			methodDeclaration, 
 			this.preferences.insert_space_before_method_declaration_open_paren,
@@ -2877,7 +2875,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.preferences.insert_space_before_first_argument,
 			this.preferences.insert_space_before_comma_in_method_arguments,
 			this.preferences.insert_space_after_comma_in_method_arguments);
-
+		
 		formatThrowsClause(
 			methodDeclaration,
 			this.preferences.insert_space_before_comma_in_method_throws,
