@@ -1003,10 +1003,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		buffer.append(Util.bind("disassembler.annotationdefaultheader")); //$NON-NLS-1$
 		IAnnotationComponentValue componentValue = annotationDefaultAttribute.getMemberValue();
 		writeNewLine(buffer, lineSeparator, tabNumber + 2);
-		disassemble(componentValue, constantPool, buffer, lineSeparator, tabNumber + 1);
+		disassemble(componentValue, buffer, lineSeparator, tabNumber + 1);
 	}
 
-	private void disassemble(IAnnotationComponentValue annotationComponentValue, IConstantPool constantPool, StringBuffer buffer, String lineSeparator, int tabNumber) {
+	private void disassemble(IAnnotationComponentValue annotationComponentValue, StringBuffer buffer, String lineSeparator, int tabNumber) {
 		switch(annotationComponentValue.getTag()) {
 			case IAnnotationComponentValue.BYTE_TAG:
 			case IAnnotationComponentValue.CHAR_TAG:
@@ -1078,24 +1078,24 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			case IAnnotationComponentValue.ANNOTATION_TAG:
 				buffer.append(Util.bind("disassembler.annotationannotationvalue")); //$NON-NLS-1$
 				IAnnotation annotation = annotationComponentValue.getAnnotationValue();
-				disassemble(annotation, constantPool, buffer, lineSeparator, tabNumber + 1);
+				disassemble(annotation, buffer, lineSeparator, tabNumber + 1);
 				break;
 			case IAnnotationComponentValue.ARRAY_TAG:
 				buffer.append(Util.bind("disassembler.annotationarrayvaluestart")); //$NON-NLS-1$
 				final IAnnotationComponentValue[] annotationComponentValues = annotationComponentValue.getAnnotationComponentValues();
 				for (int i = 0, max = annotationComponentValues.length; i < max; i++) {
 					writeNewLine(buffer, lineSeparator, tabNumber + 1);
-					disassemble(annotationComponentValues[i], constantPool, buffer, lineSeparator, tabNumber + 1);
+					disassemble(annotationComponentValues[i], buffer, lineSeparator, tabNumber + 1);
 				}
 				writeNewLine(buffer, lineSeparator, tabNumber + 1);
 				buffer.append(Util.bind("disassembler.annotationarrayvalueend")); //$NON-NLS-1$
 		}
 	}
 
-	private void disassemble(IAnnotation annotation, IConstantPool constantPool, StringBuffer buffer, String lineSeparator, int tabNumber) {
+	private void disassemble(IAnnotation annotation, StringBuffer buffer, String lineSeparator, int tabNumber) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		final int typeIndex = annotation.getTypeIndex();
-		final char[] typeName = CharOperation.replaceOnCopy(constantPool.decodeEntry(typeIndex).getUtf8Value(), '/', '.');
+		final char[] typeName = CharOperation.replaceOnCopy(annotation.getTypeName(), '/', '.');
 		buffer.append(
 			Util.bind("disassembler.annotationentrystart", //$NON-NLS-1$
 			new String[] {
@@ -1105,13 +1105,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		));
 		final IAnnotationComponent[] components = annotation.getComponents();
 		for (int i = 0, max = components.length; i < max; i++) {
-			disassemble(components[i], constantPool, buffer, lineSeparator, tabNumber + 1);
+			disassemble(components[i], buffer, lineSeparator, tabNumber + 1);
 		}
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(Util.bind("disassembler.annotationentryend")); //$NON-NLS-1$
 	}
 
-	private void disassemble(IAnnotationComponent annotationComponent, IConstantPool constantPool, StringBuffer buffer, String lineSeparator, int tabNumber) {
+	private void disassemble(IAnnotationComponent annotationComponent, StringBuffer buffer, String lineSeparator, int tabNumber) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		buffer.append(
 			Util.bind("disassembler.annotationcomponent", //$NON-NLS-1$
@@ -1120,7 +1120,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				new String(annotationComponent.getComponentName())
 			}
 		));
-		disassemble(annotationComponent.getComponentValue(), constantPool, buffer, lineSeparator, tabNumber + 1);
+		disassemble(annotationComponent.getComponentValue(), buffer, lineSeparator, tabNumber + 1);
 	}
 
 	private void disassemble(IClassFileAttribute classFileAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
