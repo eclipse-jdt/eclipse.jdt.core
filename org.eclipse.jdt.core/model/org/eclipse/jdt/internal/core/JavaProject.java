@@ -689,6 +689,7 @@ public class JavaProject
 			);
 		} catch (CoreException e) {
 			// could not create marker: cannot do much
+			e.printStackTrace();
 		}
 	}
 	
@@ -1123,6 +1124,7 @@ public class JavaProject
 			}
 		} catch (CoreException e) {
 			// could not flush markers: not much we can do
+			e.printStackTrace();
 		}
 	}
 
