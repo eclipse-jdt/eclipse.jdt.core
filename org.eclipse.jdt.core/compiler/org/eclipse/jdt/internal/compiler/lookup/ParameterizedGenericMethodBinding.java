@@ -78,7 +78,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 						// actually it rather seems to handle the returned variable case by expecting its erasure instead
 						expectedType = methodSubstitute.returnType.erasure();
 					} else {
-						expectedType = scope.getJavaLangObject(); 
+						if (methodSubstitute.returnType.id != TypeIds.T_void)
+							expectedType = scope.getJavaLangObject(); 
 					}
 				}
 				methodSubstitute = methodSubstitute.inferFromExpectedType(scope, expectedType, collectedSubstitutes, substitutes);
