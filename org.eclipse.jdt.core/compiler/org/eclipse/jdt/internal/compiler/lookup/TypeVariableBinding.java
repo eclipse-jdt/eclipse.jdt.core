@@ -18,6 +18,8 @@ import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 public class TypeVariableBinding extends ReferenceBinding {
 	
 	public Scope declaringScope; // back-pointer to its declaring scope
+	public int index; // declaration rank
+	
 	public TypeParameter declaration; // for source-positions TODO needed ?
 	
 	public TypeVariableBinding(char[] sourceName, Scope declaringScope){

@@ -84,6 +84,10 @@ public abstract boolean isCompatibleWith(TypeBinding right);
 /* Answer true if the receiver's hierarchy has problems (always false for arrays & base types)
 */
 
+public final boolean isGeneric() {
+	return (tagBits & IsGenericType) != 0;
+}
+
 public final boolean isHierarchyInconsistent() {
 	return (tagBits & HierarchyHasProblems) != 0;
 }
