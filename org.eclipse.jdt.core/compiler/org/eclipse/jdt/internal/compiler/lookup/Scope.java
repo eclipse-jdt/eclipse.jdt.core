@@ -1863,7 +1863,7 @@ public abstract class Scope
 							// answers closest approximation, may not check argumentTypes or visibility
 							possible = findMethod((ReferenceBinding) resolvedImport, selector, argumentTypes, invocationSite);
 						}
-						if (possible != null) {
+						if (possible != null && possible != foundMethod) {
 							if (!possible.isValidBinding()) {
 								if (foundMethod == null)
 									foundMethod = possible; // answer as error case match

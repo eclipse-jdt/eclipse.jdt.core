@@ -923,5 +923,19 @@ public class StaticImportTest extends AbstractComparableTest {
 			"The method m() is ambiguous for the type B\n" + 
 			"----------\n"
 		);
+		this.runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"import static p.A.m;\n" + 
+				"import static p.B.m;\n" + 
+				"public class X { void test() { m(); } }\n" + 
+				"class B extends A {}\n",
+				"p/A.java",
+				"package p;\n" + 
+				"public class A { public static int m() { return 0; } }\n"
+			},
+			""
+		);
 	}
 }
