@@ -453,6 +453,12 @@ public class DefaultCodeFormatterOptions {
 		this.use_tab = DEFAULT_USE_TAB;
 	}
 
+	public DefaultCodeFormatterOptions(Map settings) {
+		this();
+		if (settings == null) return;
+		set(settings);
+	}
+
 	private String getAlignment(int alignment) {
 		return Integer.toString(alignment);
 	}
@@ -603,12 +609,6 @@ public class DefaultCodeFormatterOptions {
 		return options;
 	}
 
-	public DefaultCodeFormatterOptions(Map settings) {
-		this();
-		if (settings == null) return;
-		set(settings);
-	}
-	
 	public void set(Map settings) {
 		final Object allocationExpressionArgumentsAlignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALLOCATION_EXPRESSION_ARGUMENTS_ALIGNMENT);
 		if (allocationExpressionArgumentsAlignmentOption != null) {
@@ -1177,5 +1177,155 @@ public class DefaultCodeFormatterOptions {
 		if (useTabOption != null) {
 			this.use_tab = JavaCore.TAB.equals(useTabOption);
 		}
+	}
+
+	public static DefaultCodeFormatterOptions getDefault() {
+		return new DefaultCodeFormatterOptions();
+	}
+
+	public static DefaultCodeFormatterOptions getSunSetttings() {
+		DefaultCodeFormatterOptions sunSettings = new DefaultCodeFormatterOptions();
+		sunSettings.allocation_expression_arguments_alignment = Alignment.M_COMPACT_SPLIT;
+		sunSettings.anonymous_type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+		sunSettings.array_initializer_expressions_alignment = Alignment.M_COMPACT_SPLIT;
+		sunSettings.binary_expression_alignment = Alignment.M_NEXT_PER_LINE_SPLIT;
+		sunSettings.blank_lines_after_imports = 1;
+		sunSettings.blank_lines_after_package = 1;
+		sunSettings.blank_lines_before_field = 1;
+		sunSettings.blank_lines_before_imports= 1;
+		sunSettings.blank_lines_before_member_type = 1;
+		sunSettings.blank_lines_before_method = 1;
+		sunSettings.blank_lines_before_new_chunk = 1;
+		sunSettings.blank_lines_before_package = 0;
+		sunSettings.block_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+		sunSettings.compact_else_if = true;
+		sunSettings.compact_if_alignment = Alignment.M_COMPACT_SPLIT;
+		sunSettings.conditional_expression_alignment = Alignment.M_NEXT_PER_LINE_SPLIT;
+		sunSettings.continuation_indentation = 2;
+		sunSettings.explicit_constructor_arguments_alignment = Alignment.M_COMPACT_SPLIT;
+		sunSettings.filling_space = ' ';
+		sunSettings.format_guardian_clause_on_one_line = true;
+		sunSettings.indent_block_statements = true;
+		sunSettings.indent_body_declarations_compare_to_type_header = true;
+		sunSettings.indent_breaks_compare_to_cases = true;
+		sunSettings.indent_switchstatements_compare_to_cases = true;
+		sunSettings.indent_switchstatements_compare_to_switch = false;
+		sunSettings.initial_indentation_level = 0;
+		sunSettings.insert_new_line_before_closing_brace_in_array_initializer = false;
+		sunSettings.insert_new_line_in_control_statements = false;
+		sunSettings.insert_new_line_in_empty_anonymous_type_declaration = true;
+		sunSettings.insert_new_line_in_empty_block = true;
+		sunSettings.insert_new_line_in_empty_method_body = true;
+		sunSettings.insert_new_line_in_empty_type_declaration = true;
+		sunSettings.insert_space_after_assignment_operators = true;
+		sunSettings.insert_space_after_binary_operator = true;
+		sunSettings.insert_space_after_block_close_brace = true;
+		sunSettings.insert_space_after_closing_paren_in_cast = true;
+		sunSettings.insert_space_after_colon_in_assert = true;
+		sunSettings.insert_space_after_colon_in_conditional = true;
+		sunSettings.insert_space_after_colon_in_labeled_statement = true;
+		sunSettings.insert_space_after_comma_in_allocation_expression = true;
+		sunSettings.insert_space_after_comma_in_array_initializer = true;
+		sunSettings.insert_space_after_comma_in_constructor_arguments = true;
+		sunSettings.insert_space_after_comma_in_constructor_throws = true;
+		sunSettings.insert_space_after_comma_in_explicitconstructorcall_arguments = true;
+		sunSettings.insert_space_after_comma_in_for_increments = true;
+		sunSettings.insert_space_after_comma_in_for_inits = true;
+		sunSettings.insert_space_after_comma_in_messagesend_arguments = true;
+		sunSettings.insert_space_after_comma_in_method_arguments = true;
+		sunSettings.insert_space_after_comma_in_method_throws = true;
+		sunSettings.insert_space_after_comma_in_multiple_field_declarations = true;
+		sunSettings.insert_space_after_comma_in_multiple_local_declarations = true;
+		sunSettings.insert_space_after_comma_in_superinterfaces = true;
+		sunSettings.insert_space_after_open_paren_in_parenthesized_expression = false;
+		sunSettings.insert_space_after_opening_paren_in_cast = false;
+		sunSettings.insert_space_after_postfix_operator = false;
+		sunSettings.insert_space_after_prefix_operator = false;
+		sunSettings.insert_space_after_question_in_conditional = true;
+		sunSettings.insert_space_after_semicolon_in_for = true;
+		sunSettings.insert_space_after_unary_operator = false;
+		sunSettings.insert_space_before_anonymous_type_open_brace = true;
+		sunSettings.insert_space_before_assignment_operators = true;
+		sunSettings.insert_space_before_binary_operator = true;
+		sunSettings.insert_space_before_block_open_brace = true;
+		sunSettings.insert_space_before_bracket_in_array_reference = false;
+		sunSettings.insert_space_before_bracket_in_array_type_reference = false;
+		sunSettings.insert_space_before_catch_expression = true;
+		sunSettings.insert_space_before_closing_brace_in_array_initializer = false;
+		sunSettings.insert_space_before_closing_paren = false;
+		sunSettings.insert_space_before_closing_paren_in_cast = false;
+		sunSettings.insert_space_before_closing_paren_in_parenthesized_expression = false;
+		sunSettings.insert_space_before_colon_in_assert = true;
+		sunSettings.insert_space_before_colon_in_case = false;
+		sunSettings.insert_space_before_colon_in_conditional = true;
+		sunSettings.insert_space_before_colon_in_default = false;
+		sunSettings.insert_space_before_colon_in_labeled_statement = false;
+		sunSettings.insert_space_before_comma_in_allocation_expression = false;
+		sunSettings.insert_space_before_comma_in_array_initializer = false;
+		sunSettings.insert_space_before_comma_in_constructor_arguments = false;
+		sunSettings.insert_space_before_comma_in_constructor_throws = false;
+		sunSettings.insert_space_before_comma_in_explicitconstructorcall_arguments = false;
+		sunSettings.insert_space_before_comma_in_for_increments = false;
+		sunSettings.insert_space_before_comma_in_for_inits = false;
+		sunSettings.insert_space_before_comma_in_messagesend_arguments = false;
+		sunSettings.insert_space_before_comma_in_method_arguments = false;
+		sunSettings.insert_space_before_comma_in_method_throws = false;
+		sunSettings.insert_space_before_comma_in_multiple_field_declarations = false;
+		sunSettings.insert_space_before_comma_in_multiple_local_declarations = false;
+		sunSettings.insert_space_before_comma_in_superinterfaces = false;
+		sunSettings.insert_space_before_first_argument = false;
+		sunSettings.insert_space_before_first_initializer = false;
+		sunSettings.insert_space_before_for_paren = true;
+		sunSettings.insert_space_before_if_condition = true;
+		sunSettings.insert_space_before_message_send = false;
+		sunSettings.insert_space_before_method_declaration_open_paren = false;
+		sunSettings.insert_space_before_method_open_brace = true;
+		sunSettings.insert_space_before_open_paren_in_parenthesized_expression = false;
+		sunSettings.insert_space_before_opening_brace_in_array_initializer = false;
+		sunSettings.insert_space_before_postfix_operator = false;
+		sunSettings.insert_space_before_prefix_operator = true;
+		sunSettings.insert_space_before_question_in_conditional = true;
+		sunSettings.insert_space_before_semicolon = false;
+		sunSettings.insert_space_before_switch_condition = true;
+		sunSettings.insert_space_before_switch_open_brace = true;
+		sunSettings.insert_space_before_synchronized_condition = true;
+		sunSettings.insert_space_before_type_open_brace = true;
+		sunSettings.insert_space_before_unary_operator = false;
+		sunSettings.insert_space_before_while_condition = true;
+		sunSettings.insert_space_between_brackets_in_array_reference = false;
+		sunSettings.insert_space_between_brackets_in_array_type_reference = false;
+		sunSettings.insert_space_between_empty_arguments = false;
+		sunSettings.insert_space_between_empty_array_initializer = false;
+		sunSettings.insert_space_in_catch_expression = false;
+		sunSettings.insert_space_in_for_parens = false;
+		sunSettings.insert_space_in_if_condition = false;
+		sunSettings.insert_space_in_switch_condition = false;
+		sunSettings.insert_space_in_synchronized_condition = false;
+		sunSettings.insert_space_in_while_condition = false;
+		sunSettings.insert_space_within_message_send = false;
+		sunSettings.keep_else_statement_on_same_line = false;
+		sunSettings.keep_simple_if_on_one_line = true;
+		sunSettings.keep_then_statement_on_same_line = true;
+		sunSettings.line_delimiter = DEFAULT_LINE_SEPARATOR;
+		sunSettings.message_send_arguments_alignment = Alignment.M_COMPACT_SPLIT;
+		sunSettings.message_send_selector_alignment = Alignment.M_COMPACT_SPLIT;
+		sunSettings.method_declaration_arguments_alignment = Alignment.M_COMPACT_SPLIT;
+		sunSettings.method_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+		sunSettings.method_throws_clause_alignment = Alignment.M_COMPACT_SPLIT;
+		sunSettings.multiple_fields_alignment = Alignment.M_COMPACT_SPLIT;
+		sunSettings.number_of_blank_lines_to_insert_at_beginning_of_method_body = 0;
+		sunSettings.number_of_empty_lines_to_preserve = 1;
+		sunSettings.page_width = 80;
+		sunSettings.preserve_user_linebreaks = false;
+		sunSettings.put_empty_statement_on_new_line = true;
+		sunSettings.qualified_allocation_expression_arguments_alignment = Alignment.M_COMPACT_SPLIT;
+		sunSettings.switch_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+		sunSettings.tab_size = 4;
+		sunSettings.type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+		sunSettings.type_declaration_superclass_alignment = Alignment.M_COMPACT_SPLIT;
+		sunSettings.type_declaration_superinterfaces_alignment = Alignment.M_COMPACT_SPLIT;
+		sunSettings.type_member_alignment = Alignment.M_NO_ALIGNMENT;
+		sunSettings.use_tab = false;
+		return sunSettings;
 	}
 }

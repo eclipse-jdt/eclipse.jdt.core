@@ -15,6 +15,7 @@ import java.util.Map;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
@@ -155,7 +156,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	private int chunkKind;
 	public int lastLocalDeclarationSourceStart;
 	private Scanner localScanner;
-	public FormattingPreferences preferences;
+	public DefaultCodeFormatterOptions preferences;
 	public Scribe scribe;
 	
 	/*
@@ -163,10 +164,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 * this constructor, but then there is no way to initialize the option used by the formatter.
 	 */ 
 	public CodeFormatterVisitor() {
-		this(FormattingPreferences.getSunSetttings(), JavaCore.getDefaultOptions(), 0, -1);
+		this(DefaultCodeFormatterOptions.getSunSetttings(), JavaCore.getDefaultOptions(), 0, -1);
 	}
 
-	public CodeFormatterVisitor(FormattingPreferences preferences, Map settings, int offset, int length) {
+	public CodeFormatterVisitor(DefaultCodeFormatterOptions preferences, Map settings, int offset, int length) {
 		if (settings != null) {
 			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
 			if (assertModeSetting == null) {
@@ -290,7 +291,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 * TODO (olivier) remove once old formatter is gone
 	 * @deprecated
 	 */
-	void convertOldOptionsToPreferences(Map oldOptions, FormattingPreferences formattingPreferences) {
+	void convertOldOptionsToPreferences(Map oldOptions, DefaultCodeFormatterOptions formattingPreferences) {
 		if (oldOptions == null) {
 			return;
 		}
@@ -308,17 +309,17 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			
 			if(optionID.equals(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE)){
 				if (optionValue.equals(JavaCore.INSERT)){
-					formattingPreferences.anonymous_type_declaration_brace_position = FormattingPreferences.NEXT_LINE;
-					formattingPreferences.type_declaration_brace_position = FormattingPreferences.NEXT_LINE;
-					formattingPreferences.method_declaration_brace_position = FormattingPreferences.NEXT_LINE;
-					formattingPreferences.block_brace_position = FormattingPreferences.NEXT_LINE;
-					formattingPreferences.switch_brace_position = FormattingPreferences.NEXT_LINE;
+					formattingPreferences.anonymous_type_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+					formattingPreferences.type_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+					formattingPreferences.method_declaration_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+					formattingPreferences.block_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
+					formattingPreferences.switch_brace_position = DefaultCodeFormatterConstants.NEXT_LINE;
 				} else if (optionValue.equals(JavaCore.DO_NOT_INSERT)){
-					formattingPreferences.anonymous_type_declaration_brace_position = FormattingPreferences.END_OF_LINE;
-					formattingPreferences.type_declaration_brace_position = FormattingPreferences.END_OF_LINE;
-					formattingPreferences.method_declaration_brace_position = FormattingPreferences.END_OF_LINE;
-					formattingPreferences.block_brace_position = FormattingPreferences.END_OF_LINE;
-					formattingPreferences.switch_brace_position = FormattingPreferences.END_OF_LINE;
+					formattingPreferences.anonymous_type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+					formattingPreferences.type_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+					formattingPreferences.method_declaration_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+					formattingPreferences.block_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
+					formattingPreferences.switch_brace_position = DefaultCodeFormatterConstants.END_OF_LINE;
 				}
 				continue;
 			}
@@ -911,7 +912,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 		this.scribe.printTrailingComment();
-		if (class_declaration_brace.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
+		if (class_declaration_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
 			this.scribe.unIndent();
 		}
 		if (hasComments()) {
@@ -1095,9 +1096,9 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 	private void formatOpeningBrace(String bracePosition, boolean insertSpaceBeforeBrace) {
 	
-		if (bracePosition.equals(FormattingPreferences.NEXT_LINE)) {
+		if (bracePosition.equals(DefaultCodeFormatterConstants.NEXT_LINE)) {
 			this.scribe.printNewLine();
-		} else if (bracePosition.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
+		} else if (bracePosition.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
 			this.scribe.printNewLine();
 			this.scribe.indent();
 		}
@@ -1508,7 +1509,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.printNewLine();
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
-		if (anonymous_type_declaration_brace_position.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
+		if (anonymous_type_declaration_brace_position.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
 			this.scribe.unIndent();
 		}
 		return false;
@@ -1921,7 +1922,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 		this.scribe.printTrailingComment();
-		if (block_brace_position.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
+		if (block_brace_position.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
 			this.scribe.unIndent();
 		}		
 		return false;	
@@ -2270,7 +2271,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.unIndent();
 			this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 			this.scribe.printTrailingComment();
-			if (method_declaration_brace.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
+			if (method_declaration_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
 				this.scribe.unIndent();
 			}
 		} else {
@@ -2999,7 +3000,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			this.scribe.unIndent();
 			this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 			this.scribe.printTrailingComment();
-			if (method_declaration_brace.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
+			if (method_declaration_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
 				this.scribe.unIndent();
 			}
 		} else {
@@ -3463,7 +3464,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		this.scribe.printNewLine();
 		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 		this.scribe.printTrailingComment();
-		if (switch_brace.equals(FormattingPreferences.NEXT_LINE_SHIFTED)) {
+		if (switch_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
 			this.scribe.unIndent();
 		}		
 		return false;

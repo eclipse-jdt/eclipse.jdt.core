@@ -154,22 +154,22 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 	
 	private CodeFormatterVisitor newCodeFormatter;
 	
-	private FormattingPreferences preferences;
+	private DefaultCodeFormatterOptions preferences;
 	private Map options;
 	
 	public DefaultCodeFormatter() {
-		this(FormattingPreferences.getDefault(), JavaCore.getOptions());
+		this(DefaultCodeFormatterOptions.getDefault(), JavaCore.getOptions());
 	}
 
 	public DefaultCodeFormatter(Map options) {
-		this(FormattingPreferences.getDefault(), options == null ? JavaCore.getOptions() : options);
+		this(DefaultCodeFormatterOptions.getDefault(), options == null ? JavaCore.getOptions() : options);
 	}
 	
-	public DefaultCodeFormatter(FormattingPreferences preferences) {
+	public DefaultCodeFormatter(DefaultCodeFormatterOptions preferences) {
 		this(preferences, JavaCore.getOptions());
 	}
 
-	public DefaultCodeFormatter(FormattingPreferences preferences, Map options) {
+	public DefaultCodeFormatter(DefaultCodeFormatterOptions preferences, Map options) {
 		this.preferences = preferences;
 		this.options = options;
 	}

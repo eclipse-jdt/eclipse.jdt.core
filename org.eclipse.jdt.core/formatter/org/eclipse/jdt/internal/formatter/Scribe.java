@@ -959,7 +959,7 @@ public class Scribe {
 		System.arraycopy(this.edits, 0, (this.edits = new OptimizedReplaceEdit[this.editsIndex * 2]), 0, this.editsIndex);
 	}
 
-	public void setLineSeparatorAndIdentationLevel(FormattingPreferences preferences) {
+	public void setLineSeparatorAndIdentationLevel(DefaultCodeFormatterOptions preferences) {
 		this.lineSeparator = preferences.line_delimiter;
 		if (this.useTab) {
 			this.indentationLevel = preferences.initial_indentation_level;
