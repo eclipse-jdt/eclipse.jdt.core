@@ -1161,6 +1161,54 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		buf.append("}\n");		
 		assertEqualString(preview, buf.toString());
 		
+	}
+	
+	public void testMethodInvocation2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        this.foo(3);\n");
+		buf.append("        this.<String>foo(3);\n");
+		buf.append("    }\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST3(cu);
+		AST ast= astRoot.getAST();
+		ASTRewrite rewrite= ASTRewrite.create(ast);
+		
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List statements= block.statements();
+		assertTrue("Number of statements not 2", statements.size() == 2);
+		{ // add type arguments
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(0);
+			MethodInvocation invocation= (MethodInvocation) stmt.getExpression();
+			SimpleType newType= ast.newSimpleType(ast.newSimpleName("String"));
+			ListRewrite listRewriter= rewrite.getListRewrite(invocation, MethodInvocation.TYPE_ARGUMENTS_PROPERTY);
+			listRewriter.insertFirst(newType, null);
+		}
+		{ // remove type arguments
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(1);
+			MethodInvocation invocation= (MethodInvocation) stmt.getExpression();
+			rewrite.remove((ASTNode) invocation.typeArguments().get(0), null);
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        this.<String>foo(3);\n");
+		buf.append("        this.foo(3);\n");
+		buf.append("    }\n");
+		buf.append("}\n");		
+		assertEqualString(preview, buf.toString());
+		
 	}	
 	
 	public void testParenthesizedExpression() throws Exception {
@@ -1388,6 +1436,112 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		
 	}
 	
+	public void testSuperConstructorInvocation2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public E() {\n");
+		buf.append("        x.super();\n");
+		buf.append("    }\n");
+		buf.append("    public E(int i) {\n");
+		buf.append("        x.<String>super(i);\n");
+		buf.append("    }\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST3(cu);
+		AST ast= astRoot.getAST();
+		ASTRewrite rewrite= ASTRewrite.create(ast);
+		
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		assertTrue("Number of methods not 2", type.bodyDeclarations().size() == 2);
+		{ // add type arguments
+			MethodDeclaration methodDecl= (MethodDeclaration) type.bodyDeclarations().get(0);
+			SuperConstructorInvocation invocation= (SuperConstructorInvocation) methodDecl.getBody().statements().get(0);
+			SimpleType newType= ast.newSimpleType(ast.newSimpleName("String"));
+			ListRewrite listRewriter= rewrite.getListRewrite(invocation, SuperConstructorInvocation.TYPE_ARGUMENTS_PROPERTY);
+			listRewriter.insertFirst(newType, null);
+		}
+		{ // remove type arguments
+			MethodDeclaration methodDecl= (MethodDeclaration) type.bodyDeclarations().get(1);
+			SuperConstructorInvocation invocation= (SuperConstructorInvocation) methodDecl.getBody().statements().get(0);
+
+			rewrite.remove((ASTNode) invocation.typeArguments().get(0), null);
+			
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public E() {\n");
+		buf.append("        x.<String>super();\n");
+		buf.append("    }\n");
+		buf.append("    public E(int i) {\n");
+		buf.append("        x.super(i);\n");
+		buf.append("    }\n");
+		buf.append("}\n");		
+		assertEqualString(preview, buf.toString());
+		
+	}
+	
+	public void testSuperConstructorInvocation4() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public E() {\n");
+		buf.append("        x.super();\n");
+		buf.append("    }\n");
+		buf.append("    public E(int i) {\n");
+		buf.append("        x.<String>super(i);\n");
+		buf.append("    }\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST3(cu);
+		AST ast= astRoot.getAST();
+		ASTRewrite rewrite= ASTRewrite.create(ast);
+		
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		assertTrue("Number of methods not 2", type.bodyDeclarations().size() == 2);
+		{ // add type arguments
+			MethodDeclaration methodDecl= (MethodDeclaration) type.bodyDeclarations().get(0);
+			SuperConstructorInvocation invocation= (SuperConstructorInvocation) methodDecl.getBody().statements().get(0);
+			rewrite.remove(invocation.getExpression(), null);
+			SimpleType newType= ast.newSimpleType(ast.newSimpleName("String"));
+			ListRewrite listRewriter= rewrite.getListRewrite(invocation, SuperConstructorInvocation.TYPE_ARGUMENTS_PROPERTY);
+			listRewriter.insertFirst(newType, null);
+		}
+		{ // remove type arguments
+			MethodDeclaration methodDecl= (MethodDeclaration) type.bodyDeclarations().get(1);
+			SuperConstructorInvocation invocation= (SuperConstructorInvocation) methodDecl.getBody().statements().get(0);
+
+			rewrite.remove(invocation.getExpression(), null);
+			rewrite.remove((ASTNode) invocation.typeArguments().get(0), null);
+			
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public E() {\n");
+		buf.append("        <String>super();\n");
+		buf.append("    }\n");
+		buf.append("    public E(int i) {\n");
+		buf.append("        super(i);\n");
+		buf.append("    }\n");
+		buf.append("}\n");		
+		assertEqualString(preview, buf.toString());
+		
+	}	
+
+
+	
 	public void testSuperFieldInvocation() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1516,6 +1670,55 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 		
 	}
+	
+	public void testSuperMethodInvocation2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        X.super.foo(3);\n");
+		buf.append("        X.super.<String>foo(3);\n");
+		buf.append("    }\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST3(cu);
+		AST ast= astRoot.getAST();
+		ASTRewrite rewrite= ASTRewrite.create(ast);
+		
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List statements= block.statements();
+		assertTrue("Number of statements not 2", statements.size() == 2);
+		{ // add type arguments
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(0);
+			SuperMethodInvocation invocation= (SuperMethodInvocation) stmt.getExpression();
+			SimpleType newType= ast.newSimpleType(ast.newSimpleName("String"));
+			ListRewrite listRewriter= rewrite.getListRewrite(invocation, SuperMethodInvocation.TYPE_ARGUMENTS_PROPERTY);
+			listRewriter.insertFirst(newType, null);
+		}
+		{ // remove type arguments
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(1);
+			SuperMethodInvocation invocation= (SuperMethodInvocation) stmt.getExpression();
+			rewrite.remove((ASTNode) invocation.typeArguments().get(0), null);
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        X.super.<String>foo(3);\n");
+		buf.append("        X.super.foo(3);\n");
+		buf.append("    }\n");
+		buf.append("}\n");		
+		assertEqualString(preview, buf.toString());
+		
+	}	
+
 	
 	public void testThisExpression() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);

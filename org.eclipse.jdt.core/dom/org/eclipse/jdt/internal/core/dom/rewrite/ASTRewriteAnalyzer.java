@@ -731,11 +731,26 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					
 					doTextRemoveAndVisit(offset, length, node, editGroup);
 					doTextInsert(offset, (ASTNode) event.getNewValue(), getIndent(startPos), true, editGroup);
-					return offset + length;
+					try {
+						return getScanner().getTokenEndOffset(ITerminalSymbols.TokenNameDOT, offset + length);
+					} catch (CoreException e) {
+						handleException(e);
+					}
+					break;
 				}
 			}
 		}
-		return doVisit(parent, property, startPos);
+		Object node= getOriginalValue(parent, property);
+		if (node == null) {
+			return startPos;
+		}
+		int pos= doVisit((ASTNode) node);
+		try {
+			return getScanner().getTokenEndOffset(ITerminalSymbols.TokenNameDOT, pos);
+		} catch (CoreException e) {
+			handleException(e);
+		}
+		return pos;
 	}	
 	
 	private class ParagraphListRewriter extends ListRewriter {
@@ -855,17 +870,22 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (event != null && event.getChangeKind() != RewriteEvent.UNCHANGED) {
 			RewriteEvent[] children= event.getChildren();
 			try {
-				boolean isAllRemoved= isAllOfKind(children, RewriteEvent.REMOVED);
+				boolean isAllInserted= isAllOfKind(children, RewriteEvent.INSERTED);
+				if (isAllInserted) {
+					pos= getScanner().getNextStartOffset(pos, false); // adjust on next element
+				}
+				boolean isAllRemoved= !isAllInserted && isAllOfKind(children, RewriteEvent.REMOVED);
 				if (isAllRemoved) { // all removed: set start to left bracket
 					pos= getScanner().getTokenStartOffset(ITerminalSymbols.TokenNameLESS, pos);
 				}
-				pos= new ListRewriter().rewriteList(parent, property, pos, keyword + String.valueOf('<'), ", "); //$NON-NLS-1$ //$NON-NLS-2$
-				if (isAllRemoved) { // all removed: remove right bracked
+				pos= new ListRewriter().rewriteList(parent, property, pos, String.valueOf('<'), ", "); //$NON-NLS-1$ //$NON-NLS-2$
+				if (isAllRemoved) { // all removed: remove right and space up to next element
 					int endPos= getScanner().getTokenEndOffset(ITerminalSymbols.TokenNameGREATER, pos); // set pos to '>'
+					endPos= getScanner().getNextStartOffset(endPos, false);
 					doTextRemove(pos, endPos - pos, getEditGroup(children[children.length - 1]));
 					return endPos;
-				} else if (isAllOfKind(children, RewriteEvent.INSERTED)) {
-					doTextInsert(pos, String.valueOf('>'), getEditGroup(children[children.length - 1]));
+				} else if (isAllInserted) {
+					doTextInsert(pos, String.valueOf('>' + keyword), getEditGroup(children[children.length - 1]));
 					return pos;
 				}
 			} catch (CoreException e) {
@@ -1386,7 +1406,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (isConstructorChange || !returnTypeExists && newReturnType != originalReturnType) {
 			// use the start offset of the method name to insert
 			ASTNode originalMethodName= (ASTNode) getOriginalValue(node, MethodDeclaration.NAME_PROPERTY);
-			int nextStart= getExtendedOffset(originalMethodName);
+			int nextStart= originalMethodName.getStartPosition(); // see bug 84049: can't use extended offset
 			TextEditGroup editGroup= getEditGroup(node, property);
 			if (isConstructor || !returnTypeExists) { // insert
 				doTextInsert(nextStart, newReturnType, getIndent(nextStart), true, editGroup);
@@ -1410,7 +1430,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (node.getAST().apiLevel() == AST.JLS2) {
 			rewriteModifiers(node, MethodDeclaration.MODIFIERS_PROPERTY, pos);
 		} else {
-			rewriteModifiers2(node, MethodDeclaration.MODIFIERS2_PROPERTY, pos);
+			pos= rewriteModifiers2(node, MethodDeclaration.MODIFIERS2_PROPERTY, pos);
+			pos= rewriteOptionalTypeParameters(node, MethodDeclaration.TYPE_PARAMETERS_PROPERTY, pos, " "); //$NON-NLS-1$
 		}
 		
 		boolean isConstructorChange= isChanged(node, MethodDeclaration.CONSTRUCTOR_PROPERTY);
@@ -2200,7 +2221,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		
 		int pos= rewriteOptionalQualifier(node, MethodInvocation.EXPRESSION_PROPERTY, node.getStartPosition());
 		if (node.getAST().apiLevel() >= AST.JLS3) {
-			pos= rewriteOptionalTypeParameters(node, MethodInvocation.TYPE_ARGUMENTS_PROPERTY, pos, " "); //$NON-NLS-1$
+			pos= rewriteOptionalTypeParameters(node, MethodInvocation.TYPE_ARGUMENTS_PROPERTY, pos, ""); //$NON-NLS-1$
 		}
 
 		pos= rewriteRequiredNode(node, MethodInvocation.NAME_PROPERTY);
@@ -2423,7 +2444,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		int pos= rewriteOptionalQualifier(node, SuperConstructorInvocation.EXPRESSION_PROPERTY, node.getStartPosition());
 
 		if (node.getAST().apiLevel() >= AST.JLS3) {
-			pos= rewriteOptionalTypeParameters(node, SuperConstructorInvocation.TYPE_ARGUMENTS_PROPERTY, pos, " "); //$NON-NLS-1$
+			pos= rewriteOptionalTypeParameters(node, SuperConstructorInvocation.TYPE_ARGUMENTS_PROPERTY, pos, ""); //$NON-NLS-1$
 		}
 		
 		if (isChanged(node, SuperConstructorInvocation.ARGUMENTS_PROPERTY)) {
@@ -2467,7 +2488,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			if (isChanged(node, SuperMethodInvocation.TYPE_ARGUMENTS_PROPERTY)) {
 				try {
 					pos= getScanner().getTokenEndOffset(ITerminalSymbols.TokenNameDOT, pos);
-					rewriteOptionalTypeParameters(node, SuperMethodInvocation.TYPE_ARGUMENTS_PROPERTY, pos, " "); //$NON-NLS-1$
+					rewriteOptionalTypeParameters(node, SuperMethodInvocation.TYPE_ARGUMENTS_PROPERTY, pos, ""); //$NON-NLS-1$
 				} catch (CoreException e) {
 					handleException(e);
 				}

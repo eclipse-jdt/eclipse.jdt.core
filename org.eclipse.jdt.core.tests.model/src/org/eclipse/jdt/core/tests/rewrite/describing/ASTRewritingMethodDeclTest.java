@@ -161,6 +161,117 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
+	public void testMethodTypeParameterAdds() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    /**\n");
+		buf.append("     *\n");
+		buf.append("     */\n");
+		buf.append("    E(int p1) {}\n");
+		buf.append("    E(int p1, int p2) {}\n");
+		buf.append("    public E(int p1, byte p2) {}\n");
+		buf.append("    /**\n");
+		buf.append("     *\n");
+		buf.append("     */\n");
+		buf.append("    void gee(int p1) {}\n");
+		buf.append("    void hee(int p1, int p2) {}\n");
+		buf.append("    public void hee(int p1, byte p2) {}\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+		
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		
+		MethodDeclaration[] methods= type.getMethods();
+		for (int i= 0; i < methods.length; i++) {
+			
+			// add type parameter
+			MethodDeclaration methodDecl= methods[i];
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.TYPE_PARAMETERS_PROPERTY);
+			TypeParameter typeParameter= ast.newTypeParameter();
+			typeParameter.setName(ast.newSimpleName("X"));
+			listRewrite.insertFirst(typeParameter, null);
+		}					
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    /**\n");
+		buf.append("     *\n");
+		buf.append("     */\n");
+		buf.append("    <X> E(int p1) {}\n");
+		buf.append("    <X> E(int p1, int p2) {}\n");
+		buf.append("    public <X> E(int p1, byte p2) {}\n");
+		buf.append("    /**\n");
+		buf.append("     *\n");
+		buf.append("     */\n");
+		buf.append("    <X> void gee(int p1) {}\n");
+		buf.append("    <X> void hee(int p1, int p2) {}\n");
+		buf.append("    public <X> void hee(int p1, byte p2) {}\n");
+		buf.append("}\n");		
+		assertEqualString(preview, buf.toString());
+	}
+	
+	public void testMethodTypeParameterRemoves() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    /**\n");
+		buf.append("     *\n");
+		buf.append("     */\n");
+		buf.append("    <X> E(int p1) {}\n");
+		buf.append("    <X> E(int p1, int p2) {}\n");
+		buf.append("    public <X> E(int p1, byte p2) {}\n");
+		buf.append("    /**\n");
+		buf.append("     *\n");
+		buf.append("     */\n");
+		buf.append("    <X> void gee(int p1) {}\n");
+		buf.append("    <X> void hee(int p1, int p2) {}\n");
+		buf.append("    public <X> void hee(int p1, byte p2) {}\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+		
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		
+		MethodDeclaration[] methods= type.getMethods();
+		for (int i= 0; i < methods.length; i++) {
+			
+			// add type parameter
+			MethodDeclaration methodDecl= methods[i];
+			rewrite.remove((ASTNode) methodDecl.typeParameters().get(0), null);
+
+		}					
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    /**\n");
+		buf.append("     *\n");
+		buf.append("     */\n");
+		buf.append("    E(int p1) {}\n");
+		buf.append("    E(int p1, int p2) {}\n");
+		buf.append("    public E(int p1, byte p2) {}\n");
+		buf.append("    /**\n");
+		buf.append("     *\n");
+		buf.append("     */\n");
+		buf.append("    void gee(int p1) {}\n");
+		buf.append("    void hee(int p1, int p2) {}\n");
+		buf.append("    public void hee(int p1, byte p2) {}\n");
+		buf.append("}\n");	
+		assertEqualString(preview, buf.toString());
+	}
+
+
+	
 	public void testMethodReturnTypeChanges() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -472,7 +583,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    public final float E() {}\n");
 		buf.append("    final float E(int i) {}\n");
 		buf.append("    /** javadoc comment */\n");
-		buf.append("    final float /* comment */ E(int i, int j) {}\n");
+		buf.append("    final /* comment */ float E(int i, int j) {}\n");
 		buf.append("    public final gee1() {}\n");
 		buf.append("    final gee2() {}\n");
 		buf.append("    /** javadoc comment */\n");
@@ -571,7 +682,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    public float E() {}\n");
 		buf.append("    float E(int i) {}\n");
 		buf.append("    /** javadoc comment */\n");
-		buf.append("    float /* comment */ E(int i, int j) {}\n");
+		buf.append("    /* comment */ float E(int i, int j) {}\n");
 		buf.append("    public gee1() {}\n");
 		buf.append("    gee2() {}\n");
 		buf.append("    /** javadoc comment */\n");

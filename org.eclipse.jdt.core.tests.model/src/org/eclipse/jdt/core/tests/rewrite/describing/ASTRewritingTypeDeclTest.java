@@ -554,6 +554,47 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}	
 	
+	
+	public void testTypeParameters() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class E extends A {}\n");
+		buf.append("class F {}\n");
+		buf.append("class G <T> extends A {}\n");
+		buf.append("class H <T> {}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+		
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		List types= astRoot.types();
+
+		for (int i= 0; i < 2; i++) {
+			// add type parameter
+			TypeDeclaration typeDecl= (TypeDeclaration) types.get(i);
+			ListRewrite listRewrite= rewrite.getListRewrite(typeDecl, TypeDeclaration.TYPE_PARAMETERS_PROPERTY);
+			TypeParameter typeParameter= ast.newTypeParameter();
+			typeParameter.setName(ast.newSimpleName("X"));
+			listRewrite.insertFirst(typeParameter, null);
+		}
+		for (int i= 2; i < 4; i++) {
+			// remove type parameter
+			TypeDeclaration typeDecl= (TypeDeclaration) types.get(i);
+			rewrite.remove((ASTNode) typeDecl.typeParameters().get(0), null);
+		}	
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class E <X> extends A {}\n");
+		buf.append("class F <X> {}\n");
+		buf.append("class G extends A {}\n");
+		buf.append("class H {}\n");	
+		assertEqualString(preview, buf.toString());
+	}
+	
+	
 	public void testBug22161() throws Exception {
 	//	System.out.println(getClass().getName()+"::" + getName() +" disabled (bug 22161)");
 	
