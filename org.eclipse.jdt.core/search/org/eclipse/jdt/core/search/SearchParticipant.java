@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**
  * A search participant describes a particular extension to a generic search
@@ -174,7 +175,11 @@ public abstract class SearchParticipant {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource resource = root.findMember(documentPath);
 		IPath containerPath = resource == null ? documentPath : resource.getProject().getFullPath();
-		JavaModelManager.getJavaModelManager().getIndexManager().scheduleDocumentIndexing(document, containerPath, indexLocation.toOSString(), this);
+		IndexManager manager = JavaModelManager.getJavaModelManager().getIndexManager();
+		String osIndexLocation = indexLocation.toOSString();
+		// TODO (jerome) should not have to create index manually, should expose API that recreates index instead
+		manager.ensureIndexExists(osIndexLocation, containerPath);
+		manager.scheduleDocumentIndexing(document, containerPath, osIndexLocation, this);
 	}
 
 	/**

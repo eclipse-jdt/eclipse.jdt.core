@@ -222,6 +222,9 @@ public static Test suite() {
 
 	// Create compilation units tests
 	suite.addTest(CreateCompilationUnitTests.suite());
+	
+	// Create search participant tests
+	suite.addTest(SearchParticipantTests.suite());
 
 	includeDeprecatedJDOMTests(suite);
 
