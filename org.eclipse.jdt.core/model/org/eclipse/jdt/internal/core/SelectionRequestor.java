@@ -33,7 +33,6 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedFieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
@@ -80,25 +79,15 @@ public SelectionRequestor(NameLookup nameLookup, Openable openable) {
  *
  * fix for 1FWFT6Q
  */
-protected void acceptBinaryMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] paramterSignatures, char[] genericDeclaringTypeSignature, char[] genericSignature, char[][] genericTypeArgumentsSignatures) {
-	IMethod method= type.getMethod(new String(selector), paramterSignatures);
+protected void acceptBinaryMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, char[] uniqueKey) {
+	IMethod method= type.getMethod(new String(selector), parameterSignatures);
 	if (method.exists()) {
-		if(genericDeclaringTypeSignature != null) {
-			String[] typeArguments = null;
-			if(genericTypeArgumentsSignatures != null) {
-				typeArguments = new String[genericTypeArgumentsSignatures.length];
-				for (int i = 0; i < typeArguments.length; i++) {
-					typeArguments[i] = new String(genericTypeArgumentsSignatures[i]);
-				}
-			}
-			
+		if(uniqueKey != null) {
 			method = new ParameterizedBinaryMethod(
 					(JavaElement)method.getParent(),
 					method.getElementName(),
 					method.getParameterTypes(),
-					new String(genericDeclaringTypeSignature),
-					genericSignature == null ? null : new String(genericSignature),
-					typeArguments);
+					new String(uniqueKey));
 		}
 		addElement(method);
 		if(SelectionEngine.DEBUG){
@@ -111,20 +100,20 @@ protected void acceptBinaryMethod(IType type, char[] selector, char[][] paramete
 /**
  * Resolve the annotation.
  */
-public void acceptAnnotation(char[] packageName, char[] annotationName, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
-	acceptType(packageName, annotationName, NameLookup.ACCEPT_ANNOTATIONS, isDeclaration, genericTypeSignature, start, end);
+public void acceptAnnotation(char[] packageName, char[] annotationName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
+	acceptType(packageName, annotationName, NameLookup.ACCEPT_ANNOTATIONS, isDeclaration, uniqueKey, start, end);
 }
 /**
  * Resolve the class.
  */
-public void acceptClass(char[] packageName, char[] className, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
-	acceptType(packageName, className, NameLookup.ACCEPT_CLASSES, isDeclaration, genericTypeSignature, start, end);
+public void acceptClass(char[] packageName, char[] className, boolean isDeclaration, char[] uniqueKey, int start, int end) {
+	acceptType(packageName, className, NameLookup.ACCEPT_CLASSES, isDeclaration, uniqueKey, start, end);
 }
 /**
  * Resolve the enum.
  */
-public void acceptEnum(char[] packageName, char[] enumName, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
-	acceptType(packageName, enumName, NameLookup.ACCEPT_ENUMS, isDeclaration, genericTypeSignature, start, end);
+public void acceptEnum(char[] packageName, char[] enumName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
+	acceptType(packageName, enumName, NameLookup.ACCEPT_ENUMS, isDeclaration, uniqueKey, start, end);
 }
 /**
  * @see ISelectionRequestor#acceptError
@@ -135,7 +124,7 @@ public void acceptError(IProblem error) {
 /**
  * Resolve the field.
  */
-public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, boolean isDeclaration, char[] genericDeclaringTypeSignature, char[] genericTypeSignature, int start, int end) {
+public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 	if(isDeclaration) {
 		IType type= resolveTypeByLocation(declaringTypePackageName, declaringTypeName,
 				NameLookup.ACCEPT_ALL,
@@ -167,19 +156,17 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 		if (type != null) {
 			IField field= type.getField(new String(name));
 			if (field.exists()) {
-				if(genericDeclaringTypeSignature != null) {
+				if(uniqueKey != null) {
 					if(field.isBinary()) {
 						field = new ParameterizedBinaryField(
 								(JavaElement)field.getParent(),
 								field.getElementName(),
-								new String(genericDeclaringTypeSignature),
-								genericTypeSignature == null ? null : new String(genericTypeSignature));
+								uniqueKey == null ? null : new String(uniqueKey));
 					} else {
 						field = new ParameterizedSourceField(
 								(JavaElement)field.getParent(),
 								field.getElementName(),
-								new String(genericDeclaringTypeSignature),
-								genericTypeSignature == null ? null : new String(genericTypeSignature));
+								uniqueKey == null ? null : new String(uniqueKey));
 					}
 				}
 				addElement(field);
@@ -195,8 +182,8 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 /**
  * Resolve the interface
  */
-public void acceptInterface(char[] packageName, char[] interfaceName, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
-	acceptType(packageName, interfaceName, NameLookup.ACCEPT_INTERFACES, isDeclaration, genericTypeSignature, start, end);
+public void acceptInterface(char[] packageName, char[] interfaceName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
+	acceptType(packageName, interfaceName, NameLookup.ACCEPT_INTERFACES, isDeclaration, uniqueKey, start, end);
 }
 public void acceptLocalField(FieldBinding fieldBinding) {
 	IJavaElement res;
@@ -212,19 +199,17 @@ public void acceptLocalField(FieldBinding fieldBinding) {
 		IField field= type.getField(new String(fieldBinding.name));
 		if (field.exists()) {
 			if (fieldBinding instanceof ParameterizedFieldBinding) {
-				char[] genericSignature = fieldBinding.genericSignature();
+				char[] uniqueKey = fieldBinding.computeUniqueKey();
 				if(field.isBinary()) {
 					field = new ParameterizedBinaryField(
 							(JavaElement)field.getParent(),
 							field.getElementName(),
-							new String(fieldBinding.declaringClass.genericTypeSignature()),
-							genericSignature == null ? null : new String(genericSignature));
+							uniqueKey == null ? null : new String(uniqueKey));
 				} else {
 					field = new ParameterizedSourceField(
 							(JavaElement)field.getParent(),
 							field.getElementName(),
-							new String(fieldBinding.declaringClass.genericTypeSignature()),
-							genericSignature == null ? null : new String(genericSignature));
+							uniqueKey == null ? null : new String(uniqueKey));
 				}
 			}
 			addElement(field);
@@ -242,36 +227,19 @@ public void acceptLocalMethod(MethodBinding methodBinding) {
 		if (methodBinding instanceof ParameterizedMethodBinding) {
 			IMethod method = (IMethod) res;
 			
-			char[] genericSignature = methodBinding.genericSignature();
-			
-			String[] typeArgumentsSignature = null;
-			if(methodBinding instanceof ParameterizedGenericMethodBinding) {
-				ParameterizedGenericMethodBinding genericMethodBinding = (ParameterizedGenericMethodBinding) methodBinding;
-				if(!genericMethodBinding.isRaw) {
-					TypeBinding[] typeArguments = genericMethodBinding.typeArguments;
-					int typeArgumentsCount = typeArguments.length;
-					for (int i = 0; i < typeArgumentsCount; i++) {
-						typeArgumentsSignature[i] = new String(typeArguments[i].genericTypeSignature());
-					}
-				}
-			}
-			
+			char[] uniqueKey = methodBinding.computeUniqueKey();
 			if(method.isBinary()) {
 				res = new ParameterizedBinaryMethod(
 						(JavaElement)res.getParent(),
 						method.getElementName(),
 						method.getParameterTypes(), 
-						new String(methodBinding.declaringClass.genericTypeSignature()),
-						genericSignature == null ? null : new String(genericSignature),
-						typeArgumentsSignature);
+						new String(uniqueKey));
 			} else {
 				res = new ParameterizedSourceMethod(
 						(JavaElement)res.getParent(),
 						method.getElementName(),
 						method.getParameterTypes(), 
-						new String(methodBinding.declaringClass.genericTypeSignature()),
-						genericSignature == null ? null : new String(genericSignature),
-						typeArgumentsSignature);
+						new String(uniqueKey));
 			}
 		}
 		addElement(res);
@@ -288,7 +256,7 @@ public void acceptLocalType(TypeBinding typeBinding) {
 		LocalTypeBinding localTypeBinding = (LocalTypeBinding)((ParameterizedTypeBinding)typeBinding).type;
 		res = findLocalElement(localTypeBinding.sourceStart());
 		if(typeBinding.isParameterizedType()) {
-			res = new ParameterizedSourceType((JavaElement)res.getParent(), res.getElementName(), new String(typeBinding.genericTypeSignature()));
+			res = new ParameterizedSourceType((JavaElement)res.getParent(), res.getElementName(), new String(typeBinding.computeUniqueKey()));
 		}
 	} else if(typeBinding instanceof SourceTypeBinding) {
 		res = findLocalElement(((SourceTypeBinding)typeBinding).sourceStart());
@@ -328,7 +296,7 @@ public void acceptLocalVariable(LocalVariableBinding binding) {
 /**
  * Resolve the method
  */
-public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, String enclosingDeclaringTypeSignature, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, boolean isConstructor, boolean isDeclaration, char[] genericDeclaringTypeSignature, char[] genericSignature, char[][] genericTypeArgumetsSignatures, int start, int end) {
+public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, String enclosingDeclaringTypeSignature, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, boolean isConstructor, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 	IJavaElement[] previousElement = this.elements;
 	int previousElementIndex = this.elementIndex;
 	this.elements = JavaElement.NO_ELEMENTS;
@@ -370,9 +338,9 @@ public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeNa
 					parameterSignatures[0] = enclosingDeclaringTypeSignature;
 				}
 				
-				acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames, parameterSignatures, genericDeclaringTypeSignature, genericSignature, genericTypeArgumetsSignatures);
+				acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames, parameterSignatures, uniqueKey);
 			} else {
-				acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames, genericDeclaringTypeSignature, genericSignature, genericTypeArgumetsSignatures);
+				acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames, uniqueKey);
 			}
 		}
 	}
@@ -407,7 +375,7 @@ public void acceptPackage(char[] packageName) {
  *
  * fix for 1FWFT6Q
  */
-protected void acceptSourceMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, char[] genericDeclaringTypeSignature, char[] genericSignature, char[][] genericTypeArgumentsSignatures) {
+protected void acceptSourceMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, char[] uniqueKey) {
 	String name = new String(selector);
 	IMethod[] methods = null;
 	try {
@@ -415,23 +383,13 @@ protected void acceptSourceMethod(IType type, char[] selector, char[][] paramete
 		for (int i = 0; i < methods.length; i++) {
 			if (methods[i].getElementName().equals(name)
 					&& methods[i].getParameterTypes().length == parameterTypeNames.length) {
-				if(genericDeclaringTypeSignature != null) {
+				if(uniqueKey != null) {
 					IMethod method = methods[i];
-					
-					String[] typeArguments = null;
-					if(genericTypeArgumentsSignatures != null) {
-						typeArguments = new String[genericTypeArgumentsSignatures.length];
-						for (int j = 0; j < typeArguments.length; j++) {
-							typeArguments[j] = new String(genericTypeArgumentsSignatures[j]);
-						}
-					}
 					ParameterizedSourceMethod parameterizedSourceMethod = new ParameterizedSourceMethod(
 							(JavaElement)method.getParent(),
 							method.getElementName(),
 							method.getParameterTypes(),
-							new String(genericDeclaringTypeSignature),
-							genericSignature == null ? null : new String(genericSignature),
-							typeArguments);
+							new String(uniqueKey));
 					addElement(parameterizedSourceMethod);
 				} else {
 					addElement(methods[i]);
@@ -527,17 +485,17 @@ protected void acceptMethodDeclaration(IType type, char[] selector, int start, i
 /**
  * Resolve the type, adding to the resolved elements.
  */
-protected void acceptType(char[] packageName, char[] typeName, int acceptFlags, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
+protected void acceptType(char[] packageName, char[] typeName, int acceptFlags, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 	IType type = null;
 	if(isDeclaration) {
 		type = resolveTypeByLocation(packageName, typeName, acceptFlags, start, end);
 	} else {
 		type = resolveType(packageName, typeName, acceptFlags);
-		if(type != null && genericTypeSignature != null) {
+		if(type != null && uniqueKey != null) {
 			if(type.isBinary()) {
-				type = new ParameterizedBinaryType((JavaElement)type.getParent(), type.getElementName(), new String(genericTypeSignature));
+				type = new ParameterizedBinaryType((JavaElement)type.getParent(), type.getElementName(), new String(uniqueKey));
 			} else {
-				type = new ParameterizedSourceType((JavaElement)type.getParent(), type.getElementName(), new String(genericTypeSignature));
+				type = new ParameterizedSourceType((JavaElement)type.getParent(), type.getElementName(), new String(uniqueKey));
 			}
 		}
 	}

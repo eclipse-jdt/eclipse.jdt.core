@@ -95,6 +95,17 @@ public Object getConstant() throws JavaModelException;
  */
 String getElementName();
 /**
+ * Returns the binding key for this field. A binding key is a key that uniquely
+ * identifies this field. It allows access to generic info for parameterized
+ * fields.
+ * 
+ * @return the binding key for this field
+ * @see org.eclipse.jdt.core.dom.IBinding#getKey()
+ * @see BindingKey
+ * @since 3.1
+ */
+String getKey();
+/**
  * Returns the type signature of this field. For enum constants,
  * this returns the signature of the declaring enum class.
  * <p>
@@ -109,4 +120,12 @@ String getElementName();
  * @see Signature
  */
 String getTypeSignature() throws JavaModelException;
+/**
+ * Returns whether this field represents a parameterized field.
+ * 
+ * @return whether this field represents a parameterized field.
+ * @since 3.1
+ */
+boolean isParameterized();
+
 }

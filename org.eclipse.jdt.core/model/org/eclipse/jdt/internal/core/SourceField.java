@@ -88,6 +88,12 @@ public Object getConstant() throws JavaModelException {
 public int getElementType() {
 	return FIELD;
 }
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.IField#getKey()
+ */
+public String getKey() {
+	return getKey(this);
+}
 /**
  * @see JavaElement#getHandleMemento()
  */
@@ -111,6 +117,12 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 public String getTypeSignature() throws JavaModelException {
 	SourceFieldElementInfo info = (SourceFieldElementInfo) getElementInfo();
 	return info.getTypeSignature();
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.IField#isParameterized()
+ */
+public boolean isParameterized() {
+	return false;
 }
 /**
  * @private Debugging purposes

@@ -62,7 +62,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(CompatibilityRulesTests.class.getName());
-			suite.addTest(new CompatibilityRulesTests("test005"));
+			suite.addTest(new CompatibilityRulesTests("test020"));
 			return suite;
 		}
 		return new Suite(CompatibilityRulesTests.class);
@@ -437,7 +437,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 			},
 			new String[] {
 				"Lp1/Y;.foo()V",
-				"Lp1/X;.foo()V;"
+				"Lp1/X;.foo()V"
 			});	
 		assertTrue("Y#foo() should override X#foo()", bindings[0].overrides(bindings[1]));
 	}
@@ -462,7 +462,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 				"}",
 			},
 			new String[] {
-				"Lp1/X;.foo()V;",
+				"Lp1/X;.foo()V",
 				"Lp1/Y;.foo()V"
 			});	
 		assertTrue("X#foo() should not override Y#foo()", !bindings[0].overrides(bindings[1]));
@@ -488,7 +488,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 				"}",
 			},
 			new String[] {
-				"Lp1/X;.foo()V;",
+				"Lp1/X;.foo()V",
 				"Lp1/Y;.foo()V"
 			});	
 		assertTrue("X#foo() should not override Y#foo()", !bindings[0].overrides(bindings[1]));

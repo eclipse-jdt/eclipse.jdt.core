@@ -67,12 +67,24 @@ public int getElementType() {
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_FIELD;
 }
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.IField#getKey()
+ */
+public String getKey() {
+	return getKey(this);
+}
 /*
  * @see IField
  */
 public String getTypeSignature() throws JavaModelException {
 	IBinaryField info = (IBinaryField) getElementInfo();
 	return new String(ClassFile.translatedName(info.getTypeName()));
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.IField#isParameterized()
+ */
+public boolean isParameterized() {
+	return false;
 }
 /*
  * @private Debugging purposes

@@ -16,16 +16,28 @@ package org.eclipse.jdt.internal.core;
  */
 public class ParameterizedBinaryField extends BinaryField {
 	
-	public String genericDeclaringTypeSignature;
-	public String genericSignature;
+	private String uniqueKey;
 	
 	/*
 	 * See class comments.
 	 */
-	public ParameterizedBinaryField(JavaElement parent, String name, String declaringTypeSignature, String typeSignature) {
+	public ParameterizedBinaryField(JavaElement parent, String name, String uniqueKey) {
 		super(parent, name);
-		this.genericDeclaringTypeSignature = declaringTypeSignature;
-		this.genericSignature = typeSignature;
+		this.uniqueKey = uniqueKey;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.core.BinaryField#getKey()
+	 */
+	public String getKey() {
+		return this.uniqueKey;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.IField#isParameterized()
+	 */
+	public boolean isParameterized() {
+		return true;
 	}
 
 	/**
@@ -33,9 +45,7 @@ public class ParameterizedBinaryField extends BinaryField {
 	 */
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		super.toStringInfo(tab, buffer, info);
-		buffer.append(" declaringSignature="); //$NON-NLS-1$
-		buffer.append(genericDeclaringTypeSignature);
-		buffer.append(" signature="); //$NON-NLS-1$
-		buffer.append(genericSignature);
+		buffer.append(" key="); //$NON-NLS-1$
+		buffer.append(this.uniqueKey);
 	}
 }

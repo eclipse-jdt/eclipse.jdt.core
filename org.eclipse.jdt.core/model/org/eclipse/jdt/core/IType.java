@@ -450,6 +450,18 @@ public interface IType extends IMember {
 	IInitializer[] getInitializers() throws JavaModelException;
 	
 	/**
+	 * Returns the binding key for this type. A binding key is a key that uniquely
+	 * identifies this type. It allows access to generic info for parameterized
+	 * types.
+	 * 
+	 * @return the binding key for this type
+	 * @see org.eclipse.jdt.core.dom.IBinding#getKey()
+	 * @see BindingKey
+	 * @since 3.1
+	 */
+	String getKey();
+	
+	/**
 	 * Returns the method with the specified name and parameter types
 	 * in this type (for example, <code>"foo", {"I", "QString;"}</code>).
 	 * To get the handle for a constructor, the name specified must be the
@@ -770,6 +782,13 @@ public interface IType extends IMember {
 	 * @since 2.0
 	 */
 	boolean isMember() throws JavaModelException;
+	/**
+	 * Returns whether this type represents a parameterized type.
+	 * 
+	 * @return whether this type represents a parameterized type.
+	 * @since 3.1
+	 */
+	boolean isParameterized();
 	/**
 	 * Loads a previously saved ITypeHierarchy from an input stream. A type hierarchy can
 	 * be stored using ITypeHierachy#store(OutputStream).

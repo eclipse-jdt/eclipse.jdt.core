@@ -1928,6 +1928,17 @@ public class Util {
 	}
 	
 	/*
+	 * Converts a char[][] to String[].
+	 */
+	public static String[] toStrings(char[][] a) {
+		int len = a.length;
+		String[] result = new String[len];
+		for (int i = 0; i < len; ++i) {
+			result[i] = new String(a[i]);
+		}
+		return result;
+	}
+	/*
 	 * Returns the unresolved type parameter signatures of the given method
 	 * e.g. {"QString;", "[int", "[[Qjava.util.Vector;"}
 	 */

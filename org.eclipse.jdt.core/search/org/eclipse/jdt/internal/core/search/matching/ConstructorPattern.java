@@ -12,11 +12,10 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
 
+import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.core.ParameterizedBinaryMethod;
-import org.eclipse.jdt.internal.core.ParameterizedSourceMethod;
 import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
@@ -116,15 +115,9 @@ public ConstructorPattern(
 
 	// Get unique key for parameterized constructors
 	String genericDeclaringTypeSignature = null;
-//	String genericSignature = null;
-	if (method instanceof ParameterizedSourceMethod) {
-		ParameterizedSourceMethod parameterizedMethod = (ParameterizedSourceMethod) method;
-		genericDeclaringTypeSignature = parameterizedMethod.genericDeclaringTypeSignature;
-//		genericSignature = parameterizedMethod.genericSignature;
-	} else if (method instanceof ParameterizedBinaryMethod) {
-		ParameterizedBinaryMethod parameterizedMethod = (ParameterizedBinaryMethod) method;
-		genericDeclaringTypeSignature = parameterizedMethod.genericDeclaringTypeSignature;
-//		genericSignature = parameterizedMethod.genericSignature;
+	if (method.isParameterized()) {
+		BindingKey key = new BindingKey(method.getKey());
+		genericDeclaringTypeSignature = key.getDeclaringTypeSignature();
 	} else {
 		constructorParameters = true;
 	}

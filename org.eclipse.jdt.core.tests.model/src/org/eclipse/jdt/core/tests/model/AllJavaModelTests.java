@@ -74,7 +74,8 @@ static Class[] getAllTestClasses() {
 		GetSourceTests.class,
 		CreatePackageTests.class,
 		CreateCompilationUnitTests.class,
-		ClassFileTests.class
+		ClassFileTests.class,
+		BindingKeyTests.class
 	};
 }
 public static Test suite() {

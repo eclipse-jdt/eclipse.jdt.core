@@ -328,6 +328,12 @@ public IInitializer[] getInitializers() throws JavaModelException {
 	list.toArray(array);
 	return array;
 }
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.IType#getKey()
+ */
+public String getKey() {
+	return getKey(this);
+}
 /**
  * @see IType#getMethod
  */
@@ -551,6 +557,12 @@ public boolean isLocal() {
 public boolean isMember() {
 	return getDeclaringType() != null;
 }
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.IType#isParameterized()
+ */
+public boolean isParameterized() {
+	return false;
+}
 /**
  * @see IType
  */
@@ -760,26 +772,26 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 				this.answers[length] = answer;
 			}
 		}
-		public void acceptAnnotation(char[] packageName, char[] annotationName, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
+		public void acceptAnnotation(char[] packageName, char[] annotationName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 			acceptType(new String[]  { new String(packageName), new String(annotationName) });
 		}
-		public void acceptClass(char[] packageName, char[] className, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
+		public void acceptClass(char[] packageName, char[] className, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 			acceptType(new String[]  { new String(packageName), new String(className) });
 		}
-		public void acceptEnum(char[] packageName, char[] enumName, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
+		public void acceptEnum(char[] packageName, char[] enumName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 			acceptType(new String[]  { new String(packageName), new String(enumName) });
 		}
-		public void acceptInterface(char[] packageName, char[] interfaceName, boolean isDeclaration, char[] genericTypeSignature, int start, int end) {
+		public void acceptInterface(char[] packageName, char[] interfaceName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 			acceptType(new String[]  { new String(packageName), new String(interfaceName) });
 		}
 
 		public void acceptError(IProblem error) {
 			// ignore
 		}
-		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName, boolean isDeclaration, char[] genericDeclaringType, char[] genericType, int start, int end) {
+		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 			// ignore
 		}
-		public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, String enclosingDeclaringTypeSignature, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, boolean isConstructor, boolean isDeclaration, char[] genericDeclaringTypeSignature, char[] genericSignature, char[][] genericTypeArgumentsSignatures, int start, int end) {
+		public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, String enclosingDeclaringTypeSignature, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, boolean isConstructor, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 			// ignore
 		}
 		public void acceptPackage(char[] packageName){

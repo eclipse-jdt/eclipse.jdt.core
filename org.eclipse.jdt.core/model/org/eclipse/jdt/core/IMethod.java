@@ -87,6 +87,17 @@ ITypeParameter[] getTypeParameters() throws JavaModelException;
  */
 int getNumberOfParameters();
 /**
+ * Returns the binding key for this method. A binding key is a key that uniquely
+ * identifies this method. It allows access to generic info for parameterized
+ * methods.
+ * 
+ * @return the binding key for this method
+ * @see org.eclipse.jdt.core.dom.IBinding#getKey()
+ * @see BindingKey
+ * @since 3.1
+ */
+String getKey();
+/**
  * Returns the names of parameters in this method.
  * For binary types, these names are invented as "arg"+i, where i starts at 1 
  * (even if source is associated with the binary).
@@ -194,6 +205,13 @@ boolean isConstructor() throws JavaModelException;
  * @return true if this method is a main method, false otherwise
  */
 boolean isMainMethod() throws JavaModelException;
+/**
+ * Returns whether this method represents a parameterized method.
+ * 
+ * @return whether this method represents a parameterized method.
+ * @since 3.1
+ */
+boolean isParameterized();
 /**
  * Returns whether this method is similar to the given method.
  * Two methods are similar if:

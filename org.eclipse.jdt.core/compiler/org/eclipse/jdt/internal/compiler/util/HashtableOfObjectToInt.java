@@ -54,7 +54,7 @@ public final class HashtableOfObjectToInt implements Cloneable {
 
 	public boolean containsKey(Object key) {
 
-		int index = key.hashCode() % this.valueTable.length;
+		int index = (key.hashCode()& 0x7FFFFFFF) % this.valueTable.length;
 		Object currentKey;
 		while ((currentKey = this.keyTable[index]) != null) {
 			if (currentKey.equals(key))
@@ -66,7 +66,7 @@ public final class HashtableOfObjectToInt implements Cloneable {
 
 	public int get(Object key) {
 
-		int index = key.hashCode() % this.valueTable.length;
+		int index = (key.hashCode()& 0x7FFFFFFF) % this.valueTable.length;
 		Object currentKey;
 		while ((currentKey = this.keyTable[index]) != null) {
 			if (currentKey.equals(key))
@@ -86,7 +86,7 @@ public final class HashtableOfObjectToInt implements Cloneable {
 
 	public int put(Object key, int value) {
 
-		int index = key.hashCode() % this.valueTable.length;
+		int index = (key.hashCode()& 0x7FFFFFFF) % this.valueTable.length;
 		Object currentKey;
 		while ((currentKey = this.keyTable[index]) != null) {
 			if (currentKey.equals(key))
@@ -104,7 +104,7 @@ public final class HashtableOfObjectToInt implements Cloneable {
 
 	public int removeKey(Object key) {
 
-		int index = key.hashCode() % this.valueTable.length;
+		int index = (key.hashCode()& 0x7FFFFFFF) % this.valueTable.length;
 		Object currentKey;
 		while ((currentKey = this.keyTable[index]) != null) {
 			if (currentKey.equals(key)) {

@@ -128,7 +128,7 @@ public String getBindingKey() throws JavaModelException {
 	buffer.append('(');
 	if (this.parameterTypes != null)
 		for (int i = 0, length = this.parameterTypes.length; i < length; i++)
-			buffer.append(this.parameterTypes[i]);
+			buffer.append(this.parameterTypes[i].replace('.', '/'));
 	buffer.append(')');
 	buffer.append(getReturnType());
 	return buffer.toString();
@@ -168,6 +168,12 @@ protected void getHandleMemento(StringBuffer buff) {
  */
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_METHOD;
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.IMethod#getKey()
+ */
+public String getKey() {
+	return getKey(this);
 }
 /*
  * @see IMethod
@@ -302,7 +308,12 @@ public boolean isConstructor() throws JavaModelException {
 public boolean isMainMethod() throws JavaModelException {
 	return this.isMainMethod(this);
 }
-
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.IMethod#isParameterized()
+ */
+public boolean isParameterized() {
+	return false;
+}
 /*
  * @see IMethod#isSimilar(IMethod)
  */

@@ -167,8 +167,7 @@ public interface ISelectionRequestor {
 		char[] declaringTypeName,
 		char[] name,
 		boolean isDeclaration,
-		char[] genericDeclaringTypeSignature,
-		char[] genericSignature,
+		char[] uniqueKey,
 		int start,
 		int end);
 
@@ -239,15 +238,9 @@ public interface ISelectionRequestor {
 	 * @param isDeclaration boolean
 	 *  	Answer if the selected method is a declaration
 	 * 
-	 * @param genericDeclaringTypeSignature
-	 *  	generic signature of the method's declaring type
-	 *  
-	 * @param genericSignature
-	 *  	method's generic signature
-	 *  
-	 * @param genericTypeArgumentsSignatures
-	 *  	genric types of the method's type arguments
-	 *  
+	 * @param uniqueKey
+	 *  	unique key of the method
+	 *
 	 * @param start
 	 *  	Start of the selection
 	 * 
@@ -272,9 +265,7 @@ public interface ISelectionRequestor {
 		String[] parameterSignatures,
 		boolean isConstructor,
 		boolean isDeclaration,
-		char[] genericDeclaringTypeSignature,
-		char[] genericSignature,
-		char[][] genericTypeArgumentsSignatures,
+		char[] uniqueKey,
 		int start,
 		int end);
 	

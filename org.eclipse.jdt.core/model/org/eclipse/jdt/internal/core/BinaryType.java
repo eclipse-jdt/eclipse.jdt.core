@@ -398,6 +398,12 @@ public IInitializer getInitializer(int count) {
 public IInitializer[] getInitializers() {
 	return NO_INITIALIZERS;
 }
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.IType#getKey()
+ */
+public String getKey() {
+	return getKey(this);
+}
 /*
  * @see IType#getMethod(String name, String[] parameterTypeSignatures)
  */
@@ -679,6 +685,12 @@ public boolean isLocal() throws JavaModelException {
 public boolean isMember() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
 	return info.isMember();
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.IType#isParameterized()
+ */
+public boolean isParameterized() {
+	return false;
 }
 /*
  * @see IType

@@ -18,18 +18,32 @@ import org.eclipse.jdt.core.JavaModelException;
  */
 public class ParameterizedBinaryType extends BinaryType {
 	
-	public String genericTypeSignature;
+	private String uniqueKey;
 	
 	/*
 	 * See class comments.
 	 */
-	public ParameterizedBinaryType(JavaElement parent, String name, String genericTypeSignature) {
+	public ParameterizedBinaryType(JavaElement parent, String name, String uniqueKey) {
 		super(parent, name);
-		this.genericTypeSignature = genericTypeSignature;
+		this.uniqueKey = uniqueKey;
 	}
 
 	public String getFullyQualifiedParameterizedName() throws JavaModelException {
-		return getFullyQualifiedParameterizedName(getFullyQualifiedName(), this.genericTypeSignature);
+		return getFullyQualifiedParameterizedName(getFullyQualifiedName(), this.uniqueKey);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.core.BinaryType#getKey()
+	 */
+	public String getKey() {
+		return this.uniqueKey;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.core.BinaryType#isParameterized()
+	 */
+	public boolean isParameterized() {
+		return true;
 	}
 	
 	/**
@@ -37,7 +51,7 @@ public class ParameterizedBinaryType extends BinaryType {
 	 */
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		super.toStringInfo(tab, buffer, info);
-		buffer.append(" genericTypeSignature="); //$NON-NLS-1$
-		buffer.append(genericTypeSignature);
+		buffer.append(" key="); //$NON-NLS-1$
+		buffer.append(this.uniqueKey);
 	}
 }

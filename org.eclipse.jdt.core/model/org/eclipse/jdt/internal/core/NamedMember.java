@@ -10,13 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.BindingKey;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.compiler.CharOperation;
 
 public abstract class NamedMember extends Member {
 
@@ -58,18 +61,75 @@ public abstract class NamedMember extends Member {
 	public String getElementName() {
 		return this.name;
 	}
+	
+	protected String getKey(IField field) {
+		StringBuffer key = new StringBuffer();
+		
+		// declaring class 
+		String declaringKey = ((IType) field.getParent()).getKey();
+		key.append(declaringKey);
+		
+		// field na,e
+		key.append('.');
+		key.append(field.getElementName());
 
-	protected String getFullyQualifiedParameterizedName(String fullyQualifiedName, String genericTypeSignature) throws JavaModelException {
-		char[][] typeArguments = Signature.getTypeArguments(genericTypeSignature.toCharArray());
+		return key.toString();
+	}
+	
+	protected String getKey(IMethod method) {
+		StringBuffer key = new StringBuffer();
+		
+		// declaring class 
+		String declaringKey = ((IType) method.getParent()).getKey();
+		key.append(declaringKey);
+		
+		// selector
+		key.append('.');
+		String selector = method.getElementName();
+		key.append(selector);
+		
+		// parameters
+		key.append('(');
+		String[] parameters = method.getParameterTypes();
+		for (int i = 0, length = parameters.length; i < length; i++)
+			key.append(parameters[i]);
+		key.append(')');
+		
+		// return type
+		try {
+			key.append(method.getReturnType());
+		} catch (JavaModelException e) {
+			// method doesn't exist
+			key.append('V');
+		}
+		
+		return key.toString();
+	}
+	
+	protected String getKey(IType type) {
+		// TODO (jerome) handle secondary types
+		StringBuffer key = new StringBuffer();
+		key.append('L');
+		String packageName = type.getPackageFragment().getElementName();
+		key.append(packageName.replace('.', '/'));
+		if (packageName.length() > 0)
+			key.append('/');
+		key.append(type.getTypeQualifiedName('$'));
+		key.append(';');
+		return key.toString();
+	}
+
+	protected String getFullyQualifiedParameterizedName(String fullyQualifiedName, String uniqueKey) throws JavaModelException {
+		String[] typeArguments = new BindingKey(uniqueKey).getTypeArguments();
 		int length = typeArguments.length;
 		if (length == 0) return fullyQualifiedName;
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(fullyQualifiedName);
 		buffer.append('<');
 		for (int i = 0; i < length; i++) {
-			char[] typeArgument = typeArguments[i];
-			CharOperation.replace(typeArgument, '/', '.');
-			buffer.append(Signature.toCharArray(typeArgument));
+			String typeArgument = typeArguments[i];
+			typeArgument.replace('/', '.');
+			buffer.append(Signature.toString(typeArgument));
 			if (i < length-1)
 				buffer.append(',');
 		}

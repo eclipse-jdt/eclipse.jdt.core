@@ -46,6 +46,15 @@ Eclipse SDK 3.1M5 - ?th February 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added APIs <code>IType#getKey()</code>, <code>IField#getKey()</code>, <code>IMethod#getKey()</code>
+    that return a binding key for these Java elements.
+</li>
+<li>Added APIs <code>IType#isParameterized()</code>, <code>IField#isParameterized()</code>, 
+    <code>IMethod#isParameterized()</code> that return whether these Java elements are parameterized elements.
+</li>
+<li>Added API class <code>org.eclipse.jdt.core.BindingKey</code> to decode a binding key
+    obtained from <code>IBinding#getKey()</code> or one of the <code>getKey()</code> methods above.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

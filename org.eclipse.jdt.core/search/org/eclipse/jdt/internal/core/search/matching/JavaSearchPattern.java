@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -18,7 +19,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
 
@@ -85,10 +85,8 @@ public class JavaSearchPattern extends SearchPattern {
 	 */
 	char[][] extractMethodArguments(IMethod method) {
 		String[] argumentsSignatures = null;
-		if (method instanceof ParameterizedSourceMethod) {
-			argumentsSignatures = ((ParameterizedSourceMethod)method).genericTypeArgumentsSignatures;
-		} else if (method instanceof ParameterizedBinaryMethod) {
-			argumentsSignatures = ((ParameterizedBinaryMethod)method).genericTypeArgumentsSignatures;
+		if (method.isParameterized()) {
+			argumentsSignatures = new BindingKey(method.getKey()).getTypeArguments();
 		} else {
 			try {
 				ITypeParameter[] parameters = method.getTypeParameters();
@@ -224,11 +222,9 @@ public class JavaSearchPattern extends SearchPattern {
 	 * and type parameters for non-generic ones
 	 */
 	void storeTypeSignaturesAndArguments(IType type) {
-		if (type instanceof ParameterizedSourceType) {
-			this.typeSignatures = Util.splitTypeLevelsSignature(((ParameterizedSourceType)type).genericTypeSignature);
-			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
-		} else if (type instanceof ParameterizedBinaryType) {
-			this.typeSignatures = Util.splitTypeLevelsSignature(((ParameterizedBinaryType)type).genericTypeSignature);
+		if (type.isParameterized()) {
+			String signature = new BindingKey(type.getKey()).toSignature();
+			this.typeSignatures = Util.splitTypeLevelsSignature(signature);
 			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
 		} else {
 			// Scan hierachy to store type arguments at each level

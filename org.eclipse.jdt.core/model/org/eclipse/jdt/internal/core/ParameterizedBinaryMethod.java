@@ -16,41 +16,33 @@ package org.eclipse.jdt.internal.core;
  */
 public class ParameterizedBinaryMethod extends BinaryMethod {
 	
-	public String genericDeclaringTypeSignature;
-	public String genericSignature;
-	public String[] genericTypeArgumentsSignatures;
+	private String uniqueKey;
 	
 	/*
 	 * See class comments.
 	 */
-	public ParameterizedBinaryMethod(JavaElement parent, String name, String[] parameterTypes, String genericDeclaringTypeSignature, String genericSignature, String[] genericTypeArgumentsSignatures) {
+	public ParameterizedBinaryMethod(JavaElement parent, String name, String[] parameterTypes, String uniqueKey) {
 		super(parent, name, parameterTypes);
-		this.genericDeclaringTypeSignature = genericDeclaringTypeSignature;
-		this.genericSignature = genericSignature;
-		this.genericTypeArgumentsSignatures = genericTypeArgumentsSignatures;
+		this.uniqueKey = uniqueKey;
 	}
-
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.core.BinaryMethod#getKey()
+	 */
+	public String getKey() {
+		return this.uniqueKey;
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.IMethod#isParameterized()
+	 */
+	public boolean isParameterized() {
+		return true;
+	}
 	/**
 	 * @private Debugging purposes
 	 */
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		super.toStringInfo(tab, buffer, info);
-		buffer.append(" declaringSignature="); //$NON-NLS-1$
-		buffer.append(genericDeclaringTypeSignature);
-		buffer.append(" signature="); //$NON-NLS-1$
-		buffer.append(genericSignature);
-		buffer.append(" typeArgumentsSignature="); //$NON-NLS-1$
-		int length = this.genericTypeArgumentsSignatures == null ? 0 : this.genericTypeArgumentsSignatures.length;
-		if(length > 0) {
-			buffer.append('<');
-			for (int i = 0; i < length; i++) {
-				if(i != 0) buffer.append(',');
-				buffer.append(genericTypeArgumentsSignatures[i]);
-			}
-			buffer.append('>');
-		} else {
-			buffer.append("null"); //$NON-NLS-1$
-		}
-		
+		buffer.append(" key="); //$NON-NLS-1$
+		buffer.append(this.uniqueKey);
 	}
 }
