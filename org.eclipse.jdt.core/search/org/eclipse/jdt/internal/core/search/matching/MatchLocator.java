@@ -85,6 +85,10 @@ public PossibleMatch currentPossibleMatch;
  */
 public long resultCollectorTime = 0;
 
+// Progress information
+int progressStep;
+int progressWorked;
+
 /**
  * An ast visitor that visits local type declarations.
  */
@@ -243,17 +247,17 @@ public static SearchPattern createAndPattern(final SearchPattern leftPattern, fi
 	return new AndPattern(0/*no kind*/, 0/*no rule*/) {
 		SearchPattern current = leftPattern;
 		public SearchPattern currentPattern() {
-			return current;
+			return this.current;
 		}
 		protected boolean hasNextQuery() {
-			if (current == leftPattern) {
-				current = rightPattern;
+			if (this.current == leftPattern) {
+				this.current = rightPattern;
 				return true;
 			}
 			return false; 
 		}
 		protected void resetQuery() {
-			current = leftPattern;
+			this.current = leftPattern;
 		}
 	};
 }
@@ -308,8 +312,8 @@ public void accept(ICompilationUnit sourceUnit) {
 	CompilationResult unitResult = new CompilationResult(sourceUnit, 1, 1, this.options.maxProblemsPerUnit);
 	try {
 		CompilationUnitDeclaration parsedUnit = basicParser().dietParse(sourceUnit, unitResult);
-		lookupEnvironment.buildTypeBindings(parsedUnit);
-		lookupEnvironment.completeTypeBindings(parsedUnit, true);
+		this.lookupEnvironment.buildTypeBindings(parsedUnit);
+		this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
 	} catch (AbortCompilationUnit e) {
 		// at this point, currentCompilationUnitResult may not be sourceUnit, but some other
 		// one requested further along to resolve sourceUnit.
@@ -342,7 +346,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 				SourceTypeConverter.FIELD_AND_METHOD // need field and methods
 				| SourceTypeConverter.MEMBER_TYPE, // need member types
 				// no need for field initialization
-				lookupEnvironment.problemReporter,
+				this.lookupEnvironment.problemReporter,
 				result);
 		this.lookupEnvironment.buildTypeBindings(unit);
 		this.lookupEnvironment.completeTypeBindings(unit, true);
@@ -721,15 +725,20 @@ protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMa
 			PossibleMatch possibleMatch = possibleMatches[i];
 			try {
 				parseAndBuildBindings(possibleMatch, mustResolve);
-				if (!mustResolve)
+				if (!mustResolve) {
+					if (this.progressMonitor != null) {
+						this.progressWorked++;
+						if ((this.progressWorked%this.progressStep)==0) this.progressMonitor.worked(this.progressStep);
+					}
 					process(possibleMatch, bindingsWereCreated);
+				}
 			} finally {
 				if (!mustResolve)
 					possibleMatch.cleanUp();
 			}
 		}
 		if (mustResolve)
-			lookupEnvironment.completeTypeBindings();
+			this.lookupEnvironment.completeTypeBindings();
 
 		// create hierarchy resolver if needed
 		IType focusType = getFocusType();
@@ -764,11 +773,15 @@ protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMa
 			// continue and try next matching openable reporting innacurate matches (since bindings will be null)
 			bindingsWereCreated = false;
 		} finally {
+			if (this.progressMonitor != null) {
+				this.progressWorked++;
+				if ((this.progressWorked%this.progressStep)==0) this.progressMonitor.worked(this.progressStep);
+			}
 			if (this.options.verbose)
 				System.out.println(Util.bind("compilation.done", //$NON-NLS-1$
 					new String[] {
 						String.valueOf(i + 1),
-						String.valueOf(numberOfMatches),
+						String.valueOf(this.numberOfMatches),
 						new String(possibleMatch.parsedUnit.getFileName())}));
 			// cleanup compilation unit result
 			possibleMatch.cleanUp();
@@ -778,30 +791,42 @@ protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMa
 /**
  * Locate the matches amongst the possible matches.
  */
-protected void locateMatches(JavaProject javaProject, PossibleMatchSet matchSet) throws CoreException {
+protected void locateMatches(JavaProject javaProject, PossibleMatchSet matchSet, int expected) throws CoreException {
 	PossibleMatch[] possibleMatches = matchSet.getPossibleMatches(javaProject.getPackageFragmentRoots());
-	for (int index = 0, length = possibleMatches.length; index < length;) {
+	int length = possibleMatches.length;
+	// increase progress from duplicate matches not stored in matchSet while adding...
+	if (this.progressMonitor != null) {
+		this.progressWorked += expected-length;
+		this.progressMonitor.worked( expected-length);
+	}
+	// locate matches (processed matches are limited to avoid problem while using VM default memory heap size)
+	for (int index = 0; index < length;) {
 		int max = Math.min(MAX_AT_ONCE, length - index);
 		locateMatches(javaProject, possibleMatches, index, max);
 		index += max;
-		if (this.progressMonitor != null)
-			this.progressMonitor.worked(max);
 	}
 }
 /**
  * Locate the matches in the given files and report them using the search requestor. 
  */
 public void locateMatches(SearchDocument[] searchDocuments) throws CoreException {
+	long start = System.currentTimeMillis(); // debug
+	int docsLength = searchDocuments.length;
 	if (SearchEngine.VERBOSE) {
 		System.out.println("Locating matches in documents ["); //$NON-NLS-1$
-		for (int i = 0, length = searchDocuments.length; i < length; i++)
+		for (int i = 0; i < docsLength; i++)
 			System.out.println("\t" + searchDocuments[i]); //$NON-NLS-1$
 		System.out.println("]"); //$NON-NLS-1$
 	}
-	
+
+	// init infos for progress increasing
+	int n = docsLength<1000 ? Math.min(Math.max(docsLength/100, 2),4) : 5 *(docsLength/1000);
+	this.progressStep = docsLength < n ? 1 : docsLength / n; // step should not be 0
+	this.progressWorked = 0;
+
 	// extract working copies
 	ArrayList copies = new ArrayList();
-	for (int i = 0, length = searchDocuments.length; i < length; i++) {
+	for (int i = 0; i < docsLength; i++) {
 		SearchDocument document = searchDocuments[i];
 		if (document instanceof WorkingCopyDocument) {
 			copies.add(((WorkingCopyDocument)document).workingCopy);
@@ -828,22 +853,27 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 		this.patternLocator.initializePolymorphicSearch(this);
 
 		JavaProject previousJavaProject = null;
-		int skipped = 0;
 		PossibleMatchSet matchSet = new PossibleMatchSet();
 		Util.sort(searchDocuments, new Util.Comparer() {
 			public int compare(Object a, Object b) {
 				return ((SearchDocument)a).getPath().compareTo(((SearchDocument)b).getPath());
 			}
 		}); 
-		for (int i = 0, l = searchDocuments.length; i < l; i++) {
-			if (this.progressMonitor != null && this.progressMonitor.isCanceled())
+		int displayed = 0; // progress worked displayed
+		for (int i = 0; i < docsLength; i++) {
+			if (this.progressMonitor != null && this.progressMonitor.isCanceled()) {
 				throw new OperationCanceledException();
+			}
 
 			// skip duplicate paths
 			SearchDocument searchDocument = searchDocuments[i];
 			String pathString = searchDocument.getPath();
 			if (i > 0 && pathString.equals(searchDocuments[i - 1].getPath())) {
-				skipped++;
+				if (this.progressMonitor != null) {
+					this.progressWorked++;
+					if ((this.progressWorked%this.progressStep)==0) this.progressMonitor.worked(this.progressStep);
+				}
+				displayed++;
 				continue;
 			}
 
@@ -854,7 +884,14 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 				openable = (Openable) workingCopy;
 			} else {
 				openable = this.handleFactory.createOpenable(pathString, this.scope);
-				if (openable == null) continue; // match is outside classpath
+				if (openable == null) {
+					if (this.progressMonitor != null) {
+						this.progressWorked++;
+						if ((this.progressWorked%this.progressStep)==0) this.progressMonitor.worked(this.progressStep);
+					}
+					displayed++;
+					continue; // match is outside classpath
+				}
 			}
 
 			// create new parser and lookup environment if this is a new project
@@ -867,30 +904,25 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 				// locate matches in previous project
 				if (previousJavaProject != null) {
 					try {
-						locateMatches(previousJavaProject, matchSet);
+						locateMatches(previousJavaProject, matchSet, i-displayed);
+						displayed = i;
 					} catch (JavaModelException e) {
 						// problem with classpath in this project -> skip it
 					}
-					if (this.progressMonitor != null)
-						this.progressMonitor.worked(skipped);
 					matchSet.reset();
 				}
 				previousJavaProject = javaProject;
-				skipped = 0;
 			}
 			matchSet.add(new PossibleMatch(this, resource, openable, searchDocument));
-			skipped++;
 		}
 
 		// last project
 		if (previousJavaProject != null) {
 			try {
-				locateMatches(previousJavaProject, matchSet);
+				locateMatches(previousJavaProject, matchSet, docsLength-displayed);
 			} catch (JavaModelException e) {
 				// problem with classpath in last project -> ignore
 			}
-			if (this.progressMonitor != null)
-				this.progressMonitor.worked(skipped);
 		} 
 
 		if (this.progressMonitor != null)
@@ -899,7 +931,14 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 		if (this.nameEnvironment != null)
 			this.nameEnvironment.cleanup();
 		manager.flushZipFiles();
-	}	
+	}
+	// debug
+	System.out.println("Time to locate " + //$NON-NLS-1$
+			this.progressWorked+
+			" matches: " + //$NON-NLS-1$
+			(System.currentTimeMillis() - start) +
+			" ms"); //$NON-NLS-1$
+	// end debug
 }
 /**
  * Locates the package declarations corresponding to this locator's pattern. 

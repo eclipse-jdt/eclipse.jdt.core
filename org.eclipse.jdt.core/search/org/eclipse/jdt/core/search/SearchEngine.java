@@ -447,17 +447,21 @@ public class SearchEngine {
 				if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	
 				SearchParticipant participant = participants[i];
+				SubProgressMonitor subMonitor= monitor==null ? null : new SubProgressMonitor(monitor, 1000);
+				if (subMonitor != null) subMonitor.beginTask("", 1000); //$NON-NLS-1$
 				try {
+					if (subMonitor != null) subMonitor.subTask(Util.bind("engine.searching.indexing", participant.getDescription())); //$NON-NLS-1$
 					participant.beginSearching();
 					requestor.enterParticipant(participant);
 					PathCollector pathCollector = new PathCollector();
 					indexManager.performConcurrentJob(
 						new PatternSearchJob(pattern, participant, scope, pathCollector),
 						IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-						monitor);
+						subMonitor);
 					if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	
 					// locate index matches if any (note that all search matches could have been issued during index querying)
+					if (subMonitor != null) subMonitor.subTask(Util.bind("engine.searching.matching", participant.getDescription())); //$NON-NLS-1$
 					String[] indexMatchPaths = pathCollector.getPaths();
 					pathCollector = null; // release
 					int indexMatchLength = indexMatchPaths == null ? 0 : indexMatchPaths.length;
@@ -465,7 +469,7 @@ public class SearchEngine {
 					for (int j = 0; j < indexMatchLength; j++)
 						indexMatches[j] = participant.getDocument(indexMatchPaths[j]);
 					SearchDocument[] matches = MatchLocator.addWorkingCopies(pattern, indexMatches, getWorkingCopies(), participant);
-					participant.locateMatches(matches, pattern, scope, requestor, monitor);
+					participant.locateMatches(matches, pattern, scope, requestor, subMonitor);
 				} finally {		
 					requestor.exitParticipant(participant);
 					participant.doneSearching();
