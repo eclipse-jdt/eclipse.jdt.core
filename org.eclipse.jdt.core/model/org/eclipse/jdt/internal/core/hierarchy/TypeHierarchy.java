@@ -58,6 +58,7 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 	protected Map classToSuperclass;
 	protected Map typeToSuperInterfaces;
 	protected Map typeToSubtypes;
+	protected Map typeFlags;
 	protected TypeVector rootClasses = new TypeVector();
 	protected ArrayList interfaces = new ArrayList(10);
 	public ArrayList missingTypes = new ArrayList(4);
@@ -215,6 +216,12 @@ public void addTypeHierarchyChangedListener(ITypeHierarchyChangedListener listen
 	}
 }
 /**
+ * cacheFlags.
+ */
+public void cacheFlags(IType type, int flags) {
+	this.typeFlags.put(type, new Integer(flags));
+}
+/**
  * Caches the handle of the superclass for the specified type.
  * As a side effect cache this type as a subtype of the superclass.
  */
@@ -306,6 +313,7 @@ protected void destroy() {
 	this.rootClasses = new TypeVector();
 	this.rootRegion = new Region();
 	this.typeToSubtypes = new HashMap(1);
+	this.typeFlags = new HashMap(1);
 	this.typeToSuperInterfaces = new HashMap(1);
 	this.missingTypes = new ArrayList(4);
 	JavaModelManager.getJavaModelManager().removeElementChangedListener(this);
@@ -491,6 +499,18 @@ public IType[] getAllTypes() {
 	System.arraycopy(interfaces, 0, all, classesLength, interfacesLength);
 	return all;
 }
+
+/**
+ * @see ITypeHierarchy#getCachedFlags(IType)
+ */
+public int getCachedFlags(IType type) {
+	Integer flagObject = (Integer) this.typeFlags.get(type);
+	if (flagObject != null){
+		return flagObject.intValue();
+	}
+	return -1;
+}
+
 /**
  * @see ITypeHierarchy
  */
@@ -780,6 +800,7 @@ protected void initialize(int size) {
 	this.rootClasses = new TypeVector();
 	this.typeToSubtypes = new HashMap(smallSize);
 	this.typeToSuperInterfaces = new HashMap(smallSize);
+	this.typeFlags = new HashMap(smallSize);
 }
 /**
  * Returns true if this hierarchy is actively tracking changes
@@ -1271,4 +1292,5 @@ protected void worked(int work) {
 		checkCanceled();
 	}
 }
+
 }

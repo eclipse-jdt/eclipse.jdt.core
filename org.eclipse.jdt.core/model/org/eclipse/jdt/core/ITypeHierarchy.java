@@ -141,6 +141,17 @@ IType[] getAllSupertypes(IType type);
  * @return all types in this type hierarchy's grap
  */
 IType[] getAllTypes();
+
+/**
+ * Return the flags associated with this type (would be equivalent to <code>IMember.getFlags()</code>),
+ * or <code>-1</code> if this information wasn't cached on the hierarchy during its computation.
+ * 
+ * @return the modifier flags for this member
+ * @see Flags
+ * @since 2.0
+ */
+int getCachedFlags(IType type);
+
 /**
  * Returns all interfaces resolved to extend the given interface,
  * in no particular order, limited to the interfaces in this
