@@ -53,10 +53,17 @@ public class EnumTest extends AbstractComparisonTest {
 					"public class X {\n" + 
 					"    public static void main(String[] args) {\n" + 
 					"    	System.out.print(\"JDTCore team:\");\n" + 
+					"		T oldest = null;\n" +
+					"		int maxAge = Integer.MIN_VALUE;\n" +
 					"        for (T t : T.values()) {\n" + 
 					"            t.setRole(t.isManager());\n" + 
+					"			 if (t.age() > maxAge) {\n" +
+					"			    oldest = t;\n" +
+					"				maxAge = t.age();\n" +
+					"            }\n" +
 					"            System.out.print(\" \"+ t + ':'+t.age()+':'+location(t)+':'+t.role);\n" + 
 					"        }\n" + 
+					"        System.out.println(\" WINNER is:\" + oldest);\n" +
 					"    }\n" + 
 					"\n" + 
 					"   private enum Location { SNZ, OTT }\n" + 
@@ -106,7 +113,7 @@ public class EnumTest extends AbstractComparisonTest {
 					"	}\n" + 
 					"}\n"
 			},
-			"JDTCore team: PHILIPPE:37:SNZ:M DAVID:27:SNZ:D JEROME:33:SNZ:D OLIVIER:35:OTT:D KENT:40:OTT:D FREDERIC:41:SNZ:D"
+			"JDTCore team: PHILIPPE:37:SNZ:M DAVID:27:SNZ:D JEROME:33:SNZ:D OLIVIER:35:OTT:D KENT:40:OTT:D FREDERIC:41:SNZ:D WINNER is:FREDERIC"
 		);
 	}
 	// check assignment to enum constant is disallowed
