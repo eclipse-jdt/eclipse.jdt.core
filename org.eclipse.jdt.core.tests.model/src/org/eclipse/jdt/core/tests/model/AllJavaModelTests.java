@@ -46,8 +46,10 @@ static Class[] getAllTestClasses() {
 		ExternalJarDeltaTests.class,
 		ExistenceTests.class,
 		ResolveTests.class,
+		ResolveTests_1_5.class,
 		CompletionTests.class,
 		CompletionTests2.class,
+		CompletionTests_1_5.class,
 		SnippetCompletionTests.class,
 		NamingConventionTests.class,
 		CodeCorrectionTests.class,
@@ -146,6 +148,7 @@ public static Test suite() {
 	
 	// Support for "open on" feature tests
 	suite.addTest(ResolveTests.suite());
+	suite.addTest(ResolveTests_1_5.suite());
 	
 	// Support for completion tests
 	suite.addTest(CompletionTests.suite());

@@ -435,4 +435,17 @@ public void test0028() throws JavaModelException {
 		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE),
 		requestor.getResults());
 }
+public void test0029() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0029", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "Inner2";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("should have one class",
+		"element:Test.Inner2    completion:Inner2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
+		requestor.getResults());
+}
 }

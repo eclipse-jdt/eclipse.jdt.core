@@ -731,7 +731,7 @@ protected TypeReference getTypeReference(int dim) {
 	int index;
 
 	/* no need to take action if not inside completed identifiers */
-	if ((index = indexOfAssistIdentifier()) < 0) {
+	if ((index = indexOfAssistIdentifier(true)) < 0) {
 		return super.getTypeReference(dim);
 	}
 	int length = identifierLengthStack[identifierLengthPtr];
@@ -782,8 +782,8 @@ protected TypeReference getTypeReference(int dim) {
 protected TypeReference getAssistTypeReferenceForGenericType(int dim, int identifierLength, int numberOfIdentifiers) {
 	/* no need to take action if not inside completed identifiers */
 	if (/*(indexOfAssistIdentifier()) < 0 ||*/ (identifierLength == 1 && numberOfIdentifiers == 1)) {
-		this.genericsLengthPtr--;
-		this.genericsPtr--;
+		int length = this.genericsLengthStack[this.genericsLengthPtr--];
+		this.genericsPtr -= length;
 		long[] positions = new long[identifierLength];
 		System.arraycopy(
 			identifierPositionStack, 
@@ -829,11 +829,31 @@ protected TypeReference getAssistTypeReferenceForGenericType(int dim, int identi
 	}
 	
 	// remove completion token
-	int realLength = numberOfIdentifiers - 1;
-	System.arraycopy(tokens, 0, tokens = new char[realLength][], 0, realLength);
-	System.arraycopy(typeArguments, 0, typeArguments = new TypeReference[realLength][], 0, realLength);
-	
-	TypeReference reference =  this.createParameterizedQualifiedAssistTypeReference(tokens, typeArguments, assistIdentifier(), positions);
+	int realLength = numberOfIdentifiers;
+	for (int i = 0; i < numberOfIdentifiers; i++) {
+		if(tokens[i] == assistIdentifier()) {
+			realLength = i;
+		}
+	}
+	TypeReference reference;
+	if(realLength == 0) {
+		reference = this.createSingleAssistTypeReference(assistIdentifier(), positions[0]);
+	} else {
+		System.arraycopy(tokens, 0, tokens = new char[realLength][], 0, realLength);
+		System.arraycopy(typeArguments, 0, typeArguments = new TypeReference[realLength][], 0, realLength);
+		
+		boolean isParameterized = false;
+		for (int i = 0; i < typeArguments.length; i++) {
+			if(typeArguments[i] != null) {
+				isParameterized = true;
+			}
+		}
+		if(isParameterized) {
+			reference = this.createParameterizedQualifiedAssistTypeReference(tokens, typeArguments, assistIdentifier(), positions);
+		} else {
+			reference = this.createQualifiedAssistTypeReference(tokens, assistIdentifier(), positions);
+		}
+	}
 
 	assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
@@ -918,6 +938,10 @@ protected char[][] identifierSubSet(int subsetLength){
 		subsetLength);
 	return subset;
 }
+
+protected int indexOfAssistIdentifier(){
+	return this.indexOfAssistIdentifier(false);
+}
 /*
  * Iterate the most recent group of awaiting identifiers (grouped for qualified name reference (eg. aa.bb.cc)
  * so as to check whether one of them is the assist identifier.
@@ -925,7 +949,7 @@ protected char[][] identifierSubSet(int subsetLength){
  *	eg. aa(0).bb(1).cc(2)
  * If no assist identifier was found, answers -1.
  */
-protected int indexOfAssistIdentifier(){
+protected int indexOfAssistIdentifier(boolean useGenericsStack){
 
 	if (identifierLengthPtr < 0){
 		return -1; // no awaiting identifier
@@ -938,6 +962,9 @@ protected int indexOfAssistIdentifier(){
 
 	// iterate awaiting identifiers backwards
 	int length = identifierLengthStack[identifierLengthPtr];
+	if(useGenericsStack && length > 0 && this.genericsIdentifiersLengthPtr > -1 ) {
+		length = this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr];
+	}
 	for (int i = 0; i < length; i++){ 
 		if (identifierStack[identifierPtr - i] == assistIdentifier){
 			return length - i - 1;
