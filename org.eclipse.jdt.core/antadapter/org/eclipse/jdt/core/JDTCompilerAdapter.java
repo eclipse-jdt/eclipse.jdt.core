@@ -180,7 +180,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 * Set the classpath for the Eclipse compiler.
 		 */
 		cmd.createArgument().setValue("-classpath"); //$NON-NLS-1$
-		cmd.createArgument().setPath(javac.getClasspath());
+		cmd.createArgument().setPath(classpath);
 
 		String memoryParameterPrefix = JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_1) ? "-J-" : "-J-X"; //$NON-NLS-1$//$NON-NLS-2$
 		String memInitialSize = javac.getMemoryInitialSize();
