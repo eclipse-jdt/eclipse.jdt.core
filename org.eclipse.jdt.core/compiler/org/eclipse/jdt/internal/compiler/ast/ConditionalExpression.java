@@ -294,12 +294,14 @@ public class ConditionalExpression extends OperatorExpression {
 		TypeBinding valueIfTrueType = originalValueIfTrueType;
 		TypeBinding valueIfFalseType = originalValueIfFalseType;
 		if (use15specifics) {
-			if (valueIfTrueType != NullBinding && valueIfTrueType.isBaseType()) {
-				if (!valueIfFalseType.isBaseType()) {
+			if (valueIfTrueType.isBaseType()) {
+				if ((valueIfTrueType == NullBinding) == valueIfFalseType.isBaseType()) {  // bool ? null : 12 --> Integer
 					valueIfFalseType = env.computeBoxingType(valueIfFalseType);
 				}
-			} else if (valueIfFalseType != NullBinding && valueIfFalseType.isBaseType()) {
-				valueIfTrueType = env.computeBoxingType(valueIfTrueType);
+			} else if (valueIfFalseType.isBaseType()) {
+				if ((valueIfFalseType == NullBinding) == valueIfTrueType.isBaseType()) {  // bool ? 12 : null --> Integer
+					valueIfTrueType = env.computeBoxingType(valueIfTrueType);
+				}
 			}
 		}
 		// Propagate the constant value from the valueIfTrue and valueIFFalse expression if it is possible

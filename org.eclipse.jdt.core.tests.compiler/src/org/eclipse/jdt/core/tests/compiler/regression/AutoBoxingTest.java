@@ -2222,4 +2222,112 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"true"
 		);
 	}
+
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82647
+	public void test083() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	int counter = 0;\n" + 
+				"\n" + 
+				"	public boolean wasNull() {\n" + 
+				"		return ++counter % 2 == 0;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private Byte getByte() {\n" + 
+				"		return (byte) 0;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private Short getShort() {\n" + 
+				"		return (short) 0;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private Long getLong() {\n" + 
+				"		return 0L;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private Integer getInt() {\n" + 
+				"		return 0; // autoboxed okay\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	// This should be the same as the second one.\n" + 
+				"	private Byte getBytey() {\n" + 
+				"		byte value = getByte();\n" + 
+				"		return wasNull() ? null : value;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private Byte getByteyNoBoxing() {\n" + 
+				"		byte value = getByte();\n" + 
+				"		return wasNull() ? null : (Byte) value;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	// This should be the same as the second one.\n" + 
+				"	private Short getShorty() {\n" + 
+				"		short value = getShort();\n" + 
+				"		return wasNull() ? null : value;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private Short getShortyNoBoxing() {\n" + 
+				"		short value = getShort();\n" + 
+				"		return wasNull() ? null : (Short) value;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	// This should be the same as the second one.\n" + 
+				"	private Long getLongy() {\n" + 
+				"		long value = getLong();\n" + 
+				"		return wasNull() ? null : value;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private Long getLongyNoBoxing() {\n" + 
+				"		long value = getLong();\n" + 
+				"		return wasNull() ? null : (Long) value;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	// This should be the same as the second one.\n" + 
+				"	private Integer getIntegery() {\n" + 
+				"		int value = getInt();\n" + 
+				"		return wasNull() ? null : value;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private Integer getIntegeryNoBoxing() {\n" + 
+				"		int value = getInt();\n" + 
+				"		return wasNull() ? null : (Integer) value;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			""
+		);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82647 - variation
+	public void test084() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	Short foo() {\n" + 
+				"		short value = 0;\n" + 
+				"		return this == null ? null : value;\n" + 
+				"	}\n" + 
+				"	boolean bar() {\n" + 
+				"		short value = 0;\n" + 
+				"		return null == value;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	return this == null ? null : value;\n" + 
+			"	                             ^^^^^\n" + 
+			"The expression of type short is boxed into Short\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	return null == value;\n" + 
+			"	       ^^^^^^^^^^^^^\n" + 
+			"The operator == is undefined for the argument type(s) null, short\n" + 
+			"----------\n"
+		);
+	}
+
 }
