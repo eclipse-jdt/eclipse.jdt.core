@@ -51,6 +51,7 @@ public interface IType extends IMember, IParent {
 	 * local variables
 	 * @param isStatic whether the current scope is in a static context
 	 * @param requestor the completion requestor
+	 * @since 2.0
 	 */
 	void codeComplete(
 		char[] snippet,

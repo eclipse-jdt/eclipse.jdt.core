@@ -25,12 +25,16 @@ public interface IJavaModelStatusConstants {
 	/**
 	 * Status constant indicating that a container path was resolved
 	 * to invalid entries (null or container).
+	 * 
+	 * @since 2.0
 	 */
 	public static final int INVALID_CP_CONTAINER_ENTRY = 962;
 
 	/**
 	 * Status constant indicating that a container path was not resolvable
 	 * indicating either the referred container is undefined, unbound.
+	 * 
+	 * @since 2.0
 	 */
 	public static final int CP_CONTAINER_PATH_UNBOUND = 963;
 

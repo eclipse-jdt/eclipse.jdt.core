@@ -24,30 +24,66 @@ import org.eclipse.jdt.internal.compiler.env.IConstants;
 public final class Flags {
 
 	/**
-	 * Modifiers
+	 * @since 2.0
 	 */
 	public static final int AccPublic = IConstants.AccPublic;
+	/**
+	 * @since 2.0
+	 */
 	public static final int AccPrivate = IConstants.AccPrivate;
+	/**
+	 * @since 2.0
+	 */
 	public static final int AccProtected = IConstants.AccProtected;
+	/**
+	 * @since 2.0
+	 */
 	public static final int AccStatic = IConstants.AccStatic;
+	/**
+	 * @since 2.0
+	 */
 	public static final int AccFinal = IConstants.AccFinal;
+	/**
+	 * @since 2.0
+	 */
 	public static final int AccSynchronized = IConstants.AccSynchronized;
+	/**
+	 * @since 2.0
+	 */
 	public static final int AccVolatile = IConstants.AccVolatile;
+	/**
+	 * @since 2.0
+	 */
 	public static final int AccTransient = IConstants.AccTransient;
+	/**
+	 * @since 2.0
+	 */
 	public static final int AccNative = IConstants.AccNative;
+	/**
+	 * @since 2.0
+	 */
 	public static final int AccInterface = IConstants.AccInterface;
+	/**
+	 * @since 2.0
+	 */
 	public static final int AccAbstract = IConstants.AccAbstract;
+	/**
+	 * @since 2.0
+	 */
 	public static final int AccStrictfp = IConstants.AccStrictfp;
 
 	/**
-	 * Other VM flags.
+	 * @since 2.0
 	 */
 	public static final int AccSuper = IConstants.AccSuper;
 
 	/**
-	 * Extra flags for types and members.
+	 * @since 2.0
 	 */
 	public static final int AccSynthetic = IConstants.AccSynthetic;
+	/**
+	 * @since 2.0
+	 */
 	public static final int AccDeprecated = IConstants.AccDeprecated;
 	
 	/**

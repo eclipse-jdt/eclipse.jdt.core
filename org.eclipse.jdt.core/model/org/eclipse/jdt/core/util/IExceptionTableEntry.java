@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.util;
 /**
  * The class represents an entry in the exception table of a ICodeAttribute as 
  * specified in the JVM specifications.
+ * 
+ * @since 2.0
  */
 public interface IExceptionTableEntry {
 

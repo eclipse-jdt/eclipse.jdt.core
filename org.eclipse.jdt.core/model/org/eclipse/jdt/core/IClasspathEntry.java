@@ -137,6 +137,8 @@ public interface IClasspathEntry {
 	/**
 	 * Entry kind constant describing a classpath entry representing
 	 * a name classpath container.
+	 * 
+	 * @since 2.0
 	 */
 	public static final int CPE_CONTAINER = 5;
 

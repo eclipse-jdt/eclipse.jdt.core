@@ -38,6 +38,8 @@ public interface IJavaModelMarker {
     /** 
 	 * Id marker attribute (value <code>"arguments"</code>).
 	 * Reserved for future use.
+	 * 
+	 * @since 2.0
 	 */
 	 public static final String ARGUMENTS = "arguments"; //$NON-NLS-1$
     
@@ -71,6 +73,7 @@ public interface IJavaModelMarker {
 	 * Classpath file format marker attribute (value <code>"classpathFileFormat"</code>).
 	 * Used only on buildpath problem markers.
 	 * The value of this attribute is either "true" or "false".
+	 * 
 	 * @since 2.0
 	 */
 	 public static final String CLASSPATH_FILE_FORMAT = "classpathFileFormat"; //$NON-NLS-1$

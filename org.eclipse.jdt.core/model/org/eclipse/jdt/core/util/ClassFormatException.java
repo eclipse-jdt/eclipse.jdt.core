@@ -13,6 +13,8 @@ package org.eclipse.jdt.core.util;
 /**
  * Exception thrown by a class file reader when encountering a error in decoding
  * information contained in a .class file.
+ * 
+ * @since 2.0
  */
 public class ClassFormatException extends Exception {
 	public static final int ERROR_MALFORMED_UTF8 = 1;

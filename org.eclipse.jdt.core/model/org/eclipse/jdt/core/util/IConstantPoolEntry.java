@@ -10,6 +10,9 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.util;
 
+/**
+ * @since 2.0
+ */
 public interface IConstantPoolEntry {
 
 	/**

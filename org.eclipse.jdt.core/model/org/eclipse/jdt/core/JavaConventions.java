@@ -165,6 +165,7 @@ public static IStatus validateCompilationUnitName(String name) {
  * @return a status object with code <code>IStatus.OK</code> if
  *		the given name is valid as a .class file name, otherwise a status 
  *		object indicating what is wrong with the name
+ * @since 2.0
  */
 public static IStatus validateClassFileName(String name) {
 	if (name == null) {

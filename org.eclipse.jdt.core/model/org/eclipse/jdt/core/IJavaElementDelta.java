@@ -214,6 +214,8 @@ public interface IJavaElementDelta {
      * no finer grained changes (<code>F_FINE_GRAINED</code> is set) or if 
      * finer grained changes were not considered (<code>F_FINE_GRAINED</code> 
      * is not set). 
+     * 
+     * @since 2.0
 	 */
 	public int F_FINE_GRAINED = 0x4000;
 
@@ -223,6 +225,7 @@ public interface IJavaElementDelta {
 	 * which is an archive.
 	 * 
 	 * @see IPackageFragmentRoot#isArchive
+	 * @since 2.0
 	 */
 	public int F_ARCHIVE_CONTENT_CHANGED = 0x8000;
 

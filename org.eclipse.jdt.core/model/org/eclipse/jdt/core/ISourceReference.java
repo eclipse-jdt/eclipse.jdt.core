@@ -37,6 +37,7 @@ public interface ISourceReference {
  * Returns whether this element exists in the model.
  *
  * @return <code>true</code> if this element exists in the Java model
+ * @since 2.0
  */
 boolean exists();
 	
