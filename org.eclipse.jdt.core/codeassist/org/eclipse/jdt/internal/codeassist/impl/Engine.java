@@ -61,7 +61,7 @@ public abstract class Engine implements ITypeRequestor {
 			new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration unit =
 			SourceTypeConverter.buildCompilationUnit(
-				sourceTypes,
+				sourceTypes,//sourceTypes[0] is always toplevel here
 				true, // need field and methods
 				true, // need member types
 				false, // no need for field initialization

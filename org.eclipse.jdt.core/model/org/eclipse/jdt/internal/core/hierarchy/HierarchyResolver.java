@@ -164,7 +164,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 	CompilationResult result = new CompilationResult(sourceType.getFileName(), 1, 1, this.options.maxProblemsPerUnit);
 	CompilationUnitDeclaration unit =
 		SourceTypeConverter.buildCompilationUnit(
-			new ISourceType[] {sourceType}, 
+			new ISourceType[] {sourceType}, // ignore secondary types, to improve laziness
 			false, // no need for field and methods
 			true, // need member types
 			false, // no need for field initialization

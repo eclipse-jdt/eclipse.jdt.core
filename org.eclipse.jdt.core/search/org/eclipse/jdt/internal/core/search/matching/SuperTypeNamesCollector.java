@@ -420,7 +420,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 	CompilationResult result = new CompilationResult(sourceTypes[0].getFileName(), 1, 1, 0);
 	CompilationUnitDeclaration unit =
 		SourceTypeConverter.buildCompilationUnit(
-			sourceTypes, 
+			sourceTypes, //sourceTypes[0] is always toplevel here
 			false, // no need for field and methods
 			true, // need member types
 			false, // no need for field initialization

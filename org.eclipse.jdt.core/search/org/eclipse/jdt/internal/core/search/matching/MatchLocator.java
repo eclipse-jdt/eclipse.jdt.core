@@ -131,7 +131,7 @@ public class MatchLocator implements ITypeRequestor {
 				new CompilationResult(sourceType.getFileName(), 0, 0, 0);
 			CompilationUnitDeclaration unit =
 				SourceTypeConverter.buildCompilationUnit(
-					sourceTypes,
+					sourceTypes,//sourceTypes[0] is always toplevel here
 					true, // need field and methods
 					true, // need member types
 					false, // no need for field initialization

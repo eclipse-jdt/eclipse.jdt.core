@@ -87,13 +87,17 @@ public class CompilationUnitProblemFinder extends Compiler {
 	 * Add additional source types
 	 */
 	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
-		
+		// ensure to jump back to toplevel type for first one (could be a member)
+//		while (sourceTypes[0].getEnclosingType() != null)
+//			sourceTypes[0] = sourceTypes[0].getEnclosingType();
+
 		CompilationResult result =
 			new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.options.maxProblemsPerUnit);
+
 		// need to hold onto this
 		CompilationUnitDeclaration unit =
 			SourceTypeConverter.buildCompilationUnit(
-				sourceTypes,
+				sourceTypes,//sourceTypes[0] is always toplevel here
 				true, // need field and methods
 				true, // need member types
 				true, // need field initialization

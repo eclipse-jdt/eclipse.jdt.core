@@ -88,7 +88,7 @@ public class CompilationUnitVisitor extends Compiler {
 		// need to hold onto this
 		CompilationUnitDeclaration unit =
 			SourceTypeConverter.buildCompilationUnit(
-				sourceTypes,
+				sourceTypes,//sourceTypes[0] is always toplevel here
 				true, // need field and methods
 				true, // need member types
 				false, // no need for field initialization
