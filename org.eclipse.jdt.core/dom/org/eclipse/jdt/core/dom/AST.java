@@ -344,7 +344,7 @@ public final class AST {
 				lookup.setUnitsToLookInside(workingCopies);
 				
 				// parse and resolve
-				compilationUnitDeclaration = CompilationUnitResolver.resolve(unit, false/*don't cleanup*/);
+				compilationUnitDeclaration = CompilationUnitResolver.resolve(unit, false/*don't cleanup*/, source);
 				ASTConverter converter = new ASTConverter(unit.getJavaProject().getOptions(true), true);
 				AST ast = new AST();
 				BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
@@ -1071,7 +1071,8 @@ public final class AST {
 				compilationUnitDeclaration = CompilationUnitResolver.resolve(
 					unit,
 					searcher,
-					false/*don't cleanup*/);
+					false/*don't cleanup*/,
+					source);
 				
 				ASTConverter converter = new ASTConverter(options, true);
 				AST ast = new AST();

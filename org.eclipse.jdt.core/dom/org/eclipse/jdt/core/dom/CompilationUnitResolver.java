@@ -213,7 +213,8 @@ class CompilationUnitResolver extends Compiler {
 	}	
 	public static CompilationUnitDeclaration resolve(
 		ICompilationUnit unitElement,
-		boolean cleanUp)
+		boolean cleanUp,
+		char[] source)
 		throws JavaModelException {
 
 		char[] fileName = unitElement.getElementName().toCharArray();
@@ -239,7 +240,7 @@ class CompilationUnitResolver extends Compiler {
 			unit =
 				compilationUnitVisitor.resolve(
 					new BasicCompilationUnit(
-						unitElement.getSource().toCharArray(),
+						source,
 						expectedPackageName,
 						new String(fileName),
 						encoding),
@@ -378,7 +379,8 @@ class CompilationUnitResolver extends Compiler {
 	public static CompilationUnitDeclaration resolve(
 		ICompilationUnit unitElement,
 		NodeSearcher nodeSearcher,
-		boolean cleanUp)
+		boolean cleanUp,
+		char[] source)
 		throws JavaModelException {
 
 		CompilationUnitDeclaration unit = null;
@@ -403,7 +405,7 @@ class CompilationUnitResolver extends Compiler {
 		
 			unit = compilationUnitVisitor.resolve(
 				new BasicCompilationUnit(
-					unitElement.getSource().toCharArray(),
+					source,
 					expectedPackageName,
 					new String(fileName),
 					encoding),
