@@ -88,7 +88,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static final String NATURE_ID = PLUGIN_ID + ".javanature" ; //$NON-NLS-1$
 
 	/**
-	 * Name of the handle id attribute in a Java marker
+	 * Name of the handle id attribute in a Java marker.
 	 */
 	protected static final String ATT_HANDLE_ID =
 		"org.eclipse.jdt.internal.core.JavaModelManager.handleId" ; //$NON-NLS-1$
@@ -1749,7 +1749,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 
 	/**
-	 * Resolve a variable path (helper method)
+	 * Resolve a variable path (helper method).
 	 * 
 	 * @param variablePath the given variable path
 	 * @return the resolved variable path or <code>null</code> if none
@@ -1778,7 +1778,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Answers the shared working copies currently registered for this buffer factory. 
 	 * Working copies can be shared by several clients using the same buffer factory,see 
-	 * <code>IWorkingCopy##getSharedWorkingCopy</code>.
+	 * <code>IWorkingCopy.getSharedWorkingCopy</code>.
 	 * 
 	 * @param factory the given buffer factory
 	 * @return the list of shared working copies for a given buffer factory
@@ -2086,8 +2086,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * A container entry allows to express indirect references to a set of libraries, projects and variable entries,
 	 * which can be interpreted differently for each Java project where it is used.
-	 * A classpath container entry can be resolved using <code>JavaCore#getResolvedClasspathContainer</code>,
-	 * and updated with <code>JavaCore#classpathContainerChanged</code>
+	 * A classpath container entry can be resolved using <code>JavaCore.getResolvedClasspathContainer</code>,
+	 * and updated with <code>JavaCore.classpathContainerChanged</code>
 	 * <p>
 	 * A container is exclusively resolved by a <code>ClasspathContainerInitializer</code> registered onto the
 	 * extension point "org.eclipse.jdt.core.classpathContainerInitializer".
@@ -2135,8 +2135,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * A container entry allows to express indirect references to a set of libraries, projects and variable entries,
 	 * which can be interpreted differently for each Java project where it is used.
-	 * A classpath container entry can be resolved using <code>JavaCore#getResolvedClasspathContainer</code>,
-	 * and updated with <code>JavaCore#classpathContainerChanged</code>
+	 * A classpath container entry can be resolved using <code>JavaCore.getResolvedClasspathContainer</code>,
+	 * and updated with <code>JavaCore.classpathContainerChanged</code>
 	 * <p>
 	 * A container is exclusively resolved by a <code>ClasspathContainerInitializer</code> registered onto the
 	 * extension point "org.eclipse.jdt.core.classpathContainerInitializer".
@@ -2675,9 +2675,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		JavaModelManager.getJavaModelManager().removeElementChangedListener(listener);
 	}
 	/**
-	 * Runs the given action as an atomic java model operation.
+	 * Runs the given action as an atomic Java model operation.
 	 * <p>
-	 * After running a method that modifies java elements,
+	 * After running a method that modifies Java elements,
 	 * registered listeners receive after-the-fact notification of
 	 * what just transpired, in the form of a element changed event.
 	 * This method allows clients to call a number of
@@ -3001,7 +3001,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 	
 	/**
-	 * Shutdown the JavaCore plugin
+	 * Shutdown the JavaCore plug-in.
 	 * <p>
 	 * De-registers the JavaModelManager as a resource changed listener and save participant.
 	 * <p>
@@ -3027,7 +3027,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
-	 * Startup of the JavaCore plugin
+	 * Startup of the JavaCore plug-in.
 	 * <p>
 	 * Registers the JavaModelManager as a resource changed listener and save participant.
 	 * Starts the background indexing, and restore saved classpath variable values.

@@ -154,7 +154,7 @@ public interface IWorkingCopy {
 	IJavaElement[] findElements(IJavaElement element);
 	
 	/**
-	 * Finds the primary type of this compilation unit (i.e.&nbsp;the type with the same name as the
+	 * Finds the primary type of this compilation unit (that is, the type with the same name as the
 	 * compilation unit), or <code>null</code> if no such a type exists.
 	 * 
 	 * @return the found primary type of this compilation unit, or <code>null</code> if no such a type exists
@@ -166,7 +166,7 @@ public interface IWorkingCopy {
 	 * Returns a shared working copy on this element using the given factory to create
 	 * the buffer, or this element if this element is already a working copy.
 	 * This API can only answer an already existing working copy if it is based on the same
-	 * original compilation unit AND was using the same buffer factory (i.e. as defined by <code>Object#equals</code>).	 
+	 * original compilation unit AND was using the same buffer factory (that is, as defined by <code>Object.equals</code>).	 
 	 * <p>
 	 * The life time of a shared working copy is as follows:
 	 * <ul>
@@ -178,7 +178,7 @@ public interface IWorkingCopy {
 	 * </ul>
 	 * So users of this method must destroy exactly once the working copy.
 	 * <p>
-	 * Note that the buffer factory will be used for the life time of this working copy, i.e. if the 
+	 * Note that the buffer factory will be used for the life time of this working copy, that is if the 
 	 * working copy is closed then reopened, this factory will be used.
 	 * The buffer will be automatically initialized with the original's compilation unit content
 	 * upon creation.
@@ -231,7 +231,7 @@ public interface IWorkingCopy {
 	/**
 	 * Returns a new working copy of this element using the given factory to create
 	 * the buffer, or this element if this element is already a working copy.
-	 * Note that this factory will be used for the life time of this working copy, i.e. if the 
+	 * Note that this factory will be used for the life time of this working copy, that is if the 
 	 * working copy is closed then reopened, this factory will be reused.
 	 * The buffer will be automatically initialized with the original's compilation unit content
 	 * upon creation.

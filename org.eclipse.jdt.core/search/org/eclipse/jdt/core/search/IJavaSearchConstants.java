@@ -125,7 +125,7 @@ public interface IJavaSearchConstants {
 	
 	/**
 	 * The search pattern matches exactly the search result,
-	 * i.e. the source of the search result equals the search pattern.
+	 * that is, the source of the search result equals the search pattern.
 	 */
 	int EXACT_MATCH = 0;
 	/**

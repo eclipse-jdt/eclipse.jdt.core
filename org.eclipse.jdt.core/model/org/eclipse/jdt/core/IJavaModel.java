@@ -130,7 +130,7 @@ IJavaProject getJavaProject(String name);
  */
 IJavaProject[] getJavaProjects() throws JavaModelException;
 /**
- * Returns an array of non-Java resources (i.e. non-Java projects) in
+ * Returns an array of non-Java resources (that is, non-Java projects) in
  * the workspace.
  * <p>
  * Non-Java projects include all projects that are closed (even if they have the
