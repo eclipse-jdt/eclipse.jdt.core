@@ -128,6 +128,7 @@ public class Util implements SuffixConstants {
 								output.append(argMessage);
 								done = true;
 							} catch (MissingResourceException e) {
+								// ignore
 							}
 						}
 						if (!done) output.append(message.substring(end + 1, start + 1));
@@ -584,6 +585,7 @@ public class Util implements SuffixConstants {
 							}
 						}
 					} catch (CoreException e) {
+						// ignore
 					} finally {
 						JavaModelManager.getJavaModelManager().closeZipFile(jar);
 					}
@@ -592,8 +594,11 @@ public class Util implements SuffixConstants {
 					return reader.getVersion();
 				}
 		} catch(JavaModelException e) {
+			// ignore
 		} catch(ClassFormatException e) {
+			// ignore
 		} catch(IOException e) {
+			// ignore
 		}
 		return 0;
 	}
@@ -609,6 +614,7 @@ public class Util implements SuffixConstants {
 				}
 			}
 		} catch (CoreException e) {
+			// ignore
 		}
 		return null;
 	}
@@ -680,6 +686,7 @@ public class Util implements SuffixConstants {
 			try {
 				stream.close();
 			} catch (IOException e) {
+				// ignore
 			}
 		}
 	}
@@ -707,6 +714,7 @@ public class Util implements SuffixConstants {
 			try {
 				stream.close();
 			} catch (IOException e) {
+				// ignore
 			}
 		}
 	}
