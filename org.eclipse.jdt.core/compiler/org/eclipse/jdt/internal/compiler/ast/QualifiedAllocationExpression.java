@@ -294,10 +294,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			ReferenceBinding expectedType = this.binding.declaringClass.enclosingType();
 			if (expectedType != enclosingInstanceType) // must call before computeConversion() and typeMismatchError()
 				scope.compilationUnitScope().recordTypeConversion(expectedType, enclosingInstanceType);
-			if (enclosingInstanceType.isCompatibleWith(expectedType)) {
-				enclosingInstance.computeConversion(scope, expectedType, enclosingInstanceType);
-				return receiverType;
-			} else if (scope.isBoxingCompatibleWith(enclosingInstanceType, expectedType)) {
+			if (enclosingInstanceType.isCompatibleWith(expectedType) || scope.isBoxingCompatibleWith(enclosingInstanceType, expectedType)) {
 				enclosingInstance.computeConversion(scope, expectedType, enclosingInstanceType);
 				return receiverType;
 			}
@@ -334,7 +331,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			if (targetEnclosing == null) {
 				scope.problemReporter().unnecessaryEnclosingInstanceSpecification(enclosingInstance, (ReferenceBinding)receiverType);
 				return this.resolvedType = anonymousType.binding;
-			} else 	if (!enclosingInstanceType.isCompatibleWith(targetEnclosing)) {
+			} else if (!enclosingInstanceType.isCompatibleWith(targetEnclosing) && !scope.isBoxingCompatibleWith(enclosingInstanceType, targetEnclosing)) {
 				scope.problemReporter().typeMismatchError(enclosingInstanceType, targetEnclosing, enclosingInstance);
 				return this.resolvedType = anonymousType.binding;
 			}
