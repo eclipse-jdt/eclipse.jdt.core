@@ -17,7 +17,7 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -389,7 +389,7 @@ public class CompilationUnitSorter {
 	 * access modifier (public, protected, private, default)</li>
 	 * </p>
 	 *
-	 * @param javaElement the given working copy
+	 * @param compilationUnit the given working copy
 	 * @param positions an array of increasing positions to map. These are
 	 * character-based source positions inside the original source, for which
 	 * corresponding positions in the modified source will be computed (so as to
@@ -414,8 +414,8 @@ public class CompilationUnitSorter {
 	 * @see #DefaultJavaElementComparator
 	 * @since 2.1
 	 */
-	public static void sort(IJavaElement javaElement, int[] positions, Comparator comparator, IProgressMonitor monitor) throws JavaModelException {
-		sort(new IJavaElement[] { javaElement }, new int[][] {positions}, comparator, monitor);
+	public static void sort(ICompilationUnit compilationUnit, int[] positions, Comparator comparator, IProgressMonitor monitor) throws JavaModelException {
+		sort(new ICompilationUnit[] { compilationUnit }, new int[][] {positions}, comparator, monitor);
 	}
 
 	/**
@@ -424,7 +424,7 @@ public class CompilationUnitSorter {
 	 * update the positions of markers within compilation units.
 	 * The sizes of positions and compilationUnits array have to be the same.
 	 * 
-	 * @param javaElements the given working copies to process
+	 * @param compilationUnits the given working copies to process
 	 * @param positions positions to map
 	 * @param comparator the comparator to use for the sorting
 	 * @param monitor the given progress monitor
@@ -435,11 +435,11 @@ public class CompilationUnitSorter {
 	 * 
 	 * @since 2.1
 	 */
-	public static void sort(IJavaElement[] javaElements, int[][] positions, Comparator comparator, IProgressMonitor monitor) throws JavaModelException {
-		if (comparator == null || javaElements == null || (positions != null && positions.length != javaElements.length)) {
+	public static void sort(ICompilationUnit[] compilationUnits, int[][] positions, Comparator comparator, IProgressMonitor monitor) throws JavaModelException {
+		if (comparator == null || compilationUnits == null || (positions != null && positions.length != compilationUnits.length)) {
 			throw new IllegalArgumentException();
 		}
-		SortElementsOperation operation = new SortElementsOperation(javaElements , positions, comparator);
+		SortElementsOperation operation = new SortElementsOperation(compilationUnits , positions, comparator);
 		try {
 			JavaCore.run(operation, monitor);
 		} catch(CoreException e) {
