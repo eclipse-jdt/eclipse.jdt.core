@@ -54,7 +54,7 @@ protected void assertResources(String message, String expected, IResource[] reso
 }
 public static Test suite() {
 	
-	if (true) {
+	if (false) {
 		TestSuite suite = new Suite(JavaProjectTests.class.getName());
 		suite.addTest(new JavaProjectTests("testPackageFragmentRootRawEntry"));
 		return suite;
