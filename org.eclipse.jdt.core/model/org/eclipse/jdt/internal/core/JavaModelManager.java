@@ -1249,9 +1249,14 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public void saving(ISaveContext context) throws CoreException {
 			this.saveVariables();
-		
-		if (context.getKind() == ISaveContext.FULL_SAVE){
+
+		int k = context.getKind();
+		if (k == ISaveContext.FULL_SAVE){
 			this.saveBuildState();	// build state
+		} else if (k == ISaveContext.PROJECT_SAVE){
+			PerProjectInfo info = getPerProjectInfo(context.getProject());
+			if (info.triedRead)
+				saveState(info);
 		}
 	}
 
