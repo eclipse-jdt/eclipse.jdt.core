@@ -1371,6 +1371,47 @@ public void test056() {
 		"----------\n");
 }
 
+public void test057() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T> extends p.A<T> {\n" + 
+			"    protected T t;\n" + 
+			"    X(T t) {\n" + 
+			"        super(t);\n" + 
+			"        this.t = t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"	  X<X<String>> xs = new X<X<String>>(new X<String>(\"SUCCESS\"));\n" + 
+			"	  System.out.println(xs.t.t);\n" + 
+			"    }\n" + 
+			"}\n", 
+			"p/A.java",
+			"package p; \n" +
+			"public class A<P> {\n" + 
+			"	 protected P p;\n" +
+			"    protected A(P p) {\n" +
+			"       this.p = p; \n" +
+			"    } \n" +
+			"    protected void print(P p) {\n" + 
+			"        System.out.println(\"SUCCESS\"+p);\n" + 
+			"    }\n" + 
+			"}\n", 
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	System.out.println((X)xs.t);\n" + 
+		"	                   ^^^^^^^\n" + 
+		"Cannot cast from String to X\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in p\\A.java (at line 7)\n" + 
+		"	protected void print(P p) {\n" + 
+		"	                       ^\n" + 
+		"The parameter p is hiding a field from type A\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return GenericTypeTest.class;
 }
