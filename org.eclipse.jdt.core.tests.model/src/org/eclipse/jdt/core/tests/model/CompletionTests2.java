@@ -1331,17 +1331,17 @@ public void testAccessRestriction11() throws Exception {
 			Util.getJavaClassLibs(),
 			 "bin");
 		
-		this.createFolder("/P1/src/p11");
+		this.createFolder("/P1/src/x/y/z/p11");
 		this.createFile(
-				"/P1/src/p11/XX11.java",
-				"package p11;\n"+
+				"/P1/src/x/y/z/p11/XX11.java",
+				"package x.y.z.p11;\n"+
 				"public class XX11 {\n"+
 				"}");
 		
-		this.createFolder("/P1/src/p12");
+		this.createFolder("/P1/src/x/y/z/p12");
 		this.createFile(
-				"/P1/src/p12/XX12.java",
-				"package p12;\n"+
+				"/P1/src/x/y/z/p12/XX12.java",
+				"package x.y.z.p12;\n"+
 				"public class XX12 {\n"+
 				"}");
 		
@@ -1354,7 +1354,7 @@ public void testAccessRestriction11() throws Exception {
 			null,
 			new String[]{"/P3", "/P1"},
 			new String[][]{{}, {}},
-			new String[][]{{"p31/*"}, {"p11/*"}},
+			new String[][]{{"x/y/z/p31/*"}, {"x/y/z/p11/*"}},
 			new boolean[]{true, true},
 			"bin",
 			null,
@@ -1362,17 +1362,17 @@ public void testAccessRestriction11() throws Exception {
 			null,
 			"1.4");
 		
-		this.createFolder("/P2/src/p21");
+		this.createFolder("/P2/src/x/y/z/p21");
 		this.createFile(
-				"/P2/src/p21/XX21.java",
-				"package p21;\n"+
+				"/P2/src/x/y/z/p21/XX21.java",
+				"package x.y.z.p21;\n"+
 				"public class XX21 {\n"+
 				"}");
 		
-		this.createFolder("/P2/src/p22");
+		this.createFolder("/P2/src/x/y/z/p22");
 		this.createFile(
-				"/P2/src/p22/XX22.java",
-				"package p22;\n"+
+				"/P2/src/x/y/z/p22/XX22.java",
+				"package x.y.z.p22;\n"+
 				"public class XX22 {\n"+
 				"}");
 		
@@ -1385,7 +1385,7 @@ public void testAccessRestriction11() throws Exception {
 			null,
 			new String[]{"/P1"},
 			new String[][]{{}},
-			new String[][]{{"p12/*"}},
+			new String[][]{{"x/y/z/p12/*"}},
 			new boolean[]{true},
 			"bin",
 			null,
@@ -1393,17 +1393,17 @@ public void testAccessRestriction11() throws Exception {
 			null,
 			"1.4");
 		
-		this.createFolder("/P3/src/p31");
+		this.createFolder("/P3/src/x/y/z/p31");
 		this.createFile(
-				"/P3/src/p31/XX31.java",
-				"package p31;\n"+
+				"/P3/src/x/y/z/p31/XX31.java",
+				"package x.y.z.p31;\n"+
 				"public class XX31 {\n"+
 				"}");
 		
-		this.createFolder("/P3/src/p32");
+		this.createFolder("/P3/src/x/y/z/p32");
 		this.createFile(
-				"/P3/src/p32/XX32.java",
-				"package p32;\n"+
+				"/P3/src/x/y/z/p32/XX32.java",
+				"package x.y.z.p32;\n"+
 				"public class XX32 {\n"+
 				"}");
 		
@@ -1444,10 +1444,10 @@ public void testAccessRestriction11() throws Exception {
 		cu.codeComplete(cursorLocation, requestor);
 		
 		assertResults(
-			"XX11[TYPE_REF]{p11.XX11, p11, Lp11.XX11;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"XX21[TYPE_REF]{p21.XX21, p21, Lp21.XX21;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"XX22[TYPE_REF]{p22.XX22, p22, Lp22.XX22;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"XX32[TYPE_REF]{p32.XX32, p32, Lp32.XX32;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			"XX11[TYPE_REF]{x.y.z.p11.XX11, x.y.z.p11, Lx.y.z.p11.XX11;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"XX21[TYPE_REF]{x.y.z.p21.XX21, x.y.z.p21, Lx.y.z.p21.XX21;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"XX22[TYPE_REF]{x.y.z.p22.XX22, x.y.z.p22, Lx.y.z.p22.XX22;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"XX32[TYPE_REF]{x.y.z.p32.XX32, x.y.z.p32, Lx.y.z.p32.XX32;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 	} finally {
 		this.deleteProject("P1");

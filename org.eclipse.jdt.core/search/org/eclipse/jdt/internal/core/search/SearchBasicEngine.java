@@ -479,8 +479,32 @@ public class SearchBasicEngine {
 				if (record.enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR  // filter out local and anonymous classes
 						&& !workingCopyPaths.contains(documentPath)) { // filter out working copies
 					if (access != null) {
-						// TODO (frederic) the first argument should be a path (e.g. /org/eclipse/jdt/core/JavaCore.java) and not a fully qualified name
-						access = access.getViolatedRestriction(CharOperation.concat(record.pkg, record.simpleName, '/'), null);					
+						// Compute document relative path
+						int pos = documentPath.lastIndexOf('.');
+						char[] extension = null;
+						if (pos >= 0 && pos > documentPath.lastIndexOf('/')) {
+							extension = documentPath.substring(pos).toCharArray();
+						}
+						int pkgLength = record.pkg==null ? 0 : record.pkg.length;
+						int nameLength = record.simpleName==null ? 0 : record.simpleName.length;
+						int extLength = extension==null ? 0 : extension.length;
+						char[] path = new char[pkgLength+nameLength+extLength+1];
+						pos = 0;
+						if (pkgLength > 0) {
+							System.arraycopy(record.pkg, 0, path, pos, pkgLength);
+							CharOperation.replace(path, '.', '/');
+							path[pkgLength] = '/';
+							pos += pkgLength + 1;
+						}
+						if (nameLength > 0) {
+							System.arraycopy(record.simpleName, 0, path, pos, nameLength);
+							pos += nameLength;
+						}
+						if (extLength > 0) {
+							System.arraycopy(extension, 0, path, pos, extLength);
+						}
+						// Update access restriction
+						access = access.getViolatedRestriction(path, null);					
 					}
 					switch (record.typeSuffix) {
 						case IIndexConstants.CLASS_SUFFIX :
