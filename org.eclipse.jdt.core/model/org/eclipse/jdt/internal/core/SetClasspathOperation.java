@@ -480,7 +480,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		}
 		// if read-only .classpath, then the classpath setting will never been performed completely
 		if (project.saveClasspath(classpathForSave, outputLocationForSave)) {
-			this.setAttribute("hasModifiedResource", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+			this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 		}
 	}
 	

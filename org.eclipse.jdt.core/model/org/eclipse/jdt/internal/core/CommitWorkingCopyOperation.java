@@ -119,7 +119,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 				if (copyBuffer == null) return;
 				originalBuffer.setContents(copyBuffer.getCharacters());
 				original.save(fMonitor, fForce);
-				this.setAttribute("hasModifiedResource", "true");
+				this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 				hasSaved = true;
 			} finally {
 				if (!hasSaved){

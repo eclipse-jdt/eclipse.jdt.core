@@ -677,8 +677,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 		buf.append("\n-parse literal expressions as constants : " + (parseLiteralExpressionsAsConstants ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n-runtime exception name for compile error : " + runtimeExceptionNameForCompileError); //$NON-NLS-1$
 		buf.append("\n-encoding : " + (defaultEncoding == null ? "<default>" : defaultEncoding)); //$NON-NLS-1$ //$NON-NLS-2$
-		buf.append("\n-task tags: " + (this.taskTags == null ? "" : new String(CharOperation.concatWith(this.taskTags,',')))); //$NON-NLS-1$
-		buf.append("\n-task priorities : " + (this.taskPriorites == null ? "" : new String(CharOperation.concatWith(this.taskPriorites,',')))); //$NON-NLS-1$
+		buf.append("\n-task tags: " + (this.taskTags == null ? "" : new String(CharOperation.concatWith(this.taskTags,','))));  //$NON-NLS-1$ //$NON-NLS-2$
+		buf.append("\n-task priorities : " + (this.taskPriorites == null ? "" : new String(CharOperation.concatWith(this.taskPriorites,',')))); //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n-report deprecation inside deprecated code : " + (reportDeprecationInsideDeprecatedCode ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return buf.toString();
 	}

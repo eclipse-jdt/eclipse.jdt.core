@@ -289,7 +289,7 @@ public class Parser implements BindingIds, ParserBasicInformation, ITerminalSymb
 	        "Block",//$NON-NLS-1$
 	        "VariableDeclarators",//$NON-NLS-1$
 	        "VariableDeclarator",//$NON-NLS-1$
-	        "VariableDeclaratorId",
+	        "VariableDeclaratorId",//$NON-NLS-1$
 	        "VariableInitializer",//$NON-NLS-1$
 	        "ArrayInitializer",//$NON-NLS-1$
 	        "MethodHeaderName",//$NON-NLS-1$

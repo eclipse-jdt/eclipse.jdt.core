@@ -134,7 +134,7 @@ public class DeleteElementsOperation extends MultiOperation {
 			cu.save(getSubProgressMonitor(1), fForce);
 			if (!cu.isWorkingCopy()) { // if unit is working copy, then save will have already fired the delta
 				addDelta(delta);
-				this.setAttribute("hasModifiedResource", "true");
+				this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
 			}
 		}
 	}

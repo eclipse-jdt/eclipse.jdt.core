@@ -51,6 +51,11 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	/*
 	 * A HashMap of attributes that can be used by operations	 */
 	protected HashMap attributes;
+
+	public static final String HAS_MODIFIED_RESOURCE_ATTR = "hasModifiedResource"; //$NON-NLS-1$
+	public static final String TRUE = "true"; //$NON-NLS-1$
+	//public static final String FALSE = "false"; //$NON-NLS-1$
+		
 	/**
 	 * The elements this operation operates on,
 	 * or <code>null</code> if this operation
@@ -198,7 +203,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		IWorkspace workspace = resources[0].getWorkspace();
 		try {
 			workspace.copy(resources, destinationPath, false, subProgressMonitor);
-			this.setAttribute("hasModifiedResource", "true");
+			this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}
@@ -213,7 +218,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 				contents, 
 				force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
 				getSubProgressMonitor(1));
-				this.setAttribute("hasModifiedResource", "true");
+				this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}
@@ -229,7 +234,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 				force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
 				true, // local
 				getSubProgressMonitor(1));
-				this.setAttribute("hasModifiedResource", "true");
+				this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}
@@ -249,7 +254,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			resource.delete(
 				force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
 				getSubProgressMonitor(1));
-			this.setAttribute("hasModifiedResource", "true");
+			this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 			while (resource instanceof IFolder) {
 				// deleting a package: delete the parent if it is empty (eg. deleting x.y where folder x doesn't have resources but y)
 				// without deleting the package fragment root
@@ -258,7 +263,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 					resource.delete(
 						force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
 						getSubProgressMonitor(1));
-					this.setAttribute("hasModifiedResource", "true");
+					this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 				}
 			}
 		} catch (CoreException e) {
@@ -271,7 +276,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	protected void deleteResource(IResource resource,int flags) throws JavaModelException {
 		try {
 			resource.delete(flags, getSubProgressMonitor(1));
-			this.setAttribute("hasModifiedResource", "true");
+			this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}
@@ -288,7 +293,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 				resources,
 				force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
 				subProgressMonitor);
-				this.setAttribute("hasModifiedResource", "true");
+				this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}
@@ -455,7 +460,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Returns false if this operation has not been executed yet.
 	 */
 	public boolean hasModifiedResource() {
-		return !this.isReadOnly() && this.getAttribute("hasModifiedResource") != null;
+		return !this.isReadOnly() && this.getAttribute(HAS_MODIFIED_RESOURCE_ATTR) == TRUE; 
 	}
 	public void internalWorked(double work) {
 		if (fMonitor != null) {
@@ -509,7 +514,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		IWorkspace workspace = resources[0].getWorkspace();
 		try {
 			workspace.move(resources, destinationPath, false, subProgressMonitor);
-			this.setAttribute("hasModifiedResource", "true");
+			this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}
