@@ -7,6 +7,11 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
+import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.core.*;
 
 /**
@@ -14,6 +19,51 @@ import org.eclipse.jdt.core.*;
  */
 
 /* package */ class BinaryMethod extends BinaryMember implements IMethod {
+	
+	class DecodeParametersNames extends SourceElementRequestorAdapter {
+			String[] parametersNames;
+		
+			public void enterMethod(
+				int declarationStart,
+				int modifiers,
+				char[] returnType,
+				char[] name,
+				int nameSourceStart,
+				int nameSourceEnd,
+				char[][] parameterTypes,
+				char[][] parameterNames,
+				char[][] exceptionTypes) {
+					if (parameterNames != null) {
+						int length = parameterNames.length;
+						this.parametersNames = new String[length];
+						for (int i = 0; i < length; i++) {
+							this.parametersNames[i] = new String(parameterNames[i]);
+						}
+					}
+				}
+				
+			public void enterConstructor(
+				int declarationStart,
+				int modifiers,
+				char[] name,
+				int nameSourceStart,
+				int nameSourceEnd,
+				char[][] parameterTypes,
+				char[][] parameterNames,
+				char[][] exceptionTypes) {
+					if (parameterNames != null) {
+						int length = parameterNames.length;
+						this.parametersNames = new String[length];
+						for (int i = 0; i < length; i++) {
+							this.parametersNames[i] = new String(parameterNames[i]);
+						}
+					}
+				}
+				
+				public String[] getParametersNames() {
+					return this.parametersNames;
+				}
+	}
 
 	/**
 	 * The parameter type signatures of the method - stored locally
@@ -106,11 +156,30 @@ public int getNumberOfParameters() {
  */
 public String[] getParameterNames() throws JavaModelException {
 	if (fParameterNames == null) {
-		IBinaryMethod info = (IBinaryMethod) getRawInfo();
-		int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
-		fParameterNames = new String[paramCount];
-		for (int i = 0; i < paramCount; i++) {
-			fParameterNames[i] = "arg" + i; //$NON-NLS-1$
+		ISourceRange sourceRange = getSourceRange();
+		if (sourceRange != null && sourceRange != SourceMapper.fgUnknownRange) {
+			IProblemFactory factory = new DefaultProblemFactory();
+			DecodeParametersNames decoder = new DecodeParametersNames();
+			SourceElementParser parser = new SourceElementParser(decoder, factory);
+			int start = sourceRange.getOffset();
+			int end = start + sourceRange.getLength();
+			parser.parseTypeMemberDeclarations(getSourceMapper().findSource((IType) getParent()), start, end);
+			fParameterNames = decoder.getParametersNames();
+			if (fParameterNames == null) {
+				IBinaryMethod info = (IBinaryMethod) getRawInfo();
+				int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
+				fParameterNames = new String[paramCount];
+				for (int i = 0; i < paramCount; i++) {
+					fParameterNames[i] = "arg" + i; //$NON-NLS-1$
+				}
+			}
+		} else {
+			IBinaryMethod info = (IBinaryMethod) getRawInfo();
+			int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
+			fParameterNames = new String[paramCount];
+			for (int i = 0; i < paramCount; i++) {
+				fParameterNames[i] = "arg" + i; //$NON-NLS-1$
+			}
 		}
 	}
 	return fParameterNames;

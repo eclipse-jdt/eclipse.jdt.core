@@ -321,9 +321,14 @@ protected CompilationUnitDeclaration endParse(int act) {
 			consumeClassDeclaration();
 		}
 	}
-	CompilationUnitDeclaration result = super.endParse(act);
-	notifySourceElementRequestor();
-	return result;
+	if (compilationUnit != null) {
+		CompilationUnitDeclaration result = super.endParse(act);
+		notifySourceElementRequestor();
+		return result;
+	} else {
+		notifySourceElementRequestor();
+		return null;
+	}		
 }
 /*
  * Flush annotations defined prior to a given positions.
@@ -516,6 +521,15 @@ private boolean isLocalDeclaration() {
  * Update the bodyStart of the corresponding parse node
  */
 public void notifySourceElementRequestor() {
+	if (compilationUnit == null) {
+		// when we parse a single type member declaration the compilation unit is null, but we still
+		// want to be able to notify the requestor on the created ast node
+		if (astStack[0] instanceof AbstractMethodDeclaration) {
+			notifySourceElementRequestor((AbstractMethodDeclaration) astStack[0]);
+			return;
+		}
+		return;
+	}
 	if (reportReferenceInfo) {
 		notifyAllUnknownReferences();
 	}
@@ -1025,6 +1039,38 @@ public void parseTypeMemberDeclarations(
 		diet = old;
 	}
 }
+
+public void parseTypeMemberDeclarations(
+	char[] contents, 
+	int start, 
+	int end) {
+
+	boolean old = diet;
+	
+	try {
+		diet = true;
+
+		/* automaton initialization */
+		initialize();
+		goForClassBodyDeclarations();
+		/* scanner initialization */
+		scanner.setSourceBuffer(contents);
+		scanner.recordLineSeparator = false;
+		int sourceLength = scanner.source.length;
+		scanner.resetTo(start, end);
+		/* unit creation */
+		referenceContext = null;
+
+		/* initialize the astStacl */
+		// the compilationUnitDeclaration should contain exactly one type
+		/* run automaton */
+		parse();
+	} catch (Exception e) {
+		e.printStackTrace();
+	} finally {
+		diet = old;
+	}
+}
 /**
  * Sort the given ast nodes by their positions.
  */
@@ -1176,4 +1222,10 @@ private void visitIfNeeded(Initializer initializer) {
 			}
 	}
 }
+
+protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
+	if (compilationUnit == null) return;
+	super.reportSyntaxError(act, currentKind,stateStackTop);
+}
+
 }
