@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0492"));
+		suite.addTest(new ASTConverterTest2("test0495"));
 		return suite;
 	}
 	/**
@@ -2596,6 +2596,148 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		} finally {
 			JavaCore.setOptions(options);
 		}
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42839
+	 */
+	public void test0493() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0493", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		Type type = fieldDeclaration.getType();
+		checkSourceRange(type, "Class[][]", source);
+		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
+		ArrayType arrayType = (ArrayType) type;
+		Type componentType = arrayType.getComponentType();
+		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
+		checkSourceRange(componentType, "Class[]", source);
+		arrayType = (ArrayType) componentType;
+		componentType = arrayType.getComponentType();
+		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
+		checkSourceRange(componentType, "Class", source);
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42839
+	 */
+	public void test0494() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0494", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		Type type = fieldDeclaration.getType();
+		checkSourceRange(type, "Class[][][]", source);
+		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
+		ArrayType arrayType = (ArrayType) type;
+		Type componentType = arrayType.getComponentType();
+		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
+		checkSourceRange(componentType, "Class[][]", source);
+		arrayType = (ArrayType) componentType;
+		componentType = arrayType.getComponentType();
+		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
+		checkSourceRange(componentType, "Class[]", source);
+		arrayType = (ArrayType) componentType;
+		componentType = arrayType.getComponentType();
+		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
+		checkSourceRange(componentType, "Class", source);
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42839
+	 */
+	public void test0495() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0495", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		Type type = fieldDeclaration.getType();
+		checkSourceRange(type, "Class[][]", source);
+		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
+		ArrayType arrayType = (ArrayType) type;
+		Type componentType = arrayType.getComponentType();
+		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
+		checkSourceRange(componentType, "Class[]", source);
+		arrayType = (ArrayType) componentType;
+		componentType = arrayType.getComponentType();
+		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
+		checkSourceRange(componentType, "Class", source);
+		List fragments = fieldDeclaration.fragments();
+		assertEquals("wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		assertEquals("wrong extra dimension", 1, fragment.getExtraDimensions());
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42839
+	 */
+	public void test0496() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0496", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		Type type = fieldDeclaration.getType();
+		checkSourceRange(type, "Class[][][][]", source);
+		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
+		ArrayType arrayType = (ArrayType) type;
+		Type componentType = arrayType.getComponentType();
+		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
+		checkSourceRange(componentType, "Class[][][]", source);
+		arrayType = (ArrayType) componentType;
+		componentType = arrayType.getComponentType();
+		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
+		checkSourceRange(componentType, "Class[][]", source);
+		arrayType = (ArrayType) componentType;
+		componentType = arrayType.getComponentType();
+		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
+		checkSourceRange(componentType, "Class[]", source);
+		arrayType = (ArrayType) componentType;
+		componentType = arrayType.getComponentType();
+		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
+		checkSourceRange(componentType, "Class", source);
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42839
+	 */
+	public void test0497() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0497", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		Type type = fieldDeclaration.getType();
+		checkSourceRange(type, "Class[]", source);
+		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
+		ArrayType arrayType = (ArrayType) type;
+		Type componentType = arrayType.getComponentType();
+		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
+		checkSourceRange(componentType, "Class", source);
 	}
 }
 

@@ -587,6 +587,18 @@ class ASTConverter {
 					simpleType.setSourceRange(sourceStart, end - sourceStart + 1);
 					type = this.ast.newArrayType(simpleType, dimensions);
 					type.setSourceRange(sourceStart, length);
+					if (dimensions > 1) {
+						// need to set positions for intermediate array type see 42839
+						Type currentComponentType = ((ArrayType) type).getComponentType();
+						int searchedDimension = dimensions - 1;
+						int rightBracketEndPosition = end;
+						while (currentComponentType.isArrayType()) {
+							rightBracketEndPosition = retrieveProperRightBracketPosition(searchedDimension, end, typeReference.sourceEnd);
+							currentComponentType.setSourceRange(sourceStart, rightBracketEndPosition - sourceStart + 1);
+							currentComponentType = ((ArrayType) currentComponentType).getComponentType();
+							searchedDimension--;
+						}		
+					}
 					if (this.resolveBindings) {
 						completeRecord((ArrayType) type, typeReference);
 						this.recordNodes(simpleName, typeReference);
