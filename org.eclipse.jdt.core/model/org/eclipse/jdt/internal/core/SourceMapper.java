@@ -222,7 +222,7 @@ public class SourceMapper
 			if (lastIndex == -1) {
 				typeSigs[i] = typeSig;
 			} else {
-				typeSigs[i] = "" + Signature.C_UNRESOLVED + typeSig.substring(lastIndex + 1, typeSig.length());
+				typeSigs[i] = Signature.C_UNRESOLVED + typeSig.substring(lastIndex + 1, typeSig.length());
 			}
 		}
 		return typeSigs;
