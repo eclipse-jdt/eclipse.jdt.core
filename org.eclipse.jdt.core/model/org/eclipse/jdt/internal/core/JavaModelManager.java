@@ -53,6 +53,11 @@ public class JavaModelManager implements ISaveParticipant {
 	public static Map Containers = new HashMap(5);
 
 	/**
+	 * Flag indicating whether resource may be written (false during post-change)
+	 */
+	public static boolean IsResourceTreeLocked;
+	
+	/**
 	 * Name of the extension point for contributing classpath variable initializers
 	 */
 	public static final String CPVARIABLE_INITIALIZER_EXTPOINT_ID = "classpathVariableInitializer" ; //$NON-NLS-1$

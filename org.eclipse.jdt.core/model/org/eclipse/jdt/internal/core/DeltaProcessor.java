@@ -1004,7 +1004,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 		}
 	}
 	/**
-	 * Notifies this Java Model Manager that some resource changes have happened
+	 * Notification that some resource changes have happened
 	 * on the platform, and that the Java Model should update any required
 	 * internal structures such that its elements remain consistent.
 	 * Translates <code>IResourceDeltas</code> into <code>IJavaElementDeltas</code>.
@@ -1014,6 +1014,8 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 	 */
 	public void resourceChanged(IResourceChangeEvent event) {
 
+		JavaModelManager.IsResourceTreeLocked = false;
+		
 		if (event.getSource() instanceof IWorkspace) {
 			IResource resource = event.getResource();
 			IResourceDelta delta = event.getDelta();
@@ -1046,6 +1048,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 					
 				case IResourceChangeEvent.POST_CHANGE :
 					try {
+						JavaModelManager.IsResourceTreeLocked = true;
 						if (delta != null) {
 							IJavaElementDelta[] translatedDeltas = this.processResourceDelta(delta, ElementChangedEvent.POST_CHANGE);
 							if (translatedDeltas.length > 0) {
@@ -1058,6 +1061,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 					} finally {
 						// workaround for bug 15168 circular errors not reported 
 						this.manager.javaProjectsCache = null;
+						JavaModelManager.IsResourceTreeLocked = false;
 					}
 			}
 		}

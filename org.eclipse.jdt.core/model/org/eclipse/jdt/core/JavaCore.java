@@ -266,8 +266,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			return null;
 		}
 		try {
-			return JavaModelManager.getJavaModelManager().getHandleFromMemento(
-				handleIdentifier);
+			return JavaModelManager.getJavaModelManager().getHandleFromMemento(handleIdentifier);
 		} catch (JavaModelException e) {
 			return null;
 		}
@@ -1084,6 +1083,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.0
 	 */
 	public IWorkingCopy[] getSharedWorkingCopies(IBufferFactory factory){
+		
 		// if factory is null, default factory must be used
 		if (factory == null) factory = BufferManager.getDefaultBufferManager().getDefaultBufferFactory();
 		Map sharedWorkingCopies = JavaModelManager.getJavaModelManager().sharedWorkingCopies;
@@ -1155,14 +1155,19 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @return <code>true</code> if the marker references the element, false otherwise
 	 * @exception CoreException if the <code>IMarker.getAttribute</code> on the marker fails 	 
 	 */
-	public static boolean isReferencedBy(IJavaElement element, IMarker marker)
-		throws CoreException {
+	public static boolean isReferencedBy(IJavaElement element, IMarker marker) throws CoreException {
+		
 		if (element instanceof IMember)
 			element = ((IMember) element).getClassFile();
-		return (
-			element != null
-				&& marker != null
-				&& element.getHandleIdentifier().equals(marker.getAttribute(ATT_HANDLE_ID)));
+			
+		if (marker == null) return false;
+		String markerHandleId = (String)marker.getAttribute(ATT_HANDLE_ID);
+		if (markerHandleId == null) return false;
+		
+		IJavaElement markerElement = JavaCore.create(markerHandleId);
+		if (markerElement == null) return false;
+		
+		return element.equals(markerElement); // external elements may still be equal with different handleIDs.
 	}
 
 	/**
@@ -1174,15 +1179,19 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @return <code>true</code> if the marker delta references the element
 	 * @exception CoreException if the  <code>IMarkerDelta.getAttribute</code> on the marker delta fails 	 
 	 */
-	public static boolean isReferencedBy(
-		IJavaElement element,
-		IMarkerDelta markerDelta)
-		throws CoreException {
+	public static boolean isReferencedBy(IJavaElement element, IMarkerDelta markerDelta) throws CoreException {
+		
 		if (element instanceof IMember)
 			element = ((IMember) element).getClassFile();
-		return element != null
-			&& markerDelta != null
-			&& element.getHandleIdentifier().equals(markerDelta.getAttribute(ATT_HANDLE_ID));
+
+		if (markerDelta == null) return false;
+		String markerDeltarHandleId = (String)markerDelta.getAttribute(ATT_HANDLE_ID);
+		if (markerDeltarHandleId == null) return false;
+		
+		IJavaElement markerElement = JavaCore.create(markerDeltarHandleId);
+		if (markerElement == null) return false;
+		
+		return element.equals(markerElement); // external elements may still be equal with different handleIDs.
 	}
 
 	/**
@@ -1752,8 +1761,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						affectedProject.getRawClasspath(),
 						SetClasspathOperation.ReuseOutputLocation,
 						monitor,
-						true,
-						affectedProject.getWorkspace().isAutoBuilding(),
+						!JavaModelManager.IsResourceTreeLocked, // can save resources
+						!JavaModelManager.IsResourceTreeLocked && affectedProject.getWorkspace().isAutoBuilding(), // force save?
 						oldResolvedPaths[i],
 						remaining == 1, // no individual cycle check if more than 1 project
 						false); // updating - no validation
@@ -2059,6 +2068,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				
 		// update affected project classpaths
 		int size = affectedProjects.size();
+		
 		if (!affectedProjects.isEmpty()) {
 			boolean wasFiring = manager.isFiring();
 			try {
@@ -2084,9 +2094,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 							project.getRawClasspath(),
 							SetClasspathOperation.ReuseOutputLocation,
 							monitor,
-							true,
-							project.getWorkspace().isAutoBuilding(),
-							// force build if in auto build mode
+							!JavaModelManager.IsResourceTreeLocked, // can change resources
+							!JavaModelManager.IsResourceTreeLocked && project.getWorkspace().isAutoBuilding(),// force build if in auto build mode
 							(IClasspathEntry[]) affectedProjects.get(project),
 							size == 1 && needCycleCheck, // no individual check if more than 1 project to update
 							false); // updating - no validation
