@@ -37,7 +37,7 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testTypeParameter";
-		TESTS_NAMES = new String[] { "testTypeParameterConstructors05" };
+//		TESTS_NAMES = new String[] { "testTypeParameterConstructors05" };
 	//	TESTS_NUMBERS = new int[] { 79860, 79803, 73336 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
 		}
