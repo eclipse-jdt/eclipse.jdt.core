@@ -55,11 +55,16 @@ public class EncodingTests extends ModifyingResourceTests {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
+		getWorkspaceRoot().setDefaultCharset("Cp1252");
 		this.encodingJavaProject = setUpJavaProject("Encoding");
 		this.encodingProject = (IProject) this.encodingJavaProject.getResource();
 		this.utf8File = (IFile) this.encodingProject.findMember("src/testUTF8/Test.java");
 	}
 
+	public void tearDownSuite() throws Exception {
+		super.tearDownSuite();
+		getWorkspaceRoot().setDefaultCharset(null);
+	}
 	protected void setUp() throws Exception {
 		super.setUp();
 	}
@@ -240,7 +245,8 @@ public class EncodingTests extends ModifyingResourceTests {
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
 		String source = this.utf8Source.getSource();
 		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, null));
-		assertEquals("Encoded UTF-8 source should have been decoded the same way!", encodedContents, source);
+		assertEquals("Project encoding should be the same than workspace encoding!", this.encodingProject.getDefaultCharset(), getWorkspaceRoot().getDefaultCharset());
+		assertTrue("Encoded UTF-8 source should have been decoded the same way!", encodedContents.equals(source));
 
 		// Now compare bytes array
 		byte[] sourceBytes = source.getBytes();
@@ -348,6 +354,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		String source = this.utf8Source.getSource();
 		assertNotNull(source);
 		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, "ASCII"));
+		assertFalse("Workspace encoding: "+getWorkspaceRoot().getDefaultCharset()+" should be different than ASCII!", "ASCII".equals(getWorkspaceRoot().getDefaultCharset()));
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
 	}
 
