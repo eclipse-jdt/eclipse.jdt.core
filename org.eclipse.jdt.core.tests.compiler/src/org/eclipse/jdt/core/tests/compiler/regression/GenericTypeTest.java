@@ -13271,4 +13271,51 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from ? super Number to ? super Number\n" + 
 			"----------\n");
 	}		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81576
+	public void test492() {
+		this.runConformTest(
+			new String[] {
+				"SuperType.java",//====================================
+				"public class SuperType<T> {\n" + 
+				"	protected InnerType valueWrapper;\n" + 
+				"	protected class InnerType {\n" + 
+				"		private T value;\n" + 
+				"		protected InnerType(T value) {\n" + 
+				"			this.value = value;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public SuperType(T value) {\n" + 
+				"		/*\n" + 
+				"		 * This constructor exists only to show that the usage of the inner\n" + 
+				"		 * class within its enclosing class makes no problems\n" + 
+				"		 */\n" + 
+				"		this.valueWrapper = new InnerType(value);\n" + 
+				"	}\n" + 
+				"	protected SuperType() {\n" + 
+				"		// Provided for the convenience of subclasses\n" + 
+				"	}\n" + 
+				"}\n",
+				"SubType.java",//====================================
+				"public class SubType<T> extends SuperType<T> {\n" + 
+				"\n" + 
+				"	public SubType(T value) {\n" + 
+				"\n" + 
+				"		/* The constructor SuperType <T>.InnerType(T) is undefined */\n" + 
+				"		InnerType localValueWrapper = new InnerType(value);\n" + 
+				"\n" + 
+				"		/*\n" + 
+				"		 * Type mismatch: cannot convert from SuperType <T>.InnerType to\n" + 
+				"		 * SuperType <T>.InnerType\n" + 
+				"		 * \n" + 
+				"		 * Type safety: The expression of raw type SuperType.InnerType is\n" + 
+				"		 * converted to SuperType <T>.InnerType. References to generic type\n" + 
+				"		 * SuperType <T>.InnerType should be parametrized.\n" + 
+				"		 */\n" + 
+				"		localValueWrapper = super.valueWrapper;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}\n"			
+			},
+			"");
+	}		
 }
