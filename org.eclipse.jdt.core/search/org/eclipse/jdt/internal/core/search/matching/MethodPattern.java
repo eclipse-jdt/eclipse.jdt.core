@@ -240,11 +240,13 @@ public int matchLevel(AstNode node, boolean resolve) {
 	char[] itsSelector = null;
 	AstNode[] args = null;
 	TypeReference methodReturnType = null;
+	boolean checkTypeReferences = false;
 	if (this.findDeclarations && node instanceof MethodDeclaration) {
 		MethodDeclaration method = (MethodDeclaration) node;
 		itsSelector = method.selector;
 		args = method.arguments;
 		methodReturnType = method.returnType;
+		checkTypeReferences = true;
 	} else if (this.findReferences && node instanceof MessageSend) {
 		MessageSend messageSend = (MessageSend) node;
 		itsSelector = messageSend.selector;
@@ -256,31 +258,15 @@ public int matchLevel(AstNode node, boolean resolve) {
 	if (this.parameterSimpleNames != null) {
 		int length = this.parameterSimpleNames.length;
 		int argsLength = args == null ? 0 : args.length;
-		if (length != argsLength) {
-			return IMPOSSIBLE_MATCH;
-		} else {
-			for (int i = 0; i < length; i++) {
-				AstNode arg = args[i];
-				if (arg instanceof Argument) {
-					TypeReference argType = ((Argument)arg).type;
-					char[][] argTypeName = argType.getTypeName();
-					char[] sourceName = toArrayName(
-						argTypeName[argTypeName.length-1], 
-						argType.dimensions());
-					if (!matchesName(this.parameterSimpleNames[i], sourceName))
-						return IMPOSSIBLE_MATCH;
-				}
-			}
-		}
+		if (length != argsLength) return IMPOSSIBLE_MATCH;
+
+		if (checkTypeReferences)
+			for (int i = 0; i < argsLength; i++)
+				if (!matchesTypeReference(this.parameterSimpleNames[i], ((Argument) args[i]).type))
+					return IMPOSSIBLE_MATCH;
 	}
-	if (methodReturnType != null) {
-		char[][] methodReturnTypeName = methodReturnType.getTypeName();
-		char[] sourceName = toArrayName(
-			methodReturnTypeName[methodReturnTypeName.length-1], 
-			methodReturnType.dimensions());
-		if (!matchesName(this.returnSimpleName, sourceName))
-			return IMPOSSIBLE_MATCH;
-	}
+	if (methodReturnType != null && !matchesTypeReference(this.returnSimpleName, methodReturnType))
+		return IMPOSSIBLE_MATCH;
 	return this.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
 }
 /**

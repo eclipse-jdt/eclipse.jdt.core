@@ -16,8 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
-import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -1184,6 +1183,28 @@ protected boolean matchesType(char[] simpleNamePattern, char[] qualificationPatt
 	return CharOperation.match(pattern, fullyQualifiedTypeName, this.isCaseSensitive);
 }
 /**
+ * Returns whether the given type reference matches the given pattern.
+ */
+protected boolean matchesTypeReference(char[] pattern, TypeReference type) {
+	if (pattern == null) return true; // null is as if it was "*"
+
+	char[][] compoundName = type.getTypeName();
+	char[] simpleName = compoundName[compoundName.length - 1];
+	int dimensions = type.dimensions() * 2;
+	if (dimensions > 0) {
+		int length = simpleName.length;
+		char[] result = new char[length + dimensions];
+		System.arraycopy(simpleName, 0, result, 0, length);
+		for (int i = length, l = result.length; i < l;) {
+			result[i++] = '[';
+			result[i++] = ']';
+		}
+		simpleName = result;
+	}
+
+	return matchesName(pattern, simpleName);
+}
+/**
  * Checks whether an entry matches the current search pattern
  */
 protected boolean matchIndexEntry() {
@@ -1265,20 +1286,6 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	// default is to report a match on the whole node.
 	locator.report(reference.sourceStart, reference.sourceEnd, element, accuracy);
-}
-/**
- * Add square brackets to the given simple name
- */
-protected char[] toArrayName(char[] simpleName, int dimensions) {
-	if (dimensions == 0) return simpleName;
-	int length = simpleName.length;
-	char[] result = new char[length + dimensions * 2];
-	System.arraycopy(simpleName, 0, result, 0, length);
-	for (int i = 0; i < dimensions; i++) {
-		result[simpleName.length + i*2] = '[';
-		result[simpleName.length + i*2 + 1] = ']';
-	}
-	return result;
 }
 public String toString(){
 	return "SearchPattern"; //$NON-NLS-1$

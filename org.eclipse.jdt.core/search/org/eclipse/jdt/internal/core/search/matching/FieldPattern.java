@@ -248,12 +248,7 @@ protected int matchLevel(FieldDeclaration fieldDecl, boolean resolve) {
 		// answer referencesLevel if this is an IMPOSSIBLE_MATCH
 		if (!fieldDecl.isField()) return referencesLevel; // ignore field initializers
 		if (!matchesName(this.name, fieldDecl.name)) return referencesLevel;
-
-		// field type
-		TypeReference fieldType = fieldDecl.type;
-		char[][] fieldTypeName = fieldType.getTypeName();
-		char[] sourceName = toArrayName(fieldTypeName[fieldTypeName.length-1], fieldType.dimensions());
-		if (!matchesName(this.typeSimpleName, sourceName)) return referencesLevel;
+		if (!matchesTypeReference(this.typeSimpleName, fieldDecl.type)) return referencesLevel;
 
 		if (!this.mustResolve) return ACCURATE_MATCH; // cannot get better
 		declarationsLevel = POTENTIAL_MATCH;

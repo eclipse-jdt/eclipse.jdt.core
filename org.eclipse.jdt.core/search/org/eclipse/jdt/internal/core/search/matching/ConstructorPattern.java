@@ -197,9 +197,13 @@ protected int matchLevel(AllocationExpression allocation, boolean resolve) {
 	if (resolve)
 		return matchLevel(allocation.binding);
 
-	// argument types
-	if (this.parameterSimpleNames != null && allocation.arguments != null)
-		if (this.parameterSimpleNames.length != allocation.arguments.length) return IMPOSSIBLE_MATCH;
+	if (this.parameterSimpleNames != null) {
+		int length = this.parameterSimpleNames.length;
+		Expression[] args = allocation.arguments;
+		int argsLength = args == null ? 0 : args.length;
+		if (length != argsLength) return IMPOSSIBLE_MATCH;
+	}
+
 	return this.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
 }
 /**
@@ -272,10 +276,17 @@ protected int matchLevel(ConstructorDeclaration constructor, boolean resolve) {
 			if (this.declaringSimpleName != null && !matchesName(this.declaringSimpleName, constructor.selector))
 				return referencesLevel; // answer referencesLevel since this is an IMPOSSIBLE_MATCH
 
-			// parameter types
-			if (this.parameterSimpleNames != null && constructor.arguments != null)
-				if (this.parameterSimpleNames.length != constructor.arguments.length)
+			if (this.parameterSimpleNames != null) {
+				int length = this.parameterSimpleNames.length;
+				Argument[] args = constructor.arguments;
+				int argsLength = args == null ? 0 : args.length;
+				if (length != argsLength)
 					return referencesLevel; // answer referencesLevel since this is an IMPOSSIBLE_MATCH
+
+				for (int i = 0; i < length; i++)
+					if (!matchesTypeReference(this.parameterSimpleNames[i], args[i].type))
+						return referencesLevel; // answer referencesLevel since this is an IMPOSSIBLE_MATCH
+			}
 
 			if (!this.mustResolve) return ACCURATE_MATCH; // cannot get better
 			declarationsLevel = POTENTIAL_MATCH;
@@ -291,9 +302,13 @@ protected int matchLevel(ExplicitConstructorCall call, boolean resolve) {
 	if (resolve)
 		return matchLevel(call.binding);
 
-	// argument types
-	if (this.parameterSimpleNames != null && call.arguments != null)
-		if (this.parameterSimpleNames.length != call.arguments.length) return IMPOSSIBLE_MATCH;
+	if (this.parameterSimpleNames != null) {
+		int length = this.parameterSimpleNames.length;
+		Expression[] args = call.arguments;
+		int argsLength = args == null ? 0 : args.length;
+		if (length != argsLength) return IMPOSSIBLE_MATCH;
+	}
+
 	return this.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH;
 }
 /**
