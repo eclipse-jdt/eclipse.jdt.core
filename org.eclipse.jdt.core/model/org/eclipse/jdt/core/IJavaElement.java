@@ -112,6 +112,8 @@ public interface IJavaElement extends IAdaptable {
 
 	/**
 	 * Returns whether this Java element exists in the model.
+	 * 
+	 *TODO: Specify that one can navigate to this element from the Java model
 	 *
 	 * @return <code>true</code> if this element exists in the Java model
 	 */
