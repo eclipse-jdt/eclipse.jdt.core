@@ -9,10 +9,9 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.*;
 
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Util;
 
 import java.io.*;
@@ -214,18 +213,19 @@ private State getLastState(IProject project) {
 private IProject[] getRequiredProjects() {
 	if (javaProject == null || workspaceRoot == null) return new IProject[0];
 
-	String[] projectNames;
+	ArrayList projects = new ArrayList();
 	try {
-		projectNames = ((JavaProject)javaProject).projectPrerequisites(((JavaProject)javaProject).getExpandedClasspath(true));
+		IClasspathEntry[] entries = ((JavaProject) javaProject).getExpandedClasspath(true);
+		for (int i = 0, length = entries.length; i < length; i++) {
+			IClasspathEntry entry = JavaCore.getResolvedClasspathEntry(entries[i]);
+			if (entry != null && entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+				IProject p = workspaceRoot.getProject(entry.getPath().lastSegment());
+				if (p != null && !projects.contains(p))
+					projects.add(p);
+			}
+		}
 	} catch(JavaModelException e) {
 		return new IProject[0];
-	}
-
-	ArrayList projects = new ArrayList();
-	for (int i = 0; i < projectNames.length; ++i) {
-		IProject p = workspaceRoot.getProject(projectNames[i]);
-		if (p != null && !projects.contains(p))
-			projects.add(p);
 	}
 	IProject[] result = new IProject[projects.size()];
 	projects.toArray(result);
