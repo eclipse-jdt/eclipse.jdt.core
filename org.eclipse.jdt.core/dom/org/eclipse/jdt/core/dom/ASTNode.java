@@ -995,9 +995,9 @@ public abstract class ASTNode {
 	/**
 	 * Checks whether the given new child node is a node 
 	 * in a different AST from its parent-to-be, whether it is
-	 * already has a parent, and whether adding it to its
-	 * parent-to-be would create a cycle. The parent-to-be
-	 * is the enclosing instance.
+	 * already has a parent, whether adding it to its
+	 * parent-to-be would create a cycle, and whether the child is of
+	 * the right type. The parent-to-be is the enclosing instance.
 	 * 
 	 * @param node the parent-to-be node
 	 * @param newChild the new child of the parent, or <code>null</code> 
@@ -1020,19 +1020,18 @@ public abstract class ASTNode {
 			// new child is from a different AST
 			throw new IllegalArgumentException();
 		}
-		Class childClass = newChild.getClass();
 		
-//		// FIXME - test is erratic
-//		if (nodeType != null && childClass.isAssignableFrom(nodeType)) {
-//			// new child is not of the right type
-//			throw new IllegalArgumentException();
-//		}
 		if (newChild.getParent() != null) {
 			// new child currently has a different parent
 			throw new IllegalArgumentException();
 		}
 		if (cycleCheck && newChild == node.getRoot()) {
 			// inserting new child would create a cycle
+			throw new IllegalArgumentException();
+		}
+		Class childClass = newChild.getClass();
+		if (nodeType != null && !nodeType.isAssignableFrom(childClass)) {
+			// new child is not of the right type
 			throw new IllegalArgumentException();
 		}
 	}
