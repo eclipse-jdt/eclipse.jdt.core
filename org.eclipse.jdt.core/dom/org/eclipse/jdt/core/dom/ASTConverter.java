@@ -903,6 +903,9 @@ class ASTConverter {
 					classInstanceCreation.arguments().add(argument);
 				}
 			}
+			if (this.resolveBindings) {
+				recordNodes(classInstanceCreation, expression);
+			}
 			return classInstanceCreation;
 		}
 	}

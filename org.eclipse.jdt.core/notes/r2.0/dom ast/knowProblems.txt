@@ -6,8 +6,4 @@ getDeclaredModifiers()
 
 check that we filter out synthetic methods, fields and parameters.
 
-resolveImport
-resolvePackage
 SimpleType
-FieldAccess
-SuperFieldAccess

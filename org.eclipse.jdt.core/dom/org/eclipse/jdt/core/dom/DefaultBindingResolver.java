@@ -18,6 +18,7 @@ import java.util.Map;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
@@ -132,11 +133,22 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	ITypeBinding resolveType(Type type) {
 		// retrieve the old ast node
-		TypeReference typeReference = (TypeReference) this.newAstToOldAst.get(type);
-		if (typeReference == null) {
-			return super.resolveType(type);
+		AstNode node = (AstNode) this.newAstToOldAst.get(type);
+		if (node != null) {
+			if (node instanceof TypeReference) {
+				TypeReference typeReference = (TypeReference) node;
+				return this.getTypeBinding(typeReference.binding);
+			} else if (node instanceof SingleNameReference) {
+				SingleNameReference singleNameReference = (SingleNameReference) node;
+				if (singleNameReference.isTypeReference()) {
+					return this.getTypeBinding((ReferenceBinding)singleNameReference.binding);
+				} else {
+					// it should be a type reference
+					return null;
+				}
+			}
 		}
-		return this.getTypeBinding(typeReference.binding);
+		return null;
 	}
 	/*
 	 * Method declared on BindingResolver.
@@ -466,7 +478,16 @@ class DefaultBindingResolver extends BindingResolver {
 				if (indexInQualifiedName < indexOfFirstFieldBinding) {
 					// a extra lookup is required`
 					Scope scope = retrieveEnclosingScope(parent);
-					return this.getTypeBinding(scope.getType(CharOperation.subarray(qualifiedNameReference.tokens, 0, indexInQualifiedName)));
+					Binding binding = scope.getTypeOrPackage(CharOperation.subarray(qualifiedNameReference.tokens, 0, indexInQualifiedName));
+					if (binding != null && binding.isValidBinding()) {
+						if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
+							return this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
+						} else {
+							// it is a type
+							return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
+						}
+					}
+					return null;
 				} else {
 					if (indexInQualifiedName == indexOfFirstFieldBinding) {
 						return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) qualifiedNameReference.binding);				
@@ -583,5 +604,42 @@ class DefaultBindingResolver extends BindingResolver {
 		}
 		return null;
 	}
-}
+	
+	/*
+	 * @see BindingResolver#resolveConstructor(ClassInstanceCreation)
+	 */
+	IMethodBinding resolveConstructor(ClassInstanceCreation expression) {
+		AstNode node = (AstNode) this.newAstToOldAst.get(expression);
+		if (node instanceof AnonymousLocalTypeDeclaration) {
+			AnonymousLocalTypeDeclaration anonymousLocalTypeDeclaration = (AnonymousLocalTypeDeclaration) node;
+			return this.getMethodBinding(anonymousLocalTypeDeclaration.allocation.binding);
+		} else if (node instanceof AllocationExpression) {
+			return this.getMethodBinding(((AllocationExpression)node).binding);
+		}
+		return null;
+	}
 
+	/*
+	 * @see BindingResolver#resolveConstructor(ConstructorInvocation)
+	 */
+	IMethodBinding resolveConstructor(ConstructorInvocation expression) {
+		AstNode node = (AstNode) this.newAstToOldAst.get(expression);
+		if (node instanceof MessageSend) {
+			MessageSend messageSend = (MessageSend) node;
+			return this.getMethodBinding(messageSend.binding);
+		}
+		return null;
+	}
+
+	/*
+	 * @see BindingResolver#resolveConstructor(SuperConstructorInvocation)
+	 */
+	IMethodBinding resolveConstructor(SuperConstructorInvocation expression) {
+		AstNode node = (AstNode) this.newAstToOldAst.get(expression);
+		if (node instanceof MessageSend) {
+			MessageSend messageSend = (MessageSend) node;
+			return this.getMethodBinding(messageSend.binding);
+		}
+		return null;
+	}
+}
