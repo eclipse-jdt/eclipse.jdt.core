@@ -2228,7 +2228,7 @@ protected void consumeEmptyTypeDeclarationsopt() {
 protected void consumeEmptyWildcardBounds() {
 	// TODO Auto-generated method stub	
 }
-protected void consumeEnhancedForStatement() {
+protected void consumeEnhancedForStatement(boolean hasModifiers) {
 	// EnhancedForStatement ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' Statement
 	// EnhancedForStatementNoShortIf ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' StatementNoShortIf
 
@@ -2250,11 +2250,23 @@ protected void consumeEnhancedForStatement() {
 	this.identifierPtr--;
 	this.identifierLengthPtr--;
 	// remove fake modifiers/modifiers start
-	this.intPtr-=2;
+	int declarationSourceStart = 0;
+	int modifiers  = 0;
+	if (hasModifiers) {
+		declarationSourceStart = this.intStack[this.intPtr--];
+		modifiers = this.intStack[this.intPtr--];
+	} else {
+		this.intPtr-=2;
+	}
 	
 	type = getTypeReference(this.intStack[this.intPtr--]); // type dimension
 
 	LocalDeclaration localDeclaration = createLocalDeclaration(identifierName, type.sourceStart, (int) namePosition);
+	localDeclaration.declarationSourceEnd = localDeclaration.declarationEnd;
+	if (hasModifiers) {
+		localDeclaration.declarationSourceStart = declarationSourceStart;
+		localDeclaration.modifiers = modifiers;
+	}
 	localDeclaration.type = type;
 	pushOnAstStack(
 		new IteratorForStatement(
@@ -4862,12 +4874,20 @@ protected void consumeRule(int act) {
 		    consumeEmptyEnumDeclarations();  
 			break;
  
+    case 489 : if (DEBUG) { System.out.println("EnhancedForStatement ::= for LPAREN Type PushModifiers"); }  //$NON-NLS-1$
+		    consumeEnhancedForStatement(false);  
+			break;
+ 
     case 490 : if (DEBUG) { System.out.println("EnhancedForStatement ::= for LPAREN Modifiers Type..."); }  //$NON-NLS-1$
-		    consumeEnhancedForStatement();  
+		    consumeEnhancedForStatement(true);  
+			break;
+ 
+    case 491 : if (DEBUG) { System.out.println("EnhancedForStatementNoShortIf ::= for LPAREN Type..."); }  //$NON-NLS-1$
+		    consumeEnhancedForStatement(false);  
 			break;
  
     case 492 : if (DEBUG) { System.out.println("EnhancedForStatementNoShortIf ::= for LPAREN Modifiers"); }  //$NON-NLS-1$
-		    consumeEnhancedForStatement();  
+		    consumeEnhancedForStatement(true);  
 			break;
  
     case 493 : if (DEBUG) { System.out.println("SingleStaticImportDeclaration ::=..."); }  //$NON-NLS-1$
