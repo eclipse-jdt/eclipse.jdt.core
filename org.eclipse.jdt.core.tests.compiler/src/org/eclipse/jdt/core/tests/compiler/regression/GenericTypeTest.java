@@ -436,6 +436,31 @@ public void test017() {
 		"The method bar(IOException) in the type X<IOException> is not applicable for the arguments (Exception)\n" + 
 		"----------\n");
 }
+public void test018() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    T foo(T t) {\n" + 
+			"        System.out.println(t);\n" + 
+			"        return t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<XY>() {\n" + 
+			"            void run() {\n" + 
+			"                foo(new XY());\n" + 
+			"            }\n" + 
+			"        }.run();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class XY {\n" + 
+			"    public String toString() {\n" + 
+			"        return \"SUCCESS\";\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
 
 public static Class testClass() {
 	return GenericTypeTest.class;
