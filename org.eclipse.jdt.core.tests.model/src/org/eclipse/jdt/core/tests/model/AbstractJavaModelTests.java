@@ -313,7 +313,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actual);
 		if (!actual.equals(expected)) {
-			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), this.tabs));
+			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), 0));
 			System.out.println(this.endChar);
 		}
 		assertEquals(message, expected, actual);

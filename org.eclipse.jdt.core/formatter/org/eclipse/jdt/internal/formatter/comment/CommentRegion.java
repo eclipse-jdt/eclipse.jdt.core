@@ -18,12 +18,11 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.ConfigurableLineTracker;
+import org.eclipse.jface.text.DefaultLineTracker;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ILineTracker;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
-import org.eclipse.jface.text.TextUtilities;
 
 import org.eclipse.jdt.internal.formatter.CodeFormatterVisitor;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
@@ -95,11 +94,11 @@ public class CommentRegion extends Position implements IHtmlTagDelimiters, IBord
 		fClear= this.preferences.comment_clear_blank_lines;
 		
 		fTabSize= this.preferences.tab_size;
-		fUseTab = this.preferences.use_tab;
+		fUseTab = this.preferences.tab_char == DefaultCodeFormatterOptions.TAB;
 
 		this.scribe = formatter.scribe;
 
-		final ILineTracker tracker= new ConfigurableLineTracker(new String[] { TextUtilities.getDefaultLineDelimiter(document) });
+		final ILineTracker tracker= new DefaultLineTracker();
 
 		IRegion range= null;
 		CommentLine line= null;

@@ -19,7 +19,7 @@ import java.util.Iterator;
 import org.eclipse.text.edits.TextEdit;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.ConfigurableLineTracker;
+import org.eclipse.jface.text.DefaultLineTracker;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ILineTracker;
 import org.eclipse.jface.text.Position;
@@ -147,7 +147,7 @@ public class JavaDocRegion extends MultiCommentRegion implements IJavaDocTagCons
 	private String preprocessCodeSnippet(String snippet) {
 		// strip content prefix
 		StringBuffer buffer= new StringBuffer();
-		ILineTracker tracker= new ConfigurableLineTracker(new String[] { TextUtilities.getDefaultLineDelimiter( getDocument()) });
+		ILineTracker tracker= new DefaultLineTracker();
 		String contentPrefix= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX.trim();
 		
 		buffer.setLength(0);
@@ -194,7 +194,7 @@ public class JavaDocRegion extends MultiCommentRegion implements IJavaDocTagCons
 	private String postprocessCodeSnippet(String snippet, String indentation) {
 		// patch content prefix
 		StringBuffer buffer= new StringBuffer();
-		ILineTracker tracker= new ConfigurableLineTracker(new String[] { TextUtilities.getDefaultLineDelimiter( getDocument()) });
+		ILineTracker tracker= new DefaultLineTracker();
 		String patch= indentation + MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
 
 		buffer.setLength(0);

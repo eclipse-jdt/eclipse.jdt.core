@@ -13,6 +13,8 @@ package org.eclipse.jdt.internal.formatter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.JavaCore;
@@ -20,7 +22,9 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.formatter.comment.CommentRegion;
 import org.eclipse.jdt.internal.formatter.comment.JavaDocRegion;
@@ -33,6 +37,7 @@ import org.eclipse.text.edits.TextEdit;
 
 public class DefaultCodeFormatter extends CodeFormatter {
 
+	private static Scanner ProbingScanner;
 	public static final boolean DEBUG = false;
 
 	/**
@@ -300,7 +305,34 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		// TODO (olivier) add probing for comment formatting
+		if (ProbingScanner == null) {
+			// scanner use to check if the kind could be K_JAVA_DOC, K_MULTI_LINE_COMMENT or K_SINGLE_LINE_COMMENT 
+			ProbingScanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_3, ClassFileConstants.JDK1_3, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+		}
+		ProbingScanner.setSource(source.toCharArray());
+		ProbingScanner.resetTo(offset, offset + length);
+		try {
+			switch(ProbingScanner.getNextToken()) {
+				case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
+					if (ProbingScanner.getCurrentTokenEndPosition() == offset + length - 1) {
+						return formatComment(K_MULTI_LINE_COMMENT, source, indentationLevel, lineSeparator, offset, length);
+					}
+					break;
+				case ITerminalSymbols.TokenNameCOMMENT_LINE :
+					if (ProbingScanner.getCurrentTokenEndPosition() == offset + length - 1) {
+						return formatComment(K_SINGLE_LINE_COMMENT, source, indentationLevel, lineSeparator, offset, length);
+					}
+					break;
+				case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
+					if (ProbingScanner.getCurrentTokenEndPosition() == offset + length - 1) {
+						return formatComment(K_JAVA_DOC, source, indentationLevel, lineSeparator, offset, length);
+					}
+			}
+		} catch (InvalidInputException e) {
+			// ignore
+		}
+		ProbingScanner.setSource((char[]) null);
+
 		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), getDefaultCompilerOptions(), true);
 		if (expression != null) {
 			return internalFormatExpression(source, indentationLevel, lineSeparator, expression, offset, length);

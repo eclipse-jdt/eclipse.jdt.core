@@ -23,6 +23,10 @@ import org.eclipse.jdt.internal.formatter.align.Alignment;
  */
 
 public class DefaultCodeFormatterOptions {
+	public static final int TAB = 1;
+	public static final int SPACE = 2;
+	public static final int MIXED = 4;
+	
 	public static DefaultCodeFormatterOptions getDefaultSettings() {
 		DefaultCodeFormatterOptions options = new DefaultCodeFormatterOptions();
 		options.setDefaultSettings();
@@ -102,7 +106,8 @@ public class DefaultCodeFormatterOptions {
 	public boolean indent_breaks_compare_to_cases;
 	public boolean indent_switchstatements_compare_to_cases;
 	public boolean indent_switchstatements_compare_to_switch;
-	
+	public int indentation_size;
+
 	public boolean insert_new_line_after_annotation;
 	public boolean insert_new_line_after_opening_brace_in_array_initializer;
 	public boolean insert_new_line_at_end_of_file_if_missing;
@@ -280,7 +285,7 @@ public class DefaultCodeFormatterOptions {
 	public int tab_size;
 	public final char filling_space = ' ';
 	public int page_width;
-	public boolean use_tab;
+	public int tab_char;
 
 	public int initial_indentation_level;
 	public String line_separator;
@@ -362,6 +367,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BREAKS_COMPARE_TO_CASES, this.indent_breaks_compare_to_cases ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, this.indent_switchstatements_compare_to_cases ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, this.indent_switchstatements_compare_to_switch ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, Integer.toString(this.indentation_size));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION, this.insert_new_line_after_annotation ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER, this.insert_new_line_after_opening_brace_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE_IF_MISSING, this.insert_new_line_at_end_of_file_if_missing ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -537,7 +543,17 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, Integer.toString(this.number_of_empty_lines_to_preserve));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE, this.put_empty_statement_on_new_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, Integer.toString(this.page_width));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, this.use_tab ? JavaCore.TAB: JavaCore.SPACE);
+		switch(this.tab_char) {
+			case SPACE :
+				options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
+				break;
+			case TAB :
+				options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.TAB);
+				break;
+			case MIXED :
+				options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, DefaultCodeFormatterConstants.MIXED);
+				break;
+		}
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, Integer.toString(this.tab_size));
 		return options;
 	}
@@ -1022,6 +1038,16 @@ public class DefaultCodeFormatterOptions {
 		final Object indentSwitchstatementsCompareToSwitchOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH);
 		if (indentSwitchstatementsCompareToSwitchOption != null) {
 			this.indent_switchstatements_compare_to_switch = DefaultCodeFormatterConstants.TRUE.equals(indentSwitchstatementsCompareToSwitchOption);
+		}
+		final Object indentationSizeOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE);
+		if (indentationSizeOption != null) {
+			try {
+				this.indentation_size = Integer.parseInt((String) indentationSizeOption);
+			} catch (NumberFormatException e) {
+				this.indentation_size = 4;
+			} catch(ClassCastException e) {
+				this.indentation_size = 4;
+			}
 		}
 		final Object insertNewLineAfterAnnotationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION);
 		if (insertNewLineAfterAnnotationOption != null) {
@@ -1747,7 +1773,13 @@ public class DefaultCodeFormatterOptions {
 		}
 		final Object useTabOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR);
 		if (useTabOption != null) {
-			this.use_tab = JavaCore.TAB.equals(useTabOption);
+			if (JavaCore.TAB.equals(useTabOption)) {
+				this.tab_char = TAB;
+			} else if (JavaCore.SPACE.equals(useTabOption)) {
+				this.tab_char = SPACE;
+			} else {
+				this.tab_char = MIXED;
+			}
 		}
 	}
 
@@ -1813,6 +1845,7 @@ public class DefaultCodeFormatterOptions {
 		this.indent_breaks_compare_to_cases = true;
 		this.indent_switchstatements_compare_to_cases = true;
 		this.indent_switchstatements_compare_to_switch = true;
+		this.indentation_size = 4;
 		this.insert_new_line_after_annotation = true;
 		this.insert_new_line_after_opening_brace_in_array_initializer = false;
 		this.insert_new_line_at_end_of_file_if_missing = false;
@@ -1988,7 +2021,7 @@ public class DefaultCodeFormatterOptions {
 		this.put_empty_statement_on_new_line = false;
 		this.tab_size = 4;
 		this.page_width = 80;
-		this.use_tab = true; // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49081
+		this.tab_char = TAB; // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49081
 	}
 	
 	public void setJavaConventionsSettings() {
@@ -2053,6 +2086,7 @@ public class DefaultCodeFormatterOptions {
 		this.indent_breaks_compare_to_cases = true;
 		this.indent_switchstatements_compare_to_cases = true;
 		this.indent_switchstatements_compare_to_switch = false;
+		this.indentation_size = 4;
 		this.insert_new_line_after_annotation = true;
 		this.insert_new_line_after_opening_brace_in_array_initializer = false;
 		this.insert_new_line_at_end_of_file_if_missing = false;
@@ -2228,6 +2262,6 @@ public class DefaultCodeFormatterOptions {
 		this.put_empty_statement_on_new_line = true;
 		this.tab_size = 4;
 		this.page_width = 80;
-		this.use_tab = false;
+		this.tab_char = SPACE;
 	}
 }

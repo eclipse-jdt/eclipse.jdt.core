@@ -783,6 +783,20 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
+	 * FORMATTER / Option to specify the equivalent number of spaces that represents one indentation 
+	 *     - option id:         "org.eclipse.jdt.core.formatter.indentation.size"
+	 *     - possible values:   "&lt;n&gt;", where n is zero or a positive integer
+	 *     - default:           "4"
+	 * </pre>
+	 * <p>This option is used only if the tab char is set to MIXED.
+	 * </p>
+	 * @see #FORMATTER_TAB_CHAR
+	 * @since 3.1
+	 */
+	public static final String FORMATTER_INDENTATION_SIZE = JavaCore.PLUGIN_ID + ".formatter.indentation.size"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a new line after the opening brace in an array initializer
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
@@ -2887,7 +2901,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_TAB_CHAR = JavaCore.PLUGIN_ID + ".formatter.tabulation.char"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to specify the tabulation size
+	 * FORMATTER / Option to specify the equivalent number of spaces that represents one tabulation 
 	 *     - option id:         "org.eclipse.jdt.core.formatter.tabulation.size"
 	 *     - possible values:   "&lt;n&gt;", where n is zero or a positive integer
 	 *     - default:           "4"
@@ -2895,6 +2909,7 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_TAB_SIZE = JavaCore.PLUGIN_ID + ".formatter.tabulation.size"; //$NON-NLS-1$
+
 	/**
 	 * <pre>
 	 * FORMATTER / The wrapping is done by indenting by one compare to the current indentation.
