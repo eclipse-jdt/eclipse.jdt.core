@@ -2938,4 +2938,48 @@ public class AnnotationTest extends AbstractComparisonTest {
 			},
 			"13100");
 	}
+	
+	public void test097() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" +
+				"	int id default 0;\n" +
+				"}\n" +
+				"\n" +
+				"@I() public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		System.out.println(X.class.getAnnotation(I.class));\n" +
+				"	}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	int id default 0;\n" + 
+			"	       ^^^^^^^\n" + 
+			"Syntax error on token \"default\", = expected\n" + 
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80328
+	public void test098() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" +
+				"	int id default 0;\n" +
+				"}\n" +
+				"\n" +
+				"@I() public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		System.out.println(X.class.getAnnotation(I.class));\n" +
+				"	}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	int id default 0;\n" + 
+			"	       ^^^^^^^\n" + 
+			"Syntax error on token \"default\", = expected\n" + 
+			"----------\n");
+	}
 }
