@@ -259,6 +259,11 @@ public void test08() {
 		"	public void aTask() {System.out.println(A.this.success);}\n" + 
 		"	                                        ^^^^^^\n" + 
 		"No enclosing instance of the type A is accessible in scope\n" + 
+		"----------\n" + 
+		"2. WARNING in p1\\A.java (at line 7)\n" + 
+		"	public void aTask() {System.out.println(A.this.success);}\n" + 
+		"	                                        ^^^^^^^^^^^^^^\n" + 
+		"The static field A.success should be accessed in a static way\n" + 
 		"----------\n"
 	);
 }
