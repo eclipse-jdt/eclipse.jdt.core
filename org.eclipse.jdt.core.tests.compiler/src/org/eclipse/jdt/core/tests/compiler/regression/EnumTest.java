@@ -694,7 +694,7 @@ public class EnumTest extends AbstractComparisonTest {
 			"	     ^^^^^^^^\n" + 
 			"Cannot qualify the name of the enum constant ROUGE in a case label\n" + 
 			"----------\n");
-	}		
+	}
 	// enum cannot be declared as local type
 	
 	// check abstract conditions
@@ -710,6 +710,4 @@ public class EnumTest extends AbstractComparisonTest {
 	// check warning when switch doesn't use all enum constants
 	
 	// check enum syntax recovery
-	
-	// check member enum type (enclosing should be first - before name/ordinal)
 }
