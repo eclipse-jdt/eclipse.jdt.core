@@ -174,6 +174,13 @@ public final class AST {
 	 * Each node in the subtree carries source range(s) information relating back
 	 * to positions in the given source string (the given source string itself
 	 * is not remembered with the AST).
+	 * The source range usually begins at the first character of the first token 
+	 * corresponding to the node; leading whitespace and comments are <b>not</b>
+	 * included. The source range usually extends through the last character of
+	 * the last token corresponding to the node; trailing whitespace and
+	 * comments are <b>not</b> included. There are a handful of exceptions
+	 * (including compilation units and the various body declarations); the
+	 * specification for these node type spells out the details.
 	 * Source ranges nest properly: the source range for a child is always
 	 * within the source range of its parent, and the source ranges of sibling
 	 * nodes never overlap.
@@ -262,6 +269,13 @@ public final class AST {
 	 * Each node in the subtree carries source range(s) information relating back
 	 * to positions in the given source string (the given source string itself
 	 * is not remembered with the AST).
+	 * The source range usually begins at the first character of the first token 
+	 * corresponding to the node; leading whitespace and comments are <b>not</b>
+	 * included. The source range usually extends through the last character of
+	 * the last token corresponding to the node; trailing whitespace and
+	 * comments are <b>not</b> included. There are a handful of exceptions
+	 * (including compilation units and the various body declarations); the
+	 * specification for these node type spells out the details.
 	 * Source ranges nest properly: the source range for a child is always
 	 * within the source range of its parent, and the source ranges of sibling
 	 * nodes never overlap.
@@ -360,6 +374,13 @@ public final class AST {
 	 * Each node in the subtree carries source range(s) information relating back
 	 * to positions in the given source string (the given source string itself
 	 * is not remembered with the AST). 
+	 * The source range usually begins at the first character of the first token 
+	 * corresponding to the node; leading whitespace and comments are <b>not</b>
+	 * included. The source range usually extends through the last character of
+	 * the last token corresponding to the node; trailing whitespace and
+	 * comments are <b>not</b> included. There are a handful of exceptions
+	 * (including compilation units and the various body declarations); the
+	 * specification for these node type spells out the details.
 	 * Source ranges nest properly: the source range for a child is always
 	 * within the source range of its parent, and the source ranges of sibling
 	 * nodes never overlap.

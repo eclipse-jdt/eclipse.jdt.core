@@ -13,12 +13,6 @@ package org.eclipse.jdt.core.dom;
 
 /**
  * If statement AST node type.
- *
- * Range 0: first character of "if" keyword through last character of
- * the last statement.
- * Range 1: first character of "else" keyword through last character of
- * the last statement; if "else" keyword is absent then an empty range
- *
  * <pre>
  * IfStatement:
  *    <b>if</b> <b>(</b> Expression <b>)</b> Statement [ <b>else</b> Statement]

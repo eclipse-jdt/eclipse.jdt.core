@@ -19,8 +19,10 @@ import org.eclipse.jdt.core.compiler.IProblem;
 
 /**
  * Java compilation unit AST node type. This is the type of the root of an AST.
- *
- * Range 0: first character through last character of the source file.
+ * <p>
+ * The source range for this type of node is ordinarily the entire source file,
+ * including leading and trailing whitespace and comments.
+ * </p>
  *
  * <pre>
  * CompilationUnit:

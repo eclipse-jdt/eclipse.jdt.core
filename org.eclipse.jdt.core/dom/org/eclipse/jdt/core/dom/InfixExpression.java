@@ -17,11 +17,6 @@ import java.util.Map;
 
 /**
  * Infix expression AST node type.
- *
- * Range 0: first character of left operand expression through last character
- * of the last extended operand expression. If there are no extended operands,
- * the range ends after the right operand expression.
- *
  * <pre>
  * InfixExpression:
  *    Expression InfixOperator Expression { InfixOperator Expression } 

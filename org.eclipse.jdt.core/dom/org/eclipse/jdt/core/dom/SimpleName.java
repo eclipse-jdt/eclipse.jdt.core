@@ -17,9 +17,6 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
 /**
  * AST node for a simple name. A simple name is an identifier other than
  * a keyword, boolean literal ("true", "false") or null literal ("null").
- * <p>
- * Range 0: first character through last character of identifier.
- * </p>
  * <pre>
  * SimpleName:
  *     Identifier

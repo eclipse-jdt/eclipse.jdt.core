@@ -20,10 +20,6 @@ package org.eclipse.jdt.core.dom;
  * QualifiedName:
  *    Name <b>.</b> SimpleName
  * </pre>
- *
- * Range 0: first character of qualified name through the last character
- * of the simple name.
- *
  * <p>
  * See <code>FieldAccess</code> for guidelines on handling other expressions
  * that resemble qualified names.

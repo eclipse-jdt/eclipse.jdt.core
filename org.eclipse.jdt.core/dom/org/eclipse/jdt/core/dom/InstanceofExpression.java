@@ -13,10 +13,6 @@ package org.eclipse.jdt.core.dom;
 
 /**
  * Instanceof expression AST node type.
- *
- * Range 0: first character of left operand expression through last character
- * of the right operand expression.
- *
  * <pre>
  * InstanceofExpression:
  *    Expression <b>instanceof</b> Type
