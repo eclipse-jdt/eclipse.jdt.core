@@ -52,11 +52,11 @@ public final class CompilationUnitSorter {
 	 * <p>
 	 * Example usage:
 	 * <pre>
-	 *      BodyDeclaration b1 = (BodyDeclaration) object1;
-	 *      BodyDeclaration b2 = (BodyDeclaration) object2;
-	 * 		Integer i1 = (Integer) b1.getProperty(RELATIVE_ORDER);
-	 * 		Integer i2 = (Integer) b2.getProperty(RELATIVE_ORDER);
-	 * 		return i1.intValue() - i2.intValue(); // preserve original order
+	 * BodyDeclaration b1 = (BodyDeclaration) object1;
+	 * BodyDeclaration b2 = (BodyDeclaration) object2;
+	 * Integer i1 = (Integer) b1.getProperty(RELATIVE_ORDER);
+	 * Integer i2 = (Integer) b2.getProperty(RELATIVE_ORDER);
+	 * return i1.intValue() - i2.intValue(); // preserve original order
 	 * </pre>
 	 * </p>
 	 * 

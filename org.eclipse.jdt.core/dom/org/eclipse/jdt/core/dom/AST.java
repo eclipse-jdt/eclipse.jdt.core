@@ -33,7 +33,8 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
  * Abstract syntax trees may be hand constructed by clients, using the
  * <code>new<it>TYPE</it></code> factory methods to create new nodes, and the
  * various <code>set<it>CHILD</it></code> methods 
- * (see <code>ASTNode</code> and its subclasses) to connect them together.
+ * (see {@link org.eclipse.jdt.core.dom.ASTNode ASTNode} and its subclasses)
+ * to connect them together.
  * </p>
  * <p>
  * Each AST node belongs to a unique AST instance, called the owning AST.
@@ -42,11 +43,14 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
  * be cloned first to ensures that the added nodes have the correct owning AST.
  * </p>
  * <p>
- * The static method <code>parseCompilationUnit</code> parses a string
+ * The static method
+ * {@link org.eclipse.jdt.core.dom.AST#parseCompilationUnit(char[])
+ * parseCompilationUnit(char[])} parses a string
  * containing a Java compilation unit and returns the abstract syntax tree
  * for it. The resulting nodes carry source ranges relating the node back to
- * the original source characters. Optional name and type resolution can also
- * be requested at the time the AST is created.
+ * the original source characters. Other forms of
+ * <code>parseCompilationUnit</code> allow optional name and type resolution
+ * to be requested at the time the AST is created.
  * </p>
  * <p>
  * Note that there is no built-in way to serialize a modified AST to a source
@@ -280,7 +284,7 @@ public final class AST {
 	 * Parses the source string corresponding to the given Java class file
 	 * element and creates and returns a corresponding abstract syntax tree.
 	 * The source string is obtained from the Java model element using
-	 * <code>IClassFile.getSource()<code>, and is only available for a class
+	 * <code>IClassFile.getSource()</code>, and is only available for a class
 	 * files with attached source.
 	 * <p>
 	 * The returned compilation unit node is the root node of a new AST.
