@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.core.Util;
 
@@ -933,6 +934,60 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				workingCopy.discardWorkingCopy();
 			}
 			deleteFile("/P/Y.java");
+		}
+	}
+
+	/*
+	 * Ensures that searching takes the primary owner's working copies and the given working copies into account.
+	 * (regression test for bug 43300 SearchEngine(IWorkingCopy[] workingCopies) not backward compatible)
+	 */
+	public void testSearch4() throws CoreException {
+		ICompilationUnit primaryWorkingCopy = null;
+		ICompilationUnit workingCopy = null;
+		try {
+			createFolder("P/p");
+			createFile("/P/p/Y.java", "");
+			primaryWorkingCopy = getCompilationUnit("P/p/Y.java");
+			primaryWorkingCopy.becomeWorkingCopy(null, null);
+			
+			// create type Y in working copy
+			primaryWorkingCopy.getBuffer().setContents(
+				"package p;\n" +
+				"public class Y {\n" +
+				"}");
+			primaryWorkingCopy.makeConsistent(null);
+			
+			// create new working copy on X.java and add type X
+			workingCopy = getCompilationUnit("P/p/X.java").getWorkingCopy(null);
+			workingCopy.getBuffer().setContents(
+				"package p;\n" +
+				"public class X {\n" +
+				"}"
+			);
+			workingCopy.makeConsistent(null);
+
+			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {primaryWorkingCopy.getParent()});
+			new SearchEngine(new IWorkingCopy[] {workingCopy}).search(
+				getWorkspace(), 
+				"*", 
+				IJavaSearchConstants.TYPE,
+				IJavaSearchConstants.DECLARATIONS, 
+				scope, 
+				resultCollector);
+			assertEquals(
+				"p/X.java p.X [X]\n" +
+				"p/Y.java p.Y [Y]",
+				resultCollector.toString());
+			
+		} finally {
+			if (primaryWorkingCopy != null) {
+				primaryWorkingCopy.discardWorkingCopy();
+			}
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+			deleteFile("/P/p/Y.java");
 		}
 	}
 

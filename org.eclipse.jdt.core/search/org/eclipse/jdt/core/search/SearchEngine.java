@@ -98,10 +98,11 @@ public SearchEngine() {
  * <p>
  * Note that passing an empty working copy will be as if the original compilation
  * unit had been deleted.</p>
+ * <p>
+ * Since 3.0 the given working copies take precedence over primary working copies (if any).
  * 
  * @param workingCopies the working copies that take precedence over their original compilation units
  * @since 2.0
- * TODO should also queue primaries by default and merge (also should deal with case duplicate working copies are passed along)
  */
 public SearchEngine(IWorkingCopy[] workingCopies) {
 	int length = workingCopies.length;
@@ -354,7 +355,27 @@ private IResource getResource(IJavaElement element) {
 private ICompilationUnit[] getWorkingCopies() {
 	ICompilationUnit[] copies;
 	if (this.workingCopies != null) {
-		copies = this.workingCopies;
+		if (this.workingCopyOwner == null) {
+			copies = JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, false/*don't add primary WCs a second time*/);
+			if (copies == null) {
+				copies = this.workingCopies;
+			} else {
+				HashMap pathToCUs = new HashMap();
+				for (int i = 0, length = copies.length; i < length; i++) {
+					ICompilationUnit unit = copies[i];
+					pathToCUs.put(unit.getPath(), unit);
+				}
+				for (int i = 0, length = this.workingCopies.length; i < length; i++) {
+					ICompilationUnit unit = this.workingCopies[i];
+					pathToCUs.put(unit.getPath(), unit);
+				}
+				int length = pathToCUs.size();
+				copies = new ICompilationUnit[length];
+				pathToCUs.values().toArray(copies);
+			}
+		} else {
+			copies = this.workingCopies;
+		}
 	} else if (this.workingCopyOwner != null) {
 		copies = JavaModelManager.getJavaModelManager().getWorkingCopies(this.workingCopyOwner, true/*add primary WCs*/);
 	} else {
