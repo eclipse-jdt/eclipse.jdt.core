@@ -34,14 +34,27 @@ boolean includes(char[][] qualifiedName) {
 
 boolean includes(char[][][] qualifiedNames, char[][] simpleNames) {
 	// if either collection of names is null, it means it contained a well known name so we know it already has a match
-	if (simpleNames == null) {
-		if (JavaBuilder.DEBUG) System.out.println("  found well known match"); //$NON-NLS-1$
-		return true;
-	} else if (qualifiedNames == null) {
-		for (int i = 0, l = simpleNames.length; i < l; i++) {
-			if (includes(simpleNames[i])) {
-				if (JavaBuilder.DEBUG) System.out.println("  found match in well known package to " + new String(simpleNames[i])); //$NON-NLS-1$
-				return true;
+	if (simpleNames == null || qualifiedNames == null) {
+		if (simpleNames == null && qualifiedNames == null) {
+			if (JavaBuilder.DEBUG)
+				System.out.println("  found well known match"); //$NON-NLS-1$
+			return true;
+		} else if (qualifiedNames == null) {
+			for (int i = 0, l = simpleNames.length; i < l; i++) {
+				if (includes(simpleNames[i])) {
+					if (JavaBuilder.DEBUG)
+						System.out.println("  found match in well known package to " + new String(simpleNames[i])); //$NON-NLS-1$
+					return true;
+				}
+			}
+		} else {
+			for (int i = 0, l = qualifiedNames.length; i < l; i++) {
+				char[][] qualifiedName = qualifiedNames[i];
+				if (qualifiedName.length == 1 ? includes(qualifiedName[0]) : includes(qualifiedName)) {
+					if (JavaBuilder.DEBUG)
+						System.out.println("  found well known match in " + CharOperation.toString(qualifiedName)); //$NON-NLS-1$
+					return true;
+				}
 			}
 		}
 	} else {
