@@ -3147,4 +3147,102 @@ public class AnnotationTest extends AbstractComparisonTest {
 			false,
 			null);
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81825
+	public void test104() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface ValuesAnnotation {\n" + 
+				"	byte byteValue();\n" + 
+				"	char charValue();\n" + 
+				"	boolean booleanValue();\n" + 
+				"	int intValue();\n" + 
+				"	short shortValue();\n" + 
+				"	long longValue();\n" + 
+				"	float floatValue();\n" + 
+				"	double doubleValue();\n" + 
+				"	String stringValue();\n" + 
+				"	ValuesEnum enumValue();\n" + 
+				"	ValueAttrAnnotation annotationValue();\n" + 
+				"	Class classValue();\n" + 
+				"	\n" + 
+				"	byte[] byteArrayValue();\n" + 
+				"	char[] charArrayValue();\n" + 
+				"	boolean[] booleanArrayValue();\n" + 
+				"	int[] intArrayValue();\n" + 
+				"	short[] shortArrayValue();\n" + 
+				"	long[] longArrayValue();\n" + 
+				"	float[] floatArrayValue();\n" + 
+				"	double[] doubleArrayValue();\n" + 
+				"	String[] stringArrayValue();\n" + 
+				"	ValuesEnum[] enumArrayValue();\n" + 
+				"	ValueAttrAnnotation[] annotationArrayValue();\n" + 
+				"	Class[] classArrayValue();\n" + 
+				"}\n" + 
+				"enum ValuesEnum {\n" + 
+				"	ONE, TWO;\n" + 
+				"}\n" + 
+				"\n" + 
+				"@interface ValueAttrAnnotation {\n" + 
+				"	String value() default \"\";\n" + 
+				"}\n" + 
+				"@interface ValueAttrAnnotation1 {\n" + 
+				"	String value();\n" + 
+				"}\n" + 
+				"@interface ValueAttrAnnotation2 {\n" + 
+				"	String value();\n" + 
+				"}\n" + 
+				"@ValuesAnnotation(\n" + 
+				"  byteValue = 1,\n" + 
+				"  charValue = \'A\',\n" + 
+				"  booleanValue = true,\n" + 
+				"  intValue = 1,\n" + 
+				"  shortValue = 1,\n" + 
+				"  longValue = 1L,\n" + 
+				"  floatValue = 1.0f,\n" + 
+				"  doubleValue = 1.0d,\n" + 
+				"  stringValue = \"A\",\n" + 
+				"\n" + 
+				"  enumValue = ValuesEnum.ONE,\n" + 
+				"  annotationValue = @ValueAttrAnnotation( \"annotation\"),\n" + 
+				"  classValue = X.class,\n" + 
+				"\n" + 
+				"  byteArrayValue = { 1, -1},\n" + 
+				"  charArrayValue = { \'c\', \'b\', (char)-1},\n" + 
+				"  booleanArrayValue = {true, false},\n" + 
+				"  intArrayValue = { 1, -1},\n" + 
+				"  shortArrayValue = { (short)1, (short)-1},\n" + 
+				"  longArrayValue = { 1L, -1L},\n" + 
+				"  floatArrayValue = { 1.0f, -1.0f},\n" + 
+				"  doubleArrayValue = { 1.0d, -1.0d},\n" + 
+				"  stringArrayValue = { \"aa\", \"bb\"},\n" + 
+				"\n" + 
+				"  enumArrayValue = {ValuesEnum.ONE, ValuesEnum.TWO},\n" + 
+				"  annotationArrayValue = {@ValueAttrAnnotation( \"annotation1\"),\n" + 
+				"@ValueAttrAnnotation( \"annotation2\")},\n" + 
+				"  classArrayValue = {X.class, X.class}\n" + 
+				")\n" + 
+				"@ValueAttrAnnotation1( \"classAnnotation1\")\n" + 
+				"@ValueAttrAnnotation2( \"classAnnotation2\")\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"  @ValueAttrAnnotation1( \"fieldAnnotation1\")\n" + 
+				"  @ValueAttrAnnotation2( \"fieldAnnotation2\")\n" + 
+				"  public String testfield = \"test\";\n" + 
+				"\n" + 
+				"  @ValueAttrAnnotation1( \"methodAnnotation1\")\n" + 
+				"  @ValueAttrAnnotation2( \"methodAnnotation2\")\n" + 
+				"  @ValueAttrAnnotation()\n" + 
+				"  public void testMethod( \n" + 
+				"      @ValueAttrAnnotation1( \"param1Annotation1\") \n" + 
+				"      @ValueAttrAnnotation2( \"param1Annotation2\") String param1, \n" + 
+				"      @ValueAttrAnnotation1( \"param2Annotation1\") \n" + 
+				"      @ValueAttrAnnotation2( \"param2Annotation2\") int param2) {\n" + 
+				"    // @ValueAttrAnnotation( \"codeAnnotation\")\n" + 
+				"  }\n" + 
+				"}\n"
+			},
+			"");	
+	}
 }
