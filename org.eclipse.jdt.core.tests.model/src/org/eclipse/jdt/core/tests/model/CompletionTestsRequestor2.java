@@ -20,9 +20,17 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	private final char[] NULL_LITERAL = "null".toCharArray();//$NON-NLS-1$
 	
 	private Vector proposals = new Vector();
+	private boolean showParamterNames;
 	
 	public boolean fDebug = false;
 
+	public CompletionTestsRequestor2() {
+		this(false);
+	}
+	
+	public CompletionTestsRequestor2(boolean showParamterNames) {
+		this.showParamterNames = showParamterNames;
+	}
 
 	public void accept(CompletionProposal proposal) {
 		proposals.add(proposal);
@@ -99,6 +107,20 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		buffer.append(proposal.getSignature() == null ? NULL_LITERAL : proposal.getSignature());
 		buffer.append(", ");
 		buffer.append(proposal.getName() == null ? NULL_LITERAL : proposal.getName());
+		if(this.showParamterNames) {
+			char[][] parameterNames = proposal.findParameterNames(null);
+			buffer.append(", ");
+			if(parameterNames == null || parameterNames.length <= 0) {
+				buffer.append(NULL_LITERAL);
+			} else {
+				buffer.append("(");
+				for (int i = 0; i < parameterNames.length; i++) {
+					if(i > 0) buffer.append(", ");
+					buffer.append(parameterNames[i]);
+				}
+				buffer.append(")");
+			}
+		}
 //		buffer.append(", [");
 //		buffer.append(proposal.getReplaceStart());
 //		buffer.append(", ");

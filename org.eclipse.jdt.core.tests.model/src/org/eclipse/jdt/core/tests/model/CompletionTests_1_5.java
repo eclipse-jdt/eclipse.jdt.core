@@ -1201,4 +1201,20 @@ public void test0068() throws JavaModelException {
 		JavaCore.setOptions(oldOptions);
 	}
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74295
+ */
+public void test0069() throws JavaModelException {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0069", "Test.java");
+
+	String str = cu.getSource();
+	String completeBehind = "icell.p";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"putValue[METHOD_REF]{putValue(), Ltest0069.Test<Ljava.lang.String;>;, (Ljava.lang.String;)V, putValue, (value), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 }
