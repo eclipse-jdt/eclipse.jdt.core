@@ -844,18 +844,6 @@ public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProbl
 protected boolean hasBuffer() {
 	return true;
 }
-/**
- * If I am not open, return true to avoid parsing.
- *
- * @see IParent#hasChildren()
- */
-public boolean hasChildren() throws JavaModelException {
-	if (isOpen()) {
-		return getChildren().length > 0;
-	} else {
-		return true;
-	}
-}
 /*
  * @see ICompilationUnit#hasResourceChanged()
  */

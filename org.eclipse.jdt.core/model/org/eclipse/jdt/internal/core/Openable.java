@@ -266,12 +266,6 @@ protected boolean hasBuffer() {
 	return false;
 }
 /**
- * @see IParent 
- */
-public boolean hasChildren() throws JavaModelException {
-	return getChildren().length > 0;
-}
-/**
  * @see IOpenable
  */
 public boolean hasUnsavedChanges() throws JavaModelException{

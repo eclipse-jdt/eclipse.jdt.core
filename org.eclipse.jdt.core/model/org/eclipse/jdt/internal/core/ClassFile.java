@@ -422,18 +422,6 @@ protected boolean hasBuffer() {
 	return true;
 }
 /**
- * If I am not open, return true to avoid parsing.
- *
- * @see IParent 
- */
-public boolean hasChildren() throws JavaModelException {
-	if (isOpen()) {
-		return getChildren().length > 0;
-	} else {
-		return true;
-	}
-}
-/**
  * @see IClassFile
  */
 public boolean isClass() throws JavaModelException {

@@ -726,6 +726,14 @@ public IResource getUnderlyingResource() throws JavaModelException {
 	return getResource();
 }
 
+/**
+ * @see IParent 
+ */
+public boolean hasChildren() throws JavaModelException {
+	// a package fragment root always has the default package as a child
+	return true;
+}
+
 public int hashCode() {
 	return this.resource.hashCode();
 }
