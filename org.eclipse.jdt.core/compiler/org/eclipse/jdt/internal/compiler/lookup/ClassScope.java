@@ -22,7 +22,9 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 public class ClassScope extends Scope {
 	public TypeDeclaration referenceContext;
-	
+
+	private final static char[] IncompleteHierarchy = new char[] {'h', 'a', 's', ' ', 'i', 'n', 'c', 'o', 'n', 's', 'i', 's', 't', 'e', 'n', 't', ' ', 'h', 'i', 'e', 'r', 'a', 'r', 'c', 'h', 'y'};
+
 	public ClassScope(Scope parent, TypeDeclaration context) {
 		super(CLASS_SCOPE, parent);
 		this.referenceContext = context;
@@ -47,8 +49,15 @@ public class ClassScope extends Scope {
 	}
 	
 	private void buildFields() {
+		boolean hierarchyIsInconsistent = referenceContext.binding.isHierarchyInconsistent();
 		if (referenceContext.fields == null) {
-			referenceContext.binding.fields = NoFields;
+			if (hierarchyIsInconsistent) { // 72468
+				referenceContext.binding.fields = new FieldBinding[1];
+				referenceContext.binding.fields[0] =
+					new FieldBinding(IncompleteHierarchy, VoidBinding, AccPrivate, referenceContext.binding, null);
+			} else {
+				referenceContext.binding.fields = NoFields;
+			}
 			return;
 		}
 		// count the number of fields vs. initializers
@@ -59,6 +68,8 @@ public class ClassScope extends Scope {
 			if (fields[i].isField())
 				count++;
 
+		if (hierarchyIsInconsistent)
+			count++;
 		// iterate the field declarations to create the bindings, lose all duplicates
 		FieldBinding[] fieldBindings = new FieldBinding[count];
 		HashtableOfObject knownFieldNames = new HashtableOfObject(count);
@@ -111,6 +122,8 @@ public class ClassScope extends Scope {
 			}
 			fieldBindings = newFieldBindings;
 		}
+		if (hierarchyIsInconsistent)
+			fieldBindings[count++] = new FieldBinding(IncompleteHierarchy, VoidBinding, AccPrivate, referenceContext.binding, null);
 
 		if (count != fieldBindings.length)
 			System.arraycopy(fieldBindings, 0, fieldBindings = new FieldBinding[count], 0, count);
