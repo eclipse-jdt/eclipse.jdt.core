@@ -216,6 +216,7 @@ private void processCompilationUnitResource(ICompilationUnit source, IPackageFra
 		} else {
 			sourceResource.copy(destFile.getFullPath(), fForce, getSubProgressMonitor(1));
 		}
+		this.hasModifiedResource = true;
 	} catch (JavaModelException e) {
 		throw e;
 	} catch (CoreException e) {

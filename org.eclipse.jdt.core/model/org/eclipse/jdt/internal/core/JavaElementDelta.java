@@ -91,23 +91,57 @@ protected void addAffectedChild(JavaElementDelta child) {
 		fAffectedChildren = new IJavaElementDelta[] {child};
 		return;
 	}
-	IJavaElementDelta sameChild = null;
+	IJavaElementDelta existingChild = null;
+	int existingChildIndex = -1;
 	if (fAffectedChildren != null) {
 		for (int i = 0; i < fAffectedChildren.length; i++) {
 			if (this.equalsAndSameParent(fAffectedChildren[i].getElement(), child.getElement())) { // handle case of two jars that can be equals but not in the same project
-				sameChild = fAffectedChildren[i];
+				existingChild = fAffectedChildren[i];
+				existingChildIndex = i;
 				break;
 			}
 		}
 	}
-	if (sameChild == null) { //new affected child
-
+	if (existingChild == null) { //new affected child
 		fAffectedChildren= growAndAddToArray(fAffectedChildren, child);
 	} else {
-		IJavaElementDelta[] children = child.getAffectedChildren();
-		for (int i = 0; i < children.length; i++) {
-			JavaElementDelta childsChild = (JavaElementDelta) children[i];
-			((JavaElementDelta) sameChild).addAffectedChild(childsChild);
+		switch (existingChild.getKind()) {
+			case ADDED:
+				switch (child.getKind()) {
+					case ADDED: // child was added then added -> it is added
+					case CHANGED: // child was added then changed -> it is added
+						return;
+					case REMOVED: // child was added then removed -> noop
+						fAffectedChildren = this.removeAndShrinkArray(fAffectedChildren, existingChildIndex);
+						return;
+				}
+				break;
+			case REMOVED:
+				switch (child.getKind()) {
+					case ADDED: // child was removed then added -> it is changed
+						child.fKind = CHANGED;
+						fAffectedChildren[existingChildIndex] = child;
+						return;
+					case CHANGED: // child was removed then changed -> it is removed
+					case REMOVED: // child was removed then removed -> it is removed
+						return;
+				}
+				break;
+			case CHANGED:
+				switch (child.getKind()) {
+					case ADDED: // child was changed then added -> it is added
+					case REMOVED: // child was changed then removed -> it is removed
+						fAffectedChildren[existingChildIndex] = child;
+						return;
+					case CHANGED: // child was changed then changed -> it is changed
+						IJavaElementDelta[] children = child.getAffectedChildren();
+						for (int i = 0; i < children.length; i++) {
+							JavaElementDelta childsChild = (JavaElementDelta) children[i];
+							((JavaElementDelta) existingChild).addAffectedChild(childsChild);
+						}
+						return;
+				}
+				break;
 		}
 	}
 }

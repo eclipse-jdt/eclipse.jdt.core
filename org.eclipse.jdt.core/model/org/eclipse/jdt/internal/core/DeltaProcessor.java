@@ -437,8 +437,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 				case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 					// when a root is added, and is on the classpath, the project must be updated
 					this.projectsToUpdate.add(element.getJavaProject());
-					element = (Openable)((IPackageFragmentRoot)element).getPackageFragment("");//$NON-NLS-1$
-					// don't break as subpackages must be added too
+					break;
 				case IJavaElement.PACKAGE_FRAGMENT :
 					// get rid of namelookup since it holds onto obsolete cached info 
 					JavaProject project = (JavaProject) element.getJavaProject();
@@ -559,8 +558,7 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 				this.projectsToUpdate.add(element.getJavaProject());
-				element = (Openable)((IPackageFragmentRoot)element).getPackageFragment("");//$NON-NLS-1$
-				// don't break so that subpackages are also removed
+				break;
 			case IJavaElement.PACKAGE_FRAGMENT :
 				//1G1TW2T - get rid of namelookup since it holds onto obsolete cached info 
 				JavaProject project = (JavaProject) element.getJavaProject();
