@@ -114,6 +114,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  5508      JDT cannot support periods in the folders above the package name
   5541      No refresh when adding a compilation unit inside a dot named source folder 
   5532      Incremental compile missed a return type change
   5515      AbortCompilation during polymorphic search  
