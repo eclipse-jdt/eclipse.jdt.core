@@ -56,10 +56,24 @@ What's new in this drop</h2>
 <li>The temporary field <code>TypeParameter#ENABLED</code> has been removed.</li>
 <li>Code select (<code>ICodeAssist#codeSelect()</code>) return a <code>ITypeParameter</code> when a type
     parameter is selected.</li>
+<li>Added optional compiler diagnosis for usage of 'enum' as an identifier.
+Corresponding problem ID is IProblem.UseEnumAsAnIdentifier.
+</li>
+<pre>
+* COMPILER / Reporting Usage of 'enum' Identifier
+*    When enabled, the compiler will issue an error or a warning whenever 'enum' is 
+*    used as an identifier (reserved keyword in 1.5)
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.enumIdentifier"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892">70892</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=66533">66533</a>
+[1.5] add a warning for 'enum' used as identifier
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892">70892</a>
 [1.5][Javadoc] Compiler should parse reference for inline tag @value
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73255">73255</a>
 [1.5][reconciling] ClassCastException in SourceTypeElementInfo#getTypeParameterBounds 

@@ -256,6 +256,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, CompilerOptions.IGNORE); 
 		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.IGNORE); 
 		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportAssertIdentifier, CompilerOptions.IGNORE); 
+		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportEnumIdentifier, CompilerOptions.IGNORE); 
 		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.IGNORE); 
 		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.IGNORE); 
 		this.customDefaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.IGNORE); 

@@ -40,6 +40,9 @@ public class Scanner implements TerminalTokens {
 	//flag indicating if processed source contains occurrences of keyword assert 
 	public boolean containsAssertKeyword = false; 
 	
+	// 1.5 feature
+	public boolean useEnumAsAnIndentifier = false;
+	
 	public boolean recordLineSeparator = false;
 	public char currentCharacter;
 	public int startPosition;
@@ -2455,6 +2458,7 @@ public int scanIdentifierOrKeyword() {
 	//keywors with the same length AND the same first char, then do another
 	//dispatch on the second char 
 	this.useAssertAsAnIndentifier = false;
+	this.useEnumAsAnIndentifier = false;
 	while (getNextCharAsJavaIdentifierPart()){/*empty*/}
 
 	int index, length;
@@ -2632,6 +2636,7 @@ public int scanIdentifierOrKeyword() {
 							if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
 								return TokenNameenum;
 							} else {
+								this.useEnumAsAnIndentifier = true;
 								return TokenNameIdentifier;								
 							}
 						} else {

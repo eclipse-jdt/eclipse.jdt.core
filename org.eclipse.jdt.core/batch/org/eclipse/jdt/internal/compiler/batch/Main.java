@@ -968,6 +968,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportAssertIdentifier,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+					} else if (token.equals("enumIdentifier")) { //$NON-NLS-1$
+						this.options.put(
+								CompilerOptions.OPTION_ReportEnumIdentifier,
+								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else if (token.equals("finally")) { //$NON-NLS-1$
 						this.options.put(
 							CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally,

@@ -450,6 +450,8 @@ public int computeSeverity(int problemId){
 
 		case IProblem.UseAssertAsAnIdentifier :
 			return this.options.getSeverity(CompilerOptions.AssertUsedAsAnIdentifier);
+		case IProblem.UseEnumAsAnIdentifier :
+			return this.options.getSeverity(CompilerOptions.EnumUsedAsAnIdentifier);
 
 		case IProblem.NonStaticAccessToStaticMethod :
 		case IProblem.NonStaticAccessToStaticField :
@@ -4126,7 +4128,14 @@ public void useAssertAsAnIdentifier(int sourceStart, int sourceEnd) {
 		sourceStart,
 		sourceEnd);	
 }
-
+public void useEnumAsAnIdentifier(int sourceStart, int sourceEnd) {
+	this.handle(
+		IProblem.UseEnumAsAnIdentifier,
+		NoArgument,
+		NoArgument,
+		sourceStart,
+		sourceEnd);	
+}
 public void variableTypeCannotBeVoid(AbstractVariableDeclaration varDecl) {
 	String[] arguments = new String[] {new String(varDecl.name)};
 	this.handle(

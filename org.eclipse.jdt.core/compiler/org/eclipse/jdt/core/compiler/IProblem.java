@@ -721,6 +721,9 @@ public interface IProblem {
 	// assertion warning
 	int UseAssertAsAnIdentifier = Internal + 440;
 	
+	// 1.5 features
+	int UseEnumAsAnIdentifier = Internal + 441;
+	
 	// detected task
 	/** @since 2.1 */
 	int Task = Internal + 450;

@@ -2707,6 +2707,26 @@ public void test082() {
 		"The return type is incompatible with X.foo()\n" + 
 		"----------\n");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=66533
+ */
+public void test084() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		Object enum = null;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	Object enum = null;\n" + 
+		"	       ^^^^\n" + 
+		"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return Compliance_1_4.class;
 }

@@ -267,6 +267,13 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_PB_ENUM_IDENTIFIER = PLUGIN_ID + ".compiler.problem.enumIdentifier"; //$NON-NLS-1$
+	
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_STATIC_ACCESS_RECEIVER = PLUGIN_ID + ".compiler.problem.staticAccessReceiver"; //$NON-NLS-1$
@@ -1643,7 +1650,14 @@ public final class JavaCore extends Plugin {
 	 *    used as an identifier (reserved keyword in 1.4)
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.assertIdentifier"
 	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "ignore"
+	 *     - default:           "warning"
+	 * 
+	 * COMPILER / Reporting Usage of 'enum' Identifier
+	 *    When enabled, the compiler will issue an error or a warning whenever 'enum' is 
+	 *    used as an identifier (reserved keyword in 1.5)
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.enumIdentifier"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
 	 * 
 	 * COMPILER / Reporting Non-Static Reference to a Static Member
 	 *    When enabled, the compiler will issue an error or a warning whenever a static field

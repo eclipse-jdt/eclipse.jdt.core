@@ -6421,6 +6421,11 @@ protected void consumeToken(int type) {
 				long positions = this.identifierPositionStack[this.identifierPtr];
 				problemReporter().useAssertAsAnIdentifier((int) (positions >>> 32), (int) positions);
 			}
+			if (this.scanner.useEnumAsAnIndentifier  &&
+					this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
+				long positions = this.identifierPositionStack[this.identifierPtr];
+				problemReporter().useEnumAsAnIdentifier((int) (positions >>> 32), (int) positions);
+			}
 			break;
 		case TokenNameinterface :
 			adjustInterfaceModifiers();

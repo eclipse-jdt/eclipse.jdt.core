@@ -2734,6 +2734,26 @@ public void test083() {
 		}
 	);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=66533
+ */
+public void test084() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		Object enum = null;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Object enum = null;\n" + 
+		"	       ^^^^\n" + 
+		"Syntax error on token \"enum\", delete this token\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return Compliance_1_5.class;
 }
