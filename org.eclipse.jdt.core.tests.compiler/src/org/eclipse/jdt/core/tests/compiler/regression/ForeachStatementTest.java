@@ -111,7 +111,8 @@ public void test004() {
 		},
 		"6");
 }
-			
+// TODO (olivier) add tests to challenge break/continue support in foreach			
+// TODO (olivier) add tests to challenge empty statement action or empty block action - bytecode optimizations ?
 
 public static Class testClass() {
 	return ForeachStatementTest.class;
