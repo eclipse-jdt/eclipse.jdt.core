@@ -277,9 +277,8 @@ public void testClasspathFileRead() throws CoreException {
 	}
 }
 
-/**
+/*
  * Test classpath forced reload (20931) and new way to read classpath file (40658)
- * @deprecated since using IJavaProject.forceClasspathReload(...) which is deprecated
  */
 public void testClasspathForceReload() throws CoreException {
 	try {
