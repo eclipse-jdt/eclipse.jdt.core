@@ -32,7 +32,9 @@ public class JavadocAllocationExpression extends AllocationExpression {
 
 		// Propagate the type checking to the arguments, and check if the constructor is defined.
 		this.constant = NotAConstant;
-		if (scope.kind == Scope.CLASS_SCOPE) {
+		if (this.type == null) {
+			this.resolvedType = scope.enclosingSourceType();
+		} else if (scope.kind == Scope.CLASS_SCOPE) {
 			this.resolvedType = this.type.resolveType((ClassScope)scope);
 		} else {
 			this.resolvedType = this.type.resolveType((BlockScope)scope);

@@ -102,6 +102,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		suite.addTest(new JavaSearchJavadocTests("testBug47209field"));
 		suite.addTest(new JavaSearchJavadocTests("testBug47209method"));
 		suite.addTest(new JavaSearchJavadocTests("testBug47209constructor"));
+		suite.addTest(new JavaSearchJavadocTests("testBug49994"));
+		suite.addTest(new JavaSearchJavadocTests("testBug49994field"));
+		suite.addTest(new JavaSearchJavadocTests("testBug49994method"));
+		suite.addTest(new JavaSearchJavadocTests("testBug49994constructor"));
 		
 		return suite;
 	}
@@ -892,7 +896,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			resetProjectOptions();
 		}
 	}
-	
+
 	/**
 	 * Test fix for bug 47209.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47209">47209</a>
@@ -986,6 +990,63 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 					"src/j4/CC47209.java j4.CC47209(String) [CC47209] EXACT_MATCH\n" +
 					"src/j4/CM47209.java void j4.CM47209.m47209(int) [CM47209] EXACT_MATCH",
 				result);
+		} finally {
+			resetProjectOptions();
+		}
+	}
+
+	/**
+	 * Test fix for bug 49994.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49994">49994</a>
+	 * @throws CoreException
+	 */
+	public void testBug49994() throws CoreException {
+		try {
+			setJavadocOptions();
+			JavaSearchResultCollector result = new JavaSearchResultCollector();
+			result.showAccuracy = true;
+			IType type = getCompilationUnit("JavaSearch", "src", "j5", "Bug49994.java").getType("Bug49994");
+			new SearchEngine().search(getWorkspace(),  type, REFERENCES,  getJavaSearchScope(), result);
+			assertSearchResults("", result);
+		} finally {
+			resetProjectOptions();
+		}
+	}
+	public void testBug49994field() throws CoreException {
+		try {
+			setJavadocOptions();
+			JavaSearchResultCollector result = new JavaSearchResultCollector();
+			result.showAccuracy = true;
+			IType type = getCompilationUnit("JavaSearch", "src", "j5", "Bug49994.java").getType("Bug49994");
+			IField field = type.getField("field");
+			new SearchEngine().search(getWorkspace(), field, REFERENCES, getJavaSearchScope(), result);
+			assertSearchResults("src/j5/Bug49994.java void j5.Bug49994.foo() [field] EXACT_MATCH", result);
+		} finally {
+			resetProjectOptions();
+		}
+	}
+	public void testBug49994method() throws CoreException {
+		try {
+			setJavadocOptions();
+			JavaSearchResultCollector result = new JavaSearchResultCollector();
+			result.showAccuracy = true;
+			IType type = getCompilationUnit("JavaSearch", "src", "j5", "Bug49994.java").getType("Bug49994");
+			IMethod method = type.getMethod("bar", new String[0]);
+			new SearchEngine().search(getWorkspace(), method, REFERENCES, getJavaSearchScope(), result);
+			assertSearchResults("src/j5/Bug49994.java void j5.Bug49994.foo() [bar] EXACT_MATCH", result);
+		} finally {
+			resetProjectOptions();
+		}
+	}
+	public void testBug49994constructor() throws CoreException {
+		try {
+			setJavadocOptions();
+			JavaSearchResultCollector result = new JavaSearchResultCollector();
+			result.showAccuracy = true;
+			IType type = getCompilationUnit("JavaSearch", "src", "j5", "Bug49994.java").getType("Bug49994");
+			IMethod method = type.getMethod("Bug49994", new String[] { "QString;" });
+			new SearchEngine().search(getWorkspace(), method, REFERENCES, getJavaSearchScope(), result);
+			assertSearchResults("src/j5/Bug49994.java void j5.Bug49994.foo() [Bug49994] EXACT_MATCH", result);
 		} finally {
 			resetProjectOptions();
 		}
