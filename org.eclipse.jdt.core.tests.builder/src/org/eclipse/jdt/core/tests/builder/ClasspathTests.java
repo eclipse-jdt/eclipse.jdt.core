@@ -208,7 +208,7 @@ public class ClasspathTests extends Tests {
 		Problem[] prob1 = env.getProblemsFor(classTest1);
 		Problem[] prob2 = env.getProblemsFor(classTest2);
 		Problem[] prob3 = env.getProblemsFor(classTest3);
-		assertEquals("too much problems", prob1.length + prob2.length + prob3.length,1);
+		assertEquals("too much problems", prob1.length + prob2.length + prob3.length,1); //$NON-NLS-1$
 		if(prob1.length == 1) {
 			expectingSpecificProblemFor(classTest1, new Problem("p1", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest1)); //$NON-NLS-1$ //$NON-NLS-2$
 		} else if (prob2.length == 1) {

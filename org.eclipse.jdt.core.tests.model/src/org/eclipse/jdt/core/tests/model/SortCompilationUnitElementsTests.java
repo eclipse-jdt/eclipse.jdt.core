@@ -62,7 +62,7 @@ private void sortUnit(ICompilationUnit unit, String expectedResult, boolean test
 	}
 }
 
-private void debug(ICompilationUnit unit, String id) throws JavaModelException {
+void debug(ICompilationUnit unit, String id) throws JavaModelException {
 	String source = unit.getBuffer().getContents();
 	if (DEBUG) {
 		System.out.println("========================== " + id + " =============================="); //$NON-NLS-1$ //$NON-NLS-2$

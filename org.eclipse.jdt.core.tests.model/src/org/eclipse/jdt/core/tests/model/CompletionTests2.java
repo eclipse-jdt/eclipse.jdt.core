@@ -56,22 +56,22 @@ public static Test suite() {
 	return suite;
 }
 
-private File createFile(File parent, String name, String content) throws IOException {
+File createFile(File parent, String name, String content) throws IOException {
 	File file = new File(parent, name);
 	FileOutputStream out = new FileOutputStream(file);
 	out.write(content.getBytes());
 	out.close();
 	return file;
 }
-private File createDirectory(File parent, String name) throws IOException {
+File createDirectory(File parent, String name) throws IOException {
 	File dir = new File(parent, name);
 	dir.mkdirs();
 	return dir;
 }
-private void addLibraryEntry(IJavaProject project, String path, boolean exported) throws JavaModelException {
+void addLibraryEntry(IJavaProject project, String path, boolean exported) throws JavaModelException {
 	this.addLibraryEntry(project, new Path(path), null, null, exported);
 } 
-private void addLibraryEntry(IJavaProject project, String path, String srcAttachmentPath, String srcAttachmentPathRoot, boolean exported) throws JavaModelException{
+void addLibraryEntry(IJavaProject project, String path, String srcAttachmentPath, String srcAttachmentPathRoot, boolean exported) throws JavaModelException{
 	this.addLibraryEntry(
 		project,
 		new Path(path),
@@ -80,7 +80,7 @@ private void addLibraryEntry(IJavaProject project, String path, String srcAttach
 		exported
 	);
 }
-private void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, boolean exported) throws JavaModelException{
+void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, boolean exported) throws JavaModelException{
 	IClasspathEntry[] entries = project.getRawClasspath();
 	int length = entries.length;
 	System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 1, length);
