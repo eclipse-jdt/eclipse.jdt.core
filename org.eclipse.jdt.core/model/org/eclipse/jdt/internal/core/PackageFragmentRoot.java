@@ -19,15 +19,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
  * @see IPackageFragmentRoot
@@ -222,6 +215,17 @@ public Object[] getNonJavaResources() throws JavaModelException {
  * @see IPackageFragmentRoot
  */
 public IPackageFragment getPackageFragment(String packageName) {
+	if (packageName.indexOf(' ') != -1) { // tolerate package names with spaces (e.g. 'x . y') (http://bugs.eclipse.org/bugs/show_bug.cgi?id=21957)
+		char[][] compoundName = Util.toCompoundChars(packageName);
+		StringBuffer buffer = new StringBuffer(packageName.length());
+		for (int i = 0, length = compoundName.length; i < length; i++) {
+			buffer.append(CharOperation.trim(compoundName[i]));
+			if (i != length-1) {
+				buffer.append('.');
+			}
+		}
+		packageName = buffer.toString();
+	}
 	return new PackageFragment(this, packageName);
 }
 /**

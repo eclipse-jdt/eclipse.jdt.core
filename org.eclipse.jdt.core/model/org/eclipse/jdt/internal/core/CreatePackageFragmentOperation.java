@@ -23,7 +23,6 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
 
 /**
  * This operation creates a new package fragment under a given package fragment root. 
@@ -67,7 +66,7 @@ public CreatePackageFragmentOperation(IPackageFragmentRoot parentElement, String
 protected void executeOperation() throws JavaModelException {
 	JavaElementDelta delta = null;
 	IPackageFragmentRoot root = (IPackageFragmentRoot) getParentElement();
-	String[] names = Signature.getSimpleNames(fName);
+	String[] names = Util.getTrimmedSimpleNames(fName);
 	beginTask(Util.bind("operation.createPackageFragmentProgress"), names.length); //$NON-NLS-1$
 	IContainer parentFolder = (IContainer) root.getResource();
 	String sideEffectPackageName = ""; //$NON-NLS-1$
@@ -130,7 +129,7 @@ public IJavaModelStatus verify() {
 	if (root.isReadOnly()) {
 		return new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, root);
 	}
-	String[] names = Signature.getSimpleNames(fName);
+	String[] names = Util.getTrimmedSimpleNames(fName);
 	IContainer parentFolder = (IContainer) root.getResource();
 	int i;
 	for (i = 0; i < names.length; i++) {

@@ -651,6 +651,46 @@ public void testRenamePF() throws CoreException {
 		"		x.y.newZ[+]: {MOVED_FROM(x.y.z [in src [in P]])}"
 	);
 }
+/*
+ * Ensures that renaming to a name containing spaces works
+ * (regression test for bug 21957 'refactor rename' allows subpackage name to start with a space)
+ */
+public void testRenamePF2() throws CoreException {
+	this.createFolder("/P/src/x/y/z");
+	this.createFile(
+		"/P/src/x/y/z/A.java",
+		"package x.y.z;\n" +
+		"public class A {\n" +
+		"}"
+	);
+
+	IPackageFragment frag = getPackage("/P/src/x/y/z");
+	clearDeltas();
+	frag.rename("x.y. z2", false, null);
+	
+	IPackageFragment newFrag = getPackage("/P/src/x/y/z2");
+	assertTrue("Old package should not exist", !frag.exists());
+	assertTrue("New package should exist", newFrag.exists());
+
+	ICompilationUnit cu = newFrag.getCompilationUnit("A.java");
+	assertTrue("A.java should exits in new package", cu.exists());
+	
+	IType[] types = cu.getTypes();
+	assertTrue(types != null && types.length == 1);
+	IType mainType = types[0];
+	assertEquals(
+		"Unexpected A.java's main type'", 
+		"x.y.z2.A",
+		mainType.getFullyQualifiedName());
+
+	assertDeltas(
+		"Unexpected deltas",
+		"P[*]: {CHILDREN}\n" + 
+		"	src[*]: {CHILDREN}\n" + 
+		"		x.y.z[-]: {MOVED_TO(x.y.z2 [in src [in P]])}\n" + 
+		"		x.y.z2[+]: {MOVED_FROM(x.y.z [in src [in P]])}"
+	);
+}
 public void testRenamePFWithSubPackages() throws CoreException {
 	this.createFolder("/P/src/x/y/z");
 	this.createFile(

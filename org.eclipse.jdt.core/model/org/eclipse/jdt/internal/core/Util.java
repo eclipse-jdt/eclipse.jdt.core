@@ -632,6 +632,18 @@ public class Util {
 	}
 	
 	/**
+	 * Returns a trimmed version the simples names returned by Signature.
+	 */
+	public static String[] getTrimmedSimpleNames(String name) {
+		String[] result = Signature.getSimpleNames(name);
+		if (result == null) return null;
+		for (int i = 0, length = result.length; i < length; i++) {
+			result[i] = result[i].trim();
+		}
+		return result;
+	}
+	
+	/**
 	 * Returns true iff str.toLowerCase().endsWith(".class")
 	 * implementation is not creating extra strings.
 	 */
@@ -668,7 +680,7 @@ public class Util {
 				return cu != null && isExcluded(cu);
 		}
 	}
-
+	
 	/*
 	 * Returns whether the given resource matches one of the exclusion patterns.
 	 * 

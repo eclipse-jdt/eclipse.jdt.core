@@ -131,7 +131,7 @@ public class CopyResourceElementsOperation extends MultiOperation {
 	private void createNeededPackageFragments(IPackageFragmentRoot root, String newFragName, boolean moveFolder) throws JavaModelException {
 		IContainer parentFolder = (IContainer) root.getResource();
 		JavaElementDelta projectDelta = null;
-		String[] names = Signature.getSimpleNames(newFragName);
+		String[] names = org.eclipse.jdt.internal.core.Util.getTrimmedSimpleNames(newFragName);
 		StringBuffer sideEffectPackageName = new StringBuffer();
 		char[][] exclusionsPatterns = ((PackageFragmentRoot)root).getExclusionPatterns();
 		for (int i = 0; i < names.length; i++) {
