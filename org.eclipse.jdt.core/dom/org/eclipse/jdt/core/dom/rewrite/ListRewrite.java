@@ -57,6 +57,24 @@ public final class ListRewrite {
 	}
 	
 	/**
+	 * Returns the parent of the list for which the list rewriter was created for. 
+	 * @return The note that contains the list for which the list rewriter was created for.
+	 * @since 3.1
+	 */
+	public ASTNode getParent() {
+		return this.parent;
+	}
+	
+	/**
+	 * Returns the property of the list for which the list rewriter was created for. 
+	 * @return The property of list for which the list rewriter was created for.
+	 * @since 3.1
+	 */
+	public StructuralPropertyDescriptor getLocationInParent() {
+		return this.childProperty;
+	}
+	
+	/**
 	 * Removes the given node from its parent's list property in the rewriter.
 	 * The node must be contained in the list.
 	 * The AST itself is not actually modified in any way; rather, the rewriter
