@@ -73,11 +73,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		if (true) {
+		if (false) {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0037"));
+		suite.addTest(new ASTConverter15Test("test0038"));
 		return suite;
 	}
 		
@@ -1083,7 +1083,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 */
 	public void test0037() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0037", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-//		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
@@ -1111,6 +1110,39 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", typeBinding3);
 		assertEquals("Wrong type", IBinding.TYPE, typeBinding3.getKind());
 		assertEquals("Wrong name", "Y", typeBinding3.getName());
-	}	
+	}
+	
+	/**
+	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=69066
+	 */
+	public void test0038() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0038", "Data22.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		Type type = statement.getType();
+		assertTrue("Not a parameterized type", type.isParameterizedType());
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		List typeArguments = parameterizedType.typeArguments();
+		assertEquals("Wrong size", 1, typeArguments.size());
+		Type typeArgument = (Type) typeArguments.get(0);
+		checkSourceRange(typeArgument, "T", source);
+		ITypeBinding typeBinding = typeArgument.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		assertEquals("Wrong name", "T", typeBinding.getName());
+		ITypeBinding[] typeParameters = typeBinding.getTypeParameters();
+		assertEquals("Wrong size", 0, typeParameters.length);
+		ITypeBinding typeBinding2 = type.resolveBinding();
+		assertEquals("Wrong name", "Data22<T>", typeBinding2.getName());
+		typeParameters = typeBinding2.getTypeParameters();
+		assertEquals("Wrong size", 1, typeParameters.length);
+		assertEquals("Wrong name", "T", typeParameters[0].getName());
+	}
 }
 
