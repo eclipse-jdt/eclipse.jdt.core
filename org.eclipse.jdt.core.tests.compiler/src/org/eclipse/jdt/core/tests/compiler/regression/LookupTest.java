@@ -653,7 +653,7 @@ public void test20() {
 		"1. WARNING in p1\\A.java (at line 6)\n" + 
 		"	sth.rating = \"m\";						\n" + 
 		"	^^^^^^^^^^\n" + 
-		"Write access to enclosing field A.rating is emulated by a synthetic accessor method\n" + 
+		"Write access to enclosing field A.rating is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\A.java (at line 13)\n" + 
 		"	System.out.println(foo.rating + bar.other);	\n" + 
