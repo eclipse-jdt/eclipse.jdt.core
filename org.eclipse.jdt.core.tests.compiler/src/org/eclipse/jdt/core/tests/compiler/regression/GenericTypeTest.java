@@ -10308,4 +10308,25 @@ class C extends B implements IDoubles {
 			""
 		);
 	}		
+	
+	// 78049 - chech invalid array initializer
+	public void test393() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public boolean test1()	{\n" + 
+				"		foo(null, \"hello\");\n" + // no inference on expected type
+				"		return true;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public <F> F foo(F f, F... others) {\n" + 
+				"		return f;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			""
+		);
+	}			
 }

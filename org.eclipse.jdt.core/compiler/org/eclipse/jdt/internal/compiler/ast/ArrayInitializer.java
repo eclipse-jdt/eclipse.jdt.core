@@ -133,7 +133,14 @@ public class ArrayInitializer extends Expression {
 	
 		// this method is recursive... (the test on isArrayType is the stop case)
 	
-		constant = NotAConstant;
+		this.constant = NotAConstant;
+		
+		// allow new List<?>[5]
+		TypeBinding leafComponentType = expectedTb.leafComponentType();
+		if (leafComponentType.isBoundParameterizedType() || leafComponentType.isGenericType() || leafComponentType.isTypeVariable()) {
+		    scope.problemReporter().illegalGenericArray(leafComponentType, this);
+		}
+			
 		if (expectedTb.isArrayType()) {
 			binding = (ArrayBinding) expectedTb;
 			if (expressions == null)

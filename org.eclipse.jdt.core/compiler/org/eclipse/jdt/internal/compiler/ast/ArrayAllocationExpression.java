@@ -139,6 +139,10 @@ public class ArrayAllocationExpression extends Expression {
 			if (explicitDimIndex < 0) {
 				scope.problemReporter().mustDefineDimensionsOrInitializer(this);
 			}
+			// allow new List<?>[5] - only check for generic array when no initializer, since also checked inside initializer resolution
+			if (referenceType.isBoundParameterizedType() || referenceType.isGenericType() || referenceType.isTypeVariable()) {
+			    scope.problemReporter().illegalGenericArray(referenceType, this);
+			}
 		} else if (explicitDimIndex >= 0) {
 			scope.problemReporter().cannotDefineDimensionsAndInitializer(this);
 		}
@@ -157,10 +161,6 @@ public class ArrayAllocationExpression extends Expression {
 		if (referenceType != null) {
 			if (dimensions.length > 255) {
 				scope.problemReporter().tooManyDimensions(this);
-			}
-			// allow new List<?>[5]
-			if (referenceType.isBoundParameterizedType() || referenceType.isGenericType() || referenceType.isTypeVariable()) {
-			    scope.problemReporter().illegalGenericArray(referenceType, this);
 			}
 			this.resolvedType = scope.createArrayType(referenceType, dimensions.length);
 
