@@ -11,12 +11,12 @@
 package org.eclipse.jdt.core.util;
 
 /**
- * Description of an annotation component value as described in the JVM specifications.
+ * Description of an annotation component value as described in the JVM specifications
  * (added in J2SE 1.5).
  * 
  * This interface may be implemented by clients. 
  *  
- * @since 3.1
+ * @since 3.0
  */
 public interface IAnnotationComponentValue {
 	
