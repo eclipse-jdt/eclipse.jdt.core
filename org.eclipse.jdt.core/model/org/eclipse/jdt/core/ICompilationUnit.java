@@ -537,6 +537,7 @@ void reconcile(boolean forceProblemDetection, WorkingCopyOwner owner, IProgressM
  * if the working copy was already consistent.
  * </p>
  *
+ * @param createAST boolean indicating whether a compilation unit AST should be created.
  * @param forceProblemDetection boolean indicating whether problem should be recomputed
  *   even if the source hasn't changed.
  * @param owner the owner of working copies that take precedence over the original compilation units,

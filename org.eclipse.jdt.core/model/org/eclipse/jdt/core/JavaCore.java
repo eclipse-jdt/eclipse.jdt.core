@@ -152,6 +152,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.0
+	 */
+	public static final String COMPILER_DOC_COMMENT_SUPPORT = PLUGIN_ID + ".compiler.doc.comment.support"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @deprecated - discontinued since turning off would violate language specs
 	 */
 	public static final String COMPILER_PB_UNREACHABLE_CODE = PLUGIN_ID + ".compiler.problem.unreachableCode"; //$NON-NLS-1$
@@ -348,14 +354,6 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_INVALID_JAVADOC = PLUGIN_ID + ".compiler.problem.invalidJavadoc"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
-	 * @see #COMPILER_PB_INVALID_JAVADOC
-	 * @deprecated
-	 * TODO (frederic) remove after 3.0 M6
-	 */
-	public static final String COMPILER_PB_INVALID_ANNOTATION = COMPILER_PB_INVALID_JAVADOC;
-	public static final String OLD_COMPILER_PB_INVALID_ANNOTATION = PLUGIN_ID + ".compiler.problem.invalidAnnotation"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
@@ -390,23 +388,6 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_MISSING_JAVADOC_COMMENTS = PLUGIN_ID + ".compiler.problem.missingJavadocComments"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions()
-	 * @since 3.0
-	 * @deprecated
-	 * TODO (frederic) remove after 3.0 M7
-	 */
-	public static final String COMPILER_PB_MISSING_JAVADOC = COMPILER_PB_MISSING_JAVADOC_COMMENTS;
-	public static final String OLD_COMPILER_PB_MISSING_JAVADOC = PLUGIN_ID + ".compiler.problem.missingJavadoc"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #COMPILER_PB_MISSING_JAVADOC
-	 * @deprecated
-	 * TODO (frederic) after 3.0 M6
-	 */
-	public static final String COMPILER_PB_MISSING_ANNOTATION = COMPILER_PB_MISSING_JAVADOC;
-	public static final String OLD_COMPILER_PB_MISSING_ANNOTATION = PLUGIN_ID + ".compiler.problem.missingAnnotation"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -1420,6 +1401,14 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4" }
 	 *     - default:           "1.2"
 	 *
+	 * COMPILER / Javadoc Comment Support
+	 *    When this support is disabled, the compiler will ignore all javadoc problems options settings
+	 *    and will not report any javadoc problem. It will also not find any reference in javadoc comment and
+	 *    DOM AST Javadoc node will be only a flat text instead of having structured tag elements.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.doc.comment.support"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
+	 *
 	 * COMPILER / Reporting Attempt to Override Package-Default Method
 	 *    A package default method is not visible in a different package, and thus 
 	 *    cannot be overridden. When enabling this option, the compiler will signal 
@@ -2098,31 +2087,6 @@ public final class JavaCore extends Plugin {
 				if (optionNames.contains(propertyName)){
 					options.put(propertyName, value);
 				}
-				// bug 45112 backward compatibility.
-				// TODO (frederic) remove after 3.0 M6
-				else if (CompilerOptions.OPTION_ReportInvalidAnnotation.equals(propertyName)) {
-					options.put(COMPILER_PB_INVALID_JAVADOC, value);
-				}
-				else if (CompilerOptions.OPTION_ReportMissingAnnotation.equals(propertyName)) {
-					if (ENABLED.equals(value)) {
-						value = preferences.getString(CompilerOptions.OPTION_ReportInvalidAnnotation);
-					} else {
-						value = IGNORE;
-					}
-					options.put(COMPILER_PB_MISSING_JAVADOC_COMMENTS, value);
-				}
-				// end bug 45112
-				// bug 46854 backward compatibility
-				// TODO (frederic) remove after 3.0 M7
-				else if (CompilerOptions.OPTION_ReportMissingJavadoc.equals(propertyName)) {
-					if (ENABLED.equals(value)) {
-						value = preferences.getString(COMPILER_PB_INVALID_JAVADOC);
-					} else {
-						value = IGNORE;
-					}
-					options.put(COMPILER_PB_MISSING_JAVADOC_COMMENTS, value);
-				}
-				// end bug 46854
 				// TODO (olivier) Remove after M7
 				else if (propertyName.startsWith(JavaCore.PLUGIN_ID + ".formatter")) {//$NON-NLS-1$
 					Util.convertFormatterDeprecatedOptions(propertyName, value, options);
@@ -2329,7 +2293,8 @@ public final class JavaCore extends Plugin {
 		preferences.setDefault(COMPILER_CODEGEN_UNUSED_LOCAL, PRESERVE);
 		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAG);
 		preferences.setDefault(COMPILER_TASK_PRIORITIES, DEFAULT_TASK_PRIORITY);
-		
+		preferences.setDefault(COMPILER_DOC_COMMENT_SUPPORT, ENABLED);
+
 		// Builder settings
 		preferences.setDefault(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, ""); //$NON-NLS-1$
 		optionNames.add(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER);
@@ -3490,24 +3455,16 @@ public final class JavaCore extends Plugin {
 			preferences.setValue(key, value);
 		}
 
-		// Backward compatibility
+		/* Test OPTION_DocCommentSupport
 		String[] propertyNames = preferences.propertyNames();
 		for (int i = 0; i < propertyNames.length; i++){
 			String propertyName = propertyNames[i];
-			// bug 45112
-			if (CompilerOptions.OPTION_ReportInvalidAnnotation.equals(propertyName)) {
-				preferences.setToDefault(OLD_COMPILER_PB_INVALID_ANNOTATION);
+			// set same value than missing javadoc comments overriding
+			if (CompilerOptions.OPTION_ReportMissingJavadocCommentsOverriding.equals(propertyName)) {
+				preferences.setValue(COMPILER_DOC_COMMENT_SUPPORT, preferences.getString(propertyName));
 			}
-			else if (CompilerOptions.OPTION_ReportMissingAnnotation.equals(propertyName)) {
-				preferences.setToDefault(OLD_COMPILER_PB_MISSING_ANNOTATION);
-			}
-			// end bug 45112
-			// bug 46854
-			else if (CompilerOptions.OPTION_ReportMissingJavadoc.equals(propertyName)) {
-				preferences.setToDefault(OLD_COMPILER_PB_MISSING_JAVADOC);
-			}
-			// end bug 46854
 		}
+		*/
 
 		// persist options
 		getPlugin().savePluginPreferences();

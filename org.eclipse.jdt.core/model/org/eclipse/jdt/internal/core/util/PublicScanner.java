@@ -62,6 +62,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	public int[] commentStops = new int[10];
 	public int[] commentStarts = new int[10];
 	public int commentPtr = -1; // no comment test with commentPtr value -1
+	protected int lastCommentLinePosition = -1;
 	
 	// task tag support
 	public char[][] foundTaskTags = null;
@@ -1226,6 +1227,7 @@ public int getNextToken() throws InvalidInputException {
 					{
 						int test;
 						if ((test = getNextChar('/', '*')) == 0) { //line comment 
+							this.lastCommentLinePosition = this.currentPosition;
 							try { //get the next char 
 								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 									&& (this.source[this.currentPosition] == 'u')) {
@@ -1256,6 +1258,7 @@ public int getNextToken() throws InvalidInputException {
 								} //jump over the \\
 								boolean isUnicode = false;
 								while (this.currentCharacter != '\r' && this.currentCharacter != '\n') {
+									this.lastCommentLinePosition = this.currentPosition;
 									//get the next char
 									isUnicode = false;									
 									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
@@ -1638,6 +1641,7 @@ public final void jumpOverMethodBody() {
 						int test;
 						if ((test = getNextChar('/', '*')) == 0) { //line comment 
 							try {
+								this.lastCommentLinePosition = this.currentPosition;
 								//get the next char 
 								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 									&& (this.source[this.currentPosition] == 'u')) {
@@ -1668,6 +1672,7 @@ public final void jumpOverMethodBody() {
 								} //jump over the \\
 								boolean isUnicode = false;
 								while (this.currentCharacter != '\r' && this.currentCharacter != '\n') {
+									this.lastCommentLinePosition = this.currentPosition;
 									//get the next char 
 									isUnicode = false;
 									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
@@ -2280,16 +2285,26 @@ public final void pushUnicodeLineSeparator() {
 	}
 }
 public void recordComment(int token) {
+	// compute position
+	int stopPosition = this.currentPosition;
+	switch (token) {
+		case TokenNameCOMMENT_LINE:
+			stopPosition = -this.lastCommentLinePosition;
+			break;
+		case TokenNameCOMMENT_BLOCK:
+			stopPosition = -this.currentPosition;
+			break;
+	}
 
 	// a new comment is recorded
 	try {
-		this.commentStops[++this.commentPtr] = (token==TokenNameCOMMENT_JAVADOC) ? this.currentPosition : -this.currentPosition;
+		this.commentStops[++this.commentPtr] = stopPosition;
 	} catch (IndexOutOfBoundsException e) {
 		int oldStackLength = this.commentStops.length;
 		int[] oldStack = this.commentStops;
 		this.commentStops = new int[oldStackLength + 30];
 		System.arraycopy(oldStack, 0, this.commentStops, 0, oldStackLength);
-		this.commentStops[this.commentPtr] = (token==TokenNameCOMMENT_JAVADOC) ? this.currentPosition : -this.currentPosition;
+		this.commentStops[this.commentPtr] = stopPosition;
 		//grows the positions buffers too
 		int[] old = this.commentStarts;
 		this.commentStarts = new int[oldStackLength + 30];

@@ -96,9 +96,6 @@ protected MatchLocatorParser(ProblemReporter problemReporter, MatchLocator locat
 			? new MethodButNoClassDeclarationVisitor()
 			: new NoClassNoMethodDeclarationVisitor();
 	}
-
-	// Always check javadoc while matching indexes
-	this.javadocParser.checkDocComment = true;
 }
 public void checkComment() {
 	super.checkComment();

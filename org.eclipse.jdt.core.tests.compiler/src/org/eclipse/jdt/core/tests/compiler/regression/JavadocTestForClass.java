@@ -13,54 +13,21 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocTestForClass extends JavadocTest {
+
 	public static Test suite() {
-		if (false) {
-			TestSuite ts;
-			int[] numbers = { 10, 12 };
-			//some of the tests depend on the order of this suite.
-			ts = new TestSuite();
-			for (int i = 0; i < numbers.length; i++) {
-				String meth = "test";
-				int num = numbers[i];
-				if (num < 10) {
-					meth += "0";
-				}
-				if (num < 100) {
-					meth += "0";
-				}
-				meth += num;
-				ts.addTest(new JavadocTestForClass(meth));
-			}
-			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
-		}
-		if (false) {
-			TestSuite ts;
-			//some of the tests depend on the order of this suite.
-			ts = new TestSuite();
-			for (int i=30; i<=30; i++) {
-				String meth = "test";
-				if (i<10) {
-					meth += "0";
-				}
-				if (i<100) {
-					meth += "0";
-				}
-				meth += i;
-				ts.addTest(new JavadocTestForClass(meth));
-			}
-			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
-		}
-		return setupSuite(testClass());
+		return buildSuite(javadocTestClass());
 	}
 	public JavadocTestForClass(String name) {
 		super(name);
 	}
-	public static Class testClass() {
+	public JavadocTestForClass(String name, String support) {
+		super(name, support);
+	}
+	public static Class javadocTestClass() {
 		return JavadocTestForClass.class;
 	}
 

@@ -96,7 +96,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTest2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTest2.class.getName());
-		suite.addTest(new ASTConverterTest2("test0538d"));
+		suite.addTest(new ASTConverterTest2("test0539"));
 		return suite;
 	}
 	/**
@@ -4287,4 +4287,31 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			sourceUnit.discardWorkingCopy();
 		}
 	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=53477
+	 */
+	public void test0539() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0539", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, false);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 0, 1, 0);
+		assertNotNull("No node", node);
+		assertTrue("not an expression statement", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT);
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		Expression expression = expressionStatement.getExpression();
+		assertTrue("not a class instance creation", expression.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION);
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		checkSourceRange(classInstanceCreation, "new A(){}.new Inner(){/*x*/}", source);
+		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+		Expression expression2 = classInstanceCreation.getExpression();
+		assertTrue("not a class instance creation", expression2.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION);
+		ClassInstanceCreation classInstanceCreation2 = (ClassInstanceCreation) expression2;
+		AnonymousClassDeclaration anonymousClassDeclaration2 = classInstanceCreation2.getAnonymousClassDeclaration();
+		assertNotNull("No anonymous class declaration", anonymousClassDeclaration2);
+		checkSourceRange(anonymousClassDeclaration2, "{}", source);
+		assertNotNull("No anonymous class declaration", anonymousClassDeclaration);
+		checkSourceRange(anonymousClassDeclaration, "{/*x*/}", source);
+	}	
 }

@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 /**
  * Internal class for resolving bindings using old ASTs.
@@ -132,10 +133,14 @@ class DefaultBindingResolver extends BindingResolver {
 				// a extra lookup is required
 				BlockScope internalScope = (BlockScope) this.astNodesToBlockScope.get(name);
 				Binding binding = null;
-				if (internalScope == null) {
-					binding = this.scope.getTypeOrPackage(CharOperation.subarray(tokens, 0, indexInQualifiedName));
-				} else {
-					binding = internalScope.getTypeOrPackage(CharOperation.subarray(tokens, 0, indexInQualifiedName));
+				try {
+					if (internalScope == null) {
+						binding = this.scope.getTypeOrPackage(CharOperation.subarray(tokens, 0, indexInQualifiedName));
+					} else {
+						binding = internalScope.getTypeOrPackage(CharOperation.subarray(tokens, 0, indexInQualifiedName));
+					}
+				} catch (AbortCompilation e) {
+					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 				}
 				if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
 					return this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
@@ -205,10 +210,14 @@ class DefaultBindingResolver extends BindingResolver {
 				if (indexInQualifiedName >= 0) {
 					BlockScope internalScope = (BlockScope) this.astNodesToBlockScope.get(name);
 					Binding binding = null;
-					if (internalScope == null) {
-						binding = this.scope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, indexInQualifiedName));
-					} else {
-						binding = internalScope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, indexInQualifiedName));
+					try {
+						if (internalScope == null) {
+							binding = this.scope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, indexInQualifiedName));
+						} else {
+							binding = internalScope.getTypeOrPackage(CharOperation.subarray(qualifiedTypeReference.tokens, 0, indexInQualifiedName));
+						}
+					} catch (AbortCompilation e) {
+						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
 					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
 						return this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
@@ -225,7 +234,12 @@ class DefaultBindingResolver extends BindingResolver {
 			int importReferenceLength = importReference.tokens.length;
 			int indexInImportReference = importReferenceLength - index; // one-based
 			if (indexInImportReference >= 0) {
-				Binding binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, indexInImportReference));
+				Binding binding = null;
+				try {
+					binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, indexInImportReference));
+				} catch (AbortCompilation e) {
+					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
+				}
 				if (binding != null) {
 					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
 						return this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
@@ -709,34 +723,38 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolveImport(ImportDeclaration)
 	 */
 	IBinding resolveImport(ImportDeclaration importDeclaration) {
-		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(importDeclaration);
-		if (node instanceof ImportReference) {
-			ImportReference importReference = (ImportReference) node;
-			if (importReference.onDemand) {
-				Binding binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
-				if (binding != null) {
-					if (binding.bindingType() == BindingIds.PACKAGE) {
-						IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
-						if (packageBinding == null) {
-							return null;
+		try {
+			org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(importDeclaration);
+			if (node instanceof ImportReference) {
+				ImportReference importReference = (ImportReference) node;
+				if (importReference.onDemand) {
+					Binding binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
+					if (binding != null) {
+						if (binding.bindingType() == BindingIds.PACKAGE) {
+							IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
+							if (packageBinding == null) {
+								return null;
+							}
+							return packageBinding;
+						} else {
+							// if it is not a package, it has to be a type
+							ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
+							if (typeBinding == null) {
+								return null;
+							}
+							return typeBinding;
 						}
-						return packageBinding;
-					} else {
-						// if it is not a package, it has to be a type
+					}
+				} else {
+					Binding binding = this.scope.getTypeOrPackage(importReference.tokens);
+					if (binding != null && binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
 						ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
-						if (typeBinding == null) {
-							return null;
-						}
-						return typeBinding;
+						return typeBinding == null ? null : typeBinding;
 					}
 				}
-			} else {
-				Binding binding = this.scope.getTypeOrPackage(importReference.tokens);
-				if (binding != null && binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
-					ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
-					return typeBinding == null ? null : typeBinding;
-				}
 			}
+		} catch(AbortCompilation e) {
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 		}
 		return null;
 	}
@@ -745,22 +763,26 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @see BindingResolver#resolvePackage(PackageDeclaration)
 	 */
 	IPackageBinding resolvePackage(PackageDeclaration pkg) {
-		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(pkg);
-		if (node instanceof ImportReference) {
-			ImportReference importReference = (ImportReference) node;
-			Binding binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
-			if ((binding != null) && (binding.isValidBinding())) {
-				IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
-				if (packageBinding == null) {
-					return null;
+		try {
+			org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(pkg);
+			if (node instanceof ImportReference) {
+				ImportReference importReference = (ImportReference) node;
+				Binding binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
+				if ((binding != null) && (binding.isValidBinding())) {
+					IPackageBinding packageBinding = this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
+					if (packageBinding == null) {
+						return null;
+					}
+					this.bindingsToAstNodes.put(packageBinding, pkg);
+					String key = packageBinding.getKey();
+					if (key != null) {
+						this.bindingKeysToAstNodes.put(key, pkg);				
+					}
+					return packageBinding;
 				}
-				this.bindingsToAstNodes.put(packageBinding, pkg);
-				String key = packageBinding.getKey();
-				if (key != null) {
-					this.bindingKeysToAstNodes.put(key, pkg);				
-				}
-				return packageBinding;
 			}
+		} catch (AbortCompilation e) {
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 		}
 		return null;
 	}

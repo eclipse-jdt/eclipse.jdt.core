@@ -13,55 +13,36 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocTestMixed extends JavadocTest {
 
+	String localDocCommentSupport = CompilerOptions.ENABLED;
 	String reportInvalidJavadoc = CompilerOptions.ERROR;
 	String reportMissingJavadocComments = null;
 
 	public JavadocTestMixed(String name) {
 		super(name);
 	}
+	public JavadocTestMixed(String name, String support) {
+		super(name, support);
+	}
 
-	public static Class testClass() {
+	public static Class javadocTestClass() {
 		return JavadocTestMixed.class;
 	}
 
 	public static Test suite() {
-		if (false) {
-			TestSuite ts;
-			int[] numbers = { 41 };
-			//some of the tests depend on the order of this suite.
-			ts = new TestSuite();
-			for (int i = 0; i < numbers.length; i++) {
-				String meth = "test";
-				int num = numbers[i];
-				if (num < 10) {
-					meth += "0";
-				}
-				if (num < 100) {
-					meth += "0";
-				}
-				meth += num;
-				ts.addTest(new JavadocTestMixed(meth));
-			}
-			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
-		}
-		if (false) {
-			TestSuite ts = new TestSuite();
-			ts.addTest(new JavadocTestMixed("testBug52216"));
-			ts.addTest(new JavadocTestMixed("testBug52216a"));
-			ts.addTest(new JavadocTestMixed("testBug52216b"));
-			return new RegressionTestSetup(ts, COMPLIANCE_1_4);
-		}
-		return setupSuite(testClass());
+		return buildSuite(javadocTestClass());
+	}
+	static {
+//		testNames = new String[] { "Bug51529a", "Bug51529b" };
 	}
 
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_DocCommentSupport, this.localDocCommentSupport);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, reportInvalidJavadoc);
 		if (reportMissingJavadocComments != null) 
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportMissingJavadocComments);
@@ -71,6 +52,7 @@ public class JavadocTestMixed extends JavadocTest {
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+		options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
 		return options;
 	}
 	/* (non-Javadoc)
@@ -78,6 +60,7 @@ public class JavadocTestMixed extends JavadocTest {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
+		this.localDocCommentSupport = this.docCommentSupport;
 		reportInvalidJavadoc = CompilerOptions.ERROR;
 		reportMissingJavadocComments = null;
 	}
@@ -2146,6 +2129,62 @@ public class JavadocTestMixed extends JavadocTest {
 				"	* @see \"Invalid ref\"	   .\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^\n" + 
 				"Javadoc: Invalid reference\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 51529.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51529">51529</a>
+	 */
+	public void testBug51529() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Vector;\n" + 
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * @see Vector\n" + 
+				"	 */\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+		 });
+	}
+	public void testBug51529a() {
+		reportInvalidJavadoc = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Vector;\n" + 
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * @see Vector\n" + 
+				"	 */\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug51529b() {
+		this.localDocCommentSupport = CompilerOptions.DISABLED;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Vector;\n" + 
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * @see Vector\n" + 
+				"	 */\n" + 
+				"	void foo() {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	import java.util.Vector;\n" + 
+				"	       ^^^^^^^^^^^^^^^^\n" + 
+				"The import java.util.Vector is never used\n" + 
 				"----------\n"
 		);
 	}

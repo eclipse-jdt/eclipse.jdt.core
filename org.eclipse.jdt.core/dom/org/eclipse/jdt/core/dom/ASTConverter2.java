@@ -44,6 +44,7 @@ class ASTConverter2 {
 	private IProgressMonitor monitor;
 	// comments
 	private boolean insideComments;
+	private DocCommentParser docParser;
 	private Comment[] commentsTable;
 
 	public ASTConverter2(Map options, boolean resolveBindings, IProgressMonitor monitor) {
@@ -56,11 +57,12 @@ class ASTConverter2 {
 					null /*taskTags*/,
 					null/*taskPriorities*/);
 		this.monitor = monitor;
-		this.insideComments = true;
+		this.insideComments = JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT));
 	}
 	
 	public void setAST(AST ast) {
 		this.ast = ast;
+		this.docParser = new DocCommentParser(this.ast, this.scanner, this.insideComments);
 	}
 
 	/*
@@ -132,7 +134,7 @@ class ASTConverter2 {
 
 		// Parse comments
 		int[][] comments = unit.comments;
-		if (comments != null && this.insideComments) {
+		if (comments != null) {
 			buildCommentsTable(compilationUnit, comments);
 		}
 
@@ -1124,7 +1126,7 @@ class ASTConverter2 {
 				}
 			}
 			AnonymousClassDeclaration anonymousClassDeclaration = this.ast.newAnonymousClassDeclaration();
-			int start = retrieveStartBlockPosition(declarationSourceStart, allocation.anonymousType.bodyEnd);
+			int start = retrieveStartBlockPosition(allocation.anonymousType.sourceEnd, allocation.anonymousType.bodyEnd);
 			anonymousClassDeclaration.setSourceRange(start, allocation.anonymousType.bodyEnd - start + 1);
 			classInstanceCreation.setAnonymousClassDeclaration(anonymousClassDeclaration);
 			buildBodyDeclarations(allocation.anonymousType, anonymousClassDeclaration);
@@ -3094,8 +3096,7 @@ class ASTConverter2 {
 		int end = positions[1];
 		if (positions[1]>0) { // Javadoc comments have positive end position
 			this.ast.newJavadoc();
-			DocCommentParser docParser = new DocCommentParser(this.ast, this.scanner);
-			Javadoc docComment = docParser.parse(positions);
+			Javadoc docComment = this.docParser.parse(positions);
 			if (docComment == null) return null;
 			comment = docComment;
 		} else {

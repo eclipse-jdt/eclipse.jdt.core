@@ -26,7 +26,10 @@ public class RegressionTestSetup extends CompilerTestSetup {
 	public RegressionTestSetup(Test test, String complianceLevel) {
 		super(test, complianceLevel);
 	}
-	
+	public RegressionTestSetup(Test test, String complianceLevel, String support) {
+		super(test, complianceLevel, support);
+	}
+
 	protected void setUp() {
 		if (this.javaClassLib == null) {
 			// Create name environment

@@ -38,12 +38,10 @@ public class JavadocParser extends AbstractCommentParser {
 
 	// Public fields
 	public Javadoc docComment;
-	public boolean checkDocComment = false;
 
 	JavadocParser(Parser sourceParser) {
 		super(sourceParser);
-		this.checkDocComment = (this.sourceParser.options.getSeverity(CompilerOptions.InvalidJavadoc) != ProblemSeverities.Ignore) ||
-			(this.sourceParser.options.getSeverity(CompilerOptions.MissingJavadocTags) != ProblemSeverities.Ignore);
+		this.checkDocComment = this.sourceParser.options.docCommentSupport;
 		this.kind = COMPIL_PARSER;
 	}
 

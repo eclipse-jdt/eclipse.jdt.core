@@ -15,7 +15,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -25,21 +24,19 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ArrayType;
-import org.eclipse.jdt.core.dom.BlockComment;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.Javadoc;
-import org.eclipse.jdt.core.dom.LineComment;
 import org.eclipse.jdt.core.dom.MemberRef;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.MethodRefParameter;
 import org.eclipse.jdt.core.dom.Name;
-import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
@@ -49,12 +46,18 @@ import org.eclipse.jdt.core.dom.Type;
 
 public class ASTConverterJavadocTest extends ConverterTestSetup {
 
+	// Test counters
 	protected static int[] testCounters = { 0, 0, 0, 0 };
+	// Unicode tests
+	protected static boolean unicode = false;
+	// Doc Comment support
+	static final String DOC_COMMENT_SUPPORT = System.getProperty("doc.support");
+	final String docCommentSupport;
 
 	// List of comments read from source of test
-//	private final int LINE_COMMENT = 100;
-//	private final int BLOCK_COMMENT =200;
-//	private final int DOC_COMMENT = 300;
+	private final int LINE_COMMENT = 100;
+	private final int BLOCK_COMMENT =200;
+	private final int DOC_COMMENT = 300;
 	List comments = new ArrayList();
 	// List of tags contained in each comment read from test source.
 	List allTags = new ArrayList();
@@ -69,30 +72,58 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	protected StringBuffer problems;
 	protected String compilerOption = JavaCore.IGNORE;
 	protected List failures;
+	protected IJavaProject currentProject;
 
-
+	/**
+	 * @param name
+	 * @param support
+	 */
+	public ASTConverterJavadocTest(String name, String support) {
+		super(name);
+		this.docCommentSupport = support;
+	}
 	/**
 	 * @param name
 	 */
 	public ASTConverterJavadocTest(String name) {
-		super(name);
+		this(name, JavaCore.ENABLED);
 	}
 
 	public static Test suite() {
 		TestSuite suite = new Suite(ASTConverterJavadocTest.class.getName());		
-
+//		String param = System.getProperty("unicode");
+//		if ("true".equals(param)) {
+//			unicode = true;
+//		}
 		if (true) {
-			Class c = ASTConverterJavadocTest.class;
-			Method[] methods = c.getMethods();
-			for (int i = 0, max = methods.length; i < max; i++) {
-				if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-					suite.addTest(new ASTConverterJavadocTest(methods[i].getName()));
-				}
+			if (DOC_COMMENT_SUPPORT == null) {
+				buildSuite(suite, JavaCore.ENABLED);
+				buildSuite(suite, JavaCore.DISABLED);
+			} else {
+				String support = DOC_COMMENT_SUPPORT==null ? JavaCore.DISABLED : (DOC_COMMENT_SUPPORT.equals(JavaCore.DISABLED)?JavaCore.DISABLED:JavaCore.ENABLED);
+				buildSuite(suite, support);
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterJavadocTest("test014"));
+		suite.addTest(new ASTConverterJavadocTest("testBug52908unicode"));
 		return suite;
+	}
+
+	public static void buildSuite(TestSuite suite, String support) {
+		Class c = ASTConverterJavadocTest.class;
+		Method[] methods = c.getMethods();
+		for (int i = 0, max = methods.length; i < max; i++) {
+			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
+				suite.addTest(new ASTConverterJavadocTest(methods[i].getName(), support));
+			}
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#getName()
+	 */
+	public String getName() {
+		return "Doc "+this.docCommentSupport+" - "+super.getName();
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
@@ -126,6 +157,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 		}
 		assertTrue(title, size==0 || problems.length() > 0);
+		// put default options on project
+		this.currentProject.setOptions(JavaCore.getOptions());
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
@@ -144,226 +177,236 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		}
 	}
 
-	class ASTConverterJavadocFlattener extends ASTVisitor {
-
-		/**
-		 * The string buffer into which the serialized representation of the AST is
-		 * written.
-		 */
-		private StringBuffer buffer;
-		
-		private String comment;
-		
-		/**
-		 * Creates a new AST printer.
-		 */
-		ASTConverterJavadocFlattener(String comment) {
-			this.buffer = new StringBuffer();
-			this.comment = comment;
-		}
-		
-		/**
-		 * Returns the string accumulated in the visit.
-		 *
-		 * @return the serialized 
-		 */
-		public String getResult() {
-			return this.buffer.toString();
-		}
-		
-		/**
-		 * Resets this printer so that it can be used again.
-		 */
-		public void reset() {
-			this.buffer.setLength(0);
-		}
-
-
-		/*
-		 * @see ASTVisitor#visit(ArrayType)
-		 */
-		public boolean visit(ArrayType node) {
-			node.getComponentType().accept(this);
-			this.buffer.append("[]");//$NON-NLS-1$
-			return false;
-		}
-	
-		/*
-		 * @see ASTVisitor#visit(BlockComment)
-		 * @since 3.0
-		 */
-		public boolean visit(BlockComment node) {
-			this.buffer.append(this.comment);
-			return false;
-		}
-	
-		/*
-		 * @see ASTVisitor#visit(Javadoc)
-		 */
-		public boolean visit(Javadoc node) {
-			// ignore deprecated node.getComment()
-			this.buffer.append("/**");//$NON-NLS-1$
-			ASTNode e = null;
-			int start = 3;
-			for (Iterator it = node.tags().iterator(); it.hasNext(); ) {
-				e = (ASTNode) it.next();
-				try {
-					this.buffer.append(this.comment.substring(start, e.getStartPosition()-node.getStartPosition()));
-					start = e.getStartPosition()-node.getStartPosition();
-				} catch (IndexOutOfBoundsException ex) {
-					// do nothing
-				}
-				e.accept(this);
-				start += e.getLength();
-			}
-			this.buffer.append(this.comment.substring(start, node.getLength()));
-			return false;
-		}
-	
-		/*
-		 * @see ASTVisitor#visit(LineComment)
-		 * @since 3.0
-		 */
-		public boolean visit(LineComment node) {
-			this.buffer.append(this.comment);
-			return false;
-		}
-	
-		/*
-		 * @see ASTVisitor#visit(MemberRef)
-		 * @since 3.0
-		 */
-		public boolean visit(MemberRef node) {
-			if (node.getQualifier() != null) {
-				node.getQualifier().accept(this);
-			}
-			this.buffer.append("#");//$NON-NLS-1$
-			node.getName().accept(this);
-			return false;
-		}
-		
-		/*
-		 * @see ASTVisitor#visit(MethodRef)
-		 * @since 3.0
-		 */
-		public boolean visit(MethodRef node) {
-			if (node.getQualifier() != null) {
-				node.getQualifier().accept(this);
-			}
-			this.buffer.append("#");//$NON-NLS-1$
-			node.getName().accept(this);
-			this.buffer.append("(");//$NON-NLS-1$
-			for (Iterator it = node.parameters().iterator(); it.hasNext(); ) {
-				MethodRefParameter e = (MethodRefParameter) it.next();
-				e.accept(this);
-				if (it.hasNext()) {
-					this.buffer.append(",");//$NON-NLS-1$
-				}
-			}
-			this.buffer.append(")");//$NON-NLS-1$
-			return false;
-		}
-		
-		/*
-		 * @see ASTVisitor#visit(MethodRefParameter)
-		 * @since 3.0
-		 */
-		public boolean visit(MethodRefParameter node) {
-			node.getType().accept(this);
-			if (node.getName() != null) {
-				this.buffer.append(" ");//$NON-NLS-1$
-				node.getName().accept(this);
-			}
-			return false;
-		}
-
-		/*
-		 * @see ASTVisitor#visit(TagElement)
-		 * @since 3.0
-		 */
-		public boolean visit(TagElement node) {
-			Javadoc javadoc = null;
-			int start = 0;
-			if (node.isNested()) {
-				// nested tags are always enclosed in braces
-				this.buffer.append("{");//$NON-NLS-1$
-				javadoc = (Javadoc) node.getParent().getParent();
-				start++;
-			} else {
-				javadoc = (Javadoc) node.getParent();
-			}
-			start += node.getStartPosition()-javadoc.getStartPosition();
-			if (node.getTagName() != null) {
-				this.buffer.append(node.getTagName());
-				start += node.getTagName().length();
-			}
-			for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
-				ASTNode e = (ASTNode) it.next();
-				try {
-					this.buffer.append(this.comment.substring(start, e.getStartPosition()-javadoc.getStartPosition()));
-					start = e.getStartPosition()-javadoc.getStartPosition();
-				} catch (IndexOutOfBoundsException ex) {
-					// do nothing
-				}
-				start += e.getLength();
-				e.accept(this);
-			}
-			if (node.isNested()) {
-				this.buffer.append("}");//$NON-NLS-1$
-			}
-			return false;
-		}
-		
-		/*
-		 * @see ASTVisitor#visit(TextElement)
-		 * @since 3.0
-		 */
-		public boolean visit(TextElement node) {
-			this.buffer.append(node.getText());
-			return false;
-		}
-
-		/*
-		 * @see ASTVisitor#visit(PrimitiveType)
-		 */
-		public boolean visit(PrimitiveType node) {
-			this.buffer.append(node.getPrimitiveTypeCode().toString());
-			return false;
-		}
-	
-		/*
-		 * @see ASTVisitor#visit(QualifiedName)
-		 */
-		public boolean visit(QualifiedName node) {
-			node.getQualifier().accept(this);
-			this.buffer.append(".");//$NON-NLS-1$
-			node.getName().accept(this);
-			return false;
-		}
-
-		/*
-		 * @see ASTVisitor#visit(SimpleName)
-		 */
-		public boolean visit(SimpleName node) {
-			this.buffer.append(node.getIdentifier());
-			return false;
-		}
-
-		/*
-		 * @see ASTVisitor#visit(SimpleName)
-		 */
-		public boolean visit(SimpleType node) {
-			node.getName().accept(this);
-			return false;
-		}
+	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
+		ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+		parser.setSource(source);
+		parser.setUnitName(unitName);
+		parser.setProject(project);
+		parser.setResolveBindings(this.resolveBinding);
+		return parser.createAST(null);
 	}
+
+// NOT USED
+//	class ASTConverterJavadocFlattener extends ASTVisitor {
+//
+//		/**
+//		 * The string buffer into which the serialized representation of the AST is
+//		 * written.
+//		 */
+//		private StringBuffer buffer;
+//		
+//		private String comment;
+//		
+//		/**
+//		 * Creates a new AST printer.
+//		 */
+//		ASTConverterJavadocFlattener(String comment) {
+//			this.buffer = new StringBuffer();
+//			this.comment = comment;
+//		}
+//		
+//		/**
+//		 * Returns the string accumulated in the visit.
+//		 *
+//		 * @return the serialized 
+//		 */
+//		public String getResult() {
+//			return this.buffer.toString();
+//		}
+//		
+//		/**
+//		 * Resets this printer so that it can be used again.
+//		 */
+//		public void reset() {
+//			this.buffer.setLength(0);
+//		}
+//
+//		/*
+//		 * @see ASTVisitor#visit(ArrayType)
+//		 */
+//		public boolean visit(ArrayType node) {
+//			node.getComponentType().accept(this);
+//			this.buffer.append("[]");//$NON-NLS-1$
+//			return false;
+//		}
+//	
+//		/*
+//		 * @see ASTVisitor#visit(BlockComment)
+//		 * @since 3.0
+//		 */
+//		public boolean visit(BlockComment node) {
+//			this.buffer.append(this.comment);
+//			return false;
+//		}
+//	
+//		/*
+//		 * @see ASTVisitor#visit(Javadoc)
+//		 */
+//		public boolean visit(Javadoc node) {
+//			
+//			// ignore deprecated node.getComment()
+//			this.buffer.append("/**");//$NON-NLS-1$
+//			ASTNode e = null;
+//			int start = 3;
+//			for (Iterator it = node.tags().iterator(); it.hasNext(); ) {
+//				e = (ASTNode) it.next();
+//				try {
+//					this.buffer.append(this.comment.substring(start, e.getStartPosition()-node.getStartPosition()));
+//					start = e.getStartPosition()-node.getStartPosition();
+//				} catch (IndexOutOfBoundsException ex) {
+//					// do nothing
+//				}
+//				e.accept(this);
+//				start += e.getLength();
+//			}
+//			this.buffer.append(this.comment.substring(start, node.getLength()));
+//			return false;
+//		}
+//	
+//		/*
+//		 * @see ASTVisitor#visit(LineComment)
+//		 * @since 3.0
+//		 */
+//		public boolean visit(LineComment node) {
+//			this.buffer.append(this.comment);
+//			return false;
+//		}
+//	
+//		/*
+//		 * @see ASTVisitor#visit(MemberRef)
+//		 * @since 3.0
+//		 */
+//		public boolean visit(MemberRef node) {
+//			if (node.getQualifier() != null) {
+//				node.getQualifier().accept(this);
+//			}
+//			this.buffer.append("#");//$NON-NLS-1$
+//			node.getName().accept(this);
+//			return true;
+//		}
+//		
+//		/*
+//		 * @see ASTVisitor#visit(MethodRef)
+//		 * @since 3.0
+//		 */
+//		public boolean visit(MethodRef node) {
+//			if (node.getQualifier() != null) {
+//				node.getQualifier().accept(this);
+//			}
+//			this.buffer.append("#");//$NON-NLS-1$
+//			node.getName().accept(this);
+//			this.buffer.append("(");//$NON-NLS-1$
+//			for (Iterator it = node.parameters().iterator(); it.hasNext(); ) {
+//				MethodRefParameter e = (MethodRefParameter) it.next();
+//				e.accept(this);
+//				if (it.hasNext()) {
+//					this.buffer.append(",");//$NON-NLS-1$
+//				}
+//			}
+//			this.buffer.append(")");//$NON-NLS-1$
+//			return true;
+//		}
+//		
+//		/*
+//		 * @see ASTVisitor#visit(MethodRefParameter)
+//		 * @since 3.0
+//		 */
+//		public boolean visit(MethodRefParameter node) {
+//			node.getType().accept(this);
+//			if (node.getName() != null) {
+//				this.buffer.append(" ");//$NON-NLS-1$
+//				node.getName().accept(this);
+//			}
+//			return true;
+//		}
+//
+//		/*
+//		 * @see ASTVisitor#visit(TagElement)
+//		 * @since 3.0
+//		 */
+//		public boolean visit(TagElement node) {
+//			Javadoc javadoc = null;
+//			int start = 0;
+//			if (node.isNested()) {
+//				// nested tags are always enclosed in braces
+//				this.buffer.append("{");//$NON-NLS-1$
+//				javadoc = (Javadoc) node.getParent().getParent();
+//				start++;
+//			} else {
+//				javadoc = (Javadoc) node.getParent();
+//			}
+//			start += node.getStartPosition()-javadoc.getStartPosition();
+//			if (node.getTagName() != null) {
+//				this.buffer.append(node.getTagName());
+//				start += node.getTagName().length();
+//			}
+//			for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
+//				ASTNode e = (ASTNode) it.next();
+//				try {
+//					this.buffer.append(this.comment.substring(start, e.getStartPosition()-javadoc.getStartPosition()));
+//					start = e.getStartPosition()-javadoc.getStartPosition();
+//				} catch (IndexOutOfBoundsException ex) {
+//					// do nothing
+//				}
+//				start += e.getLength();
+//				e.accept(this);
+//			}
+//			if (node.isNested()) {
+//				this.buffer.append("}");//$NON-NLS-1$
+//			}
+//			return true;
+//		}
+//		
+//		/*
+//		 * @see ASTVisitor#visit(TextElement)
+//		 * @since 3.0
+//		 */
+//		public boolean visit(TextElement node) {
+//			this.buffer.append(node.getText());
+//			return false;
+//		}
+//
+//		/*
+//		 * @see ASTVisitor#visit(PrimitiveType)
+//		 */
+//		public boolean visit(PrimitiveType node) {
+//			this.buffer.append(node.getPrimitiveTypeCode().toString());
+//			return false;
+//		}
+//	
+//		/*
+//		 * @see ASTVisitor#visit(QualifiedName)
+//		 */
+//		public boolean visit(QualifiedName node) {
+//			node.getQualifier().accept(this);
+//			this.buffer.append(".");//$NON-NLS-1$
+//			node.getName().accept(this);
+//			return false;
+//		}
+//
+//		/*
+//		 * @see ASTVisitor#visit(SimpleName)
+//		 */
+//		public boolean visit(SimpleName node) {
+//			this.buffer.append(node.getIdentifier());
+//			return false;
+//		}
+//
+//		/*
+//		 * @see ASTVisitor#visit(SimpleName)
+//		 */
+//		public boolean visit(SimpleType node) {
+//			node.getName().accept(this);
+//			return false;
+//		}
+//	}
 
 	/*
 	 * Convert Javadoc source to match Javadoc.toString().
 	 * Store converted comments and their corresponding tags respectively
 	 * in this.comments and this.allTags fields
 	 */
-	void setSourceComment(char[] source) {
+	protected void setSourceComment(char[] source) {
 		this.comments = new ArrayList();
 		this.allTags = new ArrayList();
 		StringBuffer buffer = null;
@@ -372,71 +415,205 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		String tag = null;
 		List tags = new ArrayList();
 		int length = source.length;
+		char previousChar=0, currentChar=0;
 		for (int i=0; i<length; i++) {
-			if (comment == 0) {
-				switch (source[i]) {
-					case '/':
-						switch (source[++i]) {
-							case '/':
-								comment = 1; // line comment
-								buffer = new StringBuffer("//");
-								i++;
-								break;
-							case '*':
-								if (source[++i] == '*') {
-									if (source[++i] == '/') { // empty block comment
-										this.comments.add("/**/");
-										this.allTags.add(new ArrayList());
+			previousChar = currentChar;
+			// get next char
+			currentChar = source[i];
+			int charLength = 1;
+			if (currentChar == '\\' && source[i+1] == 'u') {
+				//-------------unicode traitement ------------
+				int c1, c2, c3, c4;
+				charLength++;
+				while (source[i+charLength] == 'u') charLength++;
+				if (((c1 = Character.getNumericValue(source[i+charLength++])) > 15
+					|| c1 < 0)
+					|| ((c2 = Character.getNumericValue(source[i+charLength++])) > 15 || c2 < 0)
+					|| ((c3 = Character.getNumericValue(source[i+charLength++])) > 15 || c3 < 0)
+					|| ((c4 = Character.getNumericValue(source[i+charLength])) > 15 || c4 < 0)) {
+					throw new RuntimeException("Invalid unicode in source at "+i);
+				}
+				currentChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+				i+=charLength;
+			}
+
+			// 
+			switch (comment) {
+				case 0: 
+					switch (currentChar) {
+						case '/':
+							comment = 1; // first char for comments...
+							buffer = new StringBuffer();
+							if (charLength == 1) {
+								buffer.append(currentChar);
+							} else  {
+								for (int k=i-charLength; k<=i; k++) buffer.append(source[k]);
+							}
+							break;
+						case '\'':
+							while (i<length) {
+								// get next char
+								currentChar = source[i];
+								if (currentChar == '\\' && source[i+1] == 'u') {
+									//-------------unicode traitement ------------
+									i++;
+									int c1, c2, c3, c4;
+									i++;
+									while (source[i] == 'u') i++;
+									if (((c1 = Character.getNumericValue(source[i++])) > 15
+										|| c1 < 0)
+										|| ((c2 = Character.getNumericValue(source[i++])) > 15 || c2 < 0)
+										|| ((c3 = Character.getNumericValue(source[i++])) > 15 || c3 < 0)
+										|| ((c4 = Character.getNumericValue(source[i++])) > 15 || c4 < 0)) {
+										throw new RuntimeException("Invalid unicode in source at "+i);
+									}
+									currentChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+								}
+								if (currentChar == '\\') {
+									// get next char
+									currentChar = source[i];
+									if (currentChar == '\\' && source[i+1] == 'u') {
+										//-------------unicode traitement ------------
 										i++;
-									} else {
-										comment = 3; // javadoc
-										buffer = new StringBuffer("/**");
+										int c1, c2, c3, c4;
+										i++;
+										while (source[i] == 'u') i++;
+										if (((c1 = Character.getNumericValue(source[i++])) > 15
+											|| c1 < 0)
+											|| ((c2 = Character.getNumericValue(source[i++])) > 15 || c2 < 0)
+											|| ((c3 = Character.getNumericValue(source[i++])) > 15 || c3 < 0)
+											|| ((c4 = Character.getNumericValue(source[i++])) > 15 || c4 < 0)) {
+											throw new RuntimeException("Invalid unicode in source at "+i);
+										}
+										currentChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
 									}
 								} else {
-									comment = 2; // block comment
-									buffer = new StringBuffer("/*");
-								}
-								break;
-						}
-						break;
-					case '\'':
-						while (i<length) {
-							i++;
-							if (i==length) break;
-							if (source[i] == '\\') {
-								i++;
-							} else {
-								if (source[i] == '\'') {
-									break;
-								}
-							}
-						}
-						break;
-					case '"':
-						while (i<length) {
-							i++;
-							if (i==length) break;
-							if (source[i] == '\\') {
-								i++;
-							} else {
-								if (source[i] == '"') {
-									if ((i+1)==length) break;
-									if (source[i+1] == '"') {
-										i++;
-									} else {
+									if (currentChar == '\'') {
 										break;
 									}
 								}
 							}
-						}
-						break;
-				}
-			}
-			switch (comment) {
-				case 1: // line comment
-					if (source[i] == '\r' || source[i] == '\n') {
+							break;
+						case '"':
+							while (i<length) {
+								// get next char
+								currentChar = source[i];
+								if (currentChar == '\\' && source[i+1] == 'u') {
+									//-------------unicode traitement ------------
+									i++;
+									int c1, c2, c3, c4;
+									i++;
+									while (source[i] == 'u') i++;
+									if (((c1 = Character.getNumericValue(source[i++])) > 15
+										|| c1 < 0)
+										|| ((c2 = Character.getNumericValue(source[i++])) > 15 || c2 < 0)
+										|| ((c3 = Character.getNumericValue(source[i++])) > 15 || c3 < 0)
+										|| ((c4 = Character.getNumericValue(source[i++])) > 15 || c4 < 0)) {
+										throw new RuntimeException("Invalid unicode in source at "+i);
+									}
+									currentChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+								}
+								if (currentChar == '\\') {
+									// get next char
+									currentChar = source[i];
+									if (currentChar == '\\' && source[i+1] == 'u') {
+										//-------------unicode traitement ------------
+										i++;
+										int c1, c2, c3, c4;
+										i++;
+										while (source[i] == 'u') i++;
+										if (((c1 = Character.getNumericValue(source[i++])) > 15
+											|| c1 < 0)
+											|| ((c2 = Character.getNumericValue(source[i++])) > 15 || c2 < 0)
+											|| ((c3 = Character.getNumericValue(source[i++])) > 15 || c3 < 0)
+											|| ((c4 = Character.getNumericValue(source[i++])) > 15 || c4 < 0)) {
+											throw new RuntimeException("Invalid unicode in source at "+i);
+										}
+										currentChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+									}
+								} else {
+									if (currentChar == '"') {
+										int currentPos=i;
+										// get next char
+										currentChar = source[i];
+										if (currentChar == '\\' && source[i+1] == 'u') {
+											//-------------unicode traitement ------------
+											i++;
+											int c1, c2, c3, c4;
+											i++;
+											while (source[i] == 'u') i++;
+											if (((c1 = Character.getNumericValue(source[i++])) > 15
+												|| c1 < 0)
+												|| ((c2 = Character.getNumericValue(source[i++])) > 15 || c2 < 0)
+												|| ((c3 = Character.getNumericValue(source[i++])) > 15 || c3 < 0)
+												|| ((c4 = Character.getNumericValue(source[i++])) > 15 || c4 < 0)) {
+												throw new RuntimeException("Invalid unicode in source at "+i);
+											}
+											currentChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+										}
+										if (source[i+1] != '"') {
+											i=currentPos;
+											break;
+										}
+									}
+								}
+							}
+							break;
+					}
+					break;
+				case 1: // first '/' has been found...
+					switch (currentChar) {
+						case '/':
+							if (charLength == 1) {
+								buffer.append(currentChar);
+							} else  {
+								for (int k=i-charLength; k<=i; k++) buffer.append(source[k]);
+							}
+							comment = LINE_COMMENT;
+							break;
+						case '*':
+							if (charLength == 1) {
+								buffer.append(currentChar);
+							} else  {
+								for (int k=i-charLength; k<=i; k++) buffer.append(source[k]);
+							}
+							comment = 2; // next step
+							break;
+						default:
+							comment = 0;
+							break;
+					}
+					break;
+				case 2: // '/*' has been found...
+					if (currentChar == '*') {
+						comment = 3; // next step...
+					} else {
+						comment = BLOCK_COMMENT;
+					}
+					if (charLength == 1) {
+						buffer.append(currentChar);
+					} else  {
+							for (int k=i-charLength; k<=i; k++) buffer.append(source[k]);
+					}
+					break;
+				case 3: // '/**' has bee found, verify that's not an empty block comment
+					if (charLength == 1) {
+						buffer.append(currentChar);
+					} else  {
+						for (int k=i-charLength; k<=i; k++) buffer.append(source[k]);
+					}
+					if (currentChar == '/') { // empty block comment
+						this.comments.add(buffer.toString());
+						this.allTags.add(new ArrayList());
+						comment = 0;
+					} else {
+						comment = DOC_COMMENT;
+					}
+					break;
+				case LINE_COMMENT:
+					if (currentChar == '\r' || currentChar == '\n') {
 						/*
-						if (source[i] == '\r' && source[i+1] == '\n') {
+						if (currentChar == '\r' && source[i+1] == '\n') {
 							buffer.append(source[++i]);
 						}
 						*/
@@ -444,21 +621,25 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						this.comments.add(buffer.toString());
 						this.allTags.add(tags);
 					} else {
-						buffer.append(source[i]);
+						if (charLength == 1) {
+							buffer.append(currentChar);
+						} else  {
+							for (int k=i-charLength; k<=i; k++) buffer.append(source[k]);
+						}
 					}
 					break;
-				case 3: // javadoc comment
+				case DOC_COMMENT:
 					if (tag != null) {
-						if (source[i] >= 'a' && source[i] <= 'z') {
-							tag += source[i];
+						if (currentChar >= 'a' && currentChar <= 'z') {
+							tag += currentChar;
 						} else {
 							tags.add(tag);
 							tag = null;
 						}
 					}
-					switch (source[i]) {
+					switch (currentChar) {
 						case '@':
-							if (!lineStarted || source[i-1] == '{') {
+							if (!lineStarted || previousChar == '{') {
 								tag = "";
 								lineStarted = true;
 							}
@@ -470,25 +651,75 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						case '*':
 							break;
 						default:
-							if (!Character.isWhitespace(source[i])) {
+							if (!Character.isWhitespace(currentChar)) {
 								lineStarted = true;
 							}
 					}
-				case 2: // block comment
-					buffer.append(source[i]);
-					if (end && source[i] == '/') {
+				case BLOCK_COMMENT:
+					if (charLength == 1) {
+						buffer.append(currentChar);
+					} else  {
+						for (int k=i-charLength; k<=i; k++) buffer.append(source[k]);
+					}
+					if (end && currentChar == '/') {
 						comment = 0;
 						lineStarted = false;
 						this.comments.add(buffer.toString());
 						this.allTags.add(tags);
 						tags = new ArrayList();
 					}
-					end = source[i] == '*';
+					end = currentChar == '*';
 					break;
 				default:
 					// do nothing
 					break;
 			}
+		}
+	}
+
+	/*
+	 * Convert Javadoc source to match Javadoc.toString().
+	 * Store converted comments and their corresponding tags respectively
+	 * in this.comments and this.allTags fields
+	 */
+	char[] getUnicodeSource(char[] source) {
+		int length = source.length;
+		int unicodeLength = length*6;
+		char[] unicodeSource = new char[unicodeLength];
+		int u=0;
+		for (int i=0; i<length; i++) {
+			// get next char
+			if (source[i] == '\\' && source[i+1] == 'u') {
+				//-------------unicode traitement ------------
+				int c1, c2, c3, c4;
+				unicodeSource[u++] = source[i];
+				unicodeSource[u++] = source[++i];
+				if (((c1 = Character.getNumericValue(source[i+1])) > 15
+					|| c1 < 0)
+					|| ((c2 = Character.getNumericValue(source[i+2])) > 15 || c2 < 0)
+					|| ((c3 = Character.getNumericValue(source[i+3])) > 15 || c3 < 0)
+					|| ((c4 = Character.getNumericValue(source[i+4])) > 15 || c4 < 0)) {
+					throw new RuntimeException("Invalid unicode in source at "+i);
+				}
+				for (int j=0; j<4; j++) unicodeSource[u++] = source[++i];
+			} else {
+				unicodeSource[u++] = '\\';
+				unicodeSource[u++] = 'u';
+				unicodeSource[u++] = '0';
+				unicodeSource[u++] = '0';
+				int val = source[i]/16;
+				unicodeSource[u++] = (char) (val<10 ? val+ 0x30 : val-10+0x61);
+				val = source[i]%16;
+				unicodeSource[u++] = (char) (val<10 ? val+ 0x30 : val-10+0x61);
+			}
+		}
+		// Return one well sized array
+		if (u != unicodeLength) {
+			char[] result = new char[u];
+			System.arraycopy(unicodeSource, 0, result, 0, u);
+			return result;
+		} else {
+			return unicodeSource;
 		}
 	}
 	
@@ -516,14 +747,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/*
-	 * Compare a string a subset of a char array.
+	 * Add a failure to the list. Use only one method as it easier to put breakpoint to
+	 * debug failure when it occurs...
 	 */
-	protected boolean compare(String str, int start, int length, char[] source) {
-		if (str.length() != length) return false;
-		for (int i=0; i<length; i++) {
-			if (str.charAt(i) != source[start+i]) return false;
-		}
-		return true;
+	private void addFailure(String msg) {
+		this.failures.add(msg);
 	}
 
 	/*
@@ -533,7 +761,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	protected void assumeTrue(String msg, boolean cond) {
 		if (!cond) {
-			this.failures.add(msg);
+			addFailure(msg);
 		}
 	}
 
@@ -544,7 +772,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	protected void assumeNull(String msg, Object obj) {
 		if (obj != null) {
-			this.failures.add(msg);
+			addFailure(msg);
 		}
 	}
 
@@ -555,7 +783,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	protected void assumeNotNull(String msg, Object obj) {
 		if (obj == null) {
-			this.failures.add(msg);
+			addFailure(msg);
 		}
 	}
 
@@ -566,7 +794,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	protected void assumeEquals(String msg, int expected, int actual) {
 		if (expected != actual) {
-			this.failures.add(msg+", expected="+expected+" actual="+actual);
+			addFailure(msg+", expected="+expected+" actual="+actual);
 		}
 	}
 
@@ -580,7 +808,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			return;
 		if (expected != null && expected.equals(actual))
 			return;
-		this.failures.add(msg+", expected:<"+expected+"> actual:<"+actual+'>');
+		addFailure(msg+", expected:<"+expected+"> actual:<"+actual+'>');
 	}
 
 	/*
@@ -926,15 +1154,41 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 		// Create DOM AST nodes hierarchy
 		String sourceStr = this.sourceUnit.getSource();
-		IJavaProject project = this.sourceUnit.getJavaProject();
-		Map originalOptions = project.getOptions(true);
+		this.currentProject = this.sourceUnit.getJavaProject();
+
+		// set up java project options
+		this.currentProject.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, this.compilerOption);
+		this.currentProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, this.compilerOption);
+		this.currentProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, this.compilerOption);
+		this.currentProject.setOption(JavaCore.COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME, JavaCore.IGNORE);
+		this.currentProject.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, this.docCommentSupport);
+
+		// Verify source regardings converted comments
+		char[] source = sourceStr.toCharArray();
+		String fileName = unit.getPath().toString();
+		verifyComments(fileName, source);
+	}
+	
+	protected void verifyComments(String fileName, char[] source) {
+
+		// Get comments infos from test file
+		setSourceComment(source);
+		
+		// Verify comments either in unicode or not
+		char[] testedSource = source;
+		if (unicode) {
+			testedSource = getUnicodeSource(source);
+		}
+//		Map originalOptions = this.currentProject.getOptions(true);
 		List unitComments = null;
-		try {
-			project.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, this.compilerOption);
-			project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, this.compilerOption);
-			project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, this.compilerOption);
-			project.setOption(JavaCore.COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME, JavaCore.IGNORE);
-			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.sourceUnit, this.resolveBinding); // resolve bindings
+//		try {
+//			this.currentProject.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, this.compilerOption);
+//			this.currentProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, this.compilerOption);
+//			this.currentProject.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, this.compilerOption);
+//			this.currentProject.setOption(JavaCore.COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME, JavaCore.IGNORE);
+//			this.currentProject.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, this.docCommentSupport);
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(testedSource, fileName, this.currentProject);
+//			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.sourceUnit, this.resolveBinding); // resolve bindings
 			if (this.compilerOption.equals(JavaCore.ERROR)) {
 				assumeEquals(this.prefix+"Unexpected problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
 			} else if (this.compilerOption.equals(JavaCore.WARNING)) {
@@ -948,47 +1202,42 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				}
 			}
 			unitComments = compilUnit.getCommentList();
-		} finally {
-			project.setOptions(originalOptions);
-		}
+//		} finally {
+//			this.currentProject.setOptions(originalOptions);
+//		}
 		assumeNotNull(this.prefix+"Unexpected problems", unitComments);
-		
-		// Verify source regardings converted comments
-		char[] source = sourceStr.toCharArray();
-		verifyComments(sourceStr, source, unitComments);
-	}
-
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	protected void verifyComments(String sourceStr, char[] source, List unitComments) {
-		// Get comments infos from test file
-		setSourceComment(source);
 		
 		// Basic comments verification
 		int size = unitComments.size();
-		assumeEquals(this.prefix+"Wrong number of comments in source:\n"+sourceStr+"\n", this.comments.size(), size);
 		
+		assumeEquals(this.prefix+"Wrong number of comments!", this.comments.size(), size);
+
 		// Verify comments positions and bindings
-		for (int i=0; i<size; i++) {
-			Comment comment = (Comment) unitComments.get(i);
-			List tags = (List) allTags.get(i);
-			// Verify flattened content
-			String stringComment = (String) this.comments.get(i);
-			ASTConverterJavadocFlattener printer = new ASTConverterJavadocFlattener(stringComment);
-			comment.accept(printer);
-			String text = new String(source, comment.getStartPosition(), comment.getLength());
-			assumeEquals(this.prefix+"Flattened comment does NOT match source!", stringComment, text);
-			// Verify javdoc tags positions and bindings
-			if (comment.isDocComment()) {
-				Javadoc docComment = (Javadoc)comment;
-				assumeEquals(this.prefix+"Invalid tags number in javadoc:\n"+docComment+"\n", tags.size(), allTags(docComment));
-				verifyPositions(docComment, source);
-				if (this.resolveBinding) {
-					verifyBindings(docComment);
+//		if (this.comments.size() == size) {
+			for (int i=0; i<size; i++) {
+				Comment comment = (Comment) unitComments.get(i);
+				List tags = (List) allTags.get(i);
+				// Verify flattened content
+				String stringComment = (String) this.comments.get(i);
+	//			ASTConverterJavadocFlattener printer = new ASTConverterJavadocFlattener(stringComment);
+	//			comment.accept(printer);
+				String text = new String(testedSource, comment.getStartPosition(), comment.getLength());
+				assumeEquals(this.prefix+"Flattened comment does NOT match source!", stringComment, text);
+				// Verify javdoc tags positions and bindings
+				if (comment.isDocComment()) {
+					Javadoc docComment = (Javadoc)comment;
+					if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+						assumeEquals(this.prefix+"Invalid tags number in javadoc:\n"+docComment+"\n", tags.size(), allTags(docComment));
+						verifyPositions(docComment, testedSource);
+						if (this.resolveBinding) {
+							verifyBindings(docComment);
+						}
+					} else {
+						assumeEquals("Javadoc should be flat!", 0, docComment.tags().size());
+					}
 				}
 			}
-		}
+//		}
 		
 		/* Verify each javadoc: not implemented yet
 		Iterator types = compilUnit.types().listIterator();
@@ -1333,9 +1582,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug52908() throws JavaModelException {
 		verifyComments("testBug52908");
 	}
+	public void testBug52908unicode() throws JavaModelException {
+		verifyComments("testBug52908unicode");
+	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=5xxxA
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=53276
 	 */
 	public void testBug53276() throws JavaModelException {
 		verifyComments("testBug53276");
