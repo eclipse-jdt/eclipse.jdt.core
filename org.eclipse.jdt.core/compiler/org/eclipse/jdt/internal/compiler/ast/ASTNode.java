@@ -141,19 +141,38 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 		super();
 	}
+	public static boolean checkInvocationArgument(BlockScope scope, Expression argument, TypeBinding parameterType, TypeBinding argumentType) {
+		argument.computeConversion(scope, parameterType, argumentType);
+
+		if (argumentType != NullBinding && parameterType.isWildcard() && ((WildcardBinding) parameterType).kind != Wildcard.SUPER)
+		    return true; // unsafeWildcardInvocation
+		if (argumentType != parameterType && argumentType.isRawType())
+	        if (parameterType.isBoundParameterizedType() || parameterType.isGenericType())
+				scope.problemReporter().unsafeRawConversion(argument, argumentType, parameterType);
+		return false;
+	}
 	public static void checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
 		boolean unsafeWildcardInvocation = false;
-		for (int i = 0; i < arguments.length; i++) {
-		    TypeBinding parameterType = method.parameters[i];
-		    TypeBinding argumentType = argumentTypes[i];
-			arguments[i].computeConversion(scope, parameterType, argumentType);
-			if (argumentType != NullBinding && parameterType.isWildcard() && ((WildcardBinding)parameterType).kind != Wildcard.SUPER) {
-			    unsafeWildcardInvocation = true;
-			} else if (argumentType != parameterType 
-			        && argumentType.isRawType() 
-			        && (parameterType.isBoundParameterizedType() || parameterType.isGenericType())) {
-			    scope.problemReporter().unsafeRawConversion(arguments[i], argumentType, parameterType);
+		TypeBinding[] params = method.parameters;
+		if (method.isVararg()) {
+			// 4 possibilities exist for a call to the vararg method foo(int i, long ... value) : foo(1), foo(1, 2), foo(1, 2, 3, 4) & foo(1, new long[] {1, 2})
+			int lastIndex = params.length - 1;
+			for (int i = 0; i < lastIndex; i++)
+			    if (checkInvocationArgument(scope, arguments[i], params[i], argumentTypes[i]))
+				    unsafeWildcardInvocation = true;
+		   int argLength = arguments.length;
+		   if (lastIndex < argLength) { // vararg argument was provided
+			   	TypeBinding parameterType = params[lastIndex];
+			    if (params.length != argLength || parameterType.dimensions() != argumentTypes[lastIndex].dimensions())
+			    	parameterType = ((ArrayBinding) parameterType).elementsType(); // single element was provided for vararg parameter
+				for (int i = lastIndex; i < argLength; i++)
+				    if (checkInvocationArgument(scope, arguments[i], parameterType, argumentTypes[i]))
+					    unsafeWildcardInvocation = true;
 			}
+		} else {
+			for (int i = 0, argLength = arguments.length; i < argLength; i++)
+			    if (checkInvocationArgument(scope, arguments[i], params[i], argumentTypes[i]))
+				    unsafeWildcardInvocation = true;
 		}
 		if (argsContainCast) {
 			CastExpression.checkNeedForArgumentCasts(scope, receiver, receiverType, method, arguments, argumentTypes, invocationSite);

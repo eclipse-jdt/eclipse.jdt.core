@@ -216,8 +216,11 @@ public abstract class Scope
 			return method;
 
 		int argLength = arguments.length;
-		if (argLength != parameters.length)
-			return null; // incompatible
+		int paramLength = parameters.length;
+		boolean varArgCase = method.isVararg();
+		if (argLength != paramLength)
+			if (!varArgCase || argLength < paramLength - 1)
+				return null; // incompatible
 
 		TypeVariableBinding[] typeVariables = method.typeVariables;
 		if (typeVariables != NoTypeVariables) { // generic method
@@ -228,21 +231,47 @@ public abstract class Scope
 		} else if (genericTypeArguments != null) {
 			if (method instanceof ParameterizedGenericMethodBinding) {
 				if (method.declaringClass.isRawType())
-					return new ProblemMethodBinding(method, method.selector, genericTypeArguments, TypeArgumentsForRawGenericMethod); // attempt to invoke generic method of raw type with type hints <String>foo()
+					// attempt to invoke generic method of raw type with type hints <String>foo()
+					return new ProblemMethodBinding(method, method.selector, genericTypeArguments, TypeArgumentsForRawGenericMethod);
 			} else {
 				return new ProblemMethodBinding(method, method.selector, genericTypeArguments, TypeParameterArityMismatch);
 			}
 		}
-		
+
 		argumentCompatibility: {
-			for (int i = 0; i < argLength; i++)
+			int lastIndex = argLength;
+			if (varArgCase) {
+				lastIndex = paramLength - 1;
+				if (paramLength == argLength) { // accept both X and X[] but not X[][]
+					TypeBinding varArgType = parameters[lastIndex]; // is an ArrayBinding by definition
+					int varArgDimension = varArgType.dimensions();
+					TypeBinding lastArgument = arguments[lastIndex];
+					int lastArgDimensions = lastArgument.dimensions();
+					if (varArgDimension == lastArgDimensions || varArgDimension - 1 == lastArgDimensions) {
+						varArgType = varArgType.leafComponentType();
+						lastArgument = lastArgument.leafComponentType();
+						if (varArgType != lastArgument && !lastArgument.isCompatibleWith(varArgType))
+							break argumentCompatibility;
+					} else { // dimensions are not compatible
+						break argumentCompatibility;
+					}
+				} else if (paramLength < argLength) { // all remainig argument types must be compatible with the elementsType of varArgType
+					TypeBinding varArgType = ((ArrayBinding) parameters[lastIndex]).elementsType();
+					for (int i = lastIndex; i < argLength; i++)
+						if (varArgType != arguments[i] && !arguments[i].isCompatibleWith(varArgType))
+							break argumentCompatibility;
+				} else if (lastIndex != argLength) { // can call foo(int i, X ... x) with foo(1) but NOT foo();
+					break argumentCompatibility;
+				}
+				// now compare standard arguments from 0 to lastIndex
+			}
+			for (int i = 0; i < lastIndex; i++)
 				if (parameters[i] != arguments[i] && !arguments[i].isCompatibleWith(parameters[i]))
 					break argumentCompatibility;
 			return method; // compatible
 		}
-		if (genericTypeArguments != null) {
+		if (genericTypeArguments != null)
 			return new ProblemMethodBinding(method, method.selector, arguments, ParameterizedMethodTypeMismatch);
-		}
 		return null; // incompatible
 	}
 	
@@ -835,21 +864,21 @@ public abstract class Scope
 			/*
 			 * if 1.4 compliant, must filter out redundant protected methods from superclasses
 			 */
-			if (isCompliant14){			 
-				nextMethod: for (int i = 0; i < currentLength; i++){
+			if (isCompliant14) {
+				nextMethod: for (int i = 0; i < currentLength; i++) {
 					MethodBinding currentMethod = currentMethods[i];
 					// protected method need to be checked only - default access is already dealt with in #canBeSeen implementation
 					// when checking that p.C -> q.B -> p.A cannot see default access members from A through B.
 					if ((currentMethod.modifiers & AccProtected) == 0) continue nextMethod;
-					if (matchingMethod != null){
-						if (currentMethod.areParametersEqual(matchingMethod)){
+					if (matchingMethod != null) {
+						if (currentMethod.areParametersEqual(matchingMethod)) {
 							currentLength--;
 							currentMethods[i] = null; // discard this match
 							continue nextMethod;
 						}
 					} else {
 						for (int j = 0, max = found.size; j < max; j++) {
-							if (((MethodBinding)found.elementAt(j)).areParametersEqual(currentMethod)){
+							if (((MethodBinding) found.elementAt(j)).areParametersEqual(currentMethod)) {
 								currentLength--;
 								currentMethods[i] = null;
 								continue nextMethod;
@@ -858,7 +887,7 @@ public abstract class Scope
 					}
 				}
 			}
-			
+
 			if (currentLength == 1 && matchingMethod == null && found.size == 0) {
 				matchingMethod = currentMethods[0];
 			} else if (currentLength > 0) {
