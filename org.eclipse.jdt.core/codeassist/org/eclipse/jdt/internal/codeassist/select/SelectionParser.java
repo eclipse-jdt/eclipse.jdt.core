@@ -663,6 +663,11 @@ public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentif
 					assistName, 
 					positions); 	
 }
+public TypeReference createParameterizedQualifiedAssistTypeReference(
+		char[][] tokens, TypeReference[][] typeArguments, char[] assistname, long[] positions) {
+	// TODO temporary code
+	return new ParameterizedQualifiedTypeReference(tokens, typeArguments,0, positions);
+}
 public NameReference createSingleAssistNameReference(char[] assistName, long position) {
 	return new SelectionOnSingleNameReference(assistName, position);
 }

@@ -8897,38 +8897,52 @@ protected boolean resumeOnSyntaxError() {
 }
 public String toString() {
 
-	String s = "identifierStack : char[][] = {"; //$NON-NLS-1$
+	String s = "identifierStack : char["+(this.identifierPtr + 1)+"][] = {"; //$NON-NLS-1$ //$NON-NLS-2$
 	for (int i = 0; i <= this.identifierPtr; i++) {
 		s = s + "\"" + String.valueOf(this.identifierStack[i]) + "\","; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 
-	s = s + "identifierLengthStack : int[] = {"; //$NON-NLS-1$
+	s = s + "identifierLengthStack : int["+(this.identifierLengthPtr + 1)+"] = {"; //$NON-NLS-1$ //$NON-NLS-2$
 	for (int i = 0; i <= this.identifierLengthPtr; i++) {
 		s = s + this.identifierLengthStack[i] + ","; //$NON-NLS-1$
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 
-	s = s + "astLengthStack : int[] = {"; //$NON-NLS-1$
+	s = s + "astLengthStack : int["+(this.astLengthPtr + 1)+"] = {"; //$NON-NLS-1$ //$NON-NLS-2$
 	for (int i = 0; i <= this.astLengthPtr; i++) {
 		s = s + this.astLengthStack[i] + ","; //$NON-NLS-1$
 	}
 	s = s + "}\n"; //$NON-NLS-1$
-	s = s + "this.astPtr : int = " + String.valueOf(this.astPtr) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
+	s = s + "astPtr : int = " + String.valueOf(this.astPtr) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
 
-	s = s + "intStack : int[] = {"; //$NON-NLS-1$
+	s = s + "intStack : int["+(this.intPtr + 1)+"] = {"; //$NON-NLS-1$ //$NON-NLS-2$
 	for (int i = 0; i <= this.intPtr; i++) {
 		s = s + this.intStack[i] + ","; //$NON-NLS-1$
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 
-	s = s + "expressionLengthStack : int[] = {"; //$NON-NLS-1$
+	s = s + "expressionLengthStack : int["+(this.expressionLengthPtr + 1)+"] = {"; //$NON-NLS-1$ //$NON-NLS-2$
 	for (int i = 0; i <= this.expressionLengthPtr; i++) {
 		s = s + this.expressionLengthStack[i] + ","; //$NON-NLS-1$
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 
 	s = s + "expressionPtr : int = " + String.valueOf(this.expressionPtr) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
+	
+	s = s + "genericsIdentifiersLengthStack : int["+(this.genericsIdentifiersLengthPtr + 1)+"] = {"; //$NON-NLS-1$ //$NON-NLS-2$
+	for (int i = 0; i <= this.genericsIdentifiersLengthPtr; i++) {
+		s = s + this.genericsIdentifiersLengthStack[i] + ","; //$NON-NLS-1$
+	}
+	s = s + "}\n"; //$NON-NLS-1$
+	
+	s = s + "genericsLengthStack : int["+(this.genericsLengthPtr + 1)+"] = {"; //$NON-NLS-1$
+	for (int i = 0; i <= this.genericsLengthPtr; i++) {
+		s = s + this.genericsLengthStack[i] + ","; //$NON-NLS-1$
+	}
+	s = s + "}\n"; //$NON-NLS-1$
+
+	s = s + "genericsPtr : int = " + String.valueOf(this.genericsPtr) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
 
 	s = s + "\n\n\n----------------Scanner--------------\n" + this.scanner.toString(); //$NON-NLS-1$
 	return s;

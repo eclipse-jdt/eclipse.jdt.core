@@ -707,6 +707,7 @@ public abstract ImportReference createAssistImportReference(char[][] tokens, lon
 public abstract ImportReference createAssistPackageReference(char[][] tokens, long[] positions);
 public abstract NameReference createQualifiedAssistNameReference(char[][] previousIdentifiers, char[] assistName, long[] positions);
 public abstract TypeReference createQualifiedAssistTypeReference(char[][] previousIdentifiers, char[] assistName, long[] positions);
+public abstract TypeReference createParameterizedQualifiedAssistTypeReference(char[][] previousIdentifiers, TypeReference[][] typeArguments, char[] asistIdentifier, long[] positions);
 public abstract NameReference createSingleAssistNameReference(char[] assistName, long position);
 public abstract TypeReference createSingleAssistTypeReference(char[] assistName, long position);
 /*
@@ -733,39 +734,93 @@ protected TypeReference getTypeReference(int dim) {
 	if ((index = indexOfAssistIdentifier()) < 0) {
 		return super.getTypeReference(dim);
 	}
-
-	/* retrieve identifiers subset and whole positions, the assist node positions
-		should include the entire replaced source. */
 	int length = identifierLengthStack[identifierLengthPtr];
-	char[][] subset = identifierSubSet(index);
-	identifierLengthPtr--;
-	identifierPtr -= length;
-	long[] positions = new long[length];
-	System.arraycopy(
-		identifierPositionStack, 
-		identifierPtr + 1, 
-		positions, 
-		0, 
-		length); 
-
-	/* build specific assist on type reference */
 	TypeReference reference;
-	if (index == 0) {
-		genericsIdentifiersLengthPtr--;
-		genericsLengthPtr--;
-		/* assist inside first identifier */
-		reference = this.createSingleAssistTypeReference(
-						assistIdentifier(), 
-						positions[0]);
+	int numberOfIdentifiers = this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr--];
+	if (length != numberOfIdentifiers || this.genericsLengthStack[this.genericsLengthPtr] != 0) {
+		identifierLengthPtr--;
+		// generic type
+		reference = getTypeReferenceForGenericType(dim, length, numberOfIdentifiers);
 	} else {
-		genericsIdentifiersLengthPtr--;
-		genericsLengthPtr--;
-		/* assist inside subsequent identifier */
-		reference =	this.createQualifiedAssistTypeReference(
-						subset,  
-						assistIdentifier(), 
-						positions);
+		/* retrieve identifiers subset and whole positions, the assist node positions
+			should include the entire replaced source. */
+		
+		char[][] subset = identifierSubSet(index);
+		identifierLengthPtr--;
+		identifierPtr -= length;
+		long[] positions = new long[length];
+		System.arraycopy(
+			identifierPositionStack, 
+			identifierPtr + 1, 
+			positions, 
+			0, 
+			length); 
+	
+		/* build specific assist on type reference */
+		
+		if (index == 0) {
+//			genericsIdentifiersLengthPtr--;
+			genericsLengthPtr--;
+			/* assist inside first identifier */
+			reference = this.createSingleAssistTypeReference(
+							assistIdentifier(), 
+							positions[0]);
+		} else {
+//			genericsIdentifiersLengthPtr--;
+			genericsLengthPtr--;
+			/* assist inside subsequent identifier */
+			reference =	this.createQualifiedAssistTypeReference(
+							subset,  
+							assistIdentifier(), 
+							positions);
+		}
+		assistNode = reference;
+		this.lastCheckPoint = reference.sourceEnd + 1;
 	}
+	return reference;
+}
+protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLength, int numberOfIdentifiers) {
+	/* no need to take action if not inside completed identifiers */
+	if ((indexOfAssistIdentifier()) < 0 || (identifierLength == 1 && numberOfIdentifiers == 1)) {
+		return super.getTypeReferenceForGenericType(dim, identifierLength, numberOfIdentifiers);
+	}
+	
+	TypeReference[][] typeArguments = new TypeReference[numberOfIdentifiers][];
+	char[][] tokens = new char[numberOfIdentifiers][];
+	long[] positions = new long[numberOfIdentifiers];
+	int index = numberOfIdentifiers;
+	int currentIdentifiersLength = identifierLength;
+	while (index > 0) {
+		int currentTypeArgumentsLength = this.genericsLengthStack[this.genericsLengthPtr--];
+		if (currentTypeArgumentsLength != 0) {
+			this.genericsPtr -= currentTypeArgumentsLength;
+			System.arraycopy(this.genericsStack, this.genericsPtr + 1, typeArguments[index - 1] = new TypeReference[currentTypeArgumentsLength], 0, currentTypeArgumentsLength);
+		}
+		switch(currentIdentifiersLength) {
+			case 1 :
+				// we are in a case A<B>.C<D> or A<B>.C<D>
+				tokens[index - 1] = this.identifierStack[this.identifierPtr];
+				positions[index - 1] = this.identifierPositionStack[this.identifierPtr--];
+				break;
+			default:
+				// we are in a case A.B.C<B>.C<D> or A.B.C<B>...
+				this.identifierPtr -= currentIdentifiersLength;
+				System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, index - currentIdentifiersLength, currentIdentifiersLength);
+				System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, index - currentIdentifiersLength, currentIdentifiersLength);
+		}
+		index -= currentIdentifiersLength;
+		if (index > 0) {
+			currentIdentifiersLength = this.identifierLengthStack[this.identifierLengthPtr--];
+		}
+	}
+	
+	// remove completion token
+	int realLength = numberOfIdentifiers - 1;
+	System.arraycopy(tokens, 0, tokens = new char[realLength][], 0, realLength);
+	System.arraycopy(typeArguments, 0, typeArguments = new TypeReference[realLength][], 0, realLength);
+	
+	TypeReference reference =  this.createParameterizedQualifiedAssistTypeReference(tokens, typeArguments, assistIdentifier(), positions);
+
 	assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
 	return reference;
@@ -1277,15 +1332,19 @@ public void reset(){
 protected boolean resumeAfterRecovery() {
 
 	// reset internal stacks 
-	astPtr = -1;
-	astLengthPtr = -1;
-	expressionPtr = -1;
-	expressionLengthPtr = -1;
-	identifierPtr = -1;	
-	identifierLengthPtr	= -1;
-	intPtr = -1;
-	dimensions = 0 ;
-	recoveredStaticInitializerStart = 0;
+	this.astPtr = -1;
+	this.astLengthPtr = -1;
+	this.expressionPtr = -1;
+	this.expressionLengthPtr = -1;
+	this.identifierPtr = -1;	
+	this.identifierLengthPtr	= -1;
+	this.intPtr = -1;
+	this.dimensions = 0 ;
+	this.recoveredStaticInitializerStart = 0;
+	
+	this.genericsIdentifiersLengthPtr = -1;
+	this.genericsLengthPtr = -1;
+	this.genericsPtr = -1;
 
 	// if in diet mode, reset the diet counter because we're going to restart outside an initializer.
 	if (diet) dietInt = 0;
