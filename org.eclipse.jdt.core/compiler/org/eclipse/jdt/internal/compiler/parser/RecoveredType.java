@@ -40,10 +40,13 @@ public class RecoveredType extends RecoveredStatement implements TerminalTokens,
 	public boolean preserveContent = false;	// only used for anonymous types
 	public int bodyEnd;
 	
+	public boolean insiseEnumConstantPart = false;
+	
 public RecoveredType(TypeDeclaration typeDeclaration, RecoveredElement parent, int bracketBalance){
 	super(typeDeclaration, parent, bracketBalance);
 	this.typeDeclaration = typeDeclaration;
 	this.foundOpeningBrace = !bodyStartsAtHeaderEnd();
+	this.insiseEnumConstantPart = typeDeclaration.getKind() == IGenericType.ENUM;
 	if(this.foundOpeningBrace) {
 		this.bracketBalance++;
 	}
@@ -54,7 +57,6 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 		it must be belonging to an enclosing type */
 	if (typeDeclaration.declarationSourceEnd != 0 
 		&& methodDeclaration.declarationSourceStart > typeDeclaration.declarationSourceEnd){
-		this.parser().enumConstantPartPtr--;
 		return this.parent.add(methodDeclaration, bracketBalanceValue);
 	}
 
@@ -73,6 +75,8 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 	}
 	RecoveredMethod element = new RecoveredMethod(methodDeclaration, this, bracketBalanceValue, this.recoveringParser);
 	methods[methodCount++] = element;
+	
+	this.insiseEnumConstantPart = false;
 
 	/* consider that if the opening brace was not found, it is there */
 	if (!foundOpeningBrace){
@@ -96,7 +100,6 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 	it must be belonging to an enclosing type */
 	if (typeDeclaration.declarationSourceEnd != 0
 		&& fieldDeclaration.declarationSourceStart > typeDeclaration.declarationSourceEnd) {
-		this.parser().enumConstantPartPtr--;
 		return this.parent.add(fieldDeclaration, bracketBalanceValue);
 	}
 	if (fields == null) {
@@ -142,9 +145,10 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 		it must be belonging to an enclosing type */
 	if (typeDeclaration.declarationSourceEnd != 0 
 		&& memberTypeDeclaration.declarationSourceStart > typeDeclaration.declarationSourceEnd){
-		this.parser().enumConstantPartPtr--;
 		return this.parent.add(memberTypeDeclaration, bracketBalanceValue);
 	}
+	
+	this.insiseEnumConstantPart = false;
 	
 	if ((memberTypeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0){
 		if (this.methodCount > 0) {
@@ -182,10 +186,7 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 		this.bracketBalance++;
 	}
 	/* if member type not finished, then member type becomes current */
-	if (memberTypeDeclaration.declarationSourceEnd == 0) {
-		this.parser().pushOnEnumConstantPartStack(memberTypeDeclaration.getKind() == IGenericType.ENUM);
-		return element;
-	}
+	if (memberTypeDeclaration.declarationSourceEnd == 0) return element;
 	return this;
 }
 /*
@@ -467,7 +468,6 @@ public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
 	if ((--bracketBalance <= 0) && (parent != null)){
 		this.updateSourceEndIfNecessary(braceStart, braceEnd);
 		this.bodyEnd = braceStart - 1;
-		this.parser().enumConstantPartPtr--;
 		return parent;
 	}
 	return this;

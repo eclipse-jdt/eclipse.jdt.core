@@ -55,7 +55,8 @@ public class TestAll extends TestCase {
 		/* recovery tests */
 		testClasses.add(DietRecoveryTest.class);
 		testClasses.add(GenericDietRecoveryTest.class);
-
+		testClasses.add(EnumDietRecoveryTest.class);
+		
 		/* source element parser tests */
 		testClasses.add(SourceElementParserTest.class);
 

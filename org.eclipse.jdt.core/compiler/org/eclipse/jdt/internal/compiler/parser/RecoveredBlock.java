@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 
@@ -153,10 +152,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 			
 	RecoveredStatement element = new RecoveredType(typeDeclaration, this, bracketBalanceValue);
 	this.attach(element);
-	if (typeDeclaration.declarationSourceEnd == 0) {
-		this.parser().pushOnEnumConstantPartStack(typeDeclaration.getKind() == IGenericType.ENUM);
-		return element;
-	}
+	if (typeDeclaration.declarationSourceEnd == 0) return element;
 	return this;
 }
 /*

@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 
 public class RecoveredUnit extends RecoveredElement {
 
@@ -128,10 +127,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 	this.types[this.typeCount++] = element;
 
 	/* if type not finished, then type becomes current */
-	if (typeDeclaration.declarationSourceEnd == 0) {
-		this.parser().pushOnEnumConstantPartStack(typeDeclaration.getKind() == IGenericType.ENUM);
-		return element;
-	}
+	if (typeDeclaration.declarationSourceEnd == 0) return element;
 	return this;	
 }
 /* 

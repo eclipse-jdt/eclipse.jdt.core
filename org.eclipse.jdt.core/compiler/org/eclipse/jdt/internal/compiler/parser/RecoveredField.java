@@ -13,13 +13,13 @@ package org.eclipse.jdt.internal.compiler.parser;
 /**
  * Internal field structure for parsing recovery 
  */
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 
 public class RecoveredField extends RecoveredElement {
 
@@ -81,7 +81,6 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 		// Store type declaration as an anonymous type
 		RecoveredType element = new RecoveredType(typeDeclaration, this, bracketBalanceValue);
 		this.anonymousTypes[this.anonymousTypeCount++] = element;
-		this.parser().pushOnEnumConstantPartStack(typeDeclaration.getKind() == IGenericType.ENUM);
 		return element;
 	}
 }
@@ -119,15 +118,14 @@ public FieldDeclaration updatedFieldDeclaration(){
 				}
 			}
 			if (this.anonymousTypeCount > 0) fieldDeclaration.bits |= ASTNode.HasLocalTypeMASK;
+		} else if(fieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+			// fieldDeclaration is an enum constant
+			for (int i = 0; i < this.anonymousTypeCount; i++){
+				if (anonymousTypes[i].preserveContent){
+					this.anonymousTypes[i].updatedTypeDeclaration();
+				}
+			}
 		}
-//		else if(fieldDeclaration.type == null) {
-//			// fieldDeclaration is an enum constant
-//			for (int i = 0; i < this.anonymousTypeCount; i++){
-//				if (anonymousTypes[i].preserveContent){
-//					this.anonymousTypes[i].updatedTypeDeclaration();
-//				}
-//			}
-//		}
 	}
 	return fieldDeclaration;
 }
@@ -141,7 +139,7 @@ public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
 	if (bracketBalance > 0){ // was an array initializer
 		bracketBalance--;
 		if (bracketBalance == 0) {
-			if(fieldDeclaration.type == null) {
+			if(fieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 				updateSourceEndIfNecessary(braceEnd - 1);
 				return parent;
 			} else {
@@ -170,7 +168,7 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 		return null; // no update is necessary	(array initializer)
 	}
 	if (fieldDeclaration.declarationSourceEnd == 0 
-		&& fieldDeclaration.type == null){
+		&& fieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT){
 		bracketBalance++;
 		return null; // no update is necessary	(enum constant)
 	}

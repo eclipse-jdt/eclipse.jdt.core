@@ -171,8 +171,6 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Compiler
 	public boolean reportOnlyOneSyntaxError = false;
 	public boolean reportSyntaxErrorIsRequired = true;
 	protected boolean restartRecovery;
-	protected boolean[] enumConstantPartStack;
-	protected int enumConstantPartPtr;
 	//scanner token 
 	public Scanner scanner;
 	protected int[] stack = new int[StackIncrement];
@@ -695,7 +693,6 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.realBlockStack = new int[30];
 	this.identifierPositionStack = new long[30];
 	this.variablesCounter = new int[30];
-	this.enumConstantPartStack = new boolean[30];
 	
 	// javadoc support
 	this.javadocParser = new JavadocParser(this);	
@@ -2888,7 +2885,10 @@ protected void consumeEnumConstantHeader() {
         this.currentToken = 0; // opening brace already taken into account
 	  } else {
 	  	  if(this.currentToken == TokenNameSEMICOLON) {
-		  	this.enumConstantPartStack[this.enumConstantPartPtr] = false;
+		  	RecoveredType currentType = this.currentRecoveryType();
+			if(currentType != null) {
+				currentType.insiseEnumConstantPart = false;
+			}
 		  }
 	      if (!(this.currentElement instanceof RecoveredType)
 	            && (this.currentToken == TokenNameDOT)){
@@ -7269,7 +7269,16 @@ protected FieldDeclaration createFieldDeclaration(char[] fieldDeclarationName, i
 protected LocalDeclaration createLocalDeclaration(char[] localDeclarationName, int sourceStart, int sourceEnd) {
 	return new LocalDeclaration(localDeclarationName, sourceStart, sourceEnd);
 }
-
+protected RecoveredType currentRecoveryType() {
+	if(this.currentElement != null) {
+		if(this.currentElement instanceof RecoveredType) {
+			return (RecoveredType) this.currentElement;
+		} else {
+			return this.currentElement.enclosingType();
+		}
+	}
+	return null;
+}
 public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, CompilationResult compilationResult) {
 
 	CompilationUnitDeclaration parsedUnit;
@@ -7875,7 +7884,8 @@ public void goForGenericMethodDeclaration(){
 }
 public void goForHeaders(){
 	//tells the scanner to go for headers only parsing
-	if(this.enumConstantPartPtr > -1 && this.enumConstantPartStack[this.enumConstantPartPtr]) {
+	RecoveredType currentType = this.currentRecoveryType();
+	if(currentType != null && currentType.insiseEnumConstantPart) {
 		this.firstToken = TokenNameNOT;
 	} else {
 		this.firstToken = TokenNameUNSIGNED_RIGHT_SHIFT;
@@ -8029,8 +8039,6 @@ public void initialize() {
 	this.compilationUnit = null;
 	this.referenceContext = null;
 	this.endStatementPosition = 0;
-	
-	this.enumConstantPartPtr = -1;
 
 	//remove objects from stack too, while the same parser/compiler couple is
 	//re-used between two compilations ....
@@ -8818,16 +8826,6 @@ protected void pushOnAstStack(ASTNode node) {
 	}
 	this.astLengthStack[this.astLengthPtr] = 1;
 }
-protected void pushOnEnumConstantPartStack(boolean isEnumConstantPart) {
-	int stackLength = this.enumConstantPartStack.length;
-	if (++this.enumConstantPartPtr >= stackLength) {
-		System.arraycopy(
-			this.enumConstantPartStack, 0,
-			this.enumConstantPartStack = new boolean[stackLength + StackIncrement], 0,
-			stackLength);
-	}
-	this.enumConstantPartStack[this.enumConstantPartPtr] = isEnumConstantPart;
-}
 protected void pushOnExpressionStack(Expression expr) {
 
 	int stackLength = this.expressionStack.length;
@@ -8975,8 +8973,9 @@ public void recoveryTokenCheck() {
 		case TokenNameSEMICOLON :
 			this.endStatementPosition = this.scanner.currentPosition - 1;
 			this.endPosition = this.scanner.startPosition - 1; 
-			if(this.enumConstantPartPtr > -1 && this.enumConstantPartStack[this.enumConstantPartPtr]) {
-				this.enumConstantPartStack[this.enumConstantPartPtr] = false;
+			RecoveredType currentType = this.currentRecoveryType();
+			if(currentType != null) {
+				currentType.insiseEnumConstantPart = false;
 			}
 			// fall through
 		default : {
