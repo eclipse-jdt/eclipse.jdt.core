@@ -52,6 +52,7 @@ What's new in this drop</h2>
 <li>Added API to create a binding key from a type name: <code>BindingKey#createTypeBindingKey(String typeName)</code>.</li>
 <li>Added API to create a parameterized or raw type binding key from a generic type binding key and argument type binding keys:
     <code>BindingKey#createParameterizedTypeBindingKey(String genericTypeKey, String[] argumentTypeKeys)</code>.</li>
+<li>Added API to create a type variable binding key from a type variable name and a declaring key: <code>createTypeVariableBindingKey(String typeVariableName, String declaringKey)</code></li>
 <li>Added API to create a wildcard binding key from a type key and wildcard kind: <code>BindingKey#createWildcardTypeBindingKey(String typeKey, char kind)</code></li>
 <li>Added API to query whether a field is an enum constant: <code>IField#isEnumConstant()</code></li>
 <li>Added API to code assist for access rule management.
@@ -64,7 +65,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=88845">88845</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83502">83502</a>
+Need API to create binding keys.
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=88845">88845</a>
 NPE in codeComplete for supertype that extends invisible type
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70827">70827</a>
 [Search] wrong reference match to private method of supertype

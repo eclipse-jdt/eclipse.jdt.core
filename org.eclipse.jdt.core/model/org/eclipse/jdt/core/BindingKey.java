@@ -64,8 +64,8 @@ public class BindingKey {
 	 * For example:
 	 * <pre>
 	 * <code>
-	 * createParameterizedTypeBindingKey("Ljava/util/Map;", new String[] {"Ljava/lang/String;", "Ljava/lang/Object;"}) -> "Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;"
-	 * createParameterizedTypeBindingKey("Ljava/util/List;", new String[] {}) -> "Ljava/util/List<>;"
+	 * createParameterizedTypeBindingKey("Ljava/util/Map<TK;TV;>;", new String[] {"Ljava/lang/String;", "Ljava/lang/Object;"}) -> "Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;"
+	 * createParameterizedTypeBindingKey("Ljava/util/List<TE;>;", new String[] {}) -> "Ljava/util/List<>;"
 	 * </code>
 	 * </pre>
 	 * </p>
@@ -77,7 +77,7 @@ public class BindingKey {
 	public static String createParameterizedTypeBindingKey(String genericTypeKey, String[] argumentTypeKeys) {
 		// Note this implementation is heavily dependent on ParameterizedTypeBinding#computeUniqueKey() and its subclasses
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(genericTypeKey);
+		buffer.append(Signature.getTypeErasure(genericTypeKey));
 		buffer.insert(buffer.length()-1, '<');
 		for (int i = 0, length = argumentTypeKeys.length; i < length; i++) {
 			String argumentTypeKey = argumentTypeKeys[i];
@@ -112,6 +112,34 @@ public class BindingKey {
 	}
 	
 	/**
+	 * Creates a new type variable binding key from the given type variable name and the given declaring key.
+	 * The declaring key can either be a type binding key or a method binding key.
+	 * <p>
+	 * For example:
+	 * <pre>
+	 * <code>
+	 * createTypeVariableBindingKey("T", "Ljava/util/List<TE;>;") -> "Ljava/util/List<TE;>;:TT;"
+	 * createTypeVariableBindingKey("SomeTypeVariable", "Lp/X;.foo()V") -> "Lp/X;.foo()V:TSomeTypeVariable;"
+	 * </code>
+	 * </pre>
+	 * </p>
+	 *
+	 * @param typeVariableName the name of the given type variable
+	 * @param declaringKey the binding key of the type or method the type variable belongs to
+	 * @return a new type variable binding key
+	 */
+	public static String createTypeVariableBindingKey(String typeVariableName, String declaringKey) {
+		// Note this implementation is heavily dependent on TypeVariableBinding#computeUniqueKey() 
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(declaringKey);
+		buffer.append(':');
+		buffer.append('T');
+		buffer.append(typeVariableName);
+		buffer.append(';');
+		return buffer.toString();
+	}
+	
+	/**
 	 * Creates a new wildcard type binding key from the given type binding key and the given wildcard kind
 	 * (one of {@link Signature#C_STAR}, {@link Signature#C_SUPER}, or {@link Signature#C_EXTENDS}.
 	 * If the wildcard is {@link Signature#C_STAR}, the given type binding key is ignored.
@@ -120,7 +148,7 @@ public class BindingKey {
 	 * <pre>
 	 * <code>
 	 * createWilcardTypeBindingKey(null, Signature.C_STAR) -> "*"
-	 * createWilcardTypeBindingKey("Ljava/util/List;", Signature.C_SUPER) -> "-Ljava/util/List;"
+	 * createWilcardTypeBindingKey("Ljava/util/List<TE;>;", Signature.C_SUPER) -> "-Ljava/util/List<TE;>;"
 	 * createWilcardTypeBindingKey("Ljava/util/ArrayList;", Signature.C_EXTENDS) -> "+Ljava/util/ArrayList;"
 	 * </code>
 	 * </pre>

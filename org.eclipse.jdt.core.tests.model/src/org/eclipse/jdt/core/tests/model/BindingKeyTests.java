@@ -219,7 +219,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 * Create a parameterized type binding key
 	 */
 	public void test018() {
-		String key = BindingKey.createParameterizedTypeBindingKey("Ljava/util/Map;", new String[] {"Ljava/lang/String;", "Ljava/lang/Object;"});
+		String key = BindingKey.createParameterizedTypeBindingKey("Ljava/util/Map<TK;TV;>;", new String[] {"Ljava/lang/String;", "Ljava/lang/Object;"});
 		assertBindingKeyEquals(
 			"Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;",
 			key);
@@ -229,7 +229,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 * Create a raw type binding key
 	 */
 	public void test019() {
-		String key = BindingKey.createParameterizedTypeBindingKey("Ljava/util/List;", new String[] {});
+		String key = BindingKey.createParameterizedTypeBindingKey("Ljava/util/List<TE:>;", new String[] {});
 		assertBindingKeyEquals(
 			"Ljava/util/List<>;",
 			key);
@@ -269,9 +269,9 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 * Create a wildcard type binding key
 	 */
 	public void test023() {
-		String key = BindingKey.createWilcardTypeBindingKey("Ljava/util/List;", Signature.C_SUPER);
+		String key = BindingKey.createWilcardTypeBindingKey("Ljava/util/List<TE;>;", Signature.C_SUPER);
 		assertBindingKeyEquals(
-			"-Ljava/util/List;",
+			"-Ljava/util/List<TE;>;",
 			key);
 	}
 
@@ -279,9 +279,29 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 * Create a wildcard type binding key
 	 */
 	public void test024() {
-		String key = BindingKey.createWilcardTypeBindingKey("Ljava/util/List;", Signature.C_EXTENDS);
+		String key = BindingKey.createWilcardTypeBindingKey("Ljava/util/ArrayList;", Signature.C_EXTENDS);
 		assertBindingKeyEquals(
-			"+Ljava/util/List;",
+			"+Ljava/util/ArrayList;",
+			key);
+	}
+
+	/*
+	 * Create a type variable binding key
+	 */
+	public void test025() {
+		String key = BindingKey.createTypeVariableBindingKey("T", "Ljava/util/List<TE;>;");
+		assertBindingKeyEquals(
+			"Ljava/util/List<TE;>;:TT;",
+			key);
+	}
+
+	/*
+	 * Create a type variable binding key
+	 */
+	public void test026() {
+		String key = BindingKey.createTypeVariableBindingKey("SomeTypeVariable", "Lp/X;.foo()V");
+		assertBindingKeyEquals(
+			"Lp/X;.foo()V:TSomeTypeVariable;",
 			key);
 	}
 }
