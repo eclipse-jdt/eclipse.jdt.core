@@ -10,11 +10,8 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.Comparator;
-import java.util.Hashtable;
 import java.util.Stack;
 
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -27,7 +24,7 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.util.JavaCompilationUnitSorter;
+import org.eclipse.jdt.core.util.CompilationUnitSorter;
 import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -38,44 +35,12 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  */
 public class SortElementBuilder extends SourceElementRequestorAdapter {
 
-	public static int getCategory(ASTNode node) {
-		Hashtable options = JavaCore.getOptions();
-		switch(node.getNodeType()) {
-			case ASTNode.METHOD_DECLARATION :
-				MethodDeclaration methodDeclaration= (MethodDeclaration) node;
-				if (methodDeclaration.isConstructor()) {
-					return Integer.parseInt((String)options.get(JavaCore.SORTING_CONSTRUCTOR_ORDER));
-				}
-				int modifiers = methodDeclaration.getModifiers();
-				if (Flags.isStatic(modifiers)) {
-					return Integer.parseInt((String)options.get(JavaCore.SORTING_STATIC_METHOD_ORDER));
-				} else {
-					return Integer.parseInt((String)options.get(JavaCore.SORTING_METHOD_ORDER));
-				}
-			case ASTNode.FIELD_DECLARATION :
-				modifiers = ((FieldDeclaration) node).getModifiers();
-				if (Flags.isStatic(modifiers)) {
-					return Integer.parseInt((String)options.get(JavaCore.SORTING_STATIC_FIELD_ORDER));
-				} else {
-					return Integer.parseInt((String)options.get(JavaCore.SORTING_FIELD_ORDER));
-				}
-			case ASTNode.TYPE_DECLARATION :
-				return Integer.parseInt((String)options.get(JavaCore.SORTING_TYPE_ORDER));
-			case ASTNode.INITIALIZER :
-				modifiers = ((Initializer) node).getModifiers();
-				if (Flags.isStatic(modifiers)) {
-					return Integer.parseInt((String)options.get(JavaCore.SORTING_STATIC_INITIALIZER_ORDER));
-				} else {
-					return Integer.parseInt((String)options.get(JavaCore.SORTING_INITIALIZER_ORDER));
-				}
-		}
-		return 0;
-	}
-	
 	abstract class SortElement extends SortJavaElement {
 		SortElement(int sourceStart, int modifiers) {
 			super(SortElementBuilder.this);
 			this.sourceStart = normalizeSourceStart(sourceStart);
+			modifiers &= ~org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccInterface; // remove AccInterface flags
+			modifiers &= org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag;
 			this.modifiers = modifiers;
 			this.children_count = 0;
 			this.numberOfPreceedingBlankLines = 0;
@@ -154,7 +119,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		
 		protected Type newType(String type) {
 			// check if type is a primitive type
-			// TODO: remove the scanner
 			scanner.setSource(type.toCharArray());
 			scanner.resetTo(0, type.length());
 			int token = 0;
@@ -195,8 +159,9 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	
 	abstract class SortAbstractMethodDeclaration extends SortElement {
 
-		SortAbstractMethodDeclaration(int sourceStart, int modifiers, char[][] parametersNames, char[][] parametersTypes, char[][] thrownExceptions) {			
+		SortAbstractMethodDeclaration(int sourceStart, int modifiers, char[] name, char[][] parametersNames, char[][] parametersTypes, char[][] thrownExceptions) {			
 			super(sourceStart, modifiers);
+			this.name = new String(name);
 			if (parametersNames != null) {
 				int length = parametersNames.length;
 				this.parametersNames = new String[length];
@@ -264,9 +229,8 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	
 	class SortMethodDeclaration extends SortAbstractMethodDeclaration {
 		SortMethodDeclaration(int sourceStart, int modifiers, char[] name, char[][] parametersNames, char[][] parametersTypes, char[][] thrownExceptions, char[] returnType) {			
-			super(sourceStart, modifiers, parametersNames, parametersTypes, thrownExceptions);
+			super(sourceStart, modifiers, name, parametersNames, parametersTypes, thrownExceptions);
 			this.id = METHOD;
-			this.name = new String(name);
 			this.returnType = new String(returnType);
 		}
 		
@@ -284,7 +248,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			methodDeclaration.setConstructor(false);
 			methodDeclaration.setModifiers(this.modifiers);
 			methodDeclaration.setName(ast.newSimpleName(new String(this.name)));
-			methodDeclaration.setProperty(JavaCompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
+			methodDeclaration.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
 			// set parameter names and types
 			if (this.parametersNames != null) {
 				setParameters(methodDeclaration, this.parametersNames, this.parametersTypes);
@@ -328,8 +292,8 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	}
 
 	class SortConstructorDeclaration extends SortAbstractMethodDeclaration {
-		SortConstructorDeclaration(int sourceStart, int modifiers, char[][] parametersNames, char[][] parametersTypes, char[][] thrownExceptions) {			
-			super(sourceStart, modifiers, parametersNames, parametersTypes, thrownExceptions);
+		SortConstructorDeclaration(int sourceStart, int modifiers, char[] name, char[][] parametersNames, char[][] parametersTypes, char[][] thrownExceptions) {			
+			super(sourceStart, modifiers, name, parametersNames, parametersTypes, thrownExceptions);
 			this.id = CONSTRUCTOR;
 		}
 
@@ -345,7 +309,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			methodDeclaration.setConstructor(true);
 			methodDeclaration.setModifiers(this.modifiers);
 			methodDeclaration.setName(ast.newSimpleName(new String(this.name)));
-			methodDeclaration.setProperty(JavaCompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
+			methodDeclaration.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
 			// set parameter names and types
 			if (this.parametersNames != null) {
 				setParameters(methodDeclaration, this.parametersNames, this.parametersTypes);
@@ -388,7 +352,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		ASTNode convert() {
 			VariableDeclarationFragment variableDeclarationFragment = ast.newVariableDeclarationFragment();
 			variableDeclarationFragment.setName(ast.newSimpleName(new String(this.name)));
-			variableDeclarationFragment.setProperty(JavaCompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
+			variableDeclarationFragment.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
 			FieldDeclaration fieldDeclaration = ast.newFieldDeclaration(variableDeclarationFragment);
 
 			String currentFieldType = this.type;
@@ -511,13 +475,13 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		ASTNode convert() {
 			VariableDeclarationFragment variableDeclarationFragment = ast.newVariableDeclarationFragment();
 			variableDeclarationFragment.setName(ast.newSimpleName(new String(this.innerFields[0].name)));
-			variableDeclarationFragment.setProperty(JavaCompilationUnitSorter.SOURCE_START, new Integer(this.innerFields[0].sourceStart));
+			variableDeclarationFragment.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.innerFields[0].sourceStart));
 			FieldDeclaration fieldDeclaration = ast.newFieldDeclaration(variableDeclarationFragment);
 
 			for (int j = 1, max2 = this.innerFields.length; j < max2; j++) {
 				VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
 				fragment.setName(ast.newSimpleName(new String(this.innerFields[j].name)));
-				fragment.setProperty(JavaCompilationUnitSorter.SOURCE_START, new Integer(this.innerFields[j].sourceStart));
+				fragment.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.innerFields[j].sourceStart));
 			}
 			String currentFieldType = this.type;
 			
@@ -590,7 +554,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		ASTNode convert() {
 			Initializer initializer = ast.newInitializer();
 			initializer.setModifiers(this.modifiers);
-			initializer.setProperty(JavaCompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
+			initializer.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
 			return initializer;
 		}
 		/**
@@ -687,7 +651,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 					typeDeclaration.superInterfaces().add(interfaceName);
 				}
 			}
-			typeDeclaration.setProperty(JavaCompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));				
+			typeDeclaration.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));				
 			return typeDeclaration;
 		}			
 	}
@@ -770,7 +734,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 					typeDeclaration.superInterfaces().add(interfaceName);
 				}
 			}
-			typeDeclaration.setProperty(JavaCompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));				
+			typeDeclaration.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));				
 			return typeDeclaration;
 		}			
 	}
@@ -886,7 +850,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			if ((this.currentElement.id & SortJavaElement.TYPE) != 0 && this.currentElement.children_count != 0) {
 				recordLineNumberDifference(type);
 			} else {
-				recordLastLineNumber(declarationStart);
+				recordLastLineNumber(nameSourceStart);
 			}
 			this.currentElement.addChild(type);
 			push(type);
@@ -928,7 +892,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		char[][] parameterNames,
 		char[][] exceptionTypes) {
 		if ((this.currentElement.id & SortJavaElement.TYPE) != 0) {
-			SortConstructorDeclaration constructorDeclaration = new SortConstructorDeclaration(declarationStart, modifiers, parameterNames, parameterTypes, exceptionTypes);
+			SortConstructorDeclaration constructorDeclaration = new SortConstructorDeclaration(declarationStart, modifiers, name, parameterNames, parameterTypes, exceptionTypes);
 			recordLineNumberDifference(constructorDeclaration);
 			this.currentElement.addChild(constructorDeclaration);
 			push(constructorDeclaration);
@@ -994,7 +958,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			if ((this.currentElement.id & SortJavaElement.TYPE) != 0 && this.currentElement.children_count != 0) {
 				recordLineNumberDifference(type);
 			} else {
-				recordLastLineNumber(declarationStart);
+				recordLastLineNumber(nameSourceStart);
 			}
 			this.currentElement.addChild(type);
 			push(type);

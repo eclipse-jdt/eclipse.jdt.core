@@ -12,23 +12,20 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.Comparator;
 import java.util.Locale;
-import java.util.Map;
 
-import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.IJavaModelStatus;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IWorkingCopy;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.parser.Parser;
-import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
-import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.builder.ProblemFactory;
 
 /**
@@ -40,14 +37,17 @@ import org.eclipse.jdt.internal.core.builder.ProblemFactory;
 public class SortElementsOperation extends JavaModelOperation {
 	
 	Comparator comparator;
+	boolean hasChanged;
+	int[] positions;
 	
 	/**
 	 * Constructor for SortElementsOperation.
 	 * @param elements
 	 */
-	public SortElementsOperation(IJavaElement[] elements, Comparator comparator) {
+	public SortElementsOperation(IJavaElement[] elements, int[] positions, Comparator comparator) {
 		super(elements);
 		this.comparator = comparator;
+		this.positions = positions;
 	}
 
 	/**
@@ -65,7 +65,6 @@ public class SortElementsOperation extends JavaModelOperation {
 		try {
 			beginTask(Util.bind("operation.sortelements"), getMainAmountOfWork()); //$NON-NLS-1$
 			for (int i = 0, max = fElementsToProcess.length; i < max; i++) {
-				JavaElementDelta delta = newJavaElementDelta();
 				ICompilationUnit unit = ((JavaElement) fElementsToProcess[i]).getCompilationUnit();
 				if (unit == null) {
 					return;
@@ -76,19 +75,19 @@ public class SortElementsOperation extends JavaModelOperation {
 				}
 				char[] bufferContents = buffer.getCharacters();
 				processElement(unit,bufferContents);
-				unit.save(null, false);
-				boolean isWorkingCopy = unit.isWorkingCopy();
-				if (!isWorkingCopy) {
-					this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
+				if (this.hasChanged) {
+					unit.save(null, false);
+					boolean isWorkingCopy = unit.isWorkingCopy();
+					worked(1);
+					 // if unit is working copy, then save will have already fired the delta
+					if (!isWorkingCopy
+						&& !Util.isExcluded(unit)
+						&& unit.getParent().exists()) {
+							JavaElementDelta delta = newJavaElementDelta();
+							delta.changed(unit, IJavaElementDelta.F_CHILDREN);
+							addDelta(delta);
+					}
 				}
-				worked(1);
-				 // if unit is working copy, then save will have already fired the delta
-				if (!isWorkingCopy
-					&& !Util.isExcluded(unit)
-					&& unit.getParent().exists()) {
-					delta.changed(unit, IJavaElementDelta.F_CONTENT);
-					addDelta(delta);
-				}				
 			}
 		} finally {
 			done();
@@ -101,6 +100,8 @@ public class SortElementsOperation extends JavaModelOperation {
 	 * @param bufferContents
 	 */
 	private void processElement(ICompilationUnit unit, char[] source) throws JavaModelException {
+		subTask("Sort " + unit.getElementName()); //$NON-NLS-1$
+		this.hasChanged = false;
 		SortElementBuilder builder = new SortElementBuilder(source, comparator);
 		SourceElementParser parser = new SourceElementParser(builder,
 			ProblemFactory.getProblemFactory(Locale.getDefault()), new CompilerOptions(JavaCore.getOptions()), true);
@@ -117,44 +118,13 @@ public class SortElementsOperation extends JavaModelOperation {
 				unit.getElementName(),
 				unit.getJavaProject().getOption(JavaCore.CORE_ENCODING, true)),
 			false);
-		unit.getBuffer().setContents(builder.getSource());
-	}
-	//TODO: (olivier) unused?
-	private CompilationUnitDeclaration parseCompilationUnit(ICompilationUnit compilationUnit, char[] source) {
-		Map settings = compilationUnit.getJavaProject().getOptions(true);
-		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		compilerOptions.complianceLevel = CompilerOptions.JDK1_4;
-		Parser parser =
-			new Parser(
-				new ProblemReporter(
-					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-					compilerOptions, 
-					new DefaultProblemFactory(Locale.getDefault())),
-			false,
-			compilerOptions.sourceLevel >= CompilerOptions.JDK1_4);
-		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
-			new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
-				source, 
-				"", //$NON-NLS-1$
-				compilerOptions.defaultEncoding);
-		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit));
-		
-		if (compilationUnitDeclaration.ignoreMethodBodies) {
-			compilationUnitDeclaration.ignoreFurtherInvestigation = true;
-			// if initial diet parse did not work, no need to dig into method bodies.
-			return compilationUnitDeclaration; 
+		String result = builder.getSource();
+		this.hasChanged = !CharOperation.equals(result.toCharArray(), source);
+		if (this.hasChanged) {
+			unit.getBuffer().setContents(result);
 		}
-		
-		//fill the methods bodies in order for the code to be generated
-		//real parse of the method....
-		parser.scanner.setSource(source);
-		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
-		if (types != null) {
-			for (int i = types.length; --i >= 0;)
-				types[i].parseMethod(parser, compilationUnitDeclaration);
-		}
-		return compilationUnitDeclaration;
 	}
+
 	/**
 	 * Possible failures:
 	 * <ul>

@@ -555,101 +555,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.1
 	 */
 	public static final String CLEAN = "clean"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_TYPE_ORDER = PLUGIN_ID + ".sorting.type.category"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_STATIC_INITIALIZER_ORDER = PLUGIN_ID + ".sorting.static_initializer.category"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_INITIALIZER_ORDER = PLUGIN_ID + ".sorting.initializer.category"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_STATIC_FIELD_ORDER = PLUGIN_ID + ".sorting.static_field.category"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_FIELD_ORDER = PLUGIN_ID + ".sorting.field.category"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_STATIC_METHOD_ORDER = PLUGIN_ID + ".sorting.static_method.category"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_METHOD_ORDER = PLUGIN_ID + ".sorting.method.category"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_CONSTRUCTOR_ORDER = PLUGIN_ID + ".sorting.constructor.category"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_ORDER_FIRST = "1"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_ORDER_SECOND = "2"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_ORDER_THIRD = "3"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_ORDER_FOURTH = "4"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_ORDER_FIFTH = "5"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_ORDER_SIXTH = "6"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
-	 * @since 2.1
-	 */
-	public static final String SORTING_ORDER_SEVENTH = "7"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option value.
-	 * @see #getDefaultOptions
-	 */
-	public static final String SORTING_ORDER_EIGHTH = "8"; //$NON-NLS-1$
 	
 	/**
 	 * Creates the Java core plug-in.
@@ -2012,30 +1917,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		
 		preferences.setDefault(CODEASSIST_ARGUMENT_SUFFIXES, ""); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_ARGUMENT_SUFFIXES);
-		
-		preferences.setDefault(SORTING_TYPE_ORDER, SORTING_ORDER_FIRST);
-		optionNames.add(SORTING_TYPE_ORDER);
-
-		preferences.setDefault(SORTING_STATIC_INITIALIZER_ORDER, SORTING_ORDER_SECOND);
-		optionNames.add(SORTING_STATIC_INITIALIZER_ORDER);
-
-		preferences.setDefault(SORTING_STATIC_FIELD_ORDER, SORTING_ORDER_THIRD);
-		optionNames.add(SORTING_STATIC_FIELD_ORDER);
-
-		preferences.setDefault(SORTING_STATIC_METHOD_ORDER, SORTING_ORDER_FOURTH);
-		optionNames.add(SORTING_STATIC_METHOD_ORDER);
-
-		preferences.setDefault(SORTING_INITIALIZER_ORDER, SORTING_ORDER_FIFTH);
-		optionNames.add(SORTING_INITIALIZER_ORDER);
-
-		preferences.setDefault(SORTING_FIELD_ORDER, SORTING_ORDER_SIXTH);
-		optionNames.add(SORTING_FIELD_ORDER);
-
-		preferences.setDefault(SORTING_CONSTRUCTOR_ORDER, SORTING_ORDER_SEVENTH);
-		optionNames.add(SORTING_CONSTRUCTOR_ORDER);
-
-		preferences.setDefault(SORTING_METHOD_ORDER, SORTING_ORDER_EIGHTH);
-		optionNames.add(SORTING_METHOD_ORDER);
 	}
 	
 	/**
