@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.test.performance.Dimension;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -88,6 +89,7 @@ public class FullSourceWorkspaceTests extends Tests {
 		
 	public void testPerfFullBuild() throws IOException, CoreException {
 		setUpFullSourceWorkspace();
+		tagAsGlobalSummary("Full source workspace build", Dimension.CPU_TIME);
 		startMeasuring();
 		fullBuild();
 		stopMeasuring();
