@@ -204,6 +204,20 @@ void acceptMethod(
 	int modifiers,
 	int completionStart,
 	int completionEnd);
+	
+void acceptMethodDeclaration(
+	char[] declaringTypePackageName,
+	char[] declaringTypeName,
+	char[] selector,
+	char[][] parameterPackageNames,
+	char[][] parameterTypeNames,
+	char[][] parameterNames,
+	char[] returnTypePackageName,
+	char[] returnTypeName,
+	char[] completionName,
+	int modifiers,
+	int completionStart,
+	int completionEnd);
 /**
  * Code assist notification of a modifier completion.
  *

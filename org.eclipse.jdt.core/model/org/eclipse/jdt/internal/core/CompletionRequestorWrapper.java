@@ -83,6 +83,12 @@ public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeNa
 /**
  * See ICompletionRequestor
  */
+public void acceptMethodDeclaration(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, char[] returnTypePackageName, char[] returnTypeName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+	this.clientRequestor.acceptMethodDeclaration(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, parameterNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart, completionEnd);
+}
+/**
+ * See ICompletionRequestor
+ */
 public void acceptModifier(char[] modifierName, int completionStart, int completionEnd) {
 	this.clientRequestor.acceptModifier(modifierName, completionStart, completionEnd);
 }
