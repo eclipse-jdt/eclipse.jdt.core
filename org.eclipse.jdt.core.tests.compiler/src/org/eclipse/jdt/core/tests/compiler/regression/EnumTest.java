@@ -2481,5 +2481,24 @@ public class EnumTest extends AbstractComparableTest {
 			},
 			""
 		);
-	}		
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87818
+	public void test081() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	void foo() {\n" +
+				"		enum E {}\n" +
+				"	}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	enum E {}\n" + 
+			"	     ^\n" + 
+			"The member enum E cannot be local\n" + 
+			"----------\n");
+	}
 }

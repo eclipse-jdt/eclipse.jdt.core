@@ -397,6 +397,24 @@ public void cannotAssignToFinalOuterLocal(LocalVariableBinding local, ASTNode lo
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void cannotDeclareLocalAnnotation(char[] typeName, int sourceStart, int sourceEnd) {
+	String[] arguments = new String[] {new String(typeName)};
+	this.handle(
+		IProblem.CannotDefineAnnotationInLocalType,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
+}
+public void cannotDeclareLocalEnum(char[] typeName, int sourceStart, int sourceEnd) {
+	String[] arguments = new String[] {new String(typeName)};
+	this.handle(
+		IProblem.CannotDefineEnumInLocalType,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
+}
 public void cannotDeclareLocalInterface(char[] interfaceName, int sourceStart, int sourceEnd) {
 	String[] arguments = new String[] {new String(interfaceName)};
 	this.handle(

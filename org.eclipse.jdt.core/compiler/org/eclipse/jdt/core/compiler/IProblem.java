@@ -253,6 +253,10 @@ public interface IProblem {
 	/** @since 2.1 */
 	int EnclosingInstanceInConstructorCall = Internal + 28;
 	int AnonymousClassCannotExtendFinalClass = TypeRelated + 29;
+	/** @since 3.1 */
+	int CannotDefineAnnotationInLocalType = Internal + 30;
+	/** @since 3.1 */
+	int CannotDefineEnumInLocalType = Internal + 31;
 
 	// variables
 	int UndefinedName = 50;

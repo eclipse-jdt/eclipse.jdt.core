@@ -753,10 +753,6 @@ InterfaceHeaderName1 ::= Modifiersopt interface Identifier
 /.$putCase consumeInterfaceHeaderName1(); $break ./
 /:$readableName InterfaceHeaderName:/
 
--- This rule will be used to accept inner local interface and then report a relevant error message
-InvalidInterfaceDeclaration -> InterfaceHeader InterfaceBody
-/:$readableName InvalidInterfaceDeclaration:/
-
 InterfaceHeaderExtends ::= 'extends' InterfaceTypeList
 /.$putCase consumeInterfaceHeaderExtends(); $break ./
 /:$readableName InterfaceHeaderExtends:/
@@ -774,20 +770,16 @@ InterfaceMemberDeclaration ::= ';'
 /.$putCase consumeEmptyInterfaceMemberDeclaration(); $break ./
 /:$readableName InterfaceMemberDeclaration:/
 
--- This rule is added to be able to parse non abstract method inside interface and then report a relevent error message
-InvalidMethodDeclaration -> MethodHeader MethodBody
-/:$readableName InvalidMethodDeclaration:/
-
 InterfaceMemberDeclaration -> ConstantDeclaration
-InterfaceMemberDeclaration ::= InvalidMethodDeclaration
-/.$putCase ignoreMethodBody(); $break ./
+InterfaceMemberDeclaration ::= MethodHeader MethodBody
+/.$putCase consumeInvalidMethodDeclaration(); $break ./
 /:$readableName InterfaceMemberDeclaration:/
 
 -- These rules are added to be able to parse constructors inside interface and then report a relevent error message
 InvalidConstructorDeclaration ::= ConstructorHeader MethodBody
-/.$putCase ignoreInvalidConstructorDeclaration(true);  $break ./
+/.$putCase consumeInvalidConstructorDeclaration(true);  $break ./
 InvalidConstructorDeclaration ::= ConstructorHeader ';'
-/.$putCase ignoreInvalidConstructorDeclaration(false);  $break ./
+/.$putCase consumeInvalidConstructorDeclaration(false);  $break ./
 /:$readableName InvalidConstructorDeclaration:/
 
 InterfaceMemberDeclaration -> AbstractMethodDeclaration
@@ -837,8 +829,14 @@ BlockStatement -> LocalVariableDeclarationStatement
 BlockStatement -> Statement
 --1.1 feature
 BlockStatement -> ClassDeclaration
-BlockStatement ::= InvalidInterfaceDeclaration
-/.$putCase ignoreInterfaceDeclaration(); $break ./
+BlockStatement ::= InterfaceDeclaration
+/.$putCase consumeInvalidInterfaceDeclaration(); $break ./
+/:$readableName BlockStatement:/
+BlockStatement ::= AnnotationTypeDeclaration
+/.$putCase consumeInvalidAnnotationTypeDeclaration(); $break ./
+/:$readableName BlockStatement:/
+BlockStatement ::= EnumDeclaration
+/.$putCase consumeInvalidEnumDeclaration(); $break ./
 /:$readableName BlockStatement:/
 
 LocalVariableDeclarationStatement ::= LocalVariableDeclaration ';'

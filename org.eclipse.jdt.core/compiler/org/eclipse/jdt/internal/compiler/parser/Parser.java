@@ -3517,6 +3517,15 @@ protected void consumeInternalCompilationUnitWithTypes() {
 		}
 	}
 }
+protected void consumeInvalidAnnotationTypeDeclaration() {
+	// BlockStatement ::= AnnotationTypeDeclaration
+	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
+	problemReporter().cannotDeclareLocalAnnotation(typeDecl.name, typeDecl.sourceStart, typeDecl.sourceEnd);
+	// remove the ast node created in interface header
+	this.astPtr--;
+	pushOnAstLengthStack(-1);
+	concatNodeLists();
+}
 protected void consumeInvalidConstructorDeclaration() {
 	// ConstructorDeclaration ::= ConstructorHeader ';'
 	// now we know that the top of stack is a constructorDeclaration
@@ -3527,6 +3536,89 @@ protected void consumeInvalidConstructorDeclaration() {
 	// report the problem and continue the parsing - narrowing the problem onto the method
 	
 	cd.modifiers |= AccSemicolonBody; // remember semi-colon body
+}
+protected void consumeInvalidConstructorDeclaration(boolean hasBody) {
+	// InvalidConstructorDeclaration ::= ConstructorHeader ConstructorBody ==> true
+	// InvalidConstructorDeclaration ::= ConstructorHeader ';' ==> false
+
+	/*
+	this.astStack : modifiers arguments throws statements
+	this.identifierStack : name
+	 ==>
+	this.astStack : MethodDeclaration
+	this.identifierStack :
+	*/
+	if (hasBody) {
+		// pop the position of the {  (body of the method) pushed in block decl
+		this.intPtr--;
+	}
+
+	//statements
+	if (hasBody) {
+		this.realBlockPtr--;
+	}
+
+	int length;
+	if (hasBody && ((length = this.astLengthStack[this.astLengthPtr--]) != 0)) {
+		this.astPtr -= length;
+	}
+	ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) this.astStack[this.astPtr];
+	constructorDeclaration.bodyEnd = this.endStatementPosition;
+	constructorDeclaration.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
+	if (!hasBody) {
+		constructorDeclaration.modifiers |= AccSemicolonBody;
+	}
+}
+protected void consumeInvalidInterfaceDeclaration() {
+	// BlockStatement ::= InvalidInterfaceDeclaration
+	//InterfaceDeclaration ::= Modifiersopt 'interface' 'Identifier' ExtendsInterfacesopt InterfaceHeader InterfaceBody
+	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
+	problemReporter().cannotDeclareLocalInterface(typeDecl.name, typeDecl.sourceStart, typeDecl.sourceEnd);
+	// remove the ast node created in interface header
+	this.astPtr--;
+	pushOnAstLengthStack(-1);
+	concatNodeLists();
+}
+protected void consumeInvalidEnumDeclaration() {
+	// BlockStatement ::= EnumDeclaration
+	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
+	problemReporter().cannotDeclareLocalEnum(typeDecl.name, typeDecl.sourceStart, typeDecl.sourceEnd);
+	// remove the ast node created in interface header
+	this.astPtr--;
+	pushOnAstLengthStack(-1);
+	concatNodeLists();
+}
+protected void consumeInvalidMethodDeclaration() {
+	// InterfaceMemberDeclaration ::= InvalidMethodDeclaration
+
+	/*
+	this.astStack : modifiers arguments throws statements
+	this.identifierStack : type name
+	this.intStack : dim dim dim
+	 ==>
+	this.astStack : MethodDeclaration
+	this.identifierStack :
+	this.intStack : 
+	*/
+
+	// pop the position of the {  (body of the method) pushed in block decl
+	this.intPtr--;
+	// retrieve end position of method declarator
+
+	//statements
+	this.realBlockPtr--;
+	int length;
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
+		this.astPtr -= length;
+	}
+
+	//watch for } that could be given as a unicode ! ( u007D is '}' )
+	MethodDeclaration md = (MethodDeclaration) this.astStack[this.astPtr];
+	md.bodyEnd = this.endPosition;
+	md.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
+
+	// report the problem and continue the parsing - narrowing the problem onto the method
+	problemReporter().abstractMethodNeedingNoBody(md);
 }
 protected void consumeLeftParen() {
 	// PushLPAREN ::= '('
@@ -4788,64 +4880,72 @@ protected void consumeRule(int act) {
 		    consumeInterfaceHeaderName1();  
 			break;
  
-    case 205 : if (DEBUG) { System.out.println("InterfaceHeaderExtends ::= extends InterfaceTypeList"); }  //$NON-NLS-1$
+    case 204 : if (DEBUG) { System.out.println("InterfaceHeaderExtends ::= extends InterfaceTypeList"); }  //$NON-NLS-1$
 		    consumeInterfaceHeaderExtends();  
 			break;
  
-    case 208 : if (DEBUG) { System.out.println("InterfaceMemberDeclarations ::=..."); }  //$NON-NLS-1$
+    case 207 : if (DEBUG) { System.out.println("InterfaceMemberDeclarations ::=..."); }  //$NON-NLS-1$
 		    consumeInterfaceMemberDeclarations();  
 			break;
  
-    case 209 : if (DEBUG) { System.out.println("InterfaceMemberDeclaration ::= SEMICOLON"); }  //$NON-NLS-1$
+    case 208 : if (DEBUG) { System.out.println("InterfaceMemberDeclaration ::= SEMICOLON"); }  //$NON-NLS-1$
 		    consumeEmptyInterfaceMemberDeclaration();  
 			break;
  
-    case 212 : if (DEBUG) { System.out.println("InterfaceMemberDeclaration ::= InvalidMethodDeclaration"); }  //$NON-NLS-1$
-		    ignoreMethodBody();  
+    case 210 : if (DEBUG) { System.out.println("InterfaceMemberDeclaration ::= MethodHeader MethodBody"); }  //$NON-NLS-1$
+		    consumeInvalidMethodDeclaration();  
 			break;
  
-    case 213 : if (DEBUG) { System.out.println("InvalidConstructorDeclaration ::= ConstructorHeader..."); }  //$NON-NLS-1$
-		    ignoreInvalidConstructorDeclaration(true);   
+    case 211 : if (DEBUG) { System.out.println("InvalidConstructorDeclaration ::= ConstructorHeader..."); }  //$NON-NLS-1$
+		    consumeInvalidConstructorDeclaration(true);   
 			break;
  
-    case 214 : if (DEBUG) { System.out.println("InvalidConstructorDeclaration ::= ConstructorHeader..."); }  //$NON-NLS-1$
-		    ignoreInvalidConstructorDeclaration(false);   
+    case 212 : if (DEBUG) { System.out.println("InvalidConstructorDeclaration ::= ConstructorHeader..."); }  //$NON-NLS-1$
+		    consumeInvalidConstructorDeclaration(false);   
 			break;
  
-    case 222 : if (DEBUG) { System.out.println("PushLeftBrace ::="); }  //$NON-NLS-1$
+    case 220 : if (DEBUG) { System.out.println("PushLeftBrace ::="); }  //$NON-NLS-1$
 		    consumePushLeftBrace();  
 			break;
  
-    case 223 : if (DEBUG) { System.out.println("ArrayInitializer ::= LBRACE PushLeftBrace ,opt RBRACE"); }  //$NON-NLS-1$
+    case 221 : if (DEBUG) { System.out.println("ArrayInitializer ::= LBRACE PushLeftBrace ,opt RBRACE"); }  //$NON-NLS-1$
 		    consumeEmptyArrayInitializer();  
 			break;
  
-    case 224 : if (DEBUG) { System.out.println("ArrayInitializer ::= LBRACE PushLeftBrace..."); }  //$NON-NLS-1$
+    case 222 : if (DEBUG) { System.out.println("ArrayInitializer ::= LBRACE PushLeftBrace..."); }  //$NON-NLS-1$
 		    consumeArrayInitializer();  
 			break;
  
-    case 225 : if (DEBUG) { System.out.println("ArrayInitializer ::= LBRACE PushLeftBrace..."); }  //$NON-NLS-1$
+    case 223 : if (DEBUG) { System.out.println("ArrayInitializer ::= LBRACE PushLeftBrace..."); }  //$NON-NLS-1$
 		    consumeArrayInitializer();  
 			break;
  
-    case 227 : if (DEBUG) { System.out.println("VariableInitializers ::= VariableInitializers COMMA..."); }  //$NON-NLS-1$
+    case 225 : if (DEBUG) { System.out.println("VariableInitializers ::= VariableInitializers COMMA..."); }  //$NON-NLS-1$
 		    consumeVariableInitializers();  
 			break;
  
-    case 228 : if (DEBUG) { System.out.println("Block ::= OpenBlock LBRACE BlockStatementsopt RBRACE"); }  //$NON-NLS-1$
+    case 226 : if (DEBUG) { System.out.println("Block ::= OpenBlock LBRACE BlockStatementsopt RBRACE"); }  //$NON-NLS-1$
 		    consumeBlock();  
 			break;
  
-    case 229 : if (DEBUG) { System.out.println("OpenBlock ::="); }  //$NON-NLS-1$
+    case 227 : if (DEBUG) { System.out.println("OpenBlock ::="); }  //$NON-NLS-1$
 		    consumeOpenBlock() ;  
 			break;
  
-    case 231 : if (DEBUG) { System.out.println("BlockStatements ::= BlockStatements BlockStatement"); }  //$NON-NLS-1$
+    case 229 : if (DEBUG) { System.out.println("BlockStatements ::= BlockStatements BlockStatement"); }  //$NON-NLS-1$
 		    consumeBlockStatements() ;  
 			break;
  
-    case 235 : if (DEBUG) { System.out.println("BlockStatement ::= InvalidInterfaceDeclaration"); }  //$NON-NLS-1$
-		    ignoreInterfaceDeclaration();  
+    case 233 : if (DEBUG) { System.out.println("BlockStatement ::= InterfaceDeclaration"); }  //$NON-NLS-1$
+		    consumeInvalidInterfaceDeclaration();  
+			break;
+ 
+    case 234 : if (DEBUG) { System.out.println("BlockStatement ::= AnnotationTypeDeclaration"); }  //$NON-NLS-1$
+		    consumeInvalidAnnotationTypeDeclaration();  
+			break;
+ 
+    case 235 : if (DEBUG) { System.out.println("BlockStatement ::= EnumDeclaration"); }  //$NON-NLS-1$
+		    consumeInvalidEnumDeclaration();  
 			break;
  
     case 236 : if (DEBUG) { System.out.println("LocalVariableDeclarationStatement ::=..."); }  //$NON-NLS-1$
@@ -7926,97 +8026,6 @@ protected void ignoreExpressionAssignment() {
 	this.expressionLengthPtr -- ;
 	// report a syntax error and abort parsing
 	problemReporter().arrayConstantsOnlyInArrayInitializers(arrayInitializer.sourceStart, arrayInitializer.sourceEnd); 	
-}
-protected void ignoreInterfaceDeclaration() {
-	// BlockStatement ::= InvalidInterfaceDeclaration
-	//InterfaceDeclaration ::= Modifiersopt 'interface' 'Identifier' ExtendsInterfacesopt InterfaceHeader InterfaceBody
-
-	// length declarations
-	int length;
-	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		//there are length declarations
-		//dispatch according to the type of the declarations
-		dispatchDeclarationInto(length);
-	}
-	
-	flushCommentsDefinedPriorTo(this.endStatementPosition);
-
-	// report the problem and continue parsing
-	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-	typeDecl.bodyEnd = this.endStatementPosition;
-	problemReporter().cannotDeclareLocalInterface(typeDecl.name, typeDecl.sourceStart, typeDecl.sourceEnd);
-
-	// mark initializers with local type mark if needed
-	markInitializersWithLocalType(typeDecl);
-
-	// remove the ast node created in interface header
-	this.astPtr--;
-	pushOnAstLengthStack(-1);
-	concatNodeLists();
-}
-protected void ignoreInvalidConstructorDeclaration(boolean hasBody) {
-	// InvalidConstructorDeclaration ::= ConstructorHeader ConstructorBody ==> true
-	// InvalidConstructorDeclaration ::= ConstructorHeader ';' ==> false
-
-	/*
-	this.astStack : modifiers arguments throws statements
-	this.identifierStack : name
-	 ==>
-	this.astStack : MethodDeclaration
-	this.identifierStack :
-	*/
-	if (hasBody) {
-		// pop the position of the {  (body of the method) pushed in block decl
-		this.intPtr--;
-	}
-
-	//statements
-	if (hasBody) {
-		this.realBlockPtr--;
-	}
-
-	int length;
-	if (hasBody && ((length = this.astLengthStack[this.astLengthPtr--]) != 0)) {
-		this.astPtr -= length;
-	}
-	ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) this.astStack[this.astPtr];
-	constructorDeclaration.bodyEnd = this.endStatementPosition;
-	constructorDeclaration.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
-	if (!hasBody) {
-		constructorDeclaration.modifiers |= AccSemicolonBody;
-	}
-}
-protected void ignoreMethodBody() {
-	// InterfaceMemberDeclaration ::= InvalidMethodDeclaration
-
-	/*
-	this.astStack : modifiers arguments throws statements
-	this.identifierStack : type name
-	this.intStack : dim dim dim
-	 ==>
-	this.astStack : MethodDeclaration
-	this.identifierStack :
-	this.intStack : 
-	*/
-
-	// pop the position of the {  (body of the method) pushed in block decl
-	this.intPtr--;
-	// retrieve end position of method declarator
-
-	//statements
-	this.realBlockPtr--;
-	int length;
-	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		this.astPtr -= length;
-	}
-
-	//watch for } that could be given as a unicode ! ( u007D is '}' )
-	MethodDeclaration md = (MethodDeclaration) this.astStack[this.astPtr];
-	md.bodyEnd = this.endPosition;
-	md.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
-
-	// report the problem and continue the parsing - narrowing the problem onto the method
-	problemReporter().abstractMethodNeedingNoBody(md);
 }
 public void initialize() {
 	//positionning the parser for a new compilation unit
