@@ -179,6 +179,24 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		return fieldBinding.type;
 	
 	}
+	
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#computeConversion(org.eclipse.jdt.internal.compiler.lookup.Scope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
+	 */
+	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
+		if ((bits & FIELD) != 0) {
+			// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
+			FieldBinding originalBinding = ((FieldBinding)this.binding).original();
+			if (originalBinding != this.binding) {
+			    // extra cast needed if method return type has type variable
+			    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_Object) {
+			        this.genericCast = originalBinding.type.genericCast(runtimeTimeType);
+			    }
+			} 	
+		}
+		super.computeConversion(scope, runtimeTimeType, compileTimeType);
+}	
+
 	public void generateAssignment(BlockScope currentScope, CodeStream codeStream, Assignment assignment, boolean valueRequired) {
 	
 		// optimizing assignment like: i = i + 1 or i = 1 + i
@@ -554,19 +572,10 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		if (constant != NotAConstant)
 			return;
 	
-		// if field from parameterized type got found, use the original field at codegen time
-		if (this.binding instanceof ParameterizedFieldBinding) {
-		    ParameterizedFieldBinding parameterizedField = (ParameterizedFieldBinding) this.binding;
-		    this.codegenBinding = parameterizedField.originalField;
-		    FieldBinding fieldCodegenBinding = (FieldBinding)this.codegenBinding;
-		    // extra cast needed if field type was type variable
-		    if ((fieldCodegenBinding.type.tagBits & TagBits.HasTypeVariable) != 0) {
-		        this.genericCast = fieldCodegenBinding.type.genericCast(parameterizedField.type);
-		    }
-		}		
 		if ((bits & FIELD) != 0) {
 			FieldBinding fieldBinding = (FieldBinding) binding;
-			FieldBinding codegenField = (FieldBinding) this.codegenBinding;
+			FieldBinding codegenField = fieldBinding.original();
+			this.codegenBinding = codegenField;
 			if (((bits & DepthMASK) != 0)
 				&& (codegenField.isPrivate() // private access
 					|| (codegenField.isProtected() // implicit protected access

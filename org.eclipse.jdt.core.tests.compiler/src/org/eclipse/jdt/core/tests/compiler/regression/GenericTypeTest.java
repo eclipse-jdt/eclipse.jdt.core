@@ -779,14 +779,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}",
 			},
-			// TODO (philippe) should eliminate 1st diagnosis, as foo is still used even if incorrectly
 			"----------\n" + 
-			"1. WARNING in X.java (at line 2)\n" + 
-			"	private T foo(T t) {\n" + 
-			"	          ^^^^^^^^\n" + 
-			"The private method foo(T) from the type X<T> is never used locally\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 9)\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
 			"	foo(new XY());\n" + 
 			"	^^^\n" + 
 			"The method foo(T) in the type X<T> is not applicable for the arguments (XY)\n" + 
@@ -5631,6 +5625,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"The parameterized constructor <String>X(String) of type X is not applicable for the arguments (X)\n" + 
 			"----------\n");
 	}			
+	// 62822 - supertypes partially resolved during bound check
 	public void test203() {
 		this.runConformTest(
 			new String[] {
@@ -6360,5 +6355,272 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	    ^^\n" + 
 			"Type mismatch: cannot convert from List<? extends Number> to List<? extends Integer>\n" + 
 			"----------\n");
+	}
+	// 69170 - variation
+	public void test231() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T>{\n" + 
+				"	 Object x1= new X<?>[0];	 \n" + 
+				"	 Object x2= new X<? super String>[0];	 \n" + 
+				"	 Object x3= new X<? extends Thread>[0];	 \n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Object x2= new X<? super String>[0];	 \n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot create a generic array of X<? super String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	Object x3= new X<? extends Thread>[0];	 \n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot create a generic array of X<? extends Thread>\n" + 
+			"----------\n");
+	}	
+	// 69542 - generic cast should be less strict
+	public void test232() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				" 	static class Container<T>{\n" + 
+				"	    private T val;\n" + 
+				"	    public T getVal() {\n" + 
+				"	        return val;\n" + 
+				"	    }\n" + 
+				"	    public void setVal(T val) {\n" + 
+				"	        this.val = val;\n" + 
+				"	    }\n" + 
+				"	}\n" + 
+				"	public static void badMethod(Container<?> param){\n" + 
+				"	    Container x=param;\n" + 
+				"	    x.setVal(\"BAD\");\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    Container<Integer> cont=new Container<Integer>();\n" + 
+				"	    cont.setVal(new Integer(0));\n" + 
+				"	    badMethod(cont);\n" + 
+				"	    Object someVal = cont.getVal(); // no cast \n" + 
+				"	    System.out.println(cont.getVal()); // no cast \n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"BAD");
+	}	
+	// 69542 - variation
+	public void test233() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				" 	static class Container<T>{\n" + 
+				"	    private T val;\n" + 
+				"	    public T getVal() {\n" + 
+				"	        return val;\n" + 
+				"	    }\n" + 
+				"	    public void setVal(T val) {\n" + 
+				"	        this.val = val;\n" + 
+				"	    }\n" + 
+				"	}\n" + 
+				"	public static void badMethod(Container<?> param){\n" + 
+				"	    Container x=param;\n" + 
+				"	    x.setVal(new Long(0));\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    Container<Integer> cont=new Container<Integer>();\n" + 
+				"	    cont.setVal(new Integer(0));\n" + 
+				"	    badMethod(cont);\n" + 
+				"	    Number someVal = cont.getVal();// only cast to Number \n" + 
+				"	    System.out.println(\"SUCCESS\"); \n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}
+	// 69542 - variation
+	public void test234() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				" 	static class Container<T>{\n" + 
+				"	    public T val;\n" + 
+				"	    public T getVal() {\n" + 
+				"	        return val;\n" + 
+				"	    }\n" + 
+				"	    public void setVal(T val) {\n" + 
+				"	        this.val = val;\n" + 
+				"	    }\n" + 
+				"	}\n" + 
+				"	public static void badMethod(Container<?> param){\n" + 
+				"	    Container x=param;\n" + 
+				"	    x.setVal(\"BAD\");\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    Container<Integer> cont=new Container<Integer>();\n" + 
+				"	    cont.setVal(new Integer(0));\n" + 
+				"	    badMethod(cont);\n" + 
+				"	    Object someVal = cont.val; // no cast \n" + 
+				"	    System.out.println(cont.val); // no cast \n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"BAD");
+	}		
+	// 69542 - variation
+	public void test235() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				" 	static class Container<T>{\n" + 
+				"	    public T val;\n" + 
+				"	    public T getVal() {\n" + 
+				"	        return val;\n" + 
+				"	    }\n" + 
+				"	    public void setVal(T val) {\n" + 
+				"	        this.val = val;\n" + 
+				"	    }\n" + 
+				"	}\n" + 
+				"	public static void badMethod(Container<?> param){\n" + 
+				"	    Container x=param;\n" + 
+				"	    x.setVal(new Long(0));\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    Container<Integer> cont=new Container<Integer>();\n" + 
+				"	    cont.setVal(new Integer(0));\n" + 
+				"	    badMethod(cont);\n" + 
+				"	    Number someVal = cont.val;// only cast to Number \n" + 
+				"	    System.out.println(\"SUCCESS\"); \n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}		
+	// 69542 - variation
+	public void test236() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				" 	static class Container<T>{\n" + 
+				"	    public T val;\n" + 
+				"	    public T getVal() {\n" + 
+				"	        return val;\n" + 
+				"	    }\n" + 
+				"	    public void setVal(T val) {\n" + 
+				"	        this.val = val;\n" + 
+				"	    }\n" + 
+				"	}\n" + 
+				"	public static void badMethod(Container<?> param){\n" + 
+				"	    Container x=param;\n" + 
+				"	    x.setVal(\"BAD\");\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    Container<Integer> cont=new Container<Integer>();\n" + 
+				"	    cont.setVal(new Integer(0));\n" + 
+				"	    badMethod(cont);\n" + 
+				"	    Object someVal = (cont).val; // no cast \n" + 
+				"	    System.out.println((cont).val); // no cast \n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"BAD");
+	}		
+	// 69542 - variation
+	public void test237() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				" 	static class Container<T>{\n" + 
+				"	    public T val;\n" + 
+				"	    public T getVal() {\n" + 
+				"	        return val;\n" + 
+				"	    }\n" + 
+				"	    public void setVal(T val) {\n" + 
+				"	        this.val = val;\n" + 
+				"	    }\n" + 
+				"	}\n" + 
+				"	public static void badMethod(Container<?> param){\n" + 
+				"	    Container x=param;\n" + 
+				"	    x.setVal(new Long(0));\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    Container<Integer> cont=new Container<Integer>();\n" + 
+				"	    cont.setVal(new Integer(0));\n" + 
+				"	    badMethod(cont);\n" + 
+				"	    Number someVal = (cont).val;// only cast to Number \n" + 
+				"	    System.out.println(\"SUCCESS\"); \n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
 	}			
+	// 69542 - variation
+	public void test238() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				" 	static class Container<T>{\n" + 
+				"	    public T val;\n" + 
+				"		Container<T> next;\n" +
+				"	    public T getVal() {\n" + 
+				"	        return val;\n" + 
+				"	    }\n" + 
+				"	    public void setVal(T val) {\n" + 
+				"	        this.val = val;\n" + 
+				"	    }\n" + 
+				"	}\n" + 
+				"	public static void badMethod(Container<?> param){\n" + 
+				"	    Container x=param;\n" + 
+				"	    x.setVal(\"BAD\");\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    Container<Integer> cont = new Container<Integer>();\n" + 
+				"		cont.next = new Container<Integer>();\n" + 
+				"	    cont.next.setVal(new Integer(0));\n" + 
+				"	    badMethod(cont.next);\n" + 
+				"	    Object someVal = cont.next.val; // no cast \n" + 
+				"	    System.out.println(cont.next.val); // no cast \n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"BAD");
+	}		
+	// 69542 - variation
+	public void test239() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				" 	static class Container<T>{\n" + 
+				"	    public T val;\n" + 
+				"		Container<T> next;\n" +
+				"	    public T getVal() {\n" + 
+				"	        return val;\n" + 
+				"	    }\n" + 
+				"	    public void setVal(T val) {\n" + 
+				"	        this.val = val;\n" + 
+				"	    }\n" + 
+				"	}\n" + 
+				"	public static void badMethod(Container<?> param){\n" + 
+				"	    Container x=param;\n" + 
+				"	    x.setVal(new Long(0));\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    Container<Integer> cont = new Container<Integer>();\n" + 
+				"		cont.next = new Container<Integer>();\n" + 
+				"	    cont.next.setVal(new Integer(0));\n" + 
+				"	    badMethod(cont.next);\n" + 
+				"	    Number someVal = cont.next.val;// only cast to Number \n" + 
+				"	    System.out.println(\"SUCCESS\"); \n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}	
 }

@@ -119,6 +119,21 @@ public class FieldReference extends Reference implements InvocationSite {
 		return flowInfo;
 	}
 
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#computeConversion(org.eclipse.jdt.internal.compiler.lookup.Scope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
+	 */
+	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
+		// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
+		FieldBinding originalBinding = this.binding.original();
+		if (originalBinding != this.binding) {
+		    // extra cast needed if method return type has type variable
+		    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_Object) {
+		        this.genericCast = originalBinding.type.genericCast(runtimeTimeType);
+		    }
+		} 	
+		super.computeConversion(scope, runtimeTimeType, compileTimeType);
+	}
+
 	public FieldBinding fieldBinding() {
 
 		return binding;
@@ -382,17 +397,7 @@ public class FieldReference extends Reference implements InvocationSite {
 
 		if (!flowInfo.isReachable()) return;
 		// if field from parameterized type got found, use the original field at codegen time
-		if (this.binding instanceof ParameterizedFieldBinding) {
-		    ParameterizedFieldBinding parameterizedField = (ParameterizedFieldBinding) this.binding;
-		    this.codegenBinding = parameterizedField.originalField;
-
-		    // extra cast needed if field type has type variable
-		    if ((this.codegenBinding.type.tagBits & TagBits.HasTypeVariable) != 0) {
-		        this.genericCast = this.codegenBinding.type.genericCast(parameterizedField.type);
-		    }		    
-		} else {
-		    this.codegenBinding = this.binding;
-		}
+		this.codegenBinding = this.binding.original();
 		
 		if (binding.isPrivate()) {
 			if ((currentScope.enclosingSourceType() != this.codegenBinding.declaringClass) && !binding.isConstantValue()) {

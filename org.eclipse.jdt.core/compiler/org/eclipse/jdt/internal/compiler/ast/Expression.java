@@ -223,7 +223,7 @@ public abstract class Expression extends Statement {
 				this.implicitConversion = (runtimeTimeType.id << 4) + compileTimeType.id;
 				break;
 			default : // regular object ref
-//				if (compileTimeType.isRawType() && runtimeTimeType.isParameterizedType()) {
+//				if (compileTimeType.isRawType() && runtimeTimeType.isBoundParameterizedType()) {
 //				    scope.problemReporter().unsafeRawExpression(this, compileTimeType, runtimeTimeType);
 //				}		
 		}

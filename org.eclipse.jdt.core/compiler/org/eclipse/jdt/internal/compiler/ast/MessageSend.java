@@ -51,7 +51,20 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	manageSyntheticAccessIfNecessary(currentScope, flowInfo);	
 	return flowInfo;
 }
-
+/**
+ * @see org.eclipse.jdt.internal.compiler.ast.Expression#computeConversion(org.eclipse.jdt.internal.compiler.lookup.Scope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
+ */
+public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
+	// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
+	MethodBinding originalBinding = this.binding.original();
+	if (originalBinding != this.binding) {
+	    // extra cast needed if method return type has type variable
+	    if ((originalBinding.returnType.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_Object) {
+	        this.genericCast = originalBinding.returnType.genericCast(runtimeTimeType);
+	    }
+	} 	
+	super.computeConversion(scope, runtimeTimeType, compileTimeType);
+}
 /**
  * MessageSend code generation
  *
@@ -136,12 +149,6 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 
 	// if method from parameterized type got found, use the original method at codegen time
 	this.codegenBinding = this.binding.original();
-	if (this.codegenBinding != this.binding) {
-	    // extra cast needed if method return type has type variable
-	    if ((this.codegenBinding.returnType.tagBits & TagBits.HasTypeVariable) != 0) {
-	        this.genericCast = this.codegenBinding.returnType.genericCast(this.binding.returnType);
-	    }
-	} 
 	if (this.binding.isPrivate()){
 
 		// depth is set for both implicit and explicit access (see MethodBinding#canBeSeenBy)		
@@ -306,7 +313,13 @@ public TypeBinding resolveType(BlockScope scope) {
 			default :
 		}
 		// record the closest match, for clients who may still need hint about possible method match
-		if (closestMatch != null) this.binding = closestMatch;
+		if (closestMatch != null) {
+			this.binding = closestMatch;
+			if (closestMatch.isPrivate() && !scope.isDefinedInMethod(closestMatch)) {
+				// ignore cases where method is used from within inside itself (e.g. direct recursions)
+				closestMatch.modifiers |= AccPrivateUsed;
+			}
+		}
 		return this.resolvedType;
 	}
 	if (!binding.isStatic()) {
@@ -315,6 +328,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0) {
 			scope.problemReporter().mustUseAStaticMethod(this, binding);
 		}
+		receiver.computeConversion(scope, receiverType, receiverType); // compute generic cast if necessary
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).
 		if (!(receiver.isImplicitThis()

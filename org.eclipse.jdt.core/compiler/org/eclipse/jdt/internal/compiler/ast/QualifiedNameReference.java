@@ -257,6 +257,25 @@ public class QualifiedNameReference extends NameReference {
 		bits |= FIELD;
 		return getOtherFieldBindings(scope);
 	}
+	
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#computeConversion(org.eclipse.jdt.internal.compiler.lookup.Scope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
+	 */
+	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
+		
+		// set the generic cast after the fact, once the type expectation is fully known (no need for strict cast)
+		int length = this.otherBindings == null ? 0 : this.otherBindings.length;
+		FieldBinding field = length == 0 ? (FieldBinding)this.binding : this.otherBindings[length-1];
+		FieldBinding originalBinding = field.original();
+		if (originalBinding != field) {
+		    // extra cast needed if method return type has type variable
+		    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && runtimeTimeType.id != T_Object) {
+		    	setGenericCast(length,originalBinding.type.genericCast(runtimeTimeType));
+		    }
+		} 	
+		super.computeConversion(scope, runtimeTimeType, compileTimeType);
+	}
+
 	public void generateAssignment(
 		BlockScope currentScope,
 		CodeStream codeStream,
@@ -310,7 +329,7 @@ public class QualifiedNameReference extends NameReference {
 							codeStream.invokestatic(accessor);
 						}
 						codeStream.generateImplicitConversion(implicitConversion);
-						TypeBinding requiredGenericCast = getGenericCast(lastFieldBinding,  this.otherCodegenBindings == null ? 0 : this.otherCodegenBindings.length);
+						TypeBinding requiredGenericCast = getGenericCast(this.otherCodegenBindings == null ? 0 : this.otherCodegenBindings.length);
 						if (requiredGenericCast != null) codeStream.checkcast(requiredGenericCast);
 					}
 				}
@@ -526,14 +545,8 @@ public class QualifiedNameReference extends NameReference {
 	}
 	
 	// get the matching codegenBinding
-	protected FieldBinding getCodegenBinding(FieldBinding fieldBinding, int index) {
-	    if (index < 0) { // write-access ?
-			if (fieldBinding == binding){
-				return (FieldBinding)this.codegenBinding;
-			} else {
-				return this.otherCodegenBindings[this.otherBindings.length-1];
-			}
-	    } else if (index == 0){
+	protected FieldBinding getCodegenBinding(int index) {
+	  if (index == 0){
 			return (FieldBinding)this.codegenBinding;
 		} else {
 			return this.otherCodegenBindings[index-1];
@@ -541,15 +554,8 @@ public class QualifiedNameReference extends NameReference {
 	}
 
 	// get the matching generic cast
-	protected TypeBinding getGenericCast(FieldBinding fieldBinding, int index) {
-	    if (index < 0) { // write-access ?
-			if (fieldBinding == binding){
-				return this.genericCast;
-			} else {
-			    if (this.otherGenericCasts == null) return null;
-				return this.otherGenericCasts[this.otherGenericCasts.length-1];
-			}
-	    } else if (index == 0){
+	protected TypeBinding getGenericCast(int index) {
+	   if (index == 0){
 			return this.genericCast;
 		} else {
 		    if (this.otherGenericCasts == null) return null;
@@ -560,25 +566,28 @@ public class QualifiedNameReference extends NameReference {
 	public TypeBinding getOtherFieldBindings(BlockScope scope) {
 		// At this point restrictiveFlag may ONLY have two potential value : FIELD LOCAL (i.e cast <<(VariableBinding) binding>> is valid)
 		int length = tokens.length;
+		FieldBinding field;
 		if ((bits & FIELD) != 0) {
-			FieldBinding fieldBinding = (FieldBinding) binding;
-			if (!fieldBinding.isStatic()) {
+			field = (FieldBinding) this.binding;
+			if (!field.isStatic()) {
 				//must check for the static status....
 				if (indexOfFirstFieldBinding > 1  //accessing to a field using a type as "receiver" is allowed only with static field
 						 || scope.methodScope().isStatic) { 	// the field is the first token of the qualified reference....
-					scope.problemReporter().staticFieldAccessToNonStaticVariable(this, fieldBinding);
+					scope.problemReporter().staticFieldAccessToNonStaticVariable(this, field);
 					return null;
 				 }
 			} else {
 				// indirect static reference ?
 				if (indexOfFirstFieldBinding > 1 
-						&& fieldBinding.declaringClass != actualReceiverType) {
-					scope.problemReporter().indirectAccessToStaticField(this, fieldBinding);
+						&& field.declaringClass != actualReceiverType) {
+					scope.problemReporter().indirectAccessToStaticField(this, field);
 				}
 			}
 			// only last field is actually a write access if any
-			if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && indexOfFirstFieldBinding == length))
-				scope.problemReporter().deprecatedField(fieldBinding, this);
+			if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && indexOfFirstFieldBinding == length))
+				scope.problemReporter().deprecatedField(field, this);
+		} else {
+			field = null;
 		}
 		TypeBinding type = ((VariableBinding) binding).type;
 		int index = indexOfFirstFieldBinding;
@@ -592,8 +601,7 @@ public class QualifiedNameReference extends NameReference {
 		otherDepths = new int[otherBindingsLength];
 		
 		// fill the first constant (the one of the binding)
-		this.constant =
-			((bits & FIELD) != 0)
+		this.constant = field != null
 				? FieldReference.getConstantFor((FieldBinding) binding, this, false, scope)
 				: ((VariableBinding) binding).constant();
 		// save first depth, since will be updated by visibility checks of other bindings
@@ -604,8 +612,18 @@ public class QualifiedNameReference extends NameReference {
 			if (type == null)
 				return null; // could not resolve type prior to this point
 
+			// set generic cast of for previous field (if any)
+			if (field != null) {
+				FieldBinding originalBinding = field.original();
+				if (originalBinding != field) {
+				    // extra cast needed if method return type has type variable
+				    if ((originalBinding.type.tagBits & TagBits.HasTypeVariable) != 0 && type.id != T_Object) {
+				    	setGenericCast(index-1,originalBinding.type.genericCast(type));
+				    }
+				} 	
+			}
 			bits &= ~DepthMASK; // flush previous depth if any			
-			FieldBinding field = scope.getField(type, token, this);
+			field = scope.getField(type, token, this);
 			int place = index - indexOfFirstFieldBinding;
 			otherBindings[place] = field;
 			otherDepths[place] = (bits & DepthMASK) >> DepthSHIFT;
@@ -666,19 +684,13 @@ public class QualifiedNameReference extends NameReference {
 			return;
 
 		// if field from parameterized type got found, use the original field at codegen time
-		if (fieldBinding instanceof ParameterizedFieldBinding) {
-		    ParameterizedFieldBinding parameterizedField = (ParameterizedFieldBinding) fieldBinding;
-		    FieldBinding originalField = parameterizedField.originalField;
-		    TypeBinding requiredGenericCast = null;
-		    // extra cast needed if field type was type variable
-		    if ((originalField.type.tagBits & TagBits.HasTypeVariable) != 0) {
-		        requiredGenericCast = originalField.type.genericCast(parameterizedField.type);
-		    }		    
-		    setCodegenBinding(fieldBinding, index, originalField, requiredGenericCast);
+		FieldBinding originalField = fieldBinding.original();
+		if (originalField != fieldBinding) {
+			setCodegenBinding(index < 0 ? (this.otherBindings == null ? 0 : this.otherBindings.length) : index, originalField);
 		}
 		
 		if (fieldBinding.isPrivate()) { // private access
-		    FieldBinding someCodegenBinding = getCodegenBinding(fieldBinding, index);
+		    FieldBinding someCodegenBinding = getCodegenBinding(index < 0 ? (this.otherBindings == null ? 0 : this.otherBindings.length) : index);
 			if (someCodegenBinding.declaringClass != currentScope.enclosingSourceType()) {
 			    setSyntheticAccessor(fieldBinding, index, 
 			            ((SourceTypeBinding) someCodegenBinding.declaringClass).addSyntheticMethod(someCodegenBinding, index >= 0 /*read-access?*/));
@@ -692,7 +704,7 @@ public class QualifiedNameReference extends NameReference {
 			
 			// implicit protected access 
 			if (depth > 0 && (fieldBinding.declaringClass.getPackage() != currentScope.enclosingSourceType().getPackage())) {
-			    FieldBinding someCodegenBinding = getCodegenBinding(fieldBinding, index);
+			    FieldBinding someCodegenBinding = getCodegenBinding(index < 0 ? (this.otherBindings == null ? 0 : this.otherBindings.length) : index);
 			    setSyntheticAccessor(fieldBinding, index, 
 			            ((SourceTypeBinding) currentScope.enclosingSourceType().enclosingTypeAt(depth)).addSyntheticMethod(someCodegenBinding, index >= 0 /*read-access?*/));
 				currentScope.problemReporter().needToEmulateFieldAccess(someCodegenBinding, this, index >= 0 /*read-access?*/);
@@ -711,12 +723,10 @@ public class QualifiedNameReference extends NameReference {
 					&& fieldBinding.declaringClass.id != T_Object)
 				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
 		    setCodegenBinding(
-		            fieldBinding, 
-		            index, 
+		            index < 0 ? (this.otherBindings == null ? 0 : this.otherBindings.length) : index, 
 		            currentScope.enclosingSourceType().getUpdatedFieldBinding(
-		                    getCodegenBinding(fieldBinding, index), 
-		                    (ReferenceBinding)lastReceiverType.erasure()), 
-		         	null/*reuse existing*/);
+		                    getCodegenBinding(index < 0 ? (this.otherBindings == null ? 0 : this.otherBindings.length) : index), 
+		                    (ReferenceBinding)lastReceiverType.erasure()));
 		}
 	}
 
@@ -814,27 +824,32 @@ public class QualifiedNameReference extends NameReference {
 	}
 
 	// set the matching codegenBinding and generic cast
-	protected void setCodegenBinding(FieldBinding fieldBinding, int index, FieldBinding someCodegenBinding, TypeBinding someGenericCast) {
+	protected void setCodegenBinding(int index, FieldBinding someCodegenBinding) {
 
-		if (fieldBinding == binding){
+		if (index == 0){
 			this.codegenBinding = someCodegenBinding;
-			if (someGenericCast != null) this.genericCast = someGenericCast;
 		} else {
 		    int length = this.otherBindings.length;
-		    int position = index < 0 ? length-1: index-1; // write is always the last
 			if (this.otherCodegenBindings == this.otherBindings){
 				System.arraycopy(this.otherBindings, 0, this.otherCodegenBindings = new FieldBinding[length], 0, length);
 			}
-			this.otherCodegenBindings[position] = someCodegenBinding;
-			if (someGenericCast != null) {
-			    if (this.otherGenericCasts == null) {
-			        this.otherGenericCasts = new TypeBinding[length];
-			    }
-			    this.otherGenericCasts[position] = someGenericCast;
-			}
+			this.otherCodegenBindings[index-1] = someCodegenBinding;
 		}	    
 	}
 
+	// set the matching codegenBinding and generic cast
+	protected void setGenericCast(int index, TypeBinding someGenericCast) {
+
+		if (index == 0){
+			this.genericCast = someGenericCast;
+		} else {
+		    if (this.otherGenericCasts == null) {
+		        this.otherGenericCasts = new TypeBinding[this.otherBindings.length];
+		    }
+		    this.otherGenericCasts[index-1] = someGenericCast;
+		}	    
+	}
+	
 	// set the matching synthetic accessor
 	protected void setSyntheticAccessor(FieldBinding fieldBinding, int index, SyntheticAccessMethodBinding syntheticAccessor) {
 		if (index < 0) { // write-access ?
