@@ -234,14 +234,36 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 	
 	protected void assertProblemsSize(CompilationUnit compilationUnit, int expectedSize) {
+		assertProblemsSize(compilationUnit, expectedSize, "");
+	}
+	protected void assertProblemsSize(CompilationUnit compilationUnit, int expectedSize, String expectedOutput) {
 		final IProblem[] problems = compilationUnit.getProblems();
 		final int length = problems.length;
 		if (length != expectedSize) {
-			System.err.println("Wrong number of problems for " + compilationUnit);
-			for (int i = 0; i < length; i++) {
-				System.err.println(problems[i]);
-			}
+			checkProblemMessages(expectedOutput, problems, length);
 			assertEquals("Wrong size", expectedSize, length);
+		}
+		checkProblemMessages(expectedOutput, problems, length);
+	}
+
+	private void checkProblemMessages(String expectedOutput, final IProblem[] problems, final int length) {
+		if (length != 0) {
+			if (expectedOutput != null) {
+				StringBuffer buffer = new StringBuffer();
+				for (int i = 0; i < length; i++) {
+					buffer.append(problems[i].getMessage());
+					if (i < length - 1) {
+						buffer.append('\n');
+					}
+				}
+				String actualOutput = String.valueOf(buffer);
+				expectedOutput = Util.convertToIndependantLineDelimiter(expectedOutput);
+				actualOutput = Util.convertToIndependantLineDelimiter(actualOutput);
+				if (!expectedOutput.equals(actualOutput)) {
+					System.out.println(Util.displayString(actualOutput));
+					assertEquals("different output", expectedOutput, actualOutput);
+				}
+			}
 		}
 	}
 }

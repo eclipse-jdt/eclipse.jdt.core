@@ -298,7 +298,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertProblemsSize(compilationUnit, 1);
+		final String expectedOutput = "Package annotations must be in file package-info.java";
+		assertProblemsSize(compilationUnit, 1, expectedOutput);
 		PackageDeclaration packageDeclaration = compilationUnit.getPackage();
 		assertNotNull("No package declaration", packageDeclaration);
 		checkSourceRange(packageDeclaration, "@Retention package test0006;", source);
@@ -1504,7 +1505,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertProblemsSize(compilationUnit, 1);
+		final String expectedOutput = "Extended dimensions are illegal for a variable argument";
+		assertProblemsSize(compilationUnit, 1, expectedOutput);
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1616,7 +1618,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertProblemsSize(compilationUnit, 1);
+		final String expectedOutput = "Zork1 cannot be resolved to a type";
+		assertProblemsSize(compilationUnit, 1, expectedOutput);
 	}
 	
 	/**
