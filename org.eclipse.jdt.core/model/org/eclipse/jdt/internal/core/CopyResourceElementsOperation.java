@@ -233,15 +233,18 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		String destName = (newCUName != null) ? newCUName : source.getElementName();
 		String newContent = updatedContent(source, dest, newCUName); // null if unchanged
 	
-		// copy resource
+		// TODO (frederic) remove when bug 67606 will be fixed (bug 67823)
+		// store encoding (fix bug 66898)
 		IFile sourceResource = (IFile)source.getResource();
-		String encoding = null;
+		String sourceEncoding = null;
 		try {
-			encoding = sourceResource.getCharset();
+			sourceEncoding = sourceResource.getCharset(false);
 		}
 		catch (CoreException ce) {
-			// use no encoding
+			// no problem, use default encoding
 		}
+		// end todo
+		// copy resource
 		IContainer destFolder = (IContainer)dest.getResource(); // can be an IFolder or an IProject
 		IFile destFile = destFolder.getFile(new Path(destName));
 		if (!destFile.equals(sourceResource)) {
@@ -276,7 +279,17 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			if (newContent != null){
 				boolean wasReadOnly = destFile.isReadOnly();
 				try {
-					
+					String encoding = null;
+					try {
+						// TODO (frederic) remove when bug 67606 will be fixed (bug 67823)
+						// fix bug 66898
+						if (sourceEncoding != null) destFile.setCharset(sourceEncoding);
+						// end todo
+						encoding = destFile.getCharset();
+					}
+					catch (CoreException ce) {
+						// use no encoding
+					}
 					// when the file was copied, its read-only flag was preserved -> temporary set it to false
 					// note this doesn't interfer with repository providers as this is a new resource that cannot be under
 					// version control yet
@@ -317,6 +330,17 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			// see http://dev.eclipse.org/bugs/show_bug.cgi?id=9351
 			try {
 				if (newContent != null){
+					String encoding = null;
+					try {
+						// TODO (frederic) remove when bug 67606 will be fixed (bug 67823)
+						// fix bug 66898
+						if (sourceEncoding != null) destFile.setCharset(sourceEncoding);
+						// end todo
+						encoding = destFile.getCharset();
+					}
+					catch (CoreException ce) {
+						// use no encoding
+					}
 					destFile.setContents(
 						new ByteArrayInputStream(encoding == null ? newContent.getBytes() : newContent.getBytes(encoding)), 
 						force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
@@ -467,10 +491,13 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	
 			// Update package statement in compilation unit if needed
 			if (!newFrag.getElementName().equals(source.getElementName())) { // if package has been renamed, update the compilation units
+				char[][] inclusionPatterns = ((PackageFragmentRoot)root).fullInclusionPatternChars();
+				char[][] exclusionPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
 				for (int i = 0; i < resources.length; i++) {
 					if (resources[i].getName().endsWith(SUFFIX_STRING_java)) {
 						// we only consider potential compilation units
 						ICompilationUnit cu = newFrag.getCompilationUnit(resources[i].getName());
+						if (Util.isExcluded(cu.getPath(), inclusionPatterns, exclusionPatterns, false/*not a folder*/)) continue;
 						IDOMCompilationUnit domCU = fFactory.createCompilationUnit(cu.getSource(), cu.getElementName());
 						if (domCU != null) {
 							updatePackageStatement(domCU, newFragName);
