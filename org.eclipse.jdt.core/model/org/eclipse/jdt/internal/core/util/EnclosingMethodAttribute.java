@@ -17,6 +17,8 @@ import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.IEnclosingMethodAttribute;
 
 /**
+ * Default implementation of EnclosingMethodAttribute.
+ * 
  * @since 3.0
  */
 public class EnclosingMethodAttribute extends ClassFileAttribute implements IEnclosingMethodAttribute {

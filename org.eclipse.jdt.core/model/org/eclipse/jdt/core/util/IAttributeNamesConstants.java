@@ -55,4 +55,8 @@ public interface IAttributeNamesConstants {
 	 * @since 3.0
 	 */
 	char[] RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS= "RuntimeInvisibleParameterAnnotations".toCharArray();//$NON-NLS-1$
+	/**
+	 * @since 3.0
+	 */
+	char[] ANNOTATION_DEFAULT = "AnnotationDefault".toCharArray();//$NON-NLS-1$
 }
