@@ -13019,5 +13019,31 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83904
+	public void test483() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class Y<T extends Number> {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    public static void main(String argv[]) {\n" + 
+				"        m(new Y<Short>(), new Y<Integer>());\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static <T extends Number> void m(Y<T> x, Y<T> y) {\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\r\n" + 
+			"	m(new Y<Short>(), new Y<Integer>());\r\n" + 
+			"	^\n" + 
+			"The method m(Y<T>, Y<T>) in the type X is not applicable for the arguments (Y<Short>, Y<Integer>)\n" + 
+			"----------\n");
 	}			
+	
 }
