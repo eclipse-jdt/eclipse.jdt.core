@@ -33,6 +33,44 @@
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
+Eclipse SDK 2.1 Build - ? September 2002
+<br>Project org.eclipse.jdt.core v_274
+<h2>
+What's new in this drop</h2>
+<ul>
+	<li>Added <code>JavaCore.run(IWorkspaceRunnable, IProgressMonitor)</code> that allows batching
+		  of java model operations. Only one Java element changed event is reported at the end of the batch.
+		  For example the following code snippet notifies listeners twice:
+	<pre>
+	ICompilationUnit unit = ...;
+	unit.createType("class B {}", null, false, monitor);
+	unit.getType("A").createField("int i;", null, false, monitor);
+	</pre>
+		  To be notified only once, use the following:
+	<pre>
+	JavaCore.run(
+		new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				ICompilationUnit unit = ...;
+				unit.createType("class B {}", null, false, monitor);
+				unit.getType("A").createField("int i;", null, false, monitor);
+			}
+		},
+		monitor);
+	</pre>
+	</li>
+</ul>
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23597">23597</a>
+cannot resolve a call to a protected superclass method
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23573">23573</a>
+AST: clone & source locations
+
+<h3>Problem Reports Closed</h3>
+
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
 Eclipse SDK 2.1 Build - 19th September 2002 - 2.1 MILESTONE-1
 <br>Project org.eclipse.jdt.core v_273a
 <h2>
