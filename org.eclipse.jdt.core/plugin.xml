@@ -19,6 +19,11 @@
   </library> 
 </runtime>
 
+
+<!-- =========================================================================== -->
+<!-- Java Nature                                                                 -->
+<!-- =========================================================================== -->
+
 <extension 
 	point="org.eclipse.core.resources.natures" 
 	id="javanature"
@@ -29,15 +34,27 @@
 	</runtime>
 </extension>
 
+
+<!-- =========================================================================== -->
+<!-- Java Builder                                                                -->
+<!-- =========================================================================== -->
+
 <extension 
 	point="org.eclipse.core.resources.builders" 
 	id="javabuilder"
 	name="%javaBuilderName">
 	<builder>
-		<run class="org.eclipse.jdt.internal.core.builder.impl.JavaBuilder">
+	<!-- old builder is "org.eclipse.jdt.internal.core.builder.impl.JavaBuilder" -->
+	<!-- new builder is "org.eclipse.jdt.internal.core.newbuilder.JavaBuilder" -->
+		<run class="org.eclipse.jdt.internal.core.newbuilder.JavaBuilder">
 		</run>
 	</builder>
 </extension>
+
+
+<!-- =========================================================================== -->
+<!-- Java Markers                                                                -->
+<!-- =========================================================================== -->
 
 <extension id="problem" point="org.eclipse.core.resources.markers" name="%javaProblemName">
 	<super type="org.eclipse.core.resources.problemmarker"/>
