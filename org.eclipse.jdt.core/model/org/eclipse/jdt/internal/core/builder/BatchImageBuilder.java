@@ -121,10 +121,12 @@ protected void copyExtraResourcesBack() throws CoreException {
 
 							IPath partialPath = resource.getFullPath().removeFirstSegments(segmentCount);
 							IResource copiedResource = outputFolder.getFile(partialPath);
-							if (copiedResource.exists())
+							if (copiedResource.exists()) {
 								createErrorFor(resource, Util.bind("build.duplicateResource")); //$NON-NLS-1$
-							else
+							} else {
 								resource.copy(copiedResource.getFullPath(), true, null);
+								resource.setDerived(true);
+							}
 							return false;
 						case IResource.FOLDER :
 							if (resource.getFullPath().equals(outputPath)) return false;
