@@ -374,7 +374,7 @@ public class CastExpression extends Expression {
 					if ((this.bits & UnsafeCastMask) != 0) { // unsafe cast
 						scope.problemReporter().unsafeCast(this, scope);
 					} else if ((this.bits & (UnnecessaryCastMASK|IgnoreNeedForCastCheckMASK)) == UnnecessaryCastMASK) { // unnecessary cast 
-						if (!usedForGenericMethodReturnTypeInference()) // used for generic type inference ?
+						if (!isIndirectlyUsed()) // used for generic type inference or boxing ?
 							scope.problemReporter().unnecessaryCast(this);
 					}
 				} else { // illegal cast
@@ -399,9 +399,9 @@ public class CastExpression extends Expression {
 
 	/**
 	 * Determines whether apparent unnecessary cast wasn't actually used to
-	 * perform return type inference of generic method invocation.
+	 * perform return type inference of generic method invocation or boxing.
 	 */
-	private boolean usedForGenericMethodReturnTypeInference() {
+	private boolean isIndirectlyUsed() {
 		if (this.expression instanceof MessageSend) {
 			MethodBinding method = ((MessageSend)this.expression).binding;
 			if (method instanceof ParameterizedGenericMethodBinding
@@ -411,6 +411,10 @@ public class CastExpression extends Expression {
 				if (this.resolvedType != this.expectedType)
 					return true;
 			}
+		}
+		if (this.expectedType != null && this.resolvedType.isBaseType() && !this.resolvedType.isCompatibleWith(this.expectedType)) {
+			// boxing: Short s = (short) _byte
+			return true;
 		}
 		return false;
 	}
