@@ -22,8 +22,10 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnSingleTypeReference extends SingleTypeReference {
+public boolean isCompletionNode;
 public CompletionOnSingleTypeReference(char[] source, long pos) {
 	super(source, pos);
+	isCompletionNode = true;
 }
 public void aboutToResolve(Scope scope) {
 	getTypeBinding(scope);
@@ -35,10 +37,18 @@ public TypeReference copyDims(int dim){
 	return this;
 }
 public TypeBinding getTypeBinding(Scope scope) {
-	throw new CompletionNodeFound(this, scope);
+	if(isCompletionNode) {
+		throw new CompletionNodeFound(this, scope);
+	} else {
+		return super.getTypeBinding(scope);
+	}
 }
 public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
-	throw new CompletionNodeFound(this, enclosingType, scope);
+	if(isCompletionNode) {
+		throw new CompletionNodeFound(this, enclosingType, scope);
+	} else {
+		return super.resolveTypeEnclosing(scope, enclosingType);
+	}
 }
 public String toStringExpression(int tab){
 

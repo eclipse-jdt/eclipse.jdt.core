@@ -619,7 +619,6 @@ protected void consumeConstructorHeaderName() {
 	}
 	this.restartRecovery = true;
 }
-
 protected void consumeEnterVariable() {
 	identifierPtr--;
 	identifierLengthPtr--;
@@ -661,7 +660,6 @@ protected void consumeEnterVariable() {
 		}
 	}
 }
-
 protected void consumeExitVariableWithInitialization() {
 	super.consumeExitVariableWithInitialization();
 	
@@ -725,8 +723,50 @@ protected void consumeInterfaceType() {
 	this.nextTypeReferenceIsInterface = false;
 }
 protected void consumeMethodHeaderName() {
-	if (this.indexOfAssistIdentifier() < 0) {
-		super.consumeMethodHeaderName();
+	if(this.indexOfAssistIdentifier() < 0) {
+		identifierPtr--;
+		identifierLengthPtr--;
+		if(this.indexOfAssistIdentifier() != 0) {
+			identifierPtr++;
+			identifierLengthPtr++;
+			super.consumeMethodHeaderName();
+		} else {
+			restartRecovery = true;
+			
+			// recovery
+			if (currentElement != null) {
+				//name
+				char[] selector = identifierStack[identifierPtr + 1];
+				long selectorSource = identifierPositionStack[identifierPtr + 1];
+				
+				//type
+				TypeReference type = getTypeReference(intStack[intPtr--]);
+				((CompletionOnSingleTypeReference)type).isCompletionNode = false;
+				//modifiers
+				int declarationSourceStart = intStack[intPtr--];
+				int modifiers = intStack[intPtr--];
+				
+				if(scanner.getLineNumber(type.sourceStart) != scanner.getLineNumber((int) (selectorSource >>> 32))) {
+					FieldDeclaration completionFieldDecl = new CompletionOnFieldType(type, false);
+					completionFieldDecl.modifiers = modifiers;
+					assistNode = completionFieldDecl;
+					lastCheckPoint = type.sourceEnd + 1;
+					currentElement = currentElement.add(completionFieldDecl, 0);
+					lastIgnoredToken = -1;
+				} else {
+					CompletionOnMethodReturnType md = new CompletionOnMethodReturnType(type, this.compilationUnit.compilationResult);
+					md.selector = selector;
+					md.declarationSourceStart = declarationSourceStart;
+					md.modifiers = modifiers;
+					md.bodyStart = lParenPos+1;
+					listLength = 0; // initialize listLength before reading parameters/throws
+					assistNode = md;
+					this.lastCheckPoint = md.bodyStart;
+					currentElement = currentElement.add(md, 0);
+					lastIgnoredToken = -1;
+				}
+			}
+		}
 	} else {
 		// MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
 		CompletionOnMethodName md = new CompletionOnMethodName(this.compilationUnit.compilationResult);
@@ -734,7 +774,6 @@ protected void consumeMethodHeaderName() {
 		//name
 		md.selector = identifierStack[identifierPtr];
 		long selectorSource = identifierPositionStack[identifierPtr--];
-		identifierLengthPtr--;
 		//type
 		md.returnType = getTypeReference(intStack[intPtr--]);
 		//modifiers
@@ -764,9 +803,10 @@ protected void consumeMethodHeaderName() {
 				lastCheckPoint = md.sourceStart;
 				restartRecovery = true;
 			}
-		}		
+		}
 	}
 }
+
 
 protected void consumeMethodBody() {
 	super.consumeMethodBody();
