@@ -41,7 +41,7 @@ public class TypeDeclarationStatement extends Statement {
 	 * The "typeDeclaration" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #DECLARATION_PROPERTY} in the JLS3 API.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #DECLARATION_PROPERTY} in the JLS3 API.
 	public static final ChildPropertyDescriptor TYPE_DECLARATION_PROPERTY = 
 		new ChildPropertyDescriptor(TypeDeclarationStatement.class, "typeDeclaration", TypeDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
@@ -242,7 +242,7 @@ public class TypeDeclarationStatement extends Statement {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>getDeclaration</code>, which returns <code>AbstractTypeDeclaration</code> instead of <code>TypeDeclaration</code>.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>getDeclaration</code>, which returns <code>AbstractTypeDeclaration</code> instead of <code>TypeDeclaration</code>.
 	public TypeDeclaration getTypeDeclaration() {
 	    supportedOnlyIn2();
 		return (TypeDeclaration) getDeclaration();
@@ -262,7 +262,7 @@ public class TypeDeclarationStatement extends Statement {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>setDeclaration</code> which takes <code>AbstractTypeDeclaration</code> instead of <code>TypeDeclaration</code>.
+    // TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>setDeclaration</code> which takes <code>AbstractTypeDeclaration</code> instead of <code>TypeDeclaration</code>.
 	public void setTypeDeclaration(TypeDeclaration decl) {
 	    supportedOnlyIn2();
 		// forward to non-deprecated replacement method

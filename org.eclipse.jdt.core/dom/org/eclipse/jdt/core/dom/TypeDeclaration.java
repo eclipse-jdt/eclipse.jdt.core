@@ -77,7 +77,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * The "modifiers" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the JLS3 API.
+    // TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the JLS3 API.
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
 		internalModifiersPropertyFactory(TypeDeclaration.class);
 	
@@ -106,7 +106,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * The "superclass" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #SUPERCLASS_TYPE_PROPERTY} in the JLS3 API.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #SUPERCLASS_TYPE_PROPERTY} in the JLS3 API.
 	public static final ChildPropertyDescriptor SUPERCLASS_PROPERTY = 
 		new ChildPropertyDescriptor(TypeDeclaration.class, "superclass", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 
@@ -114,7 +114,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * The "superInterfaces" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #SUPER_INTERFACE_TYPES_PROPERTY} in the JLS3 API.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #SUPER_INTERFACE_TYPES_PROPERTY} in the JLS3 API.
 	public static final ChildListPropertyDescriptor SUPER_INTERFACES_PROPERTY = 
 		new ChildListPropertyDescriptor(TypeDeclaration.class, "superInterfaces", Name.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
@@ -549,7 +549,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>getSuperclassType</code>, which returns a <code>Type</code> instead of a <code>Name</code>.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>getSuperclassType</code>, which returns a <code>Type</code> instead of a <code>Name</code>.
 	public Name getSuperclass() {
 	    supportedOnlyIn2();
 		return this.optionalSuperclassName;
@@ -594,7 +594,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) deprecated In the JLS3 API, this method is replaced by <code>setType</code>, which expects a <code>Type</code> instead of a <code>Name</code>.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>setType</code>, which expects a <code>Type</code> instead of a <code>Name</code>.
 	public void setSuperclass(Name superclassName) {
 	    supportedOnlyIn2();
 		ASTNode oldChild = this.optionalSuperclassName;
@@ -642,7 +642,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>superInterfaceTypes()</code>
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>superInterfaceTypes()</code>
 	public List superInterfaces() {
 		// more efficient than just calling supportedOnlyIn2() to check
 		if (this.superInterfaceNames == null) {

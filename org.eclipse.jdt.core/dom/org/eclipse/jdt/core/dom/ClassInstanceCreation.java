@@ -78,7 +78,7 @@ public class ClassInstanceCreation extends Expression {
 	 * The "name" structural property of this node type (JLS2 API only).
 	 * @since 3.0
 	 */
-	// TODO (jeem) - @deprecated Replaced by {@link #TYPE_PROPERTY} in the JLS3 API.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Replaced by {@link #TYPE_PROPERTY} in the JLS3 API.
 	public static final ChildPropertyDescriptor NAME_PROPERTY = 
 		new ChildPropertyDescriptor(ClassInstanceCreation.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
@@ -397,7 +397,7 @@ public class ClassInstanceCreation extends Expression {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) - deprecated In the JLS3 API, this method is replaced by <code>getType</code>, which returns a <code>Type</code> instead of a <code>Name</code>.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>getType</code>, which returns a <code>Type</code> instead of a <code>Name</code>.
 	public Name getName() {
 	    supportedOnlyIn2();
 		if (this.typeName == null) {
@@ -426,7 +426,7 @@ public class ClassInstanceCreation extends Expression {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
 	 */ 
-	// TODO (jeem ) deprecated In the JLS3 API, this method is replaced by <code>setType</code>, which expects a <code>Type</code> instead of a <code>Name</code>.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated In the JLS3 API, this method is replaced by <code>setType</code>, which expects a <code>Type</code> instead of a <code>Name</code>.
 	public void setName(Name name) {
 	    supportedOnlyIn2();
 		if (name == null) {

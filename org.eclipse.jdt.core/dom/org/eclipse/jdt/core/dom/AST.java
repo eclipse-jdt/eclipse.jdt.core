@@ -93,7 +93,7 @@ public final class AST {
      *
 	 * @since 3.0
 	 */
-	// TODO (jeem) deprecated Clients should use the JLS3 API.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Clients should use the JLS3 API.
 	public static final int JLS2 = 2;
 	
 	/**
@@ -213,7 +213,7 @@ public final class AST {
 	 * 
 	 * @see JavaCore#getDefaultOptions()
 	 */
-	// TODO (jeem) deprecated Clients should port their code to use the new JLS3 API and call {@link #newAST(int)} instead of using this constructor.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Clients should port their code to use the new JLS3 API and call {@link #newAST(int)} instead of using this constructor.
 	public AST() {
 		this(JavaCore.getDefaultOptions());
 	}
@@ -276,7 +276,7 @@ public final class AST {
 	 *    value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions()
 	 */
-	// TODO (jeem) deprecated Clients should port their code to use the new JLS3 API and call {@link #newAST(int)} instead of using this constructor.
+	// TODO (jeem) When JLS3 support is complete (post 3.0) - deprecated Clients should port their code to use the new JLS3 API and call {@link #newAST(int)} instead of using this constructor.
 	public AST(Map options) {
 		this(JLS2);
 		// override scanner if 1.4 asked for
