@@ -39,7 +39,6 @@ public BatchImageBuilder(StateImpl state) {
  */
 protected BatchImageBuilder(StateImpl state, ConfigurableOption[] options) {
 	fDC = (JavaDevelopmentContextImpl) state.getDevelopmentContext();
-	state.setCompilerOptions(options);
 	fCompilerOptions = options;
 	fNewState = state;
 	fWorkQueue = new WorkQueue();

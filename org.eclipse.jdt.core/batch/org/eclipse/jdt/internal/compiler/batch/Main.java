@@ -20,28 +20,32 @@ import java.io.*;
 import java.util.*;
 
 public class Main implements ConfigurableProblems, ProblemSeverities {
+	private ConfigurableOption[] options;
+	private static final String[] problemOption ={
+		CompilerOptions.OPTION_ReportMethodWithConstructorName,
+		CompilerOptions.OPTION_ReportHiddenCatchBlock,
+		CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
+		CompilerOptions.OPTION_ReportDeprecation,
+		CompilerOptions.OPTION_ReportUnusedLocal,
+		CompilerOptions.OPTION_ReportUnusedParameter,
+		CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
+		CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
+		CompilerOptions.OPTION_ReportInvalidImport,
+		CompilerOptions.OPTION_ReportUnreachableCode,
+		CompilerOptions.OPTION_ReportAssertIdentifier,
+	};
+	private boolean noWarn = false;
+	
 	PrintWriter out;
 	boolean systemExitWhenFinished = true;
 	boolean proceedOnError = false;
-	int warningMask =
-		ParsingOptionalError |
-		MethodWithConstructorName | OverriddenPackageDefaultMethod |
-		UsingDeprecatedAPI | MaskedCatchBlock |
-		UnusedLocalVariable | UnusedArgument |
-		TemporaryWarning | OverriddenPackageDefaultMethod |
-		AccessEmulation;
 			
-	int debugMask = CompilerOptions.Lines | CompilerOptions.Source;
-	int targetJDK = CompilerOptions.JDK1_1;
-	boolean assertMode = false;
 	boolean verbose = false;
 	boolean produceRefInfo = false;
-	boolean importProblemIsError = true;
 	boolean timer = false;
 	boolean showProgress = false;
 	public long time = 0;
 	long lineCount;
-	boolean preserveAllLocalVariables = false; // The unused and final local variables will be optimized
 
 	String[] filenames;
 	String[] classpaths;
@@ -77,6 +81,7 @@ protected Main(PrintWriter writer, boolean systemExitWhenFinished) {
 	this.out = writer;
 	this.systemExitWhenFinished = systemExitWhenFinished;
 	exportedClassFilesCounter = 0;
+	options = Compiler.getDefaultOptions(Locale.getDefault());
 }
 /*
  *  Low-level API performing the actual compilation
@@ -243,6 +248,15 @@ public static void compile(String commandLine, PrintWriter writer) {
 	System.arraycopy(argv, 0, argv = new String[count], 0, count);
 	new Main(writer, false).compile(argv);
 }
+private void setOptionValueIndex(String id,int valueIndex){
+	for(int i = 0 ; i < options.length ; i++){
+		if(options[i].getID().equals(id)){
+			options[i].setValueIndex(valueIndex);
+			return;
+		}
+	}
+}
+
 /*
 Decode the command line arguments 
  */
@@ -254,11 +268,11 @@ private void configure(String[] argv) throws InvalidInputException {
 	final int TargetSetting = 4;
 	final int InsideLog = 8;
 	final int InsideRepetition = 16;
+	final int InsideSource = 32;
 	final int Default = 0;
-	final int SourceOption = 32;
 	int DEFAULT_SIZE_CLASSPATH = 4;
-	boolean noWarnOptionInUsed = false;
 	boolean warnOptionInUsed = false;
+	boolean noWarnOptionInUsed = false;
 	int pathCount = 0;
 	int index = -1, filesCount = 0, argCount = argv.length;
 	int mode = Default;
@@ -289,6 +303,10 @@ private void configure(String[] argv) throws InvalidInputException {
 			if (repetitions > 0)
 				throw new InvalidInputException(Main.bind("configure.duplicateRepeat"/*nonNLS*/,currentArg));
 			mode = InsideRepetition;
+			continue;
+		}
+		if (currentArg.equals("-source"/*nonNLS*/)) {
+			mode = InsideSource;
 			continue;
 		}
 		if (currentArg.equals("-d"/*nonNLS*/)) {
@@ -329,7 +347,7 @@ private void configure(String[] argv) throws InvalidInputException {
 		}		
 		if (currentArg.equals("-noImportError"/*nonNLS*/)) {
 			mode = Default;
-			importProblemIsError = false;
+			setOptionValueIndex("org.eclipse.jdt.internal.compiler.Compiler.problemInvalidImport"/*nonNLS*/,2);
 			continue;
 		}
 		if (currentArg.equals("-noExit"/*nonNLS*/)) {
@@ -349,25 +367,29 @@ private void configure(String[] argv) throws InvalidInputException {
 		}
 		if (currentArg.startsWith("-g"/*nonNLS*/)) {
 			mode = Default;
-			debugMask = 0; // reinitialize the default value
 			String debugOption = currentArg;
 			int length = currentArg.length();
 			if (length == 2) {
-				debugMask = CompilerOptions.Lines | CompilerOptions.Vars | CompilerOptions.Source;
+				setOptionValueIndex(CompilerOptions.OPTION_LocalVariableAttribute, 0);
+				setOptionValueIndex(CompilerOptions.OPTION_LineNumberAttribute, 0);
+				setOptionValueIndex(CompilerOptions.OPTION_SourceFileAttribute, 0);
 				continue;
 			}
 			if (length > 3) {
+				setOptionValueIndex(CompilerOptions.OPTION_LocalVariableAttribute, 1);
+				setOptionValueIndex(CompilerOptions.OPTION_LineNumberAttribute, 1);
+				setOptionValueIndex(CompilerOptions.OPTION_SourceFileAttribute, 1);				
 				if (length == 7 && debugOption.equals("-g:none"/*nonNLS*/))
 					continue;
 				StringTokenizer tokenizer = new StringTokenizer(debugOption.substring(3, debugOption.length()), ","/*nonNLS*/);
 				while (tokenizer.hasMoreTokens()) {
 					String token = tokenizer.nextToken();
 					if (token.equals("vars"/*nonNLS*/)) {
-						debugMask |= CompilerOptions.Vars;
+						setOptionValueIndex(CompilerOptions.OPTION_LocalVariableAttribute, 0);
 					} else if (token.equals("lines"/*nonNLS*/)) {
-						debugMask |= CompilerOptions.Lines;
+						setOptionValueIndex(CompilerOptions.OPTION_LineNumberAttribute, 0);
 					} else if (token.equals("source"/*nonNLS*/)) {
-						debugMask |= CompilerOptions.Source;
+						setOptionValueIndex(CompilerOptions.OPTION_SourceFileAttribute, 0);
 					} else {
 						throw new InvalidInputException(Main.bind("configure.invalidDebugOption"/*nonNLS*/,debugOption));
 					}
@@ -378,10 +400,10 @@ private void configure(String[] argv) throws InvalidInputException {
 		}
 		if (currentArg.startsWith("-nowarn"/*nonNLS*/)) {
 			noWarnOptionInUsed = true;
+			noWarn = true;
 			if (warnOptionInUsed)
 				throw new InvalidInputException(Main.bind("configure.duplicateWarningConfiguration"/*nonNLS*/));
-			mode = Default;
-			warningMask = TemporaryWarning; // reinitialize the default value (still see TemporaryWarning)		
+			mode = Default;		
 			continue;
 		}
 		if (currentArg.startsWith("-warn"/*nonNLS*/)) {
@@ -392,35 +414,45 @@ private void configure(String[] argv) throws InvalidInputException {
 			String warningOption = currentArg;
 			int length = currentArg.length();
 			if (length == 10 && warningOption.equals("-warn:none"/*nonNLS*/)) {
-				warningMask = TemporaryWarning; // reinitialize the default value (still see TemporaryWarning)
+				noWarn = true;
 				continue;
 			}
 			if (length < 6)
 				throw new InvalidInputException(Main.bind("configure.invalidWarningConfiguration"/*nonNLS*/,warningOption));
 			StringTokenizer tokenizer = new StringTokenizer(warningOption.substring(6, warningOption.length()), ","/*nonNLS*/);
 			int tokenCounter = 0;
-			warningMask = 0; // reinitialize the default value				
+
+			setOptionValueIndex(CompilerOptions.OPTION_ReportMethodWithConstructorName, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportHiddenCatchBlock, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportDeprecation, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportUnusedLocal, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportUnusedParameter, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, 2);
+			setOptionValueIndex(CompilerOptions.OPTION_ReportAssertIdentifier, 2);
+			
 			while (tokenizer.hasMoreTokens()) {
 				String token = tokenizer.nextToken();
 				tokenCounter++;
 				if (token.equals("constructorName"/*nonNLS*/)) {
-					warningMask |= CompilerOptions.MethodWithConstructorName;
+					setOptionValueIndex(CompilerOptions.OPTION_ReportMethodWithConstructorName, 1);
 				} else if (token.equals("packageDefaultMethod"/*nonNLS*/)) {
-					warningMask |= CompilerOptions.OverriddenPackageDefaultMethod;
+					setOptionValueIndex(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, 1);
 				} else if (token.equals("maskedCatchBlocks"/*nonNLS*/)) {
-					warningMask |= CompilerOptions.MaskedCatchBlock;
+					setOptionValueIndex(CompilerOptions.OPTION_ReportHiddenCatchBlock, 1);
 				} else if (token.equals("deprecation"/*nonNLS*/)) {
-					warningMask |= CompilerOptions.UsingDeprecatedAPI;
+					setOptionValueIndex(CompilerOptions.OPTION_ReportDeprecation, 1);
 				} else if (token.equals("unusedLocals"/*nonNLS*/)) {
-					warningMask |= CompilerOptions.UnusedLocalVariable;
+					setOptionValueIndex(CompilerOptions.OPTION_ReportUnusedLocal, 1);
 				} else if (token.equals("unusedArguments"/*nonNLS*/)) {
-					warningMask |= CompilerOptions.UnusedArgument;
+					setOptionValueIndex(CompilerOptions.OPTION_ReportUnusedParameter, 1);
 				} else if (token.equals("syntheticAccess"/*nonNLS*/)){
-					warningMask |= CompilerOptions.AccessEmulation;
+					setOptionValueIndex(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, 1);
 				} else if (token.equals("nls"/*nonNLS*/)){
-					warningMask |= CompilerOptions.NonExternalizedString;
+					setOptionValueIndex(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, 1);
 				} else if (token.equals("assertIdentifier"/*nonNLS*/)){
-					warningMask |= CompilerOptions.AssertUsedAsAnIdentifier;
+					setOptionValueIndex(CompilerOptions.OPTION_ReportAssertIdentifier/*nonNLS*/, 1);
 				} else {
 					throw new InvalidInputException(Main.bind("configure.invalidWarning"/*nonNLS*/,token));
 				}
@@ -434,30 +466,14 @@ private void configure(String[] argv) throws InvalidInputException {
 			continue;
 		}
 		if (currentArg.equals("-preserveAllLocals"/*nonNLS*/)) {
-			preserveAllLocalVariables = true;
+			setOptionValueIndex(CompilerOptions.OPTION_PreserveUnusedLocal, 0);
 			continue;
 		}
-		if (currentArg.equals("-source"/*nonNLS*/)) {
-			mode = SourceOption;
-			continue;
-		}
-		
-		if (mode == SourceOption) {
-			if (currentArg.equals("1.4"/*nonNLS*/)) {
-				assertMode = true;
-			} else if (currentArg.equals("1.3"/*nonNLS*/)) {
-				assertMode = false;
-			} else {
-				throw new InvalidInputException(Main.bind("configure.sourceOption"/*nonNLS*/,currentArg));
-			}
-			mode = Default;			
-			continue;
-		}		
 		if (mode == TargetSetting) {
 			if (currentArg.equals("1.1"/*nonNLS*/)) {
-				targetJDK = CompilerOptions.JDK1_1;
+				setOptionValueIndex(CompilerOptions.OPTION_TargetPlatform, 0);
 			} else if (currentArg.equals("1.2"/*nonNLS*/)) {
-				targetJDK = CompilerOptions.JDK1_2;
+				setOptionValueIndex(CompilerOptions.OPTION_TargetPlatform, 1);
 			} else {
 				throw new InvalidInputException(Main.bind("configure.targetJDK"/*nonNLS*/,currentArg));
 			}
@@ -477,6 +493,17 @@ private void configure(String[] argv) throws InvalidInputException {
 				}
 			} catch(NumberFormatException e){
 				throw new InvalidInputException(Main.bind("configure.repetition"/*nonNLS*/,currentArg));
+			}
+			mode = Default;
+			continue;
+		}
+		if (mode == InsideSource){
+			if (currentArg.equals("1.3"/*nonNLS*/)) {
+				setOptionValueIndex(CompilerOptions.OPTION_Source, 0);
+			} else if (currentArg.equals("1.4"/*nonNLS*/)) {
+				setOptionValueIndex(CompilerOptions.OPTION_Source, 1);
+			} else {
+				throw new InvalidInputException(Main.bind("configure.source"/*nonNLS*/,currentArg));
 			}
 			mode = Default;
 			continue;
@@ -526,6 +553,15 @@ private void configure(String[] argv) throws InvalidInputException {
 		continue;
 	}
 
+	if(noWarn){
+		for(int i = 0; i < problemOption.length ; i++){
+			for(int j = 0 ; j < options.length ; j++){
+				if(options[j].getID().equals(problemOption[i]) && options[j].getValueIndex() == 1){
+					options[j].setValueIndex(2);
+				}
+			}
+		}
+	}
 	/*
 	 * Standalone options
 	 */
@@ -689,14 +725,7 @@ protected FileSystem getLibraryAccess() {
  *  Low-level API performing the actual compilation
  */
 protected ConfigurableOption[] getOptions() {
-	CompilerOptions options = new CompilerOptions(); 
-	options.produceDebugAttributes(debugMask);
-	options.preserveAllLocalVariables(preserveAllLocalVariables);
-	options.handleImportProblemAsError(importProblemIsError);
-	options.setWarningThreshold(warningMask);
-	options.setTargetJDK(targetJDK);
-	options.setAssertMode(this.assertMode);
-	return options.getConfigurableOptions(Locale.getDefault());
+	return options;
 }
 protected IProblemFactory getProblemFactory() {
 	return new DefaultProblemFactory(Locale.getDefault());
@@ -750,43 +779,15 @@ protected void performCompilation() throws InvalidInputException {
 				getOptions(),
 		 		getBatchRequestor(),
 				getProblemFactory());
-	CompilerOptions options = batchCompiler.options; 
-	// set the non-externally configurable options. 
+	CompilerOptions options = batchCompiler.options;
+
+	// set the non-externally configurable options.
 	options.setVerboseMode(verbose);
 	options.produceReferenceInfo(produceRefInfo);
 	batchCompiler.compile(getCompilationUnits());
 }
 private void printUsage() {
 	out.println(Main.bind("misc.usage"/*nonNLS*/,this.versionID));
-	/*out.println(
-		"Eclipse Java Compiler "+ this.versionID + ", Copyright IBM Corp 2000\n\n" +
-		"Usage: <options> <source files | directories>\n\n" +
-					"where options include:\n" +
-					"-version or -v\tdisplays the version number (standalone option)\n" +
-					"-help\tdisplay this help message (standalone option)\n" +
-					"-noExit\tPrevent the compiler to call System.exit at the end of the compilation process\n" +					
-					"-classpath <dir 1>;<dir 2>;...;<dir P>\n" +
-					"-d <dir>\tdestination directory\n\t\t, specified '-d none' if you don't want to dump files\n" +
-					"-verbose\tprint accessed/processed compilation units \n" +
-					"-time\t\tdisplay total compilation time" +
-							"\n\t\tand speed if line attributes are enabled\n" +
-					"-log <filename>\tspecify a log file for recording problems\n" +
-					"-progress\t\tshow progress (only in -log mode)\n" +
-					"-g[:<level>]\tspecify the level of details for debug attributes" +
-							"\n\t\t-g\tgenerate all debug info"+
-							"\n\t\t-g:none\tno debug info"+
-							"\n\t\t-g:{lines,vars,source}\tonly some debug info\n" +
-					"-nowarn\t\tdo not report warnings \n" +
-					"-warn:<mask>\tspecify the level of details for warnings\n" +
-							"\t\t-warn:none no warning\n"+
-							"\t\t-warn:{constructorName, packageDefaultMethod, deprecation,\n" +
-							"\t\t\tmaskedCatchBlocks, unusedLocals, unusedArguments, \n" +
-							"\t\t\tsyntheticAccess, nls, assertIdentifier}\n" +					
-					"-noImportError\tdo not report errors on incorrect imports\n" +
-					"-proceedOnError\tkeep compiling when error, \n\t\tdumping class files with problem methods\n" +
-					"-referenceInfo\tcompute reference info\n" +
-					"-preserveAllLocals\trequest code gen preserve all local variables\n" +
-					"-repeat <n>\trepeat compilation process for performance analysis\n");*/
 	out.flush();
 }
 

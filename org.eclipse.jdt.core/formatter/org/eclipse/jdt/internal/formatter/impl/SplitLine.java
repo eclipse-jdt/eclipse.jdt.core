@@ -40,8 +40,10 @@ public String toString() {
 		String currentString = substrings[i];
 		boolean placeOperatorAhead = currentOperator != TerminalSymbols.TokenNameCOMMA && currentOperator != TerminalSymbols.TokenNameSEMICOLON;
 		boolean placeOperatorBehind = currentOperator == TerminalSymbols.TokenNameCOMMA || currentOperator == TerminalSymbols.TokenNameSEMICOLON;
+		
 
-	switch (currentOperator){	
+
+	switch (currentOperator){
 		case TokenNameextends:
 			operatorString="extends"/*nonNLS*/;
 			break;

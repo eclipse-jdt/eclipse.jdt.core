@@ -306,7 +306,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
 	}
 	TypeResolveRequestor requestor = new TypeResolveRequestor();
 	SelectionEngine engine = 
-		new SelectionEngine(environment, requestor, JavaModelManager.convertConfigurableOptions(JavaCore.getOptions()));
+		new SelectionEngine(environment, requestor, JavaModelManager.getOptions());
 		
 	engine.selectType(info, typeName.toCharArray());
 	return requestor.answers;

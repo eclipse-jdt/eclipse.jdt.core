@@ -11,14 +11,13 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.eval.*;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.ICompletionRequestor;
-import org.eclipse.jdt.internal.compiler.ConfigurableOption;
-import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
-import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.builder.impl.JavaBuilder;
 import org.eclipse.jdt.internal.core.builder.impl.ProblemFactory;
+import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.eval.*;
 
 import java.util.Locale;
@@ -66,7 +65,7 @@ public void codeComplete(String codeSnippet, int position, ICodeCompletionReques
 		position,
 		this.project.getSearchableNameEnvironment(),
 		new CompletionRequestorWrapper(requestor),
-		JavaModelManager.convertConfigurableOptions(JavaCore.getOptions())
+		JavaModelManager.getOptions()
 	);
 }
 /**
@@ -80,7 +79,7 @@ public IJavaElement[] codeSelect(String codeSnippet, int offset, int length) thr
 		offset + length - 1,
 		this.project.getSearchableNameEnvironment(),
 		requestor,
-		JavaModelManager.convertConfigurableOptions(JavaCore.getOptions())
+		JavaModelManager.getOptions()
 	);
 	return requestor.getElements();
 }
@@ -204,7 +203,7 @@ protected INameEnvironment getBuildNameEnvironment() throws JavaModelException {
  * Returns the compiler's configurable options.
  */
 protected ConfigurableOption[] getCompilerOptions() throws JavaModelException {
-	return JavaModelManager.convertConfigurableOptions(JavaCore.getOptions());
+	return JavaModelManager.getOptions();
 }
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#getImports

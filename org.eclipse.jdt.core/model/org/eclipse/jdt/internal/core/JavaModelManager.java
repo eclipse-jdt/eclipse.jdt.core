@@ -39,6 +39,15 @@ import org.eclipse.jdt.internal.core.builder.NotPresentException;
  * the static method <code>JavaModelManager.getJavaModelManager()</code>.
  */
 public class JavaModelManager implements IResourceChangeListener, ISaveParticipant { 	
+	/**
+	 * JavaCore options (don't use this field to add an new option,
+	 * use JavaModelManager#addOption method.
+	 */
+	public static Hashtable fOptions;
+	/**
+	 * JavaCore options IDs
+	 */
+	private static ArrayList fOptionIDs;
 
 	/**
 	 * The singleton manager
@@ -168,237 +177,7 @@ public void checkProjectBeingAdded(IResourceDelta delta) {
 public void closeAffectedElements(IResourceDelta delta) {
 	fDeltaProcessor.closeAffectedElements(delta);
 }
-/**
- * Convert options Map into ConfigurableOption understood by the infrastructure
- *
- * Should be revisited
- */
-public static ConfigurableOption[] convertConfigurableOptions(Hashtable optionMap) {
 
-	Enumeration optionNames = optionMap.keys();
-	CompilerOptions compilerOptions = new CompilerOptions();
-	int index = 0;
-	
-	while (optionNames.hasMoreElements()){
-		
-		String optionName = (String)optionNames.nextElement();
-		String optionValue = (String)optionMap.get(optionName);
-		
-		if (optionName.equals(JavaCore.COMPILER_LOCAL_VARIABLE_ATTR)){
-
-			if (optionValue.equals(JavaCore.GENERATE)){
-				compilerOptions.produceDebugAttributes(
-					compilerOptions.getDebugAttributesMask() | CompilerOptions.Vars);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.DO_NOT_GENERATE)){
-				compilerOptions.produceDebugAttributes(
-					compilerOptions.getDebugAttributesMask() & ~CompilerOptions.Vars);
-				continue;
-			}
-			continue;
-		} 
-		if (optionName.equals(JavaCore.COMPILER_LINE_NUMBER_ATTR)){
-
-			if (optionValue.equals(JavaCore.GENERATE)){
-				compilerOptions.produceDebugAttributes(
-					compilerOptions.getDebugAttributesMask() | CompilerOptions.Lines);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.DO_NOT_GENERATE)){
-				compilerOptions.produceDebugAttributes(
-					compilerOptions.getDebugAttributesMask() & ~CompilerOptions.Lines);
-				continue;
-			}
-			continue;
-		} 
-		if (optionName.equals(JavaCore.COMPILER_SOURCE_FILE_ATTR)){
-
-			if (optionValue.equals(JavaCore.GENERATE)){
-				compilerOptions.produceDebugAttributes(
-					compilerOptions.getDebugAttributesMask() | CompilerOptions.Source);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.DO_NOT_GENERATE)){
-				compilerOptions.produceDebugAttributes(
-					compilerOptions.getDebugAttributesMask() & ~CompilerOptions.Source);
-				continue;
-			}
-			continue;
-		}
-		if (optionName.equals(JavaCore.COMPILER_CODEGEN_UNUSED_LOCAL)){
-
-			if (optionValue.equals(JavaCore.PRESERVE)){
-				compilerOptions.preserveAllLocalVariables(true);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.OPTIMIZE_OUT)){
-				compilerOptions.preserveAllLocalVariables(false);
-				continue;
-			}
-			continue;
-		}
-		if (optionName.equals(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM)){
-
-			if (optionValue.equals(JavaCore.VERSION_1_1)){
-				compilerOptions.setTargetJDK(CompilerOptions.JDK1_1);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.VERSION_1_2)){
-				compilerOptions.setTargetJDK(CompilerOptions.JDK1_2);
-				continue;
-			}
-			continue;
-		}
-		if (optionName.equals(JavaCore.COMPILER_PB_UNREACHABLE_CODE)){
-
-			if (optionValue.equals(JavaCore.ERROR)){
-				compilerOptions.handleUnreachableCodeAsError(true);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.WARNING)){
-				compilerOptions.handleUnreachableCodeAsError(false);
-				continue;
-			}
-			continue;
-		}
-		if (optionName.equals(JavaCore.COMPILER_PB_INVALID_IMPORT)){
-
-			if (optionValue.equals(JavaCore.ERROR)){
-				compilerOptions.handleImportProblemAsError(true);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.WARNING)){
-				compilerOptions.handleImportProblemAsError(false);
-				continue;
-			}
-			continue;
-		}
-		
-		if (optionName.equals(JavaCore.COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD)){
-
-			if (optionValue.equals(JavaCore.WARNING)){
-				compilerOptions.handleOverriddenPackageDefaultMethodAsWarning(true);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.IGNORE)){
-				compilerOptions.handleOverriddenPackageDefaultMethodAsWarning(false);
-				continue;
-			}
-			continue;
-		}
-		if (optionName.equals(JavaCore.COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME)){
-
-			if (optionValue.equals(JavaCore.WARNING)){
-				compilerOptions.handleMethodWithConstructorNameAsWarning(true);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.IGNORE)){
-				compilerOptions.handleMethodWithConstructorNameAsWarning(false);
-				continue;
-			}
-			continue;
-		}
-		if (optionName.equals(JavaCore.COMPILER_PB_DEPRECATION)){
-
-			if (optionValue.equals(JavaCore.WARNING)){
-				compilerOptions.handleDeprecationUseAsWarning(true);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.IGNORE)){
-				compilerOptions.handleDeprecationUseAsWarning(false);
-				continue;
-			}
-			continue;
-		}
-		if (optionName.equals(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK)){
-
-			if (optionValue.equals(JavaCore.WARNING)){
-				compilerOptions.handleMaskedCatchBlockAsWarning(true);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.IGNORE)){
-				compilerOptions.handleMaskedCatchBlockAsWarning(false);
-				continue;
-			}
-			continue;
-		}
-		if (optionName.equals(JavaCore.COMPILER_PB_UNUSED_LOCAL)){
-
-			if (optionValue.equals(JavaCore.WARNING)){
-				compilerOptions.handleUnusedLocalVariableAsWarning(true);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.IGNORE)){
-				compilerOptions.handleUnusedLocalVariableAsWarning(false);
-				continue;
-			}
-			continue;
-		}
-		if (optionName.equals(JavaCore.COMPILER_PB_UNUSED_PARAMETER)){
-
-			if (optionValue.equals(JavaCore.WARNING)){
-				compilerOptions.handleUnusedArgumentAsWarning(true);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.IGNORE)){
-				compilerOptions.handleUnusedArgumentAsWarning(false);
-				continue;
-			}
-			continue;
-		}
-		if (optionName.equals(JavaCore.COMPILER_PB_SYNTHETIC_ACCESS_EMULATION)){
-
-			if (optionValue.equals(JavaCore.WARNING)){
-				compilerOptions.handleAccessEmulationAsWarning(true);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.IGNORE)){
-				compilerOptions.handleAccessEmulationAsWarning(false);
-				continue;
-			}
-			continue;
-		}
-		if (optionName.equals(JavaCore.COMPILER_PB_NON_EXTERNALIZED_STRING_LITERAL)){
-
-			if (optionValue.equals(JavaCore.WARNING)){
-				compilerOptions.handleNonExternalizedStringLiteralAsWarning(true);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.IGNORE)){
-				compilerOptions.handleNonExternalizedStringLiteralAsWarning(false);
-				continue;
-			}
-			continue;
-		}
-		if (optionName.equals(JavaCore.COMPILER_COMPILATION_SOURCE)){
-
-			if (optionValue.equals(JavaCore.VERSION_1_4)){
-				compilerOptions.setAssertMode(true);
-				continue;
-			}
-			if (optionValue.equals(JavaCore.VERSION_1_3)){
-				compilerOptions.setAssertMode(false);
-				continue;				
-			}
-			continue;
-		}
-		if (optionName.equals(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER)){
-
-			if (optionValue.equals(JavaCore.WARNING)){
-				compilerOptions.handleAssertIdentifierAsWarning(true);
-				continue;
-			} 
-			if (optionValue.equals(JavaCore.IGNORE)){
-				compilerOptions.handleAssertIdentifierAsWarning(false);
-				continue;				
-			}
-			continue;
-		}
-	}
-	
-	return compilerOptions.getConfigurableOptions(Locale.getDefault());
-}
 	/**
 	 * Note that the project is now deleted.
 	 *
@@ -720,6 +499,42 @@ public void doneSaving(ISaveContext context){
 		return writer.toString();	
 			
 	}
+	
+	public String getOptionsAsXMLString() throws CoreException {
+
+		Document document = new DocumentImpl();
+		Element rootElement = document.createElement("options"/*nonNLS*/);
+		document.appendChild(rootElement);
+
+		String[] ids = JavaCore.getOptionIDs();
+		
+		for (int i= 0; i < ids.length; ++i) {
+			ConfigurableOption option = (ConfigurableOption)fOptions.get(ids[i]);
+			
+			Element optionElement= document.createElement("option"/*nonNLS*/);
+			optionElement.setAttribute("id"/*nonNLS*/, ids[i]);
+			if(option.getPossibleValues() == ConfigurableOption.NoDiscreteValue){
+				optionElement.setAttribute("value"/*nonNLS*/, option.getValue());	
+			}
+			else{
+				optionElement.setAttribute("index"/*nonNLS*/, String.valueOf(option.getValueIndex()));	
+			}
+			rootElement.appendChild(optionElement);
+		}
+
+		// produce a String output
+		StringWriter writer = new StringWriter();
+		try {
+			OutputFormat format = new OutputFormat();
+			format.setIndenting(true);
+			Serializer serializer = SerializerFactory.getSerializerFactory(Method.XML).makeSerializer(writer, format);
+			serializer.asDOMSerializer().serialize(document);
+		} catch (IOException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+		}
+		return writer.toString();	
+			
+	}
 /**
 	 * Returns the open ZipFile at the given location. If the ZipFile
 	 * does not yet exist, it is created, opened, and added to the cache
@@ -779,6 +594,16 @@ public void doneSaving(ISaveContext context){
 								new QualifiedName(JavaCore.PLUGIN_ID, "variables"/*nonNLS*/));
 		try {
 			if (xmlString != null) readVariables(xmlString);
+		} catch(IOException e){
+			return;
+		}
+	}
+	
+	public void loadOptions() throws CoreException {	
+		String xmlString = ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(
+								new QualifiedName(JavaCore.PLUGIN_ID, "options"/*nonNLS*/));
+		try {
+			if (xmlString != null) readOptions(xmlString);
 		} catch(IOException e){
 			return;
 		}
@@ -931,7 +756,54 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 
 			}
 		}
-	}	
+	}
+	
+	public void readOptions(String xmlString) throws IOException {
+		if(fOptions == null)
+			JavaCore.resetOptions();
+		
+		StringReader reader = new StringReader(xmlString);
+		Element cpElement;
+		try {
+			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
+		} catch(SAXException e) {
+			throw new IOException(Util.bind("option.badFormat"/*nonNLS*/));
+		} catch(ParserConfigurationException e){
+			reader.close();
+			throw new IOException(Util.bind("option.badFormat"/*nonNLS*/));
+		} finally {
+			reader.close();
+		}
+		if (!cpElement.getNodeName().equalsIgnoreCase("options"/*nonNLS*/)) {
+			throw new IOException(Util.bind("option.badFormat"/*nonNLS*/));
+		}
+		NodeList list= cpElement.getChildNodes();
+		int length= list.getLength();
+		for (int i= 0; i < length; ++i) {
+			Node node= list.item(i);
+			short type= node.getNodeType();
+			if (type == Node.ELEMENT_NODE) {
+				Element element= (Element) node;
+				if (element.getNodeName().equalsIgnoreCase("option"/*nonNLS*/)) {
+					String id = element.getAttribute("id"/*nonNLS*/);
+					ConfigurableOption option = (ConfigurableOption) fOptions.get(id);
+					
+					String[] possible = option.getPossibleValues();
+					if(possible == ConfigurableOption.NoDiscreteValue){
+						String value = element.getAttribute("value"/*nonNLS*/);
+						option.setValue(value);
+					}
+					else {
+						int valueIndex = Integer.parseInt(element.getAttribute("index"/*nonNLS*/));
+						option.setValueIndex(valueIndex);
+					}
+					
+				}
+
+			}
+		}
+	}
 	/**
 	 * Registers the given delta with this manager. This API is to be
 	 * used to registerd deltas that are created explicitly by the Java
@@ -1147,12 +1019,19 @@ public void rollback(ISaveContext context){
 			new QualifiedName(JavaCore.PLUGIN_ID, "variables"/*nonNLS*/), 
 			getVariablesAsXMLString());
 	}
+	
+	public void saveOptions() throws CoreException {
+		ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(
+			new QualifiedName(JavaCore.PLUGIN_ID, "options"/*nonNLS*/), 
+			getOptionsAsXMLString());
+	}
 /**
  * @see ISaveParticipant
  */
 public void saving(ISaveContext context) throws CoreException {
 
 	this.saveVariables();
+	this.saveOptions();
 	
 	if (context.getKind() == ISaveContext.FULL_SAVE){
 		this.saveBuildState();	// build state
@@ -1165,8 +1044,9 @@ public void saving(ISaveContext context) throws CoreException {
 	protected void setBuildOrder(String[] javaBuildOrder) throws JavaModelException {
 
 		// optional behaviour
-		if (!JavaCore.COMPUTE.equals(JavaCore.getOptions().get(JavaCore.CORE_JAVA_BUILD_ORDER))) return;
-			
+		// possible value of index 0 is Compute
+		if (!JavaCore.getOptionPossibleValues(JavaCore.OPTION_ComputeBuildOrder)[0].equals(JavaCore.getOptionValue(JavaCore.OPTION_ComputeBuildOrder))) return;
+		
 		if (javaBuildOrder == null || javaBuildOrder.length <= 1) return;
 		
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -1245,5 +1125,38 @@ public void saving(ISaveContext context) throws CoreException {
 	 */
 	public void stopDeltas() {
 		fFire= false;
+	}
+	
+	/**
+ 	* Answers a copy of the current set of options supported by the Java core.
+ 	* These options allow to configure the behavior of the underlying components.
+ 	*
+ 	* Changes on the set of options are not committed until invoking <code>JavaCore.setOptionValue</code>
+ 	*/
+	public static ConfigurableOption[] getOptions(){
+		if(fOptions == null)
+			JavaCore.resetOptions();
+		
+		return (ConfigurableOption[])fOptions.values().toArray(new ConfigurableOption[0]);
+	}
+	
+	/**
+	 * Answers a set of option'IDs which are in option set of JavaCore
+	 */
+	public static String[] getOptionIDs(){
+		if(fOptionIDs == null)
+			return new String[0];
+		return (String [])fOptionIDs.toArray(new String[0]);
+	}
+	
+	public static void initializeOptions(){
+		fOptions = new Hashtable(10);
+		fOptionIDs = new ArrayList(10);
+	}
+	
+	public static void addOption(ConfigurableOption option){
+		String id = option.getID();
+		fOptions.put(id,option);
+		fOptionIDs.add(id);
 	}
 }

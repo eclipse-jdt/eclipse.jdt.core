@@ -18,8 +18,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ConfigurableOption;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.builder.IBinaryBroker;
 import org.eclipse.jdt.internal.core.builder.IBuildListener;
 import org.eclipse.jdt.internal.core.builder.IBuildMonitor;
@@ -203,15 +205,7 @@ public IState getCurrentState() throws NotPresentException {
  * Reads the default compiler options.
  */
 protected static ConfigurableOption[] getDefaultCompilerOptions() {
-	ConfigurableOption[] options = Compiler.getDefaultOptions(Locale.getDefault());
-
-	/**
-	 * Ugly because this requires knowledge of the compiler's
-	 * internal problem representation.
-	 */
-	setCompilerOption(options, 11, 1);
-	setCompilerOption(options, 12, 1);
-	return options;
+	return JavaModelManager.getOptions();
 }
 /**
  * Returns the default package handle (java.lang).
@@ -405,17 +399,7 @@ public void setBinaryBroker(IBinaryBroker broker) {
  */
 public void setBuildProgressListener(IProgressListener listener) {
 }
-/**
- * Sets a compiler option.  This seems awkward.
- */
-protected static void setCompilerOption(ConfigurableOption[] options, int optionID, int valueIndex) {
-	for (int i = 0; i < options.length; i++) {
-		if (options[i].getID() == optionID) {
-			options[i].setValueIndex(valueIndex);
-			return;
-		}
-	}
-}
+
 /**
  * setCurrentState method comment.
  */

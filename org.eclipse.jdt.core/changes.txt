@@ -4,18 +4,22 @@ What's new in this drop (since 0.9)
 ==================================================================================
   * JCK1.3a compliant. 
   * All messages have been externalized. 
-  * Added 2 new APIs on JavaConventions: 
+  * Added 2 new APIs on JavaConventions for classpath validation.
          - IJavaModelStatus validateClasspath(IJavaProject project, IClasspathEntry[] classpath, IPath outputLocation) 
          - IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment) 
  * Ant Eclipse compiler task added (org.eclipse.jdt.core.ant.Jdtcom)
  * Assertions support enabled: by default the compiler is 1.3 compliant, but it can optionally be turned into source 1.4 mode cf. JavaCore options.
+ * Added new APIs on JavaCore so as to change optional settings (compiler, formatter, codeassist, ...). 
+ 		- Description of available options is available in JavaCore.ini 	along with default values. 
+ 		- Option settings are globally kept on JavaCore.
 
 PRs Fixed in this Release (since 1.0NL stream)
 ==================================================================================
+1GE4ILR: ITPJCORE:ALL - Eval - Evaluation in Binary Project fails
+1GI3LLC: ITPJCORE:ALL - Incorrect formatting for the new keyword
 1GHU6O5: ITPJCORE:WINNT - RMIC test fail
 1GHH6O7: ITPJCORE:ALL - Need to tune the exception analysis for AssertStatement
 1GHUW7T: ITPJCORE:WIN2000 - Build Problem
-1GFQT1W: ITPJUI:WIN2000 - Error changing classpath to not use /bin
 1GHU4PK: ITPJCORE:WINNT - NoSuchMethodError when running program
 1GHONAX: ITPJCORE:WIN2000 - Compiler uses different name lookup for refactoring
 1GEJYAJ: ITPJCORE:WIN2000 - Compiler - Binding of QualifiedNameReference is null

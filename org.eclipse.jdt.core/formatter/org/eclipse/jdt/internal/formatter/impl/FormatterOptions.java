@@ -8,8 +8,21 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.formatter.*;
 import java.util.*;
 
-public class FormatterOptions {
+public class FormatterOptions {	
 
+	/**
+	 * Option IDs
+	 */
+	public static final String OPTION_InsertNewlineBeforeOpeningBrace = CodeFormatter.class.getName() + ".newlineOpeningBrace"/*nonNLS*/;
+	public static final String OPTION_InsertNewlineInControlStatement = CodeFormatter.class.getName() + ".newlineControlStatement"/*nonNLS*/;
+	public static final String OPTION_InsertNewLineBetweenElseAndIf = CodeFormatter.class.getName() + ".newlineElseIf"/*nonNLS*/;
+	public static final String OPTION_InsertNewLineInEmptyBlock = CodeFormatter.class.getName() + ".newlineEmptyBlock"/*nonNLS*/;
+	public static final String OPTION_ClearAllBlankLines = CodeFormatter.class.getName() + ".newlineClearAll"/*nonNLS*/;
+	public static final String OPTION_SplitLineExceedingLength = CodeFormatter.class.getName() + ".lineSplit"/*nonNLS*/;
+	public static final String OPTION_CompactAssignment = CodeFormatter.class.getName() + ".compactAssignment"/*nonNLS*/;
+	public static final String OPTION_TabulationChar = CodeFormatter.class.getName() + ".tabulationChar"/*nonNLS*/;
+	public static final String OPTION_TabulationSize = CodeFormatter.class.getName() + ".tabulationSize"/*nonNLS*/;
+	
 	// by default, do not insert blank line before opening brace
 	public boolean newLineBeforeOpeningBraceMode = false;
 
@@ -42,7 +55,8 @@ public FormatterOptions(){
  */
 public FormatterOptions(ConfigurableOption[] settings){
 	if (settings == null) return;
-	// filter options which are related to the compiler component
+
+	// filter options which are related to the formatter component
 	String componentName = CodeFormatter.class.getName();
 	for (int i = 0, max = settings.length; i < max; i++){
 		if (settings[i].getComponentName().equals(componentName)){
@@ -50,26 +64,7 @@ public FormatterOptions(ConfigurableOption[] settings){
 		}
 	}
 }
-/**
- * Returns all the options of the Code Formatter to be shown by the UI
- *
- * @param locale java.util.Locale
- * @return com.ibm.compiler.java.ConfigurableOption[]
- */
-public ConfigurableOption[] getConfigurableOptions(Locale locale) {
-	String componentName = CodeFormatter.class.getName();
-	return new ConfigurableOption[] {
-		new ConfigurableOption(componentName, "newline.openingBrace"/*nonNLS*/,  locale, newLineBeforeOpeningBraceMode ? 0 : 1),
-		new ConfigurableOption(componentName, "newline.controlStatement"/*nonNLS*/,  locale, newlineInControlStatementMode ? 0 : 1),
-		new ConfigurableOption(componentName, "newline.clearAll"/*nonNLS*/,  locale, clearAllBlankLinesMode ? 0 : 1),
-		new ConfigurableOption(componentName, "newline.elseIf"/*nonNLS*/,  locale, compactElseIfMode ? 0 : 1),
-		new ConfigurableOption(componentName, "newline.emptyBlock"/*nonNLS*/,  locale, newLineInEmptyBlockMode ? 0 : 1),
-		new ConfigurableOption(componentName, "line.split"/*nonNLS*/,  locale, maxLineLength),
-		new ConfigurableOption(componentName, "style.compactAssignment"/*nonNLS*/,  locale, compactAssignmentMode ? 0 : 1),
-		new ConfigurableOption(componentName, "tabulation.char"/*nonNLS*/,  locale, indentWithTab ? 0 : 1),
-		new ConfigurableOption(componentName, "tabulation.size"/*nonNLS*/,  locale, tabSize)	
-	};
-}
+
 /**
  * 
  * @return int
@@ -160,37 +155,36 @@ public void setNewLineInEmptyBlockMode(boolean flag) {
  * @param newValue <CODE>int</CODE>
  */
 public void setOption(ConfigurableOption setting) {
-
-	switch (setting.getID()) {
-		case 1 : // insert blank line before opening brace
-			setNewLineBeforeOpeningBraceMode(setting.getCurrentValueIndex() == 0);
-			break;
-		case 2 : // insert blank line behind keywords (ELSE, CATCH, FINALLY,...) in control statements
-			setNewlineInControlStatementMode(setting.getCurrentValueIndex() == 0);
-			break;
-		case 3 : // flush all blank lines
-			setClearAllBlankLinesMode(setting.getCurrentValueIndex() == 0);
-			break;
-		case 4 : // puts else if on the same line
-			setCompactElseIfMode(setting.getCurrentValueIndex() == 0);
-		break;
-		case 5 : // add a new line inside an empty block.
-			setNewLineInEmptyBlockMode(setting.getCurrentValueIndex() == 0);
-		break;
-		case 6 : // line splitting will occur when line exceeds this length (0 -> no splitting)
-			setMaxLineLength(setting.getCurrentValueIndex());
-			break;
-		case 7 : // if isTrue, assignments look like x= 12 (not like x = 12);
-			setCompactAssignmentMode(setting.getCurrentValueIndex() == 0);
-			break;
-		case 9 : // should use tab or spaces to indent
-			setIndentationUsesTab(setting.getCurrentValueIndex() == 0);
-			break;
-		case 10 : // amount of spaces for a tabulation
-			setTabSize(setting.getCurrentValueIndex());
-			break;
+	
+	String optionID = setting.getID();
+	
+	if(optionID.equals(OPTION_InsertNewlineBeforeOpeningBrace)){
+		setNewLineBeforeOpeningBraceMode(setting.getValueIndex() == 0);
+	}else if(optionID.equals(OPTION_InsertNewlineInControlStatement)){
+		setNewlineInControlStatementMode(setting.getValueIndex() == 0);
+	}else if(optionID.equals(OPTION_ClearAllBlankLines)){
+		setClearAllBlankLinesMode(setting.getValueIndex() == 0);
+	}else if(optionID.equals(OPTION_InsertNewLineBetweenElseAndIf)){
+		setCompactElseIfMode(setting.getValueIndex() == 1);
+	}else if(optionID.equals(OPTION_InsertNewLineInEmptyBlock)){
+		setNewLineInEmptyBlockMode(setting.getValueIndex() == 0);
+	}else if(optionID.equals(OPTION_SplitLineExceedingLength)){
+		try {
+			setMaxLineLength(Integer.parseInt(setting.getValue()));
+		} catch(NumberFormatException e){
+		}
+	}else if(optionID.equals(OPTION_CompactAssignment)){
+		setCompactAssignmentMode(setting.getValueIndex() == 0);
+	}else if(optionID.equals(OPTION_TabulationChar)){
+		setIndentationUsesTab(setting.getValueIndex() == 0);
+	}else if(optionID.equals(OPTION_TabulationSize)){
+		try {
+			setTabSize(Integer.parseInt(setting.getValue()));
+		} catch(NumberFormatException e){
+		}
 	}
 }
+
 public void setReuseExistingLayoutMode(boolean flag) {
 }
 public void setTabSize(int size) {

@@ -1,5 +1,5 @@
 package org.eclipse.jdt.internal.core.builder.impl;
-
+
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
@@ -16,7 +16,7 @@ import java.util.Random;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -63,52 +63,52 @@ import org.eclipse.jdt.internal.core.builder.NotPresentException;
 import org.eclipse.jdt.internal.core.builder.StateSpecificException;
 import org.eclipse.jdt.internal.core.lookup.ReferenceInfo;
 import org.eclipse.jdt.internal.core.util.LookupTable;
-
+
 /**
  * The concrete representation of a built state.
  *
  * @see IState
  */
 public class StateImpl implements IState {
-
+
 	/**
 	 * The development context corresponding to this state
 	 */
 	private JavaDevelopmentContextImpl fDevelopmentContext;
-
+
 	/**
 	 * The build context.  Only packages in the build context
 	 * are actually built
 	 */
 	private IImageContext fBuildContext;
-
+
 	/**
 	 * The project built by this state.
 	 */
 	private IProject fProject;
-
+
 	/**
 	 * The name of the project built by this state.
 	 */
 	private String fProjectName;
-
+
 	/**
 	 * The paths of the package fragment roots in the class path.
 	 */
 	private IPackageFragmentRoot[] fPackageFragmentRootsInClassPath;
-
+
 	/**
 	 * The binary output.
 	 */
 	private BinaryOutput fBinaryOutput;
-
+
 	/**
 	 * The package map.  A hashtable of package handles to PackageMapEntry objects.
 	 * The package map entries store the collection of package fragments that
 	 * make up the given builder package.
 	 */
 	private PackageMap fPackageMap;
-
+
 	/**
 	 * The path map.  A table that maps from paths to package handles.  This
 	 * is essentially a reverse index of the package map.  Note that this
@@ -116,63 +116,58 @@ public class StateImpl implements IState {
 	 * not need to be serialized or incrementally updated.
 	 */
 	private PathMap fPathMap;
-
+
 	/**
 	 * The source element table.  This table holds a source fragment for
 	 * all workspace elements.
 	 */
 	private SourceElementTable fSourceElementTable;
-
+
 	/**
 	 * The principal structure table.  A table of type handles to TypeStructureEntry objects.
 	 * This is where build results are stored.  This table only contains types that
 	 * have been compiled.
 	 */
 	private Hashtable fPrincipalStructureTable;
-
+
 	/**
 	 * Table of IPackage to TypeStructureEntry[] for all types in package (lazy).
 	 */
 	private Hashtable fPrincipalStructureByPackageTable;
-
+
 	/**
 	 * The problem reporter.  All problems for this state are stored in this problem
 	 * reporter.
 	 */
 	private IProblemReporter fProblemReporter;
-
+
 	/**
 	 * The graph of source element dependencies, used for
 	 * incremental compilation
 	 */
 	private DependencyGraph fGraph= null;
-
+
 	/**
 	 * The table of subtypes.  Maps from IType to TypeStructureEntry[].  Absence in table implies no subtypes.
 	 */
 	private Hashtable fSubtypesTable;
 	private IImageContext fSubtypesTableImageContext;
-
+
 	/**
 	 * The image corresponding to this state
 	 */
 	private IImage fImage;
-
-	/**
-	 * The compiler options that were used to build this state.
-	 */
-	private ConfigurableOption[] fCompilerOptions;
-
+
 	/**
 	 * Unique state number
 	 */
 	private int fStateNumber;
-
+
 	/**
 	 * Fingerprint bytes
 	 */
 	private byte[] fFingerprint;
-
+
 	/* primitive type handles */
 	final IType fVoidType;
 	final IType fIntType;
@@ -183,28 +178,28 @@ public class StateImpl implements IState {
 	final IType fLongType;
 	final IType fShortType;
 	final IType fBooleanType;
-
+
 	/**
 	 * Counter for unique state numbers (not the fingerprint).
 	 */
 	private static int fgStateCounter= 0;
-
+
 	/**
 	 * Namespace flag indicating CU has parse error.
 	 * Must not conflict with modifiers or other flags in IConstants.
 	 */
 	private static final int F_HAS_PARSE_ERROR= 0x10000000;
-
+
 	/**
 	 * Name for namespace node representing unknown dependencies.
 	 */
 	private static final String UNKNOWN_DEPENDENCIES= "$UNKNOWN_DEPENDENCIES$"/*nonNLS*/;
-
+
 	/**
 	 * Random number generator, used for generating fingerprints.
 	 */
 	private static final Random fgRandom= new Random();
-
+
 	/**
 	 * State constructor comment.  The build context, fingerprint, and internal tables 
 	 * are not instantiated and must be filled in before use.
@@ -231,7 +226,7 @@ public class StateImpl implements IState {
 	protected StateImpl(JavaDevelopmentContextImpl dc, IProject project, IImageContext buildContext) {
 		this(dc, project);
 		fBuildContext= buildContext;
-
+
 		/* state tables */
 		fPackageMap= new PackageMap();
 		fSourceElementTable= new SourceElementTable();
@@ -255,7 +250,7 @@ public class StateImpl implements IState {
 	 */
 	protected void buildInitialPackageMap() {
 		fPackageMap= new PackageMap();
-
+
 		/* do for each package fragment root in (classpath INTERSECT workspace) */
 		try {
 			IPackageFragmentRoot[] roots= getPackageFragmentRootsInClassPath();
@@ -279,7 +274,7 @@ public class StateImpl implements IState {
 		} catch (JavaModelException e) {
 			throw internalException(e);
 		}
-
+
 		/* build the reverse index -- the path map */
 		fPathMap= new PathMap(fPackageMap);
 	}
@@ -357,12 +352,12 @@ public class StateImpl implements IState {
 		IPackage[] oldPackages= oldContext.getPackages();
 		int pkgCount= oldPackages.length;
 		IPackage[] newPackages= new IPackage[pkgCount];
-
+
 		/* canonicalize packages through package map */
 		for (int i= 0; i < pkgCount; i++) {
 			newPackages[i]= canonicalize(oldPackages[i]);
 		}
-
+
 		return new ImageContextImpl(fDevelopmentContext, newPackages);
 	}
 	/**
@@ -406,7 +401,7 @@ public class StateImpl implements IState {
 		String fileName= new String(result.getFileName());
 		SourceEntry sEntry= SourceEntry.fromPathWithZipEntryName(fileName);
 		PackageElement resultUnit= packageElementFromSourceEntry(sEntry);
-
+
 		/**
 		 * Make sure the CU exists.  May be null if unit is unavailable 
 		 * (e.g. package is not included in package map due to class path omission).
@@ -415,7 +410,7 @@ public class StateImpl implements IState {
 		IPackage resultPkg= resultUnit.getPackage();
 		IProblem[] compilerProblems= result.getProblems();
 		Vector vProblems= new Vector(compilerProblems == null ? 0 : compilerProblems.length);
-
+
 		/* convert type names to type handles for the produced types */
 		ClassFile[] classFiles= result.getClassFiles();
 		Vector vTSEntries= new Vector(classFiles.length);
@@ -454,7 +449,7 @@ public class StateImpl implements IState {
 				continue;
 			}
 			TypeStructureEntry tsEntry= new TypeStructureEntry(sEntry, typeHandle);
-
+
 			/* squirrel the binary away */
 			byte[] binary= classFile.getBytes();
 			// as a side effect, the following sets the crc32 for the type structure entry
@@ -463,10 +458,10 @@ public class StateImpl implements IState {
 		}
 		TypeStructureEntry[] tsEntries= new TypeStructureEntry[vTSEntries.size()];
 		vTSEntries.copyInto(tsEntries);
-
+
 		/* convert dependencies */
 		Vector dependencies= resolveDependencies(resultUnit, result);
-
+
 		/* convert problems */
 		if (compilerProblems != null) {
 			for (int i= 0; i < compilerProblems.length; i++) {
@@ -493,7 +488,6 @@ public class StateImpl implements IState {
 		newState.fProblemReporter= this.fProblemReporter.copy();
 		newState.fGraph= this.fGraph.copy();
 		newState.fBuildContext= context;
-		newState.fCompilerOptions= this.fCompilerOptions;
 		return newState;
 	}
 	/**
@@ -521,7 +515,7 @@ public class StateImpl implements IState {
 		IType type= tsEntry.getType();
 		SourceEntry sEntry= tsEntry.getSourceEntry();
 		IBinaryType binaryType= null;
-
+
 		/* if its a class file, get descriptor from binary index */
 		if (sEntry.isBinary()) {
 			try {
@@ -580,9 +574,9 @@ public class StateImpl implements IState {
 		if (!fPackageMap.containsPackage(pkg)) {
 			return null;
 		}
-
+
 		// TBD: Doesn't support lazy builds.
-
+
 		int max= 30;
 		TypeStructureEntry[] list= new TypeStructureEntry[max];
 		int count= 0;
@@ -611,12 +605,12 @@ public class StateImpl implements IState {
 		}
 		IType nssHandle= (IType) type.nonStateSpecific();
 		TypeStructureEntry tsEntry= buildTypeStructureEntry(nssHandle);
-
+
 		/* Attempt to retrieve binary from binary output */
 		byte[] binary= getBinaryOutput().getBinary(tsEntry, nssHandle);
 		if (binary != null)
 			return binary;
-
+
 		/*
 		 * We have a built entry, but couldn't get the bytes from the binary output.
 		 * Need to recompile.
@@ -624,7 +618,7 @@ public class StateImpl implements IState {
 		if (!lazyBuildCU) {
 			return null;
 		}
-
+
 		/* make sure the entry is a compilation unit */
 		PackageElement unit= packageElementFromSourceEntry(tsEntry.getSourceEntry());
 		new BatchImageBuilder(this).lazyBuild(unit);
@@ -654,7 +648,7 @@ public class StateImpl implements IState {
 	 * is thrown.
 	 */
 	protected IBinaryType getBinaryType(TypeStructureEntry tsEntry) throws NotPresentException {
-
+
 		/* rebuild descriptor from indexes or binary */
 		IBinaryType binaryType= forceBinaryType(tsEntry, false); // Use false for 1FVQGL1: ITPJCORE:WINNT - SEVERE - Error saving java file
 		if (binaryType == null) {
@@ -668,7 +662,7 @@ public class StateImpl implements IState {
 	 * the binary is not available (doesn't invoke a lazy build)
 	 */
 	protected IBinaryType getBinaryTypeOrNull(TypeStructureEntry tsEntry) {
-
+
 		/* rebuild descriptor from binary */
 		return forceBinaryType(tsEntry, false);
 	}
@@ -728,12 +722,7 @@ public class StateImpl implements IState {
 			return null;
 		return new PackageElement(pkg, entry);
 	}
-	/**
-	 * Returns the compiler options used to build this state.
-	 */
-	public ConfigurableOption[] getCompilerOptions() {
-		return fCompilerOptions;
-	}
+
 	/**
 	 * Returns an enumeration of TypeStructureEntry objects for all top-level types 
 	 * in the given package.  Returns null if the package does not exist.
@@ -1092,10 +1081,10 @@ static Comparator getPathComparator() {
 	 * The resulting packages are in no particular order.
 	 */
 	protected IPackage[] getReferencedPackages(IPackage pkgHandle) {
-
+
 		/* set of referenced builder packages */
 		Hashtable pkgTable= getTableOfReferencedPackages(pkgHandle);
-
+
 		/* convert to array and return */
 		IPackage[] results= new IPackage[pkgTable.size()];
 		int i= 0;
@@ -1135,11 +1124,11 @@ static Comparator getPathComparator() {
 	 * This is an extremely slow implementation (n^3?).  Avoid using it if possible.
 	 */
 	protected IPackage[] getReferencingPackages(IPackage pkgHandle, IImageContext context) {
-
+
 		/* the results */
 		Vector vResults= new Vector();
 		IImage image= fDevelopmentContext.getImage();
-
+
 		/* do for each package in the image context */
 		IPackage[] pkgs= context.getPackages();
 		for (int i= 0; i < pkgs.length; i++) {
@@ -1292,15 +1281,15 @@ static Comparator getPathComparator() {
 		if (entries != null) {
 			return entries;
 		}
-
+
 		/* Need to build the table for the package */
-
+
 		/* go through package fragments and compute all source entries */
 		IPath[] frags= fPackageMap.getFragments(pkg);
 		if (frags == null) {
 			return null; // package not present
 		}
-
+
 		/* build a table of source entries, keyed by filename */
 		LookupTable entryTable= new LookupTable(20);
 		for (int i= 0; i < frags.length; i++) {
@@ -1426,14 +1415,14 @@ static Comparator getPathComparator() {
 	protected Hashtable getTableOfReferencedPackages(IPackage pkgHandle) {
 		/* set of referenced builder packages */
 		Hashtable pkgTable= new Hashtable();
-
+
 		/* do for each type in this package */
 		TypeStructureEntry[] types= getAllTypesForPackage(pkgHandle);
 		if (types != null) {
 			for (int i= 0; i < types.length; i++) {
 				PackageElement element= packageElementFromSourceEntry(types[i].getSourceEntry());
 				IPackage[] deps= getInternalDependencyGraph().getNamespaceDependencies(element);
-
+
 				/* make sure namespaces are actually packages */
 				for (int j= 0; j < deps.length; j++) {
 					if (fPackageMap.getEntry(deps[j]) != null) {
@@ -1442,7 +1431,7 @@ static Comparator getPathComparator() {
 				}
 			}
 		}
-
+
 		/* remove this package */
 		pkgTable.remove(pkgHandle);
 		return pkgTable;
@@ -1469,16 +1458,16 @@ static Comparator getPathComparator() {
 		if (tsEntry != null) {
 			return tsEntry;
 		}
-
+
 		// TBD: Doesn't handle lazy builds.
-
+
 		/* get the source element */
 		IPackage pkg= handle.getPackage();
 		SourceEntry sEntry= getSourceEntry(handle);
 		if (sEntry == null) {
 			return null;
 		}
-
+
 		/* if its a class file, parse it */
 		if (sEntry.isBinary()) {
 			//byte[] bytes = getElementContentBytes(sEntry);
@@ -1493,13 +1482,13 @@ static Comparator getPathComparator() {
 				// Don't try again.
 				return null;
 			}
-
+
 			// make sure the entry is a compilation unit
 			PackageElement unit= packageElementFromSourceEntry(sEntry);
-
+
 			// compile it 
 			new BatchImageBuilder(this).lazyBuild(unit);
-
+
 			// try to get the entry again; may still be null 
 			tsEntry= (TypeStructureEntry) fPrincipalStructureTable.get(handle);
 		}
@@ -1567,7 +1556,7 @@ static Comparator getPathComparator() {
 	protected IPackage packageFromSourceEntry(SourceEntry entry) {
 		IPath path= entry.getPath();
 		IPackage pkgHandle;
-
+
 		/* if it's a zip file */
 		String zipEntryFileName = entry.fZipEntryFileName;
 		if (zipEntryFileName != null) {
@@ -1592,23 +1581,23 @@ static Comparator getPathComparator() {
 	 */
 	protected void putCompilationResult(ConvertedCompilationResult result) {
 		PackageElement unit= result.getPackageElement();
-
+
 		/* get source entry for result */
 		SourceEntry sEntry= getSourceEntry(unit);
-
+
 		/* record problems */
 		fProblemReporter.removeNonSyntaxErrors(sEntry);
 		IProblemDetail[] problems= result.getProblems();
 		for (int i= 0; i < problems.length; ++i) {
 			fProblemReporter.putProblem(sEntry, problems[i]);
 		}
-
+
 		/* This records the types actually contributed, */
 		/* to record in the dependency graph. */
 		TypeStructureEntry[] tsEntries= result.getTypes();
 		IType[] types= new IType[tsEntries.length];
 		int count= 0;
-
+
 		/* record type structure */
 		for (int i= 0; i < tsEntries.length; i++) {
 			TypeStructureEntry tsEntry= tsEntries[i];
@@ -1625,12 +1614,12 @@ static Comparator getPathComparator() {
 					continue;
 				}
 			}
-
+
 			// Finally, put it in table.
 			fPrincipalStructureTable.put(typeHandle, tsEntry);
 			types[count++]= typeHandle;
 		}
-
+
 		/* Update the dependency graph. */
 		if (count < types.length) {
 			System.arraycopy(types, 0, types= new IType[count], 0, count);
@@ -1723,7 +1712,7 @@ static Comparator getPathComparator() {
 		if (!vSourceDeps.contains(fDevelopmentContext.getDefaultPackage())) {
 			vSourceDeps.addElement(fDevelopmentContext.getDefaultPackage());
 		}
-
+
 		/* do for each file dependency */
 		if (fileDependencies != null) {
 			for (int i= 0; i < fileDependencies.length; i++) {
@@ -1754,13 +1743,6 @@ static Comparator getPathComparator() {
 	 */
 	protected void setBuildContext(IImageContext context) {
 		fBuildContext= context;
-	}
-	/**
-	 * Sets the compiler options that were in effect when
-	 * this state was built.
-	 */
-	protected void setCompilerOptions(ConfigurableOption[] options) {
-		fCompilerOptions= options;
 	}
 	/**
 	 * Sets the fingerprint for this state.
@@ -1868,7 +1850,7 @@ static Comparator getPathComparator() {
 			++i;
 			c= sig.charAt(i);
 		}
-
+
 		/* if its a class */
 		IType elementType;
 		if (c == 'L') {
