@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.core.search.indexing.*;
  * automatically if not already active.
  * </p>
  */
-public final class JavaCore extends Plugin {
+public final class JavaCore extends Plugin implements IExecutableExtension {
 
 
 	private static Plugin JAVA_CORE_PLUGIN = null;
