@@ -232,6 +232,10 @@ public class CompilationResult {
 		return false;
 	}
 
+	public boolean hasTasks() {
+		return this.taskCount != 0;
+	}
+	
 	public boolean hasWarnings() {
 
 		if (problems != null)
