@@ -72,6 +72,7 @@ public class Wildcard extends SingleTypeReference {
         switch (this.kind) {
             case Wildcard.UNBOUND : 
                 output.append(WILDCARD_NAME);
+                break;
             case Wildcard.EXTENDS :
                 output.append(WILDCARD_NAME).append(WILDCARD_EXTENDS);
             	this.bound.printExpression(0, output);
