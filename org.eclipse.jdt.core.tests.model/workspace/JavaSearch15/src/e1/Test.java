@@ -1,9 +1,8 @@
 package e1;
-import static e1.T.*;
 
-public class X {
+public class Test {
     public static void main(String[] args) {
-        for (T t : T.values()) {
+        for (Team t : Team.values()) {
             int age = t.age();
             String location = location(t).toString();
             t.setRole(t.isManager());
@@ -12,7 +11,7 @@ public class X {
 
    private enum Location { SNZ, OTT }
 
-    private static Location location(T t) {
+    private static Location location(Team t) {
         switch(t) {
           case PHILIPPE:  
           case DAVID:

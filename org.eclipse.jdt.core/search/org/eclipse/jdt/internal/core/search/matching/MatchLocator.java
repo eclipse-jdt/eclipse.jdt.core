@@ -1619,6 +1619,19 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 		}
 	}
 
+	// report annotations
+	if (method.annotations != null) {
+		for (int i=0, al=method.annotations.length; i<al; i++) {
+			TypeReference typeRef = method.annotations[i].type;
+			Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeRef);
+			if (level != null) {
+				if (enclosingElement == null)
+					enclosingElement = createHandle(method, parent);
+				this.patternLocator.matchReportReference(typeRef, enclosingElement, level.intValue(), this);
+			}
+		}
+	}
+
 	// references in this method
 	if (typeInHierarchy) {
 		ASTNode[] nodes = nodeSet.matchingNodes(method.declarationSourceStart, method.declarationSourceEnd);
@@ -1728,6 +1741,19 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 		}
 	}
 
+	// report annotations
+	if (field.annotations != null) {
+		for (int i=0, al=field.annotations.length; i<al; i++) {
+			TypeReference typeRef = field.annotations[i].type;
+			Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeRef);
+			if (level != null) {
+				if (enclosingElement == null)
+					enclosingElement = createHandle(field, type, parent);
+				this.patternLocator.matchReportReference(typeRef, enclosingElement, level.intValue(), this);
+			}
+		}
+	}
+
 	if (typeInHierarchy) {
 		// limit scan to end part position for multiple fields declaration (see bug 73112)
 		int end = field.endPart2Position==0 ? field.declarationSourceEnd : field.endPart2Position;
@@ -1777,7 +1803,6 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	}
 
 	boolean matchedClassContainer = (this.matchContainer & PatternLocator.CLASS_CONTAINER) != 0;
-
 	
 	// report the type parameters
 	if (type.typeParameters != null) {
@@ -1802,7 +1827,18 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 		}
 	}
 
-	// javadoc
+	// report annotations
+	if (type.annotations != null) {
+		for (int i=0, al=type.annotations.length; i<al; i++) {
+			TypeReference typeRef = type.annotations[i].type;
+			Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeRef);
+			if (level != null && matchedClassContainer) {
+				this.patternLocator.matchReportReference(typeRef, enclosingElement, level.intValue(), this);
+			}
+		}
+	}
+
+	// report references in javadoc
 	if (type.javadoc != null) {
 		ASTNode[] nodes = nodeSet.matchingNodes(type.declarationSourceStart, type.sourceStart);
 		if (nodes != null) {

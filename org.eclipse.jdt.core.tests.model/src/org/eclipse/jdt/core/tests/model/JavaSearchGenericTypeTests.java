@@ -14,14 +14,11 @@ import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.core.ParameterizedSourceType;
-import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.search.matching.JavaSearchPattern;
 
 
@@ -35,8 +32,6 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 
 	public JavaSearchGenericTypeTests(String name) {
 		super(name);
-		this.tabs = 3;
-		this.displayName = true;
 	}
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
@@ -93,113 +88,6 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			trimmed,
 			actual
 		);
-	}
-
-	/*
-	 * Search several occurences of a selection in a compilation unit source and returns its start and length.
-	 * If occurence is negative, then perform a backward search from the end of file.
-	 * If selection starts or ends with a comment (to help identification in source), it is removed from returned selection info.
-	 */
-	private int[] selectionInfo(ICompilationUnit cu, String selection, int occurences) throws JavaModelException {
-		String source = cu.getSource();
-		int index = occurences < 0 ? source.lastIndexOf(selection) : source.indexOf(selection);
-		int max = Math.abs(occurences)-1;
-		for (int n=0; index >= 0 && n<max; n++) {
-			index = occurences < 0 ? source.lastIndexOf(selection, index) : source.indexOf(selection, index+selection.length());
-		}
-		StringBuffer msg = new StringBuffer("Selection '");
-		msg.append(selection);
-		if (index >= 0) {
-			if (selection.startsWith("/**")) { // comment is before
-				int start = source.indexOf("*/", index);
-				if (start >=0) {
-					return new int[] { start+2, selection.length()-(start+2-index) };
-				} else {
-					msg.append("' starts with an unterminated comment");
-				}
-			} else if (selection.endsWith("*/")) { // comment is after
-				int end = source.lastIndexOf("/**", index+selection.length());
-				if (end >=0) {
-					return new int[] { index, index-end };
-				} else {
-					msg.append("' ends with an unstartted comment");
-				}
-			} else { // no comment => use whole selection
-				return new int[] { index, selection.length() };
-			}
-		} else {
-			msg.append("' was not found in ");
-		}
-		msg.append(cu.getElementName());
-		msg.append(":\n");
-		msg.append(source);
-		assertTrue(msg.toString(), false);
-		return null;
-	}
-
-	/**
-	 * Select a parameterized source type in a compilation unit identified with the first occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @return ParameterizedSourceType
-	 * @throws JavaModelException
-	 */
-	protected ParameterizedSourceType selectParameterizedSourceType(ICompilationUnit unit, String selection) throws JavaModelException {
-		return selectParameterizedSourceType(unit, selection, 1);
-	}
-	
-	/**
-	 * Select a parameterized source type in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
-	 * @return
-	 * @throws JavaModelException
-	 */
-	protected ParameterizedSourceType selectParameterizedSourceType(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
-		SourceType sourceType = selectSourceType(unit, selection, occurences);
-		assertTrue("Not a parameterized source type: "+sourceType.getElementName(), sourceType instanceof ParameterizedSourceType);
-		return (ParameterizedSourceType) sourceType;
-	}
-
-	/**
-	 * Select a source type in a compilation unit identified with the first occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @return
-	 * @throws JavaModelException
-	 */
-	protected SourceType selectSourceType(ICompilationUnit unit, String selection) throws JavaModelException {
-		return selectSourceType(unit, selection, 1);
-	}
-
-	/**
-	 * Select a parameterized source type in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
-	 * @return
-	 * @throws JavaModelException
-	 */
-	protected SourceType selectSourceType(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
-		IJavaElement element = selectJavaElement(unit, selection, occurences);
-		assertTrue("Not a source type: "+element.getElementName(), element instanceof SourceType);
-		return (SourceType) element;
-	}
-
-	/**
-	 * Select a java element in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
-	 * @return
-	 * @throws JavaModelException
-	 */
-	protected IJavaElement selectJavaElement(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
-		int[] selectionPositions = selectionInfo(unit, selection, occurences);
-		IJavaElement[] elements = unit.codeSelect(selectionPositions[0], selectionPositions[1]);
-		assertEquals("Invalid selection number", 1, elements.length);
-		return elements[0];
 	}
 
 	/**
@@ -966,7 +854,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// Parameterized Source type pattern on single type argument
 	public void testParameterizedTypeSingleArgument01() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R1.java");
-		ParameterizedSourceType type = selectParameterizedSourceType(unit, "Generic<Exception>"); //$NON-NLS-1$
+		ParameterizedSourceType type = selectParameterizedType(unit, "Generic<Exception>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -1013,7 +901,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testParameterizedTypeSingleArgument02() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R4.java");
-		ParameterizedSourceType type = selectParameterizedSourceType(unit, "g1.t.s.def.Generic<Exception>.Member"); //$NON-NLS-1$
+		ParameterizedSourceType type = selectParameterizedType(unit, "g1.t.s.def.Generic<Exception>.Member"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -1033,7 +921,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testParameterizedTypeSingleArgument03() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R2.java");
-		ParameterizedSourceType type = selectParameterizedSourceType(unit, "NonGeneric.GenericMember<Exception>"); //$NON-NLS-1$
+		ParameterizedSourceType type = selectParameterizedType(unit, "NonGeneric.GenericMember<Exception>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -1053,7 +941,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testParameterizedTypeSingleArgument04() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/s/ref/R3.java");
-		ParameterizedSourceType type = selectParameterizedSourceType(unit,  "g1.t.s.def.Generic<Exception>.MemberGeneric<Exception>"); //$NON-NLS-1$
+		ParameterizedSourceType type = selectParameterizedType(unit,  "g1.t.s.def.Generic<Exception>.MemberGeneric<Exception>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -1075,7 +963,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// Parameterized Source type pattern on multiple type arguments
 	public void testParameterizedTypeMultipleArguments01() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R1.java");
-		ParameterizedSourceType type = selectParameterizedSourceType(unit, "g1.t.m.def.Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>"); //$NON-NLS-1$
+		ParameterizedSourceType type = selectParameterizedType(unit, "g1.t.m.def.Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -1122,7 +1010,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testParameterizedTypeMultipleArguments02() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R4.java");
-		ParameterizedSourceType type = selectParameterizedSourceType(unit, "Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.Member"); //$NON-NLS-1$
+		ParameterizedSourceType type = selectParameterizedType(unit, "Generic<? extends Throwable, ? extends Exception, ? extends RuntimeException>.Member"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -1142,7 +1030,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testParameterizedTypeMultipleArguments03() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R2.java");
-		ParameterizedSourceType type = selectParameterizedSourceType(unit, "NonGeneric.GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>"); //$NON-NLS-1$
+		ParameterizedSourceType type = selectParameterizedType(unit, "NonGeneric.GenericMember<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -1162,7 +1050,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testParameterizedTypeMultipleArguments04() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g1/t/m/ref/R3.java");
-		ParameterizedSourceType type = selectParameterizedSourceType(unit,  "g1.t.m.def.Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.MemberGeneric<? extends Throwable, ? extends Exception, ? extends RuntimeException>"); //$NON-NLS-1$
+		ParameterizedSourceType type = selectParameterizedType(unit,  "g1.t.m.def.Generic<? super RuntimeException, ? super IllegalMonitorStateException, ? super IllegalMonitorStateException>.MemberGeneric<? extends Throwable, ? extends Exception, ? extends RuntimeException>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g1.t", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -2005,7 +1893,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// Parameterized array type with single type argument
 	public void testParameterizedArrayTypeSingleArgument01() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g6/t/ref/Single.java");
-		SourceType type = selectSourceType(unit,  "List", 2 /* 2nd occurence*/); //$NON-NLS-1$
+		IType type = selectType(unit,  "List", 2 /* 2nd occurence*/); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g6", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -2023,7 +1911,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testParameterizedArrayTypeSingleArgument02() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g6/t/ref/Single.java");
-		SourceType type = selectSourceType(unit,  "List<Exception>"); //$NON-NLS-1$
+		IType type = selectType(unit,  "List<Exception>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g6", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -2042,7 +1930,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testParameterizedArrayTypeSingleArgument03() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g6/t/ref/QualifSingle.java");
-		SourceType type = selectSourceType(unit,  "g6.t.def.List<Exception>", 2 /* 2nd occurence*/); //$NON-NLS-1$
+		IType type = selectType(unit,  "g6.t.def.List<Exception>", 2 /* 2nd occurence*/); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g6", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -2060,7 +1948,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testParameterizedArrayTypeSingleArgument04() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g6/t/ref/QualifSingle.java");
-		SourceType type = selectSourceType(unit,  "g6.t.def.List<g6.t.def.List<Exception>[]>"); //$NON-NLS-1$
+		IType type = selectType(unit,  "g6.t.def.List<g6.t.def.List<Exception>[]>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g6", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -2080,7 +1968,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	// Parameterized array type with multiple type arguments
 	public void testParameterizedArrayTypeMultipleArguments01() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g6/t/ref/Multiple.java");
-		SourceType type = selectSourceType(unit,  "Table.Entry"); //$NON-NLS-1$
+		IType type = selectType(unit,  "Table.Entry"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g6", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -2099,7 +1987,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testParameterizedArrayTypeMultipleArguments02() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g6/t/ref/QualifMultiple.java");
-		SourceType type = selectSourceType(unit,  "Table<String, Exception>.Entry<String, Exception>"); //$NON-NLS-1$
+		IType type = selectType(unit,  "Table<String, Exception>.Entry<String, Exception>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g6", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -2118,7 +2006,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testParameterizedArrayTypeMultipleArguments03() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g6/t/ref/Multiple.java");
-		SourceType type = selectSourceType(unit,  "Table<String, Exception>.Entry<String, Exception>", 2); //$NON-NLS-1$
+		IType type = selectType(unit,  "Table<String, Exception>.Entry<String, Exception>", 2); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g6", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(
@@ -2137,7 +2025,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 	public void testParameterizedArrayTypeMultipleArguments04() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch15/src/g6/t/ref/Multiple.java");
-		SourceType type = selectSourceType(unit,  "Table<String, Table<String, Exception>.Entry<String, Exception>[]>.Entry<String, Table<String, Exception>.Entry<String, Exception>[]>"); //$NON-NLS-1$
+		IType type = selectType(unit,  "Table<String, Table<String, Exception>.Entry<String, Exception>[]>.Entry<String, Table<String, Exception>.Entry<String, Exception>[]>"); //$NON-NLS-1$
 		IJavaSearchScope scope = getJavaSearchScope15("g6", true /* add all subpackages */);
 		search(type, REFERENCES, scope, resultCollector);
 		assertSearchResults(

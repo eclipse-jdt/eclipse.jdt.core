@@ -229,9 +229,16 @@ private long[] collectAnnotationPositions(Annotation[] annotations) {
 	long[] result = new long[length];
 	for (int i = 0; i < length; i++) {
 		Annotation annotation = annotations[i];
-		result[i] = (((long) annotation.sourceStart) << 32) + annotation.declarationSourceEnd; 
+		result[i] = (((long) annotation.sourceStart) << 32) + annotation.declarationSourceEnd;
 	}
 	return result;
+}
+protected void consumeAnnotationAsModifier() {
+	super.consumeAnnotationAsModifier();
+	Annotation annotation = (Annotation)expressionStack[expressionPtr];
+	if (reportReferenceInfo) { // accept annotation type reference
+		this.requestor.acceptTypeReference(annotation.type.getTypeName(), annotation.sourceStart, annotation.sourceEnd);
+	}
 }
 protected void consumeConstructorHeaderName() {
 	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];

@@ -1,5 +1,6 @@
+// packages e? stand for search enumeration tests
 package e1;
-public enum T {
+public enum Team {
 	PHILIPPE(37) {
 		public boolean isManager() {
 			return true;
@@ -16,8 +17,8 @@ public enum T {
    int age;
 	Role role;
 
-	T() {}
-	T(int age) {
+	Team() {}
+	Team(int age) {
 		this.age = age;
 	}
 	public int age() { return this.age; }

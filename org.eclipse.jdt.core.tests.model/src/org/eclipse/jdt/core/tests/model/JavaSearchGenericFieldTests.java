@@ -23,8 +23,6 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 
 	public JavaSearchGenericFieldTests(String name) {
 		super(name);
-		this.tabs = 3;
-		this.displayName = true;
 	}
 	public static Test suite() {
 		return buildTestSuite(JavaSearchGenericFieldTests.class);
