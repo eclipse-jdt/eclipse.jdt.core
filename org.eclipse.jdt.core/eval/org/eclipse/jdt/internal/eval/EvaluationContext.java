@@ -105,7 +105,7 @@ public void complete(char[] codeSnippet, int completionPosition, ISearchableName
 		}
 	};
 	CompletionEngine engine = new CompletionEngine(environment, mapper.getCompletionRequestor(requestor), options);
-	engine.complete(sourceUnit, mapper.startPosOffset + completionPosition);
+	engine.complete(sourceUnit, mapper.startPosOffset + completionPosition, 0);
 }
 /**
  * Deletes the given variable from this evaluation context. This will take effect in the target VM only

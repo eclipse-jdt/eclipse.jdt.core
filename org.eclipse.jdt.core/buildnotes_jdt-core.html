@@ -11,6 +11,37 @@
 <h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
+Eclipse SDK Build 200203?? - ??th March 2002
+<br>Project org.eclipse.jdt.core v_234
+<h2>
+What's new in this drop</h2>
+<ul>
+<li> New API on IType for complete snippet in current type context. Code complete is performed against
+ source (if available) or against type structure
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <tt>void codeComplete(</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] snippet,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int insertion,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int position,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[][] localVariableTypeNames,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[][] localVariableNames,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int[] localVariableModifiers,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; boolean isStatic,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ICompletionRequestor requestor) throws JavaModelException;</tt>
+<br>&nbsp;
+</li>
+</ul>
+
+<h3>
+Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=10318">10318</a>
+Feature Request: new Code Assist API required
+
+<h3>
+Problem Reports Closed</h3>
+
+<h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
 Eclipse SDK Build 20020318 - 18th March 2002
 <br>Project org.eclipse.jdt.core v_233
 <h2>

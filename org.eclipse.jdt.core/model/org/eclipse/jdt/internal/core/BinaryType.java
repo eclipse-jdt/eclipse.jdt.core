@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.core.*;
 
@@ -65,6 +68,38 @@ protected void closing(Object info) throws JavaModelException {
 	cfi.removeBinaryChildren();
 	if (JavaModelManager.VERBOSE){
 		System.out.println("-> Filling rate = " + fgJavaModelManager.fModelInfo.fLRUCache.fillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+	}
+}
+/**
+ * @see IType
+ */
+public void codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,ICompletionRequestor requestor) throws JavaModelException {
+	if (requestor == null) {
+		throw new IllegalArgumentException(Util.bind("codeAssist.nullRequestor")); //$NON-NLS-1$
+	}
+	
+	SearchableEnvironment environment = (SearchableEnvironment) ((JavaProject) getJavaProject()).getSearchableNameEnvironment();
+	NameLookup nameLookup = ((JavaProject) getJavaProject()).getNameLookup();
+	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor,nameLookup), JavaCore.getOptions());
+	
+	String source = getClassFile().getSource();
+	if (source != null && insertion > -1 && insertion < source.length()) {
+		String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
+		if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
+		
+		char[] prefix = CharOperation.concat(source.substring(0, insertion).toCharArray(), new char[]{'{'});
+		char[] suffix =  CharOperation.concat(source.substring(insertion).toCharArray(), new char[]{'}'});
+		char[] fakeSource = CharOperation.concat(prefix, snippet, suffix);
+		
+		BasicCompilationUnit cu = 
+			new BasicCompilationUnit(
+				fakeSource, 
+				getElementName(),
+				encoding); 
+
+		engine.complete(cu, prefix.length + position, prefix.length);
+	} else {
+		engine.complete(this, snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
 	}
 }
 /**

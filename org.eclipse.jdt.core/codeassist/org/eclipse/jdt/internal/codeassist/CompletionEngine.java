@@ -15,6 +15,9 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IJavaModelMarker;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.complete.*;
@@ -24,6 +27,8 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
+import org.eclipse.jdt.internal.core.BasicCompilationUnit;
+import org.eclipse.jdt.internal.core.TypeConverter;
 import org.eclipse.jdt.internal.compiler.impl.*;
 
 /**
@@ -40,10 +45,11 @@ public final class CompletionEngine
 	AssistOptions options;
 	CompletionParser parser;
 	ICompletionRequestor requestor;
+	ProblemReporter problemReporter;
 	char[] source;
 	boolean resolvingImports = false;
 	boolean insideQualifiedReference = false;
-	int startPosition, actualCompletionPosition, endPosition;
+	int startPosition, actualCompletionPosition, endPosition, offset;
 	HashtableOfObject knownPkgs = new HashtableOfObject(10);
 	HashtableOfObject knownTypes = new HashtableOfObject(10);
 	Scanner nameScanner;
@@ -126,7 +132,7 @@ public final class CompletionEngine
 		options = new AssistOptions(settings);
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
 
-		ProblemReporter problemReporter = new ProblemReporter(
+		problemReporter = new ProblemReporter(
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 				compilerOptions,
 				new DefaultProblemFactory(Locale.getDefault()) {
@@ -178,8 +184,8 @@ public final class CompletionEngine
 			className,
 			completionName,
 			modifiers,
-			startPosition,
-			endPosition);
+			startPosition - offset,
+			endPosition - offset);
 	}
 	
 	/**
@@ -219,8 +225,8 @@ public final class CompletionEngine
 			interfaceName,
 			completionName,
 			modifiers,
-			startPosition,
-			endPosition);
+			startPosition - offset,
+			endPosition - offset);
 	}
 
 	/**
@@ -241,8 +247,8 @@ public final class CompletionEngine
 			resolvingImports
 				? CharOperation.concat(packageName, new char[] { '.', '*', ';' })
 				: packageName,
-			startPosition,
-			endPosition);
+			startPosition - offset,
+			endPosition - offset);
 	}
 
 	/**
@@ -278,8 +284,8 @@ public final class CompletionEngine
 			packageName,
 			typeName,
 			completionName,
-			startPosition,
-			endPosition);
+			startPosition - offset,
+			endPosition - offset);
 	}
 
 	private void complete(AstNode astNode, Binding qualifiedBinding, Scope scope) {
@@ -574,6 +580,150 @@ public final class CompletionEngine
 			}
 		}
 	}
+	
+	public void complete(IType type, char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){	
+		TypeConverter converter = new TypeConverter();
+		
+		IType topLevelType = type;
+		while(topLevelType.getDeclaringType() != null) {
+			topLevelType = topLevelType.getDeclaringType();
+		}
+		
+		CompilationResult compilationResult = new CompilationResult((topLevelType.getElementName() + ".java").toCharArray(), 1, 1);
+	
+		CompilationUnitDeclaration compilationUnit = new CompilationUnitDeclaration(problemReporter, compilationResult, 0);
+		
+		TypeDeclaration typeDeclaration = converter.buildCompilationUnit(type, compilationUnit, compilationResult, problemReporter);
+		
+		if(compilationUnit != null) {	
+			// build AST from snippet
+			AbstractMethodDeclaration fakeMethod = parseSnippetMethod(snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
+			
+			// merge AST
+			AbstractMethodDeclaration[] oldMethods = typeDeclaration.methods;
+			AbstractMethodDeclaration[] newMethods = new AbstractMethodDeclaration[oldMethods.length + 1];
+			System.arraycopy(oldMethods, 0, newMethods, 0, oldMethods.length);
+			newMethods[oldMethods.length] = fakeMethod;
+			typeDeclaration.methods = newMethods;
+	
+			if(DEBUG) {
+				System.out.println("SNIPPET COMPLETION AST :");
+				System.out.println(compilationUnit.toString());
+			}
+			
+			if (compilationUnit.types != null) {
+				try {
+					lookupEnvironment.buildTypeBindings(compilationUnit);
+			
+					if ((unitScope = compilationUnit.scope) != null) {
+						lookupEnvironment.completeTypeBindings(compilationUnit, true);
+						compilationUnit.scope.faultInTypes();
+						compilationUnit.resolve();
+					}
+				} catch (CompletionNodeFound e) {
+					//					completionNodeFound = true;
+					if (e.astNode != null) {
+						// if null then we found a problem in the completion node
+						complete(e.astNode, e.qualifiedBinding, e.scope);
+					}
+				}
+			}
+		}
+	}
+	
+//	public void complete(IType type, char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){
+//		char[] fullyQualifiedName = type.getFullyQualifiedName().toCharArray();
+//		char[][] compoundname = CharOperation.splitOn('.', fullyQualifiedName);
+//		NameEnvironmentAnswer answer =  nameEnvironment.findType(compoundname);
+//		
+//		if(answer != null && answer.isBinaryType()) {
+//			// build AST from classfile
+//			IBinaryType binaryType = answer.getBinaryType();
+//			
+//			CompilationResult result = new CompilationResult(binaryType.getFileName(), 1, 1);
+//			
+//			char[] packageName = CharOperation.subarray(fullyQualifiedName, 0,CharOperation.lastIndexOf('.', fullyQualifiedName));
+//			
+//			BinaryTypeConverter converter = new BinaryTypeConverter();
+//			CompilationUnitDeclaration typeAST = converter.buildCompilationUnit(new IBinaryType[]{binaryType}, packageName, new char[0][],true, true, problemReporter, result, nameEnvironment);
+//			if(typeAST != null) {
+//				complete(typeAST, snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
+//			}
+//		}
+//	}
+	
+//	private void complete(CompilationUnitDeclaration typeAST, char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){
+//		// build AST from snippet
+//		AbstractMethodDeclaration fakeMethod = parseSnippetMethod(snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
+//		
+//		// merge AST
+//		AbstractMethodDeclaration[] oldMethods = typeAST.types[0].methods;
+//		AbstractMethodDeclaration[] newMethods = new AbstractMethodDeclaration[oldMethods.length + 1];
+//		System.arraycopy(oldMethods, 0, newMethods, 0, oldMethods.length);
+//		newMethods[oldMethods.length] = fakeMethod;
+//		typeAST.types[0].methods = newMethods;
+//
+//		if(DEBUG) {
+//			System.out.println("SNIPPET COMPLETION AST :");
+//			System.out.println(typeAST.toString());
+//		}
+//		
+//		if (typeAST.types != null) {
+//			try {
+//				lookupEnvironment.buildTypeBindings(typeAST);
+//		
+//				if ((unitScope = typeAST.scope) != null) {
+//					lookupEnvironment.completeTypeBindings(typeAST, true);
+//					typeAST.scope.faultInTypes();
+//					typeAST.resolve();
+//				}
+//			} catch (CompletionNodeFound e) {
+//				//					completionNodeFound = true;
+//				if (e.astNode != null) {
+//					// if null then we found a problem in the completion node
+//					complete(e.astNode, e.qualifiedBinding, e.scope);
+//				}
+//			}
+//		}
+//	}
+	
+	private AbstractMethodDeclaration parseSnippetMethod(char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){
+		StringBuffer prefix = new StringBuffer();
+		prefix.append("public class FakeType {\npublic "); //$NON-NLS-1$
+		if(isStatic) {
+			prefix.append("static"); //$NON-NLS-1$
+		}
+		prefix.append(" void fakeMethod(){\n"); //$NON-NLS-1$
+		for (int i = 0; i < localVariableTypeNames.length; i++) {
+			prefix.append(AstNode.modifiersString(localVariableModifiers[i]));
+			prefix.append(' ');
+			prefix.append(localVariableTypeNames[i]);
+			prefix.append(' ');
+			prefix.append(localVariableNames[i]);
+			prefix.append(';');
+		}
+		
+		char[] fakeSource = CharOperation.concat(prefix.toString().toCharArray(), snippet, "}}".toCharArray());//$NON-NLS-1$ 
+		offset = prefix.length();
+		
+		String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
+		if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
+		BasicCompilationUnit fakeUnit = new BasicCompilationUnit(
+			fakeSource, 
+			"FakeType.java", //$NON-NLS-1$
+			encoding); 
+			
+		actualCompletionPosition = prefix.length() + position - 1;
+			
+		CompilationResult fakeResult = new CompilationResult(fakeUnit, 1, 1);
+		CompilationUnitDeclaration fakeAST = parser.dietParse(fakeUnit, fakeResult, actualCompletionPosition);
+		
+		parseMethod(fakeAST, actualCompletionPosition);
+		
+		AbstractMethodDeclaration fakeMethod = fakeAST.types[0].methods[1];
+		fakeMethod.selector[0] = ' ';
+		return fakeMethod;
+	}
 
 	/**
 	 * Ask the engine to compute a completion at the specified position
@@ -589,7 +739,7 @@ public final class CompletionEngine
 	 *      a position in the source where the completion is taking place. 
 	 *      This position is relative to the source provided.
 	 */
-	public void complete(ICompilationUnit sourceUnit, int completionPosition) {
+	public void complete(ICompilationUnit sourceUnit, int completionPosition, int offset) {
 
 		if(DEBUG) {
 			System.out.print("COMPLETION IN "); //$NON-NLS-1$
@@ -601,6 +751,7 @@ public final class CompletionEngine
 		}
 		try {
 			actualCompletionPosition = completionPosition - 1;
+			this.offset = offset;
 			// for now until we can change the UI.
 			CompilationResult result = new CompilationResult(sourceUnit, 1, 1);
 			CompilationUnitDeclaration parsedUnit = parser.dietParse(sourceUnit, result, actualCompletionPosition);
@@ -712,8 +863,8 @@ public final class CompletionEngine
 				TypeConstants.NoCharChar,
 				completion,
 				IConstants.AccPublic,
-				endPosition,
-				endPosition);
+				endPosition - offset,
+				endPosition - offset);
 		} else {
 			findConstructors(
 				currentType,
@@ -740,8 +891,8 @@ public final class CompletionEngine
 				NoChar,
 				classField,
 				CompilerModifiers.AccStatic | CompilerModifiers.AccPublic,
-				startPosition,
-				endPosition);
+				startPosition - offset,
+				endPosition - offset);
 	}
 
 	private void findConstructors(
@@ -797,8 +948,8 @@ public final class CompletionEngine
 						parameterNames,
 						completion,
 						constructor.modifiers,
-						endPosition,
-						endPosition);
+						endPosition - offset,
+						endPosition - offset);
 				} else {
 					requestor.acceptMethod(
 						currentType.qualifiedPackageName(),
@@ -811,8 +962,8 @@ public final class CompletionEngine
 						TypeConstants.NoChar,
 						completion,
 						constructor.modifiers,
-						endPosition,
-						endPosition);
+						endPosition - offset,
+						endPosition - offset);
 				}
 			}
 		}
@@ -898,7 +1049,7 @@ public final class CompletionEngine
 					field.type.qualifiedSourceName(),
 					completion,
 			// may include some qualification to resolve ambiguities
-			field.modifiers, startPosition, endPosition);
+			field.modifiers, startPosition - offset, endPosition - offset);
 		}
 	}
 
@@ -1024,8 +1175,8 @@ public final class CompletionEngine
 					NoChar,
 					lengthField,
 					CompilerModifiers.AccPublic,
-					startPosition,
-					endPosition);
+					startPosition - offset,
+					endPosition - offset);
 
 			receiverType = scope.getJavaLangObject();
 		}
@@ -1086,7 +1237,7 @@ public final class CompletionEngine
 				if (length <= choices[i].length
 					&& CharOperation.prefixEquals(keyword, choices[i], false /* ignore case */
 					))
-					requestor.acceptKeyword(choices[i], startPosition, endPosition);
+					requestor.acceptKeyword(choices[i], startPosition - offset, endPosition - offset);
 	}
 
 	// Helper method for findMemberTypes(char[], ReferenceBinding, Scope)
@@ -1143,8 +1294,8 @@ public final class CompletionEngine
 					memberType.qualifiedSourceName(),
 					memberType.sourceName(),
 					memberType.modifiers,
-					startPosition,
-					endPosition);
+					startPosition - offset,
+					endPosition - offset);
 
 			} else {
 
@@ -1153,8 +1304,8 @@ public final class CompletionEngine
 					memberType.qualifiedSourceName(),
 					memberType.sourceName(),
 					memberType.modifiers,
-					startPosition,
-					endPosition);
+					startPosition - offset,
+					endPosition - offset);
 			}
 		}
 	}
@@ -1532,8 +1683,8 @@ public final class CompletionEngine
 				method.returnType.qualifiedSourceName(),
 				completion,
 				method.modifiers,
-				startPosition,
-				endPosition);
+				startPosition - offset,
+				endPosition - offset);
 			startPosition = previousStartPosition;
 		}
 	}
@@ -1707,8 +1858,8 @@ public final class CompletionEngine
 				method.returnType.qualifiedSourceName(),
 				completion.toString().toCharArray(),
 				method.modifiers,
-				startPosition,
-				endPosition);
+				startPosition - offset,
+				endPosition - offset);
 		}
 	}
 	private void findMethods(
@@ -1921,8 +2072,8 @@ public final class CompletionEngine
 									localType.sourceName,
 									localType.sourceName,
 									localType.modifiers,
-									startPosition,
-									endPosition);
+									startPosition - offset,
+									endPosition - offset);
 							}
 						}
 					}
@@ -1978,8 +2129,8 @@ public final class CompletionEngine
 					sourceType.qualifiedPackageName(),
 					sourceType.sourceName(),
 					sourceType.sourceName(),
-					startPosition,
-					endPosition);
+					startPosition - offset,
+					endPosition - offset);
 			}
 		}
 
@@ -2078,8 +2229,8 @@ public final class CompletionEngine
 								? local.declaration.type.toString().toCharArray()
 								: local.type.qualifiedSourceName(),
 							local.modifiers,
-							startPosition,
-							endPosition);
+							startPosition - offset,
+							endPosition - offset);
 					}
 					break;
 
@@ -2168,8 +2319,8 @@ public final class CompletionEngine
 						qualifiedSourceName,
 						name,
 						name,
-						startPosition,
-						endPosition);
+						startPosition - offset,
+						endPosition - offset);
 					return;
 				}
 			} catch(InvalidInputException e){
@@ -2219,8 +2370,8 @@ public final class CompletionEngine
 					displayName,
 					name,
 					name,
-					startPosition,
-					endPosition);
+					startPosition - offset,
+					endPosition - offset);
 			}
 	}
 

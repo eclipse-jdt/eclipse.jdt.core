@@ -110,7 +110,7 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 	environment.unitToSkip = unitToSkip;
 
 	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor,nameLookup), JavaCore.getOptions());
-	engine.complete(cu, position);
+	engine.complete(cu, position, 0);
 	environment.unitToSkip = null;
 }
 /**
