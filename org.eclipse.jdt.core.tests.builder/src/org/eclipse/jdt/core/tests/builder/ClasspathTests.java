@@ -156,7 +156,7 @@ public class ClasspathTests extends Tests {
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-		IPath classTest1 = env.addClass(root, "p1", "Test1", //$NON-NLS-1$ //$NON-NLS-2$
+		env.addClass(root, "p1", "Test1", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class Test1 {}" //$NON-NLS-1$
 		);
@@ -164,17 +164,17 @@ public class ClasspathTests extends Tests {
 			"package p2;\n"+ //$NON-NLS-1$
 			"public class Test2 {}" //$NON-NLS-1$
 		);
-		env.addClass(root, "p2", "Test3", //$NON-NLS-1$ //$NON-NLS-2$
+		IPath classTest3 = env.addClass(root, "p2", "Test3", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
 			"public class Test3 {}" //$NON-NLS-1$
 		);
 
 		fullBuild();
-		expectingOnlyProblemsFor(new IPath[] {projectPath, classTest1});
+		expectingOnlyProblemsFor(new IPath[] {projectPath, classTest3});
 		expectingOnlySpecificProblemsFor(projectPath,
 			new Problem[] {
 				new Problem("", "The project was not built since its classpath is incomplete. Cannot find the class file for java.lang.Object. Fix the classpath then try rebuilding this project.", projectPath), //$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p1", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest1) //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p2", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest3) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 
