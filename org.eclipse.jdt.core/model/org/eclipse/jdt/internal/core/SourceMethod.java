@@ -259,12 +259,10 @@ protected boolean signatureEquals(IDOMMethod method) {
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	buffer.append(this.tabString(tab));
 	if (info == null) {
-		buffer.append(getElementName());
-			toStringParameters(buffer);
+		toStringName(buffer);
 		buffer.append(" (not open)"); //$NON-NLS-1$
 	} else if (info == NO_INFO) {
-		buffer.append(getElementName());
-			toStringParameters(buffer);
+		toStringName(buffer);
 	} else {
 		try {
 			if (Flags.isStatic(this.getFlags())) {
@@ -274,25 +272,29 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 				buffer.append(Signature.toString(this.getReturnType()));
 				buffer.append(' ');
 			}
-			buffer.append(this.getElementName());
-			toStringParameters(buffer);
+			toStringName(buffer);
 		} catch (JavaModelException e) {
 			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
 		}
 	}
 }
-private void toStringParameters(StringBuffer buffer) {
+protected void toStringName(StringBuffer buffer) {
+	buffer.append(getElementName());
 	buffer.append('(');
-	String[] parameterTypes = this.getParameterTypes();
+	String[] parameters = this.getParameterTypes();
 	int length;
-	if (parameterTypes != null && (length = parameterTypes.length) > 0) {
+	if (parameters != null && (length = parameters.length) > 0) {
 		for (int i = 0; i < length; i++) {
-			buffer.append(Signature.toString(parameterTypes[i]));
+			buffer.append(Signature.toString(parameters[i]));
 			if (i < length - 1) {
 				buffer.append(", "); //$NON-NLS-1$
 			}
 		}
 	}
 	buffer.append(')');
+	if (this.occurrenceCount > 1) {
+		buffer.append("#"); //$NON-NLS-1$
+		buffer.append(this.occurrenceCount);
+	}
 }
 }

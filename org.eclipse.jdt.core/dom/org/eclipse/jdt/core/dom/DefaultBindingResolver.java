@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -624,8 +625,14 @@ class DefaultBindingResolver extends BindingResolver {
 			Literal literal = (Literal) this.newAstToOldAst.get(expression);
 			return this.getTypeBinding(literal.literalType(null));
 		} else if (expression instanceof InfixExpression) {
-			OperatorExpression operatorExpression = (OperatorExpression) this.newAstToOldAst.get(expression);
-			return this.getTypeBinding(operatorExpression.resolvedType);
+			Object node = this.newAstToOldAst.get(expression);
+			if (node instanceof OperatorExpression) {
+				OperatorExpression operatorExpression = (OperatorExpression) node;
+				return this.getTypeBinding(operatorExpression.resolvedType);
+			} else if (node instanceof StringLiteralConcatenation) {
+				StringLiteralConcatenation stringLiteralConcatenation = (StringLiteralConcatenation) node;
+				return this.getTypeBinding(stringLiteralConcatenation.resolvedType);
+			}
 		} else if (expression instanceof InstanceofExpression) {
 			org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression instanceOfExpression = (org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression) this.newAstToOldAst.get(expression);
 			return this.getTypeBinding(instanceOfExpression.resolvedType);

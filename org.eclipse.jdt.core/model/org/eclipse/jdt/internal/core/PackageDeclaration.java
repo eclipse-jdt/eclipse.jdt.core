@@ -60,7 +60,7 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	buffer.append(this.tabString(tab));
 	buffer.append("package "); //$NON-NLS-1$
-	buffer.append(getElementName());
+	toStringName(buffer);
 	if (info == null) {
 		buffer.append(" (not open)"); //$NON-NLS-1$
 	}

@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.problem.*;
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.core.SelectionRequestor;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
@@ -101,9 +100,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				int severity,
 				int problemStartPosition,
 				int problemEndPosition,
-				int lineNumber,
-				ReferenceContext refContext,
-				CompilationResult unitResult) {
+				int lineNumber) {
 				IProblem pb =  super.createProblem(
 					fileName,
 					problemId,
@@ -112,9 +109,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					severity,
 					problemStartPosition,
 					problemEndPosition,
-					lineNumber,
-					refContext,
-					unitResult);
+					lineNumber);
 					if(SelectionEngine.this.problem == null && pb.isError() && (pb.getID() & IProblem.Syntax) == 0) {
 						SelectionEngine.this.problem = pb;
 					}

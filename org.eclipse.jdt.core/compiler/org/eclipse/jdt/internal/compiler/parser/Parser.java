@@ -1354,25 +1354,26 @@ protected void consumeBinaryExpression(int op) {
 
 	this.expressionPtr--;
 	this.expressionLengthPtr--;
-	if (op == OR_OR) {
-		this.expressionStack[this.expressionPtr] = 
-			new OR_OR_Expression(
-				this.expressionStack[this.expressionPtr], 
-				this.expressionStack[this.expressionPtr + 1], 
-				op); 
-	} else {
-		if (op == AND_AND) {
+	Expression expr1 = this.expressionStack[this.expressionPtr];
+	Expression expr2 = this.expressionStack[this.expressionPtr + 1];
+	switch(op) {
+		case OR_OR :
+			this.expressionStack[this.expressionPtr] = 
+				new OR_OR_Expression(
+					expr1, 
+					expr2, 
+					op); 
+			break;
+		case AND_AND :
 			this.expressionStack[this.expressionPtr] = 
 				new AND_AND_Expression(
-					this.expressionStack[this.expressionPtr], 
-					this.expressionStack[this.expressionPtr + 1], 
+					expr1, 
+					expr2, 
 					op);
-		} else {
+			break;
+		case PLUS :
 			// look for "string1" + "string2"
-			if ((op == PLUS) && this.optimizeStringLiterals) {
-				Expression expr1, expr2;
-				expr1 = this.expressionStack[this.expressionPtr];
-				expr2 = this.expressionStack[this.expressionPtr + 1];
+			if (this.optimizeStringLiterals) {
 				if (expr1 instanceof StringLiteral) {
 					if (expr2 instanceof CharLiteral) { // string+char
 						this.expressionStack[this.expressionPtr] = 
@@ -1386,14 +1387,32 @@ protected void consumeBinaryExpression(int op) {
 				} else {
 					this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
 				}
+			} else if (expr1 instanceof StringLiteral) {
+				if (expr2 instanceof StringLiteral) {
+					// string + string
+					this.expressionStack[this.expressionPtr] = 
+						((StringLiteral) expr1).extendsWith((StringLiteral) expr2); 
+				} else {
+					this.expressionStack[this.expressionPtr] = 
+						new BinaryExpression(
+							expr1, 
+							expr2, 
+							op);
+				}
 			} else {
 				this.expressionStack[this.expressionPtr] = 
 					new BinaryExpression(
-						this.expressionStack[this.expressionPtr], 
-						this.expressionStack[this.expressionPtr + 1], 
+						expr1, 
+						expr2, 
 						op);
 			}
-		}
+			break;
+		default :
+			this.expressionStack[this.expressionPtr] = 
+				new BinaryExpression(
+					expr1, 
+					expr2, 
+					op);		
 	}
 }
 /**
@@ -1403,6 +1422,7 @@ protected void consumeBinaryExpressionWithName(int op) {
 	pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 	this.expressionPtr--;
 	this.expressionLengthPtr--;
+	/*
 	if (op == OR_OR) {
 		this.expressionStack[this.expressionPtr] = 
 			new OR_OR_Expression(
@@ -1443,6 +1463,67 @@ protected void consumeBinaryExpressionWithName(int op) {
 						op);
 			}
 		}
+	}
+	*/
+	Expression expr1 = this.expressionStack[this.expressionPtr + 1];
+	Expression expr2 = this.expressionStack[this.expressionPtr];
+	switch(op) {
+		case OR_OR :
+			this.expressionStack[this.expressionPtr] = 
+				new OR_OR_Expression(
+					expr1, 
+					expr2, 
+					op); 
+			break;
+		case AND_AND :
+			this.expressionStack[this.expressionPtr] = 
+				new AND_AND_Expression(
+					expr1, 
+					expr2, 
+					op);
+			break;
+		case PLUS :
+			// look for "string1" + "string2"
+			if (this.optimizeStringLiterals) {
+				if (expr1 instanceof StringLiteral) {
+					if (expr2 instanceof CharLiteral) { // string+char
+						this.expressionStack[this.expressionPtr] = 
+							((StringLiteral) expr1).extendWith((CharLiteral) expr2); 
+					} else if (expr2 instanceof StringLiteral) { //string+string
+						this.expressionStack[this.expressionPtr] = 
+							((StringLiteral) expr1).extendWith((StringLiteral) expr2); 
+					} else {
+						this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
+					}
+				} else {
+					this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
+				}
+			} else if (expr1 instanceof StringLiteral) {
+				if (expr2 instanceof StringLiteral) {
+					// string + string
+					this.expressionStack[this.expressionPtr] = 
+						((StringLiteral) expr1).extendsWith((StringLiteral) expr2); 
+				} else {
+					this.expressionStack[this.expressionPtr] = 
+						new BinaryExpression(
+							expr1, 
+							expr2, 
+							op);
+				}
+			} else {
+				this.expressionStack[this.expressionPtr] = 
+					new BinaryExpression(
+						expr1, 
+						expr2, 
+						op);
+			}
+			break;
+		default :
+			this.expressionStack[this.expressionPtr] = 
+				new BinaryExpression(
+					expr1, 
+					expr2, 
+					op);		
 	}
 }
 protected void consumeBlock() {

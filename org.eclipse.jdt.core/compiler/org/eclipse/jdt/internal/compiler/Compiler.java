@@ -405,9 +405,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 						Error, // severity
 						0, // source start
 						0, // source end
-						0, // line number		
-						unit,
-						result),
+						0), // line number		
 					unit);
 
 			/* hand back the compilation result */
@@ -453,23 +451,21 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			result = unitsToProcess[totalUnits - 1].compilationResult;
 		// last unit in beginToCompile ?
 		if (result != null && !result.hasBeenAccepted) {
-			/* distant problem which could not be reported back there */
-			if (abortException.problemId != 0) {
-				result
-					.record(
-						problemReporter
-						.createProblem(
-							result.getFileName(),
-							abortException.problemId,
-							abortException.problemArguments,
-							abortException.messageArguments,
-							Error, // severity
-							0, // source start
-							0, // source end
-							0, // line number		
-							unit,
-							result),
-						unit);				
+			/* distant problem which could not be reported back there? */
+			if (abortException.problem != null) {
+				recordDistantProblem: {
+					IProblem distantProblem = abortException.problem;
+					IProblem[] knownProblems = result.problems;
+					for (int i = 0; i < result.problemCount; i++) {
+						if (knownProblems[i] == distantProblem) { // already recorded
+							break recordDistantProblem;
+						}
+					}
+					if (distantProblem instanceof DefaultProblem) { // fixup filename TODO (philippe) should improve API to make this official
+						((DefaultProblem) distantProblem).setOriginatingFileName(result.getFileName());
+					}
+					result	.record(distantProblem, unit);
+				}
 			} else {
 				/* distant internal exception which could not be reported back there */
 				if (abortException.exception != null) {
@@ -482,20 +478,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				requestor.acceptResult(result.tagAsAccepted());
 			}
 		} else {
-			/*
-			if (abortException.problemId != 0){ 
-				IProblem problem =
-					problemReporter.createProblem(
-						"???".toCharArray(),
-						abortException.problemId, 
-						abortException.problemArguments, 
-						Error, // severity
-						0, // source start
-						0, // source end
-						0); // line number
-				System.out.println(problem.getMessage());
-			}
-			*/
 			abortException.printStackTrace();
 		}
 	}

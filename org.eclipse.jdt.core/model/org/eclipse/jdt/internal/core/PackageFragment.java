@@ -409,7 +409,7 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	if (getElementName().length() == 0) {
 		buffer.append("<default>"); //$NON-NLS-1$
 	} else {
-		buffer.append(getElementName());
+		toStringName(buffer);
 	}
 	if (info == null) {
 		buffer.append(" (not open)"); //$NON-NLS-1$

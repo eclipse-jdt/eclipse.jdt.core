@@ -177,6 +177,10 @@ public class DefaultProblem implements ProblemSeverities, IProblem {
 		return (this.severity & ProblemSeverities.Error) == 0;
 	}
 
+	public void setOriginatingFileName(char[] fileName) {
+		this.fileName = fileName;
+	}
+	
 	/**
 	 * Set the end position of the problem (inclusive), or -1 if unknown.
 	 *

@@ -151,9 +151,11 @@ public class InternalNamingConventions {
 			if(dim > 0) {
 				int length = tempName.length;
 				if (tempName[length-1] == 's'){
-					System.arraycopy(tempName, 0, tempName = new char[length + 2], 0, length);
-					tempName[length] = 'e';
-					tempName[length+1] = 's';
+					if(tempName.length > 1 && tempName[length-2] == 's') {
+						System.arraycopy(tempName, 0, tempName = new char[length + 2], 0, length);
+						tempName[length] = 'e';
+						tempName[length+1] = 's';
+					}
 				} else if(tempName[length-1] == 'y') {
 					System.arraycopy(tempName, 0, tempName = new char[length + 2], 0, length);
 					tempName[length-1] = 'i';

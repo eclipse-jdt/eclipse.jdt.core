@@ -68,7 +68,7 @@ public void generateCode(ClassFile enclosingClassFile) {
 		classFile.addSpecialMethods();
 
 		if (this.ignoreFurtherInvestigation){ // trigger problem type generation for code gen errors
-			throw new AbortType(this.scope.referenceCompilationUnit().compilationResult);
+			throw new AbortType(this.scope.referenceCompilationUnit().compilationResult, null);
 		}
 
 		// finalize the compiled type result

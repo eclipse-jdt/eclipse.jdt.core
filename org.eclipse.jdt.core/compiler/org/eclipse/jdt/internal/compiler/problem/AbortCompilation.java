@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 
 /*
  * Special unchecked exception type used 
@@ -22,38 +25,49 @@ public class AbortCompilation extends RuntimeException {
 
 	public CompilationResult compilationResult;
 	public Throwable exception;
-	public int problemId; 
-	public String[] problemArguments, messageArguments;
+	public IProblem problem;
+	
 	/* special fields used to abort silently (e.g. when cancelling build process) */
 	public boolean isSilent;
 	public RuntimeException silentException;
 
 	public AbortCompilation() {
-
-		this(null);
+		// empty
 	}
 
-	public AbortCompilation(int problemId, String[] problemArguments, String[] messageArguments) {
-	
-		this.problemId = problemId;
-		this.problemArguments = problemArguments;
-		this.messageArguments = messageArguments;
-	}
-
-	public AbortCompilation(CompilationResult compilationResult) {
-
-		this(compilationResult, null);
+	public AbortCompilation(CompilationResult compilationResult, IProblem problem) {
+		this();
+		this.compilationResult = compilationResult;
+		this.problem = problem;
 	}
 
 	public AbortCompilation(CompilationResult compilationResult, Throwable exception) {
-
+		this();
 		this.compilationResult = compilationResult;
 		this.exception = exception;
 	}
 
 	public AbortCompilation(boolean isSilent, RuntimeException silentException) {
-
+		this();
 		this.isSilent = isSilent;
 		this.silentException = silentException;
+	}
+	
+	public void updateContext(InvocationSite invocationSite, CompilationResult unitResult) {
+		if (this.problem == null) return;
+		if (this.problem.getSourceStart() != 0 || this.problem.getSourceEnd() != 0) return;
+		this.problem.setSourceStart(invocationSite.sourceStart());
+		this.problem.setSourceEnd(invocationSite.sourceEnd());
+		this.problem.setSourceLineNumber(ProblemHandler.searchLineNumber(unitResult.lineSeparatorPositions, invocationSite.sourceStart()));
+		this.compilationResult = unitResult;
+	}
+
+	public void updateContext(ASTNode astNode, CompilationResult unitResult) {
+		if (this.problem == null) return;
+		if (this.problem.getSourceStart() != 0 || this.problem.getSourceEnd() != 0) return;
+		this.problem.setSourceStart(astNode.sourceStart());
+		this.problem.setSourceEnd(astNode.sourceEnd());
+		this.problem.setSourceLineNumber(ProblemHandler.searchLineNumber(unitResult.lineSeparatorPositions, astNode.sourceStart()));
+		this.compilationResult = unitResult;
 	}
 }

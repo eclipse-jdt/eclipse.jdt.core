@@ -181,6 +181,6 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 			buffer.append(Signature.toString(this.getTypeSignature()));
 			buffer.append(" "); //$NON-NLS-1$
 		}
-		buffer.append(this.getElementName());
+		toStringName(buffer);
 	}
 }

@@ -384,6 +384,72 @@ public void testSuggestFieldName016() {
 		"name2",//$NON-NLS-1$
 		toString(suggestions));
 }
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=35356
+ */
+public void testSuggestFieldName017() {
+	char[][] suggestions = NamingConventions.suggestFieldNames(
+		project,
+		"".toCharArray(), //$NON-NLS-1$
+		"names".toCharArray(), //$NON-NLS-1$
+		0,
+		0,
+		new char[][]{});
+	
+	assertEquals(
+		"names",//$NON-NLS-1$
+		toString(suggestions));
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=35356
+ */
+public void testSuggestFieldName018() {
+	char[][] suggestions = NamingConventions.suggestFieldNames(
+		project,
+		"".toCharArray(), //$NON-NLS-1$
+		"names".toCharArray(), //$NON-NLS-1$
+		1,
+		0,
+		new char[][]{});
+	
+	assertEquals(
+		"names",//$NON-NLS-1$
+		toString(suggestions));
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=35356
+ */
+public void testSuggestFieldName019() {
+	char[][] suggestions = NamingConventions.suggestFieldNames(
+		project,
+		"".toCharArray(), //$NON-NLS-1$
+		"MyClass".toCharArray(), //$NON-NLS-1$
+		0,
+		0,
+		new char[][]{});
+	
+	assertEquals(
+		"class1\n" + //$NON-NLS-1$
+		"myClass", //$NON-NLS-1$
+		toString(suggestions));
+}
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=35356
+ */
+public void testSuggestFieldName020() {
+	char[][] suggestions = NamingConventions.suggestFieldNames(
+		project,
+		"".toCharArray(), //$NON-NLS-1$
+		"MyClass".toCharArray(), //$NON-NLS-1$
+		1,
+		0,
+		new char[][]{});
+	
+	assertEquals(
+		"classes\n" + //$NON-NLS-1$
+		"myClasses", //$NON-NLS-1$
+		toString(suggestions));
+}
 public void testRemovePrefixAndSuffixForFieldName001() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);

@@ -17,6 +17,7 @@ import junit.framework.Test;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -80,6 +81,24 @@ protected void tearDown() throws Exception {
 	if (this.copy != null) this.copy.discardWorkingCopy();
 	this.deleteProject("P");
 }
+/*
+ * Ensures that cancelling a make consistent operation doesn't leave the working copy closed
+ * (regression test for bug 61719 Incorrect fine grain delta after method copy-rename)
+ */
+public void testCancelMakeConsistent() throws JavaModelException {
+	String newContents =
+		"package x.y;\n" +
+		"public class A {\n" +
+		"  public void bar() {\n" +
+		"  }\n" +
+		"}";
+	this.copy.getBuffer().setContents(newContents);
+	NullProgressMonitor monitor = new NullProgressMonitor();
+	monitor.setCanceled(true);
+	this.copy.makeConsistent(monitor);
+	assertTrue("Working copy should be opened", this.copy.isOpen());
+}
+
 /**
  */
 public void testChangeContent() throws CoreException {

@@ -140,6 +140,54 @@ Incorrect highlighting for type problem in qualified type name
 [1.5] ArrayStoreException in 1.5 parser
 
 
+<a name="v_428"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M9 Build - ?th May 2004
+<br>Project org.eclipse.jdt.core v_428
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_428">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li> Due to an implementation cleanup, the optional diagnosis for unnecessary empty statement or empty control-flow
+statement, will be reverted to ignore by default. If you did set it differently in the past, you will have to manually
+set it back. We now conform to the spec for this option (until JDT/UI converted, the old option ID was 
+incorrectly used: "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"):
+<pre>
+* COMPILER / Reporting Empty Statements and Unnecessary Semicolons
+*    When enabled, the compiler will issue an error or a warning if an empty statement or a
+*    unnecessary semicolon is encountered.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.emptyStatement"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>	 
+</li>
+<li>Improved error location when type indirectly referenced from required .class files.</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=35356">35356</a>
+Convert local variable to field refactoring proposes weird name 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53555">53555</a>
+SourceType#get*QualifiedName() methods return unusable/invalid names for local types 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48752">48752</a>
+Completion: relevance could be improved for non static field
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61877">61877</a>
+ClassCastException in DefaultBindingResolver
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=59769">59769</a>
+Javadoc of SearchMatch#getElement(): is *enclosing* element 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=58440">58440</a>
+type hierarchy incomplete when implementing fully qualified interface 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61719">61719</a>
+Incorrect fine grain delta after method copy-rename 
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61075">61075</a>
+[Compiler] implementation uses numerous ArrayIndexOutOfBoundsException
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=19898">19898</a>
+StackOverflowError in BinaryExpression
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=61706">61706</a>
+Improve error message when unbound reference from binaries
+
 <a name="v_427"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
@@ -391,6 +439,7 @@ Compiler warning "is hiding a field" given for static inner class
 Search for existing type fails
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=59291">59291</a>
 Deadlock between AllTypes cache and setClasspathContainer
+
 
 <a name="v_422"></a>
 <p><hr><h1>

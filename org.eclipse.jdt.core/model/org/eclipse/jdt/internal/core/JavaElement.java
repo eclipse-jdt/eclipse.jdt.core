@@ -677,9 +677,19 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		buffer.append(this.tabString(tab));
-		buffer.append(getElementName());
+		toStringName(buffer);
 		if (info == null) {
 			buffer.append(" (not open)"); //$NON-NLS-1$
+		}
+	}
+	/**
+	 *  Debugging purposes
+	 */
+	protected void toStringName(StringBuffer buffer) {
+		buffer.append(getElementName());
+		if (this.occurrenceCount > 1) {
+			buffer.append("#"); //$NON-NLS-1$
+			buffer.append(this.occurrenceCount);
 		}
 	}
 }

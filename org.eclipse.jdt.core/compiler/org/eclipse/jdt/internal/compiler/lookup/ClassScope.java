@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
@@ -890,22 +891,27 @@ public class ClassScope extends Scope {
 	}
 
 	private ReferenceBinding findSupertype(TypeReference typeReference) {
-		typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
-		compilationUnitScope().recordQualifiedReference(typeReference.getTypeName());
-		this.superTypeReference = typeReference;
-		ReferenceBinding superType = (ReferenceBinding) typeReference.resolveSuperType(this);
-		this.superTypeReference = null;
-		if (superType == null) return null;
+		try {
+			typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
+			compilationUnitScope().recordQualifiedReference(typeReference.getTypeName());
+			this.superTypeReference = typeReference;
+			ReferenceBinding superType = (ReferenceBinding) typeReference.resolveSuperType(this);
+			this.superTypeReference = null;
+			if (superType == null) return null;
+	
+			compilationUnitScope().recordTypeReference(superType); // to record supertypes
+			if (superType.isParameterizedType())
+				return superType; // already checked cycle before resolving its type variables
 
-		compilationUnitScope().recordTypeReference(superType); // to record supertypes
-		if (superType.isParameterizedType())
-			return superType; // already checked cycle before resolving its type variables
-
-		// must detect cycles & force connection up the hierarchy... also handle cycles with binary types.
-		// must be guaranteed that the superType knows its entire hierarchy
-		if (detectCycle(referenceContext.binding, superType, typeReference))
-			return null; // cycle error was already reported
-		return superType;
+			// must detect cycles & force connection up the hierarchy... also handle cycles with binary types.
+			// must be guaranteed that the superType knows its entire hierarchy
+			if (detectCycle(referenceContext.binding, superType, typeReference))
+				return null; // cycle error was already reported
+			return superType;
+		} catch (AbortCompilation e) {
+			e.updateContext(typeReference, referenceCompilationUnit().compilationResult);
+			throw e;
+		}			
 	}
 
 	/* Answer the problem reporter to use for raising new problems.

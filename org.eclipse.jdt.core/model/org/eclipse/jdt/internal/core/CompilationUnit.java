@@ -962,12 +962,8 @@ public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
 public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(boolean createAST, int astLevel, IProgressMonitor monitor) throws JavaModelException {
 	if (isConsistent()) return null;
 		
-	// close
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	// working copy: remove info from cache, but keep buffer open
-	manager.removeInfoAndChildren(this);
-	
 	// create a new info and make it the current info
+	// (this will remove the info and its children just before storing the new infos)
 	if (createAST) {
 		ASTHolderCUInfo info = new ASTHolderCUInfo();
 		info.astLevel = astLevel;
@@ -1148,12 +1144,12 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	if (!isPrimary()) {
 		buffer.append(this.tabString(tab));
 		buffer.append("[Working copy] "); //$NON-NLS-1$
-		buffer.append(getElementName());
+		toStringName(buffer);
 	} else {
 		if (isWorkingCopy()) {
 			buffer.append(this.tabString(tab));
 			buffer.append("[Working copy] "); //$NON-NLS-1$
-			buffer.append(getElementName());
+			toStringName(buffer);
 			if (info == null) {
 				buffer.append(" (not open)"); //$NON-NLS-1$
 			}
