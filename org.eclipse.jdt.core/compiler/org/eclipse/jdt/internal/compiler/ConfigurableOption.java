@@ -260,7 +260,8 @@ public class ConfigurableOption {
 	public int getValueIndex() {
 		if(possibleValues == NoDiscreteValue)
 			return -1;
-		
+		if (valueIndex == -1)
+			return getDefaultValueIndex();
 		return valueIndex;
 	}
 	/**
