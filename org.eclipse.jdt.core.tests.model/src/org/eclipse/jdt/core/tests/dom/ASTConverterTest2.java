@@ -1677,5 +1677,27 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("wrong value", "\012\015a", stringLiteral.getLiteralValue());
 		assertEquals("wrong value", "\"\\012\\015\\u0061\"", stringLiteral.getEscapedValue());
 	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=33039
+	 */
+	public void test0464() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0464", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("No error", 1, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertNotNull("No node", node);
+		assertTrue("not a return statement", node.getNodeType() == ASTNode.RETURN_STATEMENT); //$NON-NLS-1$
+		ReturnStatement returnStatement = (ReturnStatement) node;
+		Expression expression = returnStatement.getExpression();
+		assertNotNull("No expression", expression);
+		assertTrue("not a null literal", expression.getNodeType() == ASTNode.NULL_LITERAL); //$NON-NLS-1$
+		NullLiteral nullLiteral = (NullLiteral) expression;
+		ITypeBinding typeBinding = nullLiteral.resolveTypeBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertFalse("A primitive type", typeBinding.isPrimitive());
+		assertTrue("Null type", typeBinding.isNullType());
+	}	
 }
 
