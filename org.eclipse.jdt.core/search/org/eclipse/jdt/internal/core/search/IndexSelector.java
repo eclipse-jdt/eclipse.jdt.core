@@ -85,13 +85,17 @@ public static boolean canSeeFocus(IJavaElement focus, IPath projectOrJarPath) {
 			// focus is part of a project
 			IJavaProject focusProject = (IJavaProject)focus;
 			if (project == null) {
-				// consider that a jar can see a project only if it is referenced by this project
-				IClasspathEntry[] entries = ((JavaProject)focusProject).getExpandedClasspath(true);
-				for (int i = 0, length = entries.length; i < length; i++) {
-					IClasspathEntry entry = entries[i];
-					if ((entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) 
-						&& entry.getPath().equals(projectOrJarPath)) {
+				// consider that a jar can see a project only if it is on the classpath of a project that can see the focus project
+				IJavaProject[] allProjects = model.getJavaProjects();
+				for (int i = 0, length = allProjects.length; i < length; i++) {
+					IClasspathEntry[] entries = allProjects[i].getResolvedClasspath(true);
+					for (int j = 0, length2 = entries.length; j < length2; j++) {
+						IClasspathEntry entry = entries[j];
+						if ((entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) 
+								&& entry.getPath().equals(projectOrJarPath)
+								&& canSeeFocus(focus, allProjects[i].getPath())) {
 							return true;
+						}
 					}
 				}
 				return false;
