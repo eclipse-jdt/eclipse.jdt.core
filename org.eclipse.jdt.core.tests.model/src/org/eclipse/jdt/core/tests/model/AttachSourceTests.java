@@ -194,31 +194,6 @@ public void testDetachSource() throws JavaModelException {
 	assertTrue("Source attachment root path should be null", null ==this.root.getSourceAttachmentRootPath());
 }
 /**
- * Attaches a source zip to a jar without specifying the source attachment root. 
- * The source zip has a nested root structure and exists as a resource.  
- * Tests that the source attachment root is detected.
- */
-public void testDetectRootPath() throws JavaModelException {
-	IJavaProject project = getJavaProject("AttachSourceTests");
-	IFile jar = (IFile) project.getProject().findMember("attach2.jar");
-	IFile srcZip=(IFile) project.getProject().findMember("attach2src.zip");
-	IPackageFragmentRoot root = project.getPackageFragmentRoot(jar);
-	root.attachSource(srcZip.getFullPath(), null, null);
-
-	// ensure root path is detected
-	IPath rootSAPath= root.getSourceAttachmentRootPath();
-	assertEquals("Unexpected source attachment root path for " + root.getPath(), "src/nested", rootSAPath.toString());
-	
-	// ensure source can be retrieved
-	IClassFile cf = root.getPackageFragment("x.y").getClassFile("B.class");
-	assertTrue("source code does not exist for the entire attached compilation unit", cf.getSource() != null);
-	
-	// ensure root path is recomputed
-	root.close();
-	cf = root.getPackageFragment("x.y").getClassFile("B.class");
-	assertTrue("source code does not exist for the entire attached compilation unit", cf.getSource() != null);
-}
-/**
  * Ensures that name ranges exists for BinaryMembers that have
  * mapped source.
  */
@@ -357,6 +332,170 @@ public void testRootPath3() throws JavaModelException {
 		"	}\n" +
 		"}",
 		cf.getSource());
+	root.close();
+}
+/**
+ * Attach a jar with a source attachement that doesn't contain the source folders
+ */
+public void testRootPath4() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/test.jar"));
+	this.attachSource(root, "/AttachSourceTests/src.zip", "invalid");
+	
+	IClassFile cf = root.getPackageFragment("test1").getClassFile("Test.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"package test1;\n" +		"\n" +		"public class Test {}",
+		cf.getSource());
+	root.close();
+}
+/**
+ * Attach a jar with a source attachement that doesn't contain the source folders
+ */
+public void testRootPath5() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/update.jar"));
+	this.attachSource(root, "/AttachSourceTests/src.zip", "invalid");
+	
+	IClassFile cf = root.getPackageFragment("p1.p2").getClassFile("A.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"package p1.p2;\n" +
+		"\n" +
+		"public class A {}",
+		cf.getSource());
+		
+	cf = root.getPackageFragment("").getClassFile("B.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"public class B {}",
+		cf.getSource());		
+	
+	this.attachSource(root, null, null); // detach source
+	root.close();
+}
+/**
+ * Attach a jar with a source attachement that doesn't contain the source folders
+ */
+public void testRootPath6() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/update.jar"));
+	this.attachSource(root, "/AttachSourceTests/src.zip", null);
+	
+	IClassFile cf = root.getPackageFragment("p1.p2").getClassFile("A.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"package p1.p2;\n" +
+		"\n" +
+		"public class A {}",
+		cf.getSource());
+		
+	cf = root.getPackageFragment("").getClassFile("B.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"public class B {}",
+		cf.getSource());		
+
+	this.attachSource(root, null, null); // detach source
+	root.close();
+}
+/**
+ * Attach a jar with a source attachement that doesn't contain the source folders
+ */
+public void testRootPath7() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/full.jar"));
+	this.attachSource(root, "/AttachSourceTests/src.zip", null);
+	
+	IClassFile cf = root.getPackageFragment("p1.p2").getClassFile("A.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"package p1.p2;\n" +
+		"\n" +
+		"public class A {}",
+		cf.getSource());
+		
+	cf = root.getPackageFragment("").getClassFile("B.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"public class B {}",
+		cf.getSource());
+		
+	cf = root.getPackageFragment("test1").getClassFile("Test.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"package test1;\n" +
+		"\n" +
+		"public class Test {}",
+		cf.getSource());				
+	
+	this.attachSource(root, null, null); // detach source
+	root.close();
+}
+/**
+ * Attach a jar with a source attachement that contains the source folders
+ */
+public void testRootPath8() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/full.jar"));
+	this.attachSource(root, "/AttachSourceTests/fullsrc.zip", null);
+	
+	IClassFile cf = root.getPackageFragment("p1.p2").getClassFile("A.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"package p1.p2;\n" +
+		"\n" +
+		"public class A {}",
+		cf.getSource());
+		
+	cf = root.getPackageFragment("").getClassFile("B.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"public class B {}",
+		cf.getSource());
+		
+	cf = root.getPackageFragment("test1").getClassFile("Test.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"package test1;\n" +
+		"\n" +
+		"public class Test {}",
+		cf.getSource());				
+	
+	this.attachSource(root, null, null); // detach source
+	root.close();
+}
+/**
+ * Attach a jar with a source attachement that contains the source folders
+ */
+public void testRootPath9() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/full.jar"));
+	this.attachSource(root, "/AttachSourceTests/fullsrc.zip", "invalid");
+	
+	IClassFile cf = root.getPackageFragment("p1.p2").getClassFile("A.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"package p1.p2;\n" +
+		"\n" +
+		"public class A {}",
+		cf.getSource());
+		
+	cf = root.getPackageFragment("").getClassFile("B.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"public class B {}",
+		cf.getSource());
+		
+	cf = root.getPackageFragment("test1").getClassFile("Test.class");
+	assertSourceEquals(
+		"Unexpected source for class file",
+		"package test1;\n" +
+		"\n" +
+		"public class Test {}",
+		cf.getSource());				
+	
+	this.attachSource(root, null, null); // detach source
 	root.close();
 }
 }

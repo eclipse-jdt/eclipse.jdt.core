@@ -2,6 +2,9 @@
 <classpath>
     <classpathentry kind="lib" path="attach.jar"/>
     <classpathentry kind="lib" path="attach2.jar"/>
+    <classpathentry kind="lib" path="test.jar"/>    
+    <classpathentry kind="lib" path="update.jar"/>    
+    <classpathentry kind="lib" path="full.jar"/>
     <classpathentry kind="lib" path="lib"/>
     <classpathentry kind="src" path="src"/>
     <classpathentry kind="var" path="JCL_LIB"/>
