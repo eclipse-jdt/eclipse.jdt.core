@@ -214,7 +214,8 @@ protected boolean matchIndexEntry() {
 			if (this.decodedEnclosingTypeNames != CharOperation.NO_CHAR_CHAR) return false;
 		} else {
 			if (!CharOperation.equals(this.enclosingTypeNames, this.decodedEnclosingTypeNames, this.isCaseSensitive))
-				return false;
+				if (!CharOperation.equals(this.decodedEnclosingTypeNames, ONE_ZERO_CHAR)) // if not a local or anonymous type
+					return false;
 		}
 	}
 
@@ -243,7 +244,10 @@ public String toString() {
 			buffer.append("TypeDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 	}
-	if (pkg != null) buffer.append(pkg);
+	if (pkg != null) 
+		buffer.append(pkg);
+	else
+		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, enclosing<"); //$NON-NLS-1$
 	if (enclosingTypeNames != null) {
 		for (int i = 0; i < enclosingTypeNames.length; i++){
@@ -251,9 +255,14 @@ public String toString() {
 			if (i < enclosingTypeNames.length - 1)
 				buffer.append('.');
 		}
+	} else {
+		buffer.append("*"); //$NON-NLS-1$
 	}
 	buffer.append(">, type<"); //$NON-NLS-1$
-	if (simpleName != null) buffer.append(simpleName);
+	if (simpleName != null) 
+		buffer.append(simpleName);
+	else
+		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
 	switch(matchMode){
 		case EXACT_MATCH : 

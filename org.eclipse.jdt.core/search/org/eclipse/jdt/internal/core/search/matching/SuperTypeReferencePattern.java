@@ -256,7 +256,10 @@ public String toString(){
 		this.checkOnlySuperinterfaces
 			? "SuperInterfaceReferencePattern: <" //$NON-NLS-1$
 			: "SuperTypeReferencePattern: <"); //$NON-NLS-1$
-	if (superSimpleName != null) buffer.append(superSimpleName);
+	if (superSimpleName != null) 
+		buffer.append(superSimpleName);
+	else
+		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
 	switch(matchMode){
 		case EXACT_MATCH : 

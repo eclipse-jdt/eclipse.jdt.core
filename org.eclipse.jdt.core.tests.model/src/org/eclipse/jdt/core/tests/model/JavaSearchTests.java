@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFile;
@@ -81,14 +82,12 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 			} else if (element instanceof IType) {
 				results.append(" ");
 				IType type = (IType)element;
-				results.append(type.getFullyQualifiedName());
+				append(type);
 				unit = type.getCompilationUnit();
 			} else if (element instanceof IField) {
 				results.append(" ");
 				IField field = (IField)element;
-				results.append(field.getDeclaringType().getFullyQualifiedName());
-				results.append(".");
-				results.append(field.getElementName());
+				append(field);
 				unit = field.getCompilationUnit();
 			} else if (element instanceof IInitializer) {
 				results.append(" ");
@@ -97,7 +96,7 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 				unit = initializer.getCompilationUnit();
 			} else if (element instanceof IPackageFragment) {
 				results.append(" ");
-				results.append(element.getElementName());
+				append((IPackageFragment)element);
 			} else if (element instanceof ILocalVariable) {
 				results.append(" ");
 				ILocalVariable localVar = (ILocalVariable)element;
@@ -153,8 +152,13 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 			results.append(e.toString());
 		}
 	}
+	private void append(IField field) throws JavaModelException {
+		append(field.getDeclaringType());
+		results.append(".");
+		results.append(field.getElementName());
+	}
 	private void append(IInitializer initializer) throws JavaModelException {
-		results.append(initializer.getDeclaringType().getFullyQualifiedName());
+		append(initializer.getDeclaringType());
 		results.append(".");
 		if (Flags.isStatic(initializer.getFlags())) {
 			results.append("static ");
@@ -166,7 +170,7 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 			results.append(Signature.toString(method.getReturnType()));
 			results.append(" ");
 		}
-		results.append(method.getDeclaringType().getFullyQualifiedName());
+		append(method.getDeclaringType());
 		if (!method.isConstructor()) {
 			results.append(".");
 			results.append(method.getElementName());
@@ -180,6 +184,64 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 			}
 		}
 		results.append(")");
+	}
+	private void append(IPackageFragment pkg) {
+		results.append(pkg.getElementName());
+	}
+	private void append(IType type) throws JavaModelException {
+		IJavaElement parent = type.getParent();
+		boolean isLocal = false;
+		switch (parent.getElementType()) {
+			case IJavaElement.COMPILATION_UNIT:
+				IPackageFragment pkg = type.getPackageFragment();
+				append(pkg);
+				if (!pkg.getElementName().equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
+					results.append(".");
+				}
+				break;
+			case IJavaElement.CLASS_FILE:
+				IType declaringType = type.getDeclaringType();
+				if (declaringType != null) {
+					append(type.getDeclaringType());
+					results.append("$");
+				} else {
+					pkg = type.getPackageFragment();
+					append(pkg);
+					if (!pkg.getElementName().equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
+						results.append(".");
+					}
+				}
+				break;
+			case IJavaElement.TYPE:
+				append((IType)parent);
+				results.append("$");
+				break;
+			case IJavaElement.FIELD:
+				append((IField)parent);
+				isLocal = true;
+				break;
+			case IJavaElement.INITIALIZER:
+				append((IInitializer)parent);
+				isLocal = true;
+				break;
+			case IJavaElement.METHOD:
+				append((IMethod)parent);
+				isLocal = true;
+				break;
+		}
+		if (isLocal) {
+			results.append(":");
+		}
+		String typeName = type.getElementName();
+		if (typeName.length() == 0) {
+			results.append("<anonymous>");
+		} else {
+			results.append(typeName);
+		}
+		if (isLocal) {
+			results.append("#");
+			results.append(((JavaElement)type).occurrenceCount);
+		}
 	}
 	public void done() {
 	}
@@ -236,8 +298,8 @@ public void tearDownSuite() throws Exception {
 public static Test suite() {
 	TestSuite suite = new Suite(JavaSearchTests.class.getName());
 	
-	if (false) {
-		suite.addTest(new JavaSearchTests("testLocalVariableReference1"));
+	if (true) {
+		suite.addTest(new JavaSearchTests("testLocalTypeDeclaration2"));
 		return suite;
 	}
 	
@@ -263,6 +325,8 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testMemberTypeDeclaration"));
 	suite.addTest(new JavaSearchTests("testPatternMatchTypeDeclaration"));
 	suite.addTest(new JavaSearchTests("testLongDeclaration"));
+	suite.addTest(new JavaSearchTests("testLocalTypeDeclaration1"));
+	suite.addTest(new JavaSearchTests("testLocalTypeDeclaration2"));
 	
 	// type reference
 	suite.addTest(new JavaSearchTests("testSimpleTypeReference"));
@@ -298,6 +362,8 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testTypeReferenceWithRecovery"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceWithProblem"));
 	suite.addTest(new JavaSearchTests("testTypeReferenceWithCorruptJar"));
+	suite.addTest(new JavaSearchTests("testLocalTypeReference1"));
+	suite.addTest(new JavaSearchTests("testLocalTypeReference2"));
 	
 	// type occurences
 	suite.addTest(new JavaSearchTests("testTypeOccurence"));
@@ -407,7 +473,9 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testDeclarationOfSentMessages"));
 	
 	// potential match in binary
-	suite.addTest(new JavaSearchTests("testPotentialMatchInBinary"));
+	suite.addTest(new JavaSearchTests("testPotentialMatchInBinary1"));
+	suite.addTest(new JavaSearchTests("testPotentialMatchInBinary2"));
+	suite.addTest(new JavaSearchTests("testPotentialMatchInBinary3"));
 
 	// core exception
 	suite.addTest(new JavaSearchTests("testCoreException"));
@@ -1107,7 +1175,7 @@ public void testFieldReferenceInAnonymousClass() throws CoreException {
 		getJavaSearchScope(), 
 		resultCollector);
 	assertSearchResults(
-		"src/D.java void D.g() [h]",
+		"src/D.java void void D.g():<anonymous>#1.run() [h]",
 		resultCollector);
 }
 /**
@@ -1320,7 +1388,79 @@ public void testInterfaceImplementors2() throws CoreException {
 		getJavaSearchScope(),  
 		resultCollector);
 	assertSearchResults(
-		"src/r2/X.java r2.X.field [I]", 
+		"src/r2/X.java r2.X.field:<anonymous>#1 [I]",
+		resultCollector);
+}
+/*
+ * Local type declaration test.
+ */
+public void testLocalTypeDeclaration1() throws CoreException {
+	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "f2");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"Y",
+		TYPE,
+		DECLARATIONS, 
+		scope, 
+		resultCollector);
+	assertSearchResults(
+		"src/f2/X.java Object f2.X.foo1():Y#1 [Y]",
+		resultCollector);
+}
+/*
+ * Local type declaration test.
+ */
+public void testLocalTypeDeclaration2() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch/src/f2/X.java").getType("X").getMethod("foo", new String[0]).getType("Y", 1);
+	
+	IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		type,
+		DECLARATIONS, 
+		scope, 
+		resultCollector);
+	assertSearchResults(
+		"src/f2/X.java Object f2.X.foo1():Y#1 [Y]",
+		resultCollector);
+}
+/*
+ * Local type reference test.
+ */
+public void testLocalTypeReference1() throws CoreException {
+	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "f2");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"Y",
+		TYPE,
+		REFERENCES, 
+		scope, 
+		resultCollector);
+	assertSearchResults(
+		"src/f2/X.java Object f2.X.foo1() [Y]",
+		resultCollector);
+}
+/*
+ * Local type reference test.
+ */
+public void testLocalTypeReference2() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch/src/f2/X.java").getType("X").getMethod("foo", new String[0]).getType("Y", 1);
+	
+	IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		type,
+		REFERENCES, 
+		scope, 
+		resultCollector);
+	assertSearchResults(
+		"src/f2/X.java Object f2.X.foo1() [Y]",
 		resultCollector);
 }
 /*
@@ -1621,7 +1761,7 @@ public void testMethodDeclarationInInitializer() throws CoreException {
 		getJavaSearchScope(),
 		resultCollector);
 	assertSearchResults(
-		"src/c6/X.java c6.X.x [foo24346]", 
+		"src/c6/X.java void c6.X.x:<anonymous>#1.foo24346() [foo24346]",
 		resultCollector);
 }
 /**
@@ -1858,7 +1998,7 @@ public void testMethodReferenceInAnonymousClass() throws CoreException {
 		getJavaSearchScope(), 
 		resultCollector);
 	assertSearchResults(
-		"src/PR_1GGNOTF.java void PR_1GGNOTF.method2() [method()]",
+		"src/PR_1GGNOTF.java void void PR_1GGNOTF.method2():<anonymous>#1.run() [method()]",
 		resultCollector);
 }
 /**
@@ -2003,7 +2143,7 @@ public void testPatternMatchTypeReference() throws CoreException {
  * class file.
  * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration) 
  */
-public void testPotentialMatchInBinary() throws CoreException {
+public void testPotentialMatchInBinary1() throws CoreException {
 	IJavaProject project = this.getJavaProject("JavaSearch");
 	IClasspathEntry[] classpath = project.getRawClasspath();
 	try {
@@ -2029,9 +2169,29 @@ public void testPotentialMatchInBinary() throws CoreException {
 			"AbortCompilation.jar AbortCompilation.MissingFieldType.missing [No source] POTENTIAL_MATCH\n" + 
 			"AbortCompilation.jar AbortCompilation.MissingFieldType.otherField [No source] POTENTIAL_MATCH",
 			resultCollector);
-	
+	} finally {
+		// reset classpath
+		project.setRawClasspath(classpath, null);
+	}
+}	
+/**
+ * Test that we find potential matches in binaries even if we can't resolve the entire
+ * class file.
+ * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration) 
+ */
+public void testPotentialMatchInBinary2() throws CoreException {
+	IJavaProject project = this.getJavaProject("JavaSearch");
+	IClasspathEntry[] classpath = project.getRawClasspath();
+	try {
+		// add AbortCompilation.jar to classpath
+		int length = classpath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[length+1];
+		System.arraycopy(classpath, 0, newClasspath, 0, length);
+		newClasspath[length] = JavaCore.newLibraryEntry(new Path("/JavaSearch/AbortCompilation.jar"), null, null);
+		project.setRawClasspath(newClasspath, null);
+		
 		// potential match for a method declaration
-		resultCollector = new JavaSearchResultCollector();
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showAccuracy = true;
 		new SearchEngine().search(
 			getWorkspace(),
@@ -2045,9 +2205,29 @@ public void testPotentialMatchInBinary() throws CoreException {
 			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo(java.util.EventListener) [No source] POTENTIAL_MATCH\n" + 
 			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo2() [No source] POTENTIAL_MATCH",
 			resultCollector);
-	
+	} finally {
+		// reset classpath
+		project.setRawClasspath(classpath, null);
+	}
+}	
+/**
+ * Test that we find potential matches in binaries even if we can't resolve the entire
+ * class file.
+ * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration) 
+ */
+public void testPotentialMatchInBinary3() throws CoreException {
+	IJavaProject project = this.getJavaProject("JavaSearch");
+	IClasspathEntry[] classpath = project.getRawClasspath();
+	try {
+		// add AbortCompilation.jar to classpath
+		int length = classpath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[length+1];
+		System.arraycopy(classpath, 0, newClasspath, 0, length);
+		newClasspath[length] = JavaCore.newLibraryEntry(new Path("/JavaSearch/AbortCompilation.jar"), null, null);
+		project.setRawClasspath(newClasspath, null);
+		
 		// potential match for a type declaration
-		resultCollector = new JavaSearchResultCollector();
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showAccuracy = true;
 		new SearchEngine().search(
 			getWorkspace(),
@@ -2505,7 +2685,7 @@ public void testTypeDeclarationInJar2() throws CoreException {
 		scope, 
 		resultCollector);
 	assertSearchResults(
-		"test20631.jar void X.foo()",
+		"test20631.jar void X.foo():Y#1",
 		resultCollector);
 }
 /**

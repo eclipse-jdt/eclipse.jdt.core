@@ -107,9 +107,15 @@ public String toString() {
 			buffer.append("TypeDeclarationPattern: qualification<"); //$NON-NLS-1$
 			break;
 	}
-	if (this.qualification != null) buffer.append(this.qualification);
+	if (this.qualification != null) 
+		buffer.append(this.qualification);
+	else
+		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, type<"); //$NON-NLS-1$
-	if (simpleName != null) buffer.append(simpleName);
+	if (simpleName != null) 
+		buffer.append(simpleName);
+	else
+		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
 	switch(matchMode){
 		case EXACT_MATCH : 

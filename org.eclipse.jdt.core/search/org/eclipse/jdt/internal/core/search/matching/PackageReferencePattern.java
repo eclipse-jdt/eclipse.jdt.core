@@ -76,7 +76,10 @@ protected void resetQuery() {
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
 	buffer.append("PackageReferencePattern: <"); //$NON-NLS-1$
-	if (this.pkgName != null) buffer.append(this.pkgName);
+	if (this.pkgName != null) 
+		buffer.append(this.pkgName);
+	else
+		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
 	switch(matchMode){
 		case EXACT_MATCH : 

@@ -135,6 +135,11 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		}
 	}
 public static Test suite() {
+	if (false) {
+		Suite suite = new Suite(SearchTests.class.getName());
+		suite.addTest(new SearchTests("testSearchPatternCreation33"));
+		return suite;
+	}
 	return new Suite(SearchTests.class);
 }
 
@@ -181,7 +186,8 @@ protected void assertAllTypes(String message, IJavaProject project, int waitingP
 protected void assertPattern(String expected, ISearchPattern actualPattern) {
 	String actual = actualPattern == null ? null : actualPattern.toString();
 	if (!expected.equals(actual)) {
-		System.out.println(actual == null ? "null" : Util.displayString(actual));
+		System.out.print(actual == null ? "null" : Util.displayString(actual, 2));
+		System.out.println(",");
 	}
 	assertEquals(
 		"Unexpected search pattern",
@@ -677,7 +683,7 @@ public void testSearchPatternCreation20() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"TypeReferencePattern: pkg<x.y.z>, type<Foo>, exact match, case sensitive",
+		"TypeReferencePattern: qualification<x.y.z>, type<Foo>, exact match, case sensitive",
 		searchPattern);
 }
 
@@ -705,8 +711,8 @@ public void testSearchPatternCreation22() {
 			IJavaSearchConstants.ALL_OCCURRENCES);
 	
 	assertPattern(
-		"TypeDeclarationPattern: pkg<x.y.z>, enclosing<>, type<Foo>, exact match, case sensitive\n" +
-		"| TypeReferencePattern: pkg<x.y.z>, type<Foo>, exact match, case sensitive",
+		"TypeDeclarationPattern: pkg<x.y.z>, enclosing<>, type<Foo>, exact match, case sensitive\n" + 
+		"| TypeReferencePattern: qualification<x.y.z>, type<Foo>, exact match, case sensitive",
 		searchPattern);
 }
 
@@ -748,7 +754,7 @@ public void testSearchPatternCreation25() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"TypeReferencePattern: pkg<java.util>, type<Vector>, exact match, case sensitive",
+		"TypeReferencePattern: qualification<java.util>, type<Vector>, exact match, case sensitive",
 		searchPattern);
 }
 
@@ -810,7 +816,7 @@ public void testSearchPatternCreation29() {
 }
 
 /**
- * Test pattern creation
+ * Test LocalVarDeclarationPattern creation
  */
 public void testSearchPatternCreation30() {
 	ILocalVariable localVar = new LocalVariable((JavaElement)getCompilationUnit("/P/X.java").getType("X").getMethod("foo", new String[0]),  "var", 1, 2, 3, 4);
@@ -824,7 +830,7 @@ public void testSearchPatternCreation30() {
 }
 
 /**
- * Test pattern creation
+ * Test LocalVarReferencePattern creation
  */
 public void testSearchPatternCreation31() {
 	ILocalVariable localVar = new LocalVariable((JavaElement)getCompilationUnit("/P/X.java").getType("X").getMethod("foo", new String[0]),  "var", 1, 2, 3, 4);
@@ -838,7 +844,7 @@ public void testSearchPatternCreation31() {
 }
 
 /**
- * Test pattern creation
+ * Test LocalVarCombinedPattern creation
  */
 public void testSearchPatternCreation32() {
 	ILocalVariable localVar = new LocalVariable((JavaElement)getCompilationUnit("/P/X.java").getType("X").getMethod("foo", new String[0]),  "var", 1, 2, 3, 4);
@@ -851,4 +857,59 @@ public void testSearchPatternCreation32() {
 		searchPattern);
 }
 
+/**
+ * Test TypeDeclarationPattern creation
+ */
+public void testSearchPatternCreation33() {
+	IType localType = getCompilationUnit("/P/X.java").getType("X").getMethod("foo", new String[0]).getType("Y", 2);
+	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
+			localType, 
+			IJavaSearchConstants.DECLARATIONS);
+	
+	assertPattern(
+		"TypeDeclarationPattern: pkg<>, enclosing<X.*>, type<Y>, exact match, case sensitive",
+		searchPattern);
+}
+
+/**
+ * Test TypeReferencePattern creation
+ */
+public void testSearchPatternCreation34() {
+	IType localType = getCompilationUnit("/P/X.java").getType("X").getMethod("foo", new String[0]).getType("Y", 3);
+	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
+			localType, 
+			IJavaSearchConstants.REFERENCES);
+	
+	assertPattern(
+		"TypeReferencePattern: qualification<X.*>, type<Y>, exact match, case sensitive",
+		searchPattern);
+}
+
+/**
+ * Test TypeDeclarationPattern creation
+ */
+public void testSearchPatternCreation35() {
+	IType localType = getCompilationUnit("/P/X.java").getType("X").getInitializer(1).getType("Y", 2);
+	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
+			localType, 
+			IJavaSearchConstants.DECLARATIONS);
+	
+	assertPattern(
+		"TypeDeclarationPattern: pkg<>, enclosing<X.*>, type<Y>, exact match, case sensitive",
+		searchPattern);
+}
+
+/**
+ * Test TypeReferencePattern creation
+ */
+public void testSearchPatternCreation36() {
+	IType localType = getCompilationUnit("/P/X.java").getType("X").getInitializer(2).getType("Y", 3);
+	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
+			localType, 
+			IJavaSearchConstants.REFERENCES);
+	
+	assertPattern(
+		"TypeReferencePattern: qualification<X.*>, type<Y>, exact match, case sensitive",
+		searchPattern);
+}
 }

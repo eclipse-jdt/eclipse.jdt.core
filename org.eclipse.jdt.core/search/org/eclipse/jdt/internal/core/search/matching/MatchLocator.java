@@ -85,13 +85,22 @@ public long resultCollectorTime = 0;
 public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	IJavaElement enclosingElement;
 	MatchingNodeSet nodeSet;
+	// TODO (jerome) Use an HashtableOfIntValues instead
+	HashMap occurrencesCounts = new HashMap(); // key = class name (String), value = occurrenceCount (Integer)
 	public LocalDeclarationVisitor(IJavaElement enclosingElement, MatchingNodeSet nodeSet) {
 		this.enclosingElement = enclosingElement;
 		this.nodeSet = nodeSet;
 	}
 	public boolean visit(AnonymousLocalTypeDeclaration anonymousTypeDeclaration, BlockScope unused) {
 		try {
-			reportMatching(anonymousTypeDeclaration, enclosingElement, -1, nodeSet);
+			String simpleName = ""; //$NON-NLS-1$
+			Integer occurrenceCount = (Integer)occurrencesCounts.get(simpleName);
+			if (occurrenceCount == null)
+				occurrenceCount = new Integer(1);
+			else
+				occurrenceCount = new Integer(occurrenceCount.intValue()+1);
+			occurrencesCounts.put(simpleName, occurrenceCount);
+			reportMatching(anonymousTypeDeclaration, enclosingElement, -1, nodeSet, occurrenceCount.intValue());
 			return false; // don't visit members as this was done during reportMatching(...)
 		} catch (CoreException e) {
 			throw new WrappedCoreException(e);
@@ -99,8 +108,15 @@ public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 	public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope unused) {
 		try {
+			String simpleName = new String(typeDeclaration.name);
+			Integer occurrenceCount = (Integer)occurrencesCounts.get(simpleName);
+			if (occurrenceCount == null)
+				occurrenceCount = new Integer(1);
+			else
+				occurrenceCount = new Integer(occurrenceCount.intValue()+1);
+			occurrencesCounts.put(simpleName, occurrenceCount);
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeDeclaration);
-			reportMatching(typeDeclaration, enclosingElement, level != null ? level.intValue() : -1, nodeSet);
+			reportMatching(typeDeclaration, enclosingElement, level != null ? level.intValue() : -1, nodeSet, occurrenceCount.intValue());
 			return false; // don't visit members as this was done during reportMatching(...)
 		} catch (CoreException e) {
 			throw new WrappedCoreException(e);
@@ -1153,7 +1169,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 			TypeDeclaration type = types[i];
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(type);
 			int accuracy = (level != null && matchedUnitContainer) ? level.intValue() : -1;
-			reportMatching(type, null, accuracy, nodeSet);
+			reportMatching(type, null, accuracy, nodeSet, 1);
 		}
 	}
 }
@@ -1202,13 +1218,15 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
  * Visit the given type declaration and report the nodes that match exactly the
  * search pattern (ie. the ones in the matching nodes set)
  */
-protected void reportMatching(TypeDeclaration type, IJavaElement parent, int accuracy, MatchingNodeSet nodeSet) throws CoreException {
+protected void reportMatching(TypeDeclaration type, IJavaElement parent, int accuracy, MatchingNodeSet nodeSet, int occurrenceCount) throws CoreException {
 	// create type handle
 	IJavaElement enclosingElement = parent;
 	if (enclosingElement == null) {
 		enclosingElement = createTypeHandle(new String(type.name));
 	} else if (enclosingElement instanceof IType) {
 		enclosingElement = ((IType) parent).getType(new String(type.name));
+	} else if (enclosingElement instanceof IMember) {
+		enclosingElement = ((IMember) parent).getType(new String(type.name), occurrenceCount);
 	}
 	if (enclosingElement == null) return;
 
@@ -1276,7 +1294,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 			MemberTypeDeclaration memberType = memberTypes[i];
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(memberType);
 			int value = (level != null && matchedClassContainer) ? level.intValue() : -1;
-			reportMatching(memberType, enclosingElement, value, nodeSet);
+			reportMatching(memberType, enclosingElement, value, nodeSet, 1);
 		}
 	}
 }

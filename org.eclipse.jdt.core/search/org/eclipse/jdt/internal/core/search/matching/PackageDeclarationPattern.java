@@ -32,7 +32,10 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
 	buffer.append("PackageDeclarationPattern: <"); //$NON-NLS-1$
-	if (this.pkgName != null) buffer.append(this.pkgName);
+	if (this.pkgName != null) 
+		buffer.append(this.pkgName);
+	else
+		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
 	switch(matchMode){
 		case EXACT_MATCH : 
