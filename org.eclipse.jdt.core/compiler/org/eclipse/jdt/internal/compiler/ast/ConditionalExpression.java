@@ -57,7 +57,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	trueInfo = valueIfTrue.analyseCode(currentScope, flowContext, trueInfo.copy());
 	falseInfo = valueIfFalse.analyseCode(currentScope, flowContext, falseInfo.copy());
 	
-	// merge back using a conditional info
+	// merge back using a conditional info -  1GK2BLM
 	// if ((t && (v = t)) ? t : t && (v = f)) r = v;  -- ok
 	FlowInfo mergedInfo = FlowInfo.conditional(
 		trueInfo.initsWhenTrue().unconditionalInits().mergedWith(
