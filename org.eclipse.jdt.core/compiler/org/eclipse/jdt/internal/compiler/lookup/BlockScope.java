@@ -251,15 +251,15 @@ public class BlockScope extends Scope {
 					// assign variable position
 					local.resolvedPosition = this.offset;
 
-					if (this.offset > 0xFFFF) { // no more than 65535 words of locals
-						this.problemReporter().noMoreAvailableSpaceForLocal(
-							local, 
-							local.declaration == null ? (AstNode)this.methodScope().referenceContext : local.declaration);
-					}
 					if ((local.type == LongBinding) || (local.type == DoubleBinding)) {
 						this.offset += 2;
 					} else {
 						this.offset++;
+					}
+					if (this.offset > 0xFFFF) { // no more than 65535 words of locals
+						this.problemReporter().noMoreAvailableSpaceForLocal(
+							local, 
+							local.declaration == null ? (AstNode)this.methodScope().referenceContext : local.declaration);
 					}
 				} else {
 					local.resolvedPosition = -1; // not generated

@@ -241,15 +241,14 @@ public class MethodScope extends BlockScope {
 			// assign variable position
 			local.resolvedPosition = this.offset;
 
-			// check for too many arguments/local variables
-			if (this.offset > 0xFF) { // no more than 255 words of arguments
-				this.problemReporter().noMoreAvailableSpaceForArgument(local, local.declaration);
-			}
-
 			if ((local.type == LongBinding) || (local.type == DoubleBinding)) {
 				this.offset += 2;
 			} else {
 				this.offset++;
+			}
+			// check for too many arguments/local variables
+			if (this.offset > 0xFF) { // no more than 255 words of arguments
+				this.problemReporter().noMoreAvailableSpaceForArgument(local, local.declaration);
 			}
 			ilocal++;
 		}
@@ -259,13 +258,13 @@ public class MethodScope extends BlockScope {
 			for (int iarg = 0, maxArguments = extraSyntheticArguments.length; iarg < maxArguments; iarg++){
 				SyntheticArgumentBinding argument = extraSyntheticArguments[iarg];
 				argument.resolvedPosition = this.offset;
-				if (this.offset > 0xFF) { // no more than 255 words of arguments
-					this.problemReporter().noMoreAvailableSpaceForArgument(argument, (AstNode)this.referenceContext); 
-				}
 				if ((argument.type == LongBinding) || (argument.type == DoubleBinding)){
 					this.offset += 2;
 				} else {
 					this.offset++;
+				}
+				if (this.offset > 0xFF) { // no more than 255 words of arguments
+					this.problemReporter().noMoreAvailableSpaceForArgument(argument, (AstNode)this.referenceContext); 
 				}
 			}
 		}
