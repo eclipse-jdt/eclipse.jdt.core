@@ -734,8 +734,7 @@ public class ClassScope extends Scope {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		if ((sourceType.tagBits & BeginHierarchyCheck) == 0) {
 			sourceType.tagBits |= BeginHierarchyCheck;
-			boolean noProblems = true;
-			noProblems &= connectTypeVariables(referenceContext.typeParameters);
+			boolean noProblems = connectTypeVariables(referenceContext.typeParameters);
 			if (sourceType.isClass())
 				noProblems &= connectSuperclass();
 			noProblems &= connectSuperInterfaces();
@@ -768,10 +767,9 @@ public class ClassScope extends Scope {
 			return;
 
 		sourceType.tagBits |= BeginHierarchyCheck;
-		boolean noProblems = true;
+		boolean noProblems = connectTypeVariables(referenceContext.typeParameters);
 		if (sourceType.isClass())
 			noProblems &= connectSuperclass();
-		noProblems &= connectTypeVariables(referenceContext.typeParameters);
 		noProblems &= connectSuperInterfaces();
 		sourceType.tagBits |= EndHierarchyCheck;
 		if (noProblems && sourceType.isHierarchyInconsistent())
