@@ -885,7 +885,12 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 				"	}\n" + 
 				"}\n",
 			},
-			"1"
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	if (0 == new X()) {\n" + 
+			"	    ^^^^^^^^^^^^\n" + 
+			"Incompatible operand types int and X\n" + 
+			"----------\n"
 		);
 	}				
 }
