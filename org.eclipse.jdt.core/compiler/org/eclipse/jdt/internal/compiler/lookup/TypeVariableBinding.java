@@ -58,7 +58,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 		    if (i > 0) sig.append(':');
 		    sig.append(this.superInterfaces[i].genericTypeSignature());
 		}
-		sig.append(';');
 		return sig.toString().toCharArray();
 	}
 	/**
