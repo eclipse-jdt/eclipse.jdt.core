@@ -98,6 +98,7 @@ public static ClasspathLocation[] computeLocations(
 				case IClasspathEntry.CPE_PROJECT :
 					if (!(resource instanceof IProject)) continue nextEntry;
 					IProject prereqProject = (IProject) resource;
+					if (!prereqProject.isAccessible()) continue nextEntry;
 					IPath outputLocation = JavaCore.create(prereqProject).getOutputLocation();
 					IResource prereqOutputFolder;
 					if (prereqProject.getFullPath().equals(outputLocation)) {
