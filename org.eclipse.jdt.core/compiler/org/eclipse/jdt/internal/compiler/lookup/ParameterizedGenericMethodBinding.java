@@ -154,10 +154,16 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			if (needReturnTypeInference && invocationSite instanceof MessageSend) {
 				MessageSend message = (MessageSend) invocationSite;
 				TypeBinding expectedType = message.expectedType;
-				methodSubstitute.inferFromExpectedType(
-						// 15.12.2.8 - if no expected type, then assume Object
-						expectedType == null ? scope.getJavaLangObject() : expectedType, 
-						scope);
+				if (expectedType == null) {
+					// 15.12.2.8 - if no expected type, then assume Object
+					// actually it rather seems to handle the returned variable case by expecting its erasure instead
+					if (methodSubstitute.returnType.isTypeVariable()) {
+						expectedType = methodSubstitute.returnType.erasure();
+					} else {
+						expectedType =scope.getJavaLangObject(); 
+					}
+				}
+				methodSubstitute.inferFromExpectedType(expectedType, scope);
 			}
 		}
 		// check bounds
@@ -228,8 +234,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				    return; // TODO (philippe) should report no way to infer type
 				}
 				if (mostSpecificSubstitute == VoidBinding) {
-					// 15.12.2.8 - any remaining variable is assumed to be Object
-					mostSpecificSubstitute = scope.getJavaLangObject();
+					// 15.12.2.8 - any remaining variable is assumed to be its erasure
+					mostSpecificSubstitute = originalVariables[i].erasure();
 				}				
 				this.typeArguments[i] = mostSpecificSubstitute;
 			}

@@ -11156,4 +11156,31 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"----------\n");
 	}
 	
+	public void test423() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"    static <T extends X> T bar() {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"    static <U extends X&Runnable> U foo() {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static void main(String argv[]) {\n" + 
+				"    	bar();\n" + 
+				"        foo();\n" + 
+				"    }\n" + 
+				"\n" + 
+				"}",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	foo();\n" + 
+		"	^^^\n" + 
+		"Bound mismatch: The generic method foo() of type X is not applicable for the arguments () since the type X is not a valid substitute for the bounded parameter <U extends X & Runnable>\n" + 
+		"----------\n");
+	}	
 }
