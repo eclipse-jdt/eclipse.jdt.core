@@ -231,6 +231,41 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 
 	/*
+	 * Ensures that getPrimary() on a non-primary working copy returns the primary compilation unit.
+	 */
+	public void testGetPrimary1() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			ICompilationUnit cu = getCompilationUnit("P/X.java");
+			TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
+			workingCopy = cu.getWorkingCopy(owner, null, null);
+
+			assertEquals("Unexpected compilation unit", cu, workingCopy.getPrimary());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+	
+	/*
+	 * Ensures that getPrimary() on a primary working copy returns the same handle.
+	 */
+	public void testGetPrimary2() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getCompilationUnit("P/X.java");
+			workingCopy.becomeWorkingCopy(null, null);
+
+			assertEquals("Unexpected compilation unit", workingCopy, workingCopy.getPrimary());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+
+	/*
 	 * Ensures that getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
 	 * returns the same working copy if called twice with the same working copy owner.
 	 */
