@@ -112,6 +112,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  1GL1HF8: ITPJCORE:WIN2000 - Missing implementation in the compiler compiling invalid code
   1GL13OT: ITPJCORE:ALL - INameLookup should be removed
   1GL1I9F: ITPJCORE:WIN2000 - Wrong source mapping for binary methods with parameters with identical simple names
   1G4CIP0: ITPJUI:WIN - Source for binaries doesn't work for anonymous inner classes  
