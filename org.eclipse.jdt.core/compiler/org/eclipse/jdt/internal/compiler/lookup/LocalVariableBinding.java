@@ -35,7 +35,8 @@ public class LocalVariableBinding extends VariableBinding {
 		this.name = name;
 		this.type = type;
 		this.modifiers = modifiers;
-		if (this.isArgument = isArgument)
+		this.isArgument = isArgument;
+		if (isArgument)
 			this.constant = Constant.NotAConstant;
 	}
 	

@@ -138,10 +138,11 @@ public void place() { // Currently lacking wide support.
 		position = codeStream.position;
 		codeStream.addLabel(this);
 		int oldPosition = position;
-		boolean optimizedBranch = false;
+		boolean isOptimizedBranch = false;
 		// TURNED OFF since fail on 1F4IRD9
 		if (forwardReferenceCount != 0) {
-			if (optimizedBranch = (forwardReferences[forwardReferenceCount - 1] + 2 == position) && (codeStream.bCodeStream[codeStream.classFileOffset - 3] == CodeStream.OPC_goto)) {
+			isOptimizedBranch = (forwardReferences[forwardReferenceCount - 1] + 2 == position) && (codeStream.bCodeStream[codeStream.classFileOffset - 3] == CodeStream.OPC_goto);
+			if (isOptimizedBranch) {
 				codeStream.position = (position -= 3);
 				codeStream.classFileOffset -= 3;
 				forwardReferenceCount--;
@@ -197,7 +198,7 @@ public void place() { // Currently lacking wide support.
 		// For all labels placed at that position we check if we need to rewrite the jump
 		// offset. It is the case each time a label had a forward reference to the current position.
 		// Like we change the current position, we have to change the jump offset. See 1F4IRD9 for more details.
-		if (optimizedBranch) {
+		if (isOptimizedBranch) {
 			for (int i = 0; i < codeStream.countLabels; i++) {
 				Label label = codeStream.labels[i];
 				if (oldPosition == label.position) {
