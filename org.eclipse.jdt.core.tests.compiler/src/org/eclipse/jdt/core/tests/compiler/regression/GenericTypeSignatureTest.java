@@ -474,7 +474,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 
 		// Compare with javac
 		cleanUp();
-		runJavac("test002", testsSource);
+		runJavac("test003", testsSource);
 		
 		classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
 		assertNotNull(classFileReader);
@@ -482,6 +482,52 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		assertNotNull(classFileAttribute);
 		signatureAttribute = (ISignatureAttribute) classFileAttribute;
 		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B<-TT;>;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
+	}	
+
+	public void _test004() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public class X <T extends Object & p.B> extends p.A<T> {\n" + 
+			"    protected T t;\n" + 
+			"    X(T t) {\n" + 
+			"        super(t);\n" + 
+			"        this.t = t;\n" + 
+			"    }\n" + 
+			"}",
+			"p/A.java",
+			"package p;\n" + 
+			"public class A<P> {\n" + 
+			"    protected P p;\n" + 
+			"    protected A(P p) {\n" + 
+			"        this.p = p;\n" + 
+			"    }\n" + 
+			"}",
+			"p/B.java",
+			"package p;\n" + 
+			"public interface B<T> {\n" + 
+			"}"
+		};
+		this.runConformTest(testsSource);
+		
+		IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
+		assertNotNull(classFileReader);
+		IClassFileAttribute classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
+		assertNotNull(classFileAttribute);
+		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
+		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
+
+		if (!RunJavac) return;
+
+		// Compare with javac
+		cleanUp();
+		runJavac("test004", testsSource);
+		
+		classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
+		assertNotNull(classFileReader);
+		classFileAttribute = org.eclipse.jdt.internal.core.util.Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
+		assertNotNull(classFileAttribute);
+		signatureAttribute = (ISignatureAttribute) classFileAttribute;
+		assertEquals("Wrong signature", "<T:Ljava/lang/Object;:Lp/B;>Lp/A<TT;>;", new String(signatureAttribute.getSignature()));
 	}	
 	
 	/*
@@ -498,6 +544,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 
 		// For each given test files
 		for (int i=0, length=testFiles.length; i<length; i++) {
+			dirFilePath = (IPath) this.dirPath.clone();
 			String contents = testFiles[i+1];
 			String fileName = testFiles[i++];
 			IPath filePath = dirFilePath.append(fileName);
