@@ -888,14 +888,15 @@ class ASTConverter {
 		SingleVariableDeclaration variableDecl = this.ast.newSingleVariableDeclaration();
 		variableDecl.setModifiers(argument.modifiers);
 		SimpleName name = this.ast.newSimpleName(argument.name());
-		if (this.resolveBindings) {
-			recordNodes(name, argument);
-			recordNodes(variableDecl, argument);
-		}
 		name.setSourceRange(argument.sourceStart, argument.sourceEnd - argument.sourceStart + 1);
 		variableDecl.setName(name);
 		variableDecl.setType(convertType(argument.type));
 		variableDecl.setSourceRange(argument.declarationSourceStart, argument.declarationSourceEnd - argument.declarationSourceStart + 1);
+		if (this.resolveBindings) {
+			recordNodes(name, argument);
+			recordNodes(variableDecl, argument);
+			variableDecl.resolveBinding();
+		}
 		return variableDecl;
 	}
 
@@ -2165,7 +2166,6 @@ class ASTConverter {
 	 */
 	private int retrieveStartingCatchPosition(int start, int end) {
 		scanner.resetTo(start, end);
-		int dimensions = 0;
 		try {
 			int token;
 			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
@@ -2185,7 +2185,6 @@ class ASTConverter {
 	 */
 	private int retrieveStartingLeftBracketPosition(int start, int end) {
 		scanner.resetTo(start, end);
-		int dimensions = 0;
 		try {
 			int token;
 			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
@@ -2641,7 +2640,6 @@ class ASTConverter {
 		int start = node.getStartPosition();
 		scanner.resetTo(start, start + node.getLength());
 		int token;
-		int parenCounter = 0;
 		int startPosition = -1;
 		try {
 			while((token = scanner.getNextToken()) != Scanner.TokenNameEOF)  {
