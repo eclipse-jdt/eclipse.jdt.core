@@ -13,11 +13,33 @@ package org.eclipse.jdt.core.dom;
 import org.eclipse.jdt.core.ICompilationUnit;
 
 /**
- * An AST requestor provides the sources to an {@link ASTParser AST parser} that creates abstract syntax trees
- * and reports them to this AST requestor.
+ * An AST requestor feeds compilation units to 
+ * <code>ASTParser.createASTs</code>
+ * and accepts the ASTs that arise from parsing them.
+ * All of the compilation units must be from the same project.
+ * The requestor is passed ASTs for not only the compilation units
+ * it asks for, but also any other ones in the same project that
+ * also needed to be parsed in the course of resolving bindings.
+ * <p>
+ * The lifecycle is as follows:
+ * <ul>
+ * <li>requestor.getSources() is called to find out what
+ * compilation units to parse</li>
+ * <li>requestor.acceptAST(ASTNode) is called several times,
+ * for each compilation unit in the original list, and perhaps
+ * for other compilation units in the same project</li>
+ * <li>requestor.getSources() is called again to find out whether
+ * there are additional compilation units to parse</li>
+ * <li>the last 2 steps are repeated until getSources()
+ * returns null</li>
+ * </ul> 
+ * Note that all the compilation units involved must be from
+ * the same project, and can only be processed once.
+ * </p>
  * <p>
  * This class is intended to be subclassed by clients.
- * </p><p>
+ * </p>
+ * <p>
  * Note that this API is under development and subject to change without notice.
  * </p>
  * 
@@ -28,25 +50,43 @@ import org.eclipse.jdt.core.ICompilationUnit;
 public abstract class ASTRequestor {
 	
 	/**
-	 * Accepts an abstract syntax tree.
+	 * Accepts an AST. The AST is either for one of the compilation units
+	 * included in the result of an earlier call to {@link #getSources()},
+	 * or a compilation unit in the same project that also needed to
+	 * be parsed in the course of resolving bindings.
+	 * <p>
+	 * [TODO (jerome) issue: Consider passing ICompilationUnit as the first parameter
+	 * to this method. This would make it for clients to track which
+	 * compilation units have been done, since it is an error to
+	 * ask for the same compilation unit again.]
+	 * </p>
+	 * <p>
+	 * [TODO (jerome) issue: The parameter type could be CompilationUnit
+	 * rather than ASTNode as long as ASTParser.setKind(K_COMPILATION_UNIT)
+	 * is always used.]
+	 * </p>
 	 * 
 	 * @param node the abtract syntax tree to be accepted
 	 */
 	public abstract void acceptAST(ASTNode node);
 
 	/**
-	 * Returns the compilation units that need to have their abstract syntax trees created.
-	 * Once all compilation units have been processed, another call to this method is done.
-	 * If it returns a non-<code>null</code> value, the new compilation units are processed
-	 * until this method returns <code>null</code>.
+	 * Returns the compilation units for which ASTs should be created.
+	 * All of the compilation units must belong to the same project,
+	 * and there must not be any duplicates.
 	 * <p>
-	 * All compilation units in this set, or in a previous set must pertain to the same project.
-	 * </p><p>
-	 * Note that a compilation unit whose AST has been created and accepted by this requestor
-	 * cannot be handled a second time.
+	 * [TODO (jerome) issue: It would make sense to return an empty list
+	 * rather than null when there are no more compilation units to
+	 * process.]
+	 * </p>
+	 * <p>
+	 * [TODO (jerome) issue: It would simplify clients if requesting a compilation
+	 * unit that had already been processed were ignored rather than
+	 * being considered an error. Otherwise some clients would
+	 * have to maintain a list of compilation units they'd accepted.]
 	 * </p>
 	 * 
-	 * @return the compilation units to process, or <code>null</code> if none remains to be processed.
+	 * @return the compilation units to process, or <code>null</code> if none
 	 */
 	public abstract ICompilationUnit[] getSources();
 }

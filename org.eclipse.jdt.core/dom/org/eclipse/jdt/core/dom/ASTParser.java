@@ -580,9 +580,18 @@ public class ASTParser {
 	}
 	
 	/**
-     * For each source coming from the given AST requestor, creates an abstract syntax tree and
-     * reports it back to the AST requestor. Repeat this process while the AST requestor has
-     * sources.
+     * Creates a batch of abstract syntax trees using this AST
+     * parser. The compilation units must all be from the same
+     * project. When bindings are being resolved, processing a
+     * batch of compilation units is more efficient because much
+     * of the work involved in resolving bindings can be shared.
+     * <p>
+     * The AST requestor furnishes the list of compilation units
+     * that are to be parsed. Each of the compilation units is then
+     * parsed, and the resulting AST handed back to the requestor.
+     * This process is repeated until the requestor indicates that
+     * there are no more compilation units to process.
+     * </p>
      * <p>
      * Note that if bindings are resolved, more ASTs than originaly requested can be reported back.
      * These ASTs come from compilation units required to resolve the original ones.
@@ -591,6 +600,19 @@ public class ASTParser {
      * default values so the object is ready to be reused.
      * </p><p>
 	 * Note that this API is under development and subject to change without notice.
+	 * </p>
+	 * <p>
+	 * [TODO (jerome) issue: Consider passing IJavaProject as the first parameter to this
+	 * method. This would make it easier to explain to clients that all
+	 * compilation units returned by the requestor must be from that
+	 * same project.]
+	 * </p>
+	 * <p>
+	 * [TODO (jerome) issue: Does this work with all kinds of ASTParsers, and all
+	 * combinations of ASTParser options? I suspect not. I think
+	 * it really only makes sense for setKind(K_COMPILATION_UNIT),
+	 * setResolveBindings(true), setSourceRange(0,-1), and no
+	 * setFocalPosition.]
 	 * </p>
      * 
      * @param requestor the AST requestor that provides sources and that collects abtract syntax trees
