@@ -1046,16 +1046,16 @@ public class SourceMapper
 	public synchronized ISourceRange mapSource(
 		IType type,
 		char[] contents,
-		IJavaElement searchedElement) {
+		IJavaElement elementToFind) {
 			
 		fType = (BinaryType) type;
 		
 		// check whether it is already mapped
-		if (this.fSourceRanges.get(type) != null) return (searchedElement != null) ? this.getNameRange(searchedElement) : null;
+		if (this.fSourceRanges.get(type) != null) return (elementToFind != null) ? this.getNameRange(elementToFind) : null;
 		
 		this.importsTable.remove(fType);
 		this.importsCounterTable.remove(fType);
-		this.searchedElement = searchedElement;
+		this.searchedElement = elementToFind;
 		this.types = new IType[1];
 		this.typeDeclarationStarts = new int[1];
 		this.typeNameRanges = new SourceRange[1];
@@ -1093,14 +1093,14 @@ public class SourceMapper
 			parser.parseCompilationUnit(
 				new BasicCompilationUnit(contents, null, type.getElementName() + ".java", encoding), //$NON-NLS-1$
 				doFullParse);
-			if (searchedElement != null) {
-				ISourceRange range = this.getNameRange(searchedElement);
+			if (elementToFind != null) {
+				ISourceRange range = this.getNameRange(elementToFind);
 				return range;
 			} else {
 				return null;
 			}
 		} finally {
-			if (searchedElement != null) {
+			if (elementToFind != null) {
 				fSourceRanges = oldSourceRanges;
 			}
 			fType = null;

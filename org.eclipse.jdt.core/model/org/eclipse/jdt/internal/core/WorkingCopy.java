@@ -284,7 +284,7 @@ public IResource getResource() {
 /**
  * @see IWorkingCopy
  */
-public IJavaElement getSharedWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
+public IJavaElement getSharedWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, IProblemRequestor requestor) throws JavaModelException {
 	return this;
 }
 /**
@@ -304,7 +304,7 @@ public IJavaElement getWorkingCopy() throws JavaModelException {
 /**
  * @see IWorkingCopy
  */
-public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
+public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, IProblemRequestor requestor) throws JavaModelException {
 	return this;
 }
 /**

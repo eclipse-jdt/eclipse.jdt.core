@@ -506,7 +506,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	}
 	
 	class SortMultipleFieldDeclaration extends SortElement {
-		int declarationStart; // TODO (olivier) is it intentionally hiding the other field ?
+		int declarationStart; // TODO : (olivier) is it intentionally hiding the other field ?
 		
 		SortMultipleFieldDeclaration(SortFieldDeclaration fieldDeclaration) {
 			super(fieldDeclaration.declarationStart, fieldDeclaration.modifiers);
