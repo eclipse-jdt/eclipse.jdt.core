@@ -1364,16 +1364,20 @@ public class JavaModelManager implements ISaveParticipant {
 	 * its ancestors). So returns without updating the cache.
 	 */
 	protected synchronized void putInfos(IJavaElement openedElement, Map newElements) {
-		while (openedElement != null) {
-			if (!newElements.containsKey(openedElement)) {
-				break;
+		// remove children
+		Object existingInfo = this.cache.peekAtInfo(openedElement);
+		if (openedElement instanceof IParent && existingInfo instanceof JavaElementInfo) {
+			IJavaElement[] children = ((JavaElementInfo)existingInfo).getChildren();
+			for (int i = 0, size = children.length; i < size; ++i) {
+				JavaElement child = (JavaElement) children[i];
+				try {
+					child.close();
+				} catch (JavaModelException e) {
+					// ignore
+				}
 			}
-			if (this.cache.peekAtInfo(openedElement) != null) {
-				return;
-			}
-			openedElement = openedElement.getParent();
 		}
-		
+	
 		Iterator iterator = newElements.keySet().iterator();
 		while (iterator.hasNext()) {
 			IJavaElement element = (IJavaElement)iterator.next();
@@ -1473,7 +1477,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 * Returns the info for the given element, or null if it was closed.
 	 */
 	public synchronized Object removeInfoAndChildren(JavaElement element) throws JavaModelException {
-		Object info = peekAtInfo(element);
+		Object info = this.cache.peekAtInfo(element);
 		if (info != null) {
 			boolean wasVerbose = false;
 			try {
