@@ -224,7 +224,11 @@ private IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 		} catch (IOException ioe) {
 			throw new JavaModelException(ioe, IJavaModelStatusConstants.IO_EXCEPTION);
 		} catch (CoreException e) {
-			throw new JavaModelException(e);
+			if (e instanceof JavaModelException) {
+				throw (JavaModelException)e;
+			} else {
+				throw new JavaModelException(e);
+			}
 		}
 	} else {
 		byte[] contents = Util.getResourceContentsAsByteArray(file);

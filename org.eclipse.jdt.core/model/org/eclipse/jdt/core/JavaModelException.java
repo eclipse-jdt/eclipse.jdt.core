@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 
@@ -106,6 +109,26 @@ public IJavaModelStatus getJavaModelStatus() {
 public boolean isDoesNotExist() {
 	IJavaModelStatus javaModelStatus = getJavaModelStatus();
 	return javaModelStatus != null && javaModelStatus.isDoesNotExist();
+}
+public void printStackTrace(PrintStream output) {
+	synchronized(output) {
+		super.printStackTrace(output);
+		Throwable throwable = getException();
+		if (throwable != null) {
+			output.print("Caused by: "); //$NON-NLS-1$
+			throwable.printStackTrace(output);
+		}
+	}
+}
+public void printStackTrace(PrintWriter output) {
+	synchronized(output) {
+		super.printStackTrace(output);
+		Throwable throwable = getException();
+		if (throwable != null) {
+			output.print("Caused by: "); //$NON-NLS-1$
+			throwable.printStackTrace(output);
+		}
+	}
 }
 /**
  * Returns a printable representation of this exception suitable for debugging
