@@ -30,7 +30,6 @@ public class SelectionParser extends AssistParser {
 	/* public fields */
 
 	public int selectionStart, selectionEnd;
-	public AstNode selectionNode;
 
 	public static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
 	public static final char[] THIS = "this".toCharArray(); //$NON-NLS-1$
@@ -391,15 +390,6 @@ public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, Compila
 	selectionScanner.selectionStart = selectionStart;
 	selectionScanner.selectionEnd = selectionEnd;	
 	return this.dietParse(sourceUnit, compilationResult);
-}
-/*
- * Flush parser/scanner state regarding to code assist
- */
-public void flushAssistState() {
-
-	super.flushAssistState();
-	this.selectionNode = null;
-	this.setAssistIdentifier(null);
 }
 protected NameReference getUnspecifiedReference() {
 	/* build a (unspecified) NameReference which may be qualified*/

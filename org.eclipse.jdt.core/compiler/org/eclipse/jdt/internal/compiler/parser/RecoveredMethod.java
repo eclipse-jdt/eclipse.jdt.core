@@ -134,7 +134,14 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 	if (methodBody == null){
 		Block block = new Block(0);
 		block.sourceStart = methodDeclaration.bodyStart;
-		this.add(block, 1);
+		RecoveredElement currentBlock = this.add(block, 1);
+		if (this.bracketBalance > 0){
+			for (int i = 0; i < this.bracketBalance - 1; i++){
+				currentBlock = currentBlock.add(new Block(0), 1);
+			}
+			this.bracketBalance = 1;
+		}
+		return currentBlock.add(localDeclaration, bracketBalance);
 	}
 	return methodBody.add(localDeclaration, bracketBalance, true);
 }
@@ -157,7 +164,14 @@ public RecoveredElement add(Statement statement, int bracketBalance) {
 	if (methodBody == null){
 		Block block = new Block(0);
 		block.sourceStart = methodDeclaration.bodyStart;
-		this.add(block, 1);
+		RecoveredElement currentBlock = this.add(block, 1);
+		if (this.bracketBalance > 0){
+			for (int i = 0; i < this.bracketBalance - 1; i++){
+				currentBlock = currentBlock.add(new Block(0), 1);
+			}
+			this.bracketBalance = 1;
+		}
+		return currentBlock.add(statement, bracketBalance);
 	}
 	return methodBody.add(statement, bracketBalance, true);	
 }

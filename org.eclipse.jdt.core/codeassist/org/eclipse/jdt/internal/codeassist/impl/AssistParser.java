@@ -74,6 +74,8 @@ public RecoveredElement buildInitialRecoveryState(){
 	if (referenceContext instanceof CompilationUnitDeclaration){
 		RecoveredElement element = super.buildInitialRecoveryState();
 		flushAssistState();
+		this.inInitializerStack[this.inInitializerPtr = 0] = false;
+		this.inMethodStack[this.inMethodPtr = 0] = false;
 		return element;
 	}
 
@@ -519,7 +521,8 @@ public abstract TypeReference createSingleAssistTypeReference(char[] name, long 
  */
 public void flushAssistState(){
 	this.assistNode = null;
-	this.isOrphanCompletionNode = false;	
+	this.isOrphanCompletionNode = false;
+	this.setAssistIdentifier(null);
 }
 /*
  * Build specific type reference nodes in case the cursor is located inside the type reference
@@ -677,6 +680,17 @@ public void initialize() {
 	this.previousIdentifierPtr = -1;
 }
 public abstract void initializeScanner();
+/**
+ * Returns whether we are directly or indirectly inside a field initializer.
+ */
+protected boolean insideFieldInitializer() {
+	for (int i = this.inInitializerPtr; i >= 0; i--) {
+		if (this.inInitializerStack[i]) {
+			return true;
+		}
+	}
+	return false;
+}
 /**
  * Parse the block statements inside the given method declaration and try to complete at the
  * cursor location.
@@ -866,11 +880,20 @@ protected boolean resumeAfterRecovery() {
 	// only look for headers
 	if (referenceContext instanceof CompilationUnitDeclaration
 		|| this.assistNode != null){
-		nestedMethod[nestedType = 0] = 0;
-		variablesCounter[nestedType] = 0;
-		realBlockStack[realBlockPtr = 0] = 0;
-		goForHeaders();
-		diet = true; // passed this point, will not consider method bodies
+		
+		if(inMethodStack[inMethodPtr] &&
+			insideFieldInitializer() &&
+			this.assistNode == null
+			){ 
+			this.prepareForBlockStatements();
+			goForBlockStatementsOrMethodHeaders();
+		} else {
+			nestedMethod[nestedType = 0] = 0;
+			variablesCounter[nestedType] = 0;
+			realBlockStack[realBlockPtr = 0] = 0;
+			goForHeaders();
+			diet = true; // passed this point, will not consider method bodies
+		}
 		return true;
 	}
 	if (referenceContext instanceof AbstractMethodDeclaration

@@ -932,7 +932,6 @@ public void flushAssistState() {
 
 	super.flushAssistState();
 	this.isOrphanCompletionNode = false;
-	this.setAssistIdentifier(null);
 	CompletionScanner completionScanner = (CompletionScanner)this.scanner;
 	completionScanner.completedIdentifierStart = 0;
 	completionScanner.completedIdentifierEnd = -1;
@@ -974,17 +973,6 @@ private void initializeForBlockStatements() {
 }
 public void initializeScanner(){
 	this.scanner = new CompletionScanner(this.assertMode);
-}
-/**
- * Returns whether we are directly or indirectly inside a field initializer.
- */
-private boolean insideFieldInitializer() {
-	for (int i = this.inInitializerPtr; i >= 0; i--) {
-		if (this.inInitializerStack[i]) {
-			return true;
-		}
-	}
-	return false;
 }
 /**
  * Returns whether the completion is just after an array type
@@ -1135,11 +1123,6 @@ public void resetAfterCompletion() {
 protected boolean resumeAfterRecovery() {
 
 	if (this.assistNode != null) {
-		// if an assist node has been found and a recovered element exists,
-		// mark enclosing blocks as to be preserved
-		if (this.currentElement != null) {
-			currentElement.preserveEnclosingBlocks();
-		}
 		/* if reached [eof] inside method body, but still inside nested type,
 			or inside a field initializer, should continue in diet mode until 
 			the end of the method body or compilation unit */
@@ -1208,6 +1191,12 @@ protected void updateRecoveryState() {
 	/* may be able to retrieve completionNode as an orphan, and then attach it */
 	this.completionIdentifierCheck();
 	this.attachOrphanCompletionNode();
+	
+	// if an assist node has been found and a recovered element exists,
+	// mark enclosing blocks as to be preserved
+	if (this.assistNode != null && this.currentElement != null) {
+		currentElement.preserveEnclosingBlocks();
+	}
 	
 	/* check and update recovered state based on current token,
 		this action is also performed when shifting token after recovery
