@@ -136,13 +136,14 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	// compute other problems if needed
 	CompilationUnitDeclaration compilationUnitDeclaration = null;
 	try {
+		boolean createAST = info instanceof ASTHolderCUInfo;
 		if (computeProblems){
 			perWorkingCopyInfo.beginReporting();
-			compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, perWorkingCopyInfo, false/*don't cleanup cu*/, pm);
+			compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, perWorkingCopyInfo, !createAST/*reset env if not creating AST*/, pm);
 			perWorkingCopyInfo.endReporting();
 		}
 		
-		if (info instanceof ASTHolderCUInfo) {
+		if (createAST) {
 			int astLevel = ((ASTHolderCUInfo) info).astLevel;
 			org.eclipse.jdt.core.dom.CompilationUnit cu = AST.convertCompilationUnit(astLevel, unit, contents, options, computeProblems, this.owner, pm);
 			((ASTHolderCUInfo) info).ast = cu;

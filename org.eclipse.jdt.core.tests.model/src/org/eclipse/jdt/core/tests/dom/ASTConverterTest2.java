@@ -18,6 +18,7 @@ import java.util.Set;
 
 import junit.framework.Test;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -37,9 +38,10 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		super(name);
 	}
 
-//	static {
+	static {
+//		TESTS_NAMES = new String[] {"test0570"};
 //		TESTS_NUMBERS =  new int[] { 536 };
-//	}
+	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTest2.class);
 	}
@@ -5161,5 +5163,34 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		assertEquals("wrong name", "method", methodDeclaration.getName().getIdentifier());
 		assertNotNull("No javadoc", methodDeclaration.getJavadoc());
+	}
+	
+	/*
+	 * Ensures that the type binding from an import and the type binding from a type ref are equals
+	 * when the AST is computed using ICompilationUnit#reconcile(...)
+	 * (regression test for bug 83210 Unidentical ITypeBindings for same type from same AST from reconcile)
+	 */
+	public void test0570() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true);
+			CompilationUnit unit = (CompilationUnit) buildAST(
+				"import java.util.List;\n" +
+				"public class X{\n" +
+				"  List field;\n" +
+				"}",
+				workingCopy
+			);
+			ImportDeclaration importDeclaration = (ImportDeclaration) unit.imports().iterator().next();
+			TypeDeclaration typeDeclaration = (TypeDeclaration) unit.types().iterator().next();
+			FieldDeclaration fieldDeclaration = typeDeclaration.getFields()[0];
+			Type type = fieldDeclaration.getType();
+			IBinding importBinding = importDeclaration.resolveBinding();
+			IBinding typeBinding = type.resolveBinding();
+			assertEquals(importBinding,typeBinding);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
 	}
 }

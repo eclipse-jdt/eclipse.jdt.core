@@ -136,7 +136,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 		Parser parser,
 		WorkingCopyOwner workingCopyOwner,
 		IProblemRequestor problemRequestor,
-		boolean cleanupCU,
+		boolean resetEnvironment,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
@@ -194,9 +194,8 @@ public class CompilationUnitProblemFinder extends Compiler {
 				environment.monitor = null; // don't hold a reference to this external object
 			if (problemFactory != null)
 				problemFactory.monitor = null; // don't hold a reference to this external object
-			if (cleanupCU && unit != null)
-				unit.cleanUp();
-			if (problemFinder != null)
+			// NB: unit.cleanUp() is done by caller
+			if (problemFinder != null && resetEnvironment)
 				problemFinder.lookupEnvironment.reset();			
 		}
 	}
@@ -206,11 +205,11 @@ public class CompilationUnitProblemFinder extends Compiler {
 		char[] contents,
 		WorkingCopyOwner workingCopyOwner,
 		IProblemRequestor problemRequestor,
-		boolean cleanupCU,
+		boolean resetEnvironment,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 			
-		return process(null/*no CompilationUnitDeclaration*/, unitElement, contents, null/*use default Parser*/, workingCopyOwner, problemRequestor, cleanupCU, monitor);
+		return process(null/*no CompilationUnitDeclaration*/, unitElement, contents, null/*use default Parser*/, workingCopyOwner, problemRequestor, resetEnvironment, monitor);
 	}
 
 	
