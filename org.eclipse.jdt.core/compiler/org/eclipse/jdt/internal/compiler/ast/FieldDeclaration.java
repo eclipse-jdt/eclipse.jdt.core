@@ -163,9 +163,6 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				}
 				if (checkLocal) {
 					Scope outerScope = classScope.parent;
-					if (outerScope == null){ 
-						System.out.println();
-					}
 					Binding existingVariable = outerScope.getBinding(name, BindingIds.VARIABLE, this);
 					if (existingVariable != null && existingVariable.isValidBinding()){
 						initializationScope.problemReporter().fieldHiding(this, existingVariable);
