@@ -561,7 +561,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Get compilation unit source on a file written in UTF-8 BOM charset using default charset.
 	 * Verify first that source is the same than UTF-8 file contents read using UTF-8 encoding...
 	 */
-	public void test032() throws JavaModelException, CoreException, UnsupportedEncodingException {
+	public void test032() throws JavaModelException, CoreException {
 
 		// Set file encoding
 		String encoding = "UTF-8";
