@@ -258,7 +258,7 @@ private void createMethods(IBinaryMethod[] iMethods) {
 		int index = 0;
 		for (int i = 0; i < initialTotal; i++) {
 			if (iClinit == i) continue;
-			if (toSkip != null && toSkip[i] == 0) continue;
+			if (toSkip != null && toSkip[i] < 0) continue;
 			this.methods[index++] = createMethod(iMethods[i]);
 		}
 	}
