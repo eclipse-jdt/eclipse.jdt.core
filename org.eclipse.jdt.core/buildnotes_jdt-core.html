@@ -43,8 +43,8 @@ Eclipse SDK 3.0M5 Build - ?th November 2003
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>To avoid confusion with Annotation introduce in JDK 1.5 grammar, all annotation references which were done before for Javadoc comments will be renamed.
-One consequence of this is that ids for optional compiler problem to signal problems with javadoc have been changed as follow:
+<li>To avoid confusion with annotations introduced in JDK 1.5 grammar, all annotation references which were added to handle Javadoc comments 
+will be renamed. As a consequence of this is that IDs for optional Javadoc problems have been updated accordingly:
 <pre>
 	 * COMPILER / Reporting Invalid Javadoc Comment
 	 *    When enabled, the compiler will issue an error or a warning when a javadoc comment is inconsistent,
@@ -60,7 +60,7 @@ One consequence of this is that ids for optional compiler problem to signal prob
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
 </pre>
-Note that backward compatibility with previous options ids: <code>"org.eclipse.jdt.core.compiler.problem.invalidAnnotation"</code> and <code>"org.eclipse.jdt.core.compiler.problem.missingAnnotation"</code>
+Note that backward compatibility with previous options IDs: <code>"org.eclipse.jdt.core.compiler.problem.invalidAnnotation"</code> and <code>"org.eclipse.jdt.core.compiler.problem.missingAnnotation"</code>
 will be supported until 3.0M6 build and removed after.
 </li>
 </ul>
