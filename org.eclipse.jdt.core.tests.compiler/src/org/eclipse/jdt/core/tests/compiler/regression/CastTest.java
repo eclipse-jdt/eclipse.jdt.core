@@ -1254,12 +1254,10 @@ public void test034() {
 		"      [pc: 28, line: 13]\n" + 
 		"      [pc: 36, line: 14]\n" + 
 		"    Local variable table attribute:\n" + 
-		"      [pc: 0, pc: 37] local: args index: 0 type: java/lang/String[]\n" + 
-		"      [pc: 8, pc: 37] local: list index: 1 type: java/util/List\n" + 
-		"      [pc: 24, pc: 37] local: alist index: 2 type: java/util/ArrayList\n" + 
-		"      [pc: 26, pc: 37] local: list2 index: 3 type: java/util/List\n" + 
-		"  \n" + 
-		"}";
+		"      [pc: 0, pc: 37] local: args index: 0 type: java.lang.String[]\n" + 
+		"      [pc: 8, pc: 37] local: list index: 1 type: java.util.List\n" + 
+		"      [pc: 24, pc: 37] local: alist index: 2 type: java.util.ArrayList\n" + 
+		"      [pc: 26, pc: 37] local: list2 index: 3 type: java.util.List\n";
 	if (actualOutput.indexOf(expectedOutput) == -1){
 		System.out.println(Util.displayString(actualOutput, 2));
 	}

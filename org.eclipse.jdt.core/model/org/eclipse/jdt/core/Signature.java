@@ -1731,33 +1731,47 @@ private static int appendClassTypeSignature(char[] string, int start, boolean fu
 			throw new IllegalArgumentException();
 		}
 		c = string[p];
-		if (c == C_SEMICOLON) {
-			// all done
-			return p;
-		} else if (c == C_GENERIC_START) {
-			int e = appendTypeArgumentSignatures(string, p, fullyQualifyTypeNames, buffer);
-			// once we hit type arguments there are no more package prefixes
-			removePackageQualifiers = false;
-			p = e;
-		} else if (c == C_DOT || c == '/') {
-			if (removePackageQualifiers) {
-				// erase package prefix
-				buffer.setLength(checkpoint);
-			} else {
-				buffer.append('.');
-			}
-		} else if (c == C_DOLLAR && resolved) {
-			// once we hit "$" there are no more package prefixes
-			removePackageQualifiers = false;
-			/**
-			 * Convert '$' in resolved type signatures into '.'.
-			 * NOTE: This assumes that the type signature is an inner type
-			 * signature. This is true in most cases, but someone can define a
-			 * non-inner type name containing a '$'.
-			 */
-			buffer.append('.');
-		} else {
-			buffer.append(c);
+		switch(c) {
+			case C_SEMICOLON :
+				// all done
+				return p;
+			case C_GENERIC_START :
+				int e = appendTypeArgumentSignatures(string, p, fullyQualifyTypeNames, buffer);
+				// once we hit type arguments there are no more package prefixes
+				removePackageQualifiers = false;
+				p = e;
+				break;
+			case C_DOT :
+				if (removePackageQualifiers) {
+					// erase package prefix
+					buffer.setLength(checkpoint);
+				} else {
+					buffer.append('.');
+				}
+				break;
+			 case '/' :
+				if (removePackageQualifiers) {
+					// erase package prefix
+					buffer.setLength(checkpoint);
+				} else {
+					buffer.append('/');
+				}
+				break;
+			 case C_DOLLAR :
+			 	if (resolved) {
+					// once we hit "$" there are no more package prefixes
+					removePackageQualifiers = false;
+					/**
+					 * Convert '$' in resolved type signatures into '.'.
+					 * NOTE: This assumes that the type signature is an inner type
+					 * signature. This is true in most cases, but someone can define a
+					 * non-inner type name containing a '$'.
+					 */
+					buffer.append('.');
+			 	}
+			 	break;
+			 default :
+				buffer.append(c);
 		}
 		p++;
 	}
@@ -1828,18 +1842,18 @@ private static int appendTypeArgumentSignature(char[] string, int start, boolean
 		throw new IllegalArgumentException();
 	}
 	char c = string[start];
-	if (c == C_STAR) {
-		buffer.append('?');
-		return start;
-	}
-	if (c == '+') {
-		buffer.append("? extends "); //$NON-NLS-1$
-		return appendTypeSignature(string, start + 1, fullyQualifyTypeNames, buffer);
-	} else if (c == '-') {
-		buffer.append("? super "); //$NON-NLS-1$
-		return appendTypeSignature(string, start + 1, fullyQualifyTypeNames, buffer);
-	} else {
-		return appendTypeSignature(string, start, fullyQualifyTypeNames, buffer);
+	switch(c) {
+		case C_STAR :
+			buffer.append('?');
+			return start;
+		case '+' :
+			buffer.append("? extends "); //$NON-NLS-1$
+			return appendTypeSignature(string, start + 1, fullyQualifyTypeNames, buffer);
+		case '-' :
+			buffer.append("? super "); //$NON-NLS-1$
+			return appendTypeSignature(string, start + 1, fullyQualifyTypeNames, buffer);
+		default :
+			return appendTypeSignature(string, start, fullyQualifyTypeNames, buffer);
 	}
 }
 

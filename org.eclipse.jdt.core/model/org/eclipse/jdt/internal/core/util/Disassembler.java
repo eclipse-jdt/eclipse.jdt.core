@@ -853,6 +853,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				ILocalVariableTableEntry localVariableTableEntry = localVariableTableEntries[i];
 				int startPC = localVariableTableEntry.getStartPC();
 				int length  = localVariableTableEntry.getLength();
+				char[] exceptionType = Signature.toCharArray(localVariableTableEntry.getDescriptor());
+				CharOperation.replace(exceptionType, '/', '.');
 				buffer
 					.append(Util.bind("classfileformat.localvariabletablefrom")) //$NON-NLS-1$
 					.append(startPC)
@@ -863,12 +865,14 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					.append(Util.bind("classfileformat.localvariabletablelocalindex")) //$NON-NLS-1$
 					.append(localVariableTableEntry.getIndex())
 					.append(Util.bind("classfileformat.localvariabletablelocaltype")) //$NON-NLS-1$
-					.append(Signature.toCharArray(localVariableTableEntry.getDescriptor()));
+					.append(exceptionType);
 				writeNewLine(buffer, lineSeparator, tabNumber + 2);
 			}
 			ILocalVariableTableEntry localVariableTableEntry = localVariableTableEntries[localVariableAttributeLength - 1];
 			int startPC = localVariableTableEntry.getStartPC();
 			int length  = localVariableTableEntry.getLength();
+			char[] exceptionType = Signature.toCharArray(localVariableTableEntry.getDescriptor());
+			CharOperation.replace(exceptionType, '/', '.');
 			buffer
 				.append(Util.bind("classfileformat.localvariabletablefrom")) //$NON-NLS-1$
 				.append(startPC)
@@ -879,7 +883,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(Util.bind("classfileformat.localvariabletablelocalindex")) //$NON-NLS-1$
 				.append(localVariableTableEntry.getIndex())
 				.append(Util.bind("classfileformat.localvariabletablelocaltype")) //$NON-NLS-1$
-				.append(Signature.toCharArray(localVariableTableEntry.getDescriptor()));
+				.append(exceptionType);
 		} 
 	}
 	
