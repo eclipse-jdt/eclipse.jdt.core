@@ -252,8 +252,11 @@ public TypeBinding resolveType(BlockScope scope) {
 				|| receiver.isSuper()
 				|| (receiver instanceof NameReference 
 					&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0))) {
-			scope.problemReporter().unnecessaryReceiverForStaticMethod(this, binding);
+			scope.problemReporter().nonStaticAccessToStaticMethod(this, binding);
 		}
+		if (!receiver.isImplicitThis() && binding.declaringClass != receiverType) {
+			scope.problemReporter().indirectAccessToStaticMethod(this, binding);
+		}		
 	}
 	if (arguments != null)
 		for (int i = 0; i < arguments.length; i++)

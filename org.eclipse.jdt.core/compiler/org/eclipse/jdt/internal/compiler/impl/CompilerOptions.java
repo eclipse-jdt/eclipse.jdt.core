@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.impl;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -53,16 +54,17 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportIncompatibleNonInheritedInterfaceMethod = "org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedPrivateMember = "org.eclipse.jdt.core.compiler.problem.unusedPrivateMember"; //$NON-NLS-1$
 	public static final String OPTION_ReportNoImplicitStringConversion = "org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion"; //$NON-NLS-1$
+	public static final String OPTION_ReportAssertIdentifier = "org.eclipse.jdt.core.compiler.problem.assertIdentifier"; //$NON-NLS-1$
+	public static final String OPTION_ReportNonStaticAccessToStatic = "org.eclipse.jdt.core.compiler.problem.staticAccessReceiver"; //$NON-NLS-1$
+	public static final String OPTION_ReportIndirectStaticAccess = "org.eclipse.jdt.core.compiler.problem.indirectStaticAccess"; //$NON-NLS-1$
+	public static final String OPTION_ReportSuperfluousSemicolon = "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"; //$NON-NLS-1$
 	public static final String OPTION_Source = "org.eclipse.jdt.core.compiler.source"; //$NON-NLS-1$
 	public static final String OPTION_TargetPlatform = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
-	public static final String OPTION_ReportAssertIdentifier = "org.eclipse.jdt.core.compiler.problem.assertIdentifier"; //$NON-NLS-1$
 	public static final String OPTION_Compliance = "org.eclipse.jdt.core.compiler.compliance"; //$NON-NLS-1$
 	public static final String OPTION_Encoding = "org.eclipse.jdt.core.encoding"; //$NON-NLS-1$
 	public static final String OPTION_MaxProblemPerUnit = "org.eclipse.jdt.core.compiler.maxProblemPerUnit"; //$NON-NLS-1$
-	public static final String OPTION_ReportStaticAccessReceiver = "org.eclipse.jdt.core.compiler.problem.staticAccessReceiver"; //$NON-NLS-1$
 	public static final String OPTION_TaskTags = "org.eclipse.jdt.core.compiler.taskTags"; //$NON-NLS-1$
 	public static final String OPTION_TaskPriorities = "org.eclipse.jdt.core.compiler.taskPriorities"; //$NON-NLS-1$
-	public static final String OPTION_ReportSuperfluousSemicolon = "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"; //$NON-NLS-1$
 
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
@@ -88,41 +90,42 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	/**
 	 * Bit mask for configurable problems (error/warning threshold)
 	 */
-	public static final int UnreachableCode = 0x100;
-	public static final int ImportProblem = 0x400;
-	public static final int MethodWithConstructorName = 0x1000;
-	public static final int OverriddenPackageDefaultMethod = 0x2000;
-	public static final int UsingDeprecatedAPI = 0x4000;
-	public static final int MaskedCatchBlock = 0x8000;
-	public static final int UnusedLocalVariable = 0x10000;
-	public static final int UnusedArgument = 0x20000;
-	public static final int NoImplicitStringConversion = 0x40000;
-	public static final int AccessEmulation = 0x80000;
-	public static final int NonExternalizedString = 0x100000;
-	public static final int AssertUsedAsAnIdentifier = 0x200000;
-	public static final int UnusedImport = 0x400000;
-	public static final int StaticAccessReceiver = 0x800000;
-	public static final int Task = 0x1000000;
-	public static final int NoEffectAssignment = 0x2000000;
-	public static final int IncompatibleNonInheritedInterfaceMethod = 0x4000000;
-	public static final int UnusedPrivateMember = 0x8000000;
-	public static final int LocalVariableHiding = 0x10000000;
-	public static final int FieldHiding = 0x20000000;
-	public static final int AccidentalBooleanAssign = 0x40000000;
-	public static final int SuperfluousSemicolon = 0x80000000;
+	public static final long UnreachableCode = 0x100L;
+	public static final long ImportProblem = 0x400L;
+	public static final long MethodWithConstructorName = 0x1000L;
+	public static final long OverriddenPackageDefaultMethod = 0x2000L;
+	public static final long UsingDeprecatedAPI = 0x4000L;
+	public static final long MaskedCatchBlock = 0x8000L;
+	public static final long UnusedLocalVariable = 0x10000L;
+	public static final long UnusedArgument = 0x20000L;
+	public static final long NoImplicitStringConversion = 0x40000L;
+	public static final long AccessEmulation = 0x80000L;
+	public static final long NonExternalizedString = 0x100000L;
+	public static final long AssertUsedAsAnIdentifier = 0x200000L;
+	public static final long UnusedImport = 0x400000L;
+	public static final long NonStaticAccessToStatic = 0x800000L;
+	public static final long Task = 0x1000000L;
+	public static final long NoEffectAssignment = 0x2000000L;
+	public static final long IncompatibleNonInheritedInterfaceMethod = 0x4000000L;
+	public static final long UnusedPrivateMember = 0x8000000L;
+	public static final long LocalVariableHiding = 0x10000000L;
+	public static final long FieldHiding = 0x20000000L;
+	public static final long AccidentalBooleanAssign = 0x40000000L;
+	public static final long SuperfluousSemicolon = 0x80000000L;
+	public static final long IndirectStaticAccess = 0x100000000L;
 	
 	// Default severity level for handlers
-	public int errorThreshold = 
+	public long errorThreshold = 
 		UnreachableCode 
 		| ImportProblem;
 		
-	public int warningThreshold = 
+	public long warningThreshold = 
 		MethodWithConstructorName 
 		| UsingDeprecatedAPI 
 		| MaskedCatchBlock 
 		| OverriddenPackageDefaultMethod
 		| UnusedImport
-		| StaticAccessReceiver
+		| NonStaticAccessToStatic
 		| NoEffectAssignment
 		| IncompatibleNonInheritedInterfaceMethod
 		| NoImplicitStringConversion;
@@ -238,30 +241,12 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			} 
 			// Report unreachable code				
 			if(optionID.equals(OPTION_ReportUnreachableCode)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= UnreachableCode;
-					this.warningThreshold &= ~UnreachableCode;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~UnreachableCode;
-					this.warningThreshold |= UnreachableCode;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~UnreachableCode;
-					this.warningThreshold &= ~UnreachableCode;
-				}
+				updateSeverity(UnreachableCode, optionValue);
 				continue;
 			} 
 			// Report invalid import	
 			if(optionID.equals(OPTION_ReportInvalidImport)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= ImportProblem;
-					this.warningThreshold &= ~ImportProblem;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~ImportProblem;
-					this.warningThreshold |= ImportProblem;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~ImportProblem;
-					this.warningThreshold &= ~ImportProblem;
-				}
+				updateSeverity(ImportProblem, optionValue);
 				continue;
 			} 
 			// Define the target JDK tag for .classfiles
@@ -284,44 +269,17 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			} 
 			// Report method with constructor name
 			if(optionID.equals(OPTION_ReportMethodWithConstructorName)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= MethodWithConstructorName;
-					this.warningThreshold &= ~MethodWithConstructorName;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~MethodWithConstructorName;
-					this.warningThreshold |= MethodWithConstructorName;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~MethodWithConstructorName;
-					this.warningThreshold &= ~MethodWithConstructorName;
-				}
+				updateSeverity(MethodWithConstructorName, optionValue);
 				continue;
 			} 
 			// Report overriding package default method
 			if(optionID.equals(OPTION_ReportOverridingPackageDefaultMethod)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= OverriddenPackageDefaultMethod;
-					this.warningThreshold &= ~OverriddenPackageDefaultMethod;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~OverriddenPackageDefaultMethod;
-					this.warningThreshold |= OverriddenPackageDefaultMethod;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~OverriddenPackageDefaultMethod;
-					this.warningThreshold &= ~OverriddenPackageDefaultMethod;
-				}
+				updateSeverity(OverriddenPackageDefaultMethod, optionValue);
 				continue;
 			} 
 			// Report deprecation
 			if(optionID.equals(OPTION_ReportDeprecation)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= UsingDeprecatedAPI;
-					this.warningThreshold &= ~UsingDeprecatedAPI;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~UsingDeprecatedAPI;
-					this.warningThreshold |= UsingDeprecatedAPI;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~UsingDeprecatedAPI;
-					this.warningThreshold &= ~UsingDeprecatedAPI;
-				}
+				updateSeverity(UsingDeprecatedAPI, optionValue);
 				continue;
 			} 
 			// Report deprecation inside deprecated code 
@@ -335,58 +293,22 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			} 
 			// Report hidden catch block
 			if(optionID.equals(OPTION_ReportHiddenCatchBlock)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= MaskedCatchBlock;
-					this.warningThreshold &= ~MaskedCatchBlock;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~MaskedCatchBlock;
-					this.warningThreshold |= MaskedCatchBlock;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~MaskedCatchBlock;
-					this.warningThreshold &= ~MaskedCatchBlock;
-				}
+				updateSeverity(MaskedCatchBlock, optionValue);
 				continue;
 			} 
 			// Report unused local variable
 			if(optionID.equals(OPTION_ReportUnusedLocal)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= UnusedLocalVariable;
-					this.warningThreshold &= ~UnusedLocalVariable;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~UnusedLocalVariable;
-					this.warningThreshold |= UnusedLocalVariable;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~UnusedLocalVariable;
-					this.warningThreshold &= ~UnusedLocalVariable;
-				}
+				updateSeverity(UnusedLocalVariable, optionValue);
 				continue;
 			}
 			// Report no implicit String conversion
 			if (optionID.equals(OPTION_ReportNoImplicitStringConversion)) {
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= NoImplicitStringConversion;
-					this.warningThreshold &= ~NoImplicitStringConversion;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~NoImplicitStringConversion;
-					this.warningThreshold |= NoImplicitStringConversion;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~NoImplicitStringConversion;
-					this.warningThreshold &= ~NoImplicitStringConversion;
-				}
+				updateSeverity(NoImplicitStringConversion, optionValue);
 				continue;
 			}
 			// Report unused parameter
 			if(optionID.equals(OPTION_ReportUnusedParameter)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= UnusedArgument;
-					this.warningThreshold &= ~UnusedArgument;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~UnusedArgument;
-					this.warningThreshold |= UnusedArgument;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~UnusedArgument;
-					this.warningThreshold &= ~UnusedArgument;
-				}
+				updateSeverity(UnusedArgument, optionValue);
 				continue;
 			} 
 			// Report unused parameter when implementing abstract method 
@@ -409,58 +331,22 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			} 
 			// Report unused import
 			if(optionID.equals(OPTION_ReportUnusedImport)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= UnusedImport;
-					this.warningThreshold &= ~UnusedImport;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~UnusedImport;
-					this.warningThreshold |= UnusedImport;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~UnusedImport;
-					this.warningThreshold &= ~UnusedImport;
-				}
+				updateSeverity(UnusedImport, optionValue);
 				continue;
 			} 
 			// Report synthetic access emulation
 			if(optionID.equals(OPTION_ReportSyntheticAccessEmulation)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= AccessEmulation;
-					this.warningThreshold &= ~AccessEmulation;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~AccessEmulation;
-					this.warningThreshold |= AccessEmulation;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~AccessEmulation;
-					this.warningThreshold &= ~AccessEmulation;
-				}
+				updateSeverity(AccessEmulation, optionValue);
 				continue;
 			}
 			// Report local var hiding another variable
 			if(optionID.equals(OPTION_ReportLocalVariableHiding)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= LocalVariableHiding;
-					this.warningThreshold &= ~LocalVariableHiding;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~LocalVariableHiding;
-					this.warningThreshold |= LocalVariableHiding;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~LocalVariableHiding;
-					this.warningThreshold &= ~LocalVariableHiding;
-				}
+				updateSeverity(LocalVariableHiding, optionValue);
 				continue;
 			}
 			// Report field hiding another variable
 			if(optionID.equals(OPTION_ReportFieldHiding)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= FieldHiding;
-					this.warningThreshold &= ~FieldHiding;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~FieldHiding;
-					this.warningThreshold |= FieldHiding;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~FieldHiding;
-					this.warningThreshold &= ~FieldHiding;
-				}
+				updateSeverity(FieldHiding, optionValue);
 				continue;
 			}
 			// Report constructor/setter parameter hiding another field
@@ -474,58 +360,22 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			}			
 			// Report possible accidental boolean assignment
 			if(optionID.equals(OPTION_ReportPossibleAccidentalBooleanAssignment)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= AccidentalBooleanAssign;
-					this.warningThreshold &= ~AccidentalBooleanAssign;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~AccidentalBooleanAssign;
-					this.warningThreshold |= AccidentalBooleanAssign;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~AccidentalBooleanAssign;
-					this.warningThreshold &= ~AccidentalBooleanAssign;
-				}
+				updateSeverity(AccidentalBooleanAssign, optionValue);
 				continue;
 			}
 			// Report possible accidental boolean assignment
 			if(optionID.equals(OPTION_ReportSuperfluousSemicolon)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= SuperfluousSemicolon;
-					this.warningThreshold &= ~SuperfluousSemicolon;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~SuperfluousSemicolon;
-					this.warningThreshold |= SuperfluousSemicolon;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~SuperfluousSemicolon;
-					this.warningThreshold &= ~SuperfluousSemicolon;
-				}
+				updateSeverity(SuperfluousSemicolon, optionValue);
 				continue;
 			}
 			// Report non-externalized string literals
 			if(optionID.equals(OPTION_ReportNonExternalizedStringLiteral)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= NonExternalizedString;
-					this.warningThreshold &= ~NonExternalizedString;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~NonExternalizedString;
-					this.warningThreshold |= NonExternalizedString;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~NonExternalizedString;
-					this.warningThreshold &= ~NonExternalizedString;
-				}
+				updateSeverity(NonExternalizedString, optionValue);
 				continue;
 			}
 			// Report usage of 'assert' as an identifier
 			if(optionID.equals(OPTION_ReportAssertIdentifier)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= AssertUsedAsAnIdentifier;
-					this.warningThreshold &= ~AssertUsedAsAnIdentifier;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~AssertUsedAsAnIdentifier;
-					this.warningThreshold |= AssertUsedAsAnIdentifier;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~AssertUsedAsAnIdentifier;
-					this.warningThreshold &= ~AssertUsedAsAnIdentifier;
-				}
+				updateSeverity(AssertUsedAsAnIdentifier, optionValue);
 				continue;
 			}
 			// Set the source compatibility mode (assertions)
@@ -557,45 +407,23 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				continue;
 			}
 			// Report unnecessary receiver for static access
-			if(optionID.equals(OPTION_ReportStaticAccessReceiver)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= StaticAccessReceiver;
-					this.warningThreshold &= ~StaticAccessReceiver;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~StaticAccessReceiver;
-					this.warningThreshold |= StaticAccessReceiver;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~StaticAccessReceiver;
-					this.warningThreshold &= ~StaticAccessReceiver;
-				}
+			if(optionID.equals(OPTION_ReportNonStaticAccessToStatic)){
+				updateSeverity(NonStaticAccessToStatic, optionValue);
+				continue;
+			} 
+			// Report indirect static access
+			if(optionID.equals(OPTION_ReportIndirectStaticAccess)){
+				updateSeverity(IndirectStaticAccess, optionValue);
 				continue;
 			} 
 			// Report interface method incompatible with non-inherited Object method
 			if(optionID.equals(OPTION_ReportIncompatibleNonInheritedInterfaceMethod)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= IncompatibleNonInheritedInterfaceMethod;
-					this.warningThreshold &= ~IncompatibleNonInheritedInterfaceMethod;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~IncompatibleNonInheritedInterfaceMethod;
-					this.warningThreshold |= IncompatibleNonInheritedInterfaceMethod;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~IncompatibleNonInheritedInterfaceMethod;
-					this.warningThreshold &= ~IncompatibleNonInheritedInterfaceMethod;
-				}
+				updateSeverity(IncompatibleNonInheritedInterfaceMethod, optionValue);
 				continue;
 			} 
 			// Report unused private members
 			if(optionID.equals(OPTION_ReportUnusedPrivateMember)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= UnusedPrivateMember;
-					this.warningThreshold &= ~UnusedPrivateMember;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~UnusedPrivateMember;
-					this.warningThreshold |= UnusedPrivateMember;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~UnusedPrivateMember;
-					this.warningThreshold &= ~UnusedPrivateMember;
-				}
+				updateSeverity(UnusedPrivateMember, optionValue);
 				continue;
 			} 
 			// Report task
@@ -609,16 +437,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			} 
 			// Report no-op assignments
 			if(optionID.equals(OPTION_ReportNoEffectAssignment)){
-				if (optionValue.equals(ERROR)) {
-					this.errorThreshold |= NoEffectAssignment;
-					this.warningThreshold &= ~NoEffectAssignment;
-				} else if (optionValue.equals(WARNING)) {
-					this.errorThreshold &= ~NoEffectAssignment;
-					this.warningThreshold |= NoEffectAssignment;
-				} else if (optionValue.equals(IGNORE)) {
-					this.errorThreshold &= ~NoEffectAssignment;
-					this.warningThreshold &= ~NoEffectAssignment;
-				}
+				updateSeverity(NoEffectAssignment, optionValue);
 				continue;
 			}
 			if(optionID.equals(OPTION_TaskPriorities)){
@@ -631,8 +450,49 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			} 
 		}
 	}
+
+	public Map getMap() {
+		Map optionsMap = new HashMap(30);
+		optionsMap.put(OPTION_LocalVariableAttribute, (produceDebugAttributes & Vars) != 0 ? GENERATE : DO_NOT_GENERATE); 
+		optionsMap.put(OPTION_LineNumberAttribute, (produceDebugAttributes & Lines) != 0 ? GENERATE : DO_NOT_GENERATE);
+		optionsMap.put(OPTION_SourceFileAttribute, (produceDebugAttributes & Source) != 0 ? GENERATE : DO_NOT_GENERATE);
+		optionsMap.put(OPTION_PreserveUnusedLocal, preserveAllLocalVariables ? PRESERVE : OPTIMIZE_OUT);
+		optionsMap.put(OPTION_ReportUnreachableCode, getSeverityString(UnreachableCode)); 
+		optionsMap.put(OPTION_ReportInvalidImport, getSeverityString(ImportProblem)); 
+		optionsMap.put(OPTION_ReportMethodWithConstructorName, getSeverityString(MethodWithConstructorName)); 
+		optionsMap.put(OPTION_ReportOverridingPackageDefaultMethod, getSeverityString(OverriddenPackageDefaultMethod)); 
+		optionsMap.put(OPTION_ReportDeprecation, getSeverityString(UsingDeprecatedAPI)); 
+		optionsMap.put(OPTION_ReportDeprecationInDeprecatedCode, reportDeprecationInsideDeprecatedCode ? ENABLED : DISABLED); 
+		optionsMap.put(OPTION_ReportHiddenCatchBlock, getSeverityString(MaskedCatchBlock)); 
+		optionsMap.put(OPTION_ReportUnusedLocal, getSeverityString(UnusedLocalVariable)); 
+		optionsMap.put(OPTION_ReportUnusedParameter, getSeverityString(UnusedArgument)); 
+		optionsMap.put(OPTION_ReportUnusedImport, getSeverityString(UnusedImport)); 
+		optionsMap.put(OPTION_ReportSyntheticAccessEmulation, getSeverityString(AccessEmulation)); 
+		optionsMap.put(OPTION_ReportNoEffectAssignment, getSeverityString(NoEffectAssignment)); 
+		optionsMap.put(OPTION_ReportNonExternalizedStringLiteral, getSeverityString(NonExternalizedString)); 
+		optionsMap.put(OPTION_ReportNonStaticAccessToStatic, getSeverityString(NonStaticAccessToStatic)); 
+		optionsMap.put(OPTION_ReportIndirectStaticAccess, getSeverityString(IndirectStaticAccess)); 
+		optionsMap.put(OPTION_ReportIncompatibleNonInheritedInterfaceMethod, getSeverityString(IncompatibleNonInheritedInterfaceMethod)); 
+		optionsMap.put(OPTION_ReportUnusedPrivateMember, getSeverityString(UnusedPrivateMember)); 
+		optionsMap.put(OPTION_ReportLocalVariableHiding, getSeverityString(LocalVariableHiding)); 
+		optionsMap.put(OPTION_ReportFieldHiding, getSeverityString(FieldHiding)); 
+		optionsMap.put(OPTION_ReportPossibleAccidentalBooleanAssignment, getSeverityString(AccidentalBooleanAssign)); 
+		optionsMap.put(OPTION_ReportSuperfluousSemicolon, getSeverityString(SuperfluousSemicolon)); 
+		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(complianceLevel)); 
+		optionsMap.put(OPTION_Source, versionFromJdkLevel(sourceLevel)); 
+		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(targetJDK)); 
+		if (defaultEncoding != null) {
+			optionsMap.put(OPTION_Encoding, defaultEncoding); 
+		}
+		optionsMap.put(OPTION_TaskTags, this.taskTags == null ? "" : new String(CharOperation.concatWith(this.taskTags,','))); //$NON-NLS-1$
+		optionsMap.put(OPTION_TaskPriorities, this.taskPriorites == null ? "" : new String(CharOperation.concatWith(this.taskPriorites,','))); //$NON-NLS-1$
+		optionsMap.put(OPTION_ReportUnusedParameterWhenImplementingAbstract, reportUnusedParameterWhenImplementingAbstract ? ENABLED : DISABLED); 
+		optionsMap.put(OPTION_ReportUnusedParameterWhenOverridingConcrete, reportUnusedParameterWhenOverridingConcrete ? ENABLED : DISABLED); 
+		optionsMap.put(OPTION_ReportSpecialParameterHidingField, reportSpecialParameterHidingField ? ENABLED : DISABLED); 
+		return optionsMap;		
+	}
 	
-	public int getSeverity(int irritant) {
+	public int getSeverity(long irritant) {
 		if((warningThreshold & irritant) != 0)
 			return Warning;
 		if((errorThreshold & irritant) != 0)
@@ -640,6 +500,14 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		return Ignore;
 	}
 
+	public String getSeverityString(long irritant) {
+		if((warningThreshold & irritant) != 0)
+			return WARNING;
+		if((errorThreshold & irritant) != 0)
+			return ERROR;
+		return IGNORE;
+	}
+	
 	public void produceReferenceInfo(boolean flag) {
 		this.produceReferenceInfo = flag;
 	}
@@ -650,219 +518,60 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 
 	public String toString() {
 	
-
 		StringBuffer buf = new StringBuffer("CompilerOptions:"); //$NON-NLS-1$
-		if ((produceDebugAttributes & Vars) != 0){
-			buf.append("\n-local variables debug attributes: ON"); //$NON-NLS-1$
-		} else {
-			buf.append("\n-local variables debug attributes: OFF"); //$NON-NLS-1$
-		}
-		if ((produceDebugAttributes & Lines) != 0){
-			buf.append("\n-line number debug attributes: ON"); //$NON-NLS-1$
-		} else {
-			buf.append("\n-line number debug attributes: OFF"); //$NON-NLS-1$
-		}
-		if ((produceDebugAttributes & Source) != 0){
-			buf.append("\n-source debug attributes: ON"); //$NON-NLS-1$
-		} else {
-			buf.append("\n-source debug attributes: OFF"); //$NON-NLS-1$
-		}
-		if (preserveAllLocalVariables){
-			buf.append("\n-preserve all local variables: ON"); //$NON-NLS-1$
-		} else {
-			buf.append("\n-preserve all local variables: OFF"); //$NON-NLS-1$
-		}
-		if ((errorThreshold & UnreachableCode) != 0){
-			buf.append("\n-unreachable code: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & UnreachableCode) != 0){
-				buf.append("\n-unreachable code: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-unreachable code: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & ImportProblem) != 0){
-			buf.append("\n-import problem: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & ImportProblem) != 0){
-				buf.append("\n-import problem: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-import problem: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & MethodWithConstructorName) != 0){
-			buf.append("\n-method with constructor name: ERROR");		 //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & MethodWithConstructorName) != 0){
-				buf.append("\n-method with constructor name: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-method with constructor name: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & OverriddenPackageDefaultMethod) != 0){
-			buf.append("\n-overridden package default method: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & OverriddenPackageDefaultMethod) != 0){
-				buf.append("\n-overridden package default method: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-overridden package default method: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & UsingDeprecatedAPI) != 0){
-			buf.append("\n-deprecation: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & UsingDeprecatedAPI) != 0){
-				buf.append("\n-deprecation: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-deprecation: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & MaskedCatchBlock) != 0){
-			buf.append("\n-masked catch block: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & MaskedCatchBlock) != 0){
-				buf.append("\n-masked catch block: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-masked catch block: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & UnusedLocalVariable) != 0){
-			buf.append("\n-unused local variable: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & UnusedLocalVariable) != 0){
-				buf.append("\n-unused local variable: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-unused local variable: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & UnusedArgument) != 0){
-			buf.append("\n-unused parameter: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & UnusedArgument) != 0){
-				buf.append("\n-unused parameter: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-unused parameter: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & UnusedImport) != 0){
-			buf.append("\n-unused import: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & UnusedImport) != 0){
-				buf.append("\n-unused import: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-unused import: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & AccessEmulation) != 0){
-			buf.append("\n-synthetic access emulation: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & AccessEmulation) != 0){
-				buf.append("\n-synthetic access emulation: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-synthetic access emulation: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & NoEffectAssignment) != 0){
-			buf.append("\n-assignment with no effect: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & NoEffectAssignment) != 0){
-				buf.append("\n-assignment with no effect: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-assignment with no effect: IGNORE"); //$NON-NLS-1$
-			}
-		}		if ((errorThreshold & NonExternalizedString) != 0){
-			buf.append("\n-non externalized string: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & NonExternalizedString) != 0){
-				buf.append("\n-non externalized string: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-non externalized string: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & StaticAccessReceiver) != 0){
-			buf.append("\n-static access receiver: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & StaticAccessReceiver) != 0){
-				buf.append("\n-static access receiver: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-static access receiver: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & IncompatibleNonInheritedInterfaceMethod) != 0){
-			buf.append("\n-incompatible non inherited interface method: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & IncompatibleNonInheritedInterfaceMethod) != 0){
-				buf.append("\n-incompatible non inherited interface method: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-incompatible non inherited interface method: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & UnusedPrivateMember) != 0){
-			buf.append("\n-unused private member: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & UnusedPrivateMember) != 0){
-				buf.append("\n-unused private member: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-unused private member: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & LocalVariableHiding) != 0){
-			buf.append("\n-local variable hiding another variable: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & LocalVariableHiding) != 0){
-				buf.append("\n-local variable hiding another variable: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-local variable hiding another variable: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & FieldHiding) != 0){
-			buf.append("\n-field hiding another variable: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & FieldHiding) != 0){
-				buf.append("\n-field hiding another variable: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-field hiding another variable: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & AccidentalBooleanAssign) != 0){
-			buf.append("\n-possible accidental boolean assignment: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & AccidentalBooleanAssign) != 0){
-				buf.append("\n-possible accidental boolean assignment: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-possible accidental boolean assignment: IGNORE"); //$NON-NLS-1$
-			}
-		}
-		if ((errorThreshold & SuperfluousSemicolon) != 0){
-			buf.append("\n-superfluous semicolon: ERROR"); //$NON-NLS-1$
-		} else {
-			if ((warningThreshold & SuperfluousSemicolon) != 0){
-				buf.append("\n-superfluous semicolon: WARNING"); //$NON-NLS-1$
-			} else {
-				buf.append("\n-superfluous semicolon: IGNORE"); //$NON-NLS-1$
-			}
-		}
+		buf.append("\n-local variables debug attributes: ").append((produceDebugAttributes & Vars) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-line number debug attributes: ").append((produceDebugAttributes & Lines) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-source debug attributes: ").append((produceDebugAttributes & Source) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-preserve all local variables: ").append(preserveAllLocalVariables ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-unreachable code: ").append(getSeverityString(UnreachableCode)); //$NON-NLS-1$
+		buf.append("\n-import problem: ").append(getSeverityString(ImportProblem)); //$NON-NLS-1$
+		buf.append("\n--method with constructor name: ").append(getSeverityString(MethodWithConstructorName)); //$NON-NLS-1$
+		buf.append("\n-overridden package default method: ").append(getSeverityString(OverriddenPackageDefaultMethod)); //$NON-NLS-1$
+		buf.append("\n-deprecation: ").append(getSeverityString(UsingDeprecatedAPI)); //$NON-NLS-1$
+		buf.append("\n-masked catch block: ").append(getSeverityString(MaskedCatchBlock)); //$NON-NLS-1$
+		buf.append("\n-unused local variable: ").append(getSeverityString(UnusedLocalVariable)); //$NON-NLS-1$
+		buf.append("\n-unused parameter: ").append(getSeverityString(UnusedArgument)); //$NON-NLS-1$
+		buf.append("\n-unused import: ").append(getSeverityString(UnusedImport)); //$NON-NLS-1$
+		buf.append("\n-synthetic access emulation: ").append(getSeverityString(AccessEmulation)); //$NON-NLS-1$
+		buf.append("\n-assignment with no effect: ").append(getSeverityString(NoEffectAssignment)); //$NON-NLS-1$
+		buf.append("\n-non externalized string: ").append(getSeverityString(NonExternalizedString)); //$NON-NLS-1$
+		buf.append("\n-static access receiver: ").append(getSeverityString(NonStaticAccessToStatic)); //$NON-NLS-1$
+		buf.append("\n-indirect static access: ").append(getSeverityString(IndirectStaticAccess)); //$NON-NLS-1$
+		buf.append("\n-incompatible non inherited interface method: ").append(getSeverityString(IncompatibleNonInheritedInterfaceMethod)); //$NON-NLS-1$
+		buf.append("\n-unused private member: ").append(getSeverityString(UnusedPrivateMember)); //$NON-NLS-1$
+		buf.append("\n-local variable hiding another variable: ").append(getSeverityString(LocalVariableHiding)); //$NON-NLS-1$
+		buf.append("\n-field hiding another variable: ").append(getSeverityString(FieldHiding)); //$NON-NLS-1$
+		buf.append("\n-possible accidental boolean assignment: ").append(getSeverityString(AccidentalBooleanAssign)); //$NON-NLS-1$
+		buf.append("\n-superfluous semicolon: ").append(getSeverityString(SuperfluousSemicolon)); //$NON-NLS-1$
 		buf.append("\n-JDK compliance level: "+ versionFromJdkLevel(complianceLevel)); //$NON-NLS-1$
 		buf.append("\n-JDK source level: "+ versionFromJdkLevel(sourceLevel)); //$NON-NLS-1$
 		buf.append("\n-JDK target level: "+ versionFromJdkLevel(targetJDK)); //$NON-NLS-1$
-		if (isPrivateConstructorAccessChangingVisibility){
-			buf.append("\n-private constructor access emulation: extra argument"); //$NON-NLS-1$
-		} else {
-			buf.append("\n-private constructor access emulation: make default access"); //$NON-NLS-1$
-		}
-		buf.append("\n-verbose : " + (verbose ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-produce reference info : " + (produceReferenceInfo ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-parse literal expressions as constants : " + (parseLiteralExpressionsAsConstants ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-encoding : " + (defaultEncoding == null ? "<default>" : defaultEncoding)); //$NON-NLS-1$ //$NON-NLS-2$
-		buf.append("\n-task tags: " + (this.taskTags == null ? "" : new String(CharOperation.concatWith(this.taskTags,','))));  //$NON-NLS-1$ //$NON-NLS-2$
-		buf.append("\n-task priorities : " + (this.taskPriorites == null ? "" : new String(CharOperation.concatWith(this.taskPriorites,',')))); //$NON-NLS-1$ //$NON-NLS-2$
-		buf.append("\n-report deprecation inside deprecated code : " + (reportDeprecationInsideDeprecatedCode ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-report unused parameter when implementing abstract method : " + (reportUnusedParameterWhenImplementingAbstract ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-report unused parameter when overriding concrete method : " + (reportUnusedParameterWhenOverridingConcrete ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		buf.append("\n-report constructor/setter parameter hiding existing field : " + (reportSpecialParameterHidingField ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-private constructor access: ").append(isPrivateConstructorAccessChangingVisibility ? "extra argument" : "make default access"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-verbose : ").append(verbose ? "ON" : "OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-produce reference info : ").append(produceReferenceInfo ? "ON" : "OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-parse literal expressions as constants : ").append(parseLiteralExpressionsAsConstants ? "ON" : "OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-encoding : ").append(defaultEncoding == null ? "<default>" : defaultEncoding); //$NON-NLS-1$ //$NON-NLS-2$
+		buf.append("\n-task tags: ").append(this.taskTags == null ? "" : new String(CharOperation.concatWith(this.taskTags,',')));  //$NON-NLS-1$ //$NON-NLS-2$
+		buf.append("\n-task priorities : ").append(this.taskPriorites == null ? "" : new String(CharOperation.concatWith(this.taskPriorites,','))); //$NON-NLS-1$ //$NON-NLS-2$
+		buf.append("\n-report deprecation inside deprecated code : ").append(reportDeprecationInsideDeprecatedCode ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-report unused parameter when implementing abstract method : ").append(reportUnusedParameterWhenImplementingAbstract ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-report unused parameter when overriding concrete method : ").append(reportUnusedParameterWhenOverridingConcrete ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-report constructor/setter parameter hiding existing field : ").append(reportSpecialParameterHidingField ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return buf.toString();
 	}
 
+	void updateSeverity(long irritant, String severityString) {
+		if (severityString.equals(ERROR)) {
+			this.errorThreshold |= irritant;
+			this.warningThreshold &= ~irritant;
+		} else if (severityString.equals(WARNING)) {
+			this.errorThreshold &= ~irritant;
+			this.warningThreshold |= irritant;
+		} else if (severityString.equals(IGNORE)) {
+			this.errorThreshold &= ~irritant;
+			this.warningThreshold &= ~irritant;
+		}
+	}				
 	public static long versionToJdkLevel(String versionID) {
 		if (versionID.equals(VERSION_1_1)) {
 			return JDK1_1;

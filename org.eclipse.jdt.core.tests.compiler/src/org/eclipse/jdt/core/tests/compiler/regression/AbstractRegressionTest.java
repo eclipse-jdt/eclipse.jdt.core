@@ -74,7 +74,7 @@ protected INameEnvironment[] getClassLibs() {
 	return classLibs;
 }
 protected Map getCompilerOptions() {
-		Map defaultOptions = Main.getDefaultOptions();
+		Map defaultOptions = new CompilerOptions().getMap();
 		defaultOptions.put(
 			CompilerOptions.OPTION_LocalVariableAttribute,
 			CompilerOptions.GENERATE);

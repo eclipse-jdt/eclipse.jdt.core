@@ -27,7 +27,6 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
-import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
@@ -423,7 +422,7 @@ public INameEnvironment getEnv() {
 }
 public Map getOptions() {
 	
-		Map defaultOptions = Main.getDefaultOptions();
+		Map defaultOptions = new CompilerOptions().getMap();
 		defaultOptions.put(
 			CompilerOptions.OPTION_LocalVariableAttribute,
 			CompilerOptions.DO_NOT_GENERATE);

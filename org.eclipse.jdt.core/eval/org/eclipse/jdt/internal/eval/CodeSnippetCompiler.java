@@ -22,6 +22,11 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
  * A compiler that compiles code snippets. 
  */
 public class CodeSnippetCompiler extends Compiler {
+	
+	EvaluationContext evaluationContext;
+	int codeSnippetStart;
+	int codeSnippetEnd;
+	
 	/**
 	 * Creates a new code snippet compiler initialized with a code snippet parser.
 	 */
@@ -45,4 +50,17 @@ public class CodeSnippetCompiler extends Compiler {
 		this.parseThreshold = 1;
 		// fully parse only the code snippet compilation unit
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.Compiler#initializeParser()
+	 */
+	public void initializeParser() {
+		this.parser =
+			new CodeSnippetParser(
+				this.problemReporter,
+				this.evaluationContext,
+				this.options.parseLiteralExpressionsAsConstants,
+				this.codeSnippetStart,
+				this.codeSnippetEnd);
+		}
 }

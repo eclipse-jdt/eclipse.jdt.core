@@ -423,40 +423,15 @@ public int computeSeverity(int problemId){
 //	}
 
 	// if not then check whether it is a configurable problem
-	int errorThreshold = this.options.errorThreshold;
-	int warningThreshold = this.options.warningThreshold;
-	
 	switch(problemId){
 
 		case IProblem.UnreachableCatch :
 		case IProblem.CodeCannotBeReached :
-			if ((errorThreshold & CompilerOptions.UnreachableCode) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.UnreachableCode) != 0){
-				return Warning;
-			}
-			return Ignore;
+			return this.options.getSeverity(CompilerOptions.UnreachableCode);
 
 		case IProblem.MaskedCatch : 
-			if ((errorThreshold & CompilerOptions.MaskedCatchBlock) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.MaskedCatchBlock) != 0){
-				return Warning;
-			}
-			return Ignore;
-			
-/*
-		case Never Used  :
-			if ((errorThreshold & ParsingOptionalError) != 0){
-				return Error;
-			}
-			if ((warningThreshold & ParsingOptionalError) != 0){
-				return Warning;
-			}
-			return Ignore;
-*/
+			return this.options.getSeverity(CompilerOptions.MaskedCatchBlock);
+
 		case IProblem.ImportNotFound :
 		case IProblem.ImportNotVisible :
 		case IProblem.ImportAmbiguous :
@@ -465,189 +440,90 @@ public int computeSeverity(int problemId){
 		case IProblem.DuplicateImport :
 		case IProblem.ConflictingImport :
 		case IProblem.CannotImportPackage :
-			if ((errorThreshold & CompilerOptions.ImportProblem) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.ImportProblem) != 0){
-				return Warning;
-			}
-			return Ignore;
-			
+			return this.options.getSeverity(CompilerOptions.ImportProblem);
+
 		case IProblem.UnusedImport :
 			// if import problem are disabled, then ignore
-			if ((errorThreshold & CompilerOptions.ImportProblem) == 0 
-				&& (warningThreshold & CompilerOptions.ImportProblem) == 0){
+			if (this.options.getSeverity(CompilerOptions.ImportProblem) == Ignore) {
 				return Ignore;
 			}
-			if ((errorThreshold & CompilerOptions.UnusedImport) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.UnusedImport) != 0){
-				return Warning;
-			}
-			return Ignore;
+			return this.options.getSeverity(CompilerOptions.UnusedImport);
 			
 		case IProblem.MethodButWithConstructorName :
-			if ((errorThreshold & CompilerOptions.MethodWithConstructorName) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.MethodWithConstructorName) != 0){
-				return Warning;
-			}
-			return Ignore;
+			return this.options.getSeverity(CompilerOptions.MethodWithConstructorName);
 		
 		case IProblem.OverridingNonVisibleMethod :
-			if ((errorThreshold & CompilerOptions.OverriddenPackageDefaultMethod) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.OverriddenPackageDefaultMethod) != 0){
-				return Warning;
-			}
-			return Ignore;
+			return this.options.getSeverity(CompilerOptions.OverriddenPackageDefaultMethod);
 
 		case IProblem.IncompatibleReturnTypeForNonInheritedInterfaceMethod :
 		case IProblem.IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod :
-			if ((errorThreshold & CompilerOptions.IncompatibleNonInheritedInterfaceMethod) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.IncompatibleNonInheritedInterfaceMethod) != 0){
-				return Warning;
-			}
-			return Ignore;
+			return this.options.getSeverity(CompilerOptions.IncompatibleNonInheritedInterfaceMethod);
 
 		case IProblem.OverridingDeprecatedMethod :				
 		case IProblem.UsingDeprecatedType :				
 		case IProblem.UsingDeprecatedMethod :
 		case IProblem.UsingDeprecatedConstructor :
 		case IProblem.UsingDeprecatedField :
-			if ((errorThreshold & CompilerOptions.UsingDeprecatedAPI) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.UsingDeprecatedAPI) != 0){
-				return Warning;
-			}
-			return Ignore;
+			return this.options.getSeverity(CompilerOptions.UsingDeprecatedAPI);
 		
 		case IProblem.LocalVariableIsNeverUsed :
-			if ((errorThreshold & CompilerOptions.UnusedLocalVariable) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.UnusedLocalVariable) != 0){
-				return Warning;
-			}
-			return Ignore;
+			return this.options.getSeverity(CompilerOptions.UnusedLocalVariable);
 		
 		case IProblem.ArgumentIsNeverUsed :
-			if ((errorThreshold & CompilerOptions.UnusedArgument) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.UnusedArgument) != 0){
-				return Warning;
-			}
-			return Ignore;
+			return this.options.getSeverity(CompilerOptions.UnusedArgument);
 
 		case IProblem.NoImplicitStringConversionForCharArrayExpression :
-			if ((errorThreshold & CompilerOptions.NoImplicitStringConversion) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.NoImplicitStringConversion) != 0){
-				return Warning;
-			}
-			return Ignore;
+			return this.options.getSeverity(CompilerOptions.NoImplicitStringConversion);
 
 		case IProblem.NeedToEmulateFieldReadAccess :
 		case IProblem.NeedToEmulateFieldWriteAccess :
 		case IProblem.NeedToEmulateMethodAccess :
 		case IProblem.NeedToEmulateConstructorAccess :			
-			if ((errorThreshold & CompilerOptions.AccessEmulation) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.AccessEmulation) != 0){
-				return Warning;
-			}
-			return Ignore;
+			return this.options.getSeverity(CompilerOptions.AccessEmulation);
+
 		case IProblem.NonExternalizedStringLiteral :
-			if ((errorThreshold & CompilerOptions.NonExternalizedString) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.NonExternalizedString) != 0){
-				return Warning;
-			}
-			return Ignore;
+			return this.options.getSeverity(CompilerOptions.NonExternalizedString);
+
 		case IProblem.UseAssertAsAnIdentifier :
-			if ((errorThreshold & CompilerOptions.AssertUsedAsAnIdentifier) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.AssertUsedAsAnIdentifier) != 0){
-				return Warning;
-			}
-			return Ignore;		
+			return this.options.getSeverity(CompilerOptions.AssertUsedAsAnIdentifier);
+
 		case IProblem.NonStaticAccessToStaticMethod :
 		case IProblem.NonStaticAccessToStaticField :
-			if ((errorThreshold & CompilerOptions.StaticAccessReceiver) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.StaticAccessReceiver) != 0){
-				return Warning;
-			}
-			return Ignore;		
+			return this.options.getSeverity(CompilerOptions.NonStaticAccessToStatic);
+
+		case IProblem.IndirectAccessToStaticMethod :
+		case IProblem.IndirectAccessToStaticField :
+		case IProblem.IndirectAccessToStaticType :
+			return this.options.getSeverity(CompilerOptions.IndirectStaticAccess);
+
 		case IProblem.AssignmentHasNoEffect:
-			if ((errorThreshold & CompilerOptions.NoEffectAssignment) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.NoEffectAssignment) != 0){
-				return Warning;
-			}
-			return Ignore;		
+			return this.options.getSeverity(CompilerOptions.NoEffectAssignment);
+
 		case IProblem.UnusedPrivateConstructor:
 		case IProblem.UnusedPrivateMethod:
 		case IProblem.UnusedPrivateField:
 		case IProblem.UnusedPrivateType:
-			if ((errorThreshold & CompilerOptions.UnusedPrivateMember) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.UnusedPrivateMember) != 0){
-				return Warning;
-			}
-			return Ignore;		
+			return this.options.getSeverity(CompilerOptions.UnusedPrivateMember);
+
 		case IProblem.Task :
 			return Warning;			
+
 		case IProblem.LocalVariableHidingLocalVariable:
 		case IProblem.LocalVariableHidingField:
 		case IProblem.ArgumentHidingLocalVariable:
 		case IProblem.ArgumentHidingField:
-			if ((errorThreshold & CompilerOptions.LocalVariableHiding) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.LocalVariableHiding) != 0){
-				return Warning;
-			}
-			return Ignore;		
+			return this.options.getSeverity(CompilerOptions.LocalVariableHiding);
+
 		case IProblem.FieldHidingLocalVariable:
 		case IProblem.FieldHidingField:
-			if ((errorThreshold & CompilerOptions.FieldHiding) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.FieldHiding) != 0){
-				return Warning;
-			}
-			return Ignore;		
+			return this.options.getSeverity(CompilerOptions.FieldHiding);
+
 		case IProblem.PossibleAccidentalBooleanAssignment:
-			if ((errorThreshold & CompilerOptions.AccidentalBooleanAssign) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.AccidentalBooleanAssign) != 0){
-				return Warning;
-			}
-			return Ignore;		
+			return this.options.getSeverity(CompilerOptions.AccidentalBooleanAssign);
+
 		case IProblem.SuperfluousSemicolon:
-			if ((errorThreshold & CompilerOptions.SuperfluousSemicolon) != 0){
-				return Error;
-			}
-			if ((warningThreshold & CompilerOptions.SuperfluousSemicolon) != 0){
-				return Warning;
-			}
-			return Ignore;		
+			return this.options.getSeverity(CompilerOptions.SuperfluousSemicolon);
+
 		default:
 			return Error;
 	}
@@ -1462,6 +1338,30 @@ public void incorrectLocationForEmptyDimension(ArrayAllocationExpression express
 		NoArgument,
 		expression.dimensions[index + 1].sourceStart,
 		expression.dimensions[index + 1].sourceEnd);
+}
+public void indirectAccessToStaticField(AstNode location, FieldBinding field){
+	this.handle(
+		IProblem.IndirectAccessToStaticField,
+		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
+		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void indirectAccessToStaticMethod(AstNode location, MethodBinding method) {
+	this.handle(
+		IProblem.IndirectAccessToStaticMethod,
+		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method)},
+		new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsShortString(method)},
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void indirectAccessToStaticType(AstNode location, ReferenceBinding type) {
+	this.handle(
+		IProblem.IndirectAccessToStaticMethod,
+		new String[] {new String(type.enclosingType().readableName()), new String(type.sourceName) },
+		new String[] {new String(type.enclosingType().shortReadableName()), new String(type.sourceName) },
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void incorrectSwitchType(Expression expression, TypeBinding testType) {
 	this.handle(
@@ -2321,6 +2221,22 @@ public void noMoreAvailableSpaceForLocal(LocalVariableBinding local, AstNode loc
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void nonStaticAccessToStaticMethod(AstNode location, MethodBinding method) {
+	this.handle(
+		IProblem.NonStaticAccessToStaticMethod,
+		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method)},
+		new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsShortString(method)},
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void nonStaticAccessToStaticField(AstNode location, FieldBinding field) {
+	this.handle(
+		IProblem.NonStaticAccessToStaticField,
+		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
+		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void noSuchEnclosingInstance(TypeBinding targetType, AstNode location, boolean isConstructorCall) {
 
 	int id;
@@ -2748,32 +2664,14 @@ public void staticAndInstanceConflict(MethodBinding currentMethod, MethodBinding
 			currentMethod.sourceStart(),
 			currentMethod.sourceEnd());
 }
-public void staticFieldAccessToNonStaticVariable(FieldReference fieldRef, FieldBinding field) {
+public void staticFieldAccessToNonStaticVariable(AstNode location, FieldBinding field) {
 	String[] arguments = new String[] {new String(field.readableName())};
 	this.handle(
 		IProblem.NonStaticFieldFromStaticInvocation,
 		arguments,
 		arguments,
-		fieldRef.sourceStart,
-		fieldRef.sourceEnd); 
-}
-public void staticFieldAccessToNonStaticVariable(QualifiedNameReference nameRef, FieldBinding field){
-	String[] arguments = new String[] {new String(field.readableName())};
-	this.handle(
-		IProblem.NonStaticFieldFromStaticInvocation,
-		arguments,
-		arguments,
-		nameRef.sourceStart,
-		nameRef.sourceEnd);
-}
-public void staticFieldAccessToNonStaticVariable(SingleNameReference nameRef, FieldBinding field) {
-	String[] arguments = new String[] {new String(field.readableName())};
-	this.handle(
-		IProblem.NonStaticFieldFromStaticInvocation,
-		arguments,
-		arguments,
-		nameRef.sourceStart,
-		nameRef.sourceEnd);
+		location.sourceStart,
+		location.sourceEnd); 
 }
 public void staticInheritedMethodConflicts(SourceTypeBinding type, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
 	this.handle(
@@ -2997,22 +2895,6 @@ public void unnecessaryEnclosingInstanceSpecification(Expression expression, Ref
 		new String[]{ new String(targetType.shortReadableName())},
 		expression.sourceStart,
 		expression.sourceEnd);
-}
-public void unnecessaryReceiverForStaticMethod(AstNode location, MethodBinding method) {
-	this.handle(
-		IProblem.NonStaticAccessToStaticMethod,
-		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method)},
-		new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsShortString(method)},
-		location.sourceStart,
-		location.sourceEnd);
-}
-public void unnecessaryReceiverForStaticField(AstNode location, FieldBinding field) {
-	this.handle(
-		IProblem.NonStaticAccessToStaticField,
-		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
-		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
-		location.sourceStart,
-		location.sourceEnd);
 }
 public void unreachableCode(Statement statement) {
 	this.handle(

@@ -119,7 +119,7 @@ public class MissingType implements IGenericType {
 	
 public HierarchyResolver(INameEnvironment nameEnvironment, Map settings, IHierarchyRequestor requestor, IProblemFactory problemFactory) {
 	// create a problem handler with the 'exit after all problems' handling policy
-	options = settings == null ? new CompilerOptions() : new CompilerOptions(settings);
+	options = new CompilerOptions(settings);
 	IErrorHandlingPolicy policy = DefaultErrorHandlingPolicies.exitAfterAllProblems();
 	ProblemReporter problemReporter = new ProblemReporter(policy, options, problemFactory);
 

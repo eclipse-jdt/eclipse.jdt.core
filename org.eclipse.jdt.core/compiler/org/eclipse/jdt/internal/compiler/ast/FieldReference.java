@@ -492,17 +492,16 @@ public class FieldReference extends Reference implements InvocationSite {
 			return null;
 		}
 		// the case receiverType.isArrayType and token = 'length' is handled by the scope API
-		this.codegenBinding =
-			this.binding = scope.getField(this.receiverType, token, this);
+		this.codegenBinding = this.binding = scope.getField(this.receiverType, token, this);
 		if (!binding.isValidBinding()) {
 			constant = NotAConstant;
 			scope.problemReporter().invalidField(this, this.receiverType);
 			return null;
 		}
 
-		if (isFieldUseDeprecated(binding, scope, (this.bits & IsStrictlyAssignedMASK) !=0))
+		if (isFieldUseDeprecated(binding, scope, (this.bits & IsStrictlyAssignedMASK) !=0)) {
 			scope.problemReporter().deprecatedField(binding, this);
-
+		}
 		boolean isImplicitThisRcv = receiver.isImplicitThis();
 		constant = FieldReference.getConstantFor(binding, this, isImplicitThisRcv, scope);
 		if (!isImplicitThisRcv) {
@@ -514,7 +513,10 @@ public class FieldReference extends Reference implements InvocationSite {
 					|| receiver.isSuper()
 					|| (receiver instanceof NameReference 
 						&& (((NameReference) receiver).bits & BindingIds.TYPE) != 0))) {
-				scope.problemReporter().unnecessaryReceiverForStaticField(this, binding);
+				scope.problemReporter().nonStaticAccessToStaticField(this, binding);
+			}
+			if (!isImplicitThisRcv && binding.declaringClass != receiverType) {
+				scope.problemReporter().indirectAccessToStaticField(this, binding);
 			}
 		}
 		return this.resolvedType = binding.type;

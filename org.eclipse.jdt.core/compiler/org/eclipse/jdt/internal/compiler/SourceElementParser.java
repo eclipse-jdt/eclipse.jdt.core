@@ -98,13 +98,6 @@ public SourceElementParser(
 	this.options = options;
 }
 
-/** @deprecated use SourceElementParser(ISourceElementRequestor, IProblemFactory, CompilerOptions) */
-public SourceElementParser(
-	final ISourceElementRequestor requestor, 
-	IProblemFactory problemFactory) {
-		this(requestor, problemFactory, new CompilerOptions());
-}
-
 public SourceElementParser(
 	final ISourceElementRequestor requestor, 
 	IProblemFactory problemFactory,
@@ -114,21 +107,6 @@ public SourceElementParser(
 		if (reportLocalDeclarations) {
 			this.localDeclarationVisitor = new LocalDeclarationVisitor();
 		}
-}
-
-public void checkAnnotation() {
-	
-	if (this.currentElement != null && this.scanner.commentPtr >= 0) {
-		flushAnnotationsDefinedPriorTo(endStatementPosition); // discard obsolete comments
-	}
-	int firstCommentIndex = scanner.commentPtr;
-
-	super.checkAnnotation();
-
-	// modify the modifier source start to point at the first comment
-	if (firstCommentIndex >= 0) {
-		modifiersSourceStart = scanner.commentStarts[0]; 
-	}
 }
 
 protected void classInstanceCreation(boolean alwaysQualified) {

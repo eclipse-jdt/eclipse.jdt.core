@@ -109,10 +109,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			new ProblemReporter(policy, this.options, problemFactory);
 		this.lookupEnvironment =
 			new LookupEnvironment(this, options, problemReporter, environment);
-		this.parser =
-			new Parser(
-				problemReporter, 
-				this.options.parseLiteralExpressionsAsConstants);
+		initializeParser();
 	}
 	
 	/**
@@ -175,14 +172,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				}
 			};
 		}
-		this.problemReporter =
-			new ProblemReporter(policy, this.options, problemFactory);
-		this.lookupEnvironment =
-			new LookupEnvironment(this, options, problemReporter, environment);
-		this.parser =
-			new Parser(
-				problemReporter, 
-				parseLiteralExpressionsAsConstants);
+		this.problemReporter = new ProblemReporter(policy, this.options, problemFactory);
+		this.lookupEnvironment = new LookupEnvironment(this, options, problemReporter, environment);
+		initializeParser();
 	}
 	
 	/**
@@ -517,6 +509,11 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		}
 	}
 
+	public void initializeParser() {
+
+		this.parser = new Parser(this.problemReporter, this.options.parseLiteralExpressionsAsConstants);
+	}
+	
 	/**
 	 * Process a compilation unit already parsed and build.
 	 */

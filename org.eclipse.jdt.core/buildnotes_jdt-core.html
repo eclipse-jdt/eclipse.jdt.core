@@ -42,13 +42,27 @@ Eclipse SDK 3.0 Build - ?th July 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added optional compiler diagnosis for indirect references to static members (matching problem IDs are:
+<code>IProblem.IndirectAccessToStaticField</code>, <code>IProblem.IndirectAccessToStaticMethod</code>, <code>IProblem.IndirectAccessToStaticType</code>).
+<pre>
+* COMPILER / Reporting Indirect Reference to a Static Member
+*    When enabled, the compiler will issue an error or a warning whenever a static field
+*    or method is accessed in an indirect way. A reference to a static member should
+*    preferably be qualified with its declaring type name.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.indirectStaticAccess"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
+</li>
 <li> Removed method <code>Parser#grammar()</code>, which was hosting the Java grammar as a massive comment. 
 From now on, the grammar is defined in its own separate file: <a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/grammar/java_1_4.g"><code>java_1_4.g</code></a>.
 </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=39533">39533</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=39268">39268</a>
+Optional warning for indirect static references
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=39533">39533</a>
 Working copy with no corresponding file not considered by NameLookup 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=39502">39502</a>
 No completion in message send
@@ -109,7 +123,7 @@ The following new APIs were added:
 	<li><code>SearchEngine.createHierarchyScope(IType type, WorkingCopyOwner owner)</code></li>
 	</ul>
 </li>
-<li> Added optional problem to signal superfluous semicolons.
+<li> Added optional problem to signal superfluous semicolons (matching problem ID is <code>IProblem.SuperfluousSemicolon</code>).
 <pre>
 * COMPILER / Reporting Superfluous Semicolon
 *    When enabled, the compiler will issue an error or a warning if a superfluous semicolon is met.

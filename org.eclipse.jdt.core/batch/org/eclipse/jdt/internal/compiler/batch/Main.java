@@ -21,7 +21,6 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -97,7 +96,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		this.err = errWriter;
 		this.systemExitWhenFinished = systemExitWhenFinished;
 		exportedClassFilesCounter = 0;
-		this.options = getDefaultOptions();
+		this.options = new CompilerOptions().getMap();
 	}
 
 	/**
@@ -201,103 +200,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		return new Main(outWriter, errWriter, false).compile(tokenize(commandLine));
 	}
 	
-	public static Map getDefaultOptions() {
-		Map defaultOptions = new Hashtable();
-		defaultOptions.put(
-			CompilerOptions.OPTION_LocalVariableAttribute,
-			CompilerOptions.DO_NOT_GENERATE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_LineNumberAttribute,
-			CompilerOptions.GENERATE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_SourceFileAttribute,
-			CompilerOptions.GENERATE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_PreserveUnusedLocal,
-			CompilerOptions.OPTIMIZE_OUT);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnreachableCode,
-			CompilerOptions.ERROR);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportInvalidImport, 
-			CompilerOptions.ERROR);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportMethodWithConstructorName,
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportDeprecation, 
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportHiddenCatchBlock,
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedLocal, 
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedImport, 
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedParameter,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract,
-			CompilerOptions.DISABLED);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete,
-			CompilerOptions.DISABLED);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportAssertIdentifier,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_Compliance,
-			CompilerOptions.VERSION_1_3);
-		defaultOptions.put(
-			CompilerOptions.OPTION_Source,
-			CompilerOptions.VERSION_1_3);
-		defaultOptions.put(
-			CompilerOptions.OPTION_TargetPlatform,
-			CompilerOptions.VERSION_1_1);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportNoImplicitStringConversion,
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportStaticAccessReceiver,
-			CompilerOptions.WARNING);			
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportUnusedPrivateMember,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportLocalVariableHiding,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportFieldHiding,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportSpecialParameterHidingField,
-			CompilerOptions.DISABLED);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
-			CompilerOptions.IGNORE);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportNoEffectAssignment,
-			CompilerOptions.WARNING);
-		defaultOptions.put(
-			CompilerOptions.OPTION_ReportSuperfluousSemicolon,
-			CompilerOptions.IGNORE);
-		return defaultOptions;
-	}
 	/*
 	 * External API
 	 */
@@ -811,17 +713,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					Main.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
 			}
 			if (currentArg.startsWith("-nowarn")) { //$NON-NLS-1$
-				Object[] entries = options.entrySet().toArray();
-				for (int i = 0, max = entries.length; i < max; i++) {
-					Map.Entry entry = (Map.Entry) entries[i];
-					if (!(entry.getKey() instanceof String))
-						continue;
-					if (!(entry.getValue() instanceof String))
-						continue;
-					if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
-						options.put((String) entry.getKey(), CompilerOptions.IGNORE);
-					}
-				}
+				disableWarnings();
 				mode = Default;
 				continue;
 			}
@@ -830,17 +722,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				String warningOption = currentArg;
 				int length = currentArg.length();
 				if (length == 10 && warningOption.equals("-warn:none")) { //$NON-NLS-1$
-					Object[] entries = options.entrySet().toArray();
-					for (int i = 0, max = entries.length; i < max; i++) {
-						Map.Entry entry = (Map.Entry) entries[i];
-						if (!(entry.getKey() instanceof String))
-							continue;
-						if (!(entry.getValue() instanceof String))
-							continue;
-						if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
-							options.put((String) entry.getKey(), CompilerOptions.IGNORE);
-						}
-					}
+					disableWarnings();
 					continue;
 				}
 				if (length < 6)
@@ -850,69 +732,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					new StringTokenizer(warningOption.substring(6, warningOption.length()), ","); //$NON-NLS-1$
 				int tokenCounter = 0;
 
-				options.put(
-					CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportMethodWithConstructorName,
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportDeprecation, 
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportHiddenCatchBlock,
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportUnusedLocal, 
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportUnusedParameter,
-					CompilerOptions.IGNORE);
-				options.put( 
-					CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportAssertIdentifier,
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportUnusedImport,
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportStaticAccessReceiver,
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportNoEffectAssignment,
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportNoImplicitStringConversion,
-					CompilerOptions.IGNORE);				
-				options.put(
-					CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
-					CompilerOptions.IGNORE);				
-				options.put(
-					CompilerOptions.OPTION_ReportUnusedPrivateMember,
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportLocalVariableHiding,
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportFieldHiding,
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportSpecialParameterHidingField,
-					CompilerOptions.DISABLED);
-				options.put(
-					CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_ReportSuperfluousSemicolon,
-					CompilerOptions.IGNORE);
-				options.put(
-					CompilerOptions.OPTION_TaskTags,
-					""); //$NON-NLS-1$
+				disableWarnings();
 
 				while (tokenizer.hasMoreTokens()) {
 					String token = tokenizer.nextToken();
@@ -985,7 +805,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							CompilerOptions.WARNING);
 					} else if (token.equals("staticReceiver")) { //$NON-NLS-1$
 						options.put(
-							CompilerOptions.OPTION_ReportStaticAccessReceiver,
+							CompilerOptions.OPTION_ReportNonStaticAccessToStatic,
+							CompilerOptions.WARNING);
+					} else if (token.equals("indirectStatic")) { //$NON-NLS-1$
+						options.put(
+							CompilerOptions.OPTION_ReportIndirectStaticAccess,
 							CompilerOptions.WARNING);
 					} else if (token.equals("noEffectAssign")) { //$NON-NLS-1$
 						options.put(
@@ -1376,6 +1200,21 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		if (repetitions == 0) {
 			repetitions = 1;
 		}
+	}
+
+	private void disableWarnings() {
+		Object[] entries = options.entrySet().toArray();
+		for (int i = 0, max = entries.length; i < max; i++) {
+			Map.Entry entry = (Map.Entry) entries[i];
+			if (!(entry.getKey() instanceof String))
+				continue;
+			if (!(entry.getValue() instanceof String))
+				continue;
+			if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
+				options.put((String) entry.getKey(), CompilerOptions.IGNORE);
+			}
+		}
+		options.put(CompilerOptions.OPTION_TaskTags, ""); //$NON-NLS-1$
 	}
 
 	public String extractDestinationPathFromSourceFile(CompilationResult result) {

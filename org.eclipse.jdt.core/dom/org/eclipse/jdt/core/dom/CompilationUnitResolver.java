@@ -74,7 +74,7 @@ class CompilationUnitResolver extends Compiler {
 
 		super(environment, policy, settings, requestor, problemFactory, false);
 	}
-
+	
 	/**
 	 * Add additional source types
 	 */
@@ -95,6 +95,54 @@ class CompilationUnitResolver extends Compiler {
 			this.lookupEnvironment.buildTypeBindings(unit);
 			this.lookupEnvironment.completeTypeBindings(unit, true);
 		}
+	}
+
+	private static Parser createDomParser(ProblemReporter problemReporter) {
+		
+		return new Parser(problemReporter, false) {
+			// old annotation style check which doesn't include all leading comments into declaration
+			// for backward compatibility with 2.1 DOM 
+			public void checkAnnotation() {
+
+				if (this.currentElement != null && this.scanner.commentPtr >= 0) {
+					flushAnnotationsDefinedPriorTo(endStatementPosition); // discard obsolete comments
+				}
+				boolean deprecated = false;
+				boolean checkDeprecated = false;
+				int lastAnnotationIndex = -1;
+			
+				//since jdk1.2 look only in the last java doc comment...
+				nextComment : for (lastAnnotationIndex = scanner.commentPtr; lastAnnotationIndex >= 0; lastAnnotationIndex--){
+					//look for @deprecated into the first javadoc comment preceeding the declaration
+					int commentSourceStart = scanner.commentStarts[lastAnnotationIndex];
+					// javadoc only (non javadoc comment have negative end positions.)
+					if (modifiersSourceStart != -1 && modifiersSourceStart < commentSourceStart) {
+						continue nextComment;
+					}
+					if (scanner.commentStops[lastAnnotationIndex] < 0) {
+						continue nextComment;
+					}
+					checkDeprecated = true;
+					int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over
+					char[] comment = scanner.source;
+			
+					deprecated =
+						checkDeprecation(
+							commentSourceStart,
+							commentSourceEnd,
+							comment);
+					break nextComment;
+				}
+				if (deprecated) {
+					checkAndSetModifiers(AccDeprecated);
+				}
+				// modify the modifier source start to point at the first comment
+				if (lastAnnotationIndex >= 0 && checkDeprecated) {
+					modifiersSourceStart = scanner.commentStarts[lastAnnotationIndex]; 
+				}
+
+			}
+		};
 	}
 
 	/*
@@ -135,6 +183,13 @@ class CompilationUnitResolver extends Compiler {
 		};
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.Compiler#initializeParser()
+	 */
+	public void initializeParser() {
+		// TODO Auto-generated method stub
+		this.parser = createDomParser(this.problemReporter);
+	}
 	public static CompilationUnitDeclaration resolve(
 		ICompilationUnit unitElement,
 		IAbstractSyntaxTreeVisitor visitor)
@@ -183,12 +238,11 @@ class CompilationUnitResolver extends Compiler {
 			throw new IllegalArgumentException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		Parser parser = new Parser(
+		Parser parser = createDomParser(
 			new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
-					new DefaultProblemFactory(Locale.getDefault())),
-				false);
+					new DefaultProblemFactory()));
 		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
 			new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
 				source, 

@@ -41,6 +41,8 @@
  *     IBM Corporation - added create(IFile file, WorkingCopyOwner owner)
  *     IBM Corporation - added create(IResource resource, WorkingCopyOwner owner)
  *     IBM Corporation - added createCompilationUnitFrom(IFile file, WorkingCopyOwner owner)
+ *     IBM Corporation - added the following constants:
+ *                                 COMPILER_PB_INDIRECT_STATIC_ACCESS
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -49,6 +51,7 @@ import java.util.*;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
@@ -220,6 +223,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_STATIC_ACCESS_RECEIVER = PLUGIN_ID + ".compiler.problem.staticAccessReceiver"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 3.0
+	 */
+	public static final String COMPILER_PB_INDIRECT_STATIC_ACCESS = PLUGIN_ID + ".compiler.problem.indirectStaticAccess"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
@@ -1417,6 +1426,14 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 * 
+	 * COMPILER / Reporting Indirect Reference to a Static Member
+	 *    When enabled, the compiler will issue an error or a warning whenever a static field
+	 *    or method is accessed in an indirect way. A reference to a static member should
+	 *    preferably be qualified with its declaring type name.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.indirectStaticAccess"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
 	 * COMPILER / Reporting Assignment with no Effect
 	 *    When enabled, the compiler will issue an error or a warning whenever an assignment
 	 *    has no effect (e.g 'x = x').
@@ -2017,110 +2034,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		HashSet optionNames = JavaModelManager.OptionNames;
 		
 		// Compiler settings
+		Map compilerOptionsMap = new CompilerOptions().getMap(); // compiler defaults
+		for (Iterator iter = compilerOptionsMap.entrySet().iterator(); iter.hasNext();) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			String optionName = (String) entry.getKey();
+			preferences.setDefault(optionName, (String)entry.getValue());
+			optionNames.add(optionName);
+		}
+		// override some compiler defaults
 		preferences.setDefault(COMPILER_LOCAL_VARIABLE_ATTR, GENERATE);
-		optionNames.add(COMPILER_LOCAL_VARIABLE_ATTR);
-
-		preferences.setDefault(COMPILER_LINE_NUMBER_ATTR, GENERATE); 
-		optionNames.add(COMPILER_LINE_NUMBER_ATTR);
-
-		preferences.setDefault(COMPILER_SOURCE_FILE_ATTR, GENERATE); 
-		optionNames.add(COMPILER_SOURCE_FILE_ATTR);
-
-		preferences.setDefault(COMPILER_CODEGEN_UNUSED_LOCAL, PRESERVE); 
-		optionNames.add(COMPILER_CODEGEN_UNUSED_LOCAL);
-
-		preferences.setDefault(COMPILER_CODEGEN_TARGET_PLATFORM, VERSION_1_1); 
-		optionNames.add(COMPILER_CODEGEN_TARGET_PLATFORM);
-
-		preferences.setDefault(COMPILER_PB_UNREACHABLE_CODE, ERROR); 
-		optionNames.add(COMPILER_PB_UNREACHABLE_CODE);
-
-		preferences.setDefault(COMPILER_PB_INVALID_IMPORT, ERROR); 
-		optionNames.add(COMPILER_PB_INVALID_IMPORT);
-
-		preferences.setDefault(COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD, WARNING); 
-		optionNames.add(COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD);
-
-		preferences.setDefault(COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME, WARNING); 
-		optionNames.add(COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME);
-
-		preferences.setDefault(COMPILER_PB_DEPRECATION, WARNING);
-		optionNames.add(COMPILER_PB_DEPRECATION);
-
-		preferences.setDefault(COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, DISABLED);
-		optionNames.add(COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE);
-
-		preferences.setDefault(COMPILER_PB_HIDDEN_CATCH_BLOCK, WARNING); 
-		optionNames.add(COMPILER_PB_HIDDEN_CATCH_BLOCK);
-
-		preferences.setDefault(COMPILER_PB_UNUSED_LOCAL, IGNORE); 
-		optionNames.add(COMPILER_PB_UNUSED_LOCAL);
-
-		preferences.setDefault(COMPILER_PB_UNUSED_PARAMETER, IGNORE); 
-		optionNames.add(COMPILER_PB_UNUSED_PARAMETER);
-
-		preferences.setDefault(COMPILER_PB_UNUSED_PARAMETER_WHEN_IMPLEMENTING_ABSTRACT, DISABLED); 
-		optionNames.add(COMPILER_PB_UNUSED_PARAMETER_WHEN_IMPLEMENTING_ABSTRACT);
-
-		preferences.setDefault(COMPILER_PB_UNUSED_PARAMETER_WHEN_OVERRIDING_CONCRETE, DISABLED); 
-		optionNames.add(COMPILER_PB_UNUSED_PARAMETER_WHEN_OVERRIDING_CONCRETE);
-
-		preferences.setDefault(COMPILER_PB_UNUSED_IMPORT, WARNING); 
-		optionNames.add(COMPILER_PB_UNUSED_IMPORT);
-
-		preferences.setDefault(COMPILER_PB_UNUSED_PRIVATE_MEMBER, IGNORE); 
-		optionNames.add(COMPILER_PB_UNUSED_PRIVATE_MEMBER);
-
-		preferences.setDefault(COMPILER_PB_SYNTHETIC_ACCESS_EMULATION, IGNORE); 
-		optionNames.add(COMPILER_PB_SYNTHETIC_ACCESS_EMULATION);
-
-		preferences.setDefault(COMPILER_PB_NON_NLS_STRING_LITERAL, IGNORE); 
-		optionNames.add(COMPILER_PB_NON_NLS_STRING_LITERAL);
-
-		preferences.setDefault(COMPILER_PB_ASSERT_IDENTIFIER, IGNORE); 
-		optionNames.add(COMPILER_PB_ASSERT_IDENTIFIER);
-
-		preferences.setDefault(COMPILER_PB_STATIC_ACCESS_RECEIVER, WARNING); 
-		optionNames.add(COMPILER_PB_STATIC_ACCESS_RECEIVER);
-
-		preferences.setDefault(COMPILER_PB_NO_EFFECT_ASSIGNMENT, WARNING); 
-		optionNames.add(COMPILER_PB_NO_EFFECT_ASSIGNMENT);
-
-		preferences.setDefault(COMPILER_PB_INCOMPATIBLE_NON_INHERITED_INTERFACE_METHOD, WARNING); 
-		optionNames.add(COMPILER_PB_INCOMPATIBLE_NON_INHERITED_INTERFACE_METHOD);
-
-		preferences.setDefault(COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION, WARNING); 
-		optionNames.add(COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION);
-
-		preferences.setDefault(COMPILER_PB_LOCAL_VARIABLE_HIDING, IGNORE);
-		optionNames.add(COMPILER_PB_LOCAL_VARIABLE_HIDING);
-
-		preferences.setDefault(COMPILER_PB_FIELD_HIDING, IGNORE);
-		optionNames.add(COMPILER_PB_FIELD_HIDING);
-
-		preferences.setDefault(COMPILER_PB_SPECIAL_PARAMETER_HIDING_FIELD, DISABLED);
-		optionNames.add(COMPILER_PB_SPECIAL_PARAMETER_HIDING_FIELD);
-
-		preferences.setDefault(COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT, IGNORE);
-		optionNames.add(COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT);
-
-		preferences.setDefault(COMPILER_PB_SUPERFLUOUS_SEMICOLON, IGNORE);
-		optionNames.add(COMPILER_PB_SUPERFLUOUS_SEMICOLON);
-
-		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAG); 
-		optionNames.add(COMPILER_TASK_TAGS);
-
-		preferences.setDefault(COMPILER_TASK_PRIORITIES, DEFAULT_TASK_PRIORITY); 
-		optionNames.add(COMPILER_TASK_PRIORITIES);
-
-		preferences.setDefault(COMPILER_SOURCE, VERSION_1_3);
-		optionNames.add(COMPILER_SOURCE);
-
-		preferences.setDefault(COMPILER_COMPLIANCE, VERSION_1_3); 
-		optionNames.add(COMPILER_COMPLIANCE);
-
-		preferences.setDefault(COMPILER_PB_MAX_PER_UNIT, "100"); //$NON-NLS-1$
-		optionNames.add(COMPILER_PB_MAX_PER_UNIT);
+		preferences.setDefault(COMPILER_CODEGEN_UNUSED_LOCAL, PRESERVE);
+		preferences.setDefault(COMPILER_TASK_TAGS, DEFAULT_TASK_TAG);
+		preferences.setDefault(COMPILER_TASK_PRIORITIES, DEFAULT_TASK_PRIORITY);
 		
 		// Builder settings
 		preferences.setDefault(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, ""); //$NON-NLS-1$

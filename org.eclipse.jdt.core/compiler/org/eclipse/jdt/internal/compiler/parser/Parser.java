@@ -1528,40 +1528,28 @@ public final void checkAndSetModifiers(int flag){
 public void checkAnnotation() {
 
 	if (this.currentElement != null && this.scanner.commentPtr >= 0) {
-		flushAnnotationsDefinedPriorTo(endStatementPosition); // discard obsolete comments
+		flushAnnotationsDefinedPriorTo(endStatementPosition); // discard obsolete comments during recovery
 	}
-	boolean deprecated = false;
-	boolean checkDeprecated = false;
-	int lastAnnotationIndex = -1;
-
-	//since jdk1.2 look only in the last java doc comment...
-	nextComment : for (lastAnnotationIndex = scanner.commentPtr; lastAnnotationIndex >= 0; lastAnnotationIndex--){
-		//look for @deprecated into the first javadoc comment preceeding the declaration
-		int commentSourceStart = scanner.commentStarts[lastAnnotationIndex];
-		// javadoc only (non javadoc comment have negative end positions.)
-		if (modifiersSourceStart != -1 && modifiersSourceStart < commentSourceStart) {
-			continue nextComment;
+	
+	int lastComment = this.scanner.commentPtr;
+	
+	if (this.modifiersSourceStart >= 0) {
+		// eliminate comments located after modifierSourceStart if positionned
+		while (lastComment >= 0 && this.scanner.commentStarts[lastComment] > modifiersSourceStart) lastComment--;
+	}
+	if (lastComment >= 0) {
+		// consider all remaining leading comments to be part of current declaration
+		this.modifiersSourceStart = scanner.commentStarts[0]; 
+	
+		// check deprecation in last comment if javadoc 	
+		if (this.scanner.commentStops[lastComment] > 0) { 	// non javadoc comment have negative end positions
+			if (checkDeprecation(
+					this.scanner.commentStarts[lastComment],
+					this.scanner.commentStops[lastComment] - 1, //stop is one over,
+					this.scanner.source)) {
+				checkAndSetModifiers(AccDeprecated);
+			}
 		}
-		if (scanner.commentStops[lastAnnotationIndex] < 0) {
-			continue nextComment;
-		}
-		checkDeprecated = true;
-		int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over
-		char[] comment = scanner.source;
-
-		deprecated =
-			checkDeprecation(
-				commentSourceStart,
-				commentSourceEnd,
-				comment);
-		break nextComment;
-	}
-	if (deprecated) {
-		checkAndSetModifiers(AccDeprecated);
-	}
-	// modify the modifier source start to point at the first comment
-	if (lastAnnotationIndex >= 0 && checkDeprecated) {
-		modifiersSourceStart = scanner.commentStarts[lastAnnotationIndex]; 
 	}
 }
 protected boolean checkDeprecation(

@@ -35,6 +35,9 @@
  *     IBM Corporation - added the following constants
  *								   PossibleAccidentalBooleanAssignment
  *								   SuperfluousSemicolon
+ *								   IndirectAccessToStaticField
+ *								   IndirectAccessToStaticMethod
+ *								   IndirectAccessToStaticType
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -195,7 +198,9 @@ public interface IProblem {
 	int IncompatibleTypesInEqualityOperator = TypeRelated + 15;
 	int IncompatibleTypesInConditionalOperator = TypeRelated + 16;
 	int TypeMismatch = TypeRelated + 17;
-
+	/** @since 3.0 */
+	int IndirectAccessToStaticType = Internal + TypeRelated + 18;
+	
 	/**
 	 * Inner types related problems
 	 */
@@ -250,6 +255,8 @@ public interface IProblem {
 	int NonStaticAccessToStaticField = Internal + FieldRelated + 76;
 	/** @since 2.1 */
 	int UnusedPrivateField = Internal + FieldRelated + 77;
+	/** @since 3.0 */
+	int IndirectAccessToStaticField = Internal + FieldRelated + 78;
 	
 	// blank final fields
 	int FinalFieldAssignment = FieldRelated + 80;
@@ -314,6 +321,8 @@ public interface IProblem {
     int NonStaticAccessToStaticMethod = Internal + MethodRelated + 117;
 	/** @since 2.1 */
 	int UnusedPrivateMethod = Internal + MethodRelated + 118;
+	/** @since 3.0 */
+	int IndirectAccessToStaticMethod = Internal + MethodRelated + 119;
 	    
 	// constructors
 	int UndefinedConstructor = ConstructorRelated + 130;
@@ -576,7 +585,6 @@ public interface IProblem {
 	int ImportInternalNameProvided =  ImportRelated + 389 + ProblemReasons.InternalNameProvided; // ImportRelated + 393
 	int ImportInheritedNameHidesEnclosingName =  ImportRelated + 389 + ProblemReasons.InheritedNameHidesEnclosingName; // ImportRelated + 394
 
-	
 	// local variable related problems
 	int DuplicateModifierForVariable = MethodRelated + 395;
 	int IllegalModifierForVariable = MethodRelated + 396;

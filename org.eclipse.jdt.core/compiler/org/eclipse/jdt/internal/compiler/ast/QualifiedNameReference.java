@@ -508,26 +508,24 @@ public class QualifiedNameReference extends NameReference {
 		// At this point restrictiveFlag may ONLY have two potential value : FIELD LOCAL (i.e cast <<(VariableBinding) binding>> is valid)
 		int length = tokens.length;
 		if ((bits & FIELD) != 0) {
-			if (!((FieldBinding) binding).isStatic()) {
+			FieldBinding fieldBinding = (FieldBinding) binding;
+			if (!fieldBinding.isStatic()) {
 				//must check for the static status....
-				if (indexOfFirstFieldBinding == 1) {
-					//the field is the first token of the qualified reference....
-					if (scope.methodScope().isStatic) {
-						scope.problemReporter().staticFieldAccessToNonStaticVariable(
-							this,
-							(FieldBinding) binding);
-						return null;
-					}
-				} else { //accessing to a field using a type as "receiver" is allowed only with static field	
-					scope.problemReporter().staticFieldAccessToNonStaticVariable(
-						this,
-						(FieldBinding) binding);
+				if (indexOfFirstFieldBinding > 1  //accessing to a field using a type as "receiver" is allowed only with static field
+						 || scope.methodScope().isStatic) { 	// the field is the first token of the qualified reference....
+					scope.problemReporter().staticFieldAccessToNonStaticVariable(this, fieldBinding);
 					return null;
+				 }
+			} else {
+				// indirect static reference ?
+				if (indexOfFirstFieldBinding > 1 
+						&& fieldBinding.declaringClass != actualReceiverType) {
+					scope.problemReporter().indirectAccessToStaticField(this, fieldBinding);
 				}
 			}
 			// only last field is actually a write access if any
-			if (isFieldUseDeprecated((FieldBinding) binding, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && indexOfFirstFieldBinding == length))
-				scope.problemReporter().deprecatedField((FieldBinding) binding, this);
+			if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && indexOfFirstFieldBinding == length))
+				scope.problemReporter().deprecatedField(fieldBinding, this);
 		}
 		TypeBinding type = ((VariableBinding) binding).type;
 		int index = indexOfFirstFieldBinding;
@@ -560,22 +558,25 @@ public class QualifiedNameReference extends NameReference {
 			otherDepths[place] = (bits & DepthMASK) >> DepthSHIFT;
 			if (field.isValidBinding()) {
 				// only last field is actually a write access if any
-				if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && index+1 == length))
+				if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && index+1 == length)) {
 					scope.problemReporter().deprecatedField(field, this);
+				}
 				Constant someConstant = FieldReference.getConstantFor(field, this, false, scope);
 				// constant propagation can only be performed as long as the previous one is a constant too.
 				if (this.constant != NotAConstant) {
 					this.constant = someConstant;					
 				}
 
-				type = field.type;
-				index++;
-				
 				if (field.isStatic()) {
 					// static field accessed through receiver? legal but unoptimal (optional warning)
-					scope.problemReporter().unnecessaryReceiverForStaticField(this, field);
+					scope.problemReporter().nonStaticAccessToStaticField(this, field);
+					// indirect static reference ?
+					if (field.declaringClass != type) {
+						scope.problemReporter().indirectAccessToStaticField(this, field);
+					}
 				}
-				
+				type = field.type;
+				index++;
 			} else {
 				constant = NotAConstant; //don't fill other constants slots...
 				scope.problemReporter().invalidField(this, field, index, type);
@@ -738,8 +739,7 @@ public class QualifiedNameReference extends NameReference {
 		// the TC is Flag_Type Flag_LocalField and Flag_TypeLocalField 
 		this.actualReceiverType = this.receiverType = scope.enclosingSourceType();
 		constant = Constant.NotAConstant;
-		if ((this.codegenBinding = this.binding = scope.getBinding(tokens, bits & RestrictiveFlagMASK, this))
-			.isValidBinding()) {
+		if ((this.codegenBinding = this.binding = scope.getBinding(tokens, bits & RestrictiveFlagMASK, this)).isValidBinding()) {
 			switch (bits & RestrictiveFlagMASK) {
 				case VARIABLE : //============only variable===========
 				case TYPE | VARIABLE :
