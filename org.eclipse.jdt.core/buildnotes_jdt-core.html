@@ -16,6 +16,38 @@ Eclipse SDK Build 20020411 - 11th April 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added a first proposal for .class file reading APIs. This is still experimental and might change slightly.
+See new API in org.eclipse.jdt.core.util.
+<ul>
+<li>ByteCodeVisitorAdapter</li>
+<li>ClassFormatException</li>
+<li>DecodingFlag</li>
+<li>IAttributeNamesConstants</li>
+<li>IBytecodeVisitor</li>
+<li>IClassFileAttribute</li>
+<li>IClassFileDisassembler</li>
+<li>IClassFileReader</li>
+<li>ICodeAttribute</li>
+<li>IConstantPool</li>
+<li>IConstantPoolConstant</li>
+<li>IConstantPoolEntry</li>
+<li>IConstantValueAttribute</li>
+<li>IExceptionAttribute</li>
+<li>IExceptionTableEntry</li>
+<li>IFieldInfo</li>
+<li>IInnerClassesAttribute</li>
+<li>IInnerClassesAttributeEntry</li>
+<li>ILineNumberAttribute</li>
+<li>ILocalVariableAttribute</li>
+<li>ILocalVariableTableEntry</li>
+<li>IMethodInfo</li>
+<li>IModifierConstants</li>
+<li>IOpcodeMnemonics</li>
+<li>ISourceAttribute</li>
+<li>OpcodeStringValues</li>
+</ul>
+The default implementations are in org.eclipse.jdt.internal.core.util. Any comment is welcome and related bugs 
+should be entered in JDT/Core.
 <li>Added char array based APIs on Signature. This APIs avoid creating needless Strings and
 	are thus much more performant than their String based equivalent.
 	<ul>
