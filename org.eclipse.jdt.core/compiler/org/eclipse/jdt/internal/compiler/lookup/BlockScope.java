@@ -805,7 +805,8 @@ public class BlockScope extends Scope {
 						ProblemMethodBinding insideProblem = null;
 						if (methodBinding.isValidBinding()) {
 							if (!isExactMatch) {
-								if (!areParametersAssignable(methodBinding.parameters, argumentTypes)) {
+							    MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+								if (compatibleMethod == null) {
 									if (foundMethod == null || foundMethod.problemId() == NotVisible){
 										// inherited mismatch is reported directly, not looking at enclosing matches
 										return new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
@@ -813,14 +814,17 @@ public class BlockScope extends Scope {
 									// make the user qualify the method, likely wants the first inherited method (javac generates an ambiguous error instead)
 									fuzzyProblem = new ProblemMethodBinding(selector, methodBinding.parameters, InheritedNameHidesEnclosingName);
 
-								} else if (!methodBinding.canBeSeenBy(receiverType, invocationSite, classScope)) {
-									// using <classScope> instead of <this> for visibility check does grant all access to innerclass
-									fuzzyProblem =
-										new ProblemMethodBinding(
-											methodBinding,
-											selector,
-											methodBinding.parameters,
-											NotVisible);
+								} else {
+								    methodBinding = compatibleMethod;
+								    if (!methodBinding.canBeSeenBy(receiverType, invocationSite, classScope)) {
+										// using <classScope> instead of <this> for visibility check does grant all access to innerclass
+										fuzzyProblem =
+											new ProblemMethodBinding(
+												methodBinding,
+												selector,
+												methodBinding.parameters,
+												NotVisible);
+								    }
 								}
 							}
 							if (fuzzyProblem == null && !methodBinding.isStatic()) {

@@ -48,20 +48,26 @@ public abstract class Scope
 		return NotRelated;
 	}
 
-	// Internal use only
-	protected final boolean areParametersAssignable(TypeBinding[] parameters, TypeBinding[] arguments) {
+	/**
+	 * Internal use only
+	 * Given a method, returns null if arguments cannot be converted to parameters.
+	 * Will answer a subsituted method in case the method was generic and type inference got triggered;
+	 * in case the method was originally compatible, then simply answer it back.
+	 */
+	protected final MethodBinding computeCompatibleMethod(MethodBinding method, TypeBinding[] arguments) {
+	    TypeBinding[] parameters = method.parameters;
 		if (parameters == arguments)
-			return true;
+			return method;
 
 		int length = parameters.length;
 		if (length != arguments.length)
-			return false;
+			return null;
 
 		for (int i = 0; i < length; i++)
 			if (parameters[i] != arguments[i])
 				if (!arguments[i].isCompatibleWith(parameters[i]))
-					return false;
-		return true;
+					return null;
+		return method;
 	}
 
 	/* Answer an int describing the relationship between the given type and unchecked exceptions.
@@ -304,8 +310,9 @@ public abstract class Scope
 		// argument type compatibility check
 		for (int i = startFoundSize; i < foundSize; i++) {
 			MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
-			if (areParametersAssignable(methodBinding.parameters, argumentTypes))
-				candidates[candidatesCount++] = methodBinding;
+			MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+			if (compatibleMethod != null)
+				candidates[candidatesCount++] = compatibleMethod;
 		}
 		if (candidatesCount == 1) {
 			compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
@@ -615,7 +622,7 @@ public abstract class Scope
 
 		ReferenceBinding currentType = receiverType;
 		MethodBinding matchingMethod = null;
-		ObjectVector found = new ObjectVector(); //TODO should rewrite to remove #matchingMethod since found is allocated anyway
+		ObjectVector found = new ObjectVector(); //TODO (kent) should rewrite to remove #matchingMethod since found is allocated anyway
 
 		compilationUnitScope().recordTypeReference(receiverType);
 		compilationUnitScope().recordTypeReferences(argumentTypes);
@@ -696,10 +703,11 @@ public abstract class Scope
 			// argument type compatibility check
 			for (int i = 0; i < foundSize; i++) {
 				MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
-				if (areParametersAssignable(methodBinding.parameters, argumentTypes)) {
+				MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+				if (compatibleMethod != null) {
 					switch (candidatesCount) {
 						case 0: 
-							matchingMethod = methodBinding; // if only one match, reuse matchingMethod
+							matchingMethod = compatibleMethod; // if only one match, reuse matchingMethod
 							checkedMatchingMethod = true; // matchingMethod is known to exist and match params here
 							break;
 						case 1:
@@ -708,7 +716,7 @@ public abstract class Scope
 							matchingMethod = null;
 							// fall through
 						default:
-							candidates[candidatesCount] = methodBinding;
+							candidates[candidatesCount] = compatibleMethod;
 					}
 					candidatesCount++;
 				}
@@ -716,7 +724,14 @@ public abstract class Scope
 		}
 		// if only one matching method left (either from start or due to elimination of rivals), then match is in matchingMethod
 		if (matchingMethod != null) {
-			if (checkedMatchingMethod || areParametersAssignable(matchingMethod.parameters, argumentTypes)) {
+		    if (!checkedMatchingMethod) {
+				MethodBinding compatibleMethod = computeCompatibleMethod(matchingMethod, argumentTypes);
+				if (compatibleMethod != null) {
+				    matchingMethod = compatibleMethod;
+				    checkedMatchingMethod = true;
+				}
+		    }
+			if (checkedMatchingMethod) {
 				// (if no default abstract) must explicitly look for one instead, which could be a better match
 				if (!matchingMethod.canBeSeenBy(receiverType, invocationSite, this)) {
 					// ignore matching method (to be consistent with multiple matches, none visible (matching method is then null)
@@ -816,12 +831,14 @@ public abstract class Scope
 		if (methodBinding == null)
 			return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 		if (methodBinding.isValidBinding()) {
-			if (!areParametersAssignable(methodBinding.parameters, argumentTypes))
+		    MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+		    if (compatibleMethod == null) 
 				return new ProblemMethodBinding(
 					methodBinding,
 					selector,
 					argumentTypes,
 					NotFound);
+		    methodBinding = compatibleMethod;
 			if (!methodBinding.canBeSeenBy(receiverType, invocationSite, this))
 				return new ProblemMethodBinding(
 					methodBinding,
@@ -1163,9 +1180,11 @@ public abstract class Scope
 
 		MethodBinding[] compatible = new MethodBinding[methods.length];
 		int compatibleIndex = 0;
-		for (int i = 0, length = methods.length; i < length; i++)
-			if (areParametersAssignable(methods[i].parameters, argumentTypes))
-				compatible[compatibleIndex++] = methods[i];
+		for (int i = 0, length = methods.length; i < length; i++) {
+		    MethodBinding compatibleMethod = computeCompatibleMethod(methods[i], argumentTypes);
+			if (compatibleMethod != null)
+				compatible[compatibleIndex++] = compatibleMethod;
+		}
 		if (compatibleIndex == 0)
 			return new ProblemMethodBinding(
 				ConstructorDeclaration.ConstantPoolName,
@@ -1366,12 +1385,14 @@ public abstract class Scope
 		if (methodBinding == null)
 			return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 		if (methodBinding.isValidBinding()) {
-			if (!areParametersAssignable(methodBinding.parameters, argumentTypes))
+		    MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+			if (compatibleMethod == null)
 				return new ProblemMethodBinding(
 					methodBinding,
 					selector,
 					argumentTypes,
 					NotFound);
+			methodBinding = compatibleMethod;
 			if (!methodBinding.canBeSeenBy(currentType, invocationSite, this))
 				return new ProblemMethodBinding(
 					methodBinding,
@@ -1830,7 +1851,8 @@ public abstract class Scope
 			for (int j = 0; j < visibleSize; j++) {
 				if (i == j) continue;
 				MethodBinding next = visible[j];
-				if (!areParametersAssignable(next.parameters, method.parameters))
+				MethodBinding compatibleMethod = computeCompatibleMethod(next, method.parameters);
+				if (compatibleMethod == null)
 					continue nextVisible;
 			}
 			compilationUnitScope().recordTypeReferences(method.thrownExceptions);
@@ -1875,7 +1897,8 @@ public abstract class Scope
 			for (int j = 0; j < visibleSize; j++) {
 				if (i == j) continue;
 				MethodBinding next = visible[j];
-				if (!areParametersAssignable(next.parameters, method.parameters))
+				MethodBinding compatibleMethod = computeCompatibleMethod(next, method.parameters);
+				if (compatibleMethod == null)
 					continue nextVisible;
 			}
 			compilationUnitScope().recordTypeReferences(method.thrownExceptions);

@@ -420,8 +420,9 @@ public MethodBinding findMethod(
 		// argument type compatibility check
 		for (int i = 0; i < foundSize; i++) {
 			MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
-			if (areParametersAssignable(methodBinding.parameters, argumentTypes))
-				candidates[candidatesCount++] = methodBinding;
+			MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+			if (compatibleMethod != null)
+				candidates[candidatesCount++] = compatibleMethod;
 		}
 		if (candidatesCount == 1) {
 			//compilationUnitScope().recordTypeReferences(candidates[0].thrownExceptions);
@@ -498,8 +499,10 @@ public MethodBinding findMethodForArray(ArrayBinding receiverType, char[] select
 	if (methodBinding == null)
 		return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 	if (methodBinding.isValidBinding()) {
-		if (!areParametersAssignable(methodBinding.parameters, argumentTypes))
+	    MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+	    if (compatibleMethod == null)
 			return new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
+	    methodBinding = compatibleMethod;
 		if (!canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this))
 			return new ProblemMethodBinding(selector, methodBinding.parameters, methodBinding.declaringClass, NotVisible);
 	}
@@ -623,9 +626,11 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 	}
 	MethodBinding[] compatible = new MethodBinding[methods.length];
 	int compatibleIndex = 0;
-	for (int i = 0, length = methods.length; i < length; i++)
-		if (areParametersAssignable(methods[i].parameters, argumentTypes))
-			compatible[compatibleIndex++] = methods[i];
+	for (int i = 0, length = methods.length; i < length; i++) {
+	    MethodBinding compatibleMethod = computeCompatibleMethod(methods[i], argumentTypes);
+		if (compatibleMethod != null)
+			compatible[compatibleIndex++] = compatibleMethod;
+	}
 	if (compatibleIndex == 0)
 		return new ProblemMethodBinding(ConstructorDeclaration.ConstantPoolName, argumentTypes, NotFound); // need a more descriptive error... cannot convert from X to Y
 
@@ -713,11 +718,15 @@ public MethodBinding getImplicitMethod(ReferenceBinding receiverType, char[] sel
 		ProblemMethodBinding insideProblem = null;
 		if (methodBinding.isValidBinding()) {
 			if (!isExactMatch) {
-				if (!areParametersAssignable(methodBinding.parameters, argumentTypes)) {
+	    	    MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes);
+				if (compatibleMethod == null) {
 					fuzzyProblem = new ProblemMethodBinding(methodBinding, selector, argumentTypes, NotFound);
-				} else if (!canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this)) {	
-					// using <classScope> instead of <this> for visibility check does grant all access to innerclass
-					fuzzyProblem = new ProblemMethodBinding(selector, argumentTypes, methodBinding.declaringClass, NotVisible);
+				} else {
+				    methodBinding = compatibleMethod;
+				    if (!canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this)) {	
+						// using <classScope> instead of <this> for visibility check does grant all access to innerclass
+						fuzzyProblem = new ProblemMethodBinding(selector, argumentTypes, methodBinding.declaringClass, NotVisible);
+				    }
 				}
 			}
 			if (fuzzyProblem == null && !methodBinding.isStatic()) {
