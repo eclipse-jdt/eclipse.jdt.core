@@ -45,7 +45,7 @@ public boolean execute(){
 			try {
 				monitor.exitRead(); // free read lock
 				monitor.enterWrite(); // ask permission to write
-				if (IndexManager.VERBOSE) System.out.println("-> merging index : "/*nonNLS*/+index.getIndexFile());
+				if (IndexManager.VERBOSE) System.out.println("-> merging index : "+index.getIndexFile());
 				index.save();
 			} catch(IOException e){
 				return FAILED;
@@ -54,12 +54,12 @@ public boolean execute(){
 				monitor.enterRead(); // reacquire read permission
 			}
 		}
-		final String OK = "OK"/*nonNLS*/;
-		final String DELETED = "DELETED"/*nonNLS*/;	
+		final String OK = "OK";
+		final String DELETED = "DELETED";	
 		final long indexLastModified = index.getIndexFile().lastModified();
 
 		final Hashtable indexedFileNames = new Hashtable(100);
-		IQueryResult[] results = index.queryInDocumentNames(""/*nonNLS*/); // all file names
+		IQueryResult[] results = index.queryInDocumentNames(""); // all file names
 		for (int i = 0, max = results == null ? 0 : results.length; i < max; i++){
 			String fileName = results[i].getPath();
 			indexedFileNames.put(fileName, DELETED);
@@ -68,7 +68,7 @@ public boolean execute(){
 			public boolean visit(IResource resource) {
 				if (resource.getType() == IResource.FILE) {
 					String extension = resource.getFileExtension();
-					if ((extension != null) && extension.equalsIgnoreCase("java"/*nonNLS*/)) {
+					if ((extension != null) && extension.equalsIgnoreCase("java")) {
 						IPath path = resource.getLocation();
 						if (path != null){
 							File resourceFile = path.toFile();
@@ -108,6 +108,6 @@ public boolean execute(){
 	return COMPLETE;
 }
 public String toString(){
-	return "indexing project "/*nonNLS*/ + project.getName();
+	return "indexing project "+ project.getName();
 }
 }

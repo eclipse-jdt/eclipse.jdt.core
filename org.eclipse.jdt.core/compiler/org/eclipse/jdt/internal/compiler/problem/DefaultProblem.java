@@ -7,7 +7,6 @@ package org.eclipse.jdt.internal.compiler.problem;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class DefaultProblem implements IProblem, ProblemSeverities, ProblemIrritants {
 	private char[] fileName;
@@ -45,7 +44,7 @@ public String errorReportSource(ICompilationUnit compilationUnit) {
 	//sanity .....
 	if ((startPosition > endPosition)
 		|| ((startPosition <= 0) && (endPosition <= 0)))
-		return Util.bind("problem.noSourceInformation"/*nonNLS*/);
+		return "\n!! no source information available !!";
 
 	//regular behavior....(slow code)
 
@@ -111,8 +110,8 @@ public String errorReportSource(ICompilationUnit compilationUnit) {
 	//resize underneathto remove 'null' chars
 	System.arraycopy(underneath, 0, underneath = new char[pos], 0, pos);
 
-	return " "/*nonNLS*/ + Util.bind("problem.atLine"/*nonNLS*/,String.valueOf(line)) +
-	"\n\t"/*nonNLS*/ + new String(extract) + "\n\t"/*nonNLS*/ + new String(underneath);
+	return " (at line " + String.valueOf(line) + ")" + //NON NLS
+	"\n\t" + new String(extract) + "\n\t" + new String(underneath);
 }
 /**
  * Answer back the original arguments recorded into the problem.
@@ -212,13 +211,13 @@ public void setSourceStart(int sourceStart) {
 }
 public String toString() {
 
-	String s = "Pb("/*nonNLS*/ + (id & IgnoreCategoriesMask) + ") "/*nonNLS*/;
+	String s = "Pb(" + (id & IgnoreCategoriesMask) + ") ";
 	if (message != null) {
 		s += message;
 	} else {
 		if (arguments != null)
 			for (int i = 0; i < arguments.length; i++)
-				s += " "/*nonNLS*/ + arguments[i];
+				s += " " + arguments[i];
 	}
 	return s;
 }

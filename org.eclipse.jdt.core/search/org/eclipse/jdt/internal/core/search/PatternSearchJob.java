@@ -74,7 +74,7 @@ public boolean execute() {
 		isComplete &= search(searchIndexes[i]);
 	}
 	if (JobManager.VERBOSE){
-		System.out.println("-> execution time: "/*nonNLS*/ + executionTime + " ms. for : "/*nonNLS*/+this);
+		System.out.println("-> execution time: " + executionTime + " ms. for : "+this);
 	}
 	return isComplete;
 }
@@ -96,7 +96,7 @@ public boolean search(IIndex index) {
 			try {
 				monitor.exitRead(); // free read lock
 				monitor.enterWrite(); // ask permission to write
-				if (IndexManager.VERBOSE) System.out.println("-> merging index : "/*nonNLS*/+index.getIndexFile());
+				if (IndexManager.VERBOSE) System.out.println("-> merging index : "+index.getIndexFile());
 				index.save();
 			} catch(IOException e){
 				return FAILED;
@@ -116,6 +116,6 @@ public boolean search(IIndex index) {
 	}
 }
 public String toString(){
-	return "searching "/*nonNLS*/ + pattern.toString();
+	return "searching " + pattern.toString();
 }
 }

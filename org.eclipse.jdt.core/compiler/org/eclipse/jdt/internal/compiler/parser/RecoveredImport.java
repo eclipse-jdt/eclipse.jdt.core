@@ -29,7 +29,7 @@ public int sourceEnd(){
 	return this.importReference.declarationSourceEnd;
 }
 public String toString(int tab) {
-	return tabString(tab) + "Recovered import: "/*nonNLS*/ + importReference.toString();
+	return tabString(tab) + "Recovered import: " + importReference.toString();
 }
 public ImportReference updatedImportReference(){
 

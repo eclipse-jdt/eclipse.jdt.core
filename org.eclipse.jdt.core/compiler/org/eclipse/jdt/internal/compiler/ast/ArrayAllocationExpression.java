@@ -134,12 +134,12 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpression() {
 	/* slow code */
 
-	String s = "new "/*nonNLS*/ + type.toString(0);
+	String s = "new " + type.toString(0);
 	for (int i = 0 ; i < dimensions.length ; i++)
 	{	if (dimensions[i] == null)
-			s = s + "[]"/*nonNLS*/;
+			s = s + "[]";
 		else
-			s = s + "["/*nonNLS*/ + dimensions[i].toStringExpression() + "]"/*nonNLS*/ ;}
+			s = s + "[" + dimensions[i].toStringExpression() + "]" ;}
 	if (initializer != null)
 		s = s + initializer.toStringExpression();
 	return s;}

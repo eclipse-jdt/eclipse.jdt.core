@@ -13,16 +13,16 @@ import java.util.*;
 import java.util.zip.*;
 
 public class BinaryIndexer extends AbstractIndexer {
-	public static final String[] FILE_TYPES= new String[] {"class"/*nonNLS*/};
-	private static final char[] BYTE = "byte"/*nonNLS*/.toCharArray();
-	private static final char[] CHAR = "char"/*nonNLS*/.toCharArray();
-	private static final char[] DOUBLE = "double"/*nonNLS*/.toCharArray();
-	private static final char[] FLOAT = "float"/*nonNLS*/.toCharArray();
-	private static final char[] INT = "int"/*nonNLS*/.toCharArray();
-	private static final char[] LONG = "long"/*nonNLS*/.toCharArray();
-	private static final char[] SHORT = "short"/*nonNLS*/.toCharArray();
-	private static final char[] BOOLEAN = "boolean"/*nonNLS*/.toCharArray();
-	private static final char[] VOID = "void"/*nonNLS*/.toCharArray();
+	public static final String[] FILE_TYPES= new String[] {"class"};
+	private static final char[] BYTE = "byte".toCharArray();
+	private static final char[] CHAR = "char".toCharArray();
+	private static final char[] DOUBLE = "double".toCharArray();
+	private static final char[] FLOAT = "float".toCharArray();
+	private static final char[] INT = "int".toCharArray();
+	private static final char[] LONG = "long".toCharArray();
+	private static final char[] SHORT = "short".toCharArray();
+	private static final char[] BOOLEAN = "boolean".toCharArray();
+	private static final char[] VOID = "void".toCharArray();
 
 	private boolean needReferences;
 
@@ -442,14 +442,14 @@ private void indexClassFile(byte[] contents, char[] documentName) throws IOExcep
 		char[][] superinterfaces = replace('/', '.', reader.getInterfaceNames());
 		if (DEBUG) {
 			if (packageName != null) {
-				System.out.println("package name = "/*nonNLS*/ + new String(packageName));
+				System.out.println("package name = " + new String(packageName));
 			}
 			if (name != null) {
-				System.out.println("class name = "/*nonNLS*/ + new String(name));
+				System.out.println("class name = " + new String(name));
 			}
 			if (superinterfaces != null) {
 				for (int i = 0, max = superinterfaces.length; i < max; i++) {
-					System.out.println("superinterfaces["/*nonNLS*/ + i + "]= "/*nonNLS*/ + new String(superinterfaces[i]));
+					System.out.println("superinterfaces[" + i + "]= " + new String(superinterfaces[i]));
 				}
 			} 
 		}
@@ -460,7 +460,7 @@ private void indexClassFile(byte[] contents, char[] documentName) throws IOExcep
 			char[] superclass = replace('/', '.', reader.getSuperclassName());
 			if (DEBUG) {
 				if (superclass != null) {
-					System.out.println("superclass name = "/*nonNLS*/ + new String(superclass));
+					System.out.println("superclass name = " + new String(superclass));
 				}
 			}
 			addClassDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superclass, superinterfaces);
@@ -477,19 +477,19 @@ private void indexClassFile(byte[] contents, char[] documentName) throws IOExcep
 				char[][] exceptionTypes = replace('/', '.', method.getExceptionTypeNames());
 				if (DEBUG) {
 					if (method.getSelector() != null) {
-						System.out.println("method selector = "/*nonNLS*/ + new String(method.getSelector()));
+						System.out.println("method selector = " + new String(method.getSelector()));
 					}
 					if (parameterTypes != null) {
 						for (int j = 0, max2 = parameterTypes.length; j < max2; j++) {
-							System.out.println("parameterTypes["/*nonNLS*/ + j + "]= "/*nonNLS*/ + new String(parameterTypes[j]));
+							System.out.println("parameterTypes[" + j + "]= " + new String(parameterTypes[j]));
 						}
 					}
 					if (returnType != null) {
-						System.out.println("return type = "/*nonNLS*/ + new String(returnType));
+						System.out.println("return type = " + new String(returnType));
 					}
 					if (exceptionTypes != null) {
 						for (int j = 0, max2 = exceptionTypes.length; j < max2; j++) {
-							System.out.println("exceptionTypes["/*nonNLS*/ + j + "]= "/*nonNLS*/ + new String(exceptionTypes[j]));
+							System.out.println("exceptionTypes[" + j + "]= " + new String(exceptionTypes[j]));
 						}
 					}
 				}
@@ -510,10 +510,10 @@ private void indexClassFile(byte[] contents, char[] documentName) throws IOExcep
 				char[] fieldType = decodeFieldType(replace('/', '.', field.getTypeName()));
 				if (DEBUG) {
 					if (fieldName != null) {
-						System.out.println("field name = "/*nonNLS*/ + new String(fieldName));
+						System.out.println("field name = " + new String(fieldName));
 					}
 					if (fieldType != null) {
-						System.out.println("field type = "/*nonNLS*/ + new String(fieldType));
+						System.out.println("field type = " + new String(fieldType));
 					}
 				}
 				addFieldDeclaration(fieldType, fieldName);

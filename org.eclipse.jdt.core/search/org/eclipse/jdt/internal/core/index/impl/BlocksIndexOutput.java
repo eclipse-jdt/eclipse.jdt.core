@@ -152,7 +152,7 @@ public class BlocksIndexOutput extends IndexOutput {
 			firstInBlock= true;
 			firstIndexBlock= true;
 			firstFileListBlock= true;
-			indexOut= new SafeRandomAccessFile(this.indexFile, "rw"/*nonNLS*/);
+			indexOut= new SafeRandomAccessFile(this.indexFile, "rw");
 			opened= true;
 		}
 	}

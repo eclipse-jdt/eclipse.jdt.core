@@ -5,7 +5,6 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * All Rights Reserved.
  */
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.internal.core.builder.IType;
 
 /**
  * A node in the dependency graph representing a jar or zip file.  All
@@ -23,10 +22,6 @@ public class ZipNode extends AbstractNode {
  */
 protected ZipNode(IPath zipPath) {
 	fZipFile = zipPath;
-}
-
-public IType[] getTypes(){
-	return null;
 }
 /**
  * Creates and returns a copy of this node.
@@ -57,6 +52,6 @@ public IPath getZipFile() {
  * purposes only.
  */
 public String toString() {
-	return "ZipNode("/*nonNLS*/ + fZipFile + ")"/*nonNLS*/;
+	return "ZipNode(" + fZipFile + ")";
 }
 }

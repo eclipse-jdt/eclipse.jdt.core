@@ -1,17 +1,5 @@
 package org.eclipse.jdt.internal.codeassist;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.codeassist.*;
 
-/**
- * This is the internal requestor passed to the searchable name environment
- * so as to process the multiple search results as they are discovered.
- *
- * It is used to allow the code assist engine to add some more information
- * to the raw name environment results before answering them to the UI.
- */
 public interface ISearchRequestor {
 /**
  * One result of the search consists of a new class.

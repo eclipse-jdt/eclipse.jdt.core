@@ -106,19 +106,19 @@ public int sourceEnd(){
 }
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
-	result.append("Recovered unit: [\n"/*nonNLS*/);
+	result.append("Recovered unit: [\n");
 	result.append(unitDeclaration.toString(tab + 1));
 	result.append(tabString(tab + 1));
-	result.append("]"/*nonNLS*/);
+	result.append("]");
 	if (this.imports != null) {
 		for (int i = 0; i < this.importCount; i++) {
-			result.append("\n"/*nonNLS*/);
+			result.append("\n");
 			result.append(this.imports[i].toString(tab + 1));
 		}
 	}
 	if (this.types != null) {
 		for (int i = 0; i < this.typeCount; i++) {
-			result.append("\n"/*nonNLS*/);
+			result.append("\n");
 			result.append(this.types[i].toString(tab + 1));
 		}
 	}

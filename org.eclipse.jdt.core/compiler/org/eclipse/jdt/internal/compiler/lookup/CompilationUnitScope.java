@@ -427,7 +427,7 @@ public void storeDependencyInfo() {
 	referenceContext.compilationResult.fileDependencies = fileNames;
 }
 public String toString() {
-	return "--- CompilationUnit Scope : "/*nonNLS*/ + new String(referenceContext.getFileName());
+	return "--- CompilationUnit Scope : " + new String(referenceContext.getFileName());
 }
 public void verifyMethods(MethodVerifier verifier) {
 	for (int i = 0, length = topLevelTypes.length; i < length; i++)

@@ -1,13 +1,8 @@
 package org.eclipse.jdt.internal.compiler.util;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.compiler.*;
 
 public final class ObjectVector {
 	static int INITIAL_SIZE = 10;
-    
+	
 	public int size;
 	int maxSize;
 	Object[] elements;
@@ -17,13 +12,13 @@ public ObjectVector() {
 	elements = new Object[maxSize];
 }
 public void add(Object newElement) {
-	if (size == maxSize)    // knows that size starts <= maxSize
+	if (size == maxSize)	// knows that size starts <= maxSize
 		System.arraycopy(elements, 0, (elements = new Object[maxSize *= 2]), 0, size);
 	elements[size++] = newElement;
 }
 public void addAll(Object[] newElements) {
 	if (size + newElements.length >= maxSize) {
-		maxSize = size + newElements.length;    // assume no more elements will be added
+		maxSize = size + newElements.length;	// assume no more elements will be added
 		System.arraycopy(elements, 0, (elements = new Object[maxSize]), 0, size);
 	}
 	System.arraycopy(newElements, 0, elements, size, newElements.length);
@@ -61,9 +56,9 @@ public void removeAll() {
 	size = 0;
 }
 public String toString() {
-	String s = ""/*nonNLS*/;
+	String s = "";
 	for (int i = 0; i < size; i++)
-		s += elements[i].toString() + "\n"/*nonNLS*/;
+		s += elements[i].toString() + "\n";
 	return s;
 }
 }

@@ -109,7 +109,7 @@ public class SourceMapper extends ReferenceInfoAdapter implements ISourceElement
 public SourceMapper(IPath zipPath, String rootPath, JavaModel model) {
 	fZipPath= zipPath;
 	fRootPath= rootPath.replace('\\', '/');
-	if (fRootPath.endsWith("/"/*nonNLS*/)) {
+	if (fRootPath.endsWith("/")) {
 		fRootPath = fRootPath.substring(0, fRootPath.lastIndexOf('/'));
 	}
 	fJavaModel= model;
@@ -305,9 +305,15 @@ public char[] findSource(IType type) {
  * code cannot be found.
  */
 public char[] findSource(IType type, IBinaryType info) {
-	char[] sourceFileName = info.sourceFileName();
-	if (sourceFileName == null) return null; // no source file attribute
-	String name = new String(sourceFileName);
+	String name= null;
+	// see 1FVVWZT
+	if (info instanceof ClassFileReader) {
+		char[] sourceFileName = ((ClassFileReader)info).sourceFileName();
+		if (sourceFileName == null) return null; // no source file attribute
+		name = new String(sourceFileName);
+	} else {
+		return null;
+	}
 
 	IPackageFragment pkgFrag = type.getPackageFragment();
 	if (!pkgFrag.isDefaultPackage()) {
@@ -446,7 +452,7 @@ public ISourceRange mapSource(IType type, char[] contents, IJavaElement searched
 	try {
 		IProblemFactory factory= new DefaultProblemFactory();
 		SourceElementParser parser = new SourceElementParser(this, factory);
-		parser.parseCompilationUnit(new BasicCompilationUnit(contents, type.getElementName() + ".java"/*nonNLS*/), false);
+		parser.parseCompilationUnit(new BasicCompilationUnit(contents, type.getElementName() + ".java"), false);
 		if (searchedElement != null) {
 			ISourceRange range = this.getNameRange(searchedElement);
 			return range;

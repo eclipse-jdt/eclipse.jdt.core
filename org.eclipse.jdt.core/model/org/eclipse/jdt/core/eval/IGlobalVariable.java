@@ -1,19 +1,5 @@
 package org.eclipse.jdt.core.eval;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.core.*;
 
-/**
- * A global variable declared in an evaluation context.
- * <p>
- * This interface is not intended to be implemented by clients. 
- * <code>IEvaluationContext.newVariable</code> can be used to obtain an instance.
- * </p>
- *
- * @see IEvaluationContext#newVariable
- */
 public interface IGlobalVariable {
 /**
  * Returns the initializer of this global variable. 

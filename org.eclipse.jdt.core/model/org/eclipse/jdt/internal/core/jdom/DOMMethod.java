@@ -4,15 +4,16 @@ package org.eclipse.jdt.internal.core.jdom;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.core.resources.*;
+
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.jdom.IDOMMethod;
-import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.Util;
-import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
-import org.eclipse.jdt.internal.core.util.CharArrayOps;
+import org.eclipse.jdt.internal.core.util.*;
 
 /**
  * DOMMethod provides an implementation of IDOMMethod.
@@ -226,7 +227,7 @@ DOMMethod(char[] document, int[] sourceRange, String name, int[] nameRange, int 
  */
 public void addException(String name) throws IllegalArgumentException {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("dom.nullExceptionType"/*nonNLS*/));
+		throw new IllegalArgumentException("Cannot add null exception");
 	}
 	if (fExceptions == null) {
 		fExceptions= new String[1];
@@ -241,10 +242,10 @@ public void addException(String name) throws IllegalArgumentException {
  */
 public void addParameter(String type, String name) throws IllegalArgumentException {
 	if (type == null) {
-		throw new IllegalArgumentException(Util.bind("dom.nullTypeParameter"/*nonNLS*/));
+		throw new IllegalArgumentException("Cannot add parameter with null type");
 	}
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("dom.nullNameParameter"/*nonNLS*/));
+		throw new IllegalArgumentException("Cannot add parameter with null name");
 	}
 	if (fParameterNames == null) {
 		fParameterNames= new String[1];
@@ -284,7 +285,7 @@ protected void appendMemberDeclarationContents(CharArrayBuffer buffer) {
 		if (fReturnTypeRange[0] >= 0) {
 			buffer.append(fDocument, fReturnTypeRange[1] + 1, fNameRange[0] - fReturnTypeRange[1] - 1);
 		} else {
-			buffer.append(' ');
+			buffer.append(" ");
 		}
 		buffer
 			.append(getNameContents())
@@ -306,7 +307,7 @@ protected void appendMemberDeclarationContents(CharArrayBuffer buffer) {
 		if (fExceptionRange[0] >= 0) {
 			buffer.append(fDocument, start, fExceptionRange[0] - start);
 		} else {
-			buffer.append(" throws "/*nonNLS*/);
+			buffer.append(" throws ");
 		}
 		// add exception list
 		if (fExceptionList != null) {
@@ -414,7 +415,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 		}
 		return ((IType)parent).getMethod(name, sigs);
 	} else {
-		throw new IllegalArgumentException(Util.bind("element.illegalParent"/*nonNLS*/));
+		throw new IllegalArgumentException("Illegal parent argument");
 	}
 }
 /**
@@ -573,7 +574,7 @@ public void setBody(String body) {
 	fBody= body;
 	setHasBody(body != null);
 	if (!hasBody()) {
-		fBody= ";"/*nonNLS*/+JavaModelManager.LINE_SEPARATOR;
+		fBody= ";"+JavaModelManager.LINE_SEPARATOR;
 	}
 }
 /**
@@ -615,7 +616,7 @@ public void setExceptions(String[] names) {
  */
 public void setName(String name) {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("element.nullName"/*nonNLS*/));
+		throw new IllegalArgumentException("illegal to set method name to null");
 	} else {
 		super.setName(name);
 	}
@@ -631,17 +632,17 @@ public void setParameters(String[] types, String[] names) throws IllegalArgument
 			fParameterNames= null;
 			fParameterList= new char[] {'(',')'};
 		} else {
-			throw new IllegalArgumentException(Util.bind("dom.mismatchArgNamesAndTypes"/*nonNLS*/));
+			throw new IllegalArgumentException("types and names must have identical length");
 		}
 	} else if (names.length != types.length) {
-		throw new IllegalArgumentException(Util.bind("dom.mismatchArgNamesAndTypes"/*nonNLS*/));
+		throw new IllegalArgumentException("types and names must have identical length");
 	} else if (names.length == 0) {
 		setParameters(null, null);
 	} else {
 		fParameterNames= names;
 		fParameterTypes= types;
 		CharArrayBuffer parametersBuffer = new CharArrayBuffer();
-		parametersBuffer.append("("/*nonNLS*/);
+		parametersBuffer.append("(");
 		char[] comma = new char[] {',', ' '};
 		for (int i = 0; i < names.length; i++) {
 			if (i > 0) {
@@ -649,10 +650,10 @@ public void setParameters(String[] types, String[] names) throws IllegalArgument
 			}
 			parametersBuffer
 				.append(types[i])
-				.append(' ')
+				.append(" ")
 				.append(names[i]);
 		}
-		parametersBuffer.append(')');
+		parametersBuffer.append(")");
 		fParameterList= parametersBuffer.getContents();		
 	}
 	fragment();
@@ -662,7 +663,7 @@ public void setParameters(String[] types, String[] names) throws IllegalArgument
  */
 public void setReturnType(String name) throws IllegalArgumentException {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("dom.nullReturnType"/*nonNLS*/));
+		throw new IllegalArgumentException("illegal return type of null");
 	}
 	becomeDetailed();
 	fragment();
@@ -705,9 +706,9 @@ protected void shareContents(DOMNode node) {
  */
 public String toString() {
 	if (isConstructor()) {
-		return "CONSTRUCTOR"/*nonNLS*/;
+		return "CONSTRUCTOR";
 	} else {
-		return "METHOD: "/*nonNLS*/ + getName();
+		return "METHOD: " + getName();
 	}
 }
 }

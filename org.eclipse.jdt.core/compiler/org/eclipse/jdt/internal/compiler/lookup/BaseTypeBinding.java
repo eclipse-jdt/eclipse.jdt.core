@@ -146,6 +146,6 @@ public char[] sourceName() {
 	return simpleName;
 }
 public String toString() {
-	return new String(constantPoolName) + " (id="/*nonNLS*/ + id + ")"/*nonNLS*/;
+	return new String(constantPoolName) + " (id=" + id + ")";
 }
 }

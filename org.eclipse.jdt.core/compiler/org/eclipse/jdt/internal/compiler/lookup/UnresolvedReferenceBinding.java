@@ -32,6 +32,6 @@ ReferenceBinding resolve(LookupEnvironment environment) {
 	return null; // will not get here since the above error aborts the compilation
 }
 public String toString() {
-	return "Unresolved type "/*nonNLS*/ + ((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED"/*nonNLS*/);
+	return "Unresolved type " + ((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED");
 }
 }

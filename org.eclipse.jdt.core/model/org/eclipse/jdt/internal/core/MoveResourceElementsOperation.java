@@ -27,7 +27,7 @@ public MoveResourceElementsOperation(IJavaElement[] elementsToMove, IJavaElement
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.moveResourceProgress"/*nonNLS*/);
+	return "Moving resources...";
 }
 /**
  * @see CopyResourceElementsOperation#isMove()

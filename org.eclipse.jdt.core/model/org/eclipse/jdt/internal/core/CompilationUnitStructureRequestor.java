@@ -148,7 +148,7 @@ public void acceptConstructorReference(char[] typeName, int argCount, int source
 		addReference(ReferenceInfo.REFTYPE_call, name);
 	}
 	else {
-		String name = "<"/*nonNLS*/ + new String(typeName) + ">/"/*nonNLS*/ + argCount;  
+		String name = "<" + new String(typeName) + ">/" + argCount;  
 		addReference(ReferenceInfo.REFTYPE_call, name.toCharArray());
 	}
 }
@@ -178,7 +178,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	// tack on the '.*' if it is onDemand
 	String importName;
 	if (onDemand) {
-		importName= new String(name) + ".*"/*nonNLS*/;
+		importName= new String(name) + ".*";
 	} else {
 		importName= new String(name);
 	}
@@ -239,7 +239,7 @@ public void acceptMethodReference(char[] methodName, int argCount, int sourcePos
 		addReference(ReferenceInfo.REFTYPE_call, name);
 	}
 	else {
-		String name = new String(methodName) + "/"/*nonNLS*/ + argCount;  
+		String name = new String(methodName) + "/" + argCount;  
 		addReference(ReferenceInfo.REFTYPE_call, name.toCharArray());
 	}
 }
@@ -559,13 +559,13 @@ protected void enterType(
 		if (fPackageName == null) {
 			qualifiedName= nameString.toCharArray();
 		} else {
-			qualifiedName= (new String(fPackageName) + "."/*nonNLS*/ + nameString).toCharArray();
+			qualifiedName= (new String(fPackageName) + "." + nameString).toCharArray();
 		}
 	}
 	else if (parentHandle.getElementType() == IJavaElement.TYPE) {
 		handle = ((IType) parentHandle).getType(nameString);
 		enclosingTypeName= ((SourceTypeElementInfo)parentInfo).getName();
-		qualifiedName= (new String(((SourceTypeElementInfo)parentInfo).getQualifiedName()) + "."/*nonNLS*/ + nameString).toCharArray();
+		qualifiedName= (new String(((SourceTypeElementInfo)parentInfo).getQualifiedName()) + "." + nameString).toCharArray();
 	}
 	else {
 		Assert.isTrue(false); // Should not happen

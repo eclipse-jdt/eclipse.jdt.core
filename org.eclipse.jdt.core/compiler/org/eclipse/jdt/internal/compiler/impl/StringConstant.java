@@ -1,13 +1,8 @@
 package org.eclipse.jdt.internal.compiler.impl;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.compiler.*;
 
 public class StringConstant extends Constant {
 	public String value;
-    
+	
 public StringConstant(String value) {
 	this.value = value ;
 }
@@ -33,7 +28,7 @@ public String stringValue() {
 }
 public String toString(){
 
-	return "(String)\""/*nonNLS*/ + value +"\""/*nonNLS*/; }
+	return "(String)\"" + value +"\""; }
 public int typeID() {
 	return T_String;
 }

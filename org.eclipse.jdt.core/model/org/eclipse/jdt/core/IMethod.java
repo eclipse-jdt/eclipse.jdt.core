@@ -1,16 +1,5 @@
 package org.eclipse.jdt.core;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.core.*;
 
-/**
- * Represents a method (or constructor) declared in a type.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
- */
 public interface IMethod extends IMember {
 /**
  * Returns the simple name of this method.
@@ -31,7 +20,7 @@ String getElementName();
  * would return the array <code>{"QIOException;"}</code>.
  *
  * @exception JavaModelException if this element does not exist or if an
- *      exception occurs while accessing its corresponding resource.
+ *		exception occurs while accessing its corresponding resource.
  *
  * @see Signature
  */
@@ -51,7 +40,7 @@ int getNumberOfParameters();
  * would return the array <code>{"text","length"}</code>.
  *
  * @exception JavaModelException if this element does not exist or if an
- *      exception occurs while accessing its corresponding resource.
+ *		exception occurs while accessing its corresponding resource.
  */
 String[] getParameterNames() throws JavaModelException;
 /**
@@ -73,7 +62,7 @@ String[] getParameterTypes();
  * would return <code>"QString;"</code>.
  *
  * @exception JavaModelException if this element does not exist or if an
- *      exception occurs while accessing its corresponding resource.
+ *		exception occurs while accessing its corresponding resource.
  *
  * @see Signature
  */
@@ -86,7 +75,7 @@ String getReturnType() throws JavaModelException;
  * would return <code>"(QString;I)V"</code>.
  *
  * @exception JavaModelException if this element does not exist or if an
- *      exception occurs while accessing its corresponding resource.
+ *		exception occurs while accessing its corresponding resource.
  *
  * @see Signature
  */
@@ -95,7 +84,7 @@ String getSignature() throws JavaModelException;
  * Returns whether this method is a constructor.
  *
  * @exception JavaModelException if this element does not exist or if an
- *      exception occurs while accessing its corresponding resource.
+ *		exception occurs while accessing its corresponding resource.
  */
 boolean isConstructor() throws JavaModelException;
 }

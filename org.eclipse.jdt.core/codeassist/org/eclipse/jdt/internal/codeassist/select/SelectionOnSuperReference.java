@@ -46,7 +46,7 @@ public TypeBinding resolveType(BlockScope scope) {
 }
 public String toStringExpression(){
 
-	return "<SelectOnSuper:"/*nonNLS*/+super.toStringExpression()+">"/*nonNLS*/;
+	return "<SelectOnSuper:"+super.toStringExpression()+">";
 	
 }
 }

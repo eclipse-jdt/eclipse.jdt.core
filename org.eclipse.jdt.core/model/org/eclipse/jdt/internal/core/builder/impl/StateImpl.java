@@ -4,65 +4,35 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Random;
-import java.util.Vector;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
+
+import org.eclipse.core.resources.*;
+
+import org.eclipse.core.resources.*;
+import org.eclipse.jdt.internal.core.builder.*;
+
+import java.io.*;
+import java.util.*;
+import java.util.zip.*;
+
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.core.IClassFile;
+
+import org.eclipse.jdt.internal.core.util.*;
+import org.eclipse.jdt.internal.compiler.classfmt.*;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.internal.compiler.util.*;
+import org.eclipse.jdt.internal.core.lookup.*;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.compiler.ClassFile;
-import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.ConfigurableOption;
-import org.eclipse.jdt.internal.compiler.IProblem;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.core.CompilationUnit;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.PackageFragment;
-import org.eclipse.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.jdt.internal.core.Util;
-import org.eclipse.jdt.internal.core.builder.BinaryBrokerKey;
-import org.eclipse.jdt.internal.core.builder.IDelta;
-import org.eclipse.jdt.internal.core.builder.IDependencyGraph;
-import org.eclipse.jdt.internal.core.builder.IDevelopmentContext;
-import org.eclipse.jdt.internal.core.builder.IImage;
-import org.eclipse.jdt.internal.core.builder.IImageBuilder;
-import org.eclipse.jdt.internal.core.builder.IImageContext;
-import org.eclipse.jdt.internal.core.builder.IPackage;
-import org.eclipse.jdt.internal.core.builder.IProblemDetail;
-import org.eclipse.jdt.internal.core.builder.IProblemReporter;
-import org.eclipse.jdt.internal.core.builder.IReportCard;
-import org.eclipse.jdt.internal.core.builder.IState;
-import org.eclipse.jdt.internal.core.builder.IType;
-import org.eclipse.jdt.internal.core.builder.NotPresentException;
-import org.eclipse.jdt.internal.core.builder.StateSpecificException;
-import org.eclipse.jdt.internal.core.lookup.ReferenceInfo;
-import org.eclipse.jdt.internal.core.util.LookupTable;
 
 /**
  * The concrete representation of a built state.
@@ -198,7 +168,7 @@ public class StateImpl implements IState {
 	/**
 	 * Name for namespace node representing unknown dependencies.
 	 */
-	private static final String UNKNOWN_DEPENDENCIES= "$UNKNOWN_DEPENDENCIES$"/*nonNLS*/;
+	private static final String UNKNOWN_DEPENDENCIES= "$UNKNOWN_DEPENDENCIES$";
 
 	/**
 	 * Random number generator, used for generating fingerprints.
@@ -425,7 +395,7 @@ public class StateImpl implements IState {
 			String className= Util.toString(classFile.getCompoundName());
 			if (classFile == null) {
 				// Could not discover principal structure
-				String msg= Util.bind("build.errorParsingBinary"/*nonNLS*/, className);
+				String msg= "Error parsing binary for " + className;
 				ProblemDetailImpl problem= new ProblemDetailImpl(msg, sEntry);
 				vProblems.addElement(problem);
 				// skip it
@@ -444,7 +414,7 @@ public class StateImpl implements IState {
 					if (!typePkg.isUnnamed()) {
 						path= path.append(typePkg.getName().replace('.', IPath.SEPARATOR));
 					}
-					String msg= Util.bind("build.packageMismatch"/*nonNLS*/, path.toString());
+					String msg= "Package declaration does not match folder.  Expected folder is " + path + ".";
 					ProblemDetailImpl problem= new ProblemDetailImpl(msg, 0, IProblemDetail.S_ERROR, sEntry, 0, 0, 1);
 					vProblems.addElement(problem);
 					// Only report the conflict once (there may be several types, but there's only one package declaration).
@@ -544,7 +514,7 @@ public class StateImpl implements IState {
 		}
 		if (lazyBuildCU && binaryType == null) {
 			/* couldn't parse the class file */
-			ProblemDetailImpl problem= new ProblemDetailImpl(Util.bind("build.errorParsingBinary"/*nonNLS*/, type.getName()), sEntry);
+			ProblemDetailImpl problem= new ProblemDetailImpl("unable to parse class file: " + type.getName(), sEntry);
 			fProblemReporter.putProblem(sEntry, problem);
 		}
 		return binaryType;
@@ -658,7 +628,7 @@ public class StateImpl implements IState {
 		/* rebuild descriptor from indexes or binary */
 		IBinaryType binaryType= forceBinaryType(tsEntry, false); // Use false for 1FVQGL1: ITPJCORE:WINNT - SEVERE - Error saving java file
 		if (binaryType == null) {
-			throw new NotPresentException(Util.bind("build.errorBuildingType"/*nonNLS*/, tsEntry.getSourceEntry().getFileName()));
+			throw new NotPresentException("Unable to build type: " + tsEntry.getSourceEntry().getFileName());
 		}
 		return binaryType;
 	}
@@ -723,7 +693,7 @@ public class StateImpl implements IState {
 		if (!fSourceElementTable.containsPackage(pkg)) {
 			getSourceEntries(pkg);
 		}
-		SourceEntry entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".java"/*nonNLS*/);
+		SourceEntry entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".java");
 		if (entry == null)
 			return null;
 		return new PackageElement(pkg, entry);
@@ -776,24 +746,32 @@ public class StateImpl implements IState {
 				JavaModelManager manager= (JavaModelManager) JavaModelManager.getJavaModelManager();
 				zipFile= manager.getZipFile(path);
 				if (zipFile == null) {
+					//throw internalException("Error reading file " + entry + "due to missing zip/jar file");
 					return new byte[0];
 				}
 				ZipEntry zipEntry= zipFile.getEntry(entry.getZipEntryName());
 				if (zipEntry == null) {
+					//throw internalException("Error reading file " + entry + " due to missing zip/jar entry");
 					return new byte[0];
 				}
 				InputStream input= zipFile.getInputStream(zipEntry);
 				if (input == null){
+					//throw internalException("Error reading file " + entry + " due to missing zip/jar entry");
 					return new byte[0];
 				}
 				byte[] contents= Util.readContentsAsBytes(input);
 				if (contents == null) {
+					//throw internalException("Error reading file " + entry + " due to error reading contents");
 					return new byte[0];
 				}
 				return contents;
 			} catch (CoreException e) {
+				//throw internalException(e);
 				return new byte[0];
 			} catch (IOException e) {
+				String message= e.getMessage();
+				message= (message == null ? "." : " due to " + message + ".");
+				//throw internalException("Error reading file " + entry + message);
 				return new byte[0];
 			} finally {
 				if (zipFile != null) {
@@ -814,7 +792,8 @@ public class StateImpl implements IState {
 				return fDevelopmentContext.getBinaryFromFileSystem(file);
 			} catch (IOException e) {
 				String message= e.getMessage();
-				message= (message == null ? "."/*nonNLS*/ : " due to "/*nonNLS*/ + message + "."/*nonNLS*/);
+				message= (message == null ? "." : " due to " + message + ".");
+				//throw internalException("Error reading file " + entry + message);
 				return new byte[0];
 			}
 		}
@@ -852,7 +831,9 @@ public class StateImpl implements IState {
 				} catch(IOException ioe) {
 				}
 			}
-			return new char[0];
+			String message= e.getMessage();
+			message= (message == null ? "." : " due to " + message + ".");
+			throw internalException("Error reading file " + entry + message);
 		}
 	}
 	/**
@@ -931,7 +912,7 @@ public class StateImpl implements IState {
 				}
 			}
 			if (frag == null) {
-				throw internalException(Util.bind("build.missingFile"/*nonNLS*/, sEntry.toString()));
+				throw internalException("Missing file for " + sEntry);
 			}
 			String fileName= sEntry.getPath().lastSegment();
 			if (sEntry.isSource()) {
@@ -1118,6 +1099,7 @@ static Comparator getPathComparator() {
 		try {
 			return ((CompilationUnit)unit).getReferenceInfo();
 		} catch (JavaModelException e) {
+			System.out.println("Caught not present exception for unit: " + unit + e);
 			return null;
 		}
 	}
@@ -1219,9 +1201,9 @@ static Comparator getPathComparator() {
 				ICompilationUnit unit= units[i];
 				String fileName= unit.getElementName();
 				// get the corresponding .class file name
-				String classFileName = ""/*nonNLS*/;
+				String classFileName = "";
 				if (Util.isJavaFileName(fileName)) { // paranoia check
-					classFileName = fileName.substring(0, fileName.length()-5).concat(".class"/*nonNLS*/);
+					classFileName = fileName.substring(0, fileName.length()-5).concat(".class");
 				}
 				// see if a source entry exists for this file name
 				// or for the corresponding .class file
@@ -1245,7 +1227,7 @@ static Comparator getPathComparator() {
 				String fileName= classFile.getElementName();
 				// get the corresponding .java file name
 				// note: this handles nested types, but not secondary types (e.g. class B defined in A.java)
-				String javaFileName = ""/*nonNLS*/;
+				String javaFileName = "";
 				if (Util.isClassFileName(fileName)) { // paranoia check
 					// strip off any nested types
 					javaFileName = fileName.substring(0, fileName.length()-6);
@@ -1253,7 +1235,7 @@ static Comparator getPathComparator() {
 					if (dol != -1) {
 						javaFileName = javaFileName.substring(0, dol);
 					}
-					javaFileName = javaFileName.concat(".java"/*nonNLS*/);
+					javaFileName = javaFileName.concat(".java");
 				}
 				// see if a source entry exists for this file name
 				// or for the corresponding .java file
@@ -1315,7 +1297,7 @@ static Comparator getPathComparator() {
 	protected SourceEntry getSourceEntry(String qualifiedNameWithSuffix) {
 		int dot= qualifiedNameWithSuffix.lastIndexOf('.');
 		dot= qualifiedNameWithSuffix.lastIndexOf('.', dot - 1);
-		String pkgName= (dot == -1 ? ".default"/*nonNLS*/ : qualifiedNameWithSuffix.substring(0, dot));
+		String pkgName= (dot == -1 ? ".default" : qualifiedNameWithSuffix.substring(0, dot));
 		String fileName= (dot == -1 ? qualifiedNameWithSuffix : qualifiedNameWithSuffix.substring(dot + 1));
 		IPackage pkg= fDevelopmentContext.getImage().getPackageHandle(pkgName, false);
 		getSourceEntries(pkg); // force
@@ -1344,16 +1326,16 @@ static Comparator getPathComparator() {
 			getSourceEntries(pkg);
 		}
 		String simpleName= type.getSimpleName();
-		SourceEntry entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".java"/*nonNLS*/);
+		SourceEntry entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".java");
 		if (entry == null) {
-			entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".class"/*nonNLS*/);
+			entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".class");
 			if (entry == null) {
 				int firstDollar= simpleName.indexOf('$');
 				if (firstDollar != -1) {
 					simpleName= simpleName.substring(0, firstDollar);
-					entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".java"/*nonNLS*/);
+					entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".java");
 					if (entry == null) {
-						entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".class"/*nonNLS*/);
+						entry= fSourceElementTable.getSourceEntry(pkg, simpleName + ".class");
 					}
 				}
 			}
@@ -1452,7 +1434,7 @@ static Comparator getPathComparator() {
 	 */
 	protected TypeStructureEntry getTypeStructureEntry(String qualifiedNameWithoutSuffix) {
 		int dot= qualifiedNameWithoutSuffix.lastIndexOf('.');
-		String pkgName= (dot == -1 ? ".default"/*nonNLS*/ : qualifiedNameWithoutSuffix.substring(0, dot));
+		String pkgName= (dot == -1 ? ".default" : qualifiedNameWithoutSuffix.substring(0, dot));
 		String typeName= (dot == -1 ? qualifiedNameWithoutSuffix : qualifiedNameWithoutSuffix.substring(dot + 1));
 		IPackage pkg= fDevelopmentContext.getImage().getPackageHandle(pkgName, false);
 		IType type= pkg.getClassHandle(typeName);
@@ -1532,7 +1514,7 @@ static Comparator getPathComparator() {
 	 */
 	protected static boolean isZipElement(IPath path) {
 		String extension= path.getFileExtension();
-		return extension != null && (extension.equalsIgnoreCase("zip"/*nonNLS*/) || extension.equalsIgnoreCase("jar"/*nonNLS*/));
+		return extension != null && (extension.equalsIgnoreCase("zip") || extension.equalsIgnoreCase("jar"));
 	}
 	/**
 	 * Given a project-relative path, returns an absolute path.
@@ -1618,7 +1600,7 @@ static Comparator getPathComparator() {
 			if (tsExisting != null) {
 				if (!tsExisting.getSourceEntry().getFileName().equals(sEntry.getFileName())) {
 					// Same type provided by different files
-					String msg= Util.bind("build.duplicateType"/*nonNLS*/, typeHandle.getName(), tsExisting.getSourceEntry().getFileName());
+					String msg= "Type " + typeHandle.getName() + " already provided by " + tsExisting.getSourceEntry().getFileName();
 					ProblemDetailImpl problem= new ProblemDetailImpl(msg, sEntry);
 					fProblemReporter.putProblem(sEntry, problem);
 					// skip it
@@ -1816,7 +1798,7 @@ static Comparator getPathComparator() {
 	 * Returns a string representation of the receiver.
 	 */
 	public String toString() {
-		return "StateImpl("/*nonNLS*/ + fStateNumber + ")"/*nonNLS*/;
+		return "StateImpl(" + fStateNumber + ")";
 	}
 	/**
 	 * Returns the type handle for the given type name,

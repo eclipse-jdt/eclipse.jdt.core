@@ -62,6 +62,6 @@ public boolean isReadOnly() {
  * @see IStorage#isReadOnly()
  */
 public String toString() {
-	return "JarEntryFile["/*nonNLS*/+this.zipName+"::"/*nonNLS*/+this.entryName+"]"/*nonNLS*/;
+	return "JarEntryFile["+this.zipName+"::"+this.entryName+"]";
 }
 }

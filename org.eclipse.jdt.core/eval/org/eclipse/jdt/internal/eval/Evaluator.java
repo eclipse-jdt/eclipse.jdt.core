@@ -113,7 +113,7 @@ ClassFile[] getClasses() {
 	compiler.compile(new ICompilationUnit[] {new ICompilationUnit() {
 		public char[] getFileName() {
 			 // Name of class is name of CU
-			return CharOperation.concat(Evaluator.this.getClassName(), ".java"/*nonNLS*/.toCharArray());
+			return CharOperation.concat(Evaluator.this.getClassName(), ".java".toCharArray());
 		}
 		public char[] getContents() {
 			return source;

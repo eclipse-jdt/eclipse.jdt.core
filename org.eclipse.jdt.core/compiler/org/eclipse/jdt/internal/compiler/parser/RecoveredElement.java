@@ -215,7 +215,7 @@ public int sourceEnd(){
 protected String tabString(int tab) {
 	StringBuffer result = new StringBuffer();
 	for (int i = tab; i > 0; i--) {
-		result.append("  "/*nonNLS*/);
+		result.append("  ");
 	}
 	return result.toString();
 }

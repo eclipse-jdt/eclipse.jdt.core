@@ -1,13 +1,5 @@
 package org.eclipse.jdt.internal.core.builder;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.core.*;
 
-/**
- * A BuildEvent encapsulates information passed to an IBuildListener.
- */
 public class BuildEvent {
 	protected ISourceFragment fSourceFragment;
 	protected int fNewErrorCount;

@@ -85,6 +85,71 @@ protected int matchContainer() {
 	return CLASS;
 }
 /**
+ * @see SearchPattern#matches(AstNode, boolean)
+ */
+protected boolean matches(AstNode node, boolean resolve) {
+	if (!(node instanceof FieldDeclaration)) return false;
+
+	FieldDeclaration field = (FieldDeclaration)node;
+	if (!field.isField()) return false; // ignore field initializers
+	
+	// field name
+	if (!this.matchesName(this.name, field.name))
+		return false;
+
+	// declaring type
+	FieldBinding binding = field.binding;
+	if (resolve && binding != null) {
+		ReferenceBinding declaringBinding = binding.declaringClass;
+		if (declaringBinding != null && !this.matchesType(this.declaringSimpleName, this.declaringQualification, declaringBinding))
+			return false;
+	}
+
+	// field type
+	if (this.typeQualification == null) {
+		TypeReference fieldType = field.type;
+		char[][] fieldTypeName = fieldType.getTypeName();
+		char[] sourceName = this.toArrayName(
+			fieldTypeName[fieldTypeName.length-1], 
+			fieldType.dimensions());
+		if (!this.matchesName(this.typeSimpleName, sourceName))
+			return false;
+	} else {
+		if (resolve 
+				&& binding != null 
+				&& !this.matchesType(this.typeSimpleName, this.typeQualification, binding.type))
+			return false;
+	}
+	return true;
+}
+/**
+ * @see SearchPattern#matches(Binding)
+ */
+public boolean matches(Binding binding) {
+	if (!(binding instanceof FieldBinding)) return false;
+
+	FieldBinding field = (FieldBinding)binding;
+	
+	// field name
+	if (!this.matchesName(this.name, field.readableName()))
+		return false;
+
+	// declaring type
+	ReferenceBinding declaringBinding = field.declaringClass;
+	if (declaringBinding != null 
+		&& !this.matchesType(this.declaringSimpleName, this.declaringQualification, declaringBinding)) {
+			
+		return false;
+	}
+
+	// field type
+	if(!this.matchesType(this.typeSimpleName, this.typeQualification, field.type)) {
+		return false;
+	}
+	
+	return true;
+}
+/**
  * @see SearchPattern#matchesBinary(Object, Object)
  */
 public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
@@ -157,106 +222,38 @@ private boolean needsResolve() {
 public String toString(){
 
 	StringBuffer buffer = new StringBuffer(20);
-	buffer.append("FieldDeclarationPattern: "/*nonNLS*/);
+	buffer.append("FieldDeclarationPattern: ");
 	if (declaringQualification != null) buffer.append(declaringQualification).append('.');
 	if (declaringSimpleName != null) 
 		buffer.append(declaringSimpleName).append('.');
-	else if (declaringQualification != null) buffer.append("*."/*nonNLS*/);
+	else if (declaringQualification != null) buffer.append("*.");
 	if (name == null) {
-		buffer.append("*"/*nonNLS*/);
+		buffer.append("*");
 	} else {
 		buffer.append(name);
 	}
 	if (typeQualification != null) 
-		buffer.append(" --> "/*nonNLS*/).append(typeQualification).append('.');
-	else if (typeSimpleName != null) buffer.append(" --> "/*nonNLS*/);
+		buffer.append(" --> ").append(typeQualification).append('.');
+	else if (typeSimpleName != null) buffer.append(" --> ");
 	if (typeSimpleName != null) 
 		buffer.append(typeSimpleName);
-	else if (typeQualification != null) buffer.append("*"/*nonNLS*/);
-	buffer.append(", "/*nonNLS*/);
+	else if (typeQualification != null) buffer.append("*");
+	buffer.append(", ");
 	switch(matchMode){
 		case EXACT_MATCH : 
-			buffer.append("exact match, "/*nonNLS*/);
+			buffer.append("exact match, ");
 			break;
 		case PREFIX_MATCH :
-			buffer.append("prefix match, "/*nonNLS*/);
+			buffer.append("prefix match, ");
 			break;
 		case PATTERN_MATCH :
-			buffer.append("pattern match, "/*nonNLS*/);
+			buffer.append("pattern match, ");
 			break;
 	}
 	if (isCaseSensitive)
-		buffer.append("case sensitive"/*nonNLS*/);
+		buffer.append("case sensitive");
 	else
-		buffer.append("case insensitive"/*nonNLS*/);
+		buffer.append("case insensitive");
 	return buffer.toString();
-}
-
-/**
- * @see SearchPattern#matchLevel(AstNode, boolean)
- */
-public int matchLevel(AstNode node, boolean resolve) {
-	if (!(node instanceof FieldDeclaration)) return IMPOSSIBLE_MATCH;
-
-	FieldDeclaration field = (FieldDeclaration)node;
-
-	if (resolve) {
-		return this.matchLevel(field.binding);
-	} else {
-		if (!field.isField()) return IMPOSSIBLE_MATCH; // ignore field initializers
-		
-		// field name
-		if (!this.matchesName(this.name, field.name))
-			return IMPOSSIBLE_MATCH;
-
-		// field type
-		TypeReference fieldType = field.type;
-		char[][] fieldTypeName = fieldType.getTypeName();
-		char[] sourceName = this.toArrayName(
-			fieldTypeName[fieldTypeName.length-1], 
-			fieldType.dimensions());
-		if (!this.matchesName(this.typeSimpleName, sourceName))
-			return IMPOSSIBLE_MATCH;
-
-		return POSSIBLE_MATCH;
-	}
-}
-
-/**
- * @see SearchPattern#matchLevel(Binding)
- */
-public int matchLevel(Binding binding) {
-	if (binding == null) return INACCURATE_MATCH;
-	if (!(binding instanceof FieldBinding)) return IMPOSSIBLE_MATCH;
-	int level;
-
-	FieldBinding field = (FieldBinding)binding;
-	
-	// field name
-	if (!this.matchesName(this.name, field.readableName()))
-		return IMPOSSIBLE_MATCH;
-
-	// declaring type
-	ReferenceBinding declaringBinding = field.declaringClass;
-	if (declaringBinding == null ) {
-		return INACCURATE_MATCH;
-	} else {
-		level = this.matchLevelForType(this.declaringSimpleName, this.declaringQualification, declaringBinding);
-		if (level == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
-	}
-
-	// field type
-	int newLevel = this.matchLevelForType(this.typeSimpleName, this.typeQualification, field.type);
-	switch (newLevel) {
-		case IMPOSSIBLE_MATCH:
-			return IMPOSSIBLE_MATCH;
-		case ACCURATE_MATCH: // keep previous level
-			break;
-		default: // ie. INACCURATE_MATCH
-			level = newLevel;
-			break;
-	}
-	
-	return level;
 }
 }

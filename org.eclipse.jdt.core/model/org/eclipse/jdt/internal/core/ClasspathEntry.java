@@ -170,38 +170,38 @@ public String toString() {
 	buffer.append('[');
 	switch (getEntryKind()) {
 		case IClasspathEntry.CPE_LIBRARY:
-			buffer.append("CPE_LIBRARY"/*nonNLS*/);
+			buffer.append("CPE_LIBRARY");
 			break;
 		case IClasspathEntry.CPE_PROJECT:
-			buffer.append("CPE_PROJECT"/*nonNLS*/);
+			buffer.append("CPE_PROJECT");
 			break;
 		case IClasspathEntry.CPE_SOURCE:
-			buffer.append("CPE_SOURCE"/*nonNLS*/);
+			buffer.append("CPE_SOURCE");
 			break;
 		case IClasspathEntry.CPE_VARIABLE:
-			buffer.append("CPE_VARIABLE"/*nonNLS*/);
+			buffer.append("CPE_VARIABLE");
 			break;
 	}
-	buffer.append("]["/*nonNLS*/);
+	buffer.append("][");
 	switch (getContentKind()) {
 		case IPackageFragmentRoot.K_BINARY:
-			buffer.append("K_BINARY"/*nonNLS*/);
+			buffer.append("K_BINARY");
 			break;
 		case IPackageFragmentRoot.K_SOURCE:
-			buffer.append("K_SOURCE"/*nonNLS*/);
+			buffer.append("K_SOURCE");
 			break;
 		case ClasspathEntry.K_OUTPUT:
-			buffer.append("K_OUTPUT"/*nonNLS*/);
+			buffer.append("K_OUTPUT");
 			break;
 	}
 	buffer.append(']');
 	if (getSourceAttachmentPath() != null){
-		buffer.append("[sourcePath:"/*nonNLS*/);
+		buffer.append("[sourcePath:");
 		buffer.append(getSourceAttachmentPath());
 		buffer.append(']');
 	}
 	if (getSourceAttachmentRootPath() != null){
-		buffer.append("[rootPath:"/*nonNLS*/);
+		buffer.append("[rootPath:");
 		buffer.append(getSourceAttachmentRootPath());
 		buffer.append(']');
 	}

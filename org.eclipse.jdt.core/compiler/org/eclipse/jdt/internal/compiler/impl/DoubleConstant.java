@@ -1,9 +1,4 @@
 package org.eclipse.jdt.internal.compiler.impl;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.compiler.*;
 
 public class DoubleConstant extends Constant {
 	double value;
@@ -36,14 +31,14 @@ public String stringValue() {
 	
 	String s = new Double(value).toString() ;
 	if (s == null)
-		return "null"/*nonNLS*/;
+		return "null";
 	else
 		return s;
 }
 public String toString(){
 
-	if (this == NotAConstant) return "(Constant) NotAConstant"/*nonNLS*/ ;
-	return "(double)"/*nonNLS*/ + value ; }
+	if (this == NotAConstant) return "(Constant) NotAConstant" ;
+	return "(double)" + value ; }
 public int typeID() {
 	return T_double;
 }

@@ -1,19 +1,5 @@
 package org.eclipse.jdt.core.jdom;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.core.*;
 
-/**
- * Represents a Java compilation unit (<code>.java</code> source file). 
- * The corresponding syntactic unit is CompilationUnit (JLS2 7.3).  
- * Allowable child types for a compilation unit are <code>IDOMPackage</code>, <code>IDOMImport</code>,
- * and <code>IDOMType</code>.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
- */
 public interface IDOMCompilationUnit extends IDOMNode {
 /**
  * Returns the header comment for this compilation unit. The header comment

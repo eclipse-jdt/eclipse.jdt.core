@@ -1,14 +1,5 @@
 package org.eclipse.jdt.internal.core.util;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.core.*;
 
-/**
- * An adapter which implements the methods for handling
- * reference information from the parser.
- */
 public abstract class ReferenceInfoAdapter {
 /**
  * Does nothing.

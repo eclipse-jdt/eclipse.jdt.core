@@ -519,7 +519,7 @@ public void addProblemClinit(IProblem[] problems) {
 	int codeAttributeOffset = contentsOffset;
 	generateCodeAttributeHeader();
 	codeStream.resetForProblemClinit(this);
-	String problemString = ""/*nonNLS*/;
+	String problemString = "";
 	if (problems != null) {
 		int max = problems.length;
 		StringBuffer buffer = new StringBuffer(25);
@@ -527,7 +527,7 @@ public void addProblemClinit(IProblem[] problems) {
 		for (int i = 0; i < max; i++) {
 			IProblem problem = problems[i];
 			if ((problem != null) && (problem.isError())) {
-				buffer.append("\t"/*nonNLS*/ + problem.getMessage() + "\n"/*nonNLS*/);
+				buffer.append("\t" + problem.getMessage() + "\n");
 				count++;
 				if (problemLine == 0) {
 					problemLine = problem.getSourceLineNumber();
@@ -536,9 +536,9 @@ public void addProblemClinit(IProblem[] problems) {
 			}
 		} // insert the top line afterwards, once knowing how many problems we have to consider
 		if (count > 1) {
-			buffer.insert(0, Util.bind("compilation.unresolvedProblems"/*nonNLS*/));
+			buffer.insert(0, "Unresolved compilation problems: \n");
 		} else {
-			buffer.insert(0, Util.bind("compilation.unresolvedProblem"/*nonNLS*/));
+			buffer.insert(0, "Unresolved compilation problem: \n");
 		}
 		problemString = buffer.toString();
 	}
@@ -581,7 +581,7 @@ public void addProblemConstructor(
 	generateCodeAttributeHeader();
 	final ProblemReporter problemReporter = method.scope.problemReporter();
 	codeStream.reset(method, this);
-	String problemString = ""/*nonNLS*/;
+	String problemString = "";
 	if (problems != null) {
 		int max = problems.length;
 		StringBuffer buffer = new StringBuffer(25);
@@ -589,7 +589,7 @@ public void addProblemConstructor(
 		for (int i = 0; i < max; i++) {
 			IProblem problem = problems[i];
 			if ((problem != null) && (problem.isError())) {
-				buffer.append("\t"/*nonNLS*/ + problem.getMessage() + "\n"/*nonNLS*/);
+				buffer.append("\t" + problem.getMessage() + "\n");
 				count++;
 				if (problemLine == 0) {
 					problemLine = problem.getSourceLineNumber();
@@ -597,9 +597,9 @@ public void addProblemConstructor(
 			}
 		} // insert the top line afterwards, once knowing how many problems we have to consider
 		if (count > 1) {
-			buffer.insert(0, Util.bind("compilation.unresolvedProblems"/*nonNLS*/));
+			buffer.insert(0, "Unresolved compilation problems: \n");
 		} else {
-			buffer.insert(0, Util.bind("compilation.unresolvedProblem"/*nonNLS*/));
+			buffer.insert(0, "Unresolved compilation problem: \n");
 		}
 		problemString = buffer.toString();
 	}
@@ -710,7 +710,7 @@ public void addProblemMethod(
 	generateCodeAttributeHeader();
 	final ProblemReporter problemReporter = method.scope.problemReporter();
 	codeStream.reset(method, this);
-	String problemString = ""/*nonNLS*/;
+	String problemString = "";
 	if (problems != null) {
 		int max = problems.length;
 		StringBuffer buffer = new StringBuffer(25);
@@ -721,7 +721,7 @@ public void addProblemMethod(
 				&& (problem.isError())
 				&& (problem.getSourceStart() >= method.declarationSourceStart)
 				&& (problem.getSourceEnd() <= method.declarationSourceEnd)) {
-				buffer.append("\t"/*nonNLS*/ + problem.getMessage() + "\n"/*nonNLS*/);
+				buffer.append("\t" + problem.getMessage() + "\n");
 				count++;
 				if (problemLine == 0) {
 					problemLine = problem.getSourceLineNumber();
@@ -730,9 +730,9 @@ public void addProblemMethod(
 			}
 		} // insert the top line afterwards, once knowing how many problems we have to consider
 		if (count > 1) {
-			buffer.insert(0, Util.bind("compilation.unresolvedProblems"/*nonNLS*/));
+			buffer.insert(0, "Unresolved compilation problems: \n");
 		} else {
-			buffer.insert(0, Util.bind("compilation.unresolvedProblem"/*nonNLS*/));
+			buffer.insert(0, "Unresolved compilation problem: \n");
 		}
 		problemString = buffer.toString();
 	}
@@ -958,14 +958,14 @@ public static String buildAllDirectoriesInto(String outputPath, String relativeF
 	f = new File(outputPath);
 	if (f.exists()) {
 		if (!f.isDirectory()) {
-			System.out.println(Util.bind("output.isFile"/*nonNLS*/,f.getAbsolutePath()));
-			throw new IOException(Util.bind("output.isFileNotDirectory"/*nonNLS*/));
+			System.out.println(" The outDir is a file = " + f.getAbsolutePath());
+			throw new IOException("The outDir is a file not a directory.");
 		}
 	} else {
 		// we have to create that directory
 		if (!f.mkdirs()) {
-			System.out.println(Util.bind("output.dirName"/*nonNLS*/,f.getAbsolutePath()));
-			throw new IOException(Util.bind("output.notValidAll"/*nonNLS*/));
+			System.out.println(" The output dir name is = " + f.getAbsolutePath());
+			throw new IOException("The outDir is not a valid directory name. All the directories cannot be created.");
 		}
 	}
 	StringBuffer outDir = new StringBuffer(outputPath);
@@ -980,8 +980,8 @@ public static String buildAllDirectoriesInto(String outputPath, String relativeF
 		} else {
 			// Need to add the outDir
 			if (!f.mkdir()) {
-				System.out.println(Util.bind("output.fileName"/*nonNLS*/,f.getName()));
-				throw new IOException(Util.bind("output.notValid"/*nonNLS*/));
+				System.out.println(" file name = " + f.getName());
+				throw new IOException("The outDir is not a valid directory name. The directory cannot be created.");
 			}
 		}
 		token = tokenizer.nextToken();
@@ -1203,7 +1203,7 @@ public void completeCodeAttribute(int codeAttributeOffset) {
 				if (startPC != endPC) { // only entries for non zero length
 					int currentLength;
 					if (endPC == -1) {
-						localVariable.declaringScope.problemReporter().abortDueToInternalError(Util.bind("abort.invalidAttribute"/*nonNLS*/,new String(localVariable.name)), (AstNode) localVariable.declaringScope.methodScope().referenceContext);
+						localVariable.declaringScope.problemReporter().abortDueToInternalError("SANITY CHECK: Invalid attribute for local variable " + new String(localVariable.name), (AstNode) localVariable.declaringScope.methodScope().referenceContext);
 					}
 					if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
 						System.arraycopy(contents, 0, (localContents = contents = new byte[contentsLength + INCREMENT_SIZE]), 0, contentsLength);
@@ -1407,7 +1407,7 @@ public void completeCodeAttributeForClinit(int codeAttributeOffset) {
 					if (startPC != endPC) { // only entries for non zero length
 						int currentLength;
 						if (endPC == -1) {
-							localVariable.declaringScope.problemReporter().abortDueToInternalError(Util.bind("abort.invalidAttribute"/*nonNLS*/,new String(localVariable.name)), (AstNode) localVariable.declaringScope.methodScope().referenceContext);
+							localVariable.declaringScope.problemReporter().abortDueToInternalError("SANITY CHECK: Invalid attribute for local variable " + new String(localVariable.name), (AstNode) localVariable.declaringScope.methodScope().referenceContext);
 						}
 						if (localContentsOffset + 10 >= (contentsLength = localContents.length)) {
 							System.arraycopy(contents, 0, (localContents = contents = new byte[contentsLength + INCREMENT_SIZE]), 0, contentsLength);
@@ -1878,7 +1878,7 @@ public void completeCodeAttributeForSyntheticAccessMethod(SyntheticAccessMethodB
 				if (startPC != endPC) { // only entries for non zero length
 					int currentLength;
 					if (endPC == -1) {
-						localVariable.declaringScope.problemReporter().abortDueToInternalError(Util.bind("abort.invalidAttribute"/*nonNLS*/,new String(localVariable.name)), (AstNode) localVariable.declaringScope.methodScope().referenceContext);
+						localVariable.declaringScope.problemReporter().abortDueToInternalError("SANITY CHECK: Invalid attribute for local variable " + new String(localVariable.name), (AstNode) localVariable.declaringScope.methodScope().referenceContext);
 					}
 					if (localContentsOffset + 10 > (contentsLength = contents.length)) {
 						System.arraycopy(contents, 0, (contents = new byte[contentsLength + INCREMENT_SIZE]), 0, contentsLength);

@@ -126,7 +126,7 @@ public int getDeclaredModifiers() throws NotPresentException {
  * a String of length 0.
  */
 public String getDeclaredName() throws NotPresentException {
-	return ""/*nonNLS*/;
+	return "";
 }
 /**
  * If the class or interface represented by this Type object is

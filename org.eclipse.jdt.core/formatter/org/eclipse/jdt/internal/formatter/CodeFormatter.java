@@ -366,7 +366,7 @@ private void format() {
 						&& ! (previousCompilableToken == TokenNameRPAREN
 							&& token == TokenNameSEMICOLON)) {
 					newLine(1);
-					currentLineIndentationLevel = indentationLevel;
+					currentLineIndentationLevel += indentationLevel;
 					pendingNewLines = 0;
 					pendingSpace = false;
 				} else {
@@ -1139,127 +1139,127 @@ private void newLine(int newLineCount) {
 private String operatorString(int operator) {
 	switch (operator) {
 		case TokenNameextends :
-			return "extends"/*nonNLS*/;
+			return "extends";
 
 		case TokenNameimplements :
-			return "implements"/*nonNLS*/;
+			return "implements";
 
 		case TokenNamethrows :
-			return "throws"/*nonNLS*/;
+			return "throws";
 
 		case TokenNameSEMICOLON : // ;
-			return ";"/*nonNLS*/;
+			return ";";
 
 		case TokenNameCOMMA : // ,
-			return ","/*nonNLS*/;
+			return ",";
 
 		case TokenNameEQUAL : // =
-			return "="/*nonNLS*/;
+			return "=";
 
 		case TokenNameAND_AND : // && (15.22)
-			return "&&"/*nonNLS*/;
+			return "&&";
 
 		case TokenNameOR_OR : // || (15.23)
-			return "||"/*nonNLS*/;
+			return "||";
 
 		case TokenNameQUESTION : // ? (15.24)
-			return "?"/*nonNLS*/;
+			return "?";
 
 		case TokenNameCOLON : // : (15.24)
-			return ":"/*nonNLS*/;
+			return ":";
 
 		case TokenNameEQUAL_EQUAL : // == (15.20, 15.20.1, 15.20.2, 15.20.3)
-			return "=="/*nonNLS*/;
+			return "==";
 
 		case TokenNameNOT_EQUAL : // != (15.20, 15.20.1, 15.20.2, 15.20.3)
-			return "!="/*nonNLS*/;
+			return "!=";
 
 		case TokenNameLESS : // < (15.19.1)
-			return "<"/*nonNLS*/;
+			return "<";
 
 		case TokenNameLESS_EQUAL : // <= (15.19.1)
-			return "<="/*nonNLS*/;
+			return "<=";
 
 		case TokenNameGREATER : // > (15.19.1)
-			return ">"/*nonNLS*/;
+			return ">";
 
 		case TokenNameGREATER_EQUAL : // >= (15.19.1)
-			return ">="/*nonNLS*/;
+			return ">=";
 
 		case TokenNameinstanceof : // instanceof
-			return "instanceof"/*nonNLS*/;
+			return "instanceof";
 
 		case TokenNamePLUS : // + (15.17, 15.17.2)
-			return "+"/*nonNLS*/;
+			return "+";
 
 		case TokenNameMINUS : // - (15.17.2)
-			return "-"/*nonNLS*/;
+			return "-";
 
 		case TokenNameMULTIPLY : // * (15.16.1)
-			return "*"/*nonNLS*/;
+			return "*";
 
 		case TokenNameDIVIDE : // / (15.16.2)
-			return "/"/*nonNLS*/;
+			return "/";
 
 		case TokenNameREMAINDER : // % (15.16.3)
-			return "%"/*nonNLS*/;
+			return "%";
 
 		case TokenNameLEFT_SHIFT : // << (15.18)
-			return "<<"/*nonNLS*/;
+			return "<<";
 
 		case TokenNameRIGHT_SHIFT : // >> (15.18)
-			return ">>"/*nonNLS*/;
+			return ">>";
 
 		case TokenNameUNSIGNED_RIGHT_SHIFT : // >>> (15.18)
-			return ">>>"/*nonNLS*/;
+			return ">>>";
 
 		case TokenNameAND : // & (15.21, 15.21.1, 15.21.2)
-			return "&"/*nonNLS*/;
+			return "&";
 
 		case TokenNameOR : // | (15.21, 15.21.1, 15.21.2)
-			return "|"/*nonNLS*/;
+			return "|";
 
 		case TokenNameXOR : // ^ (15.21, 15.21.1, 15.21.2)
-			return "^"/*nonNLS*/;
+			return "^";
 
 		case TokenNameMULTIPLY_EQUAL : // *= (15.25.2)
-			return "*="/*nonNLS*/;
+			return "*=";
 
 		case TokenNameDIVIDE_EQUAL : // /= (15.25.2)
-			return "/="/*nonNLS*/;
+			return "/=";
 
 		case TokenNameREMAINDER_EQUAL : // %= (15.25.2)
-			return "%="/*nonNLS*/;
+			return "%=";
 
 		case TokenNamePLUS_EQUAL : // += (15.25.2)
-			return "+="/*nonNLS*/;
+			return "+=";
 
 		case TokenNameMINUS_EQUAL : // -= (15.25.2)
-			return "-="/*nonNLS*/;
+			return "-=";
 
 		case TokenNameLEFT_SHIFT_EQUAL : // <<= (15.25.2)
-			return "<<="/*nonNLS*/;
+			return "<<=";
 
 		case TokenNameRIGHT_SHIFT_EQUAL : // >>= (15.25.2)
-			return ">>="/*nonNLS*/;
+			return ">>=";
 
 		case TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL : // >>>= (15.25.2)
-			return ">>>="/*nonNLS*/;
+			return ">>>=";
 
 		case TokenNameAND_EQUAL : // &= (15.25.2)
-			return "&="/*nonNLS*/;
+			return "&=";
 
 		case TokenNameXOR_EQUAL : // ^= (15.25.2)
-			return "^="/*nonNLS*/;
+			return "^=";
 
 		case TokenNameOR_EQUAL : // |= (15.25.2)
-			return "|="/*nonNLS*/;
+			return "|=";
 
 		case TokenNameDOT : // .
-			return "."/*nonNLS*/;
+			return ".";
 
 		default :
-			return ""/*nonNLS*/;
+			return "";
 	}
 }
 /** 
@@ -1399,7 +1399,7 @@ private void outputLine(
 			}
 		}
 
-		boolean containsMultiLineComment = currentString.lastIndexOf("/*"/*nonNLS*/) != -1;
+		boolean containsMultiLineComment = currentString.lastIndexOf("/*") != -1;
 		int numberOfSpaces = 0;
 		int max = currentString.length();
 		updateMappedPositionsWhileSplitting(
@@ -1506,7 +1506,7 @@ private void outputLine(
 
 		if (currentResult.length() != 0 || splitOperators[i] != 0) {
 			int newDepth = 
-				(currentResult.startsWith("/*"/*nonNLS*/) || currentResult.startsWith("//"/*nonNLS*/))
+				(currentResult.startsWith("/*") || currentResult.startsWith("//"))
 					? indentationLevel - 1
 					: depth; 
 			outputLine(

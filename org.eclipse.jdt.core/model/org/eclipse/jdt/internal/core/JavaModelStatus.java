@@ -52,13 +52,13 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
  */
 public JavaModelStatus() {
 	// no code for an multi-status
-	super(ERROR, JavaCore.PLUGIN_ID, 0, "JavaModelStatus"/*nonNLS*/, null);
+	super(ERROR, JavaCore.PLUGIN_ID, 0, "JavaModelStatus", null);
 }
 /**
  * Constructs an Java model status with no corresponding elements.
  */
 public JavaModelStatus(int code) {
-	super(ERROR, JavaCore.PLUGIN_ID, code, "JavaModelStatus"/*nonNLS*/, null);
+	super(ERROR, JavaCore.PLUGIN_ID, code, "JavaModelStatus", null);
 	fElements= JavaElementInfo.fgEmptyChildren;
 }
 /**
@@ -66,7 +66,7 @@ public JavaModelStatus(int code) {
  * elements.
  */
 public JavaModelStatus(int code, IJavaElement[] elements) {
-	super(ERROR, JavaCore.PLUGIN_ID, code, "JavaModelStatus"/*nonNLS*/, null);
+	super(ERROR, JavaCore.PLUGIN_ID, code, "JavaModelStatus", null);
 	fElements= elements;
 	fPath= null;
 }
@@ -74,7 +74,7 @@ public JavaModelStatus(int code, IJavaElement[] elements) {
  * Constructs an Java model status with no corresponding elements.
  */
 public JavaModelStatus(int code, String string) {
-	super(ERROR, JavaCore.PLUGIN_ID, code, "JavaModelStatus"/*nonNLS*/, null);
+	super(ERROR, JavaCore.PLUGIN_ID, code, "JavaModelStatus", null);
 	fElements= JavaElementInfo.fgEmptyChildren;
 	fPath= null;
 	fString = string;
@@ -83,14 +83,14 @@ public JavaModelStatus(int code, String string) {
  * Constructs an Java model status with no corresponding elements.
  */
 public JavaModelStatus(int code, Throwable throwable) {
-	super(ERROR, JavaCore.PLUGIN_ID, code, "JavaModelStatus"/*nonNLS*/, throwable);
+	super(ERROR, JavaCore.PLUGIN_ID, code, "JavaModelStatus", throwable);
 	fElements= JavaElementInfo.fgEmptyChildren;
 }
 /**
  * Constructs an Java model status with no corresponding elements.
  */
 public JavaModelStatus(int code, IPath path) {
-	super(ERROR, JavaCore.PLUGIN_ID, code, "JavaModelStatus"/*nonNLS*/, null);
+	super(ERROR, JavaCore.PLUGIN_ID, code, "JavaModelStatus", null);
 	fElements= JavaElementInfo.fgEmptyChildren;
 	fPath= path;
 }
@@ -113,7 +113,7 @@ public JavaModelStatus(int code, IJavaElement element, String string) {
  * Constructs an Java model status with no corresponding elements.
  */
 public JavaModelStatus(CoreException coreException) {
-	super(ERROR, JavaCore.PLUGIN_ID, CORE_EXCEPTION, "JavaModelStatus"/*nonNLS*/, coreException);
+	super(ERROR, JavaCore.PLUGIN_ID, CORE_EXCEPTION, "JavaModelStatus", coreException);
 	fElements= JavaElementInfo.fgEmptyChildren;
 }
 protected int getBits() {
@@ -140,89 +140,89 @@ public String getMessage() {
 	if (getException() == null) {
 		switch (getCode()) {
 			case CORE_EXCEPTION :
-				return Util.bind("status.coreException"/*nonNLS*/);
+				return "Core exception.";
 			case BUILDER_INITIALIZATION_ERROR:
-				return Util.bind("build.initializationError"/*nonNLS*/);
+				return "Builder initialization error.";
 			case BUILDER_SERIALIZATION_ERROR:
-				return Util.bind("build.serializationError"/*nonNLS*/);
+				return "Builder serialization error.";
 			case DEVICE_PATH:
-				return Util.bind("status.cannotUseDeviceOnPath"/*nonNLS*/, getPath().toString());
+				return "Operation requires a path with no device. Path specified was: " + getPath().toString();
 			case DOM_EXCEPTION:
-				return Util.bind("status.JDOMError"/*nonNLS*/);
+				return "JDOM error.";
 			case ELEMENT_DOES_NOT_EXIST:
-				return Util.bind("element.doesNotExist"/*nonNLS*/,fElements[0].getElementName());
+				return fElements[0].getElementName() + " does not exist.";
 			case EVALUATION_ERROR:
-				return Util.bind("status.evaluationError"/*nonNLS*/, getString());
+				return "Evaluation error: " + getString();
 			case INDEX_OUT_OF_BOUNDS:
-				return Util.bind("status.indexOutOfBounds"/*nonNLS*/);
+				return "Index out of bounds.";
 			case INVALID_CONTENTS:
-				return Util.bind("status.invalidContents"/*nonNLS*/);
+				return "Invalid contents specified.";
 			case INVALID_DESTINATION:
-				return Util.bind("status.invalidDestination"/*nonNLS*/, fElements[0].getElementName());
+				return "Invalid destination: " + fElements[0].getElementName();
 			case INVALID_ELEMENT_TYPES:
-				StringBuffer buff= new StringBuffer(Util.bind("operation.notSupported"/*nonNLS*/));
+				StringBuffer buff= new StringBuffer("Operation not supported for specified element type(s): ");
 				for (int i= 0; i < fElements.length; i++) {
 					if (i > 0) {
-						buff.append(", "/*nonNLS*/);
+						buff.append(", ");
 					}
 					buff.append(fElements[0].getElementName());
 				}
 				return buff.toString();
 			case INVALID_NAME:
-				return Util.bind("status.invalidName"/*nonNLS*/, getString());
+				return "Invalid name specified: " + getString();
 			case INVALID_PACKAGE:
-				return Util.bind("status.invalidPackage"/*nonNLS*/, getString());
+				return "Invalid package: " + getString();
 			case INVALID_PATH:
-				return Util.bind("status.invalidPath"/*nonNLS*/, getPath() == null ? "null"/*nonNLS*/ : getPath().toString());
+				return "Invalid path: " + (getPath() == null ? "null" : getPath().toString());
 			case INVALID_PROJECT:
-				return Util.bind("status.invalidProject"/*nonNLS*/, getString());
+				return "Invalid project: " + getString();
 			case INVALID_RESOURCE:
-				return Util.bind("status.invalidResource"/*nonNLS*/, getString());
+				return "Invalid resource: " + getString();
 			case INVALID_RESOURCE_TYPE:
-				return Util.bind("status.invalidResourceType"/*nonNLS*/, getString());
+				return "Invalid resource type for " + getString();
 			case INVALID_SIBLING:
-				return Util.bind("status.invalidSibling"/*nonNLS*/, fElements[0].getElementName());
+				return "Invalid sibling: " + fElements[0].getElementName();
 			case IO_EXCEPTION:
-				return Util.bind("status.IOException"/*nonNLS*/);
+				return "IO exception.";
 			case NAME_COLLISION:
 				if (fElements != null && fElements.length > 0) {
 					IJavaElement element = fElements[0];
 					String name = element.getElementName();
 					if (element instanceof IPackageFragment && name.equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
-						return Util.bind("operation.cannotRenameDefaultPackage"/*nonNLS*/);
+						return "Default package cannot be renamed.";
 					}
 				}
-				return Util.bind("status.nameCollision"/*nonNLS*/);
+				return "Name collision.";
 			case NO_ELEMENTS_TO_PROCESS:
-				return Util.bind("operation.needElements"/*nonNLS*/);
+				return "Operation requires one or more elements.";
 			case NULL_NAME:
-				return Util.bind("operation.needName"/*nonNLS*/);
+				return "Operation requires a name.";
 			case NULL_PATH:
-				return Util.bind("operation.needPath"/*nonNLS*/);
+				return "Operation requires a path.";
 			case NULL_STRING:
-				return Util.bind("operation.needString"/*nonNLS*/);
+				return "Operation requires a string.";
 			case PATH_OUTSIDE_PROJECT:
-				return Util.bind("operation.pathOutsideProject"/*nonNLS*/, getString(), fElements[0].getElementName());
+				return "Illegal path specified: " + getPath().toString();
 			case READ_ONLY:
 				IJavaElement element = fElements[0];
 				String name = element.getElementName();
 				if (element instanceof IPackageFragment && name.equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
-					return Util.bind("status.defaultPackageReadOnly"/*nonNLS*/);
+					name = "Default package";
 				}
-				return  Util.bind("status.readOnly"/*nonNLS*/, name);
+				return  name + " is read-only.";
 			case RELATIVE_PATH:
-				return Util.bind("operation.needAbsolutePath"/*nonNLS*/, getPath().toString());
+				return "Operation requires an absolute path. Relative path specified was: " + getPath().toString();
 			case TARGET_EXCEPTION:
-				return Util.bind("status.targetException"/*nonNLS*/);
+				return "Target exception.";
 			case UPDATE_CONFLICT:
-				return Util.bind("status.updateConflict"/*nonNLS*/);
+				return "Update conflict.";
 			case NO_LOCAL_CONTENTS :
-				return Util.bind("status.noLocalContents"/*nonNLS*/, getPath().toString());
+				return "Cannot find local contents for resource: "+ getPath().toString();
 		}
 		return getString();
 	} else {
 		if (getCode() == CORE_EXCEPTION){
-			return Util.bind("status.coreExceptionWithArg"/*nonNLS*/, getException().getMessage());
+			return "Core exception: " + getException().getMessage();
 		}
 		return getException().getMessage();
 	}
@@ -311,9 +311,9 @@ public static IJavaModelStatus newMultiStatus(IJavaModelStatus[] children) {
  */
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append("Java Model Status ["/*nonNLS*/);
+	buffer.append("Java Model Status [");
 	buffer.append(getMessage());
-	buffer.append("]"/*nonNLS*/);
+	buffer.append("]");
 	return buffer.toString();
 }
 }

@@ -166,16 +166,16 @@ public int size() {
 public String toString() {
 	int max = size();
 	StringBuffer buf = new StringBuffer();
-	buf.append("{"/*nonNLS*/);
+	buf.append("{");
 	for (int i = 0; i < max; ++i) {
 		if (keyTable[i] != null) {
-			buf.append(keyTable[i]).append("->"/*nonNLS*/).append(valueTable[i]);
+			buf.append(keyTable[i]).append("->").append(valueTable[i]);
 		}
 		if (i < max) {
-			buf.append(", "/*nonNLS*/);
+			buf.append(", ");
 		}
 	}
-	buf.append("}"/*nonNLS*/);
+	buf.append("}");
 	return buf.toString();
 }
 }

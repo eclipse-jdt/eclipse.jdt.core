@@ -29,6 +29,10 @@ public class ProjectBinaryOutput extends BinaryOutput {
 	private IPath outputPath;
 	private JavaDevelopmentContextImpl dc;
 
+	public final static String ADDED = "ADDED";
+	public final static String MODIFIED = "MODIFIED";
+	public final static String DELETED = "DELETED";
+	
 /**
  * Creates a new ProjectBinaryOutput for the given project and output path
  * in this project.
@@ -103,7 +107,7 @@ private void deleteClassesInContainer(IContainer container) {
 			IResource resource = (IResource) members[i];
 			switch (resource.getType()) {
 				case IResource.FILE :
-					if (resource.getName().toLowerCase().endsWith(".class"/*nonNLS*/)) {
+					if (resource.getName().toLowerCase().endsWith(".class")) {
 						resource.delete(true, null);
 					}
 					break;
@@ -175,7 +179,7 @@ IPath getOutputPath() {
  * Returns the path in the output folder for the given type.
  */
 private IPath getPathForBinary(IType type) {
-	return getOutputPath().append(type.getName().replace('.', '/') + ".class"/*nonNLS*/);
+	return getOutputPath().append(type.getName().replace('.', '/') + ".class");
 }
 /**
  * Returns the container at the given path, creating it and any parent folders if necessary.

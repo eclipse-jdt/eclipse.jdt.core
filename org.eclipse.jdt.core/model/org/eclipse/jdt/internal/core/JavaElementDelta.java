@@ -477,7 +477,7 @@ public String toDebugString(int depth) {
 		buffer.append('\t');
 	}
 	buffer.append(((JavaElement)getElement()).toDebugString());
-	buffer.append("["/*nonNLS*/);
+	buffer.append("[");
 	switch (getKind()) {
 		case IJavaElementDelta.ADDED :
 			buffer.append('+');
@@ -492,68 +492,68 @@ public String toDebugString(int depth) {
 			buffer.append('?');
 			break;
 	}
-	buffer.append("]: {"/*nonNLS*/);
+	buffer.append("]: {");
 	int changeFlags = getFlags();
 	boolean prev = false;
 	if ((changeFlags & IJavaElementDelta.F_CHILDREN) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("CHILDREN"/*nonNLS*/);
+			buffer.append(" | ");
+		buffer.append("CHILDREN");
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_CONTENT) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("CONTENT"/*nonNLS*/);
+			buffer.append(" | ");
+		buffer.append("CONTENT");
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_MOVED_FROM) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("MOVED_FROM("/*nonNLS*/ + ((JavaElement)getMovedFromElement()).toDebugString() + ")"/*nonNLS*/);
+			buffer.append(" | ");
+		buffer.append("MOVED_FROM(" + ((JavaElement)getMovedFromElement()).toDebugString() + ")");
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_MOVED_TO) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("MOVED_TO("/*nonNLS*/ + ((JavaElement)getMovedToElement()).toDebugString() + ")"/*nonNLS*/);
+			buffer.append(" | ");
+		buffer.append("MOVED_TO(" + ((JavaElement)getMovedToElement()).toDebugString() + ")");
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_ADDED_TO_CLASSPATH) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("ADDED TO CLASSPATH"/*nonNLS*/);
+			buffer.append(" | ");
+		buffer.append("ADDED TO CLASSPATH");
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("REMOVED FROM CLASSPATH"/*nonNLS*/);
+			buffer.append(" | ");
+		buffer.append("REMOVED FROM CLASSPATH");
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_CLASSPATH_REORDER) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("REORDERED IN CLASSPATH"/*nonNLS*/);
+			buffer.append(" | ");
+		buffer.append("REORDERED IN CLASSPATH");
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_MODIFIERS) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("MODIFIERS CHANGED"/*nonNLS*/);
+			buffer.append(" | ");
+		buffer.append("MODIFIERS CHANGED");
 		prev = true;
 	}
 	if ((changeFlags & IJavaElementDelta.F_SUPER_TYPES) != 0) {
 		if (prev)
-			buffer.append(" | "/*nonNLS*/);
-		buffer.append("SUPER TYPES CHANGED"/*nonNLS*/);
+			buffer.append(" | ");
+		buffer.append("SUPER TYPES CHANGED");
 		prev = true;
 	}
-	buffer.append("}"/*nonNLS*/);
+	buffer.append("}");
 	IJavaElementDelta[] children = getAffectedChildren();
 	if (children != null) {
 		for (int i = 0; i < children.length; ++i) {
-			buffer.append("\n"/*nonNLS*/);
+			buffer.append("\n");
 			buffer.append(((JavaElementDelta) children[i]).toDebugString(depth + 1));
 		}
 	}

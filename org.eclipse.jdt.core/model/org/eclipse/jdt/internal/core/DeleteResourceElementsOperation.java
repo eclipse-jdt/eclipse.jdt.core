@@ -61,25 +61,15 @@ private void deletePackageFragment(IPackageFragment frag)
 		}
 		deleteResources(actualNonJavaResources, fForce);
 		
-		// delete remaining files in this package (.class file in the case where Proj=src=bin)
-		IResource[] remaingFiles;
+		// remove the folder if it is empty
+		IResource[] members;
 		try {
-			remaingFiles = ((IFolder) res).members();
+			members = ((IFolder) res).members();
 		} catch (CoreException ce) {
 			throw new JavaModelException(ce);
 		}
-		boolean isEmpty = true;
-		for (int i = 0, length = remaingFiles.length; i < length; i++) {
-			IResource file = remaingFiles[i];
-			if (file instanceof IFile) {
-				this.deleteResource(file, true);
-			} else {
-				isEmpty = false;
-			}
-		}
-		if (isEmpty) {
-			// delete recursively empty folders
-			deleteEmptyPackageFragment(frag, false);
+		if (members.length == 0) {
+			deleteEmptyPackageFragment(frag, fForce);
 		}
 	}
 }
@@ -87,7 +77,7 @@ private void deletePackageFragment(IPackageFragment frag)
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.deleteResourceProgress"/*nonNLS*/);
+	return "Deleting resources...";
 }
 /**
  * @see MultiOperation. This method delegate to <code>deleteResource</code> or

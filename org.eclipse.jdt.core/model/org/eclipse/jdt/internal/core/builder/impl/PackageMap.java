@@ -112,15 +112,15 @@ public class PackageMap extends StateTables {
 		IPackage[] pkgs = getAllPackagesAsArray();
 		Arrays.sort(pkgs, StateImpl.getPackageComparator());
 		StringBuffer sb = new StringBuffer();
-		sb.append(super.toString() + ":\n"/*nonNLS*/);
+		sb.append(super.toString() + ":\n");
 		for (int i = 0; i < pkgs.length; ++i) {
-			sb.append("  "/*nonNLS*/ + pkgs[i].getName() + ": "/*nonNLS*/);
+			sb.append("  " + pkgs[i].getName() + ": ");
 			IPath[] fragments = getFragments(pkgs[i]);
 			for (int j = 0; j < fragments.length; ++j) {
-				if (j != 0) sb.append(", "/*nonNLS*/);
+				if (j != 0) sb.append(", ");
 				sb.append(fragments[j]);
 			}
-			sb.append("\n"/*nonNLS*/);
+			sb.append("\n");
 		}
 		return sb.toString();
 	}

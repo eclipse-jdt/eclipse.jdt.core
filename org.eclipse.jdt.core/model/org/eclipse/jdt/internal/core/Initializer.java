@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
 /* package */ class Initializer extends Member implements IInitializer {
 
 protected Initializer(IType parent, int occurrenceCount) {
-	super(INITIALIZER, parent, ""/*nonNLS*/);
+	super(INITIALIZER, parent, "");
 	// 0 is not valid: this first occurrence is occurrence 1.
 	if (occurrenceCount <= 0)
 		throw new IllegalArgumentException();
@@ -70,16 +70,16 @@ public void rename(String name, boolean force, IProgressMonitor monitor) throws 
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	if (info == null) {
-		buffer.append("<initializer>"/*nonNLS*/);
-		buffer.append(" (not open)"/*nonNLS*/);
+		buffer.append("<initializer>");
+		buffer.append(" (not open)");
 	} else {
 		try {
 			if (Flags.isStatic(this.getFlags())) {
-				buffer.append("static "/*nonNLS*/);
+				buffer.append("static ");
 			}
-			buffer.append("initializer"/*nonNLS*/);
+			buffer.append("initializer");
 		} catch (JavaModelException e) {
-			buffer.append("<JavaModelException in toString of "/*nonNLS*/ + getElementName());
+			buffer.append("<JavaModelException in toString of " + getElementName());
 		}
 	}
 }

@@ -46,7 +46,7 @@ public class CompilerOptions implements ConfigurableProblems, ProblemIrritants, 
 	public boolean parseLiteralExpressionsAsConstants = true;
 
 	// exception raised for unresolved compile errors
-	public String runtimeExceptionNameForCompileError = "java.lang.Error"/*nonNLS*/;
+	public String runtimeExceptionNameForCompileError = "java.lang.Error";
 
 	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
 	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2
@@ -79,79 +79,74 @@ public ConfigurableOption[] getConfigurableOptions(Locale locale) {
 	return new ConfigurableOption[] {
 		new ConfigurableOption(
 			componentName,
-			"debug.vars"/*nonNLS*/, 
+			"debug.vars", 
 			locale, 
 			(produceDebugAttributes & Vars) != 0 ? 0 : 1), 
 		new ConfigurableOption(
 			componentName,
-			"debug.lines"/*nonNLS*/, 
+			"debug.lines", 
 			locale, 
 			(produceDebugAttributes & Lines) != 0 ? 0 : 1), 
 		new ConfigurableOption(
 			componentName,
-			"debug.source"/*nonNLS*/, 
+			"debug.source", 
 			locale, 
 			(produceDebugAttributes & Source) != 0 ? 0 : 1), 
 		new ConfigurableOption(
 			componentName,
-			"debug.preserveAllLocals"/*nonNLS*/, 
+			"debug.preserveAllLocals", 
 			locale, 
 			preserveAllLocalVariables ? 0 : 1), 
 		new ConfigurableOption(
 			componentName,
-			"optionalError.unReachableCode"/*nonNLS*/, 
+			"optionalError.unReachableCode", 
 			locale, 
 			(errorThreshold & UnreachableCode) != 0 ? 0 : 1), 
 		new ConfigurableOption(
 			componentName,
-			"optionalError.importProblem"/*nonNLS*/, 
+			"optionalError.importProblem", 
 			locale, 
 			(errorThreshold & ImportProblem) != 0 ? 0 : 1), 
 		new ConfigurableOption(
 			componentName,
-			"optionalWarning.methodWithConstructorName"/*nonNLS*/, 
+			"optionalWarning.methodWithConstructorName", 
 			locale, 
 			(warningThreshold & MethodWithConstructorName) != 0 ? 0 : 1), 
 		new ConfigurableOption(
 			componentName,
-			"optionalWarning.overridingPackageDefaultMethod"/*nonNLS*/, 
+			"optionalWarning.overridingPackageDefaultMethod", 
 			locale, 
 			(warningThreshold & OverriddenPackageDefaultMethod) != 0 ? 0 : 1), 
 		new ConfigurableOption(
 			componentName,
-			"optionalWarning.deprecated"/*nonNLS*/, 
+			"optionalWarning.deprecated", 
 			locale, 
 			(warningThreshold & UsingDeprecatedAPI) != 0 ? 0 : 1), 
 		new ConfigurableOption(
 			componentName,
-			"optionalWarning.maskedCatchBlock"/*nonNLS*/, 
+			"optionalWarning.maskedCatchBlock", 
 			locale, 
 			(warningThreshold & MaskedCatchBlock) != 0 ? 0 : 1), 
 		new ConfigurableOption(
 			componentName,
-			"optionalWarning.unusedLocalVariable"/*nonNLS*/, 
+			"optionalWarning.unusedLocalVariable", 
 			locale, 
 			(warningThreshold & UnusedLocalVariable) != 0 ? 0 : 1), 
 		new ConfigurableOption(
 			componentName,
-			"optionalWarning.unusedArgument"/*nonNLS*/, 
+			"optionalWarning.unusedArgument", 
 			locale, 
 			(warningThreshold & UnusedArgument) != 0 ? 0 : 1), 
 		new ConfigurableOption(
 			componentName,
-			"binaryCompatibility.targetJDK"/*nonNLS*/, 
+			"binaryCompatibility.targetJDK", 
 			locale, 
 			targetJDK), 
 		new ConfigurableOption(
 			componentName,
-			"optionalWarning.accessEmulation"/*nonNLS*/, 
+			"optionalWarning.accessEmulation", 
 			locale, 
-			(warningThreshold & AccessEmulation) != 0 ? 0 : 1),
-		new ConfigurableOption(
-			componentName,
-			"optionalWarning.nonExternalizedString"/*nonNLS*/, 
-			locale, 
-			(warningThreshold & NonExternalizedString) != 0 ? 0 : 1)
+			(warningThreshold & AccessEmulation) != 0 ? 0 : 1)
 		}; 
 }
 public int getDebugAttributesMask() {
@@ -358,9 +353,6 @@ void setOption(ConfigurableOption setting) {
 		case 15: // synthetic access emulation
 			handleAccessEmulationAsWarning(setting.getCurrentValueIndex() == 0);
 			break;
-		case 16: // non externalized string literal
-			handleNonExternalizedStringLiteralAsWarning(setting.getCurrentValueIndex() == 0);
-			break;
 	}
 }
 public void setTargetJDK(int vmID) {
@@ -374,140 +366,110 @@ public void setWarningThreshold(int warningMask) {
 }
 public String toString() {
 
-	StringBuffer buf = new StringBuffer("CompilerOptions:"/*nonNLS*/);
+	StringBuffer buf = new StringBuffer("CompilerOptions:");
 	if ((produceDebugAttributes & Vars) != 0){
-		buf.append("\n-local variables debug attributes: ON"/*nonNLS*/);
+		buf.append("\n-local variables debug attributes: ON");
 	} else {
-		buf.append("\n-local variables debug attributes: OFF"/*nonNLS*/);
+		buf.append("\n-local variables debug attributes: OFF");
 	}
 	if ((produceDebugAttributes & Lines) != 0){
-		buf.append("\n-line number debug attributes: ON"/*nonNLS*/);
+		buf.append("\n-line number debug attributes: ON");
 	} else {
-		buf.append("\n-line number debug attributes: OFF"/*nonNLS*/);
+		buf.append("\n-line number debug attributes: OFF");
 	}
 	if ((produceDebugAttributes & Source) != 0){
-		buf.append("\n-source debug attributes: ON"/*nonNLS*/);
+		buf.append("\n-source debug attributes: ON");
 	} else {
-		buf.append("\n-source debug attributes: OFF"/*nonNLS*/);
+		buf.append("\n-source debug attributes: OFF");
 	}
 	if (preserveAllLocalVariables){
-		buf.append("\n-preserve all local variables: ON"/*nonNLS*/);
+		buf.append("\n-preserve all local variables: ON");
 	} else {
-		buf.append("\n-preserve all local variables: OFF"/*nonNLS*/);
+		buf.append("\n-preserve all local variables: OFF");
 	}
 	if ((errorThreshold & UnreachableCode) != 0){
-		buf.append("\n-unreachable code: ERROR"/*nonNLS*/);
+		buf.append("\n-unreachable code: ERROR");
 	} else {
 		if ((warningThreshold & UnreachableCode) != 0){
-			buf.append("\n-unreachable code: WARNING"/*nonNLS*/);
+			buf.append("\n-unreachable code: WARNING");
 		} else {
-			buf.append("\n-unreachable code: IGNORE"/*nonNLS*/);
+			buf.append("\n-unreachable code: IGNORE");
 		}
 	}
 	if ((errorThreshold & ImportProblem) != 0){
-		buf.append("\n-import problem: ERROR"/*nonNLS*/);
+		buf.append("\n-import problem: ERROR");
 	} else {
 		if ((warningThreshold & ImportProblem) != 0){
-			buf.append("\n-import problem: WARNING"/*nonNLS*/);
+			buf.append("\n-import problem: WARNING");
 		} else {
-			buf.append("\n-import problem: IGNORE"/*nonNLS*/);
+			buf.append("\n-import problem: IGNORE");
 		}
 	}
 	if ((errorThreshold & MethodWithConstructorName) != 0){
-		buf.append("\n-method with constructor name: ERROR"/*nonNLS*/);		
+		buf.append("\n-method with constructor name: ERROR");		
 	} else {
 		if ((warningThreshold & MethodWithConstructorName) != 0){
-			buf.append("\n-method with constructor name: WARNING"/*nonNLS*/);
+			buf.append("\n-method with constructor name: WARNING");
 		} else {
-			buf.append("\n-method with constructor name: IGNORE"/*nonNLS*/);
+			buf.append("\n-method with constructor name: IGNORE");
 		}
 	}
 	if ((errorThreshold & OverriddenPackageDefaultMethod) != 0){
-		buf.append("\n-overridden package default method: ERROR"/*nonNLS*/);
+		buf.append("\n-overridden package default method: ERROR");
 	} else {
 		if ((warningThreshold & OverriddenPackageDefaultMethod) != 0){
-			buf.append("\n-overridden package default method: WARNING"/*nonNLS*/);
+			buf.append("\n-overridden package default method: WARNING");
 		} else {
-			buf.append("\n-overridden package default method: IGNORE"/*nonNLS*/);
+			buf.append("\n-overridden package default method: IGNORE");
 		}
 	}
 	if ((errorThreshold & UsingDeprecatedAPI) != 0){
-		buf.append("\n-deprecation: ERROR"/*nonNLS*/);
+		buf.append("\n-deprecation: ERROR");
 	} else {
 		if ((warningThreshold & UsingDeprecatedAPI) != 0){
-			buf.append("\n-deprecation: WARNING"/*nonNLS*/);
+			buf.append("\n-deprecation: WARNING");
 		} else {
-			buf.append("\n-deprecation: IGNORE"/*nonNLS*/);
+			buf.append("\n-deprecation: IGNORE");
 		}
 	}
 	if ((errorThreshold & MaskedCatchBlock) != 0){
-		buf.append("\n-masked catch block: ERROR"/*nonNLS*/);
+		buf.append("\n-masked catch block: ERROR");
 	} else {
 		if ((warningThreshold & MaskedCatchBlock) != 0){
-			buf.append("\n-masked catch block: WARNING"/*nonNLS*/);
+			buf.append("\n-masked catch block: WARNING");
 		} else {
-			buf.append("\n-masked catch block: IGNORE"/*nonNLS*/);
+			buf.append("\n-masked catch block: IGNORE");
 		}
 	}
 	if ((errorThreshold & UnusedLocalVariable) != 0){
-		buf.append("\n-unused local variable: ERROR"/*nonNLS*/);
+		buf.append("\n-unused local variable: ERROR");
 	} else {
 		if ((warningThreshold & UnusedLocalVariable) != 0){
-			buf.append("\n-unused local variable: WARNING"/*nonNLS*/);
+			buf.append("\n-unused local variable: WARNING");
 		} else {
-			buf.append("\n-unused local variable: IGNORE"/*nonNLS*/);
+			buf.append("\n-unused local variable: IGNORE");
 		}
 	}
 	if ((errorThreshold & UnusedArgument) != 0){
-		buf.append("\n-unused parameter: ERROR"/*nonNLS*/);
+		buf.append("\n-unused parameter: ERROR");
 	} else {
 		if ((warningThreshold & UnusedArgument) != 0){
-			buf.append("\n-unused parameter: WARNING"/*nonNLS*/);
+			buf.append("\n-unused parameter: WARNING");
 		} else {
-			buf.append("\n-unused parameter: IGNORE"/*nonNLS*/);
-		}
-	}
-	if ((errorThreshold & AccessEmulation) != 0){
-		buf.append("\n-synthetic access emulation: ERROR"/*nonNLS*/);
-	} else {
-		if ((warningThreshold & AccessEmulation) != 0){
-			buf.append("\n-synthetic access emulation: WARNING"/*nonNLS*/);
-		} else {
-			buf.append("\n-synthetic access emulation: IGNORE"/*nonNLS*/);
-		}
-	}
-	if ((errorThreshold & NonExternalizedString) != 0){
-		buf.append("\n-non externalized string: ERROR"/*nonNLS*/);
-	} else {
-		if ((warningThreshold & NonExternalizedString) != 0){
-			buf.append("\n-non externalized string: WARNING"/*nonNLS*/);
-		} else {
-			buf.append("\n-non externalized string: IGNORE"/*nonNLS*/);
+			buf.append("\n-unused parameter: IGNORE");
 		}
 	}
 	switch(targetJDK){
 		case JDK1_1 :
-			buf.append("\n-target JDK: 1.1"/*nonNLS*/);
+			buf.append("\n-target JDK: 1.1");
 			break;
 		case JDK1_2 :
-			buf.append("\n-target JDK: 1.2"/*nonNLS*/);
+			buf.append("\n-target JDK: 1.2");
 	}
-	buf.append("\n-verbose : "/*nonNLS*/ + (verbose ? "ON"/*nonNLS*/ : "OFF"/*nonNLS*/));
-	buf.append("\n-produce reference info : "/*nonNLS*/ + (produceReferenceInfo ? "ON"/*nonNLS*/ : "OFF"/*nonNLS*/));
-	buf.append("\n-parse literal expressions as constants : "/*nonNLS*/ + (parseLiteralExpressionsAsConstants ? "ON"/*nonNLS*/ : "OFF"/*nonNLS*/));
-	buf.append("\n-runtime exception name for compile error : "/*nonNLS*/ + runtimeExceptionNameForCompileError);
+	buf.append("\n-verbose : " + (verbose ? "ON" : "OFF"));
+	buf.append("\n-produce reference info : " + (produceReferenceInfo ? "ON" : "OFF"));
+	buf.append("\n-parse literal expressions as constants : " + (parseLiteralExpressionsAsConstants ? "ON" : "OFF"));
+	buf.append("\n-runtime exception name for compile error : " + runtimeExceptionNameForCompileError);
 	return buf.toString();
-}
-
-public void handleNonExternalizedStringLiteralAsWarning(boolean flag) {
-	if (flag) {
-		warningThreshold |= NonExternalizedString;
-	} else {
-		warningThreshold &= ~NonExternalizedString;
-	}
-}
-
-public boolean isNonExternalizedStringLiteralHandledAsWarning() {
-	return (warningThreshold & NonExternalizedString) != 0;
 }
 }

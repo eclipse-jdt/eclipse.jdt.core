@@ -128,7 +128,7 @@ protected void markerFromProblemDetail(IResource resource, IProblemDetail proble
 	if ((sev & ProblemDetailImpl.S_SYNTAX_ERROR) != 0) {
 		setFlags(marker, ProblemDetailImpl.S_SYNTAX_ERROR);
 	}
-	marker.setAttribute("ID"/*nonNLS*/, new Integer(problem.getID()));
+	marker.setAttribute("ID", new Integer(problem.getID()));
 
 	int start = problem.getStartPos();
 	marker.setAttribute(IMarker.CHAR_START, new Integer(start));

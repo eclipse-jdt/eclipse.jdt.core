@@ -45,19 +45,19 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpression() {
 	/*slow code*/
 
-	String s = "<CompleteOnMessageSend:"/*nonNLS*/;
+	String s = "<CompleteOnMessageSend:";
 	if (receiver != ThisReference.ThisImplicit)
-		s = s + receiver.toStringExpression() + "."/*nonNLS*/;
-	s = s + new String(selector) + "("/*nonNLS*/;
+		s = s + receiver.toStringExpression() + ".";
+	s = s + new String(selector) + "(";
 	if (arguments != null) {
 		for (int i = 0; i < arguments.length; i++) {
 			s += arguments[i].toStringExpression();
 			if (i != arguments.length - 1) {
-				s += ", "/*nonNLS*/;
+				s += ", ";
 			}
 		};
 	}
-	s = s + ")>"/*nonNLS*/;
+	s = s + ")>";
 	return s;
 }
 }

@@ -13,7 +13,7 @@ import org.eclipse.jdt.core.*;
  */
 public class ImportContainer extends SourceRefElement implements IImportContainer {
 protected ImportContainer(ICompilationUnit parent) {
-	super(IMPORT_CONTAINER, parent, ""/*nonNLS*/);
+	super(IMPORT_CONTAINER, parent, "");
 }
 /**
  * @see JavaElement#getHandleMemento()
@@ -25,8 +25,7 @@ public String getHandleMemento(){
  * @see JavaElement#getHandleMemento()
  */
 protected char getHandleMementoDelimiter() {
-	Assert.isTrue(false, Util.bind("assert.shouldNotImplement"/*nonNLS*/));
-	return 0;
+	throw new Error("should not be called");
 }
 /**
  * @see IImportContainer
@@ -65,7 +64,7 @@ protected void toString(int tab, StringBuffer buffer) {
 	if (info == null || !(info instanceof JavaElementInfo)) return;
 	IJavaElement[] children = ((JavaElementInfo)info).getChildren();
 	for (int i = 0; i < children.length; i++) {
-		if (i > 0) buffer.append("\n"/*nonNLS*/);
+		if (i > 0) buffer.append("\n");
 		((JavaElement)children[i]).toString(tab, buffer);
 	}
 }

@@ -199,7 +199,7 @@ public org.eclipse.jdt.internal.core.builder.IType shortType() {
 	 * Returns a string representation of the image handle.	
 	 */
 	public String toString() {
-		return "image"/*nonNLS*/;
+		return "image";
 	}
 /**
  * Returns the Type representing the primitive type void

@@ -40,7 +40,7 @@ public interface IPackageFragmentRoot extends IParent, IJavaElement, IOpenable {
 	/**
 	 * Empty root path
 	 */
-	String DEFAULT_PACKAGEROOT_PATH = ""/*nonNLS*/;
+	String DEFAULT_PACKAGEROOT_PATH = "";
 
 /**
  * Attaches the source archive identified by the given absolute path to this

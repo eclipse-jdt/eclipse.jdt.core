@@ -36,7 +36,7 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpression(){
 	/* slow code */
 	
-	return qualification.toString(0)+".super"/*nonNLS*/ ;
+	return qualification.toString(0)+".super" ;
 }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

@@ -40,23 +40,23 @@ public void resolve(BlockScope scope) {
 }
 public String toString(int tab) {
 	String s = tabString(tab);
-	s += "<SelectOnExplicitConstructorCall:"/*nonNLS*/;
+	s += "<SelectOnExplicitConstructorCall:";
 	if (qualification != null)
-		s = s + qualification.toStringExpression() + "."/*nonNLS*/;
+		s = s + qualification.toStringExpression() + ".";
 	if (accessMode == This) {
-		s = s + "this("/*nonNLS*/;
+		s = s + "this(";
 	} else {
-		s = s + "super("/*nonNLS*/;
+		s = s + "super(";
 	}
 	if (arguments != null) {
 		for (int i = 0; i < arguments.length; i++) {
 			s += arguments[i].toStringExpression();
 			if (i != arguments.length - 1) {
-				s += ", "/*nonNLS*/;
+				s += ", ";
 			}
 		};
 	}
-	s += ")>"/*nonNLS*/;
+	s += ")>";
 	return s;
 }
 }

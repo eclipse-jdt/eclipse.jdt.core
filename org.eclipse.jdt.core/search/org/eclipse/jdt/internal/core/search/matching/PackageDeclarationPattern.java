@@ -51,6 +51,13 @@ protected int matchContainer() {
 	return 0;
 }
 /**
+ * @see SearchPattern#matches(AstNode, boolean)
+ */
+protected boolean matches(AstNode node, boolean resolve) {
+	// used only in the case of a OrPattern
+	return true;
+}
+/**
  * @see SearchPattern#matchIndexEntry
  */
 protected boolean matchIndexEntry() {
@@ -59,32 +66,24 @@ protected boolean matchIndexEntry() {
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);
-	buffer.append("PackageDeclarationPattern: <"/*nonNLS*/);
+	buffer.append("PackageDeclarationPattern: <");
 	if (this.pkgName != null) buffer.append(this.pkgName);
-	buffer.append(">, "/*nonNLS*/);
+	buffer.append(">, ");
 	switch(matchMode){
 		case EXACT_MATCH : 
-			buffer.append("exact match, "/*nonNLS*/);
+			buffer.append("exact match, ");
 			break;
 		case PREFIX_MATCH :
-			buffer.append("prefix match, "/*nonNLS*/);
+			buffer.append("prefix match, ");
 			break;
 		case PATTERN_MATCH :
-			buffer.append("pattern match, "/*nonNLS*/);
+			buffer.append("pattern match, ");
 			break;
 	}
 	if (isCaseSensitive)
-		buffer.append("case sensitive"/*nonNLS*/);
+		buffer.append("case sensitive");
 	else
-		buffer.append("case insensitive"/*nonNLS*/);
+		buffer.append("case insensitive");
 	return buffer.toString();
-}
-
-/**
- * @see SearchPattern#matchLevel(AstNode, boolean)
- */
-public int matchLevel(AstNode node, boolean resolve) {
-	// used only in the case of a OrPattern
-	return ACCURATE_MATCH;
 }
 }

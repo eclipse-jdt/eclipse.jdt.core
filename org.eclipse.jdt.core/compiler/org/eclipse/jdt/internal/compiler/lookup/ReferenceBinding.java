@@ -265,7 +265,7 @@ public char[] constantPoolName() /* java/lang/Object */ {
 	return constantPoolName = CharOperation.concatWith(compoundName, '/');
 }
 String debugName() {
-	return (compoundName != null) ? new String(readableName()) : "UNNAMED TYPE"/*nonNLS*/;
+	return (compoundName != null) ? new String(readableName()) : "UNNAMED TYPE";
 }
 public final int depth() {
 	int depth = 0;

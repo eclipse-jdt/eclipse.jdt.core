@@ -28,7 +28,7 @@ public MoveElementsOperation(IJavaElement[] elementsToMove, IJavaElement[] destC
  * for progress monitoring.
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.moveElementProgress"/*nonNLS*/);
+	return "Moving elements...";
 }
 /**
  * @see CopyElementsOperation#isMove()

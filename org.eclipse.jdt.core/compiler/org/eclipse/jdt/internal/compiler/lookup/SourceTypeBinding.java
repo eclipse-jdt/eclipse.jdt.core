@@ -118,7 +118,7 @@ public FieldBinding addSyntheticField(LocalVariableBinding actualOuterLocalVaria
 					synthField.name = CharOperation.concat(
 						SyntheticArgumentBinding.OuterLocalPrefix,
 						actualOuterLocalVariable.name,
-						("$"/*nonNLS*/ + String.valueOf(index++)).toCharArray());
+						("$" + String.valueOf(index++)).toCharArray());
 					needRecheck = true;
 					break;
 				}
@@ -176,7 +176,7 @@ public FieldBinding addSyntheticField(TypeBinding targetType, BlockScope blockSc
 	FieldBinding synthField = (FieldBinding) synthetics[CLASS_LITERAL].get(targetType);
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
-			("class$"/*nonNLS*/ + synthetics[CLASS_LITERAL].size()).toCharArray(),
+			("class$" + synthetics[CLASS_LITERAL].size()).toCharArray(),
 			blockScope.getJavaLangClass(),
 			AccDefault | AccStatic | AccSynthetic,
 			this,
@@ -488,6 +488,30 @@ public FieldBinding getSyntheticField(LocalVariableBinding actualOuterLocalVaria
 
 	return (FieldBinding) synthetics[FIELD].get(actualOuterLocalVariable);
 }
+/* Answer the synthetic field for <targetEnclosingType>
+*	or null if one does not exist.
+*/
+
+public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, BlockScope scope) {
+	if (synthetics == null)
+		return null;
+
+	FieldBinding field = (FieldBinding) synthetics[FIELD].get(targetEnclosingType);
+	if (field != null)
+		return field;
+
+	// type compatibility : to handle cases such as
+	// class T { class M{}}
+	// class S extends T { class N extends M {}} --> need to use S as a default enclosing instance for the super constructor call in N().
+	Enumeration enum = synthetics[FIELD].elements();
+	while (enum.hasMoreElements()) {
+		field = (FieldBinding) enum.nextElement();
+		if (CharOperation.startsWith(field.name, SyntheticArgumentBinding.EnclosingInstancePrefix)
+			&& targetEnclosingType.isSuperclassOf((ReferenceBinding) field.type))
+				return field;
+	}
+	return null;
+}
 public ReferenceBinding[] memberTypes() {
 	return memberTypes;
 }
@@ -732,71 +756,71 @@ public FieldBinding[] syntheticFields() {
 	return bindings;
 }
 public String toString() {
-	String s = "(id="/*nonNLS*/+(id == NoId ? "NoId"/*nonNLS*/ : (""/*nonNLS*/+id) ) +")\n"/*nonNLS*/;
+	String s = "(id="+(id == NoId ? "NoId" : (""+id) ) +")\n";
 
-	if (isDeprecated()) s += "deprecated "/*nonNLS*/;
-	if (isPublic()) s += "public "/*nonNLS*/;
-	if (isProtected()) s += "protected "/*nonNLS*/;
-	if (isPrivate()) s += "private "/*nonNLS*/;
-	if (isAbstract() && isClass()) s += "abstract "/*nonNLS*/;
-	if (isStatic() && isNestedType()) s += "static "/*nonNLS*/;
-	if (isFinal()) s += "final "/*nonNLS*/;
+	if (isDeprecated()) s += "deprecated ";
+	if (isPublic()) s += "public ";
+	if (isProtected()) s += "protected ";
+	if (isPrivate()) s += "private ";
+	if (isAbstract() && isClass()) s += "abstract ";
+	if (isStatic() && isNestedType()) s += "static ";
+	if (isFinal()) s += "final ";
 
-	s += isInterface() ? "interface "/*nonNLS*/ : "class "/*nonNLS*/;
-	s += (compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED TYPE"/*nonNLS*/;
+	s += isInterface() ? "interface " : "class ";
+	s += (compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED TYPE";
 
-	s += "\n\textends "/*nonNLS*/;
-	s += (superclass != null) ? superclass.debugName() : "NULL TYPE"/*nonNLS*/;
+	s += "\n\textends ";
+	s += (superclass != null) ? superclass.debugName() : "NULL TYPE";
 
 	if (superInterfaces != null) {
 		if (superInterfaces != NoSuperInterfaces) {
-			s += "\n\timplements : "/*nonNLS*/;
+			s += "\n\timplements : ";
 			for (int i = 0, length = superInterfaces.length; i < length; i++) {
 				if (i  > 0)
-					s += ", "/*nonNLS*/;
-				s += (superInterfaces[i] != null) ? superInterfaces[i].debugName() : "NULL TYPE"/*nonNLS*/;
+					s += ", ";
+				s += (superInterfaces[i] != null) ? superInterfaces[i].debugName() : "NULL TYPE";
 			}
 		}
 	} else {
-		s += "NULL SUPERINTERFACES"/*nonNLS*/;
+		s += "NULL SUPERINTERFACES";
 	}
 
 	if (enclosingType() != null) {
-		s += "\n\tenclosing type : "/*nonNLS*/;
+		s += "\n\tenclosing type : ";
 		s += enclosingType().debugName();
 	}
 
 	if (fields != null) {
 		if (fields != NoFields) {
-			s += "\n/*   fields   */"/*nonNLS*/;
+			s += "\n/*   fields   */";
 			for (int i = 0, length = fields.length; i < length; i++)
-				s += (fields[i] != null) ? "\n"/*nonNLS*/ + fields[i].toString() : "\nNULL FIELD"/*nonNLS*/;
+				s += (fields[i] != null) ? "\n" + fields[i].toString() : "\nNULL FIELD";
 		}
 	} else {
-		s += "NULL FIELDS"/*nonNLS*/;
+		s += "NULL FIELDS";
 	}
 
 	if (methods != null) {
 		if (methods != NoMethods) {
-			s += "\n/*   methods   */"/*nonNLS*/;
+			s += "\n/*   methods   */";
 			for (int i = 0, length = methods.length; i < length; i++)
-				s += (methods[i] != null) ? "\n"/*nonNLS*/ + methods[i].toString() : "\nNULL METHOD"/*nonNLS*/;
+				s += (methods[i] != null) ? "\n" + methods[i].toString() : "\nNULL METHOD";
 		}
 	} else {
-		s += "NULL METHODS"/*nonNLS*/;
+		s += "NULL METHODS";
 	}
 
 	if (memberTypes != null) {
 		if (memberTypes != NoMemberTypes) {
-			s += "\n/*   members   */"/*nonNLS*/;
+			s += "\n/*   members   */";
 			for (int i = 0, length = memberTypes.length; i < length; i++)
-				s += (memberTypes[i] != null) ? "\n"/*nonNLS*/ + memberTypes[i].toString() : "\nNULL TYPE"/*nonNLS*/;
+				s += (memberTypes[i] != null) ? "\n" + memberTypes[i].toString() : "\nNULL TYPE";
 		}
 	} else {
-		s += "NULL MEMBER TYPES"/*nonNLS*/;
+		s += "NULL MEMBER TYPES";
 	}
 
-	s += "\n\n\n"/*nonNLS*/;
+	s += "\n\n\n";
 	return s;
 }
 void verifyMethods(MethodVerifier verifier) {
@@ -804,31 +828,5 @@ void verifyMethods(MethodVerifier verifier) {
 
 	for (int i = memberTypes.length; --i >= 0;)
 		 ((SourceTypeBinding) memberTypes[i]).verifyMethods(verifier);
-}
-
-/* Answer the synthetic field for <targetEnclosingType>
-*	or null if one does not exist.
-*/
-
-public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, BlockScope scope, boolean onlyExactMatch) {
-	if (synthetics == null)
-		return null;
-
-	FieldBinding field = (FieldBinding) synthetics[FIELD].get(targetEnclosingType);
-	if (field != null) return field;
-
-	// type compatibility : to handle cases such as
-	// class T { class M{}}
-	// class S extends T { class N extends M {}} --> need to use S as a default enclosing instance for the super constructor call in N().
-	if (!onlyExactMatch){
-		Enumeration enum = synthetics[FIELD].elements();
-		while (enum.hasMoreElements()) {
-			field = (FieldBinding) enum.nextElement();
-			if (CharOperation.startsWith(field.name, SyntheticArgumentBinding.EnclosingInstancePrefix)
-				&& targetEnclosingType.isSuperclassOf((ReferenceBinding) field.type))
-					return field;
-		}
-	}
-	return null;
 }
 }

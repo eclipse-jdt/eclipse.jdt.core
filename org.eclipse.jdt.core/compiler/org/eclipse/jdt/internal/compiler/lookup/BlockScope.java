@@ -139,16 +139,16 @@ public final boolean allowBlankFinalFieldAssignment(FieldBinding binding) {
 		|| ((AbstractMethodDeclaration) methodScope.referenceContext).isInitializationMethod(); // inside constructor or clinit
 }
 String basicToString(int tab) {
-	String newLine = "\n"/*nonNLS*/;
+	String newLine = "\n";
 	for (int i = tab; --i >= 0;)
-		newLine += "\t"/*nonNLS*/;
+		newLine += "\t";
 
-	String s = newLine + "--- Block Scope ---"/*nonNLS*/;
-	newLine += "\t"/*nonNLS*/;
-	s += newLine + "locals:"/*nonNLS*/;
+	String s = newLine + "--- Block Scope ---";
+	newLine += "\t";
+	s += newLine + "locals:";
 	for (int i = 0; i < localIndex; i++)
-		s += newLine + "\t"/*nonNLS*/ + locals[i].toString();
-	s += newLine + "startIndex = "/*nonNLS*/ + startIndex;
+		s += newLine + "\t" + locals[i].toString();
+	s += newLine + "startIndex = " + startIndex;
 	return s;
 }
 private void checkAndSetModifiersForVariable(LocalVariableBinding varBinding) {
@@ -670,23 +670,23 @@ public Object[] getCompatibleEmulationPath(ReferenceBinding targetEnclosingType)
 	// use synthetic constructor arguments if possible
 	if (insideConstructor) {
 		SyntheticArgumentBinding syntheticArg;
-		if ((syntheticArg = ((NestedTypeBinding) sourceType).getSyntheticArgument(targetEnclosingType, this, false)) != null) {
+		if ((syntheticArg = ((NestedTypeBinding) sourceType).getSyntheticArgument(targetEnclosingType, this)) != null) {
 			return new Object[] {syntheticArg};
 		}
 	}
 	// use a direct synthetic field then
 	if (!currentMethodScope.isStatic) {
 		FieldBinding syntheticField;
-		if ((syntheticField = sourceType.getSyntheticField(targetEnclosingType, this, false)) != null) {
+		if ((syntheticField = sourceType.getSyntheticField(targetEnclosingType, this)) != null) {
 			return new Object[] {syntheticField};
 		}
 		// could be reached through a sequence of enclosing instance link (nested members)
 		Object[] path = new Object[2]; // probably at least 2 of them
 		ReferenceBinding currentType = sourceType.enclosingType();
 		if (insideConstructor) {
-			path[0] = ((NestedTypeBinding) sourceType).getSyntheticArgument((SourceTypeBinding)currentType, this, false);
+			path[0] = ((NestedTypeBinding) sourceType).getSyntheticArgument((SourceTypeBinding)currentType, this);
 		} else {
-			path[0] = sourceType.getSyntheticField((SourceTypeBinding)currentType, this, false);
+			path[0] = sourceType.getSyntheticField((SourceTypeBinding)currentType, this);
 		} 
 		if (path[0] != null) { // keep accumulating
 			int count = 1;
@@ -694,7 +694,7 @@ public Object[] getCompatibleEmulationPath(ReferenceBinding targetEnclosingType)
 			while ((currentEnclosingType = currentType.enclosingType()) != null) {
 				//done?
 				if (currentType == targetEnclosingType || targetEnclosingType.isSuperclassOf(currentType)) break;
-				syntheticField = ((NestedTypeBinding)currentType).getSyntheticField((SourceTypeBinding)currentEnclosingType, this, false);
+				syntheticField = ((NestedTypeBinding)currentType).getSyntheticField((SourceTypeBinding)currentEnclosingType, this);
 				if (syntheticField == null) break;
 				// append inside the path
 				if (count == path.length) {
@@ -889,23 +889,23 @@ public Object[] getExactEmulationPath(ReferenceBinding targetEnclosingType) {
 	// use synthetic constructor arguments if possible
 	if (insideConstructor) {
 		SyntheticArgumentBinding syntheticArg;
-		if ((syntheticArg = ((NestedTypeBinding) sourceType).getSyntheticArgument(targetEnclosingType, this, true)) != null) {
+		if ((syntheticArg = ((NestedTypeBinding) sourceType).getSyntheticArgument(targetEnclosingType, this)) != null) {
 			return new Object[] {syntheticArg};
 		}
 	}
 	// use a direct synthetic field then
 	if (!currentMethodScope.isStatic) {
 		FieldBinding syntheticField;
-		if ((syntheticField = sourceType.getSyntheticField(targetEnclosingType, this, true)) != null) {
+		if ((syntheticField = sourceType.getSyntheticField(targetEnclosingType, this)) != null) {
 			return new Object[] {syntheticField};
 		}
 		// could be reached through a sequence of enclosing instance link (nested members)
 		Object[] path = new Object[2]; // probably at least 2 of them
 		ReferenceBinding currentType = sourceType.enclosingType();
 		if (insideConstructor) {
-			path[0] = ((NestedTypeBinding) sourceType).getSyntheticArgument((SourceTypeBinding)currentType, this, true);
+			path[0] = ((NestedTypeBinding) sourceType).getSyntheticArgument((SourceTypeBinding)currentType, this);
 		} else {
-			path[0] = sourceType.getSyntheticField((SourceTypeBinding)currentType, this, true);
+			path[0] = sourceType.getSyntheticField((SourceTypeBinding)currentType, this);
 		} 
 		if (path[0] != null) { // keep accumulating
 			int count = 1;
@@ -913,7 +913,7 @@ public Object[] getExactEmulationPath(ReferenceBinding targetEnclosingType) {
 			while ((currentEnclosingType = currentType.enclosingType()) != null) {
 				//done?
 				if (currentType == targetEnclosingType) break;
-				syntheticField = ((NestedTypeBinding)currentType).getSyntheticField((SourceTypeBinding)currentEnclosingType, this, true);
+				syntheticField = ((NestedTypeBinding)currentType).getSyntheticField((SourceTypeBinding)currentEnclosingType, this);
 				if (syntheticField == null) break;
 				// append inside the path
 				if (count == path.length) {
@@ -1175,7 +1175,7 @@ public String toString(int tab) {
 	String s = basicToString(tab);
 	for (int i = 0; i < scopeIndex; i++)
 		if (subscopes[i] instanceof BlockScope)
-			s += ((BlockScope) subscopes[i]).toString(tab + 1) + "\n"/*nonNLS*/;
+			s += ((BlockScope) subscopes[i]).toString(tab + 1) + "\n";
 	return s;
 }
 }

@@ -102,6 +102,110 @@ private boolean matches(char[][] tokens) {
 	return this.matchesName(this.pkgName, name);
 }
 /**
+ * @see SearchPattern#matches(AstNode, boolean)
+ */
+protected boolean matches(AstNode node, boolean resolve) {
+	if (node instanceof QualifiedTypeReference) {
+		return this.matches((QualifiedTypeReference)node, resolve);
+	} else if (node instanceof ImportReference) {
+		return this.matches((ImportReference)node, resolve);
+	} else if (node instanceof QualifiedNameReference) {
+		return this.matches((QualifiedNameReference)node, resolve);
+	}
+	return false;
+}
+/**
+ * Returns whether this package reference pattern matches the given import reference.
+ * Look at resolved information only if specified.
+ */
+private boolean matches(ImportReference importRef, boolean resolve) {
+	if (importRef.onDemand) {
+		return this.matches(importRef.tokens);
+	} else {
+		int length = importRef.tokens.length - 1;
+		char[][] tokens = new char[length][];
+		System.arraycopy(importRef.tokens, 0, tokens, 0, length);
+		return this.matches(tokens);
+	}
+}
+/**
+ * Returns whether this package reference pattern matches the given qualified name reference.
+ * Look at resolved information only if specified.
+ */
+private boolean matches(QualifiedNameReference qNameRef, boolean resolve) {
+	Binding binding = qNameRef.binding;
+	if (!resolve || binding == null || !binding.isValidBinding()) {
+		if (this.pkgName != null) {
+			switch (this.matchMode) {
+				case EXACT_MATCH:
+				case PREFIX_MATCH:
+					return CharOperation.prefixEquals(this.pkgName, CharOperation.concatWith(qNameRef.tokens, '.'), this.isCaseSensitive);
+				case PATTERN_MATCH:
+					char[] pattern = this.pkgName[this.pkgName.length-1] == '*' ? this.pkgName : CharOperation.concat(this.pkgName, ".*".toCharArray());
+					return CharOperation.match(pattern, CharOperation.concatWith(qNameRef.tokens, '.'), this.isCaseSensitive);
+			}
+		}
+	} else {
+		TypeBinding typeBinding = null;
+		char[][] tokens = qNameRef.tokens;
+		int lastIndex = tokens.length-1;
+		switch (qNameRef.bits & Statement.RestrictiveFlagMASK) {
+			case BindingIds.FIELD : // reading a field
+				typeBinding = ((FieldBinding)binding).declaringClass;
+				// no valid match amongst fields
+				int otherBindingsCount = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;			
+				lastIndex -= otherBindingsCount + 1;
+				if (lastIndex < 0) return false;
+				break;
+			case BindingIds.LOCAL : // reading a local variable
+				return false; // no package match in it
+			case BindingIds.TYPE : //=============only type ==============
+				typeBinding = (TypeBinding)binding;
+		}
+		if (typeBinding instanceof ArrayBinding) {
+			typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
+		}
+		if (typeBinding instanceof ReferenceBinding) {
+			PackageBinding pkgBinding = ((ReferenceBinding)typeBinding).fPackage;
+			return this.matches(pkgBinding.compoundName);
+		}
+		return false;
+	}
+	return true;
+}
+/**
+ * Returns whether this package reference pattern matches the given type reference.
+ * Look at resolved information only if specified.
+ */
+private boolean matches(QualifiedTypeReference typeRef, boolean resolve) {
+	if (!resolve) {
+		if (this.pkgName != null) {
+			switch (this.matchMode) {
+				case EXACT_MATCH:
+				case PREFIX_MATCH:
+					return CharOperation.prefixEquals(this.pkgName, CharOperation.concatWith(typeRef.tokens, '.'), this.isCaseSensitive);
+				case PATTERN_MATCH:
+					char[] pattern = this.pkgName[this.pkgName.length-1] == '*' ? this.pkgName : CharOperation.concat(this.pkgName, ".*".toCharArray());
+					return CharOperation.match(pattern, CharOperation.concatWith(typeRef.tokens, '.'), this.isCaseSensitive);
+			}
+		}
+	} else {
+		TypeBinding typeBinding = typeRef.binding;
+		if (typeBinding != null){
+			if (typeBinding instanceof ArrayBinding) {
+				typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
+			}
+			if (typeBinding instanceof ReferenceBinding) {
+				PackageBinding pkgBinding = ((ReferenceBinding)typeBinding).fPackage;
+				return this.matches(pkgBinding.compoundName);
+			}
+			return false;
+		}
+			
+	}
+	return true;
+}
+/**
  * @see SearchPattern#matchIndexEntry
  */
 protected boolean matchIndexEntry() {
@@ -142,186 +246,24 @@ protected void resetQuery() {
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);
-	buffer.append("PackageReferencePattern: <"/*nonNLS*/);
+	buffer.append("PackageReferencePattern: <");
 	if (this.pkgName != null) buffer.append(this.pkgName);
-	buffer.append(">, "/*nonNLS*/);
+	buffer.append(">, ");
 	switch(matchMode){
 		case EXACT_MATCH : 
-			buffer.append("exact match, "/*nonNLS*/);
+			buffer.append("exact match, ");
 			break;
 		case PREFIX_MATCH :
-			buffer.append("prefix match, "/*nonNLS*/);
+			buffer.append("prefix match, ");
 			break;
 		case PATTERN_MATCH :
-			buffer.append("pattern match, "/*nonNLS*/);
+			buffer.append("pattern match, ");
 			break;
 	}
 	if (isCaseSensitive)
-		buffer.append("case sensitive"/*nonNLS*/);
+		buffer.append("case sensitive");
 	else
-		buffer.append("case insensitive"/*nonNLS*/);
+		buffer.append("case insensitive");
 	return buffer.toString();
-}
-
-/**
- * @see SearchPattern#matchLevel(AstNode, boolean)
- */
-public int matchLevel(AstNode node, boolean resolve) {
-	if (node instanceof QualifiedTypeReference) {
-		return this.matchLevel((QualifiedTypeReference)node, resolve);
-	} else if (node instanceof ImportReference) {
-		return this.matchLevel((ImportReference)node, resolve);
-	} else if (node instanceof QualifiedNameReference) {
-		return this.matchLevel((QualifiedNameReference)node, resolve);
-	}
-	return IMPOSSIBLE_MATCH;
-}
-
-/**
- * Returns whether this package reference pattern matches the given import reference.
- * Look at resolved information only if specified.
- */
-private int matchLevel(ImportReference importRef, boolean resolve) {
-	if (importRef.onDemand) {
-		if (this.matches(importRef.tokens)) {
-			return ACCURATE_MATCH;
-		} else {
-			return IMPOSSIBLE_MATCH;
-		}
-	} else {
-		int length = importRef.tokens.length - 1;
-		char[][] tokens = new char[length][];
-		System.arraycopy(importRef.tokens, 0, tokens, 0, length);
-		if (this.matches(tokens)) {
-			return ACCURATE_MATCH;
-		} else {
-			return IMPOSSIBLE_MATCH;
-		}
-	}
-}
-
-/**
- * Returns whether this package reference pattern matches the given qualified name reference.
- * Look at resolved information only if specified.
- */
-private int matchLevel(QualifiedNameReference qNameRef, boolean resolve) {
-	if (!resolve) {
-		if (this.pkgName == null) {
-			return POSSIBLE_MATCH;
-		} else {
-			switch (this.matchMode) {
-				case EXACT_MATCH:
-				case PREFIX_MATCH:
-					if (CharOperation.prefixEquals(this.pkgName, CharOperation.concatWith(qNameRef.tokens, '.'), this.isCaseSensitive)) {
-						return POSSIBLE_MATCH;
-					} else {
-						return IMPOSSIBLE_MATCH;
-					}
-				case PATTERN_MATCH:
-					char[] pattern = this.pkgName[this.pkgName.length-1] == '*' ? this.pkgName : CharOperation.concat(this.pkgName, ".*"/*nonNLS*/.toCharArray());
-					if (CharOperation.match(pattern, CharOperation.concatWith(qNameRef.tokens, '.'), this.isCaseSensitive)) {
-						return POSSIBLE_MATCH;
-					} else {
-						return IMPOSSIBLE_MATCH;
-					}
-				default:
-					return IMPOSSIBLE_MATCH;
-			}
-		}
-	} else {
-		Binding binding = qNameRef.binding;
-		if (binding == null) {
-			return INACCURATE_MATCH;
-		} else {
-			TypeBinding typeBinding = null;
-			char[][] tokens = qNameRef.tokens;
-			int lastIndex = tokens.length-1;
-			switch (qNameRef.bits & Statement.RestrictiveFlagMASK) {
-				case BindingIds.FIELD : // reading a field
-					typeBinding = ((FieldBinding)binding).declaringClass;
-					// no valid match amongst fields
-					int otherBindingsCount = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;			
-					lastIndex -= otherBindingsCount + 1;
-					if (lastIndex < 0) return IMPOSSIBLE_MATCH;
-					break;
-				case BindingIds.LOCAL : // reading a local variable
-					return IMPOSSIBLE_MATCH; // no package match in it
-				case BindingIds.TYPE : //=============only type ==============
-					typeBinding = (TypeBinding)binding;
-			}
-			if (typeBinding instanceof ArrayBinding) {
-				typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
-			}
-			if (typeBinding == null) {
-				return INACCURATE_MATCH;
-			} else {
-				if (typeBinding instanceof ReferenceBinding) {
-					PackageBinding pkgBinding = ((ReferenceBinding)typeBinding).fPackage;
-					if (pkgBinding == null) {
-						return INACCURATE_MATCH;
-					} else if (this.matches(pkgBinding.compoundName)) {
-						return ACCURATE_MATCH;
-					} else {
-						return IMPOSSIBLE_MATCH;
-					}
-				} else {
-					return IMPOSSIBLE_MATCH;
-				}
-			}
-		}
-	}
-}
-
-/**
- * Returns whether this package reference pattern matches the given type reference.
- * Look at resolved information only if specified.
- */
-private int matchLevel(QualifiedTypeReference typeRef, boolean resolve) {
-	if (!resolve) {
-		if (this.pkgName == null) {
-			return POSSIBLE_MATCH;
-		} else {
-			switch (this.matchMode) {
-				case EXACT_MATCH:
-				case PREFIX_MATCH:
-					if (CharOperation.prefixEquals(this.pkgName, CharOperation.concatWith(typeRef.tokens, '.'), this.isCaseSensitive)) {
-						return POSSIBLE_MATCH;
-					} else {
-						return IMPOSSIBLE_MATCH;
-					}
-				case PATTERN_MATCH:
-					char[] pattern = this.pkgName[this.pkgName.length-1] == '*' ? this.pkgName : CharOperation.concat(this.pkgName, ".*"/*nonNLS*/.toCharArray());
-					if (CharOperation.match(pattern, CharOperation.concatWith(typeRef.tokens, '.'), this.isCaseSensitive)) {
-						return POSSIBLE_MATCH;
-					} else {
-						return IMPOSSIBLE_MATCH;
-					}
-				default:
-					return IMPOSSIBLE_MATCH;
-			}
-		}
-	} else {
-		TypeBinding typeBinding = typeRef.binding;
-		if (typeBinding == null) {
-			return INACCURATE_MATCH;
-		} else {
-			if (typeBinding instanceof ArrayBinding) {
-				typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
-			}
-			if (typeBinding == null) {
-				return INACCURATE_MATCH;
-			} else if (typeBinding instanceof ReferenceBinding) {
-				PackageBinding pkgBinding = ((ReferenceBinding)typeBinding).fPackage;
-				if (this.matches(pkgBinding.compoundName)) {
-					return ACCURATE_MATCH;
-				} else {
-					return IMPOSSIBLE_MATCH;
-				}
-			} else {
-				return IMPOSSIBLE_MATCH;
-			}
-		}
-			
-	}
 }
 }

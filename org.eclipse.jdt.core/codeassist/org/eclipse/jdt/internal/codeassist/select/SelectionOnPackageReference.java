@@ -31,14 +31,14 @@ public SelectionOnPackageReference(char[][] tokens , long[] positions) {
 }
 public String toString(int tab, boolean withOnDemand) {
 	StringBuffer buffer = new StringBuffer(tabString(tab));
-	buffer.	append("<SelectOnPackage:"/*nonNLS*/);
+	buffer.	append("<SelectOnPackage:");
 	for (int i = 0; i < tokens.length; i++) {
 		buffer.append(tokens[i]);
 		if (i < (tokens.length - 1)) {
-			buffer.append("."/*nonNLS*/);
+			buffer.append(".");
 		}
 	}
-	buffer.append(">"/*nonNLS*/);
+	buffer.append(">");
 	return buffer.toString();
 }
 }

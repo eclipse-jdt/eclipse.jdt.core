@@ -72,10 +72,10 @@ public String toString(int tab){
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(tabString(tab));
 		buffer.append(modifiersString(modifiers));
-		buffer.append("{\n"/*nonNLS*/);
+		buffer.append("{\n");
 		buffer.append(block.toStringStatements(tab));
 		buffer.append(tabString(tab));
-		buffer.append("}"/*nonNLS*/);
+		buffer.append("}");
 		return buffer.toString();
 	} else {
 		return block.toString(tab);

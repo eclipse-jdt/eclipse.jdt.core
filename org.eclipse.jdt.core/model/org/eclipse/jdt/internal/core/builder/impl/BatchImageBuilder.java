@@ -4,16 +4,11 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import java.util.Vector;
-
-import org.eclipse.jdt.internal.compiler.ConfigurableOption;
-import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.core.Assert;
-import org.eclipse.jdt.internal.core.Util;
-import org.eclipse.jdt.internal.core.builder.IDelta;
-import org.eclipse.jdt.internal.core.builder.IImageBuilder;
-import org.eclipse.jdt.internal.core.builder.IImageContext;
-import org.eclipse.jdt.internal.core.builder.IPackage;
+import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.core.builder.*;
+
+import java.util.*;
 
 /**
  * The batch image builder - builds a state from scratch.
@@ -54,15 +49,15 @@ public void build() {
 	fNotifier.begin();
 	try {
 		fNewState.readClassPath();
-		fNotifier.subTask(Util.bind("build.scrubbingOutput"/*nonNLS*/));
+		fNotifier.subTask("Scrubbing output folder");
 		fNewState.getBinaryOutput().scrubOutput();
 		fNotifier.updateProgressDelta(0.05f);
-		fNotifier.subTask(Util.bind("build.analyzingPackages"/*nonNLS*/));
+		fNotifier.subTask("Analyzing packages");
 		fNewState.buildInitialPackageMap();
 		fNotifier.updateProgressDelta(0.05f);
 
 		/* Force build all in build context */
-		fNotifier.subTask(Util.bind("build.analyzingSources"/*nonNLS*/));
+		fNotifier.subTask("Analyzing sources");
 		IPackage[] pkgs = fNewState.getPackageMap().getAllPackagesAsArray();
 		for (int i = 0; i < pkgs.length; ++i) {
 			fNotifier.checkCancel();
@@ -105,13 +100,13 @@ public IDelta getImageDelta(IImageContext imageContext) {
 public void lazyBuild(PackageElement unit) {
 	//		String msg = "Attempt to lazy build " + unit.getPackage().getName() + "." + unit.getFileName();
 	//		System.err.println(msg + ". " + "Lazy building has been disabled.");
-	Assert.isTrue(false, "Internal Error - Lazy building has been disabled"/*nonNLS*/);
+	Assert.isTrue(false, "Lazy building has been disabled.");
 }
 /**
  * Returns a string describe the builder
  * @see IImageBuilder
  */
 public String toString() {
-	return "batch image builder for:\n\tnew state: "/*nonNLS*/ + getNewState();
+	return "batch image builder for:\n\tnew state: " + getNewState();
 }
 }

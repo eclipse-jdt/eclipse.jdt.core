@@ -309,7 +309,7 @@ public char[] readableName() /* foo(int, Thread) */ {
 	if (parameters != NoParameters) {
 		for (int i = 0, length = parameters.length; i < length; i++) {
 			if (i > 0)
-				buffer.append(", "/*nonNLS*/);
+				buffer.append(", ");
 			buffer.append(parameters[i].sourceName());
 		}
 	}
@@ -387,35 +387,35 @@ public final void tagForClearingPrivateModifier() {
 	modifiers |= AccClearPrivateModifier;
 }
 public String toString() {
-	String s = (returnType != null) ? returnType.debugName() : "NULL TYPE"/*nonNLS*/;
-	s += " "/*nonNLS*/;
-	s += (selector != null) ? new String(selector) : "UNNAMED METHOD"/*nonNLS*/;
+	String s = (returnType != null) ? returnType.debugName() : "NULL TYPE";
+	s += " ";
+	s += (selector != null) ? new String(selector) : "UNNAMED METHOD";
 
-	s += "("/*nonNLS*/;
+	s += "(";
 	if (parameters != null) {
 		if (parameters != NoParameters) {
 			for (int i = 0, length = parameters.length; i < length; i++) {
 				if (i  > 0)
-					s += ", "/*nonNLS*/;
-				s += (parameters[i] != null) ? parameters[i].debugName() : "NULL TYPE"/*nonNLS*/;
+					s += ", ";
+				s += (parameters[i] != null) ? parameters[i].debugName() : "NULL TYPE";
 			}
 		}
 	} else {
-		s += "NULL PARAMETERS"/*nonNLS*/;
+		s += "NULL PARAMETERS";
 	}
-	s += ") "/*nonNLS*/;
+	s += ") ";
 
 	if (thrownExceptions != null) {
 		if (thrownExceptions != NoExceptions) {
-			s += "throws "/*nonNLS*/;
+			s += "throws ";
 			for (int i = 0, length = thrownExceptions.length; i < length; i++) {
 				if (i  > 0)
-					s += ", "/*nonNLS*/;
-				s += (thrownExceptions[i] != null) ? thrownExceptions[i].debugName() : "NULL TYPE"/*nonNLS*/;
+					s += ", ";
+				s += (thrownExceptions[i] != null) ? thrownExceptions[i].debugName() : "NULL TYPE";
 			}
 		}
 	} else {
-		s += "NULL THROWN EXCEPTIONS"/*nonNLS*/;
+		s += "NULL THROWN EXCEPTIONS";
 	}
 	return s;
 }

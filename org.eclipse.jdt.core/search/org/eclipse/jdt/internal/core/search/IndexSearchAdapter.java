@@ -1,9 +1,4 @@
 package org.eclipse.jdt.internal.core.search;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.core.*;
 
 public class IndexSearchAdapter implements IIndexSearchRequestor {
 /**

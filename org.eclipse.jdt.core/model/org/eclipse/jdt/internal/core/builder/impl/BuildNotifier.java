@@ -7,7 +7,6 @@ package org.eclipse.jdt.internal.core.builder.impl;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.internal.core.builder.*;
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 import java.text.NumberFormat;
@@ -46,10 +45,10 @@ public BuildNotifier(JavaDevelopmentContextImpl dc, boolean isBatch) {
 }
 public void begin() {
 	if (fBuildMonitor != null) {
-		fBuildMonitor.beginBuild(fIsBatch ? Util.bind("build.beginBatch"/*nonNLS*/) : Util.bind("build.beginIncremental"/*nonNLS*/));
+		fBuildMonitor.beginBuild(fIsBatch ? "Begin batch build" : "Begin incremental build");
 	}
 	if (fProgress != null) {
-		fProgress.beginTask(""/*nonNLS*/, fTotalWork);
+		fProgress.beginTask("", fTotalWork);
 	}
 	this.previousSubtask = null;
 }
@@ -90,9 +89,9 @@ public void compiling(CompilerCompilationUnit unit) {
 	int start = message.indexOf('/', 1);
 	int end = message.lastIndexOf('/');
 	if (end <= start){
-		message = Util.bind("build.compiling"/*nonNLS*/, message.substring(start+1));
+		message = "Compiling " + message.substring(start+1);
 	} else {
-		message = Util.bind("build.compilingContent"/*nonNLS*/, message.substring(start+1, end));
+		message = "Compiling content of " + message.substring(start+1, end);
 	}
 	subTask(message);
 	updateProgressDelta(fProgressPerCompilationUnit/2);
@@ -100,12 +99,12 @@ public void compiling(CompilerCompilationUnit unit) {
 }
 public void done() {
 	updateProgress(1.0f);
-	subTask(Util.bind("build.done"/*nonNLS*/));
+	subTask("Build done");
 	if (fProgress != null) {
 		fProgress.done();
 	}
 	if (fBuildMonitor != null) {
-		fBuildMonitor.endBuild(fIsBatch ? Util.bind("build.endBatch"/*nonNLS*/) : Util.bind("build.endIncremental"/*nonNLS*/));
+		fBuildMonitor.endBuild(fIsBatch ? "->End batch build" : "->End incremental build");
 	}
 	this.previousSubtask = null;
 }
@@ -154,16 +153,15 @@ protected String problemsMessage() {
 	int numNew = fNewErrorCount + fNewWarningCount;
 	int numFixed = fFixedErrorCount + fFixedWarningCount;
 	if (numNew == 0 && numFixed == 0) {
-		return ""/*nonNLS*/;
+		return "";
 	}
 	if (numFixed == 0) {
-		return '(' + numNew == 1 ? Util.bind("build.oneProblemFound"/*nonNLS*/, String.valueOf(numNew)) : Util.bind("build.problemsFound"/*nonNLS*/, String.valueOf(numNew)) +')';
+		return "(" + numNew + " " + (numNew == 1 ? "problem" : "problems") + " found)";
 	} else
 		if (numNew == 0) {
-			return '(' + numFixed == 1 ? Util.bind("build.oneProblemFixed"/*nonNLS*/, String.valueOf(numFixed)) : Util.bind("build.problemsFixed"/*nonNLS*/, String.valueOf(numFixed)) + ')';
+			return "(" + numFixed + " " + (numFixed == 1 ? "problem" : "problems") + " fixed)";
 		} else {
-			return '(' + (numFixed == 1 ? Util.bind("build.oneProblemFixed"/*nonNLS*/, String.valueOf(numFixed)) : Util.bind("build.problemsFixed"/*nonNLS*/, String.valueOf(numFixed)))
-					+ (numNew == 1 ? Util.bind("build.oneProblemFound"/*nonNLS*/, String.valueOf(numNew)) : Util.bind("build.problemsFound"/*nonNLS*/, String.valueOf(numNew))) + ')';
+			return "(" + numFixed + " " + (numFixed == 1 ? "problem" : "problems") + " fixed, " + numNew + " " + (numNew == 1 ? "problem" : "problems") + " found)";
 		}
 }
 /**
@@ -183,7 +181,7 @@ public void setProgressPerCompilationUnit(float progress) {
 }
 public void subTask(String message) {
 	String pm = problemsMessage();
-	String msg = pm.length() == 0 ? message : pm + " "/*nonNLS*/ + message;
+	String msg = pm.length() == 0 ? message : pm + " " + message;
 
 	if (msg.equals(this.previousSubtask)) return; // avoid refreshing with same one
 	if (DEBUG) System.out.println(msg);

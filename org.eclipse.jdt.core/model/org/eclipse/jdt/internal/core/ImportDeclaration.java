@@ -39,7 +39,7 @@ protected char getHandleMementoDelimiter() {
  * Returns true if the import is on-demand (ends with ".*")
  */
 public boolean isOnDemand() {
-	return fName.endsWith(".*"/*nonNLS*/);
+	return fName.endsWith(".*");
 }
 /**
  */
@@ -51,10 +51,10 @@ public String readableName() {
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
-	buffer.append("import "/*nonNLS*/);
+	buffer.append("import ");
 	buffer.append(getElementName());
 	if (info == null) {
-		buffer.append(" (not open)"/*nonNLS*/);
+		buffer.append(" (not open)");
 	}
 }
 }

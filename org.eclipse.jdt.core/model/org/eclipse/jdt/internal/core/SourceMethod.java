@@ -138,18 +138,18 @@ public boolean isConstructor() throws JavaModelException {
 public String readableName() {
 
 	StringBuffer buffer = new StringBuffer(super.readableName());
-	buffer.append('(');
+	buffer.append("(");
 	String[] parameterTypes = this.getParameterTypes();
 	int length;
 	if (parameterTypes != null && (length = parameterTypes.length) > 0) {
 		for (int i = 0; i < length; i++) {
 			buffer.append(Signature.toString(parameterTypes[i]));
 			if (i < length - 1) {
-				buffer.append(", "/*nonNLS*/);
+				buffer.append(", ");
 			}
 		}
 	}
-	buffer.append(')');
+	buffer.append(")");
 	return buffer.toString();
 }
 /**
@@ -192,31 +192,31 @@ protected boolean signatureEquals(IDOMMethod method) throws JavaModelException {
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 	if (info == null) {
 		buffer.append(getElementName());
-		buffer.append(" (not open)"/*nonNLS*/);
+		buffer.append(" (not open)");
 	} else {
 		try {
 			if (Flags.isStatic(this.getFlags())) {
-				buffer.append("static "/*nonNLS*/);
+				buffer.append("static ");
 			}
 			if (!this.isConstructor()) {
 				buffer.append(Signature.toString(this.getReturnType()));
-				buffer.append(' ');
+				buffer.append(" ");
 			}
 			buffer.append(this.getElementName());
-			buffer.append('(');
+			buffer.append("(");
 			String[] parameterTypes = this.getParameterTypes();
 			int length;
 			if (parameterTypes != null && (length = parameterTypes.length) > 0) {
 				for (int i = 0; i < length; i++) {
 					buffer.append(Signature.toString(parameterTypes[i]));
 					if (i < length - 1) {
-						buffer.append(", "/*nonNLS*/);
+						buffer.append(", ");
 					}
 				}
 			}
-			buffer.append(')');
+			buffer.append(")");
 		} catch (JavaModelException e) {
-			buffer.append("<JavaModelException in toString of "/*nonNLS*/ + getElementName());
+			buffer.append("<JavaModelException in toString of " + getElementName());
 		}
 	}
 }

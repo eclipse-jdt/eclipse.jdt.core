@@ -79,7 +79,7 @@ protected IJavaElement generateResultHandle() {
  * @see CreateElementInCUOperation#getMainTaskName
  */
 public String getMainTaskName(){
-	return Util.bind("operation.createMethodProgress"/*nonNLS*/);
+	return "Creating a method...";
 }
 /**
  * @see CreateTypeMemberOperation#verifyNameCollision

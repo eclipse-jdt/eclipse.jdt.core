@@ -1,19 +1,5 @@
 package org.eclipse.jdt.core.jdom;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.core.*;
 
-/**
- * Represents a field declaration. The corresponding
- * syntactic units are FieldDeclaration (JLS2 8.3) and ConstantDeclaration
- * (JLS2 9.3) restricted to a single VariableDeclarator clause.
- * A field has no children. The parent of a field is a type.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
- */
 public interface IDOMField extends IDOMMember {
 /**
  * Returns the initializer expression for this field.

@@ -38,6 +38,6 @@ ConvertedCompilationResult(
 		return fTypes;
 	}
 	public String toString() {
-		return (fProblems.length == 0 ? ""/*nonNLS*/ : "*"/*nonNLS*/) + "ConvertedCompilationResult("/*nonNLS*/ + fPackageElement + ")"/*nonNLS*/;
+		return (fProblems.length == 0 ? "" : "*") + "ConvertedCompilationResult(" + fPackageElement + ")";
 	}
 }

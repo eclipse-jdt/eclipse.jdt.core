@@ -1259,7 +1259,7 @@ private char[] returnTypeName(TypeReference type) {
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append("intArrayPtr = "/*nonNLS*/ + intArrayPtr + "\n"/*nonNLS*/);
+	buffer.append("intArrayPtr = " + intArrayPtr + "\n");
 	buffer.append(super.toString());
 	return buffer.toString();
 }

@@ -281,7 +281,7 @@ public void setComment(String comment) {
 	/* see 1FVIJAH */
 	if (comment != null) {
 		String commentString = new String(comment);
-		if (commentString.indexOf("@deprecated"/*nonNLS*/) >= 0) {
+		if (commentString.indexOf("@deprecated") >= 0) {
 			fFlags= fFlags | IConstants.AccDeprecated;
 			return;
 		}

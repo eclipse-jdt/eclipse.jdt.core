@@ -106,14 +106,14 @@ public TypeBinding resolveType(BlockScope scope) {
 			if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null)
 				argHasError = true;
 		if (argHasError)
-			return typeBinding;
+			return null;
 	}
 	if (typeBinding == null)
 		return null;
 
 	if (!typeBinding.canBeInstantiated()) {
 		scope.problemReporter().cannotInstantiate(type, typeBinding);
-		return typeBinding;
+		return null;
 	}
 	ReferenceBinding allocatedType = (ReferenceBinding) typeBinding;
 	if (!(binding = scope.getConstructor(allocatedType, argumentTypes, this)).isValidBinding()) {
@@ -125,13 +125,13 @@ public TypeBinding resolveType(BlockScope scope) {
 					if (binding.declaringClass == null)
 						binding.declaringClass = allocatedType;
 					scope.problemReporter().invalidConstructor(this, binding);
-					return typeBinding;
+					return null;
 				}
 			} else {
 				if (binding.declaringClass == null)
 					binding.declaringClass = allocatedType;
 				scope.problemReporter().invalidConstructor(this, binding);
-				return typeBinding;
+				return null;
 			}
 			CodeSnippetScope localScope = new CodeSnippetScope(scope);			
 			MethodBinding privateBinding = localScope.getConstructor((ReferenceBinding)delegateThis.type, argumentTypes, this);
@@ -139,7 +139,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				if (binding.declaringClass == null)
 					binding.declaringClass = allocatedType;
 				scope.problemReporter().invalidConstructor(this, binding);
-				return typeBinding;
+				return null;
 			} else {
 				binding = privateBinding;
 			}				
@@ -147,7 +147,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			if (binding.declaringClass == null)
 				binding.declaringClass = allocatedType;
 			scope.problemReporter().invalidConstructor(this, binding);
-			return typeBinding;
+			return null;
 		}
 	}
 	if (isMethodUseDeprecated(binding, scope))

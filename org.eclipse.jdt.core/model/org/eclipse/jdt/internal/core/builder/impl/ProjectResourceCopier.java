@@ -5,21 +5,12 @@ package org.eclipse.jdt.internal.core.builder.impl;
  * All Rights Reserved.
  */
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
+
+import org.eclipse.jdt.core.*;
+
+import java.util.*;
 
 public class ProjectResourceCopier implements IResourceVisitor {
 
@@ -65,7 +56,7 @@ public void copyAllResourcesOnClasspath(){
 				if (this.outputLocation.equals(this.sourceFolders[i].getFullPath())) continue; // do nothing if output is same as source folder
 				if (!hasNotified){
 					hasNotified = true;
-					if (notifier != null) notifier.subTask(Util.bind("build.copyingResources"/*nonNLS*/));
+					if (notifier != null) notifier.subTask("Copying all resources on the classpath");
 				}
 				this.sourceFolders[i].accept(this);
 			}
@@ -87,7 +78,7 @@ private boolean copyToOutput(IResource resource) {
 	switch (resource.getType()){
 		case IResource.FILE :
 			if (sourceFolderPath == null) return false; // resource is not inside the classpath		
-			if (!"java"/*nonNLS*/.equals(resource.getFileExtension())){ // ignore source files
+			if (!"java".equals(resource.getFileExtension())){ // ignore source files
 				
 				IFile currentFile = (IFile) resource;
 				IPath pathSuffix = resourcePath.removeFirstSegments(sourceFolderPath.segmentCount());
@@ -140,7 +131,7 @@ private boolean deleteResourceCopyFromOutput(IResource resource) {
 	
 	switch (resource.getType()){
 		case IResource.FILE :
-			if (!"java"/*nonNLS*/.equals(resource.getFileExtension())){ // ignore source files
+			if (!"java".equals(resource.getFileExtension())){ // ignore source files
 				
 				IFile currentFile = (IFile) resource;
 				pathSuffix = resourcePath.removeFirstSegments(sourceFolderPath.segmentCount());
@@ -149,6 +140,7 @@ private boolean deleteResourceCopyFromOutput(IResource resource) {
 					IFile previousFile = this.root.getFile(targetPath);
 					if (previousFile.exists()) previousFile.delete(true, true, null);
 				} catch(CoreException e){
+					//throw this.devContext.internalException(e);
 				}
 			}
 			break;
@@ -161,6 +153,7 @@ private boolean deleteResourceCopyFromOutput(IResource resource) {
 				try {
 					targetFolder.delete(true, false, null);
 				} catch(CoreException e){
+					//throw this.devContext.internalException(e);
 				}
 			}
 			break;
@@ -195,7 +188,7 @@ private IPath getSourceFolderPath(IResource resource) {
 			if (this.outputLocation.equals(this.sourceFolders[i].getFullPath())) continue; // do nothing if output is same as source folder
 			if (!hasNotified){
 				hasNotified = true;
-				if (notifier != null) notifier.subTask(Util.bind("build.updatingResources"/*nonNLS*/));
+				if (notifier != null) notifier.subTask("Updating resources on the classpath");
 			}
 		}
 	}

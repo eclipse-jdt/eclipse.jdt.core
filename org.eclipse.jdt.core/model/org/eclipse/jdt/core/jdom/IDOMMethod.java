@@ -1,20 +1,5 @@
 package org.eclipse.jdt.core.jdom;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.core.*;
 
-/**
- * Represents a method declaration.
- * The corresponding syntactic units are MethodDeclaration (JLS2 8.4),
- * ConstructorDeclaration (JLS2 8.8), and AbstractMethodDeclaration (JLS2 9.4).
- * A method has no children and its parent is a type.
- * Local classes are considered to be part of the body of a method, not a child.
- * <p>
- * This interface is not intended to be implemented by clients.
- * </p>
- */
 public interface IDOMMethod extends IDOMMember {
 /**
  * Adds the given exception to the end of the list of exceptions this method

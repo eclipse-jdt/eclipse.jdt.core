@@ -43,8 +43,8 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpression(){
 	/* slow code */
 	
-	return 	"<CompleteOnMemberAccess:"/*nonNLS*/ 
+	return 	"<CompleteOnMemberAccess:" 
 			+ super.toStringExpression() 
-			+ ">"/*nonNLS*/;
+			+ ">";
 }
 }

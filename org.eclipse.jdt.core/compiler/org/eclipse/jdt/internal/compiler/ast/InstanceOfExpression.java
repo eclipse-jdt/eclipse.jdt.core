@@ -199,7 +199,8 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpressionNoParenthesis(){
 	/* slow code*/
 
-	return	expression.toStringExpression() + " instanceof "/*nonNLS*/ +
+	if (((bits & OperatorMASK) >> OperatorSHIFT) != INSTANCEOF ) return "houps instanceof houps" ;
+	return	expression.toStringExpression() + " instanceof " +
 			type.toString(0) ; }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {

@@ -50,10 +50,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	preCondInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
 	
 	// process the condition
-	LoopingFlowContext condLoopContext = null;
 	if (condition != null) {
 		if ((condition.constant == NotAConstant) || (condition.constant.booleanValue() != true)) {
+			LoopingFlowContext condLoopContext;
 			flowInfo = condition.analyseCode(scope, (condLoopContext = new LoopingFlowContext(flowContext, this, null, null, scope)), flowInfo);
+			condLoopContext.complainOnFinalAssignmentsInLoop(scope, flowInfo);
 		}
 	}
 
@@ -61,7 +62,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	LoopingFlowContext loopingContext;
 	FlowInfo actionInfo;
 	if ((action == null) || action.isEmptyBlock()) {
-		if (condLoopContext != null) condLoopContext.complainOnFinalAssignmentsInLoop(scope, flowInfo);
 		if ((condition == null) || ((condition.constant != NotAConstant) && (condition.constant.booleanValue() == true))) {
 			return FlowInfo.DeadEnd;
 		} else {
@@ -80,11 +80,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				initsWhenTrue.copy());
 
 		// code generation can be optimized when no need to continue in the loop
-		if (((actionInfo == FlowInfo.DeadEnd) || actionInfo.isFakeReachable())
-			&& ((loopingContext.initsOnContinue == FlowInfo.DeadEnd) || loopingContext.initsOnContinue.isFakeReachable())){
+		if ((actionInfo == FlowInfo.DeadEnd) || actionInfo.isFakeReachable()){
+			if ((loopingContext.initsOnContinue == FlowInfo.DeadEnd) || loopingContext.initsOnContinue.isFakeReachable()){
 				continueLabel = null;
+			} else {
+				loopingContext.complainOnFinalAssignmentsInLoop(scope, loopingContext.initsOnContinue);				
+			}
 		} else {
-			if (condLoopContext != null) condLoopContext.complainOnFinalAssignmentsInLoop(scope, flowInfo);
 			loopingContext.complainOnFinalAssignmentsInLoop(scope, actionInfo);
 			actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits()); // for increments
 		}
@@ -208,32 +210,32 @@ public void resolve(BlockScope upperScope) {
 public String toString(int tab ){
 	/* slow code */
 	
-	String s = tabString(tab) + "for ("/*nonNLS*/;
+	String s = tabString(tab) + "for (";
 	if (!neededScope)
-		s = s + " //--NO upperscope scope needed\n"/*nonNLS*/ + tabString(tab) + "     "/*nonNLS*/ ;
+		s = s + " //--NO upperscope scope needed\n" + tabString(tab) + "     " ;
 	//inits
 	if (initializations != null)
 	{	for (int i = 0 ; i < initializations.length ; i++){
 			//nice only with expressions
 			s = s + initializations[i].toString(0);
-			if (i != (initializations.length -1)) s = s + " , "/*nonNLS*/ ;}};
-	s = s + "; "/*nonNLS*/ ;
+			if (i != (initializations.length -1)) s = s + " , " ;}};
+	s = s + "; " ;
 	//cond
 	if (condition != null)
 		s = s + condition.toStringExpression() ;
-	s = s + "; "/*nonNLS*/ ;
+	s = s + "; " ;
 	//updates
 	if (increments != null)
 	{	for (int i = 0 ; i < increments.length ; i++){
 			//nice only with expressions
 			s = s + increments[i].toString(0);
-			if (i != (increments.length -1)) s = s + " , "/*nonNLS*/ ;}};
-	s = s + ") "/*nonNLS*/ ;
+			if (i != (increments.length -1)) s = s + " , " ;}};
+	s = s + ") " ;
 	//block
 	if (action == null)
-		s = s + "{}"/*nonNLS*/ ;
+		s = s + "{}" ;
 	else
-		s = s + "\n"/*nonNLS*/+ action.toString(tab+1) ;
+		s = s + "\n"+ action.toString(tab+1) ;
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

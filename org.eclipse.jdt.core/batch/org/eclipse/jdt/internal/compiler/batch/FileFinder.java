@@ -12,13 +12,13 @@ public class FileFinder {
 	public int counter = 0;
 public void find(File f, String pattern, boolean verbose) {
 	if (verbose) {
-		System.out.println(Main.bind("scanning.start"/*nonNLS*/,f.getAbsolutePath()));
+		System.out.println("Scanning of " + f.getAbsolutePath());
 	}
 	find0(f, pattern, verbose);
 	System.arraycopy(resultFiles, 0, (resultFiles = new String[counter]), 0, counter);
 	if (verbose) {
 		System.out.println();
-		System.out.println(Main.bind("scanning.done"/*nonNLS*/,f.getAbsolutePath()));
+		System.out.println("Scanning of " + f.getAbsolutePath() + " DONE");
 	}
 }
 public void find0(File f, String pattern, boolean verbose) {

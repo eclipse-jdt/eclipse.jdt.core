@@ -1,10 +1,5 @@
 package org.eclipse.jdt.internal.compiler.classfmt;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.compiler.*;
- 
+
 public class ClassFormatException extends Exception {
 	private int errorCode;
 	private int bufferPosition;
@@ -40,7 +35,7 @@ public class ClassFormatException extends Exception {
 	public static final int ErrIncorrectInterfaceMethods = 26;
 	public static final int ErrInvalidMethodName = 27;
 	public static final int ErrInvalidMethodSignature = 28;
-    
+	
 /**
  * (c)1998 Object Technology International.
  * (c)1998 International Business Machines Corporation.

@@ -62,18 +62,18 @@ public final class CompletionEngine extends Engine implements ISearchRequestor, 
 */
 	static final char[][] baseTypes = 
 		new char[][] {
-			"boolean"/*nonNLS*/.toCharArray(),
-			"byte"/*nonNLS*/.toCharArray(),
-			"char"/*nonNLS*/.toCharArray(),
-			"double"/*nonNLS*/.toCharArray(),
-			"float"/*nonNLS*/.toCharArray(),
-			"int"/*nonNLS*/.toCharArray(),
-			"long"/*nonNLS*/.toCharArray(),
-			"short"/*nonNLS*/.toCharArray(),
-			"void"/*nonNLS*/.toCharArray()}; 
+			"boolean".toCharArray(),
+			"byte".toCharArray(),
+			"char".toCharArray(),
+			"double".toCharArray(),
+			"float".toCharArray(),
+			"int".toCharArray(),
+			"long".toCharArray(),
+			"short".toCharArray(),
+			"void".toCharArray()}; 
 
-	static final char[] classField = "class"/*nonNLS*/.toCharArray();
-	static final char[] lengthField = "length"/*nonNLS*/.toCharArray();
+	static final char[] classField = "class".toCharArray();
+	static final char[] lengthField = "length".toCharArray();
 /**
  * The CompletionEngine is responsible for computing source completions.
  *

@@ -1,11 +1,6 @@
 package org.eclipse.jdt.internal.compiler.problem;
-/*
- * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
- */
-import org.eclipse.jdt.internal.compiler.*;
 
-public interface ProblemIrritants { // max: 500     
+public interface ProblemIrritants { // max: 500		
 	// categories
 	final int TypeRelated = 0x01000000;
 	final int FieldRelated = 0x02000000;
@@ -32,7 +27,7 @@ public interface ProblemIrritants { // max: 500
 	final int MissingEnclosingInstanceForConstructorCall = TypeRelated + 20;
 	final int MissingEnclosingInstance = TypeRelated + 21;
 	final int IncorrectEnclosingInstanceReference = TypeRelated + 22;
-	final int IllegalEnclosingInstanceSpecification = TypeRelated + 23; 
+	final int IllegalEnclosingInstanceSpecification = TypeRelated + 23;	
 	final int CannotDefineStaticInitializerInLocalType = Internal + 24;
 	final int OuterLocalMustBeFinal = Internal + 25;
 	final int CannotDefineInterfaceInLocalType = Internal + 26;
@@ -58,7 +53,7 @@ public interface ProblemIrritants { // max: 500
 	final int BytecodeExceeds64KLimitForClinit = Internal + 64;
 	final int TooManyArgumentSlots = Internal + 65;
 	final int TooManyLocalVariableSlots = Internal + 66;
-
+		
 	// fields
 	final int UndefinedField = FieldRelated + 70;
 	final int NotVisibleField = FieldRelated + 71;
@@ -89,7 +84,7 @@ public interface ProblemIrritants { // max: 500
 	final int NoMessageSendOnBaseType = MethodRelated + 114;
 	final int ParameterMismatch = MethodRelated + 115;
 	final int NoMessageSendOnArrayType = MethodRelated + 116;
-    
+	
 	// constructors
 	final int UndefinedConstructor = ConstructorRelated + 130;
 	final int NotVisibleConstructor = ConstructorRelated + 131;
@@ -126,7 +121,7 @@ public interface ProblemIrritants { // max: 500
 	final int DuplicateDefaultCase = 166;
 	final int UnreachableCatch = TypeRelated + MethodRelated + 167;
 	final int UnhandledException = TypeRelated + 168;
-	// switch       
+	// switch		
 	final int IncorrectSwitchType = TypeRelated + 169;
 	final int DuplicateCase = FieldRelated + 170;
 	// labelled
@@ -167,7 +162,7 @@ public interface ProblemIrritants { // max: 500
 	final int UnmatchedBracket = Internal + 220;
 	final int NoFieldOnBaseType = FieldRelated + 221;
 	final int InvalidExpressionAsStatement = Internal + 222;
-    
+	
 	// constants
 	final int END_OF_SOURCE = Internal + 250;
 	final int INVALID_HEXA = Internal + 251;
@@ -189,7 +184,7 @@ public interface ProblemIrritants { // max: 500
 	final int IllegalModifierForMemberClass = TypeRelated + 304;
 	final int IllegalModifierForMemberInterface = TypeRelated + 305;
 	final int IllegalModifierForLocalClass = TypeRelated + 306;
-//  final int IllegalModifierForLocalInterface = TypeRelated + 307; 
+//	final int IllegalModifierForLocalInterface = TypeRelated + 307; 
 	final int IllegalModifierCombinationFinalAbstractForClass = TypeRelated + 308;
 	final int IllegalVisibilityModifierForInterfaceMemberType = TypeRelated + 309;
 	final int IllegalVisibilityModifierCombinationForMemberType = TypeRelated + 310;
@@ -272,8 +267,4 @@ public interface ProblemIrritants { // max: 500
 	// code snippet support
 	final int CodeSnippetMissingClass = Internal + 420;
 	final int CodeSnippetMissingMethod = Internal + 421;
-	final int NonExternalizedStringLiteral = Internal + 261;
-
-	//constant pool
-	final int TooManyConstantsInConstantPool = Internal + 430;
 }

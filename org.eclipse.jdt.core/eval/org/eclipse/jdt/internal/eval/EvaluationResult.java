@@ -187,37 +187,37 @@ public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	switch (this.evaluationType) {
 		case T_CODE_SNIPPET:
-			buffer.append("Code snippet"/*nonNLS*/);
+			buffer.append("Code snippet");
 			break;
 		case T_IMPORT:
-			buffer.append("Import"/*nonNLS*/);
+			buffer.append("Import");
 			break;
 		case T_INTERNAL:
-			buffer.append("Internal problem"/*nonNLS*/);
+			buffer.append("Internal problem");
 			break;
 		case T_PACKAGE:
-			buffer.append("Package"/*nonNLS*/);
+			buffer.append("Package");
 			break;
 		case T_VARIABLE:
-			buffer.append("Global variable"/*nonNLS*/);
+			buffer.append("Global variable");
 			break;
 	}
-	buffer.append(": "/*nonNLS*/);
+	buffer.append(": ");
 	buffer.append(this.evaluationID);
-	buffer.append("\n"/*nonNLS*/);
+	buffer.append("\n");
 	if (hasProblems()) {
-		buffer.append("Problems:\n"/*nonNLS*/);
+		buffer.append("Problems:\n");
 		for (int i = 0; i < this.problems.length; i++) {
 			buffer.append(this.problems[i].toString());
 		}
 	} else {
 		if (hasValue()) {
-			buffer.append("("/*nonNLS*/);
+			buffer.append("(");
 			buffer.append(this.typeName);
-			buffer.append(") "/*nonNLS*/);
+			buffer.append(") ");
 			buffer.append(this.displayString);
 		} else {
-			buffer.append("(No explicit return value)"/*nonNLS*/);
+			buffer.append("(No explicit return value)");
 		}
 	}
 	return buffer.toString();
