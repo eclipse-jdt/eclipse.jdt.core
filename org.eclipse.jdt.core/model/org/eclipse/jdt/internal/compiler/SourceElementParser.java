@@ -947,6 +947,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 	}	
 	char[][] argumentTypes = null;
 	char[][] argumentNames = null;
+	boolean isVarArgs = false;
 	Argument[] arguments = methodDeclaration.arguments;
 	if (arguments != null) {
 		int argumentLength = arguments.length;
@@ -956,6 +957,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 			argumentTypes[i] = CharOperation.concatWith(arguments[i].type.getParameterizedTypeName(), '.');
 			argumentNames[i] = arguments[i].name;
 		}
+		isVarArgs = arguments[argumentLength-1].isVarArgs;
 	}
 	char[][] thrownExceptionTypes = null;
 	TypeReference[] thrownExceptions = methodDeclaration.thrownExceptions;
@@ -1019,6 +1021,8 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 	}
 	if (isInRange) {
 		int currentModifiers = methodDeclaration.modifiers;
+		if (isVarArgs)
+			currentModifiers |= AccVarargs;
 		boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
 		if (methodDeclaration instanceof MethodDeclaration) {
 			TypeReference returnType = ((MethodDeclaration) methodDeclaration).returnType;

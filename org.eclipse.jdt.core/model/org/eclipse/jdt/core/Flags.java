@@ -346,6 +346,16 @@ public final class Flags {
 	 * Specification, Second Edition</em> (JLS2).
 	 * </p> 
 	 * <p>
+	 * Note that the flags of a method can include the AccVarargs flag that has no standard description. Since the AccVarargs flag has the same value as
+	 * the AccTransient flag (valid for fields only), attempting to get the description of method modifiers with the AccVarargs flag set would result in an
+	 * unexpected description. Clients should ensure that the AccVarargs is not included in the flags of a method as follows:
+	 * <pre>
+	 * IMethod method = ...
+	 * int flags = method.getFlags() & ~Flags.AccVarargs;
+	 * return Flags.toString(flags);
+	 * </pre>
+	 * </p>
+	 * <p>
 	 * Examples results:
 	 * <pre>
 	 *	  <code>"public static final"</code>

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -96,7 +97,9 @@ public class TypeConverter {
 			methodDeclaration = decl;
 		}
 		methodDeclaration.selector = method.getElementName().toCharArray();
-		methodDeclaration.modifiers = method.getFlags();
+		int flags = method.getFlags();
+		boolean isVarargs = Flags.isVarargs(flags);
+		methodDeclaration.modifiers = flags & ~Flags.AccVarargs;
 
 		/* convert arguments */
 		String[] argumentTypeNames = method.getParameterTypes();
@@ -104,12 +107,13 @@ public class TypeConverter {
 		int argumentCount = argumentTypeNames == null ? 0 : argumentTypeNames.length;
 		methodDeclaration.arguments = new Argument[argumentCount];
 		for (int i = 0; i < argumentCount; i++) {
+			String argumentTypeName = argumentTypeNames[i];
 			methodDeclaration.arguments[i] = new Argument(
 				argumentNames[i].toCharArray(),
 				0,
-				createTypeReference(Signature.toString(argumentTypeNames[i]).toCharArray(), type),
+				createTypeReference(Signature.toString(argumentTypeName).toCharArray(), type),
 				CompilerModifiers.AccDefault,
-				false);
+				isVarargs && i == argumentCount-1);
 			// do not care whether was final or not
 		}
 

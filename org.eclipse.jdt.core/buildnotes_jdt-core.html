@@ -51,6 +51,12 @@ Eclipse SDK 3.1M3 - ?th October 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added support in Java model for varargs methods:
+     <ul>
+     <li><code>Flags.isVarargs(method.getFlags())</code> now returns whether the method is a varargs method.</li>
+     <li>Operations that resolve (like reconcile, search, etc.) now convert varargs source methods into varargs MethodDeclarations.</li>
+     </ul>
+</li>
 <li> Introduced access restrictions so as to better enforce API contracts across components.
 <p>
 <i>Problem:</i> Libraries are usually packaged to contain both API for compile-time and implementation for runtime;

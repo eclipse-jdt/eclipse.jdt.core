@@ -1488,4 +1488,49 @@ public void testBug60689() throws JavaModelException {
 	assertNotNull("We should have a comment!", testCU.getCommentList());
 	assertEquals("We should have one comment!", 1, testCU.getCommentList().size());
 }
+/*
+ * Ensures that a varargs method can be referenced from another working copy.
+ */
+public void testVarargs() throws CoreException {
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	ICompilationUnit workingCopy1 = null;
+	try {
+		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/X.java").getWorkingCopy(owner, null, null);
+		createFolder("/Reconciler15/src/test");
+		workingCopy1.getBuffer().setContents(
+			"package test;\n"+
+			"public class X {\n"+
+			"	void bar(String ... args) {}\n"+
+			"}\n"
+		);
+		workingCopy1.makeConsistent(null);
+		
+		this.problemRequestor =  new ProblemRequestor();
+		this.workingCopy = getCompilationUnit("Reconciler15/src/test/Y.java").getWorkingCopy(owner, this.problemRequestor, null);
+		setWorkingCopyContents(
+			"package test;\n"+
+			"public class Y {\n"+
+			"	void foo(){\n"+
+			"		X someX = new X();\n"+
+			"		someX.bar(\"a\", \"b\");\n"+
+			"	}\n"+
+			"}\n"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (workingCopy1 != null) {
+			workingCopy1.discardWorkingCopy();
+		}
+		deleteFolder("/Reconciler15/src/test");
+	}
+}
+
 }

@@ -263,10 +263,12 @@ public class SourceTypeConverter implements CompilerModifiers {
 		TypeParameter[] typeParams = null;
 		if (typeParameterNames != null) {
 			int parameterCount = typeParameterNames.length;
-			char[][][] typeParameterBounds = sourceMethod.getTypeParameterBounds();
-			typeParams = new TypeParameter[parameterCount];
-			for (int i = 0; i < parameterCount; i++) {
-				typeParams[i] = createTypeParameter(typeParameterNames[i], typeParameterBounds[i], start, end);
+			if (parameterCount > 0) { // method's type parameters must be null if no type parameter
+				char[][][] typeParameterBounds = sourceMethod.getTypeParameterBounds();
+				typeParams = new TypeParameter[parameterCount];
+				for (int i = 0; i < parameterCount; i++) {
+					typeParams[i] = createTypeParameter(typeParameterNames[i], typeParameterBounds[i], start, end);
+				}
 			}
 		}
 		
@@ -284,7 +286,9 @@ public class SourceTypeConverter implements CompilerModifiers {
 			decl.typeParameters = typeParams;
 		}
 		method.selector = sourceMethod.getSelector();
-		method.modifiers = sourceMethod.getModifiers();
+		int modifiers = sourceMethod.getModifiers();
+		boolean isVarargs = (modifiers & AccVarargs) != 0;
+		method.modifiers = modifiers & ~AccVarargs;
 		method.sourceStart = start;
 		method.sourceEnd = end;
 		method.declarationSourceStart = sourceMethod.getDeclarationSourceStart();
@@ -303,7 +307,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 					position,
 					createTypeReference(argumentTypeNames[i], start, end),
 					AccDefault,
-					false);
+					isVarargs && i == argumentCount-1);
 			// do not care whether was final or not
 		}
 

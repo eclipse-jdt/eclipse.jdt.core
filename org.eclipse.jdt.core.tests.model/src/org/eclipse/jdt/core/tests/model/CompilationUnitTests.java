@@ -25,7 +25,7 @@ public CompilationUnitTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
-	createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin");
+	createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", "1.5");
 	createFolder("/P/src/p");
 	createFile(
 		"/P/src/p/X.java",
@@ -50,6 +50,8 @@ public void setUpSuite() throws Exception {
 		"  }\n" +
 		"  /** @deprecated\n */" +
 		"  private int fred() {\n" +
+		"  }\n" +
+		"  void testIsVarArgs(String s, Object ... args) {\n" +
 		"  }\n" +
 		"}\n" +
 		"/** @deprecated\n */" +
@@ -295,7 +297,7 @@ public void testGetInnerTypes() throws JavaModelException {
 /**
  * Ensures that a method has the correct return type, parameters and exceptions.
  */
-public void testGetMethod() throws JavaModelException {
+public void testGetMethod1() throws JavaModelException {
 	IType type = this.cu.getType("X");
 	IMethod foo = type.getMethod("foo", new String[]{"QY;"});
 	String[] exceptionTypes= foo.getExceptionTypes();
@@ -307,18 +309,28 @@ public void testGetMethod() throws JavaModelException {
 	assertEquals("Unexpected parameter name", "y", parameterNames[0]);
 }
 /**
+ * Ensures that a method has the correct AccVarargs flag set.
+ */
+public void testGetMethod2() throws JavaModelException {
+	IType type = this.cu.getType("X");
+	IMethod method = type.getMethod("testIsVarArgs", new String[]{"QString;", "[QObject;"});
+	assertTrue("Should have the AccVarargs flag set", Flags.isVarargs(method.getFlags()));
+}
+
+/**
  * Ensures that correct number of methods with the correct names and modifiers
  * exist in a type.
  */
 public void testGetMethods() throws JavaModelException {
 	IType type = this.cu.getType("X");
 	IMethod[] methods= type.getMethods();
-	String[] methodNames = new String[] {"foo", "bar", "fred"};
-	String[] flags = new String[] {"public", "protected static", "private"};
+	String[] methodNames = new String[] {"foo", "bar", "fred", "testIsVarArgs"};
+	String[] flags = new String[] {"public", "protected static", "private", ""};
 	assertEquals("Wrong number of methods returned", methodNames.length, methods.length);
 	for (int i = 0; i < methods.length; i++) {
 		assertEquals("Incorrect name for the " + i + " method", methodNames[i], methods[i].getElementName());
-		String mod= Flags.toString(methods[i].getFlags());
+		int modifiers = methods[i].getFlags() & ~Flags.AccVarargs;
+		String mod= Flags.toString(modifiers);
 		assertEquals("Unexpected modifier for " + methods[i].getElementName(), flags[i], mod);
 		assertTrue("Method does not exist " + methods[i], methods[i].exists());
 	}
@@ -330,7 +342,7 @@ public void testCheckInterfaceMethodModifiers() throws JavaModelException {
 	IType type = this.cu.getType("I");
 	IMethod method = type.getMethod("run", new String[0]);
 	String expectedModifiers = "";
-	String modifiers = Flags.toString(method.getFlags());
+	String modifiers = Flags.toString(method.getFlags() & ~Flags.AccVarargs);
 	assertEquals("Expected modifier for " + method.getElementName(), expectedModifiers, modifiers);
 }
 /**

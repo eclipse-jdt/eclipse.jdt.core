@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.jdom;
 
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.Signature;
@@ -410,7 +411,14 @@ protected DOMNode getDetailedNode() {
 public String[] getExceptions() {
 	return fExceptions;
 }
-/**
+protected char[] generateFlags() {
+	char[] flags= Flags.toString(getFlags() & ~Flags.AccVarargs).toCharArray();
+	if (flags.length == 0) {
+		return flags;
+	} else {
+		return CharOperation.concat(flags, new char[] {' '});
+	}
+}/**
  * @see IDOMNode#getJavaElement
  */
 public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentException {

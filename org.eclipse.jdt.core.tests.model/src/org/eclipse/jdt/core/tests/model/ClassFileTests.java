@@ -62,6 +62,12 @@ public class ClassFileTests extends ModifyingResourceTests {
 			"package generic;\n" +
 			"public class W<T extends X<T> , U extends T> {\n" + 
 			"}",
+			"varargs/X.java", 
+			"package varargs;\n" +
+			"public class X {\n" + 
+			"  void foo(String s, Object ... others) {\n" +
+			"  }\n" +
+			"}",
 		};
 		add1_5Library(javaProject, "lib.jar", "libsrc.zip", pathAndContents);
 		this.jarRoot = javaProject.getPackageFragmentRoot(getFile("/P/lib.jar"));
@@ -196,5 +202,14 @@ public class ClassFileTests extends ModifyingResourceTests {
 			"Unexpected return type",
 			"Lgeneric.X<TT;>;",
 			method.getReturnType());
+	}
+	
+	/*
+	 * Ensure that a method with varargs has the AccVarargs flag set.
+	 */
+	public void testVarargs() throws JavaModelException {
+		IType type = this.jarRoot.getPackageFragment("varargs").getClassFile("X.class").getType();
+		IMethod method = type.getMethod("foo", new String[]{"Ljava.lang.String;", "[Ljava.lang.Object;"});
+		assertTrue("Should have the AccVarargs flag set", Flags.isVarargs(method.getFlags()));
 	}
 }

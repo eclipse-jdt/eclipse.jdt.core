@@ -260,15 +260,18 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
  * @see IMethod
  */
 public String getReturnType() throws JavaModelException {
-	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	if (this.returnType == null) {
-		char[] genericSignature = info.getGenericSignature();
-		char[] signature = genericSignature == null ? info.getMethodDescriptor() : genericSignature;
-		char[] dotBasedSignature = CharOperation.replaceOnCopy(signature, '/', '.');
-		String returnTypeName= Signature.getReturnType(new String(dotBasedSignature));
-		this.returnType= new String(ClassFile.translatedName(returnTypeName.toCharArray()));
+		IBinaryMethod info = (IBinaryMethod) getElementInfo();
+		this.returnType = getReturnType(info);
 	}
 	return this.returnType;
+}
+private String getReturnType(IBinaryMethod info) {
+	char[] genericSignature = info.getGenericSignature();
+	char[] signature = genericSignature == null ? info.getMethodDescriptor() : genericSignature;
+	char[] dotBasedSignature = CharOperation.replaceOnCopy(signature, '/', '.');
+	String returnTypeName= Signature.getReturnType(new String(dotBasedSignature));
+	return new String(ClassFile.translatedName(returnTypeName.toCharArray()));
 }
 /*
  * @see IMethod
@@ -333,37 +336,46 @@ public String readableName() {
  * @private Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
-	buffer.append(this.tabString(tab));
+	buffer.append(tabString(tab));
 	if (info == null) {
 		toStringName(buffer);
 		buffer.append(" (not open)"); //$NON-NLS-1$
 	} else if (info == NO_INFO) {
 		toStringName(buffer);
 	} else {
-		try {
-			if (Flags.isStatic(this.getFlags())) {
-				buffer.append("static "); //$NON-NLS-1$
-			}
-			if (!this.isConstructor()) {
-				buffer.append(Signature.toString(this.getReturnType()));
-				buffer.append(' ');
-			}
-			toStringName(buffer);
-		} catch (JavaModelException e) {
-			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
+		IBinaryMethod methodInfo = (IBinaryMethod) info;
+		int flags = methodInfo.getModifiers();
+		if (Flags.isStatic(flags)) {
+			buffer.append("static "); //$NON-NLS-1$
 		}
+		if (!methodInfo.isConstructor()) {
+			buffer.append(Signature.toString(getReturnType(methodInfo)));
+			buffer.append(' ');
+		}
+		toStringName(buffer, flags);
 	}
 }
 protected void toStringName(StringBuffer buffer) {
+	toStringName(buffer, 0);
+}
+protected void toStringName(StringBuffer buffer, int flags) {
 	buffer.append(getElementName());
 	buffer.append('(');
-	String[] parameters = this.getParameterTypes();
+	String[] parameters = getParameterTypes();
 	int length;
 	if (parameters != null && (length = parameters.length) > 0) {
+		boolean isVarargs = Flags.isVarargs(flags);
 		for (int i = 0; i < length; i++) {
-			buffer.append(Signature.toString(parameters[i]));
 			if (i < length - 1) {
+				buffer.append(Signature.toString(parameters[i]));
 				buffer.append(", "); //$NON-NLS-1$
+			} else if (isVarargs) {
+				// remove array from signature
+				String parameter = parameters[i].substring(1);
+				buffer.append(Signature.toString(parameter));
+				buffer.append(" ..."); //$NON-NLS-1$
+			} else {
+				buffer.append(Signature.toString(parameters[i]));
 			}
 		}
 	}
