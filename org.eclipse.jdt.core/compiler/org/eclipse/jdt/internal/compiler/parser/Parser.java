@@ -2833,12 +2833,6 @@ protected void consumePrimitiveType() {
 	pushOnIntStack(0);
 }
 protected void consumePushModifiers() {
-	if ((modifiers & AccSynchronized) != 0) {
-		 /* remove the starting position of the synchronized keyword
-		  * we don't need it when synchronized is part of the modifiers
-		  */
-		intPtr--;
-	}
 	pushOnIntStack(modifiers); // modifiers
 	pushOnIntStack(modifiersSourceStart);
 	resetModifiers();
