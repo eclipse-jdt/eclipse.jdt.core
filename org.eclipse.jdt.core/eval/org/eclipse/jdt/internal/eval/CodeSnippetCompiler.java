@@ -40,7 +40,6 @@ public class CodeSnippetCompiler extends Compiler {
 				problemReporter,
 				evaluationContext,
 				this.options.parseLiteralExpressionsAsConstants,
-				this.options.sourceLevel,
 				codeSnippetStart,
 				codeSnippetEnd);
 		this.parseThreshold = 1;

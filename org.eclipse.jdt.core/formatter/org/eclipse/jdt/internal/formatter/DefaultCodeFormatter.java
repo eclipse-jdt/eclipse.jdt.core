@@ -52,10 +52,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 					new DefaultProblemFactory(Locale.getDefault()));
 					
 		CodeFormatterParser parser =
-			new CodeFormatterParser(
-				problemReporter,
-			false,
-			compilerOptions.sourceLevel);
+			new CodeFormatterParser(problemReporter, false);
 
 		ICompilationUnit sourceUnit = 
 			new CompilationUnit(
@@ -78,8 +75,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
 					new DefaultProblemFactory(Locale.getDefault())),
-			false,
-			compilerOptions.sourceLevel);
+			false);
 		ICompilationUnit sourceUnit = 
 			new CompilationUnit(
 				source, 
@@ -117,10 +113,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 					new DefaultProblemFactory(Locale.getDefault()));
 					
 		CodeFormatterParser parser =
-			new CodeFormatterParser(
-				problemReporter,
-			false,
-			compilerOptions.sourceLevel);
+			new CodeFormatterParser(problemReporter, false);
 
 		ICompilationUnit sourceUnit = 
 			new CompilationUnit(
@@ -141,11 +134,7 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
 					new DefaultProblemFactory(Locale.getDefault()));
-		Parser parser =
-			new Parser(
-				problemReporter,
-			false,
-			compilerOptions.sourceLevel);
+		Parser parser = new Parser(problemReporter, false);
 		ICompilationUnit sourceUnit = 
 			new CompilationUnit(
 				source, 

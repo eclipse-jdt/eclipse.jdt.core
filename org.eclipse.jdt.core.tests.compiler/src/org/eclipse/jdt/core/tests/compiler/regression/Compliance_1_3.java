@@ -1661,6 +1661,23 @@ public void test44() {
 	assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 }
 
+// 39172
+public void test45() {
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;	\n" +
+			"public class X { \n" +
+			"	public static void main(String[] args) {	\n" +
+			"		System.out.println(\"SUCCESS\");	\n" +
+			"		return;;	\n" + // unreachable empty statement - no complaint in 1.3 mode
+			"	}	\n" +
+			"}	\n"
+		},
+		"SUCCESS"
+	);
+}
+
 public static Class testClass() {
 	return Compliance_1_3.class;
 }

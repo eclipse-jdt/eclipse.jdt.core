@@ -99,8 +99,8 @@ public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	
 }
 
-public MatchLocatorParser(ProblemReporter problemReporter, long sourceLevel) {
-	super(problemReporter, true, sourceLevel);
+public MatchLocatorParser(ProblemReporter problemReporter) {
+	super(problemReporter, true);
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
 	super.classInstanceCreation(alwaysQualified);

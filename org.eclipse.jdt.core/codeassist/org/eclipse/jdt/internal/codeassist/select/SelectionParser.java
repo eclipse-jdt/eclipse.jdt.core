@@ -40,8 +40,8 @@ public class SelectionParser extends AssistParser {
 	public static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
 	public static final char[] THIS = "this".toCharArray(); //$NON-NLS-1$
 	
-public SelectionParser(ProblemReporter problemReporter, long sourceLevel) {
-	super(problemReporter, sourceLevel);
+public SelectionParser(ProblemReporter problemReporter) {
+	super(problemReporter);
 }
 public char[] assistIdentifier(){
 	return ((SelectionScanner)scanner).selectionIdentifier;
@@ -622,7 +622,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	return reference;
 }
 public void initializeScanner(){
-	this.scanner = new SelectionScanner(this.sourceLevel);
+	this.scanner = new SelectionScanner(this.options.sourceLevel);
 }
 protected MessageSend newMessageSend() {
 	// '(' ArgumentListopt ')'

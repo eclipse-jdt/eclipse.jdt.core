@@ -42,8 +42,7 @@ public void checkParse(
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 				new CompilerOptions(), 
 				new DefaultProblemFactory(Locale.getDefault())),
-			optimizeStringLiterals,
-			sourceLevel);
+			optimizeStringLiterals);
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 	CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
 	

@@ -62,8 +62,7 @@ public DocumentElementParser(
 			requestor.acceptProblem(problem);
 		}
 	},
-	false,
-	options.sourceLevel);
+	false);
 	this.requestor = requestor;
 	intArrayStack = new int[30][];
 	this.options = options;

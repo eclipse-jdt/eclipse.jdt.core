@@ -27,12 +27,12 @@ public class LabeledStatement extends Statement {
 	/**
 	 * LabeledStatement constructor comment.
 	 */
-	public LabeledStatement(char[] l, Statement st, int s, int e) {
+	public LabeledStatement(char[] label, Statement statement, int sourceStart, int sourceEnd) {
 		
-		this.statement = st;
-		this.label = l;
-		this.sourceStart = s;
-		this.sourceEnd = e;
+		this.statement = statement;
+		this.label = label;
+		this.sourceStart = sourceStart;
+		this.sourceEnd = sourceEnd;
 	}
 	
 	public FlowInfo analyseCode(
@@ -100,13 +100,15 @@ public class LabeledStatement extends Statement {
 	
 	public void resolve(BlockScope scope) {
 		
-		statement.resolve(scope);
+		if (this.statement != null) {
+			this.statement.resolve(scope);
+		}
 	}
 	
 	public String toString(int tab) {
 
 		String s = tabString(tab);
-		s += new String(label) + ": " + statement.toString(0); //$NON-NLS-1$
+		s += new String(label) + ": " + (this.statement == null ? "; " : this.statement.toString(0)); //$NON-NLS-1$ //$NON-NLS-2$
 		return s;
 	}
 
@@ -115,7 +117,7 @@ public class LabeledStatement extends Statement {
 		BlockScope blockScope) {
 
 		if (visitor.visit(this, blockScope)) {
-			statement.traverse(visitor, blockScope);
+			if (this.statement != null) this.statement.traverse(visitor, blockScope);
 		}
 		visitor.endVisit(this, blockScope);
 	}

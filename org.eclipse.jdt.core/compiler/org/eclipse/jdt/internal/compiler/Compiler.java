@@ -112,8 +112,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		this.parser =
 			new Parser(
 				problemReporter, 
-				this.options.parseLiteralExpressionsAsConstants, 
-				options.sourceLevel);
+				this.options.parseLiteralExpressionsAsConstants);
 	}
 	
 	/**
@@ -183,8 +182,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		this.parser =
 			new Parser(
 				problemReporter, 
-				parseLiteralExpressionsAsConstants, 
-				this.options.sourceLevel);
+				parseLiteralExpressionsAsConstants);
 	}
 	
 	/**

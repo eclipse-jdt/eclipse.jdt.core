@@ -208,7 +208,7 @@ public final class CompletionEngine
 		this.lookupEnvironment =
 			new LookupEnvironment(this, this.compilerOptions, problemReporter, nameEnvironment);
 		this.parser =
-			new CompletionParser(problemReporter, this.compilerOptions.sourceLevel);
+			new CompletionParser(problemReporter);
 		this.nameScanner =
 			new Scanner(
 				false /*comment*/, 

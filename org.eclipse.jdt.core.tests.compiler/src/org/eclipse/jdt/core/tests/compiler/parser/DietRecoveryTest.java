@@ -50,8 +50,7 @@ public void checkParse(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					new CompilerOptions(), 
 					new DefaultProblemFactory(Locale.getDefault())),
-				optimizeStringLiterals,
-				sourceLevel);
+				optimizeStringLiterals);
 
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
@@ -74,8 +73,7 @@ public void checkParse(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					new CompilerOptions(), 
 					new DefaultProblemFactory(Locale.getDefault())),
-				optimizeStringLiterals,
-				sourceLevel);
+				optimizeStringLiterals);
 
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
@@ -113,8 +111,7 @@ public void checkParse(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					new CompilerOptions(), 
 					new DefaultProblemFactory(Locale.getDefault())),
-				optimizeStringLiterals,
-				sourceLevel);
+				optimizeStringLiterals);
 
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
@@ -180,8 +177,7 @@ public void checkParse(
 				new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					options, 
-					new DefaultProblemFactory(Locale.getDefault())),
-				options.sourceLevel);
+					new DefaultProblemFactory(Locale.getDefault())));
 			
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
@@ -3678,7 +3674,6 @@ public void test62() {
 		"    public String s;\n" + 
 		"    static int y;\n" + 
 		"    {\n" + 
-		"      ;;\n" + 
 		"    }\n" + 
 		"    public int i = 0;\n" + 
 		"    Y() {\n" + 

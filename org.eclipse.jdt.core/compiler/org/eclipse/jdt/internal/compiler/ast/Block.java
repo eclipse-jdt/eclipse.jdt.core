@@ -21,7 +21,6 @@ public class Block extends Statement {
 	public int explicitDeclarations;
 	// the number of explicit declaration , used to create scope
 	public BlockScope scope;
-	public static final Block None = new Block(0);
 	
 	public Block(int explicitDeclarations) {
 		this.explicitDeclarations = explicitDeclarations;

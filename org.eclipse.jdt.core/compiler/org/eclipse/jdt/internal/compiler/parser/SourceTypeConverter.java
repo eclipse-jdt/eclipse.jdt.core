@@ -153,11 +153,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 			char[] initializationSource = sourceField.getInitializationSource();
 			if (initializationSource != null) {
 				if (this.parser == null) {
-					this.parser = 
-						new Parser(
-							this.problemReporter, 
-							true, 
-							this.problemReporter.options.sourceLevel);
+					this.parser = new Parser(this.problemReporter, true);
 				}
 				this.parser.parse(field, type, this.unit, initializationSource);
 			}

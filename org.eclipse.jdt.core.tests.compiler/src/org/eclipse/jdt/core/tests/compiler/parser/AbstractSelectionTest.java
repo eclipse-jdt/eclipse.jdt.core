@@ -55,8 +55,7 @@ public void checkDietParse(
 			new ProblemReporter(
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 				options, 
-				new DefaultProblemFactory(Locale.getDefault())),
-			options.sourceLevel);
+				new DefaultProblemFactory(Locale.getDefault())));
 
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 	CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	
@@ -134,8 +133,7 @@ public void checkMethodParse(
 			new ProblemReporter(
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 				options, 
-				new DefaultProblemFactory(Locale.getDefault())),
-			options.sourceLevel);
+				new DefaultProblemFactory(Locale.getDefault())));
 
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
 	CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);	

@@ -90,8 +90,7 @@ public SourceElementParser(
 			requestor.acceptProblem(problem);
 		}
 	},
-	true,
-	options.sourceLevel);
+	true);
 	this.requestor = requestor;
 	typeNames = new char[4][];
 	superTypeNames = new char[4][];

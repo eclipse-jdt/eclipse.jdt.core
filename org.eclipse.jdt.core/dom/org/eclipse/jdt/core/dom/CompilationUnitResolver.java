@@ -73,6 +73,7 @@ class CompilationUnitResolver extends Compiler {
 		IProblemFactory problemFactory) {
 
 		super(environment, policy, settings, requestor, problemFactory, false);
+		this.parser.keepEmptyStatement = true;
 	}
 
 	/**
@@ -183,14 +184,13 @@ class CompilationUnitResolver extends Compiler {
 			throw new IllegalArgumentException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		Parser parser =
-			new Parser(
-				new ProblemReporter(
+		Parser parser = new Parser(
+			new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
 					compilerOptions, 
 					new DefaultProblemFactory(Locale.getDefault())),
-			false,
-			compilerOptions.sourceLevel);
+				false);
+		parser.keepEmptyStatement = true; // special mode for DOM
 		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
 			new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
 				source, 

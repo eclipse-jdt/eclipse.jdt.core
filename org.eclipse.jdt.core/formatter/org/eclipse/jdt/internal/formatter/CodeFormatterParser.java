@@ -24,9 +24,8 @@ public class CodeFormatterParser extends Parser {
 
 	public CodeFormatterParser(
 			ProblemReporter problemReporter,
-			boolean optimizeStringLiterals,
-			long sourceLevel) {
-		super(problemReporter, optimizeStringLiterals, sourceLevel);
+			boolean optimizeStringLiterals) {
+		super(problemReporter, optimizeStringLiterals);
 	}
 
 	public Expression parseExpression(char[] source, CompilationUnitDeclaration unit) {

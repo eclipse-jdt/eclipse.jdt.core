@@ -31,8 +31,8 @@ public class CodeSnippetParser extends Parser implements EvaluationConstants {
 /**
  * Creates a new code snippet parser.
  */
-public CodeSnippetParser(ProblemReporter problemReporter, EvaluationContext evaluationContext, boolean optimizeStringLiterals, long sourceLevel, int codeSnippetStart, int codeSnippetEnd) {
-	super(problemReporter, optimizeStringLiterals, sourceLevel);
+public CodeSnippetParser(ProblemReporter problemReporter, EvaluationContext evaluationContext, boolean optimizeStringLiterals, int codeSnippetStart, int codeSnippetEnd) {
+	super(problemReporter, optimizeStringLiterals);
 	this.codeSnippetStart = codeSnippetStart;
 	this.codeSnippetEnd = codeSnippetEnd;
 	this.evaluationContext = evaluationContext;

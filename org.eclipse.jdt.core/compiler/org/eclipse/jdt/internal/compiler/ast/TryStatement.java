@@ -503,10 +503,7 @@ public class TryStatement extends SubRoutineStatement {
 		String s = tabString(tab);
 		//try
 		s = s + "try "; //$NON-NLS-1$
-		if (tryBlock == Block.None)
-			s = s + "{}"; //$NON-NLS-1$
-		else
-			s = s + "\n" + tryBlock.toString(tab + 1); //$NON-NLS-1$
+		s = s + "\n" + tryBlock.toString(tab + 1); //$NON-NLS-1$
 
 		//catches
 		if (catchBlocks != null)
@@ -516,10 +513,7 @@ public class TryStatement extends SubRoutineStatement {
 						+catchBlocks[i].toString(tab + 1);
 		//finally
 		if (finallyBlock != null) {
-			if (finallyBlock == Block.None)
-				s = s + "\n" + tabString(tab) + "finally {}"; //$NON-NLS-2$ //$NON-NLS-1$
-			else
-					s = s + "\n" + tabString(tab) + "finally\n" + //$NON-NLS-2$ //$NON-NLS-1$
+			s = s + "\n" + tabString(tab) + "finally\n" + //$NON-NLS-2$ //$NON-NLS-1$
 			finallyBlock.toString(tab + 1);
 		}
 

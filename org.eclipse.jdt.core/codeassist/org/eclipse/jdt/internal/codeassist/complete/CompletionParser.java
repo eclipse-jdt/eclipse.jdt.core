@@ -114,8 +114,8 @@ public class CompletionParser extends AssistParser {
 	static final int YES = 2;
 	
 	
-public CompletionParser(ProblemReporter problemReporter, long sourceLevel) {
-	super(problemReporter, sourceLevel);
+public CompletionParser(ProblemReporter problemReporter) {
+	super(problemReporter);
 	this.reportSyntaxErrorIsRequired = false;
 }
 public char[] assistIdentifier(){
@@ -2140,7 +2140,7 @@ private void initializeForBlockStatements() {
 	}
 }
 public void initializeScanner(){
-	this.scanner = new CompletionScanner(this.sourceLevel);
+	this.scanner = new CompletionScanner(this.options.sourceLevel);
 }
 /**
  * Returns whether the completion is just after an array type

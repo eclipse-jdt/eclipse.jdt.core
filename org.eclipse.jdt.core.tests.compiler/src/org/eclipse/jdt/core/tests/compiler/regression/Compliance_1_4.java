@@ -1649,6 +1649,27 @@ public void test44() {
 	}
 	assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 }
+// 39172
+public void test45() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"package p;	\n" +
+			"public class X { \n" +
+			"	public static void main(String[] args) {	\n" +
+			"		System.out.println(\"FAILED\");	\n" +
+			"		return;;	\n" + // unreachable empty statement - must complain in 1.4 mode
+			"	}	\n" +
+			"}	\n"
+		},
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 5)\n" + 
+		"	return;;	\n" + 
+		"	       ^\n" + 
+		"Unreachable code\n" + 
+		"----------\n"
+	);
+}
 public static Class testClass() {
 	return Compliance_1_4.class;
 }
