@@ -102,41 +102,32 @@ public class SearchableEnvironment
 	 * @see INameEnvironment
 	 */
 	public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
-		if (compoundTypeName == null)
-			return null;
+		if (compoundTypeName == null) return null;
+
 		int length = compoundTypeName.length;
-		if (length == 1)
+		if (length <= 1) {
+			if (length == 0) return null;
 			return find(new String(compoundTypeName[0]), null);
-		StringBuffer buffer = new StringBuffer(length * 6);
-		int lengthM1 = length - 1;
-		for (int i = 0; i < lengthM1; i++) {
-			buffer.append(compoundTypeName[i]);
-			if (i + 1 != lengthM1)
-				buffer.append('.');
 		}
-		String className = new String(compoundTypeName[lengthM1]);
-		return find(className, buffer.toString());
+
+		int lengthM1 = length - 1;
+		char[][] packageName = new char[lengthM1][];
+		System.arraycopy(compoundTypeName, 0, packageName, 0, lengthM1);
+
+		return find(
+			new String(compoundTypeName[lengthM1]),
+			CharOperation.toString(packageName));
 	}
 
 	/**
 	 * @see INameEnvironment
 	 */
-	public NameEnvironmentAnswer findType(char[] name, char[][] packages) {
-		if (name == null)
-			return null;
+	public NameEnvironmentAnswer findType(char[] name, char[][] packageName) {
+		if (name == null) return null;
 
-		if (packages == null || packages.length == 0)
-			return find(new String(name), null);
-
-		int length = packages.length;
-		StringBuffer buffer = new StringBuffer(length * 6);
-		for (int i = 0; i < length; i++) {
-			buffer.append(packages[i]);
-			if (i + 1 != length)
-				buffer.append('.');
-		}
-		String className = new String(name);
-		return find(className, buffer.toString());
+		return find(
+			new String(name),
+			packageName == null || packageName.length == 0 ? null : CharOperation.toString(packageName));
 	}
 
 	/**
@@ -266,24 +257,14 @@ public class SearchableEnvironment
 			this.nameLookup.seekTypes(prefix, null, true, type, requestor);
 		} else {
 			String packageName = prefix.substring(0, index);
-			String className = prefix.substring(index + 1);
-			JavaElementRequestor javaElementRequestor = new JavaElementRequestor();
-			this.nameLookup.seekPackageFragments(packageName, false, javaElementRequestor);
-			IPackageFragment[] packageFragments =
-				javaElementRequestor.getPackageFragments();
-			if (packageFragments == null)
-				return;
-			for (int i = 0, packagesLength = packageFragments.length;
-				i < packagesLength;
-				i++) {
-				if (packageFragments[i] == null)
-					continue;
-				this.nameLookup.seekTypes(
-					className,
-					packageFragments[i],
-					true,
-					type,
-					requestor);
+			JavaElementRequestor elementRequestor = new JavaElementRequestor();
+			this.nameLookup.seekPackageFragments(packageName, false, elementRequestor);
+			IPackageFragment[] fragments = elementRequestor.getPackageFragments();
+			if (fragments != null) {
+				String className = prefix.substring(index + 1);
+				for (int i = 0, length = fragments.length; i < length; i++)
+					if (fragments[i] != null)
+						this.nameLookup.seekTypes(className, fragments[i], true, type, requestor);
 			}
 		}
 	}
@@ -292,49 +273,25 @@ public class SearchableEnvironment
 	 * @see SearchableBuilderEnvironment
 	 */
 	public boolean isPackage(char[][] parentPackageName, char[] subPackageName) {
+		if (subPackageName == null || CharOperation.contains('.', subPackageName))
+			return false;
 		if (parentPackageName == null || parentPackageName.length == 0)
 			return isTopLevelPackage(subPackageName);
-		if (subPackageName == null)
-			return false;
-		int length = parentPackageName.length;
-		StringBuffer buffer = new StringBuffer((length + 1) * 6);
-		for (int i = 0; i < length; i++) {
-			if (parentPackageName[i] == null || isQualified(parentPackageName[i]))
+		for (int i = 0, length = parentPackageName.length; i < length; i++)
+			if (parentPackageName[i] == null || CharOperation.contains('.', parentPackageName[i]))
 				return false;
-			buffer.append(parentPackageName[i]);
-			buffer.append('.');
-		}
-		if (isQualified(subPackageName)) {
-			return false;
-		}
-		buffer.append(subPackageName);
-		boolean result =
-			this.nameLookup.findPackageFragments(buffer.toString(), false) != null;
-		return result;
 
-	}
-
-	/**
-	 * Returns true if there are no '.' characters in the given name.
-	 */
-	protected boolean isQualified(char[] name) {
-		if (name != null) {
-			return CharOperation.indexOf('.', name) > -1;
-		}
-		return false;
+		String packageName = new String(CharOperation.concatWith(parentPackageName, subPackageName, '.'));
+		return this.nameLookup.findPackageFragments(packageName, false) != null;
 	}
 
 	/**
 	 * @see SearchableBuilderEnvironment
 	 */
 	public boolean isTopLevelPackage(char[] packageName) {
-		if (packageName == null)
-			return false;
-		boolean result =
-			!isQualified(packageName)
-				&& this.nameLookup.findPackageFragments(new String(packageName), false) != null;
-		return result;
-
+		return packageName != null &&
+			!CharOperation.contains('.', packageName) &&
+			this.nameLookup.findPackageFragments(new String(packageName), false) != null;
 	}
 
 	/**
