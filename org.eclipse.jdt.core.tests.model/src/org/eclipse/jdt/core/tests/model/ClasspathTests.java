@@ -81,6 +81,11 @@ public static Test suite() {
 	return buildTestSuite(ClasspathTests.class);
 	//return buildTestSuite(ClasspathTests.class, "testClasspathValidation02", null);
 }
+public void setUpSuite() throws Exception {
+	super.setUpSuite();
+	
+	setupExternalJCL("jclMin");
+}
 protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] expectedCycleParticipants) throws CoreException {
 	waitForAutoBuild();
 	StringBuffer expected = new StringBuffer("{");
@@ -1691,7 +1696,7 @@ public void testClasspathWithNonExistentLibraryEntry() throws CoreException {
 		IClasspathEntry[] newPath= new IClasspathEntry[originalPath.length + 1];
 		System.arraycopy(originalPath, 0, newPath, 0, originalPath.length);
 	
-		IClasspathEntry newEntry= JavaCore.newLibraryEntry(new Path("c:/nothing/nozip.jar"), null, null, false);
+		IClasspathEntry newEntry= JavaCore.newLibraryEntry(new Path("c:/nothing/nozip.jar").makeAbsolute(), null, null, false);
 		newPath[originalPath.length]= newEntry;
 	
 		project.setRawClasspath(newPath, null);
