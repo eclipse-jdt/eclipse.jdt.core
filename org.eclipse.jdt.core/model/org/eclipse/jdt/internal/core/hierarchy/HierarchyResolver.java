@@ -119,6 +119,7 @@ public class HierarchyResolver implements ITypeRequestor {
 	
 	}
 	private ReferenceBinding focusType;
+	private boolean superTypesOnly;
 	private boolean hasMissingSuperClass;
 	LookupEnvironment lookupEnvironment;
 	private CompilerOptions options;
@@ -468,6 +469,8 @@ private void reportHierarchy(IType focus, CompilationUnitDeclaration parsedUnit,
 private void reset(){
 	this.lookupEnvironment.reset();
 
+	this.focusType = null;
+	this.superTypesOnly = false;
 	this.typeIndex = -1;
 	this.typeModels = new IGenericType[5];
 	this.typeBindings = new ReferenceBinding[5];
@@ -483,32 +486,14 @@ public void resolve(IGenericType suppliedType) {
 		if (suppliedType.isBinaryType()) {
 			BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType((IBinaryType) suppliedType);
 			remember(suppliedType, binaryTypeBinding);
+			this.superTypesOnly = true;
 			reportHierarchy(this.requestor.getType(), null, binaryTypeBinding);
 		} else {
-			// must start with the top level type
-			ISourceType topLevelType = (ISourceType) suppliedType;
-			while (topLevelType.getEnclosingType() != null)
-				topLevelType = topLevelType.getEnclosingType();
-			CompilationResult result = new CompilationResult(topLevelType.getFileName(), 1, 1, this.options.maxProblemsPerUnit);
-			CompilationUnitDeclaration unit =
-				SourceTypeConverter.buildCompilationUnit(
-					new ISourceType[]{topLevelType}, 
-					// no need for field and methods
-					SourceTypeConverter.MEMBER_TYPE, // need member types
-					// no need for field initialization
-					this.lookupEnvironment.problemReporter, 
-					result);
-
-			if (unit != null) {
-				this.lookupEnvironment.buildTypeBindings(unit);
-
-				org.eclipse.jdt.core.ICompilationUnit cu = ((SourceTypeElementInfo)topLevelType).getHandle().getCompilationUnit();
-				rememberAllTypes(unit, cu, false);
-
-				this.lookupEnvironment.completeTypeBindings(unit, false);
-
-				reportHierarchy(this.requestor.getType(), unit, null);
-			}
+			org.eclipse.jdt.core.ICompilationUnit cu = ((SourceTypeElementInfo)suppliedType).getHandle().getCompilationUnit();
+			HashSet localTypes = new HashSet();
+			localTypes.add(cu.getPath().toString());
+			this.superTypesOnly = true;
+			resolve(new Openable[] {(Openable)cu}, localTypes, null);
 		}
 	} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
 	} finally {
@@ -720,7 +705,7 @@ public ReferenceBinding setFocusType(char[][] compoundName) {
 public boolean subOrSuperOfFocus(ReferenceBinding typeBinding) {
 	if (this.focusType == null) return true; // accept all types (case of hierarchy in a region)
 	if (this.subTypeOfType(this.focusType, typeBinding)) return true;
-	if (this.subTypeOfType(typeBinding, this.focusType)) return true;
+	if (!this.superTypesOnly && this.subTypeOfType(typeBinding, this.focusType)) return true;
 	return false;
 }
 private boolean subTypeOfType(ReferenceBinding subType, ReferenceBinding typeBinding) {

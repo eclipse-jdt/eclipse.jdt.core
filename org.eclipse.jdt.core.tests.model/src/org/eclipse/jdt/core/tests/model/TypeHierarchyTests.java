@@ -355,6 +355,22 @@ public void testLocalType3() throws JavaModelException {
 		"Sub types:\n",
 		hierarchy);
 }
+/*
+ * Ensures that a super type hierarchy on a local type in a method declaration is correct.
+ * (regression test for bug 44073 Override methods action does not work for local types [code manipulation])
+ */
+public void testLocalType4() throws JavaModelException {
+	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p7", "A.java").getType("A");
+	IType type = typeA.getMethod("foo", new String[] {}).getType("Y1", 1);
+	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Y1 [in foo() [in A [in A.java [in p7 [in src [in TypeHierarchy]]]]]]\n" + 
+		"Super types:\n" + 
+		"  X [in X.java [in p7 [in src [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy);
+}
 /**
  * Ensures that a hierarchy on a type that implements a missing interface is correctly rooted.
  * (regression test for bug 24691 Missing interface makes hierarchy incomplete)
