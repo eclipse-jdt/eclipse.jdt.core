@@ -310,16 +310,12 @@ public void test013() {
 		new String[] {
 			"X.java",
 			"public class X <T extends String> {\n" + 
-			"    \n" + 
 			"    T foo(T t) {\n" + 
 			"        return t;\n" + 
 			"    }\n" + 
-			"    \n" + 
 			"    public static void main(String[] args) {\n" + 
-			"        \n" + 
 			"        new X<String>().baz(\"SUCCESS\");\n" + 
 			"    }\n" + 
-			"    \n" + 
 			"    void baz(final T t) {\n" + 
 			"        new Object() {\n" + 
 			"            void print() {\n" + 
