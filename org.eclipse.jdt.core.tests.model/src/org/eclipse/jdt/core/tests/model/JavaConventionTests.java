@@ -212,6 +212,12 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	/**
 	 * @see JavaNamingConventions
 	 */
+	public void testValidTypeVariableName() {
+		assertTrue("E sould be a valid variable name", JavaConventions.validateTypeVariableName("E").isOK());
+	}
+	/**
+	 * @see JavaNamingConventions
+	 */
 	public void testValidUnicodeImportDeclaration() {
 		
 		String pkgName= "com.\\u0069bm.jdt.core.tests.MyPackag\\u0065";

@@ -442,6 +442,22 @@ public final class JavaConventions {
 	public static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment){
 		return ClasspathEntry.validateClasspathEntry(project, entry, checkSourceAttachment, true/*recurse in container*/);
 	}
+	
+	/**
+	 * Validate the given type variable name.
+	 * <p>
+	 * Syntax of a type variable name corresponds to a Java identifier (JLS3 4.3).
+	 * For example, <code>"E"</code>.
+	 *
+	 * @param name the name of a type variable
+	 * @return a status object with code <code>IStatus.OK</code> if
+	 *		the given name is valid as a type variable name, otherwise a status 
+	 *		object indicating what is wrong with the name
+	 * @since 3.1
+	 */
+	public static IStatus validateTypeVariableName(String name) {
+		return validateIdentifier(name);
+	}
 
 	/**
 	 * Validate that all compiler options of the given project match keys and values
