@@ -91,6 +91,9 @@ public static Test suite() {
 	//Resolve type tests
 	suite.addTest(TypeResolveTests.suite());
 
+	//Reconciler tests
+	suite.addTest(ReconcilerTests.suite());
+
 	return suite;
 }
 
