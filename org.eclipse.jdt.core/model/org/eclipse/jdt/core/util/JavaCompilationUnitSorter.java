@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -31,7 +32,17 @@ public class JavaCompilationUnitSorter {
 
 	public static final String SOURCE_START = "sourceStart"; //$NON-NLS-1$
 
-	public static int getCategory(ASTNode node, Hashtable options) {
+	/**
+	 * This method is used to retrieve the category for a body declaration node according to the 
+	 * preferences passed as options.
+	 * 
+	 * @param node the given node
+	 * @param options the options
+	 * @return the category corresponding to the given node
+	 * 
+	 * @since 2.1
+	 */
+	public static int getCategory(BodyDeclaration node, Hashtable options) {
 		switch(node.getNodeType()) {
 			case ASTNode.METHOD_DECLARATION :
 				MethodDeclaration methodDeclaration = (MethodDeclaration) node;
