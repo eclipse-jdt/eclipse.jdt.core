@@ -103,6 +103,32 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		return compilationUnitDeclaration;
 	}
 
+	private static Expression parseExpression(char[] source, Map settings) {
+		
+		if (source == null) {
+			throw new IllegalArgumentException();
+		}
+		CompilerOptions compilerOptions = new CompilerOptions(settings);
+		final ProblemReporter problemReporter = new ProblemReporter(
+					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
+					compilerOptions, 
+					new DefaultProblemFactory(Locale.getDefault()));
+					
+		CodeFormatterParser parser =
+			new CodeFormatterParser(
+				problemReporter,
+			false,
+			compilerOptions.sourceLevel);
+
+		ICompilationUnit sourceUnit = 
+			new CompilationUnit(
+				source, 
+				"", //$NON-NLS-1$
+				compilerOptions.defaultEncoding);
+
+		return parser.parseExpression(source, new CompilationUnitDeclaration(problemReporter, new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit), source.length));
+	}
+
 	private static ConstructorDeclaration parseStatements(char[] source, Map settings) {
 		
 		if (source == null) {
@@ -136,32 +162,6 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 		
 		return constructorDeclaration;
 	}
-
-	private static Expression parseExpression(char[] source, Map settings) {
-		
-		if (source == null) {
-			throw new IllegalArgumentException();
-		}
-		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		final ProblemReporter problemReporter = new ProblemReporter(
-					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-					compilerOptions, 
-					new DefaultProblemFactory(Locale.getDefault()));
-					
-		CodeFormatterParser parser =
-			new CodeFormatterParser(
-				problemReporter,
-			false,
-			compilerOptions.sourceLevel);
-
-		ICompilationUnit sourceUnit = 
-			new CompilationUnit(
-				source, 
-				"", //$NON-NLS-1$
-				compilerOptions.defaultEncoding);
-
-		return parser.parseExpression(source, new CompilationUnitDeclaration(problemReporter, new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit), source.length));
-	}
 	
 	public DefaultCodeFormatter() {
 		this.preferences = FormattingPreferences.getSunSetttings();
@@ -171,17 +171,6 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 	public DefaultCodeFormatter(FormattingPreferences preferences, Map options) {
 		this.preferences = preferences;
 		this.options = options;
-	}
-	
-	/**
-	 * @see org.eclipse.jdt.core.ICodeFormatter#format(String, int, int[], String)
-	 */
-	public String format(
-		String source,
-		int indentationLevel,
-		int[] positions,
-		String lineSeparator) {
-			return format(K_COMPILATION_UNIT, source, indentationLevel, positions, lineSeparator);
 	}
 
 	/**
@@ -204,6 +193,28 @@ public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatte
 				return formatStatements(source, indentationLevel, positions, lineSeparator);
 		}			
 		return source;
+	}
+	
+	public String format(
+		String string,
+		int start,
+		int end,
+		int indentationLevel,
+		int[] positions,
+		String lineSeparator) {
+		// TODO: Auto-generated method stub
+		return null;
+	}
+	
+	/**
+	 * @see org.eclipse.jdt.core.ICodeFormatter#format(String, int, int[], String)
+	 */
+	public String format(
+		String source,
+		int indentationLevel,
+		int[] positions,
+		String lineSeparator) {
+			return format(K_COMPILATION_UNIT, source, indentationLevel, positions, lineSeparator);
 	}
 
 	private String formatClassBodyDeclarations(String source, int indentationLevel, int[] positions, String lineSeparator) {

@@ -637,18 +637,22 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				formatClassBodyDeclarations(nodes);
 			}
 		} catch(AbortFormatting e){
-			StringBuffer buffer = new StringBuffer(this.scribe.formattedSource());
-			buffer.append(compilationUnitSource, this.scribe.scanner.getCurrentTokenEndPosition(), this.scribe.scannerEndPosition - this.scribe.scanner.getCurrentTokenEndPosition());
-			if (DEBUG) {
-				System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
-				System.out.println(this.scribe);
-			}
-			return buffer.toString();
+			return failedToFormat(compilationUnitSource);
 		}
 		if (DEBUG){
 			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
 		}
 		return this.scribe.toString();
+	}
+
+	private String failedToFormat(final char[] compilationUnitSource) {
+		StringBuffer buffer = new StringBuffer(this.scribe.formattedSource());
+		buffer.append(compilationUnitSource, this.scribe.scanner.getCurrentTokenEndPosition(), this.scribe.scannerEndPosition - this.scribe.scanner.getCurrentTokenEndPosition());
+		System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
+		if (DEBUG) {
+			System.out.println(this.scribe);
+		}
+		return buffer.toString();
 	}
 
 	/**
@@ -675,13 +679,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		try {
 			compilationUnitDeclaration.traverse(this, compilationUnitDeclaration.scope);
 		} catch(AbortFormatting e){
-			StringBuffer buffer = new StringBuffer(this.scribe.formattedSource());
-			buffer.append(compilationUnitSource, this.scribe.scanner.getCurrentTokenEndPosition(), this.scribe.scannerEndPosition - this.scribe.scanner.getCurrentTokenEndPosition());
-			if (DEBUG) {
-				System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
-				System.out.println(this.scribe);
-			}
-			return buffer.toString();
+			return failedToFormat(compilationUnitSource);
 		}
 		if (DEBUG){
 			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
@@ -713,13 +711,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		try {
 			expression.traverse(this, null);
 		} catch(AbortFormatting e){
-			StringBuffer buffer = new StringBuffer(this.scribe.formattedSource());
-			buffer.append(compilationUnitSource, this.scribe.scanner.getCurrentTokenEndPosition(), this.scribe.scannerEndPosition - this.scribe.scanner.getCurrentTokenEndPosition());
-			if (DEBUG) {
-				System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
-				System.out.println(this.scribe);
-			}
-			return buffer.toString();
+			return failedToFormat(compilationUnitSource);
 		}
 		if (DEBUG){
 			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
@@ -758,13 +750,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				formatStatements(null, statements);
 			}
 		} catch(AbortFormatting e){
-			StringBuffer buffer = new StringBuffer(this.scribe.formattedSource());
-			buffer.append(compilationUnitSource, this.scribe.scanner.getCurrentTokenEndPosition(), this.scribe.scannerEndPosition - this.scribe.scanner.getCurrentTokenEndPosition());
-			if (DEBUG) {
-				System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
-				System.out.println(this.scribe);
-			}
-			return buffer.toString();
+			return failedToFormat(compilationUnitSource);
 		}
 		if (DEBUG){
 			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
@@ -3141,7 +3127,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(qualifiedTypeReference, numberOfParens);
 			}
-			this.scribe.printQualifiedReference(qualifiedTypeReference.sourceEnd);
+			this.scribe.printQualifiedReference(qualifiedTypeReference.sourceEnd + 1);
 			
 			if (numberOfParens > 0) {
 				manageClosingParenthesizedExpression(qualifiedTypeReference, numberOfParens);
