@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModel;
@@ -23,7 +24,9 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 
 /**
@@ -33,7 +36,7 @@ import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 public class IndexSelector {
 	IJavaSearchScope searchScope;
 	SearchPattern pattern;
-	IPath[] indexKeys; // cache of the keys for looking index up
+	IPath[] indexLocations; // cache of the keys for looking index up
 	
 public IndexSelector(
 		IJavaSearchScope searchScope,
@@ -118,13 +121,14 @@ public static boolean canSeeFocus(IJavaElement focus, boolean isPolymorphicSearc
 /*
  *  Compute the list of paths which are keying index files.
  */
-private void initializeIndexKeys() {
+private void initializeIndexLocations() {
 	
 	ArrayList requiredIndexKeys = new ArrayList();
 	IPath[] projectsAndJars = this.searchScope.enclosingProjectsAndJars();
 	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 	IJavaElement projectOrJarFocus = MatchLocator.projectOrJarFocus(this.pattern);
 	boolean isPolymorphicSearch = this.pattern == null ? false : MatchLocator.isPolymorphicSearch(this.pattern);
+	IndexManager manager = JavaModelManager.getJavaModelManager().getIndexManager();
 	for (int i = 0; i < projectsAndJars.length; i++) {
 		IPath location;
 		IPath path = projectsAndJars[i];
@@ -137,18 +141,18 @@ private void initializeIndexKeys() {
 		}
 		if (projectOrJarFocus == null || canSeeFocus(projectOrJarFocus, isPolymorphicSearch, path)) {
 			if (requiredIndexKeys.indexOf(path) == -1) {
-				requiredIndexKeys.add(path);
+				requiredIndexKeys.add(new Path(manager.computeIndexLocation(path)));
 			}
 		}
 	}
-	this.indexKeys = new IPath[requiredIndexKeys.size()];
-	requiredIndexKeys.toArray(this.indexKeys);
+	this.indexLocations = new IPath[requiredIndexKeys.size()];
+	requiredIndexKeys.toArray(this.indexLocations);
 }
-public IPath[] getIndexKeys() {
-	if (this.indexKeys == null) {
-		this.initializeIndexKeys(); 
+public IPath[] getIndexLocations() {
+	if (this.indexLocations == null) {
+		this.initializeIndexLocations(); 
 	}
-	return this.indexKeys;
+	return this.indexLocations;
 }
 
 /**

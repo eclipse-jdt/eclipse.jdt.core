@@ -43,7 +43,7 @@ class AddFolderToIndex extends IndexRequest {
 		if (folder == null || folder.getType() == IResource.FILE) return true; // nothing to do, source folder was removed
 
 		/* ensure no concurrent write access to index */
-		Index index = manager.getIndex(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
+		Index index = this.manager.getIndex(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
 		if (index == null) return true;
 		ReadWriteMonitor monitor = index.monitor;
 		if (monitor == null) return true; // index got deleted since acquired

@@ -109,7 +109,7 @@ public class JavaSearchParticipant extends SearchParticipant {
 		if (this.indexSelector == null) {
 			this.indexSelector = new IndexSelector(scope, pattern);
 		}
-		return this.indexSelector.getIndexKeys();
+		return this.indexSelector.getIndexLocations();
 	}
 	
 }

@@ -77,15 +77,15 @@ public boolean execute(IProgressMonitor progressMonitor) {
 }
 public Index[] getIndexes(IProgressMonitor progressMonitor) {
 	// acquire the in-memory indexes on the fly
-	IPath[] indexPaths = this.participant.selectIndexes(this.pattern, this.scope);
-	int length = indexPaths.length;
+	IPath[] indexLocations = this.participant.selectIndexes(this.pattern, this.scope);
+	int length = indexLocations.length;
 	Index[] indexes = new Index[length];
 	int count = 0;
 	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 	for (int i = 0; i < length; i++) {
 		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 		// may trigger some index recreation work
-		Index index = indexManager.getIndex(indexPaths[i], true /*reuse index file*/, false /*do not create if none*/);
+		Index index = indexManager.getIndex(null/*ignored since do not create*/, indexLocations[i].toOSString(), true /*reuse index file*/, false /*do not create if none*/);
 		if (index != null)
 			indexes[count++] = index; // only consider indexes which are ready
 	}

@@ -17,6 +17,7 @@ import java.util.zip.CRC32;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
@@ -31,7 +32,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class IndexManager extends JobManager implements IIndexConstants {
 
-	public SimpleLookupTable indexNames = new SimpleLookupTable();
+	public SimpleLookupTable indexLocations = new SimpleLookupTable();
 	/*
 	 * key = an IPath, value = an Index
 	 */
@@ -51,42 +52,44 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	public static Integer UNKNOWN_STATE = new Integer(2);
 	public static Integer REBUILDING_STATE = new Integer(3);
 
-public synchronized void aboutToUpdateIndex(IPath path, Integer newIndexState) {
+public synchronized void aboutToUpdateIndex(IPath containerPath, Integer newIndexState) {
 	// newIndexState is either UPDATING_STATE or REBUILDING_STATE
 	// must tag the index as inconsistent, in case we exit before the update job is started
-	String indexName = computeIndexName(path);
-	Object state = getIndexStates().get(indexName);
+	String indexLocation = computeIndexLocation(containerPath);
+	Object state = getIndexStates().get(indexLocation);
 	Integer currentIndexState = state == null ? UNKNOWN_STATE : (Integer) state;
 	if (currentIndexState.equals(REBUILDING_STATE)) return; // already rebuilding the index
 
 	int compare = newIndexState.compareTo(currentIndexState);
 	if (compare > 0) {
 		// so UPDATING_STATE replaces SAVED_STATE and REBUILDING_STATE replaces everything
-		updateIndexState(indexName, newIndexState);
-	} else if (compare < 0 && this.indexes.get(path) == null) {
+		updateIndexState(indexLocation, newIndexState);
+	} else if (compare < 0 && this.indexes.get(indexLocation) == null) {
 		// if already cached index then there is nothing more to do
-		rebuildIndex(indexName, path);
+		rebuildIndex(indexLocation, containerPath);
 	}
 }
 /**
  * Trigger addition of a resource to an index
  * Note: the actual operation is performed in background
  */
-public void addBinary(IFile resource, IPath indexPath) {
+public void addBinary(IFile resource, IPath containerPath) {
 	if (JavaCore.getPlugin() == null) return;	
 	SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
 	SearchDocument document = participant.getDocument(resource.getFullPath().toString());
-	participant.scheduleDocumentIndexing(document, indexPath);
+	String indexLocation = computeIndexLocation(containerPath);
+	scheduleDocumentIndexing(document, containerPath, indexLocation, participant);
 }
 /**
  * Trigger addition of a resource to an index
  * Note: the actual operation is performed in background
  */
-public void addSource(IFile resource, IPath indexPath) {
+public void addSource(IFile resource, IPath containerPath) {
 	if (JavaCore.getPlugin() == null) return;	
 	SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
 	SearchDocument document = participant.getDocument(resource.getFullPath().toString());
-	participant.scheduleDocumentIndexing(document, indexPath);
+	String indexLocation = computeIndexLocation(containerPath);
+	scheduleDocumentIndexing(document, containerPath, indexLocation, participant);
 }
 /*
  * Removes unused indexes from disk.
@@ -125,19 +128,19 @@ public void cleanUpIndexes() {
 		}
 	}
 }
-String computeIndexName(IPath path) {
-	String name = (String) indexNames.get(path);
-	if (name == null) {
-		String pathString = path.toOSString();
+public String computeIndexLocation(IPath containerPath) {
+	String indexLocation = (String) this.indexLocations.get(containerPath);
+	if (indexLocation == null) {
+		String pathString = containerPath.toOSString();
 		checksumCalculator.reset();
 		checksumCalculator.update(pathString.getBytes());
 		String fileName = Long.toString(checksumCalculator.getValue()) + ".index"; //$NON-NLS-1$
 		if (VERBOSE)
 			Util.verbose("-> index name for " + pathString + " is " + fileName); //$NON-NLS-1$ //$NON-NLS-2$
-		name = getJavaPluginWorkingLocation().append(fileName).toOSString();
-		indexNames.put(path, name);
+		indexLocation = getJavaPluginWorkingLocation().append(fileName).toOSString();
+		this.indexLocations.put(containerPath, indexLocation);
 	}
-	return name;
+	return indexLocation;
 }
 /**
  * Returns the index for a given project, according to the following algorithm:
@@ -147,41 +150,40 @@ String computeIndexName(IPath path) {
  * 
  * Warning: Does not check whether index is consistent (not being used)
  */
-public synchronized Index getIndex(IPath path, boolean reuseExistingFile, boolean createIfMissing) {
+public synchronized Index getIndex(IPath containerPath, String indexLocation, boolean reuseExistingFile, boolean createIfMissing) {
 	// Path is already canonical per construction
-	Index index = (Index) indexes.get(path);
+	Index index = (Index) indexes.get(indexLocation);
 	if (index == null) {
-		String indexName = computeIndexName(path);
-		Object state = getIndexStates().get(indexName);
+		Object state = getIndexStates().get(indexLocation);
 		Integer currentIndexState = state == null ? UNKNOWN_STATE : (Integer) state;
 		if (currentIndexState == UNKNOWN_STATE) {
 			// should only be reachable for query jobs
 			// IF you put an index in the cache, then AddJarFileToIndex fails because it thinks there is nothing to do
-			rebuildIndex(indexName, path);
+			rebuildIndex(indexLocation, containerPath);
 			return null;
 		}
 
 		// index isn't cached, consider reusing an existing index file
 		if (reuseExistingFile) {
-			File indexFile = new File(indexName);
+			File indexFile = new File(indexLocation);
 			if (indexFile.exists()) { // check before creating index so as to avoid creating a new empty index if file is missing
 				try {
-					index = new Index(indexName, "Index for " + path.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
-					indexes.put(path, index);
+					index = new Index(indexLocation, "Index for " + containerPath.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
+					indexes.put(indexLocation, index);
 					return index;
 				} catch (IOException e) {
 					// failed to read the existing file or its no longer compatible
 					if (currentIndexState != REBUILDING_STATE) { // rebuild index if existing file is corrupt, unless the index is already being rebuilt
 						if (VERBOSE)
-							Util.verbose("-> cannot reuse existing index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
-						rebuildIndex(indexName, path);
+							Util.verbose("-> cannot reuse existing index: "+indexLocation+" path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+						rebuildIndex(indexLocation, containerPath);
 						return null;
 					} 
 					index = null; // will fall thru to createIfMissing & create a empty index for the rebuild all job to populate
 				}
 			}
 			if (currentIndexState == SAVED_STATE) { // rebuild index if existing file is missing
-				rebuildIndex(indexName, path);
+				rebuildIndex(indexLocation, containerPath);
 				return null;
 			}
 		} 
@@ -189,13 +191,13 @@ public synchronized Index getIndex(IPath path, boolean reuseExistingFile, boolea
 		if (createIfMissing) {
 			try {
 				if (VERBOSE)
-					Util.verbose("-> create empty index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
-				index = new Index(indexName, "Index for " + path.toOSString(), false /*do not reuse index file*/); //$NON-NLS-1$
-				indexes.put(path, index);
+					Util.verbose("-> create empty index: "+indexLocation+" path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+				index = new Index(indexLocation, "Index for " + containerPath.toOSString(), false /*do not reuse index file*/); //$NON-NLS-1$
+				indexes.put(indexLocation, index);
 				return index;
 			} catch (IOException e) {
 				if (VERBOSE)
-					Util.verbose("-> unable to create empty index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+					Util.verbose("-> unable to create empty index: "+indexLocation+" path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 				// The file could not be created. Possible reason: the project has been deleted.
 				return null;
 			}
@@ -204,10 +206,22 @@ public synchronized Index getIndex(IPath path, boolean reuseExistingFile, boolea
 	//System.out.println(" index name: " + path.toOSString() + " <----> " + index.getIndexFile().getName());	
 	return index;
 }
-public synchronized Index getIndexForUpdate(IPath path, boolean reuseExistingFile, boolean createIfMissing) {
-	String indexName = computeIndexName(path);
-	if (getIndexStates().get(indexName) == REBUILDING_STATE)
-		return getIndex(path, reuseExistingFile, createIfMissing);
+/**
+ * Returns the index for a given project, according to the following algorithm:
+ * - if index is already in memory: answers this one back
+ * - if (reuseExistingFile) then read it and return this index and record it in memory
+ * - if (createIfMissing) then create a new empty index and record it in memory
+ * 
+ * Warning: Does not check whether index is consistent (not being used)
+ */
+public synchronized Index getIndex(IPath containerPath, boolean reuseExistingFile, boolean createIfMissing) {
+	String indexLocation = computeIndexLocation(containerPath);
+	return getIndex(containerPath, indexLocation, reuseExistingFile, createIfMissing);
+}
+public synchronized Index getIndexForUpdate(IPath containerPath, boolean reuseExistingFile, boolean createIfMissing) {
+	String indexLocation = computeIndexLocation(containerPath);
+	if (getIndexStates().get(indexLocation) == REBUILDING_STATE)
+		return getIndex(containerPath, indexLocation, reuseExistingFile, createIfMissing);
 
 	return null; // abort the job since the index has been removed from the REBUILDING_STATE
 }
@@ -231,10 +245,10 @@ private IPath getJavaPluginWorkingLocation() {
 
 	return this.javaPluginLocation = JavaCore.getPlugin().getStateLocation();
 }
-public void indexDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexPath) throws IOException {
+public void indexDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexLocation) throws IOException {
 	try {
 		((InternalSearchDocument) searchDocument).index = index;
-		searchParticipant.indexDocument(searchDocument, indexPath);
+		searchParticipant.indexDocument(searchDocument, indexLocation);
 	} finally {
 		((InternalSearchDocument) searchDocument).index = null;
 	}
@@ -308,13 +322,14 @@ public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, char[
 
 	this.request(new AddFolderToIndex(sourceFolder, project, inclusionPatterns, exclusionPatterns, this));
 }
-public void jobWasCancelled(IPath path) {
-	Object o = this.indexes.get(path);
+public void jobWasCancelled(IPath containerPath) {
+	String indexLocation = computeIndexLocation(containerPath);
+	Object o = this.indexes.get(indexLocation);
 	if (o instanceof Index) {
 		((Index) o).monitor = null;
-		this.indexes.remove(path);
+		this.indexes.remove(indexLocation);
 	}
-	updateIndexState(computeIndexName(path), UNKNOWN_STATE);
+	updateIndexState(indexLocation, UNKNOWN_STATE);
 }
 /**
  * Advance to the next available job, once the current one has been completed.
@@ -331,28 +346,22 @@ protected synchronized void moveToNextJob() {
 protected void notifyIdle(long idlingTime){
 	if (idlingTime > 1000 && needToSave) saveIndexes();
 }
-/*
- * For debug purpose
- */
-public Index peekAtIndex(IPath path) {
-	return (Index) indexes.get(path);
-}
 /**
  * Name of the background process
  */
 public String processName(){
 	return Util.bind("process.name"); //$NON-NLS-1$
 }
-private void rebuildIndex(String indexName, IPath path) {
+private void rebuildIndex(String indexLocation, IPath containerPath) {
 	IWorkspace workspace = ResourcesPlugin.getWorkspace();
 	if (workspace == null) return;
-	Object target = JavaModel.getTarget(workspace.getRoot(), path, true);
+	Object target = JavaModel.getTarget(workspace.getRoot(), containerPath, true);
 	if (target == null) return;
 
 	if (VERBOSE)
-		Util.verbose("-> request to rebuild index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+		Util.verbose("-> request to rebuild index: "+indexLocation+" path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 
-	updateIndexState(indexName, REBUILDING_STATE);
+	updateIndexState(indexLocation, REBUILDING_STATE);
 	IndexRequest request = null;
 	if (target instanceof IProject) {
 		IProject p = (IProject) target;
@@ -363,7 +372,7 @@ private void rebuildIndex(String indexName, IPath path) {
 	} else if (target instanceof IFile) {
 		request = new AddJarFileToIndex((IFile) target, this);
 	} else if (target instanceof java.io.File) {
-		request = new AddJarFileToIndex(path, this);
+		request = new AddJarFileToIndex(containerPath, this);
 	}
 	if (request != null)
 		request(request);
@@ -373,24 +382,25 @@ private void rebuildIndex(String indexName, IPath path) {
  * Returns the new empty index or null if it didn't exist before.
  * Warning: Does not check whether index is consistent (not being used)
  */
-public synchronized Index recreateIndex(IPath path) {
+public synchronized Index recreateIndex(IPath containerPath) {
 	// only called to over write an existing cached index...
 	try {
-		Index index = (Index) this.indexes.get(path);
+		// Path is already canonical
+		String indexLocation = computeIndexLocation(containerPath);
+		
+		Index index = (Index) this.indexes.get(indexLocation);
 		ReadWriteMonitor monitor = index == null ? null : index.monitor;
 
-		// Path is already canonical
-		String indexPath = computeIndexName(path);
 		if (VERBOSE)
-			Util.verbose("-> recreating index: "+indexPath+" for path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
-		index = new Index(indexPath, "Index for " + path.toOSString(), false /*reuse index file*/); //$NON-NLS-1$
-		indexes.put(path, index);
+			Util.verbose("-> recreating index: "+indexLocation+" for path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+		index = new Index(indexLocation, "Index for " + containerPath.toOSString(), false /*reuse index file*/); //$NON-NLS-1$
+		this.indexes.put(indexLocation, index);
 		index.monitor = monitor;
 		return index;
 	} catch (IOException e) {
 		// The file could not be created. Possible reason: the project has been deleted.
 		if (VERBOSE) {
-			Util.verbose("-> failed to recreate index for path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+			Util.verbose("-> failed to recreate index for path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 			e.printStackTrace();
 		}
 		return null;
@@ -407,18 +417,18 @@ public void remove(String resourceName, IPath indexedContainer){
  * Removes the index for a given path. 
  * This is a no-op if the index did not exist.
  */
-public synchronized void removeIndex(IPath path) {
+public synchronized void removeIndex(IPath containerPath) {
 	if (VERBOSE)
-		Util.verbose("removing index " + path); //$NON-NLS-1$
-	String indexName = computeIndexName(path);
-	File indexFile = new File(indexName);
+		Util.verbose("removing index " + containerPath); //$NON-NLS-1$
+	String indexLocation = computeIndexLocation(containerPath);
+	File indexFile = new File(indexLocation);
 	if (indexFile.exists())
 		indexFile.delete();
-	Object o = this.indexes.get(path);
+	Object o = this.indexes.get(indexLocation);
 	if (o instanceof Index)
 		((Index) o).monitor = null;
-	this.indexes.remove(path);
-	updateIndexState(indexName, null);
+	this.indexes.remove(indexLocation);
+	updateIndexState(indexLocation, null);
 }
 /**
  * Removes all indexes whose paths start with (or are equal to) the given path. 
@@ -426,13 +436,14 @@ public synchronized void removeIndex(IPath path) {
 public synchronized void removeIndexFamily(IPath path) {
 	// only finds cached index files... shutdown removes all non-cached index files
 	ArrayList toRemove = null;
-	Iterator iterator = this.indexes.keySet().iterator();
-	while (iterator.hasNext()) {
-		IPath indexPath = (IPath) iterator.next();
-		if (path.isPrefixOf(indexPath)) {
+	Object[] containerPaths = this.indexLocations.keyTable;
+	for (int i = 0, length = containerPaths.length; i < length; i++) {
+		IPath containerPath = (IPath) containerPaths[i];
+		if (containerPath == null) continue;
+		if (path.isPrefixOf(containerPath)) {
 			if (toRemove == null)
 				toRemove = new ArrayList();
-			toRemove.add(indexPath);
+			toRemove.add(containerPath);
 		}
 	}
 	if (toRemove != null)
@@ -462,7 +473,7 @@ public synchronized void reset() {
 		this.indexes = new HashMap(5);
 		this.indexStates = null;
 	}
-	this.indexNames = new SimpleLookupTable();
+	this.indexLocations = new SimpleLookupTable();
 	this.javaPluginLocation = null;
 }
 public void saveIndex(Index index) throws IOException {
@@ -472,18 +483,18 @@ public void saveIndex(Index index) throws IOException {
 			Util.verbose("-> saving index " + index.getIndexFile()); //$NON-NLS-1$
 		index.save();
 	}
-	String indexName = index.getIndexFile().getPath();
+	String indexLocation = index.getIndexFile().getPath();
 	if (this.jobEnd > this.jobStart) {
-		Object indexPath = indexNames.keyForValue(indexName);
-		if (indexPath != null) {
+		Object containerPath = this.indexLocations.keyForValue(indexLocation);
+		if (containerPath != null) {
 			for (int i = this.jobEnd; i > this.jobStart; i--) { // skip the current job
 				IJob job = this.awaitingJobs[i];
 				if (job instanceof IndexRequest)
-					if (((IndexRequest) job).containerPath.equals(indexPath)) return;
+					if (((IndexRequest) job).containerPath.equals(containerPath)) return;
 			}
 		}
 	}
-	updateIndexState(indexName, SAVED_STATE);
+	updateIndexState(indexLocation, SAVED_STATE);
 }
 /**
  * Commit all index memory changes to disk
@@ -531,20 +542,20 @@ public void saveIndexes() {
 	}
 	this.needToSave = !allSaved;
 }
-public void scheduleDocumentIndexing(final SearchDocument searchDocument, final IPath indexPath, final SearchParticipant searchParticipant) {
-	request(new IndexRequest(indexPath, this) {
+public void scheduleDocumentIndexing(final SearchDocument searchDocument, IPath containerPath, final String indexLocation, final SearchParticipant searchParticipant) {
+	request(new IndexRequest(containerPath, this) {
 		public boolean execute(IProgressMonitor progressMonitor) {
 			if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
 			
 			/* ensure no concurrent write access to index */
-			Index index = getIndex(indexPath, true, /*reuse index file*/ true /*create if none*/);
+			Index index = getIndex(containerPath, indexLocation, true, /*reuse index file*/ true /*create if none*/);
 			if (index == null) return true;
 			ReadWriteMonitor monitor = index.monitor;
 			if (monitor == null) return true; // index got deleted since acquired
 			
 			try {
 				monitor.enterWrite(); // ask permission to write
-				indexDocument(searchDocument, searchParticipant, index, indexPath);
+				indexDocument(searchDocument, searchParticipant, index, new Path(indexLocation));
 			} catch (IOException e) {
 				if (JobManager.VERBOSE) {
 					Util.verbose("-> failed to index " + searchDocument.getPath() + " because of the following exception:", System.err); //$NON-NLS-1$ //$NON-NLS-2$
@@ -582,14 +593,14 @@ private char[] readIndexState() {
 		return new char[0];
 	}
 }
-private synchronized void updateIndexState(String indexName, Integer indexState) {
+private synchronized void updateIndexState(String indexLocation, Integer indexState) {
 	getIndexStates(); // ensure the states are initialized
 	if (indexState != null) {
-		if (indexState.equals(indexStates.get(indexName))) return; // not changed
-		indexStates.put(indexName, indexState);
+		if (indexState.equals(indexStates.get(indexLocation))) return; // not changed
+		indexStates.put(indexLocation, indexState);
 	} else {
-		if (!indexStates.containsKey(indexName)) return; // did not exist anyway
-		indexStates.removeKey(indexName);
+		if (!indexStates.containsKey(indexLocation)) return; // did not exist anyway
+		indexStates.removeKey(indexLocation);
 	}
 
 	BufferedWriter writer = null;
@@ -621,7 +632,7 @@ private synchronized void updateIndexState(String indexName, Integer indexState)
 		else if (indexState == UPDATING_STATE) state = "UPDATING"; //$NON-NLS-1$
 		else if (indexState == UNKNOWN_STATE) state = "UNKNOWN"; //$NON-NLS-1$
 		else if (indexState == REBUILDING_STATE) state = "REBUILDING"; //$NON-NLS-1$
-		Util.verbose("-> index state updated to: " + state + " for: "+indexName); //$NON-NLS-1$ //$NON-NLS-2$
+		Util.verbose("-> index state updated to: " + state + " for: "+indexLocation); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
 }

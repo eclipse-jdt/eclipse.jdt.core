@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.search;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
@@ -167,7 +170,11 @@ public abstract class SearchParticipant {
 	 * @param indexLocation the location on the file system of the index
 	 */
 	public final void scheduleDocumentIndexing(SearchDocument document, IPath indexLocation) {
-		JavaModelManager.getJavaModelManager().getIndexManager().scheduleDocumentIndexing(document, indexLocation, this);
+		IPath documentPath = new Path(document.getPath());
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IResource resource = root.findMember(documentPath);
+		IPath containerPath = resource == null ? documentPath : resource.getProject().getFullPath();
+		JavaModelManager.getJavaModelManager().getIndexManager().scheduleDocumentIndexing(document, containerPath, indexLocation.toOSString(), this);
 	}
 
 	/**
