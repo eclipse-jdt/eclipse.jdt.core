@@ -287,6 +287,24 @@ public void test011() {
 		"----------\n");
 }
 
+public void test012() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T extends String> {\n" + 
+			"    T foo(T t) {\n" + 
+			"        return t;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        String s = new X<String>().foo(\"SUCCESS\");\n" + 
+			"        System.out.println(s);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
+
 public static Class testClass() {
 	return GenericTypeTest.class;
 }

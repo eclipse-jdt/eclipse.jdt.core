@@ -28,6 +28,7 @@ public class MessageSend extends Expression implements InvocationSite {
 	MethodBinding syntheticAccessor;
 
 	public TypeBinding receiverType, qualifyingType;
+	public TypeBinding genericCast;
 	
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
@@ -97,6 +98,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	if (valueRequired){
 		// implicit conversion if necessary
 		codeStream.generateImplicitConversion(implicitConversion);
+		if (this.genericCast != null) codeStream.checkcast(this.genericCast);
 	} else {
 		// pop return value if any
 		switch(binding.returnType.id){
@@ -152,6 +154,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 			return;
 		}
 	}
+	
 	// if the binding declaring class is not visible, need special action
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
@@ -197,7 +200,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (receiverCast && this.receiverType != null) {
 		 // due to change of declaring class with receiver type, only identity cast should be notified
 		if (((CastExpression)this.receiver).expression.resolvedType == this.receiverType) { 
-					scope.problemReporter().unnecessaryCast((CastExpression)this.receiver);		
+			scope.problemReporter().unnecessaryCast((CastExpression)this.receiver);		
 		}
 	}
 	// will check for null after args are resolved
@@ -224,9 +227,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			return null;
 		}
 	}
-	if (this.receiverType == null)
+	if (this.receiverType == null) {
 		return null;
-
+	}
 	// base type cannot receive any message
 	if (this.receiverType.isBaseType()) {
 		scope.problemReporter().errorNoMethodFor(this, this.receiverType, argumentTypes);
@@ -289,6 +292,15 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (isMethodUseDeprecated(binding, scope))
 		scope.problemReporter().deprecatedMethod(binding, this);
 
+	if (this.binding instanceof SubstitutedMethodBinding) {
+	    this.codegenBinding = ((SubstitutedMethodBinding) this.binding).originalMethod;
+	    if (this.codegenBinding.returnType instanceof TypeVariableBinding) {
+	        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
+	        if (variableReturnType.firstBound != this.binding.returnType) { // no need for extra cast if same as first bound anyway
+			    this.genericCast = this.binding.returnType;
+	        }
+	    }
+	}	
 	return this.resolvedType = binding.returnType;
 }
 public void setActualReceiverType(ReferenceBinding receiverType) {

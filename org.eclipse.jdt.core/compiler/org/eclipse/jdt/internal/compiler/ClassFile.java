@@ -2573,6 +2573,34 @@ public class ClassFile
 
 			attributeNumber++;
 		}
+		// add signature attribute
+		char[] genericSignature = methodBinding.genericSignature();
+		if (genericSignature != null) {
+			// check that there is enough space to write all the bytes for the field info corresponding
+			// to the @fieldBinding
+			if (contentsOffset + 8 >= (contentsLength = contents.length)) {
+				System.arraycopy(
+					contents,
+					0,
+					(contents = new byte[contentsLength + INCREMENT_SIZE]),
+					0,
+					contentsLength);
+			}
+			int signatureAttributeNameIndex =
+				constantPool.literalIndex(AttributeNamesConstants.SignatureName);
+			contents[contentsOffset++] = (byte) (signatureAttributeNameIndex >> 8);
+			contents[contentsOffset++] = (byte) signatureAttributeNameIndex;
+			// the length of a signature attribute is equals to 2
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 0;
+			contents[contentsOffset++] = 2;
+			int signatureIndex =
+				constantPool.literalIndex(genericSignature);
+			contents[contentsOffset++] = (byte) (signatureIndex >> 8);
+			contents[contentsOffset++] = (byte) signatureIndex;
+			attributeNumber++;
+		}		
 		return attributeNumber;
 	}
 

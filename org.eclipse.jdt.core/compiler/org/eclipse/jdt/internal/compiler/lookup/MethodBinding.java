@@ -223,6 +223,22 @@ public TypeBinding constantPoolDeclaringClass() {
 public final char[] constantPoolName() {
 	return selector;
 }
+/**
+ * <param1 ... paremN>superclass superinterface1 ... superinterfaceN
+ * T foo(T t)   --->   (TT;)TT;
+ * void bar(X<T> t)   -->   (LX<TT;>;)V
+ */
+public char[] genericSignature() {
+    if ((this.modifiers & AccUseTypeVariable) == 0) return null;
+    StringBuffer sig = new StringBuffer(10);
+    sig.append('(');
+    for (int i = 0, length = this.parameters.length; i < length; i++) {
+        sig.append(this.parameters[i].genericTypeSignature());
+    }
+    sig.append(')');
+    if (this.returnType != null) sig.append(this.returnType.genericTypeSignature());
+	return sig.toString().toCharArray();
+}
 public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
 }
