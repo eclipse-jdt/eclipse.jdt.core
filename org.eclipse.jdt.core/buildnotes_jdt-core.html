@@ -16,9 +16,28 @@ Eclipse SDK Build 200203?? - ??th March 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>Added scanner API (see <code>org.eclipse.jdt.core.compiler.IScanner</code>). </li>
-<li>Added tool factory API (see <code>org.eclipse.jdt.core.ToolFactory</code>), allowing to obtain
-a scanner (implementing IScanner API). </li>
+<li>Scanner API
+	<ul>
+		<li>defined scanner API (see <code>org.eclipse.jdt.core.compiler.IScanner</code>). </li>
+		<li>added tool factory API (see <code>org.eclipse.jdt.core.ToolFactory#createScanner</code>), allowing to obtain
+			a scanner (implementing <code>IScanner</code> API). </li>
+	</ul>
+<li> Code formatter API
+	<ul>
+		<li>defined code formatter API (see <code>org.eclipse.jdt.core.ICodeFormatter</code>). </li>
+		<li>added tool factory API (see <code>org.eclipse.jdt.core.ToolFactory#createFormatter</code>), allowing to obtain
+			a code formatter (implementing <code>ICodeFormatter</code> API). Note that an extension point was also added
+			to allow client code to contribute a code formatter implementation. The code formatter extension point is named
+			<code>org.eclipse.jdt.core.codeFormatter</code>.</li>
+		<li>added tool factory API (see <code>org.eclipse.jdt.core.ToolFactory#createDefaultFormatter</code>), allowing to obtain
+			a default code formatter (implementing <code>ICodeFormatter</code> API). </li>
+	</ul>
+<li>Internal classes got deprecated (as client code relies on them), since being surfaced:
+	<ul>
+		<li> <code>org.eclipse.jdt.internal.core.parser.InvalidInputException</code> <br>==> <code>org.eclipse.jdt.core.compiler.InvalidInputException</code> </li>
+		<li> <code>org.eclipse.jdt.internal.core.parser.TerminalSymbols</code> <br>==> <code>org.eclipse.jdt.core.compiler.ITerminalSymbols</code> </li>
+	</ul>
+	They will be removed in a subsequent build.
 </ul>
 
 <h3>
@@ -52,9 +71,7 @@ is this code reachable or not?
 
 <h3>
 Problem Reports Closed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=12219">12219</a>
-Self Encapsulate Field throws NullPointerException 
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=3355">3355</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=3355">3355</a>
 API - should provide API for source element parsing (1GJIWD8)
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=10955">10955</a>
 DCR - search: too limiting api of IJavaSearchScope  
