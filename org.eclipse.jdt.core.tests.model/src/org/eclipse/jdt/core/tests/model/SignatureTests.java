@@ -586,6 +586,9 @@ public void testGetSimpleName() {
 	assertEquals("Signature#getSimpleName is not correct 4", 
 			"MapEntry<K<T>[],? extends V2>",
 			Signature.getSimpleName("java.y.Map<Object[],String>.MapEntry<p.K<T>[],? extends q.r.V2>"));	
+	assertEquals("Unexpected simple name", "List<?>", Signature.getSimpleName("List<?>"));
+	assertEquals("Unexpected simple name", "List<? extends E>", Signature.getSimpleName("List<?extends E>"));
+	assertEquals("Unexpected simple name", "List<? super E>", Signature.getSimpleName("List<?super E>"));
 }
 /**
  * @see Signature

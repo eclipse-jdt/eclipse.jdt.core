@@ -2042,20 +2042,20 @@ private static void appendSimpleName(char[] name, int start, int end, StringBuff
 	int lastDot = -1, lastGenericStart = -1, lastGenericEnd = -1;
 	int depth = 0;
 	if (name[start] == '?') { // wildcard
-		buffer.append("? "); //$NON-NLS-1$
+		buffer.append("?"); //$NON-NLS-1$
 		int index = consumeWhitespace(name, start+1, end+1);
 		switch (name[index]) {
 			case 'e' :
 				int checkPos = checkName(EXTENDS, name, index, end);
 			    if (checkPos > 0) {
-			        buffer.append(EXTENDS).append(' ');
+			        buffer.append(' ').append(EXTENDS).append(' ');
 			        index = consumeWhitespace(name, checkPos, end+1);
 				}
 				break;
 			case 's' :
 				checkPos = checkName(SUPER, name, index, end+1);
 			    if (checkPos > 0) {
-			        buffer.append(SUPER).append(' ');
+			        buffer.append(' ').append(SUPER).append(' ');
 			        index = consumeWhitespace(name, checkPos, end+1);
 				}
 				break;
