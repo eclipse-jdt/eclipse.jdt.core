@@ -3376,7 +3376,7 @@ public final class JavaCore extends Plugin {
 			startIndexing();
 			workspace.addSaveParticipant(this, manager);
 			
-			// TODO can be removed when the new syntax error diagnose is officially released.
+			// TODO (david) can be removed when the new syntax error diagnose is officially released.
 			{
 				final String NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION = JavaCore.PLUGIN_ID + ".newsyntaxerrordiagnose.activation"; //$NON-NLS-1$
 				Object newDiagnoseParserActivation = JavaCore.getOption(NEW_SYNTAX_ERROR_DIAGNOSE_ACTIVATION);
