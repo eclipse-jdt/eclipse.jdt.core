@@ -1050,5 +1050,20 @@ public class VarargsTest extends AbstractComparableTest {
 			"Illegal modifier for the method X.X()\n" + 
 			"----------\n"
 		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	transient private X(Object... o) {}\n" + 
+				"	void test() { X x = new X(1, 2); }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	transient private X(Object... o) {}\n" + 
+			"	                  ^^^^^^^^^^^^^^\n" + 
+			"Illegal modifier for the method X.X()\n" + 
+			"----------\n"
+		);
 	}
 }
