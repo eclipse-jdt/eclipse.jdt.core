@@ -55,13 +55,17 @@ class AddFolderToIndex extends IndexRequest {
 			folder.accept(
 				new IResourceProxyVisitor() {
 					public boolean visit(IResourceProxy proxy) throws CoreException {
-						if (proxy.getType() == IResource.FILE) {
-							if (Util.isJavaFileName(proxy.getName())) {
-								IResource resource = proxy.requestResource();
-								if (!Util.isExcluded(resource, pattern))
-									indexManager.addSource((IFile)resource, container);
-							}
-							return false;
+						switch(proxy.getType()) {
+							case IResource.FILE :
+								if (Util.isJavaFileName(proxy.getName())) {
+									IResource resource = proxy.requestResource();
+									if (pattern == null || !Util.isExcluded(resource, pattern))
+										indexManager.addSource((IFile)resource, container);
+								}
+								return false;
+							case IResource.FOLDER :
+								if (pattern != null && Util.isExcluded(proxy.requestResource(), pattern))
+									return false;
 						}
 						return true;
 					}

@@ -705,7 +705,11 @@ public class Util {
 	 * @see IClasspathEntry#getExclusionPatterns
 	 */
 	public final static boolean isExcluded(IResource resource, char[][] exclusionPatterns) {
-		return isExcluded(resource.getFullPath(), exclusionPatterns);
+		IPath path = resource.getFullPath();
+		// ensure that folders are only excluded if all of their children are excluded
+		if (resource.getType() == IResource.FOLDER)
+			path = path.append("*"); //$NON-NLS-1$
+		return isExcluded(path, exclusionPatterns);
 	}
 
 	/**

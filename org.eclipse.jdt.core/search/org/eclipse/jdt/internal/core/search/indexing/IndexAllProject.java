@@ -86,15 +86,19 @@ public class IndexAllProject extends IndexRequest {
 								new IResourceProxyVisitor() {
 									public boolean visit(IResourceProxy proxy) {
 										if (isCancelled) return false;
-										if (proxy.getType() == IResource.FILE) {
-											if (Util.isJavaFileName(proxy.getName())) {
-												IResource resource = proxy.requestResource();
-												if (resource.getLocation() != null && (patterns == null || !Util.isExcluded(resource, patterns))) {
-													String name = new IFileDocument((IFile) resource).getName();
-													indexedFileNames.put(name, resource);
+										switch(proxy.getType()) {
+											case IResource.FILE :
+												if (Util.isJavaFileName(proxy.getName())) {
+													IResource resource = proxy.requestResource();
+													if (resource.getLocation() != null && (patterns == null || !Util.isExcluded(resource, patterns))) {
+														String name = new IFileDocument((IFile) resource).getName();
+														indexedFileNames.put(name, resource);
+													}
 												}
-											}
-											return false;
+												return false;
+											case IResource.FOLDER :
+												if (patterns != null && Util.isExcluded(proxy.requestResource(), patterns))
+													return false;
 										}
 										return true;
 									}
@@ -106,19 +110,23 @@ public class IndexAllProject extends IndexRequest {
 								new IResourceProxyVisitor() {
 									public boolean visit(IResourceProxy proxy) {
 										if (isCancelled) return false;
-										if (proxy.getType() == IResource.FILE) {
-											if (Util.isJavaFileName(proxy.getName())) {
-												IResource resource = proxy.requestResource();
-												IPath path = resource.getLocation();
-												if (path != null && (patterns == null || !Util.isExcluded(resource, patterns))) {
-													String name = new IFileDocument((IFile) resource).getName();
-													indexedFileNames.put(name,
-														indexedFileNames.get(name) == null || indexLastModified < path.toFile().lastModified()
-															? (Object) resource
-															: (Object) OK);
+										switch(proxy.getType()) {
+											case IResource.FILE :
+												if (Util.isJavaFileName(proxy.getName())) {
+													IResource resource = proxy.requestResource();
+													IPath path = resource.getLocation();
+													if (path != null && (patterns == null || !Util.isExcluded(resource, patterns))) {
+														String name = new IFileDocument((IFile) resource).getName();
+														indexedFileNames.put(name,
+															indexedFileNames.get(name) == null || indexLastModified < path.toFile().lastModified()
+																? (Object) resource
+																: (Object) OK);
+													}
 												}
-											}
-											return false;
+												return false;
+											case IResource.FOLDER :
+												if (patterns != null && Util.isExcluded(proxy.requestResource(), patterns))
+													return false;
 										}
 										return true;
 									}

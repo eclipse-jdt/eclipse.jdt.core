@@ -123,7 +123,7 @@ public void testAddExclusionOnPackage() throws CoreException {
 	this.createFolder("/P/src/p");
 	
 	clearDeltas();
-	this.setClasspath(new String[] {"/P/src", "p"});
+	this.setClasspath(new String[] {"/P/src", "p/"});
 	
 	assertDeltas(
 		"Unexpected deltas",
@@ -161,9 +161,6 @@ public void testAddToExcludedFolder() throws CoreException {
 		"	src[*]: {CONTENT}\n" + 
 		"		ResourceDelta(/P/src/icons)[*]"
 	);
-	
-	// exclude folder only (not its contents)
-	this.setClasspath(new String[] {"/P/src", "icons"});
 	
 	clearDeltas();
 	this.deleteFile("/P/src/icons/my.txt");
@@ -212,7 +209,7 @@ public void testCreateExcludedCompilationUnit() throws CoreException {
  * doesn't make it appear as a child of its package fragment root but it is a non-java resource.
  */
 public void testCreateExcludedPackage() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "p"});
+	this.setClasspath(new String[] {"/P/src", "p/"});
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	
 	clearDeltas();
@@ -275,7 +272,7 @@ public void testCreateResourceExcludedCompilationUnit() throws CoreException {
  * doesn't make it appear as a child of its package fragment root but it is a non-java resource.
  */
 public void testCreateResourceExcludedPackage() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "p"});
+	this.setClasspath(new String[] {"/P/src", "p/"});
 	
 	clearDeltas();
 	this.createFolder("/P/src/p");
@@ -506,7 +503,7 @@ public void testRenameExcludedCompilationUnit() throws CoreException {
  * and it is removed from the non-java resources.
  */
 public void testRenameExcludedPackage() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "p"});
+	this.setClasspath(new String[] {"/P/src", "p/"});
 	IPackageFragmentRoot root = getPackageFragmentRoot("/P/src");
 	IPackageFragment pkg = root.createPackageFragment("p", false, null);
 	
@@ -629,7 +626,7 @@ public void testSearchWithExcludedCompilationUnit2() throws CoreException {
  * and it is removed from the non-java resources.
  */
 public void testRenameResourceExcludedPackage() throws CoreException {
-	this.setClasspath(new String[] {"/P/src", "p"});
+	this.setClasspath(new String[] {"/P/src", "p/"});
 	IFolder folder = this.createFolder("/P/src/p");
 	
 	clearDeltas();
