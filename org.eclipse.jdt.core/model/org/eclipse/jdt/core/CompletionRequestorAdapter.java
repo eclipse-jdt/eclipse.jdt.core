@@ -26,7 +26,8 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		char[] completionName,
 		int modifiers,
 		int completionStart,
-		int completionEnd) {
+		int completionEnd,
+		int relevance) {
 	}
 
 	/*
@@ -38,7 +39,8 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		char[] completionName,
 		int modifiers,
 		int completionStart,
-		int completionEnd) {
+		int completionEnd,
+		int relevance) {
 	}
 
 	/*
@@ -59,7 +61,8 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		char[] completionName,
 		int modifiers,
 		int completionStart,
-		int completionEnd) {
+		int completionEnd,
+		int relevance) {
 	}
 
 	/*
@@ -71,7 +74,8 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		char[] completionName,
 		int modifiers,
 		int completionStart,
-		int completionEnd) {
+		int completionEnd,
+		int relevance) {
 	}
 
 	/*
@@ -80,7 +84,8 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 	public void acceptKeyword(
 		char[] keywordName,
 		int completionStart,
-		int completionEnd) {
+		int completionEnd,
+		int relevance) {
 	}
 
 	/*
@@ -89,7 +94,8 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 	public void acceptLabel(
 		char[] labelName,
 		int completionStart,
-		int completionEnd) {
+		int completionEnd,
+		int relevance) {
 	}
 
 	/*
@@ -101,7 +107,8 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		char[] typeName,
 		int modifiers,
 		int completionStart,
-		int completionEnd) {
+		int completionEnd,
+		int relevance) {
 	}
 
 	/*
@@ -119,7 +126,8 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		char[] completionName,
 		int modifiers,
 		int completionStart,
-		int completionEnd) {
+		int completionEnd,
+		int relevance) {
 	}
 
 	/*
@@ -137,7 +145,8 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		char[] completionName,
 		int modifiers,
 		int completionStart,
-		int completionEnd) {
+		int completionEnd,
+		int relevance) {
 	}
 
 	/*
@@ -146,7 +155,8 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 	public void acceptModifier(
 		char[] modifierName,
 		int completionStart,
-		int completionEnd) {
+		int completionEnd,
+		int relevance) {
 	}
 
 	/*
@@ -156,7 +166,8 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		char[] packageName,
 		char[] completionName,
 		int completionStart,
-		int completionEnd) {
+		int completionEnd,
+		int relevance) {
 	}
 
 	/*
@@ -167,7 +178,8 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		char[] typeName,
 		char[] completionName,
 		int completionStart,
-		int completionEnd) {
+		int completionEnd,
+		int relevance) {
 	}
 
 	/*
@@ -179,6 +191,7 @@ public class CompletionRequestorAdapter implements ICompletionRequestor {
 		char[] name,
 		char[] completionName,
 		int completionStart,
-		int completionEnd) {
+		int completionEnd,
+		int relevance) {
 	}
 }

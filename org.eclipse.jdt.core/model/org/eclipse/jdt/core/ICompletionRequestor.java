@@ -48,6 +48,12 @@ public interface ICompletionRequestor {
  * @param completionEnd int
  * 		The end position of insertion of the name of this new anonynous type declaration.
  * 
+ * @param relevance int
+ * 		The relevance of the completion proposal
+ * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
+ * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
+ * 		value is higher.
+ * 
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
  *    Base types are in the form "int" or "boolean".
@@ -66,7 +72,8 @@ void acceptAnonymousType(
 	char[] completionName,
 	int modifiers,
 	int completionStart,
-	int completionEnd);
+	int completionEnd,
+	int relevance);
 /**
  * Code assist notification of a class completion.
  * @param packageName char[]
@@ -87,6 +94,12 @@ void acceptAnonymousType(
  * 
  * @param completionEnd int
  *		The end position of insertion of the name of the class.
+ * 
+ *  @param relevance int
+ * 		The relevance of the completion proposal
+ * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
+ * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
+ * 		value is higher.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -99,7 +112,8 @@ void acceptClass(
 	char[] completionName,
 	int modifiers,
 	int completionStart,
-	int completionEnd);
+	int completionEnd,
+	int relevance);
 /**
  * Code assist notification of a compilation error detected during completion.
  *  @param error org.eclipse.jdt.core.compiler.IProblem
@@ -142,6 +156,12 @@ void acceptError(IProblem error);
  * @param completionEnd int
  * 		The end position of insertion of the name of this field.
  * 
+ * @param relevance int
+ * 		The relevance of the completion proposal
+ * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
+ * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
+ * 		value is higher.
+ * 
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
  *    Base types are in the form "int" or "boolean".
@@ -158,7 +178,8 @@ void acceptField(
 	char[] completionName,
 	int modifiers,
 	int completionStart,
-	int completionEnd);
+	int completionEnd,
+	int relevance);
 /**
  * Code assist notification of an interface completion.
  * @param packageName char[]
@@ -179,6 +200,12 @@ void acceptField(
  * 
  * @param completionEnd int
  * 		The end position of insertion of the name of the interface.
+ * 
+ * @param relevance int
+ * 		The relevance of the completion proposal
+ * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
+ * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
+ * 		value is higher.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -191,7 +218,8 @@ void acceptInterface(
 	char[] completionName,
 	int modifiers,
 	int completionStart,
-	int completionEnd);
+	int completionEnd,
+	int relevance);
 /**
  * Code assist notification of a keyword completion.
  * @param keywordName char[]
@@ -202,8 +230,14 @@ void acceptInterface(
  * 
  * @param completionEnd int
  * 		The end position of insertion of the name of this keyword.
+ * 
+ * @param relevance int
+ * 		The relevance of the completion proposal
+ * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
+ * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
+ * 		value is higher.
  */
-void acceptKeyword(char[] keywordName, int completionStart, int completionEnd);
+void acceptKeyword(char[] keywordName, int completionStart, int completionEnd, int relevance);
 /**
  * Code assist notification of a label completion.
  * @param labelName char[]
@@ -214,8 +248,14 @@ void acceptKeyword(char[] keywordName, int completionStart, int completionEnd);
  * 
  * @param completionEnd int
  * 		The end position of insertion of the name of this label.
+ * 
+ * @param relevance int
+ * 		The relevance of the completion proposal
+ * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
+ * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
+ * 		value is higher.
  */
-void acceptLabel(char[] labelName, int completionStart, int completionEnd);
+void acceptLabel(char[] labelName, int completionStart, int completionEnd, int relevance);
 /**
  * Code assist notification of a local variable completion.
  * @param name char[]
@@ -235,6 +275,12 @@ void acceptLabel(char[] labelName, int completionStart, int completionEnd);
  * 
  * @param completionEnd int
  * 		The end position of insertion of the name of this new local variable.
+ * 
+ * @param relevance int
+ * 		The relevance of the completion proposal
+ * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
+ * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
+ * 		value is higher.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -249,7 +295,8 @@ void acceptLocalVariable(
 	char[] typeName,
 	int modifiers,
 	int completionStart,
-	int completionEnd);
+	int completionEnd,
+	int relevance);
 /**
  * Code assist notification of a method completion.
  * @param declaringTypePackageName char[]
@@ -287,6 +334,12 @@ void acceptLocalVariable(
  * 
  * @param completionEnd int
  * 		The end position of insertion of the name of this new method.
+ * 
+ * @param relevance int
+ * 		The relevance of the completion proposal
+ * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
+ * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
+ * 		value is higher.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -309,7 +362,8 @@ void acceptMethod(
 	char[] completionName,
 	int modifiers,
 	int completionStart,
-	int completionEnd);
+	int completionEnd,
+	int relevance);
 	
 void acceptMethodDeclaration(
 	char[] declaringTypePackageName,
@@ -323,7 +377,8 @@ void acceptMethodDeclaration(
 	char[] completionName,
 	int modifiers,
 	int completionStart,
-	int completionEnd);
+	int completionEnd,
+	int relevance);
 /**
  * Code assist notification of a modifier completion.
  * @param modifierName char[]
@@ -334,8 +389,14 @@ void acceptMethodDeclaration(
  * 
  * @param completionEnd int
  * 		The end position of insertion of the name of this new modifier.
+ * 
+ * @param relevance int
+ * 		The relevance of the completion proposal
+ * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
+ * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
+ * 		value is higher.
  */
-void acceptModifier(char[] modifierName, int completionStart, int completionEnd);
+void acceptModifier(char[] modifierName, int completionStart, int completionEnd, int relevance);
 /**
  * Code assist notification of a package completion.
  * @param packageName char[]
@@ -349,6 +410,12 @@ void acceptModifier(char[] modifierName, int completionStart, int completionEnd)
  * 
  * @param completionEnd int
  * 		The end position of insertion of the name of this new package.
+ * 
+ * @param relevance int
+ * 		The relevance of the completion proposal
+ * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
+ * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
+ * 		value is higher.
  *
  * NOTE - All package names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -358,7 +425,8 @@ void acceptPackage(
 	char[] packageName,
 	char[] completionName,
 	int completionStart,
-	int completionEnd);
+	int completionEnd,
+	int relevance);
 /**
  * Code assist notification of a type completion.
  * @param packageName char[]
@@ -376,6 +444,12 @@ void acceptPackage(
  * 
  * @param completionEnd int
  * 		The end position of insertion of the name of the type.
+ * 
+ * @param relevance int
+ * 		The relevance of the completion proposal
+ * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
+ * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
+ * 		value is higher.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -387,7 +461,8 @@ void acceptType(
 	char[] typeName,
 	char[] completionName,
 	int completionStart,
-	int completionEnd);
+	int completionEnd,
+	int relevance);
 	
 /**
  * Code assist notification of a variable name completion.
@@ -408,6 +483,12 @@ void acceptType(
  * 
  * @param completionEnd int
  * 		The end position of insertion of the name of this variable.
+ * 
+ * @param relevance int
+ * 		The relevance of the completion proposal
+ * 		It is a positive integer which are used for determine if this proposal is more relevant than another proposal.
+ * 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
+ * 		value is higher.
  *
  * NOTE - All package and type names are presented in their readable form:
  *    Package names are in the form "a.b.c".
@@ -422,5 +503,6 @@ void acceptVariableName(
 	char[] name,
 	char[] completionName,
 	int completionStart,
-	int completionEnd);
+	int completionEnd,
+	int relevance);
 }

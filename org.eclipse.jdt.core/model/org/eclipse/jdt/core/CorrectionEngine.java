@@ -266,8 +266,8 @@ public class CorrectionEngine implements ProblemReasons {
 	}
 
 	protected ICompletionRequestor completionRequestor = new ICompletionRequestor() {
-		public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd) {}
-		public void acceptClass(char[] packageName,char[] className,char[] completionName,int modifiers,int completionStart,int completionEnd) {
+		public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {}
+		public void acceptClass(char[] packageName,char[] className,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
 			if((filter & (CLASSES | INTERFACES)) != 0) {
 				requestor.acceptClass(
 					packageName,
@@ -288,7 +288,7 @@ public class CorrectionEngine implements ProblemReasons {
 			}
 		}
 		public void acceptError(IProblem error) {}
-		public void acceptField(char[] declaringTypePackageName,char[] declaringTypeName,char[] name,char[] typePackageName,char[] typeName,char[] completionName,int modifiers,int completionStart,int completionEnd) {
+		public void acceptField(char[] declaringTypePackageName,char[] declaringTypeName,char[] name,char[] typePackageName,char[] typeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
 			if((filter & FIELD) != 0) {
 				requestor.acceptField(
 					declaringTypePackageName,
@@ -302,7 +302,7 @@ public class CorrectionEngine implements ProblemReasons {
 					correctionEnd);
 			}
 		}
-		public void acceptInterface(char[] packageName,char[] interfaceName,char[] completionName,int modifiers,int completionStart,int completionEnd) {
+		public void acceptInterface(char[] packageName,char[] interfaceName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
 			if((filter & (CLASSES | INTERFACES)) != 0) {
 				requestor.acceptInterface(
 					packageName,
@@ -322,9 +322,9 @@ public class CorrectionEngine implements ProblemReasons {
 					correctionEnd);
 			}
 		}
-		public void acceptKeyword(char[] keywordName,int completionStart,int completionEnd) {}
-		public void acceptLabel(char[] labelName,int completionStart,int completionEnd) {}
-		public void acceptLocalVariable(char[] name,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd) {
+		public void acceptKeyword(char[] keywordName,int completionStart,int completionEnd, int relevance) {}
+		public void acceptLabel(char[] labelName,int completionStart,int completionEnd, int relevance) {}
+		public void acceptLocalVariable(char[] name,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd, int relevance) {
 			if((filter & LOCAL) != 0) {
 				requestor.acceptLocalVariable(
 					name,
@@ -335,7 +335,7 @@ public class CorrectionEngine implements ProblemReasons {
 					correctionEnd);
 			}
 		}
-		public void acceptMethod(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd) {
+		public void acceptMethod(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
 			if((filter & METHOD) != 0) {
 				requestor.acceptMethod(
 					declaringTypePackageName,
@@ -352,9 +352,9 @@ public class CorrectionEngine implements ProblemReasons {
 					correctionEnd);
 			}
 		}
-		public void acceptMethodDeclaration(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd) {}
-		public void acceptModifier(char[] modifierName,int completionStart,int completionEnd) {}
-		public void acceptPackage(char[] packageName,char[] completionName,int completionStart,int completionEnd) {
+		public void acceptMethodDeclaration(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {}
+		public void acceptModifier(char[] modifierName,int completionStart,int completionEnd, int relevance) {}
+		public void acceptPackage(char[] packageName,char[] completionName,int completionStart,int completionEnd, int relevance) {
 			if((filter & (CLASSES | INTERFACES | IMPORT)) != 0) {
 				requestor.acceptPackage(
 					packageName,
@@ -363,7 +363,7 @@ public class CorrectionEngine implements ProblemReasons {
 					correctionEnd);
 			}
 		}
-		public void acceptType(char[] packageName,char[] typeName,char[] completionName,int completionStart,int completionEnd) {}
-		public void acceptVariableName(char[] typePackageName,char[] typeName,char[] name,char[] completionName,int completionStart,int completionEnd) {}
+		public void acceptType(char[] packageName,char[] typeName,char[] completionName,int completionStart,int completionEnd, int relevance) {}
+		public void acceptVariableName(char[] typePackageName,char[] typeName,char[] name,char[] completionName,int completionStart,int completionEnd, int relevance) {}
 	};
 }

@@ -22,7 +22,7 @@ public CompletionRequestorWrapper(ICompletionRequestor clientRequestor, NameLook
 	this.clientRequestor = clientRequestor;
 	this.nameLookup = nameLookup;
 }
-public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd){
+public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance){
 	if(parameterNames == null)
 		parameterNames = findMethodParameterNames(superTypePackageName, superTypeName, superTypeName, parameterPackageNames, parameterTypeNames);
 
@@ -36,15 +36,16 @@ public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName
 			String.valueOf(completionName),
 			String.valueOf(modifiers),
 			String.valueOf(completionStart),
-			String.valueOf(completionEnd)
+			String.valueOf(completionEnd),
+			String.valueOf(relevance)
 		});
 	}
-	this.clientRequestor.acceptAnonymousType(superTypePackageName, superTypeName, parameterPackageNames, parameterTypeNames, parameterNames, completionName, modifiers, completionStart, completionEnd);
+	this.clientRequestor.acceptAnonymousType(superTypePackageName, superTypeName, parameterPackageNames, parameterTypeNames, parameterNames, completionName, modifiers, completionStart, completionEnd, relevance);
 }
 /**
  * See ICompletionRequestor
  */
-public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
 	
 	if(CompletionEngine.DEBUG) {
 		printDebug("acceptClass",  new String[]{ //$NON-NLS-1$
@@ -53,10 +54,11 @@ public void acceptClass(char[] packageName, char[] className, char[] completionN
 			String.valueOf(completionName),
 			String.valueOf(modifiers),
 			String.valueOf(completionStart),
-			String.valueOf(completionEnd)
+			String.valueOf(completionEnd),
+			String.valueOf(relevance)
 		});
 	}
-	this.clientRequestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd);
+	this.clientRequestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd, relevance);
 }
 /**
  * See ICompletionRequestor
@@ -73,7 +75,7 @@ public void acceptError(IProblem error) {
 /**
  * See ICompletionRequestor
  */
-public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
 	
 	if(CompletionEngine.DEBUG) {
 		printDebug("acceptField",  new String[]{ //$NON-NLS-1$
@@ -85,15 +87,16 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 			String.valueOf(completionName),
 			String.valueOf(modifiers),
 			String.valueOf(completionStart),
-			String.valueOf(completionEnd)
+			String.valueOf(completionEnd),
+			String.valueOf(relevance)
 		});
 	}
-	this.clientRequestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
+	this.clientRequestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd, relevance);
 }
 /**
  * See ICompletionRequestor
  */
-public void acceptInterface(char[] packageName, char[] interfaceName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+public void acceptInterface(char[] packageName, char[] interfaceName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
 	
 	if(CompletionEngine.DEBUG) {
 		printDebug("acceptInterface",  new String[]{ //$NON-NLS-1$
@@ -102,43 +105,46 @@ public void acceptInterface(char[] packageName, char[] interfaceName, char[] com
 			String.valueOf(completionName),
 			String.valueOf(modifiers),
 			String.valueOf(completionStart),
-			String.valueOf(completionEnd)
+			String.valueOf(completionEnd),
+			String.valueOf(relevance)
 		});
 	}
-	this.clientRequestor.acceptInterface(packageName, interfaceName, completionName, modifiers, completionStart, completionEnd);
+	this.clientRequestor.acceptInterface(packageName, interfaceName, completionName, modifiers, completionStart, completionEnd, relevance);
 }
 /**
  * See ICompletionRequestor
  */
-public void acceptKeyword(char[] keywordName, int completionStart, int completionEnd) {
+public void acceptKeyword(char[] keywordName, int completionStart, int completionEnd, int relevance) {
 	
 	if(CompletionEngine.DEBUG) {
 		printDebug("acceptKeyword",  new String[]{ //$NON-NLS-1$
 			String.valueOf(keywordName),
 			String.valueOf(completionStart),
-			String.valueOf(completionEnd)
+			String.valueOf(completionEnd),
+			String.valueOf(relevance)
 		});
 	}
-	this.clientRequestor.acceptKeyword(keywordName, completionStart, completionEnd);
+	this.clientRequestor.acceptKeyword(keywordName, completionStart, completionEnd, relevance);
 }
 /**
  * See ICompletionRequestor
  */
-public void acceptLabel(char[] labelName, int completionStart, int completionEnd) {
+public void acceptLabel(char[] labelName, int completionStart, int completionEnd, int relevance) {
 	
 	if(CompletionEngine.DEBUG) {
 		printDebug("acceptLabel",  new String[]{ //$NON-NLS-1$
 			String.valueOf(labelName),
 			String.valueOf(completionStart),
-			String.valueOf(completionEnd)
+			String.valueOf(completionEnd),
+			String.valueOf(relevance)
 		});
 	}
-	this.clientRequestor.acceptLabel(labelName, completionStart, completionEnd);
+	this.clientRequestor.acceptLabel(labelName, completionStart, completionEnd, relevance);
 }
 /**
  * See ICompletionRequestor
  */
-public void acceptLocalVariable(char[] name, char[] typePackageName, char[] typeName, int modifiers, int completionStart, int completionEnd) {
+public void acceptLocalVariable(char[] name, char[] typePackageName, char[] typeName, int modifiers, int completionStart, int completionEnd, int relevance) {
 	
 	if(CompletionEngine.DEBUG) {
 		printDebug("acceptLocalVariable",  new String[]{ //$NON-NLS-1$
@@ -147,15 +153,16 @@ public void acceptLocalVariable(char[] name, char[] typePackageName, char[] type
 			String.valueOf(typeName),
 			String.valueOf(modifiers),
 			String.valueOf(completionStart),
-			String.valueOf(completionEnd)
+			String.valueOf(completionEnd),
+			String.valueOf(relevance)
 		});
 	}
-	this.clientRequestor.acceptLocalVariable(name, typePackageName, typeName, modifiers, completionStart, completionEnd);
+	this.clientRequestor.acceptLocalVariable(name, typePackageName, typeName, modifiers, completionStart, completionEnd, relevance);
 }
 /**
  * See ICompletionRequestor
  */
-public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, char[] returnTypePackageName, char[] returnTypeName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, char[] returnTypePackageName, char[] returnTypeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
 	if(parameterNames == null)
 		parameterNames = findMethodParameterNames(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames);
 
@@ -172,15 +179,16 @@ public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeNa
 			String.valueOf(completionName),
 			String.valueOf(modifiers),
 			String.valueOf(completionStart),
-			String.valueOf(completionEnd)
+			String.valueOf(completionEnd),
+			String.valueOf(relevance)
 		});
 	}
-	this.clientRequestor.acceptMethod(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, parameterNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart, completionEnd);
+	this.clientRequestor.acceptMethod(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, parameterNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart, completionEnd, relevance);
 }
 /**
  * See ICompletionRequestor
  */
-public void acceptMethodDeclaration(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, char[] returnTypePackageName, char[] returnTypeName, char[] completionName, int modifiers, int completionStart, int completionEnd) {
+public void acceptMethodDeclaration(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, char[] returnTypePackageName, char[] returnTypeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
 	if(parameterNames == null) {
 		int length = parameterTypeNames.length;
 		
@@ -220,44 +228,47 @@ public void acceptMethodDeclaration(char[] declaringTypePackageName, char[] decl
 			String.valueOf(completionName),
 			String.valueOf(modifiers),
 			String.valueOf(completionStart),
-			String.valueOf(completionEnd)
+			String.valueOf(completionEnd),
+			String.valueOf(relevance)
 		});
 	}
-	this.clientRequestor.acceptMethodDeclaration(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, parameterNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart, completionEnd);
+	this.clientRequestor.acceptMethodDeclaration(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, parameterNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart, completionEnd, relevance);
 }
 /**
  * See ICompletionRequestor
  */
-public void acceptModifier(char[] modifierName, int completionStart, int completionEnd) {
+public void acceptModifier(char[] modifierName, int completionStart, int completionEnd, int relevance) {
 	
 	if(CompletionEngine.DEBUG) {
 		printDebug("acceptModifier",  new String[]{ //$NON-NLS-1$
 			String.valueOf(modifierName),
 			String.valueOf(completionStart),
-			String.valueOf(completionEnd)
+			String.valueOf(completionEnd),
+			String.valueOf(relevance)
 		});
 	}
-	this.clientRequestor.acceptModifier(modifierName, completionStart, completionEnd);
+	this.clientRequestor.acceptModifier(modifierName, completionStart, completionEnd, relevance);
 }
 /**
  * See ICompletionRequestor
  */
-public void acceptPackage(char[] packageName, char[] completionName, int completionStart, int completionEnd) {
+public void acceptPackage(char[] packageName, char[] completionName, int completionStart, int completionEnd, int relevance) {
 	
 	if(CompletionEngine.DEBUG) {
 		printDebug("acceptPackage",  new String[]{ //$NON-NLS-1$
 			String.valueOf(packageName),
 			String.valueOf(completionName),
 			String.valueOf(completionStart),
-			String.valueOf(completionEnd)
+			String.valueOf(completionEnd),
+			String.valueOf(relevance)
 		});
 	}
-	this.clientRequestor.acceptPackage(packageName, completionName, completionStart, completionEnd);
+	this.clientRequestor.acceptPackage(packageName, completionName, completionStart, completionEnd, relevance);
 }
 /**
  * See ICompletionRequestor
  */
-public void acceptType(char[] packageName, char[] typeName, char[] completionName, int completionStart, int completionEnd) {
+public void acceptType(char[] packageName, char[] typeName, char[] completionName, int completionStart, int completionEnd, int relevance) {
 	
 	if(CompletionEngine.DEBUG) {
 		printDebug("acceptType",  new String[]{ //$NON-NLS-1$
@@ -265,12 +276,13 @@ public void acceptType(char[] packageName, char[] typeName, char[] completionNam
 			String.valueOf(typeName),
 			String.valueOf(completionName),
 			String.valueOf(completionStart),
-			String.valueOf(completionEnd)
+			String.valueOf(completionEnd),
+			String.valueOf(relevance)
 		});
 	}
-	this.clientRequestor.acceptType(packageName, typeName, completionName, completionStart, completionEnd);
+	this.clientRequestor.acceptType(packageName, typeName, completionName, completionStart, completionEnd, relevance);
 }
-public void acceptVariableName(char[] typePackageName, char[] typeName, char[] name, char[] completionName, int completionStart, int completionEnd){
+public void acceptVariableName(char[] typePackageName, char[] typeName, char[] name, char[] completionName, int completionStart, int completionEnd, int relevance){
 	
 	if(CompletionEngine.DEBUG) {
 		System.out.println("COMPLETION - acceptVariableName"); //$NON-NLS-1$
@@ -280,10 +292,11 @@ public void acceptVariableName(char[] typePackageName, char[] typeName, char[] n
 			String.valueOf(name),
 			String.valueOf(completionName),
 			String.valueOf(completionStart),
-			String.valueOf(completionEnd)
+			String.valueOf(completionEnd),
+			String.valueOf(relevance)
 		});
 	}
-	this.clientRequestor.acceptVariableName(typePackageName, typeName, name, completionName, completionStart, completionEnd);
+	this.clientRequestor.acceptVariableName(typePackageName, typeName, name, completionName, completionStart, completionEnd, relevance);
 }
 private char[][] findMethodParameterNames(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames){
 	char[][] parameterNames = null;

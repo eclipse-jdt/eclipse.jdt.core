@@ -44,11 +44,15 @@ public final class CompletionEngine
 	
 	public static boolean DEBUG = false;
 	
+	private static int DEFAULTRELEVANCE = 5;
+	private static int CASEMATCHRELEVANCE = 5;
+	
 	AssistOptions options;
 	CompletionParser parser;
 	ICompletionRequestor requestor;
 	ProblemReporter problemReporter;
 	char[] source;
+	char[] token;
 	boolean resolvingImports = false;
 	boolean insideQualifiedReference = false;
 	int startPosition, actualCompletionPosition, endPosition, offset;
@@ -162,15 +166,20 @@ public final class CompletionEngine
 	 */
 	public void acceptClass(char[] packageName, char[] className, int modifiers) {
 
-		char[] completionName = CharOperation.concat(packageName, className, '.');
+		char[] fullyQualifiedName = CharOperation.concat(packageName, className, '.');
+		char[] completionName = fullyQualifiedName;
 		
 		if (this.knownTypes.containsKey(completionName)) return;
 
 		this.knownTypes.put(completionName, this);
 		
+		int relevance = DEFAULTRELEVANCE;
 		if (resolvingImports) {
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
-		} else
+			if(CharOperation.prefixEquals(token, fullyQualifiedName, true)){
+				relevance += CASEMATCHRELEVANCE;
+			}
+		} else {
 			if (!insideQualifiedReference) {
 				if (mustQualifyType(packageName, className)) {
 					if (packageName == null || packageName.length == 0)
@@ -180,6 +189,10 @@ public final class CompletionEngine
 					completionName = className;
 				}
 			}
+			if(CharOperation.prefixEquals(token, className, true)){
+				relevance += CASEMATCHRELEVANCE;
+			}
+		}
 
 		requestor.acceptClass(
 			packageName,
@@ -187,7 +200,8 @@ public final class CompletionEngine
 			completionName,
 			modifiers,
 			startPosition - offset,
-			endPosition - offset);
+			endPosition - offset,
+			relevance);
 	}
 	
 	/**
@@ -203,15 +217,20 @@ public final class CompletionEngine
 		char[] interfaceName,
 		int modifiers) {
 
-		char[] completionName = CharOperation.concat(packageName, interfaceName, '.');
+		char[] fullyQualifiedName = CharOperation.concat(packageName, interfaceName, '.');
+		char[] completionName = fullyQualifiedName;
 
 		if (this.knownTypes.containsKey(completionName)) return;
 
 		this.knownTypes.put(completionName, this);
 
+		int relevance = DEFAULTRELEVANCE;
 		if (resolvingImports) {
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
-		} else
+			if(CharOperation.prefixEquals(token, fullyQualifiedName, true)){
+				relevance += CASEMATCHRELEVANCE;
+			}
+		} else {
 			if (!insideQualifiedReference) {
 				if (mustQualifyType(packageName, interfaceName)) {
 					if (packageName == null || packageName.length == 0)
@@ -221,14 +240,19 @@ public final class CompletionEngine
 					completionName = interfaceName;
 				}
 			}
-
+			if(CharOperation.prefixEquals(token, interfaceName, true)){
+				relevance += CASEMATCHRELEVANCE;
+			}
+		}
+		
 		requestor.acceptInterface(
 			packageName,
 			interfaceName,
 			completionName,
 			modifiers,
 			startPosition - offset,
-			endPosition - offset);
+			endPosition - offset,
+			relevance);
 	}
 
 	/**
@@ -244,13 +268,19 @@ public final class CompletionEngine
 
 		this.knownPkgs.put(packageName, this);
 
+		int relevance = DEFAULTRELEVANCE;
+		if(CharOperation.prefixEquals(token, packageName, true)){
+			relevance += CASEMATCHRELEVANCE;
+		}
+
 		requestor.acceptPackage(
 			packageName,
 			resolvingImports
 				? CharOperation.concat(packageName, new char[] { '.', '*', ';' })
 				: packageName,
 			startPosition - offset,
-			endPosition - offset);
+			endPosition - offset,
+			relevance);
 	}
 
 	/**
@@ -263,15 +293,20 @@ public final class CompletionEngine
 	 */
 	public void acceptType(char[] packageName, char[] typeName) {
 
-		char[] completionName = CharOperation.concat(packageName, typeName, '.');
+		char[] fullyQualifiedName = CharOperation.concat(packageName, typeName, '.');
+		char[] completionName = fullyQualifiedName;
 		
 		if (this.knownTypes.containsKey(completionName)) return;
 
 		this.knownTypes.put(completionName, this);
 
+		int relevance = DEFAULTRELEVANCE;
 		if (resolvingImports) {
 			completionName = CharOperation.concat(completionName, new char[] { ';' });
-		} else
+			if(CharOperation.prefixEquals(token, fullyQualifiedName, true)){
+				relevance += CASEMATCHRELEVANCE;
+			}
+		} else {
 			if (!insideQualifiedReference) {
 				if (mustQualifyType(packageName, typeName)) {
 					if (packageName == null || packageName.length == 0)
@@ -281,13 +316,18 @@ public final class CompletionEngine
 					completionName = typeName;
 				}
 			}
-
+			if(CharOperation.prefixEquals(token, typeName, true)){
+				relevance += CASEMATCHRELEVANCE;
+			}
+		}
+		
 		requestor.acceptType(
 			packageName,
 			typeName,
 			completionName,
 			startPosition - offset,
-			endPosition - offset);
+			endPosition - offset,
+			relevance);
 	}
 
 	private void complete(AstNode astNode, Binding qualifiedBinding, Scope scope) {
@@ -299,7 +339,7 @@ public final class CompletionEngine
 
 			CompletionOnFieldType field = (CompletionOnFieldType) astNode;
 			CompletionOnSingleTypeReference type = (CompletionOnSingleTypeReference) field.type;
-			char[] token = type.token;
+			token = type.token;
 			setSourceRange(type.sourceStart, type.sourceEnd);
 			//		findKeywords(token, modifiers, scope); // could be the start of a field, method or member type
 			findTypesAndPackages(token, scope);
@@ -311,7 +351,7 @@ public final class CompletionEngine
 
 			if (astNode instanceof CompletionOnSingleNameReference) {
 
-				char[] token = ((CompletionOnSingleNameReference) astNode).token;
+				token = ((CompletionOnSingleNameReference) astNode).token;
 				findVariablesAndMethods(
 					token,
 					scope,
@@ -324,7 +364,7 @@ public final class CompletionEngine
 
 				if (astNode instanceof CompletionOnSingleTypeReference) {
 
-					char[] token = ((CompletionOnSingleTypeReference) astNode).token;
+					token = ((CompletionOnSingleTypeReference) astNode).token;
 
 					// can be the start of a qualified type name
 					if (qualifiedBinding == null) {
@@ -343,7 +383,7 @@ public final class CompletionEngine
 						insideQualifiedReference = true;
 						CompletionOnQualifiedNameReference ref =
 							(CompletionOnQualifiedNameReference) astNode;
-						char[] token = ref.completionIdentifier;
+						token = ref.completionIdentifier;
 						long completionPosition = ref.sourcePositions[ref.sourcePositions.length - 1];
 
 						if (qualifiedBinding instanceof VariableBinding) {
@@ -407,7 +447,7 @@ public final class CompletionEngine
 							insideQualifiedReference = true;
 							CompletionOnQualifiedTypeReference ref =
 								(CompletionOnQualifiedTypeReference) astNode;
-							char[] token = ref.completionIdentifier;
+							token = ref.completionIdentifier;
 							long completionPosition = ref.sourcePositions[ref.tokens.length];
 
 							// get the source positions of the completion identifier
@@ -437,9 +477,11 @@ public final class CompletionEngine
 								CompletionOnMemberAccess access = (CompletionOnMemberAccess) astNode;
 								long completionPosition = access.nameSourcePosition;
 								setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+				
+								token = access.token;
 
 								findFieldsAndMethods(
-									access.token,
+									token,
 									(TypeBinding) qualifiedBinding,
 									scope,
 									access,
@@ -453,13 +495,14 @@ public final class CompletionEngine
 									CompletionOnMessageSend messageSend = (CompletionOnMessageSend) astNode;
 									TypeBinding[] argTypes =
 										computeTypes(messageSend.arguments, (BlockScope) scope);
+									token = messageSend.selector;
 									if (qualifiedBinding == null) {
-
-										findImplicitMessageSends(messageSend.selector, argTypes, scope, messageSend, scope);
+										
+										findImplicitMessageSends(token, argTypes, scope, messageSend, scope);
 									} else {
 
 										findMethods(
-											messageSend.selector,
+											token,
 											argTypes,
 											(ReferenceBinding) qualifiedBinding,
 											scope,
@@ -521,7 +564,9 @@ public final class CompletionEngine
 												CompletionOnClassLiteralAccess access = (CompletionOnClassLiteralAccess) astNode;
 												setSourceRange(access.classStart, access.sourceEnd);
 								
-												findClassField(access.completionIdentifier, (TypeBinding) qualifiedBinding);
+												token = access.completionIdentifier;
+								
+												findClassField(token, (TypeBinding) qualifiedBinding);
 											} else {
 												if(astNode instanceof CompletionOnMethodName) {
 													CompletionOnMethodName method = (CompletionOnMethodName) astNode;
@@ -533,8 +578,10 @@ public final class CompletionEngine
 													for(int i = 0 ; i < fields.length ; i++){
 														excludeNames[i] = fields[i].name;
 													}
-														
-													findVariableNames(method.selector, method.returnType, excludeNames);
+													
+													token = method.selector;
+													
+													findVariableNames(token, method.returnType, excludeNames);
 												} else {
 													if (astNode instanceof CompletionOnFieldName) {
 														CompletionOnFieldName field = (CompletionOnFieldName) astNode;
@@ -544,6 +591,8 @@ public final class CompletionEngine
 														for(int i = 0 ; i < fields.length ; i++){
 															excludeNames[i] = fields[i].name;
 														}
+														
+														token = field.realName;
 														
 														findVariableNames(field.realName, field.type, excludeNames);
 													} else {
@@ -561,13 +610,12 @@ public final class CompletionEngine
 															}
 															System.arraycopy(excludeNames, 0, excludeNames = new char[localCount][], 0, localCount);
 															
-															char[] name;
 															if(variable instanceof CompletionOnLocalName){
-																name = ((CompletionOnLocalName) variable).realName;
+																token = ((CompletionOnLocalName) variable).realName;
 															} else {
-																name = ((CompletionOnArgumentName) variable).realName;
+																token = ((CompletionOnArgumentName) variable).realName;
 															}
-															findVariableNames(name, variable.type, excludeNames);
+															findVariableNames(token, variable.type, excludeNames);
 														}
 													}
 												}
@@ -799,6 +847,8 @@ public final class CompletionEngine
 				|| source[endPosition] != ')')
 				completion = new char[] { ')' };
 			
+			int relevance = DEFAULTRELEVANCE;
+			
 			requestor.acceptAnonymousType(
 				currentType.qualifiedPackageName(),
 				currentType.qualifiedSourceName(),
@@ -808,7 +858,8 @@ public final class CompletionEngine
 				completion,
 				IConstants.AccPublic,
 				endPosition - offset,
-				endPosition - offset);
+				endPosition - offset,
+				relevance);
 		} else {
 			findConstructors(
 				currentType,
@@ -826,7 +877,12 @@ public final class CompletionEngine
 
 		if (token.length <= classField.length
 			&& CharOperation.prefixEquals(token, classField, false /* ignore case */
-			))
+		)) {
+			int relevance = DEFAULTRELEVANCE;
+			if(CharOperation.prefixEquals(token, classField, true /* do not ignore case */)){
+				relevance += CASEMATCHRELEVANCE;
+			}
+				
 			requestor.acceptField(
 				NoChar,
 				NoChar,
@@ -836,7 +892,9 @@ public final class CompletionEngine
 				classField,
 				CompilerModifiers.AccStatic | CompilerModifiers.AccPublic,
 				startPosition - offset,
-				endPosition - offset);
+				endPosition - offset,
+				relevance);
+		}
 	}
 
 	private void findConstructors(
@@ -882,7 +940,9 @@ public final class CompletionEngine
 					|| source.length <= endPosition
 					|| source[endPosition] != ')')
 					completion = new char[] { ')' };
-					
+				
+				int relevance = DEFAULTRELEVANCE;
+				
 				if(forAnonymousType){
 					requestor.acceptAnonymousType(
 						currentType.qualifiedPackageName(),
@@ -893,7 +953,8 @@ public final class CompletionEngine
 						completion,
 						constructor.modifiers,
 						endPosition - offset,
-						endPosition - offset);
+						endPosition - offset,
+						relevance);
 				} else {
 					requestor.acceptMethod(
 						currentType.qualifiedPackageName(),
@@ -907,7 +968,8 @@ public final class CompletionEngine
 						completion,
 						constructor.modifiers,
 						endPosition - offset,
-						endPosition - offset);
+						endPosition - offset,
+						relevance);
 				}
 			}
 		}
@@ -984,6 +1046,11 @@ public final class CompletionEngine
 				completion = CharOperation.concat(prefix,completion,'.');
 			}
 
+			int relevance = DEFAULTRELEVANCE;
+			if (CharOperation.prefixEquals(fieldName, field.name, true /* do not ignore case */)){
+				relevance += CASEMATCHRELEVANCE;	
+			}
+
 			requestor
 				.acceptField(
 					field.declaringClass.qualifiedPackageName(),
@@ -993,7 +1060,8 @@ public final class CompletionEngine
 					field.type.qualifiedSourceName(),
 					completion,
 			// may include some qualification to resolve ambiguities
-			field.modifiers, startPosition - offset, endPosition - offset);
+			field.modifiers, startPosition - offset, endPosition - offset,
+			relevance);
 		}
 	}
 
@@ -1109,8 +1177,13 @@ public final class CompletionEngine
 		if (receiverType.isArrayType()) {
 			if (token.length <= lengthField.length
 				&& CharOperation.prefixEquals(token, lengthField, false /* ignore case */
-				))
-
+			)) {
+				
+				int relevance = DEFAULTRELEVANCE;
+				if(CharOperation.prefixEquals(token, lengthField, true /* do not ignore case */)){
+					relevance += CASEMATCHRELEVANCE;
+				}
+				
 				requestor.acceptField(
 					NoChar,
 					NoChar,
@@ -1120,8 +1193,9 @@ public final class CompletionEngine
 					lengthField,
 					CompilerModifiers.AccPublic,
 					startPosition - offset,
-					endPosition - offset);
-
+					endPosition - offset,
+					relevance);
+			}
 			receiverType = scope.getJavaLangObject();
 		}
 
@@ -1158,14 +1232,16 @@ public final class CompletionEngine
 		if (importName.length == 0)
 			return;
 			
-		char[] token = tokens[tokens.length - 1];
-		if(token != null && token.length == 0)
+		char[] lastToken = tokens[tokens.length - 1];
+		if(lastToken != null && lastToken.length == 0)
 			importName = CharOperation.concat(importName, new char[]{'.'});
 
 		resolvingImports = true;
 		setSourceRange(
 			importReference.sourceStart,
 			importReference.declarationSourceEnd);
+			
+		token =  importName;
 		// want to replace the existing .*;
 		nameEnvironment.findPackages(importName, this);
 		nameEnvironment.findTypes(importName, this);
@@ -1180,8 +1256,14 @@ public final class CompletionEngine
 			for (int i = 0; i < choices.length; i++)
 				if (length <= choices[i].length
 					&& CharOperation.prefixEquals(keyword, choices[i], false /* ignore case */
-					))
-					requestor.acceptKeyword(choices[i], startPosition - offset, endPosition - offset);
+				)){
+					int relevance = DEFAULTRELEVANCE;
+					if(CharOperation.prefixEquals(keyword, choices[i], true /* do not ignore case */)){
+						relevance += CASEMATCHRELEVANCE;
+					}
+					
+					requestor.acceptKeyword(choices[i], startPosition - offset, endPosition - offset,relevance);
+				}
 	}
 
 	// Helper method for findMemberTypes(char[], ReferenceBinding, Scope)
@@ -1232,6 +1314,11 @@ public final class CompletionEngine
 
 			typesFound.add(memberType);
 
+			int relevance = DEFAULTRELEVANCE;
+			if (CharOperation.prefixEquals(typeName, memberType.sourceName, true/* do not ignore case */)) {
+				relevance += CASEMATCHRELEVANCE;
+			}
+
 			if (memberType.isClass()) {
 				requestor.acceptClass(
 					memberType.qualifiedPackageName(),
@@ -1239,7 +1326,8 @@ public final class CompletionEngine
 					memberType.sourceName(),
 					memberType.modifiers,
 					startPosition - offset,
-					endPosition - offset);
+					endPosition - offset,
+					relevance);
 
 			} else {
 
@@ -1249,7 +1337,8 @@ public final class CompletionEngine
 					memberType.sourceName(),
 					memberType.modifiers,
 					startPosition - offset,
-					endPosition - offset);
+					endPosition - offset,
+					relevance);
 			}
 		}
 	}
@@ -1616,6 +1705,11 @@ public final class CompletionEngine
 				completion = CharOperation.concat(prefix,completion,'.');
 			}
 
+			int relevance = DEFAULTRELEVANCE;
+			if (CharOperation.prefixEquals(methodName, method.selector, true /* do not ignore case */)) {
+				relevance += CASEMATCHRELEVANCE;
+			}
+
 			requestor.acceptMethod(
 				method.declaringClass.qualifiedPackageName(),
 				method.declaringClass.qualifiedSourceName(),
@@ -1628,7 +1722,8 @@ public final class CompletionEngine
 				completion,
 				method.modifiers,
 				startPosition - offset,
-				endPosition - offset);
+				endPosition - offset,
+				relevance);
 			startPosition = previousStartPosition;
 		}
 	}
@@ -1791,6 +1886,11 @@ public final class CompletionEngine
 				}
 			}
 
+			int relevance = DEFAULTRELEVANCE;
+			if (CharOperation.prefixEquals(methodName, method.selector, true /* do not ignore case */)) {
+				relevance += CASEMATCHRELEVANCE;
+			}
+
 			requestor.acceptMethodDeclaration(
 				method.declaringClass.qualifiedPackageName(),
 				method.declaringClass.qualifiedSourceName(),
@@ -1803,7 +1903,8 @@ public final class CompletionEngine
 				completion.toString().toCharArray(),
 				method.modifiers,
 				startPosition - offset,
-				endPosition - offset);
+				endPosition - offset,
+				relevance);
 		}
 	}
 	private void findMethods(
@@ -2011,13 +2112,19 @@ public final class CompletionEngine
 									))
 									continue next;
 
+								int relevance = DEFAULTRELEVANCE;
+								if (CharOperation.prefixEquals(typeName, localType.sourceName, true/* do not ignore case */)) {
+									relevance += CASEMATCHRELEVANCE;
+								}
+
 								requestor.acceptClass(
 									localType.qualifiedPackageName(),
 									localType.sourceName,
 									localType.sourceName,
 									localType.modifiers,
 									startPosition - offset,
-									endPosition - offset);
+									endPosition - offset,
+									relevance);
 							}
 						}
 					}
@@ -2038,12 +2145,12 @@ public final class CompletionEngine
 
 	private void findPackages(CompletionOnPackageReference packageStatement) {
 
-		char[] packageName = CharOperation.concatWith(packageStatement.tokens, '.');
-		if (packageName.length == 0)
+		token = CharOperation.concatWith(packageStatement.tokens, '.');
+		if (token.length == 0)
 			return;
 
 		setSourceRange(packageStatement.sourceStart, packageStatement.sourceEnd);
-		nameEnvironment.findPackages(CharOperation.toLowerCase(packageName), this);
+		nameEnvironment.findPackages(CharOperation.toLowerCase(token), this);
 	}
 
 	private void findTypesAndPackages(char[] token, Scope scope) {
@@ -2065,6 +2172,11 @@ public final class CompletionEngine
 				
 				if (!CharOperation.prefixEquals(token, sourceType.sourceName, false))	continue;
 
+				int relevance = DEFAULTRELEVANCE;
+				if (CharOperation.prefixEquals(token, sourceType.sourceName, true/* do not ignore case */)) {
+					relevance += CASEMATCHRELEVANCE;
+				}
+
 				if (sourceType.isClass()){
 					requestor.acceptClass(
 						sourceType.qualifiedPackageName(),
@@ -2072,7 +2184,8 @@ public final class CompletionEngine
 						sourceType.sourceName(),
 						sourceType.modifiers,
 						startPosition - offset, 
-						endPosition - offset);
+						endPosition - offset,
+						relevance);
 				} else {
 					requestor.acceptInterface(
 						sourceType.qualifiedPackageName(),
@@ -2080,7 +2193,8 @@ public final class CompletionEngine
 						sourceType.sourceName(),
 						sourceType.modifiers,
 						startPosition - offset,
-						endPosition - offset);
+						endPosition - offset,
+						relevance);
 				}
 			}
 		}
@@ -2173,6 +2287,10 @@ public final class CompletionEngine
 						}
 						localsFound.add(local);
 
+						int relevance = DEFAULTRELEVANCE;
+						if (CharOperation.prefixEquals(token, local.name, true /* do not ignore case */)) {
+							relevance += CASEMATCHRELEVANCE;
+						}
 						requestor.acceptLocalVariable(
 							local.name,
 							NoChar,
@@ -2181,7 +2299,8 @@ public final class CompletionEngine
 								: local.type.qualifiedSourceName(),
 							local.modifiers,
 							startPosition - offset,
-							endPosition - offset);
+							endPosition - offset,
+							relevance);
 					}
 					break;
 
@@ -2271,7 +2390,8 @@ public final class CompletionEngine
 						name,
 						name,
 						startPosition - offset,
-						endPosition - offset);
+						endPosition - offset,
+						DEFAULTRELEVANCE);
 					return;
 				}
 			} catch(InvalidInputException e){
@@ -2315,6 +2435,11 @@ public final class CompletionEngine
 					}	
 				}
 				
+				int relevance = DEFAULTRELEVANCE;
+				if (CharOperation.prefixEquals(token, name, true)) {
+					relevance += CASEMATCHRELEVANCE;
+				}
+				
 				// accept result
 				requestor.acceptVariableName(
 					qualifiedPackageName,
@@ -2322,7 +2447,8 @@ public final class CompletionEngine
 					name,
 					name,
 					startPosition - offset,
-					endPosition - offset);
+					endPosition - offset,
+					relevance);
 			}
 	}
 

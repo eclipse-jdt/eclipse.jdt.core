@@ -16,7 +16,38 @@ Eclipse SDK Build 200204? - ?th April 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>new 
+<li>ICompletionRequestor API change :
+	<ul>
+		<li> Added a new parameter <code>relevance</code> to be able to sort proposal by degree of relevance.
+		<code>relevance</code> is a positive integer which are used for determine if this proposal is more relevant than another proposal.
+		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
+		value is higher.
+		<br>
+		<br><tt>ICompletionRequestor{</tt>
+		<br><tt>&nbsp;&nbsp;void acceptAnonymousType(..., <b>int relevance</b>);</tt>
+		<br><tt>&nbsp;&nbsp;void acceptClass(..., <b>int relevance</b>);</tt>
+		<br><tt>&nbsp;&nbsp;void acceptError(...);</tt>
+		<br><tt>&nbsp;&nbsp;void acceptField(..., <b>int relevance</b>);</tt>
+		<br><tt>&nbsp;&nbsp;void acceptInterface(..., <b>int relevance</b>);</tt>
+		<br><tt>&nbsp;&nbsp;void acceptKeyword(..., <b>int relevance</b>);</tt>
+		<br><tt>&nbsp;&nbsp;void acceptLabel(..., <b>int relevance</b>);</tt>
+		<br><tt>&nbsp;&nbsp;void acceptLocalVariable(..., <b>int relevance</b>);</tt>
+		<br><tt>&nbsp;&nbsp;void acceptMethod(..., <b>int relevance</b>);</tt>
+		<br><tt>&nbsp;&nbsp;void acceptMethodDeclaration(..., <b>int relevance</b>);</tt>
+		<br><tt>&nbsp;&nbsp;void acceptModifier(..., <b>int relevance</b>);</tt>
+		<br><tt>&nbsp;&nbsp;void acceptPackage(..., <b>int relevance</b>);</tt>
+		<br><tt>&nbsp;&nbsp;void acceptType(..., <b>int relevance</b>);</tt>
+		<br><tt>&nbsp;&nbsp;void acceptVariableName(..., <b>int relevance</b>);</tt>
+		<br><tt>}</tt>
+		<br>
+		<br>
+		</li>
+		<li>
+		If the completion identifier and proposal are equal and the case match then the proposal relevance grow.
+		</li>
+	</ul>
+
+
 </li>	
 </ul>
 
