@@ -147,7 +147,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 	}
 
 	IPath getIndexLocation() {
-		return new Path(EXTERNAL_JAR_DIR_PATH + File.separator + "test.index");
+		return new Path(getExternalPath() + File.separator + "test.index");
 	}
 	
 	/*

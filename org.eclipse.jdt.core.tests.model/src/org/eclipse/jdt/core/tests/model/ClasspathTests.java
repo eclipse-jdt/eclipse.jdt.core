@@ -81,11 +81,6 @@ public static Test suite() {
 	return buildTestSuite(ClasspathTests.class);
 	//return buildTestSuite(ClasspathTests.class, "testClasspathValidation02", null);
 }
-public void setUpSuite() throws Exception {
-	super.setUpSuite();
-	
-	setupExternalJCL("jclMin");
-}
 protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] expectedCycleParticipants) throws CoreException {
 	waitForAutoBuild();
 	StringBuffer expected = new StringBuffer("{");
@@ -2074,10 +2069,10 @@ public void testInvalidClasspath2() throws CoreException {
  */
 public void testInvalidExternalClassFolder() throws CoreException {
 	try {
-		IJavaProject proj =  createJavaProject("P", new String[] {}, new String[] {EXTERNAL_JAR_DIR_PATH}, "bin");
+		IJavaProject proj =  createJavaProject("P", new String[] {}, new String[] {getExternalPath()}, "bin");
 		assertMarkers(
 			"Unexpected markers",
-			"Required library cannot denote external folder: \'" + EXTERNAL_JAR_DIR_PATH + "\' for project P",
+			"Required library cannot denote external folder: \'" + getExternalPath() + "\' for project P",
 			proj);
 	} finally {
 		deleteProject("P");
@@ -2088,7 +2083,7 @@ public void testInvalidExternalClassFolder() throws CoreException {
  */
 public void testInvalidExternalJar() throws CoreException {
 	try {
-		String jarPath = EXTERNAL_JAR_DIR_PATH + File.separator + "nonExisting.jar";
+		String jarPath = getExternalPath() + File.separator + "nonExisting.jar";
 		IJavaProject proj = createJavaProject("P", new String[] {}, new String[] {jarPath}, "bin");
 		assertMarkers(
 			"Unexpected markers",
@@ -3042,7 +3037,7 @@ public void testBug55992a() throws CoreException {
 	try {
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
 	
-		IPath path = new Path(EXTERNAL_JAR_DIR_PATH+"/jclMin.jar");
+		IPath path = new Path(getExternalPath()+"/jclMin.jar");
 		IPath sourceAttachmentPath = new Path("jclMin.zip");
 		JavaCore.setClasspathVariables(
 			new String[] {"TEST_LIB", "TEST_SRC"},

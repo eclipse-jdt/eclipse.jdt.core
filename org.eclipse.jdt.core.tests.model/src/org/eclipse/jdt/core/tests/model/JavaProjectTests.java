@@ -746,7 +746,7 @@ public void testPackageFragmentRootNonJavaResources() throws JavaModelException 
 public void testPackageFragmentRootRawEntry() throws CoreException, IOException {
 	File libDir = null;
 	try {
-		String libPath = EXTERNAL_JAR_DIR_PATH + File.separator + "lib";
+		String libPath = getExternalPath() + File.separator + "lib";
 		JavaCore.setClasspathVariable("MyVar", new Path(libPath), null);
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
 		libDir = new File(libPath);
@@ -789,8 +789,9 @@ public void testPackageFragmentRootRawEntry() throws CoreException, IOException 
 public void testPackageFragmentRootRawEntryWhenDuplicate() throws CoreException, IOException {
 	File libDir = null;
 	try {
-		String libPath = EXTERNAL_JAR_DIR_PATH + File.separator + "lib";
-		JavaCore.setClasspathVariable("MyVar", new Path(EXTERNAL_JAR_DIR_PATH), null);
+		String externalPath = getExternalPath();
+		String libPath = externalPath + File.separator + "lib";
+		JavaCore.setClasspathVariable("MyVar", new Path(externalPath), null);
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
 		libDir = new File(libPath);
 		libDir.mkdirs();

@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public abstract class ConverterTestSetup extends AbstractASTTests {
@@ -30,15 +29,15 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		super(name);
 	}
 
-	protected static String getConverterJCLPath() {
-		return AbstractJavaModelTests.EXTERNAL_JAR_DIR_PATH + File.separator + "converterJclMin.jar"; //$NON-NLS-1$
+	protected String getConverterJCLPath() {
+		return getExternalPath() + File.separator + "converterJclMin.jar"; //$NON-NLS-1$
 	}
 
-	protected static String getConverterJCLSourcePath() {
-		return AbstractJavaModelTests.EXTERNAL_JAR_DIR_PATH + File.separator + "converterJclMinsrc.zip"; //$NON-NLS-1$
+	protected String getConverterJCLSourcePath() {
+		return getExternalPath() + File.separator + "converterJclMinsrc.zip"; //$NON-NLS-1$
 	}
 
-	protected static String getConverterJCLRootSourcePath() {
+	protected String getConverterJCLRootSourcePath() {
 		return ""; //$NON-NLS-1$
 	}
 
@@ -64,7 +63,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			setupExternalJCL("converterJclMin");
 			JavaCore.setClasspathVariables(
 				new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"}, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				new Path[] {new Path(ConverterTestSetup.getConverterJCLPath()), new Path(ConverterTestSetup.getConverterJCLSourcePath()), new Path(ConverterTestSetup.getConverterJCLRootSourcePath())},
+				new Path[] {new Path(getConverterJCLPath()), new Path(getConverterJCLSourcePath()), new Path(getConverterJCLRootSourcePath())},
 				null);
 		}		
 

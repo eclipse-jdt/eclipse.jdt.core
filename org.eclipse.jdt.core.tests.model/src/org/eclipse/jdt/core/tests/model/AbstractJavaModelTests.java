@@ -1162,6 +1162,7 @@ protected void assertDeltas(String message, String expected) {
 		}
 		return result;
 	}
+
 	/**
 	 * Returns the IPath to the external java class library (e.g. jclMin.jar)
 	 */
@@ -1184,7 +1185,7 @@ protected void assertDeltas(String message, String expected) {
 	 * Returns the java.io path to the external java class library (e.g. jclMin.jar)
 	 */
 	protected String getExternalJCLPathString(String compliance) {
-		return EXTERNAL_JAR_DIR_PATH + File.separator + "jclMin" + compliance + ".jar";
+		return getExternalPath() + File.separator + "jclMin" + compliance + ".jar";
 	}
 	/**
 	 * Returns the IPath to the root source of the external java class library (e.g. "src")
@@ -1214,7 +1215,19 @@ protected void assertDeltas(String message, String expected) {
 	 * Returns the java.io path to the source of the external java class library (e.g. jclMinsrc.zip)
 	 */
 	protected String getExternalJCLSourcePathString(String compliance) {
-		return EXTERNAL_JAR_DIR_PATH + File.separator + "jclMin" + compliance + "src.zip";
+		return getExternalPath() + File.separator + "jclMin" + compliance + "src.zip";
+	}
+	/*
+	 * Returns the IPath to the external directory that contains external jar files.
+	 */
+	protected String getExternalPath() {
+		if (EXTERNAL_JAR_DIR_PATH == null)
+			try {
+				EXTERNAL_JAR_DIR_PATH = getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		return EXTERNAL_JAR_DIR_PATH;
 	}
 	protected IFile getFile(String path) {
 		return getWorkspaceRoot().getFile(new Path(path));
@@ -1432,14 +1445,13 @@ protected void assertDeltas(String message, String expected) {
 	 * If not available, copy from the project resources.
 	 */
 	public void setupExternalJCL(String jclName) throws IOException {
-		if (EXTERNAL_JAR_DIR_PATH == null)
-			EXTERNAL_JAR_DIR_PATH = getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
+		String externalPath = getExternalPath();
 		String separator = java.io.File.separator;
 		String resourceJCLDir = getPluginDirectoryPath() + separator + "JCL";
-		java.io.File jclDir = new java.io.File(EXTERNAL_JAR_DIR_PATH);
+		java.io.File jclDir = new java.io.File(externalPath);
 		java.io.File jclMin =
-			new java.io.File(EXTERNAL_JAR_DIR_PATH + separator + jclName + ".jar");
-		java.io.File jclMinsrc = new java.io.File(EXTERNAL_JAR_DIR_PATH + separator + jclName + "src.zip");
+			new java.io.File(externalPath + separator + jclName + ".jar");
+		java.io.File jclMinsrc = new java.io.File(externalPath + separator + jclName + "src.zip");
 		if (!jclDir.exists()) {
 			if (!jclDir.mkdir()) {
 				//mkdir failed

@@ -55,9 +55,6 @@ public static Test suite() {
 	return suite;
 }
 
-private String getExternalPath() {
-	return EXTERNAL_JAR_DIR_PATH;
-}
 private void touch(File f) {
 	f.setLastModified(f.lastModified() + 10000);
 }
