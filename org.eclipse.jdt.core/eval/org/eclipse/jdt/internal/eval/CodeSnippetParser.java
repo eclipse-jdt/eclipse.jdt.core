@@ -70,10 +70,9 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		if (alwaysQualified) {
 			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
 			pushOnAstLengthStack(0);
-			alloc.type = getTypeReference(0);
-		} else {
-			alloc.type = getTypeReference(intStack[intPtr--]);
 		}
+		alloc.type = getTypeReference(0);
+		
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
 		alloc.sourceStart = intStack[intPtr--];

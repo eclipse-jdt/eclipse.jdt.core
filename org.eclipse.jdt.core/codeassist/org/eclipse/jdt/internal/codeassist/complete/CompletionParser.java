@@ -990,20 +990,12 @@ public void completionIdentifierCheck(){
 
 	if (checkNameCompletion()) return;
 }
-protected void consumePrimitiveTypeArrayCreationExpressionWithInitializer() {
-	super.consumePrimitiveTypeArrayCreationExpressionWithInitializer();
+protected void consumeArrayCreationExpressionWithInitializer() {
+	super.consumeArrayCreationExpressionWithInitializer();
 	popElement(K_ARRAY_CREATION);
 }
-protected void consumeClassOrInterfaceTypeArrayCreationExpressionWithInitializer() {
-	super.consumeClassOrInterfaceTypeArrayCreationExpressionWithInitializer();
-	popElement(K_ARRAY_CREATION);
-}
-protected void consumePrimitiveTypeArrayCreationExpressionWithoutInitializer() {
-	super.consumePrimitiveTypeArrayCreationExpressionWithoutInitializer();
-	popElement(K_ARRAY_CREATION);
-}
-protected void consumeClassOrInterfaceTypeArrayCreationExpressionWithoutInitializer() {
-	super.consumeClassOrInterfaceTypeArrayCreationExpressionWithoutInitializer();
+protected void consumeArrayCreationExpressionWithoutInitializer() {
+	super.consumeArrayCreationExpressionWithoutInitializer();
 	popElement(K_ARRAY_CREATION);
 }
 protected void consumeArrayCreationHeader() {
@@ -1156,14 +1148,6 @@ protected void consumeClassHeaderExtends() {
 			}
 		}
 	}
-}
-protected void consumeClassOrInterfaceType() {
-	if (this.identifierLengthStack[this.identifierLengthPtr] > 1) { // reducing a qualified name
-		// potential receiver is being poped, so reset potential receiver
-		this.invocationType = NO_RECEIVER;
-		this.qualifier = -1;
-	}
-	super.consumeClassOrInterfaceType();
 }
 protected void consumeClassTypeElt() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
@@ -1628,6 +1612,14 @@ protected void consumeModifiers() {
 	// save from stack values
 	this.lastModifiersStart = intStack[intPtr];
 	this.lastModifiers = 	intStack[intPtr-1];
+}
+protected void consumeReferenceType() {
+	if (this.identifierLengthStack[this.identifierLengthPtr] > 1) { // reducing a qualified name
+		// potential receiver is being poped, so reset potential receiver
+		this.invocationType = NO_RECEIVER;
+		this.qualifier = -1;
+	}
+	super.consumeReferenceType();
 }
 protected void consumeRestoreDiet() {
 	super.consumeRestoreDiet();

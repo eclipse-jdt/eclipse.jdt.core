@@ -127,10 +127,8 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		if (alwaysQualified) {
 			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
 			pushOnAstLengthStack(0);
-			alloc.type = getTypeReference(0);
-		} else {
-			alloc.type = getTypeReference(intStack[intPtr--]);
 		}
+		alloc.type = getTypeReference(0);
 		
 		this.setAssistIdentifier(oldIdent);
 		
@@ -150,11 +148,11 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		super.classInstanceCreation(alwaysQualified);
 	}
 }
-protected void consumePrimitiveTypeArrayCreationExpressionWithoutInitializer() {
+protected void consumeArrayCreationExpressionWithoutInitializer() {
 	// ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
 	// ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
 
-	super.consumePrimitiveTypeArrayCreationExpressionWithoutInitializer();
+	super.consumeArrayCreationExpressionWithoutInitializer();
 
 	ArrayAllocationExpression alloc = (ArrayAllocationExpression)expressionStack[expressionPtr];
 	if (alloc.type == assistNode){
@@ -165,39 +163,10 @@ protected void consumePrimitiveTypeArrayCreationExpressionWithoutInitializer() {
 		this.isOrphanCompletionNode = true;
 	}
 }
-protected void consumeClassOrInterfaceTypeArrayCreationExpressionWithoutInitializer() {
-	// ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
-	// ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
-
-	super.consumeClassOrInterfaceTypeArrayCreationExpressionWithoutInitializer();
-
-	ArrayAllocationExpression alloc = (ArrayAllocationExpression)expressionStack[expressionPtr];
-	if (alloc.type == assistNode){
-		if (!diet){
-			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;	
-		}
-		this.isOrphanCompletionNode = true;
-	}
-}
-protected void consumeClassOrInterfaceTypeArrayCreationExpressionWithInitializer() {
+protected void consumeArrayCreationExpressionWithInitializer() {
 	// ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
 
-	super.consumeClassOrInterfaceTypeArrayCreationExpressionWithInitializer();
-
-	ArrayAllocationExpression alloc = (ArrayAllocationExpression)expressionStack[expressionPtr];
-	if (alloc.type == assistNode){
-		if (!diet){
-			this.restartRecovery	= true;	// force to restart in recovery mode
-			this.lastIgnoredToken = -1;	
-		}
-		this.isOrphanCompletionNode = true;
-	}
-}
-protected void consumePrimitiveTypeArrayCreationExpressionWithInitializer() {
-	// ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
-
-	super.consumePrimitiveTypeArrayCreationExpressionWithInitializer();
+	super.consumeArrayCreationExpressionWithInitializer();
 
 	ArrayAllocationExpression alloc = (ArrayAllocationExpression)expressionStack[expressionPtr];
 	if (alloc.type == assistNode){
@@ -215,7 +184,7 @@ protected void consumeEnterAnonymousClassBody() {
 		super.consumeEnterAnonymousClassBody();
 		return;
 	}
-	TypeReference typeReference = getTypeReference(intStack[intPtr--]);
+	TypeReference typeReference = getTypeReference(0);
 
 	QualifiedAllocationExpression alloc;
 	AnonymousLocalTypeDeclaration anonymousType = 

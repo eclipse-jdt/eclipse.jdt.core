@@ -838,10 +838,8 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		if (alwaysQualified) {
 			pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
 			pushOnAstLengthStack(0);
-			alloc.type = getTypeReference(0);
-		} else {
-			alloc.type = getTypeReference(intStack[intPtr--]);
 		}
+		alloc.type = getTypeReference(0);
 		
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
@@ -961,7 +959,55 @@ protected void consumeArrayAccess(boolean unspecifiedReference) {
 	}
 	exp.sourceEnd = endPosition;
 }
+protected void consumeArrayCreationExpressionWithInitializer() {
+	// ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
+	// ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
 
+	int length;
+	ArrayAllocationExpression aae = new ArrayAllocationExpression();
+	expressionLengthPtr -- ;
+	aae.initializer = (ArrayInitializer) expressionStack[expressionPtr--];
+		
+	aae.type = getTypeReference(0);
+	length = (expressionLengthStack[expressionLengthPtr--]);
+	expressionPtr -= length ;
+	System.arraycopy(
+		expressionStack,
+		expressionPtr+1,
+		aae.dimensions = new Expression[length],
+		0,
+		length);
+	aae.sourceStart = intStack[intPtr--];
+	if (aae.initializer == null) {
+		aae.sourceEnd = endPosition;
+	} else {
+		aae.sourceEnd = aae.initializer.sourceEnd ;
+	}
+	pushOnExpressionStack(aae);
+}
+protected void consumeArrayCreationExpressionWithoutInitializer() {
+	// ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
+	// ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
+
+	int length;
+	ArrayAllocationExpression aae = new ArrayAllocationExpression();
+	aae.type = getTypeReference(0);
+	length = (expressionLengthStack[expressionLengthPtr--]);
+	expressionPtr -= length ;
+	System.arraycopy(
+		expressionStack,
+		expressionPtr+1,
+		aae.dimensions = new Expression[length],
+		0,
+		length);
+	aae.sourceStart = intStack[intPtr--];
+	if (aae.initializer == null) {
+		aae.sourceEnd = endPosition;
+	} else {
+		aae.sourceEnd = aae.initializer.sourceEnd ;
+	}
+	pushOnExpressionStack(aae);
+}
 protected void consumeArrayCreationHeader() {
 	// nothing to do
 }
@@ -1493,7 +1539,7 @@ protected void consumeClassHeader() {
 protected void consumeClassHeaderExtends() {
 	// ClassHeaderExtends ::= 'extends' ClassType
 	//superclass
-	TypeReference superClass = getTypeReference(intStack[intPtr--]);
+	TypeReference superClass = getTypeReference(0);
 	// There is a class declaration on the top of stack
 	TypeDeclaration typeDecl = (TypeDeclaration) astStack[astPtr];
 	typeDecl.superclass = superClass;
@@ -1733,7 +1779,7 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 				0, 
 				length); 
 		}
-		alloc.type = getTypeReference(intStack[intPtr--]);
+		alloc.type = getTypeReference(0);
 
 		length = astLengthStack[astLengthPtr--];
 		astPtr -= length;
@@ -1776,64 +1822,9 @@ protected void consumeClassOrInterfaceName() {
 	pushOnIntStack(identifierLengthStack[identifierLengthPtr]);
 	pushOnAstLengthStack(0); // handle type arguments
 }
-protected void consumeClassOrInterfaceType() {
-	pushOnIntStack(0); // handle array type
-}
-protected void consumeClassOrInterfaceTypeArrayCreationExpressionWithInitializer() {
-	// ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
-	// ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
-
-	int length;
-	ArrayAllocationExpression aae = new ArrayAllocationExpression();
-	expressionLengthPtr -- ;
-	aae.initializer = (ArrayInitializer) expressionStack[expressionPtr--];
-		
-	aae.type = getTypeReference(intStack[intPtr--]);
-	length = (expressionLengthStack[expressionLengthPtr--]);
-	expressionPtr -= length ;
-	System.arraycopy(
-		expressionStack,
-		expressionPtr+1,
-		aae.dimensions = new Expression[length],
-		0,
-		length);
-	aae.sourceStart = intStack[intPtr--];
-	if (aae.initializer == null) {
-		aae.sourceEnd = endPosition;
-	} else {
-		aae.sourceEnd = aae.initializer.sourceEnd ;
-	}
-	pushOnExpressionStack(aae);
-}
-protected void consumeClassOrInterfaceTypeArrayCreationExpressionWithoutInitializer() {
-	// ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
-	// ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
-
-	int length;
-	ArrayAllocationExpression aae = new ArrayAllocationExpression();
-	aae.type = getTypeReference(intStack[intPtr--]);
-	length = (expressionLengthStack[expressionLengthPtr--]);
-	expressionPtr -= length ;
-	System.arraycopy(
-		expressionStack,
-		expressionPtr+1,
-		aae.dimensions = new Expression[length],
-		0,
-		length);
-	aae.sourceStart = intStack[intPtr--];
-	if (aae.initializer == null) {
-		aae.sourceEnd = endPosition;
-	} else {
-		aae.sourceEnd = aae.initializer.sourceEnd ;
-	}
-	pushOnExpressionStack(aae);
-}
-protected void consumeClassOrInterfaceTypeWithTypeArguments() {
-	pushOnIntStack(0); // handle array type
-}
 protected void consumeClassTypeElt() {
 	// ClassTypeElt ::= ClassType
-	pushOnAstStack(getTypeReference(intStack[intPtr--]));
+	pushOnAstStack(getTypeReference(0));
 	/* if incomplete thrown exception list, listLength counter will not have been reset,
 		indicating that some items are available on the stack */
 	listLength++; 	
@@ -2218,8 +2209,8 @@ protected void consumeEmptyWildcardBounds() {
 	// TODO Auto-generated method stub	
 }
 protected void consumeEnhancedForStatement() {
-	// ForStatement ::= 'for' '(' ForInitopt ';' Expressionopt ';' ForUpdateopt ')' Statement
-	// ForStatementNoShortIf ::= 'for' '(' ForInitopt ';' Expressionopt ';' ForUpdateopt ')' StatementNoShortIf
+	// EnhancedForStatement ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' Statement
+	// EnhancedForStatementNoShortIf ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' StatementNoShortIf
 
 	Expression collection = null;
 	TypeReference type;
@@ -2254,7 +2245,7 @@ protected void consumeEnhancedForStatement() {
 }
 protected void consumeEnterAnonymousClassBody() {
 	// EnterAnonymousClassBody ::= $empty
-	TypeReference typeReference = getTypeReference(intStack[intPtr--]);
+	TypeReference typeReference = getTypeReference(0);
 
 	QualifiedAllocationExpression alloc;
 	AnonymousLocalTypeDeclaration anonymousType = 
@@ -2964,7 +2955,7 @@ protected void consumeInterfaceMemberDeclarationsopt() {
 }
 protected void consumeInterfaceType() {
 	// InterfaceType ::= ClassOrInterfaceType
-	pushOnAstStack(getTypeReference(intStack[intPtr--]));
+	pushOnAstStack(getTypeReference(0));
 	/* if incomplete type header, listLength counter will not have been reset,
 		indicating that some interfaces are available on the stack */
 	listLength++; 	
@@ -3615,55 +3606,6 @@ protected void consumePrimitiveType() {
 	// Type ::= PrimitiveType
 	pushOnIntStack(0);
 }
-protected void consumePrimitiveTypeArrayCreationExpressionWithInitializer() {
-	// ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
-	// ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
-
-	int length;
-	ArrayAllocationExpression aae = new ArrayAllocationExpression();
-	expressionLengthPtr -- ;
-	aae.initializer = (ArrayInitializer) expressionStack[expressionPtr--];
-		
-	aae.type = getTypeReference(0);
-	length = (expressionLengthStack[expressionLengthPtr--]);
-	expressionPtr -= length ;
-	System.arraycopy(
-		expressionStack,
-		expressionPtr+1,
-		aae.dimensions = new Expression[length],
-		0,
-		length);
-	aae.sourceStart = intStack[intPtr--];
-	if (aae.initializer == null) {
-		aae.sourceEnd = endPosition;
-	} else {
-		aae.sourceEnd = aae.initializer.sourceEnd ;
-	}
-	pushOnExpressionStack(aae);
-}
-protected void consumePrimitiveTypeArrayCreationExpressionWithoutInitializer() {
-	// ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
-	// ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
-
-	int length;
-	ArrayAllocationExpression aae = new ArrayAllocationExpression();
-	aae.type = getTypeReference(0);
-	length = (expressionLengthStack[expressionLengthPtr--]);
-	expressionPtr -= length ;
-	System.arraycopy(
-		expressionStack,
-		expressionPtr+1,
-		aae.dimensions = new Expression[length],
-		0,
-		length);
-	aae.sourceStart = intStack[intPtr--];
-	if (aae.initializer == null) {
-		aae.sourceEnd = endPosition;
-	} else {
-		aae.sourceEnd = aae.initializer.sourceEnd ;
-	}
-	pushOnExpressionStack(aae);
-}
 protected void consumePushModifiers() {
 	pushOnIntStack(modifiers); // modifiers
 	pushOnIntStack(modifiersSourceStart);
@@ -3682,7 +3624,7 @@ protected void consumeQualifiedName() {
 	identifierLengthStack[--identifierLengthPtr]++;
 }
 protected void consumeReferenceType() {
-	pushOnAstStack(getTypeReference(intStack[intPtr--]));	
+	pushOnIntStack(0); // handle array type
 }
 protected void consumeReferenceType1() {
 	pushOnAstStack(getTypeReference(intStack[intPtr--]));	
@@ -3708,12 +3650,8 @@ protected void consumeRule(int act) {
 		    consumePrimitiveType();  
 			break;
  
-    case 42 : if (DEBUG) { System.out.println("ClassOrInterfaceType ::= ClassOrInterface"); }  //$NON-NLS-1$
-		    consumeClassOrInterfaceType();   
-			break;
- 
-    case 43 : if (DEBUG) { System.out.println("ClassOrInterfaceType ::= ClassOrInterface TypeArguments"); }  //$NON-NLS-1$
-		    consumeClassOrInterfaceTypeWithTypeArguments();   
+    case 40 : if (DEBUG) { System.out.println("ReferenceType ::= ClassOrInterfaceType"); }  //$NON-NLS-1$
+		    consumeReferenceType();   
 			break;
  
     case 44 : if (DEBUG) { System.out.println("ClassOrInterface ::= Name"); }  //$NON-NLS-1$
@@ -4351,19 +4289,19 @@ protected void consumeRule(int act) {
 			break;
  
     case 329 : if (DEBUG) { System.out.println("ArrayCreationWithoutArrayInitializer ::= new..."); }  //$NON-NLS-1$
-		    consumePrimitiveTypeArrayCreationExpressionWithoutInitializer();  
+		    consumeArrayCreationExpressionWithoutInitializer();  
 			break;
  
     case 330 : if (DEBUG) { System.out.println("ArrayCreationWithArrayInitializer ::= new PrimitiveType"); }  //$NON-NLS-1$
-		    consumePrimitiveTypeArrayCreationExpressionWithInitializer();  
+		    consumeArrayCreationExpressionWithInitializer();  
 			break;
  
     case 331 : if (DEBUG) { System.out.println("ArrayCreationWithoutArrayInitializer ::= new..."); }  //$NON-NLS-1$
-		    consumeClassOrInterfaceTypeArrayCreationExpressionWithoutInitializer();  
+		    consumeArrayCreationExpressionWithoutInitializer();  
 			break;
  
     case 332 : if (DEBUG) { System.out.println("ArrayCreationWithArrayInitializer ::= new..."); }  //$NON-NLS-1$
-		    consumeClassOrInterfaceTypeArrayCreationExpressionWithInitializer();  
+		    consumeArrayCreationExpressionWithInitializer();  
 			break;
  
     case 334 : if (DEBUG) { System.out.println("DimWithOrWithOutExprs ::= DimWithOrWithOutExprs..."); }  //$NON-NLS-1$
@@ -4799,7 +4737,7 @@ protected void consumeRule(int act) {
 			break;
  
     case 496 : if (DEBUG) { System.out.println("TypeArgument ::= ReferenceType"); }  //$NON-NLS-1$
-		    consumeReferenceType();  
+		    consumeTypeArgument();  
 			break;
  
     case 500 : if (DEBUG) { System.out.println("ReferenceType1 ::= ReferenceType GREATER"); }  //$NON-NLS-1$
@@ -5950,6 +5888,9 @@ protected void consumeToken(int type) {
 			//  case TokenNameGREATER  :
 			//  case TokenNameLESS  :
 	}
+}
+protected void consumeTypeArgument() {
+	pushOnAstStack(getTypeReference(intStack[intPtr--]));	
 }
 protected void consumeTypeArgumentList() {
 	concatNodeLists();
