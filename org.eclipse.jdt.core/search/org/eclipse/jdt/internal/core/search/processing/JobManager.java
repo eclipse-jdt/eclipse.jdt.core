@@ -6,6 +6,9 @@ package org.eclipse.jdt.internal.core.search.processing;
  */
 import org.eclipse.core.runtime.*;
 
+import org.eclipse.jdt.core.IJavaModelStatus;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.search.Util;
 import java.io.*;
 import java.util.*;
@@ -280,38 +283,53 @@ public abstract class JobManager implements Runnable {
 
 		long idlingStart = -1;
 		activateProcessing();
-		while (true) {
-			try {
-				IJob job;
-				if ((job = currentJob()) == null) {
-					if (idlingStart < 0)
-						idlingStart = System.currentTimeMillis();
-					notifyIdle(System.currentTimeMillis() - idlingStart);
-					Thread.currentThread().sleep(500);
-					continue;
-				} else {
-					idlingStart = -1;
-				}
-				if (VERBOSE) {
-					JobManager.log(awaitingJobsCount() + " awaiting jobs"); //$NON-NLS-1$
-					JobManager.log("STARTING to execute - " + job); //$NON-NLS-1$
-				}
+		try {
+			while (true) {
 				try {
-					executing = true;
-					/*boolean status = */job.execute(null);
-					//if (status == FAILED) request(job);
-				} finally {
-					executing = false;
+					IJob job;
+					if ((job = currentJob()) == null) {
+						if (idlingStart < 0)
+							idlingStart = System.currentTimeMillis();
+						notifyIdle(System.currentTimeMillis() - idlingStart);
+						Thread.currentThread().sleep(500);
+						continue;
+					} else {
+						idlingStart = -1;
+					}
 					if (VERBOSE) {
-						JobManager.log("DONE executing - " + job); //$NON-NLS-1$
+						JobManager.log(awaitingJobsCount() + " awaiting jobs"); //$NON-NLS-1$
+						JobManager.log("STARTING to execute - " + job); //$NON-NLS-1$
 					}
-					moveToNextJob();
-					if (this.awaitingClients == 0) {
-						Thread.currentThread().sleep(50);
+					try {
+						executing = true;
+						/*boolean status = */job.execute(null);
+						//if (status == FAILED) request(job);
+					} finally {
+						executing = false;
+						if (VERBOSE) {
+							JobManager.log("DONE executing - " + job); //$NON-NLS-1$
+						}
+						moveToNextJob();
+						if (this.awaitingClients == 0) {
+							Thread.currentThread().sleep(50);
+						}
 					}
+				} catch (InterruptedException e) { // background indexing was interrupted
 				}
-			} catch (InterruptedException e) { // background indexing was interrupted
 			}
+		} catch (RuntimeException e) {
+			// log exception
+			JavaCore.getPlugin().getLog().log(
+				new JavaModelStatus(
+					IJavaModelStatus.ERROR,
+					e)
+			);
+			
+			// keep job manager alive
+			this.discardJobs(null);
+			this.thread = null;
+			this.reset(); // this will fork a new thread
+			throw e;
 		}
 	}
 	/**

@@ -421,6 +421,9 @@ public void shutdown() {
 		File[] indexesFiles = indexesDirectory.listFiles();
 		for (int i = 0, indexesFilesLength = indexesFiles.length; i < indexesFilesLength; i++) {
 			if (keepingIndexesPaths.get(indexesFiles[i].getAbsolutePath()) == null) {
+				if (VERBOSE) {
+					JobManager.log("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
+				}
 				indexesFiles[i].delete();
 			}
 		}
