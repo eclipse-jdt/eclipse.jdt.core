@@ -194,6 +194,66 @@ public void testGetParameterCount() {
 	methodSig = "<X:Qlist<Qstring;>;>(IQlist<Qstring;>;Tww;)Qlist<Qxxx;>;^Qexception;^Qerror;";
 	assertEquals("Signature#getParameterCount is not correct4", 3,
 			Signature.getParameterCount(methodSig));
+	
+	methodSig= "foo(+Ljava.lang.Comparable;)";
+	assertEquals("Signature#getParameterCount is not correct5", 1,
+			Signature.getParameterCount(methodSig));
+
+	methodSig= "foo(+Ljava.lang.Comparable;)";
+	assertEquals("Signature#getParameterCount is not correct6", 1,
+			Signature.getParameterCount(methodSig));
+	
+	methodSig= "foo(*)";
+	assertEquals("Signature#getParameterCount is not correct7", 1,
+			Signature.getParameterCount(methodSig));
+	
+	methodSig= "foo(LA<+Ljava.lang.Comparable;>;)";
+	assertEquals("Signature#getParameterCount is not correct8", 1,
+			Signature.getParameterCount(methodSig));
+
+	methodSig= "foo(LA<-Ljava.lang.Comparable;>;)";
+	assertEquals("Signature#getParameterCount is not correct9", 1,
+			Signature.getParameterCount(methodSig));
+
+	methodSig= "foo(LA<*>;)";
+	assertEquals("Signature#getParameterCount is not correct10", 1,
+			Signature.getParameterCount(methodSig));
+
+	methodSig= "foo(LA<+Ljava.lang.Comparable;+Ljava.lang.Comparable;>;)";
+	assertEquals("Signature#getParameterCount is not correct11", 1,
+			Signature.getParameterCount(methodSig));
+
+	methodSig= "foo(+Ljava.lang.Comparable;+Ljava.lang.Comparable;)";
+	assertEquals("Signature#getParameterCount is not correct12", 2,
+			Signature.getParameterCount(methodSig));
+
+	methodSig= "foo(+Ljava.lang.Comparable;-Ljava.lang.Comparable;)";
+	assertEquals("Signature#getParameterCount is not correct13", 2,
+			Signature.getParameterCount(methodSig));
+
+	methodSig= "foo(Ljava.util.List<-[Ljava.lang.Number;>;)";
+	assertEquals("Signature#getParameterCount is not correct14", 1,
+			Signature.getParameterCount(methodSig));
+	try {
+		Signature.getParameterCount("foo(LA<++Ljava.lang.Comparable;>;)");
+		assertTrue("Signature#getParameterCount is not correct: exception", false);
+	} catch (IllegalArgumentException iae) {
+		// do nothing
+	}
+
+	try {
+		Signature.getParameterCount("foo(LA<--Ljava.lang.Comparable;>;)");
+		assertTrue("Signature#getParameterCount is not correct: exception", false);
+	} catch (IllegalArgumentException iae) {
+		// do nothing
+	}
+
+	try {
+		Signature.getParameterCount("foo(LA<+-Ljava.lang.Comparable;>;)");
+		assertTrue("Signature#getParameterCount is not correct: exception", false);
+	} catch (IllegalArgumentException iae) {
+		// do nothing
+	}
 }
 /**
  * @see Signature
