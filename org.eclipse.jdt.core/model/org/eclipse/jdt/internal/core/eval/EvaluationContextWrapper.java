@@ -45,7 +45,7 @@ import org.eclipse.jdt.internal.eval.EvaluationContext;
 import org.eclipse.jdt.internal.eval.GlobalVariable;
 import org.eclipse.jdt.internal.eval.IRequestor;
 import org.eclipse.jdt.internal.eval.InstallException;
-
+
 /**
  * A wrapper around the infrastructure evaluation context. 
  */
@@ -138,13 +138,13 @@ public void evaluateCodeSnippet(
 	for (int i = 0; i < length; i++){
 		varTypeNames[i] = localVariableTypeNames[i].toCharArray();
 	}
-
+
 	length = localVariableNames.length;
 	char[][] varNames = new char[length][];
 	for (int i = 0; i < length; i++){
 		varNames[i] = localVariableNames[i].toCharArray();
 	}
-
+
 	// transfer the imports of the IType to the evaluation context
 	if (declaringType != null) {
 		// retrieves the package statement 

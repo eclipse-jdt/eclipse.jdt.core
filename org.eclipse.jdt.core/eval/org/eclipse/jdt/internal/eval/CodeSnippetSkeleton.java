@@ -87,7 +87,7 @@ public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 		public char[][] getArgumentNames() {
 			return null;
 		}
-
+
 }
 	
 /**

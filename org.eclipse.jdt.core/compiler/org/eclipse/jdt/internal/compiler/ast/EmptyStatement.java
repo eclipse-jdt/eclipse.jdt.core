@@ -32,4 +32,4 @@ public class EmptyStatement extends Statement {
 		return tabString(tab) + ";"; //$NON-NLS-1$ 
 	}
 }
-
+

@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.*;
-
+
 public abstract class Engine implements ITypeRequestor {
 	public LookupEnvironment lookupEnvironment;
 	
@@ -48,7 +48,7 @@ public abstract class Engine implements ITypeRequestor {
 		CompilationResult result = new CompilationResult(sourceUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit =
 			this.getParser().dietParse(sourceUnit, result);
-
+
 		lookupEnvironment.buildTypeBindings(parsedUnit);
 		lookupEnvironment.completeTypeBindings(parsedUnit, true);
 	}

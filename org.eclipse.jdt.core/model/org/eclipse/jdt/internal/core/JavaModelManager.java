@@ -579,7 +579,7 @@ public class JavaModelManager implements ISaveParticipant {
 				if(option != null) SearchEngine.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 			}
 	}
-	
+	
 
 	
 	/**
@@ -819,7 +819,7 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		if (root == null)
 			return null;
-
+
 		int end= memento.indexOf(JavaElement.JEM_COMPILATIONUNIT, rootEnd);
 		if (end == -1) {
 			end= memento.indexOf(JavaElement.JEM_CLASSFILE, rootEnd);
@@ -833,7 +833,7 @@ public class JavaModelManager implements ISaveParticipant {
 			//deal with class file and binary members
 			return model.getHandleFromMementoForBinaryMembers(memento, root, rootEnd, end);
 		}
-
+
 		//deal with compilation units and source members
 		return model.getHandleFromMementoForSourceMembers(memento, root, rootEnd, end);
 	}
@@ -920,7 +920,7 @@ public class JavaModelManager implements ISaveParticipant {
 				&& (zipFile = (ZipFile)map.get(path)) != null) {
 				
 			return zipFile;
-		}
+		}
 		String fileSystemPath= null;
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource file = root.findMember(path);

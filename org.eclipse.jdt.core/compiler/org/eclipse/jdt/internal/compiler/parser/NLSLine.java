@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
-
+
 public class NLSLine {
 	private List elements;
-
+
 	public NLSLine() {
 		this.elements = new ArrayList();
 	}
