@@ -1477,6 +1477,7 @@ class ASTConverter {
 	
 	public Statement convert(org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall statement) {
 		Statement newStatement;
+		int sourceStart = statement.sourceStart;
 		if (statement.isSuperAccess() || statement.isSuper()) {
 			SuperConstructorInvocation superConstructorInvocation = this.ast.newSuperConstructorInvocation();
 			if (statement.qualification != null) {
@@ -1490,6 +1491,7 @@ class ASTConverter {
 				}
 			}
 			if (statement.typeArguments != null) {
+				sourceStart = statement.typeArgumentsSourceStart;
 				switch(this.ast.apiLevel) {
 					case AST.JLS2 :
 						superConstructorInvocation.setFlags(superConstructorInvocation.getFlags() | ASTNode.MALFORMED);
@@ -1498,6 +1500,7 @@ class ASTConverter {
 						for (int i = 0, max = statement.typeArguments.length; i < max; i++) {
 							superConstructorInvocation.typeArguments().add(convertType(statement.typeArguments[i]));
 						}
+						break;
 				}
 			}
 			newStatement = superConstructorInvocation;
@@ -1511,6 +1514,7 @@ class ASTConverter {
 				}
 			}
 			if (statement.typeArguments != null) {
+				sourceStart = statement.typeArgumentsSourceStart;
 				switch(this.ast.apiLevel) {
 					case AST.JLS2 :
 						constructorInvocation.setFlags(constructorInvocation.getFlags() | ASTNode.MALFORMED);
@@ -1519,11 +1523,12 @@ class ASTConverter {
 						for (int i = 0, max = statement.typeArguments.length; i < max; i++) {
 							constructorInvocation.typeArguments().add(convertType(statement.typeArguments[i]));
 						}
+					break;
 				}
 			}
 			newStatement = constructorInvocation;
 		}
-		newStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
+		newStatement.setSourceRange(sourceStart, statement.sourceEnd - sourceStart + 1);
 		retrieveSemiColonPosition(newStatement);
 		if (this.resolveBindings) {
 			recordNodes(newStatement, statement);
@@ -1935,6 +1940,19 @@ class ASTConverter {
 					superMethodInvocation.arguments().add(expri);
 				}
 			}
+			final TypeReference[] typeArguments = expression.typeArguments;
+			if (typeArguments != null) {
+				switch(this.ast.apiLevel) {
+					case AST.JLS2 :
+						superMethodInvocation.setFlags(superMethodInvocation.getFlags() | ASTNode.MALFORMED);
+						break;
+					case AST.JLS3 :
+						for (int i = 0, max = typeArguments.length; i < max; i++) {
+							superMethodInvocation.typeArguments().add(convertType(typeArguments[i]));
+						}
+						break;
+				}
+			}
 			expr = superMethodInvocation;
 		} else {
 			// returns a MethodInvocation
@@ -1978,6 +1996,19 @@ class ASTConverter {
 			methodInvocation.setExpression(qualifier);
 			if (qualifier != null) {
 				sourceStart = qualifier.getStartPosition();
+			}
+			final TypeReference[] typeArguments = expression.typeArguments;
+			if (typeArguments != null) {
+				switch(this.ast.apiLevel) {
+					case AST.JLS2 :
+						methodInvocation.setFlags(methodInvocation.getFlags() | ASTNode.MALFORMED);
+						break;
+					case AST.JLS3 :
+						for (int i = 0, max = typeArguments.length; i < max; i++) {
+							methodInvocation.typeArguments().add(convertType(typeArguments[i]));
+						}
+						break;
+				}
 			}
 			expr = methodInvocation;
 		}

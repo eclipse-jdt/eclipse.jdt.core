@@ -32,12 +32,14 @@ import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IExtendedModifier;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -73,7 +75,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0034"));
+		suite.addTest(new ASTConverter15Test("test0030"));
 		return suite;
 	}
 		
@@ -979,7 +981,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
 	}
 	
-	public void _test0030() throws JavaModelException {
+	/**
+	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=67790
+	 */
+	public void test0030() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0030", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runJLS3Conversion(sourceUnit, false, true);
@@ -1046,6 +1051,29 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+	}
+	
+	/**
+	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=67790
+	 */
+	public void test0036() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0036", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runJLS3Conversion(sourceUnit, false, true);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		checkSourceRange(expressionStatement, "this.<X>foo();", source);		
+		Expression expression = expressionStatement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		checkSourceRange(methodInvocation, "this.<X>foo()", source);
+		List typeArguments = methodInvocation.typeArguments();
+		assertEquals("Wrong size", 1, typeArguments.size());
 	}
 }
 

@@ -1398,6 +1398,15 @@ protected void consumeBinaryExpression(int op) {
 						op);
 			}
 			break;
+		case LESS :
+			// TODO (olivier) bug 67790 remove once DOMParser is activated
+			this.intPtr--;
+			this.expressionStack[this.expressionPtr] = 
+				new BinaryExpression(
+					expr1, 
+					expr2, 
+					op);
+			break;
 		default :
 			this.expressionStack[this.expressionPtr] = 
 				new BinaryExpression(
@@ -1509,6 +1518,15 @@ protected void consumeBinaryExpressionWithName(int op) {
 						op);
 			}
 			break;
+		case LESS :
+			// TODO (olivier) bug 67790 remove once DOMParser is activated
+			this.intPtr--;
+			this.expressionStack[this.expressionPtr] = 
+				new BinaryExpression(
+					expr1, 
+					expr2, 
+					op);
+			break;
 		default :
 			this.expressionStack[this.expressionPtr] = 
 				new BinaryExpression(
@@ -1582,6 +1600,8 @@ protected void consumeCastExpressionWithGenericsArray() {
 	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
 	
 	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr], castType = getTypeReference(dim));
+	// TODO (olivier) bug 67790 remove once DOMParser is activated
+	intPtr--;
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = (cast.sourceStart = this.intStack[this.intPtr--]) + 1;
 	cast.sourceEnd = exp.sourceEnd;
@@ -1682,7 +1702,8 @@ protected void consumeCastExpressionWithQualifiedGenericsArray() {
 	TypeReference rightSide = getTypeReference(0);
 	
 	ParameterizedQualifiedTypeReference qualifiedParameterizedTypeReference = computeQualifiedGenericsFromRightSide(rightSide, dim);
-
+	// TODO (olivier) bug 67790 remove once DOMParser is activated
+	intPtr--;
 	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr], castType = qualifiedParameterizedTypeReference);
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = (cast.sourceStart = this.intStack[this.intPtr--]) + 1;
@@ -1971,6 +1992,8 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 		length = this.genericsLengthStack[this.genericsLengthPtr--];
 		this.genericsPtr -= length;
 		System.arraycopy(this.genericsStack, this.genericsPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
+		// TODO  (olivier) bug 67790 remove once DOMParser is activated
+		intPtr--;
 
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
@@ -2032,6 +2055,8 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 		length = this.genericsLengthStack[this.genericsLengthPtr--];
 		this.genericsPtr -= length;
 		System.arraycopy(this.genericsStack, this.genericsPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
+		// TODO (olivier) bug 67790 remove once DOMParser is activated
+		intPtr--;
 		
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
@@ -3037,6 +3062,8 @@ protected void consumeExplicitConstructorInvocationWithTypeArguments(int flag, i
 	length = this.genericsLengthStack[this.genericsLengthPtr--];
 	this.genericsPtr -= length;
 	System.arraycopy(this.genericsStack, this.genericsPtr + 1, ecc.typeArguments = new TypeReference[length], 0, length);
+	// TODO (olivier) bug 67790 remove once DOMParser is activated
+	ecc.typeArgumentsSourceStart = this.intStack[intPtr--];
 
 	switch (flag) {
 		case 0 :
@@ -3853,6 +3880,8 @@ protected void consumeMethodInvocationNameWithTypeArguments() {
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	this.genericsPtr -= length;
 	System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
+	// TODO (olivier) bug 67790 remove once DOMParser is activated
+	intPtr--;
 	
 	m.receiver = getUnspecifiedReference();
 	m.sourceStart = m.receiver.sourceStart;		
@@ -3886,6 +3915,8 @@ protected void consumeMethodInvocationPrimaryWithTypeArguments() {
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	this.genericsPtr -= length;
 	System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
+	// TODO (olivier) bug 67790 remove once DOMParser is activated
+	intPtr--;
 
 	m.receiver = this.expressionStack[this.expressionPtr];
 	m.sourceStart = m.receiver.sourceStart;
@@ -3918,6 +3949,8 @@ protected void consumeMethodInvocationSuperWithTypeArguments() {
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	this.genericsPtr -= length;
 	System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
+	// TODO (olivier) bug 67790 remove once DOMParser is activated
+	intPtr--;
 
 	m.receiver = new SuperReference(m.sourceStart, this.endPosition);
 	pushOnExpressionStack(m);
@@ -6617,6 +6650,10 @@ protected void consumeToken(int type) {
 			pushOnIntStack(this.scanner.startPosition);
 			pushOnIntStack(this.scanner.currentPosition - 1);
 			break;
+		// TODO (olivier) bug 67790 remove once DOMParser is activated
+		case TokenNameLESS :
+			pushOnIntStack(this.scanner.startPosition);
+			break;
 			//  case TokenNameCOMMA :
 			//  case TokenNameCOLON  :
 			//  case TokenNameEQUAL  :
@@ -6659,7 +6696,6 @@ protected void consumeToken(int type) {
 			//  case TokenNameOR  :
 			//  case TokenNameDIVIDE :
 			//  case TokenNameGREATER  :
-			//  case TokenNameLESS  :
 	}
 }
 protected void consumeTypeArgument() {
@@ -6680,13 +6716,20 @@ protected void consumeTypeArgumentList3() {
 protected void consumeTypeArgumentReferenceType1() {
 	concatGenericsLists();
 	pushOnGenericsStack(getTypeReference(0));	
+	// TODO (olivier) bug 67790 remove once DOMParser is activated
+	intPtr--;
 }
 protected void consumeTypeArgumentReferenceType2() {
 	concatGenericsLists();
 	pushOnGenericsStack(getTypeReference(0));	
+	// TODO (olivier) bug 67790 remove once DOMParser is activated
+	intPtr--;
 }
 protected void consumeTypeArguments() {
 	concatGenericsLists();
+	// TODO (olivier) bug 67790 remove once DOMParser is activated
+	intPtr--;
+
 	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		int length = this.genericsLengthStack[this.genericsLengthPtr];
@@ -6784,6 +6827,8 @@ protected void consumeTypeParameterList1() {
 	concatGenericsLists();
 }
 protected void consumeTypeParameters() {
+	// TODO (olivier) bug 67790 remove once DOMParser is activated
+	intPtr--;
 	if(options.sourceLevel < ClassFileConstants.JDK1_5&&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		int length = this.genericsLengthStack[this.genericsLengthPtr];

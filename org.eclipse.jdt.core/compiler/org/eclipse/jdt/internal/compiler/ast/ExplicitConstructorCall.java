@@ -32,6 +32,9 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 
 	public VariableBinding[][] implicitArguments;
 	boolean discardEnclosingInstance;
+	
+	// TODO Remove once DOMParser is activated
+	public int typeArgumentsSourceStart;
 
 	public ExplicitConstructorCall(int accessMode) {
 		this.accessMode = accessMode;
