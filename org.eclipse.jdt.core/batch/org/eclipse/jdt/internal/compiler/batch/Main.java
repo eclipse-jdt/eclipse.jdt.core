@@ -16,7 +16,9 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -42,6 +44,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class Main implements ProblemSeverities {
 
@@ -329,7 +332,10 @@ public class Main implements ProblemSeverities {
 					} else {
 						if (count == arguments.length)
 							System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
-						arguments[count++] = token;
+						String trimmedToken = token.trim();
+						if (trimmedToken.length() != 0) {
+							arguments[count++] = trimmedToken;
+						}
 					}
 				}
 				startNewToken = false;
@@ -344,8 +350,10 @@ public class Main implements ProblemSeverities {
 	 */
 	public void configure(String[] argv) throws InvalidInputException {
 		
-		if ((argv == null) || (argv.length == 0))
-			throw new InvalidInputException(Main.bind("configure.noSourceFile")); //$NON-NLS-1$
+		if ((argv == null) || (argv.length == 0)) {
+			printUsage();
+			return;
+		}
 		final int InsideClasspath = 1;
 		final int InsideDestinationPath = 2;
 		final int TargetSetting = 4;
@@ -372,6 +380,54 @@ public class Main implements ProblemSeverities {
 		String customEncoding = null;
 		String currentArg = ""; //$NON-NLS-1$
 
+		// expand the command line if necessary
+		boolean needExpansion = false;
+		loop: for (int i = 0; i < argCount; i++) {
+				if (argv[i].startsWith("@")) {
+					needExpansion = true;
+					break loop;
+				}
+		}
+
+		String[] newCommandLineArgs = null;
+		if (needExpansion) {
+			newCommandLineArgs = new String[argCount];
+			index = 0;
+			for (int i = 0; i < argCount; i++) {
+				String[] newArgs = null;
+				String arg = argv[i].trim();
+				if (arg.startsWith("@")) {
+					try {
+						LineNumberReader reader = new LineNumberReader(new StringReader(new String(Util.getFileCharContent(new File(arg.substring(1)), null))));
+						StringBuffer buffer = new StringBuffer();
+						String line;
+						while((line = reader.readLine()) != null) {
+							buffer.append(line).append(" ");
+						}
+						newArgs = tokenize(buffer.toString());
+					} catch(IOException e) {
+						throw new InvalidInputException(
+							Main.bind("configure.invalidexpansionargumentname", arg)); //$NON-NLS-1$
+					}
+				}
+				if (newArgs != null) {
+					int newCommandLineArgsLength = newCommandLineArgs.length;
+					int newArgsLength = newArgs.length;
+					System.arraycopy(newCommandLineArgs, 0, (newCommandLineArgs = new String[newCommandLineArgsLength + newArgsLength - 1]), 0, index);
+					System.arraycopy(newArgs, 0, newCommandLineArgs, index, newArgsLength);
+					index += newArgsLength;
+				} else {
+					newCommandLineArgs[index++] = arg;
+				}
+			}
+			index = -1;
+		} else {
+			newCommandLineArgs = argv;
+			for (int i = 0; i < argCount; i++) {
+				newCommandLineArgs[i] = newCommandLineArgs[i].trim();
+			}
+		}
+		argCount = newCommandLineArgs.length;
 		while (++index < argCount) {
 
 			if (customEncoding != null) {
@@ -379,7 +435,7 @@ public class Main implements ProblemSeverities {
 					Main.bind("configure.unexpectedCustomEncoding", currentArg, customEncoding)); //$NON-NLS-1$
 			}
 
-			currentArg = argv[index].trim();
+			currentArg = newCommandLineArgs[index];
 
 			customEncoding = null;
 			if (currentArg.endsWith("]")) { //$NON-NLS-1$ 
@@ -1074,8 +1130,10 @@ public class Main implements ProblemSeverities {
 			destinationPath = null;
 		}
 
-		if (filenames == null)
-			throw new InvalidInputException(Main.bind("configure.noSource")); //$NON-NLS-1$
+		if (filenames == null) {
+			printUsage();
+			return;
+		}
 
 		// target must be 1.4 if source is 1.4
 		if (options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)
