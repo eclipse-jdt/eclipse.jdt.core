@@ -86,9 +86,11 @@ public interface IFieldInfo {
 	boolean hasConstantValueAttribute();
 
 	/**
-	 * Return true if the field info has a synthetic attribute, false otherwise.
+	 * Return true if the field info has a synthetic attribute or if the
+	 * AccSynthetic flag is set, false otherwise.
 	 * 
-	 * @return true if the field info has a synthetic attribute, false otherwise
+	 * @return true if the field info has a synthetic attribute or if the
+	 * AccSynthetic flag is set, false otherwise
 	 */
 	boolean isSynthetic();
 
