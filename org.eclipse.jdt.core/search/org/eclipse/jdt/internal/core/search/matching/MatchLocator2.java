@@ -66,7 +66,7 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 	boolean compilationAborted;
 */
 	public PotentialMatchSet potentialMatches;
-	
+
 	public int parseThreshold = -1;
 	public CompilerOptions options;
 	
@@ -77,11 +77,6 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 	
 	public PotentialMatch currentPotentialMatch;
 	
-	/*
-	 * Time spent in the IJavaSearchResultCollector
-	 */
-	public long resultCollectorTime = 0;
-
 	public MatchLocator2(
 		SearchPattern pattern,
 		int detailLevel,
@@ -1033,19 +1028,12 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 		int accuracy)
 		throws CoreException {
 
-		long start = -1;
-		if (SearchEngine.VERBOSE) {
-			start = System.currentTimeMillis();
-		}
 		this.collector.accept(
 			resource,
 			sourceStart,
 			sourceEnd + 1,
 			element,
 			accuracy);
-		if (SearchEngine.VERBOSE) {
-			this.resultCollectorTime += System.currentTimeMillis()-start;
-		}
 	}
 	/**
 	 * Finds the accurate positions of the sequence of tokens given by qualifiedName
