@@ -716,6 +716,8 @@ private boolean hasStructuralFieldChanges(FieldInfo currentFieldInfo, FieldInfo 
 				return currentConstant.shortValue() != otherConstant.shortValue();
 			case TypeIds.T_char :
 				return currentConstant.charValue() != otherConstant.charValue();
+			case TypeIds.T_long :
+				return currentConstant.longValue() != otherConstant.longValue();
 			case TypeIds.T_float :
 				return currentConstant.floatValue() != otherConstant.floatValue();
 			case TypeIds.T_double :
