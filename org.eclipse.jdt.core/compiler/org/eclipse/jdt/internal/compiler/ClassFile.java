@@ -2880,19 +2880,6 @@ public class ClassFile
 		contentsOffset += 12;
 	}
 
-	/**
-	 * @param attributeOffset
-	 */
-	private void generateElementValue(Expression defaultValue, int attributeOffset) {
-		Constant constant = defaultValue.constant;
-		if (constant != null && constant != Constant.NotAConstant) {
-			generateElementValue(attributeOffset, defaultValue, constant);
-		} else {
-			TypeBinding defaultValueBinding = defaultValue.resolvedType;
-			generateElementValueForNonConstantExpression(defaultValue, attributeOffset, defaultValueBinding);
-		}
-	}
-
 	private void generateElementValue(
 			Expression defaultValue,
 			TypeBinding memberValuePairReturnType,
@@ -2912,7 +2899,7 @@ public class ClassFile
 				contents[contentsOffset++] = (byte) 1;
 			}
 			if (constant != null && constant != Constant.NotAConstant) {
-				generateElementValue(attributeOffset, defaultValue, constant);
+				generateElementValue(attributeOffset, defaultValue, constant, memberValuePairReturnType.leafComponentType());
 			} else {
 				generateElementValueForNonConstantExpression(defaultValue, attributeOffset, defaultValueBinding);
 			}
@@ -2922,11 +2909,11 @@ public class ClassFile
 	/**
 	 * @param attributeOffset
 	 */
-	private void generateElementValue(int attributeOffset, Expression defaultValue, Constant constant) {
+	private void generateElementValue(int attributeOffset, Expression defaultValue, Constant constant, TypeBinding binding) {
 		if (contentsOffset + 3 >= this.contents.length) {
 			resizeContents(3);
 		}
-		switch (constant.typeID()) {
+		switch (binding.id) {
 			case T_boolean :
 				contents[contentsOffset++] = (byte) 'Z';
 				int booleanValueIndex =
@@ -3046,7 +3033,7 @@ public class ClassFile
 					contents[contentsOffset++] = (byte) (arrayLength >> 8);
 					contents[contentsOffset++] = (byte) arrayLength;
 					for (int i = 0; i < arrayLength; i++) {
-						generateElementValue(arrayInitializer.expressions[i], attributeOffset);
+						generateElementValue(arrayInitializer.expressions[i], defaultValueBinding.leafComponentType(), attributeOffset);
 					}
 				} else {
 					contentsOffset = attributeOffset;
@@ -3214,7 +3201,7 @@ public class ClassFile
 			int attributeLengthOffset = contentsOffset;
 			contentsOffset += 4;
 
-			generateElementValue(declaration.defaultValue, attributeOffset);
+			generateElementValue(declaration.defaultValue, declaration.binding.returnType, attributeOffset);
 			if (contentsOffset != attributeOffset) {
 				int attributeLength = contentsOffset - attributeLengthOffset - 4;
 				contents[attributeLengthOffset++] = (byte) (attributeLength >> 24);

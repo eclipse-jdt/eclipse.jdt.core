@@ -14,7 +14,6 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -137,14 +136,6 @@ public class MemberValuePair extends ASTNode {
 	}
 	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		if (visitor.visit(this, scope)) {
-			if (this.value != null) {
-				this.value.traverse(visitor, scope);
-			}
-		}
-		visitor.endVisit(this, scope);
-	}
-	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.value != null) {
 				this.value.traverse(visitor, scope);

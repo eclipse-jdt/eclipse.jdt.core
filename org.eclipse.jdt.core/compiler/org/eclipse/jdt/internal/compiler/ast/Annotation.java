@@ -96,6 +96,5 @@ public abstract class Annotation extends Expression {
 	}
 	
 	public abstract void traverse(ASTVisitor visitor, BlockScope scope);
-	public abstract void traverse(ASTVisitor visitor, ClassScope scope);
 	public abstract void traverse(ASTVisitor visitor, CompilationUnitScope scope);
 }
