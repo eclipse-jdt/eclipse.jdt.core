@@ -620,7 +620,7 @@ public void resolve(IGenericType[] suppliedTypes, org.eclipse.jdt.core.ICompilat
 					if (localType) {
 						parser.getMethodBodies(parsedUnit);
 					}
-					this.lookupEnvironment.completeTypeBindings(parsedUnit, localType);
+					this.lookupEnvironment.completeTypeBindings(parsedUnit, true); // TODO (jerome) build fields and methods only for super types of local types
 				} catch (AbortCompilation e) {
 					// classpath problem for this type: ignore
 				}
