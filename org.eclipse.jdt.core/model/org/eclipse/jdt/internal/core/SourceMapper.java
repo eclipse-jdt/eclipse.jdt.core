@@ -296,7 +296,7 @@ public class SourceMapper
 		this.rootPaths = new HashSet();
 		long time = 0;
 		if (VERBOSE) {
-			System.out.println("compute all root paths for " + root.getElementName());
+			System.out.println("compute all root paths for " + root.getElementName()); //$NON-NLS-1$
 			time = System.currentTimeMillis();
 		}
 		final HashSet firstLevelPackageNames = new HashSet();
@@ -402,8 +402,8 @@ public class SourceMapper
 			}
 		}
 		if (VERBOSE) {
-			System.out.println("Found " + this.rootPaths.size() + " root paths");			
-			System.out.println("Spent " + (System.currentTimeMillis() - time) + "ms");
+			System.out.println("Found " + this.rootPaths.size() + " root paths");	//$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println("Spent " + (System.currentTimeMillis() - time) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		this.areRootPathsComputed = true;
 	}
@@ -832,7 +832,7 @@ public class SourceMapper
 			}
 		}
 		if (VERBOSE) {
-			System.out.println("spent " + (System.currentTimeMillis() - time) + "ms for " + type.getElementName());
+			System.out.println("spent " + (System.currentTimeMillis() - time) + "ms for " + type.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return source;
 	}
