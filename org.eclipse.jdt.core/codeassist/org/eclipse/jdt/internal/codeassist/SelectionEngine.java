@@ -289,8 +289,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					}
 					currentPosition--;
 				}
-			}
-			catch (ArrayIndexOutOfBoundsException e) {
+			} catch (ArrayIndexOutOfBoundsException e) {
 				return false;
 			}
 			
