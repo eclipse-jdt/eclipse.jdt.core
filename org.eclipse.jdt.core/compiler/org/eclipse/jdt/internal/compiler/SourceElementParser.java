@@ -556,26 +556,29 @@ private void notifyAllUnknownReferences() {
 	for (int i = 0, max = this.unknownRefsCounter; i < max; i++) {
 		NameReference nameRef = this.unknownRefs[i];
 		if ((nameRef.bits & BindingIds.VARIABLE) != 0) {
-			if ((nameRef.bits & BindingIds.FIELD) != 0) {
-				if (nameRef instanceof SingleNameReference) {
-					requestor.acceptFieldReference(((SingleNameReference) nameRef).token, nameRef.sourceStart());
+			if ((nameRef.bits & BindingIds.TYPE) == 0) { 
+				// variable but not type
+				if (nameRef instanceof SingleNameReference) { 
+					// local var or field
+					requestor.acceptUnknownReference(((SingleNameReference) nameRef).token, nameRef.sourceStart());
 				} else {
-					// it is a QualifiedNameReference
-					// The last token is a field reference and the previous tokens are a type reference
+					// QualifiedNameReference
+					// The last token is a field reference and the previous tokens are a type/variable references
 					char[][] tokens = ((QualifiedNameReference) nameRef).tokens;
 					int tokensLength = tokens.length;
 					requestor.acceptFieldReference(tokens[tokensLength - 1], nameRef.sourceEnd() - tokens[tokensLength - 1].length + 1);
 					char[][] typeRef = new char[tokensLength - 1][];
 					System.arraycopy(tokens, 0, typeRef, 0, tokensLength - 1);
-					requestor.acceptTypeReference(typeRef, nameRef.sourceStart(), nameRef.sourceEnd() - tokens[tokensLength - 1].length);
+					requestor.acceptUnknownReference(typeRef, nameRef.sourceStart(), nameRef.sourceEnd() - tokens[tokensLength - 1].length);
 				}
 			} else {
+				// variable or type
 				if (nameRef instanceof SingleNameReference) {
 					requestor.acceptUnknownReference(((SingleNameReference) nameRef).token, nameRef.sourceStart());
 				} else {
-				// it is a QualifiedNameReference
-				requestor.acceptUnknownReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart(), nameRef.sourceEnd());
-			}
+					//QualifiedNameReference
+					requestor.acceptUnknownReference(((QualifiedNameReference) nameRef).tokens, nameRef.sourceStart(), nameRef.sourceEnd());
+				}
 			}
 		} else if ((nameRef.bits & BindingIds.TYPE) != 0) {
 			if (nameRef instanceof SingleNameReference) {
