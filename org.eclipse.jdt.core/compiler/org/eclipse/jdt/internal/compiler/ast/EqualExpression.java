@@ -95,10 +95,8 @@ public final boolean areTypesCastCompatible(BlockScope scope, TypeBinding castTb
 			return false;
 		}
 
-		//===houps=====
 		return false;
 	}
-
 
 	//------------(castType) null--------------
 	if (expressionTb == NullBinding) {
@@ -141,7 +139,6 @@ public final boolean areTypesCastCompatible(BlockScope scope, TypeBinding castTb
 			}
 		}
 
-		//=========houps=============
 		return false;
 	}
 	if (expressionTb.isInterface()) {
@@ -188,12 +185,9 @@ public final boolean areTypesCastCompatible(BlockScope scope, TypeBinding castTb
 			return true;
 		}
 
-
-		//=========hoops===========	
 		return false;
 	}
 
-	//==========HOUPS==========
 	return false;
 }
 public final void computeConstant(TypeBinding leftTb, TypeBinding rightTb) {
@@ -201,7 +195,7 @@ public final void computeConstant(TypeBinding leftTb, TypeBinding rightTb) {
 		constant =
 			Constant.computeConstantOperationEQUAL_EQUAL(
 				left.constant,
-				rightTb.id,
+				leftTb.id,
 				EQUAL_EQUAL,
 				right.constant,
 				rightTb.id);
