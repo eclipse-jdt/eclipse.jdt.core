@@ -85,7 +85,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0071"));
+		suite.addTest(new ASTConverter15Test("test0081"));
 		return suite;
 	}
 		
@@ -2247,5 +2247,125 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		arrayType = (ArrayType) type;
 		type = arrayType.getComponentType();
 		checkSourceRange(type, "java.util.Map<String, Double>", source);
+	}
+	
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79460
+	 */
+	public void test0078() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p;\n" +
+				"public class X<T> {\n" +
+				"  String foo(int i) { return /*start*/Integer.toString(i)/*end*/;}" +
+				"}",
+				workingCopy);
+			IMethodBinding methodBinding = ((MethodInvocation) node).resolveMethodBinding();
+			assertFalse("Is a raw method", methodBinding.isRawMethod());
+			assertFalse("Is a parameterized method", methodBinding.isParameterizedMethod());
+			assertFalse("Is a generic method", methodBinding.isGenericMethod());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79460
+	 */
+	public void test0079() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p;\n" +
+				"public class X {\n" + 
+				"	\n" + 
+				"	/*start*/<T extends A> T foo(T t) {\n" + 
+				"		return t;\n" + 
+				"	}/*end*/\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().bar();\n" + 
+				"	}\n" + 
+				"	void bar() {\n" + 
+				"		B b = foo(new B());\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class A {}\n" + 
+				"class B extends A {}\n",
+				workingCopy);
+			IMethodBinding methodBinding = ((MethodDeclaration) node).resolveBinding();
+			assertFalse("Is a raw method", methodBinding.isRawMethod());
+			assertFalse("Is a parameterized method", methodBinding.isParameterizedMethod());
+			assertTrue("Not a generic method", methodBinding.isGenericMethod());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}	
+	
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79460
+	 */
+	public void test0080() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p;\n" +
+				"public class X {\n" + 
+				"	\n" + 
+				"	<T extends A> T foo(T t) {\n" + 
+				"		return t;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().bar();\n" + 
+				"	}\n" + 
+				"	void bar() {\n" + 
+				"		B b = /*start*/foo(new B())/*end*/;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class A {}\n" + 
+				"class B extends A {}\n",
+				workingCopy);
+			IMethodBinding methodBinding = ((MethodInvocation) node).resolveMethodBinding();
+			assertFalse("Is a raw method", methodBinding.isRawMethod());
+			assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
+			assertFalse("Is a generic method", methodBinding.isGenericMethod());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}	
+	
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79460
+	 */
+	public void test0081() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0081", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		String expectedOutput = "Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized";
+		assertProblemsSize(compilationUnit, 1, expectedOutput);
+		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not an method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+		assertEquals("Wrong name", "foo", methodBinding.getName());
+		assertTrue("Not a raw method", methodBinding.isRawMethod());
+		assertFalse("Is a parameterized method", methodBinding.isParameterizedMethod());
+		assertFalse("Is a generic method", methodBinding.isGenericMethod());
 	}
 }
