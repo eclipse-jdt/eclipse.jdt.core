@@ -137,9 +137,9 @@ protected void addAffectedSourceFiles() {
 						System.out.println("  adding affected source file " + location); //$NON-NLS-1$
 					locations.add(location);
 					for (int j = 0, k = sourceFolders.length; j < k; j++) {
-						String sourceLocation = sourceFolders[j].getLocation().toString();
+						String sourceLocation = sourceFolders[j].getLocation().toString() + '/';
 						if (location.startsWith(sourceLocation)) {
-							typeNames.add(location.substring(sourceLocation.length() + 1, location.length() - 5)); // length of ".java"
+							typeNames.add(location.substring(sourceLocation.length(), location.length() - 5)); // length of ".java"
 							continue next;
 						}
 					}
