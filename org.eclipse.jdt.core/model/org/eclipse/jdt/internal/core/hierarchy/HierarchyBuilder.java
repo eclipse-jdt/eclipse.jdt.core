@@ -4,16 +4,25 @@ package org.eclipse.jdt.internal.core.hierarchy;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
@@ -26,23 +35,19 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 	 * The hierarchy being built.
 	 */
 	protected TypeHierarchy hierarchy;
-
 	/**
 	 * The name environment used by the HierarchyResolver
 	 */
 	protected SearchableEnvironment searchableEnvironment;
-
 	/**
 	 * @see NameLookup
 	 */
 	protected NameLookup nameLookup;
-
 	/**
 	 * The resolver used to resolve type hierarchies
 	 * @see HierarchyResolver
 	 */
 	protected HierarchyResolver hierarchyResolver;
-
 	/**
 	 * A temporary cache of infos to handles to speed info
 	 * to handle translation - it only contains the entries
@@ -50,7 +55,6 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 	 * the region).
 	 */
 	protected Map infoToHandle;
-
 	public HierarchyBuilder(TypeHierarchy hierarchy) throws JavaModelException {
 		
 		this.hierarchy = hierarchy;
@@ -69,16 +73,13 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 	
 	public abstract void build(boolean computeSubtypes)
 		throws JavaModelException, CoreException;
-
 	/**
 	 * Configure this type hierarchy by computing the supertypes only.
 	 */
 	protected void buildSupertypes() {
-
 		IType focusType = this.getType();
 		if (focusType == null)
 			return;
-
 		// get generic type from focus type
 		IGenericType type;
 		try {
@@ -88,11 +89,10 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 			// we cannot create the hierarchy
 			return;
 		}
-
 		//NB: no need to set focus type on hierarchy resolver since no other type is injected
 		//    in the hierarchy resolver, thus there is no need to check that a type is 
 		//    a sub or super type of the focus type.
-		ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
+		org.eclipse.jdt.core.ICompilationUnit unitToLookInside = focusType.getCompilationUnit();
 		if (nameLookup != null && unitToLookInside != null) {
 			synchronized(nameLookup) { // prevent 2 concurrent accesses to name lookup while the working copies are set
 				try {
@@ -107,7 +107,6 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 			// resolve
 			this.hierarchyResolver.resolve(type);
 		}
-
 		// Add focus if not already in (case of a type with no explicit super type)
 		if (!this.hierarchy.contains(focusType)) {
 			this.hierarchy.addRootClass(focusType);
@@ -120,18 +119,14 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		IGenericType suppliedType,
 		IGenericType superclass,
 		IGenericType[] superinterfaces) {
-
 		this.worked(1);
-
 		// convert all infos to handles
 		IType typeHandle = getHandle(suppliedType);
-
 		/*
 		 * Temporary workaround for 1G2O5WK: ITPJCORE:WINNT - NullPointerException when selecting "Show in Type Hierarchy" for a inner class
 		 */
 		if (typeHandle == null)
 			return;
-
 		IType superHandle = null;
 		if (superclass != null) {
 			if (superclass instanceof HierarchyResolver.MissingType) {
@@ -166,7 +161,6 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 				0,
 				index);
 		}
-
 		if (TypeHierarchy.DEBUG) {
 			System.out.println(
 				"Connecting: " + ((JavaElement) typeHandle).toStringWithAncestors()); //$NON-NLS-1$
@@ -189,7 +183,6 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 				}
 			}
 		}
-
 		// now do the caching
 		if (suppliedType.isClass()) {
 			if (superHandle == null) {
@@ -200,18 +193,15 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		} else {
 			this.hierarchy.addInterface(typeHandle);
 		}
-
 		if (interfaceHandles == null) {
 			interfaceHandles = this.hierarchy.NO_TYPE;
 		}
 		this.hierarchy.cacheSuperInterfaces(typeHandle, interfaceHandles);
 	}
-
 	/**
 	 * Returns a handle for the given generic type or null if not found.
 	 */
 	protected IType getHandle(IGenericType genericType) {
-
 		if (genericType == null)
 			return null;
 		if (genericType.isBinaryType()) {
@@ -222,7 +212,6 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 				if (handle == null)
 					return null;
 				// case of an anonymous type (see 1G2O5WK: ITPJCORE:WINNT - NullPointerException when selecting "Show in Type Hierarchy" for a inner class)
-
 				// optimization: remember the handle for next call (case of java.io.Serializable that a lot of classes implement)
 				this.infoToHandle.put(genericType, handle.getParent());
 				return handle;
@@ -238,17 +227,13 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		} else
 			return null;
 	}
-
 	protected IType getType() {
-
 		return this.hierarchy.getType();
 	}
-
 	/**
 	 * Looks up and returns a handle for the given binary info.
 	 */
 	protected IType lookupBinaryHandle(IBinaryType typeInfo) {
-
 		int flag;
 		String qualifiedName;
 		if (typeInfo.isClass()) {
@@ -260,9 +245,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		qualifiedName = new String(ClassFile.translatedName(bName));
 		return this.nameLookup.findType(qualifiedName, false, flag);
 	}
-
 	protected void worked(int work) {
-
 		IProgressMonitor progressMonitor = this.hierarchy.progressMonitor;
 		if (progressMonitor != null) {
 			if (progressMonitor.isCanceled()) {
@@ -272,4 +255,156 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 			}
 		}
 	}
+/**
+ * Create an ICompilationUnit info from the given compilation unit on disk.
+ */
+protected ICompilationUnit createCompilationUnitFromPath(Openable handle, String osPath) throws JavaModelException {
+	String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
+	if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
+	return 
+		new BasicCompilationUnit(
+			null,
+			osPath,
+			encoding);
+}
+	/**
+ * Creates the type info from the given class file on disk and
+ * adds it to the given list of infos.
+ */
+protected IGenericType createInfoFromClassFile(Openable handle, String osPath) throws JavaModelException {
+	IGenericType info = null;
+	try {
+		info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(osPath);
+	} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
+		e.printStackTrace();
+		return null;
+	} catch (java.io.IOException e) {
+		e.printStackTrace();
+		return null;
+	}						
+	this.infoToHandle.put(info, handle);
+	return info;
+}
+	/**
+ * Create a type info from the given class file in a jar and adds it to the given list of infos.
+ */
+protected IGenericType createInfoFromClassFileInJar(Openable classFile) throws JavaModelException {
+	IJavaElement pkg = classFile.getParent();
+	String classFilePath = pkg.getElementName().replace('.', '/') + "/" + classFile.getElementName(); //$NON-NLS-1$
+	IGenericType info = null;
+	java.util.zip.ZipFile zipFile = null;
+	try {
+		zipFile = ((JarPackageFragmentRoot)pkg.getParent()).getJar();
+		info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(
+			zipFile,
+			classFilePath);
+	} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
+		e.printStackTrace();
+		return null;
+	} catch (java.io.IOException e) {
+		e.printStackTrace();
+		return null;
+	} catch (CoreException e) {
+		e.printStackTrace();
+		return null;
+	} finally {
+		if (zipFile != null && JavaModelManager.getJavaModelManager().zipFiles == null) {
+			try {
+				zipFile.close();
+			} catch (java.io.IOException e) {
+				// ignore 
+			}
+		}	
+	}
+	this.infoToHandle.put(info, classFile);
+	return info;
+}
+
+protected void addInfoFromClosedElement(Openable handle, ArrayList infos, ArrayList units, String resourcePath) throws JavaModelException {
+	
+	// create a temporary info
+	IJavaElement pkg = handle.getParent();
+	PackageFragmentRoot root = (PackageFragmentRoot)pkg.getParent();
+	if (root.isArchive()) {
+		// class file in a jar
+		IGenericType info = this.createInfoFromClassFileInJar(handle);
+		if (info != null) {
+			infos.add(info);
+		}
+	} else {
+		// file in a directory
+		IPath path = new Path(resourcePath);
+		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+		IPath location = file.getLocation();
+		if (location != null){
+			String osPath = location.toOSString();
+			if (handle instanceof CompilationUnit) {
+				// compilation unit in a directory
+				ICompilationUnit unit = this.createCompilationUnitFromPath(handle, osPath);
+				if (unit != null) {
+					units.add(unit);
+				}
+			} else if (handle instanceof ClassFile) {
+				// class file in a directory
+				IGenericType info = this.createInfoFromClassFile(handle, osPath);
+				if (info != null) {
+					infos.add(info);
+				}
+			}
+		}
+	}
+	
+}
+
+/**
+ * Add the type info from the given CU to the given list of infos.
+ */
+protected void addInfoFromOpenCU(CompilationUnit cu, ArrayList infos) throws JavaModelException {
+	IType[] types = cu.getTypes();
+	for (int j = 0; j < types.length; j++) {
+		SourceType type = (SourceType)types[j];
+		this.addInfoFromOpenSourceType(type, infos);
+	}
+}
+
+
+/**
+ * Add the type info from the given CU to the given list of infos.
+ */
+protected void addInfoFromOpenSourceType(SourceType type, ArrayList infos) throws JavaModelException {
+	IGenericType info = (IGenericType)type.getRawInfo();
+	infos.add(info);
+	this.infoToHandle.put(info, type);
+	IType[] members = type.getTypes();
+	for (int i = 0; i < members.length; i++) {
+		this.addInfoFromOpenSourceType((SourceType)members[i], infos);
+	}
+}
+
+/**
+ * Add the type info from the given class file to the given list of infos.
+ */
+protected void addInfoFromOpenClassFile(ClassFile classFile, ArrayList infos) throws JavaModelException {
+	IType type = classFile.getType();
+	IGenericType info = (IGenericType) ((BinaryType) type).getRawInfo();
+	infos.add(info);
+	this.infoToHandle.put(info, classFile);
+}
+
+protected void addInfoFromElement(Openable handle, ArrayList infos, ArrayList units, String resourcePath) throws JavaModelException {
+	if (handle.isOpen()) {
+		// reuse the info from the java model cache
+		if (handle instanceof CompilationUnit) {
+			this.addInfoFromOpenCU((CompilationUnit)handle, infos);
+		} else if (handle instanceof ClassFile) {
+			this.addInfoFromOpenClassFile((ClassFile)handle, infos);
+		}
+	} else {
+		this.addInfoFromClosedElement(handle, infos, units, resourcePath);
+	}
+}
+
+
+
+
 }

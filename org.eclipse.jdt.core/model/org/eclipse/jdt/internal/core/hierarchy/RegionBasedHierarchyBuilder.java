@@ -21,8 +21,13 @@ public class RegionBasedHierarchyBuilder extends HierarchyBuilder {
 		super(hierarchy);
 	}
 	
-	public void build(boolean computeSubtypes) {
+public void build(boolean computeSubtypes) {
 		
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	try {
+		// optimize access to zip files while building hierarchy
+		manager.cacheZipFiles();
+				
 		if (this.hierarchy.type == null || computeSubtypes) {
 			ArrayList allTypesInRegion = determineTypesInRegion();
 			this.hierarchy.initialize(allTypesInRegion.size());
@@ -32,54 +37,92 @@ public class RegionBasedHierarchyBuilder extends HierarchyBuilder {
 			this.hierarchy.initialize(1);
 			this.buildSupertypes();
 		}
+	} finally {
+		manager.flushZipFiles();
 	}
-	/**
-	 * Configure this type hierarchy that is based on a region.
-	 */
-	private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion) {
-		
-		int size = allTypesInRegion.size();
-		if (size != 0) {
-			this.infoToHandle = new HashMap(size);
-		}
-		ArrayList temp = new ArrayList(size);
-		types : for (int i = 0; i < size; i++) {
-			try {
-				IType type = (IType) allTypesInRegion.get(i);
-				IGenericType info = (IGenericType) ((JavaElement) type).getRawInfo();
-				temp.add(info);
-				if (info.isBinaryType()) {
-					this.infoToHandle.put(info, type.getParent());
-				}
-				worked(1);
-			} catch (JavaModelException npe) {
-				continue types;
-			}
-		}
+}
+/**
+ * Configure this type hierarchy that is based on a region.
+ */
+private void createTypeHierarchyBasedOnRegion(ArrayList allTypesInRegion) {
+	
+	int size = allTypesInRegion.size();
+	if (size != 0) {
+		this.infoToHandle = new HashMap(size);
+	}
+	IType[] types = new IType[size];
+	allTypesInRegion.toArray(types);
 
-		size = temp.size();
-		if (size > 0) {
-			IGenericType[] genericTypes = new IGenericType[size];
-			temp.toArray(genericTypes);
-			IType focusType = this.getType();
-			CompilationUnit unitToLookInside = null;
-			if (focusType != null) {
-				unitToLookInside = (CompilationUnit)focusType.getCompilationUnit();
-			}
-			if (this.nameLookup != null && unitToLookInside != null) {
-				synchronized(this.nameLookup) { // prevent 2 concurrent accesses to name lookup while the working copies are set
-					try {
-						nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside});
-						this.hierarchyResolver.resolve(genericTypes);
-					} finally {
-						nameLookup.setUnitsToLookInside(null);
-					}
-				}
-			} else {
-				this.hierarchyResolver.resolve(genericTypes);
+	/*
+	 * NOTE: To workaround pb with hierarchy resolver that requests top  
+	 * level types in the process of caching an enclosing type, this needs to
+	 * be sorted in reverse alphabetical order so that top level types are cached
+	 * before their inner types.
+	 */
+	Util.sort(
+		types,
+		new Util.Comparer() {
+			/**
+			 * @see Comparer#compare(Object, Object)
+			 */
+			public int compare(Object a, Object b) {
+				return - ((IJavaElement)a).getParent().getElementName().compareTo(((IJavaElement)b).getParent().getElementName());
 			}
 		}
+	);
+
+	// collect infos and compilation units
+	ArrayList infos = new ArrayList();
+	ArrayList units = new ArrayList();
+	types : for (int i = 0; i < size; i++) {
+		try {
+			IType type = types[i];
+			this.addInfoFromElement((Openable)type.getOpenable(), infos, units, type.getPath().toString());
+			worked(1);
+		} catch (JavaModelException npe) {
+			continue types;
+		}
 	}
+
+	// copy vectors into arrays
+	IGenericType[] genericTypes;
+	int infosSize = infos.size();
+	if (infosSize > 0) {
+		genericTypes = new IGenericType[infosSize];
+		infos.toArray(genericTypes);
+	} else {
+		genericTypes = new IGenericType[0];
+	}
+	org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] compilationUnits;
+	int unitsSize = units.size();
+	if (unitsSize > 0) {
+		compilationUnits = new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[unitsSize];
+		units.toArray(compilationUnits);
+	} else {
+		compilationUnits = new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[0];
+	}
+
+	// resolve
+	if (infosSize > 0 || unitsSize > 0) {
+		IType focusType = this.getType();
+		CompilationUnit unitToLookInside = null;
+		if (focusType != null) {
+			unitToLookInside = (CompilationUnit)focusType.getCompilationUnit();
+		}
+		if (this.nameLookup != null && unitToLookInside != null) {
+			synchronized(this.nameLookup) { // prevent 2 concurrent accesses to name lookup while the working copies are set
+				try {
+					nameLookup.setUnitsToLookInside(new IWorkingCopy[] {unitToLookInside});
+					this.hierarchyResolver.resolve(genericTypes, compilationUnits);
+				} finally {
+					nameLookup.setUnitsToLookInside(null);
+				}
+			}
+		} else {
+			this.hierarchyResolver.resolve(genericTypes, compilationUnits);
+		}
+	}
+}
 	
 	/**
 	 * Returns all of the types defined in the region of this type hierarchy.

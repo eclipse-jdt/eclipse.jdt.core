@@ -102,35 +102,12 @@ private void addInfoFromBinaryIndexMatch(Openable handle, HierarchyBinaryType bi
 	infos.add(binaryType);
 	this.infoToHandle.put(binaryType, handle);
 }
-/**
- * Add the type info from the given class file to the given list of infos.
- */
-private void addInfoFromOpenClassFile(ClassFile classFile, ArrayList infos) throws JavaModelException {
-	IType type = classFile.getType();
-	IGenericType info = (IGenericType) ((BinaryType) type).getRawInfo();
-	infos.add(info);
-	this.infoToHandle.put(info, classFile);
-}
-/**
- * Add the type info from the given CU to the given list of infos.
- */
-private void addInfoFromOpenCU(CompilationUnit cu, ArrayList infos) throws JavaModelException {
-	IType[] types = cu.getTypes();
-	for (int j = 0; j < types.length; j++) {
-		SourceType type = (SourceType)types[j];
-		this.addInfoFromOpenSourceType(type, infos);
-	}
-}
-/**
- * Add the type info from the given CU to the given list of infos.
- */
-private void addInfoFromOpenSourceType(SourceType type, ArrayList infos) throws JavaModelException {
-	IGenericType info = (IGenericType)type.getRawInfo();
-	infos.add(info);
-	this.infoToHandle.put(info, type);
-	IType[] members = type.getTypes();
-	for (int i = 0; i < members.length; i++) {
-		this.addInfoFromOpenSourceType((SourceType)members[i], infos);
+protected void addInfoFromClosedElement(Openable handle,ArrayList infos,ArrayList units,String resourcePath) throws JavaModelException {
+	HierarchyBinaryType binaryType = (HierarchyBinaryType) binariesFromIndexMatches.get(resourcePath);
+	if (binaryType != null) {
+		this.addInfoFromBinaryIndexMatch(handle, binaryType, infos);
+	} else {
+		super.addInfoFromClosedElement(handle, infos, units, resourcePath);
 	}
 }
 /**
@@ -152,15 +129,23 @@ private void addInfosFromType(IType type, ArrayList infos) throws JavaModelExcep
 	}
 }
 public void build(boolean computeSubtypes) throws JavaModelException, CoreException {
-	if (computeSubtypes) {
-		String[] allPossibleSubtypes = this.determinePossibleSubTypes();
-		if (allPossibleSubtypes != null) {
-			this.hierarchy.initialize(allPossibleSubtypes.length);
-			buildFromPotentialSubtypes(allPossibleSubtypes);
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	try {
+		// optimize access to zip files while building hierarchy
+		manager.cacheZipFiles();
+				
+		if (computeSubtypes) {
+			String[] allPossibleSubtypes = this.determinePossibleSubTypes();
+			if (allPossibleSubtypes != null) {
+				this.hierarchy.initialize(allPossibleSubtypes.length);
+				buildFromPotentialSubtypes(allPossibleSubtypes);
+			}
+		} else {
+			this.hierarchy.initialize(1);
+			this.buildSupertypes();
 		}
-	} else {
-		this.hierarchy.initialize(1);
-		this.buildSupertypes();
+	} finally {
+		manager.flushZipFiles();
 	}
 }
 private void buildForProject(JavaProject project, ArrayList infos, ArrayList units) throws JavaModelException {
@@ -264,8 +249,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 	ArrayList units = new ArrayList();
 
 	// create element infos for subtypes
-	IWorkspace workspace = focusType.getJavaProject().getProject().getWorkspace();
-	HandleFactory factory = new HandleFactory(workspace);
+	HandleFactory factory = new HandleFactory(ResourcesPlugin.getWorkspace());
 	IJavaProject currentProject = null;
 	for (int i = 0; i < length; i++) {
 		try {
@@ -292,42 +276,9 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 				infos = new ArrayList(5);
 				units = new ArrayList(5);
 			}
-			if (handle.isOpen()) {
-				// reuse the info from the java model cache
-				if (handle instanceof CompilationUnit) {
-					this.addInfoFromOpenCU((CompilationUnit)handle, infos);
-				} else if (handle instanceof ClassFile) {
-					this.addInfoFromOpenClassFile((ClassFile)handle, infos);
-				}
-			} else {
-				HierarchyBinaryType binaryType = (HierarchyBinaryType) binariesFromIndexMatches.get(resourcePath);
-				if (binaryType != null){
-					this.addInfoFromBinaryIndexMatch(handle, binaryType, infos);
-				} else {
-					// create a temporary info
-					IJavaElement pkg = handle.getParent();
-					PackageFragmentRoot root = (PackageFragmentRoot)pkg.getParent();
-					if (root.isArchive()) {
-						// class file in a jar
-						this.createInfoFromClassFileInJar(handle, infos);
-					} else {
-						// file in a directory
-						IPath path = new Path(resourcePath);
-						IFile file = workspace.getRoot().getFile(path);
-						IPath location = file.getLocation();
-						if (location != null){
-							String osPath = location.toOSString();
-							if (handle instanceof CompilationUnit) {
-								// compilation unit in a directory
-								this.createCompilationUnitFromPath(handle, osPath, units);
-							} else if (handle instanceof ClassFile) {
-								// class file in a directory
-								this.createInfoFromClassFile(handle, osPath, infos);
-							}
-						}
-					}
-				}
-			}
+			
+			this.addInfoFromElement(handle, infos, units, resourcePath);
+			
 			worked(1);
 		} catch (JavaModelException e) {
 			continue;
@@ -362,72 +313,10 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 		this.hierarchy.addRootClass(focusType);
 	}
 }
-/**
- * Create an ICompilationUnit info from the given compilation unit on disk and 
- * adds it to the given list of units.
- */
-private void createCompilationUnitFromPath(Openable handle, String osPath, ArrayList units) throws JavaModelException {
-	String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
-	if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
-	BasicCompilationUnit unit = 
-		new BasicCompilationUnit(
-			null,
-			osPath,
-			encoding);
-	units.add(unit);
+protected ICompilationUnit createCompilationUnitFromPath(Openable handle,String osPath) throws JavaModelException {
+	ICompilationUnit unit = super.createCompilationUnitFromPath(handle, osPath);
 	this.cuToHandle.put(unit, handle);
-}
-/**
- * Creates the type info from the given class file on disk and
- * adds it to the given list of infos.
- */
-private void createInfoFromClassFile(Openable handle, String osPath, ArrayList infos) throws JavaModelException {
-	IGenericType info = null;
-	try {
-		info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(osPath);
-	} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
-		e.printStackTrace();
-		return;
-	} catch (java.io.IOException e) {
-		e.printStackTrace();
-		return;
-	}						
-	infos.add(info);
-	this.infoToHandle.put(info, handle);
-}
-/**
- * Create a type info from the given class file in a jar and adds it to the given list of infos.
- */
-private void createInfoFromClassFileInJar(Openable classFile, ArrayList infos) throws JavaModelException {
-	IJavaElement pkg = classFile.getParent();
-	String classFilePath = pkg.getElementName().replace('.', '/') + "/" + classFile.getElementName(); //$NON-NLS-1$
-	IGenericType info = null;
-	java.util.zip.ZipFile zipFile = null;
-	try {
-		zipFile = ((JarPackageFragmentRoot)pkg.getParent()).getJar();
-		info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(
-			zipFile,
-			classFilePath);
-	} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
-		e.printStackTrace();
-		return;
-	} catch (java.io.IOException e) {
-		e.printStackTrace();
-		return;
-	} catch (CoreException e) {
-		e.printStackTrace();
-		return;
-	} finally {
-		if (zipFile != null && JavaModelManager.getJavaModelManager().zipFiles == null) {
-			try {
-				zipFile.close();
-			} catch (java.io.IOException e) {
-				// ignore 
-			}
-		}	
-	}
-	infos.add(info);
-	this.infoToHandle.put(info, classFile);
+	return unit;
 }
 /**
  * Returns all of the possible subtypes of this type hierarchy.

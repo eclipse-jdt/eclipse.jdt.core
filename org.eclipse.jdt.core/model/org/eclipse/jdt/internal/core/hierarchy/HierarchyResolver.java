@@ -376,14 +376,28 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 		int sourceLength = sourceUnits == null ? 0 : sourceUnits.length;
 		CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[suppliedLength + sourceLength];
 		
-		// build type bindings
+		// cache binary type bidings
+		BinaryTypeBinding[] binaryBindings = new BinaryTypeBinding[suppliedLength];
 		for (int i = 0; i < suppliedLength; i++) {
 			if (suppliedTypes[i].isBinaryType()) {
 				IBinaryType binaryType = (IBinaryType) suppliedTypes[i];
 				try {
-					remember(binaryType, lookupEnvironment.cacheBinaryType(binaryType, false));
+					binaryBindings[i] = lookupEnvironment.cacheBinaryType(binaryType, false);
 				} catch (AbortCompilation e) {
 					// classpath problem for this type: ignore
+				}
+			}
+		}
+		
+		// build type bindings
+		for (int i = 0; i < suppliedLength; i++) {
+			if (suppliedTypes[i].isBinaryType()) {
+				if (binaryBindings[i] != null) {
+					try {
+						remember((IBinaryType) suppliedTypes[i], binaryBindings[i]);
+					} catch (AbortCompilation e) {
+						// classpath problem for this type: ignore
+					}
 				}
 			} else {
 				// must start with the top level type
