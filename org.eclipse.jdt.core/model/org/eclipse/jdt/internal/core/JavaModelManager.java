@@ -710,6 +710,9 @@ public class JavaModelManager implements ISaveParticipant {
 								&& CompilationUnit.SHARED_WC_VERBOSE) {
 							System.out.println("Destroying shared working copy " + workingCopy.toStringWithAncestors());//$NON-NLS-1$
 						}
+						if (perFactoryWorkingCopies.isEmpty()) {
+							this.sharedWorkingCopies.remove(workingCopy.owner);
+						}
 					}
 				}
 				return info.useCount;
