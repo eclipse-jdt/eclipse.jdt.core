@@ -772,7 +772,7 @@ public void testSearchPotentialMatchInOutput() throws CoreException {
 /*
  * Ensure search finds matches in an included compilation unit.
  */
-public void testSearchWithExcludedCompilationUnit1() throws CoreException {
+public void testSearchWithIncludedCompilationUnit1() throws CoreException {
 	setClasspath(new String[] {"/P/src", "**/A.java"});
 	createFolder("/P/src/p");
 	createFile(
@@ -797,7 +797,7 @@ public void testSearchWithExcludedCompilationUnit1() throws CoreException {
 /*
  * Ensure search doesn't find matches in a compilation unit that was included but that is not any longer.
  */
-public void testSearchWithExcludedCompilationUnit2() throws CoreException {
+public void testSearchWithIncludedCompilationUnit2() throws CoreException {
 	setClasspath(new String[] {"/P/src", "**/A.java"});
 	createFolder("/P/src/p");
 	createFile(
