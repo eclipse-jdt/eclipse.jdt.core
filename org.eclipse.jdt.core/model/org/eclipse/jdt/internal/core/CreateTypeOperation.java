@@ -73,7 +73,7 @@ protected IJavaElement generateResultHandle() {
 		case IJavaElement.FIELD:
 		case IJavaElement.INITIALIZER:
 		case IJavaElement.METHOD:
-			return ((IMember)parent).getType(fDOMNode.getName(), 1); // TODO: (jerome) compute occurenceCount
+			return ((IMember)parent).getType(fDOMNode.getName(), 1); // TODO (jerome) compute occurenceCount
 	}
 	return null;
 }
@@ -116,7 +116,7 @@ protected IJavaModelStatus verifyNameCollision() {
 		case IJavaElement.FIELD:
 		case IJavaElement.INITIALIZER:
 		case IJavaElement.METHOD:
-			if (((IMember) parent).getType(fDOMNode.getName(), 1).exists()) { // TODO: (jerome) compute occurenceCount
+			if (((IMember) parent).getType(fDOMNode.getName(), 1).exists()) { // TODO (jerome) compute occurenceCount
 				return new JavaModelStatus(
 					IJavaModelStatusConstants.NAME_COLLISION, 
 					Util.bind("status.nameCollision", fDOMNode.getName())); //$NON-NLS-1$

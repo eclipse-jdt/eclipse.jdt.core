@@ -1261,7 +1261,7 @@ protected boolean packageRegionContainsSamePackageFragment(IJavaElement element)
 
 /**
  * @see ITypeHierarchy
- * TODO: (jerome) should use a PerThreadObject to build the hierarchy instead of synchronizing
+ * TODO (jerome) should use a PerThreadObject to build the hierarchy instead of synchronizing
  * (see also isAffected(IJavaElementDelta))
  */
 public synchronized void refresh(IProgressMonitor monitor) throws JavaModelException {

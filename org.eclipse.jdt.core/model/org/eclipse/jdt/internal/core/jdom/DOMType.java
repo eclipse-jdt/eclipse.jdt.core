@@ -390,7 +390,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 		case IJavaElement.FIELD:
 		case IJavaElement.INITIALIZER:
 		case IJavaElement.METHOD:
-			return ((IMember)parent).getType(getName(), 1); // TODO: (jerome) compute occurenceCount
+			return ((IMember)parent).getType(getName(), 1); // TODO (jerome) compute occurenceCount
 		default:
 			throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
 	}
