@@ -114,6 +114,7 @@ public static Test suite() {
 	suite.addTest(new ReconcilerTests("testMethodWithError2"));
 	suite.addTest(new ReconcilerTests("testMethodWithError3"));
 	suite.addTest(new ReconcilerTests("testMethodWithError4"));
+	//suite.addTest(new ReconcilerTests("testMethodWithError5"));
 	suite.addTest(new ReconcilerTests("testNoChanges1"));
 	suite.addTest(new ReconcilerTests("testNoChanges2"));
 	suite.addTest(new ReconcilerTests("testRenameMethod1"));
@@ -592,6 +593,72 @@ public void testMethodWithError4() throws JavaModelException, CoreException {
 	);
 }
 
+/**
+ * Test reconcile force flag off
+ */
+public void testMethodWithError5() throws JavaModelException, CoreException {
+	try {
+		this.createFolder("/Reconciler/src/tests");
+		this.createFile(
+			"/Reconciler/src/tests/AbstractSearchableSource.java", 
+			"package tests;	\n"+
+			"abstract class AbstractSearchableSource extends AbstractSource implements SearchableSource {	\n"+
+			"	abstract int indexOfImpl(long value);	\n"+
+			"	public final int indexOf(long value) {	\n"+
+			"		return indexOfImpl(value);	\n"+
+			"	}	\n"+
+			"}	\n");
+	
+		this.createFile(
+			"/Reconciler/src/tests/Source.java", 
+			"package tests;	\n"+
+			"interface Source {	\n"+
+			"	long getValue(int index);	\n"+
+			"	int size();	\n"+
+			"}	\n");
+	
+		this.createFile(
+			"/Reconciler/src/tests/AbstractSource.java", 
+			"package tests;	\n"+
+			"abstract class AbstractSource implements Source {	\n"+
+			"	AbstractSource() {	\n"+
+			"	}	\n"+
+			"	void invalidate() {	\n"+
+			"	}	\n"+
+			"	abstract long getValueImpl(int index);	\n"+
+			"	abstract int sizeImpl();	\n"+
+			"	public final long getValue(int index) {	\n"+
+			"		return 0;	\n"+
+			"	}	\n"+
+			"	public final int size() {	\n"+
+			"		return 0;	\n"+
+			"	}	\n"+
+			"}	\n");
+	
+		this.createFile(
+			"/Reconciler/src/tests/SearchableSource.java", 
+			"package tests;	\n"+
+			"interface SearchableSource extends Source {	\n"+
+			"	int indexOf(long value);	\n"+
+			"}	\n");
+	
+		ICompilationUnit cu = getCompilationUnit("Reconciler", "src", "tests", "AbstractSearchableSource.java");
+		ProblemRequestor pbReq =  new ProblemRequestor();
+		IWorkingCopy wc = (ICompilationUnit)cu.getWorkingCopy(null, null, pbReq);
+		pbReq.initialize();
+		this.startDeltas();
+		wc.reconcile(true, null);
+		assertProblems(
+			"Unexpected problems",
+			"");
+	} finally {
+		this.deleteFile("/Reconciler/src/tests/AbstractSearchableSource.java");
+		this.deleteFile("/Reconciler/src/tests/SearchableSource.java");
+		this.deleteFile("/Reconciler/src/tests/Source.java");
+		this.deleteFile("/Reconciler/src/tests/AbstractSource.java");
+		this.deleteFolder("/Reconciler/src/tests");
+	}
+}
 /**
  * Ensures that the reconciler does nothing when the source
  * to reconcile with is the same as the current contents.
