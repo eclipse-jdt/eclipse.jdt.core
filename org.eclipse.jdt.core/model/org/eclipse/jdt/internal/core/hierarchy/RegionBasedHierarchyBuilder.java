@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core.hierarchy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -47,7 +48,7 @@ public void build(boolean computeSubtypes) {
 				this.hierarchy.progressMonitor == null ? 
 					null : 
 					new SubProgressMonitor(this.hierarchy.progressMonitor, 30);
-			ArrayList allOpenablesInRegion = determineOpenablesInRegion(typeInRegionMonitor);
+			HashMap allOpenablesInRegion = determineOpenablesInRegion(typeInRegionMonitor);
 			this.hierarchy.initialize(allOpenablesInRegion.size());
 			IProgressMonitor buildMonitor = 
 				this.hierarchy.progressMonitor == null ? 
@@ -66,39 +67,51 @@ public void build(boolean computeSubtypes) {
 /**
  * Configure this type hierarchy that is based on a region.
  */
-private void createTypeHierarchyBasedOnRegion(ArrayList allOpenablesInRegion, IProgressMonitor monitor) {
+private void createTypeHierarchyBasedOnRegion(HashMap allOpenablesInRegion, IProgressMonitor monitor) {
 	
 	int size = allOpenablesInRegion.size();
 	if (size != 0) {
 		this.infoToHandle = new HashMap(size);
 	}
-	Openable[] openables = new Openable[size];
-	allOpenablesInRegion.toArray(openables);
-
-	try {
-		// resolve
-		if (monitor != null) monitor.beginTask("", size * 2/* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
-		if (size > 0) {
-			this.hierarchyResolver.resolve(openables, null, monitor);
+	
+	Iterator javaProjects = allOpenablesInRegion.keySet().iterator();
+	while (javaProjects.hasNext()) {
+		ArrayList allOpenables = (ArrayList) allOpenablesInRegion.get(javaProjects.next());
+		Openable[] openables = new Openable[allOpenables.size()];
+		allOpenables.toArray(openables);
+	
+		try {
+			// resolve
+			if (monitor != null) monitor.beginTask("", size * 2/* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
+			if (size > 0) {
+				this.hierarchyResolver.resolve(openables, null, monitor);
+			}
+		} finally {
+			if (monitor != null) monitor.done();
 		}
-	} finally {
-		if (monitor != null) monitor.done();
 	}
 }
 	
 	/**
 	 * Returns all of the openables defined in the region of this type hierarchy.
+	 * Returns a map from IJavaProject to ArrayList of Openable
 	 */
-	private ArrayList determineOpenablesInRegion(IProgressMonitor monitor) {
+	private HashMap determineOpenablesInRegion(IProgressMonitor monitor) {
 
 		try {
-			ArrayList openables = new ArrayList();
+			HashMap allOpenables = new HashMap();
 			IJavaElement[] roots =
 				((RegionBasedTypeHierarchy) this.hierarchy).region.getElements();
 			int length = roots.length;
 			if (monitor != null) monitor.beginTask("", length); //$NON-NLS-1$
 			for (int i = 0; i <length; i++) {
 				IJavaElement root = roots[i];
+				IJavaProject javaProject = root.getJavaProject();
+				ArrayList openables = (ArrayList) allOpenables.get(javaProject);
+				if (openables == null) {
+					openables = new ArrayList();
+					allOpenables.put(javaProject, openables);
+				}
 				switch (root.getElementType()) {
 					case IJavaElement.JAVA_PROJECT :
 						injectAllOpenablesForJavaProject((IJavaProject) root, openables);
@@ -126,7 +139,7 @@ private void createTypeHierarchyBasedOnRegion(ArrayList allOpenablesInRegion, IP
 				}
 				worked(monitor, 1);
 			}
-			return openables;
+			return allOpenables;
 		} finally {
 			if (monitor != null) monitor.done();
 		}

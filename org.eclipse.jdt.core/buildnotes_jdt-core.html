@@ -51,10 +51,14 @@ Eclipse SDK 3.1M5 - ?th January 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added new API <code>JavaCore#newTypeHierarchy(IRegion,WorkingCopyOwner,IProgressMonitor)</code> that creates a hierarchy
+     independently of a project.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=82510">82510</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80098">80098</a>
+newTypeHierarchy(IRegion,...) should not be constrained to an IJavaProject
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=82510">82510</a>
 [compiler] Util.bind(...) methods should use MessageFormat
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=81706">81706</a>
 [1.5] Static import of static method produces compile error

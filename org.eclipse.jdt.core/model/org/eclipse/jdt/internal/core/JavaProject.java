@@ -2381,7 +2381,7 @@ public class JavaProject
 		}
 		ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 		CreateTypeHierarchyOperation op =
-			new CreateTypeHierarchyOperation(region, this, workingCopies, null, true);
+			new CreateTypeHierarchyOperation(region, workingCopies, null, true);
 		op.runOperation(monitor);
 		return op.getResult();
 	}
@@ -2416,7 +2416,7 @@ public class JavaProject
 		}
 		ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 		CreateTypeHierarchyOperation op =
-			new CreateTypeHierarchyOperation(region, this, workingCopies, type, true);
+			new CreateTypeHierarchyOperation(region, workingCopies, type, true/*compute subtypes*/);
 		op.runOperation(monitor);
 		return op.getResult();
 	}

@@ -635,6 +635,42 @@ public void testRegion3() throws JavaModelException {
 		h.getAllTypes()
 	);
 }
+public void testRegion4() throws CoreException {
+	try {
+		IJavaProject p1 = createJavaProject("P1");
+		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		IJavaProject p3 = createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createFile(
+			"/P1/X.java",
+			"public class X {\n" +
+			"}"
+		);
+		createFile(
+			"/P2/Y.java",
+			"public class Y extends X X {\n" +
+			"}"
+		);
+		createFile(
+			"/P3/Z.java",
+			"public class Z extends X X {\n" +
+			"}"
+		);
+		IRegion region = JavaCore.newRegion();
+		region.add(p1);
+		region.add(p2);
+		region.add(p3);
+		ITypeHierarchy hierarchy = JavaCore.newTypeHierarchy(region, null, null);
+		assertHierarchyEquals(
+			"Focus: <NONE>\n" + 
+			"Sub types of root classes:\n" + 
+			"  X [in X.java [in <default> [in <project root> [in P1]]]]\n" + 
+			"    Z [in Z.java [in <default> [in <project root> [in P3]]]]\n" + 
+			"    Y [in Y.java [in <default> [in <project root> [in P2]]]]\n",
+			hierarchy);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2", "P3"});
+	}
+}
 /*
  * Ensures that a type hierarchy on a region contains anonymous/local types in this region
  * (regression test for bug 48395 Hierarchy on region misses local classes)

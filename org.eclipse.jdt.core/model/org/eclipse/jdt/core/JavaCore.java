@@ -2777,6 +2777,39 @@ public final class JavaCore extends Plugin {
 	}	
 	
 	/**
+	 * Creates and returns a type hierarchy for all types in the given
+	 * region, considering subtypes within that region and considering types in the 
+	 * working copies with the given owner. 
+	 * In other words, the owner's working copies will take 
+	 * precedence over their original compilation units in the workspace.
+	 * <p>
+	 * Note that if a working copy is empty, it will be as if the original compilation
+	 * unit had been deleted.
+	 * <p>
+	 *
+	 * @param monitor the given progress monitor
+	 * @param region the given region
+	 * @param owner the owner of working copies that take precedence over their original compilation units,
+	 *   or <code>null</code> if the primary working copy owner should be used
+	 * @exception JavaModelException if an element in the region does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @exception IllegalArgumentException if region is <code>null</code>
+	 * @return a type hierarchy for all types in the given
+	 * region, considering subtypes within that region
+	 * @since 3.1
+	 */
+	public static ITypeHierarchy newTypeHierarchy(IRegion region, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
+		if (region == null) {
+			throw new IllegalArgumentException(Util.bind("hierarchy.nullRegion"));//$NON-NLS-1$
+		}
+		ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
+		CreateTypeHierarchyOperation op =
+			new CreateTypeHierarchyOperation(region, workingCopies, null, true/*compute subtypes*/);
+		op.runOperation(monitor);
+		return op.getResult();
+	}
+	
+	/**
 	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_LIBRARY</code> for the 
 	 * JAR or folder identified by the given absolute path. This specifies that all package fragments 
 	 * within the root will have children of type <code>IClassFile</code>.

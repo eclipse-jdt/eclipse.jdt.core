@@ -32,18 +32,20 @@ public class RegionBasedTypeHierarchy extends TypeHierarchy {
 	 * The region of types for which to build the hierarchy
 	 */
 	protected IRegion region;
-
+	
 /**
  * Creates a TypeHierarchy on the types in the specified region,
  * considering first the given working copies,
- * using the given project for a name lookup contenxt. If a specific
+ * using the projects in the given region for a name lookup context. If a specific
  * type is also specified, the type hierarchy is pruned to only
  * contain the branch including the specified type.
  */
-public RegionBasedTypeHierarchy(IRegion region, IJavaProject project, ICompilationUnit[] workingCopies, IType type, boolean computeSubtypes) {
+public RegionBasedTypeHierarchy(IRegion region, ICompilationUnit[] workingCopies, IType type, boolean computeSubtypes) {
 	super(type, workingCopies, (IJavaSearchScope)null, computeSubtypes);
 	this.region = region;
-	this.project = project;
+	IJavaElement[] elements = region.getElements();
+	if (elements.length > 0)
+		this.project = elements[0].getJavaProject();
 }
 /*
  * @see TypeHierarchy#initializeRegions
