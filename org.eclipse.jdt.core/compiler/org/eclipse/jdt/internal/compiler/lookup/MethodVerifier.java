@@ -80,7 +80,7 @@ private void checkAbstractMethod(MethodBinding abstractMethod) {
 }
 private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length) {
 	currentMethod.modifiers |= CompilerModifiers.AccOverriding;
-	for (int i = length; --i >= 0;) {
+	nextMethod : for (int i = length; --i >= 0;) {
 		MethodBinding inheritedMethod = methods[i];
 		if (!currentMethod.isAbstract() && inheritedMethod.isAbstract())
 			currentMethod.modifiers |= CompilerModifiers.AccImplementing;
@@ -96,9 +96,18 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 				this.problemReporter(currentMethod).finalMethodCannotBeOverridden(currentMethod, inheritedMethod);
 			if (!this.isAsVisible(currentMethod, inheritedMethod))
 				this.problemReporter(currentMethod).visibilityConflict(currentMethod, inheritedMethod);
-			if (inheritedMethod.isViewedAsDeprecated())
-				if (!currentMethod.isViewedAsDeprecated() || environment.options.reportDeprecationInsideDeprecatedCode)
+			if (inheritedMethod.isViewedAsDeprecated()) {
+				if (!currentMethod.isViewedAsDeprecated() || environment.options.reportDeprecationInsideDeprecatedCode) {
+					// check against the other inherited methods to see if they hide this inheritedMethod
+					ReferenceBinding declaringClass = inheritedMethod.declaringClass;
+					if (declaringClass.isInterface())
+						for (int j = length; --j >= 0;)
+							if (i != j && methods[j].declaringClass.implementsInterface(declaringClass, false))
+								continue nextMethod;
+
 					this.problemReporter(currentMethod).overridesDeprecatedMethod(currentMethod, inheritedMethod);
+				}
+			}
 		}
 	}
 }
