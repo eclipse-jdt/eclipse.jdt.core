@@ -72,6 +72,10 @@ public static Test suite() {
 		suite.addTest(new CompletionTests("testCompletionFindClass2"));
 		suite.addTest(new CompletionTests("testCompletionFindClassDefaultPackage"));
 		suite.addTest(new CompletionTests("testCompletionFindConstructor"));
+		suite.addTest(new CompletionTests("testCompletionFindConstructor2"));
+		suite.addTest(new CompletionTests("testCompletionFindConstructor3"));
+		suite.addTest(new CompletionTests("testCompletionFindConstructor4"));
+		suite.addTest(new CompletionTests("testCompletionFindConstructor5"));
 		suite.addTest(new CompletionTests("testCompletionFindField1"));
 		suite.addTest(new CompletionTests("testCompletionFindField2"));
 		suite.addTest(new CompletionTests("testCompletionFindField3"));
@@ -763,6 +767,71 @@ public void testCompletionFindConstructor() throws JavaModelException {
 		requestor.getResults());
 }
 
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78801
+ */
+public void testCompletionFindConstructor2() throws JavaModelException {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFindConstructor2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "Constructor2(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	assertEquals(
+			"Constructor2[ANONYMOUS_CLASS_DECLARATION]{, Lzconstructors.Constructor2;, ()V, null, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Constructor2[METHOD_REF]{, Lzconstructors.Constructor2;, ()V, Constructor2, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78801
+ */
+public void testCompletionFindConstructor3() throws JavaModelException {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFindConstructor3.java");
+
+	String str = cu.getSource();
+	String completeBehind = "Constructor3(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	assertEquals(
+			"Constructor3[ANONYMOUS_CLASS_DECLARATION]{, Lzconstructors.Constructor3;, ()V, null, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Constructor3[METHOD_REF]{, Lzconstructors.Constructor3;, ()V, Constructor3, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78801
+ */
+public void testCompletionFindConstructor4() throws JavaModelException {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFindConstructor4.java");
+
+	String str = cu.getSource();
+	String completeBehind = "Constructor4(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	assertEquals(
+			"Constructor4[ANONYMOUS_CLASS_DECLARATION]{, Lzconstructors.Constructor4;, (I)V, null, (i), " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Constructor4[METHOD_REF]{, Lzconstructors.Constructor4;, (I)V, Constructor4, (i), " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78801
+ */
+public void testCompletionFindConstructor5() throws JavaModelException {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFindConstructor5.java");
+
+	String str = cu.getSource();
+	String completeBehind = "Constructor5(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	assertEquals(
+			"Constructor5[ANONYMOUS_CLASS_DECLARATION]{, Lzconstructors.Constructor5;, (I)V, null, (arg0), " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Constructor5[METHOD_REF]{, Lzconstructors.Constructor5;, (I)V, Constructor5, (arg0), " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 /**
  * Complete the exception "Exception" in a catch clause.
  */

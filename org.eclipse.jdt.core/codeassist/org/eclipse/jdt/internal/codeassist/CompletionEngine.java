@@ -1363,7 +1363,7 @@ public final class CompletionEngine
 							proposal.setFlags(constructor.modifiers);
 							proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
 							proposal.setRelevance(relevance);
-							if(parameterNames == null) proposal.setParameterNames(parameterNames);
+							if(parameterNames != null) proposal.setParameterNames(parameterNames);
 							this.requestor.accept(proposal);
 							if(DEBUG) {
 								this.printDebug(proposal);

@@ -1188,6 +1188,13 @@ public final class CompletionProposal extends InternalCompletionProposal {
 			
 			switch(this.completionKind) {
 				case ANONYMOUS_CLASS_DECLARATION:
+					this.parameterNames =  this.findMethodParameterNames(
+							this.declarationPackageName,
+							this.declarationTypeName,
+							CharOperation.lastSegment(this.declarationTypeName, '.'),
+							this.parameterPackageNames,
+							this.parameterTypeNames);
+					break;
 				case METHOD_REF:
 					this.parameterNames =  this.findMethodParameterNames(
 							this.declarationPackageName,
