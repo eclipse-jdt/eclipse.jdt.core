@@ -47,8 +47,6 @@ Eclipse SDK 3.1M6 - 24th March 2005
 What's new in this drop</h2>
 <ul>
 </ul>
-</li>
-</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=88575">88575</a>
@@ -64,6 +62,27 @@ Eclipse SDK 3.1M6 - 24th March 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added new kinds for the code formatter:
+<ul>
+<li><code>org.eclipse.jdt.core.formatter.CodeFormatter#K_SINGLE_LINE_COMMENT</code></li>
+<li><code>org.eclipse.jdt.core.formatter.CodeFormatter#K_MULTI_LINE_COMMENT</code></li>
+<li><code>org.eclipse.jdt.core.formatter.CodeFormatter#K_JAVA_DOC</code></li>
+</ul>
+</li>
+<li>Added new options to format comments:
+<ul>
+<li><code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_COMMENT_CLEAR_BLANK_LINES</code></li>
+<li><code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_COMMENT_FORMAT_HEADER</code></li>
+<li><code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_COMMENT_FORMAT_HTML</code></li>
+<li><code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_COMMENT_FORMAT_SOURCE</code></li>
+<li><code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_COMMENT_FORMAT</code></li>
+<li><code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_COMMENT_INDENT_PARAMETER_DESCRIPTION</code></li>
+<li><code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_COMMENT_INDENT_ROOT_TAGS</code></li>
+<li><code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS</code></li>
+<li><code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_COMMENT_INSERT_NEW_LINE_FOR_PARAMETER</code></li>
+<li><code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_COMMENT_LINE_LENGTH</code></li>
+</ul>
+</li>
 <li>Added constant for the javadoc location attribute name: <code>IClasspathAttribute#JAVADOC_LOCATION_ATTRIBUTE_NAME</code>.</li>
 <li>Added API to create an array type binding key from a type key and array dimension: <code>BindingKey#createArrayTypeBindingKey(String typeKey, int arrayDimension)</code></li>
 <li>Added API to create a binding key from a type name: <code>BindingKey#createTypeBindingKey(String typeName)</code>.</li>
