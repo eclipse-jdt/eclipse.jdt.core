@@ -33,6 +33,75 @@
   </tr>
 </table>
 
+<a name="v_384"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.0M5 Build - 19th November 2003 - 3.0 MILESTONE-5
+<br>Project org.eclipse.jdt.core v_384
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_384">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Added API on <code>ICompilationUnit</code> to query whether the working copy's resource has changed 
+	 (it replaces <code>IWorkingCopy.isBasedOn(IResource)</code>):
+<pre>
+/**
+ * Returns whether the resource of this working copy has changed since the
+ * inception of this working copy.
+ * Returns <code>false</code> if this compilation unit is not in working copy mode.
+ * 
+ * @return whether the resource has changed
+ * @since 3.0
+ */
+public boolean hasResourceChanged();
+</pre>
+</li>
+<li>Added APIs on <code>IType</code> to create hierarchies using <code>ICompilationUnit</code> instead of
+     <code>IWorkingCopy</code>:
+<pre>
+/**
+ * Creates and returns a type hierarchy for this type containing
+ * this type and all of its supertypes, considering types in the given 
+ * working copies. In other words, the list of working copies will take 
+ * precedence over their original compilation units in the workspace.
+ *
+ * Note that passing an empty working copy will be as if the original compilation
+ * unit had been deleted.
+ *
+ * @param workingCopies the working copies that take precedence over their original compilation units
+ * @param monitor the given progress monitor
+ * @return a type hierarchy for this type containing this type and all of its supertypes
+ * @exception JavaModelException if this element does not exist or if an
+ *		exception occurs while accessing its corresponding resource.
+ * @since 3.0
+ */
+ITypeHierarchy newSupertypeHierarchy(ICompilationUnit[] workingCopies, IProgressMonitor monitor) throws JavaModelException;
+
+/**
+ * Creates and returns a type hierarchy for this type containing
+ * this type, all of its supertypes, and all its subtypes in the workspace, 
+ * considering types in the given working copies. In other words, the list of working 
+ * copies that will take precedence over their original compilation units in the workspace.
+ * 
+ * Note that passing an empty working copy will be as if the original compilation
+ * unit had been deleted.
+ *
+ * @param workingCopies the working copies that take precedence over their original compilation units
+ * @param monitor the given progress monitor
+ * @return a type hierarchy for this type containing
+ * this type, all of its supertypes, and all its subtypes in the workspace
+ * @exception JavaModelException if this element does not exist or if an
+ *		exception occurs while accessing its corresponding resource.
+ * @since 3.0
+ */
+ITypeHierarchy newTypeHierarchy(ICompilationUnit[] workingCopies, IProgressMonitor monitor) throws JavaModelException;
+</pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+
 <a name="v_383"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
