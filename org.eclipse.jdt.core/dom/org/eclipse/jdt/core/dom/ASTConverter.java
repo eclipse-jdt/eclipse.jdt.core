@@ -463,7 +463,7 @@ class ASTConverter {
 		typeDecl.setInterface(typeDeclaration.isInterface());
 		SimpleName typeName = this.ast.newSimpleName(new String(typeDeclaration.name));
 		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.sourceEnd - typeDeclaration.sourceStart + 1);
-		typeDecl.setName(this.ast.newSimpleName(new String(typeDeclaration.name)));
+		typeDecl.setName(typeName);
 		typeDecl.setSourceRange(typeDeclaration.declarationSourceStart, typeDeclaration.bodyEnd - typeDeclaration.declarationSourceStart + 1);
 		
 		// need to set the superclass and super interfaces here since we cannot distinguish them at
