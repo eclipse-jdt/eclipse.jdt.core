@@ -189,7 +189,7 @@ public interface IBinding {
 	 * </ul>
 	 * </p>
 	 * 
-	 * @return the key for this binding, or <code>null</code> if none
+	 * @return the key for this binding
 	 */
 	public String getKey();
 	
