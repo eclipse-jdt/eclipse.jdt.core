@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 
 import junit.framework.Test;
 /**
@@ -355,6 +359,50 @@ public void testGetNonJavaResources() throws CoreException {
 		this.deleteProject("JP");
 	}
 }
-
+/*
+ * Ensures that the right scheduling rule is returned for a Java project
+ */
+public void testGetSchedulingRule1() {
+	IJavaProject project = getJavaProject("P");
+	assertEquals(
+		"Unexpected scheduling rule",
+		project.getResource(),
+		project.getSchedulingRule());
+}
+/*
+ * Ensures that the right scheduling rule is returned for a source package fragment root
+ */
+public void testGetSchedulingRule2() {
+	IResource folder = getFolder("/P/src");
+	IPackageFragmentRoot root = getJavaProject("P").getPackageFragmentRoot(folder);
+	assertEquals(
+		"Unexpected scheduling rule",
+		root.getResource(),
+		root.getSchedulingRule());
+}
+/*
+ * Ensures that the right scheduling rule is returned for an external jar package fragment root
+ */
+public void testGetSchedulingRule3() {
+	IPackageFragmentRoot root1 = getJavaProject("P1").getPackageFragmentRoot("c:\\some.jar");
+	ISchedulingRule rule1 = root1.getSchedulingRule();
+	IPackageFragmentRoot root2 = getJavaProject("P2").getPackageFragmentRoot("c:\\some.jar");
+	ISchedulingRule rule2 = root2.getSchedulingRule();
+	assertTrue("Rule 1 should contain rule 2", rule1.contains(rule2));
+	assertTrue("Rule 1 should conflict with rule 2", rule1.isConflicting(rule2));
+	assertTrue("Rule 2 should contain rule 1", rule2.contains(rule1));
+	assertTrue("Rule 2 should conflict with rule 1", rule2.isConflicting(rule1));
+}
+/*
+ * Ensures that the right scheduling rule is returned for a source package fragment
+ */
+public void testGetSchedulingRule4() {
+	IResource folder = getFolder("/P/src");
+	IPackageFragment pkg = getJavaProject("P").getPackageFragmentRoot(folder).getPackageFragment("p");
+	assertEquals(
+		"Unexpected scheduling rule",
+		pkg.getResource(),
+		pkg.getSchedulingRule());
+}
 }
 

@@ -15,7 +15,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
 import org.eclipse.jdt.core.jdom.IDOMNode;
@@ -443,7 +445,38 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public SourceMapper getSourceMapper() {
 		return ((JavaElement)getParent()).getSourceMapper();
 	}
-
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.IJavaElement#getSchedulingRule()
+	 */
+	public ISchedulingRule getSchedulingRule() {
+		IResource resource = getResource();
+		if (resource == null) {
+			class NoResourceSchedulingRule implements ISchedulingRule {
+				public IPath path;
+				public NoResourceSchedulingRule(IPath path) {
+					this.path = path;
+				}
+				public boolean contains(ISchedulingRule rule) {
+					if (rule instanceof NoResourceSchedulingRule) {
+						return this.path.isPrefixOf(((NoResourceSchedulingRule)rule).path);
+					} else {
+						return false;
+					}
+				}
+				public boolean isConflicting(ISchedulingRule rule) {
+					if (rule instanceof NoResourceSchedulingRule) {
+						IPath otherPath = ((NoResourceSchedulingRule)rule).path;
+						return this.path.isPrefixOf(otherPath) || otherPath.isPrefixOf(this.path);
+					} else {
+						return false;
+					}
+				}
+			}
+			return new NoResourceSchedulingRule(getPath());
+		} else {
+			return resource;
+		}
+	}
 	/**
 	 * @see IParent 
 	 */

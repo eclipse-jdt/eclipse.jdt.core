@@ -13,6 +13,7 @@ package org.eclipse.jdt.core;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 /**
  * Common protocol for all elements provided by the Java model.
@@ -279,6 +280,15 @@ public interface IJavaElement extends IAdaptable {
 	 * @since 2.0
 	 */
 	IResource getResource();
+	
+	/**
+	 * Returns the scheduling rule associated with this Java element.
+	 * This is a handle-only method.
+	 * 
+	 * @return the scheduling rule associated with this Java element
+	 * @since 3.0
+	 */
+	ISchedulingRule getSchedulingRule();
 
 	/**
 	 * Returns the smallest underlying resource that contains
