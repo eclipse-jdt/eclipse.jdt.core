@@ -1137,7 +1137,7 @@ private void initializeRoots(IJavaModel model) {
 	this.otherRoots = new HashMap();
 	IJavaProject[] projects;
 	try {
-		projects = model.getJavaProjects();
+		projects = ((JavaModel)model).getOldJavaProjectsList();
 	} catch (JavaModelException e) {
 		// nothing can be done
 		return;

@@ -365,17 +365,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	public int currentChangeEventType = ElementChangedEvent.PRE_AUTO_BUILD;
 	public static final int DEFAULT_CHANGE_EVENT = 0; // must not collide with ElementChangedEvent event masks
 
-	/**
-	 * Collection of projects that are in the process of being deleted.
-	 * Project reside in this cache from the time the plugin receives
-	 * the #deleting message until they resource delta is received
-	 * claiming the project has been deleted. The java model will not allow
-	 * a project that is being deleted to be opened - since this can leave
-	 * files open, causing the delete to fail.
-	 *
-	 * fix for 1FW67PA
-	 */
-	protected ArrayList projectsBeingDeleted= new ArrayList();
+
 
 	/**
 	 * Used to convert <code>IResourceDelta</code>s into <code>IJavaElementDelta</code>s.
@@ -385,6 +375,12 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	 * Used to update the JavaModel for <code>IJavaElementDelta</code>s.
 	 */
 	private final ModelUpdater modelUpdater =new ModelUpdater();
+	/**
+	 * Workaround for bug 15168 circular errors not reported  
+	 * This is a cache of the projects before any project addition/deletion has started.
+	 */
+	public IJavaProject[] javaProjectsCache;
+
 
 	/**
 	 * Local Java workspace properties file name (generated inside JavaCore plugin state location)
@@ -496,7 +492,6 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	 * Process the given delta and look for projects being added, opened, closed or
 	 * with a java nature being added or removed.
 	 * Note that projects being deleted are checked in deleting(IProject).
-	 * In this case of a project being added, removes it from the list of projects being deleted.
 	 * In all cases, add the project's dependents to the list of projects to update
 	 * so that the classpath related markers can be updated.
 	 */
@@ -504,6 +499,14 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 		IResource resource = delta.getResource();
 		switch (resource.getType()) {
 			case IResource.ROOT :
+				// workaround for bug 15168 circular errors not reported 
+				if (this.javaProjectsCache == null) {
+					try {
+						this.javaProjectsCache = this.getJavaModel().getJavaProjects();
+					} catch (JavaModelException e) {
+					}
+				}
+				
 				IResourceDelta[] children = delta.getAffectedChildren();
 				for (int i = 0, length = children.length; i < length; i++) {
 					this.checkProjectsBeingAddedOrRemoved(children[i]);
@@ -515,29 +518,60 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 				//     - if the project is closed, it has already lost its java nature
 				int deltaKind = delta.getKind();
 				if (deltaKind == IResourceDelta.ADDED) {
-					// in case the project was removed then added
-					this.projectsBeingDeleted.remove(resource);
-					
 					// remember project and its dependents
-					this.deltaProcessor.addToProjectsToUpdateWithDependents((IProject)resource);
+					IProject project = (IProject)resource;
+					this.deltaProcessor.addToProjectsToUpdateWithDependents(project);
+					
+					// workaround for bug 15168 circular errors not reported 
+					if (this.deltaProcessor.hasJavaNature(project)) {
+						this.deltaProcessor.addToParentInfo((JavaProject)JavaCore.create(project));
+					}
 
 				} else if (deltaKind == IResourceDelta.CHANGED) {
-					// in case the project was removed then added then changed
-					this.projectsBeingDeleted.remove(resource);
-					
+					IProject project = (IProject)resource;
 					if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
 						// project opened or closed: remember  project and its dependents
-						this.deltaProcessor.addToProjectsToUpdateWithDependents((IProject)resource);
-					}
-					if ((delta.getFlags() & IResourceDelta.DESCRIPTION) != 0) {
-						IProject project = (IProject)resource;
+						this.deltaProcessor.addToProjectsToUpdateWithDependents(project);
+						
+						// workaround for bug 15168 circular errors not reported 
+						if (project.isOpen()) {
+							if (this.deltaProcessor.hasJavaNature(project)) {
+								this.deltaProcessor.addToParentInfo((JavaProject)JavaCore.create(project));
+							}
+						} else {
+							JavaProject javaProject = (JavaProject)this.getJavaModel().findJavaProject(project);
+							if (javaProject != null) {
+								try {
+									javaProject.close();
+								} catch (JavaModelException e) {
+								}
+								this.deltaProcessor.removeFromParentInfo(javaProject);
+							}
+						}
+					} else if ((delta.getFlags() & IResourceDelta.DESCRIPTION) != 0) {
 						boolean wasJavaProject = this.getJavaModel().findJavaProject(project) != null;
 						boolean isJavaProject = this.deltaProcessor.hasJavaNature(project);
 						if (wasJavaProject != isJavaProject) {
 							// java nature added or removed: remember  project and its dependents
-							this.deltaProcessor.addToProjectsToUpdateWithDependents((IProject)resource);
+							this.deltaProcessor.addToProjectsToUpdateWithDependents(project);
+
+							// workaround for bug 15168 circular errors not reported 
+							if (isJavaProject) {
+								this.deltaProcessor.addToParentInfo((JavaProject)JavaCore.create(project));
+							} else {
+								JavaProject javaProject = (JavaProject)JavaCore.create(project);
+								try {
+									javaProject.close();
+								} catch (JavaModelException e) {
+								}
+								this.deltaProcessor.removeFromParentInfo(javaProject);
+							}
 						}
-					}
+					} else {
+						// workaround for bug 15168 circular errors not reported 
+						// in case the project was removed then added then changed
+						this.deltaProcessor.addToParentInfo((JavaProject)JavaCore.create(project));
+					}					
 				}
 				break;
 		}
@@ -593,12 +627,17 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 		
 		getIndexManager().deleting(project);
 		
-		if (!this.projectsBeingDeleted.contains(project)) {
-			this.projectsBeingDeleted.add(project);
-			try {
-				JavaCore.create(project).close();
-			} catch (JavaModelException e) {
+		try {
+			JavaProject javaProject = (JavaProject)JavaCore.create(project);
+			javaProject.close();
+
+			// workaround for bug 15168 circular errors not reported  
+			if (this.javaProjectsCache == null) {
+				this.javaProjectsCache = this.getJavaModel().getJavaProjects();
 			}
+			this.deltaProcessor.removeFromParentInfo(javaProject);
+
+		} catch (JavaModelException e) {
 		}
 		
 		this.deltaProcessor.addDependentsToProjectsToUpdate(project.getFullPath());
@@ -984,14 +1023,7 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 		}
 	}
 
-	/**
-	 * Returns true if the given project is being deleted, otherwise false.
-	 *
-	 * fix for 1FW67PA
-	 */
-	public boolean isBeingDeleted(IProject project) {
-		return this.projectsBeingDeleted.contains(project);
-	}
+
 
 	/**
 	 * Returns true if the firing is enabled
@@ -1240,8 +1272,8 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 					break;
 					
 				case IResourceChangeEvent.POST_CHANGE :
-					if (delta != null) {
-						try {
+					try {
+						if (delta != null) {
 							IJavaElementDelta[] translatedDeltas = this.deltaProcessor.processResourceDelta(delta, ElementChangedEvent.POST_CHANGE);
 							if (translatedDeltas.length > 0) {
 								for (int i= 0; i < translatedDeltas.length; i++) {
@@ -1249,13 +1281,11 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 								}
 							}
 							fire(null, ElementChangedEvent.POST_CHANGE);
-						} finally {
-							// fix for 1FWIAEQ: ITPJCORE:ALL - CRITICAL - "projects being deleted" cache not cleaned up when solution deleted
-							if (!this.projectsBeingDeleted.isEmpty()) {
-								this.projectsBeingDeleted= new ArrayList(1);
-							}
-						}			
-					}		
+						}		
+					} finally {
+						// workaround for bug 15168 circular errors not reported 
+						this.javaProjectsCache = null;
+					}
 			}
 		}
 	}
