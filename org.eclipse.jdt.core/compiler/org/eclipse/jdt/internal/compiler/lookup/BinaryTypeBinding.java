@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
@@ -113,8 +114,7 @@ public MethodBinding[] availableMethods() {
 }
 
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
-	char[] typeSignature = binaryType.getGenericSignature();
-	// TODO do we only care about signature based on a certain compliance level?
+	char[] typeSignature = environment.options.sourceLevel < ClassFileConstants.JDK1_5 ? null : binaryType.getGenericSignature();
 	if (typeSignature == null) {
 		char[] superclassName = binaryType.getSuperclassName();
 		if (superclassName != null)
@@ -201,8 +201,7 @@ private void createFields(IBinaryField[] iFields) {
 			this.fields = new FieldBinding[size];
 			for (int i = 0; i < size; i++) {
 				IBinaryField field = iFields[i];
-				char[] fieldSignature = field.getGenericSignature();
-				// TODO do we only care about signature based on a certain compliance level?
+				char[] fieldSignature = environment.options.sourceLevel < ClassFileConstants.JDK1_5 ? null : field.getGenericSignature();
 				TypeBinding type = fieldSignature == null
 					? environment.getTypeFromSignature(field.getTypeName(), 0, -1)
 					: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature, 0), this.typeVariables, NoTypeVariables);
@@ -223,8 +222,7 @@ private MethodBinding createMethod(IBinaryMethod method) {
 	TypeBinding[] parameters = NoParameters;
 	TypeBinding returnType = null;
 
-	char[] methodSignature = method.getGenericSignature();
-	// TODO do we only care about signature based on a certain compliance level?
+	char[] methodSignature = environment.options.sourceLevel < ClassFileConstants.JDK1_5 ? null : method.getGenericSignature();
 	if (methodSignature == null) { // no generics
 		char[] methodDescriptor = method.getMethodDescriptor();   // of the form (I[Ljava/jang/String;)V
 		int numOfParams = 0;
