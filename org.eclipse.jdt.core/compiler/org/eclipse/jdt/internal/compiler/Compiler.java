@@ -212,12 +212,13 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			}
 
 			if (options.verbose) {
+				String count = String.valueOf(totalUnits + 1);
 				System.out.println(
 					Util.bind(
 						"compilation.request" , //$NON-NLS-1$
 						new String[] {
-							String.valueOf(totalUnits + 1),
-							String.valueOf(totalUnits + 1),
+							count,
+							count,
 							new String(sourceUnit.getFileName())}));
 			}
 
