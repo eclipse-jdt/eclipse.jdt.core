@@ -19,7 +19,6 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.core.dom.rewrite.RewriteException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
@@ -704,7 +703,7 @@ public class CompilationUnit extends ASTNode {
 	 * @param commentTable a list of comments in increasing order
 	 * of source start position, or <code>null</code> if comment
 	 * information for this compilation unit is not available
-	 * @throw IllegalArgumentException if the comment table is
+	 * @exception IllegalArgumentException if the comment table is
 	 * not in increasing order of source position
 	 * @see #getCommentList()
 	 * @see ASTParser
@@ -803,14 +802,12 @@ public class CompilationUnit extends ASTNode {
 	 * representing the corresponding edits to the original 
 	 * source code string.
 	 *
-	 * @throws RewriteException if this compilation unit is marked
-	 * as unmodifiable, or if this compilation unit has already 
+	 * @exception IllegalArgumentException if this compilation unit is
+	 * marked as unmodifiable, or if this compilation unit has already 
 	 * been tampered with, or recording has already been enabled
-	 * TODO - eliminate RewriteException in favor of an unchecked exception
-	 * @see #rewrite(IDocument, Map)
 	 * @since 3.0
 	 */
-	public void recordModifications() throws RewriteException {
+	public void recordModifications() {
 		getAST().recordModifications(this);
 	}
 	
@@ -843,13 +840,14 @@ public class CompilationUnit extends ASTNode {
 	 * {@link JavaCore#getOptions() JavaCore.getOptions()}.
 	 * @return text edit object describing the changes to the
 	 * document corresponding to the recorded AST modifications
-	 * @throws RewriteException if <code>recordModifications</code>
+	 * @exception IllegalArgumentException if the document passed is
+	 * <code>null</code> or does not correspond to this AST
+	 * @exception IllegalStateException if <code>recordModifications</code>
 	 * was not called to enable recording
-	 * TODO - eliminate RewriteException in favor of an unchecked exception
 	 * @see #recordModifications()
 	 * @since 3.0
 	 */
-	public TextEdit rewrite(IDocument document, Map options) throws RewriteException {
+	public TextEdit rewrite(IDocument document, Map options) {
 		return getAST().rewrite(document, options);
 	}
 }

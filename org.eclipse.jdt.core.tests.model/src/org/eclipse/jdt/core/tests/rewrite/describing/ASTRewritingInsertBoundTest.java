@@ -38,11 +38,6 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	private static final Class THIS= ASTRewritingInsertBoundTest.class;
 	
-	private IJavaProject fJProject1;
-	private IPackageFragmentRoot fSourceFolder;
-	
-	
-
 	public ASTRewritingInsertBoundTest(String name) {
 		super(name);
 	}
