@@ -42,7 +42,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		this.buffer = buffer;
 		this.lineSeparator = lineSeparator;
 		this.tabNumber = tabNumber + 1;
-		this.digitNumberForPC = (int) (Math.log(codeLength) / Math.log(10));
+		this.digitNumberForPC = (int) (Math.log(codeLength - 1) / Math.log(10));
 	}
 	/**
 	 * @see IBytecodeVisitor#_aaload(int)
