@@ -1237,12 +1237,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IBinding binding = parameter.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
-		assertEquals("wrong key", "T:test0042/A/T[]foo()", binding.getKey());
+		assertEquals("wrong key", "T:test0042/A/T[][]foo()", binding.getKey());
 		Type returnType = methodDeclaration.getReturnType2();
 		IBinding binding2 = returnType.resolveBinding();
 		assertNotNull("No binding", binding2);
 		assertEquals("wrong type", IBinding.TYPE, binding2.getKind());
-		assertEquals("wrong key", "T:test0042/A/T[]foo()[]", binding2.getKey());		
+		assertEquals("wrong key", "T:test0042/A/T[][]foo()[]", binding2.getKey());		
 	}
 	
 	/**

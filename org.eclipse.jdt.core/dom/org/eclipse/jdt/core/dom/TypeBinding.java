@@ -472,7 +472,7 @@ class TypeBinding implements ITypeBinding {
 					org.eclipse.jdt.internal.compiler.lookup.MethodBinding internalBinding = ((AbstractMethodDeclaration) referenceContext).binding;
 					IMethodBinding methodBinding = this.resolver.getMethodBinding(internalBinding);
 					if (methodBinding != null) {
-						buffer.append(methodBinding.getKey());
+						buffer.append(getNonRecursiveKey(methodBinding));
 					}
 				} else if (referenceContext instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
 					org.eclipse.jdt.internal.compiler.lookup.TypeBinding internalBinding = ((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) referenceContext).binding;
@@ -510,7 +510,7 @@ class TypeBinding implements ITypeBinding {
 					if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
 						buffer.append(this.resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement).getKey());
 					} else if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
-						buffer.append(this.resolver.getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) declaringElement).getKey());						
+						buffer.append(getNonRecursiveKey(this.resolver.getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) declaringElement)));						
 					}
 					return String.valueOf(buffer);
 				} else if (this.binding.isWildcard()) {
@@ -780,5 +780,53 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public String toString() {
 		return this.binding.toString();
+	}
+	
+	private String getNonRecursiveKey(IMethodBinding methodBinding) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(methodBinding.getDeclaringClass().getQualifiedName().replace('.', '/'));
+		buffer.append('/');
+		ITypeBinding _returnType = methodBinding.getReturnType();
+		if (_returnType != null) {
+			buffer.append(_returnType.getQualifiedName().replace('.', '/'));
+			if (_returnType.isArray()) {
+				int dimensions = _returnType.getDimensions();
+				for (int i = 0; i < dimensions; i++) {
+					buffer.append('[').append(']');
+				}
+			}
+		}
+		if (!methodBinding.isConstructor()) {
+			buffer.append(methodBinding.getName());
+		}
+		ITypeBinding[] parameters = methodBinding.getParameterTypes();
+		buffer.append('(');
+		for (int i = 0, max = parameters.length; i < max; i++) {
+			final ITypeBinding parameter = parameters[i];
+			if (parameter != null) {
+				buffer.append(parameter.getQualifiedName().replace('.', '/'));
+			 	if (parameter.isArray()) {
+					int dimensions = parameter.getDimensions();
+					for (int j = 0; j < dimensions; j++) {
+						buffer.append('[').append(']');
+					}
+			 	}
+			}
+		}
+		buffer.append(')');
+		ITypeBinding[] thrownExceptions = methodBinding.getExceptionTypes();
+		for (int i = 0, max = thrownExceptions.length; i < max; i++) {
+			final ITypeBinding thrownException = thrownExceptions[i];
+			if (thrownException != null) {
+				buffer.append(thrownException.getQualifiedName().replace('.', '/'));					
+				if (thrownException.isArray()) {
+					int dimensions = thrownException.getDimensions();
+					for (int j = 0; j < dimensions; j++) {
+						buffer.append('[').append(']');
+					}
+				}
+			}
+		}
+		return String.valueOf(buffer);
 	}
 }
