@@ -43,6 +43,15 @@ Eclipse SDK 3.0M5 Build - ?th October 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Code select (i.e. <code>ICodeAssit.codeSelect(...)</code>) now returns an <code>ILocalVariable</code>
+     element when a local variable or an argument is selected. 
+     <br>Note that <code>ILocalVariable</code>s are pseudo-elements:
+     they are not part of the Java model (<code>exists()</code> always returns <code>false</code>), 
+     they are not returned when asking for the children of a method. 
+     <br>One can only ask for the source range (<code>ISourceReference.getSourceRange()</code>) or
+     for the name range (<code>ILocalVariable.getNameRange()</code>) of the local variable.
+     <br>Searching a local variable is not yet implemented, but it is on the plan.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
