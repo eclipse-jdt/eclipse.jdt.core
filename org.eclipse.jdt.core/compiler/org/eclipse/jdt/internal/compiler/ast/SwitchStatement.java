@@ -193,7 +193,6 @@ public void resolve(BlockScope upperScope) {
 			if ((cst = statements[i].resolveCase(scope, testType, this)) != null) {
 				//----check for duplicate case statement------------
 				if (cst != NotAConstant) {
-					// a case with a welled typed constant, so intValue() is valid
 					int key = cst.intValue();
 					for (int j = 0; j < counter; j++) {
 						if (casesValues[j] == key) {
