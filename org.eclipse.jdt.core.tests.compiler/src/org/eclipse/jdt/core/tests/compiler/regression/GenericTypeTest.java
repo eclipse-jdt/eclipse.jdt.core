@@ -15807,4 +15807,33 @@ public void test500(){
 			},
 			"SUCCESS");
 	}					
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83002
+	public void test557() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	static <T extends Exception> void foo(T t) throws T {\n" + // ensure exception is properly encoded (...^ex)
+				"	}\n" + 
+				"}\n",
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"Y.java",
+				"import java.io.*;\n" +
+				"public class Y {\n" + 
+				"	void foo() {\n" +
+				"		try {\n" +
+				"			X.foo(new IOException());\n" +
+				"		} catch(IOException e){\n" +
+				"		}\n" +
+				"	}\n" + 
+				"}\n",
+			},
+			"",
+			null,
+			false,
+			null);
+	}			
 }
