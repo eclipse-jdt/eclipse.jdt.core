@@ -35,7 +35,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 148 };
+//		TESTS_NUMBERS = new int[] { 149 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -4442,5 +4442,88 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"The constructor X(int) is undefined\n" + 
 			"Unexpected end of comment";
     	assertProblemsSize(compilationUnit, 3, expectedErrors);
-    }	
+    }
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88252
+    public void test0149() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		" interface Jpf {\n" +
+    		" 	@interface Action {\n" +
+    		" 		ValidatableProperty[] validatableProperties();\n" +
+    		" 	}\n" +
+    		" 	\n" +
+    		" 	@interface ValidatableProperty {\n" +
+    		" 		String propertyName();\n" +
+    		" 		 ValidationLocaleRules[] localeRules();\n" +
+    		" 	}\n" +
+    		" 	\n" +
+    		" 	@interface ValidationLocaleRules {\n" +
+    		" 		  ValidateMinLength validateMinLength();\n" +
+    		" 	}\n" +
+    		" 	\n" +
+    		" 	@interface ValidateMinLength {\n" +
+    		" 		String chars();\n" +
+    		" 	}\n" +
+    		"}\n" +
+    		" \n" +
+    		" public class X {\n" +
+    		" \n" +
+    		" @Jpf.Action(\n" +
+    		"      validatableProperties={@Jpf.ValidatableProperty(propertyName=\"fooField\",\n" +
+    		"        localeRules={@Jpf.ValidationLocaleRules(\n" +
+    		"            validateMinLength=@Jpf.ValidateMinLength(chars=\"12\")\n" +
+    		"        )}\n" +
+    		"      )}\n" +
+    		"    )\n" +
+    		"    public String actionForValidationRuleTest()    {\n" +
+    		"        return null;\n" +
+    		"    }\n" +
+    		"}";
+    	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 1, 0);
+   		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List modifiers = methodDeclaration.modifiers();
+		assertEquals("Wrong size", 2, modifiers.size());
+		IExtendedModifier modifier = (IExtendedModifier) modifiers.get(0);
+  		assertTrue("Not a normal annotation", modifier instanceof NormalAnnotation);
+		NormalAnnotation annotation = (NormalAnnotation) modifier;
+		List values = annotation.values();
+		assertEquals("wrong size", 1, values.size());
+		MemberValuePair memberValuePair = (MemberValuePair) values.get(0);
+		Expression expression = memberValuePair.getValue();
+   		assertEquals("Not an array initializer", ASTNode.ARRAY_INITIALIZER, expression.getNodeType());
+		ArrayInitializer arrayInitializer = (ArrayInitializer) expression;
+		List expressions = arrayInitializer.expressions();
+		assertEquals("wrong size", 1, expressions.size());
+		Expression expression2 = (Expression) expressions.get(0);
+  		assertEquals("Not a normal annotation", ASTNode.NORMAL_ANNOTATION, expression2.getNodeType());
+		NormalAnnotation annotation2 = (NormalAnnotation) expression2;
+		values = annotation2.values();
+		assertEquals("wrong size", 2, values.size());
+		MemberValuePair memberValuePair2 = (MemberValuePair) values.get(1);
+		Expression expression3 = memberValuePair2.getValue();
+   		assertEquals("Not an array initializer", ASTNode.ARRAY_INITIALIZER, expression3.getNodeType());
+		arrayInitializer = (ArrayInitializer) expression3;
+		expressions = arrayInitializer.expressions();
+		assertEquals("wrong size", 1, expressions.size());
+		Expression expression4 = (Expression) expressions.get(0);
+   		assertEquals("Not a normal annotation", ASTNode.NORMAL_ANNOTATION, expression4.getNodeType());
+		NormalAnnotation annotation3 = (NormalAnnotation) expression4;
+		values = annotation3.values();
+		assertEquals("wrong size", 1, values.size());
+		MemberValuePair memberValuePair3 = (MemberValuePair) values.get(0);
+		Expression expression5 = memberValuePair3.getValue();
+   		assertEquals("Not a normal annotation", ASTNode.NORMAL_ANNOTATION, expression5.getNodeType());
+		NormalAnnotation annotation4 = (NormalAnnotation) expression5;
+		checkSourceRange(annotation4, "@Jpf.ValidateMinLength(chars=\"12\")", contents);
+		checkSourceRange(memberValuePair3, "validateMinLength=@Jpf.ValidateMinLength(chars=\"12\")", contents);
+   }
 }

@@ -1915,9 +1915,10 @@ class ASTConverter {
 		int end = memberValuePair.sourceEnd;
 		simpleName.setSourceRange(start, end - start + 1);
 		pair.setName(simpleName);
-		pair.setValue(convert(memberValuePair.value));
+		final Expression value = convert(memberValuePair.value);
+		pair.setValue(value);
 		start = memberValuePair.sourceStart;
-		end = memberValuePair.value.sourceEnd;
+		end = value.getStartPosition() + value.getLength() - 1;
 		pair.setSourceRange(start, end - start + 1);
 		if (this.resolveBindings) {
 			recordNodes(simpleName, memberValuePair);

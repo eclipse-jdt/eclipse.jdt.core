@@ -50,7 +50,7 @@ What's new in this drop</h2>
 <li>Added new completion API to describe context in which the completion occurs.<br>
 Currently only the expected types of the potential completion proposals are proposed.
 <pre>
- X x = zzz<complete here>
+ X x = zzz&lt;complete here&gt;
 </pre>
 In this example the expected type is <code>X</code>. It is not mandatory to a proposal
 to respect this expectation and it is possible that there is no completion proposal.
@@ -73,7 +73,9 @@ public class CompletionRequestor {
 </li>
 </ul>
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87818">87818</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=88252">88252</a>
+Deleting a MemberValuePair with a NormalAnnotation child does not work
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87818">87818</a>
 [compiler] local enums are illegal, but does this need to be a syntax error?
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69657">69657</a>
 [dom] deprecate JLS2 once JLS3 is fully supported
