@@ -247,10 +247,10 @@ private void reportMatching(AbstractMethodDeclaration method, IJavaElement paren
 				this.matchingNodes.remove(node);
 			}
 		}
-		if (this.potentialMatchingNodes(method.declarationSourceStart, method.declarationSourceEnd).length == 0) {
-			// no need to resolve the statements in the method
-			method.statements = null;
-		}
+	}
+	if (this.potentialMatchingNodes(method.declarationSourceStart, method.declarationSourceEnd).length == 0) {
+		// no need to resolve the statements in the method
+		method.statements = null;
 	}
 }
 /**
@@ -413,7 +413,7 @@ public void reportMatching(TypeDeclaration type, IJavaElement parent) throws Cor
 	
 	// fields
 	FieldDeclaration[] fields = type.fields;
-	if (fields != null && typeInHierarchy) {
+	if (fields != null) {
 		for (int i = 0; i < fields.length; i++) {
 			FieldDeclaration field = fields[i];
 			if ((level = (Integer)this.matchingNodes.remove(field)) != null
@@ -432,7 +432,7 @@ public void reportMatching(TypeDeclaration type, IJavaElement parent) throws Cor
 
 	// methods
 	AbstractMethodDeclaration[] methods = type.methods;
-	if (methods != null && typeInHierarchy) {
+	if (methods != null) {
 		for (int i = 0; i < methods.length; i++) {
 			AbstractMethodDeclaration method = methods[i];
 			if ((level = (Integer)this.matchingNodes.remove(method)) != null

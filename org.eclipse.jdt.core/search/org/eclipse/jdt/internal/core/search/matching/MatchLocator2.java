@@ -629,12 +629,22 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 	
 		this.compilationAborted = false;
 
-		this.createAndResolveBindings(potentialMatches);
-
-		if (!this.createHierarchyResolver()) {
-			return;
+		// create and resolve binding (equivalent to beginCompilation() in Compiler)
+		try {
+			this.createAndResolveBindings(potentialMatches);
+		} catch (AbortCompilation e) {
+			this.compilationAborted = true;
 		}
-
+	
+		// create hierarchy resolver if needed
+		try {
+			if (!this.compilationAborted && !this.createHierarchyResolver()) {
+				return;
+			}
+		} catch (AbortCompilation e) {
+			this.compilationAborted = true;
+		}
+	
 		// potential match resolution
 		try {
 			CompilationUnitDeclaration unit = null;
