@@ -14375,4 +14375,72 @@ public void test500(){
 			},
 			"SUCCESS");
 	}		
+	public void _test512() {
+		this.runConformTest(
+			new String[] {
+				"X.java",//====================================
+				"public class X { \n" + 
+				"    public static void main(String argv[]) {\n" + 
+				"		\n" + 
+				"		new X().new M<Exception>(null) {\n" + 
+				"			void run() {\n" + 
+				"				Exception e = ex;\n" + 
+				"				System.out.println(\"SUCCESS\");\n" + 
+				"			}\n" + 
+				"		}.run();\n" + 
+				"    }\n" + 
+				"    class M<E extends Throwable> {\n" + 
+				"        E ex;\n" + 
+				"        M(E ex) {\n" + 
+				"            this.ex = ex;\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}			
+	public void test513() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",//====================================
+				"public class X { \n" + 
+				"    public static void main(String argv[]) {\n" + 
+				"		\n" + 
+				"		new X().new M(null) {\n" + 
+				"			void run() {\n" + 
+				"				Exception e = ex;\n" + 
+				"				System.out.println(\"SUCCESS\");\n" + 
+				"			}\n" + 
+				"		}.run();\n" + 
+				"    }\n" + 
+				"    class M<E extends Throwable> {\n" + 
+				"        E ex;\n" + 
+				"        M(E ex) {\n" + 
+				"            this.ex = ex;\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	new X().new M(null) {\n" + 
+			"			void run() {\n" + 
+			"				Exception e = ex;\n" + 
+			"				System.out.println(\"SUCCESS\");\n" + 
+			"			}\n" + 
+			"		}.run();\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The constructor X.M(Throwable) belongs to the raw type X.M. References to generic type X.M<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	new X().new M(null) {\n" + 
+			"	            ^^^^^^^\n" + 
+			"Type safety: The constructor X.M(Throwable) belongs to the raw type X.M. References to generic type X.M<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	Exception e = ex;\n" + 
+			"	          ^\n" + 
+			"Type mismatch: cannot convert from Throwable to Exception\n" + 
+			"----------\n");
+	}		
 }
