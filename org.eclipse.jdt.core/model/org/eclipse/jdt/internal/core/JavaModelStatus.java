@@ -222,9 +222,6 @@ public String getMessage() {
 		}
 		return getString();
 	} else {
-		if (getCode() == CORE_EXCEPTION){
-			return Util.bind("status.coreExceptionWithArg", getException().getMessage()); //$NON-NLS-1$
-		}
 		return getException().getMessage();
 	}
 }
