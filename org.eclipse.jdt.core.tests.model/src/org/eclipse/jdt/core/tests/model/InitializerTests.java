@@ -101,7 +101,7 @@ public class DefaultContainerInitializer implements ContainerInitializer.ITestIn
 public InitializerTests(String name) {
 	super(name);
 }
-public void testContainreInitializer1() throws CoreException {
+public void testContainerInitializer1() throws CoreException {
 	try {
 		this.createProject("P1");
 		this.createFile("/P1/lib.jar", "");
