@@ -153,6 +153,7 @@ public int getNumberOfParameters() {
 }
 /**
  * @see IMethod
+ * Look for source attachment information to retrieve the actual parameter names as stated in source.
  */
 public String[] getParameterNames() throws JavaModelException {
 
@@ -160,28 +161,25 @@ public String[] getParameterNames() throws JavaModelException {
 
 		// force source mapping if not already done
 		IType type = (IType) getParent();
-		char[] source = getSourceMapper().findSource(type);
-		if (source != null){
-			getSourceMapper().mapSource(type, source);
-		}
-		ISourceRange sourceRange = getSourceRange();
-		if (sourceRange != null && sourceRange != SourceMapper.fgUnknownRange) {
-			IProblemFactory factory = new DefaultProblemFactory();
-			DecodeParametersNames decoder = new DecodeParametersNames();
-			SourceElementParser parser = new SourceElementParser(decoder, factory);
-			int start = sourceRange.getOffset();
-			int end = start + sourceRange.getLength();
-			parser.parseTypeMemberDeclarations(source, start, end);
-			fParameterNames = decoder.getParametersNames();
-			if (fParameterNames == null) {
-				IBinaryMethod info = (IBinaryMethod) getRawInfo();
-				int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
-				fParameterNames = new String[paramCount];
-				for (int i = 0; i < paramCount; i++) {
-					fParameterNames[i] = "arg" + i; //$NON-NLS-1$
+		SourceMapper mapper = getSourceMapper();
+		if (mapper != null) {
+			char[] source = mapper.findSource(type);
+			if (source != null){
+				mapper.mapSource(type, source);
+				ISourceRange sourceRange = getSourceRange();
+				if (source != null & sourceRange != null && sourceRange != SourceMapper.fgUnknownRange) {
+					IProblemFactory factory = new DefaultProblemFactory();
+					DecodeParametersNames decoder = new DecodeParametersNames();
+					SourceElementParser parser = new SourceElementParser(decoder, factory);
+					int start = sourceRange.getOffset();
+					int end = start + sourceRange.getLength();
+					parser.parseTypeMemberDeclarations(source, start, end);
+					fParameterNames = decoder.getParametersNames();
 				}
 			}
-		} else {
+		}
+		// if still no parameter names, produce fake ones
+		if (fParameterNames == null) {
 			IBinaryMethod info = (IBinaryMethod) getRawInfo();
 			int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
 			fParameterNames = new String[paramCount];
