@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     IBM Corporation - added constant AccDefault
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -29,6 +30,11 @@ import org.eclipse.jdt.internal.compiler.env.IConstants;
  */
 public final class Flags {
 
+	/**
+	 * Constant representing the absence of any flag
+	 * @since 2.2
+	 */
+	public static final int AccDefault = 0;
 	/**
 	 * Public access flag. See The Java Virtual Machine Specification for more details.
 	 * @since 2.0

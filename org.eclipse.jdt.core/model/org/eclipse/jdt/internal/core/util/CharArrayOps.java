@@ -14,7 +14,7 @@ package org.eclipse.jdt.internal.core.util;
  * A class to do characters operations so that we can use
  * char arrays more effectively.
  */
-public class CharArrayOps { // TODO: should promote to CharOperation
+public class CharArrayOps { // TODO: (jerome) should promote to CharOperation
 /**
  * Returns the char arrays as an array of Strings
  */

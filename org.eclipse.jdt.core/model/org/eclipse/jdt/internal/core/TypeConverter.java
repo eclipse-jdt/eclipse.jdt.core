@@ -45,7 +45,7 @@ public class TypeConverter {
 		char[] packageName = type.getPackageFragment().getElementName().toCharArray();
 		
 		if (packageName != null && packageName.length > 0) { 
-			compilationUnit.currentPackage = new ImportReference(CharOperation.splitOn('.', packageName), new long[]{0}, false);
+			compilationUnit.currentPackage = new ImportReference(CharOperation.splitOn('.', packageName), new long[]{0}, false, CompilerModifiers.AccDefault);
 		}
 	
 		/* convert type */

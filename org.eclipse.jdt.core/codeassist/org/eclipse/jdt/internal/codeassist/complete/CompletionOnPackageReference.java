@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 
 public class CompletionOnPackageReference extends ImportReference {
 public CompletionOnPackageReference(char[][] tokens , long[] positions) {
-	super(tokens, positions, true);
+	super(tokens, positions, true, AccDefault);
 }
 public String toString(int tab, boolean withOnDemand) {
 	StringBuffer buffer = new StringBuffer(tabString(tab));

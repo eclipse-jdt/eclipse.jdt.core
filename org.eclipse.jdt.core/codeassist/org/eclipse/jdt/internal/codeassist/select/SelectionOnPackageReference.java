@@ -33,7 +33,7 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 
 public class SelectionOnPackageReference extends ImportReference {
 public SelectionOnPackageReference(char[][] tokens , long[] positions) {
-	super(tokens, positions, true);
+	super(tokens, positions, true, AccDefault);
 }
 public String toString(int tab, boolean withOnDemand) {
 	StringBuffer buffer = new StringBuffer(tabString(tab));

@@ -33,8 +33,8 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 
 public class SelectionOnImportReference extends ImportReference {
 
-public SelectionOnImportReference(char[][] tokens , long[] positions) {
-	super(tokens, positions, false);
+public SelectionOnImportReference(char[][] tokens , long[] positions, int modifiers) {
+	super(tokens, positions, false, modifiers);
 }
 public String toString(int tab, boolean withOnDemand) {
 

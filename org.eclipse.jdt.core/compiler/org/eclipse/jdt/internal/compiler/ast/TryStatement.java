@@ -135,7 +135,7 @@ public class TryStatement extends Statement {
 				"(uncheckedExceptionTypes notNil and: [uncheckedExceptionTypes at: index])
 				ifTrue: [catchInits addPotentialInitializationsFrom: tryInits]."
 				*/
-				// TODO: should only tag as unreachable if the catchblock cannot be reached
+				// TODO: (philippe) should only tag as unreachable if the catchblock cannot be reached?
 				//??? if (!handlingContext.initsOnException(caughtExceptionTypes[i]).isReachable()){
 				if (tryBlock.statements == null) {
 					catchInfo.setReachMode(FlowInfo.UNREACHABLE);

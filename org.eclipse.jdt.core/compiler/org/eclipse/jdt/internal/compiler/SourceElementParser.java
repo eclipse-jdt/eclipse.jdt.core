@@ -851,7 +851,8 @@ public void notifySourceElementRequestor(
 			importReference.declarationSourceStart, 
 			importReference.declarationSourceEnd, 
 			CharOperation.concatWith(importReference.getImportName(), '.'), 
-			importReference.onDemand); 
+			importReference.onDemand,
+			importReference.modifiers); 
 	}
 }
 public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolean notifyTypePresence) {

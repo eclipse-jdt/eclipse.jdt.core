@@ -620,7 +620,7 @@ public boolean isWorkingCopy() {
  * @see IOpenable#makeConsistent(IProgressMonitor)
  */
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
-	if (!isConsistent()) { // TODO: this code isn't synchronized with regular opening of a working copy
+	if (!isConsistent()) { // TODO: (jerome) this code isn't synchronized with regular opening of a working copy
 		// create a new info and make it the current info
 		OpenableElementInfo info = createElementInfo();
 		buildStructure(info, monitor);

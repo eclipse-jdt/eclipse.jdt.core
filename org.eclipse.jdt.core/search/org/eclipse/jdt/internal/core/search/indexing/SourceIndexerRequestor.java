@@ -55,7 +55,7 @@ public void acceptFieldReference(char[] fieldName, int sourcePosition) {
 /**
  * acceptImport method comment.
  */
-public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand) {
+public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand, int modifiers) {
 	char[][] qualification = CharOperation.splitOn('.', CharOperation.subarray(name, 0, CharOperation.lastIndexOf('.', name)));
 	for (int i = 0, length = qualification.length; i < length; i++) {
 		this.indexer.addNameReference(qualification[i]);

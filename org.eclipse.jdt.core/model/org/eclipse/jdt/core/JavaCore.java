@@ -1348,18 +1348,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - default:           "warning"
 	 *
 	 * COMPILER / Setting Source Compatibility Mode
-	 *    Specify whether source is 1.3 or 1.4 compatible. From 1.4 on, 'assert' is a keyword
+	 *    Specify whether which source level compatibility is used. From 1.4 on, 'assert' is a keyword
 	 *    reserved for assertion support. Also note, than when toggling to 1.4 mode, the target VM
 	 *   level should be set to "1.4" and the compliance mode should be "1.4".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.source"
-	 *     - possible values:   { "1.3", "1.4" }
+	 *     - possible values:   { "1.3", "1.4", "1.5" }
 	 *     - default:           "1.3"
 	 * 
 	 * COMPILER / Setting Compliance Level
 	 *    Select the compliance level for the compiler. In "1.3" mode, source and target settings
 	 *    should not go beyond "1.3" level.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.compliance"
-	 *     - possible values:   { "1.3", "1.4" }
+	 *     - possible values:   { "1.3", "1.4", "1.5" }
 	 *     - default:           "1.3"
 	 * 
 	 * COMPILER / Maximum number of problems reported per compilation unit
@@ -2892,7 +2892,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 					oldContainer = null;
 				}
 			}
-			if (oldContainer != null && oldContainer.equals(respectiveContainers[i])){// TODO: could improve to only compare entries
+			if (oldContainer != null && oldContainer.equals(respectiveContainers[i])){// TODO: (philippe) could improve to only compare entries
 				modifiedProjects[i] = null; // filter out this project - container did not change
 				continue;
 			}
@@ -3024,7 +3024,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		throws JavaModelException {
 
 		if (variableNames.length != paths.length)	Assert.isTrue(false, "Variable names and paths collections should have the same size"); //$NON-NLS-1$
-		//TODO: should check that null cannot be used as variable paths
+		//TODO: (philippe) should check that null cannot be used as variable paths
 		updateVariableValues(variableNames, paths, monitor);
 	}
 

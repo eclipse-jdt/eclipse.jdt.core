@@ -15,6 +15,7 @@ public class SourceImport {
 	int declarationSourceEnd;
 	char[] name;
 	boolean onDemand;
+	int modifiers;
 	char[] source;
 /**
  * @param declarationSourceStart int
@@ -27,12 +28,14 @@ public SourceImport(
 	int declarationSourceEnd, 
 	char[] name, 
 	boolean onDemand,
+	int modifiers,
 	char[] source) {
 
 	this.declarationSourceStart = declarationSourceStart;
 	this.declarationSourceEnd = declarationSourceEnd; 
 	this.name = name;
 	this.onDemand = onDemand;
+	this.modifiers = modifiers;
 	this.source = source;
 }
 /**

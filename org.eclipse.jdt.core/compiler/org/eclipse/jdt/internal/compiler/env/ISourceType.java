@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.env;
 
 public interface ISourceType extends IGenericType {
+
 /**
  * Answer the source end position of the type's declaration.
  */
@@ -35,14 +36,15 @@ ISourceType getEnclosingType();
 
 ISourceField[] getFields();
 /**
- * Answer the unresolved names of the receiver's imports
- * or null if the array is empty.
+ * Answer the receiver's imports or null if the array is empty.
  *
  * An import is a qualified, dot separated name.
  * For example, java.util.Hashtable or java.lang.*.
+ * A static import used 'static.' as its first fragment, for
+ * example: static.java.util.Hashtable.*
  */
 
-char[][] getImports();
+ISourceImport[] getImports();
 /**
  * Answer the unresolved names of the receiver's interfaces
  * or null if the array is empty.

@@ -36,8 +36,8 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 
 public class CompletionOnImportReference extends ImportReference {
 
-public CompletionOnImportReference(char[][] tokens , long[] positions) {
-	super(tokens, positions, false);
+public CompletionOnImportReference(char[][] tokens , long[] positions, int modifiers) {
+	super(tokens, positions, false, modifiers);
 }
 public String toString(int tab, boolean withOnDemand) {
 

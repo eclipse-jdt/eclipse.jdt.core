@@ -1964,8 +1964,8 @@ protected void consumeUnaryExpression(int op, boolean post) {
 	}
 }
 
-public ImportReference createAssistImportReference(char[][] tokens, long[] positions){
-	return new CompletionOnImportReference(tokens, positions);
+public ImportReference createAssistImportReference(char[][] tokens, long[] positions, int modifiers){
+	return new CompletionOnImportReference(tokens, positions, modifiers);
 }
 public ImportReference createAssistPackageReference(char[][] tokens, long[] positions){
 	return new CompletionOnPackageReference(tokens, positions);

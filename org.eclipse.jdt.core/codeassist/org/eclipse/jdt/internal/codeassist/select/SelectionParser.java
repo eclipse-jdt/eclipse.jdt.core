@@ -461,7 +461,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		length); 
 
 	/* build specific assist node on import statement */
-	ImportReference reference = this.createAssistImportReference(subset, positions);
+	ImportReference reference = this.createAssistImportReference(subset, positions, AccDefault/*TODO: (olivier) update for static imports*/);
 	reference.onDemand = true;
 	assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
@@ -486,8 +486,8 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		restartRecovery = true; // used to avoid branching back into the regular automaton		
 	}
 }
-public ImportReference createAssistImportReference(char[][] tokens, long[] positions){
-	return new SelectionOnImportReference(tokens, positions);
+public ImportReference createAssistImportReference(char[][] tokens, long[] positions, int modifiers){
+	return new SelectionOnImportReference(tokens, positions, modifiers);
 }
 public ImportReference createAssistPackageReference(char[][] tokens, long[] positions){
 	return new SelectionOnPackageReference(tokens, positions);

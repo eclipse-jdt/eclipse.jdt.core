@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 
 /**
+ * Handle for an import declaration. Info object is a ImportDeclarationElementInfo.
  * @see IImportDeclaration
  */
 
@@ -23,7 +24,7 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
 
 
 /**
- * Constructs an ImportDeclartaion in the given import container
+ * Constructs an ImportDeclaration in the given import container
  * with the given name.
  */
 protected ImportDeclaration(IImportContainer parent, String name) {
@@ -35,6 +36,14 @@ protected ImportDeclaration(IImportContainer parent, String name) {
 protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 	return (node.getNodeType() == IDOMNode.IMPORT) && getElementName().equals(node.getName());
 }
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.IImportDeclaration#getFlags()
+ */
+public int getFlags() throws JavaModelException {
+	ImportDeclarationElementInfo info = (ImportDeclarationElementInfo)getElementInfo();
+	return info.getModifiers();
+}
+
 /**
  * @see JavaElement#getHandleMemento()
  */

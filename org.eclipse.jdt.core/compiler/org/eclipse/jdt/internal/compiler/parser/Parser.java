@@ -2799,7 +2799,7 @@ protected void consumePackageDeclarationName() {
 		0, 
 		length); 
 	compilationUnit.currentPackage = 
-		impt = new ImportReference(tokens, positions, true); 
+		impt = new ImportReference(tokens, positions, true, AccDefault); 
 
 	if (currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = scanner.currentPosition - 1;
@@ -3846,7 +3846,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 	long[] positions = new long[length];
 	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, false));
+	pushOnAstStack(impt = new ImportReference(tokens, positions, false, AccDefault/*TODO: (olivier) update for static imports*/));
 
 	if (currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = scanner.currentPosition - 1;
@@ -4619,7 +4619,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	long[] positions = new long[length];
 	System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(identifierPositionStack, identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, true));
+	pushOnAstStack(impt = new ImportReference(tokens, positions, true, AccDefault/*TODO: (olivier) update for static imports*/));
 
 	if (currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = scanner.currentPosition - 1;

@@ -29,6 +29,19 @@ public interface IImportDeclaration extends IJavaElement, ISourceReference, ISou
  */
 String getElementName();
 /**
+ * Returns the modifier flags for this import. The flags can be examined using class
+ * <code>Flags</code>.
+ * <p>
+ * Since Java 1.5, static imports are allowed.
+ * @exception JavaModelException if this element does not exist or if an
+ *      exception occurs while accessing its corresponding resource.
+ * @return the modifier flags for this import
+ * @see Flags
+ * @since 2.2
+ */
+int getFlags() throws JavaModelException;
+
+/**
  * Returns whether the import is on-demand. An import is on-demand if it ends
  * with <code>".*"</code>.
  * @return true if the import is on-demand, false otherwise

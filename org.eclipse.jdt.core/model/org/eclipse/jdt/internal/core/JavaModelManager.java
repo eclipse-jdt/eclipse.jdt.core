@@ -1037,7 +1037,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	public ZipFile getZipFile(IPath path) throws CoreException {
 			
-		synchronized(this.zipFiles) { // TODO:  use PerThreadObject which does synchronization
+		synchronized(this.zipFiles) { // TODO: (jerome) use PerThreadObject which does synchronization
 			Thread currentThread = Thread.currentThread();
 			HashMap map = null;
 			ZipFile zipFile;
@@ -1220,7 +1220,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 *  Returns the info for this element without
 	 *  disturbing the cache ordering.
-	 */ // TODO: should be synchronized, could answer unitialized info or if cache is in middle of rehash, could even answer distinct element info
+	 */ // TODO: (jerome) should be synchronized, could answer unitialized info or if cache is in middle of rehash, could even answer distinct element info
 	protected Object peekAtInfo(IJavaElement element) {
 		return this.cache.peekAtInfo(element);
 	}

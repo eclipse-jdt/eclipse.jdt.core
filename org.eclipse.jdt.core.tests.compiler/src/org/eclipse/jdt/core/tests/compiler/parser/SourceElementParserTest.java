@@ -72,10 +72,11 @@ public void acceptImport(
 	int declarationStart, 
 	int declarationEnd, 
 	char[] name, 
-	boolean onDemand) {
+	boolean onDemand,
+	int modifiers) {
 
 	addImport(
-		new SourceImport(declarationStart, declarationEnd, name, onDemand, source)); 
+		new SourceImport(declarationStart, declarationEnd, name, onDemand, modifiers, source)); 
 }
 /**
  * acceptLineSeparatorPositions method comment.

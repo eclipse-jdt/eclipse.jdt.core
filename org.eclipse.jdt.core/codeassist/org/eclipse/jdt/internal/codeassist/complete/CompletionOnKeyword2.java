@@ -17,7 +17,7 @@ public class CompletionOnKeyword2 extends ImportReference implements CompletionO
 	private long pos;
 	private char[][] possibleKeywords;
 	public CompletionOnKeyword2(char[] token, long pos, char[][] possibleKeywords) {
-		super(new char[][]{token}, new long[]{pos}, false);
+		super(new char[][]{token}, new long[]{pos}, false, AccDefault);
 		this.token = token;
 		this.pos = pos;
 		this.possibleKeywords = possibleKeywords;

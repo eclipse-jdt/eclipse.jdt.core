@@ -26,14 +26,14 @@ import org.eclipse.jdt.internal.core.util.CharArrayOps;
  */
 public class SimpleDOMBuilder extends AbstractDOMBuilder implements ISourceElementRequestor {
 
-public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand) {
+public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand, int modifiers) {
 	int[] sourceRange = {declarationStart, declarationEnd};
 	String importName = new String(name);
 	/** name is set to contain the '*' */
 	if (onDemand) {
 		importName+=".*"; //$NON-NLS-1$
 	}
-	fNode= new DOMImport(fDocument, sourceRange, importName, onDemand);
+	fNode= new DOMImport(fDocument, sourceRange, importName, onDemand); // TODO: (olivier) DOM import should reflect static nature
 	addChild(fNode);	
 }
 public void acceptPackage(int declarationStart, int declarationEnd, char[] name) {

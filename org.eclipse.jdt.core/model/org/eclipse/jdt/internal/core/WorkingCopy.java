@@ -336,7 +336,7 @@ public boolean isWorkingCopy() {
  * @see IOpenable#makeConsistent(IProgressMonitor)
  */
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
-	if (!isConsistent()) { // TODO: this code isn't synchronized with regular opening of a working copy (should use getElementInfo)
+	if (!isConsistent()) { // TODO: (jerome) this code isn't synchronized with regular opening of a working copy (should use getElementInfo)
 		super.makeConsistent(monitor);
 
 		if (monitor != null && monitor.isCanceled()) return;

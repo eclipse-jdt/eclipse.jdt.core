@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
@@ -18,7 +17,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IImportContainer;
-import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
@@ -50,7 +48,7 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	/**
 	 * The import container info - null until created
 	 */
-	protected JavaElementInfo fImportContainerInfo= null;
+	protected JavaElementInfo importContainerInfo = null;
 
 	/**
 	 * Hashtable of children elements of the compilation unit.
@@ -134,7 +132,7 @@ protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUn
 /**
  * @see ISourceElementRequestor
  */
-public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand) {
+public void acceptImport(int declarationStart, int declarationEnd, char[] name, boolean onDemand, int modifiers) {
 	JavaElementInfo parentInfo = (JavaElementInfo) fInfoStack.peek();
 	JavaElement parentHandle= (JavaElement)fHandleStack.peek();
 	if (!(parentHandle.getElementType() == IJavaElement.COMPILATION_UNIT)) {
@@ -144,11 +142,11 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	ICompilationUnit parentCU= (ICompilationUnit)parentHandle;
 	//create the import container and its info
 	IImportContainer importContainer= parentCU.getImportContainer();
-	if (fImportContainerInfo == null) {
-		fImportContainerInfo= new JavaElementInfo();
-		fImportContainerInfo.setIsStructureKnown(true);
+	if (this.importContainerInfo == null) {
+		this.importContainerInfo= new JavaElementInfo();
+		this.importContainerInfo.setIsStructureKnown(true);
 		parentInfo.addChild(importContainer);
-		fNewElements.put(importContainer, fImportContainerInfo);
+		fNewElements.put(importContainer, this.importContainerInfo);
 	}
 	
 	// tack on the '.*' if it is onDemand
@@ -162,11 +160,14 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	ImportDeclaration handle = new ImportDeclaration(importContainer, importName);
 	resolveDuplicates(handle);
 	
-	SourceRefElementInfo info = new SourceRefElementInfo();
+	ImportDeclarationElementInfo info = new ImportDeclarationElementInfo();
 	info.setSourceRangeStart(declarationStart);
 	info.setSourceRangeEnd(declarationEnd);
+	info.setFlags(modifiers);
+	info.setName(name); // no trailing * if onDemand
+	info.setOnDemand(onDemand);
 
-	fImportContainerInfo.addChild(handle);
+	this.importContainerInfo.addChild(handle);
 	fNewElements.put(handle, info);
 }
 /*
@@ -468,13 +469,6 @@ protected void enterType(
 	info.setSourceFileName(fSourceFileName);
 	info.setPackageName(fPackageName);
 	info.setQualifiedName(qualifiedName);
-	for (Iterator iter = fNewElements.keySet().iterator(); iter.hasNext();){
-		Object object = iter.next();
-		if (object instanceof IImportDeclaration)
-			info.addImport(((IImportDeclaration)object).getElementName().toCharArray());
-	}
-	
-
 	parentInfo.addChild(handle);
 	fNewElements.put(handle, info);
 

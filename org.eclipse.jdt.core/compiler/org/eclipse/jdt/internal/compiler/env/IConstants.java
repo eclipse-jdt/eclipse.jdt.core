@@ -15,6 +15,8 @@ package org.eclipse.jdt.internal.compiler.env;
  */
 public interface IConstants {
 
+	int AccDefault = 0;
+
 	/*
 	 * Modifiers
 	 */

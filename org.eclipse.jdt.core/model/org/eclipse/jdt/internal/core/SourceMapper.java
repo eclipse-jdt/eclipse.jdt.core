@@ -53,10 +53,9 @@ public class SourceMapper
 	extends ReferenceInfoAdapter
 	implements ISourceElementRequestor {
 		
-	private static boolean VERBOSE = false;
-	private final static String SUFFIX_java = ".java"; //$NON-NLS-1$
 	private final static String SUFFIX_JAVA = ".JAVA"; //$NON-NLS-1$
-
+	private final static String SUFFIX_java = ".java"; //$NON-NLS-1$
+	public static boolean VERBOSE = false;
 	/**
 	 * Specifies the file name filter use to compute the root paths.
 	 */
@@ -65,7 +64,6 @@ public class SourceMapper
 			return name.endsWith(SUFFIX_JAVA) || name.endsWith(SUFFIX_java); //$NON-NLS-1$
 		}
 	};
-	
 	/**
 	 * Specifies the location of the package fragment roots within
 	 * the zip (empty specifies the default root). <code>null</code> is
@@ -205,10 +203,11 @@ public class SourceMapper
 	 * @see ISourceElementRequestor
 	 */
 	public void acceptImport(
-		int declarationStart,
-		int declarationEnd,
-		char[] name,
-		boolean onDemand) {
+			int declarationStart,
+			int declarationEnd,
+			char[] name,
+			boolean onDemand,
+			int modifiers) {
 		char[][] imports = (char[][]) this.importsTable.get(fType);
 		int importsCounter;
 		if (imports == null) {
