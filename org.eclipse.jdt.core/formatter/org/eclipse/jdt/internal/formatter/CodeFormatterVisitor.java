@@ -286,6 +286,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		return members;
 	}
 
+	/**
+	 * TODO (olivier) remove once old formatter is gone
+	 * @deprecated
+	 */
 	void convertOldOptionsToPreferences(Map oldOptions, FormattingPreferences formattingPreferences) {
 		if (oldOptions == null) {
 			return;
