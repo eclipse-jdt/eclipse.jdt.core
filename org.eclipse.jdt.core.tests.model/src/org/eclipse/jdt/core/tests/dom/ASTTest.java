@@ -548,7 +548,7 @@ public class ASTTest extends TestCase {
 		Class c = ASTTest.class;
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
-			if (methods[i].getName().startsWith("test")) {
+			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
 				suite.addTest(new ASTTest(methods[i].getName()));
 			}
 		}
@@ -580,20 +580,20 @@ public class ASTTest extends TestCase {
 
 			// package com.example;
 			PackageDeclaration pd = ast.newPackageDeclaration();
-			pd.setName(ast.newName(new String[]{"com", "example"}));
+			pd.setName(ast.newName(new String[]{"com", "example"})); //$NON-NLS-1$ //$NON-NLS-2$
 			cu.setPackage(pd);
 			assertTrue(pd.getRoot() == cu);
 
 			// import java.io;*;
 			ImportDeclaration im1 = ast.newImportDeclaration();
-			im1.setName(ast.newName(new String[]{"java", "io"}));
+			im1.setName(ast.newName(new String[]{"java", "io"})); //$NON-NLS-1$ //$NON-NLS-2$
 			im1.setOnDemand(true);
 			cu.imports().add(im1);
 			assertTrue(im1.getRoot() == cu);
 			
 			// import java.util.List;
 			ImportDeclaration im2 = ast.newImportDeclaration();
-			im2.setName(ast.newName(new String[]{"java", "util", "List"}));
+			im2.setName(ast.newName(new String[]{"java", "util", "List"})); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			im2.setOnDemand(false);
 			cu.imports().add(im2);
 			assertTrue(im2.getRoot() == cu);
@@ -602,13 +602,13 @@ public class ASTTest extends TestCase {
 			TypeDeclaration td = ast.newTypeDeclaration();
 			td.setModifiers(Modifier.PUBLIC);
 			td.setInterface(false); 
-			td.setName(ast.newSimpleName("MyClass"));
+			td.setName(ast.newSimpleName("MyClass")); //$NON-NLS-1$
 			cu.types().add(td);
 			assertTrue(td.getRoot() == cu);
 			
 			// private static boolean DEBUG = true;
 			VariableDeclarationFragment f1 = ast.newVariableDeclarationFragment();
-			f1.setName(ast.newSimpleName("DEBUG"));
+			f1.setName(ast.newSimpleName("DEBUG")); //$NON-NLS-1$
 			f1.setInitializer(ast.newBooleanLiteral(true));
 			FieldDeclaration fd = ast.newFieldDeclaration(f1);
 			fd.setType(ast.newPrimitiveType(PrimitiveType.BOOLEAN));
@@ -620,7 +620,7 @@ public class ASTTest extends TestCase {
 			MethodDeclaration md = ast.newMethodDeclaration();
 			md.setModifiers(Modifier.PUBLIC | Modifier.STATIC);
 			md.setConstructor(false);
-			md.setName(ast.newSimpleName("main"));
+			md.setName(ast.newSimpleName("main")); //$NON-NLS-1$
 			md.setReturnType(ast.newPrimitiveType(PrimitiveType.VOID));
 			td.bodyDeclarations().add(md);
 			assertTrue(md.getRoot() == cu);
@@ -628,8 +628,8 @@ public class ASTTest extends TestCase {
 			// String[] args
 			SingleVariableDeclaration a1 = ast.newSingleVariableDeclaration();
 			a1.setType(ast.newArrayType(
-				ast.newSimpleType(ast.newSimpleName("String"))));
-			a1.setName(ast.newSimpleName("args"));
+				ast.newSimpleType(ast.newSimpleName("String")))); //$NON-NLS-1$
+			a1.setName(ast.newSimpleName("args")); //$NON-NLS-1$
 			md.parameters().add(a1);
 			assertTrue(a1.getRoot() == cu);
 			
@@ -640,10 +640,10 @@ public class ASTTest extends TestCase {
 
 			// System.out.println("hello world");		
 			MethodInvocation e = ast.newMethodInvocation();
-			e.setExpression(ast.newName(new String[] {"System", "out"}));
-			e.setName(ast.newSimpleName("println"));
+			e.setExpression(ast.newName(new String[] {"System", "out"})); //$NON-NLS-1$ //$NON-NLS-2$
+			e.setName(ast.newSimpleName("println")); //$NON-NLS-1$
 			StringLiteral h = ast.newStringLiteral();
-			h.setLiteralValue("hello world");
+			h.setLiteralValue("hello world"); //$NON-NLS-1$
 			e.arguments().add(h);
 			
 			b.statements().add(ast.newExpressionStatement(e));
@@ -654,8 +654,8 @@ public class ASTTest extends TestCase {
 			ArrayCreation ac1 = ast.newArrayCreation();
 			ac1.setType(
 				ast.newArrayType(
-					ast.newSimpleType(ast.newSimpleName("String"))));
-			ac1.dimensions().add(ast.newSimpleName("len"));
+					ast.newSimpleType(ast.newSimpleName("String")))); //$NON-NLS-1$
+			ac1.dimensions().add(ast.newSimpleName("len")); //$NON-NLS-1$
 			b.statements().add(ast.newExpressionStatement(ac1));
 			assertTrue(ac1.getRoot() == cu);
 
@@ -664,8 +664,8 @@ public class ASTTest extends TestCase {
 			ac2.setType(
 				ast.newArrayType(
 					ast.newPrimitiveType(PrimitiveType.DOUBLE), 3));
-			ac2.dimensions().add(ast.newNumberLiteral("7"));
-			ac2.dimensions().add(ast.newNumberLiteral("24"));
+			ac2.dimensions().add(ast.newNumberLiteral("7")); //$NON-NLS-1$
+			ac2.dimensions().add(ast.newNumberLiteral("24")); //$NON-NLS-1$
 			b.statements().add(ast.newExpressionStatement(ac2));
 			assertTrue(ac2.getRoot() == cu);
 
@@ -676,16 +676,16 @@ public class ASTTest extends TestCase {
 					ast.newPrimitiveType(PrimitiveType.INT)));
 			ArrayInitializer ai = ast.newArrayInitializer();
 			ac3.setInitializer(ai);
-			ai.expressions().add(ast.newNumberLiteral("1"));
-			ai.expressions().add(ast.newNumberLiteral("2"));
+			ai.expressions().add(ast.newNumberLiteral("1")); //$NON-NLS-1$
+			ai.expressions().add(ast.newNumberLiteral("2")); //$NON-NLS-1$
 			b.statements().add(ast.newExpressionStatement(ac3));
 			assertTrue(ac3.getRoot() == cu);
 			assertTrue(ai.getRoot() == cu);
 			
 			// new String(10)
 			ClassInstanceCreation cr1 = ast.newClassInstanceCreation();
-			cr1.setName(ast.newSimpleName("String"));
-			cr1.arguments().add(ast.newNumberLiteral("10"));		
+			cr1.setName(ast.newSimpleName("String")); //$NON-NLS-1$
+			cr1.arguments().add(ast.newNumberLiteral("10"));		 //$NON-NLS-1$
 			b.statements().add(ast.newExpressionStatement(cr1));
 			assertTrue(cr1.getRoot() == cu);
 
@@ -693,10 +693,10 @@ public class ASTTest extends TestCase {
 			ClassInstanceCreation cr2 = ast.newClassInstanceCreation();
 			AnonymousClassDeclaration ad1 = ast.newAnonymousClassDeclaration();
 			cr2.setAnonymousClassDeclaration(ad1);
-			cr2.setName(ast.newSimpleName("Listener"));
+			cr2.setName(ast.newSimpleName("Listener")); //$NON-NLS-1$
 			MethodDeclaration md0 = ast.newMethodDeclaration();
 			md0.setModifiers(Modifier.PUBLIC);
-			md0.setName(ast.newSimpleName("handleEvent"));
+			md0.setName(ast.newSimpleName("handleEvent")); //$NON-NLS-1$
 			md0.setBody(ast.newBlock());
 			ad1.bodyDeclarations().add(md0);
 			b.statements().add(ast.newExpressionStatement(cr2));
@@ -807,7 +807,7 @@ public class ASTTest extends TestCase {
 		 * @return the property value, or <code>null</code> if no value
 		 */
 		public ASTNode get() {
-			throw new RuntimeException("get not implemented");
+			throw new RuntimeException("get not implemented"); //$NON-NLS-1$
 		}
 		
 		/**
@@ -820,7 +820,7 @@ public class ASTTest extends TestCase {
 		 * @param value the property value, or <code>null</code> if no value
 		 */
 		public void set(ASTNode value) {
-			throw new RuntimeException("get not implemented");
+			throw new RuntimeException("get not implemented"); //$NON-NLS-1$
 		}
 	}
 
@@ -990,7 +990,7 @@ public class ASTTest extends TestCase {
 		
 		// modification count increases for node creations
 		long previousCount = ast.modificationCount();
-		SimpleName x = ast.newSimpleName("first");
+		SimpleName x = ast.newSimpleName("first"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
 
 		// modification count does not increase for reading node attributes
@@ -1007,14 +1007,14 @@ public class ASTTest extends TestCase {
 
 		// modification count does not increase for reading or writing properties
 		previousCount = ast.modificationCount();
-		x.getProperty("any");
-		x.setProperty("any", "value"); // N.B.
+		x.getProperty("any"); //$NON-NLS-1$
+		x.setProperty("any", "value"); // N.B. //$NON-NLS-1$ //$NON-NLS-2$
 		x.properties();
 		assertTrue(ast.modificationCount() == previousCount);
 
 		// modification count increases for changing node attributes
 		previousCount = ast.modificationCount();
-		x.setIdentifier("second");
+		x.setIdentifier("second"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
 		
 		previousCount = ast.modificationCount();
@@ -1030,22 +1030,22 @@ public class ASTTest extends TestCase {
 
 		// well known bindings
 		String[] wkbs = {
-			"byte", "char", "short", "int", "long",
-			"boolean", "float", "double", "void",
-			"java.lang.Object",
-			"java.lang.String",
-			"java.lang.StringBuffer",
-			"java.lang.Throwable",
-			"java.lang.Exception",
-			"java.lang.RuntimeException",
-			"java.lang.Error",
+			"byte", "char", "short", "int", "long", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			"boolean", "float", "double", "void", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			"java.lang.Object", //$NON-NLS-1$
+			"java.lang.String", //$NON-NLS-1$
+			"java.lang.StringBuffer", //$NON-NLS-1$
+			"java.lang.Throwable", //$NON-NLS-1$
+			"java.lang.Exception", //$NON-NLS-1$
+			"java.lang.RuntimeException", //$NON-NLS-1$
+			"java.lang.Error", //$NON-NLS-1$
 		};
 		
 		// no-so-well-known bindings
 		String[] nwkbs = {
-			"verylong",
-			"java.lang.Math",
-			"com.example.MyCode",
+			"verylong", //$NON-NLS-1$
+			"java.lang.Math", //$NON-NLS-1$
+			"com.example.MyCode", //$NON-NLS-1$
 		};
 	
 		// none of the well known bindings resolve in a plain AST		
@@ -1061,22 +1061,22 @@ public class ASTTest extends TestCase {
 	
 	public void testSimpleName() {
 		long previousCount = ast.modificationCount();
-		SimpleName x = ast.newSimpleName("foo");
+		SimpleName x = ast.newSimpleName("foo"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Name);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
-		assertTrue("foo".equals(x.getIdentifier()));
+		assertTrue("foo".equals(x.getIdentifier())); //$NON-NLS-1$
 		assertTrue(x.getNodeType() == ASTNode.SIMPLE_NAME);
 		assertTrue(x.isDeclaration() == false);
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
 		previousCount = ast.modificationCount();
-		x.setIdentifier("bar");
+		x.setIdentifier("bar"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
-		assertTrue("bar".equals(x.getIdentifier()));
+		assertTrue("bar".equals(x.getIdentifier())); //$NON-NLS-1$
 
 		// check that property cannot be set to null
 		try {
@@ -1089,17 +1089,17 @@ public class ASTTest extends TestCase {
 		// check that property cannot be set to keyword or reserved work
 		String[] reserved  = 
 				new String[] {
-						"true", "false", "null", // literals
-						"abstract", "default", "if", "private", "this",
-						"boolean", "do", "implements", "protected", "throw",
-						"break", "double", "import", "public", "throws",
-						"byte", "else", "instanceof", "return", "transient",
-						"case", "extends", "int", "short", "try",
-						"catch", "final", "interface", "static", "void",
-						"char", "finally", "long", "strictfp", "volatile",
-						"class", "float", "native", "super", "while",
-						"const", "for", "new", "switch",
-						"continue", "goto", "package", "synchronized"};
+						"true", "false", "null", // literals //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						"abstract", "default", "if", "private", "this", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+						"boolean", "do", "implements", "protected", "throw", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+						"break", "double", "import", "public", "throws", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+						"byte", "else", "instanceof", "return", "transient", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+						"case", "extends", "int", "short", "try", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+						"catch", "final", "interface", "static", "void", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+						"char", "finally", "long", "strictfp", "volatile", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+						"class", "float", "native", "super", "while", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+						"const", "for", "new", "switch", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+						"continue", "goto", "package", "synchronized"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		for (int i=0; i<reserved.length; i++) {
 			try {
 				x.setIdentifier(reserved[i]);
@@ -1110,36 +1110,36 @@ public class ASTTest extends TestCase {
 		}
 		
 		// check that "assert" is not considered a keyword
-		x.setIdentifier("assert");
+		x.setIdentifier("assert"); //$NON-NLS-1$
 		
 		// check that isDeclaration works
-		QualifiedName y = ast.newQualifiedName(ast.newSimpleName("a"), x);
+		QualifiedName y = ast.newQualifiedName(ast.newSimpleName("a"), x); //$NON-NLS-1$
 		assertTrue(x.isDeclaration() == false);
-		y.setName(ast.newSimpleName("b"));
+		y.setName(ast.newSimpleName("b")); //$NON-NLS-1$
 		assertTrue(x.isDeclaration() == false);
 
 		TypeDeclaration td = ast.newTypeDeclaration();
 		td.setName(x);
 		assertTrue(x.isDeclaration() == true);
-		td.setName(ast.newSimpleName("b"));
+		td.setName(ast.newSimpleName("b")); //$NON-NLS-1$
 		assertTrue(x.isDeclaration() == false);
 		
 		MethodDeclaration md = ast.newMethodDeclaration();
 		md.setName(x);
 		assertTrue(x.isDeclaration() == true);
-		md.setName(ast.newSimpleName("b"));
+		md.setName(ast.newSimpleName("b")); //$NON-NLS-1$
 		assertTrue(x.isDeclaration() == false);
 		
 		SingleVariableDeclaration vd = ast.newSingleVariableDeclaration();
 		vd.setName(x);
 		assertTrue(x.isDeclaration() == true);
-		vd.setName(ast.newSimpleName("b"));
+		vd.setName(ast.newSimpleName("b")); //$NON-NLS-1$
 		assertTrue(x.isDeclaration() == false);
 		
 		VariableDeclarationFragment fd = ast.newVariableDeclarationFragment();
 		fd.setName(x);
 		assertTrue(x.isDeclaration() == true);
-		fd.setName(ast.newSimpleName("b"));
+		fd.setName(ast.newSimpleName("b")); //$NON-NLS-1$
 		assertTrue(x.isDeclaration() == false);
 		
 	}		
@@ -1147,8 +1147,8 @@ public class ASTTest extends TestCase {
 	public void testQualifiedName() {
 		long previousCount = ast.modificationCount();
 		final QualifiedName x = ast.newQualifiedName(
-			ast.newSimpleName("q"),
-			ast.newSimpleName("i"));
+			ast.newSimpleName("q"), //$NON-NLS-1$
+			ast.newSimpleName("i")); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Name);
@@ -1161,23 +1161,23 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
-		genericPropertyTest(x, new Property("Qualifier", true, Name.class) {
+		genericPropertyTest(x, new Property("Qualifier", true, Name.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				QualifiedName result = targetAst.newQualifiedName(
-					targetAst.newSimpleName("a"),
-					targetAst.newSimpleName("b"));
+					targetAst.newSimpleName("a"), //$NON-NLS-1$
+					targetAst.newSimpleName("b")); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
 				return result;
 			}
 			public ASTNode wrap() {
-				QualifiedName s1 = ast.newQualifiedName(x, ast.newSimpleName("z"));
+				QualifiedName s1 = ast.newQualifiedName(x, ast.newSimpleName("z")); //$NON-NLS-1$
 				return s1;
 			}
 			public void unwrap() {
 				QualifiedName s1 = (QualifiedName) x.getParent();
-				s1.setQualifier(ast.newSimpleName("z"));
+				s1.setQualifier(ast.newSimpleName("z")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getQualifier();
@@ -1187,9 +1187,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("Name", true, SimpleName.class) {
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -1252,23 +1252,23 @@ public class ASTTest extends TestCase {
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
-		assertTrue("\"\"".equals(x.getEscapedValue()));
-		assertTrue("".equals(x.getLiteralValue()));
+		assertTrue("\"\"".equals(x.getEscapedValue())); //$NON-NLS-1$
+		assertTrue("".equals(x.getLiteralValue())); //$NON-NLS-1$
 		assertTrue(x.getNodeType() == ASTNode.STRING_LITERAL);
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
 		previousCount = ast.modificationCount();
-		x.setEscapedValue("\"bye\"");
+		x.setEscapedValue("\"bye\""); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
-		assertTrue("\"bye\"".equals(x.getEscapedValue()));
-		assertTrue("bye".equals(x.getLiteralValue()));
+		assertTrue("\"bye\"".equals(x.getEscapedValue())); //$NON-NLS-1$
+		assertTrue("bye".equals(x.getLiteralValue())); //$NON-NLS-1$
 
 		previousCount = ast.modificationCount();
-		x.setLiteralValue("hi");
+		x.setLiteralValue("hi"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
-		assertTrue("\"hi\"".equals(x.getEscapedValue()));
-		assertTrue("hi".equals(x.getLiteralValue()));
+		assertTrue("\"hi\"".equals(x.getEscapedValue())); //$NON-NLS-1$
+		assertTrue("hi".equals(x.getLiteralValue())); //$NON-NLS-1$
 
 		// check that property cannot be set to null
 		try {
@@ -1290,44 +1290,44 @@ public class ASTTest extends TestCase {
 	public void testStringLiteralUnicode() {
 		AST ast = new AST();
 		StringLiteral literal = ast.newStringLiteral();
-		literal.setEscapedValue("\"hello\\u0026\\u0050worl\\u0064\"");
-		assertTrue(literal.getLiteralValue().equals("hello&Pworld"));
+		literal.setEscapedValue("\"hello\\u0026\\u0050worl\\u0064\""); //$NON-NLS-1$
+		assertTrue(literal.getLiteralValue().equals("hello&Pworld")); //$NON-NLS-1$
 		
 		ast = new AST();
 		literal = ast.newStringLiteral();
-		literal.setEscapedValue("\"hello\\nworld\"");
-		assertTrue(literal.getLiteralValue().equals("hello\nworld"));
+		literal.setEscapedValue("\"hello\\nworld\""); //$NON-NLS-1$
+		assertTrue(literal.getLiteralValue().equals("hello\nworld")); //$NON-NLS-1$
 		
 		ast = new AST();
 		literal = ast.newStringLiteral();
-		literal.setLiteralValue("hello\nworld");
-		assertTrue(literal.getLiteralValue().equals("hello\nworld"));
+		literal.setLiteralValue("hello\nworld"); //$NON-NLS-1$
+		assertTrue(literal.getLiteralValue().equals("hello\nworld")); //$NON-NLS-1$
 		
 		ast = new AST();
 		literal = ast.newStringLiteral();
-		literal.setLiteralValue("\n");
-		assertTrue(literal.getEscapedValue().equals("\"\\n\""));
-		assertTrue(literal.getLiteralValue().equals("\n"));
+		literal.setLiteralValue("\n"); //$NON-NLS-1$
+		assertTrue(literal.getEscapedValue().equals("\"\\n\"")); //$NON-NLS-1$
+		assertTrue(literal.getLiteralValue().equals("\n")); //$NON-NLS-1$
 		
 		ast = new AST();
 		literal = ast.newStringLiteral();
-		literal.setEscapedValue("\"hello\\\"world\"");
-		assertTrue(literal.getLiteralValue().equals("hello\"world"));
+		literal.setEscapedValue("\"hello\\\"world\""); //$NON-NLS-1$
+		assertTrue(literal.getLiteralValue().equals("hello\"world")); //$NON-NLS-1$
 		
 		ast = new AST();
 		literal = ast.newStringLiteral();
-		literal.setLiteralValue("hello\\u0026world");
-		assertTrue(literal.getLiteralValue().equals("hello\\u0026world"));
+		literal.setLiteralValue("hello\\u0026world"); //$NON-NLS-1$
+		assertTrue(literal.getLiteralValue().equals("hello\\u0026world")); //$NON-NLS-1$
 		
 		ast = new AST();
 		literal = ast.newStringLiteral();
-		literal.setLiteralValue("hello\\u0026world");
-		assertTrue(literal.getEscapedValue().equals("\"hello\\\\u0026world\""));
+		literal.setLiteralValue("hello\\u0026world"); //$NON-NLS-1$
+		assertTrue(literal.getEscapedValue().equals("\"hello\\\\u0026world\"")); //$NON-NLS-1$
 		
 		ast = new AST();
 		literal = ast.newStringLiteral();
-		literal.setLiteralValue("\\u0001");
-		assertTrue(literal.getEscapedValue().equals("\"\\\\u0001\""));
+		literal.setLiteralValue("\\u0001"); //$NON-NLS-1$
+		assertTrue(literal.getEscapedValue().equals("\"\\\\u0001\"")); //$NON-NLS-1$
 	}		
 	
 	public void testCharacterLiteral() {
@@ -1338,16 +1338,16 @@ public class ASTTest extends TestCase {
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
-		assertTrue(x.getEscapedValue().startsWith("\'"));
-		assertTrue(x.getEscapedValue().endsWith("\'"));
+		assertTrue(x.getEscapedValue().startsWith("\'")); //$NON-NLS-1$
+		assertTrue(x.getEscapedValue().endsWith("\'")); //$NON-NLS-1$
 		assertTrue(x.getNodeType() == ASTNode.CHARACTER_LITERAL);
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
 		previousCount = ast.modificationCount();
-		x.setEscapedValue("\'z\'");
+		x.setEscapedValue("\'z\'"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
-		assertTrue("\'z\'".equals(x.getEscapedValue()));
+		assertTrue("\'z\'".equals(x.getEscapedValue())); //$NON-NLS-1$
 		assertTrue(x.charValue() == 'z');
 
 		// test other factory method
@@ -1371,54 +1371,54 @@ public class ASTTest extends TestCase {
 		// test escaped characters
 		// b, t, n, f, r, ", ', \, 0, 1, 2, 3, 4, 5, 6, or 7
 		try {
-			x.setEscapedValue("\'\\b\'");
-			x.setEscapedValue("\'\\t\'");
-			x.setEscapedValue("\'\\n\'");
-			x.setEscapedValue("\'\\f\'");
-			x.setEscapedValue("\'\\\"\'");
-			x.setEscapedValue("\'\\'\'");
-			x.setEscapedValue("\'\\\\\'");
-			x.setEscapedValue("\'\\0\'");
-			x.setEscapedValue("\'\\1\'");
-			x.setEscapedValue("\'\\2\'");
-			x.setEscapedValue("\'\\3\'");
-			x.setEscapedValue("\'\\4\'");
-			x.setEscapedValue("\'\\5\'");
-			x.setEscapedValue("\'\\6\'");
-			x.setEscapedValue("\'\\7\'");
-			x.setEscapedValue("\'\\u0041\'");
+			x.setEscapedValue("\'\\b\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\t\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\n\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\f\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\\"\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\'\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\\\\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\0\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\1\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\2\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\3\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\4\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\5\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\6\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\7\'"); //$NON-NLS-1$
+			x.setEscapedValue("\'\\u0041\'"); //$NON-NLS-1$
 			assertTrue(x.charValue() == 'A');
 		} catch(IllegalArgumentException e) {
 			assertTrue(false);
 		}
 		
 		x.setCharValue('\u0041');
-		assertTrue(x.getEscapedValue().equals("\'A\'"));
+		assertTrue(x.getEscapedValue().equals("\'A\'")); //$NON-NLS-1$
 		x.setCharValue('\t');
-		assertTrue(x.getEscapedValue().equals("\'\\t\'"));
-		x.setEscapedValue("\'\\\\\'");
-		assertTrue(x.getEscapedValue().equals("\'\\\\\'"));
+		assertTrue(x.getEscapedValue().equals("\'\\t\'")); //$NON-NLS-1$
+		x.setEscapedValue("\'\\\\\'"); //$NON-NLS-1$
+		assertTrue(x.getEscapedValue().equals("\'\\\\\'")); //$NON-NLS-1$
 		assertTrue(x.charValue() == '\\');
-		x.setEscapedValue("\'\\\'\'");
-		assertTrue(x.getEscapedValue().equals("\'\\\'\'"));
+		x.setEscapedValue("\'\\\'\'"); //$NON-NLS-1$
+		assertTrue(x.getEscapedValue().equals("\'\\\'\'")); //$NON-NLS-1$
 		assertTrue(x.charValue() == '\'');		
 		x.setCharValue('\'');
-		assertTrue(x.getEscapedValue().equals("\'\\\'\'"));
+		assertTrue(x.getEscapedValue().equals("\'\\\'\'")); //$NON-NLS-1$
 		assertTrue(x.charValue() == '\'');		
 		x.setCharValue('\\');
-		assertTrue(x.getEscapedValue().equals("\'\\\\\'"));
+		assertTrue(x.getEscapedValue().equals("\'\\\\\'")); //$NON-NLS-1$
 		assertTrue(x.charValue() == '\\');		
 	}		
 
 	public void testNumberLiteral() {
 		long previousCount = ast.modificationCount();
-		NumberLiteral x = ast.newNumberLiteral("1234");
+		NumberLiteral x = ast.newNumberLiteral("1234"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Expression);
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
-		assertTrue("1234".equals(x.getToken()));
+		assertTrue("1234".equals(x.getToken())); //$NON-NLS-1$
 		assertTrue(x.getNodeType() == ASTNode.NUMBER_LITERAL);
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
@@ -1429,20 +1429,20 @@ public class ASTTest extends TestCase {
 		assertTrue(ast.modificationCount() > previousCount);
 		assertTrue(y.getAST() == ast);
 		assertTrue(y.getParent() == null);
-		assertTrue("0".equals(y.getToken()));
+		assertTrue("0".equals(y.getToken())); //$NON-NLS-1$
 
 		final String[] samples =
-			{ "0", "1", "1234567890",
-			  "0L", "1L", "1234567890L",
-			  "0l", "1l", "1234567890l",
-			  "077", "0177", "012345670",
-			  "077L", "0177L", "012345670L",
-			  "077l", "0177l", "012345670l",
-			  "0x00", "0x1", "0x0123456789ABCDEF",
-			  "0x00L", "0x1L", "0x0123456789ABCDEFL",
-			  "0x00l", "0x1l", "0x0123456789ABCDEFl",
-			  "1e1f", "2.f", ".3f", "0f", "3.14f", "6.022137e+23f",
-			  "1e1", "2.", ".3", "0.0", "3.14", "1e-9d", "1e137",
+			{ "0", "1", "1234567890", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			  "0L", "1L", "1234567890L", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			  "0l", "1l", "1234567890l", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			  "077", "0177", "012345670", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			  "077L", "0177L", "012345670L", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			  "077l", "0177l", "012345670l", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			  "0x00", "0x1", "0x0123456789ABCDEF", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			  "0x00L", "0x1L", "0x0123456789ABCDEFL", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			  "0x00l", "0x1l", "0x0123456789ABCDEFl", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			  "1e1f", "2.f", ".3f", "0f", "3.14f", "6.022137e+23f", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+			  "1e1", "2.", ".3", "0.0", "3.14", "1e-9d", "1e137", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
 			};
 		for (int i = 0; i < samples.length; i++) {			
 			previousCount = ast.modificationCount();
@@ -1463,7 +1463,7 @@ public class ASTTest extends TestCase {
 
 	public void testSimpleType() {
 		long previousCount = ast.modificationCount();
-		final SimpleType x = ast.newSimpleType(ast.newSimpleName("String"));
+		final SimpleType x = ast.newSimpleType(ast.newSimpleName("String")); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
 		assertTrue(x instanceof Type);
@@ -1477,9 +1477,9 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
-		genericPropertyTest(x, new Property("Name", true, Name.class) {
+		genericPropertyTest(x, new Property("Name", true, Name.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("a");
+				SimpleName result = targetAst.newSimpleName("a"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -1511,15 +1511,15 @@ public class ASTTest extends TestCase {
 		assertTrue(ast.modificationCount() == previousCount);
 		
 		// check the names of the primitive type codes
-		assertTrue(PrimitiveType.BYTE.toString().equals("byte"));
-		assertTrue(PrimitiveType.INT.toString().equals("int"));
-		assertTrue(PrimitiveType.BOOLEAN.toString().equals("boolean"));
-		assertTrue(PrimitiveType.CHAR.toString().equals("char"));
-		assertTrue(PrimitiveType.SHORT.toString().equals("short"));
-		assertTrue(PrimitiveType.LONG.toString().equals("long"));
-		assertTrue(PrimitiveType.FLOAT.toString().equals("float"));
-		assertTrue(PrimitiveType.DOUBLE.toString().equals("double"));
-		assertTrue(PrimitiveType.VOID.toString().equals("void"));
+		assertTrue(PrimitiveType.BYTE.toString().equals("byte")); //$NON-NLS-1$
+		assertTrue(PrimitiveType.INT.toString().equals("int")); //$NON-NLS-1$
+		assertTrue(PrimitiveType.BOOLEAN.toString().equals("boolean")); //$NON-NLS-1$
+		assertTrue(PrimitiveType.CHAR.toString().equals("char")); //$NON-NLS-1$
+		assertTrue(PrimitiveType.SHORT.toString().equals("short")); //$NON-NLS-1$
+		assertTrue(PrimitiveType.LONG.toString().equals("long")); //$NON-NLS-1$
+		assertTrue(PrimitiveType.FLOAT.toString().equals("float")); //$NON-NLS-1$
+		assertTrue(PrimitiveType.DOUBLE.toString().equals("double")); //$NON-NLS-1$
+		assertTrue(PrimitiveType.VOID.toString().equals("void")); //$NON-NLS-1$
 
 		
 		PrimitiveType.Code[] known = {
@@ -1561,11 +1561,11 @@ public class ASTTest extends TestCase {
 			String name = known[i].toString();
 			assertTrue(PrimitiveType.toCode(name).equals(known[i]));
 		}
-		assertTrue(PrimitiveType.toCode("not-a-type") == null);
+		assertTrue(PrimitiveType.toCode("not-a-type") == null); //$NON-NLS-1$
 	}		
 	
 	public void testArrayType() {
-		SimpleName x1 = ast.newSimpleName("String");
+		SimpleName x1 = ast.newSimpleName("String"); //$NON-NLS-1$
 		SimpleType x2 = ast.newSimpleType(x1);
 		long previousCount = ast.modificationCount();
 		final ArrayType x = ast.newArrayType(x2);
@@ -1585,10 +1585,10 @@ public class ASTTest extends TestCase {
 		assertTrue(x.getDimensions() == 1);
 		assertTrue(x.getElementType() == x2);
 
-		genericPropertyTest(x, new Property("ComponentType", true, Type.class) {
+		genericPropertyTest(x, new Property("ComponentType", true, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				SimpleType result = targetAst.newSimpleType(
-					targetAst.newSimpleName("a"));
+					targetAst.newSimpleName("a")); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newArrayType(result);
 				}
@@ -1629,9 +1629,9 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
-		genericPropertyTest(x, new Property("Name", true, Name.class) {
+		genericPropertyTest(x, new Property("Name", true, Name.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("a");
+				SimpleName result = targetAst.newSimpleName("a"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -1659,9 +1659,9 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
-		genericPropertyTest(x, new Property("Name", true, Name.class) {
+		genericPropertyTest(x, new Property("Name", true, Name.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("a");
+				SimpleName result = targetAst.newSimpleName("a"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -1701,7 +1701,7 @@ public class ASTTest extends TestCase {
 
 		tClientProperties(x);
 		
-		genericPropertyTest(x, new Property("Package", false, PackageDeclaration.class) {
+		genericPropertyTest(x, new Property("Package", false, PackageDeclaration.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				PackageDeclaration result = targetAst.newPackageDeclaration();
 				if (parented) {
@@ -1718,7 +1718,7 @@ public class ASTTest extends TestCase {
 			}
 		});
 
-		genericPropertyListTest(x, x.imports(), new Property("Imports", true, ImportDeclaration.class) {
+		genericPropertyListTest(x, x.imports(), new Property("Imports", true, ImportDeclaration.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				ImportDeclaration result = targetAst.newImportDeclaration();
 				if (parented) {
@@ -1729,7 +1729,7 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyListTest(x, x.types(), new Property("Types", true, TypeDeclaration.class) {
+		genericPropertyListTest(x, x.types(), new Property("Types", true, TypeDeclaration.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				TypeDeclaration result = targetAst.newTypeDeclaration();
 				if (parented) {
@@ -1846,9 +1846,9 @@ public class ASTTest extends TestCase {
 
 		tJavadocComment(x);
 				
-		genericPropertyTest(x, new Property("Name", true, SimpleName.class) {
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -1862,9 +1862,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("Superclass", false, Name.class) {
+		genericPropertyTest(x, new Property("Superclass", false, Name.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -1879,9 +1879,9 @@ public class ASTTest extends TestCase {
 		});
 		
 		genericPropertyListTest(x, x.superInterfaces(),
-		  new Property("SuperInterfaces", true, Name.class) {
+		  new Property("SuperInterfaces", true, Name.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -1890,7 +1890,7 @@ public class ASTTest extends TestCase {
 		});
 		
 		genericPropertyListTest(x, x.bodyDeclarations(),
-		  new Property("BodyDeclarations", true, BodyDeclaration.class) {
+		  new Property("BodyDeclarations", true, BodyDeclaration.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				TypeDeclaration result = targetAst.newTypeDeclaration();
 				if (parented) {
@@ -1996,9 +1996,9 @@ public class ASTTest extends TestCase {
 		assertTrue(ast.modificationCount() > previousCount);
 		assertTrue(x.getExtraDimensions() == 0);
 
-		genericPropertyTest(x, new Property("Name", true, SimpleName.class) {
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -2012,10 +2012,10 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("Type", true, Type.class) {
+		genericPropertyTest(x, new Property("Type", true, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				SimpleType result = targetAst.newSimpleType(
-					targetAst.newSimpleName("foo"));
+					targetAst.newSimpleName("foo")); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newArrayType(result);
 				}
@@ -2029,9 +2029,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("Initializer", false, Expression.class) {
+		genericPropertyTest(x, new Property("Initializer", false, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -2090,9 +2090,9 @@ public class ASTTest extends TestCase {
 			// pass
 		}
 
-		genericPropertyTest(x, new Property("Name", true, SimpleName.class) {
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -2106,9 +2106,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("Initializer", false, Expression.class) {
+		genericPropertyTest(x, new Property("Initializer", false, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -2193,9 +2193,9 @@ public class ASTTest extends TestCase {
 
 		tJavadocComment(x);
 						
-		genericPropertyTest(x, new Property("Name", true, SimpleName.class) {
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -2209,10 +2209,10 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("ReturnType", true, Type.class) {
+		genericPropertyTest(x, new Property("ReturnType", true, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				SimpleType result = targetAst.newSimpleType(
-					targetAst.newSimpleName("foo"));
+					targetAst.newSimpleName("foo")); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newArrayType(result);
 				}
@@ -2227,7 +2227,7 @@ public class ASTTest extends TestCase {
 		});
 		
 		genericPropertyListTest(x, x.parameters(),
-		  new Property("Parameters", true, SingleVariableDeclaration.class) {
+		  new Property("Parameters", true, SingleVariableDeclaration.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				SingleVariableDeclaration result = targetAst.newSingleVariableDeclaration();
 				if (parented) {
@@ -2252,9 +2252,9 @@ public class ASTTest extends TestCase {
 		});
 		
 		genericPropertyListTest(x, x.thrownExceptions(),
-		  new Property("ThrownExceptions", true, Name.class) {
+		  new Property("ThrownExceptions", true, Name.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -2262,7 +2262,7 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("Body", false, Block.class) {
+		genericPropertyTest(x, new Property("Body", false, Block.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Block result = targetAst.newBlock();
 				if (parented) {
@@ -2321,7 +2321,7 @@ public class ASTTest extends TestCase {
 		assertTrue(ast.modificationCount() > previousCount);
 		assertTrue(x.getModifiers() == Modifier.NONE);
 		
-		genericPropertyTest(x, new Property("Body", true, Block.class) {
+		genericPropertyTest(x, new Property("Body", true, Block.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Block result = targetAst.newBlock();
 				if (parented) {
@@ -2358,17 +2358,17 @@ public class ASTTest extends TestCase {
 		previousCount = ast.modificationCount();
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
-		assertTrue(x.getComment().startsWith("/**"));
-		assertTrue(x.getComment().endsWith("*/"));
+		assertTrue(x.getComment().startsWith("/**")); //$NON-NLS-1$
+		assertTrue(x.getComment().endsWith("*/")); //$NON-NLS-1$
 		assertTrue(x.getNodeType() == ASTNode.JAVADOC);
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
 		final String[] samples =
 			{ 
-			  "/** Hello there */",
-			  "/**\n * Line 1\n * Line 2\n */",
-			  "/***/",
+			  "/** Hello there */", //$NON-NLS-1$
+			  "/**\n * Line 1\n * Line 2\n */", //$NON-NLS-1$
+			  "/***/", //$NON-NLS-1$
 			};
 		for (int i = 0; i < samples.length; i++) {			
 			previousCount = ast.modificationCount();
@@ -2380,11 +2380,11 @@ public class ASTTest extends TestCase {
 		final String[] badSamples =
 			{ 
 			  null,
-			  "",
-			  "/* */",
-			  "/**/",
-			  "/**",
-			  "*/",
+			  "", //$NON-NLS-1$
+			  "/* */", //$NON-NLS-1$
+			  "/**/", //$NON-NLS-1$
+			  "/**", //$NON-NLS-1$
+			  "*/", //$NON-NLS-1$
 			};
 
 		// check that property cannot be set to clearly illegal things
@@ -2414,7 +2414,7 @@ public class ASTTest extends TestCase {
 		tLeadingComment(x);
 
 		genericPropertyListTest(x, x.statements(),
-		  new Property("Statements", true, Statement.class) {
+		  new Property("Statements", true, Statement.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Block result = targetAst.newBlock();
 				if (parented) {
@@ -2451,9 +2451,9 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 	
-		genericPropertyTest(x, new Property("Expression", false, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", false, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -2467,7 +2467,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("x"));
+				s1.setExpression(ast.newSimpleName("x")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getExpression();
@@ -2478,9 +2478,9 @@ public class ASTTest extends TestCase {
 		});
 
 		genericPropertyListTest(x, x.arguments(),
-		  new Property("Arguments", true, Expression.class) {
+		  new Property("Arguments", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -2494,14 +2494,14 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("x"));
+				s1.setExpression(ast.newSimpleName("x")); //$NON-NLS-1$
 			}
 		});
 	}	
 	
 	public void testExpressionStatement() {
 		long previousCount = ast.modificationCount();
-		SimpleName x1 = ast.newSimpleName("foo");
+		SimpleName x1 = ast.newSimpleName("foo"); //$NON-NLS-1$
 		final ExpressionStatement x = ast.newExpressionStatement(x1);
 		assertTrue(ast.modificationCount() > previousCount);
 		previousCount = ast.modificationCount();
@@ -2516,9 +2516,9 @@ public class ASTTest extends TestCase {
 	
 		tLeadingComment(x);
 
-		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -2591,10 +2591,10 @@ public class ASTTest extends TestCase {
 			// pass
 		}
 
-		genericPropertyTest(x, new Property("Type", true, Type.class) {
+		genericPropertyTest(x, new Property("Type", true, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				SimpleType result = targetAst.newSimpleType(
-					targetAst.newSimpleName("foo"));
+					targetAst.newSimpleName("foo")); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newArrayType(result);
 				}
@@ -2609,7 +2609,7 @@ public class ASTTest extends TestCase {
 		});
 
 		genericPropertyListTest(x, x.fragments(),
-		  new Property("VariableSpecifiers", true, VariableDeclarationFragment.class) {
+		  new Property("VariableSpecifiers", true, VariableDeclarationFragment.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				VariableDeclarationFragment result = targetAst.newVariableDeclarationFragment();
 				if (parented) {
@@ -2661,7 +2661,7 @@ public class ASTTest extends TestCase {
 	
 		tLeadingComment(x);
 
-		genericPropertyTest(x, new Property("TypeDeclaration", true, TypeDeclaration.class) {
+		genericPropertyTest(x, new Property("TypeDeclaration", true, TypeDeclaration.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				TypeDeclaration result = targetAst.newTypeDeclaration();
 				if (parented) {
@@ -2732,10 +2732,10 @@ public class ASTTest extends TestCase {
 			// pass
 		}
 
-		genericPropertyTest(x, new Property("Type", true, Type.class) {
+		genericPropertyTest(x, new Property("Type", true, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				SimpleType result = targetAst.newSimpleType(
-					targetAst.newSimpleName("foo"));
+					targetAst.newSimpleName("foo")); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newArrayType(result);
 				}
@@ -2750,7 +2750,7 @@ public class ASTTest extends TestCase {
 		});
 
 		genericPropertyListTest(x, x.fragments(),
-		  new Property("VariableSpecifiers", true, VariableDeclarationFragment.class) {
+		  new Property("VariableSpecifiers", true, VariableDeclarationFragment.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				VariableDeclarationFragment result = targetAst.newVariableDeclarationFragment();
 				if (parented) {
@@ -2822,10 +2822,10 @@ public class ASTTest extends TestCase {
 
 		tJavadocComment(x);
 						
-		genericPropertyTest(x, new Property("Type", true, Type.class) {
+		genericPropertyTest(x, new Property("Type", true, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				SimpleType result = targetAst.newSimpleType(
-					targetAst.newSimpleName("foo"));
+					targetAst.newSimpleName("foo")); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newArrayType(result);
 				}
@@ -2840,7 +2840,7 @@ public class ASTTest extends TestCase {
 		});
 
 		genericPropertyListTest(x, x.fragments(),
-		  new Property("VariableSpecifiers", true, VariableDeclarationFragment.class) {
+		  new Property("VariableSpecifiers", true, VariableDeclarationFragment.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				VariableDeclarationFragment result = targetAst.newVariableDeclarationFragment();
 				if (parented) {
@@ -2889,18 +2889,18 @@ public class ASTTest extends TestCase {
 			!= Assignment.Operator.ASSIGN);
 
 		// check the names of the primitive type codes
-		assertTrue(Assignment.Operator.ASSIGN.toString().equals("="));
-		assertTrue(Assignment.Operator.PLUS_ASSIGN.toString().equals("+="));
-		assertTrue(Assignment.Operator.MINUS_ASSIGN.toString().equals("-="));
-		assertTrue(Assignment.Operator.TIMES_ASSIGN.toString().equals("*="));
-		assertTrue(Assignment.Operator.DIVIDE_ASSIGN.toString().equals("/="));
-		assertTrue(Assignment.Operator.REMAINDER_ASSIGN.toString().equals("%="));
-		assertTrue(Assignment.Operator.LEFT_SHIFT_ASSIGN.toString().equals("<<="));
-		assertTrue(Assignment.Operator.RIGHT_SHIFT_SIGNED_ASSIGN.toString().equals(">>="));
-		assertTrue(Assignment.Operator.RIGHT_SHIFT_UNSIGNED_ASSIGN.toString().equals(">>>="));
-		assertTrue(Assignment.Operator.BIT_AND_ASSIGN.toString().equals("&="));
-		assertTrue(Assignment.Operator.BIT_OR_ASSIGN.toString().equals("|="));
-		assertTrue(Assignment.Operator.BIT_XOR_ASSIGN.toString().equals("^="));
+		assertTrue(Assignment.Operator.ASSIGN.toString().equals("=")); //$NON-NLS-1$
+		assertTrue(Assignment.Operator.PLUS_ASSIGN.toString().equals("+=")); //$NON-NLS-1$
+		assertTrue(Assignment.Operator.MINUS_ASSIGN.toString().equals("-=")); //$NON-NLS-1$
+		assertTrue(Assignment.Operator.TIMES_ASSIGN.toString().equals("*=")); //$NON-NLS-1$
+		assertTrue(Assignment.Operator.DIVIDE_ASSIGN.toString().equals("/=")); //$NON-NLS-1$
+		assertTrue(Assignment.Operator.REMAINDER_ASSIGN.toString().equals("%=")); //$NON-NLS-1$
+		assertTrue(Assignment.Operator.LEFT_SHIFT_ASSIGN.toString().equals("<<=")); //$NON-NLS-1$
+		assertTrue(Assignment.Operator.RIGHT_SHIFT_SIGNED_ASSIGN.toString().equals(">>=")); //$NON-NLS-1$
+		assertTrue(Assignment.Operator.RIGHT_SHIFT_UNSIGNED_ASSIGN.toString().equals(">>>=")); //$NON-NLS-1$
+		assertTrue(Assignment.Operator.BIT_AND_ASSIGN.toString().equals("&=")); //$NON-NLS-1$
+		assertTrue(Assignment.Operator.BIT_OR_ASSIGN.toString().equals("|=")); //$NON-NLS-1$
+		assertTrue(Assignment.Operator.BIT_XOR_ASSIGN.toString().equals("^=")); //$NON-NLS-1$
 		
 		Assignment.Operator[] known = {
 			Assignment.Operator.ASSIGN,
@@ -2944,11 +2944,11 @@ public class ASTTest extends TestCase {
 			String name = known[i].toString();
 			assertTrue(Assignment.Operator.toOperator(name).equals(known[i]));
 		}
-		assertTrue(Assignment.Operator.toOperator("not-an-op") == null);
+		assertTrue(Assignment.Operator.toOperator("not-an-op") == null); //$NON-NLS-1$
 
-		genericPropertyTest(x, new Property("LeftHandSide", true, Expression.class) {
+		genericPropertyTest(x, new Property("LeftHandSide", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -2962,7 +2962,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("x"));
+				s1.setExpression(ast.newSimpleName("x")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getLeftHandSide();
@@ -2972,9 +2972,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 
-		genericPropertyTest(x, new Property("RightHandSide", true, Expression.class) {
+		genericPropertyTest(x, new Property("RightHandSide", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -2988,7 +2988,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("x"));
+				s1.setExpression(ast.newSimpleName("x")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getRightHandSide();
@@ -3015,9 +3015,9 @@ public class ASTTest extends TestCase {
 
 		tLeadingComment(x);
 
-		genericPropertyTest(x, new Property("Label", false, SimpleName.class) {
+		genericPropertyTest(x, new Property("Label", false, SimpleName.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -3048,9 +3048,9 @@ public class ASTTest extends TestCase {
 	
 		tLeadingComment(x);
 
-		genericPropertyTest(x, new Property("Label", false, SimpleName.class) {
+		genericPropertyTest(x, new Property("Label", false, SimpleName.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -3085,9 +3085,9 @@ public class ASTTest extends TestCase {
 	
 		tLeadingComment(x);
 
-		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -3117,7 +3117,7 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("ThenStatement", true, Statement.class) {
+		genericPropertyTest(x, new Property("ThenStatement", true, Statement.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Block result = targetAst.newBlock();
 				if (parented) {
@@ -3144,7 +3144,7 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("ElseStatement", false, Statement.class) {
+		genericPropertyTest(x, new Property("ElseStatement", false, Statement.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Block result = targetAst.newBlock();
 				if (parented) {
@@ -3191,9 +3191,9 @@ public class ASTTest extends TestCase {
 	
 		tLeadingComment(x);
 
-		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -3223,7 +3223,7 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("Body", true, Statement.class) {
+		genericPropertyTest(x, new Property("Body", true, Statement.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Block result = targetAst.newBlock();
 				if (parented) {
@@ -3270,9 +3270,9 @@ public class ASTTest extends TestCase {
 	
 		tLeadingComment(x);
 
-		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -3302,7 +3302,7 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("Body", true, Statement.class) {
+		genericPropertyTest(x, new Property("Body", true, Statement.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Block result = targetAst.newBlock();
 				if (parented) {
@@ -3351,7 +3351,7 @@ public class ASTTest extends TestCase {
 	
 		tLeadingComment(x);
 
-		genericPropertyTest(x, new Property("Body", true, Block.class) {
+		genericPropertyTest(x, new Property("Body", true, Block.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Block result = targetAst.newBlock();
 				if (parented) {
@@ -3379,7 +3379,7 @@ public class ASTTest extends TestCase {
 		});
 
 		genericPropertyListTest(x, x.catchClauses(),
-		  new Property("CatchClauses", true, CatchClause.class) {
+		  new Property("CatchClauses", true, CatchClause.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				CatchClause result = targetAst.newCatchClause();
 				if (parented) {
@@ -3402,7 +3402,7 @@ public class ASTTest extends TestCase {
 			}
 		});
 
-		genericPropertyTest(x, new Property("Finally", false, Block.class) {
+		genericPropertyTest(x, new Property("Finally", false, Block.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Block result = targetAst.newBlock();
 				if (parented) {
@@ -3444,7 +3444,7 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
-		genericPropertyTest(x, new Property("Exception", true, SingleVariableDeclaration.class) {
+		genericPropertyTest(x, new Property("Exception", true, SingleVariableDeclaration.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				SingleVariableDeclaration result = targetAst.newSingleVariableDeclaration();
 				if (parented) {
@@ -3481,7 +3481,7 @@ public class ASTTest extends TestCase {
 			}
 		});
 
-		genericPropertyTest(x, new Property("Body", true, Block.class) {
+		genericPropertyTest(x, new Property("Body", true, Block.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Block result = targetAst.newBlock();
 				if (parented) {
@@ -3542,26 +3542,26 @@ public class ASTTest extends TestCase {
 		
 		// check that regular comment is allowed
 		previousCount = ast.modificationCount();
-		x.setLeadingComment("/* X */");
+		x.setLeadingComment("/* X */"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
-		assertTrue(x.getLeadingComment() == "/* X */");
+		assertTrue(x.getLeadingComment() == "/* X */"); //$NON-NLS-1$
 		
 		// check that regular comment with line breaks is allowed
 		previousCount = ast.modificationCount();
-		x.setLeadingComment("/* X\n *Y\n */");
+		x.setLeadingComment("/* X\n *Y\n */"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
-		assertTrue(x.getLeadingComment() == "/* X\n *Y\n */");
+		assertTrue(x.getLeadingComment() == "/* X\n *Y\n */"); //$NON-NLS-1$
 		
 		// check that end-of-line comment is allowed
 		previousCount = ast.modificationCount();
-		x.setLeadingComment("// X");
+		x.setLeadingComment("// X"); //$NON-NLS-1$
 		assertTrue(ast.modificationCount() > previousCount);
-		assertTrue(x.getLeadingComment() == "// X");
+		assertTrue(x.getLeadingComment() == "// X"); //$NON-NLS-1$
 		
 		// check that end-of-line comment with embedded end of line 
 		// not allowed
 		try {
-			x.setLeadingComment("// X\n extra");
+			x.setLeadingComment("// X\n extra"); //$NON-NLS-1$
 			assertTrue(false);
 		} catch (RuntimeException e) {
 			// pass
@@ -3575,7 +3575,7 @@ public class ASTTest extends TestCase {
 	 * @param x the body declaration to test
 	 */
 	void tJavadocComment(final BodyDeclaration x) {
-		genericPropertyTest(x, new Property("Javadoc", false, Javadoc.class) {
+		genericPropertyTest(x, new Property("Javadoc", false, Javadoc.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Javadoc result = targetAst.newJavadoc();
 				if (parented) {
@@ -3603,72 +3603,72 @@ public class ASTTest extends TestCase {
 		
 		// a node initially has no properties
 		assertTrue(x.properties().size() == 0);
-		assertTrue(x.getProperty("1") == null);
+		assertTrue(x.getProperty("1") == null); //$NON-NLS-1$
 
 		// clearing an unset property does not add it to list of known ones
-		x.setProperty("1", null);
-		assertTrue(x.getProperty("1") == null);
+		x.setProperty("1", null); //$NON-NLS-1$
+		assertTrue(x.getProperty("1") == null); //$NON-NLS-1$
 		assertTrue(x.properties().size() == 0);
 
 		// setting an unset property does add it to the list of known ones
-		x.setProperty("1", "a1");
-		assertTrue(x.getProperty("1") == "a1");
+		x.setProperty("1", "a1"); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(x.getProperty("1") == "a1"); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(x.properties().size() == 1);
 		Map.Entry[] m = (Map.Entry[]) x.properties().entrySet().toArray(new Map.Entry[1]);
-		assertTrue(m[0].getKey() == "1");
-		assertTrue(m[0].getValue() == "a1");
+		assertTrue(m[0].getKey() == "1"); //$NON-NLS-1$
+		assertTrue(m[0].getValue() == "a1"); //$NON-NLS-1$
 
 		// setting an already set property just changes its value
-		x.setProperty("1", "a2");
-		assertTrue(x.getProperty("1") == "a2");
+		x.setProperty("1", "a2"); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(x.getProperty("1") == "a2"); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(x.properties().size() == 1);
 		m = (Map.Entry[]) x.properties().entrySet().toArray(new Map.Entry[1]);
-		assertTrue(m[0].getKey() == "1");
-		assertTrue(m[0].getValue() == "a2");
+		assertTrue(m[0].getKey() == "1"); //$NON-NLS-1$
+		assertTrue(m[0].getValue() == "a2"); //$NON-NLS-1$
 
 		// clearing a set property removes it from list of known ones
-		x.setProperty("1", null);
-		assertTrue(x.getProperty("1") == null);
+		x.setProperty("1", null); //$NON-NLS-1$
+		assertTrue(x.getProperty("1") == null); //$NON-NLS-1$
 		assertTrue(x.properties().size() == 0);
 		
 		
 		// ========= test 2 and 3 properties
-		x.setProperty("1", "a1");
-		x.setProperty("2", "b1");
-		x.setProperty("3", "c1");
-		assertTrue(x.getProperty("1") == "a1");
-		assertTrue(x.getProperty("2") == "b1");
-		assertTrue(x.getProperty("3") == "c1");
+		x.setProperty("1", "a1"); //$NON-NLS-1$ //$NON-NLS-2$
+		x.setProperty("2", "b1"); //$NON-NLS-1$ //$NON-NLS-2$
+		x.setProperty("3", "c1"); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(x.getProperty("1") == "a1"); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(x.getProperty("2") == "b1"); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(x.getProperty("3") == "c1"); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(x.properties().size() == 3);
-		assertTrue(x.properties().get("1") == "a1");
-		assertTrue(x.properties().get("2") == "b1");
-		assertTrue(x.properties().get("3") == "c1");
-		x.setProperty("1", "a2");
-		x.setProperty("2", "b2");
-		x.setProperty("3", "c2");
-		assertTrue(x.getProperty("1") == "a2");
-		assertTrue(x.getProperty("2") == "b2");
-		assertTrue(x.getProperty("3") == "c2");
+		assertTrue(x.properties().get("1") == "a1"); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(x.properties().get("2") == "b1"); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(x.properties().get("3") == "c1"); //$NON-NLS-1$ //$NON-NLS-2$
+		x.setProperty("1", "a2"); //$NON-NLS-1$ //$NON-NLS-2$
+		x.setProperty("2", "b2"); //$NON-NLS-1$ //$NON-NLS-2$
+		x.setProperty("3", "c2"); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(x.getProperty("1") == "a2"); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(x.getProperty("2") == "b2"); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(x.getProperty("3") == "c2"); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(x.properties().size() == 3);
-		assertTrue(x.properties().get("1") == "a2");
-		assertTrue(x.properties().get("2") == "b2");
-		assertTrue(x.properties().get("3") == "c2");
-		x.setProperty("2", null);
-		assertTrue(x.getProperty("1") == "a2");
-		assertTrue(x.getProperty("2") == null);
-		assertTrue(x.getProperty("3") == "c2");
+		assertTrue(x.properties().get("1") == "a2"); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(x.properties().get("2") == "b2"); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(x.properties().get("3") == "c2"); //$NON-NLS-1$ //$NON-NLS-2$
+		x.setProperty("2", null); //$NON-NLS-1$
+		assertTrue(x.getProperty("1") == "a2"); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(x.getProperty("2") == null); //$NON-NLS-1$
+		assertTrue(x.getProperty("3") == "c2"); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(x.properties().size() == 2);
-		assertTrue(x.properties().get("1") == "a2");
-		assertTrue(x.properties().get("2") == null);
-		assertTrue(x.properties().get("3") == "c2");
-		x.setProperty("1", null);
-		assertTrue(x.getProperty("1") == null);
-		assertTrue(x.getProperty("2") == null);
-		assertTrue(x.getProperty("3") == "c2");
+		assertTrue(x.properties().get("1") == "a2"); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(x.properties().get("2") == null); //$NON-NLS-1$
+		assertTrue(x.properties().get("3") == "c2"); //$NON-NLS-1$ //$NON-NLS-2$
+		x.setProperty("1", null); //$NON-NLS-1$
+		assertTrue(x.getProperty("1") == null); //$NON-NLS-1$
+		assertTrue(x.getProperty("2") == null); //$NON-NLS-1$
+		assertTrue(x.getProperty("3") == "c2"); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(x.properties().size() == 1);
-		assertTrue(x.properties().get("1") == null);
-		assertTrue(x.properties().get("2") == null);
-		assertTrue(x.properties().get("3") == "c2");
+		assertTrue(x.properties().get("1") == null); //$NON-NLS-1$
+		assertTrue(x.properties().get("2") == null); //$NON-NLS-1$
+		assertTrue(x.properties().get("3") == "c2"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		// none of this is considered to have affected the AST
 		assertTrue(ast.modificationCount() == previousCount);
@@ -3689,9 +3689,9 @@ public class ASTTest extends TestCase {
 
 		tLeadingComment(x);
 
-		genericPropertyTest(x, new Property("Expression", false, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", false, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -3738,9 +3738,9 @@ public class ASTTest extends TestCase {
 
 		tLeadingComment(x);
 
-		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -3788,9 +3788,9 @@ public class ASTTest extends TestCase {
 
 		tLeadingComment(x);
 
-		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -3820,9 +3820,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 
-		genericPropertyTest(x, new Property("Message", false, Expression.class) {
+		genericPropertyTest(x, new Property("Message", false, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -3870,9 +3870,9 @@ public class ASTTest extends TestCase {
 
 		tLeadingComment(x);
 		
-		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -3903,7 +3903,7 @@ public class ASTTest extends TestCase {
 		});
 
 		genericPropertyListTest(x, x.statements(),
-		  new Property("Statements", true, Statement.class) {
+		  new Property("Statements", true, Statement.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Block result = targetAst.newBlock();
 				if (parented) {
@@ -3940,9 +3940,9 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
-		genericPropertyTest(x, new Property("Expression", false, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", false, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -3992,9 +3992,9 @@ public class ASTTest extends TestCase {
 
 		tLeadingComment(x);
 		
-		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -4024,7 +4024,7 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("Body", true, Block.class) {
+		genericPropertyTest(x, new Property("Body", true, Block.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Block result = targetAst.newBlock();
 				if (parented) {
@@ -4069,9 +4069,9 @@ public class ASTTest extends TestCase {
 
 		tLeadingComment(x);
 		
-		genericPropertyTest(x, new Property("Label", true, SimpleName.class) {
+		genericPropertyTest(x, new Property("Label", true, SimpleName.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -4085,7 +4085,7 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("Body", true, Statement.class) {
+		genericPropertyTest(x, new Property("Body", true, Statement.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Block result = targetAst.newBlock();
 				if (parented) {
@@ -4154,9 +4154,9 @@ public class ASTTest extends TestCase {
 		md.parameters().add(singleVariableDeclaration);
 		td.bodyDeclarations().add(md);
 		
-		SimpleName sn1 = target.newSimpleName("one");
+		SimpleName sn1 = target.newSimpleName("one"); //$NON-NLS-1$
 		sn1.setSourceRange(35, 5);
-		SimpleName sn2 =target.newSimpleName("two");
+		SimpleName sn2 =target.newSimpleName("two"); //$NON-NLS-1$
 		sn2.setSourceRange(41, 5);
 		QualifiedName qn = target.newQualifiedName(sn1, sn2);
 		qn.setSourceRange(35, 11);
@@ -4305,13 +4305,13 @@ public class ASTTest extends TestCase {
 		MethodInvocation methodInvocation = target.newMethodInvocation();
 		methodInvocation.setSourceRange(320, 5);
 		z.add(methodInvocation);
-		Name name = target.newName(new String[]{"a", "b"});
+		Name name = target.newName(new String[]{"a", "b"}); //$NON-NLS-1$ //$NON-NLS-2$
 		name.setSourceRange(330, 5);
 		z.add(name);
 		NullLiteral nullLiteral2 = target.newNullLiteral();
 		nullLiteral2.setSourceRange(336, 3);
 		z.add(nullLiteral2);
-		NumberLiteral numberLiteral = target.newNumberLiteral("1024");
+		NumberLiteral numberLiteral = target.newNumberLiteral("1024"); //$NON-NLS-1$
 		numberLiteral.setSourceRange(340, 5);
 		z.add(numberLiteral);
 		ParenthesizedExpression parenthesizedExpression = target.newParenthesizedExpression();
@@ -4474,9 +4474,9 @@ public class ASTTest extends TestCase {
 		tLeadingComment(x);
 		
 		genericPropertyListTest(x, x.initializers(),
-		  new Property("Initializers", true, Expression.class) {
+		  new Property("Initializers", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -4500,9 +4500,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 
-		genericPropertyTest(x, new Property("Expression", false, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", false, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -4533,9 +4533,9 @@ public class ASTTest extends TestCase {
 		});
 
 		genericPropertyListTest(x, x.updaters(),
-		  new Property("Updaters", true, Expression.class) {
+		  new Property("Updaters", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -4559,7 +4559,7 @@ public class ASTTest extends TestCase {
 			}
 		});
 
-		genericPropertyTest(x, new Property("Body", true, Statement.class) {
+		genericPropertyTest(x, new Property("Body", true, Statement.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Block result = targetAst.newBlock();
 				if (parented) {
@@ -4601,9 +4601,9 @@ public class ASTTest extends TestCase {
 		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyListTest(x, x.arguments(),
-		  new Property("Arguments", true, Expression.class) {
+		  new Property("Arguments", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -4642,9 +4642,9 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
-		genericPropertyTest(x, new Property("Expression", false, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", false, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -4675,9 +4675,9 @@ public class ASTTest extends TestCase {
 		});
 
 		genericPropertyListTest(x, x.arguments(),
-		  new Property("Arguments", true, Expression.class) {
+		  new Property("Arguments", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -4715,11 +4715,11 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
-		genericPropertyTest(x, new Property("Qualifier", false, Name.class) {
+		genericPropertyTest(x, new Property("Qualifier", false, Name.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				QualifiedName result = targetAst.newQualifiedName(
-					targetAst.newSimpleName("a"),
-					targetAst.newSimpleName("b"));
+					targetAst.newSimpleName("a"), //$NON-NLS-1$
+					targetAst.newSimpleName("b")); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -4748,9 +4748,9 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
-		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -4763,7 +4763,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("fie"));
+				s1.setExpression(ast.newSimpleName("fie")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getExpression();
@@ -4773,9 +4773,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 
-		genericPropertyTest(x, new Property("Name", true, SimpleName.class) {
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -4805,11 +4805,11 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
-		genericPropertyTest(x, new Property("Qualifier", false, Name.class) {
+		genericPropertyTest(x, new Property("Qualifier", false, Name.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				QualifiedName result = targetAst.newQualifiedName(
-					targetAst.newSimpleName("a"),
-					targetAst.newSimpleName("b"));
+					targetAst.newSimpleName("a"), //$NON-NLS-1$
+					targetAst.newSimpleName("b")); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -4823,9 +4823,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 
-		genericPropertyTest(x, new Property("Name", true, SimpleName.class) {
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -4855,11 +4855,11 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
-		genericPropertyTest(x, new Property("Qualifier", false, Name.class) {
+		genericPropertyTest(x, new Property("Qualifier", false, Name.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				QualifiedName result = targetAst.newQualifiedName(
-					targetAst.newSimpleName("a"),
-					targetAst.newSimpleName("b"));
+					targetAst.newSimpleName("a"), //$NON-NLS-1$
+					targetAst.newSimpleName("b")); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -4873,9 +4873,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 
-		genericPropertyTest(x, new Property("Name", true, SimpleName.class) {
+		genericPropertyTest(x, new Property("Name", true, SimpleName.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -4890,9 +4890,9 @@ public class ASTTest extends TestCase {
 		});
 
 		genericPropertyListTest(x, x.arguments(),
-		  new Property("Arguments", true, Expression.class) {
+		  new Property("Arguments", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -4906,7 +4906,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("x"));
+				s1.setExpression(ast.newSimpleName("x")); //$NON-NLS-1$
 			}
 		});
 	}
@@ -4924,10 +4924,10 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
-		genericPropertyTest(x, new Property("Type", true, Type.class) {
+		genericPropertyTest(x, new Property("Type", true, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				SimpleType result = targetAst.newSimpleType(
-					targetAst.newSimpleName("a"));
+					targetAst.newSimpleName("a")); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newArrayType(result);
 				}
@@ -4956,10 +4956,10 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
-		genericPropertyTest(x, new Property("Type", true, Type.class) {
+		genericPropertyTest(x, new Property("Type", true, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				SimpleType result = targetAst.newSimpleType(
-					targetAst.newSimpleName("a"));
+					targetAst.newSimpleName("a")); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newArrayType(result);
 				}
@@ -4973,9 +4973,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -4988,7 +4988,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("fie"));
+				s1.setExpression(ast.newSimpleName("fie")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getExpression();
@@ -5015,12 +5015,12 @@ public class ASTTest extends TestCase {
 		
 		// Operator property - mandatory typesafe enumeration
 		// check the names of the operators
-		assertTrue(PrefixExpression.Operator.INCREMENT.toString().equals("++"));
-		assertTrue(PrefixExpression.Operator.DECREMENT.toString().equals("--"));
-		assertTrue(PrefixExpression.Operator.PLUS.toString().equals("+"));
-		assertTrue(PrefixExpression.Operator.MINUS.toString().equals("-"));
-		assertTrue(PrefixExpression.Operator.COMPLEMENT.toString().equals("~"));
-		assertTrue(PrefixExpression.Operator.NOT.toString().equals("!"));
+		assertTrue(PrefixExpression.Operator.INCREMENT.toString().equals("++")); //$NON-NLS-1$
+		assertTrue(PrefixExpression.Operator.DECREMENT.toString().equals("--")); //$NON-NLS-1$
+		assertTrue(PrefixExpression.Operator.PLUS.toString().equals("+")); //$NON-NLS-1$
+		assertTrue(PrefixExpression.Operator.MINUS.toString().equals("-")); //$NON-NLS-1$
+		assertTrue(PrefixExpression.Operator.COMPLEMENT.toString().equals("~")); //$NON-NLS-1$
+		assertTrue(PrefixExpression.Operator.NOT.toString().equals("!")); //$NON-NLS-1$
 		
 		PrefixExpression.Operator[] known = {
 			PrefixExpression.Operator.INCREMENT,
@@ -5058,11 +5058,11 @@ public class ASTTest extends TestCase {
 			String name = known[i].toString();
 			assertTrue(PrefixExpression.Operator.toOperator(name).equals(known[i]));
 		}
-		assertTrue(PrefixExpression.Operator.toOperator("huh") == null);
+		assertTrue(PrefixExpression.Operator.toOperator("huh") == null); //$NON-NLS-1$
 
-		genericPropertyTest(x, new Property("Operand", true, Expression.class) {
+		genericPropertyTest(x, new Property("Operand", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -5075,7 +5075,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("fie"));
+				s1.setExpression(ast.newSimpleName("fie")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getOperand();
@@ -5102,8 +5102,8 @@ public class ASTTest extends TestCase {
 		
 		// Operator property - mandatory typesafe enumeration
 		// check the names of the operators
-		assertTrue(PostfixExpression.Operator.INCREMENT.toString().equals("++"));
-		assertTrue(PostfixExpression.Operator.DECREMENT.toString().equals("--"));
+		assertTrue(PostfixExpression.Operator.INCREMENT.toString().equals("++")); //$NON-NLS-1$
+		assertTrue(PostfixExpression.Operator.DECREMENT.toString().equals("--")); //$NON-NLS-1$
 		
 		PostfixExpression.Operator[] known = {
 			PostfixExpression.Operator.INCREMENT,
@@ -5137,11 +5137,11 @@ public class ASTTest extends TestCase {
 			String name = known[i].toString();
 			assertTrue(PostfixExpression.Operator.toOperator(name).equals(known[i]));
 		}
-		assertTrue(PostfixExpression.Operator.toOperator("huh") == null);
+		assertTrue(PostfixExpression.Operator.toOperator("huh") == null); //$NON-NLS-1$
 
-		genericPropertyTest(x, new Property("Operand", true, Expression.class) {
+		genericPropertyTest(x, new Property("Operand", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -5154,7 +5154,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("fie"));
+				s1.setExpression(ast.newSimpleName("fie")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getOperand();
@@ -5183,25 +5183,25 @@ public class ASTTest extends TestCase {
 		
 		// Operator property - mandatory typesafe enumeration
 		// check the names of the operators
-		assertTrue(InfixExpression.Operator.TIMES.toString().equals("*"));
-		assertTrue(InfixExpression.Operator.DIVIDE.toString().equals("/"));
-		assertTrue(InfixExpression.Operator.REMAINDER.toString().equals("%"));
-		assertTrue(InfixExpression.Operator.PLUS.toString().equals("+"));
-		assertTrue(InfixExpression.Operator.MINUS.toString().equals("-"));
-		assertTrue(InfixExpression.Operator.LEFT_SHIFT.toString().equals("<<"));
-		assertTrue(InfixExpression.Operator.RIGHT_SHIFT_SIGNED.toString().equals(">>"));
-		assertTrue(InfixExpression.Operator.RIGHT_SHIFT_UNSIGNED.toString().equals(">>>"));
-		assertTrue(InfixExpression.Operator.LESS.toString().equals("<"));
-		assertTrue(InfixExpression.Operator.GREATER.toString().equals(">"));
-		assertTrue(InfixExpression.Operator.LESS_EQUALS.toString().equals("<="));
-		assertTrue(InfixExpression.Operator.GREATER_EQUALS.toString().equals(">="));
-		assertTrue(InfixExpression.Operator.EQUALS.toString().equals("=="));
-		assertTrue(InfixExpression.Operator.NOT_EQUALS.toString().equals("!="));
-		assertTrue(InfixExpression.Operator.XOR.toString().equals("^"));
-		assertTrue(InfixExpression.Operator.OR.toString().equals("|"));
-		assertTrue(InfixExpression.Operator.AND.toString().equals("&"));
-		assertTrue(InfixExpression.Operator.CONDITIONAL_OR.toString().equals("||"));
-		assertTrue(InfixExpression.Operator.CONDITIONAL_AND.toString().equals("&&"));
+		assertTrue(InfixExpression.Operator.TIMES.toString().equals("*")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.DIVIDE.toString().equals("/")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.REMAINDER.toString().equals("%")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.PLUS.toString().equals("+")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.MINUS.toString().equals("-")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.LEFT_SHIFT.toString().equals("<<")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.RIGHT_SHIFT_SIGNED.toString().equals(">>")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.RIGHT_SHIFT_UNSIGNED.toString().equals(">>>")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.LESS.toString().equals("<")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.GREATER.toString().equals(">")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.LESS_EQUALS.toString().equals("<=")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.GREATER_EQUALS.toString().equals(">=")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.EQUALS.toString().equals("==")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.NOT_EQUALS.toString().equals("!=")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.XOR.toString().equals("^")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.OR.toString().equals("|")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.AND.toString().equals("&")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.CONDITIONAL_OR.toString().equals("||")); //$NON-NLS-1$
+		assertTrue(InfixExpression.Operator.CONDITIONAL_AND.toString().equals("&&")); //$NON-NLS-1$
 		
 		InfixExpression.Operator[] known = {
 				InfixExpression.Operator.TIMES,
@@ -5252,11 +5252,11 @@ public class ASTTest extends TestCase {
 			String name = known[i].toString();
 			assertTrue(InfixExpression.Operator.toOperator(name).equals(known[i]));
 		}
-		assertTrue(InfixExpression.Operator.toOperator("huh") == null);
+		assertTrue(InfixExpression.Operator.toOperator("huh") == null); //$NON-NLS-1$
 
-		genericPropertyTest(x, new Property("LeftOperand", true, Expression.class) {
+		genericPropertyTest(x, new Property("LeftOperand", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -5269,7 +5269,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("fie"));
+				s1.setExpression(ast.newSimpleName("fie")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getLeftOperand();
@@ -5279,9 +5279,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 
-		genericPropertyTest(x, new Property("RightOperand", true, Expression.class) {
+		genericPropertyTest(x, new Property("RightOperand", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -5294,7 +5294,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("fie"));
+				s1.setExpression(ast.newSimpleName("fie")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getRightOperand();
@@ -5305,9 +5305,9 @@ public class ASTTest extends TestCase {
 		});
 
 		genericPropertyListTest(x, x.extendedOperands(),
-		  new Property("ExtendedOperands", true, Expression.class) {
+		  new Property("ExtendedOperands", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -5321,7 +5321,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("x"));
+				s1.setExpression(ast.newSimpleName("x")); //$NON-NLS-1$
 			}
 		});
 	}
@@ -5340,9 +5340,9 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 						
-		genericPropertyTest(x, new Property("LeftOperand", true, Expression.class) {
+		genericPropertyTest(x, new Property("LeftOperand", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -5355,7 +5355,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("fie"));
+				s1.setExpression(ast.newSimpleName("fie")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getLeftOperand();
@@ -5365,9 +5365,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 
-		genericPropertyTest(x, new Property("RightOperand", true, Type.class) {
+		genericPropertyTest(x, new Property("RightOperand", true, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Type result = ast.newSimpleType(ast.newSimpleName("Object"));
+				Type result = ast.newSimpleType(ast.newSimpleName("Object")); //$NON-NLS-1$
 				if (parented) {
 					ast.newArrayType(result);
 				}
@@ -5380,7 +5380,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("fie"));
+				s1.setExpression(ast.newSimpleName("fie")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getRightOperand();
@@ -5406,9 +5406,9 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
-		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -5421,7 +5421,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("fie"));
+				s1.setExpression(ast.newSimpleName("fie")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getExpression();
@@ -5431,9 +5431,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("ThenExpression", true, Expression.class) {
+		genericPropertyTest(x, new Property("ThenExpression", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -5446,7 +5446,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("fie"));
+				s1.setExpression(ast.newSimpleName("fie")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getThenExpression();
@@ -5456,9 +5456,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 		
-		genericPropertyTest(x, new Property("ElseExpression", true, Expression.class) {
+		genericPropertyTest(x, new Property("ElseExpression", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -5471,7 +5471,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("fie"));
+				s1.setExpression(ast.newSimpleName("fie")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getElseExpression();
@@ -5496,9 +5496,9 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
-		genericPropertyTest(x, new Property("Array", true, Expression.class) {
+		genericPropertyTest(x, new Property("Array", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -5511,7 +5511,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("fie"));
+				s1.setExpression(ast.newSimpleName("fie")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getArray();
@@ -5521,9 +5521,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 
-		genericPropertyTest(x, new Property("Index", true, Expression.class) {
+		genericPropertyTest(x, new Property("Index", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -5536,7 +5536,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("fie"));
+				s1.setExpression(ast.newSimpleName("fie")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getIndex();
@@ -5561,9 +5561,9 @@ public class ASTTest extends TestCase {
 		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyListTest(x, x.expressions(),
-		  new Property("Expressions", true, Expression.class) {
+		  new Property("Expressions", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -5577,7 +5577,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("x"));
+				s1.setExpression(ast.newSimpleName("x")); //$NON-NLS-1$
 			}
 		});
 	}
@@ -5598,9 +5598,9 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
-		genericPropertyTest(x, new Property("Expression", false, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", false, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -5614,7 +5614,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("x"));
+				s1.setExpression(ast.newSimpleName("x")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getExpression();
@@ -5624,9 +5624,9 @@ public class ASTTest extends TestCase {
 			}
 		});
 
-		genericPropertyTest(x, new Property("Name", true, Name.class) {
+		genericPropertyTest(x, new Property("Name", true, Name.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("a");
+				SimpleName result = targetAst.newSimpleName("a"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -5641,9 +5641,9 @@ public class ASTTest extends TestCase {
 		});
 
 		genericPropertyListTest(x, x.arguments(),
-		  new Property("Arguments", true, Expression.class) {
+		  new Property("Arguments", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -5657,11 +5657,11 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("x"));
+				s1.setExpression(ast.newSimpleName("x")); //$NON-NLS-1$
 			}
 		});
 		
-		genericPropertyTest(x, new Property("AnonymousClassDeclaration", false, AnonymousClassDeclaration.class) {
+		genericPropertyTest(x, new Property("AnonymousClassDeclaration", false, AnonymousClassDeclaration.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				AnonymousClassDeclaration result = targetAst.newAnonymousClassDeclaration();
 				if (parented) {
@@ -5706,7 +5706,7 @@ public class ASTTest extends TestCase {
 		assertTrue(ast.modificationCount() == previousCount);
 		
 		genericPropertyListTest(x, x.bodyDeclarations(),
-		  new Property("BodyDeclarations", true, BodyDeclaration.class) {
+		  new Property("BodyDeclarations", true, BodyDeclaration.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				TypeDeclaration result = targetAst.newTypeDeclaration();
 				if (parented) {
@@ -5753,10 +5753,10 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
-		genericPropertyTest(x, new Property("Type", true, ArrayType.class) {
+		genericPropertyTest(x, new Property("Type", true, ArrayType.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				ArrayType result = targetAst.newArrayType(
-					targetAst.newSimpleType(targetAst.newSimpleName("a")));
+					targetAst.newSimpleType(targetAst.newSimpleName("a"))); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newArrayType(result);
 				}
@@ -5771,9 +5771,9 @@ public class ASTTest extends TestCase {
 		});
 		
 		genericPropertyListTest(x, x.dimensions(),
-		  new Property("Dimensions", true, Expression.class) {
+		  new Property("Dimensions", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo");
+				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					targetAst.newExpressionStatement(result);
 				}
@@ -5787,11 +5787,11 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("x"));
+				s1.setExpression(ast.newSimpleName("x")); //$NON-NLS-1$
 			}
 		});
 
-		genericPropertyTest(x, new Property("Initializer", false, ArrayInitializer.class) {
+		genericPropertyTest(x, new Property("Initializer", false, ArrayInitializer.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				ArrayInitializer result = targetAst.newArrayInitializer();
 				if (parented) {
@@ -5831,9 +5831,9 @@ public class ASTTest extends TestCase {
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 
-		genericPropertyTest(x, new Property("Expression", true, Expression.class) {
+		genericPropertyTest(x, new Property("Expression", true, Expression.class) { //$NON-NLS-1$
 			public ASTNode sample(AST ast, boolean parented) {
-				Expression result = ast.newSimpleName("foo");
+				Expression result = ast.newSimpleName("foo"); //$NON-NLS-1$
 				if (parented) {
 					ast.newExpressionStatement(result);
 				}
@@ -5846,7 +5846,7 @@ public class ASTTest extends TestCase {
 			}
 			public void unwrap() {
 				ParenthesizedExpression s1 = (ParenthesizedExpression) x.getParent();
-				s1.setExpression(ast.newSimpleName("fie"));
+				s1.setExpression(ast.newSimpleName("fie")); //$NON-NLS-1$
 			}
 			public ASTNode get() {
 				return x.getExpression();
