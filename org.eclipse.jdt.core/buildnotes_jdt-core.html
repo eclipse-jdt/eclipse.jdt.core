@@ -58,10 +58,12 @@ What's new in this drop</h2>
 <li>Code formatter: If you did change the value of the setting controlling the insertion of a white space between empty arguments of a method declaration,
 then you have to change it again. Indeed, a spelling mistake has been fixed in the constant name. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49530">49530</a>.</li>
 <li>Inline tags are now supported in Javadoc comments:
-<br>  - {@link} and {@linkplain} tags are now parsed using same rules as for @see tag. References declared in these tags will be now
-found during search operation. See bugs <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48385">48385</a>.</li>
-<br>  - {@inheritDoc} tag is now parsed. When this tag will be present in a method javadoc comment, all missing tags errors will be ignored.
+<ul><li>{@link} and {@linkplain} tags are now parsed using same rules as for @see tag. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48385">48385</a>.
+<br>Because references declared in these tags should be now found during search operation,  the index format has to be changed. Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).</li>
+<li>{@inheritDoc} tag is now parsed. When this tag is present in a method javadoc comment, all missing tags errors are ignored.
 See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45782">45782</a>.</li>
+</ul>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
