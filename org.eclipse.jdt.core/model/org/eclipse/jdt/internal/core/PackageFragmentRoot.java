@@ -329,10 +329,7 @@ public boolean equals(Object o) {
  * @see IJavaElement
  */
 public boolean exists() {
-	return 
-		parentExists() 
-			&& resourceExists() 
-			&& isOnClasspath();
+	return super.exists() && isOnClasspath();
 }
 
 public IClasspathEntry findSourceAttachmentRecommendation() {

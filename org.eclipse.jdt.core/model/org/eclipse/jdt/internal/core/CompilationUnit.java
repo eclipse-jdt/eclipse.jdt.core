@@ -426,7 +426,8 @@ public boolean exists() {
 	// working copy always exists in the model until it is gotten rid of
 	if (getPerWorkingCopyInfo() != null) return true;	
 	
-	return super.exists();
+	// if not a working copy, it exists only if it is a primary compilation unit
+	return isPrimary() && super.exists() && isValidCompilationUnit();
 }
 /**
  * @see IWorkingCopy#findElements(IJavaElement)

@@ -144,8 +144,7 @@ public boolean equals(Object o) {
 	return super.equals(o);
 }
 public boolean exists() {
-	if (!isValidClassFile()) return false;
-	return super.exists();
+	return super.exists() && isValidClassFile();
 }
 
 /**
@@ -310,11 +309,11 @@ protected char getHandleMementoDelimiter() {
  * @see IJavaElement
  */
 public IPath getPath() {
-	PackageFragmentRoot root = this.getPackageFragmentRoot();
+	PackageFragmentRoot root = getPackageFragmentRoot();
 	if (root.isArchive()) {
 		return root.getPath();
 	} else {
-		return this.getParent().getPath().append(this.getElementName());
+		return getParent().getPath().append(getElementName());
 	}
 }
 /*

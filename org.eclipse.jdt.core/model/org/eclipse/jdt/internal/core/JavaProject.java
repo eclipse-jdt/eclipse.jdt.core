@@ -890,8 +890,7 @@ public class JavaProject
 	}
 
 	public boolean exists() {
-		if (!hasJavaNature(this.project)) return false;
-		return super.exists();
+		return hasJavaNature(this.project);
 	}	
 
 	/**
