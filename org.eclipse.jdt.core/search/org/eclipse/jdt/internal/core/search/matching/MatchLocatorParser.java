@@ -105,33 +105,33 @@ protected MatchLocatorParser(ProblemReporter problemReporter, MatchLocator locat
 			: new NoClassNoMethodDeclarationVisitor();
 	}
 
-	// Always check annotation while matching indexes
-	this.annotationParser.checkAnnotation = true;
+	// Always check javadoc while matching indexes
+	this.javadocParser.checkJavadoc = true;
 }
-public void checkAnnotation() {
-	super.checkAnnotation();
-	if (this.annotation != null) {
-		// Search for pattern locator matches in annotation @throws/@exception tags
-		TypeReference[] thrownExceptions = this.annotation.thrownExceptions;
+public void checkComment() {
+	super.checkComment();
+	if (this.javadoc != null) {
+		// Search for pattern locator matches in javadoc comment @throws/@exception tags
+		TypeReference[] thrownExceptions = this.javadoc.thrownExceptions;
 		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
 		for (int i = 0; i < throwsTagsNbre; i++) {
 			TypeReference typeRef = thrownExceptions[i];
 			patternLocator.match(typeRef, nodeSet);
 		}
 
-		// Search for pattern locator matches in annotation @see tags
-		Expression[] references = this.annotation.references;
+		// Search for pattern locator matches in javadoc comment @see tags
+		Expression[] references = this.javadoc.references;
 		int seeTagsNbre = references == null ? 0 : references.length;
 		for (int i = 0; i < seeTagsNbre; i++) {
 			Expression reference = references[i];
 			if (reference instanceof TypeReference) {
 				TypeReference typeRef = (TypeReference) reference;
 				patternLocator.match(typeRef, nodeSet);
-			} else if (reference instanceof AnnotationFieldReference) {
-				AnnotationFieldReference fieldRef = (AnnotationFieldReference) reference;
+			} else if (reference instanceof JavadocFieldReference) {
+				JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
 				patternLocator.match(fieldRef, nodeSet);
-			} else if (reference instanceof AnnotationMessageSend) {
-				AnnotationMessageSend messageSend = (AnnotationMessageSend) reference;
+			} else if (reference instanceof JavadocMessageSend) {
+				JavadocMessageSend messageSend = (JavadocMessageSend) reference;
 				patternLocator.match(messageSend, nodeSet);
 			}
 		}

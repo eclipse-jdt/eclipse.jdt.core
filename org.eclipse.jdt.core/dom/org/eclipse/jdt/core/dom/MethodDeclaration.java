@@ -67,13 +67,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Defaults to method.
 	 */
 	private boolean isConstructor = false;
-	
-	/**
-	 * The modifiers; bit-wise or of Modifier flags.
-	 * Defaults to none.
-	 */
-	private int modifiers = Modifier.NONE;
-	
+
 	/**
 	 * The type paramters (element type: <code>TypeParameter</code>). 
 	 * Defaults to an empty list.
@@ -223,14 +217,17 @@ public class MethodDeclaration extends BodyDeclaration {
 	/**
 	 * Returns the modifiers explicitly specified on this declaration.
 	 * <p>
+	 * The following modifiers are valid for methods: public, private, protected,
+	 * static, final, synchronized, native, abstract, and strictfp.
+	 * For constructors, only public, private, and protected are meaningful.
 	 * Note that deprecated is not included.
 	 * </p>
 	 * 
-	 * @return the bit-wise or of Modifier constants
-	 * @see Modifier
+	 * @since 2.0
 	 */ 
 	public int getModifiers() {
-		return modifiers;
+		// method needed only for javadoc
+		return super.getModifiers();
 	}
 	
 	/**
@@ -239,18 +236,16 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * The following modifiers are valid for methods: public, private, protected,
 	 * static, final, synchronized, native, abstract, and strictfp.
 	 * For constructors, only public, private, and protected are meaningful.
+	 * Note that deprecated is not included.
 	 * </p>
 	 * 
-	 * @param modifiers the bit-wise or of Modifier constants
-	 * @see Modifier
-	 * @exception IllegalArgumentException if the modifiers are illegal
+	 * @since 2.0
 	 */ 
 	public void setModifiers(int modifiers) {
 		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
 			throw new IllegalArgumentException();
 		}
-		modifying();
-		this.modifiers = modifiers;
+		super.setModifiers(modifiers);
 	}
 
 	/**
@@ -508,7 +503,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 9 * 4;
+		return super.memSize() + 7 * 4;
 	}
 	
 	/* (omit javadoc for this method)

@@ -983,14 +983,6 @@ public class Scribe {
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasComment = true;
 						break;
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
-						if (hasWhitespaces) {
-							space(this.scanner.getCurrentTokenStartPosition());
-						}
-						this.printBlockComment(this.scanner.getRawTokenSource(), true);
-						currentTokenStartPosition = this.scanner.currentPosition;
-						hasComment = true;
-						break;
 					default :
 						// step back one token
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);

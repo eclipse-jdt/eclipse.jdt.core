@@ -40,7 +40,7 @@ public abstract class AbstractMethodDeclaration
 	public boolean ignoreFurtherInvestigation = false;
 	public boolean needFreeReturn = false;
 	
-	public Annotation annotation;
+	public Javadoc javadoc;
 	
 	public int bodyStart;
 	public int bodyEnd = -1;
@@ -353,21 +353,21 @@ public abstract class AbstractMethodDeclaration
 			bindArguments(); 
 			bindThrownExceptions();
 			resolveStatements();
-			resolveAnnotation();
+			resolveJavadoc();
 		} catch (AbortMethod e) {	// ========= abort on fatal error =============
 			this.ignoreFurtherInvestigation = true;
 		} 
 	}
 
-	public void resolveAnnotation() {
+	public void resolveJavadoc() {
 		
 		if (this.binding == null) return;
-		if (this.annotation != null) {
-				this.annotation.resolve(this.scope);
+		if (this.javadoc != null) {
+				this.javadoc.resolve(this.scope);
 				return;
 		}
 		if (this.binding.isPublic()) {
-			this.scope.problemReporter().annotationMissing(this.sourceStart, this.sourceEnd);
+			this.scope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd);
 		}
 	}
 

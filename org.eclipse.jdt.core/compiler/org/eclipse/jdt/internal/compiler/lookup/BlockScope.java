@@ -11,11 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.AstNode;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -574,65 +570,6 @@ public class BlockScope extends Scope {
 		return variableBinding;
 	}
 
-	/* API
-	 *
-	 *	Answer the constructor binding that corresponds to receiverType, argumentTypes.
-	 *
-	 *	InvocationSite implements 
-	 *		isSuperAccess(); this is used to determine if the discovered constructor is visible.
-	 *
-	 *	If no visible constructor is discovered, an error binding is answered.
-	 */
-	public MethodBinding getConstructor(
-		ReferenceBinding receiverType,
-		TypeBinding[] argumentTypes,
-		InvocationSite invocationSite) {
-
-		compilationUnitScope().recordTypeReference(receiverType);
-		compilationUnitScope().recordTypeReferences(argumentTypes);
-		MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
-		if (methodBinding != null) {
-			if (methodBinding.canBeSeenBy(invocationSite, this))
-				return methodBinding;
-		}
-		MethodBinding[] methods =
-			receiverType.getMethods(ConstructorDeclaration.ConstantPoolName);
-		if (methods == NoMethods) {
-			return new ProblemMethodBinding(
-				ConstructorDeclaration.ConstantPoolName,
-				argumentTypes,
-				NotFound);
-		}
-		MethodBinding[] compatible = new MethodBinding[methods.length];
-		int compatibleIndex = 0;
-		for (int i = 0, length = methods.length; i < length; i++)
-			if (areParametersAssignable(methods[i].parameters, argumentTypes))
-				compatible[compatibleIndex++] = methods[i];
-		if (compatibleIndex == 0)
-			return new ProblemMethodBinding(
-				ConstructorDeclaration.ConstantPoolName,
-				argumentTypes,
-				NotFound);
-		// need a more descriptive error... cannot convert from X to Y
-
-		MethodBinding[] visible = new MethodBinding[compatibleIndex];
-		int visibleIndex = 0;
-		for (int i = 0; i < compatibleIndex; i++) {
-			MethodBinding method = compatible[i];
-			if (method.canBeSeenBy(invocationSite, this))
-				visible[visibleIndex++] = method;
-		}
-		if (visibleIndex == 1)
-			return visible[0];
-		if (visibleIndex == 0)
-			return new ProblemMethodBinding(
-				compatible[0],
-				ConstructorDeclaration.ConstantPoolName,
-				compatible[0].parameters,
-				NotVisible);
-		return mostSpecificClassMethodBinding(visible, visibleIndex);
-	}
-
 	/*
 	 * This retrieves the argument that maps to an enclosing instance of the suitable type,
 	 * 	if not found then answers nil -- do not create one
@@ -965,7 +902,14 @@ public class BlockScope extends Scope {
 			return foundMethod;
 		return new ProblemMethodBinding(selector, argumentTypes, NotFound);
 	}
-
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.lookup.Scope#isBlockScope()
+	 */
+	public boolean isBlockScope() {
+		return true;
+	}
+	
 	/* Answer true if the variable name already exists within the receiver's scope.
 	 */
 	public final boolean isDuplicateLocalVariable(char[] name) {
@@ -979,7 +923,7 @@ public class BlockScope extends Scope {
 			current = (BlockScope)current.parent;
 		}
 	}
-	
+
 	public int maxShiftedOffset() {
 		int max = -1;
 		if (this.shiftScopes != null){

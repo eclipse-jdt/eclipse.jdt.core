@@ -96,8 +96,8 @@ public Locale getLocale() {
 }
 public final String getLocalizedMessage(int id, String[] problemArguments) {
 	StringBuffer output = new StringBuffer(80);
-	if ((id & IProblem.Annotation) != 0) {
-		output.append(messageTemplates[IProblem.AnnotationMessagePrefix & IProblem.IgnoreCategoriesMask]);
+	if ((id & IProblem.Javadoc) != 0) {
+		output.append(messageTemplates[IProblem.JavadocMessagePrefix & IProblem.IgnoreCategoriesMask]);
 	}
 	String message = messageTemplates[id & IProblem.IgnoreCategoriesMask]; 
 	if (message == null) {

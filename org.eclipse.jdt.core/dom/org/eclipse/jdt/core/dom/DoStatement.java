@@ -140,6 +140,14 @@ public class DoStatement extends Statement {
 	
 	/**
 	 * Sets the body of this do statement.
+	 * <p>
+	 * Special note: The Java language does not allow a local variable declaration
+	 * to appear as the body of a do statement (they may only appear within a
+	 * block). However, the AST will allow a <code>VariableDeclarationStatement</code>
+	 * as the body of a <code>DoStatement</code>. To get something that will
+	 * compile, be sure to embed the <code>VariableDeclarationStatement</code>
+	 * inside a <code>Block</code>.
+	 * </p>
 	 * 
 	 * @param statement the body statement node
 	 * @exception IllegalArgumentException if:

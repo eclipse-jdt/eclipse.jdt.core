@@ -1501,9 +1501,9 @@ protected void consumeMethodHeaderName() {
 					this.lastCheckPoint = md.bodyStart;
 					currentElement = currentElement.add(md, 0);
 					lastIgnoredToken = -1;
-					// annotation
-					md.annotation = this.annotation;
-					this.annotation = null;
+					// javadoc
+					md.javadoc = this.javadoc;
+					this.javadoc = null;
 				}
 			}
 		}
@@ -1519,9 +1519,9 @@ protected void consumeMethodHeaderName() {
 		//modifiers
 		md.declarationSourceStart = intStack[intPtr--];
 		md.modifiers = intStack[intPtr--];
-		// annotation
-		md.annotation = this.annotation;
-		this.annotation = null;
+		// javadoc
+		md.javadoc = this.javadoc;
+		this.javadoc = null;
 	
 		//highlight starts at selector start
 		md.sourceStart = (int) (selectorSource >>> 32);

@@ -307,13 +307,13 @@ public class JavadocParser {
 			char[] name = argName == null ? new char[0] : argName;
 			if (token == TerminalTokens.TokenNameCOMMA) {
 				// Create new argument
-				JavadocArgumentExpression expr = new JavadocArgumentExpression(name, argStart, argEnd, typeRef);
+				JavadocArgumentExpression expr = new JavadocArgumentExpression(name, argStart, argEnd, typeRef, false);
 				pushOnAstStack(expr, firstArg);
 				consumeToken();
 				iToken++;
 			} else if (token == TerminalTokens.TokenNameRPAREN) {
 				// Create new argument
-				JavadocArgumentExpression expr = new JavadocArgumentExpression(name, argStart, argEnd, typeRef);
+				JavadocArgumentExpression expr = new JavadocArgumentExpression(name, argStart, argEnd, typeRef, false);
 				pushOnAstStack(expr, firstArg);
 				int size = astLengthStack[astLengthPtr--];
 				// Build arguments array

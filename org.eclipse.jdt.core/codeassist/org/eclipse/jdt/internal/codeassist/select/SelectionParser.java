@@ -575,7 +575,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	//endPosition is just before the ;
 	reference.declarationSourceStart = intStack[intPtr--];
 	// flush annotations defined prior to import statements
-	reference.declarationSourceEnd = this.flushAnnotationsDefinedPriorTo(reference.declarationSourceEnd);
+	reference.declarationSourceEnd = this.flushCommentsDefinedPriorTo(reference.declarationSourceEnd);
 
 	// recovery
 	if (currentElement != null){
@@ -626,8 +626,8 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	}
 	//endPosition is just before the ;
 	reference.declarationSourceStart = intStack[intPtr--];
-	// flush annotations defined prior to import statements
-	reference.declarationSourceEnd = this.flushAnnotationsDefinedPriorTo(reference.declarationSourceEnd);
+	// flush comments defined prior to import statements
+	reference.declarationSourceEnd = this.flushCommentsDefinedPriorTo(reference.declarationSourceEnd);
 
 	// recovery
 	if (currentElement != null){

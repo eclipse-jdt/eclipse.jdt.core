@@ -521,8 +521,8 @@ protected void getMethodBodies(CompilationUnitDeclaration unit) {
 		char[] contents = unit.compilationResult.compilationUnit.getContents();
 		this.parser.scanner.setSource(contents);
 		this.parser.scanner.setLineEnds(unit.compilationResult.lineSeparatorPositions);
-		if (this.parser.annotationParser.checkAnnotation)
-			this.parser.annotationParser.scanner.setSource(contents);
+		if (this.parser.javadocParser.checkJavadoc)
+			this.parser.javadocParser.scanner.setSource(contents);
 		this.parser.nodeSet = this.currentPossibleMatch.nodeSet;
 		this.parser.parseBodies(unit);
 	} finally {

@@ -1399,7 +1399,7 @@ public final class AST {
 	
 	/**
 	 * Creates an unparented import declaration node owned by this AST.
-	 * The import declaration initially contains a regular single-type import
+	 * The import declaration initially contains a single-type import
 	 * of a type with an unspecified name.
 	 * 
 	 * @return the new unparented import declaration node
@@ -1421,7 +1421,7 @@ public final class AST {
 	 * and an empty class body.
 	 * <p>
 	 * To create an interface, use this method and then call
-	 * <code>TypeDeclaration.setInterface(true)</code>.
+	 * <code>TypeDeclaration.setInterface(true)</code>
 	 * </p>
 	 * <p>
 	 * To create an enum declaration, use this method and then call

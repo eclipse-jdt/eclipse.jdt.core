@@ -37,7 +37,7 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit13 = 0x1000; 			// depth (name ref, msg) 
 	public final static int Bit14 = 0x2000; 			// assigned (reference lhs)
 	public final static int Bit15 = 0x4000; 			// is unnecessary cast (expression)
-	public final static int Bit16 = 0x8000; 			// in annotation (name ref, type ref, msg)
+	public final static int Bit16 = 0x8000; 			// in javadoc comment (name ref, type ref, msg)
 	public final static int Bit17 = 0x10000; 
 	public final static int Bit18 = 0x20000; 
 	public final static int Bit19 = 0x40000; 
@@ -111,8 +111,8 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	// for compilation unit
 	public static final int HasAllMethodBodies = Bit5;
 	
-	// for references in annotations
-	public static final int InsideAnnotation = Bit16;
+	// for references in Javadoc comments
+	public static final int InsideJavadoc = Bit16;
 	
 	public AstNode() {
 

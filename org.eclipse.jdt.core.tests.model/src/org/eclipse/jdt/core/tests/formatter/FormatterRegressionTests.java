@@ -62,7 +62,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				}
 			}
 		} else {
-			suite.addTest(new FormatterRegressionTests("test342"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test346"));  //$NON-NLS-1$
 		}
 		return suite;
 	}
@@ -3775,5 +3775,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.insert_space_after_comma_in_multiple_local_declarations = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test345", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=46717
+	 */
+	public void test346() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
+		preferences.use_tab = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test346", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

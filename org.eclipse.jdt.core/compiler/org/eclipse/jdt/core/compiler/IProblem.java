@@ -47,7 +47,7 @@
  *								   UnusedConstructorDeclaredThrownException
  *								   InvalidCatchBlockSequence
  *								   UnqualifiedFieldAccess
- *								   Annotation
+ *								   Javadoc
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -176,6 +176,8 @@ public interface IProblem {
 	int ImportRelated = 0x10000000;
 	int Internal = 0x20000000;
 	int Syntax = 0x40000000;
+	int Javadoc = 0x80000000;
+	/** @deprecated */
 	int Annotation = 0x80000000;
 	
 	/**
@@ -665,42 +667,79 @@ public interface IProblem {
 	int UndocumentedEmptyBlock = Internal + 460;
 		
 	/*
-	 * annotation
+	 * Javadoc comments
 	 */
 	/** @since 3.0 */
-	int AnnotationUnexpectedTag = Annotation + Internal + 470;
+	int JavadocUnexpectedTag = Javadoc + Internal + 470;
 	/** @since 3.0 */
-	int AnnotationMissingParamTag = Annotation + Internal + 471;
+	int JavadocMissingParamTag = Javadoc + Internal + 471;
 	/** @since 3.0 */
-	int AnnotationMissingParamName = Annotation + Internal + 472;
+	int JavadocMissingParamName = Javadoc + Internal + 472;
 	/** @since 3.0 */
-	int AnnotationDuplicateParamName = Annotation + Internal + 473;
+	int JavadocDuplicateParamName = Javadoc + Internal + 473;
 	/** @since 3.0 */
-	int AnnotationInvalidParamName = Annotation + Internal + 474;
+	int JavadocInvalidParamName = Javadoc + Internal + 474;
 	/** @since 3.0 */
-	int AnnotationMissingReturnTag = Annotation + Internal + 475;
+	int JavadocMissingReturnTag = Javadoc + Internal + 475;
 	/** @since 3.0 */
-	int AnnotationDuplicateReturnTag = Annotation + Internal + 476;
+	int JavadocDuplicateReturnTag = Javadoc + Internal + 476;
 	/** @since 3.0 */
-	int AnnotationMissingThrowsTag = Annotation + Internal + 477;
+	int JavadocMissingThrowsTag = Javadoc + Internal + 477;
 	/** @since 3.0 */
-	int AnnotationMissingThrowsClassName = Annotation + Internal + 478;
+	int JavadocMissingThrowsClassName = Javadoc + Internal + 478;
 	/** @since 3.0 */
-	int AnnotationInvalidThrowsClass = Annotation + Internal + 479;
+	int JavadocInvalidThrowsClass = Javadoc + Internal + 479;
 	/** @since 3.0 */
-	int AnnotationDuplicateThrowsClassName = Annotation + Internal + 480;
+	int JavadocDuplicateThrowsClassName = Javadoc + Internal + 480;
 	/** @since 3.0 */
-	int AnnotationInvalidThrowsClassName = Annotation + Internal + 481;
+	int JavadocInvalidThrowsClassName = Javadoc + Internal + 481;
 	/** @since 3.0 */
-	int AnnotationMissingSeeReference = Annotation + Internal + 482;
+	int JavadocMissingSeeReference = Javadoc + Internal + 482;
 	/** @since 3.0 */
-	int AnnotationInvalidSeeReference = Annotation + Internal + 483;
+	int JavadocInvalidSeeReference = Javadoc + Internal + 483;
 	/** @since 3.0 */
-	int AnnotationInvalidSeeHref = Annotation + Internal + 484;
+	int JavadocInvalidSeeHref = Javadoc + Internal + 484;
 	/** @since 3.0 */
-	int AnnotationInvalidSeeArgs = Annotation + Internal + 485;
+	int JavadocInvalidSeeArgs = Javadoc + Internal + 485;
 	/** @since 3.0 */
-	int AnnotationMissing = Annotation + Internal + 486;
+	int JavadocMissing = Javadoc + Internal + 486;
 	/** @since 3.0 */
-	int AnnotationMessagePrefix = Internal + 489;
+	int JavadocMessagePrefix = Internal + 489;
+
+	/**@deprecated */
+	int AnnotationUnexpectedTag = JavadocUnexpectedTag;
+	/**@deprecated */
+	int AnnotationMissingParamTag = JavadocMissingParamTag;
+	/**@deprecated */
+	int AnnotationMissingParamName = JavadocMissingParamName;
+	/**@deprecated */
+	int AnnotationDuplicateParamName = JavadocDuplicateParamName;
+	/**@deprecated */
+	int AnnotationInvalidParamName = JavadocInvalidParamName;
+	/**@deprecated */
+	int AnnotationMissingReturnTag = JavadocMissingReturnTag;
+	/**@deprecated */
+	int AnnotationDuplicateReturnTag = JavadocDuplicateReturnTag;
+	/**@deprecated */
+	int AnnotationMissingThrowsTag = JavadocMissingThrowsTag;
+	/**@deprecated */
+	int AnnotationMissingThrowsClassName = JavadocMissingThrowsClassName;
+	/**@deprecated */
+	int AnnotationInvalidThrowsClass = JavadocInvalidThrowsClass;
+	/**@deprecated */
+	int AnnotationDuplicateThrowsClassName = JavadocDuplicateThrowsClassName;
+	/**@deprecated */
+	int AnnotationInvalidThrowsClassName = JavadocInvalidThrowsClassName;
+	/**@deprecated */
+	int AnnotationMissingSeeReference = JavadocMissingSeeReference;
+	/**@deprecated */
+	int AnnotationInvalidSeeReference = JavadocInvalidSeeReference;
+	/**@deprecated */
+	int AnnotationInvalidSeeHref = JavadocInvalidSeeHref;
+	/**@deprecated */
+	int AnnotationInvalidSeeArgs = JavadocInvalidSeeArgs;
+	/**@deprecated */
+	int AnnotationMissing = JavadocMissing;
+	/**@deprecated */
+	int AnnotationMessagePrefix = JavadocMessagePrefix;
 }

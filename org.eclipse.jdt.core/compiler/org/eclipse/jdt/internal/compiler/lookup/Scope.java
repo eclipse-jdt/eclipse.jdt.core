@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
@@ -1403,7 +1404,23 @@ public abstract class Scope
 				return true;
 		return false;
 	}
+	
+	/**
+	 * Returns whether the current scope is on a block or not.
+	 * @return true if scope is on a block, false otherwise
+	 */
+	public boolean isBlockScope() {
+		return false;
+	}
 
+	/**
+	 * Returns whether the current scope is on a class or not.
+	 * @return true if scope is on a class, false otherwise
+	 */
+	public boolean isClassScope() {
+		return false;
+	}
+	
 	/* Answer true if the scope is nested inside a given field declaration.
      * Note: it works as long as the scope.fieldDeclarationIndex is reflecting the field being traversed 
      * e.g. during name resolution.
@@ -1685,5 +1702,52 @@ public abstract class Scope
 				NotFound);
 		else
 			return field;
+	}
+
+	public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
+	
+		compilationUnitScope().recordTypeReference(receiverType);
+		compilationUnitScope().recordTypeReferences(argumentTypes);
+		MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
+		if (methodBinding != null) {
+			if (methodBinding.canBeSeenBy(invocationSite, this))
+				return methodBinding;
+		}
+		MethodBinding[] methods =
+			receiverType.getMethods(ConstructorDeclaration.ConstantPoolName);
+		if (methods == NoMethods) {
+			return new ProblemMethodBinding(
+				ConstructorDeclaration.ConstantPoolName,
+				argumentTypes,
+				NotFound);
+		}
+		MethodBinding[] compatible = new MethodBinding[methods.length];
+		int compatibleIndex = 0;
+		for (int i = 0, length = methods.length; i < length; i++)
+			if (areParametersAssignable(methods[i].parameters, argumentTypes))
+				compatible[compatibleIndex++] = methods[i];
+		if (compatibleIndex == 0)
+			return new ProblemMethodBinding(
+				ConstructorDeclaration.ConstantPoolName,
+				argumentTypes,
+				NotFound);
+		// need a more descriptive error... cannot convert from X to Y
+	
+		MethodBinding[] visible = new MethodBinding[compatibleIndex];
+		int visibleIndex = 0;
+		for (int i = 0; i < compatibleIndex; i++) {
+			MethodBinding method = compatible[i];
+			if (method.canBeSeenBy(invocationSite, this))
+				visible[visibleIndex++] = method;
+		}
+		if (visibleIndex == 1)
+			return visible[0];
+		if (visibleIndex == 0)
+			return new ProblemMethodBinding(
+				compatible[0],
+				ConstructorDeclaration.ConstantPoolName,
+				compatible[0].parameters,
+				NotVisible);
+		return mostSpecificClassMethodBinding(visible, visibleIndex);
 	}
 }

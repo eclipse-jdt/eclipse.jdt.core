@@ -57,8 +57,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportSuperfluousSemicolon = "org.eclipse.jdt.core.compiler.problem.superfluousSemicolon"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnnecessaryTypeCheck = "org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck"; //$NON-NLS-1$
 	public static final String OPTION_ReportUndocumentedEmptyBlock = "org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock"; //$NON-NLS-1$
-	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
-	public static final String OPTION_ReportMissingAnnotation = "org.eclipse.jdt.core.compiler.problem.missingAnnotation"; //$NON-NLS-1$
+	public static final String OPTION_ReportInvalidJavadoc = "org.eclipse.jdt.core.compiler.problem.invalidJavadoc"; //$NON-NLS-1$
+	public static final String OPTION_ReportMissingJavadoc = "org.eclipse.jdt.core.compiler.problem.missingJavadoc"; //$NON-NLS-1$
 	public static final String OPTION_ReportFinallyBlockNotCompletingNormally = "org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedDeclaredThrownException = "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnqualifiedFieldAccess = "org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess"; //$NON-NLS-1$
@@ -69,7 +69,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_MaxProblemPerUnit = "org.eclipse.jdt.core.compiler.maxProblemPerUnit"; //$NON-NLS-1$
 	public static final String OPTION_TaskTags = "org.eclipse.jdt.core.compiler.taskTags"; //$NON-NLS-1$
 	public static final String OPTION_TaskPriorities = "org.eclipse.jdt.core.compiler.taskPriorities"; //$NON-NLS-1$
-
+	
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
 
@@ -121,7 +121,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long IndirectStaticAccess = 0x100000000L;
 	public static final long UndocumentedEmptyBlock = 0x200000000L;
 	public static final long UnnecessaryTypeCheck = 0x400000000L;
-	public static final long InvalidAnnotation = 0x800000000L;
+	public static final long InvalidJavadoc = 0x800000000L;
 	public static final long FinallyBlockNotCompleting = 0x1000000000L;
 	public static final long UnusedDeclaredThrownException = 0x2000000000L;
 	public static final long UnqualifiedFieldAccess = 0x4000000000L;
@@ -191,8 +191,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	// constructor/setter parameter hiding
 	public boolean reportSpecialParameterHidingField = false;
 	
-	// check javadoc annotations
-	public boolean reportMissingAnnotation = false; 
+	// check javadoc comments
+	public boolean reportMissingJavadoc = false; 
 	
 	/** 
 	 * Initializing the compiler options with defaults
@@ -203,6 +203,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 
 	/** 
 	 * Initializing the compiler options with external settings
+	 * @param settings
 	 */
 	public CompilerOptions(Map settings){
 
@@ -239,8 +240,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportAssertIdentifier, getSeverityString(AssertUsedAsAnIdentifier)); 
 		optionsMap.put(OPTION_ReportUndocumentedEmptyBlock, getSeverityString(UndocumentedEmptyBlock)); 
 		optionsMap.put(OPTION_ReportUnnecessaryTypeCheck, getSeverityString(UnnecessaryTypeCheck)); 
-		optionsMap.put(OPTION_ReportInvalidAnnotation, getSeverityString(InvalidAnnotation));
-		optionsMap.put(OPTION_ReportMissingAnnotation, reportMissingAnnotation ? ENABLED : DISABLED); 
+		optionsMap.put(OPTION_ReportInvalidJavadoc, getSeverityString(InvalidJavadoc));
+		optionsMap.put(OPTION_ReportMissingJavadoc, reportMissingJavadoc ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportFinallyBlockNotCompletingNormally, getSeverityString(FinallyBlockNotCompleting));
 		optionsMap.put(OPTION_ReportUnusedDeclaredThrownException, getSeverityString(UnusedDeclaredThrownException));
 		optionsMap.put(OPTION_ReportUnqualifiedFieldAccess, getSeverityString(UnqualifiedFieldAccess));
@@ -256,6 +257,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportUnusedParameterWhenOverridingConcrete, reportUnusedParameterWhenOverridingConcrete ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportSpecialParameterHidingField, reportSpecialParameterHidingField ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_MaxProblemPerUnit, String.valueOf(maxProblemsPerUnit));
+
 		return optionsMap;		
 	}
 	
@@ -399,11 +401,11 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				}
 			}
 		}
-		if ((optionValue = optionsMap.get(OPTION_ReportMissingAnnotation)) != null) {
+		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadoc)) != null) {
 			if (ENABLED.equals(optionValue)) {
-				this.reportMissingAnnotation = true;
+				this.reportMissingJavadoc = true;
 			} else if (DISABLED.equals(optionValue)) {
-				this.reportMissingAnnotation = false;
+				this.reportMissingJavadoc = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);
@@ -428,7 +430,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_ReportIncompatibleNonInheritedInterfaceMethod)) != null) updateSeverity(IncompatibleNonInheritedInterfaceMethod, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUndocumentedEmptyBlock)) != null) updateSeverity(UndocumentedEmptyBlock, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnnecessaryTypeCheck)) != null) updateSeverity(UnnecessaryTypeCheck, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportInvalidAnnotation)) != null) updateSeverity(InvalidAnnotation, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportInvalidJavadoc)) != null) updateSeverity(InvalidJavadoc, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportFinallyBlockNotCompletingNormally)) != null) updateSeverity(FinallyBlockNotCompleting, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnqualifiedFieldAccess)) != null) updateSeverity(UnqualifiedFieldAccess, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportNoEffectAssignment)) != null) updateSeverity(NoEffectAssignment, optionValue);
@@ -465,8 +467,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- superfluous semicolon: ").append(getSeverityString(SuperfluousSemicolon)); //$NON-NLS-1$
 		buf.append("\n\t- uncommented empty block: ").append(getSeverityString(UndocumentedEmptyBlock)); //$NON-NLS-1$
 		buf.append("\n\t- unnecessary type check: ").append(getSeverityString(UnnecessaryTypeCheck)); //$NON-NLS-1$
-		buf.append("\n\t- invalid annotation: ").append(getSeverityString(InvalidAnnotation)); //$NON-NLS-1$
-		buf.append("\n\t- report missing annotation: ").append(reportMissingAnnotation ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n\t- invalid javadoc: ").append(getSeverityString(InvalidJavadoc)); //$NON-NLS-1$
+		buf.append("\n\t- report missing javadoc: ").append(reportMissingJavadoc ? "ENABLED" : "DISABLED"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- finally block not completing normally: ").append(getSeverityString(FinallyBlockNotCompleting)); //$NON-NLS-1$
 		buf.append("\n\t- unused declared thrown exception: ").append(getSeverityString(UnusedDeclaredThrownException)); //$NON-NLS-1$
 		buf.append("\n\t- JDK compliance level: "+ versionFromJdkLevel(complianceLevel)); //$NON-NLS-1$

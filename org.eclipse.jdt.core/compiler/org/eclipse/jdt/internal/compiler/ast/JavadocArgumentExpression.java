@@ -21,12 +21,12 @@ public class JavadocArgumentExpression extends Expression {
 	public char[] token;
 	public Argument argument;
 
-	public JavadocArgumentExpression(char[] name, int startPos, int endPos, TypeReference typeRef) {
+	public JavadocArgumentExpression(char[] name, int startPos, int endPos, TypeReference typeRef, boolean isVarArgs) {
 		this.token = name;
 		this.sourceStart = startPos;
 		this.sourceEnd = endPos;
 		long pos = (((long) startPos) << 32) + endPos;
-		this.argument = new Argument(name, pos, typeRef, IConstants.AccDefault);
+		this.argument = new Argument(name, pos, typeRef, IConstants.AccDefault, isVarArgs);
 		this.bits |= InsideJavadoc;
 	}
 

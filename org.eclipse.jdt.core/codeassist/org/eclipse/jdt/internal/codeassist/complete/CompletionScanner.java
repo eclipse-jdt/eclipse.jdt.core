@@ -565,7 +565,7 @@ public int getNextToken() throws InvalidInputException {
 							}
 							break;
 						}
-						if (test > 0) { //traditional and annotation comment
+						if (test > 0) { //traditional and javadoc comment
 							boolean isJavadoc = false, star = false;
 							// consume next character
 							unicodeAsBackSlash = false;

@@ -29,12 +29,6 @@ public class Initializer extends BodyDeclaration {
 	private static final int LEGAL_MODIFIERS = Modifier.STATIC;
 	
 	/**
-	 * The modifiers; bit-wise or of Modifier flags.
-	 * Defaults to none.
-	 */
-	private int modifiers = 0;
-
-	/**
 	 * The initializer body; lazily initialized; defaults to an empty block.
 	 */
 	private Block body = null;
@@ -99,11 +93,11 @@ public class Initializer extends BodyDeclaration {
 	 * Note that static is the only meaningful modifier for an initializer.
 	 * </p>
 	 * 
-	 * @return the bit-wise or of <code>Modifier</code> constants
-	 * @see Modifier
+	 * @since 2.0
 	 */ 
 	public int getModifiers() {
-		return modifiers;
+		// method needed only for javadoc
+		return super.getModifiers();
 	}
 
 	/**
@@ -112,16 +106,13 @@ public class Initializer extends BodyDeclaration {
 	 * Note that static is the only meaningful modifier for an initializer.
 	 * </p>
 	 * 
-	 * @return the bit-wise or of <code>Modifier</code> constants
-	 * @see Modifier
-	 * @exception IllegalArgumentException if the modifiers are illegal
+	 * @since 2.0
 	 */ 
 	public void setModifiers(int modifiers) {
 		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
 			throw new IllegalArgumentException();
 		}
-		modifying();
-		this.modifiers = modifiers;
+		super.setModifiers(modifiers);
 	}
 
 	/**
@@ -162,7 +153,7 @@ public class Initializer extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 2 * 4;
+		return super.memSize() + 1 * 4;
 	}
 	
 	/* (omit javadoc for this method)

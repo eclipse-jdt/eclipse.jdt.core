@@ -191,7 +191,7 @@ public class CompilationUnit extends ASTNode {
 	}
 
 	/**
-	 * Returns the live list of nodes for the import declaration of this 
+	 * Returns the live list of nodes for the import declarations of this 
 	 * compilation unit, in order of appearance.
 	 * 
 	 * @return the live list of import declaration nodes
@@ -202,7 +202,7 @@ public class CompilationUnit extends ASTNode {
 	}
 	
 	/**
-	 * Returns the live list of nodes for the top-level type declaration of this 
+	 * Returns the live list of nodes for the top-level type declarations of this 
 	 * compilation unit, in order of appearance.
 	 * 
 	 * @return the live list of top-level type declaration
@@ -458,7 +458,7 @@ public class CompilationUnit extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		int size = BASE_NODE_SIZE + 6 * 4;
+		int size = BASE_NODE_SIZE + 4 * 4;
 		if (lineEndTable != null) {
 			size += HEADERS + 4 * lineEndTable.length;
 		}
