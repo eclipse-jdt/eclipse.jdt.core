@@ -17,8 +17,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.core.BinaryType;
-import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class TypeReferencePattern extends AndPattern implements IIndexConstants {
@@ -126,10 +124,10 @@ protected StringBuffer print(StringBuffer output) {
 private char[][][] typeParameterNames(IType type) {
 	char[][][] typeParameters = new char[10][][];
 	int ptr = -1;
+	boolean hasParameters = false;
 	try {
 		IJavaElement parent = type;
 		ITypeParameter[] parameters = null;
-		boolean hasParameters = false;
 		while (parent != null) {
 			if (parent.getElementType() != IJavaElement.TYPE) {
 				if (!hasParameters) return null;
@@ -141,11 +139,7 @@ private char[][][] typeParameterNames(IType type) {
 				System.arraycopy(typeParameters, 0, typeParameters = new char[typeParameters.length+10][][], 0, ptr);
 			}
 			IType parentType = (IType) parent;
-			if (parentType.isBinary()) {
-				parameters = ((BinaryType) parent).getTypeParameters();
-			} else {
-				parameters = ((SourceType) parent).getTypeParameters();
-			}
+			parameters = parentType.getTypeParameters();
 			int length = parameters==null ? 0 : parameters.length;
 			if (length > 0) {
 				hasParameters = true;
@@ -159,6 +153,9 @@ private char[][][] typeParameterNames(IType type) {
 	catch (JavaModelException jme) {
 		return null;
 	}
+	if (!hasParameters) return null;
+	if (++ptr < typeParameters.length)
+		System.arraycopy(typeParameters, 0, typeParameters = new char[ptr][][], 0, ptr);
 	return typeParameters;
 }
 }

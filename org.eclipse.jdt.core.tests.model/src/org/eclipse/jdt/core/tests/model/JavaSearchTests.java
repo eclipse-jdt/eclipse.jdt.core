@@ -3969,10 +3969,10 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * Regression tests for bug 80918: [1.5][search] ClassCastException when searching for references to binary type
 	 */
 	public void testTypeReferenceBug80918() throws CoreException {
-		IType type = getClassFile("JavaSearch", "test20631.jar", "", "X.class").getType();
+		IType type = getClassFile("JavaSearchBugs", getExternalJCLPathString("1.5"), "java.lang", "Exception.class").getType();
 		search(type, REFERENCES, SearchPattern.R_CASE_SENSITIVE|SearchPattern.R_ERASURE_MATCH, getJavaSearchScopeBugs("b79803", false), this.resultCollector);
 		assertSearchResults(
-			"", // does not expect fin anything, just verify that no CCE happens
+			"", // do not expect to find anything, just verify that no CCE happens
 			this.resultCollector);
 	}
 
