@@ -38,8 +38,9 @@ Eclipse SDK 2.1 Build - ?th October 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>The compiler is now reporting line comments which are not closed with a line break as a compile error in 1.4 compliance mode. See <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23096">23096</a> for further details.
-The line break is part of the line comment source range.
+<li>In 1.4 compliant mode, the compiler will report errors for unterminated line comments (i.e. not closed with a line break). For backward compatibility reason,
+the stricter check isn't performed in 1.3 compliant mode. See <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23096">23096</a> for further details.
+Also note that from now on, the trailing line break is part of the line comment source range.
 </li>
 <li>The API setLeadingComment(String) on org.eclipse.jdt.core.dom.Statement class has been updated to reflect the changes made for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23096">23096</a>.
 This API strictly fits to the JLS. It doesn't use the compliance mode settings. So a line comment needs to be closed with a line break in
