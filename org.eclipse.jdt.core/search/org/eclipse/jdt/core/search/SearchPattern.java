@@ -420,7 +420,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		return null;
 	}
 	/**
-	 * Method pattern are formed by [declaringType.]selector[(parameterTypes)][returnType]
+	 * Method pattern are formed by [declaringType.]selector[(parameterTypes)][ returnType]
 	 * e.g. java.lang.Runnable.run() void
 	 *		main(*)
 	 */
