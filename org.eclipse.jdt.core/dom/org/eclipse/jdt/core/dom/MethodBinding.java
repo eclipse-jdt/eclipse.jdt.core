@@ -183,11 +183,43 @@ class MethodBinding implements IMethodBinding {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeParameters()
+	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getTypeParameters()
 	 */
 	public ITypeBinding[] getTypeParameters() {
 		// TODO (olivier) missing implementation of J2SE 1.5 language feature
 		return NO_TYPE_BINDINGS;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getTypeArguments()
+	 */
+	public ITypeBinding[] getTypeArguments() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return NO_TYPE_BINDINGS;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.IMethodBinding#isParameterizedMethod()
+	 */
+	public boolean isParameterizedMethod() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.IMethodBinding#isRawMethod()
+	 */
+	public boolean isRawMethod() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getErasure()
+	 */
+	public IMethodBinding getErasure() {
+		// TODO (olivier) missing implementation of J2SE 1.5 language feature
+		return this;
 	}
 
 	/* 

@@ -13,6 +13,20 @@ package org.eclipse.jdt.core.dom;
 
 /**
  * A method binding represents a method or constructor of a class or interface.
+ * Method bindings usually correspond directly to method or
+ * constructor declarations found in the source code.
+ * However, in certain cases of references to a generic method,
+ * the method binding may correspond to a copy of a generic method
+ * declaration with substitutions for the method's type parameters
+ * (for these, <code>getTypeArguments</code> returns a non-empty
+ * list, and either <code>isParameterizedMethod</code> or
+ * <code>isRawMethod</code> returns <code>true</code>).
+ * And in certain cases of references to a method declared in a
+ * generic type, the method binding may correspond to a copy of a
+ * method declaration with substitutions for the type's type
+ * parameters (for these, <code>getTypeArguments</code> returns
+ * an empty list, and both <code>isParameterizedMethod</code> and
+ * <code>isRawMethod</code> return <code>false</code>).
  * <p>
  * This interface is not intended to be implemented by clients.
  * </p>
@@ -109,6 +123,13 @@ public interface IMethodBinding extends IBinding {
 	/**
 	 * Returns the type parameters of this method or constructor binding.
 	 * <p>
+	 * Note that type parameters only occur on the binding of the
+	 * declaring generic method. Type bindings corresponding to a raw or
+	 * parameterized reference to a generic method do not carry type
+	 * parameters (they instead have non-empty type arguments
+	 * and non-trivial erasure).
+	 * </p>
+	 * <p>
 	 * Note: Support for new language features proposed for the upcoming 1.5
 	 * release of J2SE is tentative and subject to change.
 	 * </p>
@@ -119,4 +140,96 @@ public interface IMethodBinding extends IBinding {
 	 * @since 3.0
 	 */
 	public ITypeBinding[] getTypeParameters();
+	
+	/**
+	 * Returns whether this method binding represents an instance of
+	 * a generic method corresponding to a parameterized method reference.
+	 * <p>
+	 * Note that <code>isRawMethod()</code> and
+	 * <code>isParameterizedMethod()</code> are mutually exclusive.
+	 * </p>
+	 * <p>
+	 * Note: Support for new language features proposed for the upcoming 1.5
+	 * release of J2SE is tentative and subject to change.
+	 * </p>
+	 *
+	 * @return <code>true</code> if this method binding represents a 
+	 * an instance of a generic method corresponding to a parameterized
+	 * method reference, and <code>false</code> otherwise
+	 * @see #getErasure()
+	 * @see #getTypeArguments()
+	 * @see #isRawMethod()
+	 * @since 3.1
+	 */
+	// TODO - need better name
+	public boolean isParameterizedMethod();
+	
+	/**
+	 * Returns the type arguments of this generic method instance, or the
+	 * empty list for other method bindings.
+	 * <p>
+	 * Note that type arguments only occur on a method binding that represents
+	 * an instance of a generic method corresponding to a raw or parameterized
+	 * reference to a generic method. Do not confuse these with type parameters
+	 * which only occur on the method binding corresponding directly to the
+	 * declaration of a generic method.
+	 * </p> 
+	 * <p>
+	 * Note: Support for new language features proposed for the upcoming 1.5
+	 * release of J2SE is tentative and subject to change.
+	 * </p>
+	 *
+	 * @return the list of type bindings for the type arguments used to
+	 * instantiate the corrresponding generic method, or otherwise the empty list
+	 * @see #getErasure()
+	 * @see #isParameterizedMethod()
+	 * @see #isRawMethod()
+	 * @since 3.1
+	 */
+	public ITypeBinding[] getTypeArguments();
+	
+	/**
+	 * Returns the erasure of this method binding.
+	 * Some bindings correspond to method declarations in the context of
+	 * a particular instance of a generic method. In those cases, this method
+	 * returns the generic method binding from which this method binding
+	 * was instantiated.
+	 * For other type bindings, this method returns the identical type binding.
+	 * <p>
+	 * Note: the erasure link is not a general back-link between the members
+	 * of a generic type instance and the corresponding members of the
+	 * generic type. 
+	 * </p>
+	 * <p>
+	 * Note: Support for new language features proposed for the upcoming 1.5
+	 * release of J2SE is tentative and subject to change.
+	 * </p>
+	 *
+	 * @return the erasure method binding
+	 * @since 3.1
+	 */
+	public IMethodBinding getErasure();
+	
+	/**
+	 * Returns whether this method binding represents an instance of
+	 * a generic method corresponding to a raw method reference.
+	 * <p>
+	 * Note that <code>isRawMethod()</code> and
+	 * <code>isParameterizedMethod()</code> are mutually exclusive.
+	 * </p>
+	 * <p>
+	 * Note: Support for new language features proposed for the upcoming 1.5
+	 * release of J2SE is tentative and subject to change.
+	 * </p>
+	 *
+	 * @return <code>true</code> if this method binding represents a 
+	 * an instance of a generic method corresponding to a raw
+	 * method reference, and <code>false</code> otherwise
+	 * @see #getErasure()
+	 * @see #getTypeArguments()
+	 * @see #isParameterizedMethod()
+	 * @since 3.1
+	 */
+	// TODO - need better name
+	public boolean isRawMethod();
 }

@@ -157,6 +157,23 @@ public interface IBinding {
 	 *   block relative to its parent, the key of its method</li>
 	 * <li>anonymous types - the occurence count of the anonymous 
 	 *   type relative to its declaring type, the key of its declaring type</li>
+	 * <li>enum types - treated like classes</li>
+	 * <li>annotation types - treated like interfaces</li>
+	 * <li>type variables - the name of the type variable and the
+	 * the key of the generic type or generic method that declares that
+	 * type variable</li>
+	 * <li>wildcard types - the key of the optional wildcard type bound</li>
+	 * <li>generic type instances - the key of the generic type and the keys
+	 * of the type arguments used to instantiate it, and whether the
+	 * instance is explicit (a parameterized type reference) or
+	 * implicit (a raw type reference)</li>
+	 * <li>generic method instances - the key of the generic method and the keys
+	 * of the type arguments used to instantiate it, and whether the
+	 * instance is explicit (a parameterized method reference) or
+	 * implicit (a raw method reference)</li>
+	 * <li>members of generic type instances - the key of the generic type
+	 * instance and the key of the corresponding member in the generic
+	 * type</li>
 	 * </ul>
 	 * </p>
 	 * 
