@@ -166,23 +166,6 @@ IWorkspace getWorkspace();
 void move(IJavaElement[] elements, IJavaElement[] containers, IJavaElement[] siblings, String[] renamings, boolean replace, IProgressMonitor monitor) throws JavaModelException;
 
 /**
- * Triggers an update of the JavaModel with respect to the referenced external JARs.
- * This operation will issue a JavaModel delta describing the discovered changes, in term
- * of Java element package fragment roots added, removed or changed.
- * 
- * @param monitor - a progress monitor used to report progress
- * @exception JavaModelException in one of the corresponding situation:
- * <ul>
- *    <li> an exception occurs while accessing project resources </li>
- * </ul>
- * 
- * @see IJavaElementDelta
- * @deprecated - use refreshExternalJARs(IJavaProject[], IProgressMonitor) instead
- * @since 2.0
- */
-void refreshExternalJARs(IProgressMonitor monitor) throws JavaModelException;
-
-/**
  * Triggers an update of the JavaModel with respect to the referenced external archives.
  * This operation will issue a JavaModel delta describing the discovered changes, in term
  * of Java element package fragment roots added, removed or changed.

@@ -414,13 +414,6 @@ public void move(IJavaElement[] elements, IJavaElement[] containers, IJavaElemen
 }
 
 /**
- * @see IJavaModel#refreshExternalJARs(IProgressMonitor)
- */
-public void refreshExternalJARs(IProgressMonitor monitor) throws JavaModelException {
-	refreshExternalArchives(null, monitor);
-}
-
-/**
  * @see IJavaModel#refreshExternalArchives(IJavaElement[], IProgressMonitor)
  */
 public void refreshExternalArchives(IJavaElement[] elementsScope, IProgressMonitor monitor) throws JavaModelException {
