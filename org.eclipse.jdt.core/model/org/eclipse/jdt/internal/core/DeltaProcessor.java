@@ -433,6 +433,11 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 								}
 								this.removeFromParentInfo(javaProject);
 							}
+						} else {
+							// in case the project was removed then added then changed (see bug 19799)
+							if (this.hasJavaNature(project)) { // need nature check - 18698
+								this.addToParentInfo((JavaProject)JavaCore.create(project));
+							}
 						}
 					} else {
 						// workaround for bug 15168 circular errors not reported 
@@ -939,8 +944,13 @@ private JavaModelException newInvalidElementType() {
 		switch (resource.getType()) {
 	
 			case IResource.ROOT :
-			case IResource.PROJECT :
 				if (delta.getKind() == IResourceDelta.CHANGED) {
+					processChildren = true;
+				}
+				break;
+			case IResource.PROJECT :
+				// do not visit non-java projects (see bug 16140 Non-java project gets .classpath)
+				if (delta.getKind() == IResourceDelta.CHANGED && this.hasJavaNature(resource)) {
 					processChildren = true;
 				}
 				break;
