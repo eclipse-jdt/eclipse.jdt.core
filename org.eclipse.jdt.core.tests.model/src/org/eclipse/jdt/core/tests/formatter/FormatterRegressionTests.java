@@ -55,7 +55,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		}
 		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-		suite.addTest(new FormatterRegressionTests("test489"));  //$NON-NLS-1$
+		suite.addTest(new FormatterRegressionTests("test492"));  //$NON-NLS-1$
 		return suite;
 	}
 
@@ -121,7 +121,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			//time = System.currentTimeMillis();
 			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);//$NON-NLS-1$
 			if (edit == null) return null;
-//			assertEquals("Shoult not have edits", 0, edit.getChildren().length);
+//			assertEquals("Should not have edits", 0, edit.getChildren().length);
 			final String result2 = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
 			if (!result.equals(result2)) {
 				assertSourceEquals("Different reformatting", Util.convertToIndependantLineDelimiter(result), Util.convertToIndependantLineDelimiter(result2));
@@ -6294,5 +6294,30 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.use_tab = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test490", "A.java", CodeFormatter.K_COMPILATION_UNIT, true);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59451
+	 */
+	public void _test491() {
+		String resourcePath = getResource("test491", "formatter.xml");
+		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "DOI");
+		assertNotNull("No preferences", options);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test491", "BundleChain.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59575
+	 */
+	public void test492() {
+		String resourcePath = getResource("test492", "core_formatting.xml");
+		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "core");
+		assertNotNull("No preferences", options);
+		options.put(JavaCore.COMPILER_PB_NON_NLS_STRING_LITERAL, JavaCore.ERROR);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, options);
+		runTest(codeFormatter, "test492", "Main.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
