@@ -26,14 +26,11 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
  */
 class BindingResolver {
 	
-	protected AST ast;
-
 	protected long modificationCount;
 	/**
 	 * Creates a binding resolver.
 	 */
-	BindingResolver(AST ast) {
-		this.ast = ast;
+	BindingResolver() {
 	}
 
 	/**

@@ -227,7 +227,7 @@ public final class AST {
 					new AbstractSyntaxTreeVisitorAdapter());
 				ASTConverter converter = new ASTConverter(true);
 				AST ast = new AST();
-				BindingResolver resolver = new DefaultBindingResolver(ast, compilationUnitDeclaration.scope);
+				BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
 				ast.setBindingResolver(resolver);
 				converter.setAST(ast);
 			
@@ -323,7 +323,7 @@ public final class AST {
 					new AbstractSyntaxTreeVisitorAdapter());
 			ASTConverter converter = new ASTConverter(true);
 			AST ast = new AST();
-			BindingResolver resolver = new DefaultBindingResolver(ast, compilationUnitDeclaration.scope);
+			BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
 			ast.setBindingResolver(resolver);
 			converter.setAST(ast);
 		
@@ -367,7 +367,7 @@ public final class AST {
 
 		ASTConverter converter = new ASTConverter(false);
 		AST ast = new AST();
-		ast.setBindingResolver(new BindingResolver(ast));
+		ast.setBindingResolver(new BindingResolver());
 		converter.setAST(ast);
 				
 		CompilationUnit cu = converter.convert(compilationUnitDeclaration, source);
@@ -381,7 +381,7 @@ public final class AST {
 	 * The binding resolver for this AST. Initially a binding resolver that
 	 * does not resolve names at all.
 	 */
-	private BindingResolver resolver = new BindingResolver(this);
+	private BindingResolver resolver = new BindingResolver();
 	
 	/**
 	 * Returns the binding resolver for this AST.
