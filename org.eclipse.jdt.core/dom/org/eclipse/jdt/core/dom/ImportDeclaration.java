@@ -14,6 +14,12 @@ package org.eclipse.jdt.core.dom;
 /**
  * Import declaration AST node type.
  *
+ * For 2.0 (corresponding to JLS2):
+ * <pre>
+ * ImportDeclaration:
+ *    <b>import</b> Name [ <b>.</b> <b>*</b> ] <b>;</b>
+ * </pre>
+ * For 3.0 (corresponding to JLS3), static was added:
  * <pre>
  * ImportDeclaration:
  *    <b>import</b> [ <b>static</b> ] Name [ <b>.</b> <b>*</b> ] <b>;</b>
@@ -41,13 +47,7 @@ public class ImportDeclaration extends ASTNode {
 
 	/**
 	 * Static versus regular; defaults to regular import.
-	 * <p>
-	 * Note: Static imports are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
-	 * 
+	 * Added in 3.0; not used in 2.0.
 	 * @since 3.0
 	 */
 	private boolean isStatic = false;
@@ -82,7 +82,9 @@ public class ImportDeclaration extends ASTNode {
 		ImportDeclaration result = new ImportDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setOnDemand(isOnDemand());
-		result.setStatic(isStatic());
+		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			result.setStatic(isStatic());
+		}
 		result.setName((Name) getName().clone(target));
 		return result;
 	}
@@ -178,7 +180,7 @@ public class ImportDeclaration extends ASTNode {
 	}
 	
 	/**
-	 * Returns whether this import declaration is a static import.
+	 * Returns whether this import declaration is a static import (added in 3.0 API).
 	 * <p>
 	 * Note: Static imports are an experimental language feature 
 	 * under discussion in JSR-201 and under consideration for inclusion
@@ -188,14 +190,17 @@ public class ImportDeclaration extends ASTNode {
 	 * 
 	 * @return <code>true</code> if this is a static import,
 	 *    and <code>false</code> if this is a regular import
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
 	 * @since 3.0
 	 */ 
 	public boolean isStatic() {
+		unsupportedIn2();
 		return isStatic;
 	}
 		
 	/**
-	 * Sets whether this import declaration is a static import.
+	 * Sets whether this import declaration is a static import (added in 3.0 API).
 	 * <p>
 	 * Note: Static imports are an experimental language feature 
 	 * under discussion in JSR-201 and under consideration for inclusion
@@ -205,9 +210,12 @@ public class ImportDeclaration extends ASTNode {
 	 * 
 	 * @param isStatic <code>true</code> if this is a static import,
 	 *    and <code>false</code> if this is a regular import
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
 	 * @since 3.0
 	 */ 
 	public void setStatic(boolean isStatic) {
+		unsupportedIn2();
 		modifying();
 		this.isStatic = isStatic;
 	}

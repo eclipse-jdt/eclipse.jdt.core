@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -18,7 +19,14 @@ import java.util.List;
  * declaration nodes are used in a limited number of places, including formal
  * parameter lists and catch clauses. They are not used for field declarations
  * and regular variable declaration statements.
- *
+ * For 2.0 (corresponding to JLS2):
+ * <pre>
+ * SingleVariableDeclaration:
+ *    { Modifier } Type Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
+ * </pre>
+ * For 3.0 (corresponding to JLS3), the modifier flags were replaced by
+ * a list of modifier nodes (intermixed with annotations), and the variable arity
+ * indicator was added:
  * <pre>
  * SingleVariableDeclaration:
  *    { ExtendedModifier } Type [ <b>...</b> ] Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
@@ -30,16 +38,16 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	
 	/**
 	 * The extended modifiers (element type: <code>ExtendedModifier</code>). 
-	 * Defaults to an empty list.
+	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * (see constructor).
 	 * 
 	 * @since 3.0
 	 */
-	private ASTNode.NodeList modifiers =
-		new ASTNode.NodeList(true, ExtendedModifier.class);
+	private ASTNode.NodeList modifiers = null;
 	
 	/**
 	 * The modifiers; bit-wise or of Modifier flags.
-	 * Defaults to none.
+	 * Defaults to none. Not used in 3.0.
 	 */
 	private int modifierFlags = Modifier.NONE;
 	
@@ -90,6 +98,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */
 	SingleVariableDeclaration(AST ast) {
 		super(ast);
+		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
+			this.modifiers = new ASTNode.NodeList(true, ExtendedModifier.class);
+		}
 	}
 
 	/* (omit javadoc for this method)
@@ -105,10 +116,14 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	ASTNode clone(AST target) {
 		SingleVariableDeclaration result = new SingleVariableDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setModifiers(getModifiers());
-		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
+		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+			result.setModifiers(getModifiers());
+		}
+		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
+			result.setVariableArity(isVariableArity());
+		}
 		result.setType((Type) getType().clone(target));
-		result.setVariableArity(isVariableArity());
 		result.setExtraDimensions(getExtraDimensions());
 		result.setName((SimpleName) getName().clone(target));
 		result.setInitializer(
@@ -131,7 +146,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			acceptChildren(visitor, this.modifiers);
+			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+				acceptChildren(visitor, this.modifiers);
+			}
 			acceptChild(visitor, getType());
 			acceptChild(visitor, getName());
 			acceptChild(visitor, getInitializer());
@@ -141,7 +158,11 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	
 	/**
 	 * Returns the live ordered list of modifiers and annotations
-	 * of this declaration.
+	 * of this declaration (added in 3.0 API).
+	 * <p>
+	 * Note that the final modifier is the only meaningful modifier for local
+	 * variable and formal parameter declarations.
+	 * </p>
 	 * <p>
 	 * Note: Support for annotation metadata is an experimental language feature 
 	 * under discussion in JSR-175 and under consideration for inclusion
@@ -151,31 +172,50 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * 
 	 * @return the live list of modifiers and annotations
 	 *    (element type: <code>ExtendedModifier</code>)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
 	 * @since 3.0
-	 * @deprecated Continue using get/setModifiers until AST.parse* supports 1.5.
-	 * TBD (jeem) - remove deprecation
 	 */ 
 	public List modifiers() {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.modifiers == null) {
+			unsupportedIn2();
+		}
 		return this.modifiers;
 	}
 	
 	/**
 	 * Returns the modifiers explicitly specified on this declaration.
 	 * <p>
-	 * Note that the final modifier is the only meaningful modifier for local
-	 * variable and formal parameter declarations.
+	 * In the 3.0 API, this method is a convenience method that
+	 * computes these flags from <code>modifiers()</code>.
 	 * </p>
 	 * 
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
-	 * TBD (jeem) - once AST.parse* returns modifier nodes as well, change this method to compute and cache result based on modifiers() present
 	 */ 
 	public int getModifiers() {
-		return this.modifierFlags;
+		// more efficient than checking getAST().API_LEVEL
+		if (this.modifiers == null) {
+			// 2.0 behavior - bona fide property
+			return this.modifierFlags;
+		} else {
+			// 3.0 behavior - convenient method
+			// performance could be improved by caching computed flags
+			// but this would require tracking changes to this.modifiers
+			int flags = Modifier.NONE;
+			for (Iterator it = modifiers().iterator(); it.hasNext(); ) {
+				Object x = it.next();
+				if (x instanceof Modifier) {
+					flags |= ((Modifier) x).getKeyword().toFlagValue();
+				}
+			}
+			return flags;
+		}
 	}
 
 	/**
-	 * Sets the modifiers explicitly specified on this declaration.
+	 * Sets the modifiers explicitly specified on this declaration (2.0 API only).
 	 * <p>
 	 * The following modifiers are meaningful for fields: public, private, protected,
 	 * static, final, volatile, and transient. For local variable and formal
@@ -183,10 +223,15 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * </p>
 	 * 
 	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
 	 * @see Modifier
-	 * TBD (jeem) - deprecate once AST.parse* returns modifier nodes
+	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
+	 * <code>modifiers()</code> which contains a list of 
+	 * a <code>Modifier</code> nodes.
 	 */ 
 	public void setModifiers(int modifiers) {
+	    supportedOnlyIn2();
 		modifying();
 		this.modifierFlags = modifiers;
 	}
@@ -233,7 +278,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 
 	/**
 	 * Returns whether this declaration declares the last parameter of
-	 * a variable arity method.
+	 * a variable arity method (added in 3.0 API).
 	 * <p>
 	 * Note: Varible arity methods are an experimental language feature 
 	 * under discussion in JSR-201 and under consideration for inclusion
@@ -243,15 +288,21 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * 
 	 * @return <code>true</code> if this is a variable arity parameter declaration,
 	 *    and <code>false</code> otherwise
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
 	 * @since 3.0
 	 */ 
 	public boolean isVariableArity() {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.modifiers == null) {
+			unsupportedIn2();
+		}
 		return this.variableArity;
 	}
 	
 	/**
 	 * Sets whether this declaration declares the last parameter of
-	 * a variable arity method.
+	 * a variable arity method (added in 3.0 API).
 	 * <p>
 	 * Note: Varible arity methods are an experimental language feature 
 	 * under discussion in JSR-201 and under consideration for inclusion
@@ -264,6 +315,10 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @since 3.0
 	 */ 
 	public void setVariableArity(boolean variableArity) {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.modifiers == null) {
+			unsupportedIn2();
+		}
 		modifying();
 		this.variableArity = variableArity;
 	}
@@ -338,7 +393,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	int treeSize() {
 		return 
 			memSize()
-			+ this.modifiers.listSize()
+			+ (this.modifiers == null ? 0 : this.modifiers.listSize())
 			+ (this.type == null ? 0 : getType().treeSize())
 			+ (this.variableName == null ? 0 : getName().treeSize())
 			+ (this.optionalInitializer == null ? 0 : getInitializer().treeSize());

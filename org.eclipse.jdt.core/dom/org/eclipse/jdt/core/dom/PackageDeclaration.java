@@ -15,7 +15,12 @@ import java.util.List;
 
 /**
  * Package declaration AST node type.
- *
+ * For 2.0 (corresponding to JLS2):
+ * <pre>
+ * PackageDeclaration:
+ *    <b>package</b> Name <b>;</b>
+ * </pre>
+ * For 3.0 (corresponding to JLS3), annotations were added:
  * <pre>
  * PackageDeclaration:
  *    { Annotation } <b>package</b> Name <b>;</b>
@@ -27,13 +32,11 @@ public class PackageDeclaration extends ASTNode {
 	
 	/**
 	 * The annotations (element type: <code>Annotation</code>). 
-	 * Defaults to an empty list.
-	 * 
+	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * (see constructor).
 	 * @since 3.0
 	 */
-	private ASTNode.NodeList annotations =
-		new ASTNode.NodeList(false, Annotation.class);
-
+	private ASTNode.NodeList annotations = null;
 	
 	/**
 	 * The package name; lazily initialized; defaults to a unspecified,
@@ -55,6 +58,9 @@ public class PackageDeclaration extends ASTNode {
 	 */
 	PackageDeclaration(AST ast) {
 		super(ast);
+		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
+			this.annotations = new ASTNode.NodeList(true, Annotation.class);
+		}
 	}
 
 	/* (omit javadoc for this method)
@@ -70,7 +76,9 @@ public class PackageDeclaration extends ASTNode {
 	ASTNode clone(AST target) {
 		PackageDeclaration result = new PackageDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.annotations().addAll(ASTNode.copySubtrees(target, annotations()));
+		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			result.annotations().addAll(ASTNode.copySubtrees(target, annotations()));
+		}
 		result.setName((Name) getName().clone(target));
 		return result;
 	}
@@ -89,7 +97,9 @@ public class PackageDeclaration extends ASTNode {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			acceptChildren(visitor, this.annotations);
+			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+				acceptChildren(visitor, this.annotations);
+			}
 			acceptChild(visitor, getName());
 		}
 		visitor.endVisit(this);
@@ -97,7 +107,7 @@ public class PackageDeclaration extends ASTNode {
 	
 	/**
 	 * Returns the live ordered list of annotations of this 
-	 * package declaration.
+	 * package declaration (added in 3.0 API).
 	 * <p>
 	 * Note: Support for annotation metadata is an experimental language feature 
 	 * under discussion in JSR-175 and under consideration for inclusion
@@ -107,9 +117,15 @@ public class PackageDeclaration extends ASTNode {
 	 * 
 	 * @return the live list of annotations
 	 *    (element type: <code>Annotation</code>)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
 	 * @since 3.0
 	 */ 
 	public List annotations() {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.annotations == null) {
+			unsupportedIn2();
+		}
 		return this.annotations;
 	}
 	
@@ -174,7 +190,7 @@ public class PackageDeclaration extends ASTNode {
 	int treeSize() {
 		return
 			memSize()
-			+ this.annotations.listSize()
+			+ (this.annotations == null ? 0 : this.annotations.listSize())
 			+ (this.packageName == null ? 0 : getName().treeSize());
 	}
 }

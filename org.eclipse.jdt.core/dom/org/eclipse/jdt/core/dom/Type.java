@@ -108,12 +108,6 @@ public abstract class Type extends ASTNode {
 	/**
 	 * Returns whether this type is a parameterized type
 	 * (<code>ParameterizedType</code>). 
-	 * <p>
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return <code>true</code> if this is a parameterized type, and 
 	 *    <code>false</code> otherwise
@@ -141,12 +135,6 @@ public abstract class Type extends ASTNode {
 	 * either rather than make assumptions. (Note also that the first form
 	 * became possible as of 3.0; only the second form existed in 2.0 and 2.1.)
 	 * </p>
-	 * <p>
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return <code>true</code> if this is a qualified type, and 
 	 *    <code>false</code> otherwise
@@ -162,12 +150,6 @@ public abstract class Type extends ASTNode {
 	 * <p>
 	 * Note that a wildcard type is only meaningful as a 
 	 * type argument of a <code>ParameterizedType</code> node.
-	 * </p>
-	 * <p>
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
 	 * </p>
 	 * 
 	 * @return <code>true</code> if this is a wildcard type, and 

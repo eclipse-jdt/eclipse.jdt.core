@@ -11,14 +11,31 @@
 
 package org.eclipse.jdt.core.dom;
 
-import java.util.AbstractList;
 import java.util.Iterator;
 import java.util.List;
 
 /**
  * Type declaration AST node type. A type declaration
  * is the union of a class declaration and an interface declaration.
- *
+ * For 2.0 (corresponding to JLS2):
+ * <pre>
+ * TypeDeclaration:
+ * 		ClassDeclaration
+ * 		InterfaceDeclaration
+ * ClassDeclaration:
+ *      [ Javadoc ] { Modifier } <b>class</b> Identifier
+ *			[ <b>extends</b> Type]
+ *			[ <b>implements</b> Type { <b>,</b> Type } ]
+ *			<b>{</b> { ClassBodyDeclaration | <b>;</b> } <b>}</b>
+ * InterfaceDeclaration:
+ *      [ Javadoc ] { Modifier } <b>interface</b> Identifier
+ *			[ <b>extends</b> Type { <b>,</b> Type } ]
+ * 			<b>{</b> { InterfaceBodyDeclaration | <b>;</b> } <b>}</b>
+ * </pre>
+ * For 3.0 (corresponding to JLS3), type parameters and reified modifiers
+ * (and annotations) were added, and the superclass type name and superinterface 
+ * types names are generalized to type so that parameterized types can be 
+ * referenced:
  * <pre>
  * TypeDeclaration:
  * 		ClassDeclaration
@@ -63,27 +80,42 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	
 	/**
 	 * The type paramters (element type: <code>TypeParameter</code>). 
-	 * Defaults to an empty list.
+	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * (see constructor).
 	 * @since 3.0
 	 */
-	private ASTNode.NodeList typeParameters =
-		new ASTNode.NodeList(false, TypeParameter.class);
+	private ASTNode.NodeList typeParameters = null;
+
+	/**
+	 * The optional superclass name; <code>null</code> if none.
+	 * Defaults to none. Note that this field is not used for
+	 * interface declarations. Not used in 3.0.
+	 */
+	private Name optionalSuperclassName = null;
+
+	/**
+	 * The superinterface names (element type: <code>Name</code>). 
+	 * 2.0 only; defaults to an empty list. Not used in 3.0.
+	 * (see constructor).
+	 * 
+	 */
+	private ASTNode.NodeList superInterfaceNames = null;
 
 	/**
 	 * The optional superclass type; <code>null</code> if none.
 	 * Defaults to none. Note that this field is not used for
-	 * interface declarations.
+	 * interface declarations. Null in 2.0. Added in 3.0.
 	 * @since 3.0
 	 */
 	private Type optionalSuperclassType = null;
 
 	/**
 	 * The superinterface types (element type: <code>Type</code>). 
-	 * Defaults to an empty list.
+	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * (see constructor).
 	 * @since 3.0
 	 */
-	private ASTNode.NodeList superInterfaceTypes =
-		new ASTNode.NodeList(false, Type.class);
+	private ASTNode.NodeList superInterfaceTypes = null;
 
 	/**
 	 * Creates a new AST node for a type declaration owned by the given 
@@ -101,6 +133,13 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 */
 	TypeDeclaration(AST ast) {
 		super(ast);
+		if (ast.API_LEVEL == AST.LEVEL_2_0) {
+			this.superInterfaceNames = new ASTNode.NodeList(false, Name.class);
+		}
+		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
+			this.typeParameters = new ASTNode.NodeList(false, TypeParameter.class);
+			this.superInterfaceTypes = new ASTNode.NodeList(false, Type.class);
+		}
 	}
 
 	/* (omit javadoc for this method)
@@ -118,16 +157,24 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		result.setModifiers(getModifiers());
-		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
+		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+			result.setModifiers(getModifiers());
+			result.setSuperclass(
+					(Name) ASTNode.copySubtree(target, getSuperclass()));
+			result.superInterfaces().addAll(
+					ASTNode.copySubtrees(target, superInterfaces()));
+		}
 		result.setInterface(isInterface());
 		result.setName((SimpleName) getName().clone(target));
-		result.typeParameters().addAll(
-				ASTNode.copySubtrees(target, typeParameters()));
-		result.setSuperclassType(
-			(Type) ASTNode.copySubtree(target, getSuperclassType()));
-		result.superInterfaceTypes().addAll(
-			ASTNode.copySubtrees(target, superInterfaceTypes()));
+		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
+			result.typeParameters().addAll(
+					ASTNode.copySubtrees(target, typeParameters()));
+			result.setSuperclassType(
+					(Type) ASTNode.copySubtree(target, getSuperclassType()));
+			result.superInterfaceTypes().addAll(
+					ASTNode.copySubtrees(target, superInterfaceTypes()));
+		}
 		result.bodyDeclarations().addAll(
 			ASTNode.copySubtrees(target, bodyDeclarations()));
 		return result;
@@ -148,13 +195,22 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			acceptChild(visitor, getJavadoc());
-			acceptChildren(visitor, this.modifiers);
-			acceptChild(visitor, getName());
-			acceptChildren(visitor, this.typeParameters);
-			acceptChild(visitor, getSuperclassType());
-			acceptChildren(visitor, this.superInterfaceTypes);
-			acceptChildren(visitor, this.bodyDeclarations);
+			if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+				acceptChild(visitor, getJavadoc());
+				acceptChild(visitor, getName());
+				acceptChild(visitor, getSuperclass());
+				acceptChildren(visitor, this.superInterfaceNames);
+				acceptChildren(visitor, this.bodyDeclarations);
+			}
+			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+				acceptChild(visitor, getJavadoc());
+				acceptChildren(visitor, this.modifiers);
+				acceptChild(visitor, getName());
+				acceptChildren(visitor, this.typeParameters);
+				acceptChild(visitor, getSuperclassType());
+				acceptChildren(visitor, this.superInterfaceTypes);
+				acceptChildren(visitor, this.bodyDeclarations);
+			}
 		}
 		visitor.endVisit(this);
 	}
@@ -185,7 +241,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * Returns the live ordered list of type parameters of this type 
-	 * declaration. This list is non-empty for parameterized types.
+	 * declaration (added in 3.0 API). This list is non-empty for parameterized types.
 	 * <p>
 	 * Note: Support for generic types is an experimental language feature 
 	 * under discussion in JSR-014 and under consideration for inclusion
@@ -195,15 +251,21 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * 
 	 * @return the live list of type parameters
 	 *    (element type: <code>TypeParameter</code>)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
 	 * @since 3.0
 	 */ 
 	public List typeParameters() {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.typeParameters == null) {
+			unsupportedIn2();
+		}
 		return this.typeParameters;
 	}
 	
 	/**
 	 * Returns the name of the superclass declared in this type
-	 * declaration, or <code>null</code> if there is none.
+	 * declaration, or <code>null</code> if there is none (2.0 API only).
 	 * <p>
 	 * Note that this child is not relevant for interface 
 	 * declarations (although it does still figure in subtree
@@ -212,36 +274,20 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * 
 	 * @return the superclass name node, or <code>null</code> if 
 	 *    there is none
-	 * @deprecated Replaced by <code>getSuperclassType</code>, which returns
-	 * a <code>Type</code> instead of a <code>Name</code>.
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
+	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by
+	 * <code>getSuperclassType</code>,
+	 * which returns a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
 	public Name getSuperclass() {
-		// implement deprecated method in terms of get/setSuperclassType
-		Type superclassType = getSuperclassType();
-		if (superclassType == null) {
-			// return null if no superclass type
-			return null;
-		} else if (superclassType instanceof SimpleType) {
-			// no problem - extract name from SimpleType
-			SimpleType t = (SimpleType) superclassType;
-			return t.getName();
-		} else if ((superclassType instanceof ParameterizedType)
-			     || (superclassType instanceof QualifiedType)) {
-			// compatibility issue
-			// back-level clients know nothing of new node types added in 2.1
-			// take this opportunity to inform client of problem
-			throw new RuntimeException("Deprecated AST API method cannot handle newer node types"); //$NON-NLS-1$
-		} else {
-			// compatibility issue
-			// AST is bogus - illegal for type to be array or primitive type
-			// take this opportunity to inform client of problem
-			throw new RuntimeException("Deprecated AST API method cannot handle malformed AST"); //$NON-NLS-1$
-		}
+	    supportedOnlyIn2();
+		return this.optionalSuperclassName;
 	}
 
 	/**
 	* Returns the superclass declared in this type
-	* declaration, or <code>null</code> if there is none.
+	* declaration, or <code>null</code> if there is none (added in 3.0 API).
 	* <p>
 	* Note that this child is not relevant for interface 
 	* declarations (although it does still figure in subtree
@@ -250,15 +296,18 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	* 
 	* @return the superclass type node, or <code>null</code> if 
 	*    there is none
+	* @exception UnsupportedOperationException if this operation is used in
+	* a 2.0 AST
 	* @since 3.0
 	*/ 
 	public Type getSuperclassType() {
+	    unsupportedIn2();
 		return this.optionalSuperclassType;
 	}
 
 	/**
 	 * Sets or clears the name of the superclass declared in this type
-	 * declaration.
+	 * declaration (2.0 API only).
 	 * <p>
 	 * Note that this child is not relevant for interface 
 	 * declarations (although it does still figure in subtree
@@ -272,37 +321,20 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
+	 * TBD (jeem ) deprecated In the 3.0 API, this method is replaced by <code>setType</code>,
+	 * which expects a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
 	public void setSuperclass(Name superclassName) {
-		// implement deprecated method in terms of get/setSuperclassType
-		if (superclassName == null) {
-			setSuperclassType(null);
-		} else {
-			Type superclassType = getSuperclassType();
-			if (superclassType instanceof SimpleType) {
-				// if possible edit name in SimpleType
-				SimpleType s = (SimpleType) superclassType;
-				s.setName(superclassName);
-				// give type node same range as name node
-				s.setSourceRange(
-					superclassName.getStartPosition(),
-					superclassName.getLength());
-				// note that only s will be modified(), not the TypeDecl node
-			} else {
-				// all other cases - wrap name in a SimpleType and replace superclassType
-				Type newT = getAST().newSimpleType(superclassName);
-				// give new type node same range as name node
-				newT.setSourceRange(
-					superclassName.getStartPosition(),
-					superclassName.getLength());
-				setSuperclassType(newT);
-			}
-		}
+	    supportedOnlyIn2();
+		replaceChild(this.optionalSuperclassName, superclassName, false);
+		this.optionalSuperclassName = superclassName;
 	}
 
 	/**
 	 * Sets or clears the superclass declared in this type
-	 * declaration.
+	 * declaration (added in 3.0 API).
 	 * <p>
 	 * Note that this child is not relevant for interface declarations
 	 * (although it does still figure in subtree equality comparisons).
@@ -315,141 +347,55 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
 	 * @since 3.0
 	 */ 
 	public void setSuperclassType(Type superclassType) {
+	    unsupportedIn2();
 		replaceChild(this.optionalSuperclassType, superclassType, true);
 		this.optionalSuperclassType = superclassType;
  	}
 
 	/**
 	 * Returns the live ordered list of names of superinterfaces of this type 
-	 * declaration. For a class declaration, these are the names
+	 * declaration (2.0 API only). For a class declaration, these are the names
 	 * of the interfaces that this class implements; for an interface
 	 * declaration, these are the names of the interfaces that this interface
 	 * extends.
 	 * 
 	 * @return the live list of interface names
 	 *    (element type: <code>Name</code>)
-	 * @deprecated Replaced by <code>superInterfaceTypes</code>, which contains
-	 * a list of <code>Type</code>s instead of <code>Name</code>s.
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
+	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
+	 * <code>superInterfaceTypes()</code>
 	 */ 
 	public List superInterfaces() {
-		// implement deprecated method in terms of superInterfaceTypes()
-		// return special implementation of List<Name> in terms of List<Type>
-		return new AbstractList() {
-			/**
-			 * @see java.util.AbstractCollection#size()
-			 */
-			public int size() {
-				return superInterfaceTypes().size();
-			}
-		
-			/**
-			 * @see AbstractList#get(int)
-			 */
-			public Object get(int index) {
-				Type t = (Type) superInterfaceTypes().get(index);
-				if (t instanceof SimpleType) {
-					// old client reading an old style element
-					SimpleType s = (SimpleType) t;
-					return s.getName();
-				} else if ((t instanceof ParameterizedType)
-					     || (t instanceof QualifiedType)) {
-					// compatibility issue
-					// back-level clients know nothing of new node types added in 2.1
-					// take this opportunity to inform client of problem
-					throw new RuntimeException("Deprecated AST API method (TypeDeclaration.superinterfaces()) cannot handle newer node types"); //$NON-NLS-1$
-				} else {
-					// compatibility issue
-					// AST is bogus - illegal for type to be array or primitive type
-					// take this opportunity to inform client of problem
-					throw new RuntimeException("Deprecated AST API method (TypeDeclaration.superinterfaces()) cannot handle malformed AST"); //$NON-NLS-1$
-				}
-			}
-		
-			/**
-			 * @see List#set(int, java.lang.Object)
-			 */
-			public Object set(int index, Object element) {
-				if (!(element instanceof Name)) {
-					throw new IllegalArgumentException();
-				}
-				Type oldType = (Type) superInterfaceTypes().get(index);
-				Name newName = (Name) element;
-				if (oldType instanceof SimpleType) {
-					// old client operating on old style element
-					SimpleType s = (SimpleType) oldType;
-					Name oldName = s.getName();
-					if (oldName != element) {
-						s.setName(newName);
-						// give type node same range as name node
-						s.setSourceRange(
-							newName.getStartPosition(),
-							newName.getLength());
-					}
-					return oldName;
-				} else {
-					// old client replaced a new-fangled element
-					Type newType = getAST().newSimpleType(newName);
-					// give new type node same range as name node
-					newType.setSourceRange(
-						newName.getStartPosition(),
-						newName.getLength());
-					superInterfaceTypes().set(index, newType);
-					// no choice but to return old new-fangled element
-					return oldType;
-				}
-			}
-			
-			/**
-			 * @see List#add(int, java.lang.Object)
-			 */
-			public void add(int index, Object element) {
-				if (!(element instanceof Name)) {
-					throw new IllegalArgumentException();
-				}
-				Name newName = (Name) element;
-				Type newType = getAST().newSimpleType(newName);
-				// give new type node same range as name node
-				newType.setSourceRange(
-					newName.getStartPosition(),
-					newName.getLength());
-				superInterfaceTypes().add(index, newType);
-			}
-			
-			/**
-			 * @see List#remove(int)
-			 */
-			public Object remove(int index) {
-				Object result = superInterfaceTypes().remove(index);
-				if (result instanceof SimpleType) {
-					// old client operating on old style element
-					SimpleType s = (SimpleType) result;
-					Name oldName = s.getName();
-					// make sure that oldName has no parent afterwards
-					s.setName(getAST().newSimpleName("deleted")); //$NON-NLS-1$
-					return oldName;
-				} else {
-					// old client removing a new-fangled element
-					// take a chance that they ignore result
-					return result;
-				}
-			}
-		};
+		// more efficient than just calling supportedOnlyIn2() to check
+		if (this.superInterfaceNames == null) {
+			supportedOnlyIn2();
+		}
+		return this.superInterfaceNames;
 	}
 	
 	/**
 	 * Returns the live ordered list of superinterfaces of this type 
-	 * declaration. For a class declaration, these are the interfaces
+	 * declaration (added in 3.0 API). For a class declaration, these are the interfaces
 	 * that this class implements; for an interface declaration,
 	 * these are the interfaces that this interface extends.
 	 * 
 	 * @return the live list of interface types
 	 *    (element type: <code>Type</code>)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
 	 * @since 3.0
 	 */ 
 	public List superInterfaceTypes() {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.superInterfaceTypes == null) {
+			unsupportedIn2();
+		}
 		return this.superInterfaceTypes;
 	}
 	
@@ -585,7 +531,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 4 * 4;
+		return super.memSize() + 6 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -594,11 +540,13 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	int treeSize() {
 		return memSize()
 			+ (this.optionalDocComment == null ? 0 : getJavadoc().treeSize())
-			+ this.modifiers.listSize()
+			+ (this.modifiers == null ? 0 : this.modifiers.listSize())
 			+ (this.typeName == null ? 0 : getName().treeSize())
-			+ this.typeParameters.listSize()
+			+ (this.typeParameters == null ? 0 : this.typeParameters.listSize())
+			+ (this.optionalSuperclassName == null ? 0 : getSuperclass().treeSize())
 			+ (this.optionalSuperclassType == null ? 0 : getSuperclassType().treeSize())
-			+ this.superInterfaceTypes.listSize()
+			+ (this.superInterfaceNames == null ? 0 : this.superInterfaceNames.listSize())
+			+ (this.superInterfaceTypes == null ? 0 : this.superInterfaceTypes.listSize())
 			+ this.bodyDeclarations.listSize();
 	}
 }

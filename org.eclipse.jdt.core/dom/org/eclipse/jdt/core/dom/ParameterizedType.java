@@ -14,7 +14,7 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 /**
- * Type node for a parameterized type.
+ * Type node for a parameterized type (added in 3.0 API).
  * <pre>
  * ParameterizedType:
  *    Name <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b>

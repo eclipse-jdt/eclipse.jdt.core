@@ -11,7 +11,7 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * Single member annotation node. The single member annotation 
+ * Single member annotation node (added in 3.0 API). The single member annotation 
  * "@foo(bar)" is equivalent to the normal annotation "@foo(value=bar)". 
  * <p>
  * <pre>

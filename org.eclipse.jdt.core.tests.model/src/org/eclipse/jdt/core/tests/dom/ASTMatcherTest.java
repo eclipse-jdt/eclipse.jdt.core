@@ -29,7 +29,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new ASTMatcherTest(methods[i].getName()));
+				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.LEVEL_2_0));
+				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.LEVEL_3_0));
 			}
 		}
 		return suite;
@@ -39,6 +40,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	SimpleName N1;
 	SimpleName N2;
 	SimpleName N3;
+	SimpleName N4;
 	Expression E1;
 	Expression E2;
 	Type T1;
@@ -88,28 +90,35 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	
 	final StringBuffer b = new StringBuffer();
 	
-	public ASTMatcherTest(String name) {
+	int API_LEVEL;
+
+	public ASTMatcherTest(String name, int apiLevel) {
 		super(name);
+		this.API_LEVEL = apiLevel;
 	}
-	
+		
 	/**
 	 * @deprecated (not really - just suppressing the warnings
 	 * that come from testing Javadoc.getComment())
 	 *
 	 */
 	protected void setUp() {
-		ast = new AST();
+		if (this.API_LEVEL == AST.LEVEL_2_0) {
+			ast = AST.newAST2();
+		}
+		if (this.API_LEVEL == AST.LEVEL_3_0) {
+			ast = AST.newAST3();
+		}
 		N1 = ast.newSimpleName("N"); //$NON-NLS-1$
 		N2 = ast.newSimpleName("M"); //$NON-NLS-1$
 		N3 = ast.newSimpleName("O"); //$NON-NLS-1$
+		N4 = ast.newSimpleName("P"); //$NON-NLS-1$
 		E1 = ast.newSimpleName("X"); //$NON-NLS-1$
 		E2 = ast.newSimpleName("Y"); //$NON-NLS-1$
 		T1 = ast.newSimpleType(ast.newSimpleName("Z")); //$NON-NLS-1$
 		T1S = "(tS(nSZZnS)tS)"; //$NON-NLS-1$
 		T2 = ast.newSimpleType(ast.newSimpleName("Y")); //$NON-NLS-1$
 		T2S = "(tS(nSYYnS)tS)"; //$NON-NLS-1$
-		PT1 = ast.newParameterizedType(ast.newSimpleName("Z")); //$NON-NLS-1$
-		PT1S = "(tM(nSZZnS)tM)"; //$NON-NLS-1$
 		S1 = ast.newContinueStatement();
 		S2 = ast.newBreakStatement();
 		B1 = ast.newBlock();
@@ -153,15 +162,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		JD2 = ast.newJavadoc();
 		JD2.setComment("/**Y*/"); //$NON-NLS-1$
 
-		TP1 = ast.newTypeParameter();
-		TP1.setName(ast.newSimpleName("x")); //$NON-NLS-1$
-		TP1S = "[(tTP[(nSxxnS)]tTP)]"; //$NON-NLS-1$
-
-		TP2 = ast.newTypeParameter();
-		TP2.setName(ast.newSimpleName("y")); //$NON-NLS-1$
-		TP2S = "[(tTP[(nSyynS)]tTP)]"; //$NON-NLS-1$
-		LC1 = ast.newLineComment();
-
 		BC1 = ast.newBlockComment();
 		
 		TAG1 = ast.newTagElement();
@@ -182,28 +182,42 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		MPARM1 = ast.newMethodRefParameter();
 		MPARM1.setType(ast.newPrimitiveType(PrimitiveType.CHAR));
 
-		MVP1 = ast.newMemberValuePair();
-		MVP1.setName(ast.newSimpleName("x")); //$NON-NLS-1$
-		MVP1.setValue(ast.newSimpleName("y")); //$NON-NLS-1$
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			PT1 = ast.newParameterizedType(ast.newSimpleName("Z")); //$NON-NLS-1$
+			PT1S = "(tM(nSZZnS)tM)"; //$NON-NLS-1$
 
-		MVP2 = ast.newMemberValuePair();
-		MVP2.setName(ast.newSimpleName("a")); //$NON-NLS-1$
-		MVP2.setValue(ast.newSimpleName("b")); //$NON-NLS-1$
+			TP1 = ast.newTypeParameter();
+			TP1.setName(ast.newSimpleName("x")); //$NON-NLS-1$
+			TP1S = "[(tTP[(nSxxnS)]tTP)]"; //$NON-NLS-1$
+	
+			TP2 = ast.newTypeParameter();
+			TP2.setName(ast.newSimpleName("y")); //$NON-NLS-1$
+			TP2S = "[(tTP[(nSyynS)]tTP)]"; //$NON-NLS-1$
+			LC1 = ast.newLineComment();
+
+			MVP1 = ast.newMemberValuePair();
+			MVP1.setName(ast.newSimpleName("x")); //$NON-NLS-1$
+			MVP1.setValue(ast.newSimpleName("y")); //$NON-NLS-1$
+	
+			MVP2 = ast.newMemberValuePair();
+			MVP2.setName(ast.newSimpleName("a")); //$NON-NLS-1$
+			MVP2.setValue(ast.newSimpleName("b")); //$NON-NLS-1$
+			
+			ANO1 = ast.newMarkerAnnotation();
+			ANO1.setTypeName(ast.newSimpleName("p")); //$NON-NLS-1$
 		
-		ANO1 = ast.newMarkerAnnotation();
-		ANO1.setTypeName(ast.newSimpleName("p")); //$NON-NLS-1$
-		
-		ANO2 = ast.newSingleMemberAnnotation();
-		ANO2.setTypeName(ast.newSimpleName("q")); //$NON-NLS-1$
-		ANO2.setValue(ast.newSimpleName("v")); //$NON-NLS-1$
-		
-		MOD1 = ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
-		MOD2 = ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD);
-		
-		EC1 = ast.newEnumConstantDeclaration();
-		EC1.setName(ast.newSimpleName("F")); //$NON-NLS-1$
-		EC2 = ast.newEnumConstantDeclaration();
-		EC2.setName(ast.newSimpleName("G")); //$NON-NLS-1$
+			ANO2 = ast.newSingleMemberAnnotation();
+			ANO2.setTypeName(ast.newSimpleName("q")); //$NON-NLS-1$
+			ANO2.setValue(ast.newSimpleName("v")); //$NON-NLS-1$
+			
+			MOD1 = ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
+			MOD2 = ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD);
+			
+			EC1 = ast.newEnumConstantDeclaration();
+			EC1.setName(ast.newSimpleName("F")); //$NON-NLS-1$
+			EC2 = ast.newEnumConstantDeclaration();
+			EC2.setName(ast.newSimpleName("G")); //$NON-NLS-1$
+		}
 
 	}
 	
@@ -627,6 +641,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testParameterizedType() {
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			return;
+		}
 		ParameterizedType x1 = ast.newParameterizedType(ast.newSimpleName("X")); //$NON-NLS-1$
 		x1.typeArguments().add(T1);
 		x1.typeArguments().add(T2);
@@ -634,11 +651,17 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testQualifiedType() {
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			return;
+		}
 		Type x1 = ast.newQualifiedType(T1, N1);
 		basicMatch(x1);
 	}
 
 	public void testWildcardType() {
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			return;
+		}
 		WildcardType x1 = ast.newWildcardType();
 		x1.setBound(T1, true);
 		basicMatch(x1);
@@ -725,7 +748,11 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testClassInstanceCreation() {
 		ClassInstanceCreation x1 = ast.newClassInstanceCreation();
 		x1.setExpression(E1);
-		x1.setType(PT1);
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			x1.setName(N1);
+		} else {
+			x1.setType(PT1);
+		}
 		x1.setAnonymousClassDeclaration(ACD1);
 		basicMatch(x1);
 	}
@@ -767,6 +794,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 	public void testEnhancedForStatement() {
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			return;
+		}
 		EnhancedForStatement x1 = ast.newEnhancedForStatement();
 		x1.setType(T1);
 		x1.setName(N1);
@@ -775,6 +805,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 	public void testEnumConstantDeclaration() {
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			return;
+		}
 		EnumConstantDeclaration x1 = ast.newEnumConstantDeclaration();
 		x1.setJavadoc(JD1);
 		x1.modifiers().add(MOD1);
@@ -787,6 +820,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 	public void testEnumDeclaration() {
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			return;
+		}
 		EnumDeclaration x1 = ast.newEnumDeclaration();
 		x1.setJavadoc(JD1);
 		x1.modifiers().add(MOD1);
@@ -811,8 +847,10 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testFieldDeclaration() {
 		FieldDeclaration x1 = ast.newFieldDeclaration(W1);
 		x1.setJavadoc(JD1);
-		x1.modifiers().add(MOD1);
-		x1.modifiers().add(MOD2);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.modifiers().add(MOD1);
+			x1.modifiers().add(MOD2);
+		}
 		x1.setType(T1);
 		x1.fragments().add(W2);
 		basicMatch(x1);
@@ -851,6 +889,10 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testInitializer() {
 		Initializer x1 = ast.newInitializer();
 		x1.setJavadoc(JD1);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.modifiers().add(MOD1);
+			x1.modifiers().add(MOD2);
+		}
 		x1.setBody(B1);
 		basicMatch(x1);
 	}
@@ -889,11 +931,15 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testMethodDeclaration() {
 		MethodDeclaration x1 = ast.newMethodDeclaration();
 		x1.setJavadoc(JD1);
-		x1.modifiers().add(MOD1);
-		x1.modifiers().add(MOD2);
-		x1.typeParameters().add(TP1);
-		x1.typeParameters().add(TP2);
-		x1.setReturnType(T1);
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			x1.setReturnType(T1);
+		} else {
+			x1.modifiers().add(MOD1);
+			x1.modifiers().add(MOD2);
+			x1.typeParameters().add(TP1);
+			x1.typeParameters().add(TP2);
+			x1.setReturnType2(T1);
+		}
 		x1.setName(N1);
 		x1.parameters().add(V1);
 		x1.parameters().add(V2);
@@ -935,8 +981,10 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testPackageDeclaration() {
 		PackageDeclaration x1 = ast.newPackageDeclaration();
-		x1.annotations().add(ANO1);
-		x1.annotations().add(ANO2);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.annotations().add(ANO1);
+			x1.annotations().add(ANO2);
+		}
 		basicMatch(x1);
 	}
 	public void testParenthesizedExpression() {
@@ -962,8 +1010,10 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testSingleVariableDeclaration() {
 		SingleVariableDeclaration x1 = ast.newSingleVariableDeclaration();
-		x1.modifiers().add(MOD1);
-		x1.modifiers().add(MOD2);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.modifiers().add(MOD1);
+			x1.modifiers().add(MOD2);
+		}
 		x1.setType(T1);
 		x1.setName(N1);
 		x1.setInitializer(E1);
@@ -1056,14 +1106,20 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testTypeDeclaration() {
 		TypeDeclaration x1 = ast.newTypeDeclaration();
 		x1.setJavadoc(JD1);
-		x1.modifiers().add(MOD1);
-		x1.modifiers().add(MOD2);
 		x1.setName(N1);
-		x1.typeParameters().add(TP1);
-		x1.typeParameters().add(TP2);
-		x1.setSuperclassType(PT1);
-		x1.superInterfaceTypes().add(T1);
-		x1.superInterfaceTypes().add(T2);
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			x1.setSuperclass(N2);
+			x1.superInterfaces().add(N3);
+			x1.superInterfaces().add(N4);
+		} else {
+			x1.modifiers().add(MOD1);
+			x1.modifiers().add(MOD2);
+			x1.typeParameters().add(TP1);
+			x1.typeParameters().add(TP2);
+			x1.setSuperclassType(PT1);
+			x1.superInterfaceTypes().add(T1);
+			x1.superInterfaceTypes().add(T2);
+		}
 		x1.bodyDeclarations().add(FD1);
 		x1.bodyDeclarations().add(FD2);
 		basicMatch(x1);
@@ -1078,6 +1134,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 	public void testTypeParameter() {
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			return;
+		}
 		TypeParameter x1 = ast.newTypeParameter();
 		x1.setName(N1);
 		x1.typeBounds().add(T1);
@@ -1092,16 +1151,20 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testVariableDeclarationExpression() {
 		VariableDeclarationExpression x1 = ast.newVariableDeclarationExpression(W1);
-		x1.modifiers().add(MOD1);
-		x1.modifiers().add(MOD2);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.modifiers().add(MOD1);
+			x1.modifiers().add(MOD2);
+		}
 		x1.setType(T1);
 		x1.fragments().add(W2);
 		basicMatch(x1);
 	}
 	public void testVariableDeclarationStatement() {
 		VariableDeclarationStatement x1 = ast.newVariableDeclarationStatement(W1);
-		x1.modifiers().add(MOD1);
-		x1.modifiers().add(MOD2);
+		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.modifiers().add(MOD1);
+			x1.modifiers().add(MOD2);
+		}
 		x1.setType(T1);
 		x1.fragments().add(W2);
 		basicMatch(x1);
@@ -1115,6 +1178,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	
 	// annotation-related
 	public void testAnnotationTypeDeclaration() {
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			return;
+		}
 		AnnotationTypeDeclaration x1 = ast.newAnnotationTypeDeclaration();
 		x1.setJavadoc(JD1);
 		x1.modifiers().add(MOD1);
@@ -1126,6 +1192,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testAnnotationTypeMemberDeclaration() {
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			return;
+		}
 		AnnotationTypeMemberDeclaration x1 = ast.newAnnotationTypeMemberDeclaration();
 		x1.setJavadoc(JD1);
 		x1.modifiers().add(MOD1);
@@ -1137,6 +1206,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testNormalAnnotation() {
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			return;
+		}
 		NormalAnnotation x1 = ast.newNormalAnnotation();
 		x1.setTypeName(N1);
 		x1.values().add(MVP1);
@@ -1145,12 +1217,18 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testMarkerAnnotation() {
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			return;
+		}
 		MarkerAnnotation x1 = ast.newMarkerAnnotation();
 		x1.setTypeName(N1);
 		basicMatch(x1);
 	}
 
 	public void testSingleMemberAnnotation() {
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			return;
+		}
 		SingleMemberAnnotation x1 = ast.newSingleMemberAnnotation();
 		x1.setTypeName(N1);
 		x1.setValue(E1);

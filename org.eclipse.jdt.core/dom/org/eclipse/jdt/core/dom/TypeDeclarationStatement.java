@@ -15,12 +15,20 @@ package org.eclipse.jdt.core.dom;
  * Local type declaration statement AST node type.
  * <p>
  * This kind of node is used to convert a type declaration
- * (<code>AbstractTypeDeclaration</code>) into a statement
- * (<code>Statement</code>) by wrapping it.
+ * node into a statement node by wrapping it.
  * </p>
+ * For 2.0 (corresponding to JLS2):
  * <pre>
  * TypeDeclarationStatement:
- *    AbstractTypeDeclaration
+ *    TypeDeclaration
+ * </pre>
+ * For 3.0 (corresponding to JLS3), the kinds of type declarations
+ * grew to include enum and annotation type declarations:
+ * <pre>
+ * TypeDeclarationStatement:
+ *    TypeDeclaration
+ *    EnumDeclaration
+ *    AnnotationTypeDeclaration
  * </pre>
  * 
  * @since 2.0
@@ -88,7 +96,7 @@ public class TypeDeclarationStatement extends Statement {
 	
 	/**
 	 * Returns the abstract type declaration of this local type declaration
-	 * statement.
+	 * statement (2.0 API only).
 	 * 
 	 * @return the type declaration node
 	 * @since 3.0
@@ -105,7 +113,7 @@ public class TypeDeclarationStatement extends Statement {
 		
 	/**
 	 * Sets the abstract type declaration of this local type declaration
-	 * statement.
+	 * statement (2.0 API only).
 	 * 
 	 * @param decl the type declaration node
 	 * @exception IllegalArgumentException if:
@@ -128,20 +136,24 @@ public class TypeDeclarationStatement extends Statement {
 	
 	/**
 	 * Returns the type declaration of this local type declaration
-	 * statement.
+	 * statement (added in 3.0 API).
 	 * 
 	 * @return the type declaration node
-	 * @deprecated Use {@link #getDeclaration()} instead.
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
+	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
+	 * <code>getDeclaration</code>,
+	 * which returns <code>AbstractTypeDeclaration</code> instead of 
+	 * <code>TypeDeclaration</code>.
 	 */ 
 	public TypeDeclaration getTypeDeclaration() {
-		// forward to non-deprecated replacement method
-		// N.B. no gentle way to handle non-TypeDeclarations
+	    supportedOnlyIn2();
 		return (TypeDeclaration) getDeclaration();
 	}
 		
 	/**
 	 * Sets the type declaration of this local type declaration
-	 * statement.
+	 * statement (added in 3.0 API).
 	 * 
 	 * @param decl the type declaration node
 	 * @exception IllegalArgumentException if:
@@ -150,9 +162,15 @@ public class TypeDeclarationStatement extends Statement {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
-	 * @deprecated Use {@link #setDeclaration(AbstractTypeDeclaration)} instead.
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
+	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
+	 * <code>setDeclaration</code>,
+	 * which takes <code>AbstractTypeDeclaration</code> instead of 
+	 * <code>TypeDeclaration</code>.
 	 */ 
 	public void setTypeDeclaration(TypeDeclaration decl) {
+	    supportedOnlyIn2();
 		// forward to non-deprecated replacement method
 		setDeclaration(decl);
 	}

@@ -12,7 +12,7 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * Type node for a qualified type.
+ * Type node for a qualified type (added in 3.0 API).
  * <pre>
  * QualifiedType:
  *    Type <b>.</b> SimpleName

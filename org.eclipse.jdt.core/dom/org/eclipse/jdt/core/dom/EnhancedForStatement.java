@@ -12,7 +12,7 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * Enhanced For statement AST node type.
+ * Enhanced For statement AST node type (added in 3.0 API).
  *
  * <pre>
  * EnhancedForStatement:

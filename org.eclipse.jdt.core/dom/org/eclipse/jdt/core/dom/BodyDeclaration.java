@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -18,8 +19,18 @@ import java.util.List;
  * that may appear in the body of some kind of class or interface declaration,
  * including anonymous class declarations, enumeration declarations, and
  * enumeration constant declarations.
- * 
  * <p>
+ * For 2.0 (corresponding to JLS2):
+ * <pre>
+ * BodyDeclaration:
+ *		ClassDeclaration
+ *		InterfaceDeclaration
+ *		MethodDeclaration
+ * 		ConstructorDeclaration
+ * 		FieldDeclaration
+ * 		Initializer
+ * </pre>
+ * For 3.0 (corresponding to JLS3), a number of new node types were introduced:
  * <pre>
  * BodyDeclaration:
  *		ClassDeclaration
@@ -35,7 +46,7 @@ import java.util.List;
  * </pre>
  * </p>
  * <p>
- * All types of body declarations carry modifiers and annotations, although they differ in
+ * All types of body declarations carry modifiers (and annotations), although they differ in
  * which modifiers are allowed. Most types of body declarations can carry a
  * doc comment; Initializer is the only ones that does not. The source range
  * for body declarations always includes the doc comment if present.
@@ -53,21 +64,19 @@ public abstract class BodyDeclaration extends ASTNode {
 
 	/**
 	 * The modifier flags; bit-wise or of Modifier flags.
-	 * Defaults to none.
-	 * @since 3.0
-	 * TBD (jeem) - deprecate
+	 * Defaults to none. Not used in 3.0.
+	 * @since 3.0 - field was moved up from subclasses
 	 */
 	private int modifierFlags = Modifier.NONE;
 	
 	/**
 	 * The extended modifiers (element type: <code>ExtendedModifier</code>). 
-	 * Defaults to an empty list.
+	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * (see constructor).
 	 * 
 	 * @since 3.0
 	 */
-	ASTNode.NodeList modifiers =
-		new ASTNode.NodeList(true, ExtendedModifier.class);
-
+	ASTNode.NodeList modifiers = null;
 	
 	/**
 	 * Creates a new AST node for a body declaration node owned by the 
@@ -80,6 +89,9 @@ public abstract class BodyDeclaration extends ASTNode {
 	 */
 	BodyDeclaration(AST ast) {
 		super(ast);
+		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
+			this.modifiers = new ASTNode.NodeList(true, ExtendedModifier.class);
+		}
 	}
 	
 	/**
@@ -104,32 +116,57 @@ public abstract class BodyDeclaration extends ASTNode {
 
 	/**
 	 * Returns the modifiers explicitly specified on this declaration.
+	 * <p>
+	 * In the 3.0 API, this method is a convenience method that
+	 * computes these flags from <code>modifiers()</code>.
+	 * </p>
 	 * 
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
-	 * @since 3.0
-	 * TBD (jeem) - once AST.parse* returns modifier nodes as well, change this method to compute and cache result based on modifiers() present
 	 */ 
 	public int getModifiers() {
-		return this.modifierFlags;
+		// more efficient than checking getAST().API_LEVEL
+		if (this.modifiers == null) {
+			// 2.0 behavior - bona fide property
+			return this.modifierFlags;
+		} else {
+			// 3.0 behavior - convenient method
+			// performance could be improved by caching computed flags
+			// but this would require tracking changes to this.modifiers
+			int flags = Modifier.NONE;
+			for (Iterator it = modifiers().iterator(); it.hasNext(); ) {
+				Object x = it.next();
+				if (x instanceof Modifier) {
+					flags |= ((Modifier) x).getKeyword().toFlagValue();
+				}
+			}
+			return flags;
+		}
 	}
 
 	/**
-	 * Sets the modifiers explicitly specified on this declaration.
+	 * Sets the modifiers explicitly specified on this declaration (2.0 API only).
 	 * 
 	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
 	 * @see Modifier
-	 * @since 3.0
-	 * TBD (jeem) - deprecate once AST.parse* returns modifier nodes
+	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
+	 * <code>modifiers()</code> which contains a list of 
+	 * a <code>Modifier</code> nodes.
 	 */ 
 	public void setModifiers(int modifiers) {
+		// more efficient than just calling supportedOnlyIn2() to check
+		if (this.modifiers != null) {
+			supportedOnlyIn2();
+		}
 		modifying();
 		this.modifierFlags = modifiers;
 	}
 
 	/**
 	 * Returns the live ordered list of modifiers and annotations
-	 * of this declaration.
+	 * of this declaration (added in 3.0 API).
 	 * <p>
 	 * Note: Support for annotation metadata is an experimental language feature 
 	 * under discussion in JSR-175 and under consideration for inclusion
@@ -139,11 +176,15 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * 
 	 * @return the live list of modifiers and annotations
 	 *    (element type: <code>ExtendedModifier</code>)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
 	 * @since 3.0
-	 * @deprecated Continue using get/setModifiers until AST.parse* supports 1.5.
-	 * TBD (jeem) - remove deprecation
 	 */ 
 	public List modifiers() {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.modifiers == null) {
+			unsupportedIn2();
+		}
 		return this.modifiers;
 	}
 	

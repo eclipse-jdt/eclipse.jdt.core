@@ -11,7 +11,7 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * Marker annotation node. The marker annotation 
+ * Marker annotation node (added in 3.0 API). The marker annotation 
  * "@foo" is equivalent to the normal annotation "@foo()".
  * <p>
  * <pre>

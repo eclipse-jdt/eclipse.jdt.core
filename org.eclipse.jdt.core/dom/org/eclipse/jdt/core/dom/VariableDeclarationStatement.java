@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -20,6 +21,14 @@ import java.util.List;
  * (<code>VariableDeclarationFragment</code>) into a statement 
  * (<code>Statement</code>), all sharing the same modifiers and base type.
  * </p>
+ * For 2.0 (corresponding to JLS2):
+ * <pre>
+ * VariableDeclarationStatement:
+ *    { Modifier } Type VariableDeclarationFragment 
+ *        { <b>,</b> VariableDeclarationFragment } <b>;</b>
+ * </pre>
+ * For 3.0 (corresponding to JLS3), the modifier flags were replaced by
+ * a list of modifier nodes (intermixed with annotations):
  * <pre>
  * VariableDeclarationStatement:
  *    { ExtendedModifier } Type VariableDeclarationFragment 
@@ -32,16 +41,15 @@ public class VariableDeclarationStatement extends Statement {
 	
 	/**
 	 * The extended modifiers (element type: <code>ExtendedModifier</code>). 
-	 * Defaults to an empty list.
-	 * 
+	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * (see constructor).
 	 * @since 3.0
 	 */
-	private ASTNode.NodeList modifiers =
-		new ASTNode.NodeList(true, ExtendedModifier.class);
+	private ASTNode.NodeList modifiers = null;
 	
 	/**
 	 * The modifier flagss; bit-wise or of Modifier flags.
-	 * Defaults to none.
+	 * Defaults to none. Not used in 3.0.
 	 */
 	private int modifierFlags = Modifier.NONE;
 		
@@ -71,6 +79,9 @@ public class VariableDeclarationStatement extends Statement {
 	 */
 	VariableDeclarationStatement(AST ast) {
 		super(ast);
+		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
+			this.modifiers = new ASTNode.NodeList(true, ExtendedModifier.class);
+		}
 	}
 
 	/* (omit javadoc for this method)
@@ -88,8 +99,12 @@ public class VariableDeclarationStatement extends Statement {
 			new VariableDeclarationStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.copyLeadingComment(this);
-		result.setModifiers(getModifiers());
-		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
+		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+			result.setModifiers(getModifiers());
+		}
+		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
+		}
 		result.setType((Type) getType().clone(target));
 		result.fragments().addAll(
 			ASTNode.copySubtrees(target, fragments()));
@@ -111,7 +126,9 @@ public class VariableDeclarationStatement extends Statement {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			acceptChildren(visitor, this.modifiers);
+			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+				acceptChildren(visitor, this.modifiers);
+			}
 			acceptChild(visitor, getType());
 			acceptChildren(visitor, this.variableDeclarationFragments);
 		}
@@ -120,7 +137,11 @@ public class VariableDeclarationStatement extends Statement {
 	
 	/**
 	 * Returns the live ordered list of modifiers and annotations
-	 * of this declaration.
+	 * of this declaration (added in 3.0 API).
+	 * <p>
+	 * Note that the final modifier is the only meaningful modifier for local
+	 * variable declarations.
+	 * </p>
 	 * <p>
 	 * Note: Support for annotation metadata is an experimental language feature 
 	 * under discussion in JSR-175 and under consideration for inclusion
@@ -130,41 +151,65 @@ public class VariableDeclarationStatement extends Statement {
 	 * 
 	 * @return the live list of modifiers and annotations
 	 *    (element type: <code>ExtendedModifier</code>)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
 	 * @since 3.0
-	 * @deprecated Continue using get/setModifiers until AST.parse* supports 1.5.
-	 * TBD (jeem) - remove deprecation
 	 */ 
 	public List modifiers() {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.modifiers == null) {
+			unsupportedIn2();
+		}
 		return this.modifiers;
 	}
 	
 	/**
 	 * Returns the modifiers explicitly specified on this declaration.
 	 * <p>
-	 * Note that the final modifier is the only meaningful modifier for local
-	 * variable declarations.
+	 * In the 3.0 API, this method is a convenience method that
+	 * computes these flags from <code>modifiers()</code>.
 	 * </p>
 	 * 
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
-	 * TBD (jeem) - once AST.parse* returns modifier nodes as well, change this method to compute and cache result based on modifiers() present
 	 */ 
 	public int getModifiers() {
-		return this.modifierFlags;
+		// more efficient than checking getAST().API_LEVEL
+		if (this.modifiers == null) {
+			// 2.0 behavior - bona fide property
+			return this.modifierFlags;
+		} else {
+			// 3.0 behavior - convenient method
+			// performance could be improved by caching computed flags
+			// but this would require tracking changes to this.modifiers
+			int flags = Modifier.NONE;
+			for (Iterator it = modifiers().iterator(); it.hasNext(); ) {
+				Object x = it.next();
+				if (x instanceof Modifier) {
+					flags |= ((Modifier) x).getKeyword().toFlagValue();
+				}
+			}
+			return flags;
+		}
 	}
 
 	/**
-	 * Sets the modifiers explicitly specified on this declaration.
+	 * Sets the modifiers explicitly specified on this declaration (2.0 API only).
 	 * <p>
 	 * Note that the final modifier is the only meaningful modifier for local
 	 * variable declarations.
 	 * </p>
 	 * 
 	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
 	 * @see Modifier
-	 * TBD (jeem) - deprecate once AST.parse* returns modifier nodes
+	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
+	 * <code>modifiers()</code> which contains a list of 
+	 * a <code>Modifier</code> nodes.
 	 */ 
 	public void setModifiers(int modifiers) {
+	    supportedOnlyIn2();
 		modifying();
 		this.modifierFlags = modifiers;
 	}
@@ -235,7 +280,7 @@ public class VariableDeclarationStatement extends Statement {
 	int treeSize() {
 		return
 			memSize()
-			+ this.modifiers.listSize()
+			+ (this.modifiers == null ? 0 : this.modifiers.listSize())
 			+ (this.baseType == null ? 0 : getType().treeSize())
 			+ this.variableDeclarationFragments.listSize();
 	}

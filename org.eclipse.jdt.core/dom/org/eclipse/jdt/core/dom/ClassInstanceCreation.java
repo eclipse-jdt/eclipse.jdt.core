@@ -15,7 +15,15 @@ import java.util.List;
 
 /**
  * Class instance creation expression AST node type.
- *
+ * For 2.0 (corresponding to JLS2):
+ * <pre>
+ * ClassInstanceCreation:
+ *        [ Expression <b>.</b> ] <b>new</b> Name
+ *            <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
+ *            [ AnonymousClassDeclaration ]
+ * </pre>
+ * For 3.0 (corresponding to JLS3), the type name is generalized to
+ * a type so that parameterized types can be instantiated:
  * <pre>
  * ClassInstanceCreation:
  *        [ Expression <b>.</b> ] <b>new</b> Type
@@ -60,6 +68,12 @@ public class ClassInstanceCreation extends Expression {
 	 * The optional expression; <code>null</code> for none; defaults to none.
 	 */
 	private Expression optionalExpression = null;
+	
+	/**
+	 * The type name; lazily initialized; defaults to a unspecified,
+	 * legal type name. Not used in 3.0.
+	 */
+	private Name typeName = null;
 	
 	/**
 	 * The type; lazily initialized; defaults to a unspecified type.
@@ -112,7 +126,12 @@ public class ClassInstanceCreation extends Expression {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setExpression(
 			(Expression) ASTNode.copySubtree(target, getExpression()));
-		result.setType((Type) getType().clone(target));
+		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+			result.setName((Name) getName().clone(target));
+		}
+		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			result.setType((Type) getType().clone(target));
+		}
 		result.arguments().addAll(ASTNode.copySubtrees(target, arguments()));
 		result.setAnonymousClassDeclaration(
 			(AnonymousClassDeclaration) 
@@ -136,7 +155,12 @@ public class ClassInstanceCreation extends Expression {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getExpression());
-			acceptChild(visitor, getType());
+			if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+				acceptChild(visitor, getName());
+			}
+			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+				acceptChild(visitor, getType());
+			}
 			acceptChildren(visitor, arguments);
 			acceptChild(visitor, getAnonymousClassDeclaration());
 		}
@@ -174,36 +198,28 @@ public class ClassInstanceCreation extends Expression {
 
 	/**
 	 * Returns the name of the type instantiated in this class instance 
-	 * creation expression.
+	 * creation expression (2.0 API only).
 	 * 
 	 * @return the type name node
-	 * @deprecated Replaced by <code>getType</code>, which returns
-	 * a <code>Type</code> instead of a <code>Name</code>.
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
+	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getType</code>,
+	 * which returns a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
 	public Name getName() {
-		// implement deprecated method in terms of getType
-		Type t = getType();
-		if (t instanceof SimpleType) {
-			// no problem - extract name from SimpleType
-			SimpleType s = (SimpleType) t;
-			return s.getName();
-		} else if ((t instanceof ParameterizedType)
-			     || (t instanceof QualifiedType)) {
-			// compatibility issue
-			// back-level clients know nothing of new node types added in 2.1
-			// take this opportunity to inform client of problem
-			throw new RuntimeException("Deprecated AST API method cannot handle newer node types"); //$NON-NLS-1$
-		} else {
-			// compatibility issue
-			// AST is bogus - illegal for type to be array or primitive type
-			// take this opportunity to inform client of problem
-			throw new RuntimeException("Deprecated AST API method cannot handle malformed AST"); //$NON-NLS-1$
+	    supportedOnlyIn2();
+		if (typeName == null) {
+			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
+			setName(new SimpleName(getAST()));
+			getAST().setModificationCount(count);
 		}
+		return typeName;
 	}
 	
 	/**
 	 * Sets the name of the type instantiated in this class instance 
-	 * creation expression.
+	 * creation expression (2.0 API only).
 	 * 
 	 * @param name the new type name
 	 * @exception IllegalArgumentException if:
@@ -211,38 +227,31 @@ public class ClassInstanceCreation extends Expression {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>`
 	 * </ul>
-	 * @deprecated Replaced by <code>setType</code>, which expects
-	 * a <code>Type</code> instead of a <code>Name</code>.
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
+	 * TBD (jeem ) deprecated In the 3.0 API, this method is replaced by <code>setType</code>,
+	 * which expects a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
 	public void setName(Name name) {
-		// implement deprecated method in terms of get/setType
+	    supportedOnlyIn2();
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		Type t = getType();
-		if (t instanceof SimpleType) {
-			// if possible edit name in SimpleType
-			SimpleType s = (SimpleType) t;
-			s.setName(name);
-			// give type node same range as name node
-			s.setSourceRange(name.getStartPosition(), name.getLength());
-			// note that only s will be modified(), not the ClassInst node
-		} else {
-			// all other cases - wrap name in a SimpleType and replace superclassType
-			Type newT = getAST().newSimpleType(name);
-			// give new type node same range as name node
-			newT.setSourceRange(name.getStartPosition(), name.getLength());
-			setType(newT);
-		}
+		replaceChild(this.typeName, name, false);
+		this.typeName = name;
 	}
 
 	/**
-	 * Returns the type instantiated in this class instance creation expression.
+	 * Returns the type instantiated in this class instance creation
+	 * expression (added in 3.0 API).
 	 * 
 	 * @return the type node
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
 	 * @since 3.0
 	 */ 
 	public Type getType() {
+	    unsupportedIn2();
 		if (this.type == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
@@ -253,7 +262,8 @@ public class ClassInstanceCreation extends Expression {
 	}
 	
 	/**
-	 * Sets the type instantiated in this class instance creation expression.
+	 * Sets the type instantiated in this class instance creation
+	 * expression (added in 3.0 API).
 	 * 
 	 * @param name the new type
 	 * @exception IllegalArgumentException if:
@@ -261,9 +271,12 @@ public class ClassInstanceCreation extends Expression {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>`
 	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
 	 * @since 3.0
 	 */ 
 	public void setType(Type type) {
+	    unsupportedIn2();
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
@@ -327,16 +340,19 @@ public class ClassInstanceCreation extends Expression {
 	 */
 	int memSize() {
 		// treat Code as free
-		return BASE_NODE_SIZE + 4 * 4;
+		return BASE_NODE_SIZE + 5 * 4;
 	}
 	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
+		// n.b. type == null for ast.API_LEVEL == 2.0
+		// n.b. typeName == null for ast.API_LEVEL >= 3.0
 		return 
 			memSize()
-			+ (type == null ? 0 : getName().treeSize())
+			+ (typeName == null ? 0 : getName().treeSize())
+			+ (type == null ? 0 : getType().treeSize())
 			+ (optionalExpression == null ? 0 : getExpression().treeSize())
 			+ arguments.listSize()
 			+ (optionalAnonymousClassDeclaration == null ? 0 : getAnonymousClassDeclaration().treeSize());

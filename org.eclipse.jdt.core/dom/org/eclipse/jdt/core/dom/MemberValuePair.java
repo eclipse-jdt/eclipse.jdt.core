@@ -12,7 +12,7 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * Member value pair node. Member value pairs appear in annotations.
+ * Member value pair node (added in 3.0 API). Member value pairs appear in annotations.
  * <p>
  * <pre>
  * MemberValuePair:

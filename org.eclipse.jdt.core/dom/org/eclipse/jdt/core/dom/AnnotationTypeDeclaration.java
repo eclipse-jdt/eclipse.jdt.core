@@ -11,7 +11,7 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * Annotation type declaration AST node type.
+ * Annotation type declaration AST node type (added in 3.0 API).
  * <pre>
  * AnnotationTypeDeclaration:
  *   [ Javadoc ] { ExtendedModifier } <b>@</b> <b>interface</b> Identifier
@@ -79,7 +79,6 @@ public class AnnotationTypeDeclaration extends AbstractTypeDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		// ignore get/setModifiers
 		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		result.setName((SimpleName) getName().clone(target));
 		result.bodyDeclarations().addAll(ASTNode.copySubtrees(target, bodyDeclarations()));

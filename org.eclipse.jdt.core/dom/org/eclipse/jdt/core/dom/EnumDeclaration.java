@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Enum declaration AST node type.
+ * Enum declaration AST node type (added in 3.0 API).
  *
  * <pre>
  * EnumDeclaration:
@@ -85,7 +85,6 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		result.setModifiers(getModifiers());
 		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		result.setName((SimpleName) getName().clone(target));
 		result.superInterfaceTypes().addAll(

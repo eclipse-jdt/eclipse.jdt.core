@@ -26,7 +26,8 @@ public static Class[] getAllTestClasses() {
 		org.eclipse.jdt.core.tests.dom.ASTConverterJavadocTest.class,
 		org.eclipse.jdt.core.tests.dom.ASTTest.class,
 		org.eclipse.jdt.core.tests.dom.ASTVisitorTest.class,
-		org.eclipse.jdt.core.tests.dom.ASTMatcherTest.class
+		org.eclipse.jdt.core.tests.dom.ASTMatcherTest.class,
+		org.eclipse.jdt.core.tests.dom.ASTParserTest.class,
 	};
 }
 public static Test suite() {

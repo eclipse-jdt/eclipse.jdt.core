@@ -11,7 +11,7 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * Annotation type member declaration AST node type.
+ * Annotation type member declaration AST node type (added in 3.0 API).
  * <pre>
  * AnnotationTypeMemberDeclaration:
  *   [ Javadoc ] { ExtendedModifier }
@@ -89,7 +89,6 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		// ignore get/setModifiers
 		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		result.setType((Type) ASTNode.copySubtree(target, getType()));
 		result.setName((SimpleName) getName().clone(target));

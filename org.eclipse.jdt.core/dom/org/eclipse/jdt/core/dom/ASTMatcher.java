@@ -567,13 +567,23 @@ public class ASTMatcher {
 			return false;
 		}
 		ClassInstanceCreation o = (ClassInstanceCreation) other;
-		return (
+		int level = node.getAST().API_LEVEL;
+		if (level == AST.LEVEL_2_0) {
+			if (!safeSubtreeMatch(node.getName(), o.getName())) {
+				return false;
+			}
+		}
+		if (level >= AST.LEVEL_3_0) {
+			if (!safeSubtreeMatch(node.getType(), o.getType())) {
+				return false;
+			}
+		}
+		return 
 			safeSubtreeMatch(node.getExpression(), o.getExpression())
-				&& safeSubtreeMatch(node.getType(), o.getType())
 				&& safeSubtreeListMatch(node.arguments(), o.arguments())
 				&& safeSubtreeMatch(
 					node.getAnonymousClassDeclaration(),
-					o.getAnonymousClassDeclaration()));
+					o.getAnonymousClassDeclaration());
 	}
 
 	/**
@@ -774,7 +784,6 @@ public class ASTMatcher {
 			return false;
 		}
 		EnumConstantDeclaration o = (EnumConstantDeclaration) other;
-		// node type added in 3.0 - ignore old 2.0-style modifiers
 		return (
 			safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
 				&& safeSubtreeListMatch(node.modifiers(), o.modifiers())
@@ -811,7 +820,6 @@ public class ASTMatcher {
 			return false;
 		}
 		EnumDeclaration o = (EnumDeclaration) other;
-		// node type added in 3.0 - ignore old 2.0-style modifiers
 		return (
 			safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
 				&& safeSubtreeListMatch(node.modifiers(), o.modifiers())
@@ -887,12 +895,19 @@ public class ASTMatcher {
 			return false;
 		}
 		FieldDeclaration o = (FieldDeclaration) other;
-		// compatibility: take care of 2.0-style modifiers
-		if (node.getModifiers() != o.getModifiers()) {
-			return false;
+		int level = node.getAST().API_LEVEL;
+		if (level == AST.LEVEL_2_0) {
+			if (node.getModifiers() != o.getModifiers()) {
+				return false;
+			}
 		}
-		return safeSubtreeListMatch(node.modifiers(), o.modifiers())
-			&& safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
+		if (level >= AST.LEVEL_3_0) {
+			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
+				return false;
+			}
+		}
+		return 
+			safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
 			&& safeSubtreeMatch(node.getType(), o.getType())
 			&& safeSubtreeListMatch(node.fragments(), o.fragments());
 	}
@@ -967,10 +982,14 @@ public class ASTMatcher {
 			return false;
 		}
 		ImportDeclaration o = (ImportDeclaration) other;
+		if (node.getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			if (node.isStatic() != o.isStatic()) {
+				return false;
+			}
+		}
 		return (
 			safeSubtreeMatch(node.getName(), o.getName())
-				&& node.isOnDemand() == o.isOnDemand()
-				&& node.isStatic() == o.isStatic());
+				&& node.isOnDemand() == o.isOnDemand());
 	}
 
 	/**
@@ -1050,13 +1069,19 @@ public class ASTMatcher {
 			return false;
 		}
 		Initializer o = (Initializer) other;
-		// compatibility: take care of 2.0-style modifiers
-		if (node.getModifiers() != o.getModifiers()) {
-			return false;
+		int level = node.getAST().API_LEVEL;
+		if (level == AST.LEVEL_2_0) {
+			if (node.getModifiers() != o.getModifiers()) {
+				return false;
+			}
+		}
+		if (level >= AST.LEVEL_3_0) {
+			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
+				return false;
+			}
 		}
 		return (
-				safeSubtreeListMatch(node.modifiers(), o.modifiers())
-				&& safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
+				safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
 				&& safeSubtreeMatch(node.getBody(), o.getBody()));
 	}
 
@@ -1316,18 +1341,31 @@ public class ASTMatcher {
 			return false;
 		}
 		MethodDeclaration o = (MethodDeclaration) other;
-		// compatibility: take care of 2.0-style modifiers
-		if (node.getModifiers() != o.getModifiers()) {
-			return false;
+		int level = node.getAST().API_LEVEL;
+		if (level == AST.LEVEL_2_0) {
+			if (node.getModifiers() != o.getModifiers()) {
+				return false;
+			}
+			if (!safeSubtreeMatch(node.getReturnType(), o.getReturnType())) {
+				return false;
+			}
 		}
-		return (
-				safeSubtreeListMatch(node.modifiers(), o.modifiers())
-				&& (node.isConstructor() == o.isConstructor())
+		if (level >= AST.LEVEL_3_0) {
+			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
+				return false;
+			}
+			if (!safeSubtreeMatch(node.getReturnType2(), o.getReturnType2())) {
+				return false;
+			}
+			// n.b. compare type parameters even for constructors
+			if (!safeSubtreeListMatch(node.typeParameters(), o.typeParameters())) {
+				return false;
+			}
+		}
+		return ((node.isConstructor() == o.isConstructor())
 				&& safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
-				// n.b. compare type parameters and return type even for constructors
-				&& safeSubtreeListMatch(node.typeParameters(), o.typeParameters())
-				&& safeSubtreeMatch(node.getReturnType(), o.getReturnType())
 				&& safeSubtreeMatch(node.getName(), o.getName())
+				// n.b. compare return type even for constructors
 				&& safeSubtreeListMatch(node.parameters(), o.parameters())
 	 			&& node.getExtraDimensions() == o.getExtraDimensions()
 				&& safeSubtreeListMatch(node.thrownExceptions(), o.thrownExceptions())
@@ -1480,8 +1518,12 @@ public class ASTMatcher {
 			return false;
 		}
 		PackageDeclaration o = (PackageDeclaration) other;
-		return safeSubtreeListMatch(node.annotations(), o.annotations())
-			&& safeSubtreeMatch(node.getName(), o.getName());
+		if (node.getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			if (!safeSubtreeListMatch(node.annotations(), o.annotations())) {
+				return false;
+			}
+		}
+		return safeSubtreeMatch(node.getName(), o.getName());
 	}
 
 	/**
@@ -1780,14 +1822,22 @@ public class ASTMatcher {
 			return false;
 		}
 		SingleVariableDeclaration o = (SingleVariableDeclaration) other;
-		// compatibility: take care of 2.0-style modifiers
-		if (node.getModifiers() != o.getModifiers()) {
-			return false;
+		int level = node.getAST().API_LEVEL;
+		if (level == AST.LEVEL_2_0) {
+			if (node.getModifiers() != o.getModifiers()) {
+				return false;
+			}
+		}
+		if (level >= AST.LEVEL_3_0) {
+			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
+				return false;
+			}
+			if (node.isVariableArity() != o.isVariableArity()) {
+				return false;
+			}
 		}
 		return 
-		    safeSubtreeListMatch(node.modifiers(), o.modifiers())
-				&& safeSubtreeMatch(node.getType(), o.getType())
-	 			&& node.isVariableArity() == o.isVariableArity()
+		    safeSubtreeMatch(node.getType(), o.getType())
 				&& safeSubtreeMatch(node.getName(), o.getName())
 	 			&& node.getExtraDimensions() == o.getExtraDimensions()
 				&& safeSubtreeMatch(node.getInitializer(), o.getInitializer());
@@ -2094,18 +2144,36 @@ public class ASTMatcher {
 			return false;
 		}
 		TypeDeclaration o = (TypeDeclaration) other;
-		// compatibility: take care of 2.0-style modifiers
-		if (node.getModifiers() != o.getModifiers()) {
-			return false;
+		int level = node.getAST().API_LEVEL;
+		if (level == AST.LEVEL_2_0) {
+			if (node.getModifiers() != o.getModifiers()) {
+				return false;
+			}
+			if (!safeSubtreeMatch(node.getSuperclass(), o.getSuperclass())) {
+				return false;
+			}
+			if (!safeSubtreeListMatch(node.superInterfaces(), o.superInterfaces())) {
+				return false;
+			}
+		}
+		if (level >= AST.LEVEL_3_0) {
+			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
+				return false;
+			}
+			if (!safeSubtreeListMatch(node.typeParameters(), o.typeParameters())) {
+				return false;
+			}
+			if (!safeSubtreeMatch(node.getSuperclassType(), o.getSuperclassType())) {
+				return false;
+			}
+			if (!safeSubtreeListMatch(node.superInterfaceTypes(), o.superInterfaceTypes())) {
+				return false;
+			}
 		}
 		return (
-				safeSubtreeListMatch(node.modifiers(), o.modifiers())
-				&& (node.isInterface() == o.isInterface())
+				(node.isInterface() == o.isInterface())
 				&& safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
 				&& safeSubtreeMatch(node.getName(), o.getName())
-				&& safeSubtreeListMatch(node.typeParameters(), o.typeParameters())
-				&& safeSubtreeMatch(node.getSuperclassType(), o.getSuperclassType())
-				&& safeSubtreeListMatch(node.superInterfaceTypes(), o.superInterfaceTypes())
 				&& safeSubtreeListMatch(node.bodyDeclarations(), o.bodyDeclarations()));
 	}
 
@@ -2202,13 +2270,18 @@ public class ASTMatcher {
 			return false;
 		}
 		VariableDeclarationExpression o = (VariableDeclarationExpression) other;
-		// compatibility: take care of 2.0-style modifiers
-		if (node.getModifiers() != o.getModifiers()) {
-			return false;
+		int level = node.getAST().API_LEVEL;
+		if (level == AST.LEVEL_2_0) {
+			if (node.getModifiers() != o.getModifiers()) {
+				return false;
+			}
 		}
-		return 
-		    safeSubtreeListMatch(node.modifiers(), o.modifiers())
-			&& safeSubtreeMatch(node.getType(), o.getType())
+		if (level >= AST.LEVEL_3_0) {
+			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
+				return false;
+			}
+		}
+		return safeSubtreeMatch(node.getType(), o.getType())
 			&& safeSubtreeListMatch(node.fragments(), o.fragments());
 	}
 
@@ -2259,13 +2332,18 @@ public class ASTMatcher {
 			return false;
 		}
 		VariableDeclarationStatement o = (VariableDeclarationStatement) other;
-		// compatibility: take care of 2.0-style modifiers
-		if (node.getModifiers() != o.getModifiers()) {
-			return false;
+		int level = node.getAST().API_LEVEL;
+		if (level == AST.LEVEL_2_0) {
+			if (node.getModifiers() != o.getModifiers()) {
+				return false;
+			}
 		}
-		return 
-		    safeSubtreeListMatch(node.modifiers(), o.modifiers())
-			&& safeSubtreeMatch(node.getType(), o.getType())
+		if (level >= AST.LEVEL_3_0) {
+			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
+				return false;
+			}
+		}
+		return safeSubtreeMatch(node.getType(), o.getType())
 			&& safeSubtreeListMatch(node.fragments(), o.fragments());
 	}
 

@@ -80,8 +80,12 @@ public class FieldDeclaration extends BodyDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		result.setModifiers(getModifiers());
-		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
+		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+			result.setModifiers(getModifiers());
+		}
+		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
+		}
 		result.setType((Type) getType().clone(target));
 		result.fragments().addAll(
 			ASTNode.copySubtrees(target, fragments()));
@@ -104,7 +108,9 @@ public class FieldDeclaration extends BodyDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
-			acceptChildren(visitor, this.modifiers);
+			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+				acceptChildren(visitor, this.modifiers);
+			}
 			acceptChild(visitor, getType());
 			acceptChildren(visitor, this.variableDeclarationFragments);
 		}
@@ -195,7 +201,7 @@ public class FieldDeclaration extends BodyDeclaration {
 		return
 			memSize()
 			+ (this.optionalDocComment == null ? 0 : getJavadoc().treeSize())
-			+ this.modifiers.listSize()
+			+ (this.modifiers == null ? 0 : this.modifiers.listSize())
 			+ (this.baseType == null ? 0 : getType().treeSize())
 			+ this.variableDeclarationFragments.listSize();
 	}

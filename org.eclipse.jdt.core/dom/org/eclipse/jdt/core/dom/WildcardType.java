@@ -12,7 +12,7 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * Type node for a wildcard type.
+ * Type node for a wildcard type (added in 3.0 API).
  * <pre>
  * WildcardType:
  *    <b>?</b> [ ( <b>extends</b> | <b>super</b>) Type ] 

@@ -22,12 +22,20 @@ import org.eclipse.jdt.core.compiler.IProblem;
  * The source range for this type of node is ordinarily the entire source file,
  * including leading and trailing whitespace and comments.
  * </p>
- *
+ * For 2.0 (corresponding to JLS2):
  * <pre>
  * CompilationUnit:
  *    [ PackageDeclaration ]
- *    { ImportDeclaration }
- *    { TypeDeclaration | <b>;</b> }
+ *        { ImportDeclaration }
+ *        { TypeDeclaration | <b>;</b> }
+ * </pre>
+ * For 3.0 (corresponding to JLS3), the kinds of type declarations
+ * grew to include enum and annotation type declarations:
+ * <pre>
+ * CompilationUnit:
+ *    [ PackageDeclaration ]
+ *        { ImportDeclaration }
+ *        { TypeDeclaration | EnumDeclaration | AnnotationTypeDeclaration | <b>;</b> }
  * </pre>
  * 
  * @since 2.0
@@ -162,8 +170,8 @@ public class CompilationUnit extends ASTNode {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getPackage());
-			acceptChildren(visitor, imports);
-			acceptChildren(visitor, types);
+			acceptChildren(visitor, this.imports);
+			acceptChildren(visitor, this.types);
 		}
 		visitor.endVisit(this);
 	}
@@ -176,7 +184,7 @@ public class CompilationUnit extends ASTNode {
 	 * @return the package declaration node, or <code>null</code> if none
 	 */ 
 	public PackageDeclaration getPackage() {
-		return optionalPackageDeclaration;
+		return this.optionalPackageDeclaration;
 	}
 	
 	/**
@@ -205,24 +213,23 @@ public class CompilationUnit extends ASTNode {
 	 *    (elementType: <code>ImportDeclaration</code>)
 	 */ 
 	public List imports() {
-		return imports;
+		return this.imports;
 	}
 	
 	/**
 	 * Returns the live list of nodes for the top-level type declarations of this 
 	 * compilation unit, in order of appearance.
      * <p>
-     * Note that the types may include both enum declarations
+     * Note that in 3.0, the types may include both enum declarations
      * and annotation type declarations introduced in JDK 1.5.
-     * For source code compilant with JDK 1.4 and earlier, the
-     * elements are always <code>TypeDeclaration</code>.
+     * For 2.0, the elements are always <code>TypeDeclaration</code>.
      * </p>
 	 * 
 	 * @return the live list of top-level type declaration
 	 *    nodes (elementType: <code>AbstractTypeDeclaration</code>)
 	 */ 
 	public List types() {
-		return types;
+		return this.types;
 	}
 
 	/**
@@ -251,10 +258,12 @@ public class CompilationUnit extends ASTNode {
 	 * <li>constructor - a <code>MethodDeclaration</code> </li>
      * <li>annotation type - an <code>AnnotationTypeDeclaration</code></li>
      * <li>annotation type member - an <code>AnnotationTypeMemberDeclaration</code></li>
+     * <li>enum type - an <code>EnumDeclaration</code></li>
+     * <li>enum constant - an <code>EnumConstantDeclaration</code></li>
 	 * </ul>
 	 * </p>
 	 * <p>
-	 * Each call to <code>AST.parseCompilationUnit</code> with a request for bindings
+	 * Each call to {@link ASTParser#createAST(IProgressMonitor)} with a request for bindings
 	 * gives rise to separate universe of binding objects. This method always returns
 	 * <code>null</code> when the binding object comes from a different AST.
 	 * Use <code>findDeclaringNode(binding.getKey())</code> when the binding comes
@@ -297,6 +306,8 @@ public class CompilationUnit extends ASTNode {
 	 * <li>constructor - a <code>MethodDeclaration</code> </li>
      * <li>annotation type - an <code>AnnotationTypeDeclaration</code></li>
      * <li>annotation type member - an <code>AnnotationTypeMemberDeclaration</code></li>
+     * <li>enum type - an <code>EnumDeclaration</code></li>
+     * <li>enum constant - an <code>EnumConstantDeclaration</code></li>
 	 * </ul>
 	 * </p>
 	 * <p>
@@ -335,7 +346,7 @@ public class CompilationUnit extends ASTNode {
 	 *    position does not correspond to a source line in the original
 	 *    source file or if line number information is not known for this
 	 *    compilation unit
-	 * @see AST#parseCompilationUnit(char[])
+	 * @see ASTParser
 	 */
 	public int lineNumber(int position) {
 		int length = lineEndTable.length;
@@ -402,7 +413,7 @@ public class CompilationUnit extends ASTNode {
 	 *
 	 * @return the list of messages, possibly empty
 	 * @see #getProblems()
-	 * @see AST#parseCompilationUnit(char[])
+	 * @see ASTParser
 	 */
 	public Message[] getMessages() {
 		if (this.messages == null) {
@@ -434,7 +445,7 @@ public class CompilationUnit extends ASTNode {
 	 * 
 	 * @return the list of detailed problem objects, possibly empty
 	 * @see #getMessages()
-	 * @see AST#parseCompilationUnit(char[])
+	 * @see ASTParser
 	 * @since 2.1
 	 */
 	public IProblem[] getProblems() {
@@ -498,7 +509,7 @@ public class CompilationUnit extends ASTNode {
 	 * @return a list of comments in increasing order of source
 	 * start position, or <code>null</code> if comment information
 	 * for this compilation unit is not available
-	 * @see AST#parseCompilationUnit
+	 * @see ASTParser
 	 * @since 3.0
 	 */
 	public Comment[] getCommentTable() {
@@ -515,7 +526,7 @@ public class CompilationUnit extends ASTNode {
 	 * @throw IllegalArgumentException if the comment table is
 	 * not in increasing order of source position
 	 * @see #getCommentTable()
-	 * @see AST#parseCompilationUnit
+	 * @see ASTParser
 	 * @since 3.0
 	 */
 	void setCommentTable(Comment[] commentTable) {
@@ -562,11 +573,11 @@ public class CompilationUnit extends ASTNode {
 	 */
 	int memSize() {
 		int size = BASE_NODE_SIZE + 7 * 4;
-		if (lineEndTable != null) {
-			size += HEADERS + 4 * lineEndTable.length;
+		if (this.lineEndTable != null) {
+			size += HEADERS + 4 * this.lineEndTable.length;
 		}
-		if (optionalCommentTable != null) {
-			size += HEADERS + 4 * optionalCommentTable.length;
+		if (this.optionalCommentTable != null) {
+			size += HEADERS + 4 * this.optionalCommentTable.length;
 		}
 		return size;
 	}
@@ -576,15 +587,15 @@ public class CompilationUnit extends ASTNode {
 	 */
 	int treeSize() {
 		int size = memSize();
-		if (optionalPackageDeclaration != null) {
+		if (this.optionalPackageDeclaration != null) {
 			size += getPackage().treeSize();
 		}
-		size += imports.listSize();
-		size += types.listSize();
+		size += this.imports.listSize();
+		size += this.types.listSize();
 		// include disconnected comments
-		if (optionalCommentTable != null) {
-			for (int i = 0; i < optionalCommentTable.length; i++) {
-				Comment comment = optionalCommentTable[i];
+		if (this.optionalCommentTable != null) {
+			for (int i = 0; i < this.optionalCommentTable.length; i++) {
+				Comment comment = this.optionalCommentTable[i];
 				if (comment != null && comment.getParent() == null) {
 					size += comment.treeSize();
 				}

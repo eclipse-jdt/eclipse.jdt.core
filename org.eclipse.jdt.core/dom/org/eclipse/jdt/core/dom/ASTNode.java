@@ -73,9 +73,9 @@ import java.util.Map;
  * to connect them together.
  * </p>
  * <p>
- * The static method <code>AST.parseCompilationUnit</code> parses a string
- * containing a Java compilation unit and returns the abstract syntax tree
- * for it. The resulting nodes carry a source range relating the node back to
+ * The class {@link ASTParser} parses a string
+ * containing a Java source code and returns an abstract syntax tree
+ * for it. The resulting nodes carry source ranges relating the node back to
  * the original source characters. The source range covers the construct
  * as a whole.
  * </p>
@@ -108,7 +108,7 @@ import java.util.Map;
  * problem (support for this is planned for a future release).
  * </p>
  * 
- * @see AST All AST.parseCompilationUnit(*) methods
+ * @see ASTParser
  * @see ASTVisitor
  * @since 2.0
  */
@@ -1237,6 +1237,32 @@ public abstract class ASTNode {
 	}
 
 	/**
+     * Checks that this AST operation is not used when
+     * building level 2.0 ASTs.
+
+     * @exception UnsupportedOperationException
+	 * @since 3.0
+     */
+	final void unsupportedIn2() {
+	  if (this.owner.API_LEVEL == AST.LEVEL_2_0) {
+	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
+	  }
+	}
+
+	/**
+     * Checks that this AST operation is only used when
+     * building level 2.0 ASTs.
+
+     * @exception UnsupportedOperationException
+	 * @since 3.0
+     */
+	final void supportedOnlyIn2() {
+	  if (this.owner.API_LEVEL != AST.LEVEL_2_0) {
+	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
+	  }
+	}
+
+	/**
 	 * Sets or clears this node's parent node.
 	 * <p>
 	 * Note that this method is package-private. The pointer from a node
@@ -1716,14 +1742,14 @@ public abstract class ASTNode {
 	 * where the source fragment corresponding to this node begins.
 	 * <p>
 	 * The parser supplies useful well-defined source ranges to the nodes it creates.
-	 * See {@link AST AST.parseCompilationUnit(*) methods} for details
+	 * See {@link ASTParser} for details
 	 * on precisely where source ranges begin and end.
 	 * </p>
 	 * 
 	 * @return the 0-based character index, or <code>-1</code>
 	 *    if no source position information is recorded for this node
 	 * @see #getLength()
-	 * @see AST All AST.parseCompilationUnit(*) methods
+	 * @see ASTParser
 	 */
 	public int getStartPosition() {
 		return this.startPosition;
@@ -1734,14 +1760,14 @@ public abstract class ASTNode {
 	 * where the source fragment corresponding to this node ends.
 	 * <p>
 	 * The parser supplies useful well-defined source ranges to the nodes it creates.
-	 * See {@link AST AST.parseCompilationUnit(*)} methods for details
+	 * See {@link ASTParser} methods for details
 	 * on precisely where source ranges begin and end.
 	 * </p>
 	 * 
 	 * @return a (possibly 0) length, or <code>0</code>
 	 *    if no source position information is recorded for this node
 	 * @see #getStartPosition()
-	 * @see AST All AST.parseCompilationUnit(*) methods
+	 * @see ASTParser
 	 */
 	public int getLength() {
 		return this.length;
@@ -1751,7 +1777,7 @@ public abstract class ASTNode {
 	 * Sets the source range of the original source file where the source
 	 * fragment corresponding to this node was found.
 	 * <p>
-	 * See {@link AST AST.parseCompilationUnit(*) methods} for details
+	 * See {@link ASTParser} for details
 	 * on precisely where source ranges begin and end.
 	 * </p>
 	 * 
@@ -1763,7 +1789,7 @@ public abstract class ASTNode {
 	 *    for this node
 	 * @see #getStartPosition()
 	 * @see #getLength()
-	 * @see AST All AST.parseCompilationUnit(*) methods
+	 * @see ASTParser
 	 */
 	public void setSourceRange(int startPosition, int length) {
 		if (startPosition >= 0 && length < 0) {
