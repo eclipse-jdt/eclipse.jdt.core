@@ -47,36 +47,18 @@ public class AssertStatement extends Statement {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 			
-		Constant constant = assertExpression.constant;
-		if (constant != NotAConstant && constant.booleanValue() == true) {
-			return flowInfo;
-		}
-
 		preAssertInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
-		FlowInfo assertInfo = flowInfo.copy();
+		FlowInfo assertInfo = assertExpression.analyseCode(currentScope, flowContext, flowInfo.copy()).unconditionalInits();
 			
 		if (exceptionArgument != null) {
-			assertInfo = exceptionArgument.analyseCode(
-						currentScope,
-						flowContext,
-						assertExpression.analyseCode(currentScope, flowContext, assertInfo).unconditionalInits())
-					.unconditionalInits();
-		} else {
-			assertInfo = assertExpression.analyseCode(currentScope, flowContext, assertInfo).unconditionalInits();
+			assertInfo = exceptionArgument.analyseCode(currentScope, flowContext, assertInfo);
 		}
 		
-		// assertion might throw AssertionError (unchecked), which can have consequences in term of
-		// definitely assigned variables (depending on caught exception in the context)
-		// DISABLED - AssertionError is unchecked, try statements are already protected against these.
-		//flowContext.checkExceptionHandlers(currentScope.getJavaLangAssertionError(), this, assertInfo, currentScope);
-
-		// only retain potential initializations
-		flowInfo.addPotentialInitializationsFrom(assertInfo.unconditionalInits());
-
 		// add the assert support in the clinit
 		manageSyntheticAccessIfNecessary(currentScope);
-					
-		return flowInfo;
+
+		FlowInfo mergedInfo = flowInfo.mergedWith(assertInfo.unconditionalInits());
+		return mergedInfo;
 	}
 
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
