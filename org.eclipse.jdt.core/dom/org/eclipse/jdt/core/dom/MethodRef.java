@@ -29,6 +29,55 @@ import java.util.List;
 public class MethodRef extends ASTNode implements IDocElement {
 	
 	/**
+	 * The "qualifier" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor QUALIFIER_PROPERTY = 
+		new ChildPropertyDescriptor(MethodRef.class, "qualifier", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "name" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(MethodRef.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "parameters" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor PARAMETERS_PROPERTY = 
+		new ChildListPropertyDescriptor(MethodRef.class, "parameters", MethodRefParameter.class, NO_CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(MethodRef.class);
+		addProperty(QUALIFIER_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		addProperty(PARAMETERS_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the AST.LEVEL_* constants
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The optional qualifier; <code>null</code> for none; defaults to none.
 	 */
 	private Name optionalQualifier = null;
@@ -45,7 +94,7 @@ public class MethodRef extends ASTNode implements IDocElement {
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList parameters =
-		new ASTNode.NodeList(false, MethodRefParameter.class);
+		new ASTNode.NodeList(PARAMETERS_PROPERTY);
 	
 	
 	/**
@@ -63,6 +112,48 @@ public class MethodRef extends ASTNode implements IDocElement {
 	 */
 	MethodRef(AST ast) {
 		super(ast);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == QUALIFIER_PROPERTY) {
+			if (get) {
+				return getQualifier();
+			} else {
+				setQualifier((Name) child);
+				return null;
+			}
+		}
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == PARAMETERS_PROPERTY) {
+			return parameters();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
 	}
 
 	/* (omit javadoc for this method)
@@ -129,9 +220,9 @@ public class MethodRef extends ASTNode implements IDocElement {
 	 * </ul>
 	 */ 
 	public void setQualifier(Name name) {
-		// a MethodRef cannot occur inside a Name - no cycle check
-		replaceChild(this.optionalQualifier, name, false);
+		preReplaceChild(this.optionalQualifier, name, QUALIFIER_PROPERTY);
 		this.optionalQualifier = name;
+		postReplaceChild(this.optionalQualifier, name, QUALIFIER_PROPERTY);
 	}
 
 	/**
@@ -141,10 +232,9 @@ public class MethodRef extends ASTNode implements IDocElement {
 	 */ 
 	public SimpleName getName() {
 		if (this.methodName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.methodName = new SimpleName(this.ast);
+			postLazyInit(this.methodName, NAME_PROPERTY);
 		}
 		return this.methodName;
 	}
@@ -165,8 +255,9 @@ public class MethodRef extends ASTNode implements IDocElement {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.methodName, name, false);
+		preReplaceChild(this.methodName, name, NAME_PROPERTY);
 		this.methodName = name;
+		postReplaceChild(this.methodName, name, NAME_PROPERTY);
 	}
 
 	/**
@@ -192,7 +283,7 @@ public class MethodRef extends ASTNode implements IDocElement {
 	 *    resolved
 	 */	
 	public final IBinding resolveBinding() {
-		return getAST().getBindingResolver().resolveReference(this);
+		return this.ast.getBindingResolver().resolveReference(this);
 	}
 
 	/* (omit javadoc for this method)

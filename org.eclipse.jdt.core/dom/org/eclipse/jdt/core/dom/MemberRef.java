@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * AST node for a member reference within a doc comment
  * ({@link Javadoc}). The principal uses of these are in "@see" and "@link"
@@ -26,6 +28,47 @@ package org.eclipse.jdt.core.dom;
  */
 public class MemberRef extends ASTNode implements IDocElement {
 	
+	/**
+	 * The "qualifier" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor QUALIFIER_PROPERTY = 
+		new ChildPropertyDescriptor(MemberRef.class, "qualifier", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "name" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(MemberRef.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(MemberRef.class);
+		addProperty(QUALIFIER_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the AST.LEVEL_* constants
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/**
 	 * The optional qualifier; <code>null</code> for none; defaults to none.
 	 */
@@ -53,6 +96,37 @@ public class MemberRef extends ASTNode implements IDocElement {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == QUALIFIER_PROPERTY) {
+			if (get) {
+				return getQualifier();
+			} else {
+				setQualifier((Name) child);
+				return null;
+			}
+		}
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -114,9 +188,9 @@ public class MemberRef extends ASTNode implements IDocElement {
 	 * </ul>
 	 */ 
 	public void setQualifier(Name name) {
-		// a MemberRef cannot occur inside a Name - no cycle check
-		replaceChild(this.optionalQualifier, name, false);
+		preReplaceChild(this.optionalQualifier, name, QUALIFIER_PROPERTY);
 		this.optionalQualifier = name;
+		postReplaceChild(this.optionalQualifier, name, QUALIFIER_PROPERTY);
 	}
 
 	/**
@@ -126,10 +200,9 @@ public class MemberRef extends ASTNode implements IDocElement {
 	 */ 
 	public SimpleName getName() {
 		if (this.memberName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.memberName = new SimpleName(this.ast);
+			postLazyInit(this.memberName, NAME_PROPERTY);
 		}
 		return this.memberName;
 	}
@@ -149,8 +222,9 @@ public class MemberRef extends ASTNode implements IDocElement {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.memberName, name, false);
+		preReplaceChild(this.memberName, name, NAME_PROPERTY);
 		this.memberName = name;
+		postReplaceChild(this.memberName, name, NAME_PROPERTY);
 	}
 
 	/**
@@ -165,7 +239,7 @@ public class MemberRef extends ASTNode implements IDocElement {
 	 *    resolved
 	 */	
 	public final IBinding resolveBinding() {
-		return getAST().getBindingResolver().resolveReference(this);
+		return this.ast.getBindingResolver().resolveReference(this);
 	}
 
 	/* (omit javadoc for this method)

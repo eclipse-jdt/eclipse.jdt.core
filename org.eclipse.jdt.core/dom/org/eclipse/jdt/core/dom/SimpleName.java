@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -27,6 +29,41 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  */
 public class SimpleName extends Name {
 
+	/**
+	 * The "identifier" structural property of this node type.
+	 * 
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor IDENTIFIER_PROPERTY = 
+		new SimplePropertyDescriptor(SimpleName.class, "identifier", String.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(SimpleName.class);
+		addProperty(IDENTIFIER_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+	
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the AST.LEVEL_* constants
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+	
 	/**
 	 * An unspecified (but externally observable) legal Java identifier.
 	 */
@@ -52,6 +89,30 @@ public class SimpleName extends Name {
 		super(ast);
 	}
 	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 * @since 3.0
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
+		if (property == IDENTIFIER_PROPERTY) {
+			if (get) {
+				return getIdentifier();
+			} else {
+				setIdentifier((String) value);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetObjectProperty(property, get, value);
+	}
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -91,7 +152,7 @@ public class SimpleName extends Name {
 	 * @return the identifier of this node
 	 */ 
 	public String getIdentifier() {
-		return identifier;
+		return this.identifier;
 	}
 	
 	/**
@@ -111,7 +172,7 @@ public class SimpleName extends Name {
 		if (identifier == null) {
 			throw new IllegalArgumentException();
 		}
-		Scanner scanner = getAST().scanner;
+		Scanner scanner = this.ast.scanner;
 		char[] source = identifier.toCharArray();
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
@@ -126,8 +187,9 @@ public class SimpleName extends Name {
 		} catch(InvalidInputException e) {
 			throw new IllegalArgumentException();
 		}
-		modifying();
+		preValueChange(IDENTIFIER_PROPERTY);
 		this.identifier = identifier;
+		postValueChange(IDENTIFIER_PROPERTY);
 	}
 
 	/**
@@ -160,55 +222,40 @@ public class SimpleName extends Name {
 	 *    <code>false</code> otherwise
 	 */ 
 	public boolean isDeclaration() {
-		ASTNode parent = getParent();
-		if (parent == null) {
+		StructuralPropertyDescriptor d = getLocationInParent();
+		if (d == null) {
 			// unparented node
 			return false;
 		}
+		ASTNode parent = getParent();
 		if (parent instanceof TypeDeclaration) {
-			// could only be the name of the type
-			return true;
+			return (d == TypeDeclaration.NAME_PROPERTY);
 		}
 		if (parent instanceof MethodDeclaration) {
-			// could be the name of the method or constructor
 			MethodDeclaration p = (MethodDeclaration) parent;
-			return !p.isConstructor();
+			// could be the name of the method or constructor
+			return !p.isConstructor() && (d == MethodDeclaration.NAME_PROPERTY);
 		}
 		if (parent instanceof SingleVariableDeclaration) {
-			SingleVariableDeclaration p = (SingleVariableDeclaration) parent;
-			// make sure its the name of the variable (not the initializer)
-			return (p.getName() == this);
+			return (d == SingleVariableDeclaration.NAME_PROPERTY);
 		}
 		if (parent instanceof VariableDeclarationFragment) {
-			VariableDeclarationFragment p = (VariableDeclarationFragment) parent;
-			// make sure its the name of the variable (not the initializer)
-			return (p.getName() == this);
+			return (d == VariableDeclarationFragment.NAME_PROPERTY);
 		}
 		if (parent instanceof EnumDeclaration) {
-			// could only be the name of the enum type
-			return true;
+			return (d == EnumDeclaration.NAME_PROPERTY);
 		}
 		if (parent instanceof EnumConstantDeclaration) {
-			// could only be the name of the enum constant
-			return true;
-		}
-		if (parent instanceof EnhancedForStatement) {
-			EnhancedForStatement p = (EnhancedForStatement) parent;
-			// make sure its the name of the loop variable (not the initializer)
-			return (p.getName() == this);
+			return (d == EnumConstantDeclaration.NAME_PROPERTY);
 		}
 		if (parent instanceof TypeParameter) {
-			// could only be the type variable name
-			return true;
+			return (d == TypeParameter.NAME_PROPERTY);
 		}
 		if (parent instanceof AnnotationTypeDeclaration) {
-			// could only be the name of the annotation type
-			return true;
+			return (d == AnnotationTypeDeclaration.NAME_PROPERTY);
 		}
 		if (parent instanceof AnnotationTypeMemberDeclaration) {
-			AnnotationTypeMemberDeclaration p = (AnnotationTypeMemberDeclaration) parent;
-			// make sure its the name of the member (not the default)
-			return (p.getName() == this);
+			return (d == AnnotationTypeMemberDeclaration.NAME_PROPERTY);
 		}
 		return false;
 	}

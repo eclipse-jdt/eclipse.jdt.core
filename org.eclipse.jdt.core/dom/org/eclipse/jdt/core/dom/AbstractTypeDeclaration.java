@@ -50,9 +50,44 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 	 * Defaults to an empty list.
 	 * @since 2.0 (originally declared on <code>TypeDeclaration</code>)
 	 */
-	ASTNode.NodeList bodyDeclarations = 
-		new ASTNode.NodeList(true, BodyDeclaration.class);
+	ASTNode.NodeList bodyDeclarations;
 
+	/**
+	 * Returns structural property descriptor for the "bodyDeclarations" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 */
+	abstract ChildListPropertyDescriptor internalBodyDeclarationsProperty();
+
+	/**
+	 * Returns structural property descriptor for the "name" property
+	 * of this node.
+	 * 
+	 * @return the property descriptor
+	 */
+	abstract ChildPropertyDescriptor internalNameProperty();
+	
+	/**
+	 * Creates and returns a structural property descriptor for the
+	 * "bodyDeclaration" property declared on the given concrete node type.
+	 * 
+	 * @return the property descriptor
+	 */
+	static final ChildListPropertyDescriptor internalBodyDeclarationPropertyFactory(Class nodeClass) {
+		return new ChildListPropertyDescriptor(nodeClass, "bodyDeclarations", BodyDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Creates and returns a structural property descriptor for the
+	 * "name" property declared on the given concrete node type.
+	 * 
+	 * @return the property descriptor
+	 */
+	static final ChildPropertyDescriptor internalNamePropertyFactory(Class nodeClass) {
+		return new ChildPropertyDescriptor(nodeClass, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+	}
+	
 	/**
 	 * Creates a new AST node for an abstract type declaration owned by the given 
 	 * AST.
@@ -66,6 +101,7 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 	 */
 	AbstractTypeDeclaration(AST ast) {
 		super(ast);
+		this.bodyDeclarations = new ASTNode.NodeList(internalBodyDeclarationsProperty());
 	}
 
 	/**
@@ -76,10 +112,9 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 	 */ 
 	public SimpleName getName() {
 		if (this.typeName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.typeName = new SimpleName(this.ast);
+			postLazyInit(this.typeName, internalNameProperty());
 		}
 		return this.typeName;
 	}
@@ -100,8 +135,10 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 		if (typeName == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.typeName, typeName, false);
+		ChildPropertyDescriptor p = internalNameProperty();
+		preReplaceChild(this.typeName, typeName, p);
 		this.typeName = typeName;
+		postReplaceChild(this.typeName, typeName, p);
 	}
 
 	/**

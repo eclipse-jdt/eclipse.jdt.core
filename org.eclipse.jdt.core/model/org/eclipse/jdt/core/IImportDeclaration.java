@@ -44,6 +44,7 @@ String getElementName();
  * @since 3.0
  */
 int getFlags() throws JavaModelException;
+
 /**
  * Returns whether the import is on-demand. An import is on-demand if it ends
  * with <code>".*"</code>.

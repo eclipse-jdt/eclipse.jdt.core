@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -39,7 +40,11 @@ public static Test suite() {
 	return new Suite(AttachSourceTests.class);
 }
 public ASTNode runConversion(IClassFile classFile, boolean resolveBindings) {
-	return AST.parseCompilationUnit(classFile, resolveBindings, null, null);
+	ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+	parser.setSource(classFile);
+	parser.setResolveBindings(resolveBindings);
+	parser.setWorkingCopyOwner(null);
+	return parser.createAST(null);
 }
 protected void setUp() throws Exception {
 	super.setUp();

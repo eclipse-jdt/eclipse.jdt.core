@@ -114,7 +114,9 @@ public abstract class Comment extends ASTNode {
 	 * @see #getAlternateRoot()
 	 */
 	public final void setAlternateRoot(ASTNode root) {
-		modifying();
+		// alternate root is *not* considered a structural property
+		// but we protect them nevertheless
+		checkModifiable();
 		this.alternateRoot = root;
 	}
 

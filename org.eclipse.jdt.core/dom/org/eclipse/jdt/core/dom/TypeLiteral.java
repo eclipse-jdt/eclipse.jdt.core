@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Type literal AST node type.
  *
@@ -23,6 +25,40 @@ package org.eclipse.jdt.core.dom;
  */
 public class TypeLiteral extends Expression {
 
+	/**
+	 * The "type" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor TYPE_PROPERTY = 
+		new ChildPropertyDescriptor(TypeLiteral.class, "type", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(TypeLiteral.class);
+		addProperty(TYPE_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/**
 	 * The type; lazily initialized; defaults to a unspecified,
 	 * legal type.
@@ -42,6 +78,29 @@ public class TypeLiteral extends Expression {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == TYPE_PROPERTY) {
+			if (get) {
+				return getType();
+			} else {
+				setType((Type) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -84,13 +143,12 @@ public class TypeLiteral extends Expression {
 	 * @return the type
 	 */ 
 	public Type getType() {
-		if (type == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setType(getAST().newPrimitiveType(PrimitiveType.INT));
-			getAST().setModificationCount(count);
+		if (this.type == null) {
+			preLazyInit();
+			this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
+			postLazyInit(this.type, TYPE_PROPERTY);
 		}
-		return type;
+		return this.type;
 	}
 
 	/**
@@ -107,8 +165,9 @@ public class TypeLiteral extends Expression {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.type, type, false);
+		preReplaceChild(this.type, type, TYPE_PROPERTY);
 		this.type = type;
+		postReplaceChild(this.type, type, TYPE_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)
@@ -125,7 +184,7 @@ public class TypeLiteral extends Expression {
 	int treeSize() {
 		return 
 			memSize()
-			+ (type == null ? 0 : getType().treeSize());
+			+ (this.type == null ? 0 : getType().treeSize());
 	}
 }
 

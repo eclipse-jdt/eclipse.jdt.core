@@ -47,6 +47,67 @@ import java.util.List;
 public class EnumConstantDeclaration extends BodyDeclaration {
 	
 	/**
+	 * The "javadoc" structural property of this node type.
+	 */
+	public static final ChildPropertyDescriptor JAVADOC_PROPERTY = 
+		internalJavadocPropertyFactory(EnumConstantDeclaration.class);
+
+	/**
+	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 */
+	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
+		internalModifiers2PropertyFactory(EnumConstantDeclaration.class);
+	
+	/**
+	 * The "name" structural property of this node type.
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(EnumConstantDeclaration.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "arguments" structural property of this node type.
+	 */
+	public static final ChildListPropertyDescriptor ARGUMENTS_PROPERTY = 
+		new ChildListPropertyDescriptor(EnumConstantDeclaration.class, "arguments", Expression.class, NO_CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "bodyDeclarations" structural property of this node type.
+	 */
+	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY = 
+		new ChildListPropertyDescriptor(EnumConstantDeclaration.class, "bodyDeclarations", BodyDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(EnumConstantDeclaration.class);
+		addProperty(JAVADOC_PROPERTY);
+		addProperty(MODIFIERS2_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		addProperty(ARGUMENTS_PROPERTY);
+		addProperty(BODY_DECLARATIONS_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The constant name; lazily initialized; defaults to a unspecified,
 	 * legal Java class identifier.
 	 */
@@ -57,14 +118,14 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 * <code>Expression</code>). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList arguments =
-		new ASTNode.NodeList(true, Expression.class);
+		new ASTNode.NodeList(ARGUMENTS_PROPERTY);
 			
 	/**
 	 * The body declarations (element type: <code>BodyDeclaration</code>).
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList bodyDeclarations = 
-		new ASTNode.NodeList(true, BodyDeclaration.class);
+		new ASTNode.NodeList(BODY_DECLARATIONS_PROPERTY);
 
 	/**
 	 * Creates a new AST node for an enumeration constants declaration owned by
@@ -81,6 +142,76 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 */
 	EnumConstantDeclaration(AST ast) {
 		super(ast);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == JAVADOC_PROPERTY) {
+			if (get) {
+				return getJavadoc();
+			} else {
+				setJavadoc((Javadoc) child);
+				return null;
+			}
+		}
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == MODIFIERS2_PROPERTY) {
+			return modifiers();
+		}
+		if (property == ARGUMENTS_PROPERTY) {
+			return arguments();
+		}
+		if (property == BODY_DECLARATIONS_PROPERTY) {
+			return bodyDeclarations();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildPropertyDescriptor internalJavadocProperty() {
+		return JAVADOC_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildListPropertyDescriptor internalModifiers2Property() {
+		return MODIFIERS2_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final SimplePropertyDescriptor internalModifiersProperty() {
+		// this property will not be asked for (node type did not exist in 2.0)
+		return null;
 	}
 
 	/* (omit javadoc for this method)
@@ -137,10 +268,9 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 */ 
 	public SimpleName getName() {
 		if (this.constantName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.constantName = new SimpleName(this.ast);
+			postLazyInit(this.constantName, NAME_PROPERTY);
 		}
 		return this.constantName;
 	}
@@ -160,8 +290,9 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 		if (constantName == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.constantName, constantName, false);
+		preReplaceChild(this.constantName, constantName, NAME_PROPERTY);
 		this.constantName = constantName;
+		postReplaceChild(this.constantName, constantName, NAME_PROPERTY);
 	}
 
 	/**
@@ -199,7 +330,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 *    resolved
 	 */	
 	public IVariableBinding resolveVariable() {
-		return getAST().getBindingResolver().resolveVariable(this);
+		return this.ast.getBindingResolver().resolveVariable(this);
 	}
 	
 	/* (omit javadoc for this method)

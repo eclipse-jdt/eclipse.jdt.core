@@ -29,6 +29,50 @@ import java.util.List;
  * @since 3.0
  */
 public class ParameterizedType extends Type {
+	
+	/**
+	 * The "name" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(ParameterizedType.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "typeArguments" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor TYPE_ARGUMENTS_PROPERTY = 
+		new ChildListPropertyDescriptor(ParameterizedType.class, "typeArguments", Type.class, CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(ParameterizedType.class);
+		addProperty(NAME_PROPERTY);
+		addProperty(TYPE_ARGUMENTS_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/** 
 	 * The type name node; lazily initialized; defaults to a type with
 	 * an unspecfied, but legal, name.
@@ -40,7 +84,7 @@ public class ParameterizedType extends Type {
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList typeArguments =
-		new ASTNode.NodeList(true, Type.class);
+		new ASTNode.NodeList(TYPE_ARGUMENTS_PROPERTY);
 	
 	/**
 	 * Creates a new unparented node for a parameterized type owned by the
@@ -54,6 +98,40 @@ public class ParameterizedType extends Type {
 	 */
 	ParameterizedType(AST ast) {
 		super(ast);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((Name) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == TYPE_ARGUMENTS_PROPERTY) {
+			return typeArguments();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
 	}
 
 	/* (omit javadoc for this method)
@@ -91,7 +169,7 @@ public class ParameterizedType extends Type {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getName());
-			acceptChildren(visitor, typeArguments);
+			acceptChildren(visitor, this.typeArguments);
 		}
 		visitor.endVisit(this);
 	}
@@ -102,13 +180,12 @@ public class ParameterizedType extends Type {
 	 * @return the name of this parameterized type
 	 */ 
 	public Name getName() {
-		if (typeName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.typeName == null) {
+			preLazyInit();
+			this.typeName = new SimpleName(this.ast);
+			postLazyInit(this.typeName, NAME_PROPERTY);
 		}
-		return typeName;
+		return this.typeName;
 	}
 	
 	/**
@@ -125,8 +202,9 @@ public class ParameterizedType extends Type {
 		if (typeName == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.typeName, typeName, false);
+		preReplaceChild(this.typeName, typeName, NAME_PROPERTY);
 		this.typeName = typeName;
+		postReplaceChild(this.typeName, typeName, NAME_PROPERTY);
 	}
 
 	/**
@@ -138,7 +216,7 @@ public class ParameterizedType extends Type {
 	 *    (element type: <code>Type</code>)
 	 */ 
 	public List typeArguments() {
-		return typeArguments;
+		return this.typeArguments;
 	}
 	
 	/* (omit javadoc for this method)
@@ -155,8 +233,8 @@ public class ParameterizedType extends Type {
 	int treeSize() {
 		return 
 			memSize()
-			+ (typeName == null ? 0 : getName().treeSize())
-			+ typeArguments.listSize();
+			+ (this.typeName == null ? 0 : getName().treeSize())
+			+ this.typeArguments.listSize();
 	}
 }
 

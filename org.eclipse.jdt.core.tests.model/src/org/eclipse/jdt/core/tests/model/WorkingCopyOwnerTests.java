@@ -909,8 +909,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	/*
-	 * Ensures that using AST.parseCompilationUint(ICompilationUnit, boolean, WorkingCopyOwner) and 
-	 * computing the bindings takes the owner's working copies into account.
+	 * Ensures that creating a DOM AST and computing the bindings takes the owner's working copies into account.
 	 * (regression test for bug 39533 Working copy with no corresponding file not considered by NameLookup)
 	 */
 	public void testParseCompilationUnit1() throws CoreException {
@@ -931,8 +930,12 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				"}"
 			);
 			workingCopy2.makeConsistent(null);
-
-			CompilationUnit cu = AST.parseCompilationUnit(workingCopy1, true, owner, null);
+			
+			ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+			parser.setSource(workingCopy1);
+			parser.setResolveBindings(true);
+			parser.setWorkingCopyOwner(owner);
+			CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 			List types = cu.types();
 			assertEquals("Unexpected number of types in AST", 1, types.size());
 			TypeDeclaration type = (TypeDeclaration)types.get(0);
@@ -952,8 +955,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	/*
-	 * Ensures that using AST.parseCompilationUint(char[], String, IJavaProject, WorkingCopyOwner) and 
-	 * computing the bindings takes the owner's working copies into account.
+	 * Ensures that creating a DOM AST and computing the bindings takes the owner's working copies into account.
 	 */
 	public void testParseCompilationUnit2() throws CoreException {
 		ICompilationUnit workingCopy = null;
@@ -966,13 +968,16 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			);
 			workingCopy.makeConsistent(null);
 
-			CompilationUnit cu = AST.parseCompilationUnit(
-				("public class Z extends Y {\n" +
-				"}").toCharArray(),
-				 "Z.java",
-				getJavaProject("P"),
-				owner,
-				null);
+			char[] source = (
+				"public class Z extends Y {\n" +
+				"}").toCharArray();
+			ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+			parser.setSource(source);
+			parser.setUnitName("Z.java");
+			parser.setProject(getJavaProject("P"));
+			parser.setWorkingCopyOwner(owner);
+			CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+
 			List types = cu.types();
 			assertEquals("Unexpected number of types in AST", 1, types.size());
 			TypeDeclaration type = (TypeDeclaration)types.get(0);
@@ -989,8 +994,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 	
 	/*
-	 * Ensures that using AST.parseCompilationUint(IClassFile, boolean, WorkingCopyOwner) and 
-	 * computing the bindings takes the owner's working copies into account.
+	 * Ensures that creating a DOM AST and computing the bindings takes the owner's working copies into account.
 	 */
 	public void testParseCompilationUnit3() throws CoreException {
 		ICompilationUnit workingCopy = null;
@@ -1035,11 +1039,11 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 			// parse and resolve class file
 			IClassFile classFile = getClassFile("P1/lib/X.class");
-			CompilationUnit cu = AST.parseCompilationUnit(
-				classFile,
-				true,
-				owner,
-				null);
+			ASTParser parser = ASTParser.newParser(AST.LEVEL_2_0);
+			parser.setSource(classFile);
+			parser.setResolveBindings(true);
+			parser.setWorkingCopyOwner(owner);
+			CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 			List types = cu.types();
 			assertEquals("Unexpected number of types in AST", 1, types.size());
 			TypeDeclaration type = (TypeDeclaration)types.get(0);

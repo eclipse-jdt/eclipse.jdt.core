@@ -7591,9 +7591,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("No error", 1, unit.getMessages().length); //$NON-NLS-1$
 		assertEquals("No error", 1, unit.getProblems().length); //$NON-NLS-1$
-		ASTNode node = getASTNode(unit, 0, 0, 0);
-		assertTrue("Not a variable declaration statement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
-		assertTrue("Not malformed", isMalformed(node)); //$NON-NLS-1$
 	}
 
 	/**

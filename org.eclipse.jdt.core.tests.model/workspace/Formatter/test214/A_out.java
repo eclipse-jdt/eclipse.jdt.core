@@ -1,5 +1,5 @@
 String command = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 		+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-		+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" + 
+		+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
 		// comment
 		"a";

@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Type node for a wildcard type (added in 3.0 API).
  * <pre>
@@ -32,6 +34,50 @@ package org.eclipse.jdt.core.dom;
  * @since 3.0
  */
 public class WildcardType extends Type {
+	
+	/**
+	 * The "bound" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor BOUND_PROPERTY = 
+		new ChildPropertyDescriptor(WildcardType.class, "bound", Type.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "upperBound" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor UPPER_BOUND_PROPERTY = 
+		new SimplePropertyDescriptor(WildcardType.class, "upperBound", boolean.class, MANDATORY); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(WildcardType.class);
+		addProperty(BOUND_PROPERTY);
+		addProperty(UPPER_BOUND_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/** 
 	 * The optional type bound node; <code>null</code> if none;
 	 * defaults to none.
@@ -41,14 +87,13 @@ public class WildcardType extends Type {
 	/**
 	 * Indicates whether the wildcard bound is an upper bound
 	 * ("extends") as opposed to a lower bound ("super"). 
-	 * Always <code>true</code> when there is no bound.
 	 * Defaults to <code>true</code> initially.
 	 */
 	private boolean isUpperBound = true;
 
 	/**
 	 * Creates a new unparented node for a wildcard type owned by the
-	 * given AST. By default, no bound.
+	 * given AST. By default, no upper bound.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
@@ -59,6 +104,45 @@ public class WildcardType extends Type {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean value) {
+		if (property == UPPER_BOUND_PROPERTY) {
+			if (get) {
+				return isUpperBound();
+			} else {
+				setUpperBound(value);
+				return false;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetBooleanProperty(property, get, value);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == BOUND_PROPERTY) {
+			if (get) {
+				return getBound();
+			} else {
+				setBound((Type) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -101,16 +185,15 @@ public class WildcardType extends Type {
 	 * ("extends") as opposed to a lower bound ("super").
 	 * <p>
 	 * Note that this property is irrelevant for wildcards
-	 * that do not have a bound; this method always returns 
-	 * <code>true</code> in that case.
+	 * that do not have a bound.
 	 * </p>
 	 * 
 	 * @return <code>true</code> if an upper bound,
 	 *    and <code>false</code> if a lower bound
-	 * @see #setBound
+	 * @see #setBound(Type)
 	 */ 
 	public boolean isUpperBound() {
-		return isUpperBound;
+		return this.isUpperBound;
 	}
 	
 	/**
@@ -121,7 +204,7 @@ public class WildcardType extends Type {
 	 * 
 	 * @return the bound of this wildcard type, or <code>null</code>
 	 * if none
-	 * @see #setBound
+	 * @see #setBound(Type)
 	 */ 
 	public Type getBound() {
 		return this.optionalBound;
@@ -129,28 +212,58 @@ public class WildcardType extends Type {
 	
 	/**
 	 * Sets the bound of this wildcard type to the given type and
-	 * marks it as an upper or a lower bound.
+	 * marks it as an upper or a lower bound. The method is
+	 * equivalent to calling <code>setBound(type); setUpperBound(isUpperBound)</code>.
 	 * 
 	 * @param type the new bound of this wildcard type, or <code>null</code>
 	 * if none
 	 * @param isUpperBound <code>true</code> for an upper bound ("? extends B"),
-	 * and <code>false</code> for a lower bound ("? super B"); ignored if the
-	 * given bound is <code>null</code>
+	 * and <code>false</code> for a lower bound ("? super B")
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * </ul>
-	 * @see #getBound
-	 * @see #isUpperBound
+	 * @see #getBound()
+	 * @see #isUpperBound()
 	 */ 
 	public void setBound(Type type, boolean isUpperBound) {
-		// a WildcardType may occur inside an WildcardType - must check cycles
-		replaceChild(this.optionalBound, type, true);
-		this.optionalBound = type;
-		this.isUpperBound = (type == null) ? true : isUpperBound;
+		setBound(type);
+		setUpperBound(isUpperBound);
 	}
 
+	/**
+	 * Sets the bound of this wildcard type to the given type.
+	 * 
+	 * @param type the new bound of this wildcard type, or <code>null</code>
+	 * if none
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
+	 * @see #getBound()
+	 */ 
+	public void setBound(Type type) {
+		preReplaceChild(this.optionalBound, type, BOUND_PROPERTY);
+		this.optionalBound = type;
+		postReplaceChild(this.optionalBound, type, BOUND_PROPERTY);
+	}
+
+	/**
+	 * Sets whether this wildcard type is an upper bound
+	 * ("extends") as opposed to a lower bound ("super").
+	 * 
+	 * @param isUpperBound <code>true</code> if an upper bound,
+	 *    and <code>false</code> if a lower bound
+	 * @see #isUpperBound()
+	 */ 
+	public void setUpperBound(boolean isUpperBound) {
+		preValueChange(UPPER_BOUND_PROPERTY);
+		this.isUpperBound = isUpperBound;
+		postValueChange(UPPER_BOUND_PROPERTY);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -164,7 +277,7 @@ public class WildcardType extends Type {
 	int treeSize() {
 		return 
 		memSize()
-		+ (optionalBound == null ? 0 : getBound().treeSize());
+		+ (this.optionalBound == null ? 0 : getBound().treeSize());
 	}
 }
 

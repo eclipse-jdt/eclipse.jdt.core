@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Labeled statement AST node type.
  *
@@ -22,6 +24,49 @@ package org.eclipse.jdt.core.dom;
  * @since 2.0
  */
 public class LabeledStatement extends Statement {
+			
+	/**
+	 * The "label" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor LABEL_PROPERTY = 
+		new ChildPropertyDescriptor(LabeledStatement.class, "label", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "body" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor BODY_PROPERTY = 
+		new ChildPropertyDescriptor(LabeledStatement.class, "body", Statement.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(LabeledStatement.class);
+		addProperty(LABEL_PROPERTY);
+		addProperty(BODY_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
 			
 	/**
 	 * The label; lazily initialized; defaults to a unspecified,
@@ -49,6 +94,37 @@ public class LabeledStatement extends Statement {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == LABEL_PROPERTY) {
+			if (get) {
+				return getLabel();
+			} else {
+				setLabel((SimpleName) child);
+				return null;
+			}
+		}
+		if (property == BODY_PROPERTY) {
+			if (get) {
+				return getBody();
+			} else {
+				setBody((Statement) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -96,13 +172,12 @@ public class LabeledStatement extends Statement {
 	 * @return the variable name node
 	 */ 
 	public SimpleName getLabel() {
-		if (labelName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setLabel(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.labelName == null) {
+			preLazyInit();
+			this.labelName= new SimpleName(this.ast);
+			postLazyInit(this.labelName, LABEL_PROPERTY);
 		}
-		return labelName;
+		return this.labelName;
 	}
 		
 	/**
@@ -119,8 +194,9 @@ public class LabeledStatement extends Statement {
 		if (label == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.labelName, label, false);
+		preReplaceChild(this.labelName, label, LABEL_PROPERTY);
 		this.labelName = label;
+		postReplaceChild(this.labelName, label, LABEL_PROPERTY);
 	}
 	
 	/**
@@ -129,13 +205,12 @@ public class LabeledStatement extends Statement {
 	 * @return the body statement node
 	 */ 
 	public Statement getBody() {
-		if (body == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setBody(new EmptyStatement(getAST()));
-			getAST().setModificationCount(count);
+		if (this.body == null) {
+			preLazyInit();
+			this.body= new EmptyStatement(this.ast);
+			postLazyInit(this.body, BODY_PROPERTY);
 		}
-		return body;
+		return this.body;
 	}
 	
 	/**
@@ -161,9 +236,9 @@ public class LabeledStatement extends Statement {
 		if (statement == null) {
 			throw new IllegalArgumentException();
 		}
-		// a LabeledStatement may occur inside a Statement - must check cycles
-		replaceChild(this.body, statement, true);
+		preReplaceChild(this.body, statement, BODY_PROPERTY);
 		this.body = statement;
+		postReplaceChild(this.body, statement, BODY_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)
@@ -179,8 +254,8 @@ public class LabeledStatement extends Statement {
 	int treeSize() {
 		return
 			memSize()
-			+ (labelName == null ? 0 : getLabel().treeSize())
-			+ (body == null ? 0 : getBody().treeSize());
+			+ (this.labelName == null ? 0 : getLabel().treeSize())
+			+ (this.body == null ? 0 : getBody().treeSize());
 	}
 }
 

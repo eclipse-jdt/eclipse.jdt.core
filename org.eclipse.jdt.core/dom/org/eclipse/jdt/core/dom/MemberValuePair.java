@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Member value pair node (added in 3.0 API). Member value pairs appear in annotations.
  * <p>
@@ -30,6 +32,46 @@ package org.eclipse.jdt.core.dom;
  */
 public class MemberValuePair extends ASTNode {
 	
+	/**
+	 * The "name" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(MemberValuePair.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "value" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor VALUE_PROPERTY = 
+		new ChildPropertyDescriptor(MemberValuePair.class, "value", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(MemberValuePair.class);
+		addProperty(NAME_PROPERTY);
+		addProperty(VALUE_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the AST.LEVEL_* constants
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+						
 	/**
 	 * The member name; lazily initialized; defaults to a unspecified,
 	 * legal name.
@@ -56,6 +98,37 @@ public class MemberValuePair extends ASTNode {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		if (property == VALUE_PROPERTY) {
+			if (get) {
+				return getValue();
+			} else {
+				setValue((Expression) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -102,10 +175,9 @@ public class MemberValuePair extends ASTNode {
 	 */ 
 	public SimpleName getName() {
 		if (this.name == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.name = new SimpleName(this.ast);
+			postLazyInit(this.name, NAME_PROPERTY);
 		}
 		return this.name;
 	}
@@ -124,8 +196,9 @@ public class MemberValuePair extends ASTNode {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.name, name, false);
+		preReplaceChild(this.name, name, NAME_PROPERTY);
 		this.name = name;
+		postReplaceChild(this.name, name, NAME_PROPERTY);
 	}
 
 	/**
@@ -135,10 +208,9 @@ public class MemberValuePair extends ASTNode {
 	 */ 
 	public Expression getValue() {
 		if (this.value == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setValue(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.value= new SimpleName(this.ast);
+			postLazyInit(this.value, VALUE_PROPERTY);
 		}
 		return this.value;
 	}
@@ -158,10 +230,9 @@ public class MemberValuePair extends ASTNode {
 		if (value == null) {
 			throw new IllegalArgumentException();
 		}
-		// a MemberValuePair may occur inside an Expression 
-		// must check cycles
-		replaceChild(this.value, value, true);
+		preReplaceChild(this.value, value, VALUE_PROPERTY);
 		this.value = value;
+		postReplaceChild(this.value, value, VALUE_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

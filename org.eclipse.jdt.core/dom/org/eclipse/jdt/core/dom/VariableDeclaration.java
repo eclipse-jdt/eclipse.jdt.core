@@ -131,6 +131,6 @@ public abstract class VariableDeclaration extends ASTNode {
 	 *    resolved
 	 */	
 	public IVariableBinding resolveBinding() {
-		return getAST().getBindingResolver().resolveVariable(this);
+		return this.ast.getBindingResolver().resolveVariable(this);
 	}
 }

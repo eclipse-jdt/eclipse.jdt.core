@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * If statement AST node type.
  * <pre>
@@ -22,6 +24,57 @@ package org.eclipse.jdt.core.dom;
  */
 public class IfStatement extends Statement {
 	
+	/**
+	 * The "expression" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY = 
+		new ChildPropertyDescriptor(IfStatement.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "thenStatement" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor THEN_STATEMENT_PROPERTY = 
+		new ChildPropertyDescriptor(IfStatement.class, "thenStatement", Statement.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "elseStatement" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor ELSE_STATEMENT_PROPERTY = 
+		new ChildPropertyDescriptor(IfStatement.class, "elseStatement", Statement.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(IfStatement.class);
+		addProperty(EXPRESSION_PROPERTY);
+		addProperty(THEN_STATEMENT_PROPERTY);
+		addProperty(ELSE_STATEMENT_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/**
 	 * The expression; lazily initialized; defaults to an unspecified, but 
 	 * legal, expression.
@@ -52,6 +105,45 @@ public class IfStatement extends Statement {
 	 */
 	IfStatement(AST ast) {
 		super(ast);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == EXPRESSION_PROPERTY) {
+			if (get) {
+				return getExpression();
+			} else {
+				setExpression((Expression) child);
+				return null;
+			}
+		}
+		if (property == THEN_STATEMENT_PROPERTY) {
+			if (get) {
+				return getThenStatement();
+			} else {
+				setThenStatement((Statement) child);
+				return null;
+			}
+		}
+		if (property == ELSE_STATEMENT_PROPERTY) {
+			if (get) {
+				return getElseStatement();
+			} else {
+				setElseStatement((Statement) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
 	}
 	
 	/* (omit javadoc for this method)
@@ -104,13 +196,12 @@ public class IfStatement extends Statement {
 	 * @return the expression node
 	 */ 
 	public Expression getExpression() {
-		if (expression == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setExpression(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.expression == null) {
+			preLazyInit();
+			this.expression = new SimpleName(this.ast);
+			postLazyInit(this.expression, EXPRESSION_PROPERTY);
 		}
-		return expression;
+		return this.expression;
 	}
 	
 	/**
@@ -128,9 +219,9 @@ public class IfStatement extends Statement {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		// an IfStatement may occur inside an Expression - must check cycles
-		replaceChild(this.expression, expression, true);
+		preReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
 		this.expression = expression;
+		postReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -139,13 +230,12 @@ public class IfStatement extends Statement {
 	 * @return the "then" statement node
 	 */ 
 	public Statement getThenStatement() {
-		if (thenStatement == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setThenStatement(new Block(getAST()));
-			getAST().setModificationCount(count);
+		if (this.thenStatement == null) {
+			preLazyInit();
+			this.thenStatement = new Block(this.ast);
+			postLazyInit(this.thenStatement, THEN_STATEMENT_PROPERTY);
 		}
-		return thenStatement;
+		return this.thenStatement;
 	}
 	
 	/**
@@ -171,9 +261,9 @@ public class IfStatement extends Statement {
 		if (statement == null) {
 			throw new IllegalArgumentException();
 		}
-		// an IfStatement may occur inside a Statement - must check cycles
-		replaceChild(this.thenStatement, statement, true);
+		preReplaceChild(this.thenStatement, statement, THEN_STATEMENT_PROPERTY);
 		this.thenStatement = statement;
+		postReplaceChild(this.thenStatement, statement, THEN_STATEMENT_PROPERTY);
 	}
 
 	/**
@@ -187,7 +277,7 @@ public class IfStatement extends Statement {
 	 * @return the "else" statement node, or <code>null</code> if none
 	 */ 
 	public Statement getElseStatement() {
-		return optionalElseStatement;
+		return this.optionalElseStatement;
 	}
 
 	/**
@@ -216,9 +306,9 @@ public class IfStatement extends Statement {
 	 * </ul>
 	 */ 
 	public void setElseStatement(Statement statement) {
-		// an IfStatement may occur inside a Statement - must check cycles
-		replaceChild(this.optionalElseStatement, statement, true);
+		preReplaceChild(this.optionalElseStatement, statement, ELSE_STATEMENT_PROPERTY);
 		this.optionalElseStatement = statement;
+		postReplaceChild(this.optionalElseStatement, statement, ELSE_STATEMENT_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)
@@ -234,9 +324,9 @@ public class IfStatement extends Statement {
 	int treeSize() {
 		return
 			memSize()
-			+ (expression == null ? 0 : getExpression().treeSize())
-			+ (thenStatement == null ? 0 : getThenStatement().treeSize())
-			+ (optionalElseStatement == null ? 0 : getElseStatement().treeSize());
+			+ (this.expression == null ? 0 : getExpression().treeSize())
+			+ (this.thenStatement == null ? 0 : getThenStatement().treeSize())
+			+ (this.optionalElseStatement == null ? 0 : getElseStatement().treeSize());
 	}
 }
 

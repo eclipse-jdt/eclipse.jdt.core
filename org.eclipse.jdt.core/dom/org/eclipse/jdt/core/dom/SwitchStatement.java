@@ -33,6 +33,48 @@ import java.util.List;
 public class SwitchStatement extends Statement {
 			
 	/**
+	 * The "expression" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY = 
+		new ChildPropertyDescriptor(SwitchStatement.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "statements" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor STATEMENTS_PROPERTY = 
+		new ChildListPropertyDescriptor(SwitchStatement.class, "statements", Statement.class, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(SwitchStatement.class);
+		addProperty(EXPRESSION_PROPERTY);
+		addProperty(STATEMENTS_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The expression; lazily initialized; defaults to a unspecified, but legal,
 	 * expression.
 	 */
@@ -44,7 +86,7 @@ public class SwitchStatement extends Statement {
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList statements =
-		new ASTNode.NodeList(true, Statement.class);
+		new ASTNode.NodeList(STATEMENTS_PROPERTY);
 	
 	/**
 	 * Creates a new unparented switch statement node owned by the given 
@@ -60,6 +102,40 @@ public class SwitchStatement extends Statement {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == EXPRESSION_PROPERTY) {
+			if (get) {
+				return getExpression();
+			} else {
+				setExpression((Expression) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == STATEMENTS_PROPERTY) {
+			return statements();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -95,7 +171,7 @@ public class SwitchStatement extends Statement {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getExpression());
-			acceptChildren(visitor, statements);
+			acceptChildren(visitor, this.statements);
 		}
 		visitor.endVisit(this);
 	}
@@ -106,13 +182,12 @@ public class SwitchStatement extends Statement {
 	 * @return the expression node
 	 */ 
 	public Expression getExpression() {
-		if (expression == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setExpression(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.expression == null) {
+			preLazyInit();
+			this.expression = new SimpleName(this.ast);
+			postLazyInit(this.expression, EXPRESSION_PROPERTY);
 		}
-		return expression;
+		return this.expression;
 	}
 		
 	/**
@@ -130,10 +205,9 @@ public class SwitchStatement extends Statement {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		// a SwitchStatement may occur inside an Expression 
-		// must check cycles
-		replaceChild(this.expression, expression, true);
+		preReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
 		this.expression = expression;
+		postReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
 	}
 	
 	/**
@@ -145,7 +219,7 @@ public class SwitchStatement extends Statement {
 	 *    (element type: <code>SwitchGroups</code>)
 	 */ 
 	public List statements() {
-		return statements;
+		return this.statements;
 	}
 	
 	/* (omit javadoc for this method)
@@ -161,7 +235,7 @@ public class SwitchStatement extends Statement {
 	int treeSize() {
 		return
 			memSize()
-			+ (expression == null ? 0 : getExpression().treeSize())
-			+ statements.listSize();
+			+ (this.expression == null ? 0 : getExpression().treeSize())
+			+ this.statements.listSize();
 	}
 }

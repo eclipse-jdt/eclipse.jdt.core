@@ -47,11 +47,71 @@ import java.util.List;
 public class EnumDeclaration extends AbstractTypeDeclaration {
 	
 	/**
+	 * The "javadoc" structural property of this node type.
+	 */
+	public static final ChildPropertyDescriptor JAVADOC_PROPERTY = 
+		internalJavadocPropertyFactory(EnumDeclaration.class);
+
+	/**
+	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 */
+	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
+		internalModifiers2PropertyFactory(EnumDeclaration.class);
+	
+	/**
+	 * The "name" structural property of this node type.
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		internalNamePropertyFactory(EnumDeclaration.class);
+
+	/**
+	 * The "superInterfaceTypes" structural property of this node type.
+	 */
+	public static final ChildListPropertyDescriptor SUPER_INTERFACE_TYPES_PROPERTY = 
+		new ChildListPropertyDescriptor(EnumDeclaration.class, "superInterfaceTypes", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "bodyDeclarations" structural property of this node type.
+	 */
+	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY = 
+		internalBodyDeclarationPropertyFactory(EnumDeclaration.class);
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(EnumDeclaration.class);
+		addProperty(JAVADOC_PROPERTY);
+		addProperty(MODIFIERS2_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		addProperty(BODY_DECLARATIONS_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The superinterface types (element type: <code>Type</code>). 
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList superInterfaceTypes =
-		new ASTNode.NodeList(false, Type.class);
+		new ASTNode.NodeList(SUPER_INTERFACE_TYPES_PROPERTY);
 
 	/**
 	 * Creates a new AST node for an enum declaration owned by the given 
@@ -68,6 +128,90 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 	 */
 	EnumDeclaration(AST ast) {
 		super(ast);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == JAVADOC_PROPERTY) {
+			if (get) {
+				return getJavadoc();
+			} else {
+				setJavadoc((Javadoc) child);
+				return null;
+			}
+		}
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == MODIFIERS2_PROPERTY) {
+			return modifiers();
+		}
+		if (property == SUPER_INTERFACE_TYPES_PROPERTY) {
+			return superInterfaceTypes();
+		}
+		if (property == BODY_DECLARATIONS_PROPERTY) {
+			return bodyDeclarations();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildPropertyDescriptor internalJavadocProperty() {
+		return JAVADOC_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildListPropertyDescriptor internalModifiers2Property() {
+		return MODIFIERS2_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final SimplePropertyDescriptor internalModifiersProperty() {
+		// this property will not be asked for (node type did not exist in 2.0)
+		return null;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on AbstractTypeDeclaration.
+	 */
+	final ChildPropertyDescriptor internalNameProperty() {
+		return NAME_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on AbstractTypeDeclaration.
+	 */
+	final ChildListPropertyDescriptor internalBodyDeclarationsProperty() {
+		return BODY_DECLARATIONS_PROPERTY;
 	}
 
 	/* (omit javadoc for this method)
@@ -171,7 +315,7 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 	 *    resolved
 	 */	
 	public ITypeBinding resolveBinding() {
-		return getAST().getBindingResolver().resolveType(this);
+		return this.ast.getBindingResolver().resolveType(this);
 	}
 	
 	/* (omit javadoc for this method)

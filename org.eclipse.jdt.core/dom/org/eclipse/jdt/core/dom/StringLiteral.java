@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -22,6 +24,41 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  */
 public class StringLiteral extends Expression {
 
+	/**
+	 * The "escapedValue" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor ESCAPED_VALUE_PROPERTY = 
+		new SimplePropertyDescriptor(StringLiteral.class, "escapedValue", String.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(StringLiteral.class);
+		addProperty(ESCAPED_VALUE_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/**
 	 * The literal string, including quotes and escapes; defaults to the 
 	 * literal for the empty string.
@@ -41,6 +78,29 @@ public class StringLiteral extends Expression {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
+		if (property == ESCAPED_VALUE_PROPERTY) {
+			if (get) {
+				return getEscapedValue();
+			} else {
+				setEscapedValue((String) value);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetObjectProperty(property, get, value);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -84,7 +144,7 @@ public class StringLiteral extends Expression {
 	 *    quotes and embedded escapes
 	 */ 
 	public String getEscapedValue() {
-		return escapedValue;
+		return this.escapedValue;
 	}
 		
 	/**
@@ -106,7 +166,7 @@ public class StringLiteral extends Expression {
 		if (token == null) {
 			throw new IllegalArgumentException("Token cannot be null"); //$NON-NLS-1$
 		}
-		Scanner scanner = getAST().scanner;
+		Scanner scanner = this.ast.scanner;
 		char[] source = token.toCharArray();
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
@@ -121,8 +181,9 @@ public class StringLiteral extends Expression {
 		} catch(InvalidInputException e) {
 			throw new IllegalArgumentException("Invalid string literal : >" + token + "<");//$NON-NLS-1$//$NON-NLS-2$
 		}
-		modifying();
+		preValueChange(ESCAPED_VALUE_PROPERTY);
 		this.escapedValue = token;
+		postValueChange(ESCAPED_VALUE_PROPERTY);
 	}
 
 	/**
@@ -152,7 +213,7 @@ public class StringLiteral extends Expression {
 			throw new IllegalArgumentException();
 		}
 		
-		Scanner scanner = getAST().scanner;
+		Scanner scanner = this.ast.scanner;
 		char[] source = s.toCharArray();
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);

@@ -12,6 +12,7 @@
 package org.eclipse.jdt.core.dom;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -152,6 +153,41 @@ public class PrimitiveType extends Type {
 	}
 	
 	/**
+	 * The "primitiveTypeCode" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor PRIMITIVE_TYPE_CODE_PROPERTY = 
+		new SimplePropertyDescriptor(PrimitiveType.class, "primitiveTypeCode", PrimitiveType.Code.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(PrimitiveType.class);
+		addProperty(PRIMITIVE_TYPE_CODE_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * Creates a new unparented node for a primitive type owned by the given
 	 * AST. By default, the node has type "int".
 	 * <p>
@@ -164,6 +200,29 @@ public class PrimitiveType extends Type {
 		super(ast);
 	}
 	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
+		if (property == PRIMITIVE_TYPE_CODE_PROPERTY) {
+			if (get) {
+				return getPrimitiveTypeCode();
+			} else {
+				setPrimitiveTypeCode((Code) value);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetObjectProperty(property, get, value);
+	}
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -204,7 +263,7 @@ public class PrimitiveType extends Type {
 	 *    class
 	 */
 	public PrimitiveType.Code getPrimitiveTypeCode() {
-		return typeCode;
+		return this.typeCode;
 	}
 	
 	/**
@@ -218,8 +277,9 @@ public class PrimitiveType extends Type {
 		if (typeCode == null) {
 			throw new IllegalArgumentException();
 		}
-		modifying();
+		preValueChange(PRIMITIVE_TYPE_CODE_PROPERTY);
 		this.typeCode = typeCode;
+		postValueChange(PRIMITIVE_TYPE_CODE_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

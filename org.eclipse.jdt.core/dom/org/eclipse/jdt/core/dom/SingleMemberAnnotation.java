@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Single member annotation node (added in 3.0 API). The single member annotation 
  * "@foo(bar)" is equivalent to the normal annotation "@foo(value=bar)". 
@@ -28,6 +30,49 @@ package org.eclipse.jdt.core.dom;
  * @since 3.0
  */
 public final class SingleMemberAnnotation extends Annotation {
+	
+	/**
+	 * The "typeName" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor TYPE_NAME_PROPERTY = 
+		internalTypeNamePropertyFactory(SingleMemberAnnotation.class);
+
+	/**
+	 * The "value" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor VALUE_PROPERTY = 
+		new ChildPropertyDescriptor(SingleMemberAnnotation.class, "value", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(SingleMemberAnnotation.class);
+		addProperty(TYPE_NAME_PROPERTY);
+		addProperty(VALUE_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+	
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the AST.LEVEL_* constants
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+	
 	/**
 	 * The value; lazily initialized; defaults to a unspecified, but legal,
 	 * expression.
@@ -46,6 +91,45 @@ public final class SingleMemberAnnotation extends Annotation {
 	 */
 	SingleMemberAnnotation(AST ast) {
 		super(ast);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 * @since 3.0
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == TYPE_NAME_PROPERTY) {
+			if (get) {
+				return getTypeName();
+			} else {
+				setTypeName((Name) child);
+				return null;
+			}
+		}
+		if (property == VALUE_PROPERTY) {
+			if (get) {
+				return getValue();
+			} else {
+				setValue((Expression) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildPropertyDescriptor internalTypeNameProperty() {
+		return TYPE_NAME_PROPERTY;
 	}
 
 	/* (omit javadoc for this method)
@@ -94,10 +178,9 @@ public final class SingleMemberAnnotation extends Annotation {
 	 */ 
 	public Expression getValue() {
 		if (this.value == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setValue(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.value = new SimpleName(this.ast);
+			postLazyInit(this.value, VALUE_PROPERTY);
 		}
 		return this.value;
 	}
@@ -117,10 +200,9 @@ public final class SingleMemberAnnotation extends Annotation {
 		if (value == null) {
 			throw new IllegalArgumentException();
 		}
-		// a SingleMemberAnnotation may occur inside an Expression 
-		// must check cycles
-		replaceChild(this.value, value, true);
+		preReplaceChild(this.value, value, VALUE_PROPERTY);
 		this.value = value;
+		postReplaceChild(this.value, value, VALUE_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)
@@ -136,7 +218,7 @@ public final class SingleMemberAnnotation extends Annotation {
 	int treeSize() {
 		return
 			memSize()
-			+ getTypeName().treeSize()
+			+ (this.typeName == null ? 0 : getTypeName().treeSize())
 			+ (this.value == null ? 0 : getValue().treeSize());
 	}
 }

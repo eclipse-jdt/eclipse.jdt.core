@@ -171,6 +171,6 @@ public abstract class Type extends ASTNode {
 	 *    resolved
 	 */	
 	public final ITypeBinding resolveBinding() {
-		return getAST().getBindingResolver().resolveType(this);
+		return this.ast.getBindingResolver().resolveType(this);
 	}
 }

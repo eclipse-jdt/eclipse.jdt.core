@@ -27,6 +27,55 @@ import java.util.List;
 public class MethodInvocation extends Expression {
 	
 	/**
+	 * The "expression" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY = 
+		new ChildPropertyDescriptor(MethodInvocation.class, "expression", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "name" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(MethodInvocation.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "arguments" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor ARGUMENTS_PROPERTY = 
+		new ChildListPropertyDescriptor(MethodInvocation.class, "arguments", Expression.class, CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(MethodInvocation.class);
+		addProperty(EXPRESSION_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		addProperty(ARGUMENTS_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the AST.LEVEL_* constants
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The expression; <code>null</code> for none; defaults to none.
 	 */
 	private Expression optionalExpression = null;
@@ -42,7 +91,7 @@ public class MethodInvocation extends Expression {
 	 * <code>Expression</code>). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList arguments =
-		new ASTNode.NodeList(true, Expression.class);
+		new ASTNode.NodeList(ARGUMENTS_PROPERTY);
 
 	/**
 	 * Creates a new AST node for a method invocation expression owned by the 
@@ -53,6 +102,48 @@ public class MethodInvocation extends Expression {
 	 */
 	MethodInvocation(AST ast) {
 		super(ast);	
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		if (property == EXPRESSION_PROPERTY) {
+			if (get) {
+				return getExpression();
+			} else {
+				setExpression((Expression) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == ARGUMENTS_PROPERTY) {
+			return arguments();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
 	}
 
 	/* (omit javadoc for this method)
@@ -92,7 +183,7 @@ public class MethodInvocation extends Expression {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getExpression());
 			acceptChild(visitor, getName());
-			acceptChildren(visitor, arguments);
+			acceptChildren(visitor, this.arguments);
 		}
 		visitor.endVisit(this);
 	}
@@ -104,7 +195,7 @@ public class MethodInvocation extends Expression {
 	 * @return the expression node, or <code>null</code> if there is none
 	 */ 
 	public Expression getExpression() {
-		return optionalExpression;
+		return this.optionalExpression;
 	}
 	
 	/**
@@ -120,9 +211,9 @@ public class MethodInvocation extends Expression {
 	 * </ul>
 	 */ 
 	public void setExpression(Expression expression) {
-		// a MethodInvocation may occur inside an Expression - must check cycles
-		replaceChild(this.optionalExpression, expression, true);
+		preReplaceChild(this.optionalExpression, expression, EXPRESSION_PROPERTY);
 		this.optionalExpression = expression;
+		postReplaceChild(this.optionalExpression, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -131,13 +222,12 @@ public class MethodInvocation extends Expression {
 	 * @return the method name node
 	 */ 
 	public SimpleName getName() {
-		if (methodName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.methodName == null) {
+			preLazyInit();
+			this.methodName = new SimpleName(this.ast);
+			postLazyInit(this.methodName, NAME_PROPERTY);
 		}
-		return methodName;
+		return this.methodName;
 	}
 	
 	/**
@@ -155,8 +245,9 @@ public class MethodInvocation extends Expression {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.methodName, name, false);
+		preReplaceChild(this.methodName, name, NAME_PROPERTY);
 		this.methodName = name;
+		postReplaceChild(this.methodName, name, NAME_PROPERTY);
 	}
 
 	/**
@@ -167,7 +258,7 @@ public class MethodInvocation extends Expression {
 	 *    (element type: <code>Expression</code>)
 	 */ 
 	public List arguments() {
-		return arguments;
+		return this.arguments;
 	}
 
 	/**
@@ -183,7 +274,7 @@ public class MethodInvocation extends Expression {
 	 * @since 2.1
 	 */
 	public IMethodBinding resolveMethodBinding() {
-		return getAST().getBindingResolver().resolveMethod(this);
+		return this.ast.getBindingResolver().resolveMethod(this);
 	}
 
 	/* (omit javadoc for this method)
@@ -200,9 +291,9 @@ public class MethodInvocation extends Expression {
 	int treeSize() {
 		return 
 			memSize()
-			+ (optionalExpression == null ? 0 : getExpression().treeSize())
-			+ (methodName == null ? 0 : getName().treeSize())
-			+ arguments.listSize();
+			+ (this.optionalExpression == null ? 0 : getExpression().treeSize())
+			+ (this.methodName == null ? 0 : getName().treeSize())
+			+ this.arguments.listSize();
 	}
 }
 

@@ -26,11 +26,45 @@ import java.util.List;
 public class Block extends Statement {
 	
 	/**
+	 * The "statements" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor STATEMENTS_PROPERTY = 
+		new ChildListPropertyDescriptor(Block.class, "statements", Statement.class, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(Block.class);
+		addProperty(STATEMENTS_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The list of statements (element type: <code>Statement</code>). 
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList statements = 
-		new ASTNode.NodeList(true, Statement.class);
+		new ASTNode.NodeList(STATEMENTS_PROPERTY);
 
 	/**
 	 * Creates a new unparented block node owned by the given AST.
@@ -43,6 +77,24 @@ public class Block extends Statement {
 	 */
 	Block(AST ast) {
 		super(ast);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == STATEMENTS_PROPERTY) {
+			return statements();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
 	}
 
 	/* (omit javadoc for this method)
@@ -78,7 +130,7 @@ public class Block extends Statement {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			acceptChildren(visitor, statements);
+			acceptChildren(visitor, this.statements);
 		}
 		visitor.endVisit(this);
 	}
@@ -94,7 +146,7 @@ public class Block extends Statement {
 	 *    (element type: <code>Statement</code>)
 	 */ 
 	public List statements() {
-		return statements;
+		return this.statements;
 	}
 	
 	/* (omit javadoc for this method)
@@ -108,7 +160,7 @@ public class Block extends Statement {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return memSize() + statements.listSize();
+		return memSize() + this.statements.listSize();
 	}
 }
 

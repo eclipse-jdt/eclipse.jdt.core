@@ -202,11 +202,10 @@ public class DefaultCodeFormatterOptions {
 	public boolean keep_simple_if_on_one_line;
 	public boolean keep_then_statement_on_same_line;
 	public int number_of_empty_lines_to_preserve;
-	public boolean preserve_user_linebreaks;
 	public boolean put_empty_statement_on_new_line;
 	public boolean remove_unnecessary_semicolon;
 	public int tab_size;
-	public char filling_space;
+	public final char filling_space = ' ';
 	public int page_width;
 	public boolean use_tab;
 
@@ -390,21 +389,12 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_IF_ON_ONE_LINE, this.keep_simple_if_on_one_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_THEN_STATEMENT_ON_SAME_LINE, this.keep_then_statement_on_same_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, Integer.toString(this.number_of_empty_lines_to_preserve));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_PRESERVE_USER_LINEBREAKS, this.preserve_user_linebreaks ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE, this.put_empty_statement_on_new_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_REMOVE_UNNECESSARY_SEMICOLON, this.remove_unnecessary_semicolon ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, Integer.toString(this.page_width));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, this.use_tab ? JavaCore.TAB: JavaCore.SPACE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, Integer.toString(this.tab_size));
-		putDeprecatedFillingSpaceOption(options);
 		return options;
-	}
-
-	/**
-	 * @deprecated method used to hide deprecated warning
-	 */
-	private void putDeprecatedFillingSpaceOption(Map options) {
-		options.put(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE, String.valueOf(this.filling_space));
 	}
 
 	public void set(Map settings) {
@@ -1260,10 +1250,6 @@ public class DefaultCodeFormatterOptions {
 				this.number_of_empty_lines_to_preserve = 0;
 			}
 		}
-		final Object preserveUserLinebreaksOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_PRESERVE_USER_LINEBREAKS);
-		if (preserveUserLinebreaksOption != null) {
-			this.preserve_user_linebreaks = DefaultCodeFormatterConstants.TRUE.equals(preserveUserLinebreaksOption);
-		}
 		final Object putEmptyStatementOnNewLineOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE);
 		if (putEmptyStatementOnNewLineOption != null) {
 			this.put_empty_statement_on_new_line = DefaultCodeFormatterConstants.TRUE.equals(putEmptyStatementOnNewLineOption);
@@ -1282,16 +1268,6 @@ public class DefaultCodeFormatterOptions {
 				this.tab_size = 4;
 			}
 		}
-		final Object fillingSpaceOption = getDeprecatedFillingSpaceOption(settings);
-		if (fillingSpaceOption != null) {
-			try {
-				this.filling_space = ((String) fillingSpaceOption).charAt(0);
-			} catch(IndexOutOfBoundsException e) {
-				this.filling_space = ' ';
-			} catch(ClassCastException e) {
-				this.filling_space = ' ';
-			}
-		}
 		final Object pageWidthOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT);
 		if (pageWidthOption != null) {
 			try {
@@ -1306,13 +1282,6 @@ public class DefaultCodeFormatterOptions {
 		if (useTabOption != null) {
 			this.use_tab = JavaCore.TAB.equals(useTabOption);
 		}
-	}
-	
-	/**
-	 * @deprecated method used to hide deprecated warning
-	 */
-	private Object getDeprecatedFillingSpaceOption(Map settings) {
-		return settings.get(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE);
 	}
 
 	public void setDefaultSettings() {
@@ -1477,11 +1446,9 @@ public class DefaultCodeFormatterOptions {
 		this.keep_simple_if_on_one_line = false;
 		this.keep_then_statement_on_same_line = false;
 		this.number_of_empty_lines_to_preserve = 0;
-		this.preserve_user_linebreaks = false;
 		this.put_empty_statement_on_new_line = false;
 		this.remove_unnecessary_semicolon = false;
 		this.tab_size = 4;
-		this.filling_space = ' ';
 		this.page_width = 80;
 		this.use_tab = true; // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=49081
 	}
@@ -1648,11 +1615,9 @@ public class DefaultCodeFormatterOptions {
 		this.keep_simple_if_on_one_line = true;
 		this.keep_then_statement_on_same_line = false;
 		this.number_of_empty_lines_to_preserve = 1;
-		this.preserve_user_linebreaks = false;
 		this.put_empty_statement_on_new_line = true;
 		this.remove_unnecessary_semicolon = false;
 		this.tab_size = 4;
-		this.filling_space = ' ';
 		this.page_width = 80;
 		this.use_tab = false;
 	}

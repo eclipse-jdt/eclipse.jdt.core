@@ -47,14 +47,8 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 	}
 	
 	protected void setUp() {
-		if (this.API_LEVEL == AST.LEVEL_2_0) {
-			ast = AST.newAST2();
-			parser = ASTParser.newParser2();
-		}
-		if (this.API_LEVEL == AST.LEVEL_3_0) {
-			ast = AST.newAST3();
-			parser = ASTParser.newParser3();
-		}
+		ast = AST.newAST(this.API_LEVEL);
+		parser = ASTParser.newParser(this.API_LEVEL);
 	}
 	
 	protected void tearDown() {
@@ -95,8 +89,8 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 
 	    parser.setProject(null);
 
-	    parser.setPartial(-1);
-	    parser.setPartial(0);
+	    parser.setFocalPosition(-1);
+	    parser.setFocalPosition(0);
 
 	    parser.setCompilerOptions(null);
 	    parser.setCompilerOptions(new HashMap());

@@ -61,7 +61,7 @@ import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
  * to use.</li>
  * <li>Whether to parse just {@linkplain #setKind(int) an expression, statements,
  * or body declarations} rather than an entire compilation unit.</li>
- * <li>Whether to return a {@linkplain #setPartial(int) abridged AST}
+ * <li>Whether to return a {@linkplain #setFocalPosition(int) abridged AST}
  * focused on the declaration containing a given source position.</li>
  * </ul>
  * </p>
@@ -96,45 +96,13 @@ public class ASTParser {
 	
 	/**
 	 * Creates a new object for creating a Java abstract syntax tree
-     * (AST) following the 3.0 API rules. The 3.0 API is capable
-     * of handling all constructs in the Java language as described
-     * in the Java Language Specification, Third Edition (JLS3).
-     * JLS3 is a superset of all earlier versions of the
-     * Java language, and the 3.0 API can be used to manipulate
-     * programs written in all versions of the Java language
-     * up to and including J2SE 1.5.
-
-     * @deprecated Do not use at this time. The 1.5 compiler support is missing.
-     * TBD (jeem) - remove deprecation when 1.5 parser and compiler support available
+     * (AST) following the specified set of API rules. 
+ 
+ 	 * @param level the API level; one of the LEVEL constants
+     * declared on <code>AST</code>
 	 */
-	public static ASTParser newParser3() {
-		return new ASTParser(AST.LEVEL_3_0);
-	}
-
-	/**
-	 * Creates a new object for creating a Java abstract syntax tree
-     * (AST) following the 2.0 API rules. The 2.0 API is capable
-     * of handling all constructs in the Java language as described
-     * in the Java Language Specification, Second Edition (JLS2).
-     * JLS2 is a superset of all earlier versions of the
-     * Java language, and the 2.0 API can be used to manipulate
-     * programs written in all versions of the Java language
-     * up to and including J2SE 1.4. 
-     *
-	 * TBD (jeem) deprecated Clients should port their code to
-     * use the new 3.0 API and call {@link #newParser3()}
-     * instead of this method.
-	 */
-	public static ASTParser newParser2() {
-		return new ASTParser(AST.LEVEL_2_0);
-	}
-
-	/**
-	 * Non-deprected version of <code>ASTParser newParser2()</code>
-	 * for internal use. 
-	 */
-	static ASTParser internalNewParser2() {
-		return new ASTParser(AST.LEVEL_2_0);
+	public static ASTParser newParser(int level) {
+		return new ASTParser(level);
 	}
 
 	/**
@@ -224,6 +192,10 @@ public class ASTParser {
      * declared on <code>AST</code>
 	 */
 	ASTParser(int level) {
+		if ((level != AST.LEVEL_2_0)
+			&& (level != AST.LEVEL_3_0)) {
+			throw new IllegalArgumentException();
+		}
 		this.API_LEVEL = level;
 	   	initializeDefaults();
 	}
@@ -347,7 +319,7 @@ public class ASTParser {
 	 * 
 	 * @param position a position into the corresponding body declaration
 	 */
-	public void setPartial(int position) {
+	public void setFocalPosition(int position) {
 		this.partial = true;
 		this.focalPointPosition = position;
 	}
@@ -547,7 +519,7 @@ public class ASTParser {
 	/**
      * Creates an abstract syntax tree.
      * <p>
-     * Calling this method also returns all settings to their
+     * A successful call to this method returns all settings to their
      * default values so the object is ready to be reused.
      * </p>
      * 
@@ -556,6 +528,8 @@ public class ASTParser {
 	 * @return an AST node whose type depends on the kind of parse
 	 *  requested, with a fallback to a <code>CompilationUnit</code>
 	 *  in the case of severe parsing errors
+	 * @exception IllegalStateException if the settings provided
+	 * are insufficient, contradictory, or otherwise unsupported
      */
 	public ASTNode createAST(IProgressMonitor monitor) {
 	   if ((this.rawSource == null)
@@ -708,7 +682,7 @@ public class ASTParser {
 		converter.compilationUnitSource = source;
 		converter.scanner.setSource(source);
 		
-		AST ast = AST.newAST2();
+		AST ast = AST.newAST(AST.LEVEL_2_0);
 		ast.setBindingResolver(new BindingResolver());
 		converter.setAST(ast);
 		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
@@ -880,7 +854,7 @@ public class ASTParser {
 				// parse and resolve
 				compilationUnitDeclaration = CompilationUnitResolver.resolve(unit, false/*don't cleanup*/, source, owner, monitor);
 				ASTConverter converter = new ASTConverter(unit.getJavaProject().getOptions(true), true, monitor);
-				AST ast = AST.newAST2();
+				AST ast = AST.newAST(AST.LEVEL_2_0);
 				BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
 				ast.setBindingResolver(resolver);
 				converter.setAST(ast);
@@ -980,7 +954,7 @@ public class ASTParser {
 					owner,
 					monitor);
 			ASTConverter converter = new ASTConverter(project.getOptions(true), true, monitor);
-			AST ast = AST.newAST2();
+			AST ast = AST.newAST(AST.LEVEL_2_0);
 			BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
 			ast.setBindingResolver(resolver);
 			converter.setAST(ast);
@@ -1109,7 +1083,7 @@ public class ASTParser {
 					owner,
 					monitor);
 			ASTConverter converter = new ASTConverter(project.getOptions(true), true, monitor);
-			AST ast = AST.newAST2();
+			AST ast = AST.newAST(AST.LEVEL_2_0);
 			BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
 			ast.setBindingResolver(resolver);
 			converter.setAST(ast);
@@ -1219,7 +1193,7 @@ public class ASTParser {
 			CompilationUnitResolver.parse(source, options);
 	
 		ASTConverter converter = new ASTConverter(options, false, null);
-		AST ast = AST.newAST2();
+		AST ast = AST.newAST(AST.LEVEL_2_0);
 		ast.setBindingResolver(new BindingResolver());
 		converter.setAST(ast);
 				
@@ -1371,7 +1345,7 @@ public class ASTParser {
 					monitor);
 				
 				ASTConverter converter = new ASTConverter(options, true, monitor);
-				AST ast = AST.newAST2();
+				AST ast = AST.newAST(AST.LEVEL_2_0);
 				BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
 				ast.setBindingResolver(resolver);
 				converter.setAST(ast);
@@ -1391,7 +1365,7 @@ public class ASTParser {
 					options);
 				
 				ASTConverter converter = new ASTConverter(options, false, monitor);
-				AST ast = AST.newAST2();
+				AST ast = AST.newAST(AST.LEVEL_2_0);
 				final BindingResolver resolver = new BindingResolver();
 				ast.setBindingResolver(resolver);
 				converter.setAST(ast);
@@ -1412,7 +1386,7 @@ public class ASTParser {
 				options);
 			
 			ASTConverter converter = new ASTConverter(options, false, monitor);
-			AST ast = AST.newAST2();
+			AST ast = AST.newAST(AST.LEVEL_2_0);
 			final BindingResolver resolver = new BindingResolver();
 			ast.setBindingResolver(resolver);
 			converter.setAST(ast);
@@ -1493,7 +1467,7 @@ public class ASTParser {
 					monitor);
 				
 				ASTConverter converter = new ASTConverter(options, true, monitor);
-				AST ast = AST.newAST2();
+				AST ast = AST.newAST(AST.LEVEL_2_0);
 				BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
 				ast.setBindingResolver(resolver);
 				converter.setAST(ast);
@@ -1513,7 +1487,7 @@ public class ASTParser {
 					options);
 				
 				ASTConverter converter = new ASTConverter(options, false, monitor);
-				AST ast = AST.newAST2();
+				AST ast = AST.newAST(AST.LEVEL_2_0);
 				final BindingResolver resolver = new BindingResolver();
 				ast.setBindingResolver(resolver);
 				converter.setAST(ast);
@@ -1534,7 +1508,7 @@ public class ASTParser {
 				options);
 			
 			ASTConverter converter = new ASTConverter(options, false, monitor);
-			AST ast = AST.newAST2();
+			AST ast = AST.newAST(AST.LEVEL_2_0);
 			final BindingResolver resolver = new BindingResolver();
 			ast.setBindingResolver(resolver);
 			converter.setAST(ast);

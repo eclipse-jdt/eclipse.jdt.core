@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Type node for a qualified type (added in 3.0 API).
  * <pre>
@@ -47,6 +49,49 @@ package org.eclipse.jdt.core.dom;
  * @since 3.0
  */
 public class QualifiedType extends Type {
+	
+	/**
+	 * The "qualifier" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor QUALIFIER_PROPERTY = 
+		new ChildPropertyDescriptor(QualifiedType.class, "qualifier", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "name" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(QualifiedType.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(QualifiedType.class);
+		addProperty(QUALIFIER_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/** 
 	 * The type node; lazily initialized; defaults to a type with
 	 * an unspecfied, but legal, simple name.
@@ -72,6 +117,37 @@ public class QualifiedType extends Type {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == QUALIFIER_PROPERTY) {
+			if (get) {
+				return getQualifier();
+			} else {
+				setQualifier((Type) child);
+				return null;
+			}
+		}
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -118,10 +194,9 @@ public class QualifiedType extends Type {
 	 */ 
 	public Type getQualifier() {
 		if (this.qualifier == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setQualifier(new SimpleType(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.qualifier = new SimpleType(this.ast);
+			postLazyInit(this.qualifier, QUALIFIER_PROPERTY);
 		}
 		return this.qualifier;
 	}
@@ -140,8 +215,9 @@ public class QualifiedType extends Type {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.qualifier, type, true);
+		preReplaceChild(this.qualifier, type, QUALIFIER_PROPERTY);
 		this.qualifier = type;
+		postReplaceChild(this.qualifier, type, QUALIFIER_PROPERTY);
 	}
 
 	/**
@@ -151,10 +227,9 @@ public class QualifiedType extends Type {
 	 */ 
 	public SimpleName getName() {
 		if (this.name == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.name = new SimpleName(this.ast);
+			postLazyInit(this.name, NAME_PROPERTY);
 		}
 		return this.name;
 	}
@@ -173,8 +248,9 @@ public class QualifiedType extends Type {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.name, name, false);
+		preReplaceChild(this.name, name, NAME_PROPERTY);
 		this.name = name;
+		postReplaceChild(this.name, name, NAME_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)
@@ -191,8 +267,8 @@ public class QualifiedType extends Type {
 	int treeSize() {
 		return 
 			memSize()
-			+ (qualifier == null ? 0 : getQualifier().treeSize())
-			+ (name == null ? 0 : getName().treeSize());
+			+ (this.qualifier == null ? 0 : getQualifier().treeSize())
+			+ (this.name == null ? 0 : getName().treeSize());
 	}
 }
 

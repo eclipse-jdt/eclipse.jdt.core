@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Marker annotation node (added in 3.0 API). The marker annotation 
  * "@foo" is equivalent to the normal annotation "@foo()".
@@ -30,6 +32,40 @@ package org.eclipse.jdt.core.dom;
 public final class MarkerAnnotation extends Annotation {
 
 	/**
+	 * The "typeName" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor TYPE_NAME_PROPERTY = 
+		internalTypeNamePropertyFactory(MarkerAnnotation.class);
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(MarkerAnnotation.class);
+		addProperty(TYPE_NAME_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+	
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the AST.LEVEL_* constants
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+	
+	/**
 	 * Creates a new unparented marker annotation node owned 
 	 * by the given AST. By default, the annotation has an
 	 * unspecified type name .
@@ -41,6 +77,37 @@ public final class MarkerAnnotation extends Annotation {
 	 */
 	MarkerAnnotation(AST ast) {
 		super(ast);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 * @since 3.0
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == TYPE_NAME_PROPERTY) {
+			if (get) {
+				return getTypeName();
+			} else {
+				setTypeName((Name) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildPropertyDescriptor internalTypeNameProperty() {
+		return TYPE_NAME_PROPERTY;
 	}
 
 	/* (omit javadoc for this method)
@@ -93,6 +160,6 @@ public final class MarkerAnnotation extends Annotation {
 	int treeSize() {
 		return
 			memSize()
-			+ getTypeName().treeSize();
+			+ (this.typeName == null ? 0 : getTypeName().treeSize());
 	}
 }

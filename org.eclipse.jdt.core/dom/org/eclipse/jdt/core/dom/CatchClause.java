@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Catch clause AST node type.
  *
@@ -22,6 +24,50 @@ package org.eclipse.jdt.core.dom;
  * @since 2.0
  */
 public class CatchClause extends ASTNode {
+	
+	/**
+	 * The "exception" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor EXCEPTION_PROPERTY = 
+		new ChildPropertyDescriptor(CatchClause.class, "exception", SingleVariableDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "body" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor BODY_PROPERTY = 
+		new ChildPropertyDescriptor(CatchClause.class, "body", Block.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(CatchClause.class);
+		addProperty(EXCEPTION_PROPERTY);
+		addProperty(BODY_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/**
 	 * The body; lazily initialized; defaults to an empty block.
 	 */
@@ -47,6 +93,37 @@ public class CatchClause extends ASTNode {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == EXCEPTION_PROPERTY) {
+			if (get) {
+				return getException();
+			} else {
+				setException((SingleVariableDeclaration) child);
+				return null;
+			}
+		}
+		if (property == BODY_PROPERTY) {
+			if (get) {
+				return getBody();
+			} else {
+				setBody((Block) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -93,13 +170,12 @@ public class CatchClause extends ASTNode {
 	 * @return the exception variable declaration node
 	 */ 
 	public SingleVariableDeclaration getException() {
-		if (exceptionDecl == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setException(new SingleVariableDeclaration(getAST()));
-			getAST().setModificationCount(count);
+		if (this.exceptionDecl == null) {
+			preLazyInit();
+			this.exceptionDecl = new SingleVariableDeclaration(this.ast);
+			postLazyInit(this.exceptionDecl, EXCEPTION_PROPERTY);
 		}
-		return exceptionDecl;
+		return this.exceptionDecl;
 	}
 		
 	/**
@@ -117,10 +193,9 @@ public class CatchClause extends ASTNode {
 		if (exception == null) {
 			throw new IllegalArgumentException();
 		}
-		// a CatchClause may occur inside an 
-		// SingleVariableDeclaration - must check cycles
-		replaceChild(this.exceptionDecl, exception, true);
+		preReplaceChild(this.exceptionDecl, exception, EXCEPTION_PROPERTY);
 		this.exceptionDecl= exception;
+		postReplaceChild(this.exceptionDecl, exception, EXCEPTION_PROPERTY);
 	}
 	
 	/**
@@ -129,13 +204,12 @@ public class CatchClause extends ASTNode {
 	 * @return the catch clause body
 	 */ 
 	public Block getBody() {
-		if (body == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setBody(new Block(getAST()));
-			getAST().setModificationCount(count);
+		if (this.body == null) {
+			preLazyInit();
+			this.body = new Block(this.ast);
+			postLazyInit(this.body, BODY_PROPERTY);
 		}
-		return body;
+		return this.body;
 	}
 	
 	/**
@@ -153,9 +227,9 @@ public class CatchClause extends ASTNode {
 		if (body == null) {
 			throw new IllegalArgumentException();
 		}
-		// a CatchClause may occur in a Block - must check cycles
-		replaceChild(this.body, body, true);
+		preReplaceChild(this.body, body, BODY_PROPERTY);
 		this.body = body;
+		postReplaceChild(this.body, body, BODY_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)
@@ -172,7 +246,7 @@ public class CatchClause extends ASTNode {
 	int treeSize() {
 		return 
 			memSize()
-			+ (exceptionDecl == null ? 0 : getException().treeSize())
-			+ (body == null ? 0 : getBody().treeSize());
+			+ (this.exceptionDecl == null ? 0 : getException().treeSize())
+			+ (this.body == null ? 0 : getBody().treeSize());
 	}
 }

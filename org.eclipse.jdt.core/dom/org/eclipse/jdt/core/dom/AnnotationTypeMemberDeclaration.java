@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Annotation type member declaration AST node type (added in 3.0 API).
  * <pre>
@@ -42,6 +44,70 @@ package org.eclipse.jdt.core.dom;
 public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	
 	/**
+	 * The "javadoc" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor JAVADOC_PROPERTY = 
+		internalJavadocPropertyFactory(AnnotationTypeMemberDeclaration.class);
+
+	/**
+	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
+		internalModifiers2PropertyFactory(AnnotationTypeMemberDeclaration.class);
+	
+	/**
+	 * The "name" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(AnnotationTypeMemberDeclaration.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "type" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor TYPE_PROPERTY = 
+		new ChildPropertyDescriptor(AnnotationTypeMemberDeclaration.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "default" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor DEFAULT_PROPERTY = 
+		new ChildPropertyDescriptor(AnnotationTypeMemberDeclaration.class, "default", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(AnnotationTypeMemberDeclaration.class);
+		addProperty(JAVADOC_PROPERTY);
+		addProperty(MODIFIERS2_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		addProperty(TYPE_PROPERTY);
+		addProperty(DEFAULT_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the AST.LEVEL_* constants
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+						
+	/**
 	 * The member name; lazily initialized; defaults to an unspecified,
 	 * legal Java identifier.
 	 */
@@ -72,6 +138,94 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	 */
 	AnnotationTypeMemberDeclaration(AST ast) {
 		super(ast);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == JAVADOC_PROPERTY) {
+			if (get) {
+				return getJavadoc();
+			} else {
+				setJavadoc((Javadoc) child);
+				return null;
+			}
+		}
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		if (property == TYPE_PROPERTY) {
+			if (get) {
+				return getType();
+			} else {
+				setType((Type) child);
+				return null;
+			}
+		}
+		if (property == DEFAULT_PROPERTY) {
+			if (get) {
+				return getDefault();
+			} else {
+				setDefault((Expression) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == MODIFIERS2_PROPERTY) {
+			return modifiers();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildPropertyDescriptor internalJavadocProperty() {
+		return JAVADOC_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildListPropertyDescriptor internalModifiers2Property() {
+		return MODIFIERS2_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final SimplePropertyDescriptor internalModifiersProperty() {
+		// this property will not be asked for (node type did not exist in 2.0)
+		return null;
 	}
 
 	/* (omit javadoc for this method)
@@ -127,10 +281,9 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	 */ 
 	public SimpleName getName() {
 		if (this.memberName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.memberName = new SimpleName(this.ast);
+			postLazyInit(this.memberName, NAME_PROPERTY);
 		}
 		return this.memberName;
 	}
@@ -150,8 +303,9 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 		if (memberName == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.memberName, memberName, false);
+		preReplaceChild(this.memberName, memberName, NAME_PROPERTY);
 		this.memberName = memberName;
+		postReplaceChild(this.memberName, memberName, NAME_PROPERTY);
 	}
 
 	/**
@@ -162,10 +316,9 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	 */ 
 	public Type getType() {
 		if (this.memberType == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setType(getAST().newPrimitiveType(PrimitiveType.INT));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.memberType = this.ast.newPrimitiveType(PrimitiveType.INT);
+			postLazyInit(this.memberType, TYPE_PROPERTY);
 		}
 		return this.memberType;
 	}
@@ -185,8 +338,9 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.memberType, type, false);
+		preReplaceChild(this.memberType, type, TYPE_PROPERTY);
 		this.memberType = type;
+		postReplaceChild(this.memberType, type, TYPE_PROPERTY);
 	}
 
 	/**
@@ -213,8 +367,9 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	 */ 
 	public void setDefault(Expression defaultValue) {
 		// a AnnotationTypeMemberDeclaration may occur inside an Expression - must check cycles
-		replaceChild(this.optionalDefaultValue, defaultValue, true);
+		preReplaceChild(this.optionalDefaultValue, defaultValue, DEFAULT_PROPERTY);
 		this.optionalDefaultValue = defaultValue;
+		postReplaceChild(this.optionalDefaultValue, defaultValue, DEFAULT_PROPERTY);
 	}
 	
 	/**
@@ -229,7 +384,7 @@ public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 	 *    resolved
 	 */	
 	public IVariableBinding resolveBinding() {
-		return getAST().getBindingResolver().resolveMember(this);
+		return this.ast.getBindingResolver().resolveMember(this);
 	}
 
 	/* (omit javadoc for this method)

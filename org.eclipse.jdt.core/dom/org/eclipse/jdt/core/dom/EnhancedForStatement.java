@@ -11,15 +11,18 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Enhanced For statement AST node type (added in 3.0 API).
  *
  * <pre>
  * EnhancedForStatement:
- *    <b>for</b> <b>(</b> Type Identifier<b>:</b> Expression <b>)</b>
+ *    <b>for</b> <b>(</b> FormalParameter <b>:</b> Expression <b>)</b>
  * 			Statement
  * </pre>
- * 
+ * The FormalParameter is represented by a <code>SingleVariableDeclaration</code>
+ * (without an initializer).
  * <p>
  * Note: Enhanced for statements are an experimental language feature 
  * under discussion in JSR-201 and under consideration for inclusion
@@ -31,16 +34,61 @@ package org.eclipse.jdt.core.dom;
 public class EnhancedForStatement extends Statement {
 	
 	/**
-	 * The type; lazily initialized; defaults to a unspecified,
-	 * legal type.
+	 * The "parameter" structural property of this node type.
+	 * @since 3.0
 	 */
-	private Type type = null;
+	public static final ChildPropertyDescriptor PARAMETER_PROPERTY = 
+		new ChildPropertyDescriptor(EnhancedForStatement.class, "parameter", SingleVariableDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The variable name; lazily initialized; defaults to an unspecified,
-	 * legal Java identifier.
+	 * The "expression" structural property of this node type.
+	 * @since 3.0
 	 */
-	private SimpleName variableName = null;
+	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY = 
+		new ChildPropertyDescriptor(EnhancedForStatement.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "body" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor BODY_PROPERTY = 
+		new ChildPropertyDescriptor(EnhancedForStatement.class, "body", Statement.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(EnhancedForStatement.class);
+		addProperty(PARAMETER_PROPERTY);
+		addProperty(EXPRESSION_PROPERTY);
+		addProperty(BODY_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
+	 * The parameter; lazily initialized; defaults to a unspecified,
+	 * legal node.
+	 */
+	private SingleVariableDeclaration parameter = null;
 
 	/**
 	 * The expression; lazily initialized; defaults to a unspecified, but legal,
@@ -56,7 +104,7 @@ public class EnhancedForStatement extends Statement {
 			
 	/**
 	 * Creates a new AST node for an enchanced for statement owned by the
-	 * given AST. By default, the type, name, and expression are unspecified
+	 * given AST. By default, the parameter and expression are unspecified
 	 * but legal subtrees, and the body is an empty block.
 	 * 
 	 * @param ast the AST that is to own this node
@@ -65,6 +113,45 @@ public class EnhancedForStatement extends Statement {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == PARAMETER_PROPERTY) {
+			if (get) {
+				return getParameter();
+			} else {
+				setParameter((SingleVariableDeclaration) child);
+				return null;
+			}
+		}
+		if (property == EXPRESSION_PROPERTY) {
+			if (get) {
+				return getExpression();
+			} else {
+				setExpression((Expression) child);
+				return null;
+			}
+		}
+		if (property == BODY_PROPERTY) {
+			if (get) {
+				return getBody();
+			} else {
+				setBody((Statement) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -79,8 +166,7 @@ public class EnhancedForStatement extends Statement {
 		EnhancedForStatement result = new EnhancedForStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.copyLeadingComment(this);
-		result.setType((Type) getType().clone(target));
-		result.setName((SimpleName) getName().clone(target));
+		result.setParameter((SingleVariableDeclaration) getParameter().clone(target));
 		result.setExpression((Expression) getExpression().clone(target));
 		result.setBody(
 			(Statement) ASTNode.copySubtree(target, getBody()));
@@ -102,8 +188,7 @@ public class EnhancedForStatement extends Statement {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			acceptChild(visitor, getType());
-			acceptChild(visitor, getName());
+			acceptChild(visitor, getParameter());
 			acceptChild(visitor, getExpression());
 			acceptChild(visitor, getBody());
 		}
@@ -111,86 +196,50 @@ public class EnhancedForStatement extends Statement {
 	}
 	
 	/**
-	 * Returns the type in this enhanced for statement.
+	 * Returns the formal parameter in this enhanced for statement.
 	 * 
-	 * @return the type
+	 * @return the parameter
 	 */ 
-	public Type getType() {
-		if (type == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setType(getAST().newPrimitiveType(PrimitiveType.INT));
-			getAST().setModificationCount(count);
+	public SingleVariableDeclaration getParameter() {
+		if (this.parameter == null) {
+			preLazyInit();
+			this.parameter = this.ast.newSingleVariableDeclaration();
+			postLazyInit(this.parameter, PARAMETER_PROPERTY);
 		}
-		return type;
+		return this.parameter;
 	}
 
 	/**
-	 * Sets the type in this enhanced for statement to the given type.
+	 * Sets the formal parameter in this enhanced for statement.
 	 * 
-	 * @param type the new type
+	 * @param parameter the new parameter
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * </ul>
 	 */ 
-	public void setType(Type type) {
-		if (type == null) {
+	public void setParameter(SingleVariableDeclaration parameter) {
+		if (parameter == null) {
 			throw new IllegalArgumentException();
 		}
-		// an EnchacedForStatement cannot occur inside a Type - cycles not possible
-		replaceChild(this.type, type, false);
-		this.type = type;
+		preReplaceChild(this.parameter, parameter, PARAMETER_PROPERTY);
+		this.parameter = parameter;
+		postReplaceChild(this.parameter, parameter, PARAMETER_PROPERTY);
 	}
 	
-	/**
-	 * Returns the name of the variable in this enhanced for statement.
-	 * 
-	 * @return the variable name node
-	 */ 
-	public SimpleName getName() {
-		if (variableName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
-		}
-		return variableName;
-	}
-		
-	/**
-	 * Sets the name of the variable in this enhanced for statement
-	 * to the given name.
-	 * 
-	 * @param variableName the new variable name
-	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
-	 */ 
-	public void setName(SimpleName variableName) {
-		if (variableName == null) {
-			throw new IllegalArgumentException();
-		}
-		replaceChild(this.variableName, variableName, false);
-		this.variableName = variableName;
-	}
-
 	/**
 	 * Returns the expression of this enhanced for statement.
 	 * 
 	 * @return the expression node
 	 */ 
 	public Expression getExpression() {
-		if (expression == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setExpression(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.expression == null) {
+			preLazyInit();
+			this.expression = new SimpleName(this.ast);
+			postLazyInit(this.expression, EXPRESSION_PROPERTY);
 		}
-		return expression;
+		return this.expression;
 	}
 		
 	/**
@@ -208,10 +257,9 @@ public class EnhancedForStatement extends Statement {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		// an EnhancedForStatement may occur inside an Expression 
-		// must check cycles
-		replaceChild(this.expression, expression, true);
+		preReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
 		this.expression = expression;
+		postReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -220,13 +268,12 @@ public class EnhancedForStatement extends Statement {
 	 * @return the body statement node
 	 */ 
 	public Statement getBody() {
-		if (body == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setBody(new Block(getAST()));
-			getAST().setModificationCount(count);
+		if (this.body == null) {
+			preLazyInit();
+			this.body = new Block(this.ast);
+			postLazyInit(this.body, BODY_PROPERTY);
 		}
-		return body;
+		return this.body;
 	}
 	
 	/**
@@ -244,9 +291,9 @@ public class EnhancedForStatement extends Statement {
 		if (statement == null) {
 			throw new IllegalArgumentException();
 		}
-		// an EnhancedForStatement may occur inside a Statement - must check cycles
-		replaceChild(this.body, statement, true);
+		preReplaceChild(this.body, statement, BODY_PROPERTY);
 		this.body = statement;
+		postReplaceChild(this.body, statement, BODY_PROPERTY);
 	}
 	
 	/**
@@ -261,14 +308,14 @@ public class EnhancedForStatement extends Statement {
 	 *    resolved
 	 */	
 	public IVariableBinding resolveBinding() {
-		return getAST().getBindingResolver().resolveVariable(this);
+		return this.ast.getBindingResolver().resolveVariable(this);
 	}
 
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 4 * 4;
+		return super.memSize() + 3 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -277,9 +324,8 @@ public class EnhancedForStatement extends Statement {
 	int treeSize() {
 		return
 			memSize()
-			+ (type == null ? 0 : getType().treeSize())
-			+ (variableName == null ? 0 : getName().treeSize())
-			+ (expression == null ? 0 : getExpression().treeSize())
-			+ (body == null ? 0 : getBody().treeSize());
+			+ (this.parameter == null ? 0 : getParameter().treeSize())
+			+ (this.expression == null ? 0 : getExpression().treeSize())
+			+ (this.body == null ? 0 : getBody().treeSize());
 	}
 }

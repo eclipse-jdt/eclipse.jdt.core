@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
@@ -32,6 +34,40 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 public class ThisExpression extends Expression {
 			
 	/**
+	 * The "qualifier" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor QUALIFIER_PROPERTY = 
+		new ChildPropertyDescriptor(ThisExpression.class, "qualifier", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(ThisExpression.class);
+		addProperty(QUALIFIER_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The optional qualifier; <code>null</code> for none; defaults to none.
 	 */
 	private Name optionalQualifier = null;
@@ -46,6 +82,29 @@ public class ThisExpression extends Expression {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == QUALIFIER_PROPERTY) {
+			if (get) {
+				return getQualifier();
+			} else {
+				setQualifier((Name) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -89,7 +148,7 @@ public class ThisExpression extends Expression {
 	 * @return the qualifier name node, or <code>null</code> if there is none
 	 */ 
 	public Name getQualifier() {
-		return optionalQualifier;
+		return this.optionalQualifier;
 	}
 	
 	/**
@@ -104,9 +163,9 @@ public class ThisExpression extends Expression {
 	 * </ul>
 	 */ 
 	public void setQualifier(Name name) {
-		// a ThisExpression cannot occur inside an Expression
-		replaceChild(this.optionalQualifier, name, false);
+		preReplaceChild(this.optionalQualifier, name, QUALIFIER_PROPERTY);
 		this.optionalQualifier = name;
+		postReplaceChild(this.optionalQualifier, name, QUALIFIER_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)
@@ -123,10 +182,16 @@ public class ThisExpression extends Expression {
 	int treeSize() {
 		return 
 			memSize()
-			+ (optionalQualifier == null ? 0 : getQualifier().treeSize());
+			+ (this.optionalQualifier == null ? 0 : getQualifier().treeSize());
 	}
 
+	/**
+	 * Internal method used by ASTConverter.
+	 * 
+	 * @return the block scope
+	 */
 	BlockScope lookupScope() {
+		// TBD (olivier) - this method should be moved to ASTConverter
 		ASTNode currentNode = this;
 		while(currentNode != null
 			&&!(currentNode instanceof MethodDeclaration)
@@ -142,7 +207,7 @@ public class ThisExpression extends Expression {
 			while(!(currentNode instanceof TypeDeclaration)) {
 				currentNode = currentNode.getParent();
 			}
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.getAST().getBindingResolver().getCorrespondingNode(currentNode);
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
 			if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
 				return typeDecl.staticInitializerScope;
 			} else {
@@ -153,14 +218,14 @@ public class ThisExpression extends Expression {
 			while(!(currentNode instanceof TypeDeclaration)) {
 				currentNode = currentNode.getParent();
 			}
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.getAST().getBindingResolver().getCorrespondingNode(currentNode);
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
 			if ((fieldDeclaration.getModifiers() & Modifier.STATIC) != 0) {
 				return typeDecl.staticInitializerScope;
 			} else {
 				return typeDecl.initializerScope;
 			}
 		}
-		AbstractMethodDeclaration abstractMethodDeclaration = (AbstractMethodDeclaration) this.getAST().getBindingResolver().getCorrespondingNode(currentNode);
+		AbstractMethodDeclaration abstractMethodDeclaration = (AbstractMethodDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
 		return abstractMethodDeclaration.scope;
 	}	
 }

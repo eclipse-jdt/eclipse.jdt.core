@@ -27,11 +27,46 @@ import java.util.List;
 public class AnonymousClassDeclaration extends ASTNode {
 
 	/**
+	 * The "bodyDeclarations" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY = 
+		new ChildListPropertyDescriptor(AnonymousClassDeclaration.class, "bodyDeclarations", BodyDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(AnonymousClassDeclaration.class);
+		addProperty(BODY_DECLARATIONS_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The body declarations (element type: <code>BodyDeclaration</code>).
 	 * Defaults to none.
 	 */
 	private ASTNode.NodeList bodyDeclarations = 
-		new ASTNode.NodeList(true, BodyDeclaration.class);
+		new ASTNode.NodeList(BODY_DECLARATIONS_PROPERTY);
 
 	/**
 	 * Creates a new AST node for an anonymous class declaration owned 
@@ -48,6 +83,24 @@ public class AnonymousClassDeclaration extends ASTNode {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == BODY_DECLARATIONS_PROPERTY) {
+			return bodyDeclarations();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -94,7 +147,7 @@ public class AnonymousClassDeclaration extends ASTNode {
 	 *    (element type: <code>BodyDeclaration</code>)
 	 */ 
 	public List bodyDeclarations() {
-		return bodyDeclarations;
+		return this.bodyDeclarations;
 	}
 
 	/**
@@ -109,7 +162,7 @@ public class AnonymousClassDeclaration extends ASTNode {
 	 *    resolved
 	 */	
 	public ITypeBinding resolveBinding() {
-		return getAST().getBindingResolver().resolveType(this);
+		return this.ast.getBindingResolver().resolveType(this);
 	}
 	
 	/* (omit javadoc for this method)
@@ -126,6 +179,6 @@ public class AnonymousClassDeclaration extends ASTNode {
 	int treeSize() {
 		return 
 			memSize()
-			+ bodyDeclarations.listSize();
+			+ this.bodyDeclarations.listSize();
 	}
 }

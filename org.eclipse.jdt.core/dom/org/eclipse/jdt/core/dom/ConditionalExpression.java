@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Conditional expression AST node type.
  *
@@ -23,6 +25,57 @@ package org.eclipse.jdt.core.dom;
  */
 public class ConditionalExpression extends Expression {
 	
+	/**
+	 * The "expression" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY = 
+		new ChildPropertyDescriptor(ConditionalExpression.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "thenExpression" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor THEN_EXPRESSION_PROPERTY = 
+		new ChildPropertyDescriptor(ConditionalExpression.class, "thenExpression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "elseExpression" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor ELSE_EXPRESSION_PROPERTY = 
+		new ChildPropertyDescriptor(ConditionalExpression.class, "elseExpression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(ConditionalExpression.class);
+		addProperty(EXPRESSION_PROPERTY);
+		addProperty(THEN_EXPRESSION_PROPERTY);
+		addProperty(ELSE_EXPRESSION_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
 	/**
 	 * The condition expression; lazily initialized; defaults to an unspecified,
 	 * but legal, expression.
@@ -55,6 +108,45 @@ public class ConditionalExpression extends Expression {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == EXPRESSION_PROPERTY) {
+			if (get) {
+				return getExpression();
+			} else {
+				setExpression((Expression) child);
+				return null;
+			}
+		}
+		if (property == THEN_EXPRESSION_PROPERTY) {
+			if (get) {
+				return getThenExpression();
+			} else {
+				setThenExpression((Expression) child);
+				return null;
+			}
+		}
+		if (property == ELSE_EXPRESSION_PROPERTY) {
+			if (get) {
+				return getElseExpression();
+			} else {
+				setElseExpression((Expression) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -104,13 +196,12 @@ public class ConditionalExpression extends Expression {
 	 * @return the condition node
 	 */ 
 	public Expression getExpression() {
-		if (conditionExpression == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setExpression(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.conditionExpression == null) {
+			preLazyInit();
+			this.conditionExpression = new SimpleName(this.ast);
+			postLazyInit(this.conditionExpression, EXPRESSION_PROPERTY);
 		}
-		return conditionExpression;
+		return this.conditionExpression;
 	}
 	
 	/**
@@ -128,10 +219,9 @@ public class ConditionalExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		// a ConditionalExpression may occur inside an Expression
-		// must check cycles
-		replaceChild(this.conditionExpression, expression, true);
+		preReplaceChild(this.conditionExpression, expression, EXPRESSION_PROPERTY);
 		this.conditionExpression = expression;
+		postReplaceChild(this.conditionExpression, expression, EXPRESSION_PROPERTY);
 	}
 	
 	/**
@@ -140,13 +230,12 @@ public class ConditionalExpression extends Expression {
 	 * @return the "then" expression node
 	 */ 
 	public Expression getThenExpression() {
-		if (thenExpression == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setThenExpression(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.thenExpression == null) {
+			preLazyInit();
+			this.thenExpression = new SimpleName(this.ast);
+			postLazyInit(this.thenExpression, THEN_EXPRESSION_PROPERTY);
 		}
-		return thenExpression;
+		return this.thenExpression;
 	}
 	
 	/**
@@ -164,10 +253,9 @@ public class ConditionalExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		// a ConditionalExpression may occur inside an Expression
-		// must check cycles
-		replaceChild(this.thenExpression, expression, true);
+		preReplaceChild(this.thenExpression, expression, THEN_EXPRESSION_PROPERTY);
 		this.thenExpression = expression;
+		postReplaceChild(this.thenExpression, expression, THEN_EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -176,13 +264,12 @@ public class ConditionalExpression extends Expression {
 	 * @return the "else" expression node
 	 */ 
 	public Expression getElseExpression() {
-		if (elseExpression == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setElseExpression(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.elseExpression == null) {
+			preLazyInit();
+			this.elseExpression = new SimpleName(this.ast);
+			postLazyInit(this.elseExpression, ELSE_EXPRESSION_PROPERTY);
 		}
-		return elseExpression;
+		return this.elseExpression;
 	}
 	
 	/**
@@ -200,10 +287,9 @@ public class ConditionalExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		// a ConditionalExpression may occur inside an Expression
-		// must check cycles
-		replaceChild(this.elseExpression, expression, true);
+		preReplaceChild(this.elseExpression, expression, ELSE_EXPRESSION_PROPERTY);
 		this.elseExpression = expression;
+		postReplaceChild(this.elseExpression, expression, ELSE_EXPRESSION_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)
@@ -220,8 +306,8 @@ public class ConditionalExpression extends Expression {
 	int treeSize() {
 		return 
 			memSize()
-			+ (conditionExpression == null ? 0 : getExpression().treeSize())
-			+ (thenExpression == null ? 0 : getThenExpression().treeSize())
-			+ (elseExpression == null ? 0 : getElseExpression().treeSize());
+			+ (this.conditionExpression == null ? 0 : getExpression().treeSize())
+			+ (this.thenExpression == null ? 0 : getThenExpression().treeSize())
+			+ (this.elseExpression == null ? 0 : getElseExpression().treeSize());
 	}
 }

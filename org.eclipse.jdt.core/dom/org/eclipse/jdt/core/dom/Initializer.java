@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Static or instance initializer AST node type.
  * <pre>
@@ -22,6 +24,84 @@ package org.eclipse.jdt.core.dom;
  */
 public class Initializer extends BodyDeclaration {
 	
+	/**
+	 * The "javadoc" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor JAVADOC_PROPERTY = 
+		internalJavadocPropertyFactory(Initializer.class);
+
+	/**
+	 * The "modifiers" structural property of this node type (2.0 API only).
+	 * @since 3.0
+	 * @deprecated Replaced by {@link #MODIFIERS2_PROPERTY} in the 3.0 API.
+	 */
+	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY = 
+		internalModifiersPropertyFactory(Initializer.class);
+	
+	/**
+	 * The "modifiers" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY = 
+		internalModifiers2PropertyFactory(Initializer.class);
+	
+	/**
+	 * The "body" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor BODY_PROPERTY = 
+		new ChildPropertyDescriptor(Initializer.class, "body", Block.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_2_0;
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_3_0;
+	
+	static {
+		createPropertyList(Initializer.class);
+		addProperty(JAVADOC_PROPERTY);
+		addProperty(MODIFIERS_PROPERTY);
+		addProperty(BODY_PROPERTY);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		
+		createPropertyList(Initializer.class);
+		addProperty(JAVADOC_PROPERTY);
+		addProperty(MODIFIERS2_PROPERTY);
+		addProperty(BODY_PROPERTY);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		if (apiLevel == AST.LEVEL_2_0) {
+			return PROPERTY_DESCRIPTORS_2_0;
+		} else {
+			return PROPERTY_DESCRIPTORS_3_0;
+		}
+	}
+			
 	/**
 	 * The initializer body; lazily initialized; defaults to an empty block.
 	 */
@@ -43,6 +123,86 @@ public class Initializer extends BodyDeclaration {
 
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
+	 * @since 3.0
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final int internalGetSetIntProperty(SimplePropertyDescriptor property, boolean get, int value) {
+		if (property == MODIFIERS_PROPERTY) {
+			if (get) {
+				return getModifiers();
+			} else {
+				setModifiers(value);
+				return 0;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetIntProperty(property, get, value);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == JAVADOC_PROPERTY) {
+			if (get) {
+				return getJavadoc();
+			} else {
+				setJavadoc((Javadoc) child);
+				return null;
+			}
+		}
+		if (property == BODY_PROPERTY) {
+			if (get) {
+				return getBody();
+			} else {
+				setBody((Block) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == MODIFIERS2_PROPERTY) {
+			return modifiers();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildPropertyDescriptor internalJavadocProperty() {
+		return JAVADOC_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final ChildListPropertyDescriptor internalModifiers2Property() {
+		return MODIFIERS2_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on BodyDeclaration.
+	 */
+	final SimplePropertyDescriptor internalModifiersProperty() {
+		return MODIFIERS_PROPERTY;
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
 	 */
 	public int getNodeType() {
 		return INITIALIZER;
@@ -54,10 +214,10 @@ public class Initializer extends BodyDeclaration {
 	ASTNode clone(AST target) {
 		Initializer result = new Initializer(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+		if (this.ast.API_LEVEL == AST.LEVEL_2_0) {
 			result.setModifiers(getModifiers());
 		}
-		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
 			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		}
 		result.setJavadoc(
@@ -81,7 +241,7 @@ public class Initializer extends BodyDeclaration {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			acceptChild(visitor, getJavadoc());
-			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
 				acceptChildren(visitor, this.modifiers);
 			}
 			acceptChild(visitor, getBody());
@@ -96,10 +256,9 @@ public class Initializer extends BodyDeclaration {
 	 */ 
 	public Block getBody() {
 		if (this.body == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setBody(new Block(getAST()));
-			getAST().setModificationCount(count);
+			preLazyInit();
+			this.body= new Block(this.ast);
+			postLazyInit(this.body, BODY_PROPERTY);
 		}
 		return this.body;
 	}
@@ -119,8 +278,9 @@ public class Initializer extends BodyDeclaration {
 		if (body == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.body, body, true);
+		preReplaceChild(this.body, body, BODY_PROPERTY);
 		this.body = body;
+		postReplaceChild(this.body, body, BODY_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

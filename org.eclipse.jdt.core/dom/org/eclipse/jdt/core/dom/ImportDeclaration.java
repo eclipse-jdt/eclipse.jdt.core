@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Import declaration AST node type.
  *
@@ -34,6 +36,76 @@ package org.eclipse.jdt.core.dom;
  * @since 2.0
  */
 public class ImportDeclaration extends ASTNode {
+	
+	/**
+	 * The "name" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(ImportDeclaration.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "onDemand" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor ON_DEMAND_PROPERTY = 
+		new SimplePropertyDescriptor(ImportDeclaration.class, "onDemand", boolean.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * The "static" structural property of this node type (added in 3.0 API).
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor STATIC_PROPERTY = 
+		new SimplePropertyDescriptor(ImportDeclaration.class, "static", boolean.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_2_0;
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS_3_0;
+	
+	static {
+		createPropertyList(ImportDeclaration.class);
+		addProperty(NAME_PROPERTY);
+		addProperty(ON_DEMAND_PROPERTY);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
+		
+		createPropertyList(ImportDeclaration.class);
+		addProperty(STATIC_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		addProperty(ON_DEMAND_PROPERTY);
+		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		if (apiLevel == AST.LEVEL_2_0) {
+			return PROPERTY_DESCRIPTORS_2_0;
+		} else {
+			return PROPERTY_DESCRIPTORS_3_0;
+		}
+	}
+			
 	/**
 	 * The import name; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
@@ -71,6 +143,53 @@ public class ImportDeclaration extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean value) {
+		if (property == ON_DEMAND_PROPERTY) {
+			if (get) {
+				return isOnDemand();
+			} else {
+				setOnDemand(value);
+				return false;
+			}
+		}
+		if (property == STATIC_PROPERTY) {
+			if (get) {
+				return isStatic();
+			} else {
+				setStatic(value);
+				return false;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetBooleanProperty(property, get, value);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((Name) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	public int getNodeType() {
 		return IMPORT_DECLARATION;
 	}
@@ -82,7 +201,7 @@ public class ImportDeclaration extends ASTNode {
 		ImportDeclaration result = new ImportDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setOnDemand(isOnDemand());
-		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
 			result.setStatic(isStatic());
 		}
 		result.setName((Name) getName().clone(target));
@@ -121,12 +240,11 @@ public class ImportDeclaration extends ASTNode {
 	 * @return the imported name node
 	 */ 
 	public Name getName()  {
-		if (importName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(getAST().newQualifiedName(
-				new SimpleName(getAST()), new SimpleName(getAST())));
-			getAST().setModificationCount(count);
+		if (this.importName == null) {
+			preLazyInit();
+			this.importName =this.ast.newQualifiedName(
+					new SimpleName(this.ast), new SimpleName(this.ast));
+			postLazyInit(this.importName, NAME_PROPERTY);
 		}
 		return importName;
 	}
@@ -152,8 +270,9 @@ public class ImportDeclaration extends ASTNode {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.importName, name, false);
+		preReplaceChild(this.importName, name, NAME_PROPERTY);
 		this.importName = name;
+		postReplaceChild(this.importName, name, NAME_PROPERTY);
 	}
 		
 	/**
@@ -175,8 +294,9 @@ public class ImportDeclaration extends ASTNode {
 	 *    and <code>false</code> if this is a single type import
 	 */ 
 	public void setOnDemand(boolean onDemand) {
-		modifying();
+		preValueChange(ON_DEMAND_PROPERTY);
 		this.onDemand = onDemand;
+		postValueChange(ON_DEMAND_PROPERTY);
 	}
 	
 	/**
@@ -216,8 +336,9 @@ public class ImportDeclaration extends ASTNode {
 	 */ 
 	public void setStatic(boolean isStatic) {
 		unsupportedIn2();
-		modifying();
+		preValueChange(STATIC_PROPERTY);
 		this.isStatic = isStatic;
+		postValueChange(STATIC_PROPERTY);
 	}
 	
 	/**
@@ -233,7 +354,7 @@ public class ImportDeclaration extends ASTNode {
 	 *    be resolved
 	 */	
 	public IBinding resolveBinding() {
-		return getAST().getBindingResolver().resolveImport(this);
+		return this.ast.getBindingResolver().resolveImport(this);
 	}
 	
 	/* (omit javadoc for this method)

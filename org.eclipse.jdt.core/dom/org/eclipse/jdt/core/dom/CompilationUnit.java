@@ -43,6 +43,61 @@ import org.eclipse.jdt.core.compiler.IProblem;
 public class CompilationUnit extends ASTNode {
 
 	/**
+	 * The "package" structural property of this node type.
+	 * 
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor PACKAGE_PROPERTY = 
+		new ChildPropertyDescriptor(CompilationUnit.class, "package", PackageDeclaration.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "imports" structural property of this node type.
+	 * 
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor IMPORTS_PROPERTY =
+		new ChildListPropertyDescriptor(CompilationUnit.class, "imports", ImportDeclaration.class, NO_CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "types" structural property of this node type.
+	 * 
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor TYPES_PROPERTY =
+		new ChildListPropertyDescriptor(CompilationUnit.class, "types", AbstractTypeDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.0
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(CompilationUnit.class);
+		addProperty(PACKAGE_PROPERTY);
+		addProperty(IMPORTS_PROPERTY);
+		addProperty(TYPES_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The comment table, or <code>null</code> if none; initially
 	 * <code>null</code>.
 	 * @since 3.0
@@ -60,14 +115,14 @@ public class CompilationUnit extends ASTNode {
 	 * initially none (elementType: <code>ImportDeclaration</code>).
 	 */
 	private ASTNode.NodeList imports =
-		new ASTNode.NodeList(false, ImportDeclaration.class);
+		new ASTNode.NodeList(IMPORTS_PROPERTY);
 	
 	/**
 	 * The list of type declarations in textual order order; 
 	 * initially none (elementType: <code>AbstractTypeDeclaration</code>)
 	 */
 	private ASTNode.NodeList types =
-		new ASTNode.NodeList(false, AbstractTypeDeclaration.class);
+		new ASTNode.NodeList(TYPES_PROPERTY);
 	
 	/**
 	 * Line end table. If <code>lineEndTable[i] == p</code> then the
@@ -113,7 +168,9 @@ public class CompilationUnit extends ASTNode {
 		if (lineEndTable == null) {
 			throw new NullPointerException();
 		}
-		modifying();
+		// alternate root is *not* considered a structural property
+		// but we protect them nevertheless
+		checkModifiable();
 		this.lineEndTable = lineEndTable;
 	}
 
@@ -133,6 +190,44 @@ public class CompilationUnit extends ASTNode {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 * @since 3.0
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == PACKAGE_PROPERTY) {
+			if (get) {
+				return getPackage();
+			} else {
+				setPackage((PackageDeclaration) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == IMPORTS_PROPERTY) {
+			return imports();
+		}
+		if (property == TYPES_PROPERTY) {
+			return types();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -201,8 +296,9 @@ public class CompilationUnit extends ASTNode {
 	 * </ul>
 	 */ 
 	public void setPackage(PackageDeclaration pkgDecl) {
-		replaceChild(this.optionalPackageDeclaration, pkgDecl, false);
+		preReplaceChild(this.optionalPackageDeclaration, pkgDecl, PACKAGE_PROPERTY);
 		this.optionalPackageDeclaration = pkgDecl;
+		postReplaceChild(this.optionalPackageDeclaration, pkgDecl, PACKAGE_PROPERTY);
 	}
 
 	/**
@@ -277,7 +373,7 @@ public class CompilationUnit extends ASTNode {
 	 * @see #findDeclaringNode(String)
 	 */
 	public ASTNode findDeclaringNode(IBinding binding) {
-		return getAST().getBindingResolver().findDeclaringNode(binding);
+		return this.ast.getBindingResolver().findDeclaringNode(binding);
 	}
 
 	/**
@@ -325,7 +421,7 @@ public class CompilationUnit extends ASTNode {
 	 * @since 2.1
 	 */
 	public ASTNode findDeclaringNode(String key) {
-		return getAST().getBindingResolver().findDeclaringNode(key);
+		return this.ast.getBindingResolver().findDeclaringNode(key);
 	}
 		
 	/**

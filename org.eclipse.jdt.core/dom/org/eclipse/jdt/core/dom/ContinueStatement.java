@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
  * Continue statement AST node type.
  *
@@ -22,6 +24,41 @@ package org.eclipse.jdt.core.dom;
  * @since 2.0
  */
 public class ContinueStatement extends Statement {
+			
+	/**
+	 * The "label" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor LABEL_PROPERTY = 
+		new ChildPropertyDescriptor(ContinueStatement.class, "label", SimpleName.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(ContinueStatement.class);
+		addProperty(LABEL_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
 			
 	/**
 	 * The label, or <code>null</code> if none; none by default.
@@ -41,6 +78,29 @@ public class ContinueStatement extends Statement {
 		super(ast);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == LABEL_PROPERTY) {
+			if (get) {
+				return getLabel();
+			} else {
+				setLabel((SimpleName) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -85,7 +145,7 @@ public class ContinueStatement extends Statement {
 	 * @return the label, or <code>null</code> if there is none
 	 */ 
 	public SimpleName getLabel() {
-		return optionalLabel;
+		return this.optionalLabel;
 	}
 	
 	/**
@@ -100,9 +160,9 @@ public class ContinueStatement extends Statement {
 	 * </ul>
 	 */ 
 	public void setLabel(SimpleName label) {
-		// a ContinueStatement cannot occur inside a SimpleName - no cycles
-		replaceChild(this.optionalLabel, label, false);
+		preReplaceChild(this.optionalLabel, label, LABEL_PROPERTY);
 		this.optionalLabel = label;
+		postReplaceChild(this.optionalLabel, label, LABEL_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

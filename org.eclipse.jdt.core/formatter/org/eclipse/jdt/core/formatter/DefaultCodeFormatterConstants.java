@@ -2092,6 +2092,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see #TRUE
 	 * @see #FALSE
 	 * @since 3.0
+	 * @deprecated Will be removed
 	 */
 	public static final String FORMATTER_PRESERVE_USER_LINEBREAKS = JavaCore.PLUGIN_ID + ".formatter.preserve_user_linebreaks";//$NON-NLS-1$
 
@@ -2599,11 +2600,6 @@ public class DefaultCodeFormatterConstants {
 	/*
 	 * All deprecated fields
 	 */
-	/**
-	 * TODO remove prior to 3.0
-	 * @deprecated
-	 */
-	public static final String FORMATTER_FILLING_SPACE = JavaCore.PLUGIN_ID + ".formatter.filling_space";	//$NON-NLS-1$
 	/**
 	 * @deprecated Use FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION instead
 	 */

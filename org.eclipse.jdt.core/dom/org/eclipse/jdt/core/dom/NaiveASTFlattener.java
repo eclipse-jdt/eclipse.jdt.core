@@ -453,9 +453,7 @@ class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public boolean visit(EnhancedForStatement node) {
 		this.buffer.append("for (");//$NON-NLS-1$
-		node.getType().accept(this);
-		this.buffer.append(" ");//$NON-NLS-1$
-		node.getName().accept(this);
+		node.getParameter().accept(this);
 		this.buffer.append(" : ");//$NON-NLS-1$
 		node.getExpression().accept(this);
 		this.buffer.append(") ");//$NON-NLS-1$
@@ -742,7 +740,9 @@ class NaiveASTFlattener extends ASTVisitor {
 	 * @since 3.0
 	 */
 	public boolean visit(MemberValuePair node) {
-		// TBD
+		node.getName().accept(this);
+		this.buffer.append("=");//$NON-NLS-1$
+		node.getValue().accept(this);
 		return false;
 	}
 	

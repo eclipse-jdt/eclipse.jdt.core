@@ -240,22 +240,7 @@ class ASTConverter {
 		int modifiers = typeDeclaration.modifiers;
 		modifiers &= ~IConstants.AccInterface; // remove AccInterface flags
 		modifiers &= CompilerModifiers.AccJustFlag;
-		/**
-		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
-		 * This handles cases where the parser built nodes with invalid modifiers.
-		 */
-		try {
-			// AccJustFlag doesn't flush Modifier.TRANSIENT or Modifier.VOLATILE.
-			// Therefore we need to handle these cases
-			typeDecl.setModifiers(modifiers);
-		} catch(IllegalArgumentException e) {
-			int legalModifiers =
-				Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED
-				| Modifier.STATIC | Modifier.FINAL | Modifier.ABSTRACT
-				| Modifier.STRICTFP;
-			typeDecl.setModifiers(modifiers & legalModifiers);
-			typeDecl.setFlags(ASTNode.MALFORMED);
-		}
+		typeDecl.setModifiers(modifiers);
 		typeDecl.setInterface(typeDeclaration.isInterface());
 		SimpleName typeName = this.ast.newSimpleName(new String(typeDeclaration.name));
 		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.sourceEnd - typeDeclaration.sourceStart + 1);
@@ -699,21 +684,7 @@ class ASTConverter {
 	public MethodDeclaration convert(org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration methodDeclaration) {
 		checkCanceled();
 		MethodDeclaration methodDecl = this.ast.newMethodDeclaration();
-		/**
-		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
-		 * This handles cases where the parser built nodes with invalid modifiers.
-		 */
-		try {
-			// if Modifier.VOLATILE is set, setModifiers is not allowed, but the code has no syntax error.
-			methodDecl.setModifiers(methodDeclaration.modifiers & org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag);
-		} catch(IllegalArgumentException e) {
-			int legalModifiers =
-				Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED
-				| Modifier.STATIC | Modifier.FINAL | Modifier.SYNCHRONIZED
-				| Modifier.NATIVE | Modifier.ABSTRACT | Modifier.STRICTFP;
-			methodDecl.setModifiers(methodDeclaration.modifiers & legalModifiers);
-			methodDecl.setFlags(ASTNode.MALFORMED);
-		}
+		methodDecl.setModifiers(methodDeclaration.modifiers & org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag);
 		boolean isConstructor = methodDeclaration.isConstructor();
 		methodDecl.setConstructor(isConstructor);
 		SimpleName methodName = this.ast.newSimpleName(new String(methodDeclaration.selector));
@@ -1088,20 +1059,7 @@ class ASTConverter {
 
 	public SingleVariableDeclaration convert(org.eclipse.jdt.internal.compiler.ast.Argument argument) {
 		SingleVariableDeclaration variableDecl = this.ast.newSingleVariableDeclaration();
-		/**
-		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
-		 * This handles cases where the parser built nodes with invalid modifiers.
-		 */
-		try {
-			variableDecl.setModifiers(argument.modifiers);
-		} catch(IllegalArgumentException e) {
-			int legalModifiers =
-				Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED
-				| Modifier.STATIC | Modifier.FINAL | Modifier.VOLATILE
-				| Modifier.TRANSIENT;
-			variableDecl.setModifiers(argument.modifiers & legalModifiers);
-			variableDecl.setFlags(ASTNode.MALFORMED);
-		}
+		variableDecl.setModifiers(argument.modifiers);
 		SimpleName name = this.ast.newSimpleName(new String(argument.name));
 		int start = argument.sourceStart;
 		int nameEnd = argument.sourceEnd;
@@ -2765,23 +2723,7 @@ class ASTConverter {
 		fieldDeclaration.setSourceRange(fieldDecl.declarationSourceStart, fieldDecl.declarationEnd - fieldDecl.declarationSourceStart + 1);
 		Type type = convertType(fieldDecl.type);
 		setTypeForField(fieldDeclaration, type, variableDeclarationFragment.getExtraDimensions());
-		/**
-		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
-		 * This handles cases where the parser built nodes with invalid modifiers.
-		 */
-		try {
-			fieldDeclaration.setModifiers(fieldDecl.modifiers & org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag);
-		} catch(IllegalArgumentException e) {
-			int legalModifiers = 
-				Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED
-				| Modifier.STATIC | Modifier.FINAL | Modifier.VOLATILE
-				| Modifier.TRANSIENT;
-			fieldDeclaration.setModifiers(fieldDecl.modifiers & legalModifiers);
-			fieldDeclaration.setFlags(ASTNode.MALFORMED);
-		}
-		// The javadoc comment is now got from list store in compilation unit declaration
-//		setJavaDocComment(fieldDeclaration);
-//		fieldDeclaration.setJavadoc(convert(fieldDecl.javadoc));
+		fieldDeclaration.setModifiers(fieldDecl.modifiers & org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag);
 		convert(fieldDecl.javadoc, fieldDeclaration);
 		return fieldDeclaration;
 	}
@@ -2795,18 +2737,7 @@ class ASTConverter {
 		variableDeclarationStatement.setSourceRange(localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd - localDeclaration.declarationSourceStart + 1);
 		Type type = convertType(localDeclaration.type);
 		setTypeForVariableDeclarationStatement(variableDeclarationStatement, type, variableDeclarationFragment.getExtraDimensions());
-		/**
-		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
-		 * This handles cases where the parser built variables with invalid modifiers.
-		 * The compilation unit is tagged as having wrong modifiers for the local.
-		 * Only final is allowed in this case.
-		 */
-		try {
-			variableDeclarationStatement.setModifiers(localDeclaration.modifiers & ~CompilerModifiers.AccBlankFinal);
-		} catch(IllegalArgumentException e) {
-			variableDeclarationStatement.setModifiers(localDeclaration.modifiers & Modifier.FINAL);
-			variableDeclarationStatement.setFlags(ASTNode.MALFORMED);
-		}
+		variableDeclarationStatement.setModifiers(localDeclaration.modifiers & ~CompilerModifiers.AccBlankFinal);
 		return variableDeclarationStatement;
 	}
 	
@@ -2819,18 +2750,7 @@ class ASTConverter {
 		variableDeclarationExpression.setSourceRange(localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd - localDeclaration.declarationSourceStart + 1);
 		Type type = convertType(localDeclaration.type);
 		setTypeForVariableDeclarationExpression(variableDeclarationExpression, type, variableDeclarationFragment.getExtraDimensions());
-		/**
-		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
-		 * This handles cases where the parser built variables with invalid modifiers.
-		 * The compilation unit is tagged as having wrong modifiers for the local.
-		 * Only final is allowed in this case.
-		 */
-		try {
-			variableDeclarationExpression.setModifiers(localDeclaration.modifiers & ~CompilerModifiers.AccBlankFinal);
-		} catch(IllegalArgumentException e) {
-			variableDeclarationExpression.setModifiers(localDeclaration.modifiers & Modifier.FINAL);
-			variableDeclarationExpression.setFlags(ASTNode.MALFORMED);
-		}
+		variableDeclarationExpression.setModifiers(localDeclaration.modifiers & ~CompilerModifiers.AccBlankFinal);
 		return variableDeclarationExpression;
 	}
 	
@@ -2842,7 +2762,8 @@ class ASTConverter {
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
 					Type elementType = arrayType.getElementType();
-					elementType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					elementType.setParent(null, null);
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					fieldDeclaration.setType(elementType);
 				} else {
@@ -2856,7 +2777,8 @@ class ASTConverter {
 					}
 					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
 					subarrayType.setSourceRange(start, end - start + 1);
-					subarrayType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					subarrayType.setParent(null, null);
 					fieldDeclaration.setType(subarrayType);
 					updateInnerPositions(subarrayType, remainingDimensions);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);
@@ -2899,7 +2821,8 @@ class ASTConverter {
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
 					Type elementType = arrayType.getElementType();
-					elementType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					elementType.setParent(null, null);
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					singleVariableDeclaration.setType(elementType);
 				} else {
@@ -2913,7 +2836,8 @@ class ASTConverter {
 					}
 					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
 					subarrayType.setSourceRange(start, end - start + 1);
-					subarrayType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					subarrayType.setParent(null, null);
 					updateInnerPositions(subarrayType, remainingDimensions);
 					singleVariableDeclaration.setType(subarrayType);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);
@@ -2934,7 +2858,8 @@ class ASTConverter {
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
 					Type elementType = arrayType.getElementType();
-					elementType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					elementType.setParent(null, null);
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					methodDeclaration.setReturnType(elementType);
 				} else {
@@ -2948,7 +2873,8 @@ class ASTConverter {
 					}
 					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
 					subarrayType.setSourceRange(start, end - start + 1);
-					subarrayType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					subarrayType.setParent(null, null);
 					updateInnerPositions(subarrayType, remainingDimensions);
 					methodDeclaration.setReturnType(subarrayType);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);
@@ -2969,7 +2895,8 @@ class ASTConverter {
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
 					Type elementType = arrayType.getElementType();
-					elementType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					elementType.setParent(null, null);
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					variableDeclarationStatement.setType(elementType);
 				} else {
@@ -2983,7 +2910,8 @@ class ASTConverter {
 					}
 					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
 					subarrayType.setSourceRange(start, end - start + 1);
-					subarrayType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					subarrayType.setParent(null, null);
 					updateInnerPositions(subarrayType, remainingDimensions);
 					variableDeclarationStatement.setType(subarrayType);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);
@@ -3004,7 +2932,8 @@ class ASTConverter {
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
 					Type elementType = arrayType.getElementType();
-					elementType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					elementType.setParent(null, null);
 					this.ast.getBindingResolver().updateKey(type, elementType);
 					variableDeclarationExpression.setType(elementType);
 				} else {
@@ -3018,7 +2947,8 @@ class ASTConverter {
 					}
 					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
 					subarrayType.setSourceRange(start, end - start + 1);
-					subarrayType.setParent(null);
+					// cut the child loose from its parent (without creating garbage)
+					subarrayType.setParent(null, null);
 					updateInnerPositions(subarrayType, remainingDimensions);
 					variableDeclarationExpression.setType(subarrayType);
 					this.ast.getBindingResolver().updateKey(type, subarrayType);

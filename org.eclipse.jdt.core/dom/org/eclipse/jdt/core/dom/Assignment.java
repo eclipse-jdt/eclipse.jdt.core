@@ -12,6 +12,7 @@
 package org.eclipse.jdt.core.dom;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -145,6 +146,57 @@ public class Assignment extends Expression {
 	}
 	
 	/**
+	 * The "leftHandSide" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor LEFT_HAND_SIDE_PROPERTY = 
+		new ChildPropertyDescriptor(Assignment.class, "leftHandSide", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "operator" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final SimplePropertyDescriptor OPERATOR_PROPERTY = 
+		new SimplePropertyDescriptor(Assignment.class, "operator", Assignment.Operator.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * The "rightHandSide" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor RIGHT_HAND_SIDE_PROPERTY = 
+		new ChildPropertyDescriptor(Assignment.class, "rightHandSide", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(Assignment.class);
+		addProperty(LEFT_HAND_SIDE_PROPERTY);
+		addProperty(OPERATOR_PROPERTY);
+		addProperty(RIGHT_HAND_SIDE_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The assignment operator; defaults to Assignment.Operator.ASSIGN
 	 */
 	private Assignment.Operator assignmentOperator = Assignment.Operator.ASSIGN;
@@ -170,6 +222,53 @@ public class Assignment extends Expression {
 	 */
 	Assignment(AST ast) {
 		super(ast);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
+		if (property == OPERATOR_PROPERTY) {
+			if (get) {
+				return getOperator();
+			} else {
+				setOperator((Operator) value);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetObjectProperty(property, get, value);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == LEFT_HAND_SIDE_PROPERTY) {
+			if (get) {
+				return getLeftHandSide();
+			} else {
+				setLeftHandSide((Expression) child);
+				return null;
+			}
+		}
+		if (property == RIGHT_HAND_SIDE_PROPERTY) {
+			if (get) {
+				return getRightHandSide();
+			} else {
+				setRightHandSide((Expression) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
 	}
 
 	/* (omit javadoc for this method)
@@ -218,7 +317,7 @@ public class Assignment extends Expression {
 	 * @return the assignment operator
 	 */ 
 	public Assignment.Operator getOperator() {
-		return assignmentOperator;
+		return this.assignmentOperator;
 	}
 
 	/**
@@ -231,8 +330,9 @@ public class Assignment extends Expression {
 		if (assignmentOperator == null) {
 			throw new IllegalArgumentException();
 		}
-		modifying();
+		preValueChange(OPERATOR_PROPERTY);
 		this.assignmentOperator = assignmentOperator;
+		postValueChange(OPERATOR_PROPERTY);
 	}
 
 	/**
@@ -241,13 +341,12 @@ public class Assignment extends Expression {
 	 * @return the left hand side node
 	 */ 
 	public Expression getLeftHandSide() {
-		if (leftHandSide  == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setLeftHandSide(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.leftHandSide  == null) {
+			preLazyInit();
+			this.leftHandSide= new SimpleName(this.ast);
+			postLazyInit(this.leftHandSide, LEFT_HAND_SIDE_PROPERTY);
 		}
-		return leftHandSide;
+		return this.leftHandSide;
 	}
 		
 	/**
@@ -266,8 +365,9 @@ public class Assignment extends Expression {
 			throw new IllegalArgumentException();
 		}
 		// an Assignment may occur inside a Expression - must check cycles
-		replaceChild(this.leftHandSide, expression, true);
+		preReplaceChild(this.leftHandSide, expression, LEFT_HAND_SIDE_PROPERTY);
 		this.leftHandSide = expression;
+		postReplaceChild(this.leftHandSide, expression, LEFT_HAND_SIDE_PROPERTY);
 	}
 
 	/**
@@ -276,13 +376,12 @@ public class Assignment extends Expression {
 	 * @return the right hand side node
 	 */ 
 	public Expression getRightHandSide() {
-		if (rightHandSide  == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setRightHandSide(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.rightHandSide  == null) {
+			preLazyInit();
+			this.rightHandSide= new SimpleName(this.ast);
+			postLazyInit(this.rightHandSide, RIGHT_HAND_SIDE_PROPERTY);
 		}
-		return rightHandSide;
+		return this.rightHandSide;
 	}
 		
 	/**
@@ -301,8 +400,9 @@ public class Assignment extends Expression {
 			throw new IllegalArgumentException();
 		}
 		// an Assignment may occur inside a Expression - must check cycles
-		replaceChild(this.rightHandSide, expression, true);
+		preReplaceChild(this.rightHandSide, expression, RIGHT_HAND_SIDE_PROPERTY);
 		this.rightHandSide = expression;
+		postReplaceChild(this.rightHandSide, expression, RIGHT_HAND_SIDE_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)
@@ -319,8 +419,8 @@ public class Assignment extends Expression {
 	int treeSize() {
 		return 
 			memSize()
-			+ (leftHandSide == null ? 0 : getLeftHandSide().treeSize())
-			+ (rightHandSide == null ? 0 : getRightHandSide().treeSize());
+			+ (this.leftHandSide == null ? 0 : getLeftHandSide().treeSize())
+			+ (this.rightHandSide == null ? 0 : getRightHandSide().treeSize());
 	}
 }
 

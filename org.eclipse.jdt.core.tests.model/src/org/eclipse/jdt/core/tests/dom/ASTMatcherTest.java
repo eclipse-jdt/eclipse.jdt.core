@@ -103,12 +103,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	 *
 	 */
 	protected void setUp() {
-		if (this.API_LEVEL == AST.LEVEL_2_0) {
-			ast = AST.newAST2();
-		}
-		if (this.API_LEVEL == AST.LEVEL_3_0) {
-			ast = AST.newAST3();
-		}
+		ast = AST.newAST(this.API_LEVEL);
 		N1 = ast.newSimpleName("N"); //$NON-NLS-1$
 		N2 = ast.newSimpleName("M"); //$NON-NLS-1$
 		N3 = ast.newSimpleName("O"); //$NON-NLS-1$
@@ -158,9 +153,11 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		ACD1 = ast.newAnonymousClassDeclaration();
 		
 		JD1 = ast.newJavadoc();
-		JD1.setComment("/**X*/"); //$NON-NLS-1$
 		JD2 = ast.newJavadoc();
-		JD2.setComment("/**Y*/"); //$NON-NLS-1$
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			JD1.setComment("/**X*/"); //$NON-NLS-1$
+			JD2.setComment("/**Y*/"); //$NON-NLS-1$
+		}
 
 		BC1 = ast.newBlockComment();
 		
@@ -798,8 +795,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			return;
 		}
 		EnhancedForStatement x1 = ast.newEnhancedForStatement();
-		x1.setType(T1);
-		x1.setName(N1);
+		x1.setParameter(V1);
 		x1.setExpression(E1);
 		x1.setBody(S1);
 		basicMatch(x1);
@@ -903,7 +899,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	 */
 	public void testJavadoc() {
 		Javadoc x1 = ast.newJavadoc();
-		x1.setComment("/**?*/"); //$NON-NLS-1$
+		if (ast.apiLevel() == AST.LEVEL_2_0) {
+			x1.setComment("/**?*/"); //$NON-NLS-1$
+		}
 		x1.tags().add(TAG1);
 		x1.tags().add(TAG2);
 		basicMatch(x1);

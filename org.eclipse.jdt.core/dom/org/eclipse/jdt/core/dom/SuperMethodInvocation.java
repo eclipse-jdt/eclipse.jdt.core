@@ -27,6 +27,57 @@ import java.util.List;
 public class SuperMethodInvocation extends Expression {
 	
 	/**
+	 * The "qualifier" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor QUALIFIER_PROPERTY = 
+		new ChildPropertyDescriptor(SuperMethodInvocation.class, "qualifier", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "name" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor NAME_PROPERTY = 
+		new ChildPropertyDescriptor(SuperMethodInvocation.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "arguments" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildListPropertyDescriptor ARGUMENTS_PROPERTY = 
+		new ChildListPropertyDescriptor(SuperMethodInvocation.class, "arguments", Expression.class, CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * A list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
+	
+	static {
+		createPropertyList(SuperMethodInvocation.class);
+		addProperty(QUALIFIER_PROPERTY);
+		addProperty(NAME_PROPERTY);
+		addProperty(ARGUMENTS_PROPERTY);
+		PROPERTY_DESCRIPTORS = reapPropertyList();
+	}
+
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 * 
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.LEVEL_*</code>LEVEL
+
+	 * @return a list of property descriptors (element type: 
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.0
+	 */
+	public static List propertyDescriptors(int apiLevel) {
+		return PROPERTY_DESCRIPTORS;
+	}
+			
+	/**
 	 * The optional qualifier; <code>null</code> for none; defaults to none.
 	 */
 	private Name optionalQualifier = null;
@@ -42,7 +93,7 @@ public class SuperMethodInvocation extends Expression {
 	 * <code>Expression</code>). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList arguments =
-		new ASTNode.NodeList(true, Expression.class);
+		new ASTNode.NodeList(ARGUMENTS_PROPERTY);
 
 	/**
 	 * Creates a new AST node for a "super" method invocation expression owned
@@ -53,6 +104,48 @@ public class SuperMethodInvocation extends Expression {
 	 */
 	SuperMethodInvocation(AST ast) {
 		super(ast);	
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalStructuralPropertiesForType(int apiLevel) {
+		return propertyDescriptors(apiLevel);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == QUALIFIER_PROPERTY) {
+			if (get) {
+				return getQualifier();
+			} else {
+				setQualifier((Name) child);
+				return null;
+			}
+		}
+		if (property == NAME_PROPERTY) {
+			if (get) {
+				return getName();
+			} else {
+				setName((SimpleName) child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
+	}
+	
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == ARGUMENTS_PROPERTY) {
+			return arguments();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
 	}
 
 	/* (omit javadoc for this method)
@@ -91,7 +184,7 @@ public class SuperMethodInvocation extends Expression {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getQualifier());
 			acceptChild(visitor, getName());
-			acceptChildren(visitor, arguments);
+			acceptChildren(visitor, this.arguments);
 		}
 		visitor.endVisit(this);
 	}
@@ -103,7 +196,7 @@ public class SuperMethodInvocation extends Expression {
 	 * @return the qualifier name node, or <code>null</code> if there is none
 	 */ 
 	public Name getQualifier() {
-		return optionalQualifier;
+		return this.optionalQualifier;
 	}
 	
 	/**
@@ -118,9 +211,9 @@ public class SuperMethodInvocation extends Expression {
 	 * </ul>
 	 */ 
 	public void setQualifier(Name name) {
-		// a SuperMethodInvocation cannot occur inside a Name
-		replaceChild(this.optionalQualifier, name, false);
+		preReplaceChild(this.optionalQualifier, name, QUALIFIER_PROPERTY);
 		this.optionalQualifier = name;
+		postReplaceChild(this.optionalQualifier, name, QUALIFIER_PROPERTY);
 	}
 	
 	/**
@@ -129,13 +222,12 @@ public class SuperMethodInvocation extends Expression {
 	 * @return the method name node
 	 */ 
 	public SimpleName getName() {
-		if (methodName == null) {
-			// lazy initialize - use setter to ensure parent link set too
-			long count = getAST().modificationCount();
-			setName(new SimpleName(getAST()));
-			getAST().setModificationCount(count);
+		if (this.methodName == null) {
+			preLazyInit();
+			this.methodName = new SimpleName(this.ast);
+			postLazyInit(this.methodName, NAME_PROPERTY);
 		}
-		return methodName;
+		return this.methodName;
 	}
 	
 	/**
@@ -153,8 +245,9 @@ public class SuperMethodInvocation extends Expression {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.methodName, name, false);
+		preReplaceChild(this.methodName, name, NAME_PROPERTY);
 		this.methodName = name;
+		postReplaceChild(this.methodName, name, NAME_PROPERTY);
 	}
 
 	/**
@@ -165,7 +258,7 @@ public class SuperMethodInvocation extends Expression {
 	 *    (element type: <code>Expression</code>)
 	 */ 
 	public List arguments() {
-		return arguments;
+		return this.arguments;
 	}
 
 	/**
@@ -181,7 +274,7 @@ public class SuperMethodInvocation extends Expression {
 	 * @since 2.1
 	 */
 	public IMethodBinding resolveMethodBinding() {
-		return getAST().getBindingResolver().resolveMethod(this);
+		return this.ast.getBindingResolver().resolveMethod(this);
 	}
 
 	/* (omit javadoc for this method)
@@ -198,9 +291,9 @@ public class SuperMethodInvocation extends Expression {
 	int treeSize() {
 		return 
 			memSize()
-			+ (optionalQualifier == null ? 0 : getQualifier().treeSize())
-			+ (methodName == null ? 0 : getName().treeSize())
-			+ arguments.listSize();
+			+ (this.optionalQualifier == null ? 0 : getQualifier().treeSize())
+			+ (this.methodName == null ? 0 : getName().treeSize())
+			+ this.arguments.listSize();
 	}
 }
 

@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -105,6 +107,7 @@ public final class AST {
      * up to and including J2SE 1.4.
      *
 	 * @since 3.0
+	 * // TBD (jeem) deprecated Clients should use the level 3 API.
 	 */
 	public static final int LEVEL_2_0 = 2;
 	
@@ -123,19 +126,42 @@ public final class AST {
 	public static final int LEVEL_3_0 = 3;
 	
 	/**
-	 * Level of AST API supported by this AST.
-     * Defaults to 2.0 for compatibility reasons.
-     *
+	 * The binding resolver for this AST. Initially a binding resolver that
+	 * does not resolve names at all.
+	 */
+	private BindingResolver resolver = new BindingResolver();
+	
+	/**
+	 * The event handler for this AST. 
+	 * Initially an event handler that does not nothing.
 	 * @since 3.0
 	 */
-	int API_LEVEL = LEVEL_2_0;
+	private NodeEventHandler eventHandler = new NodeEventHandler();
+	
+	/**
+	 * Level of AST API supported by this AST.
+	 * @since 3.0
+	 */
+	int API_LEVEL;
 	
 	/**
 	 * Internal modification count; initially 0; increases monotonically
 	 * <b>by one or more</b> as the AST is successively modified.
 	 */
-	private long modCount = 0;
-	
+	private long modificationCount = 0;
+
+	/**
+	 * When disableEvents > 0, events are not reported and
+	 * the modification count stays fixed.
+	 * <p>
+	 * This mechanism is used in lazy initialization of a node
+	 * to prevent events from being reported for the modification
+	 * of the node as well as for the creation of the missing child.
+	 * </p>
+	 * @since 3.0
+	 */
+	int disableEvents = 0;
+
 	/**
 	 * Java Scanner used to validate preconditions for the creation of specific nodes
 	 * like CharacterLiteral, NumberLiteral, StringLiteral or SimpleName.
@@ -143,11 +169,34 @@ public final class AST {
 	Scanner scanner;
 
 	/**
+	 * Creates a new Java abstract syntax tree
+     * (AST) following the specified set of API rules. 
+     * 
+ 	 * @param level the API level; one of the LEVEL constants
+     * @since 3.0
+	 */
+	private AST(int level) {
+		if ((level != AST.LEVEL_2_0)
+			&& (level != AST.LEVEL_3_0)) {
+			throw new IllegalArgumentException();
+		}
+		this.API_LEVEL = level;
+		// initialize a scanner
+		this.scanner = new Scanner(
+				true /*comment*/, 
+				true /*whitespace*/, 
+				false /*nls*/, 
+				ClassFileConstants.JDK1_3 /*sourceLevel*/, 
+				null/*taskTag*/, 
+				null/*taskPriorities*/);
+	}
+
+	/**
 	 * Creates a new, empty abstract syntax tree using default options.
 	 * 
 	 * @see JavaCore#getDefaultOptions()
 	 * TBD (jeem) deprecated Clients should port their code to
-     * use the new 3.0 API and call {@link #newAST3()} instead of using
+     * use the new 3.0 API and call {@link #newAST(int)} instead of using
      * this constructor.
 	 */
 	public AST() {
@@ -207,57 +256,40 @@ public final class AST {
 	 *    value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions()
 	 * TBD (jeem) deprecated Clients should port their code to
-     * use the new 3.0 API and call {@link #newAST3()} instead of using
+     * use the new 3.0 API and call {@link #newAST(int)} instead of using
      * this constructor.
 	 */
 	public AST(Map options) {
-		this.scanner = new Scanner(
-			true /*comment*/, 
-			true /*whitespace*/, 
-			false /*nls*/, 
-			JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) ? ClassFileConstants.JDK1_4 : ClassFileConstants.JDK1_3 /*sourceLevel*/, 
-			null/*taskTag*/, 
-			null/*taskPriorities*/);
+		this(LEVEL_2_0);
+		// override scanner if 1.4 asked for
+		if (JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE))) {
+			this.scanner = new Scanner(
+				true /*comment*/, 
+				true /*whitespace*/, 
+				false /*nls*/, 
+				ClassFileConstants.JDK1_4 /*sourceLevel*/, 
+				null/*taskTag*/, 
+				null/*taskPriorities*/);
+		}
 	}
 		
 	/**
-	 * Creates a new Java abstract syntax tree (AST) following the
-	 * 3.0 API rules. The 3.0 API is capable
-     * of handling all constructs in the Java language as described
-     * in the Java Language Specification, Third Edition (JLS3).
-     * JLS3 is a superset of all earlier versions of the
-     * Java language, and the 3.0 API can be used to manipulate
-     * programs written in all versions of the Java language
-     * up to and including J2SE 1.5.
-     * 
-     * @return an AST that plays by the 3.0 rules
-     * @since 3.0
-	 */
-	public static AST newAST3() {
-		AST result = new AST();
-		result.API_LEVEL = LEVEL_3_0;
-		return result;
-	}
-
-	/**
-	 * Creates a new Java abstract syntax tree (AST) following the
-	 * 2.0 API rules. The 2.0 API is capable
-     * of handling all constructs in the Java language as described
-     * in the Java Language Specification, Second Edition (JLS2).
-     * JLS2 is a superset of all earlier versions of the
-     * Java language, and the 2.0 API can be used to manipulate
-     * programs written in all versions of the Java language
-     * up to and including J2SE 1.4. 
+	 * Creates a new Java abstract syntax tree
+     * (AST) following the specified set of API rules. 
      * <p>
-     * Clients should not use this method. It is provided only so that
+     * Clients should use this method. It is provided only so that
      * test suites can create AST instances that employ the 2.0 APIs.
      * </p>
      * 
-     * @return an AST that plays by the 2.0 rules
+ 	 * @param level the API level; one of the LEVEL constants
      * @since 3.0
 	 */
-	public static AST newAST2() {
-		return new AST();
+	public static AST newAST(int level) {
+		if ((level != AST.LEVEL_2_0)
+			&& (level != AST.LEVEL_3_0)) {
+			throw new IllegalArgumentException();
+		}
+		return new AST(level);
 	}
 
 	/**
@@ -286,7 +318,7 @@ public final class AST {
 	 *    this AST
 	 */
 	public long modificationCount() {
-		return this.modCount;
+		return this.modificationCount;
 	}
 
 	/**
@@ -301,20 +333,11 @@ public final class AST {
 	}
 
 	/**
-	 * Set the modification count to the new value
-	 * 
-	 * @param value the new value
-	 */
-	void setModificationCount(long value) {
-		this.modCount = value;
-	}
-		
-	/**
 	 * Indicates that this AST is about to be modified.
 	 * <p>
 	 * The following things count as modifying an AST:
 	 * <ul>
-	 * <li>creating a new node owned by this AST,</li>
+	 * <li>creating a new node owned by this AST</li>
 	 * <li>adding a child to a node owned by this AST</li>
 	 * <li>removing a child from a node owned by this AST</li>
 	 * <li>setting a non-node attribute of a node owned by this AST</li>.
@@ -326,10 +349,85 @@ public final class AST {
 	 * </p> 
 	 */
 	void modifying() {
+		if (this.disableEvents > 0) {
+			return;
+		}
 		// increase the modification count
-		this.modCount++;	
+		this.modificationCount++;
 	}
 
+	/**
+	 * Reports that the given node is about to lose a child.
+	 * 
+	 * @param node the node about to be modified
+	 * @param child the node about to be removed
+	 * @param property the child or child list property descriptor
+	 * @since 3.0
+	 */
+	void preRemoveChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.preRemoveChildEvent(node, child, property);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has not been changed yet
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
+	/**
+	 * Reports that the given node has just gained a child.
+	 * 
+	 * @param node the node that was modified
+	 * @param child the node that was added as a child
+	 * @param property the child or child list property descriptor
+	 * @since 3.0
+	 */
+	void postAddChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE ADD]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.postAddChildEvent(node, child, property);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has already been changed
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
+	/**
+	 * Reports that the given node has just changed the value of a
+	 * non-child property.
+	 * 
+	 * @param node the node that was modified
+	 * @param property the property descriptor
+	 * @since 3.0
+	 */
+	void postValueChangeEvent(ASTNode node, SimplePropertyDescriptor property) {
+		if (this.disableEvents > 0) {
+			// doing lazy init OR already processing an event
+			// System.out.println("[BOUNCE CHANGE]"); //$NON-NLS-1$
+			return;
+		}
+		try {
+			this.disableEvents++;
+			this.eventHandler.postValueChangeEvent(node, property);
+			// N.B. even if event handler blows up, the AST is not
+			// corrupted since node has already been changed
+		} finally {
+			this.disableEvents--;
+		}
+	}
+	
 	/**
 	 * Parses the given source between the bounds specified by the given offset (inclusive)
 	 * and the given length and creates and returns a corresponding abstract syntax tree.
@@ -338,17 +436,17 @@ public final class AST {
 	 * requested source:
 	 * <ul>
 	 * <li>{@link #K_CLASS_BODY_DECLARATIONS}: The result node
-	 * is a {@link TypeDeclaration TypeDeclaration} whose
+	 * is a {@link TypeDeclaration} whose
 	 * {@link TypeDeclaration#bodyDeclarations() bodyDeclarations}
 	 * are the new trees. Other aspects of the type declaration are unspecified.</li>
 	 * <li>{@link #K_STATEMENTS}: The result node is a
-	 * {@link Block Block} whose {@link Block#statements() statements}
+	 * {@link Block} whose {@link Block#statements() statements}
 	 * are the new trees. Other aspects of the block are unspecified.</li>
 	 * <li>{@link #K_EXPRESSION}: The result node is a subclass of
-	 * {@link Expression Expression}. Other aspects of the expression are unspecified.</li>
+	 * {@link Expression}. Other aspects of the expression are unspecified.</li>
 	 * </ul>
 	 * The resulting AST node is rooted under an contrived
-	 * {@link CompilationUnit CompilationUnit} node, to allow the
+	 * {@link CompilationUnit} node, to allow the
 	 * client to retrieve the following pieces of information 
 	 * available there:
 	 * <ul>
@@ -363,7 +461,7 @@ public final class AST {
 	 * for the subrange scanned.</li>
 	 * </ul>
 	 * The contrived nodes do not have source positions. Other aspects of the
-	 * {@link CompilationUnit CompilationUnit} node are unspecified, including
+	 * {@link CompilationUnit} node are unspecified, including
 	 * the exact arrangment of intervening nodes.
 	 * </p>
 	 * <p>
@@ -371,7 +469,7 @@ public final class AST {
 	 * a result node being marked as {@link ASTNode#MALFORMED MALFORMED}.
 	 * In more severe failure cases where the parser is unable to
 	 * recognize the input, this method returns 
-	 * a {@link CompilationUnit CompilationUnit} node with at least the
+	 * a {@link CompilationUnit} node with at least the
 	 * compiler messages.
 	 * </p>
 	 * <p>Each node in the subtree (other than the contrived nodes) 
@@ -428,7 +526,7 @@ public final class AST {
 		if (length < 0 || offset < 0 || offset > source.length - length) {
 		    throw new IndexOutOfBoundsException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setKind(kind);
 		c.setSource(source);
 		c.setSourceRange(offset, length);
@@ -498,7 +596,7 @@ public final class AST {
 		ICompilationUnit unit,
 		boolean resolveBindings) {
 
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(unit);
 		c.setResolveBindings(resolveBindings);
 		ASTNode result = c.createAST(null);
@@ -588,7 +686,7 @@ public final class AST {
 		if (unit == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(unit);
 		c.setResolveBindings(resolveBindings);
 		c.setWorkingCopyOwner(owner);
@@ -662,7 +760,7 @@ public final class AST {
 		if (classFile == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(classFile);
 		c.setResolveBindings(resolveBindings);
 		ASTNode result = c.createAST(null);
@@ -711,7 +809,7 @@ public final class AST {
 		if (classFile == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(classFile);
 		c.setResolveBindings(resolveBindings);
 		c.setWorkingCopyOwner(owner);
@@ -792,7 +890,7 @@ public final class AST {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(source);
 		c.setUnitName(unitName);
 		c.setProject(project);
@@ -887,7 +985,7 @@ public final class AST {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(source);
 		c.setUnitName(unitName);
 		c.setProject(project);
@@ -935,7 +1033,7 @@ public final class AST {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(source);
 		ASTNode result = c.createAST(null);
 		return (CompilationUnit) result;
@@ -988,7 +1086,7 @@ public final class AST {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(source);
 		c.setCompilerOptions(options);
 		ASTNode result = c.createAST(null);
@@ -1111,9 +1209,9 @@ public final class AST {
 		if (unit == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(unit);
-		c.setPartial(position);
+		c.setFocalPosition(position);
 		c.setResolveBindings(resolveBindings);
 		c.setWorkingCopyOwner(owner);
 		ASTNode result = c.createAST(monitor);
@@ -1159,20 +1257,14 @@ public final class AST {
 		if (classFile == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.internalNewParser2();
+		ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
 		c.setSource(classFile);
-		c.setPartial(position);
+		c.setFocalPosition(position);
 		c.setResolveBindings(resolveBindings);
 		c.setWorkingCopyOwner(owner);
 		ASTNode result = c.createAST(monitor);
 		return (CompilationUnit) result;
 	}
-	
-	/**
-	 * The binding resolver for this AST. Initially a binding resolver that
-	 * does not resolve names at all.
-	 */
-	private BindingResolver resolver = new BindingResolver();
 	
 	/**
 	 * Returns the binding resolver for this AST.
@@ -1181,6 +1273,29 @@ public final class AST {
 	 */
 	BindingResolver getBindingResolver() {
 		return this.resolver;
+	}
+
+	/**
+	 * Returns the event handler for this AST.
+	 * 
+	 * @return the event handler for this AST
+	 * @since 3.0
+	 */
+	NodeEventHandler getEventHandler() {
+		return this.eventHandler;
+	}
+
+	/**
+	 * Sets the event handler for this AST.
+	 * 
+	 * @param resolver the event handler for this AST
+	 * @since 3.0
+	 */
+	void setEventHandler(NodeEventHandler eventHandler) {
+		if (this.eventHandler == null) {
+			throw new IllegalArgumentException();
+		}
+		this.eventHandler = eventHandler;
 	}
 
 	/** 
@@ -1245,7 +1360,7 @@ public final class AST {
      * @exception UnsupportedOperationException
 	 * @since 3.0
      */
-	final void unsupportedIn2() {
+	void unsupportedIn2() {
 	  if (this.API_LEVEL == AST.LEVEL_2_0) {
 	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
 	  }
@@ -1258,10 +1373,63 @@ public final class AST {
      * @exception UnsupportedOperationException
 	 * @since 3.0
      */
-	final void supportedOnlyIn2() {
+	void supportedOnlyIn2() {
 	  if (this.API_LEVEL != AST.LEVEL_2_0) {
 	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
 	  }
+	}
+
+	/**
+	 * new Class[] {AST.class}
+	 * @since 3.0
+	 */
+	private static final Class[] AST_CLASS = new Class[] {AST.class};
+
+	/**
+	 * new Object[] {this}
+	 * @since 3.0
+	 */
+	private final Object[] THIS_AST= new Object[] {this};
+	
+	/**
+	 * Creates an unparented node owned by this AST.
+	 * 
+	 * @param nodeClass AST node class
+	 * @return a new unparented node
+	 * @exception RuntimeException if unsuccessful for any reason
+	 * @since 3.0
+	 * TBD (jeem) - make public when fully implemented (requires 1-arg constructors on all concrete node type)
+	 */
+	ASTNode createInstance(Class nodeClass) {
+		if (nodeClass == null) {
+			throw new IllegalArgumentException();
+		}
+		try {
+			// invoke constructor with signature Foo(AST)
+			Constructor c = nodeClass.getConstructor(AST_CLASS);
+			Object result = c.newInstance(THIS_AST);
+			return (ASTNode) result;
+		} catch (NoSuchMethodException e) {
+			throw new RuntimeException("Unable to create instance", e); //$NON-NLS-1$
+		} catch (InstantiationException e) {
+			throw new RuntimeException("Unable to create instance", e); //$NON-NLS-1$
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException("Unable to create instance", e); //$NON-NLS-1$
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException("Unable to create instance", e); //$NON-NLS-1$
+		}		
+	}
+
+	/**
+	 * Creates an unparented node owned by this AST.
+	 * 
+	 * @param nodeType AST node type
+	 * @return a new unparented node
+	 * @since 3.0
+	 * TBD (jeem) - make public when implemented
+	 */
+	ASTNode createInstance(int nodeType) {
+		return createInstance(ASTNode.nodeClassForType(nodeType));
 	}
 
 	//=============================== NAMES ===========================
@@ -1833,7 +2001,7 @@ public final class AST {
 	 * Initially the new node has no tag name and an empty list of fragments.
 	 * <p>
 	 * Note that this node type is used only inside doc comments
-	 * ({@link Javadoc Javadoc}).
+	 * ({@link Javadoc}).
 	 * </p>
 	 * 
 	 * @return a new unparented tag element node
@@ -1866,7 +2034,7 @@ public final class AST {
 	 * an unspecified, but legal, member name.
 	 * <p>
 	 * Note that this node type is used only inside doc comments
-	 * ({@link Javadoc Javadoc}).
+	 * ({@link Javadoc}).
 	 * </p>
 	 * 
 	 * @return a new unparented member reference node
@@ -1901,7 +2069,7 @@ public final class AST {
 	 * type, and no parameter name. 
 	 * <p>
 	 * Note that this node type is used only inside doc comments
-	 * ({@link Javadoc Javadoc}).
+	 * ({@link Javadoc}).
 	 * </p>
 	 * 
 	 * @return a new unparented method reference parameter node
@@ -2207,7 +2375,7 @@ public final class AST {
 
 	/**
 	 * Creates a new unparented enhanced for statement node owned by this AST.
-	 * By default, the type, name, and expression are unspecified
+	 * By default, the paramter and expression are unspecified
 	 * but legal subtrees, and the body is an empty block.
 	 * <p>
 	 * Note: Enhanced for statements are an experimental language feature 
