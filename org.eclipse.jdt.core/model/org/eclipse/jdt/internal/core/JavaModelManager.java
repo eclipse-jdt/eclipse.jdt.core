@@ -521,9 +521,6 @@ public void doneSaving(ISaveContext context){
 			} else {
 				deltaToNotify = customDelta;
 			}
-			if (DeltaProcessor.VERBOSE){
-				System.out.println("FIRING Delta ["+Thread.currentThread()+"]:\n" + deltaToNotify);//$NON-NLS-1$//$NON-NLS-2$
-			}
 				
 			// Refresh internal scopes
 			Iterator scopes = this.scopes.keySet().iterator();
@@ -542,6 +539,9 @@ public void doneSaving(ISaveContext context){
 
 			// in case using a DEFAULT change event, will notify also all listeners also interested in PRE-build events
 			if (originalEventType == DEFAULT_CHANGE_EVENT){
+				if (DeltaProcessor.VERBOSE){
+					System.out.println("FIRING PRE_AUTO_BUILD Delta ["+Thread.currentThread()+"]:\n" + deltaToNotify);//$NON-NLS-1$//$NON-NLS-2$
+				}
 				ElementChangedEvent extraEvent = new ElementChangedEvent(deltaToNotify, ElementChangedEvent.PRE_AUTO_BUILD);
 				for (int i= 0; i < listenerCount; i++) {
 					if ((listenerMask[i] & ElementChangedEvent.PRE_AUTO_BUILD) != 0){
@@ -551,6 +551,21 @@ public void doneSaving(ISaveContext context){
 			}
 
 			// regular notification
+			if (DeltaProcessor.VERBOSE){
+				String type = "";
+				switch (eventType) {
+					case ElementChangedEvent.POST_CHANGE:
+						type = "POST_CHANGE"; //$NON-NLS-2$
+						break;
+					case ElementChangedEvent.PRE_AUTO_BUILD:
+						type = "PRE_AUTO_BUILD"; //$NON-NLS-2$
+						break;
+					case ElementChangedEvent.POST_RECONCILE:
+						type = "POST_RECONCILE"; //$NON-NLS-2$
+						break;
+				}
+				System.out.println("FIRING " + type + " Delta ["+Thread.currentThread()+"]:\n" + deltaToNotify);//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			}
 			ElementChangedEvent event = new ElementChangedEvent(deltaToNotify, eventType);
 			for (int i= 0; i < listenerCount; i++) {
 				if ((listenerMask[i] & eventType) != 0){
