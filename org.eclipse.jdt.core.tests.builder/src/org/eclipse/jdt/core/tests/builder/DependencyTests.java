@@ -421,8 +421,8 @@ public class DependencyTests extends Tests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {cPath, xPath});
-		expectingSpecificProblemFor(cPath, new Problem("C", "M cannot be resolved to a type", cPath)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(xPath, new Problem("X", "p3.C.M cannot be resolved to a type", xPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "M cannot be resolved (or is not a valid type) for the field C.m", cPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "p3.C.M cannot be resolved (or is not a valid type) for the parameter m of the method foo", xPath)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -485,8 +485,8 @@ public class DependencyTests extends Tests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {cPath, xPath});
-		expectingSpecificProblemFor(cPath, new Problem("C", "The type M is not visible", cPath)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(xPath, new Problem("X", "The type p3.C.M is not visible", xPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "The type M is not visible for the field C.m", cPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The type p3.C.M is not visible for the parameter m of the method foo", xPath)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -497,7 +497,7 @@ public class DependencyTests extends Tests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {xPath});
-		expectingSpecificProblemFor(xPath, new Problem("X", "The type p3.C.M is not visible", xPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The type p3.C.M is not visible for the parameter m of the method foo", xPath)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -694,8 +694,8 @@ public class DependencyTests extends Tests {
 		expectingNoProblems();
 	}
 
-	// TODO (kent) 72468
-	public void _testTypeDeleting() throws JavaModelException {
+	// 72468
+	public void testTypeDeleting() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -730,7 +730,7 @@ public class DependencyTests extends Tests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {bPath, cPath});
-		expectingSpecificProblemFor(bPath, new Problem("B", "p1.A cannot be resolved to a type", bPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(bPath, new Problem("B", "p1.A cannot be resolved or is not a valid superclass", bPath)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(cPath, new Problem("C", "The hierarchy of the type C is inconsistent", cPath)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p2", "B", //$NON-NLS-1$ //$NON-NLS-2$
@@ -742,8 +742,8 @@ public class DependencyTests extends Tests {
 		expectingNoProblems();
 	}
 
-	// TODO (kent) 72468
-	public void _testTypeVisibility() throws JavaModelException {
+	// 72468
+	public void testTypeVisibility() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -778,7 +778,7 @@ public class DependencyTests extends Tests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {bPath, cPath});
-		expectingSpecificProblemFor(bPath, new Problem("B", "The type p1.A is not visible", bPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(bPath, new Problem("B", "Superclass p1.A is not visible", bPath)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(cPath, new Problem("C", "The hierarchy of the type C is inconsistent", cPath)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p2", "B", //$NON-NLS-1$ //$NON-NLS-2$
@@ -796,7 +796,7 @@ public class DependencyTests extends Tests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {bPath, cPath});
-		expectingSpecificProblemFor(bPath, new Problem("B", "The type p1.A is not visible", bPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(bPath, new Problem("B", "Superclass p1.A is not visible", bPath)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(cPath, new Problem("C", "The hierarchy of the type C is inconsistent", cPath)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
