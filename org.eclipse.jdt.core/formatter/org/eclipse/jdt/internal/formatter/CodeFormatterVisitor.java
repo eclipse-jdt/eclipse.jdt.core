@@ -1381,6 +1381,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	private void formatEmptyTypeDeclaration(boolean isFirst) {
 		boolean hasSemiColon = isNextToken(TerminalTokens.TokenNameSEMICOLON);
 		while(isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
+			this.scribe.printComment();
 			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 			this.scribe.printTrailingComment();
 		}
@@ -2795,7 +2796,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			int typesLength = types.length;
 			for (int i = 0; i < typesLength - 1; i++) {
 				types[i].traverse(this, scope);
-				this.scribe.printComment();
 				formatEmptyTypeDeclaration(false);
 				if (blankLineBetweenTypeDeclarations != 0) {
 					this.scribe.printEmptyLines(blankLineBetweenTypeDeclarations);
