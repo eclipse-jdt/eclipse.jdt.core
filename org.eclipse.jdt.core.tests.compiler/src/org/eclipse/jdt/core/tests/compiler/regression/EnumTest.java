@@ -710,15 +710,28 @@ public class EnumTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}
+	
+	// 77244 - cannot declare final enum
+	public void test024() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",	
+				"public final enum X {}\n" + 
+				"\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public final enum X {}\n" + 
+			"	                  ^\n" + 
+			"Illegal modifier for the enum X; only public & abstract are permitted\n" + 
+			"----------\n");
+	}	
+	
 	// enum cannot be declared as local type
 	
 	// check abstract conditions
 	
 	// check one cannot redefine Enum incorrectly
-	
-	// check one cannot extend Enum explicitly
-	
-	// check one cannot allocate an enum type
 	
 	// check binary compatibility (removing referenced enum constants in switch)
 	
