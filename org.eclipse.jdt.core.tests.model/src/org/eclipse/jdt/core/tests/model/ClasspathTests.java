@@ -97,6 +97,10 @@ protected File createFile(File parent, String name, String content) throws IOExc
 	FileOutputStream out = new FileOutputStream(file);
 	out.write(content.getBytes());
 	out.close();
+	/*
+	 * Need to change the time stamp to realize that the file has been modified
+	 */
+	file.setLastModified(System.currentTimeMillis() + 2000);
 	return file;
 }
 protected File createFolder(File parent, String name) throws IOException {
