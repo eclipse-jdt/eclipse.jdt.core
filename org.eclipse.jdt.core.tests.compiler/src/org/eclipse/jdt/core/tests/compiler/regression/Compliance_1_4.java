@@ -1605,6 +1605,60 @@ public void _test43() {
 		null); // no special vm args		
 }
 
+/*
+ * 31398 - non-visible abstract method fooling method verification
+ */
+public void _test44() {
+	this.runConformTest(
+		new String[] {
+			"p/X.java", //================================
+			"package p;	\n" +
+			"public class X extends q.Y.Member {	\n" +
+			"	public static void main(String[] args) {	\n" +
+			"		new X().foo();	\n" +
+			"	}	\n" +
+			"}	\n",
+			"q/Y.java", //================================
+			"package q;	\n" +
+			"public abstract class Y {	\n" +
+			"	abstract void foo();	\n" +
+			"	public static class Member extends Y {	\n" +
+			"		public void foo() {	\n" +
+			"			System.out.println(\"SUCCESS\");	\n" +
+			"		}	\n" +
+			"	}	\n" +
+			"}	\n",
+		},
+		"SUCCESS");
+}
+
+/*
+ * variation - 31398 - abstract is visible
+ */
+public void _test45() {
+	this.runConformTest(
+		new String[] {
+			"p/X.java", //================================
+			"package p;	\n" +
+			"public class X extends q.Y.Member {	\n" +
+			"	public static void main(String[] args) {	\n" +
+			"		new X().foo();	\n" +
+			"	}	\n" +
+			"}	\n",
+			"q/Y.java", //================================
+			"package q;	\n" +
+			"public abstract class Y {	\n" +
+			"	public abstract void foo();	\n" +
+			"	public static class Member extends Y {	\n" +
+			"		public void foo() {	\n" +
+			"			System.out.println(\"SUCCESS\");	\n" +
+			"		}	\n" +
+			"	}	\n" +
+			"}	\n",
+		},
+		"SUCCESS");
+}
+
 public static Class testClass() {
 	return Compliance_1_4.class;
 }
