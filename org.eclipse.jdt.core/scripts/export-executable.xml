@@ -44,7 +44,6 @@
         <echo message='linking .o -> ${binaryname}'/>
         <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}'  parallel='true'>
             <arg value='-O2'/>
-            <arg value='-g'/>
             <arg value='-fassume-compiled'/>
             <arg line='--main=org.eclipse.jdt.internal.compiler.batch.Main'/>
             <srcfile/>
@@ -66,4 +65,5 @@
 				<mapper type='regexp' from='^(.*)\.(.*)$$' to='\1.\2 -o \1.o'/>
 	        </apply>
 	</target>    	
+
 </project>
