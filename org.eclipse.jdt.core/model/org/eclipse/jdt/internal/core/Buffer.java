@@ -41,7 +41,9 @@ public class Buffer implements IBuffer {
 protected Buffer(IFile file, IOpenable owner, boolean readOnly) {
 	this.file = file;
 	this.owner = owner;
-	setReadOnly(readOnly);
+	if (file == null) {
+		setReadOnly(readOnly);
+	}
 }
 /**
  * @see IBuffer
@@ -220,7 +222,11 @@ public boolean isClosed() {
  * @see IBuffer
  */
 public boolean isReadOnly() {
-	return (this.flags & F_IS_READ_ONLY) != 0;
+	if (this.file == null) {
+		return (this.flags & F_IS_READ_ONLY) != 0;
+	} else {
+		return this.file.isReadOnly();
+	}
 }
 /**
  * Moves the gap to location and adjust its size to the
@@ -461,22 +467,9 @@ public void setWaterMarks(int low, int high) {
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append("Owner: " + ((JavaElement)this.owner).toStringWithAncestors()); //$NON-NLS-1$
-	buffer.append("\nFlags: ");
-	boolean previous = false;
-	if ((this.flags & F_HAS_UNSAVED_CHANGES) != 0) {
-		buffer.append("UNSAVED CHANGES");
-		previous = true;
-	}
-	if ((this.flags & F_IS_CLOSED) != 0) {
-		if (previous) buffer.append(" & ");
-		buffer.append("CLOSED");
-		previous = true;
-	}
-	if ((this.flags & F_IS_READ_ONLY) != 0) {
-		if (previous) buffer.append(" & ");
-		buffer.append("READONLY");
-		previous = true;
-	}
+	buffer.append("\nHas unsaved changes: " + this.hasUnsavedChanges()); //$NON-NLS-1$
+	buffer.append("\nIs readonly: " + this.isReadOnly()); //$NON-NLS-1$
+	buffer.append("\nIs closed: " + this.isClosed()); //$NON-NLS-1$
 	int length = this.contents.length;
 	buffer.append("\nContents:\n"); //$NON-NLS-1$
 	for (int i = 0; i < length; i++) {

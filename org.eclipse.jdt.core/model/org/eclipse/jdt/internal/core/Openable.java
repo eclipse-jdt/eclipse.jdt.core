@@ -430,7 +430,7 @@ protected boolean resourceExists() {
  * @see IOpenable
  */
 public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
-	if (isReadOnly()) {
+	if (isReadOnly() || this.getResource().isReadOnly()) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 	}
 	IBuffer buf = getBuffer();
@@ -522,5 +522,4 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 			}
 		});
 }
-
 }
