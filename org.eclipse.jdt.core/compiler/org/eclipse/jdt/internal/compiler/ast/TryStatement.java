@@ -193,20 +193,20 @@ public class TryStatement extends SubRoutineStatement {
 			return;
 		}
 		int pc = codeStream.position;
-		final int NoFinally = 0;								// no finally block
-		final int FinallySubroutine = 1; 				// finally is generated as a subroutine (using jsr/ret bytecodes)
-		final int FinallyDoesNotComplete = 2;		// non returning finally is optimized with only one instance of finally block
-		final int FinallyMustBeInlined = 3;			// finally block must be inlined since cannot use jsr/ret bytecodes >1.5
+		final int NO_FINALLY = 0;									// no finally block
+		final int FINALLY_SUBROUTINE = 1; 					// finally is generated as a subroutine (using jsr/ret bytecodes)
+		final int FINALLY_DOES_NOT_COMPLETE = 2;	// non returning finally is optimized with only one instance of finally block
+		final int FINALLY_MUST_BE_INLINED = 3;			// finally block must be inlined since cannot use jsr/ret bytecodes >1.5
 		int finallyMode;
 		if (subRoutineStartLabel == null) { 
-			finallyMode = NoFinally;
+			finallyMode = NO_FINALLY;
 		} else {
 			if (this.isSubRoutineEscaping) {
-				finallyMode = FinallyDoesNotComplete;
+				finallyMode = FINALLY_DOES_NOT_COMPLETE;
 			} else if (scope.environment().options.targetJDK < ClassFileConstants.JDK1_5) {
-				finallyMode = FinallySubroutine;
+				finallyMode = FINALLY_SUBROUTINE;
 			} else {
-				finallyMode = FinallyMustBeInlined;
+				finallyMode = FINALLY_MUST_BE_INLINED;
 			}
 		}
 		boolean requiresNaturalExit = false;
@@ -234,14 +234,14 @@ public class TryStatement extends SubRoutineStatement {
 			if (!tryBlockExit) {
 				int position = codeStream.position;
 				switch(finallyMode) {
-					case FinallySubroutine :
-					case FinallyMustBeInlined :
+					case FINALLY_SUBROUTINE :
+					case FINALLY_MUST_BE_INLINED :
 						requiresNaturalExit = true;
 						// fall through
-					case NoFinally :
+					case NO_FINALLY :
 						codeStream.goto_(naturalExitLabel);
 						break;
-					case FinallyDoesNotComplete :
+					case FINALLY_DOES_NOT_COMPLETE :
 						codeStream.goto_(subRoutineStartLabel);
 						break;
 				}
@@ -287,14 +287,14 @@ public class TryStatement extends SubRoutineStatement {
 					}
 					if (!catchExits[i]) {
 						switch(finallyMode) {
-							case FinallySubroutine :
-							case FinallyMustBeInlined :
+							case FINALLY_SUBROUTINE :
+							case FINALLY_MUST_BE_INLINED :
 								requiresNaturalExit = true;
 								// fall through
-							case NoFinally :
+							case NO_FINALLY :
 								codeStream.goto_(naturalExitLabel);
 								break;
-							case FinallyDoesNotComplete :
+							case FINALLY_DOES_NOT_COMPLETE :
 								codeStream.goto_(subRoutineStartLabel);
 								break;
 						}
@@ -303,7 +303,7 @@ public class TryStatement extends SubRoutineStatement {
 			}
 			// extra handler for trailing natural exit (will be fixed up later on when natural exit is generated below)
 			ExceptionLabel naturalExitExceptionHandler = 
-				finallyMode == FinallySubroutine && requiresNaturalExit ? this.enterAnyExceptionHandler(codeStream) : null;
+				finallyMode == FINALLY_SUBROUTINE && requiresNaturalExit ? this.enterAnyExceptionHandler(codeStream) : null;
 						
 			// addition of a special handler so as to ensure that any uncaught exception (or exception thrown
 			// inside catch blocks) will run the finally block
@@ -322,7 +322,7 @@ public class TryStatement extends SubRoutineStatement {
 				codeStream.incrStackSize(1);
 				switch(finallyMode) {
 					
-					case FinallySubroutine :
+					case FINALLY_SUBROUTINE :
 						codeStream.store(anyExceptionVariable, false);
 						codeStream.jsr(subRoutineStartLabel);
 						codeStream.load(anyExceptionVariable);
@@ -341,7 +341,7 @@ public class TryStatement extends SubRoutineStatement {
 						// the ret bytecode is part of the subroutine
 						break;
 						
-					case FinallyMustBeInlined :
+					case FINALLY_MUST_BE_INLINED :
 						codeStream.store(anyExceptionVariable, false);
 						this.finallyBlock.generateCode(currentScope, codeStream);
 						codeStream.load(anyExceptionVariable);
@@ -350,7 +350,7 @@ public class TryStatement extends SubRoutineStatement {
 						codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock.sourceStart);
 						break;
 						
-					case FinallyDoesNotComplete :
+					case FINALLY_DOES_NOT_COMPLETE :
 						codeStream.pop();
 						subRoutineStartLabel.place();
 						codeStream.recordPositionsFrom(finallySequenceStartPC, finallyBlock.sourceStart);
@@ -362,7 +362,7 @@ public class TryStatement extends SubRoutineStatement {
 				if (requiresNaturalExit) {
 					switch(finallyMode) {
 
-						case FinallySubroutine :
+						case FINALLY_SUBROUTINE :
 							int position = codeStream.position;					
 							// fix up natural exit handler
 							naturalExitExceptionHandler.placeStart();
@@ -373,7 +373,7 @@ public class TryStatement extends SubRoutineStatement {
 								finallyBlock.sourceStart);					
 							break;
 						
-						case FinallyMustBeInlined :
+						case FINALLY_MUST_BE_INLINED :
 							// May loose some local variable initializations : affecting the local variable attributes
 							// needed since any exception handler got inlined subroutine
 							if (preTryInitStateIndex != -1) {
@@ -385,7 +385,7 @@ public class TryStatement extends SubRoutineStatement {
 							finallyBlock.generateCode(scope, codeStream);
 							break;
 						
-						case FinallyDoesNotComplete :
+						case FINALLY_DOES_NOT_COMPLETE :
 							break;
 					}
 				}
