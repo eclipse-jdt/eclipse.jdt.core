@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
  * Implements <code>IJavaElementRequestor</code>, wrappering and forwarding
  * results onto a <code>org.eclipse.jdt.internal.codeassist.api.ISearchRequestor</code>.
  */
-class SearchableEnvironmentRequestor extends JavaElementRequestor implements IJavaElementRequestor {
+class SearchableEnvironmentRequestor extends JavaElementRequestor {
 	/**
 	 * The <code>ISearchRequestor</code> this JavaElementRequestor wraps
 	 * and forwards results to.
