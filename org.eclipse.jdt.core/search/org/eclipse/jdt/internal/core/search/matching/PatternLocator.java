@@ -71,6 +71,16 @@ public static char[] qualifiedPattern(char[] simpleNamePattern, char[] qualifica
 			: CharOperation.concat(qualificationPattern, simpleNamePattern, '.');
 	}
 }
+public static char[] qualifiedSourceName(TypeBinding binding) {
+	if (binding instanceof ReferenceBinding) {
+		ReferenceBinding type = (ReferenceBinding) binding;
+		if (type.isLocalType())
+			return type.isMemberType()
+				? CharOperation.concat(qualifiedSourceName(type.enclosingType()), type.sourceName(), '.')
+				: CharOperation.concat(qualifiedSourceName(type.enclosingType()), new char[] {'.', '1', '.'}, type.sourceName());
+	}
+	return binding.qualifiedSourceName();
+}
 
 
 public PatternLocator(SearchPattern pattern) {
@@ -230,6 +240,16 @@ public int resolveLevel(Binding binding) {
 	return INACCURATE_MATCH;
 }
 /**
+ * Returns whether the given type binding matches the given simple name pattern 
+ * and qualification pattern.
+ * Returns ACCURATE_MATCH if it does.
+ * Returns INACCURATE_MATCH if resolve failed.
+ * Returns IMPOSSIBLE_MATCH if it doesn't.
+ */
+protected int resolveLevelForType(char[] simpleNamePattern, char[] qualificationPattern, TypeBinding type) {
+	return resolveLevelForType(qualifiedPattern(simpleNamePattern, qualificationPattern), type);
+}
+/**
  * Returns whether the given type binding matches the given qualified pattern.
  * Returns ACCURATE_MATCH if it does.
  * Returns INACCURATE_MATCH if resolve failed.
@@ -242,25 +262,13 @@ protected int resolveLevelForType(char[] qualifiedPattern, TypeBinding type) {
 	// NOTE: if case insensitive search then qualifiedPattern is assumed to be lowercase
 
 	char[] qualifiedPackageName = type.qualifiedPackageName();
-	char[] qualifiedSourceName = type instanceof LocalTypeBinding
-			? CharOperation.concat("1".toCharArray(), type.qualifiedSourceName(), '.') //$NON-NLS-1$
-			: type.qualifiedSourceName();
+	char[] qualifiedSourceName = qualifiedSourceName(type);
 	char[] fullyQualifiedTypeName = qualifiedPackageName.length == 0
 		? qualifiedSourceName
 		: CharOperation.concat(qualifiedPackageName, qualifiedSourceName, '.');
 	return CharOperation.match(qualifiedPattern, fullyQualifiedTypeName, this.isCaseSensitive)
 		? ACCURATE_MATCH
 		: IMPOSSIBLE_MATCH;
-}
-/**
- * Returns whether the given type binding matches the given simple name pattern 
- * and qualification pattern.
- * Returns ACCURATE_MATCH if it does.
- * Returns INACCURATE_MATCH if resolve failed.
- * Returns IMPOSSIBLE_MATCH if it doesn't.
- */
-protected int resolveLevelForType(char[] simpleNamePattern, char[] qualificationPattern, TypeBinding type) {
-	return resolveLevelForType(qualifiedPattern(simpleNamePattern, qualificationPattern), type);
 }
 public String toString(){
 	return "SearchPattern"; //$NON-NLS-1$

@@ -1013,9 +1013,14 @@ private static char[][] enclosingTypeNames(IType type) {
 				declaringType.getElementName().toCharArray());
 		case IJavaElement.COMPILATION_UNIT:
 			return CharOperation.NO_CHAR_CHAR;
+		case IJavaElement.METHOD:
+			IType declaringClass = ((IMethod) parent).getDeclaringType();
+			return CharOperation.arrayConcat(
+				enclosingTypeNames(declaringClass),
+				new char[][] {declaringClass.getElementName().toCharArray(), new char[] {'1'}});
 		case IJavaElement.TYPE:
 			return CharOperation.arrayConcat(
-				enclosingTypeNames((IType)parent), 
+				enclosingTypeNames((IType) parent), 
 				parent.getElementName().toCharArray());
 		default:
 			return null;

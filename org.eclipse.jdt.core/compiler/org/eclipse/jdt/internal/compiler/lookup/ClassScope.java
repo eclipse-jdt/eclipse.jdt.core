@@ -581,6 +581,7 @@ public class ClassScope extends Scope {
 		}
 		ReferenceBinding superclass = findSupertype(referenceContext.superclass);
 		if (superclass != null) { // is null if a cycle was detected cycle
+			referenceContext.superclass.resolvedType = superclass; // hold onto the problem type
 			if (!superclass.isValidBinding()) {
 				problemReporter().invalidSuperclass(sourceType, referenceContext.superclass, superclass);
 			} else if (superclass.isInterface()) {
@@ -589,7 +590,6 @@ public class ClassScope extends Scope {
 				problemReporter().classExtendFinalClass(sourceType, referenceContext.superclass, superclass);
 			} else {
 				// only want to reach here when no errors are reported
-				referenceContext.superclass.resolvedType = superclass;
 				sourceType.superclass = superclass;
 				return true;
 			}
@@ -629,6 +629,7 @@ public class ClassScope extends Scope {
 				noProblems = false;
 				continue nextInterface;
 			}
+			referenceContext.superInterfaces[i].resolvedType = superInterface; // hold onto the problem type
 			if (!superInterface.isValidBinding()) {
 				problemReporter().invalidSuperinterface(
 					sourceType,
@@ -653,7 +654,6 @@ public class ClassScope extends Scope {
 				continue nextInterface;
 			}
 
-			referenceContext.superInterfaces[i].resolvedType = superInterface;
 			// only want to reach here when no errors are reported
 			interfaceBindings[count++] = superInterface;
 		}
