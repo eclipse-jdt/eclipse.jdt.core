@@ -734,7 +734,7 @@ public final class CompletionEngine
 		CompilationUnitDeclaration compilationUnit = new CompilationUnitDeclaration(problemReporter, compilationResult, 0);
 	
 		try {
-			TypeDeclaration typeDeclaration = TypeConverter.buildTypeDeclaration(type, compilationUnit, compilationResult, problemReporter);
+			TypeDeclaration typeDeclaration = TypeConverter.buildTypeDeclaration(type, compilationUnit, compilationResult);
 		
 			if(typeDeclaration != null) {	
 				// build AST from snippet

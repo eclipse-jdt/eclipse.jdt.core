@@ -10,16 +10,22 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Literal extends Expression {
 	
-
 public Literal(int s,int e) {
 	sourceStart = s ;
 	sourceEnd= e;
 }
+
+public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+	return flowInfo;
+}
+
 public abstract void computeConstant() ;
 	//ON ERROR constant STAYS NULL
 public abstract TypeBinding literalType(BlockScope scope);

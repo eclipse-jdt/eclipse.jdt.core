@@ -14,8 +14,6 @@ import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.problem.*;
-import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class Statement extends AstNode {
 	
@@ -26,16 +24,9 @@ public abstract class Statement extends AstNode {
 		super();
 	}
 	
-	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
-		return flowInfo;
-	}
+	public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo);
 	
-	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-		throw new ShouldNotImplement(Util.bind("ast.missingStatement")); //$NON-NLS-1$
-	}
+	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream);
 	
 	public boolean isEmptyBlock() {
 		return false;
@@ -56,13 +47,9 @@ public abstract class Statement extends AstNode {
 		return true;
 	}
 	
-	public void resolve(BlockScope scope) {
-	}
+	public abstract void resolve(BlockScope scope);
 	
-	public Constant resolveCase(
-		BlockScope scope,
-		TypeBinding testType,
-		SwitchStatement switchStatement) {
+	public Constant resolveCase(BlockScope scope, TypeBinding testType, SwitchStatement switchStatement) {
 		// statement within a switch that are not case are treated as normal statement.... 
 
 		resolve(scope);

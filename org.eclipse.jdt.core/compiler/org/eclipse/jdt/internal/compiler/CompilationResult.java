@@ -369,9 +369,8 @@ public class CompilationResult {
 		}
 		if (problemCount == 0) {
 			problems = new IProblem[5];
-		} else {
-			if (problemCount == problems.length)
-				System.arraycopy(problems, 0, (problems = new IProblem[problemCount * 2]), 0, problemCount);
+		} else if (problemCount == problems.length) {
+			System.arraycopy(problems, 0, (problems = new IProblem[problemCount * 2]), 0, problemCount);
 		}
 		problems[problemCount++] = newProblem;
 		if (referenceContext != null){
@@ -386,7 +385,7 @@ public class CompilationResult {
 		if (this.taskCount == 0) {
 			this.tasks = new IProblem[5];
 		} else if (this.taskCount == this.tasks.length) {
-				System.arraycopy(this.tasks, 0, (this.tasks = new IProblem[this.taskCount * 2]), 0, this.taskCount);
+			System.arraycopy(this.tasks, 0, (this.tasks = new IProblem[this.taskCount * 2]), 0, this.taskCount);
 		}
 		this.tasks[this.taskCount++] = newProblem;
 	}

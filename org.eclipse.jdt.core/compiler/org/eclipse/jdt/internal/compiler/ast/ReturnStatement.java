@@ -113,7 +113,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	// generate the expression
 	if ((expression != null) && (expression.constant == NotAConstant)) {
 		expression.generateCode(currentScope, codeStream, needValue()); // no value needed if non-returning subroutine
-		generateStoreSaveValueIfNecessary(currentScope, codeStream);
+		generateStoreSaveValueIfNecessary(codeStream);
 	}
 	
 	// generation of code responsible for invoking the finally blocks in sequence
@@ -139,10 +139,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	
 	if ((expression != null) && (expression.constant != NotAConstant)) {
 		codeStream.generateConstant(expression.constant, expression.implicitConversion);
-		generateStoreSaveValueIfNecessary(currentScope, codeStream);		
+		generateStoreSaveValueIfNecessary(codeStream);		
 	}
 	// output the suitable return bytecode or wrap the value inside a descriptor for doits
-	this.generateReturnBytecode(currentScope, codeStream);
+	this.generateReturnBytecode(codeStream);
 	
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
@@ -150,7 +150,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
  * Dump the suitable return bytecode for a return statement
  *
  */
-public void generateReturnBytecode(BlockScope currentScope, CodeStream codeStream) {
+public void generateReturnBytecode(CodeStream codeStream) {
 
 	if (expression == null) {
 		codeStream.return_();
@@ -174,8 +174,7 @@ public void generateReturnBytecode(BlockScope currentScope, CodeStream codeStrea
 		}
 	}
 }
-public void generateStoreSaveValueIfNecessary(BlockScope currentScope, CodeStream codeStream){
-
+public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 	if (saveValueVariable != null) codeStream.store(saveValueVariable, false);
 }
 public boolean needValue(){

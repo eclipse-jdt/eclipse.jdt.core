@@ -11,6 +11,8 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class TypeReference extends Expression {
@@ -18,8 +20,12 @@ public abstract class TypeReference extends Expression {
 public TypeReference() {
 		super () ;
 		}
-// allows us to trap completion & selection nodes
 
+public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+	return flowInfo;
+}
+
+// allows us to trap completion & selection nodes
 public void aboutToResolve(Scope scope) {}
 /*
  * Answer a base type reference (can be an array of base type).

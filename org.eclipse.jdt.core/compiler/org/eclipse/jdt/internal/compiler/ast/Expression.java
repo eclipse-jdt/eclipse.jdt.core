@@ -33,11 +33,12 @@ public abstract class Expression extends Statement {
 		super();
 	}
 
-	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo,
-		boolean valueRequired) {
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+
+		return flowInfo;
+	}
+
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, boolean valueRequired) {
 
 		return analyseCode(currentScope, flowContext, flowInfo);
 	}

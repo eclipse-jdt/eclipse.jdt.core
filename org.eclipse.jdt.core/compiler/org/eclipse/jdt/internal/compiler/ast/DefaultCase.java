@@ -52,6 +52,12 @@ public class DefaultCase extends Statement {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 
 	}
+	/**
+	 * No-op : should use resolveCase(...) instead.
+	 */
+	public void resolve(BlockScope scope) {
+	}
+
 	public Constant resolveCase(
 		BlockScope scope,
 		TypeBinding testType,

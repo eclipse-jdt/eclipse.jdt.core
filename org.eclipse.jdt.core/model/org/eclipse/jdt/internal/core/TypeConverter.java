@@ -42,7 +42,7 @@ public class TypeConverter {
 	/**
 	 * Convert a type into an AST type declaration and put it in the given compilation unit.
 	 */
-	public static TypeDeclaration buildTypeDeclaration(IType type, CompilationUnitDeclaration compilationUnit, CompilationResult compilationResult, ProblemReporter problemReporter)  throws JavaModelException {
+	public static TypeDeclaration buildTypeDeclaration(IType type, CompilationUnitDeclaration compilationUnit, CompilationResult compilationResult)  throws JavaModelException {
 		char[] packageName = type.getPackageFragment().getElementName().toCharArray();
 		
 		if (packageName != null && packageName.length > 0) { 

@@ -12,6 +12,8 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 
 public class EmptyStatement extends Statement {
@@ -21,8 +23,15 @@ public class EmptyStatement extends Statement {
 		this.sourceEnd = endPosition;
 	}
 
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+		return flowInfo;
+	}
+
 	public void generateCode(BlockScope currentScope, CodeStream codeStream){
 		// no bytecode, no need to check for reachability or recording source positions
+	}
+	
+	public void resolve(BlockScope scope) {
 	}
 	
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {

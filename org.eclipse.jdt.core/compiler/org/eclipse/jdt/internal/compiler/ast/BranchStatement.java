@@ -63,4 +63,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 public void resetStateForCodeGeneration() {
 	this.targetLabel.resetStateForCodeGeneration();
 }
+
+public void resolve(BlockScope scope) {
+}
+
 }

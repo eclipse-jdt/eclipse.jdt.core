@@ -31,7 +31,9 @@ public class CompilationUnitDeclaration
 	public ProblemReporter problemReporter;
 	public CompilationResult compilationResult;
 
-	private LocalTypeBinding[] allLocalTypes;
+	private LocalTypeBinding[] localTypes;
+	int localTypeCount = 0;
+	
 	public boolean isPropagatingInnerClassEmulation;
 
 	public CompilationUnitDeclaration(
@@ -93,11 +95,9 @@ public class CompilationUnitDeclaration
 			for (int i = 0, max = this.types.length; i < max; i++) {
 				cleanUp(this.types[i]);
 			}
-			if (this.allLocalTypes != null) {
-				for (int i = 0, max = this.allLocalTypes.length; i < max; i++) {
-					// null out the type's scope backpointers
-					allLocalTypes[i].scope = null; // local members are already in the list
-				}
+			for (int i = 0, max = this.localTypeCount; i < max; i++) {
+				// null out the type's scope backpointers
+				localTypes[i].scope = null; // local members are already in the list
 			}
 		}
 		ClassFile[] classFiles = compilationResult.getClassFiles();
@@ -219,14 +219,12 @@ public class CompilationUnitDeclaration
 	public void propagateInnerEmulationForAllLocalTypes() {
 
 		isPropagatingInnerClassEmulation = true;
-		if (allLocalTypes != null) {
-			for (int i = 0, max = allLocalTypes.length; i < max; i++) {
+		for (int i = 0, max = this.localTypeCount; i < max; i++) {
 				
-				LocalTypeBinding localType = allLocalTypes[i];
-				// only propagate for reachable local types
-				if ((localType.scope.referenceType().bits & IsReachableMASK) != 0) {
-					localType.updateInnerEmulationDependents();
-				}
+			LocalTypeBinding localType = localTypes[i];
+			// only propagate for reachable local types
+			if ((localType.scope.referenceType().bits & IsReachableMASK) != 0) {
+				localType.updateInnerEmulationDependents();
 			}
 		}
 	}
@@ -235,20 +233,14 @@ public class CompilationUnitDeclaration
 	 * Keep track of all local types, so as to update their innerclass
 	 * emulation later on.
 	 */
-	public void record(LocalTypeBinding localType) { //TODO: should improve to avoid recreating arrays for each addition 
+	public void record(LocalTypeBinding localType) {
 
-		if (allLocalTypes == null) {
-			allLocalTypes = new LocalTypeBinding[] { localType };
-		} else {
-			int length = allLocalTypes.length;
-			System.arraycopy(
-				allLocalTypes,
-				0,
-				(allLocalTypes = new LocalTypeBinding[length + 1]),
-				0,
-				length);
-			allLocalTypes[length] = localType;
+		if (this.localTypeCount == 0) {
+			this.localTypes = new LocalTypeBinding[5];
+		} else if (this.localTypeCount == this.localTypes.length) {
+			System.arraycopy(this.localTypes, 0, (this.localTypes = new LocalTypeBinding[this.localTypeCount * 2]), 0, this.localTypeCount);
 		}
+		this.localTypes[this.localTypeCount++] = localType;
 	}
 
 	public void resolve() {

@@ -45,12 +45,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
  * Dump the suitable return bytecode for a return statement
  *
  */
-public void generateReturnBytecode(BlockScope currentScope, CodeStream codeStream) {
+public void generateReturnBytecode(CodeStream codeStream) {
 	
 	// output the return bytecode
 	codeStream.return_();
 }
-public void generateStoreSaveValueIfNecessary(BlockScope currentScope, CodeStream codeStream){
+public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 
 	// push receiver
 	codeStream.aload_0();
