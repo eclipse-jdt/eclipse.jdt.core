@@ -671,7 +671,7 @@ protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
  */
 protected boolean resumeOnSyntaxError() {
 	if (this.diet || this.hasRecoveredOnExpression) { // no reentering inside expression recovery
-		return super.resumeOnSyntaxError();
+		return false;
 	}
 	
 	// record previous error, in case more accurate than potential one in expression recovery
@@ -693,7 +693,7 @@ protected boolean resumeOnSyntaxError() {
 	this.identifierPtr = -1;
 	this.identifierLengthPtr = -1;
 
-	// go for the exprssion
+	// go for the expression
 	goForExpression();
 	this.hasRecoveredOnExpression = true;
 	this.hasReportedError = false;
