@@ -261,7 +261,7 @@ public final class CharOperation {
 	 * 
 	 * @param array the given array
 	 * @param prefix the given prefix
-	 * @return the result of the comparison
+	 * @return the result of the comparison (>=0 if array>prefix)
 	 * @exception NullPointerException if either array or prefix is null
 	 */
 	public static final int compareWith(char[] array, char[] prefix) {
@@ -277,7 +277,7 @@ public final class CharOperation {
 		}
 		if (prefixLength == i)
 			return 0;
-		return 1;	
+		return -1;	// array is shorter than prefix (e.g. array:'ab' < prefix:'abc').
 	}
 
 	/**
