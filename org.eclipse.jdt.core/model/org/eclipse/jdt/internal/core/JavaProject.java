@@ -819,15 +819,6 @@ public class JavaProject
 	}
 
 	/**
-	 * @see IJavaProject#getClasspath()
-	 * @deprecated - use JavaCore API instead
-	 */
-	public IClasspathEntry[] getClasspath() throws JavaModelException {
-
-		return this.getRawClasspath();
-	}
-
-	/**
 	 * Returns the XML String encoding of the class path.
 	 */
 	protected String getClasspathAsXML(
@@ -1591,33 +1582,6 @@ public class JavaProject
 	}
 
 	/**
-	 * @see IJavaProject#newLibraryEntry(IPath)
-	 * @deprecated - use JavaCore API instead
-	 */
-	public IClasspathEntry newLibraryEntry(IPath path) {
-
-		return JavaCore.newLibraryEntry(path, null, null, false);
-	}
-
-	/**
-	 * @see IJavaProject#newProjectEntry(IPath)
-	 * @deprecated - use JavaCore API instead
-	 */
-	public IClasspathEntry newProjectEntry(IPath path) {
-		
-		return JavaCore.newProjectEntry(path, false);
-	}
-
-	/**
-	 * @see IJavaProject#newSourceEntry(IPath)
-	 * @deprecated - use JavaCore API instead
-	 */
-	public IClasspathEntry newSourceEntry(IPath path) {
-		
-		return JavaCore.newSourceEntry(path);
-	}
-
-	/**
 	 * @see IJavaProject
 	 */
 	public ITypeHierarchy newTypeHierarchy(
@@ -1890,16 +1854,6 @@ public class JavaProject
 		}
 	}
 
-	/**
-	 * @see IJavaProject#setClasspath(IClasspathEntry[], IProgressMonitor)
-	 * @deprecated - use #setRawClasspath instead
-	 */
-	public void setClasspath(IClasspathEntry[] entries, IProgressMonitor monitor)
-		throws JavaModelException {
-			
-		this.setRawClasspath(entries, monitor);
-	}
-	
 	/**
 	 * Update the Java command in the build spec (replace existing one if present,
 	 * add one first if none).
