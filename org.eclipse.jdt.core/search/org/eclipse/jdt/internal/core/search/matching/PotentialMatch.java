@@ -277,7 +277,7 @@ public class PotentialMatch implements ICompilationUnit {
 	}
 
 	public char[] getFileName() {
-		return this.openable.getPath().toString().toCharArray();
+		return this.openable.getElementName().toCharArray();
 	}
 
 }
