@@ -13,11 +13,8 @@ package org.eclipse.jdt.internal.core.builder;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
-import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-
-import java.io.*;
 
 class ClasspathDirectory extends ClasspathLocation {
 

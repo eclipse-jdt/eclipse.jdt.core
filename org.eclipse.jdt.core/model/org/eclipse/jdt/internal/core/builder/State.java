@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.core.builder;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 import java.io.*;
