@@ -33,7 +33,6 @@ STREAM: 2.0
 
   PM
     -> JCK1.4 compliance flow analysis
-      1GK2AOF: ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before finally block after return statement 
       1GK2AHX: ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before catch block after return statement 
       1GK2A45: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned variable after assignment expression when true     
       1GK29Q8: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned value of a final instance variable after a constant boolean expression when false
@@ -97,7 +96,6 @@ STREAM: 2.0
 1GK2BLM: ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value after the boolean operator ? : when true 
 1GK2B6D: ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value before the second operand of the boolean operator &&
 1GK2AWS: ITPJCORE:WIN2000 - JCK 1.4 - illegal method declaration for interface
-1GK2AOF: ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before finally block after return statement 
 1GK2AHX: ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before catch block after return statement 
 1GK2A45: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned variable after assignment expression when true 
 1GK29Q8: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned value of a final instance variable after a constant boolean expression when false
@@ -115,6 +113,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  1GK2AOF: ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before finally block after return statement 
   1GK6WD3: ITPJCORE:WIN2000 - search:no fully qualified references are found
   1GK7231: ITPJCORE:WIN2000 - typos in comments
   1GK77HA: ITPJCORE:WINNT - Search - missing base type references
@@ -130,6 +129,8 @@ STREAM: 2.0
   1GK6WP9: ITPJCORE:WIN2000 - seach: missing type reference
   1GJZSBE: ITPJCORE:WINNT - ArrayIndexOutOfBoundsException during rebuild
   1GK7E6S: ITPJCORE:WIN2000 - search: StringIndexOufOfBound
+  1GIT857: ITPJCORE:WIN2000 - Performance - Ctrl+S triggers five parser runs
+  1GEHCYL: ITPUI:WINNT - Minor: Colon at wrong place in build dialog
 
 **********************************************************************************
 *** BUILD 200 (2.0 STREAM, v_200) ************************************************
