@@ -2507,19 +2507,19 @@ protected void consumeEnhancedForStatementHeader(boolean hasModifiers){
 
 	LocalDeclaration localDeclaration = createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
 	localDeclaration.declarationSourceEnd = localDeclaration.declarationEnd;
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--])!= 0) {
+		System.arraycopy(
+			this.expressionStack, 
+			(this.expressionPtr -= length) + 1, 
+			localDeclaration.annotations = new Annotation[length], 
+			0, 
+			length); 
+	}
 	if (hasModifiers) {
 		localDeclaration.declarationSourceStart = declarationSourceStart;
 		localDeclaration.modifiers = modifiersValue;
-		// consume annotations
-		int length;
-		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
-			System.arraycopy(
-				this.expressionStack, 
-				(this.expressionPtr -= length) + 1, 
-				localDeclaration.annotations = new Annotation[length], 
-				0, 
-				length); 
-		}		
 	} else {
 		localDeclaration.declarationSourceStart = type.sourceStart;
 	}
