@@ -906,8 +906,8 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 				"	static <E extends A> void m(E e) { System.out.print(\"A=\"+e.getClass()); }\n" + 
 				"	static <E extends B> void m(E e) { System.out.print(\"B=\"+e.getClass()); }\n" + 
 				"	public static void main(String[] args) {\n" + 
-				"		m(new A());\n" + // this works fine
-				"		m(new B());\n" + // this currently fails because <E extends A> void m(E e) is converted to m(B) instead of m(A)
+				"		m(new A());\n" +
+				"		m(new B());\n" + 
 				"	}\n" + 
 				"}\n" +
 				"class A {}\n" + 
