@@ -132,7 +132,9 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	 * that come from testing Javadoc.getComment())
 	 *
 	 */
-	protected void setUp() {
+	protected void setUp() throws Exception {
+		super.setUp();
+		
 		ast = AST.newAST(this.API_LEVEL);
 		N1 = ast.newSimpleName("N"); //$NON-NLS-1$
 		N1S = "[(nSNNnS)]"; //$NON-NLS-1$
@@ -278,8 +280,9 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	}
 	
-	protected void tearDown() {
+	protected void tearDown() throws Exception {
 		ast = null;
+		super.tearDown();
 	}
 	
 	class TestVisitor extends ASTVisitor {

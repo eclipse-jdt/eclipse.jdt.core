@@ -401,6 +401,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
 	}
 	protected void setUp() throws Exception {
+		super.setUp();
 		if (this.verifier == null) {
 			this.verifier = new TestVerifier(true);
 			this.createdVerifier = true;
@@ -510,5 +511,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			Util.flushDirectoryContent(outputDir);
 			outputDir.delete();
 		}
+		super.tearDown();
 	}
 }

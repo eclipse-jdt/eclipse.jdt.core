@@ -370,7 +370,9 @@ public class Tests extends TestCase {
 
 	/** Sets up this test.
 	 */
-	protected void setUp() {
+	protected void setUp() throws Exception {
+		super.setUp();
+		
 		debugRequestor = new EfficiencyCompilerRequestor();
 		Compiler.DebugRequestor = debugRequestor;
 		if (env == null) {
@@ -386,6 +388,7 @@ public class Tests extends TestCase {
 	protected void tearDown() throws Exception {
 		env.resetWorkspace();
 		JavaCore.setOptions(JavaCore.getDefaultOptions());
+		super.tearDown();
 	}
 
 	public static Test suite() {

@@ -749,12 +749,14 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		this.API_LEVEL = apiLevel;
 	}
 	
-	protected void setUp() {
+	protected void setUp() throws Exception {
+		super.setUp();
 		ast = AST.newAST(this.API_LEVEL);
 	}
 	
-	protected void tearDown() {
+	protected void tearDown() throws Exception {
 		ast = null;
+		super.tearDown();
 	}
 	
 	/**

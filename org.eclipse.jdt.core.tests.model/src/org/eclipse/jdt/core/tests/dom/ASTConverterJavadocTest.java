@@ -169,7 +169,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		super.tearDown();
 		int size = failures.size();
 		String title = size+" positions/bindings were incorrect in "+getName();
 		if (size == 0) {
@@ -192,6 +191,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 //		}
 		// put default options on project
 		if (this.currentProject != null) this.currentProject.setOptions(JavaCore.getOptions());
+		super.tearDown();
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()

@@ -42,7 +42,9 @@ public class WorkingCopyTests extends ModifyingResourceTests {
 public static Test suite() {
 	return new Suite(WorkingCopyTests.class);
 }
-protected void setUp() {
+protected void setUp() throws Exception {
+	super.setUp();
+	
 	try {
 		this.createJavaProject(
 			"P", 
@@ -80,6 +82,7 @@ protected void setUp() {
 protected void tearDown() throws Exception {
 	if (this.copy != null) this.copy.discardWorkingCopy();
 	this.deleteProject("P");
+	super.tearDown();
 }
 /*
  * Ensures that cancelling a make consistent operation doesn't leave the working copy closed

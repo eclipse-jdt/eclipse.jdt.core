@@ -218,8 +218,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	}
 	
-	protected void tearDown() {
+	protected void tearDown() throws Exception {
 		ast = null;
+		super.tearDown();
 	}
 	
 	

@@ -88,11 +88,11 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		super.tearDown();
 		this.encodingProject.setDefaultCharset(null, null);
 		this.utf8File.setCharset(null, null);
 		if (this.utf8Source != null) ((IOpenable) this.utf8Source).close();
 		this.encodingJavaProject.close();
+		super.tearDown();
 	}
 
 	void compareContents(ICompilationUnit cu, String encoding) throws JavaModelException {

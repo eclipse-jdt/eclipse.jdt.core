@@ -57,7 +57,8 @@ public static Test suite() {
 /**
  * Get a new working copy.
  */
-protected void setUp() {
+protected void setUp() throws Exception {
+	super.setUp();
 	try {
 		this.workingCopy = this.getCompilationUnit("JavaSearch", "src", "wc", "X.java").getWorkingCopy(null);
 	} catch (JavaModelException e) {
@@ -71,6 +72,7 @@ protected void setUp() {
 protected void tearDown() throws Exception {
 	this.workingCopy.discardWorkingCopy();
 	this.workingCopy = null;
+	super.tearDown();
 }
 
 /**

@@ -54,8 +54,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
 	 */
 	public void tearDown() throws Exception {
-		super.tearDown();
 		this.javaProject.setOptions(originalOptions);
+		super.tearDown();
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#getName()
