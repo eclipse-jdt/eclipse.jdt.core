@@ -52,30 +52,29 @@ public class Case extends Statement {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
+	/**
+	 * No-op : should use resolveCase(...) instead.	 */
 	public void resolve(BlockScope scope) {
-
-		// error....use resolveCase....
-		throw new NullPointerException();
 	}
 
 	public Constant resolveCase(
 		BlockScope scope,
-		TypeBinding testTb,
+		TypeBinding switchType,
 		SwitchStatement switchStatement) {
 
 		// add into the collection of cases of the associated switch statement
 		switchStatement.cases[switchStatement.caseCount++] = this;
-		TypeBinding caseTb = constantExpression.resolveType(scope);
-		if (caseTb == null || testTb == null)
+		TypeBinding caseType = constantExpression.resolveType(scope);
+		if (caseType == null || switchType == null)
 			return null;
-		if (constantExpression.isConstantValueOfTypeAssignableToType(caseTb, testTb))
+		if (constantExpression.isConstantValueOfTypeAssignableToType(caseType, switchType))
 			return constantExpression.constant;
-		if (Scope.areTypesCompatible(caseTb, testTb))
+		if (Scope.areTypesCompatible(caseType, switchType))
 			return constantExpression.constant;
 		scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
 			constantExpression,
-			caseTb,
-			testTb);
+			caseType,
+			switchType);
 		return null;
 	}
 
