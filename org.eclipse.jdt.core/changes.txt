@@ -118,6 +118,8 @@ STREAM: 2.0
   
   PRs Closed in this Release
   ===============================================================================
+  3258      exception doing import assist (1GDIJ9D)    
+  3240      need to find method declarations in anonymous inner types (1GCBPRI)    
   3254      Indexer - Should nest index source retrieval in IWorkspaceRunnable (1GD7J6F)  
   3225      IJavaProject.findPackageFragment strange semantic (1GAOLWQ)  
   3218      No interface to polymorphically acess ICompilationUnit (1G8D2ZP)  
