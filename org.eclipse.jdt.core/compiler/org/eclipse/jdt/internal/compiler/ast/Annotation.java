@@ -10,10 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.core.search.matching.MatchingNodeSet;
-import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 
 /**
  * Node representing a structured Javadoc annotation comment
@@ -27,35 +24,6 @@ public class Annotation extends AstNode {
 	public Annotation(int sourceStart, int sourceEnd) {
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
-	}
-
-	/*
-	 * Search for pattern locator matches in annotation @throws/@exception and @see tags
-	 */
-	public void matchPatternLocator(PatternLocator patternLocator, MatchingNodeSet nodeSet) {
-		
-		// @throws/@exception tags
-		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
-		for (int i = 0; i < throwsTagsNbre; i++) {
-			TypeReference typeRef = thrownExceptions[i];
-			patternLocator.match(typeRef, nodeSet);
-		}
-
-		// @see tags
-		int seeTagsNbre = references == null ? 0 : references.length;
-		for (int i = 0; i < seeTagsNbre; i++) {
-			Expression reference = references[i];
-			if (reference instanceof TypeReference) {
-				TypeReference typeRef = (TypeReference) reference;
-				patternLocator.match(typeRef, nodeSet);
-			} else if (reference instanceof AnnotationFieldReference) {
-				AnnotationFieldReference fieldRef = (AnnotationFieldReference) reference;
-				patternLocator.match(fieldRef, nodeSet);
-			} else if (reference instanceof AnnotationMessageSend) {
-				AnnotationMessageSend messageSend = (AnnotationMessageSend) reference;
-				patternLocator.match(messageSend, nodeSet);
-			}
-		}
 	}
 	
 	/*
@@ -86,46 +54,6 @@ public class Annotation extends AstNode {
 		}
 		printIndent(indent, output).append(" */\n"); //$NON-NLS-1$
 		return output;
-	}
-
-	/*
-	 * Report reference info in annotation @throws/@exception and @see tags
-	 */
-	public void reportReferenceInfo(ISourceElementRequestor requestor) {
-		
-		// @throws/@exception tags
-		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
-		for (int i = 0; i < throwsTagsNbre; i++) {
-			TypeReference typeRef = thrownExceptions[i];
-			if (typeRef instanceof AnnotationSingleTypeReference) {
-				AnnotationSingleTypeReference singleRef = (AnnotationSingleTypeReference) typeRef;
-				requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
-			} else if (typeRef instanceof AnnotationQualifiedTypeReference) {
-				AnnotationQualifiedTypeReference qualifiedRef = (AnnotationQualifiedTypeReference) typeRef;
-				requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
-			}
-		}
-
-		// @see tags
-		int seeTagsNbre = references == null ? 0 : references.length;
-		for (int i = 0; i < seeTagsNbre; i++) {
-			Expression reference = references[i];
-			if (reference instanceof AnnotationSingleTypeReference) {
-				AnnotationSingleTypeReference singleRef = (AnnotationSingleTypeReference) reference;
-				requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
-			} else if (reference instanceof AnnotationQualifiedTypeReference) {
-				AnnotationQualifiedTypeReference qualifiedRef = (AnnotationQualifiedTypeReference) reference;
-				requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
-			} else if (reference instanceof AnnotationFieldReference) {
-				AnnotationFieldReference fieldRef = (AnnotationFieldReference) reference;
-				requestor.acceptFieldReference(fieldRef.token, fieldRef.sourceStart);
-			} else if (reference instanceof AnnotationMessageSend) {
-				AnnotationMessageSend messageSend = (AnnotationMessageSend) reference;
-				if (messageSend.arguments != null) {
-					requestor.acceptMethodReference(messageSend.selector, messageSend.arguments.length, messageSend.sourceStart);
-				}
-			}
-		}
 	}
 
 	/*

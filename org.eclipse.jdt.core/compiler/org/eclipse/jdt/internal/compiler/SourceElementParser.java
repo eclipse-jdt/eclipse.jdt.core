@@ -109,7 +109,41 @@ public SourceElementParser(
 public void checkAnnotation() {
 	super.checkAnnotation();
 	if (reportReferenceInfo && this.annotation != null) {
-		this.annotation.reportReferenceInfo(requestor);
+		// Report reference info in annotation @throws/@exception tags
+		TypeReference[] thrownExceptions = this.annotation.thrownExceptions;
+		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
+		for (int i = 0; i < throwsTagsNbre; i++) {
+			TypeReference typeRef = thrownExceptions[i];
+			if (typeRef instanceof AnnotationSingleTypeReference) {
+				AnnotationSingleTypeReference singleRef = (AnnotationSingleTypeReference) typeRef;
+				requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
+			} else if (typeRef instanceof AnnotationQualifiedTypeReference) {
+				AnnotationQualifiedTypeReference qualifiedRef = (AnnotationQualifiedTypeReference) typeRef;
+				requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
+			}
+		}
+
+		// Report reference info in annotation @see tags
+		Expression[] references = this.annotation.references;
+		int seeTagsNbre = references == null ? 0 : references.length;
+		for (int i = 0; i < seeTagsNbre; i++) {
+			Expression reference = references[i];
+			if (reference instanceof AnnotationSingleTypeReference) {
+				AnnotationSingleTypeReference singleRef = (AnnotationSingleTypeReference) reference;
+				requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
+			} else if (reference instanceof AnnotationQualifiedTypeReference) {
+				AnnotationQualifiedTypeReference qualifiedRef = (AnnotationQualifiedTypeReference) reference;
+				requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
+			} else if (reference instanceof AnnotationFieldReference) {
+				AnnotationFieldReference fieldRef = (AnnotationFieldReference) reference;
+				requestor.acceptFieldReference(fieldRef.token, fieldRef.sourceStart);
+			} else if (reference instanceof AnnotationMessageSend) {
+				AnnotationMessageSend messageSend = (AnnotationMessageSend) reference;
+				if (messageSend.arguments != null) {
+					requestor.acceptMethodReference(messageSend.selector, messageSend.arguments.length, messageSend.sourceStart);
+				}
+			}
+		}
 	}
 }
 protected void classInstanceCreation(boolean alwaysQualified) {

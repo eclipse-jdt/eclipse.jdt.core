@@ -108,7 +108,30 @@ protected MatchLocatorParser(ProblemReporter problemReporter, MatchLocator locat
 public void checkAnnotation() {
 	super.checkAnnotation();
 	if (this.annotation != null) {
-		this.annotation.matchPatternLocator(this.patternLocator, this.nodeSet);
+		// Search for pattern locator matches in annotation @throws/@exception tags
+		TypeReference[] thrownExceptions = this.annotation.thrownExceptions;
+		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
+		for (int i = 0; i < throwsTagsNbre; i++) {
+			TypeReference typeRef = thrownExceptions[i];
+			patternLocator.match(typeRef, nodeSet);
+		}
+
+		// Search for pattern locator matches in annotation @see tags
+		Expression[] references = this.annotation.references;
+		int seeTagsNbre = references == null ? 0 : references.length;
+		for (int i = 0; i < seeTagsNbre; i++) {
+			Expression reference = references[i];
+			if (reference instanceof TypeReference) {
+				TypeReference typeRef = (TypeReference) reference;
+				patternLocator.match(typeRef, nodeSet);
+			} else if (reference instanceof AnnotationFieldReference) {
+				AnnotationFieldReference fieldRef = (AnnotationFieldReference) reference;
+				patternLocator.match(fieldRef, nodeSet);
+			} else if (reference instanceof AnnotationMessageSend) {
+				AnnotationMessageSend messageSend = (AnnotationMessageSend) reference;
+				patternLocator.match(messageSend, nodeSet);
+			}
+		}
 	}
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
