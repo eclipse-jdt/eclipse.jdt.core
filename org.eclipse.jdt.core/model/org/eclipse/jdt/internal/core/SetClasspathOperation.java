@@ -224,9 +224,11 @@ public class SetClasspathOperation extends JavaModelOperation {
 		JavaModelException originalException = null;
 
 		try {
-			if (this.newRawPath == UpdateClasspath) this.newRawPath = getProject().getRawClasspath();
+			JavaProject project = getProject();
+			if (this.newRawPath == UpdateClasspath) this.newRawPath = project.getRawClasspath();
 			if (this.newRawPath != ReuseClasspath){
 				updateClasspath();
+				project.updatePackageFragmentRoots();
 			}
 
 		} catch(JavaModelException e){

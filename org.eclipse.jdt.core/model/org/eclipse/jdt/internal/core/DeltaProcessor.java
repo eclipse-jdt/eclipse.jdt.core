@@ -1267,9 +1267,12 @@ private JavaModelException newInvalidElementType() {
 	private void reconcileClasspathFileUpdate(IResourceDelta delta, IFile file, JavaProject project) {
 			
 		switch (delta.getKind()) {
-			case IResourceDelta.REMOVED : // recreate one based on in-memory path
+			case IResourceDelta.REMOVED : // recreate one based on in-memory classpath
 				try {
-					project.saveClasspath(project.getRawClasspath(), project.getOutputLocation());
+					JavaModelManager.PerProjectInfo info = project.getJavaModelManager().getPerProjectInfoCheckExistence(project.getProject());
+					if (info.classpath != null) { // if there is an in-memory classpath
+						project.saveClasspath(info.classpath, info.outputLocation);
+					}
 				} catch (JavaModelException e) {
 					if (project.getProject().isAccessible()) {
 						Util.log(e, "Could not save classpath for "+ project.getPath()); //$NON-NLS-1$
@@ -1350,6 +1353,7 @@ private JavaModelException newInvalidElementType() {
 					if (!wasSuccessful) { 
 						try {
 							project.setRawClasspath0(JavaProject.INVALID_CLASSPATH);
+							project.updatePackageFragmentRoots();
 						} catch (JavaModelException e) {
 						}
 					}

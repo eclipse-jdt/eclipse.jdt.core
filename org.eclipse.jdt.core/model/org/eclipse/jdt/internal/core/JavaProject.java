@@ -803,47 +803,15 @@ public class JavaProject
 		boolean validInfo = false;
 		try {
 			if (getProject().isOpen()) {
-				// put the info now, because setting the classpath requires it
+				// put the info now, because computing the roots requires it
 				JavaModelManager.getJavaModelManager().putInfo(this, info);
 
-				// read classpath property (contains actual classpath and output location settings)
-				IClasspathEntry[] classpath = this.readClasspathFile(false/*don't create markers*/, true/*log problems*/);
-				IPath outputLocation = null;
-				// extract out the output location
-				if (classpath != null && classpath.length > 0) {
-					IClasspathEntry entry = classpath[classpath.length - 1];
-					if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
-						outputLocation = entry.getPath();
-						IClasspathEntry[] copy = new IClasspathEntry[classpath.length - 1];
-						System.arraycopy(classpath, 0, copy, 0, copy.length);
-						classpath = copy;
-					}
-				}
-				// restore output location				
-				if (outputLocation == null) {
-					outputLocation = defaultOutputLocation();
-				}
-
-				JavaModelManager.PerProjectInfo perProjectInfo = getJavaModelManager().getPerProjectInfoCheckExistence(fProject);
-				synchronized (perProjectInfo) {
-					// cache output location
-					perProjectInfo.outputLocation = outputLocation;
-				}
-
-				/* Disable validate: classpath can contain CP variables and container that need to be resolved 
-				// validate classpath and output location
-				if (classpath != INVALID_CLASSPATH
-						&& !JavaConventions.validateClasspath(this, classpath, outputLocation).isOK()) {
-					classpath = INVALID_CLASSPATH;
-				}
-				*/
+				// compute the pkg fragment roots
+				updatePackageFragmentRoots();				
 	
-				setRawClasspath0(classpath);
-
 				// only valid if reaches here				
 				validInfo = true;
 			}
-		} catch (JavaModelException e) {
 		} finally {
 			if (!validInfo)
 				JavaModelManager.getJavaModelManager().removeInfo(this);
@@ -2149,9 +2117,6 @@ public class JavaProject
 			
 			// clear cache of resolved classpath
 			info.lastResolvedClasspath = null;
-			
-			// compute the new roots
-			updatePackageFragmentRoots();				
 		}
 	}
 
