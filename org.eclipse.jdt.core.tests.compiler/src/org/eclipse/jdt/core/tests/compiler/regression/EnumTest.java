@@ -1972,7 +1972,7 @@ public class EnumTest extends AbstractComparableTest {
 			""
 		);
 		String expectedOutput = 
-			"  // Method descriptor  #16 (Ljava/lang/String;I)V\n" + 
+			"  // Method descriptor #16 (Ljava/lang/String;I)V\n" + 
 			"  // Stack: 3, Locals: 3\n" + 
 			"  private X(String arg, int arg);\n" + 
 			"    0  aload_0 [this]\n" + 
@@ -2360,5 +2360,66 @@ public class EnumTest extends AbstractComparableTest {
 			},
 			"SUCCESS"
 		);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85397
+	public void test079() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" +
+				"	A, B;\n" +
+				"	private strictfp X() {}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	private strictfp X() {}\n" + 
+			"	                 ^^^\n" + 
+			"Illegal modifier for the method X.X()\n" + 
+			"----------\n"
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public strictfp enum X {\n" +
+				"	A, B;\n" +
+				"	private X() {}\n" +
+				"}\n"
+			},
+			""
+		);
+
+		String[] expectedOutputs = new String[] {
+			"  private strictfp X(String arg, int arg);\n",
+			"  public static final strictfp X[] values();\n",
+			"  public static final strictfp X valueOf(String arg);\n"
+		};
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED);
+			
+			for (int i = 0, max = expectedOutputs.length; i < max; i++) {
+				String expectedOutput = expectedOutputs[i];
+				int index = actualOutput.indexOf(expectedOutput);
+				if (index == -1 || expectedOutput.length() == 0) {
+					System.out.println(Util.displayString(actualOutput, 3));
+				}
+				if (index == -1) {
+					assertEquals("Wrong contents", expectedOutput, actualOutput);
+				}
+			}
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
 	}	
 }
