@@ -309,29 +309,30 @@ public interface IClasspathEntry {
 	IPath getPath();
 
 	/**
-	 * Returns the path to the source archive associated with this
+	 * Returns the path to the source archive or folder associated with this
 	 * classpath entry, or <code>null</code> if this classpath entry has no
 	 * source attachment.
 	 * <p>
 	 * Only library and variable classpath entries may have source attachments.
 	 * For library classpath entries, the result path (if present) locates a source
-	 * archive. For variable classpath entries, the result path (if present) has
-	 * an analogous form and meaning as the variable path, namely the first segment 
-	 * is the name of a classpath variable.
+	 * archive or folder. This archive or folder can be located in a project of the 
+	 * workspace or outside thr workspace. For variable classpath entries, the 
+	 * result path (if present) has an analogous form and meaning as the 
+	 * variable path, namely the first segment is the name of a classpath variable.
 	 * </p>
 	 *
-	 * @return the path to the source archive, or <code>null</code> if none
+	 * @return the path to the source archive or folder, or <code>null</code> if none
 	 */
 	IPath getSourceAttachmentPath();
 
 	/**
-	 * Returns the path within the source archive where package fragments
+	 * Returns the path within the source archive or folder where package fragments
 	 * are located. An empty path indicates that packages are located at
-	 * the root of the source archive. Returns a non-<code>null</code> value
+	 * the root of the source archive or folder. Returns a non-<code>null</code> value
 	 * if and only if <code>getSourceAttachmentPath</code> returns 
 	 * a non-<code>null</code> value.
 	 *
-	 * @return the path within the source archive, or <code>null</code> if
+	 * @return the path within the source archive or folder, or <code>null</code> if
 	 *    not applicable
 	 */
 	IPath getSourceAttachmentRootPath();
