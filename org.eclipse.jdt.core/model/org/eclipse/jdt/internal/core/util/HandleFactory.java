@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
@@ -49,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -170,6 +172,23 @@ public class HandleFactory {
 				currentElement = currentElement.getParent();
 			}
 			
+			public boolean visit(Argument node, BlockScope scope) {
+				LocalVariable localVariable = 
+					new LocalVariable(
+						(JavaElement)currentElement, 
+						new String(node.name), 
+						node.declarationSourceStart,
+						node.declarationEnd,
+						node.sourceStart,
+						node.sourceEnd);
+				currentElement = localVariable; // no need to update occurence count as the variable is defined by its positions
+				if (node == toBeFound) throw new EndVisit();
+				return true;
+			}
+			public void endVisit(Argument argument, BlockScope scope) {
+				currentElement = currentElement.getParent();
+			}
+
 			public boolean visit(ConstructorDeclaration node, ClassScope scope) {
 				currentElement = 
 					((IType)currentElement).getMethod(
@@ -197,6 +216,23 @@ public class HandleFactory {
 				return true;
 			}
 			public void endVisit(Initializer node, MethodScope scope) {
+				currentElement = currentElement.getParent();
+			}
+
+			public boolean visit(LocalDeclaration node, BlockScope scope) {
+				LocalVariable localVariable = 
+					new LocalVariable(
+						(JavaElement)currentElement, 
+						new String(node.name), 
+						node.declarationSourceStart,
+						node.declarationEnd,
+						node.sourceStart,
+						node.sourceEnd);
+				currentElement = localVariable; // no need to update occurence count as the variable is defined by its positions
+				if (node == toBeFound) throw new EndVisit();
+				return true;
+			}
+			public void endVisit(LocalDeclaration localDeclaration, BlockScope scope) {
 				currentElement = currentElement.getParent();
 			}
 

@@ -78,15 +78,15 @@ protected char getHandleMementoDelimiter() {
  * @see JavaElement#getPrimaryElement(boolean)
  */
 public IJavaElement getPrimaryElement(boolean checkOwner) {
-	CompilationUnit cu = (CompilationUnit)fParent.getParent();
+	CompilationUnit cu = (CompilationUnit)this.parent.getParent();
 	if (checkOwner && cu.isPrimary()) return this;
-	return cu.getImport(fName);
+	return cu.getImport(this.name);
 }
 /**
  * Returns true if the import is on-demand (ends with ".*")
  */
 public boolean isOnDemand() {
-	return fName.endsWith(".*"); //$NON-NLS-1$
+	return this.name.endsWith(".*"); //$NON-NLS-1$
 }
 /**
  */

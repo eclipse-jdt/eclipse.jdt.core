@@ -166,7 +166,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					packageName,
 					className,
 					false);
-				acceptedAnswer = true;
+				this.acceptedAnswer = true;
 			}
 		}
 	}
@@ -209,11 +209,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				
 			} else {
 				noProposal = false;
-				requestor.acceptInterface(
+				this.requestor.acceptInterface(
 					packageName,
 					interfaceName,
 					false);
-				acceptedAnswer = true;
+				this.acceptedAnswer = true;
 			}
 		}
 	}
@@ -232,10 +232,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 	private void acceptQualifiedTypes() {
 		if(acceptedClasses != null){
-			acceptedAnswer = true;
+			this.acceptedAnswer = true;
 			for (int i = 0; i < acceptedClassesCount; i++) {
 				noProposal = false;
-				requestor.acceptClass(
+				this.requestor.acceptClass(
 					acceptedClasses[i][0],
 					acceptedClasses[i][1],
 					true);
@@ -244,10 +244,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			acceptedClassesCount = 0;
 		}
 		if(acceptedInterfaces != null){
-			acceptedAnswer = true;
+			this.acceptedAnswer = true;
 			for (int i = 0; i < acceptedInterfacesCount; i++) {
 				noProposal = false;
-				requestor.acceptInterface(
+				this.requestor.acceptInterface(
 					acceptedInterfaces[i][0],
 					acceptedInterfaces[i][1],
 					true);
@@ -448,7 +448,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		if (!checkSelection(source, selectionSourceStart, selectionSourceEnd))
 			return;
 		try {
-			acceptedAnswer = false;
+			this.acceptedAnswer = false;
 			CompilationResult result = new CompilationResult(sourceUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
 			CompilationUnitDeclaration parsedUnit =
 				parser.dietParse(sourceUnit, result, actualSelectionStart, actualSelectionEnd);
@@ -589,7 +589,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						false);
 				}
 			}
-			acceptedAnswer = true;
+			this.acceptedAnswer = true;
 		} else
 			if (binding instanceof MethodBinding) {
 				MethodBinding methodBinding = (MethodBinding) binding;
@@ -614,7 +614,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						methodBinding.isConstructor(),
 						parsedUnit);
 				} else {
-					requestor.acceptMethod(
+					this.requestor.acceptMethod(
 						declaringClass.qualifiedPackageName(),
 						declaringClass.qualifiedSourceName(),
 						methodBinding.isConstructor()
@@ -624,7 +624,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						parameterTypeNames,
 						methodBinding.isConstructor());
 				}
-				acceptedAnswer = true;
+				this.acceptedAnswer = true;
 			} else
 				if (binding instanceof FieldBinding) {
 					FieldBinding fieldBinding = (FieldBinding) binding;
@@ -637,17 +637,24 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 								fieldBinding.name,
 								parsedUnit);
 						} else {
-							requestor.acceptField(
+							this.requestor.acceptField(
 								declaringClass.qualifiedPackageName(),
 								declaringClass.qualifiedSourceName(),
 								fieldBinding.name);
 						}
-						acceptedAnswer = true;
+						this.acceptedAnswer = true;
 					}
 				} else
 					if (binding instanceof LocalVariableBinding) {
-						selectFrom(((LocalVariableBinding) binding).type, parsedUnit);
-						// open on the type of the variable
+						if (this.requestor instanceof SelectionRequestor) {
+							((SelectionRequestor)this.requestor).acceptLocalVariable(
+								(LocalVariableBinding)binding,
+								parsedUnit);
+							this.acceptedAnswer = true;
+						} else {
+							// open on the type of the variable
+							selectFrom(((LocalVariableBinding) binding).type, parsedUnit);
+						}
 					} else
 						if (binding instanceof ArrayBinding) {
 							selectFrom(((ArrayBinding) binding).leafComponentType, parsedUnit);
@@ -657,10 +664,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 								PackageBinding packageBinding = (PackageBinding) binding;
 								noProposal = false;
 								requestor.acceptPackage(packageBinding.readableName());
-								acceptedAnswer = true;
+								this.acceptedAnswer = true;
 							} else
 								if(binding instanceof BaseTypeBinding) {
-									acceptedAnswer = true;
+									this.acceptedAnswer = true;
 								}
 	}
 	
@@ -750,7 +757,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 */
 	public void selectType(ISourceType sourceType, char[] typeName, ISourceType[] topLevelTypes, boolean searchInEnvironment) {
 		try {
-			acceptedAnswer = false;
+			this.acceptedAnswer = false;
 
 			// find the outer most type
 			ISourceType outerType = sourceType;

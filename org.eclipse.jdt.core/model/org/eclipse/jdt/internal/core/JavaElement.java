@@ -41,6 +41,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public static final char JEM_PACKAGEDECLARATION = '%';
 	public static final char JEM_IMPORTDECLARATION = '#';
 	public static final char JEM_COUNT = '!';
+	public static final char JEM_LOCALVARIABLE = '@';
 
 	/**
 	 * A count to uniquely identify this element in the case
@@ -56,13 +57,13 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * This element's parent, or <code>null</code> if this
 	 * element does not have a parent.
 	 */
-	protected JavaElement fParent;
+	protected JavaElement parent;
 
 	/**
 	 * This element's name, or an empty <code>String</code> if this
 	 * element does not have a name.
 	 */
-	protected String fName;
+	protected String name;
 
 	protected static final JavaElement[] NO_ELEMENTS = new JavaElement[0];
 	protected static final Object NO_INFO = new Object();
@@ -78,8 +79,8 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 *
 	 */
 	protected JavaElement(JavaElement parent, String name) throws IllegalArgumentException {
-		fParent= parent;
-		fName= name;
+		this.parent = parent;
+		this.name = name;
 	}
 	/**
 	 * @see IOpenable
@@ -111,13 +112,13 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		if (this == o) return true;
 	
 		// Java model parent is null
-		if (fParent == null) return super.equals(o);
+		if (this.parent == null) return super.equals(o);
 	
 		// assume instanceof check is done in subclass
 		JavaElement other = (JavaElement) o;		
 		return this.occurrenceCount == other.occurrenceCount &&
-				fName.equals(other.fName) &&
-				fParent.equals(other.fParent);
+				this.name.equals(other.name) &&
+				this.parent.equals(other.parent);
 	}
 	/**
 	 * Returns true if this <code>JavaElement</code> is equivalent to the given
@@ -281,7 +282,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * @see IAdaptable
 	 */
 	public String getElementName() {
-		return fName;
+		return this.name;
 	}
 	/*
 	 * Creates a Java element handle from the given memento.
@@ -366,14 +367,13 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * <p>Subclasses that are not IOpenable's must override this method.
 	 */
 	public IOpenable getOpenableParent() {
-		
-		return (IOpenable)fParent;
+		return (IOpenable)this.parent;
 	}
 	/**
 	 * @see IJavaElement
 	 */
 	public IJavaElement getParent() {
-		return fParent;
+		return this.parent;
 	}
 	/*
 	 * @see IJavaElement#getPrimaryElement()
@@ -442,19 +442,19 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * override this method.
 	 */
 	public int hashCode() {
-		if (fParent == null) return super.hashCode();
-		return Util.combineHashCodes(fName.hashCode(), fParent.hashCode());
+		if (this.parent == null) return super.hashCode();
+		return Util.combineHashCodes(this.name.hashCode(), this.parent.hashCode());
 	}
 	/**
 	 * Returns true if this element is an ancestor of the given element,
 	 * otherwise false.
 	 */
 	public boolean isAncestorOf(IJavaElement e) {
-		IJavaElement parent= e.getParent();
-		while (parent != null && !parent.equals(this)) {
-			parent= parent.getParent();
+		IJavaElement parentElement= e.getParent();
+		while (parentElement != null && !parentElement.equals(this)) {
+			parentElement= parentElement.getParent();
 		}
-		return parent != null;
+		return parentElement != null;
 	}
 	
 	/**
@@ -584,11 +584,11 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 *  Debugging purposes
 	 */
 	protected void toStringAncestors(StringBuffer buffer) {
-		JavaElement parent = (JavaElement)this.getParent();
-		if (parent != null && parent.getParent() != null) {
+		JavaElement parentElement = (JavaElement)this.getParent();
+		if (parentElement != null && parentElement.getParent() != null) {
 			buffer.append(" [in "); //$NON-NLS-1$
-			parent.toStringInfo(0, buffer, NO_INFO);
-			parent.toStringAncestors(buffer);
+			parentElement.toStringInfo(0, buffer, NO_INFO);
+			parentElement.toStringAncestors(buffer);
 			buffer.append("]"); //$NON-NLS-1$
 		}
 	}

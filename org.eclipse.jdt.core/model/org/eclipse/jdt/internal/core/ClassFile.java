@@ -127,9 +127,9 @@ public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner owner)
 	char[] contents;
 	if (buffer != null && (contents = buffer.getCharacters()) != null) {
 		IType current = this.getType();
-		IType parent;
-		while ((parent = current.getDeclaringType()) != null){
-			current = parent;
+		IType parentType;
+		while ((parentType = current.getDeclaringType()) != null){
+			current = parentType;
 		}
 		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, current.getElementName() + SUFFIX_STRING_java, null);
 		return super.codeSelect(cu, offset, length, owner);
@@ -261,11 +261,11 @@ public IResource getCorrespondingResource() throws JavaModelException {
  * @see IClassFile
  */
 public IJavaElement getElementAt(int position) throws JavaModelException {
-	IJavaElement parent = getParent();
-	while (parent.getElementType() != IJavaElement.PACKAGE_FRAGMENT_ROOT) {
-		parent = parent.getParent();
+	IJavaElement parentElement = getParent();
+	while (parentElement.getElementType() != IJavaElement.PACKAGE_FRAGMENT_ROOT) {
+		parentElement = parentElement.getParent();
 	}
-	PackageFragmentRoot root = (PackageFragmentRoot) parent;
+	PackageFragmentRoot root = (PackageFragmentRoot) parentElement;
 	SourceMapper mapper = root.getSourceMapper();
 	if (mapper == null) {
 		return null;
@@ -355,15 +355,15 @@ public IType getType() {
 	if (this.binaryType == null) {
 		// Remove the ".class" from the name of the ClassFile - always works
 		// since constructor fails if name does not end with ".class"
-		String name = fName.substring(0, fName.lastIndexOf('.'));
-		name = name.substring(name.lastIndexOf('.') + 1);
-		int index = name.lastIndexOf('$');
+		String typeName = this.name.substring(0, this.name.lastIndexOf('.'));
+		typeName = typeName.substring(typeName.lastIndexOf('.') + 1);
+		int index = typeName.lastIndexOf('$');
 		if (index > -1) {
-			if (name.length() > (index + 1) && !Character.isDigit(name.charAt(index + 1))) {
-				name = name.substring(index + 1);
+			if (typeName.length() > (index + 1) && !Character.isDigit(typeName.charAt(index + 1))) {
+				typeName = typeName.substring(index + 1);
 			}
 		}
-		this.binaryType = new BinaryType(this, name);
+		this.binaryType = new BinaryType(this, typeName);
 	}
 	return this.binaryType;
 }
@@ -666,8 +666,8 @@ public void codeComplete(int offset, final org.eclipse.jdt.core.ICodeCompletionR
 					// marker could not be created: ignore
 				}
 			}
-			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
-				requestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
+			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
+				requestor.acceptField(declaringTypePackageName, declaringTypeName, fieldName, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
 			}
 			public void acceptInterface(char[] packageName,char[] interfaceName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
 				requestor.acceptInterface(packageName, interfaceName, completionName, modifiers, completionStart, completionEnd);
@@ -678,7 +678,7 @@ public void codeComplete(int offset, final org.eclipse.jdt.core.ICodeCompletionR
 			public void acceptLabel(char[] labelName,int completionStart,int completionEnd, int relevance){
 				requestor.acceptLabel(labelName, completionStart, completionEnd);
 			}
-			public void acceptLocalVariable(char[] name,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd, int relevance){
+			public void acceptLocalVariable(char[] localVarName,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd, int relevance){
 				// ignore
 			}
 			public void acceptMethod(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance){
@@ -697,7 +697,7 @@ public void codeComplete(int offset, final org.eclipse.jdt.core.ICodeCompletionR
 			public void acceptType(char[] packageName,char[] typeName,char[] completionName,int completionStart,int completionEnd, int relevance){
 				requestor.acceptType(packageName, typeName, completionName, completionStart, completionEnd);
 			}
-			public void acceptVariableName(char[] typePackageName,char[] typeName,char[] name,char[] completionName,int completionStart,int completionEnd, int relevance){
+			public void acceptVariableName(char[] typePackageName,char[] typeName,char[] varName,char[] completionName,int completionStart,int completionEnd, int relevance){
 				// ignore
 			}
 		});

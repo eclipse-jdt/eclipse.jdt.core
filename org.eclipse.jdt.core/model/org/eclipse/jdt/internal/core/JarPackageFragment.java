@@ -92,7 +92,7 @@ public boolean containsJavaResources() throws JavaModelException {
 /**
  * @see IPackageFragment
  */
-public ICompilationUnit createCompilationUnit(String name, String contents, boolean force, IProgressMonitor monitor) throws JavaModelException {
+public ICompilationUnit createCompilationUnit(String cuName, String contents, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
 /**
@@ -106,7 +106,7 @@ protected Object createElementInfo() {
  */
 protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
 	// Open my jar: this creates all the pkg infos
-	Openable openableParent = (Openable)fParent;
+	Openable openableParent = (Openable)this.parent;
 	if (!openableParent.isOpen()) {
 		openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
 	}

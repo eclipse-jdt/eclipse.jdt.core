@@ -284,10 +284,10 @@ protected Object createElementInfo() {
 /**
  * @see IPackageFragmentRoot
  */
-public IPackageFragment createPackageFragment(String name, boolean force, IProgressMonitor monitor) throws JavaModelException {
-	CreatePackageFragmentOperation op = new CreatePackageFragmentOperation(this, name, force);
+public IPackageFragment createPackageFragment(String pkgName, boolean force, IProgressMonitor monitor) throws JavaModelException {
+	CreatePackageFragmentOperation op = new CreatePackageFragmentOperation(this, pkgName, force);
 	runOperation(op, monitor);
-	return getPackageFragment(name);
+	return getPackageFragment(pkgName);
 }
 
 /**
@@ -537,14 +537,14 @@ protected String getPackageName(IFolder folder) {
 	IPath pkgPath= folder.getFullPath();
 	int mySegmentCount= myPath.segmentCount();
 	int pkgSegmentCount= pkgPath.segmentCount();
-	StringBuffer name = new StringBuffer(IPackageFragment.DEFAULT_PACKAGE_NAME);
+	StringBuffer pkgName = new StringBuffer(IPackageFragment.DEFAULT_PACKAGE_NAME);
 	for (int i= mySegmentCount; i < pkgSegmentCount; i++) {
 		if (i > mySegmentCount) {
-			name.append('.');
+			pkgName.append('.');
 		}
-		name.append(pkgPath.segment(i));
+		pkgName.append(pkgPath.segment(i));
 	}
-	return name.toString();
+	return pkgName.toString();
 }
 
 /**

@@ -166,13 +166,13 @@ public IMethod[] findMethods(IMethod method) {
  * @see IMember
  */
 public IType getDeclaringType() {
-	IJavaElement parent = getParent();
-	while (parent != null) {
-		if (parent.getElementType() == IJavaElement.TYPE) {
-			return (IType) parent;
+	IJavaElement parentElement = getParent();
+	while (parentElement != null) {
+		if (parentElement.getElementType() == IJavaElement.TYPE) {
+			return (IType) parentElement;
 		} else
-			if (parent instanceof IMember) {
-				parent = parent.getParent();
+			if (parentElement instanceof IMember) {
+				parentElement = parentElement.getParent();
 			} else {
 				return null;
 			}
@@ -188,8 +188,8 @@ public int getElementType() {
 /**
  * @see IType#getField
  */
-public IField getField(String name) {
-	return new SourceField(this, name);
+public IField getField(String fieldName) {
+	return new SourceField(this, fieldName);
 }
 /**
  * @see IType
@@ -248,13 +248,21 @@ public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, 
 						}
 						params.add(buffer.toString() + param);
 						break;
+					default:
+						break nextParam;
 				}
 			}
 			String[] parameters = new String[params.size()];
 			params.toArray(parameters);
 			JavaElement method = (JavaElement)getMethod(selector, parameters);
-			if (token != null && token.charAt(0) == JEM_TYPE) {
-				return method.getHandleFromMemento(token, memento, workingCopyOwner);
+			if (token != null) {
+				switch (token.charAt(0)) {
+					case JEM_TYPE:
+					case JEM_LOCALVARIABLE:
+						return method.getHandleFromMemento(token, memento, workingCopyOwner);
+					default:
+						return method;
+				}
 			} else {
 				return method;
 			}
@@ -300,8 +308,8 @@ public IInitializer[] getInitializers() throws JavaModelException {
 /**
  * @see IType#getMethod
  */
-public IMethod getMethod(String name, String[] parameterTypeSignatures) {
-	return new SourceMethod(this, name, parameterTypeSignatures);
+public IMethod getMethod(String selector, String[] parameterTypeSignatures) {
+	return new SourceMethod(this, selector, parameterTypeSignatures);
 }
 /**
  * @see IType
@@ -316,13 +324,13 @@ public IMethod[] getMethods() throws JavaModelException {
  * @see IType
  */
 public IPackageFragment getPackageFragment() {
-	IJavaElement parent = fParent;
-	while (parent != null) {
-		if (parent.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
-			return (IPackageFragment) parent;
+	IJavaElement parentElement = this.parent;
+	while (parentElement != null) {
+		if (parentElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
+			return (IPackageFragment)parentElement;
 		}
 		else {
-			parent = parent.getParent();
+			parentElement = parentElement.getParent();
 		}
 	}
 	Assert.isTrue(false);  // should not happen
@@ -336,16 +344,16 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 		CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
 		if (cu.isPrimary()) return this;
 	}
-	IJavaElement parent = fParent.getPrimaryElement(false);
-	switch (parent.getElementType()) {
+	IJavaElement primaryParent = this.parent.getPrimaryElement(false);
+	switch (primaryParent.getElementType()) {
 		case IJavaElement.COMPILATION_UNIT:
-			return ((ICompilationUnit)parent).getType(fName);
+			return ((ICompilationUnit)primaryParent).getType(this.name);
 		case IJavaElement.TYPE:
-			return ((IType)parent).getType(fName);
+			return ((IType)primaryParent).getType(this.name);
 		case IJavaElement.FIELD:
 		case IJavaElement.INITIALIZER:
 		case IJavaElement.METHOD:
-			return ((IMember)parent).getType(fName, this.occurrenceCount);
+			return ((IMember)primaryParent).getType(this.name, this.occurrenceCount);
 	}
 	return this;
 }
@@ -378,8 +386,8 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
 /**
  * @see IType
  */
-public IType getType(String name) {
-	return new SourceType(this, name);
+public IType getType(String typeName) {
+	return new SourceType(this, typeName);
 }
 /**
  * @see IType#getTypeQualifiedName
@@ -391,18 +399,18 @@ public String getTypeQualifiedName() {
  * @see IType#getTypeQualifiedName(char)
  */
 public String getTypeQualifiedName(char enclosingTypeSeparator) {
-	switch (fParent.getElementType()) {
+	switch (this.parent.getElementType()) {
 		case IJavaElement.COMPILATION_UNIT:
-			return fName;
+			return this.name;
 		case IJavaElement.TYPE:
-			return ((IType) fParent).getTypeQualifiedName(enclosingTypeSeparator) + enclosingTypeSeparator + fName;
+			return ((IType) this.parent).getTypeQualifiedName(enclosingTypeSeparator) + enclosingTypeSeparator + this.name;
 		case IJavaElement.FIELD:
 		case IJavaElement.INITIALIZER:
 		case IJavaElement.METHOD:
 			return 
-				((IMember) fParent).getDeclaringType().getTypeQualifiedName(enclosingTypeSeparator) 
+				((IMember) this.parent).getDeclaringType().getTypeQualifiedName(enclosingTypeSeparator) 
 				+ enclosingTypeSeparator + this.occurrenceCount
-				+ enclosingTypeSeparator + fName;
+				+ enclosingTypeSeparator + this.name;
 	}
 	return null;
 }
@@ -420,7 +428,7 @@ public IType[] getTypes() throws JavaModelException {
  * @see IType#isAnonymous()
  */
 public boolean isAnonymous() {
-	return fName.length() == 0;
+	return this.name.length() == 0;
 }
 /**
  * @see IType
@@ -439,7 +447,7 @@ public boolean isInterface() throws JavaModelException {
  * @see IType#isLocal()
  */
 public boolean isLocal() {
-	return fParent instanceof IMethod || fParent instanceof IInitializer;
+	return this.parent instanceof IMethod || this.parent instanceof IInitializer;
 }
 /**
  * @see IType#isMember()
@@ -650,7 +658,7 @@ public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws Ja
 			public void acceptError(IProblem error) {
 				// ignore
 			}
-			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name) {
+			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName) {
 				// ignore
 			}
 			public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor) {

@@ -15,11 +15,11 @@ import org.eclipse.jdt.core.ISourceRange;
 /**
  * @see ISourceRange
  */
-/* package */ class SourceRange implements ISourceRange {
+public class SourceRange implements ISourceRange {
 
 protected int offset, length;
 
-protected SourceRange(int offset, int length) {
+public SourceRange(int offset, int length) {
 	this.offset = offset;
 	this.length = length;
 }

@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 
@@ -180,8 +181,19 @@ public void acceptLocalType(SourceTypeBinding typeBinding, CompilationUnitDeclar
 	if (type != null) {
 		addElement(type);
 		if(SelectionEngine.DEBUG){
-			System.out.print("SELECTION - accept type("); //$NON-NLS-1$
+			System.out.print("SELECTION - accept local type("); //$NON-NLS-1$
 			System.out.print(type.toString());
+			System.out.println(")"); //$NON-NLS-1$
+		}
+	}
+}
+public void acceptLocalVariable(LocalVariableBinding binding, CompilationUnitDeclaration parsedUnit) {
+	IJavaElement localVar = this.handleFactory.createElement(binding.declaration, parsedUnit, this.openable);
+	if (localVar != null) {
+		addElement(localVar);
+		if(SelectionEngine.DEBUG){
+			System.out.print("SELECTION - accept local variable("); //$NON-NLS-1$
+			System.out.print(localVar.toString());
 			System.out.println(")"); //$NON-NLS-1$
 		}
 	}

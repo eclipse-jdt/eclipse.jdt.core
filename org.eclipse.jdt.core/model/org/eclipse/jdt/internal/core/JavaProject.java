@@ -2479,8 +2479,8 @@ public class JavaProject
 	public void setProject(IProject project) {
 
 		fProject = project;
-		fParent = JavaModelManager.getJavaModelManager().getJavaModel();
-		fName = project.getName();
+		this.parent = JavaModelManager.getJavaModelManager().getJavaModel();
+		this.name = project.getName();
 	}
 
 	/**

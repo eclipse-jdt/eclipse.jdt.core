@@ -191,13 +191,13 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 /**
  * @see ISourceManipulation
  */
-public void rename(String name, boolean force, IProgressMonitor monitor) throws JavaModelException {
-	if (name == null) {
+public void rename(String newName, boolean force, IProgressMonitor monitor) throws JavaModelException {
+	if (newName == null) {
 		throw new IllegalArgumentException(Util.bind("element.nullName")); //$NON-NLS-1$
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] dests= new IJavaElement[] {this.getParent()};
-	String[] renamings= new String[] {name};
+	String[] renamings= new String[] {newName};
 	getJavaModel().rename(elements, dests, renamings, force, monitor);
 }
 }

@@ -63,7 +63,7 @@ public void testArgumentName1() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "var1", "var1");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Object [in Object.class [in java.lang [in " + getExternalJCLPath(). toString() + " [in Resolve]]]]",
+		"var1 [in foo(Object, int) [in ResolveArgumentName [in ResolveArgumentName.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -75,7 +75,7 @@ public void testArgumentName2() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "var2", "var2");
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"var2 [in foo(Object, int) [in ResolveArgumentName [in ResolveArgumentName.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -100,7 +100,7 @@ public void testCatchArgumentName1() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "var1", "var1");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Object [in Object.class [in java.lang [in " + getExternalJCLPath(). toString() + " [in Resolve]]]]",
+		"var1 [in foo() [in ResolveCatchArgumentName [in ResolveCatchArgumentName.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -112,7 +112,7 @@ public void testCatchArgumentName2() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "var2", "var2");
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"var2 [in foo() [in ResolveCatchArgumentName [in ResolveCatchArgumentName.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -594,10 +594,10 @@ public void testLocalMethodDeclaration() throws JavaModelException {
  */
 public void testLocalName1() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalName.java");
-	IJavaElement[] elements = codeSelect(cu, "var1", "var1");
+	IJavaElement[] elements = codeSelect(cu, "var1 = new Object();", "var1");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Object [in Object.class [in java.lang [in " + getExternalJCLPath(). toString() + " [in Resolve]]]]",
+		"var1 [in foo() [in ResolveLocalName [in ResolveLocalName.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
 }
@@ -606,10 +606,70 @@ public void testLocalName1() throws JavaModelException {
  */
 public void testLocalName2() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalName.java");
-	IJavaElement[] elements = codeSelect(cu, "var2", "var2");
+	IJavaElement[] elements = codeSelect(cu, "var2 = 1;", "var2");
 	assertElementsEqual(
 		"Unexpected elements",
-		"",
+		"var2 [in foo() [in ResolveLocalName [in ResolveLocalName.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve a local variable reference
+ */
+public void testLocalName3() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalName.java");
+	IJavaElement[] elements = codeSelect(cu, "var1.toString();", "var1");
+	assertElementsEqual(
+		"Unexpected elements",
+		"var1 [in foo() [in ResolveLocalName [in ResolveLocalName.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve a local variable reference
+ */
+public void testLocalName4() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalName.java");
+	IJavaElement[] elements = codeSelect(cu, "var2++;", "var2");
+	assertElementsEqual(
+		"Unexpected elements",
+		"var2 [in foo() [in ResolveLocalName [in ResolveLocalName.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve a local variable reference
+ */
+public void testLocalName5() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalName.java");
+	IJavaElement[] elements = codeSelect(cu, "var3.hashCode();", "var3");
+	assertElementsEqual(
+		"Unexpected elements",
+		"var3 [in foo() [in ResolveLocalName [in ResolveLocalName.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve a local variable reference
+ */
+public void testLocalName6() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalName.java");
+	IJavaElement[] elements = codeSelect(cu, "var3.toString();", "var3");
+	assertElementsEqual(
+		"Unexpected elements",
+		"var3 [in foo() [in ResolveLocalName [in ResolveLocalName.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+/**
+ * Resolve a local variable reference
+ */
+public void testLocalName7() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalName.java");
+	IJavaElement[] elements = codeSelect(cu, "var4;", "var4");
+	assertElementsEqual(
+		"Unexpected elements",
+		"var4 [in foo() [in ResolveLocalName [in ResolveLocalName.java [in <default> [in src [in Resolve]]]]]]",
 		elements
 	);
 }

@@ -98,7 +98,7 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 /**
  * @see ISourceManipulation
  */
-public void rename(String name, boolean force, IProgressMonitor monitor) throws JavaModelException {
+public void rename(String newName, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
 /**

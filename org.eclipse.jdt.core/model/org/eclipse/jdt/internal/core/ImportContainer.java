@@ -64,14 +64,14 @@ protected char getHandleMementoDelimiter() {
 /**
  * @see IImportContainer
  */
-public IImportDeclaration getImport(String name) {
-	return new ImportDeclaration(this, name);
+public IImportDeclaration getImport(String importName) {
+	return new ImportDeclaration(this, importName);
 }
 /*
  * @see JavaElement#getPrimaryElement(boolean)
  */
 public IJavaElement getPrimaryElement(boolean checkOwner) {
-	CompilationUnit cu = (CompilationUnit)fParent;
+	CompilationUnit cu = (CompilationUnit)this.parent;
 	if (checkOwner && cu.isPrimary()) return this;
 	return cu.getImportContainer();
 }

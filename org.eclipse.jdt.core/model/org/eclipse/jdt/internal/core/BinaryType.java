@@ -170,7 +170,7 @@ public IJavaElement[] getChildren() throws JavaModelException {
 	return cfi.binaryChildren;
 }
 protected ClassFileInfo getClassFileInfo() throws JavaModelException {
-	ClassFile cf = (ClassFile) fParent;
+	ClassFile cf = (ClassFile)this.parent;
 	return (ClassFileInfo) cf.getElementInfo();
 }
 /**
@@ -233,8 +233,8 @@ public int getElementType() {
 /**
  * @see IType#getField(String name)
  */
-public IField getField(String name) {
-	return new BinaryField(this, name);
+public IField getField(String fieldName) {
+	return new BinaryField(this, fieldName);
 }
 /**
  * @see IType#getFields()
@@ -305,13 +305,21 @@ public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, 
 						}
 						params.add(buffer.toString() + param);
 						break;
+					default:
+						break nextParam;
 				}
 			}
 			String[] parameters = new String[params.size()];
 			params.toArray(parameters);
 			JavaElement method = (JavaElement)getMethod(selector, parameters);
-			if (token != null && token.charAt(0) == JEM_TYPE) {
-				return method.getHandleFromMemento(token, memento, workingCopyOwner);
+			if (token != null) {
+				switch (token.charAt(0)) {
+					case JEM_TYPE:
+					case JEM_LOCALVARIABLE:
+						return method.getHandleFromMemento(token, memento, workingCopyOwner);
+					default:
+						return method;
+				}
 			} else {
 				return method;
 			}
@@ -354,8 +362,8 @@ public IInitializer[] getInitializers() {
 /**
  * @see IType#getMethod(String name, String[] parameterTypeSignatures)
  */
-public IMethod getMethod(String name, String[] parameterTypeSignatures) {
-	return new BinaryMethod(this, name, parameterTypeSignatures);
+public IMethod getMethod(String selector, String[] parameterTypeSignatures) {
+	return new BinaryMethod(this, selector, parameterTypeSignatures);
 }
 /**
  * @see IType#getMethods()
@@ -375,13 +383,13 @@ public IMethod[] getMethods() throws JavaModelException {
  * @see IType#getPackageFragment()
  */
 public IPackageFragment getPackageFragment() {
-	IJavaElement parent = fParent;
-	while (parent != null) {
-		if (parent.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
-			return (IPackageFragment) parent;
+	IJavaElement parentElement = this.parent;
+	while (parentElement != null) {
+		if (parentElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
+			return (IPackageFragment)parentElement;
 		}
 		else {
-			parent = parent.getParent();
+			parentElement = parentElement.getParent();
 		}
 	}
 	Assert.isTrue(false);  // should not happen
@@ -418,9 +426,9 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
 /**
  * @see IType#getType(String)
  */
-public IType getType(String name) {
-	IClassFile classFile= getPackageFragment().getClassFile(getTypeQualifiedName() + "$" + name + SUFFIX_STRING_class); //$NON-NLS-1$
-	return new BinaryType((JavaElement)classFile, name);
+public IType getType(String typeName) {
+	IClassFile classFile= getPackageFragment().getClassFile(getTypeQualifiedName() + "$" + typeName + SUFFIX_STRING_class); //$NON-NLS-1$
+	return new BinaryType((JavaElement)classFile, typeName);
 }
 /**
  * @see IType#getTypeQualifiedName()
@@ -437,7 +445,7 @@ public String getTypeQualifiedName(char enclosingTypeSeparator) {
 		String classFileName = this.getClassFile().getElementName();
 		if (classFileName.indexOf('$') == -1) {
 			// top level class file: name of type is same as name of class file
-			return fName;
+			return this.name;
 		} else {
 			// anonymous or local class file
 			return classFileName.substring(0, classFileName.lastIndexOf('.')); // remove .class
@@ -446,7 +454,7 @@ public String getTypeQualifiedName(char enclosingTypeSeparator) {
 		return 
 			declaringType.getTypeQualifiedName(enclosingTypeSeparator)
 			+ enclosingTypeSeparator
-			+ fName;
+			+ this.name;
 	}
 }
 /**

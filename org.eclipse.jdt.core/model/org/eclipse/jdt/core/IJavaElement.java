@@ -109,6 +109,13 @@ public interface IJavaElement extends IAdaptable {
 	 * A Java element with this type can be safely cast to <code>IImportDeclaration</code>.
 	 */
 	int IMPORT_DECLARATION = 13;
+	
+	/**
+	 * Constant representing a local variable declaration.
+	 * A Java element with this type can be safely cast to <code>ILocalVariable</code>.
+	 * @since 3.0
+	 */
+	int LOCAL_VARIABLE = 14;
 
 	/**
 	 * Returns whether this Java element exists in the model.

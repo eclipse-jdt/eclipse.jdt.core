@@ -139,9 +139,9 @@ public IClassFile getClassFile() {
  * @see IMember
  */
 public IType getDeclaringType() {
-	JavaElement parent = (JavaElement)getParent();
-	if (parent.getElementType() == TYPE) {
-		return (IType) parent;
+	JavaElement parentElement = (JavaElement)getParent();
+	if (parentElement.getElementType() == TYPE) {
+		return (IType) parentElement;
 	}
 	return null;
 }
@@ -180,6 +180,17 @@ public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, 
 			} else {
 				return type.getHandleFromMemento(token, memento, workingCopyOwner);
 			}
+		case JEM_LOCALVARIABLE:
+			String varName = memento.nextToken();
+			memento.nextToken(); // JEM_COUNT
+			int declarationStart = Integer.parseInt(memento.nextToken());
+			memento.nextToken(); // JEM_COUNT
+			int declarationEnd = Integer.parseInt(memento.nextToken());
+			memento.nextToken(); // JEM_COUNT
+			int nameStart = Integer.parseInt(memento.nextToken());
+			memento.nextToken(); // JEM_COUNT
+			int nameEnd = Integer.parseInt(memento.nextToken());
+			return new LocalVariable(this, varName, declarationStart, declarationEnd, nameStart, nameEnd);
 	}
 	return null;
 }
@@ -226,8 +237,8 @@ public ISourceRange getNameRange() throws JavaModelException {
 /**
  * @see IMember
  */
-public IType getType(String name, int count) {
-	SourceType type = new SourceType(this, name);
+public IType getType(String typeName, int count) {
+	SourceType type = new SourceType(this, typeName);
 	type.occurrenceCount = count;
 	return type;
 }
@@ -243,8 +254,8 @@ protected boolean isMainMethod(IMethod method) throws JavaModelException {
 		if (Flags.isStatic(flags) && Flags.isPublic(flags)) {
 			String[] paramTypes= method.getParameterTypes();
 			if (paramTypes.length == 1) {
-				String name=  Signature.toString(paramTypes[0]);
-				return "String[]".equals(Signature.getSimpleName(name)); //$NON-NLS-1$
+				String typeSignature=  Signature.toString(paramTypes[0]);
+				return "String[]".equals(Signature.getSimpleName(typeSignature)); //$NON-NLS-1$
 			}
 		}
 	}

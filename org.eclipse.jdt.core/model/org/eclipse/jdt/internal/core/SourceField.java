@@ -92,8 +92,8 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 		CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
 		if (cu.isPrimary()) return this;
 	}
-	IJavaElement parent =fParent.getPrimaryElement(false);
-	return ((IType)parent).getField(fName);
+	IJavaElement primaryParent =this.parent.getPrimaryElement(false);
+	return ((IType)primaryParent).getField(this.name);
 }
 /**
  * @see IField

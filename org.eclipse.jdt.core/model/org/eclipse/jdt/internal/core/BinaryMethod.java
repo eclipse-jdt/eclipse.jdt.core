@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 				int declarationStart,
 				int modifiers,
 				char[] returnTypeName,
-				char[] name,
+				char[] selector,
 				int nameSourceStart,
 				int nameSourceEnd,
 				char[][] paramTypes,
@@ -49,7 +49,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 			public void enterConstructor(
 				int declarationStart,
 				int modifiers,
-				char[] name,
+				char[] selector,
 				int nameSourceStart,
 				int nameSourceEnd,
 				char[][] paramTypes,

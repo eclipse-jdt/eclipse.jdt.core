@@ -81,7 +81,7 @@ ISourceRange getNameRange() throws JavaModelException;
  * Numbering starts at 1 (thus the first occurrence is occurrence 1, not occurrence 0)..
  * This is a handle-only method. The type may or may not exist.
  * 
- * @param the given simple name
+ * @param name the given simple name
  * @param occurrenceCount the specified position
  * @return the type with the given name and/or with the specified position relative to the order they are defined in the source
  * @since 3.0

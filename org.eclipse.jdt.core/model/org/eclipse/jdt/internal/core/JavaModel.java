@@ -192,8 +192,8 @@ protected char getHandleMementoDelimiter(){
 /**
  * @see IJavaModel
  */
-public IJavaProject getJavaProject(String name) {
-	return new JavaProject(ResourcesPlugin.getWorkspace().getRoot().getProject(name), this);
+public IJavaProject getJavaProject(String projectName) {
+	return new JavaProject(ResourcesPlugin.getWorkspace().getRoot().getProject(projectName), this);
 }
 /**
  * Returns the active Java project associated with the specified

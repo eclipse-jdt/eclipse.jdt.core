@@ -854,7 +854,8 @@ public final class JavaCore extends Plugin {
 			JavaElement.JEM_CLASSFILE,
 			JavaElement.JEM_TYPE,
 			JavaElement.JEM_PACKAGEDECLARATION,
-			JavaElement.JEM_IMPORTDECLARATION});
+			JavaElement.JEM_IMPORTDECLARATION,
+			JavaElement.JEM_LOCALVARIABLE});
 		StringTokenizer memento = new StringTokenizer(handleIdentifier, delimiters, true);
 		JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 		return model.getHandleFromMemento(memento, owner);

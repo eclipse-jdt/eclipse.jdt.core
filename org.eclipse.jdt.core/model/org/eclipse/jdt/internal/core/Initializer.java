@@ -73,7 +73,7 @@ protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_INITIALIZER;
 }
 public int hashCode() {
-	return Util.combineHashCodes(fParent.hashCode(), this.occurrenceCount);
+	return Util.combineHashCodes(this.parent.hashCode(), this.occurrenceCount);
 }
 /**
  */
@@ -84,7 +84,7 @@ public String readableName() {
 /**
  * @see ISourceManipulation
  */
-public void rename(String name, boolean force, IProgressMonitor monitor) throws JavaModelException {
+public void rename(String newName, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, this));
 }
 /**
@@ -101,8 +101,8 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 		CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
 		if (cu == null || cu.isPrimary()) return this;
 	}
-	IJavaElement parent = fParent.getPrimaryElement(false);
-	return ((IType)parent).getInitializer(this.occurrenceCount);
+	IJavaElement primaryParent = this.parent.getPrimaryElement(false);
+	return ((IType)primaryParent).getInitializer(this.occurrenceCount);
 }
 /**
  * @private Debugging purposes

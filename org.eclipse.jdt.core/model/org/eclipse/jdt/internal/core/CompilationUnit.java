@@ -220,8 +220,8 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
 					// ignore
 				}
 			}
-			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
-				requestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
+			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
+				requestor.acceptField(declaringTypePackageName, declaringTypeName, fieldName, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
 			}
 			public void acceptInterface(char[] packageName,char[] interfaceName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
 				requestor.acceptInterface(packageName, interfaceName, completionName, modifiers, completionStart, completionEnd);
@@ -232,7 +232,7 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
 			public void acceptLabel(char[] labelName,int completionStart,int completionEnd, int relevance){
 				requestor.acceptLabel(labelName, completionStart, completionEnd);
 			}
-			public void acceptLocalVariable(char[] name,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd, int relevance){
+			public void acceptLocalVariable(char[] localVarName,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd, int relevance){
 				// ignore
 			}
 			public void acceptMethod(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance){
@@ -251,7 +251,7 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
 			public void acceptType(char[] packageName,char[] typeName,char[] completionName,int completionStart,int completionEnd, int relevance){
 				requestor.acceptType(packageName, typeName, completionName, completionStart, completionEnd);
 			}
-			public void acceptVariableName(char[] typePackageName,char[] typeName,char[] name,char[] completionName,int completionStart,int completionEnd, int relevance){
+			public void acceptVariableName(char[] typePackageName,char[] typeName,char[] varName,char[] completionName,int completionStart,int completionEnd, int relevance){
 				// ignore
 			}
 		});
@@ -306,22 +306,22 @@ protected Object createElementInfo() {
 /**
  * @see ICompilationUnit#createImport(String, IJavaElement, IProgressMonitor)
  */
-public IImportDeclaration createImport(String name, IJavaElement sibling, IProgressMonitor monitor) throws JavaModelException {
-	CreateImportOperation op = new CreateImportOperation(name, this);
+public IImportDeclaration createImport(String importName, IJavaElement sibling, IProgressMonitor monitor) throws JavaModelException {
+	CreateImportOperation op = new CreateImportOperation(importName, this);
 	if (sibling != null) {
 		op.createBefore(sibling);
 	}
 	runOperation(op, monitor);
-	return getImport(name);
+	return getImport(importName);
 }
 /**
  * @see ICompilationUnit#createPackageDeclaration(String, IProgressMonitor)
  */
-public IPackageDeclaration createPackageDeclaration(String name, IProgressMonitor monitor) throws JavaModelException {
+public IPackageDeclaration createPackageDeclaration(String pkg, IProgressMonitor monitor) throws JavaModelException {
 	
-	CreatePackageDeclarationOperation op= new CreatePackageDeclarationOperation(name, this);
+	CreatePackageDeclarationOperation op= new CreatePackageDeclarationOperation(pkg, this);
 	runOperation(op, monitor);
-	return getPackageDeclaration(name);
+	return getPackageDeclaration(pkg);
 }
 /**
  * @see ICompilationUnit#createType(String, IJavaElement, boolean, IProgressMonitor)
@@ -335,7 +335,7 @@ public IType createType(String content, IJavaElement sibling, boolean force, IPr
 			//not the default package...add the package declaration
 			source = "package " + pkg.getElementName() + ";"  + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR; //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		CreateCompilationUnitOperation op = new CreateCompilationUnitOperation(pkg, fName, source, force);
+		CreateCompilationUnitOperation op = new CreateCompilationUnitOperation(pkg, this.name, source, force);
 		runOperation(op, monitor);
 	}
 	CreateTypeOperation op = new CreateTypeOperation(this, content, force);
@@ -386,11 +386,11 @@ public boolean equals(Object obj) {
  * @see JavaElement#equalsDOMNode(IDOMNode)
  */
 protected boolean equalsDOMNode(IDOMNode node) {
-	String name = getElementName();
-	if (node.getNodeType() == IDOMNode.COMPILATION_UNIT && name != null ) {
+	String elementName = getElementName();
+	if (node.getNodeType() == IDOMNode.COMPILATION_UNIT && elementName != null ) {
 		String nodeName = node.getName();
 		if (nodeName == null) return false;		
-		if (name.equals(nodeName)) {
+		if (elementName.equals(nodeName)) {
 			return true;
 		} else {
 			try {
@@ -608,8 +608,8 @@ protected char getHandleMementoDelimiter() {
 /**
  * @see ICompilationUnit#getImport(String)
  */
-public IImportDeclaration getImport(String name) {
-	return new ImportDeclaration((ImportContainer)getImportContainer(), name);
+public IImportDeclaration getImport(String importName) {
+	return new ImportDeclaration((ImportContainer)getImportContainer(), importName);
 }
 /**
  * @see ICompilationUnit#getImportContainer()
@@ -640,10 +640,10 @@ public IImportDeclaration[] getImports() throws JavaModelException {
  * @see org.eclipse.jdt.internal.compiler.env.ICompilationUnit#getMainTypeName()
  */
 public char[] getMainTypeName(){
-	String name= getElementName();
+	String elementName = getElementName();
 	//remove the .java
-	name= name.substring(0, name.length() - 5);
-	return name.toCharArray();
+	elementName = elementName.substring(0, elementName.length() - 5);
+	return elementName.toCharArray();
 }
 /**
  * @see IWorkingCopy#getOriginal(IJavaElement)
@@ -678,8 +678,8 @@ public WorkingCopyOwner getOwner() {
 /**
  * @see ICompilationUnit#getPackageDeclaration(String)
  */
-public IPackageDeclaration getPackageDeclaration(String name) {
-	return new PackageDeclaration(this, name);
+public IPackageDeclaration getPackageDeclaration(String pkg) {
+	return new PackageDeclaration(this, pkg);
 }
 /**
  * @see ICompilationUnit#getPackageDeclarations()
@@ -755,8 +755,8 @@ public ISourceRange getSourceRange() throws JavaModelException {
 /**
  * @see ICompilationUnit#getType(String)
  */
-public IType getType(String name) {
-	return new SourceType(this, name);
+public IType getType(String typeName) {
+	return new SourceType(this, typeName);
 }
 /**
  * @see ICompilationUnit#getTypes()
@@ -1042,13 +1042,13 @@ public void reconcile(
 /**
  * @see ISourceManipulation#rename(String, boolean, IProgressMonitor)
  */
-public void rename(String name, boolean force, IProgressMonitor monitor) throws JavaModelException {
-	if (name == null) {
+public void rename(String newName, boolean force, IProgressMonitor monitor) throws JavaModelException {
+	if (newName == null) {
 		throw new IllegalArgumentException(Util.bind("operation.nullName")); //$NON-NLS-1$
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] dests= new IJavaElement[] {this.getParent()};
-	String[] renamings= new String[] {name};
+	String[] renamings= new String[] {newName};
 	getJavaModel().rename(elements, dests, renamings, force, monitor);
 }
 /*

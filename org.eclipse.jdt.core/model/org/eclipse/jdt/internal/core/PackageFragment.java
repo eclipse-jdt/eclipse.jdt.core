@@ -139,10 +139,10 @@ public void copy(IJavaElement container, IJavaElement sibling, String rename, bo
 /**
  * @see IPackageFragment
  */
-public ICompilationUnit createCompilationUnit(String name, String contents, boolean force, IProgressMonitor monitor) throws JavaModelException {
-	CreateCompilationUnitOperation op= new CreateCompilationUnitOperation(this, name, contents, force);
+public ICompilationUnit createCompilationUnit(String cuName, String contents, boolean force, IProgressMonitor monitor) throws JavaModelException {
+	CreateCompilationUnitOperation op= new CreateCompilationUnitOperation(this, cuName, contents, force);
 	runOperation(op, monitor);
-	return new CompilationUnit(this, name, DefaultWorkingCopyOwner.PRIMARY);
+	return new CompilationUnit(this, cuName, DefaultWorkingCopyOwner.PRIMARY);
 }
 /**
  * @see JavaElement
@@ -165,11 +165,11 @@ public boolean equals(Object o) {
  * @see IPackageFragment#getClassFile(String)
  * @exception IllegalArgumentExcpetion if the name does not end with ".class"
  */
-public IClassFile getClassFile(String name) {
-	if (!Util.isClassFileName(name)) {
+public IClassFile getClassFile(String classFileName) {
+	if (!Util.isClassFileName(classFileName)) {
 		throw new IllegalArgumentException(Util.bind("element.invalidClassFileName")); //$NON-NLS-1$
 	}
-	return new ClassFile(this, name);
+	return new ClassFile(this, classFileName);
 }
 /**
  * Returns a the collection of class files in this - a folder package fragment which has a root
@@ -192,18 +192,18 @@ public IClassFile[] getClassFiles() throws JavaModelException {
  * @see IPackageFragment#getCompilationUnit(String)
  * @exception IllegalArgumentExcpetion if the name does not end with ".java"
  */
-public ICompilationUnit getCompilationUnit(String name) {
-	return  getCompilationUnit(name, DefaultWorkingCopyOwner.PRIMARY);
+public ICompilationUnit getCompilationUnit(String cuName) {
+	return  getCompilationUnit(cuName, DefaultWorkingCopyOwner.PRIMARY);
 }
 /**
  * @see IPackageFragment#getCompilationUnit(String, WorkingCopyOwner)
  * @exception IllegalArgumentExcpetion if the name does not end with ".java"
  */
-public ICompilationUnit getCompilationUnit(String name, WorkingCopyOwner owner) {
-	if (!Util.isJavaFileName(name)) {
+public ICompilationUnit getCompilationUnit(String cuName, WorkingCopyOwner owner) {
+	if (!Util.isJavaFileName(cuName)) {
 		throw new IllegalArgumentException(org.eclipse.jdt.internal.core.Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
 	}
-	CompilationUnit cu = new CompilationUnit(this, name, owner);
+	CompilationUnit cu = new CompilationUnit(this, cuName, owner);
 	if (owner == DefaultWorkingCopyOwner.PRIMARY) {
 		return cu;
 	} else {
@@ -211,7 +211,7 @@ public ICompilationUnit getCompilationUnit(String name, WorkingCopyOwner owner) 
 		if (cu.getPerWorkingCopyInfo() != null) {
 			return cu;
 		} else {
-			return new CompilationUnit(this, name, DefaultWorkingCopyOwner.PRIMARY);
+			return new CompilationUnit(this, cuName, DefaultWorkingCopyOwner.PRIMARY);
 		}
 	}
 }
@@ -326,7 +326,7 @@ public IResource getResource() {
  * @see IJavaElement#getUnderlyingResource()
  */
 public IResource getUnderlyingResource() throws JavaModelException {
-	IResource rootResource = fParent.getUnderlyingResource();
+	IResource rootResource = this.parent.getUnderlyingResource();
 	if (rootResource == null) {
 		//jar package fragment root that has no associated resource
 		return null;
@@ -335,7 +335,7 @@ public IResource getUnderlyingResource() throws JavaModelException {
 	// is atually the package fragment root)
 	if (rootResource.getType() == IResource.FOLDER || rootResource.getType() == IResource.PROJECT) {
 		IContainer folder = (IContainer) rootResource;
-		String[] segs = Signature.getSimpleNames(fName);
+		String[] segs = Signature.getSimpleNames(this.name);
 		for (int i = 0; i < segs.length; ++i) {
 			IResource child = folder.findMember(segs[i]);
 			if (child == null || child.getType() != IResource.FOLDER) {
@@ -353,9 +353,9 @@ public IResource getUnderlyingResource() throws JavaModelException {
  */
 public boolean hasSubpackages() throws JavaModelException {
 	IJavaElement[] packages= ((IPackageFragmentRoot)getParent()).getChildren();
-	String name = getElementName();
-	int nameLength = name.length();
-	String packageName = isDefaultPackage() ? name : name+"."; //$NON-NLS-1$
+	String elementName = getElementName();
+	int nameLength = elementName.length();
+	String packageName = isDefaultPackage() ? elementName : elementName+"."; //$NON-NLS-1$
 	for (int i= 0; i < packages.length; i++) {
 		String otherName = packages[i].getElementName();
 		if (otherName.length() > nameLength && otherName.startsWith(packageName)) {
@@ -392,13 +392,13 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 /**
  * @see ISourceManipulation#rename(String, boolean, IProgressMonitor)
  */
-public void rename(String name, boolean force, IProgressMonitor monitor) throws JavaModelException {
-	if (name == null) {
+public void rename(String newName, boolean force, IProgressMonitor monitor) throws JavaModelException {
+	if (newName == null) {
 		throw new IllegalArgumentException(Util.bind("element.nullName")); //$NON-NLS-1$
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] dests= new IJavaElement[] {this.getParent()};
-	String[] renamings= new String[] {name};
+	String[] renamings= new String[] {newName};
 	getJavaModel().rename(elements, dests, renamings, force, monitor);
 }
 /**

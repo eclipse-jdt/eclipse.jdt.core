@@ -270,14 +270,14 @@ public IOpenable getOpenable() {
  * @see IJavaElement
  */
 public IResource getUnderlyingResource() throws JavaModelException {
-	IResource parentResource = fParent.getUnderlyingResource();
+	IResource parentResource = this.parent.getUnderlyingResource();
 	if (parentResource == null) {
 		return null;
 	}
 	int type = parentResource.getType();
 	if (type == IResource.FOLDER || type == IResource.PROJECT) {
 		IContainer folder = (IContainer) parentResource;
-		IResource resource = folder.findMember(fName);
+		IResource resource = folder.findMember(this.name);
 		if (resource == null) {
 			throw newNotPresentException();
 		} else {
@@ -425,9 +425,9 @@ protected void openParent(Object childInfo, HashMap newElements, IProgressMonito
  */
 protected boolean parentExists(){
 	
-	IJavaElement parent = this.getParent();
-	if (parent == null) return true;
-	return parent.exists();
+	IJavaElement parentElement = getParent();
+	if (parentElement == null) return true;
+	return parentElement.exists();
 }
 
 /**
@@ -505,8 +505,8 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 					// could not create marker: ignore
 				}
 			}
-			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
-				requestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
+			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
+				requestor.acceptField(declaringTypePackageName, declaringTypeName, fieldName, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
 			}
 			public void acceptInterface(char[] packageName,char[] interfaceName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
 				requestor.acceptInterface(packageName, interfaceName, completionName, modifiers, completionStart, completionEnd);
@@ -517,7 +517,7 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 			public void acceptLabel(char[] labelName,int completionStart,int completionEnd, int relevance){
 				requestor.acceptLabel(labelName, completionStart, completionEnd);
 			}
-			public void acceptLocalVariable(char[] name,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd, int relevance){
+			public void acceptLocalVariable(char[] localVarName,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd, int relevance){
 				// ignore
 			}
 			public void acceptMethod(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance){
@@ -536,7 +536,7 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 			public void acceptType(char[] packageName,char[] typeName,char[] completionName,int completionStart,int completionEnd, int relevance){
 				requestor.acceptType(packageName, typeName, completionName, completionStart, completionEnd);
 			}
-			public void acceptVariableName(char[] typePackageName,char[] typeName,char[] name,char[] completionName,int completionStart,int completionEnd, int relevance){
+			public void acceptVariableName(char[] typePackageName,char[] typeName,char[] varName,char[] completionName,int completionStart,int completionEnd, int relevance){
 				// ignore
 			}
 		},

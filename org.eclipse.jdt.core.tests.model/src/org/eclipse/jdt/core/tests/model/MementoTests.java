@@ -15,6 +15,9 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.LocalVariable;
+
 import junit.framework.Test;
 
 public class MementoTests extends ModifyingResourceTests {
@@ -341,6 +344,42 @@ public void testLocalTypeMemento2() {
 	assertMemento(
 		"=P/src<p{X.java[X~foo[Y!3",
 		anonymous);
+}
+/**
+ * Tests that a local variable can be persisted and restored using its memento.
+ */
+public void testLocalVariableMemento1() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
+	IMethod method = type.getMethod("foo", new String[]{});
+
+	ILocalVariable localVar = new LocalVariable((JavaElement)method, "var", 1, 2, 3, 4);
+	assertMemento(
+		"=P/src<p{X.java[X~foo@var!1!2!3!4",
+		localVar);
+}
+/**
+ * Tests that a local variable can be persisted and restored using its memento.
+ */
+public void testLocalVariableMemento3() {
+	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
+	IInitializer initializer = type.getInitializer(1);
+
+	ILocalVariable localVar = new LocalVariable((JavaElement)initializer, "var", 1, 2, 3, 4);
+	assertMemento(
+		"=P/src<p{X.java[X|1@var!1!2!3!4",
+		localVar);
+}
+/**
+ * Tests that a local variable can be persisted and restored using its memento.
+ */
+public void testLocalVariableMemento2() throws JavaModelException {
+	IType type = getClassFile("/P/src/p/X.class").getType();
+	IMethod method = type.getMethod("foo", new String[]{"I"});
+
+	ILocalVariable localVar = new LocalVariable((JavaElement)method, "var", 1, 2, 3, 4);
+	assertMemento(
+		"=P/src<p(X.class[X~foo~I@var!1!2!3!4",
+		localVar);
 }
 /**
  * Tests that a package declaration can be persisted and restored using its memento.
