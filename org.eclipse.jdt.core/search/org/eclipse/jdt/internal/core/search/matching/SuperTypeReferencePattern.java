@@ -219,11 +219,12 @@ public void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, Se
 
 	/* only select entries which actually match the entire search pattern */
 	int slash = SUPER_REF.length;
-	int length = this.superSimpleName == null ? 0 : this.superSimpleName.length;
+	char[] name = this.superSimpleName;
+	int length = name == null ? 0 : name.length;
 	nextEntry: for (int i = 0, max = entries.length; i < max; i++) {
 		/* check that the entry is a super ref to the super simple name */
 		IEntryResult entry = entries[i];
-		if (simpleName != null) {
+		if (name != null) {
 			char[] word = entry.getWord();
 			if (slash + length >= word.length) continue;
 			
@@ -232,7 +233,7 @@ public void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, Se
 			
 			// compare ref to simple name
 			for (int j = 0; j < length; j++)
-				if (word[j + slash] != this.superSimpleName[j]) continue nextEntry;
+				if (word[j + slash] != name[j]) continue nextEntry;
 		}
 
 		/* retrieve and decode entry */	
@@ -240,16 +241,15 @@ public void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, Se
 		char[] indexKey = CharOperation.subarray(word, SUPER_REF.length, word.length);
 		SearchPattern record = getIndexRecord();
 		record.decodeIndexKey(indexKey);
-		if (isMatchingIndexRecord()) {
-			int[] references = entry.getFileReferences();
-			for (int iReference = 0, refererencesLength = references.length; iReference < refererencesLength; iReference++) {
-				String documentPath = IndexedFile.convertPath( input.getIndexedFile(references[iReference]).getPath());
-				if (scope.encloses(documentPath)) {
-					if (!requestor.acceptIndexMatch(documentPath, record, participant)) 
-						throw new OperationCanceledException();
-				}
+
+		int[] references = entry.getFileReferences();
+		for (int iReference = 0, refererencesLength = references.length; iReference < refererencesLength; iReference++) {
+			String documentPath = IndexedFile.convertPath( input.getIndexedFile(references[iReference]).getPath());
+			if (scope.encloses(documentPath)) {
+				if (!requestor.acceptIndexMatch(documentPath, record, participant)) 
+					throw new OperationCanceledException();
 			}
-			}
+		}
 	}
 }
 public SearchPattern getIndexRecord() {
