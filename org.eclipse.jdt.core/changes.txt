@@ -139,6 +139,8 @@ STREAM: 2.0
   * Removed CodeAssist option for hungry mode (org.eclipse.jdt.core.codeComplete.entireWordReplacement)
   	Client code can decide whether using inferred end position (hungry behavior) or original cursor location (insert behavior)
   	based on the keystroke (enter/insert?).
+  * org.eclipse.jdt.core.search.IJavaSearchResultCollector now clearly states that
+    the order of the search result is unspecified.
   	
   PRs Fixed in this Release
   ================================================================================

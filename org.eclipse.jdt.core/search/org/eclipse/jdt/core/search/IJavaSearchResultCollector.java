@@ -23,6 +23,9 @@ import org.eclipse.jdt.core.JavaModelException;
  * case can occur when a problem prevented the <code>SearchEngine</code> from resolving the match.
  * </p>
  * <p>
+ * The order of the results is unspecified. Clients must not rely on this order to display results, 
+ * but they should sort these results (eg. in a syntactical order).
+ * <p>
  * The <code>IJavaSearchResultCollector<code> is also used to provide a progress monitor to the 
  * <code>SearchEngine</code>.
  * </p>
