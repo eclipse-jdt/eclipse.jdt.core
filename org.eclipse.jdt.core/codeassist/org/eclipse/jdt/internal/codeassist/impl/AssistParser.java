@@ -456,8 +456,10 @@ protected void consumeToken(int token) {
 		}
 	} else {
 		switch (token) {
-			case TokenNameLBRACE :
-				popElement(K_TYPE_DELIMITER);	
+			case TokenNameRBRACE :
+				if(topKnownElementKind(ASSIST_PARSER) == K_TYPE_DELIMITER) {
+					popElement(K_TYPE_DELIMITER);
+				}
 				break;
 		}
 	}
@@ -954,17 +956,6 @@ protected boolean resumeAfterRecovery() {
 
 	/* attempt to move checkpoint location */
 	if (!this.moveRecoveryCheckpoint()) return false;
-	
-//	if(currentElement instanceof RecoveredMethod
-//		&& !isInsideMethod()) {
-//		pushOnElementStack(K_METHOD_DELIMITER);
-//	} else if(currentElement instanceof RecoveredField
-//		&& !isInsideFieldInitialization()) {
-//		pushOnElementStack(K_FIELD_INITIALIZER_DELIMITER);
-//	} if(currentElement instanceof RecoveredType
-//		&& !isInsideType()) {
-//		pushOnElementStack(K_TYPE_DELIMITER);
-//	}
 
 	// only look for headers
 	if (referenceContext instanceof CompilationUnitDeclaration

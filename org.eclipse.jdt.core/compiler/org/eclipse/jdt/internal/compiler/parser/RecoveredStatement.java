@@ -19,7 +19,6 @@ import org.eclipse.jdt.internal.compiler.ast.Statement;
 public class RecoveredStatement extends RecoveredElement {
 
 	public Statement statement;
-	boolean alreadyCompletedLocalInitialization;
 public RecoveredStatement(Statement statement, RecoveredElement parent, int bracketBalance){
 	super(parent, bracketBalance);
 	this.statement = statement;
