@@ -357,7 +357,7 @@ public class Index implements IIndex {
 public String toString() {
 	String str = this.toString;
 	if (str == null) str = super.toString();
-	str += "(length: "+ getIndexFile().length() +")"; //$NON-NLS-1$ //$NON-NLS-1$
+	str += "(length: "+ getIndexFile().length() +")"; //$NON-NLS-1$ //$NON-NLS-2$
 	return str;
 }
 }
