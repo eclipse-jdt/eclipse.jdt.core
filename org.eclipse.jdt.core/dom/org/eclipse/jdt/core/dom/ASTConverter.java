@@ -741,6 +741,7 @@ class ASTConverter {
 				classInstanceCreation.arguments().add(convert(arguments[i]));
 			}
 		}
+		removeTrailingCommentFromExpressionEndingWithAParen(classInstanceCreation);
 		return classInstanceCreation;
 	}
 	
@@ -1414,6 +1415,7 @@ class ASTConverter {
 			expr = methodInvocation;
 		}
 		expr.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);	
+		removeTrailingCommentFromExpressionEndingWithAParen(expr);
 		return expr;
 	}
 
@@ -2525,6 +2527,32 @@ class ASTConverter {
 					int endName = scanner.currentPosition - 1;
 					name.setSourceRange(startName, endName - startName + 1);
 					return;
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+	}
+	
+	/**
+	 * Remove potential trailing comment by settings the source end on the closing parenthesis
+	 */
+	private void removeTrailingCommentFromExpressionEndingWithAParen(ASTNode node) {
+		int start = node.getStartPosition();
+		scanner.resetTo(start, start + node.getLength());
+		int token;
+		int parenCounter = 0;
+		try {
+			while((token = scanner.getNextToken()) != Scanner.TokenNameEOF)  {
+				switch(token) {
+					case Scanner.TokenNameLPAREN :
+						parenCounter++;
+						break;
+					case Scanner.TokenNameRPAREN :
+						parenCounter--;
+						if (parenCounter == 0) {
+							int end = scanner.currentPosition - 1;
+							node.setSourceRange(start, end - start + 1);
+						}
 				}
 			}
 		} catch(InvalidInputException e) {
