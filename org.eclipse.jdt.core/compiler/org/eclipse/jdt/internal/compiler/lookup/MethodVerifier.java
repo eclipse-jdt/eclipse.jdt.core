@@ -243,9 +243,9 @@ public MethodVerifier(LookupEnvironment environment) {
 	this.errorException = null;
 	this.environment = environment;
 }
-private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length) {
+private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] inheritedMethods, int length) {
 	for (int i = length; --i >= 0;) {
-		MethodBinding inheritedMethod = methods[i];
+		MethodBinding inheritedMethod = inheritedMethods[i];
 		if (currentMethod.returnType != inheritedMethod.returnType) {
 			this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
 		} else if (currentMethod.isStatic() != inheritedMethod.isStatic())	 {	// Cannot override a static method or hide an instance method
