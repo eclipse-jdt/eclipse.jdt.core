@@ -2047,7 +2047,7 @@ public void testSwitchExpression() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"     <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    <CompleteOnMemberAccess:fred().x>;\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
