@@ -1785,7 +1785,11 @@ public void generateStringAppend(BlockScope blockScope, Expression oper1, Expres
  * Code responsible to generate the suitable code to supply values for the synthetic enclosing
  * instance arguments of a constructor invocation of a nested type.
  */
-public void generateSyntheticEnclosingInstanceValues(BlockScope currentScope, ReferenceBinding targetType, Expression enclosingInstance, AstNode invocationSite) {
+public void generateSyntheticEnclosingInstanceValues(
+		BlockScope currentScope, 
+		ReferenceBinding targetType, 
+		Expression enclosingInstance, 
+		AstNode invocationSite) {
 
 	// supplying enclosing instance for the anonymous type's superclass
 	ReferenceBinding checkedTargetType = targetType.isAnonymousType() ? targetType.superclass() : targetType;
@@ -1802,6 +1806,9 @@ public void generateSyntheticEnclosingInstanceValues(BlockScope currentScope, Re
 
 		ReferenceBinding targetEnclosingType = checkedTargetType.enclosingType();
 		boolean complyTo14 = currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4;
+		// deny access to enclosing instance argument for allocation and super constructor call (if 1.4)
+		boolean ignoreEnclosingArgInConstructorCall = invocationSite instanceof AllocationExpression
+					|| (complyTo14 && ((invocationSite instanceof ExplicitConstructorCall && ((ExplicitConstructorCall)invocationSite).isSuperAccess())));
 						
 		for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
 			ReferenceBinding syntheticArgType = syntheticArgumentTypes[i];
@@ -1813,16 +1820,11 @@ public void generateSyntheticEnclosingInstanceValues(BlockScope currentScope, Re
 					invokeObjectGetClass(); // will perform null check
 					pop();
 				}
-				
 			} else {
-				// TODO (philippe) should have sender specify how to select enclosing instance 1.3/1.4 flavor 
 				Object[] emulationPath = currentScope.getEmulationPath(
-					syntheticArgType, 
-					false /*not only exact match (that is, allow compatible)*/,
-					complyTo14
-						? (invocationSite instanceof AllocationExpression 
-							|| (invocationSite instanceof ExplicitConstructorCall && ((ExplicitConstructorCall)invocationSite).isSuperAccess()))
-						: invocationSite instanceof AllocationExpression);
+						syntheticArgType, 
+						false /*not only exact match (that is, allow compatible)*/,
+						ignoreEnclosingArgInConstructorCall);
 				this.generateOuterAccess(emulationPath, invocationSite, syntheticArgType, currentScope);
 			}
 		}
