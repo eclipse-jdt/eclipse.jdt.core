@@ -273,7 +273,7 @@ public abstract class Scope
 		if (field != null) {
 			if (field.canBeSeenBy(currentType, invocationSite, this))
 				return field;
-			return new ProblemFieldBinding(field.declaringClass, fieldName, NotVisible);
+			return new ProblemFieldBinding(field /* closest match*/, field.declaringClass, fieldName, NotVisible);
 		}
 		// collect all superinterfaces of receiverType until the field is found in a supertype
 		ReferenceBinding[][] interfacesToVisit = null;
@@ -305,7 +305,7 @@ public abstract class Scope
 					if (visibleField == null)
 						visibleField = field;
 					else
-						return new ProblemFieldBinding(visibleField.declaringClass, fieldName, Ambiguous);
+						return new ProblemFieldBinding(visibleField /* closest match*/, visibleField.declaringClass, fieldName, Ambiguous);
 				} else {
 					notVisible = true;
 				}
@@ -326,7 +326,7 @@ public abstract class Scope
 							if (visibleField == null) {
 								visibleField = field;
 							} else {
-								ambiguous = new ProblemFieldBinding(visibleField.declaringClass, fieldName, Ambiguous);
+								ambiguous = new ProblemFieldBinding(visibleField /* closest match*/, visibleField.declaringClass, fieldName, Ambiguous);
 								break done;
 							}
 						} else {
@@ -894,6 +894,7 @@ public abstract class Scope
 							if (variableBinding != null) {
 								if (foundField != null && foundField.isValidBinding())
 									return new ProblemFieldBinding(
+										foundField, // closest match
 										foundField.declaringClass,
 										name,
 										InheritedNameHidesEnclosingName);
@@ -916,7 +917,8 @@ public abstract class Scope
 										return fieldBinding;
 									// make the user qualify the field, likely wants the first inherited field (javac generates an ambiguous error instead)
 									return new ProblemFieldBinding(
-										fieldBinding.declaringClass,
+										foundField, // closest match
+										foundField.declaringClass,
 										name,
 										InheritedNameHidesEnclosingName);
 								}
@@ -927,12 +929,14 @@ public abstract class Scope
 										if (insideConstructorCall) {
 											insideProblem =
 												new ProblemFieldBinding(
+													fieldBinding, // closest match
 													fieldBinding.declaringClass,
 													name,
 													NonStaticReferenceInConstructorInvocation);
 										} else if (insideStaticContext) {
 											insideProblem =
 												new ProblemFieldBinding(
+													fieldBinding, // closest match
 													fieldBinding.declaringClass,
 													name,
 													NonStaticReferenceInStaticContext);
@@ -955,7 +959,8 @@ public abstract class Scope
 											if (foundField.declaringClass != fieldBinding.declaringClass)
 												// ie. have we found the same field - do not trust field identity yet
 												return new ProblemFieldBinding(
-													fieldBinding.declaringClass,
+													foundField, // closest match
+													foundField.declaringClass,
 													name,
 													InheritedNameHidesEnclosingName);
 									}
@@ -1197,6 +1202,7 @@ public abstract class Scope
 							}
 							// make the user qualify the method, likely wants the first inherited method (javac generates an ambiguous error instead)
 							return new ProblemMethodBinding(
+								methodBinding, // closest match
 								selector,
 								argumentTypes,
 								InheritedNameHidesEnclosingName);
@@ -1227,12 +1233,14 @@ public abstract class Scope
 								if (insideConstructorCall) {
 									insideProblem =
 										new ProblemMethodBinding(
+											methodBinding, // closest match
 											methodBinding.selector,
 											methodBinding.parameters,
 											NonStaticReferenceInConstructorInvocation);
 								} else if (insideStaticContext) {
 									insideProblem =
 										new ProblemMethodBinding(
+											methodBinding, // closest match
 											methodBinding.selector,
 											methodBinding.parameters,
 											NonStaticReferenceInStaticContext);
@@ -1262,6 +1270,7 @@ public abstract class Scope
 								if (foundMethod.declaringClass != methodBinding.declaringClass)
 									// ie. have we found the same method - do not trust field identity yet
 									return new ProblemMethodBinding(
+										methodBinding, // closest match
 										methodBinding.selector,
 										methodBinding.parameters,
 										InheritedNameHidesEnclosingName);

@@ -2836,6 +2836,51 @@ public class JavadocTestMixed extends JavadocTest {
 			}
 		);
 	}
+	public void testBug65180e() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"ITest.java",
+				"public interface ITest {\n" + 
+					"	/**\n" + 
+					"	 * @see #foo() \n" + 
+					"	 */\n" + 
+					"	public static int field = 0;\n" + 
+					"	/**\n" + 
+					"	 * @see #field\n" + 
+					"	 */\n" + 
+					"	public void foo();\n" + 
+					"}\n"
+			}
+		);
+	}
+	public void testBug65180f() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+					"    static class SuperInner {\n" + 
+					"    	public int field;\n" + 
+					"        public void foo() {}\n" + 
+					"     }\n" + 
+					"    \n" + 
+					"	public static class Inner extends SuperInner {\n" + 
+					"		/**\n" + 
+					"		 * @see #field\n" + 
+					"		 */\n" + 
+					"		public static int f;\n" + 
+					"		/**\n" + 
+					"		 * @see #foo()\n" + 
+					"		 */\n" + 
+					"		public static void bar() {}\n" + 
+					"	}\n" + 
+					"	\n" + 
+					"	public void foo() {}\n" + 
+					"}"
+			}
+		);
+	}
 
 	/**
 	 * Test fix for bug 65253: [Javadoc] @@tag is wrongly parsed as @tag

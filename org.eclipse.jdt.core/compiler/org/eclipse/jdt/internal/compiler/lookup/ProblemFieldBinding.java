@@ -14,12 +14,18 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class ProblemFieldBinding extends FieldBinding {
 	private int problemId;
+	public FieldBinding closestMatch;
+		
 // NOTE: must only answer the subset of the name related to the problem
 
 public ProblemFieldBinding(ReferenceBinding declaringClass, char[][] compoundName, int problemId) {
-	this(declaringClass, CharOperation.concatWith(compoundName, '.'), problemId);
+	this(null, declaringClass, CharOperation.concatWith(compoundName, '.'), problemId);
 }
 public ProblemFieldBinding(ReferenceBinding declaringClass, char[] name, int problemId) {
+	this(null, declaringClass, name, problemId);
+}
+public ProblemFieldBinding(FieldBinding closestMatch, ReferenceBinding declaringClass, char[] name, int problemId) {
+	this.closestMatch = closestMatch;
 	this.declaringClass = declaringClass;
 	this.name = name;
 	this.problemId = problemId;

@@ -84,6 +84,18 @@ public class JavadocMessageSend extends MessageSend {
 			? scope.getImplicitMethod(this.selector, argumentTypes, this)
 			: scope.getMethod(this.receiverType, this.selector, argumentTypes, this);
 		if (!this.binding.isValidBinding()) {
+			// implicit lookup may discover issues due to static/constructor contexts. javadoc must be resilient
+			switch (this.binding.problemId()) {
+				case ProblemReasons.NonStaticReferenceInConstructorInvocation:
+				case ProblemReasons.NonStaticReferenceInStaticContext:
+				case ProblemReasons.InheritedNameHidesEnclosingName : 
+					MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
+					if (closestMatch != null) {
+						this.binding = closestMatch; // ignore problem if can reach target method through it
+					}
+			}
+		}
+		if (!this.binding.isValidBinding()) {
 			if (this.binding.declaringClass == null) {
 				if (this.receiverType instanceof ReferenceBinding) {
 					this.binding.declaringClass = (ReferenceBinding) this.receiverType;

@@ -2674,7 +2674,8 @@ public void test076() {
 }
 /**
  * Test fix bug 58069 for method.
- * Note that problem is flagged in doc comments since bug 65180 has been fixed.
+ * Note that problem is not flagged in doc comments as it is only raised while verifying
+ * implicit method and javadoc resolution does not use it.
  */
 public void test077() {
 	docSupport = true;
@@ -2703,17 +2704,7 @@ public void test077() {
 			"} \n"
 		},
 		"----------\n" + 
-		"1. ERROR in p1\\Test.java (at line 10)\n" + 
-		"	/** @see #bar() */\n" + 
-		"	          ^^^\n" + 
-		"Javadoc: The method bar is defined in an inherited type and an enclosing scope\n" + 
-		"----------\n" + 
-		"2. ERROR in p1\\Test.java (at line 12)\n" + 
-		"	/** @see #bar() */\n" + 
-		"	          ^^^\n" + 
-		"Javadoc: The method bar is defined in an inherited type and an enclosing scope\n" + 
-		"----------\n" + 
-		"3. ERROR in p1\\Test.java (at line 13)\n" + 
+		"1. ERROR in p1\\Test.java (at line 13)\n" + 
 		"	String z = bar();	\n" + 
 		"	           ^^^\n" + 
 		"The method bar is defined in an inherited type and an enclosing scope\n" + 
@@ -2722,7 +2713,8 @@ public void test077() {
 }
 /**
  * Test fix bug 58069 for field.
- * Note that problem is flagged in doc comments since bug 65180 has been fixed.
+ * Note that problem is not flagged in doc comments as it is only raised while verifying
+ * Name or Qualified name references and javadoc reference is a field reference.
  */
 public void test078() {
 	docSupport = true;
@@ -2749,17 +2741,7 @@ public void test078() {
 			"} \n"
 		},
 		"----------\n" + 
-		"1. ERROR in p1\\Test.java (at line 7)\n" + 
-		"	/** @see #bar */\n" + 
-		"	          ^^^\n" + 
-		"Javadoc: The field bar is defined in an inherited type and an enclosing scope \n" + 
-		"----------\n" + 
-		"2. ERROR in p1\\Test.java (at line 9)\n" + 
-		"	/** @see #bar */\n" + 
-		"	          ^^^\n" + 
-		"Javadoc: The field bar is defined in an inherited type and an enclosing scope \n" + 
-		"----------\n" + 
-		"3. ERROR in p1\\Test.java (at line 10)\n" + 
+		"1. ERROR in p1\\Test.java (at line 10)\n" + 
 		"	String z = bar; \n" + 
 		"	           ^^^\n" + 
 		"The field bar is defined in an inherited type and an enclosing scope \n" + 

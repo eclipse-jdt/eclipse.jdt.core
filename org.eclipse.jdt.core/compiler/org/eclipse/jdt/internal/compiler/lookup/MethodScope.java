@@ -345,6 +345,7 @@ public class MethodScope extends BlockScope {
 
 		if (invocationSite instanceof SingleNameReference)
 			return new ProblemFieldBinding(
+				field, // closest match
 				field.declaringClass,
 				fieldName,
 				NonStaticReferenceInConstructorInvocation);
@@ -354,6 +355,7 @@ public class MethodScope extends BlockScope {
 			if (name.binding == null)
 				// only true when the field is the fieldbinding at the beginning of name's tokens
 				return new ProblemFieldBinding(
+					field, // closest match
 					field.declaringClass,
 					fieldName,
 					NonStaticReferenceInConstructorInvocation);

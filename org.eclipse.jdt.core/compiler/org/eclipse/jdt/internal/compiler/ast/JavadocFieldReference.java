@@ -42,6 +42,18 @@ public class JavadocFieldReference extends FieldReference {
 		Binding fieldBinding = (this.receiver != null && this.receiver.isThis())
 			? scope.getBinding(this.token, this.bits & RestrictiveFlagMASK, this, true /*resolve*/)
 			: scope.getField(this.receiverType, this.token, this);
+		if (!fieldBinding.isValidBinding()) {
+			// implicit lookup may discover issues due to static/constructor contexts. javadoc must be resilient
+			switch (fieldBinding.problemId()) {
+				case ProblemReasons.NonStaticReferenceInConstructorInvocation:
+				case ProblemReasons.NonStaticReferenceInStaticContext:
+				case ProblemReasons.InheritedNameHidesEnclosingName : 
+					FieldBinding closestMatch = ((ProblemFieldBinding)fieldBinding).closestMatch;
+					if (closestMatch != null) {
+						fieldBinding = closestMatch; // ignore problem if can reach target field through it
+					}
+			}
+		}			
 		if (!fieldBinding.isValidBinding() || !(fieldBinding instanceof FieldBinding)) {
 			if (this.receiverType instanceof ReferenceBinding) {
 				ReferenceBinding refBinding = (ReferenceBinding) this.receiverType;

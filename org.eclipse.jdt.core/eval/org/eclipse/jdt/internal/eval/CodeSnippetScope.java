@@ -285,7 +285,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 		if (canBeSeenByForCodeSnippet(field, currentType, invocationSite, this))
 			return field;
 		else
-			return new ProblemFieldBinding(field.declaringClass, fieldName, NotVisible);
+			return new ProblemFieldBinding(field /* closest match*/, field.declaringClass, fieldName, NotVisible);
 	}
 
 	// collect all superinterfaces of receiverType until the field is found in a supertype
