@@ -1479,22 +1479,27 @@ public void testCycleDetection3() throws CoreException {
 		}
 	}
 }
-
 public void testDenseCycleDetection() throws CoreException {
+	denseCycleDetection(5);
+	denseCycleDetection(10);
+	denseCycleDetection(20);
+	//denseCycleDetection(100);
+}
+
+private void denseCycleDetection(int numberOfParticipants) throws CoreException {
 	
 	long start = System.currentTimeMillis();
-	int max = 10;
-	IJavaProject[] projects = new IJavaProject[max];
-	int[] allProjectsInCycle = new int[max];
+	IJavaProject[] projects = new IJavaProject[numberOfParticipants];
+	int[] allProjectsInCycle = new int[numberOfParticipants];
 	try {
-		for (int i = 0; i < max; i++){
+		for (int i = 0; i < numberOfParticipants; i++){
 			projects[i] = this.createJavaProject("P"+i, new String[]{""}, "");
 			allProjectsInCycle[i] = 1;
 		}		
-		for (int i = 0; i < max; i++){
-			IClasspathEntry[] extraEntries = new IClasspathEntry[max-1];
+		for (int i = 0; i < numberOfParticipants; i++){
+			IClasspathEntry[] extraEntries = new IClasspathEntry[numberOfParticipants-1];
 			int index = 0;
-			for (int j = 0; j < max; j++){
+			for (int j = 0; j < numberOfParticipants; j++){
 				if (i == j) continue;
 				extraEntries[index++] = JavaCore.newProjectEntry(projects[j].getPath());
 			}
@@ -1509,15 +1514,15 @@ public void testDenseCycleDetection() throws CoreException {
 			projects[i].setRawClasspath(newClasspath, null);
 		};
 		
-		System.out.println("Dense cycle check ("+max+" participants) : "+ (System.currentTimeMillis()-start)+" ms");
-		for (int i = 0; i < max; i++){
+		System.out.println("Dense cycle check ("+numberOfParticipants+" participants) : "+ (System.currentTimeMillis()-start)+" ms");
+		for (int i = 0; i < numberOfParticipants; i++){
 			// check cycle markers
 			this.assertCycleMarkers(projects[i], projects, allProjectsInCycle);
 		}
 		
 	} finally {
 		if (projects != null){
-			for (int i = 0; i < max; i++){
+			for (int i = 0; i < numberOfParticipants; i++){
 				if (projects[i] != null)
 					this.deleteProject(projects[i].getElementName());
 			}
