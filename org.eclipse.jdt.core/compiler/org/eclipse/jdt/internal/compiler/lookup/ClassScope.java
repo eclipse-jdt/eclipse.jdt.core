@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -298,44 +299,52 @@ public class ClassScope extends Scope {
 	}
 	
 	private void buildTypeVariables() {
+	    
 	    SourceTypeBinding sourceType = referenceContext.binding;
-	    sourceType.typeVariables = NoTypeVariables;
+
+	    // do not construct type variables if source < 1.5
+		if (referenceContext.typeParameters == null
+	           || environment().options.sourceLevel < ClassFileConstants.JDK1_5) {
+		    sourceType.typeVariables = NoTypeVariables;
+		    return;
+		}
 		TypeVariableBinding[] typeVariableBindings = NoTypeVariables;
-		if (referenceContext.typeParameters != null) {
-			if (isJavaLangObject(sourceType)) { // handle the case of redefining java.lang.Object up front
-				problemReporter().objectCannotBeGeneric(referenceContext);
-				return; 
-			}		    
-			int length = referenceContext.typeParameters.length;
-			typeVariableBindings = new TypeVariableBinding[length];
-			HashtableOfObject knownTypeParameterNames = new HashtableOfObject(length);
-			int count = 0;
-			nextParameter : for (int i = 0; i < length; i++) {
-				TypeParameter typeParameter = referenceContext.typeParameters[i];
-				TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, i);
-				typeParameter.binding = parameterBinding;
-				
-				if (knownTypeParameterNames.containsKey(typeParameter.name)) {
-					TypeVariableBinding previousBinding = (TypeVariableBinding) knownTypeParameterNames.get(typeParameter.name);
-					if (previousBinding != null) {
-						for (int j = 0; j < i; j++) {
-							TypeParameter previousParameter = referenceContext.typeParameters[j];
-							if (previousParameter.binding == previousBinding) {
-								problemReporter().duplicateTypeParameterInType(previousParameter);
-								previousParameter.binding = null;
-								break;
-							}
+		sourceType.typeVariables = NoTypeVariables; // safety
+
+		if (isJavaLangObject(sourceType)) { // handle the case of redefining java.lang.Object up front
+			problemReporter().objectCannotBeGeneric(referenceContext);
+			return; 
+		}		    
+		int length = referenceContext.typeParameters.length;
+		typeVariableBindings = new TypeVariableBinding[length];
+		HashtableOfObject knownTypeParameterNames = new HashtableOfObject(length);
+		int count = 0;
+		nextParameter : for (int i = 0; i < length; i++) {
+			TypeParameter typeParameter = referenceContext.typeParameters[i];
+			TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, i);
+			typeParameter.binding = parameterBinding;
+			
+			if (knownTypeParameterNames.containsKey(typeParameter.name)) {
+				TypeVariableBinding previousBinding = (TypeVariableBinding) knownTypeParameterNames.get(typeParameter.name);
+				if (previousBinding != null) {
+					for (int j = 0; j < i; j++) {
+						TypeParameter previousParameter = referenceContext.typeParameters[j];
+						if (previousParameter.binding == previousBinding) {
+							problemReporter().duplicateTypeParameterInType(previousParameter);
+							previousParameter.binding = null;
+							break;
 						}
 					}
-					knownTypeParameterNames.put(typeParameter.name, null); // ensure that the duplicate parameter is found & removed
-					problemReporter().duplicateTypeParameterInType(typeParameter);
-					typeParameter.binding = null;
-				} else {
-					knownTypeParameterNames.put(typeParameter.name, parameterBinding);
-					// remember that we have seen a field with this name
-					if (parameterBinding != null)
-						typeVariableBindings[count++] = parameterBinding;
 				}
+				knownTypeParameterNames.put(typeParameter.name, null); // ensure that the duplicate parameter is found & removed
+				problemReporter().duplicateTypeParameterInType(typeParameter);
+				typeParameter.binding = null;
+			} else {
+				knownTypeParameterNames.put(typeParameter.name, parameterBinding);
+				// remember that we have seen a field with this name
+				if (parameterBinding != null)
+					typeVariableBindings[count++] = parameterBinding;
+			}
 //				TODO should offer warnings to inform about hiding declaring, enclosing or member types				
 //				ReferenceBinding type = sourceType;
 //				// check that the member does not conflict with an enclosing type
@@ -353,9 +362,9 @@ public class ClassScope extends Scope {
 //						continue nextParameter;
 //					}
 //				}
-			}
-			if (count != length)
-				System.arraycopy(typeVariableBindings, 0, typeVariableBindings = new TypeVariableBinding[count], 0, count);
+		}
+		if (count != length) {
+			System.arraycopy(typeVariableBindings, 0, typeVariableBindings = new TypeVariableBinding[count], 0, count);
 		}
 		sourceType.typeVariables = typeVariableBindings;
 	}
@@ -784,7 +793,7 @@ public class ClassScope extends Scope {
 	private boolean connectTypeVariables() {
 		boolean noProblems = true;
 		TypeParameter[] typeParameters = referenceContext.typeParameters;
-		if (typeParameters == null) return true;
+		if (typeParameters == null || environment().options.sourceLevel < ClassFileConstants.JDK1_5) return true;
 		nextVariable : for (int i = 0, l = typeParameters.length; i < l; i++) {
 			TypeParameter typeParameter = typeParameters[i];
 			TypeVariableBinding typeVariable = typeParameter.binding;
