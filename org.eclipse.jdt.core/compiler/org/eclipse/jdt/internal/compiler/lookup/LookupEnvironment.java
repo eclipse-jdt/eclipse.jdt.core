@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
@@ -398,21 +399,19 @@ public RawTypeBinding createRawType(ReferenceBinding genericType) {
 	return cachedInfo;
 }
 
-public WildcardBinding createWildcard(TypeBinding bound, boolean isSuper) {
-    
-    final int EXTENDS = 0, SUPER = 1;
+public WildcardBinding createWildcard(TypeBinding bound, int kind) {
     
 	// cached info is array of already created wildcard types for this type bound
-    Object key = bound == null ? (Object)WILDCARD_STAR : bound;
+    Object key = kind == Wildcard.UNBOUND ? (Object)WILDCARD_STAR : bound;
 	WildcardBinding[] cachedInfo = (WildcardBinding[])this.uniqueWildcardBindings.get(key);
 	if (cachedInfo == null) {
-	    cachedInfo = new WildcardBinding[2]; // 0:extends, 1: super
+	    cachedInfo = new WildcardBinding[2]; 
 	    this.uniqueWildcardBindings.put(key, cachedInfo);
 	}
-	int index = isSuper ? SUPER : EXTENDS;
+	int index = kind == Wildcard.SUPER ? 1 : 0; // 0:extends/unbound, 1: super
 	WildcardBinding wildcard;
 	if ((wildcard = cachedInfo[index]) == null) {
-	    cachedInfo[index] = wildcard = new WildcardBinding(bound, isSuper);
+	    cachedInfo[index] = wildcard = new WildcardBinding(bound, kind, this);
 	}
 	return wildcard;
 }
@@ -660,16 +659,16 @@ TypeBinding getTypeFromVariantTypeSignature(SignatureWrapper wrapper, TypeVariab
 			// ? super aType
 			wrapper.start++;
 			TypeBinding bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
-			return createWildcard(bound, true/*isSuper*/);
+			return createWildcard(bound, Wildcard.SUPER);
 		case '+' :
 			// ? extends aType
 			wrapper.start++;
 			bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
-			return createWildcard(bound, false/*isSuper*/);
+			return createWildcard(bound, Wildcard.EXTENDS);
 		case '*' :
 			// ?
 			wrapper.start++;
-			return createWildcard(null, false/*isSuper*/);
+			return createWildcard(getType(JAVA_LANG_OBJECT), Wildcard.UNBOUND);
 	}
 	return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
 }

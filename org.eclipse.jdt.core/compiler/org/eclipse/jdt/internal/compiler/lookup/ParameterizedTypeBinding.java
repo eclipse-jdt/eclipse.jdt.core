@@ -47,13 +47,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#canBeInstantiated()
-	 */
-	public boolean canBeInstantiated() {
-		return this.type.canBeInstantiated(); // erasure
-	}
-
-	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#computeId()
 	 */
 	public void computeId() {
@@ -71,7 +64,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
 	 */
 	String debugName() {
-		return this.type.debugName();
+	    StringBuffer nameBuffer = new StringBuffer(10);
+		nameBuffer.append(this.type.debugName()).append('<');
+	    for (int i = 0, length = this.arguments.length; i < length; i++) {
+	        if (i > 0) nameBuffer.append(',');
+	        nameBuffer.append(this.arguments[i].debugName());
+	    }
+	    nameBuffer.append('>');
+	    return nameBuffer.toString();		
 	}
 
 	/**
@@ -293,6 +293,27 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		return this.type.implementsMethod(method); // erasure
 	}
 
+	public boolean isEquivalentTo(TypeBinding otherType) {
+		if (this == otherType) 
+		    return true;
+        if (otherType.isRawType())
+            return erasure() == otherType.erasure();
+        if ((otherType.tagBits & HasWildcard) != 0) {
+            if (otherType.isParameterizedType()) {
+                ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
+                if (this.type != otherParamType.type) 
+                    return false;
+                for (int i = 0, length = this.arguments.length; i < length; i++) {
+                    if (!this.arguments[i].isEquivalentTo(otherParamType.arguments[i]))
+                            return false;
+                }
+                return true;
+            } else { // wildcard
+                return this.isEquivalentTo(((WildcardBinding) otherType).bound);
+            }
+        }
+        return false;
+	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isParameterizedType()
 	 */

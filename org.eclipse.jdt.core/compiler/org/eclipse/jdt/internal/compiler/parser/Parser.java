@@ -6843,13 +6843,13 @@ protected void consumeVariableInitializers() {
 	concatExpressionLists();
 }
 protected void consumeWildcard() {
-	final Wildcard wildcard = new Wildcard(false);
+	final Wildcard wildcard = new Wildcard(Wildcard.UNBOUND);
 	wildcard.sourceEnd = this.intStack[this.intPtr--];
 	wildcard.sourceStart = this.intStack[this.intPtr--];
 	pushOnGenericsStack(wildcard);
 }
 protected void consumeWildcard1() {
-	final Wildcard wildcard = new Wildcard(false);
+	final Wildcard wildcard = new Wildcard(Wildcard.UNBOUND);
 	wildcard.sourceEnd = this.intStack[this.intPtr--];
 	wildcard.sourceStart = this.intStack[this.intPtr--];
 	pushOnGenericsStack(wildcard);
@@ -6859,7 +6859,7 @@ protected void consumeWildcard1WithBounds() {
 	// The wildcard is created by the consumeWildcardBounds1Extends or by consumeWildcardBounds1Super
 }
 protected void consumeWildcard2() {
-	final Wildcard wildcard = new Wildcard(false);
+	final Wildcard wildcard = new Wildcard(Wildcard.UNBOUND);
 	wildcard.sourceEnd = this.intStack[this.intPtr--];
 	wildcard.sourceStart = this.intStack[this.intPtr--];
 	pushOnGenericsStack(wildcard);
@@ -6869,7 +6869,7 @@ protected void consumeWildcard2WithBounds() {
 	// The wildcard is created by the consumeWildcardBounds2Extends or by consumeWildcardBounds2Super
 }
 protected void consumeWildcard3() {
-	final Wildcard wildcard = new Wildcard(false);
+	final Wildcard wildcard = new Wildcard(Wildcard.UNBOUND);
 	wildcard.sourceEnd = this.intStack[this.intPtr--];
 	wildcard.sourceStart = this.intStack[this.intPtr--];
 	pushOnGenericsStack(wildcard);
@@ -6879,7 +6879,7 @@ protected void consumeWildcard3WithBounds() {
 	// The wildcard is created by the consumeWildcardBounds3Extends or by consumeWildcardBounds3Super
 }
 protected void consumeWildcardBounds1Extends() {
-	Wildcard wildcard = new Wildcard(false);
+	Wildcard wildcard = new Wildcard(Wildcard.EXTENDS);
 	wildcard.bound = (TypeReference) this.genericsStack[this.genericsPtr];
 	wildcard.sourceEnd = wildcard.bound.sourceEnd;
 	this.intPtr--; // remove end position of the '?'
@@ -6887,7 +6887,7 @@ protected void consumeWildcardBounds1Extends() {
 	this.genericsStack[this.genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds1Super() {
-	Wildcard wildcard = new Wildcard(true);
+	Wildcard wildcard = new Wildcard(Wildcard.SUPER);
 	wildcard.bound = (TypeReference) this.genericsStack[this.genericsPtr];
 	this.intPtr--; // remove the starting position of the super keyword
 	wildcard.sourceEnd = wildcard.bound.sourceEnd;
@@ -6896,7 +6896,7 @@ protected void consumeWildcardBounds1Super() {
 	this.genericsStack[this.genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds2Extends() {
-	Wildcard wildcard = new Wildcard(false);
+	Wildcard wildcard = new Wildcard(Wildcard.EXTENDS);
 	wildcard.bound = (TypeReference) this.genericsStack[this.genericsPtr];
 	wildcard.sourceEnd = wildcard.bound.sourceEnd;
 	this.intPtr--; // remove end position of the '?'
@@ -6904,7 +6904,7 @@ protected void consumeWildcardBounds2Extends() {
 	this.genericsStack[this.genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds2Super() {
-	Wildcard wildcard = new Wildcard(true);
+	Wildcard wildcard = new Wildcard(Wildcard.SUPER);
 	wildcard.bound = (TypeReference) this.genericsStack[this.genericsPtr];
 	this.intPtr--; // remove the starting position of the super keyword
 	wildcard.sourceEnd = wildcard.bound.sourceEnd;
@@ -6913,7 +6913,7 @@ protected void consumeWildcardBounds2Super() {
 	this.genericsStack[this.genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds3Extends() {
-	Wildcard wildcard = new Wildcard(false);
+	Wildcard wildcard = new Wildcard(Wildcard.EXTENDS);
 	wildcard.bound = (TypeReference) this.genericsStack[this.genericsPtr];
 	wildcard.sourceEnd = wildcard.bound.sourceEnd;
 	this.intPtr--; // remove end position of the '?'
@@ -6921,7 +6921,7 @@ protected void consumeWildcardBounds3Extends() {
 	this.genericsStack[this.genericsPtr] = wildcard;
 }
 protected void consumeWildcardBounds3Super() {
-	Wildcard wildcard = new Wildcard(true);
+	Wildcard wildcard = new Wildcard(Wildcard.SUPER);
 	wildcard.bound = (TypeReference) this.genericsStack[this.genericsPtr];
 	this.intPtr--; // remove the starting position of the super keyword
 	wildcard.sourceEnd = wildcard.bound.sourceEnd;
@@ -6930,7 +6930,7 @@ protected void consumeWildcardBounds3Super() {
 	this.genericsStack[this.genericsPtr] = wildcard;
 }
 protected void consumeWildcardBoundsExtends() {
-	Wildcard wildcard = new Wildcard(false);
+	Wildcard wildcard = new Wildcard(Wildcard.EXTENDS);
 	wildcard.bound = getTypeReference(this.intStack[this.intPtr--]);
 	wildcard.sourceEnd = wildcard.bound.sourceEnd;
 	this.intPtr--; // remove end position of the '?'
@@ -6938,7 +6938,7 @@ protected void consumeWildcardBoundsExtends() {
 	pushOnGenericsStack(wildcard);
 }
 protected void consumeWildcardBoundsSuper() {
-	Wildcard wildcard = new Wildcard(true);
+	Wildcard wildcard = new Wildcard(Wildcard.SUPER);
 	wildcard.bound = getTypeReference(this.intStack[this.intPtr--]);
 	wildcard.sourceEnd = wildcard.bound.sourceEnd;
 	this.intPtr--; // remove end position of the '?'

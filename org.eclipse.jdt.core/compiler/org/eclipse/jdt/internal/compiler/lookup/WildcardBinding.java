@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /*
  * A wildcard acts as an argument for parameterized types, allowing to
@@ -20,30 +21,68 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 public class WildcardBinding extends ReferenceBinding {
 
     TypeBinding bound;
-	boolean isSuper;
 	char[] genericSignature;
+	int kind;
+	ReferenceBinding superclass;
+	ReferenceBinding[] superInterfaces;
+	LookupEnvironment environment;
 	
-	public WildcardBinding(TypeBinding bound, boolean isSuper) {
+	public WildcardBinding(TypeBinding bound, int kind, LookupEnvironment environment) {
 	    this.bound = bound;
-	    this.isSuper = isSuper;
+	    this.kind = kind;
 		this.modifiers = AccPublic | AccGenericSignature; // treat wildcard as public
 		this.tagBits |= HasWildcard;
+		this.environment = environment;
 	}
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#erasure()
+     */
+    public TypeBinding erasure() {
+        return this.bound.erasure();
+        // in case it is unbound, shouldn't it actually be the matching parameter erasure() ?
+    }
 
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#signature()
      */
     public char[] genericTypeSignature() {
         if (this.genericSignature == null) {
-			if (this.bound == null) {
-			    this.genericSignature = WILDCARD_STAR;
-			} else if (this.isSuper) {
-			    this.genericSignature = CharOperation.concat(WILDCARD_MINUS, this.bound.genericTypeSignature());
-			} else {
-				this.genericSignature = CharOperation.concat(WILDCARD_PLUS, this.bound.genericTypeSignature());
-			}
+            switch (this.kind) {
+                case Wildcard.UNBOUND : 
+                    this.genericSignature = WILDCARD_STAR;
+                    break;
+                case Wildcard.EXTENDS :
+                    this.genericSignature = CharOperation.concat(WILDCARD_PLUS, this.bound.genericTypeSignature());
+					break;
+				default: // SUPER
+				    this.genericSignature = CharOperation.concat(WILDCARD_MINUS, this.bound.genericTypeSignature());
+            }
         } 
         return this.genericSignature;
+    }
+    
+	/**
+	 * Returns true if a type is identical to another one,
+	 * or for generic types, true if compared to its raw type.
+	 */
+	public boolean isEquivalentTo(TypeBinding otherType) {
+	    if (this == otherType) return true;
+        return otherType.erasure() == this.erasure();
+	}
+
+	/* (non-Javadoc)
+     * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#isSuperclassOf(org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding)
+     */
+    public boolean isSuperclassOf(ReferenceBinding otherType) {
+        if (this.kind == Wildcard.SUPER) {
+            if (this.bound instanceof ReferenceBinding) {
+                return ((ReferenceBinding) this.bound).isSuperclassOf(otherType);
+            } else { // array bound
+                return otherType.id == T_Object;
+            }
+        }
+        return false;
     }
 
     /**
@@ -57,28 +96,28 @@ public class WildcardBinding extends ReferenceBinding {
      * @see org.eclipse.jdt.internal.compiler.lookup.Binding#readableName()
      */
     public char[] readableName() {
-        if (this.bound != null) {
-            if (this.isSuper) {
-                return CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, this.bound.readableName());
-            } else {
+        switch (this.kind) {
+            case Wildcard.UNBOUND : 
+                return WILDCARD_NAME;
+            case Wildcard.EXTENDS :
                 return CharOperation.concat(WILDCARD_NAME, WILDCARD_EXTENDS, this.bound.readableName());
-            }
+			default: // SUPER
+			    return CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, this.bound.readableName());
         }
-        return WILDCARD_NAME;
     }
     
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
      */
     public char[] shortReadableName() {
-        if (this.bound != null) {
-            if (this.isSuper) {
-                return CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, this.bound.shortReadableName());
-            } else {
+        switch (this.kind) {
+            case Wildcard.UNBOUND : 
+                return WILDCARD_NAME;
+            case Wildcard.EXTENDS :
                 return CharOperation.concat(WILDCARD_NAME, WILDCARD_EXTENDS, this.bound.shortReadableName());
-            }
+			default: // SUPER
+			    return CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, this.bound.shortReadableName());
         }
-        return WILDCARD_NAME;
     }
     
     /* (non-Javadoc)
@@ -87,45 +126,79 @@ public class WildcardBinding extends ReferenceBinding {
     public char[] signature() {
         // TODO (philippe) per construction, should never be called 
         if (this.signature == null) {
-			if (this.bound == null) {
-			    this.signature = WILDCARD_STAR;
-			} else if (this.isSuper) {
-			    this.signature = CharOperation.concat(WILDCARD_MINUS, this.bound.signature());
-			} else {
-				this.signature = CharOperation.concat(WILDCARD_PLUS, this.bound.signature());
-			}
+            switch (this.kind) {
+                case Wildcard.UNBOUND : 
+                    this.signature = WILDCARD_STAR;
+                    break;
+                case Wildcard.EXTENDS :
+                    this.signature = CharOperation.concat(WILDCARD_PLUS, this.bound.signature());
+					break;
+				default: // SUPER
+				    this.signature = CharOperation.concat(WILDCARD_MINUS, this.bound.signature());
+            }
         } 
         return this.signature;
     }
-
+    
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#sourceName()
      */
     public char[] sourceName() {
-        if (this.bound != null) {
-            if (this.isSuper) {
-                return CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, this.bound.sourceName());
-            } else {
+        switch (this.kind) {
+            case Wildcard.UNBOUND : 
+                return WILDCARD_NAME;
+            case Wildcard.EXTENDS :
                 return CharOperation.concat(WILDCARD_NAME, WILDCARD_EXTENDS, this.bound.sourceName());
+			default: // SUPER
+			    return CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, this.bound.sourceName());
+        }        
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding#superclass()
+     */
+    public ReferenceBinding superclass() {
+		if (this.superclass == null) {
+		    if (this.bound.isClass()) {
+		        this.superclass = (ReferenceBinding) this.bound;
+		    } else {
+		        this.superclass = environment.getType(JAVA_LANG_OBJECT);
+		    }
+		}
+		return this.superclass;
+    }
+    /* (non-Javadoc)
+     * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superInterfaces()
+     */
+    public ReferenceBinding[] superInterfaces() {
+        if (this.superInterfaces == null) {
+            if (this.bound.isInterface()) {
+                this.superInterfaces = new ReferenceBinding[] { (ReferenceBinding) this.bound };
+            } else {
+                this.superInterfaces = NoSuperInterfaces;
             }
         }
-        return WILDCARD_NAME;
+        return this.superInterfaces;
     }
 
 	/**
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		StringBuffer buffer = new StringBuffer(10);
-		buffer.append('?');
-		if (this.bound != null) {
-		    if (this.isSuper) {
-		        buffer.append(WILDCARD_SUPER);
-		    } else {
-		        buffer.append(WILDCARD_EXTENDS);
-		    }
-		    buffer.append(this.bound.debugName());
-		}
-		return buffer.toString();
+        switch (this.kind) {
+            case Wildcard.UNBOUND : 
+                return new String(WILDCARD_NAME);
+            case Wildcard.EXTENDS :
+                return new String(CharOperation.concat(WILDCARD_NAME, WILDCARD_EXTENDS, this.bound.debugName().toCharArray()));
+			default: // SUPER
+			    return new String(CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, this.bound.debugName().toCharArray()));
+        }        
 	}		
+    /* (non-Javadoc)
+     * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#unResolvedMethods()
+     */
+    MethodBinding[] unResolvedMethods() {
+        // TODO Auto-generated method stub
+        return super.unResolvedMethods();
+    }
 }

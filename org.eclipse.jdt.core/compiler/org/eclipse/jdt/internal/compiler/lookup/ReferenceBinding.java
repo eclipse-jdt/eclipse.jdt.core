@@ -196,6 +196,8 @@ public void computeId() {
 			id = T_JavaIoPrintStream;
 		else if (CharOperation.equals(JAVA_UTIL_ITERATOR, compoundName))
 			id = T_JavaUtilIterator;
+		else if (CharOperation.equals(JAVA_IO_SERIALIZABLE, compoundName))
+		    id = T_JavaIoSerializable;
 		return;
 	}
 
@@ -220,6 +222,8 @@ public void computeId() {
 				id = T_JavaLangClass;
 			else if (CharOperation.equals(typeName, JAVA_LANG_CLASSNOTFOUNDEXCEPTION[2]))
 				id = T_JavaLangClassNotFoundException;
+			else if (CharOperation.equals(typeName, JAVA_LANG_CLONEABLE[2]))
+			    id = T_JavaLangCloneable;
 			return;
 		case 'D' :
 			if (CharOperation.equals(typeName, JAVA_LANG_DOUBLE[2]))
@@ -461,25 +465,6 @@ public final boolean isDefault() {
 
 public final boolean isDeprecated() {
 	return (modifiers & AccDeprecated) != 0;
-}
-/**
- * Returns true if a type is identical to another one,
- * or for generic types, true if compared to its raw type.
- */
-public boolean isEquivalentTo(ReferenceBinding otherType) {
-    if (this == otherType) return true;
-    if (this.isGenericType()) {
-        return otherType.isRawType() && otherType.erasure() == this;
-    } else if (this.isParameterizedType()) {
-        return otherType.isRawType() && otherType.erasure() == this.erasure();
-    } else if (this.isRawType()) {
-        return otherType.erasure() == this.erasure();
-    } else if (this.isWildcard()) {
-        WildcardBinding wildcard = (WildcardBinding)this;
-        if (wildcard.bound == null) return true;
-		// TODO (philippe) fill-in support for bounded wildcard
-    }
-    return false;
 }
 /* Answer true if the receiver is final and cannot be subclassed
 */

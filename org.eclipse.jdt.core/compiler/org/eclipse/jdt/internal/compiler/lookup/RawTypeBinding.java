@@ -37,6 +37,10 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		return this.genericTypeSignature = this.type.genericTypeSignature();
 	}		
 	
+    public boolean isEquivalentTo(TypeBinding otherType) {
+	    if (this == otherType) return true;
+        return otherType.erasure() == this.erasure();
+    }
 	/**
 	 * Raw type is not treated as a standard parameterized type
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isParameterizedType()

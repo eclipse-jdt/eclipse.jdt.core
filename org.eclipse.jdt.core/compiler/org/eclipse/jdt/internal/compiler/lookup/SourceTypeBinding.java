@@ -591,9 +591,21 @@ public FieldBinding getSyntheticField(LocalVariableBinding actualOuterLocalVaria
 	if (synthetics == null || synthetics[FIELD_EMUL] == null) return null;
 	return (FieldBinding) synthetics[FIELD_EMUL].get(actualOuterLocalVariable);
 }
+
+/**
+ * Returns true if a type is identical to another one,
+ * or for generic types, true if compared to its raw type.
+ */
+public boolean isEquivalentTo(TypeBinding otherType) {
+    if (this == otherType) return true;
+    return this.typeVariables != NoTypeVariables 
+    				&& otherType.isRawType() && otherType.erasure() == this;
+}
+
 public boolean isGenericType() {
     return this.typeVariables != NoTypeVariables;
 }
+
 public ReferenceBinding[] memberTypes() {
 	return memberTypes;
 }

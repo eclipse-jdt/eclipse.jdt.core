@@ -18,12 +18,16 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
  */
 public class Wildcard extends SingleTypeReference {
 
+    public static final int UNBOUND = 0;
+    public static final int EXTENDS = 1;
+    public static final int SUPER = 2;
+    
 	public TypeReference bound;
-	boolean isSuper;
+	int kind;
 
-	public Wildcard(boolean isSuper) {
+	public Wildcard(int kind) {
 		super(null, 0);
-		this.isSuper = isSuper;
+		this.kind = kind;
 	}
 	
 	private TypeBinding internalResolveType(Scope scope) {
@@ -36,20 +40,25 @@ public class Wildcard extends SingleTypeReference {
 			if (boundType == null) {
 				return null;
 			}	    
+	    } else { // unbound wildcard
+	        boundType = scope.getJavaLangObject();
 	    }
-	    return this.resolvedType = scope.environment().createWildcard(boundType, this.isSuper);
+	    return this.resolvedType = scope.environment().createWildcard(boundType, this.kind);
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output){
-		output.append('?');
-		if (this.bound != null) {
-			if (this.isSuper) {
-				output.append(" super "); //$NON-NLS-1$
-			} else {
-				output.append(" extends "); //$NON-NLS-1$
-			}
-			this.bound.printExpression(0, output);
-		}
+        switch (this.kind) {
+            case Wildcard.UNBOUND : 
+                output.append(WILDCARD_NAME);
+            case Wildcard.EXTENDS :
+                output.append(WILDCARD_NAME).append(WILDCARD_EXTENDS);
+            	this.bound.printExpression(0, output);
+            	break;
+			default: // SUPER
+                output.append(WILDCARD_NAME).append(WILDCARD_SUPER);
+            	this.bound.printExpression(0, output);
+            	break;
+        }        	    
 		return output;
 	}	
 	

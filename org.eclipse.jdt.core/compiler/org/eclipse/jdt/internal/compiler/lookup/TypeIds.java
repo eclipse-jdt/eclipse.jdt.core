@@ -63,6 +63,10 @@ public interface TypeIds {
 	final int T_JavaLangIterable = 36;
 	final int T_JavaUtilIterator = 37;
 	
+	// array interfaces
+	final int T_JavaLangCloneable = 38;
+	final int T_JavaIoSerializable = 39;
+	    
 	final int NoId = Integer.MAX_VALUE;
 
 	// implicit conversions: <compileType> to <runtimeType>  (note: booleans are integers at runtime)

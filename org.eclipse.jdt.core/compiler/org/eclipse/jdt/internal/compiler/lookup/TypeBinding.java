@@ -77,6 +77,14 @@ public boolean isClass() {
 */
 public abstract boolean isCompatibleWith(TypeBinding right);
 
+/**
+ * Returns true if a type is identical to another one,
+ * or for generic types, true if compared to its raw type.
+ */
+public boolean isEquivalentTo(TypeBinding otherType) {
+    return this == otherType;
+}
+
 public boolean isGenericType() {
     return false;
 }

@@ -90,13 +90,12 @@ public boolean isCompatibleWith(TypeBinding right) {
 	}
 	//Check dimensions - Java does not support explicitly sized dimensions for types.
 	//However, if it did, the type checking support would go here.
-
-	if (CharOperation.equals(rightName, JAVA_LANG_OBJECT))
-		return true;
-	if (CharOperation.equals(rightName, JAVA_LANG_CLONEABLE))
-		return true;
-	if (CharOperation.equals(rightName, JAVA_IO_SERIALIZABLE))
-		return true;
+	switch (right.id) {
+	    case T_JavaLangObject :
+	    case T_JavaLangCloneable :
+	    case T_JavaIoSerializable :
+	        return true;
+	}
 	return false;
 }
 
