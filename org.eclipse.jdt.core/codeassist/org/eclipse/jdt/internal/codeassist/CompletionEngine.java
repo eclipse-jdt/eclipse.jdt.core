@@ -38,9 +38,7 @@ public final class CompletionEngine
 	
 	AssistOptions options;
 	CompletionParser parser;
-	ISearchableNameEnvironment nameEnvironment;
 	ICompletionRequestor requestor;
-	CompilationUnitScope unitScope;
 	char[] source;
 	boolean resolvingImports = false;
 	boolean insideQualifiedReference = false;
@@ -2267,51 +2265,6 @@ public final class CompletionEngine
 	public AssistParser getParser() {
 
 		return parser;
-	}
-
-	private boolean mustQualifyType(
-		char[] packageName,
-		char[] typeName) {
-
-		// If there are no types defined into the current CU yet.
-		if (unitScope == null)
-			return true;
-			
-		char[][] compoundPackageName = CharOperation.splitOn('.', packageName);
-		char[] readableTypeName = CharOperation.concat(packageName, typeName, '.');
-
-		if (CharOperation.equals(unitScope.fPackage.compoundName, compoundPackageName))
-			return false;
-
-		ImportBinding[] imports = unitScope.imports;
-
-		for (int i = 0, length = imports.length; i < length; i++) {
-
-			if (imports[i].onDemand) {
-				if (CharOperation.equals(imports[i].compoundName, compoundPackageName)) {
-					for (int j = 0; j < imports.length; j++) {
-						if(i != j){
-							if(imports[j].onDemand) {
-								if(nameEnvironment.findType(typeName, imports[j].compoundName) != null){
-									return true;
-								}
-							} else {
-								if(CharOperation.equals(CharOperation.lastSegment(imports[j].readableName(), '.'), typeName)) {
-									return true;	
-								}
-							}
-						}
-					}
-					return false; // how do you match p1.p2.A.* ?
-				}
-
-			} else
-
-				if (CharOperation.equals(imports[i].readableName(), readableTypeName)) {
-					return false;
-				}
-		}
-		return true;
 	}
 
 	protected void reset() {

@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.codeassist.impl;
  * All Rights Reserved.
  */
 
+import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
@@ -12,10 +13,14 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.*;
 
 public abstract class Engine implements ITypeRequestor {
 	public LookupEnvironment lookupEnvironment;
+	
+	protected CompilationUnitScope unitScope;
+	protected ISearchableNameEnvironment nameEnvironment;
 
 	/**
 	 * Add an additional binary type
@@ -54,6 +59,51 @@ public abstract class Engine implements ITypeRequestor {
 		}
 	}
 	public abstract AssistParser getParser();
+	
+	protected boolean mustQualifyType(
+		char[] packageName,
+		char[] typeName) {
+
+		// If there are no types defined into the current CU yet.
+		if (unitScope == null)
+			return true;
+			
+		char[][] compoundPackageName = CharOperation.splitOn('.', packageName);
+		char[] readableTypeName = CharOperation.concat(packageName, typeName, '.');
+
+		if (CharOperation.equals(unitScope.fPackage.compoundName, compoundPackageName))
+			return false;
+
+		ImportBinding[] imports = unitScope.imports;
+
+		for (int i = 0, length = imports.length; i < length; i++) {
+
+			if (imports[i].onDemand) {
+				if (CharOperation.equals(imports[i].compoundName, compoundPackageName)) {
+					for (int j = 0; j < imports.length; j++) {
+						if(i != j){
+							if(imports[j].onDemand) {
+								if(nameEnvironment.findType(typeName, imports[j].compoundName) != null){
+									return true;
+								}
+							} else {
+								if(CharOperation.equals(CharOperation.lastSegment(imports[j].readableName(), '.'), typeName)) {
+									return true;	
+								}
+							}
+						}
+					}
+					return false; // how do you match p1.p2.A.* ?
+				}
+
+			} else
+
+				if (CharOperation.equals(imports[i].readableName(), readableTypeName)) {
+					return false;
+				}
+		}
+		return true;
+	}
 
 	protected void parseMethod(CompilationUnitDeclaration unit, int position) {
 		for (int i = unit.types.length; --i >= 0;) {

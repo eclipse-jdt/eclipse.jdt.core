@@ -31,16 +31,19 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	public static boolean DEBUG = false;
 	
 	SelectionParser parser;
-	ISearchableNameEnvironment nameEnvironment;
 	ISelectionRequestor requestor;
 
-	CompilationUnitScope unitScope;
 	boolean acceptedAnswer;
 
 	private int actualSelectionStart;
 	private int actualSelectionEnd;
 	private char[] qualifiedSelection;
 	private char[] selectedIdentifier;
+	
+	private char[][][] acceptedClasses;
+	private char[][][] acceptedInterfaces;
+	int acceptedClassesCount;
+	int acceptedInterfacesCount;
 
 	/**
 	 * The SelectionEngine is responsible for computing the selected object.
@@ -101,11 +104,29 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					CharOperation.concat(packageName, className, '.'))) {
 				return;
 			}
-			requestor.acceptClass(
-				packageName,
-				className,
-				mustQualifyType(CharOperation.splitOn('.', packageName), className));
-			acceptedAnswer = true;
+			
+			if(mustQualifyType(packageName, className)) {
+				char[][] acceptedClass = new char[2][];
+				acceptedClass[0] = packageName;
+				acceptedClass[1] = className;
+				
+				if(acceptedClasses == null) {
+					acceptedClasses = new char[10][][];
+					acceptedClassesCount = 0;
+				}
+				int length = acceptedClasses.length;
+				if(length == acceptedClassesCount) {
+					System.arraycopy(acceptedClasses, 0, acceptedClasses = new char[(length + 1)* 2][][], 0, length);
+				}
+				acceptedClasses[acceptedClassesCount++] = acceptedClass;
+				
+			} else {
+				requestor.acceptClass(
+					packageName,
+					className,
+					false);
+				acceptedAnswer = true;
+			}
 		}
 	}
 
@@ -129,11 +150,29 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					CharOperation.concat(packageName, interfaceName, '.'))) {
 				return;
 			}
-			requestor.acceptInterface(
-				packageName,
-				interfaceName,
-				mustQualifyType(CharOperation.splitOn('.', packageName), interfaceName));
-			acceptedAnswer = true;
+			
+			if(mustQualifyType(packageName, interfaceName)) {
+				char[][] acceptedInterface= new char[2][];
+				acceptedInterface[0] = packageName;
+				acceptedInterface[1] = interfaceName;
+				
+				if(acceptedInterfaces == null) {
+					acceptedInterfaces = new char[10][][];
+					acceptedInterfacesCount = 0;
+				}
+				int length = acceptedInterfaces.length;
+				if(length == acceptedInterfacesCount) {
+					System.arraycopy(acceptedInterfaces, 0, acceptedInterfaces = new char[(length + 1) * 2][][], 0, length);
+				}
+				acceptedInterfaces[acceptedInterfacesCount++] = acceptedInterface;
+				
+			} else {
+				requestor.acceptInterface(
+					packageName,
+					interfaceName,
+					false);
+				acceptedAnswer = true;
+			}
 		}
 	}
 
@@ -148,6 +187,29 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	public void acceptPackage(char[] packageName) {
 	}
 
+	private void acceptQualifiedTypes() {
+		if(acceptedClasses != null){
+			for (int i = 0; i < acceptedClassesCount; i++) {
+				requestor.acceptClass(
+					acceptedClasses[i][0],
+					acceptedClasses[i][1],
+					true);
+			}
+			acceptedClasses = null;
+			acceptedClassesCount = 0;
+		}
+		if(acceptedInterfaces != null){
+			for (int i = 0; i < acceptedInterfacesCount; i++) {
+				requestor.acceptInterface(
+					acceptedInterfaces[i][0],
+					acceptedInterfaces[i][1],
+					true);
+			}
+			acceptedInterfaces = null;
+			acceptedInterfacesCount = 0;
+		}
+	}
+	
 	/**
 	 * One result of the search consists of a new type.
 	 * @param packageName char[]
@@ -296,28 +358,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		return parser;
 	}
 
-	private boolean mustQualifyType(
-		char[][] packageName,
-		char[] readableTypeName) {
-
-		// If there are no types defined into the current CU yet.
-		if (unitScope == null) return true;
-		if (CharOperation.equals(unitScope.fPackage.compoundName, packageName))
-			return false;
-
-		ImportBinding[] imports = unitScope.imports;
-		for (int i = 0, length = imports.length; i < length; i++) {
-			if (imports[i].onDemand) {
-				if (CharOperation.equals(imports[i].compoundName, packageName))
-					return false; // how do you match p1.p2.A.* ?
-			} else
-				if (CharOperation.equals(imports[i].readableName(), readableTypeName)) {
-					return false;
-				}
-		}
-		return true;
-	}
-
 	/**
 	 * Ask the engine to compute the selection at the specified position
 	 * of the given compilation unit.
@@ -384,7 +424,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				}
 				if (parsedUnit.types != null) {
 					lookupEnvironment.buildTypeBindings(parsedUnit);
-					if (parsedUnit.scope != null) {
+					if ((this.unitScope = parsedUnit.scope)  != null) {
 						try {
 							lookupEnvironment.completeTypeBindings(parsedUnit, true);
 							parsedUnit.scope.faultInTypes();
@@ -412,6 +452,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			// thus use the selected source and perform a textual type search
 			if (!acceptedAnswer) {
 				nameEnvironment.findTypes(selectedIdentifier, this);
+				
+				// accept qualified types only if no unqualified type was accepted
+				if(!acceptedAnswer) {
+					acceptQualifiedTypes();
+				}
 			}
 		} catch (IndexOutOfBoundsException e) { // work-around internal failure - 1GEMF6D		
 		} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
@@ -603,6 +648,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			if (!acceptedAnswer) {
 				if (this.selectedIdentifier != null) {
 					nameEnvironment.findTypes(typeName, this);
+					
+					// accept qualified types only if no unqualified type was accepted
+					if(!acceptedAnswer) {
+						acceptQualifiedTypes();
+					}
 				}
 			}
 		} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
