@@ -97,8 +97,8 @@ public interface IProblem {
 	 * A problem category can help to implement custom problem filters. Indeed, when numerous problems
 	 * are listed, focusing on import related problems first might be relevant.
 	 * 
-	 * When a problem is tagged as Internal, it means that no other change than a local source code change
-	 * could ever fix the corresponding problem.
+	 * When a problem is tagged as Internal, it means that no change other than a local source code change
+	 * can  fix the corresponding problem.
 	 */
 	final int TypeRelated = 0x01000000;
 	final int FieldRelated = 0x02000000;
@@ -435,7 +435,4 @@ public interface IProblem {
 	// 1.4 features
 	// assertion warning
 	final int UseAssertAsAnIdentifier = Internal + 440;
-	
-
-	final int Error = 1; // when bit is set: problem is error, if not it is a warning
 }
