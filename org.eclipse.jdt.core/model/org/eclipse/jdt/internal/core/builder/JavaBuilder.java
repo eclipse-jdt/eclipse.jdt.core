@@ -504,7 +504,7 @@ private boolean isWorthBuilding() throws CoreException {
 			IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 			marker.setAttribute(IMarker.MESSAGE,
 				isClasspathBroken(prereqClasspath, p)
-					? Util.bind("build.prereqProjectHasClasspathProblems", p.getName())
+					? Util.bind("build.prereqProjectHasClasspathProblems", p.getName()) //$NON-NLS-1$
 					: Util.bind("build.prereqProjectMustBeRebuilt", p.getName())); //$NON-NLS-1$
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 			return false;
