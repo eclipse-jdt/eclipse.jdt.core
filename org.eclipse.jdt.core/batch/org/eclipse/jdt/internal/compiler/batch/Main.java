@@ -148,6 +148,9 @@ public class Main implements ProblemSeverities {
 		options.put(
 			CompilerOptions.OPTION_ReportNoImplicitStringConversion,
 			CompilerOptions.WARNING);
+		options.put(
+			CompilerOptions.OPTION_ReportStaticAccessReceiver,
+			CompilerOptions.WARNING);
 	}
 
 	/*
