@@ -10871,7 +10871,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=74178
 	public void test410() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"import java.util.List;\n" + 
@@ -10880,17 +10880,27 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"\n" + 
 				"public void write(List<? super Exception> list) {\n" + 
 				"	\n" + 
-				"  list.add(new RuntimeException());             // JDT works, Javac works\n" + 
-				"  list.add(new IllegalMonitorStateException()); // JDT works, Javac works\n" + 
+				"  list.add(new RuntimeException());             // works\n" + 
+				"  list.add(new IllegalMonitorStateException()); // works\n" + 
 				"  Exception exc = new Exception();\n" + 
-				"  list.add(exc);                                // both works\n" + 
-				"  list.add(new Object());                       // JDT works, Javac fails\n" + 
-				"  list.add(new Throwable());                    // JDT works, Javac fails\n" + 
-				"  list.add(new Exception());                    // both works\n" + 
+				"  list.add(exc);                                // works\n" + 
+				"  list.add(new Object());                       // should fail\n" + 
+				"  list.add(new Throwable());                    // should fail\n" + 
+				"  list.add(new Exception());                    // works\n" + 
 				"}\n" + 
 				"}",
 			},
-			"");	
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\r\n" + 
+			"	list.add(new Object());                       // should fail\r\n" + 
+			"	     ^^^\n" + 
+			"The method add(? super Exception) in the type List<? super Exception> is not applicable for the arguments (Object)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\r\n" + 
+			"	list.add(new Throwable());                    // should fail\r\n" + 
+			"	     ^^^\n" + 
+			"The method add(? super Exception) in the type List<? super Exception> is not applicable for the arguments (Throwable)\n" + 
+			"----------\n");	
 	}			
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78015 
@@ -12806,4 +12816,155 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}	
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83398
+	public void test475() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    void method(List<? super Number> list) {\n" + 
+				"        list.add(new Object());   // should fail\n" + 
+				"        list.add(new Integer(3)); // correct\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	list.add(new Object());   // should fail\n" + 
+			"	     ^^^\n" + 
+			"The method add(? super Number) in the type List<? super Number> is not applicable for the arguments (Object)\n" + 
+			"----------\n");
+	}		
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83398 - variation
+	public void test476() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    void method(List<? super Number> list, List<Object> lo) {\n" + 
+				"    	list = lo;\n" + 
+				"    	lo = list;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	lo = list;\n" + 
+			"	     ^^^^\n" + 
+			"Type mismatch: cannot convert from List<? super Number> to List<Object>\n" + 
+			"----------\n");
+	}			
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83398 - variation
+	public void test477() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X<T extends Number> {\n" + 
+				"	List<? super T> lhs;\n" + 
+				"	List<? extends Number> rhs;\n" + 
+				"	{\n" + 
+				"		lhs.add(rhs.get(0));\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	lhs.add(rhs.get(0));\n" + 
+			"	    ^^^\n" + 
+			"The method add(? super T) in the type List<? super T> is not applicable for the arguments (? extends Number)\n" + 
+			"----------\n");
+	}		
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83398 - variation
+	public void test478() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X<U extends Number> {\n" + 
+				"	List<? super Number> lhs;\n" + 
+				"	List<? super U> rhs;\n" + 
+				"	{\n" + 
+				"		lhs.add(rhs.get(0));\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	lhs.add(rhs.get(0));\n" + 
+			"	    ^^^\n" + 
+			"The method add(? super Number) in the type List<? super Number> is not applicable for the arguments (? super U)\n" + 
+			"----------\n");
+	}	
+	
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83398 - variation
+	public void test479() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X<U extends Number> {\n" + 
+				"	List<? super Number> lhs;\n" + 
+				"	List<? extends U> rhs;\n" + 
+				"	{\n" + 
+				"		lhs.add(rhs.get(0));\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"");
+	}	
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83398 - variation
+	public void test480() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X<U extends Number> {\n" + 
+				"	List<? super Integer> lhs;\n" + 
+				"	List<? extends Number> rhs;\n" + 
+				"	{\n" + 
+				"		lhs.add(rhs.get(0));\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	lhs.add(rhs.get(0));\n" + 
+			"	    ^^^\n" + 
+			"The method add(? super Integer) in the type List<? super Integer> is not applicable for the arguments (? extends Number)\n" + 
+			"----------\n");
+	}			
+
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83398 - variation
+	public void test481() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X<U extends Number> {\n" + 
+				"	List<? super Number> lhs;\n" + 
+				"	List<? super Integer> rhs;\n" + 
+				"	{\n" + 
+				"		lhs.add(rhs.get(0));\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" +  
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	lhs.add(rhs.get(0));\n" + 
+			"	    ^^^\n" + 
+			"The method add(? super Number) in the type List<? super Number> is not applicable for the arguments (? super Integer)\n" + 
+			"----------\n");
+	}		
 }

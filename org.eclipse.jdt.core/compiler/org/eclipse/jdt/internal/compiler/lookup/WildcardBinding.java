@@ -70,8 +70,8 @@ public class WildcardBinding extends ReferenceBinding {
 	        default: // SUPER
 	        	// allowed as long as one is compatible with other (either way)
 	        	// ? super Exception   ok for:  IOException, since it would be ok for (Exception)ioException
-	            return this.bound.isCompatibleWith(argumentType)
-					|| argumentType.isCompatibleWith(this.bound);
+	            return /*this.bound.isCompatibleWith(argumentType)
+					|| */argumentType.isCompatibleWith(this.bound);
 	    }
     }
 	/**
