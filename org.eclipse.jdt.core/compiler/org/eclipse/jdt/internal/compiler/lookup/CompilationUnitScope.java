@@ -293,6 +293,7 @@ void faultInImports() {
 				}
 		if (importReference.onDemand == true)
 			if (CharOperation.equals(compoundName, currentPackageName)) {
+				problemReporter().unusedImport(importReference); // since skipped, must be reported now
 				continue nextImport;
 			}
 		if (importReference.onDemand) {
