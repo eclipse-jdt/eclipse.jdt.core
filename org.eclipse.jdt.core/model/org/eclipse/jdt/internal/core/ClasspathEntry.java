@@ -200,9 +200,8 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 		
 		if (this.specificOutputLocation != null) {
-			IPath outputLocation = this.specificOutputLocation.removeFirstSegments(1);
-			outputLocation = outputLocation.makeRelative();
-			element.setAttribute("output", outputLocation.toString()); //$NON-NLS-1$ 
+			IPath outputLocation = this.specificOutputLocation;
+			element.setAttribute("output", outputLocation.equals(projectPath) ? "" : outputLocation.toString()); //$NON-NLS-1$ //$NON-NLS-2$ 
 		}
 		return element;
 	}

@@ -172,4 +172,27 @@ public class CopyResourceTests extends Tests {
 			projectPath.append("bin") //$NON-NLS-1$
 		});
 	}
+
+	public void testProjectWith2Src2Bin() {
+		IPath projectPath = env.addProject("P6"); //$NON-NLS-1$
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", "bin1"); //$NON-NLS-1$
+		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2", "bin2"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin1"); //$NON-NLS-1$
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
+
+		env.addFile(src1, "z.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		env.addFile(src2, "zz.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
+		fullBuild();
+		expectingNoProblems();
+		expectingPresenceOf(new IPath[] {
+			projectPath.append("bin1/z.txt"), //$NON-NLS-1$
+			projectPath.append("bin2/zz.txt"), //$NON-NLS-1$
+		});
+		expectingNoPresenceOf(new IPath[] {
+			projectPath.append("bin1/zz.txt"), //$NON-NLS-1$
+			projectPath.append("bin2/z.txt"), //$NON-NLS-1$
+		});
+	}
 }

@@ -15,7 +15,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.TestVerifier;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.Compiler;
@@ -45,9 +45,9 @@ public class Tests extends TestCase {
 		IPath workspacePath = env.getWorkspaceRootPath();
 			
 		classpath.addElement(workspacePath.append(env.getOutputLocation(projectPath)).toOSString());
-		IPath[] cp = env.getClasspath(projectPath);
+		IClasspathEntry[] cp = env.getClasspath(projectPath);
 		for (int i = 0; i < cp.length; i++) {
-			IPath c = cp[i];
+			IPath c = cp[i].getPath();
 			String ext = c.getFileExtension();
 			if(ext != null && (ext.equals("zip") || ext.equals("jar"))){ //$NON-NLS-1$ //$NON-NLS-2$
 				if(c.getDevice() == null) {
