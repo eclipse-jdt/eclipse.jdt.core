@@ -67,7 +67,7 @@ public class IfStatement extends Statement {
 
 		// process the condition
 		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo);
-		Constant condConstant = this.condition.optimizedBooleanConstant(); //TODO: wrong, cannot use optimizedBoolean here (initializationTest#71).
+		Constant condConstant = this.condition.constant; 
 
 		// process the THEN part
 		if (this.thenStatement == null) {

@@ -42,7 +42,7 @@ public class ConditionalExpression extends OperatorExpression {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		Constant conditionConstant = condition.optimizedBooleanConstant();
+		Constant conditionConstant = condition.constant;
 
 		flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo, conditionConstant == NotAConstant);
 

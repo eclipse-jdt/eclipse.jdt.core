@@ -41,11 +41,13 @@ public class WhileStatement extends Statement {
 		breakLabel = new Label();
 		continueLabel = new Label(); 
 
+		Constant condConstant = this.condition.constant;
+		
 		preCondInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(flowInfo);
 		LoopingFlowContext condLoopContext;
 		FlowInfo postCondInfo =
-			condition.analyseCode(
+			this.condition.analyseCode(
 				currentScope,
 				(condLoopContext =
 					new LoopingFlowContext(flowContext, this, null, null, currentScope)),
@@ -55,8 +57,7 @@ public class WhileStatement extends Statement {
 		if (action == null 
 			|| (action.isEmptyBlock() && currentScope.environment().options.complianceLevel <= CompilerOptions.JDK1_3)) {
 			condLoopContext.complainOnFinalAssignmentsInLoop(currentScope, postCondInfo);
-			if ((condition.constant != NotAConstant)
-				&& (condition.constant.booleanValue() == true)) {
+			if ((condConstant != NotAConstant) && (condConstant.booleanValue() == true)) {
 				return FlowInfo.DeadEnd;
 			} else {
 				FlowInfo mergedInfo = postCondInfo.initsWhenFalse().unconditionalInits();
@@ -75,8 +76,7 @@ public class WhileStatement extends Statement {
 					continueLabel,
 					currentScope);
 			FlowInfo actionInfo =
-				((condition.constant != Constant.NotAConstant)
-					&& (condition.constant.booleanValue() == false))
+				((condConstant != Constant.NotAConstant) && (condConstant.booleanValue() == false))
 					? FlowInfo.DeadEnd
 					: postCondInfo.initsWhenTrue().copy();
 
@@ -102,8 +102,7 @@ public class WhileStatement extends Statement {
 
 		// infinite loop
 		FlowInfo mergedInfo;
-		if ((condition.constant != Constant.NotAConstant)
-			&& (condition.constant.booleanValue() == true)) {
+		if ((condConstant != Constant.NotAConstant) && (condConstant.booleanValue() == true)) {
 			mergedInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(
 					mergedInfo = loopingContext.initsOnBreak);
