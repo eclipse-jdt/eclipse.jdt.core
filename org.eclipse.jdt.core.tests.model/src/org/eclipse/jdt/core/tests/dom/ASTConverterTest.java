@@ -6591,58 +6591,58 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		AST newAst = result.getAST();
-		ITypeBinding typeBinding = ast.resolveWellKnownType("boolean"); //$NON-NLS-1$
+		ITypeBinding typeBinding = newAst.resolveWellKnownType("boolean"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "boolean", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("char"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("char"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "char", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("byte"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("byte"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "byte", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("short"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("short"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "short", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("int"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("int"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "int", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("long"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("long"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "long", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("float"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("float"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "float", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("double"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("double"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "double", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("void"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("void"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "void", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("java.lang.Object"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("java.lang.Object"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "Object", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("java.lang.String"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("java.lang.String"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "String", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("java.lang.StringBuffer"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("java.lang.StringBuffer"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "StringBuffer", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("java.lang.Throwable"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("java.lang.Throwable"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "Throwable", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("java.lang.Exception"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("java.lang.Exception"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "Exception", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("java.lang.RuntimeException"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("java.lang.RuntimeException"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "RuntimeException", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("java.lang.Error"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("java.lang.Error"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "Error", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("java.lang.Class"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("java.lang.Class"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "Class", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = ast.resolveWellKnownType("java.lang.Runnable"); //$NON-NLS-1$
+		typeBinding = newAst.resolveWellKnownType("java.lang.Runnable"); //$NON-NLS-1$
 		assertNull("typeBinding not null", typeBinding); //$NON-NLS-1$
 	}
 
