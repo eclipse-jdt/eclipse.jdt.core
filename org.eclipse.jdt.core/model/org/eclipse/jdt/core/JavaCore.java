@@ -1417,7 +1417,7 @@ public final class JavaCore extends Plugin {
 	 *    Note that "1.4" target require to toggle compliance mode to "1.4" too.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.targetPlatform"
 	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4", "1.5" }
-	 *     - default:           "1.1"
+	 *     - default:           "1.2"
 	 *
 	 * COMPILER / Reporting Attempt to Override Package-Default Method
 	 *    A package default method is not visible in a different package, and thus 
@@ -1731,7 +1731,7 @@ public final class JavaCore extends Plugin {
 	 *    should not go beyond "1.3" level.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.compliance"
 	 *     - possible values:   { "1.3", "1.4", "1.5" }
-	 *     - default:           "1.3"
+	 *     - default:           "1.4"
 	 * 
 	 * COMPILER / Maximum number of problems reported per compilation unit
 	 *    Specify the maximum number of problems reported on each compilation unit.
