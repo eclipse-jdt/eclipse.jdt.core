@@ -233,8 +233,7 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 			ReferenceBinding interfaceBinding = interfaceBindings[bindingIndex];
 
 			// ensure that the binding corresponds to the interface defined by the user
-			char[][] compoundName = interfaceBinding.compoundName;
-			if (CharOperation.equals(simpleName, compoundName[compoundName.length-1])) {
+			if (CharOperation.equals(simpleName, interfaceBinding.sourceName)) {
 				bindingIndex++;
 				for (int t = typeIndex; t >= 0; t--) {
 					if (typeBindings[t] == interfaceBinding) {
