@@ -638,4 +638,30 @@ public class StaticImportTest extends AbstractComparisonTest {
 			"----------\n"
 		);
 	}		
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81718
+	public void test019() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static java.lang.Math.PI;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"  boolean PI;\n" + 
+				"  Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	import static java.lang.Math.PI;\n" + 
+			"	              ^^^^^^^^^^^^^^^^^\n" + 
+			"The import java.lang.Math.PI is never used\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	}		
 }
