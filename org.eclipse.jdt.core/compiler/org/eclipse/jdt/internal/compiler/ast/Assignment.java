@@ -46,7 +46,7 @@ public class Assignment extends Expression {
 		int nullStatus = this.expression.nullStatus(flowInfo);
 		if (local != null && nullStatus == FlowInfo.NULL) {
 				if (flowInfo.isDefinitelyNull(local)) {
-					currentScope.problemReporter().localVariableCanOnlyBeNull(local, this.lhs);
+					flowContext.recordUsingNullReference(currentScope, local, this.lhs, FlowInfo.NULL, flowInfo);
 				}
 		}
 		flowInfo = ((Reference) lhs)

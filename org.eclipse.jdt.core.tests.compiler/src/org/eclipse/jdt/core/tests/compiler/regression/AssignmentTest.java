@@ -606,7 +606,108 @@ public void test018() {
 		true,
 		customOptions);
 }
-
+public void test019() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static final char[] replaceOnCopy(\n" + 
+			"		char[] array,\n" + 
+			"		char toBeReplaced,\n" + 
+			"		char replacementChar) {\n" + 
+			"		\n" + 
+			"		char[] result = null;\n" + 
+			"		for (int i = 0, length = array.length; i < length; i++) {\n" + 
+			"			char c = array[i];\n" + 
+			"			if (c == toBeReplaced) {\n" + 
+			"				if (result == null) {\n" + 
+			"					result = new char[length];\n" + 
+			"					System.arraycopy(array, 0, result, 0, i);\n" + 
+			"				}\n" + 
+			"				result[i] = replacementChar;\n" + 
+			"			} else if (result != null) {\n" + 
+			"				result[i] = c;\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		if (result == null) return array;\n" + 
+			"		return result;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null);
+}
+public void test020() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		final int v;\n" + 
+			"		for (int i = 0; i < 10; i++) {\n" + 
+			"			v = i;\n" + 
+			"		}\n" + 
+			"		v = 0;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	v = i;\n" + 
+		"	^\n" + 
+		"The final local variable v may already have been assigned\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	v = 0;\n" + 
+		"	^\n" + 
+		"The final local variable v may already have been assigned\n" + 
+		"----------\n");
+}
+public void test021() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	int kind;\n" + 
+			"	X parent;\n" + 
+			"	Object[] foo() { return null; }\n" + 
+			"	private void findTypeParameters(X scope) {\n" + 
+			"		Object[] typeParameters = null;\n" + 
+			"		while (scope != null) {\n" + 
+			"			typeParameters = null;\n" + 
+			"			switch (scope.kind) {\n" + 
+			"				case 0 :\n" + 
+			"					typeParameters = foo();\n" + 
+			"					break;\n" + 
+			"				case 1 :\n" + 
+			"					typeParameters = foo();\n" + 
+			"					break;\n" + 
+			"				case 2 :\n" + 
+			"					return;\n" + 
+			"			}\n" + 
+			"			if(typeParameters != null) {\n" + 
+			"				foo();\n" + 
+			"			}\n" + 
+			"			scope = scope.parent;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null);
+}
 public static Class testClass() {
 	return AssignmentTest.class;
 }
