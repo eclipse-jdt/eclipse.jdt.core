@@ -112,19 +112,16 @@ class BindingComparator {
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding2,
 			boolean checkTypeVariables) {
 		if (checkTypeVariables) {
-			return (methodBinding == null && methodBinding2 == null)
-				|| (CharOperation.equals(methodBinding.selector, methodBinding2.selector)
-					&& isEqual(methodBinding.returnType, methodBinding2.returnType, false) 
-					&& isEqual(methodBinding.parameters, methodBinding2.parameters, false)
-					&& isEqual(methodBinding.thrownExceptions, methodBinding2.thrownExceptions, false)
-					&& isEqual(methodBinding.typeVariables, methodBinding2.typeVariables, false))
-					&& isEqual(methodBinding.declaringClass, methodBinding2.declaringClass, false);
+			if (!isEqual(methodBinding.typeVariables, methodBinding2.typeVariables, false)) {
+				return false;
+			}
 		}
 		return (methodBinding == null && methodBinding2 == null)
 			|| (CharOperation.equals(methodBinding.selector, methodBinding2.selector)
 				&& isEqual(methodBinding.returnType, methodBinding2.returnType, false) 
 				&& isEqual(methodBinding.parameters, methodBinding2.parameters, false)
-				&& isEqual(methodBinding.thrownExceptions, methodBinding2.thrownExceptions, false));
+				&& isEqual(methodBinding.thrownExceptions, methodBinding2.thrownExceptions, false)
+				&& isEqual(methodBinding.declaringClass, methodBinding2.declaringClass, true));
 	}
 
 	static boolean isEqual(VariableBinding variableBinding, VariableBinding variableBinding2) {

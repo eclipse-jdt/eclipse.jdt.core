@@ -92,7 +92,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0126"));
+		suite.addTest(new ASTConverter15Test("test0127"));
 		return suite;
 	}
 	
@@ -3635,5 +3635,42 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"Ljava/lang/Class<+LX<TE;>;:TE;>;",
 			binding);
 	}
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83817
+    public void test0127() throws CoreException {
+        this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+        ASTNode node = buildAST(
+            "class X<T> {\n" +
+            "    public void method(Number num) {}\n" +
+            "}\n" +
+            "\n" +
+            "class Z {\n" +
+            "	void test() {\n" +
+            "		new X<String>().method(0);\n" +
+            "		new X<Integer>().method(1);\n" +
+            "	}\n" +
+            "}",
+            this.workingCopy);
+        assertNotNull("No node", node);
+        assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+        CompilationUnit compilationUnit = (CompilationUnit) node;
+        assertProblemsSize(compilationUnit, 0);
+        node = getASTNode(compilationUnit, 1, 0, 0);
+        assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+        ExpressionStatement statement = (ExpressionStatement) node;
+        Expression expression = statement.getExpression();
+        assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+        MethodInvocation methodInvocation = (MethodInvocation) expression;
+        IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+        node = getASTNode(compilationUnit, 1, 0, 1);
+        assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+        statement = (ExpressionStatement) node;
+        expression = statement.getExpression();
+        assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+        methodInvocation = (MethodInvocation) expression;
+        IMethodBinding methodBinding2 = methodInvocation.resolveMethodBinding();
+        assertFalse("Keys are equals", methodBinding.getKey().equals(methodBinding2.getKey()));
+        assertFalse("bindings are equals", methodBinding.isEqualTo(methodBinding2));
+    }
 
 }
