@@ -1030,7 +1030,7 @@ public class ClassFile
 		// always clear the strictfp/native/abstract bit for a problem method
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(AccStrictfp | AccNative | AccAbstract));
 		int methodAttributeOffset = contentsOffset;
-		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		int attributeNumber = generateMethodInfoAttribute(methodBinding, true);
 		
 		// Code attribute
 		attributeNumber++;
@@ -1115,7 +1115,7 @@ public class ClassFile
 		// always clear the strictfp/native/abstract bit for a problem method
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(AccStrictfp | AccNative | AccAbstract));
 		int methodAttributeOffset = contentsOffset;
-		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		int attributeNumber = generateMethodInfoAttribute(methodBinding, true);
 		
 		// Code attribute
 		attributeNumber++;
@@ -3058,6 +3058,9 @@ public class ClassFile
 		}
 	}
 
+	public int generateMethodInfoAttribute(MethodBinding methodBinding) {
+		return generateMethodInfoAttribute(methodBinding, false);
+	}
 	/**
 	 * INTERNAL USE-ONLY
 	 * That method generates the attributes of a code attribute.
@@ -3071,7 +3074,7 @@ public class ClassFile
 	 * @param methodBinding org.eclipse.jdt.internal.compiler.lookup.MethodBinding
 	 * @return <CODE>int</CODE>
 	 */
-	public int generateMethodInfoAttribute(MethodBinding methodBinding) {
+	public int generateMethodInfoAttribute(MethodBinding methodBinding, boolean createProblemMethod) {
 		// leave two bytes for the attribute_number
 		contentsOffset += 2;
 		// now we can handle all the attribute for that method info:
@@ -3170,7 +3173,7 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) signatureIndex;
 			attributeNumber++;
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK1_5 && !this.creatingProblemType) {
+		if (this.targetJDK >= ClassFileConstants.JDK1_5 && !this.creatingProblemType && !createProblemMethod) {
 			AbstractMethodDeclaration methodDeclaration = methodBinding.sourceMethod();
 			if (methodDeclaration != null) {
 				Annotation[] annotations = methodDeclaration.annotations;
