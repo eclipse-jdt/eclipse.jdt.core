@@ -56,12 +56,13 @@ What's new in this drop</h2>
 *     - possible values:   { "error", "warning", "ignore" }
 *     - default:           "warning"
 *
-* COMPILER / Reporting Constructor Parameter Hiding another Field
-*    When enabled, the compiler will issue an error or a warning whenever a constructor parameter
-*    declaration is hiding some field (either locally, inherited or defined in enclosing type).
-*     - option id:         "org.eclipse.jdt.core.compiler.problem.constructorParameterHidingField"
-*     - possible values:   { "error", "warning", "ignore" }
-*     - default:           "ignore"
+* COMPILER / Reporting Special Parameter Hiding another Field
+*    When enabled, the compiler will signal cases where a constructor or setter method parameter declaration 
+*    is hiding some field (either locally, inherited or defined in enclosing type).
+*    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.localVariableHiding".
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.specialParameterHidingField"
+*     - possible values:   { "enabled", "disabled" }
+*     - default:           "disabled"
 </pre>
 </li>
 </ul>
