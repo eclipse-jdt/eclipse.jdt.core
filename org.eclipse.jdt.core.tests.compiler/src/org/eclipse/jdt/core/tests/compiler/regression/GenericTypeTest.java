@@ -10386,4 +10386,56 @@ class C extends B implements IDoubles {
 			"----------\n"
 		);
 	}			
+
+	// 78139 - downcast generic method inference
+	public void test396() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Collection;\n" + 
+				"import java.util.List;\n" + 
+				"import java.util.ArrayList;\n" + 
+				"\n" + 
+				"public class X\n" + 
+				"{\n" + 
+				"    public static <T> List<T> emptyList() {\n" + 
+				"        return new ArrayList<T>();\n" + 
+				"    }\n" + 
+				"    public static <T> Collection<T> emptyCollection() {\n" + 
+				"        return new ArrayList<T>();\n" + 
+				"    }\n" + 
+				"    public static <T> Iterable<T> emptyIterable() {\n" + 
+				"        return new ArrayList<T>();\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"    	 // generic inference using expected lhs type: T --> String\n" + 
+				"        final List<String> lL = emptyList(); // 1\n" + 
+				"        \n" + 
+				"    	 // generic inference using expected cast type: T --> String\n" + 
+				"        final Collection<String> cL = (Collection<String>)emptyList(); // 2\n" + 
+				"        \n" + 
+				"    	 // generic inference using expected cast type: T --> String\n" + 
+				"        final Iterable<String> iL = (Iterable<String>)emptyList(); // 3\n" + 
+				"        \n" + 
+				"    	 // generic inference using expected lhs type: T --> String\n" + 
+				"        final Collection<String> cC = emptyCollection(); // 4\n" + 
+				"        \n" + 
+				"    	 // generic inference using expected cast type: T --> String\n" + 
+				"        final Iterable<String> iC = (Iterable<String>)emptyCollection(); // 5\n" + 
+				"        \n" + 
+				"    	 // generic inference using expected lhs type: T --> String\n" + 
+				"        final Iterable<String> iI = emptyIterable(); // 6\n" + 
+				"        \n" + 
+				"    	 // generic inference using expected lhs type: T --> String\n" + 
+				"        final Collection<String> cL2 = emptyList(); // 7\n" + 
+				"        \n" + 
+				"    	 // generic inference using expected lhs type: T --> String\n" + 
+				"        final Iterable<String> iC2 = emptyCollection(); // 8\n" + 
+				"    }\n" + 
+				"}"
+			},
+			""
+		);
+	}		
 }

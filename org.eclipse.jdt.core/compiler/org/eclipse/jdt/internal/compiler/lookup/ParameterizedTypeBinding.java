@@ -57,13 +57,22 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (this.arguments == null) return;
 		if (otherType instanceof ReferenceBinding) {
 			// allow List<T> to match with LinkedList<String>
+			ReferenceBinding equivalent = this;
 	        ReferenceBinding otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeErasingTo((ReferenceBinding)this.type.erasure());
-	        if (otherEquivalent != null && otherEquivalent.isParameterizedType()) {
-		        ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) otherEquivalent;
+	        if (otherEquivalent == null) {
+	        	// allow LinkedList<String> to match List<T> (downcast scenario)
+		    	equivalent = this.findSuperTypeErasingTo((ReferenceBinding)otherType.erasure());
+	        	if (equivalent == null || !equivalent.isParameterizedType())
+	        		return;
+	        	otherEquivalent = (ReferenceBinding)otherType;
+	        }
+	        if (equivalent.isParameterizedType() && otherEquivalent.isParameterizedType()) {
+	        	ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) equivalent;
+	        	ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) otherEquivalent;
 	            for (int i = 0, length = this.arguments.length; i < length; i++) {
-	                this.arguments[i].collectSubstitutes(otherParameterizedType.arguments[i], substitutes);
+	                parameterizedType.arguments[i].collectSubstitutes(otherParameterizedType.arguments[i], substitutes);
 	            }
-		    }
+	        }
 	    }
 	}
 	
