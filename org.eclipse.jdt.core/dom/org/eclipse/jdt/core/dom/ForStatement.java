@@ -120,9 +120,8 @@ public class ForStatement extends Statement {
 	 * statement.
 	 * <p>
 	 * The list should consist of either a list of so called statement 
-	 * expressions (JLS2, 14.8), or a list of variable declaration expressions
-	 * all with the same type. Otherwise, the for statement would have no Java
-	 * source equivalent.
+	 * expressions (JLS2, 14.8), or a single <code>VariableDeclarationExpression</code>. 
+	 * Otherwise, the for statement would have no Java source equivalent.
 	 * </p>
 	 * 
 	 * @return the live list of initializer expressions 
