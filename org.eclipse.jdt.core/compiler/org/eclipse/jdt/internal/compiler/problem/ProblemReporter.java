@@ -1565,15 +1565,7 @@ public void invalidSuperinterface(SourceTypeBinding type, TypeReference superint
 			superinterfaceRef.sourceStart,
 			superinterfaceRef.sourceEnd);
 }
-public void invalidType(Expression expression, TypeBinding type) {
-	// CODE should be UPDATED according to error coding in the different type binding errors
-	//The different targetted errors should be :
-		//UndefinedType
-		//NotVisibleType
-		//AmbiguousType
-		//InternalTypeNameProvided
-		//InheritedTypeHidesEnclosingName
-
+public void invalidType(AstNode location, TypeBinding type) {
 	int flag = IProblem.UndefinedType; // default
 	switch (type.problemId()) {
 		case NotFound :
@@ -1600,8 +1592,8 @@ public void invalidType(Expression expression, TypeBinding type) {
 	this.handle(
 		flag,
 		new String[] {new String(type.readableName())},
-		expression.sourceStart,
-		expression.sourceEnd);
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void invalidTypeReference(Expression expression) {
 	this.handle(

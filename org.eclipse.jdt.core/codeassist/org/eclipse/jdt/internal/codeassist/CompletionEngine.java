@@ -148,7 +148,7 @@ public final class CompletionEngine
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 				compilerOptions,
 				new DefaultProblemFactory(Locale.getDefault()) {
-					public void record(IProblem problem, CompilationResult unitResult) {
+					public void record(IProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
 						if (problem.isError() && (problem.getID() & IProblem.Syntax) != 0) {
 							CompletionEngine.this.requestor.acceptError(problem);
 						}

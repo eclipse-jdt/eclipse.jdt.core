@@ -329,7 +329,7 @@ public FieldBinding[] fields() {
 	
 	try {
 		int failed = 0;
-		for (int f = fields.length; --f >= 0;) {
+		for (int f = 0, max = fields.length; f < max; f++) {
 			if (resolveTypeFor(fields[f]) == null) {
 				fields[f] = null;
 				failed++;
@@ -659,7 +659,7 @@ public MethodBinding[] methods() {
 			return methods;
 	
 		int failed = 0;
-		for (int m = methods.length; --m >= 0;) {
+		for (int m = 0, max = methods.length; m < max; m++) {
 			if (resolveTypesFor(methods[m]) == null) {
 				methods[m] = null; // unable to resolve parameters
 				failed++;
@@ -744,6 +744,7 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 		field.type = fieldDecls[f].getTypeBinding(scope);
 		if (!field.type.isValidBinding()) {
 			scope.problemReporter().fieldTypeProblem(this, fieldDecls[f], field.type);
+			//scope.problemReporter().invalidType(fieldDecls[f].type, field.type);
 			fieldDecls[f].binding = null;
 			return null;
 		}
@@ -777,6 +778,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			resolvedExceptionType = (ReferenceBinding) exceptionTypes[i].getTypeBinding(scope);
 			if (!resolvedExceptionType.isValidBinding()) {
 				methodDecl.scope.problemReporter().exceptionTypeProblem(this, methodDecl, exceptionTypes[i], resolvedExceptionType);
+				//methodDecl.scope.problemReporter().invalidType(exceptionTypes[i], resolvedExceptionType);
 				continue;
 			}
 			if (throwable != resolvedExceptionType && !throwable.isSuperclassOf(resolvedExceptionType)) {
@@ -799,6 +801,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			method.parameters[i] = arg.type.getTypeBinding(scope);
 			if (!method.parameters[i].isValidBinding()) {
 				methodDecl.scope.problemReporter().argumentTypeProblem(this, methodDecl, arg, method.parameters[i]);
+				//methodDecl.scope.problemReporter().invalidType(arg, method.parameters[i]);
 				foundArgProblem = true;
 			} else if (method.parameters[i] == VoidBinding) {
 				methodDecl.scope.problemReporter().argumentTypeCannotBeVoid(this, methodDecl, arg);
@@ -821,6 +824,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			method.returnType = returnType.getTypeBinding(scope);
 			if (!method.returnType.isValidBinding()) {
 				methodDecl.scope.problemReporter().returnTypeProblem(this, (MethodDeclaration) methodDecl, method.returnType);
+				//methodDecl.scope.problemReporter().invalidType(returnType, method.returnType);
 				method.returnType = null;
 				foundReturnTypeProblem = true;
 			} else if (method.returnType.isArrayType() && ((ArrayBinding) method.returnType).leafComponentType == VoidBinding) {

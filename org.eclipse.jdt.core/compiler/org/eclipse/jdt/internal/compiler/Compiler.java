@@ -22,6 +22,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public CompilerOptions options;
 	public ProblemReporter problemReporter;
 
+	public static int MaxProblemPerUnit = 50;
+	
 	// management of unit to be processed
 	//public CompilationUnitResult currentCompilationUnitResult;
 	CompilationUnitDeclaration[] unitsToProcess;
@@ -420,11 +422,13 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 							Util.bind("compilation.internalError" ) //$NON-NLS-1$
 								+ "\n"  //$NON-NLS-1$
 								+ buffer.toString()},
-						Error,
-			// severity
-			0, // source start
-			0, // source end
-			0)); // line number		
+						Error, // severity
+						0, // source start
+						0, // source end
+						0, // line number		
+						unit,
+						result),
+					unit);
 
 			/* hand back the compilation result */
 			if (!result.hasBeenAccepted) {
@@ -469,11 +473,13 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 							result.getFileName(),
 							abortException.problemId,
 							abortException.problemArguments,
-							Error,
-				// severity
-				0, // source start
-				0, // source end
-				0)); // line number
+							Error, // severity
+							0, // source start
+							0, // source end
+							0, // line number		
+							unit,
+							result),
+						unit);				
 			} else {
 				/* distant internal exception which could not be reported back there */
 				if (abortException.exception != null) {

@@ -251,6 +251,10 @@ public abstract class AbstractMethodDeclaration
 		}
 	}
 
+	public boolean hasErrors() {
+		return this.ignoreFurtherInvestigation;
+	}
+
 	public boolean isAbstract() {
 
 		if (binding != null)

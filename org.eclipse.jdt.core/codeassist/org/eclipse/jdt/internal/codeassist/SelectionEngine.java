@@ -78,8 +78,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 				options,
 				new DefaultProblemFactory(Locale.getDefault())) {
-			public void record(IProblem problem, CompilationResult unitResult) {
-				unitResult.record(problem);
+			public void record(IProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
+				unitResult.record(problem, referenceContext);
 				SelectionEngine.this.requestor.acceptError(problem);
 			}
 		};

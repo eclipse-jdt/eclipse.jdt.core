@@ -81,8 +81,8 @@ public SourceElementParser(
 		DefaultErrorHandlingPolicies.exitAfterAllProblems(),
 		options, 
 		problemFactory) {
-		public void record(IProblem problem, CompilationResult unitResult) {
-			unitResult.record(problem);
+		public void record(IProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
+			unitResult.record(problem, referenceContext);
 			requestor.acceptProblem(problem);
 		}
 	},

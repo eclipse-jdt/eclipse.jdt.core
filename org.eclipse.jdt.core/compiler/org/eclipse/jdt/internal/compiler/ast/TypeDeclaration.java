@@ -799,6 +799,10 @@ public class TypeDeclaration
 		return (modifiers & AccInterface) != 0;
 	}
 
+	public boolean hasErrors() {
+		return this.ignoreFurtherInvestigation;
+	}
+
 	/**
 	 * A <clinit> will be requested as soon as static fields or assertions are present. It will be eliminated during
 	 * classfile creation if no bytecode was actually produced based on some optimizations/compiler settings.

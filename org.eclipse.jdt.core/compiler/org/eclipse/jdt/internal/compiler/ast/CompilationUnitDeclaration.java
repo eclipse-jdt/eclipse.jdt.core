@@ -172,6 +172,10 @@ public class CompilationUnitDeclaration
 		return (currentPackage == null) && (imports == null) && (types == null);
 	}
 
+	public boolean hasErrors() {
+		return this.ignoreFurtherInvestigation;
+	}
+
 	/*
 	 * Force inner local types to update their innerclass emulation
 	 */
@@ -218,7 +222,6 @@ public class CompilationUnitDeclaration
 	}
 
 	public void tagAsHavingErrors() {
-
 		ignoreFurtherInvestigation = true;
 	}
 

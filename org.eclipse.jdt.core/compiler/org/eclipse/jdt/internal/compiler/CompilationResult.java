@@ -26,7 +26,10 @@ package org.eclipse.jdt.internal.compiler;
  */
 
 import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 
 import java.util.*;
 
@@ -34,7 +37,10 @@ public class CompilationResult {
 	public IProblem problems[];
 	public int problemCount;
 	public ICompilationUnit compilationUnit;
-
+	private Map problemsMap;
+	private Map firstErrorsMap;
+	private HashSet duplicateProblems;
+	
 	public char[][][] qualifiedReferences;
 	public char[][] simpleNameReferences;
 
@@ -64,6 +70,38 @@ public CompilationResult(
 	this.unitIndex = unitIndex;
 	this.totalUnitsKnown = totalUnitsKnown;
 
+}
+private int computePriority(IProblem problem){
+
+	final int P_STATIC = 1000;
+	final int P_OUTSIDE_METHOD = 3000;
+	final int P_FIRST_ERROR = 1000;
+	final int P_ERROR = 10000;
+	
+	int priority = 1000 - problem.getSourceLineNumber(); // early problems first
+	if (priority < 0) priority = 0;
+	
+	if (problem.isError()){
+		priority += P_ERROR;
+	}
+	ReferenceContext context = (ReferenceContext) problemsMap.get(problem);
+	if (context != null){
+		if (context instanceof AbstractMethodDeclaration){
+			AbstractMethodDeclaration method = (AbstractMethodDeclaration) context;
+			if (method.isStatic()) {
+				priority += P_STATIC;
+			}
+		} else {
+		priority += P_OUTSIDE_METHOD;
+		}
+	} else {
+		priority += P_OUTSIDE_METHOD;
+	}
+	if (firstErrorsMap.containsKey(problem)){
+		priority += P_FIRST_ERROR;
+	}
+		
+	return priority;
 }
 public ClassFile[] getClassFiles() {
 	Enumeration enum = compiledTypes.elements();
@@ -95,18 +133,26 @@ public char[] getFileName(){
  * problems.
  */
 public IProblem[] getProblems() {
-
+	
 	// Re-adjust the size of the problems if necessary.
 	if (problems != null) {
-		if (problemCount != problems.length) {
+
+		if (this.problemCount != problems.length) {
 			System.arraycopy(problems, 0, (problems = new IProblem[problemCount]), 0, problemCount);
 		}
-
+/*				 
+		if (this.problemCount > Compiler.MaxProblemPerUnit){
+			quickPrioritize(problems, 0, problemCount - 1);
+			this.problemCount = Compiler.MaxProblemPerUnit;
+			System.arraycopy(problems, 0, (problems = new IProblem[problemCount]), 0, problemCount);
+		}
+*/
 		// Sort problems per source positions.
 		quicksort(problems, 0, problems.length-1);
 	}
 	return problems;
 }
+
 public boolean hasErrors() {
 	if (problems != null)
 		for (int i = 0; i < problemCount; i++) {
@@ -126,6 +172,7 @@ public boolean hasWarnings() {
 		}
 	return false;
 }
+
 private static void quicksort(IProblem arr[], int left, int right) {
 	int i, last, pos;
 
@@ -149,13 +196,38 @@ private static void quicksort(IProblem arr[], int left, int right) {
 	quicksort(arr, left, last - 1);
 	quicksort(arr, last + 1, right);
 }
+
+private void quickPrioritize(IProblem arr[], int left, int right) {
+	int i, last, prio;
+
+	if (left >= right) {
+		/* do nothing if array contains fewer than two */
+		return;
+		/* two elements */
+	}
+
+	swap(arr, left, (left + right) / 2);
+	last = left;
+	prio = computePriority(arr[left]);
+
+	for (i = left + 1; i <= right; i++) {
+		if (computePriority(arr[i]) > prio) {
+			swap(arr, ++last, i);
+		}
+	}
+
+	swap(arr, left, last);
+	quickPrioritize(arr, left, last - 1);
+	quickPrioritize(arr, last + 1, right);
+}
+
 /**
  * For now, remember the compiled type using its compound name.
  */
 public void record(char[] typeName, ClassFile classFile) {
 	compiledTypes.put(typeName, classFile);
 }
-public void record(IProblem newProblem) {
+public void record(IProblem newProblem, ReferenceContext referenceContext) {
 	if (problemCount == 0) {
 		problems = new IProblem[5];
 	} else {
@@ -163,6 +235,12 @@ public void record(IProblem newProblem) {
 			System.arraycopy(problems, 0, (problems = new IProblem[problemCount * 2]), 0, problemCount);
 	};
 	problems[problemCount++] = newProblem;
+	if (referenceContext != null){
+		if (problemsMap == null) problemsMap = new Hashtable(5);
+		if (firstErrorsMap == null) firstErrorsMap = new Hashtable(5);
+		if (newProblem.isError() && !referenceContext.hasErrors()) firstErrorsMap.put(newProblem, newProblem);
+		problemsMap.put(newProblem, referenceContext);
+	}
 }
 private static void swap(IProblem arr[], int i, int j) {
 	IProblem tmp;
@@ -172,6 +250,7 @@ private static void swap(IProblem arr[], int i, int j) {
 }
 CompilationResult tagAsAccepted(){
 	this.hasBeenAccepted = true;
+	this.problemsMap = null; // flush
 	return this;
 }
 }

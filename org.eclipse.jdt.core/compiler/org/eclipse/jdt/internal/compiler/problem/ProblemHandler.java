@@ -49,7 +49,9 @@ public IProblem createProblem(
 	int severity, 
 	int problemStartPosition, 
 	int problemEndPosition, 
-	int lineNumber) {
+	int lineNumber,
+	ReferenceContext referenceContext,
+	CompilationResult unitResult) {
 
 	return problemFactory.createProblem(
 		fileName, 
@@ -91,12 +93,15 @@ public void handle(
 			problemEndPosition, 
 			problemStartPosition >= 0
 				? searchLineNumber(unitResult.lineSeparatorPositions, problemStartPosition)
-				: 0); 
-
+				: 0,
+			referenceContext,
+			unitResult); 
+	if (problem == null) return; // problem couldn't be created, ignore
+	
 	switch (severity & Error) {
 		case Error :
+			this.record(problem, unitResult, referenceContext);
 			referenceContext.tagAsHavingErrors();
-			this.record(problem, unitResult);
 
 			// should abort ?
 			int abortLevel;
@@ -107,7 +112,7 @@ public void handle(
 			}
 			break;
 		case Warning :
-			this.record(problem, unitResult);
+			this.record(problem, unitResult, referenceContext);
 			break;
 	}
 }
@@ -132,8 +137,8 @@ public void handle(
 		referenceContext,
 		unitResult);
 }
-public void record(IProblem problem, CompilationResult unitResult) {
-	unitResult.record(problem);
+public void record(IProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
+	unitResult.record(problem, referenceContext);
 }
 /**
  * Search the line number corresponding to a specific position
