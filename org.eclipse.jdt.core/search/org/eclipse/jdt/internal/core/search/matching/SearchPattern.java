@@ -31,7 +31,6 @@ import org.eclipse.jdt.core.search.ISearchPattern;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -297,7 +296,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 			// read type 
 			case InsideType:
 				switch (token) {
-					case Scanner.TokenNameWHITESPACE:
+					case TerminalTokens.TokenNameWHITESPACE:
 						break;
 					default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 						if (type == null){
@@ -440,7 +439,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
  */
 private static SearchPattern createMethodPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, CompilerOptions.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/); 
+	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/); 
 	scanner.setSource(patternString.toCharArray());
 	final int InsideSelector = 1;
 	final int InsideParameter = 2;
@@ -480,8 +479,8 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 						parameterCount = 0;
 						mode = InsideParameter;
 						break;
-					case Scanner.TokenNameWHITESPACE:
-						if (!(Scanner.TokenNameWHITESPACE == lastToken 
+					case TerminalTokens.TokenNameWHITESPACE:
+						if (!(TerminalTokens.TokenNameWHITESPACE == lastToken 
 							|| TerminalTokens.TokenNameDOT == lastToken)){
 							mode = InsideReturnType;
 						}
@@ -498,7 +497,7 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 			// read parameter types
 			case InsideParameter :
 				switch (token) {
-					case Scanner.TokenNameWHITESPACE:
+					case TerminalTokens.TokenNameWHITESPACE:
 						break;
 					case TerminalTokens.TokenNameCOMMA:
 						if (parameterType == null) return null;
@@ -529,7 +528,7 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 			// read return type
 			case InsideReturnType:
 				switch (token) {
-					case Scanner.TokenNameWHITESPACE:
+					case TerminalTokens.TokenNameWHITESPACE:
 						break;
 					default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 						if (returnType == null){
@@ -1041,7 +1040,7 @@ private static SearchPattern createTypePattern(char[] simpleName, char[] package
  */
 private static SearchPattern createTypePattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, CompilerOptions.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/); 
+	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/); 
 	scanner.setSource(patternString.toCharArray());
 	String type = null;
 	int token;
@@ -1052,7 +1051,7 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 	}
 	while (token != TerminalTokens.TokenNameEOF){
 		switch (token) {
-			case Scanner.TokenNameWHITESPACE:
+			case TerminalTokens.TokenNameWHITESPACE:
 				break;
 			default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 				if (type == null){

@@ -27,7 +27,9 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.util.CompilationUnitSorter;
 import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
@@ -41,8 +43,8 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		SortElement(int sourceStart, int modifiers) {
 			super(SortElementBuilder.this);
 			this.sourceStart = normalizeSourceStart(sourceStart);
-			modifiers &= ~org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccInterface; // remove AccInterface flags
-			modifiers &= org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag;
+			modifiers &= ~IConstants.AccInterface; // remove AccInterface flags
+			modifiers &= CompilerModifiers.AccJustFlag;
 			this.modifiers = modifiers;
 			this.children_count = 0;
 		}
@@ -928,7 +930,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		this.source = source;
 		this.comparator = comparator;
 		this.positionsToMap = positionsToMap;
-		this.scanner = new Scanner(false, false, false, CompilerOptions.JDK1_3/*sourceLevel*/, null, null);
+		this.scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_3/*sourceLevel*/, null, null);
 		this.ast = new AST();
 	}
 	

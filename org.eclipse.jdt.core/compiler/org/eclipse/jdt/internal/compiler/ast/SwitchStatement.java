@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -143,7 +144,7 @@ public class SwitchStatement extends Statement {
 				
 				// work-around 1.3 VM bug, if max>0x7FFF0000, must use lookup bytecode
 				// see http://dev.eclipse.org/bugs/show_bug.cgi?id=21557
-				if (max > 0x7FFF0000 && currentScope.environment().options.complianceLevel < CompilerOptions.JDK1_4) {
+				if (max > 0x7FFF0000 && currentScope.environment().options.complianceLevel < ClassFileConstants.JDK1_4) {
 					codeStream.lookupswitch(defaultLabel, constants, sortedIndexes, caseLabels);
 
 				} else {

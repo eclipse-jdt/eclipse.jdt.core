@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.*;
@@ -1185,7 +1186,7 @@ protected static byte[] readUntil(InputStream input, byte separator, int offset)
 		bytes[length++]=(byte)b;
 	}
 	if(b == -1) {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatus.ERROR));
+		throw new JavaModelException(new JavaModelStatus(IStatus.ERROR));
 	}
 	System.arraycopy(bytes, 0, bytes = new byte[length + offset], offset, length);
 	return bytes;
@@ -1201,7 +1202,7 @@ public static ITypeHierarchy load(IType type, InputStream input, WorkingCopyOwne
 		byte version = (byte)input.read();
 	
 		if(version != VERSION) {
-			throw new JavaModelException(new JavaModelStatus(IJavaModelStatus.ERROR));
+			throw new JavaModelException(new JavaModelStatus(IStatus.ERROR));
 		}
 		byte generalInfo = (byte)input.read();
 		if((generalInfo & COMPUTE_SUBTYPES) != 0) {
@@ -1266,7 +1267,7 @@ public static ITypeHierarchy load(IType type, InputStream input, WorkingCopyOwne
 			}
 			if((info & COMPUTED_FOR) != 0) {
 				if(!element.equals(type)) {
-					throw new JavaModelException(new JavaModelStatus(IJavaModelStatus.ERROR)); 
+					throw new JavaModelException(new JavaModelStatus(IStatus.ERROR)); 
 				}
 				typeHierarchy.focusType = element;
 			}
@@ -1321,7 +1322,7 @@ public static ITypeHierarchy load(IType type, InputStream input, WorkingCopyOwne
 				superInterfaces);
 		}
 		if(b == -1) {
-			throw new JavaModelException(new JavaModelStatus(IJavaModelStatus.ERROR));
+			throw new JavaModelException(new JavaModelStatus(IStatus.ERROR));
 		}
 		return typeHierarchy;
 	} catch(IOException e){

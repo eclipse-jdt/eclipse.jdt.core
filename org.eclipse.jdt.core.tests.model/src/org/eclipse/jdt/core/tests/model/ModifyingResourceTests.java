@@ -162,7 +162,7 @@ protected void deleteFolder(String folderPath) throws CoreException {
 protected IFile editFile(String path, String content) throws CoreException {
 	IFile file = this.getFile(path);
 	InputStream input = new ByteArrayInputStream(content.getBytes());
-	file.setContents(input, IFile.FORCE, null);
+	file.setContents(input, IResource.FORCE, null);
 	return file;
 }
 /* 

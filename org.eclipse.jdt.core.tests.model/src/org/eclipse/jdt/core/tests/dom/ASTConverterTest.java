@@ -3884,7 +3884,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("components size != 2", components.length == 2); //$NON-NLS-1$
 		assertEquals("wrong component name", "test0168", components[0]); //$NON-NLS-1$ //$NON-NLS-2$
 		assertEquals("wrong component name", "test1", components[1]); //$NON-NLS-1$ //$NON-NLS-2$
-		assertEquals("wrong type", IPackageBinding.PACKAGE, packageBinding.getKind()); //$NON-NLS-1$
+		assertEquals("wrong type", IBinding.PACKAGE, packageBinding.getKind()); //$NON-NLS-1$
 		assertTrue("Unnamed package", !packageBinding.isUnnamed()); //$NON-NLS-1$
 		assertTrue("Package binding is not canonical", packageBinding == typeBinding.getPackage()); //$NON-NLS-1$
 	}
@@ -3910,7 +3910,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("no components", components); //$NON-NLS-1$
 		assertTrue("components size != 1", components.length == 1); //$NON-NLS-1$
 		assertEquals("wrong component name", "test0169", components[0]); //$NON-NLS-1$ //$NON-NLS-2$
-		assertEquals("wrong type", IPackageBinding.PACKAGE, packageBinding.getKind()); //$NON-NLS-1$
+		assertEquals("wrong type", IBinding.PACKAGE, packageBinding.getKind()); //$NON-NLS-1$
 		assertTrue("Unnamed package", !packageBinding.isUnnamed()); //$NON-NLS-1$
 		assertTrue("Package binding is not canonical", packageBinding == typeBinding.getPackage()); //$NON-NLS-1$
 	}
@@ -3935,7 +3935,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		String[] components = packageBinding.getNameComponents();
 		assertNotNull("no components", components); //$NON-NLS-1$
 		assertTrue("components size != 0", components.length == 0); //$NON-NLS-1$
-		assertEquals("wrong type", IPackageBinding.PACKAGE, packageBinding.getKind()); //$NON-NLS-1$
+		assertEquals("wrong type", IBinding.PACKAGE, packageBinding.getKind()); //$NON-NLS-1$
 		assertTrue("Not an unnamed package", packageBinding.isUnnamed()); //$NON-NLS-1$
 		assertTrue("Package binding is not canonical", packageBinding == typeBinding.getPackage()); //$NON-NLS-1$
 	}
@@ -3961,7 +3961,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("no components", components); //$NON-NLS-1$
 		assertTrue("components size != 1", components.length == 1); //$NON-NLS-1$
 		assertEquals("wrong component name", "test0171", components[0]); //$NON-NLS-1$ //$NON-NLS-2$
-		assertEquals("wrong type", IPackageBinding.PACKAGE, packageBinding.getKind()); //$NON-NLS-1$
+		assertEquals("wrong type", IBinding.PACKAGE, packageBinding.getKind()); //$NON-NLS-1$
 		assertTrue("Unnamed package", !packageBinding.isUnnamed()); //$NON-NLS-1$
 		assertTrue("Package binding is not canonical", packageBinding == typeBinding.getPackage()); //$NON-NLS-1$
 		

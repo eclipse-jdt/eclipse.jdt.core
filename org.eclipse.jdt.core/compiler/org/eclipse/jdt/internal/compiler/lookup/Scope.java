@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -438,7 +438,7 @@ public abstract class Scope
 			currentType = getJavaLangObject();
 		}
 
-		boolean isCompliant14 = compilationUnitScope().environment.options.complianceLevel >= CompilerOptions.JDK1_4;
+		boolean isCompliant14 = compilationUnitScope().environment.options.complianceLevel >= ClassFileConstants.JDK1_4;
 		// superclass lookup
 		ReferenceBinding classHierarchyStart = currentType;
 		while (currentType != null) {
@@ -692,7 +692,7 @@ public abstract class Scope
 		TypeBinding leafType = receiverType.leafComponentType();
 		if (leafType instanceof ReferenceBinding) {
 			if (!((ReferenceBinding) leafType).canBeSeenBy(this))
-				return new ProblemMethodBinding(selector, MethodBinding.NoParameters, (ReferenceBinding)leafType, ReceiverTypeNotVisible);
+				return new ProblemMethodBinding(selector, TypeConstants.NoParameters, (ReferenceBinding)leafType, ReceiverTypeNotVisible);
 		}
 
 		ReferenceBinding object = getJavaLangObject();
@@ -701,7 +701,7 @@ public abstract class Scope
 			// handle the method clone() specially... cannot be protected or throw exceptions
 			if (argumentTypes == NoParameters && CharOperation.equals(selector, CLONE))
 				return new UpdatedMethodBinding(
-					environment().options.targetJDK >= CompilerOptions.JDK1_4 ? (TypeBinding)receiverType : (TypeBinding)object, // remember its array type for codegen purpose on target>=1.4.0
+					environment().options.targetJDK >= ClassFileConstants.JDK1_4 ? (TypeBinding)receiverType : (TypeBinding)object, // remember its array type for codegen purpose on target>=1.4.0
 					(methodBinding.modifiers ^ AccProtected) | AccPublic,
 					CLONE,
 					methodBinding.returnType,
@@ -923,7 +923,7 @@ public abstract class Scope
 									}
 								}
 								if (enclosingType == fieldBinding.declaringClass
-									|| environment().options.complianceLevel >= CompilerOptions.JDK1_4){
+									|| environment().options.complianceLevel >= ClassFileConstants.JDK1_4){
 									// found a valid field in the 'immediate' scope (ie. not inherited)
 									// OR in 1.4 mode (inherited shadows enclosing)
 									if (foundField == null) {
@@ -1266,7 +1266,7 @@ public abstract class Scope
 							}
 							if (memberType.isValidBinding()) {
 								if (sourceType == memberType.enclosingType()
-										|| environment().options.complianceLevel >= CompilerOptions.JDK1_4) {
+										|| environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
 									// found a valid type in the 'immediate' scope (ie. not inherited)
 									// OR in 1.4 mode (inherited shadows enclosing)
 									if (foundType == null)

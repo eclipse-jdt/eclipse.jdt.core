@@ -816,7 +816,7 @@ public class TestingEnvironment {
 			checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 			IProject p = getProject(projectPath);
 			IFolder f = p.getFolder(name);
-			f.createLink(externalOutputLocation, IFolder.ALLOW_MISSING_LOCAL, null);
+			f.createLink(externalOutputLocation, IResource.ALLOW_MISSING_LOCAL, null);
 
 			result = f.getFullPath();
 			IJavaProject javaProject = JavaCore.create(p);

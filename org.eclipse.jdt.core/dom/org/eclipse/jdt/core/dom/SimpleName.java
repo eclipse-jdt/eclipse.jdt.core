@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 /**
  * AST node for a simple name. A simple name is an identifier other than
@@ -118,7 +119,7 @@ public class SimpleName extends Name {
 		try {
 			int tokenType = scanner.getNextToken();
 			switch(tokenType) {
-				case Scanner.TokenNameIdentifier:
+				case TerminalTokens.TokenNameIdentifier:
 					break;
 				default:
 					throw new IllegalArgumentException();

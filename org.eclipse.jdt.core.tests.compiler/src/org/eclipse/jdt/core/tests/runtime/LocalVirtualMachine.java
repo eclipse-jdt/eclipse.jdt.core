@@ -81,7 +81,7 @@ protected void cleanupTargetPath() throws TargetException {
 	if (LocalVMLauncher.TARGET_HAS_FILE_SYSTEM) {
 		cleanupDirectory(new File(targetPath, LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY));
 		cleanupDirectory(new File(targetPath, LocalVMLauncher.BOOT_CLASSPATH_DIRECTORY));
-		File file = new File(targetPath, LocalVMLauncher.SUPPORT_ZIP_FILE_NAME);
+		File file = new File(targetPath, RuntimeConstants.SUPPORT_ZIP_FILE_NAME);
 
 		// workaround pb with Process.exitValue() that returns the process has exited, but it has not free the file yet
 		int count = 10;

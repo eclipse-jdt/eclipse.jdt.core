@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.internal.core.JavaModelStatus;
 
 import junit.framework.*;
 
@@ -404,7 +403,7 @@ public void testResolveInvalidResolve() throws JavaModelException {
 	try {
 		cu.codeSelect(-1, 10); 
 	} catch (JavaModelException jme) {
-		assertTrue("Incorrect status on the JavaModelException", jme.getStatus().getCode() == JavaModelStatus.INDEX_OUT_OF_BOUNDS);
+		assertTrue("Incorrect status on the JavaModelException", jme.getStatus().getCode() == IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS);
 		return;
 	}
 	assertTrue("Exception should have been thrown for out of bounds resolution", false);

@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 
 import junit.framework.*;
@@ -59,7 +60,7 @@ public void testCodeSnippetAssistForClassFile() throws JavaModelException {
 		
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
-	int[] modifiers = {CompilerModifiers.AccDefault, CompilerModifiers.AccFinal};
+	int[] modifiers = {CompilerModifiers.AccDefault, IConstants.AccFinal};
 	
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
 	
@@ -85,7 +86,7 @@ public void testCodeSnippetAssistForCompilationUnit() throws JavaModelException 
 		
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
-	int[] modifiers = {CompilerModifiers.AccDefault, CompilerModifiers.AccFinal};
+	int[] modifiers = {CompilerModifiers.AccDefault, IConstants.AccFinal};
 
 	String insertAftrer = "Victory{}";
 	String s = cu.getSource();
@@ -118,7 +119,7 @@ public void testCodeSnippetAssistForClassFileWithSource() throws JavaModelExcept
 		
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
-	int[] modifiers = {CompilerModifiers.AccDefault, CompilerModifiers.AccFinal};
+	int[] modifiers = {CompilerModifiers.AccDefault, IConstants.AccFinal};
 
 	String insertAftrer = "Victory{}";
 	String s = cf.getSource();
@@ -152,7 +153,7 @@ public void testCodeSnippetAssistForCompilationUnitWithoutSource() throws JavaMo
 		
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
-	int[] modifiers = {CompilerModifiers.AccDefault, CompilerModifiers.AccFinal};
+	int[] modifiers = {CompilerModifiers.AccDefault, IConstants.AccFinal};
 
 	int insertion = -1;
 
@@ -181,7 +182,7 @@ public void testCodeSnippetAssistForClassFileInInnerClass() throws JavaModelExce
 		
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
-	int[] modifiers = {CompilerModifiers.AccDefault, CompilerModifiers.AccFinal};
+	int[] modifiers = {CompilerModifiers.AccDefault, IConstants.AccFinal};
 
 	String insertAftrer = "Victory{}";
 	String s = cf.getSource();

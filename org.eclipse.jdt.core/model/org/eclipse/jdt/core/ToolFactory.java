@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -271,7 +272,7 @@ public class ToolFactory {
 	 */
 	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean assertMode, boolean recordLineSeparator){
 
-		PublicScanner scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, assertMode ? CompilerOptions.JDK1_4 : CompilerOptions.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/);
+		PublicScanner scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, assertMode ? ClassFileConstants.JDK1_4 : ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/);
 		scanner.recordLineSeparator = recordLineSeparator;
 		return scanner;
 	}
@@ -313,7 +314,7 @@ public class ToolFactory {
 	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean recordLineSeparator, String sourceLevel) {
 		PublicScanner scanner = null;
 		long level = CompilerOptions.versionToJdkLevel(sourceLevel);
-		if (level == 0) level = CompilerOptions.JDK1_3; // fault-tolerance
+		if (level == 0) level = ClassFileConstants.JDK1_3; // fault-tolerance
 		scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/,level /*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/);
 		scanner.recordLineSeparator = recordLineSeparator;
 		return scanner;

@@ -11,10 +11,10 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -64,7 +64,7 @@ public class ThrowStatement extends Statement {
 		exceptionType = exception.resolveTypeExpecting(scope, scope.getJavaLangThrowable());
 		
 		if (exceptionType == NullBinding
-				&& scope.environment().options.complianceLevel <= CompilerOptions.JDK1_3){
+				&& scope.environment().options.complianceLevel <= ClassFileConstants.JDK1_3){
 			// if compliant with 1.4, this problem will not be reported
 			scope.problemReporter().cannotThrowNull(this);
 	 	}

@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 /**
  * String literal nodes.
@@ -112,7 +113,7 @@ public class StringLiteral extends Expression {
 		try {
 			int tokenType = scanner.getNextToken();
 			switch(tokenType) {
-				case Scanner.TokenNameStringLiteral:
+				case TerminalTokens.TokenNameStringLiteral:
 					break;
 				default:
 					throw new IllegalArgumentException();
@@ -158,7 +159,7 @@ public class StringLiteral extends Expression {
 		try {
 			int tokenType = scanner.getNextToken();
 			switch(tokenType) {
-				case Scanner.TokenNameStringLiteral:
+				case TerminalTokens.TokenNameStringLiteral:
 					return new String(scanner.getCurrentTokenSourceString());
 				default:
 					throw new IllegalArgumentException();

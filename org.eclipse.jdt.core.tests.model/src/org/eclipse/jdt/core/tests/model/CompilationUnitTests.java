@@ -79,7 +79,7 @@ public void testCommit() throws JavaModelException {
 	try {
 		this.cu.commit(false, null);
 	} catch (JavaModelException jme) {
-		assertTrue("Incorrect status for committing a CompilationUnit", jme.getStatus().getCode() == JavaModelStatus.INVALID_ELEMENT_TYPES);
+		assertTrue("Incorrect status for committing a CompilationUnit", jme.getStatus().getCode() == IJavaModelStatusConstants.INVALID_ELEMENT_TYPES);
 		return;
 	}
 	assertTrue("A compilation unit should throw an exception is a commit is attempted", false);

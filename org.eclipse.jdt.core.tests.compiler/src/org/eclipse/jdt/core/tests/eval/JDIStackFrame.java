@@ -15,6 +15,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import junit.framework.Assert;
+
 import org.eclipse.jdt.core.tests.runtime.RuntimeConstants;
 import org.eclipse.jdt.internal.eval.EvaluationConstants;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
@@ -149,12 +151,12 @@ protected ThreadReference getDebuggedThread(DebugEvaluationTest test) {
 				requestor, 
 				test.getProblemFactory());
 		} catch (InstallException e) {
-			EvaluationTest.assertTrue("Target exception " + e.getMessage(), false);
+			Assert.assertTrue("Target exception " + e.getMessage(), false);
 		}
 		EvaluationResult[] results = requestor.results;
 		for (int i = 0; i < requestor.resultIndex + 1; i++){
 			if (results[i].hasErrors()) {
-				EvaluationTest.assertTrue("Compilation error in user code", false);
+				Assert.assertTrue("Compilation error in user code", false);
 			}
 		}
 
