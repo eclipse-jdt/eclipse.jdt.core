@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.core.util.*;
 
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
+import java.io.File;
 import java.util.*;
 
 public class JavaBuilder extends IncrementalProjectBuilder {
@@ -28,8 +29,10 @@ LookupTable prereqOutputFolders; // maps a prereq project to its output folder
 State lastState;
 BuildNotifier notifier;
 
-public static final String JavaExtension = "java"; //$NON-NLS-1$
-public static final String ClassExtension = "class"; //$NON-NLS-1$
+public static final String JAVA_EXTENSION = "java"; //$NON-NLS-1$
+public static final String CLASS_EXTENSION = "class"; //$NON-NLS-1$
+public static final String JAR_EXTENSION = "jar"; //$NON-NLS-1$
+public static final String ZIP_EXTENSION = "zip"; //$NON-NLS-1$
 
 public static boolean DEBUG = false;
 
@@ -250,43 +253,66 @@ private void initializeBuilder() throws CoreException {
 	*/
 
 	IClasspathEntry[] entries = ((JavaProject) javaProject).getExpandedClasspath(true);
-	int count = 0;
+	int srcCount = 0, cpCount = 0;
 	int max = entries.length;
 	this.sourceFolders = new IContainer[max];
-	this.classpath = new ClasspathLocation[entries.length];
+	this.classpath = new ClasspathLocation[max];
 	this.prereqOutputFolders = new LookupTable();
+	
 	for (int i = 0; i < max; i++) {
 		IClasspathEntry entry = entries[i];
-		IResource member = workspaceRoot.findMember(entry.getPath());
-		switch (entry.getEntryKind()) {
-			case IClasspathEntry.CPE_SOURCE :
-				if (member == null) continue;
-				sourceFolders[count] = (IContainer) member;
-				classpath[i] = ClasspathLocation.forSourceFolder(
-					sourceFolders[count++].getLocation().toString(),
-					outputFolder.getLocation().toString());
-				break;
+		Object target = JavaModel.getTarget(workspaceRoot, entry.getPath(), true);
+		if (target == null) continue;
+
+		if (target instanceof IResource){
+			
+			switch(entry.getEntryKind()){
+
+				case IClasspathEntry.CPE_SOURCE :
+
+					if (!(target instanceof IContainer)) continue;
+					sourceFolders[srcCount] = (IContainer) target;
+					classpath[cpCount++] = ClasspathLocation.forSourceFolder(
+						sourceFolders[srcCount++].getLocation().toOSString(),
+						outputFolder.getLocation().toOSString());
+					break;
+				
 			case IClasspathEntry.CPE_PROJECT :
-				if (member == null) continue;
-				IProject prereqProject = (IProject) member;
+
+				if (!(target instanceof IProject)) continue;
+				IProject prereqProject = (IProject) target;
 				IPath prereqPath = getJavaProject(prereqProject).getOutputLocation();
 				IResource prereqOutputFolder = prereqProject.getFullPath().equals(prereqPath)
 					? prereqProject
 					: workspaceRoot.findMember(prereqPath);
 				prereqOutputFolders.put(prereqProject, prereqOutputFolder);
-				classpath[i] = ClasspathLocation.forRequiredProject(prereqOutputFolder.getLocation().toString());
+				classpath[cpCount++] = ClasspathLocation.forRequiredProject(prereqOutputFolder.getLocation().toOSString());
 				break;
+
 			case IClasspathEntry.CPE_LIBRARY :
-				// Classpath entries do not know whether their path is workspace relative or
-				// filesystem based so see if a resource exists to match...
-				classpath[i] = member == null
-					? ClasspathLocation.forLibrary(entry.getPath().toString())
-					: ClasspathLocation.forLibrary(member.getLocation().toString());
+			
+				if (target instanceof IFile){
+					String extension = entry.getPath().getFileExtension();
+					if (!JAR_EXTENSION.equalsIgnoreCase(extension) && ZIP_EXTENSION.equalsIgnoreCase(extension)) continue;
+				} else if (!(target instanceof IFolder)){
+					continue;
+				}
+				classpath[cpCount++] = ClasspathLocation.forLibrary(((IResource)target).getLocation().toOSString());
 				break;
+			}
+		} else {
+			if (target instanceof File){
+				String extension = entry.getPath().getFileExtension();
+				if (!JAR_EXTENSION.equalsIgnoreCase(extension) && ZIP_EXTENSION.equalsIgnoreCase(extension)) continue;
+				classpath[cpCount++] = ClasspathLocation.forLibrary(entry.getPath().toOSString());
+			} 
+			break;
 		}
 	}
-	if (count < max)
-		System.arraycopy(sourceFolders, 0, (sourceFolders = new IContainer[count]), 0, count);
+	if (srcCount < max)
+		System.arraycopy(sourceFolders, 0, (sourceFolders = new IContainer[srcCount]), 0, srcCount);
+	if (cpCount < max)
+		System.arraycopy(classpath, 0, (classpath = new ClasspathLocation[cpCount]), 0, cpCount);
 }
 
 /**
