@@ -581,7 +581,7 @@ public void testGrowImports() throws JavaModelException {
 /**
  * Introduces a syntax error in the modifiers of a method.
  */
-public void testMethodWithError() throws JavaModelException, CoreException {
+public void testMethodWithError01() throws CoreException {
 	// Introduce syntax error
 	setWorkingCopyContents(
 		"package p1;\n" +
@@ -635,7 +635,7 @@ public void testMethodWithError() throws JavaModelException, CoreException {
 /**
  * Test reconcile force flag
  */
-public void testMethodWithError2() throws JavaModelException, CoreException {
+public void testMethodWithError02() throws CoreException {
 	String contents =
 		"package p1;\n" +
 		"import p2.*;\n" +
@@ -663,7 +663,7 @@ public void testMethodWithError2() throws JavaModelException, CoreException {
 /**
  * Test reconcile force flag off
  */
-public void testMethodWithError3() throws JavaModelException, CoreException {
+public void testMethodWithError03() throws CoreException {
 	String contents =
 		"package p1;\n" +
 		"import p2.*;\n" +
@@ -685,7 +685,7 @@ public void testMethodWithError3() throws JavaModelException, CoreException {
 /**
  * Test reconcile force flag + cancel
  */
-public void testMethodWithError4() throws JavaModelException, CoreException {
+public void testMethodWithError04() throws CoreException {
 
 	CancelingProblemRequestor myPbRequestor = new CancelingProblemRequestor();
 	
@@ -723,7 +723,7 @@ public void testMethodWithError4() throws JavaModelException, CoreException {
 /**
  * Test reconcile force flag off
  */
-public void testMethodWithError5() throws JavaModelException, CoreException {
+public void testMethodWithError05() throws CoreException {
 	try {
 		this.createFolder("/Reconciler/src/tests");
 		String contents =
@@ -800,7 +800,7 @@ public void testMethodWithError5() throws JavaModelException, CoreException {
  * Test that the creation of a working copy detects errors
  * (regression test for bug 33757 Problem not detected when opening a working copy)
  */
-public void testMethodWithError6() throws JavaModelException, CoreException {
+public void testMethodWithError06() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
 	try {
@@ -835,7 +835,7 @@ public void testMethodWithError6() throws JavaModelException, CoreException {
  * Test that the opening of a working copy detects errors
  * (regression test for bug 33757 Problem not detected when opening a working copy)
  */
-public void testMethodWithError7() throws JavaModelException, CoreException {
+public void testMethodWithError07() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
 	try {
@@ -877,11 +877,11 @@ public void testMethodWithError7() throws JavaModelException, CoreException {
  * Test that the units with similar names aren't presenting each other errors
  * (regression test for bug 39475)
  */
-public void testMethodWithError8() throws JavaModelException, CoreException {
+public void testMethodWithError08() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
 	try {
-		this.createFile(
+		createFile(
 			"/Reconciler/src/p1/X01.java", 
 			"package p1;\n" +
 			"public abstract class X01 {\n" +
@@ -894,7 +894,7 @@ public void testMethodWithError8() throws JavaModelException, CoreException {
 			"public class X01 extends p1.X01 {\n" +
 			"	public void bar(){}	\n"+
 			"}";
-		this.createFile(
+		createFile(
 			"/Reconciler/src/p2/X01.java", 
 			contents
 		);
@@ -915,10 +915,48 @@ public void testMethodWithError8() throws JavaModelException, CoreException {
 			"----------\n" // shouldn't report problem against p2.X01
 		);
 	} finally {
-		this.deleteFile("/Reconciler/src/p1/X01.java");
-		this.deleteFile("/Reconciler/src/p2/X01.java");
+		deleteFile("/Reconciler/src/p1/X01.java");
+		deleteFile("/Reconciler/src/p2/X01.java");
 	}
 }
+/*
+ * Scenario of reconciling using a working copy owner
+ */
+public void testMethodWithError09() throws CoreException {
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	ICompilationUnit workingCopy1 = null;
+	try {
+		workingCopy1 = getCompilationUnit("/Reconciler/src/p1/X1.java").getWorkingCopy(owner, null, null);
+		workingCopy1.getBuffer().setContents(
+			"package p1;\n" +
+			"public abstract class X1 {\n" +
+			"	public abstract void bar();	\n"+
+			"}"
+		);
+		this.cu = getCompilationUnit("Reconciler", "src", "p", "X.java");
+		this.problemRequestor =  new ProblemRequestor();
+		String contents = 
+			"package p;\n" +
+			"public class X extends p1.X1 {\n" +
+			"	public void bar(){}	\n"+
+			"}";
+		this.problemRequestor.initialize(contents.toCharArray());
+		this.workingCopy = this.cu.getWorkingCopy(owner, this.problemRequestor, null);
+
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n" // shouldn't report problem against p.X
+		);
+	} finally {
+		if (workingCopy1 != null) {
+			workingCopy1.discardWorkingCopy();
+		}
+	}
+}
+
 /**
  * Ensures that the reconciler handles member move correctly.
  */
