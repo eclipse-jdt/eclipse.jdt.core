@@ -80,6 +80,12 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	protected WorkingCopy getWorkingCopy() {
 		return (WorkingCopy)getElementToProcess();
 	}
+	/**
+	 * @see JavaModelOperation#isReadOnly
+	 */
+	public boolean isReadOnly() {
+		return true;
+	}
 	protected IJavaModelStatus verify() {
 		IJavaModelStatus status = super.verify();
 		if (!status.isOK()) {

@@ -51,5 +51,10 @@ public class RemoveSharedWorkingCopyOperation extends JavaModelOperation {
 	protected ICompilationUnit getCompilationUnit() {
 		return (ICompilationUnit)getElementToProcess();
 	}
-
+	/**
+	 * @see JavaModelOperation#isReadOnly
+	 */
+	public boolean isReadOnly() {
+		return true;
+	}
 }
