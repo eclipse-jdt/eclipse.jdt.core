@@ -2852,5 +2852,31 @@ public class AnnotationTest extends AbstractComparisonTest {
 		"	^^^^^^^^^^\n" + 
 		"The annotation @Inherited is disallowed for this location\n" + 
 		"----------\n");
-	}	
+	}
+	
+	// check handling of empty array initializer (binary check)
+	public void test094() {
+		this.runConformTest(
+			new String[] {
+				"I.java",
+				"import java.lang.annotation.Target;\n" +
+				"\n" +
+				"@Target({}) @interface I {}",
+			},
+			"");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@I public class X {}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	@I public class X {}\n" + 
+			"	^^\n" + 
+			"The annotation @I is disallowed for this location\n" + 
+			"----------\n",
+			null,
+			false,
+			null);
+	}
 }
