@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler.env;
 
 public interface IGenericType extends IDependent {
 
-	// Type kinds
+	// Type decl kinds
 	int CLASS_DECL = 1;
 	int INTERFACE_DECL = 2;
 	int ENUM_DECL = 3;	
