@@ -52,7 +52,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug73112";
 //		TESTS_NAMES = new String[] { "testBug83304" };
-//		TESTS_NUMBERS = new int[] { 83388 };
+//		TESTS_NUMBERS = new int[] { 83693 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -1663,6 +1663,36 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b86642/A.java void b86642.A.f(A) [A] EXACT_MATCH\n" + 
 			"src/b86642/B.java b86642.B [A] EXACT_MATCH\n" + 
 			"src/b86642/B.java void b86642.B.f(A) [A] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 83693: [search][javadoc] References to methods/constructors: range does not include parameter lists
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83693"
+	 */
+	public void testBug83693() throws CoreException {
+		resultCollector.showRule = true;
+		resultCollector.showInsideDoc = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83693/A.java",
+			"package b83693;\n" + 
+			"import static b83693.A.m;\n" + 
+			"/**\n" + 
+			" * @see A#m(int)\n" + 
+			" */\n" + 
+			"class A {\n" + 
+			"    static void m(int i) {\n" + 
+			"        b83693.A.m(i);\n" + 
+			"    }\n" + 
+			"}"
+		);
+		IMethod[] methods = workingCopies[0].getType("A").getMethods();
+		assertEquals("Invalid number of methods", 1, methods.length);
+		search(methods[0], REFERENCES);
+		assertSearchResults(
+			"src/b83693/A.java [b83693.A.m] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
+			"src/b83693/A.java b83693.A [m(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83693/A.java void b83693.A.m(int) [m(i)] EXACT_MATCH OUTSIDE_JAVADOC"
 		);
 	}
 }

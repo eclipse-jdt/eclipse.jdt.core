@@ -218,11 +218,13 @@ public class JavadocParser extends AbstractCommentParser {
 					JavadocAllocationExpression alloc = new JavadocAllocationExpression(this.identifierPositionStack[0]);
 					alloc.type = typeRef;
 					alloc.tagValue = this.tagValue;
+					alloc.sourceEnd = this.scanner.getCurrentTokenEndPosition();
 					return alloc;
 				} else {
 					JavadocMessageSend msg = new JavadocMessageSend(this.identifierStack[0], this.identifierPositionStack[0]);
 					msg.receiver = typeRef;
 					msg.tagValue = this.tagValue;
+					msg.sourceEnd = this.scanner.getCurrentTokenEndPosition();
 					return msg;
 				}
 			} else {
@@ -233,11 +235,13 @@ public class JavadocParser extends AbstractCommentParser {
 					alloc.arguments = expressions;
 					alloc.type = typeRef;
 					alloc.tagValue = this.tagValue;
+					alloc.sourceEnd = this.scanner.getCurrentTokenEndPosition();
 					return alloc;
 				} else {
 					JavadocMessageSend msg = new JavadocMessageSend(this.identifierStack[0], this.identifierPositionStack[0], expressions);
 					msg.receiver = typeRef;
 					msg.tagValue = this.tagValue;
+					msg.sourceEnd = this.scanner.getCurrentTokenEndPosition();
 					return msg;
 				}
 			}

@@ -1469,12 +1469,12 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	* @see G#G(Object)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The constructor G(Object) is undefined\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	* @see G#G(Exception)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^^^^^^^\n" + 
 			"Javadoc: The constructor G(Exception) is undefined\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 5)\n" + 
@@ -2007,7 +2007,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"----------\n" + 
 			"2. ERROR in Test.java (at line 3)\n" + 
 			"	* @see Unrelated1#Unrelated1(Object)\n" + 
-			"	                  ^^^^^^^^^^\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: The constructor Unrelated1(Object) is undefined\n" + 
 			"----------\n" + 
 			"3. ERROR in Test.java (at line 9)\n" + 
@@ -2113,7 +2113,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"----------\n" + 
 			"2. ERROR in Test.java (at line 3)\r\n" + 
 			"	* @see Unrelated1#Unrelated1(Number)\r\n" + 
-			"	                  ^^^^^^^^^^\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: The constructor Unrelated1(Number) is undefined\n" + 
 			"----------\n" + 
 			"3. ERROR in Test.java (at line 8)\r\n" + 
@@ -2221,7 +2221,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"----------\n" + 
 			"2. ERROR in Test.java (at line 3)\n" + 
 			"	* @see Unrelated1#Unrelated1(Integer)\n" + 
-			"	                  ^^^^^^^^^^\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: The constructor Unrelated1(Integer) is undefined\n" + 
 			"----------\n" + 
 			"3. ERROR in Test.java (at line 9)\n" + 

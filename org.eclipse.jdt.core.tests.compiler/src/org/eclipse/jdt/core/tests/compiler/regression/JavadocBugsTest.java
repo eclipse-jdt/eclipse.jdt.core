@@ -393,7 +393,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 7)\n" + 
 				"	* @see #X(String)\n" + 
-				"	        ^\n" + 
+				"	        ^^^^^^^^^\n" + 
 				"Javadoc: The constructor X(String) is undefined\n" + 
 				"----------\n"
 		);
@@ -3425,7 +3425,7 @@ public class JavadocBugsTest extends JavadocTest {
 				"----------\n" + 
 				"5. ERROR in Y.java (at line 8)\n" + 
 				"	/** @see X#foo() */\n" + 
-				"	           ^^^\n" + 
+				"	           ^^^^^\n" + 
 				"Javadoc: The method foo() from the type X is deprecated\n" + 
 				"----------\n" + 
 				"----------\n" + 
@@ -3446,7 +3446,7 @@ public class JavadocBugsTest extends JavadocTest {
 				"----------\n" + 
 				"4. ERROR in Z.java (at line 8)\n" + 
 				"	* @see X#foo()\n" + 
-				"	         ^^^\n" + 
+				"	         ^^^^^\n" + 
 				"Javadoc: The method foo() from the type X is deprecated\n" + 
 				"----------\n",
 			null,
@@ -3735,7 +3735,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"----------\n" + 
 			"3. ERROR in p\\A.java (at line 12)\n" + 
 			"	* Link {@link #C(char)} KO\n" + 
-			"	               ^\n" + 
+			"	               ^^^^^^^\n" + 
 			"Javadoc: The constructor B.C(char) is undefined\n" + 
 			"----------\n" + 
 			"4. ERROR in p\\A.java (at line 13)\n" + 

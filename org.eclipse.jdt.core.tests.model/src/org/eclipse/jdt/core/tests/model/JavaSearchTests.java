@@ -1502,7 +1502,7 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 		resultCollector.showInsideDoc = true;
 		search(method, REFERENCES, getJavaSearchScope(), resultCollector);
 		assertSearchResults(
-			"src/s4/X.java void s4.X.bar() [foo] INSIDE_JAVADOC\n" + 
+			"src/s4/X.java void s4.X.bar() [foo()] INSIDE_JAVADOC\n" + 
 			"src/s4/X.java void s4.X.fred() [foo()] OUTSIDE_JAVADOC",
 			this.resultCollector);
 	}

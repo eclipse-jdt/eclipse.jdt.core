@@ -118,7 +118,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"----------\n" + 
 				"5. ERROR in X.java (at line 6)\n" + 
 				"	* {@value #foo()}\n" + 
-				"	           ^^^\n" + 
+				"	           ^^^^^\n" + 
 				"Javadoc: Only static field reference is allowed for @value tag\n" + 
 				"----------\n"
 		);
@@ -174,7 +174,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"----------\n" + 
 				"7. ERROR in X.java (at line 7)\n" + 
 				"	* {@value #f()}\n" + 
-				"	           ^\n" + 
+				"	           ^^^\n" + 
 				"Javadoc: Only static field reference is allowed for @value tag\n" + 
 				"----------\n"
 		);
@@ -1201,7 +1201,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	* @see G#G(Object)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The constructor G(Object) is undefined\n" + 
 			"----------\n"
 		);
@@ -1290,12 +1290,12 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n" + 
 			"3. ERROR in Test.java (at line 4)\n" + 
 			"	* @see Test#Test(T)\n" + 
-			"	            ^^^^\n" + 
+			"	            ^^^^^^^\n" + 
 			"Javadoc: The constructor Test(T) is undefined\n" + 
 			"----------\n" + 
 			"4. ERROR in Test.java (at line 5)\n" + 
 			"	* @see #Test(T)\n" + 
-			"	        ^^^^\n" + 
+			"	        ^^^^^^^\n" + 
 			"Javadoc: The constructor Test(T) is undefined\n" + 
 			"----------\n"
 		);
@@ -1339,7 +1339,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n" + 
 			"2. ERROR in Test.java (at line 3)\n" + 
 			"	* @see Sub#Sub(T)\n" + 
-			"	           ^^^\n" + 
+			"	           ^^^^^^\n" + 
 			"Javadoc: The constructor Sub(T) is undefined\n" + 
 			"----------\n"
 		);
@@ -1472,7 +1472,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n" + 
 			"2. ERROR in Test.java (at line 3)\n" + 
 			"	* @see Unrelated1#Unrelated1(Object)\n" + 
-			"	                  ^^^^^^^^^^\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: The constructor Unrelated1(Object) is undefined\n" + 
 			"----------\n"
 		);
@@ -1553,7 +1553,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n" + 
 			"2. ERROR in Test.java (at line 3)\n" + 
 			"	* @see Unrelated1#Unrelated1(Integer)\n" + 
-			"	                  ^^^^^^^^^^\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: The constructor Unrelated1(Integer) is undefined\n" + 
 			"----------\n"
 		);

@@ -272,17 +272,17 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"4. ERROR in Y.java (at line 6)\n" + 
 			"	* @see X#X(int)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^\n" + 
 			"Javadoc: The constructor X(int) is not visible\n" + 
 			"----------\n" + 
 			"5. ERROR in Y.java (at line 7)\n" + 
 			"	* @see X#X(String)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The constructor X(String) is undefined\n" + 
 			"----------\n" + 
 			"6. ERROR in Y.java (at line 8)\n" + 
 			"	* @see X#X()\n" + 
-			"	         ^\n" + 
+			"	         ^^^\n" + 
 			"Javadoc: The constructor X() is deprecated\n" + 
 			"----------\n" + 
 			"7. ERROR in Y.java (at line 9)\n" + 
@@ -302,7 +302,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"10. ERROR in Y.java (at line 12)\n" + 
 			"	* @see X#foo_dep()\n" + 
-			"	         ^^^^^^^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The method foo_dep() from the type X is deprecated\n" + 
 			"----------\n" + 
 			"11. ERROR in Y.java (at line 13)\n" + 
@@ -337,17 +337,17 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"17. ERROR in Y.java (at line 22)\n" + 
 			"	* @see X#X(int)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^\n" + 
 			"Javadoc: The constructor X(int) is not visible\n" + 
 			"----------\n" + 
 			"18. ERROR in Y.java (at line 23)\n" + 
 			"	* @see X#X(String)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The constructor X(String) is undefined\n" + 
 			"----------\n" + 
 			"19. ERROR in Y.java (at line 24)\n" + 
 			"	* @see X#X()\n" + 
-			"	         ^\n" + 
+			"	         ^^^\n" + 
 			"Javadoc: The constructor X() is deprecated\n" + 
 			"----------\n" + 
 			"20. ERROR in Y.java (at line 25)\n" + 
@@ -367,7 +367,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"23. ERROR in Y.java (at line 28)\n" + 
 			"	* @see X#foo_dep()\n" + 
-			"	         ^^^^^^^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The method foo_dep() from the type X is deprecated\n" + 
 			"----------\n" + 
 			"24. ERROR in Y.java (at line 29)\n" + 
@@ -402,17 +402,17 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"30. ERROR in Y.java (at line 38)\n" + 
 			"	* @see X#X(int)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^\n" + 
 			"Javadoc: The constructor X(int) is not visible\n" + 
 			"----------\n" + 
 			"31. ERROR in Y.java (at line 39)\n" + 
 			"	* @see X#X(String)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The constructor X(String) is undefined\n" + 
 			"----------\n" + 
 			"32. ERROR in Y.java (at line 40)\n" + 
 			"	* @see X#X()\n" + 
-			"	         ^\n" + 
+			"	         ^^^\n" + 
 			"Javadoc: The constructor X() is deprecated\n" + 
 			"----------\n" + 
 			"33. ERROR in Y.java (at line 41)\n" + 
@@ -432,7 +432,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"36. ERROR in Y.java (at line 44)\n" + 
 			"	* @see X#foo_dep()\n" + 
-			"	         ^^^^^^^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The method foo_dep() from the type X is deprecated\n" + 
 			"----------\n" + 
 			"37. ERROR in Y.java (at line 45)\n" + 
@@ -467,17 +467,17 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"43. ERROR in Y.java (at line 54)\n" + 
 			"	* @see X#X(int)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^\n" + 
 			"Javadoc: The constructor X(int) is not visible\n" + 
 			"----------\n" + 
 			"44. ERROR in Y.java (at line 55)\n" + 
 			"	* @see X#X(String)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The constructor X(String) is undefined\n" + 
 			"----------\n" + 
 			"45. ERROR in Y.java (at line 56)\n" + 
 			"	* @see X#X()\n" + 
-			"	         ^\n" + 
+			"	         ^^^\n" + 
 			"Javadoc: The constructor X() is deprecated\n" + 
 			"----------\n" + 
 			"46. ERROR in Y.java (at line 57)\n" + 
@@ -497,7 +497,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"49. ERROR in Y.java (at line 60)\n" + 
 			"	* @see X#foo_dep()\n" + 
-			"	         ^^^^^^^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The method foo_dep() from the type X is deprecated\n" + 
 			"----------\n" + 
 			"50. ERROR in Y.java (at line 61)\n" + 
@@ -555,17 +555,17 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"8. ERROR in Y.java (at line 13)\n" + 
 			"	* @see X#X(int)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^\n" + 
 			"Javadoc: The constructor X(int) is not visible\n" + 
 			"----------\n" + 
 			"9. ERROR in Y.java (at line 14)\n" + 
 			"	* @see X#X(String)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The constructor X(String) is undefined\n" + 
 			"----------\n" + 
 			"10. ERROR in Y.java (at line 15)\n" + 
 			"	* @see X#X()\n" + 
-			"	         ^\n" + 
+			"	         ^^^\n" + 
 			"Javadoc: The constructor X() is deprecated\n" + 
 			"----------\n" + 
 			"11. ERROR in Y.java (at line 16)\n" + 
@@ -585,7 +585,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"14. ERROR in Y.java (at line 19)\n" + 
 			"	* @see X#foo_dep()\n" + 
-			"	         ^^^^^^^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The method foo_dep() from the type X is deprecated\n" + 
 			"----------\n" + 
 			"15. ERROR in Y.java (at line 20)\n" + 
@@ -640,17 +640,17 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"25. ERROR in Y.java (at line 36)\n" + 
 			"	* @see X#X(int)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^\n" + 
 			"Javadoc: The constructor X(int) is not visible\n" + 
 			"----------\n" + 
 			"26. ERROR in Y.java (at line 37)\n" + 
 			"	* @see X#X(String)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The constructor X(String) is undefined\n" + 
 			"----------\n" + 
 			"27. ERROR in Y.java (at line 38)\n" + 
 			"	* @see X#X()\n" + 
-			"	         ^\n" + 
+			"	         ^^^\n" + 
 			"Javadoc: The constructor X() is deprecated\n" + 
 			"----------\n" + 
 			"28. ERROR in Y.java (at line 39)\n" + 
@@ -670,7 +670,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"31. ERROR in Y.java (at line 42)\n" + 
 			"	* @see X#foo_dep()\n" + 
-			"	         ^^^^^^^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The method foo_dep() from the type X is deprecated\n" + 
 			"----------\n" + 
 			"32. ERROR in Y.java (at line 43)\n" + 
@@ -725,17 +725,17 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"42. ERROR in Y.java (at line 59)\n" + 
 			"	* @see X#X(int)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^\n" + 
 			"Javadoc: The constructor X(int) is not visible\n" + 
 			"----------\n" + 
 			"43. ERROR in Y.java (at line 60)\n" + 
 			"	* @see X#X(String)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The constructor X(String) is undefined\n" + 
 			"----------\n" + 
 			"44. ERROR in Y.java (at line 61)\n" + 
 			"	* @see X#X()\n" + 
-			"	         ^\n" + 
+			"	         ^^^\n" + 
 			"Javadoc: The constructor X() is deprecated\n" + 
 			"----------\n" + 
 			"45. ERROR in Y.java (at line 62)\n" + 
@@ -755,7 +755,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"48. ERROR in Y.java (at line 65)\n" + 
 			"	* @see X#foo_dep()\n" + 
-			"	         ^^^^^^^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The method foo_dep() from the type X is deprecated\n" + 
 			"----------\n" + 
 			"49. ERROR in Y.java (at line 66)\n" + 
@@ -810,17 +810,17 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"59. ERROR in Y.java (at line 82)\n" + 
 			"	* @see X#X(int)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^\n" + 
 			"Javadoc: The constructor X(int) is not visible\n" + 
 			"----------\n" + 
 			"60. ERROR in Y.java (at line 83)\n" + 
 			"	* @see X#X(String)\n" + 
-			"	         ^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The constructor X(String) is undefined\n" + 
 			"----------\n" + 
 			"61. ERROR in Y.java (at line 84)\n" + 
 			"	* @see X#X()\n" + 
-			"	         ^\n" + 
+			"	         ^^^\n" + 
 			"Javadoc: The constructor X() is deprecated\n" + 
 			"----------\n" + 
 			"62. ERROR in Y.java (at line 85)\n" + 
@@ -840,7 +840,7 @@ public class JavadocTestOptions extends JavadocTest {
 			"----------\n" + 
 			"65. ERROR in Y.java (at line 88)\n" + 
 			"	* @see X#foo_dep()\n" + 
-			"	         ^^^^^^^\n" + 
+			"	         ^^^^^^^^^\n" + 
 			"Javadoc: The method foo_dep() from the type X is deprecated\n" + 
 			"----------\n" + 
 			"66. ERROR in Y.java (at line 89)\n" + 
