@@ -242,6 +242,12 @@ public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
 	}
 	return null;
 }
+/*
+ * @see IJavaElement
+ */
+public IResource getResource() {
+	return fResource;
+}
 /**
  * Cannot attach source to a folder.
  *

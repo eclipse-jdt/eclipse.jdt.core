@@ -78,6 +78,12 @@ public IOpenable getOpenableParent() {
 public IPath getPath() {
 	return this.getParent().getPath();
 }
+/*
+ * @see IJavaElement
+ */
+public IResource getResource() {
+	return this.getParent().getResource();
+}
 /**
  * @see ISourceReference
  */

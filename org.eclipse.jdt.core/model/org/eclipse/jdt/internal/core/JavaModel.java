@@ -376,6 +376,12 @@ public IJavaProject[] getJavaProjects() throws JavaModelException {
 public IPath getPath() {
 	return Path.ROOT;
 }
+/*
+ * @see IJavaElement
+ */
+public IResource getResource() {
+	return ResourcesPlugin.getWorkspace().getRoot();
+}
 /**
  * @see IOpenable
  */

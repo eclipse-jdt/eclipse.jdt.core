@@ -215,6 +215,12 @@ public IType findPrimaryType() {
 public IPath getPath() {
 	return null;
 }
+/*
+ * @see IJavaElement
+ */
+public IResource getResource() {
+	return null;
+}
 
 	/*
 	 * @see IJavaElement#getUnderlyingResource()

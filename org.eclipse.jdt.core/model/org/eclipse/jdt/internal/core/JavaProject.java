@@ -1028,6 +1028,12 @@ public class JavaProject
 public IPath getPath() {
 	return this.getProject().getFullPath();
 }
+/*
+ * @see IJavaElement
+ */
+public IResource getResource() {
+	return this.getProject();
+}
 
 	/**
 	 * @see IJavaProject

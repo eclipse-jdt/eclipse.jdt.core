@@ -6,6 +6,7 @@ package org.eclipse.jdt.internal.core;
  */
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 
@@ -242,6 +243,17 @@ public IPath getPath() {
 		return root.getPath();
 	} else {
 		return this.getParent().getPath().append(this.getElementName());
+	}
+}
+/*
+ * @see IJavaElement
+ */
+public IResource getResource() {
+	PackageFragmentRoot root = this.getPackageFragmentRoot();
+	if (root.isArchive()) {
+		return root.getResource();
+	} else {
+		return ((IContainer)this.getParent().getResource()).getFile(new Path(this.getElementName()));
 	}
 }
 /**

@@ -478,6 +478,17 @@ public IPath getPath() {
 		return this.getParent().getPath().append(this.getElementName());
 	}
 }
+/*
+ * @see IJavaElement
+ */
+public IResource getResource() {
+	PackageFragmentRoot root = this.getPackageFragmentRoot();
+	if (root.isArchive()) {
+		return root.getResource();
+	} else {
+		return ((IContainer)this.getParent().getResource()).getFile(new Path(this.getElementName()));
+	}
+}
 
 
 /**

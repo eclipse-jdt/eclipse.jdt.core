@@ -115,6 +115,7 @@ boolean exists();
  * Returns the first ancestor of this Java element that has the given type.
  * Returns this element if it has the given type.
  * Returns <code>null</code> if no such an ancestor can be found.
+ * This is a handle-only method.
  * 
  * @since 2.0
  */
@@ -185,6 +186,7 @@ IJavaProject getJavaProject();
  * Returns the first openable parent. If this element is openable, the element
  * itself is returned. Returns <code>null</code> if this element doesn't have
  * an openable parent.
+ * This is a handle-only method.
  * 
  * @since 2.0
  */
@@ -204,10 +206,22 @@ IJavaElement getParent();
  * relative to the workbench. 
  * If this element is included in an external archive, 
  * the path returned is the absolute path to the archive in the file system.
+ * This is a handle-only method.
  * 
  * @since 2.0
  */
 IPath getPath();
+/**
+ * Returns the innermost resource enclosing this element. 
+ * If this element is not included in an external archive, 
+ * this is the underlying resource, corresponding to the archive. 
+ * If this element is included in an external archive, <code>null</code>
+ * is returned.
+ * This is a handle-only method.
+ * 
+ * @since 2.0
+ */
+IResource getResource();
 /**
  * Returns the smallest underlying resource that contains
  * this element, or <code>null</code> if this element is not contained
