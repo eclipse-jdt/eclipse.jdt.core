@@ -47,6 +47,20 @@ What's new in this drop</h2>
 argument (as opposed to only existing <code>-warn:...</code> command line argument). 
 <code>-warn:+...</code> will not reset override default warning level, but simply enable
 a few more specific warnings. Similarily, <code>-warn:-...</code> will only disable specific warnings.
+<br>Note, by default the batch compiler will report the following warnings:
+	<ul>
+	<li>'assert' used as identifier</li>
+	<li>char[] in String concat</li>
+	<li>method with constructor name</li>
+	<li>deprecation outside deprecated code</li>
+	<li>finally block not completing normally</li>
+	<li>interface non-inherited method compatibility</li>
+	<li>hidden catch block</li>
+	<li>assignment without effect</li>
+	<li>attempt to override package-default method</li>
+	<li>unused import declaration</li>
+	<li>non-static reference to static member</li>
+	</ul>
 </li>
 <li>Code select (i.e. <code>ICodeAssit.codeSelect(...)</code>) now returns an <code>ILocalVariable</code>
      element when a local variable or an argument is selected. 
