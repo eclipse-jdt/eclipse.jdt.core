@@ -35,7 +35,7 @@ public class JavadocTestMixed extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 		// 	Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] { "Bug65180", "Bug65180a", "Bug65180b", "Bug65180c", "Bug65180d" };
+//		testsNames = new String[] { "Bug66551", "Bug66551a" };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		testsNumbers = new int[] { 3, 7, 10, 21 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -2911,6 +2911,113 @@ public class JavadocTestMixed extends JavadocTest {
 				"	int foo() { // should warn on missing tag for return type\n" + 
 				"	^^^\n" + 
 				"Javadoc: Missing tag for return type\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 66551: Error in org.eclipse.swt project on class PrinterData
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=66551">66551</a>
+	 */
+	public void testBug66551() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+					"    int field;\n" + 
+					"    /**\n" + 
+					"     *  @see #field\n" + 
+					"     */\n" + 
+					"    void foo(int field) {\n" + 
+					"    }\n" + 
+					"\n" + 
+					"}\n"
+			}
+		);
+	}
+	public void testBug66551a() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+					"    static int field;\n" + 
+					"    /**\n" + 
+					"     *  @see #field\n" + 
+					"     */\n" + 
+					"    static void foo(int field) {\n" + 
+					"    }\n" + 
+					"\n" + 
+					"}\n"
+			}
+		);
+	}
+	public void testBug66551b() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+					"	int field;\n" + 
+					"	/**\n" + 
+					"	 * {@link #field}\n" + 
+					"	 */\n" + 
+					"	void foo(int field) {\n" + 
+					"	}\n" + 
+					"\n" + 
+					"}\n"
+			}
+		);
+	}
+	public void testBug66551c() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+					"	static int field;\n" + 
+					"	/**\n" + 
+					"	 * {@link #field}\n" + 
+					"	 */\n" + 
+					"	static void foo(int field) {\n" + 
+					"	}\n" + 
+					"\n" + 
+					"}\n"
+			}
+		);
+	}	
+
+	/**
+	 * Test fix for bug 66573: Shouldn't bind to local constructs
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=66573">66573</a>
+	 */
+	public void testBug66573() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+					"    /**\n" + 
+					"     * @see Local\n" + 
+					"     */\n" + 
+					"    void foo() {\n" + 
+					"        class Local { \n" + 
+					"            // shouldn\'t be seen from javadoc\n" + 
+					"         }\n" + 
+					"    }\n" + 
+					"}\n"	
+			},
+			"----------\n" + 
+				"1. ERROR in Test.java (at line 3)\n" + 
+				"	* @see Local\n" + 
+				"	       ^^^^^\n" + 
+				"Javadoc: Local cannot be resolved or is not a type\n" + 
 				"----------\n"
 		);
 	}
