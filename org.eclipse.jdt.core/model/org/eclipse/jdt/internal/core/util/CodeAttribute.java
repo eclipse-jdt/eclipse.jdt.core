@@ -22,7 +22,6 @@ import org.eclipse.jdt.core.util.IExceptionTableEntry;
 import org.eclipse.jdt.core.util.ILineNumberAttribute;
 import org.eclipse.jdt.core.util.ILocalVariableAttribute;
 import org.eclipse.jdt.core.util.IOpcodeMnemonics;
-import org.eclipse.jdt.core.util.IStackMapAttribute;
 
 /**
  * Default implementation of ICodeAttribute.
@@ -42,7 +41,6 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 	private ILocalVariableAttribute localVariableAttribute;
 	private int maxLocals;
 	private int maxStack;
-	private IStackMapAttribute stackMapAttribute;
 	
 	CodeAttribute(byte[] classFileBytes, IConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);
@@ -83,7 +81,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 				this.localVariableAttribute = new LocalVariableAttribute(classFileBytes, constantPool, offset + readOffset);
 				this.attributes[attributesIndex++] = this.localVariableAttribute;
 			} else if (equals(attributeName, IAttributeNamesConstants.STACK_MAP)) {
-				this.stackMapAttribute = 
+				this.attributes[attributesIndex++] = 
 					new StackMapAttribute(
 						classFileBytes,
 						constantPool,
@@ -91,7 +89,8 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 						this.codeLength > 0xFFFF,
 						this.maxLocals > 0xFFFF,
 						this.maxStack > 0xFFFF);
-				this.attributes[attributesIndex++] = this.stackMapAttribute;
+			} else if (equals(attributeName, IAttributeNamesConstants.LOCAL_VARIABLE_TYPE)) {
+				this.attributes[attributesIndex++] = new LocalVariableTypeAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else {
 				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			}
@@ -178,14 +177,7 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 	public int getMaxStack() {
 		return this.maxStack;
 	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.util.ICodeAttribute#getStackMapAttribute()
-	 */
-	public IStackMapAttribute getStackMapAttribute() {
-		return this.stackMapAttribute;
-	}
-
+	
 	/**
 	 * @see ICodeAttribute#traverse(IBytecodeVisitor visitor)
 	 */

@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.IConstantValueAttribute;
 import org.eclipse.jdt.core.util.IFieldInfo;
 import org.eclipse.jdt.core.util.IModifierConstants;
-import org.eclipse.jdt.core.util.ISignatureAttribute;
 
 /**
  * Default implementation of IFieldInfo.
@@ -36,7 +35,6 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 	private boolean isSynthetic;
 	private char[] name;
 	private int nameIndex;
-	private ISignatureAttribute signatureAttribute;
 	
 	/**
 	 * @param classFileBytes byte[]
@@ -56,14 +54,14 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 			throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 		}
 		this.name = constantPoolEntry.getUtf8Value();
-
+	
 		this.descriptorIndex = u2At(classFileBytes, 4, offset);
 		constantPoolEntry = constantPool.decodeEntry(this.descriptorIndex);
 		if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_Utf8) {
 			throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 		}
 		this.descriptor = constantPoolEntry.getUtf8Value();
-
+	
 		this.attributesCount = u2At(classFileBytes, 6, offset);
 		this.attributes = ClassFileAttribute.NO_ATTRIBUTES;
 		int readOffset = 8;
@@ -87,14 +85,13 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 				this.constantValueAttribute = new ConstantValueAttribute(classFileBytes, constantPool, offset + readOffset);
 				this.attributes[attributesIndex++] = this.constantValueAttribute;
 			} else if (equals(attributeName, IAttributeNamesConstants.SIGNATURE)) {
-				this.signatureAttribute = new SignatureAttribute(classFileBytes, constantPool, offset + readOffset);
-				this.attributes[attributesIndex++] = this.signatureAttribute;
+				this.attributes[attributesIndex++] = new SignatureAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else {
 				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			}
 			readOffset += (6 + u4At(classFileBytes, readOffset + 2, offset));
 		}
-
+	
 		attributeBytes = readOffset;
 	}
 	/**
@@ -151,14 +148,6 @@ public class FieldInfo extends ClassFileStruct implements IFieldInfo {
 	public int getNameIndex() {
 		return this.nameIndex;
 	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.util.IFieldInfo#getSignatureAttribute()
-	 */
-	public ISignatureAttribute getSignatureAttribute() {
-		return this.signatureAttribute;
-	}
-
 	/**
 	 * @see IFieldInfo#hasConstantValueAttribute()
 	 */

@@ -170,26 +170,6 @@ public interface IClassFileReader {
 	ISourceAttribute getSourceFileAttribute();
 
 	/**
-	 * Answer back the signature attribute of this field info if specified, 
-	 * null otherwise.
-	 * 
-	 * @return the signature attribute of this field info if specified, 
-	 * null otherwise
-	 * @since 3.0
-	 */
-	ISignatureAttribute getSignatureAttribute();
-	
-	/**
-	 * Answer back the enclosing method attribute of this field info if specified, 
-	 * null otherwise.
-	 * 
-	 * @return the enclosing method attribute of this field info if specified, 
-	 * null otherwise
-	 * @since 3.0
-	 */
-	IEnclosingMethodAttribute getEnclosingMethodAttribute();	
-
-	/**
 	 * Answer the constant pool of this .class file.
 	 * 
 	 * @return the constant pool of this .class file

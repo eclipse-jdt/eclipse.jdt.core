@@ -21,7 +21,6 @@ import org.eclipse.jdt.core.util.IConstantPoolEntry;
 import org.eclipse.jdt.core.util.IExceptionAttribute;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.core.util.IModifierConstants;
-import org.eclipse.jdt.core.util.ISignatureAttribute;
 
 /**
  * Default implementation of IMethodInfo.
@@ -39,7 +38,6 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	private boolean isSynthetic;
 	private char[] name;
 	private int nameIndex;
-	private ISignatureAttribute signatureAttribute;
 	
 	/**
 	 * @param classFileBytes byte[]
@@ -105,8 +103,7 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 				this.exceptionAttribute = new ExceptionAttribute(classFileBytes, constantPool, offset + readOffset);
 				this.attributes[attributesIndex++] = this.exceptionAttribute;
 			} else if (equals(attributeName, IAttributeNamesConstants.SIGNATURE)) {
-				this.signatureAttribute = new SignatureAttribute(classFileBytes, constantPool, offset + readOffset);
-				this.attributes[attributesIndex++] = this.signatureAttribute;
+				this.attributes[attributesIndex++] = new SignatureAttribute(classFileBytes, constantPool, offset + readOffset);
 			} else {
 				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			}
@@ -174,12 +171,6 @@ public class MethodInfo extends ClassFileStruct implements IMethodInfo {
 	 */
 	public int getNameIndex() {
 		return this.nameIndex;
-	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.util.IMethodInfo#getSignatureAttribute()
-	 */
-	public ISignatureAttribute getSignatureAttribute() {
-		return this.signatureAttribute;
 	}
 
 	private boolean isAbstract() {

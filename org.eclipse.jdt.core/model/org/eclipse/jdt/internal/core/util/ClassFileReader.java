@@ -20,12 +20,10 @@ import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IConstantPool;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;
-import org.eclipse.jdt.core.util.IEnclosingMethodAttribute;
 import org.eclipse.jdt.core.util.IFieldInfo;
 import org.eclipse.jdt.core.util.IInnerClassesAttribute;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.core.util.IModifierConstants;
-import org.eclipse.jdt.core.util.ISignatureAttribute;
 import org.eclipse.jdt.core.util.ISourceAttribute;
 
 public class ClassFileReader extends ClassFileStruct implements IClassFileReader {
@@ -40,7 +38,6 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	private int classNameIndex;
 
 	private IConstantPool constantPool;
-	private IEnclosingMethodAttribute enclosingMethodAttribute;
 	private IFieldInfo[] fields;
 	private int fieldsCount;
 	private IInnerClassesAttribute innerClassesAttribute;
@@ -52,7 +49,6 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	private IMethodInfo[] methods;
 	private int methodsCount;
 	private int minorVersion;
-	private ISignatureAttribute signatureAttribute;
 	private ISourceAttribute sourceFileAttribute;
 	private char[] superclassName;
 	private int superclassNameIndex;
@@ -164,7 +160,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 			if (superclassNameIndex != 0) {
 				this.superclassName = getConstantClassNameAt(classFileBytes, constantPoolOffsets, this.superclassNameIndex);
 			}
-
+	
 			// Read the interfaces, use exception handlers to catch bad format
 			this.interfacesCount = u2At(classFileBytes, readOffset, 0);
 			readOffset += 2;
@@ -239,7 +235,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 			// Read the attributes
 			this.attributesCount = u2At(classFileBytes, readOffset, 0);
 			readOffset += 2;
-
+	
 			int attributesIndex = 0;
 			this.attributes = ClassFileAttribute.NO_ATTRIBUTES;
 			if (this.attributesCount != 0) {
@@ -255,11 +251,9 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 							this.sourceFileAttribute = new SourceFileAttribute(classFileBytes, this.constantPool, readOffset);
 							this.attributes[attributesIndex++] = this.sourceFileAttribute;
 						} else if (equals(attributeName, IAttributeNamesConstants.ENCLOSING_METHOD)) {
-							this.enclosingMethodAttribute = new EnclosingMethodAttribute(classFileBytes, this.constantPool, readOffset);
-							this.attributes[attributesIndex++] = this.enclosingMethodAttribute;
+							this.attributes[attributesIndex++] = new EnclosingMethodAttribute(classFileBytes, this.constantPool, readOffset);
 						} else if (equals(attributeName, IAttributeNamesConstants.SIGNATURE)) {
-							this.signatureAttribute = new SignatureAttribute(classFileBytes, this.constantPool, readOffset);
-							this.attributes[attributesIndex++] = this.signatureAttribute;
+							this.attributes[attributesIndex++] = new SignatureAttribute(classFileBytes, this.constantPool, readOffset);
 						} else {
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						}
@@ -326,13 +320,6 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	public IConstantPool getConstantPool() {
 		return this.constantPool;
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.util.IClassFileReader#getEnclosingMethodAttribute()
-	 */
-	public IEnclosingMethodAttribute getEnclosingMethodAttribute() {
-		return enclosingMethodAttribute;
-	}
-
 	/**
 	 * @see IClassFileReader#getFieldInfos()
 	 */
@@ -401,13 +388,6 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	 */
 	public int getMinorVersion() {
 		return this.minorVersion;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.util.IClassFileReader#getSignatureAttribute()
-	 */
-	public ISignatureAttribute getSignatureAttribute() {
-		return this.signatureAttribute;
 	}
 
 	/**

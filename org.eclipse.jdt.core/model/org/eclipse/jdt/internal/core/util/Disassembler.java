@@ -422,7 +422,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		StringBuffer buffer = new StringBuffer();
 
 		ISourceAttribute sourceAttribute = classFileReader.getSourceFileAttribute();
-		ISignatureAttribute signatureAttribute = classFileReader.getSignatureAttribute();
+		ISignatureAttribute signatureAttribute = getSignatureAttribute(classFileReader);
 		final int accesssFlags = classFileReader.getAccessFlags();
 		if (mode == ClassFileBytesDisassembler.DETAILED) {
 			int minorVersion = classFileReader.getMinorVersion();
@@ -526,7 +526,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		if (mode == ClassFileBytesDisassembler.DETAILED) {
 			IClassFileAttribute[] attributes = classFileReader.getAttributes();
 			length = attributes.length;
-			IEnclosingMethodAttribute enclosingMethodAttribute = classFileReader.getEnclosingMethodAttribute();
+			IEnclosingMethodAttribute enclosingMethodAttribute = getEnclosingMethodAttribute(classFileReader);
 			int remainingAttributesLength = length;
 			if (innerClassesAttribute != null) {
 				remainingAttributesLength--;
@@ -682,7 +682,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	private void disassemble(IFieldInfo fieldInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber);
 		char[] fieldDescriptor = fieldInfo.getDescriptor();
-		ISignatureAttribute signatureAttribute = fieldInfo.getSignatureAttribute();
+		ISignatureAttribute signatureAttribute = getSignatureAttribute(fieldInfo);
 		if (mode == DETAILED) {
 			CharOperation.replace(fieldDescriptor, '.', '/');
 			buffer
@@ -774,7 +774,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		writeNewLine(buffer, lineSeparator, tabNumber);
 		ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 		char[] methodDescriptor = methodInfo.getDescriptor();
-		ISignatureAttribute signatureAttribute = methodInfo.getSignatureAttribute();
+		ISignatureAttribute signatureAttribute = getSignatureAttribute(methodInfo);
 		if (mode == DETAILED) {
 			CharOperation.replace(methodDescriptor, '.', '/');
 			buffer
@@ -961,6 +961,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			ILocalVariableTableEntry[] localVariableTableEntries = localVariableAttribute.getLocalVariableTable();
 			for (int i = 0; i < localVariableAttributeLength - 1; i++) {
 				ILocalVariableTableEntry localVariableTableEntry = localVariableTableEntries[i];
+				int index= localVariableTableEntry.getIndex();
 				int startPC = localVariableTableEntry.getStartPC();
 				int length  = localVariableTableEntry.getLength();
 				buffer
@@ -971,14 +972,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					.append(Util.bind("classfileformat.localvariabletablelocalname")) //$NON-NLS-1$
 					.append(localVariableTableEntry.getName())
 					.append(Util.bind("classfileformat.localvariabletablelocalindex")) //$NON-NLS-1$
-					.append(localVariableTableEntry.getIndex())
+					.append(index)
 					.append(Util.bind("classfileformat.localvariabletablelocaltype")); //$NON-NLS-1$
-				char[] localVariableTableDescriptor = Signature.toCharArray(localVariableTableEntry.getDescriptor());
-				CharOperation.replace(localVariableTableDescriptor, '/', '.');
-				buffer.append(localVariableTableDescriptor);
+				buffer.append(localVariableTableEntry.getDescriptor());
 				writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
 			}
 			ILocalVariableTableEntry localVariableTableEntry = localVariableTableEntries[localVariableAttributeLength - 1];
+			int index= localVariableTableEntry.getIndex();
 			int startPC = localVariableTableEntry.getStartPC();
 			int length  = localVariableTableEntry.getLength();
 			buffer
@@ -989,9 +989,51 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(Util.bind("classfileformat.localvariabletablelocalname")) //$NON-NLS-1$
 				.append(localVariableTableEntry.getName())
 				.append(Util.bind("classfileformat.localvariabletablelocalindex")) //$NON-NLS-1$
-				.append(localVariableTableEntry.getIndex())
+				.append(index)
 				.append(Util.bind("classfileformat.localvariabletablelocaltype")) //$NON-NLS-1$
-				.append(Signature.toCharArray(localVariableTableEntry.getDescriptor()));
+				.append(localVariableTableEntry.getDescriptor());
+		} 
+		ILocalVariableTypeTableAttribute localVariableTypeAttribute= getLocalVariableTypeAttribute(codeAttribute);
+		int localVariableTypeTableLength = localVariableTypeAttribute == null ? 0 : localVariableTypeAttribute.getLocalVariableTypeTableLength();
+		if (localVariableTypeTableLength != 0) {
+			int tabNumberForLocalVariableAttribute = tabNumber + 2;
+			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute);
+			buffer.append(Util.bind("disassembler.localvariabletypetableattributeheader")); //$NON-NLS-1$
+			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
+			ILocalVariableTypeTableEntry[] localVariableTableEntries = localVariableTypeAttribute.getLocalVariableTypeTable();
+			for (int i = 0; i < localVariableAttributeLength - 1; i++) {
+				ILocalVariableTypeTableEntry localVariableTypeTableEntry = localVariableTableEntries[i];
+				int index= localVariableTypeTableEntry.getIndex();
+				int startPC = localVariableTypeTableEntry.getStartPC();
+				int length  = localVariableTypeTableEntry.getLength();
+				buffer
+					.append(Util.bind("classfileformat.localvariabletablefrom")) //$NON-NLS-1$
+					.append(startPC)
+					.append(Util.bind("classfileformat.localvariabletableto")) //$NON-NLS-1$
+					.append(startPC + length)
+					.append(Util.bind("classfileformat.localvariabletablelocalname")) //$NON-NLS-1$
+					.append(localVariableTypeTableEntry.getName())
+					.append(Util.bind("classfileformat.localvariabletablelocalindex")) //$NON-NLS-1$
+					.append(index)
+					.append(Util.bind("classfileformat.localvariabletablelocaltype")); //$NON-NLS-1$
+				buffer.append(localVariableTypeTableEntry.getSignature());
+				writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
+			}
+			ILocalVariableTypeTableEntry localVariableTypeTableEntry = localVariableTableEntries[localVariableAttributeLength - 1];
+			int index= localVariableTypeTableEntry.getIndex();
+			int startPC = localVariableTypeTableEntry.getStartPC();
+			int length  = localVariableTypeTableEntry.getLength();
+			buffer
+				.append(Util.bind("classfileformat.localvariabletablefrom")) //$NON-NLS-1$
+				.append(startPC)
+				.append(Util.bind("classfileformat.localvariabletableto")) //$NON-NLS-1$
+				.append(startPC + length)
+				.append(Util.bind("classfileformat.localvariabletablelocalname")) //$NON-NLS-1$
+				.append(localVariableTypeTableEntry.getName())
+				.append(Util.bind("classfileformat.localvariabletablelocalindex")) //$NON-NLS-1$
+				.append(index)
+				.append(Util.bind("classfileformat.localvariabletablelocaltype")) //$NON-NLS-1$
+				.append(localVariableTypeTableEntry.getSignature());
 		} 
 	}
 
@@ -1085,7 +1127,57 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 			return null;
 	}
+
+	private IEnclosingMethodAttribute getEnclosingMethodAttribute(IClassFileReader classFileReader) {
+		IClassFileAttribute[] attributes = classFileReader.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.ENCLOSING_METHOD)) {
+				return (IEnclosingMethodAttribute) attributes[i];
+			}
+		}
+		return null;
+	}
 	
+	private ILocalVariableTypeTableAttribute getLocalVariableTypeAttribute(ICodeAttribute codeAttribute) {
+		IClassFileAttribute[] attributes = codeAttribute.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.LOCAL_VARIABLE_TYPE)) {
+				return (ILocalVariableTypeTableAttribute) attributes[i];
+			}
+		}
+		return null;
+	}
+	
+	private ISignatureAttribute getSignatureAttribute(IClassFileReader classFileReader) {
+		IClassFileAttribute[] attributes = classFileReader.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.SIGNATURE)) {
+				return (ISignatureAttribute) attributes[i];
+			}
+		}
+		return null;
+	}
+	
+	private ISignatureAttribute getSignatureAttribute(IFieldInfo fieldInfo) {
+		IClassFileAttribute[] attributes = fieldInfo.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.SIGNATURE)) {
+				return (ISignatureAttribute) attributes[i];
+			}
+		}
+		return null;
+	}
+
+	private ISignatureAttribute getSignatureAttribute(IMethodInfo methodInfo) {
+		IClassFileAttribute[] attributes = methodInfo.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.SIGNATURE)) {
+				return (ISignatureAttribute) attributes[i];
+			}
+		}
+		return null;
+	}
+
 	private boolean isDeprecated(IClassFileReader classFileReader) {
 		IClassFileAttribute[] attributes = classFileReader.getAttributes();
 		for (int i = 0, max = attributes.length; i < max; i++) {
