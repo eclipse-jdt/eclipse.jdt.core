@@ -79,7 +79,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 		this.majorVersion = this.u2At(classFileBytes, 6, 0);
 		try {
 			
-			if ((decodingFlags & IClassFileDisassembler.CONSTANT_POOL) == 0) {
+			if ((decodingFlags & IClassFileReader.CONSTANT_POOL) == 0) {
 				// no need to go further
 				return;
 			}
@@ -163,7 +163,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 			this.interfaceNames = NO_INTERFACES_NAMES;
 			this.interfaceIndexes = NO_INTERFACE_INDEXES;
 			if (this.interfacesCount != 0) {
-				if ((decodingFlags & IClassFileDisassembler.SUPER_INTERFACES) != 0) {
+				if ((decodingFlags & IClassFileReader.SUPER_INTERFACES) != 0) {
 					this.interfaceNames = new char[this.interfacesCount][];
 					this.interfaceIndexes = new int[this.interfacesCount];
 					for (int i = 0; i < this.interfacesCount; i++) {
@@ -180,7 +180,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 			readOffset += 2;
 			this.fields = NO_FIELD_INFOS;
 			if (this.fieldsCount != 0) {
-				if ((decodingFlags & IClassFileDisassembler.FIELD_INFOS) != 0) {
+				if ((decodingFlags & IClassFileReader.FIELD_INFOS) != 0) {
 					FieldInfo field;
 					this.fields = new FieldInfo[this.fieldsCount];
 					for (int i = 0; i < this.fieldsCount; i++) {
@@ -206,7 +206,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 			readOffset += 2;
 			this.methods = NO_METHOD_INFOS;
 			if (this.methodsCount != 0) {
-				if ((decodingFlags & IClassFileDisassembler.METHOD_INFOS) != 0) {
+				if ((decodingFlags & IClassFileReader.METHOD_INFOS) != 0) {
 					this.methods = new MethodInfo[this.methodsCount];
 					MethodInfo method;
 					for (int i = 0; i < this.methodsCount; i++) {
@@ -234,7 +234,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 
 			int attributesIndex = 0;
 			this.attributes = ClassFileAttribute.NO_ATTRIBUTES;
-			if ((decodingFlags & IClassFileDisassembler.CLASSFILE_ATTRIBUTES) != 0) {
+			if ((decodingFlags & IClassFileReader.CLASSFILE_ATTRIBUTES) != 0) {
 				if (this.attributesCount != 0) {
 					this.attributes = new IClassFileAttribute[this.attributesCount];
 				}

@@ -53,7 +53,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.AALOAD]);
 		writeNewLine();
 	}
@@ -65,7 +65,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.AASTORE]);
 		writeNewLine();
 	}
@@ -77,7 +77,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ACONST_NULL]);
 		writeNewLine();
 	}
@@ -89,7 +89,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD_0]);
 		writeNewLine();
 	}
@@ -101,7 +101,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD_1]);
 		writeNewLine();
 	}
@@ -113,7 +113,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD_2]);
 		writeNewLine();
 	}
@@ -125,7 +125,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD_3]);
 		writeNewLine();
 	}
@@ -137,9 +137,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(index);
 		writeNewLine();
 	}
@@ -151,12 +151,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ANEWARRAY])
-			.append(' ')
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(index)
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(returnConstantClassName(constantClass));
 		writeNewLine();
 	}
@@ -168,7 +167,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ARETURN]);
 		writeNewLine();
 	}
@@ -180,7 +179,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ARRAYLENGTH]);
 		writeNewLine();
 	}
@@ -192,7 +191,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE_0]);
 		writeNewLine();
 	}
@@ -204,7 +203,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE_1]);
 		writeNewLine();
 	}
@@ -216,7 +215,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE_2]);
 		writeNewLine();
 	}
@@ -228,7 +227,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE_3]);
 		writeNewLine();
 	}
@@ -240,9 +239,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(index);
 		writeNewLine();
 	}
@@ -254,7 +253,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ATHROW]);
 		writeNewLine();
 	}
@@ -266,7 +265,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.BALOAD]);
 		writeNewLine();
 	}
@@ -278,7 +277,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.BASTORE]);
 		writeNewLine();
 	}
@@ -290,9 +289,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.BIPUSH])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(_byte);
 		writeNewLine();
 	}
@@ -304,7 +303,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.CALOAD]);
 		writeNewLine();
 	}
@@ -316,7 +315,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.CASTORE]);
 		writeNewLine();
 	}
@@ -328,12 +327,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.CHECKCAST])
-			.append(' ')
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(index)
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(returnConstantClassName(constantClass));
 		writeNewLine();
 	}
@@ -345,7 +343,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.D2F]);
 		writeNewLine();
 	}
@@ -357,7 +355,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.D2I]);
 		writeNewLine();
 	}
@@ -369,7 +367,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.D2L]);
 		writeNewLine();
 	}
@@ -381,7 +379,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DADD]);
 		writeNewLine();
 	}
@@ -393,7 +391,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DALOAD]);
 		writeNewLine();
 	}
@@ -405,7 +403,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DASTORE]);
 		writeNewLine();
 	}
@@ -417,7 +415,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DCMPG]);
 		writeNewLine();
 	}
@@ -429,7 +427,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DCMPL]);
 		writeNewLine();
 	}
@@ -441,7 +439,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DCONST_0]);
 		writeNewLine();
 	}
@@ -453,7 +451,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DCONST_1]);
 		writeNewLine();
 	}
@@ -465,7 +463,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DDIV]);
 		writeNewLine();
 	}
@@ -477,7 +475,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD_0]);
 		writeNewLine();
 	}
@@ -489,7 +487,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD_1]);
 		writeNewLine();
 	}
@@ -501,7 +499,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD_2]);
 		writeNewLine();
 	}
@@ -513,7 +511,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD_3]);
 		writeNewLine();
 	}
@@ -525,9 +523,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(index);
 		writeNewLine();
 	}
@@ -539,7 +537,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DMUL]);
 		writeNewLine();
 	}
@@ -551,7 +549,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DNEG]);
 		writeNewLine();
 	}
@@ -563,7 +561,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DREM]);
 		writeNewLine();
 	}
@@ -575,7 +573,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DRETURN]);
 		writeNewLine();
 	}
@@ -587,7 +585,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE_0]);
 		writeNewLine();
 	}
@@ -599,7 +597,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE_1]);
 		writeNewLine();
 	}
@@ -611,7 +609,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE_2]);
 		writeNewLine();
 	}
@@ -623,7 +621,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE_3]);
 		writeNewLine();
 	}
@@ -635,9 +633,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(index);
 		writeNewLine();
 	}
@@ -649,7 +647,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSUB]);
 		writeNewLine();
 	}
@@ -661,7 +659,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DUP_X1]);
 		writeNewLine();
 	}
@@ -673,7 +671,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DUP_X2]);
 		writeNewLine();
 	}
@@ -685,7 +683,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DUP]);
 		writeNewLine();
 	}
@@ -697,7 +695,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DUP2_X1]);
 		writeNewLine();
 	}
@@ -709,7 +707,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DUP2_X2]);
 		writeNewLine();
 	}
@@ -721,7 +719,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DUP2]);
 		writeNewLine();
 	}
@@ -733,7 +731,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.F2D]);
 		writeNewLine();
 	}
@@ -745,7 +743,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.F2I]);
 		writeNewLine();
 	}
@@ -757,7 +755,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.F2L]);
 		writeNewLine();
 	}
@@ -769,7 +767,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FADD]);
 		writeNewLine();
 	}
@@ -781,7 +779,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FALOAD]);
 		writeNewLine();
 	}
@@ -793,7 +791,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FASTORE]);
 		writeNewLine();
 	}
@@ -805,7 +803,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FCMPG]);
 		writeNewLine();
 	}
@@ -817,7 +815,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FCMPL]);
 		writeNewLine();
 	}
@@ -829,7 +827,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FCONST_0]);
 		writeNewLine();
 	}
@@ -841,7 +839,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FCONST_1]);
 		writeNewLine();
 	}
@@ -853,7 +851,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FCONST_2]);
 		writeNewLine();
 	}
@@ -865,7 +863,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FDIV]);
 		writeNewLine();
 	}
@@ -877,7 +875,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD_0]);
 		writeNewLine();
 	}
@@ -889,7 +887,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD_1]);
 		writeNewLine();
 	}
@@ -901,7 +899,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD_2]);
 		writeNewLine();
 	}
@@ -913,7 +911,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD_3]);
 		writeNewLine();
 	}
@@ -925,9 +923,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(index);
 		writeNewLine();
 	}
@@ -939,7 +937,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FMUL]);
 		writeNewLine();
 	}
@@ -951,7 +949,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FNEG]);
 		writeNewLine();
 	}
@@ -963,7 +961,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FREM]);
 		writeNewLine();
 	}
@@ -975,7 +973,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FRETURN]);
 		writeNewLine();
 	}
@@ -987,7 +985,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE_0]);
 		writeNewLine();
 	}
@@ -999,7 +997,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE_1]);
 		writeNewLine();
 	}
@@ -1011,7 +1009,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE_2]);
 		writeNewLine();
 	}
@@ -1023,7 +1021,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE_3]);
 		writeNewLine();
 	}
@@ -1035,9 +1033,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(index);
 		writeNewLine();
 	}
@@ -1049,7 +1047,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSUB]);
 		writeNewLine();
 	}
@@ -1061,17 +1059,16 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.GETFIELD])
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(index)
-			.append(' ')
 			.append(Util.bind("classformat.getfield")) //$NON-NLS-1$
-			.append(constantFieldref.getClassName())
-			.append('.')
+			.append(returnDeclaringClassName(constantFieldref))
+			.append(Util.bind("disassembler.classmemberseparator")) //$NON-NLS-1$
 			.append(constantFieldref.getFieldName())
-			.append(' ')
-			.append(Signature.toCharArray(constantFieldref.getFieldDescriptor()))
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
+			.append(returnFieldrefDescriptor(constantFieldref))
 			.append(Util.bind("classformat.getfieldclose")); //$NON-NLS-1$
 		writeNewLine();
 	}
@@ -1083,15 +1080,15 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.GETSTATIC])
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(index)
-			.append(' ')
 			.append(Util.bind("classformat.getstatic")) //$NON-NLS-1$
-			.append(constantFieldref.getClassName())
+			.append(returnDeclaringClassName(constantFieldref))
+			.append(Util.bind("disassembler.classmemberseparator")) //$NON-NLS-1$
 			.append(constantFieldref.getFieldName())
-			.append(Signature.toCharArray(constantFieldref.getFieldDescriptor()))
+			.append(returnFieldrefDescriptor(constantFieldref))
 			.append(Util.bind("classformat.getstaticclose")); //$NON-NLS-1$
 		writeNewLine();
 	}
@@ -1103,9 +1100,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.GOTO_W])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1117,9 +1114,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.GOTO])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1131,7 +1128,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.I2B]);
 		writeNewLine();
 	}
@@ -1143,7 +1140,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.I2C]);
 		writeNewLine();
 	}
@@ -1155,7 +1152,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.I2D]);
 		writeNewLine();
 	}
@@ -1167,7 +1164,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.I2F]);
 		writeNewLine();
 	}
@@ -1179,7 +1176,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.I2L]);
 		writeNewLine();
 	}
@@ -1191,7 +1188,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.I2S]);
 		writeNewLine();
 	}
@@ -1203,7 +1200,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IADD]);
 		writeNewLine();
 	}
@@ -1215,7 +1212,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IALOAD]);
 		writeNewLine();
 	}
@@ -1227,7 +1224,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IAND]);
 		writeNewLine();
 	}
@@ -1239,7 +1236,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IASTORE]);
 		writeNewLine();
 	}
@@ -1251,9 +1248,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IF_ACMPEQ])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1265,9 +1262,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IF_ACMPNE])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1279,9 +1276,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IF_ICMPEQ])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1293,9 +1290,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IF_ICMPGE])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1307,9 +1304,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IF_ICMPGT])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1321,9 +1318,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IF_ICMPLE])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1335,9 +1332,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IF_ICMPLT])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1349,9 +1346,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IF_ICMPNE])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1363,7 +1360,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ICONST_0]);
 		writeNewLine();
 	}
@@ -1375,7 +1372,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ICONST_1]);
 		writeNewLine();
 	}
@@ -1387,7 +1384,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ICONST_2]);
 		writeNewLine();
 	}
@@ -1399,7 +1396,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ICONST_3]);
 		writeNewLine();
 	}
@@ -1411,7 +1408,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ICONST_4]);
 		writeNewLine();
 	}
@@ -1423,7 +1420,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ICONST_5]);
 		writeNewLine();
 	}
@@ -1435,7 +1432,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ICONST_M1]);
 		writeNewLine();
 	}
@@ -1447,7 +1444,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IDIV]);
 		writeNewLine();
 	}
@@ -1459,9 +1456,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IFEQ])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1473,9 +1470,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IFGE])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1487,9 +1484,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IFGT])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1501,9 +1498,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IFLE])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1515,9 +1512,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IFLT])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1529,9 +1526,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IFNE])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1543,9 +1540,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IFNONNULL])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1557,9 +1554,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IFNULL])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -1571,11 +1568,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IINC])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(index)
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(_const);
 		writeNewLine();
 	}
@@ -1587,7 +1584,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD_0]);
 		writeNewLine();
 	}
@@ -1599,7 +1596,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD_1]);
 		writeNewLine();
 	}
@@ -1611,7 +1608,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD_2]);
 		writeNewLine();
 	}
@@ -1623,7 +1620,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD_3]);
 		writeNewLine();
 	}
@@ -1635,9 +1632,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(index);
 		writeNewLine();
 	}
@@ -1649,7 +1646,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IMUL]);
 		writeNewLine();
 	}
@@ -1661,7 +1658,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INEG]);
 		writeNewLine();
 	}
@@ -1673,12 +1670,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INSTANCEOF])
-			.append(' ')
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(index)
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(returnConstantClassName(constantClass));
 		writeNewLine();
 	}
@@ -1698,16 +1694,15 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKEINTERFACE])
-			.append(' ')
 			.append(Util.bind("classformat.nargs")) //$NON-NLS-1$
-			.append(' ')
 			.append(nargs)
 			.append(Util.bind("classformat.interfacemethodrefindex")) //$NON-NLS-1$
 			.append(index)
 			.append(Util.bind("classformat.invokeinterfacemethod")) //$NON-NLS-1$
 			.append(returnDeclaringClassName(constantInterfaceMethodref))
+			.append(Util.bind("disassembler.classmemberseparator")) //$NON-NLS-1$
 			.append(
 				Signature.toCharArray(
 					methodDescriptor,
@@ -1732,12 +1727,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 			writeTabs();
 			buffer
 				.append(pc)
-				.append('\t')
+				.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 				.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKESPECIAL])
-				.append(' ')
-				.append('#')
+				.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 				.append(index)
-				.append(' ')
 				.append(Util.bind("classformat.invokespecialconstructor")) //$NON-NLS-1$
 				.append(returnDeclaringClassName(constantMethodref))
 				.append(
@@ -1754,15 +1747,13 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 			writeTabs();
 			buffer
 				.append(pc)
-				.append('\t')
+				.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 				.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD_0])
-				.append(' ')
-				.append('#')
+				.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 				.append(index)
-				.append(' ')
 				.append(Util.bind("classformat.invokespecialmethod")) //$NON-NLS-1$
 				.append(returnDeclaringClassName(constantMethodref))
-				.append('.')
+				.append(Util.bind("disassembler.classmemberseparator")) //$NON-NLS-1$
 				.append(
 					Signature.toCharArray(
 						methodDescriptor,
@@ -1784,15 +1775,13 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKESTATIC])
-			.append(' ')
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(index)
-			.append(' ')
 			.append(Util.bind("classformat.invokestaticmethod")) //$NON-NLS-1$
 			.append(returnDeclaringClassName(constantMethodref))
-			.append('.')
+			.append(Util.bind("disassembler.classmemberseparator")) //$NON-NLS-1$
 			.append(
 				Signature.toCharArray(
 					methodDescriptor,
@@ -1813,15 +1802,13 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKEVIRTUAL])
-			.append(' ')
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(index)
-			.append(' ')
 			.append(Util.bind("classformat.invokevirtualmethod")) //$NON-NLS-1$
 			.append(returnDeclaringClassName(constantMethodref))
-			.append('.')
+			.append(Util.bind("disassembler.classmemberseparator")) //$NON-NLS-1$
 			.append(
 				Signature.toCharArray(
 					methodDescriptor,
@@ -1840,7 +1827,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IOR]);
 		writeNewLine();
 	}
@@ -1852,7 +1839,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IREM]);
 		writeNewLine();
 	}
@@ -1864,7 +1851,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IRETURN]);
 		writeNewLine();
 	}
@@ -1876,7 +1863,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISHL]);
 		writeNewLine();
 	}
@@ -1888,7 +1875,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISHR]);
 		writeNewLine();
 	}
@@ -1900,7 +1887,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE_0]);
 		writeNewLine();
 	}
@@ -1912,7 +1899,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE_1]);
 		writeNewLine();
 	}
@@ -1924,7 +1911,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE_2]);
 		writeNewLine();
 	}
@@ -1936,7 +1923,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE_3]);
 		writeNewLine();
 	}
@@ -1948,9 +1935,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(index);
 		writeNewLine();
 	}
@@ -1962,7 +1949,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISUB]);
 		writeNewLine();
 	}
@@ -1974,7 +1961,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IUSHR]);
 		writeNewLine();
 	}
@@ -1986,7 +1973,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IXOR]);
 		writeNewLine();
 	}
@@ -1998,9 +1985,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.JSR_W])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -2012,9 +1999,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.JSR])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(branchOffset + pc);
 		writeNewLine();
 	}
@@ -2026,7 +2013,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.L2D]);
 		writeNewLine();
 	}
@@ -2038,7 +2025,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.L2F]);
 		writeNewLine();
 	}
@@ -2050,7 +2037,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.L2I]);
 		writeNewLine();
 	}
@@ -2062,7 +2049,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LADD]);
 		writeNewLine();
 	}
@@ -2074,7 +2061,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LALOAD]);
 		writeNewLine();
 	}
@@ -2086,7 +2073,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LAND]);
 		writeNewLine();
 	}
@@ -2098,7 +2085,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LASTORE]);
 		writeNewLine();
 	}
@@ -2110,7 +2097,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LCMP]);
 		writeNewLine();
 	}
@@ -2122,7 +2109,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LCONST_0]);
 		writeNewLine();
 	}
@@ -2134,7 +2121,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LCONST_1]);
 		writeNewLine();
 	}
@@ -2146,12 +2133,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC_W])
-			.append(' ')
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(index)
-			.append(' ');
+			.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		switch (constantPoolEntry.getKind()) {
 			case IConstantPoolConstant.CONSTANT_Float :
 				appendOutputforConstantFloat(constantPoolEntry);
@@ -2172,12 +2158,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC])
-			.append(' ')
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(index)
-			.append(' ');
+			.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		switch (constantPoolEntry.getKind()) {
 			case IConstantPoolConstant.CONSTANT_Float :
 				appendOutputforConstantFloat(constantPoolEntry);
@@ -2198,12 +2183,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC2_W])
-			.append(' ')
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(index)
-			.append(' ');
+			.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		switch (constantPoolEntry.getKind()) {
 			case IConstantPoolConstant.CONSTANT_Long :
 				appendOutputForConstantLong(constantPoolEntry);
@@ -2221,7 +2205,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDIV]);
 		writeNewLine();
 	}
@@ -2233,7 +2217,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD_0]);
 		writeNewLine();
 	}
@@ -2245,7 +2229,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD_1]);
 		writeNewLine();
 	}
@@ -2257,7 +2241,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD_2]);
 		writeNewLine();
 	}
@@ -2269,7 +2253,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD_3]);
 		writeNewLine();
 	}
@@ -2281,9 +2265,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(index);
 		writeNewLine();
 	}
@@ -2295,7 +2279,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LMUL]);
 		writeNewLine();
 	}
@@ -2307,7 +2291,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LNEG]);
 		writeNewLine();
 	}
@@ -2319,20 +2303,17 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LOOKUPSWITCH])
-			.append(' ')
 			.append(Util.bind("classfileformat.default")) //$NON-NLS-1$
-			.append(' ')
 			.append(defaultoffset + pc);
 		writeNewLine();
 		for (int i = 0; i < npairs; i++) {
 			writeExtraTabs(1);
 			buffer
 				.append(Util.bind("classfileformat.case")) //$NON-NLS-1$
-				.append(' ')
 				.append(offset_pairs[i][0])
-				.append(':')
+				.append(Util.bind("disassembler.colon")) //$NON-NLS-1$
 				.append(offset_pairs[i][1] + pc);
 			writeNewLine();
 		}
@@ -2345,7 +2326,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LOR]);
 		writeNewLine();
 	}
@@ -2357,7 +2338,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LREM]);
 		writeNewLine();
 	}
@@ -2369,7 +2350,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LRETURN]);
 		writeNewLine();
 	}
@@ -2381,7 +2362,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSHL]);
 		writeNewLine();
 	}
@@ -2393,7 +2374,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSHR]);
 		writeNewLine();
 	}
@@ -2405,7 +2386,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE_0]);
 		writeNewLine();
 	}
@@ -2417,7 +2398,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE_1]);
 		writeNewLine();
 	}
@@ -2429,7 +2410,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE_2]);
 		writeNewLine();
 	}
@@ -2441,7 +2422,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE_3]);
 		writeNewLine();
 	}
@@ -2453,9 +2434,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(index);
 		writeNewLine();
 	}
@@ -2467,7 +2448,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSUB]);
 		writeNewLine();
 	}
@@ -2479,7 +2460,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LUSHR]);
 		writeNewLine();
 	}
@@ -2491,7 +2472,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LXOR]);
 		writeNewLine();
 	}
@@ -2503,7 +2484,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.MONITORENTER]);
 		writeNewLine();
 	}
@@ -2515,7 +2496,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.MONITOREXIT]);
 		writeNewLine();
 	}
@@ -2531,12 +2512,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.MULTIANEWARRAY])
-			.append(' ')
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(index)
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(returnConstantClassName(constantClass));
 		appendDimensions(dimensions);
 		writeNewLine();
@@ -2549,12 +2529,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.NEW])
-			.append(' ')
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(index)
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(returnConstantClassName(constantClass));
 		writeNewLine();
 	}
@@ -2566,12 +2545,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.NEWARRAY])
-			.append(' ')
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(atype)
-			.append(' ');
+			.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		appendGetArrayType(atype);
 		writeNewLine();
 	}
@@ -2583,7 +2561,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.NOP]);
 		writeNewLine();
 	}
@@ -2595,7 +2573,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.POP]);
 		writeNewLine();
 	}
@@ -2607,7 +2585,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.POP2]);
 		writeNewLine();
 	}
@@ -2619,17 +2597,16 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.PUTFIELD])
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(index)
-			.append(' ')
 			.append(Util.bind("classformat.putfield"))			 //$NON-NLS-1$
-			.append(constantFieldref.getClassName())
-			.append('.')
+			.append(returnDeclaringClassName(constantFieldref))
+			.append(Util.bind("disassembler.classmemberseparator")) //$NON-NLS-1$
 			.append(constantFieldref.getFieldName())
-			.append(' ')
-			.append(Signature.toCharArray(constantFieldref.getFieldDescriptor()))
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
+			.append(returnFieldrefDescriptor(constantFieldref))
 			.append(Util.bind("classformat.putfieldclose")); //$NON-NLS-1$
 		writeNewLine();
 	}
@@ -2641,19 +2618,24 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.PUTSTATIC])
-			.append('#')
+			.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 			.append(index)
-			.append(' ')
 			.append(Util.bind("classformat.putstatic")) //$NON-NLS-1$
-			.append(constantFieldref.getClassName())
-			.append('.')
+			.append(returnDeclaringClassName(constantFieldref))
+			.append(Util.bind("disassembler.classmemberseparator")) //$NON-NLS-1$
 			.append(constantFieldref.getFieldName())
-			.append(' ')
-			.append(Signature.toCharArray(constantFieldref.getFieldDescriptor()))
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
+			.append(returnFieldrefDescriptor(constantFieldref))
 			.append(Util.bind("classformat.putstaticclose")); //$NON-NLS-1$
 		writeNewLine();
+	}
+
+	private char[] returnFieldrefDescriptor(IConstantPoolEntry constantFieldref) throws IllegalArgumentException {
+		char[] fieldDescriptor = constantFieldref.getFieldDescriptor();
+		CharOperation.replace(fieldDescriptor, '/', '.');
+		return Signature.toCharArray(fieldDescriptor);
 	}
 
 	/**
@@ -2663,9 +2645,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.RET])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(index);
 		writeNewLine();
 	}
@@ -2677,7 +2659,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.RETURN]);
 		writeNewLine();
 	}
@@ -2689,7 +2671,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.SALOAD]);
 		writeNewLine();
 	}
@@ -2701,7 +2683,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.SASTORE]);
 		writeNewLine();
 	}
@@ -2713,9 +2695,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.SIPUSH])
-			.append(' ')
+			.append(Util.bind("disassembler.space")) //$NON-NLS-1$
 			.append(value);
 		writeNewLine();
 	}
@@ -2727,7 +2709,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.SWAP]);
 		writeNewLine();
 	}
@@ -2745,19 +2727,17 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.TABLESWITCH])
-			.append(' ')
 			.append(Util.bind("classfileformat.default")) //$NON-NLS-1$
-			.append(' ')
 			.append(defaultoffset + pc);
 		writeNewLine();
 		for (int i = low; i < high + 1; i++) {
 			writeExtraTabs(1);
 			buffer
 				.append(Util.bind("classfileformat.case")) //$NON-NLS-1$
-				.append(' ')
 				.append(i)
+				.append(Util.bind("disassembler.colon")) //$NON-NLS-1$
 				.append(jump_offsets[i - low] + pc);
 			writeNewLine();
 		}
@@ -2770,7 +2750,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.WIDE]);
 		writeNewLine();
 		_iinc(pc + 1, index, _const);
@@ -2783,7 +2763,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.WIDE]);
 		writeNewLine();
 		switch(opcode) {
@@ -2829,7 +2809,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.BREAKPOINT]);
 		writeNewLine();
 	}
@@ -2841,7 +2821,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IMPDEP1]);
 		writeNewLine();
 	}
@@ -2853,7 +2833,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeTabs();
 		buffer
 			.append(pc)
-			.append('\t')
+			.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
 			.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IMPDEP2]);
 		writeNewLine();
 	}
@@ -2912,7 +2892,6 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	private void appendOutputForConstantDouble(IConstantPoolEntry constantPoolEntry) {
 		this.buffer
 			.append(Util.bind("disassembler.constantdouble")) //$NON-NLS-1$
-			.append(' ')
 			.append(constantPoolEntry.getDoubleValue())
 			.append(Util.bind("disassembler.closeconstant")); //$NON-NLS-1$
 	}
@@ -2920,7 +2899,6 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	private void appendOutputForConstantLong(IConstantPoolEntry constantPoolEntry) {
 		this.buffer
 			.append(Util.bind("disassembler.constantlong")) //$NON-NLS-1$
-			.append(' ')
 			.append(constantPoolEntry.getLongValue())
 			.append(Util.bind("disassembler.closeconstant")); //$NON-NLS-1$
 	}
@@ -2928,7 +2906,6 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	private void appendOutputForConstantString(IConstantPoolEntry constantPoolEntry) {
 		this.buffer
 			.append(Util.bind("disassembler.constantstring")) //$NON-NLS-1$
-			.append(' ')
 			.append(constantPoolEntry.getStringValue())
 			.append(Util.bind("disassembler.closeconstant")); //$NON-NLS-1$
 	}
@@ -2936,7 +2913,6 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	private void appendOutputforConstantInteger(IConstantPoolEntry constantPoolEntry) {
 		this.buffer
 			.append(Util.bind("disassembler.constantinteger")) //$NON-NLS-1$
-			.append(' ')
 			.append(constantPoolEntry.getIntegerValue())
 			.append(Util.bind("disassembler.closeconstant")); //$NON-NLS-1$
 	}
@@ -2944,7 +2920,6 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	private void appendOutputforConstantFloat(IConstantPoolEntry constantPoolEntry) {
 		this.buffer
 			.append(Util.bind("disassembler.constantfloat")) //$NON-NLS-1$
-			.append(' ')
 			.append(constantPoolEntry.getFloatValue())
 			.append(Util.bind("disassembler.closeconstant")); //$NON-NLS-1$
 	}
@@ -2955,13 +2930,13 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 
 	private void writeTabs() {
 		for (int i = 0, max = this.tabNumber; i < max; i++) {
-			this.buffer.append('\t');
+			this.buffer.append(Util.bind("disassembler.tab")); //$NON-NLS-1$
 		}
 	}	
 
 	private void writeExtraTabs(int extraTabs) {
 		for (int i = 0, max = this.tabNumber + extraTabs; i < max; i++) {
-			this.buffer.append('\t');
+			this.buffer.append(Util.bind("disassembler.tab")); //$NON-NLS-1$
 		}
 	}	
 
