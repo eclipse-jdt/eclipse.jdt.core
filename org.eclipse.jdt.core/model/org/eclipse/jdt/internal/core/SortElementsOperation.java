@@ -37,13 +37,13 @@ public class SortElementsOperation extends JavaModelOperation {
 	
 	Comparator comparator;
 	boolean hasChanged;
-	int[][] positions;
+	int[] positions;
 	
 	/**
 	 * Constructor for SortElementsOperation.
 	 * @param elements
 	 */
-	public SortElementsOperation(IJavaElement[] elements, int[][] positions, Comparator comparator) {
+	public SortElementsOperation(IJavaElement[] elements, int[] positions, Comparator comparator) {
 		super(elements);
 		this.comparator = comparator;
 		this.positions = positions;
@@ -63,20 +63,18 @@ public class SortElementsOperation extends JavaModelOperation {
 	protected void executeOperation() throws JavaModelException {
 		try {
 			beginTask(Util.bind("operation.sortelements"), getMainAmountOfWork()); //$NON-NLS-1$
-			for (int i = 0, max = fElementsToProcess.length; i < max; i++) {
-				WorkingCopy copy = (WorkingCopy) fElementsToProcess[i];
-				ICompilationUnit unit = (ICompilationUnit) copy.getOriginalElement();
-				IBuffer buffer = copy.getBuffer();
-				if (buffer  == null) { 
-					return;
-				}
-				char[] bufferContents = buffer.getCharacters();
-				String result = processElement(unit, positions == null ? null : positions[i], bufferContents);
-				if (!CharOperation.equals(result.toCharArray(), bufferContents)) {
-					copy.getBuffer().setContents(result);
-				}
-				worked(1);
+			WorkingCopy copy = (WorkingCopy) fElementsToProcess[0];
+			ICompilationUnit unit = (ICompilationUnit) copy.getOriginalElement();
+			IBuffer buffer = copy.getBuffer();
+			if (buffer  == null) { 
+				return;
 			}
+			char[] bufferContents = buffer.getCharacters();
+			String result = processElement(unit, positions, bufferContents);
+			if (!CharOperation.equals(result.toCharArray(), bufferContents)) {
+				copy.getBuffer().setContents(result);
+			}
+			worked(1);
 		} finally {
 			done();
 		}

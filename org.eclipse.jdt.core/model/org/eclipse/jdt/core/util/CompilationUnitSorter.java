@@ -252,10 +252,7 @@ public final class CompilationUnitSorter {
 			}
 			String node1Signature = buildSignature(node1);
 			String node2Signature = buildSignature(node2);
-			// TODO: (olivier) remove unnecessary null checks
-			if (node1Signature == null || node2Signature == null) {
-				return 0;
-			} else if (node1Signature.length() != 0 && node2Signature.length() != 0) {
+			if (node1Signature.length() != 0 && node2Signature.length() != 0) {
 				int compare = this.collator.compare(node1Signature, node2Signature);
 				if (compare != 0) {
 					return compare;
@@ -443,10 +440,8 @@ public final class CompilationUnitSorter {
 		if (compilationUnit == null || comparator == null) {
 			throw new IllegalArgumentException();
 		}
-		// TODO: (olivier) Remove extra level of array
 		ICompilationUnit[] compilationUnits = new ICompilationUnit[] { compilationUnit };
-		int[][] positionsList = new int[][] {positions};
-		SortElementsOperation operation = new SortElementsOperation(compilationUnits, positionsList, comparator);
+		SortElementsOperation operation = new SortElementsOperation(compilationUnits, positions, comparator);
 		try {
 			JavaCore.run(operation, monitor);
 		} catch(CoreException e) {
