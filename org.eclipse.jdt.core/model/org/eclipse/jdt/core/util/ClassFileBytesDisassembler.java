@@ -1,9 +1,9 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2000, 2002 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v0.5 
+ * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v05.html
+ * http://www.eclipse.org/legal/cpl-v10.html
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -12,45 +12,54 @@ package org.eclipse.jdt.core.util;
 
 /**
  * This interface is intended to be implemented to disassemble
- * IClassFileReader onto a String using the proper line separator.
+ * classfile bytes onto a String using the proper line separator.
  * 
- * @since 2.0
- * @deprecated - should use ClassFileBytesDisassembler instead
+ * @since 2.1
  */
-public interface IClassFileDisassembler {
+public abstract class ClassFileBytesDisassembler {
 	
 	/**
 	 * The mode is the detailed mode to disassemble IClassFileReader. It returns the magic
 	 * numbers, the version numbers and field and method descriptors.
 	 */
-	int DETAILED = 1;
+	public final static int DETAILED = 1;
 	
 	/**
 	 * The mode is the default mode to disassemble IClassFileReader.
 	 */
-	int DEFAULT  = 2;
+	public final static  int DEFAULT  = 2;
+
 	/**
-	 * Answers back the disassembled string of the IClassFileReader using the default
+	 * Answers back the disassembled string of the classfile bytes using the default
 	 * mode.
 	 * This is an output quite similar to the javap tool, using DEFAULT mode.
 	 * 
-	 * @param classFileReader The classFileReader to be disassembled
+	 * @param classFileBytes The bytes of the classfile
 	 * @param lineSeparator the line separator to use.
 	 * 
 	 * @return the disassembled string of the IClassFileReader using the default mode.
+	 * @exception ClassFormatException if the classfile bytes are ill-formed
 	 */
-	String disassemble(IClassFileReader classFileReader, String lineSeparator);
+	public abstract String disassemble(byte[] classFileBytes, String lineSeparator) throws ClassFormatException;
 
 	/**
-	 * Answers back the disassembled string of the IClassFileReader according to the
+	 * Answers back the disassembled string of the classfile bytes according to the
 	 * mode.
 	 * This is an output quite similar to the javap tool.
 	 * 
-	 * @param classFileReader The classFileReader to be disassembled
+	 * @param classFileBytes The bytes of the classfile
 	 * @param lineSeparator the line separator to use.
 	 * @param mode the mode used to disassemble the IClassFileReader
 	 * 
 	 * @return the disassembled string of the IClassFileReader according to the mode
+	 * @exception ClassFormatException if the classfile bytes are ill-formed
 	 */
-	String disassemble(IClassFileReader classFileReader, String lineSeparator, int mode);
+	public abstract String disassemble(byte[] classFileBytes, String lineSeparator, int mode)  throws ClassFormatException;
+
+	/**
+	 * Answers a readable short description of this disassembler
+	 * 
+	 * @return String - a string description of the disassembler
+	 */	
+    public abstract String getDescription();
 }
