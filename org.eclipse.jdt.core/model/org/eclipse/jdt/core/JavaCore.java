@@ -1207,7 +1207,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 
 	 * COMPILER / Setting Source Compatibility Mode
 	 *    Specify whether source is 1.3 or 1.4 compatible. From 1.4 on, 'assert' is a keyword
-	 *    reserved for assertion support.
+	 *    reserved for assertion support. Also note, than when toggling to 1.4 mode, the target VM
+	 *   level should be set to "1.4" or better.
 	 *     - option id:			"org.eclipse.jdt.core.compiler.source"
 	 *     - possible values:	{ "1.3", "1.4" }
 	 *     - default:			"1.3"
