@@ -114,7 +114,7 @@ class DocCommentParser extends AbstractCommentParser {
 				argType = this.ast.newSimpleType(argTypeName);
 				argType.setSourceRange(argStart, node.getLength());
 			}
-			if (dim > 0) {
+			if (dim > 0 && !isVarargs) {
 				for (int i=0; i<dim; i++) {
 					argType = this.ast.newArrayType(argType);
 					argType.setSourceRange(argStart, ((int) dimPositions[i])-argStart+1);

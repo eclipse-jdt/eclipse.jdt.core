@@ -3417,12 +3417,13 @@ class ASTConverter {
 						if (expression instanceof JavadocArgumentExpression) {
 							JavadocArgumentExpression argExpr = (JavadocArgumentExpression) expression;
 							org.eclipse.jdt.internal.compiler.ast.TypeReference typeRef = argExpr.argument.type;
+							if (this.ast.apiLevel != AST.JLS2) param.setVarargs(argExpr.argument.isVarArgs());
 							recordNodes(param.getType(), typeRef);
 							if (param.getType().isSimpleType()) {
-								SimpleType type = (SimpleType)param.getType();
-								recordName(type.getName(), typeRef);
+								recordName(((SimpleType)param.getType()).getName(), typeRef);
 							} else if (param.getType().isArrayType()) {
 								Type type = ((ArrayType) param.getType()).getElementType();
+								recordNodes(type, typeRef);
 								if (type.isSimpleType()) {
 									recordName(((SimpleType)type).getName(), typeRef);
 								}

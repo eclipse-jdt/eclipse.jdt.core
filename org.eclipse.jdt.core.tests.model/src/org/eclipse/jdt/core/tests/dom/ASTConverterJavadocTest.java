@@ -111,7 +111,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug80221"));
+		suite.addTest(new ASTConverterJavadocTest("testBug87845"));
 		return suite;
 	}
 
@@ -124,7 +124,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 		}
 		// when unix support not specified, also run using unix format
-		if (UNIX_SUPPORT == null) {
+		if (UNIX_SUPPORT == null && JavaCore.ENABLED.equals(support)) {
 			for (int i = 0, max = methods.length; i < max; i++) {
 				if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
 					suite.addTest(new ASTConverterJavadocTest(methods[i].getName(), support, "true"));
@@ -1000,6 +1000,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						Iterator parameters = methodRef.parameters().listIterator();
 						while (parameters.hasNext()) {
 							MethodRefParameter param = (MethodRefParameter) parameters.next();
+							boolean lastParam = !parameters.hasNext();
 							// Verify parameter type positions
 							while (source[start] == '*' || Character.isWhitespace(source[start])) {
 								 start++; // purge non-stored characters
@@ -1020,6 +1021,15 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 								}
 							}
 							start += type.getLength();
+							// if last param then perhaps a varargs
+							while (Character.isWhitespace(source[start])) { // do NOT accept '*' in parameter declaration
+								 start++; // purge non-stored characters
+							}
+							if (lastParam && this.astLevel != AST.JLS2 && param.isVarargs()) {
+								for (int p=0;p<3;p++) {
+									assumeTrue(prefix+"Missing ellipsis for vararg method ref parameter at <"+start+"> for method ref: "+methodRef, source[start++]=='.');
+								}
+							}
 							// Verify parameter name positions
 							while (Character.isWhitespace(source[start])) { // do NOT accept '*' in parameter declaration
 								 start++; // purge non-stored characters
@@ -1126,7 +1136,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					previousBinding = memberRef.resolveBinding();
 					if (previousBinding != null) {
 						SimpleName name = memberRef.getName();
-						assumeNotNull(prefix+""+name+" binding was not found!", name.resolveBinding());
+						assumeNotNull(prefix+""+name+" binding was not foundfound in "+fragment, name.resolveBinding());
 						verifyNameBindings(memberRef.getQualifier());
 					}
 				} else if (fragment.getNodeType() == ASTNode.METHOD_REF) {
@@ -1137,7 +1147,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						IBinding methNameBinding = methodName.resolveBinding();
 						Name methodQualifier = methodRef.getQualifier();
 						// TODO (frederic) Replace the two following lines by commented block when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=62650 will be fixed
-						assumeNotNull(prefix+""+methodName+" binding was not found!",methNameBinding);
+						assumeNotNull(prefix+""+methodName+" binding was not found in "+fragment, methNameBinding);
 						verifyNameBindings(methodQualifier);
 						/*
 						if (methodQualifier == null) {
@@ -1172,9 +1182,16 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						Iterator parameters = methodRef.parameters().listIterator();
 						while (parameters.hasNext()) {
 							MethodRefParameter param = (MethodRefParameter) parameters.next();
-							assumeNotNull(prefix+""+param.getType()+" binding was not found!", param.getType().resolveBinding());
-							if (param.getType().isSimpleType()) {
-								verifyNameBindings(((SimpleType)param.getType()).getName());
+							Type type = param.getType();
+							assumeNotNull(prefix+""+type+" binding was not found in "+fragment, type.resolveBinding());
+							if (type.isSimpleType()) {
+								verifyNameBindings(((SimpleType)type).getName());
+							} else if (type.isArrayType()) {
+								Type elementType = ((ArrayType) param.getType()).getElementType();
+								assumeNotNull(prefix+""+elementType+" binding was not found in "+fragment, elementType.resolveBinding());
+								if (elementType.isSimpleType()) {
+									verifyNameBindings(((SimpleType)elementType).getName());
+								}
 							}
 							//	Do not verify parameter name as no binding is expected for them
 						}
@@ -2340,7 +2357,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		workingCopies = new ICompilationUnit[1];
 		astLevel = AST.JLS3;
 		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b80257/Test.java",
-			"package b80257;\n" + 
+			"package javadoc.b80257;\n" + 
 			"import java.util.*;\n" + 
 			"public class Test {\n" + 
 			"	/**\n" + 
@@ -2383,6 +2400,82 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertTrue(linkRef.toString()+" should have a generic type binding", typeBinding.isGenericType());
 			assertFalse(linkRef.toString()+" should NOT have a parameterized type binding", typeBinding.isParameterizedType());
 			assertFalse(linkRef.toString()+" should NOT have a raw type binding", typeBinding.isRawType());
+		}
+	}
+
+	/**
+	 * Bug 87845: [1.5][javadoc][dom] Type references in javadocs should have generic binding, not raw
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=87845"
+	 */
+	public void testBug87845() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b87845/Test.java",
+			"package javadoc.b87845;\n" + 
+			"public class Test {\n" + 
+			"	public void foo(int a, int b) {} \n" + 
+			"	public void foo(int a, int... args) {}\n" + 
+			"	public void foo(String... args) {}\n" + 
+			"	public void foo(Exception str, boolean... args) {}\n" + 
+			"	/**\n" + 
+			"	* @see Test#foo(int, int)\n" + 
+			"	* @see Test#foo(int, int[])\n" + 
+			"	* @see Test#foo(int, int...)\n" + 
+			"	* @see Test#foo(String[])\n" + 
+			"	* @see Test#foo(String...)\n" + 
+			"	* @see Test#foo(Exception, boolean[])\n" + 
+			"	* @see Test#foo(Exception, boolean...)\n" + 
+			"	*/\n" + 
+			"	public void valid() {}\n" + 
+			"	/**\n" + 
+			"	* @see Test#foo(int)\n" + 
+			"	* @see Test#foo(int, int, int)\n" + 
+			"	* @see Test#foo()\n" + 
+			"	* @see Test#foo(String)\n" + 
+			"	* @see Test#foo(String, String)\n" + 
+			"	* @see Test#foo(Exception)\n" + 
+			"	* @see Test#foo(Exception, boolean)\n" + 
+			"	* @see Test#foo(Exception, boolean, boolean)\n" + 
+			"	*/\n" + 
+			"	public void invalid() {}\n" + 
+			"}\n"
+		);
+		verifyComments(workingCopies[0]);
+		CompilationUnit compilUnit = verifyComments(workingCopies[0]);
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Do not need to verify following statement as we know it's ok as verifyComments did not fail
+			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0); // get first javadoc comment
+			// Verify last parameter for all methods reference in javadoc comment
+			List tags = docComment.tags();
+			int size = tags.size();
+			for (int i=0; i<size; i++) {
+				TagElement tag = (TagElement) docComment.tags().get(i);				
+				assertEquals("Invalid number of fragment for see reference: "+tag, 1, tag.fragments().size());
+				ASTNode node = (ASTNode) tag.fragments().get(0);
+				assertEquals("Invalid kind of name reference for tag element: "+tag, ASTNode.METHOD_REF, node.getNodeType());
+				MethodRef methodRef = (MethodRef) node;
+				List parameters = methodRef.parameters();
+				int paramSize = parameters.size();
+				for (int j=0; j<paramSize; j++) {
+					node = (ASTNode) parameters.get(j);
+					assertEquals("Invalid kind of method parameter: "+node, ASTNode.METHOD_REF_PARAMETER, node.getNodeType());
+					MethodRefParameter parameter = (MethodRefParameter) node;
+					if (j==(paramSize-1)) {
+						switch (i) {
+							case 2:
+							case 4:
+							case 6:
+								assertTrue("Method parameter \""+parameter+"\" should be varargs!", parameter.isVarargs());
+								break;
+							default:
+								assertFalse("Method parameter \""+parameter+"\" should not be varargs!", parameter.isVarargs());
+								break;
+						}
+					} else {
+						assertFalse("Method parameter \""+parameter+"\" should not be varargs!", parameter.isVarargs());
+					}
+				}
+			}
 		}
 	}
 }

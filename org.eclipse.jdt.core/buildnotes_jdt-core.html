@@ -47,6 +47,50 @@ Eclipse SDK 3.1M6 - ?th March 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Allow javadoc reference to varargs methods (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87845">87845</a>).<br>
+The 1.5 spec for the Javadoc tool does not mention the possibility
+of a variable arity indicator in method references. However, the 1.5
+Javadoc tool itself does indeed support it. Since it makes sense to have
+a way to explicitly refer to variable arity methods, it seems more likely
+that the Javadoc spec is wrong in this case.<br>
+Following API methods were added to <code>MethodRefParameter</code>:
+<pre>
+/**
+ * The "varargs" structural property of this node type (added in JLS3 API).
+ * @since 3.1
+ */
+public static final SimplePropertyDescriptor VARARGS_PROPERTY;
+/**
+ * Returns whether this method reference parameter is for
+ * the last parameter of a variable arity method (added in JLS3 API).
+ * <p>
+ * Note that the binding for the type <code>Foo</code>in the vararg method
+ * reference <code>#fun(Foo...)</code> is always for the type as 
+ * written; i.e., the type binding for <code>Foo</code>. However, if you
+ * navigate from the MethodRef to its method binding to the
+ * type binding for its last parameter, the type binding for the vararg
+ * parameter is always an array type (i.e., <code>Foo[]</code>) reflecting
+ * the way vararg methods get compiled.
+ * </p>
+ * 
+ * @return <code>true</code> if this is a variable arity parameter,
+ *    and <code>false</code> otherwise
+ * @exception UnsupportedOperationException if this operation is used in
+ * a JLS2 AST
+ * @since 3.1
+ */ 
+public boolean isVarargs();
+/**
+ * Sets whether this method reference parameter is for the last parameter of
+ * a variable arity method (added in JLS3 API).
+ * 
+ * @param variableArity <code>true</code> if this is a variable arity
+ *    parameter, and <code>false</code> otherwise
+ * @since 3.1
+ */ 
+public void setVarargs(boolean variableArity);
+</pre>
+</li>
 <li>Add new flags on nature of match to specify that declaring or return type should be ignored during the search
 (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80264">80264</a>).<br>
 These flags are defined on <code>IJavaSearchConstants</code> interface:
@@ -117,7 +161,11 @@ nodes depending on the form of the given name string.
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87778">87778</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87754">87754</a>
+[1.5][javadoc][dom] Type of ArrayType component type inside MethodRef has no binding
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87845">87845</a>
+[1.5][dom][javadoc] allow javadoc references to vararg methods
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87778">87778</a>
 [search] doesn't find all declarations of method with covariant return type
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80264">80264</a>
 [search] Search for method declarations in workspace, disregarding declaring type
