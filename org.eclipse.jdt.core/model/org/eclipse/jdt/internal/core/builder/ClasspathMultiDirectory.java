@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.*;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.core.Util;
 
 class ClasspathMultiDirectory extends ClasspathDirectory {
 
@@ -39,6 +41,12 @@ public boolean equals(Object o) {
 	return sourceFolder.equals(md.sourceFolder) && binaryFolder.equals(md.binaryFolder)
 		&& CharOperation.equals(exclusionPatterns, md.exclusionPatterns);
 } 
+
+protected boolean isExcluded(IResource resource) {
+	if (this.exclusionPatterns != null && this.sourceFolder.equals(this.binaryFolder))
+		return Util.isExcluded(resource, this.exclusionPatterns);
+	return false;
+}
 
 public String toString() {
 	return "Source classpath directory " + sourceFolder.getFullPath().toString() + //$NON-NLS-1$

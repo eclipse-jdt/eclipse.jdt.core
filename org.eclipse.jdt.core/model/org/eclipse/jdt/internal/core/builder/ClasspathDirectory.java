@@ -46,7 +46,7 @@ String[] directoryList(String qualifiedPackageName) {
 
 	try {
 		IResource container = binaryFolder.findMember(qualifiedPackageName); // this is a case-sensitive check
-		if (container instanceof IContainer) {
+		if (container instanceof IContainer && !isExcluded(container)) {
 			IResource[] members = ((IContainer) container).members();
 			dirList = new String[members.length];
 			int index = 0;
@@ -110,6 +110,10 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 
 public IPath getProjectRelativePath() {
 	return binaryFolder.getProjectRelativePath();
+}
+
+protected boolean isExcluded(IResource resource) {
+	return false;
 }
 
 public boolean isOutputFolder() {
