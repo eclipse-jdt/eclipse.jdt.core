@@ -2778,7 +2778,13 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("Should be the same", binding == binding2);
 	}
 	
-	public void _test0500() throws JavaModelException {
+	/**
+	 * Test for bug 45436 fix.
+	 * When this bug happened, the first assertion was false (2 problems found).
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45436">bug 45436</a>
+	 * @throws JavaModelException
+	 */
+	public void test0500() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0500", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		IJavaProject project = sourceUnit.getJavaProject();
 		Map originalOptions = project.getOptions(true);
@@ -2788,6 +2794,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			CompilationUnit result = (CompilationUnit)runConversion(sourceUnit, true);
 			IProblem[] problems= result.getProblems();
 			assertTrue(problems.length == 1);
+			assertEquals("Invalid warning", "Annotation: Missing javadoc entry for parameter a", problems[0].getMessage());
 		} finally {
 			project.setOptions(originalOptions);
 		}

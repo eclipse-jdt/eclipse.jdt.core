@@ -1,4 +1,7 @@
 package test0500;
+/**
+ * Test for bug 45436
+ */
 public class A {
 	/**
 	 * @param b 
