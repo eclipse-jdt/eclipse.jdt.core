@@ -603,9 +603,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
-	 * Creates and returns a new classpath entry of kind <code>CPE_LIBRARY</code> for the JAR or folder
-	 * identified by the given absolute path. This specifies that all package fragments within the root 
-	 * will have children of type <code>IClassFile</code>.
+	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_LIBRARY</code> for the 
+	 * JAR or folder identified by the given absolute path. This specifies that all package fragments 
+	 * within the root will have children of type <code>IClassFile</code>.
 	 * <p>
 	 * A library entry is used to denote a prerequisite JAR or root folder containing binaries.
 	 * The target JAR or folder can either be defined internally to the workspace (absolute path relative
@@ -618,15 +618,19 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * </ul>
 	 * Note that this operation does not attempt to validate or access the 
 	 * resources at the given paths.
+	 * </p>
 	 * <p>
-	 * Also note that by default the resulting entry is not exported (see <code>IClasspathEntry.isExported</code>).
-	 * In order to create an exported library entry, use <code>JavaCore.newLibraryEntry(IPath, IPath, IPath, boolean)</code>
-	 * <p>
+	 * The resulting entry is not exported to dependent projects. This method is equivalent to
+	 * <code>newLibraryEntry(-,-,-,false)</code>.
+	 * </p>
+	 * 
 	 * @param path the absolute path of the binary archive
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive, 
 	 *    or <code>null</code> if none
 	 * @param sourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
+	 * @return a new library classpath entry
+	 * @see #newLibraryEntry(org.eclipse.core.runtime.IPath,org.eclipse.core.runtime.IPath,org.eclipse.core.runtime.IPath,boolean)
 	 */
 	public static IClasspathEntry newLibraryEntry(
 		IPath path,
@@ -652,14 +656,17 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * </ul>
 	 * Note that this operation does not attempt to validate or access the 
 	 * resources at the given paths.
-	 * <p>
+	 * </p>
+	 * 
 	 * @param path the absolute path of the binary archive
 	 * @param sourceAttachmentPath the absolute path of the corresponding source archive, 
 	 *    or <code>null</code> if none
 	 * @param sourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
-	 * @param isExported flag indicating whether this entry is automatically contributed to dependent
-	 * 	projects (in addition to the output location).
+	 * @param isExported indicates whether this entry is contributed to dependent
+	 * 	  projects in addition to the output location
+	 * @return a new library classpath entry
+	 * @since 2.0
 	 */
 	public static IClasspathEntry newLibraryEntry(
 		IPath path,
@@ -681,22 +688,28 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
-	 * Creates and returns a new classpath entry of kind <code>CPE_PROJECT</code>
+	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_PROJECT</code>
 	 * for the project identified by the given absolute path.
 	 * <p>
 	 * A project entry is used to denote a prerequisite project on a classpath.
 	 * The referenced project will be contributed as a whole, either as sources (in the Java Model, it
 	 * contributes all its package fragment roots) or as binaries (when building, it contributes its 
 	 * whole output location).
+	 * </p>
 	 * <p>
 	 * A project reference allows to indirect through another project, independently from its internal layout. 
+	 * </p>
 	 * <p>
 	 * The prerequisite project is referred to using an absolute path relative to the workspace root.
+	 * </p>
 	 * <p>
-	 * Note that by default the resulting entry is not exported (see <code>IClasspathEntry.isExported</code>).
-	 * In order to create an exported project entry, use <code>JavaCore.newProjectEntry(IPath, boolean)</code>
-	 * <p>
-	 * @param path the absolute path of the prerequisite project
+	 * The resulting entry is not exported to dependent projects. This method is equivalent to
+	 * <code>newProjectEntry(path,false)</code>.
+	 * </p>
+	 * 
+	 * @param path the absolute path of the binary archive
+	 * @return a new project classpath entry
+	 * @see #newProjectEntry(org.eclipse.core.runtime.IPath,boolean)
 	 */
 	public static IClasspathEntry newProjectEntry(IPath path) {
 		return newProjectEntry(path, false);
@@ -710,14 +723,19 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * The referenced project will be contributed as a whole, either as sources (in the Java Model, it
 	 * contributes all its package fragment roots) or as binaries (when building, it contributes its 
 	 * whole output location).
+	 * </p>
 	 * <p>
 	 * A project reference allows to indirect through another project, independently from its internal layout. 
+	 * </p>
 	 * <p>
 	 * The prerequisite project is referred to using an absolute path relative to the workspace root.
-	 *  <p>
+	 * </p>
+	 * 
 	 * @param path the absolute path of the prerequisite project
-	 * @param isExported flag indicating whether this entry is automatically contributed to dependent
-	 * 	projects (in addition to the output location). 
+	 * @param isExported indicates whether this entry is contributed to dependent
+	 * 	  projects in addition to the output location
+	 * @return a new project classpath entry
+	 * @since 2.0
 	 */
 	public static IClasspathEntry newProjectEntry(IPath path, boolean isExported) {
 		Assert.isTrue(
@@ -745,12 +763,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * have children of type <code>ICompilationUnit</code>.
 	 * <p>
 	 * The source folder is referred to using an absolute path relative to the workspace root, e.g. <code>"/Project/src"</code>.
+	 * </p>
 	 * <p>
 	 * A source entry is used to setup the internal source layout of a project, and cannot be used out of the
 	 * context of the containing project (a source entry "Proj1/src" cannot be used on the classpath of Proj2).
+	 * </p>
 	 * <p>
 	 * A particular source entry cannot be exported to other projects. All sources/binaries inside a project are
-	 * contributed as a whole through a project entry (see <code>JavaCore.newProjectEntry</code>)
+	 * contributed as a whole through a project entry (see <code>JavaCore.newProjectEntry</code>).
+	 * </p>
+	 * 
+	 * @param path the absolute path of a source folder
+	 * @return a new source classpath entry
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path) {
 		Assert.isTrue(
@@ -766,12 +790,13 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
-	 * Creates and returns a new classpath entry of kind <code>CPE_VARIABLE</code>
+	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_VARIABLE</code>
 	 * for the given path. The first segment of the the path is the name of a classpath variable.
 	 * The trailing segments of the path will be appended to resolved variable path.
 	 * <p>
 	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
 	 * depending on what the classpath variable is referring.
+	 * </p>
 	 * <p>
 	 * e.g. Here are some examples of variable path usage<ul>
 	 * <li><"JDTCORE" where variable <code>JDTCORE</code> is 
@@ -781,13 +806,16 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
 	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
 	 * </ul>
+	 * </p>
 	 * <p>
 	 * Note that this operation does not attempt to validate classpath variables
 	 * or access the resources at the given paths.
+	 * </p>
 	 * <p>
-	 * Also note that by default the resulting entry is not exported (see <code>IClasspathEntry.isExported</code>).
-	 * In order to create an exported variable entry, use <code>JavaCore.newVariableEntry(IPath, IPath, IPath, boolean)</code>
-	 * <p>
+	 * The resulting entry is not exported to dependent projects. This method is equivalent to
+	 * <code>newVariableEntry(-,-,-,false)</code>.
+	 * </p>
+	 * 
 	 * @param variablePath the path of the binary archive; first segment is the
 	 *   name of a classpath variable
 	 * @param variableSourceAttachmentPath the path of the corresponding source archive, 
@@ -796,6 +824,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *    as the one that begins <code>variablePath</code>)
 	 * @param sourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
+	 * @return a new library classpath entry
+	 * @see #newVariableEntry(org.eclipse.core.runtime.IPath,org.eclipse.core.runtime.IPath,org.eclipse.core.runtime.IPath,boolean)
 	 */
 	public static IClasspathEntry newVariableEntry(
 		IPath variablePath,
@@ -814,6 +844,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
 	 * depending on what the classpath variable is referring.
+	 * </p>
 	 * <p>
 	 * e.g. Here are some examples of variable path usage<ul>
 	 * <li><"JDTCORE" where variable <code>JDTCORE</code> is 
@@ -823,10 +854,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
 	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
 	 * </ul>
+	 * </p>
 	 * <p>
 	 * Note that this operation does not attempt to validate classpath variables
 	 * or access the resources at the given paths.
-	 * <p>
+	 * </p>
+	 *
 	 * @param variablePath the path of the binary archive; first segment is the
 	 *   name of a classpath variable
 	 * @param variableSourceAttachmentPath the path of the corresponding source archive, 
@@ -835,8 +868,10 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *    as the one that begins <code>variablePath</code>)
 	 * @param sourceAttachmentRootPath the location of the root within the source archive
 	 *    or <code>null</code> if <code>archivePath</code> is also <code>null</code>
-	 * @param isExported flag indicating whether this entry is automatically contributed to dependent
-	 * 	projects (in addition to the output location). 
+	 * @param isExported indicates whether this entry is contributed to dependent
+	 * 	  projects in addition to the output location
+	 * @return a new variable classpath entry
+	 * @since 2.0
 	 */
 	public static IClasspathEntry newVariableEntry(
 		IPath variablePath,
@@ -1102,9 +1137,26 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
-	 * Change the current set of options. Note that the new options are not merged with the existing ones. There are overriding
-	 * the existing ones. For a complete description of the configurable options, see JavaCore.getDefaultOptions().
-	 * @see JavaCore.getDefaultOptions()
+	 * Sets the current table of options. All and only the options explicitly included in the given table 
+	 * are remembered; all previous option settings are forgotten, including ones not explicitly
+	 * mentioned.
+	 * <p>
+	 * For a complete description of the configurable options, see <code>getDefaultOptions</code>.
+	 * </p>
+	 * <p>
+	 * [Issue: The parameter should be a java.util.Map rather than a concrete Hashtable.]
+	 * </p>
+	 * <p>
+	 * [Issue: If any client ever passes in a "short" table that is missing some options, 
+	 *  then getOptions() will nevermore return a table containing this option. The
+	 *  client would have to call getDefaultOptions() to discover its default setting.
+	 * ]
+	 * </p>
+	 * 
+	 * @param newOptions the new options (key type: <code>String</code>; value type: <code>String</code>),
+	 *   or <code>null</code> to reset all options to their default values
+	 * @see JavaCore#getDefaultOptions
+	 * @since 2.0
 	 */
 	public static void setOptions(Hashtable newOptions) {
 		if (newOptions == null){
@@ -1115,21 +1167,33 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
-	 * Answer the current set of options. For a complete description of the configurable options, see JavaCore.getDefaultOptions().
-	 * @see JavaCore.getDefaultOptions()
+	 * Returns the table of the current options. Initially, all options have their default values,
+	 * and this method returns a table that includes all known options.
+	 * <p>
+	 * For a complete description of the configurable options, see <code>getDefaultOptions</code>.
+	 * </p>
+	 * <p>
+	 * [Issue: The return type should be a java.util.Map rather than a concrete Hashtable.]
+	 * </p>
+	 * 
+	 * @return table of current settings of all options 
+	 *   (key type: <code>String</code>; value type: <code>String</code>)
+	 * @see JavaCore#getDefaultOptions
+	 * @since 2.0
 	 */
 	public static Hashtable getOptions() {
 		return (Hashtable)Options.clone();
 	}
 
 	/**
-	 * Answers a map of configurable options with their default values.
+	 * Returns a table of all known configurable options with their default values.
 	 * These options allow to configure the behavior of the underlying components.
-	 *
+	 * The client may safely use the result as a template that they can modify and
+	 * then pass to <code>setOptions</code>.
+	 * 
 	 * Note: more options might be added in further releases.
-	 *
+	 * </pre>
 	 * RECOGNIZED OPTIONS:
-	 *
 	 *  COMPILER / Generating Local Variable Debug Attribute
  	 *    When generated, this attribute will enable local variable names 
 	 *    to be displayed in debugger, only in place where variables are 
@@ -1332,6 +1396,15 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - option id:				"org.eclipse.jdt.core.codeComplete.visibilityCheck"
 	 *     - possible values:	{ "enabled", "disabled" }
 	 *     - default:				"disabled"
+	 * </pre>
+	 * <p>
+	 * [Issue: The return type should be a java.util.Map rather than a concrete Hashtable.]
+	 * </p>
+	 * 
+	 * @return a mutable table containing the default settings of all known options
+	 *   (key type: <code>String</code>; value type: <code>String</code>)
+	 * @see #setOptions
+	 * @since 2.0
 	 */
  	public static Hashtable getDefaultOptions(){
 	
