@@ -13,10 +13,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 
@@ -25,7 +22,7 @@ public class OrPattern extends SearchPattern {
 protected SearchPattern[] patterns;
 
 public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
-	super(OR_PATTERN, Math.max(leftPattern.matchRule, rightPattern.matchRule));
+	super(OR_PATTERN, Math.max(leftPattern.getMatchRule(), rightPattern.getMatchRule()));
 	this.mustResolve = leftPattern.mustResolve || rightPattern.mustResolve;
 
 	SearchPattern[] leftPatterns = leftPattern instanceof OrPattern ? ((OrPattern) leftPattern).patterns : null;
@@ -43,16 +40,6 @@ public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 	else
 		System.arraycopy(rightPatterns, 0, this.patterns, leftSize, rightSize);
 }
-
-public void decodeIndexKey(char[] key) {
-	// not used for OrPattern
-}
-
-public char[] encodeIndexKey() {
-	// not used for OrPattern
-	return null;
-}
-
 /**
  * Query a given index for matching entries. 
  *
@@ -62,19 +49,6 @@ public void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, Se
 	for (int i = 0, length = this.patterns.length; i < length; i++)
 		this.patterns[i].findIndexMatches(input, requestor, participant, scope, progressMonitor);
 }
-
-public SearchPattern getIndexRecord() {
-	// not used for OrPattern
-	return null;
-}
-
-/* (non-Javadoc)
- * @see org.eclipse.jdt.internal.core.search.pattern.InternalSearchPattern#isMatchingIndexEntry()
- */
-public boolean isMatchingIndexRecord() {
-	return false;
-}
-
 /**
  * see SearchPattern.isPolymorphicSearch
  */
@@ -83,14 +57,6 @@ public boolean isPolymorphicSearch() {
 		if (this.patterns[i].isPolymorphicSearch()) return true;
 	return false;
 }
-
-/* (non-Javadoc)
- * @see org.eclipse.jdt.internal.core.search.pattern.InternalSearchPattern#getMatchCategories()
- */
-public char[][] getMatchCategories() {
-	return CharOperation.NO_CHAR_CHAR;
-}
-
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append(this.patterns[0].toString());

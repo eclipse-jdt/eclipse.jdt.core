@@ -107,9 +107,8 @@ public SuperTypeReferencePattern(
 
 	super(SUPER_REF_PATTERN, matchRule);
 
-	boolean isCaseSensitive = isCaseSensitive();
-	this.superQualification = isCaseSensitive ? superQualification : CharOperation.toLowerCase(superQualification);
-	this.superSimpleName = isCaseSensitive ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
+	this.superQualification = this.isCaseSensitive ? superQualification : CharOperation.toLowerCase(superQualification);
+	this.superSimpleName = this.isCaseSensitive ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
 	this.mustResolve = superQualification != null;
 	this.checkOnlySuperinterfaces = checkOnlySuperinterfaces; // ie. skip the superclass
 }
@@ -238,31 +237,31 @@ public void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, Se
 		/* retrieve and decode entry */	
 		char[] word = entry.getWord();
 		char[] indexKey = CharOperation.subarray(word, SUPER_REF.length, word.length);
-		SearchPattern record = getIndexRecord();
-		record.decodeIndexKey(indexKey);
+		SearchPattern decodedPattern = getBlankPattern();
+		decodedPattern.decodeIndexKey(indexKey);
 
 		int[] references = entry.getFileReferences();
 		for (int iReference = 0, refererencesLength = references.length; iReference < refererencesLength; iReference++) {
 			String documentPath = IndexedFile.convertPath( input.getIndexedFile(references[iReference]).getPath());
 			if (scope.encloses(documentPath)) {
-				if (!requestor.acceptIndexMatch(documentPath, record, participant)) 
+				if (!requestor.acceptIndexMatch(documentPath, decodedPattern, participant)) 
 					throw new OperationCanceledException();
 			}
 		}
 	}
 }
-public SearchPattern getIndexRecord() {
+public SearchPattern getBlankPattern() {
 	return getSuperTypeReferenceRecord();
 }
 public char[][] getMatchCategories() {
 	return new char[][] {SUPER_REF};
 }
-public boolean isMatchingIndexRecord() {
-	SuperTypeReferencePattern record = getSuperTypeReferenceRecord();
+public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
+	SuperTypeReferencePattern pattern = (SuperTypeReferencePattern) decodedPattern;
 	if (this.checkOnlySuperinterfaces)
-		if (record.superClassOrInterface != IIndexConstants.INTERFACE_SUFFIX) return false;
+		if (pattern.superClassOrInterface != IIndexConstants.INTERFACE_SUFFIX) return false;
 
-	return matchesName(this.superSimpleName, record.superSimpleName);
+	return matchesName(this.superSimpleName, pattern.superSimpleName);
 }
 public String toString(){
 	StringBuffer buffer = new StringBuffer(20);
@@ -275,7 +274,7 @@ public String toString(){
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(matchMode()){
+	switch(this.matchMode) {
 		case EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -286,7 +285,7 @@ public String toString(){
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	if (isCaseSensitive())
+	if (this.isCaseSensitive)
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

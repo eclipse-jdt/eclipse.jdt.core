@@ -34,9 +34,8 @@ public QualifiedTypeDeclarationPattern(
 
 	super(matchRule);
 
-	boolean isCaseSensitive = isCaseSensitive();
-	this.qualification = isCaseSensitive ? qualification : CharOperation.toLowerCase(qualification);
-	this.simpleName = isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
+	this.qualification = this.isCaseSensitive ? qualification : CharOperation.toLowerCase(qualification);
+	this.simpleName = this.isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.classOrInterface = classOrInterface;
 
 	this.mustResolve = qualification != null;
@@ -102,7 +101,7 @@ public String toString() {
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(matchMode()){
+	switch(this.matchMode) {
 		case EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -113,7 +112,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	if (isCaseSensitive())
+	if (this.isCaseSensitive)
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

@@ -31,16 +31,18 @@ import org.eclipse.jdt.internal.core.util.Util;
 public abstract class InternalSearchPattern {
 
 	public final int kind;
-	public final int matchRule;
-	
+	public final boolean isCaseSensitive;
+	public final int matchMode;
+
 	/* focus element (used for reference patterns*/
 	public IJavaElement focus;
 
 	public InternalSearchPattern(int patternKind, int matchRule) {
 		this.kind = patternKind;
-		this.matchRule = matchRule;
+		this.isCaseSensitive = (matchRule & SearchPattern.R_CASE_SENSITIVE) != 0;
+		this.matchMode = matchRule - (this.isCaseSensitive ? SearchPattern.R_CASE_SENSITIVE : 0);
 	}
-	
+
 	/*
 	 * @see SearchPattern
 	 */
@@ -54,8 +56,8 @@ public abstract class InternalSearchPattern {
 	protected char[] encodeIndexKey(char[] key) {
 		// TODO (kent) with new index, need to encode key for case insensitive queries too
 		// also want to pass along the entire pattern
-		if (isCaseSensitive() && key != null) {
-			switch(matchMode()) {
+		if (this.isCaseSensitive && key != null) {
+			switch(this.matchMode) {
 				case SearchPattern.R_EXACT_MATCH :
 				case  SearchPattern.R_PREFIX_MATCH :
 					return key;
@@ -126,14 +128,14 @@ public abstract class InternalSearchPattern {
 			EntryResult entry = entries[iMatch];
 			char[] word = entry.getWord();
 			char[] indexKey = CharOperation.subarray(word, category.length, word.length);
-			SearchPattern indexRecord = getIndexRecord();
-			indexRecord.decodeIndexKey(indexKey);
-			if (isMatchingIndexRecord()) {
+			SearchPattern decodedPattern = getBlankPattern();
+			decodedPattern.decodeIndexKey(indexKey);
+			if (matchesDecodedPattern(decodedPattern)) {
 				int[] references = entry.getFileReferences();
 				for (int iReference = 0, refererencesLength = references.length; iReference < refererencesLength; iReference++) {
 					String documentPath = IndexedFile.convertPath( input.getIndexedFile(references[iReference]).getPath());
 					if (scope.encloses(documentPath)) {
-						if (!requestor.acceptIndexMatch(documentPath, indexRecord, participant)) 
+						if (!requestor.acceptIndexMatch(documentPath, decodedPattern, participant)) 
 							throw new OperationCanceledException();
 					}
 				}
@@ -210,15 +212,13 @@ public abstract class InternalSearchPattern {
 		}
 	}			
 
-	public abstract SearchPattern getIndexRecord();
-	
+	public abstract SearchPattern getBlankPattern();
+
 	public abstract char[][] getMatchCategories();
 
-	public boolean isCaseSensitive() {
-		return (this.matchRule & SearchPattern.R_CASE_SENSITIVE) != 0;
-	}
-	
-	public abstract boolean isMatchingIndexRecord();
+	public abstract int getMatchRule();
+
+	public abstract boolean matchesDecodedPattern(SearchPattern decodedPattern);
 
 	/*
 	 * Returns whether this pattern is a polymorphic search pattern.
@@ -226,12 +226,4 @@ public abstract class InternalSearchPattern {
 	public boolean isPolymorphicSearch() {
 		return false;
 	}
-
-	/*
-	 * One of R_EXACT_MATCH, R_PATTERN_MATCH, R_PREFIX_MATCH or R_REGEDP_MATCH
-	 */
-	public int matchMode() {
-		return this.matchRule & ~SearchPattern.R_CASE_SENSITIVE;
-	}
-
 }

@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.SearchPattern;
 
 public class TypeDeclarationPattern extends SearchPattern {
 
@@ -53,8 +53,7 @@ public TypeDeclarationPattern(
 
 	super(TYPE_DECL_PATTERN, matchRule);
 
-	boolean isCaseSensitive = isCaseSensitive();
-	this.pkg = isCaseSensitive ? pkg : CharOperation.toLowerCase(pkg);
+	this.pkg = this.isCaseSensitive ? pkg : CharOperation.toLowerCase(pkg);
 	if (isCaseSensitive || enclosingTypeNames == null) {
 		this.enclosingTypeNames = enclosingTypeNames;
 	} else {
@@ -63,7 +62,7 @@ public TypeDeclarationPattern(
 		for (int i = 0; i < length; i++)
 			this.enclosingTypeNames[i] = CharOperation.toLowerCase(enclosingTypeNames[i]);
 	}
-	this.simpleName = isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
+	this.simpleName = this.isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.classOrInterface = classOrInterface;
 	
 	this.mustResolve = pkg != null && enclosingTypeNames != null;
@@ -99,7 +98,7 @@ public void decodeIndexKey(char[] key) {
  * classOrInterface / package / simpleName / enclosingTypeNames
  */
 public char[] encodeIndexKey() {
-	char[] packageName = isCaseSensitive() ? pkg : null;
+	char[] packageName = this.isCaseSensitive ? pkg : null;
 	switch(this.classOrInterface) {
 		case CLASS_SUFFIX :
 			if (packageName == null) 
@@ -113,8 +112,8 @@ public char[] encodeIndexKey() {
 			return CharOperation.NO_CHAR; // cannot do better given encoding
 	}
 
-	char[] typeName = isCaseSensitive() ? this.simpleName : null;
-	if (typeName != null && matchMode() == PATTERN_MATCH) {
+	char[] typeName = this.isCaseSensitive ? this.simpleName : null;
+	if (typeName != null && this.matchMode == PATTERN_MATCH) {
 		int starPos = CharOperation.indexOf('*', typeName);
 		switch(starPos) {
 			case -1 :
@@ -162,37 +161,37 @@ public char[] encodeIndexKey() {
 	}
 	return result;
 }
-public SearchPattern getIndexRecord() {
+public SearchPattern getBlankPattern() {
 	return getTypeDeclarationRecord();
 }
 public char[][] getMatchCategories() {
 	return new char[][] {TYPE_DECL};
 }
-public boolean isMatchingIndexRecord() {
-	TypeDeclarationPattern record = getTypeDeclarationRecord();
+public boolean matchesDecodedPattern(SearchPattern decodedPattern) {
+	TypeDeclarationPattern pattern = (TypeDeclarationPattern) decodedPattern;
 	switch(this.classOrInterface) {
 		case CLASS_SUFFIX :
 		case INTERFACE_SUFFIX :
-			if (this.classOrInterface != record.classOrInterface) return false;
+			if (this.classOrInterface != pattern.classOrInterface) return false;
 		case TYPE_SUFFIX : // nothing
 	}
 
 	/* check qualification - exact match only */
-	if (this.pkg != null && !CharOperation.equals(this.pkg, record.pkg, isCaseSensitive()))
+	if (this.pkg != null && !CharOperation.equals(this.pkg, pattern.pkg, this.isCaseSensitive))
 		return false;
 	/* check enclosingTypeName - exact match only */
 	if (this.enclosingTypeNames != null) {
 		// empty char[][] means no enclosing type (in which case, the decoded one is the empty char array)
 		if (this.enclosingTypeNames.length == 0) {
-			if (record.enclosingTypeNames != CharOperation.NO_CHAR_CHAR) return false;
+			if (pattern.enclosingTypeNames != CharOperation.NO_CHAR_CHAR) return false;
 		} else {
-			if (!CharOperation.equals(this.enclosingTypeNames, record.enclosingTypeNames, isCaseSensitive()))
-				if (!CharOperation.equals(record.enclosingTypeNames, ONE_ZERO_CHAR)) // if not a local or anonymous type
+			if (!CharOperation.equals(this.enclosingTypeNames, pattern.enclosingTypeNames, this.isCaseSensitive))
+				if (!CharOperation.equals(pattern.enclosingTypeNames, ONE_ZERO_CHAR)) // if not a local or anonymous type
 					return false;
 		}
 	}
 
-	return matchesName(this.simpleName, record.simpleName);
+	return matchesName(this.simpleName, pattern.simpleName);
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
@@ -227,7 +226,7 @@ public String toString() {
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(matchMode()){
+	switch(this.matchMode){
 		case EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -238,7 +237,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	if (isCaseSensitive())
+	if (this.isCaseSensitive)
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

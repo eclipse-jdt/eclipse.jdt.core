@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.SearchPattern;
 
 public abstract class VariablePattern extends SearchPattern {
 
@@ -21,15 +21,8 @@ protected boolean readAccess;
 protected boolean writeAccess;
 
 protected char[] name;
-	
-public VariablePattern(
-	int patternKind,
-	boolean findDeclarations,
-	boolean readAccess,
-	boolean writeAccess,
-	char[] name,
-	int matchRule) {
 
+public VariablePattern(int patternKind, boolean findDeclarations, boolean readAccess, boolean writeAccess, char[] name, int matchRule) {
 	super(patternKind, matchRule);
 
 	this.findDeclarations = findDeclarations; // set to find declarations & all occurences
@@ -37,7 +30,7 @@ public VariablePattern(
 	this.writeAccess = writeAccess; // set to find any reference, write only references & all occurences
 	this.findReferences = readAccess || writeAccess;
 
-	this.name = isCaseSensitive() ? name : CharOperation.toLowerCase(name);
+	this.name = this.isCaseSensitive ? name : CharOperation.toLowerCase(name);
 }
 /*
  * Returns whether a method declaration or message send will need to be resolved to 

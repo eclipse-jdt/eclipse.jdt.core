@@ -16,8 +16,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
@@ -43,7 +41,6 @@ protected void findIndexMatches(IndexInput input, IndexQueryRequestor requestor,
 	long[] possibleRefs = null;
 	int maxRefs = -1;
 	this.resetQuery();
-	SearchPattern indexRecord = null;
 	do {
 		queryKey = encodeIndexKey();
 		char[] pattern = CharOperation.concat(category, queryKey);
@@ -60,9 +57,9 @@ protected void findIndexMatches(IndexInput input, IndexQueryRequestor requestor,
 			EntryResult entry = entries[i];
 			char[] word = entry.getWord();
 			char[] indexKey = CharOperation.subarray(word, category.length, word.length);
-			indexRecord = getIndexRecord();
-			indexRecord.decodeIndexKey(indexKey);
-			if (isMatchingIndexRecord()) {
+			SearchPattern decodedPattern = getBlankPattern();
+			decodedPattern.decodeIndexKey(indexKey);
+			if (matchesDecodedPattern(decodedPattern)) {
 				/* accumulate references in an array of bits : 1 if the reference is present, 0 otherwise */
 				int[] fileReferences = entry.getFileReferences();
 				for (int j = 0, refLength = fileReferences.length; j < refLength; j++) {
@@ -116,7 +113,7 @@ protected void findIndexMatches(IndexInput input, IndexQueryRequestor requestor,
 				if (file != null) {
 					String documentPath = IndexedFile.convertPath(file.getPath());
 					if (scope.encloses(documentPath)) {
-						if (!requestor.acceptIndexMatch(documentPath, indexRecord, participant)) 
+						if (!requestor.acceptIndexMatch(documentPath, null, participant)) // AndPatterns cannot provide the decoded pattern 
 							throw new OperationCanceledException();
 					}
 				}

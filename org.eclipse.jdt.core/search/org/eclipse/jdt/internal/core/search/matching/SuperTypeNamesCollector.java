@@ -246,7 +246,7 @@ protected String[] getPathsOfDeclaringType() {
 		null, // do find member types
 		this.typeSimpleName,
 		IIndexConstants.TYPE_SUFFIX,
-		this.pattern.matchRule);
+		this.pattern.getMatchRule());
 	IndexQueryRequestor searchRequestor = new IndexQueryRequestor(){
 		public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant) {
 			TypeDeclarationPattern record = (TypeDeclarationPattern)indexRecord;
