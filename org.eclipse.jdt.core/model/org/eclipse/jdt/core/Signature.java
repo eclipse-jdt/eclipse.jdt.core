@@ -186,7 +186,6 @@ public final class Signature {
 	 * in a signature.
 	 * Value is <code>'+'</code>.
 	 * @since 3.0
-	 * TODO (jeem) - is this 'super' or 'extends' ?
 	 */
 	public static final char C_PLUS	= '+';
 	
@@ -194,7 +193,6 @@ public final class Signature {
 	 * Character constant indicating the start of a bounded wildcard type argument
 	 * in a signature. Value is <code>'-'</code>.
 	 * @since 3.0
-	 * TODO (jeem) - is this 'super' or 'extends' ?
 	 */
 	public static final char C_MINUS	= '-';
 	
