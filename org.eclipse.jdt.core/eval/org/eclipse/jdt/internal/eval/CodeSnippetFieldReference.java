@@ -340,7 +340,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				isNotVisible = true;
 				if (this.evaluationContext.declaringTypeName != null) {
 					delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
-					if (delegateThis == null){ ; // if not found then internal error, field should have been found
+					if (delegateThis == null){  // if not found then internal error, field should have been found
 						constant = NotAConstant;
 						scope.problemReporter().invalidField(this, receiverType);
 						return null;
@@ -364,14 +364,14 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 	}
 
-	if (isFieldUseDeprecated(binding, scope, (this.bits & IsStrictlyAssignedMASK) !=0))
+	if (isFieldUseDeprecated(binding, scope, (this.bits & IsStrictlyAssignedMASK) !=0)) {
 		scope.problemReporter().deprecatedField(binding, this);
-
+	}
 	// check for this.x in static is done in the resolution of the receiver
 	constant = FieldReference.getConstantFor(binding, this, receiver.isImplicitThis(), scope);
-	if (!receiver.isThis())
+	if (!receiver.isThis()) {
 		constant = NotAConstant;
-
+	}
 	return this.resolvedType = binding.type;
 }
 }

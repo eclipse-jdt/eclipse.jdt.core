@@ -123,15 +123,18 @@ public TypeBinding resolveType(BlockScope scope) {
 		boolean argHasError = false;
 		int length = arguments.length;
 		argumentTypes = new TypeBinding[length];
-		for (int i = 0; i < length; i++)
-			if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null)
+		for (int i = 0; i < length; i++) {
+			if ((argumentTypes[i] = arguments[i].resolveType(scope)) == null) {
 				argHasError = true;
-		if (argHasError)
+			}
+		}
+		if (argHasError) {
 			return this.resolvedType;
+		}
 	}
-	if (this.resolvedType == null)
+	if (this.resolvedType == null) {
 		return null;
-
+	}
 	if (!this.resolvedType.canBeInstantiated()) {
 		scope.problemReporter().cannotInstantiate(type, this.resolvedType);
 		return this.resolvedType;
@@ -143,40 +146,46 @@ public TypeBinding resolveType(BlockScope scope) {
 			if (this.evaluationContext.declaringTypeName != null) {
 				delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
 				if (delegateThis == null) {
-					if (binding.declaringClass == null)
+					if (binding.declaringClass == null) {
 						binding.declaringClass = allocatedType;
+					}
 					scope.problemReporter().invalidConstructor(this, binding);
 					return this.resolvedType;
 				}
 			} else {
-				if (binding.declaringClass == null)
+				if (binding.declaringClass == null) {
 					binding.declaringClass = allocatedType;
+				}
 				scope.problemReporter().invalidConstructor(this, binding);
 				return this.resolvedType;
 			}
 			CodeSnippetScope localScope = new CodeSnippetScope(scope);			
 			MethodBinding privateBinding = localScope.getConstructor((ReferenceBinding)delegateThis.type, argumentTypes, this);
 			if (!privateBinding.isValidBinding()) {
-				if (binding.declaringClass == null)
+				if (binding.declaringClass == null) {
 					binding.declaringClass = allocatedType;
+				}
 				scope.problemReporter().invalidConstructor(this, binding);
 				return this.resolvedType;
 			} else {
 				binding = privateBinding;
 			}				
 		} else {
-			if (binding.declaringClass == null)
+			if (binding.declaringClass == null) {
 				binding.declaringClass = allocatedType;
+			}
 			scope.problemReporter().invalidConstructor(this, binding);
 			return this.resolvedType;
 		}
 	}
-	if (isMethodUseDeprecated(binding, scope))
+	if (isMethodUseDeprecated(binding, scope)) {
 		scope.problemReporter().deprecatedMethod(binding, this);
-
-	if (arguments != null)
-		for (int i = 0; i < arguments.length; i++)
+	}
+	if (arguments != null) {
+		for (int i = 0; i < arguments.length; i++) {
 			arguments[i].implicitWidening(binding.parameters[i], argumentTypes[i]);
+		}
+	}
 	return allocatedType;
 }
 }

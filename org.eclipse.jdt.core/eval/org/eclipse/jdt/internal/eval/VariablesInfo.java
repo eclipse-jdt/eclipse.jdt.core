@@ -43,9 +43,10 @@ public VariablesInfo(char[] packageName, char[] className, ClassFile[] classFile
  */
 int indexOf(GlobalVariable var) {
 	for (int i = 0; i < this.variableCount; i++) {
-		if (var.equals(this.variables[i]))
+		if (var.equals(this.variables[i])) {
 			return i;
-	};
+		}
+	}
 	return -1;
 }
 /**
@@ -56,9 +57,10 @@ GlobalVariable varNamed(char[] name) {
 	GlobalVariable[] vars = this.variables;
 	for (int i = 0; i < this.variableCount; i++) {
 		GlobalVariable var = vars[i];
-		if (CharOperation.equals(name, var.name))
+		if (CharOperation.equals(name, var.name)) {
 			return var;
-	};
+		}
+	}
 	return null;
 }
 }

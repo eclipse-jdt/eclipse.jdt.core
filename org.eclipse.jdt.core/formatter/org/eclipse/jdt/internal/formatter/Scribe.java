@@ -170,8 +170,9 @@ public class Scribe {
 			targetAlignment = targetAlignment.enclosing;
 			relativeDepth++;
 		}
-		if (outerMostDepth >= 0) throw new AlignmentException(AlignmentException.LINE_TOO_LONG, outerMostDepth);
-
+		if (outerMostDepth >= 0) {
+			throw new AlignmentException(AlignmentException.LINE_TOO_LONG, outerMostDepth);
+		}
 		// look for innermost breakable one
 		relativeDepth = 0;
 		targetAlignment = this.currentAlignment;
@@ -206,7 +207,9 @@ public class Scribe {
 		}
 		this.lastNumberOfNewLines = 0;
 		printIndentationIfNecessary();
-		if (considerSpaceIfAny) this.space();
+		if (considerSpaceIfAny) {
+			this.space();
+		}
 		this.buffer.append(s);
 		column += s.length;
 		needSpace = true;
@@ -284,7 +287,7 @@ public class Scribe {
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition);
 						return;
 				}
-			};
+			}
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -444,7 +447,9 @@ public class Scribe {
 			if (Arrays.binarySearch(expectedTokenTypes, this.currentToken) < 0) {
 				StringBuffer expectations = new StringBuffer(5);
 				for (int i = 0; i < expectedTokenTypes.length; i++){
-					if (i > 0) expectations.append(',');
+					if (i > 0) {
+						expectations.append(',');
+					}
 					expectations.append(expectedTokenTypes[i]);
 				}				
 				throw new AbortFormatting("unexpected token type, expecting:["+expectations.toString()+"], actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
@@ -463,7 +468,9 @@ public class Scribe {
 			if (Arrays.binarySearch(expectedTokenTypes, this.currentToken) < 0) {
 				StringBuffer expectations = new StringBuffer(5);
 				for (int i = 0; i < expectedTokenTypes.length; i++){
-					if (i > 0) expectations.append(',');
+					if (i > 0) {
+						expectations.append(',');
+					}
 					expectations.append(expectedTokenTypes[i]);
 				}				
 				throw new AbortFormatting("unexpected token type, expecting:["+expectations.toString()+"], actual:"+this.currentToken);//$NON-NLS-1$//$NON-NLS-2$
@@ -562,7 +569,7 @@ public class Scribe {
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition);
 						return;
 				}
-			};
+			}
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -621,7 +628,7 @@ public class Scribe {
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition);
 						return;
 				}
-			};
+			}
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -669,7 +676,7 @@ public class Scribe {
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition);
 						return;
 				}
-			};
+			}
 		} catch (InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}

@@ -17,8 +17,8 @@ package org.eclipse.jdt.internal.formatter.align;
  * @since 2.1 */
 public class AlignmentException extends RuntimeException {
 	
-	public final static int LINE_TOO_LONG = 1;
-	public final static int ALIGN_TOO_SMALL = 2;
+	public static final int LINE_TOO_LONG = 1;
+	public static final int ALIGN_TOO_SMALL = 2;
 	
 	int reason;
 	int value;

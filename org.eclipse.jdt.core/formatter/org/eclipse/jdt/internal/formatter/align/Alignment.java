@@ -193,7 +193,9 @@ public class Alignment {
 			if (currentIndentation > fragmentIndentation) {
 				this.fragmentIndentations[this.fragmentIndex] =  currentIndentation;
 				if (fragmentIndentation != 0) {
-					for (int i = this.fragmentIndex+1; i < this.fragmentCount; i++) this.fragmentIndentations[i] = 0;
+					for (int i = this.fragmentIndex+1; i < this.fragmentCount; i++) {
+						this.fragmentIndentations[i] = 0;
+					}
 					this.needRedoColumnAlignment = true;
 				}
 			}
@@ -289,7 +291,7 @@ public class Alignment {
 			 *      #BBBBB,
 			 *      #CCCC);
 			 */
-			case M_NEXT_PER_LINE_SPLIT : {
+			case M_NEXT_PER_LINE_SPLIT : 
 				if (this.fragmentBreaks[0] == NONE) {
 					
 					if (this.fragmentCount > 1 && this.fragmentBreaks[1] == NONE) {
@@ -307,7 +309,9 @@ public class Alignment {
 							this.fragmentBreaks[0] = BREAK;					
 							this.fragmentIndentations[0] = this.breakIndentationLevel;						
 						} else if (firstFragmentIndentation < this.breakIndentationLevel) {
-							if ((this.mode & M_INDENT_ON_COLUMN) == 0) this.fragmentBreaks[0] = BREAK;					
+							if ((this.mode & M_INDENT_ON_COLUMN) == 0) { 
+								this.fragmentBreaks[0] = BREAK;					
+							}
 							this.fragmentIndentations[0] = this.breakIndentationLevel;						
 						}
 						return wasSplit = true;
@@ -320,7 +324,6 @@ public class Alignment {
 					}
 				}
 				break;
-			}
 		}		
 		
 //		// if was break-indenting on current column, try again using original indentation level instead

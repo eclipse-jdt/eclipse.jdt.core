@@ -255,10 +255,13 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 		for (int i = 0; i < varCount; i++){
 			char[] trimmedTypeName = this.evaluationContext.localVariableTypeNames[i];
 			int nameEnd = CharOperation.indexOf('[', trimmedTypeName);
-			if (nameEnd >= 0) trimmedTypeName = CharOperation.subarray(trimmedTypeName, 0, nameEnd);
+			if (nameEnd >= 0) {
+				trimmedTypeName = CharOperation.subarray(trimmedTypeName, 0, nameEnd);
+			}
 			nameEnd = CharOperation.indexOf(' ', trimmedTypeName);
-			if (nameEnd >= 0) trimmedTypeName = CharOperation.subarray(trimmedTypeName, 0, nameEnd);
-			
+			if (nameEnd >= 0) {
+				trimmedTypeName = CharOperation.subarray(trimmedTypeName, 0, nameEnd);
+			}
 			TypeReference typeReference = new QualifiedTypeReference(
 				CharOperation.splitOn('.', trimmedTypeName),
 				positions);
@@ -536,16 +539,15 @@ protected NameReference getUnspecifiedReference() {
 		&& scanner.startPosition <= codeSnippetEnd+1+Util.LINE_SEPARATOR_CHARS.length /*14838*/){
 		int length;
 		NameReference ref;
-		if ((length = identifierLengthStack[identifierLengthPtr--]) == 1)
+		if ((length = identifierLengthStack[identifierLengthPtr--]) == 1) {
 			// single variable reference
 			ref = 
 				new CodeSnippetSingleNameReference(
 					identifierStack[identifierPtr], 
 					identifierPositionStack[identifierPtr--],
 					this.evaluationContext); 
-		else
+		} else {
 			//Qualified variable reference
-			{
 			char[][] tokens = new char[length][];
 			identifierPtr -= length;
 			System.arraycopy(identifierStack, identifierPtr + 1, tokens, 0, length);
@@ -554,7 +556,7 @@ protected NameReference getUnspecifiedReference() {
 					(int) (identifierPositionStack[identifierPtr + 1] >> 32), // sourceStart
 					(int) identifierPositionStack[identifierPtr + length],
 					evaluationContext); // sourceEnd
-		};
+		}
 		return ref;
 	} else {
 		return super.getUnspecifiedReference();
@@ -630,7 +632,7 @@ protected MessageSend newMessageSend() {
 			m.arguments = new Expression[length], 
 			0, 
 			length); 
-	};
+	}
 	return m;
 }
 /**

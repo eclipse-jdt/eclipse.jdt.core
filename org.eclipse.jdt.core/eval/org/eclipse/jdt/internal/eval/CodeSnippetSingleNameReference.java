@@ -79,8 +79,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
  */
 public TypeBinding checkFieldAccess(BlockScope scope) {
 
-	if (delegateThis == null) return super.checkFieldAccess(scope);
-	
+	if (delegateThis == null) {
+		return super.checkFieldAccess(scope);
+	}
 	FieldBinding fieldBinding = (FieldBinding) binding;
 	bits &= ~RestrictiveFlagMASK; // clear bits
 	bits |= FIELD;
@@ -96,9 +97,9 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 	}
 	constant = FieldReference.getConstantFor(fieldBinding, this, true, scope);
 
-	if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssignedMASK) !=0))
+	if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssignedMASK) !=0)) {
 		scope.problemReporter().deprecatedField(fieldBinding, this);
-
+	}
 	return fieldBinding.type;
 
 }
@@ -527,13 +528,17 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 }
 public void generateReceiver(CodeStream codeStream) {
 	codeStream.aload_0();
-	if (delegateThis != null) codeStream.getfield(delegateThis); // delegated field access
+	if (delegateThis != null) {
+		codeStream.getfield(delegateThis); // delegated field access
+	}
 }
 /**
  * Check and/or redirect the field access to the delegate receiver if any
  */
 public TypeBinding getReceiverType(BlockScope currentScope) {
-	if (receiverType != null) return receiverType;
+	if (receiverType != null) {
+		return receiverType;
+	}
 	Scope scope = currentScope.parent;
 	while (true) {
 			switch (scope.kind) {
@@ -553,10 +558,12 @@ public TypeBinding reportError(BlockScope scope) {
 	if (binding instanceof ProblemFieldBinding && ((ProblemFieldBinding) binding).problemId() == NotFound){
 		if (this.evaluationContext.declaringTypeName != null) {
 			delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
-			if (delegateThis != null){ ; // if not found then internal error, field should have been found
+			if (delegateThis != null){  // if not found then internal error, field should have been found
 				// will not support innerclass emulation inside delegate
 				this.codegenBinding = binding = scope.getField(delegateThis.type, this.token, this);
-				if (!binding.isValidBinding()) return super.reportError(scope);
+				if (!binding.isValidBinding()) {
+					return super.reportError(scope);
+				}
 				return checkFieldAccess(scope);
 			}
 		}
@@ -564,7 +571,7 @@ public TypeBinding reportError(BlockScope scope) {
 	if (binding instanceof ProblemBinding && ((ProblemBinding) binding).problemId() == NotFound){
 		if (this.evaluationContext.declaringTypeName != null) {
 			delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
-			if (delegateThis != null){ ; // if not found then internal error, field should have been found
+			if (delegateThis != null){  // if not found then internal error, field should have been found
 				// will not support innerclass emulation inside delegate
 				FieldBinding fieldBinding = scope.getField(delegateThis.type, this.token, this);
 				if (!fieldBinding.isValidBinding()) {

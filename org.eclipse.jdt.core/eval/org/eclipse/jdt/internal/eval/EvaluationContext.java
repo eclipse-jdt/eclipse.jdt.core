@@ -199,7 +199,7 @@ public void evaluate(
 					hasErrors = true;
 				}
 			}
-		};
+		}
 		ForwardingRequestor forwardingRequestor = new ForwardingRequestor();
 		if (this.varsChanged) {
 			evaluateVariables(environment, options, forwardingRequestor, problemFactory);

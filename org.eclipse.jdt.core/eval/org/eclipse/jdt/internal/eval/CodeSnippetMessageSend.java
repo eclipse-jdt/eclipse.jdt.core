@@ -211,7 +211,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			&& ((ProblemMethodBinding) binding).problemId() == NotVisible) {
 			if (this.evaluationContext.declaringTypeName != null) {
 				delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
-				if (delegateThis == null){ ; // if not found then internal error, field should have been found
+				if (delegateThis == null){ // if not found then internal error, field should have been found
 					constant = NotAConstant;
 					scope.problemReporter().invalidMethod(this, binding);
 					return null;

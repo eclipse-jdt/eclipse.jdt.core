@@ -33,7 +33,7 @@ public class CodeSnippetEvaluator extends Evaluator implements EvaluationConstan
 	 * Whether the code snippet support classes should be found in the provided name environment
 	 * or on disk.
 	 */
-	final static boolean DEVELOPMENT_MODE = false;
+	static final boolean DEVELOPMENT_MODE = false;
 
 	/**
 	 * The code snippet to evaluate.

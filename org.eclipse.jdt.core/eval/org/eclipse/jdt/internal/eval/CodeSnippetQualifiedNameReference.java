@@ -385,7 +385,9 @@ public void generateReadSequence(BlockScope currentScope, CodeStream codeStream)
 
 public void generateReceiver(CodeStream codeStream) {
 	codeStream.aload_0();
-	if (delegateThis != null) codeStream.getfield(delegateThis); // delegated field access
+	if (delegateThis != null) {
+		codeStream.getfield(delegateThis); // delegated field access
+	}
 }
 public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	// At this point restrictiveFlag may ONLY have two potential value : FIELD LOCAL (i.e cast <<(VariableBinding) binding>> is valid)
@@ -405,8 +407,9 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			}
 		}
 		// only last field is actually a write access if any
-		if (isFieldUseDeprecated((FieldBinding) binding, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && indexOfFirstFieldBinding == length))
+		if (isFieldUseDeprecated((FieldBinding) binding, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && indexOfFirstFieldBinding == length)) {
 			scope.problemReporter().deprecatedField((FieldBinding) binding, this);
+		}
 	}
 
 	TypeBinding type = ((VariableBinding) binding).type;
@@ -439,7 +442,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			if (delegateThis == null) {
 				if (this.evaluationContext.declaringTypeName != null) {
 					delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
-					if (delegateThis == null){ ; // if not found then internal error, field should have been found
+					if (delegateThis == null){  // if not found then internal error, field should have been found
 						return super.reportError(scope);
 					}
 				} else {
@@ -453,8 +456,9 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 		}
 		if (field.isValidBinding()) {
 			// only last field is actually a write access if any
-			if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && index+1 == length))
+			if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && index+1 == length)) {
 				scope.problemReporter().deprecatedField(field, this);
+			}
 			Constant someConstant = FieldReference.getConstantFor(field, this, false, scope);
 			// constant propagation can only be performed as long as the previous one is a constant too.
 			if (constant != NotAConstant){
@@ -500,8 +504,9 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
 		boolean useDelegate = index == 0 && this.delegateThis != null;
-		if (useDelegate) lastReceiverType = this.delegateThis.type;
-
+		if (useDelegate) {
+			lastReceiverType = this.delegateThis.type;
+		}
 		if (fieldBinding.declaringClass != lastReceiverType
 			&& !lastReceiverType.isArrayType()			
 			&& fieldBinding.declaringClass != null
@@ -538,8 +543,9 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
 		boolean useDelegate = fieldBinding == binding && this.delegateThis != null;
-		if (useDelegate) lastReceiverType = this.delegateThis.type;
-
+		if (useDelegate) {
+			lastReceiverType = this.delegateThis.type;
+		}
 		if (fieldBinding.declaringClass != lastReceiverType
 			&& !lastReceiverType.isArrayType()			
 			&& fieldBinding.declaringClass != null
@@ -569,7 +575,7 @@ public TypeBinding reportError(BlockScope scope) {
 
 	if (this.evaluationContext.declaringTypeName != null) {
 		delegateThis = scope.getField(scope.enclosingSourceType(), DELEGATE_THIS, this);
-		if (delegateThis == null){ ; // if not found then internal error, field should have been found
+		if (delegateThis == null){  // if not found then internal error, field should have been found
 			return super.reportError(scope);
 		}
 	} else {
@@ -602,8 +608,9 @@ public TypeBinding reportError(BlockScope scope) {
 	if (binding instanceof ProblemFieldBinding
 		&& ((ProblemFieldBinding) binding).problemId() == NotVisible) {
 		result = resolveTypeVisibility(scope);
-		if (result == null)
+		if (result == null) {
 			return super.reportError(scope);
+		}
 		if (result.isValidBinding()) {
 			return result;
 		}

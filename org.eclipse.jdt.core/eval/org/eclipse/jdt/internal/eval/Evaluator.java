@@ -54,7 +54,7 @@ Evaluator(EvaluationContext context, INameEnvironment environment, Map options, 
  * are computed so that they correspond to the given problem. If it is found to be an internal problem,
  * then the evaluation id of the result is the given compilation unit source.
  */
-abstract protected void addEvaluationResultForCompilationProblem(Map resultsByIDs,IProblem problem, char[] cuSource);
+protected abstract void addEvaluationResultForCompilationProblem(Map resultsByIDs,IProblem problem, char[] cuSource);
 /**
  * Returns the evaluation results that converts the given compilation result that has problems.
  * If the compilation result has more than one problem, then the problems are broken down so that
@@ -154,7 +154,7 @@ ClassFile[] getClasses() {
  * Returns the name of the current class. This is the simple name of the class.
  * This doesn't include the extension ".java" nor the name of the package.
  */
-abstract protected char[] getClassName();
+protected abstract char[] getClassName();
 /**
  * Creates and returns a compiler for this evaluator.
  */
@@ -169,5 +169,5 @@ Compiler getCompiler(ICompilerRequestor compilerRequestor) {
 /**
  * Builds and returns the source for the current compilation unit.
  */
-abstract protected char[] getSource();
+protected abstract char[] getSource();
 }

@@ -612,14 +612,15 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 
 public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
 	MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
-	if (methodBinding != null)
-		if (canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this))
+	if (methodBinding != null) {
+		if (canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this)) {
 			return methodBinding;
-
+		}
+	}
 	MethodBinding[] methods = receiverType.getMethods(ConstructorDeclaration.ConstantPoolName);
-	if (methods == NoMethods)
+	if (methods == NoMethods) {
 		return new ProblemMethodBinding(ConstructorDeclaration.ConstantPoolName, argumentTypes, NotFound);
-
+	}
 	MethodBinding[] compatible = new MethodBinding[methods.length];
 	int compatibleIndex = 0;
 	for (int i = 0, length = methods.length; i < length; i++)
@@ -632,13 +633,16 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 	int visibleIndex = 0;
 	for (int i = 0; i < compatibleIndex; i++) {
 		MethodBinding method = compatible[i];
-		if (canBeSeenByForCodeSnippet(method, receiverType, invocationSite, this))
+		if (canBeSeenByForCodeSnippet(method, receiverType, invocationSite, this)) {
 			visible[visibleIndex++] = method;
+		}
 	}
-	if (visibleIndex == 1)
+	if (visibleIndex == 1) {
 		return visible[0];
-	if (visibleIndex == 0)
+	}
+	if (visibleIndex == 0) {
 		return new ProblemMethodBinding(ConstructorDeclaration.ConstantPoolName, compatible[0].parameters, NotVisible);
+	}
 	return mostSpecificClassMethodBinding(visible, visibleIndex);
 }
 /* API

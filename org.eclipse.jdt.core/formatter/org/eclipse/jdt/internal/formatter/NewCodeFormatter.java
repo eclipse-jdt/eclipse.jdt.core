@@ -3170,7 +3170,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(UnaryExpression unaryExpression, BlockScope scope) {
 
 		final int numberOfParens = (unaryExpression.bits & AstNode.ParenthesizedMASK) >> AstNode.ParenthesizedSHIFT;
-		if (numberOfParens > 0) manageOpeningParenthesizedExpression(unaryExpression, numberOfParens);
+		if (numberOfParens > 0) {
+			manageOpeningParenthesizedExpression(unaryExpression, numberOfParens);
+		}
 
 		/*
 		 * Print the operator
@@ -3191,10 +3193,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		}
 
 		this.scribe.printNextToken(operator, this.preferences.insert_space_before_unary_operator);
-		if (this.preferences.insert_space_after_unary_operator) this.scribe.space();
+		if (this.preferences.insert_space_after_unary_operator) {
+			this.scribe.space();
+		}
 		unaryExpression.expression.traverse(this, scope);
 
-		if (numberOfParens > 0) manageClosingParenthesizedExpression(unaryExpression, numberOfParens);
+		if (numberOfParens > 0) {
+			manageClosingParenthesizedExpression(unaryExpression, numberOfParens);
+		}
 		return false;
 	}
 
