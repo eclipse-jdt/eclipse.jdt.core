@@ -2324,6 +2324,9 @@ public class Util {
 		}
 		c = string[start + 1];
 		switch (c) {
+			case Signature.C_SUPER :
+			case Signature.C_EXTENDS :
+				return scanTypeBoundSignature(string, start + 1);
 			case Signature.C_RESOLVED :
 			case Signature.C_UNRESOLVED :
 				return scanClassTypeSignature(string, start + 1);
