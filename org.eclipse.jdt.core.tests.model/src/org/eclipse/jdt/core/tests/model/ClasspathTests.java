@@ -718,7 +718,7 @@ public void testClasspathValidation07() throws CoreException {
 	
 		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
 		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
-		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P"), new IPath[] {new Path("src")});
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P"), new IPath[] {new Path("src/")});
 		
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
@@ -741,7 +741,7 @@ public void testClasspathValidation08() throws CoreException {
 	
 		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
 		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
-		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P"), new IPath[] {new Path("lib")});
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P"), new IPath[] {new Path("lib/")});
 		
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
@@ -889,6 +889,28 @@ public void testClasspathValidation14() throws CoreException {
 		assertEquals(
 			"should allow nested output folder in source folder which is project", 
 			"OK",
+			status.getMessage());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
+ * Should not allow nested source folders on the classpath if exclusion filter has no training slash.
+ */ 
+public void testClasspathValidation15() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {"src"}, "bin");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P"), new IPath[] {new Path("src")});
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertEquals(
+			"should have allowed nested source folders with exclusion on the classpath", 
+			"End exclusion filter with / to fully exclude nested entry",
 			status.getMessage());
 	} finally {
 		this.deleteProject("P");

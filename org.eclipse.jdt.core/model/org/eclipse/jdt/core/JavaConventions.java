@@ -572,10 +572,16 @@ public final class JavaConventions {
 						&& (otherKind == IClasspathEntry.CPE_SOURCE 
 								|| (otherKind == IClasspathEntry.CPE_LIBRARY 
 										&& !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(otherPath.lastSegment())))){
+						char[][] exclusionPatterns;
 						if (otherPath.isPrefixOf(entryPath) 
 								&& !otherPath.equals(entryPath)
-								&& !Util.isExcluded(entryPath, ((ClasspathEntry)otherEntry).fullExclusionPatternChars())) {
-							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInEntry", entryPath.toString(), otherEntry.getPath().toString())); //$NON-NLS-1$
+								&& !Util.isExcluded(entryPath.append("*"), exclusionPatterns = ((ClasspathEntry)otherEntry).fullExclusionPatternChars())) { //$NON-NLS-1$
+									
+							if (Util.isExcluded(entryPath, exclusionPatterns)) {
+								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.mustEndWithSlash")); //$NON-NLS-1$
+							} else {
+								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInEntry", entryPath.toString(), otherEntry.getPath().toString())); //$NON-NLS-1$
+							}
 						}
 					}
 				}
