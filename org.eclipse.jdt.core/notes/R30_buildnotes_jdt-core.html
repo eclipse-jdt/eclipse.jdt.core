@@ -3,25 +3,26 @@
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="IBM">
-   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
    <title>JDT/Core Release Notes</title>
-
+   <link rel="stylesheet" href="../style.css" charset="iso-8859-1" type="text/css">
 </head>
-<body>
 
 <body text="#000000" bgcolor="#FFFFFF">
-&nbsp;
-
 <table border=0 cellspacing=5 cellpadding=2 width="100%" >
   <tr> 
-    <td align=left width="72%">
-      <font face="Verdana, Arial, Helvetica" size="+3"><b>jdt core - build notes 3.0 stream</b></font>
-      <br><font face="Arial, Helvetica, sans-serif" size="-2" color="#8080ff">java development tooling core</font></td>
+    <td align="left" width="72%" class="title1">
+      <font size="+3"><b>jdt core - build notes 3.0 stream</b></font>
+    </td>
+  </tr>
+  <tr>
+    <td align="left" width="72%" class="title2">
+		<font size="-2" color="#8080ff">java development tooling core</font>
+	</td>
   </tr>
 	<tr><td>&nbsp;</td></tr>
   <tr>
-  	<td>
-	  <font face="Arial, Helvetica, sans-serif" size="-1">
+  	<td class="title3">
+	  <font size="-1">
 	  Here are the build notes for the Eclipse JDT/Core plug-in project 
 	  <a href="http://dev.eclipse.org/viewcvs/index.cgi/%7Echeckout%7E/jdt-core-home/main.html"><b>org.eclipse.jdt.core</b></a>, 
 	  describing <a href="http://bugs.eclipse.org/bugs" target=new>bug</a> resolution and substantial changes in the <a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core"><b>HEAD</b></a> branch. 
@@ -1293,7 +1294,6 @@ What's new in this drop</h2>
 <li><code>getCommentList()</code>: Returns a list of the comments encountered while parsing the compilation unit.</li>
 <li><code>getExtendedStartPosition(ASTNode)</code>: Returns the extended start position of the given node.</li>
 <li><code>getExtendedLength(ASTNode)</code>: Returns the extended source length of the given node.</li>
-</li>
 </ul>
 Unlike <code>ASTNode#getStartPosition()</code> and <code>ASTNode#getLength()</code>, the extended source range may include
 comments and whitespace immediately before or after the normal source range for the node.
@@ -3955,10 +3955,10 @@ before next automatic update occurs.
  * @param monitor a progress monitor for reporting operation progress
  * @exception JavaModelException if the classpath could not be updated. Reasons
  * include:
- *  - This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+ *  - This Java element does not exist (ELEMENT_DOES_NOT_EXIST)
  *  - Two or more entries specify source roots with the same or overlapping paths (NAME_COLLISION)
  *  - A entry of kind <code>CPE_PROJECT</code> refers to this project (INVALID_PATH)
- *  - This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+ *  - This Java element does not exist (ELEMENT_DOES_NOT_EXIST)
  *  - The output location path refers to a location not contained in this project (<code>PATH_OUTSIDE_PROJECT</code>)
  *  - The output location path is not an absolute path (<code>RELATIVE_PATH</code>)
  *  - The output location path is nested inside a package fragment root of this project (<code>INVALID_PATH</code>)

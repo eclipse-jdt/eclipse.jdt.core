@@ -3,24 +3,21 @@
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="IBM">
-   <meta name="GENERATOR" content="Mozilla/4.75 [en] (Windows NT 5.0; U) [Netscape]">
    <title>JDT/Core Release Notes</title>
+   <link rel="stylesheet" href="style.css" charset="iso-8859-1" type="text/css">
 </head>
-<body>
-
 <body text="#000000" bgcolor="#FFFFFF">
-&nbsp;
-
 <table border=0 cellspacing=5 cellpadding=2 width="100%" >
   <tr> 
-    <td align=left width="72%">
-      <font face="Verdana, Arial, Helvetica" size="+3"><b>jdt core - build notes 3.1 stream</b></font>
-      <br><font face="Arial, Helvetica, sans-serif" size="-2" color="#8080ff">java development tooling core</font></td>
+    <td align="left" width="72%" class="title1">
+      <font size="+3"><b>jdt core - build notes 3.1 stream</b></font>
+    </td>
   </tr>
-	<tr><td>&nbsp;</td></tr>
+  <tr><td td align="left" width="72%" class="title2"><font size="-2">java development tooling core</font></td></tr>
+  <tr><td>&nbsp;</td></tr>
   <tr>
-  	<td>
-	  <font face="Arial, Helvetica, sans-serif" size="-1">
+  	<td class="title3">
+	  <font size="-1">
 	  Here are the build notes for the Eclipse JDT/Core plug-in project 
 	  <a href="http://dev.eclipse.org/viewcvs/index.cgi/%7Echeckout%7E/jdt-core-home/main.html"><b>org.eclipse.jdt.core</b></a>, 
 	  describing <a href="http://bugs.eclipse.org/bugs" target=new>bug</a> resolution and substantial changes in the <a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core"><b>HEAD</b></a> branch. 
@@ -1627,6 +1624,7 @@ What's new in this drop</h2>
 <li>Added optional compiler diagnosis for usage of 'enum' as an identifier.
 Corresponding problem ID is IProblem.UseEnumAsAnIdentifier.
 </li>
+<li>
 <pre>
 * COMPILER / Reporting Usage of 'enum' Identifier
 *    When enabled, the compiler will issue an error or a warning whenever 'enum' is 
