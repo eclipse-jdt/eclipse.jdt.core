@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import junit.framework.Test;
 
@@ -67,6 +70,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
+			suite.addTest(new FormatterRegressionTests("test447"));  //$NON-NLS-1$
 			suite.addTest(new FormatterRegressionTests("test451"));  //$NON-NLS-1$
 			return suite;
 		}
@@ -95,6 +99,30 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		assertNotNull("No resource found", resource);
 		return resource.getLocation().toOSString();
 	}	
+	
+	private String getZipEntryContents(String fileName, String zipEntryName) {
+		ZipFile zipFile = null;
+		BufferedInputStream inputStream  = null;
+		try {
+			zipFile = new ZipFile(fileName);
+			ZipEntry zipEntry = zipFile.getEntry(zipEntryName);
+			inputStream = new BufferedInputStream(zipFile.getInputStream(zipEntry));
+			return new String(org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(inputStream, -1, null));
+		} catch (IOException e) {
+		} finally {
+			try {
+				if (inputStream != null) {
+					inputStream.close();
+				}
+				if (zipFile != null) {
+					zipFile.close();
+				}
+			} catch (IOException e1) {
+				// Do nothing
+			}
+		}
+		return null;
+	}
 	
 	public String getSourceWorkspacePath() {
 		return getPluginDirectoryPath() +  java.io.File.separator + "workspace";
@@ -263,6 +291,26 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 	
 	
+	private void runTest(String input, String output, DefaultCodeFormatter codeFormatter, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator) {
+		String result;
+		if (length == -1) {
+			result = runFormatter(codeFormatter, input, kind, indentationLevel, offset, input.length(), lineSeparator);
+		} else {
+			result = runFormatter(codeFormatter, input, kind, indentationLevel, offset, length, lineSeparator);
+		}
+		assertLineEquals(result, input, output, checkNull);
+	}
+
+	private void runTest(String source, String expectedResult, DefaultCodeFormatter codeFormatter, int kind, int indentationLevel, boolean checkNull, int offset, int length) {
+		String result;
+		if (length == -1) {
+			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length(), null);
+		} else {
+			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length, null);
+		}
+		assertLineEquals(result, source, expectedResult, checkNull);
+	}
+	
 	private void runTest(DefaultCodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator) {
 		try {
 			ICompilationUnit sourceUnit = getCompilationUnit("Formatter" , "", packageName, getIn(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -283,16 +331,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		}
 	}
 
-	private void runTest(String source, String expectedResult, DefaultCodeFormatter codeFormatter, int kind, int indentationLevel, boolean checkNull, int offset, int length) {
-		String result;
-		if (length == -1) {
-			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length(), null);
-		} else {
-			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length, null);
-		}
-		assertLineEquals(result, source, expectedResult, checkNull);
-	}
-	
 	public void _test() {
 		try {
 			char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(new File("D:/workspaces/eclipse/plugins/TestingOlivier/src/FormatterRegressionTests.java"), null);
@@ -5344,21 +5382,19 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
 	 */
-	public void _test447() {
-		String resourcePath = getResource("test447", "settings.xml");
-		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "Toms");
+	public void test447() {
+		String resourcePath = getResource("test447", "test447.zip");
+		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "settings.xml", "Toms");
 		assertNotNull("No preferences", options);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		try {
-			ICompilationUnit sourceUnit = getCompilationUnit("Formatter" , "", "test447", getIn("Format.java")); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
-			String s = sourceUnit.getSource();
-			int start = s.indexOf("private");
-			int end = s.indexOf(";");
-			runTest(codeFormatter, s, "test447", "Format.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, start, end - start + 1, null);//$NON-NLS-1$ //$NON-NLS-2$
-		} catch (JavaModelException e) {
-			assertTrue(false);
-		}
+		String input = getZipEntryContents(resourcePath, getIn("Format.java"));
+		assertNotNull("No input", input);
+		String output = getZipEntryContents(resourcePath, getOut("Format.java"));
+		assertNotNull("No output", output);
+		int start = input.indexOf("private");
+		int end = input.indexOf(";");
+		runTest(input, output, codeFormatter, CodeFormatter.K_COMPILATION_UNIT, 0, false, start, end - start + 1, "\r\n");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/**
@@ -5402,20 +5438,18 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
 	 */
-	public void _test451() {
-		String resourcePath = getResource("test451", "settings.xml");
-		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "Toms");
+	public void test451() {
+		String resourcePath = getResource("test451", "test451.zip");
+		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "settings.xml", "Toms");
 		assertNotNull("No preferences", options);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		try {
-			ICompilationUnit sourceUnit = getCompilationUnit("Formatter" , "", "test451", getIn("Format.java")); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
-			String s = sourceUnit.getSource();
-			int start = s.indexOf("private");
-			int end = s.indexOf(";");
-			runTest(codeFormatter, s, "test451", "Format.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, start, end - start + 1, null);//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-		} catch (JavaModelException e) {
-			assertTrue(false);
-		}
+		String input = getZipEntryContents(resourcePath, getIn("Format.java"));
+		assertNotNull("No input", input);
+		String output = getZipEntryContents(resourcePath, getOut("Format.java"));
+		assertNotNull("No output", output);
+		int start = input.indexOf("private");
+		int end = input.indexOf(";");
+		runTest(input, output, codeFormatter, CodeFormatter.K_COMPILATION_UNIT, 0, false, start, end - start + 1, "\r\n");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

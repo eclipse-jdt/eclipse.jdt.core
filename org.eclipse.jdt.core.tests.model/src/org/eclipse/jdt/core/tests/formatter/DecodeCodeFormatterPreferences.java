@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
@@ -45,28 +48,46 @@ public class DecodeCodeFormatterPreferences extends DefaultHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		/*try {
-			BufferedReader reader = new BufferedReader(new FileReader(fileName));
-			Element rootNode;
-
-			try {
-				DocumentBuilder parser =
-					DocumentBuilderFactory.newInstance().newDocumentBuilder();
-				rootNode = parser.parse(new InputSource(reader)).getDocumentElement();
-				return rootNode;
-			} catch (SAXException e) {
-				e.printStackTrace();
-			} catch (ParserConfigurationException e) {
-				e.printStackTrace();
-			} finally {
-				reader.close();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
 		return null;
 	}
 
+	public static Map decodeCodeFormatterOptions(String zipFileName, String zipEntryName, String profileName) {
+		ZipFile zipFile = null;
+		BufferedInputStream inputStream = null;
+		try {
+			zipFile = new ZipFile(zipFileName);
+			ZipEntry zipEntry = zipFile.getEntry(zipEntryName);
+			if (zipEntry == null) {
+				return null;
+			}
+			inputStream = new BufferedInputStream(zipFile.getInputStream(zipEntry));
+			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+			final DecodeCodeFormatterPreferences preferences = new DecodeCodeFormatterPreferences(profileName);
+			saxParser.parse(inputStream, preferences);
+			return preferences.getEntries();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (FactoryConfigurationError e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (inputStream != null) {
+					inputStream.close();
+				}
+				if (zipFile != null) {
+					zipFile.close();
+				}
+			} catch (IOException e1) {
+				// Do nothing
+			}
+		}
+		return null;
+	}
+	
 	DecodeCodeFormatterPreferences(String profileName) {
 		this.profileName = profileName;
 	}
