@@ -544,6 +544,8 @@ public static void searchAllPossibleSubTypes(
 				searchRequestor, 
 				indexManager);
 	
+	/* initialize entry result cache */
+	pattern.entryResults = new HashMap();
 	/* iterate all queued names */
 	int ticks = 50;
 	awaitings.add(type.getElementName().toCharArray());
@@ -568,5 +570,7 @@ public static void searchAllPossibleSubTypes(
 	}
 	/* close all cached index inputs */
 	job.closeAll();
+	/* flush entry result cache */
+	pattern.entryResults = null;
 }
 }

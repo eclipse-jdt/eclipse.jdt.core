@@ -9,12 +9,15 @@ import org.eclipse.jdt.internal.compiler.util.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 import org.eclipse.jdt.internal.core.index.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.index.impl.*;
 import org.eclipse.jdt.internal.core.search.*;
 
 import java.io.*;
+import java.util.HashMap;
 
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 
@@ -31,6 +34,14 @@ public class SuperTypeReferencePattern extends SearchPattern {
 	protected char[] decodedEnclosingTypeName;
 	protected char decodedClassOrInterface;
 	protected int decodedModifiers;
+	
+	/**
+	 * A map from IndexInputs to IEntryResult[]
+	 */
+	public HashMap entryResults;
+	
+	private static final IEntryResult[] NO_ENTRY_RESULT = new IEntryResult[0];
+	
 public SuperTypeReferencePattern(
 	char[] superQualification,
 	char[] superSimpleName,
@@ -91,10 +102,58 @@ public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel,
 	}
 }
 /**
+ * Query a given index for matching entries. 
+ */
+public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
+	if (this.entryResults == null) {
+		// non-optimized case
+		super.findIndexMatches(input, requestor, detailLevel, progressMonitor, scope);	
+		return;
+	}
+	
+	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
+	
+	/* narrow down a set of entries using prefix criteria */
+	IEntryResult[] entries = (IEntryResult[])this.entryResults.get(input);
+	if (entries == null) {
+		entries = input.queryEntriesPrefixedBy(SUPER_REF);
+		if (entries == null) {
+			entries = NO_ENTRY_RESULT;
+		}
+		this.entryResults.put(input, entries);
+	}
+	
+	/* only select entries which actually match the entire search pattern */
+	int slash = SUPER_REF.length;
+	char[] simpleName = this.superSimpleName;
+	int length = simpleName == null ? 0 : simpleName.length;
+	nextEntry: for (int i = 0, max = entries.length; i < max; i++){
+		/* check that the entry is a super ref to the super simple name */
+		IEntryResult entry = entries[i];
+		if (simpleName != null) {
+			char[] word = entry.getWord();
+			if (slash + length >= word.length) continue;
+			
+			// ensure that's the end of the ref (i.e. simple name is not a prefix of ref)
+			if (word[length+slash] != '/') continue; 
+			
+			// compare ref to simple name
+			for (int j = 0; j < length; j++) {
+				char value = word[j+slash];
+				if (value != simpleName[j]) continue nextEntry;
+			}
+		}
+		
+		/* retrieve and decode entry */	
+		this.decodeIndexEntry(entry);
+		feedIndexRequestor(requestor, detailLevel, entry.getFileReferences(), input, scope);
+	}
+}
+
+/**
  * see SearchPattern.indexEntryPrefix()
  */
 public char[] indexEntryPrefix(){
-
 	return AbstractIndexer.bestReferencePrefix(
 			SUPER_REF,
 			superSimpleName, 
