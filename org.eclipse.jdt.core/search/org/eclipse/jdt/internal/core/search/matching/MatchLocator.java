@@ -1169,7 +1169,7 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 			if (progressMonitor != null && progressMonitor.isCanceled()) {
 				throw new OperationCanceledException();
 			}
-			
+			 
 			try {
 				this.currentMatchingOpenable = openables[i];
 				
@@ -1181,13 +1181,15 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 				this.currentMatchingOpenable.shouldResolve = shouldResolve;
 				this.currentMatchingOpenable.locateMatches();
 				this.currentMatchingOpenable.reset();
-			} catch (AbortCompilation e) { 
+			} catch (AbortCompilation e) {
 				// problem with class path: it could not find base classes
-				// continue and try next matching openable
+				// continue and try next matching openable reporting innacurate matches (since bindings will be null)
+				shouldResolve = false;
 			} catch (CoreException e) {
 				if (e instanceof JavaModelException) {
 					// problem with class path: it could not find base classes
-					// continue and try next matching openable
+					// continue and try next matching openable reporting innacurate matches (since bindings will be null)
+					shouldResolve = false;
 				} else {
 					// core exception thrown by client's code: let it through
 					throw new JavaModelException(e);
