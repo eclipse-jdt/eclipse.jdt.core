@@ -525,6 +525,7 @@ public abstract class AbstractCommentParser {
 									consumeToken();
 								}
 								this.currentTokenType = -1; // do not update line end
+								start = this.scanner.getCurrentTokenStartPosition();
 								if (readChar() == '/') {
 									if (Character.toLowerCase(readChar()) == 'a') {
 										if (readChar() == '>') {
@@ -751,7 +752,7 @@ public abstract class AbstractCommentParser {
 							if (verifyEndLine(previousPosition)) {
 								return true;
 							}
-							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocInvalidReference(start, this.lineEnd);
+							if (this.sourceParser != null) this.sourceParser.problemReporter().javadocUnexpectedText(this.scanner.currentPosition, this.lineEnd);
 						}
 						return false;
 					case TerminalTokens.TokenNameLESS : // @see "<a href="URL#Value">label</a>
@@ -771,7 +772,8 @@ public abstract class AbstractCommentParser {
 								return true;
 							}
 							if (this.tagValue != TAG_VALUE_VALUE && this.sourceParser != null) {
-								this.sourceParser.problemReporter().javadocInvalidReference(start, this.lineEnd);
+//								this.sourceParser.problemReporter().javadocInvalidReference(start, this.lineEnd);
+								if (this.sourceParser != null) this.sourceParser.problemReporter().javadocUnexpectedText(this.scanner.currentPosition, this.lineEnd);
 							}
 						}
 						if (this.tagValue == TAG_VALUE_VALUE && this.sourceParser != null) {
@@ -1175,45 +1177,6 @@ public abstract class AbstractCommentParser {
 				default :
 					// leave loop
 					break nextChar;
-				
-			}
-			previousPosition = this.index;
-			ch = readChar();
-		}
-		this.index = startPosition;
-		return false;
-	}
-
-	/*
-	 * Verify that some text exists after a @return tag. Text must be different than
-	 * end of comment which may be preceeding by several '*' chars.
-	 */
-	protected boolean verifyCharsAfterReturnTag(int startPosition) {
-		// Whitespace or inline tag closing brace
-		int previousPosition = this.index;
-		char ch = readChar();
-		boolean malformed = true;
-		while (Character.isWhitespace(ch)) {
-			malformed = false;
-			previousPosition = this.index;
-			ch = readChar();	
-		}
-		// End of comment
-		this.starPosition = -1;
-		nextChar: while (this.index<this.source.length) {
-			switch (ch) {
-				case '*':
-					// valid whatever the number of star before last '/'
-					this.starPosition = previousPosition;
-					break;
-				case '/':
-					if (this.starPosition >= startPosition) { // valid only if a star was previous character
-						return false;
-					}
-				default :
-					// valid if any other character is encountered, even white spaces
-					this.index = startPosition;
-					return !malformed;
 				
 			}
 			previousPosition = this.index;

@@ -570,8 +570,8 @@ public class JavadocTestMixed extends JavadocTest {
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 10)\n"
 				+ "	* @see <a href=\"http://www.ibm.com\">Valid URL</a>unexpected text\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid reference\n"
+				+ "	                                              ^^^^^^^^^^^^^^^^^^\n"
+				+ "Javadoc: Unexpected text\n"
 				+ "----------\n"
 				+ "3. ERROR in test\\X.java (at line 22)\n"
 				+ "	public X(String str) throws java.io.IOException {\n"
@@ -1991,19 +1991,18 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in X.java (at line 2)\n" + 
 				"	* @see <a href=\"http:/www.ibm.com\">IBM Home Page\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 3)\n" + 
 				"	* @see <a href=\"http:/www.ibm.com\">\n" + 
 				"	*          IBM Home Page\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
-				"3. ERROR in X.java (at line 5)\n" + 
-				"	* @see <a href=\"http:/www.ibm.com\">\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
 				"	*          IBM Home Page<\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"	                        ^\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 8)\n" + 
 				"	* @see <a href=\"http:/www.ibm.com\">\n" + 
@@ -2012,7 +2011,7 @@ public class JavadocTestMixed extends JavadocTest {
 				"	*\n" + 
 				"	*          Home Page\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"5. ERROR in X.java (at line 16)\n" + 
 				"	* @see Unknown\n" + 
@@ -2165,13 +2164,13 @@ public class JavadocTestMixed extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 4)\n" + 
 				"	* @see <a href=\"http://www.ietf.org/rfc/rfc2045.txt\">RFC 2045 - Section 6.8</a>			,\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid reference\n" + 
+				"	                                                                            ^^^^^^^\n" + 
+				"Javadoc: Unexpected text\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 7)\n" + 
 				"	* @see \"Invalid ref\"	   .\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid reference\n" + 
+				"	                    ^^^^^\n" + 
+				"Javadoc: Unexpected text\n" + 
 				"----------\n"
 		);
 	}
@@ -3098,17 +3097,17 @@ public class JavadocTestMixed extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 2)\n" + 
 				"	/**@return*/\n" + 
-				"	    ^^^^^^^\n" + 
+				"	    ^^^^^^\n" + 
 				"Javadoc: Missing return type description\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	/**@return        */\n" + 
-				"	    ^^^^^^^^^^^^^^^\n" + 
+				"	    ^^^^^^\n" + 
 				"Javadoc: Missing return type description\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 6)\n" + 
 				"	/**@return****/\n" + 
-				"	    ^^^^^^^^^^\n" + 
+				"	    ^^^^^^\n" + 
 				"Javadoc: Missing return type description\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 9)\n" + 
@@ -3136,12 +3135,12 @@ public class JavadocTestMixed extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	*	@return* */\n" + 
-				"	 	 ^^^^^^^\n" + 
+				"	 	 ^^^^^^\n" + 
 				"Javadoc: Missing return type description\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 5)\n" + 
 				"	/**@return** **/\n" + 
-				"	    ^^^^^^^^\n" + 
+				"	    ^^^^^^\n" + 
 				"Javadoc: Missing return type description\n" + 
 				"----------\n"
 		);
@@ -3162,7 +3161,7 @@ public class JavadocTestMixed extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	*	@return#\n" + 
-				"	 	 ^^^^^^^\n" + 
+				"	 	 ^^^^^^\n" + 
 				"Javadoc: Missing return type description\n" + 
 				"----------\n"
 		);
@@ -3472,13 +3471,13 @@ public class JavadocTestMixed extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 2)\n" + 
 				"	/**@see <a href=\"http://www.eclipse.org\">text</a>* */\n" + 
-				"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid reference\n" + 
+				"	                                              ^^^^^^^\n" + 
+				"Javadoc: Unexpected text\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	/**@see <a href=\"http://www.eclipse.org\">text</a>	** **/\n" + 
-				"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid reference\n" + 
+				"	                                              ^^^^^^^^^^\n" + 
+				"Javadoc: Unexpected text\n" + 
 				"----------\n"
 		);
 	}
@@ -3631,62 +3630,62 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in X.java (at line 5)\n" + 
 				"	* @see <a href=\"invalid\" target\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 6)\n" + 
 				"	* @see <a href=\"invalid\" target=\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 7)\n" + 
 				"	* @see <a href=\"invalid\" target=\"\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 8)\n" + 
 				"	* @see <a href=\"invalid\" target=\"_top\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"5. ERROR in X.java (at line 9)\n" + 
 				"	* @see <a href=\"invalid\" target=\"_top\"\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"6. ERROR in X.java (at line 10)\n" + 
 				"	* @see <a href=\"invalid\" target=\"_top\">\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"7. ERROR in X.java (at line 11)\n" + 
 				"	* @see <a href=\"invalid\" target=\"_top\">\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"8. ERROR in X.java (at line 12)\n" + 
 				"	* @see <a href=\"invalid\" target=\"_top\">invalid\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"9. ERROR in X.java (at line 13)\n" + 
 				"	* @see <a href=\"invalid\" target=\"_top\">invalid<\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"	                                              ^\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"10. ERROR in X.java (at line 14)\n" + 
 				"	* @see <a href=\"invalid\" target=\"_top\">invalid</\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"	                                              ^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"11. ERROR in X.java (at line 15)\n" + 
 				"	* @see <a href=\"invalid\" target=\"_top\">invalid</a\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"	                                              ^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"12. ERROR in X.java (at line 16)\n" + 
 				"	* @see <a href=\"invalid\" target=\"_top\">invalid</a> no text allowed after the href\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid reference\n" + 
+				"	                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Unexpected text\n" + 
 				"----------\n"
 		);
 	}
@@ -3720,19 +3719,18 @@ public class JavadocTestMixed extends JavadocTest {
 				"1. ERROR in X.java (at line 2)\n" + 
 				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">IBM Home Page\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 3)\n" + 
 				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
 				"	*          IBM Home Page\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
-				"3. ERROR in X.java (at line 5)\n" + 
-				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
 				"	*          IBM Home Page<\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"	                        ^\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"4. ERROR in X.java (at line 8)\n" + 
 				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
@@ -3741,7 +3739,7 @@ public class JavadocTestMixed extends JavadocTest {
 				"	*\n" + 
 				"	*          Home Page\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Invalid URL link format\n" + 
+				"Javadoc: Malformed link reference\n" + 
 				"----------\n" + 
 				"5. ERROR in X.java (at line 16)\n" + 
 				"	* @see Unknown\n" + 
@@ -3786,4 +3784,87 @@ public class JavadocTestMixed extends JavadocTest {
 			}
 		);
 	}
+
+	/**
+	 * Test fix for bug 73348: [Javadoc] Missing description for return tag is not always warned
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73348">73348</a>
+	 */
+	public void testBug73348conform() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 *	@return      \n" + 
+					"	 *	int\n" + 
+					"	 */\n" + 
+					"	public int foo1() {return 0; }\n" + 
+					"	/**\n" + 
+					"	 *	@return      \n" + 
+					"	 *	int\n" + 
+					"	 *	@see Object\n" + 
+					"	 */\n" + 
+					"	public int foo2() {return 0; }\n" + 
+					"}\n",
+			}
+		);
+	}
+	public void testBug73348negative() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 *	@return\n" + 
+					"	 *	@see Object\n" + 
+					"	 */\n" + 
+					"	public int foo1() {return 0; }\n" + 
+					"	/**\n" + 
+					"	 *	@return      \n" + 
+					"	 *	@see Object\n" + 
+					"	 */\n" + 
+					"	public int foo2() {return 0; }\n" + 
+					"}\n",
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	*	@return\n" + 
+				"	 	 ^^^^^^\n" + 
+				"Javadoc: Missing return type description\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
+				"	*	@return      \n" + 
+				"	 	 ^^^^^^\n" + 
+				"Javadoc: Missing return type description\n" + 
+ 				"----------\n"
+ 		);
+ 	}
+
+	/**
+	 * Test fix for bug 73479: [Javadoc] Improve error message for invalid link in @see tags
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73479">73479</a>
+	 */
+	public void testBug73479() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 *	@see <a href=\"spec.html#section\">Java Spec<a>\n" + 
+					"	 */\n" + 
+					"	public void foo() {}\n" + 
+					"}\n",
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	*	@see <a href=\"spec.html#section\">Java Spec<a>\n" + 
+				"	 	                                          ^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+ 				"----------\n"
+ 		);
+ 	}
 }
