@@ -420,7 +420,8 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 						if (JavaBuilder.DEBUG)
 							System.out.println("Copying added file " + resourcePath); //$NON-NLS-1$
 						createFolder(resourcePath.removeLastSegments(1), md.binaryFolder); // ensure package exists in the output folder
-						resource.copy(outputFile.getFullPath(), IResource.FORCE | IResource.DEEP, null);
+						resource.copy(outputFile.getFullPath(), IResource.FORCE, null);
+//						resource.copy(outputFile.getFullPath(), IResource.FORCE | IResource.DEEP, null);
 						outputFile.setDerived(true);
 						return;
 					case IResourceDelta.REMOVED :
@@ -441,7 +442,8 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 						if (JavaBuilder.DEBUG)
 							System.out.println("Copying changed file " + resourcePath); //$NON-NLS-1$
 						createFolder(resourcePath.removeLastSegments(1), md.binaryFolder); // ensure package exists in the output folder
-						resource.copy(outputFile.getFullPath(), IResource.FORCE | IResource.DEEP, null);
+						resource.copy(outputFile.getFullPath(), IResource.FORCE, null);
+//						resource.copy(outputFile.getFullPath(), IResource.FORCE | IResource.DEEP, null);
 						outputFile.setDerived(true);
 				}
 				return;
