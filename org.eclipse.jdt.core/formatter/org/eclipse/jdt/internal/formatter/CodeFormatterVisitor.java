@@ -2304,6 +2304,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		final Expression qualification = explicitConstructor.qualification;
 		if (qualification != null) {
 			qualification.traverse(this, scope);
+			this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
 		}
 
 		if (explicitConstructor.isSuperAccess()) {
