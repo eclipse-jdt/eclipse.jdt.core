@@ -10,7 +10,7 @@ import java.util.ResourceBundle;
 public class Util {
 	/* Bundle containing messages */
 	protected static ResourceBundle bundle;
-	private final static String bundleName = "org.eclipse.jdt.internal.core.search.Messages"/*nonNLS*/;
+	private final static String bundleName = "org.eclipse.jdt.internal.core.search.messages"/*nonNLS*/;
 	static {
 		relocalize();
 	}

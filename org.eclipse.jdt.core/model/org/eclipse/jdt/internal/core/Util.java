@@ -42,7 +42,7 @@ public class Util {
 
 	/* Bundle containing messages */
 	protected static ResourceBundle bundle;
-	private final static String bundleName = "org.eclipse.jdt.internal.core.Messages"/*nonNLS*/;
+	private final static String bundleName = "org.eclipse.jdt.internal.core.messages"/*nonNLS*/;
 
 	public final static char[] SUFFIX_class = ".class"/*nonNLS*/.toCharArray();
 	public final static char[] SUFFIX_CLASS = ".CLASS"/*nonNLS*/.toCharArray();
