@@ -6,8 +6,18 @@ STREAM: 2.0
 
   JBL
   ================================================================================
-  * Search in JARs, in innerclasses
-  * JCK1.4, investigate new exclude lists
+  * Search PRs:
+  
+  1GKECWC: ITPJCORE:WINNT - Organize Imports fails: Typerefs not complete
+  1GKCH3N: ITPJCORE:WIN2000 - search: method refs - super call not found
+  1GKB9YH: ITPJCORE:WIN2000 - search for field refs - incorrect results
+  1GKB475: ITPJCORE:WINNT - StringIndexOutOfBoundsException on searchfor methods
+  1GKAQJS: ITPJCORE:WIN2000 - search: incorrect results for nested types
+  1GK9B5Q: ITPJCORE:WINNT - Class reference search broken
+  1GK96A0: ITPJCORE:WINNT - NPE during search operation
+  1GK90H4: ITPJCORE:WIN2000 - search: missing package reference
+  1GK8TXE: ITPJCORE:WIN2000 - search: missing field reference
+  1GK7K17: ITPJCORE:WIN2000 - search: missing type reference
 
   KJ
   ================================================================================
@@ -115,9 +125,11 @@ STREAM: 2.0
   ================================================================================
   * New AST node for empty statements (org.eclipse.jdt.internal.compiler.ast.EmptyStatement)
   	i.e. 2 more APIs on the AST visitor.
+  * Search in inner-classes now works. Indexes are recomputed automatically on start-up.
   	
   PRs Fixed in this Release
   ================================================================================
+  1G4TNX1: ITPJCORE:WINNT - Search - No search anonymous results in inner classes
   1GHW0AZ: ITPJCORE:WINNT - JCK 1.4 - unreachable empty statements
   1GK2BLM: ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value after the boolean operator ? : when true 
   1GKB28A: ITPJCORE:WIN2000 - Compiler accepts incorrect code
