@@ -170,7 +170,33 @@ public boolean equals(Object o) {
 	return this == o; 
 }
 
+	/**
+	 * Returns the info for this handle.  
+	 * If this element is not already open, it and all of its parents are opened.
+	 * Does not return null.
+	 * NOTE: BinaryType infos are NJOT rooted under JavaElementInfo.
+	 * @exception JavaModelException if the element is not present or not accessible
+	 */
+	public Object getElementInfo() throws JavaModelException {
 
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		boolean shouldPerformProblemDetection = false;
+		synchronized(manager){
+			Object info = manager.getInfo(this);
+			if (info == null) {
+				shouldPerformProblemDetection = true;
+			}
+		}
+		Object info = super.getElementInfo(); // will populate if necessary
+
+		// perform problem detection outside the JavaModelManager lock
+		if (this.problemRequestor != null && shouldPerformProblemDetection && this.problemRequestor.isActive()){
+			this.problemRequestor.beginReporting();
+			CompilationUnitProblemFinder.process(this, this.problemRequestor, null); 
+			this.problemRequestor.endReporting();
+		}		
+		return info;
+	}
 /**
  * @see IWorkingCopy
  */
@@ -270,12 +296,6 @@ protected IType getOriginalType(ArrayList hierarchy) {
 }
 
 /*
- * Answer requestor to notify with problems
- */
-public IProblemRequestor getProblemRequestor(){
-	return this.problemRequestor;
-}
-/*
  * @see IJavaElement
  */
 public IResource getResource() {
@@ -332,6 +352,21 @@ public boolean isBasedOn(IResource resource) {
 public boolean isWorkingCopy() {
 	return true;
 }
+
+/**
+ * @see IOpenable#makeConsistent(IProgressMonitor)
+ */
+public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
+	if (!isConsistent()) { // TODO: this code isn't synchronized with regular opening of a working copy
+		super.makeConsistent(monitor);
+		if (this.problemRequestor != null && this.problemRequestor.isActive()){
+			this.problemRequestor.beginReporting();
+			CompilationUnitProblemFinder.process(this, this.problemRequestor, monitor); 
+			this.problemRequestor.endReporting();
+		}		
+	}
+}
+
 /**
  * @see IOpenable
  * @see IWorkingCopy

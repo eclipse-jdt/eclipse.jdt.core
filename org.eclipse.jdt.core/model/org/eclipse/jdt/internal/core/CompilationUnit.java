@@ -88,13 +88,6 @@ protected void buildStructure(OpenableElementInfo info, IProgressMonitor monitor
 
 	// problem detection 
 	if (monitor != null && monitor.isCanceled()) return;
-
-	IProblemRequestor problemRequestor = this.getProblemRequestor();
-	if (problemRequestor != null && problemRequestor.isActive()){
-		problemRequestor.beginReporting();
-		CompilationUnitProblemFinder.process(this, problemRequestor, monitor); // TODO: is the JavaModel lock taken here ? Can run client code
-		problemRequestor.endReporting();
-	}
 }
 
 /**
@@ -505,13 +498,6 @@ public IResource getResource() {
 	}
 }
 
-/*
- * Answer requestor to notify with problems
- */
-public IProblemRequestor getProblemRequestor(){
-	return null;
-}
-
 /**
  * @see ISourceReference#getSource()
  */
@@ -647,11 +633,11 @@ public boolean isWorkingCopy() {
 /**
  * @see IOpenable#makeConsistent(IProgressMonitor)
  */
-public void makeConsistent(IProgressMonitor pm) throws JavaModelException {
-	if (!isConsistent()) {
+public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
+	if (!isConsistent()) { // TODO: this code isn't synchronized with regular opening of a working copy
 		// create a new info and make it the current info
 		OpenableElementInfo info = createElementInfo();
-		buildStructure(info, pm);
+		buildStructure(info, monitor);
 	}
 }
 

@@ -56,7 +56,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			if (forceProblemDetection && wasConsistent){
 				if (fMonitor != null && fMonitor.isCanceled()) return;
 		
-				IProblemRequestor problemRequestor = workingCopy.getProblemRequestor();
+				IProblemRequestor problemRequestor = workingCopy.problemRequestor;
 				if (problemRequestor != null && problemRequestor.isActive()){
 					problemRequestor.beginReporting();
 					CompilationUnitProblemFinder.process(workingCopy, problemRequestor, fMonitor);
