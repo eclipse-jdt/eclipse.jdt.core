@@ -1872,7 +1872,7 @@ public class EnumTest extends AbstractComparableTest {
         this.runConformTest(
             new String[] {
                 "X.java",
-                "enum X {\n" +
+                "public enum X {\n" +
                 "    SUCCESS (0) {};\n" +
                 "    private X(int i) {}\n" +
                 "    public static void main(String[] args) {\n" +
@@ -1884,5 +1884,30 @@ public class EnumTest extends AbstractComparableTest {
             },
             "SUCCESS");
     }
-    
+
+    /**
+     * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83219
+     */
+    public void test067() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "public enum X {\r\n" + 
+                "    ONE, TWO, THREE;\r\n" + 
+                "    abstract int getSquare();\r\n" + 
+                "    abstract int getSquare();\r\n" + 
+                "}",
+            },
+            "----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	abstract int getSquare();\n" + 
+			"	             ^^^^^^^^^^^\n" + 
+			"Duplicate method getSquare() in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	abstract int getSquare();\n" + 
+			"	             ^^^^^^^^^^^\n" + 
+			"Duplicate method getSquare() in type X\n" + 
+			"----------\n");
+    }
 }

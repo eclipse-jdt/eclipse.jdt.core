@@ -1001,8 +1001,9 @@ public class TypeDeclaration
 			if (kind() == IGenericType.ENUM_DECL && this.binding.isAbstract()) {
 				if (!hasEnumConstants || hasEnumConstantsWithoutBody) {
 					for (int i = 0, count = this.methods.length; i < count; i++) {
-						if (this.methods[i].isAbstract()) {
-							this.scope.problemReporter().enumAbstractMethodMustBeImplemented(this.methods[i]);
+						final AbstractMethodDeclaration methodDeclaration = this.methods[i];
+						if (methodDeclaration.isAbstract() && methodDeclaration.binding != null) {
+							this.scope.problemReporter().enumAbstractMethodMustBeImplemented(methodDeclaration);
 						}
 					}
 				}
