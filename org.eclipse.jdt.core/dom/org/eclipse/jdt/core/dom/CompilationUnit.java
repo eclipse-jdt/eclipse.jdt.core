@@ -369,7 +369,6 @@ public class CompilationUnit extends ASTNode {
 	 * The following table indicates the expected node type for the various
 	 * different kinds of bindings:
 	 * <ul>
-	 * <li></li>
 	 * <li>package - a <code>PackageDeclaration</code></li>
 	 * <li>class or interface - a <code>TypeDeclaration</code> or a
 	 *    <code>AnonymousClassDeclaration</code> (for anonymous classes)</li>
