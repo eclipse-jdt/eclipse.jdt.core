@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -193,15 +194,15 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		return unit;
 	}
 
-	protected void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, ASTRequestor requestor, WorkingCopyOwner owner) {
+	protected void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, ASTRequestor requestor, IJavaProject project, WorkingCopyOwner owner) {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
-		parser.setProject(getJavaProject("P"));
+		parser.setProject(project);
 		parser.setWorkingCopyOwner(owner);
 		parser.createASTs(cus, bindingKeys,  requestor, null);
 	}
 	
-	protected IBinding[] resolveBindings(String[] bindingKeys, WorkingCopyOwner owner) {
+	protected IBinding[] resolveBindings(String[] bindingKeys, IJavaProject project, WorkingCopyOwner owner) {
 		class BindingRequestor extends ASTRequestor {
 			HashMap bindings = new HashMap();
 			public void acceptBinding(String bindingKey, IBinding binding) {
@@ -209,7 +210,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 			}
 		}
 		BindingRequestor requestor = new BindingRequestor();
-		resolveASTs(new ICompilationUnit[0], bindingKeys, requestor, owner);
+		resolveASTs(new ICompilationUnit[0], bindingKeys, requestor, project, owner);
 		int length = requestor.bindings.size();
 		IBinding[] result = new IBinding[length];
 		for (int i = 0; i < length; i++) {

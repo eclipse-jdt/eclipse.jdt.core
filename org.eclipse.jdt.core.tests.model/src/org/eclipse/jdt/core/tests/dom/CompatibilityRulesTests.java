@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -28,11 +30,15 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	public CompatibilityRulesTests(String name) {
 		super(name);
 	}
-	
+
 	protected IMethodBinding[] createMethodBindings(String[] pathAndSources, String[] bindingKeys) throws JavaModelException {
+		return createMethodBindings(pathAndSources, bindingKeys, getJavaProject("P"));
+	}
+
+	protected IMethodBinding[] createMethodBindings(String[] pathAndSources, String[] bindingKeys, IJavaProject project) throws JavaModelException {
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		this.workingCopies = createWorkingCopies(pathAndSources, owner);
-		IBinding[] bindings = resolveBindings(bindingKeys, owner);
+		IBinding[] bindings = resolveBindings(bindingKeys, project, owner);
 		int length = bindings.length;
 		IMethodBinding[] result = new IMethodBinding[length];
 		System.arraycopy(bindings, 0, result, 0, length);
@@ -40,9 +46,13 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	}
 
 	protected ITypeBinding[] createTypeBindings(String[] pathAndSources, String[] bindingKeys) throws JavaModelException {
+		return createTypeBindings(pathAndSources, bindingKeys, getJavaProject("P"));
+	}
+	
+	protected ITypeBinding[] createTypeBindings(String[] pathAndSources, String[] bindingKeys, IJavaProject project) throws JavaModelException {
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		this.workingCopies = createWorkingCopies(pathAndSources, owner);
-		IBinding[] bindings = resolveBindings(bindingKeys, owner);
+		IBinding[] bindings = resolveBindings(bindingKeys, project, owner);
 		int length = bindings.length;
 		ITypeBinding[] result = new ITypeBinding[length];
 		System.arraycopy(bindings, 0, result, 0, length);
@@ -279,16 +289,22 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	}
 
 	/*
-	 * Ensures that the int base type is not assignment compatible with the java.lang.Object type
+	 * Ensures that the int base type is not assignment compatible with the java.lang.Object type in 1.4 mode.
 	 */
-	public void test012() throws JavaModelException {
-		ITypeBinding[] bindings = createTypeBindings(
-			new String[] {},
-			new String[] {
-				"I",
-				"Ljava/lang/Object;"
-			});	
-		assertTrue("int should not be assignment compatible with Object", !bindings[0].isAssignmentCompatible(bindings[1]));
+	public void test012() throws CoreException {
+		try {
+			IJavaProject project = createJavaProject("P14", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.4");
+			ITypeBinding[] bindings = createTypeBindings(
+				new String[] {},
+				new String[] {
+					"I",
+					"Ljava/lang/Object;"
+				},
+				project);	
+			assertTrue("int should not be assignment compatible with Object", !bindings[0].isAssignmentCompatible(bindings[1]));
+		} finally {
+			deleteProject("P14");
+		}
 	}
 	
 	/*
@@ -515,10 +531,23 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 				"}",
 			},
 			new String[] {
+				"I",
 				"Ljava/lang/Integer;",
-				"I"
 			});	
-		assertTrue("int should be assignment compatible with Integer", bindings[1].isAssignmentCompatible(bindings[0]));
+		assertTrue("int should be assignment compatible with Integer", bindings[0].isAssignmentCompatible(bindings[1]));
+	}
+	
+	/*
+	 * Ensures that a base type is assignment compatible with Object
+	 */
+	public void test024() throws JavaModelException {
+		ITypeBinding[] bindings = createTypeBindings(
+			new String[] {},
+			new String[] {
+				"I",
+				"Ljava/lang/Object;",
+			});	
+		assertTrue("int should be assignment compatible with Object", bindings[0].isAssignmentCompatible(bindings[1]));
 	}
 	
 }

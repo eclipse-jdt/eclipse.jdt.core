@@ -97,7 +97,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				}
 			};
 			Requestor requestor = new Requestor();
-			resolveASTs(workingCopies, new String[] {expectedKey}, requestor, this.owner);
+			resolveASTs(workingCopies, new String[] {expectedKey}, requestor, getJavaProject("P"), this.owner);
 			
 			if (!expectedKey.equals(requestor.bindingKey))
 				System.out.println(Util.displayString(expectedKey, 3));
@@ -138,7 +138,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 					"public class Test {\n" +
 					"}"
 				});
-				resolveASTs(dummyWorkingCopies, new String[] {}, requestor, this.owner);
+				resolveASTs(dummyWorkingCopies, new String[] {}, requestor, getJavaProject("P"), this.owner);
 			} finally {
 				discardWorkingCopies(dummyWorkingCopies);
 			}
@@ -161,7 +161,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	private void resolveASTs(ICompilationUnit[] cus, TestASTRequestor requestor) {
-		resolveASTs(cus, new String[0], requestor, this.owner);
+		resolveASTs(cus, new String[0], requestor, getJavaProject("P"), this.owner);
 	}
 	
 	/*
