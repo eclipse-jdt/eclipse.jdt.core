@@ -819,7 +819,7 @@ public class QualifiedNameReference extends NameReference {
 		    int length = this.otherBindings.length;
 		    int position = index < 0 ? length-1: index-1; // write is always the last
 			if (this.otherCodegenBindings == this.otherBindings){
-				System.arraycopy(this.otherBindings, 0, this.otherCodegenBindings = new FieldBinding[length], 0, position);
+				System.arraycopy(this.otherBindings, 0, this.otherCodegenBindings = new FieldBinding[length], 0, length);
 			}
 			this.otherCodegenBindings[position] = someCodegenBinding;
 			if (someGenericCast != null) {
