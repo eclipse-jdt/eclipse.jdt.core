@@ -1273,6 +1273,7 @@ public abstract class Scope
 	public Binding getBinding(char[] name, int mask, InvocationSite invocationSite, boolean needResolve) {
 
 		try {
+			SourceTypeBinding initialType = this.enclosingSourceType();
 			Binding binding = null;
 			FieldBinding problemField = null;
 			if ((mask & Binding.VARIABLE) != 0) {
@@ -1315,6 +1316,21 @@ public abstract class Scope
 							FieldBinding fieldBinding = classScope.findField(enclosingType, name, invocationSite, needResolve);
 							// Use next line instead if willing to enable protected access accross inner types
 							// FieldBinding fieldBinding = findField(enclosingType, name, invocationSite);
+							
+//							if ((fieldBinding == null || !fieldBinding.isValidBinding()) && enclosingType.hasMemberTypes()) { // check member enums
+//								ReferenceBinding[] memberTypes = enclosingType.memberTypes();
+//								for (int i = 0, length = memberTypes.length; i < length; i++) {
+//									ReferenceBinding memberType = memberTypes[i];
+//									if (memberType != initialType && memberType.isEnum()) { // do not find one's field through its enclosing members
+//										FieldBinding enumField = ((SourceTypeBinding)memberType).scope.findField(memberType, name, invocationSite, needResolve);
+//										if (enumField != null && (enumField.modifiers & AccEnum) != 0) {
+//											// grant access to enum constants of enclosing members
+//											// TODO (kent) need to revisit to see whether should walk sibling enums and issue an ambiguous match
+//											return enumField;
+//										}
+//									}
+//								}
+//							}
 							if (fieldBinding != null) { // skip it if we did not find anything
 								if (fieldBinding.problemId() == Ambiguous) {
 									if (foundField == null || foundField.problemId() == NotVisible)

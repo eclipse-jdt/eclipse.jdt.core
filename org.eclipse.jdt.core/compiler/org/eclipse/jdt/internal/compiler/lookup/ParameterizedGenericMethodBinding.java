@@ -218,23 +218,26 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	}
 	
     /**
-     * Returns a type, where original type was substituted using the receiver
-     * parameterized method.
-     */
-    public TypeBinding substitute(TypeBinding originalType) {
-        
+	 * Returns a type, where original type was substituted using the receiver
+	 * parameterized method.
+	 */
+	public TypeBinding substitute(TypeBinding originalType) {
+	    
 		switch (originalType.bindingType()) {
 			
 			case Binding.TYPE_PARAMETER:
-    	        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
-    	        TypeVariableBinding[] variables = this.originalMethod.typeVariables;
-    	        int length = variables.length;
-    	        // check this variable can be substituted given parameterized type
-   		        if (originalVariable.rank < length && variables[originalVariable.rank] == originalVariable) {
+		        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
+		        TypeVariableBinding[] variables = this.originalMethod.typeVariables;
+		        int length = variables.length;
+		        // check this variable can be substituted given parameterized type
+		        if (originalVariable.rank < length && variables[originalVariable.rank] == originalVariable) {
 					return this.typeArguments[originalVariable.rank];
-   		        }
-   		        break;
-       		       
+		        }
+		        if (this.declaringClass instanceof Substitution) {
+		        	return ((Substitution)this.declaringClass).substitute(originalType);
+		        }
+		        break;
+	   		       
 			case Binding.PARAMETERIZED_TYPE:
 				ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
 				ReferenceBinding originalEnclosing = originalType.enclosingType();
@@ -261,7 +264,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 							originalParameterizedType.type, substitutedArguments, substitutedEnclosing);
 				}
 				break;   		        
-    	        
+		        
 			case Binding.ARRAY_TYPE:
 				TypeBinding originalLeafComponentType = originalType.leafComponentType();
 				TypeBinding substitute = substitute(originalLeafComponentType); // substitute could itself be array type
@@ -280,8 +283,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			        }
 		        }
 		        break;
-
-
+	
+	
 			case Binding.GENERIC_TYPE:
 			    // treat as if parameterized with its type variables
 				ReferenceBinding originalGenericType = (ReferenceBinding) originalType;
@@ -299,7 +302,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 							originalGenericType, substitutedArguments, substitutedEnclosing);
 				}
 				break;
-        }
-        return originalType;
-    }
+	    }
+	    return originalType;
+	}
 }

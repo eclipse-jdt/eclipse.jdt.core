@@ -555,7 +555,7 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 	ReferenceBinding otherReferenceType = (ReferenceBinding) otherType;
 	if (this.isEquivalentTo(otherReferenceType)) return true;
 	if (otherReferenceType.isWildcard()) {
-	    return ((WildcardBinding) otherReferenceType).boundCheck(this);
+		return false; // should have passed equivalence check above if wildcard
 	}
 	if (otherReferenceType.isInterface())
 		return implementsInterface(otherReferenceType, true);

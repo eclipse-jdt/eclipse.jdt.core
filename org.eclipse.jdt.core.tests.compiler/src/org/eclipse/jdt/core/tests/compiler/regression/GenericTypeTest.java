@@ -10331,7 +10331,7 @@ class C extends B implements IDoubles {
 	}			
 	
 	// 78027
-	public void _test394() {
+	public void test394() {
 		this.runConformTest(
 			new String[] {
 				"X.java",

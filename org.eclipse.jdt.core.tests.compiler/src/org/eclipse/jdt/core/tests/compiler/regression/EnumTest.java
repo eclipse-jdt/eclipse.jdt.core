@@ -746,6 +746,189 @@ public class EnumTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}
+	
+	// check enum name visibility
+	public void test026() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	enum Couleur { BLEU, BLANC, ROUGE }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Y {\n" + 
+				"	void foo(Couleur c) {\n" + 
+				"		switch (c) {\n" + 
+				"			case BLEU :\n" + 
+				"				break;\n" + 
+				"			case BLANC :\n" + 
+				"				break;\n" + 
+				"			case ROUGE :\n" + 
+				"				break;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	void foo(Couleur c) {\n" + 
+			"	         ^^^^^^^\n" + 
+			"Couleur cannot be resolved to a type\n" + 
+			"----------\n");
+	}	
+	// check enum name visibility
+	public void _test027() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	enum Couleur { BLEU, BLANC, ROUGE }\n" + 
+				"	class Y {\n" + 
+				"		void foo(Couleur c) {\n" + 
+				"			switch (c) {\n" + 
+				"				case BLEU :\n" + 
+				"					break;\n" + 
+				"				case BLANC :\n" + 
+				"					break;\n" + 
+				"				case ROUGE :\n" + 
+				"					break;\n" + 
+				"			}\n" + 
+				"		}	\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");
+	}		
+	// check enum name visibility
+	public void _test028() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	enum Couleur { \n" + 
+				"		BLEU, BLANC, ROUGE;\n" + 
+				"		static int C = 0;\n" + 
+				"		static void FOO() {}\n" + 
+				"	}\n" + 
+				"	class Y {\n" + 
+				"		void foo(Couleur c) {\n" + 
+				"			switch (c) {\n" + 
+				"				case BLEU :\n" + 
+				"					break;\n" + 
+				"				case BLANC :\n" + 
+				"					break;\n" + 
+				"				case ROUGE :\n" + 
+				"					break;\n" + 
+				"			}\n" + 
+				"			FOO();\n" + 
+				"			C++;\n" + 
+				"		}	\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 17)\n" + 
+			"	FOO();\n" + 
+			"	^^^\n" + 
+			"The method FOO() is undefined for the type X.Y\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 18)\n" + 
+			"	C++;\n" + 
+			"	^\n" + 
+			"C cannot be resolved\n" + 
+			"----------\n");
+	}		
+	// check enum name visibility
+	public void _test029() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	enum Couleur { \n" + 
+				"		BLEU, BLANC, ROUGE; // take precedence over toplevel BLEU type\n" + 
+				"	}\n" + 
+				"	class Y {\n" + 
+				"		void foo(Couleur c) {\n" + 
+				"			switch (c) {\n" + 
+				"				case BLEU :\n" + 
+				"					break;\n" + 
+				"				case BLANC :\n" + 
+				"					break;\n" + 
+				"				case ROUGE :\n" + 
+				"					break;\n" + 
+				"			}\n" + 
+				"		}	\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class BLEU {}\n",
+			},
+			"");
+	}		
+	// check enum name visibility
+	public void _test030() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	enum Couleur { \n" + 
+				"		BLEU, BLANC, ROUGE; // take precedence over sibling constant from Color\n" + 
+				"	}\n" + 
+				"	enum Color { \n" + 
+				"		BLEU, BLANC, ROUGE;\n" + 
+				"	}\n" + 
+				"	class Y {\n" + 
+				"		void foo(Couleur c) {\n" + 
+				"			switch (c) {\n" + 
+				"				case BLEU :\n" + 
+				"					break;\n" + 
+				"				case BLANC :\n" + 
+				"					break;\n" + 
+				"				case ROUGE :\n" + 
+				"					break;\n" + 
+				"			}\n" + 
+				"		}	\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class BLEU {}\n",
+			},
+			"");
+	}		
+	// check enum name visibility
+	public void _test031() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	enum Couleur { \n" + 
+				"		BLEU, BLANC, ROUGE; // take precedence over toplevel BLEU type\n" + 
+				"	}\n" + 
+				"	class Y implements IX, JX {\n" + 
+				"		void foo(Couleur c) {\n" + 
+				"			switch (c) {\n" + 
+				"				case BLEU :\n" + 
+				"					break;\n" + 
+				"				case BLANC :\n" + 
+				"					break;\n" + 
+				"				case ROUGE :\n" + 
+				"					break;\n" + 
+				"			}\n" + 
+				"		}	\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface IX {\n" + 
+				"	int BLEU = 1;\n" + 
+				"}\n" + 
+				"interface JX {\n" + 
+				"	int BLEU = 2;\n" + 
+				"}\n" + 
+				"class BLEU {}\n" + 
+				"\n",
+			},
+			"");
+	}	
 	// enum cannot be declared as local type
 	
 	// check abstract conditions

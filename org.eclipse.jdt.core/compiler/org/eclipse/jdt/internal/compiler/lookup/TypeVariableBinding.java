@@ -157,17 +157,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    if (this.genericTypeSignature != null) return this.genericTypeSignature;
 		return this.genericTypeSignature = CharOperation.concat('T', this.sourceName, ';');
 	}
-	/**
-	 * Returns true if a type is identical to another one,
-	 * or for generic types, true if compared to its raw type.
-	 */
-	public boolean isEquivalentTo(TypeBinding otherType) {
-	    if (this == otherType) return true;
-	    if (otherType == null) return false;
-	    if (otherType.isWildcard()) // wildcard
-			return ((WildcardBinding) otherType).boundCheck(this);
-		return false;
-	}	
+
 	/**
 	 * Returns true if the type variable is directly bound to a given type
 	 */

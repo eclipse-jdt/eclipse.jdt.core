@@ -139,39 +139,6 @@ public class WildcardBinding extends ReferenceBinding {
 		        this.tagBits |= HasTypeVariable;
 		}
 	}
-	/**
-	 * Returns true if a type is identical to another one,
-	 * or for generic types, true if compared to its raw type.
-	 */
-	public boolean isEquivalentTo(TypeBinding otherType) {
-	    if (this == otherType) return true;
-        if (otherType == null) return false;
-        if (otherType.isWildcard()) {
-        	WildcardBinding otherWildcard = (WildcardBinding) otherType;
-        	if ((otherWildcard.kind == this.kind) 
-        			&& (otherWildcard.bound == this.bound))
-        		return true;
-        }
-	    switch (this.kind) {
-	        case Wildcard.UNBOUND :
-	        default :  // SUPER - cannot use lower bound
-	            return this.typeVariable().isCompatibleWith(otherType);
-	        case Wildcard.EXTENDS :
-	        	if (otherType.isWildcard()) {
-	        		WildcardBinding otherWildcard = (WildcardBinding) otherType;
-	        		switch (otherWildcard.kind) {
-	        			case Wildcard.UNBOUND :
-	        				return true;
-	        			default : // SUPER :
-	        				return false;
-	        			case Wildcard.EXTENDS :
-	        				return this.bound.isCompatibleWith(otherWildcard.bound);
-	        		}
-	        	} else {
-		            return this.bound.isCompatibleWith(otherType);
-	        	}
-	    }        
-	}
 
 	/**
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#isSuperclassOf(org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding)
