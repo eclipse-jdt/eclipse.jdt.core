@@ -57,7 +57,7 @@ import org.eclipse.jdt.internal.core.*;
  * automatically if not already active.
  * </p>
  */
-public final class JavaCore extends Plugin implements IExecutableExtension, SuffixConstants {
+public final class JavaCore extends Plugin implements IExecutableExtension {
 
 	private static Plugin JAVA_CORE_PLUGIN = null; 
 	/**
@@ -1786,7 +1786,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension, Suff
 			File externalFile = (File) target;
 			if (externalFile.isFile()) {
 				String fileName = externalFile.getName().toLowerCase();
-				if (fileName.endsWith(SUFFIX_STRING_jar) || fileName.endsWith(SUFFIX_STRING_zip)) { 
+				if (fileName.endsWith(SuffixConstants.SUFFIX_STRING_jar) || fileName.endsWith(SuffixConstants.SUFFIX_STRING_zip)) { 
 					// external binary archive
 					return JavaCore.newLibraryEntry(
 							resolvedPath,

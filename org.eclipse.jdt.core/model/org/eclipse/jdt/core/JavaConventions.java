@@ -40,7 +40,7 @@ import org.eclipse.jdt.internal.core.Util;
  * instantiated or subclassed by clients.
  * </p>
  */
-public final class JavaConventions implements SuffixConstants {
+public final class JavaConventions {
 
 	private final static char fgDot= '.';
 	private final static Scanner SCANNER = new Scanner();
@@ -103,10 +103,10 @@ public final class JavaConventions implements SuffixConstants {
 		}
 		String extension1 = rootPath1.getFileExtension();
 		String extension2 = rootPath2.getFileExtension();
-		if (extension1 != null && (extension1.equalsIgnoreCase(EXTENSION_JAR) || extension1.equalsIgnoreCase(EXTENSION_ZIP))) {
+		if (extension1 != null && (extension1.equalsIgnoreCase(SuffixConstants.EXTENSION_JAR) || extension1.equalsIgnoreCase(SuffixConstants.EXTENSION_ZIP))) {
 			return false;
 		} 
-		if (extension2 != null && (extension2.equalsIgnoreCase(EXTENSION_JAR) || extension2.equalsIgnoreCase(EXTENSION_ZIP))) {
+		if (extension2 != null && (extension2.equalsIgnoreCase(SuffixConstants.EXTENSION_JAR) || extension2.equalsIgnoreCase(SuffixConstants.EXTENSION_ZIP))) {
 			return false;
 		}
 		return rootPath1.isPrefixOf(rootPath2) || rootPath2.isPrefixOf(rootPath1);
