@@ -73,7 +73,20 @@ public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 	public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope scope) {
 		try {
+			// check type declaration
+			Integer level;
+			if ((level = (Integer)matchingNodes.remove(typeDeclaration)) != null) {
+				locator.reportTypeDeclaration(
+					typeDeclaration, 
+					enclosingElement, 
+					level.intValue() == SearchPattern.ACCURATE_MATCH ?
+						IJavaSearchResultCollector.EXACT_MATCH :
+						IJavaSearchResultCollector.POTENTIAL_MATCH);
+			}
+			
+			// check inside type declaration
 			reportMatching(typeDeclaration, enclosingElement);
+			
 			return false; // don't visit members as this was done during reportMatching(...)
 		} catch (CoreException e) {
 			throw new WrappedCoreException(e);
@@ -169,6 +182,21 @@ public Integer removeTrustedMatch(AstNode node) {
  * Note that the method declaration has already been checked.
  */
 private void reportMatching(AbstractMethodDeclaration method, IJavaElement parent) throws CoreException {
+	// declaration in this method
+	// (NB: declarations must be searched first (see bug 20631 Declaration of local binary type not found)
+	if ((method.bits & AstNode.HasLocalTypeMASK) != 0) {
+		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor();
+		localDeclarationVisitor.enclosingElement = 
+			(parent instanceof IType) ?
+				this.locator.createMethodHandle(method, (IType)parent) :
+				parent;
+		try {
+			method.traverse(localDeclarationVisitor, (ClassScope)null);
+		} catch (WrappedCoreException e) {
+			throw e.coreException;
+		}
+	}
+	
 	// references in this method
 	AstNode[] nodes = this.matchingNodes(method.declarationSourceStart, method.declarationSourceEnd);
 	for (int i = 0; i < nodes.length; i++) {
@@ -183,18 +211,6 @@ private void reportMatching(AbstractMethodDeclaration method, IJavaElement paren
 					IJavaSearchResultCollector.EXACT_MATCH :
 					IJavaSearchResultCollector.POTENTIAL_MATCH);
 			this.matchingNodes.remove(node);
-		}
-	}
-	if ((method.bits & AstNode.HasLocalTypeMASK) != 0) {
-		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor();
-		localDeclarationVisitor.enclosingElement = 
-			(parent instanceof IType) ?
-				this.locator.createMethodHandle(method, (IType)parent) :
-				parent;
-		try {
-			method.traverse(localDeclarationVisitor, (ClassScope)null);
-		} catch (WrappedCoreException e) {
-			throw e.coreException;
 		}
 	}
 	if (this.potentialMatchingNodes(method.declarationSourceStart, method.declarationSourceEnd).length == 0) {

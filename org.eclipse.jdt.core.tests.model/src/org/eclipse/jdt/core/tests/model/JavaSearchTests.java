@@ -104,23 +104,27 @@ public class JavaSearchResultCollector implements IJavaSearchResultCollector {
 				results.append(element.getElementName());
 			}
 			if (resource instanceof IFile) {
-				char[] contents;
-				if (!resource.equals(element.getUnderlyingResource())) {
-					// working copy
-					contents = unit.getBuffer().getCharacters();
-				} else {
-					contents = new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
-						null, 
-						((IFile) resource).getLocation().toFile().getPath(),
-						null).getContents();
+				char[] contents = null;
+				if ("java".equals(resource.getFileExtension())) {
+					if (!resource.equals(element.getUnderlyingResource())) {
+						// working copy
+						contents = unit.getBuffer().getCharacters();
+					} else {
+						contents = new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
+							null, 
+							((IFile) resource).getLocation().toFile().getPath(),
+							null).getContents();
+					}
 				}
-				results.append(" [");
-				if (start > -1) {
-					results.append(CharOperation.subarray(contents, start, end));
-				} else {
-					results.append("No source");
+				if (start == -1 || contents != null) { // retrieving attached source not implemented here
+					results.append(" [");
+					if (start > -1) {
+						results.append(CharOperation.subarray(contents, start, end));
+					} else {
+						results.append("No source");
+					}
+					results.append("]");
 				}
-				results.append("]");
 			}
 			if (showAccuracy) {
 				results.append(" ");
@@ -183,6 +187,7 @@ public static Test suite() {
 	// type declaration
 	suite.addTest(new JavaSearchTests("testSimpleTypeDeclaration"));
 	suite.addTest(new JavaSearchTests("testTypeDeclarationInJar"));
+	suite.addTest(new JavaSearchTests("testTypeDeclarationInJar2"));
 	suite.addTest(new JavaSearchTests("testTypeDeclarationInPackageScope"));
 	suite.addTest(new JavaSearchTests("testTypeDeclarationInPackageScope2"));
 	suite.addTest(new JavaSearchTests("testMemberTypeDeclaration"));
@@ -1910,6 +1915,25 @@ public void testTypeDeclarationInJar() throws JavaModelException, CoreException 
 		resultCollector);
 	assertEquals(
 		"MyJar.jar p1.A [No source]", 
+		resultCollector.toString());
+}
+/**
+ * Type declaration in jar file and in anonymous class test.
+ * (regression test for 20631 Declaration of local binary type not found)
+ */
+public void testTypeDeclarationInJar2() throws JavaModelException, CoreException {
+	IPackageFragmentRoot root = getPackageFragmentRoot("JavaSearch", "test20631.jar");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {root});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"Y",
+		TYPE, 
+		DECLARATIONS, 
+		scope, 
+		resultCollector);
+	assertEquals(
+		"test20631.jar X$1$Y", 
 		resultCollector.toString());
 }
 /**
