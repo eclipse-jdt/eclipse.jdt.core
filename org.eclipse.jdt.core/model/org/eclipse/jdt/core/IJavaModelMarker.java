@@ -51,15 +51,17 @@ public interface IJavaModelMarker {
     
     /** 
 	 * Id marker attribute (value <code>"arguments"</code>).
-	 * Reserved for future use.
-	 * 
+	 * Arguments are concatenated into one String, prefixed with an argument count (followed with colon
+	 * separator) and separated with '#' characters.
+	 * e.g. 
+	 *     { "foo", "bar" } is encoded as "2:foo#bar",     
+	 *     {  } is encoded as "0: "
 	 * @since 2.0
 	 */
 	 public static final String ARGUMENTS = "arguments"; //$NON-NLS-1$
     
 	/** 
 	 * Id marker attribute (value <code>"id"</code>).
-	 * Reserved for future use.
 	 */
 	 public static final String ID = "id"; //$NON-NLS-1$
 

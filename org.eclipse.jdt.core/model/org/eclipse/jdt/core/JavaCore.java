@@ -327,6 +327,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 */
 	public static final String CORE_ENCODING = PLUGIN_ID + ".encoding"; //$NON-NLS-1$
 	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1 
+	 *///TODO: (philippe) add entry in #getDefaultOptions
+	public static final String CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS = PLUGIN_ID + ".classpath.exclusionPatterns"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 *///TODO: (philippe) add entry in #getDefaultOptions
+	public static final String CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS = PLUGIN_ID + ".classpath.multipleOutputLocations"; //$NON-NLS-1$
+	/**
 	 * Default task tag
 	 * @since 2.1
 	 */
