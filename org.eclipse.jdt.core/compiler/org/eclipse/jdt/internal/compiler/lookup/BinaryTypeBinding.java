@@ -278,10 +278,10 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 		int size = iFields.length;
 		if (size > 0) {
 			this.fields = new FieldBinding[size];
-			boolean checkGenericSignatures = sourceLevel >= ClassFileConstants.JDK1_5;
+			boolean read15info = sourceLevel >= ClassFileConstants.JDK1_5;
 			for (int i = 0; i < size; i++) {
 				IBinaryField binaryField = iFields[i];
-				char[] fieldSignature = checkGenericSignatures ? binaryField.getGenericSignature() : null;
+				char[] fieldSignature = read15info ? binaryField.getGenericSignature() : null;
 				TypeBinding type = fieldSignature == null
 					? environment.getTypeFromSignature(binaryField.getTypeName(), 0, -1, false, this)
 					: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), NoTypeVariables, this);
@@ -293,7 +293,7 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 						this,
 						binaryField.getConstant());
 				field.id = i; // ordinal
-				if (checkGenericSignatures) {
+				if (read15info) {
 					field.tagBits |= binaryField.getTagBits();
 				}
 				this.fields[i] = field;
@@ -311,8 +311,8 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 	TypeVariableBinding[] typeVars = NoTypeVariables;
 	TypeBinding returnType = null;
 
-	final boolean is15 = sourceLevel >= ClassFileConstants.JDK1_5;
-	char[] methodSignature = is15 ? method.getGenericSignature() : null;
+	final boolean read15info = sourceLevel >= ClassFileConstants.JDK1_5;
+	char[] methodSignature = read15info ? method.getGenericSignature() : null;
 	if (methodSignature == null) { // no generics
 		char[] methodDescriptor = method.getMethodDescriptor();   // of the form (I[Ljava/jang/String;)V
 		int numOfParams = 0;
@@ -413,7 +413,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 	MethodBinding result = method.isConstructor()
 		? new MethodBinding(methodModifiers, parameters, exceptions, this)
 		: new MethodBinding(methodModifiers, method.getSelector(), returnType, parameters, exceptions, this);
-	if (is15) {
+	if (read15info) {
 		result.tagBits |= method.getTagBits();
 	}
 	result.typeVariables = typeVars;
