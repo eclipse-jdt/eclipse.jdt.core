@@ -26,7 +26,6 @@ import org.eclipse.jdt.internal.core.SelectionRequestor;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
-import org.eclipse.jdt.internal.core.util.ElementInfoConverter;
 
 /**
  * The selection engine is intended to infer the nature of a selected name in some
@@ -830,10 +829,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			CompilationResult result = new CompilationResult(outerType.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
 			if (!(sourceType instanceof SourceTypeElementInfo)) return;
 			SourceType typeHandle = (SourceType) ((SourceTypeElementInfo)sourceType).getHandle();
+			int flags = SourceTypeConverter.FIELD_AND_METHOD | SourceTypeConverter.MEMBER_TYPE;
+			if (typeHandle.isAnonymous() || typeHandle.isLocal()) 
+				flags |= SourceTypeConverter.LOCAL_TYPE;
 			CompilationUnitDeclaration parsedUnit =
-				ElementInfoConverter.buildCompilationUnit(
+				SourceTypeConverter.buildCompilationUnit(
 						topLevelTypes,
-						typeHandle.isAnonymous() || typeHandle.isLocal(),
+						flags,
 						this.parser.problemReporter(), 
 						result);
 

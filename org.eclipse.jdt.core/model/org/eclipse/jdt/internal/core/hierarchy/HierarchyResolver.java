@@ -64,7 +64,6 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
-import org.eclipse.jdt.internal.core.util.ElementInfoConverter;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 
 public class HierarchyResolver implements ITypeRequestor {
@@ -600,23 +599,16 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 					} catch (JavaModelException e) {
 						// types/cu exist since cu is opened
 					}
-					if (!containsLocalType) {
-						parsedUnit = 
-							SourceTypeConverter.buildCompilationUnit(
-								typeInfos, 
-								SourceTypeConverter.MEMBER_TYPE, // need member types
-								// no need for field initialization
-								this.lookupEnvironment.problemReporter, 
-								result);
-					} else {
-						parsedUnit =
-							ElementInfoConverter.buildCompilationUnit(
-								typeInfos, 
-								true, // need local types
-								this.lookupEnvironment.problemReporter, 
-								result);
-						parsedUnit.bits |= ASTNode.HasAllMethodBodies;
-					}
+					int flags = !containsLocalType 
+						? SourceTypeConverter.MEMBER_TYPE 
+						: SourceTypeConverter.FIELD_AND_METHOD | SourceTypeConverter.MEMBER_TYPE | SourceTypeConverter.LOCAL_TYPE;
+					parsedUnit = 
+						SourceTypeConverter.buildCompilationUnit(
+							typeInfos, 
+							flags,
+							this.lookupEnvironment.problemReporter, 
+							result);
+					if (containsLocalType) 	parsedUnit.bits |= ASTNode.HasAllMethodBodies;
 				} else {
 					// create parsed unit from file
 					IResource file = cu.getResource();

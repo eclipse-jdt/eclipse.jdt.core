@@ -785,6 +785,26 @@ public void testGeneric3() throws JavaModelException {
 		hierarchy
 	);
 }
+/*
+ * Ensures that a super type hierarchy on a generic type can be opened
+ * (regression test for bug 72348 [1.5][Type Hierarchy] Super type hierarchy of class extending generic type is empty)
+ */
+public void testGeneric4() throws JavaModelException {
+	IType type = getCompilationUnit("/TypeHierarchy15/src/X.java").getType("X");
+	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: X [in X.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"Super types:\n" + 
+		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"  ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"    List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"    AbstractList [in AbstractList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" + 
+		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy
+	);
+}
+
 /**
  * Ensures the correctness of all classes in a type hierarchy based on a region.
  */

@@ -25,8 +25,12 @@ package org.eclipse.jdt.internal.compiler.parser;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
@@ -45,6 +49,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.env.ISourceField;
 import org.eclipse.jdt.internal.compiler.env.ISourceImport;
 import org.eclipse.jdt.internal.compiler.env.ISourceMethod;
@@ -53,6 +58,10 @@ import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.SourceFieldElementInfo;
+import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 
 public class SourceTypeConverter implements CompilerModifiers {
 	
@@ -62,6 +71,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 	public static final int MEMBER_TYPE = 0x08;
 	public static final int FIELD_INITIALIZATION = 0x10;
 	public static final int FIELD_AND_METHOD = FIELD | CONSTRUCTOR | METHOD;
+	public static final int LOCAL_TYPE = 0x20;
 	public static final int NONE = 0;
 	
 	private int flags;
@@ -140,9 +150,54 @@ public class SourceTypeConverter implements CompilerModifiers {
 	}
 	
 	/*
+	 * Convert an initializerinfo into a parsed initializer declaration
+	 */
+	private Initializer convert(InitializerElementInfo initializerInfo, CompilationResult compilationResult) {
+
+		Block block = new Block(0);
+		Initializer initializer = new Initializer(block, IConstants.AccDefault);
+
+		int start = initializerInfo.getDeclarationSourceStart();
+		int end = initializerInfo.getDeclarationSourceEnd();
+
+		initializer.name = initializerInfo.getName();
+		initializer.sourceStart = initializer.declarationSourceStart = start;
+		initializer.sourceEnd = initializer.declarationSourceEnd = end;
+		initializer.modifiers = initializerInfo.getModifiers();
+
+		/* convert local and anonymous types */
+		IJavaElement[] children = initializerInfo.getChildren();
+		int typesLength = children.length;
+		if (typesLength > 0) {
+			Statement[] statements = new Statement[typesLength];
+			for (int i = 0; i < typesLength; i++) {
+				JavaElement type = (JavaElement)children[i];
+				try {
+					TypeDeclaration localType = convert((ISourceType)type.getElementInfo(), compilationResult);
+					if ((localType.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+						QualifiedAllocationExpression expression = new QualifiedAllocationExpression(localType);
+						expression.type = localType.superclass;
+						localType.superclass = null;
+						localType.superInterfaces = null;
+						localType.allocation = expression;
+						statements[i] = expression;
+					} else {
+						statements[i] = localType;
+					}
+				} catch (JavaModelException e) {
+					// ignore
+				}
+			}
+			block.statements = statements;
+		}
+		
+		return initializer;
+	}
+
+	/*
 	 * Convert a field source element into a parsed field declaration
 	 */
-	private FieldDeclaration convert(ISourceField sourceField, TypeDeclaration type) {
+	private FieldDeclaration convert(ISourceField sourceField, TypeDeclaration type, CompilationResult compilationResult) {
 
 		FieldDeclaration field = new FieldDeclaration();
 
@@ -157,8 +212,8 @@ public class SourceTypeConverter implements CompilerModifiers {
 		field.declarationSourceEnd = sourceField.getDeclarationSourceEnd();
 		field.modifiers = sourceField.getModifiers();
 
+		/* conversion of field constant */
 		if ((this.flags & FIELD_INITIALIZATION) != 0) {
-			/* conversion of field constant */
 			char[] initializationSource = sourceField.getInitializationSource();
 			if (initializationSource != null) {
 				if (this.parser == null) {
@@ -168,6 +223,31 @@ public class SourceTypeConverter implements CompilerModifiers {
 			}
 		}
 		
+		/* conversion of local and anonymous types */
+		if ((this.flags & LOCAL_TYPE) != 0 && sourceField instanceof SourceFieldElementInfo) {
+			IJavaElement[] children = ((SourceFieldElementInfo)sourceField).getChildren();
+			int typesLength = children.length;
+			if (typesLength > 0) {
+				ArrayInitializer initializer = new ArrayInitializer();
+				field.initialization = initializer;
+				Expression[] expressions = new Expression[typesLength];
+				initializer.expressions = expressions;
+				for (int i = 0; i < typesLength; i++) {
+					IJavaElement localType = children[i];
+					try {
+						TypeDeclaration anonymousLocalTypeDeclaration = convert((SourceTypeElementInfo)((JavaElement)localType).getElementInfo(),compilationResult);
+						QualifiedAllocationExpression expression = new QualifiedAllocationExpression(anonymousLocalTypeDeclaration);
+						expression.type = anonymousLocalTypeDeclaration.superclass;
+						anonymousLocalTypeDeclaration.superclass = null;
+						anonymousLocalTypeDeclaration.superInterfaces = null;
+						anonymousLocalTypeDeclaration.allocation = expression;
+						expressions[i] = expression;
+					} catch (JavaModelException e) {
+						// ignore
+					}
+				}
+			}
+		}
 		return field;
 	}
 
@@ -239,6 +319,35 @@ public class SourceTypeConverter implements CompilerModifiers {
 			method.thrownExceptions[i] =
 				createTypeReference(exceptionTypeNames[i], start, end);
 		}
+		
+		/* convert local and anonymous types */
+		if ((this.flags & LOCAL_TYPE) != 0 && sourceMethod instanceof SourceMethodElementInfo) {
+			IJavaElement[] children = ((SourceMethodElementInfo)sourceMethod).getChildren();
+			int typesLength = children.length;
+			if (typesLength != 0) {
+				Statement[] statements = new Statement[typesLength];
+				for (int i = 0; i < typesLength; i++) {
+					JavaElement type = (JavaElement)children[i];
+					try {
+						TypeDeclaration localType = convert((SourceTypeElementInfo)type.getElementInfo(), compilationResult);
+						if ((localType.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+							QualifiedAllocationExpression expression = new QualifiedAllocationExpression(localType);
+							expression.type = localType.superclass;
+							localType.superclass = null;
+							localType.superInterfaces = null;
+							localType.allocation = expression;
+							statements[i] = expression;
+						} else {
+							statements[i] = localType;
+						}
+					} catch (JavaModelException e) {
+						// ignore
+					}
+				}
+				method.statements = statements;
+			}
+		}
+		
 		return method;
 	}
 
@@ -248,8 +357,25 @@ public class SourceTypeConverter implements CompilerModifiers {
 	private TypeDeclaration convert(ISourceType sourceType, CompilationResult compilationResult) {
 		/* create type declaration - can be member type */
 		TypeDeclaration type = new TypeDeclaration(compilationResult);
-		if (sourceType.getEnclosingType() != null) {
+		if (sourceType.getEnclosingType() == null && sourceType instanceof SourceTypeElementInfo) {
+			IType typeHandle = ((SourceTypeElementInfo)sourceType).getHandle();
+			try {
+				if (typeHandle.isAnonymous()) {
+					type.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+					type.bits |= ASTNode.AnonymousAndLocalMask;
+				} else {
+					if (typeHandle.isLocal()) {
+						type.bits |= ASTNode.IsLocalTypeMASK;
+					}
+				}
+			} catch (JavaModelException e) {
+				// could not figure, assume toplevel
+			}
+		}  else {
 			type.bits |= ASTNode.IsMemberTypeMASK;
+		}
+		if ((type.bits & ASTNode.IsAnonymousTypeMASK) == 0) {
+			type.name = sourceType.getName();
 		}
 		type.name = sourceType.getName();
 		int start, end; // only positions available
@@ -293,13 +419,28 @@ public class SourceTypeConverter implements CompilerModifiers {
 			}
 		}
 
-		/* convert fields */
+		/* convert intializers and fields*/
+		InitializerElementInfo[] initializers = null;
+		int initializerCount = 0;
+		if ((this.flags & LOCAL_TYPE) != 0 && sourceType instanceof SourceTypeElementInfo) {
+			initializers = ((SourceTypeElementInfo)sourceType).getInitializers();
+			initializerCount = initializers.length;
+		}
+		ISourceField[] sourceFields = null;
+		int sourceFieldCount = 0;
 		if ((this.flags & FIELD) != 0) {
-			ISourceField[] sourceFields = sourceType.getFields();
-			int sourceFieldCount = sourceFields == null ? 0 : sourceFields.length;
-			type.fields = new FieldDeclaration[sourceFieldCount];
-			for (int i = 0; i < sourceFieldCount; i++) {
-				type.fields[i] = convert(sourceFields[i], type);
+			sourceFields = sourceType.getFields();
+			sourceFieldCount = sourceFields == null ? 0 : sourceFields.length;
+		}
+		int length = initializerCount + sourceFieldCount;
+		if (length > 0) {
+			type.fields = new FieldDeclaration[length];
+			for (int i = 0; i < initializerCount; i++) {
+				type.fields[i] = convert(initializers[i], compilationResult);
+			}
+			int index = 0;
+			for (int i = initializerCount; i < length; i++) {
+				type.fields[i] = convert(sourceFields[index++], type, compilationResult);
 			}
 		}
 
