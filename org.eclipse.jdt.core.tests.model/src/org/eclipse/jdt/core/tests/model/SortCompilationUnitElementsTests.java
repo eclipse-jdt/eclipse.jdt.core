@@ -962,4 +962,36 @@ public void test014() throws CoreException {
 		this.deleteFile("/P/src/X.java");
 	}
 }
+/**
+ * Preserve comments
+ */
+public void test015() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"  int j;\n" + 
+			"  \n" +
+			"  /** some Java doc */\n" +
+			"  \n" +
+			"  // start of static field declaration\n" + 
+			"  \n" +
+			"  static int i; // end of static field declaration\n" + 
+			"}"
+		);
+		String expectedResult = 
+			"public class X {\n" +
+			"  \n" +
+			"  /** some Java doc */\n" +
+			"  \n" +
+			"  // start of static field declaration\n" + 
+			"  \n" +
+			"  static int i; // end of static field declaration\n" + 
+			"  int j;\n" + 
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
 }
