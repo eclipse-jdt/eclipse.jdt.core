@@ -439,7 +439,10 @@ public boolean isInterface() {
  * @return <CODE>boolean</CODE>
  */
 public boolean isLocal() {
-	return this.innerInfo != null && this.innerInfo.getEnclosingTypeName() == null && this.innerInfo.getSourceName() != null;
+	return 
+		this.innerInfo != null 
+		&& this.innerInfo.getEnclosingTypeName() == null 
+		&& this.innerInfo.getSourceName() != null;
 }
 /**
  * Answer true if the receiver is a member type, false otherwise

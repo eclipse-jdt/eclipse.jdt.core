@@ -119,6 +119,10 @@ public char[] getName() {
 public char[] getSuperclassName() {
 	return this.superclass;
 }
+public boolean isAnonymous() {
+	return false; // index did not record this information (since unused for hierarchies)
+}
+
 /**
  * Answer whether the receiver contains the resolved binary form
  * or the unresolved source form of the type.
@@ -138,6 +142,13 @@ public boolean isClass() {
 public boolean isInterface() {
 	return !this.isClass;
 }
+public boolean isLocal() {
+	return false;  // index did not record this information (since unused for hierarchies)
+}
+public boolean isMember() {
+	return false;  // index did not record this information (since unused for hierarchies)
+}
+
 public void recordSuperType(char[] superTypeName, char[] superQualification, char superClassOrInterface){
 
 	// index encoding of p.A$B was B/p.A$, rebuild the proper name
@@ -204,18 +215,5 @@ public String toString() {
  */
 public char[] sourceFileName() {
 	return null;
-}
-public boolean isAnonymous() {
-	int index = CharOperation.lastIndexOf('$', this.name);
-	if (index == -1) {
-		return false;
-	} else {
-		for (int i = index + 1, length = this.name.length; i < length; i++) {
-			if (!Character.isDigit(this.name[i])) {
-				return false;
-			}
-		}
-		return true;
-	}
 }
 }

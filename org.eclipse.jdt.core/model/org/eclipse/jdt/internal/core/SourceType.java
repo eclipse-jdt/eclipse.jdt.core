@@ -306,6 +306,12 @@ public boolean hasChildren() throws JavaModelException {
 	return getChildren().length > 0;
 }
 /**
+ * @see IType#isAnonymous()
+ */
+public boolean isAnonymous() throws JavaModelException {
+	return false; // cannot create source handle onto anonymous types
+}
+/**
  * @see IType
  */
 public boolean isClass() throws JavaModelException {
@@ -318,6 +324,19 @@ public boolean isInterface() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
 	return info.isInterface();
 }
+/**
+ * @see IType#isLocal()
+ */
+public boolean isLocal() throws JavaModelException {
+	return false; // cannot create source handle onto local types
+}
+/**
+ * @see IType#isMember()
+ */
+public boolean isMember() throws JavaModelException {
+	return getDeclaringType() == null;
+}
+
 /**
  * @see IType
  */

@@ -74,6 +74,24 @@ char[] getName();
 char[] getSuperclassName();
 
 /**
+ * Answer true if the receiver is an anonymous class.
+ * false otherwise
+ */
+boolean isAnonymous();
+
+/**
+ * Answer true if the receiver is a local class.
+ * false otherwise
+ */
+boolean isLocal();
+
+/**
+ * Answer true if the receiver is a member class.
+ * false otherwise
+ */
+boolean isMember(); 
+
+/**
  * Answer the source file attribute, or null if none.
  *
  * For example, "String.java"
@@ -81,9 +99,4 @@ char[] getSuperclassName();
 
 char[] sourceFileName();
 
-/**
- * Answer true if the receiver is an anonymous class.
- * false otherwise
- */
-boolean isAnonymous();
 }

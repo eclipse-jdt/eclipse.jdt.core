@@ -40,11 +40,13 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
  */
 
 public class BinaryType extends BinaryMember implements IType {
+	
 	private static final IField[] NO_FIELDS = new IField[0];
 	private static final IMethod[] NO_METHODS = new IMethod[0];
 	private static final IType[] NO_TYPES = new IType[0];
 	private static final IInitializer[] NO_INITIALIZERS = new IInitializer[0];
 	private static final String[] NO_STRINGS = new String[0];
+	
 protected BinaryType(IJavaElement parent, String name) {
 	super(TYPE, parent, name);
 	Assert.isTrue(name.indexOf('.') == -1);
@@ -402,6 +404,13 @@ public boolean hasChildren() throws JavaModelException {
 	return getChildren().length > 0;
 }
 /**
+ * @see IType#isAnonymous()
+ */
+public boolean isAnonymous() throws JavaModelException {
+	IBinaryType info = (IBinaryType) getRawInfo();
+	return info.isAnonymous();
+}
+/**
  * @see IType#isClass()
  */
 public boolean isClass() throws JavaModelException {
@@ -413,6 +422,21 @@ public boolean isClass() throws JavaModelException {
 public boolean isInterface() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getRawInfo();
 	return info.isInterface();
+}
+
+/**
+ * @see IType#isLocal()
+ */
+public boolean isLocal() throws JavaModelException {
+	IBinaryType info = (IBinaryType) getRawInfo();
+	return info.isLocal();
+}
+/**
+ * @see IType#isMember()
+ */
+public boolean isMember() throws JavaModelException {
+	IBinaryType info = (IBinaryType) getRawInfo();
+	return info.isMember();
 }
 /**
  * @see IType#newSupertypeHierarchy(IProgressMonitor monitor)

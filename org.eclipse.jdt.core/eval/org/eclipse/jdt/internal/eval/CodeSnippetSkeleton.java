@@ -123,6 +123,9 @@ public char[] getName() {
 public char[] getSuperclassName() {
 	return null;
 }
+public boolean isAnonymous() {
+	return false;
+}
 public boolean isBinaryType() {
 	return true;
 }
@@ -132,11 +135,13 @@ public boolean isClass() {
 public boolean isInterface() {
 	return false;
 }
-
+public boolean isLocal() {
+	return false;
+}
+public boolean isMember() {
+	return false;
+}
 public char[] sourceFileName() {
 	return null;
-}
-public boolean isAnonymous() {
-	return false;
 }
 }
