@@ -812,29 +812,29 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 		
 		// process current delta
 		boolean processChildren = true;
-		if (currentProject != null) {
-			if (this.currentElement == null || !this.currentElement.getJavaProject().equals(currentProject)) {
-				// force the currentProject to be used
-				this.currentElement = (Openable)currentProject;
-			}
+		if (res instanceof IProject) {
 			try {
+				if (this.isOpen(res) && !((IProject)res).hasNature(JavaCore.NATURE_ID)) return false; // non java project
 				processChildren = this.updateCurrentDeltaAndIndex(delta, elementType, currentProject);
-			} catch (JavaModelException e) {
-				// non java resource
+			} catch (CoreException e) {
+				// invalid project
 				return false;
 			}
+			if (delta.getKind() != IResourceDelta.CHANGED 
+					|| (delta.getFlags() & IResourceDelta.OPEN) != 0) {
+				return false; // don't go deeper for added, removed, opened or closed projects
+			}
 		} else {
-			if (res instanceof IProject) {
-				try {
-					if (this.isOpen(res) && !((IProject)res).hasNature(JavaCore.NATURE_ID)) return false; // non java project
-					processChildren = this.updateCurrentDeltaAndIndex(delta, elementType, currentProject);
-				} catch (CoreException e) {
-					// invalid project
-					return false;
+			if (currentProject != null) {
+				if (this.currentElement == null || !this.currentElement.getJavaProject().equals(currentProject)) {
+					// force the currentProject to be used
+					this.currentElement = (Openable)currentProject;
 				}
-				if (delta.getKind() != IResourceDelta.CHANGED 
-						|| (delta.getFlags() & IResourceDelta.OPEN) != 0) {
-					return false; // don't go deeper for added, removed, opened or closed projects
+				try {
+					processChildren = this.updateCurrentDeltaAndIndex(delta, elementType, currentProject);
+				} catch (JavaModelException e) {
+					// non java resource
+					return false;
 				}
 			} else {
 				// not yet inside a package fragment root
@@ -862,7 +862,8 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 				int childType = this.elementType(child, elementType, isPkgFragmentRoot);
 				
 				// traverse delta for child in the same project
-				if (!this.traverseDelta(child, childType, (currentProject == null && isPkgFragmentRoot) ? projectOfRoot : currentProject)) {
+				if (childType == -1
+					|| !this.traverseDelta(child, childType, (currentProject == null && isPkgFragmentRoot) ? projectOfRoot : currentProject)) {
 					try {
 						if (currentProject != null) { 
 							if (parent == null) {
@@ -870,7 +871,9 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 									// force the currentProject to be used
 									this.currentElement = (Openable)currentProject;
 								}
-								if (elementType == IJavaElement.JAVA_PROJECT) {
+								if (elementType == IJavaElement.JAVA_PROJECT
+									|| (elementType == IJavaElement.PACKAGE_FRAGMENT_ROOT && res instanceof IProject)) { 
+									// NB: attach non-java resource to project (not to its package fragment root)
 									parent = (Openable)currentProject;
 								} else {
 									parent = this.createElement(res, elementType, currentProject);
