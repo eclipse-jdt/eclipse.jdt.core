@@ -124,28 +124,34 @@ class DefaultBindingResolver extends BindingResolver {
 			return null;
 		}
 		ASTNode parent = name.getParent();
+		if (parent instanceof MethodDeclaration) {
+			return this.resolveMethod((MethodDeclaration)parent);
+		}
+		if (parent instanceof TypeDeclaration) {
+			return this.resolveType((TypeDeclaration)parent);
+		}
 		if (parent instanceof MethodInvocation
 			|| parent instanceof SuperMethodInvocation) {
-			return internalResolveNameForMethodInvocation(name);
+			return this.internalResolveNameForMethodInvocation(name);
 		}
 		if (parent instanceof FieldAccess
 		   || parent instanceof SuperFieldAccess) {
-			return internalResolveNameForFieldAccess(name);
+			return this.internalResolveNameForFieldAccess(name);
 		}
 		if (parent instanceof PackageDeclaration) {
-			return internalResolveNameForPackageDeclaration(name);
+			return this.internalResolveNameForPackageDeclaration(name);
 		}
 		if (parent instanceof SimpleType) {
-			return internalResolveNameForSimpleType(name);
+			return this.internalResolveNameForSimpleType(name);
 		}
 		if (parent instanceof ThisExpression) {
-			return internalResolveNameForThisExpression(name);
+			return this.internalResolveNameForThisExpression(name);
 		}
 		if (name instanceof QualifiedName) {
-			return internalResolveNameForQualifiedName(name);
+			return this.internalResolveNameForQualifiedName(name);
 		}
 		if (name instanceof SimpleName) {
-			return internalResolveNameForSimpleName(name);
+			return this.internalResolveNameForSimpleName(name);
 		}
 		return super.resolveName(name);
 	}
@@ -771,6 +777,10 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof SingleTypeReference) {
 			SingleTypeReference singleTypeReference = (SingleTypeReference) node;
 			return this.getTypeBinding(singleTypeReference.binding);
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
+			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
+			IVariableBinding variableBinding = this.getVariableBinding(fieldDeclaration.binding);
+			return variableBinding;
 		}
 		return null;
 	}
