@@ -1076,13 +1076,15 @@ public class ClasspathEntry implements IClasspathEntry {
 						IResource resolvedResource = (IResource) target;
 						switch(resolvedResource.getType()){
 							case IResource.FILE :
-								if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resolvedResource.getFileExtension())) {
+								if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resolvedResource.getName())) {
 									if (checkSourceAttachment 
 										&& sourceAttachment != null
 										&& !sourceAttachment.isEmpty()
 										&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
 										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", new String [] {sourceAttachment.makeRelative().toString(), path.makeRelative().toString(), projectName})); //$NON-NLS-1$
 									}
+								} else {
+									return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalLibraryArchive", entryPathMsg, projectName)); //$NON-NLS-1$
 								}
 								break;
 							case IResource.FOLDER :	// internal binary folder
@@ -1094,12 +1096,17 @@ public class ClasspathEntry implements IClasspathEntry {
 								}
 						}
 					} else if (target instanceof File){
-						if (checkSourceAttachment 
-							&& sourceAttachment != null 
-							&& !sourceAttachment.isEmpty()
-							&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
-							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", new String [] {sourceAttachment.toString(), path.makeRelative().toString(), projectName})); //$NON-NLS-1$
-						}
+					    File file = (File) target;
+					    if (!file.isFile()) {
+							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalExternalFolder", path.toOSString(), projectName)); //$NON-NLS-1$
+					    } else if (!org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())) {
+							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalLibraryArchive", path.toOSString(), projectName)); //$NON-NLS-1$
+					    } else if (checkSourceAttachment 
+								&& sourceAttachment != null 
+								&& !sourceAttachment.isEmpty()
+								&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
+								return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", new String [] {sourceAttachment.toString(), path.makeRelative().toString(), projectName})); //$NON-NLS-1$
+					    }
 					} else {
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundLibrary", path.makeRelative().toString(), projectName)); //$NON-NLS-1$
 					}
