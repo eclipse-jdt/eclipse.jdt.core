@@ -31,6 +31,9 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit {
 	
 	public static boolean SHARED_WC_VERBOSE = false;
+	
+	// TODO: Remove when we are certain that every client is ready for this fix
+	public static final boolean FIX_BUG25184 = true;
 
 /**
  * Constructs a handle to a compilation unit with the given name in the
@@ -538,6 +541,13 @@ public IType[] getTypes() throws JavaModelException {
 	list.toArray(array);
 	return array;
 }
+public IResource getUnderlyingResource() throws JavaModelException {
+	if (FIX_BUG25184) {
+		return super.getUnderlyingResource();
+	} else {
+		return getResource();
+	}
+}
 /**
  * @see IWorkingCopy#getSharedWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
  */
@@ -733,6 +743,27 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	buffer.addBufferChangedListener(this);
 	
 	return buffer;
+}
+protected void openParent(IProgressMonitor pm) throws JavaModelException {
+	if (FIX_BUG25184) {
+		super.openParent(pm);
+	} else {
+		try {
+			super.openParent(pm);
+		} catch(JavaModelException e){
+			// allow parent to not exist for compilation units defined outside classpath
+			if (!e.isDoesNotExist()){ 
+				throw e;
+			}
+		}
+	}
+}
+protected boolean parentExists() {
+	if (FIX_BUG25184) {
+		return super.parentExists();
+	} else {
+		return true; // tolerate units outside classpath
+	}
 }
 
 /**

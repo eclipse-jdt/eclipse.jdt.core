@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.Util;
 
 public class WorkingCopyNotInClasspathTests extends ModifyingResourceTests {
@@ -99,9 +100,15 @@ public void testParentExistence() throws CoreException {
  */
 public void testOriginalExistence() throws CoreException {
 	ICompilationUnit original = (ICompilationUnit)this.workingCopy.getOriginalElement();
-	assertTrue(
-		"Original compilation unit should not exist", 
-		!original.exists());
+	if (CompilationUnit.FIX_BUG25184) {
+		assertTrue(
+			"Original compilation unit should not exist", 
+			!original.exists());
+	} else {
+		assertTrue(
+			"Original compilation unit should exist", 
+			original.exists());
+	}
 }
 public void testOriginalParentExistence() throws CoreException {
 	assertTrue(
@@ -117,9 +124,15 @@ public void testIsOpen() throws CoreException {
  */
 public void testOriginalIsOpen() throws CoreException {
 	ICompilationUnit original = (ICompilationUnit)this.workingCopy.getOriginalElement();
-	assertTrue(
-		"Original compilation should not be opened", 
-		!original.isOpen());
+	if (CompilationUnit.FIX_BUG25184) {
+		assertTrue(
+			"Original compilation should not be opened", 
+			!original.isOpen());
+	} else {
+		assertTrue(
+			"Original compilation should be opened", 
+			original.isOpen());
+	}
 }
 
 

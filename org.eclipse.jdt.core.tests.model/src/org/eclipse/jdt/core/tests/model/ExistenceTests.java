@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.CompilationUnit;
 
 public class ExistenceTests extends ModifyingResourceTests {
 public ExistenceTests(String name) {
@@ -170,6 +171,7 @@ public void testCorrespondingResourceNonExistingClassFile() throws CoreException
  * Ensures that one cannot get the corresponding resource of a non-existing compilation unit.
  */
 public void testCorrespondingResourceNonExistingCompilationUnit() throws CoreException {
+	if (!CompilationUnit.FIX_BUG25184) return;
 	try {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
 		ICompilationUnit compilationUnit = this.getCompilationUnit("/P/src/X.java");
@@ -256,6 +258,7 @@ public void testUnderlyingResourceNonExistingClassFile() throws CoreException {
  * Ensures that one cannot get the underlying resource of a non-existing compilation unit.
  */
 public void testUnderlyingResourceNonExistingCompilationUnit() throws CoreException {
+	if (!CompilationUnit.FIX_BUG25184) return;
 	try {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
 		ICompilationUnit compilationUnit = this.getCompilationUnit("/P/src/X.java");
