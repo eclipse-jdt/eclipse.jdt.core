@@ -71,6 +71,7 @@ IBinding#isEqualTo(..) fails with a field that hides another
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=74594">74594</a>
 [1.5] ClassFormat error when running this example
 
+
 <a name="v_522"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
@@ -81,6 +82,9 @@ Eclipse SDK 3.1M4 - 16th November 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>In 1.5 compliant mode, T[].clone() invocations are considered to be of type T[], as opposed to Object
+previously. </li>
+
 <li>New ComletionProposal kind <code>METHOD_NAME_REFERENCE</code>.
 This completion is a reference to a method name.
 <br>This kind of completion might occur in a context like
