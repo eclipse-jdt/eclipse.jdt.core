@@ -492,7 +492,8 @@ public final class CompletionEngine
 											(ReferenceBinding) qualifiedBinding,
 											argTypes,
 											scope,
-											constructorCall);
+											constructorCall,
+											false);
 
 									} else {
 
@@ -502,11 +503,25 @@ public final class CompletionEngine
 												(CompletionOnQualifiedAllocationExpression) astNode;
 											TypeBinding[] argTypes =
 												computeTypes(allocExpression.arguments, (BlockScope) scope);
-											findConstructors(
-												(ReferenceBinding) qualifiedBinding,
-												argTypes,
-												scope,
-												allocExpression);
+											
+											ReferenceBinding ref = (ReferenceBinding) qualifiedBinding;
+											if(ref.isClass()) {
+												if(!ref.isAbstract()) {
+													findConstructors(
+														ref,
+														argTypes,
+														scope,
+														allocExpression,
+														false);
+												}
+											}
+											if(!ref.isFinal()){
+												findAnonymousType(
+													ref,
+													argTypes,
+													scope,
+													allocExpression);
+											}
 
 										} else {
 
@@ -669,6 +684,40 @@ public final class CompletionEngine
 			argTypes[a] = arguments[a].resolveType(scope);
 		return argTypes;
 	}
+	
+	private void findAnonymousType(
+		ReferenceBinding currentType,
+		TypeBinding[] argTypes,
+		Scope scope,
+		InvocationSite invocationSite) {
+
+		if (currentType.isInterface()) {
+			char[] completion = TypeConstants.NoChar;
+			// nothing to insert - do not want to replace the existing selector & arguments
+			if (source == null
+				|| source.length <= endPosition
+				|| source[endPosition] != ')')
+				completion = new char[] { ')' };
+			
+			requestor.acceptAnonymousType(
+				currentType.qualifiedPackageName(),
+				currentType.qualifiedSourceName(),
+				TypeConstants.NoCharChar,
+				TypeConstants.NoCharChar,
+				TypeConstants.NoCharChar,
+				completion,
+				IConstants.AccPublic,
+				endPosition,
+				endPosition);
+		} else {
+			findConstructors(
+				currentType,
+				argTypes,
+				scope,
+				invocationSite,
+				true);
+		}
+	}
 
 	private void findClassField(char[] token, TypeBinding receiverType) {
 
@@ -694,7 +743,8 @@ public final class CompletionEngine
 		ReferenceBinding currentType,
 		TypeBinding[] argTypes,
 		Scope scope,
-		InvocationSite invocationSite) {
+		InvocationSite invocationSite,
+		boolean forAnonymousType) {
 
 		// No visibility checks can be performed without the scope & invocationSite
 		MethodBinding[] methods = currentType.methods();
@@ -732,20 +782,33 @@ public final class CompletionEngine
 					|| source.length <= endPosition
 					|| source[endPosition] != ')')
 					completion = new char[] { ')' };
-
-				requestor.acceptMethod(
-					currentType.qualifiedPackageName(),
-					currentType.qualifiedSourceName(),
-					currentType.sourceName(),
-					parameterPackageNames,
-					parameterTypeNames,
-					parameterNames,
-					TypeConstants.NoChar,
-					TypeConstants.NoChar,
-					completion,
-					constructor.modifiers,
-					endPosition,
-					endPosition);
+					
+				if(forAnonymousType){
+					requestor.acceptAnonymousType(
+						currentType.qualifiedPackageName(),
+						currentType.qualifiedSourceName(),
+						parameterPackageNames,
+						parameterTypeNames,
+						parameterNames,
+						completion,
+						constructor.modifiers,
+						endPosition,
+						endPosition);
+				} else {
+					requestor.acceptMethod(
+						currentType.qualifiedPackageName(),
+						currentType.qualifiedSourceName(),
+						currentType.sourceName(),
+						parameterPackageNames,
+						parameterTypeNames,
+						parameterNames,
+						TypeConstants.NoChar,
+						TypeConstants.NoChar,
+						completion,
+						constructor.modifiers,
+						endPosition,
+						endPosition);
+				}
 			}
 		}
 	}

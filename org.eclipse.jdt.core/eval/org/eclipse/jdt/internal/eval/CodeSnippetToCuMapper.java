@@ -145,6 +145,10 @@ public ICompletionRequestor getCompletionRequestor(final ICompletionRequestor or
 	final int startPosOffset = this.startPosOffset;
 	final int lineNumberOffset = this.lineNumberOffset;
 	return new ICompletionRequestor() {
+		public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd){
+			originalRequestor.acceptAnonymousType(superTypePackageName, superTypeName, parameterPackageNames, parameterTypeNames, parameterNames, completionName, modifiers, completionStart - startPosOffset, completionEnd - startPosOffset);
+		}
+		
 		public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd) {
 			// Remove completion on generated class name or generated global variable class name
 			if (CharOperation.equals(packageName, CodeSnippetToCuMapper.this.packageName) 

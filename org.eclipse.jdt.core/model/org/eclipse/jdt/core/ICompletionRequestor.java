@@ -18,6 +18,43 @@ import org.eclipse.core.resources.IMarker;
  */
 public interface ICompletionRequestor {
 /**
+ * Code assist notification of an anonynous type declaration completion.
+ *
+ * @return void - Nothing is answered back to code assist engine
+ *
+ * @param superTypePackageName char[] - Name of the package that contains the super type of thw new anonynous type declaration .
+ * @param superTypeName char[] - Name of the super type of this new anonynous type declaration.
+ * @param parameterPackageNames char[][] -  Names of the packages in which the parameter types are declared.
+ *    Should contain as many elements as parameterTypeNames.
+ * @param parameterTypeNames char[][] - Names of the parameters types.
+ *    Should contain as many elements as parameterPackageNames.
+ * @param completionName char[] - The completion for the anonynous type declaration.
+ *   Can include zero, one or two brackets. If the closing bracket is included, then the cursor should be placed before it.
+ * @param modifiers int - The modifiers of the constructor.
+ * @param completionStart int - The start position of insertion of the name of this new anonynous type declaration.
+ * @param completionEnd int - The end position of insertion of the name of this new anonynous type declaration.
+ * @see com.ibm.compiler.java.ast.Modifiers
+ *
+ * NOTE - All package and type names are presented in their readable form:
+ *    Package names are in the form "a.b.c".
+ *    Base types are in the form "int" or "boolean".
+ *    Array types are in the qualified form "M[]" or "int[]".
+ *    Nested type names are in the qualified form "A.M".
+ *    The default package is represented by an empty array.
+ *
+ * NOTE: parameter names can be retrieved from the source model after the user selects a specific method.
+ */
+void acceptAnonymousType(
+	char[] superTypePackageName,
+	char[] superTypeName,
+	char[][] parameterPackageNames,
+	char[][] parameterTypeNames,
+	char[][] parameterNames,
+	char[] completionName,
+	int modifiers,
+	int completionStart,
+	int completionEnd);
+/**
  * Code assist notification of a class completion.
  * 
  * @return void - Nothing is answered back to code assist engine

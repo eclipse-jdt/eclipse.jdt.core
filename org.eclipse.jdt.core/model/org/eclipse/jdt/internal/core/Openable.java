@@ -475,6 +475,8 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 		unitToSkip,
 		position,
 		new ICompletionRequestor(){
+			public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd) {
+			}
 			public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd) {
 				requestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd);
 			}

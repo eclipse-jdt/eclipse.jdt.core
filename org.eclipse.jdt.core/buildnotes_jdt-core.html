@@ -25,11 +25,25 @@ argument '-d' <tt><destination></tt> is omitted (compliant with standard batch c
      but the subtype (of the missing type) will be a root (this is the behavior of
      VA/Java and VAME.)
 <li> Adding a type that was missing from a hierarchy will update the hierarchy correctly.
+<li> New API on ICompletionRequestor for suggest anonymous type declaration:</li>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <tt>void acceptAnonymousType(</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] superTypePackageName,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] superTypeName,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[][] parameterPackageNames,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[][] parameterNames,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[][] parameterNames,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char[] completionName,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int modifiers,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int completionStart,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int completionEnd);</tt>
+<br>&nbsp;
 </ul>
 
 <h3>
 Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=7344">7344</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=6342">6342</a>
+Code assist on Intreface-'Constructors' incomplete
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=7344">7344</a>
 Search - write acces give wrong result  
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=7455">7455</a>  
 Build problems when instance variable name matches constructor parameter name and assignment to this.name in try block  

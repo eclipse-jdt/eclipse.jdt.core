@@ -21,6 +21,12 @@ public CompletionRequestorWrapper(ICompletionRequestor clientRequestor, NameLook
 	this.clientRequestor = clientRequestor;
 	this.nameLookup = nameLookup;
 }
+public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd){
+	if(parameterNames == null)
+		parameterNames = findMethodParameterNames(superTypePackageName, superTypeName, superTypeName, parameterPackageNames, parameterTypeNames);
+
+	this.clientRequestor.acceptAnonymousType(superTypePackageName, superTypeName, parameterPackageNames, parameterTypeNames, parameterNames, completionName, modifiers, completionStart, completionEnd);
+}
 /**
  * See ICompletionRequestor
  */
