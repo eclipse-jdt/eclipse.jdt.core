@@ -8,6 +8,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added constant TASK_MARKER
+ *     IBM Corporation - added constant UNBOUND_VARIABLE
+ *     IBM Corporation - added constant UNBOUND_CONTAINER
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
