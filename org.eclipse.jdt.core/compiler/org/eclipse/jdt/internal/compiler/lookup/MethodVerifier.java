@@ -48,6 +48,25 @@ public MethodVerifier(LookupEnvironment environment) {
 	this.errorException = null;
 	this.environment = environment;
 }
+private boolean areParametersEqual(MethodBinding one, MethodBinding two) {
+	TypeBinding[] oneArgs = one.parameters;
+	TypeBinding[] twoArgs = two.parameters;
+	if (oneArgs == twoArgs) return true;
+
+	int length = oneArgs.length;
+	if (length != twoArgs.length) return false;
+
+	for (int i = 0; i < length; i++)
+		if (!areTypesEqual(oneArgs[i], twoArgs[i])) return false;
+	return true;
+}
+private boolean areTypesEqual(TypeBinding one, TypeBinding two) {
+	if (one == two) return true;
+	if (one instanceof ReferenceBinding && two instanceof ReferenceBinding)
+		// can compare unresolved to resolved reference bindings
+		return CharOperation.equals(((ReferenceBinding) one).compoundName, ((ReferenceBinding) two).compoundName);
+	return false; // all other type bindings are identical
+}
 private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length) {
 	currentMethod.modifiers |= CompilerModifiers.AccOverriding;
 	for (int i = length; --i >= 0;) {
@@ -55,7 +74,7 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 		if (!currentMethod.isAbstract() && inheritedMethod.isAbstract())
 			currentMethod.modifiers |= CompilerModifiers.AccImplementing;
 
-		if (currentMethod.returnType != inheritedMethod.returnType) {
+		if (!areTypesEqual(currentMethod.returnType, inheritedMethod.returnType)) {
 			this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
 		} else if (currentMethod.isStatic() != inheritedMethod.isStatic()) {  // Cannot override a static method or hide an instance method
 			this.problemReporter(currentMethod).staticAndInstanceConflict(currentMethod, inheritedMethod);
@@ -79,8 +98,8 @@ Assumes all exceptions are valid and throwable.
 Unchecked exceptions (compatible with runtime & error) are ignored (see the spec on pg. 203).
 */
 private void checkExceptions(MethodBinding newMethod, MethodBinding inheritedMethod) {
-	ReferenceBinding[] newExceptions = newMethod.thrownExceptions;
-	ReferenceBinding[] inheritedExceptions = inheritedMethod.thrownExceptions;
+	ReferenceBinding[] newExceptions = resolvedExceptionTypesFor(newMethod);
+	ReferenceBinding[] inheritedExceptions = resolvedExceptionTypesFor(inheritedMethod);
 	for (int i = newExceptions.length; --i >= 0;) {
 		ReferenceBinding newException = newExceptions[i];
 		int j = inheritedExceptions.length;
@@ -93,7 +112,7 @@ private void checkExceptions(MethodBinding newMethod, MethodBinding inheritedMet
 private void checkInheritedMethods(MethodBinding[] methods, int length) {
 	TypeBinding returnType = methods[0].returnType;
 	int index = length;
-	while (--index > 0 && returnType == methods[index].returnType);
+	while (--index > 0 && areTypesEqual(returnType, methods[index].returnType));
 	if (index > 0) {  // All inherited methods do NOT have the same vmSignature
 		this.problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
 		return;
@@ -174,7 +193,7 @@ private void checkMethods() {
 					while (index >= 0) matchingInherited[index--] = null; // clear the previous contents of the matching methods
 					MethodBinding currentMethod = current[i];
 					for (int j = 0, length2 = inherited.length; j < length2; j++) {
-						if (inherited[j] != null && currentMethod.areParametersEqual(inherited[j])) {
+						if (inherited[j] != null && areParametersEqual(currentMethod, inherited[j])) {
 							matchingInherited[++index] = inherited[j];
 							inherited[j] = null; // do not want to find it again
 						}
@@ -188,7 +207,7 @@ private void checkMethods() {
 				if (inherited[i] != null) {
 					matchingInherited[++index] = inherited[i];
 					for (int j = i + 1; j < length; j++) {
-						if (inherited[j] != null && inherited[i].areParametersEqual(inherited[j])) {
+						if (inherited[j] != null && areParametersEqual(inherited[i], inherited[j])) {
 							matchingInherited[++index] = inherited[j];
 							inherited[j] = null; // do not want to find it again
 						}
@@ -221,7 +240,7 @@ private void checkPackagePrivateAbstractMethod(MethodBinding abstractMethod) {
 		MethodBinding[] methods = superType.getMethods(selector);
 		nextMethod : for (int m = methods.length; --m >= 0;) {
 			MethodBinding method = methods[m];
-			if (method.returnType != abstractMethod.returnType || !method.areParametersEqual(abstractMethod))
+			if (!areTypesEqual(method.returnType, abstractMethod.returnType) || !areParametersEqual(method, abstractMethod))
 				continue nextMethod;
 			if (method.isPrivate() || method.isConstructor() || method.isDefaultAbstract())
 				continue nextMethod;
@@ -265,14 +284,14 @@ private void computeInheritedMethods() {
 				interfacesToVisit[lastPosition] = itsInterfaces;
 			}
 
-			MethodBinding[] methods = superType.methods();
+			MethodBinding[] methods = superType.unResolvedMethods();
 			nextMethod : for (int m = methods.length; --m >= 0;) {
 				MethodBinding method = methods[m];
 				if (!(method.isPrivate() || method.isConstructor() || method.isDefaultAbstract())) { // look at all methods which are NOT private or constructors or default abstract
 					MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(method.selector);
 					if (existingMethods != null) {
 						for (int i = 0, length = existingMethods.length; i < length; i++) {
-							if (method.returnType == existingMethods[i].returnType && method.areParametersEqual(existingMethods[i])) {
+							if (areTypesEqual(method.returnType, existingMethods[i].returnType) && areParametersEqual(method, existingMethods[i])) {
 								if (method.isDefault() && method.isAbstract() && method.declaringClass.fPackage != type.fPackage)
 									checkPackagePrivateAbstractMethod(method);
 								continue nextMethod;
@@ -281,9 +300,9 @@ private void computeInheritedMethods() {
 					}
 					if (nonVisibleDefaultMethods != null)
 						for (int i = 0; i < nonVisibleCount; i++)
-							if (method.returnType == nonVisibleDefaultMethods[i].returnType
+							if (areTypesEqual(method.returnType, nonVisibleDefaultMethods[i].returnType)
 								&& CharOperation.equals(method.selector, nonVisibleDefaultMethods[i].selector)
-								&& method.areParametersEqual(nonVisibleDefaultMethods[i])) 
+								&& areParametersEqual(method, nonVisibleDefaultMethods[i])) 
 									continue nextMethod;
 
 					if (!(method.isDefault() && method.declaringClass.fPackage != type.fPackage)) { // ignore methods which have default visibility and are NOT defined in another package
@@ -308,7 +327,7 @@ private void computeInheritedMethods() {
 						MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(method.selector);
 						if (current != null) { // non visible methods cannot be overridden so a warning is issued
 							foundMatch : for (int i = 0, length = current.length; i < length; i++) {
-								if (method.returnType == current[i].returnType && method.areParametersEqual(current[i])) {
+								if (areTypesEqual(method.returnType, current[i].returnType) && areParametersEqual(method, current[i])) {
 									this.problemReporter().overridesPackageDefaultMethod(current[i], method);
 									break foundMatch;
 								}
@@ -335,7 +354,7 @@ private void computeInheritedMethods() {
 						interfacesToVisit[lastPosition] = itsInterfaces;
 					}
 
-					MethodBinding[] methods = superType.methods();
+					MethodBinding[] methods = superType.unResolvedMethods();
 					for (int m = methods.length; --m >= 0;) { // Interface methods are all abstract public
 						MethodBinding method = methods[m];
 						MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(method.selector);
@@ -426,6 +445,20 @@ private ProblemReporter problemReporter(MethodBinding currentMethod) {
 	if (currentMethod.declaringClass == type)	// only report against the currentMethod if its implemented by the type
 		reporter.referenceContext = currentMethod.sourceMethod();
 	return reporter;
+}
+ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
+	ReferenceBinding[] exceptions = method.thrownExceptions;
+	if ((method.modifiers & CompilerModifiers.AccUnresolved) == 0)
+		return exceptions;
+
+	if (!(method.declaringClass instanceof BinaryTypeBinding))
+		return TypeConstants.NoExceptions; // safety check
+	BinaryTypeBinding binaryType = (BinaryTypeBinding) method.declaringClass;
+
+	for (int i = exceptions.length; --i >= 0;)
+		if (exceptions[i] instanceof UnresolvedReferenceBinding)
+			exceptions[i] = (ReferenceBinding) binaryType.resolveType(exceptions[i]);
+	return exceptions;
 }
 private ReferenceBinding runtimeException() {
 	if (runtimeException == null)

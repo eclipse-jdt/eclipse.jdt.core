@@ -554,24 +554,21 @@ public MethodBinding[] methods() {
 */
 
 public char[] qualifiedSourceName() {
-	if (isMemberType()) {
+	if (isMemberType())
 		return CharOperation.concat(enclosingType().qualifiedSourceName(), sourceName(), '.');
-	} else {
-		return sourceName();
-	}
+	return sourceName();
 }
+
 public char[] readableName() /*java.lang.Object*/ {
 	if (isMemberType())
 		return CharOperation.concat(enclosingType().readableName(), sourceName, '.');
-	else
-		return CharOperation.concatWith(compoundName, '.');
+	return CharOperation.concatWith(compoundName, '.');
 }
 
 public char[] shortReadableName() /*Object*/ {
 	if (isMemberType())
 		return CharOperation.concat(enclosingType().shortReadableName(), sourceName, '.');
-	else
-		return sourceName;
+	return sourceName;
 }
 
 /* Answer the receiver's signature.
@@ -605,5 +602,8 @@ public ReferenceBinding[] syntheticEnclosingInstanceTypes() {
 }
 public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 	return null;		// is null if no enclosing instances are required
+}
+MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types
+	return methods();
 }
 }

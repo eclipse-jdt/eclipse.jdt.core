@@ -16,6 +16,7 @@ public class UnresolvedReferenceBinding extends ReferenceBinding {
 	ReferenceBinding resolvedType;
 UnresolvedReferenceBinding(char[][] compoundName, PackageBinding packageBinding) {
 	this.compoundName = compoundName;
+	this.sourceName = compoundName[compoundName.length - 1]; // reasonable guess
 	this.fPackage = packageBinding;
 }
 String debugName() {

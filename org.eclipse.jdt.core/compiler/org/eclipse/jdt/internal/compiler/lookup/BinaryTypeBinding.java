@@ -47,7 +47,7 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	this.tagBits |= IsBinaryBinding;
 	this.environment = environment;
 	this.fPackage = packageBinding;
-	this.	fileName = binaryType.getFileName();
+	this.fileName = binaryType.getFileName();
 
 	// source name must be one name without "$".
 	char[] possibleSourceName = this.compoundName[this.compoundName.length - 1];
@@ -387,7 +387,7 @@ public MethodBinding[] methods() {
 	modifiers ^= AccUnresolved;
 	return methods;
 }
-private TypeBinding resolveType(TypeBinding type) {
+TypeBinding resolveType(TypeBinding type) {
 	if (type instanceof UnresolvedReferenceBinding)
 		return ((UnresolvedReferenceBinding) type).resolve(environment);
 	if (type instanceof ArrayBinding) {
@@ -434,6 +434,9 @@ public ReferenceBinding[] superInterfaces() {
 		if (superInterfaces[i] instanceof UnresolvedReferenceBinding)
 			superInterfaces[i] = ((UnresolvedReferenceBinding) superInterfaces[i]).resolve(environment);
 	return superInterfaces;
+}
+MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types
+	return methods;
 }
 public String toString() {
 	String s = ""; //$NON-NLS-1$
