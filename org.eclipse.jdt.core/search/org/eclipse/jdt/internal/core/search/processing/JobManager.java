@@ -69,7 +69,7 @@ public abstract class JobManager implements Runnable {
 	 * Remove the index from cache for a given project.
 	 * Passing null as a job family discards them all.
 	 */
-	public void discardJobs(String jobFamily) {
+	public synchronized void discardJobs(String jobFamily) {
 		boolean wasEnabled = isEnabled();
 		try {
 			disable();
@@ -297,9 +297,9 @@ public abstract class JobManager implements Runnable {
 					executing = true;
 					/*boolean status = */job.execute(null);
 					//if (status == FAILED) request(job);
-					moveToNextJob();
 				} finally {
 					executing = false;
+					moveToNextJob();
 					if (this.awaitingClients == 0) {
 						Thread.currentThread().sleep(50);
 					}

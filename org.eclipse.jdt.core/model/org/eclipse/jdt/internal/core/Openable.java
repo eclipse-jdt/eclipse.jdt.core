@@ -373,7 +373,7 @@ protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaMo
 	try {
 		
 		if (JavaModelManager.VERBOSE){
-			System.out.println("OPENING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println("OPENING Element ("+ Thread.currentThread()+"): " + this.toStringWithAncestors()); //$NON-NLS-1$//$NON-NLS-2$
 		}
 		
 		// 1) Parent must be open - open the parent if necessary
@@ -407,7 +407,8 @@ protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaMo
 		opening(info);
 		
 		if (JavaModelManager.VERBOSE) {
-			System.out.println("-> Filling rate = " + fgJavaModelManager.fModelInfo.fLRUCache.fillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println("-> Package cache filling rate = " + fgJavaModelManager.cache.pkgFillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println("-> Openable cache filling rate = " + fgJavaModelManager.cache.openableFillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 
 		// if any problems occuring openning the element, ensure that it's info

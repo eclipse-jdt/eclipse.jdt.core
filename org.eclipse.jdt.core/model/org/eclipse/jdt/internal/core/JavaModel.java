@@ -45,17 +45,7 @@ protected JavaModel(IWorkspace workspace) throws Error {
 	this.workspace = workspace;
 }
 
-/**
- * Remove the Java Model from the cache
- */
-protected void closing(Object info) throws JavaModelException {
-	if (JavaModelManager.VERBOSE){
-		System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier()); //$NON-NLS-1$//$NON-NLS-2$
-	}
 
-	JavaModelManager.fgManager.fModelInfo.close();
-	JavaModelManager.fgManager.fModelInfo= null;
-}
 
 /**
  * @see IJavaModel
@@ -144,7 +134,7 @@ protected boolean generateInfos(
 	IResource underlyingResource, 
 	IProblemRequestor problemRequestor)	throws JavaModelException {
 
-	fgJavaModelManager.fModelInfo = (JavaModelInfo) info;
+	fgJavaModelManager.putInfo(((JavaModelInfo) info).getJavaModel(), info);
 	// determine my children
 	try {
 		IProject[] projects = workspace.getRoot().getProjects();

@@ -162,7 +162,7 @@ public void deleting(IProject project) {
  * Remove the index from cache for a given project.
  * Passing null as a job family discards them all.
  */
-public void discardJobsUntilNextProjectAddition(String jobFamily) {
+public synchronized void discardJobsUntilNextProjectAddition(String jobFamily) {
 	boolean wasEnabled = isEnabled();
 	try {
 		disable();

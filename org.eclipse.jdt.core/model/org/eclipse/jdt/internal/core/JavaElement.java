@@ -105,8 +105,9 @@ public void close() throws JavaModelException {
 		}
 		closing(info);
 		fgJavaModelManager.removeInfo(this);
-		if (JavaModelManager.VERBOSE && fgJavaModelManager.fModelInfo != null){
-			System.out.println("-> Filling rate = " + fgJavaModelManager.fModelInfo.fLRUCache.fillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+		if (JavaModelManager.VERBOSE){
+			System.out.println("-> Package cache filling rate = " + fgJavaModelManager.cache.pkgFillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println("-> Openable cache filling rate = " + fgJavaModelManager.cache.openableFillingRate() + "%"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 	}
 }
@@ -115,7 +116,7 @@ public void close() throws JavaModelException {
  */
 protected void closing(Object info) throws JavaModelException {
 	if (JavaModelManager.VERBOSE){
-		System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.getHandleIdentifier());  //$NON-NLS-1$//$NON-NLS-2$
+		System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + this.toStringWithAncestors());  //$NON-NLS-1$//$NON-NLS-2$
 	}
 }
 /**

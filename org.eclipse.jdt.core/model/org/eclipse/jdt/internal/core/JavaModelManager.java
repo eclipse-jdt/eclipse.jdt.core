@@ -272,11 +272,18 @@ public static ICompilationUnit createCompilationUnitFrom(IFile file, IJavaProjec
 	 */
 	protected static JavaModelManager fgManager= null;
 
-	/**
-	 * Active Java Model Info
-	 */
-	protected JavaModelInfo fModelInfo= null;
 
+	
+	/**
+	 * Infos cache.
+	 */
+	protected JavaModelCache cache = new JavaModelCache();
+
+	/**
+	 * Set of elements which are out of sync with their buffers.
+	 */
+	protected Map elementsOutOfSynchWithBuffers = new HashMap(11);
+	
 	/**
 	 * Turns delta firing on/off. By default it is on.
 	 */
@@ -506,11 +513,7 @@ public void doneSaving(ISaveContext context){
 	 * Returns the set of elements which are out of synch with their buffers.
 	 */
 	protected Map getElementsOutOfSynchWithBuffers() {
-		if (fModelInfo == null) {
-			return new HashMap(1);
-		} else {
-			return fModelInfo.fElementsOutOfSynchWithBuffers;
-		}
+		return this.elementsOutOfSynchWithBuffers;
 	}
 	/**
 	 * Returns the <code>IJavaElement</code> represented by the <code>String</code>
@@ -589,54 +592,40 @@ public void doneSaving(ISaveContext context){
 	 *  Returns the info for the element.
 	 */
 	public Object getInfo(IJavaElement element) {
-		if (fModelInfo == null) {
-			return null;
-		}
-		int elementType= ((JavaElement) element).fLEType;
-		if (elementType == IJavaElement.JAVA_MODEL) {
-			return fModelInfo;
-		}
-		if (((JavaElement) element).fLEType <= IJavaElement.CLASS_FILE) {
-			return fModelInfo.fLRUCache.get(element);
-		} else {
-			return fModelInfo.fChildrenCache.get(element);
-		}
+		return this.cache.getInfo(element);
 	}
 	/**
 	 * Returns the handle to the active Java Model, or <code>null</code> if there
 	 * is no active Java Model.
 	 */
 	public IJavaModel getJavaModel() {
-		if (fModelInfo == null) {
-			return null;
-		} else {
-			return fModelInfo.getJavaModel();
-		}
+		return this.cache.getJavaModel();
 	}
 	/**
 	 * Returns the JavaModel for the given workspace, creating
 	 * it if it does not yet exist.
 	 */
 	public static JavaModel getJavaModel(IWorkspace workspace) {
-
-		JavaModelInfo modelInfo= getJavaModelManager().fModelInfo;
-		if (modelInfo != null) {
+		JavaModelCache modelCache = getJavaModelManager().cache;
+		IJavaModel javaModel = modelCache.getJavaModel();
+		if (javaModel != null) {
 			// if the current java model corresponds to a different workspace,
 			// try to close it
+			JavaModelInfo modelInfo = (JavaModelInfo) modelCache.getInfo(javaModel);
 			if (!modelInfo.workspace.equals(workspace)) {
 				try {
-					modelInfo.fJavaModel.close();
+					javaModel.close();
+					javaModel = null;
 				} catch (JavaModelException e) {
 					Assert.isTrue(false, Util.bind("element.onlyOneJavaModel")); //$NON-NLS-1$
 					return null;
 				}
 			}
 		}
-		if (modelInfo == null || modelInfo.workspace.equals(workspace)) {
+		if (javaModel == null) {
 			return new JavaModel(workspace);
 		} else {
-			Assert.isTrue(false, Util.bind("element.onlyOneJavaModel")); //$NON-NLS-1$
-			return null;
+			return (JavaModel)javaModel;
 		}
 
 	}
@@ -728,16 +717,12 @@ public void doneSaving(ISaveContext context){
 	 * @exception CoreException If unable to create/open the ZipFile.
 	 */
 	public ZipFile getZipFile(IPath path) throws CoreException {
-		if (fModelInfo == null) {
-			return null;
-		}
-
 		ZipFile zipFile;
 		if (this.zipFiles != null && (zipFile = (ZipFile)this.zipFiles.get(path)) != null) {
 			return zipFile;
 		}
 		String fileSystemPath= null;
-		IWorkspaceRoot root = getJavaModel().getWorkspace().getRoot();
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource file = root.findMember(path);
 		if (path.isAbsolute() && file != null) {
 			if (file == null || file.getType() != IResource.FILE) {
@@ -840,17 +825,7 @@ public void mergeDeltas() {
 	 *  disturbing the cache ordering.
 	 */
 	protected Object peekAtInfo(IJavaElement element) {
-		if (fModelInfo == null) {
-			return null;
-		}
-		int type = ((JavaElement) element).fLEType;
-		if (type == IJavaElement.JAVA_MODEL) {
-			return fModelInfo;
-		} else if (type <= IJavaElement.CLASS_FILE) {
-			return fModelInfo.fLRUCache.peek(element);
-		} else {
-			return fModelInfo.fChildrenCache.get(element);
-		}
+		return this.cache.peekAtInfo(element);
 	}
 	/**
 	 * @see ISaveParticipant
@@ -859,19 +834,7 @@ public void mergeDeltas() {
 	}
 	
 	protected void putInfo(IJavaElement element, Object info) {
-		int elementType= ((JavaElement) element).fLEType;
-		if (elementType == IJavaElement.JAVA_MODEL) {
-			fModelInfo= (JavaModelInfo) info;
-			return;
-		}
-		if (fModelInfo == null) {
-			return;
-		}		
-		if (elementType <= IJavaElement.CLASS_FILE) {
-			fModelInfo.fLRUCache.put(element, info);
-		} else {
-			fModelInfo.fChildrenCache.put(element, info);
-		}
+		this.cache.putInfo(element, info);
 	}
 
 	/**
@@ -966,14 +929,7 @@ public void mergeDeltas() {
 		fElementChangedListeners.remove(listener);
 	}
 	protected void removeInfo(IJavaElement element) {
-		if (fModelInfo == null) {
-			return;
-		}
-		if (((JavaElement) element).fLEType <= IJavaElement.CLASS_FILE) {
-			fModelInfo.fLRUCache.remove(element);
-		} else {
-			fModelInfo.fChildrenCache.remove(element);
-		}
+		this.cache.removeInfo(element);
 	}
 	void removePerProjectInfo(JavaProject javaProject) {
 		IProject project = javaProject.getProject();

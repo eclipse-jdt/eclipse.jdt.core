@@ -20,8 +20,7 @@ import java.util.Map;
 import java.util.zip.ZipFile;
 
 /**
- * Implementation of IJavaModel. The Java Model maintains a cache of
- * active IJavaProjects in a workspace. A Java Model is specific to a
+ * Implementation of IJavaModel. A Java Model is specific to a
  * workspace. To retrieve a workspace's model, use the
  * <code>#getJavaModel(IWorkspace)</code> method.
  *
@@ -29,20 +28,7 @@ import java.util.zip.ZipFile;
  */
 public class JavaModelInfo extends OpenableElementInfo {
 
-	/**
-	 * Cache of open openable Java Model Java elements
-	 */
-	protected OverflowingLRUCache fLRUCache = null;
 
-	/**
-	 * Cache of open children of openable Java Model Java elements
-	 */
-	protected Map fChildrenCache= null;
-
-	/**
-	 * Set of elements which are out of sync with their buffers.
-	 */
-	protected Map fElementsOutOfSynchWithBuffers = new HashMap(11);
 
 	/**
 	 * Backpointer to my Java Model handle
@@ -60,23 +46,8 @@ public class JavaModelInfo extends OpenableElementInfo {
 protected JavaModelInfo(IJavaModel javaModel, IWorkspace workspace) {
 	this.workspace = workspace;
 	this.fJavaModel= javaModel;
-	this.fLRUCache = new ElementCache(5000);
-	this.fChildrenCache= new HashMap(30000);
 }
-/**
- * @see IJavaModel#close()
- */
-public void close() throws JavaModelException {
-	//close any remaining "parent-less" handles in the LRUCache
-	Enumeration handles = fLRUCache.keys();
-	while (handles.hasMoreElements()) {
-		IJavaElement handle= (IJavaElement)handles.nextElement();
-		// can't close myself - (am in the process of that now)
-		if (!handle.equals(fJavaModel)) {
-			((IOpenable)handle).close();
-		}
-	}
-}
+
 /**
  * Returns the Java Model for this info.
  */

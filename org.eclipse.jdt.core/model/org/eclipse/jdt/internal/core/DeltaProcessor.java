@@ -567,7 +567,6 @@ private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) 
 		switch (elementType) {
 			case IJavaElement.JAVA_MODEL :
 				element.getJavaModelManager().getIndexManager().reset();
-				element.getJavaModelManager().fModelInfo = null;
 				break;
 			case IJavaElement.JAVA_PROJECT :
 				JavaModelManager.getJavaModelManager().removePerProjectInfo(
