@@ -1330,9 +1330,16 @@ public class DeltaProcessor implements IResourceChangeListener {
 				switch (kind) {
 					case IResourceDelta.CHANGED:
 						// do not visit non-java projects (see bug 16140 Non-java project gets .classpath)
-						if (JavaProject.hasJavaNature(resource.getProject())) {
+						IProject project = (IProject)resource;
+						if (JavaProject.hasJavaNature(project)) {
 							element = JavaCore.create(resource);
 							processChildren = true;
+						} else if (JavaModelManager.getJavaModelManager().getJavaModel().findJavaProject(project) != null) {
+							// project had the java nature
+							this.rootsAreStale = true;
+
+							// remove classpath cache so that initializeRoots() will not consider the project has a classpath
+							this.manager.removePerProjectInfo((JavaProject)JavaCore.create(project));
 						}
 						break;
 					case IResourceDelta.ADDED:

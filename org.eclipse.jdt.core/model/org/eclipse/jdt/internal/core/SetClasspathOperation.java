@@ -337,26 +337,44 @@ public class SetClasspathOperation extends JavaModelOperation {
 					}
 				}
 				addClasspathDeltas(pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH, delta);
-
+				
 				int changeKind = oldResolvedPath[i].getEntryKind();
 				needToUpdateDependents |= (changeKind == IClasspathEntry.CPE_SOURCE) || oldResolvedPath[i].isExported();
 
-				// Remove the .java files from the index.
-				// Note that .class files belong to binary folders which can be shared, 
-				// so leave the index for .class files.
-				if (indexManager != null && changeKind == IClasspathEntry.CPE_SOURCE) {
+				// Remove the .java files from the index for a source folder
+				// For a lib folder or a .jar file, remove the corresponding index if not shared.
+				if (indexManager != null) {
 					IClasspathEntry oldEntry = oldResolvedPath[i];
 					final IPath path = oldEntry.getPath();
-					final char[][] exclusionPatterns = ((ClasspathEntry)oldEntry).fullExclusionPatternChars();
-					postAction(new IPostAction() {
-						public String getID() {
-							return path.toString();
-						}
-						public void run() throws JavaModelException {
-							indexManager.removeSourceFolderFromIndex(project, path, exclusionPatterns);
-						}
-					}, 
-					REMOVEALL_APPEND);
+					switch (changeKind) {
+						case IClasspathEntry.CPE_SOURCE:
+							final char[][] exclusionPatterns = ((ClasspathEntry)oldEntry).fullExclusionPatternChars();
+							postAction(new IPostAction() {
+								public String getID() {
+									return path.toString();
+								}
+								public void run() throws JavaModelException {
+									indexManager.removeSourceFolderFromIndex(project, path, exclusionPatterns);
+								}
+							}, 
+							REMOVEALL_APPEND);
+							break;
+						case IClasspathEntry.CPE_LIBRARY:
+							final DeltaProcessor deltaProcessor = manager.deltaProcessor;
+							postAction(new IPostAction() {
+								public String getID() {
+									return path.toString();
+								}
+								public void run() throws JavaModelException {
+									if (deltaProcessor.otherRoots.get(path) == null) { // if root was not shared
+										indexManager.removeIndex(path);
+										// TODO: (kent) we could just remove the in-memory index and have the indexing check for timestamps
+									}
+								}
+							}, 
+							REMOVEALL_APPEND);
+							break;
+					}		
 				}
 				hasDelta = true;
 
