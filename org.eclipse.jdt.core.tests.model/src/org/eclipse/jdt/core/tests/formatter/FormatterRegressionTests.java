@@ -21,6 +21,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceDescription;
@@ -36,6 +37,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.formatter.comment.CommentsTestSuite;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -54,10 +56,13 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	
 	public static Test suite() {
 		if (true) {
-			return new Suite(FormatterRegressionTests.class);
+			TestSuite suite = new TestSuite("All formatter tests (org.eclipse.jdt.core.tests.formatter)");
+			suite.addTest(new Suite(FormatterRegressionTests.class));
+			suite.addTest(CommentsTestSuite.suite());
+			return suite;
 		}
 		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-		suite.addTest(new FormatterRegressionTests("test546"));  //$NON-NLS-1$
+		suite.addTest(new FormatterRegressionTests("test001"));  //$NON-NLS-1$
 		return suite;
 	}
 
@@ -7527,5 +7532,25 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test546", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * Add support for comment formatting
+	 */
+	public void test547() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test547", "A.java", CodeFormatter.K_MULTI_LINE_COMMENT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * Add support for comment formatting
+	 */
+	public void test548() {
+		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test548", "A.java", CodeFormatter.K_JAVA_DOC, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

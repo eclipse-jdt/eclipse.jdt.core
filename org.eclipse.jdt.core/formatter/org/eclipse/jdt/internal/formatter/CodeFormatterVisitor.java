@@ -115,6 +115,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.formatter.align.Alignment;
 import org.eclipse.jdt.internal.formatter.align.AlignmentException;
+import org.eclipse.jdt.internal.formatter.comment.CommentRegion;
 import org.eclipse.text.edits.TextEdit;
 
 /**
@@ -828,6 +829,38 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		return this.scribe.getRootEdit();
 	}
 	
+	/**
+	 * @see org.eclipse.jdt.core.formatter.CodeFormatter#format(int, String, int, int, int, String)
+	 */
+	public TextEdit format(String string, CommentRegion region) {
+		// reset the scribe
+		this.scribe.reset();
+		
+		if (region == null) {
+			return failedToFormat();
+		}
+
+		long startTime = 0;
+		if (DEBUG){
+			startTime = System.currentTimeMillis();
+		}
+
+		final char[] compilationUnitSource = string.toCharArray();
+		
+		this.scribe.initializeScanner(compilationUnitSource);
+
+		TextEdit result = null;
+		try {
+			result = region.format(this.preferences.initial_indentation_level, true);
+		} catch(AbortFormatting e){
+			return failedToFormat();
+		}
+		if (DEBUG){
+			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
+		}
+		return result;
+	}
+
 	private void format(TypeDeclaration typeDeclaration){
         /*
          * Print comments to get proper line number

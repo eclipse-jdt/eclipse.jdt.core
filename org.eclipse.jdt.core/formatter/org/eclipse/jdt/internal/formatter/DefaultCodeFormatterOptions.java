@@ -83,6 +83,17 @@ public class DefaultCodeFormatterOptions {
 	public int blank_lines_between_type_declarations;
 	public int blank_lines_at_beginning_of_method_body;
 	
+	public boolean comment_clear_blank_lines;
+	public boolean comment_format;
+	public boolean comment_format_header;
+	public boolean comment_format_html;
+	public boolean comment_format_source;
+	public boolean comment_indent_parameter_description;
+	public boolean comment_indent_root_tags;
+	public boolean comment_insert_empty_line_before_root_tags;
+	public boolean comment_insert_new_line_for_parameter;
+	public int comment_line_length;
+	
 	public boolean indent_statements_compare_to_block;
 	public boolean indent_statements_compare_to_body;
 	public boolean indent_body_declarations_compare_to_enum_constant_header;
@@ -320,6 +331,16 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_METHOD_DECLARATION, this.brace_position_for_method_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_TYPE_DECLARATION, this.brace_position_for_type_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_SWITCH, this.brace_position_for_switch);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, this.comment_clear_blank_lines ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT, this.comment_format ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_HEADER, this.comment_format_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_HTML, this.comment_format_html ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_SOURCE, this.comment_format_source ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INDENT_PARAMETER_DESCRIPTION, this.comment_indent_parameter_description ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INDENT_ROOT_TAGS, this.comment_indent_root_tags ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, this.comment_insert_empty_line_before_root_tags ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_NEW_LINE_FOR_PARAMETER, this.comment_insert_new_line_for_parameter ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, Integer.toString(this.comment_line_length));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION, Integer.toString(this.continuation_indentation));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION_FOR_ARRAY_INITIALIZER, Integer.toString(this.continuation_indentation_for_array_initializer));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_IMPORTS, Integer.toString(this.blank_lines_after_imports));
@@ -922,6 +943,52 @@ public class DefaultCodeFormatterOptions {
 				this.blank_lines_at_beginning_of_method_body = 0;
 			} catch(ClassCastException e) {
 				this.blank_lines_at_beginning_of_method_body = 0;
+			}
+		}
+		final Object commentClearBlankLinesOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES);
+		if (commentClearBlankLinesOption != null) {
+			this.comment_clear_blank_lines = DefaultCodeFormatterConstants.TRUE.equals(commentClearBlankLinesOption);
+		}
+		final Object commentFormatOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT);
+		if (commentFormatOption != null) {
+			this.comment_format = DefaultCodeFormatterConstants.TRUE.equals(commentFormatOption);
+		}
+		final Object commentFormatHeaderOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_HEADER);
+		if (commentFormatHeaderOption != null) {
+			this.comment_format_header = DefaultCodeFormatterConstants.TRUE.equals(commentFormatHeaderOption);
+		}
+		final Object commentFormatHtmlOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_HTML);
+		if (commentFormatHtmlOption != null) {
+			this.comment_format_html = DefaultCodeFormatterConstants.TRUE.equals(commentFormatHtmlOption);
+		}
+		final Object commentFormatSourceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_SOURCE);
+		if (commentFormatSourceOption != null) {
+			this.comment_format_source = DefaultCodeFormatterConstants.TRUE.equals(commentFormatSourceOption);
+		}
+		final Object commentIndentParameterDescriptionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INDENT_PARAMETER_DESCRIPTION);
+		if (commentIndentParameterDescriptionOption != null) {
+			this.comment_indent_parameter_description = DefaultCodeFormatterConstants.TRUE.equals(commentIndentParameterDescriptionOption);
+		}
+		final Object commentIndentRootTagsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INDENT_ROOT_TAGS);
+		if (commentIndentRootTagsOption != null) {
+			this.comment_indent_root_tags = DefaultCodeFormatterConstants.TRUE.equals(commentIndentRootTagsOption);
+		}
+		final Object commentInsertEmptyLineBeforeRootTagsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS);
+		if (commentInsertEmptyLineBeforeRootTagsOption != null) {
+			this.comment_insert_empty_line_before_root_tags = JavaCore.INSERT.equals(commentInsertEmptyLineBeforeRootTagsOption);
+		}
+		final Object commentInsertNewLineForParameterOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_NEW_LINE_FOR_PARAMETER);
+		if (commentInsertNewLineForParameterOption != null) {
+			this.comment_insert_new_line_for_parameter = JavaCore.INSERT.equals(commentInsertNewLineForParameterOption);
+		}
+		final Object commentLineLengthOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH);
+		if (commentLineLengthOption != null) {
+			try {
+				this.comment_line_length = Integer.parseInt((String) commentLineLengthOption);
+			} catch (NumberFormatException e) {
+				this.comment_line_length = 80;
+			} catch(ClassCastException e) {
+				this.comment_line_length = 80;
 			}
 		}
 		final Object indentStatementsCompareToBlockOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BLOCK);
@@ -1715,6 +1782,16 @@ public class DefaultCodeFormatterOptions {
 		this.brace_position_for_method_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_switch = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.comment_clear_blank_lines = true;
+		this.comment_format = true;
+		this.comment_format_header = false;
+		this.comment_format_html = true;
+		this.comment_format_source = true;
+		this.comment_indent_parameter_description = true;
+		this.comment_indent_root_tags = true;
+		this.comment_insert_empty_line_before_root_tags = true;
+		this.comment_insert_new_line_for_parameter = true;
+		this.comment_line_length = 80;
 		this.continuation_indentation = 2;
 		this.continuation_indentation_for_array_initializer = 2;
 		this.blank_lines_after_imports = 0;
@@ -1945,6 +2022,16 @@ public class DefaultCodeFormatterOptions {
 		this.brace_position_for_method_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_switch = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.comment_clear_blank_lines = true;
+		this.comment_format = true;
+		this.comment_format_header = false;
+		this.comment_format_html = true;
+		this.comment_format_source = true;
+		this.comment_indent_parameter_description = true;
+		this.comment_indent_root_tags = true;
+		this.comment_insert_empty_line_before_root_tags = true;
+		this.comment_insert_new_line_for_parameter = true;
+		this.comment_line_length = 80;
 		this.continuation_indentation = 2;
 		this.continuation_indentation_for_array_initializer = 2;
 		this.blank_lines_after_imports = 1;

@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-class OptimizedReplaceEdit {
+public class OptimizedReplaceEdit {
 	
 	int offset;
 	int length;
 	String replacement;
 	
-	OptimizedReplaceEdit(int offset, int length, String replacement) {
+	public OptimizedReplaceEdit(int offset, int length, String replacement) {
 		this.offset = offset;
 		this.length = length;
 		this.replacement = replacement;

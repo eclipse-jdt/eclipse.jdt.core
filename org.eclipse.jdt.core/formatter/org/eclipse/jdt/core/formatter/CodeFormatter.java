@@ -44,6 +44,22 @@ public abstract class CodeFormatter {
 	 */
 	public static final int K_COMPILATION_UNIT = 0x08;
 
+	/**
+	 * Kind used to format single-line comments
+	 * @since 3.1
+	 */
+	public static final int K_SINGLE_LINE_COMMENT = 0x10;
+	/**
+	 * Kind used to format multi-line comments
+	 * @since 3.1
+	 */
+	public static final int K_MULTI_LINE_COMMENT = 0x20;
+	/**
+	 * Kind used to format a Javadoc comments
+	 * @since 3.1
+	 */
+	public static final int K_JAVA_DOC = 0x40;
+
 	/** 
 	 * Format <code>source</code>,
 	 * and returns a text edit that correspond to the difference between the given string and the formatted string.
@@ -53,7 +69,8 @@ public abstract class CodeFormatter {
 	 * caller to get rid of preceeding whitespaces.
 	 * 
 	 * @param kind Use to specify the kind of the code snippet to format. It can be any of these:
-	 * 		  K_EXPRESSION, K_STATEMENTS, K_CLASS_BODY_DECLARATIONS, K_COMPILATION_UNIT, K_UNKNOWN
+	 *        K_EXPRESSION, K_STATEMENTS, K_CLASS_BODY_DECLARATIONS, K_COMPILATION_UNIT, K_UNKNOWN,
+	 *        K_SINGLE_LINE_COMMENT, K_MULTI_LINE_COMMENT, K_JAVA_DOC
 	 * @param source the source to format
 	 * @param offset the given offset to start recording the edits (inclusive).
 	 * @param length the given length to stop recording the edits (exclusive).

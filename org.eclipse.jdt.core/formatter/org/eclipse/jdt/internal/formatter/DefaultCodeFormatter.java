@@ -22,18 +22,47 @@ import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
+import org.eclipse.jdt.internal.formatter.comment.CommentRegion;
+import org.eclipse.jdt.internal.formatter.comment.JavaDocRegion;
+import org.eclipse.jdt.internal.formatter.comment.MultiCommentRegion;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.Position;
+import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
 public class DefaultCodeFormatter extends CodeFormatter {
 
 	public static final boolean DEBUG = false;
+
+	/**
+	 * Creates a comment region for a specific document partition type.
+	 * 
+	 * @param kind the comment snippet kind
+	 * @param document the document which contains the comment region
+	 * @param range range of the comment region in the document
+	 * @return a new comment region for the comment region range in the
+	 *         document
+	 * @since 3.1
+	 */
+	public static CommentRegion createRegion(int kind, IDocument document, Position range, CodeFormatterVisitor formatter) {
+		switch (kind) {
+			case CodeFormatter.K_SINGLE_LINE_COMMENT:
+				return new CommentRegion(document, range, formatter);
+			case CodeFormatter.K_MULTI_LINE_COMMENT:
+				return new MultiCommentRegion(document, range, formatter);
+			case CodeFormatter.K_JAVA_DOC:
+				return new JavaDocRegion(document, range, formatter);
+		}
+		return null;
+	}
+	private CodeSnippetParsingUtil codeSnippetParsingUtil;
+	private Map defaultCompilerOptions;
 	
 	private CodeFormatterVisitor newCodeFormatter;
 	private Map options;
-	private Map defaultCompilerOptions;
 	
 	private DefaultCodeFormatterOptions preferences;
-	private CodeSnippetParsingUtil codeSnippetParsingUtil;
 	
 	public DefaultCodeFormatter() {
 		this(new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSettings()), null);
@@ -60,7 +89,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	public DefaultCodeFormatter(Map options) {
 		this(null, options);
 	}
-
+	
 	/**
 	 * @see org.eclipse.jdt.core.formatter.CodeFormatter#format(int, java.lang.String, int, int, int, java.lang.String)
 	 */
@@ -87,6 +116,10 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				return formatStatements(source, indentationLevel, lineSeparator, offset, length);
 			case K_UNKNOWN :
 				return probeFormatting(source, indentationLevel, lineSeparator, offset, length);
+			case K_JAVA_DOC :
+			case K_MULTI_LINE_COMMENT :
+			case K_SINGLE_LINE_COMMENT :
+				return formatComment(kind, source, indentationLevel, lineSeparator, offset, length);
 		}
 		return null;
 	}
@@ -99,6 +132,24 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			return null;
 		}
 		return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
+	}
+
+	private TextEdit formatComment(int kind, String source, int indentationLevel, String lineSeparator, int offset, int length) {
+		final boolean isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT));
+		if (isFormattingComments) {
+			if (lineSeparator != null) {
+				this.preferences.line_separator = lineSeparator;
+			} else {
+				this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+			}
+			this.preferences.initial_indentation_level = indentationLevel;
+			this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length, null);
+			final CommentRegion region = createRegion(kind, new Document(source), new Position(offset, length), this.newCodeFormatter);
+			if (region != null) {
+				return this.newCodeFormatter.format(source, region);
+			}
+		}
+		return new MultiTextEdit();
 	}
 
 	private TextEdit formatCompilationUnit(String source, int indentationLevel, String lineSeparator, int offset, int length) {
@@ -245,10 +296,11 @@ public class DefaultCodeFormatter extends CodeFormatter {
 
 		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length, this.codeSnippetParsingUtil);
 		
-		return  this.newCodeFormatter.format(source, constructorDeclaration);
+		return this.newCodeFormatter.format(source, constructorDeclaration);
 	}
 
 	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+		// TODO (olivier) add probing for comment formatting
 		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), getDefaultCompilerOptions(), true);
 		if (expression != null) {
 			return internalFormatExpression(source, indentationLevel, lineSeparator, expression, offset, length);

@@ -112,7 +112,7 @@ public class Scribe {
 		addOptimizedReplaceEdit(start, end - start + 1, EMPTY_STRING); //$NON-NLS-1$
 	}
 
-	private final void addInsertEdit(int insertPosition, String insertedString) {
+	public final void addInsertEdit(int insertPosition, String insertedString) {
 		if (this.edits.length == this.editsIndex) {
 			// resize
 			resize();
@@ -181,7 +181,7 @@ public class Scribe {
 		}
 	}
 	
-	private final void addReplaceEdit(int start, int end, String replacement) {
+	public final void addReplaceEdit(int start, int end, String replacement) {
 		if (this.edits.length == this.editsIndex) {
 			// resize
 			resize();
@@ -553,6 +553,7 @@ public class Scribe {
 	 */
 	private boolean hasNLSTag(int sourceStart) {
 		// search the last comment where commentEnd < current lineEnd
+		if (this.lineEnds == null) return false;
 		int index = Arrays.binarySearch(this.lineEnds, sourceStart);
 		int currentLineEnd = this.getLineEnd(-index);
 		if (currentLineEnd != -1) {
