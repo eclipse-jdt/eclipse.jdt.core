@@ -1581,7 +1581,8 @@ public final class CharOperation {
 	/**
 	 * Answers true if the pattern matches the filepath using the pathSepatator, false otherwise.
 	 * 
-	 * Path char[] pattern matching, accepting wild-cards '**', '*' and '?'.
+	 * Path char[] pattern matching, accepting wild-cards '**', '*' and '?' (using Ant directory tasks
+	 * conventions, also see "http://jakarta.apache.org/ant/manual/dirtasks.html#defaultexcludes").
 	 * Path pattern matching is enhancing regular pattern matching in supporting extra rule where '**' represent
 	 * any folder combination.
 	 * Special rules: 
