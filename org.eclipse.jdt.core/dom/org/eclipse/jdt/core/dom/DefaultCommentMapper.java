@@ -171,7 +171,7 @@ class DefaultCommentMapper {
 			if (range != null) {
 				if (range[0] == -1 && range[1] == -1) {
 					ASTNode parent = node.getParent();
-					if (parent != null) {
+					if (parent != null && ((parent.getFlags() & ASTNode.ORIGINAL) != 0)) {
 						return getExtendedEnd(parent);
 					}
 				} else {

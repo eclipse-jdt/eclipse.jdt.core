@@ -46,7 +46,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 		return setUpTest(new ASTRewritingMethodDeclTest("testMethodDeclChanges"));
 	}
-	
+
 	public void testMethodDeclChanges() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -161,7 +161,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	public void testMethodReturnTypeChanges() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -2244,4 +2244,55 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}	
+
+	public void testMethodDeclChangesBug77538() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("// comment\n");
+		buf.append("public class A {\n");
+		buf.append("	public int foo() {\n");
+		buf.append("		return 0;\n");
+		buf.append("	}\n");	
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("A.java", buf.toString(), false, null);	
+		
+		// Get method declaration and its body
+		CompilationUnit astRoot= createAST(cu);
+		AST ast= astRoot.getAST();
+		TypeDeclaration type= findTypeDeclaration(astRoot, "A");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block body = methodDecl.getBody();
+		
+	   // start record of the modifications
+	   astRoot.recordModifications();
+	   
+	   // Modify method body
+		Block newBody = ast.newBlock();
+		methodDecl.setBody(newBody);
+		VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+		fragment.setName(ast.newSimpleName("lock"));
+		fragment.setInitializer(ast.newQualifiedName(ast.newSimpleName("OS"), ast.newSimpleName("lock")));
+		VariableDeclarationExpression variableDeclarationExpression = ast.newVariableDeclarationExpression(fragment);
+		variableDeclarationExpression.setType(ast.newSimpleType(ast.newSimpleName("Lock")));
+		ExpressionStatement expressionStatement = ast.newExpressionStatement(variableDeclarationExpression);
+		newBody.statements().add(expressionStatement);
+		TryStatement tryStatement = ast.newTryStatement();
+		MethodInvocation methodInvocation = ast.newMethodInvocation();
+		methodInvocation.setName(ast.newSimpleName("lock"));
+		methodInvocation.setExpression(ast.newSimpleName("lock"));
+		ExpressionStatement expressionStatement2 = ast.newExpressionStatement(methodInvocation);
+		body.statements().add(0, expressionStatement2);
+		tryStatement.setBody(body);
+		Block finallyBlock = ast.newBlock();
+		tryStatement.setFinally(finallyBlock);
+		methodInvocation = ast.newMethodInvocation();
+		methodInvocation.setName(ast.newSimpleName("unLock"));
+		methodInvocation.setExpression(ast.newSimpleName("lock"));
+		expressionStatement2 = ast.newExpressionStatement(methodInvocation);
+		finallyBlock.statements().add(expressionStatement2);
+		newBody.statements().add(tryStatement);
+
+		// Verify that body extended length does not become negative!
+		assertFalse("Invalid extended length for "+body, astRoot.getExtendedLength(body)<0);
+	}
 }
