@@ -44,7 +44,7 @@
         <echo message='linking .o -> ${binaryname}'/>
         <apply failonerror='true' executable='${gcc-path}/bin/gcj' parallel='true'>
             <arg value='--verbose'/>
-            <arg value='-fCLASSPATH=${gcc-path}/share/libgcj.jar'/>
+            <arg value='--classpath=${gcc-path}/share/java/libgcj.jar'/>
             <arg value='--main=org.eclipse.jdt.internal.compiler.batch.Main'/>
             <arg line='-o ${dest}${binaryname}.exe'/>
             <srcfile/>
