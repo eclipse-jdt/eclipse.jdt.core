@@ -63,6 +63,7 @@ public interface IClassFileDisassembler {
 	 * @param mode the mode used to disassemble the classfile
 	 * 
 	 * @return the disassembled string of the classfile according to the mode
+	 * @exception ClassFormatException if the classfile bytes are ill-formed
 	 */
-	String disassemble(byte[] classfileBytes, String lineSeparator, int mode);
+	String disassemble(byte[] classfileBytes, String lineSeparator, int mode) throws ClassFormatException;
 }

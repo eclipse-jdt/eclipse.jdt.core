@@ -44,6 +44,13 @@ public class Disassembler implements IClassFileDisassembler {
 	/**
 	 * Disassemble the class file reader.
 	 */
+	public String disassemble(byte[] classfileBytes, String lineSeparator, int mode) throws ClassFormatException {
+		return disassemble(new ClassFileReader(classfileBytes, IClassFileReader.ALL), lineSeparator, mode);
+	}
+
+	/**
+	 * Disassemble the class file reader.
+	 */
 	public String disassemble(IClassFileReader classFileReader, String lineSeparator) {
 		return disassemble(classFileReader, lineSeparator, IClassFileDisassembler.DEFAULT);
 	}
