@@ -16,7 +16,16 @@ Eclipse SDK Build 200206? - ?st June 2002
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>new </li>
+<li>Removed deprecated API on <code>IJavaProject</code>. These were not in 1.0, and shouldn't have been
+introduced (incorrectly resurrected from 0.9).
+  <ul>
+	<li><code>IJavaProject#getClasspath(...) --> IJavaProject#getRawClasspath(...) </code></li>
+	<li><code>IJavaProject#setClasspath(...) --> IJavaProject#setRawClasspath(...) </code></li>
+	<li><code>IJavaProject#newProjectEntry(...) --> JavaCore#newProjectEntry(...) </code></li>
+	<li><code>IJavaProject#newLibraryEntry(...) --> JavaCore#newLibraryEntry(...) </code></li>
+	<li><code>IJavaProject#newSourceEntry(...) --> JavaCore#newSourceEntry(...) </code></li>
+  </ul>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
