@@ -175,6 +175,7 @@ public IDOMType createClass();
  * a public interface named <code>"AnInterface"</code>, with no members or comment.
  *
  * @return the new interface
+ * @since 2.0
  */
 public IDOMType createInterface();
 /**
