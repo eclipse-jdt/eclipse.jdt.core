@@ -3024,9 +3024,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		throws JavaModelException {
 
 		if (variableNames.length != paths.length)	Assert.isTrue(false, "Variable names and paths collections should have the same size"); //$NON-NLS-1$
-		for (int i = 0, max = paths.length; i < max; i++) {
-			if (paths[i] == null) Assert.isTrue(false, "Variable path cannot be null"); //$NON-NLS-1$
-		}
 		updateVariableValues(variableNames, paths, monitor);
 	}
 
