@@ -41,6 +41,15 @@ Eclipse SDK 2.1 Build - ?th January 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added APIs to save/restore type hierarchies. Note that the client still has to register as a <code>ITypeHierarchyChangedListener</code> once
+restoration has occurred.
+  <ul>
+     <li> <code>ITypeHierarchy.store(OutputStream, IProgressMonitor)</code> for saving a type hierarchy.
+	 </li>
+     <li> <code>IType.load(InputStream, IProgressMonitor)</code> for restoring a previously saved hierarchy.
+	 </li>
+  </ul>
+</li> 
 <li> Added APIs to manipulate package fragment roots:
 	<ul>
 	<li><code>IPackageFragmentRoot.copy(IPath, int, boolean, IClasspathEntry, IProgressMonitor)</code>
@@ -113,7 +122,9 @@ Source path exclusion filter not relative source folder
 Odd behavior from code formatter
 
 <h3>Problem Reports Closed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30209">30209</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30370">30370</a>
+Warning "import never used" in spite of use by a javadoc @link
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=30209">30209</a>
 JDT compiler bytecode incompatibility with JDK bytecode  results in serialization error
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=27497">27497</a>
 Compile only on class
