@@ -389,49 +389,61 @@ protected CompilationUnitDeclaration endParse(int act) {
 		return null;
 	}		
 }
-public TypeReference getTypeReference(int dim) {
+protected TypeReference getTypeReference(int dim) {
 	/* build a Reference on a variable that may be qualified or not
 	 * This variable is a type reference and dim will be its dimensions
 	 */
-	int length;
-	if ((length = identifierLengthStack[identifierLengthPtr--]) == 1) {
-		// single variable reference
+
+	/* build a Reference on a variable that may be qualified or not
+	 This variable is a type reference and dim will be its dimensions*/
+
+	int length = identifierLengthStack[identifierLengthPtr--];
+	if (length < 0) { //flag for precompiled type reference on base types
+		TypeReference ref = TypeReference.baseTypeReference(-length, dim);
+		ref.sourceStart = intStack[intPtr--];
 		if (dim == 0) {
-			SingleTypeReference ref = 
-				new SingleTypeReference(
-					identifierStack[identifierPtr], 
-					identifierPositionStack[identifierPtr--]);
-			if (reportReferenceInfo) {
-				requestor.acceptTypeReference(ref.token, ref.sourceStart);
-			}
-			return ref;
+			ref.sourceEnd = intStack[intPtr--];
 		} else {
-			ArrayTypeReference ref = 
-				new ArrayTypeReference(
-					identifierStack[identifierPtr], 
-					dim, 
-					identifierPositionStack[identifierPtr--]); 
+			intPtr--; // no need to use this position as it is an array
 			ref.sourceEnd = endPosition;
-			if (reportReferenceInfo) {
-				requestor.acceptTypeReference(ref.token, ref.sourceStart);
-			}
-			return ref;
 		}
+		if (reportReferenceInfo){
+				requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
+		}
+		return ref;
 	} else {
-		if (length < 0) { //flag for precompiled type reference on base types
-			TypeReference ref = TypeReference.baseTypeReference(-length, dim);
-			ref.sourceStart = intStack[intPtr--];
+		int numberOfIdentifiers = intStack[intPtr--];
+		if (length != numberOfIdentifiers || astLengthStack[astLengthPtr] != 0) {
+			// generic type
+			// TODO handle accept of generic types
+			return getTypeReferenceForGenericType(dim, length, numberOfIdentifiers);
+		} else if (length == 1) {
+			// single variable reference
+			astLengthPtr--; // pop the 0
 			if (dim == 0) {
-				ref.sourceEnd = intStack[intPtr--];
+				SingleTypeReference ref = 
+						new SingleTypeReference(
+							identifierStack[identifierPtr], 
+							identifierPositionStack[identifierPtr--]); 
+				if (reportReferenceInfo) {
+					requestor.acceptTypeReference(ref.token, ref.sourceStart);
+				}
+				return ref;
 			} else {
-				intPtr--; // no need to use this position as it is an array
-				ref.sourceEnd = endPosition;
+				ArrayTypeReference ref = 
+					new ArrayTypeReference(
+						identifierStack[identifierPtr], 
+						dim, 
+						identifierPositionStack[identifierPtr--]); 
+				ref.sourceEnd = endPosition;			
+				if (reportReferenceInfo) {
+					requestor.acceptTypeReference(ref.token, ref.sourceStart);
+				}
+				return ref;
 			}
-			if (reportReferenceInfo){
-					requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
-			}
-			return ref;
-		} else { //Qualified variable reference
+		} else {
+			astLengthPtr--;
+			//Qualified variable reference
 			char[][] tokens = new char[length][];
 			identifierPtr -= length;
 			long[] positions = new long[length];
@@ -460,7 +472,7 @@ public TypeReference getTypeReference(int dim) {
 		}
 	}
 }
-public NameReference getUnspecifiedReference() {
+protected NameReference getUnspecifiedReference() {
 	/* build a (unspecified) NameReference which may be qualified*/
 
 	int length;
@@ -493,7 +505,7 @@ public NameReference getUnspecifiedReference() {
 		return ref;
 	}
 }
-public NameReference getUnspecifiedReferenceOptimized() {
+protected NameReference getUnspecifiedReferenceOptimized() {
 	/* build a (unspecified) NameReference which may be qualified
 	The optimization occurs for qualified reference while we are
 	certain in this case the last item of the qualified name is

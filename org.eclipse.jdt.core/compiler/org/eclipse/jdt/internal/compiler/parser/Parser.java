@@ -6647,7 +6647,7 @@ protected TypeReference getTypeReference(int dim) {
 	}
 	return ref;
 }
-private TypeReference getTypeReferenceForGenericType(int dim, int identifierLength, int numberOfIdentifiers) {
+protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLength, int numberOfIdentifiers) {
 	if (identifierLength == 1 && numberOfIdentifiers == 1) {
 		int currentTypeArgumentsLength = astLengthStack[astLengthPtr--];
 		TypeReference[] typeArguments = new TypeReference[currentTypeArgumentsLength];
