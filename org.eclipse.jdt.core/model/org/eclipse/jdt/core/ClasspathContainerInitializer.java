@@ -76,9 +76,9 @@ public abstract class ClasspathContainerInitializer {
      * on its own container values. If so, then an update request will be performed using
      * <code>ClasspathContainerInitializer#requestClasspathContainerUpdate</code>/
      * <p>
-     * @param containerPath - the path of the container which requires to be updated
-     * @param project - the project for which the container is to be updated
-     * @return boolean - returns <code>true</code> if the container can be updated
+     * @param containerPath the path of the container which requires to be updated
+     * @param project the project for which the container is to be updated
+     * @return returns <code>true</code> if the container can be updated
      * @since 2.1
      */
     public boolean canUpdateClasspathContainer(IPath containerPath, IJavaProject project) {
@@ -101,9 +101,9 @@ public abstract class ClasspathContainerInitializer {
 	 * In order to anticipate whether the container initializer allows to update its containers, the predicate
 	 * <code>JavaCore#canUpdateClasspathContainer</code> should be used.
 	 * <p>
-	 * @param containerPath - the path of the container which requires to be updated
-     * @param project - the project for which the container is to be updated
-	 * @param containerSuggestion - a suggestion to update the corresponding container definition
+	 * @param containerPath the path of the container which requires to be updated
+     * @param project the project for which the container is to be updated
+	 * @param containerSuggestion a suggestion to update the corresponding container definition
 	 * @throws CoreException when <code>JavaCore#setClasspathContainer</code> would throw any.
 	 * @see JavaCore#setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
 	 * @see ClasspathContainerInitializer#canUpdateClasspathContainer(IPath, IJavaProject)
@@ -120,8 +120,8 @@ public abstract class ClasspathContainerInitializer {
 	 * A good implementation should answer a description consistent with the description of the associated 
 	 * target container (see <code>IClasspathContainer.getDescription()</code>).
 	 * 
-	 * @param containerPath - the path of the container which requires a readable description
-	 * @return String - a string description of the container
+	 * @param containerPath the path of the container which requires a readable description
+	 * @return a string description of the container
 	 * @since 2.1
 	 */    
     public String getDescription(IPath containerPath) {
