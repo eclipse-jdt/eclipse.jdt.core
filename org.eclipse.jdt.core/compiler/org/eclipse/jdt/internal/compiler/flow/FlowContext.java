@@ -164,9 +164,13 @@ public class FlowContext implements TypeConstants {
 			traversedContext = traversedContext.parent;
 		}
 		// if reaches this point, then there are some remaining unhandled exception types.	
-		for (int i = 0; i < raisedCount; i++) {
+		nextReport: for (int i = 0; i < raisedCount; i++) {
 			TypeBinding exception;
 			if ((exception = raisedExceptions[i]) != null) {
+				// only one complaint if same exception declared to be thrown more than once
+				for (int j = 0; j < i; j++) {
+					if (raisedExceptions[j] == exception) continue nextReport; // already reported 
+				}
 				scope.problemReporter().unhandledException(exception, location);
 			}
 		}
