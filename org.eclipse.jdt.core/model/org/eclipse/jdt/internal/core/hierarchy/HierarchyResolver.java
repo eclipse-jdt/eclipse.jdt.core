@@ -171,7 +171,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 		sourceType = sourceType.getEnclosingType();
 	
 	// build corresponding compilation unit
-	CompilationResult result = new CompilationResult(sourceType.getFileName(), 1, 1);
+	CompilationResult result = new CompilationResult(sourceType.getFileName(), 1, 1, this.options.maxProblemsPerUnit);
 	CompilationUnitDeclaration unit =
 		SourceTypeConverter.buildCompilationUnit(new ISourceType[] {sourceType}, false, true, lookupEnvironment.problemReporter, result);
 		
@@ -427,7 +427,7 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 				ISourceType topLevelType = (ISourceType) suppliedTypes[i];
 				while (topLevelType.getEnclosingType() != null)
 					topLevelType = topLevelType.getEnclosingType();
-				CompilationResult result = new CompilationResult(topLevelType.getFileName(), i, suppliedLength);
+				CompilationResult result = new CompilationResult(topLevelType.getFileName(), i, suppliedLength, this.options.maxProblemsPerUnit);
 				units[i] = SourceTypeConverter.buildCompilationUnit(new ISourceType[]{topLevelType}, false, true, lookupEnvironment.problemReporter, result);
 				if (units[i] != null) {
 					try {
@@ -440,7 +440,7 @@ public void resolve(IGenericType[] suppliedTypes, ICompilationUnit[] sourceUnits
 		}
 		for (int i = 0; i < sourceLength; i++){
 			ICompilationUnit sourceUnit = sourceUnits[i];
-			CompilationResult unitResult = new CompilationResult(sourceUnit, suppliedLength+i, suppliedLength+sourceLength); 
+			CompilationResult unitResult = new CompilationResult(sourceUnit, suppliedLength+i, suppliedLength+sourceLength, this.options.maxProblemsPerUnit); 
 			Parser parser = new Parser(lookupEnvironment.problemReporter, true, options.assertMode);
 			CompilationUnitDeclaration parsedUnit = parser.dietParse(sourceUnit, unitResult);
 			if (parsedUnit != null) {
@@ -504,7 +504,7 @@ public void resolve(IGenericType suppliedType) {
 			ISourceType topLevelType = (ISourceType) suppliedType;
 			while (topLevelType.getEnclosingType() != null)
 				topLevelType = topLevelType.getEnclosingType();
-			CompilationResult result = new CompilationResult(topLevelType.getFileName(), 1, 1);
+			CompilationResult result = new CompilationResult(topLevelType.getFileName(), 1, 1, this.options.maxProblemsPerUnit);
 			CompilationUnitDeclaration unit =
 				SourceTypeConverter.buildCompilationUnit(new ISourceType[]{topLevelType}, false, true, lookupEnvironment.problemReporter, result);
 

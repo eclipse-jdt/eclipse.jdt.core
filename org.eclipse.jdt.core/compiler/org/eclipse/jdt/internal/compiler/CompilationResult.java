@@ -40,13 +40,14 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import java.util.*;
 
 public class CompilationResult {
+	
 	public IProblem problems[];
 	public int problemCount;
 	public ICompilationUnit compilationUnit;
 	private Map problemsMap;
 	private Map firstErrorsMap;
 	private HashSet duplicateProblems;
-	
+	private int maxProblemPerUnit;
 	public char[][][] qualifiedReferences;
 	public char[][] simpleNameReferences;
 
@@ -59,22 +60,27 @@ public class CompilationResult {
 public CompilationResult(
 	char[] fileName,
 	int unitIndex, 
-	int totalUnitsKnown){
+	int totalUnitsKnown,
+	int maxProblemPerUnit){
 
 	this.fileName = fileName;
 	this.unitIndex = unitIndex;
 	this.totalUnitsKnown = totalUnitsKnown;
+	this.maxProblemPerUnit = maxProblemPerUnit;
 
 }
+
 public CompilationResult(
 	ICompilationUnit compilationUnit,
 	int unitIndex, 
-	int totalUnitsKnown){
+	int totalUnitsKnown,
+	int maxProblemPerUnit){
 
 	this.fileName = compilationUnit.getFileName();
 	this.compilationUnit = compilationUnit;
 	this.unitIndex = unitIndex;
 	this.totalUnitsKnown = totalUnitsKnown;
+	this.maxProblemPerUnit = maxProblemPerUnit;
 
 }
 private int computePriority(IProblem problem){
@@ -146,10 +152,10 @@ public IProblem[] getProblems() {
 		if (this.problemCount != problems.length) {
 			System.arraycopy(problems, 0, (problems = new IProblem[problemCount]), 0, problemCount);
 		}
-				 
-		if (this.problemCount > Compiler.MaxProblemPerUnit){
+
+		if (this.maxProblemPerUnit > 0 && this.problemCount > this.maxProblemPerUnit){
 			quickPrioritize(problems, 0, problemCount - 1);
-			this.problemCount = Compiler.MaxProblemPerUnit;
+			this.problemCount = this.maxProblemPerUnit;
 			System.arraycopy(problems, 0, (problems = new IProblem[problemCount]), 0, problemCount);
 		}
 

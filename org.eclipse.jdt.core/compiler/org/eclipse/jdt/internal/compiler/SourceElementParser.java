@@ -55,6 +55,7 @@ public class SourceElementParser extends Parser {
 	private NameReference[] unknownRefs;
 	private int unknownRefsCounter;
 	private LocalDeclarationVisitor localDeclarationVisitor = null;
+	private CompilerOptions options;
 	
 /**
  * An ast visitor that visits local type declarations.
@@ -98,6 +99,7 @@ public SourceElementParser(
 	typeNames = new char[4][];
 	superTypeNames = new char[4][];
 	nestedTypeIndex = 0;
+	this.options = options;
 }
 
 /** @deprecated use SourceElementParser(ISourceElementRequestor, IProblemFactory, CompilerOptions) */
@@ -998,7 +1000,7 @@ public void parseCompilationUnit(
 	}
 	try {
 		diet = true;
-		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0);
+		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit = parse(unit, compilationUnitResult, start, end);
 		if (needReferenceInfo){
 			diet = false;
@@ -1030,7 +1032,7 @@ public void parseCompilationUnit(
 		parse(unit, compilationUnitResult);		
 */		diet = true;
 		reportReferenceInfo = needReferenceInfo;
-		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0);
+		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit = parse(unit, compilationUnitResult);
 		int initialStart = this.scanner.initialPosition;
 		int initialEnd = this.scanner.eofPosition;
@@ -1064,7 +1066,7 @@ public void parseTypeMemberDeclarations(
 		diet = !needReferenceInfo;
 		reportReferenceInfo = needReferenceInfo;
 		CompilationResult compilationUnitResult = 
-			new CompilationResult(sourceUnit, 0, 0); 
+			new CompilationResult(sourceUnit, 0, 0, this.options.maxProblemsPerUnit); 
 		CompilationUnitDeclaration unit = 
 			SourceTypeConverter.buildCompilationUnit(
 				new ISourceType[]{sourceType}, 

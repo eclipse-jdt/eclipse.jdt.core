@@ -75,23 +75,25 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		ISearchableNameEnvironment nameEnvironment,
 		ISelectionRequestor requestor,
 		Map settings) {
+
+		super(settings);
+
 		this.requestor = requestor;
 		this.nameEnvironment = nameEnvironment;
 
-		CompilerOptions options = new CompilerOptions(settings);
 		ProblemReporter problemReporter =
 			new ProblemReporter(
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-				options,
+				this.compilerOptions,
 				new DefaultProblemFactory(Locale.getDefault())) {
 			public void record(IProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
 				unitResult.record(problem, referenceContext);
 				SelectionEngine.this.requestor.acceptError(problem);
 			}
 		};
-		this.parser = new SelectionParser(problemReporter, options.assertMode);
+		this.parser = new SelectionParser(problemReporter, this.compilerOptions.assertMode);
 		this.lookupEnvironment =
-			new LookupEnvironment(this, options, problemReporter, nameEnvironment);
+			new LookupEnvironment(this, this.compilerOptions, problemReporter, nameEnvironment);
 	}
 
 	/**
@@ -401,7 +403,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			return;
 		try {
 			acceptedAnswer = false;
-			CompilationResult result = new CompilationResult(sourceUnit, 1, 1);
+			CompilationResult result = new CompilationResult(sourceUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
 			CompilationUnitDeclaration parsedUnit =
 				parser.dietParse(sourceUnit, result, actualSelectionStart, actualSelectionEnd);
 
@@ -591,7 +593,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				parent = parent.getEnclosingType();
 			}
 			// compute parse tree for this most outer type
-			CompilationResult result = new CompilationResult(outerType.getFileName(), 1, 1);
+			CompilationResult result = new CompilationResult(outerType.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
 			CompilationUnitDeclaration parsedUnit =
 				SourceTypeConverter
 					.buildCompilationUnit(

@@ -94,7 +94,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 	 */
 	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 		CompilationResult result =
-			new CompilationResult(sourceTypes[0].getFileName(), 1, 1);
+			new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.options.maxProblemsPerUnit);
 		// need to hold onto this
 		CompilationUnitDeclaration unit =
 			SourceTypeConverter.buildCompilationUnit(

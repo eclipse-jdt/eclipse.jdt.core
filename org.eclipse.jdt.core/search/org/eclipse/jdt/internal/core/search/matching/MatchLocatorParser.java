@@ -179,7 +179,7 @@ protected CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, Matc
 	CompilationUnitDeclaration unit = null;
 	try {
 		this.matchSet = new MatchSet(locator);
-		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);
+		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);
 		unit = this.dietParse(sourceUnit, compilationResult);
 	} finally {
 		if (originalMatchSet == null) {

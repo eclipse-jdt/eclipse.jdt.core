@@ -9,7 +9,9 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.impl;
-import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
+import java.util.Map;
+
+import org.eclipse.jdt.internal.codeassist.ISearchableNameEnvironment;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
@@ -26,6 +28,14 @@ public abstract class Engine implements ITypeRequestor {
 	protected CompilationUnitScope unitScope;
 	protected ISearchableNameEnvironment nameEnvironment;
 
+	public AssistOptions options;
+	public CompilerOptions compilerOptions; 
+	
+	public Engine(Map settings){
+		this.options = new AssistOptions(settings);
+		this.compilerOptions = new CompilerOptions(settings);
+	}
+	
 	/**
 	 * Add an additional binary type
 	 */
@@ -36,7 +46,7 @@ public abstract class Engine implements ITypeRequestor {
 	 * Add an additional compilation unit.
 	 */
 	public void accept(ICompilationUnit sourceUnit) {
-		CompilationResult result = new CompilationResult(sourceUnit, 1, 1);
+		CompilationResult result = new CompilationResult(sourceUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit =
 			this.getParser().dietParse(sourceUnit, result);
 
@@ -49,7 +59,7 @@ public abstract class Engine implements ITypeRequestor {
 	 */
 	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 		CompilationResult result =
-			new CompilationResult(sourceTypes[0].getFileName(), 1, 1);
+			new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration unit =
 			SourceTypeConverter.buildCompilationUnit(
 				sourceTypes,

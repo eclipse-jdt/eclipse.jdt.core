@@ -182,7 +182,7 @@ public class MatchLocator implements ITypeRequestor {
 			}
 		} else {
 			CompilationResult result =
-				new CompilationResult(sourceType.getFileName(), 0, 0);
+				new CompilationResult(sourceType.getFileName(), 0, 0, 0);
 			CompilationUnitDeclaration unit =
 				SourceTypeConverter.buildCompilationUnit(
 					sourceTypes,
@@ -1209,7 +1209,7 @@ private void addMatchingOpenable(IResource resource, Openable openable)
 		};
 		
 		// diet parse
-		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);  
+		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);  
 		return this.parser.dietParse(sourceUnit, compilationResult);
 	}
 	

@@ -44,6 +44,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_ReportAssertIdentifier = "org.eclipse.jdt.core.compiler.problem.assertIdentifier"; //$NON-NLS-1$
 	public static final String OPTION_Compliance = "org.eclipse.jdt.core.compiler.compliance"; //$NON-NLS-1$
 	public static final String OPTION_Encoding = "org.eclipse.jdt.core.encoding"; //$NON-NLS-1$
+	public static final String OPTION_MaxProblemPerUnit = "org.eclipse.jdt.core.compiler.maxProblemPerUnit"; //$NON-NLS-1$
 
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
@@ -129,6 +130,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	// exception raised for unresolved compile errors
 	public String runtimeExceptionNameForCompileError = "java.lang.Error"; //$NON-NLS-1$
 
+	// max problems per compilation unit
+	public int maxProblemsPerUnit = 100; // no more than 100 problems per default
+	
 	/** 
 	 * Initializing the compiler options with defaults
 	 */
@@ -400,6 +404,15 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 					} catch(UnsupportedEncodingException e){
 					}
 				}
+				continue;
+			}
+			// Set the threshold for problems per unit
+			if(optionID.equals(OPTION_MaxProblemPerUnit)){
+				try {
+					int val = Integer.parseInt(optionValue);
+					if (val >= 0) this.maxProblemsPerUnit = val;
+				} catch(NumberFormatException e){
+				}				
 				continue;
 			}
 		}

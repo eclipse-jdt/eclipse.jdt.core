@@ -121,6 +121,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static final String COMPILER_PB_SYNTHETIC_ACCESS_EMULATION = PLUGIN_ID + ".compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
 	public static final String COMPILER_PB_NON_NLS_STRING_LITERAL = PLUGIN_ID + ".compiler.problem.nonExternalizedStringLiteral"; //$NON-NLS-1$
 	public static final String COMPILER_PB_ASSERT_IDENTIFIER = PLUGIN_ID + ".compiler.problem.assertIdentifier"; //$NON-NLS-1$
+	public static final String COMPILER_PB_MAX_PER_UNIT = PLUGIN_ID + ".compiler.maxProblemPerUnit"; //$NON-NLS-1$
 	public static final String COMPILER_SOURCE = PLUGIN_ID + ".compiler.source"; //$NON-NLS-1$
 	public static final String COMPILER_COMPLIANCE = PLUGIN_ID + ".compiler.compliance"; //$NON-NLS-1$
 
@@ -728,6 +729,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - possible values:	{ "1.3", "1.4" }
 	 *     - default:			"1.3"
 	 * 
+	 * COMPILER / Maximum number of problems reported per compilation unit
+	 *    Specify the maximum number of problems reported on each compilation unit.
+	 *     - option id:			"org.eclipse.jdt.core.compiler.maxProblemPerUnit"
+	 *     - possible values:	"<n>" where <n> is zero or a positive integer (if zero then all problems are reported).
+	 *     - default:			"100"
+	 * 
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.
 	 *   Note: no trimming of the names is performed, the list should thus not contain any superfluous
@@ -1096,46 +1103,47 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		Preferences preferences = getPluginPreferences();
 	
 		// Compiler settings
-		preferences.setDefault("org.eclipse.jdt.core.compiler.debug.localVariable", "generate"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.debug.lineNumber", "generate"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.debug.sourceFile", "generate"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.codegen.unusedLocal", "preserve"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.codegen.targetPlatform", "1.1"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.problem.unreachableCode", "error"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.problem.invalidImport", "error"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod", "warning"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.problem.methodWithConstructorName", "warning"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.problem.deprecation", "warning"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock", "warning"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.problem.unusedLocal", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.problem.unusedParameter", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.problem.assertIdentifier", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.source", "1.3"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.compiler.compliance", "1.3"); //$NON-NLS-1$ //$NON-NLS-2$
-
+		preferences.setDefault(COMPILER_LOCAL_VARIABLE_ATTR, GENERATE);
+		preferences.setDefault(COMPILER_LINE_NUMBER_ATTR, GENERATE); 
+		preferences.setDefault(COMPILER_SOURCE_FILE_ATTR, GENERATE); 
+		preferences.setDefault(COMPILER_CODEGEN_UNUSED_LOCAL, PRESERVE); 
+		preferences.setDefault(COMPILER_CODEGEN_TARGET_PLATFORM, VERSION_1_1); 
+		preferences.setDefault(COMPILER_PB_UNREACHABLE_CODE, ERROR); 
+		preferences.setDefault(COMPILER_PB_INVALID_IMPORT, ERROR); 
+		preferences.setDefault(COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD, WARNING); 
+		preferences.setDefault(COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME, WARNING); 
+		preferences.setDefault(COMPILER_PB_DEPRECATION, WARNING);
+		preferences.setDefault(COMPILER_PB_HIDDEN_CATCH_BLOCK, WARNING); 
+		preferences.setDefault(COMPILER_PB_UNUSED_LOCAL, IGNORE); 
+		preferences.setDefault(COMPILER_PB_UNUSED_PARAMETER, IGNORE); 
+		preferences.setDefault(COMPILER_PB_SYNTHETIC_ACCESS_EMULATION, IGNORE); 
+		preferences.setDefault(COMPILER_PB_NON_NLS_STRING_LITERAL, IGNORE); 
+		preferences.setDefault(COMPILER_PB_ASSERT_IDENTIFIER, IGNORE); 
+		preferences.setDefault(COMPILER_SOURCE, VERSION_1_3);
+		preferences.setDefault(COMPILER_COMPLIANCE, VERSION_1_3); 
+		preferences.setDefault(COMPILER_PB_MAX_PER_UNIT, "100"); //$NON-NLS-1$
+		
 		// Builder settings
-		preferences.setDefault("org.eclipse.jdt.core.builder.resourceCopyExclusionFilter", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.builder.invalidClasspath", "ignore");  //$NON-NLS-1$ //$NON-NLS-2$
+		preferences.setDefault(CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, ""); //$NON-NLS-1$
+		preferences.setDefault(CORE_JAVA_BUILD_INVALID_CLASSPATH, ABORT); 
 		
 		// JavaCore settings
-		preferences.setDefault("org.eclipse.jdt.core.computeJavaBuildOrder", "ignore"); //$NON-NLS-1$ //$NON-NLS-2$
+		preferences.setDefault(CORE_JAVA_BUILD_ORDER, IGNORE); //$NON-NLS-1$
 	
 		// Formatter settings
-		preferences.setDefault("org.eclipse.jdt.core.formatter.newline.openingBrace", "do not insert"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.formatter.newline.controlStatement", "do not insert"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.formatter.newline.clearAll", "preserve one"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.formatter.newline.elseIf", "do not insert"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.formatter.newline.emptyBlock", "insert"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.formatter.lineSplit", "80"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.formatter.style.assignment", "normal"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.formatter.tabulation.char", "tab"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.formatter.tabulation.size", "4"); //$NON-NLS-1$ //$NON-NLS-2$
+		preferences.setDefault(FORMATTER_NEWLINE_OPENING_BRACE, DO_NOT_INSERT); 
+		preferences.setDefault(FORMATTER_NEWLINE_CONTROL, DO_NOT_INSERT);
+		preferences.setDefault(FORMATTER_CLEAR_BLANK_LINES, PRESERVE_ONE); 
+		preferences.setDefault(FORMATTER_NEWLINE_ELSE_IF, DO_NOT_INSERT);
+		preferences.setDefault(FORMATTER_NEWLINE_EMPTY_BLOCK, INSERT); 
+		preferences.setDefault(FORMATTER_LINE_SPLIT, "80"); //$NON-NLS-1$
+		preferences.setDefault(FORMATTER_COMPACT_ASSIGNMENT, NORMAL); 
+		preferences.setDefault(FORMATTER_TAB_CHAR, TAB); 
+		preferences.setDefault(FORMATTER_TAB_SIZE, "4"); //$NON-NLS-1$ 
 		
 		// CodeAssist settings
-		preferences.setDefault("org.eclipse.jdt.core.codeComplete.visibilityCheck", "disabled"); //$NON-NLS-1$ //$NON-NLS-2$
-		preferences.setDefault("org.eclipse.jdt.core.codeComplete.forceImplicitQualification", "disabled"); //$NON-NLS-1$ //$NON-NLS-2$
+		preferences.setDefault(CODEASSIST_VISIBILITY_CHECK, DISABLED); //$NON-NLS-1$
+		preferences.setDefault(CODEASSIST_IMPLICIT_QUALIFICATION, DISABLED); //$NON-NLS-1$
 	}
 	
 	/**

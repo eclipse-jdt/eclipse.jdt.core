@@ -28,8 +28,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public CompilerOptions options;
 	public ProblemReporter problemReporter;
 
-	public static int MaxProblemPerUnit = 100;
-	
 	// management of unit to be processed
 	//public CompilationUnitResult currentCompilationUnitResult;
 	CompilationUnitDeclaration[] unitsToProcess;
@@ -203,7 +201,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public void accept(ICompilationUnit sourceUnit) {
 		// Switch the current policy and compilation result for this unit to the requested one.
 		CompilationResult unitResult =
-			new CompilationResult(sourceUnit, totalUnits, totalUnits);
+			new CompilationResult(sourceUnit, totalUnits, totalUnits, this.options.maxProblemsPerUnit);
 		try {
 			// diet parsing for large collection of unit
 			CompilationUnitDeclaration parsedUnit;
@@ -281,7 +279,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		for (int i = 0; i < maxUnits; i++) {
 			CompilationUnitDeclaration parsedUnit;
 			CompilationResult unitResult =
-				new CompilationResult(sourceUnits[i], i, maxUnits);
+				new CompilationResult(sourceUnits[i], i, maxUnits, this.options.maxProblemsPerUnit);
 			try {
 				// diet parsing for large collection of units
 				if (totalUnits < parseThreshold) {

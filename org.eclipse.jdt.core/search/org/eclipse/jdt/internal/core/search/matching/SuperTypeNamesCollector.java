@@ -183,7 +183,7 @@ private CompilationUnitDeclaration buildBindings(ICompilationUnit compilationUni
 		};
 	
 	// diet parse
-	CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0);
+	CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);
 	CompilationUnitDeclaration unit = this.locator.parser.dietParse(sourceUnit, compilationResult);
 	if (unit != null) {
 		this.locator.lookupEnvironment.buildTypeBindings(unit);
@@ -435,7 +435,7 @@ public void accept(org.eclipse.jdt.internal.compiler.env.ICompilationUnit source
  * @see ITypeRequestor#accept(ISourceType[], PackageBinding)
  */
 public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
-	CompilationResult result = new CompilationResult(sourceTypes[0].getFileName(), 1, 1);
+	CompilationResult result = new CompilationResult(sourceTypes[0].getFileName(), 1, 1, 0);
 	CompilationUnitDeclaration unit =
 		SourceTypeConverter.buildCompilationUnit(sourceTypes, false, true, this.locator.lookupEnvironment.problemReporter, result);
 
