@@ -574,7 +574,6 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		matchLocator = 
 			new MatchLocator(
 				pattern, 
-				detailLevel, 
 				resultCollector, 
 				scope,
 				progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 95)
@@ -872,7 +871,6 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
 		}
 		MatchLocator locator = new MatchLocator(
 			pattern,
-			IInfoConstants.DeclarationInfo,
 			resultCollector,
 			scope,
 			resultCollector.getProgressMonitor());
@@ -930,7 +928,6 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
 		}
 		MatchLocator locator = new MatchLocator(
 			pattern,
-			IInfoConstants.DeclarationInfo,
 			resultCollector,
 			scope,
 			resultCollector.getProgressMonitor());
@@ -991,7 +988,6 @@ public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement 
 		}
 		MatchLocator locator = new MatchLocator(
 			pattern,
-			IInfoConstants.DeclarationInfo,
 			resultCollector,
 			scope,
 			resultCollector.getProgressMonitor());
