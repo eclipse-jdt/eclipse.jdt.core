@@ -17,6 +17,11 @@
 		<copy todir="${work}">
 		    <fileset dir="batch/" excludes='**/*.html' />
 		</copy>
+		
+		<copy todir="${work}">
+		    <fileset dir="../GcjHelper/" includes='**/*.java' />
+		</copy>
+		
 		<copy todir="${work}">
 		    <fileset dir="compiler/" excludes='**/*.html' />
 		</copy>
