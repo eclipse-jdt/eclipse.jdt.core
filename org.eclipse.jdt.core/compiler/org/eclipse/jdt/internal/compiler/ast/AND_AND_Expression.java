@@ -19,45 +19,34 @@ public AND_AND_Expression(Expression left, Expression right,int operator) {
 	super(left,right,operator);
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	if (left.constant != NotAConstant) {
-		if (left.constant.booleanValue()) { //true && anything
-			// in this case only, we are sure that local inits performed in 
-			// the argument <anything> will be executed even though it was 
-			// a conditional operation
-			FlowInfo mergedInfo = right.analyseCode(currentScope, flowContext, flowInfo);
-			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
-			return mergedInfo;
-		} else { //false && anything
-			// in this case only, we are sure that local inits performed in 
-			// the argument <anything> will *not* be executed even though it 
-			// was a conditional operation
-			return flowInfo;
-		}
-	}
-	if (right.constant != NotAConstant) {
-		if (right.constant.booleanValue()) { // anything && true
-			// in this case only, we are sure that local inits performed in 
-			// the argument <anything> will be executed even though it was 
-			// a conditional operation
+
+	Constant inlinedValue;
+	if ((inlinedValue = left.constant) == NotAConstant) inlinedValue = left.conditionalConstant();
+	if (inlinedValue != NotAConstant){
+		if (inlinedValue.booleanValue() == false){ 
+			// FALSE && anything
 			FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo);
 			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
+			right.analyseCode(currentScope, flowContext, mergedInfo.copy().markAsFakeReachable(true));
 			return mergedInfo;
-		} else { // anything && false
-			// whatever is on the left, we will fail, so the result must merge the left inits when answering
-			// initsWhenFalse.
-			// the initsWhenTrue are undetermined, since this path will be fake reachable...
-			FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
-			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
-			return mergedInfo;			
-		}
+		} 
+	} else {
+		if ((inlinedValue = right.constant) == NotAConstant) inlinedValue = right.conditionalConstant();
 	}
-
-	FlowInfo leftInfo, rightInfo;
-	leftInfo = left.analyseCode(currentScope, flowContext, flowInfo);
-	rightInfo = leftInfo.initsWhenTrue().copy();
+	if (inlinedValue != NotAConstant){
+		// TRUE && anything, anything && TRUE, anything && FALSE
+		FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo);
+		mergedInfo = right.analyseCode(currentScope, flowContext, mergedInfo);
+		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
+		return mergedInfo;
+	}
+	FlowInfo leftInfo = left.analyseCode(currentScope, flowContext, flowInfo);
+	FlowInfo rightInfo = leftInfo.initsWhenTrue().copy();
 	rightInitStateIndex = currentScope.methodScope().recordInitializationStates(rightInfo);
 	rightInfo = right.analyseCode(currentScope, flowContext, rightInfo);
-	FlowInfo mergedInfo = FlowInfo.conditional(rightInfo.initsWhenTrue(), leftInfo.initsWhenFalse().unconditionalInits().mergedWith(rightInfo.initsWhenFalse().copy().unconditionalInits()));
+	FlowInfo mergedInfo = FlowInfo.conditional(
+													rightInfo.initsWhenTrue(), 
+													leftInfo.initsWhenFalse().unconditionalInits().mergedWith(rightInfo.initsWhenFalse().copy().unconditionalInits()));
 	mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 	return mergedInfo;
 }

@@ -19,46 +19,27 @@ public OR_OR_Expression(Expression left, Expression right,int operator) {
 	super(left,right,operator);
 }
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-
-	if (left.constant != NotAConstant) {
-		if (!left.constant.booleanValue()) { // false || anything
-			// in this case only, we are sure that local inits performed in 
-			// the argument <anything> will be executed even though it was 
-			// a conditional operation
-			return right.analyseCode(currentScope, flowContext, flowInfo);
-		} else { // true || anything
-			// in this case only, we are sure that local inits performed in 
-			// the argument <anything> will *not* be executed even though it 
-			// was a conditional operation
-			return flowInfo;
-		}
-	}
-	if (right.constant != NotAConstant) {
-		if (right.constant.booleanValue()) { // anything || true
-			// whatever is on the left, we will succeed, so the result must merge the left inits when answering
-			// initsWhenTrue.
-			// the initsWhenFalse are undetermined, since this path will be fake reachable...
-			FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
-			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
-			return mergedInfo;			
-		} else { // anything || false
-			// ignore the right part
+	
+	Constant inlinedValue;
+	if ((inlinedValue = left.constant) == NotAConstant) inlinedValue = left.conditionalConstant();
+	if (inlinedValue != NotAConstant){
+		if (inlinedValue.booleanValue() == true){ 
+			// TRUE || anything
 			FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo);
 			mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
-			return mergedInfo;			
-		}
+			right.analyseCode(currentScope, flowContext, mergedInfo.copy().markAsFakeReachable(true));
+			return mergedInfo;
+		} 
+	} else {
+		if ((inlinedValue = right.constant) == NotAConstant) inlinedValue = right.conditionalConstant();
 	}
-	
-	if (right.constant != NotAConstant) {
-		// anything && true/false
-		// in this case only, we are sure that local inits performed in 
-		// the argument <anything> will be executed even though it was 
-		// a conditional operation
+	if (inlinedValue != NotAConstant){
+		// FALSE || anything, anything || TRUE, anything || FALSE
 		FlowInfo mergedInfo = left.analyseCode(currentScope, flowContext, flowInfo);
+		mergedInfo = right.analyseCode(currentScope, flowContext, mergedInfo);
 		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
 	}
-
 	FlowInfo leftInfo, rightInfo;	leftInfo = left.analyseCode(currentScope, flowContext, flowInfo);
 	rightInfo = leftInfo.initsWhenFalse().copy();
 	rightInitStateIndex = currentScope.methodScope().recordInitializationStates(rightInfo);

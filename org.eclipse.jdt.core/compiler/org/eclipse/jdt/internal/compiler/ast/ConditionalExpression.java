@@ -45,7 +45,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	// notice that the receiver investigation is not performed in the previous case, since there is
 	// not a chance it is worth trying to check anything on a constant expression.
-
 	flowInfo = condition.analyseCode(currentScope, flowContext, flowInfo);
 
 	// store a copy of the merged info, so as to compute the local variable attributes afterwards
