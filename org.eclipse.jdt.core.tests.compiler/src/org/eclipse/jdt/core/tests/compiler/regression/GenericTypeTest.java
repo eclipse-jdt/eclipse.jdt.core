@@ -5753,7 +5753,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	             ^^^^^\n" + 
 			"The serializable class Alpha does not declare a static final serialVersionUID field of type long\n" + 
 			"----------\n" + 
-			"2. ERROR in Alpha.java (at line 4)\n" + 
+			"2. ERROR in Alpha.java (at line 1)\n" + 
+			"	public class Alpha<T> extends RuntimeException {\n" + 
+			"	                              ^^^^^^^^^^^^^^^^\n" + 
+			"The generic class Alpha<T> may not subclass java.lang.Throwable\n" + 
+			"----------\n" + 
+			"3. ERROR in Alpha.java (at line 4)\n" + 
 			"	public void m() throws Alpha<String> {\n" + 
 			"	                       ^^^^^\n" + 
 			"Cannot use the parameterized type Alpha<String> either in catch block or throws clause\n" + 
@@ -5784,12 +5789,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	             ^\n" + 
 			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
+			"	public class X<T> extends RuntimeException {\n" + 
+			"	                          ^^^^^^^^^^^^^^^^\n" + 
+			"The generic class X<T> may not subclass java.lang.Throwable\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
 			"	} catch(X<String> e) {\n" + 
 			"	                  ^\n" + 
 			"Cannot use the parameterized type X<String> either in catch block or throws clause\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 7)\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
 			"	} catch(X<X<String>> e) {\n" + 
 			"	                     ^\n" + 
 			"Cannot use the parameterized type X<X<String>> either in catch block or throws clause\n" + 
@@ -6914,12 +6924,12 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"X.java",
 				"import java.util.*;\n" + 
 				"public class X<T> extends Vector<? super X<int[]>>{}\n"			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	public class X<T> extends Vector<? super X<int[]>>{}\n" + 
-		"	                          ^^^^^^\n" + 
-		"The type X cannot extend or implement Vector<? super X<int[]>>. A parameterized supertype may not use any wildcard\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public class X<T> extends Vector<? super X<int[]>>{}\n" + 
+			"	                          ^^^^^^\n" + 
+			"The type X cannot extend or implement Vector<? super X<int[]>>. A supertype may not specify any wildcard\n" + 
+			"----------\n");
 	}			
 	// 70247 variation
 	public void test249() {
@@ -6933,7 +6943,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	public class X<T> implements List<? super X<int[]>>{}\n" + 
 			"	                             ^^^^\n" + 
-			"The type X cannot extend or implement List<? super X<int[]>>. A parameterized supertype may not use any wildcard\n" + 
+			"The type X cannot extend or implement List<? super X<int[]>>. A supertype may not specify any wildcard\n" + 
 			"----------\n");
 	}			
 	// 70295 Class<? extends Object> is compatible with Class<?>
@@ -7056,5 +7066,25 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n"
 			},
 			"SUCCESS!");		
+	}
+	// 69351 generic type cannot extend Throwable
+	public void test255() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T, U> extends Throwable {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	public class X<T, U> extends Throwable {\n" + 
+			"	             ^\n" + 
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
+			"	public class X<T, U> extends Throwable {\n" + 
+			"	                             ^^^^^^^^^\n" + 
+			"The generic class X<T,U> may not subclass java.lang.Throwable\n" + 
+			"----------\n");		
 	}			
 }
