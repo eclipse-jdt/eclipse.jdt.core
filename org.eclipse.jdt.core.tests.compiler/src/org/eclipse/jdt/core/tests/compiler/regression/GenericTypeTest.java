@@ -5618,4 +5618,37 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"The parameterized constructor <String>X(String) of type X is not applicable for the arguments (X)\n" + 
 			"----------\n");
 	}			
+	// 62822 - TODO (kent) reenable when fixed
+	public void _test203() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		demo.AD ad;\n" +
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n", 			
+				"demo/AD.java",
+				"package demo;\n" +
+				"public interface AD extends LIST<ADXP> {}\n",
+				"demo/ADXP.java",
+				"package demo;\n" +
+				"public interface ADXP extends BIN {}\n",
+				"demo/ANY.java",
+				"package demo;\n" +
+				"public interface ANY {}\n",
+				"demo/BL.java",
+				"package demo;\n" +
+				"public interface BL extends ANY {}\n",
+				"demo/LIST.java",
+				"package demo;\n" +
+				"public interface LIST<T extends ANY> extends ANY {}\n",
+				"demo/BIN.java",
+				"package demo;\n" +
+				"public interface BIN extends LIST<BL> {}\n",
+			},
+			"SUCCESS");
+	}		
+	
 }
