@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.*;
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.zip.ZipFile;
 
@@ -1587,7 +1586,27 @@ public class JavaModelManager implements ISaveParticipant {
 			boolean wasVerbose = false;
 			try {
 				if (VERBOSE) {
-					System.out.println("CLOSING Element ("+ Thread.currentThread()+"): " + element.toStringWithAncestors());  //$NON-NLS-1$//$NON-NLS-2$
+					String elementType;
+					switch (element.getElementType()) {
+						case IJavaElement.JAVA_PROJECT:
+							elementType = "project"; //$NON-NLS-1$
+							break;
+						case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+							elementType = "root"; //$NON-NLS-1$
+							break;
+						case IJavaElement.PACKAGE_FRAGMENT:
+							elementType = "package"; //$NON-NLS-1$
+							break;
+						case IJavaElement.CLASS_FILE:
+							elementType = "class file"; //$NON-NLS-1$
+							break;
+						case IJavaElement.COMPILATION_UNIT:
+							elementType = "compilation unit"; //$NON-NLS-1$
+							break;
+						default:
+							elementType = "element"; //$NON-NLS-1$
+					}
+					System.out.println(Thread.currentThread() + " CLOSING "+ elementType + " " + element.toStringWithAncestors());  //$NON-NLS-1$//$NON-NLS-2$
 					wasVerbose = true;
 					VERBOSE = false;
 				}
@@ -1601,8 +1620,7 @@ public class JavaModelManager implements ISaveParticipant {
 				}
 				this.cache.removeInfo(element);
 				if (wasVerbose) {
-					System.out.println("-> Package cache size = " + this.cache.pkgSize()); //$NON-NLS-1$
-					System.out.println("-> Openable cache filling ratio = " + NumberFormat.getInstance().format(this.cache.openableFillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
+					System.out.println(this.cache.toStringFillingRation("-> ")); //$NON-NLS-1$
 				}
 			} finally {
 				JavaModelManager.VERBOSE = wasVerbose;

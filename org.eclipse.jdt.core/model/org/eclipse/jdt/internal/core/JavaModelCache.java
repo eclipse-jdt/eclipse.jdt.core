@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,8 +19,7 @@ import org.eclipse.jdt.core.IJavaElement;
  * The cache of java elements to their respective info.
  */
 public class JavaModelCache {
-	public static final int PKG_CACHE_SIZE = 500;
-	public static final int OPENABLE_CACHE_SIZE = 2000;
+	public static final int CACHE_RATIO = 20;
 	
 	/**
 	 * Active Java Model Info
@@ -27,14 +27,19 @@ public class JavaModelCache {
 	protected JavaModelInfo modelInfo;
 	
 	/**
-	 * Cache of open projects and package fragment roots.
+	 * Cache of open projects.
 	 */
-	protected Map projectAndRootCache;
+	protected OverflowingLRUCache projectCache;
+	
+	/**
+	 * Cache of open package fragment roots.
+	 */
+	protected OverflowingLRUCache rootCache;
 	
 	/**
 	 * Cache of open package fragments
 	 */
-	protected Map pkgCache;
+	protected OverflowingLRUCache pkgCache;
 
 	/**
 	 * Cache of open compilation unit and class files
@@ -47,19 +52,13 @@ public class JavaModelCache {
 	protected Map childrenCache;
 	
 public JavaModelCache() {
-	this.projectAndRootCache = new HashMap(50);
-	this.pkgCache = new HashMap(PKG_CACHE_SIZE);
-	this.openableCache = new ElementCache(OPENABLE_CACHE_SIZE);
-	this.childrenCache = new HashMap(OPENABLE_CACHE_SIZE*20); // average 20 chilren per openable
+	this.projectCache = new ElementCache(CACHE_RATIO); // average 38300 bytes per project -> maximum size : 38300*CACHE_RATIO bytes
+	this.rootCache = new ElementCache(CACHE_RATIO*10); // average 2590 bytes per root -> maximum size : 25900*CACHE_RATIO bytes
+	this.pkgCache = new ElementCache(CACHE_RATIO*100); // average 1782 bytes per pkg -> maximum size : 178200*CACHE_RATIO bytes
+	this.openableCache = new ElementCache(CACHE_RATIO*100); // average 6629 bytes per openable (includes children) -> maximum size : 662900*CACHE_RATIO bytes
+	this.childrenCache = new HashMap(CACHE_RATIO*10*20); // average 20 children per openable
 }
 
-public double openableFillingRatio() {
-	return this.openableCache.fillingRatio();
-}
-public int pkgSize() {
-	return this.pkgCache.size();
-}
-	
 /**
  *  Returns the info for the element.
  */
@@ -68,8 +67,9 @@ public Object getInfo(IJavaElement element) {
 		case IJavaElement.JAVA_MODEL:
 			return this.modelInfo;
 		case IJavaElement.JAVA_PROJECT:
+			return this.projectCache.get(element);
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-			return this.projectAndRootCache.get(element);
+			return this.rootCache.get(element);
 		case IJavaElement.PACKAGE_FRAGMENT:
 			return this.pkgCache.get(element);
 		case IJavaElement.COMPILATION_UNIT:
@@ -89,10 +89,11 @@ protected Object peekAtInfo(IJavaElement element) {
 		case IJavaElement.JAVA_MODEL:
 			return this.modelInfo;
 		case IJavaElement.JAVA_PROJECT:
+			return this.projectCache.peek(element);
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-			return this.projectAndRootCache.get(element);
+			return this.rootCache.peek(element);
 		case IJavaElement.PACKAGE_FRAGMENT:
-			return this.pkgCache.get(element);
+			return this.pkgCache.peek(element);
 		case IJavaElement.COMPILATION_UNIT:
 		case IJavaElement.CLASS_FILE:
 			return this.openableCache.peek(element);
@@ -110,8 +111,10 @@ protected void putInfo(IJavaElement element, Object info) {
 			this.modelInfo = (JavaModelInfo) info;
 			break;
 		case IJavaElement.JAVA_PROJECT:
+			this.projectCache.put(element, info);
+			break;
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-			this.projectAndRootCache.put(element, info);
+			this.rootCache.put(element, info);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT:
 			this.pkgCache.put(element, info);
@@ -133,8 +136,10 @@ protected void removeInfo(IJavaElement element) {
 			this.modelInfo = null;
 			break;
 		case IJavaElement.JAVA_PROJECT:
+			this.projectCache.remove(element);
+			break;
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-			this.projectAndRootCache.remove(element);
+			this.rootCache.remove(element);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT:
 			this.pkgCache.remove(element);
@@ -146,5 +151,25 @@ protected void removeInfo(IJavaElement element) {
 		default:
 			this.childrenCache.remove(element);
 	}
+}
+public String toStringFillingRation(String prefix) {
+	StringBuffer buffer = new StringBuffer();
+	buffer.append(prefix);
+	buffer.append("Project cache: "); //$NON-NLS-1$
+	buffer.append(NumberFormat.getInstance().format(this.projectCache.fillingRatio()));
+	buffer.append("%\n"); //$NON-NLS-1$
+	buffer.append(prefix);
+	buffer.append("Root cache: "); //$NON-NLS-1$
+	buffer.append(NumberFormat.getInstance().format(this.rootCache.fillingRatio()));
+	buffer.append("%\n"); //$NON-NLS-1$
+	buffer.append(prefix);
+	buffer.append("Package cache: "); //$NON-NLS-1$
+	buffer.append(NumberFormat.getInstance().format(this.pkgCache.fillingRatio()));
+	buffer.append("%\n"); //$NON-NLS-1$
+	buffer.append(prefix);
+	buffer.append("Openable cache: "); //$NON-NLS-1$
+	buffer.append(NumberFormat.getInstance().format(this.openableCache.fillingRatio()));
+	buffer.append("%\n"); //$NON-NLS-1$
+	return buffer.toString();
 }
 }

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -166,7 +165,27 @@ public boolean exists() {
 protected void generateInfos(Object info, HashMap newElements, IProgressMonitor monitor) throws JavaModelException {
 
 	if (JavaModelManager.VERBOSE){
-		System.out.println("OPENING Element ("+ Thread.currentThread()+"): " + this.toStringWithAncestors()); //$NON-NLS-1$//$NON-NLS-2$
+		String element;
+		switch (getElementType()) {
+			case JAVA_PROJECT:
+				element = "project"; //$NON-NLS-1$
+				break;
+			case PACKAGE_FRAGMENT_ROOT:
+				element = "root"; //$NON-NLS-1$
+				break;
+			case PACKAGE_FRAGMENT:
+				element = "package"; //$NON-NLS-1$
+				break;
+			case CLASS_FILE:
+				element = "class file"; //$NON-NLS-1$
+				break;
+			case COMPILATION_UNIT:
+				element = "compilation unit"; //$NON-NLS-1$
+				break;
+			default:
+				element = "element"; //$NON-NLS-1$
+		}
+		System.out.println(Thread.currentThread() +" OPENING " + element + " " + this.toStringWithAncestors()); //$NON-NLS-1$//$NON-NLS-2$
 	}
 	
 	// open the parent if necessary
@@ -191,8 +210,7 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 	JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
 
 	if (JavaModelManager.VERBOSE) {
-		System.out.println("-> Package cache size = " + JavaModelManager.getJavaModelManager().cache.pkgSize()); //$NON-NLS-1$
-		System.out.println("-> Openable cache filling ratio = " + NumberFormat.getInstance().format(JavaModelManager.getJavaModelManager().cache.openableFillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
+		System.out.println(JavaModelManager.getJavaModelManager().cache.toStringFillingRation("-> ")); //$NON-NLS-1$
 	}
 }
 /**
