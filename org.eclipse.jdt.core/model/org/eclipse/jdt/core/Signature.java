@@ -1392,6 +1392,57 @@ public static String[] getParameterTypes(String methodSignature) throws IllegalA
 }
 
 /**
+ * Extracts the thrown exception type signatures from the given method signature if any
+ * The method signature is expected to be dot-based.
+ *
+ * @param methodSignature the method signature
+ * @return the list of thrown exception type signatures
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ */
+public static String[] getThrownExceptionTypes(String methodSignature) throws IllegalArgumentException {
+	char[][] parameterTypes = getThrownExceptionTypes(methodSignature.toCharArray());
+	int length = parameterTypes.length;
+	String[] result = new String[length];
+	for (int i = 0; i < length; i++) {
+		result[i] = new String(parameterTypes[i]);
+	}
+	return result;
+}
+
+/**
+ * Extracts the thrown exception type signatures from the given method signature if any
+ * The method signature is expected to be dot-based.
+ *
+ * @param methodSignature the method signature
+ * @return the list of thrown exception type signatures
+ * @exception IllegalArgumentException if the signature is syntactically
+ *   incorrect
+ */
+public static char[][] getThrownExceptionTypes(char[] methodSignature) throws IllegalArgumentException {
+	// skip type parameters
+	int paren = CharOperation.lastIndexOf(C_PARAM_END, methodSignature);
+	if (paren == -1) {
+		throw new IllegalArgumentException();
+	}
+	// ignore return type
+	int exceptionStart = scanTypeSignature(methodSignature, paren+1) + 1;
+	int length = methodSignature.length;
+	if (exceptionStart == length) return CharOperation.NO_CHAR_CHAR;
+	
+	ArrayList exceptionList = new ArrayList(1);
+	int i = exceptionStart;
+	while (i < length) {
+		i = scanTypeSignature(methodSignature, i) + 1;
+		exceptionList.add(CharOperation.subarray(methodSignature, exceptionStart,i));	
+		exceptionStart = i;
+	}
+	char[][] result;
+	exceptionList.toArray(result = new char[exceptionList.size()][]);
+	return result;
+}
+
+/**
  * Extracts the type parameter signatures from the given method or type signature. 
  * The method or type signature is expected to be dot-based.
  *
@@ -1422,13 +1473,12 @@ public static char[][] getTypeParameters(char[] methodOrTypeSignature) throws Il
 			if (i < 0 || i >= length) throw new IllegalArgumentException();
 			// iterate over bounds
 			nextBound: while (methodOrTypeSignature[i] == ':') {
-				if (++i >= length) throw new IllegalArgumentException();
+				i++; // skip colon
 				if (methodOrTypeSignature[i] == ':') {
 					continue nextBound; // empty bound
 				}
 				i = scanTypeSignature(methodOrTypeSignature, i);
-				if (i < 0 || i >= length) throw new IllegalArgumentException();
-				i++;
+				i++; // position at start of next param if any
 			}
 			paramList.add(CharOperation.subarray(methodOrTypeSignature, paramStart, i));
 			paramStart = i; // next param start from here
@@ -1622,14 +1672,13 @@ public static String getQualifier(String name) {
  */
 public static char[] getReturnType(char[] methodSignature) throws IllegalArgumentException {
 	// skip type parameters
-	int i = CharOperation.lastIndexOf(C_PARAM_END, methodSignature);
-	if (i == -1) {
+	int paren = CharOperation.lastIndexOf(C_PARAM_END, methodSignature);
+	if (paren == -1) {
 		throw new IllegalArgumentException();
 	}
-	// ignore any thrown exceptions
-	int j = CharOperation.indexOf('^', methodSignature);
-	int last = (j == -1 ? methodSignature.length : j);
-	return CharOperation.subarray(methodSignature, i + 1, last);
+	// there could be thrown exceptions behind, thus scan one type exactly
+	int last = scanTypeSignature(methodSignature, paren+1);
+	return CharOperation.subarray(methodSignature, paren + 1, last+1);
 }
 /**
  * Extracts the return type from the given method signature. The method signature is 
