@@ -138,6 +138,7 @@ STREAM: 2.0
 
   PRs Fixed in this Release
   ================================================================================
+  5065      NullPointerException in Code Assist  
   4921      Serach does not find types in internal jar  
   4917      Latest build fails updating TypeHierarchy  
   3296  	CodeAssist - should filter out duplicates if any (1GEWDL7)

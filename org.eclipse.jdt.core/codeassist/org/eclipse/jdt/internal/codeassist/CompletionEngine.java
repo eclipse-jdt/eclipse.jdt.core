@@ -1387,7 +1387,7 @@ public final class CompletionEngine
 			}
 
 			MethodBinding[] existingMethods = receiverType.methods();
-			for(int i =0 ; i < existingMethods.length ; i++){
+			for(int i =0, length = existingMethods == null ? 0 : existingMethods.length; i < length ; i++){
 				MethodBinding existingMethod = existingMethods[i];
 				if (CharOperation.equals(method.selector, existingMethod.selector, true)
 					&& method.areParametersEqual(existingMethod)){
