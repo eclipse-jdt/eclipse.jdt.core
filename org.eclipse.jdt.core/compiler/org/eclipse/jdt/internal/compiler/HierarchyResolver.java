@@ -120,16 +120,10 @@ public HierarchyResolver(INameEnvironment nameEnvironment, Map settings, IHierar
 
 public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
 	BinaryTypeBinding typeBinding = lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
-	
-	// fault in its hierarchy...
 	try {
-		typeBinding.superclass();
-		typeBinding.superInterfaces();
+		this.remember(binaryType, typeBinding);
 	} catch (AbortCompilation e) {
-		return;
 	}
-	
-	remember(binaryType, typeBinding);
 }
 /**
  * Add an additional compilation unit.
@@ -245,6 +239,13 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 }
 private void remember(IGenericType suppliedType, ReferenceBinding typeBinding) {
 	if (typeBinding == null) return;
+	
+	if (suppliedType.isBinaryType()) {
+		// fault in its hierarchy...
+		// NB: AbortCompilation is handled by caller
+		typeBinding.superclass();
+		typeBinding.superInterfaces();
+	}
 	
 	if (++typeIndex == typeModels.length) {
 		System.arraycopy(typeModels, 0, typeModels = new IGenericType[typeIndex * 2], 0, typeIndex);
