@@ -106,8 +106,20 @@ protected void cleanOutputFolders() throws CoreException {
 				if (!visited.contains(outputFolder)) {
 					visited.add(outputFolder);
 					IResource[] members = outputFolder.members(); 
-					for (int j = 0, m = members.length; j < m; j++)
-						members[j].delete(IResource.FORCE, null);
+					for (int j = 0, m = members.length; j < m; j++) {
+						IResource member = members[j];
+						if (!member.isDerived()) {
+							member.accept(
+								new IResourceVisitor() {
+									public boolean visit(IResource resource) throws CoreException {
+										resource.setDerived(true);
+										return resource.getType() != IResource.FILE;
+									}
+								}
+							);
+						}
+						member.delete(IResource.FORCE, null);
+					}
 				}
 				notifier.checkCancel();
 				copyExtraResourcesBack(sourceLocation, true);
