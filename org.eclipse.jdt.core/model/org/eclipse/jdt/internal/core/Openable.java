@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -427,10 +428,11 @@ protected boolean parentExists(){
  * Returns whether the corresponding resource or associated file exists
  */
 protected boolean resourceExists() {
-	
+	IWorkspace workspace = ResourcesPlugin.getWorkspace();
+	if (workspace == null) return false; // workaround for http://bugs.eclipse.org/bugs/show_bug.cgi?id=34069
 	return 
 		JavaModel.getTarget(
-			ResourcesPlugin.getWorkspace().getRoot(), 
+			workspace.getRoot(), 
 			this.getPath().makeRelative(), // ensure path is relative (see http://dev.eclipse.org/bugs/show_bug.cgi?id=22517)
 			true) != null;
 }
