@@ -2795,10 +2795,18 @@ protected void consumeEnumBodyWithConstants() {
 	concatNodeLists();
 }
 protected void consumeEnumConstantHeaderName() {
-   long pos = this.identifierPositionStack[this.identifierPtr];
+	if (this.currentElement != null) {
+		if (!(this.currentElement instanceof RecoveredType)
+				|| (this.lastIgnoredToken == TokenNameDOT)) {
+			this.lastCheckPoint = this.scanner.startPosition;
+			this.restartRecovery = true;
+			return;
+		}
+	}
+   long namePosition = this.identifierPositionStack[this.identifierPtr];
    char[] constantName = this.identifierStack[this.identifierPtr--];
-   final int sourceEnd = (int) pos;
-   FieldDeclaration enumConstant = new FieldDeclaration(constantName, (int) (pos >>> 32), sourceEnd);
+   final int sourceEnd = (int) namePosition;
+   FieldDeclaration enumConstant = createFieldDeclaration(constantName, (int) (namePosition >>> 32), sourceEnd);
    this.identifierLengthPtr--;
    enumConstant.modifiersSourceStart = this.intStack[this.intPtr--];
    enumConstant.modifiers = this.intStack[this.intPtr--];
@@ -2814,6 +2822,16 @@ protected void consumeEnumConstantHeaderName() {
          length); 
    }
    pushOnAstStack(enumConstant);
+	if (this.currentElement != null){
+		if (!(this.currentElement instanceof RecoveredType)
+			&& (this.currentToken == TokenNameDOT)){
+			this.lastCheckPoint = (int) (namePosition >>> 32);
+			this.restartRecovery = true;
+			return;
+		}
+		this.lastCheckPoint = enumConstant.sourceEnd + 1;
+		this.currentElement = this.currentElement.add(enumConstant, 0);		
+	}
 }
 protected void consumeEnumConstantHeader() {
    FieldDeclaration enumConstant = (FieldDeclaration) this.astStack[this.astPtr];
@@ -2828,14 +2846,9 @@ protected void consumeEnumConstantHeader() {
       anonymousType.sourceStart = start;
       anonymousType.sourceEnd = start; // closing parenthesis
       anonymousType.modifiers = 0;
+      anonymousType.bodyStart = this.scanner.currentPosition;
       markEnclosingMemberWithLocalType();
       pushOnAstStack(anonymousType);
-      this.lastCheckPoint = anonymousType.bodyStart = this.scanner.currentPosition;
-      if (this.currentElement != null) {
-         this.currentElement = this.currentElement.add(anonymousType, 0);
-         this.lastIgnoredToken = -1;
-         this.currentToken = 0; // opening brace already taken into account
-      }
       QualifiedAllocationExpression allocationExpression = new QualifiedAllocationExpression(anonymousType);
       allocationExpression.enumConstant = enumConstant;
       
@@ -2851,6 +2864,13 @@ protected void consumeEnumConstantHeader() {
                length); 
       }
       enumConstant.initialization = allocationExpression;
+      if (this.currentElement != null) {
+         this.currentElement = this.currentElement.add(anonymousType, 0);
+       	this.lastCheckPoint = anonymousType.bodyStart;
+        this.lastIgnoredToken = -1;
+         this.currentToken = 0; // opening brace already taken into account
+         return;
+      }
    } else {
       AllocationExpression allocationExpression = new AllocationExpression();
       allocationExpression.enumConstant = enumConstant;
@@ -2879,9 +2899,7 @@ protected void consumeEnumConstantHeader() {
          this.restartRecovery = true;
          return;
       }
-      this.lastCheckPoint = enumConstant.declarationEnd + 1;
-      this.currentElement = this.currentElement.add(enumConstant, 0);
-//      this.currentElement.foundOpeningBrace = foundOpeningBrace;
+	  this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position
       this.lastIgnoredToken = -1;
       this.restartRecovery = true;
    }
@@ -8938,6 +8956,11 @@ public void recoveryTokenCheck() {
 				this.lastCheckPoint = this.scanner.currentPosition;
 			if (newElement != this.currentElement){
 				this.currentElement = newElement;
+//				if (newElement instanceof RecoveredField && this.dietInt <= 0) {
+//					if (((RecoveredField)newElement).fieldDeclaration.type == null) { // enum constant
+//						this.isInsideEnumConstantPart = true; // restore status
+//					}
+//				}
 			}
 			break;
 		case TokenNameSEMICOLON :
@@ -9104,7 +9127,9 @@ protected boolean resumeOnSyntaxError() {
 }
 public String toString() {
 
-	String s = "identifierStack : char["+(this.identifierPtr + 1)+"][] = {"; //$NON-NLS-1$ //$NON-NLS-2$
+
+	String s = "lastCheckpoint : int = " + String.valueOf(this.lastCheckPoint) + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
+	s = s + "identifierStack : char["+(this.identifierPtr + 1)+"][] = {"; //$NON-NLS-1$ //$NON-NLS-2$
 	for (int i = 0; i <= this.identifierPtr; i++) {
 		s = s + "\"" + String.valueOf(this.identifierStack[i]) + "\","; //$NON-NLS-1$ //$NON-NLS-2$
 	}
