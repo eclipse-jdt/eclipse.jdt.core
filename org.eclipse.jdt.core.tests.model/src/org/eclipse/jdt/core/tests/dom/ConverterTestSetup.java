@@ -144,7 +144,7 @@ abstract class ConverterTestSetup extends AbstractJavaModelTests {
 	}
 
 	protected ASTNode getASTNode(org.eclipse.jdt.core.dom.CompilationUnit unit, int typeIndex) {
-		return (ASTNode) (TypeDeclaration)unit.types().get(typeIndex);
+		return (ASTNode) unit.types().get(typeIndex);
 	}
 		
 	protected void checkSourceRange(ASTNode node, String expectedContents, char[] source) {
