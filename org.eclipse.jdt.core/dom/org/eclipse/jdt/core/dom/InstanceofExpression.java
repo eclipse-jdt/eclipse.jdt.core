@@ -168,7 +168,7 @@ public class InstanceofExpression extends Expression {
 	public Expression getLeftOperand() {
 		if (this.leftOperand  == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.leftOperand == null) {
 					preLazyInit();
 					this.leftOperand= new SimpleName(this.ast);
@@ -208,7 +208,7 @@ public class InstanceofExpression extends Expression {
 	public Type getRightOperand() {
 		if (this.rightOperand  == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.rightOperand == null) {
 					preLazyInit();
 					this.rightOperand= new SimpleType(this.ast);

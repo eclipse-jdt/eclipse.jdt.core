@@ -149,7 +149,7 @@ public class ArrayType extends Type {
 	public Type getComponentType() {
 		if (this.componentType == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.componentType == null) {
 					preLazyInit();
 					this.componentType = new SimpleType(this.ast);

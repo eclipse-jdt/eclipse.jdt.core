@@ -172,7 +172,7 @@ public class CatchClause extends ASTNode {
 	public SingleVariableDeclaration getException() {
 		if (this.exceptionDecl == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.exceptionDecl == null) {
 					preLazyInit();
 					this.exceptionDecl = new SingleVariableDeclaration(this.ast);
@@ -212,7 +212,7 @@ public class CatchClause extends ASTNode {
 	public Block getBody() {
 		if (this.body == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.body == null) {
 					preLazyInit();
 					this.body = new Block(this.ast);

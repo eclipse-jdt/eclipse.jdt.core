@@ -170,7 +170,7 @@ public class CastExpression extends Expression {
 	public Type getType() {
 		if (this.type == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
 					this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
@@ -209,7 +209,7 @@ public class CastExpression extends Expression {
 	public Expression getExpression() {
 		if (this.expression == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
 					this.expression = new SimpleName(this.ast);

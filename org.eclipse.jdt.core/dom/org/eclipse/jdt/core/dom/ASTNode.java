@@ -2110,9 +2110,16 @@ public abstract class ASTNode {
      * Here is the code pattern found in all AST
      * node subclasses:
      * <pre>
-     * preLazyInit();
-     * this.foo = ...; // code to create new node
-     * postLazyInit(this.foo, FOO_PROPERTY);
+     * if (this.foo == null) {
+	 *    // lazy init must be thread-safe for readers
+     *    synchronized (this) {
+     *       if (this.foo == null) {
+     *          preLazyInit();
+     *          this.foo = ...; // code to create new node
+     *          postLazyInit(this.foo, FOO_PROPERTY);
+     *       }
+     *    }
+     * }
      * </pre>
      * @since 3.0
      */

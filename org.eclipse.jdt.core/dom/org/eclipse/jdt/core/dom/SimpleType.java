@@ -150,7 +150,7 @@ public class SimpleType extends Type {
 	public Name getName() {
 		if (this.typeName == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.typeName == null) {
 					preLazyInit();
 					this.typeName = new SimpleName(this.ast);

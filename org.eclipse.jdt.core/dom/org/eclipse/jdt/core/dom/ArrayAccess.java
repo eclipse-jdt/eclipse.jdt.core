@@ -172,7 +172,7 @@ public class ArrayAccess extends Expression {
 	public Expression getArray() {
 		if (this.arrayExpression == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.arrayExpression == null) {
 					preLazyInit();
 					this.arrayExpression = new SimpleName(this.ast);
@@ -214,7 +214,7 @@ public class ArrayAccess extends Expression {
 	public Expression getIndex() {
 		if (this.indexExpression == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.indexExpression == null) {
 					preLazyInit();
 					this.indexExpression = new SimpleName(this.ast);

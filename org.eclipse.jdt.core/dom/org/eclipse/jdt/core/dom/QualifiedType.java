@@ -196,7 +196,7 @@ public class QualifiedType extends Type {
 	public Type getQualifier() {
 		if (this.qualifier == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.qualifier == null) {
 					preLazyInit();
 					this.qualifier = new SimpleType(this.ast);
@@ -235,7 +235,7 @@ public class QualifiedType extends Type {
 	public SimpleName getName() {
 		if (this.name == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.name == null) {
 					preLazyInit();
 					this.name = new SimpleName(this.ast);

@@ -154,7 +154,7 @@ public class SwitchCase extends Statement {
 	public Expression getExpression() {
 		if (!this.expressionInitialized) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (!this.expressionInitialized) {
 					preLazyInit();
 					this.optionalExpression = new SimpleName(this.ast);

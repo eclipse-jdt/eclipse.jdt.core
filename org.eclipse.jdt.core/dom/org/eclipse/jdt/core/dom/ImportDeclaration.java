@@ -242,7 +242,7 @@ public class ImportDeclaration extends ASTNode {
 	public Name getName()  {
 		if (this.importName == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.importName == null) {
 					preLazyInit();
 					this.importName =this.ast.newQualifiedName(

@@ -202,7 +202,7 @@ public class MemberRef extends ASTNode implements IDocElement {
 	public SimpleName getName() {
 		if (this.memberName == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.memberName == null) {
 					preLazyInit();
 					this.memberName = new SimpleName(this.ast);

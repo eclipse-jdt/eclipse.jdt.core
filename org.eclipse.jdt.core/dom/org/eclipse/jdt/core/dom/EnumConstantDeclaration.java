@@ -270,7 +270,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	public SimpleName getName() {
 		if (this.constantName == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.constantName == null) {
 					preLazyInit();
 					this.constantName = new SimpleName(this.ast);

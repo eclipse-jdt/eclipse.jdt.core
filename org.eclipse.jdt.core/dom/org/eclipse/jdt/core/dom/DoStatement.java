@@ -172,7 +172,7 @@ public class DoStatement extends Statement {
 	public Expression getExpression() {
 		if (this.expression == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
 					this.expression = new SimpleName(this.ast);
@@ -212,7 +212,7 @@ public class DoStatement extends Statement {
 	public Statement getBody() {
 		if (this.body == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.body == null) {
 					preLazyInit();
 					this.body = new Block(this.ast);

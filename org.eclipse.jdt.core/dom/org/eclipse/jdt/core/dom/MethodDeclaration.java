@@ -569,7 +569,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	public SimpleName getName() {
 		if (this.methodName == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.methodName == null) {
 					preLazyInit();
 					this.methodName = new SimpleName(this.ast);
@@ -675,7 +675,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	    supportedOnlyIn2();
 		if (this.returnType == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.returnType == null) {
 					preLazyInit();
 					this.returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
@@ -738,7 +738,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	    unsupportedIn2();
 		if (this.returnType == null && !this.returnType2Initialized) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.returnType == null && !this.returnType2Initialized) {
 					preLazyInit();
 					this.returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);

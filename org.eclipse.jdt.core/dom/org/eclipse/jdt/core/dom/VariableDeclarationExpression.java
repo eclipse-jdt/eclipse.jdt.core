@@ -359,7 +359,7 @@ public class VariableDeclarationExpression extends Expression {
 	public Type getType() {
 		if (this.baseType == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.baseType == null) {
 					preLazyInit();
 					this.baseType = this.ast.newPrimitiveType(PrimitiveType.INT);

@@ -408,7 +408,7 @@ public class ClassInstanceCreation extends Expression {
 	    supportedOnlyIn2();
 		if (this.typeName == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.typeName == null) {
 					preLazyInit();
 					this.typeName = new SimpleName(this.ast);
@@ -457,7 +457,7 @@ public class ClassInstanceCreation extends Expression {
 	    unsupportedIn2();
 		if (this.type == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
 					this.type = new SimpleType(this.ast);

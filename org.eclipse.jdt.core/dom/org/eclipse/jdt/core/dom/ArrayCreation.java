@@ -220,7 +220,7 @@ public class ArrayCreation extends Expression {
 	public ArrayType getType() {
 		if (this.arrayType == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.arrayType == null) {
 					preLazyInit();
 					this.arrayType = this.ast.newArrayType(

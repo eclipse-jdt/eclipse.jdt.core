@@ -179,7 +179,7 @@ public class MemberValuePair extends ASTNode {
 	public SimpleName getName() {
 		if (this.name == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.name == null) {
 					preLazyInit();
 					this.name = new SimpleName(this.ast);
@@ -218,7 +218,7 @@ public class MemberValuePair extends ASTNode {
 	public Expression getValue() {
 		if (this.value == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.value == null) {
 					preLazyInit();
 					this.value= new SimpleName(this.ast);

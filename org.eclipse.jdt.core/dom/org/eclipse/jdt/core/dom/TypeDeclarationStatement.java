@@ -198,7 +198,7 @@ public class TypeDeclarationStatement extends Statement {
 	public AbstractTypeDeclaration getDeclaration() {
 		if (this.typeDecl == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.typeDecl == null) {
 					preLazyInit();
 					this.typeDecl = new TypeDeclaration(this.ast);

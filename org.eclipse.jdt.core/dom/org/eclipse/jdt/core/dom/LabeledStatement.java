@@ -174,7 +174,7 @@ public class LabeledStatement extends Statement {
 	public SimpleName getLabel() {
 		if (this.labelName == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.labelName == null) {
 					preLazyInit();
 					this.labelName= new SimpleName(this.ast);
@@ -213,7 +213,7 @@ public class LabeledStatement extends Statement {
 	public Statement getBody() {
 		if (this.body == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.body == null) {
 					preLazyInit();
 					this.body= new EmptyStatement(this.ast);

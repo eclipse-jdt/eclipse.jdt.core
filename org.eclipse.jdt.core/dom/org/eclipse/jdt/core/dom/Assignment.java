@@ -343,7 +343,7 @@ public class Assignment extends Expression {
 	public Expression getLeftHandSide() {
 		if (this.leftHandSide  == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.leftHandSide == null) {
 					preLazyInit();
 					this.leftHandSide= new SimpleName(this.ast);
@@ -384,7 +384,7 @@ public class Assignment extends Expression {
 	public Expression getRightHandSide() {
 		if (this.rightHandSide  == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.rightHandSide == null) {
 					preLazyInit();
 					this.rightHandSide= new SimpleName(this.ast);

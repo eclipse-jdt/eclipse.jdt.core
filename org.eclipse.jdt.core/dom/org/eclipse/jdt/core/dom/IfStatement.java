@@ -198,7 +198,7 @@ public class IfStatement extends Statement {
 	public Expression getExpression() {
 		if (this.expression == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
 					this.expression = new SimpleName(this.ast);
@@ -238,7 +238,7 @@ public class IfStatement extends Statement {
 	public Statement getThenStatement() {
 		if (this.thenStatement == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.thenStatement == null) {
 					preLazyInit();
 					this.thenStatement = new Block(this.ast);

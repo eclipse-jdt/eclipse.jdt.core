@@ -145,7 +145,7 @@ public class TypeLiteral extends Expression {
 	public Type getType() {
 		if (this.type == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
 					this.type = this.ast.newPrimitiveType(PrimitiveType.INT);

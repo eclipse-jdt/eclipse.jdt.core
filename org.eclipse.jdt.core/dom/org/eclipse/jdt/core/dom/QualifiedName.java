@@ -178,7 +178,7 @@ public class QualifiedName extends Name {
 	public Name getQualifier() {
 		if (this.qualifier == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.qualifier == null) {
 					preLazyInit();
 					this.qualifier = new SimpleName(this.ast);
@@ -218,7 +218,7 @@ public class QualifiedName extends Name {
 	public SimpleName getName() {
 		if (this.name == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.name == null) {
 					preLazyInit();
 					this.name = new SimpleName(this.ast);

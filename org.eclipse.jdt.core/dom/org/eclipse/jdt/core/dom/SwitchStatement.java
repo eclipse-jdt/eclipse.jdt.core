@@ -184,7 +184,7 @@ public class SwitchStatement extends Statement {
 	public Expression getExpression() {
 		if (this.expression == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
 					this.expression = new SimpleName(this.ast);

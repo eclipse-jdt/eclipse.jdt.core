@@ -204,7 +204,7 @@ public class EnhancedForStatement extends Statement {
 	public SingleVariableDeclaration getParameter() {
 		if (this.parameter == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.parameter == null) {
 					preLazyInit();
 					this.parameter = this.ast.newSingleVariableDeclaration();
@@ -243,7 +243,7 @@ public class EnhancedForStatement extends Statement {
 	public Expression getExpression() {
 		if (this.expression == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
 					this.expression = new SimpleName(this.ast);
@@ -283,7 +283,7 @@ public class EnhancedForStatement extends Statement {
 	public Statement getBody() {
 		if (this.body == null) {
 			// lazy init must be thread-safe for readers
-			synchronized (this.ast) {
+			synchronized (this) {
 				if (this.body == null) {
 					preLazyInit();
 					this.body = new Block(this.ast);
