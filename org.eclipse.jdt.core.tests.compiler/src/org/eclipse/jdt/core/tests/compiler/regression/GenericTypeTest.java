@@ -11857,5 +11857,19 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"");
-	}			
+	}		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81757
+	public void test443() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Iterator;\n" + 
+				"public class X implements Iterator<String> {\n" + 
+				"    public boolean hasNext() { return false; }\n" + 
+				"    public String next() { return null; }\n" + 
+				"    public void remove() {}\n" + 
+				"}\n",
+			},
+			"");
+	}		
 }

@@ -1688,4 +1688,54 @@ public class EnumTest extends AbstractComparisonTest {
 			},
 			"SUCCESS");
 	}	
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=81589
+	 */
+	public void test060() {
+		this.runNegativeTest(
+			new String[] {
+				"com/flarion/test/a/MyEnum.java",
+				"package com.flarion.test.a;\n" + 
+				"public enum MyEnum {\n" + 
+				"\n" + 
+				"    First, Second;\n" + 
+				"    \n" + 
+				"}\n",
+				"com/flarion/test/b/MyClass.java",
+				"package com.flarion.test.b;\n" + 
+				"import com.flarion.test.a.MyEnum;\n" + 
+				"import static com.flarion.test.a.MyEnum.First;\n" +
+				"import static com.flarion.test.a.MyEnum.Second;\n" +
+				"public class MyClass {\n" + 
+				"\n" + 
+				"    public void myMethod() {\n" + 
+				"        MyEnum e = MyEnum.First;\n" + 
+				"        switch (e) {\n" + 
+				"        case First:\n" + 
+				"            break;\n" + 
+				"        case Second:\n" + 
+				"            break;\n" + 
+				"        }\n" + 
+				"        Zork z;\n" +
+				"    }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in com\\flarion\\test\\b\\MyClass.java (at line 3)\n" + 
+			"	import static com.flarion.test.a.MyEnum.First;\n" + 
+			"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The import com.flarion.test.a.MyEnum.First is never used\n" + 
+			"----------\n" + 
+			"2. WARNING in com\\flarion\\test\\b\\MyClass.java (at line 4)\n" + 
+			"	import static com.flarion.test.a.MyEnum.Second;\n" + 
+			"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The import com.flarion.test.a.MyEnum.Second is never used\n" + 
+			"----------\n" + 
+			"3. ERROR in com\\flarion\\test\\b\\MyClass.java (at line 15)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}		
 }
