@@ -450,7 +450,7 @@ boolean isCompatibleWith(TypeBinding right) {
 */
 
 public final boolean isDefault() {
-	return !isPublic() && !isProtected() && !isPrivate();
+	return (modifiers & (AccPublic | AccProtected | AccPrivate)) == 0;
 }
 /* Answer true if the receiver is a deprecated type
 */
@@ -498,9 +498,8 @@ public final boolean isPublic() {
  */
 
 public final boolean isStatic() {
-	return (modifiers & AccStatic) != 0 ||
-		    (tagBits & IsNestedType) == 0 ||
-		    (modifiers & AccInterface) != 0;
+	return (modifiers & (AccStatic | AccInterface)) != 0 ||
+		    (tagBits & IsNestedType) == 0;
 }
 /* Answer true if all float operations must adher to IEEE 754 float/double rules
 */
