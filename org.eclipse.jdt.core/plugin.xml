@@ -10,6 +10,7 @@
 <requires>
     <import plugin="org.eclipse.core.resources"/>
     <import plugin="org.apache.xerces"/>
+  <import plugin="org.eclipse.ant.core" /> 
 </requires>
 	
 <runtime>
@@ -34,23 +35,6 @@
 	name="%javaBuilderName">
 	<builder>
 		<run class="org.eclipse.jdt.internal.core.builder.impl.JavaBuilder">
-			<!-- Debug Information. Local variable attribute. Generate|Do not generate -->
-			<parameter name="compilerOption1" value="0"/>
-
-			<!-- Debug Information. Line number attribute. Generate|Do not generate -->
-			<parameter name="compilerOption2" value="0"/>
-
-			<!-- Debug Information. Source file attribute. Generate|Do not generate -->
-			<parameter name="compilerOption3" value="0"/>
-
-			<!-- Code Generation. Preserve unused locals. Preserve|Optimize out -->
-			<parameter name="compilerOption4" value="0"/>
-
-			<!-- Optional Warnings. Unused local variable. Warn|Ignore -->
-			<parameter name="compilerOption11" value="1"/>
-
-			<!-- Optional Warnings. Unused parameter. Warn|Ignore -->
-			<parameter name="compilerOption12" value="1"/>
 		</run>
 	</builder>
 </extension>
