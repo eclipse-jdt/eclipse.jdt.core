@@ -9,7 +9,7 @@
 <body>
 
 <h1>JDT Core 3.0 Porting Guide</h1>
-<p>Last modified December 4, 2003</p>
+<p>Last modified January 30, 2004</p>
 <p>These entries for the porting guide cover Debug-related items.</p>
 <h2>Required changes for 3.0</h2>
 <p>None.</p>
@@ -302,6 +302,45 @@ we recommend dealing with both at the same time. The detail</p>
     </ul>
   </li>
 </ul>
+
+<b><font face="Times New Roman">
+<p>[JDT only] Java search participants (package org.eclipse.jdt.core.search)</p>
+</font></b>
+<p>Languages close to Java (such as JSP, SQLJ, JWS, etc.) should be able to participate in Java searching. 
+In particular implementors of such languages should be able to:
+<ul>
+<li>index their source by converting it into Java equivalent, and feeding it to the Java indexer</li>
+<li>index their source by parsing it themselves, but record Java index entries</li>
+<li>locate matches in their source by converting it into Java equivalent, and feeding it to the Java match locator</li>
+<li>locate matches in their source by matching themselves, and return Java matches</li>
+</ul>
+</p>
+<p>Such an implementor is called a search participant. It extends the SearchParticipant 
+class. A search participant is registered through the searchParticipant extension point 
+[to be defined].</p>
+<p>For either indexing or locating matches, a search participant needs to define a subclass of 
+SearchDocument that can retrieve the contents of a document by overriding either 
+getByteContents() or getCharContents(). An instance of such class is
+returned in SearchParticipant.getDocument(IFile) or getDocument(String).</p>
+<p>A search participant whishing to index some document will use 
+SearchParticipant.scheduleDocumentIndexing(SearchDocument, IPath) to schedule the indexing
+of the given document in the given index. Once the document is ready to be indexed, the underlying framework
+calls SearchParticipant.indexDocument(SearchDocument, IPath). The search participant is then
+supposed to get the document's content, parse it and add index entries using 
+SearchParticipant.addIndexEntry(char[], char[], SearchDocument).</p>
+<p>Once indexing is done, one can then query the indexes and locate matches using 
+SearchEngine.search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor).
+This first asks each search participant for the indexes needed by this query using 
+SearchParticipant.selectIndexes(SearchPattern, IJavaSearchScope). For each index entry that matches
+the given pattern, a search document is created by asking the search participant (see getDocument(String)).
+All these documents are passed to the search participant so that it can locate matches using 
+locateMatches(SearchDocument[], SearchPattern, IJavaSearchScope, SearchRequestor, IProgressMonitor).
+The search participant notifies the SearchRequestor of search matches using acceptSearchMatch(SearchMatch)
+and passing an instance of a subclass of SearchMatch.</p>
+<p>A search participant can delegate part of its work to the default Java search participant. An instance of
+this default participant is obtained using SearchEngine.getDefaultSearchParticipant(). For example when asked to
+locate matches, an SQLJ participant can create documents .java documents from its .sqlj documents and
+delegate the work to the default participant passing it the .java documents.</p>
 
 </body>
 
