@@ -98,7 +98,7 @@ public class ClassFile
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 		
 		long targetJDK = referenceBinding.scope.environment().options.targetJDK;
-		// TODO until a 1.5 VM is released (accepting 49.0 files), will instead generate 1.4 (48.0) classfiles
+		// TODO[1.5]  until a 1.5 VM is released (accepting 49.0 files), will instead generate 1.4 (48.0) classfiles
 		if (targetJDK == ClassFileConstants.JDK1_5) targetJDK = ClassFileConstants.JDK1_4;
 		header[headerOffset++] = (byte) (targetJDK >> 8); // minor high
 		header[headerOffset++] = (byte) (targetJDK >> 0); // minor low
