@@ -35,7 +35,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 145 };
+//		TESTS_NUMBERS = new int[] { 152 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -4566,5 +4566,133 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(enumConstantDeclaration, "C", contents);
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
 		checkSourceRange(enumConstantDeclaration, "B", contents);
+   }
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88548
+    public void test0151() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+	   		"public enum X {\n" + 
+    		"	RED, GREEN(), BLUE(17);\n" + 
+    		"	X() {}\n" + 
+    		"	X(int i) {}\n" + 
+    		"	public static void main(String[] args) {\n" +
+    		"		for (X x : X.values()) {\n" +
+    		"			switch(x) {\n" +
+    		"				case RED :\n" +
+    		"					System.out.println(\"ROUGE\");\n" +
+    		"					break;\n" +
+    		"				case GREEN :\n" +
+    		"					System.out.println(\"VERT\");\n" +
+    		"					break;\n" +
+    		"				case BLUE :\n" +
+    		"					System.out.println(\"BLEU\");\n" +
+    		"					break;\n" +
+    		"			}\n" +
+    		"		}\n" +
+    		"   }\n" +
+    		"}";
+    	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0);
+    	assertEquals("Not an enum declaration", ASTNode.ENUM_DECLARATION, node.getNodeType());
+		EnumDeclaration enumDeclaration = (EnumDeclaration) node;
+		List bodyDeclarations = enumDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 3, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(2);
+    	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		Block block = methodDeclaration.getBody();
+		assertNotNull("No body", block);
+		List statements = block.statements();
+		assertEquals("Wrong size", 1, statements.size());
+		Statement statement = (Statement) statements.get(0);
+    	assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, statement.getNodeType());
+		EnhancedForStatement forStatement = (EnhancedForStatement) statement;
+		Statement statement2 = forStatement.getBody();
+    	assertEquals("Not a block", ASTNode.BLOCK, statement2.getNodeType());
+		Block block2 = (Block) statement2;
+		statements = block2.statements();
+		assertEquals("Wrong size", 1, statements.size());
+		statement = (Statement) statements.get(0);
+    	assertEquals("Not a switch statement", ASTNode.SWITCH_STATEMENT, statement.getNodeType());
+		SwitchStatement switchStatement = (SwitchStatement) statement;
+		statements = switchStatement.statements();
+		assertEquals("Wrong size", 9, statements.size());
+		statement = (Statement) statements.get(0);
+    	assertEquals("Not a switch case statement", ASTNode.SWITCH_CASE, statement.getNodeType());
+		SwitchCase switchCase = (SwitchCase) statement;
+		Expression expression = switchCase.getExpression();
+		assertNull("Got a constant", expression.resolveConstantExpressionValue());
+   }
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88548
+    public void test0152() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+	   		"public class X {\n" + 
+	   		"	public static final int CONST1 = 1;\n" +
+	   		"	public static final int CONST2 = 2;\n" +
+    		"	public static void main(String[] args) {\n" +
+    		"		int[] intTab = new int[] {2, 3};\n" +
+    		"		for (int i : intTab) {\n" +
+    		"			switch(i) {\n" +
+    		"				case CONST1 :\n" +
+    		"					System.out.println(\"1\");\n" +
+    		"					break;\n" +
+    		"				case CONST2 :\n" +
+    		"					System.out.println(\"2\");\n" +
+    		"					break;\n" +
+    		"				default :\n" +
+    		"					System.out.println(\"default\");\n" +
+    		"					break;\n" +
+    		"			}\n" +
+    		"		}\n" +
+    		"   }\n" +
+    		"}";
+    	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0);
+    	assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		List bodyDeclarations = typeDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 3, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(2);
+    	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		Block block = methodDeclaration.getBody();
+		assertNotNull("No body", block);
+		List statements = block.statements();
+		assertEquals("Wrong size", 2, statements.size());
+		Statement statement = (Statement) statements.get(1);
+    	assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, statement.getNodeType());
+		EnhancedForStatement forStatement = (EnhancedForStatement) statement;
+		Statement statement2 = forStatement.getBody();
+    	assertEquals("Not a block", ASTNode.BLOCK, statement2.getNodeType());
+		Block block2 = (Block) statement2;
+		statements = block2.statements();
+		assertEquals("Wrong size", 1, statements.size());
+		statement = (Statement) statements.get(0);
+    	assertEquals("Not a switch statement", ASTNode.SWITCH_STATEMENT, statement.getNodeType());
+		SwitchStatement switchStatement = (SwitchStatement) statement;
+		statements = switchStatement.statements();
+		assertEquals("Wrong size", 9, statements.size());
+		statement = (Statement) statements.get(0);
+    	assertEquals("Not a switch case statement", ASTNode.SWITCH_CASE, statement.getNodeType());
+		SwitchCase switchCase = (SwitchCase) statement;
+		Expression expression = switchCase.getExpression();
+		Object constant = expression.resolveConstantExpressionValue();
+		assertNotNull("No constant", constant);
+		assertEquals("Wrong value", "1", String.valueOf(constant));
    }
 }
