@@ -34,7 +34,7 @@ public class CodeSnippetEvaluator extends Evaluator implements EvaluationConstan
 /**
  * Creates a new code snippet evaluator.
  */
-CodeSnippetEvaluator(char[] codeSnippet, EvaluationContext context, INameEnvironment environment, ConfigurableOption[] options, IRequestor requestor, IProblemFactory problemFactory) {
+CodeSnippetEvaluator(char[] codeSnippet, EvaluationContext context, INameEnvironment environment, Map options, IRequestor requestor, IProblemFactory problemFactory) {
 	super(context, environment, options, requestor, problemFactory);
 	this.codeSnippet = codeSnippet;
 }

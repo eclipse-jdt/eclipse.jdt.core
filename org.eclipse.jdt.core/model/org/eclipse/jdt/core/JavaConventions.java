@@ -116,7 +116,7 @@ public static IStatus validateCompilationUnitName(String name) {
 	String extension;
 	String identifier;
 	int index;
-	index = name.indexOf('.');
+	index = name.lastIndexOf('.');
 	if (index == -1) {
 		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"), null); //$NON-NLS-1$
 	}
@@ -258,6 +258,9 @@ public static IStatus validateMethodName(String name) {
  * <p>
  * The syntax of a package name corresponds to PackageName as
  * defined by PackageDeclaration (JLS2 7.4). For example, <code>"java.lang"</code>.
+ * <p>
+ * Note that the given name must be a non-empty package name (ie. attempting to
+ * validate the default package will return an error status.)
  *
  * @param name the name of a package
  * @return a status object with code <code>IStatus.OK</code> if

@@ -12,10 +12,8 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 
-import org.eclipse.jdt.internal.codeassist.impl.CompletionOptions;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.builder.*;
@@ -23,8 +21,6 @@ import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.builder.impl.*;
 import org.eclipse.jdt.internal.core.builder.impl.ProblemFactory;
 import org.eclipse.jdt.internal.core.search.indexing.*;
-import org.eclipse.jdt.internal.formatter.CodeFormatter;
-import org.eclipse.jdt.internal.formatter.impl.FormatterOptions;
 
 /**
  * The plug-in runtime class for the Java model plug-in containing the core
@@ -81,63 +77,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		"org.eclipse.jdt.internal.core.JavaModelManager.handleId" ; //$NON-NLS-1$
 
 	private static Hashtable Variables = new Hashtable(5);
+	private static Hashtable Options = getDefaultOptions();
 
-	/**
-	 * Configurable option names. For further information, refer to the file named Java.ini
-	 */
-
-	// File containing default settings for configurable options
-	private static final String JAVA_CORE_INIT = "JavaCore.ini"; //$NON-NLS-1$
-	
-	/**
-	 * Compiler options
-	 */
-	public static final String OPTION_LocalVariableAttribute = CompilerOptions.OPTION_LocalVariableAttribute;
-	public static final String OPTION_LineNumberAttribute = CompilerOptions.OPTION_LineNumberAttribute;
-	public static final String OPTION_SourceFileAttribute = CompilerOptions.OPTION_SourceFileAttribute;
-	public static final String OPTION_PreserveUnusedLocal = CompilerOptions.OPTION_PreserveUnusedLocal;
-	public static final String OPTION_ReportUnreachableCode = CompilerOptions.OPTION_ReportUnreachableCode;
-	public static final String OPTION_ReportInvalidImport = CompilerOptions.OPTION_ReportInvalidImport;
-	public static final String OPTION_ReportMethodWithConstructorName = CompilerOptions.OPTION_ReportMethodWithConstructorName;
-	public static final String OPTION_ReportOverridingPackageDefaultMethod = CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod;
-	public static final String OPTION_ReportDeprecation = CompilerOptions.OPTION_ReportDeprecation;
-	public static final String OPTION_ReportHiddenCatchBlock = CompilerOptions.OPTION_ReportHiddenCatchBlock;
-	public static final String OPTION_ReportUnusedLocal = CompilerOptions.OPTION_ReportUnusedLocal;
-	public static final String OPTION_ReportUnusedParameter = CompilerOptions.OPTION_ReportUnusedParameter;
-	public static final String OPTION_TargetPlatform = CompilerOptions.OPTION_TargetPlatform;
-	public static final String OPTION_ReportSyntheticAccessEmulation = CompilerOptions.OPTION_ReportSyntheticAccessEmulation;
-	public static final String OPTION_ReportNonExternalizedStringLiteral = CompilerOptions.OPTION_ReportNonExternalizedStringLiteral;
-	public static final String OPTION_Source = CompilerOptions.OPTION_Source;
-	public static final String OPTION_ReportAssertIdentifier = CompilerOptions.OPTION_ReportAssertIdentifier;
-
-	/**
-	 * Code Formatter options
-	 */
-	public static final String OPTION_InsertNewlineBeforeOpeningBrace = FormatterOptions.OPTION_InsertNewlineBeforeOpeningBrace;
-	public static final String OPTION_InsertNewlineInControlStatement = FormatterOptions.OPTION_InsertNewlineInControlStatement;
-	public static final String OPTION_InsertNewLineBetweenElseAndIf = FormatterOptions.OPTION_InsertNewLineBetweenElseAndIf;
-	public static final String OPTION_InsertNewLineInEmptyBlock = FormatterOptions.OPTION_InsertNewLineInEmptyBlock;
-	public static final String OPTION_ClearAllBlankLines = FormatterOptions.OPTION_ClearAllBlankLines;
-	public static final String OPTION_SplitLineExceedingLength = FormatterOptions.OPTION_SplitLineExceedingLength;
-	public static final String OPTION_CompactAssignment = FormatterOptions.OPTION_CompactAssignment;
-	public static final String OPTION_TabulationChar = FormatterOptions.OPTION_TabulationChar;
-	public static final String OPTION_TabulationSize = FormatterOptions.OPTION_TabulationSize;
-	
-	/**
-	 * Completion Engine options
-	 */
-	public static final String OPTION_VisibilitySensitivity = CompletionOptions.OPTION_PerformVisibilityCheck;
-	public static final String OPTION_EntireWordReplacement = CompletionOptions.OPTION_EntireWordReplacement;
-	
-	/**
-	 * JavaCore options
-	 */
-	public static final String OPTION_ComputeBuildOrder = "org.eclipse.jdt.core.JavaCore.computeJavaBuildOrder"; //$NON-NLS-1$
-	
-	/**
-	 * Code Assist options
-	 */
-	
 	/**
 	 * Creates the Java core plug-in.
 	 */
@@ -958,7 +899,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 			workspace.addSaveParticipant(this, manager);
 			manager.loadVariables();
-			manager.loadOptions();
 		} catch (CoreException e) {
 		} catch (RuntimeException e) {
 			manager.shutdown();
@@ -1036,328 +976,285 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
-	* Set the value of the current setting for an option.
-	*
-	* @return IJavaModelStatusConstants.INVALID_OPTION_VALUE if option value
-	* are not correct and IJavaModelStatusConstants.INVALID_OPTION if option
-	* doesn't exist.
-	*/
-	public static IJavaModelStatus setOptionValue(String id, String value) {
-		IJavaModelStatus status = validateOptionValue(id, value);
-		if (status.getCode() == IJavaModelStatus.OK) {
-			ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
-			if (option != null)
-				option.setValue(value);
-		}
-		return status;
-	}
-
-	/**
-	* Answer the value of the current setting for an option.
-	*
-	* @return String
-	*/
-	public static String getOptionValue(String id) {
-		ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
-
-		if (option != null)
-			return option.getValue();
-
-		return null;
-	}
-
-	/**
-	* Set the value of the default setting for an option.
-	*
-	* @return IJavaModelStatusConstants.INVALID_OPTION_VALUE if option value
-	* are not correct and IJavaModelStatusConstants.INVALID_OPTION if option
-	* doesn't exist.
-	*/
-	private static IJavaModelStatus setOptionDefaultValue(
-		String id,
-		String value) {
-		IJavaModelStatus status = validateOptionValue(id, value);
-		if (status.getCode() == IJavaModelStatus.OK) {
-			ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
-			if (option != null)
-				option.setDefaultValue(value);
-		}
-		return status;
-	}
-
-	/**
-	* Answer the value of the default setting for an option.
-	*
-	* @return String
-	*/
-	public static String getOptionDefaultValue(String id) {
-		ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
-
-		if (option != null)
-			return option.getDefaultValue();
-
-		return null;
-	}
-
-	/**
-	* Return an String that represents the localized description of an option.
-	*
-	* @return java.lang.String
-	*/
-	public static String getOptionDescription(String id) {
-		ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
-
-		if (option != null)
-			return option.getDescription();
-
-		return null;
-	}
-	/**
-	* Return a String that represents the localized name of an option.
-	* @return java.lang.String
-	*/
-	public static String getOptionName(String id) {
-		ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
-
-		if (option != null)
-			return option.getName();
-
-		return null;
-	}
-
-	/**
-	* Return a String that identifies the component owner of an option
-	* (typically the qualified type name of the class which it corresponds to).
-	*
-	* e.g. "org.eclipse.jdt.internal.compiler.api.Compiler"
-	*
-	* @return java.lang.String
-	*/
-	public static String getOptionComponentName(String id) {
-		ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
-
-		if (option != null)
-			return option.getComponentName();
-
-		return null;
-	}
-
-	/**
-	 * Return a String that represents the localized category of an option.
-	 * @return java.lang.String
+	 * Change the current set of options. Note that the new options are not merged with the existing ones. There are overriding
+	 * the existing ones. For a complete description of the configurable options, see JavaCore.getDefaultOptions().
+	 * @see JavaCore.getDefaultOptions()
 	 */
-	public static String getOptionCategory(String id) {
-		ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
-
-		if (option != null)
-			return option.getCategory();
-
-		return null;
-	}
-
-	/**
-	* Return an array of String that represents the localized possible values of an option.
-	*
-	* @return java.lang.String[]
-	*/
-	public static String[] getOptionPossibleValues(String id) {
-		ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
-
-		if (option != null)
-			return option.getPossibleValues();
-
-		return null;
-	}
-
-	/**
-	 * Return the type of option. Type is a String with possible value :
-	 * <code>discrete</code>,<code>string</code>,<code>int</code> and
-	 * <code>float</code>.
-	 */
-	public static String getOptionType(String id) {
-		ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
-
-		if (option != null)
-			return option.getType();
-
-		return null;
-	}
-
-	/**
-	 * Return the maximum value of option if option's type is <code>int</code>
-	 *  or <code>float</code>.Otherwise return null.
-	 */
-	public static Number getOptionMax(String id) {
-		ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
-
-		if (option != null) {
-			return option.getMax();
-		}
-
-		return null;
-	}
-
-	/**
-	 * Return the minimum value of option if option's type is <code>int</code>
-	 *  or <code>float</code>.Otherwise return null.
-	 */
-	public static Number getOptionMin(String id) {
-		ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
-
-		if (option != null)
-			return option.getMin();
-
-		return null;
-	}
-
-	/**
-	 * Answers a set of option'IDs which are in option set of JavaCore
-	 */
-	public static String[] getOptionIDs() {
-		return JavaModelManager.getOptionIDs();
-	}
-
-	/**
-	 * Answers a set of option'IDs which are in option set of JavaCore
-	 * and associated with a component.
-	 */
-	public static String[] getOptionIDs(String componentName) {
-		String[] ids = getOptionIDs();
-
-		String[] result = new String[ids.length];
-		int resultCount = 0;
-		for (int i = 0; i < ids.length; i++) {
-			if (ids[i].startsWith(componentName))
-				result[resultCount++] = ids[i];
-		}
-
-		System.arraycopy(result, 0, result = new String[resultCount], 0, resultCount);
-
-		return result;
-	}
-
-	/**
-	 * Answers if a value is valide for an option
-	 * 
-	 * @return IJavaModelStatusConstants.INVALID_OPTION_VALUE if option value
-	 * are not correct and IJavaModelStatusConstants.INVALID_OPTION if option
-	 * doesn't exist.
-	 */
-	public static IJavaModelStatus validateOptionValue(String id, String value) {
-		ConfigurableOption option = (ConfigurableOption) getOptions().get(id);
-
-		if (option != null) {
-			String[] values = option.getPossibleValues();
-			if (values == ConfigurableOption.NoDiscreteValue) {
-				try {
-					if (option.getType().equals(ConfigurableOption.INT)) {
-						int max = option.getMax().intValue();
-						int min = option.getMin().intValue();
-						int val = Integer.parseInt(value);
-						if (val > max || val < min)
-							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_OPTION_VALUE);
-					} else if (option.getType().equals(ConfigurableOption.FLOAT)) {
-						float max = option.getMax().floatValue();
-						float min = option.getMin().floatValue();
-						float val = Float.parseFloat(value);
-						if (val > max || val < min)
-							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_OPTION_VALUE);
-					}
-				} catch (NumberFormatException e) {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_OPTION_VALUE);
-				}
-				return JavaModelStatus.VERIFIED_OK;
-			} else {
-				for (int i = 0; i < values.length; i++) {
-					if (values[i].equals(value))
-						return JavaModelStatus.VERIFIED_OK;
-				}
-				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_OPTION_VALUE);
-			}
-		}
-		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_OPTION);
-	}
-
-	/**
-	 * Reset JavaCore option values to defaults.
-	 */
-	public static void resetOptions() {
-		Locale locale = Locale.getDefault();
-
-		if (JavaModelManager.fOptions == null) {
-			JavaModelManager.initializeOptions();
-			// Set options to JavaCore default value
-			setJavaCoreDefaultOptionsValue(locale);
-
+	public static void setOptions(Hashtable newOptions) {
+		if (newOptions == null){
+			Options = getDefaultOptions();
 		} else {
-			ConfigurableOption[] options =
-				(ConfigurableOption[]) JavaModelManager.fOptions.values().toArray(
-					new ConfigurableOption[0]);
-			for (int i = 0; i < options.length; i++)
-				options[i].setToDefault();
+			Options = (Hashtable)newOptions.clone();
 		}
-	}
-
-	private static void setJavaCoreDefaultOptionsValue(Locale locale) {
-		BufferedReader reader = null;
-		try {
-			reader =
-				new BufferedReader(
-					new InputStreamReader(JavaCore.class.getResourceAsStream(JAVA_CORE_INIT)));
-			String line = reader.readLine();
-			while (line != null) {
-				int equalIndex = line.indexOf("=" ); //$NON-NLS-1$
-				if (!line.startsWith("#" ) && equalIndex != -1) { //$NON-NLS-1$
-					String id = line.substring(0, equalIndex).trim();
-
-					ConfigurableOption option = new ConfigurableOption(id, locale);
-					if (option.getPossibleValues() != ConfigurableOption.NoDiscreteValue) {
-						try {
-							int index = Integer.parseInt(line.substring(equalIndex + 1).trim());
-							option.setDefaultValueIndex(index);
-						} catch (NumberFormatException e) {
-							// value is default default value
-						}
-					} else {
-						String value = line.substring(equalIndex + 1).trim();
-						option.setDefaultValue(value);
-					}
-					JavaModelManager.addOption(option);
-				}
-				line = reader.readLine();
-			}
-		} catch (FileNotFoundException e) {
-		} catch (IOException e) {
-		} finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch(IOException e){
-				}
-			}
-		}
-	}
-
-	private static Hashtable getOptions() {
-		if (JavaModelManager.fOptions == null)
-			resetOptions();
-
-		return JavaModelManager.fOptions;
 	}
 
 	/**
-	 * Returns all the options of Java Core to be shown by the UI
-	 *
-	 * @param locale java.util.Locale
-	 * @return org.eclipse.jdt.internal.compiler.ConfigurableOption[]
+	 * Answer the current set of options. For a complete description of the configurable options, see JavaCore.getDefaultOptions().
+	 * @see JavaCore.getDefaultOptions()
 	 */
-	private static ConfigurableOption[] getDefaultOptions(Locale locale) {
-		String[] ids = ConfigurableOption.getIDs(JavaCore.class.getName(), locale);
-
-		ConfigurableOption[] result = new ConfigurableOption[ids.length];
-		for (int i = 0; i < ids.length; i++) {
-			result[i] = new ConfigurableOption(ids[i], locale);
-		}
-		return result;
+	public static Hashtable getOptions() {
+		return (Hashtable)Options.clone();
 	}
+
+	/**
+	 * Answers a map of configurable options with their default values.
+	 * These options allow to configure the behavior of the underlying components.
+	 *
+	 * Note: more options might be added in further releases.
+	 *
+	 * RECOGNIZED OPTIONS:
+	 *
+	 *  COMPILER / Generating Local Variable Debug Attribute
+ 	 *    When generated, this attribute will enable local variable names 
+	 *    to be displayed in debugger, only in place where variables are 
+	 *    definitely assigned (.class file is then bigger)
+	 *     - option id:				"org.eclipse.jdt.core.compiler.debug.localVariable"
+	 *     - possible values:	{ "generate", "do not generate" }
+	 *     - default:				"generate"
+	 *
+	 *  COMPILER / Generating Line Number Debug Attribute 
+	 *    When generated, this attribute will enable source code highlighting in debugger 
+	 *    (.class file is then bigger).
+	 *     - option id:				"org.eclipse.jdt.core.compiler.debug.lineNumber"
+	 *     - possible values:	{ "generate", "do not generate" }
+	 *     - default:				"generate"
+	 *		
+	 *  COMPILER / Generating Source Debug Attribute 
+	 *    When generated, this attribute will enable the debugger to present the 
+	 *    corresponding source code.
+	 *     - option id:				"org.eclipse.jdt.core.compiler.debug.sourceFile"
+	 *     - possible values:	{ "generate", "do not generate" }
+	 *     - default:				"generate"
+	 *		
+	 *  COMPILER / Preserving Unused Local Variables
+	 *    Unless requested to preserve unused local variables (i.e. never read), the 
+	 *    compiler will optimize them out, potentially altering debugging
+	 *     - option id:				"org.eclipse.jdt.core.compiler.codegen.unusedLocal"
+	 *     - possible values:	{ "preserve", "optimize out" }
+	 *     - default:				"preserve"
+	 * 
+	 *  COMPILER / Defining Target Java Platform
+	 *    For binary compatibility reason, .class files can be tagged to with certain VM versions and later.
+	 *     - option id:				"org.eclipse.jdt.core.compiler.codegen.targetPlatform"
+	 *     - possible values:	{ "1.1", "1.2", "1.3", "1.4" }
+	 *     - default:				"1.1"
+	 *
+	 *	COMPILER / Reporting Unreachable Code
+	 *    Unreachable code can optionally be reported as an error, warning or simply 
+	 *    ignored. The bytecode generation will always optimized it out.
+	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.unreachableCode"
+	 *     - possible values:	{ "error", "warning", "ignore" }
+	 *     - default:				"error"
+	 *
+	 *	COMPILER / Reporting Invalid Import
+	 *    An import statement that cannot be resolved might optionally be reported 
+	 *    as an error, as a warning or ignored.
+	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.invalidImport"
+	 *     - possible values:	{ "error", "warning", "ignore" }
+	 *     - default:				"error"
+	 *
+	 *	COMPILER / Reporting Attempt to Override Package-Default Method
+	 *    A package default method is not visible in a different package, and thus 
+	 *    cannot be overriden. When enabling this option, the compiler will signal 
+	 *    such scenarii either as an error or a warning.
+	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"
+	 *     - possible values:	{ "error", "warning", "ignore" }
+	 *     - default:				"warning"
+	 *
+	 *  COMPILER / Reporting Method With Constructor Name
+	 *    Naming a method with a constructor name is generally considered poor 
+	 *    style programming. When enabling this option, the compiler will signal such 
+	 *    scenarii either as an error or a warning.
+	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName"
+	 *     - possible values:	{ "error", "warning", "ignore" }
+	 *     - default:				"warning"
+	 *
+	 *  COMPILER / Reporting Deprecation
+	 *    When enabled, the compiler will signal use of deprecated API either as an 
+	 *    error or a warning.
+	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.deprecation"
+	 *     - possible values:	{ "error", "warning", "ignore" }
+	 *     - default:				"warning"
+	 *
+	 *	COMPILER / Reporting Hidden Catch Block
+	 *    Locally to a try statement, some catch blocks may hide others , e.g.
+	 *      try {	throw new java.io.CharConversionException();
+	 *      } catch (java.io.CharConversionException e) {
+	 *      } catch (java.io.IOException e) {}. 
+	 *    When enabling this option, the compiler will issue an error or a warning for hidden 
+	 *    catch blocks corresponding to checked exceptions
+	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"
+	 *     - possible values:	{ "error", "warning", "ignore" }
+	 *     - default:				"warning"
+	 *
+	 *  COMPILER / Reporting Unused Local
+	 *    When enabled, the compiler will issue an error or a warning for unused local 
+	 *    variables (i.e. variables never read from)
+	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.unusedLocal"
+	 *     - possible values:	{ "error", "warning", "ignore" }
+	 *     - default:				"ignore"
+	 *
+	 *	COMPILER / Reporting Unused Parameter
+	 *    When enabled, the compiler will issue an error or a warning for unused method 
+	 *    parameters (i.e. parameters never read from)
+	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.unusedParameter"
+	 *     - possible values:	{ "error", "warning", "ignore" }
+	 *     - default:				"ignore"
+	 *
+	 *	COMPILER / Reporting Synthetic Access Emulation
+	 *    When enabled, the compiler will issue an error or a warning whenever it emulates 
+	 *    access to a non-accessible member of an enclosing type. Such access can have
+	 *    performance implications.
+	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation"
+	 *     - possible values:	{ "error", "warning", "ignore" }
+	 *     - default:				"ignore"
+	 *
+	 * COMPILER / Reporting Non-Externalized String Literal
+	 *    When enabled, the compiler will issue an error or a warning for non externalized 
+	 *    String literal (i.e. non tagged with //$NON-NLS-<n>$). 
+	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"
+	 *     - possible values:	{ "error", "warning", "ignore" }
+	 *     - default:				"ignore"
+	 * 
+	 * COMPILER / Reporting Usage of 'assert' Identifier
+	 *    When enabled, the compiler will issue an error or a warning whenever 'assert' is 
+	 *    used as an identifier (reserved keyword in 1.4)
+	 *     - option id:				"org.eclipse.jdt.core.compiler.problem.assertIdentifier"
+	 *     - possible values:	{ "error", "warning", "ignore" }
+	 *     - default:				"ignore"
+	 * 
+	 * COMPILER / Setting Source Compatibility Mode
+	 *    Specify whether source is 1.3 or 1.4 compatible. From 1.4 on, 'assert' is a keyword
+	 *    reserved for assertion support.
+	 *     - option id:				"org.eclipse.jdt.core.compiler.source"
+	 *     - possible values:	{ "1.3", "1.4" }
+	 *     - default:				"1.3"
+	 * 
+	 *	JAVACORE / Computing Project Build Order
+	 *    Indicate whether JavaCore should enforce the project build order to be based on
+	 *    the classpath prerequisite chain. When requesting to compute, this takes over
+	 *    the platform default order (based on project references).
+	 *     - option id:				"org.eclipse.jdt.core.computeJavaBuildOrder"
+	 *     - possible values:	{ "compute", "ignore" }
+	 *     - default:				"ignore"	 
+	 * 
+	 *	FORMATTER / Inserting New Line Before Opening Brace
+	 *    When Insert, a new line is inserted before an opening brace, otherwise nothing
+	 *    is inserted
+	 *     - option id:				"org.eclipse.jdt.core.formatter.newline.openingBrace"
+	 *     - possible values:	{ "insert", "do not insert" }
+	 *     - default:				"do not insert"
+	 * 
+	 *	FORMATTER / Inserting New Line Inside Control Statement
+	 *    When Insert, a new line is inserted between } and following else, catch, finally
+	 *     - option id:				"org.eclipse.jdt.core.formatter.newline.controlStatement"
+	 *     - possible values:	{ "insert", "do not insert" }
+	 *     - default:				"do not insert"
+	 * 
+	 *	FORMATTER / Clearing Blank Lines
+	 *    When Clear all, all blank lines are removed. When Preserve one, only one is kept
+	 *    and all others removed.
+	 *     - option id:				"org.eclipse.jdt.core.formatter.newline.clearAll"
+	 *     - possible values:	{ "clear all", "preserve one" }
+	 *     - default:				"preserve one"
+	 * 
+	 *	FORMATTER / Inserting New Line Between Else/If 
+	 *    When Insert, a blank line is inserted between an else and an if when they are 
+	 *    contiguous. When choosing to not insert, else-if will be kept on the same
+	 *    line when possible.
+	 *     - option id:				"org.eclipse.jdt.core.formatter.newline.elseIf"
+	 *     - possible values:	{ "insert", "do not insert" }
+	 *     - default:				"insert"
+	 * 
+	 *	FORMATTER / Inserting New Line In Empty Block
+	 *    When insert, a line break is inserted between contiguous { and }, if } is not followed
+	 *    by a keyword.
+	 *     - option id:				"org.eclipse.jdt.core.formatter.newline.emptyBlock"
+	 *     - possible values:	{ "insert", "do not insert" }
+	 *     - default:				"insert"
+	 * 
+	 *	FORMATTER / Splitting Lines Exceeding Length
+	 *    Enable splitting of long lines (exceeding the configurable length). Length of 0 will
+	 *    disable line splitting
+	 *     - option id:				"org.eclipse.jdt.core.formatter.lineSplit"
+	 *     - possible values:	"<n>", where n is zero or a positive integer
+	 *     - default:				"80"
+	 * 
+	 *	FORMATTER / Compacting Assignment
+	 *    Assignments can be formatted asymmetrically, e.g. 'int x= 2;', when Normal, a space
+	 *    is inserted before the assignment operator
+	 *     - option id:				"org.eclipse.jdt.core.formatter.style.compactAssignment"
+	 *     - possible values:	{ "compact", "normal" }
+	 *     - default:				"normal"
+	 * 
+	 *	FORMATTER / Defining Indentation Character
+	 *    Either choose to indent with tab characters or spaces
+	 *     - option id:				"org.eclipse.jdt.core.formatter.tabulation.char"
+	 *     - possible values:	{ "tab", "space" }
+	 *     - default:				"tab"
+	 * 
+	 *	FORMATTER / Defining Space Indentation Length
+	 *    When using spaces, set the amount of space characters to use for each 
+	 *    indentation mark.
+	 *     - option id:				"org.eclipse.jdt.core.formatter.tabulation.size"
+	 *     - possible values:	"<n>", where n is a positive integer
+	 *     - default:				"4"
+	 * 
+	 *	CODEASSIST / Activate Visibility Sensitive Completion
+	 *    When active, completion doesn't show that you can not see
+	 *    (eg. you can not see private methods of a super class).
+	 *     - option id:				"org.eclipse.jdt.core.codeComplete.visibilityCheck"
+	 *     - possible values:	{ "enabled", "disabled" }
+	 *     - default:				"disabled"
+	 * 
+	 *	CODEASSIST / Activate Entire Word Replacemement Completion
+	 *    When Active, completion replace all the word.
+	 *     - option id:				"org.eclipse.jdt.core.codeComplete.entireWordReplacement"
+	 *     - possible values:	{ "replace", "do not replace" }
+	 *     - default:				"replace"
+	 */
+ 	public static Hashtable getDefaultOptions(){
+	
+		Hashtable defaultOptions = new Hashtable(10);
+	
+		// Compiler settings
+		defaultOptions.put("org.eclipse.jdt.core.compiler.debug.localVariable", "generate");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.debug.lineNumber", "generate");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.debug.sourceFile", "generate");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.codegen.unusedLocal", "preserve");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.codegen.targetPlatform", "1.1");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.unreachableCode", "error");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.invalidImport", "error");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod", "warning");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.methodWithConstructorName", "warning");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.deprecation", "warning");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock", "warning");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.unusedLocal", "ignore");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.unusedParameter", "ignore");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation", "ignore");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral", "ignore");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.problem.assertIdentifier", "ignore");
+		defaultOptions.put("org.eclipse.jdt.core.compiler.source", "1.3");
+
+		// JavaCore settings
+		defaultOptions.put("org.eclipse.jdt.core.computeJavaBuildOrder", "ignore");
+	
+		// Formatter settings
+		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.openingBrace", "do not insert");
+		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.controlStatement", "do not insert");
+		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.clearAll", "preserve one");
+		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.elseIf", "insert");
+		defaultOptions.put("org.eclipse.jdt.core.formatter.newline.emptyBlock", "insert");
+		defaultOptions.put("org.eclipse.jdt.core.formatter.lineSplit", "80");
+		defaultOptions.put("org.eclipse.jdt.core.formatter.style.assignment", "normal");
+		defaultOptions.put("org.eclipse.jdt.core.formatter.tabulation.char", "tab");
+		defaultOptions.put("org.eclipse.jdt.core.formatter.tabulation.size", "4");
+		
+		// CodeAssist settings
+		defaultOptions.put("org.eclipse.jdt.core.codeComplete.visibilityCheck", "disabled");
+		defaultOptions.put("org.eclipse.jdt.core.codeComplete.entireWordReplacement", "replace");
+
+		return defaultOptions;
+	}
+	
 }

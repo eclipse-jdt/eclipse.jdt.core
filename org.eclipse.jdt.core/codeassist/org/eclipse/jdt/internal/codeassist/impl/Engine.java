@@ -1,31 +1,30 @@
 package org.eclipse.jdt.internal.codeassist.impl;
-
+
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import java.util.Locale;
 
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
-
+
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
-
+
 public abstract class Engine implements ITypeRequestor {
-
+
 	public LookupEnvironment lookupEnvironment;
-
+
 	/**
 	 * Add an additional binary type
 	 */
 	public void accept(IBinaryType binaryType, PackageBinding packageBinding) {
 		lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
 	}
-
+
 	/**
 	 * Add an additional compilation unit.
 	 */
@@ -33,11 +32,11 @@ public abstract class Engine implements ITypeRequestor {
 		CompilationResult result = new CompilationResult(sourceUnit, 1, 1);
 		CompilationUnitDeclaration parsedUnit =
 			this.getParser().dietParse(sourceUnit, result);
-
+
 		lookupEnvironment.buildTypeBindings(parsedUnit);
 		lookupEnvironment.completeTypeBindings(parsedUnit, true);
 	}
-
+
 	/**
 	 * Add additional source types (the first one is the requested type, the rest is formed by the
 	 * secondary types defined in the same compilation unit).
@@ -52,23 +51,13 @@ public abstract class Engine implements ITypeRequestor {
 				true,
 				lookupEnvironment.problemReporter,
 				result);
-
+
 		if (unit != null) {
 			lookupEnvironment.buildTypeBindings(unit);
 			lookupEnvironment.completeTypeBindings(unit, true);
 		}
 	}
-
-	/**
-	 * Answer an array of descriptions for the configurable options.
-	 * The descriptions may be changed and passed back to a different
-	 * compiler.
-	 *
-	 *  @return ConfigurableOption[] - array of configurable options
-	 */
-	public static ConfigurableOption[] getDefaultOptions(Locale locale) {
-		return Compiler.getDefaultOptions(locale);
-	}
+
 	public abstract AssistParser getParser();
 	protected void parseMethod(CompilationUnitDeclaration unit, int position) {
 		for (int i = unit.types.length; --i >= 0;) {
@@ -82,7 +71,7 @@ public abstract class Engine implements ITypeRequestor {
 			}
 		}
 	}
-
+
 	private void parseMethod(
 		TypeDeclaration type,
 		CompilationUnitDeclaration unit,
@@ -129,7 +118,7 @@ public abstract class Engine implements ITypeRequestor {
 			}
 		}
 	}
-
+
 	protected void reset() {
 		lookupEnvironment.reset();
 	}

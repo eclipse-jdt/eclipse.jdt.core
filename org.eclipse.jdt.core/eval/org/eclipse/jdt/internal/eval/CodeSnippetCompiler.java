@@ -4,6 +4,7 @@ package org.eclipse.jdt.internal.eval;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.util.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
@@ -18,7 +19,7 @@ public class CodeSnippetCompiler extends Compiler {
 public CodeSnippetCompiler(
 		INameEnvironment environment, 
 		IErrorHandlingPolicy policy, 
-		ConfigurableOption[] settings, 
+		Map settings, 
 		ICompilerRequestor requestor, 
 		IProblemFactory problemFactory,
 		EvaluationContext evaluationContext,

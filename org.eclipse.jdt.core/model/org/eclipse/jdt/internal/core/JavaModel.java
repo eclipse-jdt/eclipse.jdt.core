@@ -7,7 +7,6 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
-import org.eclipse.jdt.internal.compiler.ConfigurableOption;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.util.*;

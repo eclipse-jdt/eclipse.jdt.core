@@ -14,7 +14,6 @@ import org.eclipse.jdt.internal.codeassist.*;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.IProblem;
-import org.eclipse.jdt.internal.compiler.ConfigurableOption;
 import org.eclipse.jdt.core.jdom.IDOMNode;
 
 /**
@@ -306,7 +305,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
 	}
 	TypeResolveRequestor requestor = new TypeResolveRequestor();
 	SelectionEngine engine = 
-		new SelectionEngine(environment, requestor, JavaModelManager.getOptions());
+		new SelectionEngine(environment, requestor, JavaCore.getOptions());
 		
 	engine.selectType(info, typeName.toCharArray());
 	return requestor.answers;

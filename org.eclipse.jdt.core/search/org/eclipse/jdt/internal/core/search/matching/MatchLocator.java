@@ -343,9 +343,9 @@ public class MatchLocator implements ITypeRequestor {
 					for (int j = 0, rootsLength = roots.length; j < rootsLength; j++) {
 						IJavaElement[] pkgs = roots[j].getChildren();
 						for (int k = 0, pksLength = pkgs.length; k < pksLength; k++) {
-							IJavaElement pkg = pkgs[k];
-							if (pkgPattern
-								.matchesName(pkgPattern.pkgName, pkg.getElementName().toCharArray())) {
+							IPackageFragment pkg = (IPackageFragment)pkgs[k];
+							if (pkg.getChildren().length > 0 
+									&& pkgPattern.matchesName(pkgPattern.pkgName, pkg.getElementName().toCharArray())) {
 								IResource resource = pkg.getUnderlyingResource();
 								if (resource == null) { // case of a file in an external jar
 									resource = javaProject.getProject();
