@@ -78,7 +78,7 @@ public void checkParse(
 				}
 				buffer.append("----------\n");
 			}
-		};
+		}
 	}
 	String computedSyntaxErrorDiagnosis = buffer.toString();
 	if(!expectedSyntaxErrorDiagnosis.equals(computedSyntaxErrorDiagnosis)) {
