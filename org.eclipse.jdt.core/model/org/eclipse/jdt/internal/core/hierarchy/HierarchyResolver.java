@@ -180,8 +180,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 	CompilationUnitDeclaration unit =
 		SourceTypeConverter.buildCompilationUnit(
 			new ISourceType[] {sourceType}, // ignore secondary types, to improve laziness
-			SourceTypeConverter.CONSTRUCTOR //TODO (jerome) no need for constructors any longer
-			| SourceTypeConverter.MEMBER_TYPE, // need member types
+			SourceTypeConverter.MEMBER_TYPE, // need member types
 			// no need for field initialization
 			lookupEnvironment.problemReporter, 
 			result);
@@ -568,8 +567,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 						parsedUnit = 
 							SourceTypeConverter.buildCompilationUnit(
 								typeInfos, 
-								SourceTypeConverter.CONSTRUCTOR //TODO (jerome) no need for constructors any longer
-								| SourceTypeConverter.MEMBER_TYPE, // need member types
+								SourceTypeConverter.MEMBER_TYPE, // need member types
 								// no need for field initialization
 								this.lookupEnvironment.problemReporter, 
 								result);
