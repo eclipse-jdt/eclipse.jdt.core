@@ -20,6 +20,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceDelta;
@@ -1847,19 +1848,6 @@ public class DeltaProcessor {
 					}
 					return;
 					
-				case IResourceChangeEvent.PRE_AUTO_BUILD :
-					// this.processPostChange = false;
-					if(isAffectedBy(delta)) { // avoid populating for SYNC or MARKER deltas
-						updateClasspathMarkers(delta);
-						JavaBuilder.buildStarting();
-					}
-					// does not fire any deltas
-					break;
-
-				case IResourceChangeEvent.POST_AUTO_BUILD :
-					JavaBuilder.buildFinished();
-					break;
-					
 				case IResourceChangeEvent.POST_CHANGE :
 					if (isAffectedBy(delta)) { // avoid populating for SYNC or MARKER deltas
 						try {
@@ -1884,6 +1872,30 @@ public class DeltaProcessor {
 							this.removedRoots = null;
 						}
 					}
+					return;
+					
+				case IResourceChangeEvent.PRE_AUTO_BUILD :
+				    DeltaProcessingState.ProjectUpdateInfo[] updates = this.state.removeAllProjectUpdates();
+					if (updates != null) {
+					    for (int i = 0, length = updates.length; i < length; i++) {
+					        try {
+						        updates[i].updateProjectReferencesIfNecessary();
+					        } catch(JavaModelException e) {
+					            // do nothing
+					        }
+					    }
+					}
+					// this.processPostChange = false;
+					if(isAffectedBy(delta)) { // avoid populating for SYNC or MARKER deltas
+						updateClasspathMarkers(delta);
+						JavaBuilder.buildStarting();
+					}
+					// does not fire any deltas
+					return;
+
+				case IResourceChangeEvent.POST_AUTO_BUILD :
+					JavaBuilder.buildFinished();
+					return;
 			}
 		}
 	}

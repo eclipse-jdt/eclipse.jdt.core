@@ -3382,7 +3382,7 @@ public final class JavaCore extends Plugin {
 				"CPContainer SET  - setting container\n" + //$NON-NLS-1$
 				"	container path: " + containerPath + '\n' + //$NON-NLS-1$
 				"	projects: {" +//$NON-NLS-1$
-				org.eclipse.jdt.internal.compiler.util.Util.toString( 
+				org.eclipse.jdt.internal.compiler.util.Util.toString(
 					affectedProjects, 
 					new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
 						public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
@@ -3412,7 +3412,8 @@ public final class JavaCore extends Plugin {
 							return buffer.toString();
 						}
 					}) +
-				"\n	}"); //$NON-NLS-1$
+				"\n	}\ninvocation stack trace:"); //$NON-NLS-1$
+				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 		}
 
 		final int projectLength = affectedProjects.length;
