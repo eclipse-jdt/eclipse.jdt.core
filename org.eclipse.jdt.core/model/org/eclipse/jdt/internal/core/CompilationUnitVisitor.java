@@ -161,7 +161,10 @@ public class CompilationUnitVisitor extends Compiler {
 						unitElement.getSource().toCharArray(),
 						expectedPackageName,
 						unitElement.getElementName(),
-						encoding));
+						encoding),
+					true, // method verification
+					false, // no flow analysis
+					false); // no code generation
 			if (unit != null) {
 				unit.traverse(visitor, unit.scope);
 			}

@@ -290,7 +290,7 @@ private static void swap(IProblem arr[], int i, int j) {
 	arr[i] = arr[j];
 	arr[j] = tmp;
 }
-CompilationResult tagAsAccepted(){
+public CompilationResult tagAsAccepted(){
 	this.hasBeenAccepted = true;
 	this.problemsMap = null; // flush
 	return this;

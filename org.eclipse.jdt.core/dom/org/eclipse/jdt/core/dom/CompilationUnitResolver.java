@@ -166,7 +166,9 @@ class CompilationUnitResolver extends Compiler {
 						expectedPackageName,
 						new String(fileName),
 						encoding),
-					true);
+					true, // method verification
+					false, // no flow analysis
+					false); // no code generation
 			return unit;
 		} finally {
 			if (unit != null) {
@@ -267,7 +269,9 @@ class CompilationUnitResolver extends Compiler {
 			unit =
 				compilationUnitVisitor.resolve(
 					new BasicCompilationUnit(source, expectedPackageName, unitName, encoding),
-					true);
+					true, // method verification
+					false, // no flow analysis
+					false); // no code generation			
 			return unit;
 		} finally {
 			if (unit != null) {

@@ -430,7 +430,7 @@ public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) t
 			IProblemRequestor problemRequestor = this.getProblemRequestor();
 			if (problemRequestor != null && problemRequestor.isActive()){
 				problemRequestor.beginReporting();
-				CompilationUnitProblemFinder.resolve(this, problemRequestor, monitor);
+				CompilationUnitProblemFinder.process(this, problemRequestor, monitor);
 				problemRequestor.endReporting();
 			}
 		}

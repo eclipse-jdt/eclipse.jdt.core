@@ -94,7 +94,7 @@ protected void buildStructure(OpenableElementInfo info, IProgressMonitor monitor
 	IProblemRequestor problemRequestor = this.getProblemRequestor();
 	if (problemRequestor != null && problemRequestor.isActive()){
 		problemRequestor.beginReporting();
-		CompilationUnitProblemFinder.resolve(this, problemRequestor, monitor);
+		CompilationUnitProblemFinder.process(this, problemRequestor, monitor);
 		problemRequestor.endReporting();
 	}
 	

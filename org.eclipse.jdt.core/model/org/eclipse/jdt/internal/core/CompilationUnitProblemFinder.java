@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
@@ -127,47 +128,6 @@ public class CompilationUnitProblemFinder extends Compiler {
 		};
 	}
 
-	public static CompilationUnitDeclaration resolve(
-		ICompilationUnit unitElement, 
-		IProblemRequestor problemRequestor,
-		IProgressMonitor monitor)
-		throws JavaModelException {
-
-		char[] fileName = unitElement.getElementName().toCharArray();
-		
-		IJavaProject project = unitElement.getJavaProject();
-		CompilationUnitProblemFinder problemFinder =
-			new CompilationUnitProblemFinder(
-				getNameEnvironment(unitElement),
-				getHandlingPolicy(),
-				project.getOptions(true),
-				getRequestor(),
-				getProblemFactory(fileName, problemRequestor, monitor));
-
-		CompilationUnitDeclaration unit = null;
-		try {
-			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
-			
-			IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-			char[][] expectedPackageName = null;
-			if (packageFragment != null){
-				expectedPackageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
-			}
-			unit = problemFinder.resolve(
-					new BasicCompilationUnit(
-						unitElement.getSource().toCharArray(),
-						expectedPackageName,
-						new String(fileName),
-						encoding));
-			return unit;
-		} finally {
-			if (unit != null) {
-				unit.cleanUp();
-			}
-			problemFinder.lookupEnvironment.reset();			
-		}
-	}
-	
 	protected static IProblemFactory getProblemFactory(
 		final char[] fileName, 
 		final IProblemRequestor problemRequestor,
@@ -214,5 +174,48 @@ public class CompilationUnitProblemFinder extends Compiler {
 		};
 	}
 
+	public static CompilationUnitDeclaration process(
+		ICompilationUnit unitElement, 
+		IProblemRequestor problemRequestor,
+		IProgressMonitor monitor)
+		throws JavaModelException {
+
+		char[] fileName = unitElement.getElementName().toCharArray();
+		
+		IJavaProject project = unitElement.getJavaProject();
+		CompilationUnitProblemFinder problemFinder =
+			new CompilationUnitProblemFinder(
+				getNameEnvironment(unitElement),
+				getHandlingPolicy(),
+				project.getOptions(true),
+				getRequestor(),
+				getProblemFactory(fileName, problemRequestor, monitor));
+
+		CompilationUnitDeclaration unit = null;
+		try {
+			String encoding = project.getOption(JavaCore.CORE_ENCODING, true);
+			
+			IPackageFragment packageFragment = (IPackageFragment)unitElement.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+			char[][] expectedPackageName = null;
+			if (packageFragment != null){
+				expectedPackageName = CharOperation.splitOn('.', packageFragment.getElementName().toCharArray());
+			}
+			unit = problemFinder.resolve(
+					new BasicCompilationUnit(
+						unitElement.getSource().toCharArray(),
+						expectedPackageName,
+						new String(fileName),
+						encoding),
+					true, // verify methods
+					true, // analyze code
+					true); // generate code
+			return unit;
+		} finally {
+			if (unit != null) {
+				unit.cleanUp();
+			}
+			problemFinder.lookupEnvironment.reset();			
+		}
+	}
 }	
 

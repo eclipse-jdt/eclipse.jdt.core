@@ -24,14 +24,14 @@ import java.util.*;
 
 public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public Parser parser;
-	ICompilerRequestor requestor;
+	public ICompilerRequestor requestor;
 	public CompilerOptions options;
 	public ProblemReporter problemReporter;
 
 	// management of unit to be processed
 	//public CompilationUnitResult currentCompilationUnitResult;
-	CompilationUnitDeclaration[] unitsToProcess;
-	int totalUnits; // (totalUnits-1) gives the last unit in unitToProcess
+	public CompilationUnitDeclaration[] unitsToProcess;
+	public int totalUnits; // (totalUnits-1) gives the last unit in unitToProcess
 
 	// name lookup
 	public LookupEnvironment lookupEnvironment;
@@ -521,7 +521,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	/**
 	 * Process a compilation unit already parsed and build.
 	 */
-	private void process(CompilationUnitDeclaration unit, int i) {
+	public void process(CompilationUnitDeclaration unit, int i) {
 
 		getMethodBodies(unit, i);
 
@@ -557,9 +557,14 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	}
 
 	/**
-	 * Internal API used to resolve a compilation unit minimally for code assist engine
+	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
 	 */
-	public CompilationUnitDeclaration resolve(ICompilationUnit sourceUnit, boolean verifyMethods) {
+	public CompilationUnitDeclaration resolve(
+			ICompilationUnit sourceUnit, 
+			boolean verifyMethods,
+			boolean analyzeCode,
+			boolean generateCode) {
+				
 		CompilationUnitDeclaration unit = null;
 		try {
 			// build and record parsed units
@@ -577,8 +582,14 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					unit.scope.verifyMethods(lookupEnvironment.methodVerifier());
 				}
 				// type checking
-				unit.resolve();
-			}
+				unit.resolve();		
+
+				// flow analysis
+				if (analyzeCode) unit.analyseCode();
+		
+				// code generation
+				if (generateCode) unit.generateCode();
+		}
 			unitsToProcess[0] = null; // release reference to processed unit declaration
 			requestor.acceptResult(unit.compilationResult.tagAsAccepted());
 			return unit;
@@ -600,12 +611,5 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			// environment.
 			// this.reset();
 		}
-	}
-
-	/**
-	 * Internal API used to resolve a compilation unit minimally for code assist engine
-	 */
-	public CompilationUnitDeclaration resolve(ICompilationUnit sourceUnit) {
-		return resolve(sourceUnit, false);
 	}
 }
