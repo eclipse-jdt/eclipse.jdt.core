@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.impl;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -174,9 +175,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 		if (settings == null) return;
 		
 		// filter options which are related to the compiler component
-		Object[] entries = settings.entrySet().toArray();
-		for (int i = 0, max = entries.length; i < max; i++){
-			Map.Entry entry = (Map.Entry)entries[i];
+		Iterator entries = settings.entrySet().iterator();
+		while (entries.hasNext()) {
+			Map.Entry entry = (Map.Entry)entries.next();
 			if (!(entry.getKey() instanceof String)) continue;
 			if (!(entry.getValue() instanceof String)) continue;
 			String optionID = (String) entry.getKey();
