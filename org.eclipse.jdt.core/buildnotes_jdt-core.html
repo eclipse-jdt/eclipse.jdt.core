@@ -233,7 +233,7 @@ disassembler. It can show constant pool contents.
 </ul>
 </li>
 <li>Added compiler option to diagnose need for cast of varargs argument. Matching problem IDs are 
-<code>IProblem.MethodVarargsArgumentNeedCast</code> & <code>IProblem.ConstructorVarargsArgumentNeedCast</code>
+<code>IProblem.MethodVarargsArgumentNeedCast</code> &amp; <code>IProblem.ConstructorVarargsArgumentNeedCast</code>
 <pre>
 * COMPILER / Reporting Varargs Argument Needing a Cast in Method/Constructor Invocation
 *    When enabled, the compiler will issue an error or a warning whenever a varargs arguments should be cast
@@ -310,7 +310,7 @@ required when reusing existing workspaces.
 from the body declarations. The  <code>org.eclipse.jdt.core.dom.EnumDeclaration#getEnumConstants()</code> method has been deprecated and
 will be removed after M3. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76190">76190</a> for further details.
 </li>
-<li>New requestor API <code>CompletionRequestor</code> is implemented inside code assist enigne</code>.
+<li>New requestor API <code>CompletionRequestor</code> is implemented inside code assist engine.
 </li>
 <li>Added missing API to <code>IType</code> for new completion requestor support:
 <ul>
@@ -525,7 +525,7 @@ What's new in this drop</h2>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75466">75466</a>
-[1.5] IAE in JavaElement.exists() for Collection<E>#containsAll(Collection<?>)
+[1.5] IAE in JavaElement.exists() for Collection&lt;E&gt;#containsAll(Collection&lt;?&gt;)
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75455">75455</a>
 [1.5] IAE on Content Assist for variable of type List&lt;? extends Number&gt;
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75489">75489</a>
@@ -817,7 +817,7 @@ IDOMType.setSuperInterfaces() with empty array has no impact on Interfaces
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=72083">72083</a>
 [1.5] NPE while compiling FindBugs
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=71080">71080</a>
-[1.5] Type parameter bound <E extends Enum<E>> should be allowed
+[1.5] Type parameter bound &lt;E extends Enum&lt;E&gt;&gt; should be allowed
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=62070">62070</a>
 Should revisit reference recording
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36397">36397</a>
@@ -950,7 +950,7 @@ JDTCompilerAdapter prevents use of Cheetah
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70975">70975</a>
 [1.5] Type mismatch when compiling against binary generic method
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70656">70656</a>
-[1.5] StackOverflow when resolving Enum<FormattedFloatingDecimal$Form> 
+[1.5] StackOverflow when resolving Enum&lt;FormattedFloatingDecimal$Form&gt; 
 
 
 <a name="v_501"></a>
@@ -1014,7 +1014,7 @@ Batch compiler should report compilation errors to console
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70618">70618</a>
 [1.5] Variable T should be allowed as argument of supertype
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70616">70616</a>
-[1.5] Unable to bind type variable in binary from Enum<E>
+[1.5] Unable to bind type variable in binary from Enum&lt;E&gt;
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70609">70609</a>
 [1.5] NPE compiling Container
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70606">70606</a>
@@ -1229,7 +1229,7 @@ Explicit parameterizations of message sends and constructor calls are also suppo
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=59258">59258</a>
 Possibility to share compiler preferences for a shared project
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=60556">60556</a>
-[1.5] Collections.unmodifiableList(List<A>)
+[1.5] Collections.unmodifiableList(List&lt;A&gt;)
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=58978">58978</a>
 [1.5] Generic method needs better error reporting
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=59983">59983</a>
@@ -1377,7 +1377,7 @@ What's new in this drop</h2>
 * 
 * COMPILER / Reporting Unsafe Type Operation
 *    When enabled, the compiler will issue an error or a warning whenever an operation involves generic types, and potentially
-*    invalidates type safety since involving raw types (e.g. invoking #foo(X<String>) with arguments  (X)).
+*    invalidates type safety since involving raw types (e.g. invoking #foo(X&lt;String&gt;) with arguments  (X)).
 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unsafeTypeOperation"
 *     - possible values:   { "error", "warning", "ignore" }
 *     - default:           "warning"
