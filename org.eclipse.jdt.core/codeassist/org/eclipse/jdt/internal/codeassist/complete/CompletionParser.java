@@ -100,6 +100,11 @@ public class CompletionParser extends AssistParser {
 	
 	static final int QUESTION = 1;
 	static final int COLON = 2;
+	
+	// K_BETWEEN_ANNOTATION_NAME_AND_RPAREN arguments
+	static final int LPAREN_NOT_CONSUMED = 1;
+	static final int LPAREN_CONSUMED = 2;
+	
 
 	// the type of the current invocation (one of the invocation type constants)
 	int invocationType;
@@ -361,6 +366,8 @@ protected void attachOrphanCompletionNode(){
 	}
 }
 private void buildMoreAnnotationCompletionContext(MemberValuePair memberValuePair) {
+	if(this.identifierPtr < 0 || this.identifierLengthPtr < 0 ) return;
+	
 	TypeReference typeReference = this.getAnnotationType();
 	
 	int nodesToRemove = this.astPtr > -1 && this.astStack[this.astPtr] == memberValuePair ? 1 : 0;
@@ -388,7 +395,9 @@ private void buildMoreAnnotationCompletionContext(MemberValuePair memberValuePai
 	
 	this.assistNode = memberValuePair;
 	this.assistNodeParent = annotation;
-	this.lastCheckPoint = memberValuePair.sourceEnd + 1;
+	if (memberValuePair.sourceEnd >= this.lastCheckPoint) {
+		this.lastCheckPoint = memberValuePair.sourceEnd + 1;
+	}
 	
 	currentElement.add(fakeType, 0);
 }
@@ -1198,7 +1207,7 @@ private boolean checkMemberValueName() {
 	/* check if current awaiting identifier is the completion identifier */
 	if (this.indexOfAssistIdentifier() < 0) return false;
 
-	if (!this.isInsideAnnotation()) return false;
+	if (this.topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) != K_BETWEEN_ANNOTATION_NAME_AND_RPAREN) return false;
 	
 	if(this.identifierPtr > -1 && this.identifierLengthPtr > -1 && this.identifierLengthStack[this.identifierLengthPtr] == 1) {
 		char[] simpleName = this.identifierStack[this.identifierPtr];
@@ -1269,9 +1278,9 @@ private boolean checkRecoveredType() {
  */
 public void completionIdentifierCheck(){
 	//if (assistNode != null) return; 
-
-	if (checkKeyword()) return;
+	
 	if (checkMemberValueName()) return;
+	if (checkKeyword()) return;
 	if (checkRecoveredType()) return;
 	if (checkRecoveredMethod()) return;
 
@@ -2031,7 +2040,7 @@ protected void consumeAnnotationName() {
 	
 	if ((index = this.indexOfAssistIdentifier()) < 0) {
 		super.consumeAnnotationName();
-		this.pushOnElementStack(K_BETWEEN_ANNOTATION_NAME_AND_RPAREN);
+		this.pushOnElementStack(K_BETWEEN_ANNOTATION_NAME_AND_RPAREN, LPAREN_NOT_CONSUMED);
 		return;
 	} 
 	
@@ -2297,8 +2306,11 @@ protected void consumeToken(int token) {
 				switch (previous) {
 					case TokenNameIdentifier: // eg. fred[(]) or foo.fred[(])
 						if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SELECTOR) {
-							if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER,1) == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN) {
+							if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER,1) == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN &&
+									topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER,1) == LPAREN_NOT_CONSUMED) {
 								this.popElement(K_SELECTOR);
+								this.popElement(K_BETWEEN_ANNOTATION_NAME_AND_RPAREN);
+								this.pushOnElementStack(K_BETWEEN_ANNOTATION_NAME_AND_RPAREN, LPAREN_CONSUMED);
 							} else {
 								this.pushOnElementStack(K_SELECTOR_INVOCATION_TYPE, this.invocationType);
 								this.pushOnElementStack(K_SELECTOR_QUALIFIER, this.qualifier);

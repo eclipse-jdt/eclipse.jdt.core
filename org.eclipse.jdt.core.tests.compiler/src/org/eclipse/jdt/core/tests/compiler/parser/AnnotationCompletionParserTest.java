@@ -2720,4 +2720,34 @@ public void test0072(){
 			expectedReplacedSource,
 	"diet ast");
 }
+public void test0073(){
+	String str =
+		"@Annot(zzz=yyy,f)\n" +
+		"public class X {\n" +
+		"}";
+
+
+	String completeBehind = "f";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnAttributeName:f>";
+	String expectedParentNodeToString = "@Annot(zzz = yyy,<CompleteOnAttributeName:f>)";
+	String completionIdentifier = "f";
+	String expectedReplacedSource = "f";
+	String expectedUnitDisplayString =
+		"@Annot(zzz = yyy,<CompleteOnAttributeName:f>)\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }
