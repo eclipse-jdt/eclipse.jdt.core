@@ -210,34 +210,53 @@ protected IJavaElement[] growAndAddToArray(IJavaElement[] array, IJavaElement ad
 protected IType resolveType(char[] packageName, char[] typeName, int acceptFlags) {
 
 	IType type= null;
-	IPackageFragment[] pkgs = fNameLookup.findPackageFragments(
-		(packageName == null || packageName.length == 0) ? IPackageFragment.DEFAULT_PACKAGE_NAME : new String(packageName), 
-		false);
-	// iterate type lookup in each package fragment
-	for (int i = 0, length = pkgs == null ? 0 : pkgs.length; i < length; i++) {
-		type= fNameLookup.findType(new String(typeName), pkgs[i], false, acceptFlags);
-		if (type != null) break;	
-	}
-	if (type == null) {
-		String pName= IPackageFragment.DEFAULT_PACKAGE_NAME;
-		if (packageName != null) {
-			pName = new String(packageName);
-		}
-		if (fCodeResolve != null && fCodeResolve.getParent().getElementName().equals(pName)) {
-			// look inside the type in which we are resolving in
-			String tName= new String(typeName);
-			tName = tName.replace('.','$');
-			IType[] allTypes= null;
-			try {
-				java.util.Vector v = ((JavaElement)fCodeResolve).getChildrenOfType(IJavaElement.TYPE);
-				allTypes = new IType[v.size()];
-				v.copyInto(allTypes);
-			} catch (JavaModelException e) {
-				return null;
+	
+	if (fCodeResolve instanceof WorkingCopy) {
+		WorkingCopy wc = (WorkingCopy) fCodeResolve;
+		try {
+			if(((packageName == null || packageName.length == 0) && wc.getPackageDeclarations().length == 0) ||
+				(!(packageName == null || packageName.length == 0) && wc.getPackageDeclaration(new String(packageName)).exists())) {
+					
+				type = wc.getType(new String(typeName));
+				if(!type.exists()) {
+					type = null;
+				}
 			}
-			for (int i= 0; i < allTypes.length; i++) {
-				if (allTypes[i].getTypeQualifiedName().equals(tName)) {
-					return allTypes[i];
+		}catch (JavaModelException e) {
+			type = null;
+		}
+	}
+
+	if(type == null) {
+		IPackageFragment[] pkgs = fNameLookup.findPackageFragments(
+			(packageName == null || packageName.length == 0) ? IPackageFragment.DEFAULT_PACKAGE_NAME : new String(packageName), 
+			false);
+		// iterate type lookup in each package fragment
+		for (int i = 0, length = pkgs == null ? 0 : pkgs.length; i < length; i++) {
+			type= fNameLookup.findType(new String(typeName), pkgs[i], false, acceptFlags);
+			if (type != null) break;	
+		}
+		if (type == null) {
+			String pName= IPackageFragment.DEFAULT_PACKAGE_NAME;
+			if (packageName != null) {
+				pName = new String(packageName);
+			}
+			if (fCodeResolve != null && fCodeResolve.getParent().getElementName().equals(pName)) {
+				// look inside the type in which we are resolving in
+				String tName= new String(typeName);
+				tName = tName.replace('.','$');
+				IType[] allTypes= null;
+				try {
+					java.util.Vector v = ((JavaElement)fCodeResolve).getChildrenOfType(IJavaElement.TYPE);
+					allTypes = new IType[v.size()];
+					v.copyInto(allTypes);
+				} catch (JavaModelException e) {
+					return null;
+				}
+				for (int i= 0; i < allTypes.length; i++) {
+					if (allTypes[i].getTypeQualifiedName().equals(tName)) {
+						return allTypes[i];
+					}
 				}
 			}
 		}
