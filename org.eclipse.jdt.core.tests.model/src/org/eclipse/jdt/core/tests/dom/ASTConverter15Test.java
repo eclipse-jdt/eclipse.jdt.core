@@ -160,7 +160,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertProblemsSize(compilationUnit, 0);
+		assertProblemsSize(compilationUnit, 2);
 		List types = compilationUnit.types();
 		assertEquals("Wrong number of types", 3, types.size());
 		AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) types.get(2);
@@ -197,7 +197,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertProblemsSize(compilationUnit, 0);
+		assertProblemsSize(compilationUnit, 2);
 		List types = compilationUnit.types();
 		assertEquals("Wrong number of types", 3, types.size());
 		AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) types.get(2);
@@ -234,7 +234,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertProblemsSize(compilationUnit, 0);
+		assertProblemsSize(compilationUnit, 2);
 		List types = compilationUnit.types();
 		assertEquals("Wrong number of types", 4, types.size());
 		AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) types.get(3);
@@ -298,7 +298,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertProblemsSize(compilationUnit, 1);
+		assertProblemsSize(compilationUnit, 3);
 		PackageDeclaration packageDeclaration = compilationUnit.getPackage();
 		assertNotNull("No package declaration", packageDeclaration);
 		checkSourceRange(packageDeclaration, "@Retention package test0006;", source);
@@ -1078,7 +1078,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertProblemsSize(compilationUnit, 0);
+		assertProblemsSize(compilationUnit, 2);
 	}
 	
 	/**

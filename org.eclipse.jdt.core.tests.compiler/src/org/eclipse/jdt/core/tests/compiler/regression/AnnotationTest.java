@@ -70,8 +70,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 	}
 	
 	// check invalid annotation
-	// TODO (olivier) reenable once addressed
-	public void _test002() {
+	public void test002() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -82,7 +81,12 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"	String value();\n" + 
 				"}\n"
 			},
-			"invalid annotation - missing value");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public @Foo class X {\n" + 
+			"	       ^^^^\n" + 
+			"The annotation @Foo must define the member value\n" + 
+			"----------\n");
 	}
 	
 	// check annotation method cannot indirectly return annotation type (circular ref)
@@ -115,7 +119,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"1. ERROR in Foo.java (at line 2)\n" + 
 			"	Foo value();\n" + 
 			"	^^^\n" + 
-			"Cycle detected: the annotation type Foo cannot contain members of the same type\n" + 
+			"Cycle detected: the annotation type Foo cannot contain members of the annotation type itself\n" + 
 			"----------\n");
 	}		
 
@@ -217,7 +221,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	Runnable value();\n" + 
 			"	^^^^^^^^\n" + 
-			"Invalid type Runnable for the annotation method X.value(); only primitive, String, Class, enum or annotation types are permitted or an array of those types\n" + 
+			"Invalid type Runnable for the annotation member X.value; only primitive, String, Class, enum or annotation types are permitted or an array of those types\n" + 
 			"----------\n");
 	}
 	
@@ -244,4 +248,192 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"Return type for the method is missing\n" + 
 			"----------\n");
 	}			
+	
+	// check annotation denotes annotation type
+	public void test011() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@Object\n" + 
+				"public class X {\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	@Object\n" + 
+			"	 ^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to Annotation\n" + 
+			"----------\n");
+	}			
+	
+	// check for duplicate annotations
+	public void test012() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@Foo @Foo\n" + 
+				"public class X {\n" + 
+				"}\n" + 
+				"@interface Foo {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	@Foo @Foo\n" + 
+			"	^^^^\n" + 
+			"Duplicate annotation @Foo\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
+			"	@Foo @Foo\n" + 
+			"	     ^^^^\n" + 
+			"Duplicate annotation @Foo\n" + 
+			"----------\n");
+	}
+	
+	// check single member annotation - no need to specify value if member has default value
+	public void test013() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@Foo(\"hello\") public class X {\n" + 
+				"}\n" + 
+				"\n" + 
+				"@interface Foo {\n" + 
+				"	String id() default \"\";\n" + 
+				"	String value() default \"\";\n" + 
+				"}\n"
+			},
+			"");
+	}	
+	
+	// check single member annotation -  need to speficy value if member has no default value
+	public void test014() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@Foo(\"hello\") public class X {\n" + 
+				"}\n" + 
+				"\n" + 
+				"@interface Foo {\n" + 
+				"	String id() default \"\";\n" + 
+				"	String value() default \"\";\n" + 
+				"	String foo();\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	@Foo(\"hello\") public class X {\n" + 
+			"	^^^^\n" + 
+			"The annotation @Foo must define the member foo\n" + 
+			"----------\n");
+	}
+	
+	// check normal annotation -  need to speficy value if member has no default value
+	public void test015() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@Foo(\n" + 
+				"		id = \"hello\") public class X {\n" + 
+				"}\n" + 
+				"\n" + 
+				"@interface Foo {\n" + 
+				"	String id() default \"\";\n" + 
+				"	String value() default \"\";\n" + 
+				"	String foo();\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	@Foo(\n" + 
+			"	^^^^\n" + 
+			"The annotation @Foo must define the member foo\n" + 
+			"----------\n");
+	}
+	
+	// check normal annotation - if single member, no need to be named 'value'
+	public void test016() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface Name {\n" + 
+				"	String first();\n" + 
+				"	String last();\n" + 
+				"}\n" + 
+				"@interface Author {\n" + 
+				"	Name name();\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	\n" + 
+				"	@Author(name = @Name(first=\"Bill\", last=\"Yboy\")) \n" + 
+				"	void foo() {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"");
+	}		
+
+	// check single member annotation can only refer to 'value' member
+	public void test017() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface Name {\n" + 
+				"	String first();\n" + 
+				"	String last();\n" + 
+				"}\n" + 
+				"@interface Author {\n" + 
+				"	Name name();\n" + 
+				"}\n" + 
+				"@Author(@Name(first=\"Joe\",last=\"Hacker\")) \n" + 
+				"public class X {\n" + 
+				"	\n" + 
+				"	@Author(name = @Name(first=\"Bill\", last=\"Yboy\")) \n" + 
+				"	void foo() {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	@Author(@Name(first=\"Joe\",last=\"Hacker\")) \n" + 
+			"	^^^^^^^\n" + 
+			"The annotation @Author must define the member name\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	@Author(@Name(first=\"Joe\",last=\"Hacker\")) \n" + 
+			"	        ^^^^^\n" + 
+			"The member value is undefined for the annotation type Author\n" + 
+			"----------\n");
+	}		
+
+	// check for duplicate member value pairs
+	public void test018() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface Name {\n" + 
+				"	String first();\n" + 
+				"	String last();\n" + 
+				"}\n" + 
+				"@interface Author {\n" + 
+				"	Name name();\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	\n" + 
+				"	@Author(name = @Name(first=\"Bill\", last=\"Yboy\", last=\"dup\")) \n" + 
+				"	void foo() {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	@Author(name = @Name(first=\"Bill\", last=\"Yboy\", last=\"dup\")) \n" + 
+			"	                                   ^^^^\n" + 
+			"Duplicate member last in annotation @Name\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	@Author(name = @Name(first=\"Bill\", last=\"Yboy\", last=\"dup\")) \n" + 
+			"	                                                ^^^^\n" + 
+			"Duplicate member last in annotation @Name\n" + 
+			"----------\n");
+	}		
 }
