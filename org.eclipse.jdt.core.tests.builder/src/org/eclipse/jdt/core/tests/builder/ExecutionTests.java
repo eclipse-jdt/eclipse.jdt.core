@@ -27,48 +27,48 @@ public class ExecutionTests extends Tests {
 	}
 	
 	public void testSuccess() {
-		IPath projectPath = env.addProject("Project");
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot(projectPath, "");
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		
-		IPath root = env.addPackageFragmentRoot(projectPath, "src");
-		env.setOutputFolder(projectPath, "bin");
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		
-		env.addClass(root, "p1", "Hello",
-			"package p1;\n"+
-			"public class Hello {\n"+
-			"   public static void main(String args[]) {\n"+
-			"      System.out.println(\"Hello world\");\n"+
-			"   }\n"+
-			"}\n"
+		env.addClass(root, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class Hello {\n"+ //$NON-NLS-1$
+			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
+			"      System.out.println(\"Hello world\");\n"+ //$NON-NLS-1$
+			"   }\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 			
 		incrementalBuild(projectPath);
 		expectingNoProblems();
-		executeClass(projectPath, "p1.Hello", "Hello world\r\n", "");
+		executeClass(projectPath, "p1.Hello", "Hello world\r\n", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	
 	public void testFailure() {
-		IPath projectPath = env.addProject("Project");
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot(projectPath, "");
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		
-		IPath root = env.addPackageFragmentRoot(projectPath, "src");
-		env.setOutputFolder(projectPath, "bin");
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		
-		IPath helloPath = env.addClass(root, "p1", "Hello",
-			"package p1;\n"+
-			"public class Hello {\n"+
-			"   public static void main(String args[]) {\n"+
-			"      System.out.println(\"Hello world\")\n"+
-			"   }\n"+
-			"}\n"
+		IPath helloPath = env.addClass(root, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class Hello {\n"+ //$NON-NLS-1$
+			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
+			"      System.out.println(\"Hello world\")\n"+ //$NON-NLS-1$
+			"   }\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 		// public static void main(String args[]) {
 		//    System.out.println("Hello world") <-- missing ";"
@@ -76,9 +76,9 @@ public class ExecutionTests extends Tests {
 			
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(helloPath);
-		executeClass(projectPath, "p1.Hello", "",
-			"java.lang.Error: Unresolved compilation problem: \n" + 
-			"	Syntax error on token \"}\", \"++\", \"--\" expected\n"
+		executeClass(projectPath, "p1.Hello", "", //$NON-NLS-1$ //$NON-NLS-2$
+			"java.lang.Error: Unresolved compilation problem: \n" +  //$NON-NLS-1$
+			"	Syntax error on token \"}\", \"++\", \"--\" expected\n" //$NON-NLS-1$
 		);
 	}
 }

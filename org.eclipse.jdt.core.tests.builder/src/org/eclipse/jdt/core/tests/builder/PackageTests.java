@@ -35,35 +35,35 @@ public class PackageTests extends Tests {
 		//----------------------------
 		//           Step 1
 		//----------------------------
-		IPath projectPath = env.addProject("Project");
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
-		env.removePackageFragmentRoot(projectPath, "");
-		IPath src = env.addPackageFragmentRoot(projectPath, "src");
-		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2");
-		env.setOutputFolder(projectPath, "bin");
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		
-		env.addClass(src, "pack", "X",
-			"package pack;\n"+
-			"public class X {\n"+
-			"}\n"
+		env.addClass(src, "pack", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package pack;\n"+ //$NON-NLS-1$
+			"public class X {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 			
-		env.addClass(src2, "p1", "X",
-			"package p1;\n"+
-			"public class X {\n"+
-			"}\n"
+		env.addClass(src2, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class X {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 			
-		env.addClass(src2, "p2", "Y",
-			"package p2;\n"+
-			"public class Y extends p1.X {\n"+
-			"}\n"
+		env.addClass(src2, "p2", "Y", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class Y extends p1.X {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 			
-		env.addClass(src2, "p3", "Z",
-			"package p3;\n"+
-			"public class Z extends p2.Y {\n"+
-			"}\n"
+		env.addClass(src2, "p3", "Z", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p3;\n"+ //$NON-NLS-1$
+			"public class Z extends p2.Y {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 
 		
@@ -73,8 +73,8 @@ public class PackageTests extends Tests {
 		//----------------------------
 		//           Step 2
 		//----------------------------
-		env.removeClass(env.getPackagePath(src, "pack"), "X");
-		env.removePackage(src2, "p3");
+		env.removeClass(env.getPackagePath(src, "pack"), "X"); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removePackage(src2, "p3"); //$NON-NLS-1$
 			
 		incrementalBuild();
 		expectingNoProblems();

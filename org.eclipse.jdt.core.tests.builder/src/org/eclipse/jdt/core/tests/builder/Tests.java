@@ -49,7 +49,7 @@ public class Tests extends TestCase {
 		for (int i = 0; i < cp.length; i++) {
 			IPath c = cp[i];
 			String ext = c.getFileExtension();
-			if(ext != null && (ext.equals("zip") || ext.equals("jar"))){
+			if(ext != null && (ext.equals("zip") || ext.equals("jar"))){ //$NON-NLS-1$ //$NON-NLS-2$
 				if(c.getDevice() == null) {
 					classpath.addElement(workspacePath.append(c).toOSString());
 				} else {
@@ -61,30 +61,30 @@ public class Tests extends TestCase {
 		verifier.execute(className, (String[])classpath.toArray(new String[0]));
 		
 		if(DEBUG){
-			System.out.println("ERRORS\n");
+			System.out.println("ERRORS\n"); //$NON-NLS-1$
 			System.out.println(Util.displayString(verifier.getExecutionError()));
 			
-			System.out.println("OUTPUT\n");
+			System.out.println("OUTPUT\n"); //$NON-NLS-1$
 			System.out.println(Util.displayString(verifier.getExecutionOutput()));
 		}
 		String actualError = verifier.getExecutionError();
 		
 		// workaround pb on 1.3.1 VM (line delimitor is not the platform line delimitor)
 		char[] error = actualError.toCharArray();
-		actualError = new String(CharOperation.replace(error, System.getProperty("line.separator").toCharArray(), new char[] {'\n'}));
+		actualError = new String(CharOperation.replace(error, System.getProperty("line.separator").toCharArray(), new char[] {'\n'})); //$NON-NLS-1$
 		
 		if (actualError.indexOf(expectedError) == -1){
-			System.out.println("ERRORS\n");
+			System.out.println("ERRORS\n"); //$NON-NLS-1$
 			System.out.println(Util.displayString(actualError));
 		}
-		assertTrue("unexpected error : " + actualError + " expected : " + expectedError, actualError.indexOf(expectedError) != -1);
+		assertTrue("unexpected error : " + actualError + " expected : " + expectedError, actualError.indexOf(expectedError) != -1); //$NON-NLS-1$ //$NON-NLS-2$
 
 		String actualOutput = verifier.getExecutionOutput();
 		if (actualOutput.indexOf(expectingOutput) == -1){
-			System.out.println("OUTPUT\n");
+			System.out.println("OUTPUT\n"); //$NON-NLS-1$
 			System.out.println(Util.displayString(actualOutput));
 		}
-		assertTrue("unexpected output", actualOutput.indexOf(expectingOutput) != -1);
+		assertTrue("unexpected output", actualOutput.indexOf(expectingOutput) != -1); //$NON-NLS-1$
 		
 	}
 	
@@ -100,7 +100,7 @@ public class Tests extends TestCase {
 		IPath wRoot = env.getWorkspaceRootPath();
 		
 		for (int i = 0; i < paths.length; i++){
-			assertTrue(paths[i] +" is not present", wRoot.append(paths[i]).toFile().exists());
+			assertTrue(paths[i] +" is not present", wRoot.append(paths[i]).toFile().exists()); //$NON-NLS-1$
 		}
 	}
 	
@@ -116,7 +116,7 @@ public class Tests extends TestCase {
 		IPath wRoot = env.getWorkspaceRootPath();
 		
 		for (int i = 0; i < paths.length; i++){
-			assertTrue(paths[i] +" is present", !wRoot.append(paths[i]).toFile().exists());
+			assertTrue(paths[i] +" is present", !wRoot.append(paths[i]).toFile().exists()); //$NON-NLS-1$
 		}
 	}
 	
@@ -126,13 +126,13 @@ public class Tests extends TestCase {
 		String[] actual = debugRequestor.getCompiledClasses();
 		org.eclipse.jdt.internal.core.Util.sort(actual);
 		org.eclipse.jdt.internal.core.Util.sort(expected);	
-		expectingCompiling(actual, expected, "unexpected recompiled units");
+		expectingCompiling(actual, expected, "unexpected recompiled units"); //$NON-NLS-1$
 	}
 	
 	/** Verifies that given classes have been compiled in the specified order.
 	 */
 	protected void expectingCompilingOrder(String[] expected){
-		expectingCompiling(debugRequestor.getCompiledClasses(), expected, "unexpected compiling order");
+		expectingCompiling(debugRequestor.getCompiledClasses(), expected, "unexpected compiling order"); //$NON-NLS-1$
 	}
 	
 	private void expectingCompiling(String[] actual, String[] expected, String message){
@@ -142,15 +142,15 @@ public class Tests extends TestCase {
 			}
 		}	
 		
-		StringBuffer actualBuffer = new StringBuffer("{");
+		StringBuffer actualBuffer = new StringBuffer("{"); //$NON-NLS-1$
 		for (int i = 0; i < actual.length; i++){
-			if (i > 0) actualBuffer.append(",");
+			if (i > 0) actualBuffer.append(","); //$NON-NLS-1$
 			actualBuffer.append(actual[i]);
 		}
 		actualBuffer.append('}');
-		StringBuffer expectedBuffer = new StringBuffer("{");
+		StringBuffer expectedBuffer = new StringBuffer("{"); //$NON-NLS-1$
 		for (int i = 0; i < expected.length; i++){
-			if (i > 0) expectedBuffer.append(",");
+			if (i > 0) expectedBuffer.append(","); //$NON-NLS-1$
 			expectedBuffer.append(expected[i]);
 		}
 		expectedBuffer.append('}');		
@@ -180,7 +180,7 @@ public class Tests extends TestCase {
 			Problem[] problems = env.getProblemsFor(root);
 			
 			if(problems.length != 0) {
-				assertTrue("unexpected problem(s) : " + problems[0], false);
+				assertTrue("unexpected problem(s) : " + problems[0], false); //$NON-NLS-1$
 			}
 		}
 	}
@@ -209,7 +209,7 @@ public class Tests extends TestCase {
 		
 		for (int i = 0; i < expected.length; i++) {
 			if (!actual.containsKey(expected[i])) {
-				assertTrue("missing expected problem with " + expected[i].toString(), false);
+				assertTrue("missing expected problem with " + expected[i].toString(), false); //$NON-NLS-1$
 			}
 		}
 
@@ -224,7 +224,7 @@ public class Tests extends TestCase {
 					}
 				}
 				if (!found) {
-					assertTrue("unexpected problem(s) with " + path.toString(), false);
+					assertTrue("unexpected problem(s) with " + path.toString(), false); //$NON-NLS-1$
 				}
 			}
 		}
@@ -244,33 +244,33 @@ public class Tests extends TestCase {
 
 		StringBuffer expectation = new StringBuffer(20);
 		for (int k = 0; k < expectedProblems.length; k++){
-			expectation.append("\tnew Problem(\"");
+			expectation.append("\tnew Problem(\""); //$NON-NLS-1$
 			expectation.append(expectedProblems[k].getLocation());
-			expectation.append("\", \"");
+			expectation.append("\", \""); //$NON-NLS-1$
 			expectation.append(expectedProblems[k].getMessage());
-			expectation.append("\", new Path(\"");
+			expectation.append("\", new Path(\""); //$NON-NLS-1$
 			expectation.append(expectedProblems[k].getResourcePath());
-			expectation.append("\"))\n");				
+			expectation.append("\"))\n");				 //$NON-NLS-1$
 		}
 		String expectationString = expectation.toString();
 		
 		StringBuffer actual = new StringBuffer(20);
 		Problem[] rootProblems = env.getProblemsFor(root);
 		for (int k = 0; k < rootProblems.length; k++){
-			actual.append("\tnew Problem(\"");
+			actual.append("\tnew Problem(\""); //$NON-NLS-1$
 			actual.append(rootProblems[k].getLocation());
-			actual.append("\", \"");
+			actual.append("\", \""); //$NON-NLS-1$
 			actual.append(rootProblems[k].getMessage());
-			actual.append("\", new Path(\"");
+			actual.append("\", new Path(\""); //$NON-NLS-1$
 			actual.append(rootProblems[k].getResourcePath());
-			actual.append("\"))\n");				
+			actual.append("\"))\n");				 //$NON-NLS-1$
 		}
 		String actualString = actual.toString();
 		
 		if (!actualString.equals(expectationString)) {
 			System.out.println(actualString);
 		}		
-		assertEquals("unexpected problems", expectationString, actualString);
+		assertEquals("unexpected problems", expectationString, actualString); //$NON-NLS-1$
 	}
 	
 	/** Verifies that the given element has problems.
@@ -290,7 +290,7 @@ public class Tests extends TestCase {
 			
 			/* get the leaf problems for this type */
 			Problem[] problems = env.getProblemsFor(path);
-			assertTrue("missing expected problem with " + expected[i].toString(), problems.length > 0);
+			assertTrue("missing expected problem with " + expected[i].toString(), problems.length > 0); //$NON-NLS-1$
 		}
 	}
 
@@ -321,9 +321,9 @@ public class Tests extends TestCase {
 			}
 			for (int j = 0; j < rootProblems.length; j++) {
 				Problem pb = rootProblems[j];
-				System.out.println("got pb:		new Problem(\""+pb.getLocation()+"\", \""+pb.getMessage()+"\", \""+pb.getResourcePath()+"\")");
+				System.out.println("got pb:		new Problem(\""+pb.getLocation()+"\", \""+pb.getMessage()+"\", \""+pb.getResourcePath()+"\")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			}
-			assertTrue("missing expected problem : "+ problem, false);
+			assertTrue("missing expected problem : "+ problem, false); //$NON-NLS-1$
 		}
 	}
 	

@@ -20,8 +20,8 @@ import java.io.*;
 import java.util.*;
 
 public class TestingEnvironment {
-	private static final String testJarName = "buildertests.jar";
-	private static final String testProjectName = "org.eclipse.jdt.core.tests.builder";
+	private static final String testJarName = "buildertests.jar"; //$NON-NLS-1$
+	private static final String testProjectName = "org.eclipse.jdt.core.tests.builder"; //$NON-NLS-1$
 	
 	private boolean fIsOpen = false;
 	private boolean fWasBuilt = false;
@@ -48,8 +48,8 @@ public class TestingEnvironment {
 	 * Returns the path of the added class.
 	 */
 	public IPath addBinaryClass(IPath packagePath, String className, byte[] contents) {
-		checkAssertion("a workspace must be open", fIsOpen);
-		IPath classPath = packagePath.append(className + ".class");
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
+		IPath classPath = packagePath.append(className + ".class"); //$NON-NLS-1$
 		createFile(classPath, contents);
 		return classPath;
 	}
@@ -81,13 +81,13 @@ public class TestingEnvironment {
 	 * Returns the path of the added class.
 	 */
 	public IPath addClass(IPath packagePath, String className, String contents) {
-		checkAssertion("a workspace must be open", fIsOpen);
-		IPath classPath = packagePath.append(className + ".java");
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
+		IPath classPath = packagePath.append(className + ".java"); //$NON-NLS-1$
 		try {
-			createFile(classPath, contents.getBytes("UTF8"));
+			createFile(classPath, contents.getBytes("UTF8")); //$NON-NLS-1$
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-			checkAssertion("e1", false);
+			checkAssertion("e1", false); //$NON-NLS-1$
 		}
 		return classPath;
 	}
@@ -117,7 +117,7 @@ public class TestingEnvironment {
 	 * Returns the path of the added package.
 	 */
 	public IPath addPackage(IPath packageFragmentRootPath, String packageName) {
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IPath path =
 			packageFragmentRootPath.append(packageName.replace('.', IPath.SEPARATOR));
 		createFolder(path);
@@ -130,11 +130,11 @@ public class TestingEnvironment {
 	 * Returns the path of the added package fragment root.
 	 */
 	public IPath addPackageFragmentRoot(IPath projectPath, String packageFragmentRootName) {
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IPath packageFragmentRootPath =
 			projectPath.append(packageFragmentRootName);
-		if (!packageFragmentRootName.toLowerCase().endsWith(".zip")
-			&& !packageFragmentRootName.toLowerCase().endsWith(".jar")) {
+		if (!packageFragmentRootName.toLowerCase().endsWith(".zip") //$NON-NLS-1$
+			&& !packageFragmentRootName.toLowerCase().endsWith(".jar")) { //$NON-NLS-1$
 			createFolder(packageFragmentRootPath);
 		}
 		IPath[] oldRootsPath = getClasspath(projectPath);
@@ -147,7 +147,7 @@ public class TestingEnvironment {
 	}
 	
 	public IPath addProject(String projectName){
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IProject project = createProject(projectName);
 		return project.getFullPath();
 	}
@@ -155,7 +155,7 @@ public class TestingEnvironment {
 	/** Adds a project to the classpath of a project.
 	 */
 	public void addRequiredProject(IPath projectPath, IPath requiredProjectPath){
-		checkAssertion("required project must not be in project", !projectPath.isPrefixOf(requiredProjectPath));
+		checkAssertion("required project must not be in project", !projectPath.isPrefixOf(requiredProjectPath)); //$NON-NLS-1$
 		addEntry(projectPath, requiredProjectPath);
 	
 	}
@@ -163,7 +163,7 @@ public class TestingEnvironment {
 	/** Adds an external jar to the classpath of a project.
 	 */
 	public void addExternalJar(IPath projectPath, String jar) {
-		checkAssertion("file name must end with .zip or .jar", jar.endsWith(".zip") || jar.endsWith(".jar"));
+		checkAssertion("file name must end with .zip or .jar", jar.endsWith(".zip") || jar.endsWith(".jar")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		addEntry(projectPath, new Path(jar));
 	}
 	
@@ -178,13 +178,13 @@ public class TestingEnvironment {
 	/** Adds a file.
 	 */
 	public IPath addFile(IPath root, String fileName, String contents){
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IPath filePath = root.append(fileName);
 		try {
-			createFile(filePath, contents.getBytes("UTF8"));
+			createFile(filePath, contents.getBytes("UTF8")); //$NON-NLS-1$
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-			checkAssertion("e1", false);
+			checkAssertion("e1", false); //$NON-NLS-1$
 		}
 		return filePath;
 	}
@@ -192,7 +192,7 @@ public class TestingEnvironment {
 	/** Adds a folder.
 	 */
 	public IPath addFolder(IPath root, String folderName, String contents){
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IPath folderPath = root.append(folderName);
 		createFolder(folderPath);
 		return folderPath;
@@ -205,8 +205,8 @@ public class TestingEnvironment {
 	 * the added jar.
 	 */
 	public IPath addInternalJar(IPath projectPath, String zipName, byte[] contents) {
-		checkAssertion("a workspace must be open", fIsOpen);
-		checkAssertion("zipName must end with .zip or .jar", zipName.endsWith(".zip") || zipName.endsWith(".jar"));
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
+		checkAssertion("zipName must end with .zip or .jar", zipName.endsWith(".zip") || zipName.endsWith(".jar")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		IPath path = projectPath.append(zipName);
 		
 		/* remove any existing zip from the java model */
@@ -245,7 +245,7 @@ public class TestingEnvironment {
 	/** Close a project from the workspace.
 	 */
 	public void closeProject(IPath projectPath){
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		try {
 			getJavaProject(projectPath).getProject().close(null);
 		} catch (CoreException e) {
@@ -275,7 +275,7 @@ public class TestingEnvironment {
 	}
 
 	private IFolder createFolder(IPath path) {
-		checkAssertion("root", !path.isRoot());
+		checkAssertion("root", !path.isRoot()); //$NON-NLS-1$
 
 		/* don't create folders for projects */
 		if (path.segmentCount() <= 1) {
@@ -326,7 +326,7 @@ public class TestingEnvironment {
 		}
 		if (!file.delete()) {
 			System.out.println(
-				"WARNING: deleteFile(File) could not delete: " + file.getPath());
+				"WARNING: deleteFile(File) could not delete: " + file.getPath()); //$NON-NLS-1$
 		}
 	}
 	
@@ -334,7 +334,7 @@ public class TestingEnvironment {
 	 * open.
 	 */
 	public void fullBuild() {
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		try {
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		} catch (CoreException e) {
@@ -347,7 +347,7 @@ public class TestingEnvironment {
 	 * open.
 	 */
 	public void fullBuild(IPath projectPath) {
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		try {
 			getProject(projectPath).build(IncrementalProjectBuilder.FULL_BUILD, null);
 		} catch (CoreException e) {
@@ -361,7 +361,7 @@ public class TestingEnvironment {
 	*/
 	public IPath[] getClasspath(IPath projectPath) {
 		try {
-			checkAssertion("a workspace must be open", fIsOpen);
+			checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 			IJavaProject javaProject =
 				(IJavaProject) getProject(projectPath).getNature(JavaCore.NATURE_ID);
 			IClasspathEntry[] entries =
@@ -373,11 +373,11 @@ public class TestingEnvironment {
 			return packageFragmentRootsPath;
 		} catch (JavaModelException e) {
 			e.printStackTrace();
-			checkAssertion("JavaModelException", false);
+			checkAssertion("JavaModelException", false); //$NON-NLS-1$
 			return null; // not reachable
 		} catch (CoreException e) {
 			e.printStackTrace();
-			checkAssertion("CoreException", false);
+			checkAssertion("CoreException", false); //$NON-NLS-1$
 			return null; // not reachable
 		}
 	}
@@ -463,10 +463,10 @@ public class TestingEnvironment {
 	 * Returns the path of a class. Class name must not end with .java
 	 */	
 	public IPath getClazzPath(IPath packagePath, String clazzName) {
-		checkAssertion("a workspace must be open", fIsOpen);
-		checkAssertion("type a name must not be empty", clazzName.length() != 0);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
+		checkAssertion("type a name must not be empty", clazzName.length() != 0); //$NON-NLS-1$
 
-		return packagePath.append(clazzName + ".java");
+		return packagePath.append(clazzName + ".java"); //$NON-NLS-1$
 	}
 	
 	/** Return the path of the package
@@ -474,7 +474,7 @@ public class TestingEnvironment {
 	 * the package must exist.
 	 */
 	public IPath getPackagePath(IPath root, String packageName) {
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		if (packageName.length() == 0)
 			return root;
 		else
@@ -486,7 +486,7 @@ public class TestingEnvironment {
 	 * the package fragment root must exist.
 	 */
 	public IPath getPackageFragmentRootPath(IPath projectPath, String name) {
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		if (name.length() == 0)
 			return projectPath;
 		else
@@ -522,7 +522,7 @@ public class TestingEnvironment {
 	}
 
 	private IPath getJarRootPath(IPath projectPath) {
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		return getProject(projectPath).getFullPath();
 	}
 
@@ -542,15 +542,15 @@ public class TestingEnvironment {
 		e.printStackTrace();
 		Assert.isTrue(
 			false,
-			"Core exception in testing environment: " + e.getMessage());
+			"Core exception in testing environment: " + e.getMessage()); //$NON-NLS-1$
 	}
 
 	/** Incrementally builds the workspace.  A workspace must be
 	 * open.
 	 */
 	public void incrementalBuild() {
-		checkAssertion("a workspace must be open", fIsOpen);
-		checkAssertion("the workspace must have been built", fWasBuilt);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
+		checkAssertion("the workspace must have been built", fWasBuilt); //$NON-NLS-1$
 		try {
 			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 		} catch (CoreException e) {
@@ -562,8 +562,8 @@ public class TestingEnvironment {
 	 * open.
 	 */
 	public void incrementalBuild(IPath projectPath) {
-		checkAssertion("a workspace must be open", fIsOpen);
-		checkAssertion("the workspace must have been built", fWasBuilt);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
+		checkAssertion("the workspace must have been built", fWasBuilt); //$NON-NLS-1$
 		try {
 			getProject(projectPath).build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 		} catch (CoreException e) {
@@ -583,7 +583,7 @@ public class TestingEnvironment {
 	/** Close a project from the workspace.
 	 */
 	public void openProject(IPath projectPath){
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		try {
 			getJavaProject(projectPath).getProject().open(null);
 		} catch (CoreException e) {
@@ -610,7 +610,7 @@ public class TestingEnvironment {
 	 * A workspace must be open.
 	 */
 	public void renameCU(IPath packagePath, String cuName, String newName) {
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IFolder packageFolder = fWorkspace.getRoot().getFolder(packagePath);
 		try {
 			packageFolder.getFile(cuName).move(packageFolder.getFile(newName).getFullPath(), true, null);
@@ -624,8 +624,8 @@ public class TestingEnvironment {
 	 * given class name must not end with ".class".
 	 */
 	public void removeBinaryClass(IPath packagePath, String className) {
-		checkAssertion("a workspace must be open", fIsOpen);
-		className += ".class";
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
+		className += ".class"; //$NON-NLS-1$
 		IFolder packageFolder = fWorkspace.getRoot().getFolder(packagePath);
 		try {
 			packageFolder.getFile(className).delete(true, null);
@@ -639,8 +639,8 @@ public class TestingEnvironment {
 	 * not end with ".java".
 	 */
 	public void removeClass(IPath packagePath, String className) {
-		checkAssertion("a workspace must be open", fIsOpen);
-		className += ".java";
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
+		className += ".java"; //$NON-NLS-1$
 		IFolder packageFolder = fWorkspace.getRoot().getFolder(packagePath);
 		try {
 			packageFolder.getFile(className).delete(true, null);
@@ -653,7 +653,7 @@ public class TestingEnvironment {
 	 * in the workspace.  A workspace must be open.
 	 */
 	public void removePackage(IPath packageFragmentRootPath, String packageName) {
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IPath path =
 			packageFragmentRootPath.append(packageName.replace('.', IPath.SEPARATOR));
 		IFolder folder = fWorkspace.getRoot().getFolder(path);
@@ -668,7 +668,7 @@ public class TestingEnvironment {
 	 * the workspace.  A workspace must be open.
 	 */
 	public void removePackageFragmentRoot(IPath projectPath, String packageFragmentRootName) {
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		if (packageFragmentRootName.length() > 0) {
 			IFolder folder = getProject(projectPath).getFolder(packageFragmentRootName);
 			if (folder.exists()) {
@@ -686,7 +686,7 @@ public class TestingEnvironment {
 	/** Remove a project from the workspace.
 	 */
 	public void removeProject(IPath projectPath){
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		try {
 			getJavaProject(projectPath).close();
 		} catch (JavaModelException e) {
@@ -723,8 +723,8 @@ public class TestingEnvironment {
 	 * A workspace must be open.
 	 */
 	public void removeInternalJar(IPath projectPath, String zipName) {
-		checkAssertion("a workspace must be open", fIsOpen);
-		checkAssertion("zipName must end with .zip or .jar", zipName.endsWith(".zip") || zipName.endsWith(".jar"));
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
+		checkAssertion("zipName must end with .zip or .jar", zipName.endsWith(".zip") || zipName.endsWith(".jar")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 		/* remove zip from the java model (it caches open zip files) */
 		IPath zipPath = getJarRootPath(projectPath).append(zipName);
@@ -749,12 +749,12 @@ public class TestingEnvironment {
 	 * Remove an external jar from the classpath.
 	 */
 	public void removeExternalJar(IPath projectPath, IPath jarPath) {
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		removeEntry(projectPath, jarPath);
 	}
 	
 	private void removeEntry(IPath projectPath, IPath entryPath) {
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IPath[] oldEntries = getClasspath(projectPath);
 		for (int i = 0; i < oldEntries.length; ++i) {
 			if (oldEntries[i].equals(entryPath)) {
@@ -769,7 +769,7 @@ public class TestingEnvironment {
 	/** Remove a file
 	 */
 	public void removeFile(IPath filePath) {
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IFolder folder = fWorkspace.getRoot().getFolder(filePath.removeLastSegments(1));
 		try {
 			folder.getFile(filePath.lastSegment()).delete(true, null);
@@ -781,7 +781,7 @@ public class TestingEnvironment {
 	/** Remove a folder
 	 */
 	public void removeFolder(IPath folderPath) {
-		checkAssertion("a workspace must be open", fIsOpen);
+		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		IFolder folder = fWorkspace.getRoot().getFolder(folderPath);
 		try {
 			folder.delete(true, null);
@@ -796,15 +796,15 @@ public class TestingEnvironment {
 	 */
 	public void setClasspath(IPath projectPath, IPath[] packageFragmentRootsPath) {
 		try {
-			checkAssertion("a workspace must be open", fIsOpen);
+			checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 			IJavaProject javaProject =
 				(IJavaProject) getProject(projectPath).getNature(JavaCore.NATURE_ID);
 			IClasspathEntry[] entries =
 				new IClasspathEntry[packageFragmentRootsPath.length];
 			for (int i = 0; i < packageFragmentRootsPath.length; ++i) {
 				IPath path = packageFragmentRootsPath[i];
-				if ("jar".equals(path.getFileExtension())
-					|| "zip".equals(path.getFileExtension())) {
+				if ("jar".equals(path.getFileExtension()) //$NON-NLS-1$
+					|| "zip".equals(path.getFileExtension())) { //$NON-NLS-1$
 					entries[i] = JavaCore.newLibraryEntry(path, null, null, false);
 				} else if (projectPath.isPrefixOf(packageFragmentRootsPath[i])) {
 					entries[i] = JavaCore.newSourceEntry(path);
@@ -815,27 +815,27 @@ public class TestingEnvironment {
 			javaProject.setRawClasspath(entries, null);
 		} catch (JavaModelException e) {
 			e.printStackTrace();
-			checkAssertion("JavaModelException", false);
+			checkAssertion("JavaModelException", false); //$NON-NLS-1$
 		} catch (CoreException e) {
 			e.printStackTrace();
-			checkAssertion("CoreException", false);
+			checkAssertion("CoreException", false); //$NON-NLS-1$
 		}
 	}
 	
 	public IPath setOutputFolder(IPath projectPath, String outputFolder){
 		IPath outputPath = null;
 		try {
-			checkAssertion("a workspace must be open", fIsOpen);
+			checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 			IJavaProject javaProject =
 				(IJavaProject) getProject(projectPath).getNature(JavaCore.NATURE_ID);
 			outputPath = projectPath.append(outputFolder);
 			javaProject.setOutputLocation(outputPath, null);
 		} catch (JavaModelException e) {
 			e.printStackTrace();
-			checkAssertion("JavaModelException", false);
+			checkAssertion("JavaModelException", false); //$NON-NLS-1$
 		} catch (CoreException e) {
 			e.printStackTrace();
-			checkAssertion("CoreException", false);
+			checkAssertion("CoreException", false); //$NON-NLS-1$
 		}
 		return outputPath;
 	}

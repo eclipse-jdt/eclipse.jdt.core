@@ -28,69 +28,69 @@ public class ErrorsTests extends Tests {
 	}
 	
 	public void testErrors() {
-		IPath projectPath = env.addProject("Project");
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot(projectPath,"");
+		env.removePackageFragmentRoot(projectPath,""); //$NON-NLS-1$
 		
-		IPath root = env.addPackageFragmentRoot(projectPath, "src");
-		env.setOutputFolder(projectPath, "bin");
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		
-		env.addClass(root, "p1", "Indicted",
-			"package p1;\n"+
-			"public abstract class Indicted {\n"+
-			"}\n"
+		env.addClass(root, "p1", "Indicted", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public abstract class Indicted {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 			
-		IPath collaboratorPath =  env.addClass(root, "p2", "Collaborator",
-			"package p2;\n"+
-			"import p1.*;\n"+
-			"public class Collaborator extends Indicted{\n"+
-			"}\n"
+		IPath collaboratorPath =  env.addClass(root, "p2", "Collaborator", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"import p1.*;\n"+ //$NON-NLS-1$
+			"public class Collaborator extends Indicted{\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 		
 		fullBuild(projectPath);
 		expectingNoProblems();
 		
-		env.addClass(root, "p1", "Indicted",
-			"package p1;\n"+
-			"public abstract class Indicted {\n"+
-			"   public abstract void foo();\n"+
-			"}\n"
+		env.addClass(root, "p1", "Indicted", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public abstract class Indicted {\n"+ //$NON-NLS-1$
+			"   public abstract void foo();\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 			
 		incrementalBuild(projectPath);
 
 		expectingOnlyProblemsFor(collaboratorPath);
-		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "Class must implement the inherited abstract method Indicted.foo()", collaboratorPath));
+		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "Class must implement the inherited abstract method Indicted.foo()", collaboratorPath)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/*
 	 * Regression test for bug 2857 Renaming .java class with errors to .txt leaves errors in Task list (1GK06R3)	 */
 	public void testRenameToNonJava() {
-		IPath projectPath = env.addProject("Project");
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		
 		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot(projectPath,"");
+		env.removePackageFragmentRoot(projectPath,""); //$NON-NLS-1$
 		
-		IPath root = env.addPackageFragmentRoot(projectPath, "src");
-		env.setOutputFolder(projectPath, "bin");
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		
-		IPath cuPath = env.addClass(root, "p1", "X",
-			"package p1;\n"+
-			"public class X extends Y {\n"+
-			"}\n"
+		IPath cuPath = env.addClass(root, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class X extends Y {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 			
 		fullBuild(projectPath);
 		expectingOnlyProblemsFor(cuPath);
-		expectingOnlySpecificProblemFor(cuPath, new Problem("X", "Y cannot be resolved or is not a valid superclass", cuPath));
+		expectingOnlySpecificProblemFor(cuPath, new Problem("X", "Y cannot be resolved or is not a valid superclass", cuPath)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		
-		env.renameCU(root.append("p1"), "X.java", "X.txt");
+		env.renameCU(root.append("p1"), "X.java", "X.txt"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		incrementalBuild(projectPath);
 		expectingNoProblems();
 	}

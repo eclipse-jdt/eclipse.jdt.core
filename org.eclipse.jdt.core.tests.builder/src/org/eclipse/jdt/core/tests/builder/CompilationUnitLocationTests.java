@@ -16,7 +16,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 
 public class CompilationUnitLocationTests extends Tests {
 	private static String[] EXCLUDED_TESTS = {
-		"CompilationUnitLocationTests", "testWrongCompilationUnitLocation"
+		"CompilationUnitLocationTests", "testWrongCompilationUnitLocation" //$NON-NLS-1$ //$NON-NLS-2$
 	};
 	
 	public CompilationUnitLocationTests(String name) {
@@ -36,33 +36,33 @@ public class CompilationUnitLocationTests extends Tests {
 		//----------------------------
 		//           Step 1
 		//----------------------------
-		IPath projectPath = env.addProject("Project");
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
-		env.removePackageFragmentRoot(projectPath, "");
-		IPath root = env.addPackageFragmentRoot(projectPath, "src");
-		IPath bin = env.setOutputFolder(projectPath, "bin");
-		IPath x = env.addClass(root, "", "X",
-			"public class X {\n"+
-			"}\n"
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		IPath x = env.addClass(root, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class X {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 
 		
 		fullBuild();
 		expectingNoProblems();
-		expectingPresenceOf(bin.append("X.class"));
+		expectingPresenceOf(bin.append("X.class")); //$NON-NLS-1$
 		
 		//----------------------------
 		//           Step 2
 		//----------------------------
-		env.addClass(root, "", "X",
-			"package p1;\n"+
-			"public class X {\n"+
-			"}\n"
+		env.addClass(root, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class X {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 			
 		incrementalBuild();
 		expectingProblemsFor(x);
-		expectingNoPresenceOf(bin.append("X.class"));
+		expectingNoPresenceOf(bin.append("X.class")); //$NON-NLS-1$
 	}
 }
 

@@ -25,8 +25,8 @@ public class Problem {
 	}
 	
 	public Problem(IMarker marker){
-		this.location = marker.getAttribute(IMarker.LOCATION, "");
-		this.message = marker.getAttribute(IMarker.MESSAGE, "");
+		this.location = marker.getAttribute(IMarker.LOCATION, ""); //$NON-NLS-1$
+		this.message = marker.getAttribute(IMarker.MESSAGE, ""); //$NON-NLS-1$
 		this.resourcePath = marker.getResource().getFullPath();
 	}
 	/**
@@ -52,7 +52,7 @@ public class Problem {
 	}
 	
 	public String toString(){
-		return "Problem : " + message + " [ resource : <" + resourcePath + "> location <"+ location + "> ]";
+		return "Problem : " + message + " [ resource : <" + resourcePath + "> location <"+ location + "> ]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	}
 	
 	public boolean equals(Object o){

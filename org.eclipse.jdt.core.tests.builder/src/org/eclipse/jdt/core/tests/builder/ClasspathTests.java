@@ -31,15 +31,15 @@ public class ClasspathTests extends Tests {
 	}
 
 	public void testClosedProject() {
-		IPath project1Path = env.addProject("CP1");
+		IPath project1Path = env.addProject("CP1"); //$NON-NLS-1$
 		env.addExternalJar(project1Path, Util.getJavaClassLib());
-		IPath jarPath = env.addInternalJar(project1Path, "temp.jar", new byte[] {0});
+		IPath jarPath = env.addInternalJar(project1Path, "temp.jar", new byte[] {0}); //$NON-NLS-1$
 
-		IPath project2Path = env.addProject("CP2");
+		IPath project2Path = env.addProject("CP2"); //$NON-NLS-1$
 		env.addExternalJar(project2Path, Util.getJavaClassLib());
 		env.addRequiredProject(project2Path, project1Path);
 
-		IPath project3Path = env.addProject("CP3");
+		IPath project3Path = env.addProject("CP3"); //$NON-NLS-1$
 		env.addExternalJar(project3Path, Util.getJavaClassLib());
 		env.addExternalJar(project3Path, jarPath.toString());
 
@@ -55,14 +55,14 @@ public class ClasspathTests extends Tests {
 		expectingOnlyProblemsFor(new IPath[] {project2Path, project3Path});
 		expectingOnlySpecificProblemsFor(project2Path,
 			new Problem[] {
-				new Problem("", "The project was not built due to classpath errors (incomplete or involved in cycle).", project2Path),
-				new Problem("Build path", "Missing required Java project: CP1.", project2Path)
+				new Problem("", "The project was not built due to classpath errors (incomplete or involved in cycle).", project2Path), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("Build path", "Missing required Java project: CP1.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 		expectingOnlySpecificProblemsFor(project3Path,
 			new Problem[] {
-				new Problem("", "The project was not built due to classpath errors (incomplete or involved in cycle).", project3Path),
-				new Problem("Build path", "Missing required library: /CP1/temp.jar.", project3Path)
+				new Problem("", "The project was not built due to classpath errors (incomplete or involved in cycle).", project3Path), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("Build path", "Missing required library: /CP1/temp.jar.", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 
@@ -81,10 +81,10 @@ public class ClasspathTests extends Tests {
 		incrementalBuild();
 		expectingOnlyProblemsFor(new IPath[] {project2Path, project3Path});
 		expectingOnlySpecificProblemFor(project2Path,
-			new Problem("Build path", "Missing required Java project: CP1.", project2Path)
+			new Problem("Build path", "Missing required Java project: CP1.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
 		);
 		expectingOnlySpecificProblemFor(project3Path,
-			new Problem("Build path", "Missing required library: /CP1/temp.jar.", project3Path)
+			new Problem("Build path", "Missing required library: /CP1/temp.jar.", project3Path) //$NON-NLS-1$ //$NON-NLS-2$
 		);
 
 		env.openProject(project1Path);
@@ -96,10 +96,10 @@ public class ClasspathTests extends Tests {
 	}
 
 	public void testMissingProject() {
-		IPath project1Path = env.addProject("MP1");
+		IPath project1Path = env.addProject("MP1"); //$NON-NLS-1$
 		env.addExternalJar(project1Path, Util.getJavaClassLib());
 
-		IPath project2Path = env.addProject("MP2");
+		IPath project2Path = env.addProject("MP2"); //$NON-NLS-1$
 		env.addExternalJar(project2Path, Util.getJavaClassLib());
 		env.addRequiredProject(project2Path, project1Path);
 
@@ -115,12 +115,12 @@ public class ClasspathTests extends Tests {
 		expectingOnlyProblemsFor(project2Path);
 		expectingOnlySpecificProblemsFor(project2Path,
 			new Problem[] {
-				new Problem("", "The project was not built due to classpath errors (incomplete or involved in cycle).", project2Path),
-				new Problem("Build path", "Missing required Java project: MP1.", project2Path)
+				new Problem("", "The project was not built due to classpath errors (incomplete or involved in cycle).", project2Path), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("Build path", "Missing required Java project: MP1.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 
-		project1Path = env.addProject("MP1");
+		project1Path = env.addProject("MP1"); //$NON-NLS-1$
 		env.addExternalJar(project1Path, Util.getJavaClassLib());
 
 		incrementalBuild();
@@ -137,10 +137,10 @@ public class ClasspathTests extends Tests {
 		incrementalBuild();
 		expectingOnlyProblemsFor(project2Path);
 		expectingOnlySpecificProblemFor(project2Path,
-			new Problem("Build path", "Missing required Java project: MP1.", project2Path)
+			new Problem("Build path", "Missing required Java project: MP1.", project2Path) //$NON-NLS-1$ //$NON-NLS-2$
 		);
 
-		project1Path = env.addProject("MP1");
+		project1Path = env.addProject("MP1"); //$NON-NLS-1$
 		env.addExternalJar(project1Path, Util.getJavaClassLib());
 
 		incrementalBuild();
@@ -151,29 +151,29 @@ public class ClasspathTests extends Tests {
 	}
 
 	public void testMissingLibrary() {
-		IPath projectPath = env.addProject("Project");
-		env.removePackageFragmentRoot(projectPath, "");
-		IPath root = env.addPackageFragmentRoot(projectPath, "src");
-		IPath bin = env.setOutputFolder(projectPath, "bin");
-		IPath classTest1 = env.addClass(root, "p1", "Test1",
-			"package p1;\n"+
-			"public class Test1 {}"
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		IPath classTest1 = env.addClass(root, "p1", "Test1", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class Test1 {}" //$NON-NLS-1$
 		);
-		env.addClass(root, "p2", "Test2",
-			"package p2;\n"+
-			"public class Test2 {}"
+		env.addClass(root, "p2", "Test2", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class Test2 {}" //$NON-NLS-1$
 		);
-		env.addClass(root, "p2", "Test3",
-			"package p2;\n"+
-			"public class Test3 {}"
+		env.addClass(root, "p2", "Test3", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class Test3 {}" //$NON-NLS-1$
 		);
 
 		fullBuild();
 		expectingOnlyProblemsFor(new IPath[] {projectPath, classTest1});
 		expectingOnlySpecificProblemsFor(projectPath,
 			new Problem[] {
-				new Problem("", "The project was not built since its classpath is incomplete. Can not find the class file for java.lang.Object. Fix the classpath then try rebuilding this project", projectPath),
-				new Problem("p1", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest1)
+				new Problem("", "The project was not built since its classpath is incomplete. Can not find the class file for java.lang.Object. Fix the classpath then try rebuilding this project", projectPath), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p1", "This compilation unit indirectly references the missing type java.lang.Object (typically some required class file is referencing a type outside the classpath)", classTest1) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 
@@ -185,9 +185,9 @@ public class ClasspathTests extends Tests {
 		incrementalBuild();
 		expectingNoProblems();
 		expectingPresenceOf(new IPath[]{
-			bin.append("p1").append("Test1.class"),
-			bin.append("p2").append("Test2.class"),
-			bin.append("p2").append("Test3.class")
+			bin.append("p1").append("Test1.class"), //$NON-NLS-1$ //$NON-NLS-2$
+			bin.append("p2").append("Test2.class"), //$NON-NLS-1$ //$NON-NLS-2$
+			bin.append("p2").append("Test3.class") //$NON-NLS-1$ //$NON-NLS-2$
 		});
 	}
 }

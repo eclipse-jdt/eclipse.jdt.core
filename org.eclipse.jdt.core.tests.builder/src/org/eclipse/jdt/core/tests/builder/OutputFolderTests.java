@@ -19,8 +19,8 @@ import org.eclipse.jdt.core.tests.util.Util;
  */
 public class OutputFolderTests extends Tests {
 	private static String[] EXCLUDED_TESTS = {
-		"OutputFolderTests", "testDeleteOutputFolder",
-		"OutputFolderTests", "testChangeOutputFolder"
+		"OutputFolderTests", "testDeleteOutputFolder", //$NON-NLS-1$ //$NON-NLS-2$
+		"OutputFolderTests", "testChangeOutputFolder" //$NON-NLS-1$ //$NON-NLS-2$
 		};
 	
 	public OutputFolderTests(String name) {
@@ -37,26 +37,26 @@ public class OutputFolderTests extends Tests {
 		//----------------------------
 		//           Step 1
 		//----------------------------
-		IPath projectPath = env.addProject("Project");
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		
-		IPath root = env.getPackageFragmentRootPath(projectPath, "");
-		IPath bin = env.setOutputFolder(projectPath, "bin");
+		IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
+		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
-		env.addClass(root, "", "Test",
-			"public class Test {\n"+
-			"}\n"
+		env.addClass(root, "", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class Test {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 			
-		env.addFile(root, "Test.txt", "");
+		env.addFile(root, "Test.txt", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		
 			
 		fullBuild();
 		expectingNoProblems();
 		expectingPresenceOf(new IPath[]{
 			bin,
-			bin.append("Test.class"),
-			bin.append("Test.txt")
+			bin.append("Test.class"), //$NON-NLS-1$
+			bin.append("Test.txt") //$NON-NLS-1$
 		});
 		
 		//----------------------------
@@ -67,8 +67,8 @@ public class OutputFolderTests extends Tests {
 		incrementalBuild();
 		expectingPresenceOf(new IPath[]{
 			bin,
-			bin.append("Test.class"),
-			bin.append("Test.txt")
+			bin.append("Test.class"), //$NON-NLS-1$
+			bin.append("Test.txt") //$NON-NLS-1$
 		});
 	}
 	
@@ -76,19 +76,19 @@ public class OutputFolderTests extends Tests {
 		//----------------------------
 		//           Step 1
 		//----------------------------
-		IPath projectPath = env.addProject("Project");
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		
 		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot(projectPath, "");
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		
-		IPath root = env.addPackageFragmentRoot(projectPath, "src");
-		IPath bin1 = env.setOutputFolder(projectPath, "bin1");
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		IPath bin1 = env.setOutputFolder(projectPath, "bin1"); //$NON-NLS-1$
 
-		env.addClass(root, "p", "Test",
-			"package p;\n" +
-			"public class Test {\n"+
-			"}\n"
+		env.addClass(root, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;\n" + //$NON-NLS-1$
+			"public class Test {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 			
 
@@ -96,24 +96,24 @@ public class OutputFolderTests extends Tests {
 		expectingNoProblems();
 		expectingPresenceOf(new IPath[]{
 			bin1,
-			bin1.append("p").append("Test.class"),
+			bin1.append("p").append("Test.class"), //$NON-NLS-1$ //$NON-NLS-2$
 		});
 		
 		//----------------------------
 		//           Step 2
 		//----------------------------
-		IPath bin2 = env.setOutputFolder(projectPath, "bin2");
+		IPath bin2 = env.setOutputFolder(projectPath, "bin2"); //$NON-NLS-1$
 		
 		incrementalBuild();
 		
 		expectingNoProblems();
 		expectingPresenceOf(new IPath[]{
 			bin2,
-			bin2.append("p").append("Test.class"),
+			bin2.append("p").append("Test.class"), //$NON-NLS-1$ //$NON-NLS-2$
 		});
 		expectingNoPresenceOf(new IPath[]{
 			bin1,
-			bin1.append("p").append("Test.class"),
+			bin1.append("p").append("Test.class"), //$NON-NLS-1$ //$NON-NLS-2$
 		});
 	}
 }

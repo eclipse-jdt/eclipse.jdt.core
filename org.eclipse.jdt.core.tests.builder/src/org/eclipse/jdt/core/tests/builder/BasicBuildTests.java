@@ -30,23 +30,23 @@ public class BasicBuildTests extends Tests {
 	}
 	
 	public void testBuild() {
-		IPath projectPath = env.addProject("Project");
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 		fullBuild(projectPath);
 		
 		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot(projectPath, "");
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		
-		IPath root = env.addPackageFragmentRoot(projectPath, "src");
-		env.setOutputFolder(projectPath, "bin");
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		
-		env.addClass(root, "p1", "Hello",
-			"package p1;\n"+
-			"public class Hello {\n"+
-			"   public static void main(String args[]) {\n"+
-			"      System.out.println(\"Hello world\");\n"+
-			"   }\n"+
-			"}\n"
+		env.addClass(root, "p1", "Hello", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class Hello {\n"+ //$NON-NLS-1$
+			"   public static void main(String args[]) {\n"+ //$NON-NLS-1$
+			"      System.out.println(\"Hello world\");\n"+ //$NON-NLS-1$
+			"   }\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 			
 		incrementalBuild(projectPath);
@@ -58,27 +58,27 @@ public class BasicBuildTests extends Tests {
 	public void testToDoMarker() {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
-		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "todo");
+		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "todo"); //$NON-NLS-1$
 		
 		JavaCore.setOptions(newOptions);
 		
-		IPath projectPath = env.addProject("Project");
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		// remove old package fragment root so that names don't collide
-		env.removePackageFragmentRoot(projectPath, "");
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 
-		IPath root = env.addPackageFragmentRoot(projectPath, "src");
-		env.setOutputFolder(projectPath, "bin");
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
-		IPath pathToA = env.addClass(root, "p", "A",
-			"package p; \n"+
-			"//todo nothing\n"+
-			"public class A {\n"+
-			"}");
+		IPath pathToA = env.addClass(root, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p; \n"+ //$NON-NLS-1$
+			"//todo nothing\n"+ //$NON-NLS-1$
+			"public class A {\n"+ //$NON-NLS-1$
+			"}"); //$NON-NLS-1$
 
 		fullBuild(projectPath);
-		expectingOnlySpecificProblemFor(pathToA, new Problem("A", "todo nothing", pathToA));
+		expectingOnlySpecificProblemFor(pathToA, new Problem("A", "todo nothing", pathToA)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		JavaCore.setOptions(options);
 	}

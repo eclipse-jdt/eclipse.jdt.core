@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.IPath;
  */
 public class JCLTests extends Tests {
 	private static String[] EXCLUDED_TESTS = {
-		"JCLTests", "testNewJCL"
+		"JCLTests", "testNewJCL" //$NON-NLS-1$ //$NON-NLS-2$
 	};
 	
 	public JCLTests(String name) {
@@ -36,37 +36,37 @@ public class JCLTests extends Tests {
 		//----------------------------
 		//           Step 1
 		//----------------------------
-		IPath projectPath = env.addProject("Project");
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 
-		IPath root = env.getPackageFragmentRootPath(projectPath, "");
+		IPath root = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
 		fullBuild();
 		expectingNoProblems();
 		
 		//----------------------------
 		//           Step 2
 		//----------------------------
-		IPath object = env.addClass(root, "java.lang", "Object",
-			"package java.lang;\n" +
-			"public class Object {\n"+
-			"}\n"
+		IPath object = env.addClass(root, "java.lang", "Object", //$NON-NLS-1$ //$NON-NLS-2$
+			"package java.lang;\n" + //$NON-NLS-1$
+			"public class Object {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 			
 
 		incrementalBuild();
-		expectingSpecificProblemFor(object, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.Throwable (typically some required class file is referencing a type outside the classpath)", object));
+		expectingSpecificProblemFor(object, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.Throwable (typically some required class file is referencing a type outside the classpath)", object)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		//----------------------------
 		//           Step 3
 		//----------------------------
-		IPath throwable = env.addClass(root, "java.lang", "Throwable",
-			"package java.lang;\n" +
-			"public class Throwable {\n"+
-			"}\n"
+		IPath throwable = env.addClass(root, "java.lang", "Throwable", //$NON-NLS-1$ //$NON-NLS-2$
+			"package java.lang;\n" + //$NON-NLS-1$
+			"public class Throwable {\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
 			);
 			
 
 		incrementalBuild();
-		expectingSpecificProblemFor(object, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.RuntimeException (typically some required class file is referencing a type outside the classpath)", object));
-		expectingSpecificProblemFor(throwable, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.RuntimeException (typically some required class file is referencing a type outside the classpath)", throwable));
+		expectingSpecificProblemFor(object, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.RuntimeException (typically some required class file is referencing a type outside the classpath)", object)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(throwable, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.RuntimeException (typically some required class file is referencing a type outside the classpath)", throwable)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
