@@ -498,7 +498,8 @@ public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModel
 		throw new JavaModelException(e);
 	}
 	try {
-		return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, null);
+		String encoding = (String)JavaCore.getOptions().get(JavaCore.CORE_ENCODING);
+		return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, encoding);
 	} catch (IOException e) {
 		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 	} finally {

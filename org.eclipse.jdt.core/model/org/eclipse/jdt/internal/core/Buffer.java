@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.IFile;
@@ -20,7 +21,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.BufferChangedEvent;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IBufferChangedListener;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IOpenable;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 /**
@@ -320,15 +323,22 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 	synchronized (this.lock) {
 		if (!hasUnsavedChanges())
 			return;
-		byte[] bytes = getContents().getBytes();
-		ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
+			
+		String encoding = (String)JavaCore.getOptions().get(JavaCore.CORE_ENCODING);
 
 		// use a platform operation to update the resource contents
 		try {
+			byte[] bytes = encoding == null 
+				? getContents().getBytes() 
+				: getContents().getBytes(encoding);
+			ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
+
 			this.file.setContents(
 				stream, 
 				force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
 				null);
+		} catch (IOException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}
