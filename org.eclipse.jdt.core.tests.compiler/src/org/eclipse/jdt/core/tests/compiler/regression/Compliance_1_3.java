@@ -3348,6 +3348,38 @@ public void test097() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78906
+public void test098() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		System.out.print(\"foo\");\n" + 
+			"	}\n" + 
+			"	class Y {\n" + 
+			"		String this$0;\n" + 
+			"		String this$0$;\n" + 
+			"		void print() { \n" + 
+			"			foo();\n" + 
+			"			System.out.println(this$0+this$0$);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X.Y y = new X().new Y();\n" + 
+			"		y.this$0 = \"hello\";\n" + 
+			"		y.this$0$ = \"world\";\n" + 
+			"		y.print();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	String this$0;\n" + 
+		"	       ^^^^^^\n" + 
+		"Duplicate field X.Y.this$0\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return Compliance_1_3.class;
 }
