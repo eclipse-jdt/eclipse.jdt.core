@@ -1040,6 +1040,29 @@ public void _test031() {
 		true,
 		customOptions);
 }
+public void test032() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		Object o1 = this;\n" + 
+			"		Object o3;\n" + 
+			"		while (o1 != null && (o3 = o1) != null) {\n" + 
+			"			o1 = o3;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null);
+}
 public static Class testClass() {
 	return AssignmentTest.class;
 }

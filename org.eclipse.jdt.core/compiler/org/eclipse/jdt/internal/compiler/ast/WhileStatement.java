@@ -56,7 +56,7 @@ public class WhileStatement extends Statement {
 			currentScope.methodScope().recordInitializationStates(flowInfo);
 		LoopingFlowContext condLoopContext;
 		FlowInfo condInfo = flowInfo.copy().unconditionalInits().discardNullRelatedInitializations();
-			this.condition.analyseCode(
+		condInfo = this.condition.analyseCode(
 				currentScope,
 				(condLoopContext =
 					new LoopingFlowContext(flowContext, this, null, null, currentScope)),
