@@ -289,4 +289,13 @@ public class SwitchStatement extends Statement {
 		}
 		visitor.endVisit(this, blockScope);
 	}
+	
+	/**
+	 * Dispatch the call on its last statement.
+	 */
+	public void branchChainTo(Label label) {
+		if (this.breakLabel.hasForwardReferences()) {
+			label.appendForwardReferencesFrom(this.breakLabel);
+		}
+	}
 }

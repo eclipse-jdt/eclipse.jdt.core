@@ -192,6 +192,7 @@ public class IfStatement extends Statement {
 			thenStatement.generateCode(currentScope, codeStream);
 			// jump around the else statement
 			if (hasElsePart && !thenExit) {
+				thenStatement.branchChainTo(endifLabel);
 				int position = codeStream.position;
 				codeStream.goto_(endifLabel);
 				codeStream.updateLastRecordedEndPC(position);

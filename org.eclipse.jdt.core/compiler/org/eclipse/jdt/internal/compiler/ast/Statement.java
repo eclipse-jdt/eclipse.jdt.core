@@ -66,4 +66,11 @@ public abstract class Statement extends AstNode {
 	
 	public void resetStateForCodeGeneration() {
 	}
+	
+	/**
+	 * INTERNAL USE ONLY.
+	 * Do nothing by default. This is used to redirect inter-statements jumps.
+	 */
+	public void branchChainTo(Label label) {
+	}
 }

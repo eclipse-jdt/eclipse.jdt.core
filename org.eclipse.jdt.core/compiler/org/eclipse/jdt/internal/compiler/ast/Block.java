@@ -142,4 +142,14 @@ public class Block extends Statement {
 		}
 		visitor.endVisit(this, blockScope);
 	}
+	
+	/**
+	 * Dispatch the call on its last statement.
+	 */
+	public void branchChainTo(Label label) {
+		 if (this.statements != null) {
+		 	this.statements[statements.length - 1].branchChainTo(label);
+		 }
+	}
+	
 }
