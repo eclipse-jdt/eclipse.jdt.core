@@ -20,13 +20,11 @@ import org.eclipse.jface.text.IDocument;
 
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
-import org.eclipse.jdt.core.dom.rewrite.RewriteException;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer;
 import org.eclipse.jdt.internal.core.dom.rewrite.ListRewriteEvent;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeRewriteEvent;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
-import org.eclipse.jdt.internal.core.dom.rewrite.RewriteRuntimeException;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.PropertyLocation;
 
@@ -61,21 +59,16 @@ class InternalASTRewrite extends NodeEventHandler {
 	 * @param document Document which describes the code of the AST that is passed in in the
 	 * constructor. This document is accessed read-only.
 	 * @param options options
-	 * @throws RewriteException if rewrite fail
+	 * @throws IllegalArgumentException if the rewrite fails
 	 * @return Returns the edit describing the text changes.
 	 */
-	public TextEdit rewriteAST(IDocument document, Map options) throws RewriteException {
+	public TextEdit rewriteAST(IDocument document, Map options) {
 		TextEdit result = new MultiTextEdit();
 		
 		CompilationUnit rootNode = getRootNode();
 		if (rootNode != null) {
-			try {
-				ASTRewriteAnalyzer visitor = new ASTRewriteAnalyzer(document, rootNode, result, this.eventStore, this.nodeStore, options);
-
-				rootNode.accept(visitor);
-			} catch (RewriteRuntimeException e) {
-				throw new RewriteException(e.getCause());
-			}
+			ASTRewriteAnalyzer visitor = new ASTRewriteAnalyzer(document, rootNode, result, this.eventStore, this.nodeStore, options);
+			rootNode.accept(visitor);
 		}
 		return result;
 	}

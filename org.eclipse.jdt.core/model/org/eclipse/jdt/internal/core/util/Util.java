@@ -10,38 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
-import java.io.BufferedInputStream;
-import java.io.DataInput;
-import java.io.EOFException;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.UTFDataFormatException;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.JavaConventions;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
+import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
@@ -606,6 +584,45 @@ public class Util {
 		return null;
 	}
 	
+	public static IClassFileAttribute getAttribute(IClassFileReader classFileReader, char[] attributeName) {
+		IClassFileAttribute[] attributes = classFileReader.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
+				return attributes[i];
+			}
+		}
+		return null;
+	}
+	
+	public static IClassFileAttribute getAttribute(ICodeAttribute codeAttribute, char[] attributeName) {
+		IClassFileAttribute[] attributes = codeAttribute.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
+				return attributes[i];
+			}
+		}
+		return null;
+	}	
+	
+	public static IClassFileAttribute getAttribute(IFieldInfo fieldInfo, char[] attributeName) {
+		IClassFileAttribute[] attributes = fieldInfo.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
+				return attributes[i];
+			}
+		}
+		return null;
+	}
+
+	public static IClassFileAttribute getAttribute(IMethodInfo methodInfo, char[] attributeName) {
+		IClassFileAttribute[] attributes = methodInfo.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
+				return attributes[i];
+			}
+		}
+		return null;
+	}
 	/**
 	 * Get the jdk level of this root.
 	 * The value can be:
@@ -834,46 +851,6 @@ public class Util {
 				// ignore
 			}
 		}
-	}
-
-	public static IClassFileAttribute getAttribute(IClassFileReader classFileReader, char[] attributeName) {
-		IClassFileAttribute[] attributes = classFileReader.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
-				return attributes[i];
-			}
-		}
-		return null;
-	}
-	
-	public static IClassFileAttribute getAttribute(ICodeAttribute codeAttribute, char[] attributeName) {
-		IClassFileAttribute[] attributes = codeAttribute.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
-				return attributes[i];
-			}
-		}
-		return null;
-	}	
-	
-	public static IClassFileAttribute getAttribute(IFieldInfo fieldInfo, char[] attributeName) {
-		IClassFileAttribute[] attributes = fieldInfo.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
-				return attributes[i];
-			}
-		}
-		return null;
-	}
-
-	public static IClassFileAttribute getAttribute(IMethodInfo methodInfo, char[] attributeName) {
-		IClassFileAttribute[] attributes = methodInfo.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
-				return attributes[i];
-			}
-		}
-		return null;
 	}
 	
 	/**

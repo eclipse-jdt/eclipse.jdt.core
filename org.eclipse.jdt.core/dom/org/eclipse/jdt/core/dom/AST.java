@@ -21,7 +21,6 @@ import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.rewrite.RewriteException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jface.text.IDocument;
@@ -215,6 +214,7 @@ public final class AST {
 	 * into a compilation unit. This method is not intended to be called by clients.
 	 * </p>
 	 * 
+ 	 * @param level the API level; one of the LEVEL constants
 	 * @param compilationUnitDeclaration an internal AST node for a compilation unit declaration
 	 * @param source the string of the Java compilation unit
 	 * @param options compiler options
@@ -223,11 +223,13 @@ public final class AST {
 	 * @return the compilation unit node
 	 */
 	public static CompilationUnit convertCompilationUnit(
+		int level,
 		org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration compilationUnitDeclaration,
 		char[] source,
 		Map options,
 		IProgressMonitor monitor) {
 		
+		// TODO (olivier) - honor <code>level</code> indicating AST api level
 		ASTConverter converter = new ASTConverter(options, true, monitor);
 		AST ast = new AST();
 		BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
@@ -2564,22 +2566,22 @@ public final class AST {
 	 * representing the corresponding edits to the original 
 	 * source code string.
 	 *
-	 * @throws RewriteException if the compilation unit is marked
-	 * as unmodifiable, or if the compilation unit has already 
+	 * @exception IllegalArgumentException if this compilation unit is
+	 * marked as unmodifiable, or if this compilation unit has already 
 	 * been tampered with, or if recording has already been enabled,
 	 * or if <code>root</code> is not owned by this AST
 	 * @see CompilationUnit#recordModifications()
 	 * @since 3.0
 	 */
-	void recordModifications(CompilationUnit root) throws RewriteException {
+	void recordModifications(CompilationUnit root) {
 		if(this.modificationCount != this.originalModificationCount) {
-			throw new RewriteException("AST is already modified"); //$NON-NLS-1$
+			throw new IllegalArgumentException("AST is already modified"); //$NON-NLS-1$
 		} else if(this.rewriter  != null) {
-			throw new RewriteException("AST modifications are already recorded"); //$NON-NLS-1$
+			throw new IllegalArgumentException("AST modifications are already recorded"); //$NON-NLS-1$
 		} else if((root.getFlags() & ASTNode.PROTECT) != 0) {
-			throw new RewriteException("Root node is unmodifiable"); //$NON-NLS-1$
+			throw new IllegalArgumentException("Root node is unmodifiable"); //$NON-NLS-1$
 		} else if(root.getAST() != this) {
-			throw new RewriteException("Root node is not owned by this ast"); //$NON-NLS-1$
+			throw new IllegalArgumentException("Root node is not owned by this ast"); //$NON-NLS-1$
 		}
 		
 		this.rewriter = new InternalASTRewrite(root);
@@ -2601,18 +2603,19 @@ public final class AST {
 	 * {@link JavaCore#getOptions() JavaCore.getOptions()}.
 	 * @return text edit object describing the changes to the
 	 * document corresponding to the recorded AST modifications
-	 * @throws RewriteException if <code>recordModifications</code>
+	 * @exception IllegalArgumentException if the document passed is
+	 * <code>null</code> or does not correspond to this AST
+	 * @exception IllegalStateException if <code>recordModifications</code>
 	 * was not called to enable recording
-	 * @throws IllegalArgumentException if document is null
 	 * @see CompilationUnit#rewrite(IDocument, Map)
 	 * @since 3.0
 	 */
-	TextEdit rewrite(IDocument document, Map options) throws RewriteException {
+	TextEdit rewrite(IDocument document, Map options) {
 		if (document == null) {
 			throw new IllegalArgumentException();
 		}
-		if(this.rewriter  == null) {
-			throw new RewriteException("Modifications record is not enabled"); //$NON-NLS-1$
+		if (this.rewriter  == null) {
+			throw new IllegalStateException("Modifications record is not enabled"); //$NON-NLS-1$
 		}
 		return this.rewriter.rewriteAST(document, options);
 	}

@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.rewrite.RewriteException;
 
 public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 	private static final Class THIS = ASTRewritingModifyingOtherTest.class;
@@ -54,8 +53,8 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 		
 		try {
 			evaluateRewrite(cu, astRoot);
-			assertTrue("", false);
-		} catch (RewriteException e) {
+			assertTrue("rewrite did not fail even though recording not on", false);
+		} catch (IllegalStateException e) {
 		}
 	}
 	

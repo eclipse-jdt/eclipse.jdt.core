@@ -54,13 +54,12 @@ public class SearchEngine {
 			this.resultCollector = resultCollector;
 		}
 		public boolean acceptSearchMatch(SearchMatch match) throws CoreException {
-			JavaSearchMatch javaSearchMatch = (JavaSearchMatch) match;
 			this.resultCollector.accept(
-				javaSearchMatch.getResource(),
-				javaSearchMatch.getSourceStart(),
-				javaSearchMatch.getSourceEnd(),
-				javaSearchMatch.getJavaElement(),
-				javaSearchMatch.getAccuracy()
+				match.getResource(),
+				match.getOffset(),
+				match.getOffset() + match.getLength(),
+				(IJavaElement) match.getElement(),
+				match.getAccuracy()
 			);
 			return true;
 		}
@@ -438,51 +437,6 @@ public class SearchEngine {
 	public static SearchParticipant getDefaultSearchParticipant() {
 		
 		return new JavaSearchParticipant(null);
-	}
-
-	/**
-	 * Returns all registered search participants
-	 * TODO add spec
-	 * @since 3.0
-	 */
-	public static SearchParticipant[] getAvailableSearchParticipants() {
-		
-		Plugin plugin = JavaCore.getPlugin();
-		if (plugin == null) return SearchParticipant.NO_PARTICIPANT;
-	
-		IExtensionPoint extension = plugin.getDescriptor().getExtensionPoint(JavaModelManager.SEARCH_PARTICIPANT_EXTPOINT_ID);
-		if (extension != null) {
-			IExtension[] extensions =  extension.getExtensions();
-			int length = extensions.length;
-			SearchParticipant[] participants = new SearchParticipant[length+1];
-			// insert first the default Java participant (implicitly registered)
-			participants[0] = getDefaultSearchParticipant();
-			int found = 1;
-			for(int i = 0; i < extensions.length; i++){
-				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-				for(int j = 0, configLength = configElements.length; j < configLength; j++){
-					try {
-						Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
-						if (execExt != null && execExt instanceof SearchParticipant){
-							participants[found++] = (SearchParticipant)execExt;
-						}
-					} catch(CoreException e) {
-						// executable extension could not be created: ignore this participant
-						if (SearchEngine.VERBOSE) {
-							System.out.println("Search - failed to instanciate participant: "+ configElements[j].getAttribute("class"));//$NON-NLS-2$//$NON-NLS-1$
-							e.printStackTrace();
-						}						
-					}
-				}
-			}	
-			if (found == 0) return SearchParticipant.NO_PARTICIPANT;
-			if (found < length) {
-				System.arraycopy(participants, 0, participants = new SearchParticipant[found], 0, found);
-			}
-			return participants;
-		}
-		// return default participant (implicitely registered)
-		return new SearchParticipant[] {getDefaultSearchParticipant()};
 	}
 
 	private Parser getParser() {

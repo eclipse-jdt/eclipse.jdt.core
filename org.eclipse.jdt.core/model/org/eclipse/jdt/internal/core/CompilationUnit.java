@@ -147,7 +147,8 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		}
 		
 		if (info instanceof ASTHolderCUInfo) {
-			org.eclipse.jdt.core.dom.CompilationUnit cu = AST.convertCompilationUnit(unit, contents, options, pm);
+			int astLevel = ((ASTHolderCUInfo) info).astLevel;
+			org.eclipse.jdt.core.dom.CompilationUnit cu = AST.convertCompilationUnit(astLevel, unit, contents, options, pm);
 			((ASTHolderCUInfo) info).ast = cu;
 		}
 	} finally {
@@ -952,9 +953,9 @@ public boolean isWorkingCopy() {
  * @see IOpenable#makeConsistent(IProgressMonitor)
  */
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
-	makeConsistent(false/*don't create AST*/, monitor);
+	makeConsistent(false/*don't create AST*/, 0, monitor);
 }
-public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(boolean createAST, IProgressMonitor monitor) throws JavaModelException {
+public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(boolean createAST, int astLevel, IProgressMonitor monitor) throws JavaModelException {
 	if (isConsistent()) return null;
 		
 	// close
@@ -965,6 +966,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(boolean createAST
 	// create a new info and make it the current info
 	if (createAST) {
 		ASTHolderCUInfo info = new ASTHolderCUInfo();
+		info.astLevel = astLevel;
 		openWhenClosed(info, monitor);
 		org.eclipse.jdt.core.dom.CompilationUnit result = info.ast;
 		info.ast = null;
@@ -1054,20 +1056,36 @@ protected void openParent(Object childInfo, HashMap newElements, IProgressMonito
  * @deprecated
  */
 public IMarker[] reconcile() throws JavaModelException {
-	reconcile(false/*don't create AST*/, false/*don't force problem detection*/, null/*use primary owner*/, null/*no progress monitor*/);
+	reconcile(0/*don't create AST*/, false/*don't force problem detection*/, null/*use primary owner*/, null/*no progress monitor*/);
 	return null;
 }
 /**
  * @see IWorkingCopy#reconcile(boolean, IProgressMonitor)
  */
 public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException {
-	reconcile(false/*don't create AST*/, forceProblemDetection, null/*use primary owner*/, monitor);
+	reconcile(0/*don't create AST*/, forceProblemDetection, null/*use primary owner*/, monitor);
 }
 /**
  * @see ICompilationUnit#reconcile(boolean, boolean, WorkingCopyOwner, IProgressMonitor)
+ * @since 3.0
+ * @deprecated TODO (jeem) remove after the ICompilationUnit API method is removed
  */
 public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 	boolean createAST,
+	boolean forceProblemDetection,
+	WorkingCopyOwner workingCopyOwner,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+
+	return reconcile(AST.LEVEL_2_0, forceProblemDetection, workingCopyOwner, monitor);
+}
+
+/**
+ * @see ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor)
+ * @since 3.0
+ */
+public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
+	int astLevel,
 	boolean forceProblemDetection,
 	WorkingCopyOwner workingCopyOwner,
 	IProgressMonitor monitor)
@@ -1076,10 +1094,24 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 	if (!isWorkingCopy()) return null; // Reconciling is not supported on non working copies
 	if (workingCopyOwner == null) workingCopyOwner = DefaultWorkingCopyOwner.PRIMARY;
 	
-	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, createAST, forceProblemDetection, workingCopyOwner);
+	boolean createAST = false;
+	if (astLevel == AST.LEVEL_2_0) {
+		// client asking for level 2 AST; these are supported
+		createAST = true;
+	} else if (astLevel == AST.LEVEL_3_0) {
+		// client asking for level 3 ASTs; these are not supported
+		// TODO (jerome) - these should also be supported in 1.5 stream
+		createAST = false;
+	} else {
+		// client asking for no AST (0) or unknown ast level
+		// either way, request denied
+		createAST = false;
+	}
+	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, createAST, astLevel, forceProblemDetection, workingCopyOwner);
 	op.runOperation(monitor);
 	return op.ast;
 }
+
 /**
  * @see ISourceManipulation#rename(String, boolean, IProgressMonitor)
  */

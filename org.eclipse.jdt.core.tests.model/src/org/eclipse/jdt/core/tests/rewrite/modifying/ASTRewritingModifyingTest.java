@@ -24,7 +24,6 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.rewrite.RewriteException;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
@@ -103,14 +102,14 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		return (CompilationUnit) result;
 	}
 	
-	public String evaluateRewrite(ICompilationUnit cu, CompilationUnit astRoot)  throws CoreException, MalformedTreeException, BadLocationException, RewriteException {
+	public String evaluateRewrite(ICompilationUnit cu, CompilationUnit astRoot)  throws CoreException, MalformedTreeException, BadLocationException {
 		return evaluateRewrite(cu.getSource(), astRoot, cu.getJavaProject().getOptions(true));
 	}
 	
-	public String evaluateRewrite(String source, CompilationUnit astRoot)  throws MalformedTreeException, BadLocationException, RewriteException {
+	public String evaluateRewrite(String source, CompilationUnit astRoot)  throws MalformedTreeException, BadLocationException {
 		return evaluateRewrite(source, astRoot, getJavaProject("Rewrite").getOptions(true));
 	}
-	public String evaluateRewrite(String source, CompilationUnit astRoot, Map options)  throws MalformedTreeException, BadLocationException, RewriteException {
+	public String evaluateRewrite(String source, CompilationUnit astRoot, Map options)  throws MalformedTreeException, BadLocationException {
 		IDocument doc = new Document(source);
 		
 		TextEdit changes = astRoot.rewrite(doc, options);

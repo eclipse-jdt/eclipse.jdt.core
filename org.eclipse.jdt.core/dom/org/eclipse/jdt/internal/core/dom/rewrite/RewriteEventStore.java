@@ -37,20 +37,20 @@ public final class RewriteEventStore {
 	
 
 	public final class PropertyLocation {
-		private ASTNode fParent;
-		private StructuralPropertyDescriptor fProperty;
+		private ASTNode parent;
+		private StructuralPropertyDescriptor property;
 		
 		public PropertyLocation(ASTNode parent, StructuralPropertyDescriptor property) {
-			fParent= parent;
-			fProperty= property;
+			this.parent= parent;
+			this.property= property;
 		}
 
 		public ASTNode getParent() {
-			return fParent;
+			return this.parent;
 		}
 
 		public StructuralPropertyDescriptor getProperty() {
-			return fProperty;
+			return this.property;
 		}
 	}
 	
@@ -108,16 +108,16 @@ public final class RewriteEventStore {
 		}
 		
 		public ASTNode getStartNode() {
-			return first;
+			return this.first;
 		}
 		
 		public ASTNode getEndNode() {
-			return last;
+			return this.last;
 		}
 
 		public String toString() {
 			StringBuffer buf= new StringBuffer();
-			if (first != last) {
+			if (this.first != this.last) {
 				buf.append("range ");  //$NON-NLS-1$
 			}
 			if (isMove) {
@@ -125,10 +125,10 @@ public final class RewriteEventStore {
 			} else {
 				buf.append("copy source: "); //$NON-NLS-1$
 			}
-			buf.append(first);
-			if (first != last) {
+			buf.append(this.first);
+			if (this.first != this.last) {
 				buf.append(" - "); //$NON-NLS-1$
-				buf.append(last);
+				buf.append(this.last);
 			}
 			return buf.toString();
 		}
@@ -154,27 +154,27 @@ public final class RewriteEventStore {
 	 */
 	private class ParentIterator implements Iterator {
 		
-		private Iterator fEventIter;
-		private Iterator fSourceNodeIter;
-		private Iterator fRangeNodeIter;
-		private Iterator fTrackedNodeIter;
+		private Iterator eventIter;
+		private Iterator sourceNodeIter;
+		private Iterator rangeNodeIter;
+		private Iterator trackedNodeIter;
 		
 		public ParentIterator() {
-			fEventIter= fEvents.iterator();
-			if (fNodeCopySources != null) {
-				fSourceNodeIter= fNodeCopySources.iterator();
+			this.eventIter= events.iterator();
+			if (nodeCopySources != null) {
+				this.sourceNodeIter= nodeCopySources.iterator();
 			} else {
-				fSourceNodeIter= Collections.EMPTY_LIST.iterator();
+				this.sourceNodeIter= Collections.EMPTY_LIST.iterator();
 			}
-			if (fRangeCopySources != null) {
-				fRangeNodeIter= fRangeCopySources.iterator();
+			if (rangeCopySources != null) {
+				this.rangeNodeIter= rangeCopySources.iterator();
 			} else {
-				fRangeNodeIter= Collections.EMPTY_LIST.iterator();
+				this.rangeNodeIter= Collections.EMPTY_LIST.iterator();
 			}
-			if (fTrackedNodes != null) {
-				fTrackedNodeIter= fTrackedNodes.keySet().iterator();
+			if (trackedNodes != null) {
+				this.trackedNodeIter= trackedNodes.keySet().iterator();
 			} else {
-				fTrackedNodeIter= Collections.EMPTY_LIST.iterator();
+				this.trackedNodeIter= Collections.EMPTY_LIST.iterator();
 			}
 		}
 
@@ -182,23 +182,23 @@ public final class RewriteEventStore {
 		 * @see java.util.Iterator#hasNext()
 		 */
 		public boolean hasNext() {
-			return fEventIter.hasNext() || fSourceNodeIter.hasNext() || fRangeNodeIter.hasNext() || fTrackedNodeIter.hasNext();
+			return this.eventIter.hasNext() || this.sourceNodeIter.hasNext() || this.rangeNodeIter.hasNext() || this.trackedNodeIter.hasNext();
 		}
 
 		/* (non-Javadoc)
 		 * @see java.util.Iterator#next()
 		 */
 		public Object next() {
-			if (fEventIter.hasNext()) {
-				return ((EventHolder) fEventIter.next()).parent;
+			if (this.eventIter.hasNext()) {
+				return ((EventHolder) this.eventIter.next()).parent;
 			}
-			if (fSourceNodeIter.hasNext()) {
-				return ((CopySourceInfo) fSourceNodeIter.next()).getStartNode();
+			if (this.sourceNodeIter.hasNext()) {
+				return ((CopySourceInfo) this.sourceNodeIter.next()).getStartNode();
 			}
-			if (fRangeNodeIter.hasNext()) {
-				return ((CopySourceInfo) fRangeNodeIter.next()).parent;
+			if (this.rangeNodeIter.hasNext()) {
+				return ((CopySourceInfo) this.rangeNodeIter.next()).parent;
 			}
-			return fTrackedNodeIter.next();
+			return this.trackedNodeIter.next();
 		}
 
 		/* (non-Javadoc)
@@ -215,41 +215,41 @@ public final class RewriteEventStore {
 		
 	
 	/** all events */
-	final List fEvents;
+	final List events;
 	
 	/** cache for last accessed event */
-	private EventHolder fLastEvent;
+	private EventHolder lastEvent;
 	
 	/** Maps events to group descriptions */
-	private Map fEditGroups;
+	private Map editGroups;
 		
 	/** Stores which nodes are source of a copy or move (list of CopyRangeSourceInfo)*/
-	List fNodeCopySources;
+	List nodeCopySources;
 	
 	/** Stores which node ranges that are source of a copy or move (list of CopyRangeSourceInfo)*/
-	List fRangeCopySources;
+	List rangeCopySources;
 	
 	/** Stores which nodes are tracked and the corresponding edit group*/
-	Map fTrackedNodes;
+	Map trackedNodes;
 	
 	/** Stores which inserted nodes bound to the previous node. If not, a node is
 	 * always bound to the next node */
-	private Set fInsertBoundToPrevious;
+	private Set insertBoundToPrevious;
 	
 	/** optional mapper to allow fix already modified AST trees */
-	private INodePropertyMapper fNodePropertyMapper;
+	private INodePropertyMapper nodePropertyMapper;
 		
 	public RewriteEventStore() {
-		fEvents= new ArrayList();
-		fLastEvent= null;
+		this.events= new ArrayList();
+		this.lastEvent= null;
 		
-		fEditGroups= null; // lazy initialization
+		this.editGroups= null; // lazy initialization
 		
-		fTrackedNodes= null;
-		fInsertBoundToPrevious= null;
+		this.trackedNodes= null;
+		this.insertBoundToPrevious= null;
 		
-		fNodePropertyMapper= null;
-		fNodeCopySources= null;
+		this.nodePropertyMapper= null;
+		this.nodeCopySources= null;
 	}
 	
 	/**
@@ -258,17 +258,17 @@ public final class RewriteEventStore {
 	 * <code>null</code>. to use the default.
 	 */
 	public void setNodePropertyMapper(INodePropertyMapper nodePropertyMapper) {
-		fNodePropertyMapper= nodePropertyMapper;
+		this.nodePropertyMapper= nodePropertyMapper;
 	}
 	
 	public void clear() {
-		fEvents.clear();
-		fLastEvent= null;
-		fTrackedNodes= null;
+		this.events.clear();
+		this.lastEvent= null;
+		this.trackedNodes= null;
 		
-		fEditGroups= null; // lazy initialization
-		fInsertBoundToPrevious= null;
-		fNodeCopySources= null;
+		this.editGroups= null; // lazy initialization
+		this.insertBoundToPrevious= null;
+		this.nodeCopySources= null;
 	}
 	
 	public void addEvent(ASTNode parent, StructuralPropertyDescriptor childProperty, RewriteEvent event) {
@@ -281,28 +281,28 @@ public final class RewriteEventStore {
 		EventHolder holder= new EventHolder(parent, childProperty, event);
 		
 		// check if already in list
-		for (int i= 0; i < fEvents.size(); i++) {
-			EventHolder curr= (EventHolder) fEvents.get(i);
+		for (int i= 0; i < this.events.size(); i++) {
+			EventHolder curr= (EventHolder) this.events.get(i);
 			if (curr.parent == parent && curr.childProperty == childProperty) {
-				fEvents.set(i, holder);
-				fLastEvent= null;
+				this.events.set(i, holder);
+				this.lastEvent= null;
 				return;
 			}
 		}
-		fEvents.add(holder);
+		this.events.add(holder);
 	}
 	
 	public RewriteEvent getEvent(ASTNode parent, StructuralPropertyDescriptor property) {
 		validateHasChildProperty(parent, property);
 		
-		if (fLastEvent != null && fLastEvent.parent == parent && fLastEvent.childProperty == property) {
-			return fLastEvent.event;
+		if (this.lastEvent != null && this.lastEvent.parent == parent && this.lastEvent.childProperty == property) {
+			return this.lastEvent.event;
 		}
 		
-		for (int i= 0; i < fEvents.size(); i++) {
-			EventHolder holder= (EventHolder) fEvents.get(i);
+		for (int i= 0; i < this.events.size(); i++) {
+			EventHolder holder= (EventHolder) this.events.get(i);
 			if (holder.parent == parent && holder.childProperty == property) {
-				fLastEvent= holder;
+				this.lastEvent= holder;
 				return holder.event;
 			}
 		}
@@ -337,8 +337,8 @@ public final class RewriteEventStore {
 	
 	
 	public boolean hasChangedProperties(ASTNode parent) {
-		for (int i= 0; i < fEvents.size(); i++) {
-			EventHolder holder= (EventHolder) fEvents.get(i);
+		for (int i= 0; i < this.events.size(); i++) {
+			EventHolder holder= (EventHolder) this.events.get(i);
 			if (holder.parent == parent) {
 				if (holder.event.getChangeKind() != RewriteEvent.UNCHANGED) {
 					return true;
@@ -349,8 +349,8 @@ public final class RewriteEventStore {
 	}
 	
 	public PropertyLocation getPropertyLocation(Object value, int kind) {
-		for (int i= 0; i < fEvents.size(); i++) {
-			EventHolder holder= (EventHolder) fEvents.get(i);
+		for (int i= 0; i < this.events.size(); i++) {
+			EventHolder holder= (EventHolder) this.events.get(i);
 			RewriteEvent event= holder.event;
 			if (isNodeInEvent(event, value, kind)) {
 				return new PropertyLocation(holder.parent, holder.childProperty);
@@ -379,8 +379,8 @@ public final class RewriteEventStore {
 	 * @return
 	 */
 	public RewriteEvent findEvent(Object value, int kind) {
-		for (int i= 0; i < fEvents.size(); i++) {
-			RewriteEvent event= ((EventHolder) fEvents.get(i)).event;
+		for (int i= 0; i < this.events.size(); i++) {
+			RewriteEvent event= ((EventHolder) this.events.get(i)).event;
 			if (isNodeInEvent(event, value, kind)) {
 				return event;
 			}
@@ -432,44 +432,44 @@ public final class RewriteEventStore {
 	}
 	
 	/*
-	 * Gets an original child from the AST. The behav
-	 * Temporarily overridden to port. All rewriters should prevent AST modification without their control.
+	 * Gets an original child from the AST.
+	 * Temporarily overridden to port the old rewriter to the new infrastructure.
 	 */
 	private Object accessOriginalValue(ASTNode parent, StructuralPropertyDescriptor childProperty) {
-		if (fNodePropertyMapper != null) {
-			return fNodePropertyMapper.getOriginalValue(parent, childProperty);
+		if (this.nodePropertyMapper != null) {
+			return this.nodePropertyMapper.getOriginalValue(parent, childProperty);
 		}
 		
 		return parent.getStructuralProperty(childProperty);
 	}	
 	
 	public TextEditGroup getEventEditGroup(RewriteEvent event) {
-		if (fEditGroups == null) {
+		if (this.editGroups == null) {
 			return null;
 		}
-		return (TextEditGroup) fEditGroups.get(event);
+		return (TextEditGroup) this.editGroups.get(event);
 	}
 	
 	public void setEventEditGroup(RewriteEvent event, TextEditGroup editGroup) {
-		if (fEditGroups == null) {
-			fEditGroups= new IdentityHashMap(5);
+		if (this.editGroups == null) {
+			this.editGroups= new IdentityHashMap(5);
 		}	
-		fEditGroups.put(event, editGroup);
+		this.editGroups.put(event, editGroup);
 	}
 	
 	
 	public final TextEditGroup getTrackedNodeData(ASTNode node) {
-		if (fTrackedNodes != null) {
-			return (TextEditGroup) fTrackedNodes.get(node);
+		if (this.trackedNodes != null) {
+			return (TextEditGroup) this.trackedNodes.get(node);
 		}
 		return null;	
 	}
 	
 	public void setTrackedNodeData(ASTNode node, TextEditGroup editGroup) {
-		if (fTrackedNodes == null) {
-			fTrackedNodes= new IdentityHashMap();
+		if (this.trackedNodes == null) {
+			this.trackedNodes= new IdentityHashMap();
 		}
-		fTrackedNodes.put(node, editGroup);
+		this.trackedNodes.put(node, editGroup);
 	}
 	
 	/**
@@ -488,10 +488,10 @@ public final class RewriteEventStore {
 	public final CopySourceInfo markAsCopySource(ASTNode parent, StructuralPropertyDescriptor property, ASTNode node, boolean isMove) {
 		CopySourceInfo copySource= new CopySourceInfo(parent, property, node, node, isMove);
 		
-		if (fNodeCopySources == null) {
-			fNodeCopySources= new ArrayList();
+		if (this.nodeCopySources == null) {
+			this.nodeCopySources= new ArrayList();
 		}
-		fNodeCopySources.add(copySource);
+		this.nodeCopySources.add(copySource);
 		return copySource;
 	}
 	
@@ -499,34 +499,34 @@ public final class RewriteEventStore {
 		CopySourceInfo copySource= new CopySourceInfo(parent, property, first, last, isMove);
 		assertNoOverlap(copySource);
 		
-		if (fRangeCopySources == null) {
-			fRangeCopySources= new ArrayList();
+		if (this.rangeCopySources == null) {
+			this.rangeCopySources= new ArrayList();
 		}
-		fRangeCopySources.add(copySource);
+		this.rangeCopySources.add(copySource);
 		return copySource;
 	}
 	
 	
 	public CopySourceInfo[] getNodeCopySources(ASTNode node) {
-		if (fNodeCopySources == null) {
+		if (this.nodeCopySources == null) {
 			return null;
 		}
-		return internalGetCopySources(fNodeCopySources, node);
+		return internalGetCopySources(this.nodeCopySources, node);
 	}
 	
 	public CopySourceInfo[] getRangeCopySources(ASTNode node) {
-		if (fRangeCopySources == null) {
+		if (this.rangeCopySources == null) {
 			return null;
 		}
-		return internalGetCopySources(fRangeCopySources, node);
+		return internalGetCopySources(this.rangeCopySources, node);
 	}
 	
 	public boolean hasRangeCopySources(ASTNode parent, StructuralPropertyDescriptor property) {
-		if (fRangeCopySources == null) {
+		if (this.rangeCopySources == null) {
 			return false;
 		}
-		for (int i= 0; i < fRangeCopySources.size(); i++) {
-			CopySourceInfo curr= (CopySourceInfo) fRangeCopySources.get(i);
+		for (int i= 0; i < this.rangeCopySources.size(); i++) {
+			CopySourceInfo curr= (CopySourceInfo) this.rangeCopySources.get(i);
 			if (curr.parent == parent && curr.childProperty == property) {
 				return true;
 			}
@@ -561,11 +561,11 @@ public final class RewriteEventStore {
 	 * Make sure all moved nodes are marked as removed or replaced.
 	 */
 	public void markMovedNodesRemoved() {
-		if (fNodeCopySources == null) {
+		if (this.nodeCopySources == null) {
 			return;
 		}
-		for (int i= 0; i < fNodeCopySources.size(); i++) {
-			CopySourceInfo curr= (CopySourceInfo) fNodeCopySources.get(i);
+		for (int i= 0; i < this.nodeCopySources.size(); i++) {
+			CopySourceInfo curr= (CopySourceInfo) this.nodeCopySources.get(i);
 			if (curr.isMove) {
 				doMarkMovedAsRemoved(curr);
 			}
@@ -589,17 +589,17 @@ public final class RewriteEventStore {
 	}
 
 	public boolean isInsertBoundToPrevious(ASTNode node) {	
-		if (fInsertBoundToPrevious != null) {
-			return fInsertBoundToPrevious.contains(node);
+		if (this.insertBoundToPrevious != null) {
+			return this.insertBoundToPrevious.contains(node);
 		}
 		return false;
 	}
 
 	public void setInsertBoundToPrevious(ASTNode node) {
-		if (fInsertBoundToPrevious == null) {
-			fInsertBoundToPrevious= new HashSet();
+		if (this.insertBoundToPrevious == null) {
+			this.insertBoundToPrevious= new HashSet();
 		}
-		fInsertBoundToPrevious.add(node);
+		this.insertBoundToPrevious.add(node);
 	}
 	
 	private void validateIsListProperty(StructuralPropertyDescriptor property) {
@@ -625,13 +625,13 @@ public final class RewriteEventStore {
 	
 	public String toString() {
 		StringBuffer buf= new StringBuffer();
-		for (int i= 0; i < fEvents.size(); i++) {
-			buf.append(fEvents.get(i).toString()).append('\n');
+		for (int i= 0; i < this.events.size(); i++) {
+			buf.append(this.events.get(i).toString()).append('\n');
 		}
 		return buf.toString();
 	}
 	
 	public static boolean isNewNode(ASTNode node) {
-		return node.getStartPosition() == -1; // should be changed with new API
+		return (node.getFlags() & ASTNode.ORIGINAL) == 0;
 	}
 }
