@@ -49,7 +49,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	 * @return boolean true if the compilation is ok, false otherwise
 	 */
 	public boolean execute() throws BuildException {
-		attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.usingJDTCompiler"), Project.MSG_VERBOSE); //$NON-NLS-1$
+		this.attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.usingJDTCompiler"), Project.MSG_VERBOSE); //$NON-NLS-1$
 		Commandline cmd = setupJavacCommand();
 
 		try {
@@ -59,7 +59,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			Method compile = c.getMethod("compile", new Class[] {String[].class}); //$NON-NLS-1$
 			Object result = compile.invoke(batchCompilerInstance, new Object[] { cmd.getArguments()});
 			final boolean resultValue = ((Boolean) result).booleanValue();
-			if (!resultValue && verbose) {
+			if (!resultValue && this.verbose) {
 				System.out.println(AntAdapterMessages.getString("ant.jdtadapter.error.compilationFailed", this.logFileName)); //$NON-NLS-1$
 			}
 			return resultValue;
@@ -79,24 +79,24 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 */
 		cmd.createArgument().setValue("-noExit"); //$NON-NLS-1$
 
-        if (bootclasspath != null && bootclasspath.size() != 0) {
+        if (this.bootclasspath != null && this.bootclasspath.size() != 0) {
 			/*
 			 * Set the bootclasspath for the Eclipse compiler.
 			 */
 			cmd.createArgument().setValue("-bootclasspath"); //$NON-NLS-1$
-			cmd.createArgument().setPath(bootclasspath);        	
+			cmd.createArgument().setPath(this.bootclasspath);        	
         } else {
-            includeJavaRuntime = true;
+            this.includeJavaRuntime = true;
         }
 
-        Path classpath = new Path(project);
+        Path classpath = new Path(this.project);
 
        /*
          * Eclipse compiler doesn't support -extdirs.
          * It is emulated using the classpath. We add extdirs entries after the 
          * bootclasspath.
          */
-        addExtdirs(extdirs, classpath);
+        addExtdirs(this.extdirs, classpath);
 
 		/*
 		 * The java runtime is already handled, so we simply want to retrieve the
@@ -120,7 +120,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
         Path compileSourcePath = null;
         if (getSourcepathMethod != null) {
 	 		try {
-				compileSourcePath = (Path) getSourcepathMethod.invoke(attributes, null);
+				compileSourcePath = (Path) getSourcepathMethod.invoke(this.attributes, null);
 			} catch (IllegalAccessException e) {
 				// should never happen
 			} catch (InvocationTargetException e) {
@@ -130,7 +130,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
         if (compileSourcePath != null) {
             sourcepath = compileSourcePath;
         } else {
-            sourcepath = src;
+            sourcepath = this.src;
         }
 		classpath.append(sourcepath);
 		/*
@@ -140,25 +140,25 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		cmd.createArgument().setPath(classpath);
 
         String memoryParameterPrefix = JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_1) ? "-J-" : "-J-X";//$NON-NLS-1$//$NON-NLS-2$
-        if (memoryInitialSize != null) {
-            if (!attributes.isForkedJavac()) {
-                attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.ignoringMemoryInitialSize"), Project.MSG_WARN); //$NON-NLS-1$
+        if (this.memoryInitialSize != null) {
+            if (!this.attributes.isForkedJavac()) {
+                this.attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.ignoringMemoryInitialSize"), Project.MSG_WARN); //$NON-NLS-1$
             } else {
                 cmd.createArgument().setValue(memoryParameterPrefix
-                                              + "ms" + memoryInitialSize); //$NON-NLS-1$
+                                              + "ms" + this.memoryInitialSize); //$NON-NLS-1$
             }
         }
 
-        if (memoryMaximumSize != null) {
-            if (!attributes.isForkedJavac()) {
-                attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.ignoringMemoryMaximumSize"), Project.MSG_WARN); //$NON-NLS-1$
+        if (this.memoryMaximumSize != null) {
+            if (!this.attributes.isForkedJavac()) {
+                this.attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.ignoringMemoryMaximumSize"), Project.MSG_WARN); //$NON-NLS-1$
             } else {
                 cmd.createArgument().setValue(memoryParameterPrefix
-                                              + "mx" + memoryMaximumSize); //$NON-NLS-1$
+                                              + "mx" + this.memoryMaximumSize); //$NON-NLS-1$
             }
         }
 
-        if (debug) {
+        if (this.debug) {
 	       // retrieve the method getSourcepath() using reflect
 	        // This is done to improve the compatibility to ant 1.5
 	        Method getDebugLevelMethod = null;
@@ -171,7 +171,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
      	    String debugLevel = null;
 	        if (getDebugLevelMethod != null) {
 				try {
-					debugLevel = (String) getDebugLevelMethod.invoke(attributes, null);
+					debugLevel = (String) getDebugLevelMethod.invoke(this.attributes, null);
 				} catch (IllegalAccessException e) {
 					// should never happen
 				} catch (InvocationTargetException e) {
@@ -203,7 +203,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
  	    String[] compilerArgs = null;
         if (getCurrentCompilerArgsMethod != null) {
 			try {
-				compilerArgs = (String[]) getCurrentCompilerArgsMethod.invoke(attributes, null);
+				compilerArgs = (String[]) getCurrentCompilerArgsMethod.invoke(this.attributes, null);
 			} catch (IllegalAccessException e) {
 				// should never happen
 			} catch (InvocationTargetException e) {
@@ -215,13 +215,13 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			/*
 			 * Handle the nowarn option. If none, then we generate all warnings.
 			 */
-			if (attributes.getNowarn()) {
-				if (deprecation) {
+			if (this.attributes.getNowarn()) {
+				if (this.deprecation) {
 					cmd.createArgument().setValue("-warn:allDeprecation"); //$NON-NLS-1$
 				} else {
 					cmd.createArgument().setValue("-nowarn"); //$NON-NLS-1$
 				}
-			} else if (deprecation) {
+			} else if (this.deprecation) {
 				cmd.createArgument().setValue("-warn:allDeprecation,constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
 			} else {
 				cmd.createArgument().setValue("-warn:constructorName,packageDefaultMethod,maskedCatchBlocks,unusedImports,staticReceiver"); //$NON-NLS-1$
@@ -230,14 +230,14 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			/*
 			 * Handle the nowarn option. If none, then we generate all warnings.
 			 */
-			if (attributes.getNowarn()) {
-				if (deprecation) {
+			if (this.attributes.getNowarn()) {
+				if (this.deprecation) {
 					cmd.createArgument().setValue("-warn:allDeprecation"); //$NON-NLS-1$
 				} else {
 					cmd.createArgument().setValue("-nowarn"); //$NON-NLS-1$
 				}
 			} else {
-				if (deprecation) {
+				if (this.deprecation) {
 					cmd.createArgument().setValue("-warn:+allDeprecation"); //$NON-NLS-1$
 				} else {
 					cmd.createArgument().setValue("-warn:-allDeprecation,deprecation"); //$NON-NLS-1$
@@ -257,50 +257,50 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	   	/*
 		 * destDir option.
 		 */		
-		if (destDir != null) {
+		if (this.destDir != null) {
 			cmd.createArgument().setValue("-d"); //$NON-NLS-1$
-			cmd.createArgument().setFile(destDir.getAbsoluteFile());
+			cmd.createArgument().setFile(this.destDir.getAbsoluteFile());
 		}
 
 		/*
 		 * target option.
 		 */		
-		if (target != null) {
+		if (this.target != null) {
 			cmd.createArgument().setValue("-target"); //$NON-NLS-1$
-			cmd.createArgument().setValue(target);
+			cmd.createArgument().setValue(this.target);
 		}
 
 		/*
 		 * verbose option
 		 */
-		if (verbose) {
+		if (this.verbose) {
 			cmd.createArgument().setValue("-verbose"); //$NON-NLS-1$
 			/*
 			 * extra option allowed by the Eclipse compiler
 			 */
 			cmd.createArgument().setValue("-log"); //$NON-NLS-1$
-			logFileName = destDir.getAbsolutePath() + ".log"; //$NON-NLS-1$
-			cmd.createArgument().setValue(logFileName);
+			this.logFileName = this.destDir.getAbsolutePath() + ".log"; //$NON-NLS-1$
+			cmd.createArgument().setValue(this.logFileName);
 		}
 
 		/*
 		 * failnoerror option
 		 */
-		if (!attributes.getFailonerror()) {
+		if (!this.attributes.getFailonerror()) {
 			cmd.createArgument().setValue("-proceedOnError"); //$NON-NLS-1$
 		}
 
 		/*
 		 * source option
 		 */
-		String source = attributes.getSource();
+		String source = this.attributes.getSource();
         if (source != null) {
             cmd.createArgument().setValue("-source"); //$NON-NLS-1$
             cmd.createArgument().setValue(source);
         }
         
 		if (JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_4)) {
-			if (target != null && target.equals("1.1")) {			   //$NON-NLS-1$	
+			if (this.target != null && this.target.equals("1.1")) {			   //$NON-NLS-1$	
 				cmd.createArgument().setValue("-1.3"); //$NON-NLS-1$
 			} else {
 				cmd.createArgument().setValue("-1.4"); //$NON-NLS-1$
@@ -312,9 +312,9 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		/*
 		 * encoding option
 		 */
-        if (encoding != null) {
+        if (this.encoding != null) {
             cmd.createArgument().setValue("-encoding"); //$NON-NLS-1$
-            cmd.createArgument().setValue(encoding);
+            cmd.createArgument().setValue(this.encoding);
         }
 
      	/*
