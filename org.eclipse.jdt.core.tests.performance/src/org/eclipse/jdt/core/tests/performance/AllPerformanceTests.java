@@ -21,6 +21,7 @@ public class AllPerformanceTests extends TestCase {
 	public static Test suite() {
 		PerformanceTestSuite suite = new PerformanceTestSuite(AllPerformanceTests.class.getName());
 		suite.addTestSuite(FullSourceWorkspaceTests.class);
+		suite.addTestSuite(BuildBatchCompilerTest.class);
 		suite.addTestSuite(NameLookupTests2.class);
 		return suite;
 	}
