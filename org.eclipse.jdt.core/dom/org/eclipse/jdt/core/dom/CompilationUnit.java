@@ -473,11 +473,15 @@ public class CompilationUnit extends ASTNode {
 	 * @param node the node
 	 * @return the 0-based character index, or <code>-1</code>
 	 *    if no source position information is recorded for this node
-	 * @see DefaultCommentMapper#getExtendedStartPosition(ASTNode)
+	 * @see #getExtendedLength(ASTNode)
 	 * @since 3.0
 	 */
 	public int getExtendedStartPosition(ASTNode node) {
-		return this.commentMapper.getExtendedStartPosition(node);
+		if (this.commentMapper == null) {
+			return -1;
+		} else {
+			return this.commentMapper.getExtendedStartPosition(node);
+		}
 	}
 
 	/**
@@ -489,11 +493,15 @@ public class CompilationUnit extends ASTNode {
 	 * @param node the node
 	 * @return a (possibly 0) length, or <code>0</code>
 	 *    if no source position information is recorded for this node
-	 * @see DefaultCommentMapper#getExtendedLength(ASTNode)
+	 * @see #getExtendedStartPosition(ASTNode)
 	 * @since 3.0
 	 */
 	public int getExtendedLength(ASTNode node) {
-		return this.commentMapper.getExtendedLength(node);
+		if (this.commentMapper == null) {
+			return 0;
+		} else {
+			return this.commentMapper.getExtendedLength(node);
+		}
 	}
 		
 	/**
