@@ -136,7 +136,7 @@ public static Test suite() {
 
 	if (false){
 		TestSuite suite = new Suite(ClasspathTests.class.getName());
-		suite.addTest(new ClasspathTests("testNoCycleDetection"));
+		suite.addTest(new ClasspathTests("testNoCycleDetection2"));
 		return suite;
 	}
 	return new Suite(ClasspathTests.class);	
@@ -1714,7 +1714,7 @@ public void testCycleDetection() throws CoreException {
 			projectNames[i] = "P"+i;
 			p[i] = this.createJavaProject(projectNames[i], new String[] {""}, "");
 		}
-		
+
 		IClasspathEntry[][] extraEntries = new IClasspathEntry[][]{ 
 			{ JavaCore.newProjectEntry(p[1].getPath()), JavaCore.newProjectEntry(p[3].getPath()) },
 			{ JavaCore.newProjectEntry(p[2].getPath()), JavaCore.newProjectEntry(p[3].getPath()) },
@@ -1755,7 +1755,7 @@ public void testCycleDetection() throws CoreException {
 
 
 public void testCycleDetectionThroughVariables() throws CoreException {
-
+	
 	int max = 5;
 	IJavaProject[] p = new IJavaProject[max];
 	String[] projectNames = new String[max];
@@ -1896,7 +1896,6 @@ public void testCycleDetectionThroughContainers() throws CoreException {
 	} finally {
 		//this.stopDeltas();
 		this.deleteProjects(projectNames);
-
 	}
 }
 public void testCycleDetectionThroughContainerVariants() throws CoreException {
@@ -2091,17 +2090,35 @@ public void testDenseCycleDetection() throws CoreException {
 	denseCycleDetection(20);
 	//denseCycleDetection(100);
 }
-public void testNoCycleDetection() throws CoreException {
+/*
+ * Create projects and set classpaths in one batch
+ */
+public void testNoCycleDetection1() throws CoreException {
 
 	// each project prereqs all the previous ones
-	noCycleDetection(5, false);
-	noCycleDetection(10, false);
-	noCycleDetection(20, false);
-	
+	noCycleDetection(5, false, false);
+	noCycleDetection(10, false, false);
+	noCycleDetection(20, false, false);
+
 	// each project prereqs all the next ones
-	noCycleDetection(5, true);
-	noCycleDetection(10, true);
-	noCycleDetection(20, true);
+	noCycleDetection(5, true, false);
+	noCycleDetection(10, true, false);
+	noCycleDetection(20, true, false);
+}
+/*
+ * Create projects first, then set classpaths
+ */
+public void testNoCycleDetection2() throws CoreException {
+
+	// each project prereqs all the previous ones
+	noCycleDetection(5, false, true);
+	noCycleDetection(10, false, true);
+	noCycleDetection(20, false, true);
+
+	// each project prereqs all the next ones
+	noCycleDetection(5, true, true);
+	noCycleDetection(10, true, true);
+	noCycleDetection(20, true, true);
 }
 /**
  * Ensures that a duplicate entry created by editing the .classpath is detected.
@@ -2187,7 +2204,7 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
  * When no using forward references (i.e. backward refs), all projects prereq projects with smaller index
  * e.g. P0, P1, P2:  P0 prereqs {}, P1 prereqs {P0}, P2 prereqs {P0, P1}
  */
-private void noCycleDetection(final int numberOfParticipants, final boolean useForwardReferences) throws CoreException {
+private void noCycleDetection(final int numberOfParticipants, final boolean useForwardReferences, final boolean createProjectsFirst) throws CoreException {
 	
 	final IJavaProject[] projects = new IJavaProject[numberOfParticipants];
 	final String[] projectNames  = new String[numberOfParticipants];
@@ -2197,13 +2214,27 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 	final long[] time = new long[1];
 	
 	try {
+		if (createProjectsFirst) {
+			JavaCore.run(new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					for (int i = 0; i < numberOfParticipants; i++){
+						projectNames[i] = "P"+i;
+						projects[i] = createJavaProject(projectNames[i], new String[]{""}, "");
+						allProjectsInCycle[i] = 0;
+					}
+				}
+			},
+			null);
+		}
 		JavaCore.run(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
-				for (int i = 0; i < numberOfParticipants; i++){
-					projectNames[i] = "P"+i;
-					projects[i] = createJavaProject(projectNames[i], new String[]{""}, "");
-					allProjectsInCycle[i] = 0;
-				}		
+				if (!createProjectsFirst) {
+					for (int i = 0; i < numberOfParticipants; i++){
+						projectNames[i] = "P"+i;
+						projects[i] = createJavaProject(projectNames[i], new String[]{""}, "");
+						allProjectsInCycle[i] = 0;
+					}		
+				}
 				for (int i = 0; i < numberOfParticipants; i++){
 					IClasspathEntry[] extraEntries = new IClasspathEntry[useForwardReferences ? numberOfParticipants - i -1 : i];
 					int index = 0;
@@ -2229,7 +2260,7 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 		}, 
 		null);
 		time[0] += System.currentTimeMillis()-start[0];
-		System.out.println("No cycle check ("+numberOfParticipants+" participants) : "+ time[0]+" ms, "+ (useForwardReferences ? "forward references" : "backward references"));
+		System.out.println("No cycle check ("+numberOfParticipants+" participants) : "+ time[0]+" ms, "+ (useForwardReferences ? "forward references" : "backward references") + ", " + (createProjectsFirst ? "two steps (projects created first, then classpaths are set)" : "one step (projects created and classpaths set in one batch)"));
 		
 		for (int i = 0; i < numberOfParticipants; i++){
 			// check cycle markers

@@ -666,6 +666,25 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	protected void pushOperation(JavaModelOperation operation) {
 		getCurrentOperationStack().add(operation);
 	}
+	/*
+	 * Removes all actions with the given id from the queue of post actions.
+	 * Does nothing if no such action is in the queue.
+	 */
+	protected void removeAllPostAction(String actionID) {
+		if (POST_ACTION_VERBOSE) {
+			System.out.println("(" + Thread.currentThread() + ") [JavaModelOperation.removeAllPostAction(String)] Removing actions " + actionID); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		
+		JavaModelOperation topLevelOp = (JavaModelOperation)getCurrentOperationStack().get(0);
+		IPostAction[] postActions = topLevelOp.actions;
+		if (postActions == null) return;
+		int index = this.actionsStart-1;
+		while ((index = topLevelOp.firstActionWithID(actionID, index+1)) >= 0) {
+			// remove action[index]
+			System.arraycopy(postActions, index+1, postActions, index, topLevelOp.actionsEnd - index);
+			postActions[topLevelOp.actionsEnd--] = null;
+		}
+	}
 	
 	/**
 	 * Main entry point for Java Model operations.  Executes this operation

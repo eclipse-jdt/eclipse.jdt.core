@@ -596,13 +596,16 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 */
 	protected void updateAffectedProjects(IPath prerequisiteProjectPath) {
 
+		// remove all update classpath post actions for this project
+		removeAllPostAction(prerequisiteProjectPath.toString());
+		
 		try {
 			IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 			IJavaProject initialProject = this.project;
 			IJavaProject[] projects = model.getJavaProjects();
 			for (int i = 0, projectCount = projects.length; i < projectCount; i++) {
 				try {
-					JavaProject affectedProject = (JavaProject) projects[i];
+					final JavaProject affectedProject = (JavaProject) projects[i];
 					if (affectedProject.equals(initialProject)) continue; // skip itself
 					
 					// consider ALL dependents (even indirect ones), since they may need to
@@ -613,14 +616,23 @@ public class SetClasspathOperation extends JavaModelOperation {
 						IClasspathEntry entry = classpath[j];
 						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
 							&& entry.getPath().equals(prerequisiteProjectPath)) {
-							affectedProject.setRawClasspath(
-								UpdateClasspath, 
-								SetClasspathOperation.ReuseOutputLocation, 
-								this.fMonitor, 
-								this.canChangeResource,  
-								affectedProject.getResolvedClasspath(true), 
-								false, // updating only - no validation
-								false); // updating only - no need to save
+								
+							postAction(new IPostAction() {
+									public String getID() {
+										return affectedProject.getPath().toString();
+									}
+									public void run() throws JavaModelException {
+										affectedProject.setRawClasspath(
+											UpdateClasspath, 
+											SetClasspathOperation.ReuseOutputLocation, 
+											SetClasspathOperation.this.fMonitor, 
+											SetClasspathOperation.this.canChangeResource,  
+											affectedProject.getResolvedClasspath(true), 
+											false, // updating only - no validation
+											false); // updating only - no need to save
+									}
+								},
+								REMOVEALL_APPEND);
 							break;
 						}
 					}
