@@ -141,7 +141,7 @@ public interface IClasspathEntry {
 	 * @since 2.0
 	 */
 	public static final int CPE_CONTAINER = 5;
-
+	
 	/**
 	 * Returns the kind of files found in the package fragments identified by this
 	 * classpath entry.
@@ -174,6 +174,31 @@ public interface IClasspathEntry {
 	 */
 	int getEntryKind();
 
+	/**
+	 * Returns the set of patterns excluding resourcess associated with this entry.
+	 * <p>
+	 * Exclusion patterns allows to filter out some portions of the resource tree 
+	 * rooted at the entry path. By default, a classpath entry is all inclusive.
+	 * File patterns are case sensitive, and the paths are relative to the entry path.
+	 * A source folder entry already filters out ".class" files implicitly from the resource 
+	 * subtree. Reciprocally a library folder will exclude ".java" files.
+	 * <p>
+	 * Each exclusion pattern follows the Ant pattern syntax, where a pattern represents 
+	 * a resource file path pattern, for which the matching will be done on a per folder basis. 
+	 * It can use standard wildcards such as '*' and '?', where '*' will match any directory or 
+	 * file name. In order to allow matching multiple folder levels, the extra wildcard '**' is 
+	 * supported. When '**' is used as the name of a folder in a pattern, it matches zero or
+	 * more folders.
+	 * <br>
+	 * e.g. pattern "/test/**" matches all files under "/test/"
+	 * <br>
+	 * If a pattern ends with '/' or '\', then '**' is appended. For example, "test/" is interpreted as "test/**".
+	 * <p>
+	 * @return the resource exclusion patterns associated with this entry, or <code>null</code> if none
+	 * was specified. 
+	 * @since 2.1	 */
+	String[] getExclusionPatterns();
+	
 	/**
 	 * Returns the path of this classpath entry.
 	 *

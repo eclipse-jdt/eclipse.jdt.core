@@ -429,6 +429,7 @@ public class JavaProject
 			return new IPackageFragmentRoot[] {};
 		}
 	}
+	
 	/**
 	 * Returns the package fragment roots identified by the given entry. In case it refers to
 	 * a project, it will follow its classpath so as to find exported roots as well.
@@ -1522,6 +1523,7 @@ public class JavaProject
 								containerRawEntry.getContentKind(),
 								containerRawEntry.getEntryKind(), 
 								containerRawEntry.getPath(),
+								containerRawEntry.getExclusionPatterns(),
 								containerRawEntry.getSourceAttachmentPath(),
 								containerRawEntry.getSourceAttachmentRootPath(),
 								true); // duplicate container entry for tagging it as exported
@@ -1935,8 +1937,9 @@ public class JavaProject
 										ClasspathEntry.K_OUTPUT,
 										IClasspathEntry.CPE_LIBRARY,
 										path,
-										null,
-										null,
+										null, // exclusion patterns
+										null, // source attachment
+										null, // source attachment root
 										false));
 								break;
 								

@@ -24,14 +24,14 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * Describes the kind of classpath entry - one of 
 	 * CPE_PROJECT, CPE_LIBRARY, CPE_SOURCE, CPE_VARIABLE or CPE_CONTAINER
 	 */
-	protected int entryKind;
+	public int entryKind;
 
 	/**
 	 * Describes the kind of package fragment roots found on
 	 * this classpath entry - either K_BINARY or K_SOURCE or
 	 * K_OUTPUT.
 	 */
-	protected int contentKind;
+	public int contentKind;
 
 	/**
 	 * The meaning of the path of a classpath entry depends on its entry kind:<ul>
@@ -53,8 +53,13 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * 	registered), and the remaining segments are used as additional hints for resolving the container entry to
 	 * 	an actual <code>IClasspathContainer</code>.</li>
 	 */
-	protected IPath path;
+	public IPath path;
 
+	/**
+	 * Patterns allowing to exclude portions of the resource tree denoted by this entry path.	 */
+	
+	public String[] exclusionPatterns;
+	
 	/**
 	 * Describes the path to the source archive associated with this
 	 * classpath entry, or <code>null</code> if this classpath entry has no
@@ -66,7 +71,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * an analogous form and meaning as the variable path, namely the first segment 
 	 * is the name of a classpath variable.
 	 */
-	protected IPath sourceAttachmentPath;
+	public IPath sourceAttachmentPath;
 
 	/**
 	 * Describes the path within the source archive where package fragments
@@ -75,25 +80,38 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * if and only if <code>getSourceAttachmentPath</code> returns 
 	 * a non-<code>null</code> value.
 	 */
-	protected IPath sourceAttachmentRootPath;
+	public IPath sourceAttachmentRootPath;
 
 	/**
 	 * A constant indicating an output location.
 	 */
-	protected static final int K_OUTPUT = 10;
+	public static final int K_OUTPUT = 10;
 
 	/**
 	 * The export flag
 	 */
-	protected boolean isExported;
+	public boolean isExported;
 
 	/**
+	 * Default exclusion patterns for source folders
+	 * @since 2.1
+	 */
+//	public static final String[] EXCLUDE_CLASS = new String[] { "**/*.class" }; //$NON-NLS-1$
+
+	/**
+	 * Default exclusion patterns for library folders
+	 * @since 2.1
+	 */
+//	public static final String[] EXCLUDE_JAVA = new String[] { "**/*.java" }; //$NON-NLS-1$
+	
+		/**
 	 * Creates a class path entry of the specified kind with the given path.
 	 */
 	public ClasspathEntry(
 		int contentKind,
 		int entryKind,
 		IPath path,
+		String[] exclusionPatterns,
 		IPath sourceAttachmentPath,
 		IPath sourceAttachmentRootPath,
 		boolean isExported) {
@@ -101,6 +119,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.contentKind = contentKind;
 		this.entryKind = entryKind;
 		this.path = path;
+		this.exclusionPatterns = exclusionPatterns;
 		this.sourceAttachmentPath = sourceAttachmentPath;
 		this.sourceAttachmentRootPath = sourceAttachmentRootPath;
 		this.isExported = isExported;
@@ -164,6 +183,13 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public int getEntryKind() {
 		return this.entryKind;
+	}
+
+	/**
+	 * @see org.eclipse.jdt.core.IClasspathEntry#getExclusionPatterns()
+	 */
+	public String[] getExclusionPatterns() {
+		return this.exclusionPatterns;
 	}
 
 	/**

@@ -1812,8 +1812,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_CONTAINER,
 			containerPath,
-			null,
-			null,
+			null, // exclusion pattern
+			null, // source attachment
+			null, // source attachment root
 			isExported);
 	}
 
@@ -1897,6 +1898,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			IPackageFragmentRoot.K_BINARY,
 			IClasspathEntry.CPE_LIBRARY,
 			JavaProject.canonicalizedPath(path),
+			null, // exclusion patterns
 			sourceAttachmentPath,
 			sourceAttachmentRootPath,
 			isExported);
@@ -1949,15 +1951,16 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.0
 	 */
 	public static IClasspathEntry newProjectEntry(IPath path, boolean isExported) {
-		Assert.isTrue(
-			path.isAbsolute(),
-			Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
+		
+		Assert.isTrue(path.isAbsolute(), Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
+		
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_PROJECT,
 			path,
-			null,
-			null,
+			null, // exclusion patterns
+			null, // source attachment
+			null, // source attachment root
 			isExported);
 	}
 
@@ -1990,15 +1993,43 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @return a new source classpath entry
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path) {
-		Assert.isTrue(
-			path.isAbsolute(),
-			Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
+
+		return newSourceEntry(path, null);
+	}
+	
+	/**
+	 * Creates and returns a new classpath entry of kind <code>CPE_SOURCE</code> for the project's source folder 
+	 * identified by the given absolute path. This specifies that all package fragments within the root will 
+	 * have children of type <code>ICompilationUnit</code>.
+	 * <p>
+	 * The source folder is referred to using an absolute path relative to the workspace root, e.g. <code>"/Project/src"</code>.
+	 * </p>
+	 * A source entry is used to set up the internal source layout of a project, and cannot be used out of the
+	 * context of the containing project (a source entry "Proj1/src" cannot be used on the classpath of Proj2).
+	 * <p>
+	 * A particular source entry cannot be exported to other projects. All sources/binaries inside a project are
+	 * contributed as a whole through a project entry (see <code>JavaCore.newProjectEntry</code>).
+	 * <p>
+	 * Exclusion patterns can be specified to cause portions of the resource tree to be excluded from this source folder.
+	 * If <code>null</code> is passed, then the source folder will default to exclude ".class" files (which is the minimal
+	 * exclusion pattern).
+	 * <p>
+	 * @param path the absolute path of a source folder
+	 * @param exclusionPatterns the resource relative path patterns to exclude
+	 * @return a new source classpath entry
+	 * @since 2.1
+	 */
+	public static IClasspathEntry newSourceEntry(IPath path, String[] exclusionPatterns) {
+		
+		Assert.isTrue(path.isAbsolute(), Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
+		
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_SOURCE,
 			path,
-			null,
-			null,
+			exclusionPatterns,
+			null, // source attachment
+			null, // source attachment root
 			false);
 	}
 
@@ -2091,7 +2122,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static IClasspathEntry newVariableEntry(
 		IPath variablePath,
 		IPath variableSourceAttachmentPath,
-		IPath sourceAttachmentRootPath,
+		IPath variableSourceAttachmentRootPath,
 		boolean isExported) {
 			
 		Assert.isTrue(
@@ -2102,8 +2133,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_VARIABLE,
 			variablePath,
-			variableSourceAttachmentPath,
-			sourceAttachmentRootPath,
+			null, // exclusion patterns
+			variableSourceAttachmentPath, // source attachment
+			variableSourceAttachmentRootPath, // source attachment root			
 			isExported);
 	}
 
