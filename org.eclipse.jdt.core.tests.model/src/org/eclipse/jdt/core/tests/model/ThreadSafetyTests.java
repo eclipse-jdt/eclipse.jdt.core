@@ -127,7 +127,7 @@ public void testDeadlock01() throws CoreException {
 				public void run() {
 					try {
 							step1.acquire(); // ensure workspace lock is taken already
-							System.out.println(Thread.currentThread() + " about to take Java model lock");
+							System.out.println(Thread.currentThread() + " about to populate Java model");
 							// needs the JavaModel lock to populate the project
 							project.getChildren(); // trigger classpath initializer activation (requires workspace lock)
 							System.out.println(Thread.currentThread() + " done populating the model");

@@ -750,7 +750,7 @@ public class SourceMapper
 		}
 		IBinaryType info = null;
 		try {
-			info = (IBinaryType) declType.getRawInfo();
+			info = (IBinaryType) declType.getElementInfo();
 		} catch (JavaModelException e) {
 			return null;
 		}
@@ -1060,7 +1060,7 @@ public class SourceMapper
 			char[] fullName = null;
 			this.anonymousClassName = 0;
 			try {
-				IBinaryType binType = (IBinaryType) fType.getRawInfo();
+				IBinaryType binType = (IBinaryType) fType.getElementInfo();
 				isAnonymousClass = binType.isAnonymous();
 				fullName = binType.getName();
 			} catch(JavaModelException e) {

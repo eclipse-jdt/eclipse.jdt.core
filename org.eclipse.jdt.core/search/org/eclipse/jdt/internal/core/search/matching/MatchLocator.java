@@ -1071,7 +1071,7 @@ BinaryTypeBinding cacheBinaryType(IType type) throws JavaModelException {
 		// force caching of enclosing types first, so that binary type can be found in lookup enviroment
 		this.cacheBinaryType(enclosingType);
 	}
-	IBinaryType binaryType = (IBinaryType)((BinaryType)type).getRawInfo();
+	IBinaryType binaryType = (IBinaryType)((BinaryType)type).getElementInfo();
 	BinaryTypeBinding binding = this.lookupEnvironment.cacheBinaryType(binaryType);
 	if (binding == null) { // it was already cached as a result of a previous query
 		char[][] compoundName = CharOperation.splitOn('.', type.getFullyQualifiedName().toCharArray());
@@ -1136,7 +1136,7 @@ public IBinaryType getBinaryInfo(org.eclipse.jdt.internal.core.ClassFile classFi
 	BinaryType binaryType = (BinaryType)classFile.getType();
 	if (classFile.isOpen()) {
 		// reuse the info from the java model cache
-		return (IBinaryType)binaryType.getRawInfo();
+		return (IBinaryType)binaryType.getElementInfo();
 	} else {
 		// create a temporary info
 		IBinaryType info;

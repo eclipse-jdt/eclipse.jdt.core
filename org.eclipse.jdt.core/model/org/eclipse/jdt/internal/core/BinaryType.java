@@ -174,7 +174,7 @@ public IType getDeclaringType() {
 	IClassFile classFile = this.getClassFile();
 	if (classFile.isOpen()) {
 		try {
-			char[] enclosingTypeName = ((IBinaryType) getRawInfo()).getEnclosingTypeName();
+			char[] enclosingTypeName = ((IBinaryType) getElementInfo()).getEnclosingTypeName();
 			if (enclosingTypeName == null) {
 				return null;
 			}
@@ -242,7 +242,7 @@ public IField[] getFields() throws JavaModelException {
  * @see IMember#getFlags()
  */
 public int getFlags() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getRawInfo();
+	IBinaryType info = (IBinaryType) getElementInfo();
 	return info.getModifiers();
 }
 /**
@@ -313,7 +313,7 @@ public IPackageFragment getPackageFragment() {
  * @see IType#getSuperclassName()
  */
 public String getSuperclassName() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getRawInfo();
+	IBinaryType info = (IBinaryType) getElementInfo();
 	char[] superclassName = info.getSuperclassName();
 	if (superclassName == null) {
 		return null;
@@ -324,7 +324,7 @@ public String getSuperclassName() throws JavaModelException {
  * @see IType#getSuperInterfaceNames()
  */
 public String[] getSuperInterfaceNames() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getRawInfo();
+	IBinaryType info = (IBinaryType) getElementInfo();
 	char[][] names= info.getInterfaceNames();
 	int length;
 	if (names == null || (length = names.length) == 0) {
@@ -395,7 +395,7 @@ public boolean hasChildren() throws JavaModelException {
  * @see IType#isAnonymous()
  */
 public boolean isAnonymous() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getRawInfo();
+	IBinaryType info = (IBinaryType) getElementInfo();
 	return info.isAnonymous();
 }
 /**
@@ -408,7 +408,7 @@ public boolean isClass() throws JavaModelException {
  * @see IType#isInterface()
  */
 public boolean isInterface() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getRawInfo();
+	IBinaryType info = (IBinaryType) getElementInfo();
 	return info.isInterface();
 }
 
@@ -416,14 +416,14 @@ public boolean isInterface() throws JavaModelException {
  * @see IType#isLocal()
  */
 public boolean isLocal() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getRawInfo();
+	IBinaryType info = (IBinaryType) getElementInfo();
 	return info.isLocal();
 }
 /**
  * @see IType#isMember()
  */
 public boolean isMember() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getRawInfo();
+	IBinaryType info = (IBinaryType) getElementInfo();
 	return info.isMember();
 }
 /**

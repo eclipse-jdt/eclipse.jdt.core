@@ -219,7 +219,7 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 			// force caching of enclosing types first, so that binary type can be found in lookup enviroment
 			this.cacheBinaryType(enclosingType);
 		}
-		IBinaryType binaryType = (IBinaryType)((BinaryType)type).getRawInfo();
+		IBinaryType binaryType = (IBinaryType)((BinaryType)type).getElementInfo();
 		BinaryTypeBinding binding = this.lookupEnvironment.cacheBinaryType(binaryType);
 		if (binding == null) { // it was already cached as a result of a previous query
 			char[][] compoundName = CharOperation.splitOn('.', type.getFullyQualifiedName().toCharArray());
@@ -520,7 +520,7 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 		BinaryType binaryType = (BinaryType)classFile.getType();
 		if (classFile.isOpen()) {
 			// reuse the info from the java model cache
-			return (IBinaryType)binaryType.getRawInfo();
+			return (IBinaryType)binaryType.getElementInfo();
 		} else {
 			// create a temporary info
 			IBinaryType info;

@@ -70,14 +70,14 @@ public class SearchableEnvironment
 			if (type instanceof BinaryType) {
 				try {
 					return new NameEnvironmentAnswer(
-						(IBinaryType) ((BinaryType) type).getRawInfo());
+						(IBinaryType) ((BinaryType) type).getElementInfo());
 				} catch (JavaModelException npe) {
 					return null;
 				}
 			} else { //SourceType
 				try {
 					// retrieve the requested type
-					SourceTypeElementInfo sourceType = (SourceTypeElementInfo)((SourceType)type).getRawInfo();
+					SourceTypeElementInfo sourceType = (SourceTypeElementInfo)((SourceType)type).getElementInfo();
 					ISourceType topLevelType = sourceType;
 					while (topLevelType.getEnclosingType() != null) {
 						topLevelType = topLevelType.getEnclosingType();
@@ -90,7 +90,7 @@ public class SearchableEnvironment
 					sourceTypes[0] = sourceType;
 					for (int i = 0, index = 1; i < types.length; i++) {
 						ISourceType otherType =
-							(ISourceType) ((JavaElement) types[i]).getRawInfo();
+							(ISourceType) ((JavaElement) types[i]).getElementInfo();
 						if (!otherType.equals(topLevelType))
 							sourceTypes[index++] = otherType;
 					}

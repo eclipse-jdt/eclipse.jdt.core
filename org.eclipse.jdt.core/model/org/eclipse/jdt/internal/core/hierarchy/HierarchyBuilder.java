@@ -100,7 +100,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		// get generic type from focus type
 		IGenericType type;
 		try {
-			type = (IGenericType) ((JavaElement) focusType).getRawInfo();
+			type = (IGenericType) ((JavaElement) focusType).getElementInfo();
 		} catch (JavaModelException e) {
 			// if the focus type is not present, or if cannot get workbench path
 			// we cannot create the hierarchy
@@ -403,7 +403,7 @@ protected void addInfoFromOpenCU(CompilationUnit cu, ArrayList infos) throws Jav
  * Add the type info from the given CU to the given list of infos.
  */
 protected void addInfoFromOpenSourceType(SourceType type, ArrayList infos) throws JavaModelException {
-	IGenericType info = (IGenericType)type.getRawInfo();
+	IGenericType info = (IGenericType)type.getElementInfo();
 	infos.add(info);
 	this.infoToHandle.put(info, type);
 	IType[] members = type.getTypes();
@@ -417,7 +417,7 @@ protected void addInfoFromOpenSourceType(SourceType type, ArrayList infos) throw
  */
 protected void addInfoFromOpenClassFile(ClassFile classFile, ArrayList infos) throws JavaModelException {
 	IType type = classFile.getType();
-	IGenericType info = (IGenericType) ((BinaryType) type).getRawInfo();
+	IGenericType info = (IGenericType) ((BinaryType) type).getElementInfo();
 	infos.add(info);
 	this.infoToHandle.put(info, classFile);
 }

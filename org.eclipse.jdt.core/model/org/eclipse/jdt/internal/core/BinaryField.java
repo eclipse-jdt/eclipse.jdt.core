@@ -32,14 +32,14 @@ protected BinaryField(IType parent, String name) {
  * @see IField
  */
 public Object getConstant() throws JavaModelException {
-	IBinaryField info = (IBinaryField) getRawInfo();
+	IBinaryField info = (IBinaryField) getElementInfo();
 	return convertConstant(info.getConstant());
 }
 /**
  * @see IMember
  */
 public int getFlags() throws JavaModelException {
-	IBinaryField info = (IBinaryField) getRawInfo();
+	IBinaryField info = (IBinaryField) getElementInfo();
 	return info.getModifiers();
 }
 /**
@@ -52,7 +52,7 @@ protected char getHandleMementoDelimiter() {
  * @see IField
  */
 public String getTypeSignature() throws JavaModelException {
-	IBinaryField info = (IBinaryField) getRawInfo();
+	IBinaryField info = (IBinaryField) getElementInfo();
 	return new String(ClassFile.translatedName(info.getTypeName()));
 }
 /**

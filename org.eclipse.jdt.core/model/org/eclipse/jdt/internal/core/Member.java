@@ -160,7 +160,7 @@ protected char getHandleMementoDelimiter() {
  * @see IMember
  */
 public ISourceRange getNameRange() throws JavaModelException {
-	MemberElementInfo info= (MemberElementInfo)getRawInfo();
+	MemberElementInfo info= (MemberElementInfo)getElementInfo();
 	return new SourceRange(info.getNameSourceStart(), info.getNameSourceEnd() - info.getNameSourceStart() + 1);
 }
 /**
@@ -208,7 +208,7 @@ public String readableName() {
  */
 protected void updateNameRange(int nameStart, int nameEnd) {
 	try {
-		MemberElementInfo info = (MemberElementInfo) getRawInfo();
+		MemberElementInfo info = (MemberElementInfo) getElementInfo();
 		info.setNameSourceStart(nameStart);
 		info.setNameSourceEnd(nameEnd);
 	} catch (JavaModelException npe) {
