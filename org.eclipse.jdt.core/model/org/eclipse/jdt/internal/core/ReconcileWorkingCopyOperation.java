@@ -42,21 +42,26 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	protected void executeOperation() throws JavaModelException {
 		if (this.progressMonitor != null){
 			if (this.progressMonitor.isCanceled()) return;
-			this.progressMonitor.beginTask(Util.bind("element.reconciling"), 10); //$NON-NLS-1$
+			this.progressMonitor.beginTask(Util.bind("element.reconciling"), 2); //$NON-NLS-1$
 		}
 	
 		CompilationUnit workingCopy = getWorkingCopy();
 		boolean wasConsistent = workingCopy.isConsistent();
-		JavaElementDeltaBuilder deltaBuilder = null;
-	
 		try {
 			if (!wasConsistent) {
 				// create the delta builder (this remembers the current content of the cu)
-				deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
+				JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
 				
 				// update the element infos with the content of the working copy
 				this.ast = workingCopy.makeConsistent(this.createAST, this.progressMonitor);
 				deltaBuilder.buildDeltas();
+
+				if (progressMonitor != null) progressMonitor.worked(2);
+			
+				// register the deltas
+				if (deltaBuilder.delta != null) {
+					addReconcileDelta(workingCopy, deltaBuilder.delta);
+				}
 			} else {
 				// force problem detection? - if structure was consistent
 				if (forceProblemDetection) {
@@ -65,21 +70,14 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 						problemRequestor.beginReporting();
 						CompilationUnitDeclaration unit = CompilationUnitProblemFinder.process(workingCopy, this.workingCopyOwner, problemRequestor, this.progressMonitor);
 						problemRequestor.endReporting();
+						if (progressMonitor != null) progressMonitor.worked(1);
 						if (this.createAST && unit != null) {
 							char[] contents = workingCopy.getContents();
 							Map options = workingCopy.getJavaProject().getOptions(true);
 							this.ast = AST.convertCompilationUnit(unit, contents, options, this.progressMonitor);
+							if (progressMonitor != null) progressMonitor.worked(1);
 						}
 					}
-				}
-			}
-			
-			if (progressMonitor != null) progressMonitor.worked(2);
-			
-			// register the deltas
-			if (deltaBuilder != null){
-				if (deltaBuilder.delta != null) {
-					addReconcileDelta(workingCopy, deltaBuilder.delta);
 				}
 			}
 		} finally {
