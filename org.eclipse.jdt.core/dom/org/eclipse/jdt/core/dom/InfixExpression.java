@@ -110,11 +110,6 @@ public class InfixExpression extends Expression {
 		public static final Operator LESS_EQUALS = new Operator("<=");//$NON-NLS-1$
 		/** Greater than or equals "&gt=;" operator. */
 		public static final Operator GREATER_EQUALS = new Operator(">=");//$NON-NLS-1$
-		/**
-		 * "instanceof" operator.
-		 * @deprecated Replaced by InstanceofExpression node to allow Type for right operand
-		 * */
-		public static final Operator INSTANCEOF = new Operator("instanceof");//$NON-NLS-1$
 		/** Equals "==" operator. */
 		public static final Operator EQUALS = new Operator("==");//$NON-NLS-1$
 		/** Not equals "!=" operator. */
@@ -150,7 +145,6 @@ public class InfixExpression extends Expression {
 					GREATER,
 					LESS_EQUALS,
 					GREATER_EQUALS,
-					INSTANCEOF,
 					EQUALS,
 					NOT_EQUALS,
 					XOR,

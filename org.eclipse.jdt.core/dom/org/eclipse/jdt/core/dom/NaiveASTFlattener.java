@@ -471,13 +471,7 @@ class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public boolean visit(InfixExpression node) {
 		node.getLeftOperand().accept(this);
-		if (node.getOperator() == InfixExpression.Operator.INSTANCEOF) {
-			buffer.append(" ");//$NON-NLS-1$
-			buffer.append(node.getOperator().toString());
-			buffer.append(" ");//$NON-NLS-1$
-		} else {	
-			buffer.append(node.getOperator().toString());
-		}
+		buffer.append(node.getOperator().toString());
 		node.getRightOperand().accept(this);
 		for (Iterator it = node.extendedOperands().iterator(); it.hasNext(); ) {
 			buffer.append(node.getOperator().toString());
