@@ -580,7 +580,7 @@ public class ASTParser {
 	}
 	
 	/**
-     * Creates ASTs for a set of compilation units.
+     * Creates ASTs for a batch of compilation units.
      * When bindings are being resolved, processing a
      * batch of compilation units is more efficient because much
      * of the work involved in resolving bindings can be shared.
@@ -604,24 +604,30 @@ public class ASTParser {
      * resolve the original ones, the corresponding ASTs are <b>not</b>
      * reported to the requestor.
      * </p>
+	 * <p>
+	 * Note also the following parser parameters are used, regardless of what
+	 * may have been specified:
+	 * <ul>
+	 * <li>The {@linkplain #setKind(int) parser kind} is <code>K_COMPILATION_UNIT</code></li>
+	 * <li>The {@linkplain #setSourceRange(int,int) source range} is <code>(0, -1)</code></li>
+	 * <li>The {@linkplain #setFocalPosition(int) focal position} is not set</li>
+	 * </ul>
+	 * </p>
      * <p>
      * The <code>bindingKeys</code> parameter specifies bindings keys
-     * ({@link IBinding#getKey()}) that are to be looked up for the compilation
-     * units are being processed. These binding keys must be for constructs
-     * declared within the compilation units. The keys and corresponding bindings are
-     * passed to <code>ASTRequestor.acceptBinding</code>.
+     * ({@link IBinding#getKey()}) that are to be looked up. These keys may
+     * be for elements either inside or outside the set of compilation
+     * units being processed. When bindings are being resolved,
+     * the keys and corresponding bindings (or <code>null</code> if none) are
+     * passed to <code>ASTRequestor.acceptBinding</code>. Note that binding keys
+     * are looked up after all <code>ASTRequestor.acceptAST</code> callbacks
+     * have been made. No <code>ASTRequestor.acceptBinding</code> callbacks are
+     * made unless bindings are being resolved.
      * </p>
      * <p>
      * A successful call to this method returns all settings to their
      * default values so the object is ready to be reused.
      * </p>
-	 * <p>
-	 * Note this API assumes that the kind of this parser is <code>K_COMPILATION_UNIT</code>,
-	 * that the source range is <code>(0. -1)</code> and that the focal position is not set.
-	 * </p>
-     * <p>
-	 * Note that this API is under development and subject to change without notice.
-	 * </p>
      * 
      * @param compilationUnits the compilation units to create ASTs for
      * @param bindingKeys the binding keys to create bindings for
@@ -632,7 +638,6 @@ public class ASTParser {
 	 * are insufficient, contradictory, or otherwise unsupported
 	 * @since 3.1
      */
-	// TODO (jerome) remove statement about API being under development above
 	public void createASTs(ICompilationUnit[] compilationUnits, String[] bindingKeys, ASTRequestor requestor, IProgressMonitor monitor) {
 		try {
 			if (this.resolveBindings) {

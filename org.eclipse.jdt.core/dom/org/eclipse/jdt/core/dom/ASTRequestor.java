@@ -10,36 +10,50 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 
 /**
- * An AST requestor handles ASTs for compilation units passed to <code>ASTParser.createASTs</code>.
+ * An AST requestor handles ASTs for compilation units passed to
+ * <code>ASTParser.createASTs</code>.
  * <p>
- * This class is intended to be subclassed by clients.
+ * <code>ASTRequestor.acceptAST</code> is called for each of the
+ * compilation units passed to <code>ASTParser.createASTs</code>.
+ * After all the compilation units have been processed, 
+ * <code>ASTRequestor.acceptBindings</code> is called for each
+ * of the binding keys passed to <code>ASTParser.createASTs</code>.
  * </p>
  * <p>
- * Note that this API is under development and subject to change without notice.
+ * This class is intended to be subclassed by clients.
+ * AST requestors are serially reusable, but neither reentrant nor
+ * thread-safe.
  * </p>
  * 
  * @see ASTParser#createASTs(ICompilationUnit[], String[], ASTRequestor, org.eclipse.core.runtime.IProgressMonitor)
  * @since 3.1
  */
-// TODO (jerome) remove statement about API being under development above
 public abstract class ASTRequestor {
 	
 	/**
-	 * The compilation unit resolver used to resolve bindings.
+	 * The compilation unit resolver used to resolve bindings, or
+	 * <code>null</code> if none. Note that this field is non-null
+	 * only within the dynamic scope of a call to
+	 * <code>ASTParser.createASTs</code>.
 	 */
-	CompilationUnitResolver compilationUnitResolver;
-	
+	CompilationUnitResolver compilationUnitResolver = null;
+		
+	/**
+	 * Creates a new instance.
+	 */
+	protected ASTRequestor() {
+		// do nothing
+	}
 	
 	/**
 	 * Accepts an AST corresponding to the compilation unit.
 	 * That is, <code>ast</code> is an AST for <code>source</code>.
 	 * <p>
 	 * The default implementation of this method does nothing.
-	 * Clients should override if additional asts are of interest.
+	 * Clients should override to process the resulting AST.
 	 * </p>
 	 * 
 	 * @param source the compilation unit the ast is coming from
@@ -59,11 +73,12 @@ public abstract class ASTRequestor {
 	
 	/**
 	 * Accepts a binding corresponding to the binding key.
-	 * That is, <code>binding</code> is an binding for 
-	 * <code>bindingKey</code>.
+	 * That is, <code>binding</code> is the binding for 
+	 * <code>bindingKey</code>; <code>binding</code> is <code>null</code>
+	 * if the key cannot be resolved.
 	 * <p>
 	 * The default implementation of this method does nothing.
-	 * Clients should override if additional bindings are of interest.
+	 * Clients should override to process the resulting binding.
 	 * </p>
 	 * 
 	 * @param bindingKey the key of the requested binding
@@ -83,24 +98,37 @@ public abstract class ASTRequestor {
 	
 	/**
 	 * Resolves bindings for the given binding keys.
-	 * The given binding keys must have been obtained using {@link IBinding#getKey()}.
+	 * The given binding keys must have been obtained earlier
+	 * using {@link IBinding#getKey()}.
 	 * <p>
 	 * If a binding key cannot be resolved, <code>null</code> is put in the resulting array.
+	 * Bindings can only be resolved in the dynamic scope of a <code>ASTParser.createASTs</code>,
+	 * and only if <code>ASTParser.resolveBindings(true)</code> was specified.
 	 * </p>
-	 * The resulting binding is undefined for a binding key representing a local element if the corresponding
-	 * ast or another binding key in the same compilation unit was also requested by
-	 * {@link ASTParser#createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.
+	 * <p>
+	 * Caveat: During an <code>acceptAST</code> callback, there are implementation 
+	 * limitations concerning the look up of binding keys representing local elements.
+	 * In some cases, the binding is unavailable, and <code>null</code> will be returned.
+	 * This is only an issue during an <code>acceptAST</code> callback, and only
+	 * when the binding key represents a local element (e.g., local variable,
+	 * local class, method declared in anonymous class). There is no such limitation
+	 * outside of <code>acceptAST</code> callbacks, or for top-level types and their
+	 * members even within <code>acceptAST</code> callbacks.
 	 * </p>
 	 * 
-	 * @param bindingKeys the keys of bindings to create
-	 * @return the created bindings
-	 * @see ASTParser#createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)
+	 * @param bindingKeys the binding keys to look up
+	 * @return a list of bindings paralleling the <code>bindingKeys</code> parameter,
+	 * with <code>null</code> entries for keys that could not be resolved
 	 */
-	public IBinding[] createBindings(String[] bindingKeys) {
+	public final IBinding[] createBindings(String[] bindingKeys) {
 		int length = bindingKeys.length;
 		IBinding[] result = new IBinding[length];
-		for (int i = 0; i < length; i++)
-			result[i] = this.compilationUnitResolver.createBinding(bindingKeys[i]);
+		for (int i = 0; i < length; i++) {
+			result[i] = null;
+			if (this.compilationUnitResolver != null) {
+				result[i] = this.compilationUnitResolver.createBinding(bindingKeys[i]);
+			}
+		}
 		return result;
 	}
 }
