@@ -817,7 +817,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 * @param value the property value, or <code>null</code> if no value
 		 */
 		public void set(ASTNode value) {
-			throw new RuntimeException("get not implemented"); //$NON-NLS-1$
+			throw new RuntimeException("get(" + value + ") not implemented"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 

@@ -84,7 +84,7 @@ void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, 
 	IClasspathEntry[] entries = project.getRawClasspath();
 	int length = entries.length;
 	System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 1, length);
-	entries[0] = JavaCore.newLibraryEntry(path, srcAttachmentPath, srcAttachmentPathRoot, true);
+	entries[0] = JavaCore.newLibraryEntry(path, srcAttachmentPath, srcAttachmentPathRoot, exported);
 	project.setRawClasspath(entries, null);
 }
 /**

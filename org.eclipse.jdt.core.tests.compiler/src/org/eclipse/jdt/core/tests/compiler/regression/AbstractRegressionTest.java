@@ -135,7 +135,7 @@ protected Requestor getRequestor(IProblemFactory problemFactory) {
 }
 
 protected Requestor getRequestor(IProblemFactory problemFactory, boolean generateOutPut) {
-	return new Requestor(problemFactory, OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, true);
+	return new Requestor(problemFactory, OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, generateOutPut);
 }
 
 protected void runConformTest(String[] testFiles) {
