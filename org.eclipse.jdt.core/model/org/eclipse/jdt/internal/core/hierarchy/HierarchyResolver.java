@@ -237,7 +237,7 @@ private IGenericType findSuperClass(IGenericType type, ReferenceBinding typeBind
 					return new MissingType(new String(simpleName));
 				}
 			}
-		} else if (superBinding.isParameterizedType()) {
+		} else if (superBinding instanceof ParameterizedTypeBinding) {
 			superBinding = ((ParameterizedTypeBinding)superBinding).type;
 		}
 		for (int t = this.typeIndex; t >= 0; t--) {
@@ -305,7 +305,7 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 		
 		if (bindingIndex < bindingLength) {
 			ReferenceBinding interfaceBinding = interfaceBindings[bindingIndex];
-			if (interfaceBinding.isParameterizedType()) {
+			if (interfaceBinding instanceof ParameterizedTypeBinding) {
 				interfaceBinding = ((ParameterizedTypeBinding)interfaceBinding).type;
 			}
 
@@ -774,14 +774,14 @@ private boolean subTypeOfType(ReferenceBinding subType, ReferenceBinding typeBin
 	if (typeBinding == null || subType == null) return false;
 	if (subType == typeBinding) return true;
 	ReferenceBinding superclass = subType.superclass();
-	if (superclass != null && superclass.isParameterizedType()) superclass = ((ParameterizedTypeBinding)superclass).type;
+	if (superclass instanceof ParameterizedTypeBinding) superclass = ((ParameterizedTypeBinding)superclass).type;
 //	if (superclass != null && superclass.id == TypeIds.T_JavaLangObject && subType.isHierarchyInconsistent()) return false;
 	if (this.subTypeOfType(superclass, typeBinding)) return true;
 	ReferenceBinding[] superInterfaces = subType.superInterfaces();
 	if (superInterfaces != null) {
 		for (int i = 0, length = superInterfaces.length; i < length; i++) {
 			ReferenceBinding superInterface = superInterfaces[i];
-			if (superInterface.isParameterizedType()) superInterface = ((ParameterizedTypeBinding)superInterface).type;	
+			if (superInterface instanceof ParameterizedTypeBinding) superInterface = ((ParameterizedTypeBinding)superInterface).type;	
 			if (this.subTypeOfType(superInterface, typeBinding)) return true;
 		} 
 	}
