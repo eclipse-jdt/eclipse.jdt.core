@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
 
 /**
@@ -56,7 +57,7 @@ public class HandleFactory {
 	 * Creates an Openable handle from the given resource path.
 	 * The resource path can be a path to a file in the workbench (eg. /Proj/com/ibm/jdt/core/HandleFactory.java)
 	 * or a path to a file in a jar file - it then contains the path to the jar file and the path to the file in the jar
-	 * (eg. c:/jdk1.2.2/jre/lib/rt.jar|java/lang/Object.class or c:/workbench/Proj/rt.jar|java/lang/Object.class)
+	 * (eg. c:/jdk1.2.2/jre/lib/rt.jar|java/lang/Object.class or /Proj/rt.jar|java/lang/Object.class)
 	 * NOTE: This assumes that the resource path is the toString() of an IPath, 
 	 *       i.e. it uses the IPath.SEPARATOR for file path
 	 *            and it uses '/' for entries in a zip file.
@@ -126,32 +127,54 @@ public class HandleFactory {
 	private IPackageFragmentRoot getJarPkgFragmentRoot(String jarPathString) {
 
 		IPath jarPath= new Path(jarPathString);
+		
 		IResource jarFile= this.workspace.getRoot().findMember(jarPath);
 		if (jarFile != null) {
-			// internal jar
-			return this.javaModel.getJavaProject(jarFile).getPackageFragmentRoot(jarFile);
-		} else {
-			// external jar: walk all projects and find the first one that has the given jar path in its classpath
-			IProject[] projects= this.workspace.getRoot().getProjects();
-			for (int i= 0, projectCount= projects.length; i < projectCount; i++) {
-				try {
-					IProject project = projects[i];
-					if (!project.isAccessible() 
-						|| !project.hasNature(JavaCore.NATURE_ID)) continue;
-					JavaProject javaProject= (JavaProject)this.javaModel.getJavaProject(project);
-					IClasspathEntry[] classpathEntries= javaProject.getResolvedClasspath(true);
-					for (int j= 0, entryCount= classpathEntries.length; j < entryCount; j++) {
-						if (classpathEntries[j].getPath().equals(jarPath)) {
+			// internal jar: is it on the classpath of its project?
+			//  e.g. org.eclipse.swt.win32/ws/win32/swt.jar 
+			//        is NOT on the classpath of org.eclipse.swt.win32
+			IJavaProject javaProject = this.javaModel.getJavaProject(jarFile);
+			IClasspathEntry[] classpathEntries;
+			try {
+				classpathEntries = javaProject.getResolvedClasspath(true);
+				for (int j= 0, entryCount= classpathEntries.length; j < entryCount; j++) {
+					if (classpathEntries[j].getPath().equals(jarPath)) {
+						return javaProject.getPackageFragmentRoot(jarFile);
+					}
+				}
+			} catch (JavaModelException e) {
+				// ignore and try to find another project
+			}
+		}
+		
+		// walk all projects and find the first one that has the given jar path in its classpath
+		IJavaProject[] projects;
+		try {
+			projects = this.javaModel.getJavaProjects();
+		} catch (JavaModelException e) {
+			// java model is not accessible
+			return null;
+		}
+		for (int i= 0, projectCount= projects.length; i < projectCount; i++) {
+			try {
+				JavaProject javaProject= (JavaProject)projects[i];
+				IClasspathEntry[] classpathEntries= javaProject.getResolvedClasspath(true);
+				for (int j= 0, entryCount= classpathEntries.length; j < entryCount; j++) {
+					if (classpathEntries[j].getPath().equals(jarPath)) {
+						if (jarFile != null) {
+							// internal jar
+							return javaProject.getPackageFragmentRoot(jarFile);
+						} else {
+							// external jar
 							return javaProject.getPackageFragmentRoot0(jarPathString);
 						}
 					}
-				} catch (CoreException e) {
-					// CoreException from hasNature - should not happen since we check that the project is accessible
-					// JavaModelException from getResolvedClasspath - a problem occured while accessing project: nothing we can do, ignore
 				}
+			} catch (JavaModelException e) {
+				// JavaModelException from getResolvedClasspath - a problem occured while accessing project: nothing we can do, ignore
 			}
-			return null;
 		}
+		return null;
 	}
 /**
 	 * Returns the package fragment root that contains the given resource path.

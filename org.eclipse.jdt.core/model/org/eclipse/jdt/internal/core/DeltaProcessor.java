@@ -43,6 +43,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**
@@ -256,8 +257,12 @@ public class DeltaProcessor implements IResourceChangeListener {
 									} catch (JavaModelException e) {
 									}
 								} catch (RuntimeException e) {
+									// setRawClasspath might fire a delta, and a listener may throw an exception
+									Util.log(e, "Exception updating classpath for "+ project.getPath()); //$NON-NLS-1$
 									break;
 								} catch (CoreException e) {
+									// setRawClasspath might fire a delta, and a listener may throw an exception
+									Util.log(e, "Exception updating classpath for "+ project.getPath()); //$NON-NLS-1$
 									break;
 								}
 	
@@ -1205,7 +1210,13 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 						this.updateClasspathMarkers();
 
 						// the following will close project if affected by the property file change
-						this.performPreBuildCheck(delta, null); 
+						try {
+							// don't fire classpath change deltas right away, but batch them
+							this.manager.stopDeltas();
+							this.performPreBuildCheck(delta, null); 
+						} finally {
+							this.manager.startDeltas();
+						}
 					}
 					// only fire already computed deltas (resource ones will be processed in post change only)
 					this.manager.fire(null, ElementChangedEvent.PRE_AUTO_BUILD);
