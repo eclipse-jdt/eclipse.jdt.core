@@ -101,32 +101,31 @@ public static Test suite() {
 		suite.addTest(new CodeCorrectionTests("testCorrectMethod1"));
 		
 		return suite;
-	} else {
-		suite.addTest(new CodeCorrectionTests("testCorrectFieldType1"));
-		suite.addTest(new CodeCorrectionTests("testCorrectFieldType2"));
-		suite.addTest(new CodeCorrectionTests("testCorrectFieldType3"));
-		suite.addTest(new CodeCorrectionTests("testCorrectLocalVariableType1"));
-		suite.addTest(new CodeCorrectionTests("testCorrectLocalVariableType2"));
-		suite.addTest(new CodeCorrectionTests("testCorrectImport1"));
-		suite.addTest(new CodeCorrectionTests("testCorrectImport2"));
-		suite.addTest(new CodeCorrectionTests("testCorrectImport3"));
-		suite.addTest(new CodeCorrectionTests("testCorrectSuperClass1"));
-		suite.addTest(new CodeCorrectionTests("testCorrectSuperClass2"));
-		suite.addTest(new CodeCorrectionTests("testCorrectSuperInterface1"));
-		suite.addTest(new CodeCorrectionTests("testCorrectSuperInterface2"));
-		suite.addTest(new CodeCorrectionTests("testCorrectException1"));
-		suite.addTest(new CodeCorrectionTests("testCorrectException2"));
-		suite.addTest(new CodeCorrectionTests("testCorrectMethod1"));
-		suite.addTest(new CodeCorrectionTests("testCorrectMethod2"));
-		suite.addTest(new CodeCorrectionTests("testCorrectField1"));
-		suite.addTest(new CodeCorrectionTests("testCorrectField2"));
-		suite.addTest(new CodeCorrectionTests("testCorrectLocalVariable1"));
-		suite.addTest(new CodeCorrectionTests("testCorrectArgument1"));
-		suite.addTest(new CodeCorrectionTests("testCorrectReturnType1"));
-		suite.addTest(new CodeCorrectionTests("testCorrectReturnType2"));
-		
-		return suite;
 	}
+	suite.addTest(new CodeCorrectionTests("testCorrectFieldType1"));
+	suite.addTest(new CodeCorrectionTests("testCorrectFieldType2"));
+	suite.addTest(new CodeCorrectionTests("testCorrectFieldType3"));
+	suite.addTest(new CodeCorrectionTests("testCorrectLocalVariableType1"));
+	suite.addTest(new CodeCorrectionTests("testCorrectLocalVariableType2"));
+	suite.addTest(new CodeCorrectionTests("testCorrectImport1"));
+	suite.addTest(new CodeCorrectionTests("testCorrectImport2"));
+	suite.addTest(new CodeCorrectionTests("testCorrectImport3"));
+	suite.addTest(new CodeCorrectionTests("testCorrectSuperClass1"));
+	suite.addTest(new CodeCorrectionTests("testCorrectSuperClass2"));
+	suite.addTest(new CodeCorrectionTests("testCorrectSuperInterface1"));
+	suite.addTest(new CodeCorrectionTests("testCorrectSuperInterface2"));
+	suite.addTest(new CodeCorrectionTests("testCorrectException1"));
+	suite.addTest(new CodeCorrectionTests("testCorrectException2"));
+	suite.addTest(new CodeCorrectionTests("testCorrectMethod1"));
+	suite.addTest(new CodeCorrectionTests("testCorrectMethod2"));
+	suite.addTest(new CodeCorrectionTests("testCorrectField1"));
+	suite.addTest(new CodeCorrectionTests("testCorrectField2"));
+	suite.addTest(new CodeCorrectionTests("testCorrectLocalVariable1"));
+	suite.addTest(new CodeCorrectionTests("testCorrectArgument1"));
+	suite.addTest(new CodeCorrectionTests("testCorrectReturnType1"));
+	suite.addTest(new CodeCorrectionTests("testCorrectReturnType2"));
+
+	return suite;
 }
 public void testCorrectFieldType1() throws JavaModelException {
 	CorrectionEngine engine = new CorrectionEngine(JavaCore.getOptions());

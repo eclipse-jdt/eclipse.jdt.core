@@ -242,11 +242,10 @@ public static String displayString(String inputString, int indent) {
 						buffer.append("\"");
 					}
 					continue;
-				} else {
-					buffer.append("\" + \n");
-					for (int i = 0; i < indent; i++) buffer.append("\t");
-					buffer.append("\"");
 				}
+				buffer.append("\" + \n");
+				for (int i = 0; i < indent; i++) buffer.append("\t");
+				buffer.append("\"");
 			} else {
 				continue;
 			}
@@ -385,25 +384,22 @@ public static String[] getJavaClassLibs() {
 	String jreDir = getJREDirectory();
 	if (jreDir == null)  {
 		return new String[] {};
-	} else {
-		final String vmName = System.getProperty("java.vm.name");
-		if ("J9".equals(vmName)) {
-			return new String[] { toNativePath(jreDir + "/lib/jclMax/classes.zip")};
-		} else {
-			File file = new File(jreDir + "/lib/rt.jar");
-			if (file.exists()) {
-				return new String[] {
-					toNativePath(jreDir + "/lib/rt.jar")
-				};				
-			} else {				
-				return new String[] { 
-					toNativePath(jreDir + "/lib/core.jar"),
-					toNativePath(jreDir + "/lib/security.jar"),
-					toNativePath(jreDir + "/lib/graphics.jar")
-				};
-			}
-		}
 	}
+	final String vmName = System.getProperty("java.vm.name");
+	if ("J9".equals(vmName)) {
+		return new String[] { toNativePath(jreDir + "/lib/jclMax/classes.zip")};
+	}
+	File file = new File(jreDir + "/lib/rt.jar");
+	if (file.exists()) {
+		return new String[] {
+			toNativePath(jreDir + "/lib/rt.jar")
+		};				
+	}
+	return new String[] { 
+		toNativePath(jreDir + "/lib/core.jar"),
+		toNativePath(jreDir + "/lib/security.jar"),
+		toNativePath(jreDir + "/lib/graphics.jar")
+	};
 }
 public static String getJavaClassLibsAsString() {
 	String[] classLibs = getJavaClassLibs();
@@ -435,9 +431,8 @@ public static String getOutputDirectory() {
 	String container = System.getProperty("user.home");
 	if (container == null){
 		return null;
-	} else {
-		return toNativePath(container) + File.separator + OUTPUT_DIRECTORY;
 	}
+	return toNativePath(container) + File.separator + OUTPUT_DIRECTORY;
 }
 /**
  * Returns the next available port number on the local host.

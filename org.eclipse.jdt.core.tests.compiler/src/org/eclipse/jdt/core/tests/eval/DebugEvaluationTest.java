@@ -35,26 +35,24 @@ public class DebugEvaluationTest extends EvaluationTest {
 		public boolean acceptClassFiles(org.eclipse.jdt.internal.compiler.ClassFile[] classFiles, char[] codeSnippetClassName) {
 			if (jdiStackFrame == null) {
 				return super.acceptClassFiles(classFiles, codeSnippetClassName);
-			} else {
-				// Send but don't run
-				super.acceptClassFiles(classFiles, null);
-
-				// Run if needed
-				if (codeSnippetClassName != null) {
-					boolean success = jdiStackFrame.run(new String(codeSnippetClassName));
-					if (success) {
-						TargetInterface.Result result = target.getResult();
-						if (result.displayString == null) {
-							this.acceptResult(new EvaluationResult(null, EvaluationResult.T_CODE_SNIPPET, null, null));
-						} else {
-							this.acceptResult(new EvaluationResult(null, EvaluationResult.T_CODE_SNIPPET, result.displayString, result.typeName));
-						}
-					}
-					return success;
-				} else {
-					return true;
-				}
 			}
+			// Send but don't run
+			super.acceptClassFiles(classFiles, null);
+
+			// Run if needed
+			if (codeSnippetClassName != null) {
+				boolean success = jdiStackFrame.run(new String(codeSnippetClassName));
+				if (success) {
+					TargetInterface.Result result = target.getResult();
+					if (result.displayString == null) {
+						this.acceptResult(new EvaluationResult(null, EvaluationResult.T_CODE_SNIPPET, null, null));
+					} else {
+						this.acceptResult(new EvaluationResult(null, EvaluationResult.T_CODE_SNIPPET, result.displayString, result.typeName));
+					}
+				}
+				return success;
+			}
+			return true;
 		}
 	}
 	

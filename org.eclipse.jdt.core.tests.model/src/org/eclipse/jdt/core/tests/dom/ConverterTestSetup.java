@@ -59,15 +59,14 @@ public abstract class ConverterTestSetup extends AbstractJavaModelTests {
 			if (!jclDir.mkdir()) {
 				//mkdir failed
 				throw new IOException("Could not create the directory " + jclDir); //$NON-NLS-1$
-			} else {
-				//copy the two files to the JCL directory
-				java.io.File resourceJCLMin =
-					new java.io.File(resourceJCLDir + separator + "converterJclMin.jar"); //$NON-NLS-1$
-				copy(resourceJCLMin, jclMin);
-				java.io.File resourceJCLMinsrc =
-					new java.io.File(resourceJCLDir + separator + "converterJclMinsrc.zip"); //$NON-NLS-1$
-				copy(resourceJCLMinsrc, jclMinsrc);
 			}
+			//copy the two files to the JCL directory
+			java.io.File resourceJCLMin =
+				new java.io.File(resourceJCLDir + separator + "converterJclMin.jar"); //$NON-NLS-1$
+			copy(resourceJCLMin, jclMin);
+			java.io.File resourceJCLMinsrc =
+				new java.io.File(resourceJCLDir + separator + "converterJclMinsrc.zip"); //$NON-NLS-1$
+			copy(resourceJCLMinsrc, jclMinsrc);
 		} else {
 			//check that the two files, jclMin.jar and jclMinsrc.zip are present
 			//copy either file that is missing or less recent than the one in workspace

@@ -260,9 +260,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		String result = new String(CharOperation.subarray(source, astNode.getStartPosition() + 1, astNode.getStartPosition() + astNode.getLength() - 1));
 		if (result.endsWith("\\n")) {
 			return result.substring(0, result.length() - 2) + LINE_SEPARATOR;
-		} else {
-			return result;
 		}
+		return result;
 	}
 
 	public void test001() {

@@ -37,11 +37,10 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	public static Test suite() {
 		if (false) {
 			return allTests();
-		} else {
-			TestSuite suite= new Suite("one test");
-			suite.addTest(new ASTRewritingJavadocTest("testMoveTags"));
-			return suite;
 		}
+		TestSuite suite= new Suite("one test");
+		suite.addTest(new ASTRewritingJavadocTest("testMoveTags"));
+		return suite;
 	}
 	
 	public void testParamName() throws Exception {

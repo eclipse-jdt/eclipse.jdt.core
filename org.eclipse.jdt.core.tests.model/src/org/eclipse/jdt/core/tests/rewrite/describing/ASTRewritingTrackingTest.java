@@ -39,11 +39,10 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	public static Test suite() {
 		if (true) {
 			return allTests();
-		} else {
-			TestSuite suite= new Suite("one test");
-			suite.addTest(new ASTRewritingTrackingTest("testNamesWithPlaceholder"));
-			return suite;
 		}
+		TestSuite suite= new Suite("one test");
+		suite.addTest(new ASTRewritingTrackingTest("testNamesWithPlaceholder"));
+		return suite;
 	}
 	
 	public void testNamesWithDelete() throws Exception {

@@ -205,9 +205,8 @@ public void checkMethodParse(
 					if (field instanceof Initializer) {
 						parser.parseBlockStatements((Initializer)field, type, unit);
 						break;
-					} else {
-						assertTrue("TBD", false); // field initializer
 					}
+					assertTrue("TBD", false); // field initializer
 				}
 			}
 		}

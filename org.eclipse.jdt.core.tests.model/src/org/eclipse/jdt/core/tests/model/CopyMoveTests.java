@@ -164,9 +164,8 @@ public IJavaElement generateHandle(IJavaElement original, String rename, IJavaEl
 					if (name.equals(original.getParent().getElementName())) {
 						//method is a constructor
 						return ((IType) container).getMethod(container.getElementName(), ((IMethod) original).getParameterTypes());
-					} else {
-						return ((IType) container).getMethod(name, ((IMethod) original).getParameterTypes());
 					}
+					return ((IType) container).getMethod(name, ((IMethod) original).getParameterTypes());
 				case IJavaElement.FIELD :
 					return ((IType) container).getField(name);
 				case IJavaElement.TYPE :

@@ -222,25 +222,21 @@ protected IPackageFragment getPackage(String path) {
 		IJavaElement element = JavaCore.create(this.getFolder(path));
 		if (element instanceof IPackageFragmentRoot) {
 			return ((IPackageFragmentRoot)element).getPackageFragment("");
-		} else {
-			return (IPackageFragment)element;
 		}
-	} else {
-		IProject project = this.getProject(path);
-		return JavaCore.create(project).getPackageFragmentRoot(project).getPackageFragment("");
+		return (IPackageFragment)element;
 	}
+	IProject project = this.getProject(path);
+	return JavaCore.create(project).getPackageFragmentRoot(project).getPackageFragment("");
 }
 protected IPackageFragmentRoot getPackageFragmentRoot(String path) {
 	if (path.indexOf('/', 1) != -1) { // if path as more than one segment
 		if (path.endsWith(".jar")) {
 			return  (IPackageFragmentRoot)JavaCore.create(this.getFile(path));
-		} else {
-			return (IPackageFragmentRoot)JavaCore.create(this.getFolder(path));
 		}
-	} else {
-		IProject project = this.getProject(path);
-		return JavaCore.create(project).getPackageFragmentRoot(project);
+		return (IPackageFragmentRoot)JavaCore.create(this.getFolder(path));
 	}
+	IProject project = this.getProject(path);
+	return JavaCore.create(project).getPackageFragmentRoot(project);
 }
 protected String getSortedByProjectDeltas() {
 	StringBuffer buffer = new StringBuffer();

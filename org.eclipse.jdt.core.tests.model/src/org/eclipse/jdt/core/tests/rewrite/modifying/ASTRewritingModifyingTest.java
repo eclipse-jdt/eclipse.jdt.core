@@ -147,11 +147,10 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 							buffer.append("buf.append(\"");
 						}
 						continue;
-					} else {
-						buffer.append("\");\n");
-						for (int i = 0; i < indent; i++) buffer.append("\t");
-						buffer.append("buf.append(\"");
 					}
+					buffer.append("\");\n");
+					for (int i = 0; i < indent; i++) buffer.append("\t");
+					buffer.append("buf.append(\"");
 				} else {
 					continue;
 				}

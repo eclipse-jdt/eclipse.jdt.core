@@ -37,11 +37,10 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	public static Test suite() {
 		if (false) {
 			return allTests();
-		} else {
-			TestSuite suite= new Suite("one test");
-			suite.addTest(new ASTRewritingMoveCodeTest("testCopyMultipleNodes"));
-			return suite;
 		}
+		TestSuite suite= new Suite("one test");
+		suite.addTest(new ASTRewritingMoveCodeTest("testCopyMultipleNodes"));
+		return suite;
 	}
 	
 	public void testMove() throws Exception {

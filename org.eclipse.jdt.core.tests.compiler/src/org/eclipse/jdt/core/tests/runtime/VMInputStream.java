@@ -30,18 +30,17 @@ public void close() throws IOException {
 	this.input.close();
 }
 private boolean isRunning() {
-	if (this.process == null)
+	if (this.process == null) {
 		return false;
-	else {
-		boolean hasExited;
-		try {
-			this.process.exitValue();
-			hasExited = true;
-		} catch (IllegalThreadStateException e) {
-			hasExited = false;
-		}
-		return !hasExited;
 	}
+	boolean hasExited;
+	try {
+		this.process.exitValue();
+		hasExited = true;
+	} catch (IllegalThreadStateException e) {
+		hasExited = false;
+	}
+	return !hasExited;
 }
 public synchronized void mark(int readlimit) {
 	this.input.mark(readlimit);
@@ -55,9 +54,8 @@ public int read() throws IOException {
 	} catch (IOException e) {
 		if (isRunning()) {
 			return read();
-		} else {
-			throw e;
 		}
+		throw e;
 	}
 }
 public int read(byte b[]) throws IOException {
