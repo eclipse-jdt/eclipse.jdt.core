@@ -196,7 +196,6 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 * Sets the classpath of the pre-specified project.
 	 */
 	protected void executeOperation() throws JavaModelException {
-
 		// project reference updated - may throw an exception if unable to write .project file
 		updateProjectReferencesIfNecessary();
 
@@ -240,7 +239,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IClasspathEntry[] oldResolvedPath,
 		IClasspathEntry[] newResolvedPath,
 		JavaModelManager manager,
-		JavaProject project) {
+		final JavaProject project) {
 
 		boolean needToUpdateDependents = false;
 		JavaElementDelta delta = new JavaElementDelta(getJavaModel());
@@ -249,7 +248,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		int newLength = newResolvedPath.length;
 		boolean oldResolvedPathLongest = oldLength >= newLength;
 			
-		IndexManager indexManager = manager.getIndexManager();
+		final IndexManager indexManager = manager.getIndexManager();
 		for (int i = 0; i < oldResolvedPath.length; i++) {
 			
 			int index = classpathContains(newResolvedPath, oldResolvedPath[i]);
@@ -272,7 +271,16 @@ public class SetClasspathOperation extends JavaModelOperation {
 				// Note that .class files belong to binary folders which can be shared, 
 				// so leave the index for .class files.
 				if (indexManager != null && changeKind == IClasspathEntry.CPE_SOURCE) {
-					indexManager.removeSourceFolderFromIndex(project, oldResolvedPath[i].getPath());
+					final IPath path = oldResolvedPath[i].getPath();
+					postAction(new IPostAction() {
+						public String getID() {
+							return path.toString();
+						}
+						public void run() throws JavaModelException {
+							indexManager.removeSourceFolderFromIndex(project, path);
+						}
+					}, 
+					REMOVEALL_APPEND);
 				}
 				hasDelta = true;
 
@@ -335,7 +343,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 					switch (changeKind) {
 						case IClasspathEntry.CPE_LIBRARY:
 							boolean pathHasChanged = true;
-							IPath newPath = newResolvedPath[i].getPath();
+							final IPath newPath = newResolvedPath[i].getPath();
 							for (int j = 0; j < oldResolvedPath.length; j++) {
 								IClasspathEntry oldEntry = oldResolvedPath[j];
 								if (oldEntry.getPath().equals(newPath)) {
@@ -344,11 +352,28 @@ public class SetClasspathOperation extends JavaModelOperation {
 								}
 							}
 							if (pathHasChanged) {
-								indexManager.indexLibrary(newPath, project.getProject());
+								postAction(new IPostAction() {
+									public String getID() {
+										return newPath.toString();
+									}
+									public void run() throws JavaModelException {
+										indexManager.indexLibrary(newPath, project.getProject());
+									}
+								}, 
+								REMOVEALL_APPEND);
 							}
 							break;
 						case IClasspathEntry.CPE_SOURCE:
-							indexManager.indexSourceFolder(project, newResolvedPath[i].getPath());
+							final IPath path = newResolvedPath[i].getPath();
+							postAction(new IPostAction() {
+								public String getID() {
+									return path.toString();
+								}
+								public void run() throws JavaModelException {
+									indexManager.indexSourceFolder(project, path);
+								}
+							}, 
+							REMOVEALL_APPEND);
 							break;
 					}
 				}
