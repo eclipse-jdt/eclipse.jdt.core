@@ -580,8 +580,7 @@ public class VarargsTest extends AbstractComparisonTest {
 	}
 
 	public void test010() {
-		// according to spec this should find count(Object) since it should not consider count(Object...) until all fixed arity methods are dealt with
-		// but their current implementation picks the vararg method
+		// according to spec this should find count(Object) since it should consider count(Object...) as count(Object[]) until all fixed arity methods are ruled out
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -589,7 +588,10 @@ public class VarargsTest extends AbstractComparisonTest {
 				"	public static void main(String[] s) {\n" +
 				"		System.out.print('<');\n" +
 				"		Y.count((Object) new Integer(1));\n" +
-//				"		Y.count(new Integer(1));\n" +
+				"		Y.count(new Integer(1));\n" +
+				"\n" +
+				"		Y.count((Object) null);\n" +
+				"		Y.count((Object[]) null);\n" +
 				"		System.out.print('>');\n" +
 				"	}\n" +
 				"}\n" +
@@ -598,9 +600,8 @@ public class VarargsTest extends AbstractComparisonTest {
 				"	public static void count(Object ... values) { System.out.print('2'); }\n" +
 				"}\n",
 			},
-			"<1>");
-		// according to spec this should find count(Object[]) since it should not consider count(Object[]...) until all fixed arity methods are dealt with
-		// but their current implementation picks the vararg method
+			"<1112>");
+		// according to spec this should find count(Object[]) since it should not consider count(Object[]...) as count(Object[][]) until all fixed arity methods are ruled out
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -608,7 +609,10 @@ public class VarargsTest extends AbstractComparisonTest {
 				"	public static void main(String[] s) {\n" +
 				"		System.out.print('<');\n" +
 				"		Y.count(new Object[] {new Integer(1)});\n" +
-//				"		Y.count(new Integer[] {new Integer(1)});\n" +
+				"		Y.count(new Integer[] {new Integer(1)});\n" +
+				"\n" +
+				"		Y.count((Object[]) null);\n" +
+				"		Y.count((Object[][]) null);\n" +
 				"		System.out.print('>');\n" +
 				"	}\n" +
 				"}\n" +
@@ -617,9 +621,7 @@ public class VarargsTest extends AbstractComparisonTest {
 				"	public static void count(Object[] ... values) { System.out.print('2'); }\n" +
 				"}\n",
 			},
-			"<1>");
-		// according to spec this should find the fixed arity methods since it should not consider the others until all fixed arity methods are dealt with
-		// but their current implementation thinks they're ambiguous
+			"<1112>");
 		this.runNegativeTest(
 			new String[] {
 				"X.java",

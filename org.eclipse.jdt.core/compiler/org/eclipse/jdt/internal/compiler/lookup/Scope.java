@@ -1041,7 +1041,7 @@ public abstract class Scope
 			return new ProblemMethodBinding(candidates[0], candidates[0].selector, candidates[0].parameters, NotVisible);
 		}
 		if (isCompliant14)
-			return mostSpecificMethodBinding(candidates, visiblesCount, invocationSite);
+			return mostSpecificMethodBinding(candidates, visiblesCount, argumentTypes, invocationSite);
 		return candidates[0].declaringClass.isClass()
 			? mostSpecificClassMethodBinding(candidates, visiblesCount, invocationSite)
 			: mostSpecificInterfaceMethodBinding(candidates, visiblesCount, invocationSite);
@@ -2927,7 +2927,22 @@ public abstract class Scope
 	/* All methods in visible are acceptable matches for the method in question...
 	* Since 1.4, the inherited ambiguous case has been removed from mostSpecificClassMethodBinding
 	*/
-	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, InvocationSite invocationSite) {
+	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
+		boolean varargsStatus = visible[0].isVarargs();
+		for (int i = 1; i < visibleSize; i++) {
+			if (visible[i].isVarargs() != varargsStatus) {
+				// visible is a mix of fixed & variable arity methods, so double check the varargs methods, but consider their vararg argument as a fixed array
+				MethodBinding[] temp = new MethodBinding[visibleSize];
+				int newSize = 0;
+				for (int j = 0; j < visibleSize; j++)
+					if (!visible[j].isVarargs() || computeCompatibleMethod(visible[j], argumentTypes, invocationSite, false) != null)
+						temp[newSize++] = visible[j];
+				visible = temp;
+				visibleSize = newSize;
+				break;
+			}
+		}
+
 		MethodBinding method = null;
 		nextVisible : for (int i = 0; i < visibleSize; i++) {
 			method = visible[i];
