@@ -191,7 +191,7 @@ public static Test suite() {
 	TestSuite suite = new Suite(JavaSearchTests.class.getName());
 	
 	if (false) {
-		suite.addTest(new JavaSearchTests("testTypeOccurence2"));
+		suite.addTest(new JavaSearchTests("testConstructorReferenceDefaultConstructorOfMemberClass"));
 		return suite;
 	}
 	
@@ -299,7 +299,8 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testConstructorReferenceImplicitConstructorCall1"));
 	suite.addTest(new JavaSearchTests("testConstructorReferenceImplicitConstructorCall2"));
 	suite.addTest(new JavaSearchTests("testConstructorReferenceInFieldInitializer"));
-
+	suite.addTest(new JavaSearchTests("testConstructorReferenceDefaultConstructorOfMemberClass"));
+	
 	// field declaration
 	suite.addTest(new JavaSearchTests("testSimpleFieldDeclaration"));
 	suite.addTest(new JavaSearchTests("testFieldDeclarationInJar"));
@@ -434,6 +435,22 @@ public void testConstructorDeclarationInJar() throws JavaModelException, CoreExc
 		resultCollector.toString());
 }
 /**
+ * Constructor reference in case of default constructor of member type
+ * (regression test for bug 43276)
+ */
+public void testConstructorReferenceDefaultConstructorOfMemberClass() throws JavaModelException, CoreException {
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"c10.X.Inner()", 
+		CONSTRUCTOR,
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals(
+		"src/c10/X.java c10.B() [new X().super()]", 
+		resultCollector.toString());
+}/**
  * Constructor reference using an explicit constructor call.
  */
 public void testConstructorReferenceExplicitConstructorCall1() throws JavaModelException, CoreException {
