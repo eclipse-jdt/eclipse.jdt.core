@@ -12,6 +12,7 @@ What's new in this drop (since 0.9)
 
 PRs Fixed in this Release (since 1.0NL stream)
 ==================================================================================
+1GHU4PK: ITPJCORE:WINNT - NoSuchMethodError when running program
 1GHONAX: ITPJCORE:WIN2000 - Compiler uses different name lookup for refactoring
 1GEJYAJ: ITPJCORE:WIN2000 - Compiler - Binding of QualifiedNameReference is null
 1GHFHWR: ITPJCORE:ALL - Assertions: CodeAssist and Selection need to be updated

@@ -264,9 +264,7 @@ public void computeId() {
 */
 
 public char[] constantPoolName() /* java/lang/Object */ {
-	if (constantPoolName != null)
-		return constantPoolName;
-
+	if (constantPoolName != null) 	return constantPoolName;
 	return constantPoolName = CharOperation.concatWith(compoundName, '/');
 }
 String debugName() {
