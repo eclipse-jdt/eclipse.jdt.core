@@ -259,8 +259,6 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	IPackageFragmentRoot[] getPackageFragmentRoots() throws JavaModelException;
 
 	/**
-	 *TODO: fix-up spec. The roots do not need to exist already
-	 * 
 	 * Returns the existing package fragment roots identified by the given entry.
 	 * Note that a classpath entry that refers to another project may
 	 * have more than one root (if that project has more than on root
