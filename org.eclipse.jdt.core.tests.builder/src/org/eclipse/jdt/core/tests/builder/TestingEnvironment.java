@@ -823,17 +823,22 @@ public class TestingEnvironment {
 		}
 	}
 	
-	public IPath setExternalOutputFolder(IPath projectPath, String outputFolder){
-		IPath outputPath = new Path(outputFolder);
+	public IPath setExternalOutputFolder(IPath projectPath, String name, IPath externalOutputLocation){
+		IPath result = null;
 		try {
 			checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
-			IJavaProject javaProject = JavaCore.create(getProject(projectPath));
-			javaProject.setOutputLocation(outputPath, null);
-		} catch (JavaModelException e) {
+			IProject p = getProject(projectPath);
+			IFolder f = p.getFolder(name);
+			f.createLink(externalOutputLocation, IFolder.ALLOW_MISSING_LOCAL, null);
+
+			result = f.getFullPath();
+			IJavaProject javaProject = JavaCore.create(p);
+			javaProject.setOutputLocation(result, null);
+		} catch (CoreException e) {
 			e.printStackTrace();
-			checkAssertion("JavaModelException", false); //$NON-NLS-1$
+			checkAssertion("CoreException", false); //$NON-NLS-1$
 		}
-		return outputPath;
+		return result;
 	}
 	
 	public IPath setOutputFolder(IPath projectPath, String outputFolder){

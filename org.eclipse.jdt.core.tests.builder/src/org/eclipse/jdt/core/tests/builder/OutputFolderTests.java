@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -219,5 +220,56 @@ public class OutputFolderTests extends Tests {
 			projectPath.append("bin1/A.class"), //$NON-NLS-1$
 			projectPath.append("bin2/p/B.class") //$NON-NLS-1$
 		});
+	}
+
+	public void testProjectWith3Src2Bin() {
+		IPath projectPath = env.addProject("P6"); //$NON-NLS-1$
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", "bin1"); //$NON-NLS-1$
+		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2", "bin2"); //$NON-NLS-1$
+		IPath src3 = env.addPackageFragmentRoot(projectPath, "src3", "bin2"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin1"); //$NON-NLS-1$
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
+
+		env.addClass(src1, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class A {}" //$NON-NLS-1$
+			);
+		env.addClass(src2, "p", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;"+ //$NON-NLS-1$
+			"public class B {}" //$NON-NLS-1$
+			);
+		env.addClass(src3, "", "C", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class C {}" //$NON-NLS-1$
+			);
+
+		fullBuild();
+		expectingNoProblems();
+		expectingPresenceOf(new IPath[] {
+			projectPath.append("bin1/A.class"), //$NON-NLS-1$
+			projectPath.append("bin2/p/B.class"), //$NON-NLS-1$
+			projectPath.append("bin2/C.class") //$NON-NLS-1$
+		});
+	}
+
+	public void test2ProjectWith1Bin() {
+		IPath projectPath = env.addProject("P7"); //$NON-NLS-1$
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		env.addExternalJar(projectPath, Util.getJavaClassLib());
+
+		IPath projectPath2 = env.addProject("P8"); //$NON-NLS-1$
+		IPath binLocation = env.getProject(projectPath).getFolder("bin").getLocation();
+		env.setExternalOutputFolder(projectPath2, "externalBin", binLocation); //$NON-NLS-1$
+		env.addExternalJar(projectPath2, Util.getJavaClassLib());
+
+		env.addClass(projectPath2, "p", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;"+ //$NON-NLS-1$
+			"public class B {}" //$NON-NLS-1$
+			);
+
+		fullBuild();
+		expectingNoProblems();
+		expectingPresenceOf(bin.append("p/B.class")); //$NON-NLS-1$
 	}
 }
