@@ -10,20 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 
 public class CreateMembersTests extends AbstractJavaModelTests {
-
-	IJavaProject project;
 
 	public CreateMembersTests(String name) {
 		super(name);
@@ -43,29 +37,6 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		super.tearDownSuite();
 	}
 
-	private void assertArraysEquals(String actualContents, String expectedContents) {
-		String[] actualContentsArray = createArrayOfString(actualContents);
-		String[] expectedContentsArray = createArrayOfString(expectedContents);
-		assertTrue("Different size", actualContentsArray.length == expectedContentsArray.length); //$NON-NLS-1$
-		for (int i = 0, max = expectedContentsArray.length; i < max; i++) {
-			if (!expectedContentsArray[i].equals(actualContentsArray[i])) {
-				assertTrue("Found: \n" + actualContents + "\nExpecting: \n" + expectedContents, false);
-			}
-		}
-	}
-	
-	private String[] createArrayOfString(String s) {
-		StringTokenizer tokenizer = new StringTokenizer(s, "\r\n"); //$NON-NLS-1$
-		ArrayList arrayList = new ArrayList();
-		while (tokenizer.hasMoreElements()) {
-			String nextToken = tokenizer.nextToken();
-			if (nextToken.length() != 0) {
-				arrayList.add(nextToken);
-			}
-		}
-		return (String[]) arrayList.toArray(new String[arrayList.size()]);
-	}
-	
 	public void test001() throws JavaModelException {
 		ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "A.java");
 		assertNotNull("No compilation unit", compilationUnit);
@@ -74,11 +45,12 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		assertEquals("Wrong size", 1, types.length);
 		IType type = types[0];
 		type.createMethod("\tpublic void foo() {\n\t\tSystem.out.println(\"Hello World\");\n\t}\n", null, true, new NullProgressMonitor());
-		String expectedSource = "public class A\n" +
+		String expectedSource = 
+			"public class A\n" +
 			"{	public void foo() {\n" +
 			"		System.out.println(\"Hello World\");\n" +
 			"	}\n" +
 			"}";
-		assertArraysEquals(type.getSource(), expectedSource);
+		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
 }
