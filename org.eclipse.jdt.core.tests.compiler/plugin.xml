@@ -3,7 +3,7 @@
 <plugin
    id="org.eclipse.jdt.core.tests.compiler"
    name="Java Compiler Tests"
-   version="3.0.0">
+   version="3.0.1.1">
 
    <runtime>
       <library name="jdtcoretestscompiler.jar">
