@@ -57,6 +57,22 @@ public class CompilationUnitSorter {
 		
 		private int[] categories;
 		
+		/**
+		 * This constructor uses the default values for the different categories.
+		 * 
+		 * There are nine categories with theirs default values:
+		 * <ol>
+		 * <li>static types (1)</li>
+		 * <li>static fields (2)</li>
+		 * <li>static initializers (3)</li>
+		 * <li>fields (4) </li>
+		 * <li>initializers (5)</li>
+		 * <li>types (6)</li>
+		 * <li>static methods (7)</li>
+		 * <li>constructors (8)</li>
+		 * <li>methods (9)</li>
+		 * </ol>
+		 */
 		public DefaultJavaElementComparator() {
 			// initialize default categories
 			this.categories = new int[] {
@@ -82,10 +98,10 @@ public class CompilationUnitSorter {
 		 * <li>static types (1)</li>
 		 * <li>static fields (2)</li>
 		 * <li>static initializers (3)</li>
-		 * <li>static methods (4)</li>
-		 * <li>types (5)</li>
-		 * <li>fields (6) </li>
-		 * <li>initializers (7)</li>
+		 * <li>fields (4) </li>
+		 * <li>initializers (5)</li>
+		 * <li>types (6)</li>
+		 * <li>static methods (7)</li>
 		 * <li>constructors (8)</li>
 		 * <li>methods (9)</li>
 		 * </ol>
@@ -264,8 +280,13 @@ public class CompilationUnitSorter {
 
 	/**
 	 * This field is used to retrieve a property of the AST node used by the compare method. This
-	 * property returns an integer which is the corresponding source start of the node.
-	 * 		(Integer) node.getProperty(CompilationUnitSorter.SOURCE_START)
+	 * property returns an integer which corresponds to a position that preceeds the starting position
+	 * of the node. The exact value of this property is not important. What matters is that if node a
+	 * is created before node b, then this property for node a will be lower than the same property for
+	 * node b. To be brief, this property should be used if the syntactical order matters.
+	 * <pre>
+	 * 		(Integer) astNode.getProperty(CompilationUnitSorter.SOURCE_START)
+	 * </pre>
 	 * 
 	 * @since 2.1
 	 */
@@ -278,6 +299,8 @@ public class CompilationUnitSorter {
 	 * @param positions positions to map
 	 * @param comparator the comparator to use for the sorting
 	 * @param monitor the given progress monitor
+	 * @exception CoreException a Core exception is thrown if the supplied compilation unit is <code>null</code></li>,
+	 * the supplied compilation unit is not an instance of IWorkingCopy
 	 * 
 	 * @since 2.1
 	 */
@@ -290,12 +313,19 @@ public class CompilationUnitSorter {
 	}
 
 	/**
-	 * This method is used to sort elements within a compilation unit.
+	 * This method is used to sort elements within each compilation unit inside this compilationUnits array.
+	 * The positions are mapped to the new positions once the sorting is done. This should be used to
+	 * update the positions of markers within compilation units.
+	 * The sizes of positions and compilationUnits array have to be the same.
 	 * 
 	 * @param compilationUnits compilation units to process
 	 * @param positions positions to map
 	 * @param comparator the comparator to use for the sorting
 	 * @param monitor the given progress monitor
+	 * 
+	 * @exception CoreException a Core exception is thrown if one of the supplied compilation units is <code>null</code></li>,
+	 * one of the supplied elements are not an instance of IWorkingCopy, or the size of the given positions and of the given
+	 * compilationUnits arrays are not equal.
 	 * 
 	 * @since 2.1
 	 */
