@@ -482,7 +482,7 @@ public final class JavaConventions {
 		// retrieve resolved classpath
 		IClasspathEntry[] classpath; 
 		try {
-			classpath = ((JavaProject)javaProject).getResolvedClasspath(rawClasspath, null /*output*/, true/*ignore pb*/, false/*no marker*/);
+			classpath = ((JavaProject)javaProject).getResolvedClasspath(rawClasspath, null /*output*/, true/*ignore pb*/, false/*no marker*/, null /*no reverse map*/);
 		} catch(JavaModelException e){
 			return e.getJavaModelStatus();
 		}

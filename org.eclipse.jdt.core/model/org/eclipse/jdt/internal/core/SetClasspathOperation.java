@@ -736,7 +736,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		String[] oldRequired = jproject.projectPrerequisites(this.oldResolvedPath);
 
 		if (this.newResolvedPath == null) {
-			this.newResolvedPath = jproject.getResolvedClasspath(this.newRawPath, null, true, this.needValidation);
+			this.newResolvedPath = jproject.getResolvedClasspath(this.newRawPath, null, true, this.needValidation, null /*no reverse map*/);
 		}
 		String[] newRequired = jproject.projectPrerequisites(this.newResolvedPath);
 	

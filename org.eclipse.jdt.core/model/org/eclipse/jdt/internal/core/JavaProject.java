@@ -881,7 +881,7 @@ public class JavaProject
 				if (classpath[i].equals(entry)) { // entry may need to be resolved
 					return 
 						computePackageFragmentRoots(
-							getResolvedClasspath(new IClasspathEntry[] {entry}, null, true, false), 
+							getResolvedClasspath(new IClasspathEntry[] {entry}, null, true, false, null/*no reverse map*/), 
 							false); // don't retrieve exported roots
 				}
 			}
@@ -967,16 +967,20 @@ public class JavaProject
 				// put the info now, because computing the roots requires it
 				JavaModelManager.getJavaModelManager().putInfo(this, info);
 
-				// compute the pkg fragment roots
+				IWorkspace workspace = ResourcesPlugin.getWorkspace();
+				IWorkspaceRoot wRoot = workspace.getRoot();
+				// request marker refresh on project opening (so as to diagnose unbound variables on startup)
+				IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/, !workspace.isTreeLocked()  /*refresh CP markers*/);
+
+				// compute the pkg fragment roots (resolved CP should already be cached from marker refresh)
 				updatePackageFragmentRoots();				
 	
 				// remember the timestamps of external libraries the first time they are looked up
-				IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignore unresolved variable*/);
 				for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
 					IClasspathEntry entry = resolvedClasspath[i];
 					if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 						IPath path = entry.getPath();
-						Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), path, true);
+						Object target = JavaModel.getTarget(wRoot, path, true);
 						if (target instanceof java.io.File) {
 							Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaProcessor.externalTimeStamps;
 							if (externalTimeStamps.get(path) == null) {
@@ -1459,12 +1463,13 @@ public class JavaProject
 			IClasspathEntry[] infoPath = perProjectInfo.lastResolvedClasspath;
 			if (infoPath != null) return infoPath;
 		}
-
+		Map reverseMap = perProjectInfo == null ? null : new HashMap(5);
 		IClasspathEntry[] resolvedPath = getResolvedClasspath(
 			getRawClasspath(), 
 			generateMarkerOnError ? getOutputLocation() : null, 
 			ignoreUnresolvedEntry, 
-			generateMarkerOnError);
+			generateMarkerOnError,
+			reverseMap);
 
 		if (perProjectInfo != null){
 			if (perProjectInfo.classpath == null // .classpath file could not be read
@@ -1476,6 +1481,7 @@ public class JavaProject
 				}
 
 			perProjectInfo.lastResolvedClasspath = resolvedPath;
+			perProjectInfo.resolvedPathToRawEntries = reverseMap;
 		}
 		return resolvedPath;
 	}
@@ -1486,8 +1492,9 @@ public class JavaProject
 	public IClasspathEntry[] getResolvedClasspath(
 		IClasspathEntry[] classpathEntries,
 		IPath projectOutputLocation, // only set if needing full classpath validation (and markers)
-		boolean ignoreUnresolvedEntry,
-		boolean generateMarkerOnError) // if unresolved entries are met, should it trigger initializations
+		boolean ignoreUnresolvedEntry, // if unresolved entries are met, should it trigger initializations
+		boolean generateMarkerOnError,
+		Map reverseMap) // can be null if not interested in reverse mapping
 		throws JavaModelException {
 
 		IJavaModelStatus status;
@@ -1517,6 +1524,7 @@ public class JavaProject
 					if (resolvedEntry == null) {
 						if (!ignoreUnresolvedEntry) throw new JavaModelException(status);
 					} else {
+						if (reverseMap != null) reverseMap.put(resolvedEntry.getPath(), rawEntry);
 						resolvedEntries.add(resolvedEntry);
 					}
 					break; 
@@ -1548,12 +1556,14 @@ public class JavaProject
 								cEntry.getSourceAttachmentRootPath(), cEntry.getOutputLocation(), 
 								true); // duplicate container entry for tagging it as exported
 						}
+						if (reverseMap != null) reverseMap.put(cEntry.getPath(), rawEntry);
 						resolvedEntries.add(cEntry);
 					}
 					break;
 										
 				default :
 
+					if (reverseMap != null) reverseMap.put(rawEntry.getPath(), rawEntry);
 					resolvedEntries.add(rawEntry);
 				
 			}					
@@ -1881,7 +1891,7 @@ public class JavaProject
 			
 		ArrayList prerequisites = new ArrayList();
 		// need resolution
-		entries = getResolvedClasspath(entries, null, true, false);
+		entries = getResolvedClasspath(entries, null, true, false, null/*no reverse map*/);
 		for (int i = 0, length = entries.length; i < length; i++) {
 			IClasspathEntry entry = entries[i];
 			if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
@@ -2217,6 +2227,7 @@ public class JavaProject
 			
 			// clear cache of resolved classpath
 			info.lastResolvedClasspath = null;
+			info.resolvedPathToRawEntries = null;
 		}
 	}
 
