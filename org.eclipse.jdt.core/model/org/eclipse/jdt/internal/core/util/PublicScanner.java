@@ -32,7 +32,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	 - sourceStart gives the position into the stream
 	 - currentPosition-1 gives the sourceEnd position into the stream 
 	*/
-	private long sourceLevel;
+	protected long sourceLevel;
 	// 1.4 feature 
 	public boolean useAssertAsAnIndentifier = false;
 	//flag indicating if processed source contains occurrences of keyword assert 
@@ -173,6 +173,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 public PublicScanner() {
 	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
 }
+
 public PublicScanner(
 	boolean tokenizeComments, 
 	boolean tokenizeWhiteSpace, 
@@ -191,6 +192,7 @@ public PublicScanner(
 	this.taskPriorities = taskPriorities;
 	this.isTaskCaseSensitive = isTaskCaseSensitive;
 }
+
 public  final boolean atEnd() {
 	// This code is not relevant if source is 
 	// Only a part of the real stream input
@@ -198,7 +200,7 @@ public  final boolean atEnd() {
 	return this.source.length == this.currentPosition;
 }
 
-private void checkNonExternalizedString() {
+protected void checkNonExternalizedString() {
 	if (this.currentLine == null) 
 		return;
 	parseTags(this.currentLine);
@@ -2209,7 +2211,7 @@ final char[] optimizedCurrentTokenSource6() {
 	newEntry6 = max;
 	return r;	
 }
-private void parseTags(NLSLine line) {
+protected void parseTags(NLSLine line) {
 	String s = new String(getCurrentTokenSource());
 	int pos = s.indexOf(TAG_PREFIX);
 	int lineLength = line.size();
@@ -3354,7 +3356,7 @@ public String toString() {
 		+ "<-- Ends here\n===============================\n" //$NON-NLS-1$
 		+ new String(end); 
 }
-public final String toStringAction(int act) {
+public String toStringAction(int act) {
 	switch (act) {
 		case TokenNameIdentifier :
 			return "Identifier(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
