@@ -1849,7 +1849,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 		}
 	}
 	/*
-	 * Traverse the set of projects which have changed namespace, and refresh their dependents
+	 * Traverse the set of projects which have changed namespace, and refresh their 
+	 * name lookups and their dependents
 	 */
 	private void refreshNamelookups() {
 		Iterator iterator;
@@ -1858,17 +1859,13 @@ public class DeltaProcessor implements IResourceChangeListener {
 		HashSet affectedDependents = new HashSet();
 		while (iterator.hasNext()) {
 			JavaProject project = (JavaProject)iterator.next();
+			project.resetNameLookup();
 			addDependentProjects(project.getPath(), affectedDependents);
 		}
 		iterator = affectedDependents.iterator();
 		while (iterator.hasNext()) {
 			JavaProject project = (JavaProject) iterator.next();
-			if (project.isOpen()){
-				try {
-					((JavaProjectElementInfo)project.getElementInfo()).setNameLookup(null);
-				} catch (JavaModelException e) {
-				}
-			}
+			project.resetNameLookup();
 		}
 	}
 	/* 

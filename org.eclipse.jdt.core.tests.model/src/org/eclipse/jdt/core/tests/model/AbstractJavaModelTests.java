@@ -81,9 +81,13 @@ protected void assertResourcesEqual(String message, String expected, Object[] re
 }
 protected void assertElementsEqual(String message, String expected, IJavaElement[] elements) {
 	StringBuffer buffer = new StringBuffer();
-	for (int i = 0, length = elements.length; i < length; i++){
-		buffer.append(elements[i].getElementName());
-		if (i != length-1) buffer.append("\n");
+	if (elements != null) {
+		for (int i = 0, length = elements.length; i < length; i++){
+			buffer.append(elements[i].getElementName());
+			if (i != length-1) buffer.append("\n");
+		}
+	} else {
+		buffer.append("<null>");
 	}
 	if (!expected.equals(buffer.toString())) {
 		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));

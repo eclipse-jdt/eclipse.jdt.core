@@ -1941,7 +1941,18 @@ public class JavaProject
 			}
 		}
 	}
-
+	
+	/*
+	 * Resets this project's name lookup
+	 */
+	public void resetNameLookup() {
+		if (isOpen()){
+			try {
+				((JavaProjectElementInfo)getElementInfo()).setNameLookup(null);
+			} catch (JavaModelException e) {
+			}
+		}
+	}
 
 	/**
 	 * @see JavaElement#rootedAt(IJavaProject)

@@ -92,10 +92,7 @@ public class ModelUpdater {
 			case IJavaElement.PACKAGE_FRAGMENT :
 				// get rid of namelookup since it holds onto obsolete cached info 
 				JavaProject project = (JavaProject) element.getJavaProject();
-				try {
-					project.getJavaProjectElementInfo().setNameLookup(null);
-				} catch (JavaModelException e) {
-				}
+				project.resetNameLookup();
 				break;
 		}
 	}
@@ -140,10 +137,7 @@ public class ModelUpdater {
 			case IJavaElement.PACKAGE_FRAGMENT :
 				//1G1TW2T - get rid of namelookup since it holds onto obsolete cached info 
 				JavaProject project = (JavaProject) element.getJavaProject();
-				try {
-					project.getJavaProjectElementInfo().setNameLookup(null);
-				} catch (JavaModelException e) {
-				}
+				project.resetNameLookup();
 				break;
 		}
 	}

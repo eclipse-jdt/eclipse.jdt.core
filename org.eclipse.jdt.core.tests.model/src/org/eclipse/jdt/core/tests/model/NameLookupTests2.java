@@ -18,7 +18,6 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.JavaProject;
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * These test ensure that modifications in Java projects are correctly reported as
@@ -33,11 +32,7 @@ public NameLookupTests2(String name) {
 
 
 public static Test suite() {
-	TestSuite suite = new Suite(NameLookupTests2.class.getName());
-	suite.addTest(new NameLookupTests2("testAddPackageFragmentRootAndPackageFrament"));
-	suite.addTest(new NameLookupTests2("testAddPackageFrament"));
-	
-	return suite;
+	return new Suite(NameLookupTests2.class);
 }
 
 public void testAddPackageFragmentRootAndPackageFrament() throws CoreException {
@@ -73,7 +68,7 @@ public void testAddPackageFragmentRootAndPackageFrament() throws CoreException {
 		this.deleteProject("P2");
 	}
 }
-public void testAddPackageFrament() throws CoreException {
+public void testAddPackageFragment() throws CoreException {
 	try {
 		this.createJavaProject("P1", new String[] {"src1"}, "bin");
 		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, "");
@@ -98,6 +93,32 @@ public void testAddPackageFrament() throws CoreException {
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
+	}
+}
+/*
+ * Resolve, add pkg, resolve again: new pkg should be accessible
+ * (regression test for bug 37962 Unexpected transient problem during reconcile
+ */
+public void testAddPackageFragment2() throws CoreException {
+	try {
+		JavaProject project = (JavaProject)this.createJavaProject("P", new String[] {"src"}, "bin");
+		this.createFolder("/P/src/p1");
+		
+		IPackageFragment[] pkgs = project.getNameLookup().findPackageFragments("p1", false);
+		assertElementsEqual(
+			"Didn't find p1",
+			"p1",
+			pkgs);
+		
+		this.createFolder("/P/src/p2");
+	
+		pkgs = project.getNameLookup().findPackageFragments("p2", false);
+		assertElementsEqual(
+			"Didn't find p2",
+			"p2",
+			pkgs);
+	} finally {
+		this.deleteProject("P");
 	}
 }
 }
