@@ -508,7 +508,7 @@ public class IncrementalTests extends Tests {
 				});
 
 		} catch(StackOverflowError e){
-			assertTrue("Infinite loop in cycle detection", false);
+			assertTrue("Infinite loop in cycle detection", false); //$NON-NLS-1$
 			e.printStackTrace();
 		}
 	}

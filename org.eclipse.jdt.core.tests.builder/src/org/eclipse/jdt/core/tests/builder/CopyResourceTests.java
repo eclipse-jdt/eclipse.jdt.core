@@ -177,8 +177,8 @@ public class CopyResourceTests extends Tests {
 	public void testProjectWith2Src2Bin() throws JavaModelException {
 		IPath projectPath = env.addProject("P6"); //$NON-NLS-1$
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
-		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", null, "bin1"); //$NON-NLS-1$
-		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2", null, "bin2"); //$NON-NLS-1$
+		IPath src1 = env.addPackageFragmentRoot(projectPath, "src1", null, "bin1"); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2", null, "bin2"); //$NON-NLS-1$ //$NON-NLS-2$
 		env.setOutputFolder(projectPath, "bin1"); //$NON-NLS-1$
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
@@ -205,7 +205,7 @@ public class CopyResourceTests extends Tests {
 		env.addExternalJar(projectPath, Util.getJavaClassLib());
 
 		IPath projectPath2 = env.addProject("P8"); //$NON-NLS-1$
-		IPath binLocation = env.getProject(projectPath).getFolder("bin").getLocation();
+		IPath binLocation = env.getProject(projectPath).getFolder("bin").getLocation(); //$NON-NLS-1$
 		env.setExternalOutputFolder(projectPath2, "externalBin", binLocation); //$NON-NLS-1$
 		env.addExternalJar(projectPath2, Util.getJavaClassLib());
 
