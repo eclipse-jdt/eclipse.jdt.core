@@ -135,6 +135,11 @@ public void checkComment() {
 				JavadocMessageSend messageSend = (JavadocMessageSend) reference;
 				int argCount = messageSend.arguments == null ? 0 : messageSend.arguments.length;
 				requestor.acceptMethodReference(messageSend.selector, argCount, messageSend.sourceStart);
+			} else if (reference instanceof JavadocAllocationExpression) {
+				JavadocAllocationExpression constructor = (JavadocAllocationExpression) reference;
+				int argCount = constructor.arguments == null ? 0 : constructor.arguments.length;
+				char[][] compoundName = constructor.type.getTypeName();
+				requestor.acceptConstructorReference(compoundName[compoundName.length-1], argCount, constructor.sourceStart);
 			}
 		}
 	}
