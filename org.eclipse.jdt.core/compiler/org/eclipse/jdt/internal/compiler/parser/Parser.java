@@ -3519,7 +3519,7 @@ protected void consumeInternalCompilationUnitWithTypes() {
 protected void consumeInvalidAnnotationTypeDeclaration() {
 	// BlockStatement ::= AnnotationTypeDeclaration
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-	problemReporter().cannotDeclareLocalAnnotation(typeDecl.name, typeDecl.sourceStart, typeDecl.sourceEnd);
+	problemReporter().illegalLocalTypeDeclaration(typeDecl);
 	// remove the ast node created in interface header
 	this.astPtr--;
 	pushOnAstLengthStack(-1);
@@ -3572,7 +3572,7 @@ protected void consumeInvalidInterfaceDeclaration() {
 	// BlockStatement ::= InvalidInterfaceDeclaration
 	//InterfaceDeclaration ::= Modifiersopt 'interface' 'Identifier' ExtendsInterfacesopt InterfaceHeader InterfaceBody
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-	problemReporter().cannotDeclareLocalInterface(typeDecl.name, typeDecl.sourceStart, typeDecl.sourceEnd);
+	problemReporter().illegalLocalTypeDeclaration(typeDecl);
 	// remove the ast node created in interface header
 	this.astPtr--;
 	pushOnAstLengthStack(-1);
@@ -3581,7 +3581,7 @@ protected void consumeInvalidInterfaceDeclaration() {
 protected void consumeInvalidEnumDeclaration() {
 	// BlockStatement ::= EnumDeclaration
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-	problemReporter().cannotDeclareLocalEnum(typeDecl.name, typeDecl.sourceStart, typeDecl.sourceEnd);
+	problemReporter().illegalLocalTypeDeclaration(typeDecl);
 	// remove the ast node created in interface header
 	this.astPtr--;
 	pushOnAstLengthStack(-1);

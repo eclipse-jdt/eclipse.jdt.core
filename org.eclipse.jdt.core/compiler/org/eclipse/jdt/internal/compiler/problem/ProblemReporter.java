@@ -397,33 +397,6 @@ public void cannotAssignToFinalOuterLocal(LocalVariableBinding local, ASTNode lo
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void cannotDeclareLocalAnnotation(char[] typeName, int sourceStart, int sourceEnd) {
-	String[] arguments = new String[] {new String(typeName)};
-	this.handle(
-		IProblem.CannotDefineAnnotationInLocalType,
-		arguments,
-		arguments,
-		sourceStart,
-		sourceEnd);
-}
-public void cannotDeclareLocalEnum(char[] typeName, int sourceStart, int sourceEnd) {
-	String[] arguments = new String[] {new String(typeName)};
-	this.handle(
-		IProblem.CannotDefineEnumInLocalType,
-		arguments,
-		arguments,
-		sourceStart,
-		sourceEnd);
-}
-public void cannotDeclareLocalInterface(char[] interfaceName, int sourceStart, int sourceEnd) {
-	String[] arguments = new String[] {new String(interfaceName)};
-	this.handle(
-		IProblem.CannotDefineInterfaceInLocalType,
-		arguments,
-		arguments,
-		sourceStart,
-		sourceEnd);
-}
 public void cannotDefineDimensionsAndInitializer(ArrayAllocationExpression expresssion) {
 	this.handle(
 		IProblem.CannotDefineDimensionExpressionsWithInit,
@@ -1608,6 +1581,25 @@ public void illegalInstanceOfGenericType(TypeBinding checkedType, ASTNode locati
 		new String[] { new String(checkedType.shortReadableName()), new String(checkedType.erasure().sourceName())},
 		location.sourceStart,
 		location.sourceEnd);
+}
+public void illegalLocalTypeDeclaration(TypeDeclaration typeDeclaration) {
+	int problemID = 0;
+	if ((typeDeclaration.modifiers & IConstants.AccEnum) != 0) {
+		problemID = IProblem.CannotDefineEnumInLocalType;
+	} else if ((typeDeclaration.modifiers & IConstants.AccAnnotation) != 0) {
+		problemID = IProblem.CannotDefineAnnotationInLocalType;		
+	} else if ((typeDeclaration.modifiers & IConstants.AccInterface) != 0) {
+		problemID = IProblem.CannotDefineInterfaceInLocalType;		
+	}
+	if (problemID != 0) {
+		String[] arguments = new String[] {new String(typeDeclaration.name)};
+		this.handle(
+			problemID,
+			arguments,
+			arguments,
+			typeDeclaration.sourceStart,
+			typeDeclaration.sourceEnd);
+	}
 }
 public void illegalModifierCombinationFinalAbstractForClass(SourceTypeBinding type) {
 	String[] arguments = new String[] {new String(type.sourceName())};
