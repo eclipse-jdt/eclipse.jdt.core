@@ -20,7 +20,8 @@ public class Scanner implements TerminalSymbols {
 
 	// 1.4 feature
 	public boolean assertMode;
-
+	public boolean useAssertAsAnIndentifier = false;
+	
 	public boolean recordLineSeparator;
 	public char currentCharacter;
 	public int startPosition;
@@ -1939,7 +1940,7 @@ public int scanIdentifierOrKeyword() throws InvalidInputException {
 	//then the length. If there are several
 	//keywors with the same length AND the same first char, then do another
 	//disptach on the second char :-)...cool....but fast !
-
+	useAssertAsAnIndentifier = false;
 	while (getNextCharAsJavaIdentifierPart()) {};
 
 	int index, length;
@@ -1981,13 +1982,17 @@ public int scanIdentifierOrKeyword() throws InvalidInputException {
 							return TokenNameIdentifier;
 						}
 				case 6: // assert
-					if (assertMode 
-						&& (data[++index] == 's')
+					if ((data[++index] == 's')
 						&& (data[++index] == 's')
 						&& (data[++index] == 'e')
 						&& (data[++index] == 'r')
 						&& (data[++index] == 't')) {
-							return TokenNameassert;
+							if (assertMode) {
+								return TokenNameassert;
+							} else {
+								useAssertAsAnIndentifier = true;
+								return TokenNameIdentifier;								
+							}
 						} else {
 							return TokenNameIdentifier;
 						}

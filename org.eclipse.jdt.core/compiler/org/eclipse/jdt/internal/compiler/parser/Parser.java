@@ -34,7 +34,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalSymbo
 	protected int lastErrorEndPosition;
 		
 	// 1.4 feature
-	boolean assertMode = false;
+	protected boolean assertMode = false;
 	
 	//internal data for the automat 
 	protected final static int StackIncrement = 255;
@@ -3838,6 +3838,10 @@ protected void consumeToken(int type) {
 
 		case TokenNameIdentifier :
 			pushIdentifier();
+			if (scanner.useAssertAsAnIndentifier) {
+				long positions = identifierPositionStack[identifierPtr];
+				problemReporter().useAssertAsAnIdentifier((int) (positions >>> 32), (int) positions);
+			}
 			break;
 
 		case TokenNameinterface :

@@ -2155,6 +2155,16 @@ public void unusedLocalVariable(LocalDeclaration localDecl) {
 		localDecl.sourceStart,
 		localDecl.sourceEnd);
 }
+
+public void useAssertAsAnIdentifier(int sourceStart, int sourceEnd) {
+	this.handle(
+		UseAssertAsAnIdentifier,
+		new String[0],
+		Warning,
+		sourceStart,
+		sourceEnd);	
+}
+
 public void variableTypeCannotBeVoid(AbstractVariableDeclaration varDecl) {
 	this.handle(
 		VariableTypeCannotBeVoid,
