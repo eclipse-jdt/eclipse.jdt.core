@@ -83,7 +83,7 @@ public abstract class JobManager implements Runnable {
 				currentJob = this.currentJob();
 				disable();
 			}
-			if (currentJob != null && jobFamily == null || currentJob.belongsTo(jobFamily)) {
+			if (currentJob != null && (jobFamily == null || currentJob.belongsTo(jobFamily))) {
 				currentJob.cancel();
 
 				// wait until current active job has finished
