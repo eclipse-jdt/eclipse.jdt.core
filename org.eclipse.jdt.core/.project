@@ -3,10 +3,6 @@
 	<name>org.eclipse.jdt.core</name>
 	<comment></comment>
 	<projects>
-		<project>org.apache.ant</project>
-		<project>org.apache.xerces</project>
-		<project>org.eclipse.core.resources</project>
-		<project>org.eclipse.core.runtime</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -17,5 +13,6 @@
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>org.eclipse.team.cvs.core.cvsnature</nature>
 	</natures>
 </projectDescription>
