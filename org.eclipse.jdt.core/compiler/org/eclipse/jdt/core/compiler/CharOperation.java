@@ -1138,6 +1138,7 @@ public final class CharOperation {
 	 * @param secondStart inclusive start position in the second array to compare
 	 * @param secondEnd exclusive end position in the second array to compare
 	 * @return true if the first array is identical character by character to fragment of second array ranging from secondStart to secondEnd-1, otherwise false
+	 * @since 3.0
 	 */
 	public static final boolean equals(char[] first, char[] second, int secondStart, int secondEnd) {
 		if (first == second)
@@ -2668,6 +2669,13 @@ public final class CharOperation {
 		char[] result = concatWith(array, '.');
 		return new String(result);
 	}
+	/**
+	 * Answers an array of strings from the given array of char array.
+	 * 
+	 * @param array the given array
+	 * @return an array of strings
+	 * @since 3.0
+	 */
 	final static public String[] toStrings(char[][] array) {
 		int length = array.length;
 		String[] result = new String[length];

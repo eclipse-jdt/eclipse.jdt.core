@@ -127,6 +127,7 @@ public final class JavaCore extends Plugin {
 
 	/**
 	 * Name of the User Library Container id.
+	 * @since 3.0
 	 */
 	public static final String USER_LIBRARY_CONTAINER_ID= "org.eclipse.jdt.USER_LIBRARY"; //$NON-NLS-1$
 	
@@ -2302,6 +2303,7 @@ public final class JavaCore extends Plugin {
 	 * Returns the names of all defined user libraries. The corresponding classpath container path
 	 * is the name appended to the USER_LIBRARY_CONTAINER_ID.  
 	 * @return Return an array containing the names of all known user defined.
+	 * @since 3.0
 	 */
 	public static String[] getUserLibraryNames() {
 		 return UserLibraryManager.getUserLibraryNames();

@@ -44,6 +44,10 @@ public interface IModifierConstants {
 	int ACC_INTERFACE    = 0x0200;
 	int ACC_ABSTRACT     = 0x0400;
 	int ACC_STRICT       = 0x0800;	
+	/**
+	 * Indicates a synthetic member.
+	 * @since 3.0
+	 */
 	int ACC_SYNTHETIC    = 0x1000;
 	
 	/**
