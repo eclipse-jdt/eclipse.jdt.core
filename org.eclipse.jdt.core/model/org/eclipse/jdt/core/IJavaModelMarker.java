@@ -39,7 +39,7 @@ public interface IJavaModelMarker {
 	/**
 	 * Java model task marker type (value <code>"org.eclipse.jdt.core.task"</code>).
 	 * This can be used to recognize task markers in the workspace that correspond to tasks
-	 * specified in Java source comments and detected during compilation (e.g. 'TODO: ...').
+	 * specified in Java source comments and detected during compilation (e.g. 'TO-DO: ...').
 	 * Tasks are identified by a task tag, which can be customized through <code>JavaCore</code>
 	 * option <code>"org.eclipse.jdt.core.compiler.taskTag"</code>.
 	 * @since 2.1
