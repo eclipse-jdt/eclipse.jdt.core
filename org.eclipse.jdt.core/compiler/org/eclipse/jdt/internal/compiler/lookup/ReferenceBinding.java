@@ -494,12 +494,13 @@ public final boolean isProtected() {
 public final boolean isPublic() {
 	return (modifiers & AccPublic) != 0;
 }
-/* Answer true if the receiver is a static member type
-*/
+/* Answer true if the receiver is a static member type (or toplevel)
+ */
 
 public final boolean isStatic() {
 	return (modifiers & AccStatic) != 0 ||
-		(tagBits & IsNestedType) == 0;
+		    (tagBits & IsNestedType) == 0 ||
+		    (modifiers & AccInterface) != 0;
 }
 /* Answer true if all float operations must adher to IEEE 754 float/double rules
 */

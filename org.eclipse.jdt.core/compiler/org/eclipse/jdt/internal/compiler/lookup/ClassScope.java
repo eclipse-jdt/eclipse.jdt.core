@@ -279,20 +279,23 @@ public class ClassScope extends Scope {
 		sourceType.memberTypes = memberTypeBindings;
 		return sourceType;
 	}
-	
+
 	private void checkAndSetModifiers() {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		int modifiers = sourceType.modifiers;
 		if ((modifiers & AccAlternateModifierProblem) != 0)
 			problemReporter().duplicateModifierForType(sourceType);
 
-		if (sourceType.isMemberType()) {
+		ReferenceBinding enclosingType = sourceType.enclosingType();
+		boolean isMemberType = sourceType.isMemberType();
+		
+		if (isMemberType) {
 			// checks for member types before local types to catch local members
-			if (sourceType.enclosingType().isStrictfp())
+			if (enclosingType.isStrictfp())
 				modifiers |= AccStrictfp;
-			if (sourceType.enclosingType().isDeprecated())
+			if (enclosingType.isDeprecated())
 				modifiers |= AccDeprecatedImplicitly;
-			if (sourceType.enclosingType().isInterface())
+			if (enclosingType.isInterface())
 				modifiers |= AccPublic;
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isAnonymousType())
@@ -317,7 +320,7 @@ public class ClassScope extends Scope {
 
 		if ((realModifiers & AccInterface) != 0) {
 			// detect abnormal cases for interfaces
-			if (sourceType.isMemberType()) {
+			if (isMemberType) {
 				int unexpectedModifiers =
 					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccInterface | AccStrictfp);
 				if ((realModifiers & unexpectedModifiers) != 0)
@@ -336,7 +339,7 @@ public class ClassScope extends Scope {
 			modifiers |= AccAbstract;
 		} else {
 			// detect abnormal cases for types
-			if (sourceType.isMemberType()) { // includes member types defined inside local types
+			if (isMemberType) { // includes member types defined inside local types
 				int unexpectedModifiers =
 					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccFinal | AccStrictfp);
 				if ((realModifiers & unexpectedModifiers) != 0)
@@ -356,9 +359,9 @@ public class ClassScope extends Scope {
 				problemReporter().illegalModifierCombinationFinalAbstractForClass(sourceType);
 		}
 
-		if (sourceType.isMemberType()) {
+		if (isMemberType) {
 			// test visibility modifiers inconsistency, isolate the accessors bits
-			if (sourceType.enclosingType().isInterface()) {
+			if (enclosingType.isInterface()) {
 				if ((realModifiers & (AccProtected | AccPrivate)) != 0) {
 					problemReporter().illegalVisibilityModifierForInterfaceMemberType(sourceType);
 
@@ -388,10 +391,10 @@ public class ClassScope extends Scope {
 
 			// static modifier test
 			if ((realModifiers & AccStatic) == 0) {
-				if (sourceType.enclosingType().isInterface())
+				if (enclosingType.isInterface())
 					modifiers |= AccStatic;
 			} else {
-				if (!sourceType.enclosingType().isStatic())
+				if (!enclosingType.isStatic())
 					// error the enclosing type of a static field must be static or a top-level type
 					problemReporter().illegalStaticModifierForMemberType(sourceType);
 			}
