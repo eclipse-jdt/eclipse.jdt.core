@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -55,6 +56,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
+		if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
+			setupExternalJCL("jclMin");
+			JavaCore.setClasspathVariables(
+				new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+				new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+				null);
+		} 
 		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.5");
 		this.workingCopy = getCompilationUnit("/P/X.java").getWorkingCopy(
 			new WorkingCopyOwner() {}, 
@@ -88,6 +96,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((VariableDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
@@ -111,6 +120,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((VariableDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
@@ -131,6 +141,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
@@ -151,6 +162,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
@@ -173,6 +185,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((AnonymousClassDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
@@ -195,6 +208,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((TypeDeclarationStatement) node).resolveBinding();
+		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
@@ -215,6 +229,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((TypeDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
@@ -233,6 +248,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}/*end*/"
 		);
 		IBinding binding = ((TypeDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
@@ -258,6 +274,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"}"
 			);
 			IBinding binding = ((SimpleType) node).resolveBinding();
+			assertNotNull("No binding", binding);
 			IJavaElement element = binding.getJavaElement();
 			assertElementEquals(
 				"Unexpected Java element",
@@ -281,6 +298,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((SimpleType) node).resolveBinding();
+		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
@@ -300,6 +318,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}"
 		);
 		IBinding binding = ((QualifiedName) node).resolveBinding();
+		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
@@ -319,6 +338,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"}/*end*/"
 		);
 		ITypeBinding typeBinding = ((TypeDeclaration) node).resolveBinding();
+		assertNotNull("No binding", typeBinding);
 		IPackageBinding binding = typeBinding.getPackage();
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
