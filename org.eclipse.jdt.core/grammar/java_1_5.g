@@ -1001,10 +1001,10 @@ PostfixExpression -> PostIncrementExpression
 PostfixExpression -> PostDecrementExpression
 
 PostIncrementExpression ::= PostfixExpression '++'
-/.$putCase consumeUnaryExpression(OperatorExpression.PLUS,true); $break ./
+/.$putCase consumeUnaryExpression(OperatorIds.PLUS,true); $break ./
 
 PostDecrementExpression ::= PostfixExpression '--'
-/.$putCase consumeUnaryExpression(OperatorExpression.MINUS,true); $break ./
+/.$putCase consumeUnaryExpression(OperatorIds.MINUS,true); $break ./
 
 --for source managment purpose
 PushPosition ::= $empty
@@ -1013,22 +1013,22 @@ PushPosition ::= $empty
 UnaryExpression -> PreIncrementExpression
 UnaryExpression -> PreDecrementExpression
 UnaryExpression ::= '+' PushPosition UnaryExpression
-/.$putCase consumeUnaryExpression(OperatorExpression.PLUS); $break ./
+/.$putCase consumeUnaryExpression(OperatorIds.PLUS); $break ./
 UnaryExpression ::= '-' PushPosition UnaryExpression
-/.$putCase consumeUnaryExpression(OperatorExpression.MINUS); $break ./
+/.$putCase consumeUnaryExpression(OperatorIds.MINUS); $break ./
 UnaryExpression -> UnaryExpressionNotPlusMinus
 
 PreIncrementExpression ::= '++' PushPosition UnaryExpression
-/.$putCase consumeUnaryExpression(OperatorExpression.PLUS,false); $break ./
+/.$putCase consumeUnaryExpression(OperatorIds.PLUS,false); $break ./
 
 PreDecrementExpression ::= '--' PushPosition UnaryExpression
-/.$putCase consumeUnaryExpression(OperatorExpression.MINUS,false); $break ./
+/.$putCase consumeUnaryExpression(OperatorIds.MINUS,false); $break ./
 
 UnaryExpressionNotPlusMinus -> PostfixExpression
 UnaryExpressionNotPlusMinus ::= '~' PushPosition UnaryExpression
-/.$putCase consumeUnaryExpression(OperatorExpression.TWIDDLE); $break ./
+/.$putCase consumeUnaryExpression(OperatorIds.TWIDDLE); $break ./
 UnaryExpressionNotPlusMinus ::= '!' PushPosition UnaryExpression
-/.$putCase consumeUnaryExpression(OperatorExpression.NOT); $break ./
+/.$putCase consumeUnaryExpression(OperatorIds.NOT); $break ./
 UnaryExpressionNotPlusMinus -> CastExpression
 
 CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN UnaryExpression
@@ -1041,67 +1041,67 @@ CastExpression ::= PushLPAREN Expression PushRPAREN UnaryExpressionNotPlusMinus
 
 MultiplicativeExpression -> UnaryExpression
 MultiplicativeExpression ::= MultiplicativeExpression '*' UnaryExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.MULTIPLY); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.MULTIPLY); $break ./
 MultiplicativeExpression ::= MultiplicativeExpression '/' UnaryExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.DIVIDE); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.DIVIDE); $break ./
 MultiplicativeExpression ::= MultiplicativeExpression '%' UnaryExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.REMAINDER); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.REMAINDER); $break ./
 
 AdditiveExpression -> MultiplicativeExpression
 AdditiveExpression ::= AdditiveExpression '+' MultiplicativeExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.PLUS); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.PLUS); $break ./
 AdditiveExpression ::= AdditiveExpression '-' MultiplicativeExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.MINUS); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.MINUS); $break ./
 
 ShiftExpression -> AdditiveExpression
 ShiftExpression ::= ShiftExpression '<<'  AdditiveExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.LEFT_SHIFT); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.LEFT_SHIFT); $break ./
 ShiftExpression ::= ShiftExpression '>>'  AdditiveExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.RIGHT_SHIFT); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.RIGHT_SHIFT); $break ./
 ShiftExpression ::= ShiftExpression '>>>' AdditiveExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.UNSIGNED_RIGHT_SHIFT); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.UNSIGNED_RIGHT_SHIFT); $break ./
 
 RelationalExpression -> ShiftExpression
 RelationalExpression ::= RelationalExpression '<'  ShiftExpression 
-/.$putCase consumeBinaryExpression(OperatorExpression.LESS); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.LESS); $break ./
 RelationalExpression ::= RelationalExpression '>'  ShiftExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.GREATER); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.GREATER); $break ./
 RelationalExpression ::= RelationalExpression '<=' ShiftExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.LESS_EQUAL); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.LESS_EQUAL); $break ./
 RelationalExpression ::= RelationalExpression '>=' ShiftExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.GREATER_EQUAL); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.GREATER_EQUAL); $break ./
 RelationalExpression ::= RelationalExpression 'instanceof' ReferenceType
-/.$putCase consumeInstanceOfExpression(OperatorExpression.INSTANCEOF); $break ./
+/.$putCase consumeInstanceOfExpression(OperatorIds.INSTANCEOF); $break ./
 
 EqualityExpression -> RelationalExpression
 EqualityExpression ::= EqualityExpression '==' RelationalExpression
-/.$putCase consumeEqualityExpression(OperatorExpression.EQUAL_EQUAL); $break ./
+/.$putCase consumeEqualityExpression(OperatorIds.EQUAL_EQUAL); $break ./
 EqualityExpression ::= EqualityExpression '!=' RelationalExpression
-/.$putCase consumeEqualityExpression(OperatorExpression.NOT_EQUAL); $break ./
+/.$putCase consumeEqualityExpression(OperatorIds.NOT_EQUAL); $break ./
 
 AndExpression -> EqualityExpression
 AndExpression ::= AndExpression '&' EqualityExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.AND); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.AND); $break ./
 
 ExclusiveOrExpression -> AndExpression
 ExclusiveOrExpression ::= ExclusiveOrExpression '^' AndExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.XOR); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.XOR); $break ./
 
 InclusiveOrExpression -> ExclusiveOrExpression
 InclusiveOrExpression ::= InclusiveOrExpression '|' ExclusiveOrExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.OR); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.OR); $break ./
 
 ConditionalAndExpression -> InclusiveOrExpression
 ConditionalAndExpression ::= ConditionalAndExpression '&&' InclusiveOrExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.AND_AND); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.AND_AND); $break ./
 
 ConditionalOrExpression -> ConditionalAndExpression
 ConditionalOrExpression ::= ConditionalOrExpression '||' ConditionalAndExpression
-/.$putCase consumeBinaryExpression(OperatorExpression.OR_OR); $break ./
+/.$putCase consumeBinaryExpression(OperatorIds.OR_OR); $break ./
 
 ConditionalExpression -> ConditionalOrExpression
 ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' ConditionalExpression
-/.$putCase consumeConditionalExpression(OperatorExpression.QUESTIONCOLON) ; $break ./
+/.$putCase consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ; $break ./
 
 AssignmentExpression -> ConditionalExpression
 AssignmentExpression -> Assignment

@@ -77,7 +77,7 @@ public class DeleteElementsOperation extends MultiOperation {
 			IJavaElement e = fElementsToProcess[i];
 			ICompilationUnit cu = getCompilationUnitFor(e);
 			if (cu == null) {
-				throw new JavaModelException(new JavaModelStatus(JavaModelStatus.READ_ONLY, e));
+				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, e));
 			} else {
 				IRegion region = (IRegion) fChildrenToRemove.get(cu);
 				if (region == null) {

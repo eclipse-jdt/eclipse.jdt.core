@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 /**
  * Number literal nodes.
@@ -102,18 +103,18 @@ public class NumberLiteral extends Expression {
 		try {
 			int tokenType = scanner.getNextToken();
 			switch(tokenType) {
-				case Scanner.TokenNameDoubleLiteral:
-				case Scanner.TokenNameIntegerLiteral:
-				case Scanner.TokenNameFloatingPointLiteral:
-				case Scanner.TokenNameLongLiteral:
+				case TerminalTokens.TokenNameDoubleLiteral:
+				case TerminalTokens.TokenNameIntegerLiteral:
+				case TerminalTokens.TokenNameFloatingPointLiteral:
+				case TerminalTokens.TokenNameLongLiteral:
 					break;
-				case Scanner.TokenNameMINUS :
+				case TerminalTokens.TokenNameMINUS :
 					tokenType = scanner.getNextToken();
 					switch(tokenType) {
-						case Scanner.TokenNameDoubleLiteral:
-						case Scanner.TokenNameIntegerLiteral:
-						case Scanner.TokenNameFloatingPointLiteral:
-						case Scanner.TokenNameLongLiteral:
+						case TerminalTokens.TokenNameDoubleLiteral:
+						case TerminalTokens.TokenNameIntegerLiteral:
+						case TerminalTokens.TokenNameFloatingPointLiteral:
+						case TerminalTokens.TokenNameLongLiteral:
 							break;
 						default:
 							throw new IllegalArgumentException();

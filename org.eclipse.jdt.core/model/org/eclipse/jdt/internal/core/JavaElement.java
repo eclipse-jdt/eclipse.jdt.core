@@ -29,7 +29,7 @@ import org.eclipse.jdt.core.jdom.IDOMNode;
 public abstract class JavaElement extends PlatformObject implements IJavaElement {
 
 	public static final char JEM_JAVAPROJECT= '=';
-	public static final char JEM_PACKAGEFRAGMENTROOT= Path.SEPARATOR;
+	public static final char JEM_PACKAGEFRAGMENTROOT= IPath.SEPARATOR;
 	public static final char JEM_PACKAGEFRAGMENT= '<';
 	public static final char JEM_FIELD= '^';
 	public static final char JEM_METHOD= '~';

@@ -1269,7 +1269,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				}
 				IPath sourceAttachmentPath;
 				if (propertyString != null) {
-					int index= propertyString.lastIndexOf(JarPackageFragmentRoot.ATTACHMENT_PROPERTY_DELIMITER);
+					int index= propertyString.lastIndexOf(PackageFragmentRoot.ATTACHMENT_PROPERTY_DELIMITER);
 					sourceAttachmentPath = (index < 0) ?  new Path(propertyString) : new Path(propertyString.substring(0, index));
 				} else {
 					sourceAttachmentPath = entry.getSourceAttachmentPath();

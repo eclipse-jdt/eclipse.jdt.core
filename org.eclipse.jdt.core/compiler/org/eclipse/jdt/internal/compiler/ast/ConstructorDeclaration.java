@@ -14,9 +14,9 @@ import java.util.ArrayList;
 
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
@@ -261,7 +261,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			boolean needFieldInitializations = constructorCall == null || constructorCall.accessMode != ExplicitConstructorCall.This;
 
 			// post 1.4 source level, synthetic initializations occur prior to explicit constructor call
-			boolean preInitSyntheticFields = scope.environment().options.targetJDK >= CompilerOptions.JDK1_4;
+			boolean preInitSyntheticFields = scope.environment().options.targetJDK >= ClassFileConstants.JDK1_4;
 
 			if (needFieldInitializations && preInitSyntheticFields){
 				generateSyntheticFieldInitializationsIfNecessary(scope, codeStream, declaringClass);

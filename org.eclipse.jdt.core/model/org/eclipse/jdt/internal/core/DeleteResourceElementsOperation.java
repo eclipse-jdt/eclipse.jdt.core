@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaModelException;
@@ -110,7 +111,7 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 			deletePackageFragment((IPackageFragment) element);
 			break;
 		default :
-			throw new JavaModelException(new JavaModelStatus(JavaModelStatus.INVALID_ELEMENT_TYPES, element));
+			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element));
 	}
 	// ensure the element is closed
 	if (element instanceof IOpenable) {
@@ -122,17 +123,17 @@ protected void processElement(IJavaElement element) throws JavaModelException {
  */
 protected void verify(IJavaElement element) throws JavaModelException {
 	if (element == null || !element.exists())
-		error(JavaModelStatus.ELEMENT_DOES_NOT_EXIST, element);
+		error(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, element);
 
 	int type = element.getElementType();
 	if (type <= IJavaElement.PACKAGE_FRAGMENT_ROOT || type > IJavaElement.COMPILATION_UNIT)
-		error(JavaModelStatus.INVALID_ELEMENT_TYPES, element);
+		error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
 	else if (type == IJavaElement.PACKAGE_FRAGMENT && element instanceof JarPackageFragment)
-		error(JavaModelStatus.INVALID_ELEMENT_TYPES, element);
+		error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
 	IResource resource = element.getResource();
 	if (resource instanceof IFolder) {
 		if (resource.isLinked()) {
-			error(JavaModelStatus.INVALID_RESOURCE, element);
+			error(IJavaModelStatusConstants.INVALID_RESOURCE, element);
 		}
 	}
 }

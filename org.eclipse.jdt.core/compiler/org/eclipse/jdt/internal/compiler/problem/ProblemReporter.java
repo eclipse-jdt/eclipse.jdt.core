@@ -15,11 +15,13 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ProblemReporter extends ProblemHandler implements ProblemReasons {
@@ -2157,7 +2159,7 @@ public void methodNeedingAbstractModifier(MethodDeclaration methodDecl) {
 }
 public void methodNeedingNoBody(MethodDeclaration methodDecl) {
 	this.handle(
-		((methodDecl.modifiers & CompilerModifiers.AccNative) != 0) ? IProblem.BodyForNativeMethod : IProblem.BodyForAbstractMethod,
+		((methodDecl.modifiers & IConstants.AccNative) != 0) ? IProblem.BodyForNativeMethod : IProblem.BodyForAbstractMethod,
 		NoArgument,
 		NoArgument,
 		methodDecl.sourceStart,
@@ -3271,56 +3273,56 @@ public void noMoreAvailableSpaceInConstantPool(TypeDeclaration typeDeclaration) 
 
 private boolean isKeyword(int token) {
 	switch(token) {
-		case Scanner.TokenNameabstract:
-		case Scanner.TokenNameassert:
-		case Scanner.TokenNamebyte:
-		case Scanner.TokenNamebreak:
-		case Scanner.TokenNameboolean:
-		case Scanner.TokenNamecase:
-		case Scanner.TokenNamechar:
-		case Scanner.TokenNamecatch:
-		case Scanner.TokenNameclass:
-		case Scanner.TokenNamecontinue:
-		case Scanner.TokenNamedo:
-		case Scanner.TokenNamedouble:
-		case Scanner.TokenNamedefault:
-		case Scanner.TokenNameelse:
-		case Scanner.TokenNameextends:
-		case Scanner.TokenNamefor:
-		case Scanner.TokenNamefinal:
-		case Scanner.TokenNamefloat:
-		case Scanner.TokenNamefalse:
-		case Scanner.TokenNamefinally:
-		case Scanner.TokenNameif:
-		case Scanner.TokenNameint:
-		case Scanner.TokenNameimport:
-		case Scanner.TokenNameinterface:
-		case Scanner.TokenNameimplements:
-		case Scanner.TokenNameinstanceof:
-		case Scanner.TokenNamelong:
-		case Scanner.TokenNamenew:
-		case Scanner.TokenNamenull:
-		case Scanner.TokenNamenative:
-		case Scanner.TokenNamepublic:
-		case Scanner.TokenNamepackage:
-		case Scanner.TokenNameprivate:
-		case Scanner.TokenNameprotected:
-		case Scanner.TokenNamereturn:
-		case Scanner.TokenNameshort:
-		case Scanner.TokenNamesuper:
-		case Scanner.TokenNamestatic:
-		case Scanner.TokenNameswitch:
-		case Scanner.TokenNamestrictfp:
-		case Scanner.TokenNamesynchronized:
-		case Scanner.TokenNametry:
-		case Scanner.TokenNamethis:
-		case Scanner.TokenNametrue:
-		case Scanner.TokenNamethrow:
-		case Scanner.TokenNamethrows:
-		case Scanner.TokenNametransient:
-		case Scanner.TokenNamevoid:
-		case Scanner.TokenNamevolatile:
-		case Scanner.TokenNamewhile:
+		case TerminalTokens.TokenNameabstract:
+		case TerminalTokens.TokenNameassert:
+		case TerminalTokens.TokenNamebyte:
+		case TerminalTokens.TokenNamebreak:
+		case TerminalTokens.TokenNameboolean:
+		case TerminalTokens.TokenNamecase:
+		case TerminalTokens.TokenNamechar:
+		case TerminalTokens.TokenNamecatch:
+		case TerminalTokens.TokenNameclass:
+		case TerminalTokens.TokenNamecontinue:
+		case TerminalTokens.TokenNamedo:
+		case TerminalTokens.TokenNamedouble:
+		case TerminalTokens.TokenNamedefault:
+		case TerminalTokens.TokenNameelse:
+		case TerminalTokens.TokenNameextends:
+		case TerminalTokens.TokenNamefor:
+		case TerminalTokens.TokenNamefinal:
+		case TerminalTokens.TokenNamefloat:
+		case TerminalTokens.TokenNamefalse:
+		case TerminalTokens.TokenNamefinally:
+		case TerminalTokens.TokenNameif:
+		case TerminalTokens.TokenNameint:
+		case TerminalTokens.TokenNameimport:
+		case TerminalTokens.TokenNameinterface:
+		case TerminalTokens.TokenNameimplements:
+		case TerminalTokens.TokenNameinstanceof:
+		case TerminalTokens.TokenNamelong:
+		case TerminalTokens.TokenNamenew:
+		case TerminalTokens.TokenNamenull:
+		case TerminalTokens.TokenNamenative:
+		case TerminalTokens.TokenNamepublic:
+		case TerminalTokens.TokenNamepackage:
+		case TerminalTokens.TokenNameprivate:
+		case TerminalTokens.TokenNameprotected:
+		case TerminalTokens.TokenNamereturn:
+		case TerminalTokens.TokenNameshort:
+		case TerminalTokens.TokenNamesuper:
+		case TerminalTokens.TokenNamestatic:
+		case TerminalTokens.TokenNameswitch:
+		case TerminalTokens.TokenNamestrictfp:
+		case TerminalTokens.TokenNamesynchronized:
+		case TerminalTokens.TokenNametry:
+		case TerminalTokens.TokenNamethis:
+		case TerminalTokens.TokenNametrue:
+		case TerminalTokens.TokenNamethrow:
+		case TerminalTokens.TokenNamethrows:
+		case TerminalTokens.TokenNametransient:
+		case TerminalTokens.TokenNamevoid:
+		case TerminalTokens.TokenNamevolatile:
+		case TerminalTokens.TokenNamewhile:
 			return true;
 		default: 
 			return false;
@@ -3329,12 +3331,12 @@ private boolean isKeyword(int token) {
 
 private boolean isLiteral(int token) {
 	switch(token) {
-		case Scanner.TokenNameIntegerLiteral:
-		case Scanner.TokenNameLongLiteral:
-		case Scanner.TokenNameFloatingPointLiteral:
-		case Scanner.TokenNameDoubleLiteral:
-		case Scanner.TokenNameStringLiteral:
-		case Scanner.TokenNameCharacterLiteral:
+		case TerminalTokens.TokenNameIntegerLiteral:
+		case TerminalTokens.TokenNameLongLiteral:
+		case TerminalTokens.TokenNameFloatingPointLiteral:
+		case TerminalTokens.TokenNameDoubleLiteral:
+		case TerminalTokens.TokenNameStringLiteral:
+		case TerminalTokens.TokenNameCharacterLiteral:
 			return true;
 		default: 
 			return false;
@@ -3342,7 +3344,7 @@ private boolean isLiteral(int token) {
 }
 
 private boolean isIdentifier(int token) {
-	return token == Scanner.TokenNameIdentifier;
+	return token == TerminalTokens.TokenNameIdentifier;
 }
 
 private void syntaxError(

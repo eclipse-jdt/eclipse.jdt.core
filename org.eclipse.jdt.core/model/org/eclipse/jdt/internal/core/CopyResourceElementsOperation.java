@@ -604,7 +604,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		IResource resource = element.getResource();
 		if (resource instanceof IFolder) {
 			if (resource.isLinked()) {
-				error(JavaModelStatus.INVALID_RESOURCE, element);
+				error(IJavaModelStatusConstants.INVALID_RESOURCE, element);
 			}
 		}
 	

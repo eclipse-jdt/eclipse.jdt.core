@@ -311,7 +311,7 @@ public class JavaProject
 				accumulatedEntries.add(entry);
 				
 				// recurse in project to get all its indirect exports (only consider exported entries from there on)				
-				if (entry.getEntryKind() == ClasspathEntry.CPE_PROJECT) {
+				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
 					IResource member = workspaceRoot.findMember(entry.getPath()); 
 					if (member != null && member.getType() == IResource.PROJECT){ // double check if bound to project (23977)
 						IProject projRsc = (IProject) member;

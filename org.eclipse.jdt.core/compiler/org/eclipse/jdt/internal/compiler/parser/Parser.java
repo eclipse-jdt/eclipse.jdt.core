@@ -4157,11 +4157,11 @@ protected void consumeRule(int act) {
 			break ;
  
     case 332 : // System.out.println("PostIncrementExpression ::= PostfixExpression PLUS_PLUS");
-		    consumeUnaryExpression(OperatorExpression.PLUS,true);  
+		    consumeUnaryExpression(OperatorIds.PLUS,true);  
 			break ;
  
     case 333 : // System.out.println("PostDecrementExpression ::= PostfixExpression MINUS_MINUS");
-		    consumeUnaryExpression(OperatorExpression.MINUS,true);  
+		    consumeUnaryExpression(OperatorIds.MINUS,true);  
 			break ;
  
     case 334 : // System.out.println("PushPosition ::=");
@@ -4169,27 +4169,27 @@ protected void consumeRule(int act) {
 			break ;
  
     case 337 : // System.out.println("UnaryExpression ::= PLUS PushPosition UnaryExpression");
-		    consumeUnaryExpression(OperatorExpression.PLUS);  
+		    consumeUnaryExpression(OperatorIds.PLUS);  
 			break ;
  
     case 338 : // System.out.println("UnaryExpression ::= MINUS PushPosition UnaryExpression");
-		    consumeUnaryExpression(OperatorExpression.MINUS);  
+		    consumeUnaryExpression(OperatorIds.MINUS);  
 			break ;
  
     case 340 : // System.out.println("PreIncrementExpression ::= PLUS_PLUS PushPosition UnaryExpression");
-		    consumeUnaryExpression(OperatorExpression.PLUS,false);  
+		    consumeUnaryExpression(OperatorIds.PLUS,false);  
 			break ;
  
     case 341 : // System.out.println("PreDecrementExpression ::= MINUS_MINUS PushPosition UnaryExpression");
-		    consumeUnaryExpression(OperatorExpression.MINUS,false);  
+		    consumeUnaryExpression(OperatorIds.MINUS,false);  
 			break ;
  
     case 343 : // System.out.println("UnaryExpressionNotPlusMinus ::= TWIDDLE PushPosition UnaryExpression");
-		    consumeUnaryExpression(OperatorExpression.TWIDDLE);  
+		    consumeUnaryExpression(OperatorIds.TWIDDLE);  
 			break ;
  
     case 344 : // System.out.println("UnaryExpressionNotPlusMinus ::= NOT PushPosition UnaryExpression");
-		    consumeUnaryExpression(OperatorExpression.NOT);  
+		    consumeUnaryExpression(OperatorIds.NOT);  
 			break ;
  
     case 346 : // System.out.println("CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpression");
@@ -4213,87 +4213,87 @@ protected void consumeRule(int act) {
 			break ;
  
     case 352 : // System.out.println("MultiplicativeExpression ::= MultiplicativeExpression MULTIPLY UnaryExpression");
-		    consumeBinaryExpression(OperatorExpression.MULTIPLY);  
+		    consumeBinaryExpression(OperatorIds.MULTIPLY);  
 			break ;
  
     case 353 : // System.out.println("MultiplicativeExpression ::= MultiplicativeExpression DIVIDE UnaryExpression");
-		    consumeBinaryExpression(OperatorExpression.DIVIDE);  
+		    consumeBinaryExpression(OperatorIds.DIVIDE);  
 			break ;
  
     case 354 : // System.out.println("MultiplicativeExpression ::= MultiplicativeExpression REMAINDER UnaryExpression");
-		    consumeBinaryExpression(OperatorExpression.REMAINDER);  
+		    consumeBinaryExpression(OperatorIds.REMAINDER);  
 			break ;
  
     case 356 : // System.out.println("AdditiveExpression ::= AdditiveExpression PLUS MultiplicativeExpression");
-		    consumeBinaryExpression(OperatorExpression.PLUS);  
+		    consumeBinaryExpression(OperatorIds.PLUS);  
 			break ;
  
     case 357 : // System.out.println("AdditiveExpression ::= AdditiveExpression MINUS MultiplicativeExpression");
-		    consumeBinaryExpression(OperatorExpression.MINUS);  
+		    consumeBinaryExpression(OperatorIds.MINUS);  
 			break ;
  
     case 359 : // System.out.println("ShiftExpression ::= ShiftExpression LEFT_SHIFT AdditiveExpression");
-		    consumeBinaryExpression(OperatorExpression.LEFT_SHIFT);  
+		    consumeBinaryExpression(OperatorIds.LEFT_SHIFT);  
 			break ;
  
     case 360 : // System.out.println("ShiftExpression ::= ShiftExpression RIGHT_SHIFT AdditiveExpression");
-		    consumeBinaryExpression(OperatorExpression.RIGHT_SHIFT);  
+		    consumeBinaryExpression(OperatorIds.RIGHT_SHIFT);  
 			break ;
  
     case 361 : // System.out.println("ShiftExpression ::= ShiftExpression UNSIGNED_RIGHT_SHIFT AdditiveExpression");
-		    consumeBinaryExpression(OperatorExpression.UNSIGNED_RIGHT_SHIFT);  
+		    consumeBinaryExpression(OperatorIds.UNSIGNED_RIGHT_SHIFT);  
 			break ;
  
     case 363 : // System.out.println("RelationalExpression ::= RelationalExpression LESS ShiftExpression");
-		    consumeBinaryExpression(OperatorExpression.LESS);  
+		    consumeBinaryExpression(OperatorIds.LESS);  
 			break ;
  
     case 364 : // System.out.println("RelationalExpression ::= RelationalExpression GREATER ShiftExpression");
-		    consumeBinaryExpression(OperatorExpression.GREATER);  
+		    consumeBinaryExpression(OperatorIds.GREATER);  
 			break ;
  
     case 365 : // System.out.println("RelationalExpression ::= RelationalExpression LESS_EQUAL ShiftExpression");
-		    consumeBinaryExpression(OperatorExpression.LESS_EQUAL);  
+		    consumeBinaryExpression(OperatorIds.LESS_EQUAL);  
 			break ;
  
     case 366 : // System.out.println("RelationalExpression ::= RelationalExpression GREATER_EQUAL ShiftExpression");
-		    consumeBinaryExpression(OperatorExpression.GREATER_EQUAL);  
+		    consumeBinaryExpression(OperatorIds.GREATER_EQUAL);  
 			break ;
  
     case 367 : // System.out.println("RelationalExpression ::= RelationalExpression instanceof ReferenceType");
-		    consumeInstanceOfExpression(OperatorExpression.INSTANCEOF);  
+		    consumeInstanceOfExpression(OperatorIds.INSTANCEOF);  
 			break ;
  
     case 369 : // System.out.println("EqualityExpression ::= EqualityExpression EQUAL_EQUAL RelationalExpression");
-		    consumeEqualityExpression(OperatorExpression.EQUAL_EQUAL);  
+		    consumeEqualityExpression(OperatorIds.EQUAL_EQUAL);  
 			break ;
  
     case 370 : // System.out.println("EqualityExpression ::= EqualityExpression NOT_EQUAL RelationalExpression");
-		    consumeEqualityExpression(OperatorExpression.NOT_EQUAL);  
+		    consumeEqualityExpression(OperatorIds.NOT_EQUAL);  
 			break ;
  
     case 372 : // System.out.println("AndExpression ::= AndExpression AND EqualityExpression");
-		    consumeBinaryExpression(OperatorExpression.AND);  
+		    consumeBinaryExpression(OperatorIds.AND);  
 			break ;
  
     case 374 : // System.out.println("ExclusiveOrExpression ::= ExclusiveOrExpression XOR AndExpression");
-		    consumeBinaryExpression(OperatorExpression.XOR);  
+		    consumeBinaryExpression(OperatorIds.XOR);  
 			break ;
  
     case 376 : // System.out.println("InclusiveOrExpression ::= InclusiveOrExpression OR ExclusiveOrExpression");
-		    consumeBinaryExpression(OperatorExpression.OR);  
+		    consumeBinaryExpression(OperatorIds.OR);  
 			break ;
  
     case 378 : // System.out.println("ConditionalAndExpression ::= ConditionalAndExpression AND_AND InclusiveOrExpression");
-		    consumeBinaryExpression(OperatorExpression.AND_AND);  
+		    consumeBinaryExpression(OperatorIds.AND_AND);  
 			break ;
  
     case 380 : // System.out.println("ConditionalOrExpression ::= ConditionalOrExpression OR_OR ConditionalAndExpression");
-		    consumeBinaryExpression(OperatorExpression.OR_OR);  
+		    consumeBinaryExpression(OperatorIds.OR_OR);  
 			break ;
  
     case 382 : // System.out.println("ConditionalExpression ::= ConditionalOrExpression QUESTION Expression COLON...");
-		    consumeConditionalExpression(OperatorExpression.QUESTIONCOLON) ;  
+		    consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ;  
 			break ;
  
     case 385 : // System.out.println("Assignment ::= PostfixExpression AssignmentOperator AssignmentExpression");

@@ -41,7 +41,6 @@ import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
 import org.eclipse.jdt.internal.core.search.IInfoConstants;
 import org.eclipse.jdt.internal.core.search.IndexSearchAdapter;
 import org.eclipse.jdt.internal.core.search.SubTypeSearchJob;
-import org.eclipse.jdt.internal.core.search.indexing.AbstractIndexer;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.SuperTypeReferencePattern;
@@ -511,7 +510,7 @@ public static void searchAllPossibleSubTypes(
 		char[] currentTypeName = awaitings.retrieve();
 
 		/* all subclasses of OBJECT are actually all types */
-		if (CharOperation.equals(currentTypeName, AbstractIndexer.OBJECT)){
+		if (CharOperation.equals(currentTypeName, IIndexConstants.OBJECT)){
 			currentTypeName = null;
 		}			
 		/* search all index references to a given supertype */
