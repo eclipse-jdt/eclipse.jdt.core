@@ -148,6 +148,17 @@ public final class NamingConventions {
 			assistOptions.argumentPrefixes,
 			assistOptions.argumentSuffixes);
 	}
+	
+	/**
+	 * Remove prefix and suffix from an argument name.
+	 * 
+	 * @param javaProject project which contains the argument.
+	 * @param argumentName argument's name.
+	 * @return String the name without prefix and suffix.
+	 */
+	public static String removePrefixAndSuffixForArgumentName(IJavaProject javaProject, String argumentName) {
+		return String.valueOf(removePrefixAndSuffixForArgumentName(javaProject, argumentName.toCharArray()));
+	}
 
 	/**
 	 * Remove prefix and suffix from a field name.
@@ -167,6 +178,17 @@ public final class NamingConventions {
 	}
 
 	/**
+	 * Remove prefix and suffix from a field name.
+	 * 
+	 * @param javaProject project which contains the field.
+	 * @param fieldName field's name.
+	 * @param modifiers field's modifiers.
+	 * @return String the name without prefix and suffix.
+	 */
+	public static String removePrefixAndSuffixForFieldName(IJavaProject javaProject, String fieldName, int modifiers) {
+		return String.valueOf(removePrefixAndSuffixForFieldName(javaProject, fieldName.toCharArray(), modifiers));
+	}
+	/**
 	 * Remove prefix and suffix from a local variable name.
 	 * 
 	 * @param javaProject project which contains the variable.
@@ -181,6 +203,16 @@ public final class NamingConventions {
 			assistOptions.argumentSuffixes);
 	}
 	
+	/**
+	 * Remove prefix and suffix from a local variable name.
+	 * 
+	 * @param javaProject project which contains the variable.
+	 * @param localName variable's name.
+	 * @return String the name without prefix and suffix.
+	 */
+	public static String removePrefixAndSuffixForLocalVariableName(IJavaProject javaProject, String localName) {
+		return String.valueOf(removePrefixAndSuffixForLocalVariableName(javaProject, localName.toCharArray()));
+	}
 	/**
 	 * Suggest names for an argument. The name is computed from argument's type.
 	 * 
@@ -208,6 +240,26 @@ public final class NamingConventions {
 				getNameScanner(compilerOptions));
 	}
 	
+	/**
+	 * Suggest names for an argument. The name is computed from argument's type.
+	 * 
+	 * @param javaProject project which contains the argument.
+	 * @param packageName package of the argument's type.
+	 * @param qualifiedTypeName argument's type.
+	 * @param dim argument's dimension (0 if the argument is not an array).
+	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 *         Can be <code>null</code> if there is no excluded names.
+	 * @return String[] an array of names.
+	 */
+	public static String[] suggestArgumentNames(IJavaProject javaProject, String packageName, String qualifiedTypeName, int dim, String[] excludedNames) {
+		return convertCharsToString(
+			suggestArgumentNames(
+				javaProject,
+				packageName.toCharArray(),
+				qualifiedTypeName.toCharArray(),
+				dim,
+				convertStringToChars(excludedNames)));
+	}
 	/**
 	 * Suggest names for a field. The name is computed from field's type.
 	 * 
@@ -239,6 +291,29 @@ public final class NamingConventions {
 	}
 
 	/**
+	 * Suggest names for a field. The name is computed from field's type.
+	 * 
+	 * @param javaProject project which contains the field.
+	 * @param packageName package of the field's type.
+	 * @param qualifiedTypeName field's type.
+	 * @param dim field's dimension (0 if the field is not an array).
+	 * @param modifiers field's modifiers.
+	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 *         Can be <code>null</code> if there is no excluded names.
+	 * @return String[] an array of names.
+	 */
+	public static String[] suggestFieldNames(IJavaProject javaProject, String packageName, String qualifiedTypeName, int dim, int modifiers, String[] excludedNames) {
+		return convertCharsToString(
+			suggestFieldNames(
+				javaProject,
+				packageName.toCharArray(),
+				qualifiedTypeName.toCharArray(),
+				dim,
+				modifiers,
+				convertStringToChars(excludedNames)));
+	}
+	
+	/**
 	 * Suggest names for a local variable. The name is computed from variable's type.
 	 * 
 	 * @param javaProject project which contains the variable.
@@ -263,6 +338,27 @@ public final class NamingConventions {
 				assistOptions.localSuffixes,
 				excludedNames,
 				getNameScanner(compilerOptions));
+	}
+	
+	/**
+	 * Suggest names for a local variable. The name is computed from variable's type.
+	 * 
+	 * @param javaProject project which contains the variable.
+	 * @param packageName package of the variable's type.
+	 * @param qualifiedTypeName variable's type.
+	 * @param dim variable's dimension (0 if the variable is not an array).
+	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 *         Can be <code>null</code> if there is no excluded names.
+	 * @return String[] an array of names.
+	 */
+	public static String[] suggestLocalVariableNames(IJavaProject javaProject, String packageName, String qualifiedTypeName, int dim, String[] excludedNames) {
+		return convertCharsToString(
+			suggestLocalVariableNames(
+				javaProject,
+				packageName.toCharArray(),
+				qualifiedTypeName.toCharArray(),
+				dim,
+				convertStringToChars(excludedNames)));
 	}
 	
 	private static char[][] suggestNames(
@@ -407,6 +503,26 @@ public final class NamingConventions {
 	}
 	
 	/**
+	 * Suggest name for a getter method. The name is computed from field's name.
+	 * 
+	 * @param project project which contains the field.
+	 * @param fieldName field's name's.
+	 * @param modifiers field's modifiers.
+	 * @param isBoolean <code>true</code> if the field's type is boolean
+	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 *         Can be <code>null</code> if there is no excluded names.
+	 * @return String a name.
+	 */
+	public static String suggestGetterName(IJavaProject project, String fieldName, int modifiers, boolean isBoolean, String[] excludedNames) {
+		return String.valueOf(
+			suggestGetterName(
+				project,
+				fieldName.toCharArray(),
+				modifiers,
+				isBoolean,
+				convertStringToChars(excludedNames)));
+	}
+	/**
 	 * Suggest name for a setter method. The name is computed from field's name.
 	 * 
 	 * @param project project which contains the field.
@@ -421,6 +537,25 @@ public final class NamingConventions {
 			CharOperation.concat(SETTER_NAME, suggestAccessorName(project, fieldName, modifiers)),
 			excludedNames
 		);
+	}
+	
+	/**
+	 * Suggest name for a setter method. The name is computed from field's name.
+	 * 
+	 * @param project project which contains the field.
+	 * @param fieldName field's name's.
+	 * @param modifiers field's modifiers.
+	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 *         Can be <code>null</code> if there is no excluded names.
+	 * @return String a name.
+	 */
+	public static String suggestSetterName(IJavaProject project, String fieldName, int modifiers, String[] excludedNames) {
+		return String.valueOf(
+			suggestSetterName(
+				project,
+				fieldName.toCharArray(),
+				modifiers,
+				convertStringToChars(excludedNames)));
 	}
 	
 	private static char[] suggestAccessorName(IJavaProject project, char[] fieldName, int modifiers) {
@@ -448,5 +583,27 @@ public final class NamingConventions {
 			}
 		}
 		return newName;
+	}
+	
+	private static String[] convertCharsToString(char[][] c) {
+		int length = c == null ? 0 : c.length;
+		String[] s = new String[length];
+		for (int i = 0; i < length; i++) {
+			s[i] = String.valueOf(c[i]);
+		}
+		return s;
+	}
+	
+	private static char[][] convertStringToChars(String[] s) {
+		int length = s == null ? 0 : s.length;
+		char[][] c = new char[length][];
+		for (int i = 0; i < length; i++) {
+			if(s[i] == null) {
+				c[i] = CharOperation.NO_CHAR;
+			} else {
+				c[i] = s[i].toCharArray();
+			}
+		}
+		return c;
 	}
 }
