@@ -33,11 +33,6 @@
   </tr>
 </table>
 
-<!--
-<li> Plugin version ID got incremented to 3.0.0. 
-</li>
--->
-
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
@@ -47,6 +42,8 @@ Eclipse SDK 3.0 Build - ?th June 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Plugin version ID got incremented to 3.0.0. 
+</li>
 <li>To finish closing the gap between compilation units and working copies 
 (see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36888 ">bug 36888 </a>), exiting APIs were augmented with
 a <code>WorkingCopyOwner</code> parameter, that defines the working copies to consider in the operation. The following new APIs were added:
@@ -82,7 +79,7 @@ a <code>WorkingCopyOwner</code> parameter, that defines the working copies to co
 	<li><code>SearchEngine.createHierarchyScope(IType type, WorkingCopyOwner owner)</code></li>
 	</ul>
 </li>
-<li>Added optional problem to signal superfluous semicolons.
+<li> added optional problem to signal superfluous semicolons.
 <pre>
 * COMPILER / Reporting Superfluous Semicolon
 *    When enabled, the compiler will issue an error or a warning if a superfluous semicolon is met.
