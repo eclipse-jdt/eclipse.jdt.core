@@ -58,4 +58,80 @@ public class Java50Tests extends Tests {
 		expectingProblemsFor(usePath);
 	}
 	
+	public void testParameterizedType1() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.5"); 
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.setOutputFolder(projectPath, "");
+
+		IPath usePath = env.addClass(projectPath, "p", "Use",
+			"package p;\n" +
+			"import java.util.ArrayList;\n" + 
+			"import q.Other;\n" + 
+			"public class Use {\n" + 
+			"	public Use() {\n" + 
+			"		new Other().foo(new ArrayList<String>());\n" + 
+			"	}\n" + 
+			"}"
+		);
+		env.addClass(projectPath, "q", "Other",
+			"package q;\n" + 
+			"import java.util.List;\n" + 
+			"public class Other {\n" + 
+			"	public void foo(List<String> ls) {}\n" + 
+			"}"
+		); 
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(projectPath, "q", "Other",
+			"package q;\n" + 
+			"import java.util.List;\n" + 
+			"public class Other {\n" + 
+			"	public void foo(List<Object> ls) {}\n" +
+			"}"
+		);
+
+		incrementalBuild(projectPath);
+		expectingProblemsFor(usePath);
+	}
+	
+	public void testParameterizedType2() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.5"); 
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.setOutputFolder(projectPath, "");
+
+		IPath usePath = env.addClass(projectPath, "p", "Use",
+			"package p;\n" +
+			"import java.util.ArrayList;\n" + 
+			"import q.Other;\n" + 
+			"public class Use {\n" + 
+			"	public Use() {\n" + 
+			"		new Other().foo(new ArrayList<String>());\n" + 
+			"	}\n" + 
+			"}"
+		);
+		env.addClass(projectPath, "q", "Other",
+			"package q;\n" + 
+			"import java.util.List;\n" + 
+			"public class Other {\n" + 
+			"	public void foo(List<String> ls) {}\n" + 
+			"}"
+		); 
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(projectPath, "q", "Other",
+			"package q;\n" + 
+			"import java.util.List;\n" + 
+			"public class Other {\n" + 
+			"	public void foo(List<String> ls) throws Exception {}\n" + 
+			"}"
+		);
+
+		incrementalBuild(projectPath);
+		expectingProblemsFor(usePath);
+	}
+	
 }
