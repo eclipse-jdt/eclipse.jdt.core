@@ -198,10 +198,10 @@ String getFullyQualifiedName();
  * 
  * For example:
  * <ul>
- * <li>the fully qualified name of a class B defined as a member of a class A in a compilation unit A.java in a package x.y
- *     using the '.' separator is "x.y.A.B"</li>
- * <li>the fully qualified name of a class B defined as a member of a class A in a compilation unit A.java in a package x.y
- *     using the '$' separator is "x.y.A$B"</li>
+ * <li>the fully qualified name of a class B defined as a member of a class A in a compilation unit A.java 
+ *     in a package x.y using the '.' separator is "x.y.A.B"</li>
+ * <li>the fully qualified name of a class B defined as a member of a class A in a compilation unit A.java 
+ *     in a package x.y using the '$' separator is "x.y.A$B"</li>
  * <li>the fully qualified name of a binary type whose class file is x/y/A$B.class
  *     using the '.' separator is "x.y.A.B"</li>
  * <li>the fully qualified name of a binary type whose class file is x/y/A$B.class

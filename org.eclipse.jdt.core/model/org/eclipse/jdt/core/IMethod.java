@@ -105,7 +105,7 @@ boolean isConstructor() throws JavaModelException;
  * <li>its name is equal to <code>"main"</code></li>
  * <li>its return type is <code>void</code></li>
  * <li>it is <code>static</code> and <code>public</code></li>
- * <li>it defines one paramater whose type's simple name is </code>String[]</code></li>
+ * <li>it defines one parameter whose type's simple name is </code>String[]</code></li>
  * </ul>
  * 
  * @exception JavaModelException if this element does not exist or if an
@@ -119,7 +119,7 @@ boolean isMainMethod() throws JavaModelException;
  * <ul>
  * <li>their element names are equal</li>
  * <li>they have the same number of parameters</li>
- * <li>the simple names of their parameters are equal</li>
+ * <li>the simple names of their parameter types are equal</li>
  * <ul>
  * This is a handle-only method.
  * 
