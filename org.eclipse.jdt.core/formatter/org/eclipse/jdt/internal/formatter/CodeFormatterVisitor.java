@@ -3191,7 +3191,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
         final int line = this.scribe.line; 
         
         this.scribe.printModifiers(enumConstant.annotations, this);
-		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
+		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false); 
 		formatEnumConstantArguments(
 			enumConstant,
 			this.preferences.insert_space_before_opening_paren_in_enum_constant,

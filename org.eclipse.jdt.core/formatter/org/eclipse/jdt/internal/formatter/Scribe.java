@@ -676,8 +676,8 @@ public class Scribe {
 		this.needSpace = false;		
 		column += s.length;
 		needSpace = true;
-			
 	}
+
 	private void printBlockComment(char[] s, boolean isJavadoc) {
 		int currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
 		int currentTokenEndPosition = this.scanner.getCurrentTokenEndPosition() + 1;
@@ -1129,6 +1129,7 @@ public class Scribe {
 			boolean isFirstModifier = true;
 			int currentTokenStartPosition = this.scanner.currentPosition;
 			boolean hasComment = false;
+			boolean hasModifiers = false;
 			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(this.currentToken) {
 					case TerminalTokens.TokenNamepublic :
@@ -1142,11 +1143,13 @@ public class Scribe {
 					case TerminalTokens.TokenNametransient :
 					case TerminalTokens.TokenNamevolatile :
 					case TerminalTokens.TokenNamestrictfp :
+						hasModifiers = true;
 						this.print(this.scanner.getRawTokenSource(), !isFirstModifier);
 						isFirstModifier = false;
 						currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
 						break;
 					case TerminalTokens.TokenNameAT :
+						hasModifiers = true;
 						if (!isFirstModifier) {
 							this.space();
 						}
@@ -1201,6 +1204,9 @@ public class Scribe {
 						hasComment = false;
 						break;
 					default:
+						if (hasModifiers) {
+							this.space();
+						}
 						// step back one token
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 						return;					
