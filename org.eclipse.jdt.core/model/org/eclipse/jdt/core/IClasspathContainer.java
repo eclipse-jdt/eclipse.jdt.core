@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.core;
 
+import org.eclipse.core.runtime.IPath;
+
 /** TOFIX
  * Abstract base implementation of all classpath container initializer.
  * Classpath variable containers are used in conjunction with the
@@ -70,29 +72,11 @@ public interface IClasspathContainer {
     IClasspathEntry[] getClasspathEntries();
 
 	/**
-	 * Answers the extra clue which is associated to the container.
-	 * This clue was used in conjunction with the container ID for resolving to this container.
-	 * 
-	 * @return String - the clue that is associated with this container
-	 */	
-    String getClue();
-
-	/**
 	 * Answers a readable description of this container
 	 * 
 	 * @return String - a string description of the container
 	 */	
     String getDescription();
-
-	/**
-	 * Answers the containerID this container maps to.
-	 * This container ID was used in conjunction with the container clue for resolving to this container.
-	 * Note that the container ID also identifies <code>ClasspathContainerInitializer</code>
-	 * registered on the extension point "org.eclipse.jdt.core.classpathContainerInitializer".
-	 * 
-	 * @return String - the container ID that is associated with this container
-	 */	
-    String getID();
 
 	/**
 	 * Answers the kind of this container. Can be either:
@@ -103,5 +87,17 @@ public interface IClasspathContainer {
 	 * Typically, system containers should be placed first on a build path.
 	 */	
     int getKind();
+
+	/**
+	 * Answers the container path this container maps to.
+	 * A container path is a segment path, formed by an ID segment followed with a clue segment.
+	 * This container ID is used in conjunction with the  clue for resolving to this container.
+	 * Note that the container ID may also identify a<code>ClasspathContainerInitializer</code>
+	 * registered on the extension point "org.eclipse.jdt.core.classpathContainerInitializer", which can
+	 * be invoked if needing to resolve the container before it is explicitely set.
+	 * 
+	 * @return IPath - the container path that is associated with this container
+	 */	
+    IPath getPath();
 }
 

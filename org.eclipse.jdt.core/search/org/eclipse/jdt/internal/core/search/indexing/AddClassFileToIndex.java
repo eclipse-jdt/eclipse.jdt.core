@@ -38,9 +38,6 @@ class AddClassFileToIndex extends IndexRequest {
 		
 		try {
 			IIndex index = manager.getIndex(this.indexedContainer);
-			if (!resource.isLocal(IResource.DEPTH_ZERO)) {
-				return FAILED;
-			}
 			/* ensure no concurrent write access to index */
 			if (index == null)
 				return COMPLETE;
@@ -67,19 +64,14 @@ class AddClassFileToIndex extends IndexRequest {
 		return this.contents;
 	}
 	public void initializeContents() {
-		if (!resource.isLocal(IResource.DEPTH_ZERO)) {
-			return;
-		} else {
-			try {
-				IPath location = resource.getLocation();
-				if (location != null) {
-					;
-					this.contents =
-						org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(
-							resource.getLocation().toFile());
-				}
-			} catch (IOException e) {
+		try {
+			IPath location = resource.getLocation();
+			if (location != null) {
+				this.contents =
+					org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(
+						resource.getLocation().toFile());
 			}
+		} catch (IOException e) {
 		}
 	}
 	public String toString() {

@@ -64,13 +64,6 @@ public int hashCode() {
 		
 		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
 		try {
-			if (this.resource != null) {
-				if (!this.resource.isLocal(IResource.DEPTH_ZERO)) {
-					if (JobManager.VERBOSE) 
-						JobManager.log("-> failed indexing " + this.path + " as it is not local"); //$NON-NLS-1$//$NON-NLS-2$
-					return FAILED;
-				}
-			}
 			IPath indexedPath = this.path;
 			// if index already cached, then do not perform any check
 			IIndex index = (IIndex) manager.getIndex(indexedPath, false);

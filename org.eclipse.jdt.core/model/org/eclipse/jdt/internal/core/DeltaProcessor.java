@@ -137,11 +137,16 @@ public class DeltaProcessor {
 						IClasspathEntry[] resolvedClasspath = 
 							project.getResolvedClasspath(true, true);
 						
-						// update cycle markers
-						project.updateCycleMarkers(resolvedClasspath);
 					} catch (JavaModelException e) {
 					}
 				}
+				if (!this.projectsToUpdate.isEmpty()){
+					try {
+						// update all cycle markers
+						JavaProject.updateAllCycleMarkers();
+					} catch (JavaModelException e) {
+					}
+				}				
 			}
 		} finally {
 			this.projectsToUpdate = new HashSet();
@@ -1256,8 +1261,7 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 					if ((delta.getFlags() & IResourceDelta.CONTENT) == 0)
 						break;
 				case IResourceDelta.ADDED :
-					if (file.isLocal(IResource.DEPTH_ZERO))
-						indexManager.addBinary(file, binaryFolderPath);
+					indexManager.addBinary(file, binaryFolderPath);
 					break;
 				case IResourceDelta.REMOVED :
 					indexManager.remove(file.getFullPath().toString(), binaryFolderPath);
@@ -1272,8 +1276,7 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 					if ((delta.getFlags() & IResourceDelta.CONTENT) == 0)
 						break;
 				case IResourceDelta.ADDED :
-					if (file.isLocal(IResource.DEPTH_ZERO))
-						indexManager.addSource(file, file.getProject().getProject().getFullPath());
+					indexManager.addSource(file, file.getProject().getProject().getFullPath());
 					break;
 				case IResourceDelta.REMOVED :
 					indexManager.remove(file.getFullPath().toString(), file.getProject().getProject().getFullPath());

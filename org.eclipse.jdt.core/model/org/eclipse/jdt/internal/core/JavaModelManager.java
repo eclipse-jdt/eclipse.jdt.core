@@ -71,10 +71,9 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	public final static IPath VariableInitializationInProgress = new Path("Variable Initialization In Progress"); //$NON-NLS-1$
 	public final static IClasspathContainer ContainerInitializationInProgress = new IClasspathContainer() {
 		public IClasspathEntry[] getClasspathEntries() { return null; }
-		public String getClue() { return null; }
 		public String getDescription() { return null; }
-		public String getID() { return null; }
 		public int getKind() { return 0; }
+		public IPath getPath() { return null; }
 	};
 	
 	private static final String INDEX_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
@@ -601,18 +600,6 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 	}
 	
 	/**
-	 * Make sure the resource content is available locally
-	 */
-	public void ensureLocal(IResource resource) throws CoreException {
-		// need to be tuned once having VCM support
-		// resource.ensureLocal(IResource.DEPTH_ZERO, null);
-
-		if (!resource.isLocal(IResource.DEPTH_ZERO) || !resource.exists()) { // project is always local but might not exist
-			throw new CoreException(new JavaModelStatus(IJavaModelStatusConstants.NO_LOCAL_CONTENTS, resource.getFullPath()));
-		}
-	}
-
-	/**
 	 * Fire Java Model delta, flushing them after the fact after post_change notification.
 	 * If the firing mode has been turned off, this has no effect. 
 	 */
@@ -961,7 +948,6 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 			if (file == null || file.getType() != IResource.FILE) {
 				fileSystemPath= path.toOSString();
 			} else {
-				ensureLocal(file);
 				fileSystemPath= file.getLocation().toOSString();
 			}
 		} else if (!path.isAbsolute()) {
@@ -969,7 +955,6 @@ public class JavaModelManager implements IResourceChangeListener, ISaveParticipa
 			if (file == null || file.getType() != IResource.FILE) {
 				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound"), null)); //$NON-NLS-1$
 			}
-			ensureLocal(file);
 			fileSystemPath= file.getLocation().toOSString();
 		} else {
 			fileSystemPath= path.toOSString();

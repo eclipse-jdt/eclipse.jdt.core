@@ -37,9 +37,7 @@ class AddCompilationUnitToIndex extends IndexRequest {
 		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
 		try {
 			IIndex index = manager.getIndex(this.indexedContainer);
-			if (!resource.isLocal(IResource.DEPTH_ZERO)) {
-				return FAILED;
-			}
+
 			/* ensure no concurrent write access to index */
 			if (index == null)
 				return COMPLETE;
@@ -66,18 +64,15 @@ class AddCompilationUnitToIndex extends IndexRequest {
 		return contents;
 	}
 	public void initializeContents() {
-		if (!resource.isLocal(IResource.DEPTH_ZERO)) {
-			return;
-		} else {
-			try {
-				IPath location = resource.getLocation();
-				if (location != null) {
-					this.contents =
-						org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(
-							location.toFile(), null);
-				}
-			} catch (IOException e) {
+
+		try {
+			IPath location = resource.getLocation();
+			if (location != null) {
+				this.contents =
+					org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(
+						location.toFile(), null);
 			}
+		} catch (IOException e) {
 		}
 	}
 	public String toString() {

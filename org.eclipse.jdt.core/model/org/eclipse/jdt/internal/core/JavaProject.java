@@ -509,6 +509,9 @@ public class JavaProject
 		int severity,
 		boolean cycleDetected) {
 		try {
+			if (cycleDetected){
+				String dummy = null;
+			}
 			IMarker marker = getProject().createMarker(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER);
 			marker.setAttributes(
 				new String[] { 
@@ -1480,19 +1483,27 @@ public class JavaProject
 	 * @see IJavaProject
 	 */
 	public boolean hasClasspathCycle(IClasspathEntry[] entries) {
-
-		StringHashtableOfInt depthTable = new StringHashtableOfInt();
+		
+		HashSet cycleParticipants = new HashSet();
+		updateCycleParticipants(entries, new HashSet(), cycleParticipants, getWorkspace().getRoot());
+		return !cycleParticipants.isEmpty();
+	}
+	
+	public boolean hasCycleMarker(){
+	
 		try {
-			String projectName = this.getElementName();
-			depthTable.put(projectName, -2); // mark this project as being visited
-			String[] prerequisites = this.projectPrerequisites(entries);
-			for (int i = 0, length = prerequisites.length; i < length; i++) {
-				((JavaModel) this.getJavaModel()).computeDepth(
-					prerequisites[i],
-					depthTable);
+			IProject project = getProject();
+			if (project.exists()) {
+				IMarker[] markers = project.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
+				for (int i = 0, length = markers.length; i < length; i++) {
+					IMarker marker = markers[i];
+					String cycleAttr = (String)marker.getAttribute(IJavaModelMarker.CYCLE_DETECTED);
+					if (cycleAttr != null && cycleAttr.equals("true")){ //$NON-NLS-1$
+						return true;
+					}
+				}
 			}
-		} catch (JavaModelException e) {
-			return e.getStatus().getCode() == IJavaModelStatusConstants.NAME_COLLISION;
+		} catch (CoreException e) {
 		}
 		return false;
 	}
@@ -2074,17 +2085,74 @@ public class JavaProject
 
 		setRawClasspath(getRawClasspath(), SetClasspathOperation.ReuseOutputLocation, monitor, canChangeResource, false, getResolvedClasspath(true), mayChangeProjectDependencies);
 	}
-	
-	public void updateCycleMarkers(IClasspathEntry[] resolvedClasspath) {
-		this.flushClasspathProblemMarkers(true);
-		if (this.hasClasspathCycle(resolvedClasspath)){
-			this.createClasspathProblemMarker(
-				Util.bind("classpath.cycle"), //$NON-NLS-1$
-				IMarker.SEVERITY_ERROR,
-				true); 
+
+	/**
+	 * Update cycle markers for all java projects
+	 */
+	public static void updateAllCycleMarkers() throws JavaModelException {
+		
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
+		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+
+		HashSet cycleParticipants = new HashSet();
+		HashSet visited = new HashSet();
+		int length = projects.length;
+		for (int i = 0; i < length; i++){
+			JavaProject project = (JavaProject)projects[i];
+			if (!cycleParticipants.contains(project)){
+				visited.clear();
+				project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot);
+			}
+		}
+
+		for (int i = 0; i < length; i++){
+			JavaProject project = (JavaProject)projects[i];
+			
+			if (cycleParticipants.contains(project)){
+				
+				project.createClasspathProblemMarker(
+					Util.bind("classpath.cycle"), //$NON-NLS-1$
+					IMarker.SEVERITY_ERROR,
+					true); 
+			} else {
+				project.flushClasspathProblemMarkers(true);
+			}			
 		}
 	}
+	
+	/**
+	 * If a cycle is detected, then cycleParticipants contains all the project involved in this cycle (directly or indirectly),
+	 * no cycle if the set is empty (and started empty)
+	 */
+	public void updateCycleParticipants(IClasspathEntry[] preferredClasspath, HashSet visited, HashSet cycleParticipants, IWorkspaceRoot workspaceRoot){
 
+		if (!visited.add(this)) {
+			cycleParticipants.addAll(visited);
+			return;
+		}
+		
+		try {
+			IClasspathEntry[] classpath;
+			if (preferredClasspath == null) {
+				classpath = getResolvedClasspath(true);
+			} else {
+				classpath = preferredClasspath;
+			}
+			for (int i = 0, length = classpath.length; i < length; i++) {
+				IClasspathEntry entry = classpath[i];
+				
+				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT){
+					String projectName = entry.getPath().lastSegment();
+					JavaProject project = (JavaProject)JavaCore.create(workspaceRoot.getProject(projectName));
+					project.updateCycleParticipants(null, visited, cycleParticipants, workspaceRoot);
+				}
+			}
+		} catch(JavaModelException e){
+		}
+		visited.remove(this);
+	}
+	
 	/**
 	 * Reset the collection of package fragment roots (local ones) - only if opened.
 	 * Need to check *all* package fragment roots in order to reset NameLookup

@@ -59,43 +59,6 @@ public void copy(IJavaElement[] elements, IJavaElement[] containers, IJavaElemen
 protected OpenableElementInfo createElementInfo() {
 	return new JavaModelInfo(this);
 }
-/**
- * Computes the depth of the given java project following its classpath.
- * Only projects are taken into consideration. Store the depth in the given table.
- * Returns the depth.
- * Note that a project with no prerequisites has a depth of 0.
- * Returns -1 if a cycle is detected
- */
-protected int computeDepth(String projectName, StringHashtableOfInt depthTable) throws JavaModelException {
-	int depth = depthTable.get(projectName);
-	switch (depth) {
-		case -2: // project already visited -> it's a cycle
-			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
-		case -1:
-			depthTable.put(projectName, -2); // mark we're visiting the project
-			int prereqDepth = -1;
-			JavaProject project = (JavaProject)this.getJavaProject(projectName);
-			String[] prerequisites = null;
-			try {
-				prerequisites = project.getRequiredProjectNames();
-			} catch (JavaModelException e) {
-				prerequisites = JavaProject.NO_PREREQUISITES;
-			}
-			for (int i = 0, length = prerequisites.length; i < length; i++) {
-				String prerequisite = prerequisites[i];
-				prereqDepth = 
-					Math.max(
-						prereqDepth, 
-						this.computeDepth(prerequisite, depthTable)
-					);
-			}
-			depth = 1 + prereqDepth;
-			depthTable.put(projectName, depth);
-			return depth;
-		default:
-			return depth;
-	}
-}
 
 /**
  * @see IJavaModel

@@ -482,17 +482,17 @@ public class SetClasspathOperation extends JavaModelOperation {
 	protected void updateCycleMarkers(IClasspathEntry[] newResolvedPath) {
 		
 		if (!this.canChangeResource) return;
-
+		 
 		try {
-			IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-			IJavaProject[] projects = model.getJavaProjects();
-			for (int i = 0, projectCount = projects.length; i < projectCount; i++) {
-				JavaProject project = (JavaProject)projects[i];
-				project.updateCycleMarkers(project.getResolvedClasspath(true));
+			JavaProject project = getProject();
+			if (!project.hasClasspathCycle(project.getResolvedClasspath(true))
+					&& !project.hasCycleMarker()){
+				return;
 			}
-		} catch (JavaModelException e) {
+		
+			JavaProject.updateAllCycleMarkers();
+		} catch(JavaModelException e){
 		}
-			
 	}
 
 	/**

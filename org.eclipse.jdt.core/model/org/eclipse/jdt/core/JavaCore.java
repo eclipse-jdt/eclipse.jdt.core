@@ -315,7 +315,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 				projectContainers.put(containerPath, JavaModelManager.ContainerInitializationInProgress); // avoid initialization cycles
 				boolean ok = false;
 				try {
-					initializer.initialize(containerPath.segment(0), containerPath.segment(1), project);
+					initializer.initialize(containerPath, project);
 					if (container != null){
 						IClasspathEntry[] entries = container.getClasspathEntries();
 						// validation - no nested classpath container
@@ -1117,124 +1117,109 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     or the entire JavaModel (IJavaModel).
 	 * @param monitor a monitor to report progress
 	 * 
-	 * @see #getResolvedClasspathContainer(IPath, IJavaProject)
+	 * @see #getClasspathContainer(IPath, IJavaProject)
 	 * @since 2.0
 	 */
-	public void setClasspathContainer(IPath containerPath, IJavaProject affectedProject, IClasspathContainer container, IProgressMonitor monitor){
-/*
+	public static void setClasspathContainer(IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer[] newContainers, IProgressMonitor monitor) throws JavaModelException {
+
 		if (monitor != null && monitor.isCanceled()) return;
-		
+
+		int projectLength = affectedProjects.length;
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		ArrayList projectsToCheck = new ArrayList();
+		IClasspathEntry[][] oldResolvedPaths = new IClasspathEntry[projectLength][];
+
+		// filter out unmodified project containers
+		int remaining = 0;
+		for (int i = 0; i < projectLength; i++){
+
+			if (monitor != null && monitor.isCanceled()) return;
+
+			IJavaProject affectedProject = affectedProjects[i];
+			IClasspathContainer newContainer = newContainers[i];
+			
+			IClasspathEntry[] rawClasspath = affectedProject.getRawClasspath();
+			boolean found = false;
+			for (int j = 0, cpLength = rawClasspath.length; j <cpLength; j++) {
+				IClasspathEntry entry = rawClasspath[j];
+				if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER && entry.getPath().equals(containerPath)){
+					found = true;
+					break;
+				}
+			}
+			if (!found){
+				affectedProjects[i] = null; // filter out this project - does not reference the container path
+				continue;
+			}
+			Map perProjectContainers = (Map)JavaModelManager.Containers.get(affectedProject);
+			if (perProjectContainers == null){
+				perProjectContainers = new HashMap();
+				JavaModelManager.Containers.put(affectedProject, perProjectContainers);
+			} else {
+				IClasspathContainer oldContainer = (IClasspathContainer) perProjectContainers.get(containerPath);
+				if (oldContainer != null && oldContainer.equals(newContainers[i])){
+					affectedProjects[i] = null; // filter out this project - container did not change
+					continue;
+				}
+			}
+			remaining++;
+			oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true);
+			perProjectContainers.put(containerPath, newContainer);
+		}
 		
-		switch (affectedElement.getElementType()){
-			case IJavaElement.JAVA_PROJECT:
-				projectsToCheck.add(affectedElement);
-				break;
-			case IJavaElement.JAVA_MODEL:
-				IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
-				for (int i = 0; i < projects.length; i++) {
-					projectsToCheck.add(projects[i]);
-				}
-				break;
-			default:
-				// no effect if affected element isn't one of the above case
-				return;
-		}
-
-		// gather classpath information for updating
-		HashMap affectedProjects = new HashMap(5);
-
-		if (monitor != null && monitor.isCanceled()) return;
-
-		nextProject : for (int i = 0, projectLength = projectsToCheck.length; i < projectLength; i++){
-			IJavaProject project = projectsToCheck[i];
-					
-			// check to see if any of the modified variables is present on the classpath
-			IClasspathEntry[] classpath = project.getRawClasspath();
-			for (int j = 0, cpLength = classpath.length; j < cpLength; j++){
+		if (remaining == 0) return;
+		
+		// trigger model refresh
+		boolean wasFiring = manager.isFiring();
+		int count = 0;
+		try {
+			if (wasFiring)
+				manager.stopDeltas();
 				
-				IClasspathEntry entry = classpath[j];
-				for (int k = 0; k < varLength; k++){
+			for(int i = 0; i < projectLength; i++){
 
-					String variableName = variableNames[k];						
-					if (entry.getEntryKind() ==  IClasspathEntry.CPE_CONTAINER){
+				if (monitor != null && monitor.isCanceled()) return;
 
-						if (entry.getPath().equals(containerPath)){
-							affectedProjects.put(project, ((JavaProject)project).getResolvedClasspath(true));
-							
-							// also check whether it will be necessary to update proj references and cycle markers
-							if (!mayChangeProjectDependencies && entry.getPath().segmentCount() ==  1){
-								IPath oldPath = (IPath)JavaModelManager.Variables.get(variableName);
-								if (oldPath != null && oldPath.segmentCount() == 1) {
-									mayChangeProjectDependencies = true;
-								} else {
-									IPath newPath = variablePaths[k];
-									if (newPath != null && newPath.segmentCount() == 1) {
-										mayChangeProjectDependencies = true;
-									}
-								}
-							}
-							continue nextProject;
-						}
-						IPath sourcePath, sourceRootPath;
-						if (((sourcePath = entry.getSourceAttachmentPath()) != null	&& sourcePath.segment(0).equals(variableName))
-							|| ((sourceRootPath = entry.getSourceAttachmentRootPath()) != null	&& sourceRootPath.segment(0).equals(variableName))) {
-
-							affectedProjects.put(project, ((JavaProject)project).getResolvedClasspath(true));
-							continue nextProject;
-						}
-					}												
-				}
-			}
-		}
-
-		// reset saved container path
-		for (int i = 0; i < 
-		Map projectContainers = (Map)JavaModelManager.Containers.get(project);
-		if (projectContainers != null){
-			IClasspathEntry[] entries = (IClasspathEntry[])projectContainers.get(containerPath);
+				JavaProject affectedProject = (JavaProject)affectedProjects[i];
+				if (affectedProject == null) continue; // was filtered out
 				
-		// update affected project classpaths
-		if (!affectedProjects.isEmpty()) {
-			boolean wasFiring = manager.isFiring();
-			try {
-				if (wasFiring)
-					manager.stopDeltas();
-				// propagate classpath change
-				Iterator projectsToUpdate = affectedProjects.keySet().iterator();
-				while (projectsToUpdate.hasNext()) {
-
-					if (monitor != null && monitor.isCanceled()) return;
-
-					JavaProject project = (JavaProject) projectsToUpdate.next();
-					
-					if (!projectsToUpdate.hasNext()) {
-						// re-enable firing for the last operation
-						if (wasFiring) {
-							wasFiring = false;
-							manager.startDeltas();
-						}
+				if (++count == remaining) { // re-enable firing for the last operation
+					if (wasFiring) {
+						wasFiring = false;
+						manager.startDeltas();
 					}
-					project
-						.setRawClasspath(
-							project.getRawClasspath(),
-							SetClasspathOperation.ReuseOutputLocation,
-							monitor,
-							true,
-							project.getWorkspace().isAutoBuilding(),
-							// force build if in auto build mode
-							(IClasspathEntry[]) affectedProjects.get(project),
-							mayChangeProjectDependencies);
 				}
-			} finally {
-				if (wasFiring) {
-					manager.startDeltas();
-					// in case of exception traversing, deltas may be fired only in the next #fire() iteration
+			
+				// force a refresh of the affected project (will compute deltas)
+				affectedProject.setRawClasspath(
+						affectedProject.getRawClasspath(),
+						SetClasspathOperation.ReuseOutputLocation,
+						monitor,
+						true,
+						affectedProject.getWorkspace().isAutoBuilding(),
+						oldResolvedPaths[i],
+						remaining == 1); // no individual cycle check if more than 1 project
+			}
+			if (remaining > 1){
+				try {
+					// use workspace runnable so as to allow marker creation - workaround bug 14733
+					ResourcesPlugin.getWorkspace().run(
+						new IWorkspaceRunnable() {
+							public void run(IProgressMonitor monitor) throws CoreException {
+								JavaProject.updateAllCycleMarkers(); // update them all at once
+							}
+						}, 
+						monitor);					
+				} catch(CoreException e){
+					throw new JavaModelException(e);
 				}
 			}
+		} finally {
+			if (wasFiring) {
+				manager.startDeltas();
+				// in case of exception traversing, deltas may be fired only in the next #fire() iteration
+			}
 		}
-*/
+					
 	}
 
 	/**
@@ -1488,6 +1473,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		}
 				
 		// update affected project classpaths
+		int size = affectedProjects.size();
 		if (!affectedProjects.isEmpty()) {
 			boolean wasFiring = manager.isFiring();
 			try {
@@ -1517,7 +1503,22 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 							project.getWorkspace().isAutoBuilding(),
 							// force build if in auto build mode
 							(IClasspathEntry[]) affectedProjects.get(project),
-							mayChangeProjectDependencies);
+							size == 1 && mayChangeProjectDependencies); // no individual check if more than 1 project to update
+				}
+				if (size > 1 && mayChangeProjectDependencies){
+					try {
+						// TOFIX
+						// use workspace runnable so as to allow marker creation - workaround bug 14733
+						ResourcesPlugin.getWorkspace().run(
+							new IWorkspaceRunnable() {
+								public void run(IProgressMonitor monitor) throws CoreException {
+									JavaProject.updateAllCycleMarkers(); // update them all at once
+								}
+							}, 
+							monitor);					
+					} catch(CoreException e){
+						throw new JavaModelException(e);
+					}
 				}
 			} finally {
 				if (wasFiring) {

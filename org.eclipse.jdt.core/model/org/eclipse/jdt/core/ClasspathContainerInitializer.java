@@ -12,6 +12,7 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 
 /**TOFIX
  * Abstract base implementation of all classpath container initializer.
@@ -49,19 +50,18 @@ public abstract class ClasspathContainerInitializer {
      * The resolved container can be queried for the set of classpath entries the container maps to.
      * It may returns <code>null</code> if this resolver was unable to resolve the container ID.
      * <p>
-     * A container is identified primarily by a containerID (which this resolver did register onto), and the
-     * container may also define a clue that can be used by the resolver to perform.
+     * A container is identified by a container path, which must be formed of two segments.
+     * The first segment is used as a unique identifier (which this initializer did register onto), and
+     * the second segment is a clue that can be used by the initializer to perform.
      * <p>
-     * @param containerID - the name identifying the classpath container that needs 
+     * @param containerPath - a two-segment path (ID/clue) identifying the container that needs 
      * 	to be resolved
-     * @param containerClue - an extra String which can be used by the resolver for binding
-     * 	a particular containerID.
      * @param project - the Java project in which context the container is to be resolved.
      *    This allows generic containers to be bound with project specific values.
      * 
-     * @see JavaCore#classpathContainerChanged
+     * @see JavaCore#setClasspathContainer
      * @see IClasspathContainer
      */
-    public abstract void initialize(String containerID, String containerClue, IJavaProject project) throws CoreException;
+    public abstract void initialize(IPath containerPath, IJavaProject project) throws CoreException;
 }
 

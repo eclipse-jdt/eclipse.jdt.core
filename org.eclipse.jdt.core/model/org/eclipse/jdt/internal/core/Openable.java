@@ -370,19 +370,10 @@ protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 		
 		// 1) Parent must be open - open the parent if necessary
 		openParent(pm);
-		
-		// 1.5) Ensure my resource is local
-		IResource resource = getCorrespondingResource();
-		if (resource != null) {
-			try {
-				JavaModelManager.getJavaModelManager().ensureLocal(resource);
-			} catch (CoreException e) {
-				throw new JavaModelException(e);
-			}
-		}
 
 		// 2) create the new element info and open a buffer if needed
 		OpenableElementInfo info = createElementInfo();
+		IResource resource = getCorrespondingResource();
 		if (resource != null && isSourceElement()) {
 			this.openBuffer(pm);
 		} 

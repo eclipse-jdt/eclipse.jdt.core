@@ -550,6 +550,7 @@ public static IJavaModelStatus validateClasspath(IJavaProject javaProject, IClas
 				} else {
 					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalContainerPath", path.toString()));					 //$NON-NLS-1$
 				}
+				break;
 			
 			// variable entry check
 			case IClasspathEntry.CPE_VARIABLE :
