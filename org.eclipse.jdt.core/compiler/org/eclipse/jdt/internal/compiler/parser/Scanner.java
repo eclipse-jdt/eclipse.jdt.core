@@ -135,8 +135,6 @@ public class Scanner implements TerminalTokens {
 	public /*static*/ final char[][][][] charArray_length = 
 		new char[OptimizedLength][TableSize][InternalTableSize][]; 
 	// support for detecting non-externalized string literals
-	int currentLineNr= -1;
-	int previousLineNr= -1;
 	NLSLine currentLine= null;
 	public static final String TAG_PREFIX= "//$NON-NLS-"; //$NON-NLS-1$
 	public static final int TAG_PREFIX_LENGTH= TAG_PREFIX.length();
