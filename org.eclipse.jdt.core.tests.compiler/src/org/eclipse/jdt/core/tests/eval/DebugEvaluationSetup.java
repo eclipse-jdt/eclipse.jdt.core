@@ -129,7 +129,9 @@ protected void setUp() {
 
 			// Shut it down
 			try {
-				target.disconnect(); // Close the socket first so that the OS resource has a chance to be freed. 
+				if (this.target != null) {
+					this.target.disconnect(); // Close the socket first so that the OS resource has a chance to be freed. 
+				}
 				int retry = 0;
 				while (launchedVM.isRunning() && (++retry < 20)) {
 					try {

@@ -125,16 +125,18 @@ protected void tearDown() {
 		LocalVirtualMachine vm = this.launchedVM;
 		if (vm != null) {
 			try {
-				this.target.disconnect(); // Close the socket first so that the OS resource has a chance to be freed. 
+				if (this.target != null) {
+					this.target.disconnect(); // Close the socket first so that the OS resource has a chance to be freed. 
+				}
 				int retry = 0;
-				while (launchedVM.isRunning() && (++retry < 20)) {
+				while (vm.isRunning() && (++retry < 20)) {
 					try {
 						Thread.sleep(retry * 100);
 					} catch (InterruptedException e) {
 					}
 				}
-				if (launchedVM.isRunning()) {
-					launchedVM.shutDown();
+				if (vm.isRunning()) {
+					vm.shutDown();
 				}
 				this.context = null;
 			} catch (TargetException e) {
