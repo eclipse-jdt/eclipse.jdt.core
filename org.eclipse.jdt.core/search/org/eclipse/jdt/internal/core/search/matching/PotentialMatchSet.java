@@ -10,53 +10,47 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
+import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 /**
  * A set of PotentialMatches that is sorted by package fragment roots.
  */
 public class PotentialMatchSet {
-	private HashtableOfObject rootsToPotentialMatches = new HashtableOfObject(5);
-	private int elementCount = 0;
-	
-	public void add(PotentialMatch potentialMatch) {
-		IPackageFragmentRoot root = potentialMatch.openable.getPackageFragmentRoot();
-		char[] path = root.getPath().toString().toCharArray();
-		ObjectVector potentialMatches = (ObjectVector)this.rootsToPotentialMatches.get(path);
-		if (potentialMatches == null) {
-			potentialMatches = new ObjectVector();
-			this.rootsToPotentialMatches.put(path, potentialMatches);
-			potentialMatches.add(potentialMatch);
-			this.elementCount++;
-		} else if (!potentialMatches.contains(potentialMatch)) {
-			potentialMatches.add(potentialMatch);
-			this.elementCount++;
-		}
-	}
-	
-	public PotentialMatch[] getPotentialMatches(IPackageFragmentRoot[] roots) {
-		PotentialMatch[] result = new PotentialMatch[this.elementCount];
-		int index = 0;
-		for (int i = 0, length = roots.length; i < length; i++) {
-			IPackageFragmentRoot root = roots[i];
-			char[] path = root.getPath().toString().toCharArray();
-			ObjectVector potentialMatches = (ObjectVector)this.rootsToPotentialMatches.get(path);
-			if (potentialMatches != null) {
-				potentialMatches.copyInto(result, index);
-				index += potentialMatches.size();
-			}
-		}
-		if (index < this.elementCount) {
-			System.arraycopy(
-				result, 
-				0, 
-				result = new PotentialMatch[index],
-				0,
-				index);
-		}
-		return result;
-	}
-}
 
+private SimpleLookupTable rootsToPotentialMatches = new SimpleLookupTable(5);
+private int elementCount = 0;
+
+public void add(PotentialMatch potentialMatch) {
+	IPath path = potentialMatch.openable.getPackageFragmentRoot().getPath();
+	ObjectVector potentialMatches = (ObjectVector) this.rootsToPotentialMatches.get(path);
+	if (potentialMatches != null) {
+		if (potentialMatches.contains(potentialMatch)) return;
+	} else {
+		this.rootsToPotentialMatches.put(path, potentialMatches = new ObjectVector());
+	}
+
+	potentialMatches.add(potentialMatch);
+	this.elementCount++;
+}
+public PotentialMatch[] getPotentialMatches(IPackageFragmentRoot[] roots) {
+	PotentialMatch[] result = new PotentialMatch[this.elementCount];
+	int index = 0;
+	for (int i = 0, length = roots.length; i < length; i++) {
+		ObjectVector potentialMatches = (ObjectVector) this.rootsToPotentialMatches.get(roots[i].getPath());
+		if (potentialMatches != null) {
+			potentialMatches.copyInto(result, index);
+			index += potentialMatches.size();
+		}
+	}
+	if (index < this.elementCount)
+		System.arraycopy(result, 0, result = new PotentialMatch[index], 0, index);
+	return result;
+}
+public void reset() {
+	this.rootsToPotentialMatches = new SimpleLookupTable(5);
+	this.elementCount = 0;
+}
+}

@@ -45,8 +45,8 @@ public static final int ACCURATE_MATCH = 3;
 /* match container */
 public static final int COMPILATION_UNIT = 1;
 public static final int CLASS = 2;
-public static final int FIELD = 4;
-public static final int METHOD = 8;
+public static final int METHOD = 4;
+public static final int FIELD = 8;
 
 public SearchPattern(int matchMode, boolean isCaseSensitive) {
 	this.matchMode = matchMode;

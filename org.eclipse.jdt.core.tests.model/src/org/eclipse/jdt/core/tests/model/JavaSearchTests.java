@@ -2633,8 +2633,8 @@ public void testTypeReferenceInQualifiedNameReference2() throws JavaModelExcepti
 		resultCollector);
 	assertEquals(
 		"src/p4/A.java p4.A.A [A]\n" +
-		"src/p4/A.java p4.X.x() -> void [p4.A]\n" +
-		"src/p4/A.java p4.X [p4.A]",
+		"src/p4/A.java p4.X [p4.A]\n" +
+		"src/p4/A.java p4.X.x() -> void [p4.A]",
 		resultCollector.toString());
 }
 /**
