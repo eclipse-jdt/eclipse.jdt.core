@@ -285,7 +285,9 @@ public class SourceMapper
 			if (lastIndex == -1) {
 				typeSigs[i] = typeSig;
 			} else {
-				typeSigs[i] = Signature.C_UNRESOLVED + typeSig.substring(lastIndex + 1, typeSig.length());
+				int arrayEnd = 0;
+				while(typeSig.charAt(arrayEnd) == Signature.C_ARRAY) arrayEnd++;
+				typeSigs[i] = typeSig.substring(0, arrayEnd) + Signature.C_UNRESOLVED + typeSig.substring(lastIndex + 1, typeSig.length());
 			}
 		}
 		return typeSigs;
