@@ -116,7 +116,7 @@ public TypeBinding resolveType(BlockScope blockScope) {
 	} else {
 		type = this.resolvedType = getTypeBinding(blockScope);
 		if (type == null)
-			return null; // detected cycle while resolving hierarchy
+			return null; // detected cycle while resolving hierarchy	
 		if (!type.isValidBinding()) {
 			reportInvalidType(blockScope);
 			return null;
@@ -132,7 +132,7 @@ public TypeBinding resolveType(BlockScope blockScope) {
 		    }
 		} else if (type.isGenericType()) {
 	        return this.resolvedType = blockScope.environment().createRawType((ReferenceBinding)type, null); // raw type
-		}		
+		}
 	}
 	return this.resolvedType;
 }
@@ -146,7 +146,7 @@ public TypeBinding resolveType(ClassScope classScope) {
 	} else {
 		type = this.resolvedType = getTypeBinding(classScope);
 		if (type == null)
-			return null; // detected cycle while resolving hierarchy		
+			return null; // detected cycle while resolving hierarchy	
 		if (!type.isValidBinding()) {
 			reportInvalidType(classScope);
 			return null;
@@ -162,8 +162,7 @@ public TypeBinding resolveType(ClassScope classScope) {
 		    }
 		} else if (type.isGenericType()) {
 	        return this.resolvedType = classScope.environment().createRawType((ReferenceBinding)type, null); // raw type
-		}		
-
+		}
 	}
 	return this.resolvedType;
 }
