@@ -369,6 +369,21 @@ public int computeSeverity(int problemId){
 				return Warning;
 			}
 			return Ignore;
+			
+		case IProblem.UnusedImport :
+			// if import problem are disabled, then ignore
+			if ((errorThreshold & CompilerOptions.ImportProblem) == 0 
+				&& (warningThreshold & CompilerOptions.ImportProblem) == 0){
+				return Ignore;
+			}
+			if ((errorThreshold & CompilerOptions.UnusedImport) != 0){
+				return Error;
+			}
+			if ((warningThreshold & CompilerOptions.UnusedImport) != 0){
+				return Warning;
+			}
+			return Ignore;
+			
 /*		
 		case UnnecessaryEnclosingInstanceSpecification :
 			if ((errorThreshold & UnnecessaryEnclosingInstance) != 0){
@@ -2290,6 +2305,13 @@ public void unusedArgument(LocalDeclaration localDecl) {
 		new String[] {localDecl.name()},
 		localDecl.sourceStart,
 		localDecl.sourceEnd);
+}
+public void unusedImport(ImportReference importRef) {
+	this.handle(
+		IProblem.UnusedImport,
+		new String[] { CharOperation.toString(importRef.tokens) },
+		importRef.sourceStart,
+		importRef.sourceEnd); 
 }
 public void unusedLocalVariable(LocalDeclaration localDecl) {
 	this.handle(

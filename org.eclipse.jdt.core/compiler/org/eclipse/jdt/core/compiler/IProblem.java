@@ -437,6 +437,7 @@ public interface IProblem {
 	int ConflictingImport = ImportRelated + 385;
 	int DuplicateImport = ImportRelated + 386;
 	int CannotImportPackage = ImportRelated + 387;
+	int UnusedImport = ImportRelated + 388;
 
 	//	int ImportProblemBase = ImportRelated + 389;
 	int ImportNotFound =  ImportRelated + 389 + ProblemReasons.NotFound; // ImportRelated + 390
@@ -444,7 +445,8 @@ public interface IProblem {
 	int ImportAmbiguous =  ImportRelated + 389 + ProblemReasons.Ambiguous; // ImportRelated + 392
 	int ImportInternalNameProvided =  ImportRelated + 389 + ProblemReasons.InternalNameProvided; // ImportRelated + 393
 	int ImportInheritedNameHidesEnclosingName =  ImportRelated + 389 + ProblemReasons.InheritedNameHidesEnclosingName; // ImportRelated + 394
-		
+
+	
 	// local variable related problems
 	int DuplicateModifierForVariable = MethodRelated + 395;
 	int IllegalModifierForVariable = MethodRelated + 396;

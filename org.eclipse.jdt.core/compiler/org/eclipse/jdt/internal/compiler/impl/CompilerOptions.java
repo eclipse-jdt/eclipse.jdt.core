@@ -37,6 +37,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_ReportHiddenCatchBlock = "org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedLocal = "org.eclipse.jdt.core.compiler.problem.unusedLocal"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedParameter = "org.eclipse.jdt.core.compiler.problem.unusedParameter"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnusedImport = "org.eclipse.jdt.core.compiler.problem.unusedImport"; //$NON-NLS-1$
 	public static final String OPTION_ReportSyntheticAccessEmulation = "org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
 	public static final String OPTION_ReportNonExternalizedStringLiteral = "org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"; //$NON-NLS-1$
 	public static final String OPTION_Source = "org.eclipse.jdt.core.compiler.source"; //$NON-NLS-1$
@@ -79,6 +80,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final int AccessEmulation = 0x80000;
 	public static final int NonExternalizedString = 0x100000;
 	public static final int AssertUsedAsAnIdentifier = 0x200000;
+	public static final int UnusedImport = 0x400000;
 		
 	// Default severity level for handlers
 	public int errorThreshold = UnreachableCode | ImportProblem;
@@ -86,7 +88,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 		MethodWithConstructorName | OverriddenPackageDefaultMethod |
 		UsingDeprecatedAPI | MaskedCatchBlock |
 		UnusedLocalVariable | AssertUsedAsAnIdentifier |
-		NoImplicitStringConversion;
+		NoImplicitStringConversion | UnusedImport;
 
 	// Debug attributes
 	public static final int Source = 1; // SourceFileAttribute
@@ -339,6 +341,20 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				} else if (optionValue.equals(IGNORE)) {
 					this.errorThreshold &= ~UnusedArgument;
 					this.warningThreshold &= ~UnusedArgument;
+				}
+				continue;
+			} 
+			// Report unused parameter
+			if(optionID.equals(OPTION_ReportUnusedImport)){
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= UnusedImport;
+					this.warningThreshold &= ~UnusedImport;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~UnusedImport;
+					this.warningThreshold |= UnusedImport;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~UnusedImport;
+					this.warningThreshold &= ~UnusedImport;
 				}
 				continue;
 			} 
