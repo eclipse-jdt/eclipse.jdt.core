@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -77,18 +79,52 @@ public abstract class Scope
 	 * in case the method was originally compatible, then simply answer it back.
 	 */
 	protected final MethodBinding computeCompatibleMethod(MethodBinding method, TypeBinding[] arguments) {
+	    
 	    TypeBinding[] parameters = method.parameters;
 		if (parameters == arguments)
 			return method;
 
-		int length = parameters.length;
-		if (length != arguments.length)
-			return null;
+		int argLength = arguments.length;
+		if (argLength != parameters.length)
+			return null; // incompatible
 
-		for (int i = 0; i < length; i++)
-			if (parameters[i] != arguments[i])
-				if (!arguments[i].isCompatibleWith(parameters[i]))
-					return null;
+		argumentCompatibility: {
+		    for (int i = 0; i < argLength; i++)
+				if (parameters[i] != arguments[i])
+					if (!arguments[i].isCompatibleWith(parameters[i])) {
+					    break argumentCompatibility;
+					}
+			return method; // compatible
+		}
+		
+		if (true) return null; // for now
+		
+		// can only be compatible if generic method and inferred types are compatible
+		TypeVariableBinding[] typeVariables = method.typeVariables;
+		if (typeVariables  == NoTypeVariables)
+		    return null; // incompatible
+		
+		// perform inference of generic method type parameters
+		int varLength = typeVariables.length;
+		HashMap substitutes = new HashMap(varLength);
+		for (int i = 0; i < varLength; i++) {
+		    substitutes.put(typeVariables[i], new TypeBinding[2]);
+		}
+		for (int i = 0; i < argLength; i++) {
+	        parameters[i].collectSubstitutes(arguments[i], substitutes);
+		}
+		TypeBinding[] mostSpecificSubstitutes = new TypeBinding[varLength];
+		for (int i = 0; i < varLength; i++) {
+			TypeBinding[] variableSubstitutes = (TypeBinding[]) substitutes.get(typeVariables[i]);
+            TypeBinding mostSpecificSubstitute = mostSpecificCommonSuperType(variableSubstitutes);
+            if (mostSpecificSubstitute == null)
+                return null; // incompatible
+           mostSpecificSubstitutes[i] = mostSpecificSubstitute;
+System.out.println(new String(typeVariables[i].shortReadableName()) + " --> " + new String(mostSpecificSubstitute.shortReadableName()));
+		}
+
+		// apply inferred variable substitutions, then recheck argument compatibility
+		
 		return method;
 	}
 	
@@ -1827,6 +1863,99 @@ public abstract class Scope
 		return null;
 	}
 
+	public TypeBinding mostSpecificCommonSuperType(TypeBinding[] types) {
+	    int length = types.length;
+	    int indexOfFirst = -1, actualLength = 0;
+	    for (int i = 0; i < length; i++) {
+	        TypeBinding type = types[i];
+	        if (type == null) continue;
+	        if (type.isBaseType()) return null;
+	        if (indexOfFirst < 0) indexOfFirst = i;
+	        actualLength ++;
+	    }
+	    switch (actualLength) {
+	        case 0: return null;
+	        case 1: return types[indexOfFirst];
+	    }
+
+	    // record all supertypes of type
+	    // intersect with all supertypes of otherType
+	    TypeBinding firstType = types[indexOfFirst];
+		TypeBinding[] superTypes;
+		int superLength;
+		if (firstType.isBaseType()) {
+		    return null; 
+		} else if (firstType.isArrayType()) {
+		    superLength = 4;
+		    superTypes = new TypeBinding[] {
+		            firstType, 
+		    		getJavaIoSerializable(),
+		    		getJavaLangCloneable(),
+		    		getJavaLangObject(),
+		    };
+		} else {
+			ArrayList typesToVisit = new ArrayList(5);
+		    typesToVisit.add(firstType);
+			ReferenceBinding currentType = (ReferenceBinding)firstType;
+			for (int i = 0, max = 1; i <= max; i++) {
+				currentType = (ReferenceBinding) typesToVisit.get(i);
+			    ReferenceBinding itsSuperclass = currentType.superclass();
+			    if (itsSuperclass != null && !typesToVisit.contains(itsSuperclass)) {
+			        typesToVisit.add(itsSuperclass);
+			        max++;
+			    }
+				ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			    for (int j = 0, count = itsInterfaces.length; j < count; j++)
+					if (!typesToVisit.contains(itsInterfaces[j])) {
+					    typesToVisit.add(itsInterfaces[j]);
+					    max++;
+					}
+			}
+			superLength = typesToVisit.size();
+			superTypes = new TypeBinding[superLength];
+			typesToVisit.toArray(superTypes);
+		}
+		int remaining = superLength;
+		nextOtherType: for (int i = indexOfFirst+1; i < length; i++) {
+		    TypeBinding otherType = types[i];
+		    if (otherType == null)
+		        continue nextOtherType;
+		    else if (otherType.isArrayType()) {
+		        nextSuperType: for (int j = 0; j < superLength; j++) {
+		            TypeBinding superType = superTypes[j];
+		            if (superType == null || superType == otherType) continue nextSuperType;
+				    switch (superType.id) {
+				        case T_JavaIoSerializable :
+				        case T_JavaLangCloneable :
+				        case T_JavaLangObject :
+							continue nextSuperType;
+				    }
+				    superTypes[j] = null;
+				    if (--remaining == 0) return null;
+				    
+		        }
+		        continue nextOtherType;
+		    }
+			ReferenceBinding otherRefType = (ReferenceBinding) otherType;
+			nextSuperType: for (int j = 0; j < superLength; j++) {
+			    TypeBinding superType = superTypes[j];
+			    if (superType == null) continue nextSuperType;
+			    if (otherRefType.isCompatibleWith(superType)) {
+			        break nextSuperType;
+			    } else {
+			        superTypes[j] = null;
+			        if (--remaining == 0) return null;
+			    }
+			}			    
+		}
+		// per construction, first non-null supertype is most specific common supertype
+		for (int i = 0; i < superLength; i++) {
+		    TypeBinding superType = superTypes[i];
+		    if (superType != null) return superType;
+		}
+		return null;
+	}
+	
 	// Internal use only
 	/* All methods in visible are acceptable matches for the method in question...
 	* The methods defined by the receiver type appear before those defined by its

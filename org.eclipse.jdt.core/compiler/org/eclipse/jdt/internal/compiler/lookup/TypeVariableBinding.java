@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
@@ -54,6 +55,28 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    return true;
 	}
 
+	/**
+	 * Collect the substitutes into a map for certain type variables inside the receiver type
+	 * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
+	 */
+	public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
+	    TypeBinding[] variableSubstitutes = (TypeBinding[])substitutes.get(this);
+	    if (variableSubstitutes != null) {
+	        int length = variableSubstitutes.length;
+	        for (int i = 0; i < length; i++) {
+	            if (variableSubstitutes[i] == otherType) return; // already there
+	            if (variableSubstitutes[i] == null) {
+	                variableSubstitutes[i] = otherType;
+	                return;
+	            }
+	        }
+	        // no free spot found, need to grow
+	        System.arraycopy(variableSubstitutes, 0, variableSubstitutes = new TypeBinding[2*length], 0, length);
+	        variableSubstitutes[length] = otherType;
+	        substitutes.put(this, variableSubstitutes);
+	    }
+	}
+	
 	public char[] constantPoolName() { /* java/lang/Object */ 
 	    if (this.firstBound != null) {
 			return this.firstBound.constantPoolName();
@@ -66,6 +89,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    }
 	    return this.superclass; // java/lang/Object
 	}	
+
 	/**
 	 * T::Ljava/util/Map;:Ljava/io/Serializable;
 	 * T:LY<TT;>

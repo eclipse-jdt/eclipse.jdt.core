@@ -25,7 +25,7 @@ public interface TagBits {
 	final int IsAnonymousType = ASTNode.Bit6;
 	final int AnonymousTypeMask = LocalTypeMask | IsAnonymousType;
 	final int IsBinaryBinding = ASTNode.Bit7;
-
+	
 	// for the type hierarchy check used by ClassScope
 	final int BeginHierarchyCheck = ASTNode.Bit9;
 	final int EndHierarchyCheck = ASTNode.Bit10;

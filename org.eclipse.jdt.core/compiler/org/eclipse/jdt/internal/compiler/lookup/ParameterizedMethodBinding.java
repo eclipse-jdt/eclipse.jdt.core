@@ -30,6 +30,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	            parameterizedDeclaringClass.substitute(originalMethod.thrownExceptions),
 	            parameterizedDeclaringClass);
 	    this.originalMethod = originalMethod;
+	    this.typeVariables = originalMethod.typeVariables;
 	}
 	
 	/**

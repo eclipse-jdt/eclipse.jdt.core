@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 /*
@@ -36,6 +37,13 @@ public final int bindingType() {
  */
 public boolean canBeInstantiated() {
 	return !isBaseType();
+}
+/**
+ * Collect the substitutes into a map for certain type variables inside the receiver type
+ * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
+ */
+public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
+    // no substitute by default
 }
 /**
  *  Answer the receiver's constant pool name.

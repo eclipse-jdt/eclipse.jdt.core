@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 
@@ -39,6 +40,21 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		for (int i = 0, l = arguments == null ? 0 : arguments.length; i < l; i++)
 			if (arguments[i] instanceof UnresolvedReferenceBinding)
 				((UnresolvedReferenceBinding) arguments[i]).addWrapper(this);
+	}
+
+	/**
+	 * Collect the substitutes into a map for certain type variables inside the receiver type
+	 * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
+	 */
+	public void collectSubstitutes(TypeBinding otherType, Map substitutes) {
+	    if (otherType.isParameterizedType()) {
+	        ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) otherType;
+	        if (this.type == otherParameterizedType.type) {
+	            for (int i = 0, length = this.arguments.length; i < length; i++) {
+	                this.arguments[i].collectSubstitutes(otherParameterizedType.arguments[i], substitutes);
+	            }
+	        }
+	    }
 	}
 	
 	/**
