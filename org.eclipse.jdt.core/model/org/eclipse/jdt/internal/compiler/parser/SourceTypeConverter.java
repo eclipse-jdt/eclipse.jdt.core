@@ -124,7 +124,8 @@ public class SourceTypeConverter implements CompilerModifiers {
 
 		if (sourceTypes.length == 0) return this.unit;
 		SourceTypeElementInfo topLevelTypeInfo = (SourceTypeElementInfo) sourceTypes[0];
-		this.cu = (ICompilationUnit) topLevelTypeInfo.getHandle().getCompilationUnit();
+		org.eclipse.jdt.core.ICompilationUnit cuHandle = topLevelTypeInfo.getHandle().getCompilationUnit();
+		this.cu = (ICompilationUnit) cuHandle;
 		this.annotationPositions = ((CompilationUnitElementInfo) ((JavaElement) this.cu).getElementInfo()).annotationPositions;
 
 		if (this.annotationPositions != null && this.annotationPositions.size() > 10) { // experimental value
@@ -137,11 +138,11 @@ public class SourceTypeConverter implements CompilerModifiers {
 		int end = topLevelTypeInfo.getNameSourceEnd();
 
 		/* convert package and imports */
-		if (topLevelTypeInfo.getPackageName() != null
-			&& topLevelTypeInfo.getPackageName().length > 0)
+		char[] packageName = cuHandle.getParent().getElementName().toCharArray();
+		if (packageName.length > 0)
 			// if its null then it is defined in the default package
 			this.unit.currentPackage =
-				createImportReference(topLevelTypeInfo.getPackageName(), start, end, false, AccDefault);
+				createImportReference(packageName, start, end, false, AccDefault);
 		IImportDeclaration[] importDeclarations = topLevelTypeInfo.getHandle().getCompilationUnit().getImports();
 		int importCount = importDeclarations.length;
 		this.unit.imports = new ImportReference[importCount];

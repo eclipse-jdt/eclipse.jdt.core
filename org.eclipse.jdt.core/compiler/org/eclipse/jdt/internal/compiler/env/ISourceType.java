@@ -72,14 +72,6 @@ int getNameSourceEnd();
 int getNameSourceStart();
 
 /**
- * Answer the qualified name of the receiver's package separated by periods
- * or null if its the default package.
- *
- * For example, {java.util.Hashtable}.
- */
-char[] getPackageName();
-
-/**
  * Answer the unresolved name of the receiver's superclass
  * or null if it does not have one.
  *

@@ -68,19 +68,6 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	protected Stack handleStack;
 
 	/**
-	 * The name of the source file being parsed.
-	 */
-	protected char[] sourceFileName= null;
-
-	/**
-	 * The dot-separated name of the package the compilation unit
-	 * is contained in - based on the package statement in the
-	 * compilation unit, and initialized by #acceptPackage.
-	 * Initialized to <code>null</code> for the default package.
-	 */
-	protected char[] packageName= null;
-
-	/**
 	 * The number of references reported thus far. Used to
 	 * expand the arrays of reference kinds and names.
 	 */
@@ -111,7 +98,6 @@ protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUn
 	this.unit = unit;
 	this.unitInfo = unitInfo;
 	this.newElements = newElements;
-	this.sourceFileName= unit.getPath().toString().toCharArray();
 } 
 /**
  * @see ISourceElementRequestor
@@ -162,7 +148,6 @@ public void acceptPackage(int declarationStart, int declarationEnd, char[] name)
 		JavaElementInfo parentInfo = (JavaElementInfo) this.infoStack.peek();
 		JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 		PackageDeclaration handle = null;
-		this.packageName= name;
 		
 		if (parentHandle.getElementType() == IJavaElement.COMPILATION_UNIT) {
 			handle = new PackageDeclaration((CompilationUnit) parentHandle, new String(name));
@@ -369,8 +354,6 @@ public void enterType(TypeInfo typeInfo) {
 	for (int i = 0, length = superinterfaces == null ? 0 : superinterfaces.length; i < length; i++)
 		superinterfaces[i] = manager.intern(superinterfaces[i]);
 	info.setSuperInterfaceNames(superinterfaces);
-	info.setSourceFileName(this.sourceFileName);
-	info.setPackageName(this.packageName);
 	parentInfo.addChild(handle);
 	this.unitInfo.addAnnotationPositions(handle, typeInfo.annotationPositions);
 	this.newElements.put(handle, info);

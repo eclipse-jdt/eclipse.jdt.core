@@ -48,16 +48,6 @@ public class SourceTypeElementInfo extends MemberElementInfo implements ISourceT
 	protected char[][] superInterfaceNames;
 	
 	/**
-	 * The name of the source file this type is declared in.
-	 */
-	protected char[] sourceFileName;
-
-	/**
-	 * The name of the package this type is contained in.
-	 */
-	protected char[] packageName;
-
-	/**
 	 * Backpointer to my type handle - useful for translation
 	 * from info to handle.
 	 */
@@ -120,7 +110,7 @@ public SourceField[] getFieldHandles() {
  * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
  */
 public char[] getFileName() {
-	return this.sourceFileName;
+	return this.handle.getPath().toString().toCharArray();
 }
 /**
  * Returns the handle for this type info
@@ -247,12 +237,6 @@ public char[] getName() {
 /**
  * @see ISourceType
  */
-public char[] getPackageName() {
-	return this.packageName;
-}
-/**
- * @see ISourceType
- */
 public char[] getSuperclassName() {
 	if (this.handle.getElementName().length() == 0) { // if anonymous type
 		char[][] interfaceNames = this.superInterfaceNames;	
@@ -295,18 +279,6 @@ public boolean isBinaryType() {
  */
 protected void setHandle(IType handle) {
 	this.handle = handle;
-}
-/**
- * Sets the name of the package this type is declared in.
- */
-protected void setPackageName(char[] name) {
-	this.packageName= name;
-}
-/**
- * Sets the name of the source file this type is declared in.
- */
-protected void setSourceFileName(char[] name) {
-	this.sourceFileName= name;
 }
 /**
  * Sets the (unqualified) name of this type's superclass
