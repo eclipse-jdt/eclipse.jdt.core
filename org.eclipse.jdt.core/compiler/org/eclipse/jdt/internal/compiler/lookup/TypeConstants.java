@@ -31,7 +31,13 @@ public interface TypeConstants {
 	final char[] CharArray_JAVA_IO_OBJECTSTREAMFIELD = "java.io.ObjectStreamField".toCharArray(); //$NON-NLS-1$
 	final char[] ANONYM_PREFIX = "new ".toCharArray(); //$NON-NLS-1$
 	final char[] ANONYM_SUFFIX = "(){}".toCharArray(); //$NON-NLS-1$
-	
+    final char[] WILDCARD_NAME = { '?' };
+    final char[] WILDCARD_SUPER = " super ".toCharArray(); //$NON-NLS-1$
+    final char[] WILDCARD_EXTENDS = " extends ".toCharArray(); //$NON-NLS-1$
+    final char[] WILDCARD_MINUS = { '-' };
+    final char[] WILDCARD_STAR = { '*' };
+    final char[] WILDCARD_PLUS = { '+' };
+    
 	// Constant compound names
 	final char[][] JAVA_LANG = {JAVA, LANG};
 	final char[][] JAVA_IO = {JAVA, IO};

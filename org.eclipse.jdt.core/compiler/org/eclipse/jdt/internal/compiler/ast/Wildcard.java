@@ -29,6 +29,20 @@ public class Wildcard extends SingleTypeReference {
 		this.isSuper = isSuper;
 	}
 	
+	private TypeBinding internalResolveType(Scope scope) {
+	    TypeBinding boundType = null;
+	    if (this.bound != null) {
+			boundType = scope.kind == Scope.CLASS_SCOPE
+	       		? this.bound.resolveType((ClassScope)scope)
+	       		: this.bound.resolveType((BlockScope)scope);
+	       		        
+			if (boundType == null) {
+				return null;
+			}	    
+	    }
+	    return this.resolvedType = scope.environment().createWildcard(boundType, this.isSuper);
+	}
+	
 	public StringBuffer printExpression(int indent, StringBuffer output){
 		output.append('?');
 		if (this.bound != null) {
@@ -41,9 +55,15 @@ public class Wildcard extends SingleTypeReference {
 		}
 		return output;
 	}	
-	public TypeBinding resolveType(ClassScope classScope) {
-		return null;
+	
+	public TypeBinding resolveType(BlockScope blockScope) {
+	    return internalResolveType(blockScope);
 	}
+	
+	public TypeBinding resolveType(ClassScope classScope) {
+	    return internalResolveType(classScope);
+	}
+
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		visitor.visit(this, scope);
 		if (this.bound != null) {

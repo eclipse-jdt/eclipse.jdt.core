@@ -885,13 +885,13 @@ public class ClassScope extends Scope {
 					superType.tagBits |= HierarchyHasProblems;
 					return true;
 				}
-				ReferenceBinding parent = superType.superclass();
-				if (parent.isParameterizedType())
-					parent = ((ParameterizedTypeBinding) parent).type;
-				hasCycle |= detectCycle(sourceType, parent, reference);
-				if ((parent.tagBits & HierarchyHasProblems) != 0) {
+				ReferenceBinding parentType = superType.superclass();
+				if (parentType.isParameterizedType())
+					parentType = ((ParameterizedTypeBinding) parentType).type;
+				hasCycle |= detectCycle(sourceType, parentType, reference);
+				if ((parentType.tagBits & HierarchyHasProblems) != 0) {
 					sourceType.tagBits |= HierarchyHasProblems;
-					parent.tagBits |= HierarchyHasProblems; // propagate down the hierarchy
+					parentType.tagBits |= HierarchyHasProblems; // propagate down the hierarchy
 				}
 			}
 

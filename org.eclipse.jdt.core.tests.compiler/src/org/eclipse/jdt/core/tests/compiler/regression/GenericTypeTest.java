@@ -2921,5 +2921,59 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		true,
 		customOptions);		
 	}				
-	
+	// wildcard bound cannot be base type
+	// TODO (david) only syntax error should be related to wilcard bound being a base type. Ripple effect is severe here.
+	public void test099() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X  <T extends AX<? super int>> {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		AX<String> ax;\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"	void foo(X<?> x) {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<P> {\n" + 
+				"}\n",
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X  <T extends AX<? super int>> {\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error on tokens, delete these tokens\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 1)\n" + 
+		"	public class X  <T extends AX<? super int>> {\n" + 
+		"	                                            ^\n" + 
+		"Syntax error, insert \"}\" to complete Block\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 2)\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		AX<String> ax;\n" + 
+		"		System.out.println(\"SUCCESS\");\n" + 
+		"	}\n" + 
+		"	void foo(X<?> x) {\n" + 
+		"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error on tokens, delete these tokens\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
+		"	void foo(X<?> x) {\n" + 
+		"	            ^\n" + 
+		"Syntax error, insert \"ClassBody\" to complete TypeDeclarations\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 6)\n" + 
+		"	void foo(X<?> x) {\n" + 
+		"	            ^\n" + 
+		"Syntax error, insert \"Dimensions\" to complete ArrayType\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 6)\n" + 
+		"	void foo(X<?> x) {\n" + 
+		"	            ^\n" + 
+		"Syntax error, insert \">>\" to complete ReferenceType2\n" + 
+		"----------\n");		
+	}		
 }

@@ -66,6 +66,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions options, 
 	this.uniqueArrayBindings[0] = new ArrayBinding[50]; // start off the most common 1 dimension array @ 50
 	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(10);
 	this.uniqueRawTypeBindings = new SimpleLookupTable(10);
+	this.uniqueWildcardBindings = new SimpleLookupTable(10);
 }
 /* Ask the oracle for a type which corresponds to the compoundName.
 * Answer null if the name cannot be found.
@@ -397,14 +398,18 @@ public RawTypeBinding createRawType(ReferenceBinding genericType) {
 	return cachedInfo;
 }
 
-public WildcardBinding createWildcard(ReferenceBinding bound, boolean isSuper) {
+public WildcardBinding createWildcard(TypeBinding bound, boolean isSuper) {
+    
+    final int EXTENDS = 0, SUPER = 1;
+    
 	// cached info is array of already created wildcard types for this type bound
-	WildcardBinding[] cachedInfo = (WildcardBinding[])this.uniqueWildcardBindings.get(bound);
+    Object key = bound == null ? (Object)WILDCARD_STAR : bound;
+	WildcardBinding[] cachedInfo = (WildcardBinding[])this.uniqueWildcardBindings.get(key);
 	if (cachedInfo == null) {
 	    cachedInfo = new WildcardBinding[2]; // 0:extends, 1: super
-	    this.uniqueWildcardBindings.put(bound, cachedInfo);
+	    this.uniqueWildcardBindings.put(key, cachedInfo);
 	}
-	int index = isSuper ? 1 : 0;
+	int index = isSuper ? SUPER : EXTENDS;
 	WildcardBinding wildcard;
 	if ((wildcard = cachedInfo[index]) == null) {
 	    cachedInfo[index] = wildcard = new WildcardBinding(bound, isSuper);
@@ -691,9 +696,10 @@ public void reset() {
 	this.verifier = null;
 	for (int i = this.uniqueArrayBindings.length; --i >= 0;)
 		this.uniqueArrayBindings[i] = null;
+	// TODO (kent) couldn't we simple clear the collections and keep them as is ? 
 	this.uniqueArrayBindings[0] = new ArrayBinding[50]; // start off the most common 1 dimension array @ 50
-
 	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(10);
+	this.uniqueRawTypeBindings = new SimpleLookupTable(10);
 	this.uniqueRawTypeBindings = new SimpleLookupTable(10);
 	
 	for (int i = this.units.length; --i >= 0;)
