@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -71,6 +72,15 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 			if (isTypeUseDeprecated(this.resolvedType, scope)) {
 				reportDeprecatedType(scope);
 			}
+			// check raw type
+			if (this.resolvedType.isArrayType()) {
+			    TypeBinding leafComponentType = this.resolvedType.leafComponentType();
+			    if (leafComponentType.isGenericType()) { // raw type
+			        return this.resolvedType = scope.createArray(scope.createRawType((ReferenceBinding)leafComponentType), this.resolvedType.dimensions());
+			    }
+			} else if (this.resolvedType.isGenericType()) {
+		        return this.resolvedType = scope.createRawType((ReferenceBinding)this.resolvedType); // raw type
+			}		
 		}
 		return this.resolvedType;
 	}

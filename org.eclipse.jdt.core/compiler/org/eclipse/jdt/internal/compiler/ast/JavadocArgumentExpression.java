@@ -54,6 +54,15 @@ public class JavadocArgumentExpression extends Expression {
 						scope.problemReporter().javadocDeprecatedType(this.resolvedType, typeRef, scope.getDeclarationModifiers());
 						return null;
 					}
+					// check raw type
+					if (this.resolvedType.isArrayType()) {
+					    TypeBinding leafComponentType = this.resolvedType.leafComponentType();
+					    if (leafComponentType.isGenericType()) { // raw type
+					        this.resolvedType = scope.createArray(scope.createRawType((ReferenceBinding)leafComponentType), this.resolvedType.dimensions());
+					    }
+					} else if (this.resolvedType.isGenericType()) {
+				        this.resolvedType = scope.createRawType((ReferenceBinding)this.resolvedType); // raw type
+					}		
 					return this.resolvedType;
 				}
 			}

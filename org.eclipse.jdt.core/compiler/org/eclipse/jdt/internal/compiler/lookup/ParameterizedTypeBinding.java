@@ -66,12 +66,15 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 */
 	public String debugName() {
 	    StringBuffer nameBuffer = new StringBuffer(10);
-		nameBuffer.append(this.type.sourceName()).append('<');
-	    for (int i = 0, length = this.arguments.length; i < length; i++) {
-	        if (i > 0) nameBuffer.append(',');
-	        nameBuffer.append(this.arguments[i].debugName());
-	    }
-	    nameBuffer.append('>');
+		nameBuffer.append(this.type.sourceName());
+		if (this.arguments != null) {
+			nameBuffer.append('<');
+		    for (int i = 0, length = this.arguments.length; i < length; i++) {
+		        if (i > 0) nameBuffer.append(',');
+		        nameBuffer.append(this.arguments[i].debugName());
+		    }
+		    nameBuffer.append('>');
+		}
 	    return nameBuffer.toString();		
 	}
 
