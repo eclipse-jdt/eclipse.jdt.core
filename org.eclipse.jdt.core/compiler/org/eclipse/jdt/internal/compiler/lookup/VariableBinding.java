@@ -18,8 +18,13 @@ public abstract class VariableBinding extends Binding {
 	public char[] name;
 	public Constant constant;
 	public int id; // for flow-analysis (position in flowInfo bit vector)
+
 public boolean isConstantValue() {
 	return constant != Constant.NotAConstant;
+}
+
+public final boolean isBlankFinal(){
+	return (modifiers & AccBlankFinal) != 0;
 }
 /* Answer true if the receiver is final and cannot be changed
 */

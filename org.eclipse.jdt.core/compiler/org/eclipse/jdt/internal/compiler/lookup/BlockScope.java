@@ -152,9 +152,8 @@ public class BlockScope extends Scope {
 		if (methodScope.isStatic != binding.isStatic())
 			return false;
 		return methodScope.isInsideInitializer() // inside initializer
-		|| ((AbstractMethodDeclaration) methodScope.referenceContext)
-			.isInitializationMethod();
-		// inside constructor or clinit
+				|| ((AbstractMethodDeclaration) methodScope.referenceContext)
+					.isInitializationMethod(); // inside constructor or clinit
 	}
 	String basicToString(int tab) {
 		String newLine = "\n"; //$NON-NLS-1$

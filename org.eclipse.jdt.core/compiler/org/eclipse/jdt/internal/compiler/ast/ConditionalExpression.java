@@ -20,6 +20,9 @@ public class ConditionalExpression extends OperatorExpression {
 
 	public Expression condition, valueIfTrue, valueIfFalse;
 	public Constant optimizedBooleanConstant;
+	public Constant optimizedIfTrueConstant;
+	public Constant optimizedIfFalseConstant;
+	
 	private int returnTypeSlotSize = 1;
 
 	// for local variables table attributes
@@ -75,21 +78,30 @@ public class ConditionalExpression extends OperatorExpression {
 		} else {
 			// merge using a conditional info -  1GK2BLM
 			// if ((t && (v = t)) ? t : t && (v = f)) r = v;  -- ok
-/*			
-			cst = this.valueIfTrue.optimizedBooleanConstant();
-			boolean isValueIfTrueOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
-			boolean isValueIfTrueOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
+			cst = this.optimizedIfTrueConstant;
+			boolean isValueIfTrueOptimizedTrue = cst != null && cst != NotAConstant && cst.booleanValue() == true;
+			boolean isValueIfTrueOptimizedFalse = cst != null && cst != NotAConstant && cst.booleanValue() == false;
 			
-			cst = this.valueIfFalse.optimizedBooleanConstant();
-			boolean isValueIfFalseOptimizedTrue = cst != NotAConstant && cst.booleanValue() == true;
-			boolean isValueIfFalseOptimizedFalse = cst != NotAConstant && cst.booleanValue() == false;
-*/
+			cst = this.optimizedIfFalseConstant;
+			boolean isValueIfFalseOptimizedTrue = cst != null && cst != NotAConstant && cst.booleanValue() == true;
+			boolean isValueIfFalseOptimizedFalse = cst != null && cst != NotAConstant && cst.booleanValue() == false;
+
+			UnconditionalFlowInfo trueInfoWhenTrue = trueFlowInfo.initsWhenTrue().copy().unconditionalInits();
+			if (isValueIfTrueOptimizedFalse) trueInfoWhenTrue.setReachMode(FlowInfo.UNREACHABLE); 
+
+			UnconditionalFlowInfo falseInfoWhenTrue = falseFlowInfo.initsWhenTrue().copy().unconditionalInits();
+			if (isValueIfFalseOptimizedFalse) falseInfoWhenTrue.setReachMode(FlowInfo.UNREACHABLE); 
+			
+			UnconditionalFlowInfo trueInfoWhenFalse = trueFlowInfo.initsWhenFalse().copy().unconditionalInits();
+			if (isValueIfTrueOptimizedTrue) trueInfoWhenFalse.setReachMode(FlowInfo.UNREACHABLE); 
+
+			UnconditionalFlowInfo falseInfoWhenFalse = falseFlowInfo.initsWhenFalse().copy().unconditionalInits();
+			if (isValueIfFalseOptimizedTrue) falseInfoWhenFalse.setReachMode(FlowInfo.UNREACHABLE); 
+
 			mergedInfo =
 				FlowInfo.conditional(
-					trueFlowInfo.initsWhenTrue().copy().unconditionalInits().mergedWith( // must copy, since could be shared with trueInfo.initsWhenFalse()...
-						falseFlowInfo.initsWhenTrue().copy().unconditionalInits()),
-					trueFlowInfo.initsWhenFalse().unconditionalInits().mergedWith(
-						falseFlowInfo.initsWhenFalse().unconditionalInits()));
+					trueInfoWhenTrue.mergedWith(falseInfoWhenTrue),
+					trueInfoWhenFalse.mergedWith(falseInfoWhenFalse));
 		}
 		mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
@@ -287,13 +299,17 @@ public class ConditionalExpression extends OperatorExpression {
 				returnTypeSlotSize = 2;
 			}
 
-			// Propagate the optimized boolean constant if possible
-			if ((condConstant = condition.optimizedBooleanConstant()) != NotAConstant
-				&& valueIfTrueType == BooleanBinding) {
-				
-				this.optimizedBooleanConstant = condConstant.booleanValue()
-					? valueIfTrue.optimizedBooleanConstant()
-					: valueIfFalse.optimizedBooleanConstant();
+			if (valueIfTrueType == BooleanBinding) {
+				this.optimizedIfTrueConstant = valueIfTrue.optimizedBooleanConstant();
+				this.optimizedIfFalseConstant = valueIfFalse.optimizedBooleanConstant();
+			
+				// Propagate the optimized boolean constant if possible
+				if ((condConstant = condition.optimizedBooleanConstant()) != NotAConstant) {
+					
+					this.optimizedBooleanConstant = condConstant.booleanValue()
+						? optimizedIfTrueConstant
+						: optimizedIfFalseConstant;
+				}
 			}
 			return this.resolvedType = valueIfTrueType;
 		}

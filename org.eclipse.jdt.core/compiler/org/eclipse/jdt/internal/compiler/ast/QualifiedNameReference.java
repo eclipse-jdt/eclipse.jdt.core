@@ -54,8 +54,8 @@ public class QualifiedNameReference extends NameReference {
 		if ((bits & FIELD) != 0) {
 			// reading from a field
 			// check if final blank field
-			if ((lastFieldBinding = (FieldBinding) binding).isFinal()
-				&& currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)) {
+			if ((lastFieldBinding = (FieldBinding) binding).isBlankFinal()
+ 				&& currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)) {
 				if (!flowInfo.isDefinitelyAssigned(lastFieldBinding)) {
 					currentScope.problemReporter().uninitializedBlankFinalField(
 						lastFieldBinding,
@@ -104,6 +104,7 @@ public class QualifiedNameReference extends NameReference {
 		}
 		if (isCompound) {
 			if (binding == lastFieldBinding
+				&& lastFieldBinding.isBlankFinal()
 				&& currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)
 				&& (!flowInfo.isDefinitelyAssigned(lastFieldBinding))) {
 				currentScope.problemReporter().uninitializedBlankFinalField(
@@ -138,7 +139,8 @@ public class QualifiedNameReference extends NameReference {
 		// the last field access is a write access
 		if (lastFieldBinding.isFinal()) {
 			// in a context where it can be assigned?
-			if (currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)) {
+			if (lastFieldBinding.isBlankFinal()
+					&& currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)) {
 				if (flowInfo.isPotentiallyAssigned(lastFieldBinding)) {
 					if (indexOfFirstFieldBinding == 1) {
 						// was an implicit reference to the first field binding
@@ -204,7 +206,7 @@ public class QualifiedNameReference extends NameReference {
 				}
 				// check if reading a final blank field
 				FieldBinding fieldBinding;
-					if ((fieldBinding = (FieldBinding) binding).isFinal()
+					if ((fieldBinding = (FieldBinding) binding).isBlankFinal()
 						&& (indexOfFirstFieldBinding == 1)
 					// was an implicit reference to the first field binding
 						&& currentScope.allowBlankFinalFieldAssignment(fieldBinding)

@@ -56,9 +56,10 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 				.unconditionalInits();
 
 		// final int i = (i = 0);
-		if (binding.isFinal() && flowInfo.isPotentiallyAssigned(binding)) {
-			currentScope.problemReporter().duplicateInitializationOfFinalLocal(binding, this);
-		}
+		// no need to complain since (i = 0) part will get the blame
+		//if (binding.isFinal() && flowInfo.isPotentiallyAssigned(binding)) {
+		//	currentScope.problemReporter().duplicateInitializationOfFinalLocal(binding, this);
+		//}
 				
 		flowInfo.markAsDefinitelyAssigned(binding);
 		return flowInfo;

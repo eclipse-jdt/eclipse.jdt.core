@@ -138,6 +138,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
 }
+
 /* Answer true if the receiver has default visibility
 */
 

@@ -36,7 +36,8 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 		switch (bits & RestrictiveFlagMASK) {
 			case FIELD : // reading a field
 				FieldBinding fieldBinding;
-				if ((fieldBinding = (FieldBinding) binding).isFinal() && currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
+				if ((fieldBinding = (FieldBinding) binding).isBlankFinal() 
+						&& currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
 					if (!flowInfo.isDefinitelyAssigned(fieldBinding)) {
 						currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 						// we could improve error msg here telling "cannot use compound assignment on final blank field"
@@ -65,7 +66,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			FieldBinding fieldBinding;
 			if ((fieldBinding = (FieldBinding) binding).isFinal()) {
 				// inside a context where allowed
-				if (currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
+				if (fieldBinding.isBlankFinal() && currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
 					if (flowInfo.isPotentiallyAssigned(fieldBinding)) {
 						currentScope.problemReporter().duplicateInitializationOfBlankFinalField(fieldBinding, this);
 					}
@@ -85,7 +86,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			}
 			if (localBinding.isFinal()) {
 				if ((bits & DepthMASK) == 0) {
-					if (flowInfo.isPotentiallyAssigned(localBinding)) {
+					if (!localBinding.isBlankFinal() || flowInfo.isPotentiallyAssigned(localBinding)) {
 						currentScope.problemReporter().duplicateInitializationOfFinalLocal(localBinding, this);
 					}
 					flowContext.recordSettingFinal(localBinding, this);								
@@ -110,7 +111,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 			// check if reading a final blank field
 			FieldBinding fieldBinding;
-			if ((fieldBinding = (FieldBinding) binding).isFinal() && currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
+			if ((fieldBinding = (FieldBinding) binding).isBlankFinal() 
+					&& currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
 				if (!flowInfo.isDefinitelyAssigned(fieldBinding)) {
 					currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 				}

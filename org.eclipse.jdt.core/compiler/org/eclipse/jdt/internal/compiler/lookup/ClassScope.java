@@ -469,6 +469,9 @@ public class ClassScope extends Scope {
 				fieldBinding.declaringClass,
 				fieldDecl);
 
+		if (fieldDecl.initialization == null && (modifiers & AccFinal) != 0) {
+			modifiers |= AccBlankFinal;
+		}
 		fieldBinding.modifiers = modifiers;
 	}
 	

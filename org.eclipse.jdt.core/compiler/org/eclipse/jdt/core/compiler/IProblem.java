@@ -19,6 +19,7 @@
  * 								   TooManyMethods
  * 								   TooManyFields
  * 								   InvalidReferenceForFinalFieldAssignment
+ * 								   NonBlankFinalLocalAssignment
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -200,8 +201,10 @@ public interface IProblem {
 	// local variables
 	int RedefinedLocal = Internal + 55;
 	int RedefinedArgument = Internal + 56;
-	int DuplicateFinalLocalInitialization = Internal + 57;
 	// final local variables
+	int DuplicateFinalLocalInitialization = Internal + 57;
+	/** @since 2.1 */
+	int NonBlankFinalLocalAssignment = Internal + 58;
 	int FinalOuterLocalAssignment = Internal + 60;
 	int LocalVariableIsNeverUsed = Internal + 61;
 	int ArgumentIsNeverUsed = Internal + 62;

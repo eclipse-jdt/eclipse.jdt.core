@@ -3766,7 +3766,7 @@ public void testNegative004() {
 		}
 	}
 	assertEquals("Unexpected errors",
-		"Cannot assign to the final field System.out in this context|",
+		"The final field System.out cannot be assigned, since it is not blank in this context|",
 		buffer == null ? "none" : buffer.toString());
 }
 }

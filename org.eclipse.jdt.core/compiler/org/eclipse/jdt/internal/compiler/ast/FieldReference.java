@@ -45,7 +45,7 @@ public class FieldReference extends Reference implements InvocationSite {
 
 		// compound assignment extra work
 		if (isCompound) { // check the variable part is initialized if blank final
-			if (binding.isFinal()
+			if (binding.isBlankFinal()
 				&& receiver.isThis()
 				&& currentScope.allowBlankFinalFieldAssignment(binding)
 				&& (!flowInfo.isDefinitelyAssigned(binding))) {
@@ -70,7 +70,8 @@ public class FieldReference extends Reference implements InvocationSite {
 		// check if assigning a final field 
 		if (binding.isFinal()) {
 			// in a context where it can be assigned?
-			if (receiver.isThis()
+			if (binding.isBlankFinal()
+				&& receiver.isThis()
 				&& !(receiver instanceof QualifiedThisReference)
 				&& ((receiver.bits & ParenthesizedMASK) == 0) // (this).x is forbidden
 				&& currentScope.allowBlankFinalFieldAssignment(binding)) {
@@ -83,7 +84,7 @@ public class FieldReference extends Reference implements InvocationSite {
 				flowContext.recordSettingFinal(binding, this);
 			} else {
 				// assigning a final field outside an initializer or constructor or wrong reference
-				currentScope.problemReporter().cannotAssignToFinalField(binding, this, currentScope.allowBlankFinalFieldAssignment(binding));
+				currentScope.problemReporter().cannotAssignToFinalField(binding, this, binding.isBlankFinal() && currentScope.allowBlankFinalFieldAssignment(binding));
 			}
 		}
 		return flowInfo;

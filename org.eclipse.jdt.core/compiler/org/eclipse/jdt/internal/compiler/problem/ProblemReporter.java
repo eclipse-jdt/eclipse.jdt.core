@@ -721,7 +721,7 @@ public void duplicateInitializationOfBlankFinalField(FieldBinding field, Referen
 public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, AstNode location) {
 	String[] arguments = new String[] { new String(local.readableName())};
 	this.handle(
-		IProblem.DuplicateFinalLocalInitialization,
+		local.isBlankFinal() ? IProblem.DuplicateFinalLocalInitialization : IProblem.NonBlankFinalLocalAssignment,
 		arguments,
 		arguments,
 		location.sourceStart,
