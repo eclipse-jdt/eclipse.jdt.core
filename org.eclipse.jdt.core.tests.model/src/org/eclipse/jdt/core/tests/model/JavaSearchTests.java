@@ -453,6 +453,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes5"));
 	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes6"));
 	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes7"));
+	suite.addTest(new JavaSearchTests("testDeclarationOfReferencedTypes8"));
 	
 	// declarations of sent messages
 	suite.addTest(new JavaSearchTests("testSimpleDeclarationsOfSentMessages"));
@@ -858,6 +859,31 @@ public void testDeclarationOfReferencedTypes7() throws CoreException {
 	);
 	assertSearchResults(
 		"", 
+		resultCollector);
+}
+
+/**
+ * Declaration of referenced types test.
+ * (Regression test for bug 47787 IJavaSearchResultCollector.aboutToStart() and done() not called)
+ */
+public void testDeclarationOfReferencedTypes8() throws CoreException {
+	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "r7");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector() {
+	    public void aboutToStart() {
+	        results.append("Starting search...\n");
+        }
+	    public void done() {
+	        results.append("Done searching.");
+        }
+	};
+	new SearchEngine().searchDeclarationsOfReferencedTypes(
+		getWorkspace(), 
+		pkg,
+		resultCollector
+	);
+	assertSearchResults(
+		"Starting search...\n"+
+		"Done searching.", 
 		resultCollector);
 }
 
