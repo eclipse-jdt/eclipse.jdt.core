@@ -80,7 +80,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0065"));
+		suite.addTest(new ASTConverter15Test("test0067"));
 		return suite;
 	}
 		
@@ -1863,6 +1863,62 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		}
 	}
 
-
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78649
+	 */
+	public void test0067() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0067", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Wrong node", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List parameters = methodDeclaration.parameters();
+		assertEquals("Wrong size", 1, parameters.size());
+		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+		Type type = singleVariableDeclaration.getType();
+		assertTrue("Not a parameterized type", type.isParameterizedType());
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		List typeArguments = parameterizedType.typeArguments();
+		assertEquals("Wrong size", 1, typeArguments.size());
+		Type type2 = (Type) typeArguments.get(0);
+		assertTrue("Not a wildcard type", type2.isWildcardType());
+		WildcardType wildcardType = (WildcardType) type2;
+		assertTrue("Not an upperbound type", wildcardType.isUpperBound());
+		ITypeBinding typeBinding = wildcardType.resolveBinding();
+		assertTrue("Not an upperbound type binding", typeBinding.isUpperbound());
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78649
+	 */
+	public void test0068() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0068", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Wrong node", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List parameters = methodDeclaration.parameters();
+		assertEquals("Wrong size", 1, parameters.size());
+		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+		Type type = singleVariableDeclaration.getType();
+		assertTrue("Not a parameterized type", type.isParameterizedType());
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		List typeArguments = parameterizedType.typeArguments();
+		assertEquals("Wrong size", 1, typeArguments.size());
+		Type type2 = (Type) typeArguments.get(0);
+		assertTrue("Not a wildcard type", type2.isWildcardType());
+		WildcardType wildcardType = (WildcardType) type2;
+		assertFalse("An upperbound type", wildcardType.isUpperBound());
+		ITypeBinding typeBinding = wildcardType.resolveBinding();
+		assertFalse("An upperbound type binding", typeBinding.isUpperbound());
+	}
 }
 
