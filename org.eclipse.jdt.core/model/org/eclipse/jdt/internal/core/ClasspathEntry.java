@@ -345,8 +345,14 @@ public class ClasspathEntry implements IClasspathEntry {
 				String projSegment = path.segment(0);
 				if (projSegment != null && projSegment.equals(project.getElementName())) { // this project
 					return JavaCore.newSourceEntry(path, inclusionPatterns, exclusionPatterns, outputLocation);
-				} else { // another project
-					return JavaCore.newProjectEntry(path, isExported);
+				} else { 
+					if (path.segmentCount() == 1) {
+						// another project
+						return JavaCore.newProjectEntry(path, isExported);
+					} else {
+						// an invalid source folder
+						return JavaCore.newSourceEntry(path, inclusionPatterns, exclusionPatterns, outputLocation);
+					}
 				}
 
 			case IClasspathEntry.CPE_VARIABLE :
