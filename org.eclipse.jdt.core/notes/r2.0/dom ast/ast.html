@@ -1,55 +1,4 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
-<head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="GENERATOR" content="Mozilla/4.5 [en] (Win98; I) [Netscape]">
-   <title>JDT - Abstract Syntax Trees</title>
-</head>
-<body>
-
-<h2>
-Abstract Syntax Trees</h2>
-<font color="#3366FF">Last revised 14:00 Friday October 26, 2001 (most
-recent change in blue)</font>
-<p>Original work item: "Exposing the AST API."
-<p>Related work item: "Improved Java code manipulation support, address
-JDOM limitations; JDOM doesn't preserve markers and isn't document aware;
-JDOM finer grained update support (e.g. change method name, type name);
-buffer contents is duplicated in Java UI document and needs to be manually
-synchronized."
-<h3>
-Background</h3>
-
-<ul>
-<li>
-refactoring is a key customer (Dirk B.)</li>
-
-<li>
-for 2.0: have good support in place so that refactoring can be made an
-open API; would need corresponding core APIs for abstract syntax trees</li>
-
-<li>
-current refactoring appoach uses AST visitor which runs post-resolve on
-designated compilation unit</li>
-
-<li>
-visitor collects info (parent stack) including source positions</li>
-
-<li>
-uses name environment (bindings, scopes) to validate/locate</li>
-
-<li>
-all changes are formulated as reified undoable edits in a source buffer</li>
-
-<li>
-a batch of changes are made at a time</li>
-
-<li>
-refactoring does not reason hypothetically (changes are undoable)</li>
-
-<li>
-JDOM is not used by refactoring, but potentially could be (JDOM is used
-inside Java Model)</li>
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en"><html><head>   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">   <meta name="GENERATOR" content="Mozilla/4.5 [en] (Win98; I) [Netscape]">   <title>JDT - Abstract Syntax Trees</title></head><body><h2>Abstract Syntax Trees</h2><font color="#3366FF">Last revised 14:00 Friday October 26, 2001 (mostrecent change in blue)</font><p>Original work item: "Exposing the AST API."<p>Related work item: "Improved Java code manipulation support, addressJDOM limitations; JDOM doesn't preserve markers and isn't document aware;JDOM finer grained update support (e.g. change method name, type name);buffer contents is duplicated in Java UI document and needs to be manuallysynchronized."<h3>Background</h3><ul><li>refactoring is a key customer (Dirk B.)</li><li>for 2.0: have good support in place so that refactoring can be made anopen API; would need corresponding core APIs for abstract syntax trees</li><li>current refactoring appoach uses AST visitor which runs post-resolve ondesignated compilation unit</li><li>visitor collects info (parent stack) including source positions</li><li>uses name environment (bindings, scopes) to validate/locate</li><li>all changes are formulated as reified undoable edits in a source buffer</li><li>a batch of changes are made at a time</li><li>refactoring does not reason hypothetically (changes are undoable)</li><li>JDOM is not used by refactoring, but potentially could be (JDOM is usedinside Java Model)</li>
 </ul>
 Dirk's wish list with regard to the AST support:
 <ul>
@@ -1355,7 +1304,7 @@ node (a compilation unit).
 <p>The AST node types do not define their own notion of equality; they
 just inherit the object identity based implementation from Object.
 <p>Note: Grammar rules (in comments) are expressed in the Pascal-style
-extended BNF used in <tt>&sect;18</tt> of JLS2. We use C# style property
+extended BNF used in <tt>&#167;18</tt> of JLS2. We use C# style property
 declarations as a convenient abbreviation for a standard matched pair of
 get and set methods.
 <p><tt>public class AST</tt>
