@@ -625,6 +625,7 @@ public class ClassFile
 			int max = problems.length;
 			StringBuffer buffer = new StringBuffer(25);
 			int count = 0;
+			this.problemLine = 0;
 			for (int i = 0; i < max; i++) {
 				IProblem problem = problems[i];
 				if ((problem != null) && (problem.isError())) {
@@ -686,6 +687,7 @@ public class ClassFile
 			int max = problems.length;
 			StringBuffer buffer = new StringBuffer(25);
 			int count = 0;
+			this.problemLine = 0;
 			for (int i = 0; i < max; i++) {
 				IProblem problem = problems[i];
 				if ((problem != null) && (problem.isError())) {
@@ -770,6 +772,7 @@ public class ClassFile
 			int max = problems.length;
 			StringBuffer buffer = new StringBuffer(25);
 			int count = 0;
+			problemLine = 0;
 			for (int i = 0; i < max; i++) {
 				IProblem problem = problems[i];
 				if ((problem != null)
