@@ -769,6 +769,7 @@ public final class CompletionEngine
 		CompilationUnitDeclaration compilationUnit = new CompilationUnitDeclaration(problemReporter, compilationResult, 0);
 	
 		try {
+			//TODO: (david) should be instead be using SourceTypeConverter?
 			TypeDeclaration typeDeclaration = TypeConverter.buildTypeDeclaration(type, compilationUnit, compilationResult);
 		
 			if(typeDeclaration != null) {	
