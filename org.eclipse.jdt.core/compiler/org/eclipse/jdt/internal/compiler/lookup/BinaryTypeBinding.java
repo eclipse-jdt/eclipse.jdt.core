@@ -62,6 +62,14 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	this.modifiers = binaryType.getModifiers();
 	if (binaryType.isInterface())
 		this.modifiers |= AccInterface;
+		
+	if (binaryType.isAnonymous()) {
+		this.tagBits |= AnonymousTypeMask;
+	} else if (binaryType.isLocal()) {
+		this.tagBits |= LocalTypeMask;
+	} else if (binaryType.isMember()) {
+		this.tagBits |= MemberTypeMask;
+	}
 }
 
 public FieldBinding[] availableFields() {
