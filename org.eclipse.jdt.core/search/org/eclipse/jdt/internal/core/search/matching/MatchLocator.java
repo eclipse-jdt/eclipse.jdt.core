@@ -1186,12 +1186,18 @@ protected IType lookupType(ReferenceBinding typeBinding) {
 	// iterate type lookup in each package fragment
 	char[] sourceName = typeBinding.qualifiedSourceName();
 	String typeName = new String(sourceName);
+	int acceptFlag = 0;
+	if (typeBinding.isAnnotationType()) {
+		acceptFlag = NameLookup.ACCEPT_ANNOTATIONS;
+	} else if (typeBinding.isEnum()) {
+		acceptFlag = NameLookup.ACCEPT_ENUMS;
+	} else if (typeBinding.isInterface()) {
+		acceptFlag = NameLookup.ACCEPT_INTERFACES;
+	} else if (typeBinding.isClass()) {
+		acceptFlag = NameLookup.ACCEPT_CLASSES;
+	}
 	for (int i = 0, length = pkgs == null ? 0 : pkgs.length; i < length; i++) {
-		IType type = this.nameLookup.findType(
-			typeName,
-			pkgs[i], 
-			false, 
-			typeBinding.isClass() ? NameLookup.ACCEPT_CLASSES : NameLookup.ACCEPT_INTERFACES); // TODO (frederic) should distinguish ENUMS and ANNOTATIONS
+		IType type = this.nameLookup.findType(typeName, pkgs[i],  false,  acceptFlag);
 		if (type != null) return type;
 	}
 

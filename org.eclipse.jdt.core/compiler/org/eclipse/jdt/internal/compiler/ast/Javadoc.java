@@ -482,6 +482,7 @@ public class Javadoc extends ASTNode {
 				TypeBinding typeBinding = typeRef.resolvedType;
 
 				if (typeBinding != null && typeBinding.isValidBinding() && typeBinding.isClass()) {
+					// accept only valid class binding
 					typeReferences[maxRef++] = typeRef;
 				}
 			}
