@@ -32,6 +32,45 @@ public class AccessRestriction {
 		this.furtherRestriction = furtherRestriction;
 	}
 	/**
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	public boolean equals(Object object) {
+		if (this == object) 
+			return true;
+		if (!(object instanceof AccessRestriction))
+			return false;
+		AccessRestriction otherRestriction = (AccessRestriction) object;
+		if (!this.messageTemplate.equals(otherRestriction.messageTemplate)) 
+			return false;
+		if (this.inclusionPatterns != otherRestriction.inclusionPatterns) {
+			int length = this.inclusionPatterns == null ? 0 : this.inclusionPatterns.length;
+			int otherLength = otherRestriction.inclusionPatterns == null ? 0 : otherRestriction.inclusionPatterns.length;
+			if (length != otherLength)
+				return false;
+			for (int i = 0; i < length; i++) {
+				if (!CharOperation.equals(this.inclusionPatterns[i], otherRestriction.inclusionPatterns[i]))
+						return false;
+			}
+		}
+		if (this.exclusionPatterns != otherRestriction.exclusionPatterns) {
+			int length = this.exclusionPatterns == null ? 0 : this.exclusionPatterns.length;
+			int otherLength = otherRestriction.exclusionPatterns == null ? 0 : otherRestriction.exclusionPatterns.length;
+			if (length != otherLength)
+				return false;
+			for (int i = 0; i < length; i++) {
+				if (!CharOperation.equals(this.exclusionPatterns[i], otherRestriction.exclusionPatterns[i]))
+						return false;
+			}
+		}
+		if (this.furtherRestriction != otherRestriction.furtherRestriction) {
+			if (this.furtherRestriction == null || otherRestriction.furtherRestriction == null) 
+				return false;
+			if (!this.furtherRestriction.equals(otherRestriction.furtherRestriction))
+				return false;
+		}
+		return true;
+	}
+	/**
 	 * Select the first restriction which is violated when accessing a given type, or null if no restriction applies.
 	 * Type name is formed as: "java/lang/Object".
 	 */
