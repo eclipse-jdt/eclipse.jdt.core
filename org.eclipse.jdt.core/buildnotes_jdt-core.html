@@ -42,6 +42,11 @@ Eclipse SDK 3.0M4 Build - ?th September 2003
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> As a consequence of migrating to background autobuild, the JavaModel will no longer broadcast deltas
+during PRE_AUTO_BUILD event notification. These were somewhat inconsistent in so far as the model wasn't
+totally up to date anyway. Now the model will only fire deltas during POST_CHANGE, or working copy reconcile
+operations.
+</li>
 <li>Part of the new support for local and anonymous types in the Java model has been released. 
 	<p>
 	This includes:
