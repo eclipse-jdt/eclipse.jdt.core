@@ -334,12 +334,12 @@ public int computeSeverity(int problemId){
 			}
 			return Ignore;
 */
-		case DuplicateImport :
 		case ImportProblemBase + NotFound :
 		case ImportProblemBase + NotVisible :
 		case ImportProblemBase + Ambiguous :
 		case ImportProblemBase + InternalNameProvided :
 		case ImportProblemBase + InheritedNameHidesEnclosingName :
+		case DuplicateImport :
 		case ConflictingImport :
 		case CannotImportPackage :
 			if ((errorThreshold & CompilerOptions.ImportProblem) != 0){

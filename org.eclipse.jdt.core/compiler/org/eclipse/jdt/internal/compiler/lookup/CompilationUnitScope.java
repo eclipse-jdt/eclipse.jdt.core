@@ -271,7 +271,7 @@ void faultInImports() {
 				// duplicate test above should have caught this case, but make sure
 				if (existingType == typeBinding)
 					continue nextImport;
-					
+
 				// either the type collides with a top level type or another imported type
 				for (int j = 0, length = topLevelTypes.length; j < length; j++) {
 					if (CharOperation.equals(topLevelTypes[j].sourceName, existingType.sourceName)) {
