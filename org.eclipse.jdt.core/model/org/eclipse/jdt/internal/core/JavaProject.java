@@ -44,11 +44,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -2201,14 +2199,12 @@ public class JavaProject
 	 private void updatePreferences(IEclipsePreferences preferences) {
 	 	
 	 	Preferences oldPreferences = loadPreferences();
-	 	IPreferencesService service = Platform.getPreferencesService();
 	 	if (oldPreferences != null) {
 	 		String[] propertyNames = oldPreferences.propertyNames();
 			for (int i = 0; i < propertyNames.length; i++){
 				String propertyName = propertyNames[i];
 			    String propertyValue = oldPreferences.getString(propertyName);
-				String defaultValue = service.get(propertyName, null, JavaCore.preferencesLookup);
-			    if (!"".equals(propertyValue) && (defaultValue == null || !propertyValue.equals(defaultValue))) { //$NON-NLS-1$
+			    if (!"".equals(propertyValue)) { //$NON-NLS-1$
 				    preferences.put(propertyName, propertyValue);
 			    }
 			}
