@@ -202,7 +202,7 @@ public class Alignment {
 			// backtrack only once all fragments got checked
 			if (this.needRedoColumnAlignment && this.fragmentIndex == this.fragmentCount-1) { // alignment too small
 
-//				if (NewCodeFormatter.DEBUG){
+//				if (CodeFormatterVisitor.DEBUG){
 //					System.out.println("ALIGNMENT TOO SMALL");
 //					System.out.println(this);
 //				}

@@ -37,7 +37,7 @@ public class Scribe {
 	
 	// TODO: to remove when the testing is done
 	private char fillingSpace;
-	public NewCodeFormatter formatter;
+	public CodeFormatterVisitor formatter;
 	public int indentationLevel;	
 	public int lastNumberOfNewLines;
 	public int line;
@@ -50,7 +50,7 @@ public class Scribe {
 	public int tabSize;	
 	public boolean useTab;
 	
-	Scribe(NewCodeFormatter formatter, Map settings) {
+	Scribe(CodeFormatterVisitor formatter, Map settings) {
 		if (settings != null) {
 			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
 			this.scanner = (PublicScanner) ToolFactory.createScanner(true, true, JavaCore.VERSION_1_4.equals(assertModeSetting), true);
@@ -397,7 +397,7 @@ public class Scribe {
 			// there is no need to add new lines
 			return;
 		}
-		final int realNewLineNumber = linesNumber - lastNumberOfNewLines + 1;
+		final int realNewLineNumber = lastNumberOfNewLines != 0 ? linesNumber - lastNumberOfNewLines + 1 : linesNumber;
 		for (int i = 0; i < realNewLineNumber; i++) {
 			this.buffer.append(this.lineSeparator);
 		}
@@ -494,7 +494,7 @@ public class Scribe {
 						this.print(this.scanner.getCurrentTokenSource(), false);
 						break;
 				}
-			} while (this.scanner.currentPosition <= sourceEnd);
+			} while (this.scanner.currentPosition < sourceEnd);
 		} catch(InvalidInputException e) {
 			throw new AbortFormatting(e);
 		}
@@ -729,7 +729,7 @@ public class Scribe {
 		
 		if (!this.needSpace) return;
 		this.lastNumberOfNewLines = 0;
-		if (NewCodeFormatter.DEBUG) {
+		if (CodeFormatterVisitor.DEBUG) {
 			this.buffer.append((char)183);
 		} else {
 			this.buffer.append(' ');
@@ -753,7 +753,7 @@ public class Scribe {
 	}
 	
 	public String toString() {
-		if (NewCodeFormatter.DEBUG) {
+		if (CodeFormatterVisitor.DEBUG) {
 			StringBuffer stringBuffer = new StringBuffer();
 			stringBuffer
 				.append("(page witdh = " + this.pageWidth + ") - (useTab = " + this.useTab + ") - (tabSize = " + this.tabSize + ")")	//$NON-NLS-1$	//$NON-NLS-2$	//$NON-NLS-3$	//$NON-NLS-4$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2002, 2003 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -10,10 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-import java.util.Locale;
 import java.util.Map;
 
-import org.eclipse.jdt.core.ICodeFormatter;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -21,16 +19,89 @@ import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
-import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
+import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
+import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.AssertStatement;
+import org.eclipse.jdt.internal.compiler.ast.Assignment;
+import org.eclipse.jdt.internal.compiler.ast.AstNode;
+import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
+import org.eclipse.jdt.internal.compiler.ast.Block;
+import org.eclipse.jdt.internal.compiler.ast.BreakStatement;
+import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
+import org.eclipse.jdt.internal.compiler.ast.CastExpression;
+import org.eclipse.jdt.internal.compiler.ast.CharLiteral;
+import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
+import org.eclipse.jdt.internal.compiler.ast.Clinit;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
+import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ContinueStatement;
+import org.eclipse.jdt.internal.compiler.ast.DoStatement;
+import org.eclipse.jdt.internal.compiler.ast.DoubleLiteral;
+import org.eclipse.jdt.internal.compiler.ast.EmptyStatement;
+import org.eclipse.jdt.internal.compiler.ast.EqualExpression;
+import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.FalseLiteral;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.FieldReference;
+import org.eclipse.jdt.internal.compiler.ast.FloatLiteral;
+import org.eclipse.jdt.internal.compiler.ast.ForStatement;
+import org.eclipse.jdt.internal.compiler.ast.IfStatement;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.Initializer;
+import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
+import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
+import org.eclipse.jdt.internal.compiler.ast.LabeledStatement;
+import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.LocalTypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.LongLiteral;
+import org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
+import org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression;
+import org.eclipse.jdt.internal.compiler.ast.OperatorExpression;
+import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
+import org.eclipse.jdt.internal.compiler.ast.PostfixExpression;
+import org.eclipse.jdt.internal.compiler.ast.PrefixExpression;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedThisReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
+import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.Statement;
+import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
+import org.eclipse.jdt.internal.compiler.ast.SuperReference;
+import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
+import org.eclipse.jdt.internal.compiler.ast.SynchronizedStatement;
+import org.eclipse.jdt.internal.compiler.ast.ThisReference;
+import org.eclipse.jdt.internal.compiler.ast.ThrowStatement;
+import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
+import org.eclipse.jdt.internal.compiler.ast.TryStatement;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
+import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.parser.Parser;
-import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
-import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.formatter.align.Alignment;
 import org.eclipse.jdt.internal.formatter.align.AlignmentException;
 
@@ -47,11 +118,11 @@ import org.eclipse.jdt.internal.formatter.align.AlignmentException;
          name="org.eclipse.jdt.core.newformatter.codeformatter"
          point="org.eclipse.jdt.core.codeFormatter">
       <codeFormatter
-            class="org.eclipse.jdt.internal.formatter.NewCodeFormatter">
+            class="org.eclipse.jdt.internal.formatter.CodeFormatterVisitor">
       </codeFormatter>
    </extension>
 */
-public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implements ICodeFormatter {
+public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 	public static class MultiFieldDeclaration extends FieldDeclaration {
 		
@@ -86,54 +157,15 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public Scribe scribe;
 	private int chunkKind;
 	
-	private static CompilationUnitDeclaration parse(char[] source, Map settings) {
-		
-		if (source == null) {
-			throw new IllegalArgumentException();
-		}
-		CompilerOptions compilerOptions = new CompilerOptions(settings);
-		Parser parser =
-			new Parser(
-				new ProblemReporter(
-					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-					compilerOptions, 
-					new DefaultProblemFactory(Locale.getDefault())),
-			false,
-			compilerOptions.sourceLevel);
-		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
-			new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
-				source, 
-				"", //$NON-NLS-1$
-				compilerOptions.defaultEncoding);
-		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit));
-		
-		if (compilationUnitDeclaration.ignoreMethodBodies) {
-			compilationUnitDeclaration.ignoreFurtherInvestigation = true;
-			// if initial diet parse did not work, no need to dig into method bodies.
-			return compilationUnitDeclaration; 
-		}
-		
-		//fill the methods bodies in order for the code to be generated
-		//real parse of the method....
-		parser.scanner.setSource(source);
-		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
-		if (types != null) {
-			for (int i = types.length; --i >= 0;) {
-				types[i].parseMethod(parser, compilationUnitDeclaration);
-			}
-		}
-		return compilationUnitDeclaration;
-	}
-
 	/*
 	 * TODO: See how to choose the formatter's options. The extension point is calling
 	 * this constructor, but then there is no way to initialize the option used by the formatter.
 	 */ 
-	public NewCodeFormatter() {
+	public CodeFormatterVisitor() {
 		this(FormattingPreferences.getSunSetttings(), JavaCore.getOptions());
 	}
 
-	public NewCodeFormatter(FormattingPreferences preferences, Map settings) {
+	public CodeFormatterVisitor(FormattingPreferences preferences, Map settings) {
 		if (settings != null) {
 			String compiler_source = (String) settings.get(JavaCore.COMPILER_SOURCE);
 			if (compiler_source == null) {
@@ -144,7 +176,8 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		} else {
 			this.localScanner = ToolFactory.createScanner(false, false, false, false);
 		}
-		convertOldOptionsToPreferences(settings, preferences);
+		// TODO set the java core options when common preferences are changed
+//		convertOldOptionsToPreferences(settings, preferences);
 		this.preferences = preferences;
 		this.scribe = new Scribe(this, settings);
 	}
@@ -580,67 +613,55 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	
 	/**
 	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
+	 * TODO handle positions mapping
 	 */
-	public String format(
-		String string,
-		int indentationLevel,
-		int[] positions,
-		String lineSeparator) {
-
+	public String format(String string, int[] positions, AstNode[] nodes) {
 		// reset the scribe
 		this.scribe.reset();
-
+		
 		long startTime = System.currentTimeMillis();
 
 		final char[] compilationUnitSource = string.toCharArray();
-		CompilationUnitDeclaration compilationUnitDeclaration = NewCodeFormatter.parse(compilationUnitSource, JavaCore.getOptions());
 		
 		this.scribe.scanner.setSource(compilationUnitSource);
 		this.localScanner.setSource(compilationUnitSource);
 		this.scribe.scannerEndPosition = compilationUnitSource.length;
 		this.scribe.scanner.resetTo(0, this.scribe.scannerEndPosition);
-		if (compilationUnitDeclaration == null || compilationUnitDeclaration.ignoreFurtherInvestigation) {
-			if (DEBUG) {
-				System.out.println(compilationUnitDeclaration.compilationResult);
-			} 
+		if (nodes == null) {
 			return string;
 		}
-		this.preferences.line_delimiter = lineSeparator;
-		this.preferences.initial_indentation_level = indentationLevel;
-		this.scribe.setLineSeparatorAndIdentationLevel(this.preferences);
-		
-		this.lastLocalDeclarationSourceStart = 0;		
+
+		this.lastLocalDeclarationSourceStart = 0;
 		try {
-			compilationUnitDeclaration.traverse(this, compilationUnitDeclaration.scope);
+			if (nodes != null) {
+				formatClassBodyDeclarations(nodes);
+			}
 		} catch(AbortFormatting e){
-			StringBuffer buffer = new StringBuffer("COULD NOT FORMAT\n" + this.scribe.formattedSource()); //$NON-NLS-1$
+			StringBuffer buffer = new StringBuffer(this.scribe.formattedSource());
 			buffer.append(compilationUnitSource, this.scribe.scanner.getCurrentTokenEndPosition(), this.scribe.scannerEndPosition - this.scribe.scanner.getCurrentTokenEndPosition());
 			if (DEBUG) {
-				System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner);	//$NON-NLS-1$
+				System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
 				System.out.println(this.scribe);
 			}
 			return buffer.toString();
 		}
 		if (DEBUG){
-			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));	//$NON-NLS-1$
+			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
 		}
 		return this.scribe.toString();
 	}
 
 	/**
 	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
+	 * TODO handle positions mapping
 	 */
-	public String format(String string) {
+	public String format(String string, int[] positions, CompilationUnitDeclaration compilationUnitDeclaration) {
 		// reset the scribe
 		this.scribe.reset();
 		
 		long startTime = System.currentTimeMillis();
 
 		final char[] compilationUnitSource = string.toCharArray();
-		final Map javaCoreSettings = JavaCore.getDefaultOptions();
-		javaCoreSettings.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-		
-		CompilationUnitDeclaration compilationUnitDeclaration = NewCodeFormatter.parse(compilationUnitSource, javaCoreSettings);
 		
 		this.scribe.scanner.setSource(compilationUnitSource);
 		this.localScanner.setSource(compilationUnitSource);
@@ -653,6 +674,89 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		this.lastLocalDeclarationSourceStart = 0;
 		try {
 			compilationUnitDeclaration.traverse(this, compilationUnitDeclaration.scope);
+		} catch(AbortFormatting e){
+			StringBuffer buffer = new StringBuffer(this.scribe.formattedSource());
+			buffer.append(compilationUnitSource, this.scribe.scanner.getCurrentTokenEndPosition(), this.scribe.scannerEndPosition - this.scribe.scanner.getCurrentTokenEndPosition());
+			if (DEBUG) {
+				System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
+				System.out.println(this.scribe);
+			}
+			return buffer.toString();
+		}
+		if (DEBUG){
+			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
+		}
+		return this.scribe.toString();
+	}
+
+	/**
+	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
+	 * TODO handle positions mapping
+	 */
+	public String format(String string, int[] positions, Expression expression) {
+		// reset the scribe
+		this.scribe.reset();
+		
+		long startTime = System.currentTimeMillis();
+
+		final char[] compilationUnitSource = string.toCharArray();
+		
+		this.scribe.scanner.setSource(compilationUnitSource);
+		this.localScanner.setSource(compilationUnitSource);
+		this.scribe.scannerEndPosition = compilationUnitSource.length;
+		this.scribe.scanner.resetTo(0, this.scribe.scannerEndPosition);
+		if (expression == null) {
+			return string;
+		}
+
+		this.lastLocalDeclarationSourceStart = 0;
+		try {
+			expression.traverse(this, null);
+		} catch(AbortFormatting e){
+			StringBuffer buffer = new StringBuffer(this.scribe.formattedSource());
+			buffer.append(compilationUnitSource, this.scribe.scanner.getCurrentTokenEndPosition(), this.scribe.scannerEndPosition - this.scribe.scanner.getCurrentTokenEndPosition());
+			if (DEBUG) {
+				System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
+				System.out.println(this.scribe);
+			}
+			return buffer.toString();
+		}
+		if (DEBUG){
+			System.out.println("Formatting time: " + (System.currentTimeMillis() - startTime));  //$NON-NLS-1$
+		}
+		return this.scribe.toString();
+	}
+
+	/**
+	 * @see org.eclipse.jdt.core.ICodeFormatter#format(java.lang.String, int, int, java.lang.String)
+	 * TODO handle positions mapping
+	 */
+	public String format(String string, int[] positions, ConstructorDeclaration constructorDeclaration) {
+		// reset the scribe
+		this.scribe.reset();
+		
+		long startTime = System.currentTimeMillis();
+
+		final char[] compilationUnitSource = string.toCharArray();
+		
+		this.scribe.scanner.setSource(compilationUnitSource);
+		this.localScanner.setSource(compilationUnitSource);
+		this.scribe.scannerEndPosition = compilationUnitSource.length;
+		this.scribe.scanner.resetTo(0, this.scribe.scannerEndPosition);
+		if (constructorDeclaration == null) {
+			return string;
+		}
+
+		this.lastLocalDeclarationSourceStart = 0;
+		try {
+			ExplicitConstructorCall explicitConstructorCall = constructorDeclaration.constructorCall;
+			if (explicitConstructorCall != SuperReference.implicitSuperConstructorCall()) {
+				explicitConstructorCall.traverse(this, null);
+			}
+			Statement[] statements = constructorDeclaration.statements;
+			if (statements != null) {
+				formatStatements(null, statements);
+			}
 		} catch(AbortFormatting e){
 			StringBuffer buffer = new StringBuffer(this.scribe.formattedSource());
 			buffer.append(compilationUnitSource, this.scribe.scanner.getCurrentTokenEndPosition(), this.scribe.scannerEndPosition - this.scribe.scanner.getCurrentTokenEndPosition());
@@ -1089,6 +1193,67 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 					} else {
 						isChunkStart = memberAlignment.checkChunkStart(TYPE, i, this.scribe.scanner.currentPosition);
 						format((MemberTypeDeclaration)member, typeDeclaration.scope, isChunkStart);
+					}
+					if (isSemiColon()) {
+						this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+						this.scribe.printTrailingComment();
+					}
+				}
+				ok = true;
+			} catch(AlignmentException e){
+				startIndex = memberAlignment.chunkStartIndex;
+				this.scribe.redoAlignment(e);
+			}
+		} while (!ok);		
+		this.scribe.exitAlignment(memberAlignment, true);
+	}
+
+	/*
+	 * Merged traversal of member (types, fields, methods)
+	 */
+	private void formatClassBodyDeclarations(AstNode[] nodes) {
+		final int FIELD = 1, METHOD = 2, TYPE = 3;
+		
+		Alignment memberAlignment = this.scribe.createAlignment("typeMembers", this.preferences.type_member_alignment, 4, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+		this.scribe.enterAlignment(memberAlignment);
+		boolean isChunkStart = false;
+		boolean ok = false;
+		int startIndex = 0;
+		do {
+			try {
+				for (int i = startIndex, max = nodes.length; i < max; i++) {
+					AstNode member = nodes[i];
+					if (member instanceof FieldDeclaration) {
+						isChunkStart = memberAlignment.checkChunkStart(FIELD, i, this.scribe.scanner.currentPosition);
+						if (member instanceof MultiFieldDeclaration){
+							MultiFieldDeclaration multiField = (MultiFieldDeclaration) member;
+							
+							if (multiField.isStatic()) {
+								format(multiField, this, null, isChunkStart);
+							} else {
+								format(multiField, this, null, isChunkStart);
+							}					
+						} else if (member instanceof Initializer) {
+							Initializer initializer = (Initializer) member;
+							if (initializer.isStatic()) {
+								initializer.traverse(this, null);
+							} else {
+								initializer.traverse(this, null);
+							}					
+						} else {
+							FieldDeclaration field = (FieldDeclaration) member;
+							if (field.isStatic()) {
+								format(field, this, null, isChunkStart);
+							} else {
+								format(field, this, null, isChunkStart);
+							}					
+						}
+					} else if (member instanceof AbstractMethodDeclaration) {
+						isChunkStart = memberAlignment.checkChunkStart(METHOD, i, this.scribe.scanner.currentPosition);
+						format((AbstractMethodDeclaration) member, null, isChunkStart);
+					} else {
+						isChunkStart = memberAlignment.checkChunkStart(TYPE, i, this.scribe.scanner.currentPosition);
+						format((MemberTypeDeclaration)member, null, isChunkStart);
 					}
 					if (isSemiColon()) {
 						this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
