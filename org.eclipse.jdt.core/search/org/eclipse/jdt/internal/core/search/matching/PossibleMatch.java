@@ -50,15 +50,14 @@ public boolean equals(Object obj) {
 public char[] getContents() {
 	if (this.source != null) return this.source;
 
-	this.source = CharOperation.NO_CHAR;
 	try {
 		if (this.openable instanceof CompilationUnit) {
 			if (((CompilationUnit) this.openable).isWorkingCopy()) {
 				IBuffer buffer = this.openable.getBuffer();
 				if (buffer == null) return null;
-				this.source = buffer.getCharacters();
+				return this.source = buffer.getCharacters();
 			} else {
-				this.source = Util.getResourceContentsAsCharArray((IFile) this.resource);
+				return this.source = Util.getResourceContentsAsCharArray((IFile) this.resource);
 			}
 		} else if (this.openable instanceof ClassFile) {
 			SourceMapper sourceMapper = this.openable.getSourceMapper();
@@ -67,12 +66,12 @@ public char[] getContents() {
 				if (fileName == NO_SOURCE_FILE_NAME) return null;
 
 				IType type = ((ClassFile) this.openable).getType();
-				this.source = sourceMapper.findSource(type, fileName);
+				return this.source = sourceMapper.findSource(type, fileName);
 			}
 		}
 	} catch (JavaModelException e) { // ignored
 	}
-	return this.source;
+	return null;
 }
 public char[] getFileName() {
 	return this.openable.getPath().toString().toCharArray();
