@@ -110,7 +110,8 @@ public boolean build(SimpleLookupTable deltas) {
 				for (int i = 0, length = secondaryTypesToRemove.size(); i < length; i++)
 					removeClassFile((IPath) secondaryTypesToRemove.get(i));
 				this.secondaryTypesToRemove = null;
-				this.previousLocations = null; // cannot optimize recompile case when a secondary type is deleted
+				if (previousLocations != null && previousLocations.size() > 1)
+					this.previousLocations = null; // cannot optimize recompile case when a secondary type is deleted
 			}
 			addAffectedSourceFiles();
 		}
@@ -360,10 +361,15 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 						char[][] definedTypeNames = newState.getDefinedTypeNamesFor(sourceLocation);
 						if (definedTypeNames == null) { // defined a single type matching typePath
 							removeClassFile(typePath);
-						} else if (definedTypeNames.length > 0) { // skip it if it failed to successfully define a type
-							IPath packagePath = typePath.removeLastSegments(1);
-							for (int i = 0, length = definedTypeNames.length; i < length; i++)
-								removeClassFile(packagePath.append(new String(definedTypeNames[i])));
+						} else {
+							if (JavaBuilder.DEBUG)
+								System.out.println("Add dependents of removed source file " + typePath.toString()); //$NON-NLS-1$
+							addDependentsOf(typePath, true); // add dependents of the source file since it may be involved in a name collision
+							if (definedTypeNames.length > 0) { // skip it if it failed to successfully define a type
+								IPath packagePath = typePath.removeLastSegments(1);
+								for (int i = 0, length = definedTypeNames.length; i < length; i++)
+									removeClassFile(packagePath.append(new String(definedTypeNames[i])));
+							}
 						}
 						newState.remove(sourceLocation);
 						return;
