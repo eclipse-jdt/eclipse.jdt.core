@@ -431,11 +431,16 @@ public static void searchAllPossibleSubTypes(
 					char[] enclosingTypeName = record.enclosingTypeName;
 					if (enclosingTypeName == IIndexConstants.ONE_ZERO) { // local or anonymous type
 						int lastSlash = documentPath.lastIndexOf('/');
-						if (lastSlash == -1) return true;
 						int lastDollar = documentPath.lastIndexOf('$');
-						if (lastDollar == -1) return true;
-						enclosingTypeName = documentPath.substring(lastSlash+1, lastDollar).toCharArray();
-						typeName = documentPath.substring(lastDollar+1, suffix).toCharArray();
+						if (lastDollar == -1) {
+							// malformed local or anonymous type: it doesn't contain a $ in its name
+							// treat it as a top level type
+							enclosingTypeName = null;
+							typeName = documentPath.substring(lastSlash+1, suffix).toCharArray();
+						} else {
+							enclosingTypeName = documentPath.substring(lastSlash+1, lastDollar).toCharArray();
+							typeName = documentPath.substring(lastDollar+1, suffix).toCharArray();
+						}
 					}
 					binaryType = new HierarchyBinaryType(record.modifiers, record.pkgName, typeName, enclosingTypeName, record.classOrInterface);
 					binariesFromIndexMatches.put(documentPath, binaryType);
