@@ -75,7 +75,6 @@ public class AnnotationParser {
 					
 			// scan line per line, since tags must be at beginning of lines only
 			nextLine: for (int line = firstLineNumber; line <= lastLineNumber; line++) {
-				boolean foundStar = false;
 				int lineStart = line == firstLineNumber 
 						? annotationStart + 3 		// skip leading /**
 						:  this.sourceParser.scanner.getLineStart(line);
@@ -130,8 +129,6 @@ public class AnnotationParser {
 							}
 							continue nextLine;
 						case '*' :
-							if (foundStar) continue nextLine;
-							foundStar = true;
 							break;
 						default :
 							if (!CharOperation.isWhitespace(nextCharacter)) continue nextLine;
