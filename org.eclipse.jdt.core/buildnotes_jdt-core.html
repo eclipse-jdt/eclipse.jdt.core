@@ -44,6 +44,9 @@ What's new in this drop</h2>
 			<li><code>IType.getTypeQualifiedName(char)</code></li>
 		</ul>
 	</li>
+	<li>API change: <code>IWorkingCopy.findSharedWorkingCopy()</code> is now taking an extra argument: the buffer factory it is associated with. This ensures that
+		working copies can only be reused for the same buffer factories.
+	</li>
 	<li> JavaModelOperations now guarantee the JavaModel is up to date when notifying the Java model change listeners. In particular,
 	a builder running after the Java builder will be able to query the Java model with respect to the changes introduced through Java model
 	operations (except for index queries). This was never guaranteed in 1.0, but indirectly occurred due to the fact that the previous Java
@@ -54,9 +57,9 @@ What's new in this drop</h2>
 	set of libraries (including extension dirs) to be placed on the build path. 
 	<p>New APIs added to reflect this addition:
 	<ul>
-	<li><code>JavaCore#newContainerEntry(IPath containerPath)</code></li>
-	<li><code>JavaCore#newContainerEntry(IPath containerPath, boolean isExported)</code></li>
-	<li><code>JavaCore#classpathContainerChanged(IPath containerPath, IJavaElement scope) </code></li>
+	<li><code>JavaCore.newContainerEntry(IPath containerPath)</code></li>
+	<li><code>JavaCore.newContainerEntry(IPath containerPath, boolean isExported)</code></li>
+	<li><code>JavaCore.classpathContainerChanged(IPath containerPath, IJavaElement scope) </code></li>
 	<li><code>ClasspathContainerResolver </code></li>
 	</ul>
 	</li>
