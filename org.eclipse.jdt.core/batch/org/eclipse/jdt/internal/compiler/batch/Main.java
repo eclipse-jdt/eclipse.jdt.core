@@ -383,7 +383,7 @@ public class Main implements ProblemSeverities {
 		// expand the command line if necessary
 		boolean needExpansion = false;
 		loop: for (int i = 0; i < argCount; i++) {
-				if (argv[i].startsWith("@")) {
+				if (argv[i].startsWith("@")) { //$NON-NLS-1$
 					needExpansion = true;
 					break loop;
 				}
@@ -396,13 +396,13 @@ public class Main implements ProblemSeverities {
 			for (int i = 0; i < argCount; i++) {
 				String[] newArgs = null;
 				String arg = argv[i].trim();
-				if (arg.startsWith("@")) {
+				if (arg.startsWith("@")) { //$NON-NLS-1$
 					try {
 						LineNumberReader reader = new LineNumberReader(new StringReader(new String(Util.getFileCharContent(new File(arg.substring(1)), null))));
 						StringBuffer buffer = new StringBuffer();
 						String line;
 						while((line = reader.readLine()) != null) {
-							buffer.append(line).append(" ");
+							buffer.append(line).append(" "); //$NON-NLS-1$
 						}
 						newArgs = tokenize(buffer.toString());
 					} catch(IOException e) {
