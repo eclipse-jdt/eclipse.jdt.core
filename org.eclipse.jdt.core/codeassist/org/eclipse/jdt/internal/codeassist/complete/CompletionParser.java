@@ -2067,17 +2067,6 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	}
 	return super.getUnspecifiedReferenceOptimized();
 }
-/**
- * Return whether the given ast node has information interresting for code completion.
- */
-//TODO: (david) unused?
-private boolean hasCompletionInformation(AstNode ast) {
-	return (
-		ast instanceof AbstractMethodDeclaration ||
-		ast instanceof AbstractVariableDeclaration ||
-		ast instanceof LabeledStatement ||
-		ast instanceof TypeDeclaration);
-}
 public void initialize() {
 	super.initialize();
 	this.initializeForBlockStatements();
