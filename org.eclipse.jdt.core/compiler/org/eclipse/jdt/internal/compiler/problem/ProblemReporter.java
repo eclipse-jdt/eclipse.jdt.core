@@ -562,6 +562,7 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocUndefinedMethod:
 		case IProblem.JavadocNotVisibleMethod:
 		case IProblem.JavadocAmbiguousMethod:
+		case IProblem.JavadocAmbiguousMethodReference:
 		case IProblem.JavadocParameterMismatch:
 		case IProblem.JavadocUndefinedType:
 		case IProblem.JavadocNotVisibleType:
@@ -569,6 +570,9 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocInternalTypeNameProvided:
 		case IProblem.JavadocNoMessageSendOnArrayType:
 		case IProblem.JavadocNoMessageSendOnBaseType:
+		case IProblem.JavadocInheritedMethodHidesEnclosingName:
+		case IProblem.JavadocInheritedFieldHidesEnclosingName:
+		case IProblem.JavadocInheritedNameHidesEnclosingTypeName:
 			if (this.options.docCommentSupport && this.options.reportInvalidJavadocTags) {
 				return this.options.getSeverity(CompilerOptions.InvalidJavadoc);
 			} else {
@@ -2273,6 +2277,20 @@ public void javadocInvalidConstructor(Statement statement, MethodBinding targetC
 		statement.sourceStart,
 		statement.sourceEnd);
 }
+public void javadocAmbiguousMethodReference(FieldReference fieldRef, int modifiers) {
+	int id = IProblem.JavadocAmbiguousMethodReference;
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
+		String[] arguments = new String[] {new String(fieldRef.binding.readableName())};
+		handle(id, arguments, arguments, fieldRef.sourceStart, fieldRef.sourceEnd);
+	}
+}
+/*
+ * Similar implementation than invalidField(FieldReference...)
+ * Note that following problem id cannot occur for Javadoc:
+ * 	- NonStaticReferenceInStaticContext :
+ * 	- NonStaticReferenceInConstructorInvocation :
+ * 	- ReceiverTypeNotVisible :
+ */
 public void javadocInvalidField(FieldReference fieldRef, TypeBinding searchedType, int modifiers) {
 	int id = IProblem.JavadocUndefinedField;
 	FieldBinding field = fieldRef.binding;
@@ -2286,6 +2304,9 @@ public void javadocInvalidField(FieldReference fieldRef, TypeBinding searchedTyp
 		case Ambiguous :
 			id = IProblem.JavadocAmbiguousField;
 			break;
+		case InheritedNameHidesEnclosingName :
+			id = IProblem.JavadocInheritedFieldHidesEnclosingName;
+			break;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
@@ -2297,6 +2318,13 @@ public void javadocInvalidField(FieldReference fieldRef, TypeBinding searchedTyp
 		handle(id, arguments, arguments, fieldRef.sourceStart, fieldRef.sourceEnd);
 	}
 }
+/*
+ * Similar implementation than invalidMethod(MessageSend...)
+ * Note that following problem id cannot occur for Javadoc:
+ * 	- NonStaticReferenceInStaticContext :
+ * 	- NonStaticReferenceInConstructorInvocation :
+ * 	- ReceiverTypeNotVisible :
+ */
 public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, int modifiers) {
 	if (!javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		return;
@@ -2311,6 +2339,9 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 			break;
 		case Ambiguous :
 			id = IProblem.JavadocAmbiguousMethod;
+			break;
+		case InheritedNameHidesEnclosingName :
+			id = IProblem.JavadocInheritedMethodHidesEnclosingName;
 			break;
 		case NoError : // 0
 		default :
@@ -2405,7 +2436,7 @@ public void javadocInvalidType(ASTNode location, TypeBinding type, int modifiers
 				break;
 			case InheritedNameHidesEnclosingName :
 				id = IProblem.JavadocInheritedNameHidesEnclosingTypeName;
-			break;
+				break;
 			case NoError : // 0
 			default :
 				needImplementation(); // want to fail to see why we were here...

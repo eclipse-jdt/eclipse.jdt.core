@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -17,15 +18,14 @@ import java.util.ResourceBundle;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfInt;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class DefaultProblemFactory implements IProblemFactory {
 
-	public static final int MAX_MESSAGES = 520;
-	
-	public String[] messageTemplates;
+	public HashtableOfInt messageTemplates;
 	private Locale locale;
-	private static String[] DEFAULT_LOCALE_TEMPLATES;
+	private static HashtableOfInt DEFAULT_LOCALE_TEMPLATES;
 	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
 	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
 
@@ -60,7 +60,8 @@ public DefaultProblemFactory(Locale loc) {
  * </ul>
  * @param originatingFileName char[]
  * @param problemId int
- * @param arguments String[]
+ * @param problemArguments String[]
+ * @param messageArguments String[]
  * @param severity int
  * @param startPosition int
  * @param endPosition int
@@ -87,19 +88,18 @@ public IProblem createProblem(
 		endPosition, 
 		lineNumber); 
 }
+private final static int keyFromID(int id) {
+    return id + 1; // keys are offsetted by one in table, since it cannot handle 0 key
+}
 /**
  * Answer the locale used to retrieve the error messages
  * @return java.util.Locale
  */
 public Locale getLocale() {
-	return locale;
+	return this.locale;
 }
 public final String getLocalizedMessage(int id, String[] problemArguments) {
-	StringBuffer output = new StringBuffer(80);
-	if ((id & IProblem.Javadoc) != 0) {
-		output.append(messageTemplates[IProblem.JavadocMessagePrefix & IProblem.IgnoreCategoriesMask]);
-	}
-	String message = messageTemplates[id & IProblem.IgnoreCategoriesMask]; 
+	String message = (String) this.messageTemplates.get(keyFromID(id & IProblem.IgnoreCategoriesMask)); 
 	if (message == null) {
 		return "Unable to retrieve the error message for problem id: " //$NON-NLS-1$
 			+ (id & IProblem.IgnoreCategoriesMask)
@@ -109,19 +109,29 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 	// for compatibility with MessageFormat which eliminates double quotes in original message
 	char[] messageWithNoDoubleQuotes =
 		CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
-	message = new String(messageWithNoDoubleQuotes);
 
-	int length = message.length();
-	int start = -1, end = length;
+	if (problemArguments == null) return new String(messageWithNoDoubleQuotes);
+
+	int length = messageWithNoDoubleQuotes.length;
+	int start = 0;
+	int end = length;
+	StringBuffer output = null;
+	if ((id & IProblem.Javadoc) != 0) {
+		if (output == null) output = new StringBuffer(10+length+problemArguments.length*20);
+		output.append((String) this.messageTemplates.get(keyFromID(IProblem.JavadocMessagePrefix & IProblem.IgnoreCategoriesMask)));
+	}
 	while (true) {
-		if ((end = message.indexOf('{', start)) > -1) {
-			output.append(message.substring(start + 1, end));
-			if ((start = message.indexOf('}', end)) > -1) {
+		if ((end = CharOperation.indexOf('{', messageWithNoDoubleQuotes, start)) > -1) {
+			if (output == null) output = new StringBuffer(length+problemArguments.length*20);
+			output.append(messageWithNoDoubleQuotes, start, end - start);
+			if ((start = CharOperation.indexOf('}', messageWithNoDoubleQuotes, end + 1)) > -1) {
+				int index = -1;
+				String argId = new String(messageWithNoDoubleQuotes, end + 1, start - end - 1);
 				try {
-					output.append(
-						problemArguments[Integer.parseInt(message.substring(end + 1, start))]); 
+					index = Integer.parseInt(argId);
+					output.append(problemArguments[index]);
 				} catch (NumberFormatException nfe) {
-					output.append(message.substring(end + 1, start + 1));
+					output.append(messageWithNoDoubleQuotes, end + 1, start - end);
 				} catch (ArrayIndexOutOfBoundsException e) {
 					return "Cannot bind message for problem (id: " //$NON-NLS-1$
 						+ (id & IProblem.IgnoreCategoriesMask)
@@ -131,15 +141,18 @@ public final String getLocalizedMessage(int id, String[] problemArguments) {
 						+ Util.toString(problemArguments)
 						+"}"; //$NON-NLS-1$
 				}
+				start++;
 			} else {
-				output.append(message.substring(end, length));
+				output.append(messageWithNoDoubleQuotes, end, length);
 				break;
 			}
 		} else {
-			output.append(message.substring(start + 1, length));
+			if (output == null) return new String(messageWithNoDoubleQuotes);
+			output.append(messageWithNoDoubleQuotes, start, length - start);
 			break;
 		}
 	}
+
 	return output.toString();
 }
 /**
@@ -153,8 +166,10 @@ public final String localizedMessage(IProblem problem) {
 /**
  * This method initializes the MessageTemplates class variable according
  * to the current Locale.
+ * @param loc Locale
+ * @return HashtableOfInt
  */
-public static String[] loadMessageTemplates(Locale loc) {
+public static HashtableOfInt loadMessageTemplates(Locale loc) {
 	ResourceBundle bundle = null;
 	String bundleName = "org.eclipse.jdt.internal.compiler.problem.messages"; //$NON-NLS-1$
 	try {
@@ -163,13 +178,18 @@ public static String[] loadMessageTemplates(Locale loc) {
 		System.out.println("Missing resource : " + bundleName.replace('.', '/') + ".properties for locale " + loc); //$NON-NLS-1$//$NON-NLS-2$
 		throw e;
 	}
-	String[] templates = new String[MAX_MESSAGES];
-	for (int i = 0, max = templates.length; i < max; i++) {
-		try {
-			templates[i] = bundle.getString(String.valueOf(i));
+	HashtableOfInt templates = new HashtableOfInt(700);
+	Enumeration keys = bundle.getKeys();
+	while (keys.hasMoreElements()) {
+	    String key = (String)keys.nextElement();
+	    try {
+	        int messageID = Integer.parseInt(key);
+			templates.put(keyFromID(messageID), bundle.getString(key));
+	    } catch(NumberFormatException e) {
+	        // key ill-formed
 		} catch (MissingResourceException e) {
 			// available ID
-		}
+	    }
 	}
 	return templates;
 }

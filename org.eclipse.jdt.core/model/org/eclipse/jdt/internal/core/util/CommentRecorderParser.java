@@ -166,15 +166,14 @@ public class CommentRecorderParser extends Parser {
 		// if the source at <position> is immediately followed by a line comment, then
 		// flush this comment and shift <position> to the comment end.
 		if (validCount > 0){
-			int immediateCommentEnd = -this.scanner.commentStops[index+1]; //non-javadoc comment end positions are negative
-			if (immediateCommentEnd > 0){ // only tolerating non-javadoc comments
+			int immediateCommentEnd = 0;
+			while (index<lastCommentIndex && (immediateCommentEnd = -this.scanner.commentStops[index+1])  > 0){ // only tolerating non-javadoc comments (non-javadoc comment end positions are negative)
 				// is there any line break until the end of the immediate comment ? (thus only tolerating line comment)
 				immediateCommentEnd--; // comment end in one char too far
-				if (this.scanner.getLineNumber(position) == this.scanner.getLineNumber(immediateCommentEnd)){
-					position = immediateCommentEnd;
-					validCount--; // flush this comment
-					index++;
-				}
+				if (this.scanner.getLineNumber(position) != this.scanner.getLineNumber(immediateCommentEnd)) break;
+				position = immediateCommentEnd;
+				validCount--; // flush this comment
+				index++;
 			}
 		}
 	

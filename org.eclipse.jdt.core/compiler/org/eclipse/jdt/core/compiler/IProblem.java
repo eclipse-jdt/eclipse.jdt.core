@@ -779,7 +779,13 @@ public interface IProblem {
 	/** @since 3.0 */
 	int JavadocInternalTypeNameProvided = Javadoc + Internal + 507;
 	/** @since 3.0 */
-	int JavadocInheritedNameHidesEnclosingTypeName = Javadoc + Internal + 508;
+	int JavadocInheritedMethodHidesEnclosingName = Javadoc + Internal + 508;
 	/** @since 3.0 */
-	int JavadocMessagePrefix = Internal + 509;
+	int JavadocInheritedFieldHidesEnclosingName = Javadoc + Internal + 509;
+	/** @since 3.0 */
+	int JavadocInheritedNameHidesEnclosingTypeName = Javadoc + Internal + 510;
+	/** @since 3.0 */
+	int JavadocAmbiguousMethodReference = Javadoc + Internal + 511;
+	/** @since 3.0 */
+	int JavadocMessagePrefix = Internal + 512;
 }

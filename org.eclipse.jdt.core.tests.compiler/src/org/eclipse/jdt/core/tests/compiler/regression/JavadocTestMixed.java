@@ -20,6 +20,7 @@ public class JavadocTestMixed extends JavadocTest {
 
 	String localDocCommentSupport = CompilerOptions.ENABLED;
 	String reportInvalidJavadoc = CompilerOptions.ERROR;
+	String reportMissingJavadocTags = CompilerOptions.ERROR;
 	String reportMissingJavadocComments = null;
 
 	public JavadocTestMixed(String name) {
@@ -52,7 +53,10 @@ public class JavadocTestMixed extends JavadocTest {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportMissingJavadocComments);
 		else
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportInvalidJavadoc);
-		options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportInvalidJavadoc);
+		if (reportMissingJavadocTags != null) 
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportMissingJavadocTags);
+		else
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportInvalidJavadoc);
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -66,6 +70,7 @@ public class JavadocTestMixed extends JavadocTest {
 		super.setUp();
 		this.localDocCommentSupport = this.docCommentSupport;
 		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportMissingJavadocTags = CompilerOptions.ERROR;
 		reportMissingJavadocComments = null;
 	}
 	

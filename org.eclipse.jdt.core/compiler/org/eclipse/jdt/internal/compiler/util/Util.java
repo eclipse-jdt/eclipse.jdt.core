@@ -77,23 +77,24 @@ public class Util implements SuffixConstants {
 		// for compatibility with MessageFormat which eliminates double quotes in original message
 		char[] messageWithNoDoubleQuotes =
 			CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
-		message = new String(messageWithNoDoubleQuotes);
-
-		int length = message.length();
-		int start = -1;
+	
+		if (bindings == null) return new String(messageWithNoDoubleQuotes);
+	
+		int length = messageWithNoDoubleQuotes.length;
+		int start = 0;
 		int end = length;
 		StringBuffer output = null;
 		while (true) {
-			if ((end = message.indexOf('{', start)) > -1) {
-				if (output == null) output = new StringBuffer(80);
-				output.append(message.substring(start + 1, end));
-				if ((start = message.indexOf('}', end)) > -1) {
+			if ((end = CharOperation.indexOf('{', messageWithNoDoubleQuotes, start)) > -1) {
+				if (output == null) output = new StringBuffer(length+bindings.length*20);
+				output.append(messageWithNoDoubleQuotes, start, end - start);
+				if ((start = CharOperation.indexOf('}', messageWithNoDoubleQuotes, end + 1)) > -1) {
 					int index = -1;
+					String argId = new String(messageWithNoDoubleQuotes, end + 1, start - end - 1);
 					try {
-						index = Integer.parseInt(message.substring(end + 1, start));
+						index = Integer.parseInt(argId);
 						output.append(bindings[index]);
 					} catch (NumberFormatException nfe) { // could be nested message ID {compiler.name}
-						String argId = message.substring(end + 1, start);
 						boolean done = false;
 						if (!id.equals(argId)) {
 							String argMessage = null;
@@ -102,20 +103,21 @@ public class Util implements SuffixConstants {
 								output.append(argMessage);
 								done = true;
 							} catch (MissingResourceException e) {
-								// ignore
+								// unable to bind argument, ignore (will leave argument in)
 							}
 						}
-						if (!done) output.append(message.substring(end + 1, start + 1));
+						if (!done) output.append(messageWithNoDoubleQuotes, end + 1, start - end);
 					} catch (ArrayIndexOutOfBoundsException e) {
 						output.append("{missing " + Integer.toString(index) + "}"); //$NON-NLS-2$ //$NON-NLS-1$
 					}
+					start++;
 				} else {
-					output.append(message.substring(end, length));
+					output.append(messageWithNoDoubleQuotes, end, length);
 					break;
 				}
 			} else {
-				if (output == null) return message;
-				output.append(message.substring(start + 1, length));
+				if (output == null) return new String(messageWithNoDoubleQuotes);
+				output.append(messageWithNoDoubleQuotes, start, length - start);
 				break;
 			}
 		}

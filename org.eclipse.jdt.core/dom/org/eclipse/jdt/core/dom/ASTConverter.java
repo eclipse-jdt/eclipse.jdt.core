@@ -24,6 +24,8 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.JavadocArgumentExpression;
+import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -2982,31 +2984,51 @@ class ASTConverter {
 							recordNodes(javadoc, (TagElement) tags.next());
 						}
 					}
-//					return docComment;
 					bodyDeclaration.setJavadoc(docComment);
 				}
 			}
 		}
-//		return null;
 	}
 	
 	private void recordNodes(org.eclipse.jdt.internal.compiler.ast.Javadoc javadoc, TagElement tagElement) {
 		Iterator fragments = tagElement.fragments().listIterator();
+		int size = tagElement.fragments().size();
+		int[] replaceIndex = new int[size];
+		int idx = 0;
 		while (fragments.hasNext()) {
 			ASTNode node = (ASTNode) fragments.next();
+			replaceIndex[idx] = 0;
 			if (node.getNodeType() == ASTNode.MEMBER_REF) {
 				MemberRef memberRef = (MemberRef) node;
 				Name name = memberRef.getName();
 				// get compiler node and record nodes
 				int start = name.getStartPosition();
-				org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference fieldRef = (org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference) javadoc.getNodeStartingAt(start);
-				if (fieldRef != null) {
-					recordNodes(name, fieldRef);
-					recordNodes(node, fieldRef);
+				org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(start);
+				if (compilerNode instanceof JavadocMessageSend) {
+					replaceIndex[idx] = 1;
+				}
+				if (compilerNode!= null) {
+					recordNodes(name, compilerNode);
+					recordNodes(node, compilerNode);
 				}
 				// Replace qualifier to have all nodes recorded
 				if (memberRef.getQualifier() != null) {
-					recordName(memberRef.getQualifier(), fieldRef.receiver);
+					org.eclipse.jdt.internal.compiler.ast.TypeReference typeRef = null;
+					if (compilerNode instanceof JavadocFieldReference) {
+						org.eclipse.jdt.internal.compiler.ast.Expression expression = ((JavadocFieldReference)compilerNode).receiver;
+						if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference) {
+							typeRef = (org.eclipse.jdt.internal.compiler.ast.TypeReference) expression;
+						}
+					} 
+					else if (compilerNode instanceof JavadocMessageSend) {
+						org.eclipse.jdt.internal.compiler.ast.Expression expression = ((JavadocMessageSend)compilerNode).receiver;
+						if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference) {
+							typeRef = (org.eclipse.jdt.internal.compiler.ast.TypeReference) expression;
+						}
+					}
+					if (typeRef != null) {
+						recordName(memberRef.getQualifier(), typeRef);
+					}
 				}
 			} else if (node.getNodeType() == ASTNode.METHOD_REF) {
 				MethodRef methodRef = (MethodRef) node;
@@ -3065,6 +3087,18 @@ class ASTConverter {
 			} else if (node.getNodeType() == ASTNode.TAG_ELEMENT) {
 				// resolve member and method references binding
 				recordNodes(javadoc, (TagElement) node);
+			}
+		}
+		for (int i=0; i<size; i++) {
+			if (replaceIndex[i] == 1) {
+				MemberRef memberRef = (MemberRef) tagElement.fragments().remove(i);
+				MethodRef methodRef = this.ast.newMethodRef();
+				methodRef.setName((SimpleName)memberRef.getName().clone(this.ast));
+				if (memberRef.getQualifier() != null) {
+					methodRef.setQualifier((Name)memberRef.getQualifier().clone(this.ast));
+				}
+				methodRef.setSourceRange(memberRef.getStartPosition(), memberRef.getLength());
+				tagElement.fragments().add(i, methodRef);
 			}
 		}
 	}

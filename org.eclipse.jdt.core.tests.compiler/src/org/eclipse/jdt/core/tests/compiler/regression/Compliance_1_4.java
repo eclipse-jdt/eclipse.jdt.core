@@ -21,6 +21,8 @@ import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class Compliance_1_4 extends AbstractRegressionTest {
+boolean docSupport = false;
+
 public Compliance_1_4(String name) {
 	super(name);
 }
@@ -33,10 +35,32 @@ protected Map getCompilerOptions() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);	
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);	
+	if (docSupport) {
+		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
+	}
 	return options;
 }
 public static Test suite() {
-	return setupSuite(testClass());
+	return suite(testClass(), null);
+}
+// Use this static initializer to specify subset for tests
+// All specified tests which does not belong to the class are skipped...
+static {
+	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		testsNames = new String[] { "Bug58069" };
+	// Numbers of tests to run: "test<number>" will be run for each number of this array
+//	testsNumbers = new int[] { 78 };
+	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//		testsRange = new int[] { 76, -1 };
+}
+/* (non-Javadoc)
+ * @see junit.framework.TestCase#setUp()
+ */
+protected void setUp() throws Exception {
+	super.setUp();
+	// Javadoc disabled by default 
+	docSupport = false;
 }
 public void test001() {
 	this.runConformTest(
@@ -2448,6 +2472,104 @@ public void test075() {
 			"}	\n",
 		},
 		"SUCCESS");
+}
+
+/**
+ * Test fix for bug 58069.
+ * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=58069">58069</a>
+ */
+public void test076() {
+	docSupport = true;
+	runNegativeTest(
+		new String[] {
+			"IX.java",
+			"interface IX {\n" + 
+				"	public static class Problem extends Exception {}\n" + 
+				"}\n",
+			"X.java",
+			"public abstract class X {\n" + 
+				"	public static class Problem extends Exception {}\n" + 
+				"	public abstract static class InnerClass implements IX {\n" + 
+				"		/**\n" + 
+				"		 * @throws Problem \n" + 
+				"		 */\n" + 
+				"		public void foo() throws IllegalArgumentException {\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n"
+		},
+		"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	* @throws Problem \n" + 
+			"	          ^^^^^^^\n" + 
+			"Javadoc: Exception Problem is not declared\n" + 
+			"----------\n"
+	);
+}
+/**
+ * Test fix bug 58069 for method.
+ * Note that problem is not flagged in doc comments as it is only raised while verifying
+ * implicit method and javadoc resolution does not use it.
+ */
+public void test077() {
+	docSupport = true;
+	this.runConformTest(
+		new String[] {
+			"p1/Test.java",
+			"package p1; \n"+
+			"public class Test { \n"+
+			"	public static void main(String[] arguments) { \n"+
+			"		new Test().foo(); \n"+
+			"	} \n"+
+			"	String bar() { \n"+
+			"		return \"FAILED\";	\n" +
+			"	} \n"+
+			"	void foo(){ \n"+
+			"		/** @see #bar() */\n" +
+			"		class Y extends Secondary { \n"+
+			"			/** @see #bar() */\n" +
+			"			String z = bar();	\n" +
+			"		}; \n"+
+			"		System.out.println(new Y().z);	\n" +
+			"	} \n"+
+			"} \n" +
+			"class Secondary { \n" +
+			"	String bar(){ return \"FAILED\"; } \n" +
+			"} \n"
+		}
+	);
+}
+/**
+ * Test fix bug 58069 for field.
+ * Note that problem is not flagged in doc comments as it is only raised while verifying
+ * Name or Qualified name references and javadoc reference is a field reference.
+ */
+public void test078() {
+	docSupport = true;
+	this.runConformTest(
+		new String[] {
+			"p1/Test.java",
+			"package p1; \n"+
+			"public class Test { \n"+
+			"	public static void main(String[] arguments) { \n"+
+			"		new Test().foo(); \n"+
+			"	} \n"+
+			"	String bar = \"FAILED\";"+
+			"	void foo(){ \n"+
+			"		/** @see #bar */\n" +
+			"		class Y extends Secondary { \n"+
+			"			/** @see #bar */\n" +
+			"			String z = bar; \n"+
+			"		}; \n"+
+			"		System.out.println(new Y().z);	\n" +
+			"	} \n"+
+			"} \n" +
+			"class Secondary { \n" +
+			"	String bar = \"FAILED\"; \n" +
+			"} \n"
+		}
+	);
 }
 
 public static Class testClass() {

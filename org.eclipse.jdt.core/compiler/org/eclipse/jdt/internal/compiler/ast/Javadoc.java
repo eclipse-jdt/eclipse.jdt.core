@@ -100,7 +100,24 @@ public class Javadoc extends ASTNode {
 		// @see tags
 		int seeTagsLength = this.references == null ? 0 : this.references.length;
 		for (int i = 0; i < seeTagsLength; i++) {
+			
+			// Resolve reference
 			this.references[i].resolveType(classScope);
+
+			// Some unbound field reference might be changed to message send
+			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51911
+			if (this.references[i] instanceof JavadocFieldReference) {
+				JavadocFieldReference fieldRef = (JavadocFieldReference) this.references[i];
+				if (fieldRef.receiverType != null && fieldRef.binding == null) { // binding was reset in case of valid method reference
+					JavadocMessageSend msgSend = new JavadocMessageSend(fieldRef.token, fieldRef.nameSourcePosition);
+					msgSend.receiver = fieldRef.receiver;
+					msgSend.receiverType = fieldRef.receiverType;
+					msgSend.qualifyingType = fieldRef.receiverType;
+					msgSend.superAccess = classScope.enclosingSourceType().isCompatibleWith(msgSend.receiverType);
+					msgSend.binding = classScope.findMethod((ReferenceBinding)msgSend.receiverType, msgSend.selector, new TypeBinding[0], msgSend);
+					this.references[i] = msgSend;
+				}
+			}
 		}
 	}
 	
@@ -117,9 +134,27 @@ public class Javadoc extends ASTNode {
 		int seeTagsLength = this.references == null ? 0 : this.references.length;
 		boolean superRef = false;
 		for (int i = 0; i < seeTagsLength; i++) {
+			
+			// Resolve reference
 			this.references[i].resolveType(methScope);
+			
+			// Some unbound field reference might be changed to message send
+			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51911
+			if (this.references[i] instanceof JavadocFieldReference) {
+				JavadocFieldReference fieldRef = (JavadocFieldReference) this.references[i];
+				if (fieldRef.receiverType != null && fieldRef.binding == null) { // binding was reset in case of valid method reference
+					JavadocMessageSend msgSend = new JavadocMessageSend(fieldRef.token, fieldRef.nameSourcePosition);
+					msgSend.receiver = fieldRef.receiver;
+					msgSend.receiverType = fieldRef.receiverType;
+					msgSend.qualifyingType = fieldRef.receiverType;
+					msgSend.superAccess = methScope.enclosingSourceType().isCompatibleWith(msgSend.receiverType);
+					msgSend.binding = methScope.findMethod((ReferenceBinding)msgSend.receiverType, msgSend.selector, new TypeBinding[0], msgSend);
+					this.references[i] = msgSend;
+				}
+			}
+
+			// see whether we can have a super reference
 			try {
-				// see whether we can have a super reference
 				if (methDecl != null && (methDecl.isConstructor() || overriding) && !superRef) {
 					if (this.references[i] instanceof JavadocMessageSend) {
 						JavadocMessageSend messageSend = (JavadocMessageSend) this.references[i];
@@ -154,7 +189,7 @@ public class Javadoc extends ASTNode {
 				}
 			}
 			catch (Exception e) {
-				// Something wrong happen, forgot super ref...
+				// Something wrong happen, forget super ref...
 			}
 		}
 		
