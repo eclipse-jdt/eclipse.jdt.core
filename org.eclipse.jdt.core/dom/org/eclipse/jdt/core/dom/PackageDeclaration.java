@@ -26,12 +26,6 @@ import java.util.List;
  * PackageDeclaration:
  *    [ Javadoc ] { Annotation } <b>package</b> Name <b>;</b>
  * </pre>
- * <p>
- * Note: Support for annotation metadata is an experimental language feature 
- * under discussion in JSR-175 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
- * </p>
  * 
  * @since 2.0
  */
@@ -235,10 +229,10 @@ public class PackageDeclaration extends ASTNode {
 	 * Returns the live ordered list of annotations of this 
 	 * package declaration (added in 3.0 API).
 	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
+	 * Note: This API element is only needed for dealing with Java code that uses
+	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
+	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
+	 * may change slightly before reaching its final form.
 	 * </p>
 	 * 
 	 * @return the live list of annotations

@@ -21,18 +21,6 @@ import java.util.List;
  * 		EnumDeclaration
  * 		AnnotationTypeDeclaration
  * </pre>
- * <p>
- * Note: Support for annotation metadata is an experimental language feature 
- * under discussion in JSR-175 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
- * </p>
- * <p>
- * Note: Enum declarations are an experimental language feature 
- * under discussion in JSR-201 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
- * </p>
  * 
  * @since 3.0
  */

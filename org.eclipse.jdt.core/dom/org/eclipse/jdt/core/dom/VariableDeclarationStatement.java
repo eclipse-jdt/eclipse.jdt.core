@@ -273,12 +273,6 @@ public class VariableDeclarationStatement extends Statement {
 	 * Note that the final modifier is the only meaningful modifier for local
 	 * variable declarations.
 	 * </p>
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return the live list of modifiers and annotations
 	 *    (element type: <code>IExtendedModifier</code>)

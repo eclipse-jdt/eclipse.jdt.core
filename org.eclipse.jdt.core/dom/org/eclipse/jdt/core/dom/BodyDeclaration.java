@@ -224,12 +224,6 @@ public abstract class BodyDeclaration extends ASTNode {
 	/**
 	 * Returns the live ordered list of modifiers and annotations
 	 * of this declaration (added in 3.0 API).
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return the live list of modifiers and annotations
 	 *    (element type: <code>IExtendedModifier</code>)

@@ -57,12 +57,6 @@ import java.util.List;
  * no modifiers). The source range extends through the last character of the
  * ";" token (if no body), or the last character of the block (if body).
  * </p>
- * <p>
- * Note: Support for generic types is an experimental language feature 
- * under discussion in JSR-014 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
- * </p>
  *
  * @since 2.0 
  */
@@ -539,10 +533,10 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * available.
 	 * </p>
 	 * <p>
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
+	 * Note: This API element is only needed for dealing with Java code that uses
+	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
+	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
+	 * may change slightly before reaching its final form.
 	 * </p>
 	 * 
 	 * @return the live list of type parameters
@@ -618,10 +612,10 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * variable arity method (added in 3.0 API). The convenience method checks
 	 * whether the last parameter is so marked.
 	 * <p>
-	 * Note: Varible arity methods are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
+	 * Note: This API element is only needed for dealing with Java code that uses
+	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
+	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
+	 * may change slightly before reaching its final form.
 	 * </p>
 	 * 
 	 * @return <code>true</code> if this is a variable arity method declaration,

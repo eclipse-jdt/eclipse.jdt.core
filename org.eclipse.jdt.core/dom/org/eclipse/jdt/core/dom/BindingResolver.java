@@ -155,12 +155,6 @@ class BindingResolver {
 	 * The default implementation of this method returns <code>null</code>.
 	 * Subclasses may reimplement.
 	 * </p>
-	 * <p>
-	 * Note: Enum declarations are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @param type the enum declaration of interest
 	 * @return the binding for the given enum declaration, or <code>null</code>
@@ -205,12 +199,6 @@ class BindingResolver {
 	 * <p>
 	 * The default implementation of this method returns <code>null</code>.
 	 * Subclasses may reimplement.
-	 * </p>
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
 	 * </p>
 	 * 
 	 * @param type the annotation type declaration of interest
@@ -313,12 +301,6 @@ class BindingResolver {
 	 * The default implementation of this method returns <code>null</code>.
 	 * Subclasses may reimplement.
 	 * </p>
-	 * <p>
-	 * Note: Enhanced for statements are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @param statement the enhanced for statement of interest
 	 * @return the binding for the loop variable for the given enhanced for
@@ -361,12 +343,6 @@ class BindingResolver {
 	 * The default implementation of this method returns <code>null</code>.
 	 * Subclasses may reimplement.
 	 * </p>
-	 * <p>
-	 * Note: Enum declarations are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @param enumConstant the enum constant declaration of interest
 	 * @return the field binding for the given enum constant declaration, or 
@@ -389,12 +365,6 @@ class BindingResolver {
 	 * <p>
 	 * The default implementation of this method returns <code>null</code>.
 	 * Subclasses may reimplement.
-	 * </p>
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
 	 * </p>
 	 * 
 	 * @param member the annotation type member declaration of interest

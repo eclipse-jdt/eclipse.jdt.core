@@ -977,10 +977,6 @@ class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/*
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
 	 * @see ASTVisitor#visit(ParameterizedType)
 	 * @since 3.0
 	 */
@@ -1452,10 +1448,6 @@ class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	/*
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
 	 * @see ASTVisitor#visit(TypeParameter)
 	 * @since 3.0
 	 */

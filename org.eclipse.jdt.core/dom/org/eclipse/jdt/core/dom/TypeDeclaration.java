@@ -61,12 +61,6 @@ import java.util.List;
  * modifiers or annotations). The source range extends through the last character of the "}"
  * token following the body declarations.
  * </p>
- * <p>
- * Note: Support for generic types is an experimental language feature 
- * under discussion in JSR-014 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
- * </p>
  * 
  * @since 2.0
  */
@@ -521,10 +515,10 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * Returns the live ordered list of type parameters of this type 
 	 * declaration (added in 3.0 API). This list is non-empty for parameterized types.
 	 * <p>
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
+	 * Note: This API element is only needed for dealing with Java code that uses
+	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
+	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
+	 * may change slightly before reaching its final form.
 	 * </p>
 	 * 
 	 * @return the live list of type parameters

@@ -39,12 +39,6 @@ import java.util.List;
  * either rather than make assumptions. (Note also that the first form
  * became possible as of 3.0; only the second form existed in 2.0 and 2.1.)
  * </p>
- * <p>
- * Note: Support for generic types is an experimental language feature 
- * under discussion in JSR-014 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
- * </p>
  * 
  * @since 3.0
  */

@@ -36,10 +36,10 @@ import java.util.List;
  * the last character of the identifier.
  * </p>
  * <p>
- * Note: Enum declarations are an experimental language feature 
- * under discussion in JSR-201 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
+ * Note: This API element is only needed for dealing with Java code that uses
+ * new language features of J2SE 1.5. It is included in anticipation of J2SE
+ * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
+ * may change slightly before reaching its final form.
  * </p>
  * 
  * @since 3.0

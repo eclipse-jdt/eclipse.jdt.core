@@ -355,12 +355,6 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Note that the final modifier is the only meaningful modifier for local
 	 * variable and formal parameter declarations.
 	 * </p>
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return the live list of modifiers and annotations
 	 *    (element type: <code>IExtendedModifier</code>)
@@ -502,10 +496,10 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Returns whether this declaration declares the last parameter of
 	 * a variable arity method (added in 3.0 API).
 	 * <p>
-	 * Note: Varible arity methods are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
+	 * Note: This API element is only needed for dealing with Java code that uses
+	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
+	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
+	 * may change slightly before reaching its final form.
 	 * </p>
 	 * 
 	 * @return <code>true</code> if this is a variable arity parameter declaration,
@@ -526,10 +520,10 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Sets whether this declaration declares the last parameter of
 	 * a variable arity method (added in 3.0 API).
 	 * <p>
-	 * Note: Varible arity methods are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
+	 * Note: This API element is only needed for dealing with Java code that uses
+	 * new language features of J2SE 1.5. It is included in anticipation of J2SE
+	 * 1.5 support, which is planned for the next release of Eclipse after 3.0, and
+	 * may change slightly before reaching its final form.
 	 * </p>
 	 * 
 	 * @param variableArity <code>true</code> if this is a variable arity

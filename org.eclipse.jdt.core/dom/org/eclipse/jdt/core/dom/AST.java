@@ -105,6 +105,12 @@ public final class AST {
      * Java language, and the 3.0 API can be used to manipulate
      * programs written in all versions of the Java language
      * up to and including J2SE 1.5.
+     * <p>
+     * <b>NOTE:</b>In Eclipse 3.0, there is no underlying parser support for
+     * level 3 ASTs. This support is planned for the follow-on release of
+     * Eclipse which includes support for J2SE 1.5. Without a parser to create
+     * level 3 ASTs, they are not much use. Use level 2 ASTs instead.
+     * </p>
      *
 	 * @since 3.0
 	 */
@@ -1328,12 +1334,6 @@ public final class AST {
 	/**
 	 * Creates and returns a new unparented parameterized type node with the
 	 * given type and an empty list of type arguments.
-	 * <p>
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @param type the type that is parameterized
 	 * @return a new unparented parameterized type node
@@ -1355,12 +1355,6 @@ public final class AST {
 	/**
 	 * Creates and returns a new unparented qualified type node with 
 	 * the given qualifier type and name.
-	 * <p>
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @param qualifier the qualifier type node
 	 * @param name the simple name being qualified
@@ -1384,12 +1378,6 @@ public final class AST {
 	/**
 	 * Creates and returns a new unparented wildcard type node with no 
 	 * type bound.
-	 * <p>
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return a new unparented wildcard type node
 	 * @exception IllegalArgumentException if:
@@ -1541,12 +1529,6 @@ public final class AST {
 	 * The name of the constant is an unspecified, but legal, name; 
 	 * no doc comment; no modifiers or annotations; no arguments; 
 	 * and an empty class body.
-	 * <p>
-	 * Note: Support for enumerations is an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return a new unparented enum constant declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
@@ -1563,12 +1545,6 @@ public final class AST {
 	 * The name of the enum is an unspecified, but legal, name; 
 	 * no doc comment; no modifiers or annotations; 
 	 * no superinterfaces; and no body declarations.
-	 * <p>
-	 * Note: Support for enumerations is an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return a new unparented enum declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
@@ -1583,12 +1559,6 @@ public final class AST {
 	/**
 	 * Creates and returns a new unparented type parameter type node with an
 	 * unspecified type variable name and an empty list of type bounds.
-	 * <p>
-	 * Note: Support for generic types is an experimental language feature 
-	 * under discussion in JSR-014 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return a new unparented type parameter node
 	 * @exception UnsupportedOperationException if this operation is used in
@@ -1604,12 +1574,6 @@ public final class AST {
 	 * Creates and returns a new unparented annotation type declaration
 	 * node for an unspecified, but legal, name; no modifiers; no javadoc; 
 	 * and an empty list of member declarations.
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return a new unparented annotation type declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
@@ -1626,12 +1590,6 @@ public final class AST {
 	 * member declaration node for an unspecified, but legal, 
 	 * member name and type; no modifiers; no javadoc; 
 	 * and no default value.
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return a new unparented annotation type member declaration node
 	 * @exception UnsupportedOperationException if this operation is used in
@@ -1646,12 +1604,6 @@ public final class AST {
 	/**
 	 * Creates and returns a new unparented modifier node for the given
 	 * modifier.
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @param keyword one of the modifier keyword constants
 	 * @return a new unparented modifier node
@@ -2098,12 +2050,6 @@ public final class AST {
 	 * Creates a new unparented enhanced for statement node owned by this AST.
 	 * By default, the paramter and expression are unspecified
 	 * but legal subtrees, and the body is an empty block.
-	 * <p>
-	 * Note: Enhanced for statements are an experimental language feature 
-	 * under discussion in JSR-201 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return a new unparented throw statement node
 	 * @exception UnsupportedOperationException if this operation is used in
@@ -2560,12 +2506,6 @@ public final class AST {
 	 * Creates and returns a new unparented normal annotation node with
 	 * an unspecified type name and an empty list of member value
 	 * pairs.
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return a new unparented normal annotation node
 	 * @exception UnsupportedOperationException if this operation is used in
@@ -2580,12 +2520,6 @@ public final class AST {
 	/**
 	 * Creates and returns a new unparented marker annotation node with
 	 * an unspecified type name.
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return a new unparented marker annotation node
 	 * @exception UnsupportedOperationException if this operation is used in
@@ -2600,12 +2534,6 @@ public final class AST {
 	/**
 	 * Creates and returns a new unparented single member annotation node with
 	 * an unspecified type name and value.
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return a new unparented single member annotation node
 	 * @exception UnsupportedOperationException if this operation is used in
@@ -2620,12 +2548,6 @@ public final class AST {
 	/**
 	 * Creates and returns a new unparented member value pair node with
 	 * an unspecified member name and value.
-	 * <p>
-	 * Note: Support for annotation metadata is an experimental language feature 
-	 * under discussion in JSR-175 and under consideration for inclusion
-	 * in the 1.5 release of J2SE. The support here is therefore tentative
-	 * and subject to change.
-	 * </p>
 	 * 
 	 * @return a new unparented member value pair node
 	 * @exception UnsupportedOperationException if this operation is used in
