@@ -78,7 +78,7 @@ ISourceRange getNameRange() throws JavaModelException;
  * Returns the local or anonymous type declared in this source member with the given simple name and/or
  * with the specified position relative to the order they are defined in the source.
  * The name is empty if it is an anonymous type.
- * Numbering starts at 1 (thus the first occurrence is occurrence 1, not occurrence 0)..
+ * Numbering starts at 1 (thus the first occurrence is occurrence 1, not occurrence 0).
  * This is a handle-only method. The type may or may not exist.
  * Throws a <code>RuntimeException</code> if this member is not a source member.
  * 
