@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search.indexing;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceProxy;
 import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -57,7 +58,7 @@ class AddFolderToIndex extends IndexRequest {
 						if (proxy.getType() == IResource.FILE) {
 							if (Util.isJavaFileName(proxy.getName())) {
 								IResource resource = proxy.requestResource();
-								if (!Util.isExcluded(resource, exclusionPattern))
+								if (!Util.isExcluded(resource, pattern))
 									indexManager.addSource((IFile)resource, container);
 							}
 							return false;
