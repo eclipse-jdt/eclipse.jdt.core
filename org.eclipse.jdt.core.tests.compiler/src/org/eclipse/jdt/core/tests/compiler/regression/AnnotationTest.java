@@ -1180,6 +1180,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 			},
 		"");
 	}
+
 	// check array handling of singleton 
 	public void test050() {
 		this.runConformTest(
@@ -2018,5 +2019,44 @@ public class AnnotationTest extends AbstractComparisonTest {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
 		}
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
+	// 79844
+	public void test066() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    short value() default 0;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(2) void foo() {\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n"
+			},
+		"");
+	}
+	// 79844 - variation
+	public void test067() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"    int value() default 0L;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(2) void foo() {\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	int value() default 0L;\n" + 
+			"	                    ^^\n" + 
+			"Type mismatch: cannot convert from long to int\n" + 
+			"----------\n");
 	}
 }

@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
@@ -65,8 +66,17 @@ public class MemberValuePair extends ASTNode {
 		if (valueType == null)
 			return;
 
-		if (!valueType.isCompatibleWith(requiredType)) {
-			if (!(requiredType.isArrayType() && requiredType.dimensions() == 1 && valueType.isCompatibleWith(requiredType.leafComponentType()))) {
+		TypeBinding leafType = requiredType.leafComponentType();
+		if (!((this.value.isConstantValueOfTypeAssignableToType(valueType, requiredType)
+				|| (requiredType.isBaseType() && BaseTypeBinding.isWidening(requiredType.id, valueType.id)))
+				|| valueType.isCompatibleWith(requiredType))) {
+
+			if (!(requiredType.isArrayType() 
+					&& requiredType.dimensions() == 1 
+					&& (this.value.isConstantValueOfTypeAssignableToType(valueType, leafType)
+							|| (leafType.isBaseType() && BaseTypeBinding.isWidening(leafType.id, valueType.id)))
+							|| valueType.isCompatibleWith(leafType))) {
+				
 				scope.problemReporter().typeMismatchError(valueType, requiredType, this.value);
 				return; // may allow to proceed to find more errors at once
 			}
@@ -77,7 +87,6 @@ public class MemberValuePair extends ASTNode {
 		
 		// annotation methods can only return base types, String, Class, enum type, annotation types and arrays of these
 		checkAnnotationMethodType: {
-			TypeBinding leafType = requiredType.leafComponentType();
 			switch (leafType.erasure().id) {
 				case T_byte :
 				case T_short :
