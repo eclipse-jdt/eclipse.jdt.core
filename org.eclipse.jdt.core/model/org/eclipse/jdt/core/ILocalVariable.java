@@ -13,8 +13,9 @@ package org.eclipse.jdt.core;
 /**
  * Represents a local variable declared in a method or an initializer.
  * <code>ILocalVariable</code> are pseudo-elements created as the result of a <code>ICodeAssist.codeSelect(...)</code>
- * operation. They are not part of the Java model (<code>exists()</code> always returns <code>false</code>) and
- * they are not included in the children of an <code>IMethod</code> or an <code>IInitializer</code>.
+ * operation. They are not part of the Java model (<code>exists()</code> returns whether the parent exists rather than 
+ * whether the local variable exists in the parent) and they are not included in the children of an <code>IMethod</code> 
+ * or an <code>IInitializer</code>.
  * <p>
  * In particular such a pseudo-element should not be used as a handle. For example its name range won't be updated
  * if the underlying source changes.

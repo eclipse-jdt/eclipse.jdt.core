@@ -64,6 +64,10 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 			&& this.nameEnd == other.nameEnd
 			&& super.equals(o);
 	}
+	
+	public boolean exists() {
+		return this.parent.exists(); // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=46192
+	}
 
 	protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) {
 		// a local variable has no info
