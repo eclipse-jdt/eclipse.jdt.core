@@ -7387,14 +7387,40 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Cannot cast from XZ to XY\n" + 
 			"----------\n");
 	}
-	// 71080 - parameter bound <E extends Enum<E>> should be allowed
+	// 71080 - parameter bound <T extends Enum<T>> should be allowed
 	public void _test271() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X<E extends Enum<E>> {\n" + 
+				"public class X<T extends Enum<T>> {\n" + 
 				"}\n" 
 			},
 			"");
+	}	
+	// 71080 - variation
+	public void _test272() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends XY<T>> {\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XY<U extends Cloneable> implements Cloneable {\n" + 
+				"}\n"
+			},
+			"");
 	}		
+	// 71080 - variation
+	public void _test273() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends XY<T> & Cloneable> {\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XY<U extends Cloneable> {\n" + 
+				"}\n"
+			},
+			"");
+	}				
 }
