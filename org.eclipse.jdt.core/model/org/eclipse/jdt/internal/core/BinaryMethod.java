@@ -110,7 +110,7 @@ public String[] getParameterNames() throws JavaModelException {
 		int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
 		fParameterNames = new String[paramCount];
 		for (int i = 0; i < paramCount; i++) {
-			fParameterNames[i] = "arg" + i; //$NON-NLS-1$
+			fParameterNames[i] = "arg"/*nonNLS*/ + i;
 		}
 	}
 	return fParameterNames;
@@ -151,18 +151,18 @@ public boolean isConstructor() throws JavaModelException {
 public String readableName() {
 
 	StringBuffer buffer = new StringBuffer(super.readableName());
-	buffer.append("("); //$NON-NLS-1$
+	buffer.append("("/*nonNLS*/);
 	String[] parameterTypes = this.getParameterTypes();
 	int length;
 	if (parameterTypes != null && (length = parameterTypes.length) > 0) {
 		for (int i = 0; i < length; i++) {
 			buffer.append(Signature.toString(parameterTypes[i]));
 			if (i < length - 1) {
-				buffer.append(", "); //$NON-NLS-1$
+				buffer.append(", "/*nonNLS*/);
 			}
 		}
 	}
-	buffer.append(")"); //$NON-NLS-1$
+	buffer.append(")"/*nonNLS*/);
 	return buffer.toString();
 }
 }

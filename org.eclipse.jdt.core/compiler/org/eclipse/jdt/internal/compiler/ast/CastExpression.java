@@ -234,7 +234,7 @@ public TypeBinding resolveType(BlockScope scope) {
 public String toStringExpression(){
 	/*slow code*/
 	
-	return "(" + type.toString(0)+ ") " + //$NON-NLS-2$ //$NON-NLS-1$
+	return "("/*nonNLS*/ + type.toString(0)+ ") "/*nonNLS*/ +
 			expression.toStringExpression() ; }
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

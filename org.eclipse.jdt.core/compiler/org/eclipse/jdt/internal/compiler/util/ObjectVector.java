@@ -61,9 +61,9 @@ public void removeAll() {
 	size = 0;
 }
 public String toString() {
-	String s = ""; //$NON-NLS-1$
+	String s = ""/*nonNLS*/;
 	for (int i = 0; i < size; i++)
-		s += elements[i].toString() + "\n"; //$NON-NLS-1$
+		s += elements[i].toString() + "\n"/*nonNLS*/;
 	return s;
 }
 }

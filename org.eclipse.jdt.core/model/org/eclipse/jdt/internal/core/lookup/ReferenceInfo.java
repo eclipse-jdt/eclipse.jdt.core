@@ -53,12 +53,12 @@ public char[][] getNames() {
  * For debugging only
  */
 public String toString() {
-	StringBuffer buf = new StringBuffer("ReferenceInfo("); //$NON-NLS-1$
+	StringBuffer buf = new StringBuffer("ReferenceInfo("/*nonNLS*/);
 	for (int i = 0; i < fNames.length; i++) {
 		buf.append(fNames[i]);
-		buf.append(" "); //$NON-NLS-1$
+		buf.append(" "/*nonNLS*/);
 	}
-	buf.append(")"); //$NON-NLS-1$
+	buf.append(")"/*nonNLS*/);
 	return buf.toString();
 }
 }

@@ -36,13 +36,13 @@ public String stringValue() {
 	
 	String s = new Long(value).toString() ;
 	if (s == null)
-		return "null"; //$NON-NLS-1$
+		return "null"/*nonNLS*/;
 	else
 		return s;
 }
 public String toString(){
 
-	return "(long)" + value ; } //$NON-NLS-1$
+	return "(long)"/*nonNLS*/ + value ; }
 public int typeID() {
 	return T_long;
 }

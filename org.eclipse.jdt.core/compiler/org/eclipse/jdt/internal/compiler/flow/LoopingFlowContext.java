@@ -56,7 +56,7 @@ public Label continueLabel() {
 	return continueLabel;
 }
 public String individualToString(){
-	return "Looping flow context"; //$NON-NLS-1$
+	return "Looping flow context"/*nonNLS*/;
 }
 public boolean isContinuable() {
 	return true;

@@ -89,12 +89,12 @@ public void removeAll() {
 	size = 0;
 }
 public String toString() {
-	StringBuffer buffer = new StringBuffer("["); //$NON-NLS-1$
+	StringBuffer buffer = new StringBuffer("["/*nonNLS*/);
 	for (int i = 0; i < size; i++) {
-		buffer.append("\n"); //$NON-NLS-1$
+		buffer.append("\n"/*nonNLS*/);
 		buffer.append(elements[i]);
 	}
-	buffer.append("\n]"); //$NON-NLS-1$
+	buffer.append("\n]"/*nonNLS*/);
 	return buffer.toString();
 }
 }

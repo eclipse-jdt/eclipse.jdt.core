@@ -37,7 +37,7 @@ public FileSystem(String[] classpathNames, String[] initialFileNames) {
 				if (file.isDirectory()) {
 					classpaths[i] = new ClasspathDirectory(file);
 					pathNames[i] = ((ClasspathDirectory) classpaths[i]).path;
-				} else if (classpathNames[i].endsWith(".jar") | (classpathNames[i].endsWith(".zip"))) { //$NON-NLS-2$ //$NON-NLS-1$
+				} else if (classpathNames[i].endsWith(".jar"/*nonNLS*/) | (classpathNames[i].endsWith(".zip"/*nonNLS*/))) {
 					classpaths[i] = new ClasspathJar(file);
 					pathNames[i] = classpathNames[i].substring(0, classpathNames[i].lastIndexOf('.'));
 				}
@@ -65,7 +65,7 @@ public FileSystem(String[] classpathNames, String[] initialFileNames) {
 	for (int i = initialFileNames.length; --i >= 0;) {
 		String fileName = initialFileNames[i];
 		String matchingPathName = null;
-		if (fileName.lastIndexOf(".") != -1) //$NON-NLS-1$
+		if (fileName.lastIndexOf("."/*nonNLS*/) != -1)
 			fileName = fileName.substring(0, fileName.lastIndexOf('.')); // remove trailing ".java"
 
 		fileName = convertPathSeparators(fileName);
@@ -101,8 +101,8 @@ private NameEnvironmentAnswer findClass(char[] name, char[][] packageName) {
 			return null; // looking for a file which we know was provided at the beginning of the compilation
 
 	String filename = new String(name);
-	String binaryFilename = filename + ".class"; //$NON-NLS-1$
-	String sourceFilename = filename + ".java"; //$NON-NLS-1$
+	String binaryFilename = filename + ".class"/*nonNLS*/;
+	String sourceFilename = filename + ".java"/*nonNLS*/;
 	for (int i = 0, length = classpaths.length; i < length; i++) {
 		Classpath classpath = classpaths[i];
 		boolean binaryExists = classpath.exists(binaryFilename, packageName);

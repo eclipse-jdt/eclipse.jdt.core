@@ -61,10 +61,10 @@ boolean hasPath(IPath path) {
 IPackage packageHandleFromPath(IPath path) {
 	IPackage[] pkgs = (IPackage[])fTable.get(path);
 	if (pkgs == null) {
-		throw new Error(Util.bind("build.noPackagePath", path.toString())); //$NON-NLS-1$
+		throw new Error(Util.bind("build.noPackagePath"/*nonNLS*/, path.toString()));
 	}
 	if (pkgs.length != 1) {
-		throw new Error(Util.bind("build.ambiguousPackage", path.toString())); //$NON-NLS-1$
+		throw new Error(Util.bind("build.ambiguousPackage"/*nonNLS*/, path.toString()));
 	}
 	return pkgs[0];
 }
@@ -120,23 +120,23 @@ IPackage[] packageHandlesFromPath(IPath path) {
 		}
 		Collections.sort(list, StateImpl.getPathComparator());
 		StringBuffer sb = new StringBuffer();
-		sb.append(super.toString() + ":\n"); //$NON-NLS-1$
+		sb.append(super.toString() + ":\n"/*nonNLS*/);
 		for (int i = 0; i < list.size(); ++i) {
 			IPath path = (IPath) list.get(i);
-			sb.append("  " + path + ": "); //$NON-NLS-2$ //$NON-NLS-1$
+			sb.append("  "/*nonNLS*/ + path + ": "/*nonNLS*/);
 			IPackage[] pkgs = packageHandlesFromPath(path);
 			if (pkgs.length == 1) {
 				sb.append(pkgs[0].getName());
 			}
 			else {
 				Arrays.sort(pkgs, StateImpl.getPackageComparator());
-				sb.append("(" + pkgs.length + " packages)"); //$NON-NLS-2$ //$NON-NLS-1$
+				sb.append("("/*nonNLS*/ + pkgs.length + " packages)"/*nonNLS*/);
 				for (int j = 0; j < pkgs.length; ++j) {
-					sb.append("\n    "); //$NON-NLS-1$
+					sb.append("\n    "/*nonNLS*/);
 					sb.append(pkgs[j].getName());
 				}
 			}
-			sb.append("\n"); //$NON-NLS-1$
+			sb.append("\n"/*nonNLS*/);
 		}
 		return sb.toString();
 	}

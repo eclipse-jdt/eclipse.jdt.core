@@ -7,17 +7,16 @@ package org.eclipse.jdt.internal.core.eval;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.eval.*;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.ICompletionRequestor;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.eval.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.builder.impl.JavaBuilder;
 import org.eclipse.jdt.internal.core.builder.impl.ProblemFactory;
-import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.eval.*;
 
 import java.util.Locale;
@@ -53,7 +52,7 @@ public IGlobalVariable[] allVariables() {
  */
 protected void checkBuilderState() throws JavaModelException {
 	if (!getProject().hasBuildState()) {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.EVALUATION_ERROR, Util.bind("eval.needBuiltState"))); //$NON-NLS-1$
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.EVALUATION_ERROR, Util.bind("eval.needBuiltState"/*nonNLS*/)));
 	}
 }
 /**
@@ -65,7 +64,7 @@ public void codeComplete(String codeSnippet, int position, ICodeCompletionReques
 		position,
 		this.project.getSearchableNameEnvironment(),
 		new CompletionRequestorWrapper(requestor),
-		JavaModelManager.getOptions()
+		JavaModelManager.convertConfigurableOptions(JavaCore.getOptions())
 	);
 }
 /**
@@ -79,7 +78,7 @@ public IJavaElement[] codeSelect(String codeSnippet, int offset, int length) thr
 		offset + length - 1,
 		this.project.getSearchableNameEnvironment(),
 		requestor,
-		JavaModelManager.getOptions()
+		JavaModelManager.convertConfigurableOptions(JavaCore.getOptions())
 	);
 	return requestor.getElements();
 }
@@ -91,7 +90,7 @@ public void deleteVariable(IGlobalVariable variable) {
 		GlobalVariableWrapper wrapper = (GlobalVariableWrapper)variable;
 		this.context.deleteVariable(wrapper.variable);
 	} else {
-		throw new Error("Unknown implementation of IGlobalVariable"); //$NON-NLS-1$
+		throw new Error("Unknown implementation of IGlobalVariable"/*nonNLS*/);
 	}
 }
 /**
@@ -137,15 +136,6 @@ public void evaluateCodeSnippet(
 					importsNames[i] = imports[i].getElementName().toCharArray();
 				}
 				this.context.setImports(importsNames);
-			}
-		} else {
-			// try to retrieve imports from the source
-			SourceMapper sourceMapper = ((ClassFile) declaringType.getClassFile()).getSourceMapper();
-			if (sourceMapper != null) {
-				char[][] imports = sourceMapper.getImports((BinaryType) declaringType);
-				if (imports != null) {
-					this.context.setImports(imports);
-				}
 			}
 		}
 	}
@@ -203,7 +193,7 @@ protected INameEnvironment getBuildNameEnvironment() throws JavaModelException {
  * Returns the compiler's configurable options.
  */
 protected ConfigurableOption[] getCompilerOptions() throws JavaModelException {
-	return JavaModelManager.getOptions();
+	return JavaModelManager.convertConfigurableOptions(JavaCore.getOptions());
 }
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#getImports

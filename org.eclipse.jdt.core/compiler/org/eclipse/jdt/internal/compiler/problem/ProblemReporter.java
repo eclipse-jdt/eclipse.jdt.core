@@ -167,7 +167,7 @@ public void cannotAssignToFinalField(FieldBinding field, AstNode location) {
 	this.handle(
 		FinalFieldAssignment,
 		new String[] {
-			(field.declaringClass == null ? "array" : new String(field.declaringClass.readableName())), //$NON-NLS-1$
+			(field.declaringClass == null ? "array"/*nonNLS*/ : new String(field.declaringClass.readableName())),
 			new String(field.readableName())},
 		location.sourceStart(),
 		location.sourceEnd());
@@ -428,14 +428,7 @@ public int computeSeverity(int problemId){
 				return Warning;
 			}
 			return Ignore;
-		case UseAssertAsAnIdentifier :
-			if ((errorThreshold & AssertUsedAsAnIdentifier) != 0){
-				return Error;
-			}
-			if ((warningThreshold & AssertUsedAsAnIdentifier) != 0){
-				return Warning;
-			}
-			return Ignore;		
+		
 		default:
 			return Error;
 	}
@@ -466,10 +459,10 @@ public void constantOutOfFormat(NumberLiteral lit) {
 			final int radix;
 			if ((source[1] == 'x') || (source[1] == 'X')) {
 				radix = 16;
-				Radix = "Hexa"; //$NON-NLS-1$
+				Radix = "Hexa"/*nonNLS*/;
 			} else {
 				radix = 8;
-				Radix = "Octal"; //$NON-NLS-1$
+				Radix = "Octal"/*nonNLS*/;
 			}
 			//look for the first digit that is incorrect
 			int place = -1;
@@ -482,7 +475,7 @@ public void constantOutOfFormat(NumberLiteral lit) {
 
 			this.handle(
 				NumericValueOutOfRange,
-				new String[] {Radix + " " + new String(source) + " (digit " + new String(new char[] {source[place]}) + ")"}, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				new String[] {Radix + " "/*nonNLS*/ + new String(source) + " (digit "/*nonNLS*/ + new String(new char[] {source[place]}) + ")"/*nonNLS*/},
 				lit.sourceStart,
 				lit.sourceEnd);
 			return;
@@ -647,7 +640,7 @@ public void errorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeB
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0, length = params.length; i < length; i++) {
 		if (i != 0)
-			buffer.append(", "); //$NON-NLS-1$
+			buffer.append(", "/*nonNLS*/);
 		buffer.append(new String(params[i].readableName()));
 	}
 
@@ -660,7 +653,7 @@ public void errorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeB
 public void errorThisSuperInStatic(AstNode reference) {
 	this.handle(
 		ThisInStaticContext,
-		new String[] {reference.isSuper() ? "super" : "this"}, //$NON-NLS-2$ //$NON-NLS-1$
+		new String[] {reference.isSuper() ? "super"/*nonNLS*/ : "this"/*nonNLS*/},
 		reference.sourceStart,
 		reference.sourceEnd);
 }
@@ -796,7 +789,7 @@ public void hidingEnclosingType(TypeDeclaration typeDecl) {
 public void hierarchyCircularity(SourceTypeBinding sourceType, ReferenceBinding superType, TypeReference reference) {
 	int start = 0;
 	int end = 0;
-	String typeName = ""; //$NON-NLS-1$
+	String typeName = ""/*nonNLS*/;
 
 	if (reference == null) {	// can only happen when java.lang.Object is busted
 		start = sourceType.sourceStart();
@@ -1080,7 +1073,7 @@ public void inheritedMethodsHaveIncompatibleReturnTypes(SourceTypeBinding type, 
 			.append('.')
 			.append(inheritedMethods[i].readableName());
 		if (i != 0)
-			methodSignatures.append(", "); //$NON-NLS-1$
+			methodSignatures.append(", "/*nonNLS*/);
 	}
 
 	this.handle(
@@ -1195,7 +1188,7 @@ public void invalidEnclosingType(Expression expression, TypeBinding type, TypeBi
 
 	this.handle(
 		flag,
-		new String[] {new String(enclosingType.readableName()) + "." + new String(type.readableName())}, //$NON-NLS-1$
+		new String[] {new String(enclosingType.readableName()) + "."/*nonNLS*/ + new String(type.readableName())},
 		expression.sourceStart,
 		expression.sourceEnd);
 }
@@ -1406,7 +1399,7 @@ public void invalidOperator(BinaryExpression expression, TypeBinding leftType, T
 		InvalidOperator,
 		new String[] {
 			expression.operatorToString(),
-			new String(leftType.readableName()) + ", " + new String(rightType.readableName())}, //$NON-NLS-1$
+			new String(leftType.readableName()) + ", "/*nonNLS*/ + new String(rightType.readableName())},
 		expression.sourceStart,
 		expression.sourceEnd);
 }
@@ -1415,7 +1408,7 @@ public void invalidOperator(CompoundAssignment assign, TypeBinding leftType, Typ
 		InvalidOperator,
 		new String[] {
 			assign.operatorToString(),
-			new String(leftType.readableName()) + ", " + new String(rightType.readableName())}, //$NON-NLS-1$
+			new String(leftType.readableName()) + ", "/*nonNLS*/ + new String(rightType.readableName())},
 		assign.sourceStart,
 		assign.sourceEnd);
 }
@@ -1611,7 +1604,7 @@ public void nativeMethodsCannotBeStrictfp(ReferenceBinding type, AbstractMethodD
 		methodDecl.sourceEnd());
 }
 public void needImplementation() {
-	this.abortDueToInternalError(Util.bind("abort.missingCode")); //$NON-NLS-1$
+	this.abortDueToInternalError(Util.bind("abort.missingCode"/*nonNLS*/));
 }
 public void needToEmulateFieldReadAccess(FieldBinding field, AstNode location) {
 	this.handle(
@@ -1727,7 +1720,7 @@ private String parametersAsString(MethodBinding method) {
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0, length = params.length; i < length; i++) {
 		if (i != 0)
-			buffer.append(", "); //$NON-NLS-1$
+			buffer.append(", "/*nonNLS*/);
 		buffer.append(new String(params[i].readableName()));
 	}
 	return buffer.toString();
@@ -1757,20 +1750,20 @@ public void parseError(
 	StringBuffer list = new StringBuffer(20);
 	for (int i = 0, max = possibleTokens.length; i < max; i++) {
 		if (i > 0)
-			list.append(", "); //$NON-NLS-1$
+			list.append(", "/*nonNLS*/);
 		list.append('"');
 		list.append(possibleTokens[i]);
 		list.append('"');
 	}
 
 	//extract the literal when it's a literal  
-	if ((errorTokenName.equals("IntegerLiteral")) || //$NON-NLS-1$
-		(errorTokenName.equals("LongLiteral")) || //$NON-NLS-1$
-		(errorTokenName.equals("FloatingPointLiteral")) || //$NON-NLS-1$
-		(errorTokenName.equals("DoubleLiteral")) || //$NON-NLS-1$
-		(errorTokenName.equals("StringLiteral")) || //$NON-NLS-1$
-		(errorTokenName.equals("CharacterLiteral")) || //$NON-NLS-1$
-		(errorTokenName.equals("Identifier"))) { //$NON-NLS-1$
+	if ((errorTokenName.equals("IntegerLiteral"/*nonNLS*/)) ||
+		(errorTokenName.equals("LongLiteral"/*nonNLS*/)) ||
+		(errorTokenName.equals("FloatingPointLiteral"/*nonNLS*/)) ||
+		(errorTokenName.equals("DoubleLiteral"/*nonNLS*/)) ||
+		(errorTokenName.equals("StringLiteral"/*nonNLS*/)) ||
+		(errorTokenName.equals("CharacterLiteral"/*nonNLS*/)) ||
+		(errorTokenName.equals("Identifier"/*nonNLS*/))) {
 			errorTokenName = new String(currentTokenSource);
 	}
 
@@ -2162,15 +2155,6 @@ public void unusedLocalVariable(LocalDeclaration localDecl) {
 		localDecl.sourceStart,
 		localDecl.sourceEnd);
 }
-
-public void useAssertAsAnIdentifier(int sourceStart, int sourceEnd) {
-	this.handle(
-		UseAssertAsAnIdentifier,
-		new String[0],
-		sourceStart,
-		sourceEnd);	
-}
-
 public void variableTypeCannotBeVoid(AbstractVariableDeclaration varDecl) {
 	this.handle(
 		VariableTypeCannotBeVoid,

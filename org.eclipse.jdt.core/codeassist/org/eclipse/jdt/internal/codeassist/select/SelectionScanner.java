@@ -21,11 +21,6 @@ public class SelectionScanner extends Scanner {
  * on an identifier prefix.
  *
  */
- 
-public SelectionScanner(boolean assertMode) {
-	super(false, false, false, assertMode);
-}
-
 public char[] getCurrentIdentifierSource() {
 
 	if (selectionIdentifier == null){

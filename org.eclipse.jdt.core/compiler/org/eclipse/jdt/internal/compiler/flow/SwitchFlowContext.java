@@ -28,7 +28,7 @@ public Label breakLabel() {
 	return breakLabel;
 }
 public String individualToString(){
-	return "Switch flow context"; //$NON-NLS-1$
+	return "Switch flow context"/*nonNLS*/;
 }
 public boolean isBreakable() {
 	return true;

@@ -36,14 +36,14 @@ public String stringValue() {
 	
 	String s = new Double(value).toString() ;
 	if (s == null)
-		return "null"; //$NON-NLS-1$
+		return "null"/*nonNLS*/;
 	else
 		return s;
 }
 public String toString(){
 
-	if (this == NotAConstant) return "(Constant) NotAConstant" ; //$NON-NLS-1$
-	return "(double)" + value ; } //$NON-NLS-1$
+	if (this == NotAConstant) return "(Constant) NotAConstant"/*nonNLS*/ ;
+	return "(double)"/*nonNLS*/ + value ; }
 public int typeID() {
 	return T_double;
 }

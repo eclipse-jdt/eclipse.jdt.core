@@ -276,7 +276,4 @@ public interface ProblemIrritants { // max: 500
 
 	//constant pool
 	final int TooManyConstantsInConstantPool = Internal + 430;
-	
-	// identifiers 1.4 assert feature
-	final int UseAssertAsAnIdentifier = Internal + 440;
 }

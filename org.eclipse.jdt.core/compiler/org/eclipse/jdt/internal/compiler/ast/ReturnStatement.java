@@ -225,7 +225,7 @@ public String toString(int tab){
 	/* slow code */
 
 	String s = tabString(tab) ;
-	s = s + "return "; //$NON-NLS-1$
+	s = s + "return "/*nonNLS*/;
 	if (expression != null )
 		s = s + expression.toStringExpression() ;
 	return s;

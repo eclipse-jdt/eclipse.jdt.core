@@ -9,6 +9,7 @@ import org.eclipse.jdt.internal.compiler.*;
 
 public interface ConfigurableProblems {
 	final int UnreachableCode = 0x100;
+	final int ParsingOptionalError = 0x200;
 	final int ImportProblem = 0x400;
 	final int MethodWithConstructorName = 0x1000;
 	final int OverriddenPackageDefaultMethod = 0x2000;
@@ -19,5 +20,4 @@ public interface ConfigurableProblems {
 	final int TemporaryWarning = 0x40000;
 	final int AccessEmulation = 0x80000;
 	final int NonExternalizedString = 0x100000;
-	final int AssertUsedAsAnIdentifier = 0x200000;
 }

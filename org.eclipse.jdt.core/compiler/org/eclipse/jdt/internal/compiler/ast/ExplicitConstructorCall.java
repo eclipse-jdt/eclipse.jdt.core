@@ -224,17 +224,17 @@ public String toString(int tab){
 
 	String s = tabString(tab);
 	if (qualification != null) 
-		s = s + qualification.toStringExpression() + "." ; //$NON-NLS-1$
+		s = s + qualification.toStringExpression() + "."/*nonNLS*/ ;
 	if (accessMode == This){
-		s = s + "this("; //$NON-NLS-1$
+		s = s + "this("/*nonNLS*/;
 	} else {
-		s = s + "super("; //$NON-NLS-1$
+		s = s + "super("/*nonNLS*/;
 	}
 	if (arguments != null)
 		for (int i=0 ; i < arguments.length ; i++)
 		{	s = s + arguments[i].toStringExpression();
-			if (i != arguments.length-1) s = s + ", ";};; //$NON-NLS-1$
-	s = s+")" ; //$NON-NLS-1$
+			if (i != arguments.length-1) s = s + ", "/*nonNLS*/;};;
+	s = s+")"/*nonNLS*/ ;
 	return s;}
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {

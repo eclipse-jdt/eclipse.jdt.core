@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-    <classpathentry kind="lib" path="/org.eclipse.core.resources/resources.jar" sourcepath="/org.eclipse.core.resources/resourcessrc.zip"/>
+    <classpathentry kind="lib"
+        path="/org.eclipse.core.resources/resources.jar" sourcepath="/org.eclipse.core.resources/resourcessrc.zip"/>
     <classpathentry kind="lib" path="/org.apache.xerces/xerces.jar"/>
-    <classpathentry kind="lib" path="/org.eclipse.core.runtime/runtime.jar" sourcepath="/org.eclipse.core.runtime/runtimesrc.zip"/>
+    <classpathentry kind="lib"
+        path="/org.eclipse.core.runtime/runtime.jar" sourcepath="/org.eclipse.core.runtime/runtimesrc.zip"/>
     <classpathentry kind="var" path="JRE_LIB" rootpath="JRE_SRCROOT" sourcepath="JRE_SRC"/>
-    <classpathentry kind="src" path="Eclipse Java Ant Compiler"/>
     <classpathentry kind="src" path="Eclipse Java Batch Compiler"/>
     <classpathentry kind="src" path="Eclipse Java Code Assist"/>
     <classpathentry kind="src" path="Eclipse Java Compiler"/>
@@ -12,7 +13,5 @@
     <classpathentry kind="src" path="Eclipse Java Evaluation"/>
     <classpathentry kind="src" path="Eclipse Java Model"/>
     <classpathentry kind="src" path="Eclipse Java Formatter"/>
-    <classpathentry kind="lib" path="/org.eclipse.ant.core/ant.jar"/>
-    <classpathentry kind="lib" path="/org.eclipse.ant.core/antsupport.jar" sourcepath="/org.eclipse.ant.core/antsupportsrc.zip"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>
