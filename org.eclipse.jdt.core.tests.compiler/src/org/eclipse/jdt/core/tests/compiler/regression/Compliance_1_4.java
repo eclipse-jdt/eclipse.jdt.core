@@ -1366,6 +1366,8 @@ public void test36() {
 /*
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=24744
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=23096
+ * 
+ * NOTE: since JLS got revised to allow unterminated line comments (32476)
  */
 public void test37() {
 	Map customOptions = getCompilerOptions();
@@ -1379,18 +1381,21 @@ public void test37() {
 			"// TODO: something"
 		},
 		"----------\n" + 
-		"1. ERROR in p\\X.java (at line 4)\n" + 
+		"1. WARNING in p\\X.java (at line 4)\n" + 
 		"	// TODO: something\n" + 
-		"	^^^^^^^^^^^^^^^^^^\n" + 
-		"Unexpected end of comment\n" + 
+		"	   ^^^^^^^^^^^^^^^\n" + 
+		"TODO: something\n" + 
 		"----------\n",
 		null,
 		true,
 		customOptions);
 }
+
 /*
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=24833
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=23096
+ * 
+ * NOTE: since JLS got revised to allow unterminated line comments (32476)
  */
 public void test38() {
 	Map customOptions = getCompilerOptions();
@@ -1401,15 +1406,16 @@ public void test38() {
 			"// TODO: something"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
+		"1. WARNING in X.java (at line 1)\n" + 
 		"	// TODO: something\n" + 
-		"	^^^^^^^^^^^^^^^^^^\n" + 
-		"Unexpected end of comment\n" + 
+		"	   ^^^^^^^^^^^^^^^\n" + 
+		"TODO: something\n" + 
 		"----------\n",
 		null,
 		true,
 		customOptions);
 }
+
 /*
  * unreachable empty statement/block are diagnosed in 1.3
  */

@@ -208,7 +208,6 @@ public final class CompletionEngine
 				false /*whitespace*/, 
 				false /*nls*/, 
 				this.compilerOptions.sourceLevel >= CompilerOptions.JDK1_4 /*assert*/, 
-				this.compilerOptions.complianceLevel >= CompilerOptions.JDK1_4 /*strict comment*/,
 				null /*taskTags*/, 
 				null/*taskPriorities*/);
 	}

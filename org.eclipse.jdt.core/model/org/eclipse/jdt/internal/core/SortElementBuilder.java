@@ -920,7 +920,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		this.source = source;
 		this.comparator = comparator;
 		this.positionsToMap = positionsToMap;
-		this.scanner = new Scanner(false, false, false, false, false, null, null);
+		this.scanner = new Scanner(false, false, false, false, null, null);
 		this.ast = new AST();
 	}
 	

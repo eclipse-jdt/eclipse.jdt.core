@@ -60,7 +60,6 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	public int[] commentStops = new int[10];
 	public int[] commentStarts = new int[10];
 	public int commentPtr = -1; // no comment test with commentPtr value -1
-	public boolean strictCommentMode = false;
 	
 	// task tag support
 	public char[][] foundTaskTags = null;
@@ -162,14 +161,13 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	public static final int BracketKinds = 3;
 
 public PublicScanner() {
-	this(false /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment*/, null/*taskTag*/, null/*taskPriorities*/);
+	this(false /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, null/*taskTag*/, null/*taskPriorities*/);
 }
 public PublicScanner(
 	boolean tokenizeComments, 
 	boolean tokenizeWhiteSpace, 
 	boolean checkNonExternalizedStringLiterals, 
 	boolean assertMode,
-	boolean strictCommentMode,
 	char[][] taskTags,
 	char[][] taskPriorities) {
 		
@@ -178,7 +176,6 @@ public PublicScanner(
 	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
 	this.assertMode = assertMode;
-	this.strictCommentMode = strictCommentMode;
 	this.taskTags = taskTags;
 	this.taskPriorities = taskPriorities;
 }
@@ -1242,16 +1239,11 @@ public int getNextToken() throws InvalidInputException {
 									return TokenNameCOMMENT_LINE;
 								}
 							} catch (IndexOutOfBoundsException e) {
-								if (strictCommentMode) {
-									// a line comment needs to be followed by a line break to be valid
-									throw new InvalidInputException(UNTERMINATED_COMMENT);
-								} else {
-									recordComment(false);
-									if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition-1);
-									if (tokenizeComments) {
-										this.currentPosition--; // reset one character behind
-										return TokenNameCOMMENT_LINE;
-									}
+								recordComment(false);
+								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition-1);
+								if (tokenizeComments) {
+									this.currentPosition--; // reset one character behind
+									return TokenNameCOMMENT_LINE;
 								}
 							}
 							break;

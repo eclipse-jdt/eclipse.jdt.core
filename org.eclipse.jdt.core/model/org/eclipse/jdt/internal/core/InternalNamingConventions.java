@@ -32,7 +32,6 @@ public class InternalNamingConventions {
 				false /*whitespace*/, 
 				false /*nls*/, 
 				compilerOptions.sourceLevel >= CompilerOptions.JDK1_4 /*assert*/, 
-				compilerOptions.complianceLevel >= CompilerOptions.JDK1_4 /*strict comment*/,
 				null /*taskTags*/, 
 				null/*taskPriorities*/);
 	}

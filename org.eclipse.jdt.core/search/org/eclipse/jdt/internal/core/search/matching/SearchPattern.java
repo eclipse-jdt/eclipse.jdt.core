@@ -76,7 +76,7 @@ public SearchPattern(int matchMode, boolean isCaseSensitive) {
  */
 private static SearchPattern createConstructorPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment*/, null /*taskTags*/, null/*taskPriorities*/);
+	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/);
 	scanner.setSource(patternString.toCharArray());
 	final int InsideName = 1;
 	final int InsideParameter = 2;
@@ -247,7 +247,7 @@ private static SearchPattern createConstructorPattern(String patternString, int 
  */
 private static SearchPattern createFieldPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment*/, null /*taskTags*/, null/*taskPriorities*/); 
+	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/); 
 	scanner.setSource(patternString.toCharArray());
 	final int InsideDeclaringPart = 1;
 	final int InsideType = 2;
@@ -439,7 +439,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
  */
 private static SearchPattern createMethodPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment*/, null /*taskTags*/, null/*taskPriorities*/); 
+	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/); 
 	scanner.setSource(patternString.toCharArray());
 	final int InsideSelector = 1;
 	final int InsideParameter = 2;
@@ -1044,7 +1044,7 @@ private static SearchPattern createTypePattern(char[] simpleName, char[] package
  */
 private static SearchPattern createTypePattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment*/, null /*taskTags*/, null/*taskPriorities*/); 
+	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/); 
 	scanner.setSource(patternString.toCharArray());
 	String type = null;
 	int token;

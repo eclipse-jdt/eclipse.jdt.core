@@ -116,7 +116,6 @@ public final class AST {
 			true /*whitespace*/, 
 			false /*nls*/, 
 			JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) /*assert*/, 
-			JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_COMPLIANCE)) /*strict comment*/, 
 			null/*taskTag*/, 
 			null/*taskPriorities*/);
 	}

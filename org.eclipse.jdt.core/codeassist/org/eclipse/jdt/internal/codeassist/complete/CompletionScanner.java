@@ -44,7 +44,6 @@ public CompletionScanner(boolean assertMode) {
 		false /*whitespace*/, 
 		false /*nls*/, 
 		assertMode /*assert*/, 
-		false /*strict comment*/, // should never need to be on
 		null /*taskTags*/, 
 		null/*taskPriorities*/);
 }
@@ -557,16 +556,11 @@ public int getNextToken() throws InvalidInputException {
 									return TokenNameCOMMENT_LINE;
 								}
 							} catch (IndexOutOfBoundsException e) {
-								if (strictCommentMode) {
-									// a line comment needs to be followed by a line break to be valid
-									throw new InvalidInputException(UNTERMINATED_COMMENT);
-								} else {
-									recordComment(false);
-									if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition-1);
-									if (tokenizeComments) {
-										this.currentPosition--; // reset one character behind
-										return TokenNameCOMMENT_LINE;
-									}
+								recordComment(false);
+								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition-1);
+								if (tokenizeComments) {
+									this.currentPosition--; // reset one character behind
+									return TokenNameCOMMENT_LINE;
 								}
 							}
 							break;

@@ -144,12 +144,12 @@ public class CodeFormatter implements TerminalTokens, ICodeFormatter {
 	 */
 	public CodeFormatter(Map settings) {
 		// initialize primary and secondary scanners
-		scanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment*/, null /*taskTags*/, null/*taskPriorities*/); // regular scanner for forming lines
+		scanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/); // regular scanner for forming lines
 		// to record positions of the beginning of lines.
 		scanner.recordLineSeparator = true;
 
 		// secondary scanner to split long lines formed by primary scanning
-		splitScanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment */, null /*taskTags*/, null/*taskPriorities*/);
+		splitScanner = new Scanner(true /*comment*/, true /*whitespace*/, false /*nls*/, false /*assert*/, null /*taskTags*/, null/*taskPriorities*/);
 
 		this.options = new FormatterOptions(settings);
 	}
