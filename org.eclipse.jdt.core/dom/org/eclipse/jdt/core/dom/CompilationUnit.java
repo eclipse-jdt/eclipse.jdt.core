@@ -473,24 +473,10 @@ public class CompilationUnit extends ASTNode {
 	 * @param node the node
 	 * @return the 0-based character index, or <code>-1</code>
 	 *    if no source position information is recorded for this node
-	 * @see #getExtendedLength(ASTNode)
+	 * @see DefaultCommentMapper#getExtendedStartPosition(ASTNode)
 	 * @since 3.0
 	 */
 	public int getExtendedStartPosition(ASTNode node) {
-		/* TODO (frederic) - Clients can be expected to make use of this
-		 * new facility a lot. The performance of the implementation would
-		 * be significantly improved by reworking this code so that it
-		 * does not create garbage Comment[].
-		 *
-		Comment[] leadingComments = this.commentMapper.getLeadingComments(node);
-		int startPosition;
-		if (leadingComments == null) {
-			startPosition = node.getStartPosition();
-		} else {
-			startPosition = leadingComments[0].getStartPosition();
-		}
-		return startPosition;
-		*/
 		return this.commentMapper.getExtendedStartPosition(node);
 	}
 
@@ -503,25 +489,10 @@ public class CompilationUnit extends ASTNode {
 	 * @param node the node
 	 * @return a (possibly 0) length, or <code>0</code>
 	 *    if no source position information is recorded for this node
-	 * @see #getExtendedStartPosition(ASTNode)
+	 * @see DefaultCommentMapper#getExtendedLength(ASTNode)
 	 * @since 3.0
 	 */
 	public int getExtendedLength(ASTNode node) {
-		/* TODO (frederic) - Clients can be expected to make use of this
-		 * new facility a lot. The performance of the implementation would
-		 * be significantly improved by reworking this code so that it
-		 * does not create garbage Comment[].
-		 *
-		Comment[] trailingComments = this.commentMapper.getTrailingComments(node);
-		int lastPosition; // exclusive
-		if (trailingComments == null) {
-			lastPosition = node.getStartPosition() + node.getLength();
-		} else {
-			Comment lastComment = trailingComments[trailingComments.length-1];
-			lastPosition = lastComment.getStartPosition() + lastComment.getLength();
-		}
-		return lastPosition - getExtendedStartPosition(node);
-		*/
 		return this.commentMapper.getExtendedLength(node);
 	}
 		
