@@ -24,6 +24,8 @@ public class TryStatement extends Statement {
 	BlockScope scope;
 
 	public boolean subRoutineCannotReturn = true;
+	public UnconditionalFlowInfo subRoutineInits;
+	
 	// should rename into subRoutineComplete to be set to false by default
 
 	ReferenceBinding[] caughtExceptionTypes;
@@ -76,7 +78,7 @@ public class TryStatement extends Statement {
 		} else {
 			// analyse finally block first
 			insideSubContext = new InsideSubRoutineFlowContext(flowContext, this);
-			subInfo =
+			subInfo = 
 				finallyBlock
 					.analyseCode(
 						currentScope,
@@ -86,6 +88,7 @@ public class TryStatement extends Statement {
 			if (subInfo.isReachable()) {
 				subRoutineCannotReturn = false;
 			}
+			this.subRoutineInits = subInfo;
 		}
 		// process the try block in a context handling the local exceptions.
 		ExceptionHandlingFlowContext handlingContext =
@@ -155,17 +158,6 @@ public class TryStatement extends Statement {
 
 		// we also need to check potential multiple assignments of final variables inside the finally block
 		// need to include potential inits from returns inside the try/catch parts - 1GK2AOF
-
-		// propagate inits to enclosing subroutines
-		FlowInfo initsBeforeReturn = insideSubContext.initsOnReturn.copy().addInitializationsFrom(subInfo);
-		FlowContext traversedContext = insideSubContext.parent;
-		while (traversedContext != null) {
-			AstNode sub = traversedContext.subRoutine();
-			if (sub != null && sub.cannotReturn()) break;//TODO: should move below next line?
-			traversedContext.initsOnReturn().addInitializationsFrom(initsBeforeReturn);
-			traversedContext = traversedContext.parent;
-		}
-
 		finallyContext.complainOnRedundantFinalAssignments(
 			tryInfo.isReachable() 
 				? (tryInfo.addPotentialInitializationsFrom(insideSubContext.initsOnReturn))

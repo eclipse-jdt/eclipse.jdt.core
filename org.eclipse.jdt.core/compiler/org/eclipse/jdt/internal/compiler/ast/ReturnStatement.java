@@ -41,7 +41,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	int subIndex = 0, maxSub = 5;
 	boolean saveValueNeeded = false;
 	boolean hasValueToSave = expression != null && expression.constant == NotAConstant;
-	while (true) {
+	do {
 		AstNode sub;
 		if ((sub = traversedContext.subRoutine()) != null) {
 			if (this.subroutines == null){
@@ -56,33 +56,28 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				break;
 			}
 		}
-		AstNode node;
+		traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
 
+		AstNode node;
 		if ((node = traversedContext.associatedNode) instanceof SynchronizedStatement) {
 			isSynchronized = true;
 
-		} else if (node instanceof TryStatement && hasValueToSave) {
+		} else if (node instanceof TryStatement) {
+			TryStatement tryStatement = (TryStatement) node;
+			flowInfo.addInitializationsFrom(tryStatement.subRoutineInits); // collect inits
+			if (hasValueToSave) {
 				if (this.saveValueVariable == null){ // closest subroutine secret variable is used
-					prepareSaveValueLocation((TryStatement)node);
+					prepareSaveValueLocation(tryStatement);
 				}
 				saveValueNeeded = true;
+			}
 
 		} else if (traversedContext instanceof InitializationFlowContext) {
 				currentScope.problemReporter().cannotReturnInInitializer(this);
 				return FlowInfo.DEAD_END;
 		}
-
-		// remember the initialization at this
-		// point for dealing with blank final variables.
-		traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
-
-		FlowContext parentContext;
-		if ((parentContext = traversedContext.parent) == null) { // top-context
-			break;
-		} else {
-			traversedContext = parentContext;
-		}
-	}
+	} while ((traversedContext = traversedContext.parent) != null);
+	
 	// resize subroutines
 	if ((subroutines != null) && (subIndex != maxSub)) {
 		System.arraycopy(subroutines, 0, (subroutines = new AstNode[subIndex]), 0, subIndex);

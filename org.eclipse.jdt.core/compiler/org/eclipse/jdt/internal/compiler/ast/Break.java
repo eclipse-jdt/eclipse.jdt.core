@@ -43,11 +43,11 @@ public class Break extends BranchStatement {
 		}
 		
 		targetLabel = targetContext.breakLabel();
-		targetContext.recordBreakFrom(flowInfo);
 		FlowContext traversedContext = flowContext;
 		int subIndex = 0, maxSub = 5;
 		subroutines = new AstNode[maxSub];
-		while (true) {
+		
+		do {
 			AstNode sub;
 			if ((sub = traversedContext.subRoutine()) != null) {
 				if (subIndex == maxSub) {
@@ -58,16 +58,16 @@ public class Break extends BranchStatement {
 					break;
 				}
 			}
-			// remember the initialization at this
-			// point for dealing with blank final variables.
+			traversedContext.recordBreakFrom(flowInfo);
 			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
 
-			if (traversedContext == targetContext) {
-				break;
-			} else {
-				traversedContext = traversedContext.parent;
+			AstNode node;
+			if ((node = traversedContext.associatedNode) instanceof TryStatement) {
+				TryStatement tryStatement = (TryStatement) node;
+				flowInfo.addInitializationsFrom(tryStatement.subRoutineInits); // collect inits			
 			}
-		}
+		} while (traversedContext != targetContext && (traversedContext = traversedContext.parent) != null);
+
 		// resize subroutines
 		if (subIndex != maxSub) {
 			System.arraycopy(subroutines, 0, (subroutines = new AstNode[subIndex]), 0, subIndex);

@@ -48,11 +48,11 @@ public class Continue extends BranchStatement {
 			return flowInfo; // pretend it did not continue since no actual target
 		}
 		targetLabel = targetContext.continueLabel();
-		targetContext.recordContinueFrom(flowInfo);
 		FlowContext traversedContext = flowContext;
 		int subIndex = 0, maxSub = 5;
 		subroutines = new AstNode[maxSub];
-		while (true) {
+
+		do {
 			AstNode sub;
 			if ((sub = traversedContext.subRoutine()) != null) {
 				if (subIndex == maxSub) {
@@ -63,16 +63,16 @@ public class Continue extends BranchStatement {
 					break;
 				}
 			}
-			// remember the initialization at this
-			// point for dealing with blank final variables.
-			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
+			traversedContext.recordContinueFrom(flowInfo);
+			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());//TODO: not only if disctinct from target?
 
-			if (traversedContext == targetContext) {
-				break;
-			} else {
-				traversedContext = traversedContext.parent;
+			AstNode node;
+			if ((node = traversedContext.associatedNode) instanceof TryStatement) {
+				TryStatement tryStatement = (TryStatement) node;
+				flowInfo.addInitializationsFrom(tryStatement.subRoutineInits); // collect inits			
 			}
-		}
+		} while (traversedContext != targetContext && (traversedContext = traversedContext.parent) != null);
+		
 		// resize subroutines
 		if (subIndex != maxSub) {
 			System.arraycopy(subroutines, 0, (subroutines = new AstNode[subIndex]), 0, subIndex);
