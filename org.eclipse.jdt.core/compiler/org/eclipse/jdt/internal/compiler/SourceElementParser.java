@@ -1219,63 +1219,6 @@ public void addUnknownRef(NameReference nameRef) {
 	}
 	this.unknownRefs[this.unknownRefsCounter++] = nameRef;
 }
-private TypeReference typeReference(
-	int dim, 
-	int localIdentifierPtr, 
-	int localIdentifierLengthPtr) {
-	/* build a Reference on a variable that may be qualified or not
-	 * This variable is a type reference and dim will be its dimensions.
-	 * We don't have any side effect on the stacks' pointers.
-	 */
-
-	int length;
-	TypeReference ref;
-	if ((length = identifierLengthStack[localIdentifierLengthPtr]) == 1) {
-		// single variable reference
-		if (dim == 0) {
-			ref = 
-				new SingleTypeReference(
-					identifierStack[localIdentifierPtr], 
-					identifierPositionStack[localIdentifierPtr--]); 
-		} else {
-			ref = 
-				new ArrayTypeReference(
-					identifierStack[localIdentifierPtr], 
-					dim, 
-					identifierPositionStack[localIdentifierPtr--]);
-			ref.sourceEnd = endPosition;			 
-		}
-	} else {
-		if (length < 0) { //flag for precompiled type reference on base types
-			ref = TypeReference.baseTypeReference(-length, dim);
-			ref.sourceStart = intStack[localIntPtr--];
-			if (dim == 0) {
-				ref.sourceEnd = intStack[localIntPtr--];
-			} else {
-				localIntPtr--;
-				ref.sourceEnd = endPosition;
-			}	
-		} else { //Qualified variable reference
-			char[][] tokens = new char[length][];
-			localIdentifierPtr -= length;
-			long[] positions = new long[length];
-			System.arraycopy(identifierStack, localIdentifierPtr + 1, tokens, 0, length);
-			System.arraycopy(
-				identifierPositionStack, 
-				localIdentifierPtr + 1, 
-				positions, 
-				0, 
-				length); 
-			if (dim == 0)  {
-				ref = new QualifiedTypeReference(tokens, positions);
-			} else {
-				ref = new ArrayQualifiedTypeReference(tokens, dim, positions);
-				ref.sourceEnd = endPosition;
-			}
-		}
-	};
-	return ref;
-}
 
 private void visitIfNeeded(AbstractMethodDeclaration method) {
 	if (this.localDeclarationVisitor != null 

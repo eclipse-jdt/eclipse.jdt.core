@@ -564,7 +564,7 @@ public void testDeleteInnerJar() throws CoreException {
 		assertDeltas(
 			"Unexpected deltas",
 			"P[*]: {CHILDREN}\n" + 
-			"	/P/lib/x.jar[-]: {}"
+			"	lib/x.jar[-]: {}"
 		);
 	} finally {
 		this.stopDeltas();
@@ -1370,7 +1370,7 @@ public void testRemoveAddBinaryProject() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" + 
-			"	/P/lib.jar[-]: {}\n" + 
+			"	lib.jar[-]: {}\n" + 
 			"	[project root][*]: {ADDED TO CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]\n" + 
 			"	ResourceDelta(/P/.project)[*]"

@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
-import java.io.File;
 import java.util.Map;
 
 import org.eclipse.jdt.core.ICompletionRequestor;
@@ -448,16 +447,6 @@ IBinaryType getRootCodeSnippetBinary() {
 		this.codeSnippetBinary = new CodeSnippetSkeleton();
 	}
 	return this.codeSnippetBinary;
-}
-/**
- * Returns the name of the file (including the package name) of the given class file.
- * The simple name doesn't contain the extension ".class".
- * The returned name doesn't start with a "/"
- */
-private String getSupportClassFileName(String simpleName) {
-	char separator = File.separatorChar;
-	char[][] compoundPackageName = CharOperation.splitOn('.', PACKAGE_NAME);
-	return new String(CharOperation.concatWith(compoundPackageName, separator)) + separator + simpleName + ".class"; //$NON-NLS-1$
 }
 /**
  * Creates a new global variable with the given name, type and initializer.

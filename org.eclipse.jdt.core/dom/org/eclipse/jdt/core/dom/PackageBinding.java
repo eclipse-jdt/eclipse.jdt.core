@@ -94,15 +94,6 @@ class PackageBinding implements IPackageBinding {
 		return getName();
 	}
 	
-	private String concat(String[] array, char c) {
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0, max = array.length; i < max - 1; i++) {
-			buffer.append(array[i]).append(c);
-		}
-		buffer.append(array[array.length - 1]);
-		return buffer.toString();
-	}
-
 	private void computeNameAndComponents() {
 		char[][] compoundName = this.binding.compoundName;
 		if (compoundName == CharOperation.NO_CHAR_CHAR || compoundName == null) {
