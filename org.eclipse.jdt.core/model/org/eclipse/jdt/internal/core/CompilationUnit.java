@@ -910,7 +910,7 @@ public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProbl
 	CompilationUnit workingCopy = (CompilationUnit)perOwnerWorkingCopies.get(this);
 	if (workingCopy != null) {
 		JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = 
-			manager.getPerWorkingCopyInfo(workingCopy, false/*don't create*/, true /*record usage*/, null/*not used since don't create*/);
+			manager.getPerWorkingCopyInfo(workingCopy, false/*don't create*/, true/*record usage*/, null/*not used since don't create*/);
 		if (perWorkingCopyInfo != null) {
 
 			if (SHARED_WC_VERBOSE) {
