@@ -19,4 +19,5 @@ public interface ProblemReasons {
 	final int InheritedNameHidesEnclosingName = 5;
 	final int NonStaticReferenceInConstructorInvocation = 6;
 	final int NonStaticReferenceInStaticContext = 7;
+	final int ReceiverTypeNotVisible = 8;
 }
