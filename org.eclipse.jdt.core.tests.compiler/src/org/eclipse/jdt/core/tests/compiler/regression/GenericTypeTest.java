@@ -14810,5 +14810,69 @@ public void test500(){
 				"}\n"
 			},
 			"SUCCESS");
+	}			
+	public void test526(){
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    Zork z;\n" +
+				"    <T> T f(Object o) {\n" + 
+				"	return (T) o; // OK\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    <U, T extends U> T g(Object o) {\n" + 
+				"	return (T) o; // bug???\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    <U, T extends U> T h(Object o) {\n" + 
+				"	return X.<T>castTo(o); // workaround\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private static <T> T castTo(Object o) {\n" + 
+				"	return (T) o;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	return (T) o; // OK\n" + 
+			"	       ^^^^^\n" + 
+			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 8)\n" + 
+			"	return (T) o; // bug???\n" + 
+			"	       ^^^^^\n" + 
+			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 16)\n" + 
+			"	return (T) o;\n" + 
+			"	       ^^^^^\n" + 
+			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"----------\n");
+	}				
+	// should not produce unchecked errors (javac incorrectly does)
+	public void test527(){
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	<T, U extends T, V extends T> T foo(U u, V v) {\n" + 
+				"		return this == null ? (T) u : (T)v;\n" + 
+				"	}\n" + 
+				"	Zork z;\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
 	}				
 }

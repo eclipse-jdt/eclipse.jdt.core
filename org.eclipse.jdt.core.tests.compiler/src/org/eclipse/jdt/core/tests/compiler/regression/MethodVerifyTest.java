@@ -2469,4 +2469,42 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}	
+	public void test045() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class Foo {}\n" + 
+				"\n" + 
+				"interface Bar {\n" + 
+				"  Foo get(Class<?> c);\n" + 
+				"}\n" + 
+				"public class X implements Bar {\n" + 
+				"  public Foo get(Class c) { return null; }\n" + 
+				"}\n"
+			},
+			""
+		);
+	}	
+	// ensure no unchecked warning
+	public void test046() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface IX <T> {\n" + 
+				"	public T doSomething();\n" + 
+				"}\n" + 
+				"public class X implements IX<Integer> {\n" + 
+				"   Zork z;\n" +
+				"	public Integer doSomething() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+	}		
 }
