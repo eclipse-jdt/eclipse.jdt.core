@@ -68,16 +68,16 @@ public void tearDownSuite() throws Exception {
  * Calls methods that do nothing to ensure code coverage
  */
 public void testCodeCoverage() throws JavaModelException {
-	this.cu.destroy();
+	this.cu.discardWorkingCopy();
 	this.cu.restore();
 }
 /**
- * Ensures <code>commit(boolean, IProgressMonitor)</code> throws the correct 
+ * Ensures <code>commitWorkingCopy(boolean, IProgressMonitor)</code> throws the correct 
  * <code>JavaModelException</code> for a <code>CompilationUnit</code>.
  */
-public void testCommit() {
+public void testCommitWorkingCopy() {
 	try {
-		this.cu.commit(false, null);
+		this.cu.commitWorkingCopy(false, null);
 	} catch (JavaModelException jme) {
 		assertTrue("Incorrect status for committing a CompilationUnit", jme.getStatus().getCode() == IJavaModelStatusConstants.INVALID_ELEMENT_TYPES);
 		return;
@@ -276,14 +276,14 @@ public void testCheckInterfaceMethodModifiers() throws JavaModelException {
 	assertEquals("Expected modifier for " + method.getElementName(), expectedModifiers, modifiers);
 }
 /**
- * Ensure that <code>null</code> is returned for the original and original element of a
+ * Ensure that the same element is returned for the primary element of a
  * compilation unit.
  */
-public void testGetOriginal() {
-	IJavaElement original = this.cu.getOriginalElement();
-	assertTrue("Original for a compilation unit should be null", original == null);
-	original = this.cu.getOriginal(this.cu);
-	assertTrue("Original for a compilation unit should be null", original == null);
+public void testGetPrimary() {
+	IJavaElement primary = this.cu.getPrimaryElement();
+	assertEquals("Primary element for a compilation unit should be the same", this.cu, primary);
+	primary = this.cu.getPrimary();
+	assertEquals("Primary for a compilation unit should be the same", this.cu, primary);
 	
 }
 /**
@@ -337,12 +337,12 @@ public void testHasChildren() throws JavaModelException {
 	assertTrue("The compilation unit should have children", this.cu.hasChildren());
 }
 /**
- * Ensures that a compilation unit is not based on its underlying resource.
+ * Ensures that a compilation unit's resource has not changed.
  */
-public void testIsBasedOn() throws JavaModelException {
+public void testHasResourceChanged() throws JavaModelException {
 	assertTrue(
-		"A compilation unit should not be based on any resource", 
-		!this.cu.isBasedOn(this.cu.getUnderlyingResource()));
+		"A compilation unit's resource should not have changed", 
+		!this.cu.hasResourceChanged());
 }
 /**
  * Ensures that a compilation unit that does not exist responds

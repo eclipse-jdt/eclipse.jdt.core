@@ -49,7 +49,7 @@ public void setUp() throws Exception {
 			"public class X {\n" +
 			"}");
 		ICompilationUnit cu = (ICompilationUnit)JavaCore.create(file);	
-		this.workingCopy = (ICompilationUnit)cu.getWorkingCopy();
+		this.workingCopy = cu.getWorkingCopy(null);
 	} catch (CoreException e) {
 		e.printStackTrace();
 	}
@@ -58,7 +58,7 @@ public void setUp() throws Exception {
 public void tearDown() throws Exception {
 	try {
 		if (this.workingCopy != null) {
-			this.workingCopy.destroy();
+			this.workingCopy.discardWorkingCopy();
 			this.workingCopy = null;
 		}
 		this.deleteProject("P");
@@ -68,9 +68,9 @@ public void tearDown() throws Exception {
 	super.tearDown();
 }
 
-public void testCommit() throws CoreException {
-	ICompilationUnit original = (ICompilationUnit)this.workingCopy.getOriginalElement();
-	assertTrue("Original element should not be null", original != null);
+public void testCommitWorkingCopy() throws CoreException {
+	ICompilationUnit primary = this.workingCopy.getPrimary();
+	assertTrue("Primary element should not be null", primary != null);
 
 	IBuffer workingCopyBuffer = this.workingCopy.getBuffer();
 	assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
@@ -81,9 +81,9 @@ public void testCommit() throws CoreException {
 		"  }\n" +
 		"}";
 	workingCopyBuffer.setContents(newContents);
-	this.workingCopy.commit(false, null);
+	this.workingCopy.commitWorkingCopy(false, null);
 	
-	IFile originalFile = (IFile)original.getResource();
+	IFile originalFile = (IFile)primary.getResource();
 	assertSourceEquals(
 		"Unexpected contents", 
 		newContents, 
@@ -108,13 +108,13 @@ public void testGetSource() throws CoreException {
 			"}";
 		IFile file = this.createFile("/P1/src/junit/test/X.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
-		copy = (ICompilationUnit) cu.getWorkingCopy();
+		copy = cu.getWorkingCopy(null);
 		assertEquals(
 			"Unexpected source",
 			source,
 			copy.getSource());
 	} finally {
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 		this.deleteProject("P1");
 	}
 }
@@ -131,10 +131,10 @@ public void testReconcileNonExistingProject() throws CoreException {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IFile file = root.getProject("NonExisting").getFile("A.java");
 		wc = JavaCore.createCompilationUnitFrom(file).getWorkingCopy(null);
-		wc.reconcile();
+		wc.reconcile(false, null);
 	} finally {
 		if (wc != null) {
-			wc.destroy();
+			wc.discardWorkingCopy();
 		}
 	}
 }
@@ -152,7 +152,7 @@ public void testSimpleProject() throws CoreException {
 			"}"
 		);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
-		copy = (IParent)cu.getWorkingCopy();
+		copy = (IParent)cu.getWorkingCopy(null);
 		try {
 			copy.getChildren();
 		} catch (JavaModelException e) {
@@ -160,36 +160,36 @@ public void testSimpleProject() throws CoreException {
 		}
 	} finally {
 		if (copy != null) {
-			((IWorkingCopy)copy).destroy();
+			((ICompilationUnit)copy).discardWorkingCopy();
 		}
 		deleteProject("SimpleProject");
 	}
 }
 
 /*
- * Ensure that a original cu (which is outside the classpath) does not exist.
+ * Ensure that a primary cu (which is outside the classpath) does not exist.
  */
-public void testOriginalExistence() {
-	ICompilationUnit original = (ICompilationUnit)this.workingCopy.getOriginalElement();
+public void testPrimaryExistence() {
+	ICompilationUnit primary = this.workingCopy.getPrimary();
 	assertTrue(
-		"Original compilation unit should not exist", 
-		!original.exists());
+		"Primary compilation unit should not exist", 
+		!primary.exists());
 }
-public void testOriginalParentExistence() {
+public void testPrimaryParentExistence() {
 	assertTrue(
-		"Original compilation unit's parent should not exist", 
-		!this.workingCopy.getOriginalElement().getParent().exists());
+		"Primary compilation unit's parent should not exist", 
+		!this.workingCopy.getPrimary().getParent().exists());
 }
 public void testIsOpen() {
 	assertTrue("Working copy should be open", this.workingCopy.isOpen());
 }
 /*
- * Ensure that a original cu (which is outside the classpath) is not opened.
+ * Ensure that a primary cu (which is outside the classpath) is not opened.
  */
-public void testOriginalIsOpen() {
-	ICompilationUnit original = (ICompilationUnit)this.workingCopy.getOriginalElement();
+public void testPrimaryIsOpen() {
+	ICompilationUnit original = this.workingCopy.getPrimary();
 	assertTrue(
-		"Original compilation should not be opened", 
+		"Primary compilation should not be opened", 
 		!original.isOpen());
 }
 // 31799 - asking project options on non-Java project populates the perProjectInfo cache incorrectly
@@ -204,13 +204,13 @@ public void testIsOnClasspath() throws CoreException {
 			"}";
 		IFile file = this.createFile("/SimpleProject/src/junit/test/X.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
-		copy = (ICompilationUnit) cu.getWorkingCopy();
+		copy = cu.getWorkingCopy(null);
 		
 		// working creation will cause it to open, and thus request project options
 		boolean isOnClasspath = copy.getJavaProject().isOnClasspath(copy);
 		assertTrue("working copy shouldn't answer to isOnClasspath", !isOnClasspath);
 	} finally {
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 		this.deleteProject("SimpleProject");
 	}
 }
@@ -225,7 +225,7 @@ public void testReconcileAndCommit1() throws CoreException {
 			"class X {}";
 		IFile file = this.createFile("/JavaProject/src/native.1/X.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
-		copy = (ICompilationUnit) cu.getWorkingCopy();
+		copy = cu.getWorkingCopy(null);
 		
 		IBuffer workingCopyBuffer = copy.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
@@ -237,7 +237,7 @@ public void testReconcileAndCommit1() throws CoreException {
 			
 		workingCopyBuffer.setContents(newContents);
 		copy.reconcile(true, null);
-		copy.commit(true, null);
+		copy.commitWorkingCopy(true, null);
 		
 		IFile originalFile = (IFile)cu.getResource();
 		assertSourceEquals(
@@ -248,7 +248,7 @@ public void testReconcileAndCommit1() throws CoreException {
 		e.printStackTrace();		
 		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
 	} finally {
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 		this.deleteProject("JavaProject");
 	}
 }
@@ -263,7 +263,7 @@ public void testReconcileAndCommit2() throws CoreException {
 			"class X {}";
 		IFile file = this.createFile("/SimpleProject/src/native.1/X.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
-		copy = (ICompilationUnit) cu.getWorkingCopy();
+		copy = cu.getWorkingCopy(null);
 		
 		IBuffer workingCopyBuffer = copy.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
@@ -275,7 +275,7 @@ public void testReconcileAndCommit2() throws CoreException {
 			
 		workingCopyBuffer.setContents(newContents);
 		copy.reconcile(true, null);
-		copy.commit(true, null);
+		copy.commitWorkingCopy(true, null);
 		IFile originalFile = (IFile)cu.getResource();
 		assertSourceEquals(
 			"Unexpected contents", 
@@ -287,7 +287,7 @@ public void testReconcileAndCommit2() throws CoreException {
 		e.printStackTrace();		
 		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
 	} finally {
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 		this.deleteProject("SimpleProject");
 	}
 }
@@ -313,7 +313,7 @@ public void testReconcileAndCommit3() throws CoreException {
 			
 		workingCopyBuffer.setContents(newContents);
 		primary.reconcile(true, null);
-		primary.commit(true, null);
+		primary.commitWorkingCopy(true, null);
 		IFile originalFile = (IFile)primary.getResource();
 		assertSourceEquals(
 			"Unexpected contents", 
@@ -325,7 +325,7 @@ public void testReconcileAndCommit3() throws CoreException {
 		e.printStackTrace();		
 		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
 	} finally {
-		if (primary != null) primary.destroy();
+		if (primary != null) primary.discardWorkingCopy();
 		this.deleteProject("SimpleProject");
 	}
 }
@@ -351,7 +351,7 @@ public void testReconcileAndCommit4() throws CoreException {
 			
 		workingCopyBuffer.setContents(newContents);
 		primary.reconcile(true, null);
-		primary.commit(true, null);
+		primary.commitWorkingCopy(true, null);
 		IFile originalFile = (IFile)primary.getResource();
 		assertSourceEquals(
 			"Unexpected contents", 
@@ -363,7 +363,7 @@ public void testReconcileAndCommit4() throws CoreException {
 		e.printStackTrace();		
 		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
 	} finally {
-		if (primary != null) primary.destroy();
+		if (primary != null) primary.discardWorkingCopy();
 		this.deleteProject("SimpleProject");
 	}
 }
@@ -379,7 +379,7 @@ public void testReconcileAndCommit5() throws CoreException {
 			"public class X {}";
 		IFile file = this.createFile("/JavaProject/src/invalid unit name.java", source);
 		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
-		copy = (ICompilationUnit) cu.getWorkingCopy();
+		copy = cu.getWorkingCopy(null);
 		
 		IBuffer workingCopyBuffer = copy.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
@@ -391,7 +391,7 @@ public void testReconcileAndCommit5() throws CoreException {
 			
 		workingCopyBuffer.setContents(newContents);
 		copy.reconcile(true, null);
-		copy.commit(true, null);
+		copy.commitWorkingCopy(true, null);
 		
 		IFile originalFile = (IFile)cu.getResource();
 		assertSourceEquals(
@@ -402,7 +402,7 @@ public void testReconcileAndCommit5() throws CoreException {
 		e.printStackTrace();		
 		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
 	} finally {
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 		this.deleteProject("JavaProject");
 	}
 }

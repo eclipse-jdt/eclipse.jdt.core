@@ -398,6 +398,15 @@ ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaModelExcept
  */
 ICompilationUnit getWorkingCopy(WorkingCopyOwner owner, IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException;
 /**
+ * Returns whether the resource of this working copy has changed since the
+ * inception of this working copy.
+ * Returns <code>false</code> if this compilation unit is not in working copy mode.
+ * 
+ * @return whether the resource has changed
+ * @since 3.0
+ */
+public boolean hasResourceChanged();
+/**
  * Returns whether this element is a working copy.
  * 
  * @return true if this element is a working copy, false otherwise

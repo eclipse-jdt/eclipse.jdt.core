@@ -108,7 +108,7 @@ public static Test suite() {
  */
 public void tearDown() throws Exception {
 	if (this.workingCopy != null) {
-		this.workingCopy.destroy();
+		this.workingCopy.discardWorkingCopy();
 	}
 	this.stopDeltas();
 	super.tearDown();
@@ -130,7 +130,7 @@ public void testAddDuplicateMember() throws JavaModelException {
 		"  public void foo() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
@@ -155,7 +155,7 @@ public void testAddFieldAndConstructor() throws JavaModelException {
 		"  public void foo() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
@@ -179,7 +179,7 @@ public void testAddImports() throws JavaModelException {
 		"  public void foo() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta", 
 		"<import container>[*]: {CHILDREN | FINE GRAINED}\n" +
@@ -203,7 +203,7 @@ public void testAddMethod1() throws JavaModelException {
 		"  public void bar() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
@@ -225,7 +225,7 @@ public void testAddPartialMethod1() throws JavaModelException {
 		"  public void foo() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
@@ -249,7 +249,7 @@ public void testAddPartialMethod1and2() throws JavaModelException {
 		"  public void foo() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	
 	// Add { on partial method
 	this.clearDeltas();
@@ -261,7 +261,7 @@ public void testAddPartialMethod1and2() throws JavaModelException {
 		"  public void foo() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta", 
 		""
@@ -281,7 +281,7 @@ public void testChangeMethodVisibility() throws JavaModelException {
 		"  private void foo() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
@@ -303,7 +303,7 @@ public void testCloseWorkingCopy() throws JavaModelException {
 		"  public void bar() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
@@ -334,7 +334,7 @@ public void testConstantReference() throws CoreException {
 			"		}\n" +
 			"	}\n" +
 			"}");
-		this.workingCopy.reconcile();
+		this.workingCopy.reconcile(false, null);
 		assertProblems(
 			"Unexpected problems",
 			"----------\n" + 
@@ -356,7 +356,7 @@ public void testDeleteMethod1() throws JavaModelException {
 		"import p2.*;\n" +
 		"public class X {\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
@@ -380,7 +380,7 @@ public void testDeleteTwoMethods() throws JavaModelException {
 		"  public void bar() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	
 	// delete the 2 methods
 	this.clearDeltas();
@@ -389,7 +389,7 @@ public void testDeleteTwoMethods() throws JavaModelException {
 		"import p2.*;\n" +
 		"public class X {\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
@@ -406,7 +406,7 @@ public void testGrowImports() throws JavaModelException {
 		"package p1;\n" +
 		"public class X {\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	
 	// add an import
 	this.clearDeltas();
@@ -415,7 +415,7 @@ public void testGrowImports() throws JavaModelException {
 		"import p\n" +
 		"public class X {\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta", 
 		"<import container>[+]: {}"
@@ -428,7 +428,7 @@ public void testGrowImports() throws JavaModelException {
 		"import p2\n" +
 		"public class X {\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta", 
 		"<import container>[*]: {CHILDREN | FINE GRAINED}\n" +
@@ -448,7 +448,7 @@ public void testMethodWithError() throws JavaModelException, CoreException {
 		"  public.void foo() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta after syntax error", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
@@ -474,7 +474,7 @@ public void testMethodWithError() throws JavaModelException, CoreException {
 		"  public void foo() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta after fixing syntax error", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
@@ -501,7 +501,7 @@ public void testMethodWithError2() throws JavaModelException, CoreException {
 		"  public.void foo() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	this.problemRequestor.initialize();
 
 	// use force flag to refresh problems			
@@ -528,7 +528,7 @@ public void testMethodWithError3() throws JavaModelException, CoreException {
 		"  public.void foo() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	this.problemRequestor.initialize();
 
 	// use force flag to refresh problems			
@@ -568,7 +568,7 @@ public void testMethodWithError4() throws JavaModelException, CoreException {
 	}
 	CancelingProblemRequestor myPbRequestor = new CancelingProblemRequestor();
 	
-	this.workingCopy.destroy();
+	this.workingCopy.discardWorkingCopy();
 	ICompilationUnit x = getCompilationUnit("Reconciler", "src", "p1", "X.java");
 	this.problemRequestor = myPbRequestor;
 	this.workingCopy = (ICompilationUnit) x.getWorkingCopy(null, null,this.problemRequestor);
@@ -581,7 +581,7 @@ public void testMethodWithError4() throws JavaModelException, CoreException {
 		"	}\n"+
 		"}	\n");
 
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	this.problemRequestor.initialize();
 
 	// use force flag to refresh problems			
@@ -649,7 +649,7 @@ public void testMethodWithError5() throws JavaModelException, CoreException {
 	
 		ICompilationUnit compilationUnit = getCompilationUnit("Reconciler", "src", "tests", "AbstractSearchableSource.java");
 		ProblemRequestor pbReq =  new ProblemRequestor();
-		IWorkingCopy wc = (ICompilationUnit)compilationUnit.getWorkingCopy(null, null, pbReq);
+		ICompilationUnit wc = (ICompilationUnit)compilationUnit.getWorkingCopy(null, null, pbReq);
 		pbReq.initialize();
 		this.startDeltas();
 		wc.reconcile(true, null);
@@ -677,7 +677,7 @@ public void testMethodWithError5() throws JavaModelException, CoreException {
  * (regression test for bug 33757 Problem not detected when opening a working copy)
  */
 public void testMethodWithError6() throws JavaModelException, CoreException {
-	this.workingCopy.destroy(); // don't use the one created in setUp()
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
 	try {
 		this.createFile(
@@ -710,7 +710,7 @@ public void testMethodWithError6() throws JavaModelException, CoreException {
  * (regression test for bug 33757 Problem not detected when opening a working copy)
  */
 public void testMethodWithError7() throws JavaModelException, CoreException {
-	this.workingCopy.destroy(); // don't use the one created in setUp()
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
 	try {
 		this.createFile(
@@ -749,7 +749,7 @@ public void testMethodWithError7() throws JavaModelException, CoreException {
  * (regression test for bug 39475)
  */
 public void testMethodWithError8() throws JavaModelException, CoreException {
-	this.workingCopy.destroy(); // don't use the one created in setUp()
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
 	try {
 		this.createFile(
@@ -800,7 +800,7 @@ public void testMoveMember() throws JavaModelException {
 		"  public void bar() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	this.clearDeltas();
 	
 	this.workingCopy.getBuffer().setContents(
@@ -812,7 +812,7 @@ public void testMoveMember() throws JavaModelException {
 		"  public void foo() {\n" +
 		"  }\n" +
 		"}");
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
@@ -826,7 +826,7 @@ public void testMoveMember() throws JavaModelException {
  */
 public void testNoChanges1() throws JavaModelException {
 	this.workingCopy.getBuffer().setContents(this.workingCopy.getSource());
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta",
 		""
@@ -846,7 +846,7 @@ public void testNoChanges2() throws JavaModelException {
 		"  }\n" +
 		"}"
 	);
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta",
 		""
@@ -867,7 +867,7 @@ public void testRenameMethod1() throws JavaModelException {
 		"  }\n" +
 		"}"
 	);
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
@@ -890,7 +890,7 @@ public void testRenameWithSyntaxError() throws JavaModelException {
 		"  }\n" +
 		"}"
 	);
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
@@ -919,7 +919,7 @@ public void testUnhandledException() throws JavaModelException {
 		"  }\n" +
 		"}"
 	);
-	this.workingCopy.reconcile();
+	this.workingCopy.reconcile(false, null);
 	assertProblems(
 		"Unexpected problems",
 		"----------\n" + 

@@ -843,26 +843,25 @@ public boolean hasChildren() throws JavaModelException {
 	}
 }
 /*
- * Returns whether the underlying resource of this working copy has changed since the
- * inception of this working copy.
+ * @see ICompilationUnit#hasResourceChanged()
  */
 public boolean hasResourceChanged() {
-	return !isBasedOn(getResource());
-}
-/*
- * @see ICompilationUnit#isBasedOn(IResource)
- */
-public boolean isBasedOn(IResource resource) {
 	if (!isWorkingCopy()) return false;
 	
-	if (resource.getType() != IResource.FILE) {
-		return false;
-	}
 	// if resource got deleted, then #getModificationStamp() will answer IResource.NULL_STAMP, which is always different from the cached
 	// timestamp
 	Object info = JavaModelManager.getJavaModelManager().getInfo(this);
 	if (info == null) return false;
-	return ((CompilationUnitElementInfo)info).timestamp == ((IFile) resource).getModificationStamp();
+	return ((CompilationUnitElementInfo)info).timestamp != getResource().getModificationStamp();
+}
+/**
+ * @see IWorkingCopy#isBasedOn(IResource)
+ * @deprecated
+ */
+public boolean isBasedOn(IResource resource) {
+	if (!isWorkingCopy()) return false;
+	if (!getResource().equals(resource)) return false;
+	return !hasResourceChanged();
 }
 /**
  * @see IOpenable#isConsistent()

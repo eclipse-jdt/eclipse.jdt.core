@@ -20,7 +20,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -60,7 +59,7 @@ public static Test suite() {
  */
 protected void setUp() {
 	try {
-		this.workingCopy = (ICompilationUnit)this.getCompilationUnit("JavaSearch", "src", "wc", "X.java").getWorkingCopy();
+		this.workingCopy = this.getCompilationUnit("JavaSearch", "src", "wc", "X.java").getWorkingCopy(null);
 	} catch (JavaModelException e) {
 		e.printStackTrace();
 	}
@@ -70,7 +69,7 @@ protected void setUp() {
  * Destroy the working copy.
  */
 protected void tearDown() throws Exception {
-	this.workingCopy.destroy();
+	this.workingCopy.discardWorkingCopy();
 	this.workingCopy = null;
 }
 
@@ -79,7 +78,7 @@ protected void tearDown() throws Exception {
  */
 public void testHierarchyScopeOnWorkingCopy() throws CoreException {
 	ICompilationUnit unit = this. getCompilationUnit("JavaSearch", "src", "a9", "A.java");
-	ICompilationUnit copy = (ICompilationUnit)unit.getWorkingCopy();
+	ICompilationUnit copy = unit.getWorkingCopy(null);
 	try {
 		IType type = copy.getType("A");
 		IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
@@ -89,7 +88,7 @@ public void testHierarchyScopeOnWorkingCopy() throws CoreException {
 		IPath path = unit.getUnderlyingResource().getFullPath();
 		assertTrue("a9/A.java should be included in hierarchy scope", scope.encloses(path.toString()));
 	} finally {
-		copy.destroy();
+		copy.discardWorkingCopy();
 	}
 }
 
@@ -109,7 +108,7 @@ public void testAddNewType() throws CoreException {
 		SearchEngine.createJavaSearchScope(
 			new IJavaElement[] {this.workingCopy.getParent()});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine(new IWorkingCopy[] {this.workingCopy}).search(
+	new SearchEngine(new ICompilationUnit[] {this.workingCopy}).search(
 		getWorkspace(), 
 		"NewType",
 		TYPE,
@@ -136,7 +135,7 @@ public void testAllTypeNames1() throws CoreException {
 	this.workingCopy.makeConsistent(null);
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 	SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
-	new SearchEngine(new IWorkingCopy[] {this.workingCopy}).searchAllTypeNames(
+	new SearchEngine(new ICompilationUnit[] {this.workingCopy}).searchAllTypeNames(
 		ResourcesPlugin.getWorkspace(),
 		null,
 		null,
@@ -169,7 +168,7 @@ public void testAllTypeNames2() throws CoreException {
 	);
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 	SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
-	new SearchEngine(new IWorkingCopy[] {this.workingCopy}).searchAllTypeNames(
+	new SearchEngine(new ICompilationUnit[] {this.workingCopy}).searchAllTypeNames(
 		ResourcesPlugin.getWorkspace(),
 		null,
 		null,
@@ -297,15 +296,13 @@ public void testDeclarationOfReferencedTypes() throws CoreException {
 public void testMoveType() throws CoreException {
 	
 	// move type X from working copy in one package to a working copy in another package
-	IJavaElement element1 = getCompilationUnit("JavaSearch", "src", "wc1", "X.java").getWorkingCopy();
-	ICompilationUnit workingCopy1 = (ICompilationUnit)element1;
-	IJavaElement element2 = getCompilationUnit("JavaSearch", "src", "wc2", "Y.java").getWorkingCopy();
-	ICompilationUnit workingCopy2 = (ICompilationUnit)element2;
+	ICompilationUnit workingCopy1 = getCompilationUnit("JavaSearch", "src", "wc1", "X.java").getWorkingCopy(null);
+	ICompilationUnit workingCopy2 = getCompilationUnit("JavaSearch", "src", "wc2", "Y.java").getWorkingCopy(null);
 	
 	try {
 		workingCopy1.getType("X").move(workingCopy2, null, null, true, null);
 		
-		SearchEngine searchEngine = new SearchEngine(new IWorkingCopy[] {workingCopy1, workingCopy2});
+		SearchEngine searchEngine = new SearchEngine(new ICompilationUnit[] {workingCopy1, workingCopy2});
 		
 		// type X should not be visible in old package
 		IJavaSearchScope scope1 = SearchEngine.createJavaSearchScope(new IJavaElement[] {workingCopy1.getParent()});
@@ -335,8 +332,8 @@ public void testMoveType() throws CoreException {
 			"src/wc2/Y.java wc2.X [X]", 
 			resultCollector);
 	} finally {
-		workingCopy1.destroy();
-		workingCopy2.destroy();
+		workingCopy1.discardWorkingCopy();
+		workingCopy2.discardWorkingCopy();
 	}
 }
 
@@ -353,7 +350,7 @@ public void testRemoveType() throws CoreException {
 	
 	// type X should not be visible when working copy hides it
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine(new IWorkingCopy[] {this.workingCopy}).search(
+	new SearchEngine(new ICompilationUnit[] {this.workingCopy}).search(
 		getWorkspace(), 
 		"X",
 		TYPE,

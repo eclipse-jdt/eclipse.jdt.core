@@ -28,7 +28,6 @@ import org.eclipse.jdt.core.IElementChangedListener;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IWorkingCopy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -780,7 +779,7 @@ public void testCompilationUnitRemoveAndAdd() throws CoreException {
 }
 
 public void testCreateSharedWorkingCopy() throws CoreException {
-	IWorkingCopy copy = null;
+	ICompilationUnit copy = null;
 	try {
 		this.createJavaProject("P", new String[] {""}, "");
 		this.createFile("P/X.java",
@@ -788,7 +787,7 @@ public void testCreateSharedWorkingCopy() throws CoreException {
 			"}");
 		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
 		this.startDeltas();
-		copy = (IWorkingCopy)unit.getSharedWorkingCopy(null, null, null);
+		copy = (ICompilationUnit)unit.getSharedWorkingCopy(null, null, null);
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
@@ -798,12 +797,12 @@ public void testCreateSharedWorkingCopy() throws CoreException {
 		);
 	} finally {
 		this.stopDeltas();
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 		this.deleteProject("P");
 	}
 }
 public void testCreateWorkingCopy() throws CoreException {
-	IWorkingCopy copy = null;
+	ICompilationUnit copy = null;
 	try {
 		this.createJavaProject("P", new String[] {""}, "");
 		this.createFile("P/X.java",
@@ -811,7 +810,7 @@ public void testCreateWorkingCopy() throws CoreException {
 			"}");
 		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
 		this.startDeltas();
-		copy = (IWorkingCopy)unit.getWorkingCopy();
+		copy = unit.getWorkingCopy(null);
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
@@ -821,7 +820,7 @@ public void testCreateWorkingCopy() throws CoreException {
 		);
 	} finally {
 		this.stopDeltas();
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 		this.deleteProject("P");
 	}
 }
@@ -949,16 +948,16 @@ public void testDeleteProjectSetCPAnotherProject() throws CoreException {
 	}
 }
 public void testDestroySharedWorkingCopy() throws CoreException {
-	IWorkingCopy copy = null;
+	ICompilationUnit copy = null;
 	try {
 		this.createJavaProject("P", new String[] {""}, "");
 		this.createFile("P/X.java",
 			"public class X {\n" +
 			"}");
 		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
-		copy = (IWorkingCopy)unit.getSharedWorkingCopy(null, null, null);
+		copy = (ICompilationUnit)unit.getSharedWorkingCopy(null, null, null);
 		this.startDeltas();
-		copy.destroy();
+		copy.discardWorkingCopy();
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
@@ -972,16 +971,16 @@ public void testDestroySharedWorkingCopy() throws CoreException {
 	}
 }
 public void testDestroyWorkingCopy() throws CoreException {
-	IWorkingCopy copy = null;
+	ICompilationUnit copy = null;
 	try {
 		this.createJavaProject("P", new String[] {""}, "");
 		this.createFile("P/X.java",
 			"public class X {\n" +
 			"}");
 		ICompilationUnit unit = this.getCompilationUnit("P", "", "", "X.java");
-		copy = (IWorkingCopy)unit.getWorkingCopy();
+		copy = unit.getWorkingCopy(null);
 		this.startDeltas();
-		copy.destroy();
+		copy.discardWorkingCopy();
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
@@ -1083,7 +1082,7 @@ public void _testListenerAutoBuild() throws CoreException {  // TODO (jerome) re
 		listener.flush();
 		
 		// shared working copy destruction
-		wc.destroy();
+		wc.discardWorkingCopy();
 		assertEquals(
 			"Unexpected delta after destroying shared working copy",
 			"P[*]: {CHILDREN}\n" +
@@ -1096,7 +1095,7 @@ public void _testListenerAutoBuild() throws CoreException {  // TODO (jerome) re
 		
 			
 	} finally {
-		if (wc != null) wc.destroy();
+		if (wc != null) wc.discardWorkingCopy();
 		JavaCore.removeElementChangedListener(listener);
 		this.deleteProject("P");
 	}
@@ -1172,7 +1171,7 @@ public void testListenerPostChange() throws CoreException {
 			"  public void foo() {\n" +
 			"  }\n" +
 			"}");
-		wc.reconcile();
+		wc.reconcile(false, null);
 		assertEquals(
 			"Unexpected delta after reconciling working copy",
 			"",
@@ -1180,7 +1179,7 @@ public void testListenerPostChange() throws CoreException {
 		listener.flush();
 		
 		// commit
-		wc.commit(false, null);
+		wc.commitWorkingCopy(false, null);
 		assertEquals(
 			"Unexpected delta after committing working copy",
 			"P[*]: {CHILDREN}\n" +
@@ -1194,7 +1193,7 @@ public void testListenerPostChange() throws CoreException {
 		listener.flush();
 		
 		// shared working copy destruction
-		wc.destroy();
+		wc.discardWorkingCopy();
 		assertEquals(
 			"Unexpected delta after destroying shared working copy",
 			"P[*]: {CHILDREN}\n" +
@@ -1207,7 +1206,7 @@ public void testListenerPostChange() throws CoreException {
 		
 			
 	} finally {
-		if (wc != null) wc.destroy();
+		if (wc != null) wc.discardWorkingCopy();
 		JavaCore.removeElementChangedListener(listener);
 		this.deleteProject("P");
 	}
@@ -1272,7 +1271,7 @@ public void testListenerReconcile() throws CoreException {
 			"  public void foo() {\n" +
 			"  }\n" +
 			"}");
-		wc.reconcile();
+		wc.reconcile(false, null);
 		assertEquals(
 			"Unexpected delta after reconciling working copy",
 			"X[*]: {CHILDREN | FINE GRAINED}\n" +
@@ -1282,7 +1281,7 @@ public void testListenerReconcile() throws CoreException {
 		listener.flush();
 		
 		// commit
-		wc.commit(false, null);
+		wc.commitWorkingCopy(false, null);
 		assertEquals(
 			"Unexpected delta after committing working copy",
 			"",
@@ -1290,7 +1289,7 @@ public void testListenerReconcile() throws CoreException {
 		listener.flush();
 		
 		// shared working copy destruction
-		wc.destroy();
+		wc.discardWorkingCopy();
 		assertEquals(
 			"Unexpected delta after destroying shared working copy",
 			"",
@@ -1300,7 +1299,7 @@ public void testListenerReconcile() throws CoreException {
 		
 			
 	} finally {
-		if (wc != null) wc.destroy();
+		if (wc != null) wc.discardWorkingCopy();
 		JavaCore.removeElementChangedListener(listener);
 		this.deleteProject("P");
 	}
@@ -1359,7 +1358,7 @@ public void testModifyMethodBodyAndSave() throws CoreException {
 			"  }\n" +
 			"}");
 		ICompilationUnit cu = this.getCompilationUnit("P/x/y/A.java"); 
-		workingCopy = (ICompilationUnit)cu.getWorkingCopy();
+		workingCopy = cu.getWorkingCopy(null);
 		workingCopy.getBuffer().setContents(
 			"package x.y;\n" +
 			"public class A {\n" +
@@ -1369,7 +1368,7 @@ public void testModifyMethodBodyAndSave() throws CoreException {
 			"}");
 		
 		this.startDeltas();
-		workingCopy.commit(true, null);
+		workingCopy.commitWorkingCopy(true, null);
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
@@ -1380,7 +1379,7 @@ public void testModifyMethodBodyAndSave() throws CoreException {
 	} finally {
 		this.stopDeltas();
 		if (workingCopy != null) {
-			workingCopy.destroy();
+			workingCopy.discardWorkingCopy();
 		}
 		this.deleteProject("P");
 	}
@@ -2149,7 +2148,7 @@ public void testRenameMethodAndSave() throws CoreException {
 			"  }\n" +
 			"}");
 		ICompilationUnit cu = this.getCompilationUnit("P/x/y/A.java"); 
-		workingCopy = (ICompilationUnit)cu.getWorkingCopy();
+		workingCopy = cu.getWorkingCopy(null);
 		workingCopy.getBuffer().setContents(
 			"package x.y;\n" +
 			"public class A {\n" +
@@ -2158,7 +2157,7 @@ public void testRenameMethodAndSave() throws CoreException {
 			"}");
 		
 		this.startDeltas();
-		workingCopy.commit(true, null);
+		workingCopy.commitWorkingCopy(true, null);
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" + 
@@ -2172,7 +2171,7 @@ public void testRenameMethodAndSave() throws CoreException {
 	} finally {
 		this.stopDeltas();
 		if (workingCopy != null) {
-			workingCopy.destroy();
+			workingCopy.discardWorkingCopy();
 		}
 		this.deleteProject("P");
 	}
@@ -2244,7 +2243,7 @@ public void testSaveWorkingCopy() throws CoreException {
 			"Unexpected delta after saving working copy", 
 			""
 		);
-		copy.commit(true, null);
+		copy.commitWorkingCopy(true, null);
 		assertDeltas(
 			"Unexpected delta after committing working copy", 
 			"P[*]: {CHILDREN}\n" + 
@@ -2256,7 +2255,7 @@ public void testSaveWorkingCopy() throws CoreException {
 		);
 	} finally {
 		this.stopDeltas();
-		if (copy != null) copy.destroy();
+		if (copy != null) copy.discardWorkingCopy();
 		this.deleteProject("P");
 	}
 }
@@ -2365,7 +2364,7 @@ public void testWorkingCopyCommit() throws CoreException {
 			"public class A {\n" +
 			"}");
 		ICompilationUnit cu = this.getCompilationUnit("P/x/y/A.java");
-		ICompilationUnit copy = (ICompilationUnit) cu.getWorkingCopy();
+		ICompilationUnit copy = cu.getWorkingCopy(null);
 		copy.getBuffer().setContents(
 			"package x.y;\n" +
 			"public class A {\n" +
@@ -2374,7 +2373,7 @@ public void testWorkingCopyCommit() throws CoreException {
 			"}");
 		copy.save(null, false);
 		this.startDeltas();
-		copy.commit(true, null);
+		copy.commitWorkingCopy(true, null);
 		assertDeltas(
 			"Unexpected delta after commit", 
 			"P[*]: {CHILDREN}\n" + 

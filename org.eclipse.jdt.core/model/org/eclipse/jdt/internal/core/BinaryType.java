@@ -530,6 +530,18 @@ public ITypeHierarchy loadTypeHierachy(InputStream input, WorkingCopyOwner owner
 public ITypeHierarchy newSupertypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
 	return this.newSupertypeHierarchy(DefaultWorkingCopyOwner.PRIMARY, monitor);
 }
+/*
+ *@see IType#newSupertypeHierarchy(ICompilationUnit[], IProgressMonitor monitor)
+ */
+public ITypeHierarchy newSupertypeHierarchy(
+	ICompilationUnit[] workingCopies,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+	
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), false);
+	runOperation(op, monitor);
+	return op.getResult();
+}
 /**
  * @param workingCopies the working copies that take precedence over their original compilation units
  * @param monitor the given progress monitor
@@ -552,9 +564,7 @@ public ITypeHierarchy newSupertypeHierarchy(
 		int length = workingCopies.length;
 		System.arraycopy(workingCopies, 0, copies = new ICompilationUnit[length], 0, length);
 	}
-	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, copies, SearchEngine.createWorkspaceScope(), false);
-	runOperation(op, monitor);
-	return op.getResult();
+	return newSupertypeHierarchy(copies, monitor);
 }
 /*
  * @see IType#newSupertypeHierarchy(WorkingCopyOwner, IProgressMonitor)
@@ -618,6 +628,18 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner ow
 public ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
 	return newTypeHierarchy((IWorkingCopy[])null, monitor);
 }
+/*
+ * @see IType#newTypeHierarchy(ICompilationUnit[], IProgressMonitor)
+ */
+public ITypeHierarchy newTypeHierarchy(
+	ICompilationUnit[] workingCopies,
+	IProgressMonitor monitor)
+	throws JavaModelException {
+
+	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), true);
+	runOperation(op, monitor);
+	return op.getResult();
+}
 /**
  * @see IType#newTypeHierarchy(IWorkingCopy[], IProgressMonitor)
  * @deprecated
@@ -634,9 +656,7 @@ public ITypeHierarchy newTypeHierarchy(
 		int length = workingCopies.length;
 		System.arraycopy(workingCopies, 0, copies = new ICompilationUnit[length], 0, length);
 	}
-	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, copies, SearchEngine.createWorkspaceScope(), true);
-	runOperation(op, monitor);
-	return op.getResult();
+	return newTypeHierarchy(copies, monitor);
 }
 /*
  * @see IType#newTypeHierarchy(WorkingCopyOwner, IProgressMonitor)
