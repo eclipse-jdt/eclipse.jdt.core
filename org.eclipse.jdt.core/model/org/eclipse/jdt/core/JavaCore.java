@@ -1016,7 +1016,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 						initializer.initialize(variableName);
 					}
 				});
-				variablePath = (IPath) JavaModelManager.variableGet(variableName); // initializer should have performed side-effect
+				variablePath = JavaModelManager.variableGet(variableName); // initializer should have performed side-effect
 				if (variablePath == JavaModelManager.VariableInitializationInProgress) return null; // break cycle (initializer did not init or reentering call)
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
 					System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath); //$NON-NLS-2$//$NON-NLS-1$
@@ -3014,7 +3014,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		workspace.removeResourceChangeListener(JavaModelManager.getJavaModelManager().deltaProcessor);
 		workspace.removeSaveParticipant(this);
 
-		((JavaModelManager) JavaModelManager.getJavaModelManager()).shutdown();
+		JavaModelManager.getJavaModelManager().shutdown();
 	}
 
 	/**
@@ -3093,7 +3093,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 		int discardCount = 0;
 		for (int i = 0; i < varLength; i++){
 			String variableName = variableNames[i];
-			IPath oldPath = (IPath)JavaModelManager.variableGet(variableName); // if reentering will provide previous session value 
+			IPath oldPath = JavaModelManager.variableGet(variableName); // if reentering will provide previous session value 
 			if (oldPath == JavaModelManager.VariableInitializationInProgress){
 				IPath previousPath = (IPath)JavaModelManager.PreviousSessionVariables.get(variableName);
 				if (previousPath != null){

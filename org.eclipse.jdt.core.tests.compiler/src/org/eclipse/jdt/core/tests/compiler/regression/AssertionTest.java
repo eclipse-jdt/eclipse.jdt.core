@@ -253,4 +253,25 @@ public class AssertionTest extends AbstractRegressionTest {
 		true, // flush previous output dir content
 		new String[] {"-ea"});
 	} 	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=57743
+	 */
+	public void test012() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main( String[] args ) {\n" + 
+				"        try {\n" + 
+				"            throw new Throwable( \"This is a test\");\n" + 
+				"        }\n" + 
+				"        catch( Throwable ioe ) {\n" + 
+				"            assert false : ioe;\n" + 
+				"        }\n" + 
+				"        System.out.print(\"SUCCESS\");	\n" +
+				"    }\n" + 
+				"}\n"
+			},
+			"SUCCESS"); // expected output
+	}	
 }
