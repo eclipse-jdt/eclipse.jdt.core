@@ -33,7 +33,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	static final String DOC_COMMENT_SUPPORT = System.getProperty("doc.support");
 //	String docCommentSupport;
 	boolean supportJavadoc;
-	static boolean debug = true;
+	static boolean debug = false;
 	static String[] testNames = null;
 	static int[] testNumbers = null;
 	static int[] testRange = null;

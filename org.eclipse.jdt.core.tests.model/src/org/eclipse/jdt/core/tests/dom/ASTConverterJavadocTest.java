@@ -59,6 +59,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	private final int BLOCK_COMMENT =200;
 	private final int DOC_COMMENT = 300;
 	List comments = new ArrayList();
+	private String chars;
 	// List of tags contained in each comment read from test source.
 	List allTags = new ArrayList();
 	// Current compilation unit
@@ -72,6 +73,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	protected StringBuffer problems;
 	protected String compilerOption = JavaCore.IGNORE;
 	protected List failures;
+	protected boolean stopOnFailure = true;
 	protected IJavaProject currentProject;
 
 	/**
@@ -105,7 +107,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterJavadocTest("testBug52908unicode"));
+		suite.addTest(new ASTConverterJavadocTest("testxxxx"));
 		return suite;
 	}
 
@@ -156,7 +158,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				System.out.println("	- "+failures.get(i));
 			}
 		}
-		assertTrue(title, size==0 || problems.length() > 0);
+		if (!stopOnFailure) {
+			assertTrue(title, size==0 || problems.length() > 0);
+		}
 		// put default options on project
 		this.currentProject.setOptions(JavaCore.getOptions());
 	}
@@ -401,12 +405,35 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 //		}
 //	}
 
+	private char getNextChar(char[] source, int idx) {
+			// get next char
+			char ch = source[idx];
+			int charLength = 1;
+			int pos = idx;
+			this.chars = null;
+			if (ch == '\\' && source[idx+1] == 'u') {
+				//-------------unicode traitement ------------
+				int c1, c2, c3, c4;
+				charLength++;
+				while (source[idx+charLength] == 'u') charLength++;
+				if (((c1 = Character.getNumericValue(source[idx+charLength++])) > 15
+					|| c1 < 0)
+					|| ((c2 = Character.getNumericValue(source[idx+charLength++])) > 15 || c2 < 0)
+					|| ((c3 = Character.getNumericValue(source[idx+charLength++])) > 15 || c3 < 0)
+					|| ((c4 = Character.getNumericValue(source[idx+charLength++])) > 15 || c4 < 0)) {
+					return ch;
+				}
+				ch = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+				this.chars = new String(source, pos, charLength);
+			}
+			return ch;
+	}
 	/*
 	 * Convert Javadoc source to match Javadoc.toString().
 	 * Store converted comments and their corresponding tags respectively
 	 * in this.comments and this.allTags fields
 	 */
-	protected void setSourceComment(char[] source) {
+	protected void setSourceComment(char[] source) throws ArrayIndexOutOfBoundsException {
 		this.comments = new ArrayList();
 		this.allTags = new ArrayList();
 		StringBuffer buffer = null;
@@ -416,26 +443,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		List tags = new ArrayList();
 		int length = source.length;
 		char previousChar=0, currentChar=0;
-		for (int i=0; i<length; i++) {
+		for (int i=0; i<length;) {
 			previousChar = currentChar;
 			// get next char
-			currentChar = source[i];
-			int charLength = 1;
-			if (currentChar == '\\' && source[i+1] == 'u') {
-				//-------------unicode traitement ------------
-				int c1, c2, c3, c4;
-				charLength++;
-				while (source[i+charLength] == 'u') charLength++;
-				if (((c1 = Character.getNumericValue(source[i+charLength++])) > 15
-					|| c1 < 0)
-					|| ((c2 = Character.getNumericValue(source[i+charLength++])) > 15 || c2 < 0)
-					|| ((c3 = Character.getNumericValue(source[i+charLength++])) > 15 || c3 < 0)
-					|| ((c4 = Character.getNumericValue(source[i+charLength])) > 15 || c4 < 0)) {
-					throw new RuntimeException("Invalid unicode in source at "+i);
-				}
-				currentChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-				i+=charLength;
-			}
+			currentChar = getNextChar(source, i);
+			i += (this.chars==null) ? 1 : this.chars.length();
 
 			// 
 			switch (comment) {
@@ -444,49 +456,18 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						case '/':
 							comment = 1; // first char for comments...
 							buffer = new StringBuffer();
-							if (charLength == 1) {
-								buffer.append(currentChar);
-							} else  {
-								for (int k=i-charLength; k<=i; k++) buffer.append(source[k]);
-							}
+							if (this.chars == null) buffer.append(currentChar);
+							else buffer.append(this.chars);
 							break;
 						case '\'':
 							while (i<length) {
 								// get next char
-								currentChar = source[i];
-								if (currentChar == '\\' && source[i+1] == 'u') {
-									//-------------unicode traitement ------------
-									i++;
-									int c1, c2, c3, c4;
-									i++;
-									while (source[i] == 'u') i++;
-									if (((c1 = Character.getNumericValue(source[i++])) > 15
-										|| c1 < 0)
-										|| ((c2 = Character.getNumericValue(source[i++])) > 15 || c2 < 0)
-										|| ((c3 = Character.getNumericValue(source[i++])) > 15 || c3 < 0)
-										|| ((c4 = Character.getNumericValue(source[i++])) > 15 || c4 < 0)) {
-										throw new RuntimeException("Invalid unicode in source at "+i);
-									}
-									currentChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-								}
+								currentChar = getNextChar(source, i);
+								i += (this.chars==null) ? 1 : this.chars.length();
 								if (currentChar == '\\') {
 									// get next char
-									currentChar = source[i];
-									if (currentChar == '\\' && source[i+1] == 'u') {
-										//-------------unicode traitement ------------
-										i++;
-										int c1, c2, c3, c4;
-										i++;
-										while (source[i] == 'u') i++;
-										if (((c1 = Character.getNumericValue(source[i++])) > 15
-											|| c1 < 0)
-											|| ((c2 = Character.getNumericValue(source[i++])) > 15 || c2 < 0)
-											|| ((c3 = Character.getNumericValue(source[i++])) > 15 || c3 < 0)
-											|| ((c4 = Character.getNumericValue(source[i++])) > 15 || c4 < 0)) {
-											throw new RuntimeException("Invalid unicode in source at "+i);
-										}
-										currentChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-									}
+									currentChar = getNextChar(source, i);
+									i += (this.chars==null) ? 1 : this.chars.length();
 								} else {
 									if (currentChar == '\'') {
 										break;
@@ -497,62 +478,19 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						case '"':
 							while (i<length) {
 								// get next char
-								currentChar = source[i];
-								if (currentChar == '\\' && source[i+1] == 'u') {
-									//-------------unicode traitement ------------
-									i++;
-									int c1, c2, c3, c4;
-									i++;
-									while (source[i] == 'u') i++;
-									if (((c1 = Character.getNumericValue(source[i++])) > 15
-										|| c1 < 0)
-										|| ((c2 = Character.getNumericValue(source[i++])) > 15 || c2 < 0)
-										|| ((c3 = Character.getNumericValue(source[i++])) > 15 || c3 < 0)
-										|| ((c4 = Character.getNumericValue(source[i++])) > 15 || c4 < 0)) {
-										throw new RuntimeException("Invalid unicode in source at "+i);
-									}
-									currentChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-								}
+								currentChar = getNextChar(source, i);
+								i += (this.chars==null) ? 1 : this.chars.length();
 								if (currentChar == '\\') {
 									// get next char
-									currentChar = source[i];
-									if (currentChar == '\\' && source[i+1] == 'u') {
-										//-------------unicode traitement ------------
-										i++;
-										int c1, c2, c3, c4;
-										i++;
-										while (source[i] == 'u') i++;
-										if (((c1 = Character.getNumericValue(source[i++])) > 15
-											|| c1 < 0)
-											|| ((c2 = Character.getNumericValue(source[i++])) > 15 || c2 < 0)
-											|| ((c3 = Character.getNumericValue(source[i++])) > 15 || c3 < 0)
-											|| ((c4 = Character.getNumericValue(source[i++])) > 15 || c4 < 0)) {
-											throw new RuntimeException("Invalid unicode in source at "+i);
-										}
-										currentChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-									}
+									currentChar = getNextChar(source, i);
+									i += (this.chars==null) ? 1 : this.chars.length();
 								} else {
 									if (currentChar == '"') {
-										int currentPos=i;
 										// get next char
-										currentChar = source[i];
-										if (currentChar == '\\' && source[i+1] == 'u') {
-											//-------------unicode traitement ------------
-											i++;
-											int c1, c2, c3, c4;
-											i++;
-											while (source[i] == 'u') i++;
-											if (((c1 = Character.getNumericValue(source[i++])) > 15
-												|| c1 < 0)
-												|| ((c2 = Character.getNumericValue(source[i++])) > 15 || c2 < 0)
-												|| ((c3 = Character.getNumericValue(source[i++])) > 15 || c3 < 0)
-												|| ((c4 = Character.getNumericValue(source[i++])) > 15 || c4 < 0)) {
-												throw new RuntimeException("Invalid unicode in source at "+i);
-											}
-											currentChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-										}
-										if (source[i+1] != '"') {
-											i=currentPos;
+										currentChar = getNextChar(source, i);
+										if (currentChar == '"') {
+											i += (this.chars==null) ? 1 : this.chars.length();
+										} else {
 											break;
 										}
 									}
@@ -564,19 +502,13 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				case 1: // first '/' has been found...
 					switch (currentChar) {
 						case '/':
-							if (charLength == 1) {
-								buffer.append(currentChar);
-							} else  {
-								for (int k=i-charLength; k<=i; k++) buffer.append(source[k]);
-							}
+							if (this.chars == null) buffer.append(currentChar);
+							else buffer.append(this.chars);
 							comment = LINE_COMMENT;
 							break;
 						case '*':
-							if (charLength == 1) {
-								buffer.append(currentChar);
-							} else  {
-								for (int k=i-charLength; k<=i; k++) buffer.append(source[k]);
-							}
+							if (this.chars == null) buffer.append(currentChar);
+							else buffer.append(this.chars);
 							comment = 2; // next step
 							break;
 						default:
@@ -590,18 +522,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					} else {
 						comment = BLOCK_COMMENT;
 					}
-					if (charLength == 1) {
-						buffer.append(currentChar);
-					} else  {
-							for (int k=i-charLength; k<=i; k++) buffer.append(source[k]);
-					}
+					if (this.chars == null) buffer.append(currentChar);
+					else buffer.append(this.chars);
 					break;
 				case 3: // '/**' has bee found, verify that's not an empty block comment
-					if (charLength == 1) {
-						buffer.append(currentChar);
-					} else  {
-						for (int k=i-charLength; k<=i; k++) buffer.append(source[k]);
-					}
+					if (this.chars == null) buffer.append(currentChar);
+					else buffer.append(this.chars);
 					if (currentChar == '/') { // empty block comment
 						this.comments.add(buffer.toString());
 						this.allTags.add(new ArrayList());
@@ -621,11 +547,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						this.comments.add(buffer.toString());
 						this.allTags.add(tags);
 					} else {
-						if (charLength == 1) {
-							buffer.append(currentChar);
-						} else  {
-							for (int k=i-charLength; k<=i; k++) buffer.append(source[k]);
-						}
+						if (this.chars == null) buffer.append(currentChar);
+						else buffer.append(this.chars);
 					}
 					break;
 				case DOC_COMMENT:
@@ -656,11 +579,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 							}
 					}
 				case BLOCK_COMMENT:
-					if (charLength == 1) {
-						buffer.append(currentChar);
-					} else  {
-						for (int k=i-charLength; k<=i; k++) buffer.append(source[k]);
-					}
+					if (this.chars == null) buffer.append(currentChar);
+					else buffer.append(this.chars);
 					if (end && currentChar == '/') {
 						comment = 0;
 						lineStarted = false;
@@ -762,6 +682,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	protected void assumeTrue(String msg, boolean cond) {
 		if (!cond) {
 			addFailure(msg);
+			if (this.stopOnFailure) assertTrue(msg, cond);
 		}
 	}
 
@@ -773,6 +694,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	protected void assumeNull(String msg, Object obj) {
 		if (obj != null) {
 			addFailure(msg);
+			if (this.stopOnFailure) assertNull(msg, obj);
 		}
 	}
 
@@ -784,6 +706,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	protected void assumeNotNull(String msg, Object obj) {
 		if (obj == null) {
 			addFailure(msg);
+			if (this.stopOnFailure) assertNotNull(msg, obj);
 		}
 	}
 
@@ -795,6 +718,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	protected void assumeEquals(String msg, int expected, int actual) {
 		if (expected != actual) {
 			addFailure(msg+", expected="+expected+" actual="+actual);
+			if (this.stopOnFailure) assertEquals(expected, actual);
 		}
 	}
 
@@ -809,12 +733,15 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		if (expected != null && expected.equals(actual))
 			return;
 		addFailure(msg+", expected:<"+expected+"> actual:<"+actual+'>');
+		if (this.stopOnFailure) assertEquals(expected, actual);
 	}
 
 	/*
 	 * Verify positions of tags in source
 	 */
 	private void verifyPositions(Javadoc docComment, char[] source) {
+		boolean stop = this.stopOnFailure;
+		this.stopOnFailure = false;
 		// Verify javadoc start and end position
 		int start = docComment.getStartPosition();
 		int end = start+docComment.getLength()-1;
@@ -838,6 +765,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		}
 		assumeTrue(this.prefix+"Misplaced javadoc end at <"+tagStart+'>', source[tagStart-1] == '*' && source[tagStart] == '/');
 		assumeEquals(this.prefix+"Wrong javadoc length at <"+end+">: ", tagStart, end);
+		this.stopOnFailure = stop;
+		assertTrue(!stop || this.failures.size()==0);
 	}
 
 	/*
@@ -1031,11 +960,15 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * For expected unresolved binding, verify that following text starts with 'Unknown'
 	 */
 	private void verifyBindings(Javadoc docComment) {
+		boolean stop = this.stopOnFailure;
+		this.stopOnFailure = false;
 		// Verify tags
 		Iterator tags = docComment.tags().listIterator();
 		while (tags.hasNext()) {
 			verifyBindings((TagElement) tags.next());
 		}
+		this.stopOnFailure = stop;
+		assertTrue(!stop || this.failures.size()==0);
 	}
 
 	/*
@@ -1147,7 +1080,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/*
 	 * Verify the comments of a compilation unit.
 	 */
-	protected void verifyComments(ICompilationUnit unit) throws JavaModelException {
+	protected CompilationUnit verifyComments(ICompilationUnit unit) throws JavaModelException {
 		// Get test file
 		this.sourceUnit = unit;
 		this.prefix = unit.getElementName()+": ";
@@ -1166,10 +1099,16 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Verify source regardings converted comments
 		char[] source = sourceStr.toCharArray();
 		String fileName = unit.getPath().toString();
-		verifyComments(fileName, source);
+		try {
+			return verifyComments(fileName, source);
+		}
+		catch (RuntimeException ex) {
+			testCounters[3]++;
+			throw ex;
+		}
 	}
 	
-	protected void verifyComments(String fileName, char[] source) {
+	protected CompilationUnit verifyComments(String fileName, char[] source) {
 
 		// Get comments infos from test file
 		setSourceComment(source);
@@ -1209,35 +1148,32 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		
 		// Basic comments verification
 		int size = unitComments.size();
-		
 		assumeEquals(this.prefix+"Wrong number of comments!", this.comments.size(), size);
 
 		// Verify comments positions and bindings
-//		if (this.comments.size() == size) {
-			for (int i=0; i<size; i++) {
-				Comment comment = (Comment) unitComments.get(i);
-				List tags = (List) allTags.get(i);
-				// Verify flattened content
-				String stringComment = (String) this.comments.get(i);
-	//			ASTConverterJavadocFlattener printer = new ASTConverterJavadocFlattener(stringComment);
-	//			comment.accept(printer);
-				String text = new String(testedSource, comment.getStartPosition(), comment.getLength());
-				assumeEquals(this.prefix+"Flattened comment does NOT match source!", stringComment, text);
-				// Verify javdoc tags positions and bindings
-				if (comment.isDocComment()) {
-					Javadoc docComment = (Javadoc)comment;
-					if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
-						assumeEquals(this.prefix+"Invalid tags number in javadoc:\n"+docComment+"\n", tags.size(), allTags(docComment));
-						verifyPositions(docComment, testedSource);
-						if (this.resolveBinding) {
-							verifyBindings(docComment);
-						}
-					} else {
-						assumeEquals("Javadoc should be flat!", 0, docComment.tags().size());
+		for (int i=0; i<size; i++) {
+			Comment comment = (Comment) unitComments.get(i);
+			List tags = (List) allTags.get(i);
+			// Verify flattened content
+			String stringComment = (String) this.comments.get(i);
+//			ASTConverterJavadocFlattener printer = new ASTConverterJavadocFlattener(stringComment);
+//			comment.accept(printer);
+			String text = new String(testedSource, comment.getStartPosition(), comment.getLength());
+			assumeEquals(this.prefix+"Flattened comment does NOT match source!", stringComment, text);
+			// Verify javdoc tags positions and bindings
+			if (comment.isDocComment()) {
+				Javadoc docComment = (Javadoc)comment;
+				if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+					assumeEquals(this.prefix+"Invalid tags number in javadoc:\n"+docComment+"\n", tags.size(), allTags(docComment));
+					verifyPositions(docComment, testedSource);
+					if (this.resolveBinding) {
+						verifyBindings(docComment);
 					}
+				} else {
+					assumeEquals("Javadoc should be flat!", 0, docComment.tags().size());
 				}
 			}
-//		}
+		}
 		
 		/* Verify each javadoc: not implemented yet
 		Iterator types = compilUnit.types().listIterator();
@@ -1246,6 +1182,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			verifyJavadoc(typeDeclaration.getJavadoc());
 		}
 		*/
+
+		// Return compilation unit for possible further verifications
+		return compilUnit;
 	}
 
 	/* 
@@ -1439,32 +1378,32 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/**
 	 * Verify DefaultCommentMapper heuristic to get leading and trailing comments
 	 */
-	public void test016() throws JavaModelException {
-		verifyMapper("test016", 16, new int[] {2,7,8,15});
+	public void test100() throws JavaModelException {
+		verifyMapper("test100", 16, new int[] {2,7,8,15});
 	}
-	public void test016b() throws JavaModelException {
-		verifyMapper("test016b", 8, new int[] {1,3,4,7});
+	public void test101() throws JavaModelException {
+		verifyMapper("test101", 8, new int[] {1,3,4,7});
 	}
-	public void test017() throws JavaModelException {
-		verifyMapper("test017", 16, new int[] {4,9,10,13});
+	public void test102() throws JavaModelException {
+		verifyMapper("test102", 16, new int[] {4,9,10,13});
 	}
-	public void test017b() throws JavaModelException {
-		verifyMapper("test017b", 8, new int[] {2,4,5,6});
+	public void test103() throws JavaModelException {
+		verifyMapper("test103", 8, new int[] {2,4,5,6});
 	}
-	public void test018() throws JavaModelException {
-		verifyMapper("test018", 16, new int[] {2,7,8,15});
+	public void test104() throws JavaModelException {
+		verifyMapper("test104", 16, new int[] {2,7,8,15});
 	}
-	public void test018b() throws JavaModelException {
-		verifyMapper("test018b", 16, new int[] {-1,11,-1,15});
+	public void test105() throws JavaModelException {
+		verifyMapper("test105", 16, new int[] {-1,11,-1,15});
 	}
-	public void test018c() throws JavaModelException {
-		verifyMapper("test018c", 8, new int[] {-1,5,-1,7});
+	public void test106() throws JavaModelException {
+		verifyMapper("test106", 8, new int[] {-1,5,-1,7});
 	}
-	public void test019() throws JavaModelException {
-		verifyMapper("test019", 16, new int[] {2,7,8,-1});
+	public void test107() throws JavaModelException {
+		verifyMapper("test107", 16, new int[] {2,7,8,-1});
 	}
-	public void test019b() throws JavaModelException {
-		verifyMapper("test019b", 8, new int[] {1,3,4,-1});
+	public void test108() throws JavaModelException {
+		verifyMapper("test108", 8, new int[] {1,3,4,-1});
 	}
 
 	/**
@@ -1582,6 +1521,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug52908() throws JavaModelException {
 		verifyComments("testBug52908");
 	}
+	public void testBug52908a() throws JavaModelException {
+		verifyComments("testBug52908a");
+	}
 	public void testBug52908unicode() throws JavaModelException {
 		verifyComments("testBug52908unicode");
 	}
@@ -1591,5 +1533,30 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug53276() throws JavaModelException {
 		verifyComments("testBug53276");
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=53075
+	 */
+	public void testBug53075() throws JavaModelException {
+		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug53075", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		this.packageBinding = false;
+		CompilationUnit compilUnit = verifyComments(unit);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			Comment comment = (Comment) compilUnit.getCommentList().get(0);
+			assumeTrue(this.prefix+"Comment should be a javadoc comment ", comment.isDocComment());
+			Javadoc docComment = (Javadoc) comment;
+			TagElement tagElement = (TagElement) docComment.tags().get(0);
+			assumeEquals("Wrong tag type!", TagElement.TAG_LINK, tagElement.getTagName());
+			tagElement = (TagElement) docComment.tags().get(1);
+			assumeEquals("Wrong tag type!", TagElement.TAG_LINKPLAIN, tagElement.getTagName());
+		}
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=53757
+	 */
+	public void testBug53757() throws JavaModelException {
+		verifyComments("testBug53757");
 	}
 }
