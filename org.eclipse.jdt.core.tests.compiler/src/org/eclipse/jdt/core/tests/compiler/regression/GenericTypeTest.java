@@ -5520,4 +5520,102 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"The parameterized constructor <String>MX(String) of type X.MX is not applicable for the arguments (X)\n" + 
 			"----------\n");
 	}			
+	// parameterized explicit constructor call
+	public void test199() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public <T> X(T t){\n" + 
+				"		System.out.println(t);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		class Local extends X {\n" + 
+				"			Local() {\n" +
+				"				<String>super(\"SUCCESS\");\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		new Local();\n" +				
+				"	}\n" + 
+				"}\n", 
+			},
+			"SUCCESS");
+	}		
+	// parameterized explicit constructor call - wrong arity
+	public void test200() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public <T> X(T t){\n" + 
+				"		System.out.println(t);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		class Local extends X {\n" + 
+				"			Local() {\n" +
+				"				<String,String>super(\"FAILED\");\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		new Local();\n" +				
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	<String,String>super(\"FAILED\");\n" + 
+			"	               ^^^^^^^^^^^^^^^\n" + 
+			"Incorrect number of type arguments for generic constructor <T>X(T) of type X; it cannot be parameterized with arguments <String, String>\n" + 
+			"----------\n");
+	}			
+	// parameterized explicit constructor call - non generic target constructor
+	public void test201() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public X(String t){\n" + 
+				"		System.out.println(t);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		class Local extends X {\n" + 
+				"			Local() {\n" +
+				"				<String>super(\"FAILED\");\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		new Local();\n" +				
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	<String>super(\"FAILED\");\n" + 
+			"	        ^^^^^^^^^^^^^^^\n" + 
+			"The constructor X(String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+			"----------\n");
+	}			
+	// parameterized explicit constructor call - argument type mismatch
+	public void test202() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public <T> X(T t){\n" + 
+				"		System.out.println(t);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		class Local extends X {\n" + 
+				"			Local() {\n" +
+				"				<String>super(new X(null));\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		new Local();\n" +				
+				"	}\n" + 
+				"}\n", 			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	<String>super(new X(null));\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^\n" + 
+			"The parameterized constructor <String>X(String) of type X is not applicable for the arguments (X)\n" + 
+			"----------\n");
+	}			
 }
