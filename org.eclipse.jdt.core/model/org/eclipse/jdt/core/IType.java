@@ -144,6 +144,21 @@ IMethod createMethod(String contents, IJavaElement sibling, boolean force, IProg
  * </ul>
  */
 IType createType(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException;
+/** 
+ * Finds the method in this type which corresponds to
+ * the given method.
+ * A method m1 corresponds to another method m2 if:
+ * <ul>
+ * <li>m1 has the same element name as m2.
+ * <li>m1 has the same number of arguments as m2 and
+ *     the simple names of the argument types must be equals.
+ * <li>m1 exists.
+ * </ul>
+ * Returns <code>null</code> if no such a method is found.
+ * 
+ * @since 2.0 
+ */		
+IMethod findCorrespondingMethod(IMethod method);
 /**
  * Returns the simple name of this type, unqualified by package or enclosing type.
  * This is a handle-only method.

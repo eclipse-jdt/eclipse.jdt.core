@@ -7,6 +7,7 @@ package org.eclipse.jdt.core;
  
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
 
 /**
  * Common protocol for all elements provided by the Java model.
@@ -111,6 +112,14 @@ public interface IJavaElement extends IAdaptable {
  */
 boolean exists();
 /**
+ * Returns the first ancestor of this Java element that has the given type.
+ * Returns this element if it has the given type.
+ * Returns <code>null</code> if no such an ancestor can be found.
+ * 
+ * @since 2.0
+ */
+IJavaElement getAncestor(int ancestorType);
+/**
  * Returns the resource that corresponds directly to this element,
  * or <code>null</code> if there is no resource that corresponds to
  * this element.
@@ -173,6 +182,14 @@ IJavaModel getJavaModel();
  */
 IJavaProject getJavaProject();
 /**
+ * Returns the first openable parent. If this element is openable, the element
+ * itself is returned. Returns <code>null</code> if this element doesn't have
+ * an openable parent.
+ * 
+ * @since 2.0
+ */
+IOpenable getOpenable();
+/**
  * Returns the element directly containing this element,
  * or <code>null</code> if this element has no parent.
  * This is a handle-only method.
@@ -180,6 +197,17 @@ IJavaProject getJavaProject();
  * @return the parent element, or <code>null</code> if this element has no parent
  */
 IJavaElement getParent();
+/**
+ * Returns the path to the innermost resource enclosing this element. 
+ * If this element is not included in an external archive, 
+ * the path returned is the full, absolute path to the underlying resource, 
+ * relative to the workbench. 
+ * If this element is included in an external archive, 
+ * the path returned is the absolute path to the archive in the file system.
+ * 
+ * @since 2.0
+ */
+IPath getPath();
 /**
  * Returns the smallest underlying resource that contains
  * this element, or <code>null</code> if this element is not contained

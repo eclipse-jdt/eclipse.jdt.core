@@ -200,20 +200,14 @@ protected BufferManager getBufferManager() {
 public IResource getCorrespondingResource() throws JavaModelException {
 	return getUnderlyingResource();
 }
-
-/**
- * Answer the path of the corresponding resource or associated file (JARs)
+/*
+ * @see IJavaElement
  */
-public IPath getPath(){
-	try {
-		IResource resource = this.getCorrespondingResource();
-		if (resource != null){
-			return resource.getFullPath();
-		}
-	} catch(JavaModelException e){
-	}
-	return null;
+public IOpenable getOpenable() {
+	return this;	
 }
+
+
 
 /**
  * @see IJavaElement
@@ -237,14 +231,14 @@ public IResource getUnderlyingResource() throws JavaModelException {
 	}
 }
 
-public boolean exists(){
+public boolean exists() {
 	
-	IPath path = this.getPath();
-	if (path != null){
-		return parentExists() 
-					&& resourceExists();
+	IPackageFragmentRoot root = this.getPackageFragmentRoot();
+	if (root == null || root == this || !root.isArchive()) {
+		return parentExists() && resourceExists();
+	} else {
+		return super.exists();
 	}
-	return super.exists();
 }	
 
 /**

@@ -26,13 +26,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
  */
 public interface IPackageFragmentRoot
 	extends IParent, IJavaElement, IOpenable {
-
 	/**
 	 * Kind constant for a source path root. Indicates this root
 	 * only contains source files.
 	 */
 	int K_SOURCE = 1;
-
 	/**
 	 * Kind constant for a binary path root. Indicates this
 	 * root only contains binary files.
@@ -42,7 +40,6 @@ public interface IPackageFragmentRoot
 	 * Empty root path
 	 */
 	String DEFAULT_PACKAGEROOT_PATH = ""; //$NON-NLS-1$
-
 	/**
 	 * Attaches the source archive identified by the given absolute path to this
 	 * JAR package fragment root. <code>rootPath</code> specifies the location
@@ -118,15 +115,19 @@ public interface IPackageFragmentRoot
 	 */
 	IPackageFragment getPackageFragment(String packageName);
 	
-	/**
-	 * Returns the path of this package fragment root. If this
-	 * package fragment root is not external, the path returned is the
-	 * full, absolute path to this package fragment root, relative to the
-	 * workbench. If this package fragment root is external, the path
-	 * returned is the absolute path to this package fragment root's
-	 * archive in the file system.
-	 */
-	IPath getPath();
+
+/**
+ * Returns the first raw classpath entry that corresponds to this package
+ * fragment root.
+ * A raw classpath entry corresponds to a package fragment root if once resolved
+ * this entry's path is equal to the root's path. 
+ * 
+ * @exception JavaModelException if this element does not exist or if an
+ *		exception occurs while accessing its corresponding resource.
+ * 
+ * @since 2.0
+ */
+IClasspathEntry getRawClasspathEntry() throws JavaModelException;
 	
 	/**
 	 * Returns the absolute path to the source archive attached to

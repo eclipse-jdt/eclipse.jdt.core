@@ -370,6 +370,12 @@ public IJavaProject[] getJavaProjects() throws JavaModelException {
 	return array;
 
 }
+/*
+ * @see IJavaElement
+ */
+public IPath getPath() {
+	return Path.ROOT;
+}
 /**
  * @see IOpenable
  */

@@ -7,6 +7,7 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IBufferFactory;
@@ -19,6 +20,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IProblemRequestor;
@@ -105,6 +107,13 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 	}
 
 	/*
+	 * @see IJavaElement#getOpenable()
+	 */
+	public IOpenable getOpenable() {
+		return null;
+	}
+
+	/*
 	 * @see ICompilationUnit#getPackageDeclaration(String)
 	 */
 	public IPackageDeclaration getPackageDeclaration(String name) {
@@ -139,6 +148,18 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 	public boolean exists() {
 		return false;
 	}
+/*
+ * @see IWorkingCopy
+ */
+public IJavaElement findCorrespondingElement(IJavaElement element) {
+	return null;
+}
+/*
+ * @see IWorkingCopy
+ */
+public IType findPrimaryType() {
+	return null;
+}
 
 	/*
 	 * @see IJavaElement#getCorrespondingResource()
@@ -188,6 +209,12 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 	public IJavaElement getParent() {
 		return null;
 	}
+/*
+ * @see IJavaElement
+ */
+public IPath getPath() {
+	return null;
+}
 
 	/*
 	 * @see IJavaElement#getUnderlyingResource()
@@ -487,6 +514,13 @@ public class ClassFileWorkingCopy implements ICompilationUnit {
 	 * @see IAdaptable#getAdapter(Class)
 	 */
 	public Object getAdapter(Class adapter) {
+		return null;
+	}
+
+	/*
+	 * @see IJavaElement#getAncestor(int)
+	 */
+	public IJavaElement getAncestor(int ancestorType) {
 		return null;
 	}
 

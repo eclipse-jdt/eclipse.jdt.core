@@ -218,6 +218,66 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 	}
 	return false;
 }
+/*
+ * @see IWorkingCopy
+ */
+public IJavaElement findCorrespondingElement(IJavaElement element) {
+	ArrayList children = new ArrayList();
+	while (element != null && element.getElementType() != IJavaElement.COMPILATION_UNIT) {
+		children.add(element);
+		element = element.getParent();
+	}
+	if (element == null) return null;
+	IJavaElement currentElement = this;
+	for (int i = children.size()-1; i >= 0; i--) {
+		IJavaElement child = (IJavaElement)children.get(i);
+		switch (child.getElementType()) {
+			case IJavaElement.PACKAGE_DECLARATION:
+				currentElement = ((ICompilationUnit)currentElement).getPackageDeclaration(child.getElementName());
+				break;
+			case IJavaElement.IMPORT_CONTAINER:
+				currentElement = ((ICompilationUnit)currentElement).getImportContainer();
+				break;
+			case IJavaElement.IMPORT_DECLARATION:
+				currentElement = ((IImportContainer)currentElement).getImport(child.getElementName());
+				break;
+			case IJavaElement.TYPE:
+				if (currentElement.getElementType() == IJavaElement.COMPILATION_UNIT) {
+					currentElement = ((ICompilationUnit)currentElement).getType(child.getElementName());
+				} else {
+					currentElement = ((IType)currentElement).getType(child.getElementName());
+				}
+				break;
+			case IJavaElement.INITIALIZER:
+				currentElement = ((IType)currentElement).getInitializer(((JavaElement)child).getOccurrenceCount());
+				break;
+			case IJavaElement.FIELD:
+				currentElement = ((IType)currentElement).getField(child.getElementName());
+				break;
+			case IJavaElement.METHOD:
+				currentElement = ((IType)currentElement).findCorrespondingMethod((IMethod)child);
+				break;
+		}
+		
+	}
+	if (currentElement.exists()) {
+		return currentElement;
+	} else {
+		return null;
+	}
+}
+/*
+ * @see IWorkingCopy
+ */
+public IType findPrimaryType() {
+	String typeName = Signature.getQualifier(this.getElementName());
+	IType primaryType= this.getType(typeName);
+	if (primaryType.exists()) {
+		return primaryType;
+	}
+	return null;
+}
+
 /**
  * @see IWorkingCopy
  */
@@ -407,6 +467,19 @@ public IPackageDeclaration[] getPackageDeclarations() throws JavaModelException 
 public char[][] getPackageName() {
 	return null;
 }
+/*
+ * @see IJavaElement
+ */
+public IPath getPath() {
+	PackageFragmentRoot root = this.getPackageFragmentRoot();
+	if (root.isArchive()) {
+		return root.getPath();
+	} else {
+		return this.getParent().getPath().append(this.getElementName());
+	}
+}
+
+
 /**
  * @see ISourceReference
  */

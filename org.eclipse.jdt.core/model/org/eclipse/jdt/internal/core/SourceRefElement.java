@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.core;
  * All Rights Reserved.
  */
 import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.jdt.core.*;
@@ -12,9 +13,7 @@ import org.eclipse.jdt.core.*;
 /**
  * Abstract class for Java elements which implement ISourceReference.
  */
-
 /* package */ abstract class SourceRefElement extends JavaElement implements ISourceReference {
-
 protected SourceRefElement(int type, IJavaElement parent, String name) {
 	super(type, parent, name);
 }
@@ -44,7 +43,6 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
 	IJavaElement[] elements = new IJavaElement[] {this};
 	getJavaModel().delete(elements, force, monitor);
 }
-
 /**
  * @see IMember
  */
@@ -73,6 +71,12 @@ public IOpenable getOpenableParent() {
 		current = current.getParent();
 	}
 	return null;
+}
+/*
+ * @see IJavaElement
+ */
+public IPath getPath() {
+	return this.getParent().getPath();
 }
 /**
  * @see ISourceReference

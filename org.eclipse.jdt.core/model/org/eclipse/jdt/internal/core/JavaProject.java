@@ -1022,6 +1022,12 @@ public class JavaProject
 		frags.toArray(fragments);
 		return fragments;
 	}
+/*
+ * @see IJavaElement
+ */
+public IPath getPath() {
+	return this.getProject().getFullPath();
+}
 
 	/**
 	 * @see IJavaProject
@@ -1381,6 +1387,22 @@ public class JavaProject
 		}
 		return false;
 	}
+/*
+ * @see IJavaProject
+ */
+public boolean isOnClasspath(IJavaElement element) throws JavaModelException {
+	IPath rootPath;
+	if (element.getElementType() == IJavaElement.JAVA_PROJECT) {
+		rootPath = ((IJavaProject)element).getProject().getFullPath();
+	} else {
+		IPackageFragmentRoot root = (IPackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+		if (root == null) {
+			return false;
+		}
+		rootPath = root.getPath();
+	}
+	return this.findPackageFragmentRoot0(rootPath) != null;
+}
 
 	/**
 	 * Returns the kind of a <code>PackageFragmentRoot</code> from its <code>String</code> form.

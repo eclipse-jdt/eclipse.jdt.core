@@ -110,6 +110,31 @@ IJavaElement getOriginal(IJavaElement workingCopyElement);
  * or <code>null</code> if this is not a working copy.
  */
 IJavaElement getOriginalElement();
+/** 
+ * Finds the element in this compilation unit which corresponds to
+ * the given element.
+ * An element A corresponds to an element B if:
+ * <ul>
+ * <li>A has the same element name as B.
+ * <li>If A is a method, A must have the same number of arguments as
+ *     B and the simple names of the argument types must be equals.
+ * <li>The parent of A matches the parent of B recursively up to
+ *     their respective compilation units.
+ * <li>A exists.
+ * </ul>
+ * Returns <code>null</code> if no such a java element is found
+ * or if the given element is not included in a compilation unit.
+ * 
+ * @since 2.0 
+ */		
+IJavaElement findCorrespondingElement(IJavaElement element);
+/**
+ * Finds the primary type of this compilation unit (i.e. the type with the same name as the
+ * compilation unit), or <code>null</code> if no such a type exists.
+ * 
+ * @since 2.0
+ */
+IType findPrimaryType();
 /**
  * Returns a shared working copy on this element using the given factory to create
  * the buffer, or this element if this element is already a working copy.

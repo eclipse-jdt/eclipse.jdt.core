@@ -6,6 +6,7 @@ package org.eclipse.jdt.internal.core;
  */
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.jdt.core.*;
@@ -195,6 +196,17 @@ public Object[] getNonJavaResources() throws JavaModelException {
 		return JavaElementInfo.NO_NON_JAVA_RESOURCES;
 	} else {
 		return ((PackageFragmentInfo) getElementInfo()).getNonJavaResources(getUnderlyingResource());
+	}
+}
+/*
+ * @see IJavaElement
+ */
+public IPath getPath() {
+	PackageFragmentRoot root = this.getPackageFragmentRoot();
+	if (root.isArchive()) {
+		return root.getPath();
+	} else {
+		return root.getPath().append(this.getElementName().replace('.', '/'));
 	}
 }
 /**

@@ -60,6 +60,35 @@ protected static Object convertConstant(Constant constant) {
 protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 	return getElementName().equals(node.getName());
 }
+/*
+ * Helper method for SourceType.findCorrespondingMethod and BinaryType.findCorrespondingMethod
+ */
+protected IMethod findCorrespondingMethod(IMethod method, IMethod[] methods) {
+	String elementName = method.getElementName();
+	String[] parameters = method.getParameterTypes();
+	int paramLength = parameters.length;
+	String[] simpleNames = new String[paramLength];
+	for (int i = 0; i < paramLength; i++) {
+		simpleNames[i] = Signature.getSimpleName(Signature.toString(parameters[i]));
+	}
+	next: for (int i = 0, length = methods.length; i < length; i++) {
+		IMethod existingMethod = methods[i];
+		if (existingMethod.getElementName().equals(elementName)) {
+			String[] existingParams = existingMethod.getParameterTypes();
+			int existingParamLength = existingParams.length;
+			if (existingParamLength == paramLength) {
+				for (int j = 0; j < paramLength; j++) {
+					String simpleName = Signature.getSimpleName(Signature.toString(existingParams[j]));
+					if (!simpleNames[j].equals(simpleName)) {
+						break next;
+					}
+				}
+				return existingMethod;
+			}
+		}
+	}
+	return null;
+}
 /**
  * @see IMember
  */

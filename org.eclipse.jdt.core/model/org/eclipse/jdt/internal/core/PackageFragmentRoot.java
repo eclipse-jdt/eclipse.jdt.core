@@ -212,10 +212,35 @@ protected String getPackageName(IFolder folder) throws JavaModelException {
 	return name.toString();
 }
 /**
- * @see IPackageFragmentRoot
+ * @see IJavaElement
  */
 public IPath getPath() {
 	return fResource.getFullPath();
+}
+/*
+ * @see IPackageFragmentRoot 
+ */
+public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
+	IPath path= this.getPath();
+	IClasspathEntry[] entries= this.getJavaProject().getRawClasspath();
+	for (int i= 0; i < entries.length; i++) {
+		IClasspathEntry entry = entries[i];
+	
+		switch (entry.getEntryKind()) {
+			case IClasspathEntry.CPE_PROJECT:
+				// a root's project always refers directly to the root
+				// no need to follow the project reference
+				continue;
+			case IClasspathEntry.CPE_VARIABLE:
+				entry = JavaCore.getResolvedClasspathEntry(entry);
+				// don't break so as to run default
+			default:
+				if (entry != null && path.equals(entry.getPath())) {
+					return entries[i];
+				}
+		}
+	}
+	return null;
 }
 /**
  * Cannot attach source to a folder.

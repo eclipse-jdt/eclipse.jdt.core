@@ -132,6 +132,17 @@ public IMethod createMethod(String contents, IJavaElement sibling, boolean force
 public IType createType(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, this));
 }
+/*
+ * @see IType
+ */
+public IMethod findCorrespondingMethod(IMethod method) {
+	try {
+		return this.findCorrespondingMethod(method, this.getMethods());
+	} catch (JavaModelException e) {
+		// if type doesn't exist, no matching method can exist
+		return null;
+	}
+}
 /**
  * @see IParent 
  */

@@ -233,6 +233,17 @@ public IJavaElement getElementAt(int position) throws JavaModelException {
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_CLASSFILE;
 }
+/*
+ * @see IJavaElement
+ */
+public IPath getPath() {
+	PackageFragmentRoot root = this.getPackageFragmentRoot();
+	if (root.isArchive()) {
+		return root.getPath();
+	} else {
+		return this.getParent().getPath().append(this.getElementName());
+	}
+}
 /**
  * @see ISourceReference
  */

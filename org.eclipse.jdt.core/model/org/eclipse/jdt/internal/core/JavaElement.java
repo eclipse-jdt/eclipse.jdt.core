@@ -228,6 +228,16 @@ protected IDOMNode followPath(ArrayList path, int position, IDOMNode node) {
 
 }
 /**
+ * @see IJavaElement
+ */
+public IJavaElement getAncestor(int ancestorType) {
+	IJavaElement element = this;
+	while (element != null && element.getElementType() != ancestorType) {
+		element= element.getParent();
+	}
+	return element;				
+}
+/**
  * @see IParent 
  */
 public IJavaElement[] getChildren() throws JavaModelException {
@@ -338,6 +348,12 @@ public IJavaProject getJavaProject() {
  */
 protected int getOccurrenceCount() {
 	return fOccurrenceCount;
+}
+/*
+ * @see IJavaElement
+ */
+public IOpenable getOpenable() {
+	return this.getOpenableParent();	
 }
 /**
  * Return the first instance of IOpenable in the parent
