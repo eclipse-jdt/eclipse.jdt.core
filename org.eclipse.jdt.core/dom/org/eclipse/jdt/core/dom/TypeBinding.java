@@ -671,34 +671,9 @@ class TypeBinding implements ITypeBinding {
 						.append(getName());
 				}
 				if (!rawTypeOnly) {
-					ITypeBinding[] typeParameters = getTypeParameters();
-					int typeParametersLength = typeParameters.length;
-					if (typeParametersLength != 0) {
-						buffer.append('<');
-						for (int i = 0; i < typeParametersLength; i++) {
-							TypeBinding typeParameter = (TypeBinding) typeParameters[i];
-							typeParameter.appendParameterKey(buffer);
-							ITypeBinding[] bounds = typeParameter.getTypeBounds();
-							for (int j = 0, length = bounds.length; j < length; j++) {
-								TypeBinding bound = (TypeBinding) bounds[j];
-								buffer.append(':');
-								bound.appendParameterKey(buffer);
-							}
-							buffer.append(',');
-						}
-						buffer.append('>');
-					}
-					ITypeBinding[] typeArgs = getTypeArguments();
-					int typeArgsLength = typeArgs.length;
-					if (typeArgsLength != 0) {
-						buffer.append('<');
-						for (int i = 0; i < typeArgsLength; i++) {
-							TypeBinding typeArg = (TypeBinding) typeArgs[i];
-							typeArg.appendParameterKey(buffer);
-							buffer.append(',');
-						}
-						buffer.append('>');
-					}
+					// only one of the type parameters or type arguments is non-empty at the same time
+					appendTypeParameters(buffer, getTypeParameters());
+					appendTypeArguments(buffer, getTypeArguments());
 				}
 			} else if (this.binding.isArrayType()) {
 				if (getElementType() != null) {
@@ -717,6 +692,38 @@ class TypeBinding implements ITypeBinding {
 				// this is a primitive type
 				buffer.append(getName());
 			}
+		}
+	}
+
+	public void appendTypeArguments(StringBuffer buffer, ITypeBinding[] typeArgs) {
+		int typeArgsLength = typeArgs.length;
+		if (typeArgsLength != 0) {
+			buffer.append('<');
+			for (int i = 0; i < typeArgsLength; i++) {
+				TypeBinding typeArg = (TypeBinding) typeArgs[i];
+				typeArg.appendParameterKey(buffer);
+				buffer.append(',');
+			}
+			buffer.append('>');
+		}
+	}
+
+	public void appendTypeParameters(StringBuffer buffer, ITypeBinding[] typeParameters) {
+		int typeParametersLength = typeParameters.length;
+		if (typeParametersLength != 0) {
+			buffer.append('<');
+			for (int i = 0; i < typeParametersLength; i++) {
+				TypeBinding typeParameter = (TypeBinding) typeParameters[i];
+				typeParameter.appendParameterKey(buffer);
+				ITypeBinding[] bounds = typeParameter.getTypeBounds();
+				for (int j = 0, length = bounds.length; j < length; j++) {
+					TypeBinding bound = (TypeBinding) bounds[j];
+					buffer.append(':');
+					bound.appendParameterKey(buffer);
+				}
+				buffer.append(',');
+			}
+			buffer.append('>');
 		}
 	}
 

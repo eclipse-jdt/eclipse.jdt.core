@@ -257,7 +257,8 @@ class MethodBinding implements IMethodBinding {
 	public String getKey() {
 		if (this.key == null) {
 			StringBuffer buffer = new StringBuffer();
-			buffer.append(getDeclaringClass().getKey());
+			TypeBinding typeBinding = (TypeBinding) getDeclaringClass();
+			typeBinding.appendKey(buffer);
 			buffer.append('/');
 			if (!isConstructor()) {
 				buffer.append(getName());
@@ -272,22 +273,11 @@ class MethodBinding implements IMethodBinding {
 				}
 			}
 			buffer.append(')');
-			ITypeBinding[] types = getTypeParameters();
-			if (types.length > 0) {
-				buffer.append('<');
-				for (int i = 0, max = types.length; i < max; i++) {
-					TypeBinding typeParameter = (TypeBinding) types[i];
-					typeParameter.appendParameterKey(buffer);
-					ITypeBinding[] bounds = typeParameter.getTypeBounds();
-					for (int j = 0, length = bounds.length; j < length; j++) {
-						TypeBinding bound = (TypeBinding) bounds[j];
-						buffer.append(':');
-						bound.appendParameterKey(buffer);
-					}
-					buffer.append(',');
-				}
-				buffer.append('>');
-			}
+			
+			// only one of the type parameters or type arguments is non-empty at the same time
+			typeBinding.appendTypeParameters(buffer, getTypeParameters());
+			typeBinding.appendTypeArguments(buffer, getTypeArguments());
+			
 			this.key = buffer.toString();
 		}
 		return this.key;
