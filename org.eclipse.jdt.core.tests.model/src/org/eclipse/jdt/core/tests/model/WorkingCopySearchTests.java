@@ -123,7 +123,7 @@ public void testAllTypeNames() throws CoreException {
 		"  }\n" +
 		"}" 
 	);
-	this.workingCopy.reconcile(false, null);
+	this.workingCopy.makeConsistent(null);
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 	SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
 	new SearchEngine(new IWorkingCopy[] {this.workingCopy}).searchAllTypeNames(
