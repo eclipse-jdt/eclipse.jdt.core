@@ -96,7 +96,7 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 
 		// set focus type on hierarchy resolver
 		char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
-		this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+		//this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
 
 		// resolve
 		this.hierarchyResolver.resolve(type);
