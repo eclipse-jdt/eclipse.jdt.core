@@ -87,17 +87,16 @@ public class DeltaProcessor {
 	/**
 	 * Check whether the updated file is affecting some of the properties of a given project (like
 	 * its classpath persisted as a file).
-	 * 
+	 * Also force classpath problems to be refresh if not running in autobuild mode.
 	 * NOTE: It can induce resource changes, and cannot be called during POST_CHANGE notification.
 	 *
 	 */
-	public static void checkProjectPropertyFileUpdate(
+	public static void performPreBuildCheck(
 		IResourceDelta delta,
 		IJavaElement parent) {
 
 		IResource resource = delta.getResource();
 		IJavaElement element = JavaCore.create(resource);
-
 		boolean processChildren = false;
 
 		switch (resource.getType()) {
@@ -108,6 +107,10 @@ public class DeltaProcessor {
 			case IResource.PROJECT :
 				try {
 					if (((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
+						JavaProject project = (JavaProject)JavaCore.create((IProject)resource);
+						if (!ResourcesPlugin.getWorkspace().isAutoBuilding()){
+							project.getResolvedClasspath(true, true); // force marker refresh
+						}
 						processChildren = true;
 					}
 				} catch (CoreException e) {
@@ -183,7 +186,7 @@ public class DeltaProcessor {
 		if (processChildren) {
 			IResourceDelta[] children = delta.getAffectedChildren();
 			for (int i = 0; i < children.length; i++) {
-				checkProjectPropertyFileUpdate(children[i], element);
+				performPreBuildCheck(children[i], element);
 			}
 		}
 	}

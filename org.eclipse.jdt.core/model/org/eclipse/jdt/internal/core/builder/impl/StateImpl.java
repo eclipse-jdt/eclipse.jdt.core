@@ -804,7 +804,7 @@ public class StateImpl implements IState {
 		InputStream stream = null;
 		try {
 			stream = new ByteArrayInputStream(bytes);
-			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, bytes.length);
+			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, bytes.length, null);
 		} catch (IOException e) {
 			return new char[0];
 		} finally {

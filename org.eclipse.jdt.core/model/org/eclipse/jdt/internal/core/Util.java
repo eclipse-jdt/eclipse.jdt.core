@@ -437,7 +437,7 @@ public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModel
 		throw new JavaModelException(e);
 	}
 	try {
-		return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1);
+		return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, -1, null);
 	} catch (IOException e) {
 		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 	} finally {

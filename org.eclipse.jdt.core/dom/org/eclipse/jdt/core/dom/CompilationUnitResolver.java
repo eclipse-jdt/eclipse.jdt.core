@@ -142,11 +142,15 @@ class CompilationUnitResolver extends Compiler {
 
 		CompilationUnitDeclaration unit = null;
 		try {
+			String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
+			if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
+			
 			unit =
 				compilationUnitVisitor.resolve(
 					new BasicCompilationUnit(
 						unitElement.getSource().toCharArray(),
-						unitElement.getElementName()));
+						unitElement.getElementName(),
+						encoding));
 			return unit;
 		} finally {
 			if (unit != null) {
@@ -168,7 +172,11 @@ class CompilationUnitResolver extends Compiler {
 					new DefaultProblemFactory(Locale.getDefault())),
 			false,
 			compilerOptions.assertMode);
-		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(source, "");//$NON-NLS-1$
+		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = 
+			new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
+				source, 
+				"", 
+				compilerOptions.defaultEncoding);//$NON-NLS-1$
 		return parser.parse(sourceUnit, new CompilationResult(sourceUnit, 0, 0));
 	}
 

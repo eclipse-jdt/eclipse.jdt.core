@@ -466,7 +466,7 @@ public final static void buildFilesFromLPG(String dataFilename)	throws java.io.I
 
 	char[] contents = new char[] {};
 	try {
-		contents = Util.getFileCharContent(new File(dataFilename));
+		contents = Util.getFileCharContent(new File(dataFilename), null);
 	} catch (IOException ex) {
 		System.out.println(Util.bind("parser.incorrectPath")); //$NON-NLS-1$
 		return;

@@ -37,19 +37,7 @@ protected JavaModel(IWorkspace workspace) throws Error {
 	super(JAVA_MODEL, null, "" /*workspace has empty name*/); //$NON-NLS-1$
 	this.workspace = workspace;
 }
-private void cleanupCycleMarkers() {
-	try {
-		IMarker[] markers = workspace.getRoot().findMarkers(IJavaModelMarker.TRANSIENT_PROBLEM, true,  IResource.DEPTH_ONE);
-		for (int i = 0, length = markers.length; i < length; i++) {
-			IMarker marker = markers[i];
-			if (marker.getAttribute(IJavaModelMarker.CYCLE_DETECTED) != null) {
-				workspace.deleteMarkers(new IMarker[] {marker});
-			}
-		}
-	} catch (CoreException e) {
-		e.printStackTrace();
-	}
-}
+
 /**
  * Remove the Java Model from the cache
  */
@@ -61,85 +49,7 @@ protected void closing(Object info) throws JavaModelException {
 	JavaModelManager.fgManager.fModelInfo.close();
 	JavaModelManager.fgManager.fModelInfo= null;
 }
-/**
- * Computes the build order of the Java Projects in this Java Model.
- * The order is computed by following the class path of the projects.
- * Prerequesite projects appear first in the list, dependent projects
- * appear last.
- * If specified, reports an error against a project using a marker if a cycle
- * is detected. Otherwise throws a JavaModelException.
- */
-public String[] computeBuildOrder(boolean generateMarkerOnError) throws JavaModelException {
-	// Remove markers indicating cycle
-	if (generateMarkerOnError) {
-		this.cleanupCycleMarkers();
-	}
 
-	// Compute depth of each project and detect cycle
-	StringHashtableOfInt depthTable = new StringHashtableOfInt();
-	IJavaProject[] projects = getJavaProjects();
-	int length = projects.length;
-	int maxDepth = -1;
-	for (int i = 0; i < length; i++) {
-		String projectName = projects[i].getElementName();
-		maxDepth = 
-			Math.max(
-				maxDepth, 
-				this.computeDepth(projectName, depthTable, projectName, generateMarkerOnError));
-	}
-
-	// Sort projects by depth
-	return depthTable.sortedKeys(maxDepth);	
-}
-/**
- * Computes the depth of the given java project following its classpath.
- * Only projects are taken into consideration. Store the depth in the given table.
- * Returns the depth.
- * Note that a project with no prerequisites has a depth of 0.
- * Returns -1 if a cycle is detected
- */
-protected int computeDepth(String projectName, StringHashtableOfInt depthTable, String dependentProjectName, boolean generateMarkerOnError) throws JavaModelException {
-	int depth = depthTable.get(projectName);
-	switch (depth) {
-		case -2: // project already visited -> it's a cycle
-			if (generateMarkerOnError) {
-				try {
-					IMarker marker = this.workspace.getRoot().getProject(dependentProjectName).createMarker(IJavaModelMarker.TRANSIENT_PROBLEM);
-					marker.setAttributes(
-						new String[]{ IMarker.MESSAGE, IMarker.PRIORITY, IMarker.LOCATION, IJavaModelMarker.CYCLE_DETECTED},
-						new Object[]{ Util.bind("classpath.cycle"), new Integer(IMarker.PRIORITY_HIGH), dependentProjectName, dependentProjectName}); //$NON-NLS-1$
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			} else {
-				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
-			}
-			return -1;
-		case -1:
-			depthTable.put(projectName, -2); // mark we're visiting the project
-			int prereqDepth = -1;
-			JavaProject project = (JavaProject)this.getJavaProject(projectName);
-			String[] prerequisites = null;
-			try {
-				prerequisites = project.getRequiredProjectNames();
-			} catch (JavaModelException e) {
-				prerequisites = JavaProject.NO_PREREQUISITES;
-			}
-			for (int i = 0, length = prerequisites.length; i < length; i++) {
-				String prerequisite = prerequisites[i];
-				prereqDepth = 
-					Math.max(
-						prereqDepth, 
-						this.computeDepth(prerequisite, depthTable, projectName, generateMarkerOnError)
-					);
-			}
-			depth = 1 + prereqDepth;
-			depthTable.put(projectName, depth);
-			return depth;
-		default:
-			return depth;
-	}
-}
 /**
  * @see IJavaModel
  */
@@ -156,6 +66,44 @@ public void copy(IJavaElement[] elements, IJavaElement[] containers, IJavaElemen
 protected OpenableElementInfo createElementInfo() {
 	return new JavaModelInfo(this, this.workspace);
 }
+/**
+ * Computes the depth of the given java project following its classpath.
+ * Only projects are taken into consideration. Store the depth in the given table.
+ * Returns the depth.
+ * Note that a project with no prerequisites has a depth of 0.
+ * Returns -1 if a cycle is detected
+ */
+protected int computeDepth(String projectName, StringHashtableOfInt depthTable) throws JavaModelException {
+	int depth = depthTable.get(projectName);
+	switch (depth) {
+		case -2: // project already visited -> it's a cycle
+			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
+		case -1:
+			depthTable.put(projectName, -2); // mark we're visiting the project
+			int prereqDepth = -1;
+			JavaProject project = (JavaProject)this.getJavaProject(projectName);
+			String[] prerequisites = null;
+			try {
+				prerequisites = project.getRequiredProjectNames();
+			} catch (JavaModelException e) {
+				prerequisites = JavaProject.NO_PREREQUISITES;
+			}
+			for (int i = 0, length = prerequisites.length; i < length; i++) {
+				String prerequisite = prerequisites[i];
+				prereqDepth = 
+					Math.max(
+						prereqDepth, 
+						this.computeDepth(prerequisite, depthTable)
+					);
+			}
+			depth = 1 + prereqDepth;
+			depthTable.put(projectName, depth);
+			return depth;
+		default:
+			return depth;
+	}
+}
+
 /**
  * @see IJavaModel
  */

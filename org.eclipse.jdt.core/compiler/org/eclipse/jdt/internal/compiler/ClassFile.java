@@ -659,6 +659,7 @@ public class ClassFile
 		generateMethodInfoHeader(methodBinding);
 		int methodAttributeOffset = contentsOffset;
 		int attributeNumber = generateMethodInfoAttribute(methodBinding);
+		
 		// Code attribute
 		attributeNumber++;
 		int codeAttributeOffset = contentsOffset;
@@ -2575,17 +2576,6 @@ public class ClassFile
 	 */
 	public char[][] getCompoundName() {
 		return CharOperation.splitOn('/', fileName());
-	}
-
-	/**
-	 * EXTERNAL API
-	 * Answer a smaller byte format, which is only contains some structural information.
-	 *
-	 * Those bytes are decodable with a regular class file reader, such as:
-	 * DietClassFileReader
-	 */
-	public byte[] getReducedBytes() {
-		return getBytes(); // might be improved
 	}
 
 	/**

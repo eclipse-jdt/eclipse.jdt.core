@@ -11,8 +11,8 @@ import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
-import org.eclipse.jdt.internal.core.Util;
 
 import java.io.*;
 import java.util.*;
@@ -43,7 +43,14 @@ protected ClassFile(IPackageFragment parent, String name) {
 public void codeComplete(int offset, ICompletionRequestor requestor) throws JavaModelException {
 	String source = getSource();
 	if (source != null) {
-		BasicCompilationUnit cu = new BasicCompilationUnit(getSource().toCharArray(), getElementName() + ".java"); //$NON-NLS-1$
+		String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
+		if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
+		
+		BasicCompilationUnit cu = 
+			new BasicCompilationUnit(
+				getSource().toCharArray(), 
+				getElementName() + ".java", //$NON-NLS-1$
+				encoding); 
 		codeComplete(cu, cu, offset, requestor);
 	}
 }
@@ -58,7 +65,10 @@ public IJavaElement[] codeSelect(int offset, int length) throws JavaModelExcepti
 		String name = getElementName();
 		name = name.substring(0, name.length() - 6); // remove ".class"
 		name = name + ".java"; //$NON-NLS-1$
-		BasicCompilationUnit cu = new BasicCompilationUnit(contents, name);
+		String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
+		if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
+		
+		BasicCompilationUnit cu = new BasicCompilationUnit(contents, name, encoding);
 		return super.codeSelect(cu, offset, length);
 	} else {
 		//has no associated souce

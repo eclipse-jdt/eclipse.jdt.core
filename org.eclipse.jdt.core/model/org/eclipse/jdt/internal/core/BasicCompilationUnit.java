@@ -18,7 +18,9 @@ public class BasicCompilationUnit implements ICompilationUnit {
 	protected char[] contents;
 	protected char[] fileName;
 	protected char[] mainTypeName;
-public BasicCompilationUnit(char[] contents, String fileName) {
+	protected String encoding;
+	
+public BasicCompilationUnit(char[] contents, String fileName, String encoding) {
 	this.contents = contents;
 	this.fileName = fileName.toCharArray();
 
@@ -31,6 +33,7 @@ public BasicCompilationUnit(char[] contents, String fileName) {
 		end = fileName.length();
 
 	this.mainTypeName = fileName.substring(start, end).toCharArray();
+	this.encoding = encoding;
 }
 public char[] getContents() {
 	if (contents != null)
@@ -38,7 +41,7 @@ public char[] getContents() {
 
 	// otherwise retrieve it
 	try {
-		return Util.getFileCharContent(new File(new String(fileName)));
+		return Util.getFileCharContent(new File(new String(fileName)), this.encoding);
 	} catch (IOException e) {
 	}
 	return new char[0];

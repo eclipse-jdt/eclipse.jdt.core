@@ -55,7 +55,7 @@ public class IFileDocument extends PropertyDocument {
 		if (charContents != null) return charContents;
 		IPath location = file.getLocation();
 		if (location == null) return new char[0];
-		return charContents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(location.toFile());
+		return charContents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(location.toFile(), null);
 	}
 	/**
 	 * @see IDocument#getName

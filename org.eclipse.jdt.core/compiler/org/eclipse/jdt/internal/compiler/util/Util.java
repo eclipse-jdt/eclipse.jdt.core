@@ -110,11 +110,11 @@ public class Util {
 		bundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
 	}
 	/**
-	 * Returns the given bytes as a char array.
+	 * Returns the given bytes as a char array using a given encoding (null means platform default).
 	 */
-	public static char[] bytesToChar(byte[] bytes) throws IOException {
+	public static char[] bytesToChar(byte[] bytes, String encoding) throws IOException {
 
-		return getInputStreamAsCharArray(new ByteArrayInputStream(bytes), bytes.length);
+		return getInputStreamAsCharArray(new ByteArrayInputStream(bytes), bytes.length, encoding);
 
 	}
 	/**
@@ -137,13 +137,14 @@ public class Util {
 	}
 	/**
 	 * Returns the contents of the given file as a char array.
+	 * When encoding is null, then the platform default one is used
 	 * @throws IOException if a problem occured reading the file.
 	 */
-	public static char[] getFileCharContent(File file) throws IOException {
+	public static char[] getFileCharContent(File file, String encoding) throws IOException {
 		InputStream stream = null;
 		try {
 			stream = new BufferedInputStream(new FileInputStream(file));
-			return Util.getInputStreamAsCharArray(stream, (int) file.length());
+			return Util.getInputStreamAsCharArray(stream, (int) file.length(), encoding);
 		} finally {
 			if (stream != null) {
 				try {
@@ -219,10 +220,12 @@ public class Util {
 	 * Note this doesn't close the stream.
 	 * @throws IOException if a problem occured reading the stream.
 	 */
-	public static char[] getInputStreamAsCharArray(InputStream stream, int length)
+	public static char[] getInputStreamAsCharArray(InputStream stream, int length, String encoding)
 		throws IOException {
 		InputStreamReader reader = null;
-		reader = new InputStreamReader(stream);
+		reader = encoding == null
+					? new InputStreamReader(stream)
+					: new InputStreamReader(stream, encoding);
 		char[] contents;
 		if (length == -1) {
 			contents = new char[0];

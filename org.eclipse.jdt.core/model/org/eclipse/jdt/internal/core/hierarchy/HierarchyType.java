@@ -1,10 +1,11 @@
-package org.eclipse.jdt.internal.compiler;
+package org.eclipse.jdt.internal.core.hierarchy;
 
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
  
+import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 /**

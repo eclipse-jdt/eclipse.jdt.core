@@ -14,12 +14,14 @@ class ClasspathDirectory implements FileSystem.Classpath {
 	String path;
 	Hashtable missingPackages;
 	Hashtable directoryCache;
-ClasspathDirectory(File directory) {
+	String encoding;
+ClasspathDirectory(File directory, String encoding) {
 	this.path = directory.getAbsolutePath();
 	if (!path.endsWith(File.separator))
 		this.path += File.separator;
 	this.missingPackages = new Hashtable(11);
 	this.directoryCache = new Hashtable(11);
+	this.encoding = encoding;
 }
 private String[] directoryList(char[][] compoundName, char[] packageName) {
 	String partialPath = FileSystem.assembleName(packageName, compoundName, File.separatorChar);
@@ -72,7 +74,8 @@ public NameEnvironmentAnswer readClassFile(String filename, char[][] packageName
 }
 public NameEnvironmentAnswer readJavaFile(String fileName, char[][] packageName) {
 	String fullName = path + FileSystem.assembleName(fileName, packageName, File.separatorChar);
-	return new NameEnvironmentAnswer(new CompilationUnit(null, fullName));
+	return new NameEnvironmentAnswer(
+					new CompilationUnit(null, fullName, this.encoding));
 }
 public String toString() {
 	return "ClasspathDirectory " + path; //$NON-NLS-1$

@@ -18,8 +18,6 @@ import java.util.*;
 import org.eclipse.jdt.internal.core.search.matching.SuperTypeReferencePattern;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.SearchPattern;
-import org.eclipse.jdt.internal.compiler.HierarchyType;
-import org.eclipse.jdt.internal.compiler.HierarchyResolver;
 import org.eclipse.jdt.internal.core.search.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -29,6 +27,7 @@ import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
@@ -365,10 +364,13 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
  * adds it to the given list of units.
  */
 private void createCompilationUnitFromPath(Openable handle, String osPath, ArrayList units) throws JavaModelException {
+	String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
+	if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
 	BasicCompilationUnit unit = 
 		new BasicCompilationUnit(
 			null,
-			osPath);
+			osPath,
+			encoding);
 	units.add(unit);
 	this.cuToHandle.put(unit, handle);
 }

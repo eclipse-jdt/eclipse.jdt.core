@@ -12,8 +12,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 
-import org.eclipse.jdt.internal.compiler.HierarchyResolver;
-import org.eclipse.jdt.internal.compiler.IHierarchyRequestor;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 

@@ -135,25 +135,24 @@ public class SetClasspathOperation extends JavaModelOperation {
 		
 		project.setRawClasspath0(this.newRawPath);
 
-		// change builder specs to build in the order given by the new classpath
-		JavaModelManager manager = project.getJavaModelManager();
-		manager.setBuildOrder(
-			((JavaModel) project.getJavaModel()).computeBuildOrder(true));
-
 		// resolve new path (asking for marker creation if problems)
-		IClasspathEntry[] newExpandedPath = project.getExpandedClasspath(true, true);
+		IClasspathEntry[] newExpandedPath = 
+			project.getExpandedClasspath(true, this.canChangeResource);
 
 		if (this.oldExpandedPath != null) {
 			generateClasspathChangeDeltas(
 				this.oldExpandedPath,
 				newExpandedPath,
-				manager,
+				project.getJavaModelManager(),
 				project);
 		} else {
 			this.hasModifiedResource = project.saveClasspath(this.forceSave);
 			updateAffectedProjects(project.getProject().getFullPath());
 		}
 		updateProjectReferences(oldRequired, project.getRequiredProjectNames());
+		
+		// update cycle markers
+		updateCycleMarkers();
 	}
 	/**
 	 * Sets the output location of the pre-specified project.
@@ -361,8 +360,9 @@ public class SetClasspathOperation extends JavaModelOperation {
 			// loose all built state - next build will be a full one
 			manager.setLastBuiltState(project.getProject(), null);
 
-			if (hasChangedContentForDependents)
+			if (hasChangedContentForDependents){
 				updateAffectedProjects(project.getProject().getFullPath());
+			}
 		}
 	}
 
@@ -401,6 +401,32 @@ public class SetClasspathOperation extends JavaModelOperation {
 	}
 
 	/**
+	 * Update cycle markers
+	 */
+	protected void updateCycleMarkers() {
+		if (!this.canChangeResource) return;
+
+		try {
+			IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+			IJavaProject[] projects = model.getJavaProjects();
+			for (int i = 0, projectCount = projects.length; i < projectCount; i++) {
+				try {
+					JavaProject project = (JavaProject)projects[i];
+					project.flushClasspathProblemMarkers(true);
+					if (project.hasClasspathCycle(project.getRawClasspath())){
+						project.createClasspathProblemMarker(
+							Util.bind("classpath.cycle"), //$NON-NLS-1$
+							IMarker.SEVERITY_ERROR,
+							true); 
+					}
+				} catch (JavaModelException e) {
+				}
+			}
+		} catch (JavaModelException e) {
+		}
+	}
+
+	/**
 	 * Update projects which are affected by this classpath change:
 	 * those which refers to the current project as source
 	 */
@@ -426,6 +452,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 			}
 		} catch (JavaModelException e) {
 		}
+		
 	}
 
 	/**

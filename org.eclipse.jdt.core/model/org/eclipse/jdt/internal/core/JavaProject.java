@@ -1175,10 +1175,12 @@ public class JavaProject
 //		IClasspathEntry[] infoPath = getJavaProjectElementInfo().lastResolvedClasspath;
 //		if (infoPath != null) return infoPath;
 
-		if (generateMarkerOnError)
-			flushClasspathProblemMarkers();
-
 		IClasspathEntry[] classpath = getRawClasspath();
+
+		if (generateMarkerOnError){
+			flushClasspathProblemMarkers(false);
+		}
+
 		IClasspathEntry[] resolvedPath = classpath; // clone only if necessary
 		int length = classpath.length;
 		int index = 0;
@@ -1192,7 +1194,10 @@ public class JavaProject
 				IJavaModelStatus status =
 					JavaConventions.validateClasspathEntry(this, entry, false);
 				if (!status.isOK())
-					createClasspathProblemMarker(entry, status.getMessage());
+					createClasspathProblemMarker(
+						status.getMessage(), 
+						IMarker.SEVERITY_WARNING,
+						false);
 			}
 
 			/* resolve variables if any, unresolved ones are ignored */
@@ -1254,7 +1259,7 @@ public class JavaProject
 	 */
 	public IClasspathEntry[] getExpandedClasspath(
 		boolean ignoreUnresolvedVariable,
-		boolean generateMarkerOnError)	throws JavaModelException {
+		boolean generateMarkerOnError) throws JavaModelException {
 
 		// expanded path is cached on its info
 //		IClasspathEntry[] infoPath = getJavaProjectElementInfo().lastExpandedClasspath;
@@ -1267,6 +1272,7 @@ public class JavaProject
 		accumulatedEntries.copyInto(expandedPath);
 		
 //		getJavaProjectElementInfo().lastExpandedClasspath = expandedPath;
+
 		return expandedPath;
 	}
 
@@ -1281,10 +1287,17 @@ public class JavaProject
 		HashSet visitedProjects, 
 		ObjectVector accumulatedEntries) throws JavaModelException {
 		
-		if (visitedProjects.contains(this)) return; // break cycles if any
+		if (visitedProjects.contains(this)){
+			return; // break cycles if any
+		}
 		visitedProjects.add(this);
 
-		IClasspathEntry[] immediateClasspath = getResolvedClasspath(ignoreUnresolvedVariable, generateMarkerOnError);
+		if (generateMarkerOnError && !this.equals(initialProject)){
+			generateMarkerOnError = false;
+		}
+		IClasspathEntry[] immediateClasspath = 
+			getResolvedClasspath(ignoreUnresolvedVariable, generateMarkerOnError);
+			
 		for (int i = 0, length = immediateClasspath.length; i < length; i++){
 			IClasspathEntry entry = immediateClasspath[i];
 
@@ -1383,9 +1396,7 @@ public class JavaProject
 			for (int i = 0, length = prerequisites.length; i < length; i++) {
 				((JavaModel) this.getJavaModel()).computeDepth(
 					prerequisites[i],
-					depthTable,
-					projectName,
-					false);
+					depthTable);
 			}
 		} catch (JavaModelException e) {
 			return e.getStatus().getCode() == IJavaModelStatusConstants.NAME_COLLISION;
@@ -1394,7 +1405,6 @@ public class JavaProject
 	}
 
 	public int hashCode() {
-
 		return fProject.hashCode();
 	}
 
@@ -2026,21 +2036,25 @@ public IJavaElement rootedAt(IJavaProject project) {
 	}
 
 	/**
-	 * Record a new marker denoting a classpath problem for a given entry
+	 * Record a new marker denoting a classpath problem 
 	 */
-	private void createClasspathProblemMarker(
-		IClasspathEntry entry,
-		String message) {
-			
+	void createClasspathProblemMarker(
+		String message,
+		int severity,
+		boolean cycleDetected) {
 		try {
-			IMarker marker =
-				getProject().createMarker(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER);
+			IMarker marker = getProject().createMarker(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER);
 			marker.setAttributes(
-				new String[] { IMarker.MESSAGE, IMarker.SEVERITY, IMarker.LOCATION },
+				new String[] { 
+					IMarker.MESSAGE, 
+					IMarker.SEVERITY, 
+					IMarker.LOCATION, 
+					IJavaModelMarker.CYCLE_DETECTED },
 				new Object[] {
 					message,
-					new Integer(IMarker.SEVERITY_WARNING),
-					Util.bind("classpath.buildPath")});//$NON-NLS-1$
+					new Integer(severity), 
+					Util.bind("classpath.buildPath"),//$NON-NLS-1$
+					cycleDetected ? "true" : "false"});//$NON-NLS-1$ //$NON-NLS-2$
 		} catch (CoreException e) {
 		}
 	}
@@ -2048,20 +2062,23 @@ public IJavaElement rootedAt(IJavaProject project) {
 	/**
 	 * Remove all markers denoting classpath problems
 	 */
-	protected void flushClasspathProblemMarkers() {
-
+	protected void flushClasspathProblemMarkers(boolean flushCycleMarkers) {
 		try {
 			IProject project = getProject();
 			if (project.exists()) {
-				project.deleteMarkers(
-					IJavaModelMarker.BUILDPATH_PROBLEM_MARKER,
-					false,
-					IResource.DEPTH_ONE);
+				IMarker[] markers = project.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
+				for (int i = 0, length = markers.length; i < length; i++) {
+					IMarker marker = markers[i];
+					String cycleAttr = (String)marker.getAttribute(IJavaModelMarker.CYCLE_DETECTED);
+					if (flushCycleMarkers == (cycleAttr != null && cycleAttr.equals("true"))){ //$NON-NLS-1$
+						marker.delete();
+					}
+				}
 			}
 		} catch (CoreException e) {
 		}
 	}
-	/**
+		/**
 	 * @see IJavaProject#getClasspath()
 	 * @deprecated - use JavaCore API instead
 	 */

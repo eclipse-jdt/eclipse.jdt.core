@@ -87,8 +87,8 @@ class ClasspathJar implements FileSystem.Classpath {
 			String fullName = FileSystem.assembleName(filename, packageName, '/');
 			ZipEntry entry = zipFile.getEntry(fullName);
 			stream = new BufferedInputStream(zipFile.getInputStream(entry));
-			char[] contents = Util.getInputStreamAsCharArray(stream, (int) entry.getSize());
-			return new NameEnvironmentAnswer(new CompilationUnit(contents, fullName));
+			char[] contents = Util.getInputStreamAsCharArray(stream, (int) entry.getSize(), null);
+			return new NameEnvironmentAnswer(new CompilationUnit(contents, fullName, null));
 		} catch (Exception e) {
 			return null; // treat as if source file is missing
 		} finally {

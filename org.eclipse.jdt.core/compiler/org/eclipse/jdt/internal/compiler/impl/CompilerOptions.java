@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.compiler.impl;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +38,7 @@ public class CompilerOptions implements ProblemIrritants, ProblemReasons, Proble
 	public static final String OPTION_TargetPlatform = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
 	public static final String OPTION_ReportAssertIdentifier = "org.eclipse.jdt.core.compiler.problem.assertIdentifier"; //$NON-NLS-1$
 	public static final String OPTION_Compliance = "org.eclipse.jdt.core.compiler.compliance"; //$NON-NLS-1$
+	public static final String OPTION_Encoding = "org.eclipse.jdt.core.encoding"; //$NON-NLS-1$
 
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
@@ -80,7 +82,6 @@ public class CompilerOptions implements ProblemIrritants, ProblemReasons, Proble
 		UnusedLocalVariable | AssertUsedAsAnIdentifier |
 		NoImplicitStringConversion;
 
-	
 	// Debug attributes
 	public static final int Source = 1; // SourceFileAttribute
 	public static final int Lines = 2; // LineNumberAttribute
@@ -104,6 +105,9 @@ public class CompilerOptions implements ProblemIrritants, ProblemReasons, Proble
 
 	// 1.4 feature
 	public boolean assertMode = false; //1.3 behavior by default
+	
+	// source encoding format
+	public String defaultEncoding = null; // will use the platform default encoding
 	
 	// print what unit is being processed
 	public boolean verbose = Compiler.DEBUG;
@@ -356,7 +360,7 @@ public class CompilerOptions implements ProblemIrritants, ProblemReasons, Proble
 					this.warningThreshold &= ~NonExternalizedString;
 				}
 				continue;
-		}
+			}
 			// Report usage of 'assert' as an identifier
 			if(optionID.equals(OPTION_ReportAssertIdentifier)){
 				if (optionValue.equals(ERROR)) {
@@ -377,6 +381,15 @@ public class CompilerOptions implements ProblemIrritants, ProblemReasons, Proble
 					this.assertMode = false;
 				} else if (optionValue.equals(VERSION_1_4)) {
 					this.assertMode = true;
+				}
+				continue;
+			}
+			// Set the default encoding format
+			if(optionID.equals(OPTION_Encoding)){
+				if (optionValue.length() == 0){
+					this.defaultEncoding = null;
+				} else {
+					this.defaultEncoding = optionValue;
 				}
 				continue;
 			}
@@ -531,6 +544,20 @@ public class CompilerOptions implements ProblemIrritants, ProblemReasons, Proble
 				buf.append("\n-target JDK: 1.4"); //$NON-NLS-1$
 				break;
 		}
+		switch(complianceLevel){
+			case JDK1_1 :
+				buf.append("\n-compliance JDK: 1.1"); //$NON-NLS-1$
+				break;
+			case JDK1_2 :
+				buf.append("\n-compliance JDK: 1.2"); //$NON-NLS-1$
+				break;
+			case JDK1_3 :
+				buf.append("\n-compliance JDK: 1.3"); //$NON-NLS-1$
+				break;
+			case JDK1_4 :
+				buf.append("\n-compliance JDK: 1.4"); //$NON-NLS-1$
+				break;
+		}
 		if (isPrivateConstructorAccessChangingVisibility){
 			buf.append("\n-private constructor access emulation: extra argument"); //$NON-NLS-1$
 		} else {
@@ -540,6 +567,7 @@ public class CompilerOptions implements ProblemIrritants, ProblemReasons, Proble
 		buf.append("\n-produce reference info : " + (produceReferenceInfo ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n-parse literal expressions as constants : " + (parseLiteralExpressionsAsConstants ? "ON" : "OFF")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n-runtime exception name for compile error : " + runtimeExceptionNameForCompileError); //$NON-NLS-1$
+		buf.append("\n-encoding : " + (defaultEncoding == null ? "<default>" : defaultEncoding)); //$NON-NLS-1$ //$NON-NLS-2$
 		return buf.toString();
 	}
 }

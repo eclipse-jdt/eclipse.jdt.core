@@ -28,7 +28,7 @@ public class FileDocument extends PropertyDocument {
 	 * @see IDocument#getCharContent
 	 */
 	public char[] getCharContent() throws IOException {
-		return org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(file);
+		return org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(file, null);
 	}
 	/**
 	 * @see IDocument#getName

@@ -137,20 +137,30 @@ public class SourceMapper
 	int anonymousClassName;
 	
 	/**
+	 * File encoding to be used
+	 */
+	String encoding;
+	
+	/**
 	 * Creates a <code>SourceMapper</code> that locates source in the zip file
 	 * at the given location in the specified package fragment root.
 	 */
 	public SourceMapper(IPath zipPath, String rootPath, JavaModel model) {
-		fZipPath = zipPath;
-		fRootPath = rootPath.replace('\\', '/');
-		if (fRootPath.endsWith("/" )) { //$NON-NLS-1$
-			fRootPath = fRootPath.substring(0, fRootPath.lastIndexOf('/'));
+		this.fZipPath = zipPath;
+		this.fRootPath = rootPath.replace('\\', '/');
+		if (this.fRootPath.endsWith("/" )) { //$NON-NLS-1$
+			this.fRootPath = this.fRootPath.substring(0, this.fRootPath.lastIndexOf('/'));
 		}
-		fJavaModel = model;
-		fSourceRanges = new HashMap();
-		fParameterNames = new HashMap();
-		importsTable = new HashMap();
-		importsCounterTable = new HashMap();
+		this.fJavaModel = model;
+		this.fSourceRanges = new HashMap();
+		this.fParameterNames = new HashMap();
+		this.importsTable = new HashMap();
+		this.importsCounterTable = new HashMap();
+		
+		IResource zipResource = ResourcesPlugin.getWorkspace().getRoot().findMember(zipPath);
+
+		this.encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
+		if ("".equals(this.encoding)) this.encoding = null; //$NON-NLS-1$
 	}
 	
 	/**
@@ -569,7 +579,7 @@ public class SourceMapper
 				}
 				if (bytes != null) {
 					try {
-						source = Util.bytesToChar(bytes);
+						source = Util.bytesToChar(bytes, this.encoding);
 					} catch (IOException e) {
 						source = null;
 					}
@@ -745,7 +755,7 @@ public class SourceMapper
 			boolean doFullParse = hasToRetrieveSourceRangesForLocalClass(fullName);
 			parser = new SourceElementParser(this, factory, new CompilerOptions(JavaCore.getOptions()), doFullParse);
 			parser.parseCompilationUnit(
-				new BasicCompilationUnit(contents, type.getElementName() + ".java" ), //$NON-NLS-1$
+				new BasicCompilationUnit(contents, type.getElementName() + ".java", encoding), //$NON-NLS-1$
 				doFullParse);
 			if (searchedElement != null) {
 				ISourceRange range = this.getNameRange(searchedElement);

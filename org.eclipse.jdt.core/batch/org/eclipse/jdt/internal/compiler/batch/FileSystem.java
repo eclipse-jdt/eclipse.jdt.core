@@ -30,7 +30,7 @@ public class FileSystem implements INameEnvironment  {
 	initialFileNames is a collection is Strings, the trailing '.java' will be removed if its not already.
 */
 
-public FileSystem(String[] classpathNames, String[] initialFileNames) {
+public FileSystem(String[] classpathNames, String[] initialFileNames, String encoding) {
 	int classpathSize = classpathNames.length;
 	classpaths = new Classpath[classpathSize];
 	String[] pathNames = new String[classpathSize];
@@ -40,7 +40,7 @@ public FileSystem(String[] classpathNames, String[] initialFileNames) {
 			File file = new File(convertPathSeparators(classpathNames[i]));
 			if (file.exists()) {
 				if (file.isDirectory()) {
-					classpaths[i] = new ClasspathDirectory(file);
+					classpaths[i] = new ClasspathDirectory(file, encoding);
 					pathNames[i] = ((ClasspathDirectory) classpaths[i]).path;
 				} else if (classpathNames[i].endsWith(".jar") | (classpathNames[i].endsWith(".zip"))) { //$NON-NLS-2$ //$NON-NLS-1$
 					classpaths[i] = new ClasspathJar(file);

@@ -25,7 +25,7 @@ public interface IJavaModelMarker {
 	/**
 	 * Java model transient problem marker type (value <code>"org.eclipse.jdt.core.transient_problem"</code>).
 	 * This can be used to recognize those markers in the workspace that flag transcient
-	 * problems detected by the Java tooling (such as a cycle in the build path, a problem
+	 * problems detected by the Java tooling (such as a problem
 	 * detected by the outliner, or a problem detected during a code completion)
 	 */
 	public static final String TRANSIENT_PROBLEM = JavaCore.PLUGIN_ID + ".transient_problem"; //$NON-NLS-1$
@@ -50,11 +50,11 @@ public interface IJavaModelMarker {
 
 	/** 
 	 * Cycle detected marker attribute (value <code>"cycleDetected"</code>).
-	 * Used only on transient problem markers.
-	 * The value of this attribute is the name of the project that caused a 
-	 * cycle in the projects classpaths.
+	 * Used only on buildpath problem markers.
+	 * The value of this attribute is either "true" or "false".
 	 */
 	 public static final String CYCLE_DETECTED = "cycleDetected"; //$NON-NLS-1$
+
 	/**
 	 * Build path problem marker type (value <code>"org.eclipse.jdt.core.buildpath_problem"</code>).
 	 * This can be used to recognize those markers in the workspace that flag problems 

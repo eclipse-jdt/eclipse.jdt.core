@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
+
 import org.eclipse.jdt.internal.compiler.impl.*;
 
 import java.io.*;
@@ -37,6 +38,7 @@ public class Main implements ProblemSeverities {
 
 	Hashtable options;
 	String[] filenames;
+	String[] encodings;
 	String[] classpaths;
 	String destinationPath;
 	String log;
@@ -175,6 +177,7 @@ protected void compile(String[] argv) {
 			out.flush();
 			System.exit(-1);
 		}
+		//e.printStackTrace();
 	} finally {
 		out.flush();
 	}
@@ -268,6 +271,7 @@ private void configure(String[] argv) throws InvalidInputException {
 	final int InsideLog = 8;
 	final int InsideRepetition = 16;
 	final int InsideSource = 32;
+	final int InsideDefaultEncoding = 64;
 	final int Default = 0;
 	int DEFAULT_SIZE_CLASSPATH = 4;
 	boolean warnOptionInUsed = false;
@@ -281,17 +285,48 @@ private void configure(String[] argv) throws InvalidInputException {
 
 	boolean didSpecifyCompliance = false;
 	boolean didSpecifySourceLevel = false;
-			
+	boolean didSpecifyDefaultEncoding = false;
+
+	String customEncoding = null;
+	String currentArg = "";
+		
 	while (++index < argCount) {
-		String currentArg = argv[index].trim();
+
+		if (customEncoding != null){
+				throw new InvalidInputException(Main.bind("configure.unexpectedCustomEncoding", currentArg, customEncoding)); //$NON-NLS-1$
+		}
+
+		currentArg = argv[index].trim();
+
+		customEncoding = null;
+		if (currentArg.endsWith("]")){ // look for encoding specification
+			int encodingStart = currentArg.indexOf('[') + 1;
+			int encodingEnd = currentArg.length() - 1;
+			if (encodingStart >= 1){
+				if (encodingStart < encodingEnd){
+					customEncoding = currentArg.substring(encodingStart, encodingEnd);
+					try {// ensure encoding is supported
+						new InputStreamReader(new ByteArrayInputStream(new byte[0]), customEncoding);
+					} catch(UnsupportedEncodingException e){
+						throw new InvalidInputException(Main.bind("configure.unsupportedEncoding", customEncoding)); //$NON-NLS-1$
+					}
+				}
+				currentArg = currentArg.substring(0, encodingStart - 1);
+			}
+		}
+
 		if (currentArg.endsWith(".java")) { //$NON-NLS-1$
 			if (filenames == null) {
 				filenames = new String[argCount - index];
+				encodings = new String[argCount - index];
 			} else if (filesCount == filenames.length) {
 				int length = filenames.length;
 				System.arraycopy(filenames, 0, (filenames = new String[length + argCount - index]), 0, length);
+				System.arraycopy(encodings, 0, (encodings = new String[length + argCount - index]), 0, length);
 			}
-			filenames[filesCount++] = currentArg;
+			filenames[filesCount] = currentArg;
+			encodings[filesCount++] = customEncoding;
+			customEncoding = null;
 			mode = Default;
 			continue;
 		}
@@ -310,6 +345,10 @@ private void configure(String[] argv) throws InvalidInputException {
 		if (currentArg.equals("-source")) { //$NON-NLS-1$
 			mode = InsideSource;
 			didSpecifySourceLevel = true;
+			continue;
+		}
+		if (currentArg.equals("-encoding")) { //$NON-NLS-1$
+			mode = InsideDefaultEncoding;
 			continue;
 		}
 		if (currentArg.equals("-1.3")) { //$NON-NLS-1$
@@ -536,6 +575,20 @@ private void configure(String[] argv) throws InvalidInputException {
 			mode = Default;
 			continue;
 		}
+		if (mode == InsideDefaultEncoding){
+			if (didSpecifyDefaultEncoding){
+				throw new InvalidInputException(Main.bind("configure.duplicateDefaultEncoding",currentArg)); //$NON-NLS-1$
+			}
+			try { // ensure encoding is supported
+				new InputStreamReader(new ByteArrayInputStream(new byte[0]), currentArg);
+			} catch(UnsupportedEncodingException e){
+				throw new InvalidInputException(Main.bind("configure.unsupportedEncoding", currentArg)); //$NON-NLS-1$
+			}
+			options.put(CompilerOptions.OPTION_Encoding, currentArg);
+			didSpecifyDefaultEncoding = true;
+			mode = Default;
+			continue;
+		}
 		if (mode == InsideDestinationPath) {
 			destinationPath = currentArg;
 			mode = Default;
@@ -571,11 +624,21 @@ private void configure(String[] argv) throws InvalidInputException {
 			String results[] = finder.resultFiles;
 			int length = results.length;
 			System.arraycopy(filenames, 0, (filenames = new String[length + filesCount]), 0, filesCount);
+			System.arraycopy(encodings, 0, (encodings = new String[length + filesCount]), 0, filesCount);
 			System.arraycopy(results, 0, filenames, filesCount, length);
+			for (int i = 0; i < length; i++){
+				encodings[filesCount+i] = customEncoding;
+			}
 			filesCount += length;
+			customEncoding = null;
 		} else {
 			filenames = finder.resultFiles;
 			filesCount = filenames.length;
+			encodings = new String[filesCount];
+			for (int i = 0; i < filesCount; i++){
+				encodings[i] = customEncoding;
+			}
+			customEncoding = null;
 		}
 		mode = Default;
 		continue;
@@ -721,17 +784,22 @@ protected CompilationUnit[] getCompilationUnits() throws InvalidInputException {
 	CompilationUnit[] units = new CompilationUnit[fileCount];
 	HashtableOfObject knownFileNames = new HashtableOfObject(fileCount);
 	
+	String defaultEncoding = (String)options.get(CompilerOptions.OPTION_Encoding);
+	if ("".equals(defaultEncoding)) defaultEncoding = null;//$NON-NLS-1$
+
 	for (int i = 0; i < fileCount; i++) {
 		char[] charName = filenames[i].toCharArray();
 		if (knownFileNames.get(charName) != null){
-			throw new InvalidInputException(Main.bind("unit.more",filenames[i]));			 //$NON-NLS-1$
+			throw new InvalidInputException(Main.bind("unit.more",filenames[i]));	//$NON-NLS-1$
 		} else {
 			knownFileNames.put(charName, charName);
 		}
 		File file = new File(filenames[i]);
 		if (!file.exists())
 			throw new InvalidInputException(Main.bind("unit.missing",filenames[i])); //$NON-NLS-1$
-		units[i] = new CompilationUnit(null, filenames[i]);
+		String encoding = encodings[i];
+		if (encoding == null) encoding = defaultEncoding;
+		units[i] = new CompilationUnit(null, filenames[i], encoding);
 	}
 	return units;
 }
@@ -754,7 +822,10 @@ protected IErrorHandlingPolicy getHandlingPolicy() {
  *  Low-level API performing the actual compilation
  */
 protected FileSystem getLibraryAccess() {
-	return new FileSystem(classpaths, filenames);
+
+	String defaultEncoding = (String)options.get(CompilerOptions.OPTION_Encoding);
+	if ("".equals(defaultEncoding)) defaultEncoding = null;//$NON-NLS-1$	
+	return new FileSystem(classpaths, filenames, defaultEncoding);
 }
 /*
  *  Low-level API performing the actual compilation

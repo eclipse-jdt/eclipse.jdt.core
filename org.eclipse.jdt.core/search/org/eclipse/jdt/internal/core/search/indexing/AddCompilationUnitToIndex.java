@@ -74,7 +74,7 @@ class AddCompilationUnitToIndex extends IndexRequest {
 				if (location != null) {
 					this.contents =
 						org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(
-							location.toFile());
+							location.toFile(), null);
 				}
 			} catch (IOException e) {
 			}

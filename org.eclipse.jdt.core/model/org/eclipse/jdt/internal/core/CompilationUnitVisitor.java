@@ -131,11 +131,14 @@ public class CompilationUnitVisitor extends Compiler {
 
 		CompilationUnitDeclaration unit = null;
 		try {
+			String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
+			if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
 			unit =
 				compilationUnitVisitor.resolve(
 					new BasicCompilationUnit(
 						unitElement.getSource().toCharArray(),
-						unitElement.getElementName()));
+						unitElement.getElementName(),
+						encoding));
 			if (unit != null) {
 				unit.traverse(visitor, unit.scope);
 			}

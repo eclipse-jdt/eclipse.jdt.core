@@ -44,6 +44,7 @@ public class CompilationResult {
 	public int unitIndex, totalUnitsKnown;
 	public boolean hasBeenAccepted = false;
 	public char[] fileName;
+	
 public CompilationResult(
 	char[] fileName,
 	int unitIndex, 

@@ -1063,7 +1063,7 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 				case IResourceChangeEvent.PRE_AUTO_BUILD :
 					if(delta != null) {
 						this.checkProjectBeingAdded(delta);
-						DeltaProcessor.checkProjectPropertyFileUpdate(delta, null); // will close project if affected by the property file change
+						DeltaProcessor.performPreBuildCheck(delta, null); // will close project if affected by the property file change
 					}
 					break;
 				case IResourceChangeEvent.POST_CHANGE :
