@@ -138,9 +138,17 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTb
 		Expression currentExpression = expressions[0];
 		while(currentExpression != null && currentExpression instanceof ArrayInitializer) {
 			dim++;
+			Expression[] subExprs = ((ArrayInitializer) currentExpression).expressions;
+			if (subExprs == null){
+				leafElementType = scope.getJavaLangObject();
+				currentExpression = null;
+				break;
+			}
 			currentExpression = ((ArrayInitializer) currentExpression).expressions[0];
 		}
-		leafElementType = currentExpression.resolveType(scope);
+		if (currentExpression != null) {
+			leafElementType = currentExpression.resolveType(scope);
+		}
 	}
 	if (leafElementType != null) {
 		TypeBinding probableTb = scope.createArray(leafElementType, dim);
