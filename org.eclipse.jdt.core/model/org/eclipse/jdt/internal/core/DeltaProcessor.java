@@ -865,9 +865,15 @@ protected void updateIndex(Openable element, IResourceDelta delta){
 			break;
 		case IJavaElement.CLASS_FILE :
 			IFile file = (IFile)delta.getResource();
-			IFolder binaryFolder;
+			IJavaProject project = element.getJavaProject();
+			IResource binaryFolder;
 			try {
-				binaryFolder = (IFolder)element.getPackageFragmentRoot().getUnderlyingResource();
+				binaryFolder = element.getPackageFragmentRoot().getUnderlyingResource();
+				// if the class file is part of the binary output, it has been created by
+				// the java builder -> ignore
+				if (binaryFolder.getFullPath().equals(project.getOutputLocation())) {
+					break;
+				}
 			} catch (JavaModelException e) {
 				break;
 			}
