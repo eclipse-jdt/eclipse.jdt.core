@@ -343,8 +343,20 @@ void faultInImports() {
 	resolvedSingeTypeImports = new HashtableOfObject(length);
 	for (int i = 0; i < length; i++) {
 		ImportBinding binding = imports[i];
-		if (!binding.onDemand && binding.resolvedImport instanceof ReferenceBinding)
-			resolvedSingeTypeImports.put(binding.compoundName[binding.compoundName.length - 1], binding);
+		if (binding.resolvedImport instanceof ReferenceBinding) {
+			ReferenceBinding refBinding = (ReferenceBinding) binding.resolvedImport;
+			int nameLength = binding.compoundName.length - 1;
+			if ((!binding.onDemand && !binding.isStatic()) || (binding.onDemand && binding.isStatic())) {
+				// either single non-static or on-demand static import
+				resolvedSingeTypeImports.put(binding.compoundName[nameLength], binding);
+			} else if (binding.isStatic()) {
+				// single static import
+				if (refBinding.isMemberType())
+					resolvedSingeTypeImports.put(binding.compoundName[nameLength], binding);
+				else if (nameLength > 0)
+					resolvedSingeTypeImports.put(binding.compoundName[nameLength-1], binding);
+			}
+		}
 	}
 }
 public void faultInTypes() {

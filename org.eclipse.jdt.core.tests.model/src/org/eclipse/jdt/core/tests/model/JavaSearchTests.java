@@ -310,7 +310,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "testTypeReference39" };
+//	testsNames = new String[] { "testPackageReference9" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	testsNumbers = new int[] { 1, 2, 3, 9, 11, 16 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -2295,6 +2295,21 @@ public void testPackageReference8() throws CoreException { // was testPatternMat
 		getJavaSearchScope(), 
 		this.resultCollector);
 	resultCollector.toString();
+}
+/**
+ * Package reference in static import
+ */
+public void testPackageReference9() throws CoreException {
+	IPackageFragment pkg = getPackageFragment("JavaSearch15", "src", "s1.j.l");
+	search(pkg, REFERENCES, getJavaSearchScope15(), resultCollector);
+	assertSearchResults(
+		"src/s1/A.java [s1.j.l]\n" + 
+		"src/s1/A.java [s1.j.l]\n" + 
+		"src/s1/B.java [s1.j.l]\n" + 
+		"src/s1/D.java [s1.j.l]\n" + 
+		"src/s1/D.java [s1.j.l]\n" + 
+		"src/s1/E.java [s1.j.l]",
+		this.resultCollector);
 }
 /**
  * Test that we find potential matches in binaries even if we can't resolve the entire

@@ -91,7 +91,8 @@ public int match(TypeReference node, MatchingNodeSet nodeSet) { // interested in
 }
 
 protected int matchLevel(ImportReference importRef) {
-	if (!importRef.onDemand)
+	// Compare prefix also for static import
+	if (!importRef.onDemand || importRef.isStatic())
 		return matchLevelForTokens(importRef.tokens);
 
 	return matchesName(this.pattern.pkgName, CharOperation.concatWith(importRef.tokens, '.'))
@@ -116,6 +117,25 @@ protected int matchLevelForTokens(char[][] tokens) {
 			break;
 	}
 	return IMPOSSIBLE_MATCH;
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#matchLevelAndReportImportRef(org.eclipse.jdt.internal.compiler.ast.ImportReference, org.eclipse.jdt.internal.compiler.lookup.Binding, org.eclipse.jdt.internal.core.search.matching.MatchLocator)
+ */
+protected void matchLevelAndReportImportRef(ImportReference importRef, Binding binding, MatchLocator locator) throws CoreException {
+	Binding refBinding = binding;
+	if (importRef.isStatic()) {
+		// for static import, binding can be a field binding or a member type binding
+		// verify that in this case binding is static and use declaring class for fields
+		if (binding instanceof FieldBinding) {
+			FieldBinding fieldBinding = (FieldBinding) binding;
+			if (!fieldBinding.isStatic()) return;
+			refBinding = fieldBinding.declaringClass;
+		} else if (binding instanceof MemberTypeBinding) {
+			MemberTypeBinding memberBinding = (MemberTypeBinding) binding;
+			if (!memberBinding.isStatic()) return;
+		}
+	}
+	super.matchLevelAndReportImportRef(importRef, refBinding, locator);
 }
 protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (binding == null) {
@@ -252,7 +272,8 @@ public int resolveLevel(Binding binding) {
 	if (compoundName != null && matchesName(this.pattern.pkgName, CharOperation.concatWith(compoundName, '.'))) {
 		if (((InternalSearchPattern) this.pattern).focus instanceof IPackageFragment && binding instanceof ReferenceBinding) {
 			// check that type is located inside this instance of a package fragment
-			if (!isDeclaringPackageFragment((IPackageFragment)((InternalSearchPattern) this.pattern).focus, (ReferenceBinding)binding)) return IMPOSSIBLE_MATCH;
+			if (!isDeclaringPackageFragment((IPackageFragment)((InternalSearchPattern) this.pattern).focus, (ReferenceBinding)binding))
+				return IMPOSSIBLE_MATCH;
 		}				
 		return ACCURATE_MATCH;
 	} else {

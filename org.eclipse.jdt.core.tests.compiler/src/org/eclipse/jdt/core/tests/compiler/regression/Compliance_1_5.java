@@ -2807,10 +2807,10 @@ public void test086() {
 				"}\n"
 		},
 		"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
 			"	import static p.S;\n" + 
 			"	              ^^^\n" + 
-			"The import p.S is never used\n" + 
+			"The static import p.S must be a field or member type\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	System.out.print(full+\" \"+p.S.success);\n" + 
@@ -2822,7 +2822,7 @@ public void test086() {
 public void test087() {
 	this.runNegativeTest(
 		new String[] {
-			"p/S.java",
+			"S.java",
 			"public class S {\n" + 
 				"    public final static String full = \"FULL\";\n" + 
 				"    public final static String success = \"SUCCESS\";\n" + 
