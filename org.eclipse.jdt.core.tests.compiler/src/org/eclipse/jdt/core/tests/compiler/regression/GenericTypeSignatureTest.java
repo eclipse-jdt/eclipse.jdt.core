@@ -33,7 +33,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	static final String RUN_SUN_JAVAC = System.getProperty("run.javac");
-	static boolean runJavac = CompilerOptions.ENABLED.equals(RUN_SUN_JAVAC);
+	static boolean RunJavac = CompilerOptions.ENABLED.equals(RUN_SUN_JAVAC);
 	static {
 		// Use this static to specify a subset of tests using testsNames, testNumbers or testsRange arrays
 //		testsRange = new int[] { 66, -1 };
@@ -280,7 +280,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		assertNotNull(tEntry);
 		assertEquals("Wrong signature", "TT;", new String(tEntry.getSignature()));
 		
-		if (!runJavac) return;
+		if (!RunJavac) return;
 		
 		// Compare with javac
 		try {
@@ -422,7 +422,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		assertNotNull(tEntry);
 		assertEquals("Wrong signature", "TP;", new String(tEntry.getSignature()));
 
-		if (!runJavac) return;
+		if (!RunJavac) return;
 
 		// Compare with javac
 		try {
