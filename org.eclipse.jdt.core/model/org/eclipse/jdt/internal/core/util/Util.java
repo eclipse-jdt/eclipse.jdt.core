@@ -1645,6 +1645,12 @@ public class Util {
 	public static void validateTypeSignature(String sig, boolean allowVoid) {
 		Assert.isTrue(isValidTypeSignature(sig, allowVoid));
 	}
+	public static void verbose(String log) {
+		verbose(log, System.out);
+	}
+	public static void verbose(String log, PrintStream printStream) {
+		printStream.println("[" + Thread.currentThread() + "] " + log); //$NON-NLS-1$//$NON-NLS-2$
+	}
 	/**
 	 * Writes a string to the given output stream using UTF-8 
 	 * encoding in a machine-independent manner. 

@@ -283,7 +283,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 						this.project.getProject().touch(this.progressMonitor);
 					} catch (CoreException e) {
 						if (JavaModelManager.CP_RESOLVE_VERBOSE){
-							System.out.println("CPInit - FAILED to touch project: "+ this.project.getElementName()); //$NON-NLS-1$
+							Util.verbose("CPContainer INIT - FAILED to touch project: "+ this.project.getElementName(), System.err); //$NON-NLS-1$
 							e.printStackTrace();
 						}
 					}

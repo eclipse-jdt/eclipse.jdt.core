@@ -118,7 +118,7 @@ public void cleanUpIndexes() {
 				String fileName = indexesFiles[i].getAbsolutePath();
 				if (!knownPaths.containsKey(fileName) && fileName.toLowerCase().endsWith(".index")) { //$NON-NLS-1$
 					if (VERBOSE)
-						JobManager.verbose("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
+						Util.verbose("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
 					indexesFiles[i].delete();
 				}
 			}
@@ -133,7 +133,7 @@ String computeIndexName(IPath path) {
 		checksumCalculator.update(pathString.getBytes());
 		String fileName = Long.toString(checksumCalculator.getValue()) + ".index"; //$NON-NLS-1$
 		if (VERBOSE)
-			JobManager.verbose("-> index name for " + pathString + " is " + fileName); //$NON-NLS-1$ //$NON-NLS-2$
+			Util.verbose("-> index name for " + pathString + " is " + fileName); //$NON-NLS-1$ //$NON-NLS-2$
 		name = getJavaPluginWorkingLocation().append(fileName).toOSString();
 		indexNames.put(path, name);
 	}
@@ -173,7 +173,7 @@ public synchronized Index getIndex(IPath path, boolean reuseExistingFile, boolea
 					// failed to read the existing file or its no longer compatible
 					if (currentIndexState != REBUILDING_STATE) { // rebuild index if existing file is corrupt, unless the index is already being rebuilt
 						if (VERBOSE)
-							JobManager.verbose("-> cannot reuse existing index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+							Util.verbose("-> cannot reuse existing index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 						rebuildIndex(indexName, path);
 						return null;
 					} else {
@@ -190,13 +190,13 @@ public synchronized Index getIndex(IPath path, boolean reuseExistingFile, boolea
 		if (createIfMissing) {
 			try {
 				if (VERBOSE)
-					JobManager.verbose("-> create empty index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+					Util.verbose("-> create empty index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 				index = new Index(indexName, "Index for " + path.toOSString(), false /*do not reuse index file*/); //$NON-NLS-1$
 				indexes.put(path, index);
 				return index;
 			} catch (IOException e) {
 				if (VERBOSE)
-					JobManager.verbose("-> unable to create empty index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+					Util.verbose("-> unable to create empty index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 				// The file could not be created. Possible reason: the project has been deleted.
 				return null;
 			}
@@ -351,7 +351,7 @@ private void rebuildIndex(String indexName, IPath path) {
 	if (target == null) return;
 
 	if (VERBOSE)
-		JobManager.verbose("-> request to rebuild index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+		Util.verbose("-> request to rebuild index: "+indexName+" path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 
 	updateIndexState(indexName, REBUILDING_STATE);
 	IndexRequest request = null;
@@ -383,7 +383,7 @@ public synchronized Index recreateIndex(IPath path) {
 		// Path is already canonical
 		String indexPath = computeIndexName(path);
 		if (VERBOSE)
-			JobManager.verbose("-> recreating index: "+indexPath+" for path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+			Util.verbose("-> recreating index: "+indexPath+" for path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 		index = new Index(indexPath, "Index for " + path.toOSString(), false /*reuse index file*/); //$NON-NLS-1$
 		indexes.put(path, index);
 		index.monitor = monitor;
@@ -391,7 +391,7 @@ public synchronized Index recreateIndex(IPath path) {
 	} catch (IOException e) {
 		// The file could not be created. Possible reason: the project has been deleted.
 		if (VERBOSE) {
-			JobManager.verbose("-> failed to recreate index for path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+			Util.verbose("-> failed to recreate index for path: "+path.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 			e.printStackTrace();
 		}
 		return null;
@@ -410,7 +410,7 @@ public void remove(String resourceName, IPath indexedContainer){
  */
 public synchronized void removeIndex(IPath path) {
 	if (VERBOSE)
-		JobManager.verbose("removing index " + path); //$NON-NLS-1$
+		Util.verbose("removing index " + path); //$NON-NLS-1$
 	String indexName = computeIndexName(path);
 	File indexFile = new File(indexName);
 	if (indexFile.exists())
@@ -470,7 +470,7 @@ public void saveIndex(Index index) throws IOException {
 	// must have permission to write from the write monitor
 	if (index.hasChanged()) {
 		if (VERBOSE)
-			JobManager.verbose("-> saving index " + index.getIndexFile()); //$NON-NLS-1$
+			Util.verbose("-> saving index " + index.getIndexFile()); //$NON-NLS-1$
 		index.save();
 	}
 	String indexName = index.getIndexFile().getPath();
@@ -515,7 +515,7 @@ public void saveIndexes() {
 						saveIndex(index);
 					} catch(IOException e) {
 						if (VERBOSE) {
-							JobManager.verbose("-> got the following exception while saving:"); //$NON-NLS-1$
+							Util.verbose("-> got the following exception while saving:", System.err); //$NON-NLS-1$
 							e.printStackTrace();
 						}
 						allSaved = false;
@@ -548,7 +548,7 @@ public void scheduleDocumentIndexing(final SearchDocument searchDocument, final 
 				indexDocument(searchDocument, searchParticipant, index, indexPath);
 			} catch (IOException e) {
 				if (JobManager.VERBOSE) {
-					JobManager.verbose("-> failed to index " + searchDocument.getPath() + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+					Util.verbose("-> failed to index " + searchDocument.getPath() + " because of the following exception:", System.err); //$NON-NLS-1$ //$NON-NLS-2$
 					e.printStackTrace();
 				}
 				return false;
@@ -579,7 +579,7 @@ private char[] readIndexState() {
 		return org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(savedIndexNamesFile, null);
 	} catch (IOException ignored) {
 		if (VERBOSE)
-			JobManager.verbose("Failed to read saved index file names"); //$NON-NLS-1$
+			Util.verbose("Failed to read saved index file names"); //$NON-NLS-1$
 		return new char[0];
 	}
 }
@@ -606,7 +606,7 @@ private synchronized void updateIndexState(String indexName, Integer indexState)
 		}
 	} catch (IOException ignored) {
 		if (VERBOSE)
-			JobManager.verbose("Failed to write saved index file names"); //$NON-NLS-1$
+			Util.verbose("Failed to write saved index file names", System.err); //$NON-NLS-1$
 	} finally {
 		if (writer != null) {
 			try {
@@ -622,7 +622,7 @@ private synchronized void updateIndexState(String indexName, Integer indexState)
 		else if (indexState == UPDATING_STATE) state = "UPDATING"; //$NON-NLS-1$
 		else if (indexState == UNKNOWN_STATE) state = "UNKNOWN"; //$NON-NLS-1$
 		else if (indexState == REBUILDING_STATE) state = "REBUILDING"; //$NON-NLS-1$
-		JobManager.verbose("-> index state updated to: " + state + " for: "+indexName); //$NON-NLS-1$ //$NON-NLS-2$
+		Util.verbose("-> index state updated to: " + state + " for: "+indexName); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
 }

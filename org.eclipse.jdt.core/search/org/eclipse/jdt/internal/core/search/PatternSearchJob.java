@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class PatternSearchJob implements IJob {
 
@@ -66,7 +67,7 @@ public boolean execute(IProgressMonitor progressMonitor) {
 			}
 		}
 		if (JobManager.VERBOSE)
-			JobManager.verbose("-> execution time: " + executionTime + "ms - " + this);//$NON-NLS-1$//$NON-NLS-2$
+			Util.verbose("-> execution time: " + executionTime + "ms - " + this);//$NON-NLS-1$//$NON-NLS-2$
 		return isComplete;
 	} finally {
 		if (progressMonitor != null)

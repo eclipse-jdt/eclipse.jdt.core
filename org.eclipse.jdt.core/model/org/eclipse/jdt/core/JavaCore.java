@@ -1161,8 +1161,12 @@ public final class JavaCore extends Plugin {
 			final ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(containerPath.segment(0));
 			if (initializer != null){
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					System.out.println("CPContainer INIT - triggering initialization of: ["+project.getElementName()+"] " + containerPath + " using initializer: "+ initializer); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-					new Exception("FAKE exception for dumping current CPContainer (["+project.getElementName()+"] "+ containerPath+ ")INIT invocation stack trace").printStackTrace(); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					Util.verbose("CPContainer INIT - triggering initialization"); //$NON-NLS-1$
+					Util.verbose("	project: " + project.getElementName()); //$NON-NLS-1$
+					Util.verbose("	container path: " + containerPath); //$NON-NLS-1$
+					Util.verbose("	initializer: " + initializer); //$NON-NLS-1$
+					Util.verbose("	invocation stack trace:"); //$NON-NLS-1$
+					new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 				}
 				JavaModelManager.getJavaModelManager().containerPut(project, containerPath, JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
 				boolean ok = false;
@@ -1185,24 +1189,27 @@ public final class JavaCore extends Plugin {
 					if (!ok) JavaModelManager.getJavaModelManager().containerPut(project, containerPath, null); // flush cache
 				}
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					System.out.print("CPContainer INIT - after resolution: ["+project.getElementName()+"] " + containerPath + " --> "); //$NON-NLS-2$//$NON-NLS-1$//$NON-NLS-3$
+					Util.verbose("CPContainer INIT - after resolution"); //$NON-NLS-1$
+					Util.verbose("	project: " + project.getElementName()); //$NON-NLS-1$
+					Util.verbose("	container path: " + containerPath); //$NON-NLS-1$
 					if (container != null){
-						System.out.print("container: "+container.getDescription()+" {"); //$NON-NLS-2$//$NON-NLS-1$
+						Util.verbose("	container: "+container.getDescription()+" {"); //$NON-NLS-2$//$NON-NLS-1$
 						IClasspathEntry[] entries = container.getClasspathEntries();
 						if (entries != null){
 							for (int i = 0; i < entries.length; i++){
-								if (i > 0) System.out.println(", ");//$NON-NLS-1$
-								System.out.println(entries[i]);
+								Util.verbose("		" + entries[i]); //$NON-NLS-1$
 							}
 						}
-						System.out.println("}");//$NON-NLS-1$
+						Util.verbose("	}");//$NON-NLS-1$
 					} else {
-						System.out.println("{unbound}");//$NON-NLS-1$
+						Util.verbose("	container: {unbound}");//$NON-NLS-1$
 					}
 				}
 			} else {
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					System.out.println("CPContainer INIT - no initializer found for: "+project.getElementName()+"] " + containerPath); //$NON-NLS-1$ //$NON-NLS-2$
+					Util.verbose("CPContainer INIT - no initializer found"); //$NON-NLS-1$
+					Util.verbose("	project: " + project.getElementName()); //$NON-NLS-1$
+					Util.verbose("	container path: " + containerPath); //$NON-NLS-1$
 				}
 			}
 		}
@@ -1235,7 +1242,9 @@ public final class JavaCore extends Plugin {
 					String initializerID = configElements[j].getAttribute("id"); //$NON-NLS-1$
 					if (initializerID != null && initializerID.equals(containerID)){
 						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-							System.out.println("CPContainer INIT - found initializer: "+containerID +" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+							Util.verbose("CPContainer INIT - found initializer"); //$NON-NLS-1$
+							Util.verbose("	container ID: " + containerID); //$NON-NLS-1$
+							Util.verbose("	class: " + configElements[j].getAttribute("class")); //$NON-NLS-1$ //$NON-NLS-2$
 						}						
 						try {
 							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
@@ -1245,7 +1254,9 @@ public final class JavaCore extends Plugin {
 						} catch(CoreException e) {
 							// executable extension could not be created: ignore this initializer
 							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-								System.out.println("CPContainer INIT - failed to instanciate initializer: "+containerID +" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+								Util.verbose("CPContainer INIT - failed to instanciate initializer", System.err); //$NON-NLS-1$
+								Util.verbose("	container ID: " + containerID, System.err); //$NON-NLS-1$
+								Util.verbose("	class: " + configElements[j].getAttribute("class"), System.err); //$NON-NLS-1$ //$NON-NLS-2$
 								e.printStackTrace();
 							}						
 						}
@@ -1286,8 +1297,10 @@ public final class JavaCore extends Plugin {
 		final ClasspathVariableInitializer initializer = JavaCore.getClasspathVariableInitializer(variableName);
 		if (initializer != null){
 			if (JavaModelManager.CP_RESOLVE_VERBOSE){
-				System.out.println("CPVariable INIT - triggering initialization of: " + variableName+ " using initializer: "+ initializer); //$NON-NLS-1$ //$NON-NLS-2$
-				new Exception("FAKE exception for dumping current CPVariable ("+variableName+ ")INIT invocation stack trace").printStackTrace(); //$NON-NLS-1$//$NON-NLS-2$
+				Util.verbose("CPVariable INIT - triggering initialization"); //$NON-NLS-1$
+				Util.verbose("	variable: " + variableName); //$NON-NLS-1$
+				Util.verbose("	initializer: " + initializer); //$NON-NLS-1$
+				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 			}
 			JavaModelManager.getJavaModelManager().variablePut(variableName, JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
 			boolean ok = false;
@@ -1304,7 +1317,9 @@ public final class JavaCore extends Plugin {
 				variablePath = JavaModelManager.getJavaModelManager().variableGet(variableName); // initializer should have performed side-effect
 				if (variablePath == JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS) return null; // break cycle (initializer did not init or reentering call)
 				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					System.out.println("CPVariable INIT - after initialization: " + variableName + " --> " + variablePath); //$NON-NLS-2$//$NON-NLS-1$
+					Util.verbose("CPVariable INIT - after initialization"); //$NON-NLS-1$
+					Util.verbose("	variable: " + variableName); //$NON-NLS-1$
+					Util.verbose("	variable path: " + variablePath); //$NON-NLS-1$
 				}
 				ok = true;
 			} finally {
@@ -1312,7 +1327,8 @@ public final class JavaCore extends Plugin {
 			}
 		} else {
 			if (JavaModelManager.CP_RESOLVE_VERBOSE){
-				System.out.println("CPVariable INIT - no initializer found for: " + variableName); //$NON-NLS-1$
+				Util.verbose("CPVariable INIT - no initializer found"); //$NON-NLS-1$
+				Util.verbose("	variable: " + variableName); //$NON-NLS-1$
 			}
 		}
 		return variablePath;
@@ -1343,7 +1359,9 @@ public final class JavaCore extends Plugin {
 						String varAttribute = configElements[j].getAttribute("variable"); //$NON-NLS-1$
 						if (variable.equals(varAttribute)) {
 							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-								System.out.println("CPVariable INIT - found initializer: "+variable+" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+								Util.verbose("CPVariable INIT - found initializer"); //$NON-NLS-1$
+								Util.verbose("	variable: " + variable); //$NON-NLS-1$
+								Util.verbose("	class: " + configElements[j].getAttribute("class")); //$NON-NLS-1$ //$NON-NLS-2$
 							}						
 							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
 							if (execExt instanceof ClasspathVariableInitializer){
@@ -1353,7 +1371,9 @@ public final class JavaCore extends Plugin {
 					} catch(CoreException e){
 						// executable extension could not be created: ignore this initializer
 						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-							System.out.println("CPContainer INIT - failed to instanciate initializer: "+variable +" --> " + configElements[j].getAttribute("class"));//$NON-NLS-3$//$NON-NLS-2$//$NON-NLS-1$
+							Util.verbose("CPContainer INIT - failed to instanciate initializer", System.err); //$NON-NLS-1$
+							Util.verbose("	variable: " + variable, System.err); //$NON-NLS-1$
+							Util.verbose("	class: " + configElements[j].getAttribute("class"), System.err); //$NON-NLS-1$ //$NON-NLS-2$
 							e.printStackTrace();
 						}						
 					}
@@ -3245,17 +3265,24 @@ public final class JavaCore extends Plugin {
 		if (monitor != null && monitor.isCanceled()) return;
 	
 		if (JavaModelManager.CP_RESOLVE_VERBOSE){
-			System.out.println("CPContainer SET  - setting container: ["+containerPath+"] for projects: {" //$NON-NLS-1$ //$NON-NLS-2$
-				+ (org.eclipse.jdt.internal.compiler.util.Util.toString(affectedProjects, 
-						new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
-							public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
-						}))
-				+ "} with values: " //$NON-NLS-1$
-				+ (org.eclipse.jdt.internal.compiler.util.Util.toString(respectiveContainers, 
+			Util.verbose("CPContainer SET  - setting container"); //$NON-NLS-1$
+			Util.verbose("	container path: " + containerPath); //$NON-NLS-1$
+			Util.verbose(
+				"	projects: {" //$NON-NLS-1$
+				+ org.eclipse.jdt.internal.compiler.util.Util.toString( 
+					affectedProjects, 
+					new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
+						public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
+					})
+				+ "}"); //$NON-NLS-1$
+			Util.verbose(
+				"	values: {" //$NON-NLS-1$
+				+ org.eclipse.jdt.internal.compiler.util.Util.toString(
+						respectiveContainers, 
 						new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
 							public String displayString(Object o) { return ((IClasspathContainer) o).getDescription(); }
-						}))
-					);
+						})
+				+ "}"); //$NON-NLS-1$
 		}
 
 		final int projectLength = affectedProjects.length;
@@ -3295,7 +3322,10 @@ public final class JavaCore extends Plugin {
 					IClasspathContainer previousContainer = (IClasspathContainer)previousContainerValues.get(containerPath);
 					if (previousContainer != null) {
 						if (JavaModelManager.CP_RESOLVE_VERBOSE){
-							System.out.println("CPContainer INIT - reentering access to project container: ["+affectedProject.getElementName()+"] " + containerPath + " during its initialization, will see previous value: "+ previousContainer.getDescription()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							Util.verbose("CPContainer INIT - reentering access to project container during its initialization, will see previous value"); //$NON-NLS-1$ 
+							Util.verbose("	project: " + affectedProject.getElementName()); //$NON-NLS-1$
+							Util.verbose("	container path: " + containerPath); //$NON-NLS-1$
+							Util.verbose("	previous value: " + previousContainer.getDescription()); //$NON-NLS-1$
 						}
 						JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, previousContainer); 
 					}
@@ -3328,7 +3358,9 @@ public final class JavaCore extends Plugin {
 						if (affectedProject == null) continue; // was filtered out
 						
 						if (JavaModelManager.CP_RESOLVE_VERBOSE){
-							System.out.println("CPContainer SET  - updating affected project: ["+affectedProject.getElementName()+"] due to setting container: " + containerPath); //$NON-NLS-1$ //$NON-NLS-2$
+							Util.verbose("CPContainer SET  - updating affected project due to setting container"); //$NON-NLS-1$
+							Util.verbose("	project: " + affectedProject.getElementName()); //$NON-NLS-1$
+							Util.verbose("	container path: " + containerPath); //$NON-NLS-1$
 						}
 
 						// force a refresh of the affected project (will compute deltas)
@@ -3347,7 +3379,8 @@ public final class JavaCore extends Plugin {
 			monitor);
 		} catch(CoreException e) {
 			if (JavaModelManager.CP_RESOLVE_VERBOSE){
-				System.out.println("CPContainer SET  - FAILED DUE TO EXCEPTION: "+containerPath); //$NON-NLS-1$
+				Util.verbose("CPContainer SET  - FAILED DUE TO EXCEPTION", System.err); //$NON-NLS-1$
+				Util.verbose("	container path: " + containerPath, System.err); //$NON-NLS-1$
 				e.printStackTrace();
 			}
 			if (e instanceof JavaModelException) {
@@ -3663,8 +3696,9 @@ public final class JavaCore extends Plugin {
 								JavaProject affectedProject = (JavaProject) projectsToUpdate.next();
 
 								if (JavaModelManager.CP_RESOLVE_VERBOSE){
-									System.out.println("CPVariable SET  - updating affected project: ["+affectedProject.getElementName() //$NON-NLS-1$
-										+"] due to setting variables: "+ org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames)); //$NON-NLS-1$
+									Util.verbose("CPVariable SET  - updating affected project due to setting variables"); //$NON-NLS-1$
+									Util.verbose("	project: " + affectedProject.getElementName()); //$NON-NLS-1$
+									Util.verbose("	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames)); //$NON-NLS-1$
 								}
 
 								affectedProject

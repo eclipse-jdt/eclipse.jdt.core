@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class IndexBinaryFolder extends IndexRequest {
 	IFolder folder;
@@ -127,14 +128,14 @@ public class IndexBinaryFolder extends IndexRequest {
 			this.manager.request(new SaveIndex(this.containerPath, this.manager));
 		} catch (CoreException e) {
 			if (JobManager.VERBOSE) {
-				JobManager.verbose("-> failed to index " + this.folder + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+				Util.verbose("-> failed to index " + this.folder + " because of the following exception:", System.err); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
 			this.manager.removeIndex(this.containerPath);
 			return false;
 		} catch (IOException e) {
 			if (JobManager.VERBOSE) {
-				JobManager.verbose("-> failed to index " + this.folder + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+				Util.verbose("-> failed to index " + this.folder + " because of the following exception:", System.err); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();
 			}
 			this.manager.removeIndex(this.containerPath);
