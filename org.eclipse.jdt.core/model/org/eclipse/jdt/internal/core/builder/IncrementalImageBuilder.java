@@ -514,7 +514,7 @@ protected boolean writeClassFileCheck(IFile file, String fileName, byte[] newByt
 			}
 			ClassFileReader reader = new ClassFileReader(oldBytes, file.getLocation().toString().toCharArray());
 			// ignore local types since they're only visible inside a single method
-			if (!reader.isLocal() && reader.hasStructuralChanges(newBytes)) {
+			if (!(reader.isLocal() || reader.isAnonymous()) && reader.hasStructuralChanges(newBytes)) {
 				if (JavaBuilder.DEBUG)
 					System.out.println("Type has structural changes " + fileName); //$NON-NLS-1$
 				addDependentsOf(new Path(fileName), true);
