@@ -616,7 +616,14 @@ class DefaultBindingResolver extends BindingResolver {
 							return null;
 						}
 					} else {
-						return this.getVariableBinding(qualifiedNameReference.otherBindings[otherBindingLength - index - 1]);				
+						/* This is the case for a name which is part of a qualified name that
+						 * cannot be resolved. See PR 13063.
+						 */
+						if (qualifiedNameReference.otherBindings == null) {
+							return null;
+						} else {
+							return this.getVariableBinding(qualifiedNameReference.otherBindings[otherBindingLength - index - 1]);				
+						}
 					}
 				}
 			}
