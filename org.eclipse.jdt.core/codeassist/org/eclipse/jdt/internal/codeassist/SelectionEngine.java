@@ -651,7 +651,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				for (int i = 0; i < length; i++) {
 					parameterPackageNames[i] = parameterTypes[i].qualifiedPackageName();
 					parameterTypeNames[i] = parameterTypes[i].qualifiedSourceName();
-					parameterSignatures[i] = getSignature(parameterTypes[i]).replace('/', '.');
+					parameterSignatures[i] = new String(getSignature(parameterTypes[i])).replace('/', '.');
 				}
 				this.noProposal = false;
 				ReferenceBinding declaringClass = methodBinding.declaringClass;
@@ -673,7 +673,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					this.requestor.acceptMethod(
 						declaringClass.qualifiedPackageName(),
 						declaringClass.qualifiedSourceName(),
-						declaringClass.enclosingType() == null ? null : getSignature(declaringClass.enclosingType()),
+						declaringClass.enclosingType() == null ? null : new String(getSignature(declaringClass.enclosingType())),
 						methodBinding.isConstructor()
 							? declaringClass.sourceName()
 							: methodBinding.selector,

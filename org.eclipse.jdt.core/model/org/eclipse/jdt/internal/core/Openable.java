@@ -17,13 +17,10 @@ import java.util.Map;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 
@@ -99,7 +96,7 @@ protected void closeBuffer() {
 protected void closing(Object info) {
 	closeBuffer();
 }
-protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
+protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, CompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
 	if (requestor == null) {
 		throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
 	}
@@ -117,9 +114,7 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 	environment.unitToSkip = unitToSkip;
 
 	// code complete
-	CompletionRequestorWrapper requestorWrapper = new CompletionRequestorWrapper(requestor, environment.nameLookup);
-	CompletionEngine engine = new CompletionEngine(environment, requestorWrapper, project.getOptions(true), project);
-	requestorWrapper.completionEngine = engine;
+	CompletionEngine engine = new CompletionEngine(environment, requestor, project.getOptions(true), project);
 	engine.complete(cu, position, 0);
 }
 protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, int offset, int length, WorkingCopyOwner owner) throws JavaModelException {
@@ -463,78 +458,5 @@ public PackageFragmentRoot getPackageFragmentRoot() {
 	} while(current != null);
 	return null;
 }
-/**
- * @see ICodeAssist
- * @deprecated - use codeComplete(ICompilationUnit, ICompilationUnit, int, ICompletionRequestor) instead
- */
-protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUnit cu, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unitToSkip, int position, final ICodeCompletionRequestor requestor) throws JavaModelException {
 
-	if (requestor == null){ 
-		codeComplete(cu, unitToSkip, position, null, DefaultWorkingCopyOwner.PRIMARY);
-		return;
-	}
-	codeComplete(
-		cu,
-		unitToSkip,
-		position,
-		new ICompletionRequestor(){
-			public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
-				// ignore
-			}
-			public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
-				requestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd);
-			}
-			public void acceptError(IProblem error) {
-				if (true) return; // was disabled in 1.0
-
-				try {
-					IMarker marker = ResourcesPlugin.getWorkspace().getRoot().createMarker(IJavaModelMarker.TRANSIENT_PROBLEM);
-					marker.setAttribute(IJavaModelMarker.ID, error.getID());
-					marker.setAttribute(IMarker.CHAR_START, error.getSourceStart());
-					marker.setAttribute(IMarker.CHAR_END, error.getSourceEnd() + 1);
-					marker.setAttribute(IMarker.LINE_NUMBER, error.getSourceLineNumber());
-					marker.setAttribute(IMarker.MESSAGE, error.getMessage());
-					marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-					requestor.acceptError(marker);
-				} catch(CoreException e){
-					// could not create marker: ignore
-				}
-			}
-			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
-				requestor.acceptField(declaringTypePackageName, declaringTypeName, fieldName, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
-			}
-			public void acceptInterface(char[] packageName,char[] interfaceName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
-				requestor.acceptInterface(packageName, interfaceName, completionName, modifiers, completionStart, completionEnd);
-			}
-			public void acceptKeyword(char[] keywordName,int completionStart,int completionEnd, int relevance){
-				requestor.acceptKeyword(keywordName, completionStart, completionEnd);
-			}
-			public void acceptLabel(char[] labelName,int completionStart,int completionEnd, int relevance){
-				requestor.acceptLabel(labelName, completionStart, completionEnd);
-			}
-			public void acceptLocalVariable(char[] localVarName,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd, int relevance){
-				// ignore
-			}
-			public void acceptMethod(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance){
-				// skip parameter names
-				requestor.acceptMethod(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart, completionEnd);
-			}
-			public void acceptMethodDeclaration(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance){
-				// ignore
-			}
-			public void acceptModifier(char[] modifierName,int completionStart,int completionEnd, int relevance){
-				requestor.acceptModifier(modifierName, completionStart, completionEnd);
-			}
-			public void acceptPackage(char[] packageName,char[] completionName,int completionStart,int completionEnd, int relevance){
-				requestor.acceptPackage(packageName, completionName, completionStart, completionEnd);
-			}
-			public void acceptType(char[] packageName,char[] typeName,char[] completionName,int completionStart,int completionEnd, int relevance){
-				requestor.acceptType(packageName, typeName, completionName, completionStart, completionEnd);
-			}
-			public void acceptVariableName(char[] typePackageName,char[] typeName,char[] varName,char[] completionName,int completionStart,int completionEnd, int relevance){
-				// ignore
-			}
-		},
-		DefaultWorkingCopyOwner.PRIMARY);
-}
 }

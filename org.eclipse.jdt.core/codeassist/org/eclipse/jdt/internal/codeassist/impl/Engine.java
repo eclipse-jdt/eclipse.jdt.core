@@ -198,52 +198,34 @@ public abstract class Engine implements ITypeRequestor {
 		lookupEnvironment.reset();
 	}
 	
-	public static String getSignature(Binding binding) {
-		StringBuffer buffer = new StringBuffer();
-		appendSignature(binding, buffer);
-		return buffer.toString();
-	}
-	
-	private static void appendSignature(Binding binding, StringBuffer sig) {
+	public static char[] getSignature(Binding binding) {
+		char[] result = null;
 		switch(binding.bindingType()) {
 			case BindingIds.TYPE:
-				if(binding instanceof BaseTypeBinding) {
-					BaseTypeBinding baseTypeBinding = (BaseTypeBinding) binding;
-					sig.append(baseTypeBinding.constantPoolName());
-				} else if(binding instanceof TypeVariableBinding) {
-					TypeVariableBinding typeVariableBinding = (TypeVariableBinding) binding;
-					sig.append(CharOperation.concat('T', typeVariableBinding.sourceName(), ';'));
-				} else if(binding instanceof ParameterizedTypeBinding) {
-					ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) binding;
-					if (parameterizedTypeBinding.isMemberType() && parameterizedTypeBinding.enclosingType().isParameterizedType()) {
-						String tmpSig = getSignature(parameterizedTypeBinding.enclosingType());
-						sig.append(tmpSig.substring(0, tmpSig.length()-1));
-						sig.append('.');
-						sig.append(parameterizedTypeBinding.sourceName());
+				TypeBinding typeBinding = (TypeBinding)binding;
+				if(typeBinding.isLocalType()) {
+					LocalTypeBinding localTypeBinding = (LocalTypeBinding)typeBinding;
+					if(localTypeBinding.isAnonymousType()) {
+						typeBinding = localTypeBinding.superclass();
 					} else {
-						String tmpSig = getSignature(parameterizedTypeBinding.type);
-						sig.append(tmpSig.substring(0, tmpSig.length()-1));
-					}	   	    
-					if (parameterizedTypeBinding.arguments != null) {
-					    sig.append('<');
-					    for (int i = 0, length = parameterizedTypeBinding.arguments.length; i < length; i++) {
-					        appendSignature(parameterizedTypeBinding.arguments[i], sig);
-					    }
-					    sig.append('>'); //$NON-NLS-1$
+						localTypeBinding.setConstantPoolName(typeBinding.sourceName());
 					}
-					sig.append(';');
-				} else {
-					TypeBinding typeBinding = (TypeBinding) binding;
-					sig.append('L');
-					char[] qualifiedPackageName = typeBinding.qualifiedPackageName();
-					if(qualifiedPackageName != null && qualifiedPackageName.length > 0) {
-						sig.append(typeBinding.qualifiedPackageName());
-						sig.append('.');
-					}
-					sig.append(CharOperation.replaceOnCopy(typeBinding.qualifiedSourceName(), '.', '$'));
-					sig.append(';');
 				}
+				result = typeBinding.genericTypeSignature();
+				break;
+			case BindingIds.METHOD:
+				MethodBinding methodBinding = (MethodBinding)binding;
+				int oldMod = methodBinding.modifiers;
+				//TODO remove the next line when method from binary type will be able to generate generic siganute
+				methodBinding.modifiers |= CompilerModifiers.AccGenericSignature;
+				result = methodBinding.genericSignature(); 
+				if(result == null) {
+					result = methodBinding.signature();
+				}
+				methodBinding.modifiers = oldMod;
 				break;
 		}
+		result = CharOperation.replaceOnCopy(result, '/', '.');
+		return result;
 	}
 }

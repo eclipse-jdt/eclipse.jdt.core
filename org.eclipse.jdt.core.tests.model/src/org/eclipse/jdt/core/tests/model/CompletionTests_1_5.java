@@ -208,7 +208,7 @@ public void test0011() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0011.Y0011    completion:Y0011    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0011<java.lang.Object>.Y0011    completion:Y0011    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 public void test0012() throws JavaModelException {
@@ -221,7 +221,7 @@ public void test0012() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0012.Y0012    completion:Y0012    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0012<java.lang.Object>.Y0012    completion:Y0012    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 public void test0013() throws JavaModelException {
@@ -234,7 +234,7 @@ public void test0013() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0013.Y0013    completion:Y0013    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0013<java.lang.Object>.Y0013    completion:Y0013    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 public void test0014() throws JavaModelException {
@@ -247,7 +247,7 @@ public void test0014() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0014.Y0014    completion:Y0014    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS),
+		"element:Z0014<java.lang.Object>.Y0014    completion:Y0014    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS),
 		requestor.getResults());
 }
 public void test0015() throws JavaModelException {
@@ -260,8 +260,8 @@ public void test0015() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0015.Y0015    completion:Y0015    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE) + "\n" +
-		"element:Z0015.Y0015I    completion:Y0015I    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS),
+		"element:Z0015<java.lang.Object>.Y0015    completion:Y0015    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE) + "\n" +
+		"element:Z0015<java.lang.Object>.Y0015I    completion:Y0015I    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS),
 		requestor.getResults());
 }
 public void test0016() throws JavaModelException {
@@ -274,7 +274,7 @@ public void test0016() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0016.Y0016    completion:Y0016    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0016<java.lang.Object>.Y0016    completion:Y0016    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 public void test0017() throws JavaModelException {
@@ -287,7 +287,7 @@ public void test0017() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0017.Y0017    completion:Y0017    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0017<java.lang.Object>.Y0017    completion:Y0017    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 public void test0018() throws JavaModelException {
@@ -300,7 +300,7 @@ public void test0018() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0018.Y0018    completion:Y0018    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0018<java.lang.Object>.Y0018    completion:Y0018    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 public void test0019() throws JavaModelException {
@@ -313,7 +313,7 @@ public void test0019() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0019.Y0019    completion:Y0019    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0019<java.lang.Object>.Y0019    completion:Y0019    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 public void test0020() throws JavaModelException {
@@ -326,7 +326,7 @@ public void test0020() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Z0020.Y0020    completion:Y0020    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		"element:Z0020<java.lang.Object>.Y0020    completion:Y0020    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
 public void test0021() throws JavaModelException {
@@ -445,7 +445,7 @@ public void test0029() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 	
 	assertEquals("should have one class",
-		"element:Test.Inner2    completion:Inner2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
+		"element:Test.Inner2<T>    completion:Inner2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME),
 		requestor.getResults());
 }
 public void test0030() throws JavaModelException {

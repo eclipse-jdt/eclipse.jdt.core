@@ -1785,6 +1785,137 @@ public static String getReturnType(String methodSignature) throws IllegalArgumen
 	return new String(getReturnType(methodSignature.toCharArray()));
 }
 /**
+ * Returns package fragment of a type signature. The package fragment separator must be '.'
+ * and the type fragment separator must be '$'.
+ * <p>
+ * For example:
+ * <pre>
+ * <code>
+ * getSignatureQualifier({'L', 'j', 'a', 'v', 'a', '.', 'u', 't', 'i', 'l', '.', 'M', 'a', 'p', '$', 'E', 'n', 't', 'r', 'y', ';'}) -> {'j', 'a', 'v', 'a', '.', 'u', 't', 'i', 'l'}
+ * </code>
+ * </pre>
+ * </p>
+ * 
+ * @param typeSignature the type signature
+ * @return the package fragment (separators are '.')
+ * @since 3.1
+ */
+public static char[] getSignatureQualifier(char[] typeSignature) {
+	if(typeSignature == null) return CharOperation.NO_CHAR;
+	
+	char[] qualifiedType = Signature.toCharArray(typeSignature);
+	
+	int dotCount = 0;
+	indexFound: for(int i = 0; i < typeSignature.length; i++) {
+		switch(typeSignature[i]) {
+			case C_DOT:
+				dotCount++;
+				break;
+			case C_GENERIC_START:
+				break indexFound;
+			case C_DOLLAR:
+				break indexFound;
+		}
+	}
+	
+	if(dotCount > 0) {
+		for(int i = 0; i < qualifiedType.length; i++) {
+			if(qualifiedType[i] == '.') {
+				dotCount--;
+			}
+			if(dotCount <= 0) {
+				return CharOperation.subarray(qualifiedType, 0, i);
+			}
+		}
+	}
+	return CharOperation.NO_CHAR;
+}
+/**
+ * Returns package fragment of a type signature. The package fragment separator must be '.'
+ * and the type fragment separator must be '$'.
+ * <p>
+ * For example:
+ * <pre>
+ * <code>
+ * getSignatureQualifier("Ljava.util.Map$Entry") -> "java.util"
+ * </code>
+ * </pre>
+ * </p>
+ * 
+ * @param typeSignature the type signature
+ * @return the package fragment (separators are '.')
+ * @since 3.1
+ */
+public static String getSignatureQualifier(String typeSignature) {
+	return new String(getSignatureQualifier(typeSignature == null ? null : typeSignature.toCharArray()));
+}
+/**
+ * Returns type fragment of a type signature. The package fragment separator must be '.'
+ * and the type fragment separator must be '$'.
+ * <p>
+ * For example:
+ * <pre>
+ * <code>
+ * getSignatureSimpleName({'L', 'j', 'a', 'v', 'a', '.', 'u', 't', 'i', 'l', '.', 'M', 'a', 'p', '$', 'E', 'n', 't', 'r', 'y', ';'}) -> {'M', 'a', 'p', '.', 'E', 'n', 't', 'r', 'y'}
+ * </code>
+ * </pre>
+ * </p>
+ * 
+ * @param typeSignature the type signature
+ * @return the type fragment (separators are '.')
+ * @since 3.1
+ */
+public static char[] getSignatureSimpleName(char[] typeSignature) {
+	if(typeSignature == null) return CharOperation.NO_CHAR;
+	
+	char[] qualifiedType = Signature.toCharArray(typeSignature);
+	
+	int dotCount = 0;
+	indexFound: for(int i = 0; i < typeSignature.length; i++) {
+		switch(typeSignature[i]) {
+			case C_DOT:
+				dotCount++;
+				break;
+			case C_GENERIC_START:
+				break indexFound;
+			case C_DOLLAR:
+				break indexFound;
+		}
+	}
+	
+	if(dotCount > 0) {
+		for(int i = 0; i < qualifiedType.length; i++) {
+			if(qualifiedType[i] == '.') {
+				dotCount--;
+			}
+			if(dotCount <= 0) {
+				return CharOperation.subarray(qualifiedType, i + 1, qualifiedType.length);
+			}
+		}
+	}
+	return qualifiedType;
+}
+/**
+ * Returns type fragment of a type signature. The package fragment separator must be '.'
+ * and the type fragment separator must be '$'.
+ * <p>
+ * For example:
+ * <pre>
+ * <code>
+ * getSignatureSimpleName("Ljava.util.Map$Entry") -> "Map.Entry"
+ * </code>
+ * </pre>
+ * </p>
+ * 
+ * @param typeSignature the type signature
+ * @return the type fragment (separators are '.')
+ * @since 3.1
+ */
+public static String getSignatureSimpleName(String typeSignature) {
+	return new String(getSignatureSimpleName(typeSignature == null ? null : typeSignature.toCharArray()));
+}
+	
+/**
  * Returns the last segment of the given dot-separated qualified name.
  * Returns the given name if it is not qualified.
  * <p>

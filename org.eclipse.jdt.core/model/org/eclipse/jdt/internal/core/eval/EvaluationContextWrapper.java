@@ -31,13 +31,13 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.eval.ICodeSnippetRequestor;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.core.eval.IGlobalVariable;
+import org.eclipse.jdt.internal.codeassist.CompletionRequestorWrapper;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.ClassFile;
-import org.eclipse.jdt.internal.core.CompletionRequestorWrapper;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.SelectionRequestor;
@@ -92,12 +92,27 @@ public void codeComplete(String codeSnippet, int position, ICompletionRequestor 
  * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete(String, int, ICompletionRequestor, WorkingCopyOwner)
  */
 public void codeComplete(String codeSnippet, int position, ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
+	if (requestor == null) {
+		throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
+	}
+	codeComplete(codeSnippet, position, new CompletionRequestorWrapper(requestor), owner);
+}
+/**
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete(String, int, CompletionRequestor)
+ */
+public void codeComplete(String codeSnippet, int position, CompletionRequestor requestor) throws JavaModelException {
+	codeComplete(codeSnippet, position, requestor, DefaultWorkingCopyOwner.PRIMARY);
+}
+/**
+ * @see org.eclipse.jdt.core.eval.IEvaluationContext#codeComplete(String, int, CompletionRequestor, WorkingCopyOwner)
+ */
+public void codeComplete(String codeSnippet, int position, CompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
 	SearchableEnvironment environment = (SearchableEnvironment) this.project.newSearchableNameEnvironment(owner);
 	this.context.complete(
 		codeSnippet.toCharArray(),
 		position,
 		environment,
-		new CompletionRequestorWrapper(requestor, environment.nameLookup),
+		requestor,
 		this.project.getOptions(true),
 		this.project
 	);

@@ -51,6 +51,28 @@ Eclipse SDK 3.1M3 - ?th October 2004
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>New requestor API <code>CompletionRequestor</code> is implemented inside code assist enigne</code>.
+</li>
+<li>Added missing API to <code>IType</code> for new completion requestor support:
+<ul>
+  <li><code>IType#codeComplete(char[],int,int,char[][],char[][],int[],boolean,CompletionRequestor,WorkingCopyOwner)</code></li>
+  <li><code>IType#codeComplete(char[],int,int,char[][],char[][],int[],boolean,CompletionRequestor)</code></li>
+</ul>
+</li>
+<li>Added missing API to <code>IEvaluationContext</code> for new completion requestor support:
+<ul>
+  <li><code>IEvaluationContext#codeComplete(String,int,CompletionRequestor, WorkingCopyOwner)</code></li>
+  <li><code>IEvaluationContext#codeComplete(String,int,CompletionRequestor)</code></li>
+</ul>
+</li>
+<li>Added new API inside <code>Signature</code> to extract package name part or type name part of a type signature:
+<ul>
+  <li><code>Signature#getSignatureQualifier(char[])</code></li>
+  <li><code>Signature#getSignatureQualifier(String)</code></li>
+  <li><code>Signature#getSignatureSimpleName(char[])</code></li>
+  <li><code>Signature#getSignatureSimpleName(String)</code></li>
+</ul>
+</li>
 <li>Added support in Java model for varargs methods:
      <ul>
      <li><code>Flags.isVarargs(method.getFlags())</code> now returns whether the method is a varargs method.</li>
@@ -126,6 +148,7 @@ Search supports this new syntax and is able to find referenced type, field and/o
 </ul>
 
 <h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76181">76181</a>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=74776">74776</a>
 [Search] Wrong search results for almost identical method
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70827">70827</a>

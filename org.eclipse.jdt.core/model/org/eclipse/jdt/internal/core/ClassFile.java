@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.IType;
 //import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.codeassist.CompletionRequestorWrapper;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -105,6 +106,23 @@ public void codeComplete(int offset, ICompletionRequestor requestor) throws Java
  * @see ICodeAssist#codeComplete(int, ICompletionRequestor, WorkingCopyOwner)
  */
 public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
+	if (requestor == null) {
+		throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
+	}
+	codeComplete(offset, new CompletionRequestorWrapper(requestor), owner);
+}
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor)
+ */
+public void codeComplete(int offset, CompletionRequestor requestor) throws JavaModelException {
+	codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY);
+}
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner)
+ */
+public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
 	String source = getSource();
 	if (source != null) {
 		BinaryType type = (BinaryType) getType();
@@ -116,22 +134,6 @@ public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopy
 				getJavaProject()); // use project to retrieve corresponding .java IFile
 		codeComplete(cu, cu, offset, requestor, owner);
 	}
-}
-
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor)
- */
-public void codeComplete(int offset, CompletionRequestor requestor) throws JavaModelException {
-	// TODO (jerome) - Missing implementation
-	throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
-}
-
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner)
- */
-public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner wcowner) throws JavaModelException {
-	// TODO (jerome) - Missing implementation
-	throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
 }
 
 /**

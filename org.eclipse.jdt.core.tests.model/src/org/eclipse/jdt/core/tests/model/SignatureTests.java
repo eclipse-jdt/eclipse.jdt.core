@@ -1029,5 +1029,39 @@ public void testGetTypeSignatureKind2() {
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("La<TV;>.b<QW;>.c<LX;>;".toCharArray()));
 }
-
+public void testGetTypeFragment01() {
+	assertEquals(
+		"C.D.E",
+		Signature.getSignatureSimpleName("La.b.C$D$E;"));
+}
+public void testGetTypeFragment02() {
+	assertEquals(
+		"C.D.E",
+		Signature.getSignatureSimpleName("LC$D$E;"));
+}
+public void testGetTypeFragment03() {
+	assertEquals(
+		"C<X>.D.E",
+		Signature.getSignatureSimpleName("La.b.C<LX;>.D$E;"));
+}
+public void testGetPackageFragment01() {
+	assertEquals(
+		"a.b",
+		Signature.getSignatureQualifier("La.b.C$D$E;"));
+}
+public void testGetPackageFragment02() {
+	assertEquals(
+		"",
+		Signature.getSignatureQualifier("LC$D$E;"));
+}
+public void testGetPackageFragment03() {
+	assertEquals(
+		"a.b",
+		Signature.getSignatureQualifier("La.b.C<LX;>.D$E;"));
+}
+public void testGetPackageFragment04() {
+	assertEquals(
+		"",
+		Signature.getSignatureQualifier("LC<LX;>.D$E;"));
+}
 }

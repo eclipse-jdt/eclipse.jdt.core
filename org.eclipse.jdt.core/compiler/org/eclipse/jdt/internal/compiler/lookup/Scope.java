@@ -2286,7 +2286,20 @@ public abstract class Scope
 			checkVisibility = true;
 		}
 		// binding is now a ReferenceBinding
+		ReferenceBinding qualifiedType = null;
+		
 		ReferenceBinding typeBinding = (ReferenceBinding) binding;
+		ReferenceBinding currentType = typeBinding;
+		if (currentType.isGenericType()) {
+			qualifiedType = this.environment().createRawType(currentType, qualifiedType);
+		} else {
+			qualifiedType = (qualifiedType != null && (qualifiedType.isRawType() || qualifiedType.isParameterizedType()))
+									? this.createParameterizedType(currentType, null, qualifiedType)
+									: currentType;
+		}
+		
+		typeBinding = qualifiedType;
+		
 		if (checkVisibility) // handles the fall through case
 			if (!typeBinding.canBeSeenBy(this))
 				return new ProblemReferenceBinding(
@@ -2296,6 +2309,17 @@ public abstract class Scope
 
 		while (currentIndex < nameLength) {
 			typeBinding = getMemberType(compoundName[currentIndex++], typeBinding);
+			
+			currentType = typeBinding;
+			if (currentType.isGenericType()) {
+				qualifiedType = this.environment().createRawType(currentType, qualifiedType);
+			} else {
+				qualifiedType = (qualifiedType != null && (qualifiedType.isRawType() || qualifiedType.isParameterizedType()))
+										? this.createParameterizedType(currentType, null, qualifiedType)
+										: currentType;
+			}
+			
+			typeBinding = qualifiedType;
 			// checks visibility
 			if (!typeBinding.isValidBinding())
 				return new ProblemReferenceBinding(

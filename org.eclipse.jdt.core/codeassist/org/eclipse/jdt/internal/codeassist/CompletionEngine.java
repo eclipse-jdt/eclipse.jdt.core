@@ -13,10 +13,13 @@ package org.eclipse.jdt.internal.codeassist;
 import java.util.Locale;
 import java.util.Map;
 
-import org.eclipse.jdt.core.ICompletionRequestor;
+import org.eclipse.jdt.core.CompletionProposal;
+import org.eclipse.jdt.core.CompletionRequestor;
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 
@@ -43,6 +46,7 @@ import org.eclipse.jdt.internal.core.INamingRequestor;
 import org.eclipse.jdt.internal.core.InternalNamingConventions;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.BinaryTypeConverter;
+import org.eclipse.jdt.internal.core.SearchableEnvironment;
 
 /**
  * This class is the entry point for source completions.
@@ -60,6 +64,11 @@ public final class CompletionEngine
 	private final static char[] ERROR_PATTERN = "*error*".toCharArray();  //$NON-NLS-1$
 	private final static char[] EXCEPTION_PATTERN = "*exception*".toCharArray();  //$NON-NLS-1$
 	private final static char[] SEMICOLON = new char[] { ';' };
+	
+	private final static char[] CLASS = "Class".toCharArray();  //$NON-NLS-1$
+	private final static char[] VOID = "void".toCharArray();  //$NON-NLS-1$
+	private final static char[] INT = "int".toCharArray();  //$NON-NLS-1$
+	private final static char[] INT_SIGNATURE = new char[]{Signature.C_INT};
 	
 	private final static int SUPERTYPE = 1;
 	private final static int SUBTYPE = 2;
@@ -80,7 +89,7 @@ public final class CompletionEngine
 	
 	IJavaProject javaProject;
 	CompletionParser parser;
-	ICompletionRequestor requestor;
+	CompletionRequestor requestor;
 	ProblemReporter problemReporter;
 	char[] source;
 	char[] completionToken;
@@ -166,11 +175,10 @@ public final class CompletionEngine
 	 *		set of options used to configure the code assist engine.
 	 */
 	public CompletionEngine(
-		ISearchableNameEnvironment nameEnvironment,
-		ICompletionRequestor requestor,
-		Map settings,
-		IJavaProject javaProject) {
-
+			SearchableEnvironment nameEnvironment,
+			CompletionRequestor requestor,
+			Map settings,
+			IJavaProject javaProject) {
 		super(settings);
 		this.javaProject = javaProject;
 		this.requestor = requestor;
@@ -271,14 +279,21 @@ public final class CompletionEngine
 		}
 
 		this.noProposal = false;
-		this.requestor.acceptClass(
-			packageName,
-			className,
-			completionName,
-			modifiers,
-			this.startPosition - this.offset,
-			this.endPosition - this.offset,
-			relevance);
+		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+			CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+			proposal.setDeclarationSignature(packageName);
+			proposal.setSignature(createNonGenericTypeSignature(packageName, className));
+			proposal.setPackageName(packageName);
+			proposal.setTypeName(className);
+			proposal.setCompletion(completionName);
+			proposal.setFlags(modifiers);
+			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+			proposal.setRelevance(relevance);
+			this.requestor.accept(proposal);
+			if(DEBUG) {
+				this.printDebug(proposal);
+			}
+		}
 	}
 	
 	/**
@@ -323,14 +338,21 @@ public final class CompletionEngine
 		}
 		
 		this.noProposal = false;
-		this.requestor.acceptInterface(
-			packageName,
-			interfaceName,
-			completionName,
-			modifiers,
-			this.startPosition - this.offset,
-			this.endPosition - this.offset,
-			relevance);
+		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+			CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+			proposal.setDeclarationSignature(packageName);
+			proposal.setSignature(createNonGenericTypeSignature(packageName, interfaceName));
+			proposal.setPackageName(packageName);
+			proposal.setTypeName(interfaceName);
+			proposal.setCompletion(completionName);
+			proposal.setFlags(modifiers | Flags.AccInterface);
+			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+			proposal.setRelevance(relevance);
+			this.requestor.accept(proposal);
+			if(DEBUG) {
+				this.printDebug(proposal);
+			}
+		}
 	}
 
 	/**
@@ -352,14 +374,21 @@ public final class CompletionEngine
 		relevance += computeRelevanceForQualification(true);
 		
 		this.noProposal = false;
-		this.requestor.acceptPackage(
-			packageName,
-			this.resolvingImports
-				? CharOperation.concat(packageName, new char[] { '.', '*', ';' })
-				: packageName,
-				this.startPosition - this.offset,
-				this.endPosition - this.offset,
-			relevance);
+		if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
+			CompletionProposal proposal = this.createProposal(CompletionProposal.PACKAGE_REF, this.actualCompletionPosition);
+			proposal.setDeclarationSignature(packageName);
+			proposal.setPackageName(packageName);
+			proposal.setCompletion(
+					this.resolvingImports
+					? CharOperation.concat(packageName, new char[] { '.', '*', ';' })
+					: packageName);
+			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+			proposal.setRelevance(relevance);
+			this.requestor.accept(proposal);
+			if(DEBUG) {
+				this.printDebug(proposal);
+			}
+		}
 	}
 
 	/**
@@ -400,13 +429,21 @@ public final class CompletionEngine
 		}
 		
 		this.noProposal = false;
-		this.requestor.acceptType(
-			packageName,
-			typeName,
-			completionName,
-			this.startPosition - this.offset,
-			this.endPosition - this.offset,
-			relevance);
+		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+			CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+			proposal.setDeclarationSignature(packageName);
+			proposal.setSignature(createNonGenericTypeSignature(packageName, typeName));
+			proposal.setPackageName(packageName);
+			proposal.setTypeName(typeName);
+			proposal.setCompletion(completionName);
+			proposal.setFlags(Flags.AccPublic);
+			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+			proposal.setRelevance(relevance);
+			this.requestor.accept(proposal);
+			if(DEBUG) {
+				this.printDebug(proposal);
+			}
+		}
 	}
 
 	private void complete(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
@@ -528,7 +565,17 @@ public final class CompletionEngine
 											relevance += computeRelevanceForInterestingProposal();
 											relevance += computeRelevanceForCaseMatching(this.completionToken, Keywords.THIS);
 											this.noProposal = false;
-											this.requestor.acceptKeyword(Keywords.THIS, this.startPosition - this.offset, this.endPosition - this.offset,relevance);
+											if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+												CompletionProposal proposal = this.createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
+												proposal.setName(Keywords.THIS);
+												proposal.setCompletion(Keywords.THIS);
+												proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+												proposal.setRelevance(relevance);
+												this.requestor.accept(proposal);
+												if(DEBUG) {
+													this.printDebug(proposal);
+												}
+											}
 										}
 									}
 	
@@ -797,7 +844,10 @@ public final class CompletionEngine
 	}
 	
 	public void complete(IType type, char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){	
-
+		if(this.requestor != null){
+			this.requestor.beginReporting();
+		}
+		
 		IType topLevelType = type;
 		while(topLevelType.getDeclaringType() != null) {
 			topLevelType = topLevelType.getDeclaringType();
@@ -867,11 +917,18 @@ public final class CompletionEngine
 					}
 				}
 				if(this.noProposal && this.problem != null) {
-					this.requestor.acceptError(this.problem);
+					this.requestor.completionFailure(this.problem);
+					if(DEBUG) {
+						this.printDebug(this.problem);
+					}
 				}
 			}
 		} catch(JavaModelException e) {
 			// Do nothing
+		}
+		
+		if(this.requestor != null){
+			this.requestor.endReporting();
 		}
 	}
 	
@@ -935,6 +992,10 @@ public final class CompletionEngine
 			System.out.println("COMPLETION - Source :"); //$NON-NLS-1$
 			System.out.println(sourceUnit.getContents());
 		}
+		if(this.requestor != null){
+			this.requestor.beginReporting();
+		}
+		
 		try {
 			this.actualCompletionPosition = completionPosition - 1;
 			this.offset = pos;
@@ -953,7 +1014,10 @@ public final class CompletionEngine
 				if (parsedUnit.currentPackage instanceof CompletionOnPackageReference) {
 					findPackages((CompletionOnPackageReference) parsedUnit.currentPackage);
 					if(this.noProposal && this.problem != null) {
-						this.requestor.acceptError(this.problem);
+						this.requestor.completionFailure(this.problem);
+						if(DEBUG) {
+							this.printDebug(this.problem);
+						}
 					}
 					return;
 				}
@@ -965,7 +1029,10 @@ public final class CompletionEngine
 						if (importReference instanceof CompletionOnImportReference) {
 							findImports((CompletionOnImportReference) importReference);
 							if(this.noProposal && this.problem != null) {
-								this.requestor.acceptError(this.problem);
+								this.requestor.completionFailure(this.problem);
+								if(DEBUG) {
+									this.printDebug(this.problem);
+								}
 							}
 							return;
 						} else if(importReference instanceof CompletionOnKeyword) {
@@ -973,7 +1040,10 @@ public final class CompletionEngine
 							CompletionOnKeyword keyword = (CompletionOnKeyword)importReference;
 							findKeywords(keyword.getToken(), keyword.getPossibleKeywords());
 							if(this.noProposal && this.problem != null) {
-								this.requestor.acceptError(this.problem);
+								this.requestor.completionFailure(this.problem);
+								if(DEBUG) {
+									this.printDebug(this.problem);
+								}
 							}
 							return;
 						}
@@ -1013,7 +1083,10 @@ public final class CompletionEngine
 				}
 			}
 			if(this.noProposal && this.problem != null) {
-				this.requestor.acceptError(this.problem);
+				this.requestor.completionFailure(this.problem);
+				if(DEBUG) {
+					this.printDebug(this.problem);
+				}
 			}
 			/* Ignore package, import, class & interface keywords for now...
 					if (!completionNodeFound) {
@@ -1049,6 +1122,10 @@ public final class CompletionEngine
 		} finally {
 			reset();
 		}
+		
+		if(this.requestor != null){
+			this.requestor.endReporting();
+		}
 	}
 
 	private TypeBinding[] computeTypes(Expression[] arguments, BlockScope scope) {
@@ -1080,17 +1157,30 @@ public final class CompletionEngine
 			relevance += computeRelevanceForInterestingProposal();
 			
 			this.noProposal = false;
-			this.requestor.acceptAnonymousType(
-				currentType.qualifiedPackageName(),
-				currentType.qualifiedSourceName(),
-				CharOperation.NO_CHAR_CHAR,
-				CharOperation.NO_CHAR_CHAR,
-				CharOperation.NO_CHAR_CHAR,
-				completion,
-				IConstants.AccPublic,
-				this.endPosition - this.offset,
-				this.endPosition - this.offset,
-				relevance);
+			if(!this.requestor.isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION)) {
+				CompletionProposal proposal = this.createProposal(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, this.actualCompletionPosition);
+				proposal.setDeclarationSignature(getSignature(currentType));
+				proposal.setSignature(
+						createMethodSignature(
+								CharOperation.NO_CHAR_CHAR,
+								CharOperation.NO_CHAR_CHAR,
+								CharOperation.NO_CHAR,
+								CharOperation.NO_CHAR));
+				proposal.setDeclarationPackageName(currentType.qualifiedPackageName());
+				proposal.setDeclarationTypeName(currentType.qualifiedSourceName());
+				//proposal.setParameterPackageNames(null);
+				//proposal.setParameterTypeNames(null);
+				//proposal.setPackageName(null);
+				//proposal.setTypeName(null);
+				proposal.setCompletion(completion);
+				proposal.setFlags(Flags.AccPublic);
+				proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
+				proposal.setRelevance(relevance);
+				this.requestor.accept(proposal);
+				if(DEBUG) {
+					this.printDebug(proposal);
+				}
+			}
 		} else {
 			findConstructors(
 				currentType,
@@ -1115,17 +1205,27 @@ public final class CompletionEngine
 			relevance += computeRelevanceForExpectingType(scope.getJavaLangClass());
 			
 			this.noProposal = false;
-			this.requestor.acceptField(
-				CharOperation.NO_CHAR,
-				CharOperation.NO_CHAR,
-				classField,
-				CharOperation.NO_CHAR,
-				CharOperation.NO_CHAR,
-				classField,
-				IConstants.AccStatic | IConstants.AccPublic,
-				this.startPosition - this.offset,
-				this.endPosition - this.offset,
-				relevance);
+			if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+				CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+				//proposal.setDeclarationSignature(null);
+				proposal.setSignature(
+						createNonGenericTypeSignature(
+								CharOperation.concatWith(JAVA_LANG, '.'),
+								CLASS));
+				//proposal.setDeclarationPackageName(null);
+				//proposal.setDeclarationTypeName(null);
+				proposal.setPackageName(CharOperation.concatWith(JAVA_LANG, '.'));
+				proposal.setTypeName(CLASS);
+				proposal.setName(classField);
+				proposal.setCompletion(classField);
+				proposal.setFlags(Flags.AccStatic | Flags.AccPublic);
+				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setRelevance(relevance);
+				this.requestor.accept(proposal);
+				if(DEBUG) {
+					this.printDebug(proposal);
+				}
+			}
 		}
 	}
 
@@ -1175,20 +1275,27 @@ public final class CompletionEngine
 					relevance += computeRelevanceForCaseMatching(this.completionToken, name);
 					
 					this.noProposal = false;
-					this.requestor.acceptMethod(
-						currentType.qualifiedPackageName(),
-						currentType.qualifiedSourceName(),
-						name,
-						parameterPackageNames,
-						parameterTypeNames,
-						parameterNames,
-						CharOperation.NO_CHAR,
-						CharOperation.NO_CHAR,
-						completion,
-						constructor.modifiers,
-						this.startPosition - this.offset,
-						this.endPosition - this.offset,
-						relevance);
+					if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
+						CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+						proposal.setDeclarationSignature(getSignature(currentType));
+						proposal.setSignature(getSignature(constructor));
+						proposal.setDeclarationPackageName(currentType.qualifiedPackageName());
+						proposal.setDeclarationTypeName(currentType.qualifiedSourceName());
+						proposal.setParameterPackageNames(parameterPackageNames);
+						proposal.setParameterTypeNames(parameterTypeNames);
+						//proposal.setPackageName(null);
+						//proposal.setTypeName(null);
+						proposal.setName(name);
+						proposal.setCompletion(completion);
+						proposal.setFlags(constructor.modifiers);
+						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setRelevance(relevance);
+						if(parameterNames != null) proposal.setParameterNames(parameterNames);
+						this.requestor.accept(proposal);
+						if(DEBUG) {
+							this.printDebug(proposal);
+						}
+					}
 				}
 			}
 		}
@@ -1246,36 +1353,52 @@ public final class CompletionEngine
 						relevance += computeRelevanceForInterestingProposal();
 						
 						this.noProposal = false;
-						this.requestor.acceptAnonymousType(
-							currentType.qualifiedPackageName(),
-							currentType.qualifiedSourceName(),
-							parameterPackageNames,
-							parameterTypeNames,
-							parameterNames,
-							completion,
-							constructor.modifiers,
-							this.endPosition - this.offset,
-							this.endPosition - this.offset,
-							relevance);
+						if(!this.requestor.isIgnored(CompletionProposal.ANONYMOUS_CLASS_DECLARATION)) {
+							CompletionProposal proposal = this.createProposal(CompletionProposal.ANONYMOUS_CLASS_DECLARATION, this.actualCompletionPosition);
+							proposal.setDeclarationSignature(getSignature(currentType));
+							proposal.setSignature(getSignature(constructor));
+							proposal.setDeclarationPackageName(currentType.qualifiedPackageName());
+							proposal.setDeclarationTypeName(currentType.qualifiedSourceName());
+							proposal.setParameterPackageNames(parameterPackageNames);
+							proposal.setParameterTypeNames(parameterTypeNames);
+							//proposal.setPackageName(null);
+							//proposal.setTypeName(null);
+							proposal.setCompletion(completion);
+							proposal.setFlags(constructor.modifiers);
+							proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
+							proposal.setRelevance(relevance);
+							if(parameterNames == null) proposal.setParameterNames(parameterNames);
+							this.requestor.accept(proposal);
+							if(DEBUG) {
+								this.printDebug(proposal);
+							}
+						}
 					} else {
 						int relevance = computeBaseRelevance();
 						relevance += computeRelevanceForInterestingProposal();
 						
 						this.noProposal = false;
-						this.requestor.acceptMethod(
-							currentType.qualifiedPackageName(),
-							currentType.qualifiedSourceName(),
-							currentType.sourceName(),
-							parameterPackageNames,
-							parameterTypeNames,
-							parameterNames,
-							CharOperation.NO_CHAR,
-							CharOperation.NO_CHAR,
-							completion,
-							constructor.modifiers,
-							this.endPosition - this.offset,
-							this.endPosition - this.offset,
-							relevance);
+						if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
+							CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+							proposal.setDeclarationSignature(getSignature(currentType));
+							proposal.setSignature(getSignature(constructor));
+							proposal.setDeclarationPackageName(currentType.qualifiedPackageName());
+							proposal.setDeclarationTypeName(currentType.qualifiedSourceName());
+							proposal.setParameterPackageNames(parameterPackageNames);
+							proposal.setParameterTypeNames(parameterTypeNames);
+							//proposal.setPackageName(null);
+							//proposal.setTypeName(null);
+							proposal.setName(currentType.sourceName());
+							proposal.setCompletion(completion);
+							proposal.setFlags(constructor.modifiers);
+							proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
+							proposal.setRelevance(relevance);
+							if(parameterNames != null) proposal.setParameterNames(parameterNames);
+							this.requestor.accept(proposal);
+							if(DEBUG) {
+								this.printDebug(proposal);
+							}
+						}
 					}
 				}
 			}
@@ -1368,17 +1491,24 @@ public final class CompletionEngine
 			relevance += computeRelevanceForQualification(prefixRequired);
 
 			this.noProposal = false;
-			this.requestor
-				.acceptField(
-					field.declaringClass.qualifiedPackageName(),
-					field.declaringClass.qualifiedSourceName(),
-					field.name,
-					field.type.qualifiedPackageName(),
-					field.type.qualifiedSourceName(),
-					completion,
-			// may include some qualification to resolve ambiguities
-			field.modifiers, this.startPosition - this.offset, this.endPosition - this.offset,
-			relevance);
+			if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+				CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+				proposal.setDeclarationSignature(getSignature(field.declaringClass));
+				proposal.setSignature(getSignature(field.type));
+				proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
+				proposal.setDeclarationTypeName(field.declaringClass.qualifiedSourceName());
+				proposal.setPackageName(field.type.qualifiedPackageName());
+				proposal.setTypeName(field.type.qualifiedSourceName()); 
+				proposal.setName(field.name);
+				proposal.setCompletion(completion);
+				proposal.setFlags(field.modifiers);
+				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setRelevance(relevance);
+				this.requestor.accept(proposal);
+				if(DEBUG) {
+					this.printDebug(proposal);
+				}
+			}
 		}
 		
 		fieldsFound.addAll(newFieldsFound);
@@ -1513,17 +1643,24 @@ public final class CompletionEngine
 				relevance += computeRelevanceForExpectingType(BaseTypes.IntBinding);
 				
 				this.noProposal = false;
-				this.requestor.acceptField(
-					CharOperation.NO_CHAR,
-					CharOperation.NO_CHAR,
-					lengthField,
-					CharOperation.NO_CHAR,
-					CharOperation.NO_CHAR,
-					lengthField,
-					IConstants.AccPublic,
-					this.startPosition - this.offset,
-					this.endPosition - this.offset,
-					relevance);
+				if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+					CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+					//proposal.setDeclarationSignature(null);
+					proposal.setSignature(INT_SIGNATURE);
+					//proposal.setDeclarationPackageName(null);
+					//proposal.setDeclarationTypeName(null);
+					//proposal.setPackageName(null);
+					proposal.setTypeName(INT);
+					proposal.setName(lengthField);
+					proposal.setCompletion(lengthField);
+					proposal.setFlags(Flags.AccPublic);
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setRelevance(relevance);
+					this.requestor.accept(proposal);
+					if(DEBUG) {
+						this.printDebug(proposal);
+					}
+				}
 			}
 			if (token.length <= cloneMethod.length
 				&& CharOperation.prefixEquals(token, cloneMethod, false /* ignore case */
@@ -1546,21 +1683,31 @@ public final class CompletionEngine
 					completion = CharOperation.concat(cloneMethod, new char[] { '(', ')' });
 				}
 				this.noProposal = false;
-				this.requestor.acceptMethod(
-					CharOperation.NO_CHAR,
-					CharOperation.NO_CHAR,
-					cloneMethod,
-					CharOperation.NO_CHAR_CHAR,
-					CharOperation.NO_CHAR_CHAR,
-					CharOperation.NO_CHAR_CHAR,
-					CharOperation.concat(JAVA, LANG, '.'),
-					OBJECT,
-					completion,
-					IConstants.AccPublic,
-					this.startPosition - this.offset,
-					this.endPosition - this.offset,
-					relevance);
-					
+				if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
+					CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+					//proposal.setDeclarationSignature(null);
+					proposal.setSignature(
+							createMethodSignature(
+									CharOperation.NO_CHAR_CHAR,
+									CharOperation.NO_CHAR_CHAR,
+									CharOperation.concatWith(JAVA_LANG, '.'),
+									OBJECT));
+					//proposal.setDeclarationPackageName(null);
+					//proposal.setDeclarationTypeName(null);
+					//proposal.setParameterPackageNames(null);
+					//proposal.setParameterTypeNames(null);
+					proposal.setPackageName(CharOperation.concatWith(JAVA_LANG, '.'));
+					proposal.setTypeName(OBJECT);
+					proposal.setName(cloneMethod);
+					proposal.setCompletion(completion);
+					proposal.setFlags(Flags.AccPublic);
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setRelevance(relevance);
+					this.requestor.accept(proposal);
+					if(DEBUG) {
+						this.printDebug(proposal);
+					}
+				}
 				methodsFound.add(new Object[]{objectRef.getMethods(cloneMethod)[0], objectRef});
 			}
 			
@@ -1632,7 +1779,17 @@ public final class CompletionEngine
 					relevance += computeRelevanceForCaseMatching(keyword, choices[i]);
 					
 					this.noProposal = false;
-					this.requestor.acceptKeyword(choices[i], this.startPosition - this.offset, this.endPosition - this.offset,relevance);
+					if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+						CompletionProposal proposal = this.createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
+						proposal.setName(choices[i]);
+						proposal.setCompletion(choices[i]);
+						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setRelevance(relevance);
+						this.requestor.accept(proposal);
+						if(DEBUG) {
+							this.printDebug(proposal);
+						}
+					}
 				}
 	}
 	
@@ -1788,27 +1945,41 @@ public final class CompletionEngine
 				relevance += computeRelevanceForException(memberType.sourceName);
 				
 				this.noProposal = false;
-				this.requestor.acceptClass(
-					memberType.qualifiedPackageName(),
-					memberType.qualifiedSourceName(),
-					memberType.sourceName(),
-					memberType.modifiers,
-					this.startPosition - this.offset,
-					this.endPosition - this.offset,
-					relevance);
+				if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+					CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+					proposal.setDeclarationSignature(memberType.qualifiedPackageName());
+					proposal.setSignature(getSignature(memberType));
+					proposal.setPackageName(memberType.qualifiedPackageName());
+					proposal.setTypeName(memberType.qualifiedSourceName());
+					proposal.setCompletion(memberType.sourceName());
+					proposal.setFlags(memberType.modifiers);
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setRelevance(relevance);
+					this.requestor.accept(proposal);
+					if(DEBUG) {
+						this.printDebug(proposal);
+					}
+				}
 
 			} else {
 				relevance += computeRelevanceForInterface();
 				
 				this.noProposal = false;
-				this.requestor.acceptInterface(
-					memberType.qualifiedPackageName(),
-					memberType.qualifiedSourceName(),
-					memberType.sourceName(),
-					memberType.modifiers,
-					this.startPosition - this.offset,
-					this.endPosition - this.offset,
-					relevance);
+				if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+					CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+					proposal.setDeclarationSignature(memberType.qualifiedPackageName());
+					proposal.setSignature(getSignature(memberType));
+					proposal.setPackageName(memberType.qualifiedPackageName());
+					proposal.setTypeName(memberType.qualifiedSourceName());
+					proposal.setCompletion(memberType.sourceName());
+					proposal.setFlags(memberType.modifiers | Flags.AccInterface);
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setRelevance(relevance);
+					this.requestor.accept(proposal);
+					if(DEBUG) {
+						this.printDebug(proposal);
+					}
+				}
 			}
 		}
 	}
@@ -2210,20 +2381,27 @@ public final class CompletionEngine
 			relevance += computeRelevanceForQualification(prefixRequired);
 			
 			this.noProposal = false;
-			this.requestor.acceptMethod(
-				method.declaringClass.qualifiedPackageName(),
-				method.declaringClass.qualifiedSourceName(),
-				method.selector,
-				parameterPackageNames,
-				parameterTypeNames,
-				parameterNames,
-				method.returnType.qualifiedPackageName(),
-				method.returnType.qualifiedSourceName(),
-				completion,
-				method.modifiers,
-				this.startPosition - this.offset,
-				this.endPosition - this.offset,
-				relevance);
+			if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
+				CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+				proposal.setDeclarationSignature(getSignature(method.declaringClass));
+				proposal.setSignature(getSignature(method));
+				proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
+				proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
+				proposal.setParameterPackageNames(parameterPackageNames);
+				proposal.setParameterTypeNames(parameterTypeNames);
+				proposal.setPackageName(method.returnType.qualifiedPackageName());
+				proposal.setTypeName(method.returnType.qualifiedSourceName());
+				proposal.setName(method.selector);
+				proposal.setCompletion(completion);
+				proposal.setFlags(method.modifiers);
+				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setRelevance(relevance);
+				if(parameterNames != null) proposal.setParameterNames(parameterNames);
+				this.requestor.accept(proposal);
+				if(DEBUG) {
+					this.printDebug(proposal);
+				}
+			}
 			this.startPosition = previousStartPosition;
 		}
 		
@@ -2484,20 +2662,27 @@ public final class CompletionEngine
 			if(method.isAbstract()) relevance += R_ABSTRACT_METHOD;
 
 			this.noProposal = false;
-			this.requestor.acceptMethodDeclaration(
-				method.declaringClass.qualifiedPackageName(),
-				method.declaringClass.qualifiedSourceName(),
-				method.selector,
-				parameterPackageNames,
-				parameterTypeNames,
-				parameterNames,
-				method.returnType.qualifiedPackageName(),
-				method.returnType.qualifiedSourceName(),
-				completion.toString().toCharArray(),
-				method.modifiers,
-				this.startPosition - this.offset,
-				this.endPosition - this.offset,
-				relevance);
+			if(!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
+				CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_DECLARATION, this.actualCompletionPosition);
+				proposal.setDeclarationSignature(getSignature(method.declaringClass));
+				proposal.setSignature(getSignature(method));
+				proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
+				proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
+				proposal.setParameterPackageNames(parameterPackageNames);
+				proposal.setParameterTypeNames(parameterTypeNames);
+				proposal.setPackageName(method.returnType.qualifiedPackageName());
+				proposal.setTypeName(method.returnType.qualifiedSourceName());
+				proposal.setCompletion(completion.toString().toCharArray());
+				proposal.setName(method.selector);
+				proposal.setFlags(method.modifiers);
+				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setRelevance(relevance);
+				if(parameterNames != null) proposal.setParameterNames(parameterNames);
+				this.requestor.accept(proposal);
+				if(DEBUG) {
+					this.printDebug(proposal);
+				}
+			}
 		}
 		methodsFound.addAll(newMethodsFound);
 	}
@@ -2743,14 +2928,21 @@ public final class CompletionEngine
 								relevance += computeRelevanceForQualification(false);
 								
 								this.noProposal = false;
-								this.requestor.acceptClass(
-									localType.qualifiedPackageName(),
-									localType.sourceName,
-									localType.sourceName,
-									localType.modifiers,
-									this.startPosition - this.offset,
-									this.endPosition - this.offset,
-									relevance);
+								if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+									CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+									proposal.setDeclarationSignature(localType.qualifiedPackageName());
+									proposal.setSignature(getSignature(localType));
+									proposal.setPackageName(localType.qualifiedPackageName());
+									proposal.setTypeName(localType.sourceName);
+									proposal.setCompletion(localType.sourceName);
+									proposal.setFlags(localType.modifiers);
+									proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+									proposal.setRelevance(relevance);
+									this.requestor.accept(proposal);
+									if(DEBUG) {
+										this.printDebug(proposal);
+									}
+								}
 							}
 						}
 					}
@@ -2818,14 +3010,21 @@ public final class CompletionEngine
 					relevance += computeRelevanceForException(typeParameter.name);
 					
 					this.noProposal = false;
-					this.requestor.acceptClass(
-						CharOperation.NO_CHAR,
-						typeParameter.name,
-						typeParameter.name,
-						typeParameter.modifiers,
-						this.startPosition - this.offset, 
-						this.endPosition - this.offset,
-						relevance);
+					if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+						CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+						//proposal.setDeclarationSignature(null);
+						proposal.setSignature(getSignature(typeParameter.binding));
+						//proposal.setPackageName(null);
+						proposal.setTypeName(typeParameter.name);
+						proposal.setCompletion(typeParameter.name);
+						proposal.setFlags(typeParameter.modifiers);
+						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setRelevance(relevance);
+						this.requestor.accept(proposal);
+						if(DEBUG) {
+							this.printDebug(proposal);
+						}
+					}
 				}
 			}
 			scope = scope.parent;
@@ -2866,26 +3065,40 @@ public final class CompletionEngine
 					relevance += computeRelevanceForException(sourceType.sourceName);
 					
 					this.noProposal = false;
-					this.requestor.acceptClass(
-						sourceType.qualifiedPackageName(),
-						sourceType.sourceName(),
-						sourceType.sourceName(),
-						sourceType.modifiers,
-						this.startPosition - this.offset, 
-						this.endPosition - this.offset,
-						relevance);
+					if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+						CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+						proposal.setDeclarationSignature(sourceType.qualifiedPackageName());
+						proposal.setSignature(getSignature(sourceType));
+						proposal.setPackageName(sourceType.qualifiedPackageName());
+						proposal.setTypeName(sourceType.sourceName());
+						proposal.setCompletion(sourceType.sourceName());
+						proposal.setFlags(sourceType.modifiers);
+						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setRelevance(relevance);
+						this.requestor.accept(proposal);
+						if(DEBUG) {
+							this.printDebug(proposal);
+						}
+					}
 				} else {
 					relevance += computeRelevanceForInterface();
 					
 					this.noProposal = false;
-					this.requestor.acceptInterface(
-						sourceType.qualifiedPackageName(),
-						sourceType.sourceName(),
-						sourceType.sourceName(),
-						sourceType.modifiers,
-						this.startPosition - this.offset,
-						this.endPosition - this.offset,
-						relevance);
+					if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+						CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+						proposal.setDeclarationSignature(sourceType.qualifiedPackageName());
+						proposal.setSignature(getSignature(sourceType));
+						proposal.setPackageName(sourceType.qualifiedPackageName());
+						proposal.setTypeName(sourceType.sourceName());
+						proposal.setCompletion(sourceType.sourceName());
+						proposal.setFlags(sourceType.modifiers | Flags.AccInterface);
+						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setRelevance(relevance);
+						this.requestor.accept(proposal);
+						if(DEBUG) {
+							this.printDebug(proposal);
+						}
+					}
 				}
 			}
 		}
@@ -2924,26 +3137,40 @@ public final class CompletionEngine
 								relevance += computeRelevanceForClass();
 								
 								this.noProposal = false;
-								this.requestor.acceptClass(
-									packageName,
-									typeName,
-									completionName,
-									refBinding.modifiers,
-									this.startPosition - this.offset, 
-									this.endPosition - this.offset,
-									relevance);
+								if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+									CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+									proposal.setDeclarationSignature(packageName);
+									proposal.setSignature(getSignature(refBinding));
+									proposal.setPackageName(packageName);
+									proposal.setTypeName(typeName);
+									proposal.setCompletion(completionName);
+									proposal.setFlags(refBinding.modifiers);
+									proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+									proposal.setRelevance(relevance);
+									this.requestor.accept(proposal);
+									if(DEBUG) {
+										this.printDebug(proposal);
+									}
+								}
 							} else if (refBinding.isInterface()) {
 								relevance += computeRelevanceForInterface();
 								
 								this.noProposal = false;
-								this.requestor.acceptInterface(
-									packageName,
-									typeName,
-									completionName,
-									refBinding.modifiers,
-									this.startPosition - this.offset, 
-									this.endPosition - this.offset,
-									relevance);
+								if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+									CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+									proposal.setDeclarationSignature(packageName);
+									proposal.setSignature(getSignature(refBinding));
+									proposal.setPackageName(packageName);
+									proposal.setTypeName(typeName);
+									proposal.setCompletion(completionName);
+									proposal.setFlags(refBinding.modifiers | Flags.AccInterface);
+									proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+									proposal.setRelevance(relevance);
+									this.requestor.accept(proposal);
+									if(DEBUG) {
+										this.printDebug(proposal);
+									}
+								}
 							}
 						}
 					}
@@ -3002,26 +3229,40 @@ public final class CompletionEngine
 					relevance += computeRelevanceForException(sourceType.sourceName);
 					
 					this.noProposal = false;
-					this.requestor.acceptClass(
-						sourceType.qualifiedPackageName(),
-						sourceType.sourceName(),
-						sourceType.sourceName(),
-						sourceType.modifiers,
-						this.startPosition - this.offset, 
-						this.endPosition - this.offset,
-						relevance);
+					if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+						CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+						proposal.setDeclarationSignature(sourceType.qualifiedPackageName());
+						proposal.setSignature(getSignature(sourceType));
+						proposal.setPackageName(sourceType.qualifiedPackageName());
+						proposal.setTypeName(sourceType.sourceName());
+						proposal.setCompletion(sourceType.sourceName());
+						proposal.setFlags(sourceType.modifiers);
+						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setRelevance(relevance);
+						this.requestor.accept(proposal);
+						if(DEBUG) {
+							this.printDebug(proposal);
+						}
+					}
 				} else {
 					relevance += computeRelevanceForInterface();
 					
 					this.noProposal = false;
-					this.requestor.acceptInterface(
-						sourceType.qualifiedPackageName(),
-						sourceType.sourceName(),
-						sourceType.sourceName(),
-						sourceType.modifiers,
-						this.startPosition - this.offset,
-						this.endPosition - this.offset,
-						relevance);
+					if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+						CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+						proposal.setDeclarationSignature(sourceType.qualifiedPackageName());
+						proposal.setSignature(getSignature(sourceType));
+						proposal.setPackageName(sourceType.qualifiedPackageName());
+						proposal.setTypeName(sourceType.sourceName());
+						proposal.setCompletion(sourceType.sourceName());
+						proposal.setFlags(sourceType.modifiers | Flags.AccInterface);
+						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setRelevance(relevance);
+						this.requestor.accept(proposal);
+						if(DEBUG) {
+							this.printDebug(proposal);
+						}
+					}
 				}
 			}
 		}
@@ -3095,18 +3336,31 @@ public final class CompletionEngine
 						relevance += computeRelevanceForQualification(false);
 						
 						this.noProposal = false;
-						this.requestor.acceptLocalVariable(
-							local.name,
-							local.type == null 
-								? CharOperation.NO_CHAR
-								: local.type.qualifiedPackageName(),
-							local.type == null
-								? local.declaration.type.toString().toCharArray()
-								: local.type.qualifiedSourceName(),
-							local.modifiers,
-							this.startPosition - this.offset,
-							this.endPosition - this.offset,
-							relevance);
+						if(!this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
+							CompletionProposal proposal = this.createProposal(CompletionProposal.LOCAL_VARIABLE_REF, this.actualCompletionPosition);
+							proposal.setSignature(
+								local.type == null
+								? createTypeSignature(
+										CharOperation.NO_CHAR,
+										local.declaration.type.toString().toCharArray())
+								: getSignature(local.type));
+							if(local.type == null) {
+								//proposal.setPackageName(null);
+								proposal.setTypeName(local.declaration.type.toString().toCharArray());
+							} else {
+								proposal.setPackageName(local.type.qualifiedPackageName());
+								proposal.setTypeName(local.type.qualifiedSourceName());
+							}
+							proposal.setName(local.name);
+							proposal.setCompletion(local.name);
+							proposal.setFlags(local.modifiers);
+							proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+							proposal.setRelevance(relevance);
+							this.requestor.accept(proposal);
+							if(DEBUG) {
+								this.printDebug(proposal);
+							}
+						}
 					}
 					break;
 
@@ -3175,6 +3429,7 @@ public final class CompletionEngine
 		char[] qualifiedPackageName,
 		char[] qualifiedSourceName,
 		char[] sourceName,
+		final TypeBinding typeBinding,
 		char[][] excludeNames,
 		int dim,
 		int kind,
@@ -3225,14 +3480,21 @@ public final class CompletionEngine
 
 					// accept result
 					CompletionEngine.this.noProposal = false;
-					CompletionEngine.this.requestor.acceptVariableName(
-						q,
-						displayName,
-						name,
-						name,
-						CompletionEngine.this.startPosition - CompletionEngine.this.offset,
-						CompletionEngine.this.endPosition - CompletionEngine.this.offset,
-						relevance);
+					if(!CompletionEngine.this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
+						CompletionProposal proposal = CompletionEngine.this.createProposal(CompletionProposal.VARIABLE_DECLARATION, CompletionEngine.this.actualCompletionPosition);
+						proposal.setSignature(getSignature(typeBinding));
+						proposal.setPackageName(q);
+						proposal.setTypeName(displayName);
+						proposal.setName(name);
+						proposal.setCompletion(name);
+						//proposal.setFlags(Flags.AccDefault);
+						proposal.setReplaceRange(CompletionEngine.this.startPosition - CompletionEngine.this.offset, CompletionEngine.this.endPosition - CompletionEngine.this.offset);
+						proposal.setRelevance(relevance);
+						CompletionEngine.this.requestor.accept(proposal);
+						if(DEBUG) {
+							CompletionEngine.this.printDebug(proposal);
+						}
+					}
 				}
 			}
 		};
@@ -3280,6 +3542,7 @@ public final class CompletionEngine
 				tb.leafComponentType().qualifiedPackageName(),
 				tb.leafComponentType().qualifiedSourceName(),
 				tb.leafComponentType().sourceName(),
+				tb,
 				excludeNames,
 				type.dimensions(),
 				kind,
@@ -3700,20 +3963,33 @@ public final class CompletionEngine
 	}
 	
 	private void proposeNewMethod(char[] token, ReferenceBinding reference) {
+		int relevance = computeBaseRelevance();
+		relevance += computeRelevanceForInterestingProposal();
 		
-		if(this.requestor instanceof IExtendedCompletionRequestor) {
-			IExtendedCompletionRequestor extendedRequestor = (IExtendedCompletionRequestor) this.requestor;
-			
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForInterestingProposal();
-			
-			extendedRequestor.acceptPotentialMethodDeclaration(
-					reference.qualifiedPackageName(),
-					reference.qualifiedSourceName(),
-					token,
-					this.startPosition - this.offset,
-					this.endPosition - this.offset,
-					relevance);
+		CompletionProposal proposal = this.createProposal(CompletionProposal.POTENTIAL_METHOD_DECLARATION, this.actualCompletionPosition);
+		proposal.setDeclarationSignature(getSignature(reference));
+		proposal.setSignature(
+				createMethodSignature(
+						CharOperation.NO_CHAR_CHAR,
+						CharOperation.NO_CHAR_CHAR,
+						CharOperation.NO_CHAR,
+						VOID));
+		proposal.setDeclarationPackageName(reference.qualifiedPackageName());
+		proposal.setDeclarationTypeName(reference.qualifiedSourceName());
+		
+		//proposal.setPackageName(null);
+		proposal.setTypeName(VOID);
+		proposal.setName(token);
+		//proposal.setParameterPackageNames(null);
+		//proposal.setParameterTypeNames(null);
+		//proposal.setPackageName(null);
+		proposal.setCompletion(token);
+		proposal.setFlags(Flags.AccPublic);
+		proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+		proposal.setRelevance(relevance);
+		this.requestor.accept(proposal);
+		if(DEBUG) {
+			this.printDebug(proposal);
 		}
 	}
 	
@@ -3768,5 +4044,147 @@ public final class CompletionEngine
 			}
 		}
 		return true;
+	}
+	
+	public static char[] createNonGenericTypeSignature(char[] qualifiedPackageName, char[] qualifiedTypeName) {
+		return Signature.createCharArrayTypeSignature(
+				CharOperation.concat(
+						qualifiedPackageName,
+						CharOperation.replaceOnCopy(qualifiedTypeName, '.', '$'), '.'), true);
+	}
+	public static char[] createTypeSignature(char[] qualifiedPackageName, char[] qualifiedTypeName) {
+		char[] name = new char[qualifiedTypeName.length];
+		System.arraycopy(qualifiedTypeName, 0, name, 0, qualifiedTypeName.length);
+		
+		int depth = 0;
+		int length = name.length;
+		lastDotLookup: for (int i = length -1; i >= 0; i--) {
+			switch (name[i]) {
+				case '.':
+					if (depth == 0 && name[i - 1] != '>') {
+						name[i] = '$';
+					}
+					break;
+				case '<':
+					depth--;
+					break;
+				case '>':
+					depth++;
+					break;
+			}
+		}
+		return Signature.createCharArrayTypeSignature(
+				CharOperation.concat(
+						qualifiedPackageName,
+						name, '.'), true);
+	}
+	
+	public static char[] createMethodSignature(char[][] parameterPackageNames, char[][] parameterTypeNames, char[] returnPackagename, char[] returnTypeName) {
+		char[][] parameterTypeSignature = new char[parameterTypeNames.length][];
+		for (int i = 0; i < parameterTypeSignature.length; i++) {
+			parameterTypeSignature[i] = 
+				Signature.createCharArrayTypeSignature(
+						CharOperation.concat(
+								parameterPackageNames[i],
+								CharOperation.replaceOnCopy(parameterTypeNames[i], '.', '$'), '.'), true);
+		}
+		
+		char[] returnTypeSignature =
+			returnTypeName == null || returnTypeName.length == 0
+			? Signature.createCharArrayTypeSignature(VOID, true)
+			: Signature.createCharArrayTypeSignature(
+					CharOperation.concat(
+							returnPackagename,
+							CharOperation.replaceOnCopy(returnTypeName, '.', '$'), '.'), true);
+			
+		return Signature.createMethodSignature(
+				parameterTypeSignature,
+				returnTypeSignature);
+	}
+	
+	protected CompletionProposal createProposal(int kind, int compteionOffset) {
+		CompletionProposal proposal = CompletionProposal.create(kind, compteionOffset);
+		proposal.nameLookup = ((SearchableEnvironment)this.nameEnvironment).nameLookup;
+		proposal.completionEngine = this;
+		return proposal;
+	}
+	
+	protected void printDebug(IProblem error) {
+		if(CompletionEngine.DEBUG) {
+			System.out.print("COMPLETION - completionFailure("); //$NON-NLS-1$
+			System.out.print(error);
+			System.out.println(")"); //$NON-NLS-1$
+		}
+	}
+	
+	protected void printDebug(CompletionProposal proposal){
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("COMPLETION - "); //$NON-NLS-1$
+		switch(proposal.getKind()) {
+			case CompletionProposal.ANONYMOUS_CLASS_DECLARATION :
+				buffer.append("ANONYMOUS_CLASS_DECLARATION"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.FIELD_REF :
+				buffer.append("FIELD_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.KEYWORD :
+				buffer.append("KEYWORD"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.LABEL_REF :
+				buffer.append("LABEL_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.LOCAL_VARIABLE_REF :
+				buffer.append("LOCAL_VARIABLE_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.METHOD_DECLARATION :
+				buffer.append("METHOD_DECLARATION"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.METHOD_REF :
+				buffer.append("METHOD_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.PACKAGE_REF :
+				buffer.append("PACKAGE_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.TYPE_REF :
+				buffer.append("TYPE_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.VARIABLE_DECLARATION :
+				buffer.append("VARIABLE_DECLARATION"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.POTENTIAL_METHOD_DECLARATION :
+				buffer.append("POTENTIAL_METHOD_DECLARATION"); //$NON-NLS-1$
+				break;
+			default :
+				buffer.append("PROPOSAL"); //$NON-NLS-1$
+				break;
+				
+		}
+		
+		buffer.append("{\n");//$NON-NLS-1$
+		buffer.append("\tCompletion[").append(proposal.getCompletion() == null ? "null".toCharArray() : proposal.getCompletion()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buffer.append("\tDeclarationSignature[").append(proposal.getDeclarationSignature() == null ? "null".toCharArray() : proposal.getDeclarationSignature()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buffer.append("\tSignature[").append(proposal.getSignature() == null ? "null".toCharArray() : proposal.getSignature()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//		buffer.append("\tDeclarationPackage[").append(proposal.getDeclarationPackageName() == null ? "null".toCharArray() : proposal.getDeclarationPackageName()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//		buffer.append("\tDeclarationType[").append(proposal.getDeclarationTypeName() == null ? "null".toCharArray() : proposal.getDeclarationTypeName()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//		buffer.append("\tPackage[").append(proposal.getPackageName() == null ? "null".toCharArray() : proposal.getPackageName()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//		buffer.append("\tType[").append(proposal.getTypeName() == null ? "null".toCharArray() : proposal.getTypeName()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buffer.append("\tName[").append(proposal.getName() == null ? "null".toCharArray() : proposal.getName()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		
+		buffer.append("\tFlags[");//$NON-NLS-1$
+		int flags = proposal.getFlags();
+		buffer.append(Flags.toString(flags));
+		if((flags & Flags.AccInterface) != 0) buffer.append("interface ");//$NON-NLS-1$
+		if((flags & Flags.AccEnum) != 0) buffer.append("enum ");//$NON-NLS-1$
+		buffer.append("]\n"); //$NON-NLS-1$
+		
+		buffer.append("\tCompletionLocation[").append(proposal.getCompletionLocation()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("\tReplaceStart[").append(proposal.getReplaceStart()).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("-ReplaceEnd[").append(proposal.getReplaceEnd()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("\tTokenStart[").append(proposal.getTokenStart()).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("-TokenEnd[").append(proposal.getTokenEnd()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("\tRelevance[").append(proposal.getRelevance()).append("]\n"); //$NON-NLS-1$ //$NON-NLS-2$
+
+		buffer.append("}\n");//$NON-NLS-1$
+		System.out.println(buffer.toString());
 	}
 }

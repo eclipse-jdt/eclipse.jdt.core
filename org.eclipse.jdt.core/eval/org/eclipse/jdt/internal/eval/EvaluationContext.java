@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.eval;
 
 import java.util.Map;
 
+import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -26,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.core.CompletionRequestorWrapper;
+import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -96,7 +97,7 @@ public GlobalVariable[] allVariables() {
  *  @param options
  *		set of options used to configure the code assist engine.
  */
-public void complete(char[] codeSnippet, int completionPosition, ISearchableNameEnvironment environment, CompletionRequestorWrapper requestor, Map options, IJavaProject project) {
+public void complete(char[] codeSnippet, int completionPosition, SearchableEnvironment environment, CompletionRequestor requestor, Map options, IJavaProject project) {
 	final char[] className = "CodeSnippetCompletion".toCharArray(); //$NON-NLS-1$
 	final CodeSnippetToCuMapper mapper = new CodeSnippetToCuMapper(
 		codeSnippet, 
@@ -124,7 +125,6 @@ public void complete(char[] codeSnippet, int completionPosition, ISearchableName
 		}
 	};
 	CompletionEngine engine = new CompletionEngine(environment, mapper.getCompletionRequestor(requestor), options, project);
-	requestor.completionEngine = engine;
 	engine.complete(sourceUnit, mapper.startPosOffset + completionPosition, 0);
 }
 /**

@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
-import org.eclipse.jdt.core.ICompletionRequestor;
+import org.eclipse.jdt.core.CompletionProposal;
+import org.eclipse.jdt.core.CompletionRequestor;
+import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
@@ -147,70 +150,44 @@ private void buildCUSource() {
  * Returns a completion requestor that wraps the given requestor and shift the results
  * according to the start offset and line number offset of the code snippet in the generated compilation unit. 
  */
-public ICompletionRequestor getCompletionRequestor(final ICompletionRequestor originalRequestor) {
-	return new ICompletionRequestor() {
-		public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance){
-			originalRequestor.acceptAnonymousType(superTypePackageName, superTypeName, parameterPackageNames, parameterTypeNames, parameterNames, completionName, modifiers, completionStart - CodeSnippetToCuMapper.this.startPosOffset, completionEnd - CodeSnippetToCuMapper.this.startPosOffset, relevance);
+public CompletionRequestor getCompletionRequestor(final CompletionRequestor originalRequestor) {
+	return new CompletionRequestor() {
+		public void accept(CompletionProposal proposal) {
+			switch(proposal.getKind()) {
+				case CompletionProposal.TYPE_REF:
+					int flags = proposal.getFlags();
+					if((flags & Flags.AccEnum) == 0 &&
+							(flags & Flags.AccInterface) == 0) {
+						// Remove completion on generated class name or generated global variable class name
+						char[] packageName = proposal.getDeclarationSignature();
+						char[] className = Signature.getSignatureSimpleName(proposal.getSignature());
+						if (CharOperation.equals(packageName, CodeSnippetToCuMapper.this.snippetPackageName) 
+								&& (CharOperation.equals(className, CodeSnippetToCuMapper.this.snippetClassName)
+									|| CharOperation.equals(className, CodeSnippetToCuMapper.this.snippetVarClassName))) return;
+					}
+					break;
+				case CompletionProposal.METHOD_REF:
+				case CompletionProposal.METHOD_DECLARATION:
+					// Remove completion on generated method
+					char[] declaringTypePackageName = Signature.getSignatureSimpleName(proposal.getDeclarationSignature());
+					char[] declaringTypeName = Signature.getSignatureSimpleName(proposal.getDeclarationSignature());
+					char[] selector = proposal.getName();
+					if (CharOperation.equals(declaringTypePackageName, CodeSnippetToCuMapper.this.snippetPackageName) 
+							&& CharOperation.equals(declaringTypeName, CodeSnippetToCuMapper.this.snippetClassName)
+							&& CharOperation.equals(selector, "run".toCharArray())) return; //$NON-NLS-1$
+					break;
+			}
+			proposal.setReplaceRange(
+					proposal.getReplaceStart() - CodeSnippetToCuMapper.this.startPosOffset,
+					proposal.getReplaceEnd() - CodeSnippetToCuMapper.this.startPosOffset);
+			originalRequestor.accept(proposal);
 		}
 		
-		public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
-			// Remove completion on generated class name or generated global variable class name
-			if (CharOperation.equals(packageName, CodeSnippetToCuMapper.this.snippetPackageName) 
-					&& (CharOperation.equals(className, CodeSnippetToCuMapper.this.snippetClassName)
-						|| CharOperation.equals(className, CodeSnippetToCuMapper.this.snippetVarClassName))) return;
-			originalRequestor.acceptClass(packageName, className, completionName, modifiers, completionStart - CodeSnippetToCuMapper.this.startPosOffset, completionEnd - CodeSnippetToCuMapper.this.startPosOffset, relevance);
-		}
-		public void acceptError(IProblem error) {
-
-			error.setSourceStart(error.getSourceStart() - CodeSnippetToCuMapper.this.startPosOffset);
-			error.setSourceEnd(error.getSourceEnd() - CodeSnippetToCuMapper.this.startPosOffset);
-			error.setSourceLineNumber(error.getSourceLineNumber() -  CodeSnippetToCuMapper.this.lineNumberOffset);
-			originalRequestor.acceptError(error);
-		}
-		public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] name, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
-			originalRequestor.acceptField(declaringTypePackageName, declaringTypeName, name, typePackageName, typeName, completionName, modifiers, completionStart - CodeSnippetToCuMapper.this.startPosOffset, completionEnd - CodeSnippetToCuMapper.this.startPosOffset, relevance);
-		}
-		public void acceptInterface(char[] packageName, char[] interfaceName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
-			originalRequestor.acceptInterface(packageName, interfaceName, completionName, modifiers, completionStart - CodeSnippetToCuMapper.this.startPosOffset, completionEnd - CodeSnippetToCuMapper.this.startPosOffset, relevance);
-		}
-		public void acceptKeyword(char[] keywordName, int completionStart, int completionEnd, int relevance) {
-			originalRequestor.acceptKeyword(keywordName, completionStart - CodeSnippetToCuMapper.this.startPosOffset, completionEnd - CodeSnippetToCuMapper.this.startPosOffset, relevance);
-		}
-		public void acceptLabel(char[] labelName, int completionStart, int completionEnd, int relevance) {
-			originalRequestor.acceptLabel(labelName, completionStart - CodeSnippetToCuMapper.this.startPosOffset, completionEnd - CodeSnippetToCuMapper.this.startPosOffset, relevance);
-		}
-		public void acceptLocalVariable(char[] name, char[] typePackageName, char[] typeName, int modifiers, int completionStart, int completionEnd, int relevance) {
-			originalRequestor.acceptLocalVariable(name, typePackageName, typeName, modifiers, completionStart - CodeSnippetToCuMapper.this.startPosOffset, completionEnd - CodeSnippetToCuMapper.this.startPosOffset, relevance);
-		}
-		public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, char[] returnTypePackageName, char[] returnTypeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
-			// Remove completion on generated method
-			if (CharOperation.equals(declaringTypePackageName, CodeSnippetToCuMapper.this.snippetPackageName) 
-					&& CharOperation.equals(declaringTypeName, CodeSnippetToCuMapper.this.snippetClassName)
-					&& CharOperation.equals(selector, "run".toCharArray())) return; //$NON-NLS-1$
-			originalRequestor.acceptMethod(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, parameterNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart - CodeSnippetToCuMapper.this.startPosOffset, completionEnd - CodeSnippetToCuMapper.this.startPosOffset, relevance);
-		}
-		public void acceptMethodDeclaration(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, char[] returnTypePackageName, char[] returnTypeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
-			// Remove completion on generated method
-			if (CharOperation.equals(declaringTypePackageName, CodeSnippetToCuMapper.this.snippetPackageName) 
-					&& CharOperation.equals(declaringTypeName, CodeSnippetToCuMapper.this.snippetClassName)
-					&& CharOperation.equals(selector, "run".toCharArray())) return;//$NON-NLS-1$
-			originalRequestor.acceptMethodDeclaration(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, parameterNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart - CodeSnippetToCuMapper.this.startPosOffset, completionEnd - CodeSnippetToCuMapper.this.startPosOffset, relevance);
-		}
-		public void acceptModifier(char[] modifierName, int completionStart, int completionEnd, int relevance) {
-			originalRequestor.acceptModifier(modifierName, completionStart - CodeSnippetToCuMapper.this.startPosOffset, completionEnd - CodeSnippetToCuMapper.this.startPosOffset, relevance);
-		}
-		public void acceptPackage(char[] packageName, char[] completionName, int completionStart, int completionEnd, int relevance) {
-			originalRequestor.acceptPackage(packageName, completionName, completionStart - CodeSnippetToCuMapper.this.startPosOffset, completionEnd - CodeSnippetToCuMapper.this.startPosOffset, relevance);
-		}
-		public void acceptType(char[] packageName, char[] typeName, char[] completionName, int completionStart, int completionEnd, int relevance) {
-			// Remove completion on generated class name or generated global variable class name
-			if (CharOperation.equals(packageName, CodeSnippetToCuMapper.this.snippetPackageName) 
-					&& (CharOperation.equals( CodeSnippetToCuMapper.this.snippetClassName, CodeSnippetToCuMapper.this.snippetClassName)
-						|| CharOperation.equals( CodeSnippetToCuMapper.this.snippetClassName, CodeSnippetToCuMapper.this.snippetVarClassName))) return;
-			originalRequestor.acceptType(packageName, typeName, completionName, completionStart - CodeSnippetToCuMapper.this.startPosOffset, completionEnd - CodeSnippetToCuMapper.this.startPosOffset, relevance);
-		}
-		public void acceptVariableName(char[] typePackageName, char[] typeName, char[] name, char[] completionName, int completionStart, int completionEnd, int relevance){
-			originalRequestor.acceptVariableName(typePackageName, typeName, name, completionName, completionStart, completionEnd, relevance);
+		public void completionFailure(IProblem problem) {
+			problem.setSourceStart(problem.getSourceStart() - CodeSnippetToCuMapper.this.startPosOffset);
+			problem.setSourceEnd(problem.getSourceEnd() - CodeSnippetToCuMapper.this.startPosOffset);
+			problem.setSourceLineNumber(problem.getSourceLineNumber() -  CodeSnippetToCuMapper.this.lineNumberOffset);
+			originalRequestor.completionFailure(problem);
 		}
 	};
 }

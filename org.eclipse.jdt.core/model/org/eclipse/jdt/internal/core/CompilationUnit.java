@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.internal.codeassist.CompletionRequestorWrapper;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
@@ -195,7 +196,10 @@ public void codeComplete(int offset, ICompletionRequestor requestor) throws Java
  * @see ICodeAssist#codeComplete(int, ICompletionRequestor, WorkingCopyOwner)
  */
 public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner workingCopyOwner) throws JavaModelException {
-	codeComplete(this, isWorkingCopy() ? (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) getOriginalElement() : this, offset, requestor, workingCopyOwner);
+	if (requestor == null) {
+		throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
+	}
+	codeComplete(offset, new CompletionRequestorWrapper(requestor), workingCopyOwner);
 }
 /**
  * @see ICodeAssist#codeComplete(int, ICodeCompletionRequestor)
@@ -273,16 +277,14 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
  * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor)
  */
 public void codeComplete(int offset, CompletionRequestor requestor) throws JavaModelException {
-	// TODO (jerome) - Missing implementation
-	throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
+	codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY);
 }
 
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner)
  */
-public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner wcowner) throws JavaModelException {
-	// TODO (jerome) - Missing implementation
-	throw new RuntimeException("Not implemented yet");  //$NON-NLS-1$
+public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner workingCopyOwner) throws JavaModelException {
+	codeComplete(this, isWorkingCopy() ? (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) getOriginalElement() : this, offset, requestor, workingCopyOwner);
 }
 
 /**

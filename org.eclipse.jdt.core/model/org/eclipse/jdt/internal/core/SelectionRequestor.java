@@ -184,7 +184,7 @@ public void acceptLocalMethod(SourceTypeBinding typeBinding, char[] selector, ch
 				
 				parameterPackageNames[0] = declaringDeclaringType.getPackageFragment().getElementName().toCharArray();
 				parameterTypeNames[0] = declaringDeclaringType.getTypeQualifiedName().toCharArray();
-				parameterSignatures[0] = Engine.getSignature(typeBinding.enclosingType());
+				parameterSignatures[0] = new String(Engine.getSignature(typeBinding.enclosingType()));
 			}
 			
 			acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames, parameterSignatures);
