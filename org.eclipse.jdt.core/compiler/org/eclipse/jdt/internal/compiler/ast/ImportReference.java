@@ -37,7 +37,8 @@ public char[][] getImportName() {
 }
 public String toString(int tab ){
 
-	return toString(tab,true);}
+	return toString(tab,true);
+}
 public String toString(int tab, boolean withOnDemand) {
 	/* when withOnDemand is false, only the name is printed */
 	StringBuffer buffer = new StringBuffer();
