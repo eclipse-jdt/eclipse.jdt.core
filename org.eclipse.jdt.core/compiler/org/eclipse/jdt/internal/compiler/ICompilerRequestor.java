@@ -9,6 +9,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
  * A callback interface for receiving compilation results.
  */
 public interface ICompilerRequestor {
+	
 	/**
 	 * Accept a compilation result.
 	 */
