@@ -1043,6 +1043,9 @@ public final class CompletionEngine
 					if (otherField.declaringClass.isInterface())
 						if (field.declaringClass.implementsInterface(otherField.declaringClass, true))
 							continue next;
+					if (field.declaringClass.isInterface())
+						if (otherField.declaringClass.implementsInterface(field.declaringClass, true))
+							continue next;
 					prefixRequired = true;
 				}
 			}
@@ -1330,9 +1333,13 @@ public final class CompletionEngine
 						continue next;
 
 					if (otherType.enclosingType().isInterface())
-
 						if (memberType.enclosingType()
 							.implementsInterface(otherType.enclosingType(), true))
+							continue next;
+
+					if (memberType.enclosingType().isInterface())
+						if (otherType.enclosingType()
+							.implementsInterface(memberType.enclosingType(), true))
 							continue next;
 				}
 			}
