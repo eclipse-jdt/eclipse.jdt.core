@@ -222,15 +222,14 @@ private MethodBinding createMethod(IBinaryMethod method) {
 }
 private void createMethods(IBinaryMethod[] iMethods) {
 	int total = 0;
-	int clinitIndex = -1;
 	if (iMethods != null) {
 		total = iMethods.length;
 		for (int i = total; --i >= 0;) {
-			char[] methodName = iMethods[i].getSelector();
-			if (methodName[0] == '<' && methodName.length == 8) { // Can only match <clinit>
+			IBinaryMethod method;
+			char[] methodName = (method = iMethods[i]).getSelector();
+			if ((methodName[0] == '<' && methodName.length == 8)
+					|| (method.getModifiers() & AccSynthetic) != 0) { // Can only match <clinit> or synthetics
 				total--;
-				clinitIndex = i;
-				break;
 			}
 		}
 	}
@@ -241,9 +240,14 @@ private void createMethods(IBinaryMethod[] iMethods) {
 
 	this.methods = new MethodBinding[total];
 	int next = 0;
-	for (int i = 0, length = iMethods.length; i < length; i++)
-		if (i != clinitIndex)
-			this.methods[next++] = createMethod(iMethods[i]);
+	for (int i = 0, length = iMethods.length; i < length; i++){
+			IBinaryMethod method;
+			char[] methodName = (method = iMethods[i]).getSelector();
+			if (!((methodName[0] == '<' && methodName.length == 8)
+					|| (method.getModifiers() & AccSynthetic) != 0)) { // Can only match <clinit> or synthetics
+				this.methods[next++] = createMethod(iMethods[i]);
+			}
+	}
 	modifiers |= AccUnresolved; // until methods() is sent
 }
 /* Answer the receiver's enclosing type... null if the receiver is a top level type.
