@@ -92,18 +92,25 @@ public class AssertStatement extends Statement {
 			Label assertionActivationLabel = new Label(codeStream);
 			codeStream.getstatic(this.assertionSyntheticFieldBinding);
 			codeStream.ifne(assertionActivationLabel);
-			Label falseLabel = new Label(codeStream);
-			assertExpression.generateOptimizedBoolean(currentScope, codeStream, (falseLabel = new Label(codeStream)), null , true);
-			codeStream.newJavaLangAssertionError();
-			codeStream.dup();
-			if (exceptionArgument != null) {
-				exceptionArgument.generateCode(currentScope, codeStream, true);
-				codeStream.invokeJavaLangAssertionErrorConstructor(exceptionArgument.implicitConversion & 0xF);
+			
+			Constant cst = this.assertExpression.optimizedBooleanConstant();		
+			boolean isOptimizedTrueAssertion = cst != NotAConstant && cst.booleanValue() == true;
+			if (isOptimizedTrueAssertion) {
+				this.assertExpression.generateCode(currentScope, codeStream, false);
 			} else {
-				codeStream.invokeJavaLangAssertionErrorDefaultConstructor();
-			}
-			codeStream.athrow();
-			falseLabel.place();
+				Label falseLabel = new Label(codeStream);
+				this.assertExpression.generateOptimizedBoolean(currentScope, codeStream, (falseLabel = new Label(codeStream)), null , true);
+				codeStream.newJavaLangAssertionError();
+				codeStream.dup();
+				if (exceptionArgument != null) {
+					exceptionArgument.generateCode(currentScope, codeStream, true);
+					codeStream.invokeJavaLangAssertionErrorConstructor(exceptionArgument.implicitConversion & 0xF);
+				} else {
+					codeStream.invokeJavaLangAssertionErrorDefaultConstructor();
+				}
+				codeStream.athrow();
+				falseLabel.place();
+			}			
 			assertionActivationLabel.place();
 		}
 		
