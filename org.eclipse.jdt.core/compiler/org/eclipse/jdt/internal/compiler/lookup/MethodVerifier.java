@@ -41,7 +41,7 @@ Binding creation is responsible for reporting all problems with types:
 		- defining an interface as a local type (local types can only be classes)
 */
 public MethodVerifier(LookupEnvironment environment) {
-	this.type = null;		// Initialized with the public method verify(SourceTypeBinding)
+	this.type = null;  // Initialized with the public method verify(SourceTypeBinding)
 	this.inheritedMethods = null;
 	this.currentMethods = null;
 	this.runtimeException = null;
@@ -53,7 +53,7 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 		MethodBinding inheritedMethod = methods[i];
 		if (currentMethod.returnType != inheritedMethod.returnType) {
 			this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
-		} else if (currentMethod.isStatic() != inheritedMethod.isStatic())	 {	// Cannot override a static method or hide an instance method
+		} else if (currentMethod.isStatic() != inheritedMethod.isStatic()) {  // Cannot override a static method or hide an instance method
 			this.problemReporter(currentMethod).staticAndInstanceConflict(currentMethod, inheritedMethod);
 		} else {
 			if (currentMethod.thrownExceptions != NoExceptions)
@@ -62,10 +62,9 @@ private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBin
 				this.problemReporter(currentMethod).finalMethodCannotBeOverridden(currentMethod, inheritedMethod);
 			if (!this.isAsVisible(currentMethod, inheritedMethod))
 				this.problemReporter(currentMethod).visibilityConflict(currentMethod, inheritedMethod);
-			if (inheritedMethod.isViewedAsDeprecated()) {
+			if (inheritedMethod.isViewedAsDeprecated())
 				if (!currentMethod.isViewedAsDeprecated() || environment.options.reportDeprecationInsideDeprecatedCode)
 					this.problemReporter(currentMethod).overridesDeprecatedMethod(currentMethod, inheritedMethod);
-			}
 		}
 	}
 }
@@ -75,7 +74,6 @@ Verify that newExceptions are all included in inheritedExceptions.
 Assumes all exceptions are valid and throwable.
 Unchecked exceptions (compatible with runtime & error) are ignored (see the spec on pg. 203).
 */
-
 private void checkExceptions(MethodBinding newMethod, MethodBinding inheritedMethod) {
 	ReferenceBinding[] newExceptions = newMethod.thrownExceptions;
 	ReferenceBinding[] inheritedExceptions = inheritedMethod.thrownExceptions;
@@ -91,33 +89,33 @@ private void checkExceptions(MethodBinding newMethod, MethodBinding inheritedMet
 private void checkInheritedMethods(MethodBinding[] methods, int length) {
 	TypeBinding returnType = methods[0].returnType;
 	int index = length;
-	while ((--index > 0) && (returnType == methods[index].returnType));
-	if (index > 0) {		// All inherited methods do NOT have the same vmSignature
+	while (--index > 0 && returnType == methods[index].returnType);
+	if (index > 0) {  // All inherited methods do NOT have the same vmSignature
 		this.problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
 		return;
 	}
 
 	MethodBinding concreteMethod = null;
-	if (!type.isInterface()){ // ignore concrete methods for interfaces
-		for (int i = length; --i >= 0;)		// Remember that only one of the methods can be non-abstract
+	if (!type.isInterface()) {  // ignore concrete methods for interfaces
+		for (int i = length; --i >= 0;) {  // Remember that only one of the methods can be non-abstract
 			if (!methods[i].isAbstract()) {
 				concreteMethod = methods[i];
 				break;
 			}
+		}
 	}
 	if (concreteMethod == null) {
 		if (this.type.isClass() && !this.type.isAbstract()) {
 			for (int i = length; --i >= 0;)
-				if (!mustImplementAbstractMethod(methods[i]))
-					return;		// in this case, we have already reported problem against the concrete superclass
+				if (!mustImplementAbstractMethod(methods[i])) return;  // have already reported problem against the concrete superclass
 
-				TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
-				if (typeDeclaration != null) {
-					MethodDeclaration missingAbstractMethod = typeDeclaration.addMissingAbstractMethodFor(methods[0]);
-					missingAbstractMethod.scope.problemReporter().abstractMethodMustBeImplemented(this.type, methods[0]);
-				} else {
-					this.problemReporter().abstractMethodMustBeImplemented(this.type, methods[0]);
-				}
+			TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
+			if (typeDeclaration != null) {
+				MethodDeclaration missingAbstractMethod = typeDeclaration.addMissingAbstractMethodFor(methods[0]);
+				missingAbstractMethod.scope.problemReporter().abstractMethodMustBeImplemented(this.type, methods[0]);
+			} else {
+				this.problemReporter().abstractMethodMustBeImplemented(this.type, methods[0]);
+			}
 		}
 		return;
 	}
@@ -157,7 +155,6 @@ For each inherited method identifier (message pattern - vm signature minus the r
 				else
 					complain about missing implementation only if type is NOT an interface or abstract
 */
-
 private void checkMethods() {
 	boolean mustImplementAbstractMethods = this.type.isClass() && !this.type.isAbstract();
 	char[][] methodSelectors = this.inheritedMethods.keyTable;
@@ -195,17 +192,16 @@ private void checkMethods() {
 				}
 				if (index > 0) {
 					this.checkInheritedMethods(matchingInherited, index + 1); // pass in the length of matching
-				} else {
-					if (mustImplementAbstractMethods && index == 0 && matchingInherited[0].isAbstract())
-						if (mustImplementAbstractMethod(matchingInherited[0])) {
-							TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
-							if (typeDeclaration != null) {
-								MethodDeclaration missingAbstractMethod = typeDeclaration.addMissingAbstractMethodFor(matchingInherited[0]);
-								missingAbstractMethod.scope.problemReporter().abstractMethodMustBeImplemented(this.type, matchingInherited[0]);
-							} else {
-								this.problemReporter().abstractMethodMustBeImplemented(this.type, matchingInherited[0]);
-							}
+				} else if (mustImplementAbstractMethods && index == 0 && matchingInherited[0].isAbstract()) {
+					if (mustImplementAbstractMethod(matchingInherited[0])) {
+						TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
+						if (typeDeclaration != null) {
+							MethodDeclaration missingAbstractMethod = typeDeclaration.addMissingAbstractMethodFor(matchingInherited[0]);
+							missingAbstractMethod.scope.problemReporter().abstractMethodMustBeImplemented(this.type, matchingInherited[0]);
+						} else {
+							this.problemReporter().abstractMethodMustBeImplemented(this.type, matchingInherited[0]);
 						}
+					}
 				}
 			}
 		}
