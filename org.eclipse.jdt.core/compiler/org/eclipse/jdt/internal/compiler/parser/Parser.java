@@ -618,7 +618,7 @@ protected static short check(int i) {
 /*
  * Reconsider the entire source looking for inconsistencies in {} () []
  */
-public boolean checkAndReportBracketAnomalies(ProblemReporter problemReporter) {
+public boolean checkAndReportBracketAnomalies() {
 
 	scanner.wasAcr = false;
 	boolean anomaliesDetected = false;	
@@ -909,7 +909,7 @@ public boolean checkAndReportBracketAnomalies(ProblemReporter problemReporter) {
 					}
 				}
 				if (end < 0) { // did not find a good closing match
-					problemReporter.unmatchedBracket(start, referenceContext, compilationUnit.compilationResult);
+					problemReporter().unmatchedBracket(start, referenceContext, compilationUnit.compilationResult);
 					return true;
 				}
 				// check if even number of opening/closing other brackets in between this pair of brackets
@@ -926,7 +926,7 @@ public boolean checkAndReportBracketAnomalies(ProblemReporter problemReporter) {
 							balance--;
 					}
 					if (balance != 0) {
-						problemReporter.unmatchedBracket(start, referenceContext, compilationUnit.compilationResult); //bracket anomaly
+						problemReporter().unmatchedBracket(start, referenceContext, compilationUnit.compilationResult); //bracket anomaly
 						return true;
 					}
 				}
@@ -934,12 +934,12 @@ public boolean checkAndReportBracketAnomalies(ProblemReporter problemReporter) {
 			// too many opening brackets ?
 			for (int i = rightCount[kind]; i < leftCount[kind]; i++) {
 				anomaliesDetected = true;
-				problemReporter.unmatchedBracket(leftPositions[kind][leftCount[kind] - i - 1], referenceContext, compilationUnit.compilationResult);
+				problemReporter().unmatchedBracket(leftPositions[kind][leftCount[kind] - i - 1], referenceContext, compilationUnit.compilationResult);
 			}
 			// too many closing brackets ?
 			for (int i = leftCount[kind]; i < rightCount[kind]; i++) {
 				anomaliesDetected = true;
-				problemReporter.unmatchedBracket(rightPositions[kind][i], referenceContext, compilationUnit.compilationResult);
+				problemReporter().unmatchedBracket(rightPositions[kind][i], referenceContext, compilationUnit.compilationResult);
 			}
 			if (anomaliesDetected) return true;
 		}
@@ -7404,7 +7404,7 @@ protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
 
 	//if the pb is an EOF, try to tell the user that they are some 
 	if (tokenName.equals(UNEXPECTED_EOF)) {
-		if (!this.checkAndReportBracketAnomalies(problemReporter())) {
+		if (!this.checkAndReportBracketAnomalies()) {
 			char[] tokenSource;
 			try {
 				tokenSource = this.scanner.getCurrentTokenSource();
@@ -7463,7 +7463,7 @@ protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
 							tokenSource, 
 							tokenName, 
 							expectings); 
-						this.checkAndReportBracketAnomalies(problemReporter());
+						this.checkAndReportBracketAnomalies();
 				}
 		} else {
 			char[] tokenSource;
@@ -7478,7 +7478,7 @@ protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
 				tokenSource, 
 				tokenName, 
 				expectings); 
-			this.checkAndReportBracketAnomalies(problemReporter());
+			this.checkAndReportBracketAnomalies();
 		}
 	}
 	/* reset scanner where it was */
