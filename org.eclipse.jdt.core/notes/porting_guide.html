@@ -7,7 +7,7 @@
 <body>
 
 <h1>JDT Core 3.0 Porting Guide</h1>
-<p>Last modified 13:30 CET November 27, 2003</p>
+<p>Last modified 13:40 CET November 27, 2003</p>
 <h4>Interface IWorkingCopy (package org.eclipse.jdt.core; plug-in org.eclipse.jdt.core)</h4>
 <ul>
   <li>Historically, IWorkingCopy gathered all working copy concerns, and ICompilationUnit implement this interface, 
@@ -15,7 +15,19 @@
         do nothing relevant to clients. IWorkingCopy also implements the spec'ed factory method, but it doesn't work for these.</li>
    <li>Interface IWorkingCopy is removed and all its functionality is moved to ICompilationUnit.</li>
    <li>Clients using IWorkingCopy and ICompilationUnit can adapt to this change by referencing ICompilationUnit instead of 
-         IWorkingCopy when a working copy is needed.</li>
+         IWorkingCopy when a working copy is needed. For example:
+         <pre>
+         ICompilationUnit compilationUnit = ...;
+         IWorkingCopy workingCopy = (IWorkingCopy)compilationUnit.getWorkingCopy();
+         workingCopy.reconcile(true/*force problem detection*/, null/*no progress monitor*/);
+         </pre>
+         should now be:
+         <pre>
+         ICompilationUnit compilationUnit = ...;
+         ICompilationUnit workingCopy = compilationUnit.getWorkingCopy(null/*no progress monitor*/);
+         workingCopy.reconcile(true/*force problem detection*/, null/*no progress monitor*/);
+         </pre>
+         </li>
 </ul>
 
 </body>
