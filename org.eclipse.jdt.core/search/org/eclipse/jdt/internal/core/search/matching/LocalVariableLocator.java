@@ -52,6 +52,10 @@ public class LocalVariableLocator extends VariableLocator {
 			int sourceStart = (int) (sourcePosition >>> 32);
 			int sourceEnd = (int) sourcePosition;
 			locator.report(sourceStart, sourceEnd, element, accuracy);
+		} else if (reference instanceof LocalDeclaration) {
+			LocalVariablePattern localVarPattern = (LocalVariablePattern) this.pattern;
+			LocalVariable localVariable = (LocalVariable) localVarPattern.localVariable;
+			locator.report(localVariable.nameStart, localVariable.nameEnd, localVariable, accuracy);
 		}
 	}
 

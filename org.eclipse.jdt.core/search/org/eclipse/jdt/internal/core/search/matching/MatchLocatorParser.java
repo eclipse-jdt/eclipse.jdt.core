@@ -53,10 +53,6 @@ public class MethodButNoClassDeclarationVisitor extends NoClassNoMethodDeclarati
 		patternLocator.match(anonymousTypeDeclaration, nodeSet);
 		return true; 
 	}
-	public boolean visit(LocalDeclaration localDeclaration, BlockScope scope) {
-		patternLocator.match(localDeclaration, nodeSet);
-		return true;
-	}
 	public boolean visit(LocalTypeDeclaration localTypeDeclaration, BlockScope scope) {
 		patternLocator.match(localTypeDeclaration, nodeSet);
 		return true;
@@ -126,6 +122,12 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 
 	// this is always a Reference
 	this.patternLocator.match((Reference) this.expressionStack[this.expressionPtr], this.nodeSet);
+}
+protected void consumeLocalVariableDeclaration() {
+	super.consumeLocalVariableDeclaration();
+
+	// this is always a LocalDeclaration
+	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
 }
 protected void consumeMethodInvocationName() {
 	super.consumeMethodInvocationName();

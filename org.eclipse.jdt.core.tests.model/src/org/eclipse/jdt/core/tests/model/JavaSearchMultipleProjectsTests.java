@@ -93,7 +93,7 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 		assertEquals(
 			"Unexpected occurences of fiel p1.X.BAR",
 			"p1/X.java [in P1] p1.X.BAR [BAR]\n" +
-			"p2/Y.java [in P2] p2.Y.bar() -> int [BAR]", 
+			"p2/Y.java [in P2] int p2.Y.bar() [BAR]", 
 			resultCollector.toString());
 	} finally {
 		if (wc1 != null) {
@@ -147,7 +147,7 @@ public void testHierarchyScope1() throws CoreException {
 			scope, 
 			resultCollector);
 		assertEquals(
-			"p/X.java [in P1] p.X.bar() -> void [foo()]", 
+			"p/X.java [in P1] void p.X.bar() [foo()]", 
 			resultCollector.toString());
 	} finally {
 		deleteProject("P1");
@@ -203,7 +203,7 @@ public void testHierarchyScope2() throws CoreException {
 			scope, 
 			resultCollector);
 		assertEquals(
-			"p/X.java [in P1] p.X.bar() -> void [foo()]", 
+			"p/X.java [in P1] void p.X.bar() [foo()]", 
 			resultCollector.toString());
 	} finally {
 		deleteProject("P1");
@@ -252,7 +252,7 @@ public void testHierarchyScope3() throws CoreException {
 			scope, 
 			resultCollector);
 		assertEquals(
-			"q/Y.java [in P2] q.Y.bar() -> void [foo()]", 
+			"q/Y.java [in P2] void q.Y.bar() [foo()]", 
 			resultCollector.toString());
 	} finally {
 		deleteProject("P1");
@@ -331,7 +331,7 @@ public void testHierarchyScope4() throws CoreException {
 			scope, 
 			resultCollector);
 		assertEquals(
-			"p2/Y.java [in P2] p2.Y.bar() -> void [foo()] EXACT_MATCH", 
+			"p2/Y.java [in P2] void p2.Y.bar() [foo()] EXACT_MATCH", 
 			resultCollector.toString());
 	} finally {
 		deleteProjects(new String[] {"P0", "P1", "P2", "P3"});
@@ -378,8 +378,8 @@ public void testMethodOccurences() throws CoreException {
 			resultCollector);
 		assertEquals(
 			"Unexpected occurences of method p.I.method(Object)",
-			"p/C.java [in P1] p.C.method(Object) -> void [method]\n" +
-			"p/I.java [in P1] p.I.method(Object) -> void [method]", 
+			"p/C.java [in P1] void p.C.method(Object) [method]\n" +
+			"p/I.java [in P1] void p.I.method(Object) [method]", 
 			resultCollector.toString());
 	} finally {
 		deleteProject("P1");
