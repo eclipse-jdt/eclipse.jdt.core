@@ -79,7 +79,7 @@ public class Main implements ProblemSeverities {
 
 	private boolean proceed = true;
 
-	protected Main(PrintWriter writer, boolean systemExitWhenFinished) {
+	public Main(PrintWriter writer, boolean systemExitWhenFinished) {
 
 		this.out = writer;
 		this.systemExitWhenFinished = systemExitWhenFinished;
@@ -138,7 +138,7 @@ public class Main implements ProblemSeverities {
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
-	protected void compile(String[] argv) {
+	public boolean compile(String[] argv) {
 
 		// decode command line arguments
 		try {
@@ -250,22 +250,27 @@ public class Main implements ProblemSeverities {
 				out.close();
 			}
 		}
+		if (globalErrorsCount == 0){
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/*
 	 * Internal IDE API
 	 */
-	public static void compile(String commandLine) {
+	public static boolean compile(String commandLine) {
 
-		compile(commandLine, new PrintWriter(System.out));
+		return compile(commandLine, new PrintWriter(System.out));
 	}
 
 	/*
 	 * Internal IDE API for test harness purpose
 	 */
-	public static void compile(String commandLine, PrintWriter writer) {
+	public static boolean compile(String commandLine, PrintWriter writer) {
 
-		new Main(writer, false).compile(tokenize(commandLine));
+		return new Main(writer, false).compile(tokenize(commandLine));
 	}
 
 	public static String[] tokenize(String commandLine) {
