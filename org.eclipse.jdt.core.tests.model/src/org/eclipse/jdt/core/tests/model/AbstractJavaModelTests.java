@@ -821,7 +821,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return JavaCore.create(project);
 	}
 	protected ILocalVariable getLocalVariable(String cuPath, String selectAt, String selection) throws JavaModelException {
-		ISourceReference cu = (ISourceReference)getCompilationUnit(cuPath);
+		ISourceReference cu = getCompilationUnit(cuPath);
 		IJavaElement[] elements = codeSelect(cu, selectAt, selection);
 		if (elements.length == 0) return null;
 		if (elements[0] instanceof ILocalVariable) {

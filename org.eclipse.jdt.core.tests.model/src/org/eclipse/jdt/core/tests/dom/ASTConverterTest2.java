@@ -4409,14 +4409,11 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	public void test0541() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0541", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0);
 		assertEquals("not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
-		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		List fragments = fieldDeclaration.fragments();
 		class Change14FieldAccessASTVisitor extends ASTVisitor {
 			int counter;
 			Change14FieldAccessASTVisitor() {
