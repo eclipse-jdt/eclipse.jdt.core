@@ -37,6 +37,8 @@ import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
@@ -223,12 +225,26 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#getDeclaringMethod()
 	 */
 	public IMethodBinding getDeclaringMethod() {
-		if (this.binding.isTypeVariable()) {
+		if (this.binding instanceof LocalTypeBinding) {
+			LocalTypeBinding localTypeBinding = (LocalTypeBinding) this.binding;
+			MethodBinding methodBinding = localTypeBinding.enclosingMethod;
+			if (methodBinding != null) {
+				try {
+					return this.resolver.getMethodBinding(localTypeBinding.enclosingMethod);
+				} catch (RuntimeException e) {
+					/* in case a method cannot be resolvable due to missing jars on the classpath
+					 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
+					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
+					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
+					 */
+				}
+			}
+		} else if (this.binding.isTypeVariable()) {
 			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
 			Binding declaringElement = typeVariableBinding.declaringElement;
-			if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
+			if (declaringElement instanceof MethodBinding) {
 				try {
-					return this.resolver.getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding)declaringElement);
+					return this.resolver.getMethodBinding((MethodBinding)declaringElement);
 				} catch (RuntimeException e) {
 					/* in case a method cannot be resolvable due to missing jars on the classpath
 					 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
@@ -376,8 +392,8 @@ class TypeBinding implements ITypeBinding {
 			final String typeVariableName = new String(referenceBinding.sourceName());
 			Binding declaringElement = ((TypeVariableBinding) referenceBinding).declaringElement;
 			IBinding declaringTypeBinding = null;
-			if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
-				declaringTypeBinding = this.resolver.getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) declaringElement);
+			if (declaringElement instanceof MethodBinding) {
+				declaringTypeBinding = this.resolver.getMethodBinding((MethodBinding) declaringElement);
 				IMethod declaringMethod = (IMethod) declaringTypeBinding.getJavaElement();
 				return declaringMethod.getTypeParameter(typeVariableName);
 			} else {

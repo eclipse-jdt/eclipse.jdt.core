@@ -35,7 +35,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 155 };
+//		TESTS_NUMBERS = new int[] { 166 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -4942,5 +4942,121 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Expression expression = fragment.getInitializer();
 		assertFalse("Is boxed", expression.resolveBoxing());
 		assertTrue("Not unboxed", expression.resolveUnboxing());
+    }
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86580
+    public void test0163() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+   		String contents =
+				"public class X<T>{\n" +
+				"  void f(T t){}\n" +
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0);
+    	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List parameters = methodDeclaration.parameters();
+		assertEquals("Wrong size", 1, parameters.size());
+		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+		Type type = singleVariableDeclaration.getType();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertTrue("Not a type variable", typeBinding.isTypeVariable());
+		final ITypeBinding declaringClass = typeBinding.getDeclaringClass();
+		assertNotNull("No declaring class", declaringClass);
+		assertTrue("Not a generic class", declaringClass.isGenericType());
+		assertEquals("Wrong name", "X", declaringClass.getName());
+    }
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86580
+    public void test0164() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+   		String contents =
+				"class X {\n" +
+				"  <U> void foo(U u) {}\n" +
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0);
+    	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List parameters = methodDeclaration.parameters();
+		assertEquals("Wrong size", 1, parameters.size());
+		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+		Type type = singleVariableDeclaration.getType();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertTrue("Not a type variable", typeBinding.isTypeVariable());
+		final IMethodBinding methodBinding = typeBinding.getDeclaringMethod();
+		assertNotNull("No declaring method", methodBinding);
+		assertEquals("Wrong name", "foo", methodBinding.getName());
+		assertTrue("Not a generic method", methodBinding.isGenericMethod());
+    }
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86580
+    public void test0165() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+   		String contents =
+				"class X {\n" +
+				"   <U> void foo(U u) {\n" +
+				"		class C {}\n" +
+				"	}\n" +
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+    	assertEquals("Not a type declaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType());
+		TypeDeclarationStatement statement = (TypeDeclarationStatement) node;
+		AbstractTypeDeclaration typeDeclaration = statement.getDeclaration();
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		assertTrue("Not a local type", typeBinding.isLocal());
+		ITypeBinding declaringClass = typeBinding.getDeclaringClass();
+		assertNotNull("No declaring class", declaringClass);
+		IMethodBinding declaringMethod = typeBinding.getDeclaringMethod();
+		assertNotNull("No declaring method", declaringMethod);
+    }
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86580
+    public void test0166() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+   		String contents =
+				"class X {\n" +
+				"   {\n" +
+				"		class C {}\n" +
+				"	}\n" +
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+    	assertEquals("Not a type declaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType());
+		TypeDeclarationStatement statement = (TypeDeclarationStatement) node;
+		AbstractTypeDeclaration typeDeclaration = statement.getDeclaration();
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		assertTrue("Not a local type", typeBinding.isLocal());
+		ITypeBinding declaringClass = typeBinding.getDeclaringClass();
+		assertNotNull("No declaring class", declaringClass);
+		IMethodBinding declaringMethod = typeBinding.getDeclaringMethod();
+		assertNull("No declaring method", declaringMethod);
     }
 }

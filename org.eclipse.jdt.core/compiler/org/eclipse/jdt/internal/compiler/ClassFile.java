@@ -20,7 +20,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -624,17 +623,12 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) enclosingTypeIndex;
 			byte methodIndexByte1 = 0;
 			byte methodIndexByte2 = 0;
-			if (this.referenceBinding.scope != null) {
-				MethodScope methodScope = this.referenceBinding.scope.methodScope();
-				if (methodScope != null) {
-					ReferenceContext referenceContext = methodScope.referenceContext;
-					if (referenceContext instanceof AbstractMethodDeclaration) {
-						AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) referenceContext;
-						MethodBinding methodBinding = methodDeclaration.binding;
-						int enclosingMethodIndex = constantPool.literalIndexForMethod(methodBinding.selector, methodBinding.signature());
-						methodIndexByte1 = (byte) (enclosingMethodIndex >> 8);
-						methodIndexByte2 = (byte) enclosingMethodIndex;
-					}
+			if (this.referenceBinding instanceof LocalTypeBinding) {
+				MethodBinding methodBinding = ((LocalTypeBinding) this.referenceBinding).enclosingMethod;
+				if (methodBinding != null) {
+					int enclosingMethodIndex = constantPool.literalIndexForMethod(methodBinding.selector, methodBinding.signature());
+					methodIndexByte1 = (byte) (enclosingMethodIndex >> 8);
+					methodIndexByte2 = (byte) enclosingMethodIndex;
 				}
 			}
 			contents[contentsOffset++] = methodIndexByte1;
