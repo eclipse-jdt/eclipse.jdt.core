@@ -268,6 +268,8 @@ public interface IClasspathEntry {
 	 * Source entries can optionally be associated with a specific output location.
 	 * If none is provided, the source entry will be implicitly associated with its project
 	 * default output location (see <code>IJavaProject#getOutputLocation</code>).
+	 * </p><p>
+	 * NOTE: A specific output location cannot coincidate with another source/library entry.
 	 * </p>
 	 * 
 	 * @return the full path to the specific location where the builder writes 
