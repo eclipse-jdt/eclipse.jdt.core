@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
  * engine analyzes the code in the buffer, determines what kind of
  * Java language construct is at that position, and proposes ways
  * to complete that construct. These proposals are instances of
- * subclasses of <code>CompletionProposal</code>. These proposals,
+ * the class <code>CompletionProposal</code>. These proposals,
  * perhaps after sorting and filtering, are presented to the user
  * to make a choice.
  * </p>
