@@ -184,7 +184,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		| EnumUsedAsAnIdentifier
 		| UnsafeTypeOperation
 		| MissingSerialVersion
-		| VarargsArgumentNeedCast;
+		| VarargsArgumentNeedCast
+		| ForbiddenReference;
 
 	// Debug attributes
 	public static final int Source = 1; // SourceFileAttribute
