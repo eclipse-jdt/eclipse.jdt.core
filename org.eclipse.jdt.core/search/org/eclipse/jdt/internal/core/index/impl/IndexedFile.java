@@ -103,8 +103,8 @@ public class IndexedFile implements IQueryResult {
 	 * Returns the size of the indexedFile.
 	 */
 	public int footprint() {
-		//object+ 2 slots + size of the string
-		return 8 + (2 * 4) + (28 + path.length() * 2);
+		//object+ 2 slots + size of the string (header + 4 slots + char[])
+		return 8 + (2 * 4) + (8 + (4 * 4) + 8 + path.length() * 2);
 	}
 	/**
 	 * Returns the file number.
