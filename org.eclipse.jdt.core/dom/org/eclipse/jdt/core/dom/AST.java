@@ -1326,23 +1326,11 @@ public final class AST {
 		return (CompilationUnit) result;
 	}
 	/**
-	 * Added this method back so that one can patch a I20040219 build.
-	 * @deprecated
-	 * TODO (jerome) remove before 3.0 M8
-	 */
-	public static CompilationUnit parsePartialCompilationUnit(
-		ICompilationUnit unit,
-		int position,
-		boolean resolveBindings) {
-		
-		return parsePartialCompilationUnit(unit, position, resolveBindings, null, null);
-	}
-	/**
 	 * Parses the source string of the given Java model compilation unit element
 	 * and creates and returns an abridged abstract syntax tree. This method
 	 * differs from
-	 * {@link #parseCompilationUnit(ICompilationUnit,boolean,WorkingCopyOwner)
-	 * parseCompilationUnit(ICompilationUnit,boolean,WorkingCopyOwner)} only in 
+	 * {@link #parseCompilationUnit(ICompilationUnit,boolean,WorkingCopyOwner,IProgressMonitor)
+	 * parseCompilationUnit(ICompilationUnit,boolean,WorkingCopyOwner,IProgressMonitor)} only in 
 	 * that the resulting AST does not have nodes for the entire compilation
 	 * unit. Rather, the AST is only fleshed out for the node that include
 	 * the given source position. This kind of limited AST is sufficient for
