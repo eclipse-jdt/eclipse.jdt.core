@@ -49,7 +49,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class MatchLocator implements ITypeRequestor {
 
-public static final int MAX_AT_ONCE = 500;
+public static final int MAX_AT_ONCE = 400;
 
 // permanent state
 public SearchPattern pattern;
