@@ -1389,7 +1389,8 @@ protected void consumeBlockStatements() {
 protected void consumeCaseLabel() {
 	// SwitchLabel ::= 'case' ConstantExpression ':'
 	expressionLengthPtr--;
-	pushOnAstStack(new CaseStatement(intStack[intPtr--], expressionStack[expressionPtr--]));
+	Expression expression = expressionStack[expressionPtr--];
+	pushOnAstStack(new CaseStatement(expression, expression.sourceEnd, intStack[intPtr--]));
 }
 protected void consumeCastExpression() {
 	// CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpression UnaryExpression
@@ -1801,7 +1802,7 @@ protected void consumeConstructorHeaderName() {
 }
 protected void consumeDefaultLabel() {
 	// SwitchLabel ::= 'default' ':'
-	pushOnAstStack(new DefaultCaseStatement(intStack[intPtr--], intStack[intPtr--]));
+	pushOnAstStack(new CaseStatement(null, intStack[intPtr--], intStack[intPtr--]));
 }
 protected void consumeDefaultModifiers() {
 	checkAnnotation(); // might update modifiers with AccDeprecated

@@ -89,8 +89,6 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	}
 	public void endVisit(ContinueStatement continueStatement, BlockScope scope) {
 	}
-	public void endVisit(DefaultCaseStatement defaultCaseStatement, BlockScope scope) {
-	}
 	public void endVisit(DoStatement doStatement, BlockScope scope) {
 	}
 	public void endVisit(DoubleLiteral doubleLiteral, BlockScope scope) {
@@ -307,9 +305,6 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		return true;
 	}
 	public boolean visit(ContinueStatement continueStatement, BlockScope scope) {
-		return true;
-	}
-	public boolean visit(DefaultCaseStatement defaultCaseStatement, BlockScope scope) {
 		return true;
 	}
 	public boolean visit(DoStatement doStatement, BlockScope scope) {

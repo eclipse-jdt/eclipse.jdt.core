@@ -20,9 +20,9 @@ public class CaseStatement extends Statement {
 	
 	public Expression constantExpression;
 	public CaseLabel targetLabel;
-	public CaseStatement(int sourceStart, Expression constantExpression) {
+	public CaseStatement(Expression constantExpression, int sourceEnd, int sourceStart) {
 		this.constantExpression = constantExpression;
-		this.sourceEnd = constantExpression.sourceEnd;
+		this.sourceEnd = sourceEnd;
 		this.sourceStart = sourceStart;
 	}
 
@@ -31,10 +31,12 @@ public class CaseStatement extends Statement {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		if (constantExpression.constant == NotAConstant)
-			currentScope.problemReporter().caseExpressionMustBeConstant(constantExpression);
-
-		this.constantExpression.analyseCode(currentScope, flowContext, flowInfo);
+		if (constantExpression != null) {
+			if (constantExpression.constant == NotAConstant) {
+				currentScope.problemReporter().caseExpressionMustBeConstant(constantExpression);
+			}
+			this.constantExpression.analyseCode(currentScope, flowContext, flowInfo);
+		}
 		return flowInfo;
 	}
 
@@ -63,11 +65,19 @@ public class CaseStatement extends Statement {
 		TypeBinding switchType,
 		SwitchStatement switchStatement) {
 
+		if (constantExpression == null) {
+			// remember the default case into the associated switch statement
+			if (switchStatement.defaultCase != null)
+				scope.problemReporter().duplicateDefaultCase(this);
+	
+			// on error the last default will be the selected one .... (why not) ....	
+			switchStatement.defaultCase = this;
+			return null;
+		}
 		// add into the collection of cases of the associated switch statement
 		switchStatement.cases[switchStatement.caseCount++] = this;
 		TypeBinding caseType = constantExpression.resolveType(scope);
-		if (caseType == null || switchType == null)
-			return null;
+		if (caseType == null || switchType == null) return null;
 		if (constantExpression.isConstantValueOfTypeAssignableToType(caseType, switchType))
 			return constantExpression.constant;
 		if (caseType.isCompatibleWith(switchType))
@@ -82,7 +92,11 @@ public class CaseStatement extends Statement {
 	public String toString(int tab) {
 
 		String s = tabString(tab);
+		if (constantExpression == null) {
+			s = s + "default : "; //$NON-NLS-1$
+		} else {
 		s = s + "case " + constantExpression.toStringExpression() + " : "; //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		return s;
 	}
 
@@ -91,7 +105,7 @@ public class CaseStatement extends Statement {
 		BlockScope blockScope) {
 
 		if (visitor.visit(this, blockScope)) {
-			constantExpression.traverse(visitor, blockScope);
+			if (constantExpression != null) constantExpression.traverse(visitor, blockScope);
 		}
 		visitor.endVisit(this, blockScope);
 	}

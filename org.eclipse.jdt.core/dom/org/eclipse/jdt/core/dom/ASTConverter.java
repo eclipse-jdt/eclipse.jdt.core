@@ -1720,9 +1720,6 @@ class ASTConverter {
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.CaseStatement) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.CaseStatement) statement);
 		}
-		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.DefaultCaseStatement) {
-			return convert((org.eclipse.jdt.internal.compiler.ast.DefaultCaseStatement) statement);
-		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.DoStatement) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.DoStatement) statement);
 		}
@@ -1849,17 +1846,14 @@ class ASTConverter {
 		
 	public SwitchCase convert(org.eclipse.jdt.internal.compiler.ast.CaseStatement statement) {
 		SwitchCase switchCase = this.ast.newSwitchCase();
+		org.eclipse.jdt.internal.compiler.ast.Expression constantExpression = statement.constantExpression;
+		if (constantExpression == null) {
+			switchCase.setExpression(null);
+		} else {
+			switchCase.setExpression(convert(constantExpression));
+		}
 		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
-		switchCase.setExpression(convert(statement.constantExpression));
 		retrieveColonPosition(switchCase);
-		return switchCase;
-	}
-	
-	public SwitchCase convert(org.eclipse.jdt.internal.compiler.ast.DefaultCaseStatement statement) {
-		SwitchCase switchCase = this.ast.newSwitchCase();
-		switchCase.setExpression(null);
-		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
-		retrieveColonPosition(switchCase);		
 		return switchCase;
 	}
 	

@@ -23,7 +23,7 @@ public class SwitchStatement extends Statement {
 	public int explicitDeclarations;
 	public Label breakLabel;
 	public CaseStatement[] cases;
-	public DefaultCaseStatement defaultCase;
+	public CaseStatement defaultCase;
 	public int caseCount = 0;
 
 	// for local variables table attributes
@@ -269,11 +269,9 @@ public class SwitchStatement extends Statement {
 				else
 					s = s + "\n" + statements[i].toString(tab + 2); //$NON-NLS-1$
 				//=============	
-				if ((statements[i] instanceof CaseStatement)
-					|| (statements[i] instanceof DefaultCaseStatement)) {
+				if (statements[i] instanceof CaseStatement) {
 					i++;
-					while (!((statements[i] instanceof CaseStatement)
-						|| (statements[i] instanceof DefaultCaseStatement))) {
+					while (!(statements[i] instanceof CaseStatement)) {
 						if ((statements[i] instanceof Expression) || (statements[i] instanceof BreakStatement))
 							s = s + statements[i].toString(0) + " ; "; //$NON-NLS-1$
 						else

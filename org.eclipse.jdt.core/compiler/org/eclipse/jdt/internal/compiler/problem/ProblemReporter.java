@@ -746,7 +746,7 @@ public void deprecatedType(TypeBinding type, AstNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void duplicateCase(CaseStatement statement, Constant constant) {
+public void duplicateCase(AstNode statement, Constant constant) {
 	String[] arguments = new String[] {String.valueOf(constant.intValue())};
 	this.handle(
 		IProblem.DuplicateCase,
@@ -755,7 +755,7 @@ public void duplicateCase(CaseStatement statement, Constant constant) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
-public void duplicateDefaultCase(DefaultCaseStatement statement) {
+public void duplicateDefaultCase(AstNode statement) {
 	this.handle(
 		IProblem.DuplicateDefaultCase,
 		NoArgument,
