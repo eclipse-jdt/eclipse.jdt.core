@@ -2880,92 +2880,6 @@ public class ClassFile
 		contentsOffset += 12;
 	}
 
-	private void generateElementValue(
-			Expression defaultValue,
-			TypeBinding memberValuePairReturnType,
-			int attributeOffset) {
-		Constant constant = defaultValue.constant;
-		TypeBinding defaultValueBinding = defaultValue.resolvedType;
-		if (constant != null && constant != Constant.NotAConstant) {
-			if (memberValuePairReturnType.isArrayType() && !defaultValueBinding.isArrayType()) {
-				// automatic wrapping
-				if (contentsOffset + 1 >= this.contents.length) {
-					resizeContents(1);
-				}
-				contents[contentsOffset++] = (byte) '[';
-				contents[contentsOffset++] = (byte) 0;
-				contents[contentsOffset++] = (byte) 1;
-			}
-			generateElementValue(attributeOffset, defaultValue, constant);
-		} else {
-			if (defaultValueBinding != null) {
-				if (defaultValueBinding.isEnum()) {
-					if (contentsOffset + 5 >= this.contents.length) {
-						resizeContents(5);
-					}
-					contents[contentsOffset++] = (byte) 'e';
-					FieldBinding fieldBinding = null;
-					if (defaultValue instanceof QualifiedNameReference) {
-						QualifiedNameReference nameReference = (QualifiedNameReference) defaultValue;
-						fieldBinding = (FieldBinding) nameReference.binding;
-					} else if (defaultValue instanceof SingleNameReference) {
-						SingleNameReference nameReference = (SingleNameReference) defaultValue;
-						fieldBinding = (FieldBinding) nameReference.binding;
-					} else {
-						contentsOffset = attributeOffset;
-					}
-					if (fieldBinding != null) {
-						final int enumConstantTypeNameIndex = constantPool.literalIndex(fieldBinding.type.signature());
-						final int enumConstantNameIndex = constantPool.literalIndex(fieldBinding.name);
-						contents[contentsOffset++] = (byte) (enumConstantTypeNameIndex >> 8);
-						contents[contentsOffset++] = (byte) enumConstantTypeNameIndex;
-						contents[contentsOffset++] = (byte) (enumConstantNameIndex >> 8);
-						contents[contentsOffset++] = (byte) enumConstantNameIndex;
-					}
-				} else if (defaultValueBinding.isAnnotationType()) {
-					if (contentsOffset + 1 >= this.contents.length) {
-						resizeContents(1);
-					}
-					contents[contentsOffset++] = (byte) '@';
-					generateAnnotation((Annotation) defaultValue, attributeOffset);
-				} else if (defaultValueBinding.isArrayType()) {
-					// array type
-					if (contentsOffset + 1 >= this.contents.length) {
-						resizeContents(1);
-					}
-					contents[contentsOffset++] = (byte) '[';
-					if (defaultValue instanceof ArrayInitializer) {
-						ArrayInitializer arrayInitializer = (ArrayInitializer) defaultValue;
-						int arrayLength = arrayInitializer.expressions != null ? arrayInitializer.expressions.length : 0;
-						contents[contentsOffset++] = (byte) (arrayLength >> 8);
-						contents[contentsOffset++] = (byte) arrayLength;
-						for (int i = 0; i < arrayLength; i++) {
-							generateElementValue(arrayInitializer.expressions[i], attributeOffset);
-						}
-					} else {
-						contentsOffset = attributeOffset;
-					}
-				} else {
-					// class type
-					if (contentsOffset + 3 >= this.contents.length) {
-						resizeContents(3);
-					}
-					contents[contentsOffset++] = (byte) 'c';
-					if (defaultValue instanceof ClassLiteralAccess) {
-						ClassLiteralAccess classLiteralAccess = (ClassLiteralAccess) defaultValue;
-						final int classInfoIndex = constantPool.literalIndex(classLiteralAccess.targetType.signature());
-						contents[contentsOffset++] = (byte) (classInfoIndex >> 8);
-						contents[contentsOffset++] = (byte) classInfoIndex;
-					} else {
-						contentsOffset = attributeOffset;
-					}
-				}
-			} else {
-				contentsOffset = attributeOffset;
-			}
-		}
-	}
-	
 	/**
 	 * @param attributeOffset
 	 */
@@ -2975,71 +2889,29 @@ public class ClassFile
 			generateElementValue(attributeOffset, defaultValue, constant);
 		} else {
 			TypeBinding defaultValueBinding = defaultValue.resolvedType;
-			if (defaultValueBinding != null) {
-				if (defaultValueBinding.isEnum()) {
-					if (contentsOffset + 5 >= this.contents.length) {
-						resizeContents(5);
-					}
-					contents[contentsOffset++] = (byte) 'e';
-					FieldBinding fieldBinding = null;
-					if (defaultValue instanceof QualifiedNameReference) {
-						QualifiedNameReference nameReference = (QualifiedNameReference) defaultValue;
-						fieldBinding = (FieldBinding) nameReference.binding;
-					} else if (defaultValue instanceof SingleNameReference) {
-						SingleNameReference nameReference = (SingleNameReference) defaultValue;
-						fieldBinding = (FieldBinding) nameReference.binding;
-					} else {
-						contentsOffset = attributeOffset;
-					}
-					if (fieldBinding != null) {
-						final int enumConstantTypeNameIndex = constantPool.literalIndex(fieldBinding.type.signature());
-						final int enumConstantNameIndex = constantPool.literalIndex(fieldBinding.name);
-						contents[contentsOffset++] = (byte) (enumConstantTypeNameIndex >> 8);
-						contents[contentsOffset++] = (byte) enumConstantTypeNameIndex;
-						contents[contentsOffset++] = (byte) (enumConstantNameIndex >> 8);
-						contents[contentsOffset++] = (byte) enumConstantNameIndex;
-					}
-				} else if (defaultValueBinding.isAnnotationType()) {
-					if (contentsOffset + 1 >= this.contents.length) {
-						resizeContents(1);
-					}
-					contents[contentsOffset++] = (byte) '@';
-					generateAnnotation((Annotation) defaultValue, attributeOffset);
-				} else if (defaultValueBinding.isArrayType()) {
-					// array type
-					if (contentsOffset + 1 >= this.contents.length) {
-						resizeContents(1);
-					}
-					contents[contentsOffset++] = (byte) '[';
-					if (defaultValue instanceof ArrayInitializer) {
-						ArrayInitializer arrayInitializer = (ArrayInitializer) defaultValue;
-						int arrayLength = arrayInitializer.expressions != null ? arrayInitializer.expressions.length : 0;
-						contents[contentsOffset++] = (byte) (arrayLength >> 8);
-						contents[contentsOffset++] = (byte) arrayLength;
-						for (int i = 0; i < arrayLength; i++) {
-							generateElementValue(arrayInitializer.expressions[i], attributeOffset);
-						}
-					} else {
-						contentsOffset = attributeOffset;
-					}
-				} else {
-					// class type
-					if (contentsOffset + 3 >= this.contents.length) {
-						resizeContents(3);
-					}
-					contents[contentsOffset++] = (byte) 'c';
-					if (defaultValue instanceof ClassLiteralAccess) {
-						ClassLiteralAccess classLiteralAccess = (ClassLiteralAccess) defaultValue;
-						final int classInfoIndex = constantPool.literalIndex(classLiteralAccess.targetType.signature());
-						contents[contentsOffset++] = (byte) (classInfoIndex >> 8);
-						contents[contentsOffset++] = (byte) classInfoIndex;
-					} else {
-						contentsOffset = attributeOffset;
-					}
-				}
-			} else {
-				contentsOffset = attributeOffset;
+			generateElementValueForNonConstantExpression(defaultValue, attributeOffset, defaultValueBinding);
+		}
+	}
+
+	private void generateElementValue(
+			Expression defaultValue,
+			TypeBinding memberValuePairReturnType,
+			int attributeOffset) {
+		Constant constant = defaultValue.constant;
+		TypeBinding defaultValueBinding = defaultValue.resolvedType;
+		if (memberValuePairReturnType.isArrayType() && !defaultValueBinding.isArrayType()) {
+			// automatic wrapping
+			if (contentsOffset + 3 >= this.contents.length) {
+				resizeContents(3);
 			}
+			contents[contentsOffset++] = (byte) '[';
+			contents[contentsOffset++] = (byte) 0;
+			contents[contentsOffset++] = (byte) 1;
+		}
+		if (constant != null && constant != Constant.NotAConstant) {
+			generateElementValue(attributeOffset, defaultValue, constant);
+		} else {
+			generateElementValueForNonConstantExpression(defaultValue, attributeOffset, defaultValueBinding);
 		}
 	}
 
@@ -3124,6 +2996,74 @@ public class ClassFile
 					contents[contentsOffset++] = (byte) (stringValueIndex >> 8);
 					contents[contentsOffset++] = (byte) stringValueIndex;
 				}
+		}
+	}
+	
+	private void generateElementValueForNonConstantExpression(Expression defaultValue, int attributeOffset, TypeBinding defaultValueBinding) {
+		if (defaultValueBinding != null) {
+			if (defaultValueBinding.isEnum()) {
+				if (contentsOffset + 5 >= this.contents.length) {
+					resizeContents(5);
+				}
+				contents[contentsOffset++] = (byte) 'e';
+				FieldBinding fieldBinding = null;
+				if (defaultValue instanceof QualifiedNameReference) {
+					QualifiedNameReference nameReference = (QualifiedNameReference) defaultValue;
+					fieldBinding = (FieldBinding) nameReference.binding;
+				} else if (defaultValue instanceof SingleNameReference) {
+					SingleNameReference nameReference = (SingleNameReference) defaultValue;
+					fieldBinding = (FieldBinding) nameReference.binding;
+				} else {
+					contentsOffset = attributeOffset;
+				}
+				if (fieldBinding != null) {
+					final int enumConstantTypeNameIndex = constantPool.literalIndex(fieldBinding.type.signature());
+					final int enumConstantNameIndex = constantPool.literalIndex(fieldBinding.name);
+					contents[contentsOffset++] = (byte) (enumConstantTypeNameIndex >> 8);
+					contents[contentsOffset++] = (byte) enumConstantTypeNameIndex;
+					contents[contentsOffset++] = (byte) (enumConstantNameIndex >> 8);
+					contents[contentsOffset++] = (byte) enumConstantNameIndex;
+				}
+			} else if (defaultValueBinding.isAnnotationType()) {
+				if (contentsOffset + 1 >= this.contents.length) {
+					resizeContents(1);
+				}
+				contents[contentsOffset++] = (byte) '@';
+				generateAnnotation((Annotation) defaultValue, attributeOffset);
+			} else if (defaultValueBinding.isArrayType()) {
+				// array type
+				if (contentsOffset + 3 >= this.contents.length) {
+					resizeContents(3);
+				}
+				contents[contentsOffset++] = (byte) '[';
+				if (defaultValue instanceof ArrayInitializer) {
+					ArrayInitializer arrayInitializer = (ArrayInitializer) defaultValue;
+					int arrayLength = arrayInitializer.expressions != null ? arrayInitializer.expressions.length : 0;
+					contents[contentsOffset++] = (byte) (arrayLength >> 8);
+					contents[contentsOffset++] = (byte) arrayLength;
+					for (int i = 0; i < arrayLength; i++) {
+						generateElementValue(arrayInitializer.expressions[i], attributeOffset);
+					}
+				} else {
+					contentsOffset = attributeOffset;
+				}
+			} else {
+				// class type
+				if (contentsOffset + 3 >= this.contents.length) {
+					resizeContents(3);
+				}
+				contents[contentsOffset++] = (byte) 'c';
+				if (defaultValue instanceof ClassLiteralAccess) {
+					ClassLiteralAccess classLiteralAccess = (ClassLiteralAccess) defaultValue;
+					final int classInfoIndex = constantPool.literalIndex(classLiteralAccess.targetType.signature());
+					contents[contentsOffset++] = (byte) (classInfoIndex >> 8);
+					contents[contentsOffset++] = (byte) classInfoIndex;
+				} else {
+					contentsOffset = attributeOffset;
+				}
+			}
+		} else {
+			contentsOffset = attributeOffset;
 		}
 	}
 
