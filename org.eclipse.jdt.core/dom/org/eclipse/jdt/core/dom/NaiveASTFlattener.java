@@ -767,11 +767,11 @@ class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public boolean visit(SwitchCase node) {
 		if (node.isDefault()) {
-			buffer.append("default : ");//$NON-NLS-1$
+			buffer.append("default :");//$NON-NLS-1$
 		} else {
 			buffer.append("case ");//$NON-NLS-1$
 			node.getExpression().accept(this);
-			buffer.append(": ");//$NON-NLS-1$
+			buffer.append(":");//$NON-NLS-1$
 		}
 		return false;
 	}
