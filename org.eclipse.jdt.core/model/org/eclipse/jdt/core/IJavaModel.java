@@ -11,6 +11,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -34,6 +35,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * @see JavaCore#create(org.eclipse.core.resources.IWorkspaceRoot)
  */
 public interface IJavaModel extends IJavaElement, IOpenable, IParent {
+/**
+ * Returns whether this Java model contains an <code>IJavaElement</code> whose
+ * resource is the given resource or a non-Java resource which is the given resource.
+ * Such resource can be found by navigating the Java model down using the
+ * <code>getChildren()</code> and <code>getNonJavaResources()</code>.
+ * @since 2.1
+ */
+boolean contains(IResource resource);
 /**
  * Copies the given elements to the specified container(s).
  * If one container is specified, all elements are copied to that
