@@ -11517,4 +11517,27 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			},
 		"");
 	}		
+	// 80083
+	public void test434() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"\n" + 
+				"public class X\n" + 
+				"{\n" + 
+				"\n" + 
+				"  public static void main(String[] args)\n" + 
+				"  {\n" + 
+				"    ArrayList<String> l = new ArrayList<String>();\n" + 
+				"    l.add(\"x\");\n" + 
+				"    String s = \"\";\n" + 
+				"    s += l.get(0); // X\n" + 
+				"    System.out.println(\"SUCCESS\");\n" + 
+				"  }\n" + 
+				"\n" + 
+				"}\n",
+			},
+		"SUCCESS");
+	}		
 }
