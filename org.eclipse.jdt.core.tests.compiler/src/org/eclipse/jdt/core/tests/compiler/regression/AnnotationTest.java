@@ -2176,4 +2176,25 @@ public class AnnotationTest extends AbstractComparisonTest {
 			"----------\n");
 	}	
 
+	// check annotation cannot refer to inherited methods as attributes
+	public void test072() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"@interface I {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    @I(hashCode = 0) public void foo(){\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	@I(hashCode = 0) public void foo(){\n" + 
+			"	   ^^^^^^^^\n" + 
+			"The attribute hashCode is undefined for the annotation type I\n" + 
+			"----------\n");
+	}	
+	
 }
