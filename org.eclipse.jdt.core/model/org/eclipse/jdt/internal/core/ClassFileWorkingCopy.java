@@ -353,12 +353,7 @@ public IResource getResource() {
 	public IJavaElement findSharedWorkingCopy(IBufferFactory bufferFactory) {
 		return null;
 	}
-	/*
-	 * workaround UI dependency - TOFIX (should be removed)
-	 */
-	public IJavaElement findSharedWorkingCopy() {
-		return null;
-	}
+
 	/*
 	 * @see IWorkingCopy#getOriginal(IJavaElement)
 	 */

@@ -330,22 +330,6 @@ public IJavaElement findSharedWorkingCopy(IBufferFactory factory) {
 	return (WorkingCopy)perFactoryWorkingCopies.get(this);
 }
 
-/**
- * work-around for UI dependency - TOFIX (should be removed)
- * @see IWorkingCopy#findSharedWorkingCopy()
- */
-public IJavaElement findSharedWorkingCopy() {
-
-	// iterate over all the working copies maps, and answer first matching working copy
-	Map sharedWorkingCopies = JavaModelManager.getJavaModelManager().sharedWorkingCopies;
-	for (Iterator iterator =  sharedWorkingCopies.values().iterator(); iterator.hasNext();) {
-		Map perFactoryWorkingCopies = (Map) iterator.next();
-		WorkingCopy copy = (WorkingCopy)perFactoryWorkingCopies.get(this);
-		if (copy != null) return copy;
-	}
-	return null;
-}
-
 protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 
 	if (getParent() instanceof JarPackageFragment) {

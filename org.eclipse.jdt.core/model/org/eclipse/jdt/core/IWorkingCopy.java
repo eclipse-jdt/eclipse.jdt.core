@@ -110,20 +110,6 @@ public interface IWorkingCopy {
 	IJavaElement findSharedWorkingCopy(IBufferFactory bufferFactory);
 
 	/**
-	 * Finds the shared working copy for this element. 
-	 * If no working copy has been created for this element associated with this
-	 * buffer factory, returns <code>null</code>.
-	 * <p>
-	 * Users of this method must not destroy the resulting working copy. 
-	 * 
-	 * @return the found shared working copy for this element, <code>null</code> if none
-	 * @see IBufferFactory
-	 * @deprecated - use the one with extra buffer factory instead
-	 * @since 2.0
-	 */
-	IJavaElement findSharedWorkingCopy();	
-	
-	/**
 	 * Returns the original element the specified working copy element was created from,
 	 * or <code>null</code> if this is not a working copy element.  This is a handle
 	 * only method, the returned element may or may not exist.
