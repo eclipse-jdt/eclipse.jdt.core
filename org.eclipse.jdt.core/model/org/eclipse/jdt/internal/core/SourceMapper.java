@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
@@ -55,6 +56,18 @@ public class SourceMapper
 		
 	public static boolean VERBOSE = false;
 
+	private final static String SUFFIX_JAVA = ".JAVA"; //$NON-NLS-1$
+	private final static String SUFFIX_java = ".java"; //$NON-NLS-1$
+
+	/**
+	 * Specifies the file name filter use to compute the root paths.
+	 */
+	private static final FilenameFilter FILENAME_FILTER = new FilenameFilter() {
+		public boolean accept(File dir, String name) {
+			return name.endsWith(SUFFIX_JAVA) || name.endsWith(SUFFIX_java); //$NON-NLS-1$
+		}
+	};
+	
 	/**
 	 * Specifies the location of the package fragment roots within
 	 * the zip (empty specifies the default root). <code>null</code> is
@@ -163,15 +176,9 @@ public class SourceMapper
 	 * Use to handle root paths inference
 	 */
 	private boolean areRootPathsComputed;
-	private FilenameFilter filenameFilter;
 		
 	public SourceMapper() {
 		this.areRootPathsComputed = false;
-		this.filenameFilter = new FilenameFilter() {
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".java"); //$NON-NLS-1$
-			}
-		};
 	}
 	
 	/**
@@ -180,11 +187,6 @@ public class SourceMapper
 	 */
 	public SourceMapper(IPath sourcePath, String rootPath, Map options) {
 		this.areRootPathsComputed = false;
-		this.filenameFilter = new FilenameFilter() {
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".java"); //$NON-NLS-1$
-			}
-		};
 		this.options = options;
 		this.encoding = (String)options.get(JavaCore.CORE_ENCODING);
 		if (rootPath != null) {
@@ -319,7 +321,8 @@ public class SourceMapper
 						int index = entryName.indexOf('/');
 						if (index != -1 && Util.isClassFileName(entryName)) {
 							String firstLevelPackageName = entryName.substring(0, index);
-							if (JavaConventions.validatePackageName(firstLevelPackageName).isOK()) {
+							IStatus status = JavaConventions.validatePackageName(firstLevelPackageName);
+							if (status.isOK() || status.getSeverity() == IStatus.WARNING) {
 								firstLevelPackageNames.add(firstLevelPackageName);
 							}
 						} else if (Util.isClassFileName(entryName)) {
@@ -429,7 +432,7 @@ public class SourceMapper
 				}
 			} else if (i == max - 1 && !hasSubDirectories && hasDefaultPackage) {
 				File parentDir = file.getParentFile();
-				if (parentDir.list(this.filenameFilter).length != 0) {
+				if (parentDir.list(FILENAME_FILTER).length != 0) {
 					IPath fullPath = new Path(parentDir.getPath());
 					IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
 					this.rootPaths.add(rootPathEntry.toString());
