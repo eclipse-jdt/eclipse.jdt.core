@@ -175,13 +175,18 @@ public class MatchLocator implements ITypeRequestor {
 	/**
 	 * Creates an IImportDeclaration from the given import statement
 	 */
-	public IImportDeclaration createImportHandle(ImportReference importRef) {
+	public IJavaElement createImportHandle(ImportReference importRef) {
 		char[] importName = CharOperation.concatWith(importRef.getImportName(), '.');
 		if (importRef.onDemand) {
 			importName = CharOperation.concat(importName, ".*" .toCharArray()); //$NON-NLS-1$
 		}
-		return ((CompilationUnit) this.getCurrentOpenable()).getImport(
-			new String(importName));
+		Openable currentOpenable = this.getCurrentOpenable();
+		if (currentOpenable instanceof CompilationUnit) {
+			return ((CompilationUnit)currentOpenable).getImport(
+				new String(importName));
+		} else {
+			return currentOpenable;
+		}
 	}
 
 	/**
@@ -504,7 +509,7 @@ public class MatchLocator implements ITypeRequestor {
 		throws CoreException {
 
 		// create defining import handle
-		IImportDeclaration importHandle = this.createImportHandle(reference);
+		IJavaElement importHandle = this.createImportHandle(reference);
 
 		// accept reference
 		this.pattern.matchReportReference(reference, importHandle, accuracy, this);
