@@ -46,9 +46,11 @@ public class SetClasspathOperation extends JavaModelOperation {
 		for (int i = 0; i < roots.length; i++) {
 			IPackageFragmentRoot root = roots[i];
 			delta.changed(root, flag);
-			try {
-				root.close();
-			} catch (JavaModelException e) {
+			if (flag == IJavaElementDelta.F_REMOVED_FROM_CLASSPATH){
+				try {
+					root.close();
+				} catch (JavaModelException e) {
+				}
 			}
 		}
 	}
