@@ -3089,7 +3089,7 @@ public final void setSource(char[] sourceString){
 	eofPosition = sourceLength;
 	initialPosition = currentPosition = 0;
 	containsAssertKeyword = false;
-	withoutUnicodeBuffer = new char[sourceLength];
+	withoutUnicodeBuffer = new char[sourceLength]; // TODO (philippe) should only allocate when needed
 }
 
 public String toString() {
