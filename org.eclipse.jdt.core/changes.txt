@@ -121,6 +121,7 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ================================================================================
+  3271      Unable to delete attached internal source jar (1GDX215)
   3209      DCR - JM -Invalid references to IPath.getDevice() potentially breaking on Linux (1G4U1R7)
                     
 
