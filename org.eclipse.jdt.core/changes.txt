@@ -8,10 +8,12 @@ What's new in this drop (since 0.9)
          - IJavaModelStatus validateClasspath(IJavaProject project, IClasspathEntry[] classpath, IPath outputLocation) 
          - IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment) 
  * Ant Eclipse compiler task added (org.eclipse.jdt.core.ant.Jdtcom)
-* Assertions support added (by default the compiler is 1.3 compliant, but it can optionally be turned into source 1.4 mode cf. JavaCore options).
+ * Assertions support enabled: by default the compiler is 1.3 compliant, but it can optionally be turned into source 1.4 mode cf. JavaCore options.
 
 PRs Fixed in this Release (since 1.0NL stream)
 ==================================================================================
+1GHFHWR: ITPJCORE:ALL - Assertions: CodeAssist and Selection need to be updated
+1GHFHXG: ITPJCORE:ALL - Assertions: Add optional warning on assert identifier
 1GCZ9VM: ITPJCORE:WIN2000 - DCR - Compiler - Batch compiler should be API
 1GHO6QR: ITPJCORE:WINNT - Code Assist - no method completion when return type is secondary one
 1GH0AU7: ITPJCORE:ALL - Eval - VerifyError in scrapbook page
