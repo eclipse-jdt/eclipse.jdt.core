@@ -100,6 +100,12 @@ public boolean equals(Object o) {
 	return this == o;
 }
 
+/**
+ * Determine whether method bodies are parsed and investigated for errors.
+ */
+protected boolean diagnoseProblemInsideMethodBodies(){
+	return true;
+}
 
 /**
  * @see IWorkingCopy
@@ -348,7 +354,7 @@ public void reconcile(IProblemRequestor problemRequestor) throws JavaModelExcept
 	JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(this);
 
 	// update the element infos with the content of the working copy
-	this.makeConsistent(problemRequestor, true, null);
+	this.makeConsistent(problemRequestor, null);
 
 	// build the deltas
 	deltaBuilder.buildDeltas();

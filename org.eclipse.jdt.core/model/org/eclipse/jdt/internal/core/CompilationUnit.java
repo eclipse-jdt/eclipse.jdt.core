@@ -58,25 +58,6 @@ protected CompilationUnit(IPackageFragment parent, String name) {
 public void accept(IAbstractSyntaxTreeVisitor visitor) throws JavaModelException {
 	CompilationUnitVisitor.visit(this, visitor);
 }
-
-protected void buildStructure(OpenableElementInfo info, IProblemRequestor problemRequestor, boolean reportProblemInsideMethods, IProgressMonitor pm) throws JavaModelException {
-
-	// remove existing (old) infos
-	removeInfo();
-	HashMap newElements = new HashMap(11);
-	info.setIsStructureKnown(generateInfos(info, pm, newElements, getUnderlyingResource(), problemRequestor, reportProblemInsideMethods));
-	fgJavaModelManager.getElementsOutOfSynchWithBuffers().remove(this);
-	for (Iterator iter = newElements.keySet().iterator(); iter.hasNext();) {
-		IJavaElement key = (IJavaElement) iter.next();
-		Object value = newElements.get(key);
-		fgJavaModelManager.putInfo(key, value);
-	}
-	// add the info for this at the end, to ensure that a getInfo cannot reply null in case the LRU cache needs
-	// to be flushed. Might lead to performance issues.
-	// see PR 1G2K5S7: ITPJCORE:ALL - NPE when accessing source for a binary type
-	fgJavaModelManager.putInfo(this, info);	
-}
-
 /**
  * @see ICodeAssist
  */
@@ -173,6 +154,12 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
 public void destroy() {
 }
 
+/**
+ * Determine whether method bodies are parsed and investigated for errors.
+ */
+protected boolean diagnoseProblemInsideMethodBodies(){
+	return false;
+}
 
 /**
  * Returns true if this handle represents the same Java element
@@ -214,12 +201,10 @@ protected boolean equalsDOMNode(IDOMNode node) throws JavaModelException {
 public IJavaElement findSharedWorkingCopy() {
 	return (IJavaElement)JavaModelManager.getJavaModelManager().sharedWorkingCopies.get(this);
 }
-
+/**
+ * @see Openable
+ */
 protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource, IProblemRequestor problemRequestor) throws JavaModelException {
-	return this.generateInfos(info, pm, newElements, underlyingResource, problemRequestor, false);
-}
-
-protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource, IProblemRequestor problemRequestor, boolean reportProblemInsideMethods) throws JavaModelException {
 
 	if (getParent() instanceof JarPackageFragment) {
 		// ignore .java files in jar
@@ -233,7 +218,7 @@ protected boolean generateInfos(OpenableElementInfo info, IProgressMonitor pm, M
 		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements, problemRequestor);
 		IProblemFactory factory = new DefaultProblemFactory();
 		SourceElementParser parser = new SourceElementParser(requestor, factory, new CompilerOptions(JavaCore.getOptions()));
-		parser.parseCompilationUnit(this, reportProblemInsideMethods);
+		parser.parseCompilationUnit(this, this.diagnoseProblemInsideMethodBodies());
 		if (isWorkingCopy()) {
 			CompilationUnit original = (CompilationUnit) getOriginalElement();
 			unitInfo.fTimestamp = ((IFile) original.getUnderlyingResource()).getModificationStamp();
@@ -526,14 +511,10 @@ public boolean isWorkingCopy() {
  * @see IOpenable
  */
 public void makeConsistent(IProblemRequestor problemRequestor, IProgressMonitor pm) throws JavaModelException {
-	this.makeConsistent(problemRequestor, false, pm);
-}
-
-public void makeConsistent(IProblemRequestor problemRequestor, boolean reportProblemInsideMethods, IProgressMonitor pm) throws JavaModelException {
 	if (!isConsistent()) {
 		// create a new info and make it the current info
 		OpenableElementInfo info = createElementInfo();
-		buildStructure(info, problemRequestor, reportProblemInsideMethods, pm);
+		buildStructure(info, problemRequestor, pm);
 	}
 }
 /**
