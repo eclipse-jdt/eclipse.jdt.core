@@ -509,6 +509,8 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof QualifiedSuperReference) {
 			QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) node;
 			return this.getTypeBinding(qualifiedSuperReference.qualification.binding);
+		} else if (node instanceof LocalDeclaration) {
+			return this.getVariableBinding(((LocalDeclaration)node).binding);
 		}
 		return null;
 	}
