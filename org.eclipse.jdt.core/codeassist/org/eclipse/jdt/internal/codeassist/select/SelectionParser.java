@@ -529,7 +529,7 @@ protected NameReference getUnspecifiedReference() {
 		pushOnAstStack(reference);
 		this.assistNode = reference;	
 		this.lastCheckPoint = reference.sourceEnd + 1;
-		if (!diet){
+		if (!diet || dietInt != 0){
 			this.restartRecovery	= true;	// force to restart in recovery mode
 			this.lastIgnoredToken = -1;		
 		}

@@ -285,7 +285,7 @@ protected IType resolveType(char[] packageName, char[] typeName, int acceptFlags
 					}
 				}
 				
-				if(!type.exists()) {
+				if(type != null && !type.exists()) {
 					type = null;
 				}
 			}
