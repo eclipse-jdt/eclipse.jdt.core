@@ -35,7 +35,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 146 };
+		TESTS_NUMBERS = new int[] { 147 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -4374,7 +4374,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertProblemsSize(compilationUnit, 1, "");
     }
 	
-    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=87350
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=87481
     public void test0146() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
@@ -4408,5 +4408,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a raw type", typeBinding.isRawType());
 		assertFalse("Is a generic type", typeBinding.isGenericType());
 		assertFalse("Is a parameterized type", typeBinding.isParameterizedType());
+    }
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=87498
+    public void test0147() throws CoreException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0147", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
     }
 }

@@ -213,7 +213,7 @@ class BindingComparator {
 				}
 				WildcardBinding wildcardBinding = (WildcardBinding) referenceBinding;
 				WildcardBinding wildcardBinding2 = (WildcardBinding) referenceBinding2;
-				return isEqual(wildcardBinding.bound, wildcardBinding2.bound)
+				return isEqual(wildcardBinding.bound, wildcardBinding2.bound, checkTypeVariables)
 					&& wildcardBinding.kind == wildcardBinding2.kind;
 			} else if (referenceBinding.isGenericType()) {
 				if (!referenceBinding2.isGenericType()) {
