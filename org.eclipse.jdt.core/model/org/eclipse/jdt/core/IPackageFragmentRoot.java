@@ -128,7 +128,7 @@ public interface IPackageFragmentRoot
 	 * <code>updateModelFlags</code>, updates the classpath of the 
 	 * destination's project (if it is a Java project). If a non-<code>null</code> 
 	 * sibling is specified, a copy of this root's classpath entry is inserted before the 
-	 * sibling on the destination project's raw classpath. If <code>null></code> is 
+	 * sibling on the destination project's raw classpath. If <code>null</code> is 
 	 * specified, the classpath entry is added at the end of the raw classpath.
 	 * </p><p>
 	 * If <code>REPLACE</code> is specified in <code>updateModelFlags</code>,
@@ -346,7 +346,7 @@ public interface IPackageFragmentRoot
 	 * Returns whether this package fragment root's underlying
 	 * resource is a binary archive (a JAR or zip file).
 	 * 
-	 * @return true if this package ragment root's underlying resource is a binary archive, false otherwise
+	 * @return true if this package fragment root's underlying resource is a binary archive, false otherwise
 	 */
 	public boolean isArchive();
 	
@@ -375,7 +375,7 @@ public interface IPackageFragmentRoot
 	 * <code>updateModelFlags</code>, updates the classpath of the 
 	 * destination's project (if it is a Java project). If a non-<code>null</code> 
 	 * sibling is specified, a copy of this root's classpath entry is inserted before the 
-	 * sibling on the destination project's raw classpath. If <code>null></code> is 
+	 * sibling on the destination project's raw classpath. If <code>null</code> is 
 	 * specified, the classpath entry is added at the end of the raw classpath.
 	 * </p><p>
 	 * If <code>ORIGINATING_PROJECT_CLASSPATH</code> is specified in 
