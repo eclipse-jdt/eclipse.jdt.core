@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
@@ -544,6 +545,18 @@ public static void log(String message){
 public static void log(Throwable e){
 	JavaCore.getPlugin().getLog().log(
 		new JavaModelStatus(IStatus.ERROR, e));
+}
+/*
+ * Add a log entry
+ */
+public static void log(Throwable e, String message) {
+	IStatus status= new Status(
+		IStatus.ERROR, 
+		JavaCore.getPlugin().getDescriptor().getUniqueIdentifier(), 
+		IStatus.ERROR, 
+		message, 
+		e); 
+	JavaCore.getPlugin().getLog().log(status);
 }
 /**
  * Normalizes the cariage returns in the given text.

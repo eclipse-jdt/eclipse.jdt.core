@@ -108,6 +108,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		}
 		ok = true;
 	} catch (CoreException e) {
+		Util.log(e, "JavaBuilder handling CoreException"); //$NON-NLS-1$
 		try {
 			IMarker marker = currentProject.createMarker(ProblemMarkerTag);
 			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentProject")); //$NON-NLS-1$
@@ -116,6 +117,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 			throw e;
 		}
 	} catch (ImageBuilderInternalException e) {
+		Util.log(e, "JavaBuilder handling ImageBuilderInternalException"); //$NON-NLS-1$
 		try {
 			IMarker marker = currentProject.createMarker(ProblemMarkerTag);
 			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentProject")); //$NON-NLS-1$
