@@ -1375,11 +1375,6 @@ public void test0032() {
 		"	public class X <T1 extends String, T2 extends Y {\n" + 
 		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Syntax error on token(s), misplaced construct(s)\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 1)\n" + 
-		"	public class X <T1 extends String, T2 extends Y {\n" + 
-		"	                                              ^\n" + 
-		"Y cannot be resolved to a type\n" + 
 		"----------\n";
 	String expected14ProblemeLog =
 		expected13ProblemeLog;
