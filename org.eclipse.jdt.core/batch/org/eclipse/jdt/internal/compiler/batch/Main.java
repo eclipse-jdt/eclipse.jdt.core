@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.batch;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -345,11 +346,14 @@ public class Main implements ProblemSeverities {
 		final int InsideRepetition = 16;
 		final int InsideSource = 32;
 		final int InsideDefaultEncoding = 64;
+		final int InsideBootClasspath = 128;
 		final int Default = 0;
+		String[] bootclasspaths = null;
 		int DEFAULT_SIZE_CLASSPATH = 4;
 		boolean warnOptionInUse = false;
 		boolean noWarnOptionInUse = false;
 		int pathCount = 0;
+		int bootclasspathCount = 0;
 		int index = -1, filesCount = 0, argCount = argv.length;
 		int mode = Default;
 		repetitions = 0;
@@ -475,6 +479,14 @@ public class Main implements ProblemSeverities {
 						Main.bind("configure.duplicateClasspath", currentArg)); //$NON-NLS-1$
 				classpaths = new String[DEFAULT_SIZE_CLASSPATH];
 				mode = InsideClasspath;
+				continue;
+			}
+			if (currentArg.equals("-bootclasspath")) {//$NON-NLS-1$
+				if (bootclasspathCount > 0)
+					throw new InvalidInputException(
+						Main.bind("configure.duplicateBootClasspath", currentArg)); //$NON-NLS-1$
+				bootclasspaths = new String[DEFAULT_SIZE_CLASSPATH];
+				mode = InsideBootClasspath;
 				continue;
 			}
 			if (currentArg.equals("-progress")) { //$NON-NLS-1$
@@ -823,6 +835,23 @@ public class Main implements ProblemSeverities {
 				mode = Default;
 				continue;
 			}
+			if (mode == InsideBootClasspath) {
+				StringTokenizer tokenizer = new StringTokenizer(currentArg, File.pathSeparator);
+				while (tokenizer.hasMoreTokens()) {
+					int length;
+					if ((length = bootclasspaths.length) <= bootclasspathCount) {
+						System.arraycopy(
+							bootclasspaths,
+							0,
+							(bootclasspaths = new String[length * 2]),
+							0,
+							length);
+					}
+					bootclasspaths[bootclasspathCount++] = tokenizer.nextToken();
+				}
+				mode = Default;
+				continue;
+			}			
 			//default is input directory
 			currentArg = currentArg.replace('/', File.separatorChar);
 			if (currentArg.endsWith(File.separator))
@@ -911,7 +940,8 @@ public class Main implements ProblemSeverities {
 				0,
 				filesCount);
 		if (pathCount == 0) {
-			String classProp = System.getProperty("DEFAULT_CLASSPATH"); //$NON-NLS-1$
+			// no user classpath specified.
+			String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
 			if ((classProp == null) || (classProp.length() == 0)) {
 				out.println(Main.bind("configure.noClasspath")); //$NON-NLS-1$
 				classProp = "."; //$NON-NLS-1$
@@ -922,19 +952,107 @@ public class Main implements ProblemSeverities {
 				classpaths[pathCount++] = tokenizer.nextToken();
 			}
 		}
+		
+		if (bootclasspathCount == 0) {
+			/* no bootclasspath specified
+			 * we can try to retrieve the default librairies of the VM used to run
+			 * the batch compiler
+			 */
+			 String javaversion = System.getProperty("java.version");//$NON-NLS-1$
+			 if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
+				out.println(Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
+				proceed = false;
+				return;
+			 } else {
+				 String javaVMName = System.getProperty("java.vm.name");//$NON-NLS-1$
+				 if (javaVMName != null && javaVMName.equalsIgnoreCase("J9")) {//$NON-NLS-1$
+				 	/*
+				 	 * Handle J9 VM settings: Retrieve jclMax by default
+				 	 */
+				 	 String javaHome = System.getProperty("java.home");//$NON-NLS-1$
+				 	 if (javaHome != null) {
+				 	 	File javaHomeFile = new File(javaHome);
+				 	 	if (javaHomeFile.exists()) {
+							try {
+								javaHomeFile = new File(javaHomeFile.getCanonicalPath());
+								File defaultLibrary = new File(javaHomeFile, "lib" + File.separator + "jclMax" +  File.separator + "classes.zip"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+								File locales = new File(javaHomeFile, "lib" + File.separator + "jclMax" +  File.separator + "locale.zip"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+								File charconv = new File(javaHomeFile, "lib" +  File.separator + "charconv.zip"); //$NON-NLS-1$//$NON-NLS-2$
+								/* we don't need to check if defaultLibrary exists. This is done later when the user
+								 * classpath and the bootclasspath are merged. 
+								 */
+								bootclasspaths = new String[] {
+									defaultLibrary.getAbsolutePath(),
+									locales.getAbsolutePath(),
+									charconv.getAbsolutePath()};
+								bootclasspathCount = 3;
+							} catch (IOException e) {
+							}
+				 	 	}
+				 	 }
+				 } else {
+				 	/*
+				 	 * Handle >= JDK 1.2.2 settings: retrieve rt.jar
+				 	 */
+				 	 String javaHome = System.getProperty("java.home");//$NON-NLS-1$
+				 	 if (javaHome != null) {
+				 	 	File javaHomeFile = new File(javaHome);
+				 	 	if (javaHomeFile.exists()) {
+							try {
+								javaHomeFile = new File(javaHomeFile.getCanonicalPath());
+								// add all jars in the lib subdirectory
+								File[] systemLibrariesJars = getFilesFrom(new File(javaHomeFile, "lib"), ".jar");//$NON-NLS-1$//$NON-NLS-2$
+								int length = systemLibrariesJars.length;
+								bootclasspaths = new String[length];
+								for (int i = 0; i < length; i++) {
+									/* we don't need to check if this file exists. This is done later when the user
+									 * classpath and the bootclasspath are merged. 
+									 */
+									bootclasspaths[bootclasspathCount++] = systemLibrariesJars[i].getAbsolutePath();
+								} 
+							} catch (IOException e) {
+							}
+				 	 	}
+				 	 }
+				 }
+			 }
+		}
 
-		if (classpaths == null)
+		if (classpaths == null) {
 			classpaths = new String[0];
+		}
+		/* 
+		 * We put the bootclasspath at the beginning of the classpath entries
+		 */
+		String[] newclasspaths = null;
+		if ((pathCount + bootclasspathCount) != classpaths.length) {
+			newclasspaths = new String[pathCount + bootclasspathCount];
+		} else {
+			newclasspaths = classpaths;
+		}
 		System.arraycopy(
 			classpaths,
 			0,
-			(classpaths = new String[pathCount]),
-			0,
+			newclasspaths,
+			bootclasspathCount,
 			pathCount);
+
+		if (bootclasspathCount != 0) {
+			System.arraycopy(
+				bootclasspaths,
+				0,
+				newclasspaths,
+				0,
+				bootclasspathCount);
+		}
+		classpaths = newclasspaths;
 		for (int i = 0, max = classpaths.length; i < max; i++) {
 			File file = new File(classpaths[i]);
-			if (!file.exists()) // signal missing classpath entry file
+			if (!file.exists()) { // signal missing classpath entry file
 				out.println(Main.bind("configure.incorrectClasspath", classpaths[i])); //$NON-NLS-1$
+			} /* else {
+				out.println(classpaths[i]);
+			}*/
 		}
 		if (destinationPath == null) {
 			generatePackagesStructure = false;
@@ -1005,6 +1123,18 @@ public class Main implements ProblemSeverities {
 			repetitions = 1;
 		}
 	}
+	
+	private File[] getFilesFrom(File f, final String extension) {
+		return f.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				if (name.endsWith(extension)) {
+					return true;
+				}
+				return false;
+			}
+		});
+	}
+	
 	public Map getOptions() {
 		return this.options;
 	}

@@ -67,15 +67,12 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 */
 		cmd.createArgument().setValue("-noExit"); //$NON-NLS-1$
 
-        Path classpath = new Path(project);
-
-        /*
-         * Eclipse compiler doesn't support bootclasspath dir (-bootclasspath).
-         * It is emulated using the classpath. We add bootclasspath at the beginning of
-         * the classpath.
-         */
+		cmd.createArgument().setValue("-bootclasspath"); //$NON-NLS-1$
         if (bootclasspath != null && bootclasspath.size() != 0) {
-            classpath.append(bootclasspath);
+			/*
+			 * Set the bootclasspath for the Eclipse compiler.
+			 */
+			cmd.createArgument().setPath(bootclasspath);        	
         } else {
             /*
              * No bootclasspath, we will add one throught the JRE_LIB variable
@@ -84,10 +81,12 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			if (jre_lib == null) {
 				throw new BuildException(Util.bind("ant.jdtadapter.error.missingJRELIB")); //$NON-NLS-1$
 			}
-			classpath.addExisting(new Path(null, jre_lib.toOSString()));
+			cmd.createArgument().setPath(new Path(null, jre_lib.toOSString()));        	
         }
 
-        /*
+        Path classpath = new Path(project);
+
+       /*
          * Eclipse compiler doesn't support -extdirs.
          * It is emulated using the classpath. We add extdirs entries after the 
          * bootclasspath.

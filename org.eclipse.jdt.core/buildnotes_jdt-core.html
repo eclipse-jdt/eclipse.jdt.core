@@ -38,6 +38,11 @@ Eclipse SDK 2.0 Build - ? August 2002
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>New option -bootclasspath is added for the batch compiler. This option allows you to override the location of bootstrap
+class files. If omitted, the batch compiler will retrieve the libraries used by its JVM. So there is no more need to specify the
+rt.jar file using the -classpath option. The batch compiler also retrieves the contents of the property "java.class.path" if no 
+-classpath option is specified.
+</li>
 <li> Deprecation warning inside deprecated code are now ignored by default. A new JavaCore option
 allows to report them all.
 <pre>
@@ -77,7 +82,9 @@ a given task tag are looked for inside any type of comments, and reported as cus
 </li>
 </ul> 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23054">23054</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=20215">20215</a>
+Batch compiler ignores the CLASSPATH env variable
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=23054">23054</a>
 DOM - TypeDeclaration.getJavadoc() can find incorrect javadoc
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=22054">22054</a>
 Can't extract local variable from super send [refactoring]
