@@ -701,7 +701,38 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		} catch (IOException e) {
 			assertTrue(false);
 		}
-	}	
+	}
+
+	public void test008() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public class X  <T> {\n" + 
+			"	T newInstance() throws IllegalAccessException {\n" + 
+			"	    return null;\n" + 
+			"	}\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.print(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}",
+		};
+		this.runConformTest(
+			testsSource,
+			"SUCCESS");
+
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+			IBinaryMethod[] methods = classFileReader.getMethods();
+			assertNotNull("No methods", methods);
+			assertEquals("Wrong size", 3, methods.length);
+			assertEquals("Wrong name", "newInstance", new String(methods[1].getSelector()));
+			assertEquals("Wrong signature", "()TT;", new String(methods[1].getSignature()));
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}
+	
 	/*
 	 * Write given source test files in current output sub-directory.
 	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
