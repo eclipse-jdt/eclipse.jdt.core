@@ -2966,4 +2966,46 @@ public void test0142() throws JavaModelException {
 		}
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=88756
+public void test0143() throws JavaModelException {
+	Hashtable oldCurrentOptions = JavaCore.getOptions();
+	ICompilationUnit enumeration = null;
+	try {
+		Hashtable options = new Hashtable(oldCurrentOptions);
+		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.DISABLED);
+		JavaCore.setOptions(options);
+		
+		enumeration = getWorkingCopy(
+				"/Completion/src3/test0143/Colors.java",
+				"package test0143;\n" +
+				"public enum Colors {\n" +
+				"  RED, BLUE, WHITE;\n" +
+				"  private Colors(){};\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0143/Test.java",
+				"package test0143;\n" +
+				"public class Test {\n" +
+				"  void bar() {\n" +
+				"    new Colors(\n" + 
+				"  }\n" +
+				"}",
+				"Colors(");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"",
+				result.proposals);
+	} finally {
+		if(enumeration != null) {
+			enumeration.discardWorkingCopy();
+		}
+		JavaCore.setOptions(oldCurrentOptions);
+	}
+}
 }

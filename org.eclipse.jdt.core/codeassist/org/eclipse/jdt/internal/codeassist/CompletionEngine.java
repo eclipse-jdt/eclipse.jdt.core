@@ -911,7 +911,7 @@ public final class CompletionEngine
 															false);
 													}
 												}
-												if(!ref.isFinal()){
+												if(!ref.isFinal() && !ref.isEnum()){
 													findAnonymousType(
 														ref,
 														argTypes,
