@@ -483,7 +483,7 @@ public interface IType extends IMember, IParent {
 	 * @param monitor the given progress monitor
 	 * @return the stored hierarchy
 	 * @exception JavaModelException if the type is not the focus of the hierarchy or 
-	 *		if unable to read the input stream
+	 *		if unable to read the input stream (wrong format, IOException during reading, ...)
 	 * @see ITypeHierachy#store(OutputStream)
 	 * @since 2.1
 	 */
