@@ -587,12 +587,14 @@ ConstructorHeader ::= ConstructorHeaderName MethodHeaderParameters MethodHeaderT
 /:$readableName ConstructorHeader:/
 
 ConstructorHeaderName ::=  Modifiers TypeParameters 'Identifier' '('
-
+/.$putCase consumeConstructorHeaderName(); $break ./
 ConstructorHeaderName ::=  Modifiers 'Identifier' '('
-
+/.$putCase consumeConstructorHeaderName(); $break ./
 ConstructorHeaderName ::=  TypeParameters 'Identifier' '('
-
+/.$putCase consumeConstructorHeaderName(); $break ./
 ConstructorHeaderName ::=  'Identifier' '('
+/.$putCase consumeConstructorHeaderName(); $break ./
+/:$readableName ConstructorHeaderName:/
 
 FormalParameterList ::= FormalParameter
 FormalParameterList ::= FormalParameterList ',' FormalParameter
@@ -1512,8 +1514,8 @@ Arguments ::= '(' ArgumentListopt ')'
 
 Argumentsopt ::= $empty
 /.$putCase consumeEmptyArguments(); $break ./
-
 Argumentsopt ::= Arguments
+/:$readableName Argumentsopt:/
 
 EnumDeclarations ::= ';' ClassBodyDeclarationsopt
 /.$putCase consumeEnumDeclarations(); $break ./
@@ -1521,32 +1523,38 @@ EnumDeclarations ::= ';' ClassBodyDeclarationsopt
 
 EnumBodyDeclarationsopt ::= $empty
 /.$putCase consumeEmptyEnumDeclarations(); $break ./
-
 EnumBodyDeclarationsopt ::= EnumDeclarations
+/:$readableName EnumBodyDeclarationsopt:/
 
 -----------------------------------------------
 -- 1.5 features : enhanced for statement
 -----------------------------------------------
 EnhancedForStatement ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' Statement
 /.$putCase consumeEnhancedForStatement(); $break ./
+/:$readableName EnhancedForStatement:/
 
 EnhancedForStatementNoShortIf ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' StatementNoShortIf
 /.$putCase consumeEnhancedForStatementNoShortIf(); $break ./
+/:$readableName EnhancedForStatementNoShortIf:/
 
 -----------------------------------------------
 -- 1.5 features : static imports
 -----------------------------------------------
 SingleStaticImportDeclaration ::= SingleStaticImportDeclarationName ';'
 /.$putCase consumeSingleStaticImportDeclaration(); $break ./
+/:$readableName SingleStaticImportDeclaration:/
 
 SingleStaticImportDeclarationName ::= 'import' 'static' Name
 /.$putCase consumeSingleStaticImportDeclarationName(); $break ./
+/:$readableName SingleStaticImportDeclarationName:/
 
 StaticImportOnDemandDeclaration ::= StaticImportOnDemandDeclarationName ';'
 /.$putCase consumeStaticImportOnDemandDeclaration(); $break ./
+/:$readableName StaticImportOnDemandDeclaration:/
 
 StaticImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
 /.$putCase consumeStaticImportOnDemandDeclarationName(); $break ./
+/:$readableName StaticImportOnDemandDeclarationName:/
 
 -----------------------------------------------
 -- 1.5 features : generics
@@ -1563,88 +1571,109 @@ TypeArgumentList1 ::= TypeArgumentList ',' TypeArgument1
 TypeArgumentList ::= TypeArgument
 TypeArgumentList ::= TypeArgumentList ',' TypeArgument
 /.$putCase consumeTypeArgumentList(); $break ./
+/:$readableName TypeArgumentList:/
 
 TypeArgument ::= ReferenceType
 TypeArgument ::= Wildcard
+/:$readableName TypeArgument:/
 
 TypeArgument1 ::= ReferenceType1
 TypeArgument1 ::= Wildcard1
+/:$readableName TypeArgument1:/
 
 ReferenceType1 ::= ReferenceType '>'
 /.$putCase consumeReferenceType1(); $break ./
 ReferenceType1 ::= ClassOrInterface LESS TypeArgumentList2
 /.$putCase consumeReferenceType1(); $break ./
+/:$readableName ReferenceType1:/
 
 TypeArgumentList2 ::= TypeArgument2
 TypeArgumentList2 ::= TypeArgumentList ',' TypeArgument2
 /.$putCase consumeTypeArgumentList2(); $break ./
+/:$readableName TypeArgumentList2:/
 
 TypeArgument2 ::= ReferenceType2
 TypeArgument2 ::= Wildcard2
+/:$readableName TypeArgument2:/
 
 ReferenceType2 ::= ReferenceType '>>'
 /.$putCase consumeReferenceType2(); $break ./
 ReferenceType2 ::= ClassOrInterface LESS TypeArgumentList3
 /.$putCase consumeReferenceType2(); $break ./
+/:$readableName ReferenceType2:/
 
 TypeArgumentList3 ::= TypeArgument3
 TypeArgumentList3 ::= TypeArgumentList ',' TypeArgument3
 /.$putCase consumeTypeArgumentList3(); $break ./
+/:$readableName TypeArgumentList3:/
 
 TypeArgument3 ::= ReferenceType3
 TypeArgument3 ::= Wildcard3
+/:$readableName TypeArgument3:/
 
 ReferenceType3 ::= ReferenceType '>>>'
 /.$putCase consumeReferenceType3(); $break ./
+/:$readableName ReferenceType3:/
 
 Wildcard ::= '?' WildcardBoundsopt
 /.$putCase consumeWildcard(); $break ./
+/:$readableName Wildcard:/
 
 WildcardBoundsopt ::= $empty
 /.$putCase consumeEmptyWildcardBounds(); $break ./
 WildcardBoundsopt ::= WildcardBounds
+/:$readableName WildcardBounds:/
 
 WildcardBounds ::= 'extends' ReferenceType
 /.$putCase consumeWildcardBounds(); $break ./
 WildcardBounds ::= 'super' ReferenceType
 /.$putCase consumeWildcardBounds(); $break ./
+/:$readableName WildcardBounds:/
 
 Wildcard1 ::= '?' '>'
 /.$putCase consumeWildcard1(); $break ./
 Wildcard1 ::= '?' WildcardBounds1
 /.$putCase consumeWildcard1(); $break ./
+/:$readableName Wildcard1:/
 
 WildcardBounds1 ::= 'extends' ReferenceType1
 /.$putCase consumeWildcardBounds1(); $break ./
 WildcardBounds1 ::= 'super' ReferenceType1
 /.$putCase consumeWildcardBounds1(); $break ./
+/:$readableName WildcardBounds1:/
 
 Wildcard2 ::= '?' '>>'
 /.$putCase consumeWildcard2(); $break ./
 Wildcard2 ::= '?' WildcardBounds2
 /.$putCase consumeWildcard2(); $break ./
+/:$readableName Wildcard2:/
 
 WildcardBounds2 ::= 'extends' ReferenceType2
 /.$putCase consumeWildcardBounds2(); $break ./
 WildcardBounds2 ::= 'super' ReferenceType2
 /.$putCase consumeWildcardBounds2(); $break ./
+/:$readableName WildcardBounds2:/
 
 Wildcard3 ::= '?' '>>>'
 /.$putCase consumeWildcard3(); $break ./
 Wildcard3 ::= '?' WildcardBounds3
 /.$putCase consumeWildcard3(); $break ./
+/:$readableName Wildcard3:/
 
 WildcardBounds3 ::= 'extends' ReferenceType3
 /.$putCase consumeWildcardBounds3(); $break ./
 WildcardBounds3 ::= 'super' ReferenceType3
 /.$putCase consumeWildcardBounds3(); $break ./
+/:$readableName WildcardBound3:/
 
 TypeParameters ::= LESS TypeParameterList1
 /.$putCase consumeTypeParameters(); $break ./
+/:$readableName TypeParameters:/
 
 TypeParameterList ::= TypeParameter
 TypeParameterList ::= TypeParameterList ',' TypeParameter
 /.$putCase consumeTypeParameterList(); $break ./
+/:$readableName TypeParameterList:/
 
 TypeParameter ::= Identifier
 /.$putCase consumeTypeParameter(); $break ./
@@ -1652,17 +1681,21 @@ TypeParameter ::= Identifier 'extends' ReferenceType
 /.$putCase consumeTypeParameter(); $break ./
 TypeParameter ::= Identifier 'extends' ReferenceType AdditionalBoundList
 /.$putCase consumeTypeParameter(); $break ./
+/:$readableName TypeParameter:/
 
 AdditionalBoundList ::= AdditionalBound
 AdditionalBoundList ::= AdditionalBoundList AdditionalBound
 /.$putCase consumeAdditionalBoundList(); $break ./
+/:$readableName AdditionalBoundList:/
 
 AdditionalBound ::= '&' ReferenceType
 /.$putCase consumeAdditionalBound(); $break ./
+/:$readableName AdditionalBound:/
 
 TypeParameterList1 ::= TypeParameter1
 TypeParameterList1 ::= TypeParameterList ',' TypeParameter1
 /.$putCase consumeTypeParameterList1(); $break ./
+/:$readableName TypeParameterList1:/
 
 TypeParameter1 ::= Identifier '>'
 /.$putCase consumeTypeParameter1(); $break ./
@@ -1670,13 +1703,16 @@ TypeParameter1 ::= Identifier 'extends' ReferenceType1
 /.$putCase consumeTypeParameter1(); $break ./
 TypeParameter1 ::= Identifier 'extends' ReferenceType1 AdditionalBoundList1
 /.$putCase consumeTypeParameter1(); $break ./
+/:$readableName TypeParameter1:/
 
 AdditionalBoundList1 ::= AdditionalBound1
 AdditionalBoundList1 ::= AdditionalBoundList1 AdditionalBound1
 /.$putCase consumeAdditionalBoundList1(); $break ./
+/:$readableName AdditionalBoundList1:/
 
 AdditionalBound1 ::= '&' ReferenceType1
 /.$putCase consumeAdditionalBound1(); $break ./
+/:$readableName AdditionalBound1:/
 
 -------------------------------------------------
 -- Duplicate rules to remove ambiguity for (x) --
