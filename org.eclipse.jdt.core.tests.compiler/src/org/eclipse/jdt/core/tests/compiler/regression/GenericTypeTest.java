@@ -6703,4 +6703,44 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		"Unsafe type operation: The cast from Class to parameterized type Class<? extends Object> will not check conformance of type arguments at runtime\n" + 
 		"----------\n");
 	}		
+	// TODO (kent) simple covariance cases
+	public void _test243() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public X foo() { return this; }\n" +
+				"    public static void main(String[] args) throws Exception {\n" +
+				"        System.out.println(\"SUCCESS\");\n" +
+				"    }\n" +
+				"}\n",
+				"SubTypes.java",
+				"class A extends X {\n" +
+				"    public A foo() { return this; }\n" +
+				"}\n" +
+				"class B extends X {\n" +
+				"    public X foo() { return new X(); }\n" +
+				"    public B foo() { return this; }\n" +
+				"}\n" +
+				"class C extends A {\n" +
+				"    public X foo() { return new X(); }\n" +
+				"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in SubTypes.java (at line 5)\n" + 
+		"	public X foo() { return new X(); }\n" + 
+		"	         ^^^^^\n" + 
+		"Duplicate method foo() in type B\n" + 
+		"----------\n" + 
+		"2. ERROR in SubTypes.java (at line 6)\n" + 
+		"	public B foo() { return this; }\n" + 
+		"	         ^^^^^\n" + 
+		"Duplicate method foo() in type B\n" + 
+		"----------\n" + 
+		"3. ERROR in SubTypes.java (at line 9)\n" + 
+		"	public X foo() { return new X(); }\n" + 
+		"	         ^^^^^\n" + 
+		"The return type is incompatible with A.foo()\n" + 
+		"----------\n");
+	}		
 }
