@@ -13,15 +13,13 @@ import java.io.*;
 public class NameEnvironment implements INameEnvironment {
 
 ClasspathLocation[] classpathLocations;
-String[] initialTypeNames;
+State state;
+String[] initialTypeNames; // assumed that each name is of the form "a/b/ClassName"
+String[] additionalSourceFilenames; // assumed that each name is of the form "d:/eclipse/Test/a/b/ClassName.java"
 
-public NameEnvironment(ClasspathLocation[] classpathLocations) {
+public NameEnvironment(ClasspathLocation[] classpathLocations, State state) {
 	this.classpathLocations = classpathLocations;
-}
-
-void initialTypeNames(String[] initialTypeNames) {
-	// assumed that each typeName is of the form a/b/ClassName
-	this.initialTypeNames = initialTypeNames;
+	this.state = state;
 }
 
 static String assembleName(char[] fileName, char[][] packageName, char separator) {
@@ -72,5 +70,16 @@ public boolean isPackage(char[][] compoundName, char[] packageName) {
 }
 
 public void reset() {
+}
+
+void setNames(String[] initialTypeNames, String[] additionalSourceFilenames) {
+	this.initialTypeNames = initialTypeNames;
+	this.additionalSourceFilenames = additionalSourceFilenames;
+	for (int i = 0, length = classpathLocations.length; i < length; i++) {
+		ClasspathLocation classpath = classpathLocations[i];
+		classpath.reset();
+		if (classpath instanceof ClasspathMultiDirectory)
+			((ClasspathMultiDirectory) classpath).nameEnvironment = this;
+	}
 }
 }

@@ -95,6 +95,26 @@ public final class HashtableOfObject {
 		return value;
 	}
 
+	public Object removeKey(char[] key) {
+
+		int index = CharOperation.hashCode(key) % valueTable.length;
+		int keyLength = key.length;
+		char[] currentKey;
+		while ((currentKey = keyTable[index]) != null) {
+			if (currentKey.length == keyLength
+				&& CharOperation.prefixEquals(currentKey, key)) {
+					Object value = valueTable[index];
+					elementSize--;
+					keyTable[index] = null;
+					valueTable[index] = null;
+					rehash();
+					return value;
+				}
+			index = (index + 1) % keyTable.length;
+		}
+		return null;
+	}
+
 	private void rehash() {
 
 		HashtableOfObject newHashtable = new HashtableOfObject(elementSize * 2);

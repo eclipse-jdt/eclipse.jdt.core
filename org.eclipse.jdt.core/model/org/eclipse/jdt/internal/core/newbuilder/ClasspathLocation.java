@@ -12,8 +12,8 @@ import org.eclipse.jdt.internal.compiler.env.*;
 
 abstract class ClasspathLocation {
 
-static ClasspathLocation forSourceFolder(String sourceFolderPathname, String outputFolderPathname, State state) {
-	return new ClasspathMultiDirectory(sourceFolderPathname, outputFolderPathname, state);
+static ClasspathLocation forSourceFolder(String sourceFolderPathname, String outputFolderPathname) {
+	return new ClasspathMultiDirectory(sourceFolderPathname, outputFolderPathname);
 }
 
 static ClasspathLocation forRequiredProject(String outputFolderPathname) {
@@ -27,4 +27,7 @@ static ClasspathLocation forLibrary(String libraryPathname) {
 abstract void clear();
 abstract NameEnvironmentAnswer findClass(char[] className, char[][] packageName);
 abstract boolean isPackage(char[][] compoundName, char[] packageName);
+
+void reset() {
+}
 }

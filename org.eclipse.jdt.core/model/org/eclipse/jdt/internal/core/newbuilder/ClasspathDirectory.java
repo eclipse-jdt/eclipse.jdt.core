@@ -90,6 +90,11 @@ boolean isPackage(char[][] compoundName, char[] packageName) {
 	return directoryList(binaryPath, compoundName, packageName) != null;
 }
 
+void reset() {
+	this.missingPackages = new LookupTable(11);
+	this.directoryCache = new LookupTable(11);
+}
+
 public String toString() {
 	return "ClasspathDirectory " + binaryPath; //$NON-NLS-1$
 }

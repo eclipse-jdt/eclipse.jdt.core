@@ -19,10 +19,10 @@ ClasspathLocation[] classpathLocations;
 
 String outputLocationString;
 
-// keyed by filename "p1/p2/X", value is an array of additional type names "p1/p2/Y"
+// keyed by fileId (the full filesystem path "d:/xyz/eclipse/Test/p1/p2/A.java"), value is an array of additional type names "Y$M"
 HashtableOfObject additionalTypeNames;
 
-// keyed by filename "p1/p2/X", value is a ReferenceCollection
+// keyed by fileId (the full filesystem path "d:/xyz/eclipse/Test/p1/p2/A.java"), value is a ReferenceCollection
 HashtableOfObject references;
 
 private int stateNumber;
@@ -60,6 +60,8 @@ public void recordDependencies(char[] fileId, char[][][] qualifiedRefs, char[][]
 public void rememberAdditionalTypes(char[] fileId, char[][] typeNames) {
 	if (typeNames != null && typeNames.length > 0)
 		additionalTypeNames.put(fileId, typeNames);
+	else
+		additionalTypeNames.removeKey(fileId);
 }
 
 /**
