@@ -1428,20 +1428,20 @@ public char[] getSource(){
 }
 
 private void initialize(
-	boolean tokenizeComments, 
-	boolean tokenizeWhiteSpace, 
-	boolean checkNonExternalizedStringLiterals, 
-	boolean assertMode,
-	char[][] taskTags,
-	char[][] taskPriorities) {
+	boolean tokenizeCommentsValue, 
+	boolean tokenizeWhiteSpaceValue, 
+	boolean checkNonExternalizedStringLiteralsValue, 
+	boolean assertModeValue,
+	char[][] taskTagsValue,
+	char[][] taskPrioritiesValue) {
 		
 	this.eofPosition = Integer.MAX_VALUE;
-	this.tokenizeComments = tokenizeComments;
-	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
-	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
-	this.assertMode = assertMode;
-	this.taskTags = taskTags;
-	this.taskPriorities = taskPriorities;
+	this.tokenizeComments = tokenizeCommentsValue;
+	this.tokenizeWhiteSpace = tokenizeWhiteSpaceValue;
+	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiteralsValue;
+	this.assertMode = assertModeValue;
+	this.taskTags = taskTagsValue;
+	this.taskPriorities = taskPrioritiesValue;
 }
 
 /* Tokenize a method body, assuming that curly brackets are properly balanced.

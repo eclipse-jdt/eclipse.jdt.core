@@ -40,10 +40,10 @@ public RecoveredField(FieldDeclaration fieldDeclaration, RecoveredElement parent
  * Record an expression statement if field is expecting an initialization expression,
  * used for completion inside field initializers.
  */
-public RecoveredElement add(Statement statement, int bracketBalance) {
+public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 
 	if (this.alreadyCompletedFieldInitialization || !(statement instanceof Expression)) {
-		return super.add(statement, bracketBalance);
+		return super.add(statement, bracketBalanceValue);
 	} else {
 		this.alreadyCompletedFieldInitialization = true;
 		this.fieldDeclaration.initialization = (Expression)statement;
@@ -57,12 +57,12 @@ public RecoveredElement add(Statement statement, int bracketBalance) {
  * and the type is an anonymous type.
  * Used for completion inside field initializers.
  */
-public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance) {
+public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceValue) {
 
 	if (this.alreadyCompletedFieldInitialization 
 			|| !(typeDeclaration instanceof AnonymousLocalTypeDeclaration)
 			|| (this.fieldDeclaration.declarationSourceEnd != 0 && typeDeclaration.sourceStart > this.fieldDeclaration.declarationSourceEnd)) {
-		return super.add(typeDeclaration, bracketBalance);
+		return super.add(typeDeclaration, bracketBalanceValue);
 	} else { 
 		// Prepare anonymous type list
 		if (this.anonymousTypes == null) {
@@ -79,7 +79,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance)
 			}
 		}
 		// Store type declaration as an anonymous type
-		RecoveredType element = new RecoveredType(typeDeclaration, this, bracketBalance);
+		RecoveredType element = new RecoveredType(typeDeclaration, this, bracketBalanceValue);
 		this.anonymousTypes[this.anonymousTypeCount++] = element;
 		return element;
 	}

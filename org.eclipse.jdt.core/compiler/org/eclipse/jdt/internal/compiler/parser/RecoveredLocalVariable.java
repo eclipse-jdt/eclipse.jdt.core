@@ -31,15 +31,15 @@ public RecoveredLocalVariable(LocalDeclaration localDeclaration, RecoveredElemen
 /*
  * Record an expression statement if local variable is expecting an initialization expression. 
  */
-public RecoveredElement add(Statement statement, int bracketBalance) {
+public RecoveredElement add(Statement stmt, int bracketBalanceValue) {
 
-	if (this.alreadyCompletedLocalInitialization || !(statement instanceof Expression)) {
-		return super.add(statement, bracketBalance);
+	if (this.alreadyCompletedLocalInitialization || !(stmt instanceof Expression)) {
+		return super.add(stmt, bracketBalanceValue);
 	} else {
 		this.alreadyCompletedLocalInitialization = true;
-		this.localDeclaration.initialization = (Expression)statement;
-		this.localDeclaration.declarationSourceEnd = statement.sourceEnd;
-		this.localDeclaration.declarationEnd = statement.sourceEnd;
+		this.localDeclaration.initialization = (Expression)stmt;
+		this.localDeclaration.declarationSourceEnd = stmt.sourceEnd;
+		this.localDeclaration.declarationEnd = stmt.sourceEnd;
 		return this;
 	}
 }

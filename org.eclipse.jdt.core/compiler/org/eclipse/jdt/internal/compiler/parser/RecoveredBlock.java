@@ -41,16 +41,16 @@ public RecoveredBlock(Block block, RecoveredElement parent, int bracketBalance){
 /*
  * Record a nested block declaration 
  */
-public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalance) {
+public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValue) {
 
 	/* do not consider a nested block starting passed the block end (if set)
 		it must be belonging to an enclosing block */
 	if (blockDeclaration.sourceEnd != 0 
 		&& nestedBlockDeclaration.sourceStart > blockDeclaration.sourceEnd){
-		return this.parent.add(nestedBlockDeclaration, bracketBalance);
+		return this.parent.add(nestedBlockDeclaration, bracketBalanceValue);
 	}
 			
-	RecoveredBlock element = new RecoveredBlock(nestedBlockDeclaration, this, bracketBalance);
+	RecoveredBlock element = new RecoveredBlock(nestedBlockDeclaration, this, bracketBalanceValue);
 
 	// if we have a pending Argument, promote it into the new block
 	if (pendingArgument != null){
@@ -64,13 +64,13 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalance) {
 /*
  * Record a local declaration 
  */
-public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalance) {
-	return this.add(localDeclaration, bracketBalance, false);
+public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanceValue) {
+	return this.add(localDeclaration, bracketBalanceValue, false);
 }
 /*
  * Record a local declaration 
  */
-public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalance, boolean delegatedByParent) {
+public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanceValue, boolean delegatedByParent) {
 
 	/* local variables inside method can only be final and non void */
 /*	
@@ -96,11 +96,11 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 		if (delegatedByParent){
 			return this; //ignore
 		} else {
-			return this.parent.add(localDeclaration, bracketBalance);
+			return this.parent.add(localDeclaration, bracketBalanceValue);
 		}
 	}
 
-	RecoveredLocalVariable element = new RecoveredLocalVariable(localDeclaration, this, bracketBalance);
+	RecoveredLocalVariable element = new RecoveredLocalVariable(localDeclaration, this, bracketBalanceValue);
 
 	if (localDeclaration instanceof Argument){
 		pendingArgument = element;
@@ -114,42 +114,42 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 /*
  * Record a statement declaration 
  */
-public RecoveredElement add(Statement statement, int bracketBalance) {
-	return this.add(statement, bracketBalance, false);
+public RecoveredElement add(Statement stmt, int bracketBalanceValue) {
+	return this.add(stmt, bracketBalanceValue, false);
 }
 
 /*
  * Record a statement declaration 
  */
-public RecoveredElement add(Statement statement, int bracketBalance, boolean delegatedByParent) {
+public RecoveredElement add(Statement stmt, int bracketBalanceValue, boolean delegatedByParent) {
 
 	/* do not consider a nested block starting passed the block end (if set)
 		it must be belonging to an enclosing block */
 	if (blockDeclaration.sourceEnd != 0 
-		&& statement.sourceStart > blockDeclaration.sourceEnd){
+		&& stmt.sourceStart > blockDeclaration.sourceEnd){
 			
 		if (delegatedByParent){
 			return this; //ignore
 		} else {
-			return this.parent.add(statement, bracketBalance);
+			return this.parent.add(stmt, bracketBalanceValue);
 		}			
 	}
 			
-	RecoveredStatement element = new RecoveredStatement(statement, this, bracketBalance);
+	RecoveredStatement element = new RecoveredStatement(stmt, this, bracketBalanceValue);
 	this.attach(element);
-	if (statement.sourceEnd == 0) return element;
+	if (stmt.sourceEnd == 0) return element;
 	return this;	
 }
 /*
  * Addition of a type to an initializer (act like inside method body)
  */
-public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance) {
-	return this.add(typeDeclaration, bracketBalance, false);
+public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceValue) {
+	return this.add(typeDeclaration, bracketBalanceValue, false);
 }
 /*
  * Addition of a type to an initializer (act like inside method body)
  */
-public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance, boolean delegatedByParent) {
+public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceValue, boolean delegatedByParent) {
 
 	/* do not consider a type starting passed the block end (if set)
 		it must be belonging to an enclosing block */
@@ -158,11 +158,11 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance,
 		if (delegatedByParent){
 			return this; //ignore
 		} else {
-			return this.parent.add(typeDeclaration, bracketBalance);
+			return this.parent.add(typeDeclaration, bracketBalanceValue);
 		}
 	}
 			
-	RecoveredStatement element = new RecoveredType(typeDeclaration, this, bracketBalance);
+	RecoveredStatement element = new RecoveredType(typeDeclaration, this, bracketBalanceValue);
 	this.attach(element);
 	if (typeDeclaration.declarationSourceEnd == 0) return element;
 	return this;
@@ -315,7 +315,7 @@ public Statement updateStatement(){
 /*
  * Record a field declaration 
  */
-public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalance) {
+public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanceValue) {
 
 	/* local variables inside method can only be final and non void */
 	char[][] fieldTypeName; 
@@ -324,14 +324,14 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 		|| ((fieldTypeName = fieldDeclaration.type.getTypeName()).length == 1 // non void
 			&& CharOperation.equals(fieldTypeName[0], VoidBinding.sourceName()))){ 
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(fieldDeclaration.declarationSourceStart - 1));
-		return this.parent.add(fieldDeclaration, bracketBalance);
+		return this.parent.add(fieldDeclaration, bracketBalanceValue);
 	}
 	
 	/* do not consider a local variable starting passed the block end (if set)
 		it must be belonging to an enclosing block */
 	if (blockDeclaration.sourceEnd != 0 
 		&& fieldDeclaration.declarationSourceStart > blockDeclaration.sourceEnd){
-		return this.parent.add(fieldDeclaration, bracketBalance);
+		return this.parent.add(fieldDeclaration, bracketBalanceValue);
 	}
 
 	// ignore the added field, since indicates a local variable behind recovery point

@@ -1955,7 +1955,7 @@ protected void consumeEnterVariable() {
 	// EnterVariable ::= $empty
 	// do nothing by default
 
-	char[] name = identifierStack[identifierPtr];
+	char[] identifierName = identifierStack[identifierPtr];
 	long namePosition = identifierPositionStack[identifierPtr];
 	int extendedDimension = intStack[intPtr--];
 	AbstractVariableDeclaration declaration;
@@ -1964,11 +1964,11 @@ protected void consumeEnterVariable() {
 	if (isLocalDeclaration) {
 		// create the local variable declarations
 		declaration = 
-			this.createLocalDeclaration(null, name, (int) (namePosition >>> 32), (int) namePosition);
+			this.createLocalDeclaration(null, identifierName, (int) (namePosition >>> 32), (int) namePosition);
 	} else {
 		// create the field declaration
 		declaration = 
-			this.createFieldDeclaration(null, name, (int) (namePosition >>> 32), (int) namePosition); 
+			this.createFieldDeclaration(null, identifierName, (int) (namePosition >>> 32), (int) namePosition); 
 	}
 	
 	identifierPtr--;
@@ -2220,14 +2220,14 @@ protected void consumeFormalParameter() {
 	*/
 
 	identifierLengthPtr--;
-	char[] name = identifierStack[identifierPtr];
+	char[] identifierName = identifierStack[identifierPtr];
 	long namePositions = identifierPositionStack[identifierPtr--];
 	TypeReference type = getTypeReference(intStack[intPtr--] + intStack[intPtr--]);
 	int modifierPositions = intStack[intPtr--];
 	intPtr--;
 	Argument arg = 
 		new Argument(
-			name, 
+			identifierName, 
 			namePositions, 
 			type, 
 			intStack[intPtr + 1] & ~AccDeprecated); // modifiers
@@ -3923,8 +3923,8 @@ protected void consumeStatementDo() {
 	intPtr--;
 
 	//optimize the push/pop
-	Statement action = (Statement) astStack[astPtr];
-	if (action instanceof EmptyStatement
+	Statement statement = (Statement) astStack[astPtr];
+	if (statement instanceof EmptyStatement
 		&& problemReporter.options.complianceLevel <= CompilerOptions.JDK1_3) {
 		expressionLengthPtr--;
 		astStack[astPtr] = 
@@ -3938,7 +3938,7 @@ protected void consumeStatementDo() {
 		astStack[astPtr] = 
 			new DoStatement(
 				expressionStack[expressionPtr--], 
-				action, 
+				statement, 
 				intStack[intPtr--], 
 				endPosition); 
 	}
@@ -3954,15 +3954,15 @@ protected void consumeStatementFor() {
 	int length;
 	Expression cond = null;
 	Statement[] inits, updates;
-	Statement action;
+	Statement statement;
 	boolean scope = true;
 
 	//statements
 	astLengthPtr--; // we need to consume it
-	action = (Statement) astStack[astPtr--];
-	if (action instanceof EmptyStatement
+	statement = (Statement) astStack[astPtr--];
+	if (statement instanceof EmptyStatement
 		&& problemReporter.options.complianceLevel <= CompilerOptions.JDK1_3) {
-		action = null;
+		statement = null;
 	}
 
 	//updates are on the expresion stack
@@ -4011,7 +4011,7 @@ protected void consumeStatementFor() {
 			inits, 
 			cond, 
 			updates, 
-			action, 
+			statement, 
 			scope, 
 			intStack[intPtr--], 
 			endStatementPosition)); 
@@ -4193,17 +4193,17 @@ protected void consumeStatementWhile() {
 	// WhileStatement ::= 'while' '(' Expression ')' Statement
 	// WhileStatementNoShortIf ::= 'while' '(' Expression ')' StatementNoShortIf
 
-	Statement action = (Statement) astStack[astPtr];
+	Statement statement = (Statement) astStack[astPtr];
 	expressionLengthPtr--;
-	if (action instanceof Block) {
+	if (statement instanceof Block) {
 		astStack[astPtr] = 
 			new WhileStatement(
 				expressionStack[expressionPtr--], 
-				action, 
+				statement, 
 				intStack[intPtr--], 
 				endStatementPosition); 
 	} else {
-		if (action instanceof EmptyStatement
+		if (statement instanceof EmptyStatement
 			&& problemReporter.options.complianceLevel <= CompilerOptions.JDK1_3) {
 			astStack[astPtr] = 
 				new WhileStatement(
@@ -4215,7 +4215,7 @@ protected void consumeStatementWhile() {
 			astStack[astPtr] = 
 				new WhileStatement(
 					expressionStack[expressionPtr--], 
-					action, 
+					statement, 
 					intStack[intPtr--], 
 					endPosition); 
 		}
@@ -4717,12 +4717,12 @@ protected void consumeVariableInitializers() {
 protected TypeReference copyDims(TypeReference typeRef, int dim) {
 	return typeRef.copyDims(dim);
 }
-protected FieldDeclaration createFieldDeclaration(Expression initialization, char[] name, int sourceStart, int sourceEnd) {
-	return new FieldDeclaration(initialization, name, sourceStart, sourceEnd);
+protected FieldDeclaration createFieldDeclaration(Expression initialization, char[] fieldDeclarationName, int sourceStart, int sourceEnd) {
+	return new FieldDeclaration(initialization, fieldDeclarationName, sourceStart, sourceEnd);
 }
 
-protected LocalDeclaration createLocalDeclaration(Expression initialization, char[] name, int sourceStart, int sourceEnd) {
-	return new LocalDeclaration(initialization, name, sourceStart, sourceEnd);
+protected LocalDeclaration createLocalDeclaration(Expression initialization, char[] localDeclarationName, int sourceStart, int sourceEnd) {
+	return new LocalDeclaration(initialization, localDeclarationName, sourceStart, sourceEnd);
 }
 
 public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, CompilationResult compilationResult) {
@@ -7379,7 +7379,7 @@ public void recoveryTokenCheck() {
 		}
 	}
 }
-protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
+protected void reportSyntaxError(int act, int currentKind, int topOfStackState) {
 
 	/* remember current scanner position */
 	int startPos = scanner.startPosition;
@@ -7389,7 +7389,7 @@ protected void reportSyntaxError(int act, int currentKind, int stateStackTop) {
 	String tokenName = name[symbol_index[currentKind]];
 
 	//fetch all "accurate" possible terminals that could recover the error
-	int start, end = start = asi(stack[stateStackTop]);
+	int start, end = start = asi(stack[topOfStackState]);
 	while (asr[end] != 0)
 		end++;
 	int length = end - start;

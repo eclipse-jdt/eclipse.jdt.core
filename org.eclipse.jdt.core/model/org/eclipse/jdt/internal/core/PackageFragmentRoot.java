@@ -514,10 +514,10 @@ public String getJdkLevel() {
 						JavaModelManager.getJavaModelManager().closeZipFile(jar);
 					}
 				} else {
-					IResource resource = getResource();
+					IResource currentResource = getResource();
 					IFile classFile = null;
-					if (resource.getType() == IResource.FOLDER) {
-						classFile = searchClassFile((IFolder) resource);
+					if (currentResource.getType() == IResource.FOLDER) {
+						classFile = searchClassFile((IFolder) currentResource);
 					}
 					if (classFile != null) {
 						byte[] bytes = Util.getResourceContentsAsByteArray(classFile);

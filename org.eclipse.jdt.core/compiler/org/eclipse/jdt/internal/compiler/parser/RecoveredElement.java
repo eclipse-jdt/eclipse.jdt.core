@@ -39,92 +39,92 @@ public RecoveredElement(RecoveredElement parent, int bracketBalance, Parser pars
 /*
  *	Record a method declaration
  */
-public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bracketBalance) {
+public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
 	if (parent == null) {
 		return this; // ignore
 	} else {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(methodDeclaration.declarationSourceStart - 1));	
-		return this.parent.add(methodDeclaration, bracketBalance);
+		return this.parent.add(methodDeclaration, bracketBalanceValue);
 	}
 }
 /*
  * Record a nested block declaration
  */
-public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalance) {
+public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
 	if (parent == null) {
 		return this; // ignore
 	} else {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(nestedBlockDeclaration.sourceStart - 1));	
-		return this.parent.add(nestedBlockDeclaration, bracketBalance);
+		return this.parent.add(nestedBlockDeclaration, bracketBalanceValue);
 	}
 }
 /*
  * Record a field declaration
  */
-public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalance) {
+public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
 	if (parent == null) {
 		return this; // ignore
 	} else {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(fieldDeclaration.declarationSourceStart - 1));	
-		return this.parent.add(fieldDeclaration, bracketBalance);
+		return this.parent.add(fieldDeclaration, bracketBalanceValue);
 	}
 }
 /*
  *	Record an import reference
  */
-public RecoveredElement add(ImportReference importReference, int bracketBalance){
+public RecoveredElement add(ImportReference importReference, int bracketBalanceValue){
 
 	/* default behavior is to delegate recording to parent if any */
 	if (parent == null) {
 		return this; // ignore
 	} else {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(importReference.declarationSourceStart - 1));	
-		return this.parent.add(importReference, bracketBalance);
+		return this.parent.add(importReference, bracketBalanceValue);
 	}
 }
 /*
  * Record a local declaration
  */
-public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalance) {
+public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
 	if (parent == null) {
 		return this; // ignore
 	} else {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(localDeclaration.declarationSourceStart - 1));	
-		return this.parent.add(localDeclaration, bracketBalance);
+		return this.parent.add(localDeclaration, bracketBalanceValue);
 	}
 }
 /*
  * Record a statement
  */
-public RecoveredElement add(Statement statement, int bracketBalance) {
+public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 
 	/* default behavior is to delegate recording to parent if any */
 	if (parent == null) {
 		return this; // ignore
 	} else {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(statement.sourceStart - 1));	
-		return this.parent.add(statement, bracketBalance);
+		return this.parent.add(statement, bracketBalanceValue);
 	}
 }
 /*
  *	Record a type declaration
  */
-public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance){
+public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceValue){
 
 	/* default behavior is to delegate recording to parent if any */
 	if (parent == null) {
 		return this; // ignore
 	} else {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(typeDeclaration.declarationSourceStart - 1));	
-		return this.parent.add(typeDeclaration, bracketBalance);
+		return this.parent.add(typeDeclaration, bracketBalanceValue);
 	}
 }
 /*

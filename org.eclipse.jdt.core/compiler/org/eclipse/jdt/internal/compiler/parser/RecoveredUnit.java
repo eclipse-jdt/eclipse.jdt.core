@@ -37,7 +37,7 @@ public RecoveredUnit(CompilationUnitDeclaration unitDeclaration, int bracketBala
 /*
  *	Record a method declaration: should be attached to last type
  */
-public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bracketBalance) {
+public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bracketBalanceValue) {
 
 	/* attach it to last type - if any */
 	if (typeCount > 0){
@@ -45,14 +45,14 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 		type.bodyEnd = 0; // reset position
 		type.typeDeclaration.declarationSourceEnd = 0; // reset position
 		type.typeDeclaration.bodyEnd = 0;
-		return type.add(methodDeclaration, bracketBalance);
+		return type.add(methodDeclaration, bracketBalanceValue);
 	}
 	return this; // ignore
 }
 /*
  *	Record a field declaration: should be attached to last type
  */
-public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalance) {
+public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanceValue) {
 
 	/* attach it to last type - if any */
 	if (typeCount > 0){
@@ -60,11 +60,11 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 		type.bodyEnd = 0; // reset position
 		type.typeDeclaration.declarationSourceEnd = 0; // reset position
 		type.typeDeclaration.bodyEnd = 0;
-		return type.add(fieldDeclaration, bracketBalance);
+		return type.add(fieldDeclaration, bracketBalanceValue);
 	}
 	return this; // ignore
 }
-public RecoveredElement add(ImportReference importReference, int bracketBalance) {
+public RecoveredElement add(ImportReference importReference, int bracketBalanceValue) {
 	if (imports == null) {
 		imports = new RecoveredImport[5];
 		importCount = 0;
@@ -78,14 +78,14 @@ public RecoveredElement add(ImportReference importReference, int bracketBalance)
 				importCount); 
 		}
 	}
-	RecoveredImport element = new RecoveredImport(importReference, this, bracketBalance);
+	RecoveredImport element = new RecoveredImport(importReference, this, bracketBalanceValue);
 	imports[importCount++] = element;
 
 	/* if import not finished, then import becomes current */
 	if (importReference.declarationSourceEnd == 0) return element;
 	return this;		
 }
-public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance) {
+public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceValue) {
 	
 	if (typeDeclaration instanceof AnonymousLocalTypeDeclaration){
 		if (this.typeCount > 0) {
@@ -95,7 +95,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance)
 			lastType.typeDeclaration.bodyEnd = 0; // reopen type
 			lastType.typeDeclaration.declarationSourceEnd = 0; // reopen type
 			lastType.bracketBalance++; // expect one closing brace
-			return lastType.add(typeDeclaration, bracketBalance);
+			return lastType.add(typeDeclaration, bracketBalanceValue);
 		}
 	}
 	if (types == null) {
@@ -111,7 +111,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalance)
 				typeCount); 
 		}
 	}
-	RecoveredType element = new RecoveredType(typeDeclaration, this, bracketBalance);
+	RecoveredType element = new RecoveredType(typeDeclaration, this, bracketBalanceValue);
 	types[typeCount++] = element;
 
 	/* if type not finished, then type becomes current */

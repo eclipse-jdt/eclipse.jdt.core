@@ -198,13 +198,13 @@ public class CodeByteStream {
 		byteOffset= bitOffset= 0;
 		markByteOffset= markBitOffset= -1;
 	}
-	public void reset(byte[] bytes) {
-		this.bytes= bytes;
+	public void reset(byte[] bytesValue) {
+		this.bytes= bytesValue;
 		reset();
 	}
-	public void reset(byte[] bytes, int byteOffset) {
-		reset(bytes);
-		this.byteOffset= byteOffset;
+	public void reset(byte[] bytesValue, int byteOffsetValue) {
+		reset(bytesValue);
+		this.byteOffset= byteOffsetValue;
 	}
 	public boolean resetToMark() {
 		if (markByteOffset == -1)

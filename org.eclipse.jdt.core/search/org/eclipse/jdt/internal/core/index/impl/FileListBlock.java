@@ -28,22 +28,22 @@ public class FileListBlock extends Block {
 	 * difference between its name and the name of the previous indexedfile ...	
 	 */
 	public boolean addFile(IndexedFile indexedFile) {
-		int offset= this.offset;
+		int currentOffset= this.offset;
 		if (isEmpty()) {
-			field.putInt4(offset, indexedFile.getFileNumber());
-			offset += 4;
+			field.putInt4(currentOffset, indexedFile.getFileNumber());
+			currentOffset += 4;
 		}
 		String path= indexedFile.getPath();
 		int prefixLen= prevPath == null ? 0 : Util.prefixLength(prevPath, path);
 		int sizeEstimate= 2 + 2 + (path.length() - prefixLen) * 3;
-		if (offset + sizeEstimate > blockSize - 2)
+		if (currentOffset + sizeEstimate > blockSize - 2)
 			return false;
-		field.putInt2(offset, prefixLen);
-		offset += 2;
+		field.putInt2(currentOffset, prefixLen);
+		currentOffset += 2;
 		char[] chars= new char[path.length() - prefixLen];
 		path.getChars(prefixLen, path.length(), chars, 0);
-		offset += field.putUTF(offset, chars);
-		this.offset= offset;
+		currentOffset += field.putUTF(currentOffset, chars);
+		this.offset= currentOffset;
 		prevPath= path;
 		return true;
 	}
@@ -61,9 +61,9 @@ public class FileListBlock extends Block {
 	public IndexedFile getFile(int fileNum) throws IOException {
 		IndexedFile resp= null;
 		try {
-			String[] paths= getPaths();
+			String[] currentPaths = getPaths();
 			int i= fileNum - field.getInt4(0);
-			resp= new IndexedFile(paths[i], fileNum);
+			resp= new IndexedFile(currentPaths[i], fileNum);
 		} catch (Exception e) {
 			//fileNum too big
 		}
@@ -75,24 +75,24 @@ public class FileListBlock extends Block {
 	protected String[] getPaths() throws IOException {
 		if (paths == null) {
 			ArrayList v= new ArrayList();
-			int offset= 4;
-			char[] prevPath= null;
+			int currentOffset = 4;
+			char[] previousPath = null;
 			for (;;) {
-				int prefixLen= field.getUInt2(offset);
-				offset += 2;
-				int utfLen= field.getUInt2(offset);
-				char[] path= field.getUTF(offset);
-				offset += 2 + utfLen;
+				int prefixLen= field.getUInt2(currentOffset);
+				currentOffset += 2;
+				int utfLen= field.getUInt2(currentOffset);
+				char[] path= field.getUTF(currentOffset);
+				currentOffset += 2 + utfLen;
 				if (prefixLen != 0) {
 					char[] temp= new char[prefixLen + path.length];
-					System.arraycopy(prevPath, 0, temp, 0, prefixLen);
+					System.arraycopy(previousPath, 0, temp, 0, prefixLen);
 					System.arraycopy(path, 0, temp, prefixLen, path.length);
 					path= temp;
 				}
 				if (path.length == 0)
 					break;
 				v.add(new String(path));
-				prevPath= path;
+				previousPath= path;
 			}
 			paths= new String[v.size()];
 			v.toArray(paths);

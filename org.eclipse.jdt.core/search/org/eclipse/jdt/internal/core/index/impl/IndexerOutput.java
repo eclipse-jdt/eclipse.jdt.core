@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.core.index.IIndexerOutput;
 public class IndexerOutput implements IIndexerOutput {
 	protected InMemoryIndex index;
 	protected IndexedFile indexedFile;
-	protected IDocument document;
 	/**
 	 * IndexerOutput constructor comment.
 	 */
