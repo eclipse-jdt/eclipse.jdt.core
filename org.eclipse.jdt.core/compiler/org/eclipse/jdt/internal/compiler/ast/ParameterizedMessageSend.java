@@ -15,6 +15,30 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 public class ParameterizedMessageSend extends MessageSend {
 	public TypeReference[] typeArguments;
+
+public StringBuffer printExpression(int indent, StringBuffer output){
+	
+	if (!receiver.isImplicitThis()) receiver.printExpression(0, output).append('.');
+	if (typeArguments != null) {
+		output.append('<');//$NON-NLS-1$
+		int max = typeArguments.length - 1;
+		for (int j = 0; j < max; j++) {
+			typeArguments[j].print(0, output);
+			output.append(", ");//$NON-NLS-1$
+		}
+		typeArguments[max].print(0, output);
+		output.append('>');
+	}
+	
+	output.append(selector).append('(') ; //$NON-NLS-1$
+	if (arguments != null) {
+		for (int i = 0; i < arguments.length ; i ++) {	
+			if (i > 0) output.append(", "); //$NON-NLS-1$
+			arguments[i].printExpression(0, output);
+		}
+	}
+	return output.append(')');
+}
 	
 public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

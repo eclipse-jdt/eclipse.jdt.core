@@ -24,6 +24,37 @@ public class ParameterizedExplicitConstructorCall extends ExplicitConstructorCal
 		super(accessMode);
 	}
 
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+
+		printIndent(indent, output);
+		if (qualification != null) {
+			qualification.printExpression(0, output).append('.');
+		}
+		if (typeArguments != null) {
+			output.append('<');//$NON-NLS-1$
+			int max = typeArguments.length - 1;
+			for (int j = 0; j < max; j++) {
+				typeArguments[j].print(0, output);
+				output.append(", ");//$NON-NLS-1$
+			}
+			typeArguments[max].print(0, output);
+			output.append('>');
+		}
+		
+		if (accessMode == This) {
+			output.append("this("); //$NON-NLS-1$
+		} else {
+			output.append("super("); //$NON-NLS-1$
+		}
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				arguments[i].printExpression(0, output);
+			}
+		}
+		return output.append(");"); //$NON-NLS-1$
+	}
+
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.qualification != null) {

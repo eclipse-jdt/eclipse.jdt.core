@@ -30,6 +30,35 @@ public class ParameterizedQualifiedAllocationExpression extends QualifiedAllocat
 		return parameterizedQualifiedAllocationExpression;
 	}
 	
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		if (enclosingInstance != null)
+			enclosingInstance.printExpression(0, output).append('.'); 
+		if (typeArguments != null) {
+			output.append('<');//$NON-NLS-1$
+			int max = typeArguments.length - 1;
+			for (int j = 0; j < max; j++) {
+				typeArguments[j].print(0, output);
+				output.append(", ");//$NON-NLS-1$
+			}
+			typeArguments[max].print(0, output);
+			output.append('>');
+		}
+		output.append("new "); //$NON-NLS-1$
+		type.printExpression(0, output); 
+		output.append('(');
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				arguments[i].printExpression(0, output);
+			}
+		}
+		output.append(')');
+		if (anonymousType != null) {
+			anonymousType.print(indent, output);
+		}
+		return output;
+	}
+
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
 
 		if (visitor.visit(this, scope)) {

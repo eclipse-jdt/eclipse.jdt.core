@@ -25,6 +25,39 @@ public class ParameterizedMethodDeclaration extends MethodDeclaration {
 		super(compilationResult);
 	}
 
+	public StringBuffer print(int tab, StringBuffer output) {
+		printIndent(tab, output);
+		printModifiers(modifiers, output);
+		if (typeParameters != null) {
+			output.append('<');//$NON-NLS-1$
+			int max = typeParameters.length - 1;
+			for (int j = 0; j < max; j++) {
+				typeParameters[j].print(0, output);
+				output.append(", ");//$NON-NLS-1$
+			}
+			typeParameters[max].print(0, output);
+			output.append('>');
+		}
+	
+		printReturnType(0, output).append(selector).append('(');
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				arguments[i].print(0, output);
+			}
+		}
+		output.append(')');
+		if (thrownExceptions != null) {
+			output.append(" throws "); //$NON-NLS-1$
+			for (int i = 0; i < thrownExceptions.length; i++) {
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				thrownExceptions[i].print(0, output);
+			}
+		}
+		printBody(tab + 1, output);
+		return output;
+	}
+	
 	public void traverse(
 		IAbstractSyntaxTreeVisitor visitor,
 		ClassScope classScope) {
