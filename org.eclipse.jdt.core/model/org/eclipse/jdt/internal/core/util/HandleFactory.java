@@ -14,32 +14,49 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Initializer;
+import org.eclipse.jdt.internal.compiler.ast.LocalTypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
-import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.Openable;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.index.impl.JarFileEntryDocument;
 
 /**
@@ -253,7 +270,70 @@ public class HandleFactory {
 		}
 		return null;
 	}
-
+	/**
+	 * Returns a handle denoting the class member identified by its scope.
+	 */
+	public IJavaElement createElement(ClassScope scope, ICompilationUnit unit, HashSet existingElements) {
+		return createElement(scope, scope.referenceContext.sourceStart, unit, existingElements);
+	}
+	/**
+	 * Create handle by adding child to parent obtained by recursing into parent scopes.
+	 */
+	private IJavaElement createElement(Scope scope, int elementPosition, ICompilationUnit unit, HashSet existingElements) {
+		IJavaElement newElement = null;
+	
+		switch(scope.kind) {
+			case Scope.COMPILATION_UNIT_SCOPE :
+				newElement = unit;
+				break;			
+			case Scope.CLASS_SCOPE :
+					IJavaElement parentElement = createElement(scope.parent, elementPosition, unit, existingElements);
+				switch (parentElement.getElementType()) {
+					case IJavaElement.COMPILATION_UNIT :
+						newElement = ((ICompilationUnit)parentElement).getType(new String(scope.enclosingSourceType().sourceName));
+						break;						
+					case IJavaElement.TYPE :
+					case IJavaElement.FIELD :
+					case IJavaElement.INITIALIZER :
+					case IJavaElement.METHOD :
+						newElement = ((IMember)parentElement).getType(new String(scope.enclosingSourceType().sourceName), 1);
+						break;						
+				}
+				break;
+			case Scope.METHOD_SCOPE :
+				IType parentType = (IType) createElement(scope.parent, elementPosition, unit, existingElements);
+				MethodScope methodScope = (MethodScope) scope;
+				if (methodScope.isInsideInitializer()) {
+					// inside field or initializer, must find proper one
+					TypeDeclaration type = methodScope.referenceType();
+					for (int i = 0, length = type.fields.length; i < length; i++) {
+						FieldDeclaration field = type.fields[i];
+						if (field.sourceStart < elementPosition && field.sourceEnd > elementPosition) {
+							if (field.isField()) {
+								newElement = parentType.getField(new String(field.name));
+							} else {
+								newElement = parentType.getInitializer(1);
+							}
+							break;
+						}
+					}
+				} else {
+					// method element
+					AbstractMethodDeclaration method = methodScope.referenceMethod();
+					newElement = parentType.getMethod(new String(method.selector), Util.typeParameterSignatures(method));
+				}
+				break;				
+			case Scope.BLOCK_SCOPE :
+				newElement = createElement(scope.parent, elementPosition, unit, existingElements);
+				break;
+		}
+		// increment occurrence count if collision is detected
+		if (newElement != null) {
+			while (!existingElements.add(newElement)) ((JavaElement)newElement).occurrenceCount++;
+		}
+		return newElement;
+	}
+	
 	/**
 	 * Returns the package fragment root that corresponds to the given jar path.
 	 * See createOpenable(...) for the format of the jar path string.
