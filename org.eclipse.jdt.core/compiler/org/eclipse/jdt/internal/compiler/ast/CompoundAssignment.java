@@ -105,7 +105,7 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 			return null;
 		}
 		if (lhsId > 15 || expressionId > 15) {
-			if (lhsId != T_String) { // String += Thread is valid wheraas Thread += String  is not
+			if (lhsId != T_String) { // String += Thread is valid whereas Thread += String  is not
 				scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 				return null;
 			}
@@ -124,9 +124,8 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 			return null;
 		}
 		if (operator == PLUS){
-			// reject Object += String (39248)
-			if(scope.isJavaLangObject(lhsType)) {
-				// <Object> += <String> is illegal
+			if(lhsId == T_JavaLangObject) {
+				// <Object> += <String> is illegal (39248)
 				scope.problemReporter().invalidOperator(this, lhsType, expressionType);
 				return null;
 			} else {
