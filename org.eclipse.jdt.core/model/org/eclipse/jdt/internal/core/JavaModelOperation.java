@@ -201,7 +201,10 @@ protected void copyResources(IResource[] resources, IPath destinationPath) throw
 protected void createFile(IContainer folder, String name, InputStream contents, boolean force) throws JavaModelException {
 	IFile file= folder.getFile(new Path(name));
 	try {
-		file.create(contents, force, getSubProgressMonitor(1));
+		file.create(
+			contents, 
+			force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
+			getSubProgressMonitor(1));
 		this.hasModifiedResource = true;
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
@@ -214,7 +217,10 @@ protected void createFolder(IContainer parentFolder, String name, boolean force)
 	IFolder folder= parentFolder.getFolder(new Path(name));
 	try {
 		// we should use true to create the file locally. Only VCM should use tru/false
-		folder.create(force, true, getSubProgressMonitor(1));
+		folder.create(
+			force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
+			true, // local
+			getSubProgressMonitor(1));
 		this.hasModifiedResource = true;
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
@@ -232,13 +238,17 @@ protected void deleteEmptyPackageFragment(
 	IResource rootResource = fragment.getParent().getUnderlyingResource();
 
 	try {
-		resource.delete(force, getSubProgressMonitor(1));
+		resource.delete(
+			force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
+			getSubProgressMonitor(1));
 		while (resource instanceof IFolder) {
 			// deleting a package: delete the parent if it is empty (eg. deleting x.y where folder x doesn't have resources but y)
 			// without deleting the package fragment root
 			resource = resource.getParent();
 			if (!resource.equals(rootResource) && resource.members().length == 0) {
-				resource.delete(force, getSubProgressMonitor(1));
+				resource.delete(
+					force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
+					getSubProgressMonitor(1));
 				this.hasModifiedResource = true;
 			}
 		}
@@ -251,7 +261,9 @@ protected void deleteEmptyPackageFragment(
  */
 protected void deleteResource(IResource resource, boolean force) throws JavaModelException {
 	try {
-		resource.delete(force, getSubProgressMonitor(1));
+		resource.delete(
+			force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
+			getSubProgressMonitor(1));
 		this.hasModifiedResource = true;
 	} catch (CoreException e) {
 		throw new JavaModelException(e);
@@ -265,7 +277,10 @@ protected void deleteResources(IResource[] resources, boolean force) throws Java
 	IProgressMonitor subProgressMonitor = getSubProgressMonitor(resources.length);
 	IWorkspace workspace = resources[0].getWorkspace();
 	try {
-		workspace.delete(resources, force, subProgressMonitor);
+		workspace.delete(
+			resources,
+			force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
+			subProgressMonitor);
 		this.hasModifiedResource = true;
 	} catch (CoreException e) {
 		throw new JavaModelException(e);

@@ -241,9 +241,15 @@ private void processCompilationUnitResource(ICompilationUnit source, IPackageFra
 				}
 			}
 			if (this.isMove()) {
-				sourceResource.move(destFile.getFullPath(), fForce, true, getSubProgressMonitor(1));
+				sourceResource.move(
+					destFile.getFullPath(),
+					fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
+					getSubProgressMonitor(1));
 			} else {
-				sourceResource.copy(destFile.getFullPath(), fForce, getSubProgressMonitor(1));
+				sourceResource.copy(
+					destFile.getFullPath(), 
+					fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
+					getSubProgressMonitor(1));
 			}
 			this.hasModifiedResource = true;
 		} catch (JavaModelException e) {
@@ -255,7 +261,10 @@ private void processCompilationUnitResource(ICompilationUnit source, IPackageFra
 		// update new resource content
 		try {
 			if (!destFile.isReadOnly() && newContent != null){
-				destFile.setContents(new ByteArrayInputStream(newContent.getBytes()), fForce, true, getSubProgressMonitor(1));
+				destFile.setContents(
+					new ByteArrayInputStream(newContent.getBytes()), 
+					fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
+					getSubProgressMonitor(1));
 			}
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
@@ -281,7 +290,10 @@ private void processCompilationUnitResource(ICompilationUnit source, IPackageFra
 		// see http://dev.eclipse.org/bugs/show_bug.cgi?id=9351
 		try {
 			if (newContent != null){
-				destFile.setContents(new ByteArrayInputStream(newContent.getBytes()), fForce, true, getSubProgressMonitor(1));
+				destFile.setContents(
+					new ByteArrayInputStream(newContent.getBytes()), 
+					fForce ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
+					getSubProgressMonitor(1));
 			}
 		} catch (CoreException e) {
 			throw new JavaModelException(e);

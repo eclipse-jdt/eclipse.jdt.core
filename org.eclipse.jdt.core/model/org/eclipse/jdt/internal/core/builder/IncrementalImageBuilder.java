@@ -325,7 +325,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 					}
 					IFolder removedPackageFolder = outputFolder.getFolder(removedPackagePath);
 					if (removedPackageFolder.exists())
-						removedPackageFolder.delete(true, null);
+						removedPackageFolder.delete(IResource.FORCE, null);
 					// add dependents even when the package thinks it does not exist to be on the safe side
 					if (JavaBuilder.DEBUG)
 						System.out.println("Add dependents of removed package " + removedPackagePath); //$NON-NLS-1$
@@ -389,19 +389,19 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 						if (outputFile.exists()) {
 							if (JavaBuilder.DEBUG)
 								System.out.println("Deleting existing file " + resourcePath); //$NON-NLS-1$
-							outputFile.delete(true, null);
+							outputFile.delete(IResource.FORCE, null);
 						}
 						if (JavaBuilder.DEBUG)
 							System.out.println("Copying added file " + resourcePath); //$NON-NLS-1$
 						getOutputFolder(resourcePath.removeLastSegments(1)); // ensure package exists in the output folder
-						resource.copy(outputFile.getFullPath(), true, null);
+						resource.copy(outputFile.getFullPath(), IResource.FORCE, null);
 						outputFile.setDerived(true);
 						return;
 					case IResourceDelta.REMOVED :
 						if (outputFile.exists()) {
 							if (JavaBuilder.DEBUG)
 								System.out.println("Deleting removed file " + resourcePath); //$NON-NLS-1$
-							outputFile.delete(true, null);
+							outputFile.delete(IResource.FORCE, null);
 						}
 						return;
 					case IResourceDelta.CHANGED :
@@ -410,12 +410,12 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int segmentCount) thr
 						if (outputFile.exists()) {
 							if (JavaBuilder.DEBUG)
 								System.out.println("Deleting existing file " + resourcePath); //$NON-NLS-1$
-							outputFile.delete(true, null);
+							outputFile.delete(IResource.FORCE, null);
 						}
 						if (JavaBuilder.DEBUG)
 							System.out.println("Copying changed file " + resourcePath); //$NON-NLS-1$
 						getOutputFolder(resourcePath.removeLastSegments(1)); // ensure package exists in the output folder
-						resource.copy(outputFile.getFullPath(), true, null);
+						resource.copy(outputFile.getFullPath(), IResource.FORCE, null);
 						outputFile.setDerived(true);
 				}
 				return;
@@ -455,7 +455,7 @@ protected void removeClassFile(IPath typePath) throws CoreException {
 	if (classFile.exists()) {
 		if (JavaBuilder.DEBUG)
 			System.out.println("Deleting class file of removed type " + typePath); //$NON-NLS-1$
-		classFile.delete(true, null);
+		classFile.delete(IResource.FORCE, null);
 	}
 }
 
@@ -513,7 +513,7 @@ protected boolean writeClassFileCheck(IFile file, String fileName, byte[] newByt
 			addDependentsOf(new Path(fileName), true);
 		}
 
-		file.delete(true, null);
+		file.delete(IResource.FORCE, null);
 	} else if (isSecondaryType) {
 		addDependentsOf(new Path(fileName), true); // new secondary type
 	}

@@ -396,7 +396,7 @@ protected char[] writeClassFile(ClassFile classFile, boolean isSecondaryType) th
 	if (writeClassFileCheck(file, fileName, bytes, isSecondaryType)) {
 		if (JavaBuilder.DEBUG)
 			System.out.println("Writing class file " + file.getName());//$NON-NLS-1$
-		file.create(new ByteArrayInputStream(bytes), true, null);
+		file.create(new ByteArrayInputStream(bytes), IResource.FORCE, null);
 		file.setDerived(true);
 	} else if (JavaBuilder.DEBUG) {
 		System.out.println("Skipped over unchanged class file " + file.getName());//$NON-NLS-1$

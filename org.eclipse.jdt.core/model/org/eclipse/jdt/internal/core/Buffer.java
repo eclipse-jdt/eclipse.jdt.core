@@ -325,7 +325,10 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 
 		// use a platform operation to update the resource contents
 		try {
-			this.file.setContents(stream, force, true, null); // record history
+			this.file.setContents(
+				stream, 
+				force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
+				null);
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
 		}

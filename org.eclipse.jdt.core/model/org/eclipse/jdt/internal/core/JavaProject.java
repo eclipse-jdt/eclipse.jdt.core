@@ -2083,9 +2083,9 @@ public class JavaProject
 		InputStream inputStream = new ByteArrayInputStream(value.getBytes());
 		// update the resource content
 		if (rscFile.exists()) {
-			rscFile.setContents(inputStream, true, false, null);
+			rscFile.setContents(inputStream, IResource.FORCE, null);
 		} else {
-			rscFile.create(inputStream, true, null);
+			rscFile.create(inputStream, IResource.FORCE, null);
 		}
 	}
 

@@ -83,7 +83,7 @@ protected void scrubOutputFolder() throws CoreException {
 		// outputPath is not on the class path so wipe it clean then copy extra resources back
 		IResource[] members = outputFolder.members(); 
 		for (int i = 0, length = members.length; i < length; i++)
-			members[i].delete(true, null);
+			members[i].delete(IResource.FORCE, null);
 		notifier.checkCancel();
 		copyExtraResourcesBack();
 	} else {
@@ -93,7 +93,7 @@ protected void scrubOutputFolder() throws CoreException {
 				public boolean visit(IResource resource) throws CoreException {
 					if (resource.getType() == IResource.FILE) {
 						if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(resource.getFileExtension()))
-							resource.delete(true, null);
+							resource.delete(IResource.FORCE, null);
 						return false;
 					}
 					return true;
@@ -128,7 +128,7 @@ protected void copyExtraResourcesBack() throws CoreException {
 							if (copiedResource.exists()) {
 								createErrorFor(resource, Util.bind("build.duplicateResource")); //$NON-NLS-1$
 							} else {
-								resource.copy(copiedResource.getFullPath(), true, null);
+								resource.copy(copiedResource.getFullPath(), IResource.FORCE, null);
 								copiedResource.setDerived(true);
 							}
 							return false;
