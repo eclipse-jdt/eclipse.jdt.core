@@ -1551,6 +1551,14 @@ protected void consumeModifiers() {
 	this.lastModifiersStart = intStack[intPtr];
 	this.lastModifiers = 	intStack[intPtr-1];
 }
+protected void consumeReferenceType() {
+	if (this.identifierLengthStack[this.identifierLengthPtr] > 1) { // reducing a qualified name
+		// potential receiver is being poped, so reset potential receiver
+		this.invocationType = NO_RECEIVER;
+		this.qualifier = -1;
+	}
+	super.consumeReferenceType();
+}
 protected void consumeRestoreDiet() {
 	super.consumeRestoreDiet();
 	if (isInsideMethod()) {

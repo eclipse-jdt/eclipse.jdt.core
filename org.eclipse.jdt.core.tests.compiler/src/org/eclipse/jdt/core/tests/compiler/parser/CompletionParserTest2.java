@@ -7278,4 +7278,130 @@ public void test0129(){
 		expectedReplacedSource,
 		"full ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=42856
+ */
+public void test0130(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    A.B c = null;\n" +
+		"    zzz();\n" +
+		"  }\n" +
+		"}\n";
+
+	String completeBehind = "zzz(";
+	int cursorLocation = str.indexOf("zzz(") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
+		"}\n";
+
+	checkDietParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
+
+	expectedCompletionNodeToString = "<CompleteOnMessageSend:zzz()>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "zzz(";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    A.B c;\n" + 
+		"    <CompleteOnMessageSend:zzz()>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=42856
+ */
+public void test0131(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    try {\n" +
+		"    } catch(A.B e) {\n" +
+		"      zzz();\n" +
+		"    }\n" +
+		"  }\n" +
+		"}\n";
+
+	String completeBehind = "zzz(";
+	int cursorLocation = str.indexOf("zzz(") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
+		"}\n";
+
+	checkDietParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
+
+	expectedCompletionNodeToString = "<CompleteOnMessageSend:zzz()>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "zzz(";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      A.B e;\n" + 
+		"      <CompleteOnMessageSend:zzz()>;\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"full ast");
+}
 }
