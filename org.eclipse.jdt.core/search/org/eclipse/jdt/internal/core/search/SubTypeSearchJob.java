@@ -33,7 +33,7 @@ public class SubTypeSearchJob extends PatternSearchJob {
 public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, int detailLevel, IIndexSearchRequestor requestor, IndexManager indexManager) {
 	super(pattern, scope, detailLevel, requestor, indexManager);
 }
-public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, IJavaElement focus, int detailLevel, IIndexSearchRequestor requestor, org.eclipse.jdt.internal.core.search.indexing.IndexManager indexManager) {
+public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, IJavaElement focus, int detailLevel, IIndexSearchRequestor requestor, IndexManager indexManager) {
 	super(pattern, scope, focus, detailLevel, requestor, indexManager);
 }
 public void closeAll(){
