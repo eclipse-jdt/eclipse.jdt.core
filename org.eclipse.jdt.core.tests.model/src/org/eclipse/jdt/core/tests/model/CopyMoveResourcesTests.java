@@ -482,11 +482,11 @@ public void testCopyReadOnlyPackageFragment() throws CoreException {
 		assertTrue("Not readOnly", getPackage("/P/src2/p1/p2/p3").getResource().isReadOnly());
 		assertTrue("Is readOnly", getFile("/P/src2/p1/p2/p3/X.java").isReadOnly());
 	} finally {
-		if (pkgSource != null) {
-			pkgSource.getResource().setReadOnly(false);
-		}
 		if (pkg2 != null) {
 			pkg2.getResource().setReadOnly(false);
+		}
+		if (pkgSource != null) {
+			pkgSource.getResource().setReadOnly(false);
 		}
 		deleteFolder("/P/src/p1");
 	}
@@ -870,11 +870,11 @@ public void testMoveReadOnlyPackageFragment() throws CoreException {
 		assertTrue("Not readOnly", getPackage("/P/src2/p1/p2/p3").getResource().isReadOnly());
 		assertTrue("Is readOnly", getFile("/P/src2/p1/p2/p3/X.java").isReadOnly());
 	} finally {
-		if (pkgSource != null) {
-			pkgSource.getResource().setReadOnly(false);
-		}
 		if (pkg2 != null) {
 			pkg2.getResource().setReadOnly(false);
+		}
+		if (pkgSource != null) {
+			pkgSource.getResource().setReadOnly(false);
 		}
 		deleteFolder("/P/src/p1");
 	}
