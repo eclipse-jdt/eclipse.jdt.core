@@ -595,106 +595,6 @@ public class JavaProject
 	}
 
 	/**
-	 * Returns all the <code>IPackageFragmentRoot</code>s the builder needs to
-	 * know about in order to build this project. This includes:
-	 * <ul>
-	 *   <li>the source roots for the current project
-	 *   <li>the binary roots (output locations) for the required projects
-	 *   <li>the binary roots for any jar/lib used by this project
-	 * </li>
-	 * @deprecated - old builder related
-	 */
-	public IPackageFragmentRoot[] getBuilderRoots(IResourceDelta delta) throws JavaModelException {
-		
-		boolean rememberToDiscard = JavaModelManager.USING_NEW_BUILDER;
-
-		ArrayList builderRoots = new ArrayList();
-		HashSet rootIDs = new HashSet();
-		rootIDs.add(this.rootID());
-		computeBuilderRoots(delta, builderRoots, rootIDs, true);
-		IPackageFragmentRoot[] result = new IPackageFragmentRoot[builderRoots.size()];
-		builderRoots.toArray(result);
-		return result;
-	}
-	
-	public void computeBuilderRoots(IResourceDelta delta, ArrayList builderRoots, HashSet rootIDs, boolean insideInitialProject)
-		throws JavaModelException {
-
-		boolean rememberToDiscard = JavaModelManager.USING_NEW_BUILDER;
-		
-		IClasspathEntry[] classpath;
-		classpath = getResolvedClasspath(true);
-		IResource res;
-		JavaProject project;
-
-		for (int i = 0; i < classpath.length; i++) {
-			IClasspathEntry entry = classpath[i];
-			String rootID = ((ClasspathEntry)entry).rootID();
-			if (rootIDs.contains(rootID)){
-				continue; // skip current entry already found
-			}
-			if (!insideInitialProject && !entry.isExported()){
-				continue; // non-visible entry
-			}
-			switch (entry.getEntryKind()) {
-
-				case IClasspathEntry.CPE_LIBRARY :
-					IPackageFragmentRoot[] roots = this.getPackageFragmentRoots(entry);
-					if (roots.length > 0){
-						builderRoots.add(roots[0]);
-						rootIDs.add(rootID);
-					}
-					break;
-
-				case IClasspathEntry.CPE_PROJECT :
-					// other project contributions are restrained to their binary output
-					res = retrieveResource(entry.getPath(), delta);
-					if (res != null) {
-						project = (JavaProject) JavaCore.create(res);
-						if (project.isOpen()) {
-							res = retrieveResource(project.getOutputLocation(), delta);
-							if (res != null) {
-								PackageFragmentRoot root =
-									(PackageFragmentRoot) project.getPackageFragmentRoot(res);
-								root.setOccurrenceCount(root.getOccurrenceCount() + 1);
-								((PackageFragmentRootInfo) root.getElementInfo()).setRootKind(
-									IPackageFragmentRoot.K_BINARY);
-								root.refreshChildren();
-								builderRoots.add(root);
-							}
-							rootIDs.add(rootID);
-							project.computeBuilderRoots(delta, builderRoots, rootIDs, false);
-						}
-					}
-					break;
-
-				case IClasspathEntry.CPE_SOURCE :
-					if (getCorrespondingResource().getFullPath().isPrefixOf(entry.getPath())) {
-						res = retrieveResource(entry.getPath(), delta);
-						if (res != null)
-							builderRoots.add(getPackageFragmentRoot(res));
-							rootIDs.add(rootID);
-					} else {
-						IProject proj = (IProject) getWorkspace().getRoot().findMember(entry.getPath());
-						project = (JavaProject) JavaCore.create(proj);
-						if (proj.isOpen()) {
-							res = retrieveResource(project.getOutputLocation(), delta);
-							PackageFragmentRoot root =
-								(PackageFragmentRoot) project.getPackageFragmentRoot(res);
-							root.setOccurrenceCount(root.getOccurrenceCount() + 1);
-							((PackageFragmentRootInfo) root.getElementInfo()).setRootKind(
-								IPackageFragmentRoot.K_BINARY);
-							root.refreshChildren();
-							builderRoots.add(root);
-							rootIDs.add(rootID);
-						}
-					}
-					break;
-			}
-		}
-	}
-
-	/**
 	 * Returns the XML String encoding of the class path.
 	 */
 	protected String getClasspathAsXMLString(
@@ -1376,11 +1276,7 @@ public class JavaProject
 	 */
 	public boolean hasBuildState() {
 
-		if (JavaModelManager.USING_NEW_BUILDER){
-			return JavaModelManager.getJavaModelManager().getLastBuiltState2(this.getProject(), null) != null;
-		} else {
-			return JavaModelManager.getJavaModelManager().getLastBuiltState(this.getProject(), null) != null;
-		}
+		return JavaModelManager.getJavaModelManager().getLastBuiltState(this.getProject(), null) != null;
 	}
 
 	/**

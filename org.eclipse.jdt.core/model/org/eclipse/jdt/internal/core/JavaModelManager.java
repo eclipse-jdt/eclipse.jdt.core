@@ -1,25 +1,19 @@
 package org.eclipse.jdt.internal.core;
-
-/*
+/*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-
+
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.resources.*;
-
-import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.builder.IDevelopmentContext;
-import org.eclipse.jdt.internal.core.builder.IPackage;
-import org.eclipse.jdt.internal.core.builder.IState;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.core.builder.impl.*;
+import org.eclipse.jdt.internal.core.newbuilder.JavaBuilder;
 import org.eclipse.jdt.internal.core.search.indexing.*;
-
-import java.io.*;
+import java.io.*;
 import java.util.*;
 import java.util.zip.ZipFile;
 import javax.xml.parsers.*;
@@ -27,9 +21,7 @@ import org.apache.xerces.dom.*;
 import org.apache.xml.serialize.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
-
-import org.eclipse.jdt.internal.core.builder.NotPresentException;
-
+
 /**
  * The <code>JavaModelManager</code> manages instances of <code>IJavaModel</code>.
  * <code>IElementChangedListener</code>s register with the <code>JavaModelManager</code>,
@@ -375,25 +367,12 @@ public static IJavaElement determineIfOnClasspath(
 	 */
 	protected Map perProjectInfo = new HashMap(5);
 
-
 	static class PerProjectInfo {
 		IProject project;
 		Object savedState;
-		IDevelopmentContext developmentContext = new JavaDevelopmentContextImpl();
-		byte[] savedStateFingerprint;
 		boolean triedRead = false;
 		PerProjectInfo(IProject project) {
 			this.project = project;
-		}
-		IState getLastBuiltState() {
-			try {
-				return developmentContext.getCurrentState();
-			} catch (NotPresentException e) {
-				return null;
-			}
-		}
-		void setLastBuiltState(IState state) {
-			developmentContext.setCurrentState(state);
 		}
 	};
 	public static boolean VERBOSE = false;
@@ -511,17 +490,6 @@ public void doneSaving(ISaveContext context){
 	 */
 	protected void flush() {
 		fJavaModelDeltas= new ArrayList();
-	}
-
-	
-
-	/**
-	 * Returns the development context to use for the given project.
-	 *
-	 * @private for use by image builder only
-	 */
-	public IDevelopmentContext getDevelopmentContext(IProject project) {
-		return getPerProjectInfo(project).developmentContext;
 	}
 	/** 
 	 * Returns the set of elements which are out of synch with their buffers.
@@ -676,22 +644,7 @@ public void doneSaving(ISaveContext context){
 	 *
 	 * @private for use by image builder and evaluation support only
 	 */
-	public IState getLastBuiltState(IProject project, IProgressMonitor monitor) {
-		PerProjectInfo info= getPerProjectInfo(project);
-		IState state= info.getLastBuiltState();
-		if (state == null && JavaBuilder.SAVE_ENABLED && !info.triedRead) {
-			info.triedRead= true;
-			try {
-				if (monitor != null) monitor.subTask(Util.bind("build.readStateProgress", project.getName())); //$NON-NLS-1$
-				state= readState(info);
-				info.setLastBuiltState(state);
-			} catch (CoreException e) {
-				e.printStackTrace();
-			}
-		}
-		return state;
-	}
-	public Object getLastBuiltState2(IProject project, IProgressMonitor monitor) {
+	public Object getLastBuiltState(IProject project, IProgressMonitor monitor) {
 		PerProjectInfo info= getPerProjectInfo(project);
 		Object state= info.savedState;
 		if (state == null && !info.triedRead) {
@@ -699,30 +652,12 @@ public void doneSaving(ISaveContext context){
 			try {
 				if (monitor != null)
 					monitor.subTask(Util.bind("build.readStateProgress", project.getName())); //$NON-NLS-1$
-				state = readState2(project);
+				state = readState(project);
 			} catch (CoreException e) {
 				e.printStackTrace();
 			}
 		}
 		return state;
-	}
-	/**
-	 * Returns the last built state for the given project, or null if there is none.
-	 * Deserializes the state if necessary.
-	 *
-	 */
-	public INameEnvironment getNameEnvironment(IProject project) {
-		StateImpl state= (StateImpl) getLastBuiltState(project, null);
-		if (state == null)
-			return null;
-			
-		BuilderEnvironment env = new BuilderEnvironment(new BatchImageBuilder(state));
-		
-		// Fix for 1GB7PUI: ITPJCORE:WINNT - evaluation from type in default package
-		IPackage defaultPackage = state.getDevelopmentContext().getImage().getPackageHandle(PackageImpl.DEFAULT_PACKAGE_PREFIX + project.getName(), true);
-		env.setDefaultPackage(defaultPackage);
-		
-		return env;
 	}
 	/**
 	 * Returns the per-project info for the given project.
@@ -910,38 +845,7 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 	/**
 	 * Reads the build state for the relevant project.
 	 */
-	protected IState readState(PerProjectInfo info) throws CoreException {
-		File file= getSerializationFile(info.project);
-		if (file == null || !file.exists())
-			return null;
-		try {
-			DataInputStream in= new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
-			try {
-				String pluginID= in.readUTF();
-				if (!pluginID.equals(JavaCore.PLUGIN_ID))
-					throw new IOException(Util.bind("build.wrongFileFormat")); //$NON-NLS-1$
-				String kind= in.readUTF();
-				if (!kind.equals("STATE")) //$NON-NLS-1$
-					throw new IOException(Util.bind("build.wrongFileFormat")); //$NON-NLS-1$
-				int version= in.readInt();
-				if (version != 0x0001)
-					throw new IOException(Util.bind("build.unhandledVersionFormat")); //$NON-NLS-1$
-				boolean hasState= in.readBoolean();
-				IState state= null;
-				if (hasState) {
-					state= info.developmentContext.restoreState(info.project, in);
-				}
-				return state;
-			} finally {
-				in.close();
-			}
-		} catch (Exception e) {
-			//e.printStackTrace(); - silent failure
-			//throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, "Error reading last build state for project "+ info.project.getFullPath(), e));
-		}
-		return null;
-	}
-	protected Object readState2(IProject project) throws CoreException {
+	protected Object readState(IProject project) throws CoreException {
 		File file = getSerializationFile(project);
 		if (file != null && file.exists()) {
 			try {
@@ -954,7 +858,7 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 					if (!kind.equals("STATE")) //$NON-NLS-1$
 						throw new IOException(Util.bind("build.wrongFileFormat")); //$NON-NLS-1$
 					if (in.readBoolean())
-						return org.eclipse.jdt.internal.core.newbuilder.JavaBuilder.readState(in);
+						return JavaBuilder.readState(in);
 				} finally {
 					in.close();
 				}
@@ -1124,15 +1028,11 @@ public void rollback(ISaveContext context){
 		}
 	}
 	private void saveBuildState() throws CoreException {
-		if (!JavaBuilder.SAVE_ENABLED) return; // REMOVE?
 		ArrayList vStats= null; // lazy initialized
 		for (Iterator iter =  perProjectInfo.values().iterator(); iter.hasNext();) {
 			PerProjectInfo info= (PerProjectInfo) iter.next();
 			try {
-				if (USING_NEW_BUILDER)
-					saveState2(info);
-				else
-					saveStateIfNecessary(info);
+				saveState(info);
 			} catch (CoreException e) {
 				if (vStats == null)
 					vStats= new ArrayList();
@@ -1149,44 +1049,6 @@ public void rollback(ISaveContext context){
 	 * Saves the built state for the project.
 	 */
 	private void saveState(PerProjectInfo info) throws CoreException {
-
-		if (VERBOSE) System.out.println(Util.bind("build.saveStateProgress", info.project.getName())); //$NON-NLS-1$
-		long t= System.currentTimeMillis();
-		File file= getSerializationFile(info.project);
-		if (file == null) return;
-		try {
-			DataOutputStream out= new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
-			try {
-				out.writeUTF(JavaCore.PLUGIN_ID);
-				out.writeUTF("STATE"); //$NON-NLS-1$
-				out.writeInt(0x0001);
-				IState state= info.getLastBuiltState();
-				if (state == null) {
-					out.writeBoolean(false);
-				} else {
-					out.writeBoolean(true);
-					info.developmentContext.saveState(state, out);
-				}
-			} finally {
-				out.close();
-			}
-		} catch (RuntimeException e) {
-			try {
-				file.delete();
-			} catch(SecurityException se){
-			}
-			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, Util.bind("build.cannotSaveState", info.project.getName()), e)); //$NON-NLS-1$
-		} catch (IOException e) {
-			try {
-				file.delete();
-			} catch(SecurityException se){
-			}
-			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, Util.bind("build.cannotSaveState", info.project.getName()), e)); //$NON-NLS-1$
-		}
-		t= System.currentTimeMillis() - t;
-		if (VERBOSE) System.out.println(Util.bind("build.saveStateComplete", String.valueOf(t))); //$NON-NLS-1$
-	}
-	private void saveState2(PerProjectInfo info) throws CoreException {
 		if (VERBOSE) System.out.println(Util.bind("build.saveStateProgress", info.project.getName())); //$NON-NLS-1$
 		File file = getSerializationFile(info.project);
 		if (file == null) return;
@@ -1219,22 +1081,6 @@ public void rollback(ISaveContext context){
 		t= System.currentTimeMillis() - t;
 		if (VERBOSE)
 			System.out.println(Util.bind("build.saveStateComplete", String.valueOf(t))); //$NON-NLS-1$
-	}
-	/**
-	 * Saves the built state for the project if it has been changed since last save.
-	 */
-	private void saveStateIfNecessary(PerProjectInfo info) throws CoreException {
-		IState state= info.getLastBuiltState();
-		if (state == null) {
-			saveState(info);
-			info.savedStateFingerprint= null;
-		} else {
-			byte[] fingerprint= state.getFingerprint();
-			if (Util.compare(fingerprint, info.savedStateFingerprint) != 0) {
-				saveState(info);
-				info.savedStateFingerprint= fingerprint;
-			}
-		}
 	}
 	public void saveVariables() throws CoreException {
 		ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(
@@ -1309,15 +1155,9 @@ public void saving(ISaveContext context) throws CoreException {
 	/**
 	 * Sets the last built state for the given project, or null to reset it.
 	 */
-	public void setLastBuiltState(IProject project, IState state) {
-		PerProjectInfo info= getPerProjectInfo(project);
-		info.triedRead= true; // no point trying to re-read once using setter
-		info.developmentContext.setCurrentState(state);
-	}
-	public void setLastBuiltState2(IProject project, Object state) {
-		setLastBuiltState(project, null); // TEMPORARY
+	public void setLastBuiltState(IProject project, Object state) {
 		PerProjectInfo info = getPerProjectInfo(project);
-//		info.triedRead= true; // no point trying to re-read once using setter
+		info.triedRead= true; // no point trying to re-read once using setter
 		info.savedState = state;
 	}
 	public void shutdown () {

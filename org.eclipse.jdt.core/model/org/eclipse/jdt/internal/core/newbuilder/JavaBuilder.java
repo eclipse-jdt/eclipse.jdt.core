@@ -156,7 +156,7 @@ private void cleanup() {
 }
 
 private void clearLastState() {
-	JavaModelManager.getJavaModelManager().setLastBuiltState2(currentProject, null);
+	JavaModelManager.getJavaModelManager().setLastBuiltState(currentProject, null);
 	this.lastState = null;
 }
 
@@ -203,7 +203,7 @@ private SimpleLookupTable findDeltas() {
 }
 
 private State getLastState(IProject project) {
-	return (State) JavaModelManager.getJavaModelManager().getLastBuiltState2(project, notifier.monitor);
+	return (State) JavaModelManager.getJavaModelManager().getLastBuiltState(project, notifier.monitor);
 }
 
 /* Return the list of projects for which it requires a resource delta. This builder's project
@@ -299,7 +299,7 @@ private void recordNewState(State state) {
 	}
 
 	// state.dump();
-	JavaModelManager.getJavaModelManager().setLastBuiltState2(currentProject, state);
+	JavaModelManager.getJavaModelManager().setLastBuiltState(currentProject, state);
 }
 
 /**
