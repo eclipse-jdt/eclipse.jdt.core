@@ -13,6 +13,9 @@ import org.eclipse.jdt.core.*;
  * Element info for an IType element that originated from source. 
  */
 public class SourceTypeElementInfo extends MemberElementInfo implements ISourceType {
+	protected static final ISourceField[] NO_FIELDS = new ISourceField[0];
+	protected static final ISourceMethod[] NO_METHODS = new ISourceMethod[0];
+	protected static final ISourceType[] NO_TYPES = new ISourceType[0];
 	/**
 	 * The name of the superclass for this type. This name
 	 * is fully qualified for binary types and is NOT
@@ -50,20 +53,11 @@ public class SourceTypeElementInfo extends MemberElementInfo implements ISourceT
 	 */
 	protected char[] fQualifiedName= null;
 
-	/**
-	 * The fields declared in this type
-	 */
-	protected ISourceField[] fFields= null;
 
-	/**
-	 * The methods declared in this type
-	 */
-	protected ISourceMethod[] fMethods= null;
 
-	/**
-	 * The types declared in this type
-	 */
-	protected ISourceType[] fMemberTypes= null;
+
+
+
 
 	/**
 	 * The imports in this type's compilation unit
@@ -76,73 +70,29 @@ public class SourceTypeElementInfo extends MemberElementInfo implements ISourceT
 	 */
 	protected IType fHandle= null;
 	 
-	/**
-	 * Empty list of methods
-	 */
-	protected static ISourceMethod[] fgEmptyMethods= new ISourceMethod[]{};
 
-	/**
-	 * Empty list of types
-	 */
-	protected static ISourceType[] fgEmptyTypes= new ISourceType[]{};
 
-	/**
-	 * Empty list of fields
-	 */
-	protected static ISourceField[] fgEmptyFields= new ISourceField[]{};
 
-	/**
-	 * Empty list of imports
-	 */
-	protected static char[][] fgEmptyImports= new char[][]{};
+
+
+
+
+
 /**
- * Adds the given field to this type's collection of fields
- */
-protected void addField(ISourceField field) {
-	if (fFields == null) {
-		fFields= fgEmptyFields;
-	}
-	ISourceField[] copy= new ISourceField[fFields.length + 1];
-	System.arraycopy(fFields, 0, copy, 0, fFields.length);
-	copy[fFields.length]= field;
-	fFields= copy;
-}
-/**
- * Adds the given field to this type's collection of fields
+ * Adds the given import to this type's collection of imports
  */
 protected void addImport(char[] i) {
-	if (fImports== null) {
-		fImports= fgEmptyImports;
+	if (fImports == null) {
+		fImports = new char[][] {i};
+	} else {
+		char[][] copy = new char[fImports.length + 1][];
+		System.arraycopy(fImports, 0, copy, 0, fImports.length);
+		copy[fImports.length] = i;
+		fImports = copy;
 	}
-	char[][] copy= new char[fImports.length + 1][];
-	System.arraycopy(fImports, 0, copy, 0, fImports.length);
-	copy[fImports.length]= i;
-	fImports= copy;
 }
-/**
- * Adds the given type to this type's collection of member types
- */
-protected void addMemberType(ISourceType type) {
-	if (fMemberTypes == null) {
-		fMemberTypes= fgEmptyTypes;
-	}
-	ISourceType[] copy= new ISourceType[fMemberTypes.length + 1];
-	System.arraycopy(fMemberTypes, 0, copy, 0, fMemberTypes.length);
-	copy[fMemberTypes.length]= type;
-	fMemberTypes= copy;
-}
-/**
- * Adds the given method to this type's collection of methods
- */
-protected void addMethod(ISourceMethod method) {
-	if (fMethods== null) {
-		fMethods= fgEmptyMethods;
-	}
-	ISourceMethod[] copy= new ISourceMethod[fMethods.length + 1];
-	System.arraycopy(fMethods, 0, copy, 0, fMethods.length);
-	copy[fMethods.length]= method;
-	fMethods= copy;
-}
+
+
 /**
  * Returns the ISourceType that is the enclosing type for this
  * type, or <code>null</code> if this type is a top level type.
@@ -169,7 +119,23 @@ public char[] getEnclosingTypeName() {
  * @see ISourceType
  */
 public ISourceField[] getFields() {
-	return fFields;
+	int length = fChildren.length;
+	if (length == 0) return NO_FIELDS;
+	ISourceField[] fields = new ISourceField[length];
+	int fieldIndex = 0;
+	for (int i = 0; i < length; i++) {
+		IJavaElement child = fChildren[i];
+		if (child instanceof SourceField) {
+			try {
+				ISourceField field = (ISourceField)((SourceField)child).getElementInfo();
+				fields[fieldIndex++] = field;
+			} catch (JavaModelException e) {
+			}
+		}
+	}
+	if (fieldIndex == 0) return NO_FIELDS;
+	System.arraycopy(fields, 0, fields = new ISourceField[fieldIndex], 0, fieldIndex);
+	return fields;
 }
 /**
  * @see ISourceType
@@ -199,13 +165,45 @@ public char[][] getInterfaceNames() {
  * @see ISourceType
  */
 public ISourceType[] getMemberTypes() {
-	return fMemberTypes;
+	int length = fChildren.length;
+	if (length == 0) return NO_TYPES;
+	ISourceType[] memberTypes = new ISourceType[length];
+	int typeIndex = 0;
+	for (int i = 0; i < length; i++) {
+		IJavaElement child = fChildren[i];
+		if (child instanceof SourceType) {
+			try {
+				ISourceType type = (ISourceType)((SourceType)child).getElementInfo();
+				memberTypes[typeIndex++] = type;
+			} catch (JavaModelException e) {
+			}
+		}
+	}
+	if (typeIndex == 0) return NO_TYPES;
+	System.arraycopy(memberTypes, 0, memberTypes = new ISourceType[typeIndex], 0, typeIndex);
+	return memberTypes;
 }
 /**
  * @see ISourceType
  */
 public ISourceMethod[] getMethods() {
-	return fMethods;
+	int length = fChildren.length;
+	if (length == 0) return NO_METHODS;
+	ISourceMethod[] methods = new ISourceMethod[length];
+	int methodIndex = 0;
+	for (int i = 0; i < length; i++) {
+		IJavaElement child = fChildren[i];
+		if (child instanceof SourceMethod) {
+			try {
+				ISourceMethod method = (ISourceMethod)((SourceMethod)child).getElementInfo();
+				methods[methodIndex++] = method;
+			} catch (JavaModelException e) {
+			}
+		}
+	}
+	if (methodIndex == 0) return NO_METHODS;
+	System.arraycopy(methods, 0, methods = new ISourceMethod[methodIndex], 0, methodIndex);
+	return methods;
 }
 /**
  * @see ISourceType

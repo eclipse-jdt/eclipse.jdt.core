@@ -279,7 +279,6 @@ public void enterField(
 		info.setTypeName(type);
 
 		parentInfo.addChild(handle);
-		parentInfo.addField(info);
 		fNewElements.put(handle, info);
 
 		fInfoStack.push(info);
@@ -397,7 +396,6 @@ protected void enterMethod(
 		info.setExceptionTypeNames(exceptionTypes);
 
 		parentInfo.addChild(handle);
-		parentInfo.addMethod(info);
 		fNewElements.put(handle, info);
 		fInfoStack.push(info);
 		fHandleStack.push(handle);
@@ -461,9 +459,6 @@ protected void enterType(
 	
 
 	parentInfo.addChild(handle);
-	if (parentInfo instanceof SourceTypeElementInfo) {
-		((SourceTypeElementInfo)parentInfo).addMemberType(info);
-	}
 	fNewElements.put(handle, info);
 
 	fInfoStack.push(info);
