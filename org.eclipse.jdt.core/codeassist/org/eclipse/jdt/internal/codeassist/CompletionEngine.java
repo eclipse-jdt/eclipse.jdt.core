@@ -3099,6 +3099,10 @@ public final class CompletionEngine
 						break;
 				}
 			}
+		} else if(parent instanceof ArrayReference) {
+			addExpectedType(BaseTypes.ShortBinding);
+			addExpectedType(BaseTypes.IntBinding);
+			addExpectedType(BaseTypes.LongBinding);
 		}
 		
 		if(expectedTypesPtr + 1 != expectedTypes.length) {

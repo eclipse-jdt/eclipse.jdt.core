@@ -6780,4 +6780,340 @@ public void test0120(){
 		expectedReplacedSource,
 		"full ast");
 }
+public void test0121(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    tab[zzz]\n" +
+		"  }\n" +
+		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
+		"}\n";
+
+	checkDietParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
+
+	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	expectedParentNodeToString = "tab[<CompleteOnName:zzz>]";
+	completionIdentifier = "zzz";
+	expectedReplacedSource = "zzz";
+	expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    tab[<CompleteOnName:zzz>];\n" +
+		"  }\n" +
+		"}\n";
+
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"full ast");
+}
+public void test0122(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    tab[].zzz\n" +
+		"  }\n" +
+		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
+		"}\n";
+
+	checkDietParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
+
+	expectedCompletionNodeToString = "<CompleteOnClassLiteralAccess:tab[].zzz>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "zzz";
+	expectedReplacedSource = "tab[].zzz";
+	expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnClassLiteralAccess:tab[].zzz>;\n" +
+		"  }\n" +
+		"}\n";
+
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"full ast");
+}
+public void test0123(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    tab[0].zzz\n" +
+		"  }\n" +
+		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
+		"}\n";
+
+	checkDietParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
+
+	expectedCompletionNodeToString = "<CompleteOnMemberAccess:tab[0].zzz>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "zzz";
+	expectedReplacedSource = "zzz";
+	expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMemberAccess:tab[0].zzz>;\n" +
+		"  }\n" +
+		"}\n";
+
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"full ast");
+}
+public void test0124(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    foo()[zzz]\n" +
+		"  }\n" +
+		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
+		"}\n";
+
+	checkDietParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
+
+	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	expectedParentNodeToString = "foo()[<CompleteOnName:zzz>]";
+	completionIdentifier = "zzz";
+	expectedReplacedSource = "zzz";
+	expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    foo()[<CompleteOnName:zzz>];\n" +
+		"  }\n" +
+		"}\n";
+
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"full ast");
+}
+public void test0125(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    foo()[].zzz\n" +
+		"  }\n" +
+		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
+		"}\n";
+
+	checkDietParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
+
+	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "zzz";
+	expectedReplacedSource = "zzz";
+	expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnName:zzz>;\n" +
+		"  }\n" +
+		"}\n";
+
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"full ast");
+}
+public void test0126(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    foo()[1].zzz\n" +
+		"  }\n" +
+		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"  }\n" +
+		"}\n";
+
+	checkDietParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
+
+	expectedCompletionNodeToString = "<CompleteOnMemberAccess:foo()[1].zzz>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "zzz";
+	expectedReplacedSource = "zzz";
+	expectedUnitDisplayString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  void foo() {\n" +
+		"    <CompleteOnMemberAccess:foo()[1].zzz>;\n" +
+		"  }\n" +
+		"}\n";
+
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"full ast");
+}
 }

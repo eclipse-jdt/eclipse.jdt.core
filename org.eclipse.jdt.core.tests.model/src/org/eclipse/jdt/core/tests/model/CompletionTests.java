@@ -178,6 +178,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionConditionalExpression1"));
 	suite.addTest(new CompletionTests("testCompletionConditionalExpression2"));
 	suite.addTest(new CompletionTests("testCompletionConditionalExpression3"));
+	suite.addTest(new CompletionTests("testCompletionArrayAccess1"));
 	
 	// completion keywords tests
 	suite.addTest(new CompletionTests("testCompletionKeywordThis1"));
@@ -8089,5 +8090,19 @@ public void testCompletionCatchArgumentName2() throws JavaModelException {
 	options.put(JavaCore.CODEASSIST_ARGUMENT_PREFIXES,argumentPrefixPreviousValue);
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,localPrefixPreviousValue);
 	JavaCore.setOptions(options);
+}
+public void testCompletionArrayAccess1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionArrayAccess1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zzz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzz1    completion:zzz1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:zzz2    completion:zzz2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE +R_UNQUALIFIED),
+		requestor.getResults());
 }
 }

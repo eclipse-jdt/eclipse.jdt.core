@@ -161,7 +161,7 @@ public void testArrayAccess() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    v[<CompleteOnMemberAccess:fred().x>];\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -192,7 +192,7 @@ public void testArrayAccessPrimaryNoNewArray() {
 		"  Bar() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    <CompleteOnMemberAccess:fred().x>;\n" + 
+		"    buzz()[<CompleteOnMemberAccess:fred().x>];\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:

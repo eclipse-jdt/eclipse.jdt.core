@@ -60,7 +60,8 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_INSIDE_ASSERT_STATEMENT = COMPLETION_PARSER + 24;
 	protected static final int K_SWITCH_LABEL= COMPLETION_PARSER + 25;
 	protected static final int K_BETWEEN_CASE_AND_COLON = COMPLETION_PARSER + 26;
-	protected static final int K_BETWEEN_DEFAULT_AND_COLON = COMPLETION_PARSER + 26;
+	protected static final int K_BETWEEN_DEFAULT_AND_COLON = COMPLETION_PARSER + 27;
+	protected static final int K_BETWEEN_LEFT_AND_RIGHT_BRACKET = COMPLETION_PARSER + 28;
 	
 
 	/* public fields */
@@ -468,6 +469,21 @@ private void buildMoreCompletionContext(Expression expression) {
 					}
 				}
 				break nextElement;
+			case K_BETWEEN_LEFT_AND_RIGHT_BRACKET :
+				ArrayReference arrayReference;
+				if(expressionPtr > 0 && expressionStack[expressionPtr] == expression) {
+					arrayReference =
+						new ArrayReference(
+							expressionStack[expressionPtr-1],
+							expression);
+				} else {
+					arrayReference =
+						new ArrayReference(
+							getUnspecifiedReferenceOptimized(),
+							expression);
+				}
+				assistNodeParent = arrayReference;
+				break;
 				
 		}
 	}
@@ -1588,6 +1604,12 @@ protected void consumeToken(int token) {
 					popElement(K_ARRAY_INITIALIZER);	
 				}
 				break;
+			case TokenNameRBRACKET:
+				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_LEFT_AND_RIGHT_BRACKET) {
+					popElement(K_BETWEEN_LEFT_AND_RIGHT_BRACKET);
+				}
+				break;
+			
 		}
 	}
 	super.consumeToken(token);
@@ -1735,6 +1757,9 @@ protected void consumeToken(int token) {
 				}
 				break;
 			case TokenNameLBRACKET:
+				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) != K_ARRAY_CREATION) {
+					pushOnElementStack(K_BETWEEN_LEFT_AND_RIGHT_BRACKET);
+				}
 				this.bracketDepth++;
 				break; 
 			case TokenNameRBRACE:
