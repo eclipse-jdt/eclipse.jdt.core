@@ -288,7 +288,7 @@ public class ToolFactory {
 	 */
 	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean assertMode, boolean recordLineSeparator){
 
-		PublicScanner scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, assertMode ? ClassFileConstants.JDK1_4 : ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/);
+		PublicScanner scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/, assertMode ? ClassFileConstants.JDK1_4 : ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		scanner.recordLineSeparator = recordLineSeparator;
 		return scanner;
 	}
@@ -331,7 +331,7 @@ public class ToolFactory {
 		PublicScanner scanner = null;
 		long level = CompilerOptions.versionToJdkLevel(sourceLevel);
 		if (level == 0) level = ClassFileConstants.JDK1_3; // fault-tolerance
-		scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/,level /*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/);
+		scanner = new PublicScanner(tokenizeComments, tokenizeWhiteSpace, false/*nls*/,level /*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		scanner.recordLineSeparator = recordLineSeparator;
 		return scanner;
 	}	

@@ -45,7 +45,8 @@ public CompletionScanner(long sourceLevel) {
 		false /*nls*/, 
 		sourceLevel, 
 		null /*taskTags*/, 
-		null/*taskPriorities*/);
+		null/*taskPriorities*/,
+		true/*taskCaseSensitive*/);
 }
 /* 
  * Truncate the current identifier if it is containing the cursor location. Since completion is performed

@@ -188,7 +188,8 @@ public final class AST {
 				false /*nls*/, 
 				ClassFileConstants.JDK1_3 /*sourceLevel*/, 
 				null/*taskTag*/, 
-				null/*taskPriorities*/);
+				null/*taskPriorities*/,
+				true/*taskCaseSensitive*/);
 	}
 
 	/**
@@ -269,7 +270,8 @@ public final class AST {
 				false /*nls*/, 
 				ClassFileConstants.JDK1_4 /*sourceLevel*/, 
 				null/*taskTag*/, 
-				null/*taskPriorities*/);
+				null/*taskPriorities*/,
+				true/*taskCaseSensitive*/);
 		}
 	}
 		

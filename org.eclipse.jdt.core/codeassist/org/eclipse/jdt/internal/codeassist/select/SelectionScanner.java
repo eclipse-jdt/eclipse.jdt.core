@@ -29,7 +29,7 @@ public class SelectionScanner extends Scanner {
  */
  
 public SelectionScanner(long sourceLevel) {
-	super(false /*comment*/, false /*whitespace*/, false /*nls*/, sourceLevel, null /*taskTags*/, null/*taskPriorities*/);
+	super(false /*comment*/, false /*whitespace*/, false /*nls*/, sourceLevel, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 }
 
 public char[] getCurrentIdentifierSource() {

@@ -55,7 +55,8 @@ class ASTConverter {
 					false /*nls*/,
 					JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) ? ClassFileConstants.JDK1_4 : ClassFileConstants.JDK1_3 /*sourceLevel*/, 
 					null /*taskTags*/,
-					null/*taskPriorities*/);
+					null/*taskPriorities*/,
+					true/*taskCaseSensitive*/);
 		this.monitor = monitor;
 		this.insideComments = JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT));
 	}

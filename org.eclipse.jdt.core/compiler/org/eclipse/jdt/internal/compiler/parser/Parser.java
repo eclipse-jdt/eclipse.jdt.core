@@ -5025,7 +5025,8 @@ public void initializeScanner(){
 		this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/, 
 		this.options.sourceLevel /*sourceLevel*/, 
 		this.options.taskTags/*taskTags*/,
-		this.options.taskPriorites/*taskPriorities*/);
+		this.options.taskPriorites/*taskPriorities*/,
+		this.options.isTaskCaseSensitive/*taskCaseSensitive*/);
 }
 public final static void initTables() throws java.io.IOException {
 
