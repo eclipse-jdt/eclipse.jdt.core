@@ -75,7 +75,7 @@
 <setting id="org.eclipse.jdt.core.formatter.insert_space_in_for_parens" value="insert"/>
 <setting id="org.eclipse.jdt.core.formatter.insert_space_after_comma_in_array_initializer" value="insert"/>
 <setting id="org.eclipse.jdt.core.formatter.insert_new_line_in_empty_type_declaration" value="insert"/>
-<setting id="org.eclipse.jdt.core.formatter.insert_space_after_open_paren_in_parenthesized_expression" value="insert"/>
+<setting id="org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_parenthesized_expression" value="insert"/>
 <setting id="comment_line_length" value="80"/>
 <setting id="org.eclipse.jdt.core.formatter.insert_space_before_assignment_operators" value="insert"/>
 <setting id="org.eclipse.jdt.core.formatter.insert_space_before_comma_in_constructor_throws" value="do not insert"/>
@@ -103,7 +103,8 @@
 <setting id="org.eclipse.jdt.core.formatter.insert_space_before_switch_open_brace" value="do not insert"/>
 <setting id="org.eclipse.jdt.core.formatter.insert_space_before_catch_expression" value="do not insert"/>
 <setting id="org.eclipse.jdt.core.formatter.insert_space_before_comma_in_allocation_expression" value="do not insert"/>
-<setting id="org.eclipse.jdt.core.formatter.insert_space_within_message_send" value="insert"/>
+<setting id="org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_message_send" value="insert"/>
+<setting id="org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_message_send" value="insert"/>
 <setting id="org.eclipse.jdt.core.formatter.insert_space_between_brackets_in_array_reference" value="insert"/>
 <setting id="org.eclipse.jdt.core.formatter.array_initializer_continuation_indentation" value="2"/>
 <setting id="comment_format_source_code" value="true"/>

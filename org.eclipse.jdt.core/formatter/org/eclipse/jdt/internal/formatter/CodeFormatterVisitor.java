@@ -1068,7 +1068,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier); // selector
 			this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
 			if (arguments != null) {
-				if (this.preferences.insert_space_within_message_send) {
+				if (this.preferences.insert_space_after_opening_paren_in_message_send) {
 					this.scribe.space();
 				}
 				int argumentLength = arguments.length;
@@ -1098,7 +1098,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					}
 				} while (!okForArguments);
 				this.scribe.exitAlignment(argumentsAlignment, true);
-				this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send);
+				this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_message_send);
 			} else {
 				this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_messagesend_arguments);
 			}
@@ -1124,6 +1124,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier); // selector
 					this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_message_send);
 					if (arguments != null) {
+						if (this.preferences.insert_space_after_opening_paren_in_message_send) {
+							this.scribe.space();
+						}
 						int argumentLength = arguments.length;
 						Alignment argumentsAlignment = this.scribe.createAlignment(
 								"messageArguments", //$NON-NLS-1$
@@ -1135,9 +1138,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						boolean okForArguments = false;
 						do {
 							try {
-								if (this.preferences.insert_space_within_message_send) {
-									this.scribe.space();
-								}
 								for (int j = 0; j < argumentLength; j++) {
 									if (j > 0) {
 										this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
@@ -1154,7 +1154,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 							}
 						} while (!okForArguments);
 						this.scribe.exitAlignment(argumentsAlignment, true);
-						this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send);
+						this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_message_send);
 					} else {
 						this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_messagesend_arguments);
 					}
@@ -1363,7 +1363,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		final Expression[] arguments = messageSend.arguments;
 		if (arguments != null) {
-			if (this.preferences.insert_space_within_message_send) {
+			if (this.preferences.insert_space_after_opening_paren_in_message_send) {
 				this.scribe.space();
 			}
 			int argumentsLength = arguments.length;
@@ -1394,9 +1394,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				} while (!ok);
 				this.scribe.exitAlignment(argumentsAlignment, true);
 			} else {
-				if (this.preferences.insert_space_within_message_send) {
-						this.scribe.space();
-				}
 				for (int i = 0; i < argumentsLength; i++) {
 					if (i > 0) {
 						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_messagesend_arguments);
@@ -1407,7 +1404,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					arguments[i].traverse(this, scope);
 				}
 			}
-			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_message_send); 
 		} else {
 			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_messagesend_arguments);
 		}
@@ -1846,7 +1843,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	private void manageOpeningParenthesizedExpression(Expression expression, int numberOfParens) {
 		for (int i = 0; i < numberOfParens; i++) {
 			this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_open_paren_in_parenthesized_expression);
-			if (this.preferences.insert_space_after_open_paren_in_parenthesized_expression) {
+			if (this.preferences.insert_space_after_opening_paren_in_parenthesized_expression) {
 				this.scribe.space();
 			}
 		}
@@ -1872,7 +1869,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		final Expression[] arguments = allocationExpression.arguments;
 		if (arguments != null) {
-			if (this.preferences.insert_space_within_message_send) {
+			if (this.preferences.insert_space_after_opening_paren_in_message_send) {
 				this.scribe.space();
 			}			
 			int argumentLength = arguments.length;
@@ -1901,7 +1898,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				}
 			} while (!ok);
 			this.scribe.exitAlignment(argumentsAlignment, true);
-			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_message_send); 
 		} else {
 			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_messagesend_arguments); 
 		}
@@ -2801,7 +2798,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		
 		final Expression[] arguments = explicitConstructor.arguments;
 		if (arguments != null) {
-			if (this.preferences.insert_space_within_message_send) {
+			if (this.preferences.insert_space_after_opening_paren_in_message_send) {
 				this.scribe.space();
 			}
 			int argumentLength = arguments.length;
@@ -2830,7 +2827,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				}
 			} while (!ok);
 			this.scribe.exitAlignment(argumentsAlignment, true);
-			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_message_send); 
 		} else {
 			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_messagesend_arguments); 
 		}
@@ -3484,7 +3481,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		final Expression[] arguments = qualifiedAllocationExpression.arguments;
 		if (arguments != null) {
-			if (this.preferences.insert_space_within_message_send) {
+			if (this.preferences.insert_space_after_opening_paren_in_message_send) {
 				this.scribe.space();
 			}
 			int argumentLength = arguments.length;
@@ -3513,7 +3510,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				}
 			} while (!ok);
 			this.scribe.exitAlignment(argumentsAlignment, true);
-			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_within_message_send); 
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_message_send); 
 		} else {
 			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_messagesend_arguments);
 		}
