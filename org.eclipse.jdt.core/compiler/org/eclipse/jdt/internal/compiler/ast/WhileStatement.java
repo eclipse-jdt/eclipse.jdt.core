@@ -113,6 +113,7 @@ public class WhileStatement extends Statement {
 				condLoopContext.complainOnDeferredChecks(currentScope, postCondInfo);
 				actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits());
 				loopingContext.complainOnDeferredChecks(currentScope, actionInfo);
+				postCondInfo.initsWhenFalse().addPotentialInitializationsFrom(actionInfo.unconditionalInits());
 			}
 		}
 
@@ -123,6 +124,7 @@ public class WhileStatement extends Statement {
 				postCondInfo.initsWhenFalse(), 
 				isConditionOptimizedFalse,
 				!isConditionTrue /*while(true); unreachable(); */);
+		mergedInfo.addPotentialInitializationsFrom(actionInfo.unconditionalInits());
 		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
 	}

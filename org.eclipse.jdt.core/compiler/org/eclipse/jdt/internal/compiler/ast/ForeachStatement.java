@@ -104,6 +104,7 @@ public class ForeachStatement extends Statement {
 			} else {
 				actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits());
 				loopingContext.complainOnDeferredChecks(scope, actionInfo);
+				flowInfo.initsWhenFalse().addPotentialInitializationsFrom(actionInfo.unconditionalInits());
 			}
 		}
 
@@ -131,6 +132,7 @@ public class ForeachStatement extends Statement {
 				flowInfo.initsWhenFalse(), 
 				false, 
 				true /*for(;;){}while(true); unreachable(); */);
+		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
 	}
 

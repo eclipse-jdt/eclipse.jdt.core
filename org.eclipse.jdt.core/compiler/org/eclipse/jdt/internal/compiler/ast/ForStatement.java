@@ -141,20 +141,24 @@ public class ForStatement extends Statement {
 			}
 		}
 		// for increments
-		if ((continueLabel != null) && (increments != null)) {
-			LoopingFlowContext loopContext =
-				new LoopingFlowContext(flowContext, this, null, null, scope);
-			for (int i = 0, count = increments.length; i < count; i++) {
-				actionInfo = increments[i].analyseCode(scope, loopContext, actionInfo);
+		FlowInfo exitBranch = flowInfo.initsWhenFalse();
+		if (continueLabel != null) {
+			if (increments != null) {
+				LoopingFlowContext loopContext =
+					new LoopingFlowContext(flowContext, this, null, null, scope);
+				for (int i = 0, count = increments.length; i < count; i++) {
+					actionInfo = increments[i].analyseCode(scope, loopContext, actionInfo);
+				}
+				loopContext.complainOnDeferredChecks(scope, actionInfo);
 			}
-			loopContext.complainOnDeferredChecks(scope, actionInfo);
+			exitBranch.addPotentialInitializationsFrom(actionInfo.unconditionalInits());
 		}
 
 		//end of loop
 		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
 				loopingContext.initsOnBreak, 
 				isConditionOptimizedTrue, 
-				flowInfo.initsWhenFalse(), 
+				exitBranch, 
 				isConditionOptimizedFalse, 
 				!isConditionTrue /*for(;;){}while(true); unreachable(); */);
 		mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
