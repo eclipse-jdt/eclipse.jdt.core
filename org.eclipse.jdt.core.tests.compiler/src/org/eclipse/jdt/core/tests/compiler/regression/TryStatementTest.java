@@ -1,0 +1,710 @@
+package org.eclipse.jdt.core.tests.compiler.regression;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+public class TryStatementTest extends AbstractRegressionTest {
+	
+public TryStatementTest(String name) {
+	super(name);
+}
+public static Test suite() {
+
+	if (false) {
+	   	TestSuite ts;
+		//some of the tests depend on the order of this suite.
+		ts = new TestSuite();
+		ts.addTest(new TryStatementTest("test221"));
+		return new RegressionTestSetup(ts);
+	}
+	return setupSuite(testClass());
+}
+
+public void test001() {
+	this.runConformTest(new String[] {
+		"p/X.java",
+		"package p;\n" + 
+		"public class X {\n" + 
+		"  public class X1 {\n" + 
+		"    public X1() throws Exception {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  public void method1(){\n" + 
+		"    try {\n" + 
+		"      new X1() {\n" + 
+		"      };\n" + 
+		"    } catch(Exception e){\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n",
+	});
+}
+
+public void test002() {
+	this.runConformTest(new String[] {
+		"p/X.java",
+		"package p;\n" + 
+		"import java.io.*;\n" + 
+		"import java.util.zip.*;\n" + 
+		"class X {\n" + 
+		"  void bar() throws ZipException, IOException {}\n" + 
+		"  void foo() {\n" + 
+		"    try {\n" + 
+		"      bar();\n" + 
+		"    } catch (ZipException e) {\n" + 
+		"    } catch (IOException e) {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n",
+	});
+}
+
+public void test003() {
+	this.runConformTest(new String[] {
+		"p/X.java",
+		"package p;\n" + 
+		"public class X {\n" + 
+		"  public class A1 {\n" + 
+		"    public A1() throws Exception {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  public void method1(){\n" + 
+		"    try {\n" + 
+		"      new A1() {\n" + 
+		"      };\n" + 
+		"    } catch(Exception e){\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n",
+	});
+}
+
+public void test004() {
+	this.runConformTest(new String[] {
+		"p/ATC.java",
+		"package p;\n" + 
+		"public class ATC {\n" + 
+		"    \n" + 
+		"    public class B extends Exception {\n" + 
+		"      public B(String msg) { super(msg); }\n" + 
+		"    }\n" + 
+		"    \n" + 
+		"    void foo() throws ATC.B {\n" + 
+		"      Object hello$1 = null;\n" + 
+		"      try {\n" + 
+		"        throw new B(\"Inside foo()\");\n" + 
+		"      } catch(B e) {\n" + 
+		"        System.out.println(\"Caught B\");\n" + 
+		"      }    \n" + 
+		"    }       \n" + 
+		"}\n",
+	});
+}
+
+public void test005() {
+	this.runConformTest(new String[] {
+		"p/A.java",
+		"package p;\n" + 
+		"import java.io.IOException;\n" + 
+		"import java.util.Vector;\n" + 
+		"/**\n" + 
+		" * This test0 should run without producing a java.lang.ClassFormatError\n" + 
+		" */\n" + 
+		"public class A {\n" + 
+		"  public Vector getComponents () {\n" + 
+		"    try{\n" + 
+		"      throw new IOException();\n" + 
+		"    }\n" + 
+		"    catch (IOException ioe) {\n" + 
+		"    }\n" + 
+		"    return null;\n" + 
+		"  }\n" + 
+		"  public static void main(String[] args) {\n" + 
+		"    new A().getComponents();\n" + 
+		"  }\n" + 
+		"}\n",
+	});
+}
+
+public void test006() {
+	this.runConformTest(new String[] {
+		"p/T.java",
+		"package p;\n" + 
+		"import java.lang.reflect.*;\n" + 
+		"public class T extends InvocationTargetException {\n" + 
+		"  public static void main(String[] args) {\n" + 
+		"    T ct = new T();\n" + 
+		"    ct.getTargetException();\n" + 
+		"  }\n" + 
+		"  public Throwable getTargetException() {\n" + 
+		"    Runnable runnable = new Runnable() {\n" + 
+		"      public void run() {\n" + 
+		"        System.out.println(\"we got here\");\n" + 
+		"        T.super.getTargetException();\n" + 
+		"      }\n" + 
+		"    };\n" + 
+		"    runnable.run();\n" + 
+		"    return new Throwable();\n" + 
+		"  }\n" + 
+		"}\n",
+	});
+}
+public void test007() {
+	this.runConformTest(new String[] {
+		"TryFinally.java", 
+		"class TryFinally {	\n"+
+		"	public int readFile(String filename) throws Exception {	\n"+
+		"		int interfaceID = -1;	\n"+
+		"		int iNdx = 0;	\n"+
+		"		try {	\n"+
+		"			try {	\n"+
+		"				return interfaceID;	\n"+
+		"			} // end try	\n"+
+		"			finally {	\n"+
+		"				iNdx = 1;	\n"+
+		"			} // end finally	\n"+
+		"		} // end try	\n"+
+		"		catch (Exception ex) {	\n"+
+		"			throw new Exception(\"general exception \" + ex.getMessage() + \" on processing file \" + filename);	\n"+
+		"		} // end catch	\n"+
+		"		finally {	\n"+
+		"		} // end finally	\n"+
+		"	} // end readFile method	\n"+
+		"}	\n"
+});
+}
+/*
+ * 1FZR1TO: IVJCOM:WIN - Class does not compile in VAJava 3.02-Java2
+ */
+public void test008() {
+	this.runConformTest(
+		new String[] {
+			"RedundantException.java",
+			"import java.io.*;\n" + 
+			"public class RedundantException {\n" + 
+			"	/**\n" + 
+			"	     * Runs the class as an application.\n" + 
+			"	     */\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		RedundantException re = new RedundantException();\n" + 
+			"		re.catchIt();\n" +
+			"		System.out.println(\"SUCCESS\");\n" +
+			"	}\n" + 
+			"	/**\n" + 
+			"	     * Defines a method that lists an exception twice.\n" + 
+			"	     * This can be buried in a much longer list.\n" + 
+			"	     */\n" + 
+			"	void throwIt() throws IOException, IOException {\n" + 
+			"		throw new IOException();\n" + 
+			"	}\n" + 
+			"	/**\n" + 
+			"	     * Catches the redundantly defined exception.\n" + 
+			"	     */\n" + 
+			"	void catchIt() {\n" + 
+			"		try {\n" + 
+			"			throwIt(); // compile error here\n" + 
+			"		} catch (IOException e) {\n" + 
+			"			System.out.println(\"Caught.\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"SUCCESS");
+}
+public void test009() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" +
+			"public void save() {\n" +
+			"	int a = 3;\n" +
+			"	try {\n" +
+			"		Object warnings = null;\n" +
+			"      	try {\n" +
+			"         	Object contexts = null;\n" +
+			"         	try {\n" +
+			"            	System.out.println(warnings);\n" +
+			"			 	return;\n" +
+			"      	 	} catch (NullPointerException npe) {\n" +
+			"				System.out.println(contexts);\n" +
+			"               return;\n" +
+			"       	}\n" +
+			"		} catch (Exception e) {\n" +
+			" 			return;\n" +
+			"   	}\n" +
+			"	} finally {\n" +
+			"     	int b = 4;\n" +
+			"       System.out.println(\"#save -> \" + b + a);\n" +
+			"    }\n" +
+			"}\n" +
+			"public static void main(String[] args) {\n" +
+			"	new Test().save();\n"+
+			"}\n" +
+			"}"
+		},
+		"#save -> 43");
+}
+public void test010() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" +
+			"public void save() {\n" +
+			"	int a = 3;\n" +
+			"	try {\n" +
+			"		Object warnings = null;\n" +
+			"      	try {\n" +
+			"         	Object contexts = null;\n" +
+			"         	try {\n" +
+			"            	System.out.println(warnings);\n" +
+			"			 	return;\n" +
+			"      	 	} catch (NullPointerException npe) {\n" +
+			"				System.out.println(contexts);\n" +
+			"               return;\n" +
+			"       	}\n" +
+			"		} catch (Exception e) {\n" +
+			" 			return;\n" +
+			"   	}\n" +
+			"	} catch(Exception e){\n"+
+			"		Object dummy1 = null;\n" +
+			"		System.out.println(dummy1);\n" +
+			"		Object dummy2 = null;\n" +
+			"		System.out.println(dummy2);\n" +
+			"		return;\n"+
+			"	} finally {\n" +
+			"     	int b = 4;\n" +
+			"       System.out.println(\"#save -> \" + b + a);\n" +
+			"    }\n" +
+			"}\n" +
+			"public static void main(String[] args) {\n" +
+			"	new Test().save();\n"+
+			"}\n" +
+			"}"
+		},
+		"#save -> 43");
+}
+
+public void test011() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" +
+			"public void save() {\n" +
+			"	int a = 3;\n" +
+			"	try {\n" +
+			"		Object warnings = null;\n" +
+			"      	try {\n" +
+			"         	Object contexts = null;\n" +
+			"         	try {\n" +
+			"            	System.out.println(warnings);\n" +
+			"			 	return;\n" +
+			"      	 	} catch (NullPointerException npe) {\n" +
+			"				System.out.println(contexts);\n" +
+			"               return;\n" +
+			"       	}\n" +
+			"		} catch (Exception e) {\n" +
+			" 			return;\n" +
+			"   	}\n" +
+			"	} catch(Exception e){\n"+
+			"		int dummy1 = 11;\n" +
+			"		System.out.println(dummy1);\n" +
+			"		int dummy2 = 12;\n" +
+			"		System.out.println(dummy2);\n" +
+			"		return;\n"+
+			"	} finally {\n" +
+			"     	int b = 4;\n" +
+			"       System.out.println(\"#save -> \" + b + a);\n" +
+			"    }\n" +
+			"}\n" +
+			"public static void main(String[] args) {\n" +
+			"	new Test().save();\n"+
+			"}\n" +
+			"}"
+		},
+		"#save -> 43");
+}
+/*
+ * 4943  Verification error
+ */
+public void test012() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			new X().delete(args);\n" +
+			"			System.out.println(\"success\");\n" +
+			"		} catch (Exception e) {\n" +
+			"		}\n" +
+			"	}\n" +
+			"	void bar(int i) {\n" +
+			"	}\n" +
+			"	public Object delete(String[] resources) throws IOException {\n" +
+			"		try {\n" +
+			"			int totalWork = 3;\n" +
+			"			Object result = \"aaa\";\n" +
+			"			try {\n" +
+			"				return result;\n" +
+			"			} catch (Exception e) {\n" +
+			"				throw new IOException();\n" +
+			"			} finally {\n" +
+			"				bar(totalWork);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			bar(0);\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" 
+		},
+		"success");
+}
+ 
+/*
+ * 4943  Verification error
+ */
+public void test013() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			new X().delete(args);\n" +
+			"			System.out.println(\"success\");\n" +
+			"		} catch (Exception e) {\n" +
+			"		}\n" +
+			"	}\n" +
+			"	void bar(int i) {\n" +
+			"	}\n" +
+			"	public Object delete(String[] resources) throws IOException {\n" +
+			"		try {\n" +
+			"			int totalWork = 3;\n" +
+			"			Object result = \"aaa\";\n" +
+			"			try {\n" +
+			"				return result;\n" +
+			"			} catch (Exception e) {\n" +
+			"				throw new IOException();\n" +
+			"			} finally {\n" +
+			"				bar(totalWork);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			int totalWork = 4;\n" +
+			"			bar(totalWork);\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" 
+		},
+		"success");
+}
+public void test014() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" +
+			"public void save() {\n" +
+			"	int a = 3;\n" +
+			"	try {\n" +
+			"		Object warnings = null;\n" +
+			"      	try {\n" +
+			"         	int contexts = 17;\n" +
+			"         	try {\n" +
+			"				Object dummy = null;\n" +
+			"            	System.out.println(warnings);\n" +
+			"            	System.out.println(dummy);\n" +
+			"			 	return;\n" +
+			"      	 	} catch (NullPointerException npe) {\n" +
+			"				System.out.println(contexts);\n" +
+			"               return;\n" +
+			"       	}\n" +
+			"		} catch (Exception e) {\n" +
+			" 			return;\n" +
+			"   	} finally { \n" +
+			"			int c = 34; \n"+
+			"			System.out.println(\"#inner-finally ->\" + a + c);\n"+
+			"       }\n" +
+			"	} finally {\n" +
+			"     	int b = 4;\n" +
+			"       System.out.println(\"#save -> \" + b + a);\n" +
+			"    }\n" +
+			"}\n" +
+			"public static void main(String[] args) {\n" +
+			"	new Test().save();\n"+
+			"}\n" +
+			"}"
+		},
+		"#save -> 43");
+}
+
+public void test015() {
+	this.runConformTest(
+		new String[] {
+			"p1/X.java",
+			"package p1;	\n" +
+			"import java.io.IOException;	\n" +
+			"public class X {	\n" +
+			"	public static void main(String args[]) {	\n" +
+			"		try { 	\n" +
+			"			new Object(){	\n" +
+			"				{	\n" +
+			"					if (true) throw new IOException();	\n" +
+			"					if (true) throw new Exception();	\n" +
+			"				}	\n" +
+			"			};	\n" +
+			"			System.out.println(\"FAILED\");	\n" +
+			"		} catch(Exception e){	\n" +
+			"			System.out.println(\"SUCCESS\");	\n" +
+			"		}	\n" +
+			"	}	\n" +
+			"}	\n",
+		},
+		"SUCCESS");
+}
+public void test016() {
+	this.runConformTest(
+		new String[] {
+			"p1/X.java",
+			"package p1;	\n" +
+			"import java.io.IOException;	\n" +
+			"public class X {	\n" +
+			"	public static void main(String args[]) {	\n" +
+			"		class SomeClass {	\n" +
+			"			SomeClass () throws IOException {	\n" +
+			"			}	\n" +
+			"		}	\n" +
+			"		try { 	\n" +
+			"			new Object(){	\n" +
+			"				{	\n" +
+			"					if (true) throw new IOException();	\n" +
+			"					if (true) throw new Exception();	\n" +
+			"				}	\n" +
+			"			};	\n" +
+			"			System.out.println(\"FAILED\");	\n" +
+			"		} catch(Exception e){	\n" +
+			"			System.out.println(\"SUCCESS\");	\n" +
+			"		}	\n" +
+			"	}	\n" +
+			"}	\n",
+		},
+		"SUCCESS");
+}
+public void test017() {
+	this.runConformTest(
+		new String[] {
+			"p1/X.java",
+			"package p1;	\n" +
+			"public class X {	\n" +
+			"	public static void main(String args[]) {	\n" +
+			"		try { 	\n" +
+			"			new Object(){	\n" +
+			"				{	\n" +
+			"					foo();	\n" +
+			"				}	\n" +
+			"			};	\n" +
+			"			System.out.println(\"FAILED\");	\n" +
+			"		} catch(Exception e){	\n" +
+			"			System.out.println(\"SUCCESS\");	\n" +
+			"		}	\n" +
+			"	}	\n" +
+			"	static class AEx extends Exception {} \n" +
+			"	static class BEx extends Exception {} \n" +
+			"	static void foo() throws AEx, BEx {	\n" +
+			"		throw new AEx();	\n"+
+			"	}	\n" +
+			"}	\n",
+		},
+		"SUCCESS");
+}
+
+// 8773 verification error
+public void test018() {
+	this.runConformTest(
+		new String[] {
+			"VerifyEr.java",
+			"public class VerifyEr {	\n" +
+			"  protected boolean err(boolean b) {	\n" +
+			"     try {	\n" +
+			"          System.out.print(\"SUCC\");	\n" +
+			"     } catch (Throwable t) {	\n" +
+			"          return b;	\n" +
+			"     } finally {	\n" +
+			"          try {	\n" +
+			"               if (b) {	\n" +
+			"                    return b;	\n" +
+			"               }	\n" +
+			"          } finally {	\n" +
+			"          		System.out.println(\"ESS\");	\n" +
+			"          }	\n" +
+			"     }	\n" +
+			"     return false;	\n" +
+			"  }	\n" +
+			"  public static void main(String[] args) {	\n" +
+			"     new VerifyEr().err(false);	\n" +
+			"  }	\n" +
+			"}	\n",
+		},
+		"SUCCESS");
+}
+/*
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=16279
+ */
+public void test019() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {	\n" +
+			"	String logger;	\n" +
+			"  public static void main(String[] args) {	\n" +
+			"    new X().foo();	\n" +
+			"	}	\n"+
+			"	public void foo() {	\n" +
+			"		try {	\n" +
+			"			System.out.println(\"SUCCESS\");	\n" +
+			"		} catch (Exception ce) {	\n" +
+			"			String s = null;	\n" +
+			"			try {	\n" +
+			"				return;	\n" +
+			"			} catch (Exception ex) {	\n" +
+			"			}	\n" +
+			"			s.hashCode();	\n" +
+			"		} finally {	\n" +
+			"			if (this.logger == null) {	\n" +
+			"				String loggerManager = null;	\n" +
+			"				System.out.println(loggerManager);	\n" +
+			"			}	\n" +
+			"		}	\n" +
+			"	}	\n" +
+			"}	\n"
+		},
+		"SUCCESS");
+}
+
+/*
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=16279
+ * shifting of finaly scopes against try/catch ones makes the custom ret address shifting
+ * unnecessary.
+ */
+public void test020() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {	\n" +
+			"	String logger;	\n" +
+			"  public static void main(String[] args) {	\n" +
+			"    new X().foo();	\n" +
+			"	}	\n"+
+			"	public void foo() {	\n" +
+			"		try {	\n" +
+			"			System.out.println(\"try1\");	\n" +
+			"			try {	\n" +
+			"				System.out.println(\"try2\");	\n" +
+			"			} finally {	\n" +
+			"				System.out.println(\"finally2\");	\n" +
+			"			}	\n" +
+			"		} catch (Exception ce) {	\n" +
+			"			String s = null;	\n" +
+			"			try {	\n" +
+			"				return;	\n" +
+			"			} catch (Exception ex) {	\n" +
+			"			}	\n" +
+			"			s.hashCode();	\n" +
+			"		} finally {	\n" +
+			"			System.out.println(\"finally1\");	\n" +
+			"			try {	\n" +
+			"				System.out.println(\"try3\");	\n" +
+			"				if (this.logger == null) {	\n" +
+			"					String loggerManager = null;	\n" +
+			"				}	\n" +
+			"			} finally {	\n" +
+			"				System.out.println(\"finally3\");	\n" +
+			"			}	\n" +
+			"		}	\n" +
+			"		int i1 = 0;	\n" +
+			"		int i2 = 0;	\n" +
+			"		int i3 = 0;	\n" +
+			"		int i4 = 0;	\n" +
+			"		int i5 = 0;	\n" +
+			"		int i6 = 0;	\n" +
+			"		int i7 = 0;	\n" +
+			"		int i8 = 0;	\n" +
+			"		int i9 = 0;	\n" +
+			"	}	\n" +
+			"}	\n"
+		},
+		"finally3");
+}
+
+/*
+ * http://dev.eclipse.org/bugs/show_bug.cgi?id=21116
+ * protected type visibility check
+ */
+public void test021() {
+	this.runConformTest(
+		new String[] {
+			"pa/A.java",
+			"package pa;	\n" +
+			"public abstract class A {	\n" +
+			"  public static void main(String[] args) {	\n" +
+			"    System.out.println(\"SUCCESS\");	\n" +
+			"	}	\n"+
+			"	protected AIC memberA;	\n" +
+			"	protected class AIC {	\n" +
+			"		public void methodAIC(String parameter) {	\n" +
+			"		  // ....do something	\n" +
+			"		}	\n" +
+			"	}	\n" +
+			"}	\n",
+			"pb/B.java",
+			"package pb;	\n" +
+			"public class B extends pa.A {	\n" +
+			"	private class BIC {	\n" +
+			"		public void methodBIC(String param) {	\n" +
+			"			memberA.methodAIC(param);	\n" +
+			"		}	\n" +
+			"	}	\n" +
+			"}	\n"
+		},
+		"SUCCESS");
+}
+
+/*
+ * http://dev.eclipse.org/bugs/show_bug.cgi?id=19916
+ * nested try/synchronized statements (local var index alloc)
+ */
+public void test022() {
+	this.runConformTest(
+		new String[] {
+			"pa/A.java",
+			"package pa;	\n" +
+			"public class A {	\n" +
+			"  public static void main(String[] args) {	\n" +
+			"	 new A().f();	\n" +
+			"    System.out.println(\"SUCCESS\");	\n" +
+			"	}	\n"+
+			"	boolean b = false;	\n" +
+			"	private Integer f() {	\n" +
+			"		while (true) {	\n" +
+			"			try {	\n" +
+			"				int x = 3;	\n" +
+			"				synchronized (this) {	\n" +
+			"					return null;	\n" +
+			"				}	\n" +
+			"			} finally {	\n" +
+			"				if (b)	\n" +
+			"					synchronized (this) {	\n" +
+			"					int y = 3;	\n" +
+			"				}	\n" +
+			"			}	\n" +
+			"		}	\n" +
+			"	}	\n" +
+			"}	\n"
+		},
+		"SUCCESS");
+}
+
+public static Class testClass() {
+	return TryStatementTest.class;
+}
+}
