@@ -236,8 +236,7 @@ public class TryStatement extends Statement {
 		// flag telling if some bytecodes were issued inside the try block
 
 		// natural exit: only if necessary
-		boolean nonReturningSubRoutine =
-			(subRoutineStartLabel != null) && subRoutineCannotReturn;
+		boolean nonReturningSubRoutine =subRoutineStartLabel != null && subRoutineCannotReturn;
 		if ((!tryBlockExit) && tryBlockHasSomeCode) {
 			int position = codeStream.position;
 			if (nonReturningSubRoutine) {
@@ -253,9 +252,8 @@ public class TryStatement extends Statement {
 		if (tryBlockHasSomeCode) {
 			for (int i = 0; i < maxCatches; i++) {
 				boolean preserveCurrentHandler =
-					(preserveExceptionHandler[i	/ ExceptionHandlingFlowContext.BitCacheSize]
-							& (1 << (i % ExceptionHandlingFlowContext.BitCacheSize)))
-						!= 0;
+					(preserveExceptionHandler[i / ExceptionHandlingFlowContext.BitCacheSize]
+							& (1 << (i % ExceptionHandlingFlowContext.BitCacheSize))) != 0;
 				if (preserveCurrentHandler) {
 					exceptionLabels[i].placeEnd();
 				}
@@ -272,8 +270,7 @@ public class TryStatement extends Statement {
 				for (int i = 0; i < maxCatches; i++) {
 					boolean preserveCurrentHandler =
 						(preserveExceptionHandler[i / ExceptionHandlingFlowContext.BitCacheSize]
-								& (1 << (i % ExceptionHandlingFlowContext.BitCacheSize)))
-							!= 0;
+								& (1 << (i % ExceptionHandlingFlowContext.BitCacheSize))) != 0;
 					if (preserveCurrentHandler) {
 						// May loose some local variable initializations : affecting the local variable attributes
 						if (preTryInitStateIndex != -1) {
@@ -344,17 +341,9 @@ public class TryStatement extends Statement {
 					codeStream.load(anyExceptionVariable);
 					codeStream.athrow();
 				}
-			}
-			// end of catch sequence, place label that will correspond to the finally block beginning, or end of statement
-			endLabel.place();
-			if (subRoutineStartLabel != null) {
-				if (nonReturningSubRoutine) {
+				// end of catch sequence, place label that will correspond to the finally block beginning, or end of statement
+				if (nonReturningSubRoutine) {//TODO: should not be necessary
 					requiresNaturalJsr = false;
-				}
-				Label veryEndLabel = new Label(codeStream);
-				if (requiresNaturalJsr) {
-					codeStream.jsr(subRoutineStartLabel);
-					codeStream.goto_(veryEndLabel);
 				}
 				subRoutineStartLabel.place();
 				if (!nonReturningSubRoutine) {
@@ -372,12 +361,18 @@ public class TryStatement extends Statement {
 					codeStream.updateLastRecordedEndPC(position);
 					// the ret bytecode is part of the subroutine
 				}
+				// will naturally fall into subsequent code after subroutine invocation
+				endLabel.place();
 				if (requiresNaturalJsr) {
-					veryEndLabel.place();
+					codeStream.jsr(subRoutineStartLabel);
 				}
+			} else {
+				// no subroutine, simply position end label
+				endLabel.place();
 			}
 		} else {
 			// try block had no effect, only generate the body of the finally block if any
+			endLabel.place();
 			if (subRoutineStartLabel != null) {
 				finallyBlock.generateCode(scope, codeStream);
 			}
