@@ -30,6 +30,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	private Map options;
 	
 	private DefaultCodeFormatterOptions preferences;
+	private CodeSnippetParsingUtil codeSnippetParsingUtil;
 	
 	public DefaultCodeFormatter() {
 		this(new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings()), null);
@@ -75,6 +76,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		if (offset < 0 || length < 0 || length > source.length()) {
 			throw new IllegalArgumentException();
 		}
+		this.codeSnippetParsingUtil = new CodeSnippetParsingUtil();
 		switch(kind) {
 			case K_CLASS_BODY_DECLARATIONS :
 				return formatClassBodyDeclarations(source, indentationLevel, lineSeparator, offset, length);
@@ -91,7 +93,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 	
 	private TextEdit formatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		ASTNode[] bodyDeclarations = CodeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), this.options, false);
+		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), this.options, true);
 		
 		if (bodyDeclarations == null) {
 			// a problem occured while parsing the source
@@ -101,7 +103,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatCompilationUnit(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		CompilationUnitDeclaration compilationUnitDeclaration =CodeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), this.options);
+		CompilationUnitDeclaration compilationUnitDeclaration = this.codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), this.options, true);
 		
 		if (lineSeparator != null) {
 			this.preferences.line_separator = lineSeparator;
@@ -116,7 +118,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatExpression(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		Expression expression = CodeSnippetParsingUtil.parseExpression(source.toCharArray(), this.options, false);
+		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), this.options, true);
 		
 		if (expression == null) {
 			// a problem occured while parsing the source
@@ -126,7 +128,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatStatements(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		ConstructorDeclaration constructorDeclaration = CodeSnippetParsingUtil.parseStatements(source.toCharArray(), this.options, false);
+		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), this.options, true);
 		
 		if (constructorDeclaration.statements == null) {
 			// a problem occured while parsing the source
@@ -162,7 +164,8 @@ public class DefaultCodeFormatter extends CodeFormatter {
 
 		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, options, offset, length);
 		
-		return this.newCodeFormatter.format(source, expression);
+		TextEdit textEdit = this.newCodeFormatter.format(source, expression);
+		return textEdit;
 	}
 	
 	private TextEdit internalFormatStatements(String source, int indentationLevel, String lineSeparator, ConstructorDeclaration constructorDeclaration, int offset, int length) {
@@ -179,24 +182,20 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, int offset, int length) {
-		Expression expression = CodeSnippetParsingUtil.parseExpression(source.toCharArray(), this.options, false);
-		
+		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), this.options, true);
 		if (expression != null) {
 			return internalFormatExpression(source, indentationLevel, lineSeparator, expression, offset, length);
 		}
 
-		ASTNode[] bodyDeclarations = CodeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), this.options, false);
-		
+		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), this.options, true);
 		if (bodyDeclarations != null) {
 			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
 		}
 
-		ConstructorDeclaration constructorDeclaration = CodeSnippetParsingUtil.parseStatements(source.toCharArray(), this.options, false);
-		
+		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), this.options, true);
 		if (constructorDeclaration.statements != null) {
 			return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, offset, length);
 		}
-		
 
 		return formatCompilationUnit(source, indentationLevel, lineSeparator, offset, length);
 	}

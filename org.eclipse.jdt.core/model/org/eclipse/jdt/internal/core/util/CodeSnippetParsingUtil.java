@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.util;
 import java.util.Locale;
 import java.util.Map;
 
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -30,13 +31,27 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
  */
 public class CodeSnippetParsingUtil {
 
-	public static CompilationResult RecordedCompilationResult;
+	public RecordedParsingInformation recordedParsingInformation;
 
-	public static ASTNode[] parseClassBodyDeclarations(char[] source, Map settings, boolean recordParsingInformation) {
+	private RecordedParsingInformation getRecordedParsingInformation(CompilationResult compilationResult, CommentRecorderParser parser) {
+		int problemsCount = compilationResult.problemCount;
+		IProblem[] problems = null;
+		if (problemsCount != 0) {
+			final IProblem[] compilationResultProblems = compilationResult.problems;
+			if (compilationResultProblems.length == problemsCount) {
+				problems = compilationResultProblems;
+			} else {
+				System.arraycopy(compilationResultProblems, 0, (problems = new IProblem[problemsCount]), 0, problemsCount);
+			}
+		}
+		return new RecordedParsingInformation(problems, compilationResult.lineSeparatorPositions, parser.getCommentsPositions());
+	}
+	
+	public ASTNode[] parseClassBodyDeclarations(char[] source, Map settings, boolean recordParsingInformation) {
 		return parseClassBodyDeclarations(source, 0, source.length, settings, recordParsingInformation);
 	}
 	
-	public static ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int length, Map settings, boolean recordParsingInformation) {
+	public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int length, Map settings, boolean recordParsingInformation) {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
@@ -59,12 +74,12 @@ public class CodeSnippetParsingUtil {
 		ASTNode[] result = parser.parseClassBodyDeclarations(source, offset, length, compilationUnitDeclaration);
 		
 		if (recordParsingInformation) {
-			RecordedCompilationResult = compilationResult;
+			this.recordedParsingInformation = getRecordedParsingInformation(compilationResult, parser);
 		}
 		return result;
 	}
 
-	public static CompilationUnitDeclaration parseCompilationUnit(char[] source, Map settings) {
+	public CompilationUnitDeclaration parseCompilationUnit(char[] source, Map settings, boolean recordParsingInformation) {
 		
 		if (source == null) {
 			throw new IllegalArgumentException();
@@ -83,7 +98,8 @@ public class CodeSnippetParsingUtil {
 				source, 
 				"", //$NON-NLS-1$
 				compilerOptions.defaultEncoding);
-		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit));
+		final CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
+		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, compilationResult);
 		
 		if (compilationUnitDeclaration.ignoreMethodBodies) {
 			compilationUnitDeclaration.ignoreFurtherInvestigation = true;
@@ -100,14 +116,19 @@ public class CodeSnippetParsingUtil {
 				types[i].parseMethod(parser, compilationUnitDeclaration);
 			}
 		}
+		
+		if (recordParsingInformation) {
+			this.recordedParsingInformation = getRecordedParsingInformation(compilationResult, parser);
+		}
+		
 		return compilationUnitDeclaration;
 	}
 
-	public static Expression parseExpression(char[] source, Map settings, boolean recordParsingInformation) {
+	public Expression parseExpression(char[] source, Map settings, boolean recordParsingInformation) {
 		return parseExpression(source, 0, source.length, settings, recordParsingInformation);
 	}
 	
-	public static Expression parseExpression(char[] source, int offset, int length, Map settings, boolean recordParsingInformation) {
+	public Expression parseExpression(char[] source, int offset, int length, Map settings, boolean recordParsingInformation) {
 		
 		if (source == null) {
 			throw new IllegalArgumentException();
@@ -130,16 +151,16 @@ public class CodeSnippetParsingUtil {
 		Expression result = parser.parseExpression(source, offset, length, new CompilationUnitDeclaration(problemReporter, compilationResult, source.length));
 		
 		if (recordParsingInformation) {
-			RecordedCompilationResult = compilationResult;
+			this.recordedParsingInformation = getRecordedParsingInformation(compilationResult, parser);
 		}
 		return result;
 	}
 
-	public static ConstructorDeclaration parseStatements(char[] source, Map settings, boolean recordParsingInformation) {
+	public ConstructorDeclaration parseStatements(char[] source, Map settings, boolean recordParsingInformation) {
 		return parseStatements(source, 0, source.length, settings, recordParsingInformation);
 	}
 	
-	public static ConstructorDeclaration parseStatements(char[] source, int offset, int length, Map settings, boolean recordParsingInformation) {
+	public ConstructorDeclaration parseStatements(char[] source, int offset, int length, Map settings, boolean recordParsingInformation) {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
@@ -170,12 +191,8 @@ public class CodeSnippetParsingUtil {
 		parser.parse(constructorDeclaration, compilationUnitDeclaration, true);
 		
 		if (recordParsingInformation) {
-			RecordedCompilationResult = compilationResult;
+			this.recordedParsingInformation = getRecordedParsingInformation(compilationResult, parser);
 		}
 		return constructorDeclaration;
-	}
-	
-	public static void reset() {
-		RecordedCompilationResult = null;
 	}
 }
