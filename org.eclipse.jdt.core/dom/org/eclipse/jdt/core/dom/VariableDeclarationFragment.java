@@ -34,7 +34,7 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	private SimpleName variableName = null;
 
 	/**
-	 * The number of extra array dimensions that this variable;
+	 * The number of extra array dimensions that this variable has;
 	 * defaults to 0.
 	 */
 	private int extraArrayDimensions = 0;
