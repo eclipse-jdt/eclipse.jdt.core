@@ -277,6 +277,14 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 protected void consumeFormalParameter() {
 	if (this.indexOfAssistIdentifier() < 0) {
 		super.consumeFormalParameter();
+		if((!diet || dietInt != 0) && astPtr > -1) {
+			Argument argument = (Argument) astStack[astPtr];
+			if(argument.type == assistNode) {
+				isOrphanCompletionNode = true;
+				this.restartRecovery	= true;	// force to restart in recovery mode
+				this.lastIgnoredToken = -1;	
+			}
+		}
 	} else {
 
 		identifierLengthPtr--;
@@ -676,6 +684,12 @@ protected void updateRecoveryState() {
 	/* may be able to retrieve completionNode as an orphan, and then attach it */
 	this.selectionIdentifierCheck();
 	this.attachOrphanCompletionNode();
+	
+	// if an assist node has been found and a recovered element exists,
+	// mark enclosing blocks as to be preserved
+	if (this.assistNode != null && this.currentElement != null) {
+		currentElement.preserveEnclosingBlocks();
+	}
 	
 	/* check and update recovered state based on current token,
 		this action is also performed when shifting token after recovery

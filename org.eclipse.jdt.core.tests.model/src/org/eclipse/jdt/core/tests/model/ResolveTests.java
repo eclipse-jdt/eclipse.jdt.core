@@ -83,6 +83,8 @@ public static Test suite() {
 	suite.addTest(new ResolveTests("testResolveCatchArgumentName2"));
 	suite.addTest(new ResolveTests("testResolveAbstractMethod"));
 	suite.addTest(new ResolveTests("testResolveInnerClassAsParamater"));
+	suite.addTest(new ResolveTests("testResolveCatchArgumentType1"));
+	suite.addTest(new ResolveTests("testResolveCatchArgumentType2"));
 	return suite;
 }
 
@@ -827,5 +829,39 @@ public void testResolveInnerClassAsParamater() throws JavaModelException {
 	assertTrue("should have one method", elements.length == 1 && 
 		elements[0].getElementName().equals("foo") &&
 		elements[0] instanceof IMethod);
+}
+/**
+ * bugs http://dev.eclipse.org/bugs/show_bug.cgi?id=24626
+ */
+public void testResolveCatchArgumentType1() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveCatchArgumentType1.java");
+	
+	String str = cu.getSource();
+	String selectAt = "Y1";
+	String selection = "Y1";
+	int start = str.lastIndexOf(selectAt);
+	int length = selection.length();
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	
+	assertTrue("should have one type", elements.length == 1 && 
+		elements[0].getElementName().equals("Y1") &&
+		elements[0] instanceof IType);
+}
+/**
+ * bugs http://dev.eclipse.org/bugs/show_bug.cgi?id=24626
+ */
+public void testResolveCatchArgumentType2() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveCatchArgumentType2.java");
+	
+	String str = cu.getSource();
+	String selectAt = "Y1";
+	String selection = "Y1";
+	int start = str.lastIndexOf(selectAt);
+	int length = selection.length();
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	
+	assertTrue("should have one type", elements.length == 1 && 
+		elements[0].getElementName().equals("Y1") &&
+		elements[0] instanceof IType);
 }
 }
