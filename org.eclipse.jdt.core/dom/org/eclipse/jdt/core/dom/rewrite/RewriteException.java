@@ -28,8 +28,8 @@ public class RewriteException extends Exception {
     	super();
     }
     
-	/**
-     * Create a new exception with a throwable.
+	/** 
+     * Create a new exception with a throwable.                     
      */
     public RewriteException(Throwable throwable) {
     	super(throwable);

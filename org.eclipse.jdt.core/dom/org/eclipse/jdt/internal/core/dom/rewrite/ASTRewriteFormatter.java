@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.internal.dom.rewrite;
+package org.eclipse.jdt.internal.core.dom.rewrite;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -103,12 +103,12 @@ import org.eclipse.jdt.core.dom.Block;
 		}
 	}
 	
-	protected String fLineDelimiter;
+	final String fLineDelimiter;
 	
-	protected NodeInfoStore fPlaceholders;
-	RewriteEventStore fEventStore;
+	final NodeInfoStore fPlaceholders;
+	final RewriteEventStore fEventStore;
 
-	Map fOptions;
+	final Map fOptions;
 	
 	public ASTRewriteFormatter(NodeInfoStore placeholders, RewriteEventStore eventStore, Map options, String lineDelimiter) {
 		fPlaceholders= placeholders;

@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.internal.dom.rewrite;
+package org.eclipse.jdt.internal.core.dom.rewrite;
 
 import java.util.List;
 
@@ -113,9 +113,6 @@ public class ASTRewriteFlattener extends GenericVisitor {
 	}
 	
 	protected Object getAttribute(ASTNode parent, StructuralPropertyDescriptor childProperty) {
-		if (!parent.structuralPropertiesForType().contains(childProperty)) {
-			System.out.print("Property doesn'y match node"); //$NON-NLS-1$
-		}
 		return fStore.getNewValue(parent, childProperty);
 	}
 	

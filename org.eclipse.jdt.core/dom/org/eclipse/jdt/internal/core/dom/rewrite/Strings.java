@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.internal.dom.rewrite;
+package org.eclipse.jdt.internal.core.dom.rewrite;
 
 import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
@@ -22,7 +22,7 @@ import org.eclipse.jface.text.IRegion;
 public class Strings {
 	
 	private Strings() {
-		// don't allow to create such an instance    
+		// don't instanciate
 	}
 	
 	/**

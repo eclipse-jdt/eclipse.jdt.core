@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.internal.dom.rewrite;
+package org.eclipse.jdt.internal.core.dom.rewrite;
 
 import org.eclipse.jdt.core.dom.*;
 
@@ -21,7 +21,7 @@ public class GenericVisitor extends ASTVisitor {
 	}
 	
 	protected void endVisitNode(ASTNode node) {
-	    // ignore
+		// do nothing
 	}
 
 	public boolean visit(AnonymousClassDeclaration node) {

@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.internal.dom.rewrite;
+package org.eclipse.jdt.internal.core.dom.rewrite;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +73,7 @@ public class SourceModifier implements ISourceModifier {
 				}
 			}
 		} catch (BadLocationException cannotHappen) {
-		    // ignore
+			// can not happen
 		}
 		return (ReplaceEdit[])result.toArray(new ReplaceEdit[result.size()]);
 	}

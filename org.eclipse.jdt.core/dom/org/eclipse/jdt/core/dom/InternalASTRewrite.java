@@ -21,14 +21,14 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.rewrite.RewriteException;
-import org.eclipse.jdt.core.internal.dom.rewrite.ASTRewriteAnalyzer;
-import org.eclipse.jdt.core.internal.dom.rewrite.ListRewriteEvent;
-import org.eclipse.jdt.core.internal.dom.rewrite.NodeInfoStore;
-import org.eclipse.jdt.core.internal.dom.rewrite.NodeRewriteEvent;
-import org.eclipse.jdt.core.internal.dom.rewrite.RewriteEventStore;
-import org.eclipse.jdt.core.internal.dom.rewrite.RewriteEventStore.CopySourceInfo;
-import org.eclipse.jdt.core.internal.dom.rewrite.RewriteEventStore.PropertyLocation;
-import org.eclipse.jdt.core.internal.dom.rewrite.RewriteRuntimeException;
+import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer;
+import org.eclipse.jdt.internal.core.dom.rewrite.ListRewriteEvent;
+import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore;
+import org.eclipse.jdt.internal.core.dom.rewrite.NodeRewriteEvent;
+import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
+import org.eclipse.jdt.internal.core.dom.rewrite.RewriteRuntimeException;
+import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
+import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.PropertyLocation;
 
 /**
  * Internal class: not intended to be used by client.

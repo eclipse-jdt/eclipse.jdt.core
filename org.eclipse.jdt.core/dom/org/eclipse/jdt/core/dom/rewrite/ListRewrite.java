@@ -15,31 +15,34 @@ import java.util.List;
 
 import org.eclipse.text.edits.TextEditGroup;
 
-import org.eclipse.jdt.core.internal.dom.rewrite.ListRewriteEvent;
-import org.eclipse.jdt.core.internal.dom.rewrite.RewriteEvent;
-import org.eclipse.jdt.core.internal.dom.rewrite.RewriteEventStore;
-
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+
+import org.eclipse.jdt.internal.core.dom.rewrite.ListRewriteEvent;
+import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore;
+import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEvent;
+import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
+import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
 
 /**
  * For describing manipulations to a child list property of an AST node.
  * <p>
  * This class is not intended to be subclassed.
  * </p>
- * @see NewASTRewrite#getListRewrite(ASTNode, ChildListPropertyDescriptor)
+ * @see ASTRewrite#getListRewrite(ASTNode, ChildListPropertyDescriptor)
  * @since 3.0
  */
-public final class ListRewriter {
+public final class ListRewrite {
 	
 	private ASTNode fParent;
 	private StructuralPropertyDescriptor fChildProperty;
-	private NewASTRewrite fRewriter;
+	private ASTRewrite fRewriter;
 
 
-	/* package*/ ListRewriter(NewASTRewrite rewriter, ASTNode parent, StructuralPropertyDescriptor childProperty) {
+	/* package*/ ListRewrite(ASTRewrite rewriter, ASTNode parent, StructuralPropertyDescriptor childProperty) {
 		fRewriter= rewriter;
 		fParent= parent;
 		fChildProperty= childProperty;
@@ -81,8 +84,9 @@ public final class ListRewriter {
 	 * The node must be contained in the list.
 	 * The replacement node must either be brand new (not part of the original AST)
 	 * or a placeholder node (for example, one created by
-	 * {@link #createTargetNode(ASTNode, boolean)}
-	 * or {@link #createStringPlaceholder(String, int)}). The AST itself
+	 * {@link ASTRewrite#createCopyTarget(ASTNode)},
+	 * {@link ASTRewrite#createMoveTarget(ASTNode)}, 
+	 * or {@link ASTRewrite#createStringPlaceholder(String, int)}). The AST itself
      * is not actually modified in any way; rather, the rewriter just records
      * a note that this node has been replaced in this list.
 	 * 
@@ -112,8 +116,9 @@ public final class ListRewriter {
 	 * node that has been inserted.
 	 * The inserted node must either be brand new (not part of the original AST)
 	 * or a placeholder node (for example, one created by
-	 * {@link #createTargetNode(ASTNode, boolean)}
-	 * or {@link #createStringPlaceholder(String, int)}). The AST itself
+	 * {@link ASTRewrite#createCopyTarget(ASTNode)}, 
+	 * {@link ASTRewrite#createMoveTarget(ASTNode)}, 
+	 * or {@link ASTRewrite#createStringPlaceholder(String, int)}). The AST itself
      * is not actually modified in any way; rather, the rewriter just records
      * a note that this node has been inserted into the list.
 	 * 
@@ -144,8 +149,9 @@ public final class ListRewriter {
 	 * node that has been inserted.
 	 * The inserted node must either be brand new (not part of the original AST)
 	 * or a placeholder node (for example, one created by
-	 * {@link #createTargetNode(ASTNode, boolean)}
-	 * or {@link #createStringPlaceholder(String, int)}). The AST itself
+	 * {@link ASTRewrite#createCopyTarget(ASTNode)}, 
+	 * {@link ASTRewrite#createMoveTarget(ASTNode)}, 
+	 * or {@link ASTRewrite#createStringPlaceholder(String, int)}). The AST itself
      * is not actually modified in any way; rather, the rewriter just records
      * a note that this node has been inserted into the list.
 	 * 
@@ -210,8 +216,9 @@ public final class ListRewriter {
 	 * removed or replaced nodes are still in the combined list.
 	 * The inserted node must either be brand new (not part of the original AST)
 	 * or a placeholder node (for example, one created by
-	 * {@link #createTargetNode(ASTNode, boolean)}
-	 * or {@link #createStringPlaceholder(String, int)}). The AST itself
+	 * {@link ASTRewrite#createCopyTarget(ASTNode)}, 
+	 * {@link ASTRewrite#createMoveTarget(ASTNode)}, 
+	 * or {@link ASTRewrite#createStringPlaceholder(String, int)}). The AST itself
      * is not actually modified in any way; rather, the rewriter just records
      * a note that this node has been inserted into the list.
 	 * 
@@ -237,6 +244,45 @@ public final class ListRewriter {
 		}
 		if (editGroup != null) {
 			getRewriteStore().setEventEditGroup(event, editGroup);
+		}
+	}
+	
+	private ASTNode createTargetNode(ASTNode first, ASTNode last, boolean isMove) {
+		if (first == null || last == null) {
+			throw new IllegalArgumentException();
+		}
+		//validateIsInsideAST(node);
+		CopySourceInfo info= getRewriteStore().markAsRangeCopySource(fParent, fChildProperty, first, last, isMove);
+	
+		NodeInfoStore nodeStore= fRewriter.getNodeStore();
+		ASTNode placeholder= nodeStore.newPlaceholderNode(first.getNodeType()); // revisit: could use list type
+		if (placeholder == null) {
+			throw new IllegalArgumentException("Creating a target node is not supported for nodes of type" + first.getClass().getName()); //$NON-NLS-1$
+		}
+		nodeStore.markAsCopyTarget(placeholder, info);
+		
+		return placeholder;		
+	}
+	
+	/**
+	 * Creates and returns a placeholder node for a true copy of a range of nodes of the
+	 * current list.
+	 * The placeholder node can either be inserted as new or used to replace an
+	 * existing node. When the document is rewritten, a copy of the source code 
+	 * for the given node range is inserted into the output document at the position
+	 * corresponding to the placeholder (indentation is adjusted).
+	 * 
+	 * @param first the node that starts the range
+	 * @param last the node that ends the range
+	 * @return the new placeholder node
+	 * @throws IllegalArgumentException if the node is null, or if the node
+	 * is not part of this rewriter's AST
+	 */
+	public final ASTNode createCopyTarget(ASTNode first, ASTNode last) {
+		if (first == last) {
+			return fRewriter.createCopyTarget(first);
+		} else {
+			return createTargetNode(first, last, false);
 		}
 	}
 	
