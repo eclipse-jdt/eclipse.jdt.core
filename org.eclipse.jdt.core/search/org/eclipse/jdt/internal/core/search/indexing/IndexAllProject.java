@@ -15,7 +15,7 @@ import java.io.IOException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -81,55 +81,49 @@ public class IndexAllProject extends IndexRequest {
 					if (sourceFolder != null) {
 						final char[][] patterns = ((ClasspathEntry) entry).fullExclusionPatternChars();
 						if (max == 0) {
-// KJ : Release next week
-//							sourceFolder.accept(new IResourceProxyVisitor() {
-//								public boolean visit(IResourceProxy proxy) {
-//									if (isCancelled) return false;
-//									if (proxy.getType() == IResource.FILE) {
-//										if (Util.isJavaFileName(proxy.getName())) {
-//											IResource resource = proxy.requestResource();
-//											if (resource.getLocation() != null && (patterns == null || !Util.isExcluded(resource, patterns))) {
-							sourceFolder.accept(new IResourceVisitor() {
-								public boolean visit(IResource resource) {
-									if (isCancelled) return false;
-									if (resource.getType() == IResource.FILE) {
-										if (Util.isJavaFileName(resource.getName()) && resource.getLocation() != null) {
-											if (patterns == null || !Util.isExcluded(resource, patterns)) {
-												String name = new IFileDocument((IFile) resource).getName();
-												indexedFileNames.put(name, resource);
+							sourceFolder.accept(
+								new IResourceProxyVisitor() {
+									public boolean visit(IResourceProxy proxy) {
+										if (isCancelled) return false;
+										if (proxy.getType() == IResource.FILE) {
+											if (Util.isJavaFileName(proxy.getName())) {
+												IResource resource = proxy.requestResource();
+												if (resource.getLocation() != null && (patterns == null || !Util.isExcluded(resource, patterns))) {
+													String name = new IFileDocument((IFile) resource).getName();
+													indexedFileNames.put(name, resource);
+												}
 											}
+											return false;
 										}
-										return false;
+										return true;
 									}
-									return true;
-								}
-							});
+								},
+								IResource.NONE
+							);
 						} else {
-//							sourceFolder.accept(new IResourceProxyVisitor() {
-//								public boolean visit(IResourceProxy proxy) {
-//									if (isCancelled) return false;
-//									if (proxy.getType() == IResource.FILE) {
-//										if (Util.isJavaFileName(proxy.getName())) {
-//											IResource resource = proxy.requestResource();
-							sourceFolder.accept(new IResourceVisitor() {
-								public boolean visit(IResource resource) {
-									if (isCancelled) return false;
-									if (resource.getType() == IResource.FILE) {
-										if (Util.isJavaFileName(resource.getName())) {
-											IPath path = resource.getLocation();
-											if (path != null && (patterns == null || !Util.isExcluded(resource, patterns))) {
-												String name = new IFileDocument((IFile) resource).getName();
-												indexedFileNames.put(name,
-													indexedFileNames.get(name) == null || indexLastModified < path.toFile().lastModified()
-														? (Object) resource
-														: (Object) OK);
+							sourceFolder.accept(
+								new IResourceProxyVisitor() {
+									public boolean visit(IResourceProxy proxy) {
+										if (isCancelled) return false;
+										if (proxy.getType() == IResource.FILE) {
+											if (Util.isJavaFileName(proxy.getName())) {
+												IResource resource = proxy.requestResource();
+												IPath path = resource.getLocation();
+												if (path != null && (patterns == null || !Util.isExcluded(resource, patterns))) {
+													String name = new IFileDocument((IFile) resource).getName();
+													indexedFileNames.put(name,
+														indexedFileNames.get(name) == null || indexLastModified < path.toFile().lastModified()
+															? (Object) resource
+															: (Object) OK);
+												}
 											}
+											return false;
 										}
-										return false;
+										return true;
 									}
-									return true;
-								}
-							});
+								},
+								IResource.NONE
+							);
 						}
 					}
 				}

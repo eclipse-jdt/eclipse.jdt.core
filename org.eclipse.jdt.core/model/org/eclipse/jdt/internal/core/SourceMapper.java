@@ -303,31 +303,29 @@ public class SourceMapper
 				IFolder folder = (IFolder)target;
 				final String[] rootPathHolder = new String[1];
 				try {
-// KJ : Release next week
-//					folder.accept(new IResourceProxyVisitor() {
-//						public boolean visit(IResourceProxy proxy) throws CoreException {
-//							if (proxy.getType() == IResource.FILE) {
-//								if (Util.isJavaFileName(proxy.getName())) { 
-//									IResource resource = proxy.requestResource();
-					folder.accept(new IResourceVisitor() {
-						public boolean visit(IResource resource) throws CoreException {
-							if (resource.getType() == IResource.FILE) {
-								if (Util.isJavaFileName(resource.getName())) {
-									char[] contents = org.eclipse.jdt.internal.core.Util.getResourceContentsAsCharArray((IFile)resource, encoding);
-									IPath fullPath = resource.getFullPath();
-									int sourcePathSegmentCount = sourcePath.segmentCount();
-									IPath javaFilePath = fullPath.removeFirstSegments(sourcePathSegmentCount);
-									String rootPath = computeRootPath(javaFilePath.toString(), contents);
-									if (rootPath != null) {
-										rootPathHolder[0] = rootPath;
-										throw new CoreException(new JavaModelStatus()); // abort visit
+					folder.accept(
+						new IResourceProxyVisitor() {
+							public boolean visit(IResourceProxy proxy) throws CoreException {
+								if (proxy.getType() == IResource.FILE) {
+									if (Util.isJavaFileName(proxy.getName())) { 
+										IResource resource = proxy.requestResource();
+										char[] contents = org.eclipse.jdt.internal.core.Util.getResourceContentsAsCharArray((IFile)resource, encoding);
+										IPath fullPath = resource.getFullPath();
+										int sourcePathSegmentCount = sourcePath.segmentCount();
+										IPath javaFilePath = fullPath.removeFirstSegments(sourcePathSegmentCount);
+										String rootPath = computeRootPath(javaFilePath.toString(), contents);
+										if (rootPath != null) {
+											rootPathHolder[0] = rootPath;
+											throw new CoreException(new JavaModelStatus()); // abort visit
+										}
 									}
+									return false;
 								}
-								return false;
+								return true;
 							}
-							return true;
-						}
-					});
+						},
+						IResource.NONE
+					);
 				} catch (CoreException e) {
 				}
 				if (rootPathHolder[0] != null) {

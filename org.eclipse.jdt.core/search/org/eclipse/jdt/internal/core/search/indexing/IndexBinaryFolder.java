@@ -15,7 +15,7 @@ import java.io.IOException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -63,57 +63,50 @@ public class IndexBinaryFolder extends IndexRequest {
 			final String OK = "OK"; //$NON-NLS-1$
 			final String DELETED = "DELETED"; //$NON-NLS-1$
 			if (max == 0) {
-// KJ : Release next week
-//				this.folder.accept(new IResourceProxyVisitor() {
-//					public boolean visit(IResourceProxy proxy) {
-//						if (isCancelled) return false;
-//						if (proxy.getType() == IResource.FILE) {
-//							if (Util.isClassFileName(proxy.getName())) {
-//								IResource resource = proxy.requestResource();
-//								if (resource.getLocation() != null) {
-				this.folder.accept(new IResourceVisitor() {
-					public boolean visit(IResource resource) {
+				this.folder.accept(new IResourceProxyVisitor() {
+					public boolean visit(IResourceProxy proxy) {
 						if (isCancelled) return false;
-						if (resource.getType() == IResource.FILE) {
-							if (Util.isClassFileName(resource.getName()) && resource.getLocation() != null) {
-								String name = new IFileDocument((IFile) resource).getName();
-								indexedFileNames.put(name, resource);
-							}
-							return false;
-						}
-						return true;
-					}
-				});
-			} else {
-				for (int i = 0; i < max; i++)
-					indexedFileNames.put(results[i].getPath(), DELETED);
-
-				final long indexLastModified = index.getIndexFile().lastModified();
-//				this.folder.accept(new IResourceProxyVisitor() {
-//					public boolean visit(IResourceProxy proxy) {
-//						if (isCancelled) return false;
-//						if (proxy.getType() == IResource.FILE) {
-//							if (Util.isClassFileName(proxy.getName())) {
-//								IResource resource = proxy.requestResource();
-				this.folder.accept(new IResourceVisitor() {
-					public boolean visit(IResource resource) {
-						if (isCancelled) return false;
-						if (resource.getType() == IResource.FILE) {
-							if (Util.isClassFileName(resource.getName())) {
-								IPath path = resource.getLocation();
-								if (path != null) {
+						if (proxy.getType() == IResource.FILE) {
+							if (Util.isClassFileName(proxy.getName())) {
+								IResource resource = proxy.requestResource();
+								if (resource.getLocation() != null) {
 									String name = new IFileDocument((IFile) resource).getName();
-									indexedFileNames.put(name,
-										indexedFileNames.get(name) == null || indexLastModified < path.toFile().lastModified()
-											? (Object) resource
-											: (Object) OK);
+									indexedFileNames.put(name, resource);
 								}
 							}
 							return false;
 						}
 						return true;
 					}
-				});
+				}, IResource.NONE);
+			} else {
+				for (int i = 0; i < max; i++)
+					indexedFileNames.put(results[i].getPath(), DELETED);
+
+				final long indexLastModified = index.getIndexFile().lastModified();
+				this.folder.accept(
+					new IResourceProxyVisitor() {
+						public boolean visit(IResourceProxy proxy) {
+							if (isCancelled) return false;
+							if (proxy.getType() == IResource.FILE) {
+								if (Util.isClassFileName(proxy.getName())) {
+									IResource resource = proxy.requestResource();
+									IPath path = resource.getLocation();
+									if (path != null) {
+										String name = new IFileDocument((IFile) resource).getName();
+										indexedFileNames.put(name,
+											indexedFileNames.get(name) == null || indexLastModified < path.toFile().lastModified()
+												? (Object) resource
+												: (Object) OK);
+									}
+								}
+								return false;
+							}
+							return true;
+						}
+					},
+					IResource.NONE
+				);
 			}
 
 			Object[] names = indexedFileNames.keyTable;
