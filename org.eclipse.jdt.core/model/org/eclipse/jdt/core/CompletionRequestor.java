@@ -155,8 +155,8 @@ public abstract class CompletionRequestor {
 	 * Similarly, implementers should check 
 	 * {@link #isIgnored(int) isIgnored(proposal.getKind())} 
 	 * and ignore proposals that have been declared as uninteresting.
-	 * The proposal object passed in only valid for the duration of
-	 * this call; implementors must not hang on to these objects.
+	 * The proposal object passed is only valid for the duration of
+	 * completion operation.
 	 * 
 	 * @param proposal the completion proposal
 	 * @exception IllegalArgumentException if the proposal is null
