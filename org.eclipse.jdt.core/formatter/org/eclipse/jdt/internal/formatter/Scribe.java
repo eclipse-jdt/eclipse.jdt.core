@@ -430,6 +430,10 @@ public class Scribe {
 		column = 1;
 		needSpace = false;
 		lastNumberOfNewLines = 1;
+		// TODO revisit when removing type member alignment
+		if (this.currentAlignment != null && !this.currentAlignment.name.equals("typeMembers")) { //$NON-NLS-1$
+			this.indentationLevel = this.currentAlignment.breakIndentationLevel;
+		}
 	}
 
 	public void printIndentationIfNecessary() {
