@@ -390,9 +390,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		CompilationUnitDeclaration unit,
 		CompilationResult result) {
 
-		/* dump a stack trace to the console */
-		internalException.printStackTrace();
-
 		/* find a compilation result */
 		if ((unit != null)) // basing result upon the current unit if available
 			result = unit.compilationResult; // current unit being processed ?
@@ -400,6 +397,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			result = unitsToProcess[totalUnits - 1].compilationResult;
 		// last unit in beginToCompile ?
 
+		boolean needToPrint = true;
 		if (result != null) {
 			/* create and record a compilation problem */
 			StringWriter stringWriter = new StringWriter();
@@ -431,7 +429,12 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			/* hand back the compilation result */
 			if (!result.hasBeenAccepted) {
 				requestor.acceptResult(result.tagAsAccepted());
+				needToPrint = false;
 			}
+		}
+		if (needToPrint) {
+			/* dump a stack trace to the console */
+			internalException.printStackTrace();
 		}
 	}
 

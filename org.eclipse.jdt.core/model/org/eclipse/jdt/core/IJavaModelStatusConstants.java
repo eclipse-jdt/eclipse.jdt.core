@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  * 
  * TODO: missing 2.1 and subsequent contributions
+ * COMPILER_FAILURE
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -290,4 +291,10 @@ public interface IJavaModelStatusConstants {
 	 * @since 3.0
 	 */
 	public static final int INCOMPATIBLE_JDK_LEVEL	= 1004;
+	
+	/**
+	 * Status constant indicating that a compiler failure occurred.
+	 * @since 3.0
+	 */
+	public static final int COMPILER_FAILURE	= 1005;	
 }

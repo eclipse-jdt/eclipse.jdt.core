@@ -178,6 +178,10 @@ public class CompilationUnitProblemFinder extends Compiler {
 			}
 			reportProblems(unit, problemRequestor, monitor);
 			return unit;
+		} catch(RuntimeException e) { 
+			// avoid breaking other tools due to internal compiler failure (40334)
+			Util.log(e, "Exception occurred during problem detection: "); //$NON-NLS-1$ 
+			throw new JavaModelException(e, IJavaModelStatusConstants.COMPILER_FAILURE);
 		} finally {
 			if (unit != null) {
 				unit.cleanUp();
