@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.core.index.impl.IndexInput;
-import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
+import org.eclipse.jdt.internal.core.index.*;
 
 public class PackageDeclarationPattern extends SearchPattern {
 
@@ -23,8 +21,9 @@ public PackageDeclarationPattern(char[] pkgName, int matchRule) {
 	super(PKG_DECL_PATTERN, matchRule);
 	this.pkgName = pkgName;
 }
-public void findIndexMatches(IndexInput input, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) /* throws IOException */ {
+public EntryResult[] queryIn(Index index) {
 	// package declarations are not indexed
+	return null;
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
@@ -35,13 +34,13 @@ public String toString() {
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
 	switch(this.matchMode) {
-		case EXACT_MATCH : 
+		case R_EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
-		case PREFIX_MATCH :
+		case R_PREFIX_MATCH :
 			buffer.append("prefix match, "); //$NON-NLS-1$
 			break;
-		case PATTERN_MATCH :
+		case R_PATTERN_MATCH :
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}

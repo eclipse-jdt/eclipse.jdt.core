@@ -21,8 +21,6 @@ public interface IIndexConstants {
 	char[] SUPER_REF = "superRef/".toCharArray(); //$NON-NLS-1$
 	char[] TYPE_DECL = "typeDecl/".toCharArray(); //$NON-NLS-1$
 	int 	TYPE_DECL_LENGTH = 9;
-	char[] CLASS_DECL= "typeDecl/C/".toCharArray(); //$NON-NLS-1$
-	char[] INTERFACE_DECL= "typeDecl/I/".toCharArray(); //$NON-NLS-1$
 	char[] METHOD_DECL= "methodDecl/".toCharArray(); //$NON-NLS-1$
 	char[] CONSTRUCTOR_DECL= "constructorDecl/".toCharArray(); //$NON-NLS-1$
 	char[] FIELD_DECL= "fieldDecl/".toCharArray(); //$NON-NLS-1$

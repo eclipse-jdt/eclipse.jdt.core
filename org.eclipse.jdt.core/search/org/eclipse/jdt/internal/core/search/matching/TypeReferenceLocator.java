@@ -100,11 +100,11 @@ protected int matchLevel(ImportReference importRef) {
 			: CharOperation.concat(this.pattern.qualification, this.pattern.simpleName, '.');
 		char[] qualifiedTypeName = CharOperation.concatWith(tokens, '.');
 		switch (this.matchMode) {
-			case IJavaSearchConstants.EXACT_MATCH :
-			case IJavaSearchConstants.PREFIX_MATCH :
+			case SearchPattern.R_EXACT_MATCH :
+			case SearchPattern.R_PREFIX_MATCH :
 				if (CharOperation.prefixEquals(qualifiedPattern, qualifiedTypeName, this.isCaseSensitive)) return POSSIBLE_MATCH;
 				break;
-			case IJavaSearchConstants.PATTERN_MATCH:
+			case SearchPattern.R_PATTERN_MATCH:
 				if (CharOperation.match(qualifiedPattern, qualifiedTypeName, this.isCaseSensitive)) return POSSIBLE_MATCH;
 				break;
 		}

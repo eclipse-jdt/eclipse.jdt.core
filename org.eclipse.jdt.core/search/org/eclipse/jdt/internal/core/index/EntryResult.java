@@ -10,54 +10,64 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.index;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
-
 public class EntryResult {
-	private char[] word;
-	private int[]  fileRefs;
-	
-public EntryResult(char[] word, int[] refs) {
-	this.word = word;
-	this.fileRefs = refs;
-}
-public boolean equals(Object anObject){
-	
-	if (this == anObject) {
-	    return true;
-	}
-	if ((anObject != null) && (anObject instanceof EntryResult)) {
-		EntryResult anEntryResult = (EntryResult) anObject;
-		if (!CharOperation.equals(this.word, anEntryResult.word)) return false;
 
-		int length;
-		int[] refs, otherRefs;
-		if ((length = (refs = this.fileRefs).length) != (otherRefs = anEntryResult.fileRefs).length) return false;
-		for (int i =  0; i < length; i++){
-			if (refs[i] != otherRefs[i]) return false;
-		}
-		return true;
-	}
-	return false;
-	
+private char[] word;
+private int[] documentIds;
+private String[] documentNames;
+
+public EntryResult(char[] word, int[] ids) {
+	this.word = word;
+	this.documentIds = ids;
 }
-public int[] getFileReferences() {
-	return fileRefs;
+public void addDocumentId(int id) {
+	if (this.documentIds == null) {
+		this.documentIds = new int[]{id};
+		return;
+	}
+
+	int length = this.documentIds.length;
+	for (int i = 0; i < length; i++)
+		if (id == this.documentIds[i]) return;
+
+	System.arraycopy(this.documentIds, 0, this.documentIds = new int[length + 1], 0, length);
+	this.documentIds[length] = id;
+}
+public void addDocumentName(String documentName) {
+	if (this.documentNames == null) {
+		this.documentNames = new String[]{documentName};
+		return;
+	}
+
+	int length = this.documentNames.length;
+	for (int i = 0; i < length; i++)
+		if (documentName.equals(this.documentNames[i])) return;
+
+	System.arraycopy(this.documentNames, 0, this.documentNames = new String[length + 1], 0, length);
+	this.documentNames[length] = documentName;
 }
 public char[] getWord() {
-	return word;
+	return this.word;
 }
-public int hashCode(){
-	return CharOperation.hashCode(word);
+public String[] getDocumentNames(Index index) throws java.io.IOException {
+	if (this.documentIds != null)
+		for (int i = 0, l = this.documentIds.length; i < l; i++)
+			addDocumentName(index.diskIndex.readDocumentName(this.documentIds[i]));
+		
+	return this.documentNames != null ? this.documentNames : new String[0];
 }
-public String toString(){
+public boolean isEmpty() {
+	return this.documentIds == null && this.documentNames == null;
+}
+public String toString() {
 	StringBuffer buffer = new StringBuffer(word.length * 2);
-	buffer.append("EntryResult: word="); //$NON-NLS-1$
-	buffer.append(word);
-	buffer.append(", refs={"); //$NON-NLS-1$
-	for (int i = 0; i < fileRefs.length; i++){
+	buffer.append("EntryResult: word = "); //$NON-NLS-1$
+	buffer.append(this.word);
+	buffer.append(", document names = {"); //$NON-NLS-1$
+	for (int i = 0; i < this.documentNames.length; i++){
 		if (i > 0) buffer.append(',');
 		buffer.append(' ');
-		buffer.append(fileRefs[i]);
+		buffer.append(this.documentNames[i]);
 	}
 	buffer.append(" }"); //$NON-NLS-1$
 	return buffer.toString();

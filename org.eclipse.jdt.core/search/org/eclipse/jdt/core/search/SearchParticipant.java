@@ -36,9 +36,8 @@ public abstract class SearchParticipant {
 	}
 	// A service provided for participants. Its called from indexDocument(SearchDocument document, IPath indexPath)
 	public static void removeAllIndexEntries(SearchDocument document) {
-// is no-op until new index implementation
-//		if (document.index != null)
-//			document.index.remove(document.getPath());
+		if (document.index != null)
+			document.index.remove(document.getPath());
 	}
 
 	/**

@@ -18,8 +18,7 @@ public class SearchDocument {
 	protected String documentPath;
 	protected SearchParticipant participant;
 	public org.eclipse.jdt.internal.core.index.Index index;
-	public org.eclipse.jdt.internal.core.index.impl.IndexedFile indexedFile; // temporary placeholder for the index during indexing
-	
+
 	public SearchDocument(String documentPath, SearchParticipant participant) {
 		this.documentPath = documentPath;
 		this.participant = participant;

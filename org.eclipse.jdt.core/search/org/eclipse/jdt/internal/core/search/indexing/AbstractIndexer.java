@@ -23,8 +23,8 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		this.document = document;
 	}
 	public void addClassDeclaration(int modifiers, char[] packageName,char[] name,  char[][] enclosingTypeNames, char[] superclass, char[][] superinterfaces) {
-		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(packageName, enclosingTypeNames, name, true));
-	
+		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(name, packageName, enclosingTypeNames, CLASS_SUFFIX));
+
 		addIndexEntry(
 			SUPER_REF, 
 			SuperTypeReferencePattern.createIndexKey(
@@ -60,8 +60,8 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		SearchParticipant.addIndexEntry(category, key, this.document);
 	}
 	public void addInterfaceDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames, char[][] superinterfaces) {
-		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(packageName, enclosingTypeNames, name, false));
-	
+		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(name, packageName, enclosingTypeNames, INTERFACE_SUFFIX));
+
 		if (superinterfaces != null)
 			for (int i = 0, max = superinterfaces.length; i < max; i++)
 				addIndexEntry(

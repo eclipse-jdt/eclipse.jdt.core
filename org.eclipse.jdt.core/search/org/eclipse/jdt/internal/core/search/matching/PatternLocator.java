@@ -155,11 +155,11 @@ protected boolean matchesName(char[] pattern, char[] name) {
 	if (pattern == null) return true; // null is as if it was "*"
 	if (name != null) {
 		switch (this.matchMode) {
-			case IJavaSearchConstants.EXACT_MATCH :
+			case SearchPattern.R_EXACT_MATCH :
 				return CharOperation.equals(pattern, name, this.isCaseSensitive);
-			case IJavaSearchConstants.PREFIX_MATCH :
+			case SearchPattern.R_PREFIX_MATCH :
 				return CharOperation.prefixEquals(pattern, name, this.isCaseSensitive);
-			case IJavaSearchConstants.PATTERN_MATCH :
+			case SearchPattern.R_PATTERN_MATCH :
 				if (!this.isCaseSensitive)
 					pattern = CharOperation.toLowerCase(pattern);
 				return CharOperation.match(pattern, name, this.isCaseSensitive);
