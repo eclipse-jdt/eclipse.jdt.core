@@ -165,12 +165,12 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 			ok = true;
 		}
 	} catch (CoreException e) {
-		Util.log(e, "JavaBuilder handling CoreException"); //$NON-NLS-1$
+		Util.log(e, "JavaBuilder handling CoreException while building: " + currentProject.getName()); //$NON-NLS-1$
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentProject", e.getLocalizedMessage())); //$NON-NLS-1$
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 	} catch (ImageBuilderInternalException e) {
-		Util.log(e.getThrowable(), "JavaBuilder handling ImageBuilderInternalException"); //$NON-NLS-1$
+		Util.log(e.getThrowable(), "JavaBuilder handling ImageBuilderInternalException while building: " + currentProject.getName()); //$NON-NLS-1$
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentProject", e.getLocalizedMessage())); //$NON-NLS-1$
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
