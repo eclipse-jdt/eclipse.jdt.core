@@ -195,6 +195,22 @@ public class FieldAccess extends Expression {
 		return BASE_NODE_SIZE + 2 * 4;
 	}
 	
+	/**
+	 * Resolves and returns the binding for the field accessed by this
+	 * expression.
+	 * <p>
+	 * Note that bindings are generally unavailable unless requested when the
+	 * AST is being built.
+	 * </p>
+	 *
+	 * @return the variable binding, or <code>null</code> if the binding cannot
+	 * be resolved
+	 * @since 2.2
+	 */
+	public IVariableBinding resolveFieldBinding() {
+		return getAST().getBindingResolver().resolveField(this);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */

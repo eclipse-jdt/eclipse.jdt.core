@@ -643,6 +643,52 @@ class DefaultBindingResolver extends BindingResolver {
 	}
 
 	/*
+	 * @see BindingResolver#resolveField(FieldAccess)
+	 */
+	IVariableBinding resolveField(FieldAccess fieldAccess) {
+		Object oldNode = this.newAstToOldAst.get(fieldAccess);
+		if (oldNode instanceof FieldReference) {
+			FieldReference fieldReference = (FieldReference) oldNode;
+			if (fieldReference != null) {
+				IVariableBinding variableBinding = this.getVariableBinding(fieldReference.binding);
+				if (variableBinding == null) {
+					return null;
+				}
+				this.bindingsToAstNodes.put(variableBinding, fieldAccess);
+				String key = variableBinding.getKey();
+				if (key != null) {
+					this.bindingKeysToAstNodes.put(key, fieldAccess);				
+				}
+				return variableBinding;
+			}
+		}
+		return null;
+	}
+
+	/*
+	 * @see BindingResolver#resolveField(SuperFieldAccess)
+	 */
+	IVariableBinding resolveField(SuperFieldAccess fieldAccess) {
+		Object oldNode = this.newAstToOldAst.get(fieldAccess);
+		if (oldNode instanceof FieldReference) {
+			FieldReference fieldReference = (FieldReference) oldNode;
+			if (fieldReference != null) {
+				IVariableBinding variableBinding = this.getVariableBinding(fieldReference.binding);
+				if (variableBinding == null) {
+					return null;
+				}
+				this.bindingsToAstNodes.put(variableBinding, fieldAccess);
+				String key = variableBinding.getKey();
+				if (key != null) {
+					this.bindingKeysToAstNodes.put(key, fieldAccess);				
+				}
+				return variableBinding;
+			}
+		}
+		return null;
+	}
+
+	/*
 	 * @see BindingResolver#resolveImport(ImportDeclaration)
 	 */
 	IBinding resolveImport(ImportDeclaration importDeclaration) {
@@ -938,5 +984,4 @@ class DefaultBindingResolver extends BindingResolver {
 	void recordScope(ASTNode astNode, BlockScope blockScope) {
 		this.astNodesToBlockScope.put(astNode, blockScope);
 	}
-
 }
