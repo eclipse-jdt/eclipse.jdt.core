@@ -58,7 +58,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new CompletionTests_1_5("test0020"));			
+	suite.addTest(new CompletionTests_1_5("test0023"));			
 	return suite;
 }
 
@@ -327,6 +327,60 @@ public void test0020() throws JavaModelException {
 	
 	assertEquals("should have one class",
 		"element:Z0020.Y0020    completion:Y0020    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		requestor.getResults());
+}
+public void test0021() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0021", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "<Z0021";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("should have one class",
+		"element:Z0021Z    completion:Z0021Z    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:Z0021ZZ    completion:Z0021ZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
+}
+public void test0022() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0022", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "<Z0022Z";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("should have one class",
+		"element:Z0022ZZ    completion:Z0022ZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE)+"\n"+
+		"element:Z0022ZZZ    completion:Z0022ZZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
+}
+public void test0023() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0023", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "<St";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("should have one class",
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResults());
+}
+public void test0024() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0024", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "<St";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("should have one class",
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
 		requestor.getResults());
 }
 }

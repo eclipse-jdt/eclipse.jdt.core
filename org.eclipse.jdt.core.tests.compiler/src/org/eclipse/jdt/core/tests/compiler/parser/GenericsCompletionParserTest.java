@@ -1173,7 +1173,7 @@ public void test0034(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    this.<<CompleteOnType:Y<Z>.>>$none();\n" + 
+		"    <CompleteOnType:Y<Z>.>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -1229,7 +1229,7 @@ public void test0035(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    this.<<CompleteOnType:Y<Z>.>>$none();\n" + 
+		"    <CompleteOnType:Y<Z>.>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -1285,7 +1285,7 @@ public void test0036(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    this.<<CompleteOnType:Y<Z>.>>$none();\n" + 
+		"    <CompleteOnType:Y<Z>.>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -1341,7 +1341,7 @@ public void test0037(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    this.<<CompleteOnType:Y<Z>.>>$none();\n" + 
+		"    <CompleteOnType:Y<Z>.>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -1397,7 +1397,7 @@ public void test0038(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    this.<<CompleteOnType:Y<Z>.>>$none();\n" + 
+		"    <CompleteOnType:Y<Z>.>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -1453,7 +1453,7 @@ public void test0039(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    new <<CompleteOnType:Y<Z>.>>$none();\n" + 
+		"    <CompleteOnType:Y<Z>.>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -1509,7 +1509,7 @@ public void test0040(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    aaa.<<CompleteOnType:Y<Z>.>>new $none();\n" + 
+		"    <CompleteOnType:Y<Z>.>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -1565,7 +1565,7 @@ public void test0041(){
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    new V().<<CompleteOnType:Y<Z>.>>new $none();\n" + 
+		"    <CompleteOnType:Y<Z>.>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -2233,7 +2233,8 @@ public void test0053(){
 	expectedUnitDisplayString =
 		"public class X {\n" + 
 		"  public X() {\n" + 
-		"    <<CompleteOnType:Y<Z>.>>super();\n" + 
+		"    super();\n" + 
+		"    <CompleteOnType:Y<Z>.>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -2286,7 +2287,7 @@ public void test0054(){
 		"public class X {\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
-		"    aaa.<<CompleteOnType:Y<Z>.>>$none();\n" + 
+		"    <CompleteOnType:Y<Z>.>;\n" + 
 		"  }\n" + 
 		"}\n";
 
@@ -2339,7 +2340,7 @@ public void test0055(){
 		"public class X {\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
-		"    A.this.<<CompleteOnType:Y<Z>.>>$none();\n" + 
+		"    <CompleteOnType:Y<Z>.>;\n" + 
 		"  }\n" + 
 		"}\n";
 

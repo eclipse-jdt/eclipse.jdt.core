@@ -3396,10 +3396,7 @@ public final class CompletionEngine
 			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
 			int length = ref.typeArguments == null ? 0 : ref.typeArguments.length;
 			if(typeVariables != null && typeVariables.length >= length) {
-				ReferenceBinding typeVariable = typeVariables[length - 1].superclass;
-				if(typeVariable != scope.getJavaLangObject()) {
-					addExpectedType(typeVariables[length - 1].superclass);
-				}
+				addExpectedType(typeVariables[length - 1].firstBound);
 			}
 		} else if(parent instanceof ParameterizedQualifiedTypeReference) {
 			ParameterizedQualifiedTypeReference ref = (ParameterizedQualifiedTypeReference) parent;
@@ -3410,10 +3407,7 @@ public final class CompletionEngine
 				length = arguments[arguments.length - 1].length;
 			}
 			if(typeVariables != null && typeVariables.length >= length) {
-				ReferenceBinding typeVariable = typeVariables[length - 1].superclass;
-				if(typeVariable != scope.getJavaLangObject()) {
-					addExpectedType(typeVariables[length - 1].superclass);
-				}
+				addExpectedType(typeVariables[length - 1].firstBound);
 			}
 		}
 		

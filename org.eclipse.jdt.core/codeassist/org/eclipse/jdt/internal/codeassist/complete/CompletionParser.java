@@ -595,35 +595,12 @@ private void buildMoreGenericsCompletionContext(ASTNode node) {
 				int prevKind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, 1);
 				switch (prevKind) {
 					case K_PARAMETERIZED_ALLOCATION :
-						if(this.invocationType == ALLOCATION) {
-							ParameterizedAllocationExpression allocationExpression = new ParameterizedAllocationExpression();
-							allocationExpression.type = new SingleTypeReference("$none".toCharArray(), 0); //$NON-NLS-1$
-							allocationExpression.typeArguments = new TypeReference[]{(TypeReference)node};
-							allocationExpression.sourceStart = node.sourceStart;
-							allocationExpression.sourceEnd = node.sourceEnd;
-							currentElement = currentElement.add(allocationExpression, 0);
-						} else if(this.invocationType == QUALIFIED_ALLOCATION && this.expressionPtr > -1) {
-							ParameterizedQualifiedAllocationExpression allocationExpression = new ParameterizedQualifiedAllocationExpression();
-							allocationExpression.type = new SingleTypeReference("$none".toCharArray(), 0); //$NON-NLS-1$
-							allocationExpression.enclosingInstance = this.expressionStack[this.expressionPtr];
-							allocationExpression.typeArguments = new TypeReference[]{(TypeReference)node};
-							allocationExpression.sourceStart = node.sourceStart;
-							allocationExpression.sourceEnd = node.sourceEnd;
-							currentElement = currentElement.add(allocationExpression, 0);
+						if(this.invocationType == ALLOCATION || this.invocationType == QUALIFIED_ALLOCATION) {
+							currentElement = currentElement.add((TypeReference)node, 0);
 						}
 						break nextElement;
 					case K_PARAMETERIZED_METHOD_INVOCATION :
-						ParameterizedMessageSend messageSend = new ParameterizedMessageSend();
-						messageSend.selector = "$none".toCharArray(); //$NON-NLS-1$
-						if(this.expressionPtr > -1) {
-							messageSend.receiver = this.expressionStack[this.expressionPtr];
-						} else {
-							messageSend.receiver = this.getUnspecifiedReferenceOptimized();
-						}
-						messageSend.typeArguments = new TypeReference[]{(TypeReference)node};
-						messageSend.sourceStart = messageSend.receiver.sourceStart;
-						messageSend.sourceEnd = node.sourceEnd;
-						currentElement = currentElement.add(messageSend, 0);
+						currentElement = currentElement.add((TypeReference)node, 0);
 						break nextElement;
 				}
 				if(info == LESS && node instanceof TypeReference) {
@@ -632,11 +609,7 @@ private void buildMoreGenericsCompletionContext(ASTNode node) {
 						TypeReference ref = this.getTypeReference(0);
 						currentElement = currentElement.add(ref, 0);
 					} else if (currentElement.enclosingMethod().methodDeclaration.isConstructor()) {
-						ParameterizedExplicitConstructorCall constructorCall = new ParameterizedExplicitConstructorCall(ExplicitConstructorCall.ImplicitSuper);
-						constructorCall.typeArguments = new TypeReference[]{(TypeReference)node};
-						constructorCall.sourceStart = node.sourceStart;
-						constructorCall.sourceEnd = node.sourceEnd;
-						currentElement = currentElement.add(constructorCall, 0);
+						currentElement = currentElement.add((TypeReference)node, 0);
 					}
 				}
 				break;
