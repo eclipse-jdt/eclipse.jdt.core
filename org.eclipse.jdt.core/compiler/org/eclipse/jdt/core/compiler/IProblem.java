@@ -725,6 +725,58 @@ public interface IProblem {
 	int JavadocMissing = Javadoc + Internal + 486;
 	/** @since 3.0 */
 	int JavadocInvalidTag = Javadoc + Internal + 487;
+	/*
+	 * ID for field errors in Javadoc
+	 */
 	/** @since 3.0 */
-	int JavadocMessagePrefix = Internal + 489;
+	int JavadocUndefinedField = Javadoc + Internal + 488;
+	/** @since 3.0 */
+	int JavadocNotVisibleField = Javadoc + Internal + 489;
+	/** @since 3.0 */
+	int JavadocAmbiguousField = Javadoc + Internal + 490;
+	/** @since 3.0 */
+	int JavadocUsingDeprecatedField = Javadoc + Internal + 491;
+	/*
+	 * IDs for constructor errors in Javadoc
+	 */
+	/** @since 3.0 */
+	int JavadocUndefinedConstructor = Javadoc + Internal + 492;
+	/** @since 3.0 */
+	int JavadocNotVisibleConstructor = Javadoc + Internal + 493;
+	/** @since 3.0 */
+	int JavadocAmbiguousConstructor = Javadoc + Internal + 494;
+	/** @since 3.0 */
+	int JavadocUsingDeprecatedConstructor = Javadoc + Internal + 495;
+	/*
+	 * IDs for method errors in Javadoc
+	 */
+	/** @since 3.0 */
+	int JavadocUndefinedMethod = Javadoc + Internal + 496;
+	/** @since 3.0 */
+	int JavadocNotVisibleMethod = Javadoc + Internal + 497;
+	/** @since 3.0 */
+	int JavadocAmbiguousMethod = Javadoc + Internal + 498;
+	/** @since 3.0 */
+	int JavadocUsingDeprecatedMethod = Javadoc + Internal + 499;
+	/** @since 3.0 */
+	int JavadocNoMessageSendOnBaseType = Javadoc + Internal + 500;
+	/** @since 3.0 */
+	int JavadocParameterMismatch = Javadoc + Internal + 501;
+	/** @since 3.0 */
+	int JavadocNoMessageSendOnArrayType = Javadoc + Internal + 502;
+	/*
+	 * IDs for type errors in Javadoc
+	 */
+	/** @since 3.0 */
+	int JavadocUndefinedType = Javadoc + Internal + 503;
+	/** @since 3.0 */
+	int JavadocNotVisibleType = Javadoc + Internal + 504;
+	/** @since 3.0 */
+	int JavadocAmbiguousType = Javadoc + Internal + 505;
+	/** @since 3.0 */
+	int JavadocUsingDeprecatedType = Javadoc + Internal + 506;
+	/** @since 3.0 */
+	int JavadocInternalTypeNameProvided = Javadoc + Internal + 507;
+	/** @since 3.0 */
+	int JavadocMessagePrefix = Internal + 509;
 }

@@ -545,30 +545,26 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocDuplicateThrowsClassName:
 		case IProblem.JavadocMissingThrowsClassName:
 		case IProblem.JavadocMissingSeeReference:
-		// Javadoc implicit IDs for deprecatedField(...)
-		case IProblem.Javadoc | IProblem.UsingDeprecatedField:
-		// Javadoc implicit IDs for deprecatedMethod(...)
-		case IProblem.Javadoc | IProblem.UsingDeprecatedConstructor:
-		case IProblem.Javadoc | IProblem.UsingDeprecatedMethod:
-		// Javadoc implicit IDs for deprecatedType(...)
-		case IProblem.Javadoc | IProblem.UsingDeprecatedType:
-		// Javadoc implicit IDs for invalidField(...)
-		case IProblem.Javadoc | IProblem.UndefinedField:
-		case IProblem.Javadoc | IProblem.NotVisibleField:
-		case IProblem.Javadoc | IProblem.AmbiguousField:
-		// Javadoc implicit IDs for invalidConstructor(...)
-		case IProblem.Javadoc | IProblem.UndefinedConstructor:
-		case IProblem.Javadoc | IProblem.NotVisibleConstructor:
-		// Javadoc implicit IDs for invalidMethod(...)
-		case IProblem.Javadoc | IProblem.UndefinedMethod:
-		case IProblem.Javadoc | IProblem.NotVisibleMethod:
-		case IProblem.Javadoc | IProblem.ParameterMismatch:
-		// Javadoc implicit IDs for invalidType(...)
-		case IProblem.Javadoc | IProblem.UndefinedType:
-		case IProblem.Javadoc | IProblem.NotVisibleType:
-		// Javadoc implicit IDs for errorNoMethodFor(...)
-		case IProblem.Javadoc | IProblem.NoMessageSendOnArrayType:
-		case IProblem.Javadoc | IProblem.NoMessageSendOnBaseType:
+		case IProblem.JavadocUsingDeprecatedField:
+		case IProblem.JavadocUsingDeprecatedConstructor:
+		case IProblem.JavadocUsingDeprecatedMethod:
+		case IProblem.JavadocUsingDeprecatedType:
+		case IProblem.JavadocUndefinedField:
+		case IProblem.JavadocNotVisibleField:
+		case IProblem.JavadocAmbiguousField:
+		case IProblem.JavadocUndefinedConstructor:
+		case IProblem.JavadocNotVisibleConstructor:
+		case IProblem.JavadocAmbiguousConstructor:
+		case IProblem.JavadocUndefinedMethod:
+		case IProblem.JavadocNotVisibleMethod:
+		case IProblem.JavadocAmbiguousMethod:
+		case IProblem.JavadocParameterMismatch:
+		case IProblem.JavadocUndefinedType:
+		case IProblem.JavadocNotVisibleType:
+		case IProblem.JavadocAmbiguousType:
+		case IProblem.JavadocInternalTypeNameProvided:
+		case IProblem.JavadocNoMessageSendOnArrayType:
+		case IProblem.JavadocNoMessageSendOnBaseType:
 			if (!this.options.reportInvalidJavadocTags)
 				return ProblemSeverities.Ignore;
 			else
@@ -2125,7 +2121,7 @@ public void javadocDuplicatedReturnTag(int sourceStart, int sourceEnd){
 public void javadocDeprecatedField(FieldBinding field, ASTNode location, int modifiers) {
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		this.handle(
-			IProblem.UsingDeprecatedField|IProblem.Javadoc,
+			IProblem.JavadocUsingDeprecatedField,
 			new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 			new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
 			location.sourceStart,
@@ -2136,14 +2132,14 @@ public void javadocDeprecatedMethod(MethodBinding method, ASTNode location, int 
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		if (method.isConstructor()) {
 			this.handle(
-				IProblem.UsingDeprecatedConstructor|IProblem.Javadoc,
+				IProblem.JavadocUsingDeprecatedConstructor,
 				new String[] {new String(method.declaringClass.readableName()), parametersAsString(method)},
 				new String[] {new String(method.declaringClass.shortReadableName()), parametersAsShortString(method)},
 				location.sourceStart,
 				location.sourceEnd);
 		} else {
 			this.handle(
-				IProblem.UsingDeprecatedMethod|IProblem.Javadoc,
+				IProblem.JavadocUsingDeprecatedMethod,
 				new String[] {new String(method.declaringClass.readableName()), new String(method.selector), parametersAsString(method)},
 				new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), parametersAsShortString(method)},
 				location.sourceStart,
@@ -2155,7 +2151,7 @@ public void javadocDeprecatedType(TypeBinding type, ASTNode location, int modifi
 	if (location == null) return; // 1G828DN - no type ref for synthetic arguments
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		this.handle(
-			IProblem.UsingDeprecatedType|IProblem.Javadoc,
+			IProblem.JavadocUsingDeprecatedType,
 			new String[] {new String(type.readableName())},
 			new String[] {new String(type.shortReadableName())},
 			location.sourceStart,
@@ -2186,10 +2182,10 @@ public void javadocErrorNoMethodFor(MessageSend messageSend, TypeBinding recType
 		shortBuffer.append(new String(params[i].shortReadableName()));
 	}
 
-	int id = recType.isArrayType() ? IProblem.NoMessageSendOnArrayType : IProblem.NoMessageSendOnBaseType;
+	int id = recType.isArrayType() ? IProblem.JavadocNoMessageSendOnArrayType : IProblem.JavadocNoMessageSendOnBaseType;
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		this.handle(
-			id|IProblem.Javadoc,
+			id,
 			new String[] {new String(recType.readableName()), new String(messageSend.selector), buffer.toString()},
 			new String[] {new String(recType.shortReadableName()), new String(messageSend.selector), shortBuffer.toString()},
 			messageSend.sourceStart,
@@ -2201,41 +2197,41 @@ public void javadocInvalidConstructor(Statement statement, MethodBinding targetC
 	if (!javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		return;
 	}
-	boolean insideDefaultConstructor = 
-		(this.referenceContext instanceof ConstructorDeclaration)
-			&& ((ConstructorDeclaration)this.referenceContext).isDefaultConstructor();
-	boolean insideImplicitConstructorCall =
-		(statement instanceof ExplicitConstructorCall)
-			&& (((ExplicitConstructorCall) statement).accessMode == ExplicitConstructorCall.ImplicitSuper);
+//	boolean insideDefaultConstructor = 
+//		(this.referenceContext instanceof ConstructorDeclaration)
+//			&& ((ConstructorDeclaration)this.referenceContext).isDefaultConstructor();
+//	boolean insideImplicitConstructorCall =
+//		(statement instanceof ExplicitConstructorCall)
+//			&& (((ExplicitConstructorCall) statement).accessMode == ExplicitConstructorCall.ImplicitSuper);
 
-	int id = IProblem.UndefinedConstructor; //default...
+	int id = IProblem.JavadocUndefinedConstructor; //default...
 	switch (targetConstructor.problemId()) {
 		case NotFound :
-			if (insideDefaultConstructor){
-				id = IProblem.UndefinedConstructorInDefaultConstructor;
-			} else if (insideImplicitConstructorCall){
-				id = IProblem.UndefinedConstructorInImplicitConstructorCall;
-			} else {
-				id = IProblem.UndefinedConstructor;
-			}
+//			if (insideDefaultConstructor){
+//				id = IProblem.JavadocUndefinedConstructorInDefaultConstructor;
+//			} else if (insideImplicitConstructorCall){
+//				id = IProblem.JavadocUndefinedConstructorInImplicitConstructorCall;
+//			} else {
+				id = IProblem.JavadocUndefinedConstructor;
+//			}
 			break;
 		case NotVisible :
-			if (insideDefaultConstructor){
-				id = IProblem.NotVisibleConstructorInDefaultConstructor;
-			} else if (insideImplicitConstructorCall){
-				id = IProblem.NotVisibleConstructorInImplicitConstructorCall;
-			} else {
-				id = IProblem.NotVisibleConstructor;
-			}
+//			if (insideDefaultConstructor){
+//				id = IProblem.JavadocNotVisibleConstructorInDefaultConstructor;
+//			} else if (insideImplicitConstructorCall){
+//				id = IProblem.JavadocNotVisibleConstructorInImplicitConstructorCall;
+//			} else {
+				id = IProblem.JavadocNotVisibleConstructor;
+//			}
 			break;
 		case Ambiguous :
-			if (insideDefaultConstructor){
-				id = IProblem.AmbiguousConstructorInDefaultConstructor;
-			} else if (insideImplicitConstructorCall){
-				id = IProblem.AmbiguousConstructorInImplicitConstructorCall;
-			} else {
-				id = IProblem.AmbiguousConstructor;
-			}
+//			if (insideDefaultConstructor){
+//				id = IProblem.AmbiguousConstructorInDefaultConstructor;
+//			} else if (insideImplicitConstructorCall){
+//				id = IProblem.AmbiguousConstructorInImplicitConstructorCall;
+//			} else {
+				id = IProblem.JavadocAmbiguousConstructor;
+//			}
 			break;
 		case NoError : // 0
 		default :
@@ -2244,24 +2240,24 @@ public void javadocInvalidConstructor(Statement statement, MethodBinding targetC
 	}
 
 	this.handle(
-		id|IProblem.Javadoc,
+		id,
 		new String[] {new String(targetConstructor.declaringClass.readableName()), parametersAsString(targetConstructor)},
 		new String[] {new String(targetConstructor.declaringClass.shortReadableName()), parametersAsShortString(targetConstructor)},
 		statement.sourceStart,
 		statement.sourceEnd);
 }
 public void javadocInvalidField(FieldReference fieldRef, TypeBinding searchedType, int modifiers) {
-	int id = IProblem.UndefinedField;
+	int id = IProblem.JavadocUndefinedField;
 	FieldBinding field = fieldRef.binding;
 	switch (field.problemId()) {
 		case NotFound :
-			id = IProblem.UndefinedField;
+			id = IProblem.JavadocUndefinedField;
 			break;
 		case NotVisible :
-			id = IProblem.NotVisibleField;
+			id = IProblem.JavadocNotVisibleField;
 			break;
 		case Ambiguous :
-			id = IProblem.AmbiguousField;
+			id = IProblem.JavadocAmbiguousField;
 			break;
 		case NoError : // 0
 		default :
@@ -2271,23 +2267,23 @@ public void javadocInvalidField(FieldReference fieldRef, TypeBinding searchedTyp
 
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		String[] arguments = new String[] {new String(field.readableName())};
-		handle(id|IProblem.Javadoc, arguments, arguments, fieldRef.sourceStart, fieldRef.sourceEnd);
+		handle(id, arguments, arguments, fieldRef.sourceStart, fieldRef.sourceEnd);
 	}
 }
 public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, int modifiers) {
 	if (!javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		return;
 	}
-	int id = IProblem.UndefinedMethod; //default...
+	int id = IProblem.JavadocUndefinedMethod; //default...
 	switch (method.problemId()) {
 		case NotFound :
-			id = IProblem.UndefinedMethod;
+			id = IProblem.JavadocUndefinedMethod;
 			break;
 		case NotVisible :
-			id = IProblem.NotVisibleMethod;
+			id = IProblem.JavadocNotVisibleMethod;
 			break;
 		case Ambiguous :
-			id = IProblem.AmbiguousMethod;
+			id = IProblem.JavadocAmbiguousMethod;
 			break;
 		case NoError : // 0
 		default :
@@ -2295,7 +2291,7 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 			break;
 	}
 
-	if (id == IProblem.UndefinedMethod) {
+	if (id == IProblem.JavadocUndefinedMethod) {
 		ProblemMethodBinding problemMethod = (ProblemMethodBinding) method;
 		if (problemMethod.closestMatch != null) {
 				String closestParameterTypeNames = parametersAsString(problemMethod.closestMatch);
@@ -2307,7 +2303,7 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 					parameterTypeShortNames = parameterTypeNames;
 				}
 				this.handle(
-					IProblem.ParameterMismatch|IProblem.Javadoc,
+					IProblem.JavadocParameterMismatch,
 					new String[] {
 						new String(problemMethod.closestMatch.declaringClass.readableName()),
 						new String(problemMethod.closestMatch.selector),
@@ -2327,7 +2323,7 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 	}
 
 	this.handle(
-		id|IProblem.Javadoc,
+		id,
 		new String[] {
 			new String(method.declaringClass.readableName()),
 			new String(method.selector), parametersAsString(method)},
@@ -2366,19 +2362,19 @@ public void javadocInvalidThrowsClassName(TypeReference typeReference, int modif
 }
 public void javadocInvalidType(ASTNode location, TypeBinding type, int modifiers) {
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
-		int id = IProblem.UndefinedType; // default
+		int id = IProblem.JavadocUndefinedType; // default
 		switch (type.problemId()) {
 			case NotFound :
-				id = IProblem.UndefinedType;
+				id = IProblem.JavadocUndefinedType;
 				break;
 			case NotVisible :
-				id = IProblem.NotVisibleType;
+				id = IProblem.JavadocNotVisibleType;
 				break;
 			case Ambiguous :
-				id = IProblem.AmbiguousType;
+				id = IProblem.JavadocAmbiguousType;
 				break;
 			case InternalNameProvided :
-				id = IProblem.InternalTypeNameProvided;
+				id = IProblem.JavadocInternalTypeNameProvided;
 				break;
 			case NoError : // 0
 			default :
@@ -2386,7 +2382,7 @@ public void javadocInvalidType(ASTNode location, TypeBinding type, int modifiers
 				break;
 		}
 		this.handle(
-			id|IProblem.Javadoc,
+			id,
 			new String[] {new String(type.readableName())},
 			new String[] {new String(type.shortReadableName())},
 			location.sourceStart,
