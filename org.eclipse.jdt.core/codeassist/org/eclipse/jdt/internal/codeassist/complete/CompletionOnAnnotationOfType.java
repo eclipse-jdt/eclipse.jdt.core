@@ -10,17 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 
 public class CompletionOnAnnotationOfType extends TypeDeclaration {
-	public CompletionOnAnnotationOfType(CompilationResult compilationResult, Annotation annotation){
+	public CompletionOnAnnotationOfType(char[] typeName, CompilationResult compilationResult, Annotation annotation){
 		super(compilationResult);
 		this.sourceEnd = annotation.sourceEnd;
 		this.sourceStart = annotation.sourceEnd;
-		this.name = CharOperation.NO_CHAR;
+		this.name = typeName;
 		this.annotations = new Annotation[]{annotation};
 	}
 	

@@ -68,6 +68,8 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_PARAMETERIZED_CAST = COMPLETION_PARSER + 32;
 	
 
+	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
+	
 	/* public fields */
 
 	public int cursorLocation;
@@ -193,6 +195,7 @@ protected void attachOrphanCompletionNode(){
 		if(orphan instanceof Annotation) {
 				TypeDeclaration fakeType =
 					new CompletionOnAnnotationOfType(
+							FAKE_TYPE_NAME, 
 							this.compilationUnit.compilationResult(),
 							(Annotation)orphan);
 				currentElement.add(fakeType, 0);
