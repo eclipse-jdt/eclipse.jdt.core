@@ -545,7 +545,7 @@ public String toString() {
 	buffer.append("In-memory indexes:\n"); //$NON-NLS-1$
 	int count = 0;
 	for (Iterator iter = this.indexes.values().iterator(); iter.hasNext();) {
-		buffer.append(++count).append(" -").append(iter.next().toString()).append('\n'); //$NON-NLS-1$
+		buffer.append(++count).append(" - ").append(iter.next().toString()).append('\n'); //$NON-NLS-1$
 	}
 	return buffer.toString();
 }

@@ -417,8 +417,8 @@ public String toString() {
 	buffer.append("Enabled:").append(this.enabled).append('\n'); //$NON-NLS-1$
 	int numJobs = jobEnd - jobStart + 1;
 	buffer.append("Jobs in queue:").append(numJobs).append('\n'); //$NON-NLS-1$
-	if (numJobs > 0) {
-		buffer.append("First job: ").append(awaitingJobs[jobStart]).append('\n'); //$NON-NLS-1$ 
+	for (int i = 0; i < numJobs && i < 15; i++) {
+		buffer.append(i).append(" - job["+i+"]: ").append(awaitingJobs[jobStart+i]).append('\n'); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	return buffer.toString();
 }	
