@@ -348,7 +348,7 @@ public abstract class JobManager implements Runnable {
 							if (idlingStart < 0)
 								idlingStart = System.currentTimeMillis();
 							notifyIdle(System.currentTimeMillis() - idlingStart);
-							this.wait(); // wait until a new job is posted
+							this.wait(); // wait until a new job is posted (or reenabled:38901)
 							Thread.sleep(500); // delay before processing the new job, allow some time for the active thread to finish
 							continue;
 						} else {
