@@ -4069,14 +4069,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(ast.modificationCount() > previousCount);
 		assertTrue(x.getModifiers() == Modifier.NONE);
 		
-		// check that property cannot be set to illegal value
-		try {
-			x.setModifiers(Modifier.PUBLIC);
-			assertTrue(false);
-		} catch (RuntimeException e) {
-			// pass
-		}
-
 		genericPropertyListTest(x, x.modifiers(), new Property("Modifiers", true, ExtendedModifier.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				Modifier result = targetAst.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
