@@ -199,6 +199,41 @@ public void test5() {
 		false, // flush previous output dir content
 		null);  // custom options
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=40839
+public void test6() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	/**\n" +
+			"	  @deprecated\n" +
+			"	 */\n" +
+			"	; // line comment\n" +
+			"	static int i;\n" +
+			"   public static void main(String[] args) {	\n" +
+			"        System.out.print(\"SUCCESS\");	\n" +
+			"	}	\n" +
+			"}"
+		},
+		"SUCCESS", // expected output
+		null,
+		true, // flush previous output dir content
+		null, // special vm args
+		null);  // custom options
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"public class A {\n" +
+			"   public static void main(String[] args) {	\n" +
+			"        System.out.print(X.i);	\n" +
+			"	}	\n" +
+			"}"
+		},
+		"",// expected output
+		null,
+		false, // flush previous output dir content
+		null);  // custom options
+}
 public static Class testClass() {
 	return DeprecatedTest.class;
 }

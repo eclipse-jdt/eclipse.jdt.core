@@ -1801,6 +1801,7 @@ protected void consumeEmptyClassMemberDeclaration() {
 	// ClassMemberDeclaration ::= ';'
 	pushOnAstLengthStack(0);
 	problemReporter().superfluousSemicolon(endPosition+1, endStatementPosition);
+	this.scanner.commentPtr = -1;
 }
 protected void consumeEmptyDimsopt() {
 	// Dimsopt ::= $empty
@@ -1847,6 +1848,7 @@ protected void consumeEmptyTypeDeclaration() {
 	// TypeDeclaration ::= ';' 
 	pushOnAstLengthStack(0);
 	problemReporter().superfluousSemicolon(endPosition+1, endStatementPosition);
+	this.scanner.commentPtr = -1;	
 }
 protected void consumeEmptyTypeDeclarationsopt() {
 	// TypeDeclarationsopt ::= $empty
