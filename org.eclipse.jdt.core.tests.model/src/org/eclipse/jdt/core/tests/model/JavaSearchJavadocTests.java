@@ -46,7 +46,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	public static Test suite() {
 		// NOTE: cannot use 'new Suite(JavaSearchJavadocTests.class)' as this would include tests from super class
 		TestSuite suite = new Suite(JavaSearchJavadocTests.class.getName());
-		
+
 		// Tests on type declarations
 		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeDeclaration"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeDeclarationWithJavadoc"));
@@ -56,26 +56,26 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldDeclaration"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldDeclarationWithJavadoc"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldStringDeclaration"));
-		
+
 		// Tests on method declarations
 		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodDeclaration"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgDeclaration"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodDeclarationWithJavadoc"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgDeclarationWithJavadoc"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodStringDeclaration"));
-		
+
 		// Tests on type references
 		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeReference"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeReferenceWithJavadoc"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeStringReference"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocTypeStringReferenceWithJavadoc"));
-		
+
 		// Tests on field references
 		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldReference"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldReferenceWithJavadoc"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldStringReference"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocFieldStringReferenceWithJavadoc"));
-		
+
 		// Tests on method references
 		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodReference"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgReference"));
@@ -83,14 +83,21 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodArgReferenceWithJavadoc"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodStringReference"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocMethodStringReferenceWithJavadoc"));
-		
-		// Tests on constrcutor references
+
+		// Tests on constructor references
 		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorReference"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorArgReference"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorReferenceWithJavadoc"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorArgReferenceWithJavadoc"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorStringReference"));
 		suite.addTest(new JavaSearchJavadocTests("testJavadocConstructorStringReferenceWithJavadoc"));
+
+		// Tests on bugs
+		suite.addTest(new JavaSearchJavadocTests("testBug47909"));
+		suite.addTest(new JavaSearchJavadocTests("testBug47968type"));
+		suite.addTest(new JavaSearchJavadocTests("testBug47968field"));
+		suite.addTest(new JavaSearchJavadocTests("testBug47968method"));
+		suite.addTest(new JavaSearchJavadocTests("testBug47968constructor"));
 		
 		return suite;
 	}
@@ -723,18 +730,160 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 			JavaSearchResultCollector result = new JavaSearchResultCollector();
 			result.showAccuracy = true;
 			new SearchEngine().search(
-					getWorkspace(), 
-					"JavadocSearched",
-					CONSTRUCTOR,
-					REFERENCES, 
-					getJavaSearchScope(), 
-					result
-					);
+				getWorkspace(), 
+				"JavadocSearched",
+				CONSTRUCTOR,
+				REFERENCES, 
+				getJavaSearchScope(), 
+				result
+			);
 			assertSearchResults(
-					"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
-					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n" + 
-					"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
-					result);
+				"src/j1/JavadocInvalidRef.java void j1.JavadocInvalidRef.invalid() [JavadocSearched] EXACT_MATCH\n" + 
+				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH\n" + 
+				"src/j1/JavadocValidRef.java void j1.JavadocValidRef.valid() [JavadocSearched] EXACT_MATCH",
+				result);
+		} finally {
+			resetProjectOptions();
+		}
+	}
+
+	/**
+	 * Test fix for bug 47909.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47909">47909</a>
+	 * @throws CoreException
+	 */
+	public void testBug47909() throws CoreException {
+		IType type = getCompilationUnit("JavaSearch", "src", "j3", "Y.java").getType("Y");
+		try {
+			setJavadocOptions();
+			IMethod method = type.getMethod("Y", new String[] { "I" });
+			JavaSearchResultCollector result = new JavaSearchResultCollector();
+			result.showAccuracy = true;
+			new SearchEngine().search(
+				getWorkspace(), 
+				method,
+				REFERENCES, 
+				getJavaSearchScope(), 
+				result
+			);
+			assertSearchResults(
+				"test47909.jar void j3.X.bar() EXACT_MATCH",
+				result);
+		} finally {
+			resetProjectOptions();
+		}
+	}
+	
+	/**
+	 * Test fix for bug 47968.
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47968">47968</a>
+	 * @throws CoreException
+	 */
+	public void testBug47968type() throws CoreException {
+		IType type = getCompilationUnit("JavaSearch", "src", "j2", "Bug47968.java").getType("Bug47968");
+		try {
+			setJavadocOptions();
+			JavaSearchResultCollector result = new JavaSearchResultCollector();
+			result.showAccuracy = true;
+			new SearchEngine().search(
+				getWorkspace(), 
+				type,
+				REFERENCES, 
+				getJavaSearchScope(), 
+				result
+			);
+			assertSearchResults(
+				// These matches were not found before...
+				"src/j2/Bug47968s.java j2.Bug47968s [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java j2.Bug47968s [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java j2.Bug47968s [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java j2.Bug47968s [Bug47968] EXACT_MATCH\n" + 
+				// ...end
+				"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH",
+				result);
+		} finally {
+			resetProjectOptions();
+		}
+	}
+	public void testBug47968field() throws CoreException {
+		IType type = getCompilationUnit("JavaSearch", "src", "j2", "Bug47968.java").getType("Bug47968");
+		try {
+			setJavadocOptions();
+			IField field = type.getField("x");
+			JavaSearchResultCollector result = new JavaSearchResultCollector();
+			result.showAccuracy = true;
+			new SearchEngine().search(
+				getWorkspace(), 
+				field,
+				REFERENCES, 
+				getJavaSearchScope(), 
+				result
+			);
+			assertSearchResults(
+				"src/j2/Bug47968s.java j2.Bug47968s [x] EXACT_MATCH\n" + // This match was not found before...
+				"src/j2/Bug47968s.java j2.Bug47968s.y [x] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java j2.Bug47968s() [x] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java void j2.Bug47968s.bar() [x] EXACT_MATCH",
+				result);
+		} finally {
+			resetProjectOptions();
+		}
+	}
+	public void testBug47968method() throws CoreException {
+		IType type = getCompilationUnit("JavaSearch", "src", "j2", "Bug47968.java").getType("Bug47968");
+		try {
+			setJavadocOptions();
+			IMethod method = type.getMethod("foo", new String[] { "I" });
+			JavaSearchResultCollector result = new JavaSearchResultCollector();
+			result.showAccuracy = true;
+			new SearchEngine().search(
+				getWorkspace(), 
+				method,
+				REFERENCES, 
+				getJavaSearchScope(), 
+				result
+			);
+			assertSearchResults(
+				"src/j2/Bug47968s.java j2.Bug47968s [foo] EXACT_MATCH\n" + // This match was not found before...
+				"src/j2/Bug47968s.java j2.Bug47968s.y [foo] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java j2.Bug47968s() [foo] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java void j2.Bug47968s.bar() [foo] EXACT_MATCH",
+				result);
+		} finally {
+			resetProjectOptions();
+		}
+	}
+	public void testBug47968constructor() throws CoreException {
+		IType type = getCompilationUnit("JavaSearch", "src", "j2", "Bug47968.java").getType("Bug47968");
+		try {
+			setJavadocOptions();
+			IMethod method = type.getMethod("Bug47968", new String[] { "QString;" });
+			JavaSearchResultCollector result = new JavaSearchResultCollector();
+			result.showAccuracy = true;
+			new SearchEngine().search(
+				getWorkspace(), 
+				method,
+				REFERENCES, 
+				getJavaSearchScope(), 
+				result
+			);
+			assertSearchResults(
+				"src/j2/Bug47968s.java j2.Bug47968s [Bug47968] EXACT_MATCH\n" + // This match was not found before...
+				"src/j2/Bug47968s.java j2.Bug47968s.y [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java j2.Bug47968s() [Bug47968] EXACT_MATCH\n" + 
+				"src/j2/Bug47968s.java void j2.Bug47968s.bar() [Bug47968] EXACT_MATCH",
+				result);
 		} finally {
 			resetProjectOptions();
 		}
