@@ -82,6 +82,7 @@ protected void cleanOutputFolders() throws CoreException {
 		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, true));
 	ArrayList visited = new ArrayList(sourceLocations.length);
 	next : for (int i = 0, l = sourceLocations.length; i < l; i++) {
+		notifier.subTask(Util.bind("build.cleaningOutput")); //$NON-NLS-1$
 		ClasspathMultiDirectory sourceLocation = sourceLocations[i];
 		if (sourceLocation.hasIndependentOutputFolder) {
 			IContainer outputFolder = sourceLocation.binaryFolder;
@@ -135,6 +136,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 	// When, if ever, does a builder need to copy resources files (not .java or .class) into the output folder?
 	// If we wipe the output folder at the beginning of the build then all 'extra' resources must be copied to the output folder.
 
+	notifier.subTask(Util.bind("build.copyingResources")); //$NON-NLS-1$
 	final int segmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
 	final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
 	final IContainer outputFolder = sourceLocation.binaryFolder;
