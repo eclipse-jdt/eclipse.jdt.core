@@ -2184,4 +2184,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug73348() throws JavaModelException {
 		verifyComments("testBug73348");
 	}
+
+	/**
+	 * Test fix for bug 77644: [dom] AST node extended positions may be wrong while moving
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=77644">77644</a>
+	 */
+	public void testBug77644() throws JavaModelException {
+		verifyComments("testBug77644");
+	}
 }
