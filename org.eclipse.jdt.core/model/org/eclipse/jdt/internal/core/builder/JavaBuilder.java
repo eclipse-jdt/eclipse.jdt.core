@@ -345,8 +345,8 @@ private boolean hasClasspathChanged() {
 	ClasspathMultiDirectory[] oldSourceLocations = lastState.sourceLocations;
 	int newLength = newSourceLocations.length;
 	int oldLength = oldSourceLocations.length;
-	int n = 0, o = 0;
-	for (; n < newLength && o < oldLength; n++, o++) {
+	int n, o;
+	for (n = o = 0; n < newLength && o < oldLength; n++, o++) {
 		if (newSourceLocations[n].equals(oldSourceLocations[o])) continue; // checks source & output folders
 		try {
 			if (newSourceLocations[n].sourceFolder.members().length == 0) { // added new empty source folder
