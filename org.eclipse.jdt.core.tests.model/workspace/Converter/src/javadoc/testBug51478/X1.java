@@ -3,5 +3,5 @@ package javadoc.testBug51478;
  * {@inheritDoc}
  * @deprecated
  */
-public class X {
+public class X1 {
 }
