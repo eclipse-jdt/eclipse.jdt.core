@@ -3174,7 +3174,7 @@ public final class JavaCore extends Plugin {
 								affectedProject.getProject().touch(progressMonitor);
 							} catch (CoreException e) {
 								if (JavaModelManager.CP_RESOLVE_VERBOSE){
-									System.out.println("CPContainer SET - FAILED to touch project: "+ affectedProject.getElementName()+" for "+containerPath); //$NON-NLS-1$
+									System.out.println("CPContainer SET - FAILED to touch project: "+ affectedProject.getElementName()+" for "+containerPath); //$NON-NLS-1$//$NON-NLS-2$
 									e.printStackTrace();
 								}
 							}
@@ -3527,7 +3527,7 @@ public final class JavaCore extends Plugin {
 										affectedProject.getProject().touch(progressMonitor);
 									} catch (CoreException e) {
 										if (JavaModelManager.CP_RESOLVE_VERBOSE){
-											System.out.println("CPVariable SET - FAILED to touch project: "+ affectedProject.getElementName()+" for "+ org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames)); //$NON-NLS-1$
+											System.out.println("CPVariable SET - FAILED to touch project: "+ affectedProject.getElementName()+" for "+ org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames)); //$NON-NLS-1$//$NON-NLS-2$
 											e.printStackTrace();
 										}
 									}
