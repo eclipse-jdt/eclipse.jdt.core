@@ -116,56 +116,6 @@ protected int matchContainer() {
 	return COMPILATION_UNIT | CLASS;
 }
 /**
- * @see SearchPattern#matches(AstNode, boolean)
- */
-protected boolean matches(AstNode node, boolean resolve) {
-	if (!(node instanceof TypeDeclaration)) return false;
-
-	TypeDeclaration type = (TypeDeclaration)node;
-
-	// type name
-	if (this.simpleName != null && !this.matchesName(this.simpleName, type.name))
-		return false;
-
-	if (resolve) {
-		// fully qualified name
-		TypeBinding binding = type.binding;
-		if (binding != null && !this.matches(binding)) {
-			return false;
-		}
-	}
-	
-	return true;
-}
-/**
- * @see SearchPattern#matches(Binding)
- */
-public boolean matches(Binding binding) {
-	if (!(binding instanceof TypeBinding)) return false;
-
-	TypeBinding type = (TypeBinding)binding;
-
-	// fully qualified name
-	char[] enclosingTypeName = this.enclosingTypeNames == null ? null : CharOperation.concatWith(this.enclosingTypeNames, '.');
-	if (!this.matchesType(this.simpleName, this.qualification, enclosingTypeName, type)) {
-		return false;
-	}
-
-	// class or interface
-	switch (this.classOrInterface) {
-		case CLASS_SUFFIX:
-			if (type.isInterface())
-				return false;
-			break;
-		case INTERFACE_SUFFIX:
-			if (!type.isInterface())
-				return false;
-			break;
-	}
-	
-	return true;
-}
-/**
  * @see SearchPattern#matchesBinary(Object, Object)
  */
 public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
@@ -210,26 +160,6 @@ protected boolean matchesType(char[] simpleNamePattern, char[] qualificationPatt
 			pattern = CharOperation.concat(qualificationPattern, enclosingNamePattern, '.');
 		}
 		return this.matchesType(simpleNamePattern, pattern, fullyQualifiedTypeName);
-	}
-}
-/**
- * Returns whether the given type binding matches the given simple name pattern 
- * qualification pattern and enclosing type name pattern.
- */
-protected boolean matchesType(char[] simpleNamePattern, char[] qualificationPattern, char[] enclosingNamePattern, TypeBinding type) {
-	if (enclosingNamePattern == null) {
-		return this.matchesType(simpleNamePattern, qualificationPattern, type);
-	} else {
-		char[] pattern;
-		if (qualificationPattern == null) {
-			return matchesType(simpleNamePattern, enclosingNamePattern, type);
-		} else {
-			// pattern was created from a Java element: qualification is the package name.
-			char[] fullQualificationPattern = CharOperation.concat(qualificationPattern, enclosingNamePattern, '.');
-			return 
-				this.matchesType(simpleNamePattern, fullQualificationPattern, type)
-				&& CharOperation.equals(qualification, CharOperation.concatWith(type.getPackage().compoundName, '.'));
-		}
 	}
 }
 /**
@@ -319,5 +249,73 @@ public String toString(){
 	else
 		buffer.append("case insensitive"/*nonNLS*/);
 	return buffer.toString();
+}
+
+/**
+ * @see SearchPattern#matchLevel(AstNode, boolean)
+ */
+public int matchLevel(AstNode node, boolean resolve) {
+	if (!(node instanceof TypeDeclaration)) return IMPOSSIBLE_MATCH;
+
+	TypeDeclaration type = (TypeDeclaration)node;
+
+	if (resolve) {
+		return this.matchLevel(type.binding);
+	} else {
+		// type name
+		if (this.simpleName != null && !this.matchesName(this.simpleName, type.name))
+			return IMPOSSIBLE_MATCH;
+		else
+			return POSSIBLE_MATCH;
+	}
+}
+
+/**
+ * @see SearchPattern#matchLevel(Binding)
+ */
+public int matchLevel(Binding binding) {
+	if (binding == null) return INACCURATE_MATCH;
+	if (!(binding instanceof TypeBinding)) return IMPOSSIBLE_MATCH;
+
+	TypeBinding type = (TypeBinding)binding;
+
+	// class or interface
+	switch (this.classOrInterface) {
+		case CLASS_SUFFIX:
+			if (type.isInterface())
+				return IMPOSSIBLE_MATCH;
+			break;
+		case INTERFACE_SUFFIX:
+			if (!type.isInterface())
+				return IMPOSSIBLE_MATCH;
+			break;
+	}
+
+	// fully qualified name
+	char[] enclosingTypeName = this.enclosingTypeNames == null ? null : CharOperation.concatWith(this.enclosingTypeNames, '.');
+	return this.matchLevelForType(this.simpleName, this.qualification, enclosingTypeName, type);
+}
+
+/**
+ * Returns whether the given type binding matches the given simple name pattern 
+ * qualification pattern and enclosing type name pattern.
+ */
+protected int matchLevelForType(char[] simpleNamePattern, char[] qualificationPattern, char[] enclosingNamePattern, TypeBinding type) {
+	if (enclosingNamePattern == null) {
+		return this.matchLevelForType(simpleNamePattern, qualificationPattern, type);
+	} else {
+		char[] pattern;
+		if (qualificationPattern == null) {
+			return matchLevelForType(simpleNamePattern, enclosingNamePattern, type);
+		} else {
+			// pattern was created from a Java element: qualification is the package name.
+			char[] fullQualificationPattern = CharOperation.concat(qualificationPattern, enclosingNamePattern, '.');
+			if ( CharOperation.equals(qualification, CharOperation.concatWith(type.getPackage().compoundName, '.'))) {
+				return this.matchLevelForType(simpleNamePattern, fullQualificationPattern, type);
+			} else {
+				return IMPOSSIBLE_MATCH;
+			}
+		}
+	}
 }
 }

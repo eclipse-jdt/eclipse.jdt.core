@@ -84,76 +84,120 @@ public char[] indexEntryPrefix() {
 			isCaseSensitive);
 }
 /**
- * Returns whether the code gen will use an invoke virtual for 
- * this message send or not.
- */
-private boolean isVirtualInvoke(MessageSend messageSend) {
-	return !messageSend.binding.isStatic() && !messageSend.isSuperAccess() && !messageSend.binding.isPrivate();
-}
-/**
  * @see SearchPattern#matchContainer()
  */
 protected int matchContainer() {
 	return METHOD | FIELD;
 }
-/**
- * @see SearchPattern#matches(AstNode, boolean)
- */
-protected boolean matches(AstNode node, boolean resolve) {
-	if (!(node instanceof MessageSend)) return false;
 
+public boolean initializeFromLookupEnvironment(LookupEnvironment env) {
+	this.allSuperDeclaringTypeNames = this.collectSuperTypeNames(this.declaringQualification, this.declaringSimpleName, this.matchMode, env);
+	return this.allSuperDeclaringTypeNames == null || this.allSuperDeclaringTypeNames != NOT_FOUND_DECLARING_TYPE; 
+}
+
+/**
+ * Returns whether the code gen will use an invoke virtual for 
+ * this message send or not.
+ */
+private boolean isVirtualInvoke(MethodBinding method, MessageSend messageSend) {
+	return !method.isStatic() && !messageSend.isSuperAccess() && !method.isPrivate();
+}
+
+/**
+ * @see SearchPattern#matchLevel(AstNode, boolean)
+ */
+public int matchLevel(AstNode node, boolean resolve) {
+	if (!(node instanceof MessageSend)) return IMPOSSIBLE_MATCH;
 	MessageSend messageSend = (MessageSend)node;
 
+	if (resolve) {
+		return this.matchLevel(messageSend.binding, messageSend);
+	} else {
+		// selector
+		if (this.selector != null && !this.matchesName(this.selector, messageSend.selector))
+			return IMPOSSIBLE_MATCH;
+			
+		// argument types
+		int argumentCount = this.parameterSimpleNames == null ? -1 : this.parameterSimpleNames.length;
+		if (argumentCount > -1) {
+			int parameterCount = messageSend.arguments == null ? 0 : messageSend.arguments.length;
+			if (parameterCount != argumentCount)
+				return IMPOSSIBLE_MATCH;
+		}
+
+		return POSSIBLE_MATCH;
+	}
+}
+
+/**
+ * @see SearchPattern#matchLevel(Binding)
+ */
+public int matchLevel(Binding binding, MessageSend messageSend) {
+	if (binding == null) return INACCURATE_MATCH;
+	if (!(binding instanceof MethodBinding)) return IMPOSSIBLE_MATCH;
+	int level;
+
+	MethodBinding method = (MethodBinding)binding;
+
 	// selector
-	if (this.selector != null && !this.matchesName(this.selector, messageSend.selector))
-		return false;
+	if (this.selector != null && !this.matchesName(this.selector, method.selector))
+		return IMPOSSIBLE_MATCH;
 
 	// receiver type
-	MethodBinding binding = messageSend.binding;
 	ReferenceBinding receiverType = 
 		binding == null ? 
 			null : 
-			(!isVirtualInvoke(messageSend) ? binding.declaringClass : (ReferenceBinding)messageSend.receiverType);
-	if (resolve && receiverType != null) {
-		if (this.isVirtualInvoke(messageSend)) {
-			if (!this.matchesAsSubtype(receiverType, this.declaringSimpleName, this.declaringQualification)
-				&& !this.matchesType(this.allSuperDeclaringTypeNames, receiverType)) {
-					return false;
+			(!isVirtualInvoke(method, messageSend) ? method.declaringClass : (ReferenceBinding)messageSend.receiverType);
+	if (this.isVirtualInvoke(method, messageSend)) {
+		level = this.matchLevelAsSubtype(receiverType, this.declaringSimpleName, this.declaringQualification);
+		if (level == IMPOSSIBLE_MATCH) {
+			level = this.matchLevelForType(this.allSuperDeclaringTypeNames, receiverType);
+			if (level == IMPOSSIBLE_MATCH) {
+				return IMPOSSIBLE_MATCH;
 			}
-		} else {
-			if (!this.matchesType(this.declaringSimpleName, this.declaringQualification, receiverType))
-				return false;
 		}
+	} else {
+		level = this.matchLevelForType(this.declaringSimpleName, this.declaringQualification, receiverType);
+		if (level == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
 	}
 
 	// return type
-	if (resolve && binding != null) {
-		if (!this.matchesType(this.returnSimpleName, this.returnQualification, binding.returnType))
-			return false;
+	int newLevel = this.matchLevelForType(this.returnSimpleName, this.returnQualification, method.returnType);
+	switch (newLevel) {
+		case IMPOSSIBLE_MATCH:
+			return IMPOSSIBLE_MATCH;
+		case ACCURATE_MATCH: // keep previous level
+			break;
+		default: // ie. INACCURATE_MATCH
+			level = newLevel;
+			break;
 	}
 		
 	// argument types
 	int argumentCount = this.parameterSimpleNames == null ? -1 : this.parameterSimpleNames.length;
 	if (argumentCount > -1) {
-		int parameterCount = messageSend.arguments == null ? 0 : messageSend.arguments.length;
-		if (parameterCount != argumentCount)
-			return false;
-
-		if (resolve && binding != null) {
+		if (method.parameters == null) {
+			level = INACCURATE_MATCH;
+		} else {
+			int parameterCount = method.parameters.length;
+			if (parameterCount != argumentCount) return IMPOSSIBLE_MATCH;
 			for (int i = 0; i < parameterCount; i++) {
 				char[] qualification = this.parameterQualifications[i];
 				char[] type = this.parameterSimpleNames[i];
-				if (!this.matchesType(type, qualification, binding.parameters[i]))
-					return false;
+				newLevel = this.matchLevelForType(type, qualification, method.parameters[i]);
+				switch (newLevel) {
+					case IMPOSSIBLE_MATCH:
+						return IMPOSSIBLE_MATCH;
+					case ACCURATE_MATCH: // keep previous level
+						break;
+					default: // ie. INACCURATE_MATCH
+						level = newLevel;
+						break;
+				}
 			}
 		}
 	}
 
-	return true;
-}
-
-public boolean initializeFromLookupEnvironment(LookupEnvironment env) {
-	this.allSuperDeclaringTypeNames = this.collectSuperTypeNames(this.declaringQualification, this.declaringSimpleName, this.matchMode, env);
-	return this.allSuperDeclaringTypeNames == null || this.allSuperDeclaringTypeNames != NOT_FOUND_DECLARING_TYPE; 
+	return level;
 }
 }

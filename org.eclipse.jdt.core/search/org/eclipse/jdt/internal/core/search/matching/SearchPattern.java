@@ -33,14 +33,14 @@ public abstract class SearchPattern implements ISearchPattern, IIndexConstants, 
 	/* match level */
 	public static final int IMPOSSIBLE_MATCH = 0;
 	public static final int POSSIBLE_MATCH = 1;
-	public static final int TRUSTED_MATCH = 2;
-
 	/* match container */
 	public static final int COMPILATION_UNIT = 1;
 	public static final int CLASS = 2;
 	public static final int FIELD = 4;
 	public static final int METHOD = 8;
 	
+	public static final int ACCURATE_MATCH = 2;
+	public static final int INACCURATE_MATCH = 3;
 	public static final char[][][] NOT_FOUND_DECLARING_TYPE = new char[0][][];
 
 public SearchPattern(int matchMode, boolean isCaseSensitive) {
@@ -753,24 +753,6 @@ public abstract char[] indexEntryPrefix();
  */
 protected abstract int matchContainer();
 /**
- * Finds out whether the given resolved ast node matches this search pattern.
- */
-public boolean matches(AstNode node) {
-	return this.matches(node, true);
-}
-/**
- * Returns whether this pattern matches the given node.
- * Look at resolved information only if specified.
- */
-protected abstract boolean matches(AstNode node, boolean resolve);
-/**
- * Finds out whether the given binding matches this search pattern.
- * Default is to return false.
- */
-public boolean matches(Binding binding) {
-	return false;
-}
-/**
  * Finds out whether the given binary info matches this search pattern.
  * Default is to return false.
  */
@@ -820,42 +802,9 @@ protected boolean matchesType(char[] simpleNamePattern, char[] qualificationPatt
 		);
 }
 /**
- * Returns whether the given type binding matches the given simple name pattern 
- * and qualification pattern.
- */
-protected boolean matchesType(char[] simpleNamePattern, char[] qualificationPattern, TypeBinding type) {
-	if (type == null) return false; 
-	return 
-		this.matchesType(
-			simpleNamePattern, 
-			qualificationPattern, 
-			type.qualifiedPackageName().length == 0 ? 
-				type.qualifiedSourceName() : 
-				CharOperation.concat(type.qualifiedPackageName(), type.qualifiedSourceName(), '.')
-		);
-}
-/**
  * Checks whether an entry matches the current search pattern
  */
 protected abstract boolean matchIndexEntry();
-/**
- * Finds out whether the given ast node matches this search pattern.
- * Returns IMPOSSIBLE_MATCH if it doesn't.
- * Returns TRUSTED_MATCH if it matches exactly this search pattern (ie. 
- * it doesn't need to be resolved or it has already been resolved.)
- * Returns POSSIBLE_MATCH if it potentially matches 
- * this search pattern and it needs to be resolved to get more information.
- */
-public int matchLevel(AstNode node) {
-	if (this.matches(node, false)) {
-		if (this.needsResolve) {
-			return POSSIBLE_MATCH;
-		} else {
-			return TRUSTED_MATCH;
-		}
-	}
-	return IMPOSSIBLE_MATCH;
-}
 /**
  * Reports the match of the given reference.
  */
@@ -974,44 +923,103 @@ public boolean initializeFromLookupEnvironment(LookupEnvironment env) {
 }
 
 /**
+ * Finds out whether the given ast node matches this search pattern.
+ * Returns IMPOSSIBLE_MATCH if it doesn't.
+ * Returns POSSIBLE_MATCH if it potentially matches this search pattern 
+ * and it has not been reolved, and it needs to be resolved to get more information.
+ * Returns ACCURATE_MATCH if it matches exactly this search pattern (ie. 
+ * it doesn't need to be resolved or it has already been resolved.)
+ * Returns INACCURATE_MATCH if it potentially exactly this search pattern (ie. 
+ * it has already been resolved but resolving failed.)
+ */
+public abstract int matchLevel(AstNode node, boolean resolve);
+
+/**
+ * Finds out whether the given binding matches this search pattern.
+ * Returns ACCURATE_MATCH if it does.
+ * Returns INACCURATE_MATCH if resolve failed.
+ * Default is to return INACCURATE_MATCH.
+ */
+public int matchLevel(Binding binding) {
+	return INACCURATE_MATCH;
+}
+
+/**
  * Returns whether the given reference type binding matches or is a subtype of a type
  * that matches the given simple name pattern and qualification pattern.
+ * Returns ACCURATE_MATCH if it does.
+ * Returns INACCURATE_MATCH if resolve fails
+ * Returns IMPOSSIBLE_MATCH if it doesn't.
  */
-protected boolean matchesAsSubtype(ReferenceBinding type, char[] simpleNamePattern, char[] qualificationPattern) {
+protected int matchLevelAsSubtype(ReferenceBinding type, char[] simpleNamePattern, char[] qualificationPattern) {
+	if (type == null) return INACCURATE_MATCH;
+	
+	int level;
+	
 	// matches type
-	if (this.matchesType(simpleNamePattern, qualificationPattern, type))
-		return true;
+	if ((level = this.matchLevelForType(simpleNamePattern, qualificationPattern, type)) != IMPOSSIBLE_MATCH)
+		return level;
 	
 	// matches superclass
-	ReferenceBinding superclass = type.superclass();
-	if (superclass != null) {
-		if (this.matchesAsSubtype(superclass, simpleNamePattern, qualificationPattern))
-			return true;
+	if (!type.isInterface() && !CharOperation.equals(type.compoundName, TypeConstants.JAVA_LANG_OBJECT)) {
+		if ((level = this.matchLevelAsSubtype(type.superclass(), simpleNamePattern, qualificationPattern)) != IMPOSSIBLE_MATCH) {
+			return level;
+		}
 	}
 
 	// matches interfaces
 	ReferenceBinding[] interfaces = type.superInterfaces();
-	for (int i = 0; i < interfaces.length; i++) {
-		if (this.matchesAsSubtype(interfaces[i], simpleNamePattern, qualificationPattern))
-			return true;
+	if (interfaces == null) {
+		return INACCURATE_MATCH;
+	} else {
+		for (int i = 0; i < interfaces.length; i++) {
+			if ((level = this.matchLevelAsSubtype(interfaces[i], simpleNamePattern, qualificationPattern)) != IMPOSSIBLE_MATCH) {
+				return level;
+			};
+		}
 	}
 
-	return false;
+	return IMPOSSIBLE_MATCH;
 }
 
 /**
  * Returns whether one of the given declaring types is the given receiver type.
+ * Returns ACCURATE_MATCH if it does.
+ * Returns INACCURATE_MATCH if resolve failed.
+ * Returns IMPOSSIBLE_MATCH if it doesn't.
  */
-protected boolean matchesType(char[][][] declaringTypes, ReferenceBinding receiverType) {
+protected int matchLevelForType(char[][][] declaringTypes, ReferenceBinding receiverType) {
+	if (receiverType == null) return INACCURATE_MATCH;
 	if (declaringTypes == null) {
-		return true; // we were not able to compute the declaring types, default to true
+		return INACCURATE_MATCH; // we were not able to compute the declaring types, default to inaccurate
 	} else {
 		for (int i = 0, max = declaringTypes.length; i < max; i++) {
 			if (CharOperation.equals(declaringTypes[i], receiverType.compoundName)) {
-				return true;
+				return ACCURATE_MATCH;
 			}
 		}
-		return false;
+		return IMPOSSIBLE_MATCH;
+	}
+}
+
+/**
+ * Returns whether the given type binding matches the given simple name pattern 
+ * and qualification pattern.
+ * Returns ACCURATE_MATCH if it does.
+ * Returns INACCURATE_MATCH if resolve failed.
+ * Returns IMPOSSIBLE_MATCH if it doesn't.
+ */
+protected int matchLevelForType(char[] simpleNamePattern, char[] qualificationPattern, TypeBinding type) {
+	if (type == null) return INACCURATE_MATCH;
+	if (this.matchesType(
+			simpleNamePattern, 
+			qualificationPattern, 
+			type.qualifiedPackageName().length == 0 ? 
+				type.qualifiedSourceName() : 
+				CharOperation.concat(type.qualifiedPackageName(), type.qualifiedSourceName(), '.'))) {
+		return ACCURATE_MATCH;
+	} else {
+		return IMPOSSIBLE_MATCH;
 	}
 }
 }

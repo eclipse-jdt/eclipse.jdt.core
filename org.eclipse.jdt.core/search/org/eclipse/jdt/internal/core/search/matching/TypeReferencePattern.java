@@ -135,183 +135,6 @@ protected int matchContainer() {
 	return COMPILATION_UNIT | CLASS | METHOD | FIELD;
 }
 /**
- * @see SearchPattern#matches(AstNode, boolean)
- */
-protected boolean matches(AstNode node, boolean resolve) {
-	if (node instanceof TypeReference) {
-		return this.matches((TypeReference)node, resolve);
-	} else if (node instanceof NameReference) {
-		return this.matches((NameReference)node, resolve);
-	} else if (node instanceof ImportReference) {
-		return this.matches((ImportReference)node, resolve);
-	}
-	return false;
-}
-/**
- * Returns whether this type pattern matches the given import reference.
- * Look at resolved information only if specified.
- */
-private boolean matches(ImportReference importRef, boolean resolve) {
-
-	if (importRef.onDemand) return false;
-
-	char[][] tokens = importRef.tokens;
-	int importLength = tokens.length;
-	
-	if (this.qualification != null){
-		char[][] qualificationTokens = CharOperation.splitOn('.', this.qualification);
-		int qualificationLength = qualificationTokens.length;
-		if (qualificationLength+1 > importLength) return false;
-		for (int i = 0; i < qualificationLength; i++){
-			if (!this.matchesName(qualificationTokens[i], tokens[i])) {
-				return false;
-			}
-		}
-		if (this.simpleName != null 
-			&& !this.matchesName(this.simpleName, tokens[qualificationLength])) {
-			return false;
-		}
-	} else {
-		if (this.simpleName != null) {
-			for (int i = 0; i < importLength; i++){
-				if (this.matchesName(this.simpleName, tokens[i])){
-					return true;
-				}
-			}
-			return false;
-		}
-	}
-	return true;
-}
-/**
- * Returns whether this type pattern matches the given name reference.
- * Look at resolved information only if specified.
- */
-private boolean matches(NameReference nameRef, boolean resolve) {
-	Binding binding = nameRef.binding;
-	if (!resolve || binding == null || !binding.isValidBinding()) {
-		if (this.simpleName != null) {
-			if (nameRef instanceof SingleNameReference) {
-				return this.matchesName(this.simpleName, ((SingleNameReference)nameRef).token);
-			} else { // QualifiedNameReference
-				char[][] tokens = ((QualifiedNameReference)nameRef).tokens;
-				for (int i = 0, max = tokens.length; i < max; i++){
-					if (this.matchesName(this.simpleName, tokens[i])) return true;
-				}
-				return false;
-			}				
-		}
-	} else {
-		if (nameRef instanceof SingleNameReference){
-			if (binding instanceof TypeBinding){
-				if (!this.matchesType(this.simpleName, this.qualification, (TypeBinding) binding)){
-					return false;
-				}
-			} else {
-				return false; // must be a type binding
-			}
-		} else { // QualifiedNameReference
-			TypeBinding typeBinding = null;
-			QualifiedNameReference qNameRef = (QualifiedNameReference)nameRef;
-			char[][] tokens = qNameRef.tokens;
-			int lastIndex = tokens.length-1;
-			switch (qNameRef.bits & Statement.RestrictiveFlagMASK) {
-				case BindingIds.FIELD : // reading a field
-					typeBinding = ((FieldBinding)binding).declaringClass;
-					// no valid match amongst fields
-					int otherBindingsCount = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;			
-					lastIndex -= otherBindingsCount + 1;
-					if (lastIndex < 0) return false;
-					break;
-				case BindingIds.LOCAL : // reading a local variable
-					return false; // no type match in it
-				case BindingIds.TYPE : //=============only type ==============
-					typeBinding = (TypeBinding)binding;
-			}
-			// try to match all enclosing types for which the token matches as well.
-			while (typeBinding != null && lastIndex >= 0){
-				if (matchesName(this.simpleName, tokens[lastIndex--])
-					&& matchesType(this.simpleName, this.qualification, typeBinding)) return true;
-					//&& matchesAsSubtype(this.simpleName, this.qualification, typeBinding)) return true;
-				if (typeBinding instanceof ReferenceBinding){
-					typeBinding = ((ReferenceBinding)typeBinding).enclosingType();
-				} else {
-					typeBinding = null;
-				}
-			}
-			return false;
-		} 
-	}
-	return true;
-}
-/**
- * Returns whether this type pattern matches the given type reference.
- * Look at resolved information only if specified.
- */
-private boolean matches(TypeReference typeRef, boolean resolve) {
-	if (!resolve) {
-		if (this.simpleName != null) {
-			if (typeRef instanceof SingleTypeReference) {
-				return this.matchesName(this.simpleName, ((SingleTypeReference)typeRef).token);
-			} else { // QualifiedTypeReference
-				char[][] tokens = ((QualifiedTypeReference)typeRef).tokens;
-				for (int i = 0, max = tokens.length; i < max; i++){
-					if (this.matchesName(this.simpleName, tokens[i])) return true;
-				}
-				return false;
-			}				
-		}
-	} else {
-
-		TypeBinding typeBinding = typeRef.binding;
-		if (typeBinding != null){
-			if (typeBinding instanceof ArrayBinding) typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
-			if (typeRef instanceof SingleTypeReference){
-				if (!this.matchesType(this.simpleName, this.qualification, typeBinding)){
-					return false;
-				}
-			} else { // QualifiedTypeReference
-				QualifiedTypeReference qNameRef = (QualifiedTypeReference)typeRef;
-				char[][] tokens = qNameRef.tokens;
-				int lastIndex = tokens.length-1;
-				// try to match all enclosing types for which the token matches as well.
-				while (typeBinding != null && lastIndex >= 0){
-					if (matchesName(this.simpleName, tokens[lastIndex--])
-						&& matchesType(this.simpleName, this.qualification, typeBinding)) return true;
-						//&& matchesAsSubtype(this.simpleName, this.qualification, typeBinding)) return true;
-					if (typeBinding instanceof ReferenceBinding){
-						typeBinding = ((ReferenceBinding)typeBinding).enclosingType();
-					} else {
-						typeBinding = null;
-					}
-				}
-				return false;
-			} 
-		}
-			
-	}
-	return true;
-}
-/**
- * @see SearchPattern#matches(Binding)
- */
-public boolean matches(Binding binding) {
-	if (!(binding instanceof ReferenceBinding)) return false;
-
-	ReferenceBinding type = (ReferenceBinding) binding;
-	if (this.matchesType(this.simpleName, this.qualification, type.superclass())){
-		return true;
-	}
-	
-	ReferenceBinding[] superInterfaces = type.superInterfaces();
-	for (int i = 0, max = superInterfaces.length; i < max; i++){
-		if (this.matchesType(this.simpleName, this.qualification, superInterfaces[i])){
-			return true;
-		}
-	}
-	return false;
-}
-/**
  * @see SearchPattern#matchIndexEntry
  */
 protected boolean matchIndexEntry() {
@@ -354,26 +177,6 @@ protected boolean matchIndexEntry() {
 		}
 	}
 	return true;
-}
-/**
- * @see SearchPattern#matchLevel
- */
-public int matchLevel(AstNode node) {
-	if (node instanceof NameReference) {
-		if (this.matches((NameReference)node, false)) {
-			return POSSIBLE_MATCH; // always need to resolve name reference
-		} else {
-			return IMPOSSIBLE_MATCH;
-		}
-	} else if (node instanceof ImportReference) {
-		if (this.matches((ImportReference)node, false)) {
-			return POSSIBLE_MATCH;
-		} else {
-			return IMPOSSIBLE_MATCH;
-		}
-	} else {
-		return super.matchLevel(node);
-	}
 }
 /**
  * @see SearchPattern#matchReportReference
@@ -436,5 +239,218 @@ public String toString(){
 	else
 		buffer.append("case insensitive"/*nonNLS*/);
 	return buffer.toString();
+}
+
+/**
+ * @see SearchPattern#matchLevel(AstNode, boolean)
+ */
+public int matchLevel(AstNode node, boolean resolve) {
+	if (node instanceof TypeReference) {
+		return this.matchLevel((TypeReference)node, resolve);
+	} else if (node instanceof NameReference) {
+		return this.matchLevel((NameReference)node, resolve);
+	} else if (node instanceof ImportReference) {
+		return this.matchLevel((ImportReference)node, resolve);
+	}
+	return IMPOSSIBLE_MATCH;
+}
+
+/**
+ * Returns whether this type pattern matches the given import reference.
+ * Look at resolved information only if specified.
+ */
+private int matchLevel(ImportReference importRef, boolean resolve) {
+
+	if (importRef.onDemand) return IMPOSSIBLE_MATCH;
+
+	char[][] tokens = importRef.tokens;
+	int importLength = tokens.length;
+	
+	if (this.qualification != null){
+		char[][] qualificationTokens = CharOperation.splitOn('.', this.qualification);
+		int qualificationLength = qualificationTokens.length;
+		if (qualificationLength+1 > importLength) return IMPOSSIBLE_MATCH;
+		for (int i = 0; i < qualificationLength; i++){
+			if (!this.matchesName(qualificationTokens[i], tokens[i])) {
+				return IMPOSSIBLE_MATCH;
+			}
+		}
+		if (this.simpleName == null || this.matchesName(this.simpleName, tokens[qualificationLength])) {
+			return ACCURATE_MATCH;
+		} else {
+			return IMPOSSIBLE_MATCH;
+		}
+	} else {
+		if (this.simpleName == null) {
+			return ACCURATE_MATCH;
+		} else {
+			for (int i = 0; i < importLength; i++){
+				if (this.matchesName(this.simpleName, tokens[i])){
+					return ACCURATE_MATCH;
+				}
+			}
+			return IMPOSSIBLE_MATCH;
+		}
+	}
+}
+
+/**
+ * Returns whether this type pattern matches the given name reference.
+ * Look at resolved information only if specified.
+ */
+private int matchLevel(NameReference nameRef, boolean resolve) {
+	if (!resolve) {
+		if (this.simpleName == null) {
+			return POSSIBLE_MATCH;
+		} else {
+			if (nameRef instanceof SingleNameReference) {
+				if (this.matchesName(this.simpleName, ((SingleNameReference)nameRef).token)) {
+					return POSSIBLE_MATCH;
+				} else {
+					return IMPOSSIBLE_MATCH;
+				}
+			} else { // QualifiedNameReference
+				char[][] tokens = ((QualifiedNameReference)nameRef).tokens;
+				for (int i = 0, max = tokens.length; i < max; i++){
+					if (this.matchesName(this.simpleName, tokens[i])) 
+						return POSSIBLE_MATCH;
+				}
+				return IMPOSSIBLE_MATCH;
+			}				
+		}
+	} else {
+		Binding binding = nameRef.binding;
+		if (binding == null) {
+			return INACCURATE_MATCH;
+		} else {
+			if (nameRef instanceof SingleNameReference) {
+				if (binding instanceof TypeBinding) {
+					return this.matchLevelForType(this.simpleName, this.qualification, (TypeBinding) binding);
+				} else {
+					return IMPOSSIBLE_MATCH; // must be a type binding
+				}
+			} else { // QualifiedNameReference
+				TypeBinding typeBinding = null;
+				QualifiedNameReference qNameRef = (QualifiedNameReference)nameRef;
+				char[][] tokens = qNameRef.tokens;
+				int lastIndex = tokens.length-1;
+				switch (qNameRef.bits & Statement.RestrictiveFlagMASK) {
+					case BindingIds.FIELD : // reading a field
+						typeBinding = ((FieldBinding)binding).declaringClass;
+						// no valid match amongst fields
+						int otherBindingsCount = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;			
+						lastIndex -= otherBindingsCount + 1;
+						if (lastIndex < 0) return IMPOSSIBLE_MATCH;
+						break;
+					case BindingIds.LOCAL : // reading a local variable
+						return IMPOSSIBLE_MATCH; // no type match in it
+					case BindingIds.TYPE : //=============only type ==============
+						typeBinding = (TypeBinding)binding;
+				}
+				// try to match all enclosing types for which the token matches as well.
+				while (typeBinding != null && lastIndex >= 0){
+					if (this.matchesName(this.simpleName, tokens[lastIndex--])) {
+						int level = this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
+						if (level != IMPOSSIBLE_MATCH) {
+							return level;
+						}
+					}
+					if (typeBinding instanceof ReferenceBinding){
+						typeBinding = ((ReferenceBinding)typeBinding).enclosingType();
+					} else {
+						typeBinding = null;
+					}
+				}
+				return IMPOSSIBLE_MATCH;
+			}
+		}
+	}
+}
+
+/**
+ * Returns whether this type pattern matches the given type reference.
+ * Look at resolved information only if specified.
+ */
+private int matchLevel(TypeReference typeRef, boolean resolve) {
+	if (!resolve) {
+		if (this.simpleName == null) {
+			return POSSIBLE_MATCH;
+		} else {
+			if (typeRef instanceof SingleTypeReference) {
+				if (this.matchesName(this.simpleName, ((SingleTypeReference)typeRef).token)) {
+					return POSSIBLE_MATCH;
+				} else {
+					return IMPOSSIBLE_MATCH;
+				}
+			} else { // QualifiedTypeReference
+				char[][] tokens = ((QualifiedTypeReference)typeRef).tokens;
+				for (int i = 0, max = tokens.length; i < max; i++){
+					if (this.matchesName(this.simpleName, tokens[i])) {
+						return POSSIBLE_MATCH;
+					}
+				}
+				return IMPOSSIBLE_MATCH;
+			}				
+		} 
+	} else {
+		TypeBinding typeBinding = typeRef.binding;
+		if (typeBinding == null) {
+			return INACCURATE_MATCH;
+		} else {
+			if (typeBinding instanceof ArrayBinding) typeBinding = ((ArrayBinding)typeBinding).leafComponentType;
+			if (typeRef instanceof SingleTypeReference){
+				return this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
+			} else { // QualifiedTypeReference
+				QualifiedTypeReference qNameRef = (QualifiedTypeReference)typeRef;
+				char[][] tokens = qNameRef.tokens;
+				int lastIndex = tokens.length-1;
+				// try to match all enclosing types for which the token matches as well.
+				while (typeBinding != null && lastIndex >= 0){
+					if (matchesName(this.simpleName, tokens[lastIndex--])) {
+						int level = this.matchLevelForType(this.simpleName, this.qualification, typeBinding);
+						if (level != IMPOSSIBLE_MATCH) {
+							return level;
+						}
+					}
+					if (typeBinding instanceof ReferenceBinding){
+						typeBinding = ((ReferenceBinding)typeBinding).enclosingType();
+					} else {
+						typeBinding = null;
+					}
+				}
+				return IMPOSSIBLE_MATCH;
+			} 
+		}
+			
+	}
+}
+
+/**
+ * @see SearchPattern#matchLevel(Binding)
+ */
+public int matchLevel(Binding binding) {
+	if (binding == null) return INACCURATE_MATCH;
+	if (!(binding instanceof ReferenceBinding)) return IMPOSSIBLE_MATCH;
+
+	ReferenceBinding type = (ReferenceBinding) binding;
+	int level = this.matchLevelForType(this.simpleName, this.qualification, type.superclass());
+	if (level != IMPOSSIBLE_MATCH) {
+		return level;
+	}
+	
+	ReferenceBinding[] superInterfaces = type.superInterfaces();
+	for (int i = 0, max = superInterfaces.length; i < max; i++){
+		int newLevel = this.matchLevelForType(this.simpleName, this.qualification, superInterfaces[i]);
+		switch (newLevel) {
+			case IMPOSSIBLE_MATCH:
+				return IMPOSSIBLE_MATCH;
+			case ACCURATE_MATCH: // keep previous level
+				break;
+			default: // ie. INACCURATE_MATCH
+				level = newLevel;
+				break;
+		}
+	}
+	return level;
 }
 }

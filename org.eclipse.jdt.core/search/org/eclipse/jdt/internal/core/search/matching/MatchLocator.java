@@ -345,13 +345,19 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 				MethodBinding[] methods = binding.methods();
 				for (int i = 0; i < methods.length; i++) {
 					MethodBinding method = methods[i];
-					if (this.pattern.matches(method)) {
+					int level = this.pattern.matchLevel(method);
+					if (level != SearchPattern.IMPOSSIBLE_MATCH) {
 						IMethod methodHandle = 
 							binaryType.getMethod(
 								new String(method.isConstructor() ? binding.compoundName[binding.compoundName.length-1] : method.selector),
 								Signature.getParameterTypes(new String(method.signature()).replace('/', '.'))
 							);
-						this.reportBinaryMatch(methodHandle, info, IJavaSearchResultCollector.EXACT_MATCH);
+						this.reportBinaryMatch(
+							methodHandle, 
+							info, 
+							level == SearchPattern.ACCURATE_MATCH ? 
+								IJavaSearchResultCollector.EXACT_MATCH : 
+								IJavaSearchResultCollector.POTENTIAL_MATCH);
 					}
 				}
 			}
@@ -361,9 +367,15 @@ private void locateMatchesInClassFile() throws CoreException, JavaModelException
 				FieldBinding[] fields = binding.fields();
 				for (int i = 0; i < fields.length; i++) {
 					FieldBinding field = fields[i];
-					if (this.pattern.matches(field)) {
+					int level = this.pattern.matchLevel(field);
+					if (level != SearchPattern.IMPOSSIBLE_MATCH) {
 						IField fieldHandle = binaryType.getField(new String(field.name));
-						this.reportBinaryMatch(fieldHandle, info, IJavaSearchResultCollector.EXACT_MATCH);
+						this.reportBinaryMatch(
+							fieldHandle, 
+							info, 
+							level == SearchPattern.ACCURATE_MATCH ? 
+								IJavaSearchResultCollector.EXACT_MATCH : 
+								IJavaSearchResultCollector.POTENTIAL_MATCH);
 					}
 				}
 			}
