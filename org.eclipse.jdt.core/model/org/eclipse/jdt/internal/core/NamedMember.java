@@ -32,7 +32,7 @@ public abstract class NamedMember extends Member {
 		return this.name;
 	}
 
-	public String getFullyQualifiedParameterizedName(String fullyQualifiedName, String uniqueKey) throws JavaModelException {
+	protected String getFullyQualifiedParameterizedName(String fullyQualifiedName, String uniqueKey) throws JavaModelException {
 		char[][] typeArguments = Signature.getTypeArguments(uniqueKey.toCharArray());
 		int length = typeArguments.length;
 		if (length == 0) return fullyQualifiedName;
@@ -50,8 +50,9 @@ public abstract class NamedMember extends Member {
 		return buffer.toString();
 	}
 	
-	protected String getTypeParameters(ITypeParameter[] typeParameters) throws JavaModelException {
-		StringBuffer buffer = new StringBuffer();
+	protected String getFullyQualifiedParameterizedName(String fullyQualifiedName, ITypeParameter[] typeParameters) throws JavaModelException {
+		if (typeParameters.length == 0) return fullyQualifiedName;
+		StringBuffer buffer = new StringBuffer(fullyQualifiedName);
 		buffer.append('<');
 		for (int i = 0, length = typeParameters.length; i < length; i++) {
 			ITypeParameter typeParameter = typeParameters[i];

@@ -288,9 +288,7 @@ public String getFullyQualifiedName(char enclosingTypeSeparator) {
  * @see IType#getFullyQualifiedParameterizedName()
  */
 public String getFullyQualifiedParameterizedName() throws JavaModelException {
-	ITypeParameter[] typeParameters = getTypeParameters();
-	if (typeParameters.length == 0) return getFullyQualifiedName();
-	return getFullyQualifiedName() + getTypeParameters(typeParameters);
+	return getFullyQualifiedParameterizedName(getFullyQualifiedName(), getTypeParameters());
 }
 
 /*
