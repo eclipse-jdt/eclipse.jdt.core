@@ -41,7 +41,7 @@ import org.eclipse.jdt.core.util.CompilationUnitSorter;
  * access modifier (public, protected, private, default)</li>
  * </p>
  */
-public class DefaultJavaElementComparator implements Comparator {
+class DefaultJavaElementComparator implements Comparator {
 
 	private static final int STATIC_TYPE_CATEGORY = 0;
 	private static final int STATIC_FIELD_CATEGORY = 1;
