@@ -3868,11 +3868,13 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				}
 			} else if (elseStatement == null && this.preferences.keep_simple_if_on_one_line) {
 				Alignment compactIfAlignment = this.scribe.createAlignment(
-					"compactIf", //$NON-NLS-1$
-					this.preferences.alignment_for_compact_if,
-					Alignment.R_OUTERMOST,
-					1, 
-					this.scribe.scanner.currentPosition);
+						"compactIf", //$NON-NLS-1$
+						this.preferences.alignment_for_compact_if,
+						Alignment.R_OUTERMOST,
+						1,
+						this.scribe.scanner.currentPosition,
+						1,
+						false);
 				this.scribe.enterAlignment(compactIfAlignment);
 				boolean ok = false;
 				do {

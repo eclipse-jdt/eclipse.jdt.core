@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		}
 		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-		suite.addTest(new FormatterRegressionTests("test513"));  //$NON-NLS-1$
+		suite.addTest(new FormatterRegressionTests("test514"));  //$NON-NLS-1$
 		return suite;
 	}
 
@@ -6732,5 +6733,18 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		} finally {
 			JavaCore.setOptions(javaCoreOptions);
 		}
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=75488
+	 */
+	public void test514() {
+		String resourcePath = getResource("test514", "formatter.xml");
+		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "core");
+		assertNotNull("No preferences", options);
+		options.put(JavaCore.COMPILER_PB_NON_NLS_STRING_LITERAL, JavaCore.ERROR);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, options);
+		runTest(codeFormatter, "test514", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
