@@ -385,12 +385,18 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
             if (enclosing != null && !enclosing.isEquivalentTo(otherParamType.enclosingType()))
                 return false;
             int length = this.arguments == null ? 0 : this.arguments.length;
-            int otherLength = otherParamType.arguments == null ? 0 : otherParamType.arguments.length;
+            TypeBinding[] otherArguments = otherParamType.arguments;
+            int otherLength = otherArguments == null ? 0 : otherArguments.length;
             if (otherLength != length) 
                 return false;
+            // argument must be identical, only equivalence is allowed if wildcard other type
             for (int i = 0; i < length; i++) {
-                if (!this.arguments[i].isEquivalentTo(otherParamType.arguments[i]))
-                        return false;
+            	TypeBinding argument = this.arguments[i];
+            	TypeBinding otherArgument = otherArguments[i];
+				if (!(argument == otherArgument
+						|| (otherArgument.isWildcard()) && argument.isEquivalentTo(otherArgument))) {
+					return false;
+				}
             }
             return true;
         } else if (otherType.isWildcard()){ // wildcard
