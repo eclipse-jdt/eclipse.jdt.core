@@ -38,6 +38,7 @@ public class IteratorForStatement extends Statement {
 	
 	// set the kind of foreach
 	private int kind;
+	private int arrayElementTypeID;
 
 	private Label breakLabel;
 	private Label continueLabel;
@@ -177,8 +178,10 @@ public class IteratorForStatement extends Statement {
 				case ARRAY :
 					codeStream.load(this.collectionVariable);
 					codeStream.load(this.indexVariable);
-					codeStream.iaload();
-					codeStream.generateImplicitConversion(this.localDeclarationImplicitWidening);
+					codeStream.arrayAt(this.arrayElementTypeID);
+					if (this.localDeclarationImplicitWidening != -1) {
+						codeStream.generateImplicitConversion(this.localDeclarationImplicitWidening);
+					}
 					codeStream.store(this.localDeclaration.binding, false);
 					break;
 				case RAW_ITERABLE :
@@ -254,11 +257,17 @@ public class IteratorForStatement extends Statement {
 		TypeBinding elementType = localDeclaration.type.resolvedType;
 		TypeBinding collectionType = collection.resolveType(scope);
 		// TODO need to handle java.lang.Iterable and java.lang.Iterable<E>
-		if (collectionType.isArrayType() && collectionType.dimensions() == 1) {
+		if (collectionType.isArrayType()) {
 			this.kind = ARRAY;
 			TypeBinding collectionElementType = ((ArrayBinding) collectionType).elementsType(scope);
+			if (!collectionElementType.isCompatibleWith(elementType)) {
+				scope.problemReporter().notCompatibleTypesErrorForIteratorFor(collection, collectionElementType, elementType);
+			}
 			// in case we need to do a conversion
-			this.localDeclarationImplicitWidening = (elementType.id << 4) + collectionElementType.id;
+			this.arrayElementTypeID = collectionElementType.id;
+			if (elementType.isBaseType()) {
+				this.localDeclarationImplicitWidening = (elementType.id << 4) + this.arrayElementTypeID;
+			}
 		}
 /*		if (collectionType.isRawIterable()) {
 			this.kind = RAW_ITERABLE;

@@ -228,6 +228,7 @@ public interface IProblem {
 	/** @since 2.1 */
 	int UnusedPrivateType = Internal + TypeRelated + 7;
 	
+	int IncompatibleTypesInIteratorFor = TypeRelated + 14;
 	int IncompatibleTypesInEqualityOperator = TypeRelated + 15;
 	int IncompatibleTypesInConditionalOperator = TypeRelated + 16;
 	int TypeMismatch = TypeRelated + 17;

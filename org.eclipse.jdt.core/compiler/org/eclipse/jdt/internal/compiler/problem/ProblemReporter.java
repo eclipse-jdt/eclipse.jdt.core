@@ -2665,6 +2665,22 @@ public void notCompatibleTypesError(InstanceOfExpression expression, TypeBinding
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void notCompatibleTypesErrorForIteratorFor(Expression expression, TypeBinding leftType, TypeBinding rightType) {
+	String leftName = new String(leftType.readableName());
+	String rightName = new String(rightType.readableName());
+	String leftShortName = new String(leftType.shortReadableName());
+	String rightShortName = new String(rightType.shortReadableName());
+	if (leftShortName.equals(rightShortName)){
+		leftShortName = leftName;
+		rightShortName = rightName;
+	}
+	this.handle(
+		IProblem.IncompatibleTypesInIteratorFor,
+		new String[] {leftName, rightName },
+		new String[] {leftShortName, rightShortName },
+		expression.sourceStart,
+		expression.sourceEnd);
+}
 public void objectCannotBeGeneric(TypeDeclaration typeDecl) {
 	this.handle(
 		IProblem.ObjectCannotBeGeneric,
