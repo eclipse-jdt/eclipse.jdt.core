@@ -226,7 +226,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 				suite.addTest(new ASTConverterTest(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest("test0358"));
+//		suite.addTest(new ASTConverterTest("test0361"));
 		return suite;
 	}
 		
@@ -9010,7 +9010,45 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		SimpleName name = methodDeclaration.getName();
 		checkSourceRange(name, "mdd", source);
 	}
-	
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=21916
+	 */
+	public void test0360() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0360", "X.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0,0, 0);
+		assertNotNull(node);
+		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT);
+		ForStatement forStatement = (ForStatement) node;
+		List initializers = forStatement.initializers();
+		assertEquals("Wrong size", 1, initializers.size());
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=21916
+	 */
+	public void test0361() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0361", "X.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0,0, 0);
+		assertNotNull(node);
+		assertTrue("Not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT);
+		ForStatement forStatement = (ForStatement) node;
+		List initializers = forStatement.initializers();
+		assertEquals("Wrong size", 1, initializers.size());
+	}
+		
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
 		return (ASTNode) ((MethodInvocation) statement.getExpression()).arguments().get(0);
