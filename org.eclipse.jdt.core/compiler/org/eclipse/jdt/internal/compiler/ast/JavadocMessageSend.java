@@ -80,7 +80,7 @@ public class JavadocMessageSend extends MessageSend {
 			scope.problemReporter().javadocErrorNoMethodFor(this, this.receiverType, argumentTypes, scope.getDeclarationModifiers());
 			return null;
 		}
-		this.codegenBinding = this.binding = scope.getMethod(this.receiverType, this.selector, argumentTypes, this); 
+		this.binding = scope.getMethod(this.receiverType, this.selector, argumentTypes, this); 
 		if (!this.binding.isValidBinding()) {
 			if (this.binding.declaringClass == null) {
 				if (this.receiverType instanceof ReferenceBinding) {
@@ -94,7 +94,7 @@ public class JavadocMessageSend extends MessageSend {
 			// record the closest match, for clients who may still need hint about possible method match
 			if (this.binding instanceof ProblemMethodBinding){
 				MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
-				if (closestMatch != null) this.codegenBinding = this.binding = closestMatch;
+				if (closestMatch != null) this.binding = closestMatch;
 			}
 			return this.resolvedType = this.binding == null ? null : this.binding.returnType;
 		}

@@ -60,7 +60,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	int pc = codeStream.position;
 
 	// generate receiver/enclosing instance access
-	boolean isStatic = codegenBinding.isStatic();
+	boolean isStatic = this.codegenBinding.isStatic();
 	// outer access ?
 	if (!isStatic && ((bits & DepthMASK) != 0) && receiver.isImplicitThis()){
 		// outer method can be reached through emulation if implicit access
@@ -79,15 +79,15 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	// actual message invocation
 	if (syntheticAccessor == null){
 		if (isStatic){
-			codeStream.invokestatic(codegenBinding);
+			codeStream.invokestatic(this.codegenBinding);
 		} else {
-			if( (receiver.isSuper()) || codegenBinding.isPrivate()){
-				codeStream.invokespecial(codegenBinding);
+			if( (receiver.isSuper()) || this.codegenBinding.isPrivate()){
+				codeStream.invokespecial(this.codegenBinding);
 			} else {
-				if (codegenBinding.declaringClass.isInterface()){
-					codeStream.invokeinterface(codegenBinding);
+				if (this.codegenBinding.declaringClass.isInterface()){
+					codeStream.invokeinterface(this.codegenBinding);
 				} else {
-					codeStream.invokevirtual(codegenBinding);
+					codeStream.invokevirtual(this.codegenBinding);
 				}
 			}
 		}
@@ -123,7 +123,21 @@ public boolean isTypeAccess() {
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo){
 
 	if (!flowInfo.isReachable()) return;
-	if (binding.isPrivate()){
+
+	if (this.binding instanceof SubstitutedMethodBinding) {
+	    SubstitutedMethodBinding substitutedMethod = (SubstitutedMethodBinding) this.binding;
+	    this.codegenBinding = substitutedMethod.originalMethod;
+	    if (this.codegenBinding.returnType instanceof TypeVariableBinding) {
+	        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
+	        if (variableReturnType.firstBound != substitutedMethod.returnType) { // no need for extra cast if same as first bound anyway
+			    this.genericCast = substitutedMethod.returnType;
+	        }
+	    }
+	} else {
+	    this.codegenBinding = this.binding;
+	}
+	
+	if (this.binding.isPrivate()){
 
 		// depth is set for both implicit and explicit access (see MethodBinding#canBeSeenBy)		
 		if (currentScope.enclosingSourceType() != binding.declaringClass){
@@ -159,14 +173,15 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
 	// and not from Object or implicit static method call.	
-	if (binding.declaringClass != this.qualifyingType
+	if (this.codegenBinding.declaringClass != this.qualifyingType
 		&& !this.qualifyingType.isArrayType()
 		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
-				&& (!receiver.isImplicitThis() || !binding.isStatic())
-				&& binding.declaringClass.id != T_Object) // no change for Object methods
-			|| !binding.declaringClass.canBeSeenBy(currentScope))) {
+				&& (!receiver.isImplicitThis() || !this.codegenBinding.isStatic())
+				&& this.codegenBinding.declaringClass.id != T_Object) // no change for Object methods
+			|| !this.codegenBinding.declaringClass.canBeSeenBy(currentScope))) {
 
-		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(binding, (ReferenceBinding) this.qualifyingType);
+		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(
+		        										this.codegenBinding, (ReferenceBinding) this.qualifyingType);
 
 		// Post 1.4.0 target, array clone() invocations are qualified with array type 
 		// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
@@ -222,7 +237,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (argHasError) {
 			if(receiverType instanceof ReferenceBinding) {
 				// record any selector match, for clients who may still need hint about possible method match
-				this.codegenBinding = this.binding = scope.findMethod((ReferenceBinding)receiverType, selector, new TypeBinding[]{}, this);
+				this.binding = scope.findMethod((ReferenceBinding)receiverType, selector, new TypeBinding[]{}, this);
 			}			
 			return null;
 		}
@@ -235,7 +250,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().errorNoMethodFor(this, this.receiverType, argumentTypes);
 		return null;
 	}
-	this.codegenBinding = this.binding = 
+	this.binding = 
 		receiver.isImplicitThis()
 			? scope.getImplicitMethod(selector, argumentTypes, this)
 			: scope.getMethod(this.receiverType, selector, argumentTypes, this); 
@@ -252,7 +267,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		// record the closest match, for clients who may still need hint about possible method match
 		if (binding instanceof ProblemMethodBinding){
 			MethodBinding closestMatch = ((ProblemMethodBinding)binding).closestMatch;
-			if (closestMatch != null) this.codegenBinding = this.binding = closestMatch;
+			if (closestMatch != null) this.binding = closestMatch;
 		}
 		return this.resolvedType = binding == null ? null : binding.returnType;
 	}
@@ -292,16 +307,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (isMethodUseDeprecated(binding, scope))
 		scope.problemReporter().deprecatedMethod(binding, this);
 
-	if (this.binding instanceof SubstitutedMethodBinding) {
-	    this.codegenBinding = ((SubstitutedMethodBinding) this.binding).originalMethod;
-	    if (this.codegenBinding.returnType instanceof TypeVariableBinding) {
-	        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.returnType;
-	        if (variableReturnType.firstBound != this.binding.returnType) { // no need for extra cast if same as first bound anyway
-			    this.genericCast = this.binding.returnType;
-	        }
-	    }
-	}	
-	return this.resolvedType = binding.returnType;
+	return this.resolvedType = this.binding.returnType;
 }
 public void setActualReceiverType(ReferenceBinding receiverType) {
 	this.qualifyingType = receiverType;
