@@ -1299,18 +1299,20 @@ public String toString(){
 	return "SearchPattern"; //$NON-NLS-1$
 }
 
-
-
-
-
-
-
 /**
  * Initializes this search pattern so that polymorphic search can be performed.
  */ 
 public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor progressMonitor) {
 	// default is to do nothing
 }
+
+/*
+ * Returns whether this pattern is a polymorphic search pattern.
+ */
+public boolean isPolymorphicSearch() {
+	return false;
+}
+
 /**
  * Finds out whether the given ast node matches this search pattern.
  * Returns IMPOSSIBLE_MATCH if it doesn't.

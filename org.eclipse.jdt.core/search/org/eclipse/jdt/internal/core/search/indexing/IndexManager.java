@@ -474,7 +474,7 @@ public void shutdown() {
 	if (VERBOSE)
 		JobManager.verbose("Shutdown"); //$NON-NLS-1$
 
-	IndexSelector indexSelector = new IndexSelector(new JavaWorkspaceScope(), null, this);
+	IndexSelector indexSelector = new IndexSelector(new JavaWorkspaceScope(), null, false, this);
 	IIndex[] selectedIndexes = indexSelector.getIndexes();
 	SimpleLookupTable knownPaths = new SimpleLookupTable();
 	for (int i = 0, max = selectedIndexes.length; i < max; i++) {

@@ -123,6 +123,13 @@ public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor p
 }
 
 /**
+ * see SearchPattern.isPolymorphicSearch
+ */
+public boolean isPolymorphicSearch() {
+	return this.leftPattern.isPolymorphicSearch() || this.rightPattern.isPolymorphicSearch();
+}
+
+/**
  * @see SearchPattern#matchLevel(AstNode, boolean)
  */
 public int matchLevel(AstNode node, boolean resolve) {

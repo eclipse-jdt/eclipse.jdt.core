@@ -32,6 +32,7 @@ public class PatternSearchJob implements IJob {
 	protected IndexManager indexManager;
 	protected int detailLevel;
 	protected IndexSelector indexSelector;
+	protected boolean isPolymorphicSearch;
 	protected long executionTime = 0;
 	
 	public PatternSearchJob(
@@ -45,6 +46,7 @@ public class PatternSearchJob implements IJob {
 			pattern,
 			scope,
 			null,
+			false,
 			detailLevel,
 			requestor,
 			indexManager);
@@ -53,6 +55,7 @@ public class PatternSearchJob implements IJob {
 		SearchPattern pattern,
 		IJavaSearchScope scope,
 		IJavaElement focus,
+		boolean isPolymorphicSearch,
 		int detailLevel,
 		IIndexSearchRequestor requestor,
 		IndexManager indexManager) {
@@ -60,6 +63,7 @@ public class PatternSearchJob implements IJob {
 		this.pattern = pattern;
 		this.scope = scope;
 		this.focus = focus;
+		this.isPolymorphicSearch = isPolymorphicSearch;
 		this.detailLevel = detailLevel;
 		this.requestor = requestor;
 		this.indexManager = indexManager;
@@ -77,7 +81,7 @@ public class PatternSearchJob implements IJob {
 		executionTime = 0;
 		if (this.indexSelector == null) {
 			this.indexSelector =
-				new IndexSelector(this.scope, this.focus, this.indexManager);
+				new IndexSelector(this.scope, this.focus, this.isPolymorphicSearch, this.indexManager);
 		}
 		IIndex[] searchIndexes = this.indexSelector.getIndexes();
 		try {
@@ -106,7 +110,7 @@ public class PatternSearchJob implements IJob {
 		}
 	}
 	public boolean isReadyToRun() {
-		IndexSelector selector = new IndexSelector(this.scope, this.focus, this.indexManager);
+		IndexSelector selector = new IndexSelector(this.scope, this.focus, this.isPolymorphicSearch, this.indexManager);
 		selector.getIndexes(); // do not want to cache these indexes since some may be null & need to be rebuilt
 		return true;
 	}

@@ -35,74 +35,76 @@ public class IndexSelector {
 	IJavaElement focus;
 	IndexManager indexManager;
 	IIndex[] indexes;
+	boolean isPolymorphicSearch;
 public IndexSelector(
 	IJavaSearchScope searchScope,
 	IJavaElement focus,
+	boolean isPolymorphicSearch,
 	IndexManager indexManager) {
 	this.searchScope = searchScope;
 	this.focus = focus;
 	this.indexManager = indexManager;
-}
-/**
- * Returns whether elements of the given project or jar can see the focus element
- * either because the focus is part of the project or the jar, or because it is 
- * accessible throught the project's classpath
- */
-private boolean canSeeFocus(IPath projectOrJarPath) {
-	// if it is a workspace scope, focus is visible from everywhere
-	// if (this.searchScope instanceof JavaWorkspaceScope) return true;
-	
-	return canSeeFocus(getProjectOrJar(this.focus), projectOrJarPath);
+	this.isPolymorphicSearch = isPolymorphicSearch;
 }
 /**
  * Returns whether elements of the given project or jar can see the given focus (an IJavaProject or
  * a JarPackageFragmentRot) either because the focus is part of the project or the jar, or because it is 
  * accessible throught the project's classpath
  */
-public static boolean canSeeFocus(IJavaElement focus, IPath projectOrJarPath) {
+public static boolean canSeeFocus(IJavaElement focus, boolean isPolymorphicSearch, IPath projectOrJarPath) {
 	try {
 		IJavaModel model = focus.getJavaModel();
 		IJavaProject project = getJavaProject(projectOrJarPath, model);
-		if (focus instanceof JarPackageFragmentRoot) {
-			// focus is part of a jar
-			JarPackageFragmentRoot jar = (JarPackageFragmentRoot)focus;
-			IPath jarPath = jar.getPath();
-			if (project == null) {
-				// consider that a jar can see another jar only they are both referenced by the same project
-				return haveSameParent(projectOrJarPath, jarPath, model); 
-			} else {
+		if (project == null) {
+			// projectOrJarPath is a jar
+			// it can see the focus only if it is on the classpath of a project that can see the focus
+			IJavaProject[] allProjects = model.getJavaProjects();
+			for (int i = 0, length = allProjects.length; i < length; i++) {
+				IJavaProject otherProject = allProjects[i];
+				IClasspathEntry[] entries = otherProject.getResolvedClasspath(true);
+				for (int j = 0, length2 = entries.length; j < length2; j++) {
+					IClasspathEntry entry = entries[j];
+					if ((entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) 
+						&& entry.getPath().equals(projectOrJarPath)) {
+							if (canSeeFocus(focus, isPolymorphicSearch, otherProject.getPath())) {
+								return true;
+							}
+					}
+				}
+			}
+			return false;
+		} else {
+			// projectOrJarPath is a project
+			JavaProject focusProject = focus instanceof JarPackageFragmentRoot ? (JavaProject)focus.getParent() : (JavaProject)focus;
+			if (isPolymorphicSearch) {
+				// look for refering project
+				IClasspathEntry[] entries = focusProject.getExpandedClasspath(true);
+				for (int i = 0, length = entries.length; i < length; i++) {
+					IClasspathEntry entry = entries[i];
+					if ((entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) 
+						&& entry.getPath().equals(projectOrJarPath)) {
+							return true;
+					}
+				}
+			}
+			if (focus instanceof JarPackageFragmentRoot) {
+				// focus is part of a jar
+				IPath focusPath = focus.getPath();
 				IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
 				for (int i = 0, length = entries.length; i < length; i++) {
 					IClasspathEntry entry = entries[i];
 					if ((entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) 
-						&& entry.getPath().equals(jarPath)) {
+						&& entry.getPath().equals(focusPath)) {
 							return true;
-					}
-				}
-				return false;
-			}
-		} else {
-			// focus is part of a project
-			IJavaProject focusProject = (IJavaProject)focus;
-			if (project == null) {
-				// consider that a jar can see a project only if it is on the classpath of a project that can see the focus project
-				IJavaProject[] allProjects = model.getJavaProjects();
-				for (int i = 0, length = allProjects.length; i < length; i++) {
-					IClasspathEntry[] entries = allProjects[i].getResolvedClasspath(true);
-					for (int j = 0, length2 = entries.length; j < length2; j++) {
-						IClasspathEntry entry = entries[j];
-						if ((entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) 
-								&& entry.getPath().equals(projectOrJarPath)
-								&& canSeeFocus(focus, allProjects[i].getPath())) {
-							return true;
-						}
 					}
 				}
 				return false;
 			} else {
-				if (focusProject.equals(project)) {
+				// focus is part of a project
+				if (focus.equals(project)) {
 					return true;
 				} else {
+					// look for dependent projects
 					IPath focusPath = focusProject.getProject().getFullPath();
 					IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
 					for (int i = 0, length = entries.length; i < length; i++) {
@@ -124,6 +126,7 @@ private void computeIndexes() {
 	ArrayList indexesInScope = new ArrayList();
 	IPath[] projectsAndJars = this.searchScope.enclosingProjectsAndJars();
 	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+	IJavaElement projectOrJarFocus = this.focus == null ? null : getProjectOrJar(this.focus);
 	for (int i = 0; i < projectsAndJars.length; i++) {
 		IPath location;
 		IPath path = projectsAndJars[i];
@@ -134,7 +137,7 @@ private void computeIndexes() {
 			&& !new java.io.File(path.toOSString()).exists()) { // and external jar file does not exist
 				continue;
 		}
-		if (this.focus == null || this.canSeeFocus(path)) {
+		if (projectOrJarFocus == null || canSeeFocus(projectOrJarFocus, this.isPolymorphicSearch, path)) {
 			IIndex index = this.indexManager.getIndex(path, true /*reuse index file*/, false /*do not create if none*/);
 			if (index != null && indexesInScope.indexOf(index) == -1) {
 				indexesInScope.add(index);
@@ -168,40 +171,4 @@ public static IJavaElement getProjectOrJar(IJavaElement element) {
 	}
 	return element;
 }
-/**
- * Returns whether the given jars are referenced in the classpath of the same project.
- */
-private static boolean haveSameParent(IPath jarPath1, IPath jarPath2, IJavaModel model) {
-	if (jarPath1.equals(jarPath2)) {
-		return true;
-	}
-	try {
-		IJavaProject[] projects = model.getJavaProjects();
-		for (int i = 0, length = projects.length; i < length; i++) {
-			IJavaProject project = projects[i];
-			IClasspathEntry[] entries = ((JavaProject)project).getExpandedClasspath(true);
-			boolean referencesJar1 = false;
-			boolean referencesJar2 = false;
-			for (int j = 0, length2 = entries.length; j < length2; j++) {
-				IClasspathEntry entry = entries[j];
-				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-					IPath entryPath = entry.getPath();
-					if (entryPath.equals(jarPath1)) {
-						referencesJar1 = true;
-					} else if (entryPath.equals(jarPath2)) {
-						referencesJar2 = true;
-					}
-				}
-			}
-			if (referencesJar1 && referencesJar2) {
-				return true;
-			}
-		
-		}
-	} catch (JavaModelException e) {
-		e.printStackTrace();
-	}	
-	return false;
-}
-
 }

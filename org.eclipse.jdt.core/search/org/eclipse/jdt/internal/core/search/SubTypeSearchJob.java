@@ -33,7 +33,14 @@ public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, int detai
 	super(pattern, scope, detailLevel, requestor, indexManager);
 }
 public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, IJavaElement focus, int detailLevel, IIndexSearchRequestor requestor, IndexManager indexManager) {
-	super(pattern, scope, focus, detailLevel, requestor, indexManager);
+	super(
+		pattern, 
+		scope, 
+		focus, 
+		false/*not a polymorphic search*/, 
+		detailLevel, 
+		requestor, 
+		indexManager);
 }
 public void closeAll(){
 

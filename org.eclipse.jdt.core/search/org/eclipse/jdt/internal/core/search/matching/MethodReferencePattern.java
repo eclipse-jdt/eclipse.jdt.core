@@ -120,6 +120,10 @@ public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor p
 	}
 }
 
+public boolean isPolymorphicSearch() {
+	return true;
+}
+
 /**
  * Returns whether the code gen will use an invoke virtual for 
  * this message send or not.

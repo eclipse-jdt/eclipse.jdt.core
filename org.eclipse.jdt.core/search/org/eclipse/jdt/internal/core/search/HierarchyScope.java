@@ -163,7 +163,7 @@ public class HierarchyScope extends AbstractSearchScope {
 				for (int j = 0; j < classpath.length; j++) {
 					if (rootPath.equals(classpath[j].getPath())) {
 						// add the project and its binary pkg fragment roots
-						IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+						IPackageFragmentRoot[] roots = project.getAllPackageFragmentRoots();
 						set.add(project.getPath());
 						for (int k = 0; k < roots.length; k++) {
 							IPackageFragmentRoot pkgFragmentRoot = roots[k];

@@ -79,7 +79,7 @@ public SearchEngine(IWorkingCopy[] workingCopies) {
 /*
  * Removes from the given list of working copies the ones that cannot see the given focus.
  */
-private IWorkingCopy[] filterWorkingCopies(IWorkingCopy[] workingCopies, IJavaElement focus) {
+private IWorkingCopy[] filterWorkingCopies(IWorkingCopy[] workingCopies, IJavaElement focus, boolean isPolymorphicSearch) {
 	if (focus == null || workingCopies == null) return workingCopies;
 	while (!(focus instanceof IJavaProject) && !(focus instanceof JarPackageFragmentRoot)) {
 		focus = focus.getParent();
@@ -90,7 +90,7 @@ private IWorkingCopy[] filterWorkingCopies(IWorkingCopy[] workingCopies, IJavaEl
 	for (int i=0; i<length; i++) {
 		IWorkingCopy workingCopy = workingCopies[i];
 		IPath projectOrJar = IndexSelector.getProjectOrJar((IJavaElement)workingCopy).getPath();
-		if (!IndexSelector.canSeeFocus(focus, projectOrJar)) {
+		if (!IndexSelector.canSeeFocus(focus, isPolymorphicSearch, projectOrJar)) {
 			if (result == null) {
 				result = new IWorkingCopy[length-1];
 				System.arraycopy(workingCopies, 0, result, 0, i);
@@ -459,6 +459,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 				pattern, 
 				scope, 
 				pattern.focus,
+				pattern.isPolymorphicSearch(),
 				detailLevel, 
 				pathCollector, 
 				indexManager),
@@ -470,7 +471,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		matchLocator.locateMatches(
 			pathCollector.getPaths(), 
 			workspace,
-			filterWorkingCopies(this.workingCopies, pattern.focus)
+			filterWorkingCopies(this.workingCopies, pattern.focus, pattern.isPolymorphicSearch())
 		);
 		
 

@@ -3,7 +3,7 @@
 	<name>org.eclipse.jdt.core</name>
 	<comment></comment>
 	<projects>
-		<project>TypeHierarchyNotification</project>
+		<project>JavaSearch</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

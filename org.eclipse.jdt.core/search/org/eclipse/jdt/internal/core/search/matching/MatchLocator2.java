@@ -339,19 +339,37 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 	 * Creates hierarchy resolver if needed. 
 	 * Returns whether focus is visible.
 	 */
-	protected boolean createHierarchyResolver() {
+	protected boolean createHierarchyResolver(PotentialMatch[] potentialMatches) {
 		// create hierarchy resolver if scope is a hierarchy scope
 		if (this.scope instanceof HierarchyScope) {
 			IType focusType = ((HierarchyScope)this.scope).focusType;
 			if (focusType != null) {
-				if (!focusType.isBinary()) {
-					// cache all types in the focus' compilation unit (even secondary types)
-					this.accept((ICompilationUnit)focusType.getCompilationUnit());
+				// cache focus type if not a potential match
+				char[][] compoundName = CharOperation.splitOn('.', focusType.getFullyQualifiedName().toCharArray());
+				boolean isPotentialMatch = false;
+				for (int i = 0, length = potentialMatches.length; i < length; i++) {
+					if (CharOperation.equals(potentialMatches[i].compoundName, compoundName)) {
+						isPotentialMatch = true;
+						break;
+					}
+				}
+				if (!isPotentialMatch) {
+					if (focusType.isBinary()) {
+						// cache binary type
+						try {
+							this.cacheBinaryType(focusType);
+						} catch (JavaModelException e) {
+							return false;
+						}
+					} else {
+						// cache all types in the focus' compilation unit (even secondary types)
+						this.accept((ICompilationUnit)focusType.getCompilationUnit());
+					}
 				}
 				
-				char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
+				// resolve focus type
 				this.hierarchyResolver = new HierarchyResolver(this.lookupEnvironment, null/*hierarchy is not going to be computed*/);
-				if (this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName)) == null) {
+				if (this.hierarchyResolver.setFocusType(compoundName) == null) {
 					// focus type is not visible from this project
 					return false;
 				}
@@ -636,12 +654,15 @@ public class MatchLocator2 extends MatchLocator implements ITypeRequestor {
 	
 		// create hierarchy resolver if needed
 		try {
-			if (!this.compilationAborted && !this.createHierarchyResolver()) {
+			if (!this.compilationAborted && !this.createHierarchyResolver(copy)) {
 				return;
 			}
 		} catch (AbortCompilation e) {
 			this.compilationAborted = true;
 		}
+		
+		// free memory
+		copy = null;
 	
 		// potential match resolution
 		try {
