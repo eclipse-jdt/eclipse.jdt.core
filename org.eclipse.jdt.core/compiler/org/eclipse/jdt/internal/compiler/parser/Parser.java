@@ -1333,12 +1333,9 @@ protected void consumeCastExpressionLL1() {
 			cast = new CastExpression(	exp=expressionStack[expressionPtr+1] ,
 								castType = getTypeReference(expressionStack[expressionPtr]));
 	expressionLengthPtr -- ;
-	updateSourcePosition(castType);
-	cast.sourceStart=castType.sourceStart;
+	updateSourcePosition(cast);
 	cast.sourceEnd=exp.sourceEnd;
-	castType.sourceStart++;
-	castType.sourceEnd--;
-	}
+}
 protected void consumeCatches() {
 	// Catches ::= Catches CatchClause
 	optimizedConcatNodeLists();

@@ -226,6 +226,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testInnacurateTypeReference1"));
 	suite.addTest(new JavaSearchTests("testInnacurateTypeReference2"));
 	suite.addTest(new JavaSearchTests("testInnacurateTypeReference3"));
+	suite.addTest(new JavaSearchTests("testTypeReferenceInCast"));
 	
 	// type occurences
 	suite.addTest(new JavaSearchTests("testTypeOccurence"));
@@ -2108,6 +2109,23 @@ public void testTypeReferenceInArray2() throws JavaModelException, CoreException
 		resultCollector);
 	assertEquals(
 		"src/s1/Y.java s1.Y.f [X]",
+		resultCollector.toString());
+}
+/**
+ * Type reference in cast test.
+ * (regression test for bug 23329 search: incorrect range for type references in brackets)
+ */
+public void testTypeReferenceInCast() throws JavaModelException, CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "s3", "A.java").getType("B");
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		type, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals(
+		"src/s3/A.java s3.A.foo() -> Object [B]",
 		resultCollector.toString());
 }
 /**
