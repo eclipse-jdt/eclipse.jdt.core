@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     IBM Corporation - added resolveMethodBinding() 
  ******************************************************************************/
 
 package org.eclipse.jdt.core.dom;
