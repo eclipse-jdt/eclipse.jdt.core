@@ -73,10 +73,8 @@ public void acceptResult(CompilationResult result) {
 	// remove the old problems. Plus delete additional class files that no longer exist.
 
 // should CompilationResult keep this as a String? Or convert WorkQueue to hold onto char[]?
-	char[] fileId = result.getFileName();
-//	CharOperation.replace(fileId, '\\', '/');
+	char[] fileId = result.getFileName();  // the full filesystem path 'd:/xyz/eclipse/Test/p1/p2/A.java'
 	String filename = new String(fileId);
-	// this is the full filesystem source path 'd:/xyz/eclipse/Test/p1/p2/A.java'
 	if (!workQueue.isCompiled(filename)) {
 		try {
 			workQueue.finished(filename);
@@ -139,9 +137,6 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 			if (inFirstPass || workQueue.isWaiting(filename)) {
 				CompilationUnit compUnit = new CompilationUnit(null, filename);
 				doNow.add(compUnit);
-// WHY is there no notification about which files are about to compiled?
-// Would the names go by too fast?
-//@PM YES, AND ALSO IF PACKAGES ARE PROCESSED IN SEQUENCE WE COULD NOTIFY FILE NAMES.
 			}
 		}
 		inFirstPass = false;
@@ -222,8 +217,6 @@ protected void storeProblemsFor(IResource resource, IProblem[] problems) {
 		try {
 			IProblem problem = problems[i];
 			IMarker marker = resource.createMarker(ProblemMarkerTag);
-// WHY are we holding onto the problem id?
-//@PM WE WILL NEED IT FOR COMPUTING CLUES LATER ON
 			marker.setAttributes(
 				new String[] {IMarker.MESSAGE, IMarker.SEVERITY, "ID", IMarker.CHAR_START, IMarker.CHAR_END, IMarker.LINE_NUMBER}, //$NON-NLS-1$
 				new Object[] { 
