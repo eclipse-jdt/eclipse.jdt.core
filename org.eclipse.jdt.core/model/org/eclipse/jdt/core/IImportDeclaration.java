@@ -32,15 +32,10 @@ String getElementName();
 /**
  * Returns the modifier flags for this import. The flags can be examined using class
  * <code>Flags</code>. Only the static flag is meaningful for import declarations.
- * <p>
- * Note: Static imports are an experimental language feature 
- * under discussion in JSR-201 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
- * </p>
+ * 
+ * @return the modifier flags for this import
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.
- * @return the modifier flags for this import
  * @see Flags
  * @since 3.0
  */
