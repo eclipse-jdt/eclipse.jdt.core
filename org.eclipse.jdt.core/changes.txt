@@ -9,10 +9,17 @@ STREAM: 2.0
   * Image builder rework (KJ)
 
   * JCK1.4 compliance defects (OT, JBL, PM)
-      1GHW0G1: ITPJCORE:WINNT - JCK 1.4  - illegal simple name imports
-      1GHW0DF: ITPJCORE:WINNT - JCK 1.4 - target is now 1.2
-      1GHW0AZ: ITPJCORE:WINNT - JCK 1.4 - unreachable empty statements
-      1FL4T1Q: LFCOM:WINNT - JCK 1.4 - VerifyError due to an illegal jump  
+	1GK2BLM: ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value after the boolean operator ? : when true 
+	1GK2B6D: ITPJCORE:WIN2000 - JCK 1.4 - definitely assigned value before the second operand of the boolean operator &&
+	1GK2AWS: ITPJCORE:WIN2000 - JCK 1.4 - illegal method declaration for interface
+	1GK2AOF: ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before finally block after return statement 
+	1GK2AHX: ITPJCORE:WIN2000 - JCK 1.4 - assigned variable before catch block after return statement 
+	1GK2A45: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned variable after assignment expression when true 
+	1GK29Q8: ITPJCORE:WIN2000 - JCK 1.4 - possibly assigned value of a final instance variable after a constant boolean expression when false
+    1GHW0G1: ITPJCORE:WINNT - JCK 1.4  - illegal simple name imports
+    1GHW0DF: ITPJCORE:WINNT - JCK 1.4 - target is now 1.2
+    1GHW0AZ: ITPJCORE:WINNT - JCK 1.4 - unreachable empty statements
+    1FL4T1Q: LFCOM:WINNT - JCK 1.4 - VerifyError due to an illegal jump  
 
   * CodeAssist improvements (DA, PM)
 
