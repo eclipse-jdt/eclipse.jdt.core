@@ -365,16 +365,16 @@ public final class Signature {
 	public static int ARRAY_TYPE_SIGNATURE = 4;
 
 	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
-	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1
-	private static final char[] CHAR = "char".toCharArray(); //$NON-NLS-1
-	private static final char[] DOUBLE = "double".toCharArray(); //$NON-NLS-1
-	private static final char[] FLOAT = "float".toCharArray(); //$NON-NLS-1
-	private static final char[] INT = "int".toCharArray(); //$NON-NLS-1
-	private static final char[] LONG = "long".toCharArray(); //$NON-NLS-1
-	private static final char[] SHORT = "short".toCharArray(); //$NON-NLS-1
-	private static final char[] VOID = "void".toCharArray(); //$NON-NLS-1
-	private static final char[] EXTENDS = "extends".toCharArray(); //$NON-NLS-1
-	private static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1
+	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
+	private static final char[] CHAR = "char".toCharArray(); //$NON-NLS-1$
+	private static final char[] DOUBLE = "double".toCharArray(); //$NON-NLS-1$
+	private static final char[] FLOAT = "float".toCharArray(); //$NON-NLS-1$
+	private static final char[] INT = "int".toCharArray(); //$NON-NLS-1$
+	private static final char[] LONG = "long".toCharArray(); //$NON-NLS-1$
+	private static final char[] SHORT = "short".toCharArray(); //$NON-NLS-1$
+	private static final char[] VOID = "void".toCharArray(); //$NON-NLS-1$
+	private static final char[] EXTENDS = "extends".toCharArray(); //$NON-NLS-1$
+	private static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
 	
 	private static final String EMPTY = new String(CharOperation.NO_CHAR);
 		
