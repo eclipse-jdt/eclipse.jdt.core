@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0454"));			
+		suite.addTest(new ASTConverterTest2("test0456"));			
 		return suite;
 	}
 	/**
@@ -1451,6 +1451,134 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		Expression expression2 = castExpression.getExpression();
 		checkSourceRange(expression2, "(3.14f * a)", source);	
 		assertTrue("not a parenthesized expression", expression2.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION); //$NON-NLS-1$
+	}
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=28682
+	 */
+	public void test0455() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0455", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
+		ForStatement forStatement = (ForStatement) node; // first for loop
+		String expectedSource = "for (int i = 0; i < 10; i++)  // for 1\n" +			"	        for (int j = 0; j < 10; j++)  // for 2\n" +			"	            if (true) { }";
+		checkSourceRange(forStatement, expectedSource, source);
+		Statement body = forStatement.getBody();
+		expectedSource = "for (int j = 0; j < 10; j++)  // for 2\n" +
+			"	            if (true) { }";
+		checkSourceRange(body, expectedSource, source);		
+		assertTrue("not a for statement", body.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
+		ForStatement forStatement2 = (ForStatement) body;
+		body = forStatement2.getBody();
+		expectedSource = "if (true) { }";
+		checkSourceRange(body, expectedSource, source);		
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=28682
+	 */
+	public void test0456() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0456", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
+		ForStatement forStatement = (ForStatement) node; // first for loop
+		String expectedSource = "for (int x= 10; x < 20; x++)\n" +			"			main();";
+		checkSourceRange(forStatement, expectedSource, source);
+		Statement body = forStatement.getBody();
+		expectedSource = "main();";
+		checkSourceRange(body, expectedSource, source);		
+	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=28682
+	 */
+	public void test0457() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0457", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
+		ForStatement forStatement = (ForStatement) node; // first for loop
+		String expectedSource = "for (int i= 10; i < 10; i++)/*[*/\n"+			"			for (int z= 10; z < 10; z++)\n" +			"				foo();";
+		checkSourceRange(forStatement, expectedSource, source);
+		Statement body = forStatement.getBody();
+		expectedSource = "for (int z= 10; z < 10; z++)\n" +
+			"				foo();";
+		checkSourceRange(body, expectedSource, source);		
+		assertTrue("not a for statement", body.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
+		ForStatement forStatement2 = (ForStatement) body;
+		body = forStatement2.getBody();
+		expectedSource = "foo();";
+		checkSourceRange(body, expectedSource, source);		
+	}	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=28682
+	 */
+	public void test0458() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0458", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
+		ForStatement forStatement = (ForStatement) node; // first for loop
+		String expectedSource = "for (int i= 10; i < 10; i++)/*[*/\n"+
+			"			for (int z= 10; z < 10; z++)\n" +
+			"				;";
+		checkSourceRange(forStatement, expectedSource, source);
+		Statement body = forStatement.getBody();
+		expectedSource = "for (int z= 10; z < 10; z++)\n" +
+			"				;";
+		checkSourceRange(body, expectedSource, source);		
+		assertTrue("not a for statement", body.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
+		ForStatement forStatement2 = (ForStatement) body;
+		body = forStatement2.getBody();
+		expectedSource = ";";
+		checkSourceRange(body, expectedSource, source);		
+		assertTrue("not an empty statement", body.getNodeType() == ASTNode.EMPTY_STATEMENT); //$NON-NLS-1$
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=28682
+	 */
+	public void test0459() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0459", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("not a for statement", node.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
+		ForStatement forStatement = (ForStatement) node; // first for loop
+		String expectedSource = "for (int i= 10; i < 10; i++)/*[*/\n"+
+			"			for (int z= 10; z < 10; z++)\n" +
+			"				{    }";
+		checkSourceRange(forStatement, expectedSource, source);
+		Statement body = forStatement.getBody();
+		expectedSource = "for (int z= 10; z < 10; z++)\n" +
+			"				{    }";
+		checkSourceRange(body, expectedSource, source);		
+		assertTrue("not a for statement", body.getNodeType() == ASTNode.FOR_STATEMENT); //$NON-NLS-1$
+		ForStatement forStatement2 = (ForStatement) body;
+		body = forStatement2.getBody();
+		expectedSource = "{    }";
+		checkSourceRange(body, expectedSource, source);		
+		assertTrue("not a block", body.getNodeType() == ASTNode.BLOCK); //$NON-NLS-1$
 	}	
 }
 
