@@ -152,6 +152,50 @@ public void testAddExclusionOnPackage() throws CoreException {
 		root.getNonJavaResources());
 }
 /*
+ * Ensure that adding an exclusion on a primary working copy
+ * makes it disappear from the children of its package and it is added to the non-java resources.
+ */
+public void testAddExclusionOnPrimaryWorkingCopy() throws CoreException {
+	this.createFolder("/P/src/p");
+	this.createFile(
+		"/P/src/p/A.java",
+		"package p;\n" +
+		"public class A {\n" +
+		"}"
+	);
+		
+	ICompilationUnit workingCopy = null;
+	try {
+		workingCopy = getCompilationUnit("/P/src/p/A.java");
+		workingCopy.becomeWorkingCopy(null, null);
+		
+		clearDeltas();
+		this.setClasspath(new String[] {"/P/src", "**/A.java"});
+		
+		assertDeltas(
+			"Unexpected deltas",
+			"P[*]: {CHILDREN | CLASSPATH CHANGED}\n" + 
+			"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+		
+		IPackageFragment pkg = getPackage("/P/src/p");
+		assertSortedElementsEqual(
+			"Unexpected children",
+			"",
+			pkg.getChildren());
+			
+		assertResourcesEqual(
+			"Unexpected non-java resources",
+			"A.java",
+			pkg.getNonJavaResources());
+	} finally {
+		if (workingCopy != null) {
+			workingCopy.discardWorkingCopy();
+		}
+	}
+}
+/*
  * Ensure that adding a file to a folder that is excluded reports the correct delta.
  * (regression test for bug 29621 Wrong Delta When Adding to Filtered Folder)
  */
