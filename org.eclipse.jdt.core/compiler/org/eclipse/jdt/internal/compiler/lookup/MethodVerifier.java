@@ -48,6 +48,7 @@ public MethodVerifier(LookupEnvironment environment) {
 	this.errorException = null;
 	this.environment = environment;
 }
+// TODO (kent) no longer used
 private boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 	TypeBinding[] oneArgs = one.parameters;
 	TypeBinding[] twoArgs = two.parameters;
