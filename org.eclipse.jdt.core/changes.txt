@@ -124,6 +124,7 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ================================================================================
+  1690		Local variables not always displayed when in scope (1GJ8PX4)
   4368      Wrong match in Java Search  
   3238      CodeAssist - no completion if cursor at string beginning (1GI3BYO)
   3271      Unable to delete attached internal source jar (1GDX215)
