@@ -2111,19 +2111,6 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Option to specify whether or not unnecessary semicolon should be removed
-	 *     - option id:         "org.eclipse.jdt.core.formatter.remove_unnecessary_semicolon"
-	 *     - possible values:   { TRUE, FALSE }
-	 *     - default:           FALSE
-	 * </pre>
-	 * @see #TRUE
-	 * @see #FALSE
-	 * @since 3.0
-	 */
-	public static final String FORMATTER_REMOVE_UNNECESSARY_SEMICOLON = JavaCore.PLUGIN_ID + ".formatter.remove_unnecessary_semicolon";	//$NON-NLS-1$
-
-	/**
-	 * <pre>
 	 * FORMATTER / Option to specify the length of the page. Beyond this length, the formatter will try to split the code
 	 *     - option id:         "org.eclipse.jdt.core.formatter.lineSplit"
 	 *     - possible values:   "&lt;n&gt;", where n is zero or a positive integer
@@ -2980,4 +2967,18 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_INDENT_BLOCK_STATEMENTS = JavaCore.PLUGIN_ID + ".formatter.indent_block_statements"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to specify whether or not unnecessary semicolon should be removed
+	 *     - option id:         "org.eclipse.jdt.core.formatter.remove_unnecessary_semicolon"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @deprecated Will be removed.
+	 * @since 3.0
+	 */
+//	public static final String FORMATTER_REMOVE_UNNECESSARY_SEMICOLON = JavaCore.PLUGIN_ID + ".formatter.remove_unnecessary_semicolon";	//$NON-NLS-1$
+	
 }
