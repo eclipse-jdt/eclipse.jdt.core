@@ -3447,20 +3447,20 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"    }\n" + 
 				"}\n",
 			},
-// TODO (philippe) this does not work. X.class is not kept
-//			"SUCCESS",
-//			null,
-//			false, // do not flush output
-//			null);		
-//		this.runConformTest(
-//			new String[] {
-//				"Y.java",
-//				"public class Y extends X {\n" + 
-//				"    public static void main(String [] args) {\n" + 
-//				"        System.out.println(\"SUCCESS\");\n" + 
-//				"    }\n" + 
-//				"}\n",
-//			},
-			"SUCCESS");		
+			"SUCCESS");
+
+		this.runConformTest(
+			new String[] {
+				"Y.java",
+				"public class Y extends X {\n" + 
+				"    public static void main(String [] args) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS",
+			null,
+			false, // do not flush output
+			null);		
 	}			
 }
