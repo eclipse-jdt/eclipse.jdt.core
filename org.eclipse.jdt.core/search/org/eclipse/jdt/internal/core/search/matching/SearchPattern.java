@@ -191,7 +191,13 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 			int lastDotPosition = CharOperation.lastIndexOf('.', parameterTypePart);
 			if (lastDotPosition >= 0){
 				parameterTypeQualifications[i] = CharOperation.subarray(parameterTypePart, 0, lastDotPosition);
-				if (parameterTypeQualifications[i].length == 1 && parameterTypeQualifications[i][0] == '*') parameterTypeQualifications[i] = null;
+				if (parameterTypeQualifications[i].length == 1 && parameterTypeQualifications[i][0] == '*') {
+					parameterTypeQualifications[i] = null;
+				} else {
+					// prefix with a '*' as the full qualification could be bigger 
+					// (i.e. because of an import)
+					parameterTypeQualifications[i] = CharOperation.concat(ONE_STAR, parameterTypeQualifications[i]);
+				}
 				parameterTypeSimpleNames[i] = CharOperation.subarray(parameterTypePart, lastDotPosition+1, parameterTypePart.length);
 			} else {
 				parameterTypeQualifications[i] = null;
@@ -366,7 +372,13 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 		int lastDotPosition = CharOperation.lastIndexOf('.', typePart);
 		if (lastDotPosition >= 0){
 			typeQualification = CharOperation.subarray(typePart, 0, lastDotPosition);
-			if (typeQualification.length == 1 && typeQualification[0] == '*') typeQualification = null;
+			if (typeQualification.length == 1 && typeQualification[0] == '*') {
+				typeQualification = null;
+			} else {
+				// prefix with a '*' as the full qualification could be bigger 
+				// (i.e. because of an import)
+				typeQualification = CharOperation.concat(ONE_STAR, typeQualification);
+			}
 			typeSimpleName = CharOperation.subarray(typePart, lastDotPosition+1, typePart.length);
 		} else {
 			typeQualification = null;
@@ -634,7 +646,13 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 			int lastDotPosition = CharOperation.lastIndexOf('.', parameterTypePart);
 			if (lastDotPosition >= 0){
 				parameterTypeQualifications[i] = CharOperation.subarray(parameterTypePart, 0, lastDotPosition);
-				if (parameterTypeQualifications[i].length == 1 && parameterTypeQualifications[i][0] == '*') parameterTypeQualifications[i] = null;
+				if (parameterTypeQualifications[i].length == 1 && parameterTypeQualifications[i][0] == '*') {
+					parameterTypeQualifications[i] = null;
+				} else {
+					// prefix with a '*' as the full qualification could be bigger 
+					// (i.e. because of an import)
+					parameterTypeQualifications[i] = CharOperation.concat(ONE_STAR, parameterTypeQualifications[i]);
+				}
 				parameterTypeSimpleNames[i] = CharOperation.subarray(parameterTypePart, lastDotPosition+1, parameterTypePart.length);
 			} else {
 				parameterTypeQualifications[i] = null;
@@ -649,7 +667,12 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 		int lastDotPosition = CharOperation.lastIndexOf('.', returnTypePart);
 		if (lastDotPosition >= 0){
 			returnTypeQualification = CharOperation.subarray(returnTypePart, 0, lastDotPosition);
-			if (returnTypeQualification.length == 1 && returnTypeQualification[0] == '*') returnTypeQualification = null;
+			if (returnTypeQualification.length == 1 && returnTypeQualification[0] == '*') {
+				returnTypeQualification = null;
+			} else {
+				// (i.e. because of an import)
+				returnTypeQualification = CharOperation.concat(ONE_STAR, returnTypeQualification);
+			}			
 			returnTypeSimpleName = CharOperation.subarray(returnTypePart, lastDotPosition+1, returnTypePart.length);
 		} else {
 			returnTypeQualification = null;
@@ -775,7 +798,12 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 				String typeSignature = Signature.toString(field.getTypeSignature()).replace('$', '.');
 				lastDot = typeSignature.lastIndexOf('.');
 				typeSimpleName = (lastDot != -1 ? typeSignature.substring(lastDot + 1) : typeSignature).toCharArray();
-				typeQualification = lastDot != -1 ? typeSignature.substring(0, lastDot).toCharArray() : null;
+				typeQualification = 
+					lastDot != -1 ? 
+						// prefix with a '*' as the full qualification could be bigger 
+						// (i.e. because of an import)
+						CharOperation.concat(ONE_STAR, typeSignature.substring(0, lastDot).toCharArray()) : 
+						null;
 			} catch (JavaModelException e) {
 				return null;
 			}
@@ -888,7 +916,12 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 				String returnType = Signature.toString(method.getReturnType()).replace('$', '.');
 				lastDot = returnType.lastIndexOf('.');
 				returnSimpleName = (lastDot != -1 ? returnType.substring(lastDot + 1) : returnType).toCharArray();
-				returnQualification = lastDot != -1 ? returnType.substring(0, lastDot).toCharArray() : null;
+				returnQualification = 
+					lastDot != -1 ? 
+						// prefix with a '*' as the full qualification could be bigger 
+						// (i.e. because of an import)
+						CharOperation.concat(ONE_STAR, returnType.substring(0, lastDot).toCharArray()) : 
+						null;
 			} catch (JavaModelException e) {
 				return null;
 			}
@@ -900,7 +933,12 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 				String signature = Signature.toString(parameterTypes[i]).replace('$', '.');
 				lastDot = signature.lastIndexOf('.');
 				parameterSimpleNames[i] = (lastDot != -1 ? signature.substring(lastDot + 1) : signature).toCharArray();
-				parameterQualifications[i] = lastDot != -1 ? signature.substring(0, lastDot).toCharArray() : null;
+				parameterQualifications[i] = 
+					lastDot != -1 ? 
+						// prefix with a '*' as the full qualification could be bigger 
+						// (i.e. because of an import)
+						CharOperation.concat(ONE_STAR, signature.substring(0, lastDot).toCharArray()) : 
+						null;
 			}
 			switch (limitTo) {
 				case IJavaSearchConstants.DECLARATIONS :
