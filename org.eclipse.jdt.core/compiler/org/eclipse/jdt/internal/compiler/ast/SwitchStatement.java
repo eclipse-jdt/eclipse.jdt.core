@@ -231,8 +231,12 @@ public class SwitchStatement extends Statement {
 						break checkType;
 					if (expressionType.isCompatibleWith(IntBinding))
 						break checkType;
-				} else if (expressionType.isEnum())
-						break checkType;
+				} else if (expressionType.isEnum()) {
+					break checkType;
+				} else if (upperScope.isBoxingCompatibleWith(expressionType, IntBinding)) {
+					expression.computeConversion(upperScope, IntBinding, expressionType);
+					break checkType;
+				}
 				upperScope.problemReporter().incorrectSwitchType(expression, expressionType);
 				// TODO (philippe) could keep analyzing switch statements in case of error
 				return;

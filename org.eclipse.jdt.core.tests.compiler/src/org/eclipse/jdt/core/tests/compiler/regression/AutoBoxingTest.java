@@ -653,4 +653,21 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"123456789"
 		);
 	}
+
+	public void test014() { // switch
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		Integer i = new Integer(1);\n" +
+				"		switch(i) {\n" +
+				"			case 1 : System.out.print('y');\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"y"
+		);
+	}
 }
