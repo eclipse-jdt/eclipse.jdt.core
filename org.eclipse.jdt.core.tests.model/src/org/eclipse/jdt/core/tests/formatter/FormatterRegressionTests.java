@@ -81,15 +81,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	protected String getPluginDirectoryPath() {
 		try {
 			URL platformURL = Platform.getPlugin("org.eclipse.jdt.core.tests.model").getDescriptor().getInstallURL();
-	
-			// TODO (jerome) last slash removal not needed after I20040120
-			String path = platformURL.getPath();
-			int length = path.length();
-			if (path.charAt(length-1) == '/') {
-				path = path.substring(0, length-1);
-				platformURL = new URL(platformURL.getProtocol(), platformURL.getHost(), path);
-			}
-			
 			return new File(Platform.asLocalURL(platformURL).getFile()).getAbsolutePath();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -108,15 +99,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		return getPluginDirectoryPath() +  java.io.File.separator + "workspace";
 	}
 	
-	private String runFormatter(DefaultCodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length) {
+	private String runFormatter(DefaultCodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator) {
 		//long time = System.currentTimeMillis();
-		TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, null);//$NON-NLS-1$
+		TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);//$NON-NLS-1$
 		if (edit == null) return null;
 		String result = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
 
 		if (length == source.length()) {
 			//time = System.currentTimeMillis();
-			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, null);//$NON-NLS-1$
+			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);//$NON-NLS-1$
 			if (edit == null) return null;
 //			assertEquals("Shoult not have edits", 0, edit.getChildren().length);
 			final String result2 = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
@@ -248,8 +239,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private void runTest(DefaultCodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel) {
 		runTest(codeFormatter, packageName, compilationUnitName, kind, indentationLevel, false, 0, -1);
 	}
-
 	private void runTest(DefaultCodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, int offset, int length) {
+		runTest(codeFormatter, packageName, compilationUnitName, kind, indentationLevel, checkNull, offset, length, null);
+	}
+	private void runTest(DefaultCodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator) {
 		try {
 			ICompilationUnit sourceUnit = getCompilationUnit("Formatter" , "", packageName, getIn(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
 			String s = sourceUnit.getSource();
@@ -258,9 +251,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			assertNotNull(outputUnit);
 			String result;
 			if (length == -1) {
-				result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, s.length());
+				result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, s.length(), lineSeparator);
 			} else {
-				result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, length);
+				result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, length, lineSeparator);
 			}
 			assertLineEquals(result, s, outputUnit.getSource(), checkNull);
 		} catch (JavaModelException e) {
@@ -272,9 +265,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private void runTest(String source, String expectedResult, DefaultCodeFormatter codeFormatter, int kind, int indentationLevel, boolean checkNull, int offset, int length) {
 		String result;
 		if (length == -1) {
-			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length());
+			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length(), null);
 		} else {
-			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length);
+			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length, null);
 		}
 		assertLineEquals(result, source, expectedResult, checkNull);
 	}
@@ -657,9 +650,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		options.put(
 				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER,
 				DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_DEFAULT));
-		assertEquals(false, DefaultCodeFormatterConstants.getForceWrapping(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER));
-		assertEquals(DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.getWrappingStyle(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER));
-		assertEquals(DefaultCodeFormatterConstants.INDENT_DEFAULT, DefaultCodeFormatterConstants.getIndentStyle(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER));
+		assertEquals(false, DefaultCodeFormatterConstants.getForceWrapping((String)options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER)));
+		assertEquals(DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.getWrappingStyle((String) options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER)));
+		assertEquals(DefaultCodeFormatterConstants.INDENT_DEFAULT, DefaultCodeFormatterConstants.getIndentStyle((String) options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER)));
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.use_tab = true;
 		preferences.align_type_members_on_columns = true;
@@ -672,9 +665,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		options.put(
 				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER,
 				DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_DEFAULT));
-		assertEquals(false, DefaultCodeFormatterConstants.getForceWrapping(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER));
-		assertEquals(DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.getWrappingStyle(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER));
-		assertEquals(DefaultCodeFormatterConstants.INDENT_DEFAULT, DefaultCodeFormatterConstants.getIndentStyle(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER));
+		assertEquals(false, DefaultCodeFormatterConstants.getForceWrapping((String)options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER)));
+		assertEquals(DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.getWrappingStyle((String) options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER)));
+		assertEquals(DefaultCodeFormatterConstants.INDENT_DEFAULT, DefaultCodeFormatterConstants.getIndentStyle((String) options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER)));
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.align_type_members_on_columns = true;
 		preferences.use_tab = false;
@@ -1228,9 +1221,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		options.put(
 				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION,
 				DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
-		assertEquals(false, DefaultCodeFormatterConstants.getForceWrapping(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION));
-		assertEquals(DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.getWrappingStyle(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION));
-		assertEquals(DefaultCodeFormatterConstants.INDENT_ON_COLUMN, DefaultCodeFormatterConstants.getIndentStyle(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION));
+		assertEquals(false, DefaultCodeFormatterConstants.getForceWrapping((String) options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION)));
+		assertEquals(DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.getWrappingStyle((String) options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION)));
+		assertEquals(DefaultCodeFormatterConstants.INDENT_ON_COLUMN, DefaultCodeFormatterConstants.getIndentStyle((String) options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION)));
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.use_tab = false;
 		preferences.page_width = 57;
@@ -4063,7 +4056,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		options.put(
 				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_METHOD_DECLARATION,
 				DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
-		assertEquals(DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.getWrappingStyle(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_METHOD_DECLARATION));
+		assertEquals(DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.getWrappingStyle((String) options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_METHOD_DECLARATION)));
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.use_tab = false;
 		preferences.blank_lines_before_method = 1;
@@ -4541,8 +4534,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		options.put(
 				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION,
 				DefaultCodeFormatterConstants.createAlignmentValue(true, DefaultCodeFormatterConstants.WRAP_NEXT_SHIFTED, DefaultCodeFormatterConstants.INDENT_DEFAULT));
-		assertEquals(DefaultCodeFormatterConstants.WRAP_NEXT_SHIFTED, DefaultCodeFormatterConstants.getWrappingStyle(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION));
-		assertTrue(DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE != DefaultCodeFormatterConstants.getWrappingStyle(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION));
+		assertEquals(DefaultCodeFormatterConstants.WRAP_NEXT_SHIFTED, DefaultCodeFormatterConstants.getWrappingStyle((String) options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION)));
+		assertTrue(DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE != DefaultCodeFormatterConstants.getWrappingStyle((String) options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION)));
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.blank_lines_before_first_class_body_declaration = 0;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -5172,9 +5165,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		options.put(
 				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION,
 				DefaultCodeFormatterConstants.createAlignmentValue(true, DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
-		assertEquals(true, DefaultCodeFormatterConstants.getForceWrapping(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION));
-		assertEquals(DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.getWrappingStyle(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION));
-		assertEquals(DefaultCodeFormatterConstants.INDENT_ON_COLUMN, DefaultCodeFormatterConstants.getIndentStyle(options, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION));
+		assertEquals(true, DefaultCodeFormatterConstants.getForceWrapping((String) options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION)));
+		assertEquals(DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.getWrappingStyle((String) options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION)));
+		assertEquals(DefaultCodeFormatterConstants.INDENT_ON_COLUMN, DefaultCodeFormatterConstants.getIndentStyle((String) options.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION)));
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_size = 3;
 		preferences.use_tab = false;
@@ -5331,12 +5324,12 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
 	 */
 	public void _test447() {
-		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		String resourcePath = getResource("test447", "settings.xml");
+		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "Toms");
+		assertNotNull("No preferences", options);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.use_tab = false;
-		preferences.tab_size = 2;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		runTest(codeFormatter, "test447", "A.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, 27, 33);//$NON-NLS-1$ //$NON-NLS-2$
+		runTest(codeFormatter, "test447", "Format.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, 25, 32, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/**
