@@ -28,7 +28,7 @@ public SimpleLookupTable() {
 }
 
 public SimpleLookupTable(int size) {
-	if (size < 7) size = 7;
+	if (size < 3) size = 3;
 	this.elementSize = 0;
 	this.threshold = size + 1; // size is the expected number of elements
 	int tableLength = 2 * size + 1;
