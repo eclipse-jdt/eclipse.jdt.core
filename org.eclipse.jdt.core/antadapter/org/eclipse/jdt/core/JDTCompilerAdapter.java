@@ -299,14 +299,21 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
             cmd.createArgument().setValue(source);
         }
         
-		if (JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_4)) {
+		if (JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_0)
+			|| JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_1)
+			|| JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_2)
+			|| JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_3)) {
+			cmd.createArgument().setValue("-1.3"); //$NON-NLS-1$
+		} else if (JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_4)) {
 			if (this.target != null && this.target.equals("1.1")) {			   //$NON-NLS-1$	
 				cmd.createArgument().setValue("-1.3"); //$NON-NLS-1$
 			} else {
 				cmd.createArgument().setValue("-1.4"); //$NON-NLS-1$
 			}
+		} else if (JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_5)) {
+			cmd.createArgument().setValue("-1.5"); //$NON-NLS-1$
 		} else {
-			cmd.createArgument().setValue("-1.3"); //$NON-NLS-1$
+            this.attributes.log(AntAdapterMessages.getString("ant.jdtadapter.info.unknownVrsion"), Project.MSG_WARN); //$NON-NLS-1$
 		}
 		
 		/*
