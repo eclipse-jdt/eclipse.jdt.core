@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
 <!-- build script to create a plugin from org.eclipse.jdt.core -->
 <project name="org.eclipse.jdt.core" default="export" basedir="..">
 	<target name="init">
