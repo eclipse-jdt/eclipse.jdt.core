@@ -224,6 +224,7 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	public abstract String getMainTaskName();
 
 	protected ISchedulingRule getSchedulingRule() {
+		// TODO (jerome) lock the cu only
 		// returns the folder corresponding to the package of the cu
 		return getCompilationUnit().getParent().getSchedulingRule();
 	}
