@@ -1460,7 +1460,8 @@ public class ClassFile
 						0,
 						contentsLength);
 				}
-				localContentsOffset += 2; // the startPC for this is always 0
+				localContents[localContentsOffset++] = 0; // the startPC for this is always 0
+				localContents[localContentsOffset++] = 0;
 				localContents[localContentsOffset++] = (byte) (code_length >> 8);
 				localContents[localContentsOffset++] = (byte) code_length;
 				nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
@@ -1471,7 +1472,8 @@ public class ClassFile
 						codeStream.methodDeclaration.binding.declaringClass.signature());
 				localContents[localContentsOffset++] = (byte) (descriptorIndex >> 8);
 				localContents[localContentsOffset++] = (byte) descriptorIndex;
-				localContentsOffset += 2; // the resolved position for this is always 0
+				localContents[localContentsOffset++] = 0;// the resolved position for this is always 0
+				localContents[localContentsOffset++] = 0;
 			}
 			for (int i = 0; i < codeStream.allLocalsCounter; i++) {
 				LocalVariableBinding localVariable = codeStream.locals[i];
@@ -1622,7 +1624,8 @@ public class ClassFile
 			localContents[localContentsOffset++] = (byte) handlerPC;
 			if (exceptionHandler.exceptionType == null) {
 				// any exception handler
-				localContentsOffset += 2;
+				localContents[localContentsOffset++] = 0;
+				localContents[localContentsOffset++] = 0;
 			} else {
 				int nameIndex;
 				if (exceptionHandler.exceptionType == TypeBinding.NullBinding) {
@@ -2229,7 +2232,8 @@ public class ClassFile
 		}
 		// there is no exception table, so we need to offset by 2 the current offset and move 
 		// on the attribute generation
-		localContentsOffset += 2;
+		contents[localContentsOffset++] = 0;
+		contents[localContentsOffset++] = 0;
 		// debug attributes
 		int codeAttributeAttributeOffset = localContentsOffset;
 		int attributeNumber = 0;
