@@ -40,7 +40,7 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 			if (entries == null) return;
 
 			SearchPattern decodedResult = pattern.getBlankPattern();
-			SimpleSet newIntersectedNames = new SimpleSet();
+			SimpleSet newIntersectedNames = new SimpleSet(3);
 			for (int i = 0, l = entries.length; i < l; i++) {
 				if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 

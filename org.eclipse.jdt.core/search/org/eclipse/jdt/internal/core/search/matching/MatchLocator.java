@@ -1246,7 +1246,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 				nodeSet.addMatch(node, this.patternLocator.resolveLevel(node));
 			}
 		}
-		nodeSet.possibleMatchingNodesSet = new SimpleSet();
+		nodeSet.possibleMatchingNodesSet = new SimpleSet(3);
 	}
 
 	if (nodeSet.matchingNodes.elementSize == 0) return; // no matching nodes were found

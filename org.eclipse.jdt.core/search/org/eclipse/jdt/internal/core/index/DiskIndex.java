@@ -81,8 +81,8 @@ DiskIndex(String fileName) {
 }
 SimpleSet addDocumentNames(String substring, MemoryIndex memoryIndex) throws IOException {
 	// must skip over documents which have been added/changed/deleted in the memory index
-	SimpleSet results = new SimpleSet();
 	String[] docNames = readAllDocumentNames();
+	SimpleSet results = new SimpleSet(docNames.length);
 	if (substring == null) {
 		if (memoryIndex == null) {
 			for (int i = 0, l = docNames.length; i < l; i++)
