@@ -127,12 +127,6 @@ public class WildcardBinding extends ReferenceBinding {
 		}
 	}
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#isClass()
-	 */
-	public boolean isClass() {
-	    return erasure().isClass();
-	}
-	/**
 	 * Returns true if a type is identical to another one,
 	 * or for generic types, true if compared to its raw type.
 	 */
@@ -159,12 +153,7 @@ public class WildcardBinding extends ReferenceBinding {
 	        	}
 	    }        
 	}
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isInterface()
-	 */
-	public boolean isInterface() {
-	    return erasure().isInterface();
-	}
+
 	/**
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#isSuperclassOf(org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding)
      */
@@ -262,16 +251,26 @@ public class WildcardBinding extends ReferenceBinding {
      */
     public ReferenceBinding superclass() {
 		if (this.superclass == null) {
-			TypeBinding superType = null;
+			TypeBinding superType = this.typeVariable().firstBound;
 			if (this.kind == Wildcard.EXTENDS) {
-				superType = this.bound;
-			} else if (this.typeVariable() != null) {
-				superType = this.typeVariable.firstBound;
+				if (this.bound.isClass()) {
+					superType = this.bound;
+				}
 			}
 			this.superclass = superType != null && superType.isClass()
 				? (ReferenceBinding) superType
 				: environment.getType(JAVA_LANG_OBJECT);
 		}
+//			TypeBinding superType = null;
+//			if (this.kind == Wildcard.EXTENDS) {
+//				superType = this.bound;
+//			} else if (this.typeVariable() != null) {
+//				superType = this.typeVariable.firstBound;
+//			}
+//			this.superclass = superType != null && superType.isClass()
+//				? (ReferenceBinding) superType
+//				: environment.getType(JAVA_LANG_OBJECT);
+//		}
 		return this.superclass;
     }
     /* (non-Javadoc)
