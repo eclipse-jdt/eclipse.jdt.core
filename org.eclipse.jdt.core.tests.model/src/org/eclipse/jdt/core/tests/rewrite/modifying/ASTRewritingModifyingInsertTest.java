@@ -33,11 +33,10 @@ public class ASTRewritingModifyingInsertTest extends ASTRewritingModifyingTest {
 	public static Test suite() {
 		if (true) {
 			return allTests();
-		} else {
-			TestSuite suite= new Suite("one test");
-			suite.addTest(new ASTRewritingModifyingInsertTest("test0009"));
-			return suite;
 		}
+		TestSuite suite= new Suite("one test");
+		suite.addTest(new ASTRewritingModifyingInsertTest("test0009"));
+		return suite;
 	}
 	/**
 	 * insert a new import declaration

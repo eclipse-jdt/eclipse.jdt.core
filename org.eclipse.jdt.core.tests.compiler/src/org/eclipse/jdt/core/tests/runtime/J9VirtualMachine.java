@@ -47,18 +47,17 @@ public J9VirtualMachine(Process vmProcess, int debugPort, String evalTargetPath,
 
 }
 private boolean isProxyRunning() {
-	if (this.proxyProcess == null)
+	if (this.proxyProcess == null) {
 		return false;
-	else {
-		boolean hasExited;
-		try {
-			this.proxyProcess.exitValue();
-			hasExited = true;
-		} catch (IllegalThreadStateException e) {
-			hasExited = false;
-		}
-		return !hasExited;
 	}
+	boolean hasExited;
+	try {
+		this.proxyProcess.exitValue();
+		hasExited = true;
+	} catch (IllegalThreadStateException e) {
+		hasExited = false;
+	}
+	return !hasExited;
 }
 /**
  * @see LocalVirtualMachine#shutDown

@@ -252,9 +252,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			this.superMatchResult = matchResult;
 			if (superMatch) {
 				return this.superMatchResult;
-			} else {
-				return this.result;
 			}
+			return this.result;
 		}
 
 		public boolean match(AnnotationTypeDeclaration node, Object other) {

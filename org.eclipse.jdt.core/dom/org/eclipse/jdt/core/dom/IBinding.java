@@ -172,8 +172,8 @@ public interface IBinding {
 	 * not be different; in these cases, the client should compare bindings
 	 * via their binding keys (<code>getKey</code>) if available.
 	 * 
-	 * @param obj {@inheritdoc}
-	 * @return {@inheritdoc}
+	 * @param obj {@inheritDoc}
+	 * @return {@inheritDoc}
 	 * @see #getKey()
 	 */
 	public boolean equals(Object obj);

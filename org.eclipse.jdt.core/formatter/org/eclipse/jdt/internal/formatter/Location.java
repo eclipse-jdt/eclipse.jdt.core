@@ -24,9 +24,10 @@ public class Location {
 	public boolean needSpace;
 	public boolean pendingSpace;
 	public int nlsTagCounter;
+	public int lastLocalDeclarationSourceStart;
 
 	// chunk management
-	public int lastNumberOfNewLines;	
+	public int lastNumberOfNewLines;
 	
 	// edits management
 	int editsIndex;

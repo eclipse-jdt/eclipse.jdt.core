@@ -112,11 +112,10 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	 * @see junit.framework.TestCase#getName()
 	 */
 	public String getName() {
-		if (this.docCommentSupport == null) {
-			return super.getName();
-		} else {
+		if (this.docCommentSupport != null) {
 			return getNamePrefix()+super.getName();
 		}
+		return super.getName();
 	}
 
 	/* (non-Javadoc)
@@ -142,9 +141,8 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			System.arraycopy(classLibs, 0, newClassPaths, 0, length);
 			newClassPaths[length] = getClass().getResource(zipFile).getPath();
 			return newClassPaths;
-		} else {
-			return super.getDefaultClassPaths();
 		}
+		return super.getDefaultClassPaths();
 	}
 	
 	static String[] referencedClasses = null;

@@ -172,30 +172,26 @@ class DefaultJavaElementComparator implements Comparator {
 				}
 				if (Flags.isStatic(methodDeclaration.getModifiers())) {
 					return this.categories[STATIC_METHOD_CATEGORY];
-				} else {
-					return this.categories[METHOD_CATEGORY];
 				}
+				return this.categories[METHOD_CATEGORY];
 			case ASTNode.FIELD_DECLARATION :
 				FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 				if (Flags.isStatic(fieldDeclaration.getModifiers())) {
 					return this.categories[STATIC_FIELD_CATEGORY];
-				} else {
-					return this.categories[FIELD_CATEGORY];
 				}
+				return this.categories[FIELD_CATEGORY];
 			case ASTNode.TYPE_DECLARATION :
 				TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 				if (Flags.isStatic(typeDeclaration.getModifiers())) {
 					return this.categories[STATIC_TYPE_CATEGORY];
-				} else {
-					return this.categories[TYPE_CATEGORY];
 				}
+				return this.categories[TYPE_CATEGORY];
 			case ASTNode.INITIALIZER :
 				Initializer initializer = (Initializer) node;
 				if (Flags.isStatic(initializer.getModifiers())) {
 					return this.categories[STATIC_INITIALIZER_CATEGORY];
-				} else {
-					return this.categories[INITIALIZER_CATEGORY];
 				}
+				return this.categories[INITIALIZER_CATEGORY];
 		}
 		return 0;
 	}
@@ -291,9 +287,8 @@ class DefaultJavaElementComparator implements Comparator {
 	private String buildSignature(Name name) {
 		if (name.isSimpleName()) {
 			return ((SimpleName) name).getIdentifier();
-		} else {
-			QualifiedName qualifiedName = (QualifiedName) name;
-			return buildSignature(qualifiedName.getQualifier()) + "." + buildSignature(qualifiedName.getName()); //$NON-NLS-1$
 		}
+		QualifiedName qualifiedName = (QualifiedName) name;
+		return buildSignature(qualifiedName.getQualifier()) + "." + buildSignature(qualifiedName.getName()); //$NON-NLS-1$
 	}
 }

@@ -2,5 +2,5 @@ package javadoc.testBug51478;
 /**
  * {@inheritDoc}
  */
-public class X {
+public class X2 {
 }

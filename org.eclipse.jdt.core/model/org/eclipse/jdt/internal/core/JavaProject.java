@@ -999,7 +999,7 @@ public class JavaProject
 	/*
 	 * non path canonicalizing version
 	 */
-	public IPackageFragment findPackageFragment0(IPath path) 
+	private IPackageFragment findPackageFragment0(IPath path) 
 		throws JavaModelException {
 
 		NameLookup lookup = newNameLookup((WorkingCopyOwner)null/*no need to look at working copies for pkgs*/);

@@ -136,6 +136,11 @@ public MethodBinding[] availableMethods() {
 }
 
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
+	
+	// default initialization for super-interfaces early, in case some aborting compilation error occurs,
+	// and still want to use binaries passed that point (e.g. type hierarchy resolver, see bug 63748).
+	this.superInterfaces = NoSuperInterfaces;
+	
 	// need enclosing type to access type variables
 	char[] enclosingTypeName = binaryType.getEnclosingTypeName();
 	if (enclosingTypeName != null) {
@@ -527,6 +532,24 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	}
 	return null;
 }
+/**
+ *  Rewrite of default getMemberType to avoid resolving eagerly all member types when one is requested
+ */
+public ReferenceBinding getMemberType(char[] typeName) {
+	for (int i = this.memberTypes.length; --i >= 0;) {
+	    ReferenceBinding memberType = this.memberTypes[i];
+	    if (memberType instanceof UnresolvedReferenceBinding) {
+			char[] name = memberType.sourceName; // source name is qualified with enclosing type name
+			int prefixLength = this.compoundName[this.compoundName.length - 1].length + 1; // enclosing$
+			if (name.length == (prefixLength + typeName.length)) // enclosing $ typeName
+				if (CharOperation.fragmentEquals(typeName, name, prefixLength, true)) // only check trailing portion
+					return this.memberTypes[i] = resolveType(memberType, this.environment, false); // no raw conversion for now
+	    } else if (CharOperation.equals(typeName, memberType.sourceName)) {
+	        return memberType;
+	    }
+	}
+	return null;
+}
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 
 public MethodBinding[] getMethods(char[] selector) {
@@ -555,6 +578,11 @@ public MethodBinding[] getMethods(char[] selector) {
 	}
 	return NoMethods;
 }
+public boolean hasMemberTypes() {
+    return this.memberTypes.length > 0;
+}
+// NOTE: member types of binary types are resolved when needed
+
 public TypeVariableBinding getTypeVariable(char[] variableName) {
 	TypeVariableBinding variable = super.getTypeVariable(variableName);
 	resolveTypesFor(variable);

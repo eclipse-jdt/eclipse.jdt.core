@@ -36,17 +36,12 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	public static Test suite() {
 		if (false) {
 			return allTests();
-		} else {
-			TestSuite suite= new Suite("one test");
-			suite.addTest(new ASTRewritingStatementsTest("testInsert2"));
-			return suite;
 		}
+		TestSuite suite= new Suite("one test");
+		suite.addTest(new ASTRewritingStatementsTest("testInsert2"));
+		return suite;
 	}
-	
 
-	
-
-	
 	public void testInsert1() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		/* foo(): append a return statement */

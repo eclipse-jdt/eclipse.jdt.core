@@ -259,8 +259,10 @@ protected int resolveLevel(NameReference nameRef) {
 		int lastDot = CharOperation.lastIndexOf('.', bindingName);
 		if (lastDot > -1)
 			bindingName = CharOperation.subarray(bindingName, lastDot+1, bindingName.length);
-		if (matchesName(this.pattern.name, bindingName))
-			return matchField(fieldBinding, false);
+		if (matchesName(this.pattern.name, bindingName)) {
+			int level = matchField(fieldBinding, false);
+			if (level != IMPOSSIBLE_MATCH) return level;
+		}
 	} 
 	int otherMax = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;
 	for (int i = 0; i < otherMax; i++) {

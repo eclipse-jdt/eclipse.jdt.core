@@ -32,9 +32,8 @@ private Class delegateLoadClass(String name) throws ClassNotFoundException {
 	ClassLoader myLoader = getClass().getClassLoader();
 	if (myLoader == null) {
 		return Class.forName(name);
-	} else {
-		return myLoader.loadClass(name);
 	}
+	return myLoader.loadClass(name);
 }
 /**
  * Loads the given class. If the class is known to this runner, returns it.
@@ -49,18 +48,15 @@ protected Class loadClass(String name, boolean resolve) throws ClassNotFoundExce
 			Class clazz = makeClass(name, resolve);
 			if (clazz == null) {
 				throw e;
-			} else {
-				return clazz;
 			}
-		}
-	} else {
-		Class clazz = makeClass(name, resolve);
-		if (clazz == null) {
-			return delegateLoadClass(name);
-		} else {
 			return clazz;
 		}
 	}
+	Class clazz = makeClass(name, resolve);
+	if (clazz == null) {
+		return delegateLoadClass(name);
+	}
+	return clazz;
 }
 /**
  * Loads the given class either from the stored class definition or from the system.
@@ -92,19 +88,17 @@ private Class makeClass(String name, boolean resolve) {
 	Object o = this.loadedClasses.get(name);
 	if (o == null) {
 		return null;
-	} else {
-		if (o instanceof Class) {
-			return (Class) o;
-		} else {
-			byte[] classDefinition = (byte[]) o;
-			Class clazz = defineClass(null, classDefinition, 0, classDefinition.length);
-			if (resolve) {
-				resolveClass(clazz);
-			}
-			this.loadedClasses.put(name, clazz);
-			return clazz;
-		}
 	}
+	if (o instanceof Class) {
+		return (Class) o;
+	}
+	byte[] classDefinition = (byte[]) o;
+	Class clazz = defineClass(null, classDefinition, 0, classDefinition.length);
+	if (resolve) {
+		resolveClass(clazz);
+	}
+	this.loadedClasses.put(name, clazz);
+	return clazz;
 }
 /**
  * Stores the given class definition for the given class.

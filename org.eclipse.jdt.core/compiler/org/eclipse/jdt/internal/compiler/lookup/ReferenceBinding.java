@@ -398,6 +398,9 @@ public MethodBinding[] getMethods(char[] selector) {
 public PackageBinding getPackage() {
 	return fPackage;
 }
+public boolean hasMemberTypes() {
+    return false;
+}
 public TypeVariableBinding getTypeVariable(char[] variableName) {
 	TypeVariableBinding[] typeVariables = typeVariables();
 	for (int i = typeVariables.length; --i >= 0;)

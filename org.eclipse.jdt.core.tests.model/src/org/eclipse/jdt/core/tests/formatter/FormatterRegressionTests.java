@@ -55,7 +55,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		}
 		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-		suite.addTest(new FormatterRegressionTests("test499"));  //$NON-NLS-1$
+		suite.addTest(new FormatterRegressionTests("test500"));  //$NON-NLS-1$
 		return suite;
 	}
 
@@ -260,9 +260,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		String result = new String(CharOperation.subarray(source, astNode.getStartPosition() + 1, astNode.getStartPosition() + astNode.getLength() - 1));
 		if (result.endsWith("\\n")) {
 			return result.substring(0, result.length() - 2) + LINE_SEPARATOR;
-		} else {
-			return result;
 		}
+		return result;
 	}
 
 	public void test001() {
@@ -6455,5 +6454,12 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test499", "A.java", CodeFormatter.K_COMPILATION_UNIT, true);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test500() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test500", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

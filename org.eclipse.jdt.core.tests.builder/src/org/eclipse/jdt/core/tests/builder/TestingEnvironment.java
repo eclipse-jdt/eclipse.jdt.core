@@ -65,9 +65,8 @@ public class TestingEnvironment {
 			IPath packagePath = addPackage(packageFragmentRootPath, packageName);
 
 			return addBinaryClass(packagePath, className, contents);
-		} else {
-			return addBinaryClass(packageFragmentRootPath, className, contents);
 		}
+		return addBinaryClass(packageFragmentRootPath, className, contents);
 			
 	}
 	
@@ -103,9 +102,8 @@ public class TestingEnvironment {
 			IPath packagePath = addPackage(packageFragmentRootPath, packageName);
 
 			return addClass(packagePath, className, contents);
-		} else {
-			return addClass(packageFragmentRootPath, className, contents);
 		}
+		return addClass(packageFragmentRootPath, className, contents);
 	}
 
 	/** Adds a package to the given package fragment root
@@ -467,10 +465,10 @@ public class TestingEnvironment {
 	 */
 	public IPath getPackagePath(IPath root, String packageName) {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
-		if (packageName.length() == 0)
+		if (packageName.length() == 0) {
 			return root;
-		else
-			return root.append(packageName.replace('.', IPath.SEPARATOR));
+		}
+		return root.append(packageName.replace('.', IPath.SEPARATOR));
 	}
 
 	/** Return the path of the package fragment root
@@ -479,10 +477,10 @@ public class TestingEnvironment {
 	 */
 	public IPath getPackageFragmentRootPath(IPath projectPath, String name) {
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
-		if (name.length() == 0)
+		if (name.length() == 0) {
 			return projectPath;
-		else
-			return projectPath.append(name);
+		}
+		return projectPath.append(name);
 	}
 	
 	/**

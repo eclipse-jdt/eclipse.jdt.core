@@ -60,7 +60,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	// Unicode tests
 	protected static boolean unicode = false;
 	// Unix tests
-	protected static boolean unix = false;
+	final boolean unix;
+	static final String UNIX_SUPPORT = System.getProperty("unix");
 	// Doc Comment support
 	static final String DOC_COMMENT_SUPPORT = System.getProperty("doc.support");
 	final String docCommentSupport;
@@ -91,15 +92,16 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * @param name
 	 * @param support
 	 */
-	public ASTConverterJavadocTest(String name, String support) {
+	public ASTConverterJavadocTest(String name, String support, String unix) {
 		super(name);
 		this.docCommentSupport = support;
+		this.unix = "true".equals(unix);
 	}
 	/**
 	 * @param name
 	 */
 	public ASTConverterJavadocTest(String name) {
-		this(name, JavaCore.ENABLED);
+		this(name, JavaCore.ENABLED, UNIX_SUPPORT);
 	}
 
 	public static Test suite() {
@@ -108,10 +110,10 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 //		if ("true".equals(param)) {
 //			unicode = true;
 //		}
-		String param = System.getProperty("unix");
-		if ("true".equals(param)) {
-			unix = true;
-		}
+//		String param = System.getProperty("unix");
+//		if ("true".equals(param)) {
+//			unix = true;
+//		}
 		if (true) {
 			if (DOC_COMMENT_SUPPORT == null) {
 				buildSuite(suite, JavaCore.ENABLED);
@@ -125,9 +127,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 		// Run test cases subset
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug51600"));
-		suite.addTest(new ASTConverterJavadocTest("testBug51617"));
-		suite.addTest(new ASTConverterJavadocTest("testBug54424"));
+		suite.addTest(new ASTConverterJavadocTest("testBug51660"));
 		return suite;
 	}
 
@@ -136,7 +136,15 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new ASTConverterJavadocTest(methods[i].getName(), support));
+				suite.addTest(new ASTConverterJavadocTest(methods[i].getName(), support, UNIX_SUPPORT));
+			}
+		}
+		// when unix support not specified, also run using unix format
+		if (UNIX_SUPPORT == null) {
+			for (int i = 0, max = methods.length; i < max; i++) {
+				if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
+					suite.addTest(new ASTConverterJavadocTest(methods[i].getName(), support, "true"));
+				}
 			}
 		}
 	}
@@ -145,7 +153,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * @see junit.framework.TestCase#getName()
 	 */
 	public String getName() {
-		return "Doc "+this.docCommentSupport+" - "+super.getName();
+		String strUnix = this.unix ? " - Unix" : "";
+		return "Doc "+this.docCommentSupport+strUnix+" - "+super.getName();
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
@@ -670,9 +679,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			char[] result = new char[u];
 			System.arraycopy(unicodeSource, 0, result, 0, u);
 			return result;
-		} else {
-			return unicodeSource;
 		}
+		return unicodeSource;
 	}
 
 	/*
@@ -697,9 +705,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			char[] result = new char[u];
 			System.arraycopy(unixSource, 0, result, 0, u);
 			return result;
-		} else {
-			return unixSource;
 		}
+		return unixSource;
 	}
 	
 	/*
@@ -1078,8 +1085,41 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					MethodRef methodRef = (MethodRef) fragment;
 					previousBinding = methodRef.resolveBinding();
 					if (previousBinding != null) {
-						assumeNotNull(this.prefix+""+methodRef.getName()+" binding was not found!", methodRef.getName().resolveBinding());
-						verifyNameBindings(methodRef.getQualifier());
+						IBinding methNameBinding = methodRef.getName().resolveBinding();
+						Name methodQualifier = methodRef.getQualifier();
+						// TODO (frederic) Replace the two following lines by commented block when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=62650 will be fixed
+						assumeNotNull(this.prefix+""+methodRef.getName()+" binding was not found!",methNameBinding);
+						verifyNameBindings(methodQualifier);
+						/*
+						if (methodQualifier == null) {
+							if (methNameBinding == null) {
+								char firstChar = methodRef.getName().getIdentifier().charAt(0);
+								if (Character.isUpperCase(firstChar)) {
+									// assume that selector starting with uppercase is for constructor => signal that binding is null
+									System.out.println(this.prefix+"Binding for selector of  '"+methodRef+"' is null.");
+								}
+							} else {
+								if (methNameBinding.getName().equals(methodRef.getName().getIdentifier())) { // binding is not null only for constructor
+									assumeNotNull(this.prefix+""+methodRef.getName()+" binding was not found!",methNameBinding);
+								} else {
+									assumeNull(this.prefix+""+methodRef.getName()+" binding should be null!", methNameBinding);
+								}
+							}
+						} else {
+							SimpleName methodSimpleType = null;
+							if (methodQualifier.isQualifiedName()) {
+								methodSimpleType = ((QualifiedName)methodQualifier).getName();
+							} else {
+								methodSimpleType = (SimpleName) methodQualifier;
+							}
+							if (methodSimpleType.getIdentifier().equals(methodRef.getName().getIdentifier())) { // binding is not null only for constructor
+								assumeNotNull(this.prefix+""+methodRef.getName()+" binding was not found!",methNameBinding);
+							} else {
+								assumeNull(this.prefix+""+methodRef.getName()+" binding should be null!", methNameBinding);
+							}
+							verifyNameBindings(methodRef.getQualifier());
+						}
+						*/
 						Iterator parameters = methodRef.parameters().listIterator();
 						while (parameters.hasNext()) {
 							MethodRefParameter param = (MethodRefParameter) parameters.next();
@@ -1208,7 +1248,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			if (length > 0) {
 				problems.append("  - "+this.prefix+length+" problems:"); //$NON-NLS-1$
 				for (int i = 0; i < problemsList.length; i++) {
-					problems.append("	+ "+problemsList[i]);
+					problems.append("	+ ");
+					problems.append(problemsList[i]);
+					problems.append("\n");
 				}
 			}
 		}
@@ -1846,6 +1888,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug53075() throws JavaModelException {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug53075", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		boolean pb = this.packageBinding;
 		this.packageBinding = false;
 		CompilationUnit compilUnit = verifyComments(unit);
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -1857,6 +1900,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			tagElement = (TagElement) docComment.tags().get(1);
 			assumeEquals("Wrong tag type!", TagElement.TAG_LINKPLAIN, tagElement.getTagName());
 		}
+		this.packageBinding = pb;
 	}
 
 	/**
@@ -1915,6 +1959,154 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					f++;	// skip offending failure
 					i--;	// stay on expected string
 				}
+			}
+		}
+		this.stopOnFailure = true;
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63044
+	 */
+	public void testBug63044() throws JavaModelException {
+		verifyComments("testBug63044");
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660
+	 */
+	public void testBug51660() throws JavaModelException {
+		this.stopOnFailure = false;
+		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug51660", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit compilUnit = verifyComments(unit);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			String[] tagNames = {
+				"@ejb",
+				"@ejb\"bean test non-java id character '\"",
+				"@ejb",
+				"@ejb",
+				"@ejb",
+				"@ejb",
+				"@ejb(bean",
+				"@ejb)bean",
+				"@ejb*bean",
+				"@ejb+bean",
+				"@ejb,bean",
+				"@ejb",
+				"@ejb.bean",
+				"@ejb/bean",
+				"@ejb",
+				"@ejb;bean",
+				"@ejb",
+				"@ejb=bean",
+				"@ejb",
+				"@ejb?bean",
+				"@ejb@bean",
+				"@ejb[bean",
+				"@ejb\\bean",
+				"@ejb]bean",
+				"@ejb^bean",
+				"@ejb`bean",
+				"@ejb{bean",
+				"@ejb|bean",
+				"@ejb",
+				"@ejb~bean",
+				"@ejb¦bean",
+				"@ejb§bean",
+				"@ejb¨bean",
+				"@ejb©bean",
+				"@ejb«bean",
+				"@ejb¬bean",
+				"@ejb­bean",
+				"@ejb®bean",
+				"@ejb¯bean",
+				"@ejb°bean",
+				"@ejb±bean",
+				"@ejb²bean",
+				"@ejb³bean",
+				"@ejb´bean",
+				"@ejb¶bean",
+				"@ejb·bean",
+				"@ejb¸bean",
+				"@ejb¹bean",
+				"@ejb»bean",
+				"@ejb¼bean",
+				"@ejb½bean",
+				"@ejb¾bean",
+				"@ejb¿bean",
+				"@ejb×bean",
+				"@ejb÷bean",
+				"@unknown"
+			};
+			String[] tagTexts = {
+				"!bean test non-java id character '!' (val=33) in tag name",
+				"' (val=34) in tag name",
+				"#bean test non-java id character '#' (val=35) in tag name",
+				"%bean test non-java id character '%' (val=37) in tag name",
+				"&bean test non-java id character '&' (val=38) in tag name",
+				"'bean test non-java id character ''' (val=39) in tag name",
+				" test non-java id character '(' (val=40) in tag name",
+				" test non-java id character ')' (val=41) in tag name",
+				" test non-java id character '*' (val=42) in tag name",
+				" test non-java id character '+' (val=43) in tag name",
+				" test non-java id character ',' (val=44) in tag name",
+				"-bean test non-java id character '-' (val=45) in tag name",
+				" test non-java id character '.' (val=46) in tag name",
+				" test non-java id character '/' (val=47) in tag name",
+				":bean test non-java id character ':' (val=58) in tag name",
+				" test non-java id character ';' (val=59) in tag name",
+				"<bean test non-java id character '<' (val=60) in tag name",
+				" test non-java id character '=' (val=61) in tag name",
+				">bean test non-java id character '>' (val=62) in tag name",
+				" test non-java id character '?' (val=63) in tag name",
+				" test non-java id character '@' (val=64) in tag name",
+				" test non-java id character '[' (val=91) in tag name",
+				" test non-java id character '\\' (val=92) in tag name",
+				" test non-java id character ']' (val=93) in tag name",
+				" test non-java id character '^' (val=94) in tag name",
+				" test non-java id character '`' (val=96) in tag name",
+				" test non-java id character '{' (val=123) in tag name",
+				" test non-java id character '|' (val=124) in tag name",
+				"}bean test non-java id character '}' (val=125) in tag name",
+				" test non-java id character '~' (val=126) in tag name",
+				" test non-java id character '¦' (val=166) in tag name",
+				" test non-java id character '§' (val=167) in tag name",
+				" test non-java id character '¨' (val=168) in tag name",
+				" test non-java id character '©' (val=169) in tag name",
+				" test non-java id character '«' (val=171) in tag name",
+				" test non-java id character '¬' (val=172) in tag name",
+				" test non-java id character '­' (val=173) in tag name",
+				" test non-java id character '®' (val=174) in tag name",
+				" test non-java id character '¯' (val=175) in tag name",
+				" test non-java id character '°' (val=176) in tag name",
+				" test non-java id character '±' (val=177) in tag name",
+				" test non-java id character '²' (val=178) in tag name",
+				" test non-java id character '³' (val=179) in tag name",
+				" test non-java id character '´' (val=180) in tag name",
+				" test non-java id character '¶' (val=182) in tag name",
+				" test non-java id character '·' (val=183) in tag name",
+				" test non-java id character '¸' (val=184) in tag name",
+				" test non-java id character '¹' (val=185) in tag name",
+				" test non-java id character '»' (val=187) in tag name",
+				" test non-java id character '¼' (val=188) in tag name",
+				" test non-java id character '½' (val=189) in tag name",
+				" test non-java id character '¾' (val=190) in tag name",
+				" test non-java id character '¿' (val=191) in tag name",
+				" test non-java id character '×' (val=215) in tag name",
+				" test non-java id character '÷' (val=247) in tag name",
+				" test java id"
+			};
+			Comment comment = (Comment) compilUnit.getCommentList().get(0);
+			assumeTrue(this.prefix+"Comment should be a javadoc comment ", comment.isDocComment());
+			Javadoc docComment = (Javadoc) comment;
+			int size = docComment.tags().size();
+			for (int i=0; i<size; i++) {
+				TagElement tagElement = (TagElement) docComment.tags().get(i);
+				assumeEquals("Wrong tag name for:"+tagElement, tagNames[i], tagElement.getTagName());
+				assumeEquals("Wrong fragments size for :"+tagElement, 1, tagElement.fragments().size());
+				ASTNode fragment = (ASTNode) tagElement.fragments().get(0);
+				assumeEquals("Wrong fragments type for :"+tagElement, ASTNode.TEXT_ELEMENT, fragment.getNodeType());
+				TextElement textElement = (TextElement) fragment;
+				assumeEquals("Wrong text for tag!", tagTexts[i], textElement.getText());
 			}
 		}
 		this.stopOnFailure = true;

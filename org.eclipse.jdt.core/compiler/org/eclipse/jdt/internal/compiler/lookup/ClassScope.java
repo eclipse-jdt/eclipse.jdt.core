@@ -537,7 +537,7 @@ public class ClassScope extends Scope {
 		do {
 			if ((currentType.tagBits & HasNoMemberTypes) != 0)
 				break; // already know it has no inherited member types, can stop looking up
-			if (currentType.memberTypes() != NoMemberTypes)
+			if (currentType.hasMemberTypes()) // avoid resolving member types eagerly
 				return; // has member types
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (itsInterfaces != NoSuperInterfaces) {
@@ -736,7 +736,12 @@ public class ClassScope extends Scope {
 				problemReporter().hierarchyHasProblems(sourceType);
 		}
 		connectMemberTypes();
-		checkForInheritedMemberTypes(sourceType);
+		try {
+			checkForInheritedMemberTypes(sourceType);
+		} catch (AbortCompilation e) {
+			e.updateContext(referenceContext, referenceCompilationUnit().compilationResult);
+			throw e;
+		}
 	}
 	
 	private void connectTypeHierarchyWithoutMembers() {

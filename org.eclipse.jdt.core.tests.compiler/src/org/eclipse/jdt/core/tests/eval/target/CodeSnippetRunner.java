@@ -182,63 +182,62 @@ public static void main(String[] args) {
 	if (length < 2 || !args[0].toLowerCase().equals("-evalport")) {
 		printUsage();
 		return;
-	} else {
-		int evalPort = Integer.parseInt(args[1]);
-		String classPath = null;
-		String bootPath = null;
-		int mainClass = -1;
-		for (int i = 2; i < length; i++) {
-			String arg = args[i];
-			if (arg.startsWith("-")) {
-				if (arg.toLowerCase().equals("-cscp")) {
-					if (++i < length) {
-						classPath = args[i];
-					} else {
-						printUsage();
-						return;
-					}
-				} else if (arg.toLowerCase().equals("-csbp")) {
-					if (++i < length) {
-						bootPath = args[i];
-					} else {
-						printUsage();
-						return;
-					}
+	}
+	int evalPort = Integer.parseInt(args[1]);
+	String classPath = null;
+	String bootPath = null;
+	int mainClass = -1;
+	for (int i = 2; i < length; i++) {
+		String arg = args[i];
+		if (arg.startsWith("-")) {
+			if (arg.toLowerCase().equals("-cscp")) {
+				if (++i < length) {
+					classPath = args[i];
+				} else {
+					printUsage();
+					return;
 				}
-			} else {
-				mainClass = i;
-				break;
+			} else if (arg.toLowerCase().equals("-csbp")) {
+				if (++i < length) {
+					bootPath = args[i];
+				} else {
+					printUsage();
+					return;
+				}
 			}
-		}
-		theRunner = new CodeSnippetRunner(evalPort, classPath, bootPath);
-		if (mainClass == -1) {
-			theRunner.start();
 		} else {
-			Thread server = new Thread() {
-				public void run() {
-					theRunner.start();
-				}
-			};
-			server.setDaemon(true);
-			server.start();
-			int mainArgsLength = length-mainClass-1;
-			String[] mainArgs = new String[mainArgsLength];
-			System.arraycopy(args, mainClass+1, mainArgs, 0, mainArgsLength);
-			try {
-				Class clazz = Class.forName(args[mainClass]);
-				Method mainMethod = clazz.getMethod("main", new Class[] {String[].class});
-				mainMethod.invoke(null, new String[][] {mainArgs});
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
+			mainClass = i;
+			break;
 		}
-	}		
+	}
+	theRunner = new CodeSnippetRunner(evalPort, classPath, bootPath);
+	if (mainClass == -1) {
+		theRunner.start();
+	} else {
+		Thread server = new Thread() {
+			public void run() {
+				theRunner.start();
+			}
+		};
+		server.setDaemon(true);
+		server.start();
+		int mainArgsLength = length-mainClass-1;
+		String[] mainArgs = new String[mainArgsLength];
+		System.arraycopy(args, mainClass+1, mainArgs, 0, mainArgsLength);
+		try {
+			Class clazz = Class.forName(args[mainClass]);
+			Method mainMethod = clazz.getMethod("main", new Class[] {String[].class});
+			mainMethod.invoke(null, new String[][] {mainArgs});
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+	}
 }
 private static void printUsage() {
 	System.out.println("Usage: java org.eclipse.jdt.tests.eval.target.CodeSnippetRunner -evalport <portNumber> [-options] [<mainClassName>] [<arguments>]");

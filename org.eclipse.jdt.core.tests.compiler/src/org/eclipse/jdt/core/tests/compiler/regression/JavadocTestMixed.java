@@ -35,7 +35,7 @@ public class JavadocTestMixed extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] { "Bug53290" };
+//		testsNames = new String[] { "Bug51606", "Bug51606a", "Bug51606b", "Bug51606c"  };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		testsNumbers = new int[] { 3, 7, 10, 21 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -2406,6 +2406,192 @@ public class JavadocTestMixed extends JavadocTest {
 				"	    ^^^^\n" + 
 				"Javadoc: Unexpected tag\n" + 
 				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 62812: Some malformed javadoc tags are not reported as malformed
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=62812">62812</a>
+	 */
+	public void testBug62812() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"/**\n" + 
+					" * @see Object#clone())\n" + 
+					" * @see Object#equals(Object)}\n" + 
+					" * @see Object#equals(Object))\n" + 
+					" * @see Object#equals(Object)xx\n" + 
+					" */\n" + 
+					"public class Test {\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in Test.java (at line 2)\n" + 
+				"	* @see Object#clone())\n" + 
+				"	                   ^^^\n" + 
+				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"----------\n" + 
+				"2. ERROR in Test.java (at line 3)\n" + 
+				"	* @see Object#equals(Object)}\n" + 
+				"	                    ^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"----------\n" + 
+				"3. ERROR in Test.java (at line 4)\n" + 
+				"	* @see Object#equals(Object))\n" + 
+				"	                    ^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"----------\n" + 
+				"4. ERROR in Test.java (at line 5)\n" + 
+				"	* @see Object#equals(Object)xx\n" + 
+				"	                    ^^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug62812a() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"/**\n" + 
+					" * {@link Object#clone())}\n" + 
+					" * {@link Object#equals(Object)}\n" + 
+					" * {@link Object#equals(Object))}\n" + 
+					" * {@link Object#equals(Object)xx}\n" + 
+					" */\n" + 
+					"public class Test {\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in Test.java (at line 2)\n" + 
+				"	* {@link Object#clone())}\n" + 
+				"	                     ^^^^\n" + 
+				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"----------\n" + 
+				"2. ERROR in Test.java (at line 4)\n" + 
+				"	* {@link Object#equals(Object))}\n" + 
+				"	                      ^^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"----------\n" + 
+				"3. ERROR in Test.java (at line 5)\n" + 
+				"	* {@link Object#equals(Object)xx}\n" + 
+				"	                      ^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed reference (missing separator after method reference closing brace)\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 51606: [Javadoc] Compiler should complain when tag name is not correct
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51606">51606</a>
+	 */
+	public void testBug51606() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"  /**\n" + 
+					"   * @param a aaa\n" + 
+					"   * @param b bbb\n" + 
+					"   */\n" + 
+					"  public void foo(int a, int b) {\n" + 
+					"  }\n" + 
+					"}\n",
+				"Y.java",
+				"public class Y extends X {\n" + 
+					"  /**\n" + 
+					"  *  @param a {@inheritDoc}\n" + 
+					"   */\n" + 
+					"  public void foo(int a, int b) {\n" + 
+					"  }\n" + 
+					"}\n"
+			},
+			"----------\n" + 
+				"1. ERROR in Y.java (at line 5)\n" + 
+				"	public void foo(int a, int b) {\n" + 
+				"	                           ^\n" + 
+				"Javadoc: Missing tag for parameter b\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug51606a() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"  /**\n" + 
+					"   * @param a aaa\n" + 
+					"   * @param b bbb\n" + 
+					"   */\n" + 
+					"  public void foo(int a, int b) {\n" + 
+					"  }\n" + 
+					"}\n",
+				"Y.java",
+				"public class Y extends X {\n" + 
+					"  /**\n" + 
+					"   * {@inheritDoc}\n" + 
+					"  *  @param a aaaaa\n" + 
+					"   */\n" + 
+					"  public void foo(int a, int b) {\n" + 
+					"  }\n" + 
+					"}\n"
+			},
+			""
+		);
+	}
+	public void testBug51606b() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"  /**\n" + 
+					"   * @param a aaa\n" + 
+					"   * @param b bbb\n" + 
+					"   */\n" + 
+					"  public void foo(int a, int b) {\n" + 
+					"  }\n" + 
+					"}\n",
+				"Y.java",
+				"public class Y extends X {\n" + 
+					"  /**\n" + 
+					"   * Text before inherit tag\n" + 
+					"   * {@inheritDoc}\n" + 
+					"  *  @param a aaaaa\n" + 
+					"   */\n" + 
+					"  public void foo(int a, int b) {\n" + 
+					"  }\n" + 
+					"}\n"
+			}
+		);
+	}
+	public void testBug51606c() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"  /**\n" + 
+					"   * @param a aaa\n" + 
+					"   * @param b bbb\n" + 
+					"   */\n" + 
+					"  public void foo(int a, int b) {\n" + 
+					"  }\n" + 
+					"}\n",
+				"Y.java",
+				"public class Y extends X {\n" + 
+					"  /**\n" + 
+					"   * Text before inherit tag {@inheritDoc}\n" + 
+					"  *  @param a aaaaa\n" + 
+					"   */\n" + 
+					"  public void foo(int a, int b) {\n" + 
+					"  }\n" + 
+					"}\n"
+			}
 		);
 	}
 }

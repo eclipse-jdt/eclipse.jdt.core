@@ -160,8 +160,8 @@ public abstract class AbstractCommentParser {
 				switch (nextCharacter) {
 					case '@' :
 						boolean valid = false;
-						// Start tag parsing only if we are on line beginning or at inline tag beginning
-						if (!this.lineStarted || previousChar == '{') {
+						// Start tag parsing only if we have a java identifier start character and if we are on line beginning or at inline tag beginning
+						if ((!this.lineStarted || previousChar == '{') && Character.isJavaIdentifierStart(peekChar())) {
 							this.lineStarted = true;
 							if (this.inlineTagStarted) {
 								this.inlineTagStarted = false;
@@ -189,12 +189,47 @@ public abstract class AbstractCommentParser {
 							this.scanner.resetTo(this.index, this.endComment);
 							this.currentTokenType = -1; // flush token cache at line begin
 							try {
-								int tk = readTokenAndConsume();
-								this.tagSourceStart = this.kind == COMPIL_PARSER ? this.scanner.getCurrentTokenStartPosition() : previousPosition;
+								int token = readTokenAndConsume();
+								this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
 								this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-								switch (tk) {
+								char[] tag = this.scanner.getCurrentIdentifierSource(); // first token is either an identifier or a keyword
+								if (this.kind == DOM_PARSER) {
+									// For DOM parser, try to get tag name other than java identifier
+									// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660)
+									int tk = token;
+									int le = this.lineEnd;
+									char pc = peekChar();
+									tagNameToken: while (tk != TerminalTokens.TokenNameEOF) {
+										this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+										token = tk;
+										// !, ", #, %, &, ', -, :, <, >
+										if (Character.isWhitespace(pc)) break;
+										switch (pc) {
+											case '}':
+											case '!':
+											case '#':
+											case '%':
+											case '&':
+											case '\'':
+											case ':':
+											case '-':
+											case '<' :
+											case '>':
+												break tagNameToken;
+										}
+										tk = readTokenAndConsume();
+										pc = peekChar();
+									}
+									int length = this.tagSourceEnd-this.tagSourceStart+1;
+									tag = new char[length];
+									System.arraycopy(this.source, this.tagSourceStart, tag, 0, length);
+									this.index = this.tagSourceEnd+1;
+									this.scanner.currentPosition = this.tagSourceEnd+1;
+									this.tagSourceStart = previousPosition;
+									this.lineEnd = le;
+								}
+								switch (token) {
 									case TerminalTokens.TokenNameIdentifier :
-										char[] tag = this.scanner.getCurrentIdentifierSource();
 										if (CharOperation.equals(tag, TAG_DEPRECATED)) {
 											this.deprecated = true;
 											if (this.kind == DOM_PARSER) {
@@ -203,7 +238,12 @@ public abstract class AbstractCommentParser {
 												valid = true;
 											}
 										} else if (CharOperation.equals(tag, TAG_INHERITDOC)) {
-											this.inherited = true;
+											// inhibits inherited flag when tags have been already stored
+											// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51606
+											// Note that for DOM_PARSER, nodes stack may be not empty even no '@' tag
+											// was encountered in comment. But it cannot be the case for COMPILER_PARSER
+											// and so is enough as it is only this parser which signals the missing tag warnings...
+											this.inherited = this.astPtr==-1;
 											if (this.kind == DOM_PARSER) {
 												valid = parseTag();
 											} else {
@@ -251,7 +291,7 @@ public abstract class AbstractCommentParser {
 										break;
 									default:
 										if (this.kind == DOM_PARSER) {
-											switch (tk) {
+											switch (token) {
 												case TerminalTokens.TokenNameabstract:
 												case TerminalTokens.TokenNameassert:
 												case TerminalTokens.TokenNameboolean:
@@ -422,7 +462,7 @@ public abstract class AbstractCommentParser {
 			return this.scanner.getCurrentTokenEndPosition();
 		}
 	}
-	
+
 	/*
 	 * Parse argument in @see tag method reference
 	 */
@@ -433,6 +473,7 @@ public abstract class AbstractCommentParser {
 		int iToken = 0;
 		char[] argName = null;
 		List arguments = new ArrayList(10);
+		int start = this.scanner.getCurrentTokenStartPosition();
 		
 		// Parse arguments declaration if method reference
 		nextArg : while (this.index < this.scanner.eofPosition) {
@@ -453,6 +494,11 @@ public abstract class AbstractCommentParser {
 			}
 			if (typeRef == null) {
 				if (firstArg && this.currentTokenType == TerminalTokens.TokenNameRPAREN) {
+					char pc = peekChar();
+					if (!Character.isWhitespace(pc) && (!this.inlineTagStarted || pc != '}')) {
+						if (this.sourceParser != null) this.sourceParser.problemReporter().javadocMalformedSeeReference(start, this.lineEnd);
+						return null;
+					}
 					this.lineStarted = true;
 					return createMethodReference(receiver, null);
 				}
@@ -516,6 +562,11 @@ public abstract class AbstractCommentParser {
 				consumeToken();
 				iToken++;
 			} else if (token == TerminalTokens.TokenNameRPAREN) {
+				char pc = peekChar();
+				if (!Character.isWhitespace(pc) && (!this.inlineTagStarted || pc != '}')) {
+					if (this.sourceParser != null) this.sourceParser.problemReporter().javadocMalformedSeeReference(start, this.lineEnd);
+					return null;
+				}
 				// Create new argument
 				Object argument = createArgumentReference(name, dim, typeRef, dimPositions, argNamePos);
 				arguments.add(argument);
@@ -877,36 +928,29 @@ public abstract class AbstractCommentParser {
 	 */
 	protected void pushIdentifier(boolean newLength) {
 
-		try {
-			this.identifierStack[++this.identifierPtr] = this.scanner.getCurrentIdentifierSource();
-			this.identifierPositionStack[this.identifierPtr] = (((long) this.scanner.startPosition) << 32)
-					+ (this.scanner.currentPosition - 1);
-		} catch (IndexOutOfBoundsException e) {
-			//---stack reallaocation (identifierPtr is correct)---
-			int oldStackLength = this.identifierStack.length;
-			char[][] oldStack = this.identifierStack;
-			this.identifierStack = new char[oldStackLength + 10][];
-			System.arraycopy(oldStack, 0, this.identifierStack, 0, oldStackLength);
-			this.identifierStack[this.identifierPtr] = this.scanner.getCurrentTokenSource();
-			// identifier position stack
-			long[] oldPos = this.identifierPositionStack;
-			this.identifierPositionStack = new long[oldStackLength + 10];
-			System.arraycopy(oldPos, 0, this.identifierPositionStack, 0, oldStackLength);
-			this.identifierPositionStack[this.identifierPtr] = (((long) this.scanner.startPosition) << 32)
-					+ (this.scanner.currentPosition - 1);
+		int stackLength = this.identifierStack.length;
+		if (++this.identifierPtr >= stackLength) {
+			System.arraycopy(
+				this.identifierStack, 0,
+				this.identifierStack = new char[stackLength + 10][], 0,
+				stackLength);
+			System.arraycopy(
+				this.identifierPositionStack, 0,
+				this.identifierPositionStack = new long[stackLength + 10], 0,
+				stackLength);
 		}
+		this.identifierStack[this.identifierPtr] = this.scanner.getCurrentIdentifierSource();
+		this.identifierPositionStack[this.identifierPtr] = (((long) this.scanner.startPosition) << 32) + (this.scanner.currentPosition - 1);
 
 		if (newLength) {
-			try {
-				this.identifierLengthStack[++this.identifierLengthPtr] = 1;
-			} catch (IndexOutOfBoundsException e) {
-				/* ---stack reallocation (identifierLengthPtr is correct)--- */
-				int oldStackLength = this.identifierLengthStack.length;
-				int oldStack[] = this.identifierLengthStack;
-				this.identifierLengthStack = new int[oldStackLength + 10];
-				System.arraycopy(oldStack, 0, this.identifierLengthStack, 0, oldStackLength);
-				this.identifierLengthStack[this.identifierLengthPtr] = 1;
+			stackLength = this.identifierLengthStack.length;
+			if (++this.identifierLengthPtr >= stackLength) {
+				System.arraycopy(
+					this.identifierLengthStack, 0,
+					this.identifierLengthStack = new int[stackLength + 10], 0,
+					stackLength);
 			}
+			this.identifierLengthStack[this.identifierLengthPtr] = 1;
 		} else {
 			this.identifierLengthStack[this.identifierLengthPtr]++;
 		}
@@ -923,27 +967,25 @@ public abstract class AbstractCommentParser {
 			return;
 		}
 
-		try {
-			this.astStack[++this.astPtr] = node;
-		} catch (IndexOutOfBoundsException e) {
-			int oldStackLength = this.astStack.length;
-			Object[] oldStack = this.astStack;
-			this.astStack = new Object[oldStackLength + AstStackIncrement];
-			System.arraycopy(oldStack, 0, this.astStack, 0, oldStackLength);
-			this.astPtr = oldStackLength;
-			this.astStack[this.astPtr] = node;
+		int stackLength = this.astStack.length;
+		if (++this.astPtr >= stackLength) {
+			System.arraycopy(
+				this.astStack, 0,
+				this.astStack = new Object[stackLength + AstStackIncrement], 0,
+				stackLength);
+			this.astPtr = stackLength;
 		}
+		this.astStack[this.astPtr] = node;
 
 		if (newLength) {
-			try {
-				this.astLengthStack[++this.astLengthPtr] = 1;
-			} catch (IndexOutOfBoundsException e) {
-				int oldStackLength = this.astLengthStack.length;
-				int[] oldPos = this.astLengthStack;
-				this.astLengthStack = new int[oldStackLength + AstStackIncrement];
-				System.arraycopy(oldPos, 0, this.astLengthStack, 0, oldStackLength);
-				this.astLengthStack[this.astLengthPtr] = 1;
+			stackLength = this.astLengthStack.length;
+			if (++this.astLengthPtr >= stackLength) {
+				System.arraycopy(
+					this.astLengthStack, 0,
+					this.astLengthStack = new int[stackLength + AstStackIncrement], 0,
+					stackLength);
 			}
+			this.astLengthStack[this.astLengthPtr] = 1;
 		} else {
 			this.astLengthStack[this.astLengthPtr]++;
 		}
@@ -965,10 +1007,34 @@ public abstract class AbstractCommentParser {
 	}
 
 	/*
+	 * Return current character without move index position.
+	 */
+	private char peekChar() {
+		int idx = this.index;
+		char c = this.source[idx++];
+		if (c == '\\' && this.source[idx] == 'u') {
+			int c1, c2, c3, c4;
+			idx++;
+			while (this.source[idx] == 'u')
+				idx++;
+			if (!(((c1 = Character.getNumericValue(this.source[idx++])) > 15 || c1 < 0)
+					|| ((c2 = Character.getNumericValue(this.source[idx++])) > 15 || c2 < 0)
+					|| ((c3 = Character.getNumericValue(this.source[idx++])) > 15 || c3 < 0) || ((c4 = Character.getNumericValue(this.source[idx++])) > 15 || c4 < 0))) {
+				c = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+			}
+		}
+		return c;
+	}
+
+	/*
 	 * Push a throws type ref in ast node stack.
 	 */
 	protected abstract boolean pushThrowName(Object typeRef, boolean real);
 
+	/*
+	 * Read current character and move index position.
+	 * Warning: scanner position is unchanged using this method!
+	 */
 	protected char readChar() {
 	
 		char c = this.source[this.index++];

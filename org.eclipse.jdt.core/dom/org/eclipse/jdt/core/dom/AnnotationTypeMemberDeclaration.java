@@ -21,7 +21,7 @@ import java.util.List;
  * </pre>
  * <p>
  * Note that annotation type member declarations are only meaningful as
- * elements of {@link AnnotationTypeDeclaration#members AnnotationTypeDeclaration.members}.
+ * elements of {@link AnnotationTypeDeclaration#bodyDeclarations()}.
  * </p>
  * <p>
  * When a Javadoc comment is present, the source

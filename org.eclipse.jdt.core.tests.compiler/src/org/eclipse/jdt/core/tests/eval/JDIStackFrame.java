@@ -185,9 +185,8 @@ protected StackFrame getStackFrame() {
 	try {
 		if (this.breakpointLine == Integer.MAX_VALUE) {
 			return this.jdiThread.frame(1);
-		} else {
-			return this.jdiThread.frame(0);
 		}
+		return this.jdiThread.frame(0);
 	} catch (IncompatibleThreadStateException e) {
 		e.printStackTrace();
 		return null;

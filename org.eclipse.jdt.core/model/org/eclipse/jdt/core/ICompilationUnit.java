@@ -518,7 +518,7 @@ boolean isWorkingCopy();
  * </p>
  *
  * @param astLevel either {@link #NO_AST} if no AST is wanted,
- * or the {@linkplain AST#AST(int) AST API level} of the AST if one is wanted
+ * or the {@linkplain AST#newAST(int) AST API level} of the AST if one is wanted
  * @param forceProblemDetection boolean indicating whether problem should be 
  *   recomputed even if the source hasn't changed
  * @param owner the owner of working copies that take precedence over the 

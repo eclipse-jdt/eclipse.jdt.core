@@ -159,7 +159,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void assertSearchResults(String message, String expected, Object collector) {
 		String actual = collector.toString();
 		if (!expected.equals(actual)) {
-			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual, 2));
+			System.out.print(displayString(actual, 2));
 			System.out.println(",");
 		}
 		assertEquals(
@@ -196,7 +196,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		StringBuffer buffer = new StringBuffer();
 		if (elements != null) {
 			for (int i = 0, length = elements.length; i < length; i++){
-				buffer.append(((JavaElement)elements[i]).toStringWithAncestors());
+				JavaElement element = (JavaElement)elements[i];
+				if (element == null) {
+					buffer.append("<null>");
+				} else {
+					buffer.append(element.toStringWithAncestors());
+				}
 				if (i != length-1) buffer.append("\n");
 			}
 		} else {
@@ -729,9 +734,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IPackageFragment pkg= getPackageFragment(projectName, rootPath, packageName);
 		if (pkg == null) {
 			return null;
-		} else {
-			return pkg.getClassFile(className);
 		}
+		return pkg.getClassFile(className);
 	}
 	protected ICompilationUnit getCompilationUnit(String path) {
 		return (ICompilationUnit)JavaCore.create(getFile(path));
@@ -744,9 +748,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IPackageFragment pkg= getPackageFragment(projectName, rootPath, packageName);
 		if (pkg == null) {
 			return null;
-		} else {
-			return pkg.getCompilationUnit(cuName);
 		}
+		return pkg.getCompilationUnit(cuName);
 	}
 	/**
 	 * Returns the specified compilation unit in the given project, root, and
@@ -756,9 +759,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IPackageFragment pkg= getPackageFragment(projectName, rootPath, packageName);
 		if (pkg == null) {
 			return null;
-		} else {
-			return pkg.getCompilationUnits();
 		}
+		return pkg.getCompilationUnits();
 	}
 	protected ICompilationUnit getCompilationUnitFor(IJavaElement element) {
 	
@@ -797,9 +799,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			if (delta != null) {
 				if (returnFirst) {
 					return delta;
-				} else {
-					result = delta;
 				}
+				result = delta;
 			}
 		}
 		return result;
@@ -851,9 +852,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		if (elements.length == 0) return null;
 		if (elements[0] instanceof ILocalVariable) {
 			return (ILocalVariable)elements[0];
-		} else {
-			return null;
 		}
+		return null;
 	}
 	/**
 	 * Returns the specified package fragment in the given project and root, or
@@ -865,9 +865,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IPackageFragmentRoot root= getPackageFragmentRoot(projectName, rootPath);
 		if (root == null) {
 			return null;
-		} else {
-			return root.getPackageFragment(packageName);
 		}
+		return root.getPackageFragment(packageName);
 	}
 	/**
 	 * Returns the specified package fragment root in the given project, or
@@ -950,12 +949,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			CharOperation.replace(
 				displayString.toCharArray(), 
 				getExternalJCLPath().toString().toCharArray(), 
-				("\"+  getExternalJCLPath() +\"").toCharArray());
+				("\"+ getExternalJCLPath() + \"").toCharArray());
 		toDisplay = 
 			CharOperation.replace(
 				toDisplay, 
 				getExternalJCLSourcePath().toString().toCharArray(), 
-				("\"+  getExternalJCLSourcePath() +\"").toCharArray());
+				("\"+ getExternalJCLSourcePath() + \"").toCharArray());
 		return new String(toDisplay);
 	}
 	public byte[] read(java.io.File file) throws java.io.IOException {
@@ -984,19 +983,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	
 		if (delta == null) {
 			return null;
-		} else {
-			if (delta.getElement().equals(element)) {
-				return delta;
-			} else {
-				for (int i= 0; i < delta.getAffectedChildren().length; i++) {
-					IJavaElementDelta child= searchForDelta(element, delta.getAffectedChildren()[i]);
-					if (child != null) {
-						return child;
-					}
-				}
-				return null;
+		}
+		if (delta.getElement().equals(element)) {
+			return delta;
+		}
+		for (int i= 0; i < delta.getAffectedChildren().length; i++) {
+			IJavaElementDelta child= searchForDelta(element, delta.getAffectedChildren()[i]);
+			if (child != null) {
+				return child;
 			}
 		}
+		return null;
 	}
 	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		new SearchEngine().search(
@@ -1052,15 +1049,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			if (!jclDir.mkdir()) {
 				//mkdir failed
 				throw new IOException("Could not create the directory " + jclDir);
-			} else {
-				//copy the two files to the JCL directory
-				java.io.File resourceJCLMin =
-					new java.io.File(resourceJCLDir + separator + "jclMin.jar");
-				copy(resourceJCLMin, jclMin);
-				java.io.File resourceJCLMinsrc =
-					new java.io.File(resourceJCLDir + separator + "jclMinsrc.zip");
-				copy(resourceJCLMinsrc, jclMinsrc);
 			}
+			//copy the two files to the JCL directory
+			java.io.File resourceJCLMin =
+				new java.io.File(resourceJCLDir + separator + "jclMin.jar");
+			copy(resourceJCLMin, jclMin);
+			java.io.File resourceJCLMinsrc =
+				new java.io.File(resourceJCLDir + separator + "jclMinsrc.zip");
+			copy(resourceJCLMinsrc, jclMinsrc);
 		} else {
 			//check that the two files, jclMin.jar and jclMinsrc.zip are present
 			//copy either file that is missing or less recent than the one in workspace

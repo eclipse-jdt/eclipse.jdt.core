@@ -34,11 +34,10 @@ public class ASTRewritingModifyingMoveTest extends ASTRewritingModifyingTest {
 	public static Test suite() {
 		if (true) {
 			return allTests();
-		} else {
-			TestSuite suite= new Suite("one test");
-			suite.addTest(new ASTRewritingModifyingMoveTest("test0009"));
-			return suite;
 		}
+		TestSuite suite= new Suite("one test");
+		suite.addTest(new ASTRewritingModifyingMoveTest("test0009"));
+		return suite;
 	}
 	
 	public void test0001() throws Exception {

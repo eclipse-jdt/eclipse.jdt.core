@@ -891,9 +891,8 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 	} else if (searchPattern instanceof PackageDeclarationPattern) {
 		IJavaElement focus = ((InternalSearchPattern) searchPattern).focus;
 		if (focus != null) {
-			IResource resource = focus.getResource();
-			SearchDocument document = participant.getDocument(resource.getFullPath().toString());
-			this.currentPossibleMatch = new PossibleMatch(this, resource, null, document);
+			SearchDocument document = participant.getDocument(focus.getPath().toString());
+			this.currentPossibleMatch = new PossibleMatch(this, focus.getResource(), null, document);
 			if (encloses(focus)) {
 				SearchMatch match = newDeclarationMatch(focus, SearchMatch.A_ACCURATE, -1, -1);
 				report(match);

@@ -79,7 +79,7 @@ static {
 }
 public static Test suite() {
 	return buildTestSuite(ClasspathTests.class);
-//	return buildTestSuite(ClasspathTests.class, "testClasspathValidation", null);
+	//return buildTestSuite(ClasspathTests.class, "testClasspathValidation02", null);
 }
 protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] expectedCycleParticipants) throws CoreException {
 	waitForAutoBuild();
@@ -1592,6 +1592,71 @@ public void testClasspathValidation38() throws CoreException {
 	}
 }
 /**
+ * 62713 - check nested output folder detection
+ */
+public void testClasspathValidation39() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+2];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P"), new IPath[]{new Path("test/")}, new Path("/P/bin/test"));
+		newCP[originalCP.length+1] = JavaCore.newSourceEntry(new Path("/P/test"), new IPath[]{}, new Path("/P/bin"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertStatus(
+			"Cannot nest output folder \'P/bin/test\' inside output folder \'P/bin\'.",
+			status);
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
+ * 62713 - variation
+ */
+public void testClasspathValidation40() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+2];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P"), new IPath[]{new Path("test/")}, new Path("/P/bin"));
+		newCP[originalCP.length+1] = JavaCore.newSourceEntry(new Path("/P/test"), new IPath[]{}, new Path("/P/bin/test"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertStatus(
+			"Cannot nest output folder \'P/bin/test\' inside output folder \'P/bin\'.",
+			status);
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
+ * 62713 - variation
+ */
+public void testClasspathValidation41() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+	
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src"), new IPath[]{}, new Path("/P/"));
+		
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		
+		assertStatus(
+			"Cannot nest \'P/src\' inside output folder \'P/\'.",
+			status);
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
  * Setting the classpath with two entries specifying the same path
  * should fail.
  */
@@ -2134,7 +2199,7 @@ public void testNullClasspath() throws CoreException {
 	}
 }
 /**
- * Ensure that reading an empty custom putput from the .classpath returns a non-null output location.
+ * Ensure that reading an empty custom output from the .classpath returns a non-null output location.
  * (regression test for 28531 Classpath Entry: Output folder can not be set to project)
  */
 public void testReadEmptyCustomOutput() throws CoreException {

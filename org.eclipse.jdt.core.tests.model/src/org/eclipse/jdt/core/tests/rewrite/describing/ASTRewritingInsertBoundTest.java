@@ -41,11 +41,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	public static Test suite() {
 		if (true) {
 			return allTests();
-		} else {
-			TestSuite suite= new Suite("one test");
-			suite.addTest(new ASTRewritingInsertBoundTest("testRemove3"));
-			return suite;
 		}
+		TestSuite suite= new Suite("one test");
+		suite.addTest(new ASTRewritingInsertBoundTest("testRemove3"));
+		return suite;
 	}
 	
 	private MethodDeclaration newMethodDeclaration(AST ast, String name) {

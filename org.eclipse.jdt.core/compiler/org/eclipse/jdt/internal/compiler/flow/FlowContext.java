@@ -95,7 +95,10 @@ public class FlowContext implements TypeConstants {
 						for (int raisedIndex = 0; raisedIndex < raisedCount; raisedIndex++) {
 							TypeBinding raisedException;
 							if ((raisedException = raisedExceptions[raisedIndex]) != null) {
-								switch (Scope.compareTypes(raisedException, caughtException)) {
+							    int state = caughtException == null 
+							    	? EqualOrMoreSpecific /* any exception */
+							        : Scope.compareTypes(raisedException, caughtException);
+								switch (state) {
 									case EqualOrMoreSpecific :
 										exceptionContext.recordHandlingException(
 											caughtException,
@@ -213,7 +216,10 @@ public class FlowContext implements TypeConstants {
 						caughtIndex < caughtCount;
 						caughtIndex++) {
 						ReferenceBinding caughtException = caughtExceptions[caughtIndex];
-						switch (Scope.compareTypes(raisedException, caughtException)) {
+					    int state = caughtException == null 
+					    	? EqualOrMoreSpecific /* any exception */
+					        : Scope.compareTypes(raisedException, caughtException);						
+						switch (state) {
 							case EqualOrMoreSpecific :
 								exceptionContext.recordHandlingException(
 									caughtException,

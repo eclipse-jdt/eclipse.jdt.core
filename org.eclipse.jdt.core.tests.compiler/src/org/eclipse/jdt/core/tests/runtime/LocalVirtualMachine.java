@@ -88,11 +88,10 @@ protected void cleanupTargetPath() throws TargetException {
 		for (int i = 0; i < count; i++) {
 			if (file.delete()) {
 				break;
-			} else {
-				try {
-					Thread.sleep(count * 100);
-				} catch (InterruptedException e) {
-				}
+			}
+			try {
+				Thread.sleep(count * 100);
+			} catch (InterruptedException e) {
 			}
 		}
 		if (file.exists()) {
@@ -129,8 +128,7 @@ public int getDebugPortNumber() {
 public InputStream getErrorStream() throws TargetException {
 	if (this.process == null)
 		throw new TargetException("The VM is not running");
-	else
-		return this.process.getErrorStream();
+	return this.process.getErrorStream();
 }
 /** 
  * Returns an input stream that is connected to the standard output 
@@ -150,9 +148,8 @@ public InputStream getErrorStream() throws TargetException {
 public InputStream getInputStream() throws TargetException {
 	if (this.process == null)
 		throw new TargetException("The VM is not running");
-	else
-		// Workaround problem with input stream of a Process
-		return new VMInputStream(this.process, this.process.getInputStream());
+	// Workaround problem with input stream of a Process
+	return new VMInputStream(this.process, this.process.getInputStream());
 }
 /**
  * Returns an output stream that is connected to the standard input 
@@ -172,8 +169,7 @@ public InputStream getInputStream() throws TargetException {
 public OutputStream getOutputStream() throws TargetException {
 	if (this.process == null)
 		throw new TargetException("The VM is not running");
-	else
-		return this.process.getOutputStream();
+	return this.process.getOutputStream();
 }
 /**
  * Returns whether this target VM is still running.
@@ -182,18 +178,17 @@ public OutputStream getOutputStream() throws TargetException {
  *       if it is still running.
  */
 public boolean isRunning() {
-	if (this.process == null)
+	if (this.process == null) {
 		return false;
-	else {
-		boolean hasExited;
-		try {
-			this.process.exitValue();
-			hasExited = true;
-		} catch (IllegalThreadStateException e) {
-			hasExited = false;
-		}
-		return !hasExited;
 	}
+	boolean hasExited;
+	try {
+		this.process.exitValue();
+		hasExited = true;
+	} catch (IllegalThreadStateException e) {
+		hasExited = false;
+	}
+	return !hasExited;
 }
 /**
  * Shuts down this target VM. 
@@ -213,9 +208,8 @@ public void shutDown()  throws TargetException {
 	}
 	if (this.isRunning()) { // give up cleaning the target path if VM is still running
 		throw new TargetException("Could not shut the VM down");
-	} else {
-		this.cleanupTargetPath();
 	}
+	this.cleanupTargetPath();
 }
 /**
  * Waits for the VM to shut down. This method returns 
@@ -227,9 +221,7 @@ public void shutDown()  throws TargetException {
  *               interrupted.
  */
 public void waitForTermination() throws InterruptedException {
-	if (this.process == null)
-		return;
-	else
-		this.process.waitFor();
+	if (this.process == null) return;
+	this.process.waitFor();
 }
 }

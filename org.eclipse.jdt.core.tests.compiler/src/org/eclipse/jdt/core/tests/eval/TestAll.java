@@ -35,9 +35,8 @@ public static Test suite() {
 		testClasses.add(DebugEvaluationTest.class);
 		
 		return AbstractCompilerTest.suite(TestAll.class.getName(), DebugEvaluationSetup.class, testClasses);
-	} else {
-		// Disable evaluation tests on Linux
-		return new TestSuite(TestAll.class.getName());
 	}
+	// Disable evaluation tests on Linux
+	return new TestSuite(TestAll.class.getName());
 }
 }

@@ -638,21 +638,21 @@ public boolean isGenericType() {
 }
 
 public ReferenceBinding[] memberTypes() {
-	return memberTypes;
+	return this.memberTypes;
 }
 public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBinding newDeclaringClass) {
 
-	if (synthetics == null) {
-		synthetics = new HashMap[4];
+	if (this.synthetics == null) {
+		this.synthetics = new HashMap[4];
 	}
-	if (synthetics[RECEIVER_TYPE_EMUL] == null) {
-		synthetics[RECEIVER_TYPE_EMUL] = new HashMap(5);
+	if (this.synthetics[RECEIVER_TYPE_EMUL] == null) {
+		this.synthetics[RECEIVER_TYPE_EMUL] = new HashMap(5);
 	}
 
-	Hashtable fieldMap = (Hashtable) synthetics[RECEIVER_TYPE_EMUL].get(targetField);
+	Hashtable fieldMap = (Hashtable) this.synthetics[RECEIVER_TYPE_EMUL].get(targetField);
 	if (fieldMap == null) {
 		fieldMap = new Hashtable(5);
-		synthetics[RECEIVER_TYPE_EMUL].put(targetField, fieldMap);
+		this.synthetics[RECEIVER_TYPE_EMUL].put(targetField, fieldMap);
 	}
 	FieldBinding updatedField = (FieldBinding) fieldMap.get(newDeclaringClass);
 	if (updatedField == null){
@@ -664,18 +664,18 @@ public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBi
 
 public MethodBinding getUpdatedMethodBinding(MethodBinding targetMethod, ReferenceBinding newDeclaringClass) {
 
-	if (synthetics == null) {
-		synthetics = new HashMap[4];
+	if (this.synthetics == null) {
+		this.synthetics = new HashMap[4];
 	}
-	if (synthetics[RECEIVER_TYPE_EMUL] == null) {
-		synthetics[RECEIVER_TYPE_EMUL] = new HashMap(5);
+	if (this.synthetics[RECEIVER_TYPE_EMUL] == null) {
+		this.synthetics[RECEIVER_TYPE_EMUL] = new HashMap(5);
 	}
 
 
 	Hashtable methodMap = (Hashtable) synthetics[RECEIVER_TYPE_EMUL].get(targetMethod);
 	if (methodMap == null) {
 		methodMap = new Hashtable(5);
-		synthetics[RECEIVER_TYPE_EMUL].put(targetMethod, methodMap);
+		this.synthetics[RECEIVER_TYPE_EMUL].put(targetMethod, methodMap);
 	}
 	MethodBinding updatedMethod = (MethodBinding) methodMap.get(newDeclaringClass);
 	if (updatedMethod == null){
@@ -684,7 +684,9 @@ public MethodBinding getUpdatedMethodBinding(MethodBinding targetMethod, Referen
 	}
 	return updatedMethod;
 }
-
+public boolean hasMemberTypes() {
+    return this.memberTypes.length > 0;
+}
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 public MethodBinding[] methods() {
 	if ((modifiers & AccUnresolved) == 0)

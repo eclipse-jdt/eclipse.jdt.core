@@ -420,6 +420,7 @@ public class DeltaProcessor {
 									this.removeFromParentInfo(javaProject);
 									this.manager.removePerProjectInfo(javaProject);
 								}
+								this.state.rootsAreStale = true;
 							} else if ((delta.getFlags() & IResourceDelta.DESCRIPTION) != 0) {
 								boolean wasJavaProject = this.manager.getJavaModel().findJavaProject(project) != null;
 								boolean isJavaProject = JavaProject.hasJavaNature(project);
@@ -1536,10 +1537,11 @@ public class DeltaProcessor {
 			}
 		}
 
-		JavaElementDelta elementDelta = currentDelta().find(element);
+		JavaElementDelta current = currentDelta();
+		JavaElementDelta elementDelta = current.find(element);
 		if (elementDelta == null) {
-			currentDelta().changed(element, IJavaElementDelta.F_CONTENT);
-			elementDelta = currentDelta().find(element);
+			// don't use find after creating the delta as it can be null (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63434)
+			elementDelta = current.changed(element, IJavaElementDelta.F_CONTENT);
 		}
 		elementDelta.addResourceDelta(delta);
 	}

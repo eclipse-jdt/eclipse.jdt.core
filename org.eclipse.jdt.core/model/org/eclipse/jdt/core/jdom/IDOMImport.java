@@ -42,7 +42,7 @@ public boolean isOnDemand();
  * Returns the modifier flags for this import. The flags can be examined using class
  * <code>Flags</code>. Only the static flag is meaningful for import declarations.
  * @return the modifier flags for this import
- * @see Flags
+ * @see org.eclipse.jdt.core.Flags
  * @since 3.0
  */
 int getFlags();
@@ -57,7 +57,7 @@ int getFlags();
  * and subject to change.
  * </p>
  * @param flags the modifier flags for this import
- * @see Flags
+ * @see org.eclipse.jdt.core.Flags
  * @since 3.0
  */
 void setFlags(int flags);

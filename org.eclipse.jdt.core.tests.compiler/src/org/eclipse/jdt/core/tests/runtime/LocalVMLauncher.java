@@ -54,18 +54,15 @@ public static LocalVMLauncher getLauncher() {
 	final String vmName = System.getProperty("java.vm.name");
 	if ("J9".equals(vmName)) {
 		return new J9VMLauncher();
-	} else {
-		File file = new File(Util.getJREDirectory() + "/lib/rt.jar");
-		if (file.exists()) {
-			return new StandardVMLauncher();
-		} else {
-			if ("IBM J9SE VM".equals(vmName)) {
-				return new SideCarJ9VMLauncher();
-			} else {
-				return new SideCarVMLauncher();
-			}
-		}
 	}
+	File file = new File(Util.getJREDirectory() + "/lib/rt.jar");
+	if (file.exists()) {
+		return new StandardVMLauncher();
+	}
+	if ("IBM J9SE VM".equals(vmName)) {
+		return new SideCarJ9VMLauncher();
+	}
+	return new SideCarVMLauncher();
 }
 /**
  * Builds the actual class path that is going to be passed to the VM.
@@ -187,9 +184,8 @@ public String getEvalTargetPath() {
 public String[] getProgramArguments() {
 	if (this.evalPort != -1) {
 		return null;
-	} else {
-		return this.programArguments;
 	}
+	return this.programArguments;
 }
 /**
  * Returns the dot-separated, fully qualified name of the class to run.  
@@ -199,9 +195,8 @@ public String[] getProgramArguments() {
 public String getProgramClass() {
 	if (this.evalPort != -1) {
 		return null;
-	} else {
-		return this.programClass;
 	}
+	return this.programClass;
 }
 /**
  * Returns all the target VMs that are running at this launcher's target 

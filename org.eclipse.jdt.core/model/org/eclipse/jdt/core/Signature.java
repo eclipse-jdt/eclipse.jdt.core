@@ -445,7 +445,7 @@ public static char[] createMethodSignature(char[][] parameterTypes, char[] retur
  * @param parameterTypes the list of parameter type signatures
  * @param returnType the return type signature
  * @return the encoded method signature
- * @see Signature#createMethodSignature(String[], String, String[], String[])
+ * @see Signature#createMethodSignature(char[][], char[])
  */
 public static String createMethodSignature(String[] parameterTypes, String returnType) {
 	int parameterTypesLenth = parameterTypes.length;

@@ -187,6 +187,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					"compilation.loadBinary" , //$NON-NLS-1$
 					new String[] {
 						new String(binaryType.getName())}));
+//			new Exception("TRACE BINARY").printStackTrace(System.out);
+//		    System.out.println();
 		}
 		lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding);
 	}

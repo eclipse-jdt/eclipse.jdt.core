@@ -307,15 +307,14 @@ public class JavadocParser extends AbstractCommentParser {
 					if (this.invParamsPtr == -1l) {
 						this.invParamsStack = new JavadocSingleNameReference[10];
 					}
-					try {
-						this.invParamsStack[++this.invParamsPtr] = nameRef;
-					} catch (IndexOutOfBoundsException e) {
-						int oldStackLength = this.invParamsStack.length;
-						JavadocSingleNameReference[] oldStack = this.invParamsStack;
-						this.invParamsStack = new JavadocSingleNameReference[oldStackLength + AstStackIncrement];
-						System.arraycopy(oldStack, 0, this.invParamsStack, 0, oldStackLength);
-						this.invParamsStack[this.invParamsPtr] = nameRef;
+					int stackLength = this.invParamsStack.length;
+					if (++this.invParamsPtr >= stackLength) {
+						System.arraycopy(
+							this.invParamsStack, 0,
+							this.invParamsStack = new JavadocSingleNameReference[stackLength + AstStackIncrement], 0,
+							stackLength);
 					}
+					this.invParamsStack[this.invParamsPtr] = nameRef;
 					return false;
 				}
 			}

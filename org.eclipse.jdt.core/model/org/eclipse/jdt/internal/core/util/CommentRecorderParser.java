@@ -234,22 +234,19 @@ public class CommentRecorderParser extends Parser {
 			int scannerStart = this.scanner.commentStarts[i]<0 ? -this.scanner.commentStarts[i] : this.scanner.commentStarts[i];
 			int commentStart = this.commentPtr == -1 ? -1 : (this.commentStarts[this.commentPtr]<0 ? -this.commentStarts[this.commentPtr] : this.commentStarts[this.commentPtr]);
 			if (commentStart == -1 ||  scannerStart > commentStart) {
-				try {
-					this.commentPtr++;
-					this.commentStarts[this.commentPtr] = this.scanner.commentStarts[i];
-					this.commentStops[this.commentPtr] = this.scanner.commentStops[i];
-				} catch (IndexOutOfBoundsException e) {
-					// this.commentPtr is still correct 
-					int oldStackLength = this.commentStarts.length;
-					int oldCommentStarts[] = this.commentStarts;
-					this.commentStarts = new int[oldStackLength + CommentIncrement];
-					System.arraycopy(oldCommentStarts, 0, this.commentStarts, 0, oldStackLength);
-					this.commentStarts[this.commentPtr] = this.scanner.commentStarts[i];
-					int oldCommentStops[] = this.commentStops;
-					this.commentStops = new int[oldStackLength + CommentIncrement];
-					System.arraycopy(oldCommentStops, 0, this.commentStops, 0, oldStackLength);
-					this.commentStops[this.commentPtr] = this.scanner.commentStops[i];
+				int stackLength = this.commentStarts.length;
+				if (++this.commentPtr >= stackLength) {
+					System.arraycopy(
+						this.commentStarts, 0,
+						this.commentStarts = new int[stackLength + CommentIncrement], 0,
+						stackLength);
+					System.arraycopy(
+						this.commentStops, 0,
+						this.commentStops = new int[stackLength + CommentIncrement], 0,
+						stackLength);
 				}
+				this.commentStarts[this.commentPtr] = this.scanner.commentStarts[i];
+				this.commentStops[this.commentPtr] = this.scanner.commentStops[i];
 			}
 		}
 	}
