@@ -1,4 +1,4 @@
-package test0028;
+package test0030;
 
 public class Test<ZZY,ZZX> {
 

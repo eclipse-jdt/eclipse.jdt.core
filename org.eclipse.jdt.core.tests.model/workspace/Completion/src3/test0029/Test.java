@@ -1,4 +1,4 @@
-package test0028;
+package test0029;
 
 public class Test {
 	public class Inner {

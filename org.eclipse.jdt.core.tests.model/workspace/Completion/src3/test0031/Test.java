@@ -1,4 +1,4 @@
-package test0028;
+package test0031;
 
 public class Test <T> {
 	class Y {}
