@@ -18,7 +18,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.dom.*; 
+import org.eclipse.jdt.core.dom.*;
 
 public class ASTConverterTest2 extends ConverterTestSetup {
 	
@@ -260,7 +260,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23162
 	 */
-	public void DISABLEDtest0409() throws JavaModelException {
+	public void test0409() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		try {
@@ -273,7 +273,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			assertEquals("Wrong number of errors", 0, compilationUnit.getProblems().length);
 			BindingsCollectorVisitor bindingsCollectorVisitor = new BindingsCollectorVisitor();
 			compilationUnit.accept(bindingsCollectorVisitor);
-			assertEquals("wrong number", 3, bindingsCollectorVisitor.getUnresolvedNodesSet().size());
+			assertEquals("wrong number", 5, bindingsCollectorVisitor.getUnresolvedNodesSet().size());
 			Map bindingsMap = bindingsCollectorVisitor.getBindingsMap();
 			assertEquals("wrong number", 185, bindingsMap.size());
 			ASTNodesCollectorVisitor nodesCollector = new ASTNodesCollectorVisitor();
