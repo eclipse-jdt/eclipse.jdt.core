@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -82,6 +81,8 @@ public final class CompletionEngine
 	char[] token;
 	boolean resolvingImports = false;
 	boolean insideQualifiedReference = false;
+	boolean noProposal = true;
+	IProblem problem = null;
 	int startPosition, actualCompletionPosition, endPosition, offset;
 	HashtableOfObject knownPkgs = new HashtableOfObject(10);
 	HashtableOfObject knownTypes = new HashtableOfObject(10);
@@ -169,11 +170,33 @@ public final class CompletionEngine
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 				this.compilerOptions,
 				new DefaultProblemFactory(Locale.getDefault()) {
-					public void record(IProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
-						if (problem.isError() && (problem.getID() & IProblem.Syntax) != 0) {
-							CompletionEngine.this.requestor.acceptError(problem);
+					public IProblem createProblem(
+						char[] originatingFileName,
+						int problemId,
+						String[] problemArguments,
+						String[] messageArguments,
+						int severity,
+						int startPosition,
+						int endPosition,
+						int lineNumber) {
+						
+						IProblem problem = super.createProblem(
+							originatingFileName,
+							problemId,
+							problemArguments,
+							messageArguments,
+							severity,
+							startPosition,
+							endPosition,
+							lineNumber);
+						
+						if(CompletionEngine.this.problem == null && problem.isError() && (problem.getID() & IProblem.Syntax) == 0) {
+							CompletionEngine.this.problem = problem;
 						}
+						
+						return problem;
 					}
+
 				});
 		this.parser =
 			new CompletionParser(problemReporter, this.compilerOptions.sourceLevel >= CompilerOptions.JDK1_4);
@@ -231,6 +254,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForQualification(isQualified);
 		}
 
+		noProposal = false;
 		requestor.acceptClass(
 			packageName,
 			className,
@@ -284,6 +308,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForQualification(isQualified);
 		}
 		
+		noProposal = false;
 		requestor.acceptInterface(
 			packageName,
 			interfaceName,
@@ -311,6 +336,7 @@ public final class CompletionEngine
 		relevance += computeRelevanceForInterestingProposal();
 		relevance += computeRelevanceForCaseMatching(token, packageName);
 
+		noProposal = false;
 		requestor.acceptPackage(
 			packageName,
 			resolvingImports
@@ -360,6 +386,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForQualification(isQualified);
 		}
 		
+		noProposal = false;
 		requestor.acceptType(
 			packageName,
 			typeName,
@@ -769,6 +796,9 @@ public final class CompletionEngine
 						}
 					}
 				}
+				if(noProposal && problem != null) {
+					requestor.acceptError(problem);
+				}
 			}
 		} catch(JavaModelException e) {
 			// Do nothing
@@ -852,6 +882,9 @@ public final class CompletionEngine
 				// scan the package & import statements first
 				if (parsedUnit.currentPackage instanceof CompletionOnPackageReference) {
 					findPackages((CompletionOnPackageReference) parsedUnit.currentPackage);
+					if(noProposal && problem != null) {
+						requestor.acceptError(problem);
+					}
 					return;
 				}
 
@@ -861,11 +894,18 @@ public final class CompletionEngine
 						ImportReference importReference = imports[i];
 						if (importReference instanceof CompletionOnImportReference) {
 							findImports((CompletionOnImportReference) importReference);
+							if(noProposal && problem != null) {
+								requestor.acceptError(problem);
+							}
 							return;
 						} else if(importReference instanceof CompletionOnKeyword) {
 							setSourceRange(importReference.sourceStart, importReference.sourceEnd);
 							CompletionOnKeyword keyword = (CompletionOnKeyword)importReference;
 							findKeywords(keyword.getToken(), keyword.getPossibleKeywords());
+							if(noProposal && problem != null) {
+								requestor.acceptError(problem);
+							}
+							return;
 						}
 					}
 				}
@@ -902,7 +942,9 @@ public final class CompletionEngine
 					}
 				}
 			}
-
+			if(noProposal && problem != null) {
+				requestor.acceptError(problem);
+			}
 			/* Ignore package, import, class & interface keywords for now...
 					if (!completionNodeFound) {
 						if (parsedUnit == null || parsedUnit.types == null) {
@@ -950,6 +992,8 @@ public final class CompletionEngine
 				completion = new char[] { ')' };
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForInterestingProposal();
+			
+			noProposal = false;
 			requestor.acceptAnonymousType(
 				currentType.qualifiedPackageName(),
 				currentType.qualifiedSourceName(),
@@ -983,7 +1027,8 @@ public final class CompletionEngine
 			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForCaseMatching(token, classField);
 			relevance += computeRelevanceForExpectingType(scope.getJavaLangClass());
-				
+			
+			noProposal = false;
 			requestor.acceptField(
 				CharOperation.NO_CHAR,
 				CharOperation.NO_CHAR,
@@ -1042,6 +1087,8 @@ public final class CompletionEngine
 					int relevance = computeBaseRelevance();
 					relevance += computeRelevanceForInterestingProposal();
 					relevance += computeRelevanceForCaseMatching(token, name);
+					
+					noProposal = false;
 					requestor.acceptMethod(
 						currentType.qualifiedPackageName(),
 						currentType.qualifiedSourceName(),
@@ -1111,6 +1158,8 @@ public final class CompletionEngine
 					if(forAnonymousType){
 						int relevance = computeBaseRelevance();
 						relevance += computeRelevanceForInterestingProposal();
+						
+						noProposal = false;
 						requestor.acceptAnonymousType(
 							currentType.qualifiedPackageName(),
 							currentType.qualifiedSourceName(),
@@ -1125,6 +1174,8 @@ public final class CompletionEngine
 					} else {
 						int relevance = computeBaseRelevance();
 						relevance += computeRelevanceForInterestingProposal();
+						
+						noProposal = false;
 						requestor.acceptMethod(
 							currentType.qualifiedPackageName(),
 							currentType.qualifiedSourceName(),
@@ -1229,6 +1280,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForStatic(onlyStaticFields, field.isStatic());
 			relevance += computeRelevanceForQualification(prefixRequired);
 
+			noProposal = false;
 			requestor
 				.acceptField(
 					field.declaringClass.qualifiedPackageName(),
@@ -1368,6 +1420,7 @@ public final class CompletionEngine
 				relevance += computeRelevanceForCaseMatching(token,lengthField);
 				relevance += computeRelevanceForExpectingType(BaseTypes.IntBinding);
 				
+				noProposal = false;
 				requestor.acceptField(
 					CharOperation.NO_CHAR,
 					CharOperation.NO_CHAR,
@@ -1446,6 +1499,7 @@ public final class CompletionEngine
 					relevance += computeRelevanceForInterestingProposal();
 					relevance += computeRelevanceForCaseMatching(keyword, choices[i]);
 					
+					noProposal = false;
 					requestor.acceptKeyword(choices[i], startPosition - offset, endPosition - offset,relevance);
 				}
 	}
@@ -1600,6 +1654,8 @@ public final class CompletionEngine
 			if (memberType.isClass()) {
 				relevance += computeRelevanceForClass();
 				relevance += computeRelevanceForException(memberType.sourceName);
+				
+				noProposal = false;
 				requestor.acceptClass(
 					memberType.qualifiedPackageName(),
 					memberType.qualifiedSourceName(),
@@ -1611,6 +1667,8 @@ public final class CompletionEngine
 
 			} else {
 				relevance += computeRelevanceForInterface();
+				
+				noProposal = false;
 				requestor.acceptInterface(
 					memberType.qualifiedPackageName(),
 					memberType.qualifiedSourceName(),
@@ -2000,6 +2058,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForStatic(onlyStaticMethods, method.isStatic());
 			relevance += computeRelevanceForQualification(prefixRequired);
 			
+			noProposal = false;
 			requestor.acceptMethod(
 				method.declaringClass.qualifiedPackageName(),
 				method.declaringClass.qualifiedSourceName(),
@@ -2251,6 +2310,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
 			if(method.isAbstract()) relevance += R_ABSTRACT_METHOD;
 
+			noProposal = false;
 			requestor.acceptMethodDeclaration(
 				method.declaringClass.qualifiedPackageName(),
 				method.declaringClass.qualifiedSourceName(),
@@ -2490,6 +2550,7 @@ public final class CompletionEngine
 								relevance += computeRelevanceForException(localType.sourceName);
 								relevance += computeRelevanceForClass();
 								
+								noProposal = false;
 								requestor.acceptClass(
 									localType.qualifiedPackageName(),
 									localType.sourceName,
@@ -2554,6 +2615,8 @@ public final class CompletionEngine
 				if (sourceType.isClass()){
 					relevance += computeRelevanceForClass();
 					relevance += computeRelevanceForException(sourceType.sourceName);
+					
+					noProposal = false;
 					requestor.acceptClass(
 						sourceType.qualifiedPackageName(),
 						sourceType.sourceName(),
@@ -2564,6 +2627,8 @@ public final class CompletionEngine
 						relevance);
 				} else {
 					relevance += computeRelevanceForInterface();
+					
+					noProposal = false;
 					requestor.acceptInterface(
 						sourceType.qualifiedPackageName(),
 						sourceType.sourceName(),
@@ -2608,6 +2673,8 @@ public final class CompletionEngine
 							
 							if(refBinding.isClass()) {
 								relevance += computeRelevanceForClass();
+								
+								noProposal = false;
 								requestor.acceptClass(
 									packageName,
 									typeName,
@@ -2618,6 +2685,8 @@ public final class CompletionEngine
 									relevance);
 							} else if (refBinding.isInterface()) {
 								relevance += computeRelevanceForInterface();
+								
+								noProposal = false;
 								requestor.acceptInterface(
 									packageName,
 									typeName,
@@ -2677,6 +2746,8 @@ public final class CompletionEngine
 				if (sourceType.isClass()){
 					relevance += computeRelevanceForClass();
 					relevance += computeRelevanceForException(sourceType.sourceName);
+					
+					noProposal = false;
 					requestor.acceptClass(
 						sourceType.qualifiedPackageName(),
 						sourceType.sourceName(),
@@ -2687,6 +2758,8 @@ public final class CompletionEngine
 						relevance);
 				} else {
 					relevance += computeRelevanceForInterface();
+					
+					noProposal = false;
 					requestor.acceptInterface(
 						sourceType.qualifiedPackageName(),
 						sourceType.sourceName(),
@@ -2767,6 +2840,7 @@ public final class CompletionEngine
 						relevance += computeRelevanceForExpectingType(local.type);
 						relevance += computeRelevanceForQualification(false);
 						
+						noProposal = false;
 						requestor.acceptLocalVariable(
 							local.name,
 							local.type == null 
@@ -2890,6 +2964,7 @@ public final class CompletionEngine
 					relevance += prefixAndSuffixRelevance;
 
 					// accept result
+					noProposal = false;
 					requestor.acceptVariableName(
 						q,
 						displayName,

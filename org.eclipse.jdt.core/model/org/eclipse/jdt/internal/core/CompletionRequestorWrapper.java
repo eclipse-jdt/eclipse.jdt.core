@@ -77,7 +77,10 @@ public void acceptError(IProblem error) {
 		System.out.print(error);
 		System.out.println(")"); //$NON-NLS-1$
 	}
-	this.clientRequestor.acceptError(error);
+	//	TODO: This code is not activate because UI are not ready to support correctly this behavior (bug 31764).
+	if(false) {
+		this.clientRequestor.acceptError(error);
+	}
 }
 /**
  * See ICompletionRequestor
