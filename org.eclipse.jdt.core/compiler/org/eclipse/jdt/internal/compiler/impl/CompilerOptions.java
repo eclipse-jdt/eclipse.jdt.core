@@ -55,6 +55,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 
 	/* should surface ??? */
 	public static final String OPTION_PrivateConstructorAccess = "org.eclipse.jdt.core.compiler.codegen.constructorAccessEmulation"; //$NON-NLS-1$
+	public static final String OPTION_ReportNoImplicitStringConversion = "org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion"; //$NON-NLS-1$
 
 	/**
 	 * Possible values for configurable options
@@ -362,7 +363,21 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 					this.warningThreshold &= ~UnusedLocalVariable;
 				}
 				continue;
-			} 
+			}
+			// Report no implicit string conversion
+			if (optionID.equals(OPTION_ReportNoImplicitStringConversion)) {
+				if (optionValue.equals(ERROR)) {
+					this.errorThreshold |= NoImplicitStringConversion;
+					this.warningThreshold &= ~NoImplicitStringConversion;
+				} else if (optionValue.equals(WARNING)) {
+					this.errorThreshold &= ~NoImplicitStringConversion;
+					this.warningThreshold |= NoImplicitStringConversion;
+				} else if (optionValue.equals(IGNORE)) {
+					this.errorThreshold &= ~NoImplicitStringConversion;
+					this.warningThreshold &= ~NoImplicitStringConversion;
+				}
+				continue;
+			}
 			// Report unused parameter
 			if(optionID.equals(OPTION_ReportUnusedParameter)){
 				if (optionValue.equals(ERROR)) {

@@ -48,6 +48,7 @@ public class Main implements ProblemSeverities {
 	public boolean noWarn = false;
 
 	public PrintWriter out;
+	public PrintWriter err;	
 	public boolean systemExitWhenFinished = true;
 	public boolean proceedOnError = false;
 
@@ -86,9 +87,10 @@ public class Main implements ProblemSeverities {
 
 	public boolean proceed = true;
 
-	public Main(PrintWriter writer, boolean systemExitWhenFinished) {
+	public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
 
-		this.out = writer;
+		this.out = outWriter;
+		this.err = errWriter;
 		this.systemExitWhenFinished = systemExitWhenFinished;
 		exportedClassFilesCounter = 0;
 		options = new Hashtable();
@@ -140,6 +142,9 @@ public class Main implements ProblemSeverities {
 		options.put(
 			CompilerOptions.OPTION_TargetPlatform,
 			CompilerOptions.VERSION_1_1);
+		options.put(
+			CompilerOptions.OPTION_ReportNoImplicitStringConversion,
+			CompilerOptions.WARNING);
 	}
 
 	/*
@@ -152,7 +157,7 @@ public class Main implements ProblemSeverities {
 			configure(argv);
 			if (proceed) {
 				if (showProgress)
-					out.print(Main.bind("progress.compiling")); //$NON-NLS-1$
+					out.println(Main.bind("progress.compiling")); //$NON-NLS-1$
 				for (int i = 0; i < repetitions; i++) {
 					globalProblemsCount = 0;
 					globalErrorsCount = 0;
@@ -187,39 +192,39 @@ public class Main implements ProblemSeverities {
 					}
 					if (globalProblemsCount > 0) {
 						if (globalProblemsCount == 1) {
-							out.print(Main.bind("compile.oneProblem")); //$NON-NLS-1$
+							err.print(Main.bind("compile.oneProblem")); //$NON-NLS-1$
 						} else {
-							out.print(
+							err.print(
 								Main.bind("compile.severalProblems", String.valueOf(globalProblemsCount))); 	//$NON-NLS-1$
 						}
-						out.print(" ("); //$NON-NLS-1$
+						err.print(" ("); //$NON-NLS-1$
 						if (globalErrorsCount > 0) {
 							if (globalErrorsCount == 1) {
-								out.print(Main.bind("compile.oneError")); //$NON-NLS-1$
+								err.print(Main.bind("compile.oneError")); //$NON-NLS-1$
 							} else {
-								out.print(
+								err.print(
 									Main.bind("compile.severalErrors", String.valueOf(globalErrorsCount))); 	//$NON-NLS-1$
 							}
 						}
 						if (globalWarningsCount > 0) {
 							if (globalErrorsCount > 0) {
-								out.print(", "); //$NON-NLS-1$
+								err.print(", "); //$NON-NLS-1$
 							}
 							if (globalWarningsCount == 1) {
-								out.print(Main.bind("compile.oneWarning")); //$NON-NLS-1$
+								err.print(Main.bind("compile.oneWarning")); //$NON-NLS-1$
 							} else {
-								out.print(
+								err.print(
 									Main.bind("compile.severalWarnings", String.valueOf(globalWarningsCount))); 	//$NON-NLS-1$
 							}
 						}
-						out.println(")"); //$NON-NLS-1$
+						err.println(")"); //$NON-NLS-1$
 					}
 					if (exportedClassFilesCounter != 0
 						&& (this.showProgress || this.timer || this.verbose)) {
 						if (exportedClassFilesCounter == 1) {
-							out.print(Main.bind("compile.oneClassFileGenerated")); //$NON-NLS-1$
+							out.println(Main.bind("compile.oneClassFileGenerated")); //$NON-NLS-1$
 						} else {
-							out.print(
+							out.println(
 								Main.bind(
 									"compile.severalClassFilesGenerated", //$NON-NLS-1$
 									String.valueOf(exportedClassFilesCounter)));
@@ -227,15 +232,16 @@ public class Main implements ProblemSeverities {
 					}
 				}
 				if (showProgress)
-					System.out.println();
+					out.println();
 			}
 			if (systemExitWhenFinished) {
 				out.flush();
+				err.flush();
 				System.exit(globalErrorsCount > 0 ? -1 : 0);
 			}
 		} catch (InvalidInputException e) {
-			out.println(e.getMessage());
-			out.println("------------------------"); //$NON-NLS-1$
+			err.println(e.getMessage());
+			err.println("------------------------"); //$NON-NLS-1$
 			printUsage();
 			if (systemExitWhenFinished) {
 				System.exit(-1);
@@ -245,16 +251,18 @@ public class Main implements ProblemSeverities {
 		} catch (Throwable e) { // internal compiler error
 			if (systemExitWhenFinished) {
 				out.flush();
+				err.flush();
 				if (this.log != null) {
-					out.close();
+					err.close();
 				}
 				System.exit(-1);
 			}
 			//e.printStackTrace();
 		} finally {
 			out.flush();
+			err.flush();
 			if (this.log != null) {
-				out.close();
+				err.close();
 			}
 		}
 		if (globalErrorsCount == 0){
@@ -269,15 +277,15 @@ public class Main implements ProblemSeverities {
 	 */
 	public static boolean compile(String commandLine) {
 
-		return compile(commandLine, new PrintWriter(System.out));
+		return compile(commandLine, new PrintWriter(System.out), new PrintWriter(System.err));
 	}
 
 	/*
 	 * Internal IDE API for test harness purpose
 	 */
-	public static boolean compile(String commandLine, PrintWriter writer) {
+	public static boolean compile(String commandLine, PrintWriter outWriter, PrintWriter errWriter) {
 
-		return new Main(writer, false).compile(tokenize(commandLine));
+		return new Main(outWriter, errWriter, false).compile(tokenize(commandLine));
 	}
 
 	public static String[] tokenize(String commandLine) {
@@ -939,14 +947,15 @@ public class Main implements ProblemSeverities {
 			// no user classpath specified.
 			String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
 			if ((classProp == null) || (classProp.length() == 0)) {
-				out.println(Main.bind("configure.noClasspath")); //$NON-NLS-1$
-				classProp = "."; //$NON-NLS-1$
+				err.println(Main.bind("configure.noClasspath")); //$NON-NLS-1$
+				classProp = System.getProperty("user.dir"); //$NON-NLS-1$
 			}
 			StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
-			classpaths = new String[tokenizer.countTokens()];
+			classpaths = new String[tokenizer.countTokens() + 1];
 			while (tokenizer.hasMoreTokens()) {
 				classpaths[pathCount++] = tokenizer.nextToken();
 			}
+			classpaths[pathCount++] = System.getProperty("user.dir");//$NON-NLS-1$
 		}
 		
 		if (bootclasspathCount == 0) {
@@ -956,7 +965,7 @@ public class Main implements ProblemSeverities {
 			 */
 			 String javaversion = System.getProperty("java.version");//$NON-NLS-1$
 			 if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
-				out.println(Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
+				err.println(Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
 				proceed = false;
 				return;
 			 } else {
@@ -1045,7 +1054,7 @@ public class Main implements ProblemSeverities {
 		for (int i = 0, max = classpaths.length; i < max; i++) {
 			File file = new File(classpaths[i]);
 			if (!file.exists()) { // signal missing classpath entry file
-				out.println(Main.bind("configure.incorrectClasspath", classpaths[i])); //$NON-NLS-1$
+				err.println(Main.bind("configure.incorrectClasspath", classpaths[i])); //$NON-NLS-1$
 			} /* else {
 				out.println(classpaths[i]);
 			}*/
@@ -1086,7 +1095,7 @@ public class Main implements ProblemSeverities {
 		
 		if (log != null) {
 			try {
-				out = new PrintWriter(new FileOutputStream(log, false));
+				err = new PrintWriter(new FileOutputStream(log, false));
 			} catch (IOException e) {
 				throw new InvalidInputException(Main.bind("configure.cannotOpenLog")); //$NON-NLS-1$
 			}
@@ -1126,7 +1135,7 @@ public class Main implements ProblemSeverities {
 					lineDelta += unitLineCount;
 					if (showProgress
 						&& lineDelta > 2000) { // in -log mode, dump a dot every 2000 lines compiled
-						System.out.print('.');
+						out.print('.');
 						lineDelta = 0;
 					}
 				}
@@ -1138,8 +1147,8 @@ public class Main implements ProblemSeverities {
 						if (problems[i] != null) {
 							globalProblemsCount++;
 							if (localErrorCount == 0)
-								out.println("----------"); //$NON-NLS-1$
-							out.print(
+								err.println("----------"); //$NON-NLS-1$
+							err.print(
 								globalProblemsCount
 									+ ". "  //$NON-NLS-1$
 									+ (problems[i].isError()
@@ -1150,25 +1159,26 @@ public class Main implements ProblemSeverities {
 							} else {
 								globalWarningsCount++;
 							}
-							out.print(" "); //$NON-NLS-1$
-							out.print(
+							err.print(" "); //$NON-NLS-1$
+							err.print(
 								Main.bind("requestor.in", new String(problems[i].getOriginatingFileName()))); //$NON-NLS-1$
 							try {
-								out.println(
+								err.println(
 									((DefaultProblem) problems[i]).errorReportSource(
 										compilationResult.compilationUnit));
-								out.println(problems[i].getMessage());
+								err.println(problems[i].getMessage());
 							} catch (Exception e) {
-								out.println(
+								err.println(
 									Main.bind("requestor.notRetrieveErrorMessage", problems[i].toString())); //$NON-NLS-1$
 							}
-							out.println("----------"); //$NON-NLS-1$
+							err.println("----------"); //$NON-NLS-1$
 							if (problems[i].isError())
 								localErrorCount++;
 						}
 					};
 					// exit?
 					if (systemExitWhenFinished && !proceedOnError && (localErrorCount > 0)) {
+						err.flush();
 						out.flush();
 						System.exit(-1);
 					}
@@ -1243,7 +1253,7 @@ public class Main implements ProblemSeverities {
 	 */
 
 	public static void main(String[] argv) {
-		new Main(new PrintWriter(System.out), true).compile(argv);
+		new Main(new PrintWriter(System.out), new PrintWriter(System.err), true).compile(argv);
 	}
 	// Dump classfiles onto disk for all compilation units that where successfull.
 
@@ -1271,7 +1281,7 @@ public class Main implements ProblemSeverities {
 					} catch (IOException e) {
 						String fileName = destinationPath + new String(relativeName);
 						e.printStackTrace();
-						System.out.println(Main.bind("output.noClassFileCreated", fileName));  //$NON-NLS-1$
+						err.println(Main.bind("output.noClassFileCreated", fileName));  //$NON-NLS-1$
 					}
 					exportedClassFilesCounter++;
 				}
@@ -1294,7 +1304,7 @@ public class Main implements ProblemSeverities {
 					} catch (IOException e) {
 						String fileName = destinationPath + new String(relativeName);
 						e.printStackTrace();
-						System.out.println(Main.bind("output.noClassFileCreated", fileName)); //$NON-NLS-1$
+						err.println(Main.bind("output.noClassFileCreated", fileName)); //$NON-NLS-1$
 					}
 					exportedClassFilesCounter++;
 				}
@@ -1327,6 +1337,7 @@ public class Main implements ProblemSeverities {
 	public void printUsage() {
 		out.println(Main.bind("misc.usage", Main.bind("compiler.version"))); //$NON-NLS-1$ //$NON-NLS-2$
 		out.flush();
+		err.flush();
 	}
 
 	/**
