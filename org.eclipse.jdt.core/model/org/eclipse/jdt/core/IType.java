@@ -354,7 +354,7 @@ public interface IType extends IMember, IParent {
 	 * For classes, this gives the interfaces that this class implements.
 	 * For interfaces, this gives the interfaces that this interface extends.
 	 * An empty collection is returned if this type does not implement or
-	 * extend any interfaces. For source types, simples name are returned,
+	 * extend any interfaces. For source types, simple names are returned,
 	 * for binary types, qualified names are returned.
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
