@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
@@ -585,11 +586,17 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			if (astCU.getPackage() != null)
 				rewriter.set(astCU, CompilationUnit.PACKAGE_PROPERTY, null, null);
 		} else {
-			// add new package statement or replace existing
-			org.eclipse.jdt.core.dom.PackageDeclaration pkg = ast.newPackageDeclaration();
-			Name name = ast.newName(pkgName);
-			pkg.setName(name);
-			rewriter.set(astCU, CompilationUnit.PACKAGE_PROPERTY, pkg, null);
+			org.eclipse.jdt.core.dom.PackageDeclaration pkg = astCU.getPackage();
+			if (pkg != null) {
+				// rename package statement
+				Name name = ast.newName(pkgName);
+				rewriter.set(pkg, PackageDeclaration.NAME_PROPERTY, name, null);
+			} else {
+				// create new package statement
+				pkg = ast.newPackageDeclaration();
+				pkg.setName(ast.newName(pkgName));
+				rewriter.set(astCU, CompilationUnit.PACKAGE_PROPERTY, pkg, null);
+			}
 		}
  		TextEdit edits = rewriter.rewriteAST(document, null);
  		try {
