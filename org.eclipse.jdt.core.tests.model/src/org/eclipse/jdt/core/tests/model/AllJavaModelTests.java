@@ -82,6 +82,7 @@ public static Test suite() {
 	
 	// Support for completion tests
 	suite.addTest(CompletionTests.suite());
+	suite.addTest(CompletionTests2.suite());
 	suite.addTest(SnippetCompletionTests.suite());
 	
 	// Prefix and suffix tests

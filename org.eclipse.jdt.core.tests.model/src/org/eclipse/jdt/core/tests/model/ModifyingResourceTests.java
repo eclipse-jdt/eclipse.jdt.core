@@ -118,7 +118,13 @@ public static void generateClassFile(String className, String javaSource) throws
 		input.close();
 	}
 }
-	
+
+protected IFile createFile(String path, InputStream content) throws CoreException {
+	IFile file = this.getFile(path);
+	file.create(content, true, null);
+	return file;
+}
+
 protected IFile createFile(String path, byte[] content) throws CoreException {
 	IFile file = this.getFile(path);
 	InputStream input = new ByteArrayInputStream(content);
