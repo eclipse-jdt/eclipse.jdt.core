@@ -146,6 +146,14 @@ class DefaultBindingResolver extends BindingResolver {
 					// it should be a type reference
 					return null;
 				}
+			} else if (node instanceof QualifiedNameReference) {
+				QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
+				if (qualifiedNameReference.isTypeReference()) {
+					return this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
+				} else {
+					// it should be a type reference
+					return null;
+				}
 			}
 		}
 		return null;
