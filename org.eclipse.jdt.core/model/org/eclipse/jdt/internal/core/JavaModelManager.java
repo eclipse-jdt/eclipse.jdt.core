@@ -959,7 +959,7 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 					in.close();
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				//e.printStackTrace(); - silent failure
 				//throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, "Error reading last build state for project "+ info.project.getFullPath(), e));
 			}
 		}
