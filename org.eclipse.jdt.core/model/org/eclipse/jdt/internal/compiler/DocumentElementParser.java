@@ -586,11 +586,16 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	char[] parameterName = identifierStack[identifierPtr];
 	long namePositions = identifierPositionStack[identifierPtr--];
 	int extendedDimensions = this.intStack[this.intPtr--];
+	int endOfEllipsis = 0;
+	if (isVarArgs) {
+		endOfEllipsis = this.intStack[this.intPtr--];
+	}
 	int firstDimensions = this.intStack[this.intPtr--];
 	final int typeDimensions = firstDimensions + extendedDimensions;
 	TypeReference type = getTypeReference(typeDimensions);
 	if (isVarArgs) {
 		type = type.copyDims(typeDimensions + 1);
+		type.sourceEnd = endOfEllipsis;
 	}
 	intPtr -= 3;
 	Argument arg = 

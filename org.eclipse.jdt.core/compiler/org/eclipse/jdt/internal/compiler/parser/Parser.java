@@ -3206,11 +3206,16 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePositions = this.identifierPositionStack[this.identifierPtr--];
 	int extendedDimensions = this.intStack[this.intPtr--];
+	int endOfEllipsis = 0;
+	if (isVarArgs) {
+		endOfEllipsis = this.intStack[this.intPtr--];
+	}
 	int firstDimensions = this.intStack[this.intPtr--];
 	final int typeDimensions = firstDimensions + extendedDimensions;
 	TypeReference type = getTypeReference(typeDimensions);
 	if (isVarArgs) {
 		type = type.copyDims(typeDimensions + 1);
+		type.sourceEnd = endOfEllipsis;
 	}
 	int modifierPositions = this.intStack[this.intPtr--];
 	this.intPtr--;
@@ -6715,6 +6720,9 @@ protected void consumeToken(int type) {
 		case TokenNameLESS :
 			pushOnIntStack(this.scanner.startPosition);
 			break;
+		case TokenNameELLIPSIS :
+			pushOnIntStack(this.scanner.currentPosition - 1);
+			break;			
 			//  case TokenNameCOMMA :
 			//  case TokenNameCOLON  :
 			//  case TokenNameEQUAL  :
