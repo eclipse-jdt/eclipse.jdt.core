@@ -19,6 +19,8 @@ What's new in this drop</h2>
 <li> The compiler will now follow JLS 8.6 with respect to anonymous class 
 constructors (i.e. allow them to throw any exceptions).
 <li> The compiler now enforces that interface methods be compatible with Object ones.
+<li> The batch compiler will no longer create package directory structure anymore when the command line
+argument '-d' <tt><destination></tt> is omitted (compliant with standard batch compilers).
 </ul>
 
 <h3>
@@ -66,7 +68,9 @@ erroneous warning of unused variables
 
 <h3>
 Problem Reports Closed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=7302">7302</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=6984">6984</a>
+DCR - more fault-tolerance in presence of inconsistent binaries  
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=7302">7302</a>
 Need visibility in search results 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=7305">7305</a>
 interface methods are marked abstract
