@@ -415,7 +415,7 @@ public final class AST {
 	 * </p>
 	 * 
 	 * @param name the name of a well known type
-	 * @return the corresponding type binding, or <code>null<code> if the 
+	 * @return the corresponding type binding, or <code>null</code> if the 
 	 *   named type is not considered well known or if no binding can be found
 	 *   for it
 	 */
