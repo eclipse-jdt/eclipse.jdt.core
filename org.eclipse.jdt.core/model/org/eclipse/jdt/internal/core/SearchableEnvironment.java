@@ -77,7 +77,10 @@ public class SearchableEnvironment
 				try {
 					// retrieve the requested type
 					SourceTypeElementInfo sourceType = (SourceTypeElementInfo)((SourceType)type).getRawInfo();
-
+					ISourceType topLevelType = sourceType;
+					while (topLevelType.getEnclosingType() != null) {
+						topLevelType = topLevelType.getEnclosingType();
+					}
 					// find all siblings (other types declared in same unit, since may be used for name resolution)
 					IType[] types = sourceType.getHandle().getCompilationUnit().getTypes();
 					ISourceType[] sourceTypes = new ISourceType[types.length];
@@ -87,7 +90,7 @@ public class SearchableEnvironment
 					for (int i = 0, index = 1; i < types.length; i++) {
 						ISourceType otherType =
 							(ISourceType) ((JavaElement) types[i]).getRawInfo();
-						if (!otherType.equals(sourceType))
+						if (!otherType.equals(topLevelType))
 							sourceTypes[index++] = otherType;
 					}
 					return new NameEnvironmentAnswer(sourceTypes);
