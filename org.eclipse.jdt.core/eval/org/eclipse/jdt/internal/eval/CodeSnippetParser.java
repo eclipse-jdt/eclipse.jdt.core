@@ -2,8 +2,9 @@ package org.eclipse.jdt.internal.eval;
 
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
- * All Rights Reserved.
+ * All Rights Reserved. 
  */
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.parser.*;

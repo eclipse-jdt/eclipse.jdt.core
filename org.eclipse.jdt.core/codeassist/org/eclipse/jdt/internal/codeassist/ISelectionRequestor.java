@@ -4,8 +4,8 @@ package org.eclipse.jdt.internal.codeassist;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.IProblem;
 
 /**
  * A selection requestor accepts results from the selection engine.

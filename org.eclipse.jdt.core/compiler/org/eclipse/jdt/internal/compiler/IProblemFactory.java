@@ -2,6 +2,8 @@ package org.eclipse.jdt.internal.compiler;
 
 import java.util.Locale;
 
+import org.eclipse.jdt.core.compiler.*;
+
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.

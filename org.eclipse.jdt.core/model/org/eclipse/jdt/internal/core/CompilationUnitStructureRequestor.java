@@ -7,11 +7,11 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.util.*;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.IProblem;
 
 import java.util.*;
 

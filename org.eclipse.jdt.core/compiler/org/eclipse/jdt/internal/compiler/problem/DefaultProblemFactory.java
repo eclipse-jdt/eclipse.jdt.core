@@ -3,9 +3,10 @@ package org.eclipse.jdt.internal.compiler.problem;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
-import java.text.*;
+import java.text.*; 
 import java.util.*;
 
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 

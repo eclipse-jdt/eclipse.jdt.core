@@ -5,11 +5,11 @@ package org.eclipse.jdt.internal.core.eval;
  */
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ClassFile;
-import org.eclipse.jdt.internal.compiler.IProblem;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.ResourcesPlugin;
 
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.eval.ICodeSnippetRequestor;
 import org.eclipse.jdt.internal.eval.IRequestor;
 

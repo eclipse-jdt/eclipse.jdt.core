@@ -1,4 +1,4 @@
-package org.eclipse.jdt.internal.compiler;
+package org.eclipse.jdt.core.compiler;
 /*
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
