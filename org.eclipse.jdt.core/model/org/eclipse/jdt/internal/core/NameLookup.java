@@ -491,6 +491,7 @@ public class NameLookup implements SuffixConstants {
 	public void seekPackageFragments(String name, boolean partialMatch, IJavaElementRequestor requestor) {
 		int count= this.packageFragmentRoots.length;
 		String matchName= partialMatch ? name.toLowerCase() : name;
+		String[] splittedName = partialMatch ? null : Util.splitOn('.', matchName, 0, matchName.length());
 		for (int i= 0; i < count; i++) {
 			if (requestor.isCanceled())
 				return;
@@ -506,8 +507,13 @@ public class NameLookup implements SuffixConstants {
 				if (requestor.isCanceled())
 					return;
 				IPackageFragment packageFragment= (IPackageFragment) list[j];
-				if (nameMatches(matchName, packageFragment, partialMatch))
-					requestor.acceptPackageFragment(packageFragment);
+				if (partialMatch) {
+					if (packageFragment.getElementName().toLowerCase().startsWith(matchName))
+						requestor.acceptPackageFragment(packageFragment);
+				} else {
+					if (Util.equalArraysOrNull(((PackageFragment)packageFragment).names, splittedName))
+						requestor.acceptPackageFragment(packageFragment);
+				}
 			}
 		}
 	}
