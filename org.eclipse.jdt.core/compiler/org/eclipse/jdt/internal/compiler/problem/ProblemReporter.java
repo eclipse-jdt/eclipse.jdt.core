@@ -2946,6 +2946,7 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 		nameRef.sourceEnd);
 }
 public void unusedArgument(LocalDeclaration localDecl) {
+
 	String[] arguments = new String[] {localDecl.name()};
 	this.handle(
 		IProblem.ArgumentIsNeverUsed,

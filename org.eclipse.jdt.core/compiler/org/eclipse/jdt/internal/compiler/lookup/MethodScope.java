@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -220,6 +221,19 @@ public class MethodScope extends BlockScope {
 	 */
 	public void computeLocalVariablePositions(int initOffset, CodeStream codeStream) {
 
+		boolean isReportingUnusedArgument = false;
+
+		if (referenceContext instanceof AbstractMethodDeclaration) {
+			AbstractMethodDeclaration methodDecl = (AbstractMethodDeclaration)referenceContext;
+			MethodBinding method = methodDecl.binding;
+			CompilerOptions options = compilationUnitScope().environment.options;
+			if (!(method.isAbstract()
+					|| (method.isImplementing() && !options.reportUnusedParameterWhenImplementingAbstract) 
+					|| (method.isOverriding() && !method.isImplementing() && !options.reportUnusedParameterWhenOverridingConcrete)
+					|| method.isMain())) {
+				isReportingUnusedArgument = true;
+			}
+		}
 		this.offset = initOffset;
 		this.maxOffset = initOffset;
 
@@ -230,8 +244,9 @@ public class MethodScope extends BlockScope {
 			if (local == null || !local.isArgument) break; // done with arguments
 
 			// do not report fake used variable
-			if (local.useFlag == LocalVariableBinding.UNUSED
-				&& ((local.declaration.bits & AstNode.IsLocalDeclarationReachableMASK) != 0)) { // declaration is reachable
+			if (isReportingUnusedArgument
+					&& local.useFlag == LocalVariableBinding.UNUSED
+					&& ((local.declaration.bits & AstNode.IsLocalDeclarationReachableMASK) != 0)) { // declaration is reachable
 				this.problemReporter().unusedArgument(local.declaration);
 			}
 

@@ -169,6 +169,18 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String COMPILER_PB_UNUSED_PARAMETER_WHEN_IMPLEMENTING_ABSTRACT = PLUGIN_ID + ".compiler.problem.unusedParameterWhenImplementingAbstract"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String COMPILER_PB_UNUSED_PARAMETER_WHEN_OVERRIDING_CONCRETE = PLUGIN_ID + ".compiler.problem.unusedParameterWhenOverridingConcrete"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
 	 * @since 2.0
 	 */
 	public static final String COMPILER_PB_UNUSED_IMPORT = PLUGIN_ID + ".compiler.problem.unusedImport"; //$NON-NLS-1$
@@ -945,7 +957,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 			}	
 		}
 		return null;
-	}		
+	}
 
 	/**
 	 * Returns the path held in the given classpath variable.
@@ -1179,6 +1191,20 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedParameter"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
+	 *
+	 * COMPILER / Reporting Unused Parameter if Implementing Abstract Method
+	 *    When enabled, the compiler will signal unused parameters in abstract method implementations.
+	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.unusedParameter".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
+	 *
+	 * COMPILER / Reporting Unused Parameter if Overriding Concrete Method
+	 *    When enabled, the compiler will signal unused parameters in methods overriding concrete ones.
+	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.unusedParameter".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
 	 *
 	 * COMPILER / Reporting Unused Import
 	 *    When enabled, the compiler will issue an error or a warning for unused import 
@@ -1783,6 +1809,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		preferences.setDefault(COMPILER_PB_UNUSED_PARAMETER, IGNORE); 
 		optionNames.add(COMPILER_PB_UNUSED_PARAMETER);
+
+		preferences.setDefault(COMPILER_PB_UNUSED_PARAMETER_WHEN_IMPLEMENTING_ABSTRACT, DISABLED); 
+		optionNames.add(COMPILER_PB_UNUSED_PARAMETER_WHEN_IMPLEMENTING_ABSTRACT);
+
+		preferences.setDefault(COMPILER_PB_UNUSED_PARAMETER_WHEN_OVERRIDING_CONCRETE, DISABLED); 
+		optionNames.add(COMPILER_PB_UNUSED_PARAMETER_WHEN_OVERRIDING_CONCRETE);
 
 		preferences.setDefault(COMPILER_PB_UNUSED_IMPORT, WARNING); 
 		optionNames.add(COMPILER_PB_UNUSED_IMPORT);

@@ -1216,6 +1216,76 @@ public class Main implements ProblemSeverities {
 		});
 	}
 	
+	public Map getDefaultOptions() {
+		Map defaultOptions = new Hashtable();
+		defaultOptions.put(
+			CompilerOptions.OPTION_LocalVariableAttribute,
+			CompilerOptions.DO_NOT_GENERATE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_LineNumberAttribute,
+			CompilerOptions.GENERATE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_SourceFileAttribute,
+			CompilerOptions.GENERATE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_PreserveUnusedLocal,
+			CompilerOptions.OPTIMIZE_OUT);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnreachableCode,
+			CompilerOptions.ERROR);
+		defaultOptions.put(CompilerOptions.OPTION_ReportInvalidImport, CompilerOptions.ERROR);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportMethodWithConstructorName,
+			CompilerOptions.WARNING);
+		defaultOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportHiddenCatchBlock,
+			CompilerOptions.WARNING);
+		defaultOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedParameter,
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract,
+			CompilerOptions.DISABLED);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete,
+			CompilerOptions.DISABLED);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportAssertIdentifier,
+			CompilerOptions.IGNORE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_Compliance,
+			CompilerOptions.VERSION_1_3);
+		defaultOptions.put(
+			CompilerOptions.OPTION_Source,
+			CompilerOptions.VERSION_1_3);
+		defaultOptions.put(
+			CompilerOptions.OPTION_TargetPlatform,
+			CompilerOptions.VERSION_1_1);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportNoImplicitStringConversion,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportStaticAccessReceiver,
+			CompilerOptions.WARNING);			
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedPrivateMember,
+			CompilerOptions.IGNORE);
+			return defaultOptions;
+	}
 	public Map getOptions() {
 		return this.options;
 	}

@@ -306,13 +306,13 @@ public abstract class AbstractMethodDeclaration
 		try {
 			bindArguments(); 
 			bindThrownExceptions();
-			resolveStatements(upperScope);
+			resolveStatements();
 		} catch (AbortMethod e) {	// ========= abort on fatal error =============
 			this.ignoreFurtherInvestigation = true;
 		} 
 	}
 
-	public void resolveStatements(ClassScope upperScope) {
+	public void resolveStatements() {
 
 		if (statements != null) {
 			int i = 0, length = statements.length;

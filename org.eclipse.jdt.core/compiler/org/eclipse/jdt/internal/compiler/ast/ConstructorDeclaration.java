@@ -376,7 +376,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	 * Type checking for constructor, just another method, except for special check
 	 * for recursive constructor invocations.
 	 */
-	public void resolveStatements(ClassScope upperScope) {
+	public void resolveStatements() {
 
 		if (!CharOperation.equals(scope.enclosingSourceType().sourceName, selector)){
 			scope.problemReporter().missingReturnType(this);
@@ -397,7 +397,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			}
 		}
 		
-		super.resolveStatements(upperScope);
+		super.resolveStatements();
 	}
 
 	public String toStringStatements(int tab) {

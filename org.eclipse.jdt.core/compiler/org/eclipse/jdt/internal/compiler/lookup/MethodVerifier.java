@@ -49,8 +49,12 @@ public MethodVerifier(LookupEnvironment environment) {
 	this.environment = environment;
 }
 private void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length) {
+	currentMethod.modifiers |= CompilerModifiers.AccOverriding;
 	for (int i = length; --i >= 0;) {
 		MethodBinding inheritedMethod = methods[i];
+		if (!currentMethod.isAbstract() && inheritedMethod.isAbstract())
+			currentMethod.modifiers |= CompilerModifiers.AccImplementing;
+
 		if (currentMethod.returnType != inheritedMethod.returnType) {
 			this.problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
 		} else if (currentMethod.isStatic() != inheritedMethod.isStatic()) {  // Cannot override a static method or hide an instance method
@@ -155,7 +159,7 @@ For each inherited method identifier (message pattern - vm signature minus the r
 				else
 					complain about missing implementation only if type is NOT an interface or abstract
 */
-private void checkMethods() {
+private void checkMethods() { 
 	boolean mustImplementAbstractMethods = this.type.isClass() && !this.type.isAbstract();
 	char[][] methodSelectors = this.inheritedMethods.keyTable;
 	for (int s = methodSelectors.length; --s >= 0;) {

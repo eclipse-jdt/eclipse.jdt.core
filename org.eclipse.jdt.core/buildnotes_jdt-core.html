@@ -37,14 +37,38 @@
 Eclipse Platform Build Notes&nbsp;<br>
 Java Development Tooling Core</h1>
 Eclipse SDK 2.1 Build - ?th February 2003
-<br>Project org.eclipse.jdt.core v_???
+<br>Project org.eclipse.jdt.core v_298
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Unused parameter diagnosis will now ignore parameters in an abstract method,
+a main method, an implementation of an abstract method or a method overriding a
+concrete one. Additional settings got added for enabling the diagnosis of the latter
+two scenarii.
+<pre>
+* COMPILER / Reporting Unused Parameter if Implementing Abstract Method
+*    When enabled, the compiler will signal unused parameters in abstract method implementations.
+*    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.unusedParameter".
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract"
+*     - possible values:   { "enabled", "disabled" }
+*     - default:           "disabled"
+*
+* COMPILER / Reporting Unused Parameter if Overriding Concrete Method
+*    When enabled, the compiler will signal unused parameters in methods overriding concrete ones.
+*    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.unusedParameter".
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete"
+*     - possible values:   { "enabled", "disabled" }
+*     - default:           "disabled"
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=31383">31383</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=25204">25204</a>
+Eclipse compiler option: Unused parameters (i.e. never read)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=27251">27251</a>
+Compiler preferences: Unused parameters - ignore main
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=31383">31383</a>
 Strange rendering of of link resources when link points to Eclipse workspace 
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=31756">31756</a>
 Code assist: fails inside an array which inside a function call 
@@ -54,7 +78,16 @@ Java Compiler progress monitor tells about probelms found
 OOM Exception in search cause IDE freeze
 
 <h3>Problem Reports Closed</h3>
-
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=31809">31809</a>
+Eclipse reports error in task view - but it's no error!
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=28319">28319</a>
+Unused parameter should be limited to current method/class
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=31243">31243</a>
+Warn of unused parameters: Should not warn when method overrides
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=28139">28139</a>
+Highlight unused method parameters that are not inherited
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=31380">31380</a>
+NPE setting classpath
 
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
@@ -64,10 +97,6 @@ Eclipse SDK 2.1 Build - 13th February 2003
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>To help fixing bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=31135 ">31135</a>,
-      added new flag <code>F_REORDER</code> on <code>IJavaElementDelta</code>. This flag is 
-      positioned if a member in a compilation unit has changed its position relatively to its siblings.
-</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

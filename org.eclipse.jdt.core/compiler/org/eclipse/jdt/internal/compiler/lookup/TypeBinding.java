@@ -47,6 +47,12 @@ public abstract char[] constantPoolName(); /* java/lang/Object */
 String debugName() {
 	return new String(readableName());
 }
+/*
+ * Answer the receiver's dimensions - 0 for non-array types
+ */
+public int dimensions(){
+	return 0;
+}
 public abstract PackageBinding getPackage();
 /* Answer true if the receiver is an array
 */

@@ -95,7 +95,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		parser.parse(this, unit);
 	}
 
-	public void resolveStatements(ClassScope upperScope) {
+	public void resolveStatements() {
 
 		// ========= abort on fatal error =============
 		if (this.returnType != null && this.binding != null) {
@@ -124,7 +124,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					scope.problemReporter().methodNeedingNoBody(this);
 			}
 		}
-		super.resolveStatements(upperScope); 
+		super.resolveStatements(); 
 	}
 
 	public String returnTypeToString(int tab) {

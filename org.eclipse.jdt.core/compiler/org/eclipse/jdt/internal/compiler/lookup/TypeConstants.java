@@ -19,6 +19,7 @@ public interface TypeConstants {
 	final char[] LENGTH = new char[] {'l', 'e', 'n', 'g', 't', 'h'};
 	final char[] CLONE = new char[] {'c', 'l', 'o', 'n', 'e'};
 	final char[] OBJECT = new char[] {'O', 'b', 'j', 'e', 'c', 't' };
+	final char[] MAIN = new char[]{'m', 'a', 'i', 'n'};
 	
 	// Constant compound names
 	final char[][] JAVA_LANG = new char[][] {JAVA, LANG};

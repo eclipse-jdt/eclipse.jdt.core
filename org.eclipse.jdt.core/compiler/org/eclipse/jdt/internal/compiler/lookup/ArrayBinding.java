@@ -47,6 +47,10 @@ String debugName() {
 		brackets.append("[]"); //$NON-NLS-1$
 	return leafComponentType.debugName() + brackets.toString();
 }
+public int dimensions() {
+	return this.dimensions;
+}
+
 /* Answer an array whose dimension size is one less than the receiver.
 *
 * When the receiver's dimension size is one then answer the leaf component type.

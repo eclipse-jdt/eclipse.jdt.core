@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.codeassist.complete;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 
 public class CompletionOnMethodReturnType extends MethodDeclaration {
 	public CompletionOnMethodReturnType(TypeReference returnType, CompilationResult compilationResult){
@@ -23,8 +22,8 @@ public class CompletionOnMethodReturnType extends MethodDeclaration {
 		this.sourceEnd = returnType.sourceEnd;
 	}
 	
-	public void resolveStatements(ClassScope upperScope) {
-			throw new CompletionNodeFound(this, upperScope);
+	public void resolveStatements() {
+			throw new CompletionNodeFound(this, this.scope);
 	}
 	
 	public String toString(int tab) {

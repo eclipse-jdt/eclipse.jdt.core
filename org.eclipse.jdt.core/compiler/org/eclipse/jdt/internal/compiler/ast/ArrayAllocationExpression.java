@@ -58,7 +58,6 @@ public class ArrayAllocationExpression extends Expression {
 		boolean valueRequired) {
 
 		int pc = codeStream.position;
-		ArrayBinding arrayBinding;
 
 		if (initializer != null) {
 			initializer.generateCode(currentScope, codeStream, valueRequired);
@@ -73,10 +72,9 @@ public class ArrayAllocationExpression extends Expression {
 			}
 
 		// Generate a sequence of bytecodes corresponding to an array allocation
-		if ((this.resolvedType.isArrayType())
-			&& ((arrayBinding = (ArrayBinding) this.resolvedType).dimensions == 1)) {
+		if (this.resolvedType.dimensions() == 1) {
 			// Mono-dimensional array
-			codeStream.newArray(currentScope, arrayBinding);
+			codeStream.newArray(currentScope, (ArrayBinding)this.resolvedType);
 		} else {
 			// Multi-dimensional array
 			codeStream.multianewarray(this.resolvedType, nonNullDimensionsLength);

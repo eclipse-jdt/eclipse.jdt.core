@@ -40,6 +40,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 	public static final String OPTION_ReportHiddenCatchBlock = "org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedLocal = "org.eclipse.jdt.core.compiler.problem.unusedLocal"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedParameter = "org.eclipse.jdt.core.compiler.problem.unusedParameter"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnusedParameterWhenImplementingAbstract = "org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnusedParameterWhenOverridingConcrete = "org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedImport = "org.eclipse.jdt.core.compiler.problem.unusedImport"; //$NON-NLS-1$
 	public static final String OPTION_ReportSyntheticAccessEmulation = "org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
 	public static final String OPTION_ReportNoEffectAssignment = "org.eclipse.jdt.core.compiler.problem.noEffectAssignment"; //$NON-NLS-1$
@@ -166,6 +168,10 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 
 	// deprecation report
 	public boolean reportDeprecationInsideDeprecatedCode = false;
+	
+	// unused parameters report
+	public boolean reportUnusedParameterWhenImplementingAbstract = false;
+	public boolean reportUnusedParameterWhenOverridingConcrete = false;
 	
 	/** 
 	 * Initializing the compiler options with defaults
@@ -371,7 +377,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				}
 				continue;
 			}
-			// Report no implicit string conversion
+			// Report no implicit String conversion
 			if (optionID.equals(OPTION_ReportNoImplicitStringConversion)) {
 				if (optionValue.equals(ERROR)) {
 					this.errorThreshold |= NoImplicitStringConversion;
@@ -399,7 +405,25 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 				}
 				continue;
 			} 
-			// Report unused parameter
+			// Report unused parameter when implementing abstract method 
+			if(optionID.equals(OPTION_ReportUnusedParameterWhenImplementingAbstract)){
+				if (optionValue.equals(ENABLED)) {
+					this.reportUnusedParameterWhenImplementingAbstract = true;
+				} else if (optionValue.equals(DISABLED)) {
+					this.reportUnusedParameterWhenImplementingAbstract = false;
+				}
+				continue;
+			} 
+			// Report unused parameter when implementing abstract method 
+			if(optionID.equals(OPTION_ReportUnusedParameterWhenOverridingConcrete)){
+				if (optionValue.equals(ENABLED)) {
+					this.reportUnusedParameterWhenOverridingConcrete = true;
+				} else if (optionValue.equals(DISABLED)) {
+					this.reportUnusedParameterWhenOverridingConcrete = false;
+				}
+				continue;
+			} 
+			// Report unused import
 			if(optionID.equals(OPTION_ReportUnusedImport)){
 				if (optionValue.equals(ERROR)) {
 					this.errorThreshold |= UnusedImport;
@@ -777,6 +801,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities {
 		buf.append("\n-task tags: " + (this.taskTags == null ? "" : new String(CharOperation.concatWith(this.taskTags,','))));  //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n-task priorities : " + (this.taskPriorites == null ? "" : new String(CharOperation.concatWith(this.taskPriorites,',')))); //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n-report deprecation inside deprecated code : " + (reportDeprecationInsideDeprecatedCode ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-report unused parameter when implementing abstract method : " + (reportUnusedParameterWhenImplementingAbstract ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		buf.append("\n-report unused parameter when overriding concrete method : " + (reportUnusedParameterWhenOverridingConcrete ? "ENABLED" : "DISABLED")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return buf.toString();
 	}
 }
