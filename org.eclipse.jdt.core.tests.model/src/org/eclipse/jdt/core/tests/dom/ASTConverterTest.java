@@ -7785,6 +7785,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("Wrong number of errors", 2, compilationUnit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertTrue("Not an VariableDeclarationStatement", node instanceof VariableDeclarationStatement); //$NON-NLS-1$
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
@@ -7795,7 +7796,8 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("Not a CastExpression", expression instanceof CastExpression); //$NON-NLS-1$
 		CastExpression castExpression = (CastExpression) expression;
 		ITypeBinding typeBinding = castExpression.resolveTypeBinding();
-		assertNull("typeBinding is not null", typeBinding); //$NON-NLS-1$
+		assertNotNull("No typebinding", typeBinding); //$NON-NLS-1$
+		assertEquals("Wrong name", "String", typeBinding.getName());
 		Type type = castExpression.getType();
 		ITypeBinding typeBinding2 = type.resolveBinding();
 		assertNotNull("No binding2", typeBinding2); //$NON-NLS-1$
