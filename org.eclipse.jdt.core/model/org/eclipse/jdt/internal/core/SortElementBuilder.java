@@ -217,6 +217,32 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 				buffer.append(SortElementBuilder.this.source, this.sourceStart, this.sourceEnd - this.sourceStart + 1);
 			}	
 		}
+
+		protected void mapPositions() {
+			int length = this.children_count;
+			if (length != 0) {
+				int start = this.sourceStart;
+				int end = this.firstChildBeforeSorting.sourceStart - 1;
+
+				for (int i = 0; i < length; i++) {
+					mapNextPosition(this, start, end);
+					this.children[i].mapPositions();
+					if (i < length - 1) {
+						start = this.children[i].sourceEnd + 1;
+					} else {
+						start = this.lastChildBeforeSorting.sourceEnd + 1;
+					}
+					if (i < length - 1) {
+						end = this.children[i + 1].sourceStart - 1;
+					} else {
+						end = this.sourceEnd;
+					}
+				}
+				mapNextPosition(this, start, end);
+			} else {
+				mapNextPosition(this, this.sourceStart, this.sourceEnd);
+			}	
+		}
 	}
 	
 	class SortMethodDeclaration extends SortAbstractMethodDeclaration {
@@ -424,7 +450,57 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			} else {
 				buffer.append(SortElementBuilder.this.source, this.nameSourceStart, this.sourceEnd - this.nameSourceStart + 1);
 			}	
-		}		
+		}
+		protected void mapReducedPositions() {
+			int length = this.children_count;
+			if (length != 0) {
+				int start = this.nameSourceStart;
+				int end = this.firstChildBeforeSorting.sourceStart - 1;
+				mapNextPosition(this, start, end);
+				for (int i = 0; i < length; i++) {
+					this.children[i].mapPositions();
+					if (i < length - 1) {
+						start = this.children[i].sourceEnd + 1;
+					} else {
+						start = this.lastChildBeforeSorting.sourceEnd + 1;
+					}
+					if (i < length - 1) {
+						end = this.children[i + 1].sourceStart - 1;
+					} else {
+						end = this.sourceEnd;
+					}
+				}
+				mapNextPosition(this, start, end);
+			} else {
+				mapNextPosition(this, this.nameSourceStart, this.sourceEnd);
+			}	
+		}
+		
+		protected void mapPositions() {
+			int length = this.children_count;
+			if (length != 0) {
+				int start = this.sourceStart;
+				int end = this.firstChildBeforeSorting.sourceStart - 1;
+
+				for (int i = 0; i < length; i++) {
+					mapNextPosition(this, start, end);
+					this.children[i].mapPositions();
+					if (i < length - 1) {
+						start = this.children[i].sourceEnd + 1;
+					} else {
+						start = this.lastChildBeforeSorting.sourceEnd + 1;
+					}
+					if (i < length - 1) {
+						end = this.children[i + 1].sourceStart - 1;
+					} else {
+						end = this.declarationSourceEnd;
+					}
+				}
+				mapNextPosition(this, start, end);
+			} else {
+				mapNextPosition(this, this.sourceStart, this.declarationSourceEnd);
+			}	
+		}
 	}
 	
 	class SortMultipleFieldDeclaration extends SortElement {
@@ -506,7 +582,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			int start = this.innerFields[0].sourceStart;
 			int end = this.innerFields[0].nameSourceStart - 1;
 			buffer.append(SortElementBuilder.this.source, start, end - start + 1);
-			
 			for (int i = 0; i < length; i++) {
 				this.innerFields[i].newSourceStart = this.newSourceStart;
 				this.innerFields[i].generateReduceSource(buffer);
@@ -519,6 +594,25 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			start = this.innerFields[length - 1].sourceEnd + 1;
 			end = this.innerFields[length - 1].declarationSourceEnd;
 			buffer.append(SortElementBuilder.this.source, start, end - start + 1);
+		}
+
+		protected void mapPositions() {
+			int length = this.fieldCounter;
+			int start = this.innerFields[0].sourceStart;
+			int end = this.innerFields[0].nameSourceStart - 1;
+			mapNextPosition(this, start, end);
+			for (int i = 0; i < length; i++) {
+				this.innerFields[i].newSourceStart = this.newSourceStart;
+				this.innerFields[i].mapReducedPositions();
+				if (i < length - 1) {
+					start = this.innerFields[i].sourceEnd + 1;
+					end = this.innerFields[i + 1].nameSourceStart - 1;
+					mapNextPosition(this, start, end);
+				}
+			}
+			start = this.innerFields[length - 1].sourceEnd + 1;
+			end = this.innerFields[length - 1].declarationSourceEnd;
+			mapNextPosition(this, start, end);
 		}
 
 		protected void sort() {
@@ -555,7 +649,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			if (length != 0) {
 				int start = this.sourceStart;
 				int end = this.firstChildBeforeSorting.sourceStart - 1;
-
+		
 				for (int i = 0; i < length; i++) {
 					buffer.append(SortElementBuilder.this.source, start, end - start + 1);
 					this.children[i].generateSource(buffer);
@@ -576,6 +670,31 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			}	
 		}
 
+		protected void mapPositions() {
+			int length = this.children_count;
+			if (length != 0) {
+				int start = this.sourceStart;
+				int end = this.firstChildBeforeSorting.sourceStart - 1;
+		
+				for (int i = 0; i < length; i++) {
+					mapNextPosition(this, start, end);
+					this.children[i].mapPositions();
+					if (i < length - 1) {
+						start = this.children[i].sourceEnd + 1;
+					} else {
+						start = this.lastChildBeforeSorting.sourceEnd + 1;
+					}
+					if (i < length - 1) {
+						end = this.children[i + 1].sourceStart - 1;
+					} else {
+						end = this.sourceEnd;
+					}
+				}
+				mapNextPosition(this, start, end);
+			} else {
+				mapNextPosition(this, this.sourceStart, this.sourceEnd);
+			}	
+		}
 	}
 
 	class SortClassDeclaration extends SortType  {
@@ -661,19 +780,34 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		protected void generateSource(StringBuffer buffer) {
 			super.generateSource(buffer);
 			int length = this.children_count;
+			int start = this.sourceStart;
 			if (length != 0) {
-				int start = this.sourceStart;
 				int end = this.firstChildBeforeSorting.sourceStart;
 				
 				buffer.append(SortElementBuilder.this.source, start, end - start);
-				
 				for (int i = 0; i < length; i++) {
 					((SortElementBuilder.SortElement)this.astNodes[i].getProperty(CORRESPONDING_ELEMENT)).generateSource(buffer);
 				}
 				start = this.lastChildBeforeSorting.sourceEnd + 1;
 				buffer.append(SortElementBuilder.this.source, start, this.sourceEnd - start + 1);
 			} else {
-				buffer.append(SortElementBuilder.this.source, this.sourceStart, this.sourceEnd - this.sourceStart + 1);
+				buffer.append(SortElementBuilder.this.source, start, this.sourceEnd - start + 1);
+			}
+		}
+
+		protected void mapPositions() {
+			int length = this.children_count;
+			int start = this.sourceStart;
+			if (length != 0) {
+				int end = this.firstChildBeforeSorting.sourceStart;
+				mapNextPosition(this, start, end);
+				for (int i = 0; i < length; i++) {
+					children[i].mapPositions();
+				}
+				start = this.lastChildBeforeSorting.sourceEnd + 1;
+				mapNextPosition(this, start, this.sourceEnd);
+			} else {
+				mapNextPosition(this, start, this.sourceEnd);
 			}
 		}
 	}
@@ -743,12 +877,27 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			int length = this.children_count;
 			if (length != 0) {
 				int end = this.firstChildBeforeSorting.sourceStart;
+				int start = this.lastChildBeforeSorting.sourceEnd + 1;
 				buffer.append(SortElementBuilder.this.source, 0, end);
 				for (int i = 0; i < length; i++) {
 					((SortElementBuilder.SortElement)this.astNodes[i].getProperty(CORRESPONDING_ELEMENT)).generateSource(buffer);
 				}
-				int start = this.lastChildBeforeSorting.sourceEnd + 1;
 				buffer.append(SortElementBuilder.this.source, start, this.sourceEnd - start + 1);
+			}
+		}
+
+		protected void mapPositions() {
+			int length = this.children_count;
+			if (length != 0) {
+				int end = this.firstChildBeforeSorting.sourceStart;
+				int start = this.lastChildBeforeSorting.sourceEnd + 1;
+				mapNextPosition(this, 0, end);
+				for (int i = 0; i < length; i++) {
+					children[i].mapPositions();
+				}
+				mapNextPosition(this, start, this.sourceEnd);
+			} else {
+				mapNextPosition(this, this.sourceStart, this.sourceEnd);
 			}
 		}
 	}
@@ -763,6 +912,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	int[] lineEnds;
 	Comparator comparator;
 	int[] positionsToMap;
+	int positionsToMapIndex;
 	
 	public SortElementBuilder(char[] source, int[] positionsToMap, Comparator comparator) {
 		this.source = source;
@@ -781,9 +931,10 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		
 	public String getSource() {
 		StringBuffer buffer = new StringBuffer();
+		this.positionsToMapIndex = 0;
 		this.compilationUnit.generateSource(buffer);
 		if (this.positionsToMap != null) {
-			compilationUnit.traverseChildrenLast(new SortJavaElement.PositionsBuilder(this.positionsToMap));
+			this.compilationUnit.mapPositions();
 		}
 		return buffer.toString();
 	}
@@ -818,12 +969,22 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	}
 	
 	void sort() {
-		if (this.positionsToMap != null) {
-			compilationUnit.traverseChildrenFirst(new SortJavaElement.PositionsMapper(this.positionsToMap));
-		}
 		compilationUnit.sort();
 	}
 
+	void mapNextPosition(SortJavaElement node, int start, int end) {
+		int i = this.positionsToMapIndex;
+		for (; i < this.positionsToMap.length; i++) {
+			int nextPosition = this.positionsToMap[i];
+			if (nextPosition >= start
+				&& nextPosition <= end) {
+					this.positionsToMap[i] += (node.newSourceStart - node.sourceStart);
+				} else {
+					break;
+				}
+		}
+		this.positionsToMapIndex = i;
+	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ISourceElementRequestor#enterClass(int, int, char, int, int, char, char)
 	 */

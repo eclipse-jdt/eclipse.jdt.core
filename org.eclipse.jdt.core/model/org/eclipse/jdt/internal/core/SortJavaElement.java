@@ -22,44 +22,6 @@ import org.eclipse.jdt.internal.core.SortElementBuilder.SortElement;
  */
 public abstract class SortJavaElement implements Comparable {
 
-	static class SortElementVisitor {
-		void visit(SortJavaElement node) {
-		}
-
-	}
-
-	static class PositionsMapper extends SortElementVisitor {
-		int[] positionsToMap;
-		
-		PositionsMapper(int[] positionsToMap) {
-			this.positionsToMap = positionsToMap;
-		}
-		void visit(SortJavaElement node) {
-			for (int i = 0, max = positionsToMap.length; i < max; i++) {
-				int nextPosition = positionsToMap[i];
-				if (nextPosition != -1
-					&& nextPosition >= node.sourceStart 
-					&& nextPosition <= node.sourceEnd) {
-						node.recordPosition(nextPosition);
-						positionsToMap[i] = -1;
-					}
-			}
-		}
-	}
-
-	static class PositionsBuilder extends SortElementVisitor {
-		int[] index;
-		int[] positionsToMap;
-		
-		PositionsBuilder(int[] positionsToMap) {
-			this.positionsToMap = positionsToMap;
-			index = new int[1];
-		}
-		void visit(SortJavaElement node) {
-			node.retrieveMappedPositions(this.positionsToMap, this.index);
-		}
-	}
-	
 	public static final int COMPILATION_UNIT = 1;
 	public static final int TYPE = 2;
 	public static final int CLASS = 4;
@@ -103,9 +65,6 @@ public abstract class SortJavaElement implements Comparable {
 	protected int declarationStart;
 	protected int declarationSourceEnd;
 	
-	protected int[] positions;
-	protected int positionsCounter;
-	
 	SortJavaElement(SortElementBuilder builder) {
 		this.builder = builder;
 		this.options = JavaCore.getOptions();
@@ -139,6 +98,8 @@ public abstract class SortJavaElement implements Comparable {
 		this.newSourceStart = buffer.length();
 	}
 
+	abstract void mapPositions();
+	
 	public String toString(int tab) {
 		StringBuffer buffer = new StringBuffer();
 		display(buffer, tab);
@@ -190,49 +151,5 @@ public abstract class SortJavaElement implements Comparable {
 			astNodes[i] = newNode;
 		}
 		return astNodes;
-	}
-	
-	protected void traverseChildrenFirst(SortElementVisitor visitor) {
-		if (fieldCounter != 0) {
-			for (int i = 0, max = fieldCounter; i < max; i++) {
-				innerFields[i].traverseChildrenFirst(visitor);
-			}
-		}
-		if (children_count != 0) {
-			for (int i = 0, max = children_count; i < max; i++) {
-				children[i].traverseChildrenFirst(visitor);
-			}
-		}
-		visitor.visit(this);
-	}
-
-	protected void traverseChildrenLast(SortElementVisitor visitor) {
-		visitor.visit(this);
-		if (fieldCounter != 0) {
-			for (int i = 0, max = fieldCounter; i < max; i++) {
-				innerFields[i].traverseChildrenLast(visitor);
-			}
-		}
-		if (children_count != 0) {
-			for (int i = 0, max = children_count; i < max; i++) {
-				children[i].traverseChildrenLast(visitor);
-			}
-		}
-	}
-	
-	protected void recordPosition(int position) {
-		if (this.positionsCounter == 0) {
-			this.positions = new int[3];
-		} else if (this.positionsCounter == this.positions.length) {
-			System.arraycopy(this.positions, 0, (this.positions = new int[this.positionsCounter * 2]), 0, this.positionsCounter);
-		}
-		this.positions[this.positionsCounter++] = position - this.sourceStart; // store the offset
-//		System.out.println(this.name + " source start = " + this.sourceStart + " new source start " +  this.newSourceStart);//$NON-NLS-1$//$NON-NLS-2$
-	}
-	
-	protected void retrieveMappedPositions(int[] mappedPositions, int[] index) {
-		for (int i = 0, max = this.positionsCounter; i < max; i++) {
-			mappedPositions[index[0]++] = this.positions[i] + this.newSourceStart;
-		}
 	}
 }
