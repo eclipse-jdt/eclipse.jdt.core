@@ -225,10 +225,8 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				if (classScope != null) {
 					this.annotation.resolve(classScope);
 				}
-			} else {
-				if ((this.modifiers & AccPublic) != 0) {
-					initializationScope.problemReporter().annotationMissing(this.sourceStart, this.sourceEnd);
-				}
+			} else if ((this.binding != null) && this.binding.isPublic()) {
+				initializationScope.problemReporter().annotationMissing(this.sourceStart, this.sourceEnd);
 			}
 		}
 	}

@@ -139,7 +139,7 @@ public static IJavaSearchScope createHierarchyScope(IType type) throws JavaModel
  * be types in this hierarchy, or members of the types in this hierarchy.
  *
  * @param type the focus of the hierarchy scope
- * @param the owner of working copies that take precedence over original compilation units
+ * @param owner the owner of working copies that take precedence over original compilation units
  * @return a new hierarchy scope
  * @exception JavaModelException if the hierarchy could not be computed on the given type
  * @since 3.0
@@ -338,6 +338,8 @@ private Parser getParser() {
 }
 /**
  * Returns the underlying resource of the given element.
+ * @param element an IJavaElement
+ * @return an IResource
  */
 private IResource getResource(IJavaElement element) {
 	if (element instanceof IMember) {
@@ -410,6 +412,8 @@ private ICompilationUnit[] getWorkingCopies() {
 }
 /**
  * Returns the list of working copies used to do the search on the given java element.
+ * @param element an IJavaElement
+ * @return an array of ICompilationUnit
  */
 private ICompilationUnit[] getWorkingCopies(IJavaElement element) {
 	if (element instanceof IMember) {
@@ -439,7 +443,7 @@ private ICompilationUnit[] getWorkingCopies(IJavaElement element) {
  * sensitive search, use <code>search(workspace, createSearchPattern(patternString, searchFor, limitTo, true), scope, resultCollector);</code>
  * 
  * @param workspace the workspace
- * @param pattern the pattern to be searched for
+ * @param patternString the pattern to be searched for
  * @param searchFor a hint what kind of Java element the string pattern represents.
  *  Look into <code>IJavaSearchConstants</code> for valid values
  * @param limitTo one of the following values:

@@ -11,40 +11,28 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
+public class AnnotationSingleNameReference extends SingleNameReference {
 
-public class AnnotationArgument extends Argument {
+	public int tagSourceStart, tagSourceEnd;
 
-	public AnnotationArgument(char[] name, int startPosition, int endPosition) {
-		super(name, (((long) startPosition) << 32) + endPosition, null, IConstants.AccDefault);
+	public AnnotationSingleNameReference(char[] name, int startPosition, int endPosition) {
+		super(name, (((long) startPosition) << 32) + endPosition);
 		this.bits |= InsideAnnotation;
-	}
-
-	public AnnotationArgument(char[] name, int startPosition, int endPosition, TypeReference typeRef) {
-		this(name, startPosition, endPosition);
-		this.type = typeRef;
-		this.bits |= InsideAnnotation;
-	}
-
-	public StringBuffer print(int indent, StringBuffer output) {
-
-		if (type != null) {
-			type.print(0, output).append(' '); 
-		}
-		return output.append(this.name);
 	}
 
 	public void resolve(BlockScope scope) {
 		
-		Binding existingVariable = scope.getBinding(name, BindingIds.VARIABLE, this, true /*resolve*/);
+		Binding existingVariable = scope.getBinding(token, BindingIds.VARIABLE, this, true /*resolve*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
-			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
-				LocalVariableBinding local = (LocalVariableBinding) existingVariable;
-				if (local.isArgument) {
-					this.binding = local;
-					return;
+			if (existingVariable instanceof VariableBinding) {
+				if (existingVariable instanceof LocalVariableBinding) {
+					LocalVariableBinding local = (LocalVariableBinding) existingVariable;
+					if (local.isArgument) {
+						this.binding = local;
+						return;
+					}
 				}
 			} 
 		}
@@ -56,15 +44,7 @@ public class AnnotationArgument extends Argument {
 	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#traverse(org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
-		if (visitor.visit(this, scope)) {
-			if (type != null) {
-				type.traverse(visitor, scope);
-			}
-			if (initialization != null) {
-				initialization.traverse(visitor, scope);
-			}
-		}
+		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
 	}
-
 }

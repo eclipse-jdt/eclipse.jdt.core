@@ -65,6 +65,9 @@ protected void indexFile(IDocument document) /* throws IOException */ {
 		new CompilerOptions(JavaCore.create(this.resourceFile.getProject()).getOptions(true)), 
 		true); // index local declarations
 
+	// Always check annotation while indexing
+	parser.annotationParser.checkAnnotation = true;
+	
 	// Launch the parser
 	char[] source = null;
 	char[] name = null;

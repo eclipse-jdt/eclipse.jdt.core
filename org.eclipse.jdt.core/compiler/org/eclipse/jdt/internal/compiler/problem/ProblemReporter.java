@@ -128,8 +128,8 @@ public void annotationInvalidParam(Argument param) {
 		param.sourceStart,
 		param.sourceEnd);
 }
-public void annotationInvalidParamName(Argument param, boolean duplicated) {
-	String[] arguments = new String[] {String.valueOf(param.name)};
+public void annotationInvalidParamName(AnnotationSingleNameReference param, boolean duplicated) {
+	String[] arguments = new String[] {String.valueOf(param.token)};
 	this.handle(
 		duplicated?IProblem.AnnotationDuplicateParamName:IProblem.AnnotationInvalidParamName,
 		arguments,

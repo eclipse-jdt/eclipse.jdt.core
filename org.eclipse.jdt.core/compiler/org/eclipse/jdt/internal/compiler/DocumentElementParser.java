@@ -66,6 +66,7 @@ public DocumentElementParser(
 	this.requestor = requestor;
 	intArrayStack = new int[30][];
 	this.options = options;
+	this.annotationParser.checkAnnotation = false;
 }
 
 /**

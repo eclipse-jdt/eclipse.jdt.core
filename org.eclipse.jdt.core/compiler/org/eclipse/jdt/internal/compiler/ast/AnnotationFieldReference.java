@@ -78,6 +78,8 @@ public class AnnotationFieldReference extends FieldReference {
 			return null;
 		}
 
+		// TODO (philippe): investigate why scope.getBinding(...) returns null for instance variable
+		// TODO (frederic): call only scope.getBinding(...) when it will never return null
 		this.binding = scope.findField(this.receiverType, token, this, true /*resolve*/);
 		if (this.binding == null) {
 			Binding fieldBinding = scope.getBinding(token, BindingIds.FIELD, this, true /*resolve*/);

@@ -46,10 +46,21 @@ What's new in this drop</h2>
 <li>Searching for references to and declarations of local variables is now supported (only by passing an 
      <code>ILocalVariable</code> to the <code>SearchEngine</code>). Searching a local variable by name is not supported.
 </li>
+<li>Searching for references in Javadoc comments is now supported (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45518">45518</a>).
+	Found references are method parameters declared in @param tags,	types of exceptions declared in @throws/@exception tags
+	and all instance variables, methods, types or packages declared in @see tags.
+	<br>Note that this search fails when COMPILER option "Reporting Invalid Javadoc Annotation" is not activated.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45459">45459</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45518">45518</a>
+Search has to find references put in javadoc comments
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45436">45436</a>
+Javadoc warnings: wrong errors in AST
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45198">45198</a>
+NPE from AnnotationParser
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45459">45459</a>
 JDT compiler more restrictive than javac
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=35899">35899</a>
 "hierarchy of type ... inconsistent" error message wrong

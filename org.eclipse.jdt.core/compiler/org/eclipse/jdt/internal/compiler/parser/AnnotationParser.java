@@ -29,15 +29,18 @@ public class AnnotationParser {
 	public static final char[] TAG_THROWS = "throws".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_EXCEPTION = "exception".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_SEE = "see".toCharArray(); //$NON-NLS-1$
-	Scanner scanner;
-	Parser sourceParser;
-	Annotation annotation;
-	int index, tagSourceStart, tagSourceEnd, lineEnd;
-	char[] source;
-	boolean checkAnnotation;
-
-	int currentTokenType = -1;
-
+	
+	// Public fields
+	public Annotation annotation;
+	public boolean checkAnnotation;
+	public Scanner scanner;
+	
+	// Private fields
+	private int currentTokenType = -1;
+	private Parser sourceParser;
+	private int index, tagSourceStart, tagSourceEnd, lineEnd;
+	private char[] source;
+	
 	// Identifier stack
 	protected int identifierPtr;
 	protected char[][] identifierStack;
@@ -45,7 +48,7 @@ public class AnnotationParser {
 	protected int[] identifierLengthStack;
 	protected long[] identifierPositionStack;
 	// Ast stack
-	static int AstStackIncrement = 10;
+	protected static int AstStackIncrement = 10;
 	protected int astPtr;
 	protected AstNode[] astStack;
 	protected int astLengthPtr;
@@ -54,9 +57,9 @@ public class AnnotationParser {
 	AnnotationParser(Parser sourceParser) {
 		this.sourceParser = sourceParser;
 		this.checkAnnotation = this.sourceParser.options.getSeverity(CompilerOptions.InvalidAnnotation) != ProblemSeverities.Ignore;
-		if (this.checkAnnotation) {
+		//if (this.checkAnnotation) {
 			this.scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_3, null, null);
-		}
+		//}
 		this.identifierStack = new char[10][];
 		this.identifierPositionStack = new long[10];
 		this.identifierLengthStack = new int[20];
@@ -75,7 +78,7 @@ public class AnnotationParser {
 		boolean foundDeprecated = false;
 		try {
 			this.source = this.sourceParser.scanner.source;
-			if (this.checkAnnotation && this.scanner.source != null) {
+			if (this.checkAnnotation) {
 				this.annotation = new Annotation(annotationStart, annotationEnd);
 				this.astLengthPtr = -1;
 				this.astPtr = -1;
@@ -100,7 +103,7 @@ public class AnnotationParser {
 					char nextCharacter = readChar(); // consider unicodes
 					switch (nextCharacter) {
 						case '@' :
-							if (this.annotation == null) {
+							if (!this.checkAnnotation) {
 								if ((readChar() == 'd') &&
 									(readChar() == 'e') &&
 									(readChar() == 'p') &&
@@ -120,36 +123,36 @@ public class AnnotationParser {
 								}
 								continue nextLine;
 							}
-						this.scanner.resetTo(this.index, this.lineEnd);
-						this.currentTokenType = -1; // flush token cache at line begin
-						try {
-							int tk = readTokenAndConsume();
-							this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
-							this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-							switch (tk) {
-								case TerminalTokens.TokenNameIdentifier :
-									char[] tag = this.scanner.getCurrentIdentifierSource();
-								if (CharOperation.equals(tag, TAG_DEPRECATED)) {
-									foundDeprecated = true;
-								} else if (CharOperation.equals(tag, TAG_PARAM)) {
-									parseParam();
-								} else if (CharOperation.equals(tag, TAG_EXCEPTION)) {
-									parseThrows();
-								} else if (CharOperation.equals(tag, TAG_SEE)) {
-									parseSee();
+							this.scanner.resetTo(this.index, this.lineEnd);
+							this.currentTokenType = -1; // flush token cache at line begin
+							try {
+								int tk = readTokenAndConsume();
+								this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
+								this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+								switch (tk) {
+									case TerminalTokens.TokenNameIdentifier :
+										char[] tag = this.scanner.getCurrentIdentifierSource();
+									if (CharOperation.equals(tag, TAG_DEPRECATED)) {
+										foundDeprecated = true;
+									} else if (CharOperation.equals(tag, TAG_PARAM)) {
+										parseParam();
+									} else if (CharOperation.equals(tag, TAG_EXCEPTION)) {
+										parseThrows();
+									} else if (CharOperation.equals(tag, TAG_SEE)) {
+										parseSee();
+									}
+										break;
+									case TerminalTokens.TokenNamereturn :
+										parseReturn();
+										break;
+									case TerminalTokens.TokenNamethrows :
+										parseThrows();
+										break;
 								}
-									break;
-								case TerminalTokens.TokenNamereturn :
-									parseReturn();
-									break;
-								case TerminalTokens.TokenNamethrows :
-									parseThrows();
-									break;
+							} catch (InvalidInputException e) {
+								consumeToken();
 							}
-						} catch (InvalidInputException e) {
-							consumeToken();
-						}
-						continue nextLine;
+							continue nextLine;
 						case '*' :
 							break;
 						default :
@@ -190,7 +193,6 @@ public class AnnotationParser {
 		nextArg : while (this.index < this.scanner.eofPosition) {
 
 			// Read argument type reference
-			int argStart = this.scanner.getCurrentTokenStartPosition();
 			TypeReference typeRef;
 			try {
 				typeRef = parseQualifiedName(false);
@@ -212,6 +214,8 @@ public class AnnotationParser {
 				}
 				break nextArg;
 			}
+			int argStart = typeRef.sourceStart;
+			int argEnd = typeRef.sourceEnd;
 			iToken++;
 
 			// Read possible array declaration
@@ -250,11 +254,12 @@ public class AnnotationParser {
 					}
 				}
 				argName = this.scanner.getCurrentIdentifierSource();
+				argEnd = this.scanner.getCurrentTokenEndPosition();
 				iToken++;
 			} else if (argName != null) { // verify that no argument name is declared
 				break nextArg;
 			}
-
+			
 			// Verify token position
 			if (firstArg) {
 				modulo = iToken + 1;
@@ -268,17 +273,12 @@ public class AnnotationParser {
 			int token = readToken();
 			char[] name = argName == null ? new char[0] : argName;
 			if (token == TerminalTokens.TokenNameCOMMA) {
-				AnnotationArgumentExpression expr = new AnnotationArgumentExpression(name, argStart, this.scanner
-						.getCurrentTokenStartPosition()
-						- 1, typeRef);
+				AnnotationArgumentExpression expr = new AnnotationArgumentExpression(name, argStart, argEnd, typeRef);
 				pushOnAstStack(expr, firstArg);
 				consumeToken();
 				iToken++;
 			} else if (token == TerminalTokens.TokenNameRPAREN) {
-				AnnotationArgumentExpression expr = new AnnotationArgumentExpression(name,
-						argStart,
-						this.scanner.getCurrentTokenStartPosition()- 1,
-						typeRef);
+				AnnotationArgumentExpression expr = new AnnotationArgumentExpression(name, argStart, argEnd, typeRef);
 				pushOnAstStack(expr, (iToken == (modulo - 1)));
 				int size = astLengthStack[astLengthPtr--];
 				AnnotationArgumentExpression[] arguments = new AnnotationArgumentExpression[size];
@@ -384,11 +384,11 @@ public class AnnotationParser {
 			int token = readTokenAndConsume();
 			switch (token) {
 				case TerminalTokens.TokenNameIdentifier :
-					AnnotationArgument argument = new AnnotationArgument(this.scanner.getCurrentIdentifierSource(),
+					AnnotationSingleNameReference argument = new AnnotationSingleNameReference(this.scanner.getCurrentIdentifierSource(),
 							this.scanner.getCurrentTokenStartPosition(),
 							this.scanner.getCurrentTokenEndPosition());
-					argument.declarationSourceStart = this.tagSourceStart;
-					argument.declarationSourceEnd = this.tagSourceEnd;
+					argument.tagSourceStart = this.tagSourceStart;
+					argument.tagSourceEnd = this.tagSourceEnd;
 					pushParamName(argument);
 					return;
 				case TerminalTokens.TokenNameEOF :
@@ -482,35 +482,6 @@ public class AnnotationParser {
 		return typeRef;
 	}
 
-	private void parseReturn() {
-		if (this.annotation.returnStatement == null) {
-			this.annotation.returnStatement = new AnnotationReturnStatement(scanner.getCurrentTokenStartPosition(),
-					scanner.getCurrentTokenEndPosition(),
-					scanner.getRawTokenSourceEnd());
-		} else {
-			this.sourceParser.problemReporter().annotationInvalidReturnTag(
-					scanner.getCurrentTokenStartPosition(),
-					scanner.getCurrentTokenEndPosition(),
-					false);
-		}
-	}
-
-	private void parseThrows() throws InvalidInputException {
-		int start = this.scanner.currentPosition;
-		try {
-			TypeReference typeRef = parseQualifiedName(true);
-			if (typeRef == null) {
-				this.sourceParser.problemReporter().annotationMissingThrowsClassName(this.tagSourceStart, this.tagSourceEnd);
-			} else {
-				pushThrowName(typeRef);
-			}
-		} catch (InvalidInputException ex) {
-			this.sourceParser.problemReporter().annotationInvalidThrowsClass(start, getEndPosition());
-		} finally {
-			consumeToken();
-		}
-	}
-
 	private Expression parseReference() throws InvalidInputException {
 		TypeReference typeRef = null;
 		nextToken : while (this.index < this.scanner.eofPosition) {
@@ -567,6 +538,19 @@ public class AnnotationParser {
 		}
 		return typeRef;
 	}
+	
+	private void parseReturn() {
+		if (this.annotation.returnStatement == null) {
+			this.annotation.returnStatement = new AnnotationReturnStatement(scanner.getCurrentTokenStartPosition(),
+					scanner.getCurrentTokenEndPosition(),
+					scanner.getRawTokenSourceEnd());
+		} else {
+			this.sourceParser.problemReporter().annotationInvalidReturnTag(
+					scanner.getCurrentTokenStartPosition(),
+					scanner.getCurrentTokenEndPosition(),
+					false);
+		}
+	}
 
 	private void parseSee() throws InvalidInputException {
 		int start = this.scanner.currentPosition;
@@ -582,6 +566,22 @@ public class AnnotationParser {
 		}
 	}
 
+	private void parseThrows() throws InvalidInputException {
+		int start = this.scanner.currentPosition;
+		try {
+			TypeReference typeRef = parseQualifiedName(true);
+			if (typeRef == null) {
+				this.sourceParser.problemReporter().annotationMissingThrowsClassName(this.tagSourceStart, this.tagSourceEnd);
+			} else {
+				pushThrowName(typeRef);
+			}
+		} catch (InvalidInputException ex) {
+			this.sourceParser.problemReporter().annotationInvalidThrowsClass(start, getEndPosition());
+		} finally {
+			consumeToken();
+		}
+	}
+	
 	/*
 	 * push the consumeToken on the identifier stack. Increase the total number of identifier in the stack.
 	 */
@@ -658,7 +658,7 @@ public class AnnotationParser {
 		}
 	}
 
-	private void pushParamName(Argument arg) {
+	private void pushParamName(AnnotationSingleNameReference arg) {
 		// TODO: (frederic) To be changed when mixed tags declaration will be accepted
 		switch (this.astLengthPtr) {
 			case -1 :
@@ -670,7 +670,7 @@ public class AnnotationParser {
 				pushOnAstStack(arg, false);
 				break;
 			default :
-				this.sourceParser.problemReporter().annotationUnexpectedTag(arg.declarationSourceStart, arg.declarationSourceEnd);
+				this.sourceParser.problemReporter().annotationUnexpectedTag(arg.tagSourceStart, arg.tagSourceEnd);
 		}
 	}
 
@@ -780,9 +780,9 @@ public class AnnotationParser {
 			else if (this.astLengthPtr == 0) {
 				int size = this.astLengthStack[this.astLengthPtr--];
 				if (size > 0) {
-					this.annotation.parameters = new AnnotationArgument[size];
+					this.annotation.parameters = new AnnotationSingleNameReference[size];
 					for (int i = (size - 1); i >= 0; i--) {
-						this.annotation.parameters[i] = (AnnotationArgument) this.astStack[astPtr--];
+						this.annotation.parameters[i] = (AnnotationSingleNameReference) this.astStack[astPtr--];
 					}
 				}
 			}

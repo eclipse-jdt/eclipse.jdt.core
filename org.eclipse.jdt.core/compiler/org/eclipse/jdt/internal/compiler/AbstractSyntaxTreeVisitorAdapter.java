@@ -42,9 +42,6 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public void endVisit(AnnotationArraySingleTypeReference typeRef, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(AnnotationArgument argument, BlockScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(AnnotationArgumentExpression expression, BlockScope scope) {
 		// do nothing by default
 	}
@@ -58,6 +55,9 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		// do nothing by default
 	}
 	public void endVisit(AnnotationReturnStatement statement, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(AnnotationSingleNameReference argument, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(AnnotationSingleTypeReference typeRef, BlockScope scope) {
@@ -335,9 +335,6 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public boolean visit(AnnotationArraySingleTypeReference typeRef, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(AnnotationArgument argument, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
 	public boolean visit(AnnotationArgumentExpression expression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
@@ -351,6 +348,9 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(AnnotationReturnStatement statement, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(AnnotationSingleNameReference argument, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(AnnotationSingleTypeReference typeRef, BlockScope scope) {

@@ -4664,6 +4664,10 @@ protected void consumeVariableInitializers() {
 }
 /**
  * Given the current comment stack, answer whether some comment is available in a certain exclusive range
+ * 
+ * @param sourceStart int
+ * @param sourceEnd int
+ * @return boolean
  */
 public boolean containsComment(int sourceStart, int sourceEnd) {
 	int iComment = this.scanner.commentPtr;
@@ -5970,7 +5974,9 @@ public CompilationUnitDeclaration parse(
 		if (end != -1) scanner.resetTo(start, end);
 		if (this.annotationParser.checkAnnotation) {
 			this.annotationParser.scanner.setSource(contents);
-			if (end != -1) this.annotationParser.scanner.resetTo(start, end);
+			if (end != -1) {
+				this.annotationParser.scanner.resetTo(start, end);
+			}
 		}
 		/* unit creation */
 		referenceContext = 
@@ -5993,6 +5999,8 @@ public CompilationUnitDeclaration parse(
  * Returns this parser's problem reporter initialized with its reference context.
  * Also it is assumed that a problem is going to be reported, so initializes
  * the compilation result's line positions.
+ * 
+ * @return ProblemReporter
  */
 public ProblemReporter problemReporter(){
 	if (scanner.recordLineSeparator) {

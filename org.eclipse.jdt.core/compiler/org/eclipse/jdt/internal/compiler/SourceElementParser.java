@@ -10,6 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
+import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.parser.*;
+import org.eclipse.jdt.internal.compiler.problem.*;
+
 /**
  * A source element parser extracts structural and reference information
  * from a piece of source.
@@ -28,15 +36,6 @@ package org.eclipse.jdt.internal.compiler;
  *
  * Any (parsing) problem encountered is also provided.
  */
-
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.parser.*;
-import org.eclipse.jdt.internal.compiler.problem.*;
-
 public class SourceElementParser extends Parser {
 	
 	ISourceElementRequestor requestor;
@@ -107,6 +106,12 @@ public SourceElementParser(
 		}
 }
 
+public void checkAnnotation() {
+	super.checkAnnotation();
+	if (reportReferenceInfo && this.annotation != null) {
+		this.annotation.reportReferenceInfo(requestor);
+	}
+}
 protected void classInstanceCreation(boolean alwaysQualified) {
 
 	boolean previousFlag = reportReferenceInfo;
@@ -168,7 +173,7 @@ protected void consumeConstructorHeaderName() {
 		}
 	}	
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -189,7 +194,7 @@ protected void consumeExitVariableWithoutInitialization() {
 		return;
 	((SourceFieldDeclaration) astStack[astPtr]).fieldEndPosition = scanner.currentPosition - 1;
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -242,7 +247,7 @@ protected void consumeMethodHeaderName() {
 		}
 	}		
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -260,7 +265,7 @@ protected void consumeMethodInvocationName() {
 			(int)(messageSend.nameSourcePosition >>> 32));
 	}
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -275,7 +280,7 @@ protected void consumeMethodInvocationPrimary() {
 			(int)(messageSend.nameSourcePosition >>> 32));
 	}
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -483,7 +488,7 @@ public NameReference getUnspecifiedReferenceOptimized() {
 	}
 	return ref;
 }
-/**
+/*
  *
  * INTERNAL USE-ONLY
  */
@@ -1137,7 +1142,7 @@ public void parseTypeMemberDeclarations(
 		diet = old;
 	}
 }
-/**
+/*
  * Sort the given ast nodes by their positions.
  */
 private static void quickSort(AstNode[] sortedCollection, int left, int right) {

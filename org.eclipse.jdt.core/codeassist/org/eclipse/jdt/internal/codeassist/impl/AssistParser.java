@@ -79,6 +79,7 @@ public abstract class AssistParser extends Parser {
 
 public AssistParser(ProblemReporter problemReporter) {
 	super(problemReporter, true);
+	this.annotationParser.checkAnnotation = false;
 }
 public abstract char[] assistIdentifier();
 public int bodyEnd(AbstractMethodDeclaration method){

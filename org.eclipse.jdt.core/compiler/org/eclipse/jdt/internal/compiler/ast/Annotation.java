@@ -10,14 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.core.search.matching.MatchingNodeSet;
+import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 
 /**
  * Node representing a structured Javadoc annotation comment
  */
 public class Annotation extends AstNode {
 
-	public AnnotationArgument[] parameters; // @param
+	public AnnotationSingleNameReference[] parameters; // @param
 	public TypeReference[] thrownExceptions; // @throws, @exception
 	public AnnotationReturnStatement returnStatement; // @return
 	public Expression[] references; // @see
@@ -26,6 +29,35 @@ public class Annotation extends AstNode {
 		this.sourceEnd = sourceEnd;
 	}
 
+	/*
+	 * Search for pattern locator matches in annotation @throws/@exception and @see tags
+	 */
+	public void matchPatternLocator(PatternLocator patternLocator, MatchingNodeSet nodeSet) {
+		
+		// @throws/@exception tags
+		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
+		for (int i = 0; i < throwsTagsNbre; i++) {
+			TypeReference typeRef = thrownExceptions[i];
+			patternLocator.match(typeRef, nodeSet);
+		}
+
+		// @see tags
+		int seeTagsNbre = references == null ? 0 : references.length;
+		for (int i = 0; i < seeTagsNbre; i++) {
+			Expression reference = references[i];
+			if (reference instanceof TypeReference) {
+				TypeReference typeRef = (TypeReference) reference;
+				patternLocator.match(typeRef, nodeSet);
+			} else if (reference instanceof AnnotationFieldReference) {
+				AnnotationFieldReference fieldRef = (AnnotationFieldReference) reference;
+				patternLocator.match(fieldRef, nodeSet);
+			} else if (reference instanceof AnnotationMessageSend) {
+				AnnotationMessageSend messageSend = (AnnotationMessageSend) reference;
+				patternLocator.match(messageSend, nodeSet);
+			}
+		}
+	}
+	
 	/*
 	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#print(int, java.lang.StringBuffer)
 	 */
@@ -56,6 +88,90 @@ public class Annotation extends AstNode {
 		return output;
 	}
 
+	/*
+	 * Report reference info in annotation @throws/@exception and @see tags
+	 */
+	public void reportReferenceInfo(ISourceElementRequestor requestor) {
+		
+		// @throws/@exception tags
+		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
+		for (int i = 0; i < throwsTagsNbre; i++) {
+			TypeReference typeRef = thrownExceptions[i];
+			if (typeRef instanceof AnnotationSingleTypeReference) {
+				AnnotationSingleTypeReference singleRef = (AnnotationSingleTypeReference) typeRef;
+				requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
+			} else if (typeRef instanceof AnnotationQualifiedTypeReference) {
+				AnnotationQualifiedTypeReference qualifiedRef = (AnnotationQualifiedTypeReference) typeRef;
+				requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
+			}
+		}
+
+		// @see tags
+		int seeTagsNbre = references == null ? 0 : references.length;
+		for (int i = 0; i < seeTagsNbre; i++) {
+			Expression reference = references[i];
+			if (reference instanceof AnnotationSingleTypeReference) {
+				AnnotationSingleTypeReference singleRef = (AnnotationSingleTypeReference) reference;
+				requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
+			} else if (reference instanceof AnnotationQualifiedTypeReference) {
+				AnnotationQualifiedTypeReference qualifiedRef = (AnnotationQualifiedTypeReference) reference;
+				requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
+			} else if (reference instanceof AnnotationFieldReference) {
+				AnnotationFieldReference fieldRef = (AnnotationFieldReference) reference;
+				requestor.acceptFieldReference(fieldRef.token, fieldRef.sourceStart);
+			} else if (reference instanceof AnnotationMessageSend) {
+				AnnotationMessageSend messageSend = (AnnotationMessageSend) reference;
+				if (messageSend.arguments != null) {
+					requestor.acceptMethodReference(messageSend.selector, messageSend.arguments.length, messageSend.sourceStart);
+				}
+			}
+		}
+	}
+
+	/*
+	 * Resolve type annotation while a class scope
+	 */
+	public void resolve(ClassScope classScope) {
+
+		// @param tags
+		int paramTagsSize = parameters == null ? 0 : parameters.length;
+		for (int i = 0; i < paramTagsSize; i++) {
+			AnnotationSingleNameReference param = parameters[i];
+			classScope.problemReporter().annotationUnexpectedTag(param.tagSourceStart, param.tagSourceEnd);
+		}
+
+		// @return tags
+		if (this.returnStatement != null) {
+			classScope.problemReporter().annotationUnexpectedTag(this.returnStatement.sourceStart, this.returnStatement.sourceEnd);
+		}
+
+		// @throws/@exception tags
+		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
+		for (int i = 0; i < throwsTagsNbre; i++) {
+			TypeReference typeRef = thrownExceptions[i];
+			int start, end;
+			if (typeRef instanceof AnnotationSingleTypeReference) {
+				AnnotationSingleTypeReference singleRef = (AnnotationSingleTypeReference) typeRef;
+				start = singleRef.tagSourceStart;
+				end = singleRef.tagSourceEnd;
+			} else if (typeRef instanceof AnnotationQualifiedTypeReference) {
+				AnnotationQualifiedTypeReference qualifiedRef = (AnnotationQualifiedTypeReference) typeRef;
+				start = qualifiedRef.tagSourceStart;
+				end = qualifiedRef.tagSourceEnd;
+			} else {
+				start = typeRef.sourceStart;
+				end = typeRef.sourceEnd;
+			}
+			classScope.problemReporter().annotationUnexpectedTag(start, end);
+		}
+
+		// @see tags
+		int seeTagsNbre = references == null ? 0 : references.length;
+		for (int i = 0; i < seeTagsNbre; i++) {
+			references[i].resolveType(classScope);
+		}
+	}
+	
 	/*
 	 * Resolve method annotation while a method scope
 	 */
@@ -88,51 +204,7 @@ public class Annotation extends AstNode {
 			references[i].resolveType(methScope);
 		}
 	}
-
-	/*
-	 * Resolve type annotation while a class scope
-	 */
-	public void resolve(ClassScope classScope) {
-
-		// @param tags
-		int paramTagsSize = parameters == null ? 0 : parameters.length;
-		for (int i = 0; i < paramTagsSize; i++) {
-			AnnotationArgument param = parameters[i];
-			classScope.problemReporter().annotationUnexpectedTag(param.declarationSourceStart, param.declarationSourceEnd);
-		}
-
-		// @return tags
-		if (this.returnStatement != null) {
-			classScope.problemReporter().annotationUnexpectedTag(this.returnStatement.sourceStart, this.returnStatement.sourceEnd);
-		}
-
-		// @throws/@exception tags
-		int throwsTagsNbre = thrownExceptions == null ? 0 : thrownExceptions.length;
-		for (int i = 0; i < throwsTagsNbre; i++) {
-			TypeReference typeRef = thrownExceptions[i];
-			int start, end;
-			if (typeRef instanceof AnnotationSingleTypeReference) {
-				AnnotationSingleTypeReference singleRef = (AnnotationSingleTypeReference) typeRef;
-				start = singleRef.tagSourceStart;
-				end = singleRef.tagSourceEnd;
-			} else if (typeRef instanceof AnnotationQualifiedTypeReference) {
-				AnnotationQualifiedTypeReference singleRef = (AnnotationQualifiedTypeReference) typeRef;
-				start = singleRef.tagSourceStart;
-				end = singleRef.tagSourceEnd;
-			} else {
-				start = typeRef.sourceStart;
-				end = typeRef.sourceEnd;
-			}
-			classScope.problemReporter().annotationUnexpectedTag(start, end);
-		}
-
-		// @see tags
-		int seeTagsNbre = references == null ? 0 : references.length;
-		for (int i = 0; i < seeTagsNbre; i++) {
-			references[i].resolveType(classScope);
-		}
-	}
-
+	
 	/*
 	 * Resolve @param tags while method scope
 	 */
@@ -153,7 +225,7 @@ public class Annotation extends AstNode {
 
 			// Scan all @param tags
 			for (int i = 0; i < paramTagsSize; i++) {
-				AnnotationArgument param = parameters[i];
+				AnnotationSingleNameReference param = parameters[i];
 				param.resolve(methScope);
 				if (param.binding != null) {
 					// Verify duplicated tags
@@ -165,7 +237,7 @@ public class Annotation extends AstNode {
 						}
 					}
 					if (!found) {
-						bindings[maxBindings++] = param.binding;
+						bindings[maxBindings++] = (LocalVariableBinding) param.binding;
 					}
 				}
 			}

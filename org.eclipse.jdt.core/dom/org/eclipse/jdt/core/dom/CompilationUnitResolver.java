@@ -48,7 +48,7 @@ class CompilationUnitResolver extends Compiler {
 	 *      specify the rules for handling problems (stop on first error or accumulate
 	 *      them all) and at the same time perform some actions such as opening a dialog
 	 *      in UI when compiling interactively.
-	 *      @see org.eclipse.jdt.internal.compiler.api.problem.DefaultErrorHandlingPolicies
+	 *      @see org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies
 	 * 
 	 *	@param settings The settings to use for the resolution.
 	 *      
@@ -56,7 +56,7 @@ class CompilationUnitResolver extends Compiler {
 	 *      Component which will receive and persist all compilation results and is intended
 	 *      to consume them as they are produced. Typically, in a batch compiler, it is 
 	 *      responsible for writing out the actual .class files to the file system.
-	 *      @see org.eclipse.jdt.internal.compiler.api.CompilationResult
+	 *      @see org.eclipse.jdt.internal.compiler.CompilationResult
 	 *
 	 *  @param problemFactory org.eclipse.jdt.internal.compiler.api.problem.IProblemFactory
 	 *      Factory used inside the compiler to create problem descriptors. It allows the
@@ -127,6 +127,7 @@ class CompilationUnitResolver extends Compiler {
 			
 					deprecated =
 						this.annotationParser.checkDeprecation(commentSourceStart, commentSourceEnd);
+					this.annotation = this.annotationParser.annotation;
 					break nextComment;
 				}
 				if (deprecated) {

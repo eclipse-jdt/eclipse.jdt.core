@@ -329,6 +329,9 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	 * Returns true if the constructor is directly involved in a cycle.
 	 * Given most constructors aren't, we only allocate the visited list
 	 * lazily.
+	 * 
+	 * @param visited
+	 * @return
 	 */
 	public boolean isRecursive(ArrayList visited) {
 
@@ -392,12 +395,10 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		
 		if (this.binding == null || this.annotation != null) {
 			super.resolveAnnotation();
-			return;
-		}
-		if (!isDefaultConstructor && (this.binding.modifiers & AccPublic) != 0) {
+		} else if (!isDefaultConstructor && this.binding.isPublic()) {
 			this.scope.problemReporter().annotationMissing(this.sourceStart, this.sourceEnd);
 		}
-	}	
+	}
 
 	/*
 	 * Type checking for constructor, just another method, except for special check

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.IAbstractSyntaxTreeVisitor;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -18,13 +19,14 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class AnnotationArgumentExpression extends Expression {
 	public char[] token;
-	public AnnotationArgument argument;
+	public Argument argument;
 
 	public AnnotationArgumentExpression(char[] name, int startPos, int endPos, TypeReference typeRef) {
 		this.token = name;
 		this.sourceStart = startPos;
 		this.sourceEnd = endPos;
-		this.argument = new AnnotationArgument(name, startPos, endPos, typeRef);
+		long pos = (((long) startPos) << 32) + endPos;
+		this.argument = new Argument(name, pos, typeRef, IConstants.AccDefault);
 		this.bits |= InsideAnnotation;
 	}
 
@@ -41,11 +43,11 @@ public class AnnotationArgumentExpression extends Expression {
 				if (typeRef != null) {
 					this.resolvedType = typeRef.getTypeBinding(scope);
 					if (!this.resolvedType.isValidBinding()) {
-						scope.problemReporter().invalidType(this, this.resolvedType);
+						scope.problemReporter().invalidType(typeRef, this.resolvedType);
 						return null;
 					}
 					if (isTypeUseDeprecated(this.resolvedType, scope)) {
-						scope.problemReporter().deprecatedType(this.resolvedType, this);
+						scope.problemReporter().deprecatedType(this.resolvedType, typeRef);
 						return null;
 					}
 					return this.resolvedType;

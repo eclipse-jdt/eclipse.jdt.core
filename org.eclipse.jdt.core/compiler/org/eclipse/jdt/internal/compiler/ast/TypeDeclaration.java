@@ -854,11 +854,11 @@ public class TypeDeclaration
 			}
 			// Resolve annotation
 			if (this.annotation != null) {
-				this.annotation.resolve(this.scope);
-			} else {
-				if ((this.modifiers & AccPublic) != 0) {
-					this.scope.problemReporter().annotationMissing(this.sourceStart, this.sourceEnd);
+				if (this.scope != null) {
+					this.annotation.resolve(this.scope);
 				}
+			} else if ((this.binding != null) && this.binding.isPublic()) {
+				this.scope.problemReporter().annotationMissing(this.sourceStart, this.sourceEnd);
 			}
 			
 		} catch (AbortType e) {

@@ -105,6 +105,12 @@ protected MatchLocatorParser(ProblemReporter problemReporter, MatchLocator locat
 			: new NoClassNoMethodDeclarationVisitor();
 	}
 }
+public void checkAnnotation() {
+	super.checkAnnotation();
+	if (this.annotation != null) {
+		this.annotation.matchPatternLocator(this.patternLocator, this.nodeSet);
+	}
+}
 protected void classInstanceCreation(boolean alwaysQualified) {
 	super.classInstanceCreation(alwaysQualified);
 	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);

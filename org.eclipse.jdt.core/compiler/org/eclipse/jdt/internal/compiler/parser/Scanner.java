@@ -444,6 +444,9 @@ public final int[] getLineEnds() {
  * e.g.	getLineStart(1) --> 0	indicates that the first line starts at character 0.
  *
  * In case the given line number is inconsistent, answers -1.
+ * 
+ * @param lineNumber int
+ * @return int
  */
 public final int getLineStart(int lineNumber) {
 
@@ -2241,8 +2244,8 @@ public final void recordComment(boolean isJavadoc) {
  * Reposition the scanner on some portion of the original source. The given endPosition is the last valid position.
  * Beyond this position, the scanner will answer EOF tokens (<code>ITerminalSymbols.TokenNameEOF</code>).
  * 
- * @param startPosition the given start position
- * @param endPosition the given end position
+ * @param begin the given start position
+ * @param end the given end position
  */
 public void resetTo(int begin, int end) {
 	//reset the scanner to a given position where it may rescan again
@@ -3048,7 +3051,8 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 }
 /**
  * Search the line number corresponding to a specific position
- *
+ * @param position int
+ * @return int
  */
 public final int getLineNumber(int position) {
 

@@ -24,7 +24,9 @@ public class BooleanConstant extends Constant {
 
 	public String stringValue() {
 		//spec 15.17.11
-		String s = Boolean.valueOf(value).toString() ;
+		// String s = new Boolean(value).toString() ;		=> initial implementation
+		// String s = Boolean.valueOf(value).toString() ;	=> Fail tests JCKs 1.3a
+		String s = (value ? Boolean.TRUE : Boolean.FALSE).toString();
 		if (s == null)
 			return "null"; //$NON-NLS-1$
 		else
