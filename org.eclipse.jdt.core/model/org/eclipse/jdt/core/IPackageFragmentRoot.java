@@ -141,7 +141,7 @@ public interface IPackageFragmentRoot
 	 * entry are considered non-Java resources and will appear in the result
 	 * (possibly in a folder).
 	 * </p>
-	 * 
+	 * TODO: (jerome) should explain how to recognize excluded resources from others
 	 * @return an array of non-Java resources contained in this package fragment root
 	 * @see IClasspathEntry#getExclusionPatterns
 	 */
