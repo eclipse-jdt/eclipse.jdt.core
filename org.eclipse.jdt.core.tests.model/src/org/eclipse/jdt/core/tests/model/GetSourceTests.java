@@ -268,6 +268,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 			Object constant = field.getConstant();
 			assertNotNull("No constant", constant);
+			assertTrue("Not a Long", constant instanceof Long);
 			
 			field = type.getField("field2");
 		
@@ -276,6 +277,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 			constant = field.getConstant();
 			assertNotNull("No constant", constant);
+			assertTrue("Not a Long", constant instanceof Long);
 
 			field = type.getField("field3");
 		
@@ -284,6 +286,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 			constant = field.getConstant();
 			assertNotNull("No constant", constant);
+			assertTrue("Not a Long", constant instanceof Long);
 		} finally {
 			deleteFile("/P/p/Y.java");
 		}
