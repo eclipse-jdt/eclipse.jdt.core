@@ -51,7 +51,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit27 = 0x4000000; 			// parenthesis count (expression)
 	public final static int Bit28 = 0x8000000; 			// parenthesis count (expression)
 	public final static int Bit29 = 0x10000000; 		// parenthesis count (expression)
-	public final static int Bit30 = 0x20000000; 		// assignment with no effect (assignment)
+	public final static int Bit30 = 0x20000000; 		// assignment with no effect (assignment) | elseif (if statement)
 	public final static int Bit31 = 0x40000000; 		// local declaration reachable (local decl)
 	public final static int Bit32 = 0x80000000; 		// reachable (statement)
 
@@ -128,6 +128,9 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	
 	// for references in Javadoc comments
 	public static final int InsideJavadoc = Bit16;
+	
+	// for if statement
+	public static final int IsElseIfStatement = Bit30;
 	
 	public ASTNode() {
 

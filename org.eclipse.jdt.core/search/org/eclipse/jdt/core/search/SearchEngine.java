@@ -591,9 +591,8 @@ public class SearchEngine {
 					System.arraycopy(copies, 0, newWorkingCopies, 0, length);
 					newWorkingCopies[length] = cu;
 					return newWorkingCopies;
-				} else {
-					return new ICompilationUnit[] {cu};
-				}
+				} 
+				return new ICompilationUnit[] {cu};
 			}
 		}
 		return getWorkingCopies();
@@ -670,11 +669,9 @@ public class SearchEngine {
 				new ResultCollectorAdapter(resultCollector), 
 				resultCollector.getProgressMonitor());
 		} catch (CoreException e) {
-			if (e instanceof JavaModelException) {
+			if (e instanceof JavaModelException)
 				throw (JavaModelException) e;
-			} else {
-				throw new JavaModelException(e);
-			}
+			throw new JavaModelException(e);
 		}
 	}
 
@@ -732,11 +729,9 @@ public class SearchEngine {
 				new ResultCollectorAdapter(resultCollector), 
 				resultCollector.getProgressMonitor());
 		} catch (CoreException e) {
-			if (e instanceof JavaModelException) {
+			if (e instanceof JavaModelException)
 				throw (JavaModelException) e;
-			} else {
-				throw new JavaModelException(e);
-			}
+			throw new JavaModelException(e);
 		}
 	}
 	
@@ -1009,11 +1004,9 @@ public class SearchEngine {
 					monitor);
 			}
 		} catch (CoreException e) {
-			if (e instanceof JavaModelException) {
+			if (e instanceof JavaModelException)
 				throw (JavaModelException) e;
-			} else {
-				throw new JavaModelException(e);
-			}
+			throw new JavaModelException(e);
 		}
 	}
 

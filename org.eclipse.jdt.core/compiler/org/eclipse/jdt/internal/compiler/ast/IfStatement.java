@@ -32,34 +32,26 @@ public class IfStatement extends Statement {
 	int elseInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
 
-	public IfStatement(
-		Expression condition,
-		Statement thenStatement,
-		int s,
-		int e) {
+	public IfStatement(Expression condition, Statement thenStatement, 	int sourceStart, int sourceEnd) {
 
 		this.condition = condition;
 		this.thenStatement = thenStatement;
 		// remember useful empty statement
 		if (thenStatement instanceof EmptyStatement) thenStatement.bits |= IsUsefulEmptyStatementMASK;
-		sourceStart = s;
-		sourceEnd = e;
+		this.sourceStart = sourceStart;
+		this.sourceEnd = sourceEnd;
 	}
 
-	public IfStatement(
-		Expression condition,
-		Statement thenStatement,
-		Statement elseStatement,
-		int s,
-		int e) {
+	public IfStatement(Expression condition, Statement thenStatement, Statement elseStatement, int sourceStart, int sourceEnd) {
 
 		this.condition = condition;
 		this.thenStatement = thenStatement;
 		// remember useful empty statement
 		if (thenStatement instanceof EmptyStatement) thenStatement.bits |= IsUsefulEmptyStatementMASK;
 		this.elseStatement = elseStatement;
-		sourceEnd = e;
-		sourceStart = s;
+		if (elseStatement instanceof IfStatement) elseStatement.bits |= IsElseIfStatement;
+		this.sourceStart = sourceStart;
+		this.sourceEnd = sourceEnd;
 	}
 
 	public FlowInfo analyseCode(
@@ -97,8 +89,10 @@ public class IfStatement extends Statement {
 			elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
 		if (this.elseStatement != null) {
-		    // signal else clause unnecessarily nested, tolerate else if ... code pattern
-		    if (thenFlowInfo == FlowInfo.DEAD_END && !(this.elseStatement instanceof IfStatement)) {
+		    // signal else clause unnecessarily nested, tolerate else-if code pattern
+		    if (thenFlowInfo == FlowInfo.DEAD_END 
+		            && (this.bits & IsElseIfStatement) == 0 	// else of an else-if
+		            && !(this.elseStatement instanceof IfStatement)) {
 		        currentScope.problemReporter().unnecessaryElse(this.elseStatement);
 		    }
 			// Save info for code gen
