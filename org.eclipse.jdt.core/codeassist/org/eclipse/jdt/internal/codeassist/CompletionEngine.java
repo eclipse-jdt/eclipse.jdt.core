@@ -687,9 +687,11 @@ public final class CompletionEngine
 		next : for (int f = methods.length; --f >= 0;) {
 			MethodBinding constructor = methods[f];
 			if (constructor.isConstructor()) {
+				
+				if (constructor.isSynthetic()) continue next;
+					
 				if (options.checkVisibility()
-					&& !constructor.canBeSeenBy(invocationSite, scope))
-					continue next;
+					&& !constructor.canBeSeenBy(invocationSite, scope)) continue next;
 
 				TypeBinding[] parameters = constructor.parameters;
 				int paramLength = parameters.length;
@@ -752,16 +754,17 @@ public final class CompletionEngine
 		int fieldLength = fieldName.length;
 		next : for (int f = fields.length; --f >= 0;) {			
 			FieldBinding field = fields[f];
-			if (onlyStaticFields && !field.isStatic())
-				continue next;
-			if (fieldLength > field.name.length)
-				continue next;
-			if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */))
-				continue next;
+
+			if (field.isSynthetic())	continue next;
+
+			if (onlyStaticFields && !field.isStatic()) continue next;
+
+			if (fieldLength > field.name.length) continue next;
+
+			if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */))	continue next;
 
 			if (options.checkVisibility()
-				&& !field.canBeSeenBy(receiverType, invocationSite, scope))
-				continue next;
+				&& !field.canBeSeenBy(receiverType, invocationSite, scope))	continue next;
 
 			boolean prefixRequired = false;
 			
@@ -1332,19 +1335,17 @@ public final class CompletionEngine
 		next : for (int f = methods.length; --f >= 0;) {
 			MethodBinding method = methods[f];
 
-			if (method.isDefaultAbstract())
-				continue next;
+			if (method.isSynthetic()) continue next;
 
-			if (method.isConstructor())
-				continue next;
+			if (method.isDefaultAbstract())	continue next;
+
+			if (method.isConstructor()) continue next;
 
 			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
-			if (onlyStaticMethods && !method.isStatic())
-				continue next;
+			if (onlyStaticMethods && !method.isStatic()) continue next;
 
 			if (options.checkVisibility()
-				&& !method.canBeSeenBy(receiverType, invocationSite, scope))
-				continue next;
+				&& !method.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
 
 			if (exactMatch) {
 				if (!CharOperation.equals(methodName, method.selector, false /* ignore case */
@@ -1475,22 +1476,19 @@ public final class CompletionEngine
 		next : for (int f = methods.length; --f >= 0;) {
 
 			MethodBinding method = methods[f];
-			if (method.isDefaultAbstract())
-				continue next;
-			
-			if (method.isConstructor())
-				continue next;
+			if (method.isSynthetic())	continue next;
 				
-			if (method.isFinal())
-				continue next;
+			if (method.isDefaultAbstract()) continue next;
+			
+			if (method.isConstructor()) continue next;
+				
+			if (method.isFinal()) continue next;
 
 			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
-			if (onlyStaticMethods && !method.isStatic())
-				continue next;
+			if (onlyStaticMethods && !method.isStatic()) continue next;
 
 			if (options.checkVisibility()
-				&& !method.canBeSeenBy(receiverType, false, scope))
-				continue next;
+				&& !method.canBeSeenBy(receiverType, false, scope)) continue next;
 
 			if (exactMatch) {
 				if (!CharOperation.equals(methodName, method.selector, false /* ignore case */

@@ -204,7 +204,7 @@ public void evaluateVariable(IGlobalVariable variable, ICodeSnippetRequestor req
 protected INameEnvironment getBuildNameEnvironment() throws JavaModelException {
 	
 	if (JavaModelManager.USING_NEW_BUILDER){
-		return new NameEnvironment(getProject(), false);
+		return new NameEnvironment(getProject());
 	} else {
 		IProject project = getProject().getProject();
 		StateImpl state= (StateImpl) JavaModelManager.getJavaModelManager().getLastBuiltState(project, null);
