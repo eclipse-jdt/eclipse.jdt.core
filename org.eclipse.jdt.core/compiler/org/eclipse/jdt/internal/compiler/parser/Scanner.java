@@ -2187,7 +2187,6 @@ public void resetTo(int begin, int end) {
 	eofPosition = end < Integer.MAX_VALUE ? end + 1 : end;
 	commentPtr = -1; // reset comment stack
 	foundTaskCount = 0;
-
 }
 
 public final void scanEscapeCharacter() throws InvalidInputException {
