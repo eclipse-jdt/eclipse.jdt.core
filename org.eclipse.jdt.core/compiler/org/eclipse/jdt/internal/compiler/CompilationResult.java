@@ -92,11 +92,10 @@ private int computePriority(IProblem problem){
 	
 	int priority = 1000 - problem.getSourceLineNumber(); // early problems first
 	if (priority < 0) priority = 0;
-	
 	if (problem.isError()){
 		priority += P_ERROR;
 	}
-	ReferenceContext context = (ReferenceContext) problemsMap.get(problem);
+	ReferenceContext context = problemsMap == null ? null : (ReferenceContext) problemsMap.get(problem);
 	if (context != null){
 		if (context instanceof AbstractMethodDeclaration){
 			AbstractMethodDeclaration method = (AbstractMethodDeclaration) context;
@@ -112,7 +111,6 @@ private int computePriority(IProblem problem){
 	if (firstErrorsMap.containsKey(problem)){
 		priority += P_FIRST_ERROR;
 	}
-		
 	return priority;
 }
 public ClassFile[] getClassFiles() {
