@@ -62,13 +62,13 @@ public IJavaElement[] codeSelect(int offset, int length) throws JavaModelExcepti
 	if (buffer != null) {
 		char[] contents = null;
 		contents = buffer.getCharacters();
-		String name = getElementName();
-		name = name.substring(0, name.length() - 6); // remove ".class"
-		name = name + ".java"; //$NON-NLS-1$
-		String encoding = (String) JavaCore.getOptions().get(CompilerOptions.OPTION_Encoding);
-		if ("".equals(encoding)) encoding = null; //$NON-NLS-1$
-		
-		BasicCompilationUnit cu = new BasicCompilationUnit(contents, name, encoding);
+
+		IType current = this.getType();
+		IType parent;
+		while ((parent = current.getDeclaringType()) != null){
+			current = parent;
+		}
+		BasicCompilationUnit cu = new BasicCompilationUnit(contents, current.getElementName() + ".java", null); //$NON-NLS-1$
 		return super.codeSelect(cu, offset, length);
 	} else {
 		//has no associated souce
