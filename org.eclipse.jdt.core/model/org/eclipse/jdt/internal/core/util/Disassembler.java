@@ -259,12 +259,10 @@ public class Disassembler implements IClassFileDisassembler {
 	
 	private void disassembleTypeMembers(IClassFileReader classFileReader, StringBuffer buffer, String lineSeparator, int tabNumber) {
 		writeNewLine(buffer, lineSeparator, tabNumber);
-		int fieldsCount = classFileReader.getFieldsCount();
 		IFieldInfo[] fields = classFileReader.getFieldInfos();
 		for (int i = 0, max = fields.length; i < max; i++) {
 			disassemble(fields[i], buffer, lineSeparator, tabNumber);
 		}
-		int methodsCount = classFileReader.getMethodsCount();
 		IMethodInfo[] methods = classFileReader.getMethodInfos();
 		for (int i = 0, max = methods.length; i < max; i++) {
 			disassemble(classFileReader, methods[i], buffer, lineSeparator, tabNumber);
