@@ -131,11 +131,10 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			}
 			setSourceMapper(mapper);
 			if (zipPath == null) {
-				//remove the property
-				getWorkspace().getRoot().setPersistentProperty(qName, null);
+				setSourceAttachmentProperty(null); //remove the property
 			} else {
 				//set the property to the path of the mapped zip
-				getWorkspace().getRoot().setPersistentProperty(qName, zipPath.toString() + ATTACHMENT_PROPERTY_DELIMITER + rootPath.toString());
+				setSourceAttachmentProperty(zipPath.toString() + ATTACHMENT_PROPERTY_DELIMITER + rootPath.toString());
 			}
 			if (rootNeedsToBeClosed) {
 				if (oldMapper != null) {
@@ -155,16 +154,10 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				}
 			}
 		} catch (JavaModelException e) {
-			try {
-				getWorkspace().getRoot().setPersistentProperty(qName, null); // loose info - will be recomputed
-			} catch(CoreException ce){
-			}
+			setSourceAttachmentProperty(null); // loose info - will be recomputed
 			throw e;
 		} catch (CoreException rae) {
-			try {
-				getWorkspace().getRoot().setPersistentProperty(qName, null); // loose info - will be recomputed
-			} catch(CoreException ce){
-			}
+			setSourceAttachmentProperty(null);  // loose info - will be recomputed
 			throw new JavaModelException(rae);
 		} finally {
 			if (monitor != null) {
@@ -425,6 +418,9 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 
 	return null;
 }
+
+
+
 	/**
 	 * Returns the underlying ZipFile for this Jar package fragment root.
 	 *
@@ -504,7 +500,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 					propertyString = recommendation.getSourceAttachmentPath().toString() 
 										+ ATTACHMENT_PROPERTY_DELIMITER 
 										+ (recommendation.getSourceAttachmentRootPath() == null ? "" : recommendation.getSourceAttachmentRootPath().toString()); //$NON-NLS-1$
-					getWorkspace().getRoot().setPersistentProperty(qName, propertyString);
+					setSourceAttachmentProperty(propertyString);
 				}
 			}
 			return propertyString;
@@ -512,6 +508,14 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 			throw new JavaModelException(ce);
 		}
 	}
+	
+	public void setSourceAttachmentProperty(String property){
+		try {
+			getWorkspace().getRoot().setPersistentProperty(this.getSourceAttachmentPropertyName(), property);
+		} catch (CoreException ce) {
+		}
+	}
+	
 	/**
 	 * Returns the qualified name for the source attachment property
 	 * of this jar.

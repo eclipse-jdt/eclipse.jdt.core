@@ -137,7 +137,7 @@ protected void executeOperation() throws JavaModelException {
 		addDelta(delta);	
 	}
 	worked(1);
-	project.saveClasspath();
+	project.saveClasspath(false);
 	worked(1);
 
 	// loose all built state - next build will be a full one
