@@ -115,7 +115,8 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	*/
 	public final boolean isFieldUseDeprecated(FieldBinding field, Scope scope) {
 
-		if (field.isPrivate()) {
+		if (field.isPrivate() && !scope.isDefinedInField(field)) {
+			// ignore cases where field is used from within inside itself 
 			field.modifiers |= AccPrivateUsed;
 		}
 
@@ -176,7 +177,8 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 
 		ReferenceBinding refType = (ReferenceBinding) type;
 
-		if (refType.isPrivate()) {
+		if (refType.isPrivate() && !scope.isDefinedInType(refType)) {
+			// ignore cases where type is used from within inside itself 
 			refType.modifiers |= AccPrivateUsed;
 		}
 

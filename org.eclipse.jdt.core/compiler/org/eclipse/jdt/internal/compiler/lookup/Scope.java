@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -1178,15 +1179,22 @@ public abstract class Scope
 		return false;
 	}
 
-	/* Answer true if the scope is nested inside a given type declaration
+	/* Answer true if the scope is nested inside a given field declaration.
+     * Note: it works as long as the scope.fieldDeclarationIndex is reflecting the field being traversed 
+     * e.g. during name resolution.
 	*/
-	public final boolean isDefinedInType(ReferenceBinding type) {
+	public final boolean isDefinedInField(FieldBinding field) {
 		Scope scope = this;
 		do {
-			if (scope instanceof ClassScope)
-				if (((ClassScope) scope).referenceContext.binding == type){
+			if (scope instanceof MethodScope) {
+				MethodScope methodScope = (MethodScope) scope;
+				ReferenceContext refContext = methodScope.referenceContext;
+				if (refContext instanceof TypeDeclaration
+						&& ((TypeDeclaration)refContext).binding == field.declaringClass
+						&& methodScope.fieldDeclarationIndex == field.id) {
 					return true;
 				}
+			}
 			scope = scope.parent;
 		} while (scope != null);
 		return false;
@@ -1209,6 +1217,20 @@ public abstract class Scope
 		return false;
 	}
 		
+	/* Answer true if the scope is nested inside a given type declaration
+	*/
+	public final boolean isDefinedInType(ReferenceBinding type) {
+		Scope scope = this;
+		do {
+			if (scope instanceof ClassScope)
+				if (((ClassScope) scope).referenceContext.binding == type){
+					return true;
+				}
+			scope = scope.parent;
+		} while (scope != null);
+		return false;
+	}
+
 	public boolean isInsideDeprecatedCode(){
 		switch(kind){
 			case Scope.BLOCK_SCOPE :
