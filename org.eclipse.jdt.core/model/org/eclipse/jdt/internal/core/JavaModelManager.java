@@ -336,11 +336,7 @@ public static IJavaElement determineIfOnClasspath(
 	 */
 	protected ArrayList fJavaModelDeltas= new ArrayList();
 
-	/**
-	 * Queue of deltas created as translations of ResourceDeltas that
-	 * have yet to be fired.
-	 */
-	protected ArrayList fResourceDeltas= new ArrayList();
+
 
 	/**
 	 * Collection of listeners for Java element deltas
@@ -513,17 +509,20 @@ public void doneSaving(ISaveContext context){
 				this.fire(fJavaModelDeltas);
 			} finally {
 				// empty the queue
-				fJavaModelDeltas= new ArrayList();
+				this.flush();
 			}
 		}
 	}
+	
 	/**
 	 * Flushes all deltas without firing them.
 	 */
 	protected void flush() {
 		fJavaModelDeltas= new ArrayList();
-		fResourceDeltas= new ArrayList();
 	}
+
+	
+
 	/**
 	 * Returns the development context to use for the given project.
 	 *
@@ -867,20 +866,11 @@ public void mergeDeltas() {
 		}
 	}
 	if (insertedTree){
-		if (fJavaModelDeltas.isEmpty()) {
-			fResourceDeltas = new ArrayList(1);
-			fResourceDeltas.add(rootDelta);
-		} else {
-			fJavaModelDeltas = new ArrayList(1);
-			fJavaModelDeltas.add(rootDelta);
-		}	
+		fJavaModelDeltas = new ArrayList(1);
+		fJavaModelDeltas.add(rootDelta);
 	}
 	else {
-		if (fJavaModelDeltas.isEmpty()) {
-			fResourceDeltas = new ArrayList(0);
-		} else {
-			fJavaModelDeltas = new ArrayList(0);
-		}	
+		fJavaModelDeltas = new ArrayList(0);
 	}
 }	
 	/**
@@ -1023,17 +1013,7 @@ public void prepareToSave(ISaveContext context) throws CoreException {
 	protected void registerJavaModelDelta(IJavaElementDelta delta) {
 		fJavaModelDeltas.add(delta);
 	}
-	/**
-	 * Registers the given delta with this manager. This API is to be
-	 * used to register deltas that are created as a side effect
-	 * of an <code>IResourceDelta</code>. As <code>IResourceDelta</code>s
-	 * are received by the Java Model, they are translated into 
-	 * <code>IJavaElementDelta</code>s. This is where the translations
-	 * are registered.
-	 */
-	public void registerResourceDelta(IJavaElementDelta delta) {
-		fResourceDeltas.add(delta);
-	}
+
 	/**
 	 * removeElementChangedListener method comment.
 	 */
