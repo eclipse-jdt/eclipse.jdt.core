@@ -23,9 +23,9 @@ public class BinaryIndexer extends AbstractIndexer {
 	private static final char[] SHORT = "short"/*nonNLS*/.toCharArray();
 	private static final char[] BOOLEAN = "boolean"/*nonNLS*/.toCharArray();
 	private static final char[] VOID = "void"/*nonNLS*/.toCharArray();
-
+
 	private boolean needReferences;
-
+
 	private static final boolean DEBUG = false;
 /**
  * BinaryIndexer constructor comment.
@@ -353,14 +353,9 @@ private int extractArgCount(char[] signature) throws ClassFormatException {
 	}
 	return parameterTypesCounter;
 }
-private final char[] extractClassName(int[] constantPoolOffsets, ClassFileReader reader, int index) {
-	int constantPoolIndex = reader.u2At(constantPoolOffsets[index] + 1);
-	int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[constantPoolIndex] + 1)];
-	return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
-}
 private final char[] extractName(int[] constantPoolOffsets, ClassFileReader reader, int index) {
-	int constantPoolIndex = reader.u2At(constantPoolOffsets[index] + 3);
-	int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[constantPoolIndex] + 1)];
+	int nameAndTypeIndex = reader.u2At(constantPoolOffsets[index] + 3); // name_and_type index
+	int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[nameAndTypeIndex] + 1)];
 	return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
 }
 /**
@@ -398,8 +393,8 @@ private void extractReferenceFromConstantPool(byte[] contents, ClassFileReader r
 	}
 }
 private final char[] extractType(int[] constantPoolOffsets, ClassFileReader reader, int index) {
-	int constantPoolIndex = reader.u2At(constantPoolOffsets[index] + 3);
-	int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[constantPoolIndex] + 3)];
+	int nameAndTypeIndex = reader.u2At(constantPoolOffsets[index] + 3);
+	int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[nameAndTypeIndex] + 3)];
 	return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
 }
 /**
@@ -413,9 +408,9 @@ private void indexClassFile(byte[] contents, char[] documentName) throws IOExcep
 		ClassFileReader reader = new ClassFileReader(contents, documentName);
 		// we don't want to index local and anonymous classes
 		if (reader.isLocal() || reader.isAnonymous()) return;
-
+
 		int[] constantPoolOffsets = reader.getConstantPoolOffsets();
-
+
 		// first add type references
 		char[] className = replace('/', '.', reader.getName()); // looks like java/lang/String
 		// need to extract the package name and the simple name
@@ -465,7 +460,7 @@ private void indexClassFile(byte[] contents, char[] documentName) throws IOExcep
 			}
 			addClassDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superclass, superinterfaces);
 		}
-
+
 		// first reference all methods declarations and field declarations
 		MethodInfo[] methods = (MethodInfo[]) reader.getMethods();
 		if (methods != null) {
@@ -519,7 +514,7 @@ private void indexClassFile(byte[] contents, char[] documentName) throws IOExcep
 				addFieldDeclaration(fieldType, fieldName);
 			}
 		}
-
+
 		// record all references found inside the .class file
 		if (needReferences) {
 			extractReferenceFromConstantPool(contents, reader);
