@@ -1685,7 +1685,22 @@ public class JavaProject
 	 * @see IJavaProject
 	 */
 	public boolean isOnClasspath(IJavaElement element) throws JavaModelException {
-		return this.isOnClasspath(element.getPath());
+		IPath path = element.getPath();
+		switch (element.getElementType()) {
+			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+				if (!((IPackageFragmentRoot)element).isArchive()) {
+					// ensure that folders are only excluded if all of their children are excluded
+					path = path.append("*"); //$NON-NLS-1$
+				}
+				break;
+			case IJavaElement.PACKAGE_FRAGMENT:
+				if (!((IPackageFragmentRoot)element.getParent()).isArchive()) {
+					// ensure that folders are only excluded if all of their children are excluded
+					path = path.append("*"); //$NON-NLS-1$
+				}
+				break;
+		}
+		return this.isOnClasspath(path);
 	}
 	private boolean isOnClasspath(IPath path) throws JavaModelException {
 		IClasspathEntry[] classpath = this.getResolvedClasspath(true/*ignore unresolved variable*/);
@@ -1702,7 +1717,14 @@ public class JavaProject
 	 * @see IJavaProject
 	 */
 	public boolean isOnClasspath(IResource resource) throws JavaModelException {
-		return this.isOnClasspath(resource.getFullPath());
+		IPath path = resource.getFullPath();
+		
+		// ensure that folders are only excluded if all of their children are excluded
+		if (resource.getType() == IResource.FOLDER) {
+			path = path.append("*"); //$NON-NLS-1$
+		}
+		
+		return this.isOnClasspath(path);
 	}
 
 
