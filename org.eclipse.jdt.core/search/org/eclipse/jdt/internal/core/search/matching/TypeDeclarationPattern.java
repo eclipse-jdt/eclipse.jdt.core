@@ -17,7 +17,9 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.core.index.IEntryResult;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
@@ -323,7 +325,10 @@ protected int matchLevelForType(char[] simpleNamePattern, char[] qualificationPa
 		} else {
 			// pattern was created from a Java element: qualification is the package name.
 			char[] fullQualificationPattern = CharOperation.concat(qualificationPattern, enclosingNamePattern, '.');
-			if ( CharOperation.equals(pkg, CharOperation.concatWith(type.getPackage().compoundName, '.'))) {
+			if (type instanceof ProblemReferenceBinding) { 
+				// case of an import reference while serching for ALL_OCCURENCES of a type (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=37166)
+				return IMPOSSIBLE_MATCH;
+			} else if (CharOperation.equals(pkg, CharOperation.concatWith(type.getPackage().compoundName, '.'))) {
 				return this.matchLevelForType(simpleNamePattern, fullQualificationPattern, type);
 			} else {
 				return IMPOSSIBLE_MATCH;

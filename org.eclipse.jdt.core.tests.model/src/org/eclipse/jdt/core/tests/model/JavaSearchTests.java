@@ -190,6 +190,11 @@ public void tearDownSuite() throws Exception {
 public static Test suite() {
 	TestSuite suite = new Suite(JavaSearchTests.class.getName());
 	
+	if (false) {
+		suite.addTest(new JavaSearchTests("testTypeOccurence2"));
+		return suite;
+	}
+	
 	// package declaration
 	suite.addTest(new JavaSearchTests("testSimplePackageDeclaration"));
 	suite.addTest(new JavaSearchTests("testVariousPackageDeclarations"));
@@ -248,6 +253,7 @@ public static Test suite() {
 	
 	// type occurences
 	suite.addTest(new JavaSearchTests("testTypeOccurence"));
+	suite.addTest(new JavaSearchTests("testTypeOccurence2"));
 	suite.addTest(new JavaSearchTests("testTypeOccurenceWithDollar"));
 	
 	// interface implementor
@@ -2296,6 +2302,24 @@ public void testTypeOccurence() throws JavaModelException, CoreException {
 		"src/r/A.java r.A$X(X) [X]\n" +
 		"src/r/A.java r.B.ax [A.X]\n" +
 		"src/r/A.java r.B.ax [X]",
+		resultCollector.toString());
+}
+/**
+ * Type ocuurence in unresolvable import test.
+ * (regression test for bug 37166 NPE in SearchEngine when matching type against ProblemReferenceBinding )
+ */
+public void testTypeOccurence2() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "r8", "B.java").getType("B");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		type, 
+		ALL_OCCURRENCES, 
+		scope, 
+		resultCollector);
+	assertEquals(
+		"src/r8/A.java [r8.B]",
 		resultCollector.toString());
 }
 /**
