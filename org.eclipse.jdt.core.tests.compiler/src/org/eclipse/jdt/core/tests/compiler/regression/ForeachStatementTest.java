@@ -1300,6 +1300,30 @@ public void test024() {
 		assertTrue(false);
 	}
 }
+public void test025() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"import java.util.ArrayList;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void bug(List<String> lines) {\n" + 
+			"        for (int i=0; i<1; i++) {\n" + 
+			"           for (String test: lines) {\n" + 
+			"                System.out.print(test);\n" + 
+			"           }\n" + 
+			"        }\n" +
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"    	ArrayList<String> tab = new ArrayList<String>();\n" + 
+			"    	tab.add(\"SUCCESS\");\n" + 
+			"    	bug(tab);\n" + 
+			"    }\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
 public static Class testClass() {
 	return ForeachStatementTest.class;
 }
