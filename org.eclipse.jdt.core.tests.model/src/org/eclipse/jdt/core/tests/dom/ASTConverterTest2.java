@@ -4955,7 +4955,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65090
 	 */
-	public void test0558() throws JavaModelException {
+	public void test0558() {
 		String src = "\tSystem.out.println(\"Hello\");\n\tSystem.out.println(\"World\");\n";
 		char[] source = src.toCharArray();
 		ASTParser parser = ASTParser.newParser(AST.JLS2);
