@@ -1,10 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 2002 IBM Corp. and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Common Public License v1.0 
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/cpl-v10.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
-/*
- * Licensed Materials - Property of IBM,
- * WebSphere Studio Workbench
- * (c) Copyright IBM Corp 2000
- */
 /**
  * <code>AssertionFailedException</code> is a runtime exception thrown
  * by some of the methods in <code>Assert</code>.
