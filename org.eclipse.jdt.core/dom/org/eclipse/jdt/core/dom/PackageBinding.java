@@ -94,9 +94,7 @@ class PackageBinding implements IPackageBinding {
 	 * @see IBinding#getJavaElement()
 	 */
 	public IJavaElement getJavaElement() {
-		LookupEnvironment lookupEnvironment = this.binding.environment;
-		if (lookupEnvironment == null) return null;
-		INameEnvironment nameEnvironment = lookupEnvironment.nameEnvironment;
+		INameEnvironment nameEnvironment = this.binding.environment.nameEnvironment; // a package binding always has a LooupEnvironment set
 		if (!(nameEnvironment instanceof SearchableEnvironment)) return null;
 		NameLookup nameLookup = ((SearchableEnvironment) nameEnvironment).nameLookup;
 		if (nameLookup == null) return null;
