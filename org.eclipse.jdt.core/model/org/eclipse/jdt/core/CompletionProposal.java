@@ -41,11 +41,15 @@ import org.eclipse.jdt.core.compiler.CharOperation;
  * to provide context that may help a user to choose from among
  * competing proposals.
  * </p>
+ * <p>
+ * The completion engine creates instances of this class; it is not
+ * intended to be used by other clients.
+ * </p>
  * 
  * @see ICodeAssist#codeComplete(int, CompletionRequestor)
  * @since 3.0
  */
-public class CompletionProposal {
+public final class CompletionProposal {
 
 	/**
 	 * Completion is a declaration of an anonymous class.
@@ -200,14 +204,14 @@ public class CompletionProposal {
 	/**
 	 * Completion is a declaration of a method.
 	 * This kind of completion might occur in a context like
-	 * <code>"new List() {int si^};"</code> and complete it to
+	 * <code>"new List() {si^};"</code> and complete it to
 	 * <code>"new List() {public int size() {} };"</code>.
 	 * <p>
 	 * The following additional context information is available
 	 * for this kind of completion proposal at little extra cost:
 	 * <ul>
 	 * <li>{@link #getDeclarationSignature()} -
-	 * the type signature of the type that declares the abstract
+	 * the type signature of the type that declares the
 	 * method that is being overridden or implemented
 	 * </li>
 	 * <li>{@link #getName()} -
@@ -274,20 +278,21 @@ public class CompletionProposal {
 	public static final int TYPE_REF = 9;
 
 	/**
-	 * Completion is a declaration of a variable.
+	 * Completion is a declaration of a variable (locals, parameters,
+	 * fields, etc.).
 	 * <p>
 	 * The following additional context information is available
 	 * for this kind of completion proposal at little extra cost:
 	 * <ul>
 	 * <li>{@link #getName()} -
-	 * the simple name of the local variable being declared
+	 * the simple name of the variable being declared
 	 * </li>
 	 * <li>{@link #getSignature()} -
-	 * the type signature of the type of the local variable
+	 * the type signature of the type of the variable
 	 * being declared
 	 * </li>
 	 * <li>{@link #getFlags()} -
-	 * the modifiers flags of the local variable being declared
+	 * the modifiers flags of the variable being declared
 	 * </li>
 	 * </ul>
 	 * </p>
@@ -373,6 +378,18 @@ public class CompletionProposal {
 	 * Defaults to <code>Flags.AccDefault</code>.
 	 */
 	private int flags = Flags.AccDefault;
+	
+	/**
+	 * Parameter names (for method completions), or
+	 * <code>null</code> if none. Lazily computed.
+	 * Defaults to <code>null</code>.
+	 */
+	private char[][] parameterNames = null;
+	
+	/**
+	 * Indicates whether parameter names have been computed.
+	 */
+	private boolean parameterNamesComputed = false;
 	
 	/**
 	 * Creates a basic completion proposal. All instance
@@ -523,6 +540,10 @@ public class CompletionProposal {
 	 * <p>
 	 * If not set, defaults to an empty character array.
 	 * </p>
+	 * <p>
+	 * The completion engine creates instances of this class and sets
+	 * its properties; this method is not intended to be used by other clients.
+	 * </p>
 	 * 
 	 * @param completion the completion string
 	 */
@@ -579,6 +600,10 @@ public class CompletionProposal {
 	 * <p>
 	 * If not set, defaults to empty subrange at [0,0).
 	 * </p>
+	 * <p>
+	 * The completion engine creates instances of this class and sets
+	 * its properties; this method is not intended to be used by other clients.
+	 * </p>
 	 * 
 	 * @param startIndex character index of replacement start position (inclusive)
 	 * @param endIndex character index of replacement end position (exclusive)
@@ -604,6 +629,10 @@ public class CompletionProposal {
 	 * Sets the relative relevance rating of this proposal.
 	 * <p>
 	 * If not set, defaults to the lowest possible rating (1).
+	 * </p>
+	 * <p>
+	 * The completion engine creates instances of this class and sets
+	 * its properties; this method is not intended to be used by other clients.
 	 * </p>
 	 * 
 	 * @param rating relevance rating of this proposal; ratings are positive; higher means better
@@ -655,6 +684,10 @@ public class CompletionProposal {
 	 * <p>
 	 * If not set, defaults to none.
 	 * </p>
+	 * <p>
+	 * The completion engine creates instances of this class and sets
+	 * its properties; this method is not intended to be used by other clients.
+	 * </p>
 	 * 
 	 * @param signature the type or package signature, or
 	 * <code>null</code> if none
@@ -698,6 +731,10 @@ public class CompletionProposal {
 	 * <code>null</code> if none.
 	 * <p>
 	 * If not set, defaults to none.
+	 * </p>
+	 * <p>
+	 * The completion engine creates instances of this class and sets
+	 * its properties; this method is not intended to be used by other clients.
 	 * </p>
 	 * 
 	 * @param name the keyword, field, method, local variable,
@@ -744,6 +781,10 @@ public class CompletionProposal {
 	 * relevant in the context, or <code>null</code> if none.
 	 * <p>
 	 * If not set, defaults to none.
+	 * </p>
+	 * <p>
+	 * The completion engine creates instances of this class and sets
+	 * its properties; this method is not intended to be used by other clients.
 	 * </p>
 	 * 
 	 * @param signature the signature, or <code>null</code> if none
@@ -803,6 +844,10 @@ public class CompletionProposal {
 	 * <p>
 	 * If not set, defaults to none.
 	 * </p>
+	 * <p>
+	 * The completion engine creates instances of this class and sets
+	 * its properties; this method is not intended to be used by other clients.
+	 * </p>
 	 * 
 	 * @param flags the modifier flags, or
 	 * <code>Flags.AccDefault</code> if none
@@ -829,7 +874,26 @@ public class CompletionProposal {
 	 * or not available or not relevant
 	 */
 	public char[][] findParameterNames(IProgressMonitor monitor) {
-		// TODO (jerome) - Missing implementation
-		return null;
+		if (!parameterNamesComputed) {
+			this.parameterNamesComputed = true;
+			// TODO (jerome) - Missing implementation
+		}
+		return this.parameterNames;
+	}
+	
+	/**
+	 * Sets the method parameter names.
+	 * This information is relevant to method reference (and
+	 * method declaration proposals).
+	 * <p>
+	 * The completion engine creates instances of this class and sets
+	 * its properties; this method is not intended to be used by other clients.
+	 * </p>
+	 * 
+	 * @param parameterNames the parameter names, or <code>null</code> if none
+	 */
+	public void setParameterNames(char[][] parameterNames) {
+		this.parameterNames = parameterNames;
+		this.parameterNamesComputed = true;
 	}
 }
