@@ -124,7 +124,7 @@ ReferenceBinding getType(char[] name) {
 	if (binding == LookupEnvironment.TheNotFoundType)
 		return null;
 	if (binding instanceof UnresolvedReferenceBinding)
-		binding = ((UnresolvedReferenceBinding) binding).resolve(environment, null, 0);
+		binding = ((UnresolvedReferenceBinding) binding).resolve(environment, true, null, 0);
 	if (binding.isNestedType())
 		return new ProblemReferenceBinding(name, InternalNameProvided);
 	return binding;
@@ -160,7 +160,7 @@ public Binding getTypeOrPackage(char[] name) {
 	ReferenceBinding typeBinding = getType0(name);
 	if (typeBinding != null && typeBinding != LookupEnvironment.TheNotFoundType) {
 		if (typeBinding instanceof UnresolvedReferenceBinding)
-			typeBinding = ((UnresolvedReferenceBinding) typeBinding).resolve(environment, null, 0);
+			typeBinding = ((UnresolvedReferenceBinding) typeBinding).resolve(environment, false, null, 0); // no raw check
 		if (typeBinding.isNestedType())
 			return new ProblemReferenceBinding(name, InternalNameProvided);
 		return typeBinding;

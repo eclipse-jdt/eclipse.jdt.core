@@ -3295,6 +3295,16 @@ public void undefinedLabel(BranchStatement statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
+// can only occur inside binaries
+public void undefinedTypeVariableSignature(char[] variableName, ReferenceBinding binaryType) {
+	this.handle(
+		IProblem.UndefinedTypeVariable,
+		new String[] {new String(variableName), new String(binaryType.readableName()) },	
+		new String[] {new String(variableName), new String(binaryType.shortReadableName())},
+		AbortCompilation | Error,
+		0,
+		1);
+}
 public void undocumentedEmptyBlock(int blockStart, int blockEnd) {
 	this.handle(
 		IProblem.UndocumentedEmptyBlock,

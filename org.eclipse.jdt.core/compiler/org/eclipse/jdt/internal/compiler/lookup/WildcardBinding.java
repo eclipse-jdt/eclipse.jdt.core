@@ -140,7 +140,7 @@ public class WildcardBinding extends ReferenceBinding {
 	    switch(this.kind) {
 	        case Wildcard.EXTENDS :
 	        case Wildcard.SUPER :
-				BinaryTypeBinding.resolveType(this.bound, this.environment, null, 0);
+				BinaryTypeBinding.resolveType(this.bound, this.environment, true, null, 0);
 				break;
 			case Wildcard.UNBOUND :
 				if (this.bound == null) {
@@ -223,9 +223,9 @@ public class WildcardBinding extends ReferenceBinding {
         return this.superInterfaces;
     }
 
-	public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
+	public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
 		if (this.bound == unresolvedType) {
-			this.bound = resolvedType;
+			this.bound = resolvedType.isGenericType() ? env.createRawType(resolvedType) : resolvedType;
 			initialize(this.bound);
 		}
 	}

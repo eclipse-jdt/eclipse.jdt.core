@@ -850,6 +850,8 @@ public interface IProblem {
 	int InvalidClassInstantiationWithWildcards = Internal + 537;
 	/** @since 3.1 */
 	int FinalBoundForTypeVariable = TypeRelated + 538;
+	/** @since 3.1 */
+	int UndefinedTypeVariable = Internal + 539;
 	
 	/**
 	 * Foreach

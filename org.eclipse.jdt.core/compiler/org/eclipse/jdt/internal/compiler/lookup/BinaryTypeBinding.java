@@ -39,23 +39,20 @@ private ReferenceBinding[] superInterfaces;
 private FieldBinding[] fields;
 private MethodBinding[] methods;
 private ReferenceBinding[] memberTypes;
-private TypeVariableBinding[] typeVariables;
+protected TypeVariableBinding[] typeVariables;
 
 // For the link with the principle structure
 private LookupEnvironment environment;
 
-public static TypeBinding resolveType(TypeBinding type, LookupEnvironment environment, ParameterizedTypeBinding parameterizedType, int rank) {
+public static TypeBinding resolveType(TypeBinding type, LookupEnvironment environment, boolean rawCheck, ParameterizedTypeBinding parameterizedType, int rank) {
 	if (type instanceof UnresolvedReferenceBinding)
-		return ((UnresolvedReferenceBinding) type).resolve(environment, parameterizedType, rank);
+		return ((UnresolvedReferenceBinding) type).resolve(environment, rawCheck, parameterizedType, rank);
 	if (type.isParameterizedType())
 		return ((ParameterizedTypeBinding) type).resolve();
 	if (type.isWildcard())
 		return ((WildcardBinding) type).resolve(parameterizedType, rank);
 	if (type.isArrayType())
-		resolveType(((ArrayBinding) type).leafComponentType, environment, parameterizedType, rank);
-	if (type.isTypeVariable()) {
-		return ((TypeVariableBinding) type).resolve(environment);
-	}
+		resolveType(((ArrayBinding) type).leafComponentType, environment, rawCheck, parameterizedType, rank);
 	return type;
 }
 
@@ -134,7 +131,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 	char[] enclosingTypeName = binaryType.getEnclosingTypeName();
 	if (enclosingTypeName != null) {
 		// attempt to find the enclosing type if it exists in the cache (otherwise - resolve it when requested)
-		this.enclosingType = environment.getTypeFromConstantPoolName(enclosingTypeName, 0, -1);
+		this.enclosingType = environment.getTypeFromConstantPoolName(enclosingTypeName, 0, -1, true); // pretend parameterized to avoid raw
 		this.tagBits |= MemberTypeMask;   // must be a member type not a top-level or local type
 		this.tagBits |= 	HasUnresolvedEnclosingType;
 		if (this.enclosingType().isStrictfp())
@@ -149,7 +146,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		char[] superclassName = binaryType.getSuperclassName();
 		if (superclassName != null) {
 			// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)
-			this.superclass = environment.getTypeFromConstantPoolName(superclassName, 0, -1);
+			this.superclass = environment.getTypeFromConstantPoolName(superclassName, 0, -1, false);
 			this.tagBits |= 	HasUnresolvedSuperclass;
 		}
 
@@ -161,7 +158,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 				this.superInterfaces = new ReferenceBinding[size];
 				for (int i = 0; i < size; i++)
 					// attempt to find each superinterface if it exists in the cache (otherwise - resolve it when requested)
-					this.superInterfaces[i] = environment.getTypeFromConstantPoolName(interfaceNames[i], 0, -1);
+					this.superInterfaces[i] = environment.getTypeFromConstantPoolName(interfaceNames[i], 0, -1, false);
 				this.tagBits |= 	HasUnresolvedSuperinterfaces;
 			}
 		}
@@ -207,7 +204,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			this.memberTypes = new ReferenceBinding[size];
 			for (int i = 0; i < size; i++)
 				// attempt to find each member type if it exists in the cache (otherwise - resolve it when requested)
-				this.memberTypes[i] = environment.getTypeFromConstantPoolName(memberTypeStructures[i].getName(), 0, -1);
+				this.memberTypes[i] = environment.getTypeFromConstantPoolName(memberTypeStructures[i].getName(), 0, -1, false);
 			this.tagBits |= 	HasUnresolvedMemberTypes;
 		}
 	}
@@ -230,7 +227,7 @@ private void createFields(IBinaryField[] iFields, boolean checkGenericSignatures
 				IBinaryField field = iFields[i];
 				char[] fieldSignature = checkGenericSignatures ? field.getGenericSignature() : null;
 				TypeBinding type = fieldSignature == null
-					? environment.getTypeFromSignature(field.getTypeName(), 0, -1)
+					? environment.getTypeFromSignature(field.getTypeName(), 0, -1, false)
 					: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature, 0), NoTypeVariables, this);
 				this.fields[i] =
 					new FieldBinding(
@@ -276,7 +273,7 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 					while ((nextChar = methodDescriptor[++end]) != ';');
 	
 				if (i >= startIndex)   // skip the synthetic arg if necessary
-					parameters[i - startIndex] = environment.getTypeFromSignature(methodDescriptor, index, end);
+					parameters[i - startIndex] = environment.getTypeFromSignature(methodDescriptor, index, end, false);
 				index = end + 1;
 			}
 		}
@@ -287,12 +284,12 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 			if (size > 0) {
 				exceptions = new ReferenceBinding[size];
 				for (int i = 0; i < size; i++)
-					exceptions[i] = environment.getTypeFromConstantPoolName(exceptionTypes[i], 0, -1);
+					exceptions[i] = environment.getTypeFromConstantPoolName(exceptionTypes[i], 0, -1, false);
 			}
 		}
 
 		if (!method.isConstructor())
-			returnType = environment.getTypeFromSignature(methodDescriptor, index + 1, -1);   // index is currently pointing at the ')'
+			returnType = environment.getTypeFromSignature(methodDescriptor, index + 1, -1, false);   // index is currently pointing at the ')'
 	} else {
 		// MethodTypeSignature = ParameterPart(optional) '(' TypeSignatures ')' return_typeSignature ['^' TypeSignature (optional)]
 		SignatureWrapper wrapper = new SignatureWrapper(methodSignature, 0);
@@ -347,7 +344,7 @@ private MethodBinding createMethod(IBinaryMethod method, boolean checkGenericSig
 				if (size > 0) {
 					exceptions = new ReferenceBinding[size];
 					for (int i = 0; i < size; i++)
-						exceptions[i] = environment.getTypeFromConstantPoolName(exceptionTypes[i], 0, -1);
+						exceptions[i] = environment.getTypeFromConstantPoolName(exceptionTypes[i], 0, -1, false);
 				}
 			}
 		}
@@ -436,7 +433,7 @@ public ReferenceBinding enclosingType() {
 	if ((this.tagBits & HasUnresolvedEnclosingType) == 0)
 		return this.enclosingType;
 
-	this.enclosingType = (ReferenceBinding) resolveType(this.enclosingType, this.environment, null, 0);
+	this.enclosingType = (ReferenceBinding) resolveType(this.enclosingType, this.environment, false, null, 0);
 	this.tagBits ^= HasUnresolvedEnclosingType;
 	return this.enclosingType;
 }
@@ -559,7 +556,7 @@ public ReferenceBinding[] memberTypes() {
 		return this.memberTypes;
 
 	for (int i = this.memberTypes.length; --i >= 0;)
-		this.memberTypes[i] = (ReferenceBinding) resolveType(this.memberTypes[i], this.environment, null, 0);
+		this.memberTypes[i] = (ReferenceBinding) resolveType(this.memberTypes[i], this.environment, false, null, 0);
 	this.tagBits ^= HasUnresolvedMemberTypes;
 	return this.memberTypes;
 }
@@ -578,7 +575,7 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	if ((field.modifiers & AccUnresolved) == 0)
 		return field;
 
-	field.type = resolveType(field.type, this.environment, null, 0);
+	field.type = resolveType(field.type, this.environment, true, null, 0);
 	field.modifiers ^= AccUnresolved;
 	return field;
 }
@@ -587,11 +584,11 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 		return method;
 
 	if (!method.isConstructor())
-		method.returnType = resolveType(method.returnType, this.environment, null, 0);
+		method.returnType = resolveType(method.returnType, this.environment, true, null, 0);
 	for (int i = method.parameters.length; --i >= 0;)
-		method.parameters[i] = resolveType(method.parameters[i], this.environment, null, 0);
+		method.parameters[i] = resolveType(method.parameters[i], this.environment, true, null, 0);
 	for (int i = method.thrownExceptions.length; --i >= 0;)
-		method.thrownExceptions[i] = (ReferenceBinding)resolveType(method.thrownExceptions[i], this.environment, null, 0);
+		method.thrownExceptions[i] = (ReferenceBinding)resolveType(method.thrownExceptions[i], this.environment, true, null, 0);
 	method.modifiers ^= AccUnresolved;
 	return method;
 }
@@ -600,12 +597,12 @@ private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
 		return variable;
 
 	if (variable.superclass != null)
-		variable.superclass = (ReferenceBinding)resolveType(variable.superclass, this.environment, null, 0);
+		variable.superclass = (ReferenceBinding)resolveType(variable.superclass, this.environment, true, null, 0);
 	if (variable.firstBound != null)
-		variable.firstBound = (ReferenceBinding) resolveType(variable.firstBound, this.environment, null, 0);
+		variable.firstBound = (ReferenceBinding) resolveType(variable.firstBound, this.environment, true, null, 0);
 	ReferenceBinding[] interfaces = variable.superInterfaces;
 	for (int i = interfaces.length; --i >= 0;)
-		interfaces[i] = (ReferenceBinding) resolveType(interfaces[i], this.environment, null, 0);
+		interfaces[i] = (ReferenceBinding) resolveType(interfaces[i], this.environment, true, null, 0);
 	variable.modifiers ^= AccUnresolved;
 	return variable;
 }
@@ -618,7 +615,7 @@ public ReferenceBinding superclass() {
 	if ((this.tagBits & HasUnresolvedSuperclass) == 0)
 		return this.superclass;
 
-	this.superclass = (ReferenceBinding) resolveType(this.superclass, this.environment, null, 0);
+	this.superclass = (ReferenceBinding) resolveType(this.superclass, this.environment, true, null, 0);
 	this.tagBits ^= HasUnresolvedSuperclass;
 	return this.superclass;
 }
@@ -629,7 +626,7 @@ public ReferenceBinding[] superInterfaces() {
 		return this.superInterfaces;
 
  	for (int i = this.superInterfaces.length; --i >= 0;)
-		this.superInterfaces[i] = (ReferenceBinding) resolveType(this.superInterfaces[i], this.environment, null, 0);
+		this.superInterfaces[i] = (ReferenceBinding) resolveType(this.superInterfaces[i], this.environment, true, null, 0);
 	this.tagBits ^= HasUnresolvedSuperinterfaces;
 	return this.superInterfaces;
 }
@@ -637,7 +634,7 @@ public TypeVariableBinding[] typeVariables() {
  	if ((this.tagBits & HasUnresolvedTypeVariables) == 0)
 		return this.typeVariables;
  	for (int i = this.typeVariables.length; --i >= 0;)
-		resolveType(this.typeVariables[i], this.environment, null, 0);
+		resolveTypesFor(this.typeVariables[i]);
 	this.tagBits ^= HasUnresolvedTypeVariables;
 	return this.typeVariables;
 }

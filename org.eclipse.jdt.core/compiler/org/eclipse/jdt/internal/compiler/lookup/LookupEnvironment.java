@@ -16,7 +16,6 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
-import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -512,8 +511,9 @@ public ReferenceBinding getType(char[][] compoundName) {
 
 	if (referenceBinding == null || referenceBinding == TheNotFoundType)
 		return null;
+	// TODO (kent) this will not handle names which would be part of parameterized type ref - maybe acceptable, but if so should be documented
 	if (referenceBinding instanceof UnresolvedReferenceBinding)
-		referenceBinding = ((UnresolvedReferenceBinding) referenceBinding).resolve(this, null, 0);
+		referenceBinding = ((UnresolvedReferenceBinding) referenceBinding).resolve(this, true, null, 0);
 
 	// compoundName refers to a nested type incorrectly (for example, package1.A$B)
 	if (referenceBinding.isNestedType())
@@ -530,7 +530,7 @@ public ReferenceBinding getType(char[][] compoundName) {
 * NOTE: Aborts compilation if the class file cannot be found.
 */
 
-ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end) {
+ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end, boolean isParameterized) {
 	if (end == -1)
 		end = signature.length;
 
@@ -543,6 +543,9 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 	} else if (binding == TheNotFoundType) {
 		problemReporter.isClassPathCorrect(compoundName, null);
 		return null; // will not get here since the above error aborts the compilation
+	} else if (!isParameterized && binding.isGenericType()) {
+	    // check raw type, only for resolved types
+        binding = createRawType(binding);
 	}
 	return binding;
 }
@@ -555,7 +558,7 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 * NOTE: Aborts compilation if the class file cannot be found.
 */
 
-TypeBinding getTypeFromSignature(char[] signature, int start, int end) {
+TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean isParameterized) {
 	int dimension = 0;
 	while (signature[start] == '[') {
 		start++;
@@ -599,7 +602,7 @@ TypeBinding getTypeFromSignature(char[] signature, int start, int end) {
 				throw new Error(Util.bind("error.undefinedBaseType",String.valueOf(signature[start]))); //$NON-NLS-1$
 		}
 	} else {
-		binding = getTypeFromConstantPoolName(signature, start + 1, end);
+		binding = getTypeFromConstantPoolName(signature, start + 1, end, isParameterized);
 	}
 
 	if (dimension == 0)
@@ -625,22 +628,24 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 		for (int i = staticVariables.length; --i >= 0;)
 			if (CharOperation.equals(staticVariables[i].sourceName, wrapper.signature, varStart, varEnd))
 				return dimension == 0 ? (TypeBinding) staticVariables[i] : createArrayType(staticVariables[i], dimension);
+	    ReferenceBinding initialType = enclosingType;
 		do {
-			TypeVariableBinding[] enclosingVariables = enclosingType.typeVariables();
-			for (int i = enclosingVariables.length; --i >= 0;)
-				if (CharOperation.equals(enclosingVariables[i].sourceName, wrapper.signature, varStart, varEnd))
-					return dimension == 0 ? (TypeBinding) enclosingVariables[i] : createArrayType(enclosingVariables[i], dimension);
+		    if (enclosingType instanceof BinaryTypeBinding) { // per construction can only be binary type binding
+				TypeVariableBinding[] enclosingVariables = ((BinaryTypeBinding)enclosingType).typeVariables; // do not trigger resolution of variables
+				for (int i = enclosingVariables.length; --i >= 0;)
+					if (CharOperation.equals(enclosingVariables[i].sourceName, wrapper.signature, varStart, varEnd))
+						return dimension == 0 ? (TypeBinding) enclosingVariables[i] : createArrayType(enclosingVariables[i], dimension);
+		    }
 		} while ((enclosingType = enclosingType.enclosingType()) != null);
-		throw new AbortCompilation(
-			this.unitBeingCompleted.compilationResult,
-			new IllegalAccessError(Util.bind("error.undefinedTypeVariable", new String(CharOperation.subarray(wrapper.signature, varStart, varEnd))))); //$NON-NLS-1$
+		problemReporter.undefinedTypeVariableSignature(CharOperation.subarray(wrapper.signature, varStart, varEnd), initialType);
+		return null; // cannot reach this, since previous problem will abort compilation
 	}
 
-	TypeBinding type = getTypeFromSignature(wrapper.signature, wrapper.start, wrapper.computeEnd());
+	TypeBinding type = getTypeFromSignature(wrapper.signature, wrapper.start, wrapper.computeEnd(), true);
 	if (wrapper.end != wrapper.bracket)
 		return dimension == 0 ? type : createArrayType(type, dimension);
 	// type must be a ReferenceBinding at this point, cannot be a BaseTypeBinding or ArrayTypeBinding
-	ReferenceBinding actualType = (ReferenceBinding) type;
+	ReferenceBinding actualType = (ReferenceBinding) type; // TODO (kent) what if it is actually due to bogus binaries ?
 
 	java.util.ArrayList args = new java.util.ArrayList(2);
 	int rank = 0;
@@ -729,37 +734,17 @@ void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding re
 		Object[] keys = uniqueParameterizedTypeBindings.keyTable;
 		for (int i = 0, l = keys.length; i < l; i++) {
 			if (keys[i] == unresolvedType) {
-				keys[i] = resolvedType; // hashCode is based on compoundName so this works
+				keys[i] = resolvedType; // hashCode is based on compoundName so this works - cannot be raw since type of parameterized type
 				break;
 			}
 		}
 	}
 
-// TODO (kent) we should be recreating unresolved raw bindings from binaries (in case no generic signature and referencing a generic type)
-// TODO (philippe) what????
-//	if (uniqueRawTypeBindings.get(unresolvedType) != null) { // update the key
-//		Object[] keys = uniqueRawTypeBindings.keyTable;
-//		for (int i = 0, l = keys.length; i < l; i++) {
-//			if (keys[i] == unresolvedType) {
-//				keys[i] = resolvedType; // hashCode is based on compoundName so this works
-//				break;
-//			}
-//		}
-//	}
-//	values = uniqueRawTypeBindings.valueTable;
-//	for (int i = 0, l = values.length; i < l; i++) {
-//		if (values[i] != null) {
-//			RawTypeBinding cachedType = (RawTypeBinding) values[i];
-//			if (cachedType.type == unresolvedType)
-//				cachedType.type = resolvedType;
-//		}
-//	}
-
 	if (uniqueWildcardBindings.get(unresolvedType) != null) { // update the key
 		Object[] keys = uniqueWildcardBindings.keyTable;
 		for (int i = 0, l = keys.length; i < l; i++) {
 			if (keys[i] == unresolvedType) {
-				keys[i] = resolvedType; // hashCode is based on compoundName so this works
+				keys[i] = resolvedType.isGenericType() ? createRawType(resolvedType) : resolvedType; // hashCode is based on compoundName so this works
 				break;
 			}
 		}

@@ -174,7 +174,7 @@ public char[] signature() {
 
 public abstract char[] sourceName();
 
-public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
+public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment environment) {
 	// subclasses must override if they wrap another type binding
 }
 /**

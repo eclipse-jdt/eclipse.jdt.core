@@ -3236,4 +3236,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 		null,
 		customOptions);		
 	}	
+	// parameterized interface cannot be implemented simultaneously with distinct arguments
+	// TODO (kent) hierarchy check should be able to diagnose duplicate interface erasure.
+	public void _test109() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X implements AX<String> {}\n" + 
+				"class Y extends X implements AX<Thread> {}\n" + 
+				"interface AX<P> {}\n" + 
+				"\n",
+			},
+		"generic interface AX<P> cannot be implemented simultaneously with distinct arguments: <String> and <Thread>");		
+	}		
 }

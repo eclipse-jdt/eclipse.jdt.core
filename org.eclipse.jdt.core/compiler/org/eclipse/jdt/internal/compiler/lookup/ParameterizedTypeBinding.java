@@ -395,10 +395,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	}
 
 	ReferenceBinding resolve() {
-		ReferenceBinding resolvedType = (ReferenceBinding) BinaryTypeBinding.resolveType(this.type, this.environment, null, 0);
+		ReferenceBinding resolvedType = (ReferenceBinding) BinaryTypeBinding.resolveType(this.type, this.environment, false, null, 0); // still part of parameterized type ref
 		int argLength = this.arguments.length;
 		for (int i = 0; i < argLength; i++)
-			BinaryTypeBinding.resolveType(this.arguments[i], this.environment, this, i);
+			BinaryTypeBinding.resolveType(this.arguments[i], this.environment, true, this, i);
 		// arity check
 		TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
 		if (refTypeVariables == NoTypeVariables) { // check generic
@@ -543,16 +543,16 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		return this.superInterfaces;
 	}
 
-	public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
+	public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
 		boolean update = false;
 		if (this.type == unresolvedType) {
-			this.type = resolvedType;
+			this.type = resolvedType; // cannot be raw since being parameterized below
 			update = true;
 		}
 		if (this.arguments != null) {
 			for (int i = 0, l = this.arguments.length; i < l; i++) {
 				if (this.arguments[i] == unresolvedType) {
-					this.arguments[i] = resolvedType;
+					this.arguments[i] = resolvedType.isGenericType() ? env.createRawType(resolvedType) : resolvedType;
 					update = true;
 				}
 			}

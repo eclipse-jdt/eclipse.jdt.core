@@ -154,9 +154,10 @@ public char[] sourceName() {
 	}
 	return CharOperation.concat(leafComponentType.sourceName(), brackets);
 }
-public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType) {
-	if (this.leafComponentType == unresolvedType)
-		this.leafComponentType = resolvedType;
+public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment environment) {
+	if (this.leafComponentType == unresolvedType) {
+		this.leafComponentType = resolvedType.isGenericType() ? environment.createRawType(resolvedType) : resolvedType;
+	}
 }
 public String toString() {
 	return leafComponentType != null ? debugName() : "NULL TYPE ARRAY"; //$NON-NLS-1$

@@ -479,8 +479,8 @@ ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
 		return TypeConstants.NoExceptions; // safety check
 
 	for (int i = exceptions.length; --i >= 0;)
-		if (exceptions[i] instanceof UnresolvedReferenceBinding)
-			exceptions[i] = (ReferenceBinding) BinaryTypeBinding.resolveType(exceptions[i], this.environment, null, 0);
+		if (exceptions[i] instanceof UnresolvedReferenceBinding) // TODO (kent) should use more general #resolveType mechanism to address all cases
+			exceptions[i] = (ReferenceBinding) BinaryTypeBinding.resolveType(exceptions[i], this.environment, true, null, 0);
 	return exceptions;
 }
 private ReferenceBinding runtimeException() {

@@ -97,14 +97,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public boolean isTypeVariable() {
 	    return true;
 	}
-	public TypeBinding resolve(LookupEnvironment environment) {
-		// resolve all bounds
-		this.superclass = (ReferenceBinding)BinaryTypeBinding.resolveType(this.superclass, environment, null, 0);
-		for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-			this.superInterfaces[i] = (ReferenceBinding)BinaryTypeBinding.resolveType(this.superInterfaces[i], environment, null, 0);
-		}
-		return this;
-	}
 	public ReferenceBinding superclass() {
 		return superclass;
 	}

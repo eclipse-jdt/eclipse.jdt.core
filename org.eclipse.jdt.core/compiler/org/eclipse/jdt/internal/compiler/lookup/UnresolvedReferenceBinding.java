@@ -35,25 +35,29 @@ void addWrapper(TypeBinding wrapper) {
 public String debugName() {
 	return toString();
 }
-ReferenceBinding resolve(LookupEnvironment environment, ParameterizedTypeBinding parameterizedType, int rank) {
-	if (this.resolvedType != null) return this.resolvedType;
-
-	ReferenceBinding environmentType = this.fPackage.getType0(this.compoundName[this.compoundName.length - 1]);
-	if (environmentType == this)
-		environmentType = environment.askForType(this.compoundName);
-	if (environmentType != null && environmentType != this) { // could not resolve any better, error was already reported against it
-		this.resolvedType = environmentType;
-		// must ensure to update any other type bindings that can contain the resolved type
-		// otherwise we could create 2 : 1 for this unresolved type & 1 for the resolved type
-		if (this.wrappers != null)
-			for (int i = 0, l = this.wrappers.length; i < l; i++)
-				this.wrappers[i].swapUnresolved(this, environmentType);
-		environment.updateCaches(this, environmentType);
-		return environmentType; // when found, it replaces the unresolved type in the cache
+ReferenceBinding resolve(LookupEnvironment environment, boolean rawCheck, ParameterizedTypeBinding parameterizedType, int rank) {
+    ReferenceBinding targetType;
+	if ((targetType = this.resolvedType) == null) {
+		targetType = this.fPackage.getType0(this.compoundName[this.compoundName.length - 1]);
+		if (targetType == this)
+			targetType = environment.askForType(this.compoundName);
+		if (targetType != null && targetType != this) { // could not resolve any better, error was already reported against it
+			this.resolvedType = targetType;
+			// must ensure to update any other type bindings that can contain the resolved type
+			// otherwise we could create 2 : 1 for this unresolved type & 1 for the resolved type
+			if (this.wrappers != null)
+				for (int i = 0, l = this.wrappers.length; i < l; i++)
+					this.wrappers[i].swapUnresolved(this, targetType, environment);
+			environment.updateCaches(this, targetType);
+		} else {
+			environment.problemReporter.isClassPathCorrect(this.compoundName, null);
+			return null; // will not get here since the above error aborts the compilation
+		}
 	}
-
-	environment.problemReporter.isClassPathCorrect(this.compoundName, null);
-	return null; // will not get here since the above error aborts the compilation
+	if (rawCheck && parameterizedType == null && targetType.isGenericType()) { // raw reference to generic ?
+	    return environment.createRawType(targetType);
+	}
+	return targetType;
 }
 public String toString() {
 	return "Unresolved type " + ((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED"); //$NON-NLS-1$ //$NON-NLS-2$
