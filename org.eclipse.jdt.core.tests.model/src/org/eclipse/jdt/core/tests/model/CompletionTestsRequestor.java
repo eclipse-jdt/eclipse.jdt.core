@@ -19,6 +19,8 @@ public class CompletionTestsRequestor implements ICompletionRequestor {
 	private Vector fElements = new Vector();
 	private Vector fCompletions = new Vector();
 	private Vector fRelevances = new Vector();
+	private Vector fCompletionStart = new Vector();
+	private Vector fCompletionEnd = new Vector();
 	
 	public boolean fDebug = false;
 /**
@@ -32,6 +34,8 @@ public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName
 	fElements.addElement(new String(superTypeName));
 	fCompletions.addElement(new String(completionName));
 	fRelevances.addElement(String.valueOf(relevance));
+	fCompletionStart.addElement(String.valueOf(completionStart));
+	fCompletionEnd.addElement(String.valueOf(completionEnd));
 	if (fDebug)
 		System.out.println("anonymous type " + new String(superTypeName));
 }
@@ -42,6 +46,8 @@ public void acceptClass(char[] packageName, char[] className, char[] completionN
 	fElements.addElement(new String(className));
 	fCompletions.addElement(new String(completionName));
 	fRelevances.addElement(String.valueOf(relevance));
+	fCompletionStart.addElement(String.valueOf(completionStart));
+	fCompletionEnd.addElement(String.valueOf(completionEnd));
 	if (fDebug)
 		System.out.println("Class " + new String(className));
 }
@@ -68,6 +74,8 @@ public void acceptField(
 	fElements.addElement(new String(name));
 	fCompletions.addElement(new String(completionName));
 	fRelevances.addElement(String.valueOf(relevance));
+	fCompletionStart.addElement(String.valueOf(completionStart));
+	fCompletionEnd.addElement(String.valueOf(completionEnd));
 	if (fDebug)
 		System.out.println("Field " + new String(name));
 }
@@ -78,6 +86,8 @@ public void acceptInterface(char[] packageName, char[] interfaceName, char[] com
 	fElements.addElement(new String(interfaceName));
 	fCompletions.addElement(new String(completionName));
 	fRelevances.addElement(String.valueOf(relevance));
+	fCompletionStart.addElement(String.valueOf(completionStart));
+	fCompletionEnd.addElement(String.valueOf(completionEnd));
 	if (fDebug)
 		System.out.println("Interface " + new String(interfaceName));
 
@@ -89,6 +99,8 @@ public void acceptKeyword(char[] keywordName, int completionStart, int completio
 	fElements.addElement(new String(keywordName));
 	fCompletions.addElement(new String(keywordName));
 	fRelevances.addElement(String.valueOf(relevance));
+	fCompletionStart.addElement(String.valueOf(completionStart));
+	fCompletionEnd.addElement(String.valueOf(completionEnd));
 	if (fDebug)
 		System.out.println("Keyword " + new String(keywordName));
 }
@@ -99,6 +111,8 @@ public void acceptLabel(char[] labelName, int completionStart, int completionEnd
 	fElements.addElement(new String(labelName));
 	fCompletions.addElement(new String(labelName));
 	fRelevances.addElement(String.valueOf(relevance));
+	fCompletionStart.addElement(String.valueOf(completionStart));
+	fCompletionEnd.addElement(String.valueOf(completionEnd));
 	if (fDebug)
 		System.out.println("Label " + new String(labelName));
 }
@@ -109,6 +123,8 @@ public void acceptLocalVariable(char[] name, char[] typePackageName, char[] type
 	fElements.addElement(new String(name));
 	fCompletions.addElement(new String(name));
 	fRelevances.addElement(String.valueOf(relevance));
+	fCompletionStart.addElement(String.valueOf(completionStart));
+	fCompletionEnd.addElement(String.valueOf(completionEnd));
 	if (fDebug)
 		System.out.println("Local variable " + new String(name));
 }
@@ -133,6 +149,8 @@ public void acceptMethod(
 	fElements.addElement(new String(selector));
 	fCompletions.addElement(new String(completionName));
 	fRelevances.addElement(String.valueOf(relevance));
+	fCompletionStart.addElement(String.valueOf(completionStart));
+	fCompletionEnd.addElement(String.valueOf(completionEnd));
 	if (fDebug)
 		System.out.println("method " + new String(selector));
 }
@@ -157,6 +175,8 @@ public void acceptMethodDeclaration(
 	fElements.addElement(new String(selector));
 	fCompletions.addElement(new String(completionName));
 	fRelevances.addElement(String.valueOf(relevance));
+	fCompletionStart.addElement(String.valueOf(completionStart));
+	fCompletionEnd.addElement(String.valueOf(completionEnd));
 	if (fDebug)
 		System.out.println("method declaration " + new String(selector));
 }
@@ -167,6 +187,8 @@ public void acceptModifier(char[] modifierName, int completionStart, int complet
 	fElements.addElement(new String(modifierName));
 	fCompletions.addElement(new String(modifierName));
 	fRelevances.addElement(String.valueOf(relevance));
+	fCompletionStart.addElement(String.valueOf(completionStart));
+	fCompletionEnd.addElement(String.valueOf(completionEnd));
 	if (fDebug)
 		System.out.println("modifier " + new String(modifierName));
 }
@@ -177,6 +199,8 @@ public void acceptPackage(char[] packageName, char[] completionName, int complet
 	fElements.addElement(new String(packageName));
 	fCompletions.addElement(new String(completionName));
 	fRelevances.addElement(String.valueOf(relevance));
+	fCompletionStart.addElement(String.valueOf(completionStart));
+	fCompletionEnd.addElement(String.valueOf(completionEnd));
 	if (fDebug)
 		System.out.println("package " + new String(packageName));
 }
@@ -187,6 +211,8 @@ public void acceptType(char[] packageName, char[] typeName, char[] completionNam
 	fElements.addElement(new String(typeName));
 	fCompletions.addElement(new String(completionName));
 	fRelevances.addElement(String.valueOf(relevance));
+	fCompletionStart.addElement(String.valueOf(completionStart));
+	fCompletionEnd.addElement(String.valueOf(completionEnd));
 	if (fDebug)
 		System.out.println("type " + new String(typeName));
 }
@@ -198,24 +224,30 @@ public void acceptVariableName(char[] typePackageName, char[] typeName, char[] n
 	fElements.addElement(new String(name));
 	fCompletions.addElement(new String(completionName));
 	fRelevances.addElement(String.valueOf(relevance));
+	fCompletionStart.addElement(String.valueOf(completionStart));
+	fCompletionEnd.addElement(String.valueOf(completionEnd));
 	if (fDebug)
 		System.out.println("variable name " + new String(name));
 }
 
 public String getResults() {
-	return getResults(true);
+	return getResults(true, false);
 }
 
-public String getResults(boolean relevance) {
+public String getResultsWithPosition(){
+	return getResults(true, true);
+}
+
+public String getResults(boolean relevance, boolean position) {
 	StringBuffer result = new StringBuffer();
 	int size = fElements.size();
 	
 	if (size == 1) {
-		result.append(getResult(0, relevance));
+		result.append(getResult(0, relevance, position));
 	} else if (size > 1) {
 		String[] sortedBucket = new String[size];
 		for (int i = 0; i < size; i++) {
-			sortedBucket[i] = getResult(i, relevance);
+			sortedBucket[i] = getResult(i, relevance, position);
 		}
 		quickSort(sortedBucket, 0, size - 1);
 		for (int j = 0; j < sortedBucket.length; j++) {
@@ -227,7 +259,7 @@ public String getResults(boolean relevance) {
 	return result.toString();
 }
 
-private String getResult(int i, boolean relevance) {
+private String getResult(int i, boolean relevance, boolean position) {
 	if(i < 0 || i >= fElements.size())
 		return "";
 	
@@ -236,6 +268,13 @@ private String getResult(int i, boolean relevance) {
 	buffer.append(fElements.elementAt(i));
 	buffer.append("    completion:");
 	buffer.append(fCompletions.elementAt(i));
+	if(position) {
+		buffer.append("    position:[");
+		buffer.append(fCompletionStart.elementAt(i));
+		buffer.append(",");
+		buffer.append(fCompletionEnd.elementAt(i));
+		buffer.append("]");
+	}
 	if(relevance) {
 		buffer.append("    relevance:");
 		buffer.append(fRelevances.elementAt(i));

@@ -28,6 +28,7 @@ public class CompletionScanner extends Scanner {
 
 	public char[] completionIdentifier;
 	public int cursorLocation;
+	public int endOfEmptyToken = -1;
 		
 	/* Source positions of the completedIdentifier
 	 * if inside actual identifier, end goes to the actual identifier 
@@ -205,6 +206,11 @@ public int getNextToken() throws InvalidInputException {
 				/* might be completing at eof (e.g. behind a dot) */
 				if (completionIdentifier == null && 
 					startPosition == cursorLocation + 1){
+					// compute end of empty identifier.
+					// if the empty identifier is at the start of a next token the end of
+					// empty identifier is the end of the next token (eg. "<empty token>next").
+				 	while(getNextCharAsJavaIdentifierPart()) {}
+				 	endOfEmptyToken = currentPosition - 1;
 					currentPosition = startPosition; // for being detected as empty free identifier
 					return TokenNameIdentifier;
 				}				

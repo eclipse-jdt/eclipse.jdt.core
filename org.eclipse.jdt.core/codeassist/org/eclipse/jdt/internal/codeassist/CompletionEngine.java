@@ -601,7 +601,8 @@ public final class CompletionEngine
 								} else {
 	
 									if (astNode instanceof CompletionOnMessageSend) {
-	
+										setSourceRange(astNode.sourceStart, astNode.sourceEnd, false);
+										
 										CompletionOnMessageSend messageSend = (CompletionOnMessageSend) astNode;
 										TypeBinding[] argTypes =
 											computeTypes(messageSend.arguments, (BlockScope) scope);
@@ -628,7 +629,8 @@ public final class CompletionEngine
 									} else {
 	
 										if (astNode instanceof CompletionOnExplicitConstructorCall) {
-	
+											setSourceRange(astNode.sourceStart, astNode.sourceEnd, false);
+											
 											CompletionOnExplicitConstructorCall constructorCall =
 												(CompletionOnExplicitConstructorCall) astNode;
 											TypeBinding[] argTypes =
@@ -643,7 +645,8 @@ public final class CompletionEngine
 										} else {
 	
 											if (astNode instanceof CompletionOnQualifiedAllocationExpression) {
-	
+												setSourceRange(astNode.sourceStart, astNode.sourceEnd, false);
+												
 												CompletionOnQualifiedAllocationExpression allocExpression =
 													(CompletionOnQualifiedAllocationExpression) astNode;
 												TypeBinding[] argTypes =
@@ -3047,11 +3050,19 @@ public final class CompletionEngine
 		this.knownPkgs = new HashtableOfObject(10);
 		this.knownTypes = new HashtableOfObject(10);
 	}
-
+	
 	private void setSourceRange(int start, int end) {
+		this.setSourceRange(start, end, true);
+	}
 
+	private void setSourceRange(int start, int end, boolean emptyTokenAdjstment) {		
 		this.startPosition = start;
-		this.endPosition = end + 1;
+		if(emptyTokenAdjstment) {
+			int endOfEmptyToken = ((CompletionScanner)parser.scanner).endOfEmptyToken;
+			this.endPosition = endOfEmptyToken > end ? endOfEmptyToken + 1 : end + 1;
+		} else {
+			this.endPosition = end + 1;
+		}
 	}
 	int computeBaseRelevance(){
 		return R_DEFAULT;

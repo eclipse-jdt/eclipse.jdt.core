@@ -573,6 +573,10 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionKeywordInstanceof5"));
 	suite.addTest(new CompletionTests("testCompletionKeywordInstanceof6"));
 	
+	// completion tests with position
+	suite.addTest(new CompletionTests("testCompletionNonEmptyToken1"));
+	suite.addTest(new CompletionTests("testCompletionEmptyToken1"));
+	
 	return suite;
 }
 /**
@@ -8147,5 +8151,45 @@ public void testCompletionVariableName3() throws JavaModelException {
 		"element:p2OneNames1    completion:p2OneNames1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_PREFIX + R_NAME_FIRST_SUFFIX)+"\n"+
 		"element:p2OneNames2    completion:p2OneNames2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_PREFIX + R_NAME_SUFFIX),
 		requestor.getResults());
+}
+public void testCompletionNonEmptyToken1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionNonEmptyToken1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:zzyy    completion:zzyy    position:[70,74]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResultsWithPosition());
+}
+public void testCompletionEmptyToken1() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionEmptyToken1.java");
+
+	String str = cu.getSource();
+	String completeBehind = "zz";
+	// completion is just at start of 'zz'
+	int cursorLocation = str.lastIndexOf(completeBehind);
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:CompletionEmptyToken1    completion:CompletionEmptyToken1    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:clone    completion:clone()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:equals    completion:equals()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:finalize    completion:finalize()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:foo    completion:foo()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:getClass    completion:getClass()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:hashCode    completion:hashCode()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:notify    completion:notify()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:notifyAll    completion:notifyAll()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:toString    completion:toString()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:wait    completion:wait()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:wait    completion:wait()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:wait    completion:wait()    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:zzyy    completion:zzyy    position:[67,71]    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
+		requestor.getResultsWithPosition());
 }
 }
