@@ -476,7 +476,7 @@ public final boolean isAnonymousType() {
 public final boolean isBinaryBinding() {
 	return (tagBits & IsBinaryBinding) != 0;
 }
-public final boolean isClass() {
+public boolean isClass() {
 	return (modifiers & AccInterface) == 0;
 }
 /*
@@ -523,7 +523,7 @@ public final boolean isDeprecated() {
 public final boolean isFinal() {
 	return (modifiers & AccFinal) != 0;
 }
-public final boolean isInterface() {
+public boolean isInterface() {
 	return (modifiers & AccInterface) != 0;
 }
 

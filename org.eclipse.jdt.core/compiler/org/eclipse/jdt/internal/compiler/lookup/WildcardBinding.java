@@ -20,23 +20,30 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  */
 public class WildcardBinding extends ReferenceBinding {
 
+	ReferenceBinding genericType;
+	int rank;
     TypeBinding bound; // when unbound denotes the corresponding type variable (so as to retrieve its bound lazily)
 	char[] genericSignature;
 	int kind;
 	ReferenceBinding superclass;
 	ReferenceBinding[] superInterfaces;
+	TypeVariableBinding typeVariable; // corresponding variable
 	LookupEnvironment environment;
 	
 	/**
 	 * When unbound, the bound denotes the corresponding type variable (so as to retrieve its bound lazily)
 	 */
-	public WildcardBinding(TypeBinding bound, int kind, LookupEnvironment environment) {
+	public WildcardBinding(ReferenceBinding genericType, int rank, TypeBinding bound, int kind, LookupEnvironment environment) {
+		this.genericType = genericType;
+		this.rank = rank;
 	    this.kind = kind;
 		this.modifiers = AccPublic | AccGenericSignature; // treat wildcard as public
 		this.tagBits |= HasWildcard;
 		this.environment = environment;
-		initialize(bound);
+		initialize(genericType, bound);
 
+		if (genericType instanceof UnresolvedReferenceBinding)
+			((UnresolvedReferenceBinding) genericType).addWrapper(this);
 		if (bound instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) bound).addWrapper(this);
 	}
@@ -47,8 +54,7 @@ public class WildcardBinding extends ReferenceBinding {
 	public boolean boundCheck(TypeBinding argumentType) {
 	    switch (this.kind) {
 	        case Wildcard.UNBOUND :
-	            return true; // TODO (philippe) should it check against bound variable bounds ?
-	       		//return ((TypeVariableBinding) this.bound).boundCheck(argumentType);
+	            return true;
 	        case Wildcard.EXTENDS :
 	            return argumentType.isCompatibleWith(this.bound);
 	        default: // SUPER
@@ -67,8 +73,9 @@ public class WildcardBinding extends ReferenceBinding {
      * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#erasure()
      */
     public TypeBinding erasure() {
-        return this.bound.erasure();
-        // TODO (philippe) should use bound only if EXTENDS, if not use variable erasure
+    	if (this.kind == Wildcard.EXTENDS)
+	        return this.bound.erasure();
+    	return typeVariable().erasure();
     }
 
     /* (non-Javadoc)
@@ -90,19 +97,23 @@ public class WildcardBinding extends ReferenceBinding {
         return this.genericSignature;
     }
     
-	void initialize(TypeBinding someBound) {
+	void initialize(ReferenceBinding someGenericType, TypeBinding someBound) {
+		this.genericType = someGenericType;
 		this.bound = someBound;
+		if (someGenericType != null) {
+			this.fPackage = someGenericType.getPackage();
+		}
 		if (someBound != null) {
-		    if (this.kind != Wildcard.UNBOUND && someBound.isTypeVariable())
+		    if (someBound.isTypeVariable())
 		        this.tagBits |= HasTypeVariable;
-		    
-			this.fPackage = someBound.getPackage();
-			if (someBound.isInterface()) {
-				modifiers |= AccInterface;
-			}
 		}
 	}
-
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#isClass()
+	 */
+	public boolean isClass() {
+	    return erasure().isClass();
+	}
 	/**
 	 * Returns true if a type is identical to another one,
 	 * or for generic types, true if compared to its raw type.
@@ -110,11 +121,15 @@ public class WildcardBinding extends ReferenceBinding {
 	public boolean isEquivalentTo(TypeBinding otherType) {
 	    if (this == otherType) return true;
         if (otherType == null) return false;
-        return otherType.erasure() == this.erasure();
-        // TODO (philippe) need to improve? shouldn't it perform bound check ?
+		return boundCheck(otherType);
 	}
-
-	/* (non-Javadoc)
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isInterface()
+	 */
+	public boolean isInterface() {
+	    return erasure().isInterface();
+	}
+	/**
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#isSuperclassOf(org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding)
      */
     public boolean isSuperclassOf(ReferenceBinding otherType) {
@@ -149,22 +164,14 @@ public class WildcardBinding extends ReferenceBinding {
         }
     }
     
-	ReferenceBinding resolve(ParameterizedTypeBinding parameterizedType, int rank) {
+	ReferenceBinding resolve() {
+		BinaryTypeBinding.resolveType(this.genericType, this.environment, null, 0);
 	    switch(this.kind) {
 	        case Wildcard.EXTENDS :
 	        case Wildcard.SUPER :
 				BinaryTypeBinding.resolveType(this.bound, this.environment, null, 0);
 				break;
 			case Wildcard.UNBOUND :
-				if (this.bound == null) {
-				    TypeVariableBinding[] typeVariables = parameterizedType.type.typeVariables();
-				    if (rank < typeVariables.length) {
-				        this.bound = typeVariables[rank];
-						WildcardBinding newWildcard = environment.createWildcard(this.bound, rank); // create a new wildcard since shared null one
-					    newWildcard.initialize(this.bound);				        
-					    return newWildcard;
-				    }
-				}
 	    }
 		return this;
 	}
@@ -212,9 +219,13 @@ public class WildcardBinding extends ReferenceBinding {
      */
     public ReferenceBinding superclass() {
 		if (this.superclass == null) {
-			TypeBinding superType = this.bound;
-			if (this.kind == Wildcard.UNBOUND)
-				superType = ((TypeVariableBinding) superType).firstBound;
+			if (isInterface()) return null;
+			TypeBinding superType = null;
+			if (this.kind == Wildcard.EXTENDS) {
+				superType = this.bound;
+			} else if (this.typeVariable() != null) {
+				superType = this.typeVariable.firstBound;
+			}
 			this.superclass = superType != null && superType.isClass()
 				? (ReferenceBinding) superType
 				: environment.getType(JAVA_LANG_OBJECT);
@@ -226,9 +237,12 @@ public class WildcardBinding extends ReferenceBinding {
      */
     public ReferenceBinding[] superInterfaces() {
         if (this.superInterfaces == null) {
-		    TypeBinding superType = this.bound;
-			if (this.kind == Wildcard.UNBOUND)
-				superType = ((TypeVariableBinding) superType).firstBound;
+			TypeBinding superType = null;
+			if (this.kind == Wildcard.EXTENDS) {
+				superType = this.bound;
+			} else if (this.typeVariable() != null) {
+				superType = this.typeVariable.firstBound; // TODO (philippe) shouldn't it retrieve variable superinterfaces ?
+			}
 			this.superInterfaces = superType != null && superType.isInterface()
 				? new ReferenceBinding[] { (ReferenceBinding) superType }
 				: NoSuperInterfaces;
@@ -237,10 +251,16 @@ public class WildcardBinding extends ReferenceBinding {
     }
 
 	public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
-		if (this.bound == unresolvedType) {
+		boolean affected = false;
+		if (this.genericType == unresolvedType) {
+			this.genericType = resolvedType; // no raw conversion
+			affected = true;
+		} else if (this.bound == unresolvedType) {
 			this.bound = resolvedType.isGenericType() ? env.createRawType(resolvedType, null) : resolvedType;
-			initialize(this.bound);
+			affected = true;
 		}
+		if (affected) 
+			initialize(this.genericType, this.bound);
 	}
 
 	/**
@@ -256,4 +276,15 @@ public class WildcardBinding extends ReferenceBinding {
 			    return new String(CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, this.bound.debugName().toCharArray()));
         }        
 	}		
+	/**
+	 * Returns associated type variable, or null in case of inconsistency
+	 */
+	public TypeVariableBinding typeVariable() {
+		if (this.typeVariable == null) {
+			TypeVariableBinding[] typeVariables = this.genericType.typeVariables();
+			if (this.rank < typeVariables.length)
+				this.typeVariable = typeVariables[this.rank];
+		}
+		return this.typeVariable;
+	}
 }

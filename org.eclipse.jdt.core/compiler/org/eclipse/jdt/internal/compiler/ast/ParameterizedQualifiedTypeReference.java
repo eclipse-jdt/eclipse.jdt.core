@@ -133,11 +133,9 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				for (int j = 0; j < argLength; j++) {
 				    TypeBinding argType = argTypes[j];
 				    if (!typeVariables[j].boundCheck(parameterizedType, argType)) {
-				        argHasError = true;
 						scope.problemReporter().typeMismatchError(argType, typeVariables[j], currentType, args[j]);
 				    }
 				}
-				if (argHasError) return null;
 				qualifiedType = parameterizedType;
 		    } else if (currentType.isGenericType()) { // check raw type
 			        qualifiedType = scope.environment().createRawType(currentType, qualifiedType); // raw type

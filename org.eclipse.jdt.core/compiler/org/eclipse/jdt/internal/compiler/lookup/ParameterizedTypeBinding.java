@@ -578,7 +578,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			        TypeBinding originalBound = wildcard.bound;
 			        TypeBinding substitutedBound = substitute(originalBound);
 			        if (substitutedBound != originalBound) {
-		        		return wildcard.environment.createWildcard(substitutedBound, wildcard.kind);
+		        		return this.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, wildcard.kind);
 			        }
 		        }
 			}

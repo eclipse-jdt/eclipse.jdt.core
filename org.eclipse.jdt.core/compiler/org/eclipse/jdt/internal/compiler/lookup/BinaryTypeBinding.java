@@ -50,7 +50,7 @@ public static ReferenceBinding resolveType(ReferenceBinding type, LookupEnvironm
 	if (type.isParameterizedType())
 		return ((ParameterizedTypeBinding) type).resolve();
 	if (type.isWildcard())
-		return ((WildcardBinding) type).resolve(null, 0);
+		return ((WildcardBinding) type).resolve();
 	return type;
 }
 public static TypeBinding resolveType(TypeBinding type, LookupEnvironment environment, ParameterizedTypeBinding parameterizedType, int rank) {
@@ -59,7 +59,7 @@ public static TypeBinding resolveType(TypeBinding type, LookupEnvironment enviro
 	if (type.isParameterizedType())
 		return ((ParameterizedTypeBinding) type).resolve();
 	if (type.isWildcard())
-		return ((WildcardBinding) type).resolve(parameterizedType, rank);
+		return ((WildcardBinding) type).resolve();
 	if (type.isArrayType())
 		resolveType(((ArrayBinding) type).leafComponentType, environment, parameterizedType, rank);
 	return type;
@@ -414,9 +414,13 @@ private TypeVariableBinding createTypeVariable(SignatureWrapper wrapper, int ran
 	int colon = CharOperation.indexOf(':', wrapper.signature, wrapper.start);
 	char[] variableName = CharOperation.subarray(wrapper.signature, wrapper.start, colon);
 	wrapper.start = colon + 1; // skip name + ':'
-	ReferenceBinding type = wrapper.signature[wrapper.start] == ':'
-		? environment.getType(JAVA_LANG_OBJECT)
-		: (ReferenceBinding) environment.getTypeFromTypeSignature(wrapper, NoTypeVariables, this);
+	ReferenceBinding type, firstBound = null;
+	if (wrapper.signature[wrapper.start] == ':') {
+		type = environment.getType(JAVA_LANG_OBJECT);
+	} else {
+		type = (ReferenceBinding) environment.getTypeFromTypeSignature(wrapper, NoTypeVariables, this);
+		firstBound = type;
+	}
 
 	// variable is visible to its bounds
 	TypeVariableBinding variable = new TypeVariableBinding(variableName, rank);
@@ -435,7 +439,12 @@ private TypeVariableBinding createTypeVariable(SignatureWrapper wrapper, int ran
 	}
 
 	variable.superInterfaces = bounds == null ? NoSuperInterfaces : bounds;
-	variable.firstBound = variable.superInterfaces.length == 0 ? null : variable.superInterfaces[0];
+	if (firstBound == null) {
+		firstBound = variable.superInterfaces.length == 0 ? null : variable.superInterfaces[0];
+		variable.modifiers |= AccInterface;
+//		variable.superclass = null;
+	}
+	variable.firstBound = firstBound;
 	return variable;
 }
 /* Answer the receiver's enclosing type... null if the receiver is a top level type.
@@ -617,6 +626,7 @@ private TypeVariableBinding resolveTypesFor(TypeVariableBinding variable) {
 	if ((variable.modifiers & AccUnresolved) == 0)
 		return variable;
 
+	// TODO (kent) should iterate over bounds, then reassign superclass/superinterfaces
 	if (variable.superclass != null)
 		variable.superclass = resolveType(variable.superclass, this.environment, true);
 	if (variable.firstBound != null)

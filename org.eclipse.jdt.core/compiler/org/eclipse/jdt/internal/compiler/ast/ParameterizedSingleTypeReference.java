@@ -115,11 +115,9 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		for (int i = 0; i < argLength; i++) {
 		    TypeBinding argType = argTypes[i];
 			if (!typeVariables[i].boundCheck(parameterizedType, argType)) {
-		        argHasError = true;
 				scope.problemReporter().typeMismatchError(argType, typeVariables[i], currentType, this.typeArguments[i]);
 		    }
 		}
-		if (argHasError) return null;
 		this.resolvedType = parameterizedType;
 		if (isTypeUseDeprecated(this.resolvedType, scope)) {
 			reportDeprecatedType(scope);

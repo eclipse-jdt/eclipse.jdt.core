@@ -419,19 +419,37 @@ public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBindi
 	
 }
 
-public WildcardBinding createWildcard(TypeBinding bound, int kind) {
-	// cached info is array of already created wildcard types for this type bound
-    Object key = bound == null ? (Object)TypeConstants.WILDCARD_NAME : bound; // null bound denote unresolved unbound (in binaries)
-    
-	WildcardBinding[] cachedInfo = (WildcardBinding[])this.uniqueWildcardBindings.get(key);
-	if (cachedInfo == null) {
-	    cachedInfo = new WildcardBinding[3];
-	    this.uniqueWildcardBindings.put(key, cachedInfo);
+public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, int kind) {
+	
+	// cached info is array of already created wildcard  types for this type
+	WildcardBinding[] cachedInfo = (WildcardBinding[])this.uniqueWildcardBindings.get(genericType);
+	boolean needToGrow = false;
+	if (cachedInfo != null){
+		nextCachedType : 
+			// iterate existing wildcards for reusing one with same information if any
+			for (int i = 0, max = cachedInfo.length; i < max; i++){
+			    WildcardBinding cachedType = cachedInfo[i];
+			    if (cachedType.genericType != genericType) continue nextCachedType; // remain of unresolved type
+			    if (cachedType.rank != rank) continue nextCachedType;
+			    if (cachedType.kind != kind) continue nextCachedType;
+			    if (cachedType.bound != bound) continue nextCachedType;
+				// all match, reuse current
+				return cachedType;
+		}
+		needToGrow = true;
+	} else {
+		cachedInfo = new WildcardBinding[1];
+		this.uniqueWildcardBindings.put(genericType, cachedInfo);
 	}
-	WildcardBinding wildcard = cachedInfo[kind];
-	if (wildcard == null || wildcard.bound != bound) {
-	    cachedInfo[kind] = wildcard = new WildcardBinding(bound, kind, this);
+	// grow cache ?
+	if (needToGrow){
+		int length = cachedInfo.length;
+		System.arraycopy(cachedInfo, 0, cachedInfo = new WildcardBinding[length+1], 0, length);
+		this.uniqueWildcardBindings.put(genericType, cachedInfo);
 	}
+	// add new binding
+	WildcardBinding wildcard = new WildcardBinding(genericType, rank, bound, kind, this);
+	cachedInfo[cachedInfo.length-1] = wildcard;
 	return wildcard;
 }
 
@@ -539,11 +557,11 @@ public ReferenceBinding getType(char[][] compoundName) {
 		return new ProblemReferenceBinding(compoundName, InternalNameProvided);
 	return referenceBinding;
 }
-private TypeBinding[] getTypeArgumentsFromSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType) {
+private TypeBinding[] getTypeArgumentsFromSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType, ReferenceBinding genericType) {
 	java.util.ArrayList args = new java.util.ArrayList(2);
 	int rank = 0;
 	do {
-		args.add(getTypeFromVariantTypeSignature(wrapper, staticVariables, enclosingType, rank++));
+		args.add(getTypeFromVariantTypeSignature(wrapper, staticVariables, enclosingType, genericType, rank++));
 	} while (wrapper.signature[wrapper.start] != '>');
 	wrapper.start++; // skip '>'
 	TypeBinding[] typeArguments = new TypeBinding[args.size()];
@@ -676,7 +694,7 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 
 	// type must be a ReferenceBinding at this point, cannot be a BaseTypeBinding or ArrayTypeBinding
 	ReferenceBinding actualType = (ReferenceBinding) type;
-	TypeBinding[] typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType);
+	TypeBinding[] typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, actualType);
 	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, null);
 
 	while (wrapper.signature[wrapper.start] == '.') {
@@ -686,7 +704,7 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 		ReferenceBinding memberType = parameterizedType.type.getMemberType(memberName);
 		if (wrapper.signature[wrapper.start] == '<') {
 			wrapper.start++; // skip '<'
-			typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType);
+			typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, memberType);
 		} else {
 			typeArguments = null;
 		}
@@ -699,6 +717,7 @@ TypeBinding getTypeFromVariantTypeSignature(
 	SignatureWrapper wrapper,
 	TypeVariableBinding[] staticVariables,
 	ReferenceBinding enclosingType,
+	ReferenceBinding genericType,
 	int rank) {
 	// VariantTypeSignature = '-' TypeSignature
 	//   or '+' TypeSignature
@@ -709,16 +728,16 @@ TypeBinding getTypeFromVariantTypeSignature(
 			// ? super aType
 			wrapper.start++;
 			TypeBinding bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
-			return createWildcard(bound, Wildcard.SUPER);
+			return createWildcard(genericType, rank, bound, Wildcard.SUPER);
 		case '+' :
 			// ? extends aType
 			wrapper.start++;
 			bound = getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
-			return createWildcard(bound, Wildcard.EXTENDS);
+			return createWildcard(genericType, rank, bound, Wildcard.EXTENDS);
 		case '*' :
 			// ?
 			wrapper.start++;
-			return createWildcard(null, Wildcard.UNBOUND);
+			return createWildcard(genericType, rank, null, Wildcard.UNBOUND);
 		default :
 			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
 	}

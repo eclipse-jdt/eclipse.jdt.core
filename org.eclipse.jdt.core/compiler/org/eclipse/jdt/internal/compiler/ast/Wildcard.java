@@ -40,16 +40,8 @@ public class Wildcard extends SingleTypeReference {
 			if (boundType == null) {
 				return null;
 			}	    
-	    } else { // unbound wildcard
-	        TypeVariableBinding[] typeVariables = genericType.typeVariables();
-	        if (rank < typeVariables.length) {
-	            boundType = typeVariables[rank]; // record the type variable in bound
-	        } else {
-	            // error case, use Object, error reported when constructing parameterized type binding
-		        boundType = scope.getJavaLangObject();
-	        }
-	    }
-	    WildcardBinding wildcard = scope.environment().createWildcard(boundType, this.kind);
+		}
+	    WildcardBinding wildcard = scope.environment().createWildcard(genericType, rank, boundType, this.kind);
 	    return this.resolvedType = wildcard;
 	}
 	

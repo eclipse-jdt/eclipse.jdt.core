@@ -3676,25 +3676,15 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	Class<? extends XY> c2 = xy.getClass();\n" + 
-			"	                    ^^\n" + 
-			"Type mismatch: cannot convert from Class<? extends Object> to Class<? extends XY>\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
 			"	Class<? extends XY> c3 = s.getClass();\n" + 
 			"	                    ^^\n" + 
 			"Type mismatch: cannot convert from Class<? extends String> to Class<? extends XY>\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 14)\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
 			"	public Class <? extends Object> getClass() {\n" + 
 			"	                                ^^^^^^^^^^\n" + 
 			"Cannot override the final method from Object\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 15)\n" + 
-			"	return super.getClass();\n" + 
-			"	       ^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Class<? extends X> to Class<? extends Object>\n" + 
 			"----------\n");
 	}			
 	// getClass on array type
@@ -3777,8 +3767,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
-	// TODO (philippe) reenable when supported
-	public void _test134() {
+	public void test134() {
 		this.runConformTest(
 			new String[] {
 				"Z.java",
@@ -3830,7 +3819,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in Z.java (at line 3)\n" + 
 			"	foo(new Z<ZA>());\n" + 
 			"	^^^\n" + 
-			"The method foo(Z<ZA>) is undefined for the type Z<T>\n" + 
+			"The method foo(Z<? super String>) in the type Z<T> is not applicable for the arguments (Z<ZA>)\n" + 
 			"----------\n" + 
 			"2. ERROR in Z.java (at line 6)\n" + 
 			"	static void foo(Z<? super String> zs) {\n" + 
@@ -3860,12 +3849,17 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"1. ERROR in Z.java (at line 3)\n" + 
 			"	foo(new Z<ZB>());\n" + 
 			"	^^^\n" + 
-			"The method foo(Z<ZB>) is undefined for the type Z<T>\n" + 
+			"The method foo(Z<? super ZA>) in the type Z<T> is not applicable for the arguments (Z<ZB>)\n" + 
 			"----------\n" + 
 			"2. ERROR in Z.java (at line 5)\n" + 
 			"	static void foo(Z<? super ZA> zs) {\n" + 
 			"	                  ^^^^^^^^^^\n" + 
 			"Type mismatch: Cannot convert from ? super ZA to the bounded parameter <T extends ZB> of the type Z<T>\n" + 
+			"----------\n" + 
+			"3. ERROR in Z.java (at line 6)\n" + 
+			"	zs.foo();\n" + 
+			"	   ^^^\n" + 
+			"The method foo(Z<? super ZA>) in the type Z<? super ZA> is not applicable for the arguments ()\n" + 
 			"----------\n");
 	}
 	public void test137() {
@@ -3893,6 +3887,214 @@ public class GenericTypeTest extends AbstractRegressionTest {
 				"        za.get().isEmpty();\n" + 
 				"    }\n" + 
 				"}\n"
+			},
+			"SUCCESS");
+	}		
+	// unbound wildcard still remembers its variable bound: Z<?> behaves like Z<AX>
+	public void test138() {
+		this.runConformTest(
+			new String[] {
+				"Z.java",
+				"public class Z <T extends AX> {\n" + 
+				"    T t;\n" + 
+				"    Z(T t){\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		 Z<AX<String>> zax = new Z<AX<String>>(new AX<String>());\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"    void baz(Z<?> zu){\n" + 
+				"        zu.t.foo(null);\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX<P> {\n" + 
+				"   void foo(P p) { \n" + 
+				"		System.out.print(p);\n" + 
+				"   }\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}		
+	// extending wildcard considers its bound prior to its corresponding variable
+	public void test139() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends AX> {\n" + 
+				"    T t;\n" + 
+				"    X(T t) {\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    T get() {\n" + 
+				"        return this.t;\n" + 
+				"    }\n" + 
+				"    void bar(X<? extends BX> x) {\n" + 
+				"        x.get().afoo();\n" + 
+				"        x.get().bfoo();\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class AX {\n" + 
+				"    void afoo() {}\n" + 
+				"}\n" + 
+				"class BX {\n" + 
+				"    void bfoo() {}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	void bar(X<? extends BX> x) {\n" + 
+			"	           ^^^^^^^^^^^^\n" + 
+			"Type mismatch: Cannot convert from ? extends BX to the bounded parameter <T extends AX> of the type X<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	x.get().afoo();\n" + 
+			"	        ^^^^\n" + 
+			"The method afoo() is undefined for the type ? extends BX\n" + 
+			"----------\n");
+	}		
+	// extending wildcard considers its bound prior to its corresponding variable
+	public void test140() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends AX> {\n" + 
+				"    T t;\n" + 
+				"    X(T t) {\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    T get() {\n" + 
+				"        return this.t;\n" + 
+				"    }\n" + 
+				"    void bar(X<? extends BX> x) {\n" + 
+				"        x.get().afoo();\n" + 
+				"        x.get().bfoo();\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class AX {\n" + 
+				"    void afoo() {}\n" + 
+				"}\n" + 
+				"class BX extends AX {\n" + 
+				"    void bfoo() {}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}		
+	// super wildcard considers its variable for lookups
+	public void test141() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends AX> {\n" + 
+				"    T t;\n" + 
+				"    X(T t) {\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    T get() {\n" + 
+				"        return this.t;\n" + 
+				"    }\n" + 
+				"    void bar(X<? super BX> x) {\n" + 
+				"        x.get().afoo();\n" + 
+				"        x.get().bfoo();\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class AX {\n" + 
+				"    void afoo() {}\n" + 
+				"}\n" + 
+				"class BX extends AX {\n" + 
+				"    void bfoo() {}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	x.get().bfoo();\n" + 
+			"	        ^^^^\n" + 
+			"The method bfoo() is undefined for the type ? super BX\n" + 
+			"----------\n");
+	}		
+	public void test142() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends AX> {\n" + 
+				"    T t;\n" + 
+				"    X(T t) {\n" + 
+				"        this.t = t;\n" + 
+				"    }\n" + 
+				"    T get() {\n" + 
+				"        return this.t;\n" + 
+				"    }\n" + 
+				"    void bar(X<? extends X> x) {\n" + 
+				"        x = identity(x);\n" + 
+				"    }\n" + 
+				"    <P extends AX> X<P> identity(X<P> x) {\n" + 
+				"        return x;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class AX {\n" + 
+				"    void afoo() {}\n" + 
+				"}\n" + 
+				"class BX extends AX {\n" + 
+				"    void bfoo() {}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	void bar(X<? extends X> x) {\n" + 
+			"	           ^^^^^^^^^^^\n" + 
+			"Type mismatch: Cannot convert from ? extends X to the bounded parameter <T extends AX> of the type X<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	x = identity(x);\n" + 
+			"	    ^^^^^^^^\n" + 
+			"The method identity(X<P>) in the type X<T> is not applicable for the arguments (X<? extends X>)\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	x = identity(x);\n" + 
+			"	    ^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from X<P> to X<? extends X>\n" + 
+			"----------\n");
+	}			
+	public void test143() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Class<? extends X> xx = null;\n" + 
+				"        Class<? extends Object> xo = xx;\n" + 
+				"        Class<Object> xo2 = xx;\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Class<Object> xo2 = xx;\n" + 
+			"	              ^^^\n" + 
+			"Type mismatch: cannot convert from Class<? extends X> to Class<Object>\n" + 
+			"----------\n");
+	}			
+	public void test144() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Class<? extends X> xx = null;\n" + 
+				"        Class<? extends Object> xo = xx;\n" + 
+				"        X x = get(xx);\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"    static <P> P get(Class<P> cp) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n",
 			},
 			"SUCCESS");
 	}		
