@@ -38,6 +38,10 @@ public class ImportReference extends ASTNode {
 		this.sourceStart = (int) (sourcePositions[0] >>> 32);
 		this.modifiers = modifiers;
 	}
+	
+	public boolean isStatic() {
+		return (this.modifiers & AccStatic) != 0;
+	}
 
 	/**
 	 * @return char[][]
