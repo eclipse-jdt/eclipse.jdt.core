@@ -103,6 +103,15 @@ Corresponding problem ID is: <code>IProblem.MissingOverrideAnnotation</code>
 *     - default:           "ignore"                               
 </pre>
 </li>
+<li>New CodeAssist feature: Enum constant are proposed inside switch label if the expression is an enum.
+<pre>
+Colors c;
+swith(c) {
+  case BLUE:
+  case RED&lt;complete here&gt;
+}
+</pre>
+</li>
 <li>Add API for new completion kind: CompletionProposal.ANNOTATION_ATTRIBUTE_REF.<br>
 <pre>
 /**
