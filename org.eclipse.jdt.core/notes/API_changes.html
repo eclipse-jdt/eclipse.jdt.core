@@ -329,9 +329,9 @@ this is a handle-only operation and an <code>IResource</code> is also a handle. 
 </li>
 <li>2003/06/20 (->M2)
 The 2.1 API <code>IWorkingCopy.getOriginalElement()</code> returns an <code>IJavaElement</code>. In practice 
-the original element for a working copy is always an <code>ICompilationUnit</code>. So <code>getPrimary()</code> 
-was added on <code>ICompilationUnit</code> to return an <code>ICompilationUnit</code>. This new API replaces
-<code>getOriginalElement()</code>.
+the original element for a working copy is always an <code>ICompilationUnit</code> whose owner is the primary owner. 
+So <code>getPrimary()</code> was added on <code>ICompilationUnit</code> to return an <code>ICompilationUnit</code>. 
+This new API replaces <code>getOriginalElement()</code>.
 <pre>
 /**
  * Returns the primary compilation unit (whose owner is the primary owner)
