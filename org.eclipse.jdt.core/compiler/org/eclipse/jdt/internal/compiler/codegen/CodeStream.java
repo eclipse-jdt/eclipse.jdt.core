@@ -1840,12 +1840,20 @@ public void generateSyntheticEnclosingInstanceValues(BlockScope currentScope, Re
 		ReferenceBinding targetEnclosingType = targetType.isAnonymousType() ? 
 				targetType.superclass().enclosingType() // supplying enclosing instance for the anonymous type's superclass
 				: targetType.enclosingType();
-				
+
+		boolean needEnclosingInstanceNullCheck = currentScope.environment().options.complianceLevel >= CompilerOptions.JDK1_4;
+						
 		for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
 			ReferenceBinding syntheticArgType = syntheticArgumentTypes[i];
 			if (hasExtraEnclosingInstance && syntheticArgType == targetEnclosingType) {
 				hasExtraEnclosingInstance = false;
 				enclosingInstance.generateCode(currentScope, this, true);
+				if (needEnclosingInstanceNullCheck){
+					dup();
+					invokeObjectGetClass(); // will perform null check
+					pop();
+				}
+				
 			} else {
 				Object[] emulationPath = currentScope.getCompatibleEmulationPath(syntheticArgType);
 				if (emulationPath == null) {

@@ -175,6 +175,38 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		return copy;
 	}
 	
+	public UnconditionalFlowInfo discardFieldInitializations(){
+		
+		int limit = this.maxFieldCount;
+		
+		if (limit < BitCacheSize) {
+			long mask = (1L << limit)-1;
+			this.definiteInits &= ~mask;
+			this.potentialInits &= ~mask;
+			return this;
+		} 
+
+		this.definiteInits = 0;
+		this.potentialInits = 0;
+
+		// use extra vector
+		if (extraDefiniteInits == null) {
+			return this; // if vector not yet allocated, then not initialized
+		}
+		int vectorIndex, length = this.extraDefiniteInits.length;
+		if ((vectorIndex = (limit / BitCacheSize) - 1) >= length) {
+			return this; // not enough room yet
+		}
+		for (int i = 0; i < vectorIndex; i++) {
+			this.extraDefiniteInits[i] = 0L;
+			this.extraPotentialInits[i] = 0L;
+		}
+		long mask = (1L << (limit % BitCacheSize))-1;
+		this.extraDefiniteInits[vectorIndex] &= ~mask;
+		this.extraPotentialInits[vectorIndex] &= ~mask;
+		return this;
+	}
+
 	public UnconditionalFlowInfo discardNonFieldInitializations(){
 		
 		int limit = this.maxFieldCount;
@@ -193,8 +225,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		if ((vectorIndex = (limit / BitCacheSize) - 1) >= length) {
 			return this; // not enough room yet
 		}
-		limit = limit % BitCacheSize;
-		long mask = (1L << limit)-1;
+		long mask = (1L << (limit % BitCacheSize))-1;
 		this.extraDefiniteInits[vectorIndex] &= mask;
 		this.extraPotentialInits[vectorIndex] &= mask;
 		for (int i = vectorIndex+1; i < length; i++) {

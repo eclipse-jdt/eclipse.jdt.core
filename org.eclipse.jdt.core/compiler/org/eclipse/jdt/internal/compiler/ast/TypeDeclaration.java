@@ -131,7 +131,8 @@ public class TypeDeclaration
 				new InitializationFlowContext(null, this, initializerScope);
 			
 			updateMaxFieldCount(); // propagate down the max field count
-			FlowInfo fieldInfo = flowInfo.copy(); // so as not to propagate changes outside this type
+			FlowInfo fieldInfo = flowInfo.copy();
+			
 			if (fields != null) {
 				for (int i = 0, count = fields.length; i < count; i++) {
 					FieldDeclaration field = fields[i];
@@ -155,15 +156,14 @@ public class TypeDeclaration
 				}
 			}
 			if (methods != null) {
+				UnconditionalFlowInfo outerInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+				FlowInfo constructorInfo = fieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
 				for (int i = 0, count = methods.length; i < count; i++) {
 					AbstractMethodDeclaration method = methods[i];
 					if (method.ignoreFurtherInvestigation)
 						continue;
 					if (method.isConstructor()) { // constructor
-						((ConstructorDeclaration)method).analyseCode(
-							scope, 
-							initializerContext, 
-							flowInfo.copy().unconditionalInits().addInitializationsFrom(fieldInfo.copy().unconditionalInits().discardNonFieldInitializations()));
+						((ConstructorDeclaration)method).analyseCode(scope, initializerContext, constructorInfo.copy());
 					} else { // regular method
 						method.analyseCode(scope, null, flowInfo.copy());
 					}
@@ -193,8 +193,10 @@ public class TypeDeclaration
 				new InitializationFlowContext(null, this, initializerScope);
 			InitializationFlowContext staticInitializerContext =
 				new InitializationFlowContext(null, this, staticInitializerScope);
-			FlowInfo nonStaticFieldInfo = flowInfo.copy(),
-				staticFieldInfo = flowInfo.copy();
+
+			FlowInfo nonStaticFieldInfo = flowInfo.copy();
+			FlowInfo staticFieldInfo = flowInfo.copy();
+
 			if (fields != null) {
 				for (int i = 0, count = fields.length; i < count; i++) {
 					FieldDeclaration field = fields[i];
@@ -237,6 +239,8 @@ public class TypeDeclaration
 				}
 			}
 			if (methods != null) {
+				UnconditionalFlowInfo outerInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+				FlowInfo constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
 				for (int i = 0, count = methods.length; i < count; i++) {
 					AbstractMethodDeclaration method = methods[i];
 					if (method.ignoreFurtherInvestigation)
@@ -246,12 +250,9 @@ public class TypeDeclaration
 							((Clinit)method).analyseCode(
 								scope, 
 								staticInitializerContext, 
-								flowInfo.copy().unconditionalInits().addInitializationsFrom(staticFieldInfo.unconditionalInits().discardNonFieldInitializations()));
+								staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
 						} else { // constructor
-							((ConstructorDeclaration)method).analyseCode(
-								scope, 
-								initializerContext, 
-								flowInfo.copy().unconditionalInits().addInitializationsFrom(nonStaticFieldInfo.copy().unconditionalInits().discardNonFieldInitializations()));
+							((ConstructorDeclaration)method).analyseCode(scope, initializerContext, constructorInfo.copy());
 						}
 					} else { // regular method
 						method.analyseCode(scope, null, FlowInfo.initial(maxFieldCount));
@@ -292,7 +293,7 @@ public class TypeDeclaration
 				new InitializationFlowContext(null, this, initializerScope);
 
 			updateMaxFieldCount(); // propagate down the max field count
-			FlowInfo fieldInfo = flowInfo.copy();// so as not to propagate changes outside this type
+			FlowInfo fieldInfo = flowInfo.copy();
 			if (fields != null) {
 				for (int i = 0, count = fields.length; i < count; i++) {
 					FieldDeclaration field = fields[i];
@@ -319,16 +320,15 @@ public class TypeDeclaration
 				}
 			}
 			if (methods != null) {
+				UnconditionalFlowInfo outerInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+				FlowInfo constructorInfo = fieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
 				for (int i = 0, count = methods.length; i < count; i++) {
 					AbstractMethodDeclaration method = methods[i];
 					if (method.ignoreFurtherInvestigation)
 						continue;
 
 					if (method.isConstructor()) { // constructor
-						((ConstructorDeclaration)method).analyseCode(
-							scope, 
-							initializerContext, 
-							flowInfo.copy().unconditionalInits().addInitializationsFrom(fieldInfo.copy().unconditionalInits().discardNonFieldInitializations()));
+						((ConstructorDeclaration)method).analyseCode(scope, initializerContext, constructorInfo.copy());
 					} else { // regular method
 						method.analyseCode(scope, null, flowInfo.copy());
 					}
@@ -354,8 +354,8 @@ public class TypeDeclaration
 				new InitializationFlowContext(null, this, initializerScope);
 			InitializationFlowContext staticInitializerContext =
 				new InitializationFlowContext(null, this, staticInitializerScope);
-			FlowInfo nonStaticFieldInfo = flowInfo.copy(),
-				staticFieldInfo = flowInfo.copy();
+			FlowInfo nonStaticFieldInfo = flowInfo.copy();
+			FlowInfo staticFieldInfo = flowInfo.copy();
 			if (fields != null) {
 				for (int i = 0, count = fields.length; i < count; i++) {
 					FieldDeclaration field = fields[i];
@@ -399,6 +399,8 @@ public class TypeDeclaration
 				}
 			}
 			if (methods != null) {
+				UnconditionalFlowInfo outerInfo = flowInfo.copy().unconditionalInits().discardFieldInitializations();
+				FlowInfo constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
 				for (int i = 0, count = methods.length; i < count; i++) {
 					AbstractMethodDeclaration method = methods[i];
 					if (method.ignoreFurtherInvestigation)
@@ -408,12 +410,9 @@ public class TypeDeclaration
 							((Clinit)method).analyseCode(
 								scope, 
 								staticInitializerContext, 
-								flowInfo.copy().unconditionalInits().addInitializationsFrom(staticFieldInfo.copy().unconditionalInits().discardNonFieldInitializations()));
+								staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
 						} else { // constructor
-							((ConstructorDeclaration)method).analyseCode(
-								scope, 
-								initializerContext, 
-								flowInfo.copy().unconditionalInits().addInitializationsFrom(nonStaticFieldInfo.copy().unconditionalInits().discardNonFieldInitializations()));
+							((ConstructorDeclaration)method).analyseCode(scope, initializerContext, constructorInfo.copy());
 						}
 					} else { // regular method
 						method.analyseCode(scope, null, FlowInfo.initial(maxFieldCount));

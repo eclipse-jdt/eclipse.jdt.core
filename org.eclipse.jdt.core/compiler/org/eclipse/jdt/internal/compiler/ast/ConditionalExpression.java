@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class ConditionalExpression extends OperatorExpression {
 
 	public Expression condition, valueIfTrue, valueIfFalse;
+	public Constant optimizedBooleanConstant;
 	private int returnTypeSlotSize = 1;
 
 	// for local variables table attributes
@@ -247,6 +248,11 @@ public class ConditionalExpression extends OperatorExpression {
 		codeStream.updateLastRecordedEndPC(codeStream.position);
 	}
 
+	public Constant optimizedBooleanConstant() {
+
+		return this.optimizedBooleanConstant == null ? this.constant : this.optimizedBooleanConstant;
+	}
+	
 	public TypeBinding resolveType(BlockScope scope) {
 		// specs p.368
 		constant = NotAConstant;
@@ -257,15 +263,13 @@ public class ConditionalExpression extends OperatorExpression {
 			return null;
 
 		// Propagate the constant value from the valueIfTrue and valueIFFalse expression if it is possible
-		if (condition.constant != NotAConstant
-			&& valueIfTrue.constant != NotAConstant
-			&& valueIfFalse.constant != NotAConstant) {
+		Constant condConstant, trueConstant, falseConstant;
+		if ((condConstant = condition.constant) != NotAConstant
+			&& (trueConstant = valueIfTrue.constant) != NotAConstant
+			&& (falseConstant = valueIfFalse.constant) != NotAConstant) {
 			// all terms are constant expression so we can propagate the constant
 			// from valueIFTrue or valueIfFalse to teh receiver constant
-			constant =
-				(condition.constant.booleanValue())
-					? valueIfTrue.constant
-					: valueIfFalse.constant;
+			constant = condConstant.booleanValue() ? trueConstant : falseConstant;
 		}
 		if (valueIfTrueType == valueIfFalseType) { // harmed the implicit conversion 
 			valueIfTrue.implicitWidening(valueIfTrueType, valueIfTrueType);
@@ -273,8 +277,16 @@ public class ConditionalExpression extends OperatorExpression {
 			if (valueIfTrueType == LongBinding || valueIfTrueType == DoubleBinding) {
 				returnTypeSlotSize = 2;
 			}
-			this.resolvedType = valueIfTrueType;
-			return valueIfTrueType;
+
+			// Propagate the optimized boolean constant if possible
+			if ((condConstant = condition.optimizedBooleanConstant()) != NotAConstant
+				&& valueIfTrueType == BooleanBinding) {
+				
+				this.optimizedBooleanConstant = condConstant.booleanValue()
+					? valueIfTrue.optimizedBooleanConstant()
+					: valueIfFalse.optimizedBooleanConstant();
+			}
+			return this.resolvedType = valueIfTrueType;
 		}
 		// Determine the return type depending on argument types
 		// Numeric types

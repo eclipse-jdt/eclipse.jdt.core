@@ -1356,19 +1356,20 @@ public void test35() {
 			"p1/X.java",
 			"package p1;	\n"+
 			"public class X {	\n"+
-			"	class Y {}	\n"+
+			"	class Y { Y(int i){} }	\n"+
 			"	public static void main(String[] arguments) {	\n"+
+			"		int i = 1;	\n" +
 			"		try {	\n" +
 			"			X x =null;	\n" +
-			"			x.new Y();	\n" +
-			"			System.out.println(\"SUCCESS\");	\n" +
+			"			x.new Y(++i);	\n" + 
+			"			System.out.println(\"SUCCESS:\"+i);	\n" +
 			"		} catch(NullPointerException e){	\n" +
 			"			System.out.println(\"FAILED\");	\n" +
 			"		}	\n" +
 			"	}	\n"+
 			"}	\n",
 		},
-		"SUCCESS"
+		"SUCCESS:2"
 	);
 }
 

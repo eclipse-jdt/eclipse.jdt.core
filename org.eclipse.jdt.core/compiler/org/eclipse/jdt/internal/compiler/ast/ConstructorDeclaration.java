@@ -177,13 +177,11 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	public void generateSyntheticFieldInitializationsIfNecessary(
 		MethodScope scope,
 		CodeStream codeStream,
-		ReferenceBinding declaringClass,
-		boolean addNullCheckForEnclosingInstance) {
+		ReferenceBinding declaringClass) {
 			
 		if (!declaringClass.isNestedType()) return;
 		
 		NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
-		SourceTypeBinding enclosingType = nestedType.enclosingType;
 
 		SyntheticArgumentBinding[] syntheticArgs = nestedType.syntheticEnclosingInstances();
 		for (int i = 0, max = syntheticArgs == null ? 0 : syntheticArgs.length; i < max; i++) {
@@ -191,11 +189,6 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			if ((syntheticArg = syntheticArgs[i]).matchingField != null) {
 				codeStream.aload_0();
 				codeStream.load(syntheticArg);
-				if (enclosingType == syntheticArg.type && addNullCheckForEnclosingInstance) {
-					codeStream.dup();
-					codeStream.invokeObjectGetClass(); // causes null check
-					codeStream.pop();
-				}
 				codeStream.putfield(syntheticArg.matchingField);
 			}
 		}
@@ -264,7 +257,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			boolean preInitSyntheticFields = scope.environment().options.targetJDK >= CompilerOptions.JDK1_4;
 
 			if (needFieldInitializations && preInitSyntheticFields){
-				generateSyntheticFieldInitializationsIfNecessary(scope, codeStream, declaringClass, true);
+				generateSyntheticFieldInitializationsIfNecessary(scope, codeStream, declaringClass);
 			}			
 			// generate constructor call
 			if (constructorCall != null) {
@@ -273,7 +266,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			// generate field initialization - only if not invoking another constructor call of the same class
 			if (needFieldInitializations) {
 				if (!preInitSyntheticFields){
-					generateSyntheticFieldInitializationsIfNecessary(scope, codeStream, declaringClass, false);
+					generateSyntheticFieldInitializationsIfNecessary(scope, codeStream, declaringClass);
 				}
 				// generate user field initialization
 				if (declaringType.fields != null) {
