@@ -3,7 +3,7 @@
 <plugin
     name = "%pluginName"
     id = "org.eclipse.jdt.core"
-    version = "1.0.5"
+    version = "1.0.6"
     provider-name = "Object Technology International, Inc."
     class="org.eclipse.jdt.core.JavaCore">
 
