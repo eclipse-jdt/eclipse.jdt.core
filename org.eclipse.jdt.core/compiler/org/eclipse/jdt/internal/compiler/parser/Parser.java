@@ -6732,6 +6732,7 @@ protected void consumeTypeParameter1() {
 protected void consumeTypeParameter1WithExtends() {
 	//TypeParameter1 ::= TypeParameterHeader 'extends' ReferenceType1
 	TypeReference superType = (TypeReference) this.genericsStack[this.genericsPtr--];
+	this.genericsLengthPtr--;
 	TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
 	typeParameter.declarationSourceEnd = superType.sourceEnd;
 	typeParameter.type = superType;
