@@ -773,15 +773,6 @@ protected IProject getProject(String project) {
 protected String getPluginDirectoryPath() {
 	try {
 		URL platformURL = Platform.getPlugin("org.eclipse.jdt.core.tests.model").getDescriptor().getInstallURL();
-
-		// TODO (jerome) last slash removal not needed after I20040120
-		String path = platformURL.getPath();
-		int length = path.length();
-		if (path.charAt(length-1) == '/') {
-			path = path.substring(0, length-1);
-			platformURL = new URL(platformURL.getProtocol(), platformURL.getHost(), path);
-		}
-
 		return new File(Platform.asLocalURL(platformURL).getFile()).getAbsolutePath();
 	} catch (IOException e) {
 		e.printStackTrace();
