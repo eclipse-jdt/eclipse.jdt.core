@@ -178,7 +178,7 @@ protected void addDependentsOf(IPath path, boolean hasStructuralChanges) {
 		typeName = typeName.substring(0, memberIndex);
 	if (!simpleStrings.contains(typeName)) {
 		if (JavaBuilder.DEBUG)
-			System.out.println("  adding dependents of " //$NON-NLS-1$
+			System.out.println("  will look for dependents of " //$NON-NLS-1$
 				+ typeName + " in " + packageName); //$NON-NLS-1$
 		simpleStrings.add(typeName);
 	}
@@ -241,7 +241,7 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 						// see if any known source file is from the same package... classpath already includes new package
 						if (!newState.isKnownPackage(packageName)) {
 							if (JavaBuilder.DEBUG)
-								System.out.println("Add dependents of added package " + packageName); //$NON-NLS-1$
+								System.out.println("Found added package " + packageName); //$NON-NLS-1$
 							addDependentsOf(packagePath, false);
 							return;
 						}
@@ -251,7 +251,7 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 						// see if the package still exists on the classpath
 						if (!nameEnvironment.isPackage(packageName)) {
 							if (JavaBuilder.DEBUG)
-								System.out.println("Add dependents of removed package " + packageName); //$NON-NLS-1$
+								System.out.println("Found removed package " + packageName); //$NON-NLS-1$
 							addDependentsOf(packagePath, false);
 							return;
 						}
@@ -272,14 +272,14 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 					case IResourceDelta.ADDED :
 					case IResourceDelta.REMOVED :
 						if (JavaBuilder.DEBUG)
-							System.out.println("Add dependents of added/removed class file " + typePath); //$NON-NLS-1$
+							System.out.println("Found added/removed class file " + typePath); //$NON-NLS-1$
 						addDependentsOf(typePath, false);
 						return;
 					case IResourceDelta.CHANGED :
 						if ((binaryDelta.getFlags() & IResourceDelta.CONTENT) == 0)
 							return; // skip it since it really isn't changed
 						if (JavaBuilder.DEBUG)
-							System.out.println("Add dependents of changed class file " + typePath); //$NON-NLS-1$
+							System.out.println("Found changed class file " + typePath); //$NON-NLS-1$
 						addDependentsOf(typePath, false);
 				}
 				return;
@@ -321,7 +321,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 					createFolder(addedPackagePath, md.binaryFolder); // ensure package exists in the output folder
 					// add dependents even when the package thinks it exists to be on the safe side
 					if (JavaBuilder.DEBUG)
-						System.out.println("Add dependents of added package " + addedPackagePath); //$NON-NLS-1$
+						System.out.println("Found added package " + addedPackagePath); //$NON-NLS-1$
 					addDependentsOf(addedPackagePath, true);
 					// fall thru & collect all the source files
 				case IResourceDelta.CHANGED :
@@ -348,7 +348,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 						removedPackageFolder.delete(IResource.FORCE, null);
 					// add dependents even when the package thinks it does not exist to be on the safe side
 					if (JavaBuilder.DEBUG)
-						System.out.println("Add dependents of removed package " + removedPackagePath); //$NON-NLS-1$
+						System.out.println("Found removed package " + removedPackagePath); //$NON-NLS-1$
 					addDependentsOf(removedPackagePath, true);
 					newState.removePackage(sourceDelta);
 			}
@@ -366,7 +366,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 						String typeName = typePath.toString();
 						if (!newState.isDuplicateLocator(typeName, typeLocator)) { // adding dependents results in 2 duplicate errors
 							if (JavaBuilder.DEBUG)
-								System.out.println("Add dependents of added source file " + typeName); //$NON-NLS-1$
+								System.out.println("Found added source file " + typeName); //$NON-NLS-1$
 							addDependentsOf(typePath, true);
 						}
 						return;
@@ -384,7 +384,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 							}
 						} else {
 							if (JavaBuilder.DEBUG)
-								System.out.println("Add dependents of removed source file " + typePath.toString()); //$NON-NLS-1$
+								System.out.println("Found removed source file " + typePath.toString()); //$NON-NLS-1$
 							addDependentsOf(typePath, true); // add dependents of the source file since it may be involved in a name collision
 							if (definedTypeNames.length > 0) { // skip it if it failed to successfully define a type
 								IPath packagePath = typePath.removeLastSegments(1);
@@ -481,7 +481,7 @@ protected void removeClassFile(IPath typePath, IContainer outputFolder) throws C
 		newState.removeQualifiedTypeName(typePath.toString());
 		// add dependents even when the type thinks it does not exist to be on the safe side
 		if (JavaBuilder.DEBUG)
-			System.out.println("Add dependents of removed type " + typePath); //$NON-NLS-1$
+			System.out.println("Found removed type " + typePath); //$NON-NLS-1$
 		addDependentsOf(typePath, true); // when member types are removed, their enclosing type is structurally changed
 	}
 	IFile classFile = outputFolder.getFile(typePath.addFileExtension(JavaBuilder.CLASS_EXTENSION));
