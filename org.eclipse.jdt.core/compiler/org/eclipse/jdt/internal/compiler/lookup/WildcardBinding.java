@@ -56,6 +56,13 @@ public class WildcardBinding extends ReferenceBinding {
 	    }
     }
 	
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
+	 */
+	public String debugName() {
+	    return toString();		
+	}	
+	
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#erasure()
      */

@@ -83,6 +83,12 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    }
 	    return this.superclass.constantPoolName(); // java/lang/Object
 	}
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
+	 */
+	public String debugName() {
+	    return toString();		
+	}		
 	public TypeBinding erasure() {
 	    if (this.firstBound != null) {
 			return this.firstBound.erasure();
