@@ -711,8 +711,6 @@ public abstract class Scope
 			return null;
 
 		if (typeBinding.isValidBinding()) {
-// Not convinced that this is necessary
-//			compilationUnitScope().recordTypeReference(typeBinding); // to record supertypes
 			if (declarationPackage != invocationPackage && !typeBinding.canBeSeenBy(invocationPackage))
 				return new ProblemReferenceBinding(typeName, typeBinding, NotVisible);
 		}
