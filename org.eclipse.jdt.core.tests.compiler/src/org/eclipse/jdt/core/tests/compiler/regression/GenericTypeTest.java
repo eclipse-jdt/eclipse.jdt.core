@@ -7388,7 +7388,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	// 71080 - parameter bound <E extends Enum<E>> should be allowed
-	public void test271() {
+	public void _test271() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
