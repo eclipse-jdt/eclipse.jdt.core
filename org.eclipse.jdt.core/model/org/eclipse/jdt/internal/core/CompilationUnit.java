@@ -407,9 +407,15 @@ public IType[] getTypes() throws JavaModelException {
  * @see IWorkingCopy
  */
 public IJavaElement getWorkingCopy() throws JavaModelException {
+	return (IJavaElement)this.getWorkingCopy(null, null);
+}
+/**
+ * @see IWorkingCopy
+ */
+public IWorkingCopy getWorkingCopy(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
 	WorkingCopy workingCopy= new WorkingCopy((IPackageFragment)getParent(), getElementName());
 	// open the working copy now to ensure contents are that of the current state of this element
-	workingCopy.open(null);
+	workingCopy.open(pm, buffer);
 	return workingCopy;
 }
 /**

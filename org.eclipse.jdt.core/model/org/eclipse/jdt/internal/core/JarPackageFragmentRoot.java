@@ -140,7 +140,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				if (oldMapper != null) {
 					oldMapper.close();
 				}
-				IBufferManager manager= BufferManager.getDefaultBufferManager();
+				BufferManager manager= BufferManager.getDefaultBufferManager();
 				Enumeration openBuffers= manager.getOpenBuffers();
 				while (openBuffers.hasMoreElements()) {
 					IBuffer buffer= (IBuffer) openBuffers.nextElement();
@@ -605,8 +605,8 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 	/**
 	 * @see Openable#openWhenClosed()
 	 */
-	protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
-		super.openWhenClosed(pm);
+	protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
+		super.openWhenClosed(pm, buffer);
 		try {
 			//restore any stored attached source zip
 			IPath zipPath= getSourceAttachmentPath();

@@ -14,11 +14,10 @@ import java.io.*;
 import java.util.Enumeration;
 
 /**
- * The BufferManager implements an LRU cache of buffers.
- *
- * @see IBufferManager
+ * The buffer manager manages the set of open buffers.
+ * It implements an LRU cache of buffers.
  */
-public class BufferManager implements IBufferManager {
+public class BufferManager {
 
 	/**
 	 * LRU cache of buffers. The key and value for an entry
@@ -38,7 +37,9 @@ protected void addBuffer(IBuffer buffer) {
 	fOpenBuffers.put(buffer.getOwner(), buffer);
 }
 /**
- * @see IBufferManager
+ * Returns the open buffer associated with the given owner,
+ * or <code>null</code> if the owner does not have an open
+ * buffer associated with it.
  */
 public IBuffer getBuffer(IOpenable owner) {
 	return (IBuffer)fOpenBuffers.get(owner);
@@ -48,17 +49,19 @@ public IBuffer getBuffer(IOpenable owner) {
  * TBD: There shouldn't be a global buffer manager.
  * It should be a registered manager with the workspace.
  */
-public synchronized static IBufferManager getDefaultBufferManager() {
+public synchronized static BufferManager getDefaultBufferManager() {
 	if (fgDefaultBufferManager == null) {
 		fgDefaultBufferManager = new BufferManager();
 	}
 	return fgDefaultBufferManager;
 }
 /**
+ * Returns an enumeration of all open buffers.
+ * <p> 
  * The <code>Enumeration</code> answered is thread safe.
  *
  * @see OverflowLRUCache
- * @see IBufferManager
+ * @return Enumeration of IBuffer
  */
 public Enumeration getOpenBuffers() {
 	synchronized (fOpenBuffers) {
@@ -67,7 +70,10 @@ public Enumeration getOpenBuffers() {
 	}
 }
 /**
- * @see IBufferManager
+ * Opens a buffer with the given contents, not associated with any resource,
+ * assigned to the specified owner.
+ *
+ * @exception IllegalArgumentException if contents or owner is <code>null</code>
  */
 public IBuffer openBuffer(char[] contents, IProgressMonitor progress, IOpenable owner, boolean readOnly) throws IllegalArgumentException {
 	if (contents == null || owner == null) {
@@ -78,7 +84,8 @@ public IBuffer openBuffer(char[] contents, IProgressMonitor progress, IOpenable 
 	return buffer;
 }
 /**
- * @see IBufferManager
+ * Opens a buffer on the current contents of the specified file,
+ * assigned to the specified owner.
  */
 public IBuffer openBuffer(IFile file, IProgressMonitor progress, IOpenable owner, boolean readOnly) throws JavaModelException {
 	if (file == null || owner == null) {

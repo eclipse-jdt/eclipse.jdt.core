@@ -460,13 +460,13 @@ public void offsetSourceRange(int amount) {
  */
 protected void openHierarchy() throws JavaModelException {
 	if (this instanceof IOpenable) {
-		((Openable) this).openWhenClosed(null);
+		((Openable) this).openWhenClosed(null, null);
 	} else {
 		Openable openableParent = (Openable)getOpenableParent();
 		if (openableParent != null) {
 			JavaElementInfo openableParentInfo = (JavaElementInfo) fgJavaModelManager.getInfo((IJavaElement) openableParent);
 			if (openableParentInfo == null) {
-				openableParent.openWhenClosed(null);
+				openableParent.openWhenClosed(null, null);
 			} else {
 				throw newNotPresentException();
 			}

@@ -113,6 +113,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  3194      DCR - JM - Buffer contents is duplicated (1G03HCP)  
   5430      Must resurrect 0.9 deprecated APIs   
   4923      IJavaProject.getPackageFragmentRoots returns roots from other projects
   3308      Projects not build in correct order after load (1GF60TN)

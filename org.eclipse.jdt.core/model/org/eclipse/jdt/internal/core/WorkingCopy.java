@@ -207,11 +207,11 @@ public boolean isWorkingCopy() {
  * @exception JavaModelException attempting to open a read only element for something other than navigation
  * 	or if this is a working copy being opened after it has been destroyed.
  */
-public void open(IProgressMonitor pm) throws JavaModelException {
+public void open(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
 	if (fDestroyed) {
 		throw newNotPresentException();
 	} else {
-		super.open(pm);
+		super.open(pm, buffer);
 	}
 }
 /**

@@ -1492,14 +1492,14 @@ public class JavaProject
 	 *
 	 * fix for 1FW67PA
 	 */
-	protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
+	protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
 
 		JavaModelManager manager =
 			(JavaModelManager) JavaModelManager.getJavaModelManager();
 		if (manager.isBeingDeleted(fProject) || !this.fProject.isOpen()) {
 			throw newNotPresentException();
 		} else {
-			super.openWhenClosed(pm);
+			super.openWhenClosed(pm, buffer);
 		}
 	}
 

@@ -75,7 +75,7 @@ protected void openHierarchy() throws JavaModelException {
 	if (openableParent != null) {
 		JavaElementInfo openableParentInfo = (JavaElementInfo) fgJavaModelManager.getInfo((IJavaElement) openableParent);
 		if (openableParentInfo == null) {
-			openableParent.openWhenClosed(null);
+			openableParent.openWhenClosed(null, null);
 			openableParentInfo = (JavaElementInfo) fgJavaModelManager.getInfo((IJavaElement) openableParent);
 		}
 		ClassFileInfo cfi = (ClassFileInfo) openableParentInfo;

@@ -334,7 +334,7 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	if (mapper != null) {
 		char[] contents = mapper.findSource(getType());
 		if (contents != null) {
-			IBufferManager bufManager = getBufferManager();
+			BufferManager bufManager = getBufferManager();
 			IBuffer buf = bufManager.openBuffer(contents, pm, this, isReadOnly());
 			// do the source mapping
 			mapper.mapSource(getType(), contents);

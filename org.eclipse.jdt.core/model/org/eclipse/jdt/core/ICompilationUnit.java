@@ -199,4 +199,16 @@ IType getType(String name);
  *		exception occurs while accessing its corresponding resource
  */
 IType[] getTypes() throws JavaModelException;
+/**
+ * Returns an open working copy of this compilation unit.
+ *
+ * @param monitor a progress monitor used to report progress while opening this compilation unit
+ * @param buffer the buffer that should be used to get the content of the working copy
+ * @exception JavaModelException if the contents of this element can
+ *   not be determined. Reasons include:
+ * <ul>
+ * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+ * </ul>
+ */
+IWorkingCopy getWorkingCopy(IProgressMonitor monitor, IBuffer buffer) throws JavaModelException;
 }
