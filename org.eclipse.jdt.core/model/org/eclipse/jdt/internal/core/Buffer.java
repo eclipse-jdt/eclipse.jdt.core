@@ -91,7 +91,7 @@ public void append(String text) {
 /**
  * @see IBuffer
  */
-public void close() throws IllegalArgumentException {
+public void close() {
 	BufferChangedEvent event = null;
 	synchronized (this.lock) {
 		if (isClosed())
