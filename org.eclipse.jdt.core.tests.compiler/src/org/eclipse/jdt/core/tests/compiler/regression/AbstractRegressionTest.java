@@ -72,6 +72,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		BinaryIndexer indexer = new BinaryIndexer(document) {
 			protected void addIndexEntry(char[] category, char[] key) {
 				references.append(category);
+				references.append('/');
 				references.append(key);
 				references.append('\n');
 			}
