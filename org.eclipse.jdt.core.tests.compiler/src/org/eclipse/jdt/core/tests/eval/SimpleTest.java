@@ -148,7 +148,7 @@ protected char[] buildCharArray(String[] lines) {
 	buffer.getChars(0, length, result, 0);
 	return result;
 }
-private String errorReportSource(DefaultProblem problem, char[] source) {
+protected String errorReportSource(DefaultProblem problem, char[] source) {
 	//extra from the source the innacurate     token
 	//and "highlight" it using some underneath ^^^^^
 	//put some context around too.
@@ -221,7 +221,7 @@ private String errorReportSource(DefaultProblem problem, char[] source) {
 		) + 
 		"\n\t" + new String(extract) + "\n\t" + new String(underneath);
 }
-private GlobalVariable findVar(EvaluationContext context, char[] varName) {
+protected GlobalVariable findVar(EvaluationContext context, char[] varName) {
 	GlobalVariable[] vars = context.allVariables();
 	for (int i = 0; i < vars.length; i++) {
 		GlobalVariable var = vars[i];

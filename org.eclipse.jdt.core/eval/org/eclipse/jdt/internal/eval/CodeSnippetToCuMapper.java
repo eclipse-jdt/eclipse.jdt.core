@@ -40,17 +40,17 @@ class CodeSnippetToCuMapper implements EvaluationConstants {
 	public int startPosOffset = 0;
 
 	// Internal fields
-	private char[] codeSnippet;
-	private char[] packageName;
-	private char[][] imports;
-	char[] className; // NB: Make it package default visibility to optimize access from inner classes
-	private char[] varClassName;
+	char[] codeSnippet;
+	char[] packageName;
+	char[][] imports;
+	char[] className; 
+	char[] varClassName;
 
 	// Mapping of external local variables
-	private char[][] localVarNames;
-	private char[][] localVarTypeNames;
-	private int[] localVarModifiers;
-	private char[] declaringTypeName;
+	char[][] localVarNames;
+	char[][] localVarTypeNames;
+	int[] localVarModifiers;
+	char[] declaringTypeName;
 
 /**
  * Rebuild source in presence of external local variables

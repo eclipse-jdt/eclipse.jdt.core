@@ -172,7 +172,7 @@ private boolean equals(String[] strings1, String[] strings2) {
 /**
  * Returns whether the 2 given problems are equals.
  */
-private boolean equals(IProblem pb1, IProblem pb2) {
+public boolean equals(IProblem pb1, IProblem pb2) {
 	if ((pb1 == null) && (pb2 == null)) {
 		return true;
 	}

@@ -61,7 +61,7 @@ private void addSuper(ICompilationUnit unit, String typeName, String newSuper) t
 	copy.createType(newSource, null, true, null);
 	copy.commit(true, null);
 }
-private void changeSuper(ICompilationUnit unit, String existingSuper, String newSuper) throws JavaModelException {
+protected void changeSuper(ICompilationUnit unit, String existingSuper, String newSuper) throws JavaModelException {
 	ICompilationUnit copy = (ICompilationUnit)unit.getWorkingCopy();
 	IType type = copy.getTypes()[0];
 	String source = type.getSource();
@@ -75,7 +75,7 @@ private void changeSuper(ICompilationUnit unit, String existingSuper, String new
 	copy.createType(newSource, null, true, null);
 	copy.commit(true, null);
 }
-private void changeVisibility(ICompilationUnit unit, String existingModifier, String newModifier) throws JavaModelException {
+protected void changeVisibility(ICompilationUnit unit, String existingModifier, String newModifier) throws JavaModelException {
 	ICompilationUnit copy = (ICompilationUnit)unit.getWorkingCopy();
 	IType type = copy.getTypes()[0];
 	String source = type.getSource();

@@ -568,7 +568,7 @@ public String getSourceWorkspacePath() {
 public IWorkspace getWorkspace() {
 	return ResourcesPlugin.getWorkspace();
 }
-protected IWorkspaceRoot getWorkspaceRoot() {
+public IWorkspaceRoot getWorkspaceRoot() {
 	return getWorkspace().getRoot();
 }
 

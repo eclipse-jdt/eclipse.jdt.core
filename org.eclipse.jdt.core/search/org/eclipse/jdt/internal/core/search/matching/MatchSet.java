@@ -42,20 +42,20 @@ import org.eclipse.jdt.internal.core.Util;
  */
 public class MatchSet {
 	
-	private MatchLocator locator;
+	MatchLocator locator;
 	int matchContainer;
 	boolean cuHasBeenResolved = false;
 
 	/**
 	 * Set of matching ast nodes that don't need to be resolved.
 	 */
-	private Map matchingNodes = new HashMap(5);
+	Map matchingNodes = new HashMap(5);
 
 	/**
 	 * Set of potential matching ast nodes. They need to be resolved
 	 * to determine if they really match the search pattern.
 	 */
-	private Map potentialMatchingNodes = new HashMap(5);
+	Map potentialMatchingNodes = new HashMap(5);
 	
 /**
  * An ast visitor that visits local type declarations.

@@ -41,19 +41,19 @@ import org.eclipse.jdt.internal.compiler.util.*;
 public class SourceElementParser extends Parser {
 	
 	ISourceElementRequestor requestor;
-	private int fieldCount;
-	private int localIntPtr;
-	private int lastFieldEndPosition;
-	private ISourceType sourceType;
-	private boolean reportReferenceInfo;
-	private char[][] typeNames;
-	private char[][] superTypeNames;
-	private int nestedTypeIndex;
-	private static final char[] JAVA_LANG_OBJECT = "java.lang.Object".toCharArray(); //$NON-NLS-1$
-	private NameReference[] unknownRefs;
-	private int unknownRefsCounter;
-	private LocalDeclarationVisitor localDeclarationVisitor = null;
-	private CompilerOptions options;
+	int fieldCount;
+	int localIntPtr;
+	int lastFieldEndPosition;
+	ISourceType sourceType;
+	boolean reportReferenceInfo;
+	char[][] typeNames;
+	char[][] superTypeNames;
+	int nestedTypeIndex;
+	static final char[] JAVA_LANG_OBJECT = "java.lang.Object".toCharArray(); //$NON-NLS-1$
+	NameReference[] unknownRefs;
+	int unknownRefsCounter;
+	LocalDeclarationVisitor localDeclarationVisitor = null;
+	CompilerOptions options;
 	
 /**
  * An ast visitor that visits local type declarations.

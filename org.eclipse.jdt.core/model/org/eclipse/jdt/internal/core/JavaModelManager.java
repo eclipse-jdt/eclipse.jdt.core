@@ -52,12 +52,12 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * Unique handle onto the JavaModel
 	 */
-	private final JavaModel javaModel = new JavaModel();
+	final JavaModel javaModel = new JavaModel();
 	
 	/**
 	 * Classpath variables pool
 	 */
-	private static HashMap Variables = new HashMap(5);
+	static HashMap Variables = new HashMap(5);
 	public static HashSet OptionNames = new HashSet(20);
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_VARIABLE_IGNORE = " ##<cp var ignore>## "; //$NON-NLS-1$
