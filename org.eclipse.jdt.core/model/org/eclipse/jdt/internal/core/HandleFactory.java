@@ -222,8 +222,8 @@ public class HandleFactory {
 				IJavaProject javaProject= this.javaModel.getJavaProject(project);
 				IPackageFragmentRoot[] roots= javaProject.getPackageFragmentRoots();
 				for (int j= 0, rootCount= roots.length; j < rootCount; j++) {
-					IPackageFragmentRoot root= roots[j];
-					if (root.getPath().isPrefixOf(path)) {
+					PackageFragmentRoot root= (PackageFragmentRoot)roots[j];
+					if (root.getPath().isPrefixOf(path) && !Util.isExcluded(path, root.fullExclusionPatternChars())) {
 						return root;
 					}
 				}
