@@ -22,9 +22,14 @@ package org.eclipse.jdt.internal.codeassist.select;
  *
  */
  
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -45,8 +50,13 @@ protected TypeBinding getTypeBinding(Scope scope) {
 		scope.problemReporter().invalidType(this, (TypeBinding) binding);
 		throw new SelectionNodeFound();
 	}
+	
+	
 	if(binding instanceof TypeVariableBinding) {
-		throw new SelectionNodeFound(binding, scope.enclosingSourceType());
+		Binding enclosingElement = null;
+		// TODO missing implementation
+		
+		throw new SelectionNodeFound(binding, enclosingElement);
 	} else {
 		throw new SelectionNodeFound(binding);
 	}

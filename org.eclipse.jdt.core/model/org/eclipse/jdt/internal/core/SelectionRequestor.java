@@ -423,6 +423,22 @@ public void acceptTypeParameter(char[] declaringTypePackageName, char[] declarin
 		System.out.println(">)"); //$NON-NLS-1$
 	}
 }
+public void acceptMethodTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, boolean isConstructor, char[] typeParameterName, boolean isDeclaration, int start, int end) {
+	// TODO missing implementation
+	
+	if(SelectionEngine.DEBUG){
+		System.out.print("SELECTION - acceptTypeParameter("); //$NON-NLS-1$
+		System.out.print(declaringTypePackageName);
+		System.out.print('.');
+		System.out.print(declaringTypeName);
+		System.out.print('.');
+		System.out.print('<');
+		System.out.print(typeParameterName);
+		System.out.print('>');
+		System.out.print(selector);
+		System.out.println("(...))"); //$NON-NLS-1$
+	}
+}
 /*
  * Adds the given element to the list of resolved elements.
  */

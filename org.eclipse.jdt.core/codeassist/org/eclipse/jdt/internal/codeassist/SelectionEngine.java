@@ -530,7 +530,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
-								selectFrom(e.binding, e.enclosingType, parsedUnit, e.isDeclaration);
+								selectFrom(e.binding, e.enclosingElement, parsedUnit, e.isDeclaration);
 							}
 						}
 					}
@@ -556,17 +556,44 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 	}
 
-	private void selectFrom(Binding binding, SourceTypeBinding enclosingType, CompilationUnitDeclaration parsedUnit, boolean isDeclaration) {
+	private void selectFrom(Binding binding, Binding enclosingElement, CompilationUnitDeclaration parsedUnit, boolean isDeclaration) {
 		if(binding instanceof TypeVariableBinding) {
 			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) binding;
 			this.noProposal = false;
-			this.requestor.acceptTypeParameter(
-				enclosingType.qualifiedPackageName(),
-				enclosingType.qualifiedSourceName(),
-				typeVariableBinding.sourceName(),
-				false,
-				this.actualSelectionStart,
-				this.actualSelectionEnd);
+			
+			if(enclosingElement instanceof SourceTypeBinding) {
+				SourceTypeBinding enclosingType = (SourceTypeBinding) enclosingElement;
+				this.requestor.acceptTypeParameter(
+					enclosingType.qualifiedPackageName(),
+					enclosingType.qualifiedSourceName(),
+					typeVariableBinding.sourceName(),
+					false,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+			} else if(enclosingElement instanceof MethodBinding) {
+				MethodBinding enclosingMethod = (MethodBinding) enclosingElement;
+				
+				TypeBinding[] parameterTypes = enclosingMethod.parameters;
+				int length = parameterTypes.length;
+				char[][] parameterPackageNames = new char[length][];
+				char[][] parameterTypeNames = new char[length][];
+				for (int i = 0; i < length; i++) {
+					parameterPackageNames[i] = parameterTypes[i].qualifiedPackageName();
+					parameterTypeNames[i] = parameterTypes[i].qualifiedSourceName();
+				}
+				
+				this.requestor.acceptMethodTypeParameter(
+					enclosingMethod.declaringClass.qualifiedPackageName(),
+					enclosingMethod.declaringClass.qualifiedSourceName(),
+					enclosingMethod.selector,
+					parameterPackageNames,
+					parameterTypeNames,
+					enclosingMethod.isConstructor(),
+					typeVariableBinding.sourceName(),
+					false,
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+			}
 			this.acceptedAnswer = true;
 		} else if (binding instanceof ReferenceBinding) {
 			ReferenceBinding typeBinding = (ReferenceBinding) binding;
@@ -869,7 +896,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 									System.out.println(e.binding.toString());
 								}
 								// if null then we found a problem in the selection node
-								selectFrom(e.binding, e.enclosingType, parsedUnit, e.isDeclaration);
+								selectFrom(e.binding, e.enclosingElement, parsedUnit, e.isDeclaration);
 							}
 						}
 					}
@@ -978,6 +1005,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 		for (int i = 0, length = methods == null ? 0 : methods.length; i < length; i++){
 			AbstractMethodDeclaration method = methods[i];
+			
 			if (method.selector == assistIdentifier){
 				char[] qualifiedSourceName = null;
 				
@@ -1000,6 +1028,36 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				
 				this.noProposal = false;
 				return true;
+			}
+			
+			TypeParameter[] methodTypeParameters = method.typeParameters();
+			for (int j = 0, length2 = methodTypeParameters == null ? 0 : methodTypeParameters.length; j < length2; j++){
+				TypeParameter methodTypeParameter = methodTypeParameters[j];
+				
+				if(methodTypeParameter.name == assistIdentifier) {
+					char[] qualifiedSourceName = null;
+					
+					TypeDeclaration enclosingType = typeDeclaration;
+					while(enclosingType != null) {
+						qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
+						enclosingType = enclosingType.enclosingType;
+					}
+					
+					this.requestor.acceptMethodTypeParameter(
+						packageName,
+						qualifiedSourceName,
+						method.selector,
+						null, // SelectionRequestor does not need of parameters type for declaration
+						null, // SelectionRequestor does not need of parameters type for declaration
+						method.isConstructor(),
+						methodTypeParameter.name,
+						true,
+						this.actualSelectionStart,
+						this.actualSelectionEnd);
+					
+					this.noProposal = false;
+					return true;
+				}
 			}
 		}
 		

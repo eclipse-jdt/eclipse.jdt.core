@@ -197,4 +197,79 @@ public void test0009() throws JavaModelException {
 		elements
 	);
 }
+public void test0010() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0010", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "Test0010";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
+public void test0011() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0011", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "Test0011";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
+public void test0012() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0012", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "Test0012";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
+public void test0013() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0013", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "Test0013";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
+public void test0014() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0014", "Test.java");
+	
+	String str = cu.getSource();
+	String selection = "Test0014";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"",
+		elements
+	);
+}
 }
