@@ -211,6 +211,7 @@ public abstract class AbstractCommentParser {
 											case '%':
 											case '&':
 											case '\'':
+											case ':':
 											case '-':
 											case '<' :
 											case '>':
