@@ -734,4 +734,36 @@ public void test0047() throws JavaModelException {
 		"",
 		requestor.getResults());
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=75455
+ */
+public void test0048() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0048", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "l.ba";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"element:bar    completion:bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC),
+		requestor.getResults());
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=75455
+ */
+public void test0049() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0049", "Test.java");
+	
+	String str = cu.getSource();
+	String completeBehind = "l.ba";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+	
+	assertEquals("unexpected result",
+		"element:bar    completion:bar()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC),
+		requestor.getResults());
+}
 }

@@ -2147,7 +2147,7 @@ public final class CompletionEngine
 			char[][] parameterTypeNames = new char[length][];
 
 			for (int i = 0; i < length; i++) {
-				TypeBinding type = method.parameters[i];
+				TypeBinding type = method.original().parameters[i];
 				parameterPackageNames[i] = type.qualifiedPackageName();
 				parameterTypeNames[i] = type.qualifiedSourceName();
 			}
