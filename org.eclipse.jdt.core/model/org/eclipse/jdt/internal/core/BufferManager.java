@@ -44,7 +44,8 @@ public BufferManager() {
  */
 protected void addBuffer(IBuffer buffer) {
 	if (VERBOSE) {
-		System.out.println("Adding buffer for owner " + ((Openable)buffer.getOwner()).toStringWithAncestors()); //$NON-NLS-1$
+		String owner = ((Openable)buffer.getOwner()).toStringWithAncestors();
+		System.out.println("Adding buffer for " + owner); //$NON-NLS-1$
 	}
 	openBuffers.put(buffer.getOwner(), buffer);
 	if (VERBOSE) {
@@ -108,7 +109,8 @@ public Enumeration getOpenBuffers() {
  */
 protected void removeBuffer(IBuffer buffer) {
 	if (VERBOSE) {
-		System.out.println("Removing buffer for owner " + ((Openable)buffer.getOwner()).toStringWithAncestors()); //$NON-NLS-1$
+		String owner = ((Openable)buffer.getOwner()).toStringWithAncestors();
+		System.out.println("Removing buffer for " + owner); //$NON-NLS-1$
 	}
 	openBuffers.remove(buffer.getOwner());
 	if (VERBOSE) {
