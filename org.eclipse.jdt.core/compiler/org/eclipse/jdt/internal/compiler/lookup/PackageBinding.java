@@ -36,7 +36,7 @@ public PackageBinding(char[] topLevelPackageName, LookupEnvironment environment)
 */
 
 public PackageBinding(LookupEnvironment environment) {
-	this(NoCharChar, null, environment);
+	this(CharOperation.NO_CHAR_CHAR, null, environment);
 }
 private void addNotFoundPackage(char[] simpleName) {
 	knownPackages.put(simpleName, LookupEnvironment.TheNotFoundPackage);
@@ -197,7 +197,7 @@ public char[] readableName() /*java.lang*/ {
 	return CharOperation.concatWith(compoundName, '.');
 }
 public String toString() {
-	if (compoundName == NoCharChar)
+	if (compoundName == CharOperation.NO_CHAR_CHAR)
 		return "The Default Package"; //$NON-NLS-1$
 	else
 		return "package " + ((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED"); //$NON-NLS-1$ //$NON-NLS-2$

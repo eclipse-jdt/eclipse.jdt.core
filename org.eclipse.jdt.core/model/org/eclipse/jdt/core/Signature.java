@@ -228,8 +228,6 @@ public final class Signature {
 	 */
 	public static final String SIG_VOID			= "V"; //$NON-NLS-1$
 	
-	private static final char[] NO_CHAR = new char[0];
-	private static final char[][] NO_CHAR_CHAR = new char[0][];
 	private static final char[] BOOLEAN = {'b', 'o', 'o', 'l', 'e', 'a', 'n'};
 	private static final char[] BYTE = {'b', 'y', 't', 'e'};
 	private static final char[] CHAR = {'c', 'h', 'a', 'r'};
@@ -812,7 +810,7 @@ public static String[] getParameterTypes(String methodSignature) throws IllegalA
 public static char[] getQualifier(char[] name) {
 	int lastDot = CharOperation.lastIndexOf(C_DOT, name);
 	if (lastDot == -1) {
-		return NO_CHAR; //$NON-NLS-1$
+		return CharOperation.NO_CHAR; //$NON-NLS-1$
 	}
 	return CharOperation.subarray(name, 0, lastDot);
 }
@@ -929,7 +927,7 @@ public static String getSimpleName(String name) {
  */
 public static char[][] getSimpleNames(char[] name) {
 	if (name.length == 0) {
-		return NO_CHAR_CHAR;
+		return CharOperation.NO_CHAR_CHAR;
 	}
 	int dot = CharOperation.indexOf(C_DOT, name);
 	if (dot == -1) {
@@ -1185,7 +1183,7 @@ public static char[] toCharArray(char[] signature) throws IllegalArgumentExcepti
 		int sigLength = signature.length;
 
 		if (sigLength == 0 || signature[0] == C_PARAM_START) {
-			return toCharArray(signature, NO_CHAR, null, true, true);
+			return toCharArray(signature, CharOperation.NO_CHAR, null, true, true);
 		}
 		
 		// compute result length
@@ -1270,7 +1268,7 @@ public static char[] toCharArray(char[] signature) throws IllegalArgumentExcepti
  */
 public static char[] toQualifiedName(char[][] segments) {
 	int length = segments.length;
-	if (length == 0) return NO_CHAR;
+	if (length == 0) return CharOperation.NO_CHAR;
 	if (length == 1) return segments[0];
 	
 	int resultLength = 0;

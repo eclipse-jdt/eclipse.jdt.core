@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.IRegion;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.jdom.DOMFactory;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.jdom.DOMNode;
 
 /**
@@ -35,7 +36,6 @@ import org.eclipse.jdt.internal.core.jdom.DOMNode;
  * should be used.
  */
 public class DeleteElementsOperation extends MultiOperation {
-	char[] NO_CHAR = new char[0];
 	/**
 	 * The elements this operation processes grouped by compilation unit
 	 * @see processElements(). Keys are compilation units,
@@ -120,7 +120,7 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 			// TBD
 			Assert.isTrue(node != null, Util.bind("element.cannotLocate", e.getElementName(), cuDOM.getName())); //$NON-NLS-1$
 			int startPosition = node.getStartPosition();
-			buffer.replace(startPosition, node.getEndPosition() - startPosition + 1, NO_CHAR);
+			buffer.replace(startPosition, node.getEndPosition() - startPosition + 1, CharOperation.NO_CHAR);
 			delta.removed(e);
 			if (e.getElementType() == IJavaElement.IMPORT_DECLARATION) {
 				numberOfImports--;

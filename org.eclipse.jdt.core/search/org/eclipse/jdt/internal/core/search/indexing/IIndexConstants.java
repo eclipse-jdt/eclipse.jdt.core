@@ -37,8 +37,6 @@ public interface IIndexConstants {
 
 	char[] ONE_STAR = new char[] {'*'};
 	char[][] ONE_STAR_CHAR = new char[][] {ONE_STAR};
-	char[] NO_CHAR = new char[0];
-	char[][] NO_CHAR_CHAR = new char[0][];
 
 	// used as special marker for enclosing type name of local and anonymous classes
 	char[] ONE_ZERO = new char[] {'0'}; 

@@ -448,7 +448,7 @@ private void indexClassFile(byte[] contents, char[] documentName) throws IOExcep
 		char[] enclosingTypeName = null;
 		if (reader.isNestedType()) {
 			if (reader.isAnonymous()) {
-				name = NO_CHAR;
+				name = CharOperation.NO_CHAR;
 			} else {
 				name = reader.getInnerSourceName();
 			}

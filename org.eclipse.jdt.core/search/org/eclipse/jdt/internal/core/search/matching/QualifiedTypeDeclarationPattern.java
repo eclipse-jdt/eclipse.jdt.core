@@ -47,7 +47,7 @@ public void decodeIndexEntry(IEntryResult entryResult){
 	int slash = CharOperation.indexOf(SEPARATOR, word, oldSlash+1);
 	char[] pkgName;
 	if (slash == oldSlash+1){ 
-		pkgName = NO_CHAR;
+		pkgName = CharOperation.NO_CHAR;
 	} else {
 		pkgName = CharOperation.subarray(word, oldSlash+1, slash);
 	}
@@ -61,7 +61,7 @@ public void decodeIndexEntry(IEntryResult entryResult){
 			enclosingTypeNames = CharOperation.splitOn('/', CharOperation.subarray(word, slash+1, size-1));
 		}
 	} else {
-		enclosingTypeNames = NO_CHAR_CHAR;
+		enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
 	}
 	this.decodedQualification = CharOperation.concatWith(pkgName, enclosingTypeNames, '.');
 }

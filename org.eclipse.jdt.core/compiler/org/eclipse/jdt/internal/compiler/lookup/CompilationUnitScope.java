@@ -39,7 +39,7 @@ public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment e
 	this.environment = environment;
 	this.referenceContext = unit;
 	unit.scope = this;
-	this.currentPackageName = unit.currentPackage == null ? NoCharChar : unit.currentPackage.tokens;
+	this.currentPackageName = unit.currentPackage == null ? CharOperation.NO_CHAR_CHAR : unit.currentPackage.tokens;
 
 	if (environment.options.produceReferenceInfo) {
 		this.qualifiedReferences = new CompoundNameVector();
@@ -61,10 +61,10 @@ void buildTypeBindings() {
 		char[][] expectedPackageName = referenceContext.compilationResult.compilationUnit.getPackageName();
 		if (expectedPackageName != null && !CharOperation.equals(currentPackageName, expectedPackageName)) {
 			problemReporter().packageIsNotExpectedPackage(referenceContext);
-			currentPackageName = expectedPackageName.length == 0 ? NoCharChar : expectedPackageName;
+			currentPackageName = expectedPackageName.length == 0 ? CharOperation.NO_CHAR_CHAR : expectedPackageName;
 		}
 	}
-	if (currentPackageName == NoCharChar) {
+	if (currentPackageName == CharOperation.NO_CHAR_CHAR) {
 		if ((fPackage = environment.defaultPackage) == null) {
 			problemReporter().mustSpecifyPackage(referenceContext);
 			return;
@@ -92,7 +92,7 @@ void buildTypeBindings() {
 			problemReporter().duplicateTypes(referenceContext, typeDecl);
 			continue nextType;
 		}
-		boolean packageExists = currentPackageName == NoCharChar
+		boolean packageExists = currentPackageName == CharOperation.NO_CHAR_CHAR
 			? environment.getTopLevelPackage(typeDecl.name) != null
 			: (fPackage.getPackage(typeDecl.name)) != null;
 		if (packageExists) {

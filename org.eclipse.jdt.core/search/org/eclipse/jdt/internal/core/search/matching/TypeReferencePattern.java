@@ -507,7 +507,7 @@ private int matchLevel(NameReference nameRef, boolean resolve) {
  * Reports the match of the given array type reference.
  */
 protected void matchReportReference(ArrayTypeReference arrayRef, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	char[][] tokens = this.simpleName == null ? NO_CHAR_CHAR : new char[][] {this.simpleName};
+	char[][] tokens = this.simpleName == null ? CharOperation.NO_CHAR_CHAR : new char[][] {this.simpleName};
 	locator.reportAccurateReference(arrayRef.sourceStart, arrayRef.sourceEnd, tokens, element, accuracy);
 }
 

@@ -53,9 +53,6 @@ public interface TypeConstants {
 	final int NotRelated = 0;
 	final int MoreGeneric = 1;
 
-	// Empty Collection which can later assign to null if performance is an issue.
-	final char[] NoChar = new char[0];
-	final char[][] NoCharChar = new char[0][];
 	// Method collections
 	final TypeBinding[] NoParameters = new TypeBinding[0];
 	final ReferenceBinding[] NoExceptions = new ReferenceBinding[0];

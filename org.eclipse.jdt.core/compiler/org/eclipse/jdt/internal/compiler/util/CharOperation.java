@@ -14,6 +14,9 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public final class CharOperation {
 	
+	public static final char[] NO_CHAR = new char[0];
+	public static final char[][] NO_CHAR_CHAR = new char[0][];
+	
 public static final char[] append(char[] array, char suffix){
 	if (array == null) return new char[]{suffix};
 	int length = array.length;
@@ -194,7 +197,7 @@ public static final char[] concatWith(char[][] array, char[] name, char separato
 public static final char[] concatWith(char[][] array, char separator) {
 	int length = array == null ? 0 : array.length;
 	if (length == 0)
-		return TypeConstants.NoChar;
+		return CharOperation.NO_CHAR;
 
 	int size = length - 1;
 	int index = length;
@@ -205,7 +208,7 @@ public static final char[] concatWith(char[][] array, char separator) {
 			size += array[index].length;
 	}
 	if (size <= 0)
-		return TypeConstants.NoChar;
+		return CharOperation.NO_CHAR;
 	char[] result = new char[size];
 	index = length;
 	while (--index >= 0) {
@@ -546,7 +549,7 @@ public static final char[] replace(
 public static final char[][] splitAndTrimOn(char divider, char[] array) {
 	int length = array == null ? 0 : array.length;
 	if (length == 0)
-		return TypeConstants.NoCharChar;
+		return NO_CHAR_CHAR;
 
 	int wordCount = 1;
 	for (int i = 0; i < length; i++)
@@ -575,7 +578,7 @@ public static final char[][] splitAndTrimOn(char divider, char[] array) {
 public static final char[][] splitOn(char divider, char[] array) {
 	int length = array == null ? 0 : array.length;
 	if (length == 0)
-		return TypeConstants.NoCharChar;
+		return NO_CHAR_CHAR;
 
 	int wordCount = 1;
 	for (int i = 0; i < length; i++)
@@ -597,7 +600,7 @@ public static final char[][] splitOn(char divider, char[] array) {
 public static final char[][] splitOn(char divider, char[] array, int start, int end) {
 	int length = array == null ? 0 : array.length;
 	if (length == 0 || start > end)
-		return TypeConstants.NoCharChar;
+		return NO_CHAR_CHAR;
 
 	int wordCount = 1;
 	for (int i = start; i < end; i++)

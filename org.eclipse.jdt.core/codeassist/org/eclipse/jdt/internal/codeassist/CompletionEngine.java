@@ -185,7 +185,7 @@ public final class CompletionEngine
 			if (!insideQualifiedReference) {
 				if (mustQualifyType(packageName, className)) {
 					if (packageName == null || packageName.length == 0)
-						if (unitScope != null && unitScope.fPackage.compoundName != NoCharChar)
+						if (unitScope != null && unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
 							return; // ignore types from the default package from outside it
 				} else {
 					completionName = className;
@@ -235,7 +235,7 @@ public final class CompletionEngine
 			if (!insideQualifiedReference) {
 				if (mustQualifyType(packageName, interfaceName)) {
 					if (packageName == null || packageName.length == 0)
-						if (unitScope != null && unitScope.fPackage.compoundName != NoCharChar)
+						if (unitScope != null && unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
 							return; // ignore types from the default package from outside it
 				} else {
 					completionName = interfaceName;
@@ -307,7 +307,7 @@ public final class CompletionEngine
 			if (!insideQualifiedReference) {
 				if (mustQualifyType(packageName, typeName)) {
 					if (packageName == null || packageName.length == 0)
-						if (unitScope != null && unitScope.fPackage.compoundName != NoCharChar)
+						if (unitScope != null && unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
 							return; // ignore types from the default package from outside it
 				} else {
 					completionName = typeName;
@@ -865,7 +865,7 @@ public final class CompletionEngine
 		InvocationSite invocationSite) {
 
 		if (currentType.isInterface()) {
-			char[] completion = TypeConstants.NoChar;
+			char[] completion = CharOperation.NO_CHAR;
 			// nothing to insert - do not want to replace the existing selector & arguments
 			if (source == null
 				|| source.length <= endPosition
@@ -875,9 +875,9 @@ public final class CompletionEngine
 			requestor.acceptAnonymousType(
 				currentType.qualifiedPackageName(),
 				currentType.qualifiedSourceName(),
-				TypeConstants.NoCharChar,
-				TypeConstants.NoCharChar,
-				TypeConstants.NoCharChar,
+				CharOperation.NO_CHAR_CHAR,
+				CharOperation.NO_CHAR_CHAR,
+				CharOperation.NO_CHAR_CHAR,
 				completion,
 				IConstants.AccPublic,
 				endPosition - offset,
@@ -906,11 +906,11 @@ public final class CompletionEngine
 			relevance += computeRelevanceForExpectingType(scope.getJavaLangClass());
 				
 			requestor.acceptField(
-				NoChar,
-				NoChar,
+				CharOperation.NO_CHAR,
+				CharOperation.NO_CHAR,
 				classField,
-				NoChar,
-				NoChar,
+				CharOperation.NO_CHAR,
+				CharOperation.NO_CHAR,
 				classField,
 				CompilerModifiers.AccStatic | CompilerModifiers.AccPublic,
 				startPosition - offset,
@@ -957,7 +957,7 @@ public final class CompletionEngine
 					}
 					char[][] parameterNames = findMethodParameterNames(constructor,parameterTypeNames);
 					
-					char[] completion = TypeConstants.NoChar;
+					char[] completion = CharOperation.NO_CHAR;
 					// nothing to insert - do not want to replace the existing selector & arguments
 					if (source == null
 						|| source.length <= endPosition
@@ -984,8 +984,8 @@ public final class CompletionEngine
 							parameterPackageNames,
 							parameterTypeNames,
 							parameterNames,
-							TypeConstants.NoChar,
-							TypeConstants.NoChar,
+							CharOperation.NO_CHAR,
+							CharOperation.NO_CHAR,
 							completion,
 							constructor.modifiers,
 							endPosition - offset,
@@ -1214,11 +1214,11 @@ public final class CompletionEngine
 				relevance += computeRelevanceForExpectingType(BaseTypes.IntBinding);
 				
 				requestor.acceptField(
-					NoChar,
-					NoChar,
+					CharOperation.NO_CHAR,
+					CharOperation.NO_CHAR,
 					lengthField,
-					NoChar,
-					NoChar,
+					CharOperation.NO_CHAR,
+					CharOperation.NO_CHAR,
 					lengthField,
 					CompilerModifiers.AccPublic,
 					startPosition - offset,
@@ -1714,7 +1714,7 @@ public final class CompletionEngine
 			}
 			char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
 
-			char[] completion = TypeConstants.NoChar;
+			char[] completion = CharOperation.NO_CHAR;
 			
 			int previousStartPosition = startPosition;
 			
@@ -2100,7 +2100,7 @@ public final class CompletionEngine
 		int length = parameterTypeNames.length;
 
 		if (length == 0){
-			return TypeConstants.NoCharChar;
+			return CharOperation.NO_CHAR_CHAR;
 		}
 		// look into the corresponding unit if it is available
 		if (bindingType instanceof SourceTypeBinding){
@@ -2362,7 +2362,7 @@ public final class CompletionEngine
 						requestor.acceptLocalVariable(
 							local.name,
 							local.type == null 
-								? NoChar
+								? CharOperation.NO_CHAR
 								: local.type.qualifiedPackageName(),
 							local.type == null
 								? local.declaration.type.toString().toCharArray()

@@ -805,7 +805,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			String fullDeclaringName = field.getDeclaringType().getFullyQualifiedName().replace('$', '.');
 			lastDot = fullDeclaringName.lastIndexOf('.');
 			char[] declaringSimpleName = (lastDot != -1 ? fullDeclaringName.substring(lastDot + 1) : fullDeclaringName).toCharArray();
-			char[] declaringQualification = lastDot != -1 ? fullDeclaringName.substring(0, lastDot).toCharArray() : NO_CHAR;
+			char[] declaringQualification = lastDot != -1 ? fullDeclaringName.substring(0, lastDot).toCharArray() : CharOperation.NO_CHAR;
 			char[] name = field.getElementName().toCharArray();
 			char[] typeSimpleName;
 			char[] typeQualification;
@@ -923,7 +923,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			fullDeclaringName = method.getDeclaringType().getFullyQualifiedName().replace('$', '.');
 			lastDot = fullDeclaringName.lastIndexOf('.');
 			declaringSimpleName = (lastDot != -1 ? fullDeclaringName.substring(lastDot + 1) : fullDeclaringName).toCharArray();
-			declaringQualification = lastDot != -1 ? fullDeclaringName.substring(0, lastDot).toCharArray() : NO_CHAR;
+			declaringQualification = lastDot != -1 ? fullDeclaringName.substring(0, lastDot).toCharArray() : CharOperation.NO_CHAR;
 			char[] selector = method.getElementName().toCharArray();
 			char[] returnSimpleName;
 			char[] returnQualification;
@@ -1215,14 +1215,14 @@ private static char[][] enclosingTypeNames(IType type) {
 			// (see bug 20532  Declaration of member binary type not found)
 			IType declaringType = type.getDeclaringType();
 			if (declaringType == null) {
-				return NO_CHAR_CHAR;
+				return CharOperation.NO_CHAR_CHAR;
 			} else {
 				return CharOperation.arrayConcat(
 					enclosingTypeNames(declaringType), 
 					declaringType.getElementName().toCharArray());
 			}
 		case IJavaElement.COMPILATION_UNIT:
-			return 	NO_CHAR_CHAR;
+			return 	CharOperation.NO_CHAR_CHAR;
 		case IJavaElement.TYPE:
 			return 	CharOperation.arrayConcat(
 				enclosingTypeNames((IType)parent), 

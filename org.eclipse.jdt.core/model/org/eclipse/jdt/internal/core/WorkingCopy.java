@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  * Implementation of a working copy compilation unit. A working
@@ -373,7 +374,7 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 			}
 		} else {
 			// initialize buffer
-			buffer.setContents("");
+			buffer.setContents(CharOperation.NO_CHAR);
 		}
 	}
 

@@ -12,6 +12,7 @@
 package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 /**
  * Internal implementation of package bindings.
@@ -105,7 +106,7 @@ class PackageBinding implements IPackageBinding {
 
 	private void computeNameAndComponents() {
 		char[][] compoundName = this.binding.compoundName;
-		if (compoundName == TypeConstants.NoCharChar || compoundName == null) {
+		if (compoundName == CharOperation.NO_CHAR_CHAR || compoundName == null) {
 			name = UNNAMED;
 			components = NO_NAME_COMPONENTS;
 		} else {

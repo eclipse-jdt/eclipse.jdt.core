@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
+
 /*
  * Not all fields defined by this type (& its subclasses) are initialized when it is created.
  * Some are initialized only when needed.
@@ -101,7 +103,7 @@ public TypeBinding leafComponentType(){
  */
 
 public char[] qualifiedPackageName() {
-	return getPackage() == null ? NoChar : getPackage().readableName();
+	return getPackage() == null ? CharOperation.NO_CHAR : getPackage().readableName();
 }
 /**
 * Answer the source name for the type.

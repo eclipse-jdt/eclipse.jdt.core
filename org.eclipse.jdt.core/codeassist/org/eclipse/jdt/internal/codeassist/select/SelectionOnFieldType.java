@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.codeassist.select;
 
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class SelectionOnFieldType extends FieldDeclaration {
 	public SelectionOnFieldType(TypeReference type) {
@@ -19,7 +20,7 @@ public class SelectionOnFieldType extends FieldDeclaration {
 		this.sourceStart = type.sourceStart;
 		this.sourceEnd = type.sourceEnd;
 		this.type = type;
-		this.name = NoChar;
+		this.name = CharOperation.NO_CHAR;
 	}
 	public String toString(int tab) {
 		return type.toString(tab);

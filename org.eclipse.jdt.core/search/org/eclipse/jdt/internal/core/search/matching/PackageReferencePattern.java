@@ -48,7 +48,7 @@ public PackageReferencePattern(char[] pkgName, int matchMode, boolean isCaseSens
 	super(matchMode, isCaseSensitive);
 	this.pkgName = pkgName;
 	char[][] splittedName = CharOperation.splitOn('.', pkgName);
-	this.segments = splittedName == TypeConstants.NoCharChar ? new char[][]{ pkgName } : splittedName;
+	this.segments = splittedName == CharOperation.NO_CHAR_CHAR ? new char[][]{ pkgName } : splittedName;
 	this.needsResolve = pkgName != null;
 }
 /**
@@ -196,7 +196,7 @@ protected void matchReportReference(AstNode reference, IJavaElement element, int
 			tokens = qTypeRef.tokens;
 		}
 	}
-	if (tokens == null) tokens = NO_CHAR_CHAR;
+	if (tokens == null) tokens = CharOperation.NO_CHAR_CHAR;
 	locator.reportAccurateReference(reference.sourceStart, reference.sourceEnd, tokens, element, accuracy);
 }
 /**

@@ -78,7 +78,7 @@ public void decodeIndexEntry(IEntryResult entryResult){
 	int oldSlash = TYPE_DECL_LENGTH+1;
 	int slash = CharOperation.indexOf(SEPARATOR, word, oldSlash+1);
 	if (slash == oldSlash+1){ 
-		this.decodedPackage = NO_CHAR;
+		this.decodedPackage = CharOperation.NO_CHAR;
 	} else {
 		this.decodedPackage = CharOperation.subarray(word, oldSlash+1, slash);
 	}
@@ -91,7 +91,7 @@ public void decodeIndexEntry(IEntryResult entryResult){
 			this.decodedEnclosingTypeNames = CharOperation.splitOn('/', CharOperation.subarray(word, slash+1, size-1));
 		}
 	} else {
-		this.decodedEnclosingTypeNames = NO_CHAR_CHAR;
+		this.decodedEnclosingTypeNames = CharOperation.NO_CHAR_CHAR;
 	}
 }
 /**
@@ -196,7 +196,7 @@ protected boolean matchIndexEntry(){
 	if (enclosingTypeNames != null){
 		// empty char[][] means no enclosing type, i.e. the decoded one is the empty char array
 		if (enclosingTypeNames.length == 0){
-			if (decodedEnclosingTypeNames != NO_CHAR_CHAR) return false;
+			if (decodedEnclosingTypeNames != CharOperation.NO_CHAR_CHAR) return false;
 		} else {
 			if (!CharOperation.equals(enclosingTypeNames, decodedEnclosingTypeNames, isCaseSensitive)) return false;
 		}
