@@ -10,10 +10,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import junit.framework.Test;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
+import junit.framework.Test;
+
+import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.core.util.ICodeAttribute;
+import org.eclipse.jdt.core.util.IExceptionTableEntry;
+import org.eclipse.jdt.core.util.ILineNumberAttribute;
+import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.MethodInfo;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
@@ -135,14 +145,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA002, "A002");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A002.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A002.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 3, lineNumberTable.length);
@@ -174,14 +184,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA003, "A003");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A003.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A003.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 3, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[2];
+			IMethodInfo methodInfo = methodInfos[2];
 			assertEquals("wrong name", "foo", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 2, lineNumberTable.length);
@@ -211,14 +221,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 6, lineNumberTable.length);
@@ -255,14 +265,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -295,14 +305,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 2, lineNumberTable.length);
@@ -331,14 +341,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -371,14 +381,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 2, lineNumberTable.length);
@@ -408,14 +418,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 6, lineNumberTable.length);
@@ -452,14 +462,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 3, lineNumberTable.length);
@@ -490,14 +500,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -530,14 +540,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 3, lineNumberTable.length);
@@ -568,14 +578,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -609,14 +619,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 6, lineNumberTable.length);
@@ -653,14 +663,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -693,14 +703,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -733,14 +743,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -773,14 +783,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -815,14 +825,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 6, lineNumberTable.length);
@@ -859,14 +869,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 5, lineNumberTable.length);
@@ -901,14 +911,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -941,14 +951,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -981,14 +991,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -1021,14 +1031,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -1061,14 +1071,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 5, lineNumberTable.length);
@@ -1104,14 +1114,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -1145,14 +1155,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -1185,14 +1195,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 5, lineNumberTable.length);
@@ -1227,14 +1237,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -1268,14 +1278,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -1308,14 +1318,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 5, lineNumberTable.length);
@@ -1350,14 +1360,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 5, lineNumberTable.length);
@@ -1393,14 +1403,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 6, lineNumberTable.length);
@@ -1437,14 +1447,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -1477,14 +1487,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 2, lineNumberTable.length);
@@ -1513,14 +1523,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -1553,14 +1563,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 2, lineNumberTable.length);
@@ -1590,14 +1600,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 6, lineNumberTable.length);
@@ -1634,14 +1644,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 3, lineNumberTable.length);
@@ -1672,14 +1682,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -1712,14 +1722,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 3, lineNumberTable.length);
@@ -1750,14 +1760,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -1791,14 +1801,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 6, lineNumberTable.length);
@@ -1835,14 +1845,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -1875,14 +1885,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -1915,14 +1925,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -1955,14 +1965,14 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}";
 			compileAndDeploy(sourceA, "A");
-			org.eclipse.jdt.core.util.IClassFileReader classFileReader = org.eclipse.jdt.core.ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", org.eclipse.jdt.core.util.IClassFileReader.ALL);
-			org.eclipse.jdt.core.util.IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
 			assertEquals("wrong size", 2, methodInfos.length);
-			org.eclipse.jdt.core.util.IMethodInfo methodInfo = methodInfos[1];
+			IMethodInfo methodInfo = methodInfos[1];
 			assertEquals("wrong name", "main", new String(methodInfo.getName()));
-			org.eclipse.jdt.core.util.ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			assertNotNull("No code attribute", codeAttribute);
-			org.eclipse.jdt.core.util.ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 			assertNotNull("No code line number attribute", lineNumberAttribute);
 			int[][] lineNumberTable = lineNumberAttribute.getLineNumberTable();
 			assertEquals("wrong size", 4, lineNumberTable.length);
@@ -1977,5 +1987,73 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		} finally {
 			removeTempClass("A");
 		}
-	}	
+	}
+
+	public void test048() {
+		try {
+			String sourceA =
+				"public class A {\n" +
+				"\n" +
+				"	static int foo(boolean bool) {\n" +
+				"	  int j;\n" +
+				"	  try {\n" +
+				"	    if (bool) return 1;\n" +
+				"	    j = 2;\n" +
+				"	  } finally {\n" +
+				"	    j = 3;\n" +
+				"	  }\n" +
+				"	  return j;\n" +
+				"	}\n" +
+				"\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(false);\n" +
+				"	}\n" +
+				"}";
+			compileAndDeploy(sourceA, "A");
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(EVAL_DIRECTORY + File.separator + "A.class", IClassFileReader.ALL);
+			IMethodInfo[] methods = classFileReader.getMethodInfos();
+			assertEquals("wrong size", 3, methods.length);
+			IMethodInfo methodInfo = (IMethodInfo) methods[1];
+			assertEquals("wrong name", "foo", new String(methodInfo.getName()));
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+			assertEquals("Wrong size", 3, codeAttribute.getExceptionTableLength());
+			IExceptionTableEntry[] entries = codeAttribute.getExceptionTable();
+			// any exception handler
+			assertEquals("Wrong index", 0, entries[0].getCatchTypeIndex());
+			assertEquals("Wrong index", 0, entries[1].getCatchTypeIndex());
+			assertEquals("Wrong index", 0, entries[2].getCatchTypeIndex());
+			
+			assertEquals("Wrong startpc", 0, entries[0].getStartPC());
+			assertEquals("Wrong endpc", 7, entries[0].getEndPC());
+
+			assertEquals("Wrong startpc", 9, entries[1].getStartPC());
+			assertEquals("Wrong endpc", 14, entries[1].getEndPC());
+
+			assertEquals("Wrong startpc", 25, entries[2].getStartPC());
+			assertEquals("Wrong endpc", 28, entries[2].getEndPC());
+			
+			ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+			if (lineNumberAttribute != null) {
+				int[][] lineEntries = lineNumberAttribute.getLineNumberTable();
+				assertNotNull("No entries", lineEntries);
+				assertEquals("wrong size", 7, lineEntries.length);
+				lineEntries[0][0] = 0;
+				lineEntries[0][1] = 6;
+				lineEntries[1][0] = 9;
+				lineEntries[1][1] = 7;
+				lineEntries[2][0] = 14;
+				lineEntries[2][1] = 8;
+				lineEntries[3][0] = 21;
+				lineEntries[3][1] = 9;
+				lineEntries[4][0] = 23;
+				lineEntries[4][1] = 10;
+				lineEntries[5][0] = 25;
+				lineEntries[5][1] = 8;
+				lineEntries[6][0] = 28;
+				lineEntries[6][1] = 11;
+			}
+		} finally {
+			removeTempClass("A");
+		}
+	}			
 }
