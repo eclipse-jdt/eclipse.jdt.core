@@ -495,11 +495,11 @@ public void updateParseTree(){
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
-public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
+public void updateSourceEndIfNecessary(int start, int end){
 	if (this.typeDeclaration.declarationSourceEnd == 0){
 		this.bodyEnd = 0;
-		this.typeDeclaration.declarationSourceEnd = bodyEnd;
-		this.typeDeclaration.bodyEnd = bodyEnd;
+		this.typeDeclaration.declarationSourceEnd = end;
+		this.typeDeclaration.bodyEnd = end;
 	}
 }
 }
