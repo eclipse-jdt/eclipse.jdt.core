@@ -6,6 +6,7 @@ import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -113,6 +114,16 @@ public SuperTypeNamesCollector(
 	this.progressMonitor = progressMonitor;
 }
 
+private BinaryTypeBinding cacheBinaryType(IType type) throws JavaModelException {
+	IType enclosingType = type.getDeclaringType();
+	if (enclosingType != null) {
+		// force caching of enclosing types first, so that binary type can be found in lookup enviroment
+		this.cacheBinaryType(enclosingType);
+	}
+	IBinaryType binaryType = (IBinaryType)((BinaryType)type).getRawInfo();
+	return this.locator.lookupEnvironment.cacheBinaryType(binaryType);
+}
+
 protected char[][][] collect() {
 		
 	// Collect the paths of the cus that declare a type which matches declaringQualification + declaringSimpleName
@@ -137,15 +148,11 @@ protected char[][][] collect() {
 					}
 				} else if (openable instanceof IClassFile) {
 					IClassFile classFile = (IClassFile)openable;
-					IBinaryType binaryType = (IBinaryType)((BinaryType)classFile.getType()).getRawInfo();
-					BinaryTypeBinding binding = locator.lookupEnvironment.cacheBinaryType(binaryType);
+					BinaryTypeBinding binding = this.cacheBinaryType(classFile.getType());
 					if (this.matches(binding)) {
 						this.collectSuperTypeNames(binding);
 					}
 				}
-			} catch (AbortCompilation e){
-				//e.printStackTrace(); 
-				// ignore: continue with next element
 			} catch (JavaModelException e) {
 				// ignore: continue with next element
 			}
