@@ -112,6 +112,17 @@ public SourceElementParser(
 		}
 }
 
+public void checkAnnotation() {
+	int firstCommentIndex = scanner.commentPtr;
+
+	super.checkAnnotation();
+
+	// modify the modifier source start to point at the first comment
+	if (firstCommentIndex >= 0) {
+		modifiersSourceStart = scanner.commentStarts[0]; 
+	}
+}
+
 protected void classInstanceCreation(boolean alwaysQualified) {
 
 	boolean previousFlag = reportReferenceInfo;
