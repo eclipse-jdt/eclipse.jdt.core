@@ -15,8 +15,10 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class JavadocAllocationExpression extends AllocationExpression {
-	public int tagSourceStart, tagSourceEnd;
 
+	public int tagSourceStart, tagSourceEnd;
+	public boolean superAccess = false;
+	
 	public JavadocAllocationExpression(long pos) {
 		this.sourceStart = (int) (pos >>> 32);
 		this.sourceEnd = (int) pos;
@@ -30,8 +32,8 @@ public class JavadocAllocationExpression extends AllocationExpression {
 
 		// Propagate the type checking to the arguments, and check if the constructor is defined.
 		constant = NotAConstant;
+		SourceTypeBinding sourceTypeBinding = scope.enclosingSourceType();
 		if (this.type == null) {
-			SourceTypeBinding sourceTypeBinding = scope.enclosingSourceType();
 			this.resolvedType = sourceTypeBinding;
 			this.type = new JavadocQualifiedTypeReference(sourceTypeBinding.compoundName, new long[sourceTypeBinding.compoundName.length], 0, 0);
 		}
@@ -41,6 +43,10 @@ public class JavadocAllocationExpression extends AllocationExpression {
 			} else {
 				this.resolvedType = type.resolveType((BlockScope)scope);
 			}
+			if (this.resolvedType == null) {
+				return null;
+			}
+			this.superAccess = sourceTypeBinding.isCompatibleWith(this.resolvedType);
 		}
 		// will check for null after args are resolved
 
@@ -65,8 +71,6 @@ public class JavadocAllocationExpression extends AllocationExpression {
 				return this.resolvedType;
 			}
 		}
-		if (this.resolvedType == null)
-			return null;
 
 		ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
 		this.binding = scope.getConstructor(allocationType, argumentTypes, this);
@@ -93,6 +97,13 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		}
 
 		return allocationType;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
+	 */
+	public boolean isSuperAccess() {
+		return this.superAccess;
 	}
 
 	/* (non-Javadoc)

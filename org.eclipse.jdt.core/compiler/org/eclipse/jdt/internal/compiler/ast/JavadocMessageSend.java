@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class JavadocMessageSend extends MessageSend {
 
 	public int tagSourceStart, tagSourceEnd;
+	public boolean superAccess = false;
 
 	public JavadocMessageSend(char[] name, long pos) {
 		this.selector = name;
@@ -39,8 +40,8 @@ public class JavadocMessageSend extends MessageSend {
 
 		constant = NotAConstant;
 		if (this.receiver instanceof CastExpression) this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+		SourceTypeBinding sourceTypeBinding = scope.enclosingSourceType();
 		if (this.receiver == null) {
-			SourceTypeBinding sourceTypeBinding = scope.enclosingSourceType();
 			this.receiverType = sourceTypeBinding;
 			this.receiver = new JavadocQualifiedTypeReference(sourceTypeBinding.compoundName, new long[sourceTypeBinding.compoundName.length], 0, 0);
 		}
@@ -50,6 +51,10 @@ public class JavadocMessageSend extends MessageSend {
 			} else {
 				this.receiverType = receiver.resolveType((BlockScope)scope);
 			}
+			if (this.receiverType == null) {
+				return null;
+			}
+			this.superAccess = sourceTypeBinding.isCompatibleWith(this.receiverType);
 		}
 		this.qualifyingType = this.receiverType;
 
@@ -77,9 +82,6 @@ public class JavadocMessageSend extends MessageSend {
 				}			
 				return null;
 			}
-		}
-		if (this.receiverType == null) {
-			return null;
 		}
 
 		// base type cannot receive any message
@@ -121,7 +123,7 @@ public class JavadocMessageSend extends MessageSend {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
 	 */
 	public boolean isSuperAccess() {
-		return false;
+		return this.superAccess;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output){
