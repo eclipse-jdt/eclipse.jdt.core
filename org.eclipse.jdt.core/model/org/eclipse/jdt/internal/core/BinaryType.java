@@ -91,7 +91,7 @@ public void codeComplete(char[] snippet,int insertion,int position,char[][] loca
 	JavaProject project = (JavaProject) getJavaProject();
 	SearchableEnvironment environment = (SearchableEnvironment) project.getSearchableNameEnvironment();
 	NameLookup nameLookup = project.getNameLookup();
-	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor,nameLookup), project.getOptions(true));
+	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor,nameLookup), project.getOptions(true), project);
 	
 	String source = getClassFile().getSource();
 	if (source != null && insertion > -1 && insertion < source.length()) {

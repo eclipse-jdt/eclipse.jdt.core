@@ -87,7 +87,8 @@ public void codeComplete(String codeSnippet, int position, ICompletionRequestor 
 		position,
 		this.project.getSearchableNameEnvironment(),
 		new CompletionRequestorWrapper(requestor,this.project.getNameLookup()),
-		this.project.getOptions(true)
+		this.project.getOptions(true),
+		this.project
 	);
 }
 /**

@@ -351,6 +351,54 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @since 2.0
 	 */
 	public static final String CODEASSIST_IMPLICIT_QUALIFICATION = PLUGIN_ID + ".codeComplete.forceImplicitQualification"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String CODEASSIST_FIELD_PREFIXES = PLUGIN_ID + ".codeComplete.fieldPrefixes"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String CODEASSIST_STATIC_FIELD_PREFIXES = PLUGIN_ID + ".codeComplete.staticFieldPrefixes"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String CODEASSIST_LOCAL_PREFIXES = PLUGIN_ID + ".codeComplete.localPrefixes"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String CODEASSIST_ARGUMENT_PREFIXES = PLUGIN_ID + ".codeComplete.argumentPrefixes"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String CODEASSIST_FIELD_SUFFIXES = PLUGIN_ID + ".codeComplete.fieldSuffixes"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String CODEASSIST_STATIC_FIELD_SUFFIXES = PLUGIN_ID + ".codeComplete.staticFieldSuffixes"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String CODEASSIST_LOCAL_SUFFIXES = PLUGIN_ID + ".codeComplete.localSuffixes"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
+	public static final String CODEASSIST_ARGUMENT_SUFFIXES = PLUGIN_ID + ".codeComplete.argumentSuffixes"; //$NON-NLS-1$
 
 	// *************** Possible values for configurable options. ********************
 	
@@ -1227,6 +1275,62 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.forceImplicitQualification"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
+	 * 
+	 *  CODEASSIST / Define the Prefixes for Field Name
+	 *    When the prefixes is non empty, completion for field name will begin with
+	 *    one of the proposed prefixes.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.fieldPrefix"
+	 *     - possible values:   { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card 
+	 *     - default:           ""
+	 * 
+	 *  CODEASSIST / Define the Prefixes for Static Field Name
+	 *    When the prefixes is non empty, completion for static field name will begin with
+	 *    one of the proposed prefixes.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.staticFieldPrefix"
+	 *     - possible values:   { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card 
+	 *     - default:           ""
+	 * 
+	 *  CODEASSIST / Define the Prefixes for Local Variable Name
+	 *    When the prefixes is non empty, completion for local variable name will begin with
+	 *    one of the proposed prefixes.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.localPrefix"
+	 *     - possible values:   { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card 
+	 *     - default:           ""
+	 * 
+	 *  CODEASSIST / Define the Prefixes for Argument Name
+	 *    When the prefixes is non empty, completion for argument name will begin with
+	 *    one of the proposed prefixes.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.argumentPrefix"
+	 *     - possible values:   { "<prefix>[,<prefix>]*" } where <prefix> is a String without any wild-card 
+	 *     - default:           ""
+	 * 
+	 *  CODEASSIST / Define the Suffixes for Field Name
+	 *    When the suffixes is non empty, completion for field name will end with
+	 *    one of the proposed suffixes.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.fieldPrefix"
+	 *     - possible values:   { "<suffix>[,<suffix>]*" } where <suffix> is a String without any wild-card 
+	 *     - default:           ""
+	 * 
+	 *  CODEASSIST / Define the Suffixes for Static Field Name
+	 *    When the suffixes is non empty, completion for static field name will end with
+	 *    one of the proposed suffixes.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.staticFieldPrefix"
+	 *     - possible values:   { "<suffix>[,<suffix>]*" } where <suffix> is a String without any wild-card 
+	 *     - default:           ""
+	 * 
+	 *  CODEASSIST / Define the Suffixes for Local Variable Name
+	 *    When the suffixes is non empty, completion for local variable name will end with
+	 *    one of the proposed suffixes.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.localPrefix"
+	 *     - possible values:   { "<suffix>[,<suffix>]*" } where <suffix> is a String without any wild-card 
+	 *     - default:           ""
+	 * 
+	 *  CODEASSIST / Define the Suffixes for Argument Name
+	 *    When the suffixes is non empty, completion for argument name will end with
+	 *    one of the proposed suffixes.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.argumentPrefix"
+	 *     - possible values:   { "<suffix>[,<suffix>]*" } where <prefix> is a String without any wild-card 
+	 *     - default:           ""
 	 * </pre>
 	 * 
 	 * @return a mutable table containing the default settings of all known options
@@ -1663,6 +1767,30 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		preferences.setDefault(CODEASSIST_IMPLICIT_QUALIFICATION, DISABLED); //$NON-NLS-1$
 		optionNames.add(CODEASSIST_IMPLICIT_QUALIFICATION);
+		
+		preferences.setDefault(CODEASSIST_FIELD_PREFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_FIELD_PREFIXES);
+		
+		preferences.setDefault(CODEASSIST_STATIC_FIELD_PREFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_STATIC_FIELD_PREFIXES);
+		
+		preferences.setDefault(CODEASSIST_LOCAL_PREFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_LOCAL_PREFIXES);
+		
+		preferences.setDefault(CODEASSIST_ARGUMENT_PREFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_ARGUMENT_PREFIXES);
+		
+		preferences.setDefault(CODEASSIST_FIELD_SUFFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_FIELD_SUFFIXES);
+		
+		preferences.setDefault(CODEASSIST_STATIC_FIELD_SUFFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_STATIC_FIELD_SUFFIXES);
+		
+		preferences.setDefault(CODEASSIST_LOCAL_SUFFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_LOCAL_SUFFIXES);
+		
+		preferences.setDefault(CODEASSIST_ARGUMENT_SUFFIXES, ""); //$NON-NLS-1$
+		optionNames.add(CODEASSIST_ARGUMENT_SUFFIXES);
 		
 	}
 	

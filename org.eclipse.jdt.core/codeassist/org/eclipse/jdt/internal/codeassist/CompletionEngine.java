@@ -14,8 +14,10 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.jdt.core.ICompletionRequestor;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.NameComputer;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.codeassist.complete.*;
 import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
@@ -54,6 +56,12 @@ public final class CompletionEngine
 	private final static int SUPERTYPE = 1;
 	private final static int SUBTYPE = 2;
 	
+	private final static int FIELD = 0;
+	private final static int LOCAL = 1;
+	private final static int ARGUMENT = 2;
+	
+	private final static char[][] NO_PREFIX = new char[1][0];
+	
 	int expectedTypesPtr = -1;
 	TypeBinding[] expectedTypes = new TypeBinding[1];
 	int expectedTypesFilter;
@@ -64,6 +72,7 @@ public final class CompletionEngine
 	boolean assistNodeIsException;
 	boolean assistNodeIsInterface;
 	
+	IJavaProject javaProject;
 	CompletionParser parser;
 	ICompletionRequestor requestor;
 	ProblemReporter problemReporter;
@@ -146,9 +155,11 @@ public final class CompletionEngine
 	public CompletionEngine(
 		ISearchableNameEnvironment nameEnvironment,
 		ICompletionRequestor requestor,
-		Map settings) {
+		Map settings,
+		IJavaProject javaProject) {
 
 		super(settings);
+		this.javaProject = javaProject;
 		this.requestor = requestor;
 		this.nameEnvironment = nameEnvironment;
 
@@ -633,7 +644,7 @@ public final class CompletionEngine
 														
 														token = method.selector;
 														
-														findVariableNames(token, method.returnType, excludeNames);
+														findVariableNames(token, method.returnType, excludeNames, FIELD, method.modifiers);
 													} else {
 														if (astNode instanceof CompletionOnFieldName) {
 															CompletionOnFieldName field = (CompletionOnFieldName) astNode;
@@ -646,7 +657,7 @@ public final class CompletionEngine
 															
 															token = field.realName;
 															
-															findVariableNames(field.realName, field.type, excludeNames);
+															findVariableNames(field.realName, field.type, excludeNames, FIELD, field.modifiers);
 														} else {
 															if (astNode instanceof CompletionOnLocalName ||
 																astNode instanceof CompletionOnArgumentName){
@@ -664,10 +675,11 @@ public final class CompletionEngine
 																
 																if(variable instanceof CompletionOnLocalName){
 																	token = ((CompletionOnLocalName) variable).realName;
+																	findVariableNames(token, variable.type, excludeNames, LOCAL, variable.modifiers);
 																} else {
 																	token = ((CompletionOnArgumentName) variable).realName;
+																	findVariableNames(token, variable.type, excludeNames, ARGUMENT, variable.modifiers);
 																}
-																findVariableNames(token, variable.type, excludeNames);
 															}
 														}
 													}
@@ -2593,105 +2605,87 @@ public final class CompletionEngine
 			currentScope = currentScope.parent;
 		}
 	}
-
-	// Helper method for private void findVariableNames(char[] name, TypeReference type )
-	private void findVariableName(char[] token, char[] qualifiedPackageName, char[] qualifiedSourceName, char[] sourceName, char[][] excludeNames, int dim){
-			if(sourceName == null || sourceName.length == 0)
-				return;
-				
-			char[] name = null;
+		// Helper method for private void findVariableNames(char[] name, TypeReference type )
+	private void findVariableName(
+		char[] token,
+		char[] qualifiedPackageName,
+		char[] qualifiedSourceName,
+		char[] sourceName,
+		char[][] excludeNames,
+		int dim,
+		int kind,
+		int modifiers){
 			
-			// compute variable name for base type
-			try{
-				nameScanner.setSource(sourceName);
-				switch (nameScanner.getNextToken()) {
-					case TokenNameint :
-					case TokenNamebyte :
-					case TokenNameshort :
-					case TokenNamechar :
-					case TokenNamelong :
-					case TokenNamefloat :
-					case TokenNamedouble :
-					case TokenNameboolean :
-						if(token != null && token.length != 0)
-							return;
-						name = computeBaseNames(sourceName[0], excludeNames);
-						break;
-				}
-				if(name != null) {
-					int relevance = computeBaseRelevance();
-					relevance += computeRelevanceForInterestingProposal();
-					relevance += computeRelevanceForCaseMatching(token, name);
-					
-					// accept result
-					requestor.acceptVariableName(
-						qualifiedPackageName,
-						qualifiedSourceName,
-						name,
-						name,
-						startPosition - offset,
-						endPosition - offset,
-						relevance);
-					return;
-				}
-			} catch(InvalidInputException e){
-			}
-			
-			// compute variable name for non base type
-			char[][] names = computeNames(sourceName, dim > 0);
-			char[] displayName;
-			if (dim > 0){
-				int l = qualifiedSourceName.length;
-				displayName = new char[l+(2*dim)];
-				System.arraycopy(qualifiedSourceName, 0, displayName, 0, l);
-				for(int i = 0; i < dim; i++){
-					displayName[l+(i*2)] = '[';
-					displayName[l+(i*2)+1] = ']';
-				}
-			} else {
-				displayName = qualifiedSourceName;
-			}
-			next : for(int i = 0 ; i < names.length ; i++){
-				name = names[i];
-				
-				if (!CharOperation.prefixEquals(token, name, false))
-					continue next;
-				
-				// completion must be an identifier (not a keyword, ...).
-				try{
-					nameScanner.setSource(name);
-					if(nameScanner.getNextToken() != TokenNameIdentifier)
-						continue next;
-				} catch(InvalidInputException e){
-					continue next;
-				}
-				
-				int count = 2;
-				char[] originalName = name;
-				for(int j = 0 ; j < excludeNames.length ; j++){
-					if(CharOperation.equals(name, excludeNames[j], false)) {
-						name = CharOperation.concat(originalName, String.valueOf(count++).toCharArray());
-						j = 0;
-					}	
-				}
-				
-				int relevance = computeBaseRelevance();
-				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(token, name);
-				
-				// accept result
-				requestor.acceptVariableName(
+		if(sourceName == null || sourceName.length == 0)
+			return;
+		
+		char[][] names = CharOperation.NO_CHAR_CHAR;
+		switch (kind) {
+			case FIELD :
+				names = NameComputer.suggestFieldNames(
+					javaProject,
 					qualifiedPackageName,
-					displayName,
-					name,
-					name,
-					startPosition - offset,
-					endPosition - offset,
-					relevance);
-			}
-	}
+					qualifiedSourceName,
+					dim,
+					modifiers,
+					excludeNames);
+				break;
+			case LOCAL :
+				names = NameComputer.suggestLocalVariableNames(
+					javaProject,
+					qualifiedPackageName,
+					qualifiedSourceName,
+					dim,
+					excludeNames);
+				break;
+			case ARGUMENT :
+				names = NameComputer.suggestArgumentNames(
+					javaProject,
+					qualifiedPackageName,
+					qualifiedSourceName,
+					dim,
+					excludeNames);
+				break;
+		}
 
-	private void findVariableNames(char[] name, TypeReference type , char[][] excludeNames){
+		// compute variable name for non base type
+		char[] displayName;
+		if (dim > 0){
+			int l = qualifiedSourceName.length;
+			displayName = new char[l+(2*dim)];
+			System.arraycopy(qualifiedSourceName, 0, displayName, 0, l);
+			for(int i = 0; i < dim; i++){
+				displayName[l+(i*2)] = '[';
+				displayName[l+(i*2)+1] = ']';
+			}
+		} else {
+			displayName = qualifiedSourceName;
+		}
+		
+		next : for(int i = 0 ; i < names.length ; i++){
+			char[] name = names[i];
+		
+			if (!CharOperation.prefixEquals(token, name, false))
+				continue next;
+			
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal();
+			relevance += computeRelevanceForCaseMatching(token, name);
+			
+			// accept result
+			requestor.acceptVariableName(
+				qualifiedPackageName,
+				displayName,
+				name,
+				name,
+				startPosition - offset,
+				endPosition - offset,
+				relevance);
+		}
+		
+	}
+	
+	private void findVariableNames(char[] name, TypeReference type , char[][] excludeNames, int kind, int modifiers){
 
 		if(type != null &&
 			type.resolvedType != null &&
@@ -2703,7 +2697,9 @@ public final class CompletionEngine
 				tb.leafComponentType().qualifiedSourceName(),
 				tb.leafComponentType().sourceName(),
 				excludeNames,
-				type.dimensions());
+				type.dimensions(),
+				kind,
+				modifiers);
 		}/*	else {
 			char[][] typeName = type.getTypeName();
 			findVariableName(

@@ -120,7 +120,7 @@ protected void codeComplete(org.eclipse.jdt.internal.compiler.env.ICompilationUn
 	NameLookup nameLookup = project.getNameLookup();
 	environment.unitToSkip = unitToSkip;
 
-	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor,nameLookup), project.getOptions(true));
+	CompletionEngine engine = new CompletionEngine(environment, new CompletionRequestorWrapper(requestor,nameLookup), project.getOptions(true), project);
 	engine.complete(cu, position, 0);
 	environment.unitToSkip = null;
 }

@@ -36,7 +36,7 @@ public void tearDownSuite() throws Exception {
 }
 
 public static Test suite() {
-	TestSuite suite = new Suite(CompletionTests.class.getName());
+	TestSuite suite = new Suite(SnippetCompletionTests.class.getName());
 	
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFile"));
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForCompilationUnit"));

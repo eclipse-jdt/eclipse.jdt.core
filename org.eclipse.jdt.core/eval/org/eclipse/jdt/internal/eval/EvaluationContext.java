@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.Map;
 
 import org.eclipse.jdt.core.ICompletionRequestor;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
@@ -87,7 +88,7 @@ public GlobalVariable[] allVariables() {
  *  @param options
  *		set of options used to configure the code assist engine.
  */
-public void complete(char[] codeSnippet, int completionPosition, ISearchableNameEnvironment environment, ICompletionRequestor requestor, Map options) {
+public void complete(char[] codeSnippet, int completionPosition, ISearchableNameEnvironment environment, ICompletionRequestor requestor, Map options, IJavaProject project) {
 	final char[] className = "CodeSnippetCompletion".toCharArray(); //$NON-NLS-1$
 	final CodeSnippetToCuMapper mapper = new CodeSnippetToCuMapper(
 		codeSnippet, 
@@ -114,7 +115,7 @@ public void complete(char[] codeSnippet, int completionPosition, ISearchableName
 			return null;
 		}
 	};
-	CompletionEngine engine = new CompletionEngine(environment, mapper.getCompletionRequestor(requestor), options);
+	CompletionEngine engine = new CompletionEngine(environment, mapper.getCompletionRequestor(requestor), options, project);
 	engine.complete(sourceUnit, mapper.startPosOffset + completionPosition, 0);
 }
 /**
