@@ -53,7 +53,14 @@ protected void assertResources(String message, String expected, IResource[] reso
 	assertEquals(message, expected, actual);
 }
 public static Test suite() {
+	
+	if (true) {
+		TestSuite suite = new Suite(JavaProjectTests.class.getName());
+		suite.addTest(new JavaProjectTests("testPackageFragmentRootRawEntry"));
+		return suite;
+	}
 	TestSuite suite = new Suite(JavaProjectTests.class.getName());
+	suite.addTest(new JavaProjectTests("testPackageFragmentRootRawEntry"));
 	suite.addTest(new JavaProjectTests("testProjectGetChildren"));
 	suite.addTest(new JavaProjectTests("testProjectGetPackageFragments"));
 	suite.addTest(new JavaProjectTests("testRootGetPackageFragments"));
@@ -706,6 +713,34 @@ public void testPackageFragmentRootNonJavaResources() throws JavaModelException 
 	root = getPackageFragmentRoot("JavaProjectTests", "lib.jar");
 	resources = root.getNonJavaResources();
 	assertEquals("incorrect number of non java resources (test case 4)", 0, resources.length);
+}
+/**
+ * Test raw entry inference performance for package fragment root
+ */
+public void testPackageFragmentRootRawEntry() throws CoreException {
+	try {
+		JavaCore.setClasspathVariable("MyVar", new Path("/P/lib"), null);
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
+		this.createFolder("/P/Lib");
+		final int length = 500;
+		IClasspathEntry[] classpath = new IClasspathEntry[length];
+		for (int i = 0; i < length; i++){
+			this.createFile("/P/Lib/lib"+i+".jar", "");
+			classpath[i] = JavaCore.newVariableEntry(new Path("/MyVar/lib"+i+".jar"), null, null);
+		}
+		proj.setRawClasspath(classpath, null);
+		
+		long start = System.currentTimeMillis();
+		IPackageFragmentRoot[] roots = proj.getPackageFragmentRoots();
+		for (int i = 0; i < roots.length; i++){
+			IClasspathEntry rawEntry = roots[i].getRawClasspathEntry();
+			assertEquals("unexpected root raw entry:", classpath[i], rawEntry);
+		}
+		System.out.println((System.currentTimeMillis() - start)+ "ms for "+roots.length+" roots");
+	} finally {
+		this.deleteProject("P");
+		JavaCore.removeClasspathVariable("MyVar", null);
+	}
 }
 /**
  * Tests that closing and opening a project triggers the correct deltas.
