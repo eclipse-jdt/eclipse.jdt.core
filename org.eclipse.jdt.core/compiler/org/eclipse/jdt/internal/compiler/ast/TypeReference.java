@@ -96,7 +96,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (isTypeUseDeprecated(this.resolvedType, scope))
 			scope.problemReporter().deprecatedType(this.resolvedType, this);
 	}
-	return this.resolvedType = this.resolvedType;
+	return this.resolvedType;
 }
 public abstract void traverse(IAbstractSyntaxTreeVisitor visitor, ClassScope classScope);
 }
