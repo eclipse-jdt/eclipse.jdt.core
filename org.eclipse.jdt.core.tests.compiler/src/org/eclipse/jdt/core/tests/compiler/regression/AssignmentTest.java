@@ -22,6 +22,12 @@ public class AssignmentTest extends AbstractRegressionTest {
 public AssignmentTest(String name) {
 	super(name);
 }
+protected Map getCompilerOptions() {
+	Map options = super.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportNoEffectAssignment, CompilerOptions.ERROR);
+	return options;
+}
 public static Test suite() {
 
 	if (false) {
@@ -65,8 +71,6 @@ public void test001() {
 }
 
 public void test002() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNoEffectAssignment, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -125,17 +129,12 @@ public void test002() {
 		"	this.next = next; // noop	\n" + 
 		"	^^^^^^^^^^^^^^^^\n" + 
 		"The assignment to variable next has no effect\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 /*
  * check null/non-null reference diagnosis
  */
 public void test003() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -159,14 +158,9 @@ public void test003() {
 		"	x.foo(null);\n" + 
 		"	^\n" + 
 		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 public void test004() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -207,14 +201,9 @@ public void test004() {
 		"	} else if (x != null) { // 6\n" + 
 		"	           ^\n" + 
 		"The variable x cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 public void test005() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -226,16 +215,9 @@ public void test005() {
 			"	}\n" + 
 			"}\n",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 public void test006() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -247,16 +229,9 @@ public void test006() {
 			"	}\n" + 
 			"}\n",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 public void test007() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -270,16 +245,9 @@ public void test007() {
 			"	}\n" + 
 			"}\n",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 public void test008() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -295,17 +263,10 @@ public void test008() {
 			"	}\n" + 
 			"}\n",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 // TODO (philippe) reenable once fixed
 public void _test009() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -344,14 +305,9 @@ public void _test009() {
 		"	if (c == null) {\n" + 
 		"	    ^\n" + 
 		"The variable c can only be null; it was either set to null or checked for null when last used\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 public void test010() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -369,16 +325,9 @@ public void test010() {
 			"	}\n" + 
 			"}\n",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 public void test011() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -403,14 +352,9 @@ public void test011() {
 		"	if (other != null) {\n" + 
 		"	    ^^^^^\n" + 
 		"The variable other cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 public void test012() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -428,16 +372,9 @@ public void test012() {
 			"	}\n" + 
 			"}",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 public void test013() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -461,14 +398,9 @@ public void test013() {
 		"	x.foo(this);\n" + 
 		"	^\n" + 
 		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 public void test014() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -485,16 +417,9 @@ public void test014() {
 			"	}\n" + 
 			"}\n",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 public void test015() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -512,16 +437,9 @@ public void test015() {
 			"    }\n" + 
 			"}\n",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 public void test016() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -548,14 +466,9 @@ public void test016() {
 		"	if (x != null) {\n" + 
 		"	    ^\n" + 
 		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 public void test017() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -582,14 +495,9 @@ public void test017() {
 		"	x.foo(null);\n" + 
 		"	^\n" + 
 		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 public void test018() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -617,14 +525,9 @@ public void test018() {
 		"	o = null;\r\n" + 
 		"	^\n" + 
 		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 public void test019() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -652,12 +555,7 @@ public void test019() {
 			"	}\n" + 
 			"}\n",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 public void test020() {
 	this.runNegativeTest(
@@ -686,8 +584,6 @@ public void test020() {
 		"----------\n");
 }
 public void test021() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -717,16 +613,9 @@ public void test021() {
 			"	}\n" + 
 			"}\n",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 public void test022() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -754,16 +643,9 @@ public void test022() {
 			"	}\n" + 
 			"}",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 public void test023() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -788,14 +670,9 @@ public void test023() {
 		"	if (o == null) return;\n" + 
 		"	    ^\n" + 
 		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 public void test024() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -826,14 +703,9 @@ public void test024() {
 		"	if (progressJob == null) {\n" + 
 		"	    ^^^^^^^^^^^\n" + 
 		"The variable progressJob can only be null; it was either set to null or checked for null when last used\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 public void test025() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -855,15 +727,10 @@ public void test025() {
 		"	if (o == null) return;\n" + 
 		"	    ^\n" + 
 		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 // TODO (philippe) reenable once fixed
 public void _test026() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -880,17 +747,10 @@ public void _test026() {
 			"	}\n" + 
 			"}\n",
 		},
-		"SUCCESS",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"SUCCESS");
 }
 // TODO (philippe) reenable once fixed
 public void _test027() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -910,17 +770,10 @@ public void _test027() {
 			"	}\n" + 
 			"}\n",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 // TODO (philippe) reenable once fixed
 public void _test028() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -941,16 +794,9 @@ public void _test028() {
 			"	}\n" + 
 			"}\n",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 public void test029() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -972,16 +818,9 @@ public void test029() {
 			"	}\n" + 
 			"}\n",
 		},
-		"SUCCESS",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"SUCCESS");
 }
 public void test030() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1005,15 +844,10 @@ public void test030() {
 		"	if (a == null) {\n" + 
 		"	    ^\n" + 
 		"The variable a can only be null; it was either set to null or checked for null when last used\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 // TODO (philippe) reenable once fixed
 public void _test031() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1045,14 +879,9 @@ public void _test031() {
 		"	if (a == null) {\n" + 
 		"	    ^\n" + 
 		"The variable a cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 public void test032() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1066,16 +895,9 @@ public void test032() {
 			"	}\n" + 
 			"}\n",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 public void test033() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1105,16 +927,11 @@ public void test033() {
 		"	System.out.println(a+b);\n" + 
 		"	                     ^\n" + 
 		"The local variable b may not have been initialized\n" + 
-		"----------\n",
-		null,
-		true,
-		customOptions);
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84215
 //TODO (philippe) should move to InitializationTest suite
 public void test034() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1494,12 +1311,7 @@ public void test034() {
 			"	private String adsyasta;\n" + 
 			"}\n",
 		},
-		"",
-		null,
-		true,
-		null,
-		customOptions,
-		null);
+		"");
 }
 /*
  * Check scenario:  i = i++
@@ -1516,25 +1328,43 @@ public void test035() {
 			"		i = ++i;\n" + 
 			"		f = f++;\n" + 
 			"		f = ++f;\n" + 
-			"		Zork z;\n" +
 			"	}\n" + 
 			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 4)\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
 		"	i = i++;\n" + 
 		"	^^^^^^^\n" + 
 		"The assignment to variable i has no effect\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 6)\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
 		"	f = f++;\n" + 
 		"	^^^^^^^\n" + 
 		"The assignment to variable f has no effect\n" + 
+		"----------\n");
+}
+public void test036() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"	void foo() {\n" + 
+			"		Object o = new Object();\n" + 
+			"		do {\n" + 
+			"			o = null;\n" + 
+			"		} while (o != null);\n" + 
+			"		if (o == null) {\n" + 
+			"			// throw new Exception();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
 		"----------\n" + 
-		"3. ERROR in X.java (at line 8)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
+		"1. ERROR in X.java (at line 8)\r\n" + 
+		"	if (o == null) {\r\n" + 
+		"	    ^\n" + 
+		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
 		"----------\n");
 }
 public static Class testClass() {
