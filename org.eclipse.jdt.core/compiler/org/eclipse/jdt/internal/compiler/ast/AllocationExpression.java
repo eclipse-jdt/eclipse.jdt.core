@@ -161,7 +161,7 @@ public class AllocationExpression
 				// constructor will not be dumped as private, no emulation required thus
 			} else {
 				syntheticAccessor =
-					((SourceTypeBinding) binding.declaringClass).addSyntheticMethod(binding);
+					((SourceTypeBinding) binding.declaringClass).addSyntheticMethod(binding, isSuperAccess());
 				currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
 			}
 		}

@@ -874,20 +874,21 @@ public class ClassFile
 				switch (accessMethodBinding.accessType) {
 					case SyntheticAccessMethodBinding.FieldReadAccess :
 						// generate a method info to emulate an reading access to
-						// a private field
+						// a non-accessible field
 						addSyntheticFieldReadAccessMethod(syntheticAccessMethods[i]);
 						break;
 					case SyntheticAccessMethodBinding.FieldWriteAccess :
 						// generate a method info to emulate an writing access to
-						// a private field
+						// a non-accessible field
 						addSyntheticFieldWriteAccessMethod(syntheticAccessMethods[i]);
 						break;
 					case SyntheticAccessMethodBinding.MethodAccess :
-						// generate a method info to emulate an access to a private method
+					case SyntheticAccessMethodBinding.SuperMethodAccess :
+						// generate a method info to emulate an access to a non-accessible method / super-method
 						addSyntheticMethodAccessMethod(syntheticAccessMethods[i]);
 						break;
 					case SyntheticAccessMethodBinding.ConstructorAccess :
-						// generate a method info to emulate an access to a private method
+						// generate a method info to emulate an access to a non-accessible constructor
 						addSyntheticConstructorAccessMethod(syntheticAccessMethods[i]);
 				}
 			}

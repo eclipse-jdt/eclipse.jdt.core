@@ -143,7 +143,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope){
 		// depth is set for both implicit and explicit access (see MethodBinding#canBeSeenBy)		
 		if (currentScope.enclosingSourceType() != binding.declaringClass){
 		
-			syntheticAccessor = ((SourceTypeBinding)binding.declaringClass).addSyntheticMethod(binding);
+			syntheticAccessor = ((SourceTypeBinding)binding.declaringClass).addSyntheticMethod(binding, isSuperAccess());
 			currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
 			return;
 		}
@@ -152,7 +152,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope){
 
 		// qualified super need emulation always
 		SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedSuperReference)receiver).currentCompatibleType);
-		syntheticAccessor = destinationType.addSyntheticMethod(binding);
+		syntheticAccessor = destinationType.addSyntheticMethod(binding, isSuperAccess());
 		currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
 		return;
 
@@ -164,7 +164,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope){
 					!= (enclosingSourceType = currentScope.enclosingSourceType()).getPackage()){
 
 			SourceTypeBinding currentCompatibleType = (SourceTypeBinding)enclosingSourceType.enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
-			syntheticAccessor = currentCompatibleType.addSyntheticMethod(binding);
+			syntheticAccessor = currentCompatibleType.addSyntheticMethod(binding, isSuperAccess());
 			currentScope.problemReporter().needToEmulateMethodAccess(binding, this);
 			return;
 		}

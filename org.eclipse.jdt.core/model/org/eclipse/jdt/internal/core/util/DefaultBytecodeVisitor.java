@@ -1739,12 +1739,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 				.append(Util.bind("classformat.invokespecialconstructorclose")); //$NON-NLS-1$
 			writeNewLine();
 		} else {
-			methodName = EMPTY_NAME;
 			writeTabs();
 			buffer
 				.append(pc)
 				.append(Util.bind("disassembler.tab")) //$NON-NLS-1$
-				.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD_0])
+				.append(OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKESPECIAL])
 				.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 				.append(index)
 				.append(Util.bind("classformat.invokespecialmethod")) //$NON-NLS-1$
@@ -1753,7 +1752,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 				.append(
 					Signature.toCharArray(
 						methodDescriptor,
-						methodName,
+						constantMethodref.getMethodName(),
 						getParameterNames(methodDescriptor),
 						true,
 						true))

@@ -16,21 +16,23 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 public class SyntheticAccessMethodBinding extends MethodBinding {
 
-	public FieldBinding targetReadField;	// read access to a field
+	public FieldBinding targetReadField;		// read access to a field
 	public FieldBinding targetWriteField;		// write access to a field
-	public MethodBinding targetMethod;		// method or constructor
-
+	public MethodBinding targetMethod;	// method or constructor
+	
 	public int accessType;
 
-	public final static int FieldReadAccess = 1;
-	public final static int FieldWriteAccess = 2;
-	public final static int MethodAccess = 3;
-	public final static int ConstructorAccess = 4;
+	public final static int FieldReadAccess = 1; 		// field read
+	public final static int FieldWriteAccess = 2; 		// field write
+	public final static int MethodAccess = 3; 		// normal method 
+	public final static int ConstructorAccess = 4; 	// constructor
+	public final static int SuperMethodAccess = 5; // super method
 
 	final static char[] AccessMethodPrefix = { 'a', 'c', 'c', 'e', 's', 's', '$' };
 
 	public int sourceStart = 0; // start position of the matching declaration
 	public int index; // used for sorting access methods in the class file
+	
 public SyntheticAccessMethodBinding(FieldBinding targetField, boolean isReadAccess, ReferenceBinding declaringClass) {
 	this.modifiers = AccDefault | AccStatic | AccSynthetic;
 	SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
@@ -122,12 +124,12 @@ public SyntheticAccessMethodBinding(FieldBinding targetField, boolean isReadAcce
 	// show the target field type declaration location.
 	this.sourceStart = declaringSourceType.scope.referenceContext.sourceStart; // use the target declaring class name position instead
 }
-public SyntheticAccessMethodBinding(MethodBinding targetMethod, ReferenceBinding receiverType) {
+public SyntheticAccessMethodBinding(MethodBinding targetMethod, boolean isSuperAccess, ReferenceBinding receiverType) {
 
 	if (targetMethod.isConstructor()) {
 		this.initializeConstructorAccessor(targetMethod);
 	} else {
-		this.initializeMethodAccessor(targetMethod, receiverType);
+		this.initializeMethodAccessor(targetMethod, isSuperAccess, receiverType);
 	}
 }
 /**
@@ -214,7 +216,7 @@ public SyntheticAccessMethodBinding(MethodBinding targetMethod, ReferenceBinding
  * An method accessor is a method with an access$N selector, where N is incremented in case of collisions.
  */
 
-public void initializeMethodAccessor(MethodBinding targetMethod, ReferenceBinding declaringClass) {
+public void initializeMethodAccessor(MethodBinding targetMethod, boolean isSuperAccess, ReferenceBinding declaringClass) {
 	
 	this.targetMethod = targetMethod;
 	this.modifiers = AccDefault | AccStatic | AccSynthetic;
@@ -225,7 +227,7 @@ public void initializeMethodAccessor(MethodBinding targetMethod, ReferenceBindin
 
 	this.selector = CharOperation.concat(AccessMethodPrefix, String.valueOf(methodId).toCharArray());
 	this.returnType = targetMethod.returnType;
-	this.accessType = MethodAccess;
+	this.accessType = isSuperAccess ? SuperMethodAccess : MethodAccess;
 	
 	if (targetMethod.isStatic()) {
 		this.parameters = targetMethod.parameters;

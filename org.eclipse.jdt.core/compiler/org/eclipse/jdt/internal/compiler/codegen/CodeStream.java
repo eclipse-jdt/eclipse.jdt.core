@@ -2009,7 +2009,7 @@ public void generateSyntheticBodyForMethodAccess(SyntheticAccessMethodBinding ac
 		if (methodBinding.isConstructor()
 			|| methodBinding.isPrivate()
 			// qualified super "X.super.foo()" targets methods from superclass
-			|| (methodBinding.declaringClass != methodDeclaration.binding.declaringClass)){
+			|| accessBinding.accessType == SyntheticAccessMethodBinding.SuperMethodAccess){
 			this.invokespecial(methodBinding);
 		} else {
 			if (methodBinding.declaringClass.isInterface()){
