@@ -342,9 +342,8 @@ public final class JavaCore extends Plugin {
 	 * Possible  configurable option ID.
 	 * @see #COMPILER_PB_MISSING_JAVADOC
 	 * @deprecated
-	 * TODO (frederic) replace the value with COMPILER_PB_MISSING_JAVADOC when bug 45112 will be fixed
 	 */
-	public static final String COMPILER_PB_MISSING_ANNOTATION = PLUGIN_ID + ".compiler.problem.missingAnnotation"; //$NON-NLS-1$
+	public static final String COMPILER_PB_MISSING_ANNOTATION = COMPILER_PB_MISSING_JAVADOC;
 	public static final String OLD_COMPILER_PB_MISSING_ANNOTATION = PLUGIN_ID + ".compiler.problem.missingAnnotation"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
@@ -2009,26 +2008,18 @@ public final class JavaCore extends Plugin {
 				String value = preferences.getString(propertyName).trim();
 				if (optionNames.contains(propertyName)){
 					options.put(propertyName, value);
-					// TODO (frederic) remove when jdt-ui will change to new values
-					if (COMPILER_PB_INVALID_JAVADOC.equals(propertyName)) {
-						options.put(OLD_COMPILER_PB_INVALID_ANNOTATION, value);
-					}
-					if (COMPILER_PB_MISSING_JAVADOC.equals(propertyName)) {
-						options.put(OLD_COMPILER_PB_MISSING_ANNOTATION, value);
-					}
-					// end to do
 				}
 				// bug 45112 backward compatibility.
 				// TODO (frederic) remove for 3.0
 				else if (OLD_COMPILER_PB_INVALID_ANNOTATION.equals(propertyName)) {
 					options.put(COMPILER_PB_INVALID_JAVADOC, value);
-					// TODO (frederic) remove when jdt-ui will change to new values
-					options.put(OLD_COMPILER_PB_INVALID_ANNOTATION, value);
+					preferences.setToDefault(OLD_COMPILER_PB_INVALID_ANNOTATION);
+					preferences.setValue(COMPILER_PB_INVALID_JAVADOC, value);
 				}
 				else if (OLD_COMPILER_PB_MISSING_ANNOTATION.equals(propertyName)) {
 					options.put(COMPILER_PB_MISSING_JAVADOC, value);
-					// TODO (frederic) remove when jdt-ui will change to new values
-					options.put(OLD_COMPILER_PB_MISSING_ANNOTATION, value);
+					preferences.setToDefault(OLD_COMPILER_PB_MISSING_ANNOTATION);
+					preferences.setValue(COMPILER_PB_MISSING_JAVADOC, value);
 				}
 				// end bug 45112
 			}
@@ -2037,15 +2028,6 @@ public final class JavaCore extends Plugin {
 			// backward compatibility
 			options.put(COMPILER_PB_INVALID_IMPORT, ERROR);
 			options.put(COMPILER_PB_UNREACHABLE_CODE, ERROR);
-
-			// TODO (frederic) remove when jdt-ui will change to new values
-			if (!options.containsKey(OLD_COMPILER_PB_INVALID_ANNOTATION)) {
-				options.put(OLD_COMPILER_PB_INVALID_ANNOTATION, IGNORE);
-			}
-			if (!options.containsKey(OLD_COMPILER_PB_MISSING_ANNOTATION)) {
-				options.put(OLD_COMPILER_PB_MISSING_ANNOTATION, DISABLED);
-			}
-			// end to do
 		}
 		return options;
 	}
@@ -3357,18 +3339,10 @@ public final class JavaCore extends Plugin {
 		Enumeration keys = newOptions.keys();
 		while (keys.hasMoreElements()){
 			String key = (String)keys.nextElement();
-			// TODO (frederic) remove when jdt-ui will change to new values
-			String newKey = key;
-			if (key.equals(OLD_COMPILER_PB_INVALID_ANNOTATION)) {
-				newKey = COMPILER_PB_INVALID_JAVADOC;
-			}
-			if (key.equals(OLD_COMPILER_PB_MISSING_ANNOTATION)) {
-				newKey = COMPILER_PB_MISSING_JAVADOC;
-			}
-			// end to do
-			if (!JavaModelManager.OptionNames.contains(newKey)) continue; // unrecognized option
-			if (newKey.equals(CORE_ENCODING)) continue; // skipped, contributed by resource prefs
-			preferences.setValue(newKey, (String)newOptions.get(key));
+			if (!JavaModelManager.OptionNames.contains(key)) continue; // unrecognized option
+			if (key.equals(CORE_ENCODING)) continue; // skipped, contributed by resource prefs
+			String value = (String)newOptions.get(key);
+			preferences.setValue(key, value);
 		}
 		
 		// persist options

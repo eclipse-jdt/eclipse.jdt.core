@@ -1458,41 +1458,22 @@ public class JavaProject
 			String value = preferences.getString(propertyName).trim();
 			if (optionNames.contains(propertyName)){
 				options.put(propertyName, value);
-				// TODO (frederic) remove when jdt-ui will change to new values
-				if (inheritJavaCoreOptions && JavaCore.COMPILER_PB_INVALID_JAVADOC.equals(propertyName)) {
-					options.put(JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION, value);
-				}
-				if (inheritJavaCoreOptions && JavaCore.COMPILER_PB_MISSING_JAVADOC.equals(propertyName)) {
-					options.put(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION, value);
-				}
-				// end to do
 			}		
 			// bug 45112 backward compatibility.
 			// TODO (frederic) remove for 3.0
 			else if (JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION.equals(propertyName)) {
 				options.put(JavaCore.COMPILER_PB_INVALID_JAVADOC, value);
-				// TODO (frederic) remove when jdt-ui will change to new values
-				options.put(JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION, value);
+				preferences.setToDefault(JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION);
+				preferences.setValue(JavaCore.COMPILER_PB_INVALID_JAVADOC, value);
 			}
 			else if (JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION.equals(propertyName)) {
 				options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC, value);
-				// TODO (frederic) remove when jdt-ui will change to new values
-				options.put(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION, value);
+				preferences.setToDefault(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION);
+				preferences.setValue(JavaCore.COMPILER_PB_MISSING_JAVADOC, value);
 			}
 			// end bug 45112
 		}		
 
-		// TODO (frederic) remove when jdt-ui will change to new values
-		if (inheritJavaCoreOptions) {
-			if (!options.containsKey(JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION)) {
-				options.put(JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION, JavaCore.IGNORE);
-			}
-			if (!options.containsKey(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION)) {
-				options.put(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION, JavaCore.DISABLED);
-			}
-		}
-		// end to do
-		
 		return options;
 	}
 	
@@ -2461,19 +2442,10 @@ public class JavaProject
 	 * @see org.eclipse.jdt.core.IJavaProject#setOption(java.lang.String, java.lang.String)
 	 */
 	public void setOption(String optionName, String optionValue) {
-		// TODO (frederic) remove when jdt-ui will change to new values
-		String key = optionName;
-		if (optionName.equals(JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION)) {
-			key = JavaCore.COMPILER_PB_INVALID_JAVADOC;
-		}
-		if (optionName.equals(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION)) {
-			key = JavaCore.COMPILER_PB_MISSING_JAVADOC;
-		}
-		// end remove
-		if (!JavaModelManager.OptionNames.contains(key)) return; // unrecognized option
+		if (!JavaModelManager.OptionNames.contains(optionName)) return; // unrecognized option
 		Preferences preferences = getPreferences();
-		preferences.setDefault(key, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)
-		preferences.setValue(key, optionValue);
+		preferences.setDefault(optionName, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)
+		preferences.setValue(optionName, optionValue);
 		savePreferences(preferences);
 	}
 
@@ -2488,20 +2460,11 @@ public class JavaProject
 			Iterator keys = newOptions.keySet().iterator();
 			while (keys.hasNext()){
 				String key = (String)keys.next();
-				// TODO (frederic) remove when jdt-ui will change to new values
-				String newKey = key;
-				if (key.equals(JavaCore.OLD_COMPILER_PB_INVALID_ANNOTATION)) {
-					newKey = JavaCore.COMPILER_PB_INVALID_JAVADOC;
-				}
-				if (key.equals(JavaCore.OLD_COMPILER_PB_MISSING_ANNOTATION)) {
-					newKey = JavaCore.COMPILER_PB_MISSING_JAVADOC;
-				}
-				// end to do
-				if (!JavaModelManager.OptionNames.contains(newKey)) continue; // unrecognized option
+				if (!JavaModelManager.OptionNames.contains(key)) continue; // unrecognized option
 				// no filtering for encoding (custom encoding for project is allowed)
 				String value = (String)newOptions.get(key);
-				preferences.setDefault(newKey, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)
-				preferences.setValue(newKey, value);
+				preferences.setDefault(key, CUSTOM_DEFAULT_OPTION_VALUE); // empty string isn't the default (26251)
+				preferences.setValue(key, value);
 			}
 		}
 		
