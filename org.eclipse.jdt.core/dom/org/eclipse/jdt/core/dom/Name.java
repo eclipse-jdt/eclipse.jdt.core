@@ -31,6 +31,12 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 public abstract class Name extends Expression {
 	
 	/**
+	 * Approximate base size of an expression node instance in bytes, 
+	 * including object header and instance fields.
+	 */
+	static final int BASE_NAME_NODE_SIZE = BASE_NODE_SIZE + 1 * 4;
+	
+	/**
 	 * This index reprensents the position inside a qualified name.
 	 */
 	int index;

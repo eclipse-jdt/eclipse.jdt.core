@@ -183,9 +183,12 @@ public class SimpleName extends Name {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		int size = BASE_NODE_SIZE + 1 * 4;
+		int size = BASE_NAME_NODE_SIZE + 1 * 4;
 		if (identifier != null) {
-			size += HEADERS + 3 * 4 + HEADERS + 2 * identifier.length();
+			// Strings usually have 4 instance fields, one of which is a char[]
+			size += HEADERS + 4 * 4;
+			// char[] has 2 bytes per character
+			size += HEADERS + 2 * identifier.length();
 		}
 		return size;
 	}

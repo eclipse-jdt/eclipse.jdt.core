@@ -1543,8 +1543,9 @@ public abstract class ASTNode {
 	/**
 	 * Approximate base size of an AST node instance in bytes, 
 	 * including object header and instance fields.
+	 * That is, HEADERS + (# instance vars in ASTNode)*4.
 	 */
-	static final int BASE_NODE_SIZE = HEADERS + 6 * 4;
+	static final int BASE_NODE_SIZE = HEADERS + 7 * 4;
 	
 	/**
 	 * Returns an estimate of the memory footprint in bytes of the entire 
