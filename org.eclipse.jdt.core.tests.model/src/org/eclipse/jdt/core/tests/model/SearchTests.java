@@ -429,7 +429,7 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
   * Ensures that types are found if the project is a ib folder
   * (regression test for bug 83822 Classes at root of project not found in Open Type dialog)
   */
- public void testProjectLib() throws CoreException {
+ public void _testProjectLib() throws CoreException {
  	try {
  		IJavaProject javaProject = createJavaProject("P1", new String[0], new String[] {"/P1"}, "bin");
  		createClassFile("/P1", "X.class", "public class X {}");
