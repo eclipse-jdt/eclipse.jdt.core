@@ -768,7 +768,7 @@ private JavaModelException newInvalidElementType() {
 				boolean isPkgFragmentRoot = projectOfRoot != null;
 				int elementType = this.elementType(delta, IJavaElement.JAVA_MODEL, isPkgFragmentRoot);
 				
-				traverseDelta(delta, elementType, projectOfRoot); // traverse delta
+				this.traverseDelta(delta, elementType, projectOfRoot, null, false); // traverse delta
 				translatedDeltas[i] = fCurrentDelta;
 			}
 			
@@ -857,8 +857,13 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 	 * If it is not a resource on the classpath, it will be added as a non-java
 	 * resource by the sender of this method.
 	 */
-	protected boolean traverseDelta(IResourceDelta delta, int elementType, IJavaProject currentProject) {
-
+	protected boolean traverseDelta(
+		IResourceDelta delta, 
+		int elementType, 
+		IJavaProject currentProject,
+		IPath currentOutput,
+		boolean currentProjIsOutput) {
+			
 		IResource res = delta.getResource();
 		
 		// process current delta
@@ -877,6 +882,21 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 		} else {
 			// not yet inside a package fragment root
 			processChildren = true;
+		}
+		
+		// get the project's output location
+		if (currentOutput == null) {
+			try {
+				IJavaProject proj =
+					currentProject == null ?
+						(IJavaProject)this.createElement(res.getProject(), IJavaElement.JAVA_PROJECT, null) :
+						currentProject;
+				if (proj != null) {
+					currentOutput = proj.getOutputLocation();
+					currentProjIsOutput = proj.getProject().getFullPath().equals(currentOutput);
+				}
+			} catch (JavaModelException e) {
+			}
 		}
 
 		// process children if needed
@@ -899,9 +919,25 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 					&& (projectOfRoot.getProject().getFullPath().isPrefixOf(childPath));
 				int childType = this.elementType(child, elementType, isPkgFragmentRoot);
 				
+				// filter out changes in output location
+				if (currentProjIsOutput) {
+					// case of proj=src
+					if (childType == IJavaElement.CLASS_FILE) {
+						continue;
+					}
+					// case of .class file under project and no source folder
+					if (childType == IJavaElement.JAVA_PROJECT 
+						&& childRes instanceof IFile 
+						&& Util.isValidClassFileName(childRes.getName())) {
+						continue;
+					}
+				} else if (currentOutput != null && currentOutput.isPrefixOf(childPath)) {
+					continue;
+				}
+				
 				// traverse delta for child in the same project
 				if (childType == -1
-					|| !this.traverseDelta(child, childType, (currentProject == null && isPkgFragmentRoot) ? projectOfRoot : currentProject)) {
+					|| !this.traverseDelta(child, childType, (currentProject == null && isPkgFragmentRoot) ? projectOfRoot : currentProject, currentOutput, currentProjIsOutput)) {
 					try {
 						if (currentProject != null) {
 							if (!isValidParent) continue; 
@@ -935,7 +971,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 				
 				// if child is a package fragment root of another project, traverse delta too
 				if (projectOfRoot != null && !isPkgFragmentRoot) {
-					this.traverseDelta(child, IJavaElement.PACKAGE_FRAGMENT_ROOT, projectOfRoot);
+					this.traverseDelta(child, IJavaElement.PACKAGE_FRAGMENT_ROOT, projectOfRoot, null, false);
 					// NB: No need to check the return value as the child can only be on the classpath
 				}
 				
@@ -1004,9 +1040,9 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 					}
 				} else {
 					String fileName = res.getName();
-					if (Util.isValidCompilationUnitName(fileName)) { //$NON-NLS-1$
+					if (Util.isValidCompilationUnitName(fileName)) {
 						return IJavaElement.COMPILATION_UNIT;
-					} else if (Util.isValidClassFileName(fileName)) { //$NON-NLS-1$
+					} else if (Util.isValidClassFileName(fileName)) {
 						return IJavaElement.CLASS_FILE;
 					} else {
 						return -1;

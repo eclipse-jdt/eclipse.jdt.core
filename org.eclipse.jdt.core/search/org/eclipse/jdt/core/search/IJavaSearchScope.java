@@ -29,7 +29,8 @@ public interface IJavaSearchScope {
  * @param resourcePath if the resource is contained in
  * a JAR file, the path is composed of 2 paths separated
  * by <code>JAR_FILE_ENTRY_SEPARATOR</code>: the first path is the full OS path 
- * to the JAR (if it is an external JAR), or the IPath of the JAR (if it is an internal JAR), 
+ * to the JAR (if it is an external JAR), or the workspace relative <code>IPath</code>
+ * to the JAR (if it is an internal JAR), 
  * the second path is the path to the resource inside the JAR.
  * @return whether the resourse is enclosed by this scope
  */
