@@ -157,10 +157,10 @@ protected String problemsMessage() {
 		return ""/*nonNLS*/;
 	}
 	if (numFixed == 0) {
-		return '(' + numNew == 1 ? Util.bind("build.oneProblemFound"/*nonNLS*/, String.valueOf(numNew)) : Util.bind("build.problemsFound"/*nonNLS*/, String.valueOf(numNew)) +')';
+		return '(' + (numNew == 1 ? Util.bind("build.oneProblemFound"/*nonNLS*/, String.valueOf(numNew)) : Util.bind("build.problemsFound"/*nonNLS*/, String.valueOf(numNew))) +')';
 	} else
 		if (numNew == 0) {
-			return '(' + numFixed == 1 ? Util.bind("build.oneProblemFixed"/*nonNLS*/, String.valueOf(numFixed)) : Util.bind("build.problemsFixed"/*nonNLS*/, String.valueOf(numFixed)) + ')';
+			return '(' + (numFixed == 1 ? Util.bind("build.oneProblemFixed"/*nonNLS*/, String.valueOf(numFixed)) : Util.bind("build.problemsFixed"/*nonNLS*/, String.valueOf(numFixed))) + ')';
 		} else {
 			return '(' + (numFixed == 1 ? Util.bind("build.oneProblemFixed"/*nonNLS*/, String.valueOf(numFixed)) : Util.bind("build.problemsFixed"/*nonNLS*/, String.valueOf(numFixed)))
 					+ ", "/*nonNLS*/
