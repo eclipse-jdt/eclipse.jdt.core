@@ -113,8 +113,8 @@ STREAM: 2.0
   1G7A1TL: ITPJCORE:WINNT - DCR - JM - Rules for classpath not specified 
   1FVVWZT: ITPJCORE:ALL - JM - IBinaryType should implement getSourceFileName() 
 
-PRs Closed in this Release
-==================================================================================
+  PRs Closed in this Release
+  ================================================================================
   1G4GDL3: ITPJUI:WINNT - Outliner, Type Hierarchy - strange members
   1GJY8MH: ITPJCORE:WINNT - No warning marker for use of deprecated members in same class
   1GJWIRA: ITPJCORE:WINNT - ClassCastException occured while compiling in the recovery
