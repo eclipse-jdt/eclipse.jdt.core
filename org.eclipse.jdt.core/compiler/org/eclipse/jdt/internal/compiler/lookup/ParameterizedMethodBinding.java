@@ -25,23 +25,70 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	/**
 	 * Create method of parameterized type, substituting original parameters/exception/return type with type arguments.
 	 */
-	public ParameterizedMethodBinding(ParameterizedTypeBinding parameterizedDeclaringClass, MethodBinding originalMethod, boolean isStatic) {
+	public ParameterizedMethodBinding(final ParameterizedTypeBinding parameterizedDeclaringClass, MethodBinding originalMethod) {
 
 		super(
 				originalMethod.modifiers,
 				originalMethod.selector,
-				isStatic // no substitution if original was static
-						? originalMethod.returnType
-						: parameterizedDeclaringClass.substitute(originalMethod.returnType),
-				isStatic // no substitution if original was static
-					? originalMethod.parameters
-					: Scope.substitute(parameterizedDeclaringClass, originalMethod.parameters),
-				isStatic // no substitution if original was static
-					? originalMethod.thrownExceptions
-					: Scope.substitute(parameterizedDeclaringClass, originalMethod.thrownExceptions),
+				 originalMethod.returnType,
+				originalMethod.parameters,
+				originalMethod.thrownExceptions,
 				parameterizedDeclaringClass);
 		this.originalMethod = originalMethod;
-		this.typeVariables = originalMethod.typeVariables;
+
+		final TypeVariableBinding[] originalVariables = originalMethod.typeVariables;
+		Substitution substitution = null;
+		final int length = originalVariables.length;
+		final boolean isStatic = originalMethod.isStatic();
+		if (length == 0) {
+			this.typeVariables = NoTypeVariables;
+			if (!isStatic) substitution = parameterizedDeclaringClass;
+		} else {
+			// at least fix up the declaringElement binding + bound substitution if non static
+			final TypeVariableBinding[] substitutedVariables = new TypeVariableBinding[length];
+			for (int i = 0; i < length; i++) { // copy original type variable to relocate
+				TypeVariableBinding originalVariable = originalVariables[i];
+				substitutedVariables[i] = new TypeVariableBinding(originalVariable.sourceName, this, originalVariable.rank);
+			}
+			this.typeVariables = substitutedVariables;
+			
+			// need to substitute old var refs with new ones (double substitution: declaringClass + new type variables)
+			substitution = new Substitution() {
+				public LookupEnvironment environment() { 
+					return parameterizedDeclaringClass.environment; 
+				}
+				public boolean isRawSubstitution() {
+					return !isStatic && parameterizedDeclaringClass.isRawSubstitution();
+				}
+				public TypeBinding substitute(TypeVariableBinding typeVariable) {
+			        // check this variable can be substituted given copied variables
+			        if (typeVariable.rank < length && originalVariables[typeVariable.rank] == typeVariable) {
+						return substitutedVariables[typeVariable.rank];
+			        }
+			        if (!isStatic)
+						return parameterizedDeclaringClass.substitute(typeVariable);
+			        return typeVariable;
+				}
+			};
+		
+			// initialize new variable bounds
+			for (int i = 0; i < length; i++) {
+				TypeVariableBinding originalVariable = originalVariables[i];
+				TypeVariableBinding substitutedVariable = substitutedVariables[i];
+				substitutedVariable.superclass = (ReferenceBinding) Scope.substitute(substitution, originalVariable.superclass);
+				substitutedVariable.superInterfaces = Scope.substitute(substitution, originalVariable.superInterfaces);
+				if (originalVariable.firstBound != null) {
+					substitutedVariable.firstBound = originalVariable.firstBound == originalVariable.superclass
+						? substitutedVariable.superclass
+						: substitutedVariable.superInterfaces[0];
+				}
+			}
+		}
+		if (substitution != null) {
+			this.returnType = Scope.substitute(substitution, this.returnType);
+			this.parameters = Scope.substitute(substitution, this.parameters);
+			this.thrownExceptions = Scope.substitute(substitution, this.thrownExceptions);
+		}
 	}
 
 	public ParameterizedMethodBinding() {

@@ -867,7 +867,7 @@ public interface IProblem {
     /** @since 3.1 */
 	int UnsafeRawMethodInvocation = TypeRelated + 531;
     /** @since 3.1 */
-	int UnsafeRawConversion = TypeRelated + 532;
+	int UnsafeTypeConversion = TypeRelated + 532;
     /** @since 3.1 */
 	int InvalidTypeVariableExceptionType = TypeRelated + 533;
 	/** @since 3.1 */

@@ -118,7 +118,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	public ParameterizedMethodBinding createParameterizedMethod(MethodBinding originalMethod) {
-		return new ParameterizedMethodBinding(this, originalMethod, originalMethod.isStatic());
+		return new ParameterizedMethodBinding(this, originalMethod);
 	}
 	
 	/**
@@ -151,6 +151,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	    return this.enclosingType;
 	}
 
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.Substitution#environment()
+	 */
+	public LookupEnvironment environment() {
+		return this.environment;
+	}
+	
 	/**
      * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#erasure()
      */
@@ -482,6 +489,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 	
 	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.Substitution#isRawSubstitution()
+	 */
+	public boolean isRawSubstitution() {
+		return isRawType();
+	}
+	
+	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#memberTypes()
 	 */
 	public ReferenceBinding[] memberTypes() {
@@ -627,97 +641,29 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	/**
-	 * Returns a type, where original type was substituted using the receiver
-	 * parameterized type.
+	 * @see org.eclipse.jdt.internal.compiler.lookup.Substitution#substitute(org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding)
 	 */
-	public TypeBinding substitute(TypeBinding originalType) {
+	public TypeBinding substitute(TypeVariableBinding originalVariable) {
 		
-		switch (originalType.kind()) {
-			
-			case Binding.TYPE_PARAMETER:
-				TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
-				ParameterizedTypeBinding currentType = this;
-				while (true) {
-					if (currentType.arguments != null) {
-						TypeVariableBinding[] typeVariables = currentType.type.typeVariables();
-						int length = typeVariables.length;
-						// check this variable can be substituted given parameterized type
-						if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
-							return currentType.arguments[originalVariable.rank];
-						}
-					}
-					// recurse on enclosing type, as it may hold more substitutions to perform
-					ReferenceBinding enclosing = currentType.enclosingType();
-					if (!(enclosing instanceof ParameterizedTypeBinding))
-						break;
-					currentType = (ParameterizedTypeBinding) enclosing;
-				}
+		ParameterizedTypeBinding currentType = this;
+		while (true) {
+			TypeVariableBinding[] typeVariables = currentType.type.typeVariables();
+			int length = typeVariables.length;
+			// check this variable can be substituted given parameterized type
+			if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
+			    // lazy init, since cannot do so during binding creation if during supertype connection
+			    if (currentType.arguments == null)  currentType.initializeArguments(); // only for raw types
+			    if (currentType.arguments != null)
+		           return currentType.arguments[originalVariable.rank];
+			}
+			// recurse on enclosing type, as it may hold more substitutions to perform
+			if (currentType.isStatic()) break;
+			ReferenceBinding enclosing = currentType.enclosingType();
+			if (!(enclosing instanceof ParameterizedTypeBinding))
 				break;
-				
-			case Binding.PARAMETERIZED_TYPE:
-				ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
-				ReferenceBinding originalEnclosing = originalType.enclosingType();
-				ReferenceBinding substitutedEnclosing = originalEnclosing;
-				if (originalEnclosing != null) {
-					substitutedEnclosing = (ReferenceBinding) this.substitute(originalEnclosing);
-				}
-				TypeBinding[] originalArguments = originalParameterizedType.arguments;
-				TypeBinding[] substitutedArguments = originalArguments;
-				if (originalArguments != null) {
-					substitutedArguments = Scope.substitute(this, originalArguments);
-				}
-				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
-					identicalVariables: { // if substituted with original variables, then answer the generic type itself
-						if (substitutedEnclosing != originalEnclosing) break identicalVariables;
-						TypeVariableBinding[] originalVariables = originalParameterizedType.type.typeVariables();
-						for (int i = 0, length = originalVariables.length; i < length; i++) {
-							if (substitutedArguments[i] != originalVariables[i]) break identicalVariables;
-						}
-						return originalParameterizedType.type;
-					}
-					return this.environment.createParameterizedType(
-							originalParameterizedType.type, substitutedArguments, substitutedEnclosing);
-				}
-				break;
-				
-			case Binding.ARRAY_TYPE:
-				TypeBinding originalLeafComponentType = originalType.leafComponentType();
-				TypeBinding substitute = substitute(originalLeafComponentType); // substitute could itself be array type
-				if (substitute != originalLeafComponentType) {
-					return this.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalType.dimensions());
-				}
-				break;
-
-			case Binding.WILDCARD_TYPE:
-		        WildcardBinding wildcard = (WildcardBinding) originalType;
-		        if (wildcard.kind != Wildcard.UNBOUND) {
-			        TypeBinding originalBound = wildcard.bound;
-			        TypeBinding substitutedBound = substitute(originalBound);
-			        if (substitutedBound != originalBound) {
-		        		return this.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, wildcard.kind);
-			        }
-		        }
-				break;
-
-			case Binding.GENERIC_TYPE:
-			    // treat as if parameterized with its type variables
-				ReferenceBinding originalGenericType = (ReferenceBinding) originalType;
-				originalEnclosing = originalType.enclosingType();
-				substitutedEnclosing = originalEnclosing;
-				if (originalEnclosing != null) {
-					substitutedEnclosing = (ReferenceBinding) this.substitute(originalEnclosing);
-				}
-				TypeVariableBinding[] originalVariables = originalGenericType.typeVariables();
-				int length = originalVariables.length;
-				System.arraycopy(originalVariables, 0, originalArguments = new TypeBinding[length], 0, length);
-				substitutedArguments = Scope.substitute(this, originalArguments);
-				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
-					return this.environment.createParameterizedType(
-							originalGenericType, substitutedArguments, substitutedEnclosing);
-				}
-				break;
+			currentType = (ParameterizedTypeBinding) enclosing;
 		}
-		return originalType;
+		return originalVariable;
 	}	
 
 	/**
@@ -728,7 +674,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	        // note: Object cannot be generic
 	        ReferenceBinding genericSuperclass = this.type.superclass();
 	        if (genericSuperclass == null) return null; // e.g. interfaces
-		    this.superclass = (ReferenceBinding) substitute(genericSuperclass);
+		    this.superclass = (ReferenceBinding) Scope.substitute(this, genericSuperclass);
 	    }
 		return this.superclass;
 	}

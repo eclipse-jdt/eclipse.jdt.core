@@ -166,9 +166,14 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 		if (argumentType != NullBinding && parameterType.isWildcard() && ((WildcardBinding) parameterType).kind != Wildcard.SUPER)
 		    return true; // unsafeWildcardInvocation
-		if (argumentType != parameterType && argumentType.isRawType())
-	        if (parameterType.isBoundParameterizedType() || parameterType.isGenericType())
-				scope.problemReporter().unsafeRawConversion(argument, argumentType, parameterType);
+		if (argumentType != parameterType) {
+			if (argumentType.isRawType() && (parameterType.isBoundParameterizedType() || parameterType.isGenericType())) {
+				scope.problemReporter().unsafeTypeConversion(argument, argumentType, parameterType);
+			}
+		}
+//		if ((argumentType.tagBits & TagBits.HasDirectWildcard) != 0) {
+//			scope.problemReporter().unsafeTypeConversion(argument, argumentType, parameterType);
+//		}
 		return false;
 	}
 	public static void checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
@@ -217,7 +222,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		}
 		if (unsafeWildcardInvocation) {
 		    scope.problemReporter().wildcardInvocation((ASTNode)invocationSite, receiverType, method, argumentTypes);
-		} else if (!receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && method.hasSubstitutedParameters()) {
+		} else if (!method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && method.hasSubstitutedParameters()) {
 		    scope.problemReporter().unsafeRawInvocation((ASTNode)invocationSite, method);
 		}
 	}

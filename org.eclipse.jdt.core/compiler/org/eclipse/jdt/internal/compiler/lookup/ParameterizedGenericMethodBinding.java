@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
-import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
  * Binding denoting a generic method after type parameter substitutions got performed.
@@ -45,7 +44,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    this.originalMethod = originalMethod;
 	    this.parameters = Scope.substitute(this, originalMethod.parameters);
 	    this.thrownExceptions = Scope.substitute(this, originalMethod.thrownExceptions);
-	    this.returnType = this.substitute(originalMethod.returnType);
+	    this.returnType = Scope.substitute(this, originalMethod.returnType);
 	    this.wasInferred = true;// resulting from method invocation inferrence
 	}
 	
@@ -76,9 +75,9 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    this.thrownExceptions = Scope.substitute(this, 	ignoreRawTypeSubstitution 
 	    									? originalMethod.thrownExceptions // no substitution if original was static
 	    									: Scope.substitute(rawType, originalMethod.thrownExceptions));
-	    this.returnType = this.substitute(ignoreRawTypeSubstitution 
+	    this.returnType = Scope.substitute(this, ignoreRawTypeSubstitution 
 	    									? originalMethod.returnType // no substitution if original was static
-	    									: rawType.substitute(originalMethod.returnType));
+	    									: Scope.substitute(rawType, originalMethod.returnType));
 	    this.wasInferred = false; // not resulting from method invocation inferrence
 	}
 	
@@ -206,6 +205,12 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	}
 	
 	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.Substitution#environment()
+	 */
+	public LookupEnvironment environment() {
+		return this.environment;
+	}
+	/**
 	 * Returns true if some parameters got substituted.
 	 * NOTE: generic method invocation delegates to its declaring method (could be a parameterized one)
 	 */
@@ -232,7 +237,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	        return;
 	    Map substitutes = new HashMap(1);
 	    int length = this.typeArguments.length;
-	    TypeVariableBinding[] originalVariables = this.original().typeVariables;
+	    TypeVariableBinding[] originalVariables = this.originalMethod.typeVariables; // immediate parent (could be a parameterized method)
 	    boolean hasUnboundParameters = false;
 	    for (int i = 0; i < length; i++) {
 	        if (this.typeArguments[i] == originalVariables[i]) {
@@ -266,105 +271,33 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			}
 	    }
 		TypeBinding oldReturnType = this.returnType;
-		this.returnType = this.substitute(this.returnType);
+		this.returnType = Scope.substitute(this, this.returnType);
 		this.inferredReturnType = this.returnType != oldReturnType;
 	    this.parameters = Scope.substitute(this, this.parameters);
 	    this.thrownExceptions = Scope.substitute(this, this.thrownExceptions);
 	}
-	
-    /**
-	 * Returns a type, where original type was substituted using the receiver
-	 * parameterized method.
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.Substitution#isRawSubstitution()
 	 */
-	public TypeBinding substitute(TypeBinding originalType) {
-	    
-		switch (originalType.kind()) {
-			
-			case Binding.TYPE_PARAMETER:
-		        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
-		        TypeVariableBinding[] variables = this.originalMethod.typeVariables;
-		        int length = variables.length;
-		        // check this variable can be substituted given parameterized type
-		        if (originalVariable.rank < length && variables[originalVariable.rank] == originalVariable) {
-					return this.typeArguments[originalVariable.rank];
-		        }
-		        if (this.declaringClass instanceof Substitution) {
-		        	return ((Substitution)this.declaringClass).substitute(originalType);
-		        }
-		        break;
-	   		       
-			case Binding.PARAMETERIZED_TYPE:
-				ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
-				ReferenceBinding originalEnclosing = originalType.enclosingType();
-				ReferenceBinding substitutedEnclosing = originalEnclosing;
-				if (originalEnclosing != null) {
-					substitutedEnclosing = (ReferenceBinding) this.substitute(originalEnclosing);
-				}
-				if (this.isRaw) {
-					return this.environment.createRawType(originalParameterizedType.type, substitutedEnclosing);					
-				}
-				TypeBinding[] originalArguments = originalParameterizedType.arguments;
-				TypeBinding[] substitutedArguments = originalArguments;
-				if (originalArguments != null) {
-					substitutedArguments = Scope.substitute(this, originalArguments);
-				}
-				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
-					identicalVariables: { // if substituted with original variables, then answer the generic type itself
-						if (substitutedEnclosing != originalEnclosing) break identicalVariables;
-						TypeVariableBinding[] originalVariables = originalParameterizedType.type.typeVariables();
-						length = originalVariables.length;
-						for (int i = 0; i < length; i++) {
-							if (substitutedArguments[i] != originalVariables[i]) break identicalVariables;
-						}
-						return originalParameterizedType.type;
-					}
-					return this.environment.createParameterizedType(
-							originalParameterizedType.type, substitutedArguments, substitutedEnclosing);
-				}
-				break;   		        
-		        
-			case Binding.ARRAY_TYPE:
-				TypeBinding originalLeafComponentType = originalType.leafComponentType();
-				TypeBinding substitute = substitute(originalLeafComponentType); // substitute could itself be array type
-				if (substitute != originalLeafComponentType) {
-					return this.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalType.dimensions());
-				}
-				break;
-				
-			case Binding.WILDCARD_TYPE:
-		        WildcardBinding wildcard = (WildcardBinding) originalType;
-		        if (wildcard.kind != Wildcard.UNBOUND) {
-			        TypeBinding originalBound = wildcard.bound;
-			        TypeBinding substitutedBound = substitute(originalBound);
-			        if (substitutedBound != originalBound) {
-		        		return this.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, wildcard.kind);
-			        }
-		        }
-		        break;
+	public boolean isRawSubstitution() {
+		return this.isRaw;
+	}
 	
-	
-			case Binding.GENERIC_TYPE:
-			    // treat as if parameterized with its type variables
-				ReferenceBinding originalGenericType = (ReferenceBinding) originalType;
-				originalEnclosing = originalType.enclosingType();
-				substitutedEnclosing = originalEnclosing;
-				if (originalEnclosing != null) {
-					substitutedEnclosing = (ReferenceBinding) this.substitute(originalEnclosing);
-				}
-				if (this.isRaw) {
-					return this.environment.createRawType(originalGenericType, substitutedEnclosing);					
-				}				
-				TypeVariableBinding[] originalVariables = originalGenericType.typeVariables();
-				length = originalVariables.length;
-				System.arraycopy(originalVariables, 0, originalArguments = new TypeBinding[length], 0, length);
-				substitutedArguments = Scope.substitute(this, originalArguments);
-				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
-					return this.environment.createParameterizedType(
-							originalGenericType, substitutedArguments, substitutedEnclosing);
-				}
-				break;
-	    }
-	    return originalType;
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.Substitution#substitute(org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding)
+	 */
+	public TypeBinding substitute(TypeVariableBinding originalVariable) {
+        TypeVariableBinding[] variables = this.originalMethod.typeVariables;
+        int length = variables.length;
+        // check this variable can be substituted given parameterized type
+        if (originalVariable.rank < length && variables[originalVariable.rank] == originalVariable) {
+			return this.typeArguments[originalVariable.rank];
+        }
+        if (!this.isStatic() && this.declaringClass instanceof Substitution) {
+        	return ((Substitution)this.declaringClass).substitute(originalVariable);
+        }
+	    return originalVariable;
 	}
 	/**
 	 * Returns the method to use during tiebreak (usually the method itself).

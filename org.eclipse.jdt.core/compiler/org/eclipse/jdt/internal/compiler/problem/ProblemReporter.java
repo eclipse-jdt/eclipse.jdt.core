@@ -644,7 +644,7 @@ public int computeSeverity(int problemId){
 
 		case IProblem.UnsafeRawConstructorInvocation:
 		case IProblem.UnsafeRawMethodInvocation:
-		case IProblem.UnsafeRawConversion:
+		case IProblem.UnsafeTypeConversion:
 		case IProblem.UnsafeRawFieldAssignment:
 		case IProblem.UnsafeGenericCast:
 		case IProblem.UnsafeReturnTypeOverride:
@@ -5070,9 +5070,9 @@ public void unsafeCast(CastExpression castExpression, Scope scope) {
 		castExpression.sourceStart,
 		castExpression.sourceEnd);
 }
-public void unsafeRawConversion(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
+public void unsafeTypeConversion(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
 	this.handle(
-		IProblem.UnsafeRawConversion,
+		IProblem.UnsafeTypeConversion,
 		new String[] { new String(expressionType.readableName()), new String(expectedType.readableName()), new String(expectedType.erasure().readableName()) },
 		new String[] { new String(expressionType.shortReadableName()), new String(expectedType.shortReadableName()), new String(expectedType.erasure().shortReadableName()) },
 		expression.sourceStart,

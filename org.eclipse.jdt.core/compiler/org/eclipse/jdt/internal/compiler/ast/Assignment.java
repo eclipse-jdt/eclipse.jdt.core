@@ -81,7 +81,7 @@ public class Assignment extends Expression {
 		        && (rhsType.isParameterizedType() || rhsType.isGenericType())) {
 		    scope.problemReporter().unsafeRawFieldAssignment(leftField, rhsType, this.lhs);
 		} else if (rhsType.needsUncheckedConversion(lhsType)) {
-		    scope.problemReporter().unsafeRawConversion(this.expression, rhsType, lhsType);
+		    scope.problemReporter().unsafeTypeConversion(this.expression, rhsType, lhsType);
 		}		
 	}
 	

@@ -49,6 +49,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * Returns true if the argument type satisfies all bounds of the type parameter
 	 */
 	public boolean boundCheck(Substitution substitution, TypeBinding argumentType) {
+
 		if (argumentType == NullBinding || this == argumentType) 
 			return true;
 		if (!(argumentType instanceof ReferenceBinding || argumentType.isArrayType()))
@@ -69,11 +70,11 @@ public class TypeVariableBinding extends ReferenceBinding {
 //		if (this == argumentType) 
 //			return true;
 		boolean hasSubstitution = substitution != null;
-		if (this.superclass.id != T_JavaLangObject && !argumentType.isCompatibleWith(hasSubstitution ? substitution.substitute(this.superclass) : this.superclass)) {
+		if (this.superclass.id != T_JavaLangObject && !argumentType.isCompatibleWith(hasSubstitution ? Scope.substitute(substitution, this.superclass) : this.superclass)) {
 		    return false;
 		}
 	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-	        if (!argumentType.isCompatibleWith(hasSubstitution ? substitution.substitute(this.superInterfaces[i]) : this.superInterfaces[i])) {
+	        if (!argumentType.isCompatibleWith(hasSubstitution ? Scope.substitute(substitution, this.superInterfaces[i]) : this.superInterfaces[i])) {
 				return false;
 	        }
 	    }
@@ -290,6 +291,28 @@ public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
 	public boolean isTypeVariable() {
 	    return true;
 	}
+	
+	/** 
+	 * Returns the original type variable for a given variable.
+	 * Only different from receiver for type variables of generic methods of parameterized types
+	 * e.g. X<U> {   <V1 extends U> U foo(V1)   } --> X<String> { <V2 extends String> String foo(V2)  }  
+	 *         and V2.original() --> V1
+	 */
+	public TypeVariableBinding original() {
+		if (this.declaringElement.kind() == Binding.METHOD) {
+			MethodBinding originalMethod = ((MethodBinding)this.declaringElement).original();
+			if (originalMethod != this.declaringElement) {
+				return originalMethod.typeVariables[this.rank];
+			}
+		} else {
+			ReferenceBinding originalType = (ReferenceBinding)((ReferenceBinding)this.declaringElement).erasure();
+			if (originalType != this.declaringElement) {
+				return originalType.typeVariables()[this.rank];
+			}
+		}
+		return this;
+	}
+	
 	/**
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#readableName()
      */

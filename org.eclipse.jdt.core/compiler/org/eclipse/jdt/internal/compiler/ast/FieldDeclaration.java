@@ -220,7 +220,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 								|| initializationType.isCompatibleWith(fieldType)) {
 							this.initialization.computeConversion(initializationScope, fieldType, initializationType);
 							if (initializationType.needsUncheckedConversion(fieldType)) {
-								    initializationScope.problemReporter().unsafeRawConversion(this.initialization, initializationType, fieldType);
+								    initializationScope.problemReporter().unsafeTypeConversion(this.initialization, initializationType, fieldType);
 							}									
 						} else if (initializationScope.environment().options.sourceLevel >= JDK1_5 // autoboxing
 										&& (initializationScope.isBoxingCompatibleWith(initializationType, fieldType) 

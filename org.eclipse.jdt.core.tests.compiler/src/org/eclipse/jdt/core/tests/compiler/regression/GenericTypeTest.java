@@ -1652,7 +1652,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 10)\n" + 
 			"	X<IOException> xioe2 = x; // unsafe\n" + 
 			"	                       ^\n" + 
-			"Type safety: The expression of type X is converted to X<IOException> using a raw conversion. References to generic type X<T> should be parameterized\n" + 
+			"Type safety: The expression of type X needs unchecked conversion to conform to X<IOException>\n" + 
 			"----------\n",
 			null,
 			true,
@@ -2023,12 +2023,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 8)\n" + 
 			"	X x = new X((A)null, (A)null);\n" + 
 			"	            ^^^^^^^\n" + 
-			"Type safety: The expression of type A is converted to A<String> using a raw conversion. References to generic type A<P> should be parameterized\n" + 
+			"Type safety: The expression of type A needs unchecked conversion to conform to A<String>\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	X x = new X((A)null, (A)null);\n" + 
 			"	                     ^^^^^^^\n" + 
-			"Type safety: The expression of type A is converted to A<String> using a raw conversion. References to generic type A<P> should be parameterized\n" + 
+			"Type safety: The expression of type A needs unchecked conversion to conform to A<String>\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 9)\n" + 
 			"	A a = new A((A)null);\n" + 
@@ -2038,7 +2038,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	x.foo(a);\n" + 
 			"	      ^\n" + 
-			"Type safety: The expression of type A is converted to A<String> using a raw conversion. References to generic type A<P> should be parameterized\n" + 
+			"Type safety: The expression of type A needs unchecked conversion to conform to A<String>\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 11)\n" + 
 			"	a.print(x);\n" + 
@@ -2237,12 +2237,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	X x = new X((AX)null, (AX)null);\n" + 
 			"	            ^^^^^^^^\n" + 
-			"Type safety: The expression of type AX is converted to AX<String> using a raw conversion. References to generic type AX<P> should be parameterized\n" + 
+			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<String>\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	X x = new X((AX)null, (AX)null);\n" + 
 			"	                      ^^^^^^^^\n" + 
-			"Type safety: The expression of type AX is converted to AX<String> using a raw conversion. References to generic type AX<P> should be parameterized\n" + 
+			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<String>\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 8)\n" + 
 			"	AX a = new AX((AX)null);\n" + 
@@ -2257,7 +2257,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"5. WARNING in X.java (at line 10)\n" + 
 			"	x.foo(a);\n" + 
 			"	      ^\n" + 
-			"Type safety: The expression of type AX is converted to AX<String> using a raw conversion. References to generic type AX<P> should be parameterized\n" + 
+			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<String>\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 12)\n" + 
 			"	a.bar(a);\n" + 
@@ -2277,7 +2277,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"9. WARNING in X.java (at line 15)\n" + 
 			"	as.bar(a);\n" + 
 			"	       ^\n" + 
-			"Type safety: The expression of type AX is converted to AX<String> using a raw conversion. References to generic type AX<P> should be parameterized\n" + 
+			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<String>\n" + 
 			"----------\n");
 	}		
 
@@ -2916,7 +2916,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	Iterable<String> is = new ArrayList();\n" + 
 			"	                      ^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type ArrayList is converted to Iterable<String> using a raw conversion. References to generic type Iterable<T> should be parameterized\n" + 
+			"Type safety: The expression of type ArrayList needs unchecked conversion to conform to Iterable<String>\n" + 
 			"----------\n",
 			null,
 			true,
@@ -4436,7 +4436,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type AX is converted to AX<AX<T,T>,U> using a raw conversion. References to generic type AX<E,F> should be parameterized\n" + 
+			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<AX<T,T>,U>\n" + 
 			"----------\n");
 	}		
 	public void test169() {
@@ -4474,7 +4474,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type AX is converted to AX<T> using a raw conversion. References to generic type AX<E> should be parameterized\n" + 
+			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<T>\n" + 
 			"----------\n");
 	}
 	// Expected type inference for cast operation
@@ -4503,7 +4503,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	ax = (AX)bar(ax);\n" + 
 			"	     ^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type AX is converted to AX<X> using a raw conversion. References to generic type AX<E> should be parameterized\n" + 
+			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<X>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	return a.get();\n" + 
@@ -4676,7 +4676,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	return new Vector();\n" + 
 			"	       ^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type Vector is converted to Vector<T> using a raw conversion. References to generic type Vector<E> should be parameterized\n" + 
+			"Type safety: The expression of type Vector needs unchecked conversion to conform to Vector<T>\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 10)\n" + 
 			"	Vector<Object> v = (Vector<Object>) data.elementAt(0);\n" + 
@@ -5894,7 +5894,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 18)\n" + 
 			"	mx1.foo(mx2.get());\n" + 
 			"	        ^^^^^^^^^\n" + 
-			"Type safety: The expression of type Class is converted to Class<? extends Object> using a raw conversion. References to generic type Class<T> should be parameterized\n" + 
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<? extends Object>\n" + 
 			"----------\n",
 			null,
 			true,
@@ -6021,7 +6021,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	void m0() { List<X> l = list(); } // unsafe conversion\n" + 
 			"	                        ^^^^^^\n" + 
-			"Type safety: The expression of type List is converted to List<X> using a raw conversion. References to generic type List<E> should be parameterized\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<X>\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 6)\n" + 
 			"	void m1() { for (X a : list()); } // type mismatch\n" + 
@@ -6031,7 +6031,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 7)\n" + 
 			"	void m2() { for (Iterator<X> i = list().iterator(); i.hasNext();); }  // unsafe conversion\n" + 
 			"	                                 ^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type Iterator is converted to Iterator<X> using a raw conversion. References to generic type Iterator<E> should be parameterized\n" + 
+			"Type safety: The expression of type Iterator needs unchecked conversion to conform to Iterator<X>\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 8)\n" + 
 			"	void m3() { Collection c = null; List l = (List<X>)c; } // unsafe cast\n" + 
@@ -7030,7 +7030,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	ArrayList<X> list = new ArrayList();\n" + 
 			"	                    ^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type ArrayList is converted to ArrayList<X> using a raw conversion. References to generic type ArrayList<E> should be parameterized\n" + 
+			"Type safety: The expression of type ArrayList needs unchecked conversion to conform to ArrayList<X>\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70975 - test compilation against binary generic method
@@ -7237,7 +7237,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	super.useList(l);\n" + 
 			"	              ^\n" + 
-			"Type safety: The expression of type List is converted to List<String> using a raw conversion. References to generic type List<E> should be parameterized\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71241 - variation
@@ -8374,12 +8374,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	G<String> g = new G();\n" + 
 			"	              ^^^^^^^\n" + 
-			"Type safety: The expression of type G is converted to G<String> using a raw conversion. References to generic type G<T> should be parameterized\n" + 
+			"Type safety: The expression of type G needs unchecked conversion to conform to G<String>\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	G<Thread>.Member gtm = gm;\n" + 
 			"	                       ^^\n" + 
-			"Type safety: The expression of type G.Member is converted to G<Thread>.Member using a raw conversion. References to generic type G<T>.Member should be parameterized\n" + 
+			"Type safety: The expression of type G.Member needs unchecked conversion to conform to G<Thread>.Member\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 9)\n" + 
 			"	Zork z;\n" + 
@@ -11786,7 +11786,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 8)\n" + 
 			"	Composite<Node> comp = new Concrete(); // unchecked cast\n" + 
 			"	                       ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type Concrete is converted to Composite<Node> using a raw conversion. References to generic type Composite<E> should be parameterized\n" + 
+			"Type safety: The expression of type Concrete needs unchecked conversion to conform to Composite<Node>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	Zork z;\n" + 
@@ -12016,17 +12016,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 8)\n" + 
 			"	d1 = d2;\n" + 
 			"	     ^^\n" + 
-			"Type safety: The expression of type X.Inner is converted to X<String>.Inner<Integer> using a raw conversion. References to generic type X<A>.Inner<B> should be parameterized\n" + 
+			"Type safety: The expression of type X.Inner needs unchecked conversion to conform to X<String>.Inner<Integer>\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 10)\n" + 
 			"	d1 = d3;\n" + 
 			"	     ^^\n" + 
-			"Type safety: The expression of type X.Inner<Integer> is converted to X<String>.Inner<Integer> using a raw conversion. References to generic type X<A>.Inner<B> should be parameterized\n" + 
+			"Type safety: The expression of type X.Inner<Integer> needs unchecked conversion to conform to X<String>.Inner<Integer>\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 13)\n" + 
 			"	d3 = d2;\n" + 
 			"	     ^^\n" + 
-			"Type safety: The expression of type X.Inner is converted to X.Inner<Integer> using a raw conversion. References to generic type X<A>.Inner<B> should be parameterized\n" + 
+			"Type safety: The expression of type X.Inner needs unchecked conversion to conform to X.Inner<Integer>\n" + 
 			"----------\n");
 	}			
 	
@@ -12061,13 +12061,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n" ,
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 6)\r\n" + 
-			"	X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\r\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\n" + 
 			"	                              ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type X.Inner<Integer> is converted to X<String>.Inner<Integer> using a raw conversion. References to generic type X<A>.Inner<B> should be parameterized\n" + 
+			"Type safety: The expression of type X.Inner<Integer> needs unchecked conversion to conform to X<String>.Inner<Integer>\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\r\n" + 
-			"	X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\r\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\n" + 
 			"	                                  ^^^^^^^\n" + 
 			"The member type X.Inner<Integer> must be qualified with a parameterized type, since it is not static\n" + 
 			"----------\n");
@@ -12222,7 +12222,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81721
-	public void _test456() {
+	public void test456() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -12274,5 +12274,77 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	^^^^\n" + 
 			"The method add3(List<T>, List<T>) in the type X is not applicable for the arguments (List<X>, List<String>)\n" + 
 			"----------\n");
+	}		
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82243
+	public void test458() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface A<E>{\n" + 
+				"	E getOne();\n" + 
+				"}\n" + 
+				"\n" + 
+				"\n" + 
+				"abstract class B<T extends Number> implements A<T> {\n" + 
+				"	Number getTwo() {\n" + 
+				"		return getOne(); // succeeds\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class C extends B<Integer> {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void foo(A a, B b, C c){\n" + 
+				"		Object o= a.getOne();\n" + 
+				"		Number n1= b.getOne(); // fails\n" + 
+				"		Number n2= b.getTwo(); // succeeds, but inlining fails\n" + 
+				"		Integer i = c.getOne(); // succeeds\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 18)\n" + 
+			"	Number n1= b.getOne(); // fails\n" + 
+			"	       ^^\n" + 
+			"Type mismatch: cannot convert from Object to Number\n" + 
+			"----------\n");
+	}		
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78027 - variation (check unchecked warnings)
+	public void _test459() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X \n" + 
+				"{\n" + 
+				"Zork z;\n" +
+				"}\n" + 
+				"\n" + 
+				"interface ITest<C extends X>\n" + 
+				"{ \n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Test<C extends X> implements ITest<C>\n" + 
+				"{\n" + 
+				"  protected Manager<C> m_manager;\n" + 
+				"  \n" + 
+				"  public ITest<C> get()\n" + 
+				"  {\n" + 
+				"    return m_manager.getById(getClass(), new Integer(1));\n" + 
+				"  }\n" + 
+				"    \n" + 
+				"  public static class Manager<C extends X>\n" + 
+				"  {\n" + 
+				"    public <T extends ITest<C>> T getById(Class<T> cls, Integer id)\n" + 
+				"    {\n" + 
+				"      return null;\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"}\n"
+			},
+			"should be 2 unchecked warnings"
+		);
 	}		
 }

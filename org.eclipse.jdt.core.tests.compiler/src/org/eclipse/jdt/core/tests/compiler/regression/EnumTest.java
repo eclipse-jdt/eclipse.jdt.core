@@ -1815,5 +1815,30 @@ public class EnumTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"");
-	}			
+	}		
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82590
+	 */
+	public void test064() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X implements B {\n" + 
+				"\n" + 
+				"	C1 {\n" + 
+				"		public void test() {};\n" + 
+				"	},\n" + 
+				"	C2 {\n" + 
+				"		public void test() {};\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface B {\n" + 
+				"	public void test();\n" + 
+				"	\n" + 
+				"}\n",
+			},
+			"");
+	}		
 }

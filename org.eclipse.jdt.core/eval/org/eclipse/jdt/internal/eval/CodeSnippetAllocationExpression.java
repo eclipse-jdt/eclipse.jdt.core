@@ -199,7 +199,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		    TypeBinding argumentType = argumentTypes[i];
 			arguments[i].computeConversion(scope, parameterType, argumentType);
 			if (argumentType.needsUncheckedConversion(parameterType)) {
-				scope.problemReporter().unsafeRawConversion(arguments[i], argumentType, parameterType);
+				scope.problemReporter().unsafeTypeConversion(arguments[i], argumentType, parameterType);
 			}
 		}
 		if (argsContainCast) {

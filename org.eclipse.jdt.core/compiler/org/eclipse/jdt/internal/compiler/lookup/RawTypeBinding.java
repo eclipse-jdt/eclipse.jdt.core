@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
  * Denote a raw type, i.e. a generic type referenced without any type arguments.
@@ -114,78 +113,6 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		}
 		return readableName;
 	}
-
-	/**
-	 * Returns a type, where original type was substituted using the receiver
-	 * raw type.
-	 * On raw types, all parameterized type denoting same original type are converted
-	 * to raw types. e.g. 
-	 * class X <T> {
-	 *   X<T> foo;
-	 *   X<String> bar;
-	 * } when used in raw fashion, then type of both foo and bar is raw type X.
-	 */
-	public TypeBinding substitute(TypeBinding originalType) {
-	    
-		switch (originalType.kind()) {
-			
-			case Binding.TYPE_PARAMETER:
-		        TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
-			    ParameterizedTypeBinding currentType = this;
-		        while (true) {
-			        TypeVariableBinding[] typeVariables = currentType.type.typeVariables();
-			        int length = typeVariables.length;
-			        // check this variable can be substituted given parameterized type
-			        if (originalVariable.rank < length && typeVariables[originalVariable.rank] == originalVariable) {
-					    // lazy init, since cannot do so during binding creation if during supertype connection
-					    if (currentType.arguments == null)  currentType.initializeArguments();
-					    if (currentType.arguments != null)
-				           return currentType.arguments[originalVariable.rank];
-			        }
-				    // recurse on enclosing type, as it may hold more substitutions to perform
-				    ReferenceBinding enclosing = currentType.enclosingType();
-				    if (!(enclosing instanceof ParameterizedTypeBinding))
-				        break;
-				    currentType = (ParameterizedTypeBinding) enclosing;
-		        }
-		        break;
-		        
-			case Binding.PARAMETERIZED_TYPE:
-				ReferenceBinding substitutedEnclosing = originalType.enclosingType();
-				if (substitutedEnclosing != null) {
-					substitutedEnclosing = (ReferenceBinding) this.substitute(substitutedEnclosing);
-				}				
-		        ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
-				return this.environment.createRawType(originalParameterizedType.type, substitutedEnclosing);
-				
-			case Binding.GENERIC_TYPE:
-				substitutedEnclosing = originalType.enclosingType();
-				if (substitutedEnclosing != null) {
-					substitutedEnclosing = (ReferenceBinding) this.substitute(substitutedEnclosing);
-				}				
-	            return this.environment.createRawType((ReferenceBinding)originalType, substitutedEnclosing);
-	            
-			case Binding.WILDCARD_TYPE:
-		        WildcardBinding wildcard = (WildcardBinding) originalType;
-		        if (wildcard.kind != Wildcard.UNBOUND) {
-			        TypeBinding originalBound = wildcard.bound;
-			        TypeBinding substitutedBound = substitute(originalBound);
-			        if (substitutedBound != originalBound) {
-		        		return this.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, wildcard.kind);
-			        }
-		        }
-		        break;
-		        
-			case Binding.ARRAY_TYPE:
-				TypeBinding originalLeafComponentType = originalType.leafComponentType();
-				TypeBinding substitute = substitute(originalLeafComponentType); // substitute could itself be array type
-				if (substitute != originalLeafComponentType) {
-					return this.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalType.dimensions());
-				}
-				break;
-	    }
-	    return originalType;
-	}	
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()

@@ -52,6 +52,97 @@ public abstract class Scope
 	}
 
 	/**
+	 * Returns a type, where original type was substituted using the receiver
+	 * parameterized type.
+	 * In raw mode, all parameterized type denoting same original type are converted
+	 * to raw types. e.g. 
+	 * class X <T> {
+	 *   X<T> foo;
+	 *   X<String> bar;
+	 * } when used in raw fashion, then type of both foo and bar is raw type X.
+	 * 
+	 */
+	public static TypeBinding substitute(Substitution substitution, TypeBinding originalType) {
+		
+		switch (originalType.kind()) {
+			
+			case Binding.TYPE_PARAMETER:
+				return substitution.substitute( (TypeVariableBinding) originalType);
+				
+			case Binding.PARAMETERIZED_TYPE:
+				ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
+				ReferenceBinding originalEnclosing = originalType.enclosingType();
+				ReferenceBinding substitutedEnclosing = originalEnclosing;
+				if (originalEnclosing != null) {
+					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
+				}
+				if (substitution.isRawSubstitution()) {
+					return originalParameterizedType.environment.createRawType(originalParameterizedType.type, substitutedEnclosing);
+				}				
+				TypeBinding[] originalArguments = originalParameterizedType.arguments;
+				TypeBinding[] substitutedArguments = originalArguments;
+				if (originalArguments != null) {
+					substitutedArguments = substitute(substitution, originalArguments);
+				}
+				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
+					identicalVariables: { // if substituted with original variables, then answer the generic type itself
+						if (substitutedEnclosing != originalEnclosing) break identicalVariables;
+						TypeVariableBinding[] originalVariables = originalParameterizedType.type.typeVariables();
+						for (int i = 0, length = originalVariables.length; i < length; i++) {
+							if (substitutedArguments[i] != originalVariables[i]) break identicalVariables;
+						}
+						return originalParameterizedType.type;
+					}
+					return originalParameterizedType.environment.createParameterizedType(
+							originalParameterizedType.type, substitutedArguments, substitutedEnclosing);
+				}
+				break;
+				
+			case Binding.ARRAY_TYPE:
+				ArrayBinding originalArrayType = (ArrayBinding) originalType;
+				TypeBinding originalLeafComponentType = originalArrayType.leafComponentType;
+				TypeBinding substitute = substitute(substitution, originalLeafComponentType); // substitute could itself be array type
+				if (substitute != originalLeafComponentType) {
+					return originalArrayType.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalType.dimensions());
+				}
+				break;
+
+			case Binding.WILDCARD_TYPE:
+		        WildcardBinding wildcard = (WildcardBinding) originalType;
+		        if (wildcard.kind != Wildcard.UNBOUND) {
+			        TypeBinding originalBound = wildcard.bound;
+			        TypeBinding substitutedBound = substitute(substitution, originalBound);
+			        if (substitutedBound != originalBound) {
+		        		return wildcard.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, wildcard.kind);
+			        }
+		        }
+				break;
+
+			case Binding.GENERIC_TYPE:
+				ReferenceBinding originalGenericType = (ReferenceBinding) originalType;
+				originalEnclosing = originalType.enclosingType();
+				substitutedEnclosing = originalEnclosing;
+				if (originalEnclosing != null) {
+					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
+				}
+				if (substitution.isRawSubstitution()) {
+		            return substitution.environment().createRawType(originalGenericType, substitutedEnclosing);
+	            }
+			    // treat as if parameterized with its type variables
+				TypeVariableBinding[] originalVariables = originalGenericType.typeVariables();
+				int length = originalVariables.length;
+				System.arraycopy(originalVariables, 0, originalArguments = new TypeBinding[length], 0, length);
+				substitutedArguments = substitute(substitution, originalArguments);
+				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
+					return substitution.environment().createParameterizedType(
+							originalGenericType, substitutedArguments, substitutedEnclosing);
+				}
+				break;
+		}
+		return originalType;
+	}	
+	
+	/**
 	 * Returns an array of types, where original types got substituted given a substitution.
 	 * Only allocate an array if anything is different.
 	 */
@@ -59,7 +150,7 @@ public abstract class Scope
 	    ReferenceBinding[] substitutedTypes = originalTypes;
 	    for (int i = 0, length = originalTypes.length; i < length; i++) {
 	        ReferenceBinding originalType = originalTypes[i];
-	        ReferenceBinding substitutedParameter = (ReferenceBinding)substitution.substitute(originalType);
+	        ReferenceBinding substitutedParameter = (ReferenceBinding)substitute(substitution, originalType);
 	        if (substitutedParameter != originalType) {
 	            if (substitutedTypes == originalTypes) {
 	                System.arraycopy(originalTypes, 0, substitutedTypes = new ReferenceBinding[length], 0, i);
@@ -80,7 +171,7 @@ public abstract class Scope
 	    TypeBinding[] substitutedTypes = originalTypes;
 	    for (int i = 0, length = originalTypes.length; i < length; i++) {
 	        TypeBinding originalType = originalTypes[i];
-	        TypeBinding substitutedParameter = substitution.substitute(originalType);
+	        TypeBinding substitutedParameter = substitute(substitution, originalType);
 	        if (substitutedParameter != originalType) {
 	            if (substitutedTypes == originalTypes) {
 	                System.arraycopy(originalTypes, 0, substitutedTypes = new TypeBinding[length], 0, i);

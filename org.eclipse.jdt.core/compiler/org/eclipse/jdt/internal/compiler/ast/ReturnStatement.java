@@ -207,7 +207,7 @@ public class ReturnStatement extends Statement {
 
 			expression.computeConversion(scope, methodType, expressionType);
 			if (expressionType.needsUncheckedConversion(methodType)) {
-			    scope.problemReporter().unsafeRawConversion(this.expression, expressionType, methodType);
+			    scope.problemReporter().unsafeTypeConversion(this.expression, expressionType, methodType);
 			}
 			return;
 		} else if (scope.isBoxingCompatibleWith(expressionType, methodType)) {
