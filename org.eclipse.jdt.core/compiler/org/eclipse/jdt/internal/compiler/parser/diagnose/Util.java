@@ -25,102 +25,114 @@ public class Util {
 	public static final int LBRACE_MISSING = 1;
 	public static final int IGNORE = 2;
 	
-	private static int pos;
-	private static int[] intervalStarts;
-	private static int[] intervalEnds;
-	private static int[] intervalFlags;
-	
-	private static void addInterval(int start, int end){
-		addInterval(start, end, NO_FLAG);
-	}
-	
-	private static void addInterval(int start, int end, int flags){
-		if(pos >= intervalStarts.length) {
-			System.arraycopy(intervalStarts, 0, intervalStarts = new int[pos * 2], 0, pos);
-			System.arraycopy(intervalEnds, 0, intervalEnds = new int[pos * 2], 0, pos);
-			System.arraycopy(intervalFlags, 0, intervalFlags = new int[pos * 2], 0, pos);
+	static class RangeResult {
+		int pos;
+		int[] intervalStarts;
+		int[] intervalEnds;
+		int[] intervalFlags;
+		
+		RangeResult() {
+			this.pos = 0;
+			this.intervalStarts = new int[INITIAL_SIZE];
+			this.intervalEnds = new int[INITIAL_SIZE];
+			this.intervalFlags = new int[INITIAL_SIZE];
 		}
-		intervalStarts[pos] = start;
-		intervalEnds[pos] = end;
-		intervalFlags[pos] = flags;
-		pos++;
+		
+		void addInterval(int start, int end){
+			addInterval(start, end, NO_FLAG);
+		}
+		
+		void addInterval(int start, int end, int flags){
+			if(pos >= intervalStarts.length) {
+				System.arraycopy(intervalStarts, 0, intervalStarts = new int[pos * 2], 0, pos);
+				System.arraycopy(intervalEnds, 0, intervalEnds = new int[pos * 2], 0, pos);
+				System.arraycopy(intervalFlags, 0, intervalFlags = new int[pos * 2], 0, pos);
+			}
+			intervalStarts[pos] = start;
+			intervalEnds[pos] = end;
+			intervalFlags[pos] = flags;
+			pos++;
+		}
+		
+		int[][] getRanges() {
+			int[] resultStarts = new int[pos];
+			int[] resultEnds = new int[pos];
+			int[] resultFlags = new int[pos];
+			
+			System.arraycopy(intervalStarts, 0, resultStarts, 0, pos);
+			System.arraycopy(intervalEnds, 0, resultEnds, 0, pos);
+			System.arraycopy(intervalFlags, 0, resultFlags, 0, pos);
+
+			if (resultStarts.length > 1) {
+				quickSort(resultStarts, resultEnds, resultFlags, 0, resultStarts.length - 1);
+			}
+			return new int[][]{resultStarts, resultEnds, resultFlags};
+		}
+		
+		private void quickSort(int[] list, int[] list2, int[] list3, int left, int right) {
+			int original_left= left;
+			int original_right= right;
+			int mid= list[(left + right) / 2];
+			do {
+				while (compare(list[left], mid) < 0) {
+					left++;
+				}
+				while (compare(mid, list[right]) < 0) {
+					right--;
+				}
+				if (left <= right) {
+					int tmp= list[left];
+					list[left]= list[right];
+					list[right]= tmp;
+					
+					tmp = list2[left];
+					list2[left]= list2[right];
+					list2[right]= tmp;
+					
+					tmp = list3[left];
+					list3[left]= list3[right];
+					list3[right]= tmp;
+					
+					left++;
+					right--;
+				}
+			} while (left <= right);
+			
+			if (original_left < right) {
+				quickSort(list, list2, list3, original_left, right);
+			}
+			if (left < original_right) {
+				quickSort(list, list2, list3, left, original_right);
+			}
+		}
+		
+		private int compare(int i1, int i2) {
+			return i1 - i2;
+		}
 	}
 	
-	private static int compare(int i1, int i2) {
-		return i1 - i2;
-	}
+	
 	
 	public static boolean containsErrorInSignature(AbstractMethodDeclaration method){
 		return method.sourceEnd + 1 == method.bodyStart	|| method.bodyEnd == method.declarationSourceEnd;
 	}
-	
-	private static void quickSort(int[] list, int[] list2, int[] list3, int left, int right) {
-		int original_left= left;
-		int original_right= right;
-		int mid= list[(left + right) / 2];
-		do {
-			while (compare(list[left], mid) < 0) {
-				left++;
-			}
-			while (compare(mid, list[right]) < 0) {
-				right--;
-			}
-			if (left <= right) {
-				int tmp= list[left];
-				list[left]= list[right];
-				list[right]= tmp;
-				
-				tmp = list2[left];
-				list2[left]= list2[right];
-				list2[right]= tmp;
-				
-				tmp = list3[left];
-				list3[left]= list3[right];
-				list3[right]= tmp;
-				
-				left++;
-				right--;
-			}
-		} while (left <= right);
-		
-		if (original_left < right) {
-			quickSort(list, list2, list3, original_left, right);
-		}
-		if (left < original_right) {
-			quickSort(list, list2, list3, left, original_right);
-		}
-	}
+
 	public static int[][] computeDietRange(TypeDeclaration[] types) {
 		if(types == null || types.length == 0) {
 			return new int[3][0];
 		} else {
-			pos = 0;
-			intervalStarts = new int[INITIAL_SIZE];
-			intervalEnds = new int[INITIAL_SIZE];
-			intervalFlags = new int[INITIAL_SIZE];
-			computeDietRange0(types);
-			
-			System.arraycopy(intervalStarts, 0, intervalStarts = new int[pos], 0, pos);
-			System.arraycopy(intervalEnds, 0, intervalEnds = new int[pos], 0, pos);
-			System.arraycopy(intervalFlags, 0, intervalFlags = new int[pos], 0, pos);
-
-			if (intervalStarts.length > 1) {
-				quickSort(intervalStarts, intervalEnds, intervalFlags, 0, intervalStarts.length - 1);
-			}
-			int[][] res = new int[][]{intervalStarts, intervalEnds, intervalFlags};
-			intervalStarts = null;
-			intervalEnds = null;
-			intervalFlags = null;
-			return res;
+			RangeResult result = new RangeResult();
+			computeDietRange0(types, result);
+			return result.getRanges();
 		}
 	}
 	
-	private static void computeDietRange0(TypeDeclaration[] types) {
+	private static void computeDietRange0(TypeDeclaration[] types, RangeResult result) {
 		for (int j = 0; j < types.length; j++) {
 			//members
 			MemberTypeDeclaration[] memberTypeDeclarations = types[j].memberTypes;
 			if(memberTypeDeclarations != null && memberTypeDeclarations.length > 0) {
-				computeDietRange0(types[j].memberTypes);
+				computeDietRange0(types[j].memberTypes, result);
 			}
 			//methods
 			AbstractMethodDeclaration[] methods = types[j].methods;
@@ -131,10 +143,10 @@ public class Util {
 					if(containsIgnoredBody(method)) {
 						if(containsErrorInSignature(method)) {
 							method.errorInSignature = true;
-							addInterval(method.declarationSourceStart, method.declarationSourceEnd, IGNORE);
+							result.addInterval(method.declarationSourceStart, method.declarationSourceEnd, IGNORE);
 						} else {
 							int flags = method.sourceEnd + 1 == method.bodyStart ? LBRACE_MISSING : NO_FLAG;
-							addInterval(method.bodyStart, method.bodyEnd, flags);
+							result.addInterval(method.bodyStart, method.bodyEnd, flags);
 						}
 					}
 				}
@@ -149,9 +161,9 @@ public class Util {
 						Initializer initializer = (Initializer)fields[i];
 						if(initializer.declarationSourceEnd == initializer.bodyEnd){
 							initializer.errorInSignature = true;
-							addInterval(initializer.declarationSourceStart, initializer.declarationSourceEnd, IGNORE);
+							result.addInterval(initializer.declarationSourceStart, initializer.declarationSourceEnd, IGNORE);
 						} else {
-							addInterval(initializer.bodyStart, initializer.bodyEnd);
+							result.addInterval(initializer.bodyStart, initializer.bodyEnd);
 						}
 					}
 				}
