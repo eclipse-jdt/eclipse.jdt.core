@@ -101,9 +101,8 @@ public abstract class Statement extends ASTNode {
 	 * A leading comment is a comment that appears before the statement.
 	 * It may be either a traditional comment or an end-of-line comment.
 	 * Traditional comments must begin with "/&#42;, may contain line breaks,
-	 * and must end with "&#42;/. End-of-line comments must begin with "//",
-	 * must end with a line delimiter (as per JLS 3.7), and must not contain
-	 * line breaks.
+	 * and must end with "&#42;/. End-of-line comments must begin with "//"
+	 * (as per JLS 3.7), and must not contain line breaks.
 	 * </p>
 	 * <p>
 	 * Examples:
@@ -114,7 +113,7 @@ public abstract class Statement extends ASTNode {
 	 * setLeadingComment("/&#42; unterminated traditional comment ");  // wrong
 	 * setLeadingComment("/&#42; broken\n traditional comment &#42;/");  // correct
 	 * setLeadingComment("// end-of-line comment\n");  // correct
-	 * setLeadingComment("// end-of-line comment without line terminator");  // wrong
+	 * setLeadingComment("// end-of-line comment without line terminator");  // correct
 	 * setLeadingComment("// broken\n end-of-line comment\n");  // wrong
 	 * </pre>
 	 * </code>
