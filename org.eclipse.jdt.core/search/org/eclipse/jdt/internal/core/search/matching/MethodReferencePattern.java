@@ -9,6 +9,8 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
 import org.eclipse.jdt.internal.core.index.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.index.impl.*;
@@ -199,5 +201,21 @@ public int matchLevel(Binding binding, MessageSend messageSend) {
 	}
 
 	return level;
+}
+/**
+ * @see SearchPattern#matchReportReference
+ */
+protected void matchReportReference(AstNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+	if (reference instanceof MessageSend) {
+		// message ref are starting at the selector start
+		locator.report(
+			(int) (((MessageSend) reference).nameSourcePosition >> 32),
+			reference.sourceEnd,
+			element,
+			accuracy);
+	} else {
+		super.matchReportReference(reference, element, accuracy, locator);
+	}
+	
 }
 }

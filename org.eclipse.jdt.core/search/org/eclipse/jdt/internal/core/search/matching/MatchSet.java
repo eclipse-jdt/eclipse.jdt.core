@@ -91,14 +91,7 @@ public void addTrustedMatch(AstNode node) {
 	this.matchingNodes.put(node, new Integer(SearchPattern.ACCURATE_MATCH));
 }
 public void checkMatching(AstNode node) {
-	int matchLevel = this.locator.pattern.matchLevel(node, false);
-	switch (matchLevel) {
-		case SearchPattern.POSSIBLE_MATCH:
-			this.addPossibleMatch(node);
-			break;
-		case SearchPattern.ACCURATE_MATCH:
-			this.addTrustedMatch(node);
-	}
+	this.locator.pattern.matchCheck(node, this);
 }
 /**
  * Returns the matching nodes that are in the given range.
@@ -141,6 +134,12 @@ private AstNode[] nodesInRange(int start, int end, Hashtable set) {
  */
 private AstNode[] potentialMatchingNodes(int start, int end) {
 	return this.nodesInRange(start, end, this.potentialMatchingNodes);
+}
+public void removePossibleMatch(AstNode node) {
+	this.potentialMatchingNodes.remove(node);
+}
+public void removeTrustedMatch(AstNode node) {
+	this.matchingNodes.remove(node);
 }
 /**
  * Visit the given method declaration and report the nodes that match exactly the

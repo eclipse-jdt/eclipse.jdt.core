@@ -31,6 +31,10 @@ public class FieldReferencePattern extends MultipleSearchPattern {
 	// type
 	protected char[] typeQualification;
 	protected char[] typeSimpleName;
+	
+	// read/write access
+	protected boolean readAccess = true;
+	protected boolean writeAccess = true;
 
 	protected char[] decodedName;
 
@@ -43,7 +47,9 @@ public FieldReferencePattern(
 	char[] declaringQualification,
 	char[] declaringSimpleName,	
 	char[] typeQualification, 
-	char[] typeSimpleName) {
+	char[] typeSimpleName,
+	boolean readAccess,
+	boolean writeAccess) {
 
 	super(matchMode, isCaseSensitive);
 
@@ -52,6 +58,8 @@ public FieldReferencePattern(
 	this.declaringSimpleName = isCaseSensitive ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
 	this.typeQualification = isCaseSensitive ? typeQualification : CharOperation.toLowerCase(typeQualification);
 	this.typeSimpleName = isCaseSensitive ? typeSimpleName : CharOperation.toLowerCase(typeSimpleName);
+	this.readAccess = readAccess;
+	this.writeAccess = writeAccess;
 
 	this.needsResolve = this.needsResolve();
 }
@@ -103,6 +111,24 @@ public char[] indexEntryPrefix(){
 			name,
 			matchMode, 
 			isCaseSensitive);
+}
+/**
+ * @see SearchPattern#matchCheck(AstNode, MatchSet)
+ */
+protected void matchCheck(AstNode node, MatchSet set) {
+	if (this.readAccess) {
+		super.matchCheck(node, set);
+	}
+	if (node instanceof Assignment) {
+		AstNode lhs = ((Assignment)node).lhs;
+		if (this.writeAccess) {
+			super.matchCheck(lhs, set);
+		} else {
+			// the lhs may have been added when checking if it was a read access
+			set.removePossibleMatch(lhs);
+			set.removeTrustedMatch(lhs);
+		}	
+	}
 }
 /**
  * @see SearchPattern#matchContainer()

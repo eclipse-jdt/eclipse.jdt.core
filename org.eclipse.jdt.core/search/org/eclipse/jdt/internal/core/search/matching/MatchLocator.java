@@ -662,21 +662,7 @@ public class MatchLocator implements ITypeRequestor {
 		}
 
 		// accept reference
-		if (reference instanceof QualifiedNameReference
-			|| reference instanceof QualifiedTypeReference
-			|| reference instanceof ArrayTypeReference) {
-			this.pattern.matchReportReference(reference, enclosingElement, accuracy, this);
-		} else
-			if (reference instanceof MessageSend) {
-				// message ref are starting at the selector start
-				this.report(
-					(int) (((MessageSend) reference).nameSourcePosition >> 32),
-					reference.sourceEnd,
-					enclosingElement,
-					accuracy);
-			} else {
-				this.report(reference.sourceStart, reference.sourceEnd, enclosingElement, accuracy);
-			}
+		this.pattern.matchReportReference(reference, enclosingElement, accuracy, this);
 	}
 
 	/**
@@ -703,21 +689,7 @@ public class MatchLocator implements ITypeRequestor {
 			}
 
 			// accept reference
-			if (reference instanceof QualifiedNameReference
-				|| reference instanceof QualifiedTypeReference
-				|| reference instanceof ArrayTypeReference) {
-				this.pattern.matchReportReference(reference, enclosingElement, accuracy, this);
-			} else
-				if (reference instanceof MessageSend) {
-					// message ref are starting at the selector start
-					this.report(
-						(int) (((MessageSend) reference).nameSourcePosition >> 32),
-						reference.sourceEnd,
-						enclosingElement,
-						accuracy);
-				} else {
-					this.report(reference.sourceStart, reference.sourceEnd, enclosingElement, accuracy);
-				}
+			this.pattern.matchReportReference(reference, enclosingElement, accuracy, this);
 		} else { // initializer
 			if (parent instanceof IType) {
 				// create defining initializer
@@ -732,25 +704,7 @@ public class MatchLocator implements ITypeRequestor {
 			}
 
 			// accept reference
-			if (reference instanceof QualifiedNameReference
-				|| reference instanceof QualifiedTypeReference
-				|| reference instanceof ArrayTypeReference) {
-				this.pattern.matchReportReference(
-					reference,
-					enclosingElement,
-					accuracy,
-					this);
-			} else
-				if (reference instanceof MessageSend) {
-					// message ref are starting at the selector start
-					this.report(
-						(int) (((MessageSend) reference).nameSourcePosition >> 32),
-						reference.sourceEnd,
-						enclosingElement,
-						accuracy);
-				} else {
-					this.report(reference.sourceStart, reference.sourceEnd, enclosingElement, accuracy);
-				}
+			this.pattern.matchReportReference(reference, enclosingElement, accuracy, this);
 		}
 	}
 

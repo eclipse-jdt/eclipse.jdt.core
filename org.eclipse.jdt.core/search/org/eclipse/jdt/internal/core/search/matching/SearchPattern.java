@@ -34,14 +34,15 @@ public abstract class SearchPattern implements ISearchPattern, IIndexConstants, 
 	/* match level */
 	public static final int IMPOSSIBLE_MATCH = 0;
 	public static final int POSSIBLE_MATCH = 1;
+	public static final int ACCURATE_MATCH = 2;
+	public static final int INACCURATE_MATCH = 3;
+
 	/* match container */
 	public static final int COMPILATION_UNIT = 1;
 	public static final int CLASS = 2;
 	public static final int FIELD = 4;
 	public static final int METHOD = 8;
 	
-	public static final int ACCURATE_MATCH = 2;
-	public static final int INACCURATE_MATCH = 3;
 	public static final char[][][] NOT_FOUND_DECLARING_TYPE = new char[0][][];
 
 public SearchPattern(int matchMode, boolean isCaseSensitive) {
@@ -261,15 +262,75 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 	SearchPattern searchPattern = null;
 	switch (limitTo){
 		case IJavaSearchConstants.DECLARATIONS :
-			searchPattern = new FieldDeclarationPattern(fieldNameChars, matchMode, isCaseSensitive, declaringTypeQualification, declaringTypeSimpleName, typeQualification, typeSimpleName);
+			searchPattern = 
+				new FieldDeclarationPattern(
+				fieldNameChars, 
+				matchMode, 
+				isCaseSensitive, 
+				declaringTypeQualification, 
+				declaringTypeSimpleName, 
+				typeQualification, 
+				typeSimpleName);
 			break;
 		case IJavaSearchConstants.REFERENCES :
-			searchPattern = new FieldReferencePattern(fieldNameChars, matchMode, isCaseSensitive, declaringTypeQualification, declaringTypeSimpleName, typeQualification, typeSimpleName);
+			searchPattern = 
+				new FieldReferencePattern(
+					fieldNameChars, 
+					matchMode, 
+					isCaseSensitive, 
+					declaringTypeQualification, 
+					declaringTypeSimpleName, 
+					typeQualification, 
+					typeSimpleName,
+					true, // read access
+					true); // write access
+			break;
+		case IJavaSearchConstants.READ_REFERENCES :
+			searchPattern = 
+				new FieldReferencePattern(
+					fieldNameChars, 
+					matchMode, 
+					isCaseSensitive, 
+					declaringTypeQualification, 
+					declaringTypeSimpleName, 
+					typeQualification, 
+					typeSimpleName,
+					true, // read access only
+					false);
+			break;
+		case IJavaSearchConstants.WRITE_REFERENCES :
+			searchPattern = 
+				new FieldReferencePattern(
+					fieldNameChars, 
+					matchMode, 
+					isCaseSensitive, 
+					declaringTypeQualification, 
+					declaringTypeSimpleName, 
+					typeQualification, 
+					typeSimpleName,
+					false,
+					true); // write access only
 			break;
 		case IJavaSearchConstants.ALL_OCCURRENCES :
 			searchPattern = new OrPattern(
-				new FieldDeclarationPattern(fieldNameChars, matchMode, isCaseSensitive, declaringTypeQualification, declaringTypeSimpleName, typeQualification, typeSimpleName),
-				new FieldReferencePattern(fieldNameChars, matchMode, isCaseSensitive, declaringTypeQualification, declaringTypeSimpleName, typeQualification, typeSimpleName));
+				new FieldDeclarationPattern(
+					fieldNameChars, 
+					matchMode, 
+					isCaseSensitive, 
+					declaringTypeQualification, 
+					declaringTypeSimpleName, 
+					typeQualification, 
+					typeSimpleName),
+				new FieldReferencePattern(
+					fieldNameChars, 
+					matchMode, 
+					isCaseSensitive, 
+					declaringTypeQualification, 
+					declaringTypeSimpleName, 
+					typeQualification, 
+					typeSimpleName,
+					true, // read access
+					true)); // write access
 			break;
 	}
 	return searchPattern;
@@ -503,15 +564,75 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			}
 			switch (limitTo) {
 				case IJavaSearchConstants.DECLARATIONS :
-					searchPattern = new FieldDeclarationPattern(name, EXACT_MATCH, CASE_SENSITIVE, declaringQualification, declaringSimpleName, typeQualification, typeSimpleName);
+					searchPattern = 
+						new FieldDeclarationPattern(
+							name, 
+							EXACT_MATCH, 
+							CASE_SENSITIVE, 
+							declaringQualification, 
+							declaringSimpleName, 
+							typeQualification, 
+							typeSimpleName);
 					break;
 				case IJavaSearchConstants.REFERENCES :
-					searchPattern = new FieldReferencePattern(name, EXACT_MATCH, CASE_SENSITIVE, declaringQualification, declaringSimpleName, typeQualification, typeSimpleName);
+					searchPattern = 
+						new FieldReferencePattern(
+							name, 
+							EXACT_MATCH, 
+							CASE_SENSITIVE, 
+							declaringQualification, 
+							declaringSimpleName, 
+							typeQualification, 
+							typeSimpleName,
+							true,  // read access
+							true); // write access
+					break;
+				case IJavaSearchConstants.READ_REFERENCES :
+					searchPattern = 
+						new FieldReferencePattern(
+							name, 
+							EXACT_MATCH, 
+							CASE_SENSITIVE, 
+							declaringQualification, 
+							declaringSimpleName, 
+							typeQualification, 
+							typeSimpleName,
+							true,  // read access only
+							false);
+					break;
+				case IJavaSearchConstants.WRITE_REFERENCES :
+					searchPattern = 
+						new FieldReferencePattern(
+							name, 
+							EXACT_MATCH, 
+							CASE_SENSITIVE, 
+							declaringQualification, 
+							declaringSimpleName, 
+							typeQualification, 
+							typeSimpleName,
+							false,
+							true); // write access only
 					break;
 				case IJavaSearchConstants.ALL_OCCURRENCES :
 					searchPattern = new OrPattern(
-						new FieldDeclarationPattern(name, EXACT_MATCH, CASE_SENSITIVE, declaringQualification, declaringSimpleName, typeQualification, typeSimpleName), 
-						new FieldReferencePattern(name, EXACT_MATCH, CASE_SENSITIVE, declaringQualification, declaringSimpleName, typeQualification, typeSimpleName));
+						new FieldDeclarationPattern(
+							name, 
+							EXACT_MATCH, 
+							CASE_SENSITIVE, 
+							declaringQualification, 
+							declaringSimpleName, 
+							typeQualification, 
+							typeSimpleName), 
+						new FieldReferencePattern(
+							name, 
+							EXACT_MATCH, 
+							CASE_SENSITIVE, 
+							declaringQualification, 
+							declaringSimpleName, 
+							typeQualification, 
+							typeSimpleName,
+							true,  // read access
+							true)); // write access
 					break;
 			}
 			break;
@@ -758,6 +879,21 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
  * to be eliminated later on.
  */
 public abstract char[] indexEntryPrefix();
+/**
+ * Check if the given ast node syntactically matches this pattern.
+ * If it does, add it to the match set.
+ */
+protected void matchCheck(AstNode node, MatchSet set) {
+	int matchLevel = this.matchLevel(node, false);
+	switch (matchLevel) {
+		case SearchPattern.POSSIBLE_MATCH:
+			set.addPossibleMatch(node);
+			break;
+		case SearchPattern.ACCURATE_MATCH:
+			set.addTrustedMatch(node);
+	}
+}
+
 /**
  * Returns the type of container of this pattern, i.e. is it in compilation unit,
  * in class declarations, field declarations, or in method declarations.

@@ -101,6 +101,12 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
 	}
 }
+protected void consumeAssignment() {
+	super.consumeAssignment();
+	if (this.matchSet != null) {
+		this.matchSet.checkMatching(this.expressionStack[this.expressionPtr]);
+	}
+}	
 protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 	super.consumeExplicitConstructorInvocation(flag, recFlag);
 	if (this.matchSet != null) {

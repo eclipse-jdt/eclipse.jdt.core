@@ -73,6 +73,14 @@ public interface IJavaSearchConstants {
 	 * of an interface.
 	 */
 	int ALL_OCCURRENCES= 3;
+	/**
+	 * The search result is only a read access to a field, it is not a write access.
+	 */
+	int READ_REFERENCES = 4;
+	/**
+	 * The search result is only a write access to a field, it is not a read access.
+	 */
+	int WRITE_REFERENCES = 5;
 
 	/* Syntactic match modes */
 	
