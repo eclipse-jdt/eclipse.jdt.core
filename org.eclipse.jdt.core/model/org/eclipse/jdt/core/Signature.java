@@ -1408,19 +1408,15 @@ public static char[][] getTypeParameters(char[] methodOrTypeSignature) throws Il
 		if (length == 0) return CharOperation.NO_CHAR_CHAR;
 		if (methodOrTypeSignature[0] != C_GENERIC_START) return CharOperation.NO_CHAR_CHAR;
 		
-		// for method signature, located argument start
-		int paren = CharOperation.indexOf(C_PARAM_START, methodOrTypeSignature);
-		length = paren < 0 ? methodOrTypeSignature.length : paren;
 		ArrayList paramList = new ArrayList(1);
 		int paramStart = 1, i = 1;  // start after leading '<'
 		while (i < length) {
-			if (i == length-1) {
-				if (methodOrTypeSignature[i] == C_GENERIC_END) {
-					char[][] result;
-					paramList.toArray(result = new char[paramList.size()][]);
-					return result;
-				}
-				break;
+			if (methodOrTypeSignature[i] == C_GENERIC_END) {
+				int size = paramList.size();
+				if (size == 0) throw new IllegalArgumentException(); 
+				char[][] result;
+				paramList.toArray(result = new char[size][]);
+				return result;
 			}
 			i = CharOperation.indexOf(C_COLON, methodOrTypeSignature, i);
 			if (i < 0 || i >= length) throw new IllegalArgumentException();
