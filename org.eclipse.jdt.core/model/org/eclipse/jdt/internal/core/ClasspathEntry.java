@@ -56,6 +56,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	public static final String TAG_EXCLUDING = "excluding"; //$NON-NLS-1$
 	public static final String TAG_ACCESSIBLE = "accessible"; //$NON-NLS-1$
 	public static final String TAG_NONACCESSIBLE = "nonaccessible"; //$NON-NLS-1$
+	public static final String TAG_COMBINE_ACCESS_RESTRICTIONS = "combinerestrictions"; //$NON-NLS-1$
 	public static final String TAG_ATTRIBUTES = "attributes"; //$NON-NLS-1$
 	public static final String TAG_ATTRIBUTE = "attribute"; //$NON-NLS-1$
 	public static final String TAG_ATTRIBUTE_NAME = "name"; //$NON-NLS-1$
@@ -110,6 +111,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	private IPath[] accessibleFiles;
 	private IPath[] nonAccessibleFiles;
+	private boolean combineAccessRestrictions;
 	
 	private String rootID;
 	private AccessRestriction importRestriction;
@@ -187,6 +189,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		boolean isExported,
 		IPath[] accessibleFiles,
 		IPath[] nonAccessibleFiles,
+		boolean combineAccessRestrictions,
 		IClasspathAttribute[] extraAttributes) {
 
 		this.contentKind = contentKind;
@@ -196,6 +199,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.exclusionPatterns = exclusionPatterns;
 		this.accessibleFiles = accessibleFiles;
 		this.nonAccessibleFiles = nonAccessibleFiles;
+		this.combineAccessRestrictions = combineAccessRestrictions;
 		this.extraAttributes = extraAttributes;
 		
 	    if (inclusionPatterns != INCLUDE_ALL && inclusionPatterns.length > 0) {
@@ -216,6 +220,10 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.isExported = isExported;
 	}
 	
+	public boolean combineAccessRestrictions() {
+		return this.combineAccessRestrictions;
+	}
+	
 	/**
 	 * Used to perform export/restriction propagation across referring projects/containers
 	 */
@@ -224,14 +232,16 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (referringEntry.isExported() 
 				|| referringEntry.getAccessibleFiles().length > 0 
 				|| referringEntry.getNonAccessibleFiles().length > 0) {
+			boolean combine = this.entryKind == CPE_SOURCE || referringEntry.combineAccessRestrictions();
 			return new ClasspathEntry(
 								this.getContentKind(), this.getEntryKind(), this.getPath(),
 								this.getInclusionPatterns(), 
 								this.getExclusionPatterns(), 
 								this.getSourceAttachmentPath(), this.getSourceAttachmentRootPath(), this.getOutputLocation(), 
 								referringEntry.isExported()|| this.isExported, // duplicate container entry for tagging it as exported
-								ClasspathEntry.concatPatterns(referringEntry.getAccessibleFiles(), this.getAccessibleFiles()), 
-								ClasspathEntry.concatPatterns(referringEntry.getNonAccessibleFiles(), this.getNonAccessibleFiles()),
+								combine ? ClasspathEntry.concatPatterns(referringEntry.getAccessibleFiles(), this.getAccessibleFiles()) : referringEntry.getAccessibleFiles(), 
+								combine ? ClasspathEntry.concatPatterns(referringEntry.getNonAccessibleFiles(), this.getNonAccessibleFiles()) : referringEntry.getNonAccessibleFiles(),
+								this.combineAccessRestrictions,
 								this.extraAttributes); 
 		}
 		// no need to clone
@@ -374,6 +384,8 @@ public class ClasspathEntry implements IClasspathEntry {
 		encodePatterns(this.exclusionPatterns, TAG_EXCLUDING, parameters);
 		encodePatterns(this.accessibleFiles, TAG_ACCESSIBLE, parameters);
 		encodePatterns(this.nonAccessibleFiles, TAG_NONACCESSIBLE, parameters);
+		if (this.entryKind == CPE_PROJECT && !this.combineAccessRestrictions)
+			parameters.put(TAG_COMBINE_ACCESS_RESTRICTIONS, "false"); //$NON-NLS-1$
 		
 		
 		if (this.specificOutputLocation != null) {
@@ -448,6 +460,9 @@ public class ClasspathEntry implements IClasspathEntry {
 		IPath[] nonAccessibleFiles = decodePatterns(element, TAG_NONACCESSIBLE);
 		if (nonAccessibleFiles == null) nonAccessibleFiles = exclusionPatterns; // backward compatible
 		
+		// combine access restrictions (optional)
+		boolean combineAccessRestrictions = !element.getAttribute(TAG_COMBINE_ACCESS_RESTRICTIONS).equals("false"); //$NON-NLS-1$
+		
 		// extra attributes (optional)
 		IClasspathAttribute[] extraAttributes = decodeExtraAttributes(element);
 		
@@ -462,6 +477,7 @@ public class ClasspathEntry implements IClasspathEntry {
 												path, 
 												accessibleFiles,
 												nonAccessibleFiles,
+												combineAccessRestrictions,
 												extraAttributes,
 												isExported);
 				
@@ -487,6 +503,7 @@ public class ClasspathEntry implements IClasspathEntry {
 												path, 
 												accessibleFiles,
 												nonAccessibleFiles,
+												combineAccessRestrictions,
 												extraAttributes,
 												isExported);
 					} else {
@@ -527,6 +544,7 @@ public class ClasspathEntry implements IClasspathEntry {
 						false,
 						INCLUDE_ALL, 
 						EXCLUDE_NONE,
+						false, // no accessible files to combine
 						NO_EXTRA_ATTRIBUTES);
 			default :
 				throw new Assert.AssertionFailedException(Util.bind("classpath.unknownKind", kindAttr)); //$NON-NLS-1$
@@ -594,6 +612,8 @@ public class ClasspathEntry implements IClasspathEntry {
 			if (!equalPatterns(this.accessibleFiles, otherEntry.getAccessibleFiles()))
 				return false;
 			if (!equalPatterns(this.nonAccessibleFiles, otherEntry.getNonAccessibleFiles()))
+				return false;
+			if (this.combineAccessRestrictions != otherEntry.combineAccessRestrictions())
 				return false;
 			otherPath = otherEntry.getOutputLocation();
 			if (this.specificOutputLocation == null) {
@@ -694,7 +714,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 
 	/**
-	 * Defines access restriction rules for project import
+	 * Defines access restriction restrictions for project import
 	 */	
 	public AccessRestriction getImportRestriction() {
 		
@@ -917,6 +937,11 @@ public class ClasspathEntry implements IClasspathEntry {
 					buffer.append('|');
 				}
 			}
+			buffer.append(']');
+		}
+		if (this.entryKind == CPE_PROJECT) {
+			buffer.append("[combine access restrictions:"); //$NON-NLS-1$
+			buffer.append(this.combineAccessRestrictions);
 			buffer.append(']');
 		}
 		if (getOutputLocation() != null) {

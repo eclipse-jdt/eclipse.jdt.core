@@ -74,7 +74,8 @@ public ClasspathTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	TESTS_NAMES = new String[] {"testExtraAttributes2"};
+//	TESTS_PREFIX = "testCombineAccessRestrictions";
+//	TESTS_NAMES = new String[] {"testCombineAccessRestrictions5"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -2448,6 +2449,128 @@ public void testReadEmptyCustomOutput() throws CoreException {
 	}
 }
 
+/*
+ * Ensures that setting the 'combineAccessRestrictions' flag to false on a project entry generates the correct .classpath file.
+ */
+public void testCombineAccessRestrictions1() throws CoreException {
+	try {
+		createJavaProject("P1");
+		IJavaProject project = createJavaProject("P2");
+		IClasspathEntry entry = JavaCore.newProjectEntry(new Path("/P1"), new IPath[0], new IPath[0], false/*don't combine*/, new IClasspathAttribute[] {}, false);
+		project.setRawClasspath(new IClasspathEntry[] {entry}, null);
+		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P2/.classpath")));
+		assertSourceEquals(
+			"Unexpected content", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" combinerestrictions=\"false\" path=\"/P1\">\n" + 
+			"		<attributes>\n" + 
+			"		</attributes>\n" + 
+			"	</classpathentry>\n" + 
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+			"</classpath>\n",
+			contents);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
+/*
+ * Ensures that setting the 'combineAccessRestrictions' flag to true on a project entry generates the correct .classpath file.
+ */
+public void testCombineAccessRestrictions2() throws CoreException {
+	try {
+		createJavaProject("P1");
+		IJavaProject project = createJavaProject("P2");
+		IClasspathEntry entry = JavaCore.newProjectEntry(new Path("/P1"), new IPath[0], new IPath[0], true/*combine*/, new IClasspathAttribute[] {}, false);
+		project.setRawClasspath(new IClasspathEntry[] {entry}, null);
+		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P2/.classpath")));
+		assertSourceEquals(
+			"Unexpected content", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" path=\"/P1\">\n" + 
+			"		<attributes>\n" + 
+			"		</attributes>\n" + 
+			"	</classpathentry>\n" + 
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+			"</classpath>\n",
+			contents);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
+/*
+ * Ensures that 'combineAccessRestrictions' flag in a .classpath file is correctly read.
+ */
+public void testCombineAccessRestrictions3() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P2");
+		editFile(
+			"/P2/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" combinerestrictions=\"false\" path=\"/P1\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+			"</classpath>\n"
+		);
+		assertClasspathEquals(
+			project.getRawClasspath(),
+			"/P1[CPE_PROJECT][K_SOURCE][isExported:false][combine access restrictions:false]"
+		);
+	} finally {
+		deleteProject("P2");
+	}
+}
+
+/*
+ * Ensures that the absence of 'combineAccessRestrictions' flag in a .classpath file is correctly handled.
+ */
+public void testCombineAccessRestrictions4() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P2");
+		editFile(
+			"/P2/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" path=\"/P1\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
+			"</classpath>\n"
+		);
+		assertClasspathEquals(
+			project.getRawClasspath(),
+			"/P1[CPE_PROJECT][K_SOURCE][isExported:false][combine access restrictions:true]"
+		);
+	} finally {
+		deleteProject("P2");
+	}
+}
+
+/*
+ * Ensures that the absence of 'combineAccessRestrictions' flag in a .classpath file is correctly handled.
+ */
+public void testCombineAccessRestrictions5() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P2");
+		editFile(
+			"/P2/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" path=\"src\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>\n"
+		);
+		assertClasspathEquals(
+			project.getRawClasspath(),
+			"/P2/src[CPE_SOURCE][K_SOURCE][isExported:false]"
+		);
+	} finally {
+		deleteProject("P2");
+	}
+}
 
 public void testCycleDetection() throws CoreException {
 	
@@ -3184,6 +3307,7 @@ public void testBug55992a() throws CoreException {
 			false,
 			ClasspathEntry.INCLUDE_ALL, 
 			ClasspathEntry.EXCLUDE_NONE,
+			false,
 			ClasspathEntry.NO_EXTRA_ATTRIBUTES);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, cp, false);
 		assertEquals(

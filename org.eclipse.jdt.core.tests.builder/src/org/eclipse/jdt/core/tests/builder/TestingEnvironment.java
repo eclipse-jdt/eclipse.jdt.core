@@ -173,7 +173,7 @@ public class TestingEnvironment {
 	 */
 	public void addRequiredProject(IPath projectPath, IPath requiredProjectPath, IPath[] inclusionPatterns, IPath[] exclusionPatterns, boolean isExported) throws JavaModelException {
 		checkAssertion("required project must not be in project", !projectPath.isPrefixOf(requiredProjectPath)); //$NON-NLS-1$
-		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, inclusionPatterns, exclusionPatterns, isExported));
+		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, inclusionPatterns, exclusionPatterns, true, new IClasspathAttribute[0], isExported));
 	}
 
 	public void addExternalJars(IPath projectPath, String[] jars) throws JavaModelException {

@@ -220,6 +220,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			srcAttachmentPathRoot, 
 			inclusionPatterns == null ? new IPath[0] : inclusionPatterns, 
 			exclusionPatterns == null ? new IPath[0] : exclusionPatterns, 
+			new IClasspathAttribute[0], 
 			exported);
 		project.setRawClasspath(entries, null);
 	}
@@ -686,6 +687,39 @@ protected void assertDeltas(String message, String expected) {
 			final String[][] inclusionPatterns,
 			final String[][] exclusionPatterns,
 			final String compliance) throws CoreException {
+		return createJavaProject(
+			projectName,
+			sourceFolders,
+			libraries,
+			librariesInclusionPatterns,
+			librariesExclusionPatterns,
+			projects,
+			projectsInclusionPatterns,
+			projectsExclusionPatterns,
+			true, // combine access restrictions by default
+			exportedProjects,
+			projectOutput,
+			sourceOutputs,
+			inclusionPatterns,
+			exclusionPatterns,
+			compliance);
+	}
+	protected IJavaProject createJavaProject(
+			final String projectName,
+			final String[] sourceFolders,
+			final String[] libraries,
+			final String[][] librariesInclusionPatterns,
+			final String[][] librariesExclusionPatterns,
+			final String[] projects,
+			final String[][] projectsInclusionPatterns,
+			final String[][] projectsExclusionPatterns,
+			final boolean combineAccessRestrictions,
+			final boolean[] exportedProjects,
+			final String projectOutput,
+			final String[] sourceOutputs,
+			final String[][] inclusionPatterns,
+			final String[][] exclusionPatterns,
+			final String compliance) throws CoreException {
 		final IJavaProject[] result = new IJavaProject[1];
 		IWorkspaceRunnable create = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -809,7 +843,9 @@ protected void assertDeltas(String message, String expected) {
 						entries[sourceLength+i] = JavaCore.newContainerEntry(
 								new Path(lib),
 								inclusionPaths,
-								exclusionPaths, false);
+								exclusionPaths, 
+								new IClasspathAttribute[0],
+								false);
 					} else {
 						IPath libPath = new Path(lib);
 						if (!libPath.isAbsolute() && libPath.segmentCount() > 0 && libPath.getFileExtension() == null) {
@@ -822,6 +858,7 @@ protected void assertDeltas(String message, String expected) {
 								null,
 								inclusionPaths,
 								exclusionPaths,
+								new IClasspathAttribute[0], 
 								false);
 					}
 				}
@@ -860,6 +897,8 @@ protected void assertDeltas(String message, String expected) {
 								new Path(projects[i]),
 								inclusionPaths,
 								exclusionPaths,
+								combineAccessRestrictions,
+								new IClasspathAttribute[0], 
 								isExported);
 				}
 				
@@ -1546,7 +1585,14 @@ protected void assertDeltas(String message, String expected) {
 			for (int i = 0, length = classpath.length; i < length; i++) {
 				IClasspathEntry entry = classpath[i];
 				if (entry.getPath().equals(jclLib)) {
-					classpath[i] = JavaCore.newVariableEntry(new Path("JCL15_LIB"), new Path("JCL15_SRC"), entry.getSourceAttachmentRootPath(), entry.getAccessibleFiles(), entry.getNonAccessibleFiles(), entry.isExported());
+					classpath[i] = JavaCore.newVariableEntry(
+							new Path("JCL15_LIB"), 
+							new Path("JCL15_SRC"), 
+							entry.getSourceAttachmentRootPath(), 
+							entry.getAccessibleFiles(), 
+							entry.getNonAccessibleFiles(), 
+							new IClasspathAttribute[0], 
+							entry.isExported());
 					break;
 				}
 			}

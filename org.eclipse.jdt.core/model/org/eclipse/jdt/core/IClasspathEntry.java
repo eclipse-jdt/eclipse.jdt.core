@@ -146,6 +146,16 @@ public interface IClasspathEntry {
 	 * @since 2.0
 	 */
 	int CPE_CONTAINER = 5;
+	
+	/**
+	 * Returns whether the access restrictions of the project's exported entries should be combined with these access restrictions.
+	 * Returns true for container entries.
+	 * Returns false otherwise.
+	 * 
+	 * @return whether the access restrictions of the project's exported entries should be combined with these access restrictions
+	 * @since 3.1
+	 */
+	boolean combineAccessRestrictions();
 
 	/**
 	 * Returns the set of patterns used to explicitly allow access to files 

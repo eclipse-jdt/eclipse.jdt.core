@@ -32,6 +32,7 @@ package org.eclipse.jdt.core;
  *			org.eclipse.core.runtime.IPath path, 
  *			org.eclipse.core.runtime.IPath[] accessibleFiles, 
  *			org.eclipse.core.runtime.IPath[] nonAccessibleFiles, 
+ *			boolean combineAccessRestrictions,
  *			IClasspathAttribute[] extraAttributes,
  *			boolean isExported)	
  * @see JavaCore#newSourceEntry(

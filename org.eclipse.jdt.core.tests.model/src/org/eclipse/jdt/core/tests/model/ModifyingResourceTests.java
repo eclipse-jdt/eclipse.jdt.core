@@ -277,7 +277,7 @@ protected IClasspathEntry[] createClasspath(String projectName, String[] folders
 		}
 		IPath folderPath = new Path(src);
 		if (projectName != null && folderPath.segmentCount() == 1 && !projectName.equals(folderPath.lastSegment())) {
-			classpath[i/increment] = JavaCore.newProjectEntry(folderPath, inclusionPatternPaths, exclusionPatternPaths, false); 
+			classpath[i/increment] = JavaCore.newProjectEntry(folderPath, inclusionPatternPaths, exclusionPatternPaths, true/*combine access restrictions*/, new IClasspathAttribute[0], false); 
 		} else {
 			classpath[i/increment] = JavaCore.newSourceEntry(folderPath, inclusionPatternPaths, exclusionPatternPaths, null); 
 		}

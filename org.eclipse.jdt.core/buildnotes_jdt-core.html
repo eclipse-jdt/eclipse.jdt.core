@@ -49,10 +49,16 @@ What's new in this drop</h2>
 <ul>
 <li>Add support for package-info.java. This allows to define annotations on the package declaration. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86167">86167</a> for 
 further details.</li>
+<li>Added API <code>JavaCore#newProjectEntry(IPath, IPath[], IPath[], boolean, IClasspathAttribute[], boolean)</code>
+      that take a 'combineAccessRestrictions' flag to control whether access restrictions of exported libraries of the project
+      should be combined with the access restrictions of this project entry.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86167">86167</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87613">87613</a>
+Access restrictions should only apply to project's own package fragment roots
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86167">86167</a>
 [1.5] Add support for package-info.java
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=87350">87350</a>
 IllegalArgumentException when converting AST with invalid enum body declaration

@@ -63,7 +63,7 @@ public ReconcilerTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-	//TESTS_NAMES = new String[] { "testIncludePartOfAnotherProject2" };
+	//TESTS_NAMES = new String[] { "testAccessRestriction4" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 	//TESTS_NUMBERS = new int[] { 13 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -227,6 +227,56 @@ public void testAccessRestriction2() throws CoreException, IOException {
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");
+	}
+}
+/*
+ * Ensures that no problem is created for a reference to a type that is included and not exported in a prereq project
+ * but with combineAccessRestriction flag set to false.
+ */
+public void testAccessRestriction3() throws CoreException {
+	try {
+		createJavaProject("P1");
+		createFolder("/P1/p");
+		createFile("/P1/p/X.java", "package p; public class X {}");
+		
+		createJavaProject("P2", new String[] {}, new String[] {}, null, null, new String[] {"/P1"}, null, new String[][] {new String[] {"**/X.java"}}, new boolean[] {true}, "", null, null, null, "1.4");
+		
+		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL_LIB"}, null, null, new String[] {"/P2"}, null, null, false/*don't combine access restrictions*/, new boolean[] {true}, "bin", null, null, null, "1.4");
+		setUpWorkingCopy("/P3/src/Y.java", "public class Y extends p.X {}");
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2", "P3" });
+	}
+}
+/*
+ * Ensures that a problem is created for a reference to a type that is included and not exported in a prereq project
+ * but with combineAccessRestriction flag set to true.
+ */
+public void testAccessRestriction4() throws CoreException {
+	try {
+		createJavaProject("P1");
+		createFolder("/P1/p");
+		createFile("/P1/p/X.java", "package p; public class X {}");
+		
+		createJavaProject("P2", new String[] {}, new String[] {}, null, null, new String[] {"/P1"}, null, new String[][] {new String[] {"**/X.java"}}, new boolean[] {true}, "", null, null, null, "1.4");
+		
+		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL_LIB"}, null, null, new String[] {"/P2"}, null, null, true/*combine access restrictions*/, new boolean[] {true}, "bin", null, null, null, "1.4");
+		setUpWorkingCopy("/P3/src/Y.java", "public class Y extends p.X {}");
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"1. WARNING in /P3/src/Y.java (at line 1)\n" + 
+			"	public class Y extends p.X {}\n" + 
+			"	                       ^^^\n" + 
+			"Access restriction: The type X is not accessible due to restriction on required project P1\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2", "P3" });
 	}
 }
 /**
