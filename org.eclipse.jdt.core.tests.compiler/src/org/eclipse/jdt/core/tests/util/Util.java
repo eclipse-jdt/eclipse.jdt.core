@@ -96,7 +96,6 @@ public static String displayString(String inputString, int indent) {
 	int length = inputString.length();
 	StringBuffer buffer = new StringBuffer(length);
 	java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(inputString, "\n\r", true);
-	int count = 0;
 	for (int i = 0; i < indent; i++) buffer.append("\t");
 	buffer.append("\"");
 	boolean wasACr = false;
