@@ -194,8 +194,8 @@ public  final boolean atEnd() {
 	return source.length == currentPosition;
 }
 
-private void checkNonExternalizeString()  throws InvalidInputException {
-	if (currentLine == null)
+private void checkNonExternalizedString()  throws InvalidInputException {
+	if (currentLine == null) 
 		return;
 	parseTags(currentLine);
 }
@@ -823,7 +823,7 @@ public int getNextToken() throws InvalidInputException {
 				} else {
 					offset = 1;
 					if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
-						checkNonExternalizeString();
+						checkNonExternalizedString();
 						if (recordLineSeparator) {
 							pushLineSeparator();
 						} else {
@@ -1230,7 +1230,7 @@ public int getNextToken() throws InvalidInputException {
 								recordComment(false);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
-									checkNonExternalizeString();
+									checkNonExternalizedString();
 									if (recordLineSeparator) {
 										if (isUnicode) {
 											pushUnicodeLineSeparator();
@@ -1276,7 +1276,7 @@ public int getNextToken() throws InvalidInputException {
 									star = true;
 								}
 								if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
-									checkNonExternalizeString();
+									checkNonExternalizedString();
 									if (recordLineSeparator) {
 										if (!isUnicode) {
 											pushLineSeparator();
@@ -1302,7 +1302,7 @@ public int getNextToken() throws InvalidInputException {
 								//loop until end of comment */
 								while ((currentCharacter != '/') || (!star)) {
 									if ((currentCharacter == '\r') || (currentCharacter == '\n')) {
-										checkNonExternalizeString();
+										checkNonExternalizedString();
 										if (recordLineSeparator) {
 											if (!isUnicode) {
 												pushLineSeparator();
