@@ -183,7 +183,6 @@ public void testBinaryTypeCorrespondingResource() throws CoreException {
  */
 public void testChangeOutputLocation() throws JavaModelException, CoreException {
 	IJavaProject project= getJavaProject("JavaProjectTests");
-	IPackageFragmentRoot root= getPackageFragmentRoot("JavaProjectTests", "");
 	IContainer underLyingResource = (IContainer)project.getUnderlyingResource();
 	IFolder folder= underLyingResource.getFolder(new Path("output"));
 

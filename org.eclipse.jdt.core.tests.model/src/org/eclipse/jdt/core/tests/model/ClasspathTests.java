@@ -1412,8 +1412,6 @@ public void testDefaultClasspathAndOutputLocation() throws CoreException {
 public void testEmptyClasspath() throws CoreException {
 	IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
 	try {
-		IPackageFragmentRoot[] oldRoots= project.getAllPackageFragmentRoots();
-
 		startDeltas();
 		setClasspath(project, new IClasspathEntry[] {});
 		IClasspathEntry[] cp= project.getRawClasspath();
