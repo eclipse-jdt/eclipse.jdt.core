@@ -32,8 +32,13 @@ protected String previousSubtask;
 
 public BuildNotifier(IProgressMonitor monitor, IProject project) {
 	this.monitor = monitor;
-// this isn't good enough when the project does not live inside the workspace
-	this.rootPathLength = project.getParent().getLocation().toString().length() + 1;
+	try {
+		this.rootPathLength = project.getDescription().getLocation() == null
+			? project.getParent().getLocation().toString().length() + 1
+			: project.getDescription().getLocation().toString().length() + 1;
+	} catch(CoreException e) {
+		this.rootPathLength = 0;
+	}
 	this.cancelling = false;
 	this.newErrorCount = 0;
 	this.fixedErrorCount = 0;
@@ -50,9 +55,8 @@ public void aboutToCompile(ICompilationUnit unit) {
 	String message = new String(unit.getFileName());
 	message = message.replace('\\', '/');
 	int end = message.lastIndexOf('/');
-	message = end <= rootPathLength
-		? Util.bind("build.compiling", message.substring(rootPathLength)) //$NON-NLS-1$
-		: Util.bind("build.compilingContent", message.substring(rootPathLength, end)); //$NON-NLS-1$
+	message = Util.bind("build.compiling", //$NON-NLS-1$
+		message.substring(rootPathLength, end <= rootPathLength ? message.length() : end));
 	subTask(message);
 }
 
@@ -91,9 +95,8 @@ public void compiled(ICompilationUnit unit) {
 	String message = new String(unit.getFileName());
 	message = message.replace('\\', '/');
 	int end = message.lastIndexOf('/');
-	message = end <= rootPathLength
-		? Util.bind("build.compiling", message.substring(rootPathLength)) //$NON-NLS-1$
-		: Util.bind("build.compilingContent", message.substring(rootPathLength, end)); //$NON-NLS-1$
+	message = Util.bind("build.compiling", //$NON-NLS-1$
+		message.substring(rootPathLength, end <= rootPathLength ? message.length() : end));
 	subTask(message);
 	updateProgressDelta(progressPerCompilationUnit);
 	checkCancelWithinCompiler();
