@@ -27,8 +27,6 @@ public class Buffer implements IBuffer {
 	protected int gapStart= -1;
 	protected int gapEnd= -1;
 
-	protected int highWatermark= 300;
-	protected int lowWatermark= 50;
 	protected Object lock= new Object();
 
 	protected static final int F_HAS_UNSAVED_CHANGES= 1;
@@ -57,19 +55,6 @@ public void addBufferChangedListener(IBufferChangedListener listener) {
 	}
 }
 /**
- * The <code>sizeHint</code> represents the range that will be filled afterwards.
- * If the gap is already at the right position, it must only be
- * resized if it will be no longer between low and high watermark.
- */
-protected void adjustGap(int position, int sizeHint) {
-	if (position == this.gapStart) {
-		int size = (this.gapEnd - this.gapStart) - sizeHint;
-		if (this.lowWatermark <= size && size <= this.highWatermark)
-			return;
-	}
-	moveAndResizeGap(position, sizeHint);
-}
-/**
  * Append the <code>text</code> to the actual content, the gap is moved
  * to the end of the <code>text</code>.
  */
@@ -79,7 +64,7 @@ public void append(char[] text) {
 			return;
 		}
 		int length = getLength();
-		adjustGap(length, text.length);
+		moveAndResizeGap(length, text.length);
 		System.arraycopy(text, 0, this.contents, length, text.length);
 		this.gapStart += text.length;
 		this.flags |= F_HAS_UNSAVED_CHANGES;
@@ -94,18 +79,7 @@ public void append(String text) {
 	if (text == null) {
 		return;
 	}
-	if (!isReadOnly()) {
-		int textLength = text.length();
-		if (textLength == 0) {
-			return;
-		}
-		int length = getLength();
-		adjustGap(length, textLength);
-		System.arraycopy(text.toCharArray(), 0, this.contents, length, textLength);
-		this.gapStart += textLength;
-		this.flags |= F_HAS_UNSAVED_CHANGES;
-		notifyChanged(new BufferChangedEvent(this, length, 0, text));
-	}
+	this.append(text.toCharArray());
 }
 /**
  * @see IBuffer
@@ -155,16 +129,7 @@ public char[] getCharacters() {
  */
 public String getContents() {
 	if (this.contents == null) return null;
-	synchronized (this.lock) {
-		if (this.gapStart < 0) {
-			return new String(this.contents);
-		}
-		int length = this.contents.length;
-		StringBuffer buffer = new StringBuffer(length - this.gapEnd + this.gapStart);
-		buffer.append(this.contents, 0, this.gapStart);
-		buffer.append(this.contents, this.gapEnd, length - this.gapEnd);
-		return buffer.toString();
-	}
+	return new String(this.getCharacters());
 }
 /**
  * @see IBuffer
@@ -238,8 +203,7 @@ public boolean isReadOnly() {
 protected void moveAndResizeGap(int position, int size) {
 	char[] content = null;
 	int oldSize = this.gapEnd - this.gapStart;
-	int newSize = this.highWatermark + size;
-	if (newSize < 0) {
+	if (size < 0) {
 		if (oldSize > 0) {
 			content = new char[this.contents.length - oldSize];
 			System.arraycopy(this.contents, 0, content, 0, this.gapStart);
@@ -249,9 +213,9 @@ protected void moveAndResizeGap(int position, int size) {
 		this.gapStart = this.gapEnd = position;
 		return;
 	}
-	content = new char[this.contents.length + (newSize - oldSize)];
+	content = new char[this.contents.length + (size - oldSize)];
 	int newGapStart = position;
-	int newGapEnd = newGapStart + newSize;
+	int newGapEnd = newGapStart + size;
 	if (oldSize == 0) {
 		System.arraycopy(this.contents, 0, content, 0, newGapStart);
 		System.arraycopy(this.contents, newGapStart, content, newGapEnd, content.length - newGapEnd);
@@ -301,31 +265,28 @@ public void removeBufferChangedListener(IBufferChangedListener listener) {
  */
 public void replace(int position, int length, char[] text) {
 	if (!isReadOnly()) {
-		if (text == null) {
-			text = new char[0];
-		}
+		int textLength = text == null ? 0 : text.length;
 		synchronized (this.lock) {
 			// move gap
-			adjustGap(position + length, text.length - length);
+			moveAndResizeGap(position + length, textLength - length);
 
 			// overwrite
-			int min = Math.min(text.length, length);
-			for (int i = position, j = 0; i < position + min; i++, j++)
-				this.contents[i] = text[j];
-			if (length > text.length) {
+			int min = Math.min(textLength, length);
+			if (min > 0) {
+				System.arraycopy(text, 0, this.contents, position, min);
+			}
+			if (length > textLength) {
 				// enlarge the gap
-				this.gapStart -= (length - text.length);
-			} else
-				if (text.length > length) {
-					// shrink gap
-					this.gapStart += (text.length - length);
-					for (int i = length; i < text.length; i++)
-						this.contents[position + i] = text[i];
-				}
+				this.gapStart -= length - textLength;
+			} else if (textLength > length) {
+				// shrink gap
+				this.gapStart += textLength - length;
+				System.arraycopy(text, 0, this.contents, position, textLength);
+			}
 		}
 		this.flags |= F_HAS_UNSAVED_CHANGES;
 		String string = null;
-		if (text.length > 0) {
+		if (textLength > 0) {
 			string = new String(text);
 		}
 		notifyChanged(new BufferChangedEvent(this, position, length, string));
@@ -337,35 +298,7 @@ public void replace(int position, int length, char[] text) {
  * inserted <code>text</code>.
  */
 public void replace(int position, int length, String text) {
-	if (!isReadOnly()) {
-		int textLength = 0;
-		if (text != null) {
-			textLength = text.length();
-		}
-		
-		synchronized (this.lock) {
-			// move gap
-			adjustGap(position + length, textLength - length);
-
-			// overwrite
-			int min = Math.min(textLength, length);
-			for (int i = position, j = 0; i < position + min; i++, j++)
-				this.contents[i] = text.charAt(j);
-			if (length > textLength) {
-				// enlarge the gap
-				this.gapStart -= (length - textLength);
-			} else
-				if (textLength > length) {
-					// shrink gap
-					this.gapStart += (textLength - length);
-					for (int i = length; i < textLength; i++)
-						this.contents[position + i] = text.charAt(i);
-				}
-		}
-		this.flags |= F_HAS_UNSAVED_CHANGES;
-		
-		notifyChanged(new BufferChangedEvent(this, position, length, text));
-	}
+	this.replace(position, length, text == null ? null : text.toCharArray());
 }
 /**
  * @see IBuffer
@@ -424,28 +357,7 @@ public void setContents(char[] newContents) {
  * @see IBuffer
  */
 public void setContents(String newContents) {
-	// allow special case for first initialization 
-	// after creation by buffer factory
-	if (this.contents == null) {
-		this.contents = newContents.toCharArray();
-		this.flags &= ~ (F_HAS_UNSAVED_CHANGES);
-		return;
-	}
-	
-	if (!isReadOnly()) {
-		char[] charContents = null;
-		if (newContents != null) {
-			charContents = newContents.toCharArray();
-		}
-		BufferChangedEvent event = new BufferChangedEvent(this, 0, this.getLength(), newContents);
-		synchronized (this.lock) {
-			this.contents = charContents;
-			this.flags |= F_HAS_UNSAVED_CHANGES;
-			this.gapStart = -1;
-			this.gapEnd = -1;
-		}
-		notifyChanged(event);
-	}
+	this.setContents(newContents.toCharArray());
 }
 /**
  * Sets this <code>Buffer</code> to be read only.
@@ -457,23 +369,17 @@ protected void setReadOnly(boolean readOnly) {
 		this.flags &= ~(F_IS_READ_ONLY);
 	}
 }
-/**
- * Adjusts low and high water mark to the specified values.
- */
-public void setWaterMarks(int low, int high) {
-	this.lowWatermark = low;
-	this.highWatermark = high;
-}
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append("Owner: " + ((JavaElement)this.owner).toStringWithAncestors()); //$NON-NLS-1$
 	buffer.append("\nHas unsaved changes: " + this.hasUnsavedChanges()); //$NON-NLS-1$
 	buffer.append("\nIs readonly: " + this.isReadOnly()); //$NON-NLS-1$
 	buffer.append("\nIs closed: " + this.isClosed()); //$NON-NLS-1$
-	int length = this.contents.length;
 	buffer.append("\nContents:\n"); //$NON-NLS-1$
+	char[] contents = this.getCharacters();
+	int length = contents.length;
 	for (int i = 0; i < length; i++) {
-		char car = this.contents[i];
+		char car = contents[i];
 		switch (car) {
 			case '\n': 
 				buffer.append("\\n\n"); //$NON-NLS-1$

@@ -8,6 +8,7 @@ import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.internal.core.jdom.DOMNode;
 
 import java.util.*;
 
@@ -22,6 +23,7 @@ import java.util.*;
  * should be used.
  */
 public class DeleteElementsOperation extends MultiOperation {
+	char[] NO_CHAR = new char[0];
 	/**
 	 * The elements this operation processes grouped by compilation unit
 	 * @see processElements(). Keys are compilation units,
@@ -43,23 +45,7 @@ public DeleteElementsOperation(IJavaElement[] elementsToDelete, boolean force) {
 	super(elementsToDelete, force);
 	fFactory = new DOMFactory();
 }
-/**
- * Saves the new contents of the compilation unit that has had
- * a member element deleted.
- */
-protected void commitChanges(IDOMCompilationUnit cuDOM, ICompilationUnit cu) throws JavaModelException {
-	// save the resources that need to be saved
-	char[] newContents = cuDOM.getCharacters();
-	if (newContents == null) {
-		newContents = new char[0];
-	}
-	IBuffer buffer = cu.getBuffer();
-	char[] bufferContents = buffer.getCharacters();
-	char[] cuContents = org.eclipse.jdt.internal.core.Util.normalizeCRs(newContents, bufferContents);
-	buffer.setContents(cuContents);
-	cu.save(getSubProgressMonitor(1), fForce);
-	this.hasModifiedResource = !cu.isWorkingCopy();
-}
+
 /**
  * @see MultiOperation
  */
@@ -108,16 +94,18 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 	// the import container (i.e. report it in the delta)
 	int numberOfImports = cu.getImports().length;
 
-	IDOMCompilationUnit cuDOM = fFactory.createCompilationUnit(cu.getBuffer().getCharacters(), cu.getElementName());
+	IBuffer buffer = cu.getBuffer();
 	JavaElementDelta delta = new JavaElementDelta(cu);
 	IJavaElement[] cuElements = ((IRegion) fChildrenToRemove.get(cu)).getElements();
-	for (int i = 0; i < cuElements.length; i++) {
+	for (int i = 0, length = cuElements.length; i < length; i++) {
 		IJavaElement e = cuElements[i];
 		if (e.exists()) {
-			IDOMNode node = ((JavaElement) e).findNode(cuDOM);
+			IDOMCompilationUnit cuDOM = fFactory.createCompilationUnit(buffer.getCharacters(), cu.getElementName());
+			DOMNode node = (DOMNode)((JavaElement) e).findNode(cuDOM);
 			// TBD
 			Assert.isTrue(node != null, Util.bind("element.cannotLocate", e.getElementName(), cuDOM.getName())); //$NON-NLS-1$
-			node.remove();
+			int startPosition = node.getStartPosition();
+			buffer.replace(startPosition, node.getEndPosition() - startPosition + 1, NO_CHAR);
 			delta.removed(e);
 			if (e.getElementType() == IJavaElement.IMPORT_DECLARATION) {
 				numberOfImports--;
@@ -128,9 +116,10 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 		}
 	}
 	if (delta.getAffectedChildren().length > 0) {
-		commitChanges(cuDOM, cu);
-		if (!cu.isWorkingCopy()) { // if unit is working copy, then commit will have already fired the delta
+		cu.save(getSubProgressMonitor(1), fForce);
+		if (!cu.isWorkingCopy()) { // if unit is working copy, then save will have already fired the delta
 			addDelta(delta);
+			this.hasModifiedResource = true;
 		}
 	}
 }
