@@ -2094,9 +2094,9 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				OPC_invokestatic,
 				1, // argCount
 				1, // return type size
-				QualifiedNamesConstants.JavaLangByteConstantPoolName,
-				QualifiedNamesConstants.ValueOf,
-				QualifiedNamesConstants.byteByteSignature); //$NON-NLS-1$
+				ConstantPool.JavaLangByteConstantPoolName,
+				ConstantPool.ValueOf,
+				ConstantPool.byteByteSignature); //$NON-NLS-1$
 			break;
 		case T_short :
 			// invokestatic: Short.valueOf(short)
@@ -2104,9 +2104,9 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				OPC_invokestatic,
 				1, // argCount
 				1, // return type size
-				QualifiedNamesConstants.JavaLangShortConstantPoolName,
-				QualifiedNamesConstants.ValueOf,
-				QualifiedNamesConstants.shortShortSignature); //$NON-NLS-1$
+				ConstantPool.JavaLangShortConstantPoolName,
+				ConstantPool.ValueOf,
+				ConstantPool.shortShortSignature); //$NON-NLS-1$
 			break;
 		case T_char :
 			// invokestatic: Character.valueOf(char)
@@ -2114,9 +2114,9 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				OPC_invokestatic,
 				1, // argCount
 				1, // return type size
-				QualifiedNamesConstants.JavaLangCharacterConstantPoolName,
-				QualifiedNamesConstants.ValueOf,
-				QualifiedNamesConstants.charCharacterSignature); //$NON-NLS-1$
+				ConstantPool.JavaLangCharacterConstantPoolName,
+				ConstantPool.ValueOf,
+				ConstantPool.charCharacterSignature); //$NON-NLS-1$
 			break;
 		case T_int :
 			// invokestatic: Integer.valueOf(int)
@@ -2124,9 +2124,9 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				OPC_invokestatic,
 				1, // argCount
 				1, // return type size
-				QualifiedNamesConstants.JavaLangIntegerConstantPoolName,
-				QualifiedNamesConstants.ValueOf,
-				QualifiedNamesConstants.IntIntegerSignature); //$NON-NLS-1$
+				ConstantPool.JavaLangIntegerConstantPoolName,
+				ConstantPool.ValueOf,
+				ConstantPool.IntIntegerSignature); //$NON-NLS-1$
 			break;
 		case T_long :
 			// invokestatic: Long.valueOf(long)
@@ -2134,9 +2134,9 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				OPC_invokestatic,
 				2, // argCount
 				1, // return type size
-				QualifiedNamesConstants.JavaLangLongConstantPoolName,
-				QualifiedNamesConstants.ValueOf,
-				QualifiedNamesConstants.longLongSignature); //$NON-NLS-1$
+				ConstantPool.JavaLangLongConstantPoolName,
+				ConstantPool.ValueOf,
+				ConstantPool.longLongSignature); //$NON-NLS-1$
 			break;
 		case T_float :
 			// invokestatic: Float.valueOf(float)
@@ -2144,9 +2144,9 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				OPC_invokestatic,
 				1, // argCount
 				1, // return type size
-				QualifiedNamesConstants.JavaLangFloatConstantPoolName,
-				QualifiedNamesConstants.ValueOf,
-				QualifiedNamesConstants.floatFloatSignature); //$NON-NLS-1$
+				ConstantPool.JavaLangFloatConstantPoolName,
+				ConstantPool.ValueOf,
+				ConstantPool.floatFloatSignature); //$NON-NLS-1$
 			break;
 		case T_double :
 			// invokestatic: Double.valueOf(double)
@@ -2154,9 +2154,9 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				OPC_invokestatic,
 				2, // argCount
 				1, // return type size
-				QualifiedNamesConstants.JavaLangDoubleConstantPoolName,
-				QualifiedNamesConstants.ValueOf,
-				QualifiedNamesConstants.doubleDoubleSignature); //$NON-NLS-1$
+				ConstantPool.JavaLangDoubleConstantPoolName,
+				ConstantPool.ValueOf,
+				ConstantPool.doubleDoubleSignature); //$NON-NLS-1$
 			break;
 		case T_boolean :
 			// invokestatic: Boolean.valueOf(boolean)
@@ -2164,9 +2164,9 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				OPC_invokestatic,
 				1, // argCount
 				1, // return type size
-				QualifiedNamesConstants.JavaLangBooleanConstantPoolName,
-				QualifiedNamesConstants.ValueOf,
-				QualifiedNamesConstants.booleanBooleanSignature); //$NON-NLS-1$
+				ConstantPool.JavaLangBooleanConstantPoolName,
+				ConstantPool.ValueOf,
+				ConstantPool.booleanBooleanSignature); //$NON-NLS-1$
 	}
 }
 public void generateUnboxingConversion(int unboxedTypeID) {
@@ -2177,9 +2177,9 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 					OPC_invokevirtual,
 					0, // argCount
 					1, // return type size
-					QualifiedNamesConstants.JavaLangByteConstantPoolName,
-					QualifiedNamesConstants.BYTEVALUE_BYTE_METHOD_NAME,
-					QualifiedNamesConstants.BYTEVALUE_BYTE_METHOD_SIGNATURE);
+					ConstantPool.JavaLangByteConstantPoolName,
+					ConstantPool.BYTEVALUE_BYTE_METHOD_NAME,
+					ConstantPool.BYTEVALUE_BYTE_METHOD_SIGNATURE);
 			break;
 		case T_short :
 			// invokevirtual: shortValue()
@@ -2187,9 +2187,9 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 					OPC_invokevirtual,
 					0, // argCount
 					1, // return type size
-					QualifiedNamesConstants.JavaLangShortConstantPoolName,
-					QualifiedNamesConstants.SHORTVALUE_SHORT_METHOD_NAME,
-					QualifiedNamesConstants.SHORTVALUE_SHORT_METHOD_SIGNATURE);
+					ConstantPool.JavaLangShortConstantPoolName,
+					ConstantPool.SHORTVALUE_SHORT_METHOD_NAME,
+					ConstantPool.SHORTVALUE_SHORT_METHOD_SIGNATURE);
 			break;
 		case T_char :
 			// invokevirtual: charValue()
@@ -2197,9 +2197,9 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 					OPC_invokevirtual,
 					0, // argCount
 					1, // return type size
-					QualifiedNamesConstants.JavaLangCharacterConstantPoolName,
-					QualifiedNamesConstants.CHARVALUE_CHARACTER_METHOD_NAME,
-					QualifiedNamesConstants.CHARVALUE_CHARACTER_METHOD_SIGNATURE);
+					ConstantPool.JavaLangCharacterConstantPoolName,
+					ConstantPool.CHARVALUE_CHARACTER_METHOD_NAME,
+					ConstantPool.CHARVALUE_CHARACTER_METHOD_SIGNATURE);
 			break;
 		case T_int :
 			// invokevirtual: intValue()
@@ -2207,9 +2207,9 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 					OPC_invokevirtual,
 					0, // argCount
 					1, // return type size
-					QualifiedNamesConstants.JavaLangIntegerConstantPoolName,
-					QualifiedNamesConstants.INTVALUE_INTEGER_METHOD_NAME,
-					QualifiedNamesConstants.INTVALUE_INTEGER_METHOD_SIGNATURE);
+					ConstantPool.JavaLangIntegerConstantPoolName,
+					ConstantPool.INTVALUE_INTEGER_METHOD_NAME,
+					ConstantPool.INTVALUE_INTEGER_METHOD_SIGNATURE);
 			break;
 		case T_long :
 			// invokevirtual: longValue()
@@ -2217,9 +2217,9 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 					OPC_invokevirtual,
 					0, // argCount
 					2, // return type size
-					QualifiedNamesConstants.JavaLangLongConstantPoolName,
-					QualifiedNamesConstants.LONGVALUE_LONG_METHOD_NAME,
-					QualifiedNamesConstants.LONGVALUE_LONG_METHOD_SIGNATURE);
+					ConstantPool.JavaLangLongConstantPoolName,
+					ConstantPool.LONGVALUE_LONG_METHOD_NAME,
+					ConstantPool.LONGVALUE_LONG_METHOD_SIGNATURE);
 			break;
 		case T_float :
 			// invokevirtual: floatValue()
@@ -2227,9 +2227,9 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 					OPC_invokevirtual,
 					0, // argCount
 					1, // return type size
-					QualifiedNamesConstants.JavaLangFloatConstantPoolName,
-					QualifiedNamesConstants.FLOATVALUE_FLOAT_METHOD_NAME,
-					QualifiedNamesConstants.FLOATVALUE_FLOAT_METHOD_SIGNATURE);
+					ConstantPool.JavaLangFloatConstantPoolName,
+					ConstantPool.FLOATVALUE_FLOAT_METHOD_NAME,
+					ConstantPool.FLOATVALUE_FLOAT_METHOD_SIGNATURE);
 			break;
 		case T_double :
 			// invokevirtual: doubleValue()
@@ -2237,9 +2237,9 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 					OPC_invokevirtual,
 					0, // argCount
 					2, // return type size
-					QualifiedNamesConstants.JavaLangDoubleConstantPoolName,
-					QualifiedNamesConstants.DOUBLEVALUE_DOUBLE_METHOD_NAME,
-					QualifiedNamesConstants.DOUBLEVALUE_DOUBLE_METHOD_SIGNATURE);
+					ConstantPool.JavaLangDoubleConstantPoolName,
+					ConstantPool.DOUBLEVALUE_DOUBLE_METHOD_NAME,
+					ConstantPool.DOUBLEVALUE_DOUBLE_METHOD_SIGNATURE);
 			break;
 		case T_boolean :
 			// invokevirtual: booleanValue()
@@ -2247,9 +2247,9 @@ public void generateUnboxingConversion(int unboxedTypeID) {
 					OPC_invokevirtual,
 					0, // argCount
 					1, // return type size
-					QualifiedNamesConstants.JavaLangBooleanConstantPoolName,
-					QualifiedNamesConstants.BOOLEANVALUE_BOOLEAN_METHOD_NAME,
-					QualifiedNamesConstants.BOOLEANVALUE_BOOLEAN_METHOD_SIGNATURE);
+					ConstantPool.JavaLangBooleanConstantPoolName,
+					ConstantPool.BOOLEANVALUE_BOOLEAN_METHOD_NAME,
+					ConstantPool.BOOLEANVALUE_BOOLEAN_METHOD_SIGNATURE);
 	}
 }
 final public byte[] getContents() {
@@ -2331,9 +2331,9 @@ public void getTYPE(int baseTypeID) {
 			generateFieldAccess(
 					OPC_getstatic,
 					1,
-					QualifiedNamesConstants.JavaLangByteConstantPoolName,
-					QualifiedNamesConstants.TYPE,
-					QualifiedNamesConstants.JavaLangClassSignature);
+					ConstantPool.JavaLangByteConstantPoolName,
+					ConstantPool.TYPE,
+					ConstantPool.JavaLangClassSignature);
 			break;
 		case T_short :
 			// getstatic: java.lang.Short.TYPE			
@@ -2341,9 +2341,9 @@ public void getTYPE(int baseTypeID) {
 			generateFieldAccess(
 					OPC_getstatic,
 					1,
-					QualifiedNamesConstants.JavaLangShortConstantPoolName,
-					QualifiedNamesConstants.TYPE,
-					QualifiedNamesConstants.JavaLangClassSignature);
+					ConstantPool.JavaLangShortConstantPoolName,
+					ConstantPool.TYPE,
+					ConstantPool.JavaLangClassSignature);
 			break;
 		case T_char :
 			// getstatic: java.lang.Character.TYPE			
@@ -2351,9 +2351,9 @@ public void getTYPE(int baseTypeID) {
 			generateFieldAccess(
 					OPC_getstatic,
 					1,
-					QualifiedNamesConstants.JavaLangCharacterConstantPoolName,
-					QualifiedNamesConstants.TYPE,
-					QualifiedNamesConstants.JavaLangClassSignature);
+					ConstantPool.JavaLangCharacterConstantPoolName,
+					ConstantPool.TYPE,
+					ConstantPool.JavaLangClassSignature);
 			break;
 		case T_int :
 			// getstatic: java.lang.Integer.TYPE			
@@ -2361,9 +2361,9 @@ public void getTYPE(int baseTypeID) {
 			generateFieldAccess(
 					OPC_getstatic,
 					1,
-					QualifiedNamesConstants.JavaLangIntegerConstantPoolName,
-					QualifiedNamesConstants.TYPE,
-					QualifiedNamesConstants.JavaLangClassSignature);
+					ConstantPool.JavaLangIntegerConstantPoolName,
+					ConstantPool.TYPE,
+					ConstantPool.JavaLangClassSignature);
 			break;
 		case T_long :
 			// getstatic: java.lang.Long.TYPE			
@@ -2371,9 +2371,9 @@ public void getTYPE(int baseTypeID) {
 			generateFieldAccess(
 					OPC_getstatic,
 					1,
-					QualifiedNamesConstants.JavaLangLongConstantPoolName,
-					QualifiedNamesConstants.TYPE,
-					QualifiedNamesConstants.JavaLangClassSignature);
+					ConstantPool.JavaLangLongConstantPoolName,
+					ConstantPool.TYPE,
+					ConstantPool.JavaLangClassSignature);
 			break;
 		case T_float :
 			// getstatic: java.lang.Float.TYPE			
@@ -2381,9 +2381,9 @@ public void getTYPE(int baseTypeID) {
 			generateFieldAccess(
 					OPC_getstatic,
 					1,
-					QualifiedNamesConstants.JavaLangFloatConstantPoolName,
-					QualifiedNamesConstants.TYPE,
-					QualifiedNamesConstants.JavaLangClassSignature);
+					ConstantPool.JavaLangFloatConstantPoolName,
+					ConstantPool.TYPE,
+					ConstantPool.JavaLangClassSignature);
 			break;
 		case T_double :
 			// getstatic: java.lang.Double.TYPE			
@@ -2391,9 +2391,9 @@ public void getTYPE(int baseTypeID) {
 			generateFieldAccess(
 					OPC_getstatic,
 					1,
-					QualifiedNamesConstants.JavaLangDoubleConstantPoolName,
-					QualifiedNamesConstants.TYPE,
-					QualifiedNamesConstants.JavaLangClassSignature);
+					ConstantPool.JavaLangDoubleConstantPoolName,
+					ConstantPool.TYPE,
+					ConstantPool.JavaLangClassSignature);
 			break;
 		case T_boolean :
 			// getstatic: java.lang.Boolean.TYPE			
@@ -2401,9 +2401,9 @@ public void getTYPE(int baseTypeID) {
 			generateFieldAccess(
 					OPC_getstatic,
 					1,
-					QualifiedNamesConstants.JavaLangBooleanConstantPoolName,
-					QualifiedNamesConstants.TYPE,
-					QualifiedNamesConstants.JavaLangClassSignature);
+					ConstantPool.JavaLangBooleanConstantPoolName,
+					ConstantPool.TYPE,
+					ConstantPool.JavaLangClassSignature);
 			break;
 		case T_void :
 			// getstatic: java.lang.Void.TYPE
@@ -2411,9 +2411,9 @@ public void getTYPE(int baseTypeID) {
 			generateFieldAccess(
 					OPC_getstatic,
 					1,
-					QualifiedNamesConstants.JavaLangVoidConstantPoolName,
-					QualifiedNamesConstants.TYPE,
-					QualifiedNamesConstants.JavaLangClassSignature);
+					ConstantPool.JavaLangVoidConstantPoolName,
+					ConstantPool.TYPE,
+					ConstantPool.JavaLangClassSignature);
 			break;
 	}
 }
@@ -3200,9 +3200,9 @@ public void invokeClassForName() {
 		OPC_invokestatic,
 		1, // argCount
 		1, // return type size
-		QualifiedNamesConstants.JavaLangClassConstantPoolName,
-		QualifiedNamesConstants.ForName,
-		QualifiedNamesConstants.ForNameSignature);
+		ConstantPool.JavaLangClassConstantPoolName,
+		ConstantPool.ForName,
+		ConstantPool.ForNameSignature);
 }
 public void invokeJavaLangClassDesiredAssertionStatus() {
 	// invokevirtual: java.lang.Class.desiredAssertionStatus()Z;
@@ -3211,9 +3211,9 @@ public void invokeJavaLangClassDesiredAssertionStatus() {
 			OPC_invokevirtual,
 			0, // argCount
 			1, // return type size
-			QualifiedNamesConstants.JavaLangClassConstantPoolName,
-			QualifiedNamesConstants.DesiredAssertionStatus,
-			QualifiedNamesConstants.DesiredAssertionStatusSignature);
+			ConstantPool.JavaLangClassConstantPoolName,
+			ConstantPool.DesiredAssertionStatus,
+			ConstantPool.DesiredAssertionStatusSignature);
 }
 
 public void invokeJavaLangClassGetComponentType() {
@@ -3223,9 +3223,9 @@ public void invokeJavaLangClassGetComponentType() {
 			OPC_invokevirtual,
 			0, // argCount
 			1, // return type size
-			QualifiedNamesConstants.JavaLangClassConstantPoolName,
-			QualifiedNamesConstants.GetComponentType,
-			QualifiedNamesConstants.GetComponentTypeSignature);
+			ConstantPool.JavaLangClassConstantPoolName,
+			ConstantPool.GetComponentType,
+			ConstantPool.GetComponentTypeSignature);
 }
 public void invokeEnumOrdinal(char[] enumTypeConstantPoolName) {
 	// invokevirtual: <enumConstantPoolName>.ordinal()
@@ -3235,8 +3235,8 @@ public void invokeEnumOrdinal(char[] enumTypeConstantPoolName) {
 			0, // argCount
 			1, // return type size
 			enumTypeConstantPoolName,
-			QualifiedNamesConstants.Ordinal,
-			QualifiedNamesConstants.OrdinalSignature);
+			ConstantPool.Ordinal,
+			ConstantPool.OrdinalSignature);
 }
 final public void invokeinterface(MethodBinding methodBinding) {
 	// initialized to 1 to take into account this  immediately
@@ -3279,9 +3279,9 @@ public void invokeJavaLangErrorConstructor() {
 			OPC_invokespecial,
 			1, // argCount
 			0, // return type size
-			QualifiedNamesConstants.JavaLangErrorConstantPoolName,
-			QualifiedNamesConstants.Init,
-			QualifiedNamesConstants.StringConstructorSignature);
+			ConstantPool.JavaLangErrorConstantPoolName,
+			ConstantPool.Init,
+			ConstantPool.StringConstructorSignature);
 }
 public void invokeNoClassDefFoundErrorStringConstructor() {
 	// invokespecial: java.lang.NoClassDefFoundError.<init>(Ljava.lang.String;)V
@@ -3290,9 +3290,9 @@ public void invokeNoClassDefFoundErrorStringConstructor() {
 			OPC_invokespecial,
 			1, // argCount
 			0, // return type size
-			QualifiedNamesConstants.JavaLangNoClassDefFoundErrorConstantPoolName,
-			QualifiedNamesConstants.Init,
-			QualifiedNamesConstants.StringConstructorSignature);
+			ConstantPool.JavaLangNoClassDefFoundErrorConstantPoolName,
+			ConstantPool.Init,
+			ConstantPool.StringConstructorSignature);
 }
 public void invokeObjectGetClass() {
 	// invokevirtual: java.lang.Object.getClass()Ljava.lang.Class;
@@ -3301,9 +3301,9 @@ public void invokeObjectGetClass() {
 			OPC_invokevirtual,
 			0, // argCount
 			1, // return type size
-			QualifiedNamesConstants.JavaLangObjectConstantPoolName,
-			QualifiedNamesConstants.GetClass,
-			QualifiedNamesConstants.GetClassSignature);
+			ConstantPool.JavaLangObjectConstantPoolName,
+			ConstantPool.GetClass,
+			ConstantPool.GetClassSignature);
 }
 
 final public void invokespecial(MethodBinding methodBinding) {
@@ -3400,84 +3400,84 @@ public void invokeStringConcatenationAppendForType(int typeID) {
 	int argCount = 1;
 	int returnType = 1;
 	char[] declarinClass = null;
-	char[] selector = QualifiedNamesConstants.Append;
+	char[] selector = ConstantPool.Append;
 	char[] signature = null;
 	switch (typeID) {
 		case T_int :
 		case T_byte :
 		case T_short :
 			if (this.targetLevel >= JDK1_5) {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
-				signature = QualifiedNamesConstants.StringBuilderAppendIntSignature;
+				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
+				signature = ConstantPool.StringBuilderAppendIntSignature;
 			} else {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
-				signature = QualifiedNamesConstants.StringBufferAppendIntSignature;
+				declarinClass = ConstantPool.JavaLangStringBufferConstantPoolName;
+				signature = ConstantPool.StringBufferAppendIntSignature;
 			}
 			break;
 		case T_long :
 			if (this.targetLevel >= JDK1_5) {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
-				signature = QualifiedNamesConstants.StringBuilderAppendLongSignature;
+				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
+				signature = ConstantPool.StringBuilderAppendLongSignature;
 			} else {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
-				signature = QualifiedNamesConstants.StringBufferAppendLongSignature;
+				declarinClass = ConstantPool.JavaLangStringBufferConstantPoolName;
+				signature = ConstantPool.StringBufferAppendLongSignature;
 			}
 			argCount = 2;
 			break;
 		case T_float :
 			if (this.targetLevel >= JDK1_5) {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
-				signature = QualifiedNamesConstants.StringBuilderAppendFloatSignature;
+				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
+				signature = ConstantPool.StringBuilderAppendFloatSignature;
 			} else {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
-				signature = QualifiedNamesConstants.StringBufferAppendFloatSignature;
+				declarinClass = ConstantPool.JavaLangStringBufferConstantPoolName;
+				signature = ConstantPool.StringBufferAppendFloatSignature;
 			}
 			break;
 		case T_double :
 			if (this.targetLevel >= JDK1_5) {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
-				signature = QualifiedNamesConstants.StringBuilderAppendDoubleSignature;
+				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
+				signature = ConstantPool.StringBuilderAppendDoubleSignature;
 			} else {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
-				signature = QualifiedNamesConstants.StringBufferAppendDoubleSignature;
+				declarinClass = ConstantPool.JavaLangStringBufferConstantPoolName;
+				signature = ConstantPool.StringBufferAppendDoubleSignature;
 			}
 			argCount = 2;
 			break;
 		case T_char :
 			if (this.targetLevel >= JDK1_5) {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
-				signature = QualifiedNamesConstants.StringBuilderAppendCharSignature;
+				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
+				signature = ConstantPool.StringBuilderAppendCharSignature;
 			} else {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
-				signature = QualifiedNamesConstants.StringBufferAppendCharSignature;
+				declarinClass = ConstantPool.JavaLangStringBufferConstantPoolName;
+				signature = ConstantPool.StringBufferAppendCharSignature;
 			}
 			break;
 		case T_boolean :
 			if (this.targetLevel >= JDK1_5) {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
-				signature = QualifiedNamesConstants.StringBuilderAppendBooleanSignature;
+				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
+				signature = ConstantPool.StringBuilderAppendBooleanSignature;
 			} else {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
-				signature = QualifiedNamesConstants.StringBufferAppendBooleanSignature;
+				declarinClass = ConstantPool.JavaLangStringBufferConstantPoolName;
+				signature = ConstantPool.StringBufferAppendBooleanSignature;
 			}
 			break;
 		case T_JavaLangObject :
 			if (this.targetLevel >= JDK1_5) {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
-				signature = QualifiedNamesConstants.StringBuilderAppendObjectSignature;
+				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
+				signature = ConstantPool.StringBuilderAppendObjectSignature;
 			} else {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
-				signature = QualifiedNamesConstants.StringBufferAppendObjectSignature;
+				declarinClass = ConstantPool.JavaLangStringBufferConstantPoolName;
+				signature = ConstantPool.StringBufferAppendObjectSignature;
 			}
 			break;
 		case T_JavaLangString :
 		case T_null :
 			if (this.targetLevel >= JDK1_5) {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
-				signature = QualifiedNamesConstants.StringBuilderAppendStringSignature;
+				declarinClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
+				signature = ConstantPool.StringBuilderAppendStringSignature;
 			} else {
-				declarinClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
-				signature = QualifiedNamesConstants.StringBufferAppendStringSignature;
+				declarinClass = ConstantPool.JavaLangStringBufferConstantPoolName;
+				signature = ConstantPool.StringBufferAppendStringSignature;
 			}
 			break;
 	}
@@ -3499,37 +3499,37 @@ public void invokeJavaLangAssertionErrorConstructor(int typeBindingID) {
 		case T_int :
 		case T_byte :
 		case T_short :
-			signature = QualifiedNamesConstants.IntConstrSignature;
+			signature = ConstantPool.IntConstrSignature;
 			break;
 		case T_long :
-			signature = QualifiedNamesConstants.LongConstrSignature;
+			signature = ConstantPool.LongConstrSignature;
 			argCount = 2;
 			break;
 		case T_float :
-			signature = QualifiedNamesConstants.FloatConstrSignature;
+			signature = ConstantPool.FloatConstrSignature;
 			break;
 		case T_double :
-			signature = QualifiedNamesConstants.DoubleConstrSignature;
+			signature = ConstantPool.DoubleConstrSignature;
 			argCount = 2;
 			break;
 		case T_char :
-			signature = QualifiedNamesConstants.CharConstrSignature;
+			signature = ConstantPool.CharConstrSignature;
 			break;
 		case T_boolean :
-			signature = QualifiedNamesConstants.BooleanConstrSignature;
+			signature = ConstantPool.BooleanConstrSignature;
 			break;
 		case T_JavaLangObject :
 		case T_JavaLangString :
 		case T_null :
-			signature = QualifiedNamesConstants.ObjectConstrSignature;
+			signature = ConstantPool.ObjectConstrSignature;
 			break;
 	}
 	this.invoke(
 			OPC_invokespecial,
 			argCount, // argCount
 			0, // return type size
-			QualifiedNamesConstants.JavaLangAssertionErrorConstantPoolName,
-			QualifiedNamesConstants.Init,
+			ConstantPool.JavaLangAssertionErrorConstantPoolName,
+			ConstantPool.Init,
 			signature);
 }
 
@@ -3540,9 +3540,9 @@ public void invokeJavaLangAssertionErrorDefaultConstructor() {
 			OPC_invokespecial,
 			0, // argCount
 			0, // return type size
-			QualifiedNamesConstants.JavaLangAssertionErrorConstantPoolName,
-			QualifiedNamesConstants.Init,
-			QualifiedNamesConstants.DefaultConstructorSignature);
+			ConstantPool.JavaLangAssertionErrorConstantPoolName,
+			ConstantPool.Init,
+			ConstantPool.DefaultConstructorSignature);
 }
 public void invokeJavaLangEnumname(TypeBinding typeBinding) {
 	// invokevirtual: java.lang.Enum.name()String
@@ -3552,8 +3552,8 @@ public void invokeJavaLangEnumname(TypeBinding typeBinding) {
 			0,
 			1,
 			typeBinding.constantPoolName(),
-			QualifiedNamesConstants.Name,
-			QualifiedNamesConstants.NameSignature);
+			ConstantPool.Name,
+			ConstantPool.NameSignature);
 }
 public void invokeJavaLangIllegalArgumentExceptionStringConstructor() {
 	// invokespecial: java.lang.IllegalArgumentException.<init>(String)V
@@ -3562,9 +3562,9 @@ public void invokeJavaLangIllegalArgumentExceptionStringConstructor() {
 			OPC_invokespecial,
 			1, // argCount
 			0, // return type size
-			QualifiedNamesConstants.JavaLangIllegalArgumentExceptionConstantPoolName,
-			QualifiedNamesConstants.Init,
-			QualifiedNamesConstants.StringConstructorSignature);
+			ConstantPool.JavaLangIllegalArgumentExceptionConstantPoolName,
+			ConstantPool.Init,
+			ConstantPool.StringConstructorSignature);
 }
 
 public void invokeJavaUtilIteratorHasNext() {
@@ -3574,9 +3574,9 @@ public void invokeJavaUtilIteratorHasNext() {
 			OPC_invokeinterface,
 			0, // argCount
 			1, // return type size
-			QualifiedNamesConstants.JavaUtilIteratorConstantPoolName,
-			QualifiedNamesConstants.HasNext,
-			QualifiedNamesConstants.HasNextSignature);
+			ConstantPool.JavaUtilIteratorConstantPoolName,
+			ConstantPool.HasNext,
+			ConstantPool.HasNextSignature);
 }
 public void invokeJavaUtilIteratorNext() {
 	// invokeinterface java.util.Iterator.next()java.lang.Object
@@ -3585,9 +3585,9 @@ public void invokeJavaUtilIteratorNext() {
 			OPC_invokeinterface,
 			0, // argCount
 			1, // return type size
-			QualifiedNamesConstants.JavaUtilIteratorConstantPoolName,
-			QualifiedNamesConstants.Next,
-			QualifiedNamesConstants.NextSignature);
+			ConstantPool.JavaUtilIteratorConstantPoolName,
+			ConstantPool.Next,
+			ConstantPool.NextSignature);
 }
 public void invokeStringConcatenationDefaultConstructor() {
 	// invokespecial: java.lang.StringBuffer.<init>()V
@@ -3598,17 +3598,17 @@ public void invokeStringConcatenationDefaultConstructor() {
 			System.out.println(position + "\t\tinvokespecial: java.lang.StringBuffer.<init>()V"); //$NON-NLS-1$
 		}
 	}
-	char[] declaringClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
+	char[] declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
 	if (this.targetLevel >= JDK1_5) {
-		declaringClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
+		declaringClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 	}
 	this.invoke(
 			OPC_invokespecial,
 			0, // argCount
 			0, // return type size
 			declaringClass,
-			QualifiedNamesConstants.Init,
-			QualifiedNamesConstants.DefaultConstructorSignature);
+			ConstantPool.Init,
+			ConstantPool.DefaultConstructorSignature);
 }
 public void invokeStringConcatenationStringConstructor() {
 	if (DEBUG) {
@@ -3618,17 +3618,17 @@ public void invokeStringConcatenationStringConstructor() {
 			System.out.println(position + "\t\tjava.lang.StringBuffer.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
 		}
 	}
-	char[] declaringClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
+	char[] declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
 	if (this.targetLevel >= JDK1_5) {
-		declaringClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
+		declaringClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 	}
 	this.invoke(
 			OPC_invokespecial,
 			1, // argCount
 			0, // return type size
 			declaringClass,
-			QualifiedNamesConstants.Init,
-			QualifiedNamesConstants.StringConstructorSignature);
+			ConstantPool.Init,
+			ConstantPool.StringConstructorSignature);
 }
 
 public void invokeStringConcatenationToString() {
@@ -3639,17 +3639,17 @@ public void invokeStringConcatenationToString() {
 			System.out.println(position + "\t\tinvokevirtual: StringBuffer.toString()Ljava.lang.String;"); //$NON-NLS-1$
 		}
 	}
-	char[] declaringClass = QualifiedNamesConstants.JavaLangStringBufferConstantPoolName;
+	char[] declaringClass = ConstantPool.JavaLangStringBufferConstantPoolName;
 	if (this.targetLevel >= JDK1_5) {
-		declaringClass = QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName;
+		declaringClass = ConstantPool.JavaLangStringBuilderConstantPoolName;
 	}
 	this.invoke(
 			OPC_invokevirtual,
 			0, // argCount
 			1, // return type size
 			declaringClass,
-			QualifiedNamesConstants.ToString,
-			QualifiedNamesConstants.ToStringSignature);
+			ConstantPool.ToString,
+			ConstantPool.ToStringSignature);
 }
 public void invokeStringEquals() {
 	// invokevirtual: java.lang.String.equals(java.lang.Object)
@@ -3658,9 +3658,9 @@ public void invokeStringEquals() {
 			OPC_invokevirtual,
 			1, // argCount
 			1, // return type size
-			QualifiedNamesConstants.JavaLangStringConstantPoolName,
-			QualifiedNamesConstants.Equals,
-			QualifiedNamesConstants.EqualsSignature);
+			ConstantPool.JavaLangStringConstantPoolName,
+			ConstantPool.Equals,
+			ConstantPool.EqualsSignature);
 }
 public void invokeStringIntern() {
 	// invokevirtual: java.lang.String.intern()
@@ -3669,9 +3669,9 @@ public void invokeStringIntern() {
 			OPC_invokevirtual,
 			0, // argCount
 			1, // return type size
-			QualifiedNamesConstants.JavaLangStringConstantPoolName,
-			QualifiedNamesConstants.Intern,
-			QualifiedNamesConstants.InternSignature);
+			ConstantPool.JavaLangStringConstantPoolName,
+			ConstantPool.Intern,
+			ConstantPool.InternSignature);
 }
 public void invokeStringValueOf(int typeID) {
 	// invokestatic: java.lang.String.valueOf(argumentType)
@@ -3682,37 +3682,37 @@ public void invokeStringValueOf(int typeID) {
 		case T_int :
 		case T_byte :
 		case T_short :
-			signature = QualifiedNamesConstants.ValueOfIntSignature;
+			signature = ConstantPool.ValueOfIntSignature;
 			break;
 		case T_long :
-			signature = QualifiedNamesConstants.ValueOfLongSignature;
+			signature = ConstantPool.ValueOfLongSignature;
 			argCount = 2;
 			break;
 		case T_float :
-			signature = QualifiedNamesConstants.ValueOfFloatSignature;
+			signature = ConstantPool.ValueOfFloatSignature;
 			break;
 		case T_double :
-			signature = QualifiedNamesConstants.ValueOfDoubleSignature;
+			signature = ConstantPool.ValueOfDoubleSignature;
 			argCount = 2;
 			break;
 		case T_char :
-			signature = QualifiedNamesConstants.ValueOfCharSignature;
+			signature = ConstantPool.ValueOfCharSignature;
 			break;
 		case T_boolean :
-			signature = QualifiedNamesConstants.ValueOfBooleanSignature;
+			signature = ConstantPool.ValueOfBooleanSignature;
 			break;
 		case T_JavaLangObject :
 		case T_JavaLangString :
 		case T_null :
-			signature = QualifiedNamesConstants.ValueOfObjectSignature;
+			signature = ConstantPool.ValueOfObjectSignature;
 			break;
 	}
 	this.invoke(
 			OPC_invokestatic,
 			argCount, // argCount
 			1, // return type size
-			QualifiedNamesConstants.JavaLangStringConstantPoolName,
-			QualifiedNamesConstants.ValueOf,
+			ConstantPool.JavaLangStringConstantPoolName,
+			ConstantPool.ValueOf,
 			signature);
 }
 public void invokeSystemArraycopy() {
@@ -3722,9 +3722,9 @@ public void invokeSystemArraycopy() {
 			OPC_invokestatic,
 			5, // argCount
 			0, // return type size
-			QualifiedNamesConstants.JavaLangSystemConstantPoolName,
-			QualifiedNamesConstants.ArrayCopy,
-			QualifiedNamesConstants.ArrayCopySignature);
+			ConstantPool.JavaLangSystemConstantPoolName,
+			ConstantPool.ArrayCopy,
+			ConstantPool.ArrayCopySignature);
 }
 public void invokeThrowableGetMessage() {
 	// invokevirtual: java.lang.Throwable.getMessage()Ljava.lang.String;
@@ -3733,9 +3733,9 @@ public void invokeThrowableGetMessage() {
 			OPC_invokevirtual,
 			0, // argCount
 			1, // return type size
-			QualifiedNamesConstants.JavaLangThrowableConstantPoolName,
-			QualifiedNamesConstants.GetMessage,
-			QualifiedNamesConstants.GetMessageSignature);
+			ConstantPool.JavaLangThrowableConstantPoolName,
+			ConstantPool.GetMessage,
+			ConstantPool.GetMessageSignature);
 }
 final public void invoke(int opcode, int argsSize, int returnTypeSize, char[] declaringClass, char[] selector, char[] signature) {
 	countLabels = 0;
@@ -5063,7 +5063,7 @@ public void newJavaLangError() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_new;
-	writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangErrorConstantPoolName));
+	writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangErrorConstantPoolName));
 }
 
 public void newJavaLangAssertionError() {
@@ -5078,7 +5078,7 @@ public void newJavaLangAssertionError() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_new;
-	writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangAssertionErrorConstantPoolName));
+	writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangAssertionErrorConstantPoolName));
 }
 public void newJavaLangIllegalArgumentException() {
 	// new: java.lang.IllegalArgumentException
@@ -5092,7 +5092,7 @@ public void newJavaLangIllegalArgumentException() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_new;
-	writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangIllegalArgumentExceptionConstantPoolName));
+	writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangIllegalArgumentExceptionConstantPoolName));
 }
 public void newNoClassDefFoundError() {
 	// new: java.lang.NoClassDefFoundError
@@ -5106,7 +5106,7 @@ public void newNoClassDefFoundError() {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_new;
-	writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangNoClassDefFoundErrorConstantPoolName));
+	writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangNoClassDefFoundErrorConstantPoolName));
 }
 public void newStringContatenation() {
 	// new: java.lang.StringBuffer
@@ -5129,9 +5129,9 @@ public void newStringContatenation() {
 	position++;
 	bCodeStream[classFileOffset++] = OPC_new;
 	if (this.targetLevel >= JDK1_5) {
-		writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangStringBuilderConstantPoolName));
+		writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangStringBuilderConstantPoolName));
 	} else {
-		writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangStringBufferConstantPoolName));
+		writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangStringBufferConstantPoolName));
 	}
 }
 public void newWrapperFor(int typeID) {
@@ -5147,39 +5147,39 @@ public void newWrapperFor(int typeID) {
 	switch (typeID) {
 		case T_int : // new: java.lang.Integer
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Integer"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangIntegerConstantPoolName));
+			writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangIntegerConstantPoolName));
 			break;
 		case T_boolean : // new: java.lang.Boolean
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Boolean"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangBooleanConstantPoolName));
+			writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangBooleanConstantPoolName));
 			break;
 		case T_byte : // new: java.lang.Byte
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Byte"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangByteConstantPoolName));
+			writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangByteConstantPoolName));
 			break;
 		case T_char : // new: java.lang.Character
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Character"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangCharacterConstantPoolName));
+			writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangCharacterConstantPoolName));
 			break;
 		case T_float : // new: java.lang.Float
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Float"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangFloatConstantPoolName));
+			writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangFloatConstantPoolName));
 			break;
 		case T_double : // new: java.lang.Double
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Double"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangDoubleConstantPoolName));
+			writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangDoubleConstantPoolName));
 			break;
 		case T_short : // new: java.lang.Short
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Short"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangShortConstantPoolName));
+			writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangShortConstantPoolName));
 			break;
 		case T_long : // new: java.lang.Long
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Long"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangLongConstantPoolName));
+			writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangLongConstantPoolName));
 			break;
 		case T_void : // new: java.lang.Void
 			if (DEBUG) System.out.println(position + "\t\tnew: java.lang.Void"); //$NON-NLS-1$
-			writeUnsignedShort(constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangVoidConstantPoolName));
+			writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangVoidConstantPoolName));
 	}
 }
 final public void nop() {

@@ -402,7 +402,7 @@ public class ClassFile
 		contents[contentsOffset++] = (byte) classNameIndex;
 		int superclassNameIndex;
 		if (aType.isInterface()) {
-			superclassNameIndex = constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangObjectConstantPoolName);
+			superclassNameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangObjectConstantPoolName);
 		} else {
 			superclassNameIndex =
 				(aType.superclass == null ? 0 : constantPool.literalIndexForType(aType.superclass.constantPoolName()));
@@ -1539,7 +1539,7 @@ public class ClassFile
 					int nameIndex;
 					if (exceptionHandler.exceptionType == BaseTypes.NullBinding) {
 						/* represents ClassNotFoundException, see class literal access*/
-						nameIndex = constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangClassNotFoundExceptionConstantPoolName);
+						nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangClassNotFoundExceptionConstantPoolName);
 					} else {
 						nameIndex = constantPool.literalIndexForType(exceptionHandler.exceptionType.constantPoolName());
 					}
@@ -1629,7 +1629,7 @@ public class ClassFile
 				this.contents[localContentsOffset++] = 0;
 				this.contents[localContentsOffset++] = (byte) (code_length >> 8);
 				this.contents[localContentsOffset++] = (byte) code_length;
-				nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
+				nameIndex = constantPool.literalIndex(ConstantPool.This);
 				this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) nameIndex;
 				declaringClassBinding = (SourceTypeBinding) codeStream.methodDeclaration.binding.declaringClass;
@@ -1726,7 +1726,7 @@ public class ClassFile
 					this.contents[localContentsOffset++] = 0;
 					this.contents[localContentsOffset++] = (byte) (code_length >> 8);
 					this.contents[localContentsOffset++] = (byte) code_length;
-					nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
+					nameIndex = constantPool.literalIndex(ConstantPool.This);
 					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 					this.contents[localContentsOffset++] = (byte) nameIndex;
 					descriptorIndex = constantPool.literalIndex(declaringClassBinding.genericTypeSignature());
@@ -1851,7 +1851,7 @@ public class ClassFile
 					int nameIndex;
 					if (exceptionHandler.exceptionType == BaseTypes.NullBinding) {
 						/* represents denote ClassNotFoundException, see class literal access*/
-						nameIndex = constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangClassNotFoundExceptionConstantPoolName);
+						nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangClassNotFoundExceptionConstantPoolName);
 					} else {
 						nameIndex = constantPool.literalIndexForType(exceptionHandler.exceptionType.constantPoolName());
 					}
@@ -2355,7 +2355,7 @@ public class ClassFile
 				this.contents[localContentsOffset++] = 0;
 				this.contents[localContentsOffset++] = (byte) (code_length >> 8);
 				this.contents[localContentsOffset++] = (byte) code_length;
-				nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
+				nameIndex = constantPool.literalIndex(ConstantPool.This);
 				this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) nameIndex;
 				declaringClassBinding = (SourceTypeBinding) codeStream.methodDeclaration.binding.declaringClass;
@@ -2504,7 +2504,7 @@ public class ClassFile
 					this.contents[localContentsOffset++] = 0;
 					this.contents[localContentsOffset++] = (byte) (code_length >> 8);
 					this.contents[localContentsOffset++] = (byte) code_length;
-					nameIndex = constantPool.literalIndex(QualifiedNamesConstants.This);
+					nameIndex = constantPool.literalIndex(ConstantPool.This);
 					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 					this.contents[localContentsOffset++] = (byte) nameIndex;
 					descriptorIndex = constantPool.literalIndex(declaringClassBinding.genericTypeSignature());
@@ -3281,11 +3281,11 @@ public class ClassFile
 		}
 		contents[contentsOffset++] = (byte) ((AccDefault | AccStatic) >> 8);
 		contents[contentsOffset++] = (byte) (AccDefault | AccStatic);
-		int nameIndex = constantPool.literalIndex(QualifiedNamesConstants.Clinit);
+		int nameIndex = constantPool.literalIndex(ConstantPool.Clinit);
 		contents[contentsOffset++] = (byte) (nameIndex >> 8);
 		contents[contentsOffset++] = (byte) nameIndex;
 		int descriptorIndex =
-			constantPool.literalIndex(QualifiedNamesConstants.ClinitSignature);
+			constantPool.literalIndex(ConstantPool.ClinitSignature);
 		contents[contentsOffset++] = (byte) (descriptorIndex >> 8);
 		contents[contentsOffset++] = (byte) descriptorIndex;
 		// We know that we won't get more than 1 attribute: the code attribute

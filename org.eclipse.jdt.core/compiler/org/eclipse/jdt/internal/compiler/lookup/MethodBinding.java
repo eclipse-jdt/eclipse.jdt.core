@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.codegen.QualifiedNamesConstants;
+import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 
 public class MethodBinding extends Binding implements BaseTypes, TypeConstants {
 	public int modifiers;
@@ -595,7 +595,7 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 	TypeBinding[] targetParameters = this.parameters;
 	boolean isConstructor = isConstructor();
 	if (isConstructor && declaringClass.isEnum()) { // insert String name,int ordinal 
-		buffer.append(QualifiedNamesConstants.JavaLangStringSignature);
+		buffer.append(ConstantPool.JavaLangStringSignature);
 		buffer.append(BaseTypes.IntBinding.signature());
 	}
 	boolean needSynthetics = isConstructor && declaringClass.isNestedType();

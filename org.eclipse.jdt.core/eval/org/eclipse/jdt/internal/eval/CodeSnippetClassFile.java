@@ -17,7 +17,6 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
-import org.eclipse.jdt.internal.compiler.codegen.QualifiedNamesConstants;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -91,7 +90,7 @@ public CodeSnippetClassFile(
 	this.contents[this.contentsOffset++] = (byte) classNameIndex;
 	int superclassNameIndex;
 	if (aType.isInterface()) {
-		superclassNameIndex = this.constantPool.literalIndexForType(QualifiedNamesConstants.JavaLangObjectConstantPoolName);
+		superclassNameIndex = this.constantPool.literalIndexForType(ConstantPool.JavaLangObjectConstantPoolName);
 	} else {
 		superclassNameIndex =
 			(aType.superclass == null ? 0 : this.constantPool.literalIndexForType(aType.superclass.constantPoolName()));
