@@ -5893,4 +5893,44 @@ public void test105() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+public void test106() {
+	String s = 
+		"public class X {\n" +
+		"  clon\n" +  
+		"  foo();\n" +  
+		"}\n";
+		
+	String expectedDietUnitToString = 
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  clon foo();\n" +  
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class X {\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  clon foo();\n" +  
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietPlusBodyUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		"public class X {\n" +
+		"  public X() {\n" +
+		"  }\n" +
+		"  clon foo();\n" +  
+		"}\n";
+	
+	String testName = "";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,		
+		expectedCompletionDietUnitToString,
+		testName);
+}
 }

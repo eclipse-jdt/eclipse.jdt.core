@@ -1277,6 +1277,7 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 
 	// potential receiver is being poped, so reset potential receiver
 	this.invocationType = NO_RECEIVER;
+	this.qualifier = -1;
 
 	if (this.indexOfAssistIdentifier() < 0) {
 		super.consumeFieldAccess(isSuperAccess);
@@ -2116,6 +2117,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	if (this.identifierLengthStack[this.identifierLengthPtr] > 1) { // reducing a qualified name
 		// potential receiver is being poped, so reset potential receiver
 		this.invocationType = NO_RECEIVER;
+		this.qualifier = -1;
 	}
 	return super.getUnspecifiedReferenceOptimized();
 }
