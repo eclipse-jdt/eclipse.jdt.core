@@ -30,12 +30,12 @@ SimpleLookupTable references;
 SimpleLookupTable typeLocations;
 
 int buildNumber;
-int lastStructuralBuildNumber;
-SimpleLookupTable structuralBuildNumbers;
+long lastStructuralBuildTime;
+SimpleLookupTable structuralBuildTimes;
 
 private String[] knownPackageNames; // of the form "p1/p2"
 
-static final byte VERSION = 0x0003;
+static final byte VERSION = 0x0004;
 
 State() {
 }
@@ -45,21 +45,21 @@ protected State(JavaBuilder javaBuilder) {
 	this.javaProjectName = javaBuilder.currentProject.getName();
 	this.classpathLocations = javaBuilder.classpath;
 	this.outputLocationString = javaBuilder.outputFolder.getLocation().toString();
-	this.references = new SimpleLookupTable();
-	this.typeLocations = new SimpleLookupTable();
+	this.references = new SimpleLookupTable(7);
+	this.typeLocations = new SimpleLookupTable(7);
 
 	this.buildNumber = 0; // indicates a full build
-	this.lastStructuralBuildNumber = this.buildNumber;
-	this.structuralBuildNumbers = new SimpleLookupTable(3);
+	this.lastStructuralBuildTime = System.currentTimeMillis();
+	this.structuralBuildTimes = new SimpleLookupTable(3);
 }
 
 void copyFrom(State lastState) {
 	try {
 		this.knownPackageNames = null;
+		this.buildNumber = lastState.buildNumber + 1;
+		this.lastStructuralBuildTime = lastState.lastStructuralBuildTime;
 		this.references = (SimpleLookupTable) lastState.references.clone();
 		this.typeLocations = (SimpleLookupTable) lastState.typeLocations.clone();
-		this.buildNumber = lastState.buildNumber + 1;
-		this.lastStructuralBuildNumber = lastState.lastStructuralBuildNumber;
 	} catch (CloneNotSupportedException e) {
 		this.references = new SimpleLookupTable(lastState.references.elementSize);
 		Object[] keyTable = lastState.references.keyTable;
@@ -85,7 +85,7 @@ char[][] getDefinedTypeNamesFor(String location) {
 }
 
 void hasStructuralChanges() {
-	this.lastStructuralBuildNumber = this.buildNumber;
+	this.lastStructuralBuildTime = System.currentTimeMillis();
 }
 
 boolean isDuplicateLocation(String qualifiedName, String location) {
@@ -119,10 +119,10 @@ boolean isKnownPackage(String qualifiedPackageName) {
 }
 
 boolean isStructurallyChanged(IProject prereqProject, State prereqState) {
-	Object o = structuralBuildNumbers.get(prereqProject.getName());
 	if (prereqState != null) {
-		int previous = o == null ? 0 : ((Integer) o).intValue();
-		if (previous == prereqState.lastStructuralBuildNumber && prereqState.buildNumber > 0) return false;
+		Object o = structuralBuildTimes.get(prereqProject.getName());
+		long previous = o == null ? 0 : ((Long) o).longValue();
+		if (previous == prereqState.lastStructuralBuildTime) return false;
 	}
 	return true;
 }
@@ -142,8 +142,9 @@ void record(String location, char[][][] qualifiedRefs, char[][] simpleRefs, char
 	}
 }
 
-void recordLastStructuralChanges(IProject prereqProject, int prereqBuildNumber) {
-	structuralBuildNumbers.put(prereqProject.getName(), new Integer(prereqBuildNumber));
+void recordStructuralDependency(IProject prereqProject, State prereqState) {
+	if (prereqState != null)
+		structuralBuildTimes.put(prereqProject.getName(), new Long(prereqState.lastStructuralBuildTime));
 }
 
 void remove(String locationToRemove) {
@@ -181,7 +182,7 @@ static State read(DataInputStream in) throws IOException {
 	State newState = new State();
 	newState.javaProjectName = in.readUTF();
 	newState.buildNumber = in.readInt();
-	newState.lastStructuralBuildNumber = in.readInt();
+	newState.lastStructuralBuildTime = in.readLong();
 	newState.outputLocationString = in.readUTF();
 
 	int length = in.readInt();
@@ -199,9 +200,9 @@ static State read(DataInputStream in) throws IOException {
 		}
 	}
 
-	newState.structuralBuildNumbers = new SimpleLookupTable(length = in.readInt());
+	newState.structuralBuildTimes = new SimpleLookupTable(length = in.readInt());
 	for (int i = 0; i < length; i++)
-		newState.structuralBuildNumbers.put(in.readUTF(), new Integer(in.readInt()));
+		newState.structuralBuildTimes.put(in.readUTF(), new Long(in.readLong()));
 
 	String[] internedLocations = new String[length = in.readInt()];
 	for (int i = 0; i < length; i++)
@@ -266,6 +267,14 @@ private static char[][] readNames(DataInputStream in) throws IOException {
 	return names;
 }
 
+void tagAsNoopBuild() {
+	this.buildNumber = -1; // tag the project since it has no source folders and can be skipped
+}
+
+boolean wasNoopBuild() {
+	return buildNumber == -1;
+}
+
 void write(DataOutputStream out) throws IOException {
 	int length;
 	Object[] keyTable;
@@ -281,7 +290,7 @@ void write(DataOutputStream out) throws IOException {
 	out.writeByte(VERSION);
 	out.writeUTF(javaProjectName);
 	out.writeInt(buildNumber);
-	out.writeInt(lastStructuralBuildNumber);
+	out.writeLong(lastStructuralBuildTime);
 	out.writeUTF(outputLocationString);
 
 /*
@@ -313,15 +322,15 @@ void write(DataOutputStream out) throws IOException {
  * String		prereq project name
  * int				last structural build number
 */
-	out.writeInt(length = structuralBuildNumbers.elementSize);
+	out.writeInt(length = structuralBuildTimes.elementSize);
 	if (length > 0) {
-		keyTable = structuralBuildNumbers.keyTable;
-		valueTable = structuralBuildNumbers.valueTable;
+		keyTable = structuralBuildTimes.keyTable;
+		valueTable = structuralBuildTimes.valueTable;
 		for (int i = 0, l = keyTable.length; i < l; i++) {
 			if (keyTable[i] != null) {
 				length--;
 				out.writeUTF((String) keyTable[i]);
-				out.writeInt(((Integer) valueTable[i]).intValue());
+				out.writeLong(((Long) valueTable[i]).longValue());
 			}
 		}
 		if (JavaBuilder.DEBUG && length != 0)
@@ -464,14 +473,14 @@ private void writeNames(char[][] names, DataOutputStream out) throws IOException
  */
 public String toString() {
 	return "State for " + javaProjectName //$NON-NLS-1$
-		+ " (" + buildNumber //$NON-NLS-1$
-			+ " : " + lastStructuralBuildNumber //$NON-NLS-1$
+		+ " (#" + buildNumber //$NON-NLS-1$
+			+ " @ " + new Date(lastStructuralBuildTime) //$NON-NLS-1$
 				+ ")"; //$NON-NLS-1$
 }
 
 /* Debug helper
 void dump() {
-	System.out.println("State for " + javaProjectName + " (" + buildNumber + " : " + lastStructuralBuildNumber + ")");
+	System.out.println("State for " + javaProjectName + " (" + buildNumber + " @ " + new Date(lastStructuralBuildTime) + ")");
 	System.out.println("\tClass path locations:");
 	for (int i = 0, length = classpathLocations.length; i < length; ++i)
 		System.out.println("\t\t" + classpathLocations[i]);
@@ -479,11 +488,11 @@ void dump() {
 	System.out.println("\t\t" + outputLocationString);
 
 	System.out.print("\tStructural build numbers table:");
-	if (structuralBuildNumbers.elementSize == 0) {
+	if (structuralBuildTimes.elementSize == 0) {
 		System.out.print(" <empty>");
 	} else {
-		Object[] keyTable = structuralBuildNumbers.keyTable;
-		Object[] valueTable = structuralBuildNumbers.valueTable;
+		Object[] keyTable = structuralBuildTimes.keyTable;
+		Object[] valueTable = structuralBuildTimes.valueTable;
 		for (int i = 0, l = keyTable.length; i < l; i++)
 			if (keyTable[i] != null)
 				System.out.print("\n\t\t" + keyTable[i].toString() + " -> " + valueTable[i].toString());

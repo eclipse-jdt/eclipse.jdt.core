@@ -101,12 +101,17 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 					// the user may be trying something
 					buildAll();
 				} else if (sourceFolders.length > 0) { // if there is no source to compile & no classpath changes then we are done
-					clearLastState(); // clear the previously built state so if the build fails, a full build will occur next time
 					SimpleLookupTable deltas = findDeltas();
 					if (deltas == null)
 						buildAll();
-					else
+					else if (deltas.elementSize > 0)
 						buildDeltas(deltas);
+					else if (DEBUG)
+						System.out.println("Nothing to build since deltas were empty"); //$NON-NLS-1$
+				} else {
+					if (DEBUG)
+						System.out.println("Nothing to build since there are no source folders"); //$NON-NLS-1$
+					this.lastState.tagAsNoopBuild();
 				}
 			}
 			ok = true;
@@ -161,6 +166,8 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 private void buildAll() {
 	notifier.checkCancel();
 	notifier.subTask(Util.bind("build.preparingBuild")); //$NON-NLS-1$
+	if (DEBUG && this.lastState != null)
+		System.out.println("Clearing last state : " + this.lastState); //$NON-NLS-1$
 	clearLastState();
 	BatchImageBuilder imageBuilder = new BatchImageBuilder(this);
 	imageBuilder.build();
@@ -170,6 +177,9 @@ private void buildAll() {
 private void buildDeltas(SimpleLookupTable deltas) {
 	notifier.checkCancel();
 	notifier.subTask(Util.bind("build.preparingBuild")); //$NON-NLS-1$
+	if (DEBUG && this.lastState != null)
+		System.out.println("Clearing last state : " + this.lastState); //$NON-NLS-1$
+	clearLastState(); // clear the previously built state so if the build fails, a full build will occur next time
 	IncrementalImageBuilder imageBuilder = new IncrementalImageBuilder(this);
 	if (imageBuilder.build(deltas))
 		recordNewState(imageBuilder.newState);
@@ -214,9 +224,13 @@ boolean filterResource(IResource resource) {
 private SimpleLookupTable findDeltas() {
 	notifier.subTask(Util.bind("build.readingDelta", currentProject.getName())); //$NON-NLS-1$
 	IResourceDelta delta = getDelta(currentProject);
-	SimpleLookupTable deltas = new SimpleLookupTable(binaryResources.elementSize + 1);
+	SimpleLookupTable deltas = new SimpleLookupTable(3);
 	if (delta != null) {
-		deltas.put(currentProject, delta);
+		if (delta.getKind() != IResourceDelta.NO_CHANGE) {
+			if (DEBUG)
+				System.out.println("Found source delta for: " + currentProject.getName()); //$NON-NLS-1$
+			deltas.put(currentProject, delta);
+		}
 	} else {
 		if (DEBUG)
 			System.out.println("Missing delta for: " + currentProject.getName()); //$NON-NLS-1$
@@ -229,17 +243,24 @@ private SimpleLookupTable findDeltas() {
 	nextProject : for (int i = 0, l = keyTable.length; i < l; i++) {
 		IProject p = (IProject) keyTable[i];
 		if (p != null && p != currentProject) {
-			if (!lastState.isStructurallyChanged(p, getLastState(p))) { // see if we can skip its delta
-				IResource[] binaryResources = (IResource[]) valueTable[i];
-				if (binaryResources.length <= 1)
+			State s = getLastState(p);
+			if (!lastState.isStructurallyChanged(p, s)) { // see if we can skip its delta
+				if (s.wasNoopBuild())
+					continue nextProject; // project has no source folders and can be skipped
+				IResource[] classFoldersAndJars = (IResource[]) valueTable[i];
+				if (classFoldersAndJars.length <= 1)
 					continue nextProject; // project has no structural changes in its output folder
-				binaryResources[0] = null; // skip the output folder
+				classFoldersAndJars[0] = null; // skip the output folder
 			}
 
 			notifier.subTask(Util.bind("build.readingDelta", p.getName())); //$NON-NLS-1$
 			delta = getDelta(p);
 			if (delta != null) {
-				deltas.put(p, delta);
+				if (delta.getKind() != IResourceDelta.NO_CHANGE) {
+					if (DEBUG)
+						System.out.println("Found binary delta for: " + p.getName()); //$NON-NLS-1$
+					deltas.put(p, delta);
+				}
 			} else {
 				if (DEBUG)
 					System.out.println("Missing delta for: " + p.getName());	 //$NON-NLS-1$
@@ -276,15 +297,13 @@ private IProject[] getRequiredProjects(boolean includeBinaryPrerequisites) {
 					projects.add(p);
 			}
 		}
-		if (includeBinaryPrerequisites) {
+		if (includeBinaryPrerequisites && binaryResources != null) {
 			// some binary resources on the class path can come from projects that are not included in the project references
-			if (binaryResources != null) {
-				Object[] keyTable = binaryResources.keyTable;
-				for (int i = 0, l = keyTable.length; i < l; i++) {
-					IProject p = (IProject) keyTable[i];
-					if (p != null && p != currentProject && !projects.contains(p))
-						projects.add(p);
-				}
+			Object[] keyTable = binaryResources.keyTable;
+			for (int i = 0, l = keyTable.length; i < l; i++) {
+				IProject p = (IProject) keyTable[i];
+				if (p != null && p != currentProject && !projects.contains(p))
+					projects.add(p);
 			}
 		}
 	} catch(JavaModelException e) {
@@ -427,13 +446,12 @@ private void recordNewState(State state) {
 	Object[] keyTable = binaryResources.keyTable;
 	for (int i = 0, l = keyTable.length; i < l; i++) {
 		IProject prereqProject = (IProject) keyTable[i];
-		if (prereqProject != null && prereqProject != currentProject) {
-			State prereqState = getLastState(prereqProject);
-			if (prereqState != null)
-				state.recordLastStructuralChanges(prereqProject, prereqState.lastStructuralBuildNumber);
-		}
+		if (prereqProject != null && prereqProject != currentProject)
+			state.recordStructuralDependency(prereqProject, getLastState(prereqProject));
 	}
 
+	if (DEBUG)
+		System.out.println("Recording new state : " + state); //$NON-NLS-1$
 	// state.dump();
 	JavaModelManager.getJavaModelManager().setLastBuiltState(currentProject, state);
 }

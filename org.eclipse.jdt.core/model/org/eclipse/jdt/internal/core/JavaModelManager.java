@@ -1342,6 +1342,13 @@ public class JavaModelManager implements ISaveParticipant {
 		PerProjectInfo info = getPerProjectInfo(project);
 		info.triedRead = true; // no point trying to re-read once using setter
 		info.savedState = state;
+		if (state == null) { // delete state file to ensure a full build happens if the workspace crashes
+			try {
+				File file = getSerializationFile(project);
+				if (file != null && file.exists())
+					file.delete();
+			} catch(SecurityException se) {}
+		}
 	}
 
 	public void shutdown () {
