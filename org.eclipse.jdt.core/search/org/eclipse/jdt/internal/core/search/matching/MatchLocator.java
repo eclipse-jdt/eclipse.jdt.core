@@ -1200,6 +1200,8 @@ public SearchMatch newDeclarationMatch(
 			return new LocalVariableDeclarationMatch(element, accuracy, offset, length, participant, resource);
 		case IJavaElement.PACKAGE_DECLARATION:
 			return new PackageDeclarationMatch(element, accuracy, offset, length, participant, resource);
+		case IJavaElement.TYPE_PARAMETER:
+			return new TypeParameterDeclarationMatch(element, accuracy, offset, length, participant, resource);
 		default:
 			return null;
 	}
@@ -1261,6 +1263,19 @@ public SearchMatch newPackageReferenceMatch(
 	IResource resource = this.currentPossibleMatch.resource;
 	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
 	return new PackageReferenceMatch(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
+}
+
+public SearchMatch newTypeParameterReferenceMatch(
+		IJavaElement enclosingElement,
+		int accuracy,
+		int offset,  
+		int length,
+		ASTNode reference) {
+	int bits = reference.bits;
+	boolean insideDocComment = (bits & ASTNode.InsideJavadoc) != 0;
+	SearchParticipant participant = getParticipant(); 
+	IResource resource = this.currentPossibleMatch.resource;
+	return new TypeParameterReferenceMatch(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
 }
 
 public SearchMatch newTypeReferenceMatch(
@@ -1865,15 +1880,23 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 		for (int i=0, l=type.typeParameters.length; i<l; i++) {
 			TypeParameter typeParameter = type.typeParameters[i];
 			if (typeParameter != null) {
+				Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeParameter);
+				if (level != null && matchedClassContainer) {
+					if (level.intValue() > -1 && encloses(enclosingElement)) {
+						int offset = typeParameter.sourceStart;
+						SearchMatch match = this.patternLocator.newDeclarationMatch(typeParameter, enclosingElement, level.intValue(), typeParameter.sourceEnd-offset+1, this);
+						report(match);
+					}
+				}
 				if (typeParameter.type != null) {
-					Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeParameter.type);
+					level = (Integer) nodeSet.matchingNodes.removeKey(typeParameter.type);
 					if (level != null && matchedClassContainer) {
 						this.patternLocator.matchReportReference(typeParameter.type, enclosingElement, level.intValue(), this);
 					}
 				}
 				if (typeParameter.bounds != null) {
 					for (int j=0, b=typeParameter.bounds.length; j<b; j++) {
-						Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeParameter.bounds[j]);
+						level = (Integer) nodeSet.matchingNodes.removeKey(typeParameter.bounds[j]);
 						if (level != null && matchedClassContainer) {
 							this.patternLocator.matchReportReference(typeParameter.bounds[j], enclosingElement, level.intValue(), this);
 						}

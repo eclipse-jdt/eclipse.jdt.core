@@ -36,8 +36,8 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//		TESTS_PREFIX =  "testField";
-//		TESTS_NAMES = new String[] { "testConstructorReference09", "testMethodReference16" };
+//		TESTS_PREFIX =  "testTypeParameter";
+		TESTS_NAMES = new String[] { "testTypeParameterConstructors05" };
 	//	TESTS_NUMBERS = new int[] { 79860, 79803, 73336 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
 		}
@@ -618,14 +618,11 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 	public void testFieldReference03() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "q8", "EclipseTest.java").getType("EclipseTest");
 		IField field = type.getField("test");
-		search(
-			field, 
-			REFERENCES, 
-			getJavaSearchScope(), 
-			this.resultCollector);
+		resultCollector.showPotential = false;
+		search(field, REFERENCES, getJavaSearchScope());
 		assertSearchResults(
-			"src/q8/EclipseTest.java void q8.EclipseTest.main(String[]) [test]",
-			this.resultCollector);
+			"src/q8/EclipseTest.java void q8.EclipseTest.main(String[]) [test]"
+		);
 	}
 	/**
 	 * Field reference test.
@@ -3187,6 +3184,7 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 			"src/a1/Author.java a1.Author [Author]",
 			this.resultCollector);
 	}
+
 	/**
 	 * Search for auto-boxing
 	 */
@@ -3205,7 +3203,206 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 		IMethod method = workingCopies[0].getType("Test").getMethod("foo", new String[] { "I" });
 		search(method, REFERENCES, scope);
 		assertSearchResults(
-			"src/p/X.java void p.Test.bar() [foo(new Integer(0))]",
-			resultCollector);
+			"src/p/X.java void p.Test.bar() [foo(new Integer(0))]"
+		);
+	}
+
+	/**
+	 * Search for type parameters
+	 */
+	/*
+	 * Type type parameters
+	 */
+	public void testTypeParameterTypes01() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.m.def", "Single.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "T");
+		search(typeParam, REFERENCES, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/m/def/Single.java void g5.m.def.Single.standard(T) [T]\n" + 
+			"src/g5/m/def/Single.java T g5.m.def.Single.generic(U) [T]\n" + 
+			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.returnParamType() [T]\n" + 
+			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.returnParamType() [T]\n" + 
+			"src/g5/m/def/Single.java void g5.m.def.Single.paramTypesArgs(Single<T>) [T]\n" + 
+			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]\n" + 
+			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]\n" + 
+			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]"
+		);
+	}
+	public void testTypeParameterTypes02() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.m.def", "Single.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "T", 3); // return type of returnParamType() method
+		search(typeParam, DECLARATIONS, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/m/def/Single.java g5.m.def.Single [T]"
+		);
+	}
+	public void testTypeParameterTypes03() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.m.def", "Single.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "T", 4); // type argument of Single<T>
+		search(typeParam, ALL_OCCURRENCES, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/m/def/Single.java g5.m.def.Single [T]\n" +
+			"src/g5/m/def/Single.java void g5.m.def.Single.standard(T) [T]\n" + 
+			"src/g5/m/def/Single.java T g5.m.def.Single.generic(U) [T]\n" + 
+			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.returnParamType() [T]\n" + 
+			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.returnParamType() [T]\n" + 
+			"src/g5/m/def/Single.java void g5.m.def.Single.paramTypesArgs(Single<T>) [T]\n" + 
+			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]\n" + 
+			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]\n" + 
+			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [T]"
+		);
+	}
+	public void testTypeParameterTypes04() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.m.def", "Multiple.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "T3");
+		search(typeParam, REFERENCES, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/m/def/Multiple.java void g5.m.def.Multiple.standard(T1, T2, T3) [T3]\n" + 
+			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.returnParamType() [T3]\n" + 
+			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.returnParamType() [T3]\n" + 
+			"src/g5/m/def/Multiple.java void g5.m.def.Multiple.paramTypesArgs(Single<T1>, Single<T2>, Single<T3>, Multiple<T1,T2,T3>) [T3]\n" + 
+			"src/g5/m/def/Multiple.java void g5.m.def.Multiple.paramTypesArgs(Single<T1>, Single<T2>, Single<T3>, Multiple<T1,T2,T3>) [T3]\n" + 
+			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T3]\n" + 
+			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T3]\n" + 
+			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T3]"
+		);
+	}
+	public void testTypeParameterTypes05() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.m.def", "Multiple.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "T1", 2); // return type of returnParamType() method
+		search(typeParam, DECLARATIONS, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/m/def/Multiple.java g5.m.def.Multiple [T1]"
+		);
+	}
+	public void testTypeParameterTypes06() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.m.def", "Multiple.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "T2", 3); // type argument of Multiple<T1,T2,T3>
+		search(typeParam, ALL_OCCURRENCES, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/m/def/Multiple.java g5.m.def.Multiple [T2]\n" + 
+			"src/g5/m/def/Multiple.java void g5.m.def.Multiple.standard(T1, T2, T3) [T2]\n" + 
+			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.returnParamType() [T2]\n" + 
+			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.returnParamType() [T2]\n" + 
+			"src/g5/m/def/Multiple.java void g5.m.def.Multiple.paramTypesArgs(Single<T1>, Single<T2>, Single<T3>, Multiple<T1,T2,T3>) [T2]\n" + 
+			"src/g5/m/def/Multiple.java void g5.m.def.Multiple.paramTypesArgs(Single<T1>, Single<T2>, Single<T3>, Multiple<T1,T2,T3>) [T2]\n" + 
+			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T2]\n" + 
+			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T2]\n" + 
+			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [T2]"
+		);
+	}
+	/*
+	 * Methods type parameters
+	 */
+	public void testTypeParameterMethods01() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.m.def", "Single.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "U");
+		search(typeParam, REFERENCES, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/m/def/Single.java T g5.m.def.Single.generic(U) [U]"
+		);
+	}
+	public void testTypeParameterMethods02() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.m.def", "Single.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "U", 2); // argument of generic method
+		search(typeParam, DECLARATIONS, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/m/def/Single.java T g5.m.def.Single.generic(U) [U]"
+		);
+	}
+	public void testTypeParameterMethods03() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.m.def", "Single.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "U", 4); // argument of complete method
+		search(typeParam, ALL_OCCURRENCES, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [U]\n" + 
+			"src/g5/m/def/Single.java Single<T> g5.m.def.Single.complete(U, Single<T>) [U]"
+		);
+	}
+	public void testTypeParameterMethods04() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.m.def", "Multiple.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "U3", 3); // type parameter of complete method (extends)
+		search(typeParam, REFERENCES, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [U3]"
+		);
+	}
+	public void testTypeParameterMethods05() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.m.def", "Multiple.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "U1", 2); // argument of generic method
+		search(typeParam, DECLARATIONS, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/m/def/Multiple.java T1 g5.m.def.Multiple.generic(U1, U2, U3) [U1]"
+		);
+	}
+	public void testTypeParameterMethods06() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.m.def", "Multiple.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "U2", 4); // argument of complete method
+		search(typeParam, ALL_OCCURRENCES, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [U2]\n" + 
+			"src/g5/m/def/Multiple.java Multiple<T1,T2,T3> g5.m.def.Multiple.complete(U1, U2, U3, Multiple<T1,T2,T3>) [U2]"
+		);
+	}
+	/*
+	 * Constructors type parameters
+	 */
+	public void testTypeParameterConstructors01() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.c.def", "Single.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "U");
+		search(typeParam, REFERENCES, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/c/def/Single.java g5.c.def.Single(T, U) [U]"
+		);
+	}
+	public void testTypeParameterConstructors02() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.c.def", "Single.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "U");
+		// TODO (frederic) use following line instead when bug 83438 will be fixed
+		// ITypeParameter typeParam = selectTypeParameter(unit, "U", 2); // argument of generic method
+		search(typeParam, DECLARATIONS, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/c/def/Single.java g5.c.def.Single(T, U) [U]"
+		);
+	}
+	public void testTypeParameterConstructors03() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.c.def", "Single.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "U");
+		// TODO (frederic) use following line instead when bug 83438 will be fixed
+		//ITypeParameter typeParam = selectTypeParameter(unit, "U", 4); // argument of complete method
+		search(typeParam, ALL_OCCURRENCES, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/c/def/Single.java g5.c.def.Single(T, U) [U]\n" +
+			"src/g5/c/def/Single.java g5.c.def.Single(T, U) [U]"
+		);
+	}
+	public void testTypeParameterConstructors04() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.c.def", "Multiple.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "U3", 3); // type parameter of complete method (extends)
+		search(typeParam, REFERENCES, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/c/def/Multiple.java g5.c.def.Multiple(U1, U2, U3, Multiple<T1,T2,T3>) [U3]"
+		);
+	}
+	public void testTypeParameterConstructors05() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.c.def", "Multiple.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "U1");
+		// TODO (frederic) use following line instead when bug 83438 will be fixed
+		//ITypeParameter typeParam = selectTypeParameter(unit, "U1", 2); // argument of generic method
+		search(typeParam, DECLARATIONS, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/c/def/Multiple.java g5.c.def.Multiple(Multiple<T1,T2,T3>, U1, U2, U3) [U1]"
+		);
+	}
+	public void testTypeParameterConstructors06() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch15", "src", "g5.c.def", "Multiple.java");
+		ITypeParameter typeParam = selectTypeParameter(unit, "U2", 3);
+		// TODO (frederic) use following line instead when bug 83438 will be fixed
+		//ITypeParameter typeParam = selectTypeParameter(unit, "U2", 4); // argument of complete method
+		search(typeParam, ALL_OCCURRENCES, getJavaSearchScope15());
+		assertSearchResults(
+			"src/g5/c/def/Multiple.java g5.c.def.Multiple(U1, U2, U3, Multiple<T1,T2,T3>) [U2]\n" +
+			"src/g5/c/def/Multiple.java g5.c.def.Multiple(U1, U2, U3, Multiple<T1,T2,T3>) [U2]"
+		);
 	}
 }

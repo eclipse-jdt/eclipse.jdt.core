@@ -57,7 +57,7 @@ public class AbstractJavaSearchGenericTests extends JavaSearchTests {
 	 * Overridden to remove all last type arguments from expected string.
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#assertSearchResults(java.lang.String, java.lang.String, java.lang.Object)
 	 */
-	protected void assertSearchResults(String message, String expected, Object collector) {
+	protected void assertSearchResults(String message, String expected, JavaSearchResultCollector collector) {
 		String actual = collector.toString();
 		String trimmed = cleanResults(expected);
 		if (!trimmed.equals(actual)) {

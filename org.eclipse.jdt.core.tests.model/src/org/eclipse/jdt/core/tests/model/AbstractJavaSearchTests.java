@@ -45,51 +45,53 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	 * Collects results as a string.
 	 */
 	public static class JavaSearchResultCollector extends SearchRequestor {
-		public StringBuffer results = new StringBuffer();
+		public StringBuffer results = new StringBuffer(), line;
 		public boolean showAccuracy;
 		public boolean showContext;
 		public boolean showRule;
 		public boolean showInsideDoc;
+		public boolean showPotential = true;
 		public boolean showProject;
 		public boolean showSynthetic;
+		public int count = 0;
 		public void acceptSearchMatch(SearchMatch match) throws CoreException {
+			count++;
 			try {
-				if (results.length() > 0) results.append("\n");
 				IResource resource = match.getResource();
 				IJavaElement element = (IJavaElement) match.getElement();
-				results.append(getPathString(resource, element));
+				line = new StringBuffer(getPathString(resource, element));
 				if (this.showProject) {
 					IProject project = element.getJavaProject().getProject();
-					results.append(" [in ");
-					results.append(project.getName());
-					results.append("]");
+					line.append(" [in ");
+					line.append(project.getName());
+					line.append("]");
 				}
 				ICompilationUnit unit = null;
 				if (element instanceof IMethod) {
-					results.append(" ");
+					line.append(" ");
 					IMethod method = (IMethod)element;
 					append(method);
 					unit = method.getCompilationUnit();
 				} else if (element instanceof IType) {
-					results.append(" ");
+					line.append(" ");
 					IType type = (IType)element;
 					append(type);
 					unit = type.getCompilationUnit();
 				} else if (element instanceof IField) {
-					results.append(" ");
+					line.append(" ");
 					IField field = (IField)element;
 					append(field);
 					unit = field.getCompilationUnit();
 				} else if (element instanceof IInitializer) {
-					results.append(" ");
+					line.append(" ");
 					IInitializer initializer = (IInitializer)element;
 					append(initializer);
 					unit = initializer.getCompilationUnit();
 				} else if (element instanceof IPackageFragment) {
-					results.append(" ");
+					line.append(" ");
 					append((IPackageFragment)element);
 				} else if (element instanceof ILocalVariable) {
-					results.append(" ");
+					line.append(" ");
 					ILocalVariable localVar = (ILocalVariable)element;
 					IJavaElement parent = localVar.getParent();
 					if (parent instanceof IInitializer) {
@@ -99,8 +101,8 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 						IMethod method = (IMethod)parent;
 						append(method);
 					}
-					results.append(".");
-					results.append(localVar.getElementName());
+					line.append(".");
+					line.append(localVar.getElementName());
 					unit = (ICompilationUnit)localVar.getAncestor(IJavaElement.COMPILATION_UNIT);
 				} else if (element instanceof IImportDeclaration) {
 					IImportDeclaration importDeclaration = (IImportDeclaration)element;
@@ -111,70 +113,74 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 					int start = match.getOffset();
 					int end = start + match.getLength();
 					if (start == -1 || (contents != null && contents.length > 0)) { // retrieving attached source not implemented here
-						results.append(" [");
+						line.append(" [");
 						if (start > -1) {
 							if (this.showContext) {
 								int lineStart1 = CharOperation.lastIndexOf('\n', contents, 0, start);
 								int lineStart2 = CharOperation.lastIndexOf('\r', contents, 0, start);
 								int lineStart = Math.max(lineStart1, lineStart2) + 1;
-								results.append(CharOperation.subarray(contents, lineStart, start));
-								results.append("<");
+								line.append(CharOperation.subarray(contents, lineStart, start));
+								line.append("<");
 							}
-							results.append(CharOperation.subarray(contents, start, end));
+							line.append(CharOperation.subarray(contents, start, end));
 							if (this.showContext) {
-								results.append(">");
+								line.append(">");
 								int lineEnd1 = CharOperation.indexOf('\n', contents, end);
 								int lineEnd2 = CharOperation.indexOf('\r', contents, end);
 								int lineEnd = lineEnd1 > 0 && lineEnd2 > 0 ? Math.min(lineEnd1, lineEnd2) : Math.max(lineEnd1, lineEnd2);
 								if (lineEnd == -1) lineEnd = contents.length;
-								results.append(CharOperation.subarray(contents, end, lineEnd));
+								line.append(CharOperation.subarray(contents, end, lineEnd));
 							}
 						} else {
-							results.append("No source");
+							line.append("No source");
 						}
-						results.append("]");
+						line.append("]");
 					}
 				}
 				if (this.showAccuracy) {
-					results.append(" ");
+					line.append(" ");
 					switch (match.getAccuracy()) {
 						case SearchMatch.A_ACCURATE:
 							if (this.showRule) {
 								int rule = match.getMatchRule();
 								if ((rule & SearchPattern.R_EQUIVALENT_MATCH) != 0) {
-									this.results.append("EQUIVALENT_");
+									line.append("EQUIVALENT_");
 									if ((rule & SearchPattern.R_ERASURE_MATCH) != 0)
-										this.results.append("ERASURE_");
+										line.append("ERASURE_");
 								} else if ((rule & SearchPattern.R_ERASURE_MATCH) != 0) {
-									this.results.append("ERASURE_");
+									line.append("ERASURE_");
 								} else {
-									results.append("EXACT_");
+									line.append("EXACT_");
 								}
-								results.append("MATCH");
+								line.append("MATCH");
 							} else {
-								results.append("EXACT_MATCH");
+								line.append("EXACT_MATCH");
 							}
 							break;
 						case SearchMatch.A_INACCURATE:
-							results.append("POTENTIAL_MATCH");
+							line.append("POTENTIAL_MATCH");
 							break;
 					}
 				}
 				if (this.showInsideDoc) {
-					results.append(" ");
+					line.append(" ");
 					if (match.isInsideDocComment()) {
-						results.append("INSIDE_JAVADOC");
+						line.append("INSIDE_JAVADOC");
 					} else {
-						results.append("OUTSIDE_JAVADOC");
+						line.append("OUTSIDE_JAVADOC");
 					}
 				}
 				if (this.showSynthetic) {
 					if (match instanceof MethodReferenceMatch) {
 						MethodReferenceMatch methRef = (MethodReferenceMatch) match;
 						if (methRef.isSynthetic()) {
-							results.append(" SYNTHETIC");
+							line.append(" SYNTHETIC");
 						}
 					}
+				}
+				if (match.getAccuracy() == SearchMatch.A_ACCURATE || showPotential) {
+					if (results.length() > 0) results.append("\n");
+					results.append(line);
 				}
 			} catch (JavaModelException e) {
 				results.append("\n");
@@ -183,47 +189,47 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 		}
 		private void append(IField field) throws JavaModelException {
 			append(field.getDeclaringType());
-			results.append(".");
-			results.append(field.getElementName());
+			line.append(".");
+			line.append(field.getElementName());
 		}
 		private void append(IInitializer initializer) throws JavaModelException {
 			append(initializer.getDeclaringType());
-			results.append(".");
+			line.append(".");
 			if (Flags.isStatic(initializer.getFlags())) {
-				results.append("static ");
+				line.append("static ");
 			}
-			results.append("{}");
+			line.append("{}");
 		}
 		private void append(IMethod method) throws JavaModelException {
 			if (!method.isConstructor()) {
-				results.append(Signature.toString(method.getReturnType()));
-				results.append(" ");
+				line.append(Signature.toString(method.getReturnType()));
+				line.append(" ");
 			}
 			append(method.getDeclaringType());
 			if (!method.isConstructor()) {
-				results.append(".");
-				results.append(method.getElementName());
+				line.append(".");
+				line.append(method.getElementName());
 			}
-			results.append("(");
+			line.append("(");
 			String[] parameters = method.getParameterTypes();
 			boolean varargs = Flags.isVarargs(method.getFlags());
 			for (int i = 0, length=parameters.length; i<length; i++) {
 				if (i < length - 1) {
-					results.append(Signature.toString(parameters[i]));
-					results.append(", "); //$NON-NLS-1$
+					line.append(Signature.toString(parameters[i]));
+					line.append(", "); //$NON-NLS-1$
 				} else if (varargs) {
 					// remove array from signature
 					String parameter = parameters[i].substring(1);
-					results.append(Signature.toString(parameter));
-					results.append(" ..."); //$NON-NLS-1$
+					line.append(Signature.toString(parameter));
+					line.append(" ..."); //$NON-NLS-1$
 				} else {
-					results.append(Signature.toString(parameters[i]));
+					line.append(Signature.toString(parameters[i]));
 				}
 			}
-			results.append(")");
+			line.append(")");
 		}
 		private void append(IPackageFragment pkg) {
-			results.append(pkg.getElementName());
+			line.append(pkg.getElementName());
 		}
 		private void append(IType type) throws JavaModelException {
 			IJavaElement parent = type.getParent();
@@ -233,25 +239,25 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 					IPackageFragment pkg = type.getPackageFragment();
 					append(pkg);
 					if (!pkg.getElementName().equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
-						results.append(".");
+						line.append(".");
 					}
 					break;
 				case IJavaElement.CLASS_FILE:
 					IType declaringType = type.getDeclaringType();
 					if (declaringType != null) {
 						append(type.getDeclaringType());
-						results.append("$");
+						line.append("$");
 					} else {
 						pkg = type.getPackageFragment();
 						append(pkg);
 						if (!pkg.getElementName().equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
-							results.append(".");
+							line.append(".");
 						}
 					}
 					break;
 				case IJavaElement.TYPE:
 					append((IType)parent);
-					results.append("$");
+					line.append("$");
 					break;
 				case IJavaElement.FIELD:
 					append((IField)parent);
@@ -267,17 +273,17 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 					break;
 			}
 			if (isLocal) {
-				results.append(":");
+				line.append(":");
 			}
 			String typeName = type.getElementName();
 			if (typeName.length() == 0) {
-				results.append("<anonymous>");
+				line.append("<anonymous>");
 			} else {
-				results.append(typeName);
+				line.append(typeName);
 			}
 			if (isLocal) {
-				results.append("#");
-				results.append(((SourceRefElement)type).occurrenceCount);
+				line.append("#");
+				line.append(((SourceRefElement)type).occurrenceCount);
 			}
 		}
 		protected String getPathString(IResource resource, IJavaElement element) {
@@ -345,6 +351,37 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	protected void assertSearchResults(String expected) {
 		assertSearchResults(expected, resultCollector);
 	}
+	protected void assertSearchResults(String expected, JavaSearchResultCollector collector) {
+		assertSearchResults("Unexpected search results", expected, collector);
+	}
+	protected void assertSearchResults(String message, String expected, JavaSearchResultCollector collector) {
+		String actual = collector.toString();
+		if (!expected.equals(actual)) {
+			if (this.displayName) {
+				System.out.print(getName());
+				System.out.print(" expects ");
+				if (collector.count==0)
+					System.out.println("no result!");
+				else {
+					System.out.print(collector.count);
+					System.out.print(" result");
+					if (collector.count==1)
+						System.out.println(":");
+					else
+						System.out.println("s:");
+				}
+			}
+			if (!displayName || collector.count>0) {
+				System.out.print(displayString(actual, this.tabs));
+				System.out.println(",");
+			}
+		}
+		assertEquals(
+			message,
+			expected,
+			actual
+		);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#copyDirectory(java.io.File, java.io.File)
@@ -408,51 +445,6 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 		ICompilationUnit cu = getCompilationUnit(projectName, "src", packageName, cuName);
 		return SearchEngine.createJavaSearchScope(new ICompilationUnit[] { cu });
 	}
-	/*
-	 * Overrides super method to create parent folders if necessary
-	 *
-	public ICompilationUnit getWorkingCopy(String fileName, String source) throws JavaModelException {
-		IPath folder = new Path(fileName).removeLastSegments(1);
-		try {
-			createFolder(folder);
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-		ICompilationUnit workingCopy = super.getWorkingCopy(fileName, source, true);
-		workingCopy.commitWorkingCopy(true, null);	// need to commit to index file
-		return workingCopy;
-	}
-	/*
-	 * Overrides super method to create parent folders if necessary
-	 *
-	public ICompilationUnit getWorkingCopy(String fileName, String source, WorkingCopyOwner owner, boolean computeProblems) throws JavaModelException {
-		ICompilationUnit workingCopy = super.getWorkingCopy(fileName, source, owner, computeProblems);
-		workingCopy.commitWorkingCopy(true, null);	// need to commit to index file
-		return workingCopy;
-	}
-	/*
-	 * Overrides super method to create parent folders if necessary
-	 *
-	public ICompilationUnit getWorkingCopy(String fileName, String source, WorkingCopyOwner owner) throws JavaModelException {
-		IPath folder = new Path(fileName).removeLastSegments(1);
-		try {
-			createFolder(folder);
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-		ICompilationUnit workingCopy = super.getWorkingCopy(fileName, source, owner, true);
-		workingCopy.commitWorkingCopy(true, null);	// need to commit to index file
-		return workingCopy;
-	}
-	protected void search(SearchPattern searchPattern, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		new SearchEngine().search(
-			searchPattern, 
-			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			scope,
-			requestor,
-			null);
-	}
-	*/
 	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope) throws CoreException {
 		search(element, limitTo, EXACT_RULE, scope, resultCollector);
 	}
@@ -553,7 +545,53 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	}
 
 	/**
-	 * Select a parameterized source type in a compilation unit identified with the first occurence in the source of a given selection.
+	 * Select a local variable in a compilation unit identified with the first occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @return IType
+	 * @throws JavaModelException
+	 */
+	protected ILocalVariable selectLocalVariable(ICompilationUnit unit, String selection) throws JavaModelException {
+		return selectLocalVariable(unit, selection, 1);
+	}
+
+	/**
+	 * Select a local variable in a compilation unit identified with the nth occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @param occurences
+	 * @return IType
+	 * @throws JavaModelException
+	 */
+	protected ILocalVariable selectLocalVariable(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
+		return (ILocalVariable) selectJavaElement(unit, selection, occurences, IJavaElement.LOCAL_VARIABLE);
+	}
+
+	/**
+	 * Select a method in a compilation unit identified with the first occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @return IMethod
+	 * @throws JavaModelException
+	 */
+	protected IMethod selectMethod(ICompilationUnit unit, String selection) throws JavaModelException {
+		return selectMethod(unit, selection, 1);
+	}
+
+	/**
+	 * Select a method in a compilation unit identified with the nth occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @param occurences
+	 * @return IMethod
+	 * @throws JavaModelException
+	 */
+	protected IMethod selectMethod(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
+		return (IMethod) selectJavaElement(unit, selection, occurences, IJavaElement.METHOD);
+	}
+
+	/**
+	 * Select a parameterized source method in a compilation unit identified with the first occurence in the source of a given selection.
 	 * @param unit
 	 * @param selection
 	 * @return ParameterizedSourceMethod
@@ -564,7 +602,7 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	}
 	
 	/**
-	 * Select a parameterized source type in a compilation unit identified with the nth occurence in the source of a given selection.
+	 * Select a parameterized source method in a compilation unit identified with the nth occurence in the source of a given selection.
 	 * @param unit
 	 * @param selection
 	 * @param occurences
@@ -603,32 +641,7 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	}
 
 	/**
-	 * Select a source type in a compilation unit identified with the first occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @return IMethod
-	 * @throws JavaModelException
-	 */
-	protected IMethod selectMethod(ICompilationUnit unit, String selection) throws JavaModelException {
-		return selectMethod(unit, selection, 1);
-	}
-
-	/**
-	 * Select a parameterized source type in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
-	 * @return IMethod
-	 * @throws JavaModelException
-	 */
-	protected IMethod selectMethod(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
-		IJavaElement element = selectJavaElement(unit, selection, occurences);
-		assertTrue("Not a source method: "+element.getElementName(), element instanceof IMethod);
-		return (IMethod) element;
-	}
-
-	/**
-	 * Select a source type in a compilation unit identified with the first occurence in the source of a given selection.
+	 * Select a type in a compilation unit identified with the first occurence in the source of a given selection.
 	 * @param unit
 	 * @param selection
 	 * @return IType
@@ -639,7 +652,7 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	}
 
 	/**
-	 * Select a parameterized source type in a compilation unit identified with the nth occurence in the source of a given selection.
+	 * Select a type in a compilation unit identified with the nth occurence in the source of a given selection.
 	 * @param unit
 	 * @param selection
 	 * @param occurences
@@ -647,23 +660,41 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	 * @throws JavaModelException
 	 */
 	protected IType selectType(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
-		IJavaElement element = selectJavaElement(unit, selection, occurences);
-		assertTrue("Not a source type: "+element.getElementName(), element instanceof IType);
-		return (IType) element;
+		return (IType) selectJavaElement(unit, selection, occurences, IJavaElement.TYPE);
+	}
+
+	/**
+	 * Select a type parameter in a compilation unit identified with the first occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @return IType
+	 * @throws JavaModelException
+	 */
+	protected ITypeParameter selectTypeParameter(ICompilationUnit unit, String selection) throws JavaModelException {
+		return selectTypeParameter(unit, selection, 1);
+	}
+
+	/**
+	 * Select a type parameter in a compilation unit identified with the nth occurence in the source of a given selection.
+	 * @param unit
+	 * @param selection
+	 * @param occurences
+	 * @return IType
+	 * @throws JavaModelException
+	 */
+	protected ITypeParameter selectTypeParameter(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
+		return (ITypeParameter) selectJavaElement(unit, selection, occurences, IJavaElement.TYPE_PARAMETER);
 	}
 
 	/**
 	 * Select a java element in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
-	 * @return IJavaElement
-	 * @throws JavaModelException
+	 * Do not allow subclasses to call this method as we want to verify IJavaElement kind.
 	 */
-	protected IJavaElement selectJavaElement(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
+	private IJavaElement selectJavaElement(ICompilationUnit unit, String selection, int occurences, int elementType) throws JavaModelException {
 		int[] selectionPositions = selectionInfo(unit, selection, occurences);
 		IJavaElement[] elements = unit.codeSelect(selectionPositions[0], selectionPositions[1]);
 		assertEquals("Invalid selection number", 1, elements.length);
+		assertEquals("Invalid java element type: "+elements[0].getElementName(), elements[0].getElementType(), elementType);
 		return elements[0];
 	}
 	protected void setUp () throws Exception {

@@ -100,18 +100,32 @@ protected MatchLocatorParser(ProblemReporter problemReporter, MatchLocator locat
 public void checkComment() {
 	super.checkComment();
 	if (this.javadocParser.checkDocComment && this.javadoc != null) {
+
+		// Search for pattern locator matches in javadoc comment parameters @param tags
+		JavadocSingleNameReference[] paramReferences = this.javadoc.paramReferences;
+		int length = paramReferences == null ? 0 : paramReferences.length;
+		for (int i = 0; i < length; i++) {
+			this.patternLocator.match(paramReferences[i], this.nodeSet);
+		}
+
+		// Search for pattern locator matches in javadoc comment type parameters @param tags
+		JavadocSingleTypeReference[] paramTypeParameters = this.javadoc.paramTypeParameters;
+		length = paramTypeParameters == null ? 0 : paramTypeParameters.length;
+		for (int i = 0; i < length; i++) {
+			this.patternLocator.match(paramTypeParameters[i], this.nodeSet);
+		}
+
 		// Search for pattern locator matches in javadoc comment @throws/@exception tags
 		TypeReference[] thrownExceptions = this.javadoc.exceptionReferences;
-		int throwsTagsLength = thrownExceptions == null ? 0 : thrownExceptions.length;
-		for (int i = 0; i < throwsTagsLength; i++) {
-			TypeReference typeRef = thrownExceptions[i];
-			this.patternLocator.match(typeRef, this.nodeSet);
+		length = thrownExceptions == null ? 0 : thrownExceptions.length;
+		for (int i = 0; i < length; i++) {
+			this.patternLocator.match(thrownExceptions[i], this.nodeSet);
 		}
 
 		// Search for pattern locator matches in javadoc comment @see tags
 		Expression[] references = this.javadoc.seeReferences;
-		int seeTagsLength = references == null ? 0 : references.length;
-		for (int i = 0; i < seeTagsLength; i++) {
+		length = references == null ? 0 : references.length;
+		for (int i = 0; i < length; i++) {
 			Expression reference = references[i];
 			if (reference instanceof TypeReference) {
 				TypeReference typeRef = (TypeReference) reference;
@@ -250,6 +264,14 @@ protected void consumePrimaryNoNewArrayWithName() {
 	// (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23329)
 	intPtr--;
 	intPtr--;
+}
+protected void consumeTypeArgument() {
+	super.consumeTypeArgument();
+	patternLocator.match((TypeReference)genericsStack[genericsPtr], nodeSet);
+}
+protected void consumeTypeParameterHeader() {
+	super.consumeTypeParameterHeader();
+	patternLocator.match((TypeParameter)genericsStack[genericsPtr], nodeSet);
 }
 protected void consumeUnaryExpression(int op, boolean post) {
 	super.consumeUnaryExpression(op, post);

@@ -68,6 +68,8 @@ public static PatternLocator patternLocator(SearchPattern pattern) {
 			return new OrLocator((OrPattern) pattern);
 		case IIndexConstants.LOCAL_VAR_PATTERN :
 			return new LocalVariableLocator((LocalVariablePattern) pattern);
+		case IIndexConstants.TYPE_PARAM_PATTERN:
+			return new TypeParameterLocator((TypeParameterPattern) pattern);
 	}
 	return null;
 }
@@ -187,6 +189,10 @@ public int match(TypeDeclaration node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
 	return IMPOSSIBLE_MATCH;
 }
+public int match(TypeParameter node, MatchingNodeSet nodeSet) {
+	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
+}
 public int match(TypeReference node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
 	return IMPOSSIBLE_MATCH;
@@ -292,6 +298,9 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 			break;
 		case IJavaElement.LOCAL_VARIABLE:
 			match = locator.newLocalVariableReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
+			break;
+		case IJavaElement.TYPE_PARAMETER:
+			match = locator.newTypeParameterReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 	}
 	if (match != null) {

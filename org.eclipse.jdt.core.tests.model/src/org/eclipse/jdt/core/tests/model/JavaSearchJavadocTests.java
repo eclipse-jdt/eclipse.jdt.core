@@ -16,6 +16,8 @@ import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
 
 /**
  * Tests the Java search engine in Javadoc comment.
@@ -577,6 +579,59 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 				getJavaSearchScope(), 
 				this.resultCollector);
 		assertSearchResults("", this.resultCollector);
+	}
+	public void testJavadocTypeParameterReferences01() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearch15/src/b81190/Test.java",
+			"package b81190;\n" + 
+			"/**\n" + 
+			" * @param <T1> First class type parameter\n" + 
+			" * @param <T2> Second class type parameter\n" + 
+			" * @param <T3> Last class type parameter\n" + 
+			" */\n" + 
+			"public class Test<T1, T2, T3> {\n" + 
+			"	/**\n" + 
+			"	 * @param <U> Method type parameter\n" + 
+			"	 * @param x Method parameter\n" + 
+			"	 */\n" + 
+			"	<U> void generic(U x, T1 t) {\n" + 
+			"		Object o = x;\n" + 
+			"		o.toString();\n" + 
+			"	}\n" + 
+			"}\n"
+			);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
+		ITypeParameter typeParam = selectTypeParameter(workingCopies[0], "T1", 2);
+		discard = false; // use same working copy for next test
+		search(typeParam, REFERENCES, scope);
+		assertSearchResults(
+			"src/b81190/Test.java b81190.Test [T1] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b81190/Test.java void b81190.Test.generic(U, T1) [T1] EXACT_MATCH OUTSIDE_JAVADOC"
+		);
+	}
+	public void testJavadocTypeParameterReferences02() throws CoreException {
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
+		ITypeParameter typeParam = selectTypeParameter(workingCopies[0], "U", 2);
+		discard = false; // use same working copy for next test
+		search(typeParam, REFERENCES, scope);
+		assertSearchResults(
+			"src/b81190/Test.java void b81190.Test.generic(U, T1) [U] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b81190/Test.java void b81190.Test.generic(U, T1) [U] EXACT_MATCH OUTSIDE_JAVADOC"
+		);
+	}
+	// Local variables references in Javadoc have been fixed while implementing 81190
+	public void testJavadocParameterReferences01() throws CoreException {
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
+		ILocalVariable local = selectLocalVariable(workingCopies[0], "x", 2);
+		search(local, REFERENCES, scope);
+		assertSearchResults(
+			"src/b81190/Test.java void b81190.Test.generic(U, T1) [x] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b81190/Test.java void b81190.Test.generic(U, T1) [x] EXACT_MATCH OUTSIDE_JAVADOC"
+		);
 	}
 
 	/**

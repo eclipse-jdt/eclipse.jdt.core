@@ -920,53 +920,55 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				break;
 			case IJavaElement.LOCAL_VARIABLE :
 				LocalVariable localVar = (LocalVariable) element;
+				boolean findVarDeclarations = false;
+				boolean findVarReadAccess = false;
+				boolean findVarWriteAccess = false;
 				switch (limitTo) {
 					case IJavaSearchConstants.DECLARATIONS :
-						searchPattern = 
-							new LocalVariablePattern(
-								true, // declarations
-								false, // no read access
-								false, // no write access
-								localVar,
-								matchRule);
+						findVarDeclarations = true;
 						break;
 					case IJavaSearchConstants.REFERENCES :
-						searchPattern = 
-							new LocalVariablePattern(
-								false,
-								true, // read access
-								true, // write access
-								localVar,
-								matchRule);
+						findVarReadAccess = true;
+						findVarWriteAccess = true;
 						break;
 					case IJavaSearchConstants.READ_ACCESSES :
-						searchPattern = 
-							new LocalVariablePattern(
-								false,
-								true, // read access only
-								false,
-								localVar,
-								matchRule);
+						findVarReadAccess = true;
 						break;
 					case IJavaSearchConstants.WRITE_ACCESSES :
-						searchPattern = 
-							new LocalVariablePattern(
-								false,
-								false,
-								true, // write access only
-								localVar,
-								matchRule);
+						findVarWriteAccess = true;
 						break;
 					case IJavaSearchConstants.ALL_OCCURRENCES :
-						searchPattern =
-							new LocalVariablePattern(
-								true,
-								true, // read access
-								true, // write access
-								localVar,
-								matchRule);
+						findVarDeclarations = true;
+						findVarReadAccess = true;
+						findVarWriteAccess = true;
 						break;
 				}
+				searchPattern = 
+					new LocalVariablePattern(
+						findVarDeclarations,
+						findVarReadAccess,
+						findVarWriteAccess,
+						localVar,
+						matchRule);
+				break;
+			case IJavaElement.TYPE_PARAMETER:
+				ITypeParameter typeParam = (ITypeParameter) element;
+				boolean findParamDeclarations = true;
+				boolean findParamReferences = true;
+				switch (limitTo) {
+					case IJavaSearchConstants.DECLARATIONS :
+						findParamReferences = false;
+						break;
+					case IJavaSearchConstants.REFERENCES :
+						findParamDeclarations = false;
+						break;
+				}
+				searchPattern = 
+					new TypeParameterPattern(
+						findParamDeclarations,
+						findParamReferences,
+						typeParam,
+						matchRule);
 				break;
 			case IJavaElement.METHOD :
 				IMethod method = (IMethod) element;

@@ -46,6 +46,10 @@ Eclipse SDK 3.1M5 - ?th January 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Search engine is now able to find references and declarations to ITypeParameter.<br>
+To perform this kind of search, clients need to create a pattern using <code>SearchPattern.createPattern(IJavaElement,int,int)</code>
+providing searched ITypeParameter for IJavaElement parameter.
+</li>
 <li><code>TypeParameter#resolveBinding()</code> now returns an <code>ITypeBinding</code> instead of
      an <code>IBinding</code></li>
 <li>Java model operations have been ported off the deprecated JDOM. They now use AST rewrite. This enables
@@ -53,7 +57,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=82671">82671</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=81190">81190</a>
+[1.5][search] no search for type parameters - SearchPattern is null
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=82671">82671</a>
 [compiler][1.5]Protected field not visible to subclass in different package when having a class parameter
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83210">83210</a>
 Unidentical ITypeBindings for same type from same AST from reconcile
