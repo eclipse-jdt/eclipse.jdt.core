@@ -34,7 +34,7 @@ public class AnnotationParser {
 	Annotation annotation;
 	int index, tagSourceStart, tagSourceEnd, lineEnd;
 	char[] source;
-	boolean checkAnnotation;
+	public boolean checkAnnotation;
 
 	int currentTokenType = -1;
 
