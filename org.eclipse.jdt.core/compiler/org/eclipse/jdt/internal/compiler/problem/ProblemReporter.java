@@ -3381,13 +3381,24 @@ public void parseErrorInvalidToken(
 		errorTokenName, 
 		expectedToken); 
 }
-public void parseErrorUnexpectedEOF(
+public void parseErrorUnexpectedEnd(
 	int start,
 	int end){
+		
+	String[] arguments;
+	if(referenceContext instanceof ConstructorDeclaration) {
+		arguments = new String[] {Util.bind("parser.endOfConstructor")}; //$NON-NLS-1$
+	} else if(referenceContext instanceof MethodDeclaration) {
+		arguments = new String[] {Util.bind("parser.endOfMethod")}; //$NON-NLS-1$
+	} else if(referenceContext instanceof TypeDeclaration) {
+		arguments = new String[] {Util.bind("parser.endOfInitializer")}; //$NON-NLS-1$
+	} else {
+		arguments = new String[] {Util.bind("parser.endOfFile")}; //$NON-NLS-1$
+	}
 	this.handle(
 		IProblem.ParsingErrorUnexpectedEOF,
-		NoArgument,
-		NoArgument,
+		arguments,
+		arguments,
 		start,
 		end);
 }

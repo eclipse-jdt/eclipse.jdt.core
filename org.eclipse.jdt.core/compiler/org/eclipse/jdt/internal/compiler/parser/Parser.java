@@ -34,7 +34,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	protected CompilerOptions options;
 	public int firstToken ; // handle for multiple parsing goals
 	public int lastAct ; //handle for multiple parsing goals
-	protected ReferenceContext referenceContext;
+	public ReferenceContext referenceContext;
 	public int currentToken;
 	private int synchronizedBlockSourceStart;
 

@@ -1259,11 +1259,13 @@ public int getNextToken() throws InvalidInputException {
 									return TokenNameCOMMENT_LINE;
 								}
 							} catch (IndexOutOfBoundsException e) {
+								currentPosition--;
 								recordComment(false);
-								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition-1);
+								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if (tokenizeComments) {
-									this.currentPosition--; // reset one character behind
 									return TokenNameCOMMENT_LINE;
+								} else {
+									this.currentPosition++;
 								}
 							}
 							break;

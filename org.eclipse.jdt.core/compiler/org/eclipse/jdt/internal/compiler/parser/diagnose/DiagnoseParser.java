@@ -2081,7 +2081,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 				
 				break;
 			case EOF_CODE:
-				problemReporter().parseErrorUnexpectedEOF(
+				problemReporter().parseErrorUnexpectedEnd(
 					errorStart, 
 					errorEnd); 
 				break;
