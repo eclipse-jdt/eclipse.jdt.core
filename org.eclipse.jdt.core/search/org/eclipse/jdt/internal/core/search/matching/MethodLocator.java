@@ -69,7 +69,8 @@ public void match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 		for (int i = 0; i < argsLength; i++)
 			if (!matchesTypeReference(this.pattern.parameterSimpleNames[i], ((Argument) args[i]).type)) return;
 	}
-	if (!matchesTypeReference(this.pattern.returnSimpleName, node.returnType)) return;
+	TypeReference returnType =  node.returnType;
+	if (returnType == null || !matchesTypeReference(this.pattern.returnSimpleName, returnType)) return;
 
 	nodeSet.addMatch(node, this.pattern.mustResolve ? POTENTIAL_MATCH : ACCURATE_MATCH);
 }
