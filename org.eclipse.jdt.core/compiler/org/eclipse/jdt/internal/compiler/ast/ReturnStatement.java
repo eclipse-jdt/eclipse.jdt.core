@@ -208,6 +208,7 @@ public class ReturnStatement extends Statement {
 			if (methodType != null) scope.problemReporter().shouldReturn(methodType, this);
 			return;
 		}
+		expression.setExpectedType(methodType); // needed in case of generic method invocation
 		if ((expressionType = expression.resolveType(scope)) == null)
 			return;
 	

@@ -4830,4 +4830,32 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"Cannot cast from String to AX<X>\n" + 
 			"----------\n");
 	}
+	// Expected type inference for return statement
+	public void test173() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"    	foo();\n" + 
+				"    	System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"    public static <T> T bar(AX<?> a) {\n" + 
+				"		return null;\n" + 
+				"    }    \n" + 
+				"    public static AX<X> foo() {\n" + 
+				"        AX<X> ax = new AX<X>(new X());\n" + 
+				"       return bar(ax);\n" + // use return type of enclosing method for type inference
+				"    }\n" + 
+				"}\n" + 
+				"class AX<E> {\n" + 
+				"	 E e;\n" + 
+				"    AX(E e) { this.e = e; }\n" + 
+				"    E get() { return this.e; }\n" + 
+				"}\n" + 
+				"\n"
+			},
+			"SUCCESS");
+	}	
 }
