@@ -203,14 +203,24 @@ public class DeltaProcessor implements IResourceChangeListener {
 										if (fileClasspathString != null) {
 											fileEntries = project.readPaths(fileClasspathString);
 										}
+									} catch(JavaModelException e) {
+										Util.log(e, 
+											"Exception while retrieving "+ project.getPath() //$NON-NLS-1$
+											+"/.classpath, ignore change"); //$NON-NLS-1$
+										project.createClasspathProblemMarker(
+											Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
+											IMarker.SEVERITY_ERROR,
+											false,	//  cycle error
+											true);	//	file format error
 									} catch (IOException e) {
-										if (!JavaModelManager.IsResourceTreeLocked){
-											project.createClasspathProblemMarker(
-												Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
-												IMarker.SEVERITY_ERROR,
-												false,	//  cycle error
-												true);	//	file format error
-										}
+										Util.log(e, 
+											"Exception while retrieving "+ project.getPath() //$NON-NLS-1$
+											+"/.classpath, ignore change"); //$NON-NLS-1$
+										project.createClasspathProblemMarker(
+											Util.bind("classpath.cannotReadClasspathFile", project.getElementName()), //$NON-NLS-1$
+											IMarker.SEVERITY_ERROR,
+											false,	//  cycle error
+											true);	//	file format error
 									}
 									if (fileEntries == null)
 										break; // could not read, ignore 

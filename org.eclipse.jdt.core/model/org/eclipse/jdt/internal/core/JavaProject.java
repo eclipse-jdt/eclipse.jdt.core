@@ -767,11 +767,14 @@ public class JavaProject
 					if (sharedClasspath != null) {
 						classpath = readPaths(sharedClasspath);
 					}
+				} catch(JavaModelException e) {
+					Util.log(e, 
+						"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+						+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
 				} catch(IOException e){
 					Util.log(e, 
 						"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
 						+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
-					//throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 				}
 
 				// extract out the output location
@@ -1004,11 +1007,14 @@ public class JavaProject
 			if (sharedClasspath != null) {
 				classpath = readPaths(sharedClasspath);
 			}
+		} catch(JavaModelException e) {
+			Util.log(e, 
+				"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+				+"/.classpath, will revert to default output location"); //$NON-NLS-1$
 		} catch(IOException e){
 			Util.log(e, 
 				"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
 				+"/.classpath, will revert to default output location"); //$NON-NLS-1$
-			//throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		}
 		// extract out the output location
 		if (classpath != null && classpath.length > 0) {
@@ -1216,6 +1222,10 @@ public class JavaProject
 			if (sharedClasspath != null) {
 				classpath = readPaths(sharedClasspath);
 			}
+		} catch(JavaModelException e) {
+			Util.log(e, 
+				"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
+				+"/.classpath, will revert to default classpath"); //$NON-NLS-1$
 		} catch(IOException e){
 			Util.log(e, 
 				"Exception while retrieving "+ this.getPath() //$NON-NLS-1$
