@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
@@ -69,6 +70,11 @@ public String getKey() {
 public String getTypeSignature() throws JavaModelException {
 	IBinaryField info = (IBinaryField) getElementInfo();
 	return new String(ClassFile.translatedName(info.getTypeName()));
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.core.IField#isEnumConstant()
+ */public boolean isEnumConstant() throws JavaModelException {
+	return Flags.isEnum(getFlags());
 }
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.IField#isResolved()

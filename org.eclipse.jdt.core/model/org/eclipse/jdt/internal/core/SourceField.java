@@ -119,6 +119,11 @@ public String getTypeSignature() throws JavaModelException {
 	return info.getTypeSignature();
 }
 /* (non-Javadoc)
+ * @see org.eclipse.jdt.core.IField#isEnumConstant()
+ */public boolean isEnumConstant() throws JavaModelException {
+	return Flags.isEnum(getFlags());
+}
+/* (non-Javadoc)
  * @see org.eclipse.jdt.core.IField#isResolved()
  */
 public boolean isResolved() {

@@ -121,6 +121,15 @@ String getKey();
  */
 String getTypeSignature() throws JavaModelException;
 /**
+ * Returns whether this field represents an enum constant.
+ * 
+ * @return whether this field represents an enum constant
+ * @exception JavaModelException if this element does not exist or if an
+ *      exception occurs while accessing its corresponding resource
+ * @since 3.1
+ */
+boolean isEnumConstant() throws JavaModelException;
+/**
  * Returns whether this field represents a resolved field.
  * If a field is resoved, its key contains resolved information.
  * 

@@ -59,10 +59,13 @@ public void setUpSuite() throws Exception {
 		"/** @deprecated\n */" +
 		"interface I {\n" +
 		"  int run();\n" +
-		"}" +
+		"}\n" +
 		"interface I2<E> {\n" +
-		"}" +
+		"}\n" +
 		"class Y<E> implements I2<E> {\n" +
+		"}\n" +
+		"enum Colors {\n" +
+		"  BLUE, WHITE, RED;\n" +
 		"}"
 	);
 	this.cu = getCompilationUnit("/P/src/p/X.java");
@@ -438,22 +441,23 @@ public void testGetType() {
  */
 public void testGetTypes() throws JavaModelException {
 	IType[] types = this.cu.getTypes();
-	String[] typeNames = new String[] {"X", "I", "I2", "Y"};
-	String[] flags = new String[] {"public", "", "", ""};
-	boolean[] isClass = new boolean[] {true, false, false, true};
-	boolean[] isInterface = new boolean[] {false, true, true, false};
-	boolean[] isAnnotation = new boolean[] {false, false, false, false};
-	boolean[] isEnum = new boolean[] {false, false, false, false};
-	String[] superclassName = new String[] {null, null, null, null};
-	String[] superclassType = new String[] {null, null, null, null};
+	String[] typeNames = new String[] {"X", "I", "I2", "Y", "Colors"};
+	String[] flags = new String[] {"public", "", "", "", ""};
+	boolean[] isClass = new boolean[] {true, false, false, true, false};
+	boolean[] isInterface = new boolean[] {false, true, true, false, false};
+	boolean[] isAnnotation = new boolean[] {false, false, false, false, false};
+	boolean[] isEnum = new boolean[] {false, false, false, false, true};
+	String[] superclassName = new String[] {null, null, null, null, null};
+	String[] superclassType = new String[] {null, null, null, null, null};
 	String[][] superInterfaceNames = new String[][] {
-			new String[] {"Runnable"}, new String[0], new String[0], new String[] {"I2<E>"}
+			new String[] {"Runnable"}, new String[0], new String[0], new String[] {"I2<E>"}, new String[0]
 	};
 	String[][] superInterfaceTypes = new String[][] {
-			new String[] {"QRunnable;"}, new String[0], new String[0], new String[] {"QI2<QE;>;"}
+			new String[] {"QRunnable;"}, new String[0], new String[0], new String[] {"QI2<QE;>;"}, new String[0]
 	};
 	String[][] formalTypeParameters = new String[][] {
-		new String[0], new String[0], new String[] {"E"}, new String[] {"E"}};
+		new String[0], new String[0], new String[] {"E"}, new String[] {"E"}, new String[0]
+	};
 	
 	assertEquals("Wrong number of types returned", typeNames.length, types.length);
 	for (int i = 0; i < types.length; i++) {
@@ -502,6 +506,20 @@ public void testImportContainerHasChildren() throws JavaModelException {
 		gotException = e.isDoesNotExist();
 	}
 	assertTrue("Should get a not present exception", gotException);
+}
+/*
+ * Ensures that isEnumConstant returns true for a field representing an enum constant.
+ */
+public void testIsEnumConstant1() throws JavaModelException {
+	IField field = this.cu.getType("Colors").getField("BLUE");
+	assertTrue("Colors#BLUE should be an enum constant", field.isEnumConstant());
+}
+/*
+ * Ensures that isEnumConstant returns false for a field that is not representing an enum constant.
+ */
+public void testIsEnumConstant2() throws JavaModelException {
+	IField field = this.cu.getType("X").getField("f1");
+	assertTrue("X#f1 should not be an enum constant", !field.isEnumConstant());
 }
 /**
  * Ensures that a compilation unit that does not exist responds
