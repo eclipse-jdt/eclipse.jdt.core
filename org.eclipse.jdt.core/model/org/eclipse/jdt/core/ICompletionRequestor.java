@@ -27,7 +27,7 @@ public interface ICompletionRequestor {
 /**
  * Code assist notification of an anonymous type declaration completion.
  * @param superTypePackageName char[]
- * 		Name of the package that contains the super type of thw new anonynous type declaration .
+ * 		Name of the package that contains the super type of this new anonynous type declaration .
  * 
  * @param superTypeName char[]
  * 		Name of the super type of this new anonynous type declaration.
@@ -123,9 +123,9 @@ void acceptClass(
 /**
  * Code assist notification of a compilation error detected during completion.
  *  @param error org.eclipse.jdt.core.compiler.IProblem
- *      Only problems which are categorized as non-sytax errors are notified to the 
+ *      Only problems which are categorized as non-syntax errors are notified to the 
  *     requestor, warnings are silently ignored.
- *		In case an error got signaled, no other completions might be available,
+ *		In case an error got signalled, no other completions might be available,
  *		therefore the problem message should be presented to the user.
  *		The source positions of the problem are related to the source where it was
  *		detected (might be in another compilation unit, if it was indirectly requested
