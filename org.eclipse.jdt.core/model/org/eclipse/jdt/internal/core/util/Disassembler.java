@@ -391,7 +391,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		if (mode == ClassFileBytesDisassembler.DETAILED) {
 			int minorVersion = classFileReader.getMinorVersion();
 			int majorVersion = classFileReader.getMajorVersion();
-			buffer.append(Util.bind("disassembler.commentstart")); //$NON-NLS-1$
+			buffer.append(Util.bind("disassembler.begincommentline")); //$NON-NLS-1$
 			if (sourceAttribute != null) {
 				buffer.append(Util.bind("disassembler.sourceattributeheader")); //$NON-NLS-1$
 				buffer.append(sourceAttribute.getSourceFileName());
@@ -426,8 +426,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					.append(signatureAttribute.getSignature());
 				writeNewLine(buffer, lineSeparator, 0);
 			}
-			buffer.append(Util.bind("disassembler.commentend")); //$NON-NLS-1$
-			writeNewLine(buffer, lineSeparator, 0);
 		}
 		char[] className = classFileReader.getClassName();
 		if (className == null) {
@@ -484,15 +482,31 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		buffer.append(Util.bind("disassembler.opentypedeclaration")); //$NON-NLS-1$
 		disassembleTypeMembers(classFileReader, buffer, lineSeparator, 1, mode);
 		if (mode == ClassFileBytesDisassembler.DETAILED) {
+			IClassFileAttribute[] attributes = classFileReader.getAttributes();
+			length = attributes.length;
+			IEnclosingMethodAttribute enclosingMethodAttribute = classFileReader.getEnclosingMethodAttribute();
+			int remainingAttributesLength = length;
+			if (innerClassesAttribute != null) {
+				remainingAttributesLength--;
+			}
+			if (enclosingMethodAttribute != null) {
+				remainingAttributesLength--;
+			}
+			if (sourceAttribute != null) {
+				remainingAttributesLength--;
+			}
+			if (signatureAttribute != null) {
+				remainingAttributesLength--;
+			}
+			if (innerClassesAttribute != null || enclosingMethodAttribute != null || remainingAttributesLength != 0) {
+				writeNewLine(buffer, lineSeparator, 0);
+			}
 			if (innerClassesAttribute != null) {
 				disassemble(innerClassesAttribute, buffer, lineSeparator, 1);
 			}
-			IClassFileAttribute[] attributes = classFileReader.getAttributes();
-			IEnclosingMethodAttribute enclosingMethodAttribute = classFileReader.getEnclosingMethodAttribute();
 			if (enclosingMethodAttribute != null) {
 				disassemble(enclosingMethodAttribute, buffer, lineSeparator, 0);
 			}
-			length = attributes.length;
 			if (length != 0) {
 				for (int i = 0; i < length; i++) {
 					IClassFileAttribute attribute = attributes[i];
@@ -630,7 +644,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		if (mode == DETAILED) {
 			CharOperation.replace(fieldDescriptor, '.', '/');
 			buffer
-				.append(Util.bind("disassembler.commentstart")) //$NON-NLS-1$
+				.append(Util.bind("disassembler.begincommentline")) //$NON-NLS-1$
 				.append(Util.bind("classfileformat.fieldddescriptor")) //$NON-NLS-1$
 				.append(Util.bind("classfileformat.fielddescriptorindex")) //$NON-NLS-1$
 				.append(fieldInfo.getDescriptorIndex())
@@ -644,8 +658,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					.append(signatureAttribute.getSignature());
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
-			buffer.append(Util.bind("disassembler.commentend")); //$NON-NLS-1$
-			writeNewLine(buffer, lineSeparator, tabNumber);
 		}
 		decodeModifiersForField(buffer, fieldInfo.getAccessFlags());
 		CharOperation.replace(fieldDescriptor, '/', '.');
@@ -702,21 +714,20 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				}
 			}
 		}
-		writeNewLine(buffer, lineSeparator, tabNumber);
 	}
 
 	/**
 	 * Disassemble a method info header
 	 */
 	private void disassemble(IClassFileReader classFileReader, IMethodInfo methodInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+		writeNewLine(buffer, lineSeparator, tabNumber);
 		ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 		char[] methodDescriptor = methodInfo.getDescriptor();
 		ISignatureAttribute signatureAttribute = methodInfo.getSignatureAttribute();
 		if (mode == DETAILED) {
-			writeNewLine(buffer, lineSeparator, tabNumber);
 			CharOperation.replace(methodDescriptor, '.', '/');
 			buffer
-				.append(Util.bind("disassembler.commentstart")) //$NON-NLS-1$
+				.append(Util.bind("disassembler.begincommentline")) //$NON-NLS-1$
 				.append(Util.bind("classfileformat.methoddescriptor")) //$NON-NLS-1$
 				.append(Util.bind("disassembler.constantpoolindex")) //$NON-NLS-1$
 				.append(methodInfo.getDescriptorIndex())
@@ -737,8 +748,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(Util.bind("disassembler.comma")) //$NON-NLS-1$
 				.append(Util.bind("classfileformat.maxLocals")) //$NON-NLS-1$
 				.append(codeAttribute.getMaxLocals());
-			writeNewLine(buffer, lineSeparator, tabNumber);
-			buffer.append(Util.bind("disassembler.commentend")); //$NON-NLS-1$
 		}		
 		writeNewLine(buffer, lineSeparator, tabNumber);
 		int accessFlags = methodInfo.getAccessFlags();
@@ -790,7 +799,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				disassemble(codeAttribute, buffer, lineSeparator, tabNumber);
 			}
 		}
-		writeNewLine(buffer, lineSeparator, tabNumber);
 	}
 
 	private void disassemble(IClassFileAttribute classFileAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
@@ -941,10 +949,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	private void disassembleTypeMembers(IClassFileReader classFileReader, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		IFieldInfo[] fields = classFileReader.getFieldInfos();
 		for (int i = 0, max = fields.length; i < max; i++) {
+			writeNewLine(buffer, lineSeparator, tabNumber);
 			disassemble(fields[i], buffer, lineSeparator, tabNumber, mode);
 		}
 		IMethodInfo[] methods = classFileReader.getMethodInfos();
 		for (int i = 0, max = methods.length; i < max; i++) {
+			writeNewLine(buffer, lineSeparator, tabNumber);
 			disassemble(classFileReader, methods[i], buffer, lineSeparator, tabNumber, mode);
 		}
 	}

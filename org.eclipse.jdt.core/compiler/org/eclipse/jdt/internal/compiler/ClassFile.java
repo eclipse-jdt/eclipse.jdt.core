@@ -416,7 +416,7 @@ public class ClassFile
 		// check that there is enough space to write all the bytes for the field info corresponding
 		// to the @fieldBinding
 		int contentsLength;
-		if (contentsOffset + 30 >= (contentsLength = contents.length)) {
+		if (contentsOffset + 8 >= (contentsLength = contents.length)) {
 			System.arraycopy(
 				contents,
 				0,
@@ -424,7 +424,6 @@ public class ClassFile
 				0,
 				contentsLength);
 		}
-		// Generate two attribute: constantValueAttribute and SyntheticAttribute
 		// Now we can generate all entries into the byte array
 		// First the accessFlags
 		int accessFlags = fieldBinding.getAccessFlags();
@@ -442,7 +441,16 @@ public class ClassFile
 		int fieldAttributeOffset = contentsOffset;
 		contentsOffset += 2;
 		// 4.7.2 only static constant fields get a ConstantAttribute
+		// Generate the constantValueAttribute
 		if (fieldBinding.constant != Constant.NotAConstant){
+			if (contentsOffset + 8 >= (contentsLength = contents.length)) {
+				System.arraycopy(
+					contents,
+					0,
+					(contents = new byte[contentsLength + INCREMENT_SIZE]),
+					0,
+					contentsLength);
+			}
 			// Now we generate the constant attribute corresponding to the fieldBinding
 			int constantValueNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.ConstantValueName);
@@ -518,6 +526,14 @@ public class ClassFile
 			}
 		}
 		if (fieldBinding.isSynthetic()) {
+			if (contentsOffset + 6 >= (contentsLength = contents.length)) {
+				System.arraycopy(
+					contents,
+					0,
+					(contents = new byte[contentsLength + INCREMENT_SIZE]),
+					0,
+					contentsLength);
+			}
 			int syntheticAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
 			contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
@@ -530,6 +546,14 @@ public class ClassFile
 			attributeNumber++;
 		}
 		if (fieldBinding.isDeprecated()) {
+			if (contentsOffset + 6 >= (contentsLength = contents.length)) {
+				System.arraycopy(
+					contents,
+					0,
+					(contents = new byte[contentsLength + INCREMENT_SIZE]),
+					0,
+					contentsLength);
+			}
 			int deprecatedAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.DeprecatedName);
 			contents[contentsOffset++] = (byte) (deprecatedAttributeNameIndex >> 8);

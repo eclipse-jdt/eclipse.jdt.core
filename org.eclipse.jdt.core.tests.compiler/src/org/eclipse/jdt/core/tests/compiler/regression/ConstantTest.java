@@ -345,9 +345,8 @@ public void test009() {
 	}
 	
 	String expectedOutput = 
-		"  /* Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
-		"   * Stack: 3, Locals: 4\n" + 
-		"   */\n" + 
+		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 3, Locals: 4\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
 		"     3  ldc #23 <String \"1\">\n" + 
@@ -451,9 +450,8 @@ public void test010() {
 	}
 	
 	String expectedOutput = 
-		"  /* Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
-		"   * Stack: 2, Locals: 1\n" + 
-		"   */\n" + 
+		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 1\n" + 
 		"  public static void main(String[] args);\n" + 
 		"     0  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
 		"     3  ldc #23 <String \"SUCCESS\">\n" + 
