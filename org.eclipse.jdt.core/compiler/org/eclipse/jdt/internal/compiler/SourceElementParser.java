@@ -806,7 +806,18 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration) {
 		this.visitIfNeeded(fieldDeclaration);
 		if (isInRange){
 			requestor.exitField(
-				fieldDeclaration.initialization == null ? -1 :  fieldDeclaration.initialization.sourceStart, 
+				// filter out initializations that are not a constant (simple check)
+				(fieldDeclaration.initialization == null 
+						|| fieldDeclaration.initialization instanceof ArrayInitializer
+						|| fieldDeclaration.initialization instanceof AllocationExpression
+						|| fieldDeclaration.initialization instanceof ArrayAllocationExpression
+						|| fieldDeclaration.initialization instanceof Assignment
+						|| fieldDeclaration.initialization instanceof ClassLiteralAccess
+						|| fieldDeclaration.initialization instanceof MessageSend
+						|| fieldDeclaration.initialization instanceof ArrayReference
+						|| fieldDeclaration.initialization instanceof ThisReference) ? 
+					-1 :  
+					fieldDeclaration.initialization.sourceStart, 
 				fieldEndPosition);
 		}
 
