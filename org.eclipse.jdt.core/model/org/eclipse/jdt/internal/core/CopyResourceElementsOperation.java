@@ -620,7 +620,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		if (!seenPackageNode && !defaultPackage) {
 			//the cu was in a default package...no package declaration
 			//create the new package declaration as the first child of the cu
-			IDOMPackage pkg = fFactory.createPackage("package " + pkgName + ";" + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR); //$NON-NLS-1$ //$NON-NLS-2$
+			IDOMPackage pkg = fFactory.createPackage("package " + Util.concatWith(pkgName, '.') + ";" + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR); //$NON-NLS-1$ //$NON-NLS-2$
 			IDOMNode firstChild = domCU.getFirstChild();
 			if (firstChild != null) {
 				firstChild.insertSibling(pkg);

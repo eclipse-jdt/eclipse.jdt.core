@@ -274,6 +274,25 @@ public void testCopyCUForce() throws CoreException {
 	copyPositive(cuSource, pkgDest, null, null, true);
 }
 /**
+ * Ensures that a CU can be copied from a default package to a non-default package.
+ */
+public void testCopyCUFromDefaultToNonDefault() throws CoreException {
+	createFile(
+		"/P/src/X.java",
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/X.java");
+
+	createFolder("/P/src/p");
+	IPackageFragment pkgDest = getPackage("/P/src/p");
+
+	copyPositive(cuSource, pkgDest, null, null, false);
+	
+	ICompilationUnit cu= pkgDest.getCompilationUnit("X.java");
+	assertTrue("Package declaration not updated for copied cu", cu.getPackageDeclaration("p").exists());
+}
+/**
  * Ensures that a CU can be copied to a different package,
  * and be renamed.
  */
