@@ -157,7 +157,7 @@ public abstract class JobManager implements Runnable {
 					boolean wasEnabled = isEnabled();
 					try {
 						disable(); // pause indexing
-						status = searchJob.execute();
+						status = searchJob.execute(progress);
 						if (VERBOSE)
 							System.out.println("-> performing concurrent job : END - " + searchJob); //$NON-NLS-1$
 					} finally {
@@ -198,7 +198,7 @@ public abstract class JobManager implements Runnable {
 					}
 			}
 		}
-		status = searchJob.execute();
+		status = searchJob.execute(progress);
 		if (VERBOSE)
 			System.out.println("-> performing concurrent job : END - " + searchJob); //$NON-NLS-1$
 		return status;
@@ -263,7 +263,7 @@ public abstract class JobManager implements Runnable {
 				}
 				try {
 					executing = true;
-					boolean status = job.execute();
+					boolean status = job.execute(null);
 					//if (status == FAILED) request(job);
 					moveToNextJob();
 				} finally {

@@ -3,6 +3,7 @@ package org.eclipse.jdt.internal.compiler.util;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.util.Enumeration;
 import org.eclipse.jdt.internal.compiler.*;
 
 /**
@@ -10,10 +11,9 @@ import org.eclipse.jdt.internal.compiler.*;
  */
 public final class ObjectSet {
 	
-	// to avoid using Enumerations, walk the individual tables skipping nulls
-	public Object[] elementTable;
-	int elementSize; // number of elements in the table
-	int threshold;
+	private Object[] elementTable;
+	private int elementSize; // number of elements in the table
+	private int threshold;
 	
 	public ObjectSet() {
 		this(13);
@@ -73,11 +73,36 @@ public final class ObjectSet {
 		}
 	}
 
+	public Enumeration elements(){
+		
+		return new Enumeration(){
+			int index = 0;
+			int count = 0;
+			public boolean hasMoreElements(){
+				return this.count < ObjectSet.this.elementSize;
+			}
+			public Object nextElement(){
+				do {
+					Object current = ObjectSet.this.elementTable[index];
+					if (current != null){
+						count++;
+						return current;
+					}
+				} while(++this.index < ObjectSet.this.elementTable.length);
+				return null;
+			}	
+		};
+	}
+	
+	public boolean isEmpty(){
+		return this.elementSize == 0;
+	}
+
 	public boolean remove(Object element) {
 
-		long hash = element.hashCode();
+		int hash = element.hashCode();
 		int length = this.elementTable.length;
-		int index = ((int)hash) % length;
+		int index = hash % length;
 		Object currentElement;
 		while ((currentElement = elementTable[index]) != null) {
 			if (currentElement.equals(element)){
@@ -124,9 +149,9 @@ public final class ObjectSet {
 	}
 
 	public int size() {
-		return elementSize;
+		return this.elementSize;
 	}
-
+	
 	public String toString() {
 		String s = "["; //$NON-NLS-1$
 		Object object;

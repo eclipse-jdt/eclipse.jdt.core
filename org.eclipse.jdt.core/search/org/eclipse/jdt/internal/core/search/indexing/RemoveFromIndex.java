@@ -6,6 +6,7 @@ package org.eclipse.jdt.internal.core.search.indexing;
  */
 
 import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.search.processing.*;
 
@@ -28,7 +29,10 @@ class RemoveFromIndex implements IJob {
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(indexedContainer.getProject().getName());
 	}
-	public boolean execute() {
+	public boolean execute(IProgressMonitor progressMonitor) {
+		
+		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
+		
 		try {
 			if (this.indexedContainer.isAccessible()) {
 				IIndex index = manager.getIndex(this.indexedContainer.getFullPath());

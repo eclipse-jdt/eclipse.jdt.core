@@ -156,9 +156,6 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		} catch (JavaModelException e) {
 			setSourceAttachmentProperty(null); // loose info - will be recomputed
 			throw e;
-		} catch (CoreException rae) {
-			setSourceAttachmentProperty(null);  // loose info - will be recomputed
-			throw new JavaModelException(rae);
 		} finally {
 			if (monitor != null) {
 				monitor.done();

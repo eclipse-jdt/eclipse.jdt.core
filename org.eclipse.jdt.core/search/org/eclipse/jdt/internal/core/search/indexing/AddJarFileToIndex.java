@@ -40,7 +40,9 @@ class AddJarFileToIndex implements IJob {
 	public boolean belongsTo(String jobFamily) {
 		return jobFamily.equals(projectName);
 	}
-	public boolean execute() {
+	public boolean execute(IProgressMonitor progressMonitor) {
+		
+		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
 		try {
 			if (this.resource != null) {
 				if (!this.resource.isLocal(IResource.DEPTH_ZERO)) {

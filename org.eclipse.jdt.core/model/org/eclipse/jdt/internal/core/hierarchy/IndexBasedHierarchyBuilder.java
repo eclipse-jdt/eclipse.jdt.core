@@ -469,8 +469,7 @@ public static void searchAllPossibleSubTypes(
 				type, 
 				IInfoConstants.PathInfo, 
 				searchRequestor, 
-				indexManager, 
-				progressMonitor);
+				indexManager);
 	
 	/* iterate all queued names */
 	awaitings.add(type.getElementName().toCharArray());

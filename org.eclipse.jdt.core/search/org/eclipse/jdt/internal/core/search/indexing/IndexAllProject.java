@@ -37,7 +37,9 @@ public class IndexAllProject implements IJob, IResourceVisitor {
 	 * and discover resources which have either been changed, added or deleted
 	 * since the index was produced.
 	 */
-	public boolean execute() {
+	public boolean execute(IProgressMonitor progressMonitor) {
+		
+		if (progressMonitor != null && progressMonitor.isCanceled()) return COMPLETE;
 
 		if (!project.isOpen())
 			return COMPLETE; // nothing to do

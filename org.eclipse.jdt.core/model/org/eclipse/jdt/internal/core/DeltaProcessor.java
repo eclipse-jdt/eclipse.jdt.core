@@ -159,7 +159,7 @@ public class DeltaProcessor {
 						switch (delta.getKind()) {
 							case IResourceDelta.REMOVED : // recreate one based on in-memory path
 								try {
-									project.saveClasspath();
+									project.saveClasspath(false);
 								} catch (JavaModelException e) {
 								}
 								break;
@@ -773,16 +773,16 @@ private boolean isOnClasspath(IClasspathEntry[] classpath, IResource res) {
 	 * the cached info in each project's namelookup facility, and persists
 	 * classpaths.
 	 */
-	protected void updateClasspaths(boolean saveClasspath) {
+	protected void updateClasspaths(boolean canChangeResource) {
 
 		if (fJavaProjectsToUpdate != null) {
 			Enumeration projects = fJavaProjectsToUpdate.elements();
 			while (projects.hasMoreElements()) {
 				JavaProject project = (JavaProject) projects.nextElement();
 				try {
-					project.updateClassPath();
-					if (saveClasspath)
-						project.saveClasspath();
+					project.updateClassPath(null, canChangeResource);
+					if (canChangeResource)
+						project.saveClasspath(false);
 				} catch (JavaModelException e) {
 				}
 			}

@@ -257,8 +257,7 @@ private String[] getPathsOfDeclaringType() {
 					scope, 
 					detailLevel, 
 					searchRequestor, 
-					indexManager, 
-					progressMonitor),
+					indexManager),
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				progressMonitor);
 			return pathCollector.getPaths();

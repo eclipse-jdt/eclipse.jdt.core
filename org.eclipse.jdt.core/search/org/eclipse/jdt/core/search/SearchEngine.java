@@ -326,8 +326,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 					scope, 
 					detailLevel, 
 					pathCollector, 
-					indexManager, 
-					progressMonitor),
+					indexManager),
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				progressMonitor);
 
@@ -340,6 +339,8 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 			matchLocator.locateMatches(pathCollector.getPaths(), workspace);
 		}
 
+		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
+		
 		if (progressMonitor != null) {
 			progressMonitor.done();
 		}
@@ -442,7 +443,7 @@ public void searchAllTypeNames(
 	};
 
 	indexManager.performConcurrentJob(
-		new PatternSearchJob(pattern, scope, IInfoConstants.NameInfo | IInfoConstants.PathInfo, searchRequestor, indexManager, progressMonitor),
+		new PatternSearchJob(pattern, scope, IInfoConstants.NameInfo | IInfoConstants.PathInfo, searchRequestor, indexManager),
 		waitingPolicy,
 		progressMonitor);	
 }

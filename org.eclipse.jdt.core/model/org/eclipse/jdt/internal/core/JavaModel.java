@@ -502,7 +502,7 @@ public static Object getTarget(IContainer container, IPath path, boolean checkRe
 
 	// lookup - outside the container
 	File externalFile = new File(path.toOSString());
-	if (externalFile.exists()) return externalFile;
+	if (!checkResourceExistence ||externalFile.exists()) return externalFile;
 	return null;	
 }
 }
