@@ -435,7 +435,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	protected IPackageBinding getPackageBinding(org.eclipse.jdt.internal.compiler.lookup.PackageBinding packageBinding) {
-		if (!packageBinding.isValidBinding()) {
+		if (packageBinding == null || !packageBinding.isValidBinding()) {
 			return null;
 		}
 		IPackageBinding binding = (IPackageBinding) this.compilerBindingsToASTBindings.get(packageBinding);
@@ -451,7 +451,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	protected IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding variableBinding) {
-		if (!variableBinding.isValidBinding()) {
+		if (variableBinding == null || !variableBinding.isValidBinding()) {
 			return null;
 		}
 		IVariableBinding binding = (IVariableBinding) this.compilerBindingsToASTBindings.get(variableBinding);
@@ -467,7 +467,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	protected IMethodBinding getMethodBinding(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
-		if (!methodBinding.isValidBinding()) {
+		if (methodBinding == null || !methodBinding.isValidBinding()) {
 			return null;
 		}
 		IMethodBinding binding = (IMethodBinding) this.compilerBindingsToASTBindings.get(methodBinding);
