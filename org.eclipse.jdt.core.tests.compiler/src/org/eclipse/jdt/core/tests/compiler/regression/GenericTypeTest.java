@@ -11518,7 +11518,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"}\n",
 			},
 		"");
-	}		
+	}
 	// 80083
 	public void test434() {
 		this.runConformTest(
@@ -11541,7 +11541,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"}\n",
 			},
 		"SUCCESS");
-	}		
+	}
 	// 80083
 	public void test435() {
 		this.runConformTest(
@@ -11644,5 +11644,33 @@ public class GenericTypeTest extends AbstractComparisonTest {
 				"}\n",
 			},
 		"*** public void Test.test1(): success*** public void Test.test2(): success*** public void Test.test3(): success*** public void Test.test4(): success");
-	}		
+	}
+	// 80028
+	public void _test436() {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"public class A {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Number n= new Integer(1);\n" + 
+				"		X x = new X<Number>();\n" + 
+				"		x.m(n);\n" + 
+				"		x.m(new Integer(2));\n" + 
+				"		Y y= new Y();\n" + 
+				"		y.m(n);\n" + 
+				"		y.m(new Integer(2));\n" + 
+				"	}\n" + 
+				"}\n",
+				"X.java",
+				"class X<T> {\n" + 
+				"	public void m(Number num) { System.out.print(\"X.m(Number) = \" + num + ','); }\n" + 
+				"	public void m(T t) { System.out.print(\"X.m(T) = \" + t + ','); }\n" + 
+				"}\n",
+				"Y.java",
+				"class Y extends X<Number> {\n" + 
+				"	public void m(Number num) { System.out.print(\"Y.m(Number) = \" + num + ','); }\n" + 
+				"}\n",
+			},
+		"X.m(Number) = 1,X.m(Number) = 2,Y.m(Number) = 1,Y.m(Number) = 2,");
+	}
 }
