@@ -24,9 +24,11 @@ import java.util.zip.*;
  */
 public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	/**
-	 * The absolute path to the jar file.
+	 * The path to the jar file
+	 * (a workspace relative path if the jar is internal,
+	 * or an OS path if the jar is external)
 	 */
-	protected IPath fJarPath= null;
+	protected final IPath jarPath;
 
 	/**
 	 * The delimiter between the zip path and source path in the
@@ -47,7 +49,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 */
 	protected JarPackageFragmentRoot(String jarPath, IJavaProject project) {
 		super(null, project, jarPath);
-		fJarPath= new Path(jarPath);
+		this.jarPath = new Path(jarPath);
 	}
 	/**
 	 * Constructs a package fragment root which is the root of the Java package directory hierarchy 
@@ -55,7 +57,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 */
 	protected JarPackageFragmentRoot(IResource resource, IJavaProject project) {
 		super(resource, project);
-		fJarPath= resource.getFullPath();
+		this.jarPath = resource.getFullPath();
 	}
 	/**
 	 * @see IPackageFragmentRoot
@@ -342,7 +344,7 @@ protected void computeJarChildren(JarPackageFragmentRootInfo info, ArrayList vCh
 			return true;
 		if (o instanceof JarPackageFragmentRoot) {
 			JarPackageFragmentRoot other= (JarPackageFragmentRoot) o;
-			return fJarPath.equals(other.fJarPath);
+			return this.jarPath.equals(other.jarPath);
 		}
 		return false;
 	}
@@ -457,7 +459,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 	 */
 	public IPath getPath() {
 		if (fResource == null) {
-			return fJarPath;
+			return this.jarPath;
 		} else {
 			return super.getPath();
 		}
@@ -513,8 +515,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 	 * of this jar.
 	 */
 	protected QualifiedName getSourceAttachmentPropertyName() throws JavaModelException {
-		String jarPath = fResource == null ? fJarPath.toOSString() : fResource.getLocation().toOSString();
-		return new QualifiedName(JavaCore.PLUGIN_ID, "sourceattachment: " + jarPath); //$NON-NLS-1$
+		return new QualifiedName(JavaCore.PLUGIN_ID, "sourceattachment: " + this.jarPath.toOSString()); //$NON-NLS-1$
 	}
 	/**
 	 * @see IPackageFragmentRoot
@@ -564,7 +565,7 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 		}
 	}
 	public int hashCode() {
-		return fJarPath.hashCode();
+		return this.jarPath.hashCode();
 	}
 	/**
 	 * @see IPackageFragmentRoot
@@ -612,7 +613,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 	if (fResource == null) {
 		return
 			new JarPackageFragmentRoot(
-				fJarPath.toString(),
+				this.jarPath.toString(),
 				project);
 	} else {
 		return
@@ -651,7 +652,7 @@ public IJavaElement rootedAt(IJavaProject project) {
 public String getHandleMemento(){
 	StringBuffer buff= new StringBuffer(((JavaElement)getParent()).getHandleMemento());
 	buff.append(getHandleMementoDelimiter());
-	buff.append(this.fJarPath.toString()); // 1GEP51U
+	buff.append(this.jarPath.toString()); // 1GEP51U
 	return buff.toString();
 }
 }
