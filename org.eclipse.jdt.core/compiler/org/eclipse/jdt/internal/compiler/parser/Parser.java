@@ -38,13 +38,13 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class Parser implements BindingIds, ParserBasicInformation, TerminalTokens, CompilerModifiers, OperatorIds, TypeIds {
-	private static final int THIS = ExplicitConstructorCall.This;
-	private static final int SUPER = ExplicitConstructorCall.Super;
+	protected static final int THIS_CALL = ExplicitConstructorCall.This;
+	protected static final int SUPER_CALL = ExplicitConstructorCall.Super;
 
 	public static char asb[] = null;
 	public static char asr[] = null;
 	//ast stack
-	final static int AstStackIncrement = 100;
+	protected final static int AstStackIncrement = 100;
 	public static char base_action[] = null;
 	public static final int BracketKinds = 3;
     
@@ -55,9 +55,9 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	private static final String EOF_TOKEN = "$eof" ; //$NON-NLS-1$
 	private static final String ERROR_TOKEN = "$error" ; //$NON-NLS-1$
 	//expression stack
-	final static int ExpressionStackIncrement = 100;
+	protected final static int ExpressionStackIncrement = 100;
 
-	final static int GenericsStackIncrement = 10;
+	protected final static int GenericsStackIncrement = 10;
     
 	private final static String FILEPREFIX = "parser"; //$NON-NLS-1$
     public static char in_symb[] = null;
@@ -174,7 +174,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	public Scanner scanner;
 	protected int[] stack = new int[StackIncrement];
 	protected int stateStackTop;
-	private int synchronizedBlockSourceStart;
+	protected int synchronizedBlockSourceStart;
 	protected int[] variablesCounter;
 
 	public Javadoc javadoc;
@@ -4642,51 +4642,51 @@ protected void consumeRule(int act) {
 			break;
  
     case 178 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= this LPAREN..."); }  //$NON-NLS-1$
-		    consumeExplicitConstructorInvocation(0, THIS);  
+		    consumeExplicitConstructorInvocation(0, THIS_CALL);  
 			break;
  
     case 179 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= OnlyTypeArguments this"); }  //$NON-NLS-1$
-		    consumeExplicitConstructorInvocationWithTypeArguments(0,THIS);  
+		    consumeExplicitConstructorInvocationWithTypeArguments(0,THIS_CALL);  
 			break;
  
     case 180 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= super LPAREN..."); }  //$NON-NLS-1$
-		    consumeExplicitConstructorInvocation(0,SUPER);  
+		    consumeExplicitConstructorInvocation(0,SUPER_CALL);  
 			break;
  
     case 181 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= OnlyTypeArguments..."); }  //$NON-NLS-1$
-		    consumeExplicitConstructorInvocationWithTypeArguments(0,SUPER);  
+		    consumeExplicitConstructorInvocationWithTypeArguments(0,SUPER_CALL);  
 			break;
  
     case 182 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Primary DOT super..."); }  //$NON-NLS-1$
-		    consumeExplicitConstructorInvocation(1, SUPER);  
+		    consumeExplicitConstructorInvocation(1, SUPER_CALL);  
 			break;
  
     case 183 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Primary DOT..."); }  //$NON-NLS-1$
-		    consumeExplicitConstructorInvocationWithTypeArguments(1, SUPER);  
+		    consumeExplicitConstructorInvocationWithTypeArguments(1, SUPER_CALL);  
 			break;
  
     case 184 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Name DOT super LPAREN"); }  //$NON-NLS-1$
-		    consumeExplicitConstructorInvocation(2, SUPER);  
+		    consumeExplicitConstructorInvocation(2, SUPER_CALL);  
 			break;
  
     case 185 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Name DOT..."); }  //$NON-NLS-1$
-		    consumeExplicitConstructorInvocationWithTypeArguments(2, SUPER);  
+		    consumeExplicitConstructorInvocationWithTypeArguments(2, SUPER_CALL);  
 			break;
  
     case 186 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Primary DOT this..."); }  //$NON-NLS-1$
-		    consumeExplicitConstructorInvocation(1, THIS);  
+		    consumeExplicitConstructorInvocation(1, THIS_CALL);  
 			break;
  
     case 187 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Primary DOT..."); }  //$NON-NLS-1$
-		    consumeExplicitConstructorInvocationWithTypeArguments(1, THIS);  
+		    consumeExplicitConstructorInvocationWithTypeArguments(1, THIS_CALL);  
 			break;
  
     case 188 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Name DOT this LPAREN"); }  //$NON-NLS-1$
-		    consumeExplicitConstructorInvocation(2, THIS);  
+		    consumeExplicitConstructorInvocation(2, THIS_CALL);  
 			break;
  
     case 189 : if (DEBUG) { System.out.println("ExplicitConstructorInvocation ::= Name DOT..."); }  //$NON-NLS-1$
-		    consumeExplicitConstructorInvocationWithTypeArguments(2, THIS);  
+		    consumeExplicitConstructorInvocationWithTypeArguments(2, THIS_CALL);  
 			break;
  
     case 190 : if (DEBUG) { System.out.println("InterfaceDeclaration ::= InterfaceHeader InterfaceBody"); }  //$NON-NLS-1$
