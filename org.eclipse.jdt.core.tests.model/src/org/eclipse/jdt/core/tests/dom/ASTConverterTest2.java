@@ -39,7 +39,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0473"));			
+		suite.addTest(new ASTConverterTest2("test0474"));
+		suite.addTest(new ASTConverterTest2("test0475"));
+		suite.addTest(new ASTConverterTest2("test0476"));
 		return suite;
 	}
 	/**
@@ -1949,5 +1951,76 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		}
 	}
 
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=39259
+	 */
+	public void test0474() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0474", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
+		assertNotNull("No node", node);
+		assertEquals("Not a while statement", node.getNodeType(), ASTNode.WHILE_STATEMENT);
+		WhileStatement whileStatement = (WhileStatement) node;
+		Statement statement = whileStatement.getBody();
+		assertEquals("Not a while statement", statement.getNodeType(), ASTNode.WHILE_STATEMENT);
+		WhileStatement whileStatement2 = (WhileStatement) statement;
+		String expectedSource = 
+			"while(b())\n" +
+			"				foo();";
+		checkSourceRange(whileStatement2, expectedSource, source);
+		Statement statement2 = whileStatement2.getBody();
+		checkSourceRange(statement2, "foo();", source);
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=39259
+	 */
+	public void test0475() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0475", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
+		assertNotNull("No node", node);
+		assertEquals("Not an if statement", node.getNodeType(), ASTNode.IF_STATEMENT);
+		IfStatement statement = (IfStatement) node;
+		Statement statement2 = statement.getThenStatement();
+		assertEquals("Not an if statement", statement2.getNodeType(), ASTNode.IF_STATEMENT);
+		IfStatement statement3 = (IfStatement) statement2;
+		String expectedSource = 
+			"if(b())\n" +
+			"				foo();";
+		checkSourceRange(statement3, expectedSource, source);
+		Statement statement4 = statement3.getThenStatement();
+		checkSourceRange(statement4, "foo();", source);
+	}
+	
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=39259
+	 */
+	public void test0476() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0476", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
+		assertNotNull("No node", node);
+		assertEquals("Not a for statement", node.getNodeType(), ASTNode.FOR_STATEMENT);
+		ForStatement statement = (ForStatement) node;
+		Statement statement2 = statement.getBody();
+		assertEquals("Not a for statement", statement2.getNodeType(), ASTNode.FOR_STATEMENT);
+		ForStatement statement3 = (ForStatement) statement2;
+		String expectedSource = 
+			"for(;b();)\n" +
+			"				foo();";
+		checkSourceRange(statement3, expectedSource, source);
+		Statement statement4 = statement3.getBody();
+		checkSourceRange(statement4, "foo();", source);
+	}	
 }
 
