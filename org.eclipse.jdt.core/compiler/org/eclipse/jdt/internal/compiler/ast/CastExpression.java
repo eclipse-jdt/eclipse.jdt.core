@@ -241,6 +241,8 @@ public class CastExpression extends Expression {
 				// obvious identity cast
 				if (castedExpressionType == argumentTypes[i]) { 
 					scope.problemReporter().unnecessaryCast((CastExpression)argument);
+				} else if (castedExpressionType == NullBinding){
+					continue; // tolerate null argument cast
 				} else {
 					if (rawArgumentTypes == argumentTypes) {
 						System.arraycopy(rawArgumentTypes, 0, rawArgumentTypes = new TypeBinding[length], 0, length);
@@ -275,7 +277,10 @@ public class CastExpression extends Expression {
 				if ((alternateLeftTypeId = alternateLeftType.id) == leftTypeId) { // obvious identity cast
 					scope.problemReporter().unnecessaryCast((CastExpression)left); 
 					leftIsCast = false;
-				}	
+				} else if (alternateLeftTypeId == T_null) {
+					alternateLeftTypeId = leftTypeId;  // tolerate null argument cast
+					leftIsCast = false;
+				}
 			}
 		}
 		// check need for right operand cast
@@ -289,6 +294,9 @@ public class CastExpression extends Expression {
 				if (alternateRightType == null) return; // cannot do better
 				if ((alternateRightTypeId = alternateRightType.id) == rightTypeId) { // obvious identity cast
 					scope.problemReporter().unnecessaryCast((CastExpression)right); 
+					rightIsCast = false;
+				} else if (alternateRightTypeId == T_null) {
+					alternateRightTypeId = rightTypeId;  // tolerate null argument cast
 					rightIsCast = false;
 				}
 			}	
