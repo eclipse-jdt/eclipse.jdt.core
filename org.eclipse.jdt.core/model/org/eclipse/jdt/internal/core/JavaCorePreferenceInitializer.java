@@ -100,7 +100,7 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 			defaultOptionsMap.put(optionName, entry.getValue());
 			optionNames.add(optionName);
 		}		
-		defaultOptionsMap.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.DO_NOT_INSERT); 
+/*		defaultOptionsMap.put(JavaCore.FORMATTER_NEWLINE_OPENING_BRACE, JavaCore.DO_NOT_INSERT); 
 		defaultOptionsMap.put(JavaCore.FORMATTER_NEWLINE_CONTROL, JavaCore.DO_NOT_INSERT);
 		defaultOptionsMap.put(JavaCore.FORMATTER_CLEAR_BLANK_LINES, JavaCore.PRESERVE_ONE); 
 		defaultOptionsMap.put(JavaCore.FORMATTER_NEWLINE_ELSE_IF, JavaCore.DO_NOT_INSERT);
@@ -109,6 +109,6 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 		defaultOptionsMap.put(JavaCore.FORMATTER_COMPACT_ASSIGNMENT, JavaCore.NORMAL); 
 		defaultOptionsMap.put(JavaCore.FORMATTER_TAB_CHAR, JavaCore.TAB); 
 		defaultOptionsMap.put(JavaCore.FORMATTER_TAB_SIZE, "4"); //$NON-NLS-1$ 
-		defaultOptionsMap.put(JavaCore.FORMATTER_SPACE_CASTEXPRESSION, JavaCore.INSERT); //$NON-NLS-1$ 
+		defaultOptionsMap.put(JavaCore.FORMATTER_SPACE_CASTEXPRESSION, JavaCore.INSERT); //$NON-NLS-1$ */
 	}
 }
