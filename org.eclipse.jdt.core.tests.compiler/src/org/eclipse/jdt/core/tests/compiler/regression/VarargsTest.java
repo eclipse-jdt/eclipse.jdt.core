@@ -972,7 +972,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83536
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87042
 	public void test024() {
 		this.runConformTest(
 			new String[] {
@@ -990,7 +990,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"false");
 	}
 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83536
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87042
 	public void test025() {
 		this.runConformTest(
 			new String[] {
