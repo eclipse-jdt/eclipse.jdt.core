@@ -7086,5 +7086,31 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	                             ^^^^^^^^^\n" + 
 			"The generic class X<T,U> may not subclass java.lang.Throwable\n" + 
 			"----------\n");		
+	}
+	// reference to binary Enum
+	public void test256() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"\n" + 
+				"		Enum<X> ex = null;\n" + 
+				"		String s = ex.name();\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	public class X<T, U> extends Throwable {\n" + 
+			"	             ^\n" + 
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
+			"	public class X<T, U> extends Throwable {\n" + 
+			"	                             ^^^^^^^^^\n" + 
+			"The generic class X<T,U> may not subclass java.lang.Throwable\n" + 
+			"----------\n");		
 	}			
 }
