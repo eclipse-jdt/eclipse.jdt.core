@@ -152,6 +152,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionAfterSupercall1"));
 	suite.addTest(new CompletionTests("testCompletionPackageAndClass1"));
 	suite.addTest(new CompletionTests("testCompletionPackageAndClass2"));
+	suite.addTest(new CompletionTests("testCompletionNonStaticFieldRelevance"));
 	
 	// completion expectedTypes tests
 	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
@@ -8563,6 +8564,20 @@ public void testCompletionPackageAndClass2() throws JavaModelException {
 			"element:Qla3    completion:Qla3    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE) + "\n" +
 			"element:Qla4    completion:Qla4    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE) + "\n" +
 			"element:Wla    completion:Wla    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE),
+			requestor.getResults());
+}
+public void testCompletionNonStaticFieldRelevance() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionNonStaticFieldRelevance.java");
+
+	String str = cu.getSource();
+	String completeBehind = "var.Ii";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+			"element:Ii0    completion:Ii0    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE) + "\n" +
+			"element:ii1    completion:ii1    relevance:" + (R_DEFAULT + R_INTERESTING + R_NON_STATIC),
 			requestor.getResults());
 }
 }

@@ -22,7 +22,7 @@ public interface RelevanceConstants {
 	int R_CLASS = 20;
 	int R_EXCEPTION = 20;
 	int R_ABSTRACT_METHOD = 20;
-	int R_NON_STATIC = 10;
+	int R_NON_STATIC = 11;
 	int R_UNQUALIFIED = 3;
 	int R_QUALIFIED = 2;
 	int R_NAME_FIRST_PREFIX = 6;
