@@ -1739,8 +1739,15 @@ class ASTConverter {
 		DoStatement doStatement = this.ast.newDoStatement();
 		doStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		doStatement.setExpression(convert(statement.condition));
-		if (statement.action != null) {
+		org.eclipse.jdt.internal.compiler.ast.Statement action = statement.action;
+		if (action != null) {
 			doStatement.setBody(convert(statement.action));
+		} else {
+			EmptyStatement emptyStatement = this.ast.newEmptyStatement();
+			int start = retrieveStartingSemiColonPosition(statement.sourceStart, statement.sourceEnd);
+			int end = retrieveEndingSemiColonPosition(start, statement.sourceEnd);
+			emptyStatement.setSourceRange(start, end - start + 1);
+			doStatement.setBody(emptyStatement);
 		}
 		retrieveSemiColonPosition(doStatement);
 		return doStatement;
@@ -1823,7 +1830,12 @@ class ASTConverter {
 				retrieveSemiColonPosition(forStatement);
 			}
 		} else {
+			EmptyStatement emptyStatement = this.ast.newEmptyStatement();
 			retrieveSemiColonPosition(forStatement);
+			int start = retrieveStartingSemiColonPosition(statement.sourceStart, compilationUnitSource.length);
+			int end = retrieveEndingSemiColonPosition(start, compilationUnitSource.length);
+			emptyStatement.setSourceRange(start, end - start + 1);
+			forStatement.setBody(emptyStatement);
 		}
 		return forStatement;
 	}
@@ -1844,14 +1856,24 @@ class ASTConverter {
 		org.eclipse.jdt.internal.compiler.ast.Statement elseStatement = statement.elseStatement;
 		if (thenStatement != null) {
 			if (thenStatement == org.eclipse.jdt.internal.compiler.ast.Block.None) {
-				ifStatement.setThenStatement(this.ast.newEmptyStatement());
+				EmptyStatement emptyStatement = this.ast.newEmptyStatement();
+				int start = retrieveStartingSemiColonPosition(statement.sourceStart, statement.sourceEnd);
+				int end = retrieveEndingSemiColonPosition(start, statement.sourceEnd);
+				emptyStatement.setSourceRange(start, end - start + 1);
+				ifStatement.setThenStatement(emptyStatement);
 			} else {
 				ifStatement.setThenStatement(convert(statement.thenStatement));
 			}
 		}
 		if (elseStatement != null) {
 			if (elseStatement == org.eclipse.jdt.internal.compiler.ast.Block.None) {
-				ifStatement.setElseStatement(this.ast.newEmptyStatement());
+				// retrieve the else position
+				EmptyStatement emptyStatement = this.ast.newEmptyStatement();
+				int start = retrieveElseEndingPosition(statement.sourceStart, statement.sourceEnd);
+				start = retrieveStartingSemiColonPosition(statement.sourceStart, statement.sourceEnd);
+				int end = retrieveEndingSemiColonPosition(start, statement.sourceEnd);
+				emptyStatement.setSourceRange(start, end - start + 1);
+				ifStatement.setElseStatement(emptyStatement);
 			} else {
 				ifStatement.setElseStatement(convert(elseStatement));
 			}
@@ -1862,7 +1884,16 @@ class ASTConverter {
 	public LabeledStatement convert(org.eclipse.jdt.internal.compiler.ast.LabeledStatement statement) {
 		LabeledStatement labeledStatement = this.ast.newLabeledStatement();
 		labeledStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);	
-		labeledStatement.setBody(convert(statement.statement));
+		org.eclipse.jdt.internal.compiler.ast.Statement body = statement.statement;
+		if (body == org.eclipse.jdt.internal.compiler.ast.Block.None) {
+			EmptyStatement emptyStatement = this.ast.newEmptyStatement();
+			int start = retrieveStartingSemiColonPosition(statement.sourceStart, statement.sourceEnd);
+			int end = retrieveEndingSemiColonPosition(start, statement.sourceEnd);
+			emptyStatement.setSourceRange(start, end - start + 1);
+			labeledStatement.setBody(emptyStatement);
+		} else {
+			labeledStatement.setBody(convert(body));
+		}
 		SimpleName name = this.ast.newSimpleName(new String(statement.label));
 		retrieveIdentifierAndSetPositions(statement.sourceStart, statement.sourceEnd, name);
 		labeledStatement.setLabel(name);
@@ -1946,6 +1977,13 @@ class ASTConverter {
 				// set the end position of the for statement on the semi-colon
 				retrieveSemiColonPosition(whileStatement);
 			}
+		} else {
+			EmptyStatement emptyStatement = this.ast.newEmptyStatement();
+			retrieveSemiColonPosition(whileStatement);
+			int start = retrieveStartingSemiColonPosition(statement.sourceStart, compilationUnitSource.length);
+			int end = retrieveEndingSemiColonPosition(start, compilationUnitSource.length);
+			emptyStatement.setSourceRange(start, end - start + 1);
+			whileStatement.setBody(emptyStatement);
 		}
 		return whileStatement;
 	}
@@ -2147,6 +2185,93 @@ class ASTConverter {
 		}
 	}
 
+	private int retrieveStartingSemiColonPosition(int start, int end) {
+		int count = 0;
+		scanner.resetTo(start, end);
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+				switch(token) {
+					case Scanner.TokenNameSEMICOLON:
+						if (count == 0) {
+							return scanner.startPosition;
+						}
+						break;
+					case Scanner.TokenNameLBRACE :
+						count++;
+						break;
+					case Scanner.TokenNameRBRACE :
+						count--;
+						break;
+					case Scanner.TokenNameLPAREN :
+						count++;
+						break;
+					case Scanner.TokenNameRPAREN :
+						count--;
+						break;
+					case Scanner.TokenNameLBRACKET :
+						count++;
+						break;
+					case Scanner.TokenNameRBRACKET :
+						count--;
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+		return -1;
+	}
+
+	private int retrieveEndingSemiColonPosition(int start, int end) {
+		int count = 0;
+		scanner.resetTo(start, end);
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+				switch(token) {
+					case Scanner.TokenNameSEMICOLON:
+						if (count == 0) {
+							return scanner.currentPosition - 1;
+						}
+						break;
+					case Scanner.TokenNameLBRACE :
+						count++;
+						break;
+					case Scanner.TokenNameRBRACE :
+						count--;
+						break;
+					case Scanner.TokenNameLPAREN :
+						count++;
+						break;
+					case Scanner.TokenNameRPAREN :
+						count--;
+						break;
+					case Scanner.TokenNameLBRACKET :
+						count++;
+						break;
+					case Scanner.TokenNameRBRACKET :
+						count--;
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+		return -1;
+	}
+
+	private int retrieveElseEndingPosition(int start, int end) {
+		scanner.resetTo(start, end);
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+				switch(token) {
+					case Scanner.TokenNameelse:
+						return scanner.currentPosition - 1;
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+		return -1;
+	}
+	
 	/**
 	 * This method is used to set the right end position for switch and 
 	 * try statements. They don't include the close }. 
