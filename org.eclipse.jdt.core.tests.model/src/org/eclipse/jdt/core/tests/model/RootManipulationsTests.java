@@ -402,7 +402,7 @@ public void testDeleteJarFile1() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	/P/myLib.jar[-]: {}\n" + 
+			"	myLib.jar[-]: {}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
 		assertJavaProject(
@@ -463,7 +463,7 @@ public void testDeleteJarFile2() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
-			"	/P1/myLib.jar[-]: {}\n" + 
+			"	myLib.jar[-]: {}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"P2[*]: {CHILDREN}\n" + 
 			"	/P1/myLib.jar[-]: {}\n" + 
@@ -1003,15 +1003,15 @@ public void testRenameJarFile1() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	/P/myLib.jar[-]: {MOVED_TO(/P/myLib2.jar [in P])}\n" + 
-			"	/P/myLib2.jar[+]: {MOVED_FROM(/P/myLib.jar [in P])}\n" + 
+			"	myLib.jar[-]: {MOVED_TO(myLib2.jar [in P])}\n" + 
+			"	myLib2.jar[+]: {MOVED_FROM(myLib.jar [in P])}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
 		assertJavaProject(
 			"P\n" + 
 			"	src\n" + 
 			"		[default]\n" + 
-			"	/P/myLib2.jar\n" + 
+			"	myLib2.jar\n" + 
 			"	L/P/.classpath\n" + 
 			"	L/P/.project",
 			project);
@@ -1036,19 +1036,19 @@ public void testRenameJarFile2() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN}\n" + 
-			"	/P1/myLib.jar[-]: {MOVED_TO(/P1/myLib2.jar [in P1])}\n" + 
-			"	/P1/myLib2.jar[+]: {MOVED_FROM(/P1/myLib.jar [in P1])}\n" + 
+			"	myLib.jar[-]: {MOVED_TO(myLib2.jar [in P1])}\n" + 
+			"	myLib2.jar[+]: {MOVED_FROM(myLib.jar [in P1])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"P2[*]: {CHILDREN}\n" + 
-			"	/P1/myLib.jar[-]: {MOVED_TO(/P1/myLib2.jar [in P1])}\n" + 
-			"	/P1/myLib2.jar[+]: {MOVED_FROM(/P1/myLib.jar [in P1])}\n" + 
+			"	/P1/myLib.jar[-]: {MOVED_TO(myLib2.jar [in P1])}\n" + 
+			"	/P1/myLib2.jar[+]: {MOVED_FROM(myLib.jar [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(
 			"P1\n" + 
 			"	src\n" + 
 			"		[default]\n" + 
-			"	/P1/myLib2.jar\n" + 
+			"	myLib2.jar\n" + 
 			"	L/P1/.classpath\n" + 
 			"	L/P1/.project",
 			p1);

@@ -1456,6 +1456,40 @@ public void test39() {
 		"Unreachable code\n" + 
 		"----------\n");
 }
+// jls6.5.5.1 - simple type names favor member type over toplevel one.
+//http://bugs.eclipse.org/bugs/show_bug.cgi?id=30705
+public void test40() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {	\n"+
+			"	interface Homonym {}	\n"+ // takes precedence over others.
+			"	void foo() {	\n"+
+			"		class Homonym extends X {	\n"+
+			"			{	\n"+
+			"				class Y extends Homonym {};	\n"+ // X$Homonym
+			"			}	\n"+
+			"		}	\n"+
+			"	}	\n"+
+			"}	\n"+
+			"class Homonym extends X {	\n"+
+			"	{	\n"+
+			"		class Y extends Homonym {};	\n"+ // X$Homonym
+			"	}	\n"+
+			"}	\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	class Y extends Homonym {};	\n" + 
+		"	                ^^^^^^^\n" + 
+		"The interface X.Homonym cannot be the superclass of Y; a superclass must be a class\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
+		"	class Y extends Homonym {};	\n" + 
+		"	                ^^^^^^^\n" + 
+		"The interface X.Homonym cannot be the superclass of Y; a superclass must be a class\n" + 
+		"----------\n");
+}
 
 public static Class testClass() {
 	return Compliance_1_4.class;

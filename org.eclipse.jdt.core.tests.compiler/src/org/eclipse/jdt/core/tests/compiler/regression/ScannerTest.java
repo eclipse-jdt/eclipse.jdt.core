@@ -78,5 +78,22 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertEquals("Wrong token type", ITerminalSymbols.TokenNameEOF, token);
 		} catch (InvalidInputException e) {
 		}
+	}				
+	
+	/**
+	 * float constant can have exponent part without dot: 01e0f
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=30704
+	 */
+	public void test004() {
+		String source =	"01e0f";
+		IScanner scanner = ToolFactory.createScanner(false, false, false, false);
+		scanner.setSource(source.toCharArray());
+		int token = 0;
+		try {
+			token = scanner.getNextToken();
+			assertEquals("Wrong token type", ITerminalSymbols.TokenNameFloatingPointLiteral, token);
+		} catch (InvalidInputException e) {
+		}
 	}						
+			
 }

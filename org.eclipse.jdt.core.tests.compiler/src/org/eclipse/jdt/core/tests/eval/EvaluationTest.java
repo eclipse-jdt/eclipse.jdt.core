@@ -156,19 +156,7 @@ protected char[] buildCharArray(String[] lines) {
 	buffer.getChars(0, length, result, 0);
 	return result;
 }
-/**
- * Returns whether the 2 given arrays of strings are equals.
- */
-private boolean equals(String[] strings1, String[] strings2) {
-	if (strings1.length != strings2.length) {
-		return false;
-	}
-	for (int i = 0; i < strings1.length; i++) {
-		if (!strings1[i].equals(strings2[i]))
-			return false;
-		}
-	return true;
-}
+
 /**
  * Returns whether the 2 given problems are equals.
  */

@@ -184,7 +184,7 @@ public void testInternalJarBinaryFieldMemento() throws JavaModelException {
 	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X.class").getType();
 	IField field = type.getField("field");
 	assertMemento(
-		"=P//P/lib/myLib.jar<p(X.class[X^field",
+		"=P/lib/myLib.jar<p(X.class[X^field",
 		field);
 }
 /**
@@ -193,7 +193,7 @@ public void testInternalJarBinaryFieldMemento() throws JavaModelException {
 public void testInternalJarBinaryInnerTypeMemento() throws JavaModelException {	
 	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X$Inner.class").getType();
 	assertMemento(
-		"=P//P/lib/myLib.jar<p(X$Inner.class[Inner",
+		"=P/lib/myLib.jar<p(X$Inner.class[Inner",
 		type);
 }
 /**
@@ -203,7 +203,7 @@ public void testInternalJarBinaryMethodMemento() throws JavaModelException {
 	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"[Ljava.lang.String;"});
 	assertMemento(
-		"=P//P/lib/myLib.jar<p(X.class[X~foo~[Ljava.lang.String;",
+		"=P/lib/myLib.jar<p(X.class[X~foo~[Ljava.lang.String;",
 		method);
 }
 /**
@@ -212,7 +212,7 @@ public void testInternalJarBinaryMethodMemento() throws JavaModelException {
 public void testInternalJarBinaryTypeMemento() throws JavaModelException {	
 	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X.class").getType();
 	assertMemento(
-		"=P//P/lib/myLib.jar<p(X.class[X",
+		"=P/lib/myLib.jar<p(X.class[X",
 		type);	
 }
 /**
@@ -344,7 +344,7 @@ public void testPackageFragmentRootMemento5() throws CoreException {
 	IFile jar = getFile("/P/lib/myLib.jar");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(jar);
 	assertMemento(
-		"=P//P/lib/myLib.jar",
+		"=P/lib/myLib.jar",
 		root);
 }
 /**

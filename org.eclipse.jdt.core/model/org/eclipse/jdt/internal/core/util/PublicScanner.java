@@ -249,33 +249,26 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 		int msgStart = this.foundTaskPositions[i][0] + this.foundTaskTags[i].length;
 		int end;
 		char c;
-		if (i + 1 < this.foundTaskCount) {
-			end = this.foundTaskPositions[i + 1][0] - 1;
-			for (int j = end; j >= msgStart; j--){
+		int max_value = i + 1 < this.foundTaskCount ? this.foundTaskPositions[i + 1][0] - 1 : Integer.MAX_VALUE;
+		
+		end = -1;
+		for (int j = msgStart; j < commentEnd; j++){
+			if ((c = this.source[j]) == '\n' || c == '\r'){
+				end = j - 1;
+				break;
+			}
+		}
+		end = end < max_value ? end : max_value;
+		
+		if (end < 0){
+			for (int j = commentEnd-1; j >= msgStart; j--){
 				if ((c = this.source[j]) == '*') {
 					end = j-1;
 					break;
 				}
 			}
-		} else {
-			end = -1;
-			for (int j = msgStart; j < commentEnd; j++){
-				if ((c = this.source[j]) == '\n' || c == '\r'){
-					end = j - 1;
-					break;
-				}
-			}
-			if (end < 0){
-				for (int j = commentEnd-1; j >= msgStart; j--){
-					if ((c = this.source[j]) == '*') {
-						end = j-1;
-						break;
-					}
-				}
-				if (end < 0) end = commentEnd-1;
-			}
+			if (end < 0) end = commentEnd-1;
 		}
-
 		
 		// trim the message
 		while (CharOperation.isWhitespace(source[end]) && msgStart <= end) end--;
@@ -1307,10 +1300,6 @@ public int getNextToken() throws InvalidInputException {
 								if (currentCharacter == '\\') {
 									if (source[currentPosition] == '\\')
 										currentPosition++; //jump over the \\
-								}
-								// empty comment is not a javadoc /**/
-								if (currentCharacter == '/') { 
-									isJavadoc = false;
 								}
 								//loop until end of comment */
 								while ((currentCharacter != '/') || (!star)) {
@@ -2858,9 +2847,25 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 			if (getNextChar('d', 'D') >= 0) {
 				return TokenNameDoubleLiteral;
 			} else { //make the distinction between octal and float ....
-				if (getNextChar('.')) { //bingo ! ....
+				boolean isInteger = true;
+				if (getNextChar('.')) { 
+					isInteger = false;
 					while (getNextCharAsDigit()) {};
-					if (getNextChar('e', 'E') >= 0) { // consume next character
+				}
+				if (getNextChar('e', 'E') >= 0) { // consume next character
+					isInteger = false;
+					unicodeAsBackSlash = false;
+					if (((currentCharacter = source[currentPosition++]) == '\\')
+						&& (source[currentPosition] == 'u')) {
+						getNextUnicodeChar();
+					} else {
+						if (withoutUnicodePtr != 0) {
+							withoutUnicodeBuffer[++withoutUnicodePtr] = currentCharacter;
+						}
+					}
+
+					if ((currentCharacter == '-')
+						|| (currentCharacter == '+')) { // consume next character
 						unicodeAsBackSlash = false;
 						if (((currentCharacter = source[currentPosition++]) == '\\')
 							&& (source[currentPosition] == 'u')) {
@@ -2870,30 +2875,16 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 								withoutUnicodeBuffer[++withoutUnicodePtr] = currentCharacter;
 							}
 						}
-
-						if ((currentCharacter == '-')
-							|| (currentCharacter == '+')) { // consume next character
-							unicodeAsBackSlash = false;
-							if (((currentCharacter = source[currentPosition++]) == '\\')
-								&& (source[currentPosition] == 'u')) {
-								getNextUnicodeChar();
-							} else {
-								if (withoutUnicodePtr != 0) {
-									withoutUnicodeBuffer[++withoutUnicodePtr] = currentCharacter;
-								}
-							}
-						}
-						if (!Character.isDigit(currentCharacter))
-							throw new InvalidInputException(INVALID_FLOAT);
-						while (getNextCharAsDigit()) {};
 					}
-					if (getNextChar('f', 'F') >= 0)
-						return TokenNameFloatingPointLiteral;
-					getNextChar('d', 'D'); //jump over potential d or D
-					return TokenNameDoubleLiteral;
-				} else {
-					return TokenNameIntegerLiteral;
+					if (!Character.isDigit(currentCharacter))
+						throw new InvalidInputException(INVALID_FLOAT);
+					while (getNextCharAsDigit()) {};
 				}
+				if (getNextChar('f', 'F') >= 0)
+					return TokenNameFloatingPointLiteral;
+				if (getNextChar('d', 'D') >= 0 || !isInteger)
+					return TokenNameDoubleLiteral;
+				return TokenNameIntegerLiteral;
 			}
 		} else {
 			/* carry on */

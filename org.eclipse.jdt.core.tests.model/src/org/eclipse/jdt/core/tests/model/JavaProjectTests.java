@@ -352,7 +352,7 @@ public void testFindPackageFragmentRootFromClasspathEntry() throws JavaModelExce
 	IClasspathEntry entry = JavaCore.newLibraryEntry(new Path("/JavaProjectTests/lib.jar"), null, null);
 	IPackageFragmentRoot[] roots = project.findPackageFragmentRoots(entry);
 	assertEquals("Unexpected number of roots for existing entry", 1, roots.length);
-	assertEquals("Unexpected root", "/JavaProjectTests/lib.jar", roots[0].getElementName());
+	assertEquals("Unexpected root", "/JavaProjectTests/lib.jar", roots[0].getPath().toString());
 	
 	// non-existing classpath entry
 	entry = JavaCore.newSourceEntry(new Path("/JavaProjectTests/nonExisting"));
