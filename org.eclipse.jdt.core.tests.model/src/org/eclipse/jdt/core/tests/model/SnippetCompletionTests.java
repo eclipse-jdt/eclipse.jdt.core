@@ -44,7 +44,8 @@ public static Test suite() {
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileWithSource"));
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForCompilationUnitWithoutSource"));
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileInInnerClass"));
-
+	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileInInterface"));
+	
 	return suite;
 }
 
@@ -201,5 +202,32 @@ public void testCodeSnippetAssistForClassFileInInnerClass() throws JavaModelExce
 		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
 		requestor.getResults());
 }
-
+/*
+ * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=50686
+ */
+public void testCodeSnippetAssistForClassFileInInterface() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "xx.yy", "MyInterface.class");
+	IType type = cf.getType();
+	
+	String snippet = 
+		"int varX;\n" +
+		"int varY;\n" +
+		"var";
+		
+	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
+	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
+	int[] modifiers = {CompilerModifiers.AccDefault, IConstants.AccFinal};
+	
+	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
+	
+	assertEquals(
+		"should have 5 completions",
+		"element:var    completion:var    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:varsc    completion:varsc    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED)+"\n"+
+		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE),
+		requestor.getResults());
+}
 }
