@@ -68,12 +68,12 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    }
 //		if (this == argumentType) 
 //			return true;
-		
-		if (this.superclass.id != T_Object && !argumentType.isCompatibleWith(substitution.substitute(this.superclass))) {
+		boolean hasSubstitution = substitution != null;
+		if (this.superclass.id != T_Object && !argumentType.isCompatibleWith(hasSubstitution ? substitution.substitute(this.superclass) : this.superclass)) {
 		    return false;
 		}
 	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-	        if (!argumentType.isCompatibleWith(substitution.substitute(this.superInterfaces[i]))) {
+	        if (!argumentType.isCompatibleWith(hasSubstitution ? substitution.substitute(this.superInterfaces[i]) : this.superInterfaces[i])) {
 				return false;
 	        }
 	    }
