@@ -4957,5 +4957,28 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			true,
 			customOptions);
 	}
-	
+	// cast to type variable allowed, can be diagnosed as unnecessary
+	public void test177() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnsafeTypeOperation, CompilerOptions.ERROR);		
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X <T> {\n" + 
+				"	\n" + 
+				"	T foo(T t) {\n" + 
+				"		return (T) t;\n" + 
+				"	}\n" + 
+				"}\n", 
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	return (T) t;\n" + 
+			"	       ^^^^^\n" + 
+			"Unnecessary cast to type T for expression of type T\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+	}
 }
