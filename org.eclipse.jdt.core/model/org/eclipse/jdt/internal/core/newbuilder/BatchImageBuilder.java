@@ -144,7 +144,7 @@ protected void updateProblemsFor(CompilationResult result) throws CoreException 
 	IProblem[] problems = result.getProblems();
 	if (problems == null || problems.length == 0) return;
 
-	notifier.updateProblemCounts(null, problems);
+	notifier.updateProblemCounts(problems);
 
 	IPath filePath = new Path(new String(result.getFileName()));
 	IResource resource = javaBuilder.workspaceRoot.getFileForLocation(filePath);

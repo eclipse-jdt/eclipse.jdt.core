@@ -164,50 +164,53 @@ public void subTask(String message) {
 	this.previousSubtask = msg;
 }
 
+protected void updateProblemCounts(IProblem[] newProblems) {
+	for (int i = 0, newSize = newProblems.length; i < newSize; ++i)
+		if (newProblems[i].isError()) newErrorCount++; else newWarningCount++;
+}
+
 /**
  * Update the problem counts from one compilation result given the old and new problems,
  * either of which may be null.
  */
 protected void updateProblemCounts(IMarker[] oldProblems, IProblem[] newProblems) {
-	if (oldProblems != null) {
-		next : for (int i = 0, oldSize = oldProblems.length; i < oldSize; ++i) {
-			IMarker oldProblem = oldProblems[i];
-			boolean wasError = IMarker.SEVERITY_ERROR
-				== oldProblem.getAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-			int lineNumber = oldProblem.getAttribute(IMarker.LINE_NUMBER, 0);
-			String message = oldProblem.getAttribute(IMarker.MESSAGE, ""); //$NON-NLS-1$
-
-			if (newProblems != null) {
-				for (int j = 0, newSize = newProblems.length; j < newSize; ++j) {
-					IProblem pb = newProblems[j];
-					if (wasError == pb.isError()
-						&& lineNumber == pb.getSourceLineNumber()
-							&& message.equals(pb.getMessage()))
-						continue next;
-				}
-			}
-			if (wasError) fixedErrorCount++; else fixedWarningCount++;
-		}
-	}
 	if (newProblems != null) {
 		next : for (int i = 0, newSize = newProblems.length; i < newSize; ++i) {
 			IProblem newProblem = newProblems[i];
 			boolean isError = newProblem.isError();
-			int lineNumber = newProblem.getSourceLineNumber();
 			String message = newProblem.getMessage();
 
 			if (oldProblems != null) {
 				for (int j = 0, oldSize = oldProblems.length; j < oldSize; ++j) {
 					IMarker pb = oldProblems[j];
+					if (pb == null) continue; // already matched up with a new problem
 					boolean wasError = IMarker.SEVERITY_ERROR
 						== pb.getAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-					if (isError == wasError
-						&& lineNumber == pb.getAttribute(IMarker.LINE_NUMBER, 0)
-							&& message.equals(pb.getAttribute(IMarker.MESSAGE, ""))) //$NON-NLS-1$
+					if (isError == wasError && message.equals(pb.getAttribute(IMarker.MESSAGE, ""))) { //$NON-NLS-1$
+						oldProblems[j] = null;
 						continue next;
+					}
 				}
 			}
 			if (isError) newErrorCount++; else newWarningCount++;
+		}
+	}
+	if (oldProblems != null) {
+		next : for (int i = 0, oldSize = oldProblems.length; i < oldSize; ++i) {
+			IMarker oldProblem = oldProblems[i];
+			if (oldProblem == null) continue next; // already matched up with a new problem
+			boolean wasError = IMarker.SEVERITY_ERROR
+				== oldProblem.getAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+			String message = oldProblem.getAttribute(IMarker.MESSAGE, ""); //$NON-NLS-1$
+
+			if (newProblems != null) {
+				for (int j = 0, newSize = newProblems.length; j < newSize; ++j) {
+					IProblem pb = newProblems[j];
+					if (wasError == pb.isError() && message.equals(pb.getMessage()))
+						continue next;
+				}
+			}
+			if (wasError) fixedErrorCount++; else fixedWarningCount++;
 		}
 	}
 }
