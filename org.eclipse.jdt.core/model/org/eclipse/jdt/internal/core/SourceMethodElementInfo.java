@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.compiler.env.ISourceMethod;
 /** 
  * Element info for IMethod elements. 
  */
-/* package */ class SourceMethodElementInfo extends MemberElementInfo implements ISourceMethod {
+public class SourceMethodElementInfo extends MemberElementInfo implements ISourceMethod {
 
 	/**
 	 * For a source method (that is, a method contained in a compilation unit)

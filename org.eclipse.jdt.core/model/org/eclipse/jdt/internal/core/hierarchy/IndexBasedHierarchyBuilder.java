@@ -214,11 +214,19 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 			this.hierarchyResolver = 
 				new HierarchyResolver(this.searchableEnvironment, project.getOptions(true), this, new DefaultProblemFactory());
 			if (focusType != null) {
-				char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
-				ReferenceBinding focusTypeBinding = this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
-				if (focusTypeBinding == null 
-					|| (!inProjectOfFocusType && (focusTypeBinding.tagBits & TagBits.HierarchyHasProblems) > 0)) {
-					// focus type is not visible in this project: no need to go further
+				Member declaringMember = ((Member)focusType).getInnerMostDeclaringMember();
+				if (declaringMember == null) {
+					// top level or member type
+					char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
+					ReferenceBinding focusTypeBinding = this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+					if (focusTypeBinding == null 
+							|| (!inProjectOfFocusType && (focusTypeBinding.tagBits & TagBits.HierarchyHasProblems) > 0)) {
+						// focus type is not visible in this project: no need to go further
+						return;
+					}
+				} else {
+					// local or anonymous type
+					this.hierarchyResolver.resolveLocalType(focusType, declaringMember);
 					return;
 				}
 			}
@@ -432,7 +440,6 @@ protected IType getHandle(IGenericType genericType) {
 	} else
 		return super.getHandle(genericType);
 }
-
 /**
  * Find the set of candidate subtypes of a given type.
  *

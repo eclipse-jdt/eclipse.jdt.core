@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.SourceType;
 
@@ -40,6 +41,7 @@ public class AstNodeFinder {
 	 */
 	public FieldDeclaration findField(IField fieldHandle) {
 		TypeDeclaration typeDecl = findType((IType)fieldHandle.getParent());
+		if (typeDecl == null) return null;
 		FieldDeclaration[] fields = typeDecl.fields;
 		if (fields != null) {
 			char[] fieldName = fieldHandle.getElementName().toCharArray();
@@ -59,6 +61,7 @@ public class AstNodeFinder {
 	 */
 	public Initializer findInitializer(IInitializer initializerHandle) {
 		TypeDeclaration typeDecl = findType((IType)initializerHandle.getParent());
+		if (typeDecl == null) return null;
 		FieldDeclaration[] fields = typeDecl.fields;
 		if (fields != null) {
 			int occurenceCount = ((JavaElement)initializerHandle).occurrenceCount;
@@ -78,6 +81,7 @@ public class AstNodeFinder {
 	 */
 	public AbstractMethodDeclaration findMethod(IMethod methodHandle) {
 		TypeDeclaration typeDecl = findType((IType)methodHandle.getParent());
+		if (typeDecl == null) return null;
 		AbstractMethodDeclaration[] methods = typeDecl.methods;
 		if (methods != null) {
 			char[] selector = methodHandle.getElementName().toCharArray();
@@ -145,6 +149,7 @@ public class AstNodeFinder {
 				break;
 			case IJavaElement.TYPE:
 				TypeDeclaration parentDecl = findType((IType)parent);
+				if (parentDecl == null) return null;
 				types = parentDecl.memberTypes;
 				if (types != null) {
 					for (int i = 0, length = types.length; i < length; i++) {
@@ -157,18 +162,21 @@ public class AstNodeFinder {
 				break;
 			case IJavaElement.FIELD:
 				FieldDeclaration fieldDecl = findField((IField)parent);
+				if (fieldDecl == null) return null;
 				Visitor visitor = new Visitor();
 				fieldDecl.traverse(visitor, null);
 				return visitor.result;
 			case IJavaElement.INITIALIZER:
 				Initializer initializer = findInitializer((IInitializer)parent);
+				if (initializer == null) return null;
 				visitor = new Visitor();
 				initializer.traverse(visitor, null);
 				return visitor.result;
 			case IJavaElement.METHOD:
 				AbstractMethodDeclaration methodDecl = findMethod((IMethod)parent);
+				if (methodDecl == null) return null;
 				visitor = new Visitor();
-				methodDecl.traverse(visitor, methodDecl.scope);
+				methodDecl.traverse(visitor, (ClassScope)null);
 				return visitor.result;
 		}
 		return null;

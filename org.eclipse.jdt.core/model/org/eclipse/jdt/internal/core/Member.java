@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
  * @see IMember
  */
 
-/* package */ abstract class Member extends SourceRefElement implements IMember {
+public abstract class Member extends SourceRefElement implements IMember {
 protected Member(JavaElement parent, String name) {
 	super(parent, name);
 }
@@ -188,6 +188,29 @@ public IJavaElement getHandleFromMemento(String token, StringTokenizer memento, 
  */
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_TYPE;
+}
+/*
+ * Returns the inner most top-level member (a field, a method, or an initializer) that is a declaring this member.
+ * e.g for X.java/X/Y/foo()/Z/bar()/T the inner most declaring member is X.java/X/Y/foo()
+ * Returns null if this member is already a top-level member.
+ */
+public Member getInnerMostDeclaringMember() {
+	switch (fParent.getElementType()) {
+		case COMPILATION_UNIT:
+			return null;
+		case TYPE:
+			Member declaringMember = ((Member)fParent).getInnerMostDeclaringMember();
+			if (declaringMember == null) {
+				return this;
+			} else {
+				return declaringMember;
+			}
+		case INITIALIZER:
+		case FIELD:
+		case METHOD:
+			return ((Member)fParent).getInnerMostDeclaringMember();
+	}
+	return null;
 }
 /**
  * @see IMember

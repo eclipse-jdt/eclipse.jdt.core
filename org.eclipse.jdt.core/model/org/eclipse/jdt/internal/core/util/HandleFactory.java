@@ -241,6 +241,7 @@ public class HandleFactory {
 				while (knownElements.contains(element)) {
 					((JavaElement)element).occurrenceCount++;
 				}
+				knownElements.add(element);
 				return element;
 			}
 		}
