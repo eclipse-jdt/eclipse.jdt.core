@@ -177,7 +177,7 @@ SourceMapper createSourceMapper(IPath sourcePath, IPath rootPath) {
 	SourceMapper mapper = new SourceMapper(
 		sourcePath, 
 		rootPath == null ? null : rootPath.toOSString(), 
-		this.isExternal() ? JavaCore.getOptions() : this.getJavaProject().getOptions(true)); // only project options if associated with resource
+		getJavaProject().getOptions(true)); // cannot use workspace options if external jar is 1.5 jar and workspace options are 1.4 options
 	return mapper;
 }
 /*
