@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2001, 2002 International Business Machines Corp. and others.
+ * Copyright (c) 2000, 2002 International Business Machines Corp. and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0 
  * which accompanies this distribution, and is available at
@@ -194,6 +194,12 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * Returns an array of non-Java resources directly contained in this project.
 	 * It does not transitively answer non-Java resources contained in folders;
 	 * these would have to be explicitly iterated over.
+	 * <p>
+	 * Non-Java resources includes other files and folders located in the
+	 * project not accounted for by any of it source or binary package fragment
+	 * roots.
+	 * </p>
+	 * 
 	 * @return an array of non-Java resources directly contained in this project
 	 */
 	Object[] getNonJavaResources() throws JavaModelException;

@@ -1975,27 +1975,33 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
-	 * Creates and returns a new classpath entry of kind <code>CPE_SOURCE</code> for the project's source folder 
-	 * identified by the given absolute path. This specifies that all package fragments within the root will 
-	 * have children of type <code>ICompilationUnit</code>.
+	 * Creates and returns a new classpath entry of kind <code>CPE_SOURCE</code>
+	 * for the project's source folder identified by the given absolute 
+	 * workspace-relative path. This specifies that all package fragments
+	 * within the root will have children of type <code>ICompilationUnit</code>.
 	 * <p>
-	 * The source folder is referred to using an absolute path relative to the workspace root, e.g. <code>/Project/src</code>.
+	 * The source folder is referred to using an absolute path relative to the
+	 * workspace root, e.g. <code>/Project/src</code>. A project's source 
+	 * folders are located with that project. That is, a source classpath
+	 * entry specifying the path <code>/P1/src</code> is only usable for
+	 * project <code>P1</code>.
+	 * </p>
 	 * <p>
-	 * A source entry is used to set up the internal source layout of a project, and cannot be used out of the
-	 * context of the containing project (a source entry <code>/Proj1/src</code> cannot be used on the classpath of 
-	 * a different project <code>/Proj2</code>).
+	 * The source classpath entry created by this method includes all source
+	 * files below the given workspace-relative path. To selectively exclude
+	 * some of these source files, use the factory method 
+	 * <code>JavaCore.newSourceEntry(IPath,IPath[])</code> instead.
+	 * </p>
 	 * <p>
-	 * A particular source entry cannot be exported to other projects. All sources/binaries inside a project are
-	 * contributed as a whole through a project entry (see <code>JavaCore.newProjectEntry</code>).
-	 * <p>
-	 * In order to exclude resources from the source folder, the factory method <code>JavaCore.newSourceEntry(IPath,IPath[])
-	 * </code> should be used instead. When no exclusion patterns is specified, the source folder will automatically include all
-	 * resources located inside the source folder and implicitly ignore all ".class" files.
+	 * Note that all sources/binaries inside a project are contributed as a whole through
+	 * a project entry (see <code>JavaCore.newProjectEntry</code>). Particular
+	 * source entries cannot be selectively exported.
+	 * </p>
 	 * 
-	 * @param path the absolute path of a source folder
-	 * @return a new source classpath entry
+	 * @param path the absolute workspace-relative path of a source folder
+	 * @return a new source classpath entry with not exclusion patterns
 	 * 
-	 * @see #newSourceEntry(IPath,IPath[])
+	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath,org.eclipse.core.runtime.IPath[])
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path) {
 
@@ -2003,31 +2009,51 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 	
 	/**
-	 * Creates and returns a new classpath entry of kind <code>CPE_SOURCE</code> for the project's source folder 
-	 * identified by the given absolute path. This specifies that all package fragments within the root will 
-	 * have children of type <code>ICompilationUnit</code>.
+	 * Creates and returns a new classpath entry of kind <code>CPE_SOURCE</code>
+	 * for the project's source folder identified by the given absolute 
+	 * workspace-relative path but excluding all source files with paths
+	 * matching any of the given patterns. This specifies that all package
+	 * fragments within the root will have children of type 
+	 * <code>ICompilationUnit</code>.
 	 * <p>
-	 * The source folder is referred to using an absolute path relative to the workspace root, e.g. <code>"/Project/src"</code>.
+	 * The source folder is referred to using an absolute path relative to the
+	 * workspace root, e.g. <code>/Project/src</code>. A project's source 
+	 * folders are located with that project. That is, a source classpath
+	 * entry specifying the path <code>/P1/src</code> is only usable for
+	 * project <code>P1</code>.
+	 * </p>
 	 * <p>
-	 * A source entry is used to set up the internal source layout of a project, and cannot be used out of the
-	 * context of the containing project (a source entry "Proj1/src" cannot be used on the classpath of Proj2).
-	 * TODO: should mention mount points at this stage
+	 * The source classpath entry created by this method includes all source
+	 * files below the given workspace-relative path except for those matched
+	 * by one (or more) of the given exclusion patterns. Each exclusion pattern
+	 * is represented by a relative path, which is interpreted as relative to
+	 * the source folder. For example, if the source folder path is 
+	 * <code>/Project/src</code> and the exclusion pattern is 
+	 * <code>com/xyz/tests/&#42;&#42;</code>, then source files
+	 * like <code>/Project/src/com/xyz/Foo.java</code>
+	 * and <code>/Project/src/com/xyz/utils/Bar.java</code> would be included,
+	 * whereas <code>/Project/src/com/xyz/tests/T1.java</code>
+	 * and <code>/Project/src/com/xyz/tests/quick/T2.java</code> would be
+	 * excluded. Exclusion patterns can contain can contain '**', '*' or '?'
+	 * wildcards; see <code>IClasspathEntry.getExclusionPatterns</code>
+	 * for the full description of the syntax and semantics of exclusion
+	 * patterns.
+	 * </p>
+	 * If the empty list of exclusion patterns is specified, the source folder
+	 * will automatically include all resources located inside the source
+	 * folder. In that case, the result is entirely equivalent to using the
+	 * factory method <code>JavaCore.newSourceEntry(IPath)</code>. 
+	 * </p>
 	 * <p>
-	 * A particular source entry cannot be exported to other projects. All sources/binaries inside a project are
-	 * contributed as a whole through a project entry (see <code>JavaCore.newProjectEntry</code>).
-	 * <p>
-	 * Exclusion patterns can be specified to cause portions of the resource tree to be excluded from this source folder.
-	 * If <code>null</code> is passed, then the source folder will default to only exclude ".class" files (which is the minimal
-	 * exclusion pattern). Empty patterns will automatically be discarded (after trimmed). Exclusion patterns are source
-	 * folder relative paths, and can contain '**', '*' or '?' wildcards (see <code>IClasspathEntry#getExclusionPatterns()</code>).
-	 * <p>
-	 * In case no resource need to be excluded from the source folder, the factory method <code>JavaCore.newSourceEntry(IPath)</code>
-	 * can be used instead.
+	 * Note that all sources/binaries inside a project are contributed as a whole through
+	 * a project entry (see <code>JavaCore.newProjectEntry</code>). Particular
+	 * source entries cannot be selectively exported.
+	 * </p>
 	 *
-	 * @param path the absolute path of a source folder
-	 * @param exclusionPatterns the resource path patterns to exclude
-	 * @return a new source classpath entry
-	 * 
+	 * @param path the absolute workspace-relative path of a source folder
+	 * @param exclusionPatterns the possibly empty list of exclusion patterns
+	 *    represented as relative paths
+	 * @return a new source classpath entry with the given exclusion patterns
 	 * @see #newSourceEntry(org.eclipse.core.runtime.IPath)
 	 * @see IClasspathEntry#getExclusionPatterns
 	 * 

@@ -180,23 +180,25 @@ public interface IClasspathEntry {
 	int getEntryKind();
 
 	/**
-	 * Returns the set of patterns used to excludes resources associated with
-	 * this source entry (entry kind <code>CPE_SOURCE</code>).
+	 * Returns the set of patterns used to exclude resources associated with
+	 * this source entry.
 	 * <p>
 	 * Exclusion patterns allow specified portions of the resource tree rooted
 	 * at this source entry's path to be filtered out. If no exclusion patterns
 	 * are specified, this source entry includes all relevent files. Each path
 	 * specified must be a relative path, and will be interpreted relative
-	 * to this source entry's path. File patterns are case-sensitive.
+	 * to this source entry's path. File patterns are case-sensitive. A file
+	 * matched by one or more of these patterns is excluded from the 
+	 * corresponding package fragment root.
 	 * </p>
 	 * <p>
 	 * Note that there is no need to supply a pattern to exclude ".class" files
 	 * because a source entry filters these out automatically.
 	 * </p>
 	 * <p>
-	 * Each pattern is represented as a relative path. The path segments can be
-	 * regular file or folder names or simple patterns involving standard
-	 * wildcard characters.
+	 * The pattern mechanism is similar to Ant's. Each pattern is represented as
+	 * a relative path. The path segments can be regular file or folder names or simple patterns
+	 * involving standard wildcard characters.
 	 * </p>
 	 * <p>
 	 * '*' matches 0 or more characters within a segment. So
@@ -249,7 +251,9 @@ public interface IClasspathEntry {
 	 * </ul>
 	 * </p>
 	 * 
-	 * @return the resource exclusion patterns associated with this source entry.
+	 * @return the possibly empty list of resource exclusion patterns 
+	 *   associated with this source entry, and <code>null</code> for other
+	 *   kinds of classpath entries
 	 * @since 2.1	 */
 	IPath[] getExclusionPatterns();
 	
