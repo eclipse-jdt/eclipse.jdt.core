@@ -1575,6 +1575,13 @@ protected void consumeNestedMethod() {
 	super.consumeNestedMethod();
 	if(!(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BLOCK_DELIMITER)) pushOnElementStack(K_BLOCK_DELIMITER);
 }
+protected void consumePrimaryNoNewArrayName() {
+	// this is class literal access, so reset potential receiver
+	this.invocationType = NO_RECEIVER;
+	this.qualifier = -1;
+	
+	super.consumePrimaryNoNewArrayName();
+}
 protected void consumePushPosition() {
 	super.consumePushPosition();
 	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BINARY_OPERATOR) {
