@@ -16169,4 +16169,31 @@ public void test500(){
 			"Exce cannot be resolved to a type\n" + 
 			"----------\n");	
 	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90147
+	public void test570() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends Object> {\n" + 
+				"  public class InnerClass implements Comparable<T> {\n" + 
+				"    public int compareTo(T other) {\n" + 
+				"      return -1;\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"  \n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    InnerClass a = new InnerClass();\n" + 
+				"    InnerClass b = new InnerClass();\n" + 
+				"    // The following line does not compile (anymore):\n" + 
+				"    a.compareTo(b);\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	a.compareTo(b);\n" + 
+			"	  ^^^^^^^^^\n" + 
+			"The method compareTo(T) in the type X<T>.InnerClass is not applicable for the arguments (X<T>.InnerClass)\n" + 
+			"----------\n");	
+	}			
 }
