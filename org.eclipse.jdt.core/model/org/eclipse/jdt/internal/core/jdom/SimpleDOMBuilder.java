@@ -40,7 +40,7 @@ public void acceptImport(int declarationStart, int declarationEnd, char[] name, 
 	if (onDemand) {
 		importName+=".*"; //$NON-NLS-1$
 	}
-	fNode= new DOMImport(fDocument, sourceRange, importName, onDemand); // TODO (olivier) DOM import should reflect static nature
+	fNode= new DOMImport(fDocument, sourceRange, importName, onDemand);
 	addChild(fNode);	
 }
 public void acceptPackage(int declarationStart, int declarationEnd, char[] name) {

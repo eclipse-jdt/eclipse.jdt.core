@@ -413,7 +413,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 		length); 
 
 	/* build specific assist node on import statement */
-	ImportReference reference = this.createAssistImportReference(subset, positions, AccDefault/*TODO (olivier) update for static imports*/);
+	ImportReference reference = this.createAssistImportReference(subset, positions, AccDefault);
 	assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
 
@@ -511,7 +511,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		length); 
 
 	/* build specific assist node on import statement */
-	ImportReference reference = this.createAssistImportReference(subset, positions, AccDefault/*TODO (olivier) update for static imports*/);
+	ImportReference reference = this.createAssistImportReference(subset, positions, AccDefault);
 	reference.onDemand = true;
 	assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
