@@ -507,10 +507,19 @@ public void searchAllTypeNames(
 		}		
 	};
 
-	indexManager.performConcurrentJob(
-		new PatternSearchJob(pattern, scope, IInfoConstants.NameInfo | IInfoConstants.PathInfo, searchRequestor, indexManager),
-		waitingPolicy,
-		progressMonitor);	
+	try {
+		if (progressMonitor != null) {
+			progressMonitor.beginTask(Util.bind("engine.searching"), 100); //$NON-NLS-1$
+		}
+		indexManager.performConcurrentJob(
+			new PatternSearchJob(pattern, scope, IInfoConstants.NameInfo | IInfoConstants.PathInfo, searchRequestor, indexManager),
+			waitingPolicy,
+			progressMonitor);	
+	} finally {
+		if (progressMonitor != null) {
+			progressMonitor.done();
+		}
+	}
 }
 /**
  * Searches for all declarations of the fields accessed in the given element.

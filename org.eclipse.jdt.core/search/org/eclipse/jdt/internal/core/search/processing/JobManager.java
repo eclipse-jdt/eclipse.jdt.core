@@ -81,9 +81,9 @@ public abstract class JobManager implements Runnable {
 					|| currentJob.belongsTo(jobFamily))) { // copy down, compacting
 					awaitingJobs[++loc] = currentJob;
 				} else {
+					currentJob.cancel();
 					if (i == jobStart) {
-						// request a cancel and wait until current job has accepted the cancel
-						currentJob.cancel();
+						// wait until current active job has accepted the cancel
 						while (thread != null && executing){
 							try {
 								Thread.currentThread().sleep(50);
@@ -150,6 +150,7 @@ public abstract class JobManager implements Runnable {
 		if (VERBOSE)
 			System.out.println("-> performing concurrent job ("+ Thread.currentThread()+"): START - " + searchJob); //$NON-NLS-1$//$NON-NLS-2$
 		boolean status = IJob.FAILED;
+		int concurrentJobWork = 100;
 		if (awaitingJobsCount() > 0) {
 			switch (waitingPolicy) {
 
@@ -160,7 +161,7 @@ public abstract class JobManager implements Runnable {
 					boolean wasEnabled = isEnabled();
 					try {
 						disable(); // pause indexing
-						status = searchJob.execute(progress);
+						status = searchJob.execute(progress == null ? null : new SubProgressMonitor(progress, concurrentJobWork));
 						if (VERBOSE)
 							System.out.println("-> performing concurrent job ("+ Thread.currentThread()+"): END - " + searchJob); //$NON-NLS-1$//$NON-NLS-2$
 					} finally {
@@ -179,8 +180,15 @@ public abstract class JobManager implements Runnable {
 					int awaitingWork;
 					IJob previousJob = null;
 					IJob currentJob;
+					IProgressMonitor subProgress = null;
+					int totalWork = this.awaitingJobsCount();
+					if (progress != null && totalWork > 0) {
+						subProgress = new SubProgressMonitor(progress, 50);
+						subProgress.beginTask("", totalWork); //$NON-NLS-1$
+						concurrentJobWork = 50;
+					}
 					while ((awaitingWork = awaitingJobsCount()) > 0) {
-						if (progress != null && progress.isCanceled())
+						if (subProgress != null && subProgress.isCanceled())
 							throw new OperationCanceledException();
 						currentJob = currentJob();
 						// currentJob can be null when jobs have been added to the queue but job manager is not enabled
@@ -188,9 +196,10 @@ public abstract class JobManager implements Runnable {
 							if (VERBOSE)
 								System.out.println(
 									"-> performing concurrent job ("+ Thread.currentThread()+"): NOT READY - WaitUntilReady - " + searchJob);//$NON-NLS-1$//$NON-NLS-2$
-							if (progress != null) {
-								progress.subTask(
+							if (subProgress != null) {
+								subProgress.subTask(
 									Util.bind("manager.filesToIndex", Integer.toString(awaitingWork))); //$NON-NLS-1$
+								subProgress.worked(1);
 							}
 							previousJob = currentJob;
 						}
@@ -199,9 +208,12 @@ public abstract class JobManager implements Runnable {
 						} catch (InterruptedException e) {
 						}
 					}
+					if (subProgress != null) {
+						subProgress.done();
+					}
 			}
 		}
-		status = searchJob.execute(progress);
+		status = searchJob.execute(progress == null ? null : new SubProgressMonitor(progress, concurrentJobWork));
 		if (VERBOSE)
 			System.out.println("-> performing concurrent job ("+ Thread.currentThread()+"): END - " + searchJob); //$NON-NLS-1$//$NON-NLS-2$
 		return status;

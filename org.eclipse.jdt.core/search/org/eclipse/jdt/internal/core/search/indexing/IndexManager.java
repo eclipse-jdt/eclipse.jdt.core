@@ -153,9 +153,9 @@ public void discardJobsUntilNextProjectAddition(String jobFamily) {
 				}
 			}
 			if (discard) {
+				currentJob.cancel();
 				if (i == jobStart) {
-					// request a cancel and wait until current job has accepted the cancel
-					currentJob.cancel();
+					// wait until current active job has accepted the cancel
 					while (thread != null && executing){
 						try {
 							Thread.currentThread().sleep(50);

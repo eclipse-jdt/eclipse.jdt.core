@@ -77,15 +77,32 @@ public class PatternSearchJob implements IJob {
 				new IndexSelector(this.scope, this.focus, this.indexManager);
 		}
 		IIndex[] searchIndexes = this.indexSelector.getIndexes();
-		for (int i = 0, max = searchIndexes.length; i < max; i++) {
-			isComplete &= search(searchIndexes[i], progressMonitor);
+		try {
+			int max = searchIndexes.length;
+			if (progressMonitor != null) {
+				progressMonitor.beginTask("", max); //$NON-NLS-1$
+			}
+			for (int i = 0; i < max; i++) {
+				isComplete &= search(searchIndexes[i], progressMonitor);
+				if (progressMonitor != null) {
+					if (progressMonitor.isCanceled()) {
+						throw new OperationCanceledException();
+					} else {
+						progressMonitor.worked(1);
+					}
+				}
+			}
+			if (JobManager.VERBOSE) {
+				System.out.println(
+					"-> execution time: " + executionTime + " ms. for : " + this);//$NON-NLS-1$//$NON-NLS-2$
+				//$NON-NLS-2$ //$NON-NLS-1$
+			}
+			return isComplete;
+		} finally {
+			if (progressMonitor != null) {
+				progressMonitor.done();
+			}
 		}
-		if (JobManager.VERBOSE) {
-			System.out.println(
-				"-> execution time: " + executionTime + " ms. for : " + this);//$NON-NLS-1$//$NON-NLS-2$
-			//$NON-NLS-2$ //$NON-NLS-1$
-		}
-		return isComplete;
 	}
 
 	/**
