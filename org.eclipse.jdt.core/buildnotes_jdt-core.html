@@ -36,6 +36,53 @@
 	</td>
   </tr>
 </table>
+
+<a name="v_538"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.1M6 - ?th February 2005
+<br>Project org.eclipse.jdt.core v_538
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_538">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>Added optional compiler diagnosis when a type parameter declaration is hiding another type.
+Corresponding problem ID is: <code>IProblem.TypeParameterHidingType</code>
+<pre>
+* COMPILER / Reporting Type Parameter Declaration Hiding another Type
+*    When enabled, the compiler will issue an error or a warning whenever a type parameter
+*    declaration is hiding some type.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.typeParameterHiding"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
+</li>
+<li>The predicates <code>isInterface()</code> on Java element and DOM AST are now answering <code>true</code>
+for annotation types. Indeed, annotation types are allowed to be implemented just like regular interfaces.
+</li>
+<li>Added optional compiler diagnosis signalling usage of an annotation type as a super interface.
+Corresponding problem ID is: <code>IProblem.AnnotationTypeUsedAsSuperInterface</code>
+<pre>
+* COMPILER / Reporting Use of Annotation Type as Super Interface
+*    When enabled, the compiler will issue an error or a warning whenever an annotation type is used
+*    as a super-interface. Though legal, this is discouraged.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.annotationSuperInterface"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=84355">84355</a>
+[1.5] Generics bounds overzealous when converting to Object
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=85477">85477</a>
+[1.5] certain unchecked conversion not reported
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=85303">85303</a>
+[1.5] wrong declaring class for invokevirtual call
+
+
 <a name="v_537"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
