@@ -118,6 +118,7 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ===============================================================================
+  3279		Severe -  JM - Source found, even though sourcepath is false (1GELAVB)
   3288      CodeAssist - Code assist doesn't work in some methods (1GELEBH)
   5073      delete does not work on default package  
   3443      Unused argument/variable warnings shown twice (1GL4OW7)    
