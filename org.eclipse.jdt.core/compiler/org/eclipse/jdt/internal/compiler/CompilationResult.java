@@ -157,7 +157,7 @@ public IProblem[] getProblems() {
 		}
 
 		// Sort problems per source positions.
-		quicksort(problems, 0, problems.length-1);
+		quickSort(problems, 0, problems.length-1);
 	}
 	return problems;
 }
@@ -182,52 +182,56 @@ public boolean hasWarnings() {
 	return false;
 }
 
-private static void quicksort(IProblem arr[], int left, int right) {
-	int i, last, pos;
+private static void quickSort(IProblem[] list, int left, int right) {
+	if (left >= right) return;
 
-	if (left >= right) {
-		/* do nothing if array contains fewer than two */
-		return;
-		/* two elements */
-	}
-
-	swap(arr, left, (left + right) / 2);
-	last = left;
-	pos = arr[left].getSourceStart();
-
-	for (i = left + 1; i <= right; i++) {
-		if (arr[i].getSourceStart() < pos) {
-			swap(arr, ++last, i);
+	// sort the problems by their source start position... starting with 0
+	int original_left = left;
+	int original_right = right;
+	int mid = list[(left + right) / 2].getSourceStart();
+	do {
+		while (list[left].getSourceStart() < mid)
+			left++;
+		while (mid < list[right].getSourceStart())
+			right--;
+		if (left <= right) {
+			IProblem tmp = list[left];
+			list[left] = list[right];
+			list[right] = tmp;
+			left++;
+			right--;
 		}
-	}
-
-	swap(arr, left, last);
-	quicksort(arr, left, last - 1);
-	quicksort(arr, last + 1, right);
+	} while (left <= right);
+	if (original_left < right)
+		quickSort(list, original_left, right);
+	if (left < original_right)
+		quickSort(list, left, original_right);
 }
 
-private void quickPrioritize(IProblem arr[], int left, int right) {
-	int i, last, prio;
+private void quickPrioritize(IProblem[] list, int left, int right) {
+	if (left >= right) return;
 
-	if (left >= right) {
-		/* do nothing if array contains fewer than two */
-		return;
-		/* two elements */
-	}
-
-	swap(arr, left, (left + right) / 2);
-	last = left;
-	prio = computePriority(arr[left]);
-
-	for (i = left + 1; i <= right; i++) {
-		if (computePriority(arr[i]) > prio) {
-			swap(arr, ++last, i);
+	// sort the problems by their priority... starting with the highest priority
+	int original_left = left;
+	int original_right = right;
+	int mid = computePriority(list[(left + right) / 2]);
+	do {
+		while (computePriority(list[right]) < mid)
+			right--;
+		while (mid < computePriority(list[left]))
+			left++;
+		if (left <= right) {
+			IProblem tmp = list[left];
+			list[left] = list[right];
+			list[right] = tmp;
+			left++;
+			right--;
 		}
-	}
-
-	swap(arr, left, last);
-	quickPrioritize(arr, left, last - 1);
-	quickPrioritize(arr, last + 1, right);
+	} while (left <= right);
+	if (original_left < right)
+		quickPrioritize(list, original_left, right);
+	if (left < original_right)
+		quickPrioritize(list, left, original_right);
 }
 
 /**
