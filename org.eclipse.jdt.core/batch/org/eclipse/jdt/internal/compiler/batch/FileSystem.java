@@ -5,6 +5,7 @@ package org.eclipse.jdt.internal.compiler.batch;
  * All Rights Reserved.
  */
 import java.io.*;
+import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.util.*;
@@ -38,14 +39,14 @@ public FileSystem(String[] classpathNames, String[] initialFileNames, String enc
 	for (int i = 0; i < classpathSize; i++) {
 		try {
 			File file = new File(convertPathSeparators(classpathNames[i]));
-			if (file.exists()) {
-				if (file.isDirectory()) {
+			if (file.isDirectory()) {
+				if (file.exists()) {
 					classpaths[i] = new ClasspathDirectory(file, encoding);
 					pathNames[i] = ((ClasspathDirectory) classpaths[i]).path;
-				} else if (classpathNames[i].endsWith(".jar") | (classpathNames[i].endsWith(".zip"))) { //$NON-NLS-2$ //$NON-NLS-1$
-					classpaths[i] = new ClasspathJar(file);
-					pathNames[i] = classpathNames[i].substring(0, classpathNames[i].lastIndexOf('.'));
 				}
+			} else if (classpathNames[i].endsWith(".jar") | (classpathNames[i].endsWith(".zip"))) { //$NON-NLS-2$ //$NON-NLS-1$
+				classpaths[i] = this.getClasspathJar(file); // will throw an IOException if file does not exist
+				pathNames[i] = classpathNames[i].substring(0, classpathNames[i].lastIndexOf('.'));
 			}
 		} catch (IOException e) {
 			classpaths[i] = null;
@@ -137,6 +138,9 @@ public NameEnvironmentAnswer findType(char[][] compoundName) {
 		return findClass(
 			compoundName[compoundName.length - 1],
 			CharOperation.subarray(compoundName, 0, compoundName.length - 1));
+}
+public ClasspathJar getClasspathJar(File file) throws IOException {
+	return new ClasspathJar(new ZipFile(file));
 }
 public NameEnvironmentAnswer findType(char[] name, char[][] compoundName) {
 	if (name == null)

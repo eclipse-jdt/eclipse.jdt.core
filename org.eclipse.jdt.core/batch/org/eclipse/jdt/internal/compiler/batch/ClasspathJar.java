@@ -12,16 +12,21 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-class ClasspathJar implements FileSystem.Classpath {
+public class ClasspathJar implements FileSystem.Classpath {
 	
 	ZipFile zipFile;
-	Hashtable directoryCache;
+	public Hashtable directoryCache;
 	
 	ClasspathJar(File file) throws IOException {
 		
-		zipFile = new ZipFile(file);
-		buildDirectoryStructure();
+		this(new ZipFile(file));
 	}
+	
+	public ClasspathJar(ZipFile zipFile) throws IOException {
+		
+		this.zipFile = zipFile;
+		buildDirectoryStructure();
+	}	
 	void buildDirectoryStructure() {
 		directoryCache = new Hashtable(101);
 		for (Enumeration e = zipFile.entries(); e.hasMoreElements();) {
