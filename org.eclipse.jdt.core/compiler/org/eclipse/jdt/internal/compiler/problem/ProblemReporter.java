@@ -1734,8 +1734,8 @@ public void packageIsNotExpectedPackage(CompilationUnitDeclaration compUnitDecl)
 	this.handle(
 		PackageIsNotExpectedPackage,
 		new String[0],
-		compUnitDecl.currentPackage.sourceStart,
-		compUnitDecl.currentPackage.sourceEnd);
+		compUnitDecl.currentPackage == null ? 0 : compUnitDecl.currentPackage.sourceStart,
+		compUnitDecl.currentPackage == null ? 0 : compUnitDecl.currentPackage.sourceEnd);
 }
 private String parametersAsString(MethodBinding method) {
 	TypeBinding[] params = method.parameters;
