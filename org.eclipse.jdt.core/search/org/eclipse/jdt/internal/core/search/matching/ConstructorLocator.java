@@ -11,10 +11,12 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ConstructorLocator extends PatternLocator {
 
@@ -63,7 +65,26 @@ public int match(Expression node, MatchingNodeSet nodeSet) { // interested in Al
 
 	return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
-//public int match(FieldDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(FieldDeclaration field, MatchingNodeSet nodeSet) {
+	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
+	// look only for enum constant
+	if (field.type != null || !(field.initialization instanceof AllocationExpression)) return IMPOSSIBLE_MATCH;
+
+	AllocationExpression allocation = (AllocationExpression) field.initialization;
+	if (field.binding != null && field.binding.declaringClass != null) {
+		if (this.pattern.declaringSimpleName != null && !matchesName(this.pattern.declaringSimpleName, field.binding.declaringClass.sourceName()))
+			return IMPOSSIBLE_MATCH;
+	}
+
+	if (this.pattern.parameterSimpleNames != null) {
+		int length = this.pattern.parameterSimpleNames.length;
+		Expression[] args = allocation.arguments;
+		int argsLength = args == null ? 0 : args.length;
+		if (length != argsLength) return IMPOSSIBLE_MATCH;
+	}
+
+	return nodeSet.addMatch(field, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+}
 //public int match(MethodDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(MessageSend node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
@@ -151,6 +172,8 @@ public int resolveLevel(ASTNode node) {
 			return resolveLevel(((ExplicitConstructorCall) node).binding);
 		if (node instanceof TypeDeclaration)
 			return resolveLevel((TypeDeclaration) node);
+		if (node instanceof FieldDeclaration)
+			return resolveLevel((FieldDeclaration) node);
 	}
 	if (node instanceof ConstructorDeclaration)
 		return resolveLevel((ConstructorDeclaration) node, true);
@@ -166,6 +189,15 @@ protected int resolveLevel(AllocationExpression allocation) {
 		return IMPOSSIBLE_MATCH;
 
 	return resolveLevel(allocation.binding);
+}
+protected int resolveLevel(FieldDeclaration field) {
+	// only accept enum constants
+	if (field.type != null || field.binding == null) return IMPOSSIBLE_MATCH;
+	if (this.pattern.declaringSimpleName != null && !matchesName(this.pattern.declaringSimpleName, field.binding.type.sourceName()))
+		return IMPOSSIBLE_MATCH;
+	if (!(field.initialization instanceof AllocationExpression) || field.initialization.resolvedType.isLocalType()) return IMPOSSIBLE_MATCH;
+
+	return resolveLevel(((AllocationExpression)field.initialization).binding);
 }
 public int resolveLevel(Binding binding) {
 	if (binding == null) return INACCURATE_MATCH;
@@ -219,6 +251,26 @@ protected int resolveLevel(TypeDeclaration type) {
 		}
 	}
 	return IMPOSSIBLE_MATCH;
+}
+/* (non-Javadoc)
+ * Overrides PatternLocator method behavior in order to accept member pattern as X.Member
+ * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#resolveLevelForType(char[], char[], org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
+ */
+protected int resolveLevelForType (char[] simpleNamePattern, char[] qualificationPattern, TypeBinding type) {
+	char[] qualifiedPattern = getQualifiedPattern(simpleNamePattern, qualificationPattern);
+	int level = resolveLevelForType(qualifiedPattern, type);
+	if (level == ACCURATE_MATCH || type == null) return level;
+	boolean match = false;
+	if (type.isMemberType() || type.isLocalType()) {
+		if (qualificationPattern != null) {
+			match = CharOperation.equals(qualifiedPattern, getQualifiedSourceName(type), this.isCaseSensitive);
+		} else {
+			match = CharOperation.equals(qualifiedPattern, type.sourceName(), this.isCaseSensitive);
+		}
+	} else if (qualificationPattern == null) {
+		match = CharOperation.equals(qualifiedPattern, getQualifiedSourceName(type), this.isCaseSensitive);
+	}
+	return match ? ACCURATE_MATCH : IMPOSSIBLE_MATCH;
 }
 public String toString() {
 	return "Locator for " + this.pattern.toString(); //$NON-NLS-1$

@@ -115,11 +115,21 @@ public class LocalDeclarationVisitor extends ASTVisitor {
 				occurrenceCount = occurrenceCount + 1;
 			}
 			occurrencesCounts.put(simpleName, occurrenceCount);
-			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {				
-				reportMatching(typeDeclaration, enclosingElement, -1, nodeSet, occurrenceCount);
+			if (typeDeclaration.allocation == null || typeDeclaration.allocation.enumConstant == null) {
+				if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {				
+					reportMatching(typeDeclaration, enclosingElement, -1, nodeSet, occurrenceCount);
+				} else {
+					Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeDeclaration);
+					reportMatching(typeDeclaration, enclosingElement, level != null ? level.intValue() : -1, nodeSet, occurrenceCount);
+				}
 			} else {
 				Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeDeclaration);
-				reportMatching(typeDeclaration, enclosingElement, level != null ? level.intValue() : -1, nodeSet, occurrenceCount);
+				if (level != null) {
+					FieldDeclaration enumConstant = typeDeclaration.allocation.enumConstant;
+					int offset = enumConstant.sourceStart;
+					SearchMatch match = newDeclarationMatch(enclosingElement, level.intValue(), offset, enumConstant.sourceEnd-offset+1);
+					report(match);
+				}
 			}
 			return false; // don't visit members as this was done during reportMatching(...)
 		} catch (CoreException e) {
@@ -127,6 +137,7 @@ public class LocalDeclarationVisitor extends ASTVisitor {
 		}
 	}
 }
+
 
 public static class WorkingCopyDocument extends JavaSearchDocument {
 	public org.eclipse.jdt.core.ICompilationUnit workingCopy;

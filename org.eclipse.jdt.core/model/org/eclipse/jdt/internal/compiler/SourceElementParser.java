@@ -1153,8 +1153,17 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, Type
 				&& scanner.eofPosition >= fieldDeclaration.declarationSourceEnd;
 
 	switch(fieldDeclaration.getKind()) {
-		case AbstractVariableDeclaration.FIELD:
 		case AbstractVariableDeclaration.ENUM_CONSTANT:
+			// accept constructor reference for enum constant
+			if (fieldDeclaration.initialization instanceof AllocationExpression) {
+				AllocationExpression alloc = (AllocationExpression) fieldDeclaration.initialization;
+				requestor.acceptConstructorReference(
+					declaringType.name,
+					alloc.arguments == null ? 0 : alloc.arguments.length, 
+					alloc.sourceStart);
+			}
+			// fall through next case
+		case AbstractVariableDeclaration.FIELD:
 			int fieldEndPosition = fieldDeclaration.declarationSourceEnd;
 			if (fieldDeclaration instanceof SourceFieldDeclaration) {
 				fieldEndPosition = ((SourceFieldDeclaration) fieldDeclaration).fieldEndPosition;
