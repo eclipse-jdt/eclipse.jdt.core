@@ -428,7 +428,7 @@ protected void resetCollections() {
 	workQueue.clear();
 }
 
-protected void updateProblemsFor(CompilationResult result) {
+protected void updateProblemsFor(CompilationResult result) throws CoreException {
 	IPath filePath = new Path(new String(result.getFileName()));
 	IResource resource = javaBuilder.workspaceRoot.getFileForLocation(filePath);
 	IMarker[] markers = getProblemsFor(resource);

@@ -73,7 +73,7 @@ protected void addAllSourceFiles(final ArrayList locations, final ArrayList type
 		);
 	}
 }
-// should handle CoreException locally ?
+
 protected void scrubOutputFolder() throws CoreException {
 	if (hasSeparateOutputFolder) {
 		// outputPath is not on the class path so wipe it clean then copy extra resources back
@@ -137,7 +137,7 @@ protected void copyExtraResourcesBack() throws CoreException {
 	}
 }
 
-protected void updateProblemsFor(CompilationResult result) {
+protected void updateProblemsFor(CompilationResult result) throws CoreException {
 	IProblem[] problems = result.getProblems();
 	if (problems == null || problems.length == 0) return;
 

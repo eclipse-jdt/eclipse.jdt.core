@@ -75,14 +75,24 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 			}
 		}
 		ok = true;
+	} catch (CoreException e) {
+		try {
+			// add another problem to the compilation unit that its class file is inconsistent
+			IMarker marker = currentProject.createMarker(AbstractImageBuilder.ProblemMarkerTag);
+			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentProject"));
+			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+		} catch (CoreException ignore) {
+			throw e;
+		}
 	} catch (ImageBuilderInternalException e) {
-		// Fix for 1FW2XY6: ITPJCORE:ALL - Image builder wrappers CoreException
-		// WHY not just let the CoreException thru instead of wrappering it?
-		if (e.getThrowable() instanceof CoreException)
-			throw (CoreException) e.getThrowable();
-		throw new CoreException(
-			new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1,
-				Util.bind("build.builderName"), e)); //$NON-NLS-1$
+		try {
+			// add another problem to the compilation unit that its class file is inconsistent
+			IMarker marker = currentProject.createMarker(AbstractImageBuilder.ProblemMarkerTag);
+			marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentProject"));
+			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+		} catch (CoreException ignore) {
+			throw e.getThrowable();
+		}
 	} finally {
 		if (!ok)
 			// If the build failed, clear the previously built state, forcing a full build next time.
@@ -93,7 +103,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	return getRequiredProjects();
 }
 
-private void buildAll() throws CoreException {
+private void buildAll() {
 	if (DEBUG)
 		System.out.println("\nFULL build of: " + currentProject.getName()); //$NON-NLS-1$
 
@@ -104,7 +114,7 @@ private void buildAll() throws CoreException {
 	recordNewState(imageBuilder.newState);
 }
 
-private void buildDeltas(SimpleLookupTable deltas) throws CoreException {
+private void buildDeltas(SimpleLookupTable deltas) {
 	if (DEBUG)
 		System.out.println("\nINCREMENTAL build of: " + currentProject.getName()); //$NON-NLS-1$
 

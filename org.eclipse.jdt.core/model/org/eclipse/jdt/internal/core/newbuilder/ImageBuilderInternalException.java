@@ -4,27 +4,29 @@ package org.eclipse.jdt.internal.core.newbuilder;
  * All Rights Reserved.
  */
 
+import org.eclipse.core.runtime.CoreException;
+
 /**
  * Exception thrown when there is an internal error in the image builder.
  * May wrapper another exception.
  */
 public class ImageBuilderInternalException extends RuntimeException {
 
-protected Throwable throwable;
+protected CoreException coreException;
 
-public ImageBuilderInternalException(Throwable t) {
-	throwable = t;
+public ImageBuilderInternalException(CoreException e) {
+	this.coreException = e;
 }
 
-public Throwable getThrowable() {
-	return throwable;
+public CoreException getThrowable() {
+	return coreException;
 }
 
 public void printStackTrace() {
-	if (throwable != null) {
+	if (coreException != null) {
 		System.err.println(this);
-		System.err.println("Stack trace of embedded throwable:"); //$NON-NLS-1$
-		throwable.printStackTrace();
+		System.err.println("Stack trace of embedded core exception:"); //$NON-NLS-1$
+		coreException.printStackTrace();
 	} else {
 		super.printStackTrace();
 	}

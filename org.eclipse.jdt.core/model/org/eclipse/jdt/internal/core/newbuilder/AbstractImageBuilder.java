@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.Util;
 
 import java.io.*;
 import java.util.*;
@@ -112,7 +113,15 @@ public void acceptResult(CompilationResult result) {
 			}
 			notifier.compiled(compilationUnit);
 		} catch (CoreException e) {
-			throw internalException(e);
+			try {
+				// add another problem to the compilation unit that its class file is inconsistent
+				IResource resource = javaBuilder.workspaceRoot.getFileForLocation(new Path(location));
+				IMarker marker = resource.createMarker(ProblemMarkerTag);
+				marker.setAttribute(IMarker.MESSAGE, Util.bind("build.inconsistentClassFile"));
+				marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+			} catch (CoreException ignore) {
+				throw internalException(e);
+			}
 		}
 	}
 }
@@ -212,7 +221,7 @@ protected void finishedWith(String location, CompilationResult result, char[][] 
 	newState.record(location, result.qualifiedReferences, result.simpleNameReferences, additionalTypeNames);
 }
 
-protected RuntimeException internalException(Throwable t) {
+protected RuntimeException internalException(CoreException t) {
 	ImageBuilderInternalException imageBuilderException = new ImageBuilderInternalException(t);
 	if (inCompiler)
 		return new AbortCompilation(true, imageBuilderException);
@@ -233,10 +242,7 @@ protected IMarker[] getProblemsFor(IResource resource) {
 	try {
 		if (resource != null && resource.exists())
 			return resource.findMarkers(ProblemMarkerTag, false, IResource.DEPTH_INFINITE);
-	} catch (CoreException e) {
-//@PM THIS CODE SHOULD PROBABLY HANDLE THE CORE EXCEPTION LOCALLY ?
-		throw internalException(e);
-	}
+	} catch (CoreException e) {} // assume there are no problems
 	return new IMarker[0];
 }
 
@@ -244,10 +250,7 @@ protected void removeProblemsFor(IResource resource) {
 	try {
 		if (resource != null && resource.exists())
 			resource.deleteMarkers(ProblemMarkerTag, false, IResource.DEPTH_INFINITE);
-	} catch (CoreException e) {
-//@PM THIS CODE SHOULD PROBABLY HANDLE THE CORE EXCEPTION LOCALLY ?
-		throw internalException(e);
-	}
+	} catch (CoreException e) {} // assume there were no problems
 }
 
 /**
@@ -260,73 +263,68 @@ protected void removeProblemsFor(IResource resource) {
  *	 - its range is the problem's range
  *	 - it has an extra attribute "ID" which holds the problem's id
  */
-protected void storeProblemsFor(IResource resource, IProblem[] problems) {
+protected void storeProblemsFor(IResource resource, IProblem[] problems) throws CoreException {
 	if (problems == null || problems.length == 0) return;
 	for (int i = 0, length = problems.length; i < length; i++) {
-		try {
-			IProblem problem = problems[i];
-			int id = problem.getID();
-			switch (id) {
-				case ProblemIrritants.SuperclassMustBeAClass :
-				case ProblemIrritants.SuperInterfaceMustBeAnInterface :
-				case ProblemIrritants.HierarchyCircularitySelfReference :
-				case ProblemIrritants.HierarchyCircularity :
-				case ProblemIrritants.HierarchyHasProblems :
-				case ProblemIrritants.InvalidSuperclassBase :
-				case ProblemIrritants.InvalidSuperclassBase + 1 :
-				case ProblemIrritants.InvalidSuperclassBase + 2 :
-				case ProblemIrritants.InvalidSuperclassBase + 3 :
-				case ProblemIrritants.InvalidSuperclassBase + 4 :
-				case ProblemIrritants.InvalidInterfaceBase :
-				case ProblemIrritants.InvalidInterfaceBase + 1 :
-				case ProblemIrritants.InvalidInterfaceBase + 2 :
-				case ProblemIrritants.InvalidInterfaceBase + 3 :
-				case ProblemIrritants.InvalidInterfaceBase + 4 :
-					// ensure that this file is always retrieved from source for the rest of the build
-					String fileLocation = resource.getLocation().toString();
-					if (!problemTypeLocations.contains(fileLocation))
-						problemTypeLocations.add(fileLocation);
-			}
+		IProblem problem = problems[i];
+		int id = problem.getID();
+		switch (id) {
+			case ProblemIrritants.SuperclassMustBeAClass :
+			case ProblemIrritants.SuperInterfaceMustBeAnInterface :
+			case ProblemIrritants.HierarchyCircularitySelfReference :
+			case ProblemIrritants.HierarchyCircularity :
+			case ProblemIrritants.HierarchyHasProblems :
+			case ProblemIrritants.InvalidSuperclassBase :
+			case ProblemIrritants.InvalidSuperclassBase + 1 :
+			case ProblemIrritants.InvalidSuperclassBase + 2 :
+			case ProblemIrritants.InvalidSuperclassBase + 3 :
+			case ProblemIrritants.InvalidSuperclassBase + 4 :
+			case ProblemIrritants.InvalidInterfaceBase :
+			case ProblemIrritants.InvalidInterfaceBase + 1 :
+			case ProblemIrritants.InvalidInterfaceBase + 2 :
+			case ProblemIrritants.InvalidInterfaceBase + 3 :
+			case ProblemIrritants.InvalidInterfaceBase + 4 :
+				// ensure that this file is always retrieved from source for the rest of the build
+				String fileLocation = resource.getLocation().toString();
+				if (!problemTypeLocations.contains(fileLocation))
+					problemTypeLocations.add(fileLocation);
+		}
 
-			IMarker marker = resource.createMarker(ProblemMarkerTag);
-			marker.setAttributes(
-				new String[] {IMarker.MESSAGE, IMarker.SEVERITY, "ID", IMarker.CHAR_START, IMarker.CHAR_END, IMarker.LINE_NUMBER}, //$NON-NLS-1$
-				new Object[] { 
-					problem.getMessage(),
-					new Integer(problem.isError() ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING), 
-					new Integer(id),
-					new Integer(problem.getSourceStart()),
-					new Integer(problem.getSourceEnd() + 1),
-					new Integer(problem.getSourceLineNumber())
-				});
+		IMarker marker = resource.createMarker(ProblemMarkerTag);
+		marker.setAttributes(
+			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, "ID", IMarker.CHAR_START, IMarker.CHAR_END, IMarker.LINE_NUMBER}, //$NON-NLS-1$
+			new Object[] { 
+				problem.getMessage(),
+				new Integer(problem.isError() ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING), 
+				new Integer(id),
+				new Integer(problem.getSourceStart()),
+				new Integer(problem.getSourceEnd() + 1),
+				new Integer(problem.getSourceLineNumber())
+			});
 
 // Do we need to do this?
 //@PM WE SHOULD HAVE IT COME FROM THE PROBLEM ITSELF INSTEAD OF POPULATING THE JAVA MODEL
-			// compute a user-friendly location
-			IJavaElement element = JavaCore.create(resource);
-			if (element instanceof org.eclipse.jdt.core.ICompilationUnit) { // try to find a finer grain element
-				org.eclipse.jdt.core.ICompilationUnit unit = (org.eclipse.jdt.core.ICompilationUnit) element;
-				IJavaElement fragment = unit.getElementAt(problem.getSourceStart());
-				if (fragment != null) element = fragment;
-			}
-			String location = null;
-			if (element instanceof JavaElement)
-				location = ((JavaElement) element).readableName();
-			if (location != null)
-				marker.setAttribute(IMarker.LOCATION, location);
-		} catch(CoreException e) {
-			throw internalException(e);
+		// compute a user-friendly location
+		IJavaElement element = JavaCore.create(resource);
+		if (element instanceof org.eclipse.jdt.core.ICompilationUnit) { // try to find a finer grain element
+			org.eclipse.jdt.core.ICompilationUnit unit = (org.eclipse.jdt.core.ICompilationUnit) element;
+			IJavaElement fragment = unit.getElementAt(problem.getSourceStart());
+			if (fragment != null) element = fragment;
 		}
+		String location = null;
+		if (element instanceof JavaElement)
+			location = ((JavaElement) element).readableName();
+		if (location != null)
+			marker.setAttribute(IMarker.LOCATION, location);
 	}
 }
 
-protected void updateProblemsFor(CompilationResult result) {
+protected void updateProblemsFor(CompilationResult result) throws CoreException {
 	// expect subclasses to override
 }
 
 protected IContainer getOutputFolder(IPath packagePath) throws CoreException {
 	IFolder folder = outputFolder.getFolder(packagePath);
-// when can this ever happen if builders build the package tree before compiling source files?
 	if (!folder.exists()) {
 		getOutputFolder(packagePath.removeLastSegments(1));
 		folder.create(true, true, null);
@@ -361,6 +359,5 @@ protected char[] writeClassFile(ClassFile classFile, boolean isSecondaryType) th
 	}
 	// answer the name of the class file as in Y or Y$M
 	return filePath.lastSegment().toCharArray();
-//@PM THIS CODE SHOULD PROBABLY HANDLE THE CORE EXCEPTION LOCALLY ?
 }
 }
