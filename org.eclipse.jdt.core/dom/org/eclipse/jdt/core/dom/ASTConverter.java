@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
@@ -2820,7 +2821,7 @@ class ASTConverter {
 		 * Only final is allowed in this case.
 		 */
 		try {
-			variableDeclarationStatement.setModifiers(localDeclaration.modifiers);
+			variableDeclarationStatement.setModifiers(localDeclaration.modifiers & ~CompilerModifiers.AccBlankFinal);
 		} catch(IllegalArgumentException e) {
 			variableDeclarationStatement.setModifiers(localDeclaration.modifiers & Modifier.FINAL);
 			variableDeclarationStatement.setFlags(ASTNode.MALFORMED);
@@ -2845,7 +2846,7 @@ class ASTConverter {
 		 * Only final is allowed in this case.
 		 */
 		try {
-			variableDeclarationExpression.setModifiers(localDeclaration.modifiers);
+			variableDeclarationExpression.setModifiers(localDeclaration.modifiers & ~CompilerModifiers.AccBlankFinal);
 		} catch(IllegalArgumentException e) {
 			variableDeclarationExpression.setModifiers(localDeclaration.modifiers & Modifier.FINAL);
 			variableDeclarationExpression.setFlags(ASTNode.MALFORMED);
