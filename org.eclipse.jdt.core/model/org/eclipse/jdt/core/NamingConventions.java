@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
+//TODO: (david) should explain related JavaCore options.
 /**
  * Provides methods for computing Java-specific names.
  * <p>

@@ -20,6 +20,7 @@
  *                                 CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER
  *                                 CLEAN
  *     IBM Corporation - added getClasspathContainerInitializer(String)
+ * TODO: (david) should list new JavaCore preferences for NamingConventions
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
