@@ -2626,7 +2626,7 @@ public class DefaultCodeFormatterConstants {
 			throw WRONG_ARGUMENT;
 		}
 	}
-	
+	// TODO (olivier) need to add some spec
 	public static String createAlignmentValue(boolean forceSplit, int wrapStyle, int indentStyle) {
 		int alignmentValue = 0; 
 		switch(wrapStyle) {
