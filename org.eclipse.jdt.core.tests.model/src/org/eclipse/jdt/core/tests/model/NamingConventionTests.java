@@ -63,6 +63,20 @@ private String toString(char[][] suggestions) {
 	}
 	return buffer.toString();
 }
+private String toString(String[] suggestions) {
+	if(suggestions == null) {
+		return ""; //$NON-NLS-1$
+	}
+	
+	StringBuffer buffer = new StringBuffer();
+	for (int i = 0; i < suggestions.length; i++) {
+		if(i != 0) {
+			buffer.append('\n');
+		}
+		buffer.append(suggestions[i]);
+	}
+	return buffer.toString();
+}
 public void testSuggestFieldName001() throws CoreException {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
@@ -276,6 +290,20 @@ public void testSuggestFieldName011() throws CoreException {
 	
 	assertEquals(
 		"factories", //$NON-NLS-1$
+		toString(suggestions));
+}
+public void testSuggestFieldName012() throws CoreException {
+	String[] suggestions = NamingConventions.suggestFieldNames(
+		project,
+		"a.b.c", //$NON-NLS-1$
+		"FooBar", //$NON-NLS-1$
+		0,
+		0,
+		new String[]{"bar"}); //$NON-NLS-1$
+	
+	assertEquals(
+		"bar2\n" + //$NON-NLS-1$
+		"fooBar", //$NON-NLS-1$
 		toString(suggestions));
 }
 public void testRemovePrefixAndSuffixForFieldName001() throws CoreException {
