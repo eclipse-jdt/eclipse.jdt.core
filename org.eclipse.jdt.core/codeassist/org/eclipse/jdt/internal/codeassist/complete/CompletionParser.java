@@ -67,7 +67,7 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_PARAMETERIZED_ALLOCATION = COMPLETION_PARSER + 31;
 	protected static final int K_PARAMETERIZED_CAST = COMPLETION_PARSER + 32;
 	protected static final int K_BETWEEN_ANNOTATION_NAME_AND_RPAREN = COMPLETION_PARSER + 33;
-	
+	protected static final int K_ANNOTATION_ASSIGNMENT_OPERATOR = COMPLETION_PARSER + 34;
 
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
 	
@@ -2095,6 +2095,7 @@ protected void consumeMarkerAnnotation() {
 protected void consumeMemberValuePair() {
 	/* check if current awaiting identifier is the completion identifier */
 	if (this.indexOfAssistIdentifier() < 0){
+		this.popElement(K_ANNOTATION_ASSIGNMENT_OPERATOR);
 		super.consumeMemberValuePair();
 		return;
 	}
@@ -2121,7 +2122,9 @@ protected void consumeMemberValueAsName() {
 		super.consumeMemberValueAsName();
 	} else {
 		super.consumeMemberValueAsName();
-		this.restartRecovery = true;
+		if(this.topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN) {
+			this.restartRecovery = true;
+		}
 	}
 }
 protected void consumeMethodBody() {
@@ -2231,6 +2234,14 @@ protected void consumeToken(int token) {
 	}
 	super.consumeToken(token);
 
+	switch(token) {
+		case TokenNameEQUAL:
+			if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN) {
+				pushOnElementStack(K_ANNOTATION_ASSIGNMENT_OPERATOR);
+			}
+			break;
+	}
+	
 	// if in field initializer (directly or not), on the completion identifier and not in recovery mode yet
 	// then position end of file at cursor location (so that we have the same behavior as
 	// in method bodies)

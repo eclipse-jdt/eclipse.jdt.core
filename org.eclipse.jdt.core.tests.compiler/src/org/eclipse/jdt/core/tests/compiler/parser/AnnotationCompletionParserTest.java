@@ -2750,4 +2750,33 @@ public void test0073(){
 			expectedReplacedSource,
 	"diet ast");
 }
+public void test0084(){
+	String str =
+		"@Annot(zzz= a && (b || (foo\n" +
+		"public class X {\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }
