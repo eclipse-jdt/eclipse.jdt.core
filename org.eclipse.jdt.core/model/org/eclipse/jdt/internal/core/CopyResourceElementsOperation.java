@@ -362,7 +362,10 @@ private void processPackageFragmentResource(IPackageFragment source, IPackageFra
 						IDOMCompilationUnit domCU = fFactory.createCompilationUnit(cu.getSource(), cu.getElementName());
 						if (domCU != null) {
 							updatePackageStatement(domCU, newFragName);
-							((Buffer)cu.getBuffer()).setContents(domCU.getContents(), true);
+							IBuffer buffer = cu.getBuffer();
+							String bufferContents = buffer.getContents();
+							String cuContents = org.eclipse.jdt.internal.core.Util.normalizeCRs(domCU.getContents(), bufferContents);
+							buffer.setContents(cuContents);
 							cu.save(null, false);
 						}
 					}

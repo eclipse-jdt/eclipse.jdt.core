@@ -53,7 +53,10 @@ protected void commitChanges(IDOMCompilationUnit cuDOM, ICompilationUnit cu) thr
 	if (newContents == null) {
 		newContents = new char[0];
 	}
-	((Buffer)cu.getBuffer()).setContents(newContents, true);
+	IBuffer buffer = cu.getBuffer();
+	char[] bufferContents = buffer.getCharacters();
+	char[] cuContents = org.eclipse.jdt.internal.core.Util.normalizeCRs(newContents, bufferContents);
+	buffer.setContents(cuContents);
 	cu.save(getSubProgressMonitor(1), fForce);
 	this.hasModifiedResource = !cu.isWorkingCopy();
 }

@@ -32,8 +32,6 @@ public class Buffer implements IBuffer {
 	protected int fLowWatermark= 50;
 	protected Object fLock= new Object();
 
-	String lineSeparator;
-	 
 	protected static final int F_HAS_UNSAVED_CHANGES= 1;
 	protected static final int F_IS_READ_ONLY= 2;
 	protected static final int F_IS_CLOSED= 4;
@@ -87,18 +85,10 @@ protected void adjustGap(int position, int sizeHint) {
  * to the end of the <code>text</code>.
  */
 public void append(char[] text) {
-	this.append(text, false);
-}
-/**
- * Append the <code>text</code> to the actual content, the gap is moved
- * to the end of the <code>text</code>.
- */
-public void append(char[] text, boolean convert) {
 	if (!isReadOnly()) {
 		if (text == null || text.length == 0) {
 			return;
 		}
-		if (convert) text = this.normalizeCRs(text);
 		int length = getLength();
 		adjustGap(length, text.length);
 		System.arraycopy(text, 0, fContents, length, text.length);
@@ -112,18 +102,10 @@ public void append(char[] text, boolean convert) {
  * to the end of the <code>text</code>.
  */
 public void append(String text) {
-	this.append(text, false);
-}
-/**
- * Append the <code>text</code> to the actual content, the gap is moved
- * to the end of the <code>text</code>.
- */
-public void append(String text, boolean convert) {
 	if (text == null) {
 		return;
 	}
 	if (!isReadOnly()) {
-		if (convert) text = this.normalizeCRs(text);
 		int textLength = text.length();
 		if (textLength == 0) {
 			return;
@@ -151,29 +133,6 @@ public void close() throws IllegalArgumentException {
 	}
 	notifyChanged(event); // notify outside of synchronized block
 	fChangeListeners = null;
-}
-/**
- * Finds the first line separator used by the given text.
- *
- * @return </code>"\n"</code> or </code>"\r"</code> or  </code>"\r\n"</code>,
- *			or <code>null</code> if none found
- */
-private String findLineSeparator(char[] text) {
-	// find the first line separator
-	int length = text.length;
-	if (length > 0) {
-		char nextChar = text[0];
-		for (int i = 0; i < length; i++) {
-			char currentChar = nextChar;
-			nextChar = i < length-1 ? text[i+1] : ' ';
-			switch (currentChar) {
-				case '\n': return "\n"; //$NON-NLS-1$
-				case '\r': return nextChar == '\n' ? "\r\n" : "\r"; //$NON-NLS-1$ //$NON-NLS-2$
-			}
-		}
-	}
-	// not found
-	return null;
 }
 /**
  * @see IBuffer
@@ -229,27 +188,6 @@ public int getLength() {
 		int length = fGapEnd - fGapStart;
 		return (fContents.length - length);
 	}
-}
-/**
- * Returns the line separator used by this buffer.
- * Uses the given text if none found.
- *
- * @return </code>"\n"</code> or </code>"\r"</code> or  </code>"\r\n"</code>
- */
-private String getLineSeparator(char[] text) {
-	if (this.lineSeparator == null) {
-		// search in this buffer's contents first
-		this.lineSeparator = this.findLineSeparator(this.getCharacters());
-		if (this.lineSeparator == null) {
-			// search in the given text
-			this.lineSeparator = this.findLineSeparator(text);
-			if (this.lineSeparator == null) {
-				// default to system line separator
-				return Util.LINE_SEPARATOR;
-			}
-		}
-	}
-	return this.lineSeparator;
 }
 /**
  * @see IBuffer
@@ -344,73 +282,6 @@ protected void moveAndResizeGap(int position, int size) {
 	fGapEnd = newGapEnd;
 }
 /**
- * Normalizes the cariage returns in the given text.
- * They are all changed  to use this buffer's line sepatator.
- */
-private char[] normalizeCRs(char[] text) {
-	CharArrayBuffer buffer = new CharArrayBuffer();
-	int lineStart = 0;
-	int length = text.length;
-	if (length == 0) return text;
-	String lineSeparator = this.getLineSeparator(text);
-	char nextChar = text[0];
-	for (int i = 0; i < length; i++) {
-		char currentChar = nextChar;
-		nextChar = i < length-1 ? text[i+1] : ' ';
-		switch (currentChar) {
-			case '\n':
-				int lineLength = i-lineStart;
-				char[] line = new char[lineLength];
-				System.arraycopy(text, lineStart, line, 0, lineLength);
-				buffer.append(line);
-				buffer.append(lineSeparator);
-				lineStart = i+1;
-				break;
-			case '\r':
-				lineLength = i-lineStart;
-				if (lineLength >= 0) {
-					line = new char[lineLength];
-					System.arraycopy(text, lineStart, line, 0, lineLength);
-					buffer.append(line);
-					buffer.append(lineSeparator);
-					if (nextChar == '\n') {
-						nextChar = ' ';
-						lineStart = i+2;
-					} else {
-						// when line separator are mixed in the same file
-						// \r might not be followed by a \n. If not, we should increment
-						// lineStart by one and not by two.
-						lineStart = i+1;
-					}
-				} else {
-					// when line separator are mixed in the same file
-					// we need to prevent NegativeArraySizeException
-					lineStart = i+1;
-				}
-				break;
-		}
-	}
-	char[] lastLine;
-	if (lineStart > 0) {
-		int lastLineLength = length-lineStart;
-		if (lastLineLength > 0) {
-			lastLine = new char[lastLineLength];
-			System.arraycopy(text, lineStart, lastLine, 0, lastLineLength);
-			buffer.append(lastLine);
-		}
-		return buffer.getContents();
-	} else {
-		return text;
-	}
-}
-/**
- * Normalizes the cariage returns in the given text.
- * They are all changed  to use this buffer's line sepatator.
- */
-private String normalizeCRs(String text) {
-	return new String(this.normalizeCRs(text.toCharArray()));
-}
-/**
  * Notify the listeners that this buffer has changed.
  * To avoid deadlock, this should not be called in a synchronized block.
  */
@@ -439,19 +310,9 @@ public void removeBufferChangedListener(IBufferChangedListener listener) {
  * inserted <code>text</code>.
  */
 public void replace(int position, int length, char[] text) {
-	this.replace(position, length, text, false);
-}
-/**
- * Replaces <code>length</code> characters starting from <code>position</code> with <code>text<code>.
- * After that operation, the gap is placed at the end of the 
- * inserted <code>text</code>.
- */
-public void replace(int position, int length, char[] text, boolean convert) {
 	if (!isReadOnly()) {
 		if (text == null) {
 			text = new char[0];
-		} else {
-			if (convert) text = this.normalizeCRs(text);
 		}
 		synchronized (fLock) {
 			// move gap
@@ -486,18 +347,9 @@ public void replace(int position, int length, char[] text, boolean convert) {
  * inserted <code>text</code>.
  */
 public void replace(int position, int length, String text) {
-	this.replace(position, length, text, false);
-}
-/**
- * Replaces <code>length</code> characters starting from <code>position</code> with <code>text<code>.
- * After that operation, the gap is placed at the end of the 
- * inserted <code>text</code>.
- */
-public void replace(int position, int length, String text, boolean convert) {
 	if (!isReadOnly()) {
 		int textLength = 0;
 		if (text != null) {
-			if (convert) text = this.normalizeCRs(text);
 			textLength = text.length();
 		}
 		
@@ -555,16 +407,9 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
  * @see IBuffer
  */
 public void setContents(char[] contents) {
-	this.setContents(contents, false);
-}
-/**
- * @see IBuffer
- */
-public void setContents(char[] contents, boolean convert) {
 	if (!isReadOnly()) {
 		String string = null;
 		if (contents != null) {
-			if (convert) contents = this.normalizeCRs(contents);
 			string = new String(contents);
 		}
 		BufferChangedEvent event = new BufferChangedEvent(this, 0, this.getLength(), string);
@@ -581,20 +426,10 @@ public void setContents(char[] contents, boolean convert) {
  * @see IBuffer
  */
 public void setContents(String contents) {
-	this.setContents(contents, false);
-}
-/**
- * @see IBuffer
- */
-public void setContents(String contents, boolean convert) {
 	if (!isReadOnly()) {
 		char[] charContents = null;
 		if (contents != null) {
 			charContents = contents.toCharArray();
-			if (convert) {
-				charContents = this.normalizeCRs(charContents);
-				contents = new String(charContents);
-			}
 		}
 		BufferChangedEvent event = new BufferChangedEvent(this, 0, this.getLength(), contents);
 		synchronized (fLock) {

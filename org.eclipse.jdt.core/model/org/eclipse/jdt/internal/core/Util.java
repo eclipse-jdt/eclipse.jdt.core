@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 import java.io.*;
 
@@ -378,6 +379,51 @@ public static String[] extractParameterTypes(char[] sig) {
 		return sig.substring(i+1);	
 	}
 /**
+ * Finds the first line separator used by the given text.
+ *
+ * @return </code>"\n"</code> or </code>"\r"</code> or  </code>"\r\n"</code>,
+ *			or <code>null</code> if none found
+ */
+private static String findLineSeparator(char[] text) {
+	// find the first line separator
+	int length = text.length;
+	if (length > 0) {
+		char nextChar = text[0];
+		for (int i = 0; i < length; i++) {
+			char currentChar = nextChar;
+			nextChar = i < length-1 ? text[i+1] : ' ';
+			switch (currentChar) {
+				case '\n': return "\n"; //$NON-NLS-1$
+				case '\r': return nextChar == '\n' ? "\r\n" : "\r"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+	}
+	// not found
+	return null;
+}
+/**
+ * Returns the line separator used by the given buffer.
+ * Uses the given text if none found.
+ *
+ * @return </code>"\n"</code> or </code>"\r"</code> or  </code>"\r\n"</code>
+ */
+private static String getLineSeparator(char[] text, char[] buffer) {
+	// search in this buffer's contents first
+	String lineSeparator = findLineSeparator(buffer);
+	if (lineSeparator == null) {
+		// search in the given text
+		lineSeparator = findLineSeparator(text);
+		if (lineSeparator == null) {
+			// default to system line separator
+			return org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR;
+		}
+	}
+	return lineSeparator;
+}
+
+
+	
+/**
  * Returns the number of parameter types in a method signature.
  */
 public static int getParameterCount(char[] sig) {
@@ -498,7 +544,77 @@ public static void log(String message){
 public static void log(Throwable e){
 	JavaCore.getPlugin().getLog().log(
 		new JavaModelStatus(IStatus.ERROR, e));
-}	
+}
+/**
+ * Normalizes the cariage returns in the given text.
+ * They are all changed  to use the given buffer's line sepatator.
+ */
+public static char[] normalizeCRs(char[] text, char[] buffer) {
+	CharArrayBuffer result = new CharArrayBuffer();
+	int lineStart = 0;
+	int length = text.length;
+	if (length == 0) return text;
+	String lineSeparator = getLineSeparator(text, buffer);
+	char nextChar = text[0];
+	for (int i = 0; i < length; i++) {
+		char currentChar = nextChar;
+		nextChar = i < length-1 ? text[i+1] : ' ';
+		switch (currentChar) {
+			case '\n':
+				int lineLength = i-lineStart;
+				char[] line = new char[lineLength];
+				System.arraycopy(text, lineStart, line, 0, lineLength);
+				result.append(line);
+				result.append(lineSeparator);
+				lineStart = i+1;
+				break;
+			case '\r':
+				lineLength = i-lineStart;
+				if (lineLength >= 0) {
+					line = new char[lineLength];
+					System.arraycopy(text, lineStart, line, 0, lineLength);
+					result.append(line);
+					result.append(lineSeparator);
+					if (nextChar == '\n') {
+						nextChar = ' ';
+						lineStart = i+2;
+					} else {
+						// when line separator are mixed in the same file
+						// \r might not be followed by a \n. If not, we should increment
+						// lineStart by one and not by two.
+						lineStart = i+1;
+					}
+				} else {
+					// when line separator are mixed in the same file
+					// we need to prevent NegativeArraySizeException
+					lineStart = i+1;
+				}
+				break;
+		}
+	}
+	char[] lastLine;
+	if (lineStart > 0) {
+		int lastLineLength = length-lineStart;
+		if (lastLineLength > 0) {
+			lastLine = new char[lastLineLength];
+			System.arraycopy(text, lineStart, lastLine, 0, lastLineLength);
+			result.append(lastLine);
+		}
+		return result.getContents();
+	} else {
+		return text;
+	}
+}
+
+/**
+ * Normalizes the cariage returns in the given text.
+ * They are all changed  to use given buffer's line sepatator.
+ */
+public static String normalizeCRs(String text, String buffer) {
+	return new String(normalizeCRs(text.toCharArray(), buffer.toCharArray()));
+}
+
+	
 
 /**
  * Sort the objects in the given collection using the given sort order.

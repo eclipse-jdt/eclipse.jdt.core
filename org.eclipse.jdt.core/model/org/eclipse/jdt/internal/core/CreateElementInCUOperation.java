@@ -120,19 +120,21 @@ protected void executeOperation() throws JavaModelException {
 	generateNewCompilationUnitDOM(unit);
 	if (fCreationOccurred) {
 		//a change has really occurred
-		Buffer buffer = (Buffer)unit.getBuffer();
+		IBuffer buffer = unit.getBuffer();
+		char[] bufferContents = buffer.getCharacters();
+		char[] elementContents = org.eclipse.jdt.internal.core.Util.normalizeCRs(fCreatedElement.getCharacters(), bufferContents);
 		switch (fReplacementLength) {
 			case -1 : 
 				// element is append at the end
-				buffer.append(fCreatedElement.getCharacters(), true);
+				buffer.append(elementContents);
 				break;
 			case 0 :
 				// element is inserted
-				buffer.replace(fInsertionPosition, 0, fCreatedElement.getCharacters(), true);
+				buffer.replace(fInsertionPosition, 0, elementContents);
 				break;
 			default :
 				// element is replacing the previous one
-				buffer.replace(fInsertionPosition, fReplacementLength, fCreatedElement.getCharacters(), true);
+				buffer.replace(fInsertionPosition, fReplacementLength, elementContents);
 		}
 		unit.save(null, false);
 		boolean isWorkingCopy = unit.isWorkingCopy();
