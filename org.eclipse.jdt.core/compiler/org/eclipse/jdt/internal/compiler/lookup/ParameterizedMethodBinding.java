@@ -20,15 +20,15 @@ public class ParameterizedMethodBinding extends MethodBinding {
     
     public MethodBinding originalMethod;
     
-public ParameterizedMethodBinding(ParameterizedTypeBinding parameterizedDeclaringClass, MethodBinding originalMethod) {
-
-	this.declaringClass = parameterizedDeclaringClass;
-    this.originalMethod = originalMethod;
-	this.modifiers = originalMethod.modifiers;
-	this.selector = originalMethod.selector;
-	this.thrownExceptions = originalMethod.thrownExceptions; // TODO (philippe) need to sustitute ?
-
-	this.returnType = parameterizedDeclaringClass.substitute(originalMethod.returnType);
-	this.parameters = parameterizedDeclaringClass.substitute(originalMethod.parameters);
-}
+	public ParameterizedMethodBinding(ParameterizedTypeBinding parameterizedDeclaringClass, MethodBinding originalMethod) {
+	
+	    super(
+	            originalMethod.modifiers, 
+	            originalMethod.selector, 
+	            parameterizedDeclaringClass.substitute(originalMethod.returnType),
+	            parameterizedDeclaringClass.substitute(originalMethod.parameters),
+	            parameterizedDeclaringClass.substitute(originalMethod.thrownExceptions),
+	            parameterizedDeclaringClass);
+	    this.originalMethod = originalMethod;
+	}
 }

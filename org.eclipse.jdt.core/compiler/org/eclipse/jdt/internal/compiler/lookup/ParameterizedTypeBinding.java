@@ -21,7 +21,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 
 	public ReferenceBinding type; 
 	public TypeBinding[] arguments;
-	public LookupEnvironment environment; // TODO is back pointer actually needed in long term ?
+	public LookupEnvironment environment; 
 	public char[] genericTypeSignature;
 	public ReferenceBinding superclass;
 	public ReferenceBinding[] superInterfaces;	
@@ -34,8 +34,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		this.fPackage = type.fPackage;
 		this.fileName = type.fileName;
 		// expect the fields & methods to be initialized correctly later
-		this.fields = NoFields;
-		this.methods = NoMethods;		
+		this.fields = null;
+		this.methods = null;		
 		this.arguments = typeArguments;
 		this.environment = environment;
 		for (int i = 0, length = typeArguments.length; i < length; i++) {
@@ -44,7 +44,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		        break;
 		    }
 		}
-		this.modifiers |= AccUnresolved; // until methods() is sent		
 		// TODO determine if need to copy other tagBits from type so as to provide right behavior to all predicates
 	}
 	
@@ -112,7 +111,25 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#fields()
 	 */
 	public FieldBinding[] fields() {
-		return this.type.fields();
+
+	    // TODO (kent) check handling of corner cases (AbortCompilation)
+		if (this.fields == null) {
+			try {
+			    FieldBinding[] originalFields = this.type.fields();
+			    int length = originalFields.length;
+			    FieldBinding[] parameterizedFields = new FieldBinding[length];
+			    for (int i = 0; i < length; i++) {
+			        FieldBinding originalField = originalFields[i];
+			        // substitute all fields, so as to get updated declaring class at least
+		            parameterizedFields[i] = new ParameterizedFieldBinding(this, originalField);
+			    }
+			    this.fields = parameterizedFields;	    
+			} finally {
+			    if (this.fields == null) 
+			        this.fields = NoFields;
+			}
+		}
+		return this.fields;
 	}
 
 	/**
@@ -194,8 +211,17 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getField(char[], boolean)
 	 */
 	public FieldBinding getField(char[] fieldName, boolean needResolve) {
-		return this.type.getField(fieldName, needResolve);
-	}
+	    // TODO (kent) need to be optimized to avoid resolving all fields
+	    fields();	    	    
+		int fieldLength = fieldName.length;
+		for (int f = fields.length; --f >= 0;) {
+			FieldBinding field = fields[f];
+			if (field.name.length == fieldLength && CharOperation.prefixEquals(field.name, fieldName)) {
+				return field;
+			}
+		}
+		return null;
+}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getMemberType(char[])
@@ -250,7 +276,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 			if (newMethods != null){
 				System.arraycopy(newMethods, 0, methods = new MethodBinding[count], 0, count);
 			}			
-			modifiers ^= AccUnresolved;
 			throw e;
 		}		
 		return NoMethods;
@@ -289,19 +314,23 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 */
 	public MethodBinding[] methods() {
 	    // TODO (kent) check handling of corner cases (AbortCompilation)
-		if ((this.modifiers & AccUnresolved) == 0)
-			return this.methods;
-	
-	    MethodBinding[] originalMethods = this.type.methods();
-	    int length = originalMethods.length;
-	    MethodBinding[] parameterizedMethods = new MethodBinding[length];
-	    for (int i = 0; i < length; i++) {
-	        MethodBinding originalMethod = originalMethods[i];
-	        // substitute all methods, so as to get updated declaring class at least
-            parameterizedMethods[i] = new ParameterizedMethodBinding(this, originalMethod);
-	    }
-		modifiers ^= AccUnresolved;
-	    return this.methods = parameterizedMethods;
+		if (this.methods == null) {
+			try {
+			    MethodBinding[] originalMethods = this.type.methods();
+			    int length = originalMethods.length;
+			    MethodBinding[] parameterizedMethods = new MethodBinding[length];
+			    for (int i = 0; i < length; i++) {
+			        MethodBinding originalMethod = originalMethods[i];
+			        // substitute all methods, so as to get updated declaring class at least
+		            parameterizedMethods[i] = new ParameterizedMethodBinding(this, originalMethod);
+			    }
+			    this.methods = parameterizedMethods;
+			} finally {
+			    if (this.methods == null) 
+			        this.methods = NoMethods; // in case of trouble
+			}
+		}
+		return this.methods;
 	}
 
 	/**
@@ -311,7 +340,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 		return this.type.qualifiedSourceName();
 	}
 
-	public ReferenceBinding rawType() {
+	public TypeBinding rawType() {
 	    return this.type.rawType(); // erasure
 	}
 	

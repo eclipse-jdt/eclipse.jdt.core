@@ -21,11 +21,14 @@ public class FieldReference extends Reference implements InvocationSite {
 
 	public Expression receiver;
 	public char[] token;
-	public FieldBinding binding, codegenBinding;
+	public FieldBinding binding;															// exact binding resulting from lookup
+	protected FieldBinding codegenBinding;									// actual binding used for code generation (if no synthetic accessor)
+	MethodBinding syntheticReadAccessor, syntheticWriteAccessor;	// synthetic accessor for inner-emulation
+	
 	public long nameSourcePosition; //(start<<32)+end
-	MethodBinding syntheticReadAccessor, syntheticWriteAccessor;
 	public TypeBinding receiverType;
-
+	public TypeBinding genericCast;
+	
 	public FieldReference(char[] source, long pos) {
 
 		token = source;
@@ -138,6 +141,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		if (valueRequired) {
 			codeStream.generateImplicitConversion(assignment.implicitConversion);
 		}
+		// no need for generic cast as value got dupped
 	}
 
 	/**
@@ -176,6 +180,7 @@ public class FieldReference extends Reference implements InvocationSite {
 						}
 					}
 					codeStream.generateImplicitConversion(implicitConversion);
+					if (this.genericCast != null) codeStream.checkcast(this.genericCast);			
 				} else {
 					if (!isStatic) {
 						codeStream.invokeObjectGetClass(); // perform null check
@@ -222,6 +227,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		}
 		int operationTypeID;
 		if ((operationTypeID = implicitConversion >> 4) == T_String) {
+		    // no need for generic cast on previous #getfield since using Object string buffer methods.
 			codeStream.generateStringAppend(currentScope, null, expression);
 		} else {
 			// promote the array reference to the suitable operation type
@@ -242,6 +248,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			this.codegenBinding,
 			syntheticWriteAccessor,
 			valueRequired);
+		// no need for generic cast as value got dupped
 	}
 
 	public void generatePostIncrement(
@@ -364,6 +371,21 @@ public class FieldReference extends Reference implements InvocationSite {
 	public void manageSyntheticReadAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
 		if (!flowInfo.isReachable()) return;
+		// if field from parameterized type got found, use the original field at codegen time
+		if (this.binding instanceof ParameterizedFieldBinding) {
+		    ParameterizedFieldBinding parameterizedField = (ParameterizedFieldBinding) this.binding;
+		    this.codegenBinding = parameterizedField.originalField;
+		    // extra cast needed if field type was type variable
+		    if (this.codegenBinding.type instanceof TypeVariableBinding) {
+		        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.type;
+		        if (variableReturnType.firstBound != parameterizedField.type) { // no need for extra cast if same as first bound anyway
+				    this.genericCast = parameterizedField.type;
+		        }
+		    }
+		} else {
+		    this.codegenBinding = this.binding;
+		}
+		
 		if (binding.isPrivate()) {
 			if ((currentScope.enclosingSourceType() != binding.declaringClass)
 				&& (binding.constant == NotAConstant)) {
@@ -401,17 +423,17 @@ public class FieldReference extends Reference implements InvocationSite {
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
-		if (binding.declaringClass != this.receiverType
+		if (this.codegenBinding.declaringClass != this.receiverType
 			&& !this.receiverType.isArrayType()
-			&& binding.declaringClass != null // array.length
-			&& binding.constant == NotAConstant
+			&& this.codegenBinding.declaringClass != null // array.length
+			&& this.codegenBinding.constant == NotAConstant
 			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
-				&& binding.declaringClass.id != T_Object)
+				&& this.codegenBinding.declaringClass.id != T_Object)
 			//no change for Object fields (in case there was)
-				|| !binding.declaringClass.canBeSeenBy(currentScope))) {
+				|| !this.codegenBinding.declaringClass.canBeSeenBy(currentScope))) {
 			this.codegenBinding =
 				currentScope.enclosingSourceType().getUpdatedFieldBinding(
-					binding,
+					this.codegenBinding,
 					(ReferenceBinding) this.receiverType);
 		}
 	}
@@ -422,6 +444,20 @@ public class FieldReference extends Reference implements InvocationSite {
 	public void manageSyntheticWriteAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
 		if (!flowInfo.isReachable()) return;
+		// if field from parameterized type got found, use the original field at codegen time
+		if (this.binding instanceof ParameterizedFieldBinding) {
+		    ParameterizedFieldBinding parameterizedField = (ParameterizedFieldBinding) this.binding;
+		    this.codegenBinding = parameterizedField.originalField;
+		    // extra cast needed if field type was type variable
+		    if (this.codegenBinding.type instanceof TypeVariableBinding) {
+		        TypeVariableBinding variableReturnType = (TypeVariableBinding) this.codegenBinding.type;
+		        if (variableReturnType.firstBound != parameterizedField.type) { // no need for extra cast if same as first bound anyway
+				    this.genericCast = parameterizedField.type;
+		        }
+		    }
+		} else {
+		    this.codegenBinding = this.binding;
+		}		
 		if (binding.isPrivate()) {
 			if (currentScope.enclosingSourceType() != binding.declaringClass) {
 				syntheticWriteAccessor =
@@ -459,18 +495,19 @@ public class FieldReference extends Reference implements InvocationSite {
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
-		if (binding.declaringClass != this.receiverType
+		TypeBinding rawReceiverType = this.receiverType.rawType();
+		if (this.codegenBinding.declaringClass != rawReceiverType
 			&& !this.receiverType.isArrayType()
-			&& binding.declaringClass != null // array.length
-			&& binding.constant == NotAConstant
+			&& this.codegenBinding.declaringClass != null // array.length
+			&& this.codegenBinding.constant == NotAConstant
 			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
-				&& binding.declaringClass.id != T_Object)
+				&& this.codegenBinding.declaringClass.id != T_Object)
 			//no change for Object fields (in case there was)
-				|| !binding.declaringClass.canBeSeenBy(currentScope))) {
+				|| !this.binding.declaringClass.canBeSeenBy(currentScope))) {
 			this.codegenBinding =
 				currentScope.enclosingSourceType().getUpdatedFieldBinding(
-					binding,
-					(ReferenceBinding) this.receiverType);
+					this.codegenBinding,
+					(ReferenceBinding) rawReceiverType);
 		}
 	}
 

@@ -176,15 +176,16 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 	// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
 	// and not from Object or implicit static method call.	
-	if (this.codegenBinding.declaringClass != this.qualifyingType
+	TypeBinding rawQualifyingType = this.qualifyingType.rawType();
+	if (this.codegenBinding.declaringClass != rawQualifyingType
 		&& !this.qualifyingType.isArrayType()
 		&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
 				&& (!receiver.isImplicitThis() || !this.codegenBinding.isStatic())
 				&& this.codegenBinding.declaringClass.id != T_Object) // no change for Object methods
-			|| !this.codegenBinding.declaringClass.canBeSeenBy(currentScope))) {
+			|| !this.binding.declaringClass.canBeSeenBy(currentScope))) {
 
 		this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(
-		        										this.codegenBinding, (ReferenceBinding) this.qualifyingType);
+		        										this.codegenBinding, (ReferenceBinding) rawQualifyingType);
 
 		// Post 1.4.0 target, array clone() invocations are qualified with array type 
 		// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)

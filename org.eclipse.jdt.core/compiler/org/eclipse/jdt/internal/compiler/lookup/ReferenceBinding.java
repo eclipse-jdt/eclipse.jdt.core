@@ -578,11 +578,6 @@ public char[] qualifiedSourceName() {
 	return sourceName();
 }
 
-// TODO (philippe) Is #rawType() actually needed ?
-public ReferenceBinding rawType() {
-    return this;
-}
-
 public char[] readableName() /*java.lang.Object,  p.X<T> */ {
     char[] readableName;
 	if (isMemberType()) {

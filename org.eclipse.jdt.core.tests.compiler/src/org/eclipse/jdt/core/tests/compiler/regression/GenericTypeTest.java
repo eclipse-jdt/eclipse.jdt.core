@@ -620,7 +620,7 @@ public void test024() {
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	new X<EX>(new EX());\n" + 
 		"	^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unhandled exception type T\n" + 
+		"Unhandled exception type EX\n" + 
 		"----------\n");
 }
 
@@ -702,6 +702,30 @@ public void test027() {
 		"The constructor X<IOException>(Exception) is undefined\n" + 
 		"----------\n");
 }
+
+public void test028() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" + 
+			"    T t;\n" + 
+			"    X(T t) {\n" + 
+			"        this.t = t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        String s = new X<String>(\"SU\").t;\n" + 
+			"        System.out.print(s);\n" + 
+			"        s = new X<String>(\"failed\").t = \"CC\";\n" + 
+			"        System.out.print(s);\n" + 
+			"        s = new X<String>(\"\").t += \"ESS\";\n" + 
+			"        System.out.println(s);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
+
+
 //public void test028() {
 //	this.runConformTest(
 //		new String[] {

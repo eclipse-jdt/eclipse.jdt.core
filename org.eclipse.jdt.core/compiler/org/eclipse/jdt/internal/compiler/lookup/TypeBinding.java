@@ -127,6 +127,10 @@ public abstract char[] qualifiedSourceName();
 * NOTE: This method should only be used during/after code gen.
 */
 
+public TypeBinding rawType() {
+    return this;
+}
+
 public char[] signature() {
 	return constantPoolName();
 }
