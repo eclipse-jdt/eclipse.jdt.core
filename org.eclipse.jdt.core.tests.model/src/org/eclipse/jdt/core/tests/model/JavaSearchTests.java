@@ -23,6 +23,8 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.SourceRefElement;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
 
 /**
  * Tests the Java search engine where results are JavaElements and source positions.
@@ -303,7 +305,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "testTypeReferenceBug73336c" };
+//	testsNames = new String[] { "testTypeReferenceBug73696" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	testsNumbers = new int[] { 2, 12 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -2594,6 +2596,49 @@ public void testTypeDeclaration12() throws CoreException { // was testLocalTypeD
 		resultCollector);
 	assertSearchResults(
 		"src/f2/X.java Object f2.X.foo1():Y#1 [Y]",
+		resultCollector);
+}
+/**
+ * Type declaration test.
+ * Test fix for bug 73696: searching only works for IJavaSearchConstants.TYPE, but not CLASS or INTERFACE
+ * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73696">73696</a>
+ */
+public void testTypeDeclarationBug73696() throws CoreException {
+	IPackageFragment pkg = this.getPackageFragment("JavaSearchBugs", "src", "b73696");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	
+	// Interface declaration
+	TypeDeclarationPattern pattern = new TypeDeclarationPattern(
+		null,
+		null,
+		null,
+		IIndexConstants.INTERFACE_SUFFIX,
+		SearchPattern.R_PATTERN_MATCH
+	);
+	new SearchEngine().search(
+		pattern,
+		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+		scope,
+		resultCollector,
+		null);
+	// Class declaration
+	pattern = new TypeDeclarationPattern(
+		null,
+		null,
+		null,
+		IIndexConstants.CLASS_SUFFIX,
+		SearchPattern.R_PATTERN_MATCH
+	);
+	new SearchEngine().search(
+		pattern,
+		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+		scope,
+		resultCollector,
+		null);
+	assertSearchResults(
+		"src/b73696/I.java b73696.I [I]\n" + 
+		"src/b73696/C.java b73696.C [C]",
 		resultCollector);
 }
 /**
