@@ -69,9 +69,6 @@ import java.util.Arrays;
  *  keyword substitution change ***
  * 
  * </pre>
- *
- * @author <a href="mailto:jduska@imcwv.com">Jeff Duska</a>
- * @version $Revision: 1.1 $
  */
 public class RemotePublication extends Publication {
 	private static final String PDF_FILETYPE = "PDF";
