@@ -1416,8 +1416,8 @@ public final class JavaCore extends Plugin {
 	 *    For binary compatibility reason, .class files can be tagged to with certain VM versions and later.
 	 *    Note that "1.4" target require to toggle compliance mode to "1.4" too.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.targetPlatform"
-	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4", "1.5" }
-	 *     - default:           "1.1"
+	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4" }
+	 *     - default:           "1.2"
 	 *
 	 * COMPILER / Reporting Attempt to Override Package-Default Method
 	 *    A package default method is not visible in a different package, and thus 
@@ -1723,14 +1723,14 @@ public final class JavaCore extends Plugin {
 	 *    reserved for assertion support. Also note, than when toggling to 1.4 mode, the target VM
 	 *   level should be set to "1.4" and the compliance mode should be "1.4".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.source"
-	 *     - possible values:   { "1.3", "1.4", "1.5" }
+	 *     - possible values:   { "1.3", "1.4" }
 	 *     - default:           "1.3"
 	 * 
 	 * COMPILER / Setting Compliance Level
 	 *    Select the compliance level for the compiler. In "1.3" mode, source and target settings
 	 *    should not go beyond "1.3" level.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.compliance"
-	 *     - possible values:   { "1.3", "1.4", "1.5" }
+	 *     - possible values:   { "1.3", "1.4" }
 	 *     - default:           "1.4"
 	 * 
 	 * COMPILER / Maximum number of problems reported per compilation unit
