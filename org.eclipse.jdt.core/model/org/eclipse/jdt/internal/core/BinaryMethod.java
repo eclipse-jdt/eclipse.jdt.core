@@ -112,8 +112,8 @@ public String[] getExceptionTypes() throws JavaModelException {
 	if (this.exceptionTypes == null) {
 		IBinaryMethod info = (IBinaryMethod) getElementInfo();
 		char[] genericSignature = info.getGenericSignature();
-		CharOperation.replace(genericSignature, '/', '.');
 		if (genericSignature != null) {
+			CharOperation.replace(genericSignature, '/', '.');
 			this.exceptionTypes = Signature.getThrownExceptionTypes(new String(genericSignature));
 		}
 		if (this.exceptionTypes == null || this.exceptionTypes.length == 0) {
