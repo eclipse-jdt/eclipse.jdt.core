@@ -66,6 +66,8 @@ public class DeltaProcessor implements IResourceChangeListener {
 	final static String EXTERNAL_JAR_UNCHANGED = "external jar unchanged"; //$NON-NLS-1$
 	final static String INTERNAL_JAR_IGNORE = "internal jar ignore"; //$NON-NLS-1$
 	
+	final static int NON_JAVA_RESOURCE = -1;
+	
 	/**
 	 * The <code>JavaElementDelta</code> corresponding to the <code>IResourceDelta</code> being translated.
 	 */
@@ -943,7 +945,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 
 	/*
 	 * Returns the type of the java element the given delta matches to.
-	 * Returns -1 if unknown (e.g. a non-java resource or excluded .java file)
+	 * Returns NON_JAVA_RESOURCE if unknown (e.g. a non-java resource or excluded .java file)
 	 */
 	private int elementType(IResource res, int kind, int flags, int parentType, RootInfo rootInfo) {
 		switch (parentType) {
@@ -978,13 +980,13 @@ public class DeltaProcessor implements IResourceChangeListener {
 					rootInfo = this.rootInfo(res.getFullPath());
 				}
 				if (Util.isExcluded(res, rootInfo == null ? null : rootInfo.exclusionPatterns)) {
-					return -1;
+					return NON_JAVA_RESOURCE;
 				}
 				if (res instanceof IFolder) {
 					if (Util.isValidFolderNameForPackage(res.getName())) {
 						return IJavaElement.PACKAGE_FRAGMENT;
 					} else {
-						return -1;
+						return NON_JAVA_RESOURCE;
 					}
 				} else {
 					String fileName = res.getName();
@@ -996,11 +998,11 @@ public class DeltaProcessor implements IResourceChangeListener {
 						// case of proj=src=bin and resource is a jar file on the classpath
 						return IJavaElement.PACKAGE_FRAGMENT_ROOT;
 					} else {
-						return -1;
+						return NON_JAVA_RESOURCE;
 					}
 				}
 			default:
-				return -1;
+				return NON_JAVA_RESOURCE;
 		}
 	}
 
@@ -1706,7 +1708,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 				boolean isNestedRoot = rootInfo != null && childRootInfo != null;
 				if (!isResFilteredFromOutput 
 						&& !isNestedRoot) { // do not treat as non-java rsc if nested root
-					if (childType == -1
+					if (childType == NON_JAVA_RESOURCE
 							|| !this.traverseDelta(child, childType, rootInfo == null ? childRootInfo : rootInfo, outputsInfo)) { // traverse delta for child in the same project
 						
 						// it is a non-java resource
@@ -1787,9 +1789,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 			} // else resource delta will be added by parent
 			return isValidParent && (rootInfo != null || oneChildOnClasspath);
 		} else {
-			// if not on classpath or if the element type is -1, 
+			// if not on classpath or if the element type is NON_JAVA_RESOURCE, 
 			// it's a non-java resource
-			return rootInfo != null && elementType != -1;
+			return rootInfo != null && elementType != NON_JAVA_RESOURCE;
 		}
 	}
 
