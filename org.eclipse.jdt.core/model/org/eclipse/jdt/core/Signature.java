@@ -2007,6 +2007,7 @@ public static char[] toCharArray(char[] methodSignature, char[] methodName, char
  * <code>
  * toString({'[', 'L', 'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'S', 't', 'r', 'i', 'n', 'g', ';'}) -> {'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'S', 't', 'r', 'i', 'n', 'g', '[', ']'}
  * toString({'I'}) -> {'i', 'n', 't'}
+ * toString({'+', 'L', 'O', 'b', 'j', 'e', 'c', 't', ';'}) -> {'?', ' ', 'e', 'x', 't', 'e', 'n', 'd', 's', ' ', 'O', 'b', 'j', 'e', 'c', 't'}
  * </code>
  * </pre>
  * </p>
@@ -2095,6 +2096,10 @@ private static int appendTypeSignature(char[] string, int start, boolean fullyQu
 			case C_VOID :
 				buffer.append(VOID);
 				return start;
+			case C_STAR:
+			case C_EXTENDS:
+			case C_SUPER:
+				return appendTypeArgumentSignature(string, start, fullyQualifyTypeNames, buffer);
 			default :
 				throw new IllegalArgumentException();
 		}
@@ -2280,10 +2285,10 @@ private static int appendTypeArgumentSignature(char[] string, int start, boolean
 		case C_STAR :
 			buffer.append('?');
 			return start;
-		case '+' :
+		case C_EXTENDS :
 			buffer.append("? extends "); //$NON-NLS-1$
 			return appendTypeSignature(string, start + 1, fullyQualifyTypeNames, buffer);
-		case '-' :
+		case C_SUPER :
 			buffer.append("? super "); //$NON-NLS-1$
 			return appendTypeSignature(string, start + 1, fullyQualifyTypeNames, buffer);
 		default :
@@ -2366,6 +2371,7 @@ public static String toQualifiedName(String[] segments) {
  * <code>
  * toString("[Ljava.lang.String;") -> "java.lang.String[]"
  * toString("I") -> "int"
+ * toString("+QObject;") -> "? extends Object"
  * </code>
  * </pre>
  * </p>

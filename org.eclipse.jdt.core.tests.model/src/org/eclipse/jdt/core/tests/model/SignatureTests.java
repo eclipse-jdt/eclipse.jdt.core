@@ -435,160 +435,209 @@ public void testToQualifiedName() {
 /**
  * @see Signature.toString(String)
  */
-public void testToString1() {
+public void testToStringType01() {
 	assertEquals(
-			"Signature#toString is not correct 1", 
-			"java/lang/String",
-			Signature.toString("Ljava/lang/String;"));
+		"java/lang/String",
+		Signature.toString("Ljava/lang/String;"));
+}
+public void testToStringType02() {
 	assertEquals(
-		"Signature#toString is not correct 1", 
 		"java.lang.String",
 		Signature.toString("Ljava.lang.String;"));
+}
+public void testToStringType03() {
 	assertEquals(
-		"Signature#toString is not correct 2", 
 		"java.lang.String[]",
 		Signature.toString("[Ljava.lang.String;"));
+}
+public void testToStringType04() {
 	assertEquals(
-		"Signature#toString is not correct 3", 
 		"String",
 		Signature.toString("QString;"));
+}
+public void testToStringType05() {
 	assertEquals(
-		"Signature#toString is not correct 4", 
 		"String[][]",
 		Signature.toString("[[QString;"));
+}
+public void testToStringType06() {
 	assertEquals(
-		"Signature#toString is not correct 5", 
 		"boolean",
 		Signature.toString("Z"));
+}
+public void testToStringType07() {
 	assertEquals(
-		"Signature#toString is not correct 6", 
 		"byte",
 		Signature.toString("B"));
+}
+public void testToStringType08() {
 	assertEquals(
-		"Signature#toString is not correct 7", 
 		"char",
 		Signature.toString("C"));
+}
+public void testToStringType09() {
 	assertEquals(
-		"Signature#toString is not correct 8", 
 		"double",
 		Signature.toString("D"));
+}
+public void testToStringType10() {
 	assertEquals(
-		"Signature#toString is not correct 9", 
 		"float",
 		Signature.toString("F"));
+}
+public void testToStringType11() {
 	assertEquals(
-		"Signature#toString is not correct 10", 
 		"int",
 		Signature.toString("I"));
+}
+public void testToStringType12() {
 	assertEquals(
-		"Signature#toString is not correct 11", 
 		"long",
 		Signature.toString("J"));
+}
+public void testToStringType13() {
 	assertEquals(
-		"Signature#toString is not correct 12", 
 		"short",
 		Signature.toString("S"));
+}
+public void testToStringType14() {
 	assertEquals(
-		"Signature#toString is not correct 13", 
 		"void",
 		Signature.toString("V"));
+}
+public void testToStringType15() {
 	assertEquals(
-		"Signature#toString is not correct 14", 
 		"int[][][]",
 		Signature.toString("[[[I"));
-	
-	// signatures with 1.5 elements
+}
+
+// signatures with 1.5 elements
+
+public void testToStringType16() {
 	assertEquals(
-		"Signature#toString is not correct 15", 
 		"VAR",
 		Signature.toString("TVAR;"));
+}
+public void testToStringType17() {
 	assertEquals(
-		"Signature#toString is not correct 16", 
 		"A<B>",
 		Signature.toString("QA<QB;>;"));
+}
+public void testToStringType18() {
 	assertEquals(
-		"Signature#toString is not correct 17", 
 		"A<?>",
 		Signature.toString("QA<*>;"));
+}
+public void testToStringType19() {
 	assertEquals(
-		"Signature#toString is not correct 18", 
 		"A<? extends B>",
 		Signature.toString("QA<+QB;>;"));
+}
+public void testToStringType20() {
 	assertEquals(
-		"Signature#toString is not correct 19", 
 		"A<? super B>",
 		Signature.toString("QA<-QB;>;"));
+}
+public void testToStringType21() {
 	assertEquals(
-		"Signature#toString is not correct 20", 
 		"A<?,?,?,?,?>",
 		Signature.toString("LA<*****>;"));
+}
+public void testToStringType22() {
 	assertEquals(
-		"Signature#toString is not correct 21", 
 		"a<V>.b<W>.c<X>",
 		Signature.toString("La<TV;>.b<QW;>.c<LX;>;"));
+}
+public void testToStringType23() {
 	assertEquals(
-		"Signature#toString is not correct 22", 
 		"java.y.Map<Object[],String>.MapEntry<p.K<T>[],q.r.V2[]>",
 		Signature.toString("Qjava.y.Map<[QObject;QString;>.MapEntry<[Qp.K<QT;>;[Qq.r.V2;>;"));
+}
+public void testToStringType24() {
 	assertEquals(
-		"Signature#toString is not correct 23", 
 		"Stack<List<Object>>",
 		Signature.toString("QStack<QList<QObject;>;>;"));
+}
+public void testToStringType25() {
+	assertEquals(
+		"?",
+		Signature.toString("*"));
+}
+public void testToStringType26() {
+	assertEquals(
+		"? extends Object",
+		Signature.toString("+QObject;"));
+}
+public void testToStringType27() {
+	assertEquals(
+		"? super InputStream",
+		Signature.toString("-QInputStream;"));
 }
 /**
  * @see Signature.toString(String, String, String[], boolean, boolean)
  */
-public void testToString2() {
+public void testToStringMethod01() {
 	assertEquals(
-		"Signature#toString is not correct 1", 
 		"void main(String[] args)",
 		Signature.toString("([Ljava.lang.String;)V", "main", new String[] {"args"}, false, true));
+}
+public void testToStringMethod02() {
 	assertEquals(
-		"Signature#toString is not correct 2", 
 		"main(String[] args)",
 		Signature.toString("([Ljava.lang.String;)V", "main", new String[] {"args"}, false, false));
+}
+public void testToStringMethod03() {
 	assertEquals(
-		"Signature#toString is not correct 3", 
 		"main(java.lang.String[] args)",
 		Signature.toString("([Ljava.lang.String;)V", "main", new String[] {"args"}, true, false));
+}
+public void testToStringMethod04() {
 	assertEquals(
-		"Signature#toString is not correct 4", 
 		"(java.lang.String[])",
 		Signature.toString("([Ljava.lang.String;)V", null, null, true, false));
+}
+public void testToStringMethod05() {
 	assertEquals(
-		"Signature#toString is not correct 5", 
 		"String main(String[] args)",
 		Signature.toString("([Ljava.lang.String;)Ljava.lang.String;", "main", new String[] {"args"}, false, true));
+}
+public void testToStringMethod06() {
 	assertEquals(
-		"Signature#toString is not correct 6", 
 		"java.lang.String main(java.lang.String[] args)",
 		Signature.toString("([Ljava.lang.String;)Ljava.lang.String;", "main", new String[] {"args"}, true, true));
+}
+public void testToStringMethod07() {
 	assertEquals(
-		"Signature#toString is not correct 7", 
 		"java.lang.String main(java.lang.String[] args)",
 		Signature.toString("main([Ljava.lang.String;)Ljava.lang.String;", "main", new String[] {"args"}, true, true));
+}
+public void testToStringMethod08() {
 	assertEquals(
-		"Signature#toString is not correct 8", 
 		"java.lang.String[] foo()",
 		Signature.toString("()[Ljava.lang.String;", "foo", null, true, true));
+}
+public void testToStringMethod09() {
 	assertEquals(
-		"Signature#toString is not correct 9", 
 		"I foo(C, L)",
 		Signature.toString("(LC;LL;)LI;", "foo", null, true, true));
+}
+public void testToStringMethod10() {
 	assertEquals(
-		"Signature#toString is not correct 10", 
 		"char[][] foo()",
 		Signature.toString("()[[C", "foo", null, true, true));
+}
+public void testToStringMethod11() {
 	assertEquals(
-		"Signature#toString is not correct 11", 
 		"void foo(java.lang.Object, String[][], boolean, byte, char, double, float, int, long, short)",
 		Signature.toString("(Ljava.lang.Object;[[QString;ZBCDFIJS)V", "foo", null, true, true));
+}
+public void testToStringMethod12() {
 	try {
 		Signature.toString("([Ljava.lang.String;V", null, null, true, false);
 	} catch (IllegalArgumentException iae) {
 		return;
 	}
-	assertTrue("Signature#toString is not correct 12: should get an exception", false);
+	assertTrue("Should get an exception", false);
 }
 
 /**
