@@ -548,6 +548,10 @@ public final class AST {
 	 * by this owner take precedence over the underlying compilation units when looking
 	 * up names and drawing the connections.
 	 * </p>
+	 * <p>
+	 * Note that the compiler options that affect doc comment checking may also
+	 * affect whether any bindings are resolved for nodes within doc comments.
+	 * </p>
 	 * 
 	 * @param unit the Java model compilation unit whose source code is to be parsed
 	 * @param resolveBindings <code>true</code> if bindings are wanted, 
@@ -708,6 +712,10 @@ public final class AST {
 	 * In all other respects, this method works the same as
 	 * {@link #parseCompilationUnit(ICompilationUnit,boolean,WorkingCopyOwner,IProgressMonitor)
 	 * parseCompilationUnit(ICompilationUnit,boolean,WorkingCopyOwner,IProgressMonitor)}.
+	 * <p>
+	 * Note that the compiler options that affect doc comment checking may also
+	 * affect whether any bindings are resolved for nodes within doc comments.
+	 * </p>
 	 * 
 	 * @param classFile the Java model class file whose corresponding source code is to be parsed
 	 * @param resolveBindings <code>true</code> if bindings are wanted, 
@@ -1230,6 +1238,10 @@ public final class AST {
 	 * one can supply a <code>WorkingCopyOwner</code>. Working copies owned 
 	 * by this owner take precedence over the underlying compilation units when looking
 	 * up names and drawing the connections.
+	 * </p>
+	 * <p>
+	 * Note that the compiler options that affect doc comment checking may also
+	 * affect whether any bindings are resolved for nodes within doc comments.
 	 * </p>
 	 * 
 	 * @param unit the Java model compilation unit whose source code is to be parsed
