@@ -113,6 +113,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
+  3374      SearchPatter.createPattern(...) doesn't work with unicodes (1GJYBRY)  
   3309		DCR - JM - could ICompilationUnit::getType throw JME? (1GF9AL9) 
   3310      Smoke 124: Compile errors introduced with rename refactoring (1GFBK2G)  
   3436      NPW in TypeHierarchy (1GL0L8D)  

@@ -13,6 +13,9 @@ import org.eclipse.jdt.core.search.*;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.parser.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalSymbols;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.*;
 
@@ -51,15 +54,15 @@ public SearchPattern(int matchMode, boolean isCaseSensitive) {
 }
 /**
  * Constructor pattern are formed by [declaringQualification.]type[(parameterTypes)]
- * e.g. java.lang.Runnable.run() void
- *		main(*)
+ * e.g. java.lang.Object()
+ *		Main(*)
  */
 private static SearchPattern createConstructorPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	StringTokenizer tokenizer = new StringTokenizer(patternString, " .(,)", true); //$NON-NLS-1$
+	Scanner scanner = new Scanner(false, true); // tokenize white spaces
+	scanner.setSourceBuffer(patternString.toCharArray());
 	final int InsideName = 1;
 	final int InsideParameter = 2;
-	String lastToken = null;
 	
 	String declaringQualification = null, typeName = null, parameterType = null;
 	String[] parameterTypes = null;
@@ -67,63 +70,99 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 	String returnType = null;
 	boolean foundClosingParenthesis = false;
 	int mode = InsideName;
-	while (tokenizer.hasMoreTokens()){
-		String token = tokenizer.nextToken();
+	int token;
+	try {
+		token = scanner.getNextToken();
+	} catch (InvalidInputException e) {
+		return null;
+	}
+	while (token != TerminalSymbols.TokenNameEOF){
 		switch(mode){
 
 			// read declaring type and selector
 			case InsideName :
-				if (token.equals(".")){ //$NON-NLS-1$
-					if (declaringQualification == null){
-						if (typeName == null) return null;
-						declaringQualification = typeName;
-					} else {
-						declaringQualification += token + typeName;
-					}
-					typeName = null;
-				} else if (token.equals("(")){ //$NON-NLS-1$
-					parameterTypes = new String[5];
-					parameterCount = 0;
-					mode = InsideParameter;
-				} else if (token.equals(" ")){ //$NON-NLS-1$
-					if (!(" ".equals(lastToken) || ".".equals(lastToken))){ //$NON-NLS-1$ //$NON-NLS-2$
+				switch (token) {
+					case TerminalSymbols.TokenNameDOT:
+						if (declaringQualification == null){
+							if (typeName == null) return null;
+							declaringQualification = typeName;
+						} else {
+							String tokenSource = new String(scanner.getCurrentTokenSource());
+							declaringQualification += tokenSource + typeName;
+						}
+						typeName = null;
 						break;
-					}
-				} else { // name
-					if (typeName != null) return null;
-					typeName = token;
+					case TerminalSymbols.TokenNameLPAREN:
+						parameterTypes = new String[5];
+						parameterCount = 0;
+						mode = InsideParameter;
+						break;
+					case Scanner.TokenNameWHITESPACE:
+						break;
+					case TerminalSymbols.TokenNameIdentifier:
+					case TerminalSymbols.TokenNameMULTIPLY:
+						if (typeName == null) {
+							typeName = new String(scanner.getCurrentTokenSource());
+						} else {
+							typeName += new String(scanner.getCurrentTokenSource());
+						}
+						break;
+					default:
+						return null;
 				}
 				break;
 			// read parameter types
 			case InsideParameter :
-				if (token.equals(" ")){ //$NON-NLS-1$
-				} else if (token.equals(",")){ //$NON-NLS-1$
-					if (parameterType == null) return null;
-					if (parameterTypes.length == parameterCount){
-						System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
-					}
-					parameterTypes[parameterCount++] = parameterType;
-					parameterType = null;
-				} else if (token.equals (")")){ //$NON-NLS-1$
-					foundClosingParenthesis = true;
-					if (parameterType != null){
+				switch (token) {
+					case Scanner.TokenNameWHITESPACE:
+						break;
+					case TerminalSymbols.TokenNameCOMMA:
+						if (parameterType == null) return null;
 						if (parameterTypes.length == parameterCount){
 							System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
 						}
 						parameterTypes[parameterCount++] = parameterType;
-					}
-					break;
-				} else {
-					if (parameterType == null){
-						parameterType = token;
-					} else {
-						if (!(".".equals(lastToken) || ".".equals(token) || "[]".equals(token))) return null; //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$
-						parameterType += token;
-					}
+						parameterType = null;
+						break;
+					case TerminalSymbols.TokenNameRPAREN:
+						foundClosingParenthesis = true;
+						if (parameterType != null){
+							if (parameterTypes.length == parameterCount){
+								System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
+							}
+							parameterTypes[parameterCount++] = parameterType;
+						}
+						break;
+					case TerminalSymbols.TokenNameDOT:
+					case TerminalSymbols.TokenNameIdentifier:
+					case TerminalSymbols.TokenNameMULTIPLY:
+					case TerminalSymbols.TokenNameLBRACKET:
+					case TerminalSymbols.TokenNameRBRACKET:
+					case TerminalSymbols.TokenNameboolean:
+					case TerminalSymbols.TokenNamebyte:
+					case TerminalSymbols.TokenNamechar:
+					case TerminalSymbols.TokenNamedouble:
+					case TerminalSymbols.TokenNamefloat:
+					case TerminalSymbols.TokenNameint:
+					case TerminalSymbols.TokenNamelong:
+					case TerminalSymbols.TokenNameshort:
+					case TerminalSymbols.TokenNamevoid:
+						if (parameterType == null){
+							parameterType = new String(scanner.getCurrentTokenSource());
+						} else {
+							parameterType += new String(scanner.getCurrentTokenSource());
+						}
+						break;
+					default:
+						return null;
 				}
 				break;
 		}
-		lastToken = token;
+		try {
+			token = scanner.getNextToken();
+		} catch (InvalidInputException e) {
+			return null;
+		}
 	}
 	// parenthesis mismatch
 	if (parameterCount>0 && !foundClosingParenthesis) return null;
@@ -173,55 +212,97 @@ private static SearchPattern createConstructorPattern(String patternString, int 
 }
 /**
  * Field pattern are formed by [declaringType.]name[type]
- * e.g. java.lang.Runnable.run() void
- *		main(*)
+ * e.g. java.lang.String.serialVersionUID long
+ *		field*
  */
 private static SearchPattern createFieldPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	StringTokenizer tokenizer = new StringTokenizer(patternString, " .(,)", true); //$NON-NLS-1$
+	Scanner scanner = new Scanner(false, true); // tokenize white spaces
+	scanner.setSourceBuffer(patternString.toCharArray());
 	final int InsideDeclaringPart = 1;
 	final int InsideType = 2;
-	String lastToken = null;
+	int lastToken = -1;
 	
-	String declaringType = null, fieldName = null, parameterType = null;
+	String declaringType = null, fieldName = null;
 	String type = null;
 	boolean foundClosingParenthesis = false;
 	int mode = InsideDeclaringPart;
-	while (tokenizer.hasMoreTokens()){
-		String token = tokenizer.nextToken();
+	int token;
+	try {
+		token = scanner.getNextToken();
+	} catch (InvalidInputException e) {
+		return null;
+	}
+	while (token != TerminalSymbols.TokenNameEOF){
 		switch(mode){
 
 			// read declaring type and fieldName
 			case InsideDeclaringPart :
-				if (token.equals(".")){ //$NON-NLS-1$
-					if (declaringType == null){
-						if (fieldName == null) return null;
-						declaringType = fieldName;
-					} else {
-						declaringType += token + fieldName;
-					}
-					fieldName = null;
-				} else if (token.equals(" ")){ //$NON-NLS-1$
-					if (!(" ".equals(lastToken) || ".".equals(lastToken))){ //$NON-NLS-1$ //$NON-NLS-2$
-						mode = InsideType;
-					}
-				} else { // name
-					if (fieldName != null) return null;
-					fieldName = token;
+				switch (token) {
+					case TerminalSymbols.TokenNameDOT:
+						if (declaringType == null){
+							if (fieldName == null) return null;
+							declaringType = fieldName;
+						} else {
+							String tokenSource = new String(scanner.getCurrentTokenSource());
+							declaringType += tokenSource + fieldName;
+						}
+						fieldName = null;
+						break;
+					case Scanner.TokenNameWHITESPACE:
+						if (!(Scanner.TokenNameWHITESPACE == lastToken 
+							|| TerminalSymbols.TokenNameDOT == lastToken)){
+							mode = InsideType;
+						}
+						break;
+					case TerminalSymbols.TokenNameIdentifier:
+					case TerminalSymbols.TokenNameMULTIPLY:
+						if (fieldName == null) {
+							fieldName = new String(scanner.getCurrentTokenSource());
+						} else {
+							fieldName += new String(scanner.getCurrentTokenSource());
+						}
+						break;
+					default:
+						return null;
 				}
 				break;
 			// read type 
 			case InsideType:
-				if (!token.equals(" ")){ //$NON-NLS-1$
-					if (type == null){
-						type = token;
-					} else {
-						if (!(!(".".equals(lastToken) || ".".equals(token) || "[]".equals(token)))) return null; //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$
-						type += token;
-					}
+				switch (token) {
+					case Scanner.TokenNameWHITESPACE:
+						break;
+					case TerminalSymbols.TokenNameDOT:
+					case TerminalSymbols.TokenNameIdentifier:
+					case TerminalSymbols.TokenNameMULTIPLY:
+					case TerminalSymbols.TokenNameLBRACKET:
+					case TerminalSymbols.TokenNameRBRACKET:
+					case TerminalSymbols.TokenNameboolean:
+					case TerminalSymbols.TokenNamebyte:
+					case TerminalSymbols.TokenNamechar:
+					case TerminalSymbols.TokenNamedouble:
+					case TerminalSymbols.TokenNamefloat:
+					case TerminalSymbols.TokenNameint:
+					case TerminalSymbols.TokenNamelong:
+					case TerminalSymbols.TokenNameshort:
+					case TerminalSymbols.TokenNamevoid:
+						if (type == null){
+							type = new String(scanner.getCurrentTokenSource());
+						} else {
+							type += new String(scanner.getCurrentTokenSource());
+						}
+						break;
+					default:
+						return null;
 				}
+				break;
 		}
 		lastToken = token;
+		try {
+			token = scanner.getNextToken();
+		} catch (InvalidInputException e) {
+			return null;
+		}
 	}
 	if (fieldName == null) return null;
 
@@ -343,11 +424,12 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
  */
 private static SearchPattern createMethodPattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	StringTokenizer tokenizer = new StringTokenizer(patternString, " .(,)", true); //$NON-NLS-1$
+	Scanner scanner = new Scanner(false, true); // tokenize white spaces
+	scanner.setSourceBuffer(patternString.toCharArray());
 	final int InsideSelector = 1;
 	final int InsideParameter = 2;
 	final int InsideReturnType = 3;
-	String lastToken = null;
+	int lastToken = -1;
 	
 	String declaringType = null, selector = null, parameterType = null;
 	String[] parameterTypes = null;
@@ -355,73 +437,134 @@ private static SearchPattern createMethodPattern(String patternString, int limit
 	String returnType = null;
 	boolean foundClosingParenthesis = false;
 	int mode = InsideSelector;
-	while (tokenizer.hasMoreTokens()){
-		String token = tokenizer.nextToken();
+	int token;
+	try {
+		token = scanner.getNextToken();
+	} catch (InvalidInputException e) {
+		return null;
+	}
+	while (token != TerminalSymbols.TokenNameEOF){
 		switch(mode){
 
 			// read declaring type and selector
 			case InsideSelector :
-				if (token.equals(".")){ //$NON-NLS-1$
-					if (declaringType == null){
-						if (selector == null) return null;
-						declaringType = selector;
-					} else {
-						declaringType += token + selector;
-					}
-					selector = null;
-				} else if (token.equals("(")){ //$NON-NLS-1$
-					parameterTypes = new String[5];
-					parameterCount = 0;
-					mode = InsideParameter;
-				} else if (token.equals(" ")){ //$NON-NLS-1$
-					if (!(" ".equals(lastToken) || ".".equals(lastToken))){ //$NON-NLS-1$ //$NON-NLS-2$
-						mode = InsideReturnType;
-					}
-				} else { // name
-					if (selector != null) return null;
-					selector = token;
+				switch (token) {
+					case TerminalSymbols.TokenNameDOT:
+						if (declaringType == null){
+							if (selector == null) return null;
+							declaringType = selector;
+						} else {
+							String tokenSource = new String(scanner.getCurrentTokenSource());
+							declaringType += tokenSource + selector;
+						}
+						selector = null;
+						break;
+					case TerminalSymbols.TokenNameLPAREN:
+						parameterTypes = new String[5];
+						parameterCount = 0;
+						mode = InsideParameter;
+						break;
+					case Scanner.TokenNameWHITESPACE:
+						if (!(Scanner.TokenNameWHITESPACE == lastToken 
+							|| TerminalSymbols.TokenNameDOT == lastToken)){
+							mode = InsideReturnType;
+						}
+						break;
+					case TerminalSymbols.TokenNameIdentifier:
+					case TerminalSymbols.TokenNameMULTIPLY:
+						if (selector == null) {
+							selector = new String(scanner.getCurrentTokenSource());
+						} else {
+							selector += new String(scanner.getCurrentTokenSource());
+						}
+						break;
+					default:
+						return null;
 				}
 				break;
 			// read parameter types
 			case InsideParameter :
-				if (token.equals(" ")){ //$NON-NLS-1$
-				} else if (token.equals(",")){ //$NON-NLS-1$
-					if (parameterType == null) return null;
-					if (parameterTypes.length == parameterCount){
-						System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
-					}
-					parameterTypes[parameterCount++] = parameterType;
-					parameterType = null;
-				} else if (token.equals (")")){ //$NON-NLS-1$
-					foundClosingParenthesis = true;
-					if (parameterType != null){
+				switch (token) {
+					case Scanner.TokenNameWHITESPACE:
+						break;
+					case TerminalSymbols.TokenNameCOMMA:
+						if (parameterType == null) return null;
 						if (parameterTypes.length == parameterCount){
 							System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
 						}
 						parameterTypes[parameterCount++] = parameterType;
-					}
-					mode = InsideReturnType;
-				} else {
-					if (parameterType == null){
-						parameterType = token;
-					} else {
-						if (!(".".equals(lastToken) || ".".equals(token) || "[]".equals(token))) return null; //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$
-						parameterType += token;
-					}
+						parameterType = null;
+						break;
+					case TerminalSymbols.TokenNameRPAREN:
+						foundClosingParenthesis = true;
+						if (parameterType != null){
+							if (parameterTypes.length == parameterCount){
+								System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
+							}
+							parameterTypes[parameterCount++] = parameterType;
+						}
+						mode = InsideReturnType;
+						break;
+					case TerminalSymbols.TokenNameDOT:
+					case TerminalSymbols.TokenNameIdentifier:
+					case TerminalSymbols.TokenNameMULTIPLY:
+					case TerminalSymbols.TokenNameLBRACKET:
+					case TerminalSymbols.TokenNameRBRACKET:
+					case TerminalSymbols.TokenNameboolean:
+					case TerminalSymbols.TokenNamebyte:
+					case TerminalSymbols.TokenNamechar:
+					case TerminalSymbols.TokenNamedouble:
+					case TerminalSymbols.TokenNamefloat:
+					case TerminalSymbols.TokenNameint:
+					case TerminalSymbols.TokenNamelong:
+					case TerminalSymbols.TokenNameshort:
+					case TerminalSymbols.TokenNamevoid:
+						if (parameterType == null){
+							parameterType = new String(scanner.getCurrentTokenSource());
+						} else {
+							parameterType += new String(scanner.getCurrentTokenSource());
+						}
+						break;
+					default:
+						return null;
 				}
 				break;
 			// read return type
 			case InsideReturnType:
-				if (!token.equals(" ")){ //$NON-NLS-1$
-					if (returnType == null){
-						returnType = token;
-					} else {
-						if (!(!(".".equals(lastToken) || ".".equals(token) || "[]".equals(token)))) return null; //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$
-						returnType += token;
-					}
+				switch (token) {
+					case Scanner.TokenNameWHITESPACE:
+						break;
+					case TerminalSymbols.TokenNameDOT:
+					case TerminalSymbols.TokenNameIdentifier:
+					case TerminalSymbols.TokenNameMULTIPLY:
+					case TerminalSymbols.TokenNameLBRACKET:
+					case TerminalSymbols.TokenNameRBRACKET:
+					case TerminalSymbols.TokenNameboolean:
+					case TerminalSymbols.TokenNamebyte:
+					case TerminalSymbols.TokenNamechar:
+					case TerminalSymbols.TokenNamedouble:
+					case TerminalSymbols.TokenNamefloat:
+					case TerminalSymbols.TokenNameint:
+					case TerminalSymbols.TokenNamelong:
+					case TerminalSymbols.TokenNameshort:
+					case TerminalSymbols.TokenNamevoid:
+						if (returnType == null){
+							returnType = new String(scanner.getCurrentTokenSource());
+						} else {
+							returnType += new String(scanner.getCurrentTokenSource());
+						}
+						break;
+					default:
+						return null;
 				}
+				break;
 		}
 		lastToken = token;
+		try {
+			token = scanner.getNextToken();
+		} catch (InvalidInputException e) {
+			return null;
+		}
 	}
 	// parenthesis mismatch
 	if (parameterCount>0 && !foundClosingParenthesis) return null;
@@ -784,20 +927,47 @@ private static SearchPattern createTypePattern(char[] simpleName, char[] package
  */
 private static SearchPattern createTypePattern(String patternString, int limitTo, int matchMode, boolean isCaseSensitive) {
 
-	StringTokenizer tokenizer = new StringTokenizer(patternString, " .", true); //$NON-NLS-1$
+	Scanner scanner = new Scanner(false, true); // tokenize white spaces
+	scanner.setSourceBuffer(patternString.toCharArray());
 	String type = null;
-	String lastToken = null;
-	while (tokenizer.hasMoreTokens()){
-		String token = tokenizer.nextToken();
-		if (!token.equals(" ")){ //$NON-NLS-1$
-			if (type == null){
-				type = token;
-			} else {
-				if (!(".".equals(lastToken) || ".".equals(token) || "[]".equals(token))) return null; //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$
-				type += token;
-			}
+	int token;
+	try {
+		token = scanner.getNextToken();
+	} catch (InvalidInputException e) {
+		return null;
+	}
+	while (token != TerminalSymbols.TokenNameEOF){
+		switch (token) {
+			case Scanner.TokenNameWHITESPACE:
+				break;
+			case TerminalSymbols.TokenNameDOT:
+			case TerminalSymbols.TokenNameIdentifier:
+			case TerminalSymbols.TokenNameMULTIPLY:
+			case TerminalSymbols.TokenNameLBRACKET:
+			case TerminalSymbols.TokenNameRBRACKET:
+			case TerminalSymbols.TokenNameboolean:
+			case TerminalSymbols.TokenNamebyte:
+			case TerminalSymbols.TokenNamechar:
+			case TerminalSymbols.TokenNamedouble:
+			case TerminalSymbols.TokenNamefloat:
+			case TerminalSymbols.TokenNameint:
+			case TerminalSymbols.TokenNamelong:
+			case TerminalSymbols.TokenNameshort:
+			case TerminalSymbols.TokenNamevoid:
+				if (type == null){
+					type = new String(scanner.getCurrentTokenSource());
+				} else {
+					type += new String(scanner.getCurrentTokenSource());
+				}
+				break;
+			default:
+				return null;
 		}
-		lastToken = token;
+		try {
+			token = scanner.getNextToken();
+		} catch (InvalidInputException e) {
+			return null;
+		}
 	}
 	if (type == null) return null;
 
