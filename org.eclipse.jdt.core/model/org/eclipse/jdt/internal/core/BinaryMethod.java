@@ -155,7 +155,15 @@ public int getNumberOfParameters() {
  * @see IMethod
  */
 public String[] getParameterNames() throws JavaModelException {
+
 	if (fParameterNames == null) {
+
+		// force source mapping if not already done
+		IType type = (IType) getParent();
+		char[] source = getSourceMapper().findSource(type);
+		if (source != null){
+			getSourceMapper().mapSource(type, source);
+		}
 		ISourceRange sourceRange = getSourceRange();
 		if (sourceRange != null && sourceRange != SourceMapper.fgUnknownRange) {
 			IProblemFactory factory = new DefaultProblemFactory();
@@ -163,7 +171,7 @@ public String[] getParameterNames() throws JavaModelException {
 			SourceElementParser parser = new SourceElementParser(decoder, factory);
 			int start = sourceRange.getOffset();
 			int end = start + sourceRange.getLength();
-			parser.parseTypeMemberDeclarations(getSourceMapper().findSource((IType) getParent()), start, end);
+			parser.parseTypeMemberDeclarations(source, start, end);
 			fParameterNames = decoder.getParametersNames();
 			if (fParameterNames == null) {
 				IBinaryMethod info = (IBinaryMethod) getRawInfo();

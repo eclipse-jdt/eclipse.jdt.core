@@ -616,8 +616,9 @@ public class SourceMapper
 		IJavaElement searchedElement) {
 			
 		fType = (BinaryType) type;
-		ISourceRange range = this.getNameRange(type);
-		if (range != null) return (searchedElement != null) ? this.getNameRange(searchedElement) : null;
+		
+		// check whether it is already mapped
+		if (this.fSourceRanges.get(type) != null) return (searchedElement != null) ? this.getNameRange(searchedElement) : null;
 		
 		this.importsTable.remove(fType);
 		this.importsCounterTable.remove(fType);
@@ -635,7 +636,7 @@ public class SourceMapper
 				new BasicCompilationUnit(contents, type.getElementName() + ".java" ), //$NON-NLS-1$
 				false);
 			if (searchedElement != null) {
-				range = this.getNameRange(searchedElement);
+				ISourceRange range = this.getNameRange(searchedElement);
 				return range;
 			} else {
 				return null;
