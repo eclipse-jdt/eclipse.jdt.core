@@ -1337,4 +1337,18 @@ public void testDuplicateTypeDeclaration6() throws JavaModelException {
 			elements
 	);
 }
+public void testArrayParameterInsideParent1() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveArrayParameterInsideParent1.java");
+	
+	String str = cu.getSource();
+	int start = str.lastIndexOf("var");
+	int length = "var".length();
+	IJavaElement[] elements =  cu.codeSelect(start, length);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"var [in test(int[]) [in ResolveArrayParameterInsideParent1 [in ResolveArrayParameterInsideParent1.java [in <default> [in src [in Resolve]]]]]]",
+			elements
+	);
+}
 }

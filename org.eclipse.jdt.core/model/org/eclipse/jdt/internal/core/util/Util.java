@@ -1865,10 +1865,6 @@ public class Util {
 		char[][] compoundName = type.getParameterizedTypeName();
 		char[] typeName =CharOperation.concatWith(compoundName, '.');
 		String signature = Signature.createTypeSignature(typeName, false/*don't resolve*/);
-		int dimensions = type.dimensions();
-		if (dimensions > 0) {
-			signature =  Signature.createArraySignature(signature, dimensions);
-		}
 		return signature;
 	}
 
