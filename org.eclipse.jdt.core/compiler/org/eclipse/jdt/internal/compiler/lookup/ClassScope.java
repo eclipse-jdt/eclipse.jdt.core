@@ -560,7 +560,7 @@ public class ClassScope extends Scope {
 				problemReporter().illegalModifierForEnumConstant(fieldBinding.declaringClass, fieldDecl);
 		
 			// set the modifiers
-			int implicitValue = AccPublic | AccStatic | AccFinal | AccEnumConstant;
+			int implicitValue = AccPublic | AccStatic | AccFinal | AccEnum;
 			fieldBinding.modifiers|= implicitValue;
 			return;
 		}
