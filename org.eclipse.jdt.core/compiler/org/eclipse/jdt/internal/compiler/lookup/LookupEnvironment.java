@@ -167,11 +167,15 @@ public void completeTypeBindings() {
 	stepCompleted = CHECK_AND_SET_IMPORTS;
 
 	for (int i = lastCompletedUnitIndex + 1; i <= lastUnitIndex; i++) {
+		// in case some missing type from requested binaries, preposition the reference context
+	    this.problemReporter.referenceContext = units[i];
 		units[i].scope.connectTypeHierarchy();
 	}
 	stepCompleted = CONNECT_TYPE_HIERARCHY;
 
 	for (int i = lastCompletedUnitIndex + 1; i <= lastUnitIndex; i++) {
+		// in case some missing type from requested binaries, preposition the reference context
+	    this.problemReporter.referenceContext = units[i];
 		units[i].scope.buildFieldsAndMethods();
 		units[i] = null; // release unnecessary reference to the parsed unit
 	}
