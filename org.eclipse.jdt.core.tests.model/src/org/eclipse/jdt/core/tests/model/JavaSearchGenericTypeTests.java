@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.core.search.matching.JavaSearchPattern;
 public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	
 	JavaSearchPattern searchPattern;
-	static char[] ERASURE_MATCH = "*] ERASURE_MATCH".toCharArray();
+	static char[] RESULT_EXACT_MATCH = "*] EXACT_*".toCharArray();
 
 	public JavaSearchGenericTypeTests(String name) {
 		super(name);
@@ -38,7 +38,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	static {
 //		org.eclipse.jdt.internal.core.search.matching.MatchLocator.PRINT_BUFFER = false;
 //		TESTS_PREFIX =  "testArray";
-//		TESTS_NAMES = new String[] { "ArrayType" };
+//		TESTS_NAMES = new String[] { "testTypeSingleArgument02" };
 //		TESTS_NUMBERS = new int[] { 8 };
 //		TESTS_RANGE = new int[] { 6, -1 };
 	}
@@ -53,7 +53,7 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 	}
 
 	void cleanLine(StringBuffer buffer, char[] line) {
-		if (CharOperation.match(ERASURE_MATCH, line, true))
+		if (!CharOperation.match(RESULT_EXACT_MATCH, line, true))
 			return;
 		if (buffer.length() > 0) buffer.append('\n');
 		buffer.append(line);

@@ -1377,11 +1377,9 @@ protected void assertDeltas(String message, String expected) {
 		return null;
 	}
 	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(element, limitTo, false, scope, requestor);
+		search(element, limitTo, SearchPattern.R_EXACT_MATCH|SearchPattern.R_CASE_SENSITIVE, scope, requestor);
 	}
-	protected void search(IJavaElement element, int limitTo, boolean rawMatch, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		int matchRule = SearchPattern.R_EXACT_MATCH|SearchPattern.R_CASE_SENSITIVE;
-		if (rawMatch) matchRule |= SearchPattern.R_ERASURE_MATCH;
+	protected void search(IJavaElement element, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		new SearchEngine().search(
 			SearchPattern.createPattern(element, limitTo, matchRule),
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
@@ -1391,14 +1389,11 @@ protected void assertDeltas(String message, String expected) {
 		);
 	}
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(patternString, searchFor, limitTo, false, scope, requestor);
+		search(patternString, searchFor, limitTo, SearchPattern.R_EXACT_MATCH|SearchPattern.R_CASE_SENSITIVE, scope, requestor);
 	}
-	protected void search(String patternString, int searchFor, int limitTo, boolean rawMatch, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		int matchMode = patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1
-			? SearchPattern.R_PATTERN_MATCH
-			: SearchPattern.R_EXACT_MATCH;
-		int matchRule = matchMode | SearchPattern.R_CASE_SENSITIVE;
-		if (rawMatch) matchRule |= SearchPattern.R_ERASURE_MATCH;
+	protected void search(String patternString, int searchFor, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
+		if (patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1)
+			matchRule |= SearchPattern.R_PATTERN_MATCH;
 		SearchPattern pattern = SearchPattern.createPattern(
 			patternString, 
 			searchFor,

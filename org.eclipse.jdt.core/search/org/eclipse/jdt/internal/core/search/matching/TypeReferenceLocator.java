@@ -144,6 +144,11 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 		return;
 	}
 
+	// return if this is not necessary to report
+	if (this.pattern.isParameterized() && !this.isEquivalentMatch &&!this.isErasureMatch) {
+		return;
+	}
+
 	// set match rule
 	int rule = SearchMatch.A_ACCURATE;
 	boolean patternHasParameters = false;
@@ -345,10 +350,20 @@ void matchReportReference(Expression expr, IJavaElement element, int accuracy, i
 		// Try to refine accuracy
 		ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)refBinding;
 		refinedAccuracy = refineAccuracy(accuracy, parameterizedBinding, this.pattern.typeArguments, this.pattern.typeSignatures==null, 0, locator);
-		if (refinedAccuracy == -1 || (refinedAccuracy == SearchPattern.R_ERASURE_MATCH && !this.isErasureMatch)) {
-			// refined accuracy shows an impossible match...
-			return;
+		
+		// See whether it is necessary to report or not
+		boolean report = refinedAccuracy != -1; // impossible match
+		if (report && (refinedAccuracy & SearchPattern.R_ERASURE_MATCH) != 0) { // erasure match
+			if ((refinedAccuracy & SearchPattern.R_EQUIVALENT_MATCH) != 0) { // raw match
+				report = this.isEquivalentMatch || this.isErasureMatch; // report only if pattern is equivalent or erasure
+			} else {
+				report = this.isErasureMatch; // report only if pattern is erasure
+			}
 		}
+		else if (report && (refinedAccuracy & SearchPattern.R_EQUIVALENT_MATCH) != 0) { // equivalent match
+			report  = this.isEquivalentMatch || this.isErasureMatch; // report only if pattern is equivalent or erasure
+		}
+		if (!report)return;
 
 		// Set rule
 		rule |= refinedAccuracy & RULE_MASK;

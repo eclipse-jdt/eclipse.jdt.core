@@ -72,10 +72,10 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * Match rule: The search pattern matches search results as raw types or parameterized types with same erasure.
 	 * Example:
 	 * 	<ul>
-	 * 	<li>search pattern: <code>List&lt;Exception&gt;</code></li>
+	 * 	<li>pattern: <code>List&lt;Exception&gt;</code></li>
 	 * 	<li>match: <code>List&lt;Object&gt;</code></li>
 	 * 	</ul>
-	 * Can be combined to all other match rules, e.g. {@link #R_EXACT_MATCH} | {@link #R_ERASURE_MATCH}
+	 * Can be combined to all other match rules, e.g. {@link #R_CASE_SENSITIVE} | {@link #R_ERASURE_MATCH}
 	 * This rule is not activated by default, so raw types or parameterized types with same erasure will not be found
 	 * for pattern List&lt;String&gt;,
 	 * Note that with this pattern, the match selection will be only on the erasure even for parameterized types.
@@ -86,7 +86,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * Match rule: The search pattern matches search results as raw types or parameterized types with equivalent type parameters.
 	 * Example:
 	 * <ul>
-	 * 	<li>search pattern: <code>List&lt;Exception&gt;</code></li>
+	 * 	<li>pattern: <code>List&lt;Exception&gt;</code></li>
 	 * 	<li>match:
 	 * 		<ul>
 	 * 		<li><code>List&lt;? extends Throwable&gt;</code></li>
@@ -94,10 +94,12 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * 		<li><code>List&lt;?&gt;</code></li>
 	 * 	</li>
 	 * 	</ul>
-	 * Can be combined to all other match rules, e.g. {@link #R_EXACT_MATCH} | {@link #R_EQUIVALENT_MATCH}
+	 * Can be combined to all other match rules, e.g. {@link #R_CASE_SENSITIVE} | {@link #R_EQUIVALENT_MATCH}
 	 * This rule is not activated by default, so raw types or equivalent parameterized types will not be found
 	 * for pattern List&lt;String&gt;,
-	 * .
+	 * This mode is overridden by {@link  #R_ERASURE_MATCH} as erasure matches obviously include equivalent ones.
+	 * That means that pattern with rule set to {@link #R_EQUIVALENT_MATCH} | {@link  #R_ERASURE_MATCH}
+	 * will return same results than rule only set with {@link  #R_ERASURE_MATCH}.
 	 * @since 3.1
 	 */
 	public static final int R_EQUIVALENT_MATCH = 32;

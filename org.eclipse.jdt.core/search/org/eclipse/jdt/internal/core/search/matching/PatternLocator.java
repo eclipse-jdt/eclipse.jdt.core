@@ -23,6 +23,7 @@ public abstract class PatternLocator implements IIndexConstants {
 // store pattern info
 protected int matchMode;
 protected boolean isCaseSensitive;
+protected boolean isEquivalentMatch;
 protected boolean isErasureMatch;
 protected boolean mustResolve;
 
@@ -96,6 +97,7 @@ public PatternLocator(SearchPattern pattern) {
 	int matchRule = pattern.getMatchRule();
 	this.isCaseSensitive = (matchRule & SearchPattern.R_CASE_SENSITIVE) != 0;
 	this.isErasureMatch = (matchRule & SearchPattern.R_ERASURE_MATCH) != 0;
+	this.isEquivalentMatch = (matchRule & SearchPattern.R_EQUIVALENT_MATCH) != 0;
 	this.matchMode = matchRule & JavaSearchPattern.MATCH_MODE_MASK;
 	this.mustResolve = ((InternalSearchPattern)pattern).mustResolve;
 }

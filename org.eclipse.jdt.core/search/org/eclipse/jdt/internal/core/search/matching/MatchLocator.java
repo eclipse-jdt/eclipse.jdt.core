@@ -1348,6 +1348,18 @@ protected void report(SearchMatch match) throws CoreException {
 		System.out.println(match.getAccuracy() == SearchMatch.A_ACCURATE
 			? "\tAccuracy: EXACT_MATCH" //$NON-NLS-1$
 			: "\tAccuracy: POTENTIAL_MATCH"); //$NON-NLS-1$
+		System.out.print("\tMatch rule: "); //$NON-NLS-1$
+		if ((match.getMatchRule() & SearchPattern.R_EQUIVALENT_MATCH) != 0) {
+			if ((match.getMatchRule() & SearchPattern.R_ERASURE_MATCH) != 0) {
+				System.out.println("EQUIVALENT + ERASURE"); //$NON-NLS-1$
+			} else {
+				System.out.println("EQUIVALENT"); //$NON-NLS-1$
+			}
+		} else if ((match.getMatchRule() & SearchPattern.R_ERASURE_MATCH) != 0) {
+			System.out.println("ERASURE"); //$NON-NLS-1$
+		} else {
+			System.out.println("PERFECT"); //$NON-NLS-1$
+		}
 	}
 	this.requestor.acceptSearchMatch(match);
 	if (SearchBasicEngine.VERBOSE)
