@@ -564,7 +564,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ANONYMOUS_TYPE_OPEN_BRACE, this.insert_space_before_anonymous_type_open_brace ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_TYPE_HEADER, this.indent_body_declarations_compare_to_type_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		// TODO remove once testing is over
-		options.put(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE, Character.toString(this.filling_space));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE, String.valueOf(this.filling_space));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_CLOSING_PAREN_IN_CAST, this.insert_space_after_closing_paren_in_cast ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_BLANK_LINES_TO_INSERT_AT_BEGINNING_OF_METHOD_BODY, Integer.toString(number_of_blank_lines_to_insert_at_beginning_of_method_body));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_IF_ON_ONE_LINE, this.keep_simple_if_on_one_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
