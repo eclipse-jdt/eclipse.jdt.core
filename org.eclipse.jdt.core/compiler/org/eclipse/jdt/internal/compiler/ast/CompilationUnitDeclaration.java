@@ -272,15 +272,20 @@ public class CompilationUnitDeclaration
 			return;
 		try {
 			if (visitor.visit(this, scope)) {
+				if (currentPackage != null) {
+					currentPackage.traverse(visitor, scope);
+				}
 				if (imports != null) {
 					int importLength = imports.length;
-					for (int i = 0; i < importLength; i++)
+					for (int i = 0; i < importLength; i++) {
 						imports[i].traverse(visitor, scope);
+					}
 				}
 				if (types != null) {
 					int typesLength = types.length;
-					for (int i = 0; i < typesLength; i++)
+					for (int i = 0; i < typesLength; i++) {
 						types[i].traverse(visitor, scope);
+					}
 				}
 			}
 			visitor.endVisit(this, scope);
