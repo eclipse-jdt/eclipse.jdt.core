@@ -648,11 +648,6 @@ public class AnnotationTestMixed extends AnnotationTest {
 				+ "	public int x\n"
 				+ "	           ^\n"
 				+ "Syntax error, insert \";\" to complete ClassBodyDeclarations\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 12)\n"
-				+ "	public int x\n"
-				+ "	           ^\n"
-				+ "Annotation: Missing javadoc comment for public declaration\n"
 				+ "----------\n");
 	}
 	
@@ -772,7 +767,7 @@ public class AnnotationTestMixed extends AnnotationTest {
 	 * When this bug happened a NPE was thrown in factory.createMethod(...)
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45198">45198</a>
 	 */
-	public void testMethodCreateFromSource() {
+	public void testBug45198() {
 		Hashtable savedOptions = JavaCore.getOptions();
 		Map options = getCompilerOptions();
 		Hashtable newOptions = new Hashtable(options.size());
@@ -781,21 +776,44 @@ public class AnnotationTestMixed extends AnnotationTest {
 		try {
 			IDOMFactory factory= new DOMFactory();
 			IDOMMethod m= factory.createMethod(
-				"/**" + LINE_SEPARATOR +
-				" * @return Returns the content." + LINE_SEPARATOR +
-				" */" + LINE_SEPARATOR +
-				"public String getContent() {" + LINE_SEPARATOR +
-				"	return fContent;" + LINE_SEPARATOR +
-				"}" + LINE_SEPARATOR);
+					"/**" + LINE_SEPARATOR +
+					" * @return Returns the content." + LINE_SEPARATOR +
+					" */" + LINE_SEPARATOR +
+					"public String getContent() {" + LINE_SEPARATOR +
+					"	return fContent;" + LINE_SEPARATOR +
+					"}" + LINE_SEPARATOR);
 			assertTrue("initial contents wrong", equals(m.getContents(), 
-				"/**" + LINE_SEPARATOR +
-				" * @return Returns the content." + LINE_SEPARATOR +
-				" */" + LINE_SEPARATOR +
-				"public String getContent() {" + LINE_SEPARATOR +
-				"	return fContent;" + LINE_SEPARATOR +
-				"}" + LINE_SEPARATOR));
+							"/**" + LINE_SEPARATOR +
+							" * @return Returns the content." + LINE_SEPARATOR +
+							" */" + LINE_SEPARATOR +
+							"public String getContent() {" + LINE_SEPARATOR +
+							"	return fContent;" + LINE_SEPARATOR +
+							"}" + LINE_SEPARATOR));
 		} finally {
 			JavaCore.setOptions(savedOptions);
 		}
+	}
+
+	/**
+	 * Test fix for bug 45592.
+	 * When this bug happened a NPE was thrown in factory.createMethod(...)
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45592">45592</a>
+	 */
+	public void testBug45592() {
+		this.runConformTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n"
+			 	+ "class X {\n"
+					+ "	void foo(int x, String str) {}\n"
+			  		+ "}\n",
+				"test/Y.java",
+				"package test;\n"
+			   		+ "class Y {\n"
+			   		+ "  /** */\n"
+			   		+ "  protected X field = new X() {\n"
+			   		+ "    void foo(int x, String str) {}\n"
+			   		+ "  };\n"
+			   		+ "}\n"});
 	}
 }
