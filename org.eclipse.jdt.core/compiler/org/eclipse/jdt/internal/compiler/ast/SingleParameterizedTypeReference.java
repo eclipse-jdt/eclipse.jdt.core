@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,9 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -38,18 +41,20 @@ public class SingleParameterizedTypeReference extends ArrayTypeReference {
 	}
 
 	public TypeBinding getTypeBinding(Scope scope) {
-		if (resolvedType != null) return resolvedType;
-/*		int paramCount = this.typeArguments.length;
+		if (this.resolvedType != null) return resolvedType;
+		int paramCount = this.typeArguments.length;
 		TypeBinding[] typeArgumentBindings = new TypeBinding[paramCount];
 		for (int i = 0; i < paramCount; i++){
 			typeArgumentBindings[i] = this.typeArguments[i].getTypeBinding(scope);
 		}
 		TypeBinding type = scope.getType(token);
-		resolvedType = scope.createParameterizedType(type, typeArgumentBindings);
+		// per construction, can only be a ReferenceBinding
+		ReferenceBinding rawType = (ReferenceBinding) type;
+		this.resolvedType = scope.createParameterizedType(rawType, typeArgumentBindings);
 		if (this.dimensions > 0){
-			resolvedType = scope.createArrayType(scope.getType(token), dimensions);
-		}*/
-		return resolvedType;
+			this.resolvedType = scope.createArrayType(this.resolvedType, dimensions);
+		}
+		return this.resolvedType;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output){
@@ -67,19 +72,4 @@ public class SingleParameterizedTypeReference extends ArrayTypeReference {
 		}
 		return output;
 	}
-
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#traverse(IAbstractSyntaxTreeVisitor, ClassScope)
-	 */
-	public void traverse(ASTVisitor visitor, ClassScope classScope) {
-		super.traverse(visitor, classScope);
-	}
-
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(BlockScope)
-	 */
-	public TypeBinding resolveType(BlockScope scope) {
-		return super.resolveType(scope);
-	}
-
 }

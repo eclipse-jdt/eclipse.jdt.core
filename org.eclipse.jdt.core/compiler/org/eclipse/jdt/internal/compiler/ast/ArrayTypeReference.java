@@ -39,7 +39,7 @@ public class ArrayTypeReference extends SingleTypeReference {
 		if (dimensions > 255) {
 			scope.problemReporter().tooManyDimensions(this);
 		}
-		return scope.createArray(scope.getType(token), dimensions);
+		return scope.createArrayType(scope.getType(token), dimensions);
 	
 	}
 	

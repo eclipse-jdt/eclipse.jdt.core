@@ -53,6 +53,14 @@ String debugName() {
 public int dimensions(){
 	return 0;
 }
+
+/**
+ * Returns the erased version of a type (itself for non parameterized types)
+ */
+public TypeBinding erasure(){
+	return this;
+}
+
 public abstract PackageBinding getPackage();
 /* Answer true if the receiver is an array
 */
@@ -95,6 +103,10 @@ public final boolean isNumericType() {
 		default :
 			return false;
 	}
+}
+
+public final boolean isParameterizedType() {
+    return (tagBits  & IsParameterizedType) != 0;
 }
 
 public TypeBinding leafComponentType(){

@@ -86,13 +86,24 @@ public abstract class Scope
 		return (CompilationUnitScope) lastScope;
 	}
 
-	public ArrayBinding createArray(TypeBinding type, int dimension) {
+	public ArrayBinding createArrayType(TypeBinding type, int dimension) {
 		if (type.isValidBinding())
 			return environment().createArrayType(type, dimension);
 		else
 			return new ArrayBinding(type, dimension);
 	}
-
+	
+	public ParameterizedTypeBinding createParameterizedType(ReferenceBinding rawType, TypeBinding[] parameters) {
+		valid: {
+			if (!rawType.isValidBinding()) break valid;
+			for (int i = 0, max = parameters.length; i < max; i++){
+				if (!parameters[i].isValidBinding()) break valid;
+			}
+			return environment().createParameterizedType(rawType, parameters);
+		}
+		return new ParameterizedTypeBinding(rawType, parameters);
+	}
+	
 	public final ClassScope enclosingClassScope() {
 		Scope scope = this;
 		while ((scope = scope.parent) != null) {

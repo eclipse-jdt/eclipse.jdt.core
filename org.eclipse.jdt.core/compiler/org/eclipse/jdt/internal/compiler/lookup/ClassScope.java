@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Clinit;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -195,6 +196,48 @@ public class ClassScope extends Scope {
 		referenceContext.binding.verifyMethods(environment().methodVerifier());
 	}
 	
+	private void buildMemberTypes() {
+	    SourceTypeBinding sourceType = referenceContext.binding;
+		ReferenceBinding[] memberTypeBindings = NoMemberTypes;
+		if (referenceContext.memberTypes != null) {
+			int length = referenceContext.memberTypes.length;
+			memberTypeBindings = new ReferenceBinding[length];
+			int count = 0;
+			nextMember : for (int i = 0; i < length; i++) {
+				TypeDeclaration memberContext = referenceContext.memberTypes[i];
+				if (memberContext.isInterface()
+					&& sourceType.isNestedType()
+					&& sourceType.isClass()
+					&& !sourceType.isStatic()) {
+					problemReporter().nestedClassCannotDeclareInterface(memberContext);
+					continue nextMember;
+				}
+				ReferenceBinding type = sourceType;
+				// check that the member does not conflict with an enclosing type
+				do {
+					if (CharOperation.equals(type.sourceName, memberContext.name)) {
+						problemReporter().hidingEnclosingType(memberContext);
+						continue nextMember;
+					}
+					type = type.enclosingType();
+				} while (type != null);
+				// check that the member type does not conflict with another sibling member type
+				for (int j = 0; j < i; j++) {
+					if (CharOperation.equals(referenceContext.memberTypes[j].name, memberContext.name)) {
+						problemReporter().duplicateNestedType(memberContext);
+						continue nextMember;
+					}
+				}
+
+				ClassScope memberScope = new ClassScope(this, memberContext);
+				memberTypeBindings[count++] = memberScope.buildType(sourceType, sourceType.fPackage);
+			}
+			if (count != length)
+				System.arraycopy(memberTypeBindings, 0, memberTypeBindings = new ReferenceBinding[count], 0, count);
+		}
+		sourceType.memberTypes = memberTypeBindings;
+	}
+	
 	private void buildMethods() {
 		if (referenceContext.methods == null) {
 			referenceContext.binding.methods = NoMethods;
@@ -228,6 +271,7 @@ public class ClassScope extends Scope {
 		referenceContext.binding.methods = methodBindings;
 		referenceContext.binding.modifiers |= AccUnresolved; // until methods() is sent
 	}
+	
 	SourceTypeBinding buildType(SourceTypeBinding enclosingType, PackageBinding packageBinding) {
 		// provide the typeDeclaration with needed scopes
 		referenceContext.scope = this;
@@ -247,47 +291,68 @@ public class ClassScope extends Scope {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		sourceType.fPackage.addType(sourceType);
 		checkAndSetModifiers();
-
-		// Look at member types
-		ReferenceBinding[] memberTypeBindings = NoMemberTypes;
-		if (referenceContext.memberTypes != null) {
-			int size = referenceContext.memberTypes.length;
-			memberTypeBindings = new ReferenceBinding[size];
-			int count = 0;
-			nextMember : for (int i = 0; i < size; i++) {
-				TypeDeclaration memberContext = referenceContext.memberTypes[i];
-				if (memberContext.isInterface()
-					&& sourceType.isNestedType()
-					&& sourceType.isClass()
-					&& !sourceType.isStatic()) {
-					problemReporter().nestedClassCannotDeclareInterface(memberContext);
-					continue nextMember;
-				}
-				ReferenceBinding type = sourceType;
-				// check that the member does not conflict with an enclosing type
-				do {
-					if (CharOperation.equals(type.sourceName, memberContext.name)) {
-						problemReporter().hidingEnclosingType(memberContext);
-						continue nextMember;
-					}
-					type = type.enclosingType();
-				} while (type != null);
-				// check that the member type does not conflict with another sibling member type
-				for (int j = 0; j < i; j++) {
-					if (CharOperation.equals(referenceContext.memberTypes[j].name, memberContext.name)) {
-						problemReporter().duplicateNestedType(memberContext);
-						continue nextMember;
-					}
-				}
-
-				ClassScope memberScope = new ClassScope(this, memberContext);
-				memberTypeBindings[count++] = memberScope.buildType(sourceType, packageBinding);
-			}
-			if (count != size)
-				System.arraycopy(memberTypeBindings, 0, memberTypeBindings = new ReferenceBinding[count], 0, count);
-		}
-		sourceType.memberTypes = memberTypeBindings;
+		buildTypeParameters();
+		buildMemberTypes();
 		return sourceType;
+	}
+	
+	private void buildTypeParameters() {
+	    SourceTypeBinding sourceType = referenceContext.binding;
+		TypeVariableBinding[] typeVariableBindings = NoTypeVariables;
+		if (referenceContext.typeParameters != null) {
+			int length = referenceContext.typeParameters.length;
+			typeVariableBindings = new TypeVariableBinding[length];
+			HashtableOfObject knownTypeParameterNames = new HashtableOfObject(length);
+			boolean duplicate = false;
+			int count = 0;
+			nextParameter : for (int i = 0; i < length; i++) {
+				TypeParameter typeParameter = referenceContext.typeParameters[i];
+				TypeVariableBinding parameterBinding = new TypeVariableBinding(typeParameter.name, this);
+				
+				if (knownTypeParameterNames.containsKey(typeParameter.name)) {
+					duplicate = true;
+					TypeVariableBinding previousBinding = (TypeVariableBinding) knownTypeParameterNames.get(typeParameter.name);
+					if (previousBinding != null) {
+						for (int j = 0; j < i; j++) {
+							TypeParameter previousParameter = referenceContext.typeParameters[j];
+							if (previousParameter.binding == previousBinding) {
+								problemReporter().duplicateTypeParameterInType(previousParameter);
+								previousParameter.binding = null;
+								break;
+							}
+						}
+					}
+					knownTypeParameterNames.put(typeParameter.name, null); // ensure that the duplicate parameter is found & removed
+					problemReporter().duplicateTypeParameterInType(typeParameter);
+					typeParameter.binding = null;
+				} else {
+					knownTypeParameterNames.put(typeParameter.name, parameterBinding);
+					// remember that we have seen a field with this name
+					if (parameterBinding != null)
+						typeVariableBindings[count++] = parameterBinding;
+				}
+//				TODO should offer warnings to inform about hiding declaring, enclosing or member types				
+//				ReferenceBinding type = sourceType;
+//				// check that the member does not conflict with an enclosing type
+//				do {
+//					if (CharOperation.equals(type.sourceName, memberContext.name)) {
+//						problemReporter().hidingEnclosingType(memberContext);
+//						continue nextParameter;
+//					}
+//					type = type.enclosingType();
+//				} while (type != null);
+//				// check that the member type does not conflict with another sibling member type
+//				for (int j = 0; j < i; j++) {
+//					if (CharOperation.equals(referenceContext.memberTypes[j].name, memberContext.name)) {
+//						problemReporter().duplicateNestedType(memberContext);
+//						continue nextParameter;
+//					}
+//				}
+			}
+			if (count != length)
+				System.arraycopy(typeVariableBindings, 0, typeVariableBindings = new TypeVariableBinding[count], 0, count);
+		}
+		sourceType.typeVariables = typeVariableBindings;
 	}
 	
 	private void checkAndSetModifiers() {
@@ -716,6 +781,17 @@ public class ClassScope extends Scope {
 		sourceType.tagBits |= EndHierarchyCheck;
 		if (noProblems && sourceType.isHierarchyInconsistent())
 			problemReporter().hierarchyHasProblems(sourceType);
+	}
+	
+	private boolean connectTypeParameters() {
+	    // TODO connect type parameter bounds
+//		SourceTypeBinding sourceType = referenceContext.binding;
+//		sourceType.typeParameters = NoTypeParameters;
+//		if (referenceContext.typeParameters == null)
+//			return true;
+//		if (isJavaLangObject(sourceType)) // already handled the case of redefining java.lang.Object
+//			return true;
+	    return true;
 	}
 	
 	// Answer whether a cycle was found between the sourceType & the superType

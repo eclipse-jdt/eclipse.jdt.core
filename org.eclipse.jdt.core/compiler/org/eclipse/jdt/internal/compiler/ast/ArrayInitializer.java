@@ -189,7 +189,7 @@ public class ArrayInitializer extends Expression {
 			}
 		}
 		if (leafElementType != null) {
-			TypeBinding probableTb = scope.createArray(leafElementType, dim);
+			TypeBinding probableTb = scope.createArrayType(leafElementType, dim);
 			scope.problemReporter().typeMismatchErrorActualTypeExpectedType(this, probableTb, expectedTb);
 		}
 		return null;

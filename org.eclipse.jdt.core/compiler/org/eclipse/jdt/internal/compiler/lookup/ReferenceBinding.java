@@ -326,6 +326,7 @@ public final ReferenceBinding enclosingTypeAt(int relativeDepth) {
 		current = current.enclosingType();
 	return current;
 }
+
 public int fieldCount() {
 	return fields().length;
 }
@@ -485,6 +486,7 @@ public final boolean isMemberType() {
 public final boolean isNestedType() {
 	return (tagBits & IsNestedType) != 0;
 }
+
 /* Answer true if the receiver has private visibility
 */
 
@@ -534,9 +536,16 @@ public boolean isSuperclassOf(ReferenceBinding type) {
 
 	return false;
 }
+
+/**
+ * Returns true if the type was declared as a type variable
+ */
+public boolean isTypeVariable() {
+    return false;
+}
+
 /* Answer true if the receiver is deprecated (or any of its enclosing types)
 */
-
 public final boolean isViewedAsDeprecated() {
 	return (modifiers & AccDeprecated) != 0 ||
 		(modifiers & AccDeprecatedImplicitly) != 0;
@@ -603,6 +612,11 @@ public ReferenceBinding[] syntheticEnclosingInstanceTypes() {
 public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 	return null;		// is null if no enclosing instances are required
 }
+
+public TypeVariableBinding[] typeVariables() {
+	return NoTypeVariables;
+}
+
 MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types
 	return methods();
 }

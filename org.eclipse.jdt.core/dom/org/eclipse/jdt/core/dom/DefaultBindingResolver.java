@@ -304,9 +304,9 @@ class DefaultBindingResolver extends BindingResolver {
 					ArrayType arrayType = (ArrayType) type;
 					if (binding.isArrayType()) {
 						ArrayBinding arrayBinding = (ArrayBinding) binding;
-						return getTypeBinding(this.scope.createArray(arrayBinding.leafComponentType, arrayType.getDimensions()));
+						return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, arrayType.getDimensions()));
 					} else {
-						return getTypeBinding(this.scope.createArray(binding, arrayType.getDimensions()));
+						return getTypeBinding(this.scope.createArrayType(binding, arrayType.getDimensions()));
 					}
 				} else {
 					if (binding.isArrayType()) {

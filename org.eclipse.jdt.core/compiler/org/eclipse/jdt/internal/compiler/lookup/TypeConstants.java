@@ -70,4 +70,5 @@ public interface TypeConstants {
 	final MethodBinding[] NoMethods = new MethodBinding[0];
 	final ReferenceBinding[] NoSuperInterfaces = new ReferenceBinding[0];
 	final ReferenceBinding[] NoMemberTypes = new ReferenceBinding[0];
+	final TypeVariableBinding[] NoTypeVariables = new TypeVariableBinding[0];
 }

@@ -27,11 +27,13 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 public class SourceTypeBinding extends ReferenceBinding {
+    
 	public ReferenceBinding superclass;
 	public ReferenceBinding[] superInterfaces;
 	public FieldBinding[] fields;
 	public MethodBinding[] methods;
 	public ReferenceBinding[] memberTypes;
+    public TypeVariableBinding[] typeVariables;
 
 	public ClassScope scope;
 
@@ -44,6 +46,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	Hashtable[] synthetics;
 	
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
+    
 	this.compoundName = compoundName;
 	this.fPackage = fPackage;
 	this.fileName = scope.referenceCompilationUnit().getFileName();
@@ -1032,6 +1035,10 @@ public String toString() {
 	s += "\n\n\n"; //$NON-NLS-1$
 	return s;
 }
+public TypeVariableBinding[] typeVariables() {
+	return this.typeVariables;
+}
+
 void verifyMethods(MethodVerifier verifier) {
 	verifier.verify(this);
 

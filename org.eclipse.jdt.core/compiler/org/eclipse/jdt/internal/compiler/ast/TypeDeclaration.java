@@ -34,7 +34,6 @@ public class TypeDeclaration
 	public FieldDeclaration[] fields;
 	public AbstractMethodDeclaration[] methods;
 	public TypeDeclaration[] memberTypes;
-	public EnumDeclaration[] enumDeclarations;
 	public SourceTypeBinding binding;
 	public ClassScope scope;
 	public MethodScope initializerScope;
@@ -53,8 +52,10 @@ public class TypeDeclaration
 	public QualifiedAllocationExpression allocation; // for anonymous only
 	public TypeDeclaration enclosingType; // for member types only
 	
+	// 1.5 support
+	public EnumDeclaration[] enums;
 	public TypeParameter[] typeParameters;
-
+	
 	public TypeDeclaration(CompilationResult compilationResult){
 		this.compilationResult = compilationResult;
 	}
@@ -131,7 +132,7 @@ public class TypeDeclaration
 			String baseName = "arg";//$NON-NLS-1$
 			Argument[] arguments = (methodDeclaration.arguments = new Argument[argumentsLength]);
 			for (int i = argumentsLength; --i >= 0;) {
-				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault, false);
+				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault, false /*not vararg*/);
 			}
 		}
 
@@ -374,7 +375,7 @@ public class TypeDeclaration
 		if (argumentsLength > 0) {
 			Argument[] arguments = (cd.arguments = new Argument[argumentsLength]);
 			for (int i = argumentsLength; --i >= 0;) {
-				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault, false);
+				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault, false /*not vararg*/);
 			}
 		}
 
@@ -821,14 +822,6 @@ public class TypeDeclaration
 	public StringBuffer printBody(int indent, StringBuffer output) {
 
 		output.append(" {"); //$NON-NLS-1$
-		if (enumDeclarations != null) {
-			for (int i = 0; i < enumDeclarations.length; i++) {
-				if (enumDeclarations[i] != null) {
-					output.append('\n');
-					enumDeclarations[i].print(indent + 1, output);
-				}
-			}
-		}
 		if (memberTypes != null) {
 			for (int i = 0; i < memberTypes.length; i++) {
 				if (memberTypes[i] != null) {
@@ -890,10 +883,11 @@ public class TypeDeclaration
 			if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
 			}
-			// check superclass & interfaces
+			// check superclass
 			if (this.binding.superclass != null) // watch out for Object ! (and other roots)	
 				if (isTypeUseDeprecated(this.binding.superclass, this.scope))
 					this.scope.problemReporter().deprecatedType(this.binding.superclass, this.superclass);
+			// check superinterfaces
 			if (this.superInterfaces != null)
 				for (int i = this.superInterfaces.length; --i >= 0;)
 					if (this.superInterfaces[i].resolvedType != null)
@@ -1004,33 +998,44 @@ public class TypeDeclaration
 			return;
 		try {
 			if (visitor.visit(this, unitScope)) {
-				if (superclass != null)
-					superclass.traverse(visitor, scope);
-				if (superInterfaces != null) {
-					int superInterfaceLength = superInterfaces.length;
-					for (int i = 0; i < superInterfaceLength; i++)
-						superInterfaces[i].traverse(visitor, scope);
+				if (this.superclass != null)
+					this.superclass.traverse(visitor, scope);
+				if (this.superInterfaces != null) {
+					int length = this.superInterfaces.length;
+					for (int i = 0; i < length; i++)
+						this.superInterfaces[i].traverse(visitor, scope);
 				}
-				if (memberTypes != null) {
-					int memberTypesLength = memberTypes.length;
-					for (int i = 0; i < memberTypesLength; i++)
-						memberTypes[i].traverse(visitor, scope);
+				if (this.typeParameters != null) {
+					int length = this.typeParameters.length;
+					for (int i = 0; i < length; i++) {
+						this.typeParameters[i].traverse(visitor, scope);
+					}
+				}				
+				if (this.memberTypes != null) {
+					int length = this.memberTypes.length;
+					for (int i = 0; i < length; i++)
+						this.memberTypes[i].traverse(visitor, scope);
 				}
-				if (fields != null) {
-					int fieldsLength = fields.length;
-					for (int i = 0; i < fieldsLength; i++) {
+				if (this.enums != null) {
+					int length = this.enums.length;
+					for (int i = 0; i < length; i++)
+						this.enums[i].traverse(visitor, scope);
+				}
+				if (this.fields != null) {
+					int length = this.fields.length;
+					for (int i = 0; i < length; i++) {
 						FieldDeclaration field;
-						if ((field = fields[i]).isStatic()) {
+						if ((field = this.fields[i]).isStatic()) {
 							field.traverse(visitor, staticInitializerScope);
 						} else {
 							field.traverse(visitor, initializerScope);
 						}
 					}
 				}
-				if (methods != null) {
-					int methodsLength = methods.length;
-					for (int i = 0; i < methodsLength; i++)
-						methods[i].traverse(visitor, scope);
+				if (this.methods != null) {
+					int length = this.methods.length;
+					for (int i = 0; i < length; i++)
+						this.methods[i].traverse(visitor, scope);
 				}
 			}
 			visitor.endVisit(this, unitScope);
@@ -1038,6 +1043,7 @@ public class TypeDeclaration
 			// silent abort
 		}
 	}
+
 	/**
 	 *	Iteration for a local innertype
 	 *
@@ -1047,33 +1053,44 @@ public class TypeDeclaration
 			return;
 		try {
 			if (visitor.visit(this, blockScope)) {
-				if (superclass != null)
-					superclass.traverse(visitor, scope);
-				if (superInterfaces != null) {
-					int superInterfaceLength = superInterfaces.length;
-					for (int i = 0; i < superInterfaceLength; i++)
-						superInterfaces[i].traverse(visitor, scope);
+				if (this.superclass != null)
+					this.superclass.traverse(visitor, scope);
+				if (this.superInterfaces != null) {
+					int length = this.superInterfaces.length;
+					for (int i = 0; i < length; i++)
+						this.superInterfaces[i].traverse(visitor, scope);
 				}
-				if (memberTypes != null) {
-					int memberTypesLength = memberTypes.length;
-					for (int i = 0; i < memberTypesLength; i++)
-						memberTypes[i].traverse(visitor, scope);
+				if (this.typeParameters != null) {
+					int length = this.typeParameters.length;
+					for (int i = 0; i < length; i++) {
+						this.typeParameters[i].traverse(visitor, scope);
+					}
+				}				
+				if (this.memberTypes != null) {
+					int length = this.memberTypes.length;
+					for (int i = 0; i < length; i++)
+						this.memberTypes[i].traverse(visitor, scope);
 				}
-				if (fields != null) {
-					int fieldsLength = fields.length;
-					for (int i = 0; i < fieldsLength; i++) {
+				if (this.enums != null) {
+					int length = this.enums.length;
+					for (int i = 0; i < length; i++)
+						this.enums[i].traverse(visitor, scope);
+				}				
+				if (this.fields != null) {
+					int length = this.fields.length;
+					for (int i = 0; i < length; i++) {
 						FieldDeclaration field;
-						if ((field = fields[i]).isStatic()) {
+						if ((field = this.fields[i]).isStatic()) {
 							// local type cannot have static fields
 						} else {
 							field.traverse(visitor, initializerScope);
 						}
 					}
 				}
-				if (methods != null) {
-					int methodsLength = methods.length;
-					for (int i = 0; i < methodsLength; i++)
-						methods[i].traverse(visitor, scope);
+				if (this.methods != null) {
+					int length = this.methods.length;
+					for (int i = 0; i < length; i++)
+						this.methods[i].traverse(visitor, scope);
 				}
 			}
 			visitor.endVisit(this, blockScope);
@@ -1091,40 +1108,51 @@ public class TypeDeclaration
 			return;
 		try {
 			if (visitor.visit(this, classScope)) {
-				if (superclass != null)
-					superclass.traverse(visitor, scope);
-				if (superInterfaces != null) {
-					int superInterfaceLength = superInterfaces.length;
-					for (int i = 0; i < superInterfaceLength; i++)
-						superInterfaces[i].traverse(visitor, scope);
+				if (this.superclass != null)
+					this.superclass.traverse(visitor, scope);
+				if (this.superInterfaces != null) {
+					int length = this.superInterfaces.length;
+					for (int i = 0; i < length; i++)
+						this.superInterfaces[i].traverse(visitor, scope);
 				}
-				if (memberTypes != null) {
-					int memberTypesLength = memberTypes.length;
-					for (int i = 0; i < memberTypesLength; i++)
-						memberTypes[i].traverse(visitor, scope);
+				if (this.typeParameters != null) {
+					int length = this.typeParameters.length;
+					for (int i = 0; i < length; i++) {
+						this.typeParameters[i].traverse(visitor, scope);
+					}
+				}				
+				if (this.memberTypes != null) {
+					int length = this.memberTypes.length;
+					for (int i = 0; i < length; i++)
+						this.memberTypes[i].traverse(visitor, scope);
 				}
-				if (fields != null) {
-					int fieldsLength = fields.length;
-					for (int i = 0; i < fieldsLength; i++) {
+				if (this.enums != null) {
+					int length = this.enums.length;
+					for (int i = 0; i < length; i++)
+						this.enums[i].traverse(visitor, scope);
+				}					
+				if (this.fields != null) {
+					int length = this.fields.length;
+					for (int i = 0; i < length; i++) {
 						FieldDeclaration field;
-						if ((field = fields[i]).isStatic()) {
+						if ((field = this.fields[i]).isStatic()) {
 							field.traverse(visitor, staticInitializerScope);
 						} else {
 							field.traverse(visitor, initializerScope);
 						}
 					}
 				}
-				if (methods != null) {
-					int methodsLength = methods.length;
-					for (int i = 0; i < methodsLength; i++)
-						methods[i].traverse(visitor, scope);
+				if (this.methods != null) {
+					int length = this.methods.length;
+					for (int i = 0; i < length; i++)
+						this.methods[i].traverse(visitor, scope);
 				}
 			}
 			visitor.endVisit(this, classScope);
 		} catch (AbortType e) {
 			// silent abort
 		}
-	}
+	}	
 
 	/**
 	 * MaxFieldCount's computation is necessary so as to reserve space for
@@ -1146,5 +1174,5 @@ public class TypeDeclaration
 		} else {
 			maxFieldCount = outerMostType.maxFieldCount; // down
 		}
-	}
+	}	
 }

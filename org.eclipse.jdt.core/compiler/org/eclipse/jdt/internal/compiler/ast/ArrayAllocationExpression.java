@@ -159,7 +159,7 @@ public class ArrayAllocationExpression extends Expression {
 			if (dimensions.length > 255) {
 				scope.problemReporter().tooManyDimensions(this);
 			}
-			this.resolvedType = scope.createArray(referenceType, dimensions.length);
+			this.resolvedType = scope.createArrayType(referenceType, dimensions.length);
 
 			// check the initializer
 			if (initializer != null) {

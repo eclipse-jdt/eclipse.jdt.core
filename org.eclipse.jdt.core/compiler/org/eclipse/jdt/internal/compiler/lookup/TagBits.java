@@ -42,4 +42,7 @@ public interface TagBits {
 
 	// test bit to identify if the type's hierarchy is inconsistent
 	final int HierarchyHasProblems = 0x8000;
+	
+	// test bit to identify a parameterized type instance
+	final int IsParameterizedType = 0x10000;
 }

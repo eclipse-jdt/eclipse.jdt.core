@@ -46,11 +46,11 @@ public class EnumDeclaration extends TypeDeclaration {
 			enumConstants[length - 1].print(indent + 1, output);
 			output.append("\n;\n");//$NON-NLS-1$
 		}
-		if (enumDeclarations != null) {
-			for (int i = 0; i < enumDeclarations.length; i++) {
-				if (enumDeclarations[i] != null) {
+		if (this.enums != null) {
+			for (int i = 0; i < this.enums.length; i++) {
+				if (this.enums[i] != null) {
 					output.append('\n');
-					enumDeclarations[i].print(indent + 1, output);
+					this.enums[i].print(indent + 1, output);
 				}
 			}
 		}
@@ -89,50 +89,44 @@ public class EnumDeclaration extends TypeDeclaration {
 		try {
 			if (visitor.visit(this, unitScope)) {
 				if (this.typeParameters != null) {
-					int typeParametersLength = this.typeParameters.length;
-					for (int i = 0; i < typeParametersLength; i++) {
+					int length = this.typeParameters.length;
+					for (int i = 0; i < length; i++) {
 						this.typeParameters[i].traverse(visitor, scope);
 					}
 				}
-				if (superclass != null)
-					superclass.traverse(visitor, scope);
-				if (superInterfaces != null) {
-					int superInterfaceLength = superInterfaces.length;
-					for (int i = 0; i < superInterfaceLength; i++)
-						superInterfaces[i].traverse(visitor, scope);
+				if (this.superclass != null)
+					this.superclass.traverse(visitor, scope);
+				if (this.superInterfaces != null) {
+					int length = this.superInterfaces.length;
+					for (int i = 0; i < length; i++)
+						this.superInterfaces[i].traverse(visitor, scope);
 				}
-				if (memberTypes != null) {
-					int memberTypesLength = memberTypes.length;
-					for (int i = 0; i < memberTypesLength; i++)
-						memberTypes[i].traverse(visitor, scope);
+				if (this.memberTypes != null) {
+					int length = this.memberTypes.length;
+					for (int i = 0; i < length; i++)
+						this.memberTypes[i].traverse(visitor, scope);
 				}
-				if (fields != null) {
-					int fieldsLength = fields.length;
-					for (int i = 0; i < fieldsLength; i++) {
+				if (this.enums != null) {
+					int length = this.enums.length;
+					for (int i = 0; i < length; i++) {
+						this.enums[i].traverse(visitor, scope);
+					}
+				}				
+				if (this.fields != null) {
+					int length = this.fields.length;
+					for (int i = 0; i < length; i++) {
 						FieldDeclaration field;
-						if ((field = fields[i]).isStatic()) {
+						if ((field = this.fields[i]).isStatic()) {
 							field.traverse(visitor, staticInitializerScope);
 						} else {
 							field.traverse(visitor, initializerScope);
 						}
 					}
 				}
-				if (methods != null) {
-					int methodsLength = methods.length;
-					for (int i = 0; i < methodsLength; i++)
-						methods[i].traverse(visitor, scope);
-				}
-				if (enumDeclarations != null) {
-					int enumDeclarationsLength = enumDeclarations.length;
-					for (int i = 0; i < enumDeclarationsLength; i++) {
-						enumDeclarations[i].traverse(visitor, scope);
-					}
-				}
-				if (enumDeclarations != null) {
-					int enumDeclarationsLength = enumDeclarations.length;
-					for (int i = 0; i < enumDeclarationsLength; i++) {
-						enumDeclarations[i].traverse(visitor, scope);
-					}
+				if (this.methods != null) {
+					int length = methods.length;
+					for (int i = 0; i < length; i++)
+						this.methods[i].traverse(visitor, scope);
 				}
 			}
 			visitor.endVisit(this, unitScope);
@@ -152,45 +146,39 @@ public class EnumDeclaration extends TypeDeclaration {
 						this.typeParameters[i].traverse(visitor, scope);
 					}
 				}
-				if (superclass != null)
-					superclass.traverse(visitor, scope);
-				if (superInterfaces != null) {
-					int superInterfaceLength = superInterfaces.length;
-					for (int i = 0; i < superInterfaceLength; i++)
-						superInterfaces[i].traverse(visitor, scope);
+				if (this.superclass != null)
+					this.superclass.traverse(visitor, scope);
+				if (this.superInterfaces != null) {
+					int length = this.superInterfaces.length;
+					for (int i = 0; i < length; i++)
+						this.superInterfaces[i].traverse(visitor, scope);
 				}
-				if (memberTypes != null) {
-					int memberTypesLength = memberTypes.length;
-					for (int i = 0; i < memberTypesLength; i++)
-						memberTypes[i].traverse(visitor, scope);
+				if (this.memberTypes != null) {
+					int length = this.memberTypes.length;
+					for (int i = 0; i < length; i++)
+						this.memberTypes[i].traverse(visitor, scope);
 				}
-				if (fields != null) {
-					int fieldsLength = fields.length;
-					for (int i = 0; i < fieldsLength; i++) {
+				if (this.enums != null) {
+					int length = this.enums.length;
+					for (int i = 0; i < length; i++) {
+						this.enums[i].traverse(visitor, scope);
+					}
+				}				
+				if (this.fields != null) {
+					int length = this.fields.length;
+					for (int i = 0; i < length; i++) {
 						FieldDeclaration field;
-						if ((field = fields[i]).isStatic()) {
+						if ((field = this.fields[i]).isStatic()) {
 							field.traverse(visitor, staticInitializerScope);
 						} else {
 							field.traverse(visitor, initializerScope);
 						}
 					}
 				}
-				if (methods != null) {
-					int methodsLength = methods.length;
-					for (int i = 0; i < methodsLength; i++)
-						methods[i].traverse(visitor, scope);
-				}
-				if (enumDeclarations != null) {
-					int enumDeclarationsLength = enumDeclarations.length;
-					for (int i = 0; i < enumDeclarationsLength; i++) {
-						enumDeclarations[i].traverse(visitor, scope);
-					}
-				}
-				if (enumDeclarations != null) {
-					int enumDeclarationsLength = enumDeclarations.length;
-					for (int i = 0; i < enumDeclarationsLength; i++) {
-						enumDeclarations[i].traverse(visitor, scope);
-					}
+				if (this.methods != null) {
+					int length = this.methods.length;
+					for (int i = 0; i < length; i++)
+						this.methods[i].traverse(visitor, scope);
 				}
 			}
 			visitor.endVisit(this, classScope);
@@ -206,50 +194,44 @@ public class EnumDeclaration extends TypeDeclaration {
 		try {
 			if (visitor.visit(this, unitScope)) {
 				if (this.typeParameters != null) {
-					int typeParametersLength = this.typeParameters.length;
-					for (int i = 0; i < typeParametersLength; i++) {
+					int length = this.typeParameters.length;
+					for (int i = 0; i < length; i++) {
 						this.typeParameters[i].traverse(visitor, scope);
 					}
 				}
-				if (superclass != null)
-					superclass.traverse(visitor, scope);
-				if (superInterfaces != null) {
-					int superInterfaceLength = superInterfaces.length;
-					for (int i = 0; i < superInterfaceLength; i++)
-						superInterfaces[i].traverse(visitor, scope);
+				if (this.superclass != null)
+					this.superclass.traverse(visitor, scope);
+				if (this.superInterfaces != null) {
+					int length = this.superInterfaces.length;
+					for (int i = 0; i < length; i++)
+						this.superInterfaces[i].traverse(visitor, scope);
 				}
-				if (memberTypes != null) {
-					int memberTypesLength = memberTypes.length;
-					for (int i = 0; i < memberTypesLength; i++)
-						memberTypes[i].traverse(visitor, scope);
+				if (this.memberTypes != null) {
+					int length = this.memberTypes.length;
+					for (int i = 0; i < length; i++)
+						this.memberTypes[i].traverse(visitor, scope);
 				}
-				if (fields != null) {
-					int fieldsLength = fields.length;
-					for (int i = 0; i < fieldsLength; i++) {
+				if (this.enums != null) {
+					int length = this.enums.length;
+					for (int i = 0; i < length; i++) {
+						this.enums[i].traverse(visitor, scope);
+					}
+				}				
+				if (this.fields != null) {
+					int length = this.fields.length;
+					for (int i = 0; i < length; i++) {
 						FieldDeclaration field;
-						if ((field = fields[i]).isStatic()) {
+						if ((field = this.fields[i]).isStatic()) {
 							field.traverse(visitor, staticInitializerScope);
 						} else {
 							field.traverse(visitor, initializerScope);
 						}
 					}
 				}
-				if (methods != null) {
-					int methodsLength = methods.length;
-					for (int i = 0; i < methodsLength; i++)
-						methods[i].traverse(visitor, scope);
-				}
-				if (enumDeclarations != null) {
-					int enumDeclarationsLength = enumDeclarations.length;
-					for (int i = 0; i < enumDeclarationsLength; i++) {
-						enumDeclarations[i].traverse(visitor, scope);
-					}
-				}
-				if (enumDeclarations != null) {
-					int enumDeclarationsLength = enumDeclarations.length;
-					for (int i = 0; i < enumDeclarationsLength; i++) {
-						enumDeclarations[i].traverse(visitor, scope);
-					}
+				if (this.methods != null) {
+					int length = this.methods.length;
+					for (int i = 0; i < length; i++)
+						this.methods[i].traverse(visitor, scope);
 				}
 			}
 			visitor.endVisit(this, unitScope);

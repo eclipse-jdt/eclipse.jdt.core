@@ -15,21 +15,14 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class TypeParameter extends AbstractVariableDeclaration {
 
+    public TypeVariableBinding binding;
 	public TypeReference[] bounds;
 
 	public void resolve(ClassScope scope) {
-		
-		if (bounds != null){
-			for (int i = 0, max = bounds.length; i < max; i++){
-				TypeBinding boundType = bounds[i].getTypeBinding(scope);
-				if (isTypeUseDeprecated(boundType, scope)){
-					scope.problemReporter().deprecatedType(boundType, bounds[i]);
-				}
-			}
-		}
 	}
 
 	/* (non-Javadoc)

@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 
 public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstants {
 	public CompilerOptions options;
@@ -35,7 +36,8 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	private INameEnvironment nameEnvironment;
 	private MethodVerifier verifier;
 	private ArrayBinding[][] uniqueArrayBindings;
-
+	private SimpleLookupTable uniqueParameterizedTypeBindings;
+	
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
 	private int lastUnitIndex = -1;
 	private int lastCompletedUnitIndex = -1;
@@ -59,6 +61,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions options, 
 	this.knownPackages = new HashtableOfPackage();
 	this.uniqueArrayBindings = new ArrayBinding[5][];
 	this.uniqueArrayBindings[0] = new ArrayBinding[50]; // start off the most common 1 dimension array @ 50
+	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(10);
 }
 /* Ask the oracle for a type which corresponds to the compoundName.
 * Answer null if the name cannot be found.
@@ -338,6 +341,44 @@ PackageBinding createPackage(char[][] compoundName) {
 	}
 	return packageBinding;
 }
+
+public ParameterizedTypeBinding createParameterizedType(ReferenceBinding rawType, TypeBinding[] typeArguments) {
+
+	// cached info is array of already created parameterized types for this raw type
+	ParameterizedTypeBinding[] cachedInfo = (ParameterizedTypeBinding[])this.uniqueParameterizedTypeBindings.get(rawType);
+	int argLength = typeArguments.length;
+	boolean needToGrow = false;
+	if (cachedInfo != null){
+		nextCachedType : 
+			// iterate existing parameterized for reusing one with same type arguments if any
+			for (int i = 0, max = cachedInfo.length; i < max; i++){
+				TypeBinding[] cachedArguments = cachedInfo[i].typeArguments;
+				int cachedArgLength = cachedArguments.length;
+				if (argLength == cachedArgLength){
+					for (int j = 0; j < cachedArgLength; j++){
+						if (typeArguments[j] != cachedArguments[j]) continue nextCachedType;
+					}
+					// all arguments match, reuse current
+					return cachedInfo[i];
+				}
+		}
+		needToGrow = true;
+	} else {
+		cachedInfo = new ParameterizedTypeBinding[1];
+		this.uniqueParameterizedTypeBindings.put(rawType, cachedInfo);
+	}
+	// grow cache ?
+	if (needToGrow){
+		int length = cachedInfo.length;
+		System.arraycopy(cachedInfo, 0, cachedInfo = new ParameterizedTypeBinding[length+1], 0, length);
+		this.uniqueParameterizedTypeBindings.put(rawType, cachedInfo);
+	}
+	// add new binding
+	ParameterizedTypeBinding parameterizedType = new ParameterizedTypeBinding(rawType,typeArguments);
+	cachedInfo[cachedInfo.length-1] = parameterizedType;
+	return parameterizedType;
+}
+
 /* Answer the type for the compoundName if it exists in the cache.
 * Answer theNotFoundType if it could not be resolved the first time
 * it was looked up, otherwise answer null.
@@ -556,6 +597,8 @@ public void reset() {
 		this.uniqueArrayBindings[i] = null;
 	this.uniqueArrayBindings[0] = new ArrayBinding[50]; // start off the most common 1 dimension array @ 50
 
+	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(10);
+	
 	for (int i = this.units.length; --i >= 0;)
 		this.units[i] = null;
 	this.lastUnitIndex = -1;

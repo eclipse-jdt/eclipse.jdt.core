@@ -169,9 +169,7 @@ public class Parser implements BindingIds, ParserBasicInformation, TerminalToken
 	private int synchronizedBlockSourceStart;
 	protected int[] variablesCounter;
 
-	public Javadoc javadoc;
-	// javadoc
-	public JavadocParser javadocParser;	static {
+	public Javadoc javadoc;	public JavadocParser javadocParser;	static {
 		try{
 			initTables();
 		} catch(java.io.IOException ex){
@@ -6471,7 +6469,7 @@ protected void dispatchDeclarationInto(int length) {
 		typeDecl.memberTypes = new TypeDeclaration[size3];
 	}
 	if (size4 != 0) {
-		typeDecl.enumDeclarations = new EnumDeclaration[size4];
+		typeDecl.enums = new EnumDeclaration[size4];
 	}
 
 	//arrays fill up
@@ -6497,7 +6495,7 @@ protected void dispatchDeclarationInto(int length) {
 					System.arraycopy(
 						astStack, 
 						astPtr + start + 1, 
-						typeDecl.enumDeclarations, 
+						typeDecl.enums, 
 						size4 - length2, 
 						length2); 
 					break;
@@ -6573,7 +6571,7 @@ protected void dispatchDeclarationInto(EnumConstant enumConstant, int length) {
 		enumConstant.memberTypes = new TypeDeclaration[size3];
 	}
 	if (size4 != 0) {
-		enumConstant.enumDeclarations = new EnumDeclaration[size4];
+		enumConstant.enums = new EnumDeclaration[size4];
 	}
 
 	//arrays fill up
@@ -6599,7 +6597,7 @@ protected void dispatchDeclarationInto(EnumConstant enumConstant, int length) {
 					System.arraycopy(
 						astStack, 
 						astPtr + start + 1, 
-						enumConstant.enumDeclarations, 
+						enumConstant.enums, 
 						size4 - length2, 
 						length2); 
 					break;
@@ -7345,10 +7343,6 @@ public void initialize() {
 	lastIgnoredToken = -1;
 	lastErrorEndPosition = -1;
 	listLength = 0;
-	
-	rBraceStart = 0;
-	rBraceEnd = 0;
-	rBraceSuccessorStart = 0;
 }
 public void initializeScanner(){
 	this.scanner = new Scanner(

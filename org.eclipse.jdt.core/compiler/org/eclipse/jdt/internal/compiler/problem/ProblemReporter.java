@@ -327,6 +327,15 @@ public void cannotReferToNonFinalOuterLocal(LocalVariableBinding local, ASTNode 
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void cannotUseTypeVariable(TypeVariableBinding typeParameter, ASTNode location) {
+	String[] arguments =new String[]{ new String(typeParameter.readableName())};
+	this.handle(
+		IProblem.CannotUseTypeVariable,
+		arguments,
+		arguments,
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void cannotReturnInInitializer(ASTNode location) {
 	this.handle(
 		IProblem.CannotReturnInInitializer,
@@ -721,6 +730,15 @@ public void duplicateFieldInType(SourceTypeBinding type, FieldDeclaration fieldD
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
+public void duplicateTypeParameterInType(TypeParameter typeParameter) {
+	this.handle(
+		IProblem.DuplicateTypeVariable,
+		new String[] { new String(typeParameter.name)},
+		new String[] { new String(typeParameter.name)},
+		typeParameter.sourceStart,
+		typeParameter.sourceEnd);
+}
+
 public void duplicateImport(ImportReference importRef) {
 	String[] arguments = new String[] {CharOperation.toString(importRef.tokens)};
 	this.handle(
