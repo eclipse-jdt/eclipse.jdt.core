@@ -327,6 +327,17 @@ public interface ITypeBinding extends IBinding {
 	public boolean isAnonymous();
 
 	/**
+	 * Returns the binary name (as defined in the Java Language 
+	 * Specification Chapter 13 Section 1) of this type binding.
+	 * It is however slash ('/') separated instead of dot ('.') serarated as in
+	 * says in the specification.
+	 * Returns null if the type is defined in code that is unreachable.
+	 *
+	 * @return the binary name of this type
+	 */
+	public String getBinaryName();
+
+	/**
 	 * Returns a list of type bindings representing all the classes
 	 * and interfaces declared as members of this class or interface type. 
 	 * These include public, protected, default (package-private) access,

@@ -2961,5 +2961,140 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("Unexpected key", "test0502/A/voidfoo()/B/voidbar()", methodBinding.getKey()); //$NON-NLS-1$
 	}	
 
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
+	 */
+	public void test0503a() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// top level type A
+		TypeDeclaration type = (TypeDeclaration)getASTNode(unit, 0);
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertEquals("Unexpected binary name", "test0503/A", typeBinding.getBinaryName()); //$NON-NLS-1$
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
+	 */
+	public void test0503b() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// member type B in A
+		TypeDeclaration type = (TypeDeclaration)getASTNode(unit, 0, 0);
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertEquals("Unexpected binary name", "test0503/A$B", typeBinding.getBinaryName()); //$NON-NLS-1$
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
+	 */
+	public void test0503c() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// local type E in foo() in A
+		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 0);
+		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertEquals("Unexpected binary name", "test0503/A$1$E", typeBinding.getBinaryName()); //$NON-NLS-1$
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
+	 */
+	public void test0503d() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// anonymous type new Object() {...} in foo() in A
+		ExpressionStatement expressionStatement = (ExpressionStatement) getASTNode(unit, 0, 1, 1);
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
+		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+		ITypeBinding typeBinding = anonymousClassDeclaration.resolveBinding();
+		assertEquals("Unexpected binary name", "test0503/A$2", typeBinding.getBinaryName()); //$NON-NLS-1$
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
+	 */
+	public void test0503e() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// type F in anonymous type new Object() {...} in foo() in A
+		ExpressionStatement expressionStatement = (ExpressionStatement) getASTNode(unit, 0, 1, 1);
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
+		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+		TypeDeclaration type = (TypeDeclaration) anonymousClassDeclaration.bodyDeclarations().get(0);
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertEquals("Unexpected binary name", "test0503/A$2$F", typeBinding.getBinaryName()); //$NON-NLS-1$
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
+	 */
+	public void test0503f() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// local type C in bar() in B in A
+		MethodDeclaration method = (MethodDeclaration) getASTNode(unit, 0, 0, 0);
+		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) method.getBody().statements().get(0);
+		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertEquals("Unexpected binary name", "test0503/A$1$C", typeBinding.getBinaryName()); //$NON-NLS-1$
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
+	 */
+	public void test0503g() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// anonymous type new Object() {...} in bar() in B in A
+		MethodDeclaration method = (MethodDeclaration) getASTNode(unit, 0, 0, 0);
+		ExpressionStatement expressionStatement = (ExpressionStatement) method.getBody().statements().get(1);
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
+		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+		ITypeBinding typeBinding = anonymousClassDeclaration.resolveBinding();
+		assertEquals("Unexpected binary name", "test0503/A$1", typeBinding.getBinaryName()); //$NON-NLS-1$
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
+	 */
+	public void test0503h() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// type D in anonymous type new Object() {...} in bar() in B in A
+		MethodDeclaration method = (MethodDeclaration) getASTNode(unit, 0, 0, 0);
+		ExpressionStatement expressionStatement = (ExpressionStatement) method.getBody().statements().get(1);
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
+		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+		TypeDeclaration type = (TypeDeclaration) anonymousClassDeclaration.bodyDeclarations().get(0);
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertEquals("Unexpected binary name", "test0503/A$1$D", typeBinding.getBinaryName()); //$NON-NLS-1$
+	}	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
+	 */
+	public void test0503i() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit unit = (CompilationUnit)runConversion(sourceUnit, true);
+		
+		// unreachable type G in foo() in A
+		IfStatement ifStatement = (IfStatement) getASTNode(unit, 0, 1, 2);
+		Block block = (Block)ifStatement.getThenStatement();
+		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) block.statements().get(0);
+		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertEquals("Unexpected binary name", null, typeBinding.getBinaryName()); //$NON-NLS-1$
+	}	
+
 }
 
