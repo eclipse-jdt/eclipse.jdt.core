@@ -17,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -38,12 +39,9 @@ public class Util implements SuffixConstants {
 	private final static String bundleName =
 		"org.eclipse.jdt.internal.compiler.util.messages"; //$NON-NLS-1$
 	private static final int DEFAULT_READING_SIZE = 8192;
-	
-	private final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
 
 	public static String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 	public static char[] LINE_SEPARATOR_CHARS = LINE_SEPARATOR.toCharArray();
-	private final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
 	
 	/**
 	 * Lookup the message with the given ID in this catalog 
@@ -80,62 +78,7 @@ public class Util implements SuffixConstants {
 			// the id we were looking for.  In most cases this is semi-informative so is not too bad.
 			return "Missing message: " + id + " in: " + bundleName; //$NON-NLS-2$ //$NON-NLS-1$
 		}
-		return bindMessage(message, arguments);
-	}
-	/**
-	 * Bind some message with given string values.
-	 */
-	public static String bindMessage(String message, String[] arguments) {
-		// for compatibility with MessageFormat which eliminates double quotes in original message
-		char[] messageWithNoDoubleQuotes =
-			CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
-	
-		if (arguments == null) return new String(messageWithNoDoubleQuotes);
-	
-		int length = messageWithNoDoubleQuotes.length;
-		int start = 0;
-		int end = length;
-		StringBuffer output = null;
-		while (true) {
-			if ((end = CharOperation.indexOf('{', messageWithNoDoubleQuotes, start)) > -1) {
-				if (output == null) output = new StringBuffer(length+arguments.length*20);
-				output.append(messageWithNoDoubleQuotes, start, end - start);
-				if ((start = CharOperation.indexOf('}', messageWithNoDoubleQuotes, end + 1)) > -1) {
-					int index = -1;
-					String argId = new String(messageWithNoDoubleQuotes, end + 1, start - end - 1);
-					try {
-						index = Integer.parseInt(argId);
-						if (arguments[index] == null) {
-							output.append('{').append(argId).append('}'); // leave parameter in since no better arg '{0}'
-						} else {
-							output.append(arguments[index]);
-						}						
-					} catch (NumberFormatException nfe) { // could be nested message ID {compiler.name}
-						boolean done = false;
-						String argMessage = null;
-						try {
-							argMessage = bundle.getString(argId);
-							output.append(argMessage);
-							done = true;
-						} catch (MissingResourceException e) {
-							// unable to bind argument, ignore (will leave argument in)
-						}
-						if (!done) output.append(messageWithNoDoubleQuotes, end + 1, start - end);
-					} catch (ArrayIndexOutOfBoundsException e) {
-						output.append("{missing " + Integer.toString(index) + "}"); //$NON-NLS-2$ //$NON-NLS-1$
-					}
-					start++;
-				} else {
-					output.append(messageWithNoDoubleQuotes, end, length);
-					break;
-				}
-			} else {
-				if (output == null) return new String(messageWithNoDoubleQuotes);
-				output.append(messageWithNoDoubleQuotes, start, length - start);
-				break;
-			}
-		}
-		return output.toString();
+		return MessageFormat.format(message, arguments);
 	}
 	/**
 	 * Returns the given bytes as a char array using a given encoding (null means platform default).

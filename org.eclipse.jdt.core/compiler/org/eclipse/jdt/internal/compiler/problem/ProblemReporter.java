@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
+import java.text.MessageFormat;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
@@ -1335,7 +1337,7 @@ public void forbiddenReference(TypeBinding type, ASTNode location, String messag
 	this.handle(
 		IProblem.ForbiddenReference,
 		new String[] { new String(type.readableName()) }, // distinct from msg arg for quickfix purpose
-		new String[] { Util.bindMessage(messageTemplate, new String[]{ new String(type.shortReadableName()) } ) },
+		new String[] { MessageFormat.format(messageTemplate, new String[]{ new String(type.shortReadableName())})},
 		location.sourceStart,
 		location.sourceEnd);
 }

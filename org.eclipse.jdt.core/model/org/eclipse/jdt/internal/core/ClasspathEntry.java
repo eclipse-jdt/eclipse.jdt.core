@@ -558,8 +558,8 @@ public class ClasspathEntry implements IClasspathEntry {
 			} else {
 				this.importRestriction = new AccessRestriction(
 									(this.entryKind == CPE_PROJECT || this.entryKind == CPE_SOURCE) // can be remote source entry when reconciling
-										? org.eclipse.jdt.internal.core.util.Util.bind("restrictedAccess.project", null, getPath().segment(0)) //$NON-NLS-1$
-										: org.eclipse.jdt.internal.core.util.Util.bind("restrictedAccess.library", null, getPath().makeRelative().toOSString()), //$NON-NLS-1$
+										? org.eclipse.jdt.internal.core.util.Util.bind("restrictedAccess.project", "{0}", getPath().segment(0)) //$NON-NLS-1$//$NON-NLS-2$
+										: org.eclipse.jdt.internal.core.util.Util.bind("restrictedAccess.library", "{0}", getPath().makeRelative().toOSString()), //$NON-NLS-1$//$NON-NLS-2$
 									importIncludes, 
 									importExcludes,
 									null /* no further restriction */);

@@ -22,6 +22,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -651,7 +652,13 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 * 
 		 */
 		public void logVersion() {
-			this.printlnOut(Main.bind("misc.version")); //$NON-NLS-1$
+			this.printlnOut(Main.bind("misc.version", //$NON-NLS-1$
+				new String[] {
+					Main.bind("compiler.name"), //$NON-NLS-1$
+					Main.bind("compiler.version"), //$NON-NLS-1$
+					Main.bind("compiler.copyright") //$NON-NLS-1$
+				}
+			)); //$NON-NLS-1$
 		}
 
 		/**
@@ -854,12 +861,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public final static String bundleName =
 		"org.eclipse.jdt.internal.compiler.batch.messages"; 	//$NON-NLS-1$
 
-	public final static char[] DOUBLE_QUOTES = "''".toCharArray(); //$NON-NLS-1$
-	public final static char[] SINGLE_QUOTE = "'".toCharArray(); //$NON-NLS-1$
 	public String[] classpaths;
 	public String destinationPath;
 	public String[] encodings;
-	public Logger logger;	
+	public Logger logger;
 	public int exportedClassFilesCounter;
 	public String[] filenames;
 	public boolean generatePackagesStructure;
@@ -939,57 +944,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			// the id we were looking for.  In most cases this is semi-informative so is not too bad.
 			return "Missing message: " + id + " in: " + bundleName; //$NON-NLS-2$ //$NON-NLS-1$
 		}
-		// for compatibility with MessageFormat which eliminates double quotes in original message
-		char[] messageWithNoDoubleQuotes =
-			CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
-		
-		message = new String(messageWithNoDoubleQuotes);
-		int length = message.length();
-		int start = -1;
-		int end = length;
-		StringBuffer output = null;
-		while (true) {
-			if ((end = message.indexOf('{', start)) > -1) {
-				if (output == null) output = new StringBuffer(80);
-				output.append(message.substring(start + 1, end));
-				if ((start = message.indexOf('}', end)) > -1) {
-					int index = -1;
-					try {
-						String argId = message.substring(end + 1, start);
-						index = Integer.parseInt(argId);
-						if (arguments == null || arguments[index] == null) {
-							output.append('{').append(argId).append('}'); // leave parameter in since no better arg '{0}'
-						} else {
-							output.append(arguments[index]);
-						}						
-					} catch (NumberFormatException nfe) { // could be nested message ID {compiler.name}
-						String argId = message.substring(end + 1, start);
-						boolean done = false;
-						if (!id.equals(argId)) {
-							String argMessage = null;
-							try {
-								argMessage = bundle.getString(argId);
-								output.append(argMessage);
-								done = true;
-							} catch (MissingResourceException e) {
-								// missing the right resource
-							}
-						}
-						if (!done) output.append(message.substring(end + 1, start + 1));
-					} catch (ArrayIndexOutOfBoundsException e) {
-						output.append("{missing " + Integer.toString(index) + "}"); //$NON-NLS-2$ //$NON-NLS-1$
-					}
-				} else {
-					output.append(message.substring(end, length));
-					break;
-				}
-			} else {
-				if (output == null) return message;
-				output.append(message.substring(start + 1, length));
-				break;
-			}
-		}
-		return output.toString();
+		return MessageFormat.format(message, arguments);
 	}
 
 	/*
@@ -2379,7 +2334,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	}
 	
 	public void printUsage() {
-		this.logger.logUsage(Main.bind("misc.usage", System.getProperty("path.separator"))); //$NON-NLS-1$//$NON-NLS-2$
+		this.logger.logUsage(Main.bind("misc.usage", //$NON-NLS-1$
+			new String[] {
+				System.getProperty("path.separator"), //$NON-NLS-1$
+				Main.bind("compiler.name"), //$NON-NLS-1$
+				Main.bind("compiler.version"), //$NON-NLS-1$
+				Main.bind("compiler.copyright") //$NON-NLS-1$
+			}
+		));
 		this.logger.flush();
 	}
 	public void printVersion() {
