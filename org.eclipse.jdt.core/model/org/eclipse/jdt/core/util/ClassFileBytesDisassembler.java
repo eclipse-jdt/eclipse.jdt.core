@@ -11,7 +11,7 @@
 package org.eclipse.jdt.core.util;
 
 /**
- * This interface is intended to be implemented to disassemble
+ * This class is intended to be subclassed to disassemble
  * classfile bytes onto a String using the proper line separator.
  * 
  * @since 2.1
