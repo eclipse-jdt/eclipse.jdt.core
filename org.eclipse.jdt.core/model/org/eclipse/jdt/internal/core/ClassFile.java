@@ -252,7 +252,12 @@ public String getSource() throws JavaModelException {
  * @see ISourceReference
  */
 public ISourceRange getSourceRange() throws JavaModelException {
-	return new SourceRange(0, getBuffer().getContents().toString().length());
+	IBuffer buffer = getBuffer();
+	if (buffer != null) {
+		return new SourceRange(0, buffer.getContents().toString().length());
+	} else {
+		return null;
+	}
 }
 /**
  * @see IClassFile
