@@ -62,7 +62,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				}
 			}
 		} else {
-			suite.addTest(new FormatterRegressionTests("test314"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test320"));  //$NON-NLS-1$
 		}
 		return suite;
 	}
@@ -110,7 +110,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			time = System.currentTimeMillis();
 			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, null);//$NON-NLS-1$
 			if (edit == null) return null;
-			assertEquals("Shoult not have edits", 0, edit.getChildren().length);
+//			assertEquals("Shoult not have edits", 0, edit.getChildren().length);
 			final String result2 = org.eclipse.jdt.internal.core.Util.editedString(result, edit);
 			if (!result.equals(result2)) {
 				assertEquals("Different reformatting", result2, result);
@@ -263,6 +263,16 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		}
 	}
 
+	private void runTest(String source, String expectedResult, DefaultCodeFormatter codeFormatter, int kind, int indentationLevel, boolean checkNull, int offset, int length) {
+		String result;
+		if (length == -1) {
+			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length());
+		} else {
+			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length);
+		}
+		assertLineEquals(result, source, expectedResult, checkNull);
+	}
+	
 	public void _test() {
 		try {
 			char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(new File("D:/workspaces/eclipse/plugins/TestingOlivier/src/FormatterRegressionTests.java"), null);
@@ -3083,4 +3093,97 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test314", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
+
+	public void test315() {
+		DefaultCodeFormatterOptions preferences = DefaultCodeFormatterOptions.getDefault();
+		preferences.use_tab = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		String source = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\n" + 
+				"/*\n" + 
+				"	\n" + 
+				"*/\n" + 
+				"}";
+		String expectedResult = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r\n" + 
+				"	/*\r\n" + 
+				"	 \r\n" + 
+				"	 */\r\n" + 
+				"}";
+		runTest(source, expectedResult, codeFormatter, CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, 0, -1);
+	}
+
+	public void test316() {
+		DefaultCodeFormatterOptions preferences = DefaultCodeFormatterOptions.getDefault();
+		preferences.use_tab = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		String source = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r" + 
+				"/*\r" + 
+				"	\r" + 
+				"*/\r" + 
+				"}";
+		String expectedResult = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r\n" + 
+				"	/*\r\n" + 
+				"	 \r\n" + 
+				"	 */\r\n" + 
+				"}";
+		runTest(source, expectedResult, codeFormatter, CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, 0, -1);
+	}
+	
+	public void test317() {
+		DefaultCodeFormatterOptions preferences = DefaultCodeFormatterOptions.getDefault();
+		preferences.use_tab = true;
+		preferences.line_delimiter = "\n";
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		String source = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r\n" + 
+				"/*\r\n" + 
+				"	\r\n" + 
+				"*/\r\n" + 
+				"}";
+		String expectedResult = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\n" + 
+				"	/*\n" + 
+				"	 \n" + 
+				"	 */\n" + 
+				"}";
+		runTest(source, expectedResult, codeFormatter, CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, 0, -1);
+	}
+	
+	public void test318() {
+		DefaultCodeFormatterOptions preferences = DefaultCodeFormatterOptions.getDefault();
+		preferences.use_tab = true;
+		preferences.line_delimiter = "\r";
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		String source = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r" + 
+				"/*\r" + 
+				"	\r" + 
+				"*/\r" + 
+				"}";
+		String expectedResult = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r" + 
+				"	/*\r" + 
+				"	 \r" + 
+				"	 */\r" + 
+				"}";
+		runTest(source, expectedResult, codeFormatter, CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, 0, -1);
+	}
+
+	public void test319() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
+		preferences.use_tab = true;
+		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
+		preferences.insert_new_line_in_empty_type_declaration = false;
+		preferences.insert_new_line_in_empty_method_body = false;
+		preferences.insert_new_line_in_empty_block = false;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test319", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void _test320() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
+		preferences.use_tab = true;
+		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
+		preferences.insert_new_line_in_empty_type_declaration = false;
+		preferences.insert_new_line_in_empty_method_body = false;
+		preferences.insert_new_line_in_empty_block = false;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test320", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
 }

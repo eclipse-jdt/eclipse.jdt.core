@@ -511,11 +511,9 @@ public class Scribe {
 									if ((i + 1) < max) {
 										if (whiteSpaces[i + 1] == '\n') {
 											i++;
-											count++;
 										}
-									} else {
-										count++; 
 									}
+									count++;
 									break;
 								case '\n' :
 									count++;
@@ -770,11 +768,9 @@ public class Scribe {
 									if ((i + 1) < max) {
 										if (whiteSpaces[i + 1] == '\n') {
 											i++;
-											count++;
 										}
-									} else {
-										count++; 
 									}
+									count++;
 									break;
 								case '\n' :
 									count++;
@@ -946,11 +942,9 @@ public class Scribe {
 									if ((i + 1) < max) {
 										if (whiteSpaces[i + 1] == '\n') {
 											i++;
-											count++;
 										}
-									} else {
-										count++; 
 									}
+									count++;
 									break;
 								case '\n' :
 									count++;

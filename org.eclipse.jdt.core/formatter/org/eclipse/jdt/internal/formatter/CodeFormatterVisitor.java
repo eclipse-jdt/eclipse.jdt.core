@@ -1999,21 +1999,37 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	
 		String block_brace_position = this.preferences.block_brace_position;
 		formatOpeningBrace(block_brace_position, this.preferences.insert_space_before_block_open_brace);
-		if (this.preferences.indent_block_statements) {
-			this.scribe.indent();
-		}
-	
 		final Statement[] statements = block.statements;
 		if (statements != null) {
 			this.scribe.printNewLine();
+			if (this.preferences.indent_block_statements) {
+				this.scribe.indent();
+			}
 			formatStatements(scope, statements, true);
+			this.scribe.printComment();
+	
+			if (this.preferences.indent_block_statements) {
+				this.scribe.unIndent();
+			}
 		} else if (this.preferences.insert_new_line_in_empty_block) {
 			this.scribe.printNewLine();
-		}
-		this.scribe.printComment();
-
-		if (this.preferences.indent_block_statements) {
-			this.scribe.unIndent();
+			if (this.preferences.indent_block_statements) {
+				this.scribe.indent();
+			}
+			this.scribe.printComment();
+	
+			if (this.preferences.indent_block_statements) {
+				this.scribe.unIndent();
+			}
+		} else {
+			if (this.preferences.indent_block_statements) {
+				this.scribe.indent();
+			}
+			this.scribe.printComment();
+	
+			if (this.preferences.indent_block_statements) {
+				this.scribe.unIndent();
+			}
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 		this.scribe.printTrailingComment();
@@ -2346,24 +2362,41 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			 */
 			String method_declaration_brace = this.preferences.method_declaration_brace_position;
 			formatOpeningBrace(method_declaration_brace, this.preferences.insert_space_before_method_open_brace);
-			this.scribe.indent();			
 			final int numberOfBlankLinesAtBeginningOfMethodBody = this.preferences.number_of_blank_lines_to_insert_at_beginning_of_method_body;
 			if (numberOfBlankLinesAtBeginningOfMethodBody > 0) {
 				this.scribe.printEmptyLines(numberOfBlankLinesAtBeginningOfMethodBody);
 			}
 			if (constructorDeclaration.constructorCall != null && !constructorDeclaration.constructorCall.isImplicitSuper()) {
 				this.scribe.printNewLine();
+				if (this.preferences.indent_block_statements) {
+					this.scribe.indent();
+				}
 				constructorDeclaration.constructorCall.traverse(this, constructorDeclaration.scope);
+				if (this.preferences.indent_block_statements) {
+					this.scribe.unIndent();
+				}
 			}
 			final Statement[] statements = constructorDeclaration.statements;
 			if (statements != null) {
 				this.scribe.printNewLine();
+				if (this.preferences.indent_block_statements) {
+					this.scribe.indent();
+				}
 				formatStatements(constructorDeclaration.scope, statements, true);
+				this.scribe.printComment();
+				if (this.preferences.indent_block_statements) {
+					this.scribe.unIndent();
+				}
 			} else if (this.preferences.insert_new_line_in_empty_method_body) {
 				this.scribe.printNewLine();
+				if (this.preferences.indent_block_statements) {
+					this.scribe.indent();
+				}
+				this.scribe.printComment();
+				if (this.preferences.indent_block_statements) {
+					this.scribe.unIndent();
+				}
 			}
-			this.scribe.printComment();
-			this.scribe.unIndent();
 			this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 			this.scribe.printTrailingComment();
 			if (method_declaration_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
@@ -3087,7 +3120,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			 */
 			String method_declaration_brace = this.preferences.method_declaration_brace_position;
 			formatOpeningBrace(method_declaration_brace, this.preferences.insert_space_before_method_open_brace);
-			this.scribe.indent();			
 			final int numberOfBlankLinesAtBeginningOfMethodBody = this.preferences.number_of_blank_lines_to_insert_at_beginning_of_method_body;
 			if (numberOfBlankLinesAtBeginningOfMethodBody > 0) {
 				this.scribe.printEmptyLines(numberOfBlankLinesAtBeginningOfMethodBody);
@@ -3095,12 +3127,24 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			final Statement[] statements = methodDeclaration.statements;
 			if (statements != null) {
 				this.scribe.printNewLine();
+				if (this.preferences.indent_block_statements) {
+					this.scribe.indent();
+				}
 				formatStatements(methodDeclarationScope, statements, true);
+				this.scribe.printComment();
+				if (this.preferences.indent_block_statements) {
+					this.scribe.unIndent();
+				}
 			} else if (this.preferences.insert_new_line_in_empty_method_body) {
 				this.scribe.printNewLine();
+				if (this.preferences.indent_block_statements) {
+					this.scribe.indent();
+				}
+				this.scribe.printComment();
+				if (this.preferences.indent_block_statements) {
+					this.scribe.unIndent();
+				}
 			}
-			this.scribe.printComment();
-			this.scribe.unIndent();
 			this.scribe.printNextToken(TerminalTokens.TokenNameRBRACE);
 			this.scribe.printTrailingComment();
 			if (method_declaration_brace.equals(DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED)) {
