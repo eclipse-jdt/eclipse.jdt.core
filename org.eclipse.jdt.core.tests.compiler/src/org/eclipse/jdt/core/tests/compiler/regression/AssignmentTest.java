@@ -288,9 +288,10 @@ public void _test009() {
 			"				return c;\n" + 
 			"			} catch (ClassNotFoundException e) {\n" + 
 			"				// keep searching\n" + 
+			"				// only path to here left c unassigned from try block, means it was assumed to be null\n" + 
 			"			}\n" + 
 			"		}\n" + 
-			"		if (c == null) {\n" + 
+			"		if (c == null) {// should complain: c can only be null\n" + 
 			"			File file= baz(name);\n" + 
 			"			if (file == null)\n" + 
 			"				throw new ClassNotFoundException();\n" + 
@@ -301,8 +302,8 @@ public void _test009() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 21)\n" + 
-		"	if (c == null) {\n" + 
+		"1. ERROR in X.java (at line 22)\n" + 
+		"	if (c == null) {// should complain: c can only be null\n" + 
 		"	    ^\n" + 
 		"The variable c can only be null; it was either set to null or checked for null when last used\n" + 
 		"----------\n");
