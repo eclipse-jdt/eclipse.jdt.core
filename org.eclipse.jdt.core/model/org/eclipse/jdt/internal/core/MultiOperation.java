@@ -27,50 +27,50 @@ import org.eclipse.jdt.core.*;
  */
 public abstract class MultiOperation extends JavaModelOperation {
 	/**
-	 * The list of renamings supplied to the operation
+	 * Table specifying insertion positions for elements being 
+	 * copied/moved/renamed. Keyed by elements being processed, and
+	 * values are the corresponding insertion point.
+	 * @see processElements(IProgressMonitor)
 	 */
-	protected String[] fRenamingsList= null;
+	protected Map insertBeforeElements = new HashMap(1);
 	/**
 	 * Table specifying the new parent for elements being 
 	 * copied/moved/renamed.
 	 * Keyed by elements being processed, and
 	 * values are the corresponding destination parent.
 	 */
-	protected Map fParentElements;
-	/**
-	 * Table specifying insertion positions for elements being 
-	 * copied/moved/renamed. Keyed by elements being processed, and
-	 * values are the corresponding insertion point.
-	 * @see processElements(IProgressMonitor)
-	 */
-	protected Map fInsertBeforeElements= new HashMap(1);
+	protected Map newParents;
 	/**
 	 * This table presents the data in <code>fRenamingList</code> in a more
 	 * convenient way.
 	 */
-	protected Map fRenamings;
+	protected Map renamings;
 	/**
-	 * Creates a new <code>MultiOperation</code>.
+	 * The list of renamings supplied to the operation
 	 */
-	protected MultiOperation(IJavaElement[] elementsToProcess, IJavaElement[] parentElements, boolean force) {
-		super(elementsToProcess, parentElements, force);
-		fParentElements = new HashMap(elementsToProcess.length);
-		if (elementsToProcess.length == parentElements.length) {
-			for (int i = 0; i < elementsToProcess.length; i++) {
-				fParentElements.put(elementsToProcess[i], parentElements[i]);
-			}
-		} else { //same destination for all elements to be moved/copied/renamed
-			for (int i = 0; i < elementsToProcess.length; i++) {
-				fParentElements.put(elementsToProcess[i], parentElements[0]);
-			}
-		}
-	
-	}
+	protected String[] renamingsList = null;
 	/**
 	 * Creates a new <code>MultiOperation</code> on <code>elementsToProcess</code>.
 	 */
 	protected MultiOperation(IJavaElement[] elementsToProcess, boolean force) {
 		super(elementsToProcess, force);
+	}
+	/**
+	 * Creates a new <code>MultiOperation</code>.
+	 */
+	protected MultiOperation(IJavaElement[] elementsToProcess, IJavaElement[] parentElements, boolean force) {
+		super(elementsToProcess, parentElements, force);
+		this.newParents = new HashMap(elementsToProcess.length);
+		if (elementsToProcess.length == parentElements.length) {
+			for (int i = 0; i < elementsToProcess.length; i++) {
+				this.newParents.put(elementsToProcess[i], parentElements[i]);
+			}
+		} else { //same destination for all elements to be moved/copied/renamed
+			for (int i = 0; i < elementsToProcess.length; i++) {
+				this.newParents.put(elementsToProcess[i], parentElements[0]);
+			}
+		}
+	
 	}
 	/**
 	 * Convenience method to create a <code>JavaModelException</code>
@@ -93,7 +93,7 @@ public abstract class MultiOperation extends JavaModelOperation {
 	 * Returns the parent of the element being copied/moved/renamed.
 	 */
 	protected IJavaElement getDestinationParent(IJavaElement child) {
-		return (IJavaElement)fParentElements.get(child);
+		return (IJavaElement)this.newParents.get(child);
 	}
 	/**
 	 * Returns the name to be used by the progress monitor.
@@ -104,8 +104,8 @@ public abstract class MultiOperation extends JavaModelOperation {
 	 * if there are no renamings specified.
 	 */
 	protected String getNewNameFor(IJavaElement element) {
-		if (fRenamings != null)
-			return (String) fRenamings.get(element);
+		if (this.renamings != null)
+			return (String) this.renamings.get(element);
 		else
 			return null;
 	}
@@ -114,11 +114,11 @@ public abstract class MultiOperation extends JavaModelOperation {
 	 * values are the new name.
 	 */
 	private void initializeRenamings() {
-		if (fRenamingsList != null && fRenamingsList.length == fElementsToProcess.length) {
-			fRenamings = new HashMap(fRenamingsList.length);
-			for (int i = 0; i < fRenamingsList.length; i++) {
-				if (fRenamingsList[i] != null) {
-					fRenamings.put(fElementsToProcess[i], fRenamingsList[i]);
+		if (this.renamingsList != null && this.renamingsList.length == fElementsToProcess.length) {
+			this.renamings = new HashMap(this.renamingsList.length);
+			for (int i = 0; i < this.renamingsList.length; i++) {
+				if (this.renamingsList[i] != null) {
+					this.renamings.put(fElementsToProcess[i], this.renamingsList[i]);
 				}
 			}
 		}
@@ -187,7 +187,7 @@ public abstract class MultiOperation extends JavaModelOperation {
 	 * inserted at the end of the container.
 	 */
 	public void setInsertBefore(IJavaElement modifiedElement, IJavaElement newSibling) {
-		fInsertBeforeElements.put(modifiedElement, newSibling);
+		this.insertBeforeElements.put(modifiedElement, newSibling);
 	}
 	/**
 	 * Sets the new names to use for each element being copied. The renamings
@@ -201,8 +201,8 @@ public abstract class MultiOperation extends JavaModelOperation {
 	 * is changed.  Therefore, if a new name is specified for the child,
 	 * the child's name will not be changed.
 	 */
-	public void setRenamings(String[] renamings) {
-		fRenamingsList = renamings;
+	public void setRenamings(String[] renamingsList) {
+		this.renamingsList = renamingsList;
 		initializeRenamings();
 	}
 	/**
@@ -290,7 +290,7 @@ public abstract class MultiOperation extends JavaModelOperation {
 	 * its parent is the destination container of this <code>element</code>.
 	 */
 	protected void verifySibling(IJavaElement element, IJavaElement destination) throws JavaModelException {
-		IJavaElement insertBeforeElement = (IJavaElement) fInsertBeforeElements.get(element);
+		IJavaElement insertBeforeElement = (IJavaElement) this.insertBeforeElements.get(element);
 		if (insertBeforeElement != null) {
 			if (!insertBeforeElement.exists() || !insertBeforeElement.getParent().equals(destination)) {
 				error(IJavaModelStatusConstants.INVALID_SIBLING, insertBeforeElement);
