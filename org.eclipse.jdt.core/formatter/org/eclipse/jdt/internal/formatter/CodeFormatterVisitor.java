@@ -636,9 +636,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 
 		this.lastLocalDeclarationSourceStart = -1;
 		try {
-			if (nodes != null) {
-				formatClassBodyDeclarations(nodes);
-			}
+			formatClassBodyDeclarations(nodes);
 		} catch(AbortFormatting e){
 			return failedToFormat();
 		}

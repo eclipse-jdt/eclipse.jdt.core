@@ -153,12 +153,10 @@ public class ClassFile
 		int interfacesCount = superInterfacesBinding.length;
 		contents[contentsOffset++] = (byte) (interfacesCount >> 8);
 		contents[contentsOffset++] = (byte) interfacesCount;
-		if (superInterfacesBinding != null) {
-			for (int i = 0; i < interfacesCount; i++) {
-				int interfaceIndex = constantPool.literalIndex(superInterfacesBinding[i]);
-				contents[contentsOffset++] = (byte) (interfaceIndex >> 8);
-				contents[contentsOffset++] = (byte) interfaceIndex;
-			}
+		for (int i = 0; i < interfacesCount; i++) {
+			int interfaceIndex = constantPool.literalIndex(superInterfacesBinding[i]);
+			contents[contentsOffset++] = (byte) (interfaceIndex >> 8);
+			contents[contentsOffset++] = (byte) interfaceIndex;
 		}
 		produceDebugAttributes = referenceBinding.scope.environment().options.produceDebugAttributes;
 		innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
