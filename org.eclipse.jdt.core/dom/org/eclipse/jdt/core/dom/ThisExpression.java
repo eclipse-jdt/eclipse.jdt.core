@@ -50,12 +50,9 @@ public class ThisExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof ThisExpression)) {
-			return false;
-		}
-		ThisExpression o = (ThisExpression) other;
-		return ASTNode.equalNodes(getQualifier(), o.getQualifier());
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

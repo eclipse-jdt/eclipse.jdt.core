@@ -233,24 +233,9 @@ public class InfixExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof InfixExpression)) {
-			return false;
-		}
-		InfixExpression o = (InfixExpression) other;
-		// be careful not to trigger lazy creation of extended operand lists
-		if (hasExtendedOperands() && o.hasExtendedOperands()) {
-			if (!ASTNode.equalLists(extendedOperands(), o.extendedOperands())) {
-				return false;
-			}
-		}
-		if (hasExtendedOperands() != o.hasExtendedOperands()) {
-			return false;
-		}
-		return 
-			(getOperator().equals(o.getOperator())
-			&& ASTNode.equalNodes(getLeftOperand(), o.getLeftOperand())
-			&& ASTNode.equalNodes(getRightOperand(), o.getRightOperand()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

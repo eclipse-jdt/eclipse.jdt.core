@@ -51,12 +51,9 @@ public class NumberLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof NumberLiteral)) {
-			return false;
-		}
-		NumberLiteral o = (NumberLiteral) other;
-		return ASTNode.equals(getToken(), o.getToken());
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

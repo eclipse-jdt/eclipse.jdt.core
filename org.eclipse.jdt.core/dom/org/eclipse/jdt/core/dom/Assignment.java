@@ -186,15 +186,9 @@ public class Assignment extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof Assignment)) {
-			return false;
-		}
-		Assignment o = (Assignment) other;
-		return 
-			(getOperator().equals(o.getOperator())
-			&& ASTNode.equalNodes(getLeftHandSide(), o.getLeftHandSide())
-			&& ASTNode.equalNodes(getRightHandSide(), o.getRightHandSide()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

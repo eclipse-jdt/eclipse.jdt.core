@@ -62,14 +62,9 @@ public class ArrayAccess extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof ArrayAccess)) {
-			return false;
-		}
-		ArrayAccess o = (ArrayAccess) other;
-		return 
-			(ASTNode.equalNodes(getArray(), o.getArray())
-			&& ASTNode.equalNodes(getIndex(), o.getIndex()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

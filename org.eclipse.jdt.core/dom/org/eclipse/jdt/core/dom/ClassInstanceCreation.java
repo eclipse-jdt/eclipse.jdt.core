@@ -92,17 +92,9 @@ public class ClassInstanceCreation extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof ClassInstanceCreation)) {
-			return false;
-		}
-		ClassInstanceCreation o = (ClassInstanceCreation) other;
-		return 
-			(ASTNode.equalNodes(getExpression(), o.getExpression())
-			&& ASTNode.equalNodes(getName(), o.getName())
-			&& ASTNode.equalLists(arguments(), o.arguments())
-			&& isAnonymousClassDeclaration() == o.isAnonymousClassDeclaration()
-			&& ASTNode.equalLists(bodyDeclarations(), o.bodyDeclarations()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

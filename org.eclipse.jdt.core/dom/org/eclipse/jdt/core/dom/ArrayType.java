@@ -55,14 +55,11 @@ public class ArrayType extends Type {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof ArrayType)) {
-			return false;
-		}
-		ArrayType o = (ArrayType) other;
-		return ASTNode.equalNodes(getComponentType(), o.getComponentType());
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
-	
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */

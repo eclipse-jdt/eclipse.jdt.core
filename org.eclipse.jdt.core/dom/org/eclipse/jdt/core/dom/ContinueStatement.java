@@ -54,12 +54,9 @@ public class ContinueStatement extends Statement {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof ContinueStatement)) {
-			return false;
-		}
-		ContinueStatement o = (ContinueStatement) other;
-		return ASTNode.equalNodes(getLabel(), o.getLabel());
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

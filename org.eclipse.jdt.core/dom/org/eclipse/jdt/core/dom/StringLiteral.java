@@ -64,12 +64,9 @@ public class StringLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof StringLiteral)) {
-			return false;
-		}
-		StringLiteral o = (StringLiteral) other;
-		return ASTNode.equals(getEscapedValue(), o.getEscapedValue());
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

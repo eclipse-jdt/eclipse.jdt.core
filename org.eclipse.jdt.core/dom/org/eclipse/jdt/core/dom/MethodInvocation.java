@@ -70,15 +70,9 @@ public class MethodInvocation extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof MethodInvocation)) {
-			return false;
-		}
-		MethodInvocation o = (MethodInvocation) other;
-		return 
-			(ASTNode.equalNodes(getExpression(), o.getExpression())
-			&& ASTNode.equalNodes(getName(), o.getName())
-			&& ASTNode.equalLists(arguments(), o.arguments()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

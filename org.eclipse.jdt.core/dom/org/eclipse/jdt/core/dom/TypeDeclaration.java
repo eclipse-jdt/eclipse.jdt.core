@@ -134,19 +134,9 @@ public class TypeDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof TypeDeclaration)) {
-			return false;
-		}
-		TypeDeclaration o = (TypeDeclaration) other;
-		return 
-			((getModifiers() == o.getModifiers())
-			&& (isInterface() == o.isInterface())
-			&& ASTNode.equalNodes(getJavadoc(), o.getJavadoc())
-			&& ASTNode.equalNodes(getName(), o.getName())
-			&& ASTNode.equalNodes(getSuperclass(), o.getSuperclass())
-			&& ASTNode.equalLists(superInterfaces(), o.superInterfaces())
-			&& ASTNode.equalLists(bodyDeclarations(), o.bodyDeclarations()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 	
 	/* (omit javadoc for this method)

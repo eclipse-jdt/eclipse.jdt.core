@@ -176,14 +176,11 @@ public class PrimitiveType extends Type {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof PrimitiveType)) {
-			return false;
-		}
-		PrimitiveType o = (PrimitiveType) other;
-		return (getPrimitiveTypeCode() == o.getPrimitiveTypeCode());
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
-	
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */

@@ -61,14 +61,9 @@ public class CatchClause extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof CatchClause)) {
-			return false;
-		}
-		CatchClause o = (CatchClause) other;
-		return 
-			(ASTNode.equalNodes(getException(), o.getException())
-			&&ASTNode.equalNodes(getBody(), o.getBody()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

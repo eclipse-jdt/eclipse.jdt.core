@@ -54,12 +54,9 @@ public class TypeLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof TypeLiteral)) {
-			return false;
-		}
-		TypeLiteral o = (TypeLiteral) other;
-		return ASTNode.equalNodes(getType(), o.getType());
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

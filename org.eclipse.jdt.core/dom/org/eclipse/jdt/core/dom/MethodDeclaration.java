@@ -152,20 +152,9 @@ public class MethodDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof MethodDeclaration)) {
-			return false;
-		}
-		MethodDeclaration o = (MethodDeclaration) other;
-		return 
-			((getModifiers() == o.getModifiers())
-			&& (isConstructor() == o.isConstructor())
-			&& ASTNode.equalNodes(getJavadoc(), o.getJavadoc())
-			&& ASTNode.equalNodes(getReturnType(), o.getReturnType())
-			&& ASTNode.equalNodes(getName(), o.getName())
-			&& ASTNode.equalLists(parameters(), o.parameters())
-			&& ASTNode.equalLists(thrownExceptions(), o.thrownExceptions())
-			&& ASTNode.equalNodes(getBody(), o.getBody()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 	
 	/* (omit javadoc for this method)

@@ -137,14 +137,9 @@ public class PostfixExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof PostfixExpression)) {
-			return false;
-		}
-		PostfixExpression o = (PostfixExpression) other;
-		return 
-			(getOperator().equals(o.getOperator())
-			&& ASTNode.equalNodes(getOperand(), o.getOperand()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

@@ -808,99 +808,22 @@ public abstract class ASTNode {
 	 * @return <code>true</code> if the subtrees are the same, or 
 	 * <code>false</code> if the subtrees are different or the other node is
 	 * <code>null</code>
+	 * @deprecated Use subtreeMatch(new ASTMatcher(), other)
 	 */
 	public boolean subtreeEquals(ASTNode other) {
-		// public method dispatch to package-private virtual method
-		return equalSubtrees(other);
+		return subtreeMatch(new ASTMatcher(), other);
 	}
 	
 	/**
-	 * Returns whether the subtree rooted at the given node is isomorphic
-	 * to the subtree rooted at the given node. Returns <code>false</code>
-	 * if the given node is <code>null</code>. The owning AST is not taken
-	 * into account.
-	 * <p>
-	 * N.B. This method is package-private, so that the implementations
-	 * of this method in each of the concrete AST node types do not
-	 * clutter up the API doc.
-	 * </p>
+	 * Returns whether the subtree rooted at the given node matches the
+	 * given other object as decided by the given matcher.
 	 * 
-	 * @param other the root of the AST subtree, or <code>null</code>
-	 * @return <code>true</code> if the subtrees are the same, or 
-	 * <code>false</code> if the subtrees are different or the other node is
-	 * <code>null</code>
+	 * @param matcher the matcher
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or 
+	 * <code>false</code> if they do not match
 	 */
-	abstract boolean equalSubtrees(Object other);
-
-	/**
-	 * Returns whether the given lists of nodes are equal according to
-	 * <code>equalSubtrees</code>.
-	 * 
-	 * @param list1 the first list of AST nodes
-	 *    (element type: <code>ASTNode</code>)
-	 * @param list2 the second list of AST nodes
-	 *    (element type: <code>ASTNode</code>)
-	 * @return <code>true</code> if the list have the same number of elements
-	 *    and are pairwise equal according to <code>equalSubtrees</code> 
-	 */
-	static boolean equalLists(List list1, List list2) {
-		int size1 = list1.size();
-		int size2 = list2.size();
-		if (size1 != size2) {
-			return false;
-		}
-		for (Iterator it1 = list1.iterator(), it2 = list2.iterator();
-			it1.hasNext(); ) {
-				ASTNode n1 = (ASTNode) it1.next();
-				ASTNode n2 = (ASTNode) it2.next();
-				if (!n1.equalSubtrees(n2)) {
-					return false;
-				}
-			}
-		return true;
-	}	
-
-	/**
-	 * Returns whether the given nodes are equal according to
-	 * <code>equalSubtrees</code>. Returns <code>false</code> if either
-	 * node is <code>null</code>.
-	 * 
-	 * @param o1 the first AST node, or <code>null</code>
-	 * @param o2 the second AST node, or <code>null</code>
-	 * @return <code>true</code> if the nodes are equal according to
-	 *    <code>equalSubtrees</code> or both <code>null</code>, and 
-	 *    <code>false</code> otherwise
-	 */
-	static boolean equalNodes(Object o1, Object o2) {
-		if (o1 == o2) {
-			return true;
-		}
-		if (o1 == null || o2 == null) {
-			return false;
-		}
-		return ((ASTNode) o1).equalSubtrees(o2);
-	}	
-	
-	/**
-	 * Returns whether the given objects are equal according to
-	 * <code>equals</code>. Returns <code>false</code> if either
-	 * node is <code>null</code>.
-	 * 
-	 * @param o1 the first object, or <code>null</code>
-	 * @param o2 the second object, or <code>null</code>
-	 * @return <code>true</code> if the nodes are equal according to
-	 *    <code>equalSubtrees</code> or both <code>null</code>, and 
-	 *    <code>false</code> otherwise
-	 */
-	static boolean equals(Object o1, Object o2) {
-		if (o1 == o2) {
-			return true;
-		}
-		if (o1 == null || o2 == null) {
-			return false;
-		}
-		return o1.equals(o2);
-	}	
+	public abstract boolean subtreeMatch(ASTMatcher matcher, Object other);
 	
 	/**
 	 * Returns a deep copy of the subtree of AST nodes rooted at the

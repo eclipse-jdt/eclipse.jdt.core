@@ -71,15 +71,9 @@ public class ConditionalExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof ConditionalExpression)) {
-			return false;
-		}
-		ConditionalExpression o = (ConditionalExpression) other;
-		return 
-			(ASTNode.equalNodes(getExpression(), o.getExpression())
-			&& ASTNode.equalNodes(getThenExpression(), o.getThenExpression())
-			&& ASTNode.equalNodes(getElseExpression(), o.getElseExpression()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

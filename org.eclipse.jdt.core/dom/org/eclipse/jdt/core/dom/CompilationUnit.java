@@ -120,15 +120,9 @@ public class CompilationUnit extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof CompilationUnit)) {
-			return false;
-		}
-		CompilationUnit o = (CompilationUnit) other;
-		return 
-			(ASTNode.equalNodes(getPackage(), o.getPackage())
-			&& ASTNode.equalLists(imports(), o.imports())
-			&& ASTNode.equalLists(types(), o.types()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

@@ -52,14 +52,11 @@ public class SimpleType extends Type {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof SimpleType)) {
-			return false;
-		}
-		SimpleType o = (SimpleType) other;
-		return ASTNode.equalNodes(getName(), o.getName());
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
-	
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */

@@ -84,15 +84,9 @@ public class ArrayCreation extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof ArrayCreation)) {
-			return false;
-		}
-		ArrayCreation o = (ArrayCreation) other;
-		return 
-			(ASTNode.equalNodes(getType(), o.getType())
-			&& ASTNode.equalLists(dimensions(), o.dimensions())
-			&& ASTNode.equalNodes(getInitializer(), o.getInitializer()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

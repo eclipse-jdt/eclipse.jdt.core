@@ -153,14 +153,9 @@ public class PrefixExpression extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof PrefixExpression)) {
-			return false;
-		}
-		PrefixExpression o = (PrefixExpression) other;
-		return 
-			(getOperator().equals(o.getOperator())
-			&& ASTNode.equalNodes(getOperand(), o.getOperand()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

@@ -61,14 +61,9 @@ public class SuperFieldAccess extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof SuperFieldAccess)) {
-			return false;
-		}
-		SuperFieldAccess o = (SuperFieldAccess) other;
-		return 
-			(ASTNode.equalNodes(getName(), o.getName())
-			&& ASTNode.equalNodes(getQualifier(), o.getQualifier()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)

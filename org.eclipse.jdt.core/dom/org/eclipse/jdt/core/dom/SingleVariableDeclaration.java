@@ -107,16 +107,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof SingleVariableDeclaration)) {
-			return false;
-		}
-		SingleVariableDeclaration o = (SingleVariableDeclaration) other;
-		return 
-			((getModifiers() == o.getModifiers())
-			&& ASTNode.equalNodes(getType(), o.getType())
-			&& ASTNode.equalNodes(getName(), o.getName())
-			&& ASTNode.equalNodes(getInitializer(), o.getInitializer()));
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 	
 	/* (omit javadoc for this method)

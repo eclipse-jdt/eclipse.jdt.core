@@ -53,12 +53,9 @@ public class BooleanLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
-	boolean equalSubtrees(Object other) {
-		if (!(other instanceof BooleanLiteral)) {
-			return false;
-		}
-		BooleanLiteral o = (BooleanLiteral) other;
-		return booleanValue() == o.booleanValue();
+	public boolean subtreeMatch(ASTMatcher matcher, Object other) {
+		// dispatch to correct overloaded match method
+		return matcher.match(this, other);
 	}
 
 	/* (omit javadoc for this method)
