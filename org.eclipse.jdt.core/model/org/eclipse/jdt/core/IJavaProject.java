@@ -33,11 +33,10 @@ import org.eclipse.jdt.core.eval.IEvaluationContext;
  * defining where the builder writes <code>.class</code> files. A project that
  * references packages in another project can access the packages by including
  * the required project in a classpath entry. The Java model will present the
- * source elements in the required project, and when building, the compiler will
- * use the binaries from that project (that is, the output location of the 
- * required project is used as a library). The classpath format is a sequence 
- * of classpath entries describing the location and contents of package fragment
- * roots.
+ * source elements in the required project; when building, the compiler will use
+ * the corresponding generated class files from the required project's output
+ * location(s)). The classpath format is a sequence of classpath entries
+ * describing the location and contents of package fragment roots.
  * </p>
  * Java project elements need to be opened before they can be navigated or manipulated.
  * The children of a Java project are the package fragment roots that are 
