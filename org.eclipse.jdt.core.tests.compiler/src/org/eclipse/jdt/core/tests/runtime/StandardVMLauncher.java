@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.runtime;
 
-import org.eclipse.jdt.core.tests.runtime.RuntimeConstants;
 
 import java.io.*;
 
@@ -88,12 +87,22 @@ public String[] getCommandLine() {
 			File.separator + 
 			"java");
 	} else {
-		commandLine.addElement(
-			this.vmPath + 
+		String vmLocation = this.vmPath + 
 			(this.vmPath.endsWith(File.separator) ? "" : File.separator) + 
 			"bin" + 
 			File.separator + 
-			"javaw");
+			"javaw";
+		if (System.getProperty("os.name").indexOf("win32") != -1) {
+			vmLocation += ".exe";
+		}
+		if (!new File(vmLocation).exists()) {
+			vmLocation = 
+				(this.vmPath.endsWith(File.separator) ? "" : File.separator) + 
+				"bin" + 
+				File.separator + 
+				"java";
+		}
+		commandLine.addElement(vmLocation);
 	}
 
 	// VM arguments
