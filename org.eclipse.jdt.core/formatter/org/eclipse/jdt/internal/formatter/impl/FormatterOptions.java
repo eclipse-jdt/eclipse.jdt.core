@@ -145,7 +145,6 @@ public void setOption(ConfigurableOption setting) {
 	String componentName = CodeFormatter.class.getName();
 	
 	String optionID = setting.getID();
-	//String value = setting.getValue();
 	
 	if(optionID.equals(componentName+".newlineOpeningBrace"/*nonNLS*/)){
 		setNewLineBeforeOpeningBraceMode(setting.getValueIndex() == 0);
@@ -158,13 +157,19 @@ public void setOption(ConfigurableOption setting) {
 	}else if(optionID.equals(componentName+".newlineEmptyBlock"/*nonNLS*/)){
 		setNewLineInEmptyBlockMode(setting.getValueIndex() == 0);
 	}else if(optionID.equals(componentName+".lineSplit"/*nonNLS*/)){
-		setMaxLineLength(Integer.parseInt(setting.getValue()));
-	}else if(optionID.equals(componentName+".styleCompactAssignment"/*nonNLS*/)){
+		try {
+			setMaxLineLength(Integer.parseInt(setting.getValue()));
+		} catch(NumberFormatException e){
+		}
+	}else if(optionID.equals(componentName+".compactAssignment"/*nonNLS*/)){
 		setCompactAssignmentMode(setting.getValueIndex() == 0);
 	}else if(optionID.equals(componentName+".tabulationChar"/*nonNLS*/)){
 		setIndentationUsesTab(setting.getValueIndex() == 0);
 	}else if(optionID.equals(componentName+".tabulationSize"/*nonNLS*/)){
-		setTabSize(Integer.parseInt(setting.getValue()));
+		try {
+			setTabSize(Integer.parseInt(setting.getValue()));
+		} catch(NumberFormatException e){
+		}
 	}
 }
 
