@@ -35,7 +35,7 @@ import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.rewrite.NewASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
@@ -107,7 +107,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	/**
 	 * Returns the result of a rewrite.
 	 */
-	protected String evaluateRewrite(ICompilationUnit cu, NewASTRewrite rewrite) throws Exception {
+	protected String evaluateRewrite(ICompilationUnit cu, ASTRewrite rewrite) throws Exception {
 		Document document= new Document(cu.getSource());
 		TextEdit res= rewrite.rewriteAST(document, cu.getJavaProject().getOptions(true));
 		

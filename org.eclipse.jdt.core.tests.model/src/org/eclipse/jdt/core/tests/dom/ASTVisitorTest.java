@@ -233,8 +233,9 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		MPARM1S = "[(MPARM[(tPcharchartP)]MPARM)]";  //$NON-NLS-1$
 
 		if (ast.apiLevel() >= AST.LEVEL_3_0) {
-			PT1 = ast.newParameterizedType(ast.newSimpleName("Z")); //$NON-NLS-1$
-			PT1S = "[(tM[(nSZZnS)]tM)]"; //$NON-NLS-1$
+			PT1 = ast.newParameterizedType(ast.newSimpleType(ast.newSimpleName("Z"))); //$NON-NLS-1$
+			PT1.setName(ast.newSimpleName("W"));
+			PT1S = "[(tM[(nSWWnS)][(tS[(nSZZnS)]tS)]tM)]"; //$NON-NLS-1$
 
 			TP1 = ast.newTypeParameter();
 			TP1.setName(ast.newSimpleName("x")); //$NON-NLS-1$
@@ -1076,14 +1077,15 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			return;
 		}
-		ParameterizedType x1 = ast.newParameterizedType(N1);
-		x1.typeArguments().add(T1);
+		ParameterizedType x1 = ast.newParameterizedType(T1);
+		x1.setName(N1);
 		x1.typeArguments().add(T2);
+		x1.typeArguments().add(PT1);
 		TestVisitor v1 = new TestVisitor();
 		b.setLength(0);
 		x1.accept(v1);
 		String result = b.toString();
-		assertTrue(result.equals("[(tM"+N1S+T1S+T2S+"tM)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(result.equals("[(tM"+N1S+T1S+T2S+PT1S+"tM)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void testQualifiedType() {
@@ -1245,6 +1247,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			x1.setName(N1);
 		} else {
+			x1.typeParameters().add(TP1);
 			x1.setType(PT1);
 		}
 		x1.setAnonymousClassDeclaration(ACD1);
@@ -1255,7 +1258,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			assertTrue(result.equals("[(eCI"+E1S+N1S+ACD1S+"eCI)]")); //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			assertTrue(result.equals("[(eCI"+E1S+PT1S+ACD1S+"eCI)]")); //$NON-NLS-1$ //$NON-NLS-2$
+			assertTrue(result.equals("[(eCI"+E1S+TP1S+PT1S+ACD1S+"eCI)]")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 	public void testAnonymousClassDeclaration() {

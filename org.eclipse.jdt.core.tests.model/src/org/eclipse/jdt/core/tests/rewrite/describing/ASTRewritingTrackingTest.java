@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ITrackedNodePosition;
-import org.eclipse.jdt.core.dom.rewrite.NewASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
@@ -65,25 +65,25 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
-		NewASTRewrite rewrite= new NewASTRewrite(ast);
+		ASTRewrite rewrite= new ASTRewrite(ast);
 		
 		ArrayList names= new ArrayList();
 		ArrayList positions= new ArrayList();
 		
 		TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
-		ITrackedNodePosition position= rewrite.markAsTracked(typeC.getName());
+		ITrackedNodePosition position= rewrite.track(typeC.getName());
 		names.add("C");
 		positions.add(position);
 		
 		List decls= typeC.bodyDeclarations();
 		
 		MethodDeclaration method= (MethodDeclaration) decls.get(1);
-		ITrackedNodePosition position2= rewrite.markAsTracked(method.getName());
+		ITrackedNodePosition position2= rewrite.track(method.getName());
 		names.add("foo");
 		positions.add(position2);
 		
 		FieldDeclaration field= (FieldDeclaration) decls.get(0);
-		rewrite.markAsRemoved(field, null);
+		rewrite.remove(field, null);
 						
 		String preview= evaluateRewrite(cu, rewrite);
 		
@@ -133,27 +133,27 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
 		
-		NewASTRewrite rewrite= new NewASTRewrite(ast);
+		ASTRewrite rewrite= new ASTRewrite(ast);
 		
 		ArrayList names= new ArrayList();
 		ArrayList positions= new ArrayList();
 		
 		TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
-		ITrackedNodePosition position= rewrite.markAsTracked(typeC.getName());
+		ITrackedNodePosition position= rewrite.track(typeC.getName());
 		names.add("C");
 		positions.add(position);
 		
 		List decls= typeC.bodyDeclarations();
 		
 		MethodDeclaration method= (MethodDeclaration) decls.get(1);
-		position= rewrite.markAsTracked(method.getName());
+		position= rewrite.track(method.getName());
 		names.add("foo");
 		positions.add(position);
 		
 		FieldDeclaration field= (FieldDeclaration) decls.get(0);
 		List fragments= field.fragments();
 		VariableDeclarationFragment frag1= (VariableDeclarationFragment) fragments.get(0);
-		position= rewrite.markAsTracked(frag1.getName());
+		position= rewrite.track(frag1.getName());
 		names.add("x1");
 		positions.add(position);
 		
@@ -205,7 +205,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
 		
-		NewASTRewrite rewrite= new NewASTRewrite(ast);
+		ASTRewrite rewrite= new ASTRewrite(ast);
 		
 		ArrayList names= new ArrayList();
 		ArrayList positions= new ArrayList();
@@ -213,28 +213,28 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 		// change type name
 		TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
 		SimpleName newName= ast.newSimpleName("XX");
-		rewrite.markAsReplaced(typeC.getName(), newName, null);
-		ITrackedNodePosition position= rewrite.markAsTracked(newName);
+		rewrite.replace(typeC.getName(), newName, null);
+		ITrackedNodePosition position= rewrite.track(newName);
 		names.add("XX");
 		positions.add(position);
 		
 		List decls= typeC.bodyDeclarations();
 		
 		MethodDeclaration method= (MethodDeclaration) decls.get(1);
-		position= rewrite.markAsTracked(method.getName());
+		position= rewrite.track(method.getName());
 		names.add("foo");
 		positions.add(position);
 		
 		WhileStatement whileStatement= (WhileStatement) method.getBody().statements().get(0);
 		PrefixExpression prefixExpression= (PrefixExpression) ((ExpressionStatement) ((Block) whileStatement.getBody()).statements().get(0)).getExpression();
-		position= rewrite.markAsTracked(prefixExpression.getOperand());
+		position= rewrite.track(prefixExpression.getOperand());
 		names.add("i");
 		positions.add(position);
 				
 		FieldDeclaration field= (FieldDeclaration) decls.get(0);
 		List fragments= field.fragments();
 		VariableDeclarationFragment frag1= (VariableDeclarationFragment) fragments.get(0);
-		position= rewrite.markAsTracked(frag1.getName());
+		position= rewrite.track(frag1.getName());
 		names.add("x1");
 		positions.add(position);
 		
@@ -281,34 +281,34 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
-		NewASTRewrite rewrite= new NewASTRewrite(ast);
+		ASTRewrite rewrite= new ASTRewrite(ast);
 		
 		ArrayList names= new ArrayList();
 		ArrayList positions= new ArrayList();
 		
 		// change type name
 		TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
-		ITrackedNodePosition position= rewrite.markAsTracked(typeC.getName());
+		ITrackedNodePosition position= rewrite.track(typeC.getName());
 		names.add("C");
 		positions.add(position);
 		
 		List decls= typeC.bodyDeclarations();
 		
 		MethodDeclaration method= (MethodDeclaration) decls.get(1);
-		position= rewrite.markAsTracked(method.getName());
+		position= rewrite.track(method.getName());
 		names.add("foo");
 		positions.add(position);
 		
 		WhileStatement whileStatement= (WhileStatement) method.getBody().statements().get(0);
 		PrefixExpression prefixExpression= (PrefixExpression) ((ExpressionStatement) ((Block) whileStatement.getBody()).statements().get(0)).getExpression();
-		position= rewrite.markAsTracked(prefixExpression.getOperand());
+		position= rewrite.track(prefixExpression.getOperand());
 		names.add("i");
 		positions.add(position);
 					
 		FieldDeclaration field= (FieldDeclaration) decls.get(0);
 		List fragments= field.fragments();
 		VariableDeclarationFragment frag1= (VariableDeclarationFragment) fragments.get(0);
-		position= rewrite.markAsTracked(frag1.getName());
+		position= rewrite.track(frag1.getName());
 		names.add("x1");
 		positions.add(position);
 
@@ -353,27 +353,27 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
-		NewASTRewrite rewrite= new NewASTRewrite(ast);
+		ASTRewrite rewrite= new ASTRewrite(ast);
 		
 		ArrayList names= new ArrayList();
 		ArrayList positions= new ArrayList();
 		
 		// change type name
 		TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
-		ITrackedNodePosition position= rewrite.markAsTracked(typeC.getName());
+		ITrackedNodePosition position= rewrite.track(typeC.getName());
 		names.add("C");
 		positions.add(position);
 		
 		List decls= typeC.bodyDeclarations();
 		
 		MethodDeclaration method= (MethodDeclaration) decls.get(0);
-		position= rewrite.markAsTracked(method.getName());
+		position= rewrite.track(method.getName());
 		names.add("foo");
 		positions.add(position);
 		
 		WhileStatement whileStatement= (WhileStatement) method.getBody().statements().get(0);
 		PrefixExpression prefixExpression= (PrefixExpression) ((ExpressionStatement) ((Block) whileStatement.getBody()).statements().get(0)).getExpression();
-		position= rewrite.markAsTracked(prefixExpression.getOperand());
+		position= rewrite.track(prefixExpression.getOperand());
 		names.add("i");
 		positions.add(position);
 
@@ -383,7 +383,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 		TryStatement tryStatement= ast.newTryStatement();
 		tryStatement.getBody().statements().add(placeHolder);
 		tryStatement.setFinally(ast.newBlock());
-		rewrite.markAsReplaced(whileStatement, tryStatement, null);
+		rewrite.replace(whileStatement, tryStatement, null);
 								
 		String preview= evaluateRewrite(cu, rewrite);
 		
@@ -421,21 +421,21 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
-		NewASTRewrite rewrite= new NewASTRewrite(ast);
+		ASTRewrite rewrite= new ASTRewrite(ast);
 		
 		ArrayList names= new ArrayList();
 		ArrayList positions= new ArrayList();
 		
 		// change type name
 		TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
-		ITrackedNodePosition position= rewrite.markAsTracked(typeC.getName());
+		ITrackedNodePosition position= rewrite.track(typeC.getName());
 		names.add("C");
 		positions.add(position);
 		
 		List decls= typeC.bodyDeclarations();
 		
 		MethodDeclaration method= (MethodDeclaration) decls.get(1);
-		position=  rewrite.markAsTracked(method.getName());
+		position=  rewrite.track(method.getName());
 		names.add("foo");
 		positions.add(position);
 		
@@ -475,39 +475,39 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	
 		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
-		NewASTRewrite rewrite= new NewASTRewrite(ast);
+		ASTRewrite rewrite= new ASTRewrite(ast);
 		
 		ArrayList names= new ArrayList();
 		ArrayList positions= new ArrayList();
 		
 		// change type name
 		TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
-		ITrackedNodePosition position= rewrite.markAsTracked(typeC.getName());
+		ITrackedNodePosition position= rewrite.track(typeC.getName());
 		names.add("C");
 		positions.add(position);
 		
 		List decls= typeC.bodyDeclarations();
 		
 		MethodDeclaration method= (MethodDeclaration) decls.get(0);
-		position= rewrite.markAsTracked(method.getName());
+		position= rewrite.track(method.getName());
 		names.add("foo");
 		positions.add(position);
 		
 		ReturnStatement returnStatement= (ReturnStatement) method.getBody().statements().get(0);
 		
 		CastExpression castExpression= ast.newCastExpression();
-		Type type= (Type) rewrite.createStringPlaceholder("String", NewASTRewrite.TYPE);
+		Type type= (Type) rewrite.createStringPlaceholder("String", ASTNode.SIMPLE_TYPE);
 		Expression expression= (Expression) rewrite.createMoveTarget(returnStatement.getExpression());
 		castExpression.setType(type);
 		castExpression.setExpression(expression);
 		
-		rewrite.markAsReplaced(returnStatement.getExpression(), castExpression, null);
+		rewrite.replace(returnStatement.getExpression(), castExpression, null);
 		
-		position= rewrite.markAsTracked(type);
+		position= rewrite.track(type);
 		names.add("String");
 		positions.add(position);
 		
-		position= rewrite.markAsTracked(expression);
+		position= rewrite.track(expression);
 		names.add("s");
 		positions.add(position);
 		
