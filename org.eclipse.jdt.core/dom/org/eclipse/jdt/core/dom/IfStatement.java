@@ -150,6 +150,14 @@ public class IfStatement extends Statement {
 	
 	/**
 	 * Sets the "then" part of this if statement.
+	 * <p>
+	 * Special note: The Java language does not allow a local variable declaration
+	 * to appear as the "then" part of an if statement (they may only appear within a
+	 * block). However, the AST will allow a <code>VariableDeclarationStatement</code>
+	 * as the thenStatement of a <code>IfStatement</code>. To get something that will
+	 * compile, be sure to embed the <code>VariableDeclarationStatement</code>
+	 * inside a <code>Block</code>.
+	 * </p>
 	 * 
 	 * @param statement the "then" statement node
 	 * @exception IllegalArgumentException if:
@@ -188,6 +196,14 @@ public class IfStatement extends Statement {
 	 * Note that there is a subtle difference between having no else part
 	 * (as in <code>"if(true){}"</code>) and having an empty block (as in
 	 * "if(true){}else{}") or null statement (as in "if(true){}else;"). 
+	 * </p>
+	 * <p>
+	 * Special note: The Java language does not allow a local variable declaration
+	 * to appear as the "else" part of an if statement (they may only appear within a
+	 * block). However, the AST will allow a <code>VariableDeclarationStatement</code>
+	 * as the elseStatement of a <code>IfStatement</code>. To get something that will
+	 * compile, be sure to embed the <code>VariableDeclarationStatement</code>
+	 * inside a <code>Block</code>.
 	 * </p>
 	 * 
 	 * @param statement the "else" statement node, or <code>null</code> if 
