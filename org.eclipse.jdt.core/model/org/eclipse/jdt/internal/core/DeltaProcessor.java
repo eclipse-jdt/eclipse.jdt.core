@@ -1792,6 +1792,7 @@ private void updateRoots(IPath containerPath, IResourceDelta containerDelta) {
 		IPath path = (IPath)iterator.next();
 		if (containerPath.isPrefixOf(path) && !containerPath.equals(path)) {
 			IResourceDelta rootDelta = containerDelta.findMember(path.removeFirstSegments(1));
+			if (rootDelta == null) continue;
 			IJavaProject rootProject = (IJavaProject)this.roots.get(path);
 			try {
 				this.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootProject);
