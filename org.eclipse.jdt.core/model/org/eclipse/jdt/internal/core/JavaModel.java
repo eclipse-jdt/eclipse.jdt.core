@@ -345,14 +345,15 @@ public IJavaProject getJavaProject(String name) {
  * is not one of an IProject, IFolder, or IFile.
  */
 public IJavaProject getJavaProject(IResource resource) {
-	if (resource.getType() == IResource.FOLDER) {
-		return new JavaProject(((IFolder)resource).getProject(), this);
-	} else if (resource.getType() == IResource.FILE) {
-		return new JavaProject(((IFile)resource).getProject(), this);
-	} else if (resource.getType() == IResource.PROJECT) {
-		return new JavaProject((IProject)resource, this);
-	} else {
-		throw new IllegalArgumentException(Util.bind("element.invalidResourceForProject")); //$NON-NLS-1$
+	switch(resource.getType()){
+		case IResource.FOLDER:
+			return new JavaProject(((IFolder)resource).getProject(), this);
+		case IResource.FILE:
+			return new JavaProject(((IFile)resource).getProject(), this);
+		case IResource.PROJECT:
+			return new JavaProject((IProject)resource, this);
+		default:
+			throw new IllegalArgumentException(Util.bind("element.invalidResourceForProject")); //$NON-NLS-1$
 	}
 }
 /**
