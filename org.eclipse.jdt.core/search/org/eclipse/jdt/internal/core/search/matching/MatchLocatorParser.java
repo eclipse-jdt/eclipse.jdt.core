@@ -39,7 +39,7 @@ import org.eclipse.jdt.internal.core.CompilationUnit;
  */
 public class MatchLocatorParser extends Parser {
 
-	public MatchSet matchSet;
+	public MatchingNodeSet matchSet;
 	private LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor();
 	
 /**
@@ -181,23 +181,23 @@ protected TypeReference copyDims(TypeReference typeRef, int dim) {
 	return result;
 }
 protected CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, MatchLocator locator, IFile file, CompilationUnit compilationUnit) {
-	MatchSet originalMatchSet = this.matchSet;
+	MatchingNodeSet originalSet = this.matchSet;
 	CompilationUnitDeclaration unit = null;
 	try {
-		this.matchSet = new MatchSet(locator);
+		this.matchSet = new MatchingNodeSet(locator);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);
 		unit = this.dietParse(sourceUnit, compilationResult);
 	} finally {
-		if (originalMatchSet == null) {
+		if (originalSet == null) {
 			if (!this.matchSet.isEmpty() 
 					&& unit != null && file != null) {
 				// potential matches were found while initializing the search pattern
 				// from the lookup environment: add the corresponding openable in the list
-				locator.addMatchingOpenable(file, compilationUnit, unit, this.matchSet);
+				locator.addPotentialMatch(file, compilationUnit);
 			}
 			this.matchSet = null;
 		} else {
-			this.matchSet = originalMatchSet;
+			this.matchSet = originalSet;
 		}
 	}
 	return unit;

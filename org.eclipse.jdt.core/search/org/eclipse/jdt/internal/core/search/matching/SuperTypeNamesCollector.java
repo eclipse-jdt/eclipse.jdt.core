@@ -186,7 +186,6 @@ protected char[][][] collect() throws JavaModelException {
 		this.result = new char[1][][];
 		this.resultIndex = 0;
 		JavaProject javaProject = (JavaProject)this.type.getJavaProject();
-		this.locator.initializeNameEnvironment(javaProject);
 		this.locator.initialize(javaProject);
 		synchronized(this.locator.nameLookup) { // prevent 2 concurrent accesses to name lookup while the working copies are set
 			this.locator.nameLookup.setUnitsToLookInside(this.locator.workingCopies);
@@ -235,7 +234,6 @@ protected char[][][] collect() throws JavaModelException {
 								this.locator.nameLookup.setUnitsToLookInside(null);
 							}
 							previousProject = (JavaProject)project;
-							this.locator.initializeNameEnvironment(previousProject);
 							this.locator.initialize(previousProject);
 							this.locator.nameLookup.setUnitsToLookInside(this.locator.workingCopies);
 						}

@@ -28,15 +28,43 @@ import org.eclipse.jdt.internal.core.*;
 public class PotentialMatch implements ICompilationUnit {
 	public static final String NO_SOURCE_FILE_NAME = "NO SOURCE FILE NAME"; //$NON-NLS-1$
 
-	private MatchLocator2 locator;
-	public IResource resource;
-	public Openable openable;
+	public static IType getTopLevelType(IType binaryType) {
+		
+		// ensure it is not a local or anoymous type (see bug 28752  J Search resports non-existent Java element)
+		String typeName = binaryType.getElementName();
+		int lastDollar = typeName.lastIndexOf('$');
+		int length = typeName.length();
+		if (lastDollar != -1 && lastDollar < length-1) {
+			if (Character.isDigit(typeName.charAt(lastDollar+1))) {
+				// local or anonymous type
+				typeName = typeName.substring(0, lastDollar);
+				IClassFile classFile = binaryType.getPackageFragment().getClassFile(typeName+".class"); //$NON-NLS-1$
+				try {
+					binaryType = classFile.getType();
+				} catch (JavaModelException e) {
+					// ignore as implementation of getType() cannot throw this exception
+				}
+			}
+		}
+		
+		// ensure it is a top level type
+		IType declaringType = binaryType.getDeclaringType();
+		while (declaringType != null) {
+			binaryType = declaringType;
+			declaringType = binaryType.getDeclaringType();
+		}
+		return binaryType;
+	}
 	public char[][] compoundName;
+
+	private MatchLocator locator;
 	MatchingNodeSet matchingNodeSet;
+	public Openable openable;
+	public IResource resource;
 	private String sourceFileName;
 
 	public PotentialMatch(
-			MatchLocator2 locator, 
+			MatchLocator locator, 
 			IResource resource, 
 			Openable openable) {
 		this.locator = locator;
@@ -72,26 +100,6 @@ public class PotentialMatch implements ICompilationUnit {
 		}
 		return source;
 	}
-	/*
-	 * Returns the source file name of the class file.
-	 * Returns NO_SOURCE_FILE_NAME if not found.
-	 */
-	private String getSourceFileName() {
-		if (this.sourceFileName != null) return this.sourceFileName;
-		this.sourceFileName = NO_SOURCE_FILE_NAME; 
-		try {
-			SourceMapper sourceMapper = this.openable.getSourceMapper();
-			if (sourceMapper != null) {
-				IType type = ((ClassFile)this.openable).getType();
-				ClassFileReader reader = this.locator.classFileReader(type);
-				if (reader != null) {
-					this.sourceFileName = sourceMapper.findSourceFileName(type, reader);
-				}
-			}
-		} catch (JavaModelException e) {
-		}
-		return this.sourceFileName;
-	}	
 	public char[] getContents() {
 		char[] source = null;
 		try {
@@ -108,6 +116,23 @@ public class PotentialMatch implements ICompilationUnit {
 		}
 		if (source == null) return CharOperation.NO_CHAR;
 		return source;
+	}
+
+	public char[] getFileName() {
+		return this.openable.getPath().toString().toCharArray();
+	}
+
+	public char[] getMainTypeName() {
+		return null; // cannot know the main type name without opening .java or .class file
+		                  // see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32182
+	}
+	public char[][] getPackageName() {
+		int length;
+		if ((length = this.compoundName.length) > 1) {
+			return CharOperation.subarray(this.compoundName, 0, length-1);
+		} else {
+			return CharOperation.NO_CHAR_CHAR;
+		}
 	}
 	/*
 	 * Returns the fully qualified name of the main type of the compilation unit
@@ -141,6 +166,26 @@ public class PotentialMatch implements ICompilationUnit {
 			return null;
 		}
 	}
+	/*
+	 * Returns the source file name of the class file.
+	 * Returns NO_SOURCE_FILE_NAME if not found.
+	 */
+	private String getSourceFileName() {
+		if (this.sourceFileName != null) return this.sourceFileName;
+		this.sourceFileName = NO_SOURCE_FILE_NAME; 
+		try {
+			SourceMapper sourceMapper = this.openable.getSourceMapper();
+			if (sourceMapper != null) {
+				IType type = ((ClassFile)this.openable).getType();
+				ClassFileReader reader = this.locator.classFileReader(type);
+				if (reader != null) {
+					this.sourceFileName = sourceMapper.findSourceFileName(type, reader);
+				}
+			}
+		} catch (JavaModelException e) {
+		}
+		return this.sourceFileName;
+	}	
 	public int hashCode() {
 		if (this.compoundName == null) return super.hashCode();
 		int hashCode = 0;
@@ -148,19 +193,6 @@ public class PotentialMatch implements ICompilationUnit {
 			hashCode += CharOperation.hashCode(this.compoundName[i]);
 		}
 		return hashCode;
-	}
-
-	public char[] getMainTypeName() {
-		return null; // cannot know the main type name without opening .java or .class file
-		                  // see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32182
-	}
-	public char[][] getPackageName() {
-		int length;
-		if ((length = this.compoundName.length) > 1) {
-			return CharOperation.subarray(this.compoundName, 0, length-1);
-		} else {
-			return CharOperation.NO_CHAR_CHAR;
-		}
 	}
 	/**
 	 * Locate declaration in the current class file. This class file is always in a jar.
@@ -275,10 +307,6 @@ public class PotentialMatch implements ICompilationUnit {
 	}
 	public String toString() {
 		return this.openable == null ? "Fake PotentialMatch" : this.openable.toString(); //$NON-NLS-1$
-	}
-
-	public char[] getFileName() {
-		return this.openable.getPath().toString().toCharArray();
 	}
 
 }

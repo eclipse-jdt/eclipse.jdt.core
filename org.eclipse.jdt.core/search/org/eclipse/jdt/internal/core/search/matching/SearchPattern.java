@@ -1184,7 +1184,7 @@ public abstract char[] indexEntryPrefix();
  * Check if the given ast node syntactically matches this pattern.
  * If it does, add it to the match set.
  */
-protected void matchCheck(AstNode node, MatchSet set) {
+protected void matchCheck(AstNode node, MatchingNodeSet set) {
 	int matchLevel = this.matchLevel(node, false);
 	switch (matchLevel) {
 		case SearchPattern.POSSIBLE_MATCH:

@@ -135,9 +135,9 @@ public char[] indexEntryPrefix(){
 			isCaseSensitive);
 }
 /**
- * @see SearchPattern#matchCheck(AstNode, MatchSet)
+ * @see SearchPattern#matchCheck(AstNode, MatchingNodeSet)
  */
-protected void matchCheck(AstNode node, MatchSet set) {
+protected void matchCheck(AstNode node, MatchingNodeSet set) {
 	if (this.readAccess) {
 		super.matchCheck(node, set);
 	}

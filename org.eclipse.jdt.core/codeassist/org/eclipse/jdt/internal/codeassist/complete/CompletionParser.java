@@ -665,8 +665,8 @@ private boolean checkKeyword() {
 			}
 			if((lastModifiers & AccAbstract) == 0
 				&& (lastModifiers & AccFinal) == 0
-				&& CharOperation.prefixEquals(identifierStack[index], Keywords.ABSTARCT)) {
-				keywords[count++] = Keywords.ABSTARCT;
+				&& CharOperation.prefixEquals(identifierStack[index], Keywords.ABSTRACT)) {
+				keywords[count++] = Keywords.ABSTRACT;
 			}
 			if((lastModifiers & AccAbstract) == 0
 				&& (lastModifiers & AccFinal) == 0

@@ -449,7 +449,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 										.getIndexManager();
 		int detailLevel = IInfoConstants.PathInfo | IInfoConstants.PositionInfo;
 		matchLocator = 
-			new MatchLocator2(
+			new MatchLocator(
 				pattern, 
 				detailLevel, 
 				resultCollector, 
@@ -490,7 +490,7 @@ public void search(IWorkspace workspace, ISearchPattern searchPattern, IJavaSear
 		resultCollector.done();
 		if (VERBOSE) {
 			System.out.println("Total time: " + (System.currentTimeMillis()-start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
-			if (matchLocator != null) System.out.println("Time in result collector: " + ((MatchLocator2)matchLocator).resultCollectorTime + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (matchLocator != null) System.out.println("Time in result collector: " + ((MatchLocator)matchLocator).resultCollectorTime + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 }
@@ -642,7 +642,7 @@ public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElemen
 		if (VERBOSE) {
 			System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
 		}
-		MatchLocator locator = new MatchLocator2(
+		MatchLocator locator = new MatchLocator(
 			pattern,
 			IInfoConstants.DeclarationInfo,
 			resultCollector,
@@ -700,7 +700,7 @@ public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaEleme
 		if (VERBOSE) {
 			System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
 		}
-		MatchLocator locator = new MatchLocator2(
+		MatchLocator locator = new MatchLocator(
 			pattern,
 			IInfoConstants.DeclarationInfo,
 			resultCollector,
@@ -761,7 +761,7 @@ public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement 
 		if (VERBOSE) {
 			System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
 		}
-		MatchLocator locator = new MatchLocator2(
+		MatchLocator locator = new MatchLocator(
 			pattern,
 			IInfoConstants.DeclarationInfo,
 			resultCollector,

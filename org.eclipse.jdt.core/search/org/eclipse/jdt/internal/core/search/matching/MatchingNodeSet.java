@@ -41,9 +41,9 @@ import org.eclipse.jdt.internal.core.Util;
 /**
  * A set of matches and potential matches.
  */
-public class MatchingNodeSet extends MatchSet { // TODO: (jerome) remove extends
+public class MatchingNodeSet {
 	
-	MatchLocator2 locator;
+	MatchLocator locator;
 	int matchContainer;
 	boolean cuHasBeenResolved = false;
 
@@ -114,8 +114,7 @@ public class WrappedCoreException extends RuntimeException {
 	}
 }
 
-public MatchingNodeSet(MatchLocator2 locator) {
-	super(locator);
+public MatchingNodeSet(MatchLocator locator) {
 	this.locator = locator;
 	this.matchContainer = locator.pattern.matchContainer();
 }
