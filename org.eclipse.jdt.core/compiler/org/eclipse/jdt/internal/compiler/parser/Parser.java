@@ -4626,8 +4626,6 @@ public void goForCompilationUnit(){
 	firstToken = TokenNamePLUS_PLUS ;
 	scanner.linePtr = -1;	
 	scanner.recordLineSeparator = true;
-	scanner.currentLineNr= -1;
-	scanner.previousLineNr= -1;
 	scanner.currentLine= null;
 	scanner.lines= new ArrayList();
 }
