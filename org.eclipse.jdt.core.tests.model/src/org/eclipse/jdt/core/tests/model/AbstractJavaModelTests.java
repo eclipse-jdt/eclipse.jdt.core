@@ -241,7 +241,7 @@ protected IJavaProject createJavaProject(String projectName, String[] sourceFold
 			sourceFolders, 
 			null/*no lib*/, 
 			null/*no project*/, 
-			null/*no project*/, 
+			null/*no exported project*/, 
 			output, 
 			null/*no source outputs*/);
 }
@@ -256,7 +256,7 @@ protected IJavaProject createJavaProject(String projectName, String[] sourceFold
 			sourceFolders, 
 			null/*no lib*/, 
 			null/*no project*/, 
-			null/*no project*/, 
+			null/*no exported project*/, 
 			output, 
 			sourceOutputs);
 }
@@ -267,7 +267,7 @@ protected IJavaProject createJavaProject(String projectName, String[] sourceFold
 			sourceFolders, 
 			libraries, 
 			null/*no project*/, 
-			null/*no project*/, 
+			null/*no exported project*/, 
 			output, 
 			null/*no source outputs*/);
 }
