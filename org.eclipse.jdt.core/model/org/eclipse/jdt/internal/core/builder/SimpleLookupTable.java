@@ -117,7 +117,7 @@ public void removeValue(Object valueToRemove) {
 }
 
 private void rehash() {
-	SimpleLookupTable newLookupTable = new SimpleLookupTable(elementSize);
+	SimpleLookupTable newLookupTable = new SimpleLookupTable(elementSize * 2); // double the number of expected elements
 	Object currentKey;
 	for (int i = keyTable.length; --i >= 0;)
 		if ((currentKey = keyTable[i]) != null)

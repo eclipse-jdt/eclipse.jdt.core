@@ -22,7 +22,7 @@ ClasspathDirectory(String binaryPath) {
 	if (!binaryPath.endsWith("/")) //$NON-NLS-1$
 		this.binaryPath += "/"; //$NON-NLS-1$
 
-	this.directoryCache = new SimpleLookupTable();
+	this.directoryCache = new SimpleLookupTable(5);
 }
 
 void cleanup() {
@@ -93,7 +93,7 @@ boolean isPackage(String qualifiedPackageName) {
 }
 
 void reset() {
-	this.directoryCache = new SimpleLookupTable();
+	this.directoryCache = new SimpleLookupTable(5);
 }
 
 public String toString() {
