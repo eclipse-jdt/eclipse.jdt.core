@@ -166,7 +166,10 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						argTypes[j] = argType;
 					}			    
 				}
-				if (argHasError) return null;
+				if (argHasError) {
+					this.resolvedType = null;
+					return null;
+				}
 // TODO (philippe)	if ((this.bits & ASTNode.IsSuperType) != 0)
 				if (isClassScope)
 					if (((ClassScope) scope).detectHierarchyCycle(currentType, this, argTypes))
