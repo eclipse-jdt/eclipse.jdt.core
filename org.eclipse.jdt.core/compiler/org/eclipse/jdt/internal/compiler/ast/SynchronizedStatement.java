@@ -129,6 +129,9 @@ public class SynchronizedStatement extends Statement {
 			case (T_long) :
 				scope.problemReporter().invalidTypeToSynchronize(expression, type);
 				break;
+			case (T_void) :
+				scope.problemReporter().illegalVoidExpression(expression);
+				break;
 			case (T_null) :
 				scope.problemReporter().invalidNullToSynchronize(expression);
 				break;
