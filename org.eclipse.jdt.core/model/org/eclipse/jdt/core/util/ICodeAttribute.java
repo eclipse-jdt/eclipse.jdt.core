@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.util;
 
-
-
 /**
  * Description of a code attribute as described in the JVM specifications.
  *  
@@ -21,28 +19,28 @@ public interface ICodeAttribute extends IClassFileAttribute {
 	/**
 	 * Answer back the max locals value of the code attribute.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the max locals value of the code attribute
 	 */
 	int getMaxLocals();
 
 	/**
 	 * Answer back the max stack value of the code attribute.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the max stack value of the code attribute
 	 */
 	int getMaxStack();
 
 	/**
 	 * Answer back the line number attribute, if it exists, null otherwise.
 	 * 
-	 * @return org.eclipse.jdt.core.util.ILineNumberAttribute
+	 * @return the line number attribute, if it exists, null otherwise
 	 */
 	ILineNumberAttribute getLineNumberAttribute();
 
 	/**
 	 * Answer back the local variable attribute, if it exists, null otherwise.
 	 * 
-	 * @return org.eclipse.jdt.core.util.ILocalVariableAttribute
+	 * @return the local variable attribute, if it exists, null otherwise
 	 */
 	ILocalVariableAttribute getLocalVariableAttribute();
 
@@ -50,7 +48,8 @@ public interface ICodeAttribute extends IClassFileAttribute {
 	 * Answer back the array of exception entries, if they are present.
 	 * An empty array otherwise.
 	 * 
-	 * @return org.eclipse.jdt.core.util.IExceptionTableEntry
+	 * @return the array of exception entries, if they are present.
+	 * An empty array otherwise
 	 */
 	IExceptionTableEntry[] getExceptionTable();
 	
@@ -58,21 +57,22 @@ public interface ICodeAttribute extends IClassFileAttribute {
 	 * Answer back the array of bytes, which represents all the opcodes as described
 	 * in the JVM specifications.
 	 * 
-	 * @return byte[]
+	 * @return the array of bytes, which represents all the opcodes as described
+	 * in the JVM specifications
 	 */
 	byte[] getBytecodes();
 
 	/**
 	 * Answer back the length of the bytecode contents.
 	 * 
-	 * @return <CODE>long</CODE>
+	 * @return the length of the bytecode contents
 	 */
 	long getCodeLength();
 	
 	/**
 	 * Answer back the attribute number of the code attribute.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the attribute number of the code attribute
 	 */
 	int getAttributesCount();
 
@@ -81,14 +81,16 @@ public interface ICodeAttribute extends IClassFileAttribute {
 	 * includes the LineNumberAttribute and the LocalVariableTableAttribute.
 	 * Returns an empty collection if none.
 	 * 
-	 * @return IClassFileAttribute[]
+	 * @return the collection of all attributes of the field info. It 
+	 * includes the LineNumberAttribute and the LocalVariableTableAttribute.
+	 * Returns an empty collection if none
 	 */
 	IClassFileAttribute[] getAttributes();
 
 	/**
 	 * Answer back the exception table length of the code attribute.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the exception table length of the code attribute
 	 */
 	int getExceptionTableLength();
 	

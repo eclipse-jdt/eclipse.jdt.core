@@ -22,7 +22,8 @@ public interface IInnerClassesAttributeEntry {
 	 * Answer back the access flag of this inner classes attribute as specified in
 	 * the JVM specifications.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the access flag of this inner classes attribute as specified in
+	 * the JVM specifications
 	 */
 	int getAccessFlags();
 
@@ -30,7 +31,8 @@ public interface IInnerClassesAttributeEntry {
 	 * Answer back the inner name index of this inner classes attribute as specified in
 	 * the JVM specifications.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the inner name index of this inner classes attribute as specified in
+	 * the JVM specifications
 	 */
 	int getInnerNameIndex();
 
@@ -38,7 +40,8 @@ public interface IInnerClassesAttributeEntry {
 	 * Answer back the outer class name index of this inner classes attribute as specified in
 	 * the JVM specifications.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the outer class name index of this inner classes attribute as specified in
+	 * the JVM specifications
 	 */
 	int getOuterClassNameIndex();
 
@@ -46,7 +49,8 @@ public interface IInnerClassesAttributeEntry {
 	 * Answer back the inner class name index of this inner classes attribute as specified in
 	 * the JVM specifications.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the inner class name index of this inner classes attribute as specified in
+	 * the JVM specifications
 	 */
 	int getInnerClassNameIndex();
 
@@ -54,7 +58,8 @@ public interface IInnerClassesAttributeEntry {
 	 * Answer back the inner name of this inner classes attribute as specified in
 	 * the JVM specifications, null if inner name index is equals to zero.
 	 * 
-	 * @return char[]
+	 * @return the inner name of this inner classes attribute as specified in
+	 * the JVM specifications, null if inner name index is equals to zero
 	 */
 	char[] getInnerName();
 
@@ -62,7 +67,8 @@ public interface IInnerClassesAttributeEntry {
 	 * Answer back the outer class name of this inner classes attribute as specified in
 	 * the JVM specifications, null if outer class name index is equals to zero.
 	 * 
-	 * @return char[]
+	 * @return the outer class name of this inner classes attribute as specified in
+	 * the JVM specifications, null if outer class name index is equals to zero
 	 */
 	char[] getOuterClassName();
 
@@ -70,7 +76,8 @@ public interface IInnerClassesAttributeEntry {
 	 * Answer back the inner class name of this inner classes attribute as specified in
 	 * the JVM specifications, null if inner class name index is equals to zero.
 	 * 
-	 * @return char[]
+	 * @return the inner class name of this inner classes attribute as specified in
+	 * the JVM specifications, null if inner class name index is equals to zero
 	 */
 	char[] getInnerClassName();
 

@@ -21,7 +21,8 @@ public interface ILocalVariableTableEntry {
 	 * Answer back the start pc of this entry as specified in
 	 * the JVM specifications.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the start pc of this entry as specified in
+	 * the JVM specifications
 	 */
 	int getStartPC();
 
@@ -29,7 +30,8 @@ public interface ILocalVariableTableEntry {
 	 * Answer back the length of this entry as specified in
 	 * the JVM specifications.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the length of this entry as specified in
+	 * the JVM specifications
 	 */
 	int getLength();
 
@@ -37,7 +39,8 @@ public interface ILocalVariableTableEntry {
 	 * Answer back the name index in the constant pool of this entry as specified in
 	 * the JVM specifications.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the name index in the constant pool of this entry as specified in
+	 * the JVM specifications
 	 */
 	int getNameIndex();
 
@@ -45,7 +48,8 @@ public interface ILocalVariableTableEntry {
 	 * Answer back the descriptor index in the constant pool of this entry as specified in
 	 * the JVM specifications.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the descriptor index in the constant pool of this entry as specified in
+	 * the JVM specifications
 	 */
 	int getDescriptorIndex();
 
@@ -53,7 +57,8 @@ public interface ILocalVariableTableEntry {
 	 * Answer back the index of this entry as specified in
 	 * the JVM specifications.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the index of this entry as specified in
+	 * the JVM specifications
 	 */
 	int getIndex();
 	
@@ -61,7 +66,8 @@ public interface ILocalVariableTableEntry {
 	 * Answer back the name of this entry as specified in
 	 * the JVM specifications.
 	 * 
-	 * @return char[]
+	 * @return the name of this entry as specified in
+	 * the JVM specifications
 	 */
 	char[] getName();
 
@@ -69,7 +75,8 @@ public interface ILocalVariableTableEntry {
 	 * Answer back the descriptor of this entry as specified in
 	 * the JVM specifications.
 	 * 
-	 * @return char[]
+	 * @return the descriptor of this entry as specified in
+	 * the JVM specifications
 	 */
 	char[] getDescriptor();
 }

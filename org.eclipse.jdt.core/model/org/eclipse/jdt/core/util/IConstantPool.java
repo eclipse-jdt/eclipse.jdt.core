@@ -10,12 +10,17 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.util;
 
+/**
+ * Description of a constant pool as described in the JVM specifications.
+ *  
+ * @since 2.0
+ */
 public interface IConstantPool {
 
 	/**
 	 * Answer back the number of entries in the constant pool.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the number of entries in the constant pool
 	 */
 	int getConstantPoolCount();
 
@@ -24,7 +29,7 @@ public interface IConstantPool {
 	 * in the constant pool.
 	 * 
 	 * @param index the index of the entry in the constant pool
-	 * @return <CODE>int</CODE>
+	 * @return the type of the entry at the index @index in the constant pool
 	 */
 	int getEntryKind(int index);
 
@@ -33,7 +38,7 @@ public interface IConstantPool {
 	 * in the constant pool.
 	 * 
 	 * @param index the index of the entry in the constant pool
-	 * @return org.eclipse.jdt.core.util.IConstantPoolEntry
+	 * @return the entry at the index @index in the constant pool
 	 */
 	IConstantPoolEntry decodeEntry(int index);
 }

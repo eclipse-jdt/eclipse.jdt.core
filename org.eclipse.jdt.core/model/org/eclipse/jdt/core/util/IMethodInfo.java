@@ -22,14 +22,15 @@ public interface IMethodInfo {
 	 * Answer back the method descriptor of this method info as specified
 	 * in the JVM specifications.
 	 * 
-	 * @return char[]
+	 * @return the method descriptor of this method info as specified
+	 * in the JVM specifications
 	 */
 	char[] getDescriptor();
 
 	/**
 	 * Answer back the descriptor index of this method info.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the descriptor index of this method info
 	 */
 	int getDescriptorIndex();
 
@@ -37,7 +38,8 @@ public interface IMethodInfo {
 	 * Answer back the access flags of this method info as specified
 	 * in the JVM specifications.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the access flags of this method info as specified
+	 * in the JVM specifications
 	 */
 	int getAccessFlags();
 
@@ -45,14 +47,15 @@ public interface IMethodInfo {
 	 * Answer back the name of this method info as specified
 	 * in the JVM specifications.
 	 * 
-	 * @return char[]
+	 * @return the name of this method info as specified
+	 * in the JVM specifications
 	 */
 	char[] getName();
 
 	/**
 	 * Answer back the name index of this method info.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the name index of this method info
 	 */
 	int getNameIndex();
 	
@@ -60,7 +63,8 @@ public interface IMethodInfo {
 	 * Answer true if this method info represents a &lt;clinit&gt; method,
 	 * false otherwise.
 	 * 
-	 * @return boolean
+	 * @return true if this method info represents a &lt;clinit&gt; method,
+	 * false otherwise
 	 */
 	boolean isClinit();
 
@@ -68,7 +72,8 @@ public interface IMethodInfo {
 	 * Answer true if this method info represents a constructor,
 	 * false otherwise.
 	 * 
-	 * @return boolean
+	 * @return true if this method info represents a constructor,
+	 * false otherwise
 	 */
 	boolean isConstructor();
 
@@ -76,7 +81,8 @@ public interface IMethodInfo {
 	 * Answer true if this method info has a synthetic attribute,
 	 * false otherwise.
 	 * 
-	 * @return boolean
+	 * @return true if this method info has a synthetic attribute,
+	 * false otherwise
 	 */
 	boolean isSynthetic();
 
@@ -84,7 +90,8 @@ public interface IMethodInfo {
 	 * Answer true if this method info has a deprecated attribute,
 	 * false otherwise.
 	 * 
-	 * @return boolean
+	 * @return true if this method info has a deprecated attribute,
+	 * false otherwise
 	 */
 	boolean isDeprecated();
 
@@ -92,14 +99,15 @@ public interface IMethodInfo {
 	 * Answer the code attribute of this method info, null if none or if the decoding
 	 * flag doesn't include METHOD_BODIES.
 	 * 
-	 * @return org.eclipse.jdt.core.util.ICodeAttribute
+	 * @return the code attribute of this method info, null if none or if the decoding
+	 * flag doesn't include METHOD_BODIES
 	 */
 	ICodeAttribute getCodeAttribute();
 	
 	/**
 	 * Answer the exception attribute of this method info, null is none.
 	 * 
-	 * 	@return org.eclipse.jdt.core.util.IExceptionAttribute
+	 * 	@return the exception attribute of this method info, null is none
 	 */
 	IExceptionAttribute getExceptionAttribute();
 	
@@ -107,7 +115,8 @@ public interface IMethodInfo {
 	 * Answer back the attribute number of the method info. It includes the CodeAttribute
 	 * if any even if the decoding flags doesn't include METHOD_BODIES.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the attribute number of the method info. It includes the CodeAttribute
+	 * if any even if the decoding flags doesn't include METHOD_BODIES
 	 */
 	int getAttributeCount();
 	
@@ -117,7 +126,10 @@ public interface IMethodInfo {
 	 * CodeAttribute if the decoding flags doesn't include METHOD_BODIES.
 	 * Returns an empty collection if none.
 	 * 
-	 * @return IClassFileAttribute[]
+	 * @return the collection of all attributes of the method info. It 
+	 * includes SyntheticAttribute, CodeAttributes, etc. It doesn't include the
+	 * CodeAttribute if the decoding flags doesn't include METHOD_BODIES.
+	 * Returns an empty collection if none
 	 */
 	IClassFileAttribute[] getAttributes();
 }

@@ -21,7 +21,8 @@ public interface ILineNumberAttribute extends IClassFileAttribute {
 	 * Answer back the line number table length as specified in
 	 * the JVM specifications.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the line number table length as specified in
+	 * the JVM specifications
 	 */
 	int getLineNumberTableLength();
 
@@ -29,7 +30,8 @@ public interface ILineNumberAttribute extends IClassFileAttribute {
 	 * Answer back the array of pairs (start pc, line number) as specified in the 
 	 * JVM specifications. Answer an empty array if none.
 	 * 
-	 * @return int[][]
+	 * @return the array of pairs (start pc, line number) as specified in the 
+	 * JVM specifications. Answer an empty array if none
 	 */
 	int[][] getLineNumberTable();
 

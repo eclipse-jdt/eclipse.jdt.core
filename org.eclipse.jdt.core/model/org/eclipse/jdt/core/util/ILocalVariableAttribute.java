@@ -21,7 +21,8 @@ public interface ILocalVariableAttribute extends IClassFileAttribute {
 	 * Answer back the local variable table length of this entry as specified in
 	 * the JVM specifications.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the local variable table length of this entry as specified in
+	 * the JVM specifications
 	 */
 	int getLocalVariableTableLength();
 
@@ -29,7 +30,8 @@ public interface ILocalVariableAttribute extends IClassFileAttribute {
 	 * Answer back the local variable table of this entry as specified in
 	 * the JVM specifications. Answer an empty array if none.
 	 * 
-	 * @return org.eclipse.jdt.core.util.ILocalVariableTableEntry[]
+	 * @return the local variable table of this entry as specified in
+	 * the JVM specifications. Answer an empty array if none
 	 */
 	ILocalVariableTableEntry[] getLocalVariableTable();
 	

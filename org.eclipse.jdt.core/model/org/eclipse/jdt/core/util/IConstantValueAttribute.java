@@ -21,7 +21,7 @@ public interface IConstantValueAttribute extends IClassFileAttribute {
 	/**
 	 * Answer back the constant value index.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the constant value index
 	 */
 	int getConstantValueIndex();
 	
@@ -29,7 +29,8 @@ public interface IConstantValueAttribute extends IClassFileAttribute {
 	 * Answer back the constant pool entry that represents the constant
 	 * value of this attribute.
 	 * 
-	 * @return org.eclipse.jdt.core.util.IConstantPoolEntry
+	 * @return the constant pool entry that represents the constant
+	 * value of this attribute
 	 */
 	IConstantPoolEntry getConstantValue();
 }

@@ -34,7 +34,7 @@ public class ClassFormatException extends Exception {
 
 	/**
 	 * Constructor for ClassFormatException.
-	 * @param message
+	 * @param message the message for the exception
 	 */
 	public ClassFormatException(String message) {
 		super(message);

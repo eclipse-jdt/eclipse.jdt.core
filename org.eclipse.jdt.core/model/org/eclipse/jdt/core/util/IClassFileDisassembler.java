@@ -35,6 +35,8 @@ public interface IClassFileDisassembler {
 	 * 
 	 * @param classFileReader The classFileReader to be disassembled
 	 * @param lineSeparator the line separator to use.
+	 * 
+	 * @return the disassembled string of the IClassFileReader using the default mode.
 	 */
 	String disassemble(IClassFileReader classFileReader, String lineSeparator);
 
@@ -46,6 +48,8 @@ public interface IClassFileDisassembler {
 	 * @param classFileReader The classFileReader to be disassembled
 	 * @param lineSeparator the line separator to use.
 	 * @param mode the mode used to disassemble the IClassFileReader
+	 * 
+	 * @return the disassembled string of the IClassFileReader according to the mode
 	 */
 	String disassemble(IClassFileReader classFileReader, String lineSeparator, int mode);
 }

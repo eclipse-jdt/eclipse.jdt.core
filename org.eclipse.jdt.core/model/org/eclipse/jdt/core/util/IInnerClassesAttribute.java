@@ -22,7 +22,8 @@ public interface IInnerClassesAttribute extends IClassFileAttribute {
 	 * Answer back the number of inner classes infos as specified in
 	 * the JVM specifications.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the number of inner classes infos as specified in
+	 * the JVM specifications
 	 */
 	int getNumberOfClasses();
 
@@ -30,7 +31,8 @@ public interface IInnerClassesAttribute extends IClassFileAttribute {
 	 * Answer back the array of inner attribute entries as specified in
 	 * the JVM specifications, or an empty array if none.
 	 * 
-	 * @return org.eclipse.jdt.core.util.IInnerClassesAttributeEntry[]
+	 * @return the array of inner attribute entries as specified in
+	 * the JVM specifications, or an empty array if none
 	 */
 	IInnerClassesAttributeEntry[] getInnerClassAttributesEntries();
 }

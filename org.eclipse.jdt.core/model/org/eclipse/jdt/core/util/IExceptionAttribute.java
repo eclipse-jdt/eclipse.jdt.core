@@ -21,7 +21,7 @@ public interface IExceptionAttribute extends IClassFileAttribute {
 	/**
 	 * Answer back the number of exceptions of the exception attribute.
 	 * 
-	 * @return <CODE>int</CODE>
+	 * @return the number of exceptions of the exception attribute
 	 */
 	int getExceptionsNumber();
 
@@ -29,7 +29,8 @@ public interface IExceptionAttribute extends IClassFileAttribute {
 	 * Answer back the exception names of the exception attribute. Answers an
 	 * empty collection if none.
 	 * 
-	 * @return char[][]
+	 * @return the exception names of the exception attribute. Answers an
+	 * empty collection if none
 	 */
 	char[][] getExceptionNames();
 
@@ -37,7 +38,8 @@ public interface IExceptionAttribute extends IClassFileAttribute {
 	 * Answer back the exception indexes of the exception attribute. Answers an
 	 * empty collection if none.
 	 * 
-	 * @return int[]
+	 * @return the exception indexes of the exception attribute. Answers an
+	 * empty collection if none
 	 */
 	int[] getExceptionIndexes();
 }
