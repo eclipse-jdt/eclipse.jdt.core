@@ -10,8 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -1514,7 +1518,7 @@ public class EnumTest extends AbstractComparisonTest {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	A() {}\n" + 
 		"	    ^\n" + 
-		"The class new X(){} must implement the inherited abstract method X.foo()\n" + 
+		"The type new X(){} must implement the inherited abstract method X.foo()\n" + 
 		"----------\n"
 		);
 	}			
@@ -1551,4 +1555,47 @@ public class EnumTest extends AbstractComparisonTest {
 	// check warning when switch doesn't use all enum constants
 	
 	// check enum syntax recovery
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78914 - variation
+	 */
+	public void test056() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" +
+				"    PLUS {\n" +
+				"        double eval(double x, double y) { return x + y; }\n" +
+				"    };\n" +
+				"\n" +
+				"    // Perform the arithmetic X represented by this constant\n" +
+				"    abstract double eval(double x, double y);\n" +
+				"}"
+			},
+			""
+		);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput = 
+			"// Compiled from X.java (version 1.5 : 49.0, no super bit)\n" + 
+			"// Signature: Ljava/lang/Enum<LX;>;\n" + 
+			"abstract public enum X extends java.lang.Enum {\n"; 
+			
+		if (actualOutput.indexOf(expectedOutput) == -1) {
+			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+		}
+		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	}
 }
