@@ -9,6 +9,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
@@ -104,6 +105,10 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 			break;
 		default :
 			throw new JavaModelException(new JavaModelStatus(JavaModelStatus.INVALID_ELEMENT_TYPES, element));
+	}
+	// ensure the element is closed
+	if (element instanceof IOpenable) {
+		((IOpenable)element).close();
 	}
 }
 /**
