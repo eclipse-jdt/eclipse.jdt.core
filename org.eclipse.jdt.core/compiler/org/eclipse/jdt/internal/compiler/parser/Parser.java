@@ -986,37 +986,11 @@ public void checkAnnotation() {
 		int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1; //stop is one over
 		char[] comment = scanner.source;
 
-		for (int i = commentSourceStart + 3; i < commentSourceEnd - 10; i++) {
-			if ((comment[i] == '@') 
-				&& (comment[i + 1] == 'd')
-				&& (comment[i + 2] == 'e')
-				&& (comment[i + 3] == 'p')
-				&& (comment[i + 4] == 'r')
-				&& (comment[i + 5] == 'e')
-				&& (comment[i + 6] == 'c')
-				&& (comment[i + 7] == 'a')
-				&& (comment[i + 8] == 't')
-				&& (comment[i + 9] == 'e')
-				&& (comment[i + 10] == 'd')) {
-				// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
-				int nextPos = i+11;
-				char nextCharacter = comment[nextPos];
-				if (nextCharacter == '\\') {
-					int c1, c2, c3, c4;
-					nextPos++;
-					while (comment[nextPos] == 'u') nextPos++;
-					if (!(((c1 = Character.getNumericValue(comment[nextPos++])) > 15
-						|| c1 < 0)
-						|| ((c2 = Character.getNumericValue(comment[nextPos++])) > 15 || c2 < 0)
-						|| ((c3 = Character.getNumericValue(comment[nextPos++])) > 15 || c3 < 0)
-						|| ((c4 = Character.getNumericValue(comment[nextPos++])) > 15 || c4 < 0))) {
-							nextCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-						}
-				}
-				deprecated = Character.isWhitespace(nextCharacter) || nextCharacter == '*';
-				break nextComment;
-			}
-		}
+		deprecated =
+			checkDeprecation(
+				commentSourceStart,
+				commentSourceEnd,
+				comment);
 		break nextComment;
 	}
 	if (deprecated) {
@@ -1026,6 +1000,74 @@ public void checkAnnotation() {
 	if (lastAnnotationIndex >= 0 && checkDeprecated) {
 		modifiersSourceStart = scanner.commentStarts[lastAnnotationIndex]; 
 	}
+}
+protected boolean checkDeprecation(
+	int commentSourceStart,
+	int commentSourceEnd,
+	char[] comment) {
+
+	boolean deprecated = false;
+	boolean oneStar = false;
+	boolean invalidate = false;
+	for (int[] index = new int[] {commentSourceStart + 3}; index[0] < commentSourceEnd - 10;) {
+		char nextCharacter = getNextCharacter(comment, index);
+		switch(nextCharacter) {
+			case '@' :
+				if ((getNextCharacter(comment, index) == 'd')
+					&& (getNextCharacter(comment, index) == 'e')
+					&& (getNextCharacter(comment, index) == 'p')
+					&& (getNextCharacter(comment, index) == 'r')
+					&& (getNextCharacter(comment, index) == 'e')
+					&& (getNextCharacter(comment, index) == 'c')
+					&& (getNextCharacter(comment, index) == 'a')
+					&& (getNextCharacter(comment, index) == 't')
+					&& (getNextCharacter(comment, index) == 'e')
+					&& (getNextCharacter(comment, index) == 'd')) {
+					// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
+					nextCharacter = getNextCharacter(comment, index);
+					deprecated = !invalidate && (Character.isWhitespace(nextCharacter) || nextCharacter == '*');
+					if (deprecated) {
+						return true;
+					}
+				}
+				break;
+			case '\n' :
+			case '\r' :
+			case '\f' :
+				oneStar = false;
+				invalidate = false;
+				break;
+			case '*' :
+				if (oneStar) {
+					invalidate = true;
+				}
+				oneStar = true;
+				break;
+			default :
+				if (!CharOperation.isWhitespace(nextCharacter)) {
+					invalidate = true;
+				}
+		}
+	}
+	return deprecated;
+}
+protected char getNextCharacter(char[] comment, int[] index) {
+	char nextCharacter = comment[index[0]++];
+	switch(nextCharacter) {
+		case '\\' :
+			int c1, c2, c3, c4;
+			index[0]++;
+			while (comment[index[0]] == 'u') index[0]++;
+			if (!(((c1 = Character.getNumericValue(comment[index[0]++])) > 15
+				|| c1 < 0)
+				|| ((c2 = Character.getNumericValue(comment[index[0]++])) > 15 || c2 < 0)
+				|| ((c3 = Character.getNumericValue(comment[index[0]++])) > 15 || c3 < 0)
+				|| ((c4 = Character.getNumericValue(comment[index[0]++])) > 15 || c4 < 0))) {
+					nextCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+			}
+			break;
+	}
+	return nextCharacter;
 }
 protected void classInstanceCreation(boolean alwaysQualified) {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
@@ -3951,27 +3993,15 @@ protected void consumeStatementFor() {
 				length); 
 		}
 	};
-	if (action instanceof Block) {
-		pushOnAstStack(
-			new ForStatement(
-				inits, 
-				cond, 
-				updates, 
-				action, 
-				scope, 
-				intStack[intPtr--], 
-				endStatementPosition)); 
-	} else {
-		pushOnAstStack(
-			new ForStatement(
-				inits, 
-				cond, 
-				updates, 
-				action, 
-				scope, 
-				intStack[intPtr--], 
-				endPosition)); 
-	}
+	pushOnAstStack(
+		new ForStatement(
+			inits, 
+			cond, 
+			updates, 
+			action, 
+			scope, 
+			intStack[intPtr--], 
+			endStatementPosition)); 
 }
 protected void consumeStatementIfNoElse() {
 	// IfThenStatement ::=  'if' '(' Expression ')' Statement
@@ -3979,14 +4009,7 @@ protected void consumeStatementIfNoElse() {
 	//optimize the push/pop
 	expressionLengthPtr--;
 	Statement thenStatement = (Statement) astStack[astPtr];
-	if (thenStatement instanceof Block) {
-		astStack[astPtr] = 
-			new IfStatement(
-				expressionStack[expressionPtr--], 
-				thenStatement, 
-				intStack[intPtr--], 
-				endStatementPosition); 
-	} else if (thenStatement instanceof EmptyStatement) {
+	if (thenStatement instanceof EmptyStatement) {
 		astStack[astPtr] = 
 			new IfStatement(
 				expressionStack[expressionPtr--], 
@@ -4017,23 +4040,13 @@ protected void consumeStatementIfWithElse() {
 	if (thenStatement instanceof EmptyStatement) {
 		thenStatement = Block.None;
 	}
-	if (elseStatement instanceof Block) {
-		astStack[astPtr] = 
-			new IfStatement(
-				expressionStack[expressionPtr--], 
-				thenStatement, 
-				elseStatement, 
-				intStack[intPtr--], 
-				endStatementPosition); 
-	} else {
-		astStack[astPtr] = 
-			new IfStatement(
-				expressionStack[expressionPtr--], 
-				thenStatement, 
-				elseStatement, 
-				intStack[intPtr--], 
-				endStatementPosition); 
-	}
+	astStack[astPtr] = 
+		new IfStatement(
+			expressionStack[expressionPtr--], 
+			thenStatement, 
+			elseStatement, 
+			intStack[intPtr--], 
+			endStatementPosition); 
 }
 protected void consumeStatementLabel() {
 	// LabeledStatement ::= 'Identifier' ':' Statement

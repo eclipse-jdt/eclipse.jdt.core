@@ -97,32 +97,18 @@ public void checkAnnotation() {
 			// reset the comment stack, since not necessary after having checked
 			int commentSourceStart = scanner.commentStarts[lastAnnotationIndex];
 			// javadoc only (non javadoc comment have negative end positions.)
+			if (scanner.commentStops[lastAnnotationIndex] < 0) {
+				break found;
+			}
 			int commentSourceEnd = scanner.commentStops[lastAnnotationIndex] - 1;
 			//stop is one over
 			char[] comment = scanner.source;
-
-			for (int i = commentSourceStart + 3; i < commentSourceEnd - 10; i++) {
-				if ((comment[i] == '@')
-					&& (comment[i + 1] == 'd')
-					&& (comment[i + 2] == 'e')
-					&& (comment[i + 3] == 'p')
-					&& (comment[i + 4] == 'r')
-					&& (comment[i + 5] == 'e')
-					&& (comment[i + 6] == 'c')
-					&& (comment[i + 7] == 'a')
-					&& (comment[i + 8] == 't')
-					&& (comment[i + 9] == 'e')
-					&& (comment[i + 10] == 'd')) {
-					// ensure the tag is properly ended: either followed by a space, line end or asterisk.
-					int nextPos = i + 11;
-					deprecated = 
-						(comment[nextPos] == ' ')
-							|| (comment[nextPos] == '\n')
-							|| (comment[nextPos] == '\r')
-							|| (comment[nextPos] == '*'); 
-					break found;
-				}
-			}
+			deprecated =
+				checkDeprecation(
+					commentSourceStart,
+					commentSourceEnd,
+					comment);
+			break found;
 		}
 	}
 	if (deprecated) {
