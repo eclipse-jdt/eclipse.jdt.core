@@ -69,11 +69,10 @@ private void generateFieldInfos(IType type, IBinaryType typeInfo, HashMap newEle
 	}
 }
 /**
- * Creates the handles and infos for the inner types of the given binary type.
+ * Creates the handles for the inner types of the given binary type.
  * Adds new handles to the given vector.
- * TODO: shouldn't the infos be added to newElements?
  */
-private void generateInnerClassInfos(IType type, IBinaryType typeInfo, HashMap newElements, ArrayList children) {
+private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayList children) {
 	// Add inner types
 	// If the current type is an inner type, innerClasses returns
 	// an extra entry for the current type.  This entry must be removed.
@@ -153,7 +152,7 @@ protected void readBinaryChildren(HashMap newElements, IBinaryType typeInfo) {
 	if (typeInfo != null) { //may not be a valid class file
 		generateFieldInfos(type, typeInfo, newElements, children);
 		generateMethodInfos(type, typeInfo, newElements, children);
-		generateInnerClassInfos(type, typeInfo, newElements, children);
+		generateInnerClassHandles(type, typeInfo, children); // Note inner class are separate openables that are not opened here: no need to pass in newElements
 	}
 	
 	this.binaryChildren = new JavaElement[children.size()];
