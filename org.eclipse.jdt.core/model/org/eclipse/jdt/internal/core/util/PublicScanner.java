@@ -1407,7 +1407,9 @@ public int getNextToken() throws InvalidInputException {
 								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
 									checkNonExternalizedString();
 									if (this.recordLineSeparator) {
-										if (!isUnicode) {
+										if (isUnicode) {
+											pushUnicodeLineSeparator();
+										} else {
 											pushLineSeparator();
 										}
 									} else {
@@ -1437,7 +1439,9 @@ public int getNextToken() throws InvalidInputException {
 									if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
 										checkNonExternalizedString();
 										if (this.recordLineSeparator) {
-											if (!isUnicode) {
+											if (isUnicode) {
+												pushUnicodeLineSeparator();
+											} else {
 												pushLineSeparator();
 											}
 										} else {
