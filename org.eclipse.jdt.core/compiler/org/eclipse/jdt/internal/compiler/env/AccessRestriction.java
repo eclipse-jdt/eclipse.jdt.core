@@ -103,7 +103,7 @@ public class AccessRestriction {
 	}
 	
 	public String toString() {
-		StringBuffer buffer = new StringBuffer(20);
+		StringBuffer buffer = new StringBuffer(200);
 		buffer
 			.append("AccessRestriction [includes:\"") //$NON-NLS-1$
 			.append(CharOperation.concatWith(this.inclusionPatterns,'/'))
