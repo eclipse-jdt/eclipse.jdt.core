@@ -107,7 +107,7 @@ public class WhileStatement extends Statement {
 			if (!actionInfo.isReachable() && !loopingContext.initsOnContinue.isReachable()) {
 				continueLabel = null;
 			} else {
-				// TODO: should simplify in one Loop context
+				// TODO: (philippe) should simplify in one Loop context
 				condLoopContext.complainOnFinalAssignmentsInLoop(currentScope, postCondInfo);
 				loopingContext.complainOnFinalAssignmentsInLoop(currentScope, actionInfo);
 			}

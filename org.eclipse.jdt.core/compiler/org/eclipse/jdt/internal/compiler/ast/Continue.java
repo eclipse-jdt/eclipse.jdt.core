@@ -63,7 +63,7 @@ public class Continue extends BranchStatement {
 					break;
 				}
 			}
-			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
+			traversedContext.recordReturnFrom(flowInfo.unconditionalInits());//TODO: (philippe) not only if distinct from target?
 
 			AstNode node;
 			if ((node = traversedContext.associatedNode) instanceof TryStatement) {
