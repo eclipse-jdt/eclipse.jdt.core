@@ -1121,8 +1121,6 @@ public void test047() {
 		"The operator += is undefined for the argument type(s) T, String\n" + 
 		"----------\n");
 }
-// javac disagrees with us here, but issues a ClassCastException when running it
-// TODO (philippe) need to reassess the behavior of this test 
 public void test048() {
 	this.runNegativeTest(
 		new String[] {
