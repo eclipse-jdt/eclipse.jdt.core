@@ -8,6 +8,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added getOption(String, boolean), getOptions(boolean) and setOptions(Map)
+ *     IBM Corporation - deprecated getPackageFragmentRoots(IClasspathEntry) and 
+ *                               added findPackageFragmentRoots(IClasspathEntry)
  ******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -108,6 +110,25 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	IPackageFragmentRoot findPackageFragmentRoot(IPath path)
 		throws JavaModelException;
+	/**
+	 * Returns the existing package fragment roots identified by the given entry.
+	 * Note that a classpath entry that refers to another project may
+	 * have more than one root (if that project has more than on root
+	 * containing source), and classpath entries within the current
+	 * project identify a single root.
+	 * <p>
+	 * If the classpath entry denotes a variable, it will be resolved and return
+	 * the roots of the target entry (empty if not resolvable).
+	 * <p>
+	 * If the classpath entry denotes a container, it will be resolved and return
+	 * the roots corresponding to the set of container entries (empty if not resolvable).
+	 * 
+	 * @param entry the given entry
+	 * @return the existing package fragment roots identified by the given entry
+	 * @see IClasspathContainer
+	 * @since 2.1
+	 */
+	IPackageFragmentRoot[] findPackageFragmentRoots(IClasspathEntry entry);
 	/**
 	 * Returns the first type found following this project's classpath 
 	 * with the given fully qualified name or <code>null</code> if none is found.
@@ -274,6 +295,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @param entry the given entry
 	 * @return the existing package fragment roots identified by the given entry
 	 * @see IClasspathContainer
+	 * @deprecated Use IJavaProject#findPackageFragmentRoots instead
 	 */
 	IPackageFragmentRoot[] getPackageFragmentRoots(IClasspathEntry entry);
 

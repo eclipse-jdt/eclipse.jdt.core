@@ -10,24 +10,17 @@
  ******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceDescription;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.Util;
-
 import java.io.IOException;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.Util;
 
 public class JavaProjectTests extends AbstractJavaModelTests {
 public JavaProjectTests(String name) {
@@ -91,6 +84,10 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testPackageFragmentNonJavaResources"));
 	suite.addTest(new JavaProjectTests("testPackageFragmentRootNonJavaResources"));
 	suite.addTest(new JavaProjectTests("testAddNonJavaResourcePackageFragmentRoot"));
+	suite.addTest(new JavaProjectTests("testFindPackageFragmentRootFromClasspathEntry"));
+	
+	// The following test must be at the end as it deletes a package and this would have side effects
+	// on other tests
 	suite.addTest(new JavaProjectTests("testDeletePackageWithAutobuild"));
 	return suite;
 }
@@ -319,6 +316,24 @@ public void testFindElementPackage() throws JavaModelException {
 	IJavaElement element= project.findElement(new Path("x/y"));
 	assertTrue("package not found" , element != null && element.getElementType() == IJavaElement.PACKAGE_FRAGMENT
 		&& element.getElementName().equals("x.y"));
+}
+/**
+ * Test that a package fragment root can be found from a classpath entry.
+ */
+public void testFindPackageFragmentRootFromClasspathEntry() throws JavaModelException {
+	IJavaProject project = getJavaProject("JavaProjectTests");
+	
+	// existing classpath entry
+	IClasspathEntry entry = JavaCore.newLibraryEntry(new Path("/JavaProjectTests/lib.jar"), null, null);
+	IPackageFragmentRoot[] roots = project.findPackageFragmentRoots(entry);
+	assertEquals("Unexpected number of roots for existing entry", 1, roots.length);
+	assertEquals("Unexpected root", "lib.jar", roots[0].getElementName());
+	
+	// non-existing classpath entry
+	entry = JavaCore.newSourceEntry(new Path("/JavaProjectTests/nonExisting"));
+	roots = project.findPackageFragmentRoots(entry);
+	assertEquals("Unexpected number of roots for non existing entry", 0, roots.length);
+
 }
 /**
  * Test that a folder with a dot name does not relate to a package fragment

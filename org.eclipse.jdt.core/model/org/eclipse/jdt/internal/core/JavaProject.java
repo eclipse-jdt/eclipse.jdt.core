@@ -420,6 +420,15 @@ public class JavaProject
 		return rootArray;
 	}
 
+	/*
+	 * Computes the package fragment roots identified by the given entry.	 */
+	public IPackageFragmentRoot[] computePackageFragmentRoots(IClasspathEntry entry) {
+		try {
+			return computePackageFragmentRoots(new IClasspathEntry[] {entry}, false);
+		} catch (JavaModelException e) {
+			return new IPackageFragmentRoot[] {};
+		}
+	}
 	/**
 	 * Returns the package fragment roots identified by the given entry. In case it refers to
 	 * a project, it will follow its classpath so as to find exported roots as well.
@@ -763,6 +772,21 @@ public class JavaProject
 			}
 		}
 		return null;
+	}
+	/**
+	 * @see IJavaProject
+	 */
+	public IPackageFragmentRoot[] findPackageFragmentRoots(IClasspathEntry entry) {
+		try {
+			IClasspathEntry[] resolvedClasspath = this.getResolvedClasspath(true);
+			for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
+				if (resolvedClasspath[i].equals(entry)) {
+					return computePackageFragmentRoots(entry);
+				}
+			}
+		} catch (JavaModelException e) {
+		}
+		return new IPackageFragmentRoot[] {};
 	}
 	
 	/**
@@ -1242,18 +1266,11 @@ public class JavaProject
 	}
 
 	/**
-	 * Returns the package fragment roots identified by the given entry.
+	 * @see IJavaProject
+	 * @deprecated
 	 */
 	public IPackageFragmentRoot[] getPackageFragmentRoots(IClasspathEntry entry) {
-		
-		try {
-
-			IClasspathEntry[] correspondingEntries = this.getResolvedClasspath(new IClasspathEntry[]{entry}, true, false);
-			return computePackageFragmentRoots(correspondingEntries, false);
-
-		} catch (JavaModelException e) {
-			return new IPackageFragmentRoot[] {};
-		}
+		return findPackageFragmentRoots(entry);
 	}
 
 	/**

@@ -170,7 +170,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				IClasspathEntry entry = classpath[i];
 				IPath path = classpath[i].getPath();
 				if (entry.getEntryKind() != IClasspathEntry.CPE_PROJECT && path.isPrefixOf(location) && !path.equals(location)) {
-					IPackageFragmentRoot[] roots = project.getPackageFragmentRoots(classpath[i]);
+					IPackageFragmentRoot[] roots = project.computePackageFragmentRoots(classpath[i]);
 					IPackageFragmentRoot root = roots[0];
 					// now the output location becomes a package fragment - along with any subfolders
 					ArrayList folders = new ArrayList();
@@ -278,7 +278,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 					pkgFragmentRoots = new IPackageFragmentRoot[] {(IPackageFragmentRoot) removedRoots.get(oldResolvedPath[i].getPath())};
 				}
 				if (pkgFragmentRoots == null) {
-					pkgFragmentRoots = project.getPackageFragmentRoots(oldResolvedPath[i]);
+					pkgFragmentRoots = project.computePackageFragmentRoots(oldResolvedPath[i]);
 				}
 				addClasspathDeltas(pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH, delta);
 
@@ -311,7 +311,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				needToUpdateDependents |= (oldResolvedPath[i].isExported() != newResolvedPath[index].isExported());
 				if (oldResolvedPathLongest && index != i) { //reordering of the classpath
 						addClasspathDeltas(
-							project.getPackageFragmentRoots(oldResolvedPath[i]),
+							project.computePackageFragmentRoots(oldResolvedPath[i]),
 							IJavaElementDelta.F_CLASSPATH_REORDER,
 							delta);
 						int changeKind = oldResolvedPath[i].getEntryKind();
@@ -332,7 +332,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				int flags = sourceAttachmentFlags | sourceAttachmentRootFlags;
 				if (flags != 0) {
 					addClasspathDeltas(
-						project.getPackageFragmentRoots(oldResolvedPath[i]),
+						project.computePackageFragmentRoots(oldResolvedPath[i]),
 						flags,
 						delta);
 					hasDelta = true;
@@ -351,7 +351,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 					continue; 
 				}
 				addClasspathDeltas(
-					project.getPackageFragmentRoots(newResolvedPath[i]),
+					project.computePackageFragmentRoots(newResolvedPath[i]),
 					IJavaElementDelta.F_ADDED_TO_CLASSPATH,
 					delta);
 				int changeKind = newResolvedPath[i].getEntryKind();
