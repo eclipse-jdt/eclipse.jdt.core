@@ -80,7 +80,10 @@ public static Test suite() {
 	// Support for completion tests
 	suite.addTest(CompletionTests.suite());
 	suite.addTest(SnippetCompletionTests.suite());
-		
+	
+	// Options tests
+	suite.addTest(OptionTests.suite());
+	
 	return suite;
 }
 
