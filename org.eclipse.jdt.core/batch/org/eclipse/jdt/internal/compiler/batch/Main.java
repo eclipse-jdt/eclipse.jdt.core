@@ -349,8 +349,6 @@ public class Main implements ProblemSeverities {
 		final int Default = 0;
 		String[] bootclasspaths = null;
 		int DEFAULT_SIZE_CLASSPATH = 4;
-		boolean warnOptionInUse = false;
-		boolean noWarnOptionInUse = false;
 		int pathCount = 0;
 		int bootclasspathCount = 0;
 		int index = -1, filesCount = 0, argCount = argv.length;
@@ -470,10 +468,9 @@ public class Main implements ProblemSeverities {
 			}
 			if (currentArg.equals("-classpath") //$NON-NLS-1$
 				|| currentArg.equals("-cp")) { //$NON-NLS-1$ //$NON-NLS-2$
-				if (pathCount > 0)
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateClasspath", currentArg)); //$NON-NLS-1$
-				classpaths = new String[DEFAULT_SIZE_CLASSPATH];
+				if (pathCount == 0) {
+					classpaths = new String[DEFAULT_SIZE_CLASSPATH];
+				}
 				mode = InsideClasspath;
 				continue;
 			}
@@ -506,10 +503,6 @@ public class Main implements ProblemSeverities {
 				continue;
 			}
 			if ("-deprecation".equals(currentArg)) { //$NON-NLS-1$
-				warnOptionInUse = true;
-				if (noWarnOptionInUse)
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateWarningConfiguration")); //$NON-NLS-1$				
 				options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 				continue;
 			}
@@ -586,7 +579,6 @@ public class Main implements ProblemSeverities {
 						} else {
 							throw new InvalidInputException(
 								Main.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
-							//$NON-NLS-1$
 						}
 					}
 					continue;
@@ -595,24 +587,36 @@ public class Main implements ProblemSeverities {
 					Main.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
 			}
 			if (currentArg.startsWith("-nowarn")) { //$NON-NLS-1$
-				noWarnOptionInUse = true;
-				noWarn = true;
-				if (warnOptionInUse)
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateWarningConfiguration")); //$NON-NLS-1$
+				Object[] entries = options.entrySet().toArray();
+				for (int i = 0, max = entries.length; i < max; i++) {
+					Map.Entry entry = (Map.Entry) entries[i];
+					if (!(entry.getKey() instanceof String))
+						continue;
+					if (!(entry.getValue() instanceof String))
+						continue;
+					if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
+						options.put((String) entry.getKey(), CompilerOptions.IGNORE);
+					}
+				}
 				mode = Default;
 				continue;
 			}
 			if (currentArg.startsWith("-warn")) { //$NON-NLS-1$
-				warnOptionInUse = true;
-				if (noWarnOptionInUse)
-					throw new InvalidInputException(
-						Main.bind("configure.duplicateWarningConfiguration")); //$NON-NLS-1$
 				mode = Default;
 				String warningOption = currentArg;
 				int length = currentArg.length();
 				if (length == 10 && warningOption.equals("-warn:none")) { //$NON-NLS-1$
-					noWarn = true;
+					Object[] entries = options.entrySet().toArray();
+					for (int i = 0, max = entries.length; i < max; i++) {
+						Map.Entry entry = (Map.Entry) entries[i];
+						if (!(entry.getKey() instanceof String))
+							continue;
+						if (!(entry.getValue() instanceof String))
+							continue;
+						if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
+							options.put((String) entry.getKey(), CompilerOptions.IGNORE);
+						}
+					}
 					continue;
 				}
 				if (length < 6)
@@ -765,6 +769,10 @@ public class Main implements ProblemSeverities {
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
 				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+					if (didSpecifyCompliance && options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_3)) {
+						throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget14", (String)options.get(CompilerOptions.OPTION_Compliance))); //$NON-NLS-1$
+					}
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
 				} else {
 					throw new InvalidInputException(Main.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
 				}
@@ -904,20 +912,6 @@ public class Main implements ProblemSeverities {
 			continue;
 		}
 
-		if (noWarn) {
-			// filter options which are related to the assist component
-			Object[] entries = options.entrySet().toArray();
-			for (int i = 0, max = entries.length; i < max; i++) {
-				Map.Entry entry = (Map.Entry) entries[i];
-				if (!(entry.getKey() instanceof String))
-					continue;
-				if (!(entry.getValue() instanceof String))
-					continue;
-				if (((String) entry.getValue()).equals(CompilerOptions.WARNING)) {
-					options.put((String) entry.getKey(), CompilerOptions.IGNORE);
-				}
-			}
-		}
 		/*
 		 * Standalone options
 		 */
