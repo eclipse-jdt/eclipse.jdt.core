@@ -57,7 +57,7 @@ public interface IAbstractSyntaxTreeVisitor {
 	void endVisit(IntLiteral intLiteral, BlockScope scope);
 	void endVisit(LabeledStatement labeledStatement, BlockScope scope);
 	void endVisit(LocalDeclaration localDeclaration, BlockScope scope);
-	void endVisit(LocalTypeDeclaration localTypeDeclaration, MethodScope scope);
+	void endVisit(LocalTypeDeclaration localTypeDeclaration, BlockScope scope);
 	void endVisit(LongLiteral longLiteral, BlockScope scope);
 	void endVisit(MemberTypeDeclaration memberTypeDeclaration, ClassScope scope);
 	void endVisit(MessageSend messageSend, BlockScope scope);
@@ -84,8 +84,6 @@ public interface IAbstractSyntaxTreeVisitor {
 	void endVisit(ThrowStatement throwStatement, BlockScope scope);
 	void endVisit(TrueLiteral trueLiteral, BlockScope scope);
 	void endVisit(TryStatement tryStatement, BlockScope scope);
-	void endVisit(TypeDeclaration typeDeclaration, BlockScope scope);
-	void endVisit(TypeDeclaration typeDeclaration, ClassScope scope);
 	void endVisit(TypeDeclaration typeDeclaration, CompilationUnitScope scope);
 	void endVisit(UnaryExpression unaryExpression, BlockScope scope);
 	void endVisit(WhileStatement whileStatement, BlockScope scope);
@@ -134,7 +132,7 @@ public interface IAbstractSyntaxTreeVisitor {
 	boolean visit(IntLiteral intLiteral, BlockScope scope);
 	boolean visit(LabeledStatement labeledStatement, BlockScope scope);
 	boolean visit(LocalDeclaration localDeclaration, BlockScope scope);
-	boolean visit(LocalTypeDeclaration localTypeDeclaration, MethodScope scope);
+	boolean visit(LocalTypeDeclaration localTypeDeclaration, BlockScope scope);
 	boolean visit(LongLiteral longLiteral, BlockScope scope);
 	boolean visit(MemberTypeDeclaration memberTypeDeclaration, ClassScope scope);
 	boolean visit(MessageSend messageSend, BlockScope scope);
@@ -161,8 +159,6 @@ public interface IAbstractSyntaxTreeVisitor {
 	boolean visit(ThrowStatement throwStatement, BlockScope scope);
 	boolean visit(TrueLiteral trueLiteral, BlockScope scope);
 	boolean visit(TryStatement tryStatement, BlockScope scope);
-	boolean visit(TypeDeclaration typeDeclaration, BlockScope scope);
-	boolean visit(TypeDeclaration typeDeclaration, ClassScope scope);
 	boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope);
 	boolean visit(UnaryExpression unaryExpression, BlockScope scope);
 	boolean visit(WhileStatement whileStatement, BlockScope scope);

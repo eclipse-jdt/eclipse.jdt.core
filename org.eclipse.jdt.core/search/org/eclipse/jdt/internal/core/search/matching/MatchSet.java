@@ -54,7 +54,7 @@ public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		}
 		return false; // don't visit members as this was done during reportMatching(...)
 	}
-	public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
+	public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope scope) {
 		try {
 			reportMatching(typeDeclaration, enclosingElement);
 			return false; // don't visit members as this was done during reportMatching(...)
@@ -62,7 +62,7 @@ public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			throw new WrappedCoreException(e);
 		}
 	}
-	public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
+	public boolean visit(MemberTypeDeclaration typeDeclaration, ClassScope scope) {
 		try {
 			reportMatching(typeDeclaration, enclosingElement);
 			return false; // don't visit members as this was done during reportMatching(...)

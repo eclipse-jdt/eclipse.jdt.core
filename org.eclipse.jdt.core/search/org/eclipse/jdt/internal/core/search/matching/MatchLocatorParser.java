@@ -57,7 +57,7 @@ public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	}
 	public boolean visit(
 			LocalTypeDeclaration localTypeDeclaration,
-			MethodScope scope) {
+			BlockScope scope) {
 		if ((matchSet.matchContainer & SearchPattern.METHOD) != 0) {
 			matchSet.checkMatching(localTypeDeclaration);
 		}
@@ -76,18 +76,6 @@ public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			matchSet.checkMatching(methodDeclaration);
 		}
 		return (methodDeclaration.bits & AstNode.HasLocalTypeMASK) != 0; // continue only if it has local type
-	}
-	public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
-		if ((matchSet.matchContainer & SearchPattern.METHOD) != 0) {
-			matchSet.checkMatching(typeDeclaration);
-		}
-		return true;
-	}
-	public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
-		if ((matchSet.matchContainer & SearchPattern.CLASS) != 0) {
-			matchSet.checkMatching(typeDeclaration);
-		}
-		return true; 
 	}
 	
 }

@@ -16,10 +16,12 @@ import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
+import org.eclipse.jdt.internal.compiler.ast.LocalTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -77,21 +79,21 @@ public class SuperTypeNamesCollector implements ITypeRequestor {
  * collecting their super type names.
  */
 public class TypeDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
-	public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
+	public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope scope) {
 		ReferenceBinding type = typeDeclaration.binding;
 		if (SuperTypeNamesCollector.this.matches(type)) {
 			SuperTypeNamesCollector.this.collectSuperTypeNames(type);
 		}
 		return true;
 	}
-	public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
+	public boolean visit(AnonymousLocalTypeDeclaration typeDeclaration, BlockScope scope) {
 		ReferenceBinding type = typeDeclaration.binding;
 		if (SuperTypeNamesCollector.this.matches(type)) {
 			SuperTypeNamesCollector.this.collectSuperTypeNames(type);
 		}
 		return true;
 	}
-	public boolean visit(TypeDeclaration typeDeclaration, 	CompilationUnitScope scope) {
+	public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope) {
 		ReferenceBinding type = typeDeclaration.binding;
 		if (SuperTypeNamesCollector.this.matches(type)) {
 			SuperTypeNamesCollector.this.collectSuperTypeNames(type);

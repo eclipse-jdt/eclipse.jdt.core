@@ -126,10 +126,6 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	}
 	public void endVisit(LocalDeclaration localDeclaration, BlockScope scope) {
 	}
-	public void endVisit(
-		LocalTypeDeclaration localTypeDeclaration,
-		MethodScope scope) {
-	}
 	public void endVisit(LongLiteral longLiteral, BlockScope scope) {
 	}
 	public void endVisit(
@@ -203,10 +199,6 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public void endVisit(TrueLiteral trueLiteral, BlockScope scope) {
 	}
 	public void endVisit(TryStatement tryStatement, BlockScope scope) {
-	}
-	public void endVisit(TypeDeclaration typeDeclaration, BlockScope scope) {
-	}
-	public void endVisit(TypeDeclaration typeDeclaration, ClassScope scope) {
 	}
 	public void endVisit(
 		TypeDeclaration typeDeclaration,
@@ -373,11 +365,6 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public boolean visit(LocalDeclaration localDeclaration, BlockScope scope) {
 		return true;
 	}
-	public boolean visit(
-		LocalTypeDeclaration localTypeDeclaration,
-		MethodScope scope) {
-		return true;
-	}
 	public boolean visit(LongLiteral longLiteral, BlockScope scope) {
 		return true;
 	}
@@ -478,12 +465,6 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	public boolean visit(TryStatement tryStatement, BlockScope scope) {
 		return true;
 	}
-	public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
-		return true;
-	}
-	public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
-		return true;
-	}
 	public boolean visit(
 		TypeDeclaration typeDeclaration,
 		CompilationUnitScope scope) {
@@ -494,5 +475,14 @@ public class AbstractSyntaxTreeVisitorAdapter implements IAbstractSyntaxTreeVisi
 	}
 	public boolean visit(WhileStatement whileStatement, BlockScope scope) {
 		return true;
+	}
+	public boolean visit(
+		LocalTypeDeclaration localTypeDeclaration,
+		BlockScope scope) {
+		return true;
+	}
+	public void endVisit(
+		LocalTypeDeclaration localTypeDeclaration,
+		BlockScope scope) {
 	}
 }

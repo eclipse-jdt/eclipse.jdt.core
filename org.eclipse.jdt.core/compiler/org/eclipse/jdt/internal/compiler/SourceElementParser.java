@@ -59,11 +59,11 @@ public class LocalDeclarationVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		notifySourceElementRequestor(anonymousTypeDeclaration, sourceType == null);
 		return false; // don't visit members as this was done during notifySourceElementRequestor(...)
 	}
-	public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
+	public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope scope) {
 		notifySourceElementRequestor(typeDeclaration, sourceType == null);
 		return false; // don't visit members as this was done during notifySourceElementRequestor(...)
 	}
-	public boolean visit(TypeDeclaration typeDeclaration, ClassScope scope) {
+	public boolean visit(MemberTypeDeclaration typeDeclaration, ClassScope scope) {
 		notifySourceElementRequestor(typeDeclaration, sourceType == null);
 		return false; // don't visit members as this was done during notifySourceElementRequestor(...)
 	}
