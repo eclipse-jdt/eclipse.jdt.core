@@ -1081,9 +1081,14 @@ protected void consumeAllocationHeader() {
 		anonymousType.sourceStart = intStack[intPtr--];
 		anonymousType.sourceEnd = rParenPos; // closing parenthesis
 		lastCheckPoint = anonymousType.bodyStart = scanner.currentPosition;
-		currentElement = currentElement.add(anonymousType, 0);
+		/*
+		 * Use special bracketBalance of -2, to be treated specially in the recovery token check,
+		 * instead of changing the currentToken value (to 0 previously) and thus causing to restart
+		 * recovery.
+		 */
+		currentElement = currentElement.add(anonymousType, -2); 
+		
 		lastIgnoredToken = -1;
-		currentToken = 0; // opening brace already taken into account
 		return;
 	}
 	lastCheckPoint = scanner.startPosition; // force to restart at this exact position
@@ -1846,9 +1851,12 @@ protected void consumeEnterAnonymousClassBody() {
 	// recovery
 	if (currentElement != null){ 
 		lastCheckPoint = anonymousType.bodyStart;
-		// the recoveryTokenCheck will deal with the open brace		
-		currentElement = currentElement.add(anonymousType, 0);
-		currentToken = 0; // opening brace already taken into account
+		/*
+		 * Use special bracketBalance of -2, to be treated specially in the recovery token check,
+		 * instead of changing the currentToken value (to 0 previously) and thus causing to restart
+		 * recovery.
+		 */
+		currentElement = currentElement.add(anonymousType, -2);
 		lastIgnoredToken = -1;
 	}	
 }
@@ -7203,6 +7211,16 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 public void recoveryTokenCheck() {
 	switch (currentToken) {
 		case TokenNameLBRACE : {
+
+			/*
+			 * Recovered anonymous types are tagged a bracket balance of -2 (incremented
+			 * then since headerEnd != bodyStart. Given the opening brace was already taken
+			 * into account, just fix up the bracket balance and take no further action for this token.
+			 */
+			if (currentElement.bracketBalance == -1){
+				currentElement.bracketBalance = 1; 
+				break;
+			}
 			RecoveredElement newElement = 
 				currentElement.updateOnOpeningBrace(scanner.currentPosition - 1);
 			lastCheckPoint = scanner.currentPosition;				
