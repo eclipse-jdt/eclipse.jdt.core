@@ -36,7 +36,7 @@ public class JavadocTestMixed extends JavadocTest {
 	static {
 		// 	Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		testsNames = new String[] {
-//			"testBug70892conform1", "testBug70892conform2"
+//			"testBug73995"
 //		};
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		testsNumbers = new int[] { 3, 7, 10, 21 };
@@ -3865,6 +3865,33 @@ public class JavadocTestMixed extends JavadocTest {
 				"	 	                                          ^^^\n" + 
 				"Javadoc: Malformed link reference\n" + 
  				"----------\n"
+ 		);
+ 	}
+
+	/**
+	 * Test fix for bug 73995: [Javadoc] Wrong warning for missing return type description for @return {@inheritDoc}
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73995">73995</a>
+	 */
+	public void testBug73995() {
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 *	@return {@link Object}     \n" + 
+					"	 */\n" + 
+					"	public int foo1() {return 0; }\n" + 
+					"	/** @return {@inheritedDoc} */\n" + 
+					"	public int foo2() {return 0; }\n" + 
+					"	/**\n" + 
+					"	 *	@return\n" + 
+					"	 *		{@unknown_tag}\n" + 
+					"	 */\n" + 
+					"	public int foo3() {return 0; }\n" + 
+					"}\n",
+			}
  		);
  	}
 }

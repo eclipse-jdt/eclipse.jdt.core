@@ -294,7 +294,14 @@ public class JavadocParser extends AbstractCommentParser {
 	 */
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
 		boolean valid = false;
-		
+
+		// In case of previous return tag, set it to not empty if parsing an inline tag
+		if (this.currentAstPtr != -2 && this.returnStatement != null) {
+			this.currentAstPtr = -2;
+			JavadocReturnStatement javadocReturn = (JavadocReturnStatement) this.returnStatement;
+			javadocReturn.empty = javadocReturn.empty && !this.inlineTagStarted;
+		}
+
 		// Read tag name
 		int token = readTokenAndConsume();
 		this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
@@ -502,12 +509,14 @@ public class JavadocParser extends AbstractCommentParser {
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushText(int, int)
 	 */
 	protected void pushText(int start, int end) {
+		// In case of previous return tag, verify that text make it not empty
 		if (this.currentAstPtr != -2 && this.returnStatement != null) {
 			int position = this.index;
 			this.index = start;
 			boolean empty = true;
 			boolean star = false;
 			char ch = readChar();
+			// Look for first character other than white or '*'
 			if (Character.isWhitespace(ch) || start>(this.tagSourceEnd+1)) {
 				while (this.index <= end && empty) {
 					if (!star) {
@@ -520,7 +529,9 @@ public class JavadocParser extends AbstractCommentParser {
 					ch = readChar();
 				}
 			}
+			// Store result in previous return tag
 			((JavadocReturnStatement)this.returnStatement).empty = empty;
+			// Reset position and current ast ptr if we are on a different tag than previous return one
 			this.index = position;
 			if (this.currentAstPtr != this.astPtr) {
 				this.currentAstPtr = -2;
