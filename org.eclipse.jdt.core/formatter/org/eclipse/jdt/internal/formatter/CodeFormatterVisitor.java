@@ -363,7 +363,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		BinaryExpressionFragmentBuilder builder = buildFragments(binaryExpression, scope);
 		final int fragmentsSize = builder.size();
 		
-		if (fragmentsSize > 1 && numberOfParens == 0) {
+		if (builder.realFragmentsSize() > 1 && numberOfParens == 0) {
 			this.scribe.printComment();
 			Alignment binaryExpressionAlignment = this.scribe.createAlignment("binaryExpressionAlignment", this.preferences.binary_expression_alignment, Alignment.R_OUTERMOST, fragmentsSize, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 			this.scribe.enterAlignment(binaryExpressionAlignment);
@@ -383,7 +383,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						}
 						if (this.preferences.insert_space_after_binary_operator) {
 							this.scribe.space();
-						}						
+						}
+						this.scribe.printTrailingComment();
 					}
 					fragments[fragmentsSize - 1].traverse(this, scope);
 					ok = true;
@@ -913,7 +914,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				int argumentLength = arguments.length;
 				Alignment argumentsAlignment = this.scribe.createAlignment(
 						"messageArguments", //$NON-NLS-1$
-						this.preferences.message_send_arguments_alignment,
+						Alignment.M_COMPACT_SPLIT,
+						Alignment.R_OUTERMOST,
 						argumentLength,
 						this.scribe.scanner.currentPosition);
 				this.scribe.enterAlignment(argumentsAlignment);
@@ -946,7 +948,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 			startingPositionInCascade = 2;
 		}
-		Alignment cascadingMessageSendAlignment = this.scribe.createAlignment("cascadingMessageSendAlignment", Alignment.M_COMPACT_SPLIT, Alignment.R_OUTERMOST, size, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+		Alignment cascadingMessageSendAlignment = this.scribe.createAlignment("cascadingMessageSendAlignment", Alignment.M_COMPACT_SPLIT, Alignment.R_INNERMOST, size, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 		this.scribe.enterAlignment(cascadingMessageSendAlignment);
 		boolean ok = false;
 		do {
@@ -966,7 +968,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						int argumentLength = arguments.length;
 						Alignment argumentsAlignment = this.scribe.createAlignment(
 								"messageArguments", //$NON-NLS-1$
-								this.preferences.message_send_arguments_alignment,
+								Alignment.M_COMPACT_SPLIT,
+								Alignment.R_OUTERMOST,
 								argumentLength,
 								this.scribe.scanner.currentPosition);
 						this.scribe.enterAlignment(argumentsAlignment);
@@ -1277,14 +1280,17 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				try {
 					this.scribe.alignFragment(throwsAlignment, 0);
 					this.scribe.printNextToken(TerminalTokens.TokenNamethrows, true); 
-					this.scribe.space();
 		
 					for (int i = 0; i < thrownExceptionsLength; i++) {
 						if (i > 0) {
 							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, spaceBeforeComma);
+							this.scribe.alignFragment(throwsAlignment, i + 1);
 							if (spaceAfterComma) {
 								this.scribe.space();
 							}
+						} else {
+							this.scribe.alignFragment(throwsAlignment, i + 1);
+							this.scribe.space();
 						}
 						this.scribe.alignFragment(throwsAlignment, i + 1);
 						thrownExceptions[i].traverse(this, methodDeclaration.scope);
@@ -3506,7 +3512,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			manageOpeningParenthesizedExpression(stringLiteral, numberOfParens);
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameStringLiteral);
-		
+		this.scribe.printTrailingComment();
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(stringLiteral, numberOfParens);
 		}

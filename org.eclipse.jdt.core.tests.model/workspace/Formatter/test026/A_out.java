@@ -11,7 +11,7 @@ public class A {
 						+ someMessageSend(Alignment.M_COMPACT_SPLIT,
 								Alignment.M_COMPACT_SPLIT,
 								Alignment.M_COMPACT_SPLIT,
-								Alignment.M_COMPACT_SPLIT), expressionsLength - 1,
-				this.scribe.scanner.currentPosition);
+								Alignment.M_COMPACT_SPLIT),
+				expressionsLength - 1, this.scribe.scanner.currentPosition);
 	}
 }

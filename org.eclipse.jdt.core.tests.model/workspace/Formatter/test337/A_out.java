@@ -26,8 +26,8 @@ public class ConfigurationActivator implements BundleActivator {
 	private ServiceRegistration configurationFactorySR;
 	private String[] allArgs;
 	// location used to put the generated manfests
-	private String cacheLocation = (String) System.getProperties()
-			.get("osgi.manifest.cache"); //PASCAL Need to set this value somewhere (probably from boot)
+	private String cacheLocation = (String) System.getProperties().get(
+			"osgi.manifest.cache"); //PASCAL Need to set this value somewhere (probably from boot)
 	private IPluginConverter converter;
 	private Set ignore;
 	private BundleListener reconcilerListener;
@@ -42,8 +42,9 @@ public class ConfigurationActivator implements BundleActivator {
 		installBundles();
 	}
 	private void computeIgnoredBundles() {
-		String ignoreList = System.getProperty("eclipse.ignore",
-				"org.eclipse.osgi,org.eclipse.core.boot,org.eclipse.core.runtime.adaptor");
+		String ignoreList = System
+				.getProperty("eclipse.ignore",
+						"org.eclipse.osgi,org.eclipse.core.boot,org.eclipse.core.runtime.adaptor");
 		ignore = new HashSet();
 		StringTokenizer tokenizer = new StringTokenizer(ignoreList, ",");
 		while (tokenizer.hasMoreTokens())
@@ -264,8 +265,8 @@ private void installBundles() {
 					message = "";
 				IStatus status = new Status(IStatus.ERROR,
 						IPlatform.PI_RUNTIME, IStatus.OK, message, e);
-				((IPlatform) platformTracker.getService())
-						.getLog(context.getBundle()).log(status);
+				((IPlatform) platformTracker.getService()).getLog(
+						context.getBundle()).log(status);
 			}
 		}
 		return PlatformConfiguration.getCurrent();

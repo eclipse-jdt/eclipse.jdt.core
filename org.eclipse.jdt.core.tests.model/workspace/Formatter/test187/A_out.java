@@ -71,7 +71,7 @@ import java.util.Arrays;
  * </pre>
  *
  * @author <a href="mailto:jduska@imcwv.com">Jeff Duska</a>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.1 $
  */
 public class RemotePublication extends Publication {
 	private static final String PDF_FILETYPE = "PDF";
@@ -144,8 +144,8 @@ public class RemotePublication extends Publication {
 		return successful;
 	}
 	protected void getPages()
-			throws FTPServerTimeoutException, FTPServerException, 
-			NoFTPServiceException {
+			throws FTPServerTimeoutException, FTPServerException,
+					NoFTPServiceException {
 		// Setup the ftp server
 		FtpServer ftp;
 		try {
@@ -214,8 +214,9 @@ public class RemotePublication extends Publication {
 	 */
 	private String createC42PDFCommandLine(String documentName) {
 		return (Registry.getConvertToolPath() + File.separator
-				+ Registry.getConvertToolName() + (" -o " + _workingDir + File.separator + documentName
-				+ " -l " + _workingDir + File.separator + _fileList));
+				+ Registry.getConvertToolName() + (" -o " + _workingDir
+				+ File.separator + documentName + " -l " + _workingDir
+				+ File.separator + _fileList));
 	}
 	/**
 	 * there a special cases within WSSRD where there may be more
@@ -240,8 +241,8 @@ public class RemotePublication extends Publication {
 		while (newPdfFile.exists()) {
 			documentCount++;
 			newFilename = (new StringBuffer(_workingDir).append(File.separator)
-					.append(_localFilename).append(documentCount).append(EXTENTION))
-					.toString();
+					.append(_localFilename).append(documentCount)
+					.append(EXTENTION)).toString();
 			if (log.isDebugEnabled()) {
 				log
 						.debug("File already exists. Check to see if we need rename existing file");

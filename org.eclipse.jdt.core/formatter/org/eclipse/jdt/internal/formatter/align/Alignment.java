@@ -248,8 +248,15 @@ public class Alignment {
 					this.fragmentIndentations[0] = this.breakIndentationLevel;
 					return wasSplit = true;
 				}
-				// fall through COMPACT split
-
+				i = this.fragmentIndex;
+				do {
+					if (this.fragmentBreaks[i] == NONE) {
+						this.fragmentBreaks[i] = BREAK;
+						this.fragmentIndentations[i] = this.breakIndentationLevel + this.scribe.formatter.preferences.continuation_indentation * (this.scribe.useTab ? 1 : this.scribe.tabSize);
+						return wasSplit = true;
+					}
+				} while (--i >= 0);
+				break;
 			/*  # aligned fragment
 			 *  foo(#AAAAA, #BBBBB,
 			 *     #CCCC);
@@ -354,7 +361,7 @@ public class Alignment {
 			return;
 		}
 		
-		if (this.fragmentBreaks[this.fragmentIndex] == 1) {
+		if (this.fragmentBreaks[this.fragmentIndex] == BREAK) {
 			this.scribe.printNewLine();
 		}
 		if (this.fragmentIndentations[this.fragmentIndex] > 0) {
