@@ -176,6 +176,12 @@ public class Scanner implements TerminalTokens {
 	public static final int SquareBracket = 1;
 	public static final int CurlyBracket = 2;	
 	public static final int BracketKinds = 3;
+	
+	// extended unicode support
+	public static final int LOW_SURROGATE_MIN_VALUE = 0xDC00;
+	public static final int HIGH_SURROGATE_MIN_VALUE = 0xD800;
+	public static final int HIGH_SURROGATE_MAX_VALUE = 0xDBFF;
+	public static final int LOW_SURROGATE_MAX_VALUE = 0xDFFF;
 
 public Scanner() {
 	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
@@ -1478,19 +1484,19 @@ protected boolean isDigit(char c) throws InvalidInputException {
  * </ol>
  */
 private boolean isJavaIdentifierPart(char c) throws InvalidInputException {
-	if (c >= ScannerHelper.HIGH_SURROGATE_MIN_VALUE && c <= ScannerHelper.HIGH_SURROGATE_MAX_VALUE) {
+	if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 		}
 		// Unicode 4 detection
 		char low = (char) getNextChar();
-		if (low < ScannerHelper.LOW_SURROGATE_MIN_VALUE || low > ScannerHelper.LOW_SURROGATE_MAX_VALUE) {
+		if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
 			// illegal low surrogate
 			throw new InvalidInputException(INVALID_LOW_SURROGATE);
 		}
 		return ScannerHelper.isJavaIdentifierPart(c, low);
 	}
-	if (c >= ScannerHelper.LOW_SURROGATE_MIN_VALUE && c <= ScannerHelper.LOW_SURROGATE_MAX_VALUE) {
+	if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 		}
@@ -1516,19 +1522,19 @@ private boolean isJavaIdentifierPart(char c) throws InvalidInputException {
  * </ol>
  */
 private boolean isJavaIdentifierStart(char c) throws InvalidInputException {
-	if (c >= ScannerHelper.HIGH_SURROGATE_MIN_VALUE && c <= ScannerHelper.HIGH_SURROGATE_MAX_VALUE) {
+	if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 		}
 		// Unicode 4 detection
 		char low = (char) getNextChar();
-		if (low < ScannerHelper.LOW_SURROGATE_MIN_VALUE || low > ScannerHelper.LOW_SURROGATE_MAX_VALUE) {
+		if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
 			// illegal low surrogate
 			throw new InvalidInputException(INVALID_LOW_SURROGATE);
 		}
 		return ScannerHelper.isJavaIdentifierStart(c, low);
 	}
-	if (c >= ScannerHelper.LOW_SURROGATE_MIN_VALUE && c <= ScannerHelper.LOW_SURROGATE_MAX_VALUE) {
+	if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 		}
