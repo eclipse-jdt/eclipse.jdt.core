@@ -1973,8 +1973,7 @@ public class AnnotationTest extends AbstractComparisonTest {
 		assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79848
-	// TODO (olivier) active once 79848 is fixed
-	public void _test065() {
+	public void test065() {
 		this.runConformTest(
 			new String[] {
 				"X.java",

@@ -103,7 +103,17 @@ public class MemberValuePair extends ASTNode {
 					}
 					break checkAnnotationMethodType;
 				case T_JavaLangClass :
-					if (!(this.value instanceof ClassLiteralAccess)) {
+					if (this.value instanceof ArrayInitializer) {
+						ArrayInitializer initializer = (ArrayInitializer) this.value;
+						final Expression[] expressions = initializer.expressions;
+						if (expressions != null) {
+							for (int i =0, max = expressions.length; i < max; i++) {
+								if (!(expressions[i] instanceof ClassLiteralAccess)) {
+									scope.problemReporter().annotationValueMustBeClassLiteral(this.binding.declaringClass, this.name, expressions[i]);
+								}
+							}
+						}
+					} else if (!(this.value instanceof ClassLiteralAccess)) {
 						scope.problemReporter().annotationValueMustBeClassLiteral(this.binding.declaringClass, this.name, this.value);
 					}
 					break checkAnnotationMethodType;
