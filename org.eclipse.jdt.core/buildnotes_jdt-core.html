@@ -37,10 +37,13 @@ Eclipse SDK 2.1 Build - ?th November 2002
 <br>Project org.eclipse.jdt.core v_285
 <h2>
 What's new in this drop</h2>
-<ul>
-<li>Source attachment is now available on library folder. Indeed, it is now possible to 
-attach a source folder to a binary package fragment root (see <code>IPackageFragmentRoot.
-attachSource(IPath, IPath, IProgressMonitor)</code> and <code>JavaCore.newLibraryEntry(...)</code>)
+<ul> 
+<li><b>Source attachment enhancement:</b> The source attachment mechanism got generalized to all binary package fragment root. In the past, 
+only archives did support to carry a source attachment, in the form of a source archive. Now, both
+binary folder or archive can be associated with sources, which can be either a source archive or a 
+source folder. In particular, mixed modes are supported (binary archive associated to source folder 
+and reciprocally). For more details, see <code>IPackageFragmentRoot.attachSource(IPath, IPath, 
+IProgressMonitor)</code> and <code>JavaCore.newLibraryEntry(...)</code>.
 </li>
 </ul>
 
