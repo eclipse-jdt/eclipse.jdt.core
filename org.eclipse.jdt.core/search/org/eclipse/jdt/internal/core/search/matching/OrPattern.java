@@ -77,12 +77,19 @@ protected int matchContainer() {
 			| rightPattern.matchContainer();
 }
 /**
- * see SearchPattern.matchIndexEntry
+ * @see SearchPattern#matchesBinary
+ */
+public boolean matchesBinary(Object binaryInfo, Object enclosingBinaryInfo) {
+	return this.leftPattern.matchesBinary(binaryInfo, enclosingBinaryInfo) 
+		|| this.rightPattern.matchesBinary(binaryInfo, enclosingBinaryInfo);
+}
+/**
+ * @see SearchPattern#matchIndexEntry
  */
 protected boolean matchIndexEntry() {
 
-	return leftPattern.matchIndexEntry()
-			|| rightPattern.matchIndexEntry();
+	return this.leftPattern.matchIndexEntry()
+			|| this.rightPattern.matchIndexEntry();
 }
 /**
  * @see SearchPattern#matchReportReference

@@ -122,6 +122,33 @@ public static final char[] concat(char prefix, char[] array, char suffix) {
 	result[length + 1] = suffix;
 	return result;
 }
+public static final char[] concatWith(char[] name, char[][] array, char separator) {
+	int nameLength = name == null ? 0 : name.length;
+	if (nameLength == 0)
+		return concatWith(array, separator);
+
+	int length = array == null ? 0 : array.length;
+	if (length == 0)
+		return name;
+
+	int size = nameLength;
+	int index = length;
+	while (--index >= 0)
+		if (array[index].length > 0)
+			size += array[index].length + 1;
+	char[] result = new char[size];
+	index = size;
+	for (int i = length-1; i >= 0; i--) {
+		int subLength = array[i].length;
+		if (subLength > 0) {
+			index -= subLength;
+			System.arraycopy(array[i], 0, result, index, subLength);
+			result[--index] = separator;
+		}
+	}
+	System.arraycopy(name, 0, result, 0, nameLength);
+	return result;
+}
 public static final char[] concatWith(char[][] array, char[] name, char separator) {
 	int nameLength = name == null ? 0 : name.length;
 	if (nameLength == 0)

@@ -574,20 +574,21 @@ public class NameLookup {
 	 * Performs type search in a source package.
 	 */
 	protected void seekTypesInSourcePackage(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor) {
-		ICompilationUnit[] compilationUnits= null;
+		ICompilationUnit[] compilationUnits = null;
 		try {
-			compilationUnits= pkg.getCompilationUnits();
+			compilationUnits = pkg.getCompilationUnits();
 		} catch (JavaModelException npe) {
 			return; // the package is not present
 		}
 		int length= compilationUnits.length;
-		String matchName= name;
+		String matchName = name;
 		int index= name.indexOf('$');
-		boolean memberType= false;
+		boolean potentialMemberType = false;
+		String potentialMatchName = null;
 		if (index != -1) {
 			//the compilation unit name of the inner type
-			matchName= name.substring(0, index);
-			memberType= true;
+			potentialMatchName = name.substring(0, index);
+			potentialMemberType = true;
 		}
 
 		/**
@@ -595,7 +596,11 @@ public class NameLookup {
 		 * the compilationUnits always will. So add it if we're looking for 
 		 * an exact match.
 		 */
-		String unitName= partialMatch ? matchName.toLowerCase() : matchName + ".java"; //$NON-NLS-1$
+		String unitName = partialMatch ? matchName.toLowerCase() : matchName + ".java"; //$NON-NLS-1$
+		String potentialUnitName = null;
+		if (potentialMemberType) {
+			potentialUnitName = partialMatch ? potentialMatchName.toLowerCase() : potentialMatchName + ".java"; //$NON-NLS-1$
+		}
 
 		for (int i= 0; i < length; i++) {
 			if (requestor.isCanceled())
@@ -613,14 +618,28 @@ public class NameLookup {
 					if (requestor.isCanceled())
 						return;
 					IType type= types[j];
-					if (nameMatches(matchName, type, partialMatch))
-						if (!memberType) {
-							if (acceptType(type, acceptFlags)) requestor.acceptType(type);
-						} else {
-							seekQualifiedMemberTypes(name.substring(index + 1, name.length()), type, partialMatch, requestor, acceptFlags);
-						}
+					if (nameMatches(matchName, type, partialMatch)) {
+						if (acceptType(type, acceptFlags)) requestor.acceptType(type);
+					}
+				}
+			} else 	if (potentialMemberType && nameMatches(potentialUnitName, compilationUnit, partialMatch)) {
+				IType[] types= null;
+				try {
+					types= compilationUnit.getTypes();
+				} catch (JavaModelException npe) {
+					continue; // the compilation unit is not present
+				}
+				int typeLength= types.length;
+				for (int j= 0; j < typeLength; j++) {
+					if (requestor.isCanceled())
+						return;
+					IType type= types[j];
+					if (nameMatches(potentialMatchName, type, partialMatch)) {
+						seekQualifiedMemberTypes(name.substring(index + 1, name.length()), type, partialMatch, requestor, acceptFlags);
+					}
 				}
 			}
+
 		}
 	}
 

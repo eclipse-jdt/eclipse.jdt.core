@@ -638,13 +638,18 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			break;
 		case IJavaElement.IMPORT_DECLARATION :
 			String elementName = element.getElementName();
+			lastDot = elementName.lastIndexOf('.');
+			if (lastDot == -1) return null; // invalid import declaration
 			IImportDeclaration importDecl = (IImportDeclaration)element;
 			if (importDecl.isOnDemand()) {
-				lastDot = elementName.lastIndexOf('.');
-				if (lastDot == -1) return null; // invalid import declaration
 				searchPattern = createPackagePattern(elementName.substring(0, lastDot), limitTo, EXACT_MATCH, CASE_SENSITIVE);
 			} else {
-				searchPattern = createTypePattern(elementName, limitTo);
+				searchPattern = 
+					createTypePattern(
+						elementName.substring(lastDot+1).toCharArray(),
+						elementName.substring(0, lastDot).toCharArray(),
+						null,
+						limitTo);
 			}
 			break;
 		case IJavaElement.METHOD :
@@ -709,11 +714,13 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 			}
 			break;
 		case IJavaElement.TYPE :
-			IType type = (IType) element;
-			String packageName = type.getPackageFragment().getElementName();
-			String fullyQualifiedName = packageName + "." + type.getTypeQualifiedName(); //$NON-NLS-1$
-			// NB: if default package, the fully qualified name as to be ".X" so that createTypePattern(String) creates a pattern with the NO_CHAR qualification
-			searchPattern = createTypePattern(fullyQualifiedName, limitTo);
+			IType type = (IType)element;
+			searchPattern = 
+				createTypePattern(
+					type.getElementName().toCharArray(), 
+					type.getPackageFragment().getElementName().toCharArray(),
+					enclosingTypeNames(type),
+					limitTo);
 			break;
 		case IJavaElement.PACKAGE_DECLARATION :
 		case IJavaElement.PACKAGE_FRAGMENT :
@@ -722,47 +729,49 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
 	}
 	return searchPattern;
 }
-private static SearchPattern createTypePattern(String fullyQualifiedName, int limitTo) {
+private static SearchPattern createTypePattern(char[] simpleName, char[] packageName, char[][] enclosingTypeNames, int limitTo) {
 	SearchPattern searchPattern = null;
-	int lastDot = fullyQualifiedName.lastIndexOf('.');
-	int lastDollar = fullyQualifiedName.lastIndexOf('$');
-	if (lastDollar < lastDot) lastDollar = -1; // must be in last segment
-	char[] enclosingTypeName, simpleName;
-	if (lastDollar >= 0){
-		enclosingTypeName = fullyQualifiedName.substring(lastDot+1, lastDollar).toCharArray();
-		simpleName = fullyQualifiedName.substring(lastDollar+1, fullyQualifiedName.length()).toCharArray();
-	} else {
-		enclosingTypeName = NO_CHAR;
-		simpleName = (lastDot != -1 ? fullyQualifiedName.substring(lastDot + 1) : fullyQualifiedName).toCharArray();
-	}
-	char[] qualification = lastDot != -1 ? fullyQualifiedName.substring(0, lastDot).toCharArray() : null;
-	
 	switch (limitTo) {
 		case IJavaSearchConstants.DECLARATIONS :
-			char[][] enclosingTypeNames = CharOperation.splitOn('$', enclosingTypeName);
-			searchPattern = new TypeDeclarationPattern(qualification, enclosingTypeNames, simpleName, TYPE_SUFFIX, EXACT_MATCH, CASE_SENSITIVE);
+			searchPattern = 
+				new TypeDeclarationPattern(
+					packageName, 
+					enclosingTypeNames, 
+					simpleName, 
+					TYPE_SUFFIX, 
+					EXACT_MATCH, 
+					CASE_SENSITIVE);
 			break;
 		case IJavaSearchConstants.REFERENCES :
-			if (enclosingTypeName.length > 0) {
-				qualification = CharOperation.concat(qualification, enclosingTypeName, '.');
-			}
-			searchPattern = new TypeReferencePattern(qualification, simpleName, EXACT_MATCH, CASE_SENSITIVE);
+			searchPattern = 
+				new TypeReferencePattern(
+					CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
+					simpleName, 
+					EXACT_MATCH, 
+					CASE_SENSITIVE);
 			break;
 		case IJavaSearchConstants.IMPLEMENTORS : 
-			searchPattern = new SuperInterfaceReferencePattern(qualification, simpleName, EXACT_MATCH, CASE_SENSITIVE);
+			searchPattern = 
+				new SuperInterfaceReferencePattern(
+					CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
+					simpleName, 
+					EXACT_MATCH, 
+					CASE_SENSITIVE);
 			break;
 		case IJavaSearchConstants.ALL_OCCURRENCES :
-			char[] fullQualification;
-			if (enclosingTypeName.length > 0) {
-				fullQualification = CharOperation.concat(qualification, enclosingTypeName, '.');
-				enclosingTypeNames = CharOperation.splitOn('$', enclosingTypeName);
-			} else {
-				fullQualification = qualification;
-				enclosingTypeNames = NO_CHAR_CHAR;
-			}
 			searchPattern = new OrPattern(
-				new TypeDeclarationPattern(qualification, enclosingTypeNames, simpleName, TYPE_SUFFIX, EXACT_MATCH, CASE_SENSITIVE), 
-				new TypeReferencePattern(fullQualification, simpleName, EXACT_MATCH, CASE_SENSITIVE));
+				new TypeDeclarationPattern(
+					packageName, 
+					enclosingTypeNames, 
+					simpleName, 
+					TYPE_SUFFIX, 
+					EXACT_MATCH, 
+					CASE_SENSITIVE), 
+				new TypeReferencePattern(
+					CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
+					simpleName, 
+					EXACT_MATCH, 
+					CASE_SENSITIVE));
 			break;
 	}
 	return searchPattern;
@@ -829,6 +838,23 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 
 }
 protected abstract void decodeIndexEntry(IEntryResult entryResult);
+/**
+ * Returns the enclosing type names of the given type.
+ */
+private static char[][] enclosingTypeNames(IType type) {
+	IJavaElement parent = type.getParent();
+	switch (parent.getElementType()) {
+		case IJavaElement.CLASS_FILE:
+		case IJavaElement.COMPILATION_UNIT:
+			return 	NO_CHAR_CHAR;
+		case IJavaElement.TYPE:
+			return 	CharOperation.arrayConcat(
+				enclosingTypeNames((IType)parent), 
+				parent.getElementName().toCharArray());
+		default:
+			return null;
+	}
+}
 /**
  * Feed the requestor according to the current search pattern
  */
