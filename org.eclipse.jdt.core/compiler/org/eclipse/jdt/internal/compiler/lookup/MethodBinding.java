@@ -251,8 +251,14 @@ public char[] genericSignature() {
         sig.append(this.parameters[i].genericTypeSignature());
     }
     sig.append(')').append(this.returnType.genericTypeSignature());
+    // only append thrown exception if any is generic/parameterized
     for (int i = 0, length = this.thrownExceptions.length; i < length; i++) {
-        sig.append(this.thrownExceptions[i].genericTypeSignature());
+        if((this.thrownExceptions[i].modifiers & AccGenericSignature) != 0) {
+		    for (int j = 0; j < length; j++) {
+		        sig.append(this.thrownExceptions[j].genericTypeSignature());
+		    }
+            break;
+        }
     }
 	return sig.toString().toCharArray();
 }
