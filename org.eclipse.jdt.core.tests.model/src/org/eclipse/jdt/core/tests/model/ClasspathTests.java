@@ -69,17 +69,8 @@ public class ClasspathTests extends ModifyingResourceTests {
 public ClasspathTests(String name) {
 	super(name);
 }
-// Use this static initializer to specify subset for tests
-// All specified tests which do not belong to the class are skipped...
-static {
-	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	testsNames = new String[] { "testRemoveDuplicates"};
-//	testsNumbers = new int[] { 23, 28, 38 };
-//	testsRange = new int[] { 21, 38 };
-}
 public static Test suite() {
 	return buildTestSuite(ClasspathTests.class);
-	//return buildTestSuite(ClasspathTests.class, "testClasspathValidation02", null);
 }
 protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] expectedCycleParticipants) throws CoreException {
 	waitForAutoBuild();

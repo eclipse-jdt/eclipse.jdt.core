@@ -47,16 +47,6 @@ public class EncodingTests extends ModifyingResourceTests {
 	public static Test suite() {
 		return buildTestSuite(EncodingTests.class);
 	}
-	// Use this static initializer to specify subset for tests
-	// All specified tests which do not belong to the class are skipped...
-	static {
-		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		testsNames = new String[] { "testBug66898", "testBug66898b" };
-		// Numbers of tests to run: "test<number>" will be run for each number of this array
-//		testsNumbers = new int[] { 2, 12 };
-		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//		testsRange = new int[] { 16, -1 };
-	}
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
@@ -69,7 +59,7 @@ public class EncodingTests extends ModifyingResourceTests {
 
 	public void tearDownSuite() throws Exception {
 		super.tearDownSuite();
-		getWorkspaceRoot().setDefaultCharset(null);
+		getWorkspaceRoot().setDefaultCharset(null, null);
 		deleteProject("Encoding");
 	}
 	protected void setUp() throws Exception {
@@ -83,8 +73,8 @@ public class EncodingTests extends ModifyingResourceTests {
 	 */
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		this.encodingProject.setDefaultCharset(null);
-		this.utf8File.setCharset(null);
+		this.encodingProject.setDefaultCharset(null, null);
+		this.utf8File.setCharset(null, null);
 		if (this.utf8Source != null) ((IOpenable) this.utf8Source).close();
 		this.encodingJavaProject.close();
 	}
@@ -148,7 +138,7 @@ public class EncodingTests extends ModifyingResourceTests {
 
 		// Set file encoding
 		String encoding = "UTF-8";
-		this.utf8File.setCharset(encoding);
+		this.utf8File.setCharset(encoding, null);
 		
 		// Get source and compare with file contents
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
@@ -176,7 +166,7 @@ public class EncodingTests extends ModifyingResourceTests {
 
 		// Set project encoding
 		String encoding = "UTF-8";
-		this.encodingProject.setDefaultCharset(encoding);
+		this.encodingProject.setDefaultCharset(encoding, null);
 		
 		// Get source and compare with file contents
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
@@ -233,7 +223,7 @@ public class EncodingTests extends ModifyingResourceTests {
 
 		// Set file encoding
 		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
-		this.utf8File.setCharset(encoding);
+		this.utf8File.setCharset(encoding, null);
 		
 		// Get source and compare with file contents
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
@@ -252,7 +242,7 @@ public class EncodingTests extends ModifyingResourceTests {
 
 		// Set project encoding
 		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
-		this.encodingProject.setDefaultCharset(encoding);
+		this.encodingProject.setDefaultCharset(encoding, null);
 		
 		// Get source and compare with file contents
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
@@ -289,7 +279,7 @@ public class EncodingTests extends ModifyingResourceTests {
 
 		// Set file encoding
 		String encoding = "UTF-8";
-		this.utf8File.setCharset(encoding);
+		this.utf8File.setCharset(encoding, null);
 		
 		// Get source and compare with file contents
 		this.utf8Source = getClassFile("Encoding" , "bins", "testUTF8", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -313,7 +303,7 @@ public class EncodingTests extends ModifyingResourceTests {
 
 		// Set project encoding
 		String encoding = "UTF-8";
-		this.encodingProject.setDefaultCharset(encoding);
+		this.encodingProject.setDefaultCharset(encoding, null);
 		
 		// Get source and compare with file contents
 		this.utf8Source = getClassFile("Encoding" , "bins", "testUTF8", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -360,7 +350,7 @@ public class EncodingTests extends ModifyingResourceTests {
 
 		// Set file encoding
 		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
-		this.utf8File.setCharset(encoding);
+		this.utf8File.setCharset(encoding, null);
 		
 		// Get source and compare with file contents
 		this.utf8Source = getClassFile("Encoding" , "bins", "testUTF8", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -375,7 +365,7 @@ public class EncodingTests extends ModifyingResourceTests {
 
 		// Set project encoding
 		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
-		this.encodingProject.setDefaultCharset(encoding);
+		this.encodingProject.setDefaultCharset(encoding, null);
 		
 		// Get source and compare with file contents
 		this.utf8Source = getClassFile("Encoding" , "bins", "testUTF8", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -429,7 +419,7 @@ public class EncodingTests extends ModifyingResourceTests {
 
 		// Set project encoding
 		String encoding = "UTF-8";
-		this.encodingProject.setDefaultCharset(encoding);
+		this.encodingProject.setDefaultCharset(encoding, null);
 
 		// Get class file and compare source (should not be the same as modify charset on zip file has no effect...)
 		IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testUTF8.jar");
@@ -451,7 +441,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		String encoding = "UTF-8";
 		IFile zipFile = (IFile) this.encodingProject.findMember("testUTF8.zip"); //$NON-NLS-1$
 		assertNotNull("Cannot find class file!", zipFile);
-		zipFile.setCharset(encoding);
+		zipFile.setCharset(encoding, null);
 
 		// Get class file and compare source (should not be the same as modify charset on zip file has no effect...)
 		IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testUTF8.jar");
@@ -463,7 +453,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
 		
 		// Reset zip file encoding
-		zipFile.setCharset(null);
+		zipFile.setCharset(null, null);
 	}
 
 	/**
@@ -479,7 +469,7 @@ public class EncodingTests extends ModifyingResourceTests {
 				" */\n"+
 				"public class Test {}";
 			IFile file = this.createFile("P/Test.java", initialContent);
-			file.setCharset(encoding);
+			file.setCharset(encoding, null);
 			ICompilationUnit cu = this.getCompilationUnit("P/Test.java"); 
 			
 			// Modif direct the buffer
@@ -525,7 +515,7 @@ public class EncodingTests extends ModifyingResourceTests {
 				" */\n"+
 				"public class Test {}";
 			IFile file = this.createFile("P/Test.java", initialContent);
-			file.setCharset(encoding);
+			file.setCharset(encoding, null);
 			ICompilationUnit cu = this.getCompilationUnit("P/Test.java"); 
 			
 			// Modif using working copy
@@ -568,7 +558,7 @@ public class EncodingTests extends ModifyingResourceTests {
 
 		// Set file encoding
 		String encoding = "UTF-8";
-		this.utf8File.setCharset(encoding);
+		this.utf8File.setCharset(encoding, null);
 		
 		// Get source and compare with file contents
 		this.utf8Source = getCompilationUnit(this.utf8File.getFullPath().toString());
@@ -589,7 +579,7 @@ public class EncodingTests extends ModifyingResourceTests {
 
 		// Set file encoding
 		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
-		this.utf8File.setCharset(encoding);
+		this.utf8File.setCharset(encoding, null);
 		String fileName = this.utf8File.getName();
 		ICompilationUnit cu = getCompilationUnit(this.utf8File.getFullPath().toString());
 		createFolder("/Encoding/src/tmp");
@@ -622,7 +612,7 @@ public class EncodingTests extends ModifyingResourceTests {
 
 		// Set file encoding
 		final String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
-		this.utf8File.setCharset(encoding);
+		this.utf8File.setCharset(encoding, null);
 		final String fileName = utf8File.getName();
 		final IPackageFragment srcFolder = getPackageFragment("Encoding", "src", "testUTF8");
 		createFolder("/Encoding/src/tmp");

@@ -14,7 +14,6 @@ import java.text.NumberFormat;
 import junit.framework.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.core.search.SearchBasicEngine;
 import org.eclipse.test.performance.Dimension;
 
 
@@ -106,7 +105,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			"JavaCore", // 2597 m	atches
 			TYPE,
 			ALL_OCCURRENCES, 
-			SearchBasicEngine.createJavaSearchScope(ALL_PROJECTS),
+			SearchEngine.createJavaSearchScope(ALL_PROJECTS),
 			this.resultCollector);
 		stopMeasuring();
 		commitMeasurements();
@@ -121,7 +120,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			"FILE", 
 			FIELD,
 			ALL_OCCURRENCES, 
-			SearchBasicEngine.createJavaSearchScope(ALL_PROJECTS),
+			SearchEngine.createJavaSearchScope(ALL_PROJECTS),
 			this.resultCollector);
 		stopMeasuring();
 		commitMeasurements();
@@ -136,7 +135,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			"equals", 
 			METHOD,
 			ALL_OCCURRENCES, 
-			SearchBasicEngine.createJavaSearchScope(ALL_PROJECTS),
+			SearchEngine.createJavaSearchScope(ALL_PROJECTS),
 			this.resultCollector);
 		stopMeasuring();
 		commitMeasurements();
@@ -151,7 +150,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			"String", 
 			CONSTRUCTOR,
 			ALL_OCCURRENCES, 
-			SearchBasicEngine.createJavaSearchScope(ALL_PROJECTS),
+			SearchEngine.createJavaSearchScope(ALL_PROJECTS),
 			this.resultCollector);
 		stopMeasuring();
 		commitMeasurements();
