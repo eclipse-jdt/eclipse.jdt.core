@@ -46,7 +46,7 @@ public void build(boolean computeSubtypes) {
 		// optimize access to zip files while building hierarchy
 		manager.cacheZipFiles();
 				
-		if (this.hierarchy.type == null || computeSubtypes) {
+		if (this.hierarchy.focusType == null || computeSubtypes) {
 			IProgressMonitor typeInRegionMonitor = 
 				this.hierarchy.progressMonitor == null ? 
 					null : 

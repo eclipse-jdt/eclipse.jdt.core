@@ -565,14 +565,14 @@ public void searchAllTypeNames(
 		isCaseSensitive);
 	
 	IIndexSearchRequestor searchRequestor = new IndexSearchAdapter(){
-		public void acceptClassDeclaration(String resourcePath, char[] simpleTypeName, char[][] enclosingTypeNames, char[] packageName) {
+		public void acceptClassDeclaration(String resourcePath, char[] simpleTypeName, char[][] enclosingTypeNames, char[] pkgName) {
 			if (enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR) { // filter out local and anonymous classes
-				nameRequestor.acceptClass(packageName, simpleTypeName, enclosingTypeNames, resourcePath);
+				nameRequestor.acceptClass(pkgName, simpleTypeName, enclosingTypeNames, resourcePath);
 			}
 		}		
-		public void acceptInterfaceDeclaration(String resourcePath, char[] simpleTypeName, char[][] enclosingTypeNames, char[] packageName) {
+		public void acceptInterfaceDeclaration(String resourcePath, char[] simpleTypeName, char[][] enclosingTypeNames, char[] pkgName) {
 			if (enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR) { // filter out local and anonymous classes
-				nameRequestor.acceptInterface(packageName, simpleTypeName, enclosingTypeNames, resourcePath);
+				nameRequestor.acceptInterface(pkgName, simpleTypeName, enclosingTypeNames, resourcePath);
 			}
 		}		
 	};

@@ -52,8 +52,8 @@ public class Field {
 	public byte[] buffer() {
 		return buffer;
 	}
-	public Field buffer(byte[] buffer) {
-		this.buffer= buffer;
+	public Field buffer(byte[] someBuffer) {
+		this.buffer= someBuffer;
 		return this;
 	}
 	public Field clear() {
@@ -67,12 +67,12 @@ public class Field {
 			n++;
 		}
 	}
-	public Field clear(int length) {
-		clear(buffer, offset, length);
+	public Field clear(int someLength) {
+		clear(buffer, offset, someLength);
 		return this;
 	}
-	public Field clear(int offset, int length) {
-		clear(buffer, this.offset + offset, length);
+	public Field clear(int someOffset, int someLength) {
+		clear(buffer, this.offset + someOffset, someLength);
 		return this;
 	}
 	protected static int compare(byte[] buffer1, int offset1, int length1, byte[] buffer2, int offset2, int length2) {
@@ -100,8 +100,8 @@ public class Field {
 		return compare(f1.buffer, f1.offset, f1.length, f2.buffer, f2.offset, f2.length);
 	}
 	// copy bytes from one offset to another within the field
-	public Field copy(int fromOffset, int toOffset, int length) {
-		System.arraycopy(buffer, offset + fromOffset, buffer, offset + toOffset, length);
+	public Field copy(int fromOffset, int toOffset, int someLength) {
+		System.arraycopy(buffer, offset + fromOffset, buffer, offset + toOffset, someLength);
 		return this;
 	}
 	public Field dec(int n) {
@@ -113,19 +113,19 @@ public class Field {
 		System.arraycopy(buffer, offset, result, 0, length);
 		return result;
 	}
-	public byte[] get(int offset, int length) {
-		byte[] result= new byte[length];
-		System.arraycopy(buffer, this.offset + offset, result, 0, length);
+	public byte[] get(int someOffset, int someLength) {
+		byte[] result= new byte[someLength];
+		System.arraycopy(buffer, this.offset + someOffset, result, 0, someLength);
 		return result;
 	}
-	public Field getField(int offset, int length) {
-		return new Field(buffer, this.offset + offset, length);
+	public Field getField(int someOffset, int someLength) {
+		return new Field(buffer, this.offset + someOffset, someLength);
 	}
 	public int getInt1() {
 		return buffer[this.offset];
 	}
-	public int getInt1(int offset) {
-		return buffer[this.offset + offset];
+	public int getInt1(int someOffset) {
+		return buffer[this.offset + someOffset];
 	}
 	public int getInt2() {
 		int i= this.offset;
@@ -133,8 +133,8 @@ public class Field {
 		v= (v << 8) | (buffer[i++] & 255);
 		return v;
 	}
-	public int getInt2(int offset) {
-		int i= this.offset + offset;
+	public int getInt2(int someOffset) {
+		int i= this.offset + someOffset;
 		int v= buffer[i++];
 		v= (v << 8) | (buffer[i++] & 255);
 		return v;
@@ -146,8 +146,8 @@ public class Field {
 		v= (v << 8) | (buffer[i++] & 255);
 		return v;
 	}
-	public int getInt3(int offset) {
-		int i= this.offset + offset;
+	public int getInt3(int someOffset) {
+		int i= this.offset + someOffset;
 		int v= buffer[i++];
 		v= (v << 8) | (buffer[i++] & 255);
 		v= (v << 8) | (buffer[i++] & 255);
@@ -161,8 +161,8 @@ public class Field {
 		v= (v << 8) | (buffer[i++] & 255);
 		return v;
 	}
-	public int getInt4(int offset) {
-		int i= this.offset + offset;
+	public int getInt4(int someOffset) {
+		int i= this.offset + someOffset;
 		int v= buffer[i++];
 		v= (v << 8) | (buffer[i++] & 255);
 		v= (v << 8) | (buffer[i++] & 255);
@@ -172,8 +172,8 @@ public class Field {
 	public int getUInt1() {
 		return buffer[this.offset] & 255;
 	}
-	public int getUInt1(int offset) {
-		return buffer[this.offset + offset] & 255;
+	public int getUInt1(int someOffset) {
+		return buffer[this.offset + someOffset] & 255;
 	}
 	public int getUInt2() {
 		int i= this.offset;
@@ -181,8 +181,8 @@ public class Field {
 		v= (v << 8) | (buffer[i++] & 255);
 		return v;
 	}
-	public int getUInt2(int offset) {
-		int i= this.offset + offset;
+	public int getUInt2(int someOffset) {
+		int i= this.offset + someOffset;
 		int v= (buffer[i++] & 255);
 		v= (v << 8) | (buffer[i++] & 255);
 		return v;
@@ -194,15 +194,15 @@ public class Field {
 		v= (v << 8) | (buffer[i++] & 255);
 		return v;
 	}
-	public int getUInt3(int offset) {
-		int i= this.offset + offset;
+	public int getUInt3(int someOffset) {
+		int i= this.offset + someOffset;
 		int v= (buffer[i++] & 255);
 		v= (v << 8) | (buffer[i++] & 255);
 		v= (v << 8) | (buffer[i++] & 255);
 		return v;
 	}
-	public char[] getUTF(int offset) throws UTFDataFormatException {
-		int pos= this.offset + offset;
+	public char[] getUTF(int someOffset) throws UTFDataFormatException {
+		int pos= this.offset + someOffset;
 		int utflen= getUInt2(pos);
 		pos += 2;
 		char str[]= new char[utflen];
@@ -262,8 +262,8 @@ public class Field {
 	public int length() {
 		return length;
 	}
-	public Field length(int length) {
-		this.length= length;
+	public Field length(int someLength) {
+		this.length= someLength;
 		return this;
 	}
 	/**
@@ -272,22 +272,22 @@ public class Field {
 	public int offset() {
 		return offset;
 	}
-	public Field offset(int offset) {
-		this.offset= offset;
+	public Field offset(int someOffset) {
+		this.offset= someOffset;
 		return this;
 	}
-	public Field pointTo(int offset) {
-		return new Field(buffer, this.offset + offset, 0);
+	public Field pointTo(int someOffset) {
+		return new Field(buffer, this.offset + someOffset, 0);
 	}
 	public Field put(byte[] b) {
 		return put(0, b);
 	}
-	public Field put(int offset, byte[] b) {
-		System.arraycopy(b, 0, buffer, this.offset + offset, b.length);
+	public Field put(int someOffset, byte[] b) {
+		System.arraycopy(b, 0, buffer, this.offset + someOffset, b.length);
 		return this;
 	}
-	public Field put(int offset, Field f) {
-		System.arraycopy(f.buffer, f.offset, buffer, this.offset + offset, f.length);
+	public Field put(int someOffset, Field f) {
+		System.arraycopy(f.buffer, f.offset, buffer, this.offset + someOffset, f.length);
 		return this;
 	}
 	public Field put(Field f) {
@@ -298,8 +298,8 @@ public class Field {
 		buffer[offset]= (byte) (n);
 		return this;
 	}
-	public Field putInt1(int offset, int n) {
-		buffer[this.offset + offset]= (byte) (n);
+	public Field putInt1(int someOffset, int n) {
+		buffer[this.offset + someOffset]= (byte) (n);
 		return this;
 	}
 	public Field putInt2(int n) {
@@ -308,8 +308,8 @@ public class Field {
 		buffer[i++]= (byte) (n >> 0);
 		return this;
 	}
-	public Field putInt2(int offset, int n) {
-		int i= this.offset + offset;
+	public Field putInt2(int someOffset, int n) {
+		int i= this.offset + someOffset;
 		buffer[i++]= (byte) (n >> 8);
 		buffer[i++]= (byte) (n >> 0);
 		return this;
@@ -321,8 +321,8 @@ public class Field {
 		buffer[i++]= (byte) (n >> 0);
 		return this;
 	}
-	public Field putInt3(int offset, int n) {
-		int i= this.offset + offset;
+	public Field putInt3(int someOffset, int n) {
+		int i= this.offset + someOffset;
 		buffer[i++]= (byte) (n >> 16);
 		buffer[i++]= (byte) (n >> 8);
 		buffer[i++]= (byte) (n >> 0);
@@ -336,15 +336,15 @@ public class Field {
 		buffer[i++]= (byte) (n >> 0);
 		return this;
 	}
-	public Field putInt4(int offset, int n) {
-		int i= this.offset + offset;
+	public Field putInt4(int someOffset, int n) {
+		int i= this.offset + someOffset;
 		buffer[i++]= (byte) (n >> 24);
 		buffer[i++]= (byte) (n >> 16);
 		buffer[i++]= (byte) (n >> 8);
 		buffer[i++]= (byte) (n >> 0);
 		return this;
 	}
-	public int putUTF(int offset, char[] str) {
+	public int putUTF(int someOffset, char[] str) {
 		int strlen= str.length;
 		int utflen= 0;
 		for (int i= 0; i < strlen; i++) {
@@ -359,7 +359,7 @@ public class Field {
 		}
 		if (utflen > 65535)
 			throw new IllegalArgumentException();
-		int pos= this.offset + offset;
+		int pos= this.offset + someOffset;
 		buffer[pos++]= (byte) ((utflen >>> 8) & 0xFF);
 		buffer[pos++]= (byte) ((utflen >>> 0) & 0xFF);
 		for (int i= 0; i < strlen; i++) {

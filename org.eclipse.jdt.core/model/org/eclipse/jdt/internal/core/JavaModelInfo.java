@@ -37,22 +37,22 @@ protected JavaModelInfo() {
 private Object[] computeNonJavaResources() {
 	IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 	int length = projects.length;
-	Object[] nonJavaResources = null;
+	Object[] resources = null;
 	int index = 0;
 	for (int i = 0; i < length; i++) {
 		IProject project = projects[i];
 		if (!JavaProject.hasJavaNature(project)) {
-			if (nonJavaResources == null) {
-				nonJavaResources = new Object[length];
+			if (resources == null) {
+				resources = new Object[length];
 			}
-			nonJavaResources[index++] = project;
+			resources[index++] = project;
 		}
 	}
 	if (index == 0) return NO_NON_JAVA_RESOURCES;
 	if (index < length) {
-		System.arraycopy(nonJavaResources, 0, nonJavaResources = new Object[index], 0, index);
+		System.arraycopy(resources, 0, resources = new Object[index], 0, index);
 	}
-	return nonJavaResources;
+	return resources;
 }
 
 /**
@@ -60,11 +60,9 @@ private Object[] computeNonJavaResources() {
  */
 Object[] getNonJavaResources() {
 
-	Object[] nonJavaResources = this.nonJavaResources;
-	if (nonJavaResources == null) {
-		nonJavaResources = computeNonJavaResources();
-		this.nonJavaResources = nonJavaResources;
+	if (this.nonJavaResources == null) {
+		this.nonJavaResources = computeNonJavaResources();
 	}
-	return nonJavaResources;
+	return this.nonJavaResources;
 }
 }

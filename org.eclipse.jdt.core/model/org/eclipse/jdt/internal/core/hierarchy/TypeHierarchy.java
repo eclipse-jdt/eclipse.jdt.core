@@ -87,7 +87,7 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 	 * The type the hierarchy was specifically computed for,
 	 * possibly null.
 	 */
-	protected IType type;
+	protected IType focusType;
 
 	protected Map classToSuperclass;
 	protected Map typeToSuperInterfaces;
@@ -173,7 +173,7 @@ public TypeHierarchy(IType type, IJavaProject project, boolean computeSubtypes) 
  * Creates a TypeHierarchy on the given type.
  */
 public TypeHierarchy(IType type, IJavaSearchScope scope, boolean computeSubtypes) throws JavaModelException {
-	this.type = type;
+	this.focusType = type;
 	this.computeSubtypes = computeSubtypes;
 	this.scope = scope;
 }
@@ -314,7 +314,7 @@ protected void checkCanceled() {
  * Compute this type hierarchy.
  */
 protected void compute() throws JavaModelException, CoreException {
-	if (this.type != null) {
+	if (this.focusType != null) {
 		HierarchyBuilder builder = 
 			new IndexBasedHierarchyBuilder(
 				this, 
@@ -396,7 +396,7 @@ public void elementChanged(ElementChangedEvent event) {
  */
 public boolean exists() {
 	if (this.exists) {
-		this.exists = (this.type == null || (this.type != null && this.type.exists())) && this.javaProject().exists();
+		this.exists = (this.focusType == null || (this.focusType != null && this.focusType.exists())) && this.javaProject().exists();
 		if (!this.exists) {
 			destroy();
 		}
@@ -414,8 +414,8 @@ protected void fireChange() {
 	}
 	if (DEBUG) {
 		System.out.println("FIRING hierarchy change ["+Thread.currentThread()+"]"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (this.type != null) {
-			System.out.println("    for hierarchy focused on " + ((JavaElement)this.type).toStringWithAncestors()); //$NON-NLS-1$
+		if (this.focusType != null) {
+			System.out.println("    for hierarchy focused on " + ((JavaElement)this.focusType).toStringWithAncestors()); //$NON-NLS-1$
 		}
 	}
 	ArrayList listeners= (ArrayList)this.changeListeners.clone();
@@ -762,7 +762,7 @@ public IType[] getSupertypes(IType type) {
  * @see ITypeHierarchy
  */
 public IType getType() {
-	return this.type;
+	return this.focusType;
 }
 /**
  * Adds the new elements to a new array that contains all of the elements of the old array.
@@ -797,10 +797,10 @@ protected IType[] growAndAddToArray(IType[] array, IType addition) {
  * or this type has the given simple name.
  */
 private boolean hasSubtypeNamed(String simpleName) {
-	if (this.type.getElementName().equals(simpleName)) {
+	if (this.focusType.getElementName().equals(simpleName)) {
 		return true;
 	}
-	IType[] types = this.getAllSubtypes(this.type);
+	IType[] types = this.getAllSubtypes(this.focusType);
 	for (int i = 0, length = types.length; i < length; i++) {
 		if (types[i].getElementName().equals(simpleName)) {
 			return true;
@@ -1162,7 +1162,7 @@ private boolean isInterface(IType type) throws JavaModelException {
  * Returns the java project this hierarchy was created in.
  */
 public IJavaProject javaProject() {
-	return this.type.getJavaProject();
+	return this.focusType.getJavaProject();
 }
 protected static byte[] readUntil(InputStream input, byte separator) throws JavaModelException, IOException{
 	return readUntil(input, separator, 0);
@@ -1261,7 +1261,7 @@ public static ITypeHierarchy load(IType type, InputStream input) throws JavaMode
 				if(!element.equals(type)) {
 					throw new JavaModelException(new JavaModelStatus(IJavaModelStatus.ERROR)); 
 				}
-				typeHierarchy.type = element;
+				typeHierarchy.focusType = element;
 			}
 			if((info & ROOT) != 0) {
 				typeHierarchy.addRootClass(element);
@@ -1347,8 +1347,8 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 		}
 		this.progressMonitor = monitor;
 		if (monitor != null) {
-			if (this.type != null) {
-				monitor.beginTask(Util.bind("hierarchy.creatingOnType", type.getFullyQualifiedName()), 100); //$NON-NLS-1$
+			if (this.focusType != null) {
+				monitor.beginTask(Util.bind("hierarchy.creatingOnType", focusType.getFullyQualifiedName()), 100); //$NON-NLS-1$
 			} else {
 				monitor.beginTask(Util.bind("hierarchy.creating"), 100); //$NON-NLS-1$
 			}
@@ -1361,8 +1361,8 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 			} else {
 				System.out.println("CREATING SUPER TYPE HIERARCHY [" + Thread.currentThread() + "]"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			if (this.type != null) {
-				System.out.println("  on type " + ((JavaElement)this.type).toStringWithAncestors()); //$NON-NLS-1$
+			if (this.focusType != null) {
+				System.out.println("  on type " + ((JavaElement)this.focusType).toStringWithAncestors()); //$NON-NLS-1$
 			}
 		}
 		compute();
@@ -1425,10 +1425,10 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 		Hashtable hashtable2 = new Hashtable();
 		int count = 0;
 		
-		if(type != null) {
+		if(focusType != null) {
 			Integer index = new Integer(count++);
-			hashtable.put(type, index);
-			hashtable2.put(index, type);
+			hashtable.put(focusType, index);
+			hashtable2.put(index, focusType);
 		}
 		Object[] types = classToSuperclass.keySet().toArray();
 		for (int i = 0; i < types.length; i++) {
@@ -1501,7 +1501,7 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 			output.write(flagsToBytes((Integer)typeFlags.get(t)));
 			output.write(SEPARATOR4);
 			byte info = CLASS;
-			if(type != null && type.equals(t)) {
+			if(focusType != null && focusType.equals(t)) {
 				info |= COMPUTED_FOR;
 			}
 			if(interfaces.contains(t)) {
@@ -1601,14 +1601,14 @@ private boolean subtypesIncludeSupertypeOf(IType type) {
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append("Focus: "); //$NON-NLS-1$
-	buffer.append(this.type == null ? "<NONE>" : this.type.getFullyQualifiedName()); //$NON-NLS-1$
+	buffer.append(this.focusType == null ? "<NONE>" : this.focusType.getFullyQualifiedName()); //$NON-NLS-1$
 	buffer.append("\n"); //$NON-NLS-1$
 	if (exists()) {
-		if (this.type != null) {
+		if (this.focusType != null) {
 			buffer.append("Super types:\n"); //$NON-NLS-1$
-			toString(buffer, this.type, 1, true);
+			toString(buffer, this.focusType, 1, true);
 			buffer.append("Sub types:\n"); //$NON-NLS-1$
-			toString(buffer, this.type, 1, false);
+			toString(buffer, this.focusType, 1, false);
 		} else {
 			buffer.append("Sub types of root classes:\n"); //$NON-NLS-1$
 			IType[] roots= getRootClasses();
