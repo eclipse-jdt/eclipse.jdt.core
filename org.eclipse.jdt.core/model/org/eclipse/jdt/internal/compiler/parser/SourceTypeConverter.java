@@ -204,10 +204,16 @@ public class SourceTypeConverter implements CompilerModifiers {
 		field.name = sourceField.getName();
 		field.sourceStart = start;
 		field.sourceEnd = end;
-		field.type = createTypeReference(sourceField.getTypeName(), start, end);
 		field.declarationSourceStart = sourceField.getDeclarationSourceStart();
 		field.declarationSourceEnd = sourceField.getDeclarationSourceEnd();
-		field.modifiers = sourceField.getModifiers();
+		int modifiers = sourceField.getModifiers();
+		boolean isEnumConstant = (modifiers & AccEnum) != 0;
+		if (isEnumConstant) {
+			field.modifiers = modifiers & ~Flags.AccEnum; // clear AccEnum bit onto AST (binding will add it)
+		} else {
+			field.modifiers = modifiers;
+			field.type = createTypeReference(sourceField.getTypeName(), start, end);
+		}
 
 		/* conversion of field constant */
 		if ((this.flags & FIELD_INITIALIZATION) != 0) {
@@ -224,9 +230,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 		if ((this.flags & LOCAL_TYPE) != 0 && sourceField instanceof SourceFieldElementInfo) {
 			IJavaElement[] children = ((SourceFieldElementInfo) sourceField).getChildren();
 			int childrenLength = children.length;
-			if (Flags.isEnum(field.modifiers)) {
-				field.modifiers &= ~Flags.AccEnum;
-				field.type = null;
+			if (isEnumConstant) {
 				if (childrenLength > 0) {
 					TypeDeclaration anonymous = new TypeDeclaration(compilationResult);
 					anonymous.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
