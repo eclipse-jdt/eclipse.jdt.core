@@ -277,10 +277,63 @@ public final class Flags {
 	public static boolean isVolatile(int flags) {
 		return (flags & AccVolatile) != 0;
 	}
+	
+	/**
+	 * Returns whether the given integer has the <code>AccBridge</code>
+	 * bit set.
+	 *
+	 * @param flags the flags
+	 * @return <code>true</code> if the <code>AccBridge</code> flag is included
+	 * @see #AccBridge
+	 * @since 3.0
+	 */
+	public static boolean isBridge(int flags) {
+		return (flags & AccBridge) != 0;
+	}
+	
+	/**
+	 * Returns whether the given integer has the <code>AccVarargs</code>
+	 * bit set.
+	 *
+	 * @param flags the flags
+	 * @return <code>true</code> if the <code>AccVarargs</code> flag is included
+	 * @see #AccVarargs
+	 * @since 3.0
+	 */
+	public static boolean isVarargs(int flags) {
+		return (flags & AccVarargs) != 0;
+	}
+	
+	/**
+	 * Returns whether the given integer has the <code>AccEnum</code>
+	 * bit set.
+	 *
+	 * @param flags the flags
+	 * @return <code>true</code> if the <code>AccEnum</code> flag is included
+	 * @see #AccEnum
+	 * @since 3.0
+	 */
+	public static boolean isEnum(int flags) {
+		return (flags & AccEnum) != 0;
+	}
+	
+	/**
+	 * Returns whether the given integer has the <code>AccAnnotation</code>
+	 * bit set.
+	 *
+	 * @param flags the flags
+	 * @return <code>true</code> if the <code>AccAnnotation</code> flag is included
+	 * @see #AccAnnotation
+	 * @since 3.0
+	 */
+	public static boolean isAnnotation(int flags) {
+		return (flags & AccAnnotation) != 0;
+	}
+	
 	/**
 	 * Returns a standard string describing the given modifier flags.
-	 * Only modifier flags are included in the output; the deprecated and
-	 * synthetic flags are ignored if set.
+	 * Only modifier flags are included in the output; deprecated,
+	 * synthetic, bridge, etc. flags are ignored.
 	 * <p>
 	 * The flags are output in the following order:
 	 * <pre>
