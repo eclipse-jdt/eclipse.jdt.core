@@ -327,6 +327,37 @@ public void test013() {
 		},
 		"SUCCESS");
 }
+
+public void test014() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T extends Exception> {\n" + 
+			"    T foo(T t) throws T {\n" + 
+			"        return t;\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<EX>().baz(new EX());\n" + 
+			"    }\n" + 
+			"    void baz(final T t) {\n" + 
+			"        new Object() {\n" + 
+			"            void print() {\n" + 
+			"                System.out.println(foo(t));\n" + 
+			"            }\n" + 
+			"        }.print();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class EX extends Exception {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	System.out.println(foo(t));\n" + 
+		"	                   ^^^^^^\n" + 
+		"Unhandled exception type T\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return GenericTypeTest.class;
 }
