@@ -924,6 +924,14 @@ public void duplicateTargetInTargetAnnotation(TypeBinding annotationType, NameRe
 		reference.sourceStart,
 		reference.sourceEnd);
 }
+public void duplicateBounds(ASTNode location, TypeBinding type) {
+	this.handle(
+		IProblem.DuplicateBounds,
+		new String[] {new String(type.readableName())},
+		new String[] {new String(type.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void duplicateCase(CaseStatement caseStatement) {
 	this.handle(
 		IProblem.DuplicateCase,

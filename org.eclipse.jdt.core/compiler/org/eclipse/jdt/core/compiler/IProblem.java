@@ -936,7 +936,9 @@ public interface IProblem {
 	int DuplicateParameterizedMethods = MethodRelated + 565;
 	/** @since 3.1 */
 	int IllegalQualifiedParameterizedTypeAllocation = TypeRelated + 566;
-	
+	/** @since 3.1 */
+	int DuplicateBounds = TypeRelated + 567;
+
 	
 	/**
 	 * Foreach
