@@ -18,6 +18,10 @@ What's new in this drop</h2>
 <ul>
 <li>ICompletionRequestor API change :
 	<ul>
+		<li> Added API for setting multiple classpath variables at once (<code>JavaCore#setClasspathVariables</code>, this allows to update
+			all affected projects exactly once, instead of iterating multiple times on each project (if it references the variable). This can improve performance
+			when setting JRE variables.
+		</li>
 		<li> Added a new parameter <code>relevance</code> to be able to sort proposal by degree of relevance.
 		<code>relevance</code> is a positive integer which are used for determine if this proposal is more relevant than another proposal.
 		This value can only be used for compare relevance. A proposal is more relevant than another if his relevance
