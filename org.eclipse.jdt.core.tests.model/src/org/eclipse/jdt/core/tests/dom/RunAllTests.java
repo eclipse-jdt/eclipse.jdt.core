@@ -11,6 +11,9 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.lang.reflect.*;
+
+import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -37,6 +40,11 @@ public static Test suite() {
 	TestSuite ts = new TestSuite(RunAllTests.class.getName());
 
 	Class[] testClasses = getAllTestClasses();
+	// Reset forgotten subsets of tests
+	AbstractJavaModelTests.testsNames = null;
+	AbstractJavaModelTests.testsNumbers = null;
+	AbstractJavaModelTests.testsRange = null;
+
 	for (int i = 0; i < testClasses.length; i++) {
 		Class testClass = testClasses[i];
 
