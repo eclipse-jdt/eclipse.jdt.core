@@ -224,23 +224,24 @@ private MethodBinding createMethod(IBinaryMethod method) {
  * Create method bindings for binary type, filtering out <clinit> and synthetics
  */
 private void createMethods(IBinaryMethod[] iMethods) {
-
 	int total = 0, initialTotal = 0, iClinit = -1;
 	int[] toSkip = null;
 	if (iMethods != null) {
 		total = initialTotal = iMethods.length;
 		for (int i = total; --i >= 0;) {
 			IBinaryMethod method = iMethods[i];
-			char[] methodName;
 			if ((method.getModifiers() & AccSynthetic) != 0) {
 				// discard synthetics methods
 				if (toSkip == null) toSkip = new int[iMethods.length];
 				toSkip[i] = -1;
 				total--;
-			} else if ((methodName = method.getSelector()).length == 8 && methodName[0] == '<') {
-				// discard <clinit>
-				iClinit = i;
-				total--;
+			} else if (iClinit == -1) {
+				char[] methodName = method.getSelector();
+				if (methodName.length == 8 && methodName[0] == '<') {
+					// discard <clinit>
+					iClinit = i;
+					total--;
+				}
 			}
 		}
 	}
@@ -251,16 +252,12 @@ private void createMethods(IBinaryMethod[] iMethods) {
 
 	this.methods = new MethodBinding[total];
 	if (total == initialTotal) {
-		for (int i = 0; i < initialTotal; i++) {
+		for (int i = 0; i < initialTotal; i++)
 			this.methods[i] = createMethod(iMethods[i]);
-		}
 	} else {
-		int index = 0;
-		for (int i = 0; i < initialTotal; i++) {
-			if (iClinit == i) continue;
-			if (toSkip != null && toSkip[i] < 0) continue;
-			this.methods[index++] = createMethod(iMethods[i]);
-		}
+		for (int i = 0, index = 0; i < initialTotal; i++)
+			if (iClinit != i && (toSkip == null || toSkip[i] != -1))
+				this.methods[index++] = createMethod(iMethods[i]);
 	}
 	modifiers |= AccUnresolved; // until methods() is sent
 }
