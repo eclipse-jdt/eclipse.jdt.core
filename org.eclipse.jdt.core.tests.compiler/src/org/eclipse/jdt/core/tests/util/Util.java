@@ -217,7 +217,7 @@ public static String displayString(String inputString, int indent) {
  *
  * Example of use: [org.eclipse.jdt.core.tests.util.Util.fileContentToDisplayString("c:/temp/X.java", 0)]
 */
-public static String fileContentToDisplayString(String sourceFilePath, int indent) {
+public static String fileContentToDisplayString(String sourceFilePath, int indent, boolean independantLineDelimiter) {
 	File sourceFile = new File(sourceFilePath);
 	if (!sourceFile.exists()) {
 		System.out.println("File " + sourceFilePath + " does not exists.");
@@ -252,7 +252,11 @@ public static String fileContentToDisplayString(String sourceFilePath, int inden
 		} catch (IOException e2) {
 		}
 	}
-	return displayString(sourceContentBuffer.toString(), indent);
+	String sourceString = sourceContentBuffer.toString();
+	if (independantLineDelimiter) {
+		sourceString = convertToIndependantLineDelimiter(sourceString);
+	}
+	return displayString(sourceString, indent);
 }
 /**
  * Reads the content of the given source file, converts it to a display string.
@@ -261,14 +265,16 @@ public static String fileContentToDisplayString(String sourceFilePath, int inden
  *
  * Example of use: [org.eclipse.jdt.core.tests.util.Util.fileContentToDisplayString("c:/temp/X.java", 0, null)]
 */
-public static void fileContentToDisplayString(String sourceFilePath, int indent, String destinationFilePath) {
-	String displayString = fileContentToDisplayString(sourceFilePath, indent);
+public static void fileContentToDisplayString(String sourceFilePath, int indent, String destinationFilePath, boolean independantLineDelimiter) {
+	String displayString = fileContentToDisplayString(sourceFilePath, indent, independantLineDelimiter);
 	if (destinationFilePath == null) {
 		System.out.println(displayString);
 		return;
 	}
 	writeToFile(displayString, destinationFilePath);
 }
+
+
 /**
  * Flush content of a given directory (leaving it empty),
  * no-op if not a directory.
