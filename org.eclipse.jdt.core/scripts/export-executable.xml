@@ -15,6 +15,21 @@
 
     <target name="build">
 
+        <echo message='linking .o -> ${binaryname}'/>
+        <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}'  parallel='true'>
+            <arg value='--verbose'/>
+            <arg value='-O2'/>
+            <arg value='-g'/>
+            <arg line='--main=org.eclipse.jdt.internal.compiler.batch.Main'/>
+            <srcfile/>
+            <arg line ='-o ${dest}${binaryname}.exe'/>
+            <fileset dir='${work}' includes='**/*.o'/>
+            <mapper type='glob' from='*.o' to='${dest}${binaryname}.exe'/>
+       </apply>
+    </target>
+
+    <target name="build2">
+
 		<echo message="target: ${dest}" />
 		<mkdir dir="${dest}" />
 		<delete dir="${dest}" />
@@ -42,13 +57,15 @@
         </apply>
         
         <echo message='linking .o -> ${binaryname}'/>
-        <apply failonerror='true' executable='${gcc-path}/bin/gcj' parallel='true'>
+        <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}'  parallel='true'>
             <arg value='--verbose'/>
-            <arg value='--classpath=${gcc-path}/share/java/libgcj.jar'/>
-            <arg value='--main=org.eclipse.jdt.internal.compiler.batch.Main'/>
-            <arg line='-o ${dest}${binaryname}.exe'/>
+            <arg value='-O2'/>
+            <arg value='-g'/>
+            <arg line='--main=org.eclipse.jdt.internal.compiler.batch.Main'/>
             <srcfile/>
+            <arg line ='-o ${dest}${binaryname}.exe'/>
             <fileset dir='${work}' includes='**/*.o'/>
+            <mapper type='glob' from='*.o' to='${dest}${binaryname}.exe'/>
        </apply>
     </target>
 
