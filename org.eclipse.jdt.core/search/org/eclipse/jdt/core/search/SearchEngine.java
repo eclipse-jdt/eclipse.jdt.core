@@ -258,7 +258,7 @@ public static IJavaSearchScope createWorkspaceScope() {
  */
 public void search(IWorkspace workspace, String patternString, int searchFor, int limitTo, IJavaSearchScope scope, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 
-	search(workspace, createSearchPattern(patternString, searchFor, limitTo, false), scope, resultCollector);
+	search(workspace, createSearchPattern(patternString, searchFor, limitTo, true), scope, resultCollector);
 }
 /**
  * Searches for the given Java element.
