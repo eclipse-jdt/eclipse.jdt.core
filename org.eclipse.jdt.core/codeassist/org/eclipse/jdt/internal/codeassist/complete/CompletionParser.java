@@ -2535,21 +2535,21 @@ public TypeReference createParameterizedQualifiedAssistTypeReference(char[][] pr
 					typeArguments,
 					assistName,
 					positions,
-					CompletionOnParameterizedQualifiedTypeReference.EXCEPTION);
+					CompletionOnParameterizedQualifiedTypeReference.K_EXCEPTION);
 			case K_NEXT_TYPEREF_IS_CLASS :
 				return new CompletionOnParameterizedQualifiedTypeReference(
 					previousIdentifiers,
 					typeArguments,
 					assistName,
 					positions,
-					CompletionOnParameterizedQualifiedTypeReference.CLASS);
+					CompletionOnParameterizedQualifiedTypeReference.K_CLASS);
 			case K_NEXT_TYPEREF_IS_INTERFACE :
 				return new CompletionOnParameterizedQualifiedTypeReference(
 					previousIdentifiers,
 					typeArguments,
 					assistName,
 					positions,
-					CompletionOnParameterizedQualifiedTypeReference.INTERFACE);
+					CompletionOnParameterizedQualifiedTypeReference.K_INTERFACE);
 			default :
 				return new CompletionOnParameterizedQualifiedTypeReference(
 					previousIdentifiers,

@@ -32,12 +32,12 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 
 public class CompletionOnParameterizedQualifiedTypeReference extends ParameterizedQualifiedTypeReference {
-	public static final int TYPE = 0;
-	public static final int CLASS = 1;
-	public static final int INTERFACE = 2;
-	public static final int EXCEPTION = 3;
+	public static final int K_TYPE = 0;
+	public static final int K_CLASS = 1;
+	public static final int K_INTERFACE = 2;
+	public static final int K_EXCEPTION = 3;
 	
-	private int kind = TYPE;
+	private int kind = K_TYPE;
 	public char[] completionIdentifier;
 	/**
 	 * @param tokens
@@ -45,7 +45,7 @@ public class CompletionOnParameterizedQualifiedTypeReference extends Parameteriz
 	 * @param positions
 	 */
 	public CompletionOnParameterizedQualifiedTypeReference(char[][] tokens,	TypeReference[][] typeArguments, char[] completionIdentifier, long[] positions) {
-		this(tokens, typeArguments, completionIdentifier, positions, TYPE);
+		this(tokens, typeArguments, completionIdentifier, positions, K_TYPE);
 	}
 	
 	/**
@@ -61,15 +61,15 @@ public class CompletionOnParameterizedQualifiedTypeReference extends Parameteriz
 	}
 	
 	public boolean isClass(){
-		return this.kind == CLASS;
+		return this.kind == K_CLASS;
 	}
 	
 	public boolean isInterface(){
-		return this.kind == INTERFACE;
+		return this.kind == K_INTERFACE;
 	}
 	
 	public boolean isException(){
-		return this.kind == EXCEPTION;
+		return this.kind == K_EXCEPTION;
 	}
 	
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
@@ -84,13 +84,13 @@ public class CompletionOnParameterizedQualifiedTypeReference extends Parameteriz
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		switch (this.kind) {
-			case CLASS :
+			case K_CLASS :
 				output.append("<CompleteOnClass:");//$NON-NLS-1$
 				break;
-			case INTERFACE :
+			case K_INTERFACE :
 				output.append("<CompleteOnInterface:");//$NON-NLS-1$
 				break;
-			case EXCEPTION :
+			case K_EXCEPTION :
 				output.append("<CompleteOnException:");//$NON-NLS-1$
 				break;
 			default :

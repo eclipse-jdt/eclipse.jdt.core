@@ -46,8 +46,8 @@ public interface IConstants {
 	/**
 	 * Extra flags for types and members attributes.
 	 */
-	int AccAnnotationDefault = ASTNode.Bit18; // indicate that the annotation attribute has a default value
-	int AccDeprecated = ASTNode.Bit21;
+	int AccAnnotationDefault = ASTNode.Bit18; // indicate presence of an attribute  "DefaultValue" (annotation method)
+	int AccDeprecated = ASTNode.Bit21; // indicate presence of an attribute "Deprecated"
 	
 	
 }

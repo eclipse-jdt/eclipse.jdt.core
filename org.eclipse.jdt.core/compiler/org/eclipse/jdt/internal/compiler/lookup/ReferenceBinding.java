@@ -323,6 +323,10 @@ public void computeId() {
 						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_DOCUMENTED[3]))
 							id = T_JavaLangAnnotationDocumented;
 						return;
+					case 'E' :
+						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_ELEMENTTYPE[3]))
+							id = T_JavaLangAnnotationElementType;
+						return;
 					case 'I' :
 						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_INHERITED[3]))
 							id = T_JavaLangAnnotationInherited;
@@ -330,6 +334,8 @@ public void computeId() {
 					case 'R' :
 						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_RETENTION[3]))
 							id = T_JavaLangAnnotationRetention;
+						else if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_RETENTIONPOLICY[3]))
+							id = T_JavaLangAnnotationRetentionPolicy;
 						return;
 					case 'T' :
 						if (CharOperation.equals(typeName, JAVA_LANG_ANNOTATION_TARGET[3]))
