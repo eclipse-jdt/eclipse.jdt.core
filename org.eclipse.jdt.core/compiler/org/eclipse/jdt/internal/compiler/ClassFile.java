@@ -3470,11 +3470,27 @@ public class ClassFile
 
 	
 	private boolean isRuntimeInvisible(Annotation annotation) {
-		return true;
+		final TypeBinding annotationBinding = annotation.resolvedType;
+		if (annotationBinding == null) {
+			return false;
+		}
+		long metaTagBits = annotationBinding.tagBits;
+		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
+			return true; // by default the retention is CLASS
+			
+		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationClassRetention;
 	}
 
 	private boolean isRuntimeVisible(Annotation annotation) {
-		return false;
+		final TypeBinding annotationBinding = annotation.resolvedType;
+		if (annotationBinding == null) {
+			return false;
+		}
+		long metaTagBits = annotationBinding.tagBits;
+		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
+			return false; // by default the retention is CLASS
+			
+		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationRuntimeRetention;
 	}
 
 	/**

@@ -197,7 +197,11 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 	}
 
 	long sourceLevel = environment.options.sourceLevel;
-	char[] typeSignature = sourceLevel >= ClassFileConstants.JDK1_5 ? binaryType.getGenericSignature() : null;
+	char[] typeSignature = null;
+	if (sourceLevel >= ClassFileConstants.JDK1_5) {
+		typeSignature = binaryType.getGenericSignature();
+		this.tagBits |= binaryType.getTagBits();
+	}
 	if (typeSignature == null) {
 		char[] superclassName = binaryType.getSuperclassName();
 		if (superclassName != null) {
