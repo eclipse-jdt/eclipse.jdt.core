@@ -96,8 +96,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isTypeVariable()
 	 */
 	public boolean isTypeVariable() {
-		// TODO (olivier) missing implementation of J2SE 1.5 language feature
-		return false;
+		return this.binding.isTypeVariable();
 	}
 
 	/*
@@ -502,7 +501,28 @@ class TypeBinding implements ITypeBinding {
 				
 				this.key = buffer.toString();
 			} else {
-				if (this.binding.isClass() || this.binding.isInterface()) {
+				if (this.binding.isTypeVariable()) {
+					TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
+					Binding declaringElement = typeVariableBinding.declaringElement;
+					StringBuffer buffer = new StringBuffer();
+					buffer.append(typeVariableBinding.sourceName);
+					if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+						buffer.append(this.resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement).getKey());
+					} else if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
+						buffer.append(this.resolver.getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) declaringElement).getKey());						
+					}
+					return String.valueOf(buffer);
+				} else if (this.binding.isWildcard()) {
+					WildcardBinding wildcardBinding = (WildcardBinding) binding;
+					org.eclipse.jdt.internal.compiler.lookup.TypeBinding bound = wildcardBinding.bound;
+					if (bound != null) {
+						return this.resolver.getTypeBinding(bound).getKey();
+					}
+					return new String(wildcardBinding.genericTypeSignature());
+				} else if (this.isClass()
+						|| this.isInterface()
+						|| this.isEnum()
+						|| this.isAnnotation()) {
 					StringBuffer buffer = new StringBuffer();
 					char[] constantPoolName = this.binding.constantPoolName();
 					if (constantPoolName != null) {

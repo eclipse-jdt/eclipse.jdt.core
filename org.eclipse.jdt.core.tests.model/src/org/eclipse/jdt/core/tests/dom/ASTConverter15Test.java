@@ -73,11 +73,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	public static Test suite() {
-		if (false) {
+		if (true) {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0038"));
+		suite.addTest(new ASTConverter15Test("test0037"));
 		return suite;
 	}
 		
@@ -1099,6 +1099,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
 		ITypeBinding typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong name", "Y", typeBinding.getName());
+		assertTrue("Not a type variable", typeBinding.isTypeVariable());
+		assertEquals("Wrong key", "Ytest0037/A", typeBinding.getKey());
 		SimpleName simpleName = typeParameter.getName();
 		assertEquals("Wrong name", "Y", simpleName.getIdentifier());
 		IBinding binding2 = simpleName.resolveBinding();
@@ -1110,6 +1112,26 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", typeBinding3);
 		assertEquals("Wrong type", IBinding.TYPE, typeBinding3.getKind());
 		assertEquals("Wrong name", "Y", typeBinding3.getName());
+		
+		typeParameter = (TypeParameter) typeParameters.get(1);
+		binding = typeParameter.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
+		typeBinding = (ITypeBinding) binding;
+		assertEquals("Wrong name", "X", typeBinding.getName());
+		assertTrue("Not a type variable", typeBinding.isTypeVariable());
+		assertEquals("Wrong key", "Xtest0037/A", typeBinding.getKey());
+		simpleName = typeParameter.getName();
+		assertEquals("Wrong name", "X", simpleName.getIdentifier());
+		binding2 = simpleName.resolveBinding();
+		assertNotNull("No binding", binding2);
+		assertEquals("Wrong type", IBinding.TYPE, binding2.getKind());
+		typeBinding2 = (ITypeBinding) binding2;
+		assertEquals("Wrong name", "X", typeBinding2.getName());
+		typeBinding3 = simpleName.resolveTypeBinding();
+		assertNotNull("No binding", typeBinding3);
+		assertEquals("Wrong type", IBinding.TYPE, typeBinding3.getKind());
+		assertEquals("Wrong name", "X", typeBinding3.getName());
 	}
 	
 	/**
