@@ -279,14 +279,6 @@ class TypeBinding implements ITypeBinding {
 		return this.resolver.getTypeBinding(this.binding.erasure());
 	}
 
-	/**
-	 * @deprecated Use {@link #getTypeDeclaration()} instead.
-	 */
-	// TODO (jeem) - remove before 3.1M5 (bug 80800)
-	public ITypeBinding getGenericType() {
-		return this.resolver.getTypeBinding(this.binding.erasure());
-	}
-
 	public ITypeBinding[] getInterfaces() {
 		if (this.binding == null || this.binding.isArrayType() || this.binding.isBaseType()) {
 			return NO_TYPE_BINDINGS;
@@ -460,7 +452,7 @@ class TypeBinding implements ITypeBinding {
 			return String.valueOf(buffer);
 		}
 		if (isRawType()) {
-			return getGenericType().getName();
+			return getTypeDeclaration().getName();
 		}
 		if (isPrimitive() || isNullType()) {
 			BaseTypeBinding baseTypeBinding = (BaseTypeBinding) this.binding;
@@ -560,7 +552,7 @@ class TypeBinding implements ITypeBinding {
 			return String.valueOf(buffer);
 		}
 		if (isRawType()) {
-			return getGenericType().getQualifiedName();
+			return getTypeDeclaration().getQualifiedName();
 		}
 		if (isArray()) {
 			ITypeBinding elementType = getElementType();
@@ -608,7 +600,7 @@ class TypeBinding implements ITypeBinding {
 		}
 		if (isParameterizedType()) {
 			StringBuffer buffer = new StringBuffer();
-			buffer.append(getGenericType().getQualifiedName());
+			buffer.append(getTypeDeclaration().getQualifiedName());
 			ITypeBinding[] typeArguments = getTypeArguments();
 			final int typeArgumentsLength = typeArguments.length;
 			if (typeArgumentsLength != 0) {
@@ -624,7 +616,7 @@ class TypeBinding implements ITypeBinding {
 			return String.valueOf(buffer);
 		}
 		if (isRawType()) {
-			return getGenericType().getQualifiedName();
+			return getTypeDeclaration().getQualifiedName();
 		}
 		PackageBinding packageBinding = this.binding.getPackage();
 		

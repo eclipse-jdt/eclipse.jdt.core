@@ -182,7 +182,7 @@ public interface IMethodBinding extends IBinding {
 	 * @return <code>true</code> if this method binding represents a 
 	 * an instance of a generic method corresponding to a parameterized
 	 * method reference, and <code>false</code> otherwise
-	 * @see #getGenericMethod()
+	 * @see #getMethodDeclaration()
 	 * @see #getTypeArguments()
 	 * @since 3.1
 	 */
@@ -201,19 +201,12 @@ public interface IMethodBinding extends IBinding {
 	 *
 	 * @return the list of type bindings for the type arguments used to
 	 * instantiate the corrresponding generic method, or otherwise the empty list
-	 * @see #getGenericMethod()
+	 * @see #getMethodDeclaration()
 	 * @see #isParameterizedMethod()
 	 * @see #isRawMethod()
 	 * @since 3.1
 	 */
 	public ITypeBinding[] getTypeArguments();
-	
-	/**
-	 * @since 3.1
-	 * @deprecated Use {@link #getMethodDeclaration()} instead.
-	 */
-	// TODO (jeem) - remove before 3.1M5 (bug 80800)
-	public IMethodBinding getErasure();
 	
 	/**
 	 * Returns the binding for the method declaration corresponding to this
@@ -228,13 +221,6 @@ public interface IMethodBinding extends IBinding {
 	public IMethodBinding getMethodDeclaration();
 
 	/**
-	 * @since 3.1
-	 * @deprecated Use {@link #getMethodDeclaration()} instead.
-	 */
-	// TODO (jeem) - remove before 3.1M5 (bug 80800)
-	public IMethodBinding getGenericMethod();
-	
-	/**
 	 * Returns whether this method binding represents an instance of
 	 * a generic method corresponding to a raw method reference.
 	 * <p>
@@ -246,7 +232,7 @@ public interface IMethodBinding extends IBinding {
 	 * @return <code>true</code> if this method binding represents a 
 	 * an instance of a generic method corresponding to a raw
 	 * method reference, and <code>false</code> otherwise
-	 * @see #getGenericMethod()
+	 * @see #getMethodDeclaration()
 	 * @see #getTypeArguments()
 	 * @since 3.1
 	 */

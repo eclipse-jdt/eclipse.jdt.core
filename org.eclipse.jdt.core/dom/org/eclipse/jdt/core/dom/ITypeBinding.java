@@ -263,7 +263,7 @@ public interface ITypeBinding extends IBinding {
 	 * an instance of a generic type corresponding to a parameterized
 	 * type reference, and <code>false</code> otherwise
 	 * @see #getTypeArguments()
-	 * @see #getGenericType()
+	 * @see #getTypeDeclaration()
 	 * @since 3.1
 	 */
 	public boolean isParameterizedType();
@@ -283,7 +283,7 @@ public interface ITypeBinding extends IBinding {
 	 *
 	 * @return the list of type bindings for the type arguments used to
 	 * instantiate the corrresponding generic type, or otherwise the empty list
-	 * @see #getGenericType()
+	 * @see #getTypeDeclaration()
 	 * @see #isGenericType()
 	 * @see #isParameterizedType()
 	 * @see #isRawType()
@@ -312,13 +312,6 @@ public interface ITypeBinding extends IBinding {
 	 * @since 3.1
 	 */
 	public ITypeBinding getErasure();
-	
-	/**
-	 * @since 3.1
-	 * @deprecated Use {@link #getTypeDeclaration()} instead.
-	 */
-	// TODO (jeem) - remove before 3.1M5 (bug 80800)
-	public ITypeBinding getGenericType();
 	
 	/**
 	 * Returns the binding for the type declaration corresponding to this type
@@ -354,7 +347,7 @@ public interface ITypeBinding extends IBinding {
 	 * @return <code>true</code> if this type binding represents a 
 	 * an instance of a generic type corresponding to a raw
 	 * type reference, and <code>false</code> otherwise
-	 * @see #getGenericType()
+	 * @see #getTypeDeclaration()
 	 * @see #getTypeArguments()
 	 * @since 3.1
 	 */

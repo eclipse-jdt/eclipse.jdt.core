@@ -1380,14 +1380,12 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setName(N1);
 		x1.arguments().add(E1);
 		x1.arguments().add(E2);
-		x1.bodyDeclarations().add(FD1);
-		x1.bodyDeclarations().add(FD2);
 		x1.setAnonymousClassDeclaration(ACD1);
 		TestVisitor v1 = new TestVisitor();
 		b.setLength(0);
 		x1.accept(v1);
 		String result = b.toString();
-		assertTrue(result.equals("[(ECD"+JD1S+MOD1S+MOD2S+N1S+E1S+E2S+FD1S+FD2S+ACD1S+"ECD)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(result.equals("[(ECD"+JD1S+MOD1S+MOD2S+N1S+E1S+E2S+ACD1S+"ECD)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	/** @deprecated using deprecated code */
 	public void testEnumDeclaration() {

@@ -369,22 +369,6 @@ class MethodBinding implements IMethodBinding {
 		return this.resolver.getMethodBinding(this.binding.original());
 	}
 	
-	/**
-	 * @deprecated Use {@link #getMethodDeclaration()} instead.
-	 */
-	// TODO (jeem) - remove before 3.1M5 (bug 80800)
-	public IMethodBinding getErasure() {
-		return getMethodDeclaration();
-	}
-	
-	/**
-	 * @deprecated Use {@link #getMethodDeclaration()} instead.
-	 */
-	// TODO (jeem) - remove before 3.1M5 (bug 80800)
-	public IMethodBinding getGenericMethod() {
-		return getMethodDeclaration();
-	}
-	
 	/* (non-Javadoc)
 	 * @see IMethodBinding#overrides(IMethodBinding)
 	 */

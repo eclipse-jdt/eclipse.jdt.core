@@ -2908,7 +2908,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getName().isDeclaration() == true);
 		assertTrue(x.getJavadoc() == null);
 		assertTrue(x.arguments().size()== 0);
-		assertTrue(x.bodyDeclarations().size()== 0);
 		assertTrue(x.getAnonymousClassDeclaration() == null);
 		assertTrue(x.modifiers().size() == 0);
 		assertTrue(x.getNodeType() == ASTNode.ENUM_CONSTANT_DECLARATION);
@@ -2955,37 +2954,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
-		// TODO (jeem) - after 3.1 M4 remove mention of bodyDeclarations
-		genericPropertyListTest(x, x.bodyDeclarations(),
-		  new Property("BodyDeclarations", true, BodyDeclaration.class) { //$NON-NLS-1$
-			public ASTNode sample(AST targetAst, boolean parented) {
-				TypeDeclaration result = targetAst.newTypeDeclaration();
-				if (parented) {
-					CompilationUnit cu = targetAst.newCompilationUnit();
-					cu.types().add(result);
-				}
-				return result;
-			}
-			public ASTNode wrap() {
-				EnumConstantDeclaration s1 = x.getAST().newEnumConstantDeclaration();
-				s1.bodyDeclarations().add(x);
-				return s1;
-			}
-			public void unwrap() {
-				EnumConstantDeclaration s1 = (EnumConstantDeclaration) x.getParent();
-				s1.bodyDeclarations().remove(x);
-			}
-		});
-		
-		// check that TypeDeclarations in body are classified correctly
-		x.bodyDeclarations().clear();
-		TypeDeclaration t1 = ast.newTypeDeclaration();
-		x.bodyDeclarations().add(t1);
-
-		assertTrue(t1.isLocalTypeDeclaration() == false);
-		assertTrue(t1.isMemberTypeDeclaration() == true);
-		assertTrue(t1.isPackageMemberTypeDeclaration() == false);
-	
 		genericPropertyTest(x, new Property("AnonymousClassDeclaration", false, AnonymousClassDeclaration.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				AnonymousClassDeclaration result = targetAst.newAnonymousClassDeclaration();
