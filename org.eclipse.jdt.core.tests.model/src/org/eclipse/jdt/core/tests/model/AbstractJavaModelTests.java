@@ -1417,8 +1417,10 @@ protected void assertDeltas(String message, String expected) {
 		search(element, limitTo, SearchPattern.R_EXACT_MATCH|SearchPattern.R_CASE_SENSITIVE, scope, requestor);
 	}
 	protected void search(IJavaElement element, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
+		SearchPattern pattern = SearchPattern.createPattern(element, limitTo, matchRule);
+		assertNotNull("Pattern should not be null", pattern);
 		new SearchEngine().search(
-			SearchPattern.createPattern(element, limitTo, matchRule),
+			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 			scope,
 			requestor,
@@ -1436,6 +1438,7 @@ protected void assertDeltas(String message, String expected) {
 			searchFor,
 			limitTo, 
 			matchRule);
+		assertNotNull("Pattern should not be null", pattern);
 		new SearchEngine().search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},

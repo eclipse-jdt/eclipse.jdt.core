@@ -45,7 +45,7 @@ public class JavaSearchDocument extends SearchDocument {
 		try {
 			return org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(getLocation().toFile());
 		} catch (IOException e) {
-			if (SearchBasicEngine.VERBOSE || JobManager.VERBOSE) { // used during search and during indexing
+			if (BasicSearchEngine.VERBOSE || JobManager.VERBOSE) { // used during search and during indexing
 				e.printStackTrace();
 			}
 			return null;
@@ -56,7 +56,7 @@ public class JavaSearchDocument extends SearchDocument {
 		try {
 			return org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(getLocation().toFile(), getEncoding());
 		} catch (IOException e) {
-			if (SearchBasicEngine.VERBOSE || JobManager.VERBOSE) { // used during search and during indexing
+			if (BasicSearchEngine.VERBOSE || JobManager.VERBOSE) { // used during search and during indexing
 				e.printStackTrace();
 			}
 			return null;

@@ -80,13 +80,13 @@ public class SearchEngine {
 	}
 		
 	// Search engine now uses basic engine functionalities
-	private SearchBasicEngine basicEngine;
-	
+	private BasicSearchEngine basicEngine;
+
 	/**
 	 * Creates a new search engine.
 	 */
 	public SearchEngine() {
-		this.basicEngine = new SearchBasicEngine();
+		this.basicEngine = new BasicSearchEngine();
 	}
 	
 	/**
@@ -102,7 +102,7 @@ public class SearchEngine {
 	 * @since 3.0
 	 */
 	public SearchEngine(ICompilationUnit[] workingCopies) {
-		this.basicEngine = new SearchBasicEngine(workingCopies);
+		this.basicEngine = new BasicSearchEngine(workingCopies);
 	}
 	/**
 	 * Creates a new search engine with a list of working copies that will take precedence over 
@@ -121,7 +121,7 @@ public class SearchEngine {
 		int length = workingCopies.length;
 		ICompilationUnit[] units = new ICompilationUnit[length];
 		System.arraycopy(workingCopies, 0, units, 0, length);
-		this.basicEngine = new SearchBasicEngine(units);
+		this.basicEngine = new BasicSearchEngine(units);
 	}
 	
 	/**
@@ -133,7 +133,7 @@ public class SearchEngine {
 	 * @since 3.0
 	 */
 	public SearchEngine(WorkingCopyOwner workingCopyOwner) {
-		this.basicEngine = new SearchBasicEngine(workingCopyOwner);
+		this.basicEngine = new BasicSearchEngine(workingCopyOwner);
 	}
 
 	/**
@@ -146,7 +146,7 @@ public class SearchEngine {
 	 * @exception JavaModelException if the hierarchy could not be computed on the given type
 	 */
 	public static IJavaSearchScope createHierarchyScope(IType type) throws JavaModelException {
-		return SearchBasicEngine.createHierarchyScope(type);
+		return BasicSearchEngine.createHierarchyScope(type);
 	}
 	
 	/**
@@ -163,7 +163,7 @@ public class SearchEngine {
 	 * @since 3.0
 	 */
 	public static IJavaSearchScope createHierarchyScope(IType type, WorkingCopyOwner owner) throws JavaModelException {
-		return SearchBasicEngine.createHierarchyScope(type, owner);
+		return BasicSearchEngine.createHierarchyScope(type, owner);
 	}
 
 	/**
@@ -209,7 +209,7 @@ public class SearchEngine {
 	 * @since 2.0
 	 */
 	public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements) {
-		return SearchBasicEngine.createJavaSearchScope(elements);
+		return BasicSearchEngine.createJavaSearchScope(elements);
 	}
 
 	/**
@@ -233,7 +233,7 @@ public class SearchEngine {
 	 * @since 2.0
 	 */
 	public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, boolean includeReferencedProjects) {
-		return SearchBasicEngine.createJavaSearchScope(elements, includeReferencedProjects);
+		return BasicSearchEngine.createJavaSearchScope(elements, includeReferencedProjects);
 	}
 
 	/**
@@ -268,7 +268,7 @@ public class SearchEngine {
 	 * @since 3.0
 	 */
 	public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, int includeMask) {
-		return SearchBasicEngine.createJavaSearchScope(elements, includeMask);
+		return BasicSearchEngine.createJavaSearchScope(elements, includeMask);
 	}
 	
 	/**
@@ -369,7 +369,7 @@ public class SearchEngine {
 	 * @return a new workspace scope
 	 */
 	public static IJavaSearchScope createWorkspaceScope() {
-		return SearchBasicEngine.createWorkspaceScope();
+		return BasicSearchEngine.createWorkspaceScope();
 	}
 	/**
 	 * Returns a new default Java search participant.
@@ -378,7 +378,7 @@ public class SearchEngine {
 	 * @since 3.0
 	 */
 	public static SearchParticipant getDefaultSearchParticipant() {
-		return SearchBasicEngine.getDefaultSearchParticipant();
+		return BasicSearchEngine.getDefaultSearchParticipant();
 	}
 
 	/**

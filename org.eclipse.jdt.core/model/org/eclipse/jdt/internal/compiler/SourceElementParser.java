@@ -240,6 +240,38 @@ protected void consumeAnnotationAsModifier() {
 		this.requestor.acceptTypeReference(annotation.type.getTypeName(), annotation.sourceStart, annotation.sourceEnd);
 	}
 }
+protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() {
+	boolean previousFlag = reportReferenceInfo;
+	reportReferenceInfo = false; // not to see the type reference reported in super call to getTypeReference(...)
+	super.consumeClassInstanceCreationExpressionQualifiedWithTypeArguments();
+	reportReferenceInfo = previousFlag;
+	if (reportReferenceInfo){
+		AllocationExpression alloc = (AllocationExpression)expressionStack[expressionPtr];
+		TypeReference typeRef = alloc.type;
+		requestor.acceptConstructorReference(
+			typeRef instanceof SingleTypeReference 
+				? ((SingleTypeReference) typeRef).token
+				: CharOperation.concatWith(alloc.type.getParameterizedTypeName(), '.'),
+			alloc.arguments == null ? 0 : alloc.arguments.length, 
+			alloc.sourceStart);
+	}
+}
+protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
+	boolean previousFlag = reportReferenceInfo;
+	reportReferenceInfo = false; // not to see the type reference reported in super call to getTypeReference(...)
+	super.consumeClassInstanceCreationExpressionWithTypeArguments();
+	reportReferenceInfo = previousFlag;
+	if (reportReferenceInfo){
+		AllocationExpression alloc = (AllocationExpression)expressionStack[expressionPtr];
+		TypeReference typeRef = alloc.type;
+		requestor.acceptConstructorReference(
+			typeRef instanceof SingleTypeReference 
+				? ((SingleTypeReference) typeRef).token
+				: CharOperation.concatWith(alloc.type.getParameterizedTypeName(), '.'),
+			alloc.arguments == null ? 0 : alloc.arguments.length, 
+			alloc.sourceStart);
+	}
+}
 protected void consumeConstructorHeaderName() {
 	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
 	int selectorSourceEnd = (int) selectorSourcePositions;

@@ -12,31 +12,30 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchRequestor;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 /**
- * Test for search of generic types using R_EQUIVALENT_MATCH rule.
+ * Test for generic constructor search using R_EXACT_MATCH rule.
  */
-public class JavaSearchGenericTypeEquivalentTests extends JavaSearchGenericTypeTests {
-
-//	static char[] RESULT_ERASURE_MATCH = "*] ERASURE_*".toCharArray();
-
+public class JavaSearchGenericConstructorExactTests extends JavaSearchGenericConstructorTests {
+	
 	/**
 	 * @param name
 	 */
-	public JavaSearchGenericTypeEquivalentTests(String name) {
+	public JavaSearchGenericConstructorExactTests(String name) {
 		super(name);
 	}
+
 	public static Test suite() {
-		TestSuite suite = new Suite(JavaSearchGenericTypeEquivalentTests.class.getName());
-		List tests = buildTestsList(JavaSearchGenericTypeEquivalentTests.class, 1);
+		TestSuite suite = new Suite(JavaSearchGenericConstructorExactTests.class.getName());
+		List tests = buildTestsList(JavaSearchGenericConstructorExactTests.class, 1);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			suite.addTest((Test)tests.get(index));
 		}
@@ -44,31 +43,24 @@ public class JavaSearchGenericTypeEquivalentTests extends JavaSearchGenericTypeT
 	}
 
 	/*
-	 * Add line to result only if it is not an erasure match rule.
+	 * Do not add line if this is not an exact match rule.
 	 */
 	void addResultLine(StringBuffer buffer, char[] line) {
-		if (!CharOperation.match(RESULT_ERASURE_MATCH, line, true)) {
+		if (CharOperation.match(RESULT_EXACT_MATCH, line, true)) {
 			super.addResultLine(buffer, line);
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.model.JavaSearchGenericTypeTests#removeLastTypeArgument(char[])
-	 */
-	int[] removeLastTypeArgument(char[] line) {
-		return null;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(org.eclipse.jdt.core.IJavaElement, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
 	 */
 	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(element, limitTo, EQUIVALENT_RULE, scope, requestor);
+		search(element, limitTo, EXACT_RULE, scope, requestor);
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(java.lang.String, int, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
 	 */
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(patternString, searchFor, limitTo, EQUIVALENT_RULE, scope, requestor);
+		search(patternString, searchFor, limitTo, EXACT_RULE, scope, requestor);
 	}
 }

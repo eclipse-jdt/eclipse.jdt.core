@@ -22,21 +22,20 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchRequestor;
 
 /**
- * Test for search of generic types using R_EQUIVALENT_MATCH rule.
+ * Test for generic methods search using R_EQUIVALENT_MATCH rule.
  */
-public class JavaSearchGenericTypeEquivalentTests extends JavaSearchGenericTypeTests {
-
-//	static char[] RESULT_ERASURE_MATCH = "*] ERASURE_*".toCharArray();
+public class JavaSearchGenericMethodEquivalentTests extends JavaSearchGenericMethodTests {
 
 	/**
 	 * @param name
 	 */
-	public JavaSearchGenericTypeEquivalentTests(String name) {
+	public JavaSearchGenericMethodEquivalentTests(String name) {
 		super(name);
 	}
+
 	public static Test suite() {
-		TestSuite suite = new Suite(JavaSearchGenericTypeEquivalentTests.class.getName());
-		List tests = buildTestsList(JavaSearchGenericTypeEquivalentTests.class, 1);
+		TestSuite suite = new Suite(JavaSearchGenericMethodEquivalentTests.class.getName());
+		List tests = buildTestsList(JavaSearchGenericMethodEquivalentTests.class, 1);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			suite.addTest((Test)tests.get(index));
 		}
@@ -50,13 +49,6 @@ public class JavaSearchGenericTypeEquivalentTests extends JavaSearchGenericTypeT
 		if (!CharOperation.match(RESULT_ERASURE_MATCH, line, true)) {
 			super.addResultLine(buffer, line);
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.model.JavaSearchGenericTypeTests#removeLastTypeArgument(char[])
-	 */
-	int[] removeLastTypeArgument(char[] line) {
-		return null;
 	}
 
 	/* (non-Javadoc)

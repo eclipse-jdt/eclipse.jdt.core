@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 /**
  * Wrapper to link previous ITypeNameRequestor and IRestrictedAccessTypeRequestor interfaces.
  * This wrapper is used by {@link org.eclipse.jdt.core.search.SearchEngine#searchAllTypeNames(char[],char[],int,int,org.eclipse.jdt.core.search.IJavaSearchScope,ITypeNameRequestor,int,org.eclipse.core.runtime.IProgressMonitor)}
- * to call {@link SearchBasicEngine#searchAllTypeNames(char[],char[],int,int,org.eclipse.jdt.core.search.IJavaSearchScope,IRestrictedAccessTypeRequestor,int,org.eclipse.core.runtime.IProgressMonitor)}
+ * to call {@link BasicSearchEngine#searchAllTypeNames(char[],char[],int,int,org.eclipse.jdt.core.search.IJavaSearchScope,IRestrictedAccessTypeRequestor,int,org.eclipse.core.runtime.IProgressMonitor)}
  * corresponding method.
  */
 public class TypeNameRequestorWrapper implements IRestrictedAccessTypeRequestor {

@@ -29,8 +29,14 @@ public static Class[] getJavaSearchTestClasses() {
 		JavaSearchTests.class,
 		JavaSearchGenericTypeTests.class,
 		JavaSearchGenericTypeEquivalentTests.class,
-		JavaSearchGenericTypeErasureTests.class,
+		JavaSearchGenericTypeExactTests.class,
 		JavaSearchGenericFieldTests.class,
+		JavaSearchGenericMethodTests.class,
+		JavaSearchGenericMethodExactTests.class,
+		JavaSearchGenericMethodEquivalentTests.class,
+		JavaSearchGenericConstructorTests.class,
+		JavaSearchGenericConstructorExactTests.class,
+		JavaSearchGenericConstructorEquivalentTests.class,
 		WorkingCopySearchTests.class,
 		JavaSearchJavadocTests.class
 	};
@@ -39,8 +45,8 @@ public static Test suite() {
 	TestSuite ts = new TestSuite(RunJavaSearchTests.class.getName());
 
 	// Get all classes
-	JavaSearchTests.TEST_SUITES = new ArrayList(Arrays.asList(getJavaSearchTestClasses()));
-	List allClasses = new ArrayList(JavaSearchTests.TEST_SUITES);
+	AbstractJavaSearchTests.TEST_SUITES = new ArrayList(Arrays.asList(getJavaSearchTestClasses()));
+	List allClasses = new ArrayList(AbstractJavaSearchTests.TEST_SUITES);
 	allClasses.add(JavaSearchBugsTests.class);
 	allClasses.add(JavaSearchMultipleProjectsTests.class);
 	allClasses.add(SearchTests.class);

@@ -12,10 +12,14 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
 
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.core.index.*;
+import org.eclipse.jdt.internal.core.ParameterizedSourceMethod;
+import org.eclipse.jdt.internal.core.index.EntryResult;
+import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class ConstructorPattern extends JavaSearchPattern implements IIndexConstants {
 
@@ -29,6 +33,12 @@ public char[][] parameterQualifications;
 public char[][] parameterSimpleNames;
 public int parameterCount;
 public boolean varargs;
+
+// Signatures and arguments for generic search
+char[][][] parametersTypeSignatures;
+char[][][][] parametersTypeArguments;
+boolean constructorParameters = false;
+char[][] constructorArguments;
 
 protected static char[][] REF_CATEGORIES = { CONSTRUCTOR_REF };
 protected static char[][] REF_AND_DECL_CATEGORIES = { CONSTRUCTOR_REF, CONSTRUCTOR_DECL };
@@ -45,6 +55,9 @@ public static char[] createIndexKey(char[] typeName, int argCount) {
 	return CharOperation.concat(typeName, countChars);
 }
 
+ConstructorPattern(int matchRule) {
+	super(CONSTRUCTOR_PATTERN, matchRule);
+}
 public ConstructorPattern(
 	boolean findDeclarations,
 	boolean findReferences,
@@ -76,8 +89,113 @@ public ConstructorPattern(
 	this.varargs = varargs;
 	((InternalSearchPattern)this).mustResolve = mustResolve();
 }
-ConstructorPattern(int matchRule) {
-	super(CONSTRUCTOR_PATTERN, matchRule);
+/*
+ * Instanciate a method pattern with signatures for generics search
+ */
+public ConstructorPattern(
+	boolean findDeclarations,
+	boolean findReferences,
+	char[] declaringSimpleName,	
+	char[] declaringQualification,
+	char[][] parameterQualifications, 
+	char[][] parameterSimpleNames,
+	String[] parameterSignatures,
+	IMethod method,
+	boolean varargs,
+	int matchRule) {
+
+	this(findDeclarations,
+		findReferences,
+		declaringSimpleName,	
+		declaringQualification,
+		parameterQualifications, 
+		parameterSimpleNames,
+		varargs,
+		matchRule);
+
+	// Store type signature and arguments for declaring type
+	if (method instanceof ParameterizedSourceMethod) {
+		String methodReceiverType = Util.extractMethodReceiverType(((ParameterizedSourceMethod)method).uniqueKey);
+		if (methodReceiverType != null) {
+			this.typeSignatures = Util.splitTypeLevelsSignature(methodReceiverType);
+			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
+		} else {
+			storeTypeSignaturesAndArguments(method.getDeclaringType());
+		}
+	} else {
+		storeTypeSignaturesAndArguments(method.getDeclaringType());
+	}
+
+	// store type signatures and arguments for method parameters type
+	if (parameterSignatures != null) {
+		int length = parameterSignatures.length;
+		if (length > 0) {
+			parametersTypeSignatures = new char[length][][];
+			parametersTypeArguments = new char[length][][][];
+			for (int i=0; i<length; i++) {
+				parametersTypeSignatures[i] = Util.splitTypeLevelsSignature(parameterSignatures[i]);
+				parametersTypeArguments[i] = Util.getAllTypeArguments(parametersTypeSignatures[i]);
+			}
+		}
+	}
+
+	// Store type signatures and arguments for method
+	constructorArguments = extractMethodArguments(method);
+	constructorParameters = !(method instanceof ParameterizedSourceMethod);
+	if (hasConstructorArguments())  ((InternalSearchPattern)this).mustResolve = true;
+}
+/*
+ * Instanciate a method pattern with signatures for generics search
+ */
+public ConstructorPattern(
+	boolean findDeclarations,
+	boolean findReferences,
+	char[] declaringSimpleName,	
+	char[] declaringQualification,
+	String declaringSignature,
+	char[][] parameterQualifications, 
+	char[][] parameterSimpleNames,
+	String[] parameterSignatures,
+	boolean varargs,
+	char[][] arguments,
+	int matchRule) {
+
+	this(findDeclarations,
+		findReferences,
+		declaringSimpleName,	
+		declaringQualification,
+		parameterQualifications, 
+		parameterSimpleNames,
+		varargs,
+		matchRule);
+
+	// Store type signature and arguments for declaring type
+	if (declaringSignature != null) {
+		typeSignatures = Util.splitTypeLevelsSignature(declaringSignature);
+		setTypeArguments(Util.getAllTypeArguments(typeSignatures));
+	}
+
+	// Store type signatures and arguments for method parameters type
+	if (parameterSignatures != null) {
+		int length = parameterSignatures.length;
+		if (length > 0) {
+			parametersTypeSignatures = new char[length][][];
+			parametersTypeArguments = new char[length][][][];
+			for (int i=0; i<length; i++) {
+				parametersTypeSignatures[i] = Util.splitTypeLevelsSignature(parameterSignatures[i]);
+				parametersTypeArguments[i] = Util.getAllTypeArguments(parametersTypeSignatures[i]);
+			}
+		}
+	}
+
+	// Store type signatures and arguments for method
+	constructorArguments = arguments;
+	if (arguments  == null || arguments.length == 0) {
+		if (getTypeArguments() != null && getTypeArguments().length > 0) {
+			constructorArguments = getTypeArguments()[0];
+		}
+	}
+	if (hasConstructorArguments())  ((InternalSearchPattern)this).mustResolve = true;
 }
 public void decodeIndexKey(char[] key) {
 	int size = key.length;
@@ -95,6 +213,12 @@ public char[][] getIndexCategories() {
 	if (this.findDeclarations)
 		return DECL_CATEGORIES;
 	return CharOperation.NO_CHAR_CHAR;
+}
+boolean hasConstructorArguments() {
+	return constructorArguments != null && constructorArguments.length > 0;
+}
+boolean hasConstructorParameters() {
+	return constructorParameters;
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	ConstructorPattern pattern = (ConstructorPattern) decodedPattern;

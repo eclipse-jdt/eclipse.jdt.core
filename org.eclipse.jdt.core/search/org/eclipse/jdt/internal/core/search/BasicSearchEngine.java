@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * for detailed comment), now uses basic engine functionalities.
  * Note that serch basic engine does not implement deprecated functionalities...
  */
-public class SearchBasicEngine {
+public class BasicSearchEngine {
 
 	/*
 	 * A default parser to parse non-reconciled working copies
@@ -60,26 +60,26 @@ public class SearchBasicEngine {
 	/**
 	 * For tracing purpose.
 	 */	
-	public static boolean VERBOSE = false;	
+	public static boolean VERBOSE = false;
 
 	/*
 	 * Creates a new search basic engine.
 	 */
-	public SearchBasicEngine() {
+	public BasicSearchEngine() {
 		// will use working copies of PRIMARY owner
 	}
 	
 	/**
 	 * @see org.eclipse.jdt.core.search.SearchEngine#SearchEngine(ICompilationUnit[]) for detailed comment.
 	 */
-	public SearchBasicEngine(ICompilationUnit[] workingCopies) {
+	public BasicSearchEngine(ICompilationUnit[] workingCopies) {
 		this.workingCopies = workingCopies;
 	}
 	
 	/**
 	 * @see org.eclipse.jdt.core.search.SearchEngine#SearchEngine(WorkingCopyOwner) for detailed comment.
 	 */
-	public SearchBasicEngine(WorkingCopyOwner workingCopyOwner) {
+	public BasicSearchEngine(WorkingCopyOwner workingCopyOwner) {
 		this.workingCopyOwner = workingCopyOwner;
 	}
 
@@ -161,7 +161,7 @@ public class SearchBasicEngine {
 		/* initialize progress monitor */
 		if (monitor != null)
 			monitor.beginTask(Util.bind("engine.searching"), 100); //$NON-NLS-1$
-		if (VERBOSE)
+		if (BasicSearchEngine.VERBOSE)
 			System.out.println("Searching for " + this + " in " + scope); //$NON-NLS-1$//$NON-NLS-2$
 	
 		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
@@ -685,7 +685,7 @@ public class SearchBasicEngine {
 			if (resource instanceof IFile) {
 				try {
 					requestor.beginReporting();
-					if (VERBOSE) {
+					if (BasicSearchEngine.VERBOSE) {
 						System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
 					}
 					SearchParticipant participant = getDefaultSearchParticipant();

@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.util.WeakHashSet;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
-import org.eclipse.jdt.internal.core.search.SearchBasicEngine;
+import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -743,7 +743,7 @@ public class JavaModelManager implements ISaveParticipant {
 			if(option != null) NameLookup.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 
 			option = Platform.getDebugOption(SEARCH_DEBUG);
-			if(option != null) SearchBasicEngine.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) BasicSearchEngine.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 
 			option = Platform.getDebugOption(SELECTION_DEBUG);
 			if(option != null) SelectionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$

@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.core.tests.model.JavaSearchTests.JavaSearchResultCollector;
+import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
 /**

@@ -134,7 +134,6 @@ public class ClassFileTests extends ModifyingResourceTests {
 
 	/**
 	 * Ensure that the type parameter signatures of a binary type are correct.
-	 * @deprecated
 	 */
 	public void testParameterTypeSignatures1() throws JavaModelException {
 		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType();
@@ -146,7 +145,6 @@ public class ClassFileTests extends ModifyingResourceTests {
 	
 	/**
 	 * Ensure that the type parameter signatures of a binary type are correct.
-	 * @deprecated
 	 */
 	public void testParameterTypeSignatures2() throws JavaModelException {
 		IType type = this.jarRoot.getPackageFragment("nongeneric").getClassFile("A.class").getType();
@@ -158,7 +156,6 @@ public class ClassFileTests extends ModifyingResourceTests {
 	
 	/**
 	 * Ensure that the type parameter signatures of a binary type are correct.
-	 * @deprecated
 	 */
 	public void testParameterTypeSignatures3() throws JavaModelException {
 		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("Y.class").getType();
@@ -171,7 +168,6 @@ public class ClassFileTests extends ModifyingResourceTests {
 
 	/**
 	 * Ensure that the type parameter signatures of a binary type are correct.
-	 * @deprecated
 	 */
 	public void testParameterTypeSignatures4() throws JavaModelException {
 		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("Z.class").getType();
@@ -183,7 +179,6 @@ public class ClassFileTests extends ModifyingResourceTests {
 	
 	/**
 	 * Ensure that the type parameter signatures of a binary type are correct.
-	 * @deprecated
 	 */
 	public void testParameterTypeSignatures5() throws JavaModelException {
 		IType type = this.jarRoot.getPackageFragment("generic").getClassFile("W.class").getType();

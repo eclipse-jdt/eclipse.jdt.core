@@ -290,11 +290,6 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 		case IJavaElement.FIELD:
 			match = locator.newFieldReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
-		case IJavaElement.METHOD:
-			boolean isConstructor = reference instanceof ExplicitConstructorCall;
-			boolean isSynthetic = isConstructor ? ((ExplicitConstructorCall) reference).isImplicitSuper() : false;
-			match = locator.newMethodReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, isConstructor, isSynthetic, reference);
-			break;
 		case IJavaElement.LOCAL_VARIABLE:
 			match = locator.newLocalVariableReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
@@ -334,21 +329,51 @@ protected int refineAccuracy(int accuracy, ParameterizedTypeBinding parameterize
 	if (locator.unitScope == null) return accuracy;
 	return refineAccuracy(accuracy, parameterizedBinding, patternTypeArguments, false, 0, locator);
 }
-int refineAccuracy(int accuracy, ParameterizedTypeBinding parameterizedBinding, char[][][] patternTypeArguments, boolean isPatternSourceType, int depth, MatchLocator locator) {
+protected int refineAccuracy(int accuracy, ParameterizedTypeBinding parameterizedBinding, char[][][] patternTypeArguments, boolean patternHasTypeParameters, int depth, MatchLocator locator) {
+	// We can only refine if locator has an unit scope.
+	if (locator.unitScope == null) return accuracy;
+
+	// Refine accuracy using binding and pattern arguments
+	char[][] patternArguments = (patternTypeArguments==null) ? null : patternTypeArguments[depth];
+	int refinedAccuracy = refineAccuracy(accuracy, parameterizedBinding.arguments, locator, patternArguments, patternHasTypeParameters);
+	if (refinedAccuracy == SearchPattern.R_ERASURE_MATCH) {
+		return SearchPattern.R_ERASURE_MATCH;
+	}
+
+	// Recurse refining on enclosing types if any
+	TypeBinding enclosingType = parameterizedBinding.enclosingType();
+	if (enclosingType != null && (enclosingType.isParameterizedType() || enclosingType.isRawType())) {
+		if (patternTypeArguments == null || (depth+1)<patternTypeArguments.length) {
+			return refineAccuracy(refinedAccuracy, (ParameterizedTypeBinding)enclosingType, patternTypeArguments, patternHasTypeParameters, depth+1, locator);
+		}
+	}
+	
+	// Refine the accuracy to accurate
+	return refinedAccuracy;
+}
+/*
+ * Refine accuracy for a match.
+ * Typically this happens while search references to parameterized type.
+ * In this case we need locator to be able to resolve type arguments and verify
+ * if binding is compatible with pattern...
+ * Look also for enclosing type
+ */
+protected int refineAccuracy(int accuracy, TypeBinding[] argumentsBinding, MatchLocator locator, char[][] patternArguments, boolean hasTypeParameters) {
+	// We can only refine if locator has an unit scope.
+	if (locator.unitScope == null) return accuracy;
 
 	// First compare lengthes
-	int patternTypeArgsLength = (patternTypeArguments==null || depth>=patternTypeArguments.length || patternTypeArguments[depth] == null) ? 0 : patternTypeArguments[depth].length;
-	TypeBinding[] argumentsBinding = parameterizedBinding.arguments;
+	int patternTypeArgsLength = patternArguments==null ? 0 : patternArguments.length;
 	int typeArgumentsLength = argumentsBinding == null ? 0 : argumentsBinding.length;
 	int refinedAccuracy =  accuracy;
 	if (patternTypeArgsLength == typeArgumentsLength) {
 		if (patternTypeArgsLength == 0) {
-			if (isPatternSourceType) { // raw source type pattern is always compatible erasure...
+			if (hasTypeParameters) { // raw source type pattern is always compatible erasure...
 				if (refinedAccuracy <= SearchMatch.A_INACCURATE) // ...except if accuracy has been already refined
 					refinedAccuracy |= RAW_MASK;
 			}
 		} else {
-			if (isPatternSourceType) {
+			if (hasTypeParameters) {
 				// parameterized source type pattern is always an incompatible erasure match
 				refinedAccuracy |= SearchPattern.R_ERASURE_MATCH;
 				refinedAccuracy &= ~SearchPattern.R_EQUIVALENT_MATCH;
@@ -356,10 +381,9 @@ int refineAccuracy(int accuracy, ParameterizedTypeBinding parameterizedBinding, 
 		}
 	} else {
 		if (patternTypeArgsLength==0) { // raw pattern
-			if (patternTypeArguments == null || depth < patternTypeArguments.length) {
-				// if valid type arguments, then it is always compatible erasure except if accuracy has been already refined
-				if (refinedAccuracy <= SearchMatch.A_INACCURATE)
-					refinedAccuracy |= RAW_MASK;
+			// if valid type arguments, then it is always compatible erasure except if accuracy has been already refined
+			if (refinedAccuracy <= SearchMatch.A_INACCURATE) {
+				refinedAccuracy |= RAW_MASK;
 			}
 			return refinedAccuracy;
 		} else  if (typeArgumentsLength==0) { // raw binding
@@ -372,14 +396,13 @@ int refineAccuracy(int accuracy, ParameterizedTypeBinding parameterizedBinding, 
 	}
 
 	// Compare binding for each type argument only if pattern is not erasure only and at first level
-//	int refinedAccuracy = SearchMatch.A_ACCURATE;
-	if (!isPatternSourceType) {
+	if (!hasTypeParameters) {
 		for (int i=0; i<typeArgumentsLength; i++) {
 			// Get parameterized type argument binding
 			TypeBinding argumentBinding = argumentsBinding[i];
 
 			// Get binding for pattern argument
-			char[] patternTypeArgument = patternTypeArguments[depth][i];
+			char[] patternTypeArgument = patternArguments[i];
 			char patternWildcard = patternTypeArgument[0];
 			char[] patternTypeName = patternTypeArgument;
 			int patternWildcardKind = -1;
@@ -512,13 +535,7 @@ int refineAccuracy(int accuracy, ParameterizedTypeBinding parameterizedBinding, 
 		}
 	}
 
-	// Recurse refining on enclosing types if any
-	TypeBinding enclosingType = parameterizedBinding.enclosingType();
-	if (enclosingType != null && (enclosingType.isParameterizedType() || enclosingType.isRawType())) {
-		return refineAccuracy(refinedAccuracy, (ParameterizedTypeBinding)enclosingType, patternTypeArguments, isPatternSourceType, depth+1, locator);
-	}
-	
-	// Refine the accuracy to accurate
+	// Return refined accuracy
 	return refinedAccuracy;
 }
 /**
@@ -596,7 +613,9 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 	// standard search with no generic additional information must succeed
 	int level = resolveLevelForType(simpleNamePattern, qualificationPattern, type);
 	if (level == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
-	if (type == null || patternTypeArguments == null|| patternTypeArguments.length == 0 || depth>=patternTypeArguments.length || patternTypeArguments[depth] == null) return level;
+	if (type == null || patternTypeArguments == null || patternTypeArguments.length == 0 || depth >= patternTypeArguments.length) {
+		return level;
+	}
 	
 	// if pattern is erasure match (see bug 79790), commute impossible to erasure
 	int impossible = this.isErasureMatch ? ERASURE_MATCH : IMPOSSIBLE_MATCH;
@@ -614,12 +633,10 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 			if (this.mustResolve)
 				typeVariables = binaryTypeBinding.typeVariables(); // TODO (frederic) verify performance
 		}
-		// type variables length must match at least specified type names length
-		if (typeVariables == null || typeVariables.length == 0) {
-			return IMPOSSIBLE_MATCH;
+		if (patternTypeArguments[depth] != null && patternTypeArguments[depth].length > 0 &&
+			typeVariables != null && typeVariables.length > 0) {
+			if (typeVariables.length != patternTypeArguments[depth].length) return IMPOSSIBLE_MATCH;
 		}
-		int length = patternTypeArguments[depth].length;
-		if (typeVariables.length != length) return IMPOSSIBLE_MATCH;
 		// TODO (frederic) do we need to verify each parameter?
 		return level; // we can't do better
 	} else if (isRawType) {
@@ -627,11 +644,13 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 	} else if (!type.isParameterizedType()) {
 		// Standard types (ie. neither generic nor parameterized nor raw types)
 		// cannot match pattern with type parameters or arguments
-		return IMPOSSIBLE_MATCH;
+		return (patternTypeArguments[depth]==null || patternTypeArguments[depth].length==0) ? level : IMPOSSIBLE_MATCH;
 	} else {
 		ParameterizedTypeBinding paramTypeBinding = (ParameterizedTypeBinding) type;
-		// When there's no type argument, no verification is necessary 
-		if (paramTypeBinding.arguments != null) {
+
+		// Compare arguments only if there ones on both sides
+		if (patternTypeArguments[depth] != null && patternTypeArguments[depth].length > 0 &&
+			paramTypeBinding.arguments != null && paramTypeBinding.arguments.length > 0) {
 
 			// type parameters length must match at least specified type names length
 			int length = patternTypeArguments[depth].length;

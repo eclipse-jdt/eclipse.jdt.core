@@ -17,19 +17,19 @@ import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
 
 /**
- * Test for search of generic types using raw match selection.
+ * Test for search of generic types using R_EXACT_MATCH rule.
  */
-public class JavaSearchGenericTypeErasureTests extends JavaSearchGenericTypeTests {
+public class JavaSearchGenericTypeExactTests extends JavaSearchGenericTypeTests {
 	
 	/**
 	 * @param name
 	 */
-	public JavaSearchGenericTypeErasureTests(String name) {
+	public JavaSearchGenericTypeExactTests(String name) {
 		super(name);
 	}
 
@@ -42,8 +42,8 @@ public class JavaSearchGenericTypeErasureTests extends JavaSearchGenericTypeTest
 //		TESTS_RANGE = new int[] { 6, -1 };
 	}
 	public static Test suite() {
-		TestSuite suite = new Suite(JavaSearchGenericTypeErasureTests.class.getName());
-		List tests = buildTestsList(JavaSearchGenericTypeErasureTests.class, 1);
+		TestSuite suite = new Suite(JavaSearchGenericTypeExactTests.class.getName());
+		List tests = buildTestsList(JavaSearchGenericTypeExactTests.class, 1);
 		for (int index=0, size=tests.size(); index<size; index++) {
 			suite.addTest((Test)tests.get(index));
 		}
@@ -51,58 +51,31 @@ public class JavaSearchGenericTypeErasureTests extends JavaSearchGenericTypeTest
 	}
 
 	/*
-	 * Remove last type arguments from a line of an expected result.
-	 * This line contains one search match print out.
+	 * Do not add line if this is not an exact match rule.
 	 */
-	int[] removeLastTypeArgument(char[] line) {
-		int idx=line.length-1;
-		while (line[idx] != ']') idx--;
-		if (line[--idx] != '>') return null;
-		int n = 1;
-		int end = idx+1;
-		while(idx>=0 && n!= 0) {
-			switch (line[--idx]) {
-				case '<': n--; break;
-				case '>': n++; break;
-			}
+	void addResultLine(StringBuffer buffer, char[] line) {
+		if (CharOperation.match(RESULT_EXACT_MATCH, line, true)) {
+			super.addResultLine(buffer, line);
 		}
-		if (n!= 0) {
-			// something wrong here...
-			return null;
-		}
-		int start = idx;
-		while (idx>=0 && line[idx] != '[') idx--;
-		if (idx > 0)
-			return new int[] { start, end };
-		// We should have opened a bracket!
-		return null;
 	}
 
-	void cleanLine(StringBuffer buffer, char[] line) {
-		int[] positions = removeLastTypeArgument(line);
-		if (buffer.length() > 0) buffer.append('\n');
-		if (positions == null) {
-			buffer.append(line);
-		} else if (positions != null) {
-			int stop = positions[0];
-			int restart = positions[1];
-			buffer.append(line, 0, stop);
-			buffer.append(line, restart, line.length-restart);
-		} else {
-			buffer.append(line);
-		}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.JavaSearchGenericTypeTests#removeLastTypeArgument(char[])
+	 */
+	int[] removeLastTypeArgument(char[] line) {
+		return null;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(org.eclipse.jdt.core.IJavaElement, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
 	 */
 	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(element, limitTo, SearchPattern.R_EXACT_MATCH|SearchPattern.R_CASE_SENSITIVE|SearchPattern.R_ERASURE_MATCH, scope, requestor);
+		search(element, limitTo, EXACT_RULE, scope, requestor);
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(java.lang.String, int, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
 	 */
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(patternString, searchFor, limitTo, SearchPattern.R_EXACT_MATCH|SearchPattern.R_CASE_SENSITIVE|SearchPattern.R_ERASURE_MATCH, scope, requestor);
+		search(patternString, searchFor, limitTo, EXACT_RULE, scope, requestor);
 	}
 }

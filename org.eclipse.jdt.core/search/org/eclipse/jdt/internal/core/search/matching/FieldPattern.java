@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class FieldPattern extends VariablePattern implements IIndexConstants {
 
@@ -64,12 +65,16 @@ public FieldPattern(
 	char[] declaringSimpleName,	
 	char[] typeQualification, 
 	char[] typeSimpleName,
-	String signature,
+	String typeSignature,
 	int matchRule) {
 
 	this(findDeclarations, readAccess, writeAccess, name, declaringQualification, declaringSimpleName, typeQualification, typeSimpleName, matchRule);
 
-	if (signature != null) computeSignature(signature);
+	// store type signatures and arguments
+	if (typeSignature != null) {
+		this.typeSignatures = Util.splitTypeLevelsSignature(typeSignature);
+		setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
+	}
 }
 public void decodeIndexKey(char[] key) {
 	this.name = key;

@@ -445,17 +445,9 @@ public ITypeParameter[] getTypeParameters() throws JavaModelException {
 	return info.typeParameters;
 }
 
-// Get type parameter names
-// TODO (frederic) see if this method needs to be added to API
-public char[][] getTypeParameterNames() throws JavaModelException {
-	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
-	return info.getTypeParameterNames();
-}
-
 /**
  * @see IType#getTypeParameterSignatures()
  * @since 3.0
- * @deprecated
  */
 public String[] getTypeParameterSignatures() throws JavaModelException {
 	ITypeParameter[] typeParameters = getTypeParameters();

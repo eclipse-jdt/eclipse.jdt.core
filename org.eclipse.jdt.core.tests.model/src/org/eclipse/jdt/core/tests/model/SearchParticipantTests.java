@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.tests.model.JavaSearchTests.JavaSearchResultCollector;
+import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
 import org.eclipse.jdt.core.tests.util.Util;
 
 /**

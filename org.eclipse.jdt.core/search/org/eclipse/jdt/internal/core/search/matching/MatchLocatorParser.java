@@ -172,6 +172,14 @@ protected void consumeAssignment() {
 	super.consumeAssignment();
 	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
 }
+protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() {
+	super.consumeClassInstanceCreationExpressionWithTypeArguments();
+	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
+}
+protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
+	super.consumeClassInstanceCreationExpressionWithTypeArguments();
+	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
+}
 protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 	super.consumeExplicitConstructorInvocation(flag, recFlag);
 	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);

@@ -15,20 +15,15 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.core.ParameterizedSourceType;
-import org.eclipse.jdt.internal.core.search.matching.JavaSearchPattern;
 
 
 /**
- * Test generic type search.
+ * Test for generic types search using R_ERASURE_MATCH rule.
  */
-public class JavaSearchGenericTypeTests extends JavaSearchTests {
-	
-	JavaSearchPattern searchPattern;
-	static char[] RESULT_EXACT_MATCH = "*] EXACT_*".toCharArray();
+public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 
 	public JavaSearchGenericTypeTests(String name) {
 		super(name);
@@ -52,42 +47,45 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 		this.resultCollector.showRule = true;
 	}
 
-	void cleanLine(StringBuffer buffer, char[] line) {
-		if (!CharOperation.match(RESULT_EXACT_MATCH, line, true))
-			return;
-		if (buffer.length() > 0) buffer.append('\n');
-		buffer.append(line);
-	}
-
 	/*
-	 * Remove last type arguments from each match of an expected result.
+	 * Remove last type arguments from a line of an expected result.
+	 * This line contains one search match print out.
 	 */
-	String cleanResults(String expected) {
-		char[][] lines = CharOperation.splitOn('\n', expected.toCharArray());
-		StringBuffer buffer = new StringBuffer(expected.length());
-		for (int i=0, n=lines.length; i<n; i++) {
-			cleanLine(buffer, lines[i]);
+	int[] removeLastTypeArgument(char[] line) {
+		int idx=line.length-1;
+		while (line[idx] != ']') idx--;
+		if (line[--idx] != '>') return null;
+		int n = 1;
+		int end = idx+1;
+		while(idx>=0 && n!= 0) {
+			switch (line[--idx]) {
+				case '<': n--; break;
+				case '>': n++; break;
+			}
 		}
-		return buffer.toString();
+		if (n!= 0) {
+			// something wrong here...
+			return null;
+		}
+		int start = idx;
+		while (idx>=0 && line[idx] != '[') idx--;
+		if (idx > 0)
+			return new int[] { start, end };
+		// We should have opened a bracket!
+		return null;
 	}
 
-	/* (non-Javadoc)
-	 * Overridden to remove all last type arguments from expected string.
-	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#assertSearchResults(java.lang.String, java.lang.String, java.lang.Object)
-	 */
-	protected void assertSearchResults(String message, String expected, Object collector) {
-		String actual = collector.toString();
-		String trimmed = cleanResults(expected);
-		if (!trimmed.equals(actual)) {
-			System.out.println(getName()+" expected result is:");
-			System.out.print(displayString(actual, this.tabs));
-			System.out.println(",");
+	void addResultLine(StringBuffer buffer, char[] line) {
+		int[] positions = removeLastTypeArgument(line);
+		if (buffer.length() > 0) buffer.append('\n');
+		if (positions != null) {
+			int stop = positions[0];
+			int restart = positions[1];
+			buffer.append(line, 0, stop);
+			buffer.append(line, restart, line.length-restart);
+		} else {
+			buffer.append(line);
 		}
-		assertEquals(
-			message,
-			trimmed,
-			actual
-		);
 	}
 
 	/**
@@ -675,29 +673,29 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 		search("Member", TYPE, REFERENCES, scope, resultCollector);
 		assertSearchResults(
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Member] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Member] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Member] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_thr [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_run [Member] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_thr [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_run [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Member] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Member] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Member] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_thr [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_run [Member] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_thr [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_run [Member] EXACT_MATCH",
 			resultCollector);
 	}
 	public void testStringNoArgument04() throws CoreException {
@@ -1474,17 +1472,17 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_thr [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R3.java g1.t.s.ref.R3.qgen_run [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen [Member] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Member] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_obj [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_exc [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_wld [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_thr [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.gen_run [Member] EXACT_MATCH\n" + 
 			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen [Member] EXACT_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_thr [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_run [Member] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_obj [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_exc [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_wld [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_thr [Member] EXACT_MATCH\n" + 
+			"src/g1/t/s/ref/R4.java g1.t.s.ref.R4.qgen_run [Member] EXACT_MATCH",
 			resultCollector);
 	}
 	public void testStringAnyStrings04() throws CoreException {
@@ -1504,17 +1502,17 @@ public class JavaSearchGenericTypeTests extends JavaSearchTests {
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_thr [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R3.java g1.t.m.ref.R3.qgen_run [MemberGeneric] EQUIVALENT_ERASURE_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen [Member] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Member] EQUIVALENT_ERASURE_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_obj [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_exc [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_wld [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_thr [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.gen_run [Member] EXACT_MATCH\n" + 
 			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen [Member] EXACT_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_thr [Member] EQUIVALENT_ERASURE_MATCH\n" + 
-			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_run [Member] EQUIVALENT_ERASURE_MATCH",
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_obj [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_exc [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_wld [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_thr [Member] EXACT_MATCH\n" + 
+			"src/g1/t/m/ref/R4.java g1.t.m.ref.R4.qgen_run [Member] EXACT_MATCH",
 			resultCollector);
 	}
 	public void testStringAnyStrings05() throws CoreException {

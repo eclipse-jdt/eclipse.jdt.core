@@ -16,9 +16,9 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.LocalVariable;
-import org.eclipse.jdt.internal.core.ParameterizedSourceType;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.matching.*;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * A search pattern defines how search results are found. Use <code>SearchPattern.createPattern</code>
@@ -65,7 +65,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	public static final int R_REGEXP_MATCH = 4;
 	/**
 	 * Match rule: The search pattern matches the search result only if cases are the same.
-	 * Can be combined to previous rules, e.g. R_EXACT_MATCH | R_CASE_SENSITIVE
+	 * Can be combined to previous rules, e.g. {@link #R_EXACT_MATCH} | {@link #R_CASE_SENSITIVE}
 	 */
 	public static final int R_CASE_SENSITIVE = 8;
 	/**
@@ -77,7 +77,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * 	<li>match: <code>List&lt;Object&gt;</code></li>
 	 * 	</ul>
 	 * Method search example:
-	 * 	TODO (frederic) This mode is not implemented yet. It will be completed in next milestone.
 	 * 	<ul>
 	 * 	<li>declaration: <code>&lt;T&gt;foo(T t)</code></li>
 	 * 	<li>pattern: <code>&lt;Exception&gt;foo(new Exception())</code></li>
@@ -105,7 +104,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * 	</li>
 	 * 	</ul>
 	 * Method search example:
-	 * 	TODO (frederic) This mode is not implemented yet. It will be completed in next milestone.
 	 * 	<ul>
 	 * 	<li>declaration: <code>&lt;T&gt;foo(T t)</code></li>
 	 * 	<li>pattern: <code>&lt;Exception&gt;foo(new Exception())</code></li>
@@ -155,162 +153,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	public static SearchPattern createAndPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 		return MatchLocator.createAndPattern(leftPattern, rightPattern);
 	}
-	
-	/**
-	 * Constructor pattern are formed by [declaringQualification.]type[(parameterTypes)]
-	 * e.g. java.lang.Object()
-	 *		Main(*)
-	 */
-	private static SearchPattern createConstructorPattern(String patternString, int limitTo, int matchRule) {
-	
-		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-		scanner.setSource(patternString.toCharArray());
-		final int InsideName = 1;
-		final int InsideParameter = 2;
-		
-		String declaringQualification = null, typeName = null, parameterType = null;
-		String[] parameterTypes = null;
-		int parameterCount = -1;
-		boolean foundClosingParenthesis = false;
-		int mode = InsideName;
-		int token;
-		try {
-			token = scanner.getNextToken();
-		} catch (InvalidInputException e) {
-			return null;
-		}
-		while (token != TerminalTokens.TokenNameEOF) {
-			switch(mode) {
-				// read declaring type and selector
-				case InsideName :
-					switch (token) {
-						case TerminalTokens.TokenNameDOT:
-							if (declaringQualification == null) {
-								if (typeName == null) return null;
-								declaringQualification = typeName;
-							} else {
-								String tokenSource = new String(scanner.getCurrentTokenSource());
-								declaringQualification += tokenSource + typeName;
-							}
-							typeName = null;
-							break;
-						case TerminalTokens.TokenNameLPAREN:
-							parameterTypes = new String[5];
-							parameterCount = 0;
-							mode = InsideParameter;
-							break;
-						case TerminalTokens.TokenNameWHITESPACE:
-							break;
-						default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
-							if (typeName == null)
-								typeName = new String(scanner.getCurrentTokenSource());
-							else
-								typeName += new String(scanner.getCurrentTokenSource());
-					}
-					break;
-				// read parameter types
-				case InsideParameter :
-					switch (token) {
-						case TerminalTokens.TokenNameWHITESPACE:
-							break;
-						case TerminalTokens.TokenNameCOMMA:
-							if (parameterType == null) return null;
-							if (parameterTypes.length == parameterCount)
-								System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
-							parameterTypes[parameterCount++] = parameterType;
-							parameterType = null;
-							break;
-						case TerminalTokens.TokenNameRPAREN:
-							foundClosingParenthesis = true;
-							if (parameterType != null) {
-								if (parameterTypes.length == parameterCount)
-									System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
-								parameterTypes[parameterCount++] = parameterType;
-							}
-							break;
-						default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
-							if (parameterType == null)
-								parameterType = new String(scanner.getCurrentTokenSource());
-							else
-								parameterType += new String(scanner.getCurrentTokenSource());
-					}
-					break;
-			}
-			try {
-				token = scanner.getNextToken();
-			} catch (InvalidInputException e) {
-				return null;
-			}
-		}
-		// parenthesis mismatch
-		if (parameterCount>0 && !foundClosingParenthesis) return null;
-		if (typeName == null) return null;
-	
-		char[] typeNameChars = typeName.toCharArray();
-		if (typeNameChars.length == 1 && typeNameChars[0] == '*') typeNameChars = null;
-			
-		char[] declaringQualificationChars = null;
-		if (declaringQualification != null) declaringQualificationChars = declaringQualification.toCharArray();
-		char[][] parameterTypeQualifications = null, parameterTypeSimpleNames = null;
-	
-		// extract parameter types infos
-		if (parameterCount >= 0) {
-			parameterTypeQualifications = new char[parameterCount][];
-			parameterTypeSimpleNames = new char[parameterCount][];
-			for (int i = 0; i < parameterCount; i++) {
-				char[] parameterTypePart = parameterTypes[i].toCharArray();
-				int lastDotPosition = CharOperation.lastIndexOf('.', parameterTypePart);
-				if (lastDotPosition >= 0) {
-					parameterTypeQualifications[i] = CharOperation.subarray(parameterTypePart, 0, lastDotPosition);
-					if (parameterTypeQualifications[i].length == 1 && parameterTypeQualifications[i][0] == '*') {
-						parameterTypeQualifications[i] = null;
-					} else {
-						// prefix with a '*' as the full qualification could be bigger (because of an import)
-						parameterTypeQualifications[i] = CharOperation.concat(IIndexConstants.ONE_STAR, parameterTypeQualifications[i]);
-					}
-					parameterTypeSimpleNames[i] = CharOperation.subarray(parameterTypePart, lastDotPosition+1, parameterTypePart.length);
-				} else {
-					parameterTypeQualifications[i] = null;
-					parameterTypeSimpleNames[i] = parameterTypePart;
-				}
-				if (parameterTypeSimpleNames[i].length == 1 && parameterTypeSimpleNames[i][0] == '*')
-					parameterTypeSimpleNames[i] = null;
-			}
-		}	
-		switch (limitTo) {
-			case IJavaSearchConstants.DECLARATIONS :
-				return new ConstructorPattern(
-					true,
-					false,
-					typeNameChars, 
-					declaringQualificationChars, 
-					parameterTypeQualifications, 
-					parameterTypeSimpleNames,
-					false,
-					matchRule);
-			case IJavaSearchConstants.REFERENCES :
-				return new ConstructorPattern(
-					false,
-					true,
-					typeNameChars, 
-					declaringQualificationChars, 
-					parameterTypeQualifications, 
-					parameterTypeSimpleNames,
-					false,
-					matchRule);
-			case IJavaSearchConstants.ALL_OCCURRENCES :
-				return new ConstructorPattern(
-					true,
-					true,
-					typeNameChars, 
-					declaringQualificationChars, 
-					parameterTypeQualifications, 
-					parameterTypeSimpleNames,
-					false,
-					matchRule);
-		}
-		return null;
-	}
+
 	/**
 	 * Field pattern are formed by [declaringType.]name[ type]
 	 * e.g. java.lang.String.serialVersionUID long
@@ -343,7 +186,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 								if (fieldName == null) return null;
 								declaringType = fieldName;
 							} else {
-								String tokenSource = new String(scanner.getCurrentTokenSource());
+								String tokenSource = scanner.getCurrentTokenString();
 								declaringType += tokenSource + fieldName;
 							}
 							fieldName = null;
@@ -354,9 +197,9 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							break;
 						default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 							if (fieldName == null)
-								fieldName = new String(scanner.getCurrentTokenSource());
+								fieldName = scanner.getCurrentTokenString();
 							else
-								fieldName += new String(scanner.getCurrentTokenSource());
+								fieldName += scanner.getCurrentTokenString();
 					}
 					break;
 				// read type 
@@ -366,9 +209,9 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							break;
 						default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 							if (type == null)
-								type = new String(scanner.getCurrentTokenSource());
+								type = scanner.getCurrentTokenString();
 							else
-								type += new String(scanner.getCurrentTokenSource());
+								type += scanner.getCurrentTokenString();
 					}
 					break;
 			}
@@ -423,86 +266,73 @@ public abstract class SearchPattern extends InternalSearchPattern {
 			if (typeSimpleName.length == 1 && typeSimpleName[0] == '*')
 				typeSimpleName = null;
 		}
+		// Create field pattern
+		boolean findDeclarations = false;
+		boolean readAccess = false;
+		boolean writeAccess = false;
 		switch (limitTo) {
 			case IJavaSearchConstants.DECLARATIONS :
-				return new FieldPattern(
-					true,
-					false,
-					false,
-					fieldNameChars,
-					declaringTypeQualification,
-					declaringTypeSimpleName,
-					typeQualification,
-					typeSimpleName,
-					matchRule);
+				findDeclarations = true;
+				break;
 			case IJavaSearchConstants.REFERENCES :
-				return new FieldPattern(
-					false,
-					true, // read access
-					true, // write access
-					fieldNameChars, 
-					declaringTypeQualification, 
-					declaringTypeSimpleName, 
-					typeQualification, 
-					typeSimpleName,
-					matchRule);
+				readAccess = true;
+				writeAccess = true;
+				break;
 			case IJavaSearchConstants.READ_ACCESSES :
-				return new FieldPattern(
-					false,
-					true, // read access only
-					false,
-					fieldNameChars, 
-					declaringTypeQualification, 
-					declaringTypeSimpleName, 
-					typeQualification, 
-					typeSimpleName,
-					matchRule);
+				readAccess = true;
+				break;
 			case IJavaSearchConstants.WRITE_ACCESSES :
-				return new FieldPattern(
-					false,
-					false,
-					true, // write access only
-					fieldNameChars, 
-					declaringTypeQualification, 
-					declaringTypeSimpleName, 
-					typeQualification, 
-					typeSimpleName,
-					matchRule);
+				writeAccess = true;
+				break;
 			case IJavaSearchConstants.ALL_OCCURRENCES :
-				return new FieldPattern(
-					true,
-					true, // read access
-					true, // write access
-					fieldNameChars, 
-					declaringTypeQualification, 
-					declaringTypeSimpleName, 
-					typeQualification, 
-					typeSimpleName,
-					matchRule);
+				findDeclarations = true;
+				readAccess = true;
+				writeAccess = true;
+				break;
 		}
-		return null;
+		return new FieldPattern(
+				findDeclarations,
+				readAccess,
+				writeAccess,
+				fieldNameChars,
+				declaringTypeQualification,
+				declaringTypeSimpleName,
+				typeQualification,
+				typeSimpleName,
+				matchRule);
 	}
+
 	/**
-	 * Method pattern are formed by [declaringType.]selector[(parameterTypes)][ returnType]
-	 * e.g. java.lang.Runnable.run() void
-	 *		main(*)
+	 * Method pattern are formed by [declaringType '.']selector['(' parameterTypes ')'][returnType] ['%' typeArguments]
+	 *		e.g. java.lang.Runnable.run() void
+	 *			main(*)
+	 *			toArray(String[]) % &lt;String&gt;
+	 * Constructor pattern are formed by [declaringQualification '.']type['(' parameterTypes ')'] [ '%' typeArguments]
+	 *		e.g. java.lang.Object()
+	 *			Main(*)
+	 *			Sample(Exception) % &lt;Exception&gt;
+	 *
+	 * Type arguments have the same pattern that for type patterns
+	 * @see #createTypePattern(String,int,int)
 	 */
-	private static SearchPattern createMethodPattern(String patternString, int limitTo, int matchRule) {
+	private static SearchPattern createMethodOrConstructorPattern(String patternString, int limitTo, int matchRule, boolean isConstructor) {
 		
 		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/); 
 		scanner.setSource(patternString.toCharArray());
 		final int InsideSelector = 1;
 		final int InsideParameter = 2;
 		final int InsideReturnType = 3;
+		final int InsideTypeArguments = 4;
 		int lastToken = -1;
 		
 		String declaringType = null, selector = null, parameterType = null;
 		String[] parameterTypes = null;
+		char[][] typeArguments = null;
 		int parameterCount = -1;
 		String returnType = null;
 		boolean foundClosingParenthesis = false;
 		int mode = InsideSelector;
-		int token;
+		int token, argCount = 0;
 		try {
 			token = scanner.getNextToken();
 		} catch (InvalidInputException e) {
@@ -512,72 +342,168 @@ public abstract class SearchPattern extends InternalSearchPattern {
 			switch(mode) {
 				// read declaring type and selector
 				case InsideSelector :
-					switch (token) {
-						case TerminalTokens.TokenNameDOT:
-							if (declaringType == null) {
-								if (selector == null) return null;
-								declaringType = selector;
-							} else {
-								String tokenSource = new String(scanner.getCurrentTokenSource());
-								declaringType += tokenSource + selector;
-							}
-							selector = null;
-							break;
-						case TerminalTokens.TokenNameLPAREN:
-							parameterTypes = new String[5];
-							parameterCount = 0;
-							mode = InsideParameter;
-							break;
-						case TerminalTokens.TokenNameWHITESPACE:
-							if (!(TerminalTokens.TokenNameWHITESPACE == lastToken || TerminalTokens.TokenNameDOT == lastToken))
-								mode = InsideReturnType;
-							break;
-						default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
-							if (selector == null)
-								selector = new String(scanner.getCurrentTokenSource());
-							else
-								selector += new String(scanner.getCurrentTokenSource());
-							break;
+					if (argCount == 0) {
+						switch (token) {
+							case TerminalTokens.TokenNameLESS:
+								argCount++;
+								if (selector == null) return null; // invalid syntax
+								if (declaringType == null) {
+									declaringType = selector;
+								} else {
+									declaringType += '.' + selector;
+								}
+								declaringType += scanner.getCurrentTokenString();
+								selector = null;
+								break;
+							case TerminalTokens.TokenNameDOT:
+								if (declaringType == null) {
+									if (selector == null) return null;
+									declaringType = selector;
+								} else if (selector != null) {
+									String tokenSource = scanner.getCurrentTokenString();
+									declaringType += tokenSource + selector;
+								}
+								selector = null;
+								break;
+							case TerminalTokens.TokenNameLPAREN:
+								parameterTypes = new String[5];
+								parameterCount = 0;
+								mode = InsideParameter;
+								break;
+							case TerminalTokens.TokenNameWHITESPACE:
+								if (!(TerminalTokens.TokenNameWHITESPACE == lastToken || TerminalTokens.TokenNameDOT == lastToken))
+									mode = isConstructor ? InsideTypeArguments : InsideReturnType;
+								break;
+							case TerminalTokens.TokenNameREMAINDER:
+								if (selector == null) return null;// invalid syntax
+								mode = InsideTypeArguments;
+								break;
+							default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
+								if (selector == null)
+									selector = scanner.getCurrentTokenString();
+								else
+									selector += scanner.getCurrentTokenString();
+								break;
+						}
+					} else {
+						switch (token) {
+							case TerminalTokens.TokenNameGREATER:
+							case TerminalTokens.TokenNameRIGHT_SHIFT:
+							case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
+								argCount--;
+								break;
+							case TerminalTokens.TokenNameLESS:
+								argCount++;
+								break;
+						}
+						if (declaringType == null) return null; // invalid syntax
+						declaringType += scanner.getCurrentTokenString();
 					}
 					break;
 				// read parameter types
 				case InsideParameter :
-					switch (token) {
-						case TerminalTokens.TokenNameWHITESPACE:
-							break;
-						case TerminalTokens.TokenNameCOMMA:
-							if (parameterType == null) return null;
-							if (parameterTypes.length == parameterCount)
-								System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
-							parameterTypes[parameterCount++] = parameterType;
-							parameterType = null;
-							break;
-						case TerminalTokens.TokenNameRPAREN:
-							foundClosingParenthesis = true;
-							if (parameterType != null){
+					if (argCount == 0) {
+						switch (token) {
+							case TerminalTokens.TokenNameWHITESPACE:
+								break;
+							case TerminalTokens.TokenNameCOMMA:
+								if (parameterType == null) return null;
 								if (parameterTypes.length == parameterCount)
 									System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
 								parameterTypes[parameterCount++] = parameterType;
-							}
-							mode = InsideReturnType;
-							break;
-						default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
-							if (parameterType == null)
-								parameterType = new String(scanner.getCurrentTokenSource());
-							else
-								parameterType += new String(scanner.getCurrentTokenSource());
+								parameterType = null;
+								break;
+							case TerminalTokens.TokenNameRPAREN:
+								foundClosingParenthesis = true;
+								if (parameterType != null){
+									if (parameterTypes.length == parameterCount)
+										System.arraycopy(parameterTypes, 0, parameterTypes = new String[parameterCount*2], 0, parameterCount);
+									parameterTypes[parameterCount++] = parameterType;
+								}
+								mode = isConstructor ? InsideTypeArguments : InsideReturnType;
+								break;
+							case TerminalTokens.TokenNameREMAINDER:
+								// invalid syntax
+								return null;
+							case TerminalTokens.TokenNameLESS:
+								argCount++;
+								if (parameterType == null) return null; // invalid syntax
+								// fall through next case to add token
+							default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
+								if (parameterType == null)
+									parameterType = scanner.getCurrentTokenString();
+								else
+									parameterType += scanner.getCurrentTokenString();
+						}
+					} else {
+						switch (token) {
+							case TerminalTokens.TokenNameGREATER:
+							case TerminalTokens.TokenNameRIGHT_SHIFT:
+							case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
+								argCount--;
+								break;
+							case TerminalTokens.TokenNameLESS:
+								argCount++;
+								break;
+						}
+						if (parameterType == null) return null; // invalid syntax
+						parameterType += scanner.getCurrentTokenString();
 					}
 					break;
 				// read return type
 				case InsideReturnType:
+					if (argCount == 0) {
+						switch (token) {
+							case TerminalTokens.TokenNameWHITESPACE:
+								break;
+							case TerminalTokens.TokenNameREMAINDER:
+								mode = InsideTypeArguments;
+								break;
+							case TerminalTokens.TokenNameLESS:
+								argCount++;
+								if (returnType == null) return null; // invalid syntax
+								// fall through next case to add token
+							default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
+								if (returnType == null)
+									returnType = scanner.getCurrentTokenString();
+								else
+									returnType += scanner.getCurrentTokenString();
+						}
+					} else {
+						switch (token) {
+							case TerminalTokens.TokenNameGREATER:
+							case TerminalTokens.TokenNameRIGHT_SHIFT:
+							case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
+								argCount--;
+								break;
+							case TerminalTokens.TokenNameLESS:
+								argCount++;
+								break;
+						}
+						if (returnType == null) return null; // invalid syntax
+						returnType += scanner.getCurrentTokenString();
+					}
+					break;
+				case InsideTypeArguments:
 					switch (token) {
 						case TerminalTokens.TokenNameWHITESPACE:
 							break;
-						default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
-							if (returnType == null)
-								returnType = new String(scanner.getCurrentTokenSource());
-							else
-								returnType += new String(scanner.getCurrentTokenSource());
+						case TerminalTokens.TokenNameREMAINDER:
+							String pseudoType = selector+patternString.substring(scanner.getCurrentTokenStartPosition()); // '%' is a valid character for type
+							typeArguments = Util.extractMethodArguments(Signature.createTypeSignature(pseudoType, false));
+							scanner.currentPosition = scanner.eofPosition; // end scan
+							break;
+						case TerminalTokens.TokenNameLESS:
+							if (lastToken == TerminalTokens.TokenNameREMAINDER || lastToken == TerminalTokens.TokenNameWHITESPACE) {
+								pseudoType = selector+'%'+patternString.substring(scanner.getCurrentTokenStartPosition()); // '%' is a valid character for type
+								typeArguments = Util.extractMethodArguments(Signature.createTypeSignature(pseudoType, false));
+								scanner.currentPosition = scanner.eofPosition; // end scan
+							} else {
+								return null; // invalid syntax
+							}
+							break;
+						default:
+							return null; // invalid syntax
 					}
 					break;
 			}
@@ -590,19 +516,48 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		}
 		// parenthesis mismatch
 		if (parameterCount>0 && !foundClosingParenthesis) return null;
-		if (selector == null) return null;
-	
-		char[] selectorChars = selector.toCharArray();
-		if (selectorChars.length == 1 && selectorChars[0] == '*')
-			selectorChars = null;
+		// type arguments mismatch
+		if (argCount > 0) return null;
+
+		char[] selectorChars = null;
+		if (isConstructor) {
+			// retrieve type for constructor patterns
+			if (declaringType == null)
+				declaringType = selector;
+			else if (selector != null)
+				declaringType += '.' + selector;
+		} else {
+			// get selector chars
+			if (selector == null) return null;
+			selectorChars = selector.toCharArray();
+			if (selectorChars.length == 1 && selectorChars[0] == '*')
+				selectorChars = null;
+		}
 			
 		char[] declaringTypeQualification = null, declaringTypeSimpleName = null;
 		char[] returnTypeQualification = null, returnTypeSimpleName = null;
 		char[][] parameterTypeQualifications = null, parameterTypeSimpleNames = null;
+		// Signatures
+		String declaringTypeSignature = null;
+		String returnTypeSignature = null;
+		String[] parameterTypeSignatures = null;
 	
 		// extract declaring type infos
 		if (declaringType != null) {
-			char[] declaringTypePart = declaringType.toCharArray();
+			// get declaring type part and signature
+			char[] declaringTypePart = null;
+			try {
+				declaringTypeSignature = Signature.createTypeSignature(declaringType, false);
+				if (declaringTypeSignature.indexOf(Signature.C_GENERIC_START) < 0) {
+					declaringTypePart = declaringType.toCharArray();
+				} else {
+					declaringTypePart = Signature.toCharArray(Signature.getTypeErasure(declaringTypeSignature.toCharArray()));
+				}
+			}
+			catch (IllegalArgumentException iae) {
+				// declaring type is invalid
+				return null;
+			}
 			int lastDotPosition = CharOperation.lastIndexOf('.', declaringTypePart);
 			if (lastDotPosition >= 0) {
 				declaringTypeQualification = CharOperation.subarray(declaringTypePart, 0, lastDotPosition);
@@ -620,8 +575,22 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		if (parameterCount >= 0) {
 			parameterTypeQualifications = new char[parameterCount][];
 			parameterTypeSimpleNames = new char[parameterCount][];
+			parameterTypeSignatures = new String[parameterCount];
 			for (int i = 0; i < parameterCount; i++) {
-				char[] parameterTypePart = parameterTypes[i].toCharArray();
+				// get parameter type part and signature
+				char[] parameterTypePart = null;
+				try {
+					parameterTypeSignatures[i] = Signature.createTypeSignature(parameterTypes[i], false);
+					if (parameterTypeSignatures[i].indexOf(Signature.C_GENERIC_START) < 0) {
+						parameterTypePart = parameterTypes[i].toCharArray();
+					} else {
+						parameterTypePart = Signature.toCharArray(Signature.getTypeErasure(parameterTypeSignatures[i].toCharArray()));
+					}
+				}
+				catch (IllegalArgumentException iae) {
+					// string is not a valid type syntax
+					return null;
+				}
 				int lastDotPosition = CharOperation.lastIndexOf('.', parameterTypePart);
 				if (lastDotPosition >= 0) {
 					parameterTypeQualifications[i] = CharOperation.subarray(parameterTypePart, 0, lastDotPosition);
@@ -642,7 +611,20 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		}	
 		// extract return type infos
 		if (returnType != null) {
-			char[] returnTypePart = returnType.toCharArray();
+			// get return type part and signature
+			char[] returnTypePart = null;
+			try {
+				returnTypeSignature = Signature.createTypeSignature(returnType, false);
+				if (returnTypeSignature.indexOf(Signature.C_GENERIC_START) < 0) {
+					returnTypePart = returnType.toCharArray();
+				} else {
+					returnTypePart = Signature.toCharArray(Signature.getTypeErasure(returnTypeSignature.toCharArray()));
+				}
+			}
+			catch (IllegalArgumentException iae) {
+				// declaring type is invalid
+				return null;
+			}
 			int lastDotPosition = CharOperation.lastIndexOf('.', returnTypePart);
 			if (lastDotPosition >= 0) {
 				returnTypeQualification = CharOperation.subarray(returnTypePart, 0, lastDotPosition);
@@ -660,52 +642,52 @@ public abstract class SearchPattern extends InternalSearchPattern {
 			if (returnTypeSimpleName.length == 1 && returnTypeSimpleName[0] == '*')
 				returnTypeSimpleName = null;
 		}
+		// Create method/constructor pattern
+		boolean findDeclarations = true;
+		boolean findReferences = true;
 		switch (limitTo) {
 			case IJavaSearchConstants.DECLARATIONS :
-				return new MethodPattern(
-					true,
-					false,
-					selectorChars, 
-					declaringTypeQualification, 
-					declaringTypeSimpleName, 
-					returnTypeQualification, 
-					returnTypeSimpleName, 
-					parameterTypeQualifications, 
-					parameterTypeSimpleNames,
-					false,
-					null,
-					matchRule);
+				findReferences = false;
+				break;
 			case IJavaSearchConstants.REFERENCES :
-				return new MethodPattern(
-					false,
-					true,
-					selectorChars, 
-					declaringTypeQualification, 
-					declaringTypeSimpleName, 
-					returnTypeQualification, 
-					returnTypeSimpleName, 
-					parameterTypeQualifications, 
-					parameterTypeSimpleNames,
-					false,
-					null,
-					matchRule);
+				findDeclarations = false;
+				break;
 			case IJavaSearchConstants.ALL_OCCURRENCES :
-				return new MethodPattern(
-					true,
-					true,
-					selectorChars, 
-					declaringTypeQualification, 
+				break;
+		}
+		if (isConstructor) {
+			return new ConstructorPattern(
+					findDeclarations,
+					findReferences,
 					declaringTypeSimpleName, 
-					returnTypeQualification, 
-					returnTypeSimpleName, 
+					declaringTypeQualification,
+					declaringTypeSignature,
 					parameterTypeQualifications, 
 					parameterTypeSimpleNames,
+					parameterTypeSignatures,
 					false,
-					null,
+					typeArguments,
+					matchRule);
+		} else {
+			return new MethodPattern(
+					findDeclarations,
+					findReferences,
+					selectorChars,
+					declaringTypeQualification,
+					declaringTypeSimpleName,
+					declaringTypeSignature,
+					returnTypeQualification,
+					returnTypeSimpleName,
+					returnTypeSignature,
+					parameterTypeQualifications,
+					parameterTypeSimpleNames,
+					parameterTypeSignatures,
+					false,
+					typeArguments,
 					matchRule);
 		}
-		return null;
 	}
+
 	/**
 	 * Returns a search pattern that combines the given two patterns into an
 	 * "or" pattern. The search result will match either the left pattern or the
@@ -733,6 +715,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		}
 		return null;
 	}
+
 	/**
 	 * Returns a search pattern based on a given string pattern. The string patterns support '*' wild-cards.
 	 * The remaining parameters are used to narrow down the type of expected results.
@@ -784,9 +767,9 @@ public abstract class SearchPattern extends InternalSearchPattern {
 			case IJavaSearchConstants.TYPE:
 				return createTypePattern(stringPattern, limitTo, matchRule);
 			case IJavaSearchConstants.METHOD:
-				return createMethodPattern(stringPattern, limitTo, matchRule);
+				return createMethodOrConstructorPattern(stringPattern, limitTo, matchRule, false/*not a constructor*/);
 			case IJavaSearchConstants.CONSTRUCTOR:
-				return createConstructorPattern(stringPattern, limitTo, matchRule);
+				return createMethodOrConstructorPattern(stringPattern, limitTo, matchRule, true/*constructor*/);
 			case IJavaSearchConstants.FIELD:
 				return createFieldPattern(stringPattern, limitTo, matchRule);
 			case IJavaSearchConstants.PACKAGE:
@@ -864,9 +847,6 @@ public abstract class SearchPattern extends InternalSearchPattern {
 					typeSignature = field.getTypeSignature();
 					char[] signature = typeSignature.toCharArray();
 					char[] typeErasure = Signature.toCharArray(Signature.getTypeErasure(signature));
-					if (CharOperation.indexOf(Signature.C_GENERIC_START, signature) < 0) {
-						typeSignature = null;
-					}
 					CharOperation.replace(typeErasure, '$', '.');
 					if ((lastDot = CharOperation.lastIndexOf('.', typeErasure)) == -1) {
 						typeSimpleName = typeErasure;
@@ -882,78 +862,42 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				} catch (JavaModelException e) {
 					return null;
 				}
+				// Create field pattern
+				boolean findDeclarations = false;
+				boolean readAccess = false;
+				boolean writeAccess = false;
 				switch (limitTo) {
 					case IJavaSearchConstants.DECLARATIONS :
-						searchPattern = 
-							new FieldPattern(
-								true,
-								false,
-								false,
-								name, 
-								declaringQualification, 
-								declaringSimpleName, 
-								typeQualification, 
-								typeSimpleName,
-								typeSignature,
-								matchRule);
+						findDeclarations = true;
 						break;
 					case IJavaSearchConstants.REFERENCES :
-						searchPattern = 
-							new FieldPattern(
-								false,
-								true, // read access
-								true, // write access
-								name, 
-								declaringQualification, 
-								declaringSimpleName, 
-								typeQualification, 
-								typeSimpleName,
-								typeSignature,
-								matchRule);
+						readAccess = true;
+						writeAccess = true;
 						break;
 					case IJavaSearchConstants.READ_ACCESSES :
-						searchPattern = 
-							new FieldPattern(
-								false,
-								true, // read access only
-								false,
-								name, 
-								declaringQualification, 
-								declaringSimpleName, 
-								typeQualification, 
-								typeSimpleName,
-								typeSignature,
-								matchRule);
+						readAccess = true;
 						break;
 					case IJavaSearchConstants.WRITE_ACCESSES :
-						searchPattern = 
-							new FieldPattern(
-								false,
-								false,
-								true, // write access only
-								name, 
-								declaringQualification, 
-								declaringSimpleName, 
-								typeQualification, 
-								typeSimpleName,
-								typeSignature,
-								matchRule);
+						writeAccess = true;
 						break;
 					case IJavaSearchConstants.ALL_OCCURRENCES :
-						searchPattern =
-							new FieldPattern(
-								true,
-								true, // read access
-								true, // write access
-								name, 
-								declaringQualification, 
-								declaringSimpleName, 
-								typeQualification, 
-								typeSimpleName,
-								typeSignature,
-								matchRule);
+						findDeclarations = true;
+						readAccess = true;
+						writeAccess = true;
 						break;
 				}
+				searchPattern = 
+					new FieldPattern(
+						findDeclarations,
+						readAccess,
+						writeAccess,
+						name, 
+						declaringQualification, 
+						declaringSimpleName, 
+						typeQualification, 
+						typeSimpleName,
+						typeSignature,
+						matchRule);
 				break;
 			case IJavaElement.IMPORT_DECLARATION :
 				String elementName = element.getElementName();
@@ -968,7 +912,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 							elementName.substring(lastDot+1).toCharArray(),
 							elementName.substring(0, lastDot).toCharArray(),
 							null,
-							false, // does not need signature
+							null,
 							null,
 							limitTo,
 							matchRule);
@@ -1042,17 +986,22 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				char[] returnSimpleName;
 				char[] returnQualification;
 				boolean varargs = false;
+				String returnSignature;
 				try {
-					String returnType = Signature.toString(method.getReturnType()).replace('$', '.');
-					if ((lastDot = returnType.lastIndexOf('.')) == -1) {
-						returnSimpleName = returnType.toCharArray();
+					returnSignature = method.getReturnType();
+					char[] signature = returnSignature.toCharArray();
+					char[] returnErasure = Signature.toCharArray(Signature.getTypeErasure(signature));
+					CharOperation.replace(returnErasure, '$', '.');
+					if ((lastDot = CharOperation.lastIndexOf('.', returnErasure)) == -1) {
+						returnSimpleName = returnErasure;
 						returnQualification = null;
 					} else {
-						returnSimpleName = returnType.substring(lastDot + 1).toCharArray();
-						returnQualification = method.isBinary()
-							? returnType.substring(0, lastDot).toCharArray()
+						returnSimpleName = CharOperation.subarray(returnErasure, lastDot + 1, returnErasure.length);
+						returnQualification = CharOperation.subarray(returnErasure, 0, lastDot);
+						if (!method.isBinary()) {
 							// prefix with a '*' as the full qualification could be bigger (because of an import)
-							: CharOperation.concat(IIndexConstants.ONE_STAR, returnType.substring(0, lastDot).toCharArray());
+							CharOperation.concat(IIndexConstants.ONE_STAR, returnQualification);
+						}
 					}
 					varargs = Flags.isVarargs(method.getFlags());
 				} catch (JavaModelException e) {
@@ -1062,127 +1011,80 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				int paramCount = parameterTypes.length;
 				char[][] parameterSimpleNames = new char[paramCount][];
 				char[][] parameterQualifications = new char[paramCount][];
+				String[] parameterSignatures = new String[paramCount];
 				for (int i = 0; i < paramCount; i++) {
-					String signature = Signature.toString(parameterTypes[i]).replace('$', '.');
-					if ((lastDot = signature.lastIndexOf('.')) == -1) {
-						parameterSimpleNames[i] = signature.toCharArray();
+					parameterSignatures[i] = parameterTypes[i];
+					char[] signature = parameterSignatures[i].toCharArray();
+					char[] paramErasure = Signature.toCharArray(Signature.getTypeErasure(signature));
+					CharOperation.replace(paramErasure, '$', '.');
+					if ((lastDot = CharOperation.lastIndexOf('.', paramErasure)) == -1) {
+						parameterSimpleNames[i] = paramErasure;
 						parameterQualifications[i] = null;
 					} else {
-						parameterSimpleNames[i] = signature.substring(lastDot + 1).toCharArray();
-						parameterQualifications[i] = method.isBinary()
-							? signature.substring(0, lastDot).toCharArray()
+						parameterSimpleNames[i] = CharOperation.subarray(paramErasure, lastDot + 1, paramErasure.length);
+						parameterQualifications[i] = CharOperation.subarray(paramErasure, 0, lastDot);
+						if (!method.isBinary()) {
 							// prefix with a '*' as the full qualification could be bigger (because of an import)
-							: CharOperation.concat(IIndexConstants.ONE_STAR, signature.substring(0, lastDot).toCharArray());
+							CharOperation.concat(IIndexConstants.ONE_STAR, parameterQualifications[i]);
+						}
 					}
 				}
+
+				// Create method/constructor pattern
+				boolean findMethodDeclarations = true;
+				boolean findMethodReferences = true;
 				switch (limitTo) {
 					case IJavaSearchConstants.DECLARATIONS :
-						if (isConstructor) {
-							searchPattern = 
-								new ConstructorPattern(
-									true,
-									false,
-									declaringSimpleName, 
-									declaringQualification, 
-									parameterQualifications, 
-									parameterSimpleNames,
-									varargs,
-									matchRule);
-						} else {
-							searchPattern = 
-								new MethodPattern(
-									true,
-									false,
-									selector, 
-									declaringQualification, 
-									declaringSimpleName, 
-									returnQualification, 
-									returnSimpleName, 
-									parameterQualifications, 
-									parameterSimpleNames,
-									varargs,
-									null,
-									matchRule);
-						}
+						findMethodReferences = false;
 						break;
 					case IJavaSearchConstants.REFERENCES :
-						if (isConstructor) {
-							searchPattern = 
-								new ConstructorPattern(
-									false,
-									true,
-									declaringSimpleName, 
-									declaringQualification, 
-									parameterQualifications, 
-									parameterSimpleNames,
-									varargs,
-									matchRule);
-						} else {
-							searchPattern = 
-								new MethodPattern(
-									false,
-									true,
-									selector, 
-									declaringQualification, 
-									declaringSimpleName, 
-									returnQualification, 
-									returnSimpleName, 
-									parameterQualifications, 
-									parameterSimpleNames,
-									varargs,
-									method.getDeclaringType(),
-									matchRule);
-						}
+						findMethodDeclarations = false;
 						break;
 					case IJavaSearchConstants.ALL_OCCURRENCES :
-						if (isConstructor) {
-							searchPattern =
-								new ConstructorPattern(
-									true,
-									true,
-									declaringSimpleName, 
-									declaringQualification, 
-									parameterQualifications, 
-									parameterSimpleNames,
-									varargs,
-									matchRule);
-						} else {
-							searchPattern =
-								new MethodPattern(
-									true,
-									true,
-									selector, 
-									declaringQualification, 
-									declaringSimpleName, 
-									returnQualification, 
-									returnSimpleName, 
-									parameterQualifications, 
-									parameterSimpleNames,
-									varargs,
-									method.getDeclaringType(),
-									matchRule);
-						}
 						break;
+				}
+				if (isConstructor) {
+					searchPattern =
+						new ConstructorPattern(
+							findMethodDeclarations,
+							findMethodReferences,
+							declaringSimpleName, 
+							declaringQualification, 
+							parameterQualifications, 
+							parameterSimpleNames,
+							parameterSignatures,
+							method,
+							varargs,
+							matchRule);
+				} else {
+					searchPattern =
+						new MethodPattern(
+							findMethodDeclarations,
+							findMethodReferences,
+							selector, 
+							declaringQualification, 
+							declaringSimpleName, 
+							returnQualification, 
+							returnSimpleName, 
+							returnSignature,
+							parameterQualifications, 
+							parameterSimpleNames,
+							parameterSignatures,
+							varargs,
+							method,
+							matchRule);
 				}
 				break;
 			case IJavaElement.TYPE :
 				IType type = (IType)element;
-				String signature = type instanceof ParameterizedSourceType ? ((ParameterizedSourceType) type).uniqueKey : null;
 				searchPattern = 	createTypePattern(
 							type.getElementName().toCharArray(), 
 							type.getPackageFragment().getElementName().toCharArray(),
 							enclosingTypeNames(type),
-							true, // need signature
-							signature,
+							null,
+							type,
 							limitTo,
 							matchRule);
-				if (searchPattern == null) { // TODO (frederic) remove when new API IType.getParameterizedName() will be available
-					searchPattern = new TypeReferencePattern(
-						CharOperation.concatWith(type.getPackageFragment().getElementName().toCharArray(), enclosingTypeNames(type), '.'), 
-						type.getElementName().toCharArray(),
-						type,
-						matchRule);
-				}
 				break;
 			case IJavaElement.PACKAGE_DECLARATION :
 			case IJavaElement.PACKAGE_FRAGMENT :
@@ -1193,7 +1095,8 @@ public abstract class SearchPattern extends InternalSearchPattern {
 			MatchLocator.setFocus(searchPattern, element);
 		return searchPattern;
 	}
-	private static SearchPattern createTypePattern(char[] simpleName, char[] packageName, char[][] enclosingTypeNames, boolean needSignature, String typeSignature, int limitTo, int matchRule) {
+
+	private static SearchPattern createTypePattern(char[] simpleName, char[] packageName, char[][] enclosingTypeNames, String typeSignature, IType type, int limitTo, int matchRule) {
 		switch (limitTo) {
 			case IJavaSearchConstants.DECLARATIONS :
 				return new TypeDeclarationPattern(
@@ -1203,7 +1106,13 @@ public abstract class SearchPattern extends InternalSearchPattern {
 					IIndexConstants.TYPE_SUFFIX,
 					matchRule);
 			case IJavaSearchConstants.REFERENCES :
-				if (needSignature && typeSignature == null) return null;
+				if (type != null) {
+					return new TypeReferencePattern(
+						CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
+						simpleName,
+						type,
+						matchRule);
+				}
 				return new TypeReferencePattern(
 					CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
 					simpleName,
@@ -1223,29 +1132,33 @@ public abstract class SearchPattern extends InternalSearchPattern {
 						simpleName, 
 						IIndexConstants.TYPE_SUFFIX,
 						matchRule), 
-					new TypeReferencePattern(
-						CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
-						simpleName,
-						typeSignature,
-						matchRule));
+					(type != null)
+						? new TypeReferencePattern(
+							CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
+							simpleName,
+							type,
+							matchRule)
+						: new TypeReferencePattern(
+							CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
+							simpleName,
+							typeSignature,
+							matchRule)
+				);
 		}
 		return null;
 	}
 	/**
-	 * Type pattern are formed by [qualification.]type.
+	 * Type pattern are formed by [qualification '.']type [typeArguments].
 	 * e.g. java.lang.Object
 	 *		Runnable
+	 *		List<String>
 	 *
 	 * @since 3.1
 	 *		Type arguments can be specified to search references to parameterized types.
-	 * 	Then patterns will look as follow:
-	 * 		[qualification.] type [ '<' [ [ '?' {'extends'|'super'} ] type ( ',' [ '?' {'extends'|'super'} ] type )* ] '>' ]
+	 * 	and look as follow: '<' { [ '?' {'extends'|'super'} ] type ( ',' [ '?' {'extends'|'super'} ] type )* | '?' } '>'
 	 * 	Please note that:
 	 * 		- '*' is not valid inside type arguments definition <>
 	 * 		- '?' is treated as a wildcard when it is inside <> (ie. it must be put on first position of the type argument)
-	 * 		- nested <> are not allowed; List<List<Object>> will be treated as pattern List<List>
-	 * 		- only one type arguments definition is allowed; Gen<Exception>.Member<Object>
-	 *				will be treated as pattern Gen<Exception>.Member
 	 */
 	private static SearchPattern createTypePattern(String patternString, int limitTo, int matchRule) {
 		
@@ -1258,27 +1171,34 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		} catch (InvalidInputException e) {
 			return null;
 		}
-		int paramCount = 0;
+		int argCount = 0;
 		while (token != TerminalTokens.TokenNameEOF) {
-			switch (token) {
-				case TerminalTokens.TokenNameWHITESPACE:
-					if (paramCount == 0) break;
-					// fall through default case if we're inside a type argument...
-				default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
-					switch (token) {
-						case TerminalTokens.TokenNameGREATER:
-						case TerminalTokens.TokenNameRIGHT_SHIFT:
-						case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
-							paramCount--;
-							break;
-						case TerminalTokens.TokenNameLESS:
-							paramCount++;
-							break;
-					}
-					if (type == null)
-						type = new String(scanner.getCurrentTokenSource());
-					else
-						type += new String(scanner.getCurrentTokenSource());
+			if (argCount == 0) {
+				switch (token) {
+					case TerminalTokens.TokenNameWHITESPACE:
+						break;
+					case TerminalTokens.TokenNameLESS:
+						argCount++;
+						// fall through default case to add token to type
+					default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
+						if (type == null)
+							type = scanner.getCurrentTokenString();
+						else
+							type += scanner.getCurrentTokenString();
+				}
+			} else {
+				switch (token) {
+					case TerminalTokens.TokenNameGREATER:
+					case TerminalTokens.TokenNameRIGHT_SHIFT:
+					case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
+						argCount--;
+						break;
+					case TerminalTokens.TokenNameLESS:
+						argCount++;
+						break;
+				}
+				if (type == null) return null; // invalid syntax
+				type += scanner.getCurrentTokenString();
 			}
 			try {
 				token = scanner.getNextToken();

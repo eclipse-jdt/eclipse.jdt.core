@@ -51,13 +51,19 @@ Eclipse SDK 3.1M5 - ?th January 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Support for generic methods/constructors search has been added to SearchEngine (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75642">75642</a>).<br>
+User can now search for declaration and/or references to generic methods/constructors or parameterized methods/constructors (like <code>public &lt;U&gt; void foo(U u){}</code> or <code>&lt;String&gt;foo("")</code> for example).
+This search can be done either selecting a JavaElement or using Java Search dialog.
+</li>
 <li>Added new API <code>JavaConventions#validateTypeVariableName(String)</code>.</li>
 <li>Added new API <code>JavaCore#newTypeHierarchy(IRegion,WorkingCopyOwner,IProgressMonitor)</code> that creates a hierarchy
      independently of a project.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83013">83013</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75642">75642</a>
+[1.5][search] Methods and constructor search does not work with generics
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83013">83013</a>
 [5.0] TypeDeclaration after AnnotationTypeDeclaration has wrong source range
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=82985">82985</a>
 Static imports can't resolve bindings

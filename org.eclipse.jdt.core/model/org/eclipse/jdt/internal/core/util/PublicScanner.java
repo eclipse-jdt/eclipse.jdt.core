@@ -382,6 +382,21 @@ public final char[] getCurrentTokenSource() {
 	}
 	return result;
 }
+public final String getCurrentTokenString() {
+	// Return current token as a string
+
+	if (this.withoutUnicodePtr != 0) {
+		// 0 is used as a fast test flag so the real first char is in position 1
+		return new String(
+			this.withoutUnicodeBuffer, 
+			1, 
+			this.withoutUnicodePtr);
+	}
+	return new String(
+		this.source, 
+		this.startPosition, 
+		this.currentPosition - this.startPosition); 
+}
 public final char[] getCurrentTokenSourceString() {
 	//return the token REAL source (aka unicodes are precomputed).
 	//REMOVE the two " that are at the beginning and the end.
@@ -2058,12 +2073,12 @@ final char[] optimizedCurrentTokenSource2() {
 final char[] optimizedCurrentTokenSource3() {
 	//try to return the same char[] build only once
 
-	char c0, c1, c2;
-	int hash = 
-		(((c0 = this.source[this.startPosition]) << 12)
-			+ ((c1 = this.source[this.startPosition + 1]) << 6)
-			+ (c2 = this.source[this.startPosition + 2]))
-			% TableSize; 
+	char[] src = this.source;
+	int start = this.startPosition;
+	char c0 = src[start];
+	char c1 = src[start+1];
+	char c2 = src[start+2];
+	int hash = ((c0 << 12) + (c1<< 6) + c2) % TableSize; 
 	char[][] table = this.charArray_length[1][hash];
 	int i = newEntry3;
 	while (++i < InternalTableSize) {

@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.ICodeAttribute;
@@ -31,8 +32,11 @@ import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.Assert;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -2278,4 +2282,195 @@ public class Util {
 			return scanTypeSignature(string, start);
 		}
 	}	
+
+	/**
+	 * Get all type arguments from an array of signatures.
+	 * 
+	 * Example:
+	 * 	For following type X<Y<Z>,V<W>,U>.A<B> signatures is:
+	 * 	[
+	 * 		['L','X','<','L','Y','<','L','Z',';'>',';','L','V','<','L','W',';'>',';','L','U',';',>',';'],
+	 * 		['L','A','<','L','B',';','>',';']
+	 * 	]
+	 * 	@see #splitTypeLevelsSignature(String)
+	 * 	Then, this method returns:
+	 * 	[
+	 * 		[
+	 * 			['L','Y','<','L','Z',';'>',';'],
+	 * 			['L','V','<','L','W',';'>',';'],
+	 * 			['L','U',';']
+	 * 		],
+	 * 		[
+	 * 			['L','B',';']
+	 * 		]
+	 * 	]
+	 * 
+	 * @param typeSignatures Array of signatures (one per each type levels)
+	 * @throws IllegalArgumentException If one of provided signature is malformed
+	 * @return char[][][] Array of type arguments for each signature
+	 */
+	public final static char[][][] getAllTypeArguments(char[][] typeSignatures) {
+		if (typeSignatures == null) return null;
+		int length = typeSignatures.length;
+		char[][][] typeArguments = new char[length][][];
+		for (int i=0; i<length; i++){
+			typeArguments[i] = Signature.getTypeArguments(typeSignatures[i]);
+		}
+		return typeArguments;
+	}
+
+	/**
+	 * Split signatures of all levels  from a type unique key.
+	 * 
+	 * Example:
+	 * 	For following type X<Y<Z>,V<W>,U>.A<B>, unique key is:
+	 * 	"LX<LY<LZ;>;LV<LW;>;LU;>.LA<LB;>;"
+	 * 
+	 * 	The return splitted signatures array is:
+	 * 	[
+	 * 		['L','X','<','L','Y','<','L','Z',';'>',';','L','V','<','L','W',';'>',';','L','U','>',';'],
+	 * 		['L','A','<','L','B',';','>',';']
+	 * 
+	 * @param uniqueKey ParameterizedSourceType unique key
+	 * @return char[][] Array of signatures for each level of given unique key
+	 */
+	public final static char[][] splitTypeLevelsSignature(String uniqueKey) {
+		// In case of IJavaElement signature, replace '$' by '.'
+		char[] source = uniqueKey.replace('$','.').toCharArray();
+
+		// Init counters and arrays
+		char[][] signatures = new char[10][];
+		int signaturesCount = 0;
+		int[] lengthes = new int [10];
+		int typeArgsCount = 0;
+		int paramOpening = 0;
+		
+		// Scan each signature character
+		scanUniqueKey: for (int idx=0, ln = source.length; idx < ln; idx++) {
+			switch (source[idx]) {
+				case '>':
+					paramOpening--;
+					if (paramOpening == 0)  {
+						if (signaturesCount == lengthes.length) {
+							System.arraycopy(signatures, 0, signatures = new char[signaturesCount+10][], 0, signaturesCount);
+							System.arraycopy(lengthes, 0, lengthes = new int[signaturesCount+10], 0, signaturesCount);
+						}
+						lengthes[signaturesCount] = typeArgsCount;
+						typeArgsCount = 0;
+					}
+					break;
+				case '<':
+					paramOpening++;
+					if (paramOpening == 1) {
+						typeArgsCount = 1;
+					}
+					break;
+				case '*':
+				case ';':
+					if (paramOpening == 1) typeArgsCount++;
+					break;
+				case '.':
+					if (paramOpening == 0)  {
+						if (signaturesCount == lengthes.length) {
+							System.arraycopy(signatures, 0, signatures = new char[signaturesCount+10][], 0, signaturesCount);
+							System.arraycopy(lengthes, 0, lengthes = new int[signaturesCount+10], 0, signaturesCount);
+						}
+						signatures[signaturesCount] = new char[idx+1];
+						System.arraycopy(source, 0, signatures[signaturesCount], 0, idx);
+						signatures[signaturesCount][idx] = Signature.C_SEMICOLON;
+						signaturesCount++;
+					}
+					break;
+				case '/':
+					source[idx] = '.';
+					break;
+			}
+		}
+
+		// Resize signatures array
+		char[][] typeSignatures = new char[signaturesCount+1][];
+		typeSignatures[0] = source;
+		for (int i=1, j=signaturesCount-1; i<=signaturesCount; i++, j--){
+			typeSignatures[i] = signatures[j];
+		}
+		return typeSignatures;
+	}
+
+	/**
+	 * Extract method arguments from its unique key.
+	 * 
+	 * For generic methods, type arguments are at the end of the unique key
+	 * after '%' separator.
+	 * 
+	 * Use {@link Signature#getTypeArguments(char[])} to extract these type arguments.
+	 * As this method works only on types, create a pseudo-type "Type" and add unique
+	 * key substring after '%' separator.
+	 * 
+	 * @param uniqueKey ParameterizedSourceMethod unique key
+	 * @throws IllegalArgumentException If type arguments of unique key are malformed
+	 * @return char[][] Array of type arguments or null if method has no type argument
+	 */
+	public final static char[][] extractMethodArguments(String uniqueKey) {
+		int pos = uniqueKey.indexOf('%');
+		if (pos < 0) return null;
+		String typeArguments = uniqueKey.replace('$','.').substring(+1);
+		typeArguments = "Type"+typeArguments.trim().replace('/', '.'); //$NON-NLS-1$
+		if (typeArguments.charAt(typeArguments.length()-1) != Signature.C_SEMICOLON) {
+			typeArguments += Signature.C_SEMICOLON;
+		}
+		return Signature.getTypeArguments(typeArguments.toCharArray());
+	}
+	
+	/**
+	 * Extract method receiver type from its unique key.
+	 * 
+	 * For methods, receiver type is located at the beginning of the unique key.
+	 * So receiver type signature is unique key substring starting at beginning and
+	 * ended at first ';' character not included in type arguments definition (ie.
+	 * outside <...>).
+	 * 
+	 * @param uniqueKey ParameterizedSourceMethod unique key
+	 * @throws IllegalArgumentException If receiver type signature of unique key is malformed
+	 * @return String Receiver type signature
+	 */
+	public final static String extractMethodReceiverType(String uniqueKey) {
+		// scan method unique key until first ';' outside <>
+		Scanner scanner = new Scanner(false, true, false, ClassFileConstants.JDK1_3, null, null, true); 
+		scanner.setSource(uniqueKey.toCharArray());
+		int token;
+		try {
+			token = scanner.getNextToken();
+			int argCount = 0;
+			tokensLoop: while (token != TerminalTokens.TokenNameEOF) {
+				if (argCount == 0) {
+					switch (token) {
+						case TerminalTokens.TokenNameLESS:
+							argCount++;
+							break;
+						case TerminalTokens.TokenNameSEMICOLON:
+							break tokensLoop;
+						default:
+							break;
+					}
+				} else {
+					switch (token) {
+						case TerminalTokens.TokenNameGREATER:
+						case TerminalTokens.TokenNameRIGHT_SHIFT:
+						case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
+							argCount--;
+							break;
+						case TerminalTokens.TokenNameLESS:
+							argCount++;
+							break;
+					}
+				}
+				token = scanner.getNextToken();
+			}
+		} catch (InvalidInputException e) {
+			throw new IllegalArgumentException();
+		}
+		// return extracted type
+		if (scanner.atEnd()) throw new IllegalArgumentException();
+		return uniqueKey.substring(0, scanner.currentPosition);
+	}
 }

@@ -195,8 +195,8 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 						accuracies[indexOfFirstFieldBinding] = SearchMatch.A_ACCURATE;
 						break;
 					case INACCURATE_MATCH:
-						if (fieldBinding.type.isParameterizedType() && this.pattern.isParameterized())
-							accuracies[indexOfFirstFieldBinding] = refineAccuracy(SearchMatch.A_INACCURATE, (ParameterizedTypeBinding) fieldBinding.type, this.pattern.typeArguments, locator);
+						if (fieldBinding.type.isParameterizedType() && this.pattern.hasTypeArguments())
+							accuracies[indexOfFirstFieldBinding] = refineAccuracy(SearchMatch.A_INACCURATE, (ParameterizedTypeBinding) fieldBinding.type, this.pattern.getTypeArguments(), locator);
 						else
 							accuracies[indexOfFirstFieldBinding] = SearchMatch.A_INACCURATE;
 						break;
@@ -220,8 +220,8 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 							accuracies[i] = SearchMatch.A_ACCURATE;
 							break;
 						case INACCURATE_MATCH:
-							if (otherBinding.type.isParameterizedType() && this.pattern.isParameterized())
-								accuracies[i] = refineAccuracy(SearchMatch.A_INACCURATE, (ParameterizedTypeBinding) otherBinding.type, this.pattern.typeArguments, locator);
+							if (otherBinding.type.isParameterizedType() && this.pattern.hasTypeArguments())
+								accuracies[i] = refineAccuracy(SearchMatch.A_INACCURATE, (ParameterizedTypeBinding) otherBinding.type, this.pattern.getTypeArguments(), locator);
 							else
 								accuracies[i] = SearchMatch.A_INACCURATE;
 								break;
@@ -348,7 +348,7 @@ protected int resolveLevelForType(TypeBinding typeBinding) {
 	return resolveLevelForType(
 			fieldPattern.typeSimpleName,
 			fieldPattern.typeQualification,
-			fieldPattern.typeArguments,
+			fieldPattern.getTypeArguments(),
 			0,
 			typeBinding);
 }

@@ -10,9 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeParameter;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.core.ParameterizedSourceMethod;
+import org.eclipse.jdt.internal.core.ParameterizedSourceType;
+import org.eclipse.jdt.internal.core.util.Util;
 
 
 public class JavaSearchPattern extends SearchPattern {
@@ -42,10 +50,11 @@ public class JavaSearchPattern extends SearchPattern {
 	 */
 	public static final int MATCH_RULE_INDEX_MASK = MATCH_MODE_MASK + R_CASE_SENSITIVE;
 
-	
 	// Signatures and arguments for parameterized types search
 	char[][] typeSignatures;
-	char[][][] typeArguments;
+	private char[][][] typeArguments;
+	private int flags = 0;
+	static final int HAS_TYPE_ARGUMENTS = 1;
 
 	protected JavaSearchPattern(int patternKind, int matchRule) {
 		super(matchRule);
@@ -71,93 +80,63 @@ public class JavaSearchPattern extends SearchPattern {
 		return this.isErasureMatch;
 	}
 
-	/**
-	 * Returns whether the pattern includess type arguments information or not.
-	 * @return true if pattern has signature *and* type arguments
-	 */
-	public boolean isParameterized() {
-		return this.typeArguments != null && this.typeArguments.length > 0;
-	}
-
-	/* (non-Javadoc)
-	 * Compute a IJavaElement signature or a string pattern signature to store
-	 * its type arguments. Recurse when signature is qualified to store signatures and
-	 * type arguments also for of all enclosing types.
-	 */
-	void computeSignature(String signature) {
-		// In case of IJavaElement signature, replace '/' by '.'
-		char[] source = signature.replace('/','.').replace('$','.').toCharArray();
-
-		// Init counters and arrays
-		char[][] signatures = new char[10][];
-		int signaturesCount = 0;
-		int[] lengthes = new int [10];
-		int typeArgsCount = 0;
-		int paramOpening = 0;
-		boolean parameterized = false;
-		
-		// Scan each signature character
-		for (int idx=0, ln = source.length; idx < ln; idx++) {
-			switch (source[idx]) {
-				case '>':
-					paramOpening--;
-					if (paramOpening == 0)  {
-						if (signaturesCount == lengthes.length) {
-							System.arraycopy(signatures, 0, signatures = new char[signaturesCount+10][], 0, signaturesCount);
-							System.arraycopy(lengthes, 0, lengthes = new int[signaturesCount+10], 0, signaturesCount);
-						}
-						lengthes[signaturesCount] = typeArgsCount;
-						typeArgsCount = 0;
+	char[][] extractMethodArguments(IMethod method) {
+		if (method instanceof ParameterizedSourceMethod) {
+			// Use unique key to extract signatures and type arguments
+			return Util.extractMethodArguments(((ParameterizedSourceMethod)method).uniqueKey);
+		} else {
+			try {
+				ITypeParameter[] parameters = method.getTypeParameters();
+				int length = parameters==null ? 0 : parameters.length;
+				if (length > 0) {
+					char[][] arguments = new char[length][];
+					for (int i=0; i<length; i++) {
+						arguments[i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
 					}
-					break;
-				case '<':
-					paramOpening++;
-					if (paramOpening == 1) {
-						typeArgsCount = 0;
-						parameterized = true;
-					}
-					break;
-				case '*':
-				case ';':
-					if (paramOpening == 1) typeArgsCount++;
-					break;
-				case '.':
-					if (paramOpening == 0)  {
-						if (signaturesCount == lengthes.length) {
-							System.arraycopy(signatures, 0, signatures = new char[signaturesCount+10][], 0, signaturesCount);
-							System.arraycopy(lengthes, 0, lengthes = new int[signaturesCount+10], 0, signaturesCount);
-						}
-						signatures[signaturesCount] = new char[idx+1];
-						System.arraycopy(source, 0, signatures[signaturesCount], 0, idx);
-						signatures[signaturesCount][idx] = Signature.C_SEMICOLON;
-						signaturesCount++;
-					}
-					break;
-			}
-		}
-		
-		// Store signatures and type arguments
-		this.typeSignatures = new char[signaturesCount+1][];
-		if (parameterized)
-			this.typeArguments = new char[signaturesCount+1][][];
-		this.typeSignatures[0] = source;
-		if (parameterized) {
-			this.typeArguments[0] = Signature.getTypeArguments(source);
-			if (lengthes[signaturesCount] != this.typeArguments[0].length) {
-				// TODO (frederic) abnormal signature => should raise an error
-			}
-		}
-		for (int i=1, j=signaturesCount-1; i<=signaturesCount; i++, j--){
-			this.typeSignatures[i] = signatures[j];
-			if (parameterized) {
-				this.typeArguments[i] = Signature.getTypeArguments(signatures[j]);
-				if (lengthes[j] != this.typeArguments[i].length) {
-					// TODO (frederic) abnormal signature => should raise an error
+					return arguments;
 				}
 			}
+			catch (JavaModelException jme) {
+				// do nothing
+			}
+			return null;
 		}
 	}
 
+	/**
+	 * @return Returns the typeArguments.
+	 */
+	final char[][][] getTypeArguments() {
+		return typeArguments;
+	}
+
+	/**
+	 * Returns whether the pattern has signatures or not.
+	 * If pattern {@link #typeArguments} field, this field shows that it was built
+	 * on a generic source type.
+	 * @return true if {@link #typeSignatures} field is not null and has a length greater than 0.
+	 */
+	public final boolean hasSignatures() {
+		return this.typeSignatures != null && this.typeSignatures.length > 0;
+	}
+
+	/**
+	 * Returns whether the pattern includes type arguments information or not.
+	 * @return default is false
+	 */
+	public final boolean hasTypeArguments() {
+		return (this.flags & HAS_TYPE_ARGUMENTS) != 0;
+	}
+
+	/**
+	 * Returns whether the pattern includes type parameters information or not.
+	 * @return true if {@link #typeArguments} contains type parameters instead
+	 * 	type arguments signatures.
+	 */
+	public final boolean hasTypeParameters() {
+		return !hasSignatures() && hasTypeArguments();
+	}
+	
 	/*
 	 * Optimization of implementation above (uses cached matchMode and isCaseSenistive)
 	 */
@@ -182,7 +161,7 @@ public class JavaSearchPattern extends SearchPattern {
 	}
 	protected StringBuffer print(StringBuffer output) {
 		output.append(", "); //$NON-NLS-1$
-		if (this.typeSignatures != null && this.typeSignatures.length > 0) {
+		if (hasTypeArguments() && hasSignatures()) {
 			output.append("signature:\""); //$NON-NLS-1$
 			output.append(this.typeSignatures[0]);
 			output.append("\", "); //$NON-NLS-1$
@@ -205,6 +184,62 @@ public class JavaSearchPattern extends SearchPattern {
 		if (isErasureMatch())
 			output.append(", erasure only"); //$NON-NLS-1$
 		return output;
+	}
+	/**
+	 * @param typeArguments The typeArguments to set.
+	 */
+	final void setTypeArguments(char[][][] typeArguments) {
+		this.typeArguments = typeArguments;
+		// update flags
+		if (this.typeArguments != null) {
+			int length = this.typeArguments.length;
+			for (int i=0; i<length; i++) {
+				if (this.typeArguments[i] != null && this.typeArguments[i].length > 0) {
+					this.flags |= HAS_TYPE_ARGUMENTS;
+					break;
+				}
+			}
+		}
+	}
+	void storeTypeSignaturesAndArguments(IType type) {
+		if (type instanceof ParameterizedSourceType) {
+			// Use unique key to extract signatures and type arguments
+			this.typeSignatures = Util.splitTypeLevelsSignature(((ParameterizedSourceType)type).uniqueKey);
+			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
+		} else {
+			// Scan hierachy to store type arguments at each level
+			char[][][] typeParameters = new char[10][][];
+			int ptr = -1;
+			boolean hasParameters = false;
+			try {
+				IJavaElement parent = type;
+				ITypeParameter[] parameters = null;
+				while (parent != null && parent.getElementType() == IJavaElement.TYPE) {
+					if (++ptr > typeParameters.length) {
+						System.arraycopy(typeParameters, 0, typeParameters = new char[typeParameters.length+10][][], 0, ptr);
+					}
+					IType parentType = (IType) parent;
+					parameters = parentType.getTypeParameters();
+					int length = parameters==null ? 0 : parameters.length;
+					if (length > 0) {
+						hasParameters = true;
+						typeParameters[ptr] = new char[length][];
+						for (int i=0; i<length; i++)
+							typeParameters[ptr][i] = Signature.createTypeSignature(parameters[i].getElementName(), false).toCharArray();
+					}
+					parent = parent.getParent();
+				}
+			}
+			catch (JavaModelException jme) {
+				return;
+			}
+			// Store type arguments if any
+			if (hasParameters) {
+				if (++ptr < typeParameters.length)
+					System.arraycopy(typeParameters, 0, typeParameters = new char[ptr][][], 0, ptr);
+				setTypeArguments(typeParameters);
+			}
+		}
 	}
 	public final String toString() {
 		return print(new StringBuffer(30)).toString();

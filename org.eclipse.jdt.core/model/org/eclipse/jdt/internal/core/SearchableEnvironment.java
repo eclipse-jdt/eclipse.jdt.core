@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
-import org.eclipse.jdt.internal.core.search.SearchBasicEngine;
+import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 
 /**
  *	This class provides a <code>SearchableBuilderEnvironment</code> for code assist which
@@ -59,9 +59,9 @@ public class SearchableEnvironment
 
 		// Create search scope with visible entry on the project's classpath
 		if(this.checkAccessRestrictions) {
-			this.searchScope = SearchBasicEngine.createJavaSearchScope(new IJavaElement[] {project});
+			this.searchScope = BasicSearchEngine.createJavaSearchScope(new IJavaElement[] {project});
 		} else {
-			this.searchScope = SearchBasicEngine.createJavaSearchScope(this.nameLookup.packageFragmentRoots);
+			this.searchScope = BasicSearchEngine.createJavaSearchScope(this.nameLookup.packageFragmentRoots);
 		}
 	}
 
@@ -316,7 +316,7 @@ public class SearchableEnvironment
 				}
 			};
 			try {
-				new SearchBasicEngine(this.workingCopies).searchAllTypeNames(
+				new BasicSearchEngine(this.workingCopies).searchAllTypeNames(
 					qualification,
 					simpleName,
 					SearchPattern.R_PREFIX_MATCH, // not case sensitive

@@ -410,7 +410,7 @@ protected void parseAndBuildBindings(PossibleMatch possibleMatch, boolean mustRe
 		throw new OperationCanceledException();
 
 	try {
-		if (SearchBasicEngine.VERBOSE)
+		if (BasicSearchEngine.VERBOSE)
 			System.out.println("Parsing " + possibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
 
 		this.parser.nodeSet = possibleMatch.nodeSet;
@@ -732,7 +732,6 @@ public MethodBinding getMethodBinding(IMethod method) {
 		return null;
 	}
 	//	Get binding from unit scope
-	MethodBinding methodBinding = null;
 	String typeName = method.getDeclaringType().getElementName();
 	TypeBinding declaringTypeBinding = getType(typeName, typeName.toCharArray());
 	if (declaringTypeBinding != null) {
@@ -741,15 +740,54 @@ public MethodBinding getMethodBinding(IMethod method) {
 		}
 		if (!declaringTypeBinding.isBaseType()) {
 			String[] parameterTypes = method.getParameterTypes();
-			int length = parameterTypes.length;
-			TypeBinding[] parameters = new TypeBinding[length];
-			for (int i=0;  i<length; i++) {
-				parameters[i] = this.unitScope.getType(Signature.toCharArray(parameterTypes[i].toCharArray()));
+			int paramTypeslength = parameterTypes.length;
+			char[][] paramTypesChars = new char[paramTypeslength][];
+			for (int i=0;  i<paramTypeslength; i++) {
+				paramTypesChars[i] = Signature.toCharArray(parameterTypes[i].toCharArray());
 			}
 			ReferenceBinding referenceBinding = (ReferenceBinding) declaringTypeBinding;
-			methodBinding = referenceBinding.getExactMethod(method.getElementName().toCharArray(), parameters);
-			this.bindings.put(method, methodBinding);
-			return methodBinding;
+			MethodBinding[] methods = referenceBinding.getMethods(method.getElementName().toCharArray());
+			int methodsLength = methods.length;
+			TypeVariableBinding[] refTypeVariables = referenceBinding.typeVariables();
+			int typeVarLength = refTypeVariables==null ? 0 : refTypeVariables.length;
+			for (int i=0; i<methodsLength; i++) {
+				TypeBinding[] methodParameters = methods[i].parameters;
+				int paramLength = methodParameters==null ? 0 : methodParameters.length;
+				TypeVariableBinding[] methodTypeVariables = methods[i].typeVariables;
+				int methTypeVarLength = methodTypeVariables==null ? 0 : methodTypeVariables.length;
+				boolean found = paramLength == paramTypeslength;
+				if (found) {
+					for (int p=0; found && p<paramLength; p++) {
+						if (CharOperation.equals(methodParameters[p].erasure().shortReadableName(), paramTypesChars[p])) {
+							// param erasure match
+						} else {
+							// type variable
+							boolean foundVar = true;
+							for (int v=0; foundVar && v<typeVarLength; v++) {
+								if (!CharOperation.equals(refTypeVariables[v].sourceName, paramTypesChars[p])) {
+									foundVar = false;
+								}
+							}
+							if (!foundVar) {
+								foundVar = true;
+								for (int v=0; foundVar && v<methTypeVarLength; v++) {
+									if (!CharOperation.equals(methodTypeVariables[v].sourceName, paramTypesChars[p])) {
+										foundVar = false;
+									}
+								}
+								if (!foundVar) found = false;
+							}
+						}
+					}
+				}
+				if (found) {
+					this.bindings.put(method, methods[i]);
+					return methods[i];
+				}
+			}
+//			methodBinding = referenceBinding.getExactMethod(method.getElementName().toCharArray(), parameters);
+//			this.bindings.put(method, methodBinding);
+//			return methodBinding;
 		}
 	}
 	this.bindings.put(method, new ProblemMethodBinding(method.getElementName().toCharArray(), null, ProblemReasons.NotFound));
@@ -896,7 +934,7 @@ protected void locateMatches(JavaProject javaProject, PossibleMatchSet matchSet,
  */
 public void locateMatches(SearchDocument[] searchDocuments) throws CoreException {
 	int docsLength = searchDocuments.length;
-	if (SearchBasicEngine.VERBOSE) {
+	if (BasicSearchEngine.VERBOSE) {
 		System.out.println("Locating matches in documents ["); //$NON-NLS-1$
 		for (int i = 0; i < docsLength; i++)
 			System.out.println("\t" + searchDocuments[i]); //$NON-NLS-1$
@@ -1270,7 +1308,7 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 		getMethodBodies(unit);
 
 		if (bindingsWereCreated && ((InternalSearchPattern)this.pattern).mustResolve && unit.types != null) {
-			if (SearchBasicEngine.VERBOSE)
+			if (BasicSearchEngine.VERBOSE)
 				System.out.println("Resolving " + this.currentPossibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
 
 			reduceParseTree(unit);
@@ -1339,11 +1377,15 @@ public SearchParticipant getParticipant() {
 
 protected void report(SearchMatch match) throws CoreException {
 	long start = -1;
-	if (SearchBasicEngine.VERBOSE) {
+	if (BasicSearchEngine.VERBOSE) {
 		start = System.currentTimeMillis();
 		System.out.println("Reporting match"); //$NON-NLS-1$
 		System.out.println("\tResource: " + match.getResource()); //$NON-NLS-2$//$NON-NLS-1$
 		System.out.println("\tPositions: [offset=" + match.getOffset() + ", length=" + match.getLength() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if (this.parser != null) {
+			String selection = new String(this.parser.scanner.source, match.getOffset(), match.getLength());
+			System.out.println("\tSelection: -->" + selection + "<--"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		System.out.println("\tJava element: " + ((JavaElement)match.getElement()).toStringWithAncestors()); //$NON-NLS-1$
 		System.out.println(match.getAccuracy() == SearchMatch.A_ACCURATE
 			? "\tAccuracy: EXACT_MATCH" //$NON-NLS-1$
@@ -1362,7 +1404,7 @@ protected void report(SearchMatch match) throws CoreException {
 		}
 	}
 	this.requestor.acceptSearchMatch(match);
-	if (SearchBasicEngine.VERBOSE)
+	if (BasicSearchEngine.VERBOSE)
 		this.resultCollectorTime += System.currentTimeMillis()-start;
 }
 /**
@@ -1425,7 +1467,7 @@ protected void reportAccurateParameterizedTypeReference(TypeReference typeRef, i
 
 		
 		JavaSearchPattern javaSearchPattern = (JavaSearchPattern)this.pattern;
-		if (javaSearchPattern.isErasureMatch || javaSearchPattern.typeSignatures == null) {
+		if (javaSearchPattern.isErasureMatch || !javaSearchPattern.hasSignatures()) {
 			// if pattern is erasure only, then select the end of the reference
 			if (typeRef instanceof QualifiedTypeReference && index >= 0) {
 				long[] positions = ((QualifiedTypeReference) typeRef).sourcePositions;

@@ -385,6 +385,21 @@ public final char[] getCurrentTokenSource() {
 	}
 	return result;
 }
+public final String getCurrentTokenString() {
+	// Return current token as a string
+
+	if (this.withoutUnicodePtr != 0) {
+		// 0 is used as a fast test flag so the real first char is in position 1
+		return new String(
+			this.withoutUnicodeBuffer, 
+			1, 
+			this.withoutUnicodePtr);
+	}
+	return new String(
+		this.source, 
+		this.startPosition, 
+		this.currentPosition - this.startPosition); 
+}
 public final char[] getCurrentTokenSourceString() {
 	//return the token REAL source (aka unicodes are precomputed).
 	//REMOVE the two " that are at the beginning and the end.

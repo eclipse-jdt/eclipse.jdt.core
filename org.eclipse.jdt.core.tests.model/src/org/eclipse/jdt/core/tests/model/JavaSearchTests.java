@@ -12,322 +12,23 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 
 import junit.framework.Test;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
-import org.eclipse.jdt.internal.core.PackageFragment;
-import org.eclipse.jdt.internal.core.ParameterizedSourceType;
-import org.eclipse.jdt.internal.core.SourceRefElement;
-import org.eclipse.jdt.internal.core.SourceType;
 
 /**
  * Tests the Java search engine where results are JavaElements and source positions.
  */
-public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSearchConstants {
-
-	public static List TEST_SUITES = null;
-	protected static IJavaProject JAVA_PROJECT;
-	protected static boolean COPY_DIRS = true;
-
-	/**
-	 * Collects results as a string.
-	 */
-	public static class JavaSearchResultCollector extends SearchRequestor {
-		public StringBuffer results = new StringBuffer();
-		public boolean showAccuracy;
-		public boolean showContext;
-		public boolean showRule;
-		public boolean showInsideDoc;
-		public boolean showProject;
-		public boolean showSynthetic;
-		public void acceptSearchMatch(SearchMatch match) throws CoreException {
-			try {
-				if (results.length() > 0) results.append("\n");
-				IResource resource = match.getResource();
-				IJavaElement element = (IJavaElement) match.getElement();
-				results.append(getPathString(resource, element));
-				if (this.showProject) {
-					IProject project = element.getJavaProject().getProject();
-					results.append(" [in ");
-					results.append(project.getName());
-					results.append("]");
-				}
-				ICompilationUnit unit = null;
-				if (element instanceof IMethod) {
-					results.append(" ");
-					IMethod method = (IMethod)element;
-					append(method);
-					unit = method.getCompilationUnit();
-				} else if (element instanceof IType) {
-					results.append(" ");
-					IType type = (IType)element;
-					append(type);
-					unit = type.getCompilationUnit();
-				} else if (element instanceof IField) {
-					results.append(" ");
-					IField field = (IField)element;
-					append(field);
-					unit = field.getCompilationUnit();
-				} else if (element instanceof IInitializer) {
-					results.append(" ");
-					IInitializer initializer = (IInitializer)element;
-					append(initializer);
-					unit = initializer.getCompilationUnit();
-				} else if (element instanceof IPackageFragment) {
-					results.append(" ");
-					append((IPackageFragment)element);
-				} else if (element instanceof ILocalVariable) {
-					results.append(" ");
-					ILocalVariable localVar = (ILocalVariable)element;
-					IJavaElement parent = localVar.getParent();
-					if (parent instanceof IInitializer) {
-						IInitializer initializer = (IInitializer)parent;
-						append(initializer);
-					} else { // IMethod
-						IMethod method = (IMethod)parent;
-						append(method);
-					}
-					results.append(".");
-					results.append(localVar.getElementName());
-					unit = (ICompilationUnit)localVar.getAncestor(IJavaElement.COMPILATION_UNIT);
-				}
-				if (resource instanceof IFile) {
-					char[] contents = getSource(resource, element, unit);
-					int start = match.getOffset();
-					int end = start + match.getLength();
-					if (start == -1 || (contents != null && contents.length > 0)) { // retrieving attached source not implemented here
-						results.append(" [");
-						if (start > -1) {
-							if (this.showContext) {
-								int lineStart1 = CharOperation.lastIndexOf('\n', contents, 0, start);
-								int lineStart2 = CharOperation.lastIndexOf('\r', contents, 0, start);
-								int lineStart = Math.max(lineStart1, lineStart2) + 1;
-								results.append(CharOperation.subarray(contents, lineStart, start));
-								results.append("<");
-							}
-							results.append(CharOperation.subarray(contents, start, end));
-							if (this.showContext) {
-								results.append(">");
-								int lineEnd1 = CharOperation.indexOf('\n', contents, end);
-								int lineEnd2 = CharOperation.indexOf('\r', contents, end);
-								int lineEnd = lineEnd1 > 0 && lineEnd2 > 0 ? Math.min(lineEnd1, lineEnd2) : Math.max(lineEnd1, lineEnd2);
-								if (lineEnd == -1) lineEnd = contents.length;
-								results.append(CharOperation.subarray(contents, end, lineEnd));
-							}
-						} else {
-							results.append("No source");
-						}
-						results.append("]");
-					}
-				}
-				if (this.showAccuracy) {
-					results.append(" ");
-					switch (match.getAccuracy()) {
-						case SearchMatch.A_ACCURATE:
-							if (this.showRule) {
-								int rule = match.getMatchRule();
-								if ((rule & SearchPattern.R_EQUIVALENT_MATCH) != 0) {
-									this.results.append("EQUIVALENT_");
-									if ((rule & SearchPattern.R_ERASURE_MATCH) != 0)
-										this.results.append("ERASURE_");
-								} else if ((rule & SearchPattern.R_ERASURE_MATCH) != 0) {
-									this.results.append("ERASURE_");
-								} else {
-									results.append("EXACT_");
-								}
-								results.append("MATCH");
-							} else {
-								results.append("EXACT_MATCH");
-							}
-							break;
-						case SearchMatch.A_INACCURATE:
-							results.append("POTENTIAL_MATCH");
-							break;
-					}
-				}
-				if (this.showInsideDoc) {
-					results.append(" ");
-					if (match.isInsideDocComment()) {
-						results.append("INSIDE_JAVADOC");
-					} else {
-						results.append("OUTSIDE_JAVADOC");
-					}
-				}
-				if (this.showSynthetic) {
-					if (match instanceof MethodReferenceMatch) {
-						MethodReferenceMatch methRef = (MethodReferenceMatch) match;
-						if (methRef.isSynthetic()) {
-							results.append(" SYNTHETIC");
-						}
-					}
-				}
-			} catch (JavaModelException e) {
-				results.append("\n");
-				results.append(e.toString());
-			}
-		}
-		private void append(IField field) throws JavaModelException {
-			append(field.getDeclaringType());
-			results.append(".");
-			results.append(field.getElementName());
-		}
-		private void append(IInitializer initializer) throws JavaModelException {
-			append(initializer.getDeclaringType());
-			results.append(".");
-			if (Flags.isStatic(initializer.getFlags())) {
-				results.append("static ");
-			}
-			results.append("{}");
-		}
-		private void append(IMethod method) throws JavaModelException {
-			if (!method.isConstructor()) {
-				results.append(Signature.toString(method.getReturnType()));
-				results.append(" ");
-			}
-			append(method.getDeclaringType());
-			if (!method.isConstructor()) {
-				results.append(".");
-				results.append(method.getElementName());
-			}
-			results.append("(");
-			String[] parameters = method.getParameterTypes();
-			boolean varargs = Flags.isVarargs(method.getFlags());
-			for (int i = 0, length=parameters.length; i<length; i++) {
-				if (i < length - 1) {
-					results.append(Signature.toString(parameters[i]));
-					results.append(", "); //$NON-NLS-1$
-				} else if (varargs) {
-					// remove array from signature
-					String parameter = parameters[i].substring(1);
-					results.append(Signature.toString(parameter));
-					results.append(" ..."); //$NON-NLS-1$
-				} else {
-					results.append(Signature.toString(parameters[i]));
-				}
-			}
-			results.append(")");
-		}
-		private void append(IPackageFragment pkg) {
-			results.append(pkg.getElementName());
-		}
-		private void append(IType type) throws JavaModelException {
-			IJavaElement parent = type.getParent();
-			boolean isLocal = false;
-			switch (parent.getElementType()) {
-				case IJavaElement.COMPILATION_UNIT:
-					IPackageFragment pkg = type.getPackageFragment();
-					append(pkg);
-					if (!pkg.getElementName().equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
-						results.append(".");
-					}
-					break;
-				case IJavaElement.CLASS_FILE:
-					IType declaringType = type.getDeclaringType();
-					if (declaringType != null) {
-						append(type.getDeclaringType());
-						results.append("$");
-					} else {
-						pkg = type.getPackageFragment();
-						append(pkg);
-						if (!pkg.getElementName().equals(IPackageFragment.DEFAULT_PACKAGE_NAME)) {
-							results.append(".");
-						}
-					}
-					break;
-				case IJavaElement.TYPE:
-					append((IType)parent);
-					results.append("$");
-					break;
-				case IJavaElement.FIELD:
-					append((IField)parent);
-					isLocal = true;
-					break;
-				case IJavaElement.INITIALIZER:
-					append((IInitializer)parent);
-					isLocal = true;
-					break;
-				case IJavaElement.METHOD:
-					append((IMethod)parent);
-					isLocal = true;
-					break;
-			}
-			if (isLocal) {
-				results.append(":");
-			}
-			String typeName = type.getElementName();
-			if (typeName.length() == 0) {
-				results.append("<anonymous>");
-			} else {
-				results.append(typeName);
-			}
-			if (isLocal) {
-				results.append("#");
-				results.append(((SourceRefElement)type).occurrenceCount);
-			}
-		}
-		protected String getPathString(IResource resource, IJavaElement element) {
-			String pathString;
-			if (resource != null) {
-				IPath path = resource.getProjectRelativePath();
-				if (path.segmentCount() == 0) {
-					IJavaElement root = element;
-					while (root != null && !(root instanceof IPackageFragmentRoot)) {
-						root = root.getParent();
-					}
-					if (root != null) {
-						IPackageFragmentRoot pkgFragmentRoot = (IPackageFragmentRoot)root;
-						if (pkgFragmentRoot.isExternal()) {
-							pathString = pkgFragmentRoot.getPath().toOSString();
-						} else {
-							pathString = pkgFragmentRoot.getPath().toString();
-						}
-					} else {
-						pathString = "";
-					}
-				} else {
-					pathString = path.toString();
-				}
-			} else {
-				pathString = element.getPath().toString();
-			}
-			return pathString;
-		}
-		protected char[] getSource(IResource resource, IJavaElement element, ICompilationUnit unit) throws CoreException {
-			char[] contents = CharOperation.NO_CHAR;
-			if ("java".equals(resource.getFileExtension())) {
-				ICompilationUnit cu = (ICompilationUnit)element.getAncestor(IJavaElement.COMPILATION_UNIT);
-				if (cu != null && cu.isWorkingCopy()) {
-					// working copy
-					contents = unit.getBuffer().getCharacters();
-				} else {
-					IFile file = ((IFile) resource);
-					contents = new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(
-						null, 
-						file.getLocation().toFile().getPath(),
-						file.getCharset()).getContents();
-				}
-			}
-			return contents;
-		}
-		public String toString() {
-			return results.toString();
-		}
-	}
-	
-	protected JavaSearchResultCollector resultCollector;
+public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSearchConstants {
 
 	public JavaSearchTests(String name) {
-		super(name, 3);
-		this.displayName = true;
+		super(name);
 	}
 	public static Test suite() {
 		return buildTestSuite(JavaSearchTests.class);
@@ -335,210 +36,11 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
-	//	TESTS_PREFIX =  "testVarargs";
-//		TESTS_NAMES = new String[] { "testAutoBoxing01" };
+//		TESTS_PREFIX =  "testField";
+//		TESTS_NAMES = new String[] { "testConstructorReference09", "testMethodReference16" };
 	//	TESTS_NUMBERS = new int[] { 79860, 79803, 73336 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
 		}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#copyDirectory(java.io.File, java.io.File)
-	 */
-	protected void copyDirectory(File sourceDir, File targetDir) throws IOException {
-		if (COPY_DIRS) {
-			super.copyDirectory(sourceDir, targetDir);
-		} else {
-			targetDir.mkdirs();
-			File sourceFile = new File(sourceDir, ".project");
-			File targetFile = new File(targetDir, ".project");
-			targetFile.createNewFile();
-			copy(sourceFile, targetFile);
-			sourceFile = new File(sourceDir, ".classpath");
-			targetFile = new File(targetDir, ".classpath");
-			targetFile.createNewFile();
-			copy(sourceFile, targetFile);
-		}
-	}
-
-	IJavaSearchScope getJavaSearchScope() {
-		return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch")});
-	}
-	IJavaSearchScope getJavaSearchScope15() {
-		return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearch15")});
-	}
-	IJavaSearchScope getJavaSearchScope15(String packageName, boolean addSubpackages) throws JavaModelException {
-		if (packageName == null) return getJavaSearchScope15();
-		return getJavaSearchPackageScope("JavaSearch15", packageName, addSubpackages);
-	}
-	IJavaSearchScope getJavaSearchPackageScope(String projectName, String packageName, boolean addSubpackages) throws JavaModelException {
-		IPackageFragment fragment = getPackageFragment(projectName, "src", packageName);
-		if (fragment == null) return null;
-		IJavaElement[] searchPackages = null;
-		if (addSubpackages) {
-			// Create list of package with first found one
-			List packages = new ArrayList();
-			packages.add(fragment);
-			// Add all possible subpackages
-			IJavaElement[] children= ((IPackageFragmentRoot)fragment.getParent()).getChildren();
-			String[] names = ((PackageFragment)fragment).names;
-			int namesLength = names.length;
-			nextPackage: for (int i= 0, length = children.length; i < length; i++) {
-				PackageFragment currentPackage = (PackageFragment) children[i];
-				String[] otherNames = currentPackage.names;
-				if (otherNames.length <= namesLength) continue nextPackage;
-				for (int j = 0; j < namesLength; j++) {
-					if (!names[j].equals(otherNames[j]))
-						continue nextPackage;
-				}
-				packages.add(currentPackage);
-			}
-			searchPackages = new IJavaElement[packages.size()];
-			packages.toArray(searchPackages);
-		} else {
-			searchPackages = new IJavaElement[1];
-			searchPackages[0] = fragment;
-		}
-		return SearchEngine.createJavaSearchScope(searchPackages);
-	}
-	IJavaSearchScope getJavaSearchCUScope(String projectName, String packageName, String cuName) throws JavaModelException {
-		ICompilationUnit cu = getCompilationUnit(projectName, "src", packageName, cuName);
-		return SearchEngine.createJavaSearchScope(new ICompilationUnit[] { cu });
-	}
-	/*
-	 * Overrides super method to create parent folders if necessary
-	 */
-	public ICompilationUnit getWorkingCopy(String fileName, String source) throws JavaModelException {
-		try {
-			createFolder(new Path(fileName).removeLastSegments(1));
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-		return super.getWorkingCopy(fileName, source);
-	}	
-	protected void search(SearchPattern searchPattern, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		new SearchEngine().search(
-			searchPattern, 
-			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			scope,
-			requestor,
-			null);
-	}
-	protected void searchDeclarationsOfAccessedFields(IJavaElement enclosingElement, SearchRequestor requestor) throws JavaModelException {
-		new SearchEngine().searchDeclarationsOfAccessedFields(enclosingElement, requestor, null);
-	}
-	protected void searchDeclarationsOfReferencedTypes(IJavaElement enclosingElement, SearchRequestor requestor) throws JavaModelException {
-		new SearchEngine().searchDeclarationsOfReferencedTypes(enclosingElement, requestor, null);
-	}
-	protected void searchDeclarationsOfSentMessages(IJavaElement enclosingElement, SearchRequestor requestor) throws JavaModelException {
-		new SearchEngine().searchDeclarationsOfSentMessages(enclosingElement, requestor, null);
-	}
-
-	/*
-	 * Search several occurences of a selection in a compilation unit source and returns its start and length.
-	 * If occurence is negative, then perform a backward search from the end of file.
-	 * If selection starts or ends with a comment (to help identification in source), it is removed from returned selection info.
-	 */
-	private int[] selectionInfo(ICompilationUnit cu, String selection, int occurences) throws JavaModelException {
-		String source = cu.getSource();
-		int index = occurences < 0 ? source.lastIndexOf(selection) : source.indexOf(selection);
-		int max = Math.abs(occurences)-1;
-		for (int n=0; index >= 0 && n<max; n++) {
-			index = occurences < 0 ? source.lastIndexOf(selection, index) : source.indexOf(selection, index+selection.length());
-		}
-		StringBuffer msg = new StringBuffer("Selection '");
-		msg.append(selection);
-		if (index >= 0) {
-			if (selection.startsWith("/**")) { // comment is before
-				int start = source.indexOf("*/", index);
-				if (start >=0) {
-					return new int[] { start+2, selection.length()-(start+2-index) };
-				} else {
-					msg.append("' starts with an unterminated comment");
-				}
-			} else if (selection.endsWith("*/")) { // comment is after
-				int end = source.lastIndexOf("/**", index+selection.length());
-				if (end >=0) {
-					return new int[] { index, index-end };
-				} else {
-					msg.append("' ends with an unstartted comment");
-				}
-			} else { // no comment => use whole selection
-				return new int[] { index, selection.length() };
-			}
-		} else {
-			msg.append("' was not found in ");
-		}
-		msg.append(cu.getElementName());
-		msg.append(":\n");
-		msg.append(source);
-		assertTrue(msg.toString(), false);
-		return null;
-	}
-
-	/**
-	 * Select a parameterized source type in a compilation unit identified with the first occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @return ParameterizedSourceType
-	 * @throws JavaModelException
-	 */
-	protected ParameterizedSourceType selectParameterizedType(ICompilationUnit unit, String selection) throws JavaModelException {
-		return selectParameterizedType(unit, selection, 1);
-	}
-	
-	/**
-	 * Select a parameterized source type in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
-	 * @return ParameterizedSourceType
-	 * @throws JavaModelException
-	 */
-	protected ParameterizedSourceType selectParameterizedType(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
-		IType type = selectType(unit, selection, occurences);
-		assertTrue("Not a parameterized source type: "+type.getElementName(), type instanceof ParameterizedSourceType);
-		return (ParameterizedSourceType) type;
-	}
-
-	/**
-	 * Select a source type in a compilation unit identified with the first occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @return IType
-	 * @throws JavaModelException
-	 */
-	protected IType selectType(ICompilationUnit unit, String selection) throws JavaModelException {
-		return selectType(unit, selection, 1);
-	}
-
-	/**
-	 * Select a parameterized source type in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
-	 * @return IType
-	 * @throws JavaModelException
-	 */
-	protected IType selectType(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
-		IJavaElement element = selectJavaElement(unit, selection, occurences);
-		assertTrue("Not a source type: "+element.getElementName(), element instanceof SourceType);
-		return (SourceType) element;
-	}
-
-	/**
-	 * Select a java element in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
-	 * @return IJavaElement
-	 * @throws JavaModelException
-	 */
-	protected IJavaElement selectJavaElement(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
-		int[] selectionPositions = selectionInfo(unit, selection, occurences);
-		IJavaElement[] elements = unit.codeSelect(selectionPositions[0], selectionPositions[1]);
-		assertEquals("Invalid selection number", 1, elements.length);
-		return elements[0];
-	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#setUpSuite()
@@ -565,17 +67,12 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	
 		super.tearDownSuite();
 	}
-	protected void setUp () throws Exception {
-		this.resultCollector = new JavaSearchResultCollector();
-		super.setUp();
-	}
 	/**
 	 * Simple constructor declaration test.
 	 */
 	public void testConstructorDeclaration01() throws CoreException { // was testSimpleConstructorDeclaration
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 		IMethod constructor = type.getMethod("A", new String[] {"QX;"});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			constructor, 
 			DECLARATIONS, 
@@ -589,7 +86,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testConstructorDeclaration02() throws CoreException { // was testConstructorDeclarationInJar
 		IType type = getClassFile("JavaSearch", "MyJar.jar", "p1", "A.class").getType();
 		IMethod method = type.getMethod("A", new String[] {"Ljava.lang.String;"});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			method, 
 			DECLARATIONS, 
@@ -605,7 +101,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testConstructorReference01() throws CoreException { // was testSimpleConstructorReference1
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 		IMethod constructor = type.getMethod("A", new String[] {"QX;"});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			constructor, 
 			REFERENCES, 
@@ -619,7 +114,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * Simple constructor reference test.
 	 */
 	public void testConstructorReference02() throws CoreException { // was testSimpleConstructorReference2
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			"p.A(X)", 
 			CONSTRUCTOR,
@@ -636,7 +130,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testConstructorReference03() throws CoreException { // was testConstructorReferenceExplicitConstructorCall1
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "Y.java").getType("Y");
 		IMethod method = type.getMethod("Y", new String[] {"I"});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			method, 
 			REFERENCES, 
@@ -652,7 +145,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testConstructorReference04() throws CoreException { // was testConstructorReferenceExplicitConstructorCall2
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 		IMethod method = type.getMethod("X", new String[] {"I"});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			method, 
 			REFERENCES, 
@@ -670,7 +162,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testConstructorReference05() throws CoreException { // was testConstructorReferenceImplicitConstructorCall1
 		IType type = getCompilationUnit("JavaSearch", "src", "c7", "X.java").getType("X");
 		IMethod method = type.getMethod("X", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			method, 
 			REFERENCES, 
@@ -685,7 +176,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * (regression test for bug 23112 search: need a way to search for references to the implicit non-arg constructor)
 	 */
 	public void testConstructorReference06() throws CoreException { // was testConstructorReferenceImplicitConstructorCall2
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			"c8.X()", 
 			CONSTRUCTOR, 
@@ -703,7 +193,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testConstructorReference07() throws CoreException { // was testConstructorReferenceInFieldInitializer
 		IType type = getCompilationUnit("JavaSearch", "src", "", "A.java").getType("A").getType("Inner");
 		IMethod method = type.getMethod("Inner", new String[] {"I"});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			method, 
 			REFERENCES, 
@@ -719,7 +208,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * (regression test for bug 43276)
 	 */
 	public void testConstructorReference08() throws CoreException { // was testConstructorReferenceDefaultConstructorOfMemberClass
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			"c10.X.Inner()", 
 			CONSTRUCTOR, 
@@ -736,10 +224,10 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testConstructorReference09() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/p2/X.java").getType("X");
 		IMethod method = type.getMethod("X", new String[] {"QE;"});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			method, 
 			REFERENCES, 
+			ERASURE_RULE,
 			getJavaSearchScope15(), 
 			this.resultCollector);
 		assertSearchResults(
@@ -751,7 +239,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * (regression test for bug 23112 search: need a way to search for references to the implicit non-arg constructor)
 	 */
 	public void testConstructorReference10() throws CoreException { // was testConstructorReferenceImplicitConstructorCall2
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showSynthetic = true;
 		search(
 			"c11.A()", 
@@ -796,7 +283,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		IMethod method = 
 			getCompilationUnit("JavaSearch", "src", "a5", "B.java").
 				getType("C").getMethod("i", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		searchDeclarationsOfAccessedFields(
 			method, 
 			resultCollector
@@ -813,7 +299,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		IMethod method = 
 			getCompilationUnit("JavaSearch", "src", "a6", "A.java").
 				getType("B").getMethod("m", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		searchDeclarationsOfAccessedFields(
 			method, 
 			resultCollector
@@ -830,7 +315,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		IMethod method = 
 			getCompilationUnit("JavaSearch", "src", "b6", "A.java").
 				getType("A").getMethod("foo", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		searchDeclarationsOfAccessedFields(
 			method, 
 			resultCollector
@@ -846,7 +330,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		IMethod method = 
 			getCompilationUnit("JavaSearch", "src", "a3", "References.java").
 				getType("References").getMethod("foo", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		searchDeclarationsOfReferencedTypes(
 			method, 
 			resultCollector
@@ -870,7 +353,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		IMethod method = 
 			getCompilationUnit("JavaSearch", "src", "a7", "X.java").
 				getType("X").getMethod("foo", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		searchDeclarationsOfReferencedTypes(
 			method, 
 			resultCollector
@@ -885,7 +367,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testDeclarationOfReferencedTypes03() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "c1", "A.java");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		searchDeclarationsOfReferencedTypes(
 			unit, 
 			resultCollector
@@ -900,7 +381,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testDeclarationOfReferencedTypes04() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "c1", "B.java");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		searchDeclarationsOfReferencedTypes(
 			unit, 
 			resultCollector
@@ -915,7 +395,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testDeclarationOfReferencedTypes05() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "c2", "A.java");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		searchDeclarationsOfReferencedTypes(
 			unit, 
 			resultCollector
@@ -931,7 +410,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testDeclarationOfReferencedTypes06() throws CoreException {
 		ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "d1", "X.java");
 		IType innerType = unit.getType("X").getType("Inner");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		searchDeclarationsOfReferencedTypes(
 			innerType, 
 			resultCollector
@@ -947,7 +425,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testDeclarationOfReferencedTypes07() throws CoreException {
 		IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "r7");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		searchDeclarationsOfReferencedTypes(
 			pkg, 
 			resultCollector
@@ -1011,7 +488,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testDeclarationsOfSentMessages01() throws CoreException { // was testSimpleDeclarationsOfSentMessages
 		ICompilationUnit cu = getCompilationUnit("JavaSearch", "src", "", "Test.java");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		searchDeclarationsOfSentMessages(
 			cu, 
 			this.resultCollector);
@@ -1031,7 +507,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		IMethod method = 
 			getCompilationUnit("JavaSearch", "src", "a5", "B.java").
 				getType("C").getMethod("i", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		searchDeclarationsOfSentMessages(
 			method, 
 			resultCollector
@@ -1046,7 +521,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldDeclaration01() throws CoreException { // was testSimpleFieldDeclaration
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 		IField field = type.getField("x");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			DECLARATIONS, 
@@ -1062,7 +536,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldDeclaration02() throws CoreException { // was testFieldDeclarationInJar
 		IType type = getClassFile("JavaSearch", "MyJar.jar", "p1", "A.class").getType();
 		IField field = type.getField("field");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			DECLARATIONS, 
@@ -1081,7 +554,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldDeclaration03() throws CoreException { // was testFieldDeclarationArrayType
 		IType type = getCompilationUnit("JavaSearch", "src", "", "B.java").getType("B");
 		IField field = type.getField("open");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			DECLARATIONS, 
@@ -1096,7 +568,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * (regression test for bug 21763 Problem in Java search [search]  )
 	 */
 	public void testFieldDeclaration04() throws CoreException { // was testFieldDeclarationWithWildCard
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			"class*path", 
 			FIELD,
@@ -1114,7 +585,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference01() throws CoreException { // was testFieldReference
 		IType type = getCompilationUnit("JavaSearch", "src", "p8", "A.java").getType("A");
 		IField field = type.getField("g");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			REFERENCES, 
@@ -1132,7 +602,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference02() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "p9", "X.java").getType("X");
 		IField field = type.getField("f");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			REFERENCES, 
@@ -1149,7 +618,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference03() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "q8", "EclipseTest.java").getType("EclipseTest");
 		IField field = type.getField("test");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			REFERENCES, 
@@ -1166,7 +634,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference04() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "a2", "X.java").getType("X");
 		IField field = type.getField("length");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			REFERENCES, 
@@ -1183,7 +650,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference05() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "b1", "A.java").getType("A");
 		IField field = type.getField("x");
-		
+
 		// Set 1.4 compliance level (no constant yet)
 		Hashtable options = JavaCore.getOptions();
 		String currentOption = (String)options.get("org.eclipse.jdt.core.compiler.compliance");
@@ -1191,7 +658,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		JavaCore.setOptions(options);
 		
 		try {
-		//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 			search(
 				field, 
 				REFERENCES, 
@@ -1213,8 +679,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference06() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "c4", "X.java").getType("X");
 		IField field = type.getField("x");
-		
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			REFERENCES, 
@@ -1231,8 +695,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference07() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "s5", "A.java").getType("A");
 		IField field = type.getField("b");
-		
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			REFERENCES, 
@@ -1248,7 +710,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference08() throws CoreException { // was testSimpleFieldReference
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 		IField field = type.getField("x");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			REFERENCES, 
@@ -1265,7 +726,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference09() throws CoreException { // was testSimpleReadFieldReference
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 		IField field = type.getField("x");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			READ_ACCESSES, 
@@ -1281,7 +741,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference10() throws CoreException { // was testSimpleWriteFieldReference
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 		IField field = type.getField("x");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			WRITE_ACCESSES, 
@@ -1298,7 +757,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference11() throws CoreException { // was testMultipleFieldReference
 		IType type = getCompilationUnit("JavaSearch", "src", "p5", "A.java").getType("A");
 		IField field = type.getField("x");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			REFERENCES, 
@@ -1317,7 +775,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference12() throws CoreException { // was testStaticFieldReference
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 		IField field = type.getField("DEBUG");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			REFERENCES, 
@@ -1334,7 +791,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference13() throws CoreException { // was testFieldReferenceInInnerClass
 		IType type = getCompilationUnit("JavaSearch", "src", "", "O.java").getType("O");
 		IField field = type.getField("y");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			REFERENCES, 
@@ -1351,7 +807,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference14() throws CoreException { // was testFieldReferenceInAnonymousClass
 		IType type = getCompilationUnit("JavaSearch", "src", "", "D.java").getType("D");
 		IField field = type.getField("h");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			REFERENCES, 
@@ -1368,7 +823,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference15() throws CoreException { // was testFieldReferenceThroughSubclass
 		IType type = getCompilationUnit("JavaSearch", "src", "p6", "A.java").getType("A");
 		IField field = type.getField("f");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			REFERENCES, 
@@ -1400,8 +854,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference16() throws CoreException { // was testReadWriteFieldReferenceInCompoundExpression
 		IType type = getCompilationUnit("JavaSearch", "src", "a4", "X.java").getType("X");
 		IField field = type.getField("field");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		
+
 		// Read reference
 		search(
 			field, 
@@ -1422,7 +875,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		assertSearchResults(
 			"src/a4/X.java void a4.X.foo() [field]",
 			this.resultCollector);
-			
 	}
 	/**
 	 * Write access reference in a qualified name reference test.
@@ -1431,9 +883,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference17() throws CoreException { // was testReadWriteAccessInQualifiedNameReference
 		IType type = getCompilationUnit("JavaSearch", "src", "a8", "A.java").getType("A");
 		IField field = type.getField("a");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		
-		resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			WRITE_ACCESSES, 
@@ -1442,7 +891,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		assertSearchResults(
 			"", 
 			this.resultCollector);
-			
 	}
 	/**
 	 * Field reference in brackets test.
@@ -1451,7 +899,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference18() throws CoreException { // was testFieldReferenceInBrackets
 		IType type = getCompilationUnit("JavaSearch", "src", "s3", "A.java").getType("A");
 		IField field = type.getField("field");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			field, 
 			REFERENCES, 
@@ -1466,7 +913,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * Accurate field reference test.
 	 */
 	public void testFieldReference19() throws CoreException { // was testAccurateFieldReference1
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			"d6.X.CONSTANT", 
 			FIELD, 
@@ -1485,8 +931,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testFieldReference20() throws CoreException { // was testFieldReferenceInOutDocComment
 		IType type = getCompilationUnit("JavaSearch", "src", "s4", "X.java").getType("X");
 		IField field = type.getField("x");
-		
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showInsideDoc = true;
 		search(field, REFERENCES, getJavaSearchScope(), resultCollector);
 		assertSearchResults(
@@ -1514,7 +958,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testInterfaceImplementors1() throws CoreException { // was testInterfaceImplementors
 		// implementors of an interface
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "I.java").getType("I");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			type, 
 			IMPLEMENTORS, 
@@ -1524,7 +967,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 			"src/InterfaceImplementors.java InterfaceImplementors [p.I]\n" +
 			"src/p/X.java p.X [I]", 
 			this.resultCollector);
-	
+
 		// implementors of a class should give no match
 		// (regression test for 1G5HBQA: ITPJUI:WINNT - Search - search for implementors of a class finds subclasses)
 		type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
@@ -1545,7 +988,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testInterfaceImplementors2() throws CoreException {
 		// implementors of an interface
 		IType type = getCompilationUnit("JavaSearch", "src", "r2", "I.java").getType("I");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			type, 
 			IMPLEMENTORS, 
@@ -1561,7 +1003,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testLocalVariableDeclaration1() throws CoreException {
 		ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var1 = 1;", "var1");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			localVar, 
 			DECLARATIONS, 
@@ -1577,7 +1018,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testLocalVariableDeclaration2() throws CoreException {
 		ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var2 = new X();", "var2");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			localVar, 
 			DECLARATIONS, 
@@ -1593,7 +1033,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testLocalVariableOccurrences1() throws CoreException {
 		ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var1 = 1;", "var1");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			localVar, 
 			ALL_OCCURRENCES, 
@@ -1610,7 +1049,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testLocalVariableOccurrences2() throws CoreException {
 		ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var2 = new X();", "var2");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			localVar, 
 			ALL_OCCURRENCES, 
@@ -1627,7 +1065,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testLocalVariableReference1() throws CoreException {
 		ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var1 = 1;", "var1");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			localVar, 
 			REFERENCES, 
@@ -1643,7 +1080,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testLocalVariableReference2() throws CoreException {
 		ILocalVariable localVar = getLocalVariable("/JavaSearch/src/f1/X.java", "var2 = new X();", "var2");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			localVar, 
 			REFERENCES, 
@@ -1660,7 +1096,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testLocalVariableReference3() throws CoreException {
 	    IClassFile classFile = getClassFile("JavaSearch", "test48725.jar", "p", "X.class");
 		ILocalVariable localVar = (ILocalVariable) codeSelect(classFile, "local = 1;", "local")[0];
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			localVar, 
 			REFERENCES, 
@@ -1676,7 +1111,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodDeclaration01() throws CoreException { // was testSimpleMethodDeclaration
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 		IMethod method = type.getMethod("foo", new String[] {"I", "QString;", "QX;"});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			DECLARATIONS, 
@@ -1693,7 +1128,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testMethodDeclaration02() throws CoreException { // was testMethodDeclaration
 		IType type = getCompilationUnit("JavaSearch", "src", "e2", "X.java").getType("X");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"foo(String, String)", 
 			METHOD,
@@ -1712,7 +1147,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodDeclaration03() throws CoreException { // was testInnerMethodDeclaration
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X").getType("Inner");
 		IMethod method = type.getMethod("foo", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			DECLARATIONS, 
@@ -1727,7 +1162,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testMethodDeclaration04() throws CoreException { // was testMethodDeclarationInHierarchyScope1
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"foo", 
 			METHOD,
@@ -1746,7 +1181,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodDeclaration05() throws CoreException { // was testMethodDeclarationInHierarchyScope2
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 		IMethod method = type.getMethod("foo", new String[] {"I", "QString;", "QX;"});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			DECLARATIONS,
@@ -1763,7 +1198,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodDeclaration06() throws CoreException { // was testMethodDeclarationInHierarchyScope3
 		IType type = getCompilationUnit("JavaSearch", "src", "d3", "A.java").getType("B");
 		IMethod method = type.getMethod("foo", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			DECLARATIONS,
@@ -1780,7 +1215,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodDeclaration07() throws CoreException { // was testMethodDeclarationInPackageScope
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"main(String[])", 
 			METHOD,
@@ -1797,7 +1232,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodDeclaration08() throws CoreException { // was testMethodDeclarationInJar
 		IType type = getClassFile("JavaSearch", "MyJar.jar", "p1", "A.class").getType();
 		IMethod method = type.getMethod("foo", new String[] {"Ljava.lang.String;"});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			DECLARATIONS, 
@@ -1812,7 +1247,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * (regression test for bug 24346 Method declaration not found in field initializer  )
 	 */
 	public void testMethodDeclaration09() throws CoreException { // was testMethodDeclarationInInitializer
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"foo24346", 
 			METHOD,
@@ -1830,7 +1265,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodDeclaration10() throws CoreException { // was testMethodDeclarationNoReturnType
 		IType type = getCompilationUnit("JavaSearch", "src", "e8", "A.java").getType("A");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"m() int", 
 			METHOD,
@@ -1848,7 +1283,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference01() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "q5", "AQ.java").getType("I");
 		IMethod method = type.getMethod("k", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			REFERENCES, 
@@ -1865,7 +1300,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference02() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "q6", "CD.java").getType("AQ");
 		IMethod method = type.getMethod("k", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			REFERENCES, 
@@ -1882,7 +1317,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference03() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "q7", "AQ.java").getType("I");
 		IMethod method = type.getMethod("k", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			REFERENCES, 
@@ -1899,7 +1334,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference04() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "b2", "Y.java").getType("Y");
 		IMethod method = type.getMethod("foo", new String[] {"QX.Inner;"});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			REFERENCES, 
@@ -1916,7 +1351,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference05() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch/src/e9/A.java").getType("A").getMethod("foo", new String[] {}).getType("", 1);
 		IMethod method = type.getMethod("bar", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			REFERENCES, 
@@ -1931,7 +1366,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testMethodReference06() throws CoreException {
 		IMethod method= getCompilationUnit("JavaSearch/src/f3/X.java").getType("X").getMethod("bar", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			REFERENCES, 
@@ -1948,7 +1383,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference07() throws CoreException { // was testSimpleMethodReference
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 		IMethod method = type.getMethod("foo", new String[] {"I", "QString;", "QX;"});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			REFERENCES, 
@@ -1966,7 +1401,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference08() throws CoreException { // was testStaticMethodReference1
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "Y.java").getType("Y");
 		IMethod method = type.getMethod("bar", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			REFERENCES, 
@@ -1982,7 +1417,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference09() throws CoreException { // was testStaticMethodReference2
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
 		IMethod method = type.getMethod("bar", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			REFERENCES, 
@@ -1998,7 +1433,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference10() throws CoreException { // was testInnerMethodReference
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X").getType("Inner");
 		IMethod method = type.getMethod("foo", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			REFERENCES, 
@@ -2014,7 +1449,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference11() throws CoreException { // was testMethodReferenceThroughSuper
 		IType type = getCompilationUnit("JavaSearch", "src", "sd", "AQ.java").getType("AQ");
 		IMethod method = type.getMethod("k", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			REFERENCES, 
@@ -2030,7 +1465,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference12() throws CoreException { // was testMethodReferenceInInnerClass
 		IType type = getCompilationUnit("JavaSearch", "src", "", "CA.java").getType("CA");
 		IMethod method = type.getMethod("m", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			REFERENCES, 
@@ -2048,7 +1483,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference13() throws CoreException { // was testMethodReferenceInAnonymousClass
 		IType type = getCompilationUnit("JavaSearch", "src", "", "PR_1GGNOTF.java").getType("PR_1GGNOTF");
 		IMethod method = type.getMethod("method", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			REFERENCES, 
@@ -2065,7 +1500,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference14() throws CoreException { // was testMethodReferenceThroughArray
 		IType type = getClassFile("JavaSearch", getExternalJCLPathString(), "java.lang", "Object.class").getType();
 		IMethod method = type.getMethod("clone", new String[] {});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			method, 
 			REFERENCES, 
@@ -2081,8 +1516,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference15() throws CoreException { // was testMethodReferenceInOutDocComment
 		IType type = getCompilationUnit("JavaSearch", "src", "s4", "X.java").getType("X");
 		IMethod method = type.getMethod("foo", new String[] {});
-		
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showInsideDoc = true;
 		search(method, REFERENCES, getJavaSearchScope(), resultCollector);
 		assertSearchResults(
@@ -2096,9 +1529,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testMethodReference16() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/p2/X.java").getType("X");
 		IMethod method = type.getMethod("foo", new String[] {"QE;"});
-		
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		search(method, REFERENCES, getJavaSearchScope15(), resultCollector);
+		search(method, REFERENCES, ERASURE_RULE, getJavaSearchScope15(), resultCollector);
 		assertSearchResults(
 			"src/p2/Y.java void p2.Y.bar() [foo(this)]",
 			this.resultCollector);
@@ -2115,7 +1546,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 			.getType("A1").getMethod("m", new String[] {});
 		SearchPattern rightPattern = createPattern(rightMethod, ALL_OCCURRENCES);
 		SearchPattern orPattern = SearchPattern.createOrPattern(leftPattern, rightPattern);
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showAccuracy = true;
 		search(
 			orPattern, 
@@ -2132,7 +1562,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testPackageDeclaration1() throws CoreException { // was testSimplePackageDeclaration
 		IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "p");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		search(
 			pkg, 
 			DECLARATIONS, 
@@ -2147,7 +1576,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * Various package declarations test.
 	 */
 	public void testPackageDeclaration2() throws CoreException { // was testVariousPackageDeclarations
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"p3*", 
 			PACKAGE,
@@ -2165,7 +1594,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testPackageDeclaration3() throws CoreException { // was testPackageDeclaration
 		IPackageFragment pkg = getPackageFragment("JavaSearch", getExternalJCLPathString(), "java.lang");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			pkg, 
 			DECLARATIONS, 
@@ -2190,7 +1619,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 			newCP[cpLength] = JavaCore.newLibraryEntry(new Path("/JavaSearch/corrupt.jar"), null, null);
 			project.setRawClasspath(newCP, null);
 			
-		//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	
 			search(
 				"r9",
 				PACKAGE,
@@ -2224,7 +1653,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testPackageReference1() throws CoreException {
 		IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "q2");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			pkg, 
 			REFERENCES, 
@@ -2240,7 +1669,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testPackageReference2() throws CoreException {
 		IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "b8");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			pkg, 
 			REFERENCES, 
@@ -2257,7 +1686,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testPackageReference3() throws CoreException {
 		IPackageFragment pkg = getPackageFragment("JavaSearch", "test47989.jar", "p1");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg.getParent()});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			pkg, 
 			REFERENCES, 
@@ -2272,7 +1701,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testPackageReference4() throws CoreException { // was testSimplePackageReference
 		IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "p");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			pkg, 
 			REFERENCES, 
@@ -2295,7 +1724,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testPackageReference5() throws CoreException { // was testVariousPackageReference
 		IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "p3.p2.p");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			pkg, 
 			REFERENCES, 
@@ -2319,7 +1748,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testPackageReference6() throws CoreException { // was testAccuratePackageReference
 		IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "p3.p2");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			pkg, 
 			REFERENCES, 
@@ -2333,7 +1762,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * Test pattern match package references
 	 */
 	public void testPackageReference7() throws CoreException { // was testPatternMatchPackageReference
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"*p2.*", 
 			PACKAGE,
@@ -2359,7 +1788,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=64421
 	 */
 	public void testPackageReference8() throws CoreException { // was testPatternMatchPackageReference2
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"*", 
 			PACKAGE,
@@ -2400,7 +1829,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 			project.setRawClasspath(newClasspath, null);
 			
 			// potential match for a field declaration
-		//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	
 			resultCollector.showAccuracy = true;
 			search(
 				"MissingFieldType.*",
@@ -2435,7 +1864,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 			project.setRawClasspath(newClasspath, null);
 			
 			// potential match for a method declaration
-		//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	
 			resultCollector.showAccuracy = true;
 			search(
 				"MissingArgumentType.foo*",
@@ -2470,7 +1899,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 			project.setRawClasspath(newClasspath, null);
 			
 			// potential match for a type declaration
-		//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	
 			resultCollector.showAccuracy = true;
 			search(
 				"Missing*",
@@ -2508,7 +1937,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testSearchScope02() throws CoreException { // was testSubCUSearchScope1
 		IType type = getCompilationUnit("JavaSearch", "src", "b3", "X.java").getType("X");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES,
@@ -2528,7 +1957,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testSearchScope03() throws CoreException { // was testSubCUSearchScope2
 		IType type = getCompilationUnit("JavaSearch", "src", "b3", "X.java").getType("X");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getField("field")});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES,
@@ -2545,7 +1974,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testSearchScope04() throws CoreException { // was testSubCUSearchScope3
 		IType type = getCompilationUnit("JavaSearch", "src", "b3", "X.java").getType("X");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getType("Y")});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES,
@@ -2577,7 +2006,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 			
 			IPackageFragment pkg = this.getPackageFragment("JavaSearch", externalPath, "p0");
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
-		//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	
 			search(
 				"X", 
 				TYPE,
@@ -2611,7 +2040,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeDeclaration01() throws CoreException { // was testSimpleTypeDeclaration
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			DECLARATIONS,
@@ -2626,7 +2055,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testTypeDeclaration02() throws CoreException {
 		IPackageFragment pkg = this.getPackageFragment("JavaSearch15", "src", "p1");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"Y", 
 			TYPE,
@@ -2644,7 +2073,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testTypeDeclaration03() throws CoreException { // was testTypeDeclaration
 		IPackageFragment pkg = this.getPackageFragment("JavaSearch", "src", "d8");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"A", 
 			TYPE,
@@ -2658,7 +2087,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeDeclaration04() throws CoreException { // was testTypeDeclarationInJar
 		IType type = getClassFile("JavaSearch", "MyJar.jar", "p1", "A.class").getType();
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			DECLARATIONS, 
@@ -2675,7 +2104,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testTypeDeclaration05() throws CoreException { // was testTypeDeclarationInJar2
 		IPackageFragmentRoot root = getPackageFragmentRoot("JavaSearch", "test20631.jar");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {root});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"Y", 
 			TYPE,
@@ -2693,7 +2122,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testTypeDeclaration06() throws CoreException { // was testTypeDeclarationInPackageScope
 		IType type = getCompilationUnit("JavaSearch", "src", "p3", "X.java").getType("X");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"X", 
 			TYPE,
@@ -2711,7 +2140,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testTypeDeclaration07() throws CoreException { // was testTypeDeclarationInPackageScope2
 		IType type = getClassFile("JavaSearch", "MyJar.jar", "p0", "X.class").getType();
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"X", 
 			TYPE,
@@ -2730,7 +2159,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[]{
 			this.getPackageFragment("JavaSearch", "src", "b4")
 		});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"*.A.B", 
 			TYPE,
@@ -2746,7 +2175,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * (regression test for bug 17210 No match found when query contains '?')
 	 */
 	public void testTypeDeclaration09() throws CoreException {
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"X?Z", 
 			TYPE,
@@ -2760,7 +2189,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * (regression test for bug 25859 Error doing Java Search)
 	 */
 	public void testTypeDeclaration10() throws CoreException { // was testLongDeclaration
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz", 
 			TYPE, 
@@ -2777,7 +2206,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testTypeDeclaration11() throws CoreException { // was testLocalTypeDeclaration1
 		IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "f2");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"Y", 
 			TYPE,
@@ -2792,10 +2221,10 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * Local type declaration test.
 	 */
 	public void testTypeDeclaration12() throws CoreException { // was testLocalTypeDeclaration2
-		IType type = getCompilationUnit("JavaSearch/src/f2/X.java").getType("X").getMethod("foo", new String[0]).getType("Y", 1);
+		IType type = getCompilationUnit("JavaSearch/src/f2/X.java").getType("X").getMethod("foo1", new String[0]).getType("Y", 1);
 		
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			DECLARATIONS,
@@ -2811,7 +2240,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeOccurence1() throws CoreException { // was testTypeOccurence
 		IType type = getCompilationUnit("JavaSearch", "src", "r", "A.java").getType("A").getType("X");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			ALL_OCCURRENCES, 
@@ -2833,7 +2262,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testTypeOccurence2() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "r8", "B.java").getType("B");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment()});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			ALL_OCCURRENCES, 
@@ -2849,7 +2278,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeOccurence3() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "e4", "A.java").getType("A").getType("Inner");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			ALL_OCCURRENCES, 
@@ -2870,7 +2299,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeOccurence4() throws CoreException { // was testTypeOccurenceWithDollar
 		IType type = getCompilationUnit("JavaSearch", "src", "q3", "A$B.java").getType("A$B");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			ALL_OCCURRENCES, 
@@ -2887,7 +2316,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference01() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "", "X.java").getType("X");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -2903,7 +2332,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference02() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "d7", "A.java").getType("A");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -2921,7 +2350,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference03() throws CoreException {
 		SearchPattern pattern = createPattern("x31985", TYPE, REFERENCES, false);
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		resultCollector.showAccuracy = true;
 		search(
 			pattern, 
@@ -2938,7 +2367,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference04() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "otherSrc()", "", "X31997.java").getType("X31997");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -2955,7 +2384,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testTypeReference05() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "test48261.jar", "p", "X.java").getType("X");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {type.getPackageFragment().getParent()});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -2971,7 +2400,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference06() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/p1/X.java").getType("X");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -2986,7 +2415,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference07() throws CoreException { // was testTypeDeclaration01
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3008,7 +2437,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference08() throws CoreException { // was testTypeReferenceInInitializer
 		IType type = getCompilationUnit("JavaSearch", "src", "", "Test.java").getType("Test");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3025,7 +2454,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference09() throws CoreException { // was testTypeReferenceAsSingleNameReference
 		IType type = getCompilationUnit("JavaSearch", "src", "", "TypeReferenceAsSingleNameReference.java").getType("TypeReferenceAsSingleNameReference");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3041,7 +2470,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference10() throws CoreException { // was testMemberTypeReference
 		// references to second level member type
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		resultCollector.showAccuracy = true;
 		search(
 			"BMember", 
@@ -3092,7 +2521,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference11() throws CoreException { // was testMemberTypeReference2
 		IType type = getCompilationUnit("JavaSearch", "src", "a", "A.java").getType("A").getType("X");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3111,7 +2540,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		IType type = getCompilationUnit("JavaSearch", "src", "ObjectMemberTypeReference", "A.java")
 			.getType("A")
 			.getType("Object");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		resultCollector.showAccuracy = true;
 		search(
 			type, 
@@ -3128,7 +2557,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference13() throws CoreException { // was testTypeReferenceInQualifiedNameReference
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3146,7 +2575,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference14() throws CoreException { // was testTypeReferenceInQualifiedNameReference2
 		IType type = getCompilationUnit("JavaSearch", "src", "p4", "A.java").getType("A");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3164,7 +2593,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference15() throws CoreException { // was testTypeReferenceInQualifiedNameReference3
 		IType type = getCompilationUnit("JavaSearch", "src", "", "W.java").getType("W");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3180,7 +2609,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference16() throws CoreException { // was testTypeReferenceInQualifiedNameReference4
 		IType type = getCompilationUnit("JavaSearch", "src", "b7", "X.java").getType("SubClass");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3196,7 +2625,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference17() throws CoreException { // was testTypeReferenceNotInClasspath
 		IType type = getCompilationUnit("JavaSearch", "src", "p", "X.java").getType("X");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3218,7 +2647,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference18() throws CoreException { // was testVariousTypeReferences
 		IType type = getCompilationUnit("JavaSearch", "src", "NoReference", "A.java").getType("A");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3234,7 +2663,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference19() throws CoreException { // was testTypeReferenceInImport
 		IType type = getCompilationUnit("JavaSearch", "src", "p2", "Z.java").getType("Z");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3250,7 +2679,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference20() throws CoreException { // was testTypeReferenceInImport2
 		IType type = getCompilationUnit("JavaSearch", "src", "r6", "A.java").getType("A");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3271,7 +2700,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference21() throws CoreException { // was testTypeReferenceInArray
 		IType type = getCompilationUnit("JavaSearch", "src", "TypeReferenceInArray", "A.java").getType("A");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3288,7 +2717,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference22() throws CoreException { // was testTypeReferenceInArray2
 		IType type = getCompilationUnit("JavaSearch", "src", "s1", "X.java").getType("X");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3304,7 +2733,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference23() throws CoreException { // testNegativeTypeReference
 		IType type = getCompilationUnit("JavaSearch", "src", "p7", "A.java").getType("A");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3320,7 +2749,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference24() throws CoreException { // was testTypeReferenceInThrows
 		IType type = getCompilationUnit("JavaSearch", "src", "a7", "X.java").getType("MyException");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		resultCollector.showAccuracy = true;
 		search(
 			type, 
@@ -3336,7 +2765,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * (Regression test for bug 9642 Search - missing inaccurate type matches)
 	 */
 	public void testTypeReference25() throws CoreException { // was testInnacurateTypeReference1
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"Zork", 
 			TYPE, 
@@ -3357,7 +2786,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * (Regression test for bug 9642 Search - missing inaccurate type matches)
 	 */
 	public void testTypeReference26() throws CoreException { // was testInnacurateTypeReference2
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"p.Zork", 
 			TYPE, 
@@ -3378,7 +2807,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference27() throws CoreException { // was testInnacurateTypeReference3
 		IType type = getCompilationUnit("JavaSearch", "src", "r3", "A21485.java").getType("A21485");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		resultCollector.showAccuracy = true;
 		search(
 			type, 
@@ -3396,7 +2825,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference28() throws CoreException { // was testTypeReferenceInCast
 		IType type = getCompilationUnit("JavaSearch", "src", "s3", "A.java").getType("B");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			type, 
 			REFERENCES, 
@@ -3411,7 +2840,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * (regression test for bug 24741 Search does not find patterned type reference in binary project  )
 	 */
 	public void testTypeReference29() throws CoreException { // was testPatternMatchTypeReference
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"p24741.*", 
 			TYPE,
@@ -3429,7 +2858,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "d4");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
 		SearchPattern pattern = createPattern("Y", TYPE, REFERENCES, false);
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			pattern, 
 			scope, 
@@ -3442,7 +2871,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * Type reference test.
 	 */
 	public void testTypeReference31() throws CoreException { // was testAccurateTypeReference
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		search(
 			"d5.X", 
 			TYPE, 
@@ -3463,7 +2892,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference32() throws CoreException { // was testTypeReferenceInHierarchy
 		IType type = getCompilationUnit("JavaSearch", "src", "d9.p1", "A.java").getType("A");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		IJavaSearchScope scope = SearchEngine.createHierarchyScope(type);
 		search(
 			type, 
@@ -3480,7 +2909,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference33() throws CoreException { // was testTypeReferenceWithRecovery
 		IType type = getCompilationUnit("JavaSearch", "src", "e1", "A29366.java").getType("A29366");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		resultCollector.showAccuracy = true;
 		search(
 			type, 
@@ -3497,7 +2926,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference34() throws CoreException { // was testTypeReferenceWithProblem
 		IType type = getCompilationUnit("JavaSearch", "src", "e6", "A.java").getType("A");
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		resultCollector.showAccuracy = true;
 		search(
 			"B36479", 
@@ -3525,7 +2954,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 			project.setRawClasspath(newCP, null);
 			
 			IType type = getCompilationUnit("JavaSearch", "src", "e7", "A.java").getType("A");
-		//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	
 			resultCollector.showAccuracy = true;
 			search(
 				type, 
@@ -3545,7 +2974,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	public void testTypeReference36() throws CoreException { // was testLocalTypeReference1
 		IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "f2");
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		resultCollector.showContext = true;
 		search(
 			"Y", 
@@ -3564,7 +2993,7 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 		IType type = getCompilationUnit("JavaSearch/src/f2/X.java").getType("X").getMethod("foo", new String[0]).getType("Y", 1);
 		
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+
 		resultCollector.showContext = true;
 		search(
 			type, 
@@ -3580,8 +3009,6 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 */
 	public void testTypeReference38() throws CoreException { // was testTypeReferenceInOutDocComment
 		IType type = getCompilationUnit("JavaSearch", "src", "s4", "X.java").getType("X");
-		
-	//	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
 		resultCollector.showInsideDoc = true;
 		search(type, REFERENCES, getJavaSearchScope(), this.resultCollector);
 		assertSearchResults(
@@ -3764,30 +3191,21 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 	 * Search for auto-boxing
 	 */
 	public void testAutoBoxing01() throws CoreException {
-		ICompilationUnit workingCopy = null;
-		try {
-			workingCopy = getWorkingCopy("/JavaSearch15/src/p/X.java",
-				"package p;\n" + 
-				"public class Test {\n" + 
-				"	void foo(int x) {}\n" + 
-				"	void bar() {\n" + 
-				"		foo(new Integer(0));\n" + 
-				"	}\n" + 
-				"}\n"
-				);
-			workingCopy.commitWorkingCopy(true, null);	// need to commit to index file
-			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new ICompilationUnit[] { workingCopy });
-			IMethod method = workingCopy.getType("Test").getMethod("foo", new String[] { "I" });
-			search(method, REFERENCES, scope, this.resultCollector);
-			assertSearchResults(
-				"src/p/X.java void p.Test.bar() [foo(new Integer(0))]",
-				this.resultCollector);
-		} catch (JavaModelException jme) {
-			jme.printStackTrace();
-		}
-		finally {
-			if (workingCopy != null)
-				workingCopy.discardWorkingCopy();
-		}
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearch15/src/p/X.java",
+			"package p;\n" + 
+			"public class Test {\n" + 
+			"	void foo(int x) {}\n" + 
+			"	void bar() {\n" + 
+			"		foo(new Integer(0));\n" + 
+			"	}\n" + 
+			"}\n"
+			);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
+		IMethod method = workingCopies[0].getType("Test").getMethod("foo", new String[] { "I" });
+		search(method, REFERENCES, scope);
+		assertSearchResults(
+			"src/p/X.java void p.Test.bar() [foo(new Integer(0))]",
+			resultCollector);
 	}
 }

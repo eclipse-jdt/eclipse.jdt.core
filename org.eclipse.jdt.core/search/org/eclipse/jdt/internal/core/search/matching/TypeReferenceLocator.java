@@ -145,17 +145,13 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 	}
 
 	// return if this is not necessary to report
-	if (this.pattern.isParameterized() && !this.isEquivalentMatch &&!this.isErasureMatch) {
+	if (this.pattern.hasTypeArguments() && !this.isEquivalentMatch &&!this.isErasureMatch) {
 		return;
 	}
 
 	// set match rule
 	int rule = SearchMatch.A_ACCURATE;
-	boolean patternHasParameters = false;
-	if (this.pattern.isParameterized()) {
-		patternHasParameters = this.pattern.typeArguments[0] != null && this.pattern.typeArguments[0].length != 0;
-	}
-	if (patternHasParameters) { // binding has no type params, compatible erasure if pattern does
+	if (this.pattern.hasTypeArguments()) { // binding has no type params, compatible erasure if pattern does
 		rule = SearchPattern.R_EQUIVALENT_MATCH | SearchPattern.R_ERASURE_MATCH;
 	}
 	
@@ -180,13 +176,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 					// index now depends on pattern type signature
 					int index = lastIndex;
 					if (this.pattern.qualification != null) {
-						if (this.pattern.typeSignatures != null) {
-							if (this.pattern.typeSignatures.length > 1) {
-								index = lastIndex - (this.pattern.typeSignatures.length - 1);
-							}
-						} else {
-							index = lastIndex - this.pattern.segmentsSize;
-						}
+						index = lastIndex - this.pattern.segmentsSize;
 					}
 					if (index < 0) index = 0;
 					int start = (int) ((positions[index]) >>> 32);
@@ -313,13 +303,7 @@ protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElemen
 					// index now depends on pattern type signature
 					int index = lastIndex;
 					if (this.pattern.qualification != null) {
-						if (this.pattern.typeSignatures != null) {
-							if (this.pattern.typeSignatures.length > 1) {
-								index = lastIndex - (this.pattern.typeSignatures.length - 1);
-							}
-						} else {
-							index = lastIndex - this.pattern.segmentsSize;
-						}
+						index = lastIndex - this.pattern.segmentsSize;
 					}
 					if (index < 0) index = 0;
 					int start = (int) ((positions[index]) >>> 32);
@@ -341,15 +325,11 @@ void matchReportReference(Expression expr, IJavaElement element, int accuracy, i
 	// Look if there's a need to special report for parameterized type
 	int rule = SearchPattern.R_EXACT_MATCH;
 	int refinedAccuracy = accuracy;
-	boolean patternHasParameters = false;
-	if (this.pattern.isParameterized()) {
-		patternHasParameters = this.pattern.typeArguments[0] != null && this.pattern.typeArguments[0].length != 0;
-	}
 	if (refBinding.isParameterizedType() || refBinding.isRawType()) {
 
 		// Try to refine accuracy
 		ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)refBinding;
-		refinedAccuracy = refineAccuracy(accuracy, parameterizedBinding, this.pattern.typeArguments, this.pattern.typeSignatures==null, 0, locator);
+		refinedAccuracy = refineAccuracy(accuracy, parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
 		
 		// See whether it is necessary to report or not
 		boolean report = refinedAccuracy != -1; // impossible match
@@ -370,7 +350,7 @@ void matchReportReference(Expression expr, IJavaElement element, int accuracy, i
 		refinedAccuracy = refinedAccuracy & (~RULE_MASK);
 
 		// Make a special report for parameterized types if necessary
-		 if (refBinding.isParameterizedType() && this.pattern.isParameterized())  {
+		 if (refBinding.isParameterizedType() && this.pattern.hasTypeArguments())  {
 			TypeReference typeRef = null;
 			TypeReference[] typeArguments = null;
 			if (expr instanceof ParameterizedQualifiedTypeReference) {
@@ -386,7 +366,7 @@ void matchReportReference(Expression expr, IJavaElement element, int accuracy, i
 				return;
 			}
 		}
-	} else if (patternHasParameters) { // binding has no type params, compatible erasure if pattern does
+	} else if (this.pattern.hasTypeArguments()) { // binding has no type params, compatible erasure if pattern does
 		rule = SearchPattern.R_ERASURE_MATCH;
 	}
 
@@ -583,7 +563,7 @@ protected int resolveLevelForType(TypeBinding typeBinding) {
 	return resolveLevelForType(
 			this.pattern.simpleName,
 			this.pattern.qualification,
-			this.pattern.typeArguments,
+			this.pattern.getTypeArguments(),
 			0,
 			typeBinding);
 }
