@@ -246,4 +246,46 @@ public class GetSourceTests extends ModifyingResourceTests {
 			"  }";
 		assertSourceEquals("Unexpected source", expectedSource, actualSource);
 	}
+
+	/**
+	 * Test the field constant
+	 */
+	public void testFieldConstant() throws CoreException {
+		try {
+			String cuSource = 
+				"package p;\n" +
+				"public class Y {\n" +
+				"  static final long field1 = 938245798324893L;\n" +
+				"  static final long field2 = 938245798324893l;\n" +
+				"  static final long field3 = 938245798324893;\n" +
+				"}";
+			createFile("/P/p/Y.java", cuSource);
+			IType type = getCompilationUnit("/P/p/Y.java").getType("Y");
+			IField field = type.getField("field1");
+		
+			String actualSource = field.getSource();
+			String expectedSource = "static final long field1 = 938245798324893L;";
+			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
+			Object constant = field.getConstant();
+			assertNotNull("No constant", constant);
+			
+			field = type.getField("field2");
+		
+			actualSource = field.getSource();
+			expectedSource = "static final long field2 = 938245798324893l;";
+			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
+			constant = field.getConstant();
+			assertNotNull("No constant", constant);
+
+			field = type.getField("field3");
+		
+			actualSource = field.getSource();
+			expectedSource = "static final long field3 = 938245798324893;";
+			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
+			constant = field.getConstant();
+			assertNotNull("No constant", constant);
+		} finally {
+			deleteFile("/P/p/Y.java");
+		}
+	}
 }
