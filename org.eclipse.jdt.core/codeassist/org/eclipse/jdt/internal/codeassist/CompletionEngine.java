@@ -637,6 +637,8 @@ public final class CompletionEngine
 		} catch (IndexOutOfBoundsException e) { // work-around internal failure - 1GEMF6D
 		} catch (InvalidCursorLocation e) { // may eventually report a usefull error
 		} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
+		} catch (CompletionNodeFound e){ // internal failure - bugs 5618
+		} catch (Throwable e){ // code assist absorb all failure	
 		} finally {
 			reset();
 		}
