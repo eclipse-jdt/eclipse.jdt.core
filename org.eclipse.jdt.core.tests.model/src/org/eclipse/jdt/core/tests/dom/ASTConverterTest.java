@@ -210,7 +210,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 				suite.addTest(new ASTConverterTest(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest("test0380"));
+//		suite.addTest(new ASTConverterTest("test0384"));
 		return suite;
 	}
 		
@@ -9516,7 +9516,77 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		Javadoc javadoc = typeDeclaration.getJavadoc();
 		assertNull("Javadoc not null", javadoc);
 	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
+	 */
+	public void test0382() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0382", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0);
+		assertNotNull(node);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertEquals("Wrong fully qualified name", typeBinding.getQualifiedName(), "test0382.A");
+	}
 		
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
+	 */
+	public void test0383() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0383", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertEquals("Wrong fully qualified name", typeBinding.getQualifiedName(), "test0383.A.B");
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22154
+	 */
+	public void test0384() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0384", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 0, compilationUnit.getMessages().length);
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertEquals("Wrong fully qualified name", typeBinding.getQualifiedName(), "test0384.A.B.D");
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23117
+	 *
+	public void test0385() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0385", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertNotNull("No compilation unit", result);
+		assertTrue("result is not a compilation unit", result instanceof CompilationUnit);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("errors found", 1, compilationUnit.getMessages().length);
+	}*/
+	
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
 		return (ASTNode) ((MethodInvocation) statement.getExpression()).arguments().get(0);

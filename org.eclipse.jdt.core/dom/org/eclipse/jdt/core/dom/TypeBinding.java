@@ -402,7 +402,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getQualifiedName()
 	 */
 	public String getQualifiedName() {
-		if (isAnonymous() || isLocal()) {
+		if (isAnonymous() || isLocal() || isPrimitive() || isArray() || isNullType()) {
 			return null;
 		}
 		StringBuffer buffer = new StringBuffer();
