@@ -27,23 +27,15 @@ public class GenericTypeTest extends AbstractComparisonTest {
 		super(name);
 	}
 
-	// Use this static initializer to specify subset for tests
+	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 //	static {
-//		Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "Bug51529a", "Bug51529b" };
-//		Numbers of tests to run: "test<number>" will be run for each number of this array
-//		TESTS_NUMBERS = new int[] { 308, 309 };
-//		Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-//		TESTS_RANGE = new int[] { 21, 50 };
-//		TESTS_RANGE = new int[] { -1, 50 }; // run all tests with a number less or equals to 50
-//		TESTS_RANGE = new int[] { 10, -1 }; // run all tests with a number greater or equals to 10
+//		TESTS_NAMES = new String[] { "test000" };
+//		TESTS_NUMBERS = new int[] { 0 };
+//		TESTS_RANGE = new int[] { 359, -1 };
 //	}
 	public static Test suite() {
-		if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
-			return new RegressionTestSetup(buildTestSuite(testClass()), highestComplianceLevels());
-		}
-		return setupSuite(testClass());
+		return buildTestSuite(testClass());
 	}
 
 	public static Class testClass() {  
@@ -9381,6 +9373,102 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			null,
 			false,
 			null);
-	}	
-	
+	}
+	// 76790
+	public void test359() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+					"public class X {\n" + 
+					"    class List1<E> extends LinkedList<E> {};\n" + 
+					"    public static void main (String[] args) {\n" + 
+					"        Map<String, List<Integer>> x = new HashMap<String, List<Integer>>();\n" + 
+					"        Map<String, List1<Integer>> m = new HashMap<String, List1<Integer>>();\n" + 
+					"    }\n" + 
+					"}"
+			}
+		);
+	}
+	// 76786
+	public void test360() {
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.lang.Comparable;\n" + 
+					"public class Test {\n" + 
+					"    private static final class X<T1, T2> implements Comparable<X<T1, T2>> {\n" + 
+					"        public int compareTo(X<T1, T2> arg0) { return 0; }\n" + 
+					"    };\n" + 
+					"    private static class Y<T1, T2> {};\n" + 
+					"    private static final class Z<T1, T2> extends Y<T1, T2> implements Comparable<Z<T1, T2>> {\n" + 
+					"        public int compareTo(Z<T1, T2> arg0) { return 0; }\n" + 
+					"    };\n" + 
+					"    public static <T> void doSomething(Comparable<? super T> a, Comparable<? super T> b) {}\n" + 
+					"    public static <V1, V2> void doSomethingElse(Z<V1, V2> a, Z<V1, V2> b) {\n" + 
+					"        doSomething(a, b);\n" + 
+					"    }\n" + 
+					"    private static final class W { };\n" + 
+					"    public static void main(String[] args) {\n" + 
+					"        doSomething(new X<Integer, String>(), new X<Integer, String>());\n" + 
+					"        doSomething(new Z<Integer, String>(), new Z<Integer, String>());\n" + 
+					"        doSomethingElse(new Z<Integer, String>(), new Z<Integer, String>());\n" + 
+					"        doSomethingElse(new Z<W, String>(), new Z<W, String>());\n" + 
+					"        // The next line won\'t compile.  It\'s the generic<generic which seems\n" + 
+					"        // to be the problem\n" + 
+					"        doSomethingElse(new Z<X<W, W>, String>(), new Z<X<W, W>, String>());\n" + 
+					"    }\n" + 
+					"}"
+			}
+		);
+	}
+	// 75525
+	public void test361() {
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.AbstractSet;\n" + 
+					"import java.util.Iterator;\n" + 
+					"import java.util.Map.Entry;\n" + 
+					"public class Test extends AbstractSet<Entry<String,Integer>> {\n" + 
+					"	public Iterator<Entry<String, Integer>> iterator() {\n" + 
+					"		return new Iterator<Entry<String,Integer>>() {\n" + 
+					"			public boolean hasNext() {return false;}\n" + 
+					"			public Entry<String, Integer> next() {return null;}\n" + 
+					"			public void remove() {}	\n" + 
+					"		};\n" + 
+					"	}\n" + 
+					"	public int size() {return 0;}\n" + 
+					"}"
+			}
+		);
+	}
+	// 72643
+	public void test362() {
+		Map customOptions= getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.ArrayList;\n" + 
+					"import java.util.List;\n" + 
+					"public class Test {\n" + 
+					"   public void a() {\n" + 
+					"      List<String> list1 = new ArrayList<String>();\n" + 
+					"      List<String> list2 = new ArrayList<String>();\n" + 
+					"      compare(list1, list2);\n" + 
+					"   }\n" + 
+					"   private <E> void compare(List<E> list1, List<E> list2) {\n" + 
+					"      // do some comparing logic...\n" + 
+					"   }\n" + 
+					"}\n" + 
+					"\n"
+			},
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null/*no custom requestor*/);
+	}
 }

@@ -8,8 +8,15 @@ public class VarargsTest extends AbstractComparisonTest {
 		super(name);
 	}
 
+	// Static initializer to specify tests subset using TESTS_* static variables
+	// All specified tests which does not belong to the class are skipped...
+//	static {
+//		TESTS_NAMES = new String[] { "test000" };
+//		TESTS_NUMBERS = new int[] { 0 };
+//		TESTS_RANGE = new int[] { 11, -1 };
+//	}
 	public static Test suite() {
-		return setupSuite(testClass());
+		return buildTestSuite(testClass());
 	}
 	
 	public static Class testClass() {
@@ -677,5 +684,22 @@ public class VarargsTest extends AbstractComparisonTest {
 			"	  ^^^^^\n" + 
 			"The method count(int[]) is overriding a varargs method from X\n" + 
 			"----------\n");
+	}
+
+	// 77084
+	public void test012() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"   public static void main (String ... args) {\n" + 
+					"       for (String a:args) {\n" + 
+					"           System.out.println(a);\n" + 
+					"       }\n" + 
+					"   }\n" + 
+					"}\n" + 
+					"\n"
+			}
+		);
 	}
 }
