@@ -442,6 +442,15 @@ public Map getOptions() {
 		defaultOptions.put(
 			CompilerOptions.OPTION_ReportUnusedParameter,
 			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportLocalVariableHiding,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportFieldHiding,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
+			CompilerOptions.WARNING);
 		return defaultOptions;
 }
 
