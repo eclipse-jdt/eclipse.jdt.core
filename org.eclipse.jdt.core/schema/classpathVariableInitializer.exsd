@@ -2,14 +2,14 @@
 <!-- Schema file written by PDE -->
 <schema targetNamespace="org.eclipse.jdt.core">
 <annotation>
-   <appInfo>
-      <meta.schema plugin="org.eclipse.jdt.core" id="classpathVariableInitializer" name="Classpath Variable Initializers"/>
-   </appInfo>
-   <documentation>
-      This extension point allows clients to contribute custom classpath variable initializers, 
+      <appInfo>
+         <meta.schema plugin="org.eclipse.jdt.core" id="classpathVariableInitializer" name="Classpath Variable Initializers"/>
+      </appInfo>
+      <documentation>
+         This extension point allows clients to contribute custom classpath variable initializers, 
       which are used to lazily bind classpath variables.
-   </documentation>
-</annotation>
+      </documentation>
+   </annotation>
 
    <element name="extension">
       <complexType>
@@ -35,6 +35,9 @@
                <documentation>
                   an optional name of the extension instance
                </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>
@@ -74,11 +77,11 @@
          <meta.section type="examples"/>
       </appInfo>
       <documentation>
-         Example of a declaration of a &lt;code&gt;ClasspathVariableInitializer&lt;/code&gt; for a classpath variable named "FOO":  &lt;pre&gt;                                                                       
-&lt;extension point="org.eclipse.jdt.core.classpathVariableInitializer"&gt;            
+         Example of a declaration of a &lt;code&gt;ClasspathVariableInitializer&lt;/code&gt; for a classpath variable named &quot;FOO&quot;:  &lt;pre&gt;                                                                       
+&lt;extension point=&quot;org.eclipse.jdt.core.classpathVariableInitializer&quot;&gt;            
    &lt;classpathVariableInitializer                                          
-      variable="FOO"                                                        
-      class="com.example.CPVInitializer"/&gt;                           
+      variable=&quot;FOO&quot;                                                        
+      class=&quot;com.example.CPVInitializer&quot;/&gt;                           
 &lt;/extension&gt;
 &lt;/pre&gt;
       </documentation>
