@@ -3066,5 +3066,29 @@ public class AnnotationTest extends AbstractComparisonTest {
 				"}\n",
 			},
 			"");
+	}		
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81148
+	public void test101() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Target;\n" + 
+				"\n" + 
+				"@Target(Element)\n" + 
+				"public @interface X {\n" + 
+				"	\n" + 
+				"	boolean UML() default false;\n" + 
+				"	boolean platformDependent() default true;\n" + 
+				"	boolean OSDependent() default true;\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	@Target(Element)\r\n" + 
+			"	        ^^^^^^^\n" + 
+			"Element cannot be resolved\n" + 
+			"----------\n");
 	}	
+	
 }

@@ -93,8 +93,8 @@ public abstract class Annotation extends Expression {
 			case TypeIds.T_JavaLangAnnotationRetention :
 				if (valueAttribute != null) {
 					Expression expr = valueAttribute.value;
-					if (expr instanceof NameReference) {
-						FieldBinding field = ((NameReference) expr).fieldBinding();
+					if ((expr.bits & Binding.VARIABLE) == Binding.FIELD) {
+						FieldBinding field = ((Reference)expr).fieldBinding();
 						if (field != null && field.declaringClass.id == T_JavaLangAnnotationRetentionPolicy) {
 							tagBits |= getRetentionPolicy(field.name);
 						}
@@ -112,8 +112,8 @@ public abstract class Annotation extends Expression {
 						if (expressions != null) {
 							for (int i = 0, length = expressions.length; i < length; i++) {
 								Expression initExpr = expressions[i];
-								if (initExpr instanceof NameReference) {
-									FieldBinding field = ((NameReference) initExpr).fieldBinding();
+								if ((initExpr.bits & Binding.VARIABLE) == Binding.FIELD) {
+									FieldBinding field = ((Reference) initExpr).fieldBinding();
 									if (field != null && field.declaringClass.id == T_JavaLangAnnotationElementType) {
 										long element = getTargetElementType(field.name);
 										if ((tagBits & element) != 0) {
@@ -125,8 +125,8 @@ public abstract class Annotation extends Expression {
 								}
 							}
 						}
-					} else if (expr instanceof NameReference) {
-						FieldBinding field = ((NameReference) expr).fieldBinding();
+					} else if ((expr.bits & Binding.VARIABLE) == Binding.FIELD) {
+						FieldBinding field = ((Reference) expr).fieldBinding();
 						if (field != null && field.declaringClass.id == T_JavaLangAnnotationElementType) {
 							tagBits |= getTargetElementType(field.name);
 						}
