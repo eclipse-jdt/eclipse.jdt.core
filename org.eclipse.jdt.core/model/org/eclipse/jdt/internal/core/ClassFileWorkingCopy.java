@@ -540,17 +540,6 @@ public IType findPrimaryType() {
 	}
 
 	/**
-	 * @see ICompilationUnit#reconcile(boolean, WorkingCopyOwner, IProgressMonitor)
-	 */
-	public void reconcile(
-		boolean forceProblemDetection,
-		WorkingCopyOwner owner,
-		IProgressMonitor monitor)
-		throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.IWorkingCopy#restore()
 	 */
 	public void restore() throws JavaModelException {

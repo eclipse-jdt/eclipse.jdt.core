@@ -1053,14 +1053,14 @@ protected void openParent(Object childInfo, HashMap newElements, IProgressMonito
  * @deprecated
  */
 public IMarker[] reconcile() throws JavaModelException {
-	reconcile(false/*don't force problem detection*/, null/*use primary owner*/, null/*no progress monitor*/);
+	reconcile(false/*don't create AST*/, false/*don't force problem detection*/, null/*use primary owner*/, null/*no progress monitor*/);
 	return null;
 }
 /**
  * @see ICompilationUnit#reconcile(boolean, IProgressMonitor)
  */
 public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException {
-	reconcile(forceProblemDetection, null/*use primary owner*/, monitor);
+	reconcile(false/*don't create AST*/, forceProblemDetection, null/*use primary owner*/, monitor);
 }
 /**
  * @see ICompilationUnit#reconcile(boolean, boolean, WorkingCopyOwner, IProgressMonitor)
@@ -1078,17 +1078,6 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, createAST, forceProblemDetection, workingCopyOwner);
 	op.runOperation(monitor);
 	return op.ast;
-}
-/**
- * @see ICompilationUnit#reconcile(boolean, WorkingCopyOwner, IProgressMonitor)
- */
-public void reconcile(
-	boolean forceProblemDetection,
-	WorkingCopyOwner workingCopyOwner,
-	IProgressMonitor monitor)
-	throws JavaModelException {
-
-	reconcile(false/*don't create AST*/, forceProblemDetection, workingCopyOwner, monitor);
 }
 /**
  * @see ISourceManipulation#rename(String, boolean, IProgressMonitor)
