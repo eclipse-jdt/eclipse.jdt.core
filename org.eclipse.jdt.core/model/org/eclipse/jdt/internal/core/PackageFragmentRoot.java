@@ -177,7 +177,7 @@ private boolean isOnClasspath() throws JavaModelException {
 	}
 	
 	// check package fragment root on classpath of its project
-	IClasspathEntry[] classpath = project.getResolvedClasspath(true);	boolean onClasspath = false;
+	IClasspathEntry[] classpath = project.getResolvedClasspath(true);	
 	for (int i = 0, length = classpath.length; i < length; i++) {
 		IClasspathEntry entry = classpath[i];
 		if (entry.getPath().equals(path)) {
