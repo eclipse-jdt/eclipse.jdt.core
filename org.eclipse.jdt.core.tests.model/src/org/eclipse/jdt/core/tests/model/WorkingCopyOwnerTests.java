@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -163,6 +164,42 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				while (workingCopy.isWorkingCopy() && max-- > 0) {
 					workingCopy.discardWorkingCopy();
 				}
+			}
+		}
+	}
+
+	/*
+	 * Tests that a non-primary working copy that is discarded cannot be reopened.
+	 */
+	public void testDiscardWorkingCopy4() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			ICompilationUnit cu = getCompilationUnit("P/X.java");
+			TestWorkingCopyOwner owner = new TestWorkingCopyOwner();
+			workingCopy = cu.getWorkingCopy(owner, null, null);
+
+			boolean gotException = false;
+			try {
+				workingCopy.getAllTypes();
+			} catch (JavaModelException e) {
+				gotException = true;
+			}
+			assertTrue("should get a JavaModelException before discarding working copy", !gotException);
+
+			workingCopy.discardWorkingCopy();
+			assertTrue("should no longer be in working copy mode", !workingCopy.isWorkingCopy());
+			
+			gotException = false;
+			try {
+				workingCopy.getAllTypes();
+			} catch (JavaModelException e) {
+				gotException = true;
+			}
+			assertTrue("should get a JavaModelException after discarding working copy", gotException);
+			
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
 			}
 		}
 	}
