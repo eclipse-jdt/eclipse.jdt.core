@@ -322,11 +322,15 @@ private Binding findOnDemandImport(char[][] compoundName) {
 	}
 
 	for (; i < length; i++) {
+		if (!type.canBeSeenBy(fPackage)) {
+			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), type, NotVisible);		
+		}
 		// does not look for inherited member types on purpose
-		if ((type = type.getMemberType(compoundName[i])) == null)
+		if ((type = type.getMemberType(compoundName[i])) == null) {
 			return new ProblemReferenceBinding(
 				CharOperation.subarray(compoundName, 0, i + 1),
 				NotFound);
+		}
 	}
 	if (!type.canBeSeenBy(fPackage))
 		return new ProblemReferenceBinding(compoundName, type, NotVisible);
