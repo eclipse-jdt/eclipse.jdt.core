@@ -30,6 +30,7 @@
         <echo message='compiling sources      -> .o'/>
         <apply failonerror='true' executable='${gcc-path}/bin/gcj' dest='${work}' parallel='true'>
             <arg value='--classpath=${work}'/>
+            <arg line=' -d ${work}' />
             <arg value='--verbose'/>
             <arg value='-O2'/>
             <arg value='-g'/>
@@ -38,6 +39,7 @@
             <fileset dir='${work}' includes='**/*.java'/>
             <mapper type='glob' from='*.java' to='*.o'/>
         </apply>
+        
         <echo message='linking .o -> ${binaryname}'/>
         <apply failonerror='true' executable='${gcc-path}/bin/gcj' parallel='true'>
             <arg value='--verbose'/>
