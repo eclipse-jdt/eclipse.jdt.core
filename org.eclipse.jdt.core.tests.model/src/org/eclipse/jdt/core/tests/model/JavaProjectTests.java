@@ -238,7 +238,7 @@ public void testCompilationUnitCorrespondingResource() throws JavaModelException
 /**
  * Tests the fix for "1FWNMKD: ITPJCORE:ALL - Package Fragment Removal not reported correctly"
  */
-public void testDeletePackageWithAutobuild() throws JavaModelException, CoreException, IOException {
+public void testDeletePackageWithAutobuild() throws CoreException {
 	// close all project except JavaProjectTests so as to avoid side effects while autobuilding
 	IProject[] projects = getWorkspaceRoot().getProjects();
 	for (int i = 0; i < projects.length; i++) {
@@ -375,7 +375,7 @@ public void testFindElementPrereqSimpleProject() throws CoreException {
 /**
  * Test that a package fragment root can be found from a classpath entry.
  */
-public void testFindPackageFragmentRootFromClasspathEntry() throws JavaModelException {
+public void testFindPackageFragmentRootFromClasspathEntry() {
 	IJavaProject project = getJavaProject("JavaProjectTests");
 	
 	// existing classpath entry

@@ -108,7 +108,7 @@ protected void populate(StringBuffer buffer, IJavaElement element, int indent) t
 		}
 	}
 }
-protected void populate(StringBuffer buffer, Object nonJavaResource, int indent) throws CoreException {
+protected void populate(StringBuffer buffer, Object nonJavaResource, int indent) {
 	if (buffer.length() != 0) {	
 		buffer.append("\n");
 	}

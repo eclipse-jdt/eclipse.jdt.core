@@ -163,8 +163,7 @@ public class TestBuffer implements IBuffer {
 		/*
 		 * @see IBuffer#save(IProgressMonitor, boolean)
 		 */
-		public void save(IProgressMonitor progress, boolean force)
-			throws JavaModelException {
+		public void save(IProgressMonitor progress, boolean force) {
 		}
 
 		/*

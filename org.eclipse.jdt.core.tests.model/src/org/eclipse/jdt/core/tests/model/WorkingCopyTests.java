@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.IOException;
 import java.util.Vector;
 
 import junit.framework.Test;
@@ -194,7 +193,7 @@ public void testOnClassFile() throws JavaModelException {
 /**
  * Create the compilation unit place holder for the working copy tests.
  */
-public void testCreation() throws JavaModelException {
+public void testCreation() {
 	assertTrue("Failed to create X.java compilation unit", this.cu != null && this.cu.exists());
 	assertTrue("Failed to create working copy on X.java", this.copy != null && this.copy.exists());
 }
@@ -264,7 +263,7 @@ public void testDelete2Fields() throws CoreException {
  * <li>ensures that working copies are unique
  * <li>ensures committing changes from working copies 
  */
-public void testGeneral() throws JavaModelException, CoreException, IOException {
+public void testGeneral() throws JavaModelException, CoreException {
 
 	assertTrue("copy and actual should not be equal", !this.copy.equals(this.cu));
 
@@ -368,7 +367,7 @@ public void testGetOriginalBinaryElement() throws CoreException {
 /**
  * Ensures that the original cu can be retrieved.
  */
-public void testGetOriginalCU() throws JavaModelException {
+public void testGetOriginalCU() {
 	IJavaElement original= this.copy.getOriginal(copy);
 	assertTrue("Element is not a cu", original instanceof ICompilationUnit && !((ICompilationUnit)original).isWorkingCopy());
 	assertTrue("Element should exist", original.exists());
@@ -397,7 +396,7 @@ public void testGetOriginalElementNotInWorkingCopy() throws CoreException {
 /**
  * Ensures that the original field can be retrieved.
  */
-public void testGetOriginalField() throws JavaModelException {
+public void testGetOriginalField() {
 	IType type = this.copy.getType("A");
 	IJavaElement original = this.copy.getOriginal(type.getField("FIELD"));
 	assertTrue("Element is not a field", original instanceof IField && !((ICompilationUnit)original.getParent().getParent()).isWorkingCopy());
@@ -406,7 +405,7 @@ public void testGetOriginalField() throws JavaModelException {
 /**
  * Ensures that the original import declaration can be retrieved.
  */
-public void testGetOriginalImportDeclaration() throws JavaModelException {
+public void testGetOriginalImportDeclaration()  {
 	IImportDeclaration imprt = copy.getImport("java.io.File");
 	IJavaElement original= this.copy.getOriginal(imprt);
 	assertTrue("Element should exist", original.exists());
@@ -414,7 +413,7 @@ public void testGetOriginalImportDeclaration() throws JavaModelException {
 /**
  * Ensures that the original import container can be retrieved.
  */
-public void testGetOriginalImportContainer() throws JavaModelException {
+public void testGetOriginalImportContainer() {
 	IImportContainer container = this.copy.getImportContainer();
 	IJavaElement original = this.copy.getOriginal(container);
 	assertTrue("Element should not be null", original != null);
@@ -423,14 +422,14 @@ public void testGetOriginalImportContainer() throws JavaModelException {
 /**
  * Ensures that the original initializer can be retrieved.
  */
-public void testGetOriginalInitializer() throws JavaModelException {
+public void testGetOriginalInitializer() {
 	IType type= copy.getType("A");
 	IJavaElement original= copy.getOriginal(type.getInitializer(1));
 	assertTrue("Element should exist", original.exists());
 }
 /**
  */
-public void testGetOriginalInnerField() throws JavaModelException {
+public void testGetOriginalInnerField() {
 	IType innerType = this.copy.getType("A").getType("Inner");
 	IJavaElement original = this.copy.getOriginal(innerType.getField("innerField"));
 	assertTrue("Element is not a field", original instanceof IField);
@@ -446,7 +445,7 @@ public void testGetOriginalInnerMethod() throws JavaModelException {
 }
 /**
  */
-public void testGetOriginalInnerType() throws JavaModelException {
+public void testGetOriginalInnerType() {
 	IType innerInnerType = this.copy.getType("A").getType("Inner").getType("InnerInner");
 	IJavaElement original = this.copy.getOriginal(innerInnerType);
 	assertTrue("Element is not a method", original instanceof IType);
@@ -486,7 +485,7 @@ public void testRenameMethod() throws JavaModelException {
 /**
  * Ensures that the original package declaration can be retrieved.
  */
-public void testGetOriginalPackageDeclaration() throws JavaModelException {
+public void testGetOriginalPackageDeclaration() {
 	IPackageDeclaration pkg = this.copy.getPackageDeclaration("x.y");
 	IJavaElement original = this.copy.getOriginal(pkg);
 	assertTrue("Element should exist", original.exists());
@@ -494,7 +493,7 @@ public void testGetOriginalPackageDeclaration() throws JavaModelException {
 /**
  * Ensures that the original type can be retrieved.
  */
-public void testGetOriginalType() throws JavaModelException {
+public void testGetOriginalType() {
 	IType type = this.copy.getType("A");
 	IJavaElement original= copy.getOriginal(type);
 	assertTrue("Element should exist", original.exists());
@@ -585,7 +584,7 @@ public void testShared2() throws JavaModelException {
 /**
  * Tests that multiple commits are possible with the same working copy.
  */
-public void testMultipleCommit() throws JavaModelException, CoreException, IOException {
+public void testMultipleCommit() {
 
 	// Add a method to the working copy
 	IType gp = this.copy.getType("A");

@@ -7188,7 +7188,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11125
 	 */
-	public void test0305() throws JavaModelException {
+	public void test0305() {
 		char[] source = 
 				("package test0304;\n" +  //$NON-NLS-1$
 				"\n" +  //$NON-NLS-1$
@@ -7213,7 +7213,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=11125
 	 */
-	public void test0306() throws JavaModelException {
+	public void test0306() {
 		char[] source = 
 				("package java.lang;\n" +  //$NON-NLS-1$
 				"\n" +  //$NON-NLS-1$

@@ -214,7 +214,7 @@ public String getProgramClass() {
  * @return the list of running target VMs
  * @exception TargetException if the target VMs could not be retrieved.
  */
-public LocalVirtualMachine[] getRunningVirtualMachines() throws TargetException {
+public LocalVirtualMachine[] getRunningVirtualMachines() {
 	// Select the VMs that are actually running
 	Vector actuallyRunning = new Vector();
 	Enumeration enum = this.runningVMs.elements();

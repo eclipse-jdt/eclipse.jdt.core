@@ -75,7 +75,7 @@ public void testCodeCoverage() throws JavaModelException {
  * Ensures <code>commit(boolean, IProgressMonitor)</code> throws the correct 
  * <code>JavaModelException</code> for a <code>CompilationUnit</code>.
  */
-public void testCommit() throws JavaModelException {
+public void testCommit() {
 	try {
 		this.cu.commit(false, null);
 	} catch (JavaModelException jme) {
@@ -103,7 +103,7 @@ public void testDeprecatedFlag() throws JavaModelException {
  * Ensures <code>getContents()</code> returns the correct value
  * for a <code>CompilationUnit</code> that is not present
  */
-public void testGetContentsForNotPresent() throws JavaModelException {
+public void testGetContentsForNotPresent() {
 	CompilationUnit compilationUnit = (CompilationUnit)getCompilationUnit("/P/src/p/Absent.java");
 	
 	assertSourceEquals("Unexpected contents for non present cu", "", new String(compilationUnit.getContents()));
@@ -167,7 +167,7 @@ public void testGetFields() throws JavaModelException {
  * compilation unit.
  * Checks non-existant handle, on demand and not.
  */
-public void testGetImport() throws JavaModelException {
+public void testGetImport() {
 	IImportDeclaration imprt = this.cu.getImport("java.lang");
 	assertTrue("Import should not exist " + imprt, !imprt.exists());
 	
@@ -279,7 +279,7 @@ public void testCheckInterfaceMethodModifiers() throws JavaModelException {
  * Ensure that <code>null</code> is returned for the original and original element of a
  * compilation unit.
  */
-public void testGetOriginal() throws JavaModelException {
+public void testGetOriginal() {
 	IJavaElement original = this.cu.getOriginalElement();
 	assertTrue("Original for a compilation unit should be null", original == null);
 	original = this.cu.getOriginal(this.cu);
@@ -301,7 +301,7 @@ public void testGetPackages() throws JavaModelException {
  * compilation unit.
  * Checks non-existant handle and existing handles.
  */
-public void testGetType() throws JavaModelException {
+public void testGetType() {
 	IType type = this.cu.getType("someType");
 	assertTrue("Type should not exist " + type, !type.exists());
 	

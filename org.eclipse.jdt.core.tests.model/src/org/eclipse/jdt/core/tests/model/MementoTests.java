@@ -61,7 +61,7 @@ public void tearDownSuite() throws Exception {
 /**
  * Tests that an anonymous type can be persisted and restored using its memento.
  */
-public void testAnonymousTypeMemento1() throws JavaModelException {
+public void testAnonymousTypeMemento1() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
 	
 	IType anonymous = type.getInitializer(1).getType("", 1);
@@ -77,7 +77,7 @@ public void testAnonymousTypeMemento1() throws JavaModelException {
 /**
  * Tests that an anonymous type can be persisted and restored using its memento.
  */
-public void testAnonymousTypeMemento2() throws JavaModelException {
+public void testAnonymousTypeMemento2() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
 	
 	IType anonymous = type.getField("f").getType("", 1);
@@ -93,7 +93,7 @@ public void testAnonymousTypeMemento2() throws JavaModelException {
 /**
  * Tests that an anonymous type can be persisted and restored using its memento.
  */
-public void testAnonymousTypeMemento3() throws JavaModelException {
+public void testAnonymousTypeMemento3() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
 	
 	IType anonymous = type.getMethod("foo", new String[]{}).getType("", 1);
@@ -169,7 +169,7 @@ public void testBinaryTypeMemento() throws JavaModelException {
 /**
  * Tests that a class file can be persisted and restored using its memento.
  */
-public void testClassFileMemento() throws JavaModelException {
+public void testClassFileMemento() {
 	IClassFile cf =  getClassFile("/P/lib/p/X.class");
 	assertMemento(
 		"=P/lib<p(X.class",
@@ -184,7 +184,7 @@ public void testClassFileMemento() throws JavaModelException {
 /**
  * Tests that a compilation unit can be persisted and restored using its memento.
  */
-public void testCompilationUnitMemento() throws JavaModelException {
+public void testCompilationUnitMemento() {
 	ICompilationUnit cu = getCompilationUnit("/P/src/p/X.java");
 	assertMemento(
 		"=P/src<p{X.java",
@@ -236,7 +236,7 @@ public void testExternalJarBinaryTypeMemento() throws JavaModelException {
 /**
  * Tests that an import declaration can be persisted and restored using its memento.
  */
-public void testImportContainerMemento() throws JavaModelException {
+public void testImportContainerMemento() {
 	IImportContainer importContainer = getCompilationUnit("/P/src/p/X.java").getImportContainer();
 	assertMemento(
 		"=P/src<p{X.java#",
@@ -245,7 +245,7 @@ public void testImportContainerMemento() throws JavaModelException {
 /**
  * Tests that an import declaration can be persisted and restored using its memento.
  */
-public void testImportDeclarationMemento() throws JavaModelException {
+public void testImportDeclarationMemento() {
 	IImportDeclaration importDecl = getCompilationUnit("/P/src/p/X.java").getImport("java.io.Serializable");
 	assertMemento(
 		"=P/src<p{X.java#java.io.Serializable",
@@ -259,7 +259,7 @@ public void testImportDeclarationMemento() throws JavaModelException {
 /**
  * Tests that an initializer can be persisted and restored using its memento.
  */
-public void testInitializerMemento() throws JavaModelException {
+public void testInitializerMemento() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
 	
 	IInitializer initializer = type.getInitializer(1);
@@ -313,7 +313,7 @@ public void testInternalJarBinaryTypeMemento() throws JavaModelException {
 /**
  * Tests that a local type can be persisted and restored using its memento.
  */
-public void testLocalTypeMemento1() throws JavaModelException {
+public void testLocalTypeMemento1() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
 	
 	IType anonymous = type.getInitializer(1).getType("Y", 1);
@@ -329,7 +329,7 @@ public void testLocalTypeMemento1() throws JavaModelException {
 /**
  * Tests that a local type can be persisted and restored using its memento.
  */
-public void testLocalTypeMemento2() throws JavaModelException {
+public void testLocalTypeMemento2() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
 	
 	IType anonymous = type.getMethod("foo", new String[]{}).getType("Y", 1);
@@ -345,7 +345,7 @@ public void testLocalTypeMemento2() throws JavaModelException {
 /**
  * Tests that a package declaration can be persisted and restored using its memento.
  */
-public void testPackageDeclarationMemento() throws JavaModelException {
+public void testPackageDeclarationMemento() {
 	IPackageDeclaration declaration = getCompilationUnit("/P/src/p/X.java").getPackageDeclaration("p");
 	assertMemento(
 		"=P/src<p{X.java%p",
@@ -359,7 +359,7 @@ public void testPackageDeclarationMemento() throws JavaModelException {
 /**
  * Tests that a package fragment can be persisted and restored using its memento.
  */
-public void testPackageFragmentMemento() throws JavaModelException {
+public void testPackageFragmentMemento() {
 	IPackageFragment pkg = getPackage("/P/src/p");
 	assertMemento(
 		"=P/src<p",
@@ -378,7 +378,7 @@ public void testPackageFragmentMemento() throws JavaModelException {
 /**
  * Tests that a source folder package fragment root can be persisted and restored using its memento.
  */
-public void testPackageFragmentRootMemento1() throws CoreException {
+public void testPackageFragmentRootMemento1() {
 	IJavaProject project = getJavaProject("P");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(project.getProject().getFolder("src"));
 	assertMemento(
@@ -404,7 +404,7 @@ public void testPackageFragmentRootMemento2() throws CoreException {
  * Tests that a library folder package fragment root in the same project
  * can be persisted and restored using its memento.
  */
-public void testPackageFragmentRootMemento3() throws CoreException {
+public void testPackageFragmentRootMemento3() {
 	IJavaProject project = getJavaProject("P");
 	IFolder libFolder = project.getProject().getFolder("lib");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(libFolder);
@@ -416,7 +416,7 @@ public void testPackageFragmentRootMemento3() throws CoreException {
  * Tests that a library folder package fragment root in another project
  * can be persisted and restored using its memento.
  */
-public void testPackageFragmentRootMemento4() throws CoreException {
+public void testPackageFragmentRootMemento4() {
 	IJavaProject project = getJavaProject("P");
 	IFolder otherLibFolder = getFolder("/OtherProj/lib");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(otherLibFolder);
@@ -428,7 +428,7 @@ public void testPackageFragmentRootMemento4() throws CoreException {
  * Tests that a jar package fragment root in the same project
  * can be persisted and restored using its memento.
  */
-public void testPackageFragmentRootMemento5() throws CoreException {
+public void testPackageFragmentRootMemento5() {
 	IJavaProject project = getJavaProject("P");
 	IFile jar = getFile("/P/lib/myLib.jar");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(jar);
@@ -440,7 +440,7 @@ public void testPackageFragmentRootMemento5() throws CoreException {
  * Tests that a jar package fragment root in another project
  * can be persisted and restored using its memento.
  */
-public void testPackageFragmentRootMemento6() throws CoreException {
+public void testPackageFragmentRootMemento6() {
 	IJavaProject project = getJavaProject("P");
 	IFile jar = getFile("/OtherProj/lib/myLib.jar");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(jar);
@@ -461,7 +461,7 @@ public void testPackageFragmentRootMemento7() throws CoreException {
 /**
  * Tests that a project can be persisted and restored using its memento.
  */
-public void testProjectMemento() throws JavaModelException {
+public void testProjectMemento() {
 	IJavaProject project = getJavaProject("P");
 	assertMemento(
 		"=P",
@@ -470,14 +470,14 @@ public void testProjectMemento() throws JavaModelException {
 /**
  * Tests that a bogus memento cannot be restored.
  */
-public void testRestoreBogusMemento() throws JavaModelException {
+public void testRestoreBogusMemento() {
 	IJavaElement restored = JavaCore.create("bogus");
 	assertEquals("should not be able to restore a bogus memento", null, restored);
 }
 /**
  * Tests that a source field can be persisted and restored using its memento.
  */
-public void testSourceFieldMemento() throws JavaModelException {
+public void testSourceFieldMemento() {
 	IField field = getCompilationUnit("/P/src/p/X.java").getType("X").getField("field");
 	assertMemento(
 		"=P/src<p{X.java[X^field",
@@ -487,7 +487,7 @@ public void testSourceFieldMemento() throws JavaModelException {
  * Tests that a source inner type, inner field and inner method can be persisted and restored
  * using mementos.
  */
-public void testSourceInnerTypeMemento() throws JavaModelException {
+public void testSourceInnerTypeMemento() {
 	IType innerType = getCompilationUnit("/P/src/p/X.java").getType("X").getType("Inner");
 	assertMemento(
 		"=P/src<p{X.java[X[Inner",
@@ -496,7 +496,7 @@ public void testSourceInnerTypeMemento() throws JavaModelException {
 /**
  * Tests that a source method can be persisted and restored using its memento.
  */
-public void testSourceMethodMemento() throws JavaModelException {
+public void testSourceMethodMemento() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
 
 	IMethod method = type.getMethod("foo", new String[] {"I", "Ljava.lang.String;"});
@@ -517,7 +517,7 @@ public void testSourceMethodMemento() throws JavaModelException {
 /**
  * Tests that a source type can be persisted and restored using its memento.
  */
-public void testSourceTypeMemento() throws JavaModelException {
+public void testSourceTypeMemento() {
 	IType type = getCompilationUnit("/P/src/p/X.java").getType("X");
 	assertMemento(
 		"=P/src<p{X.java[X",

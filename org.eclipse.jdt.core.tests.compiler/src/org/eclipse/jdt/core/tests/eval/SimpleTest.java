@@ -292,7 +292,7 @@ protected void startEvaluationContext() throws TargetException {
 	this.target.connect("localhost", evalPort, 10000);
 	this.context = new EvaluationContext();
 }
-protected void stopEvaluationContext() throws TargetException {
+protected void stopEvaluationContext() {
 	try {
 		this.target.disconnect(); // Close the socket first so that the OS resource has a chance to be freed. 
 		int retry = 0;

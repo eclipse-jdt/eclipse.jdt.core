@@ -22,7 +22,7 @@ public SignatureTests(String name) {
 /**
  * Ensures that creating an invalid type signature throws an IllegalArgumentException or return the expected signature.
  */
-protected void assertInvalidTypeSignature(String typeName, boolean isResolved, String expected) throws JavaModelException {
+protected void assertInvalidTypeSignature(String typeName, boolean isResolved, String expected) {
 	String actual;
 	try {
 		actual = Signature.createTypeSignature(typeName, isResolved);
@@ -46,7 +46,7 @@ public void testCreateArraySignature() {
 /**
  * @see Signature
  */
-public void testCreateMethodSignature() throws JavaModelException {
+public void testCreateMethodSignature() {
 	assertEquals(
 		"Signature#createMethodSignature is not correct 1", 
 		"(QString;QObject;I)I", 
@@ -60,7 +60,7 @@ public void testCreateMethodSignature() throws JavaModelException {
 /**
  * @see Signature
  */
-public void testCreateTypeSignature() throws JavaModelException {
+public void testCreateTypeSignature() {
 	assertEquals("Signature#createTypeSignature is not correct1", "I", Signature.createTypeSignature("int".toCharArray(), false));
 	assertEquals("Signature#createTypeSignature is not correct2", "Ljava.lang.String;", Signature.createTypeSignature("java.lang.String".toCharArray(), true));
 	assertEquals("Signature#createTypeSignature is not correct3", "QString;", Signature.createTypeSignature("String".toCharArray(), false));
@@ -83,7 +83,7 @@ public void testCreateTypeSignature() throws JavaModelException {
 /**
  * Ensures that creating an invalid type signature throws an IllegalArgumentException.
  */
-public void testCreateInvalidTypeSignature() throws JavaModelException {
+public void testCreateInvalidTypeSignature() {
 	assertInvalidTypeSignature(null, false, null);
 	assertInvalidTypeSignature("", false, "");
 	assertInvalidTypeSignature("int.Y", false, "I");
@@ -119,7 +119,7 @@ public void testGetElementType() {
 /**
  * @see Signature
  */
-public void testGetParameterCount() throws JavaModelException {
+public void testGetParameterCount() {
 	String methodSig = "(QString;QObject;I)I";
 	assertTrue("Signature#getParameterCount is not correct1", Signature.getParameterCount(methodSig) == 3);
 	try {
@@ -132,7 +132,7 @@ public void testGetParameterCount() throws JavaModelException {
 /**
  * @see Signature
  */
-public void testGetParameterTypes() throws JavaModelException {
+public void testGetParameterTypes() {
 	String methodSig = "(QString;QObject;I)I";
 	String[] types= Signature.getParameterTypes(methodSig);
 	assertTrue("Signature#getParameterTypes is not correct1", types.length == 3);
@@ -147,7 +147,7 @@ public void testGetParameterTypes() throws JavaModelException {
 /**
  * @see Signature
  */
-public void testGetQualifier() throws JavaModelException {
+public void testGetQualifier() {
 	assertTrue("Signature#getQualifier is not correct1", Signature.getQualifier("java.lang.Object").equals("java.lang"));
 	assertTrue("Signature#getQualifier is not correct2",  Signature.getQualifier("").equals(""));
 	
@@ -155,7 +155,7 @@ public void testGetQualifier() throws JavaModelException {
 /**
  * @see Signature
  */
-public void testGetReturnType() throws JavaModelException {
+public void testGetReturnType() {
 	String methodSig = "(QString;QObject;I)I";
 	assertTrue("Signature#getReturnType is not correct1", Signature.getReturnType(methodSig).equals("I"));
 	try {
@@ -168,14 +168,14 @@ public void testGetReturnType() throws JavaModelException {
 /**
  * @see Signature
  */
-public void testGetSimpleName() throws JavaModelException {
+public void testGetSimpleName() {
 	assertTrue("Signature#getSimpleName is not correct1", Signature.getSimpleName("java.lang.Object").equals("Object"));
 	assertTrue("Signature#getSimpleName is not correct2",  Signature.getSimpleName("").equals(""));
 }
 /**
  * @see Signature
  */
-public void testGetSimpleNames() throws JavaModelException {
+public void testGetSimpleNames() {
 	String[] simpleNames = Signature.getSimpleNames("java.lang.Object");
 	assertTrue("Signature#getSimpleNames is not correct1", simpleNames.length == 3 && simpleNames[2].equals("Object"));
 	simpleNames = Signature.getSimpleNames("");
@@ -186,7 +186,7 @@ public void testGetSimpleNames() throws JavaModelException {
 /**
  * @see Signature
  */
-public void testToQualifiedName() throws JavaModelException {
+public void testToQualifiedName() {
 	assertTrue("Signature#toQualifiedName is not correct1", Signature.toQualifiedName(new String[] {"java", "lang", "Object"}).equals("java.lang.Object"));
 	assertTrue("Signature#toQualifiedName is not correct2", Signature.toQualifiedName(new String[] {"Object"}).equals("Object"));
 	assertTrue("Signature#toQualifiedName is not correct3", Signature.toQualifiedName(new String[0]).equals(""));
@@ -194,7 +194,7 @@ public void testToQualifiedName() throws JavaModelException {
 /**
  * @see Signature.toString(String)
  */
-public void testToString1() throws JavaModelException {
+public void testToString1() {
 	assertEquals(
 		"Signature#toString is not correct 1", 
 		"java.lang.String",
@@ -255,7 +255,7 @@ public void testToString1() throws JavaModelException {
 /**
  * @see Signature.toString(String, String, String[], boolean, boolean)
  */
-public void testToString2() throws JavaModelException {
+public void testToString2() {
 	assertEquals(
 		"Signature#toString is not correct 1", 
 		"void main(String[] args)",
@@ -311,7 +311,7 @@ public void testToString2() throws JavaModelException {
 /**
  * Test the toString() signature of an inner type.
  */
-public void testToStringInnerType() throws JavaModelException {
+public void testToStringInnerType() {
 	assertEquals(
 		"Signature#toString is not correct", 
 		"x.y.A.Inner",

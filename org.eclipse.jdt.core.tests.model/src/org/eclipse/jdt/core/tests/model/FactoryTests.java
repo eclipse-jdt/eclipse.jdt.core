@@ -195,7 +195,7 @@ public void testCreateFromFileWithoutExtension() throws CoreException {
 /**
  * Ensures that factory correctly handles invalid mementos.
  */
-public void testCreateFromInvalidMemento() throws JavaModelException {
+public void testCreateFromInvalidMemento()  {
 	assertTrue("invalid parameter not detected", JavaCore.create((String) null) == null);
 	assertTrue("should return the java model", JavaCore.create("") != null);
 }

@@ -64,7 +64,7 @@ File createFile(File parent, String name, String content) throws IOException {
 	out.close();
 	return file;
 }
-File createDirectory(File parent, String name) throws IOException {
+File createDirectory(File parent, String name) {
 	File dir = new File(parent, name);
 	dir.mkdirs();
 	return dir;

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -469,7 +468,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	/*
 	 * Ensures that getOwner() returns null for a primary compilation unit.
 	 */
-	public void testGetOwner2() throws CoreException {
+	public void testGetOwner2()  {
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 		assertEquals("Unexpected owner", null, cu.getOwner());
 	}
@@ -550,7 +549,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	/*
 	 * Ensures that getPrimaryElement() on an package fragment returns the same handle.
 	 */
-	public void testGetPrimaryElement3() throws CoreException {
+	public void testGetPrimaryElement3()  {
 		IPackageFragment pkg = getPackage("P");
 		assertEquals("Unexpected element", pkg, pkg.getPrimaryElement());
 	}
@@ -759,7 +758,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	 * Ensures that using AST.parseCompilationUint(IClassFile, boolean, WorkingCopyOwner) and 
 	 * computing the bindings takes the owner's working copies into account.
 	 */
-	public void testParseCompilationUnit3() throws CoreException, IOException {
+	public void testParseCompilationUnit3() throws CoreException {
 		ICompilationUnit workingCopy = null;
 		try {
 			createJavaProject("P1", new String[] {"src"}, new String[] {"JCL_LIB", "lib"}, "bin");

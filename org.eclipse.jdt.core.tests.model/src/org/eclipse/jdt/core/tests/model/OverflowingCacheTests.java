@@ -197,7 +197,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 			open(null);
 		}
 		
-		protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+		protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) {
 			return false;
 		}
 		

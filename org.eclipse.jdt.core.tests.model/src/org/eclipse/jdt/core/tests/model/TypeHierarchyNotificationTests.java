@@ -115,7 +115,7 @@ protected void tearDown() throws Exception {
  * only if one of the types of the CU is part of the  
  * type hierarchy.
  */
-public void testAddCompilationUnit1() throws CoreException, IOException {
+public void testAddCompilationUnit1() throws CoreException {
 	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type= cu.getType("X");
@@ -149,7 +149,7 @@ public void testAddCompilationUnit1() throws CoreException, IOException {
  * only if one of the types of the CU is part of the  
  * type hierarchy.
  */
-public void testAddCompilationUnit2() throws CoreException, IOException {
+public void testAddCompilationUnit2() throws CoreException {
 	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type= cu.getType("X");
@@ -184,7 +184,7 @@ public void testAddCompilationUnit2() throws CoreException, IOException {
  * only if one of the types of the CU is part of the  
  * type hierarchy.
  */
-public void testAddCompilationUnit3() throws CoreException, IOException {
+public void testAddCompilationUnit3() throws CoreException {
 	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type= cu.getType("X");
@@ -306,7 +306,7 @@ public void testAddCompilationUnitInRegion() throws JavaModelException, CoreExce
  * When a CU is added if the CU does not intersects package fragments in the type hierarchy, 
  * the typehierarchy has not changed.
  */
-public void testAddExternalCompilationUnit() throws JavaModelException, CoreException, IOException {
+public void testAddExternalCompilationUnit() throws JavaModelException, CoreException {
 	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type= cu.getType("X");
@@ -338,7 +338,7 @@ public void testAddExternalCompilationUnit() throws JavaModelException, CoreExce
 /**
  * When a package is added in an external project, the type hierarchy should not change
  */
-public void testAddExternalPackage() throws JavaModelException, CoreException, IOException {
+public void testAddExternalPackage() throws JavaModelException, CoreException {
 	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type= cu.getType("X");
@@ -368,7 +368,7 @@ public void testAddExternalPackage() throws JavaModelException, CoreException, I
  * When a project is added that is not on the class path of the type hierarchy project,
  * the type hierarchy should not change.
  */
-public void testAddExternalProject() throws JavaModelException, CoreException, IOException {
+public void testAddExternalProject() throws JavaModelException, CoreException {
 	IJavaProject project= getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type = cu.getType("X");
@@ -387,7 +387,7 @@ public void testAddExternalProject() throws JavaModelException, CoreException, I
 /**
  * Test adding the same listener twice.
  */
-public void testAddListenerTwice() throws JavaModelException, CoreException, IOException {
+public void testAddListenerTwice() throws JavaModelException, CoreException {
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	ICompilationUnit superCU = getCompilationUnit("TypeHierarchyNotification", "src", "b", "B.java");
@@ -409,7 +409,7 @@ public void testAddListenerTwice() throws JavaModelException, CoreException, IOE
 /**
  * When a package is added, the type hierarchy should change
  */
-public void testAddPackage() throws JavaModelException, CoreException, IOException {
+public void testAddPackage() throws JavaModelException, CoreException {
 	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type= cu.getType("X");
@@ -429,7 +429,7 @@ public void testAddPackage() throws JavaModelException, CoreException, IOExcepti
 /**
  * When a package fragment root is added, the type hierarchy should change
  */
-public void testAddPackageFragmentRoot() throws JavaModelException, CoreException, IOException {
+public void testAddPackageFragmentRoot() throws JavaModelException, CoreException {
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type= cu.getType("X");
@@ -461,7 +461,7 @@ public void testAddPackageFragmentRoot() throws JavaModelException, CoreExceptio
  * When a project is added that is on the class path of the type hierarchy project,
  * the type hierarchy should change.
  */
-public void testAddProject() throws JavaModelException, CoreException, IOException {
+public void testAddProject() throws JavaModelException, CoreException {
 	IJavaProject project= getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type = cu.getType("X");
@@ -498,7 +498,7 @@ public void testAddProject() throws JavaModelException, CoreException, IOExcepti
  * When a class file is added or removed if the class file intersects package fragments in the type hierarchy,
  * the type hierarchy has possibly changed (possibly introduce a supertype)
  */
-public void testAddRemoveClassFile() throws JavaModelException, CoreException, IOException {
+public void testAddRemoveClassFile() throws JavaModelException, CoreException {
 	// Create type hierarchy on 'java.lang.LinkageError' in 'Minimal.zip'
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit unit = getCompilationUnit("TypeHierarchyNotification", "src", "p", "MyError.java");
@@ -560,7 +560,7 @@ public void testCloseProject() throws Exception {
 /**
  * When editing the extends clause of a source type in a hierarchy, we should be notified of change.
  */
-public void testEditExtendsSourceType() throws JavaModelException, CoreException, IOException {
+public void testEditExtendsSourceType() throws JavaModelException, CoreException {
 	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type= cu.getType("X");
@@ -585,7 +585,7 @@ public void testEditExtendsSourceType() throws JavaModelException, CoreException
  * When adding an extends clause of a source type in a hierarchy, we should be notified of change.
  * (regression test for bug 4917 Latest build fails updating TypeHierarchyNotification)
  */
-public void testAddExtendsSourceType() throws JavaModelException, CoreException, IOException {
+public void testAddExtendsSourceType() throws JavaModelException, CoreException {
 	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p2", "A.java");
 	IType type= cu.getType("A");
@@ -604,7 +604,7 @@ public void testAddExtendsSourceType() throws JavaModelException, CoreException,
 /**
  * When editing a source type NOT in a hierarchy, we should receive NO CHANGES.
  */
-public void testEditExternalSourceType() throws JavaModelException, CoreException, IOException {
+public void testEditExternalSourceType() throws JavaModelException, CoreException {
 	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type= cu.getType("X");
@@ -624,7 +624,7 @@ public void testEditExternalSourceType() throws JavaModelException, CoreExceptio
  * When editing the field of a source type in a hierarchy, 
  * we should NOT be notified of a change.
  */
-public void testEditFieldSourceType() throws JavaModelException, CoreException, IOException {
+public void testEditFieldSourceType() throws JavaModelException, CoreException {
 	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type= cu.getType("X");
@@ -649,7 +649,7 @@ public void testEditFieldSourceType() throws JavaModelException, CoreException, 
  * When editing the imports of a source type in a hierarchy, 
  * we should be notified of a change.
  */
-public void testEditImportSourceType() throws JavaModelException, CoreException, IOException {
+public void testEditImportSourceType() throws JavaModelException, CoreException {
 	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type = cu.getType("X");
@@ -688,7 +688,7 @@ public void testEditImportSourceType() throws JavaModelException, CoreException,
  * When editing > 1 source type in a hierarchy using a MultiOperation, 
  * we should be notified of ONE change.
  */
-public void testEditSourceTypes() throws JavaModelException, CoreException, IOException {
+public void testEditSourceTypes() throws JavaModelException, CoreException {
 	// TBD: Find a way to do 2 changes in 2 different CUs at once
 	
 	IJavaProject project= getJavaProject("TypeHierarchyNotification");
@@ -703,7 +703,7 @@ public void testEditSourceTypes() throws JavaModelException, CoreException, IOEx
 		// in a batch operation
 		JavaCore.run(
 			new IWorkspaceRunnable() {
-				public void run(IProgressMonitor monitor) throws CoreException {
+				public void run(IProgressMonitor monitor) {
 					try {
 						changeVisibility(superCU, "public", "private");
 						changeSuper(cu, "X", "a.A");
@@ -726,7 +726,7 @@ public void testEditSourceTypes() throws JavaModelException, CoreException, IOEx
  * When editing a super source type in a hierarchy, we should be notified of change only if
  * the change affects the visibility of the type.
  */
-public void testEditSuperType() throws JavaModelException, CoreException, IOException {
+public void testEditSuperType() throws JavaModelException, CoreException {
 	IJavaProject project= getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	ICompilationUnit superCU = getCompilationUnit("TypeHierarchyNotification", "src", "b", "B.java");
@@ -751,7 +751,7 @@ public void testEditSuperType() throws JavaModelException, CoreException, IOExce
 /**
  * When an involved compilation unit is deleted, the type hierarchy should change
  */
-public void testRemoveCompilationUnit() throws JavaModelException, CoreException, IOException {
+public void testRemoveCompilationUnit() throws JavaModelException, CoreException {
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	ICompilationUnit superCU = getCompilationUnit("TypeHierarchyNotification", "src", "b", "B.java");
@@ -770,7 +770,7 @@ public void testRemoveCompilationUnit() throws JavaModelException, CoreException
 /**
  * When an uninvolved compilation unit is deleted, the type hierarchy should not change
  */
-public void testRemoveExternalCompilationUnit() throws JavaModelException, CoreException, IOException {
+public void testRemoveExternalCompilationUnit() throws JavaModelException, CoreException {
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	ICompilationUnit otherCU = getCompilationUnit("TypeHierarchyNotification", "src", "p", "External.java");
@@ -789,7 +789,7 @@ public void testRemoveExternalCompilationUnit() throws JavaModelException, CoreE
 /**
  * When a uninvolved package is deleted, the type hierarchy should NOT change
  */
-public void testRemoveExternalPackage() throws JavaModelException, CoreException, IOException {
+public void testRemoveExternalPackage() throws JavaModelException, CoreException {
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type = cu.getType("X");
@@ -809,7 +809,7 @@ public void testRemoveExternalPackage() throws JavaModelException, CoreException
  * When a package fragment root is removed from the classpath, but does not impact the
  * package fragments, the type hierarchy should not change.
  */
-public void testRemoveExternalPackageFragmentRoot() throws JavaModelException, CoreException, IOException {
+public void testRemoveExternalPackageFragmentRoot() throws JavaModelException, CoreException {
 	IJavaProject project= getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type = cu.getType("X");
@@ -847,7 +847,7 @@ public void testRemoveExternalPackageFragmentRoot() throws JavaModelException, C
  * When a project is deleted that contains package fragments that impact the 
  * type hierarchy, the type hierarchy should change
  */
-public void testRemoveExternalProject() throws JavaModelException, CoreException, IOException {
+public void testRemoveExternalProject() throws JavaModelException, CoreException {
 	try {
 		this.createJavaProject("External", new String[] {""}, new String[] {"JCL_LIB"}, new String[]{"/TypeHierarchyNotification"}, "");
 		this.createFolder("/External/p");
@@ -870,7 +870,7 @@ public void testRemoveExternalProject() throws JavaModelException, CoreException
 /**
  * Test removing a listener while the type hierarchy is notifying listeners.
  */
-public void testRemoveListener() throws JavaModelException, CoreException, IOException {
+public void testRemoveListener() throws JavaModelException, CoreException {
 	IJavaProject project= getJavaProject("TypeHierarchyNotification");
 	final ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	final ICompilationUnit superCU = getCompilationUnit("TypeHierarchyNotification", "src", "b", "B.java");
@@ -891,7 +891,7 @@ public void testRemoveListener() throws JavaModelException, CoreException, IOExc
 		// in a batch operation
 		getWorkspace().run(
 			new IWorkspaceRunnable() {
-				public void run(IProgressMonitor monitor) throws CoreException {
+				public void run(IProgressMonitor monitor) {
 					try {
 						changeVisibility(superCU, "public", "private");
 						changeSuper(cu, "B", "a.A");
@@ -911,7 +911,7 @@ public void testRemoveListener() throws JavaModelException, CoreException, IOExc
 /**
  * When a package is deleted, the type hierarchy should change
  */
-public void testRemovePackage() throws JavaModelException, CoreException, IOException {
+public void testRemovePackage() throws JavaModelException, CoreException {
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type = cu.getType("X");
@@ -929,7 +929,7 @@ public void testRemovePackage() throws JavaModelException, CoreException, IOExce
 /**
  * When a package fragment root is removed from the classpath, the type hierarchy should change
  */
-public void testRemovePackageFragmentRoots() throws JavaModelException, CoreException, IOException {
+public void testRemovePackageFragmentRoots() throws JavaModelException, CoreException {
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type = cu.getType("X");
@@ -982,7 +982,7 @@ public void testRemoveProject() throws JavaModelException, CoreException, IOExce
  * When type used to create a TypeHierarchyNotification is deleted,
  * the hierarchy should be made invalid.
  */
-public void testRemoveType() throws JavaModelException, CoreException, IOException {
+public void testRemoveType() throws JavaModelException, CoreException {
 	IJavaProject project= getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type = cu.getType("X");
@@ -999,7 +999,7 @@ public void testRemoveType() throws JavaModelException, CoreException, IOExcepti
 /**
  * When an involved compilation unit is renamed, the type hierarchy may change.
  */
-public void testRenameCompilationUnit() throws JavaModelException, CoreException, IOException {
+public void testRenameCompilationUnit() throws JavaModelException, CoreException {
 	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type= cu.getType("X");
@@ -1016,7 +1016,7 @@ public void testRenameCompilationUnit() throws JavaModelException, CoreException
 /**
  * When an uninvolved compilation unit is renamed, the type hierarchy does not change.
  */
-public void testRenameExternalCompilationUnit() throws JavaModelException, CoreException, IOException {
+public void testRenameExternalCompilationUnit() throws JavaModelException, CoreException {
 	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
 	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
 	IType type= cu.getType("X");

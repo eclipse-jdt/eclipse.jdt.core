@@ -37,7 +37,7 @@ public static class DefaultVariableInitializer implements VariablesInitializer.I
 	/*
 	 * values is [<var name>, <var value>]*
 	 */
-	public DefaultVariableInitializer(String[] values) throws JavaModelException {
+	public DefaultVariableInitializer(String[] values) {
 		variableValues = new HashMap();
 		for (int i = 0; i < values.length; i+=2) {
 			variableValues.put(values[i], new Path(values[i+1]));
@@ -61,7 +61,7 @@ public static class DefaultContainerInitializer implements ContainerInitializer.
 	/*
 	 * values is [<project name>, <lib path>[,<lib path>]* ]*
 	 */
-	public DefaultContainerInitializer(String[] values) throws JavaModelException {
+	public DefaultContainerInitializer(String[] values) {
 		containerValues = new HashMap();
 		for (int i = 0; i < values.length; i+=2) {
 			final String projectName = values[i];
@@ -437,7 +437,7 @@ public void testVariableInitializer6() throws CoreException {
 	try {
 		final StringBuffer buffer = new StringBuffer();
 		VariablesInitializer.setInitializer(new VariablesInitializer.ITestInitializer() {
-			public void initialize(String variable) throws JavaModelException {
+			public void initialize(String variable) {
 				// do nothing
 				buffer.append("Ignoring request to initialize");
 			}

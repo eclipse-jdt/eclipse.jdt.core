@@ -73,7 +73,7 @@ public class MultiSourceFolderAndOutputFolderTests extends Tests {
 		expectingNoPresenceOf(projectPath.append("bin1/p/Y.class")); //$NON-NLS-1$
 	}
 	
-	public void test0003() throws JavaModelException {
+	public void test0003() {
 		try {
 			IPath projectPath = env.addProject("P"); //$NON-NLS-1$
 			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
@@ -95,7 +95,7 @@ public class MultiSourceFolderAndOutputFolderTests extends Tests {
 		}
 	}
 		
-	public void test0004() throws JavaModelException {
+	public void test0004() {
 		try {
 			IPath projectPath = env.addProject("P"); //$NON-NLS-1$
 			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$

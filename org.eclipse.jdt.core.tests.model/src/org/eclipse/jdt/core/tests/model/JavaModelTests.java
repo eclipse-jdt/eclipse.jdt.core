@@ -16,7 +16,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
 
 import junit.framework.Test;
 /**
@@ -266,7 +265,7 @@ public void testContains6() throws CoreException {
 /**
  * Test that a model has no project.
  */
-public void testGetJavaProject() throws JavaModelException {
+public void testGetJavaProject() {
 	IJavaModel model= getJavaModel();
 	assertTrue("project should be null", model.getJavaProject() == null);
 }

@@ -409,7 +409,7 @@ public void testCancel() throws JavaModelException {
 /**
  * Ensures the correctness of all classes in a type hierarchy based on a region.
  */
-public void testGetAllClassesInRegion() throws JavaModelException {
+public void testGetAllClassesInRegion() {
 	IType[] types = this.typeHierarchy.getAllClasses();
 	assertTypesEqual(
 		"Unexpected all classes in hierarchy", 
@@ -429,7 +429,7 @@ public void testGetAllClassesInRegion() throws JavaModelException {
 /**
  * Ensures the correctness of all interfaces in a type hierarchy based on a region.
  */
-public void testGetAllInterfacesInRegion() throws JavaModelException {
+public void testGetAllInterfacesInRegion() {
 	IType[] types = this.typeHierarchy.getAllInterfaces();
 	assertTypesEqual(
 		"Unexpected all interfaces in hierarchy", 
@@ -606,7 +606,7 @@ public void testGetImplementingClasses() throws JavaModelException {
  * Ensures that the correct root classes exist in the type 
  * hierarchy.
  */
-public void testGetRootClasses() throws JavaModelException {
+public void testGetRootClasses() {
 	IType[] types = this.typeHierarchy.getRootClasses();
 	assertTypesEqual(
 		"Unexpected root classes",
@@ -629,7 +629,7 @@ public void testGetRootInterfaces() throws JavaModelException {
 /**
  * Ensures that getRootInterfaces() works on a IRegion.
  */
-public void testGetRootInterfacesFromRegion() throws JavaModelException {
+public void testGetRootInterfacesFromRegion() {
 	IType[] types = this.typeHierarchy.getRootInterfaces();
 	assertTypesEqual(
 		"Unexpected root classes",

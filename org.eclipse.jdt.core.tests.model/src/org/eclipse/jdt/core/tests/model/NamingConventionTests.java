@@ -18,8 +18,6 @@ import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.NamingConventions;
 import org.eclipse.jdt.core.compiler.CharOperation;
-
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 
 public class NamingConventionTests extends AbstractJavaModelTests {
@@ -77,7 +75,7 @@ private String toString(String[] suggestions) {
 	}
 	return buffer.toString();
 }
-public void testSuggestFieldName001() throws CoreException {
+public void testSuggestFieldName001() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
@@ -91,7 +89,7 @@ public void testSuggestFieldName001() throws CoreException {
 		"oneName", //$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName002() throws CoreException {
+public void testSuggestFieldName002() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
@@ -105,7 +103,7 @@ public void testSuggestFieldName002() throws CoreException {
 		"oneClass", //$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName003() throws CoreException {
+public void testSuggestFieldName003() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"f"); //$NON-NLS-1$
@@ -128,7 +126,7 @@ public void testSuggestFieldName003() throws CoreException {
 		"oneName", //$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName004() throws CoreException {
+public void testSuggestFieldName004() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"_"); //$NON-NLS-1$
@@ -151,7 +149,7 @@ public void testSuggestFieldName004() throws CoreException {
 		"oneName", //$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName005() throws CoreException {
+public void testSuggestFieldName005() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"f"); //$NON-NLS-1$
@@ -177,7 +175,7 @@ public void testSuggestFieldName005() throws CoreException {
 		"oneName", //$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName006() throws CoreException {
+public void testSuggestFieldName006() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
@@ -207,7 +205,7 @@ public void testSuggestFieldName006() throws CoreException {
 		"oneName", //$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName007() throws CoreException {
+public void testSuggestFieldName007() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
@@ -233,7 +231,7 @@ public void testSuggestFieldName007() throws CoreException {
 		"i", //$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName008() throws CoreException {
+public void testSuggestFieldName008() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
@@ -247,7 +245,7 @@ public void testSuggestFieldName008() throws CoreException {
 		"oneName", //$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName009() throws CoreException {
+public void testSuggestFieldName009() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
@@ -277,7 +275,7 @@ public void testSuggestFieldName009() throws CoreException {
 		"oneName", //$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName010() throws CoreException {
+public void testSuggestFieldName010() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
@@ -307,7 +305,7 @@ public void testSuggestFieldName010() throws CoreException {
 		"oneNames", //$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName011() throws CoreException {
+public void testSuggestFieldName011() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c".toCharArray(), //$NON-NLS-1$
@@ -320,7 +318,7 @@ public void testSuggestFieldName011() throws CoreException {
 		"factories", //$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName012() throws CoreException {
+public void testSuggestFieldName012() {
 	String[] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"a.b.c", //$NON-NLS-1$
@@ -334,7 +332,7 @@ public void testSuggestFieldName012() throws CoreException {
 		"fooBar", //$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName013() throws CoreException {
+public void testSuggestFieldName013() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"java.lang".toCharArray(), //$NON-NLS-1$
@@ -347,7 +345,7 @@ public void testSuggestFieldName013() throws CoreException {
 		"class1",//$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName014() throws CoreException {
+public void testSuggestFieldName014() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"java.lang".toCharArray(), //$NON-NLS-1$
@@ -360,7 +358,7 @@ public void testSuggestFieldName014() throws CoreException {
 		"class2",//$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName015() throws CoreException {
+public void testSuggestFieldName015() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"".toCharArray(), //$NON-NLS-1$
@@ -373,7 +371,7 @@ public void testSuggestFieldName015() throws CoreException {
 		"name",//$NON-NLS-1$
 		toString(suggestions));
 }
-public void testSuggestFieldName016() throws CoreException {
+public void testSuggestFieldName016() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,
 		"".toCharArray(), //$NON-NLS-1$
@@ -386,7 +384,7 @@ public void testSuggestFieldName016() throws CoreException {
 		"name2",//$NON-NLS-1$
 		toString(suggestions));
 }
-public void testRemovePrefixAndSuffixForFieldName001() throws CoreException {
+public void testRemovePrefixAndSuffixForFieldName001() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
@@ -406,7 +404,7 @@ public void testRemovePrefixAndSuffixForFieldName001() throws CoreException {
 		"oneName", //$NON-NLS-1$
 		new String(name));
 }
-public void testRemovePrefixAndSuffixForFieldName002() throws CoreException {
+public void testRemovePrefixAndSuffixForFieldName002() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
@@ -426,7 +424,7 @@ public void testRemovePrefixAndSuffixForFieldName002() throws CoreException {
 		"preOneNamesuf", //$NON-NLS-1$
 		new String(name));
 }
-public void testRemovePrefixAndSuffixForFieldName003() throws CoreException {
+public void testRemovePrefixAndSuffixForFieldName003() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
@@ -446,7 +444,7 @@ public void testRemovePrefixAndSuffixForFieldName003() throws CoreException {
 		"oneName", //$NON-NLS-1$
 		new String(name));
 }
-public void testSuggestGetterName001() throws CoreException {
+public void testSuggestGetterName001() {
 	char[] suggestion = NamingConventions.suggestGetterName(
 		project,
 		"fieldName".toCharArray(), //$NON-NLS-1$
@@ -458,7 +456,7 @@ public void testSuggestGetterName001() throws CoreException {
 		"getFieldName", //$NON-NLS-1$
 		new String(suggestion));
 }
-public void testSuggestGetterName002() throws CoreException {
+public void testSuggestGetterName002() {
 	char[] suggestion = NamingConventions.suggestGetterName(
 		project,
 		"FieldName".toCharArray(), //$NON-NLS-1$
@@ -470,7 +468,7 @@ public void testSuggestGetterName002() throws CoreException {
 		"getFieldName", //$NON-NLS-1$
 		new String(suggestion));
 }
-public void testSuggestGetterName003() throws CoreException {
+public void testSuggestGetterName003() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
@@ -492,7 +490,7 @@ public void testSuggestGetterName003() throws CoreException {
 		"getFieldName", //$NON-NLS-1$
 		new String(suggestion));
 }
-public void testSuggestGetterName004() throws CoreException {
+public void testSuggestGetterName004() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
@@ -514,7 +512,7 @@ public void testSuggestGetterName004() throws CoreException {
 		"getFieldName", //$NON-NLS-1$
 		new String(suggestion));
 }
-public void testSuggestGetterName005() throws CoreException {
+public void testSuggestGetterName005() {
 	Hashtable options = JavaCore.getOptions();
 	Object fieldPrefixPreviousValue = options.get(JavaCore.CODEASSIST_FIELD_PREFIXES);
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
@@ -536,7 +534,7 @@ public void testSuggestGetterName005() throws CoreException {
 		"isFieldName", //$NON-NLS-1$
 		new String(suggestion));
 }
-public void testSuggestGetterName006() throws CoreException {
+public void testSuggestGetterName006() {
 	char[] suggestion = NamingConventions.suggestGetterName(
 		project,
 		"isSomething".toCharArray(), //$NON-NLS-1$
@@ -548,7 +546,7 @@ public void testSuggestGetterName006() throws CoreException {
 		"isSomething", //$NON-NLS-1$
 		new String(suggestion));
 }
-public void testSuggestGetterName007() throws CoreException {
+public void testSuggestGetterName007() {
 	char[] suggestion = NamingConventions.suggestGetterName(
 		project,
 		"isSomething".toCharArray(), //$NON-NLS-1$
@@ -560,7 +558,7 @@ public void testSuggestGetterName007() throws CoreException {
 		"getIsSomething", //$NON-NLS-1$
 		new String(suggestion));
 }
-public void testSuggestSetterName001() throws CoreException {
+public void testSuggestSetterName001() {
 	char[] suggestion = NamingConventions.suggestSetterName(
 		project,
 		"isSomething".toCharArray(), //$NON-NLS-1$
@@ -572,7 +570,7 @@ public void testSuggestSetterName001() throws CoreException {
 		"setSomething", //$NON-NLS-1$
 		new String(suggestion));
 }
-public void testSuggestSetterName002() throws CoreException {
+public void testSuggestSetterName002() {
 	char[] suggestion = NamingConventions.suggestSetterName(
 		project,
 		"isSomething".toCharArray(), //$NON-NLS-1$

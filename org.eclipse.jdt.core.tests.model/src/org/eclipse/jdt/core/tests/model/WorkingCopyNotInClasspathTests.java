@@ -94,7 +94,7 @@ public void testCommit() throws CoreException {
  * Ensure that a working copy outside the classpath does not exist 
  * (but can still be opened).
  */
-public void testExistence() throws CoreException {
+public void testExistence()  {
 	assertTrue("Working copy should exist", this.workingCopy.exists());
 }
 public void testGetSource() throws CoreException {
@@ -118,7 +118,7 @@ public void testGetSource() throws CoreException {
 		this.deleteProject("P1");
 	}
 }
-public void testParentExistence() throws CoreException {
+public void testParentExistence() {
 	assertTrue("Working copy's parent should not exist", !this.workingCopy.getParent().exists());
 }
 /*
@@ -169,24 +169,24 @@ public void testSimpleProject() throws CoreException {
 /*
  * Ensure that a original cu (which is outside the classpath) does not exist.
  */
-public void testOriginalExistence() throws CoreException {
+public void testOriginalExistence() {
 	ICompilationUnit original = (ICompilationUnit)this.workingCopy.getOriginalElement();
 	assertTrue(
 		"Original compilation unit should not exist", 
 		!original.exists());
 }
-public void testOriginalParentExistence() throws CoreException {
+public void testOriginalParentExistence() {
 	assertTrue(
 		"Original compilation unit's parent should not exist", 
 		!this.workingCopy.getOriginalElement().getParent().exists());
 }
-public void testIsOpen() throws CoreException {
+public void testIsOpen() {
 	assertTrue("Working copy should be open", this.workingCopy.isOpen());
 }
 /*
  * Ensure that a original cu (which is outside the classpath) is not opened.
  */
-public void testOriginalIsOpen() throws CoreException {
+public void testOriginalIsOpen() {
 	ICompilationUnit original = (ICompilationUnit)this.workingCopy.getOriginalElement();
 	assertTrue(
 		"Original compilation should not be opened", 

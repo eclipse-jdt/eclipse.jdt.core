@@ -556,7 +556,7 @@ public void testSearchPatternCreation10() {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation12() throws CoreException {
+public void testSearchPatternCreation12() {
 	IField field = getCompilationUnit("/P/x/y/z/Foo.java").getType("Foo").getField("field");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			field, 
@@ -570,7 +570,7 @@ public void testSearchPatternCreation12() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation13() throws CoreException {
+public void testSearchPatternCreation13() {
 	IField field = getCompilationUnit("/P/x/y/z/Foo.java").getType("Foo").getField("field");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			field, 
@@ -584,7 +584,7 @@ public void testSearchPatternCreation13() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation14() throws CoreException {
+public void testSearchPatternCreation14() {
 	IField field = getCompilationUnit("/P/x/y/z/Foo.java").getType("Foo").getField("field");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			field, 
@@ -598,7 +598,7 @@ public void testSearchPatternCreation14() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation15() throws CoreException {
+public void testSearchPatternCreation15() {
 	IImportDeclaration importDecl = getCompilationUnit("/P/x/y/z/Foo.java").getImport("x.y.*");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			importDecl, 
@@ -612,7 +612,7 @@ public void testSearchPatternCreation15() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation16() throws CoreException {
+public void testSearchPatternCreation16() {
 	IMethod method = getCompilationUnit("/P/x/y/z/Foo.java").getType("Foo").getMethod("bar", new String[] {});
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			method, 
@@ -626,7 +626,7 @@ public void testSearchPatternCreation16() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation17() throws CoreException {
+public void testSearchPatternCreation17() {
 	IMethod method = getCompilationUnit("/P/x/y/z/Foo.java").getType("Foo").getMethod("bar", new String[] {});
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			method, 
@@ -640,7 +640,7 @@ public void testSearchPatternCreation17() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation18() throws CoreException {
+public void testSearchPatternCreation18() {
 	IMethod method = getCompilationUnit("/P/x/y/z/Foo.java").getType("Foo").getMethod("bar", new String[] {});
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			method, 
@@ -654,7 +654,7 @@ public void testSearchPatternCreation18() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation19() throws CoreException {
+public void testSearchPatternCreation19() {
 	IType type = getCompilationUnit("/P/x/y/z/Foo.java").getType("Foo");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			type, 
@@ -668,7 +668,7 @@ public void testSearchPatternCreation19() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation20() throws CoreException {
+public void testSearchPatternCreation20() {
 	IType type = getCompilationUnit("/P/x/y/z/Foo.java").getType("Foo");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			type, 
@@ -682,7 +682,7 @@ public void testSearchPatternCreation20() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation21() throws CoreException {
+public void testSearchPatternCreation21() {
 	IType type = getCompilationUnit("/P/x/y/z/I.java").getType("I");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			type, 
@@ -696,7 +696,7 @@ public void testSearchPatternCreation21() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation22() throws CoreException {
+public void testSearchPatternCreation22() {
 	IType type = getCompilationUnit("/P/x/y/z/Foo.java").getType("Foo");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			type, 
@@ -711,7 +711,7 @@ public void testSearchPatternCreation22() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation23() throws CoreException {
+public void testSearchPatternCreation23() {
 	IPackageDeclaration pkg = getCompilationUnit("/P/x/y/z/Foo.java").getPackageDeclaration("x.y.z");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			pkg, 
@@ -725,7 +725,7 @@ public void testSearchPatternCreation23() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation24() throws CoreException {
+public void testSearchPatternCreation24() {
 	IPackageFragment pkg = getPackage("/P/x/y/z");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			pkg, 
@@ -739,7 +739,7 @@ public void testSearchPatternCreation24() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation25() throws CoreException {
+public void testSearchPatternCreation25() {
 	IImportDeclaration importDecl = getCompilationUnit("/P/x/y/z/Foo.java").getImport("java.util.Vector");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			importDecl, 
@@ -753,7 +753,7 @@ public void testSearchPatternCreation25() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation26() throws CoreException {
+public void testSearchPatternCreation26() {
 	IPackageFragment pkg = getPackage("/P/x/y/z");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			pkg, 
@@ -767,7 +767,7 @@ public void testSearchPatternCreation26() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation27() throws CoreException {
+public void testSearchPatternCreation27() {
 	IPackageDeclaration pkg = getCompilationUnit("/P/x/y/z/Foo.java").getPackageDeclaration("x.y.z");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			pkg, 
@@ -781,7 +781,7 @@ public void testSearchPatternCreation27() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation28() throws CoreException {
+public void testSearchPatternCreation28() {
 	IImportDeclaration importDecl = getCompilationUnit("/P/x/y/z/Foo.java").getImport("x.y.*");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			importDecl, 
@@ -795,7 +795,7 @@ public void testSearchPatternCreation28() throws CoreException {
 /**
  * Test pattern creation
  */
-public void testSearchPatternCreation29() throws CoreException {
+public void testSearchPatternCreation29() {
 	IPackageFragment pkg = getPackage("/P/x/y/z");
 	ISearchPattern searchPattern = SearchEngine.createSearchPattern(
 			pkg, 

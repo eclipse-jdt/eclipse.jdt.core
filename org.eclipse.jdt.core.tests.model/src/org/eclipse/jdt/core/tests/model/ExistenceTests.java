@@ -284,7 +284,7 @@ public void testCorrespondingResourceNonExistingPkgFragmentRoot() throws CoreExc
 /*
  * Ensures that one cannot get the corresponding resource of a non-existing java project.
  */
-public void testCorrespondingResourceNonExistingProject() throws CoreException {
+public void testCorrespondingResourceNonExistingProject() {
 	IProject nonExistingProject = ResourcesPlugin.getWorkspace().getRoot().getProject("NonExisting");
 	IJavaProject javaProject = JavaCore.create(nonExistingProject);
 	assertCorrespondingResourceFails(javaProject);
@@ -370,7 +370,7 @@ public void testUnderlyingResourceNonExistingPkgFragmentRoot() throws CoreExcept
 /*
  * Ensures that one cannot get the underlying resource of a non-existing java project.
  */
-public void testUnderlyingResourceNonExistingProject() throws CoreException {
+public void testUnderlyingResourceNonExistingProject() {
 	IProject nonExistingProject = ResourcesPlugin.getWorkspace().getRoot().getProject("NonExisting");
 	IJavaProject javaProject = JavaCore.create(nonExistingProject);
 	assertUnderlyingResourceFails(javaProject);

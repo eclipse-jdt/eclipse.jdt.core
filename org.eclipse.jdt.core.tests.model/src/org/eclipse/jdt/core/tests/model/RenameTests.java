@@ -29,7 +29,7 @@ public RenameTests(String name) {
  * Attempts to rename the elements with optional 
  * forcing. The operation should fail with the failure code.
  */
-public void renameNegative(IJavaElement[] elements ,String[] renamings, boolean force, int failureCode) throws JavaModelException {
+public void renameNegative(IJavaElement[] elements ,String[] renamings, boolean force, int failureCode) {
 	try {
 		//rename
 	 	getJavaModel().rename(elements, new IJavaElement[]{elements[0].getParent()}, renamings, force, null);
@@ -44,7 +44,7 @@ public void renameNegative(IJavaElement[] elements ,String[] renamings, boolean 
  * Attempts to rename the element with optional 
  * forcing. The operation should fail with the failure code.
  */
-public void renameNegative(IJavaElement element, String rename, boolean force, int failureCode) throws JavaModelException {
+public void renameNegative(IJavaElement element, String rename, boolean force, int failureCode) {
 	try {
 		//rename
 		getJavaModel().rename(new IJavaElement[] {element}, new IJavaElement[] {element.getParent()}, new String[] {rename}, force, null);
@@ -222,7 +222,7 @@ public void testRenameBinaryType() throws JavaModelException {
  * This operation should fail as renaming a CU and a CU member at the
  * same time is not supported.
  */
-public void testRenameCompilationUnitAndType() throws CoreException {
+public void testRenameCompilationUnitAndType() {
 	renameNegative(
 		new IJavaElement[] {this.cu, this.cu.getType("X")}, 
 		new String[]{"Y.java", "Y"}, 
@@ -277,7 +277,7 @@ public void testRenameCompilationUnitsCheckingDeltas() throws CoreException{
  * Ensures that a compilation unit cannot be renamed to an invalid name.  
  * The new name for a cu must end in .java and be a valid Java identifier.
  */
-public void testRenameCompilationUnitWithInvalidName() throws JavaModelException {
+public void testRenameCompilationUnitWithInvalidName() {
 	renameNegative(this.cu, "NewX", false, IJavaModelStatusConstants.INVALID_NAME);
 	renameNegative(this.cu, "New X.java", false, IJavaModelStatusConstants.INVALID_NAME);
 }
@@ -297,7 +297,7 @@ public void testRenameCompilationUnitWithNull() throws JavaModelException {
  * Ensures that a construtor cannot be renamed using the
  * <code>RenameElementsOperation</code>.  
  */
-public void testRenameConstructor() throws JavaModelException {
+public void testRenameConstructor() {
 	IMethod constructor = this.cu.getType("X").getMethod("X",  new String[] {"I"});
 	renameNegative(constructor, "newName", false, IJavaModelStatusConstants.NAME_COLLISION);
 }
@@ -485,7 +485,7 @@ public void testRenameFieldsWithCancel() throws CoreException {
 /**
  * Ensures that an initializer cannot be renamed.
  */
-public void testRenameInitializer() throws JavaModelException {
+public void testRenameInitializer() {
 	IType typeSource= this.cu.getType("X");
 	IInitializer initializerSource= typeSource.getInitializer(1);
 
@@ -599,7 +599,7 @@ public void testRenameMethod() throws JavaModelException {
 /**
  * Ensures that a method cannot be renamed to an existing method name.
  */
-public void testRenameMethodResultingInCollision() throws JavaModelException {
+public void testRenameMethodResultingInCollision() {
 	IType type = this.cu.getType("X");
 	IMethod method = type.getMethod("foo", new String[] {"QString;"});
 	renameNegative(method, "otherMethod", false, IJavaModelStatusConstants.NAME_COLLISION);
@@ -607,7 +607,7 @@ public void testRenameMethodResultingInCollision() throws JavaModelException {
 /**
  * Ensures that a method cannot be renamed to an invalid method name
  */
-public void testRenameMethodsWithInvalidName() throws JavaModelException {
+public void testRenameMethodsWithInvalidName() {
 	IMethod method = this.cu.getType("X").getMethod("foo", new String[] {"QString;"});
 	renameNegative(method, "%%someInvalidName", false, IJavaModelStatusConstants.INVALID_NAME);
 }
@@ -732,7 +732,7 @@ public void testRenameSyntaxErrorMethod() throws CoreException {
 /**
  * Ensures that attempting to rename with an incorrect number of renamings fails
  */
-public void testRenameWithInvalidRenamings() throws JavaModelException {
+public void testRenameWithInvalidRenamings() {
 	IMethod method = getCompilationUnit("/P/src/X.java").getType("X").getMethod("foo", null);
 
 	renameNegative(
