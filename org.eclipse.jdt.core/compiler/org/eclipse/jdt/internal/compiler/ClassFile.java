@@ -2735,8 +2735,6 @@ public class ClassFile
 	/**
 	 * INTERNAL USE-ONLY
 	 * Search the line number corresponding to a specific position
-	 *
-	 * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.SyntheticAccessMethodBinding
 	 */
 	public static final int searchLineNumber(
 		int[] startLineIndexes,

@@ -159,8 +159,6 @@ public void record(IProblem problem, CompilationResult unitResult, ReferenceCont
 }
 /**
  * Search the line number corresponding to a specific position
- *
- * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.SyntheticAccessMethodBinding
  */
 public static final int searchLineNumber(int[] startLineIndexes, int position) {
 	if (startLineIndexes == null)
