@@ -524,6 +524,9 @@ public int computeSeverity(int problemId){
 		case IProblem.SuperfluousSemicolon:
 			return this.options.getSeverity(CompilerOptions.SuperfluousSemicolon);
 
+		case IProblem.PredicateThrowingException:
+			return this.options.getSeverity(CompilerOptions.PredicateThrowingException);
+			
 		default:
 			return Error;
 	}
@@ -2476,6 +2479,23 @@ public void possibleAccidentalBooleanAssignment(Assignment assignment) {
 		arguments,
 		assignment.sourceStart,
 		assignment.sourceEnd);
+}
+public void predicateThrowingException(MethodDeclaration methodDecl) {
+	MethodBinding method = methodDecl.binding;
+	this.handle(
+		IProblem.PredicateThrowingException,
+		new String[] {
+			new String(method.declaringClass.readableName()),
+			new String(method.selector),
+			parametersAsString(method)
+		 }, 
+		new String[] {
+			new String(method.declaringClass.shortReadableName()),
+			new String(method.selector),
+			parametersAsShortString(method)
+		 }, 
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
 }
 public void publicClassMustMatchFileName(CompilationUnitDeclaration compUnitDecl, TypeDeclaration typeDecl) {
 	this.referenceContext = typeDecl; // report the problem against the type not the entire compilation unit

@@ -112,9 +112,16 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		if (binding != null && isTypeUseDeprecated(binding.returnType, scope))
 			scope.problemReporter().deprecatedType(binding.returnType, returnType);
 
-		if (CharOperation.equals(scope.enclosingSourceType().sourceName, selector))
+		// check if method with constructor name
+		if (CharOperation.equals(scope.enclosingSourceType().sourceName, selector)) {
 			scope.problemReporter().methodWithConstructorName(this);
-
+		}
+		
+		// check if predicate throwing exception
+		if (binding != null && binding.returnType.id == T_boolean && binding.thrownExceptions.length != 0){
+			scope.problemReporter().predicateThrowingException(this);
+		}
+		
 		// by grammatical construction, interface methods are always abstract
 		if (!scope.enclosingSourceType().isInterface()){
 

@@ -38,6 +38,7 @@
  *								   IndirectAccessToStaticField
  *								   IndirectAccessToStaticMethod
  *								   IndirectAccessToStaticType
+ *								   PredicateThrowingException
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -323,6 +324,8 @@ public interface IProblem {
 	int UnusedPrivateMethod = Internal + MethodRelated + 118;
 	/** @since 3.0 */
 	int IndirectAccessToStaticMethod = Internal + MethodRelated + 119;
+	/** @since 3.0 */
+	int PredicateThrowingException = Internal + MethodRelated + 120;
 	    
 	// constructors
 	int UndefinedConstructor = ConstructorRelated + 130;
