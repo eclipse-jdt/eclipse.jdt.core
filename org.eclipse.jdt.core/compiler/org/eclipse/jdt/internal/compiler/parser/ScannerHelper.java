@@ -82,13 +82,15 @@ public class ScannerHelper {
 	private static final int START_INDEX = 0;
 	private static final int PART_INDEX = 1;
 
-	private static long[][][] Tables = new long[2][][];
+	private static long[][][] Tables;
 	public static final int HIGH_SURROGATE_MIN_VALUE = 0xD800;
 	public static final int HIGH_SURROGATE_MAX_VALUE = 0xDBFF;
 	public static final int LOW_SURROGATE_MIN_VALUE = 0xDC00;
 	public static final int LOW_SURROGATE_MAX_VALUE = 0xDFFF;
 
-	static {
+	private static final void initialize() {
+		if (Tables != null) return;
+		Tables = new long[2][][];
 		Tables[START_INDEX] = new long[2][];
 		Tables[PART_INDEX] = new long[3][];
 		try {
@@ -167,6 +169,7 @@ public class ScannerHelper {
 	}
 
 	public static boolean isJavaIdentifierPart(char high, char low) {
+		initialize();
 		int codePoint = toCodePoint(high, low);
 		switch((codePoint & 0x1F0000) >> 16) {
 			case 0 :
@@ -182,6 +185,7 @@ public class ScannerHelper {
 	}
 	
 	public static boolean isJavaIdentifierStart(char high, char low) {
+		initialize();
 		int codePoint = toCodePoint(high, low);
 		switch((codePoint & 0x1F0000) >> 16) {
 			case 0 :
