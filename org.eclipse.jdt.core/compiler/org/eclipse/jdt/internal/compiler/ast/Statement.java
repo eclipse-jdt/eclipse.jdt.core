@@ -108,4 +108,6 @@ public Constant resolveCase(BlockScope scope, TypeBinding testType, SwitchStatem
 	resolve(scope);
 	return null;
 }
+public void resetStateForCodeGeneration() {
+}
 }

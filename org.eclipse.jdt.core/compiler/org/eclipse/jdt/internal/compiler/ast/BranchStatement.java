@@ -55,4 +55,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	codeStream.goto_(targetLabel);
 	codeStream.recordPositionsFrom(pc, this);
 }
+public void resetStateForCodeGeneration() {
+	this.targetLabel.resetStateForCodeGeneration();
+}
 }

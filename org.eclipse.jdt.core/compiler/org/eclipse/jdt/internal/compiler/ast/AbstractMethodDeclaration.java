@@ -131,6 +131,9 @@ public CompilationResult compilationResult(){
  */
 public void generateCode(ClassScope classScope, ClassFile classFile) {
 	int problemResetPC = 0;
+	// for each method we start the code generate with wideMode equals to false
+	// in the code Stream.
+	classFile.codeStream.wideMode = false;
 	if (ignoreFurtherInvestigation) {
 		if (this.binding == null)
 			return; // Handle methods with invalid signature or duplicates
@@ -143,50 +146,74 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 	}
 	try {
 		problemResetPC = classFile.contentsOffset;
-		classFile.generateMethodInfoHeader(binding);
-		int methodAttributeOffset = classFile.contentsOffset;
-		int attributeNumber = classFile.generateMethodInfoAttribute(binding);
-		if ((!binding.isNative()) && (!binding.isAbstract())) {
-			int codeAttributeOffset = classFile.contentsOffset;
-			classFile.generateCodeAttributeHeader();
-			CodeStream codeStream = classFile.codeStream;
-			codeStream.reset(this, classFile);
-			// initialize local positions
-			scope.computeLocalVariablePositions(binding.isStatic() ? 0 : 1, codeStream);
-
-			// arguments initialization for local variable debug attributes
-			if (arguments != null) {
-				for (int i = 0, max = arguments.length; i < max; i++) {
-					LocalVariableBinding argBinding;
-					codeStream.addVisibleLocalVariable(argBinding = arguments[i].binding);
-					argBinding.recordInitializationStartPC(0);
-				}
-			}
-			if (statements != null) {
-				for (int i = 0, max = statements.length; i < max; i++)
-					statements[i].generateCode(scope, codeStream);
-			}
-			if (needFreeReturn) {
-				codeStream.return_();
-			}
-			// local variable attributes
-			codeStream.exitUserScope(scope);
-			codeStream.recordPositionsFrom(0, this);
-			classFile.completeCodeAttribute(codeAttributeOffset);
-			attributeNumber++;
-		}
-		classFile.completeMethodInfo(methodAttributeOffset, attributeNumber);
-
-		// if a problem got reported during code gen, then trigger problem method creation
-		if (ignoreFurtherInvestigation){
-			throw new AbortMethod(scope.referenceCompilationUnit().compilationResult);
-		}
+		this.internalGenerateCode(classScope, classFile);
 	} catch (AbortMethod e) {
-		int problemsLength;
-		IProblem[] problems = scope.referenceCompilationUnit().compilationResult.getProblems();
-		IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
-		System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
-		classFile.addProblemMethod(this, binding, problemsCopy, problemResetPC);
+		if (e.compilationResult == null) {
+			try {
+				if (statements != null) {
+					for (int i = 0, max = statements.length; i < max; i++)
+						statements[i].resetStateForCodeGeneration();
+				}
+				classFile.contentsOffset = problemResetPC;
+				classFile.methodCount--;
+				classFile.codeStream.wideMode = true;
+				problemResetPC = classFile.contentsOffset;
+				this.internalGenerateCode(classScope, classFile);
+			} catch(AbortMethod e2) {
+				int problemsLength;
+				IProblem[] problems = scope.referenceCompilationUnit().compilationResult.getProblems();
+				IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
+				System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
+				classFile.addProblemMethod(this, binding, problemsCopy, problemResetPC);
+			}
+		} else {
+			int problemsLength;
+			IProblem[] problems = scope.referenceCompilationUnit().compilationResult.getProblems();
+			IProblem[] problemsCopy = new IProblem[problemsLength = problems.length];
+			System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
+			classFile.addProblemMethod(this, binding, problemsCopy, problemResetPC);
+		}
+	}
+}
+
+private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
+	classFile.generateMethodInfoHeader(binding);
+	int methodAttributeOffset = classFile.contentsOffset;
+	int attributeNumber = classFile.generateMethodInfoAttribute(binding);
+	if ((!binding.isNative()) && (!binding.isAbstract())) {
+		int codeAttributeOffset = classFile.contentsOffset;
+		classFile.generateCodeAttributeHeader();
+		CodeStream codeStream = classFile.codeStream;
+		codeStream.reset(this, classFile);
+		// initialize local positions
+		scope.computeLocalVariablePositions(binding.isStatic() ? 0 : 1, codeStream);
+
+		// arguments initialization for local variable debug attributes
+		if (arguments != null) {
+			for (int i = 0, max = arguments.length; i < max; i++) {
+				LocalVariableBinding argBinding;
+				codeStream.addVisibleLocalVariable(argBinding = arguments[i].binding);
+				argBinding.recordInitializationStartPC(0);
+			}
+		}
+		if (statements != null) {
+			for (int i = 0, max = statements.length; i < max; i++)
+				statements[i].generateCode(scope, codeStream);
+		}
+		if (needFreeReturn) {
+			codeStream.return_();
+		}
+		// local variable attributes
+		codeStream.exitUserScope(scope);
+		codeStream.recordPositionsFrom(0, this);
+		classFile.completeCodeAttribute(codeAttributeOffset);
+		attributeNumber++;
+	}
+	classFile.completeMethodInfo(methodAttributeOffset, attributeNumber);
+
+	// if a problem got reported during code gen, then trigger problem method creation
+	if (ignoreFurtherInvestigation){
+		throw new AbortMethod(scope.referenceCompilationUnit().compilationResult);
 	}
 }
 public boolean isAbstract(){
