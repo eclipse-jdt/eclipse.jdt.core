@@ -23,6 +23,7 @@ import org.apache.tools.ant.taskdefs.compilers.DefaultCompilerAdapter;
 import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.util.JavaEnvUtils;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.core.Util;
 
@@ -136,7 +137,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		cmd.createArgument().setValue("-classpath"); //$NON-NLS-1$
 		cmd.createArgument().setPath(classpath);
 
-        String memoryParameterPrefix = Project.getJavaVersion().equals(Project.JAVA_1_1) ? "-J-" : "-J-X";//$NON-NLS-1$//$NON-NLS-2$
+        String memoryParameterPrefix = JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_1) ? "-J-" : "-J-X";//$NON-NLS-1$//$NON-NLS-2$
         if (memoryInitialSize != null) {
             if (!attributes.isForkedJavac()) {
                 attributes.log(Util.bind("ant.jdtadapter.error.ignoringMemoryInitialSize"), Project.MSG_WARN);//$NON-NLS-1$
@@ -250,7 +251,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
             cmd.createArgument().setValue(source);
         }
         
-		if (Project.getJavaVersion().equals(Project.JAVA_1_4)) {
+		if (JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_4)) {
 			cmd.createArgument().setValue("-1.4"); //$NON-NLS-1$
 		} else {
 			cmd.createArgument().setValue("-1.3"); //$NON-NLS-1$
