@@ -37,8 +37,6 @@ public static final String JAVA_EXTENSION = "java"; //$NON-NLS-1$
 public static final String CLASS_EXTENSION = "class"; //$NON-NLS-1$
 public static final String JAR_EXTENSION = "jar"; //$NON-NLS-1$
 public static final String ZIP_EXTENSION = "zip"; //$NON-NLS-1$
-public static final String OPTION_InvalidClasspathSwitch = "org.eclipse.jdt.core.builder.invalidClasspath"; //$NON-NLS-1$
-public static final String OPTION_ResourceCopyFilter = "org.eclipse.jdt.core.builder.resourceCopyExclusionFilter"; //$NON-NLS-1$
 
 public static boolean DEBUG = false;
 
@@ -372,7 +370,7 @@ private void initializeBuilder() throws CoreException {
 	this.sourceFolders = new IContainer[sourceList.size()];
 	sourceList.toArray(this.sourceFolders);
 
-	String filterSequence = (String) JavaCore.getOptions().get(OPTION_ResourceCopyFilter);
+	String filterSequence = (String) JavaCore.getOptions().get(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER);
 	this.resourceFilters = filterSequence != null && filterSequence.length() > 0
 		? CharOperation.splitOn(',', filterSequence.toCharArray())
 		: null;
@@ -388,7 +386,7 @@ private void initializeBuilder() throws CoreException {
 
 private boolean isWorthBuilding() throws CoreException {
 	
-	boolean abortBuilds = JavaCore.ABORT.equals(JavaCore.getOptions().get(OPTION_InvalidClasspathSwitch));
+	boolean abortBuilds = JavaCore.ABORT.equals(JavaCore.getOptions().get(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH));
 	if (abortBuilds) {
 		IMarker[] markers =
 			currentProject.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ONE);
