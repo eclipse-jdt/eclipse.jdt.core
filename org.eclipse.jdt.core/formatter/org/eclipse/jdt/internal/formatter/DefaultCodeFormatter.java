@@ -32,6 +32,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
+// TODO (olivier) remove dependency onto ICodeFormatter
 public class DefaultCodeFormatter extends CodeFormatter implements ICodeFormatter {
 
 	public static final boolean DEBUG = false;
