@@ -152,9 +152,10 @@ public class QualifiedNameReference extends NameReference {
 						currentScope.problemReporter().cannotAssignToFinalField(lastFieldBinding, this);
 						// attempting to assign a non implicit reference
 					}
+				} else {
+					flowContext.recordSettingFinal(lastFieldBinding, this);
 				}
 				flowInfo.markAsDefinitelyAssigned(lastFieldBinding);
-				flowContext.recordSettingFinal(lastFieldBinding, this);
 			} else {
 				currentScope.problemReporter().cannotAssignToFinalField(lastFieldBinding, this);
 			}

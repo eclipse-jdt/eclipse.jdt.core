@@ -68,9 +68,10 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 				if (!isCompound && fieldBinding.isBlankFinal() && currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
 					if (flowInfo.isPotentiallyAssigned(fieldBinding)) {
 						currentScope.problemReporter().duplicateInitializationOfBlankFinalField(fieldBinding, this);
+					} else {
+						flowContext.recordSettingFinal(fieldBinding, this);						
 					}
 					flowInfo.markAsDefinitelyAssigned(fieldBinding);
-					flowContext.recordSettingFinal(fieldBinding, this);						
 				} else {
 					currentScope.problemReporter().cannotAssignToFinalField(fieldBinding, this);
 				}
@@ -89,8 +90,9 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 						currentScope.problemReporter().cannotAssignToFinalLocal(localBinding, this);
 					} else if (flowInfo.isPotentiallyAssigned(localBinding)) {
 						currentScope.problemReporter().duplicateInitializationOfFinalLocal(localBinding, this);
+					} else {
+						flowContext.recordSettingFinal(localBinding, this);								
 					}
-					flowContext.recordSettingFinal(localBinding, this);								
 				} else {
 					currentScope.problemReporter().cannotAssignToFinalOuterLocal(localBinding, this);
 				}

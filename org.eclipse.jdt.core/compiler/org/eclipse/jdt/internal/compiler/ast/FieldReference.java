@@ -80,9 +80,10 @@ public class FieldReference extends Reference implements InvocationSite {
 					currentScope.problemReporter().duplicateInitializationOfBlankFinalField(
 						binding,
 						this);
+				} else {
+					flowContext.recordSettingFinal(binding, this);
 				}
 				flowInfo.markAsDefinitelyAssigned(binding);
-				flowContext.recordSettingFinal(binding, this);
 			} else {
 				// assigning a final field outside an initializer or constructor or wrong reference
 				currentScope.problemReporter().cannotAssignToFinalField(binding, this);

@@ -64,13 +64,6 @@ public class DoStatement extends Statement {
 					continueLabel = null;
 				} else {
 					flowInfo = loopingContext.initsOnContinue; // for condition
-					if (!isConditionOptimizedFalse) {
-						loopingContext.complainOnFinalAssignmentsInLoop(currentScope, flowInfo);
-					}
-				}
-			} else {
-				if (!isConditionOptimizedFalse) {
-					loopingContext.complainOnFinalAssignmentsInLoop(currentScope, flowInfo);
 				}
 			}
 		}
@@ -81,16 +74,16 @@ public class DoStatement extends Statement {
 		 */
 		flowInfo.setReachMode(previousMode);
 		
-		LoopingFlowContext condLoopContext;
 		flowInfo =
 			condition.analyseCode(
 				currentScope,
-				(condLoopContext =
-					new LoopingFlowContext(flowContext, this, null, null, currentScope)),
+				loopingContext,
 				(action == null
 					? flowInfo
 					: (flowInfo.mergedWith(loopingContext.initsOnContinue))));
-		condLoopContext.complainOnFinalAssignmentsInLoop(currentScope, flowInfo);
+		if (!isConditionOptimizedFalse && continueLabel != null) {
+			loopingContext.complainOnFinalAssignmentsInLoop(currentScope, flowInfo);
+		}
 
 		// infinite loop
 		FlowInfo mergedInfo;
