@@ -15,7 +15,6 @@ import java.io.IOException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.impl.IFileDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;

@@ -10,9 +10,6 @@
  ******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
-
 public abstract class AbstractVariableDeclaration extends Statement {
 	public int modifiers;
 
