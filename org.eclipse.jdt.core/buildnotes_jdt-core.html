@@ -59,11 +59,14 @@ Eclipse SDK 3.0M6 Build - 9th December 2003
 <h2>
 What's new in this drop</h2>
 <ul>
-<li> The classpath validation rules now allow an excluded directory to be used as an output location. 
+<li>The classpath validation rules now allow an excluded directory to be used as an output location. 
 Remember that a source folder can be associated with exclusion rules so as to eliminate portions of the
 source tree. Nested source/library entries were already allowed given proper exclusion rules were specified,
 now we also enable nesting an output folder as well under the same restrictions.
 </li>
+<li>We reverted back the behavior when using the class literal. See bugs <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=37565">37565</a> and
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48086">48086</a>. As long as javac doesn't clarify the case, we keep
+the old behavior.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
