@@ -56,9 +56,9 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 	// Test counters
-	protected static int[] testCounters = { 0, 0, 0, 0 };
+	protected static int[] TEST_COUNTERS = { 0, 0, 0, 0 };
 	// Unicode tests
-	protected static boolean unicode = false;
+	protected static boolean UNICODE = false;
 	// Unix tests
 	final boolean unix;
 	static final String UNIX_SUPPORT = System.getProperty("unix");
@@ -165,7 +165,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		testCounters[0]++;
+		TEST_COUNTERS[0]++;
 		this.failures = new ArrayList();
 		this.problems = new StringBuffer();
 	}
@@ -176,15 +176,15 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		int size = failures.size();
 		String title = size+" positions/bindings were incorrect in "+getName();
 		if (size == 0) {
-			testCounters[1]++;
+			TEST_COUNTERS[1]++;
 		} else if (problems.length() > 0) {
 			if (debug) {
 				System.out.println("Compilation warnings/errors occured:");
 				System.out.println(problems.toString());
 			}
-			testCounters[2]++;
+			TEST_COUNTERS[2]++;
 		} else {
-			testCounters[3]++;
+			TEST_COUNTERS[3]++;
 			System.out.println(title+":");
 			for (int i=0; i<size; i++) {
 				System.out.println("	- "+failures.get(i));
@@ -202,15 +202,15 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void tearDownSuite() throws Exception {
 		super.tearDownSuite();
-		if (testCounters[0] != testCounters[1]) {
+		if (TEST_COUNTERS[0] != TEST_COUNTERS[1]) {
 			NumberFormat intFormat = NumberFormat.getInstance();
 			intFormat.setMinimumIntegerDigits(3);
 			intFormat.setMaximumIntegerDigits(3);
 			System.out.println("=====================================");
-			System.out.println(intFormat.format(testCounters[0])+" tests have been executed:");
-			System.out.println("  - "+intFormat.format(testCounters[1])+" tests have been actually executed.");
-			System.out.println("  - "+intFormat.format(testCounters[2])+" tests were skipped due to compilation errors.");
-			System.out.println("  - "+intFormat.format(testCounters[3])+" tests failed.");
+			System.out.println(intFormat.format(TEST_COUNTERS[0])+" tests have been executed:");
+			System.out.println("  - "+intFormat.format(TEST_COUNTERS[1])+" tests have been actually executed.");
+			System.out.println("  - "+intFormat.format(TEST_COUNTERS[2])+" tests were skipped due to compilation errors.");
+			System.out.println("  - "+intFormat.format(TEST_COUNTERS[3])+" tests failed.");
 		}
 	}
 
@@ -1218,7 +1218,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			return verifyComments(fileName, source);
 		}
 		catch (RuntimeException ex) {
-			testCounters[3]++;
+			TEST_COUNTERS[3]++;
 			throw ex;
 		}
 	}
@@ -1231,7 +1231,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 		// Verify comments either in unicode or not
 		char[] testedSource = source;
-		if (unicode) {
+		if (UNICODE) {
 			testedSource = getUnicodeSource(source);
 		}
 

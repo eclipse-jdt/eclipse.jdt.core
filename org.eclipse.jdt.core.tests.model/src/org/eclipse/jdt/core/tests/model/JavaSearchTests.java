@@ -34,8 +34,8 @@ import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
  */
 public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSearchConstants {
 
-	public static List testSuites = null;
-	protected static IJavaProject javaProject;
+	public static List TEST_SUITES = null;
+	protected static IJavaProject JAVA_PROJECT;
 
 /**
  * Collects results as a string.
@@ -384,20 +384,20 @@ protected void searchDeclarationsOfSentMessages(IJavaElement enclosingElement, S
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	if (javaProject == null) {
-		javaProject = setUpJavaProject("JavaSearch");
+	if (JAVA_PROJECT == null) {
+		JAVA_PROJECT = setUpJavaProject("JavaSearch");
 		setUpJavaProject("JavaSearch15", "1.5");
 		setUpJavaProject("JavaSearchBugs");
 	}
 }
 public void tearDownSuite() throws Exception {
-	if (testSuites == null) {
+	if (TEST_SUITES == null) {
 		deleteProject("JavaSearch");
 		deleteProject("JavaSearch15");
 		deleteProject("JavaSearchBugs");
 	} else {
-		testSuites.remove(getClass());
-		if (testSuites.size() == 0) {
+		TEST_SUITES.remove(getClass());
+		if (TEST_SUITES.size() == 0) {
 			deleteProject("JavaSearch");
 			deleteProject("JavaSearch15");
 			deleteProject("JavaSearchBugs");

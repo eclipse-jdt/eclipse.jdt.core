@@ -25,8 +25,8 @@ import org.eclipse.jdt.core.tests.util.Util;
 public abstract class ConverterTestSetup extends AbstractASTTests {
 
 	protected AST ast;
-	static List testSuites = null;
-	static boolean setupProject = false;
+	static List TEST_SUITES = null;
+	static boolean PROJECT_SETUP = false;
 
 	protected ConverterTestSetup(String name) {
 		super(name);
@@ -49,12 +49,12 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	 */
 	public void tearDownSuite() throws Exception {
 		ast = null;
-		if (testSuites == null) {
+		if (TEST_SUITES == null) {
 			this.deleteProject("Converter"); //$NON-NLS-1$
 			this.deleteProject("Converter15"); //$NON-NLS-1$
 		} else {
-			testSuites.remove(getClass());
-			if (testSuites.size() == 0) {
+			TEST_SUITES.remove(getClass());
+			if (TEST_SUITES.size() == 0) {
 				this.deleteProject("Converter"); //$NON-NLS-1$
 				this.deleteProject("Converter15"); //$NON-NLS-1$
 			}
@@ -69,7 +69,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 
-		if (!setupProject) {
+		if (!PROJECT_SETUP) {
 			// ensure variables are set
 			if (JavaCore.getClasspathVariable("ConverterJCL_LIB") == null) { //$NON-NLS-1$
 				setupExternalJCL("converterJclMin");
@@ -81,7 +81,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	
 			setUpJavaProject("Converter"); //$NON-NLS-1$
 			setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
-			setupProject = true;
+			PROJECT_SETUP = true;
 		}
 	}
 

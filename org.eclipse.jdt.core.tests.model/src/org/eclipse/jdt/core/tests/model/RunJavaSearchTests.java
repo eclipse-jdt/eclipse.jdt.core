@@ -34,15 +34,15 @@ public static Class[] getAllTestClasses() {
 public static Test suite() {
 	TestSuite ts = new TestSuite(RunJavaSearchTests.class.getName());
 
-	JavaSearchTests.testSuites = new ArrayList(Arrays.asList(getAllTestClasses()));
+	JavaSearchTests.TEST_SUITES = new ArrayList(Arrays.asList(getAllTestClasses()));
 	// Reset forgotten subsets of tests
 	AbstractJavaModelTests.testsPrefix = null;
 	AbstractJavaModelTests.testsNames = null;
 	AbstractJavaModelTests.testsNumbers = null;
 	AbstractJavaModelTests.testsRange = null;
 
-	for (int i = 0, l=JavaSearchTests.testSuites.size(); i < l; i++) {
-		Class testClass = (Class) JavaSearchTests.testSuites.get(i);
+	for (int i = 0, l=JavaSearchTests.TEST_SUITES.size(); i < l; i++) {
+		Class testClass = (Class) JavaSearchTests.TEST_SUITES.get(i);
 
 		// call the suite() method and add the resulting suite to the suite
 		try {
