@@ -22,12 +22,14 @@ import org.eclipse.jdt.core.*;
  */
 
 public class NameLookup implements INameLookup {
+
 	/**
 	 * The <code>IPackageFragmentRoot</code>'s associated
 	 * with the classpath of this NameLookup facility's
 	 * project.
 	 */
 	protected IPackageFragmentRoot[] fPackageFragmentRoots= null;
+
 	/**
 	 * Table that maps package names to lists of package fragments for
 	 * all package fragments in the package fragment roots known
@@ -42,11 +44,13 @@ public class NameLookup implements INameLookup {
 	 * @see findType(String, IPackageFragment, boolean, int)
 	 */
 	protected SingleTypeRequestor fgSingleTypeRequestor= new SingleTypeRequestor();
+
 	/**
 	 * Singleton <code>JavaElementRequestor</code>.
 	 * @see findType(String, boolean, int)
 	 */
 	protected JavaElementRequestor fgJavaElementRequestor= new JavaElementRequestor();
+
 	/**
 	 * The <code>IWorkspace</code> that this NameLookup
 	 * is configure within.
@@ -56,6 +60,7 @@ public class NameLookup implements INameLookup {
 	public NameLookup(IJavaProject project) throws JavaModelException {
 		configureFromProject(project);
 	}
+
 	/**
 	 * Returns true if:<ul>
 	 *  <li>the given type is an existing class and the flag's <code>ACCEPT_CLASSES</code>
@@ -80,6 +85,7 @@ public class NameLookup implements INameLookup {
 			return false; // the class is not present, do not accept.
 		}
 	}
+
 	/**
 	 * Configures this <code>NameLookup</code> based on the
 	 * info of the given <code>IJavaProject</code>.
@@ -106,6 +112,7 @@ public class NameLookup implements INameLookup {
 			}
 		}
 	}
+
 	/**
 	 * Finds every type in the project whose simple name matches
 	 * the prefix, informing the requestor of each hit. The requestor
@@ -135,6 +142,7 @@ public class NameLookup implements INameLookup {
 			}
 		}
 	}
+
 	/**
 	 * @see INameLookup
 	 */
@@ -147,13 +155,11 @@ public class NameLookup implements INameLookup {
 			pkgName= qualifiedTypeName.substring(0, index);
 			cuName= qualifiedTypeName.substring(index + 1);
 		}
-
 		index= cuName.indexOf('$');
 		if (index != -1) {
 			cuName= cuName.substring(0, index);
 		}
 		cuName += ".java"; //$NON-NLS-1$
-
 		IPackageFragment[] frags= (IPackageFragment[]) fPackageFragments.get(pkgName);
 		if (frags != null) {
 			for (int i= 0; i < frags.length; i++) {
@@ -168,77 +174,79 @@ public class NameLookup implements INameLookup {
 		}
 		return null;
 	}
-/**
- * @see INameLookup
- */
-public IPackageFragment findPackageFragment(IPath path) {
-	if (!path.isAbsolute()) {
-		throw new IllegalArgumentException(Util.bind("path.mustBeAbsolute")); //$NON-NLS-1$
-	}
-	IResource possibleFragment = workspace.getRoot().findMember(path);
-	if (possibleFragment == null) {
-		//external jar
-		for (int i = 0; i < fPackageFragmentRoots.length; i++) {
-			IPackageFragmentRoot root = fPackageFragmentRoots[i];
-			if (!root.isExternal()) {
-				continue;
-			}
-			IPath rootPath = root.getPath();
-			int matchingCount = rootPath.matchingFirstSegments(path);
-			if (matchingCount != 0) {
-				String name = path.toOSString();
-				// + 1 is for the File.separatorChar
-				name = name.substring(rootPath.toOSString().length() + 1, name.length());
-				name = name.replace(File.separatorChar, '.');
-				IJavaElement[] list = null;
-				try {
-					list = root.getChildren();
-				} catch (JavaModelException npe) {
-					continue; // the package fragment root is not present;
+	
+	/**
+	 * @see INameLookup
+	 */
+	public IPackageFragment findPackageFragment(IPath path) {
+		if (!path.isAbsolute()) {
+			throw new IllegalArgumentException(Util.bind("path.mustBeAbsolute")); //$NON-NLS-1$
+		}
+		IResource possibleFragment = workspace.getRoot().findMember(path);
+		if (possibleFragment == null) {
+			//external jar
+			for (int i = 0; i < fPackageFragmentRoots.length; i++) {
+				IPackageFragmentRoot root = fPackageFragmentRoots[i];
+				if (!root.isExternal()) {
+					continue;
 				}
-				int elementCount = list.length;
-				for (int j = 0; j < elementCount; j++) {
-					IPackageFragment packageFragment = (IPackageFragment) list[j];
-					if (nameMatches(name, packageFragment, false)) {
-						if (packageFragment.exists())
-							return packageFragment;
+				IPath rootPath = root.getPath();
+				int matchingCount = rootPath.matchingFirstSegments(path);
+				if (matchingCount != 0) {
+					String name = path.toOSString();
+					// + 1 is for the File.separatorChar
+					name = name.substring(rootPath.toOSString().length() + 1, name.length());
+					name = name.replace(File.separatorChar, '.');
+					IJavaElement[] list = null;
+					try {
+						list = root.getChildren();
+					} catch (JavaModelException npe) {
+						continue; // the package fragment root is not present;
+					}
+					int elementCount = list.length;
+					for (int j = 0; j < elementCount; j++) {
+						IPackageFragment packageFragment = (IPackageFragment) list[j];
+						if (nameMatches(name, packageFragment, false)) {
+							if (packageFragment.exists())
+								return packageFragment;
+						}
 					}
 				}
 			}
-		}
-	} else {
-		IJavaElement fromFactory = JavaCore.create(possibleFragment);
-		if (fromFactory == null) {
-			return null;
-		}
-		if (fromFactory instanceof IPackageFragment) {
-			return (IPackageFragment) fromFactory;
-		} else
-			if (fromFactory instanceof IJavaProject) {
-				// default package in a default root
-				JavaProject project = (JavaProject) fromFactory;
-				try {
-					IClasspathEntry entry = project.getClasspathEntryFor(path);
-					if (entry != null) {
-						IPackageFragmentRoot root =
-							project.getPackageFragmentRoot(project.getUnderlyingResource());
-						IPackageFragment[] pkgs = (IPackageFragment[]) fPackageFragments.get(IPackageFragment.DEFAULT_PACKAGE_NAME);
-						if (pkgs == null) {
-							return null;
-						}
-						for (int i = 0; i < pkgs.length; i++) {
-							if (pkgs[i].getParent().equals(root)) {
-								return pkgs[i];
+		} else {
+			IJavaElement fromFactory = JavaCore.create(possibleFragment);
+			if (fromFactory == null) {
+				return null;
+			}
+			if (fromFactory instanceof IPackageFragment) {
+				return (IPackageFragment) fromFactory;
+			} else
+				if (fromFactory instanceof IJavaProject) {
+					// default package in a default root
+					JavaProject project = (JavaProject) fromFactory;
+					try {
+						IClasspathEntry entry = project.getClasspathEntryFor(path);
+						if (entry != null) {
+							IPackageFragmentRoot root =
+								project.getPackageFragmentRoot(project.getUnderlyingResource());
+							IPackageFragment[] pkgs = (IPackageFragment[]) fPackageFragments.get(IPackageFragment.DEFAULT_PACKAGE_NAME);
+							if (pkgs == null) {
+								return null;
+							}
+							for (int i = 0; i < pkgs.length; i++) {
+								if (pkgs[i].getParent().equals(root)) {
+									return pkgs[i];
+								}
 							}
 						}
+					} catch (JavaModelException e) {
+						return null;
 					}
-				} catch (JavaModelException e) {
-					return null;
 				}
-			}
+		}
+		return null;
 	}
-	return null;
-}
+
 	/**
 	 * @see INameLookup
 	 */
@@ -254,6 +262,7 @@ public IPackageFragment findPackageFragment(IPath path) {
 		}
 		return null;
 	}
+
 	/**
 	 * @see INameLookup
 	 */
@@ -307,6 +316,7 @@ public IPackageFragment findPackageFragment(IPath path) {
 		}
 		return null;
 	}
+
 	/**
 	 * 
 	 */
@@ -314,7 +324,6 @@ public IPackageFragment findPackageFragment(IPath path) {
 		if (packageName == null) {
 			packageName= IPackageFragment.DEFAULT_PACKAGE_NAME;
 		}
-
 		seekPackageFragments(packageName, false, fgJavaElementRequestor);
 		IPackageFragment[] packages= fgJavaElementRequestor.getPackageFragments();
 		fgJavaElementRequestor.reset();
@@ -325,6 +334,7 @@ public IPackageFragment findPackageFragment(IPath path) {
 		}
 		return null;
 	}
+
 	/**
 	 * @see INameLookup
 	 */
@@ -338,6 +348,7 @@ public IPackageFragment findPackageFragment(IPath path) {
 		fgSingleTypeRequestor.reset();
 		return type;
 	}
+
 	/**
 	 * @see INameLookup
 	 */
@@ -351,9 +362,9 @@ public IPackageFragment findPackageFragment(IPath path) {
 			packageName= name.substring(0, index);
 			className= name.substring(index + 1);
 		}
-
 		return findType(className, packageName, partialMatch, acceptFlags);
 	}
+
 	/**
 	 * Returns true if the given element's name matches the
 	 * specified <code>searchName</code>, otherwise false.
@@ -371,6 +382,7 @@ public IPackageFragment findPackageFragment(IPath path) {
 			return element.getElementName().equals(searchName);
 		}
 	}
+
 	/**
 	 * @see INameLookup
 	 */
@@ -397,6 +409,7 @@ public IPackageFragment findPackageFragment(IPath path) {
 			}
 		}
 	}
+
 	/**
 	 * @see INameLookup
 	 */
@@ -427,6 +440,7 @@ public IPackageFragment findPackageFragment(IPath path) {
 			return;
 		}
 	}
+
 	/**
 	 * Performs type search in a binary package.
 	 */
@@ -469,6 +483,7 @@ public IPackageFragment findPackageFragment(IPath path) {
 			}
 		}
 	}
+
 	/**
 	 * Performs type search in a source package.
 	 */
@@ -500,7 +515,6 @@ public IPackageFragment findPackageFragment(IPath path) {
 			if (requestor.isCanceled())
 				return;
 			ICompilationUnit compilationUnit= compilationUnits[i];
-
 			if (nameMatches(unitName, compilationUnit, partialMatch)) {
 				IType[] types= null;
 				try {
@@ -523,6 +537,7 @@ public IPackageFragment findPackageFragment(IPath path) {
 			}
 		}
 	}
+
 	/**
 	 * Notifies the given requestor of all types (classes and interfaces) in the
 	 * given type with the given (possibly qualified) name. Checks
