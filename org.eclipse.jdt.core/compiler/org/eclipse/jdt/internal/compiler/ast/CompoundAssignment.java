@@ -103,25 +103,22 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 		if (lhsType == null || expressionType == null)
 			return null;
 	
-		int lhsID = lhsType.id;
-		int expressionID = expressionType.id;
-		
 		// autoboxing support
 		LookupEnvironment env = scope.environment();
-		boolean use15specifics = env.options.sourceLevel >= JDK1_5;
+		boolean use15specifics = scope.environment().options.sourceLevel >= JDK1_5;
 		boolean unboxedLhs = false, unboxedExpression = false;
 		if (use15specifics) {
-			if (!lhsType.isBaseType() && expressionID != T_JavaLangString) {
-				int unboxedID = env.computeBoxingType(lhsType).id;
-				if (unboxedID != lhsID) {
-					lhsID = unboxedID;
+			if (!lhsType.isBaseType() && expressionType.id != T_JavaLangString && expressionType.id != T_null) {
+				TypeBinding unboxedType = env.computeBoxingType(lhsType);
+				if (unboxedType != lhsType) {
+					lhsType = unboxedType;
 					unboxedLhs = true;
 				}
 			}
-			if (!expressionType.isBaseType() && lhsID != T_JavaLangString) {
-				int unboxedID = env.computeBoxingType(expressionType).id;
-				if (unboxedID != expressionID) {
-					expressionID = unboxedID;
+			if (!expressionType.isBaseType() && lhsType.id != T_JavaLangString  && lhsType.id != T_null) {
+				TypeBinding unboxedType = env.computeBoxingType(expressionType);
+				if (unboxedType != expressionType) {
+					expressionType = unboxedType;
 					unboxedExpression = true;
 				}
 			}
@@ -131,6 +128,8 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 			scope.problemReporter().operatorOnlyValidOnNumericType(this, lhsType, expressionType);
 			return null;
 		}
+		int lhsID = lhsType.id;
+		int expressionID = expressionType.id;
 		if (lhsID > 15 || expressionID > 15) {
 			if (lhsID != T_JavaLangString) { // String += Thread is valid whereas Thread += String  is not
 				scope.problemReporter().invalidOperator(this, lhsType, expressionType);

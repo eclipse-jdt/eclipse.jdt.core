@@ -481,13 +481,13 @@ public abstract class Expression extends Statement {
 		// it is possible for a Byte to be unboxed to a byte & then converted to an int
 		// but it is not possible for a byte to become Byte & then assigned to an Integer,
 		// or to become an int before boxed into an Integer
-		if (runtimeTimeType.isBaseType()) {
+		if (runtimeTimeType != NullBinding && runtimeTimeType.isBaseType()) {
 			if (!compileTimeType.isBaseType()) {
 				compileTimeType = scope.environment().computeBoxingType(compileTimeType);
 				this.implicitConversion = UNBOXING;
 			}
 		} else {
-			if (compileTimeType.isBaseType()) {
+			if (compileTimeType != NullBinding && compileTimeType.isBaseType()) {
 				TypeBinding boxedType = scope.environment().computeBoxingType(compileTimeType);
 				this.implicitConversion = BOXING | (compileTimeType.id << 4) | compileTimeType.id; // use primitive type only in implicitConversion
 				compileTimeType = boxedType;

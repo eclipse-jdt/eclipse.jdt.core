@@ -1202,7 +1202,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 		);
 	}	
 
-	public void _test042() { // conditional expression
+	public void test042() { // conditional expression
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1219,4 +1219,61 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 		);
 	}
 
+	public void test043() { // compound assignment
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Integer i = 0;\n" + 
+				"		i += \"aaa\";\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	i += \"aaa\";\n" + 
+			"	^^^^^^^^^^\n" + 
+			"The operator += is undefined for the argument type(s) Integer, String\n" + 
+			"----------\n");
+	}
+
+	public void test044() { // compound assignment
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Integer i = 0;\n" + 
+				"		i += null;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	i += null;\n" + 
+			"	^^^^^^^^^\n" + 
+			"The operator += is undefined for the argument type(s) Integer, null\n" + 
+			"----------\n");
+	}
+
+	public void test045() { // binary expression
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Integer i = 0;\n" + 
+				"		i = i + null;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	i = i + null;\n" + 
+			"	    ^^^^^^^^\n" + 
+			"The operator + is undefined for the argument type(s) Integer, null\n" + 
+			"----------\n");
+	}
+	
 }

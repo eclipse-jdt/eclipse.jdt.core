@@ -1679,14 +1679,14 @@ public class BinaryExpression extends OperatorExpression {
 		boolean use15specifics = env.options.sourceLevel >= JDK1_5;
 		boolean unboxedLeft = false, unboxedRight = false;
 		if (use15specifics) {
-			if (!leftType.isBaseType() && rightTypeID != T_JavaLangString) {
+			if (!leftType.isBaseType() && rightTypeID != T_JavaLangString && rightTypeID != T_null) {
 				int unboxedID = env.computeBoxingType(leftType).id;
 				if (unboxedID != leftTypeID) {
 					leftTypeID = unboxedID;
 					unboxedLeft = true;
 				}
 			}
-			if (!rightType.isBaseType() && leftTypeID != T_JavaLangString) {
+			if (!rightType.isBaseType() && leftTypeID != T_JavaLangString && leftTypeID != T_null) {
 				int unboxedID = env.computeBoxingType(rightType).id;
 				if (unboxedID != rightTypeID) {
 					rightTypeID = unboxedID;
