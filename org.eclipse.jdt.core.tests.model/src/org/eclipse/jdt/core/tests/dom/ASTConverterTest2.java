@@ -1591,6 +1591,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertTrue("Has error", compilationUnit.getProblems().length == 0); //$NON-NLS-1$
+		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
+		assertNotNull("No node", node);
+		assertTrue("Malformed", !isMalformed(node));
 	}	
 	
 }
