@@ -22,6 +22,7 @@ public class Location {
 	public int outputColumn;
 	public int outputIndentationLevel;
 	public boolean needSpace;
+	public boolean pendingSpace;
 
 	// chunk management
 	public int lastNumberOfNewLines;	
@@ -41,6 +42,7 @@ public class Location {
 		this.outputIndentationLevel = scribe.indentationLevel;
 		this.lastNumberOfNewLines = scribe.lastNumberOfNewLines;
 		this.needSpace = scribe.needSpace;
+		this.pendingSpace = scribe.pendingSpace;
 		this.editsIndex = scribe.editsIndex;
 		textEdit = scribe.getLastEdit();
 	}

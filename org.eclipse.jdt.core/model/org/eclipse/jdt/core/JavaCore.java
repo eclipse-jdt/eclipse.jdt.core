@@ -600,14 +600,14 @@ public final class JavaCore extends Plugin {
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
 	 * @since 2.0
-	 * @deprecated
+	 * @deprecated Use DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR instead
 	 */
 	public static final String FORMATTER_TAB_CHAR = PLUGIN_ID + ".formatter.tabulation.char"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
 	 * @since 2.0
-	 * @deprecated
+	 * @deprecated Use DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE instead
 	 */
 	public static final String FORMATTER_TAB_SIZE = PLUGIN_ID + ".formatter.tabulation.size"; //$NON-NLS-1$
 	/**

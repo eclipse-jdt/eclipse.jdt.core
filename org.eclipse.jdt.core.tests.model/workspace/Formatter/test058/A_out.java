@@ -24,8 +24,8 @@ public class Parser
             OperatorIds,
             TypeIds {
     protected ProblemReporter         problemReporter;
-    public int                        firstToken;                                                             // handle for multiple parsing goals
-    public int                        lastAct;                                                                //handle for multiple parsing goals
+    public int                        firstToken;                                                            // handle for multiple parsing goals
+    public int                        lastAct;                                                               //handle for multiple parsing goals
     protected ReferenceContext        referenceContext;
     public int                        currentToken;
     private int                       synchronizedBlockSourceStart;
@@ -34,10 +34,10 @@ public class Parser
     protected RecoveredElement        currentElement;
     public static boolean             VERBOSE_RECOVERY            = false;
     protected boolean                 restartRecovery;
-    protected int                     listLength;                                                             // for recovering some incomplete list (interfaces, throws or parameters)
+    protected int                     listLength;                                                            // for recovering some incomplete list (interfaces, throws or parameters)
     protected boolean                 hasError;
     protected boolean                 hasReportedError;
-    public static boolean             fineErrorDiagnose           = true;                                     //TODO remove the static modifier when new diagnose is ready
+    public static boolean             fineErrorDiagnose           = true;                                    //TODO remove the static modifier when new diagnose is ready
     public boolean                    reportSyntaxErrorIsRequired = true;
     public boolean                    reportOnlyOneSyntaxError    = false;
     protected int                     recoveredStaticInitializerStart;
@@ -58,7 +58,7 @@ public class Parser
     protected AstNode[]               astStack                    = new AstNode[AstStackIncrement];
     protected int                     astLengthPtr;
     protected int[]                   astLengthStack;
-    public CompilationUnitDeclaration compilationUnit;                                                        /*the result from parse()*/
+    public CompilationUnitDeclaration compilationUnit;                                                       /*the result from parse()*/
     AstNode[]                         noAstNodes                  = new AstNode[AstStackIncrement];
     //expression stack
     final static int                  ExpressionStackIncrement    = 100;
@@ -76,19 +76,19 @@ public class Parser
     //positions , dimensions , .... (what ever is int) ..... stack
     protected int                     intPtr;
     protected int[]                   intStack;
-    protected int                     endPosition;                                                            //accurate only when used ! (the start position is pushed into intStack while the end the current one)
+    protected int                     endPosition;                                                           //accurate only when used ! (the start position is pushed into intStack while the end the current one)
     protected int                     endStatementPosition;
-    protected int                     lParenPos, rParenPos;                                                   //accurate only when used !
+    protected int                     lParenPos, rParenPos;                                                  //accurate only when used !
     //modifiers dimensions nestedType etc.......
     protected boolean                 optimizeStringLiterals      = true;
     protected int                     modifiers;
     protected int                     modifiersSourceStart;
     protected int                     nestedType, dimensions;
-    protected int[]                   nestedMethod;                                                           //the ptr is nestedType
+    protected int[]                   nestedMethod;                                                          //the ptr is nestedType
     protected int[]                   realBlockStack;
     protected int                     realBlockPtr;
-    protected boolean                 diet                        = false;                                    //tells the scanner to jump over some parts of the code/expressions like method bodies
-    protected int                     dietInt                     = 0;                                        // if > 0 force the none-diet-parsing mode (even if diet if requested) [field parsing with anonymous inner classes...]
+    protected boolean                 diet                        = false;                                   //tells the scanner to jump over some parts of the code/expressions like method bodies
+    protected int                     dietInt                     = 0;                                       // if > 0 force the none-diet-parsing mode (even if diet if requested) [field parsing with anonymous inner classes...]
     protected int[]                   variablesCounter;
     public void foo() {
         byte rhs[] = {0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,

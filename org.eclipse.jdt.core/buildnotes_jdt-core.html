@@ -48,10 +48,36 @@ What's new in this drop</h2>
 </li>
 <li>Removed compiler support for deprecating jsr bytecode in 1.5 compliant mode (turned off until future release).
 </li>
+<li>The constant DefaultCodeFormatterConstants.FORMATTER_PRESERVE_USER_LINEBREAKS will be removed. It has been deprecated for now and
+has no effect in the UI anymore.
+</li>
+<li>The constant DefaultCodeFormatterConstants.FORMATTER_FILLING_SPACE will be removed. It has been deprecated for now and
+has no effect in the UI anymore.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52619">52619</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=50586">50586</a>
+[Code Formatter] trim trailing blanks/whitespace
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52851">52851</a>
+Space before else should be removed in some cases
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52283">52283</a>
+do <single-statement> while(<condition>) is ill-formatted
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52479">52479</a>
+Code Format fails on not on-demand imports
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52246">52246</a>
+M7 Source formatter fails silently when assert present in source
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52429">52429</a>
+code formatter seems to ignore settings
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=51623">51623</a>
+[formatter] Wrong formatting when "Preserve existing line breaks" switched on
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52305">52305</a>
+Code Formatter strips blank lines in methods and field definitions when I try to tell it not to
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52746">52746</a>
+Formatter - preserve line breaks conflicts with keep blank lines
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52804">52804</a>
+Deprecated formatter constant should indicate new way
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52619">52619</a>
 NPE running Java model tests
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=36889">36889</a>
 [DCR] Keep AST created in reconcile for active editor 

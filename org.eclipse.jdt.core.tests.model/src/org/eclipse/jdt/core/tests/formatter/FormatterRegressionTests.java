@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +70,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test477"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test482"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -138,10 +137,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			//time = System.currentTimeMillis();
 			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);//$NON-NLS-1$
 			if (edit == null) return null;
-			assertEquals("Shoult not have edits", 0, edit.getChildren().length);
+//			assertEquals("Shoult not have edits", 0, edit.getChildren().length);
 			final String result2 = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
 			if (!result.equals(result2)) {
-				assertEquals("Different reformatting", result, result2);
+				assertSourceEquals("Different reformatting", Util.convertToIndependantLineDelimiter(result), Util.convertToIndependantLineDelimiter(result2));
 			}
 		}
 		return result;
@@ -194,50 +193,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			assertEquals(originalSource, expectedContents);
 			return;
 		}
-		String[] actualContentsArray = createArrayOfString(actualContents);
-		String[] expectedContentsArray = createArrayOfString(expectedContents);
-		if (actualContentsArray.length != expectedContentsArray.length) {
-			System.out.println(Util.displayString(actualContents, 2));
-		}
-		assertEquals("Different size", expectedContentsArray.length, actualContentsArray.length); //$NON-NLS-1$
-		for (int i = 0, max = expectedContentsArray.length; i < max; i++) {
-			if (!expectedContentsArray[i].equals(actualContentsArray[i])){
-				System.out.println(Util.displayString(actualContentsArray[i], 2));
-			}
-			if (!expectedContentsArray[i].equals(actualContentsArray[i])) {
-				System.out.println("line " + i + " is different");
-				System.out.println(Util.displayString(actualContents, 2));
-				assertTrue("Different line", false);
-			}
-		}
-	}
-
-	private String[] createArrayOfString(String s) {
-		ArrayList arrayList = new ArrayList();
-		int start = 0;
-		char[] source = s.toCharArray();
-		for (int i = 0, max = source.length; i < max; i++) {
-			switch(source[i]) {
-				case '\r':
-					arrayList.add(s.substring(start, i));
-					if ((i + 1) < max) {
-						if (source[i + 1] == '\n') {
-							i++;
-						}
-					}
-					start = i + 1;
-					break;
-				case '\n' :
-					arrayList.add(s.substring(start, i));
-					start = i + 1;
-			}
-		}
-		final int size = arrayList.size();
-		if (size == 0) {
-			return new String[] { s };
-		} else {
-			return (String[]) arrayList.toArray(new String[size]);
-		}
+		assertSourceEquals("Different number of length", Util.convertToIndependantLineDelimiter(expectedContents), actualContents);
 	}
 
 	private void runTest(String packageName, String compilationUnitName) {
@@ -617,7 +573,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.use_tab = true;
 		preferences.insert_space_after_assignment_operator = true;
 		preferences.insert_space_before_assignment_operator = true;
-		preferences.preserve_user_linebreaks = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test047", "A.java", CodeFormatter.K_STATEMENTS, 2);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -5907,5 +5862,68 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		assertTrue("Wrong force setting", DefaultCodeFormatterConstants.getForceWrapping(option));
 		assertEquals("Wrong wrapping style", DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.getWrappingStyle(option));
 		assertEquals("Wrong indent style", DefaultCodeFormatterConstants.INDENT_DEFAULT, DefaultCodeFormatterConstants.getIndentStyle(option));
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=52246
+	 */
+	public void test478() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, options);
+		runTest(codeFormatter, "test478", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=52479
+	 */
+	public void test479() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test479", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=52479
+	 */
+	public void test480() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test480", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=52283
+	 */
+	public void test481() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test481", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=52283
+	 */
+	public void test482() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_CLOSING_BRACE_IN_BLOCK, JavaCore.DO_NOT_INSERT);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test482", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=52851
+	 */
+	public void test483() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_CLOSING_BRACE_IN_BLOCK, JavaCore.DO_NOT_INSERT);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test483", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
