@@ -474,23 +474,25 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	}
 	return (this.otherBindings[otherBindingsLength - 1]).type;
 }
-/**
- * Check and/or redirect the field access to the delegate receiver if any
- */
-public TypeBinding getReceiverType(BlockScope currentScope) {
-	if (this.receiverType != null) return this.receiverType;
-	Scope scope = currentScope.parent;
-	while (true) {
-			switch (scope.kind) {
-				case Scope.CLASS_SCOPE :
-					return this.receiverType = ((ClassScope) scope).referenceContext.binding;
-				default:
-					scope = scope.parent;
-			}
+	/**
+	 * Check and/or redirect the field access to the delegate receiver if any
+	 */
+	public TypeBinding getReceiverType(BlockScope currentScope) {
+		if (this.receiverType != null) return this.receiverType;
+		Scope scope = currentScope.parent;
+		while (true) {
+				switch (scope.kind) {
+					case Scope.CLASS_SCOPE :
+						return this.receiverType = ((ClassScope) scope).referenceContext.binding;
+					default:
+						scope = scope.parent;
+				}
+		}
 	}
-}
-		
-	public void manageSyntheticReadAccessIfNecessary(
+	/**
+	 * index is <0 to denote write access emulation
+	 */		
+	public void manageSyntheticAccessIfNecessary(
 		BlockScope currentScope,
 		FieldBinding fieldBinding,
 		TypeBinding lastReceiverType,
@@ -499,11 +501,16 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 
 		if (!flowInfo.isReachable()) return;
 	
-
 		// if the binding declaring class is not visible, need special action
 		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
 		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
-		boolean useDelegate = index == 0 && this.delegateThis != null;
+		boolean useDelegate;
+		if (index < 0) { // write-access?
+		    useDelegate = fieldBinding == this.binding && this.delegateThis != null;
+		} else {
+			useDelegate = index == 0 && this.delegateThis != null;
+		}
+		
 		if (useDelegate) {
 			lastReceiverType = this.delegateThis.type;
 		}
@@ -517,7 +524,17 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 				|| !(useDelegate
 						? new CodeSnippetScope(currentScope).canBeSeenByForCodeSnippet(fieldBinding.declaringClass, (ReferenceBinding) this.delegateThis.type)
 						: fieldBinding.declaringClass.canBeSeenBy(currentScope)))){
-			if (index == 0){
+		    if (index < 0) { // write-access?
+				if (fieldBinding == this.binding){
+					this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
+				} else {
+					if (this.otherCodegenBindings == this.otherBindings){
+						int l = this.otherBindings.length;
+						System.arraycopy(this.otherBindings, 0, this.otherCodegenBindings = new FieldBinding[l], 0, l);
+					}
+					this.otherCodegenBindings[this.otherCodegenBindings.length-1] = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
+				}
+		    } if (index == 0){
 				this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
 			} else {
 				if (this.otherCodegenBindings == this.otherBindings){
@@ -525,45 +542,6 @@ public TypeBinding getReceiverType(BlockScope currentScope) {
 					System.arraycopy(this.otherBindings, 0, this.otherCodegenBindings = new FieldBinding[l], 0, l);
 				}
 				this.otherCodegenBindings[index-1] = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
-			}
-		}
-	}
-	/*
-	 * No need to emulate access to protected fields since not implicitly accessed
-	 */
-	public void manageSyntheticWriteAccessIfNecessary(
-		BlockScope currentScope,
-		FieldBinding fieldBinding,
-		TypeBinding lastReceiverType,
-		FlowInfo flowInfo) {
-
-		if (!flowInfo.isReachable()) return;
-	
-		// if the binding declaring class is not visible, need special action
-		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
-		boolean useDelegate = fieldBinding == this.binding && this.delegateThis != null;
-		if (useDelegate) {
-			lastReceiverType = this.delegateThis.type;
-		}
-		if (fieldBinding.declaringClass != lastReceiverType
-			&& !lastReceiverType.isArrayType()			
-			&& fieldBinding.declaringClass != null
-			&& fieldBinding.constant == NotAConstant
-			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
-					&& (fieldBinding != this.binding || this.indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
-					&& fieldBinding.declaringClass.id != T_Object)
-				|| !(useDelegate
-						? new CodeSnippetScope(currentScope).canBeSeenByForCodeSnippet(fieldBinding.declaringClass, (ReferenceBinding) this.delegateThis.type)
-						: fieldBinding.declaringClass.canBeSeenBy(currentScope)))){
-			if (fieldBinding == this.binding){
-				this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
-			} else {
-				if (this.otherCodegenBindings == this.otherBindings){
-					int l = this.otherBindings.length;
-					System.arraycopy(this.otherBindings, 0, this.otherCodegenBindings = new FieldBinding[l], 0, l);
-				}
-				this.otherCodegenBindings[this.otherCodegenBindings.length-1] = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
 			}
 		}
 	}

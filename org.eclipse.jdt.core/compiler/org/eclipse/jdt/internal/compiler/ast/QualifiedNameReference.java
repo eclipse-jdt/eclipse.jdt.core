@@ -55,7 +55,7 @@ public class QualifiedNameReference extends NameReference {
 			case FIELD : // reading a field
 				lastFieldBinding = (FieldBinding) binding;
 				if (needValue) {
-					manageSyntheticReadAccessIfNecessary(currentScope, lastFieldBinding, this.actualReceiverType, 0, flowInfo);
+					manageSyntheticAccessIfNecessary(currentScope, lastFieldBinding, this.actualReceiverType, 0, flowInfo);
 				}				// check if final blank field
 				if (lastFieldBinding.isBlankFinal()
 				    && this.otherBindings != null // the last field binding is only assigned
@@ -91,7 +91,7 @@ public class QualifiedNameReference extends NameReference {
 				lastFieldBinding = otherBindings[i];
 				needValue = !otherBindings[i+1].isStatic();
 				if (needValue) {
-					manageSyntheticReadAccessIfNecessary(
+					manageSyntheticAccessIfNecessary(
 						currentScope, 
 						lastFieldBinding, 
 						i == 0 
@@ -121,7 +121,7 @@ public class QualifiedNameReference extends NameReference {
 			} else {
 				lastReceiverType = this.otherBindings[otherBindingsCount-2].type;
 			}
-			manageSyntheticReadAccessIfNecessary(
+			manageSyntheticAccessIfNecessary(
 				currentScope,
 				lastFieldBinding,
 				lastReceiverType,
@@ -168,7 +168,7 @@ public class QualifiedNameReference extends NameReference {
 		} else {
 			lastReceiverType = this.otherBindings[otherBindingsCount-2].type;
 		}
-		manageSyntheticWriteAccessIfNecessary(currentScope, lastFieldBinding, lastReceiverType, flowInfo);
+		manageSyntheticAccessIfNecessary(currentScope, lastFieldBinding, lastReceiverType, -1 /*write-access*/, flowInfo);
 
 		return flowInfo;
 	}
@@ -194,7 +194,7 @@ public class QualifiedNameReference extends NameReference {
 		switch (bits & RestrictiveFlagMASK) {
 			case FIELD : // reading a field
 				if (needValue) {
-					manageSyntheticReadAccessIfNecessary(currentScope, (FieldBinding) binding, this.actualReceiverType, 0, flowInfo);
+					manageSyntheticAccessIfNecessary(currentScope, (FieldBinding) binding, this.actualReceiverType, 0, flowInfo);
 				}
 				// check if reading a final blank field
 				FieldBinding fieldBinding;
@@ -226,7 +226,7 @@ public class QualifiedNameReference extends NameReference {
 			for (int i = 0; i < otherBindingsCount; i++) {
 				needValue = i < otherBindingsCount-1 ? !otherBindings[i+1].isStatic() : valueRequired;
 				if (needValue) {
-					manageSyntheticReadAccessIfNecessary(
+					manageSyntheticAccessIfNecessary(
 						currentScope, 
 						otherBindings[i], 
 						i == 0 
@@ -603,45 +603,55 @@ public class QualifiedNameReference extends NameReference {
 			currentScope.emulateOuterAccess((LocalVariableBinding) binding);
 		}
 	}
-	public void manageSyntheticReadAccessIfNecessary(
+	/**
+	 * index is <0 to denote write access emulation
+	 */
+	public void manageSyntheticAccessIfNecessary(
 			BlockScope currentScope,
 			FieldBinding fieldBinding,
 			TypeBinding lastReceiverType,
 			int index,
 			FlowInfo flowInfo) {
+	    
 		if (!flowInfo.isReachable()) return;
 		// index == 0 denotes the first fieldBinding, index > 0 denotes one of the 'otherBindings'
 		if (fieldBinding.constant != NotAConstant)
 			return;
 		if (fieldBinding.isPrivate()) { // private access
 			if (fieldBinding.declaringClass != currentScope.enclosingSourceType()) {
-				if (syntheticReadAccessors == null) {
-					if (otherBindings == null)
-						syntheticReadAccessors = new SyntheticAccessMethodBinding[1];
-					else
-						syntheticReadAccessors =
-							new SyntheticAccessMethodBinding[otherBindings.length + 1];
-				}
-				syntheticReadAccessors[index] = ((SourceTypeBinding) fieldBinding.declaringClass).addSyntheticMethod(fieldBinding, true);
-				currentScope.problemReporter().needToEmulateFieldAccess(fieldBinding, this, true /*write-access*/);
+			    if (index < 0) { // write-access ?
+					syntheticWriteAccessor = ((SourceTypeBinding) fieldBinding.declaringClass).addSyntheticMethod(fieldBinding, false);			        
+			    } else {
+					if (syntheticReadAccessors == null) {
+						syntheticReadAccessors = new SyntheticAccessMethodBinding[otherBindings == null ? 1 : otherBindings.length + 1];
+					}
+					syntheticReadAccessors[index] = ((SourceTypeBinding) fieldBinding.declaringClass).addSyntheticMethod(fieldBinding, true);
+			    }
+				currentScope.problemReporter().needToEmulateFieldAccess(fieldBinding, this, index >= 0 /*read-access?*/);
 				return;
 			}
 		} else if (fieldBinding.isProtected()){
-			int depth = index == 0 ? (bits & DepthMASK) >> DepthSHIFT : otherDepths[index-1];
-			// implicit protected access (only for first one)
-			if (depth > 0 && (fieldBinding.declaringClass.getPackage()
-								!= currentScope.enclosingSourceType().getPackage())) {
-				if (syntheticReadAccessors == null) {
-					if (otherBindings == null)
-						syntheticReadAccessors = new SyntheticAccessMethodBinding[1];
-					else
-						syntheticReadAccessors =
-							new SyntheticAccessMethodBinding[otherBindings.length + 1];
-				}
-				syntheticReadAccessors[index] =
-					((SourceTypeBinding) currentScope.enclosingSourceType().enclosingTypeAt(depth))
-											.addSyntheticMethod(fieldBinding, true);
-				currentScope.problemReporter().needToEmulateFieldAccess(fieldBinding, this, true /*read-access*/);
+		    int depth;
+		    if (index < 0) { // write-access?
+		        depth = fieldBinding == binding ? (bits & DepthMASK) >> DepthSHIFT : otherDepths[otherDepths.length-1];
+		    } else {
+				depth = index == 0 ? (bits & DepthMASK) >> DepthSHIFT : otherDepths[index-1];
+		    }
+			
+			// implicit protected access 
+			if (depth > 0 && (fieldBinding.declaringClass.getPackage() != currentScope.enclosingSourceType().getPackage())) {
+			    if (index < 0) { // write-access ?
+					syntheticWriteAccessor = ((SourceTypeBinding) currentScope.enclosingSourceType().enclosingTypeAt(depth))
+												.addSyntheticMethod(fieldBinding, false);
+			    } else {
+					if (syntheticReadAccessors == null) {
+						syntheticReadAccessors = new SyntheticAccessMethodBinding[otherBindings == null ? 1 : otherBindings.length + 1];
+					}
+					syntheticReadAccessors[index] =
+						((SourceTypeBinding) currentScope.enclosingSourceType().enclosingTypeAt(depth))
+												.addSyntheticMethod(fieldBinding, true);
+			    }
+				currentScope.problemReporter().needToEmulateFieldAccess(fieldBinding, this, index >= 0 /*read-access?*/);
 				return;
 			}
 		}
@@ -656,7 +666,17 @@ public class QualifiedNameReference extends NameReference {
 					&& (index > 0 || indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
 					&& fieldBinding.declaringClass.id != T_Object)
 				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
-			if (index == 0){
+		    if (index < 0) { // write-access ?
+				if (fieldBinding == binding){
+					this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
+				} else {
+					if (this.otherCodegenBindings == this.otherBindings){
+						int l = this.otherBindings.length;
+						System.arraycopy(this.otherBindings, 0, this.otherCodegenBindings = new FieldBinding[l], 0, l);
+					}
+					this.otherCodegenBindings[this.otherCodegenBindings.length-1] = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
+				}
+		    } else if (index == 0){
 				this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
 			} else {
 				if (this.otherCodegenBindings == this.otherBindings){
@@ -666,55 +686,6 @@ public class QualifiedNameReference extends NameReference {
 				this.otherCodegenBindings[index-1] = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
 			}
 		}
-	}
-	/*
-	 * No need to emulate access to protected fields since not implicitly accessed
-	 */
-	public void manageSyntheticWriteAccessIfNecessary(
-			BlockScope currentScope,
-			FieldBinding fieldBinding,
-			TypeBinding lastReceiverType,
-			FlowInfo flowInfo) {
-		if (!flowInfo.isReachable()) return;
-		if (fieldBinding.isPrivate()) {
-			if (fieldBinding.declaringClass != currentScope.enclosingSourceType()) {
-				syntheticWriteAccessor = ((SourceTypeBinding) fieldBinding.declaringClass)
-											.addSyntheticMethod(fieldBinding, false);
-				currentScope.problemReporter().needToEmulateFieldAccess(fieldBinding, this, false /*write-access*/);
-				return;
-			}
-		} else if (fieldBinding.isProtected()){
-			int depth = fieldBinding == binding ? (bits & DepthMASK) >> DepthSHIFT : otherDepths[otherDepths.length-1];
-			if (depth > 0 && (fieldBinding.declaringClass.getPackage()
-								!= currentScope.enclosingSourceType().getPackage())) {
-				syntheticWriteAccessor = ((SourceTypeBinding) currentScope.enclosingSourceType().enclosingTypeAt(depth))
-											.addSyntheticMethod(fieldBinding, false);
-				currentScope.problemReporter().needToEmulateFieldAccess(fieldBinding, this, false /*write-access*/);
-				return;
-			}
-		}
-		// if the binding declaring class is not visible, need special action
-		// for runtime compatibility on 1.2 VMs : change the declaring class of the binding
-		// NOTE: from target 1.2 on, field's declaring class is touched if any different from receiver type
-		if (fieldBinding.declaringClass != lastReceiverType
-			&& !lastReceiverType.isArrayType()			
-			&& fieldBinding.declaringClass != null
-			&& fieldBinding.constant == NotAConstant
-			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2
-					&& (fieldBinding != binding || indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
-					&& fieldBinding.declaringClass.id != T_Object)
-				|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){
-			if (fieldBinding == binding){
-				this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
-			} else {
-				if (this.otherCodegenBindings == this.otherBindings){
-					int l = this.otherBindings.length;
-					System.arraycopy(this.otherBindings, 0, this.otherCodegenBindings = new FieldBinding[l], 0, l);
-				}
-				this.otherCodegenBindings[this.otherCodegenBindings.length-1] = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)lastReceiverType.rawType());
-			}
-		}
-		
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
