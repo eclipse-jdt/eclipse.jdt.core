@@ -242,9 +242,10 @@ public final char[] constantPoolName() {
 	return selector;
 }
 /**
- * <param1 ... paramN>returnType thrownException1 ... thrownExceptionP
+ *<typeParam1 ... typeParamM>(param1 ... paramN)returnType thrownException1 ... thrownExceptionP
  * T foo(T t) throws X<T>   --->   (TT;)TT;LX<TT;>;
  * void bar(X<T> t)   -->   (LX<TT;>;)V
+ * <T> void bar(X<T> t)   -->  <T:Ljava.lang.Object;>(LX<TT;>;)V
  */
 public char[] genericSignature() {
 	if ((this.modifiers & AccGenericSignature) == 0) return null;
