@@ -234,6 +234,7 @@ public final class Signature {
 	private static final char[] SHORT = {'s', 'h', 'o', 'r', 't'};
 	private static final char[] VOID = {'v', 'o', 'i', 'd'};
 	
+	private static final String EMPTY = new String(CharOperation.NO_CHAR);
 	
 /**
  * Not instantiable.
@@ -842,13 +843,13 @@ public static String[] getParameterTypes(String methodSignature) throws IllegalA
  * @param name the name
  * @return the qualifier prefix, or the empty char array if the name contains no
  *   dots
- * 
+ * @exception NullPointerException if name is null
  * @since 2.0
  */
 public static char[] getQualifier(char[] name) {
 	int lastDot = CharOperation.lastIndexOf(C_DOT, name);
 	if (lastDot == -1) {
-		return CharOperation.NO_CHAR; //$NON-NLS-1$
+		return CharOperation.NO_CHAR;
 	}
 	return CharOperation.subarray(name, 0, lastDot);
 }
@@ -868,9 +869,14 @@ public static char[] getQualifier(char[] name) {
  * @param name the name
  * @return the qualifier prefix, or the empty string if the name contains no
  *   dots
+ * @exception NullPointerException if name is null
  */
 public static String getQualifier(String name) {
-	return new String(getQualifier(name.toCharArray()));
+	int lastDot = name.lastIndexOf(C_DOT);
+	if (lastDot == -1) {
+		return EMPTY;
+	}
+	return name.substring(0, lastDot);
 }
 /**
  * Extracts the return type from the given method signature. The method signature is 
@@ -916,7 +922,7 @@ public static String getReturnType(String methodSignature) throws IllegalArgumen
  *
  * @param name the name
  * @return the last segment of the qualified name
- * 
+ * @exception NullPointerException if name is null
  * @since 2.0
  */
 public static char[] getSimpleName(char[] name) {
@@ -940,9 +946,14 @@ public static char[] getSimpleName(char[] name) {
  *
  * @param name the name
  * @return the last segment of the qualified name
+ * @exception NullPointerException if name is null
  */
 public static String getSimpleName(String name) {
-	return new String(getSimpleName(name.toCharArray()));
+	int lastDot = name.lastIndexOf(C_DOT);
+	if (lastDot == -1) {
+		return name;
+	}
+	return name.substring(lastDot + 1, name.length());
 }
 /**
  * Returns all segments of the given dot-separated qualified name.
@@ -960,7 +971,7 @@ public static String getSimpleName(String name) {
  *
  * @param name the name
  * @return the list of simple names, possibly empty
- * 
+ * @exception NullPointerException if name is null
  * @since 2.0
  */
 public static char[][] getSimpleNames(char[] name) {
@@ -1001,6 +1012,7 @@ public static char[][] getSimpleNames(char[] name) {
  *
  * @param name the name
  * @return the list of simple names, possibly empty
+ * @exception NullPointerException if name is null
  */
 public static String[] getSimpleNames(String name) {
 	char[][] simpleNames = getSimpleNames(name.toCharArray());
