@@ -561,7 +561,7 @@ public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModel
 	
 /**
  * Normalizes the cariage returns in the given text.
- * They are all changed  to use the given buffer's line sepatator.
+ * They are all changed  to use the given buffer's line separator.
  */
 public static char[] normalizeCRs(char[] text, char[] buffer) {
 	CharArrayBuffer result = new CharArrayBuffer();
