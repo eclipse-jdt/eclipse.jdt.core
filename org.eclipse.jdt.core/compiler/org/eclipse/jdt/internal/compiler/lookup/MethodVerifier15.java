@@ -126,6 +126,8 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 	// so the parameters are equal and the return type is compatible b/w the currentMethod & the substituted inheritedMethod
 	MethodBinding originalInherited = inheritedMethod.original();
 	if (originalInherited.returnType != currentMethod.returnType) {
+//		if (currentMethod.returnType.needsUncheckedConversion(inheritedMethod.returnType)) {
+//			problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, this.type);
 		if (inheritedMethod.returnType.leafComponentType().isParameterizedType()) {
 			if (currentMethod.returnType.leafComponentType().isRawType())
 				problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, this.type);

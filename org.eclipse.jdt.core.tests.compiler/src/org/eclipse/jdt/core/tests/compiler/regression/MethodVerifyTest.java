@@ -2311,4 +2311,23 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// warning: foo() in X implements <T>foo() in I; return type requires unchecked conversion
 		);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85930
+	public void _test042() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface Callable<T>\n" + 
+				"{\n" + 
+				"    public enum Result { GOOD, BAD };\n" + 
+				"    public Result call(T arg);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X implements Callable<String>\n" + 
+				"{\n" + 
+				"    public Result call(String arg) { return Result.GOOD; } // Warning line\n" + 
+				"}\n"
+			},
+			""
+		);
+	}		
 }
