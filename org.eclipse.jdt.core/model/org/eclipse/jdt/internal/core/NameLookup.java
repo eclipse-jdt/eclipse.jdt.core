@@ -23,7 +23,6 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -300,40 +299,33 @@ public class NameLookup implements SuffixConstants {
 	 *	only exact name matches qualify when <code>false</code>
 	 */
 	public IPackageFragment[] findPackageFragments(String name, boolean partialMatch) {
-		int count= this.packageFragmentRoots.length;
 		if (partialMatch) {
-			name= name.toLowerCase();
-			for (int i= 0; i < count; i++) {
-				IPackageFragmentRoot root= this.packageFragmentRoots[i];
-				IJavaElement[] list= null;
-				try {
-					list= root.getChildren();
-				} catch (JavaModelException npe) {
-					continue; // the package fragment root is not present;
-				}
-				int elementCount= list.length;
-				IPackageFragment[] result = new IPackageFragment[elementCount];
-				int resultLength = 0; 
-				for (int j= 0; j < elementCount; j++) {
-					IPackageFragment packageFragment= (IPackageFragment) list[j];
-					if (nameMatches(name, packageFragment, true)) {
-						result[resultLength++] = packageFragment;
+			String[] splittedName = Util.splitOn('.', name, 0, name.length());
+			ArrayList pkgs = null;
+			Object[][] keys = this.packageFragments.keyTable;
+			for (int i = 0, length = keys.length; i < length; i++) {
+				String[] pkgName = (String[]) keys[i];
+				if (pkgName != null && Util.startsWithIgnoreCase(pkgName, splittedName)) {
+					IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) this.packageFragments.valueTable[i];
+					for (int j = 0, length2 = roots.length; j < length2; j++) {
+						PackageFragmentRoot root = (PackageFragmentRoot) roots[j];
+						if (pkgs == null) pkgs = new ArrayList();
+						pkgs.add(root.getPackageFragment(pkgName));					
 					}
 				}
-				if (resultLength > 0) {
-					System.arraycopy(result, 0, result = new IPackageFragment[resultLength], 0, resultLength);
-					return result;
-				} else {
-					return null;
-				}
 			}
+			if (pkgs == null) return null;
+			int resultLength = pkgs.size();
+			IPackageFragment[] result = new IPackageFragment[resultLength];
+			pkgs.toArray(result);
+			return result;
 		} else {
-			String[] pkgName = Signature.getSimpleNames(name);
-			IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) this.packageFragments.get(pkgName);
+			String[] splittedName = Util.splitOn('.', name, 0, name.length());
+			IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) this.packageFragments.get(splittedName);
 			if (roots != null) {
 				IPackageFragment[] result = new IPackageFragment[roots.length];
 				for (int i= 0; i < roots.length; i++) {
-					result[i] = ((PackageFragmentRoot) roots[i]).getPackageFragment(pkgName);
+					result[i] = ((PackageFragmentRoot) roots[i]).getPackageFragment(splittedName);
 				}
 				return result;
 			}
