@@ -3006,7 +3006,7 @@ public String toString() {
 	if (startPosition == source.length)
 		return "EOF\n\n" + new String(source); //$NON-NLS-1$
 	if (currentPosition > source.length)
-		return "behind the EOF :-( ....\n\n" + new String(source); //$NON-NLS-1$
+		return "behind the EOF\n\n" + new String(source); //$NON-NLS-1$
 
 	char front[] = new char[startPosition];
 	System.arraycopy(source, 0, front, 0, startPosition);

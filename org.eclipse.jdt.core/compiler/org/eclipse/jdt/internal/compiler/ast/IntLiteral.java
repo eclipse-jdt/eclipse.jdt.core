@@ -63,7 +63,7 @@ public void computeConstant() {
 		while (source[j]=='0') 
 		{	j++; //jump over redondant zero
 			if (j == length)
-			{	//watch for 000000000000000000 	:-(
+			{	//watch for 000000000000000000
 				constant = Constant.fromValue(value = (int)computedValue);
 				return ;}}
 		

@@ -31,8 +31,6 @@ public class CastExpression extends Expression {
 		//the field is an expression....it can be a TypeReference OR a NameReference Or
 		//an expression <--this last one is invalid.......
 
-		// :-( .............
-
 		//if (type instanceof TypeReference )
 		//	flag = IsTypeReference ;
 		//else
