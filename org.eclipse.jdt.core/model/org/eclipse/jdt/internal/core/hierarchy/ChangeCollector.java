@@ -130,7 +130,7 @@ public class ChangeCollector {
 		}
 	}
 
-	private void addChange(IImportDeclaration importDecl, IJavaElementDelta newDelta) throws JavaModelException {
+	private void addChange(IImportDeclaration importDecl, IJavaElementDelta newDelta) {
 		SimpleDelta existingDelta = (SimpleDelta)this.changes.get(importDecl);
 		int newKind = newDelta.getKind();
 		if (existingDelta != null) {
@@ -363,7 +363,7 @@ public class ChangeCollector {
 	/*
 	 * Returns all types in the existing hierarchy that have the given element as a parent.
 	 */
-	private void getAllTypesFromHierarchy(JavaElement element, ArrayList allTypes) throws JavaModelException {
+	private void getAllTypesFromHierarchy(JavaElement element, ArrayList allTypes) {
 		switch (element.getElementType()) {
 			case IJavaElement.COMPILATION_UNIT:
 				ArrayList types = (ArrayList)this.hierarchy.files.get(element);

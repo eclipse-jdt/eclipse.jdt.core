@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
@@ -36,7 +34,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#getChar(int)
 	 */
-	public char getChar(int offset) throws BadLocationException {
+	public char getChar(int offset) {
 		return 0;
 	}
 
@@ -57,7 +55,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#get(int, int)
 	 */
-	public String get(int offset, int length) throws BadLocationException {
+	public String get(int offset, int length) {
 		return this.buffer.substring(offset, offset + length);
 	}
 
@@ -71,8 +69,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#replace(int, int, java.lang.String)
 	 */
-	public void replace(int offset, int length, String text)
-		throws BadLocationException {
+	public void replace(int offset, int length, String text) {
 		
 		this.buffer.replace(offset, offset + length, text);
 	}
@@ -115,8 +112,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#removePositionCategory(java.lang.String)
 	 */
-	public void removePositionCategory(String category)
-		throws BadPositionCategoryException {
+	public void removePositionCategory(String category) {
 			// defining interface method
 	}
 
@@ -139,7 +135,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#addPosition(org.eclipse.jface.text.Position)
 	 */
-	public void addPosition(Position position) throws BadLocationException {
+	public void addPosition(Position position) {
 		// defining interface method
 	}
 
@@ -153,24 +149,21 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#addPosition(java.lang.String, org.eclipse.jface.text.Position)
 	 */
-	public void addPosition(String category, Position position)
-		throws BadLocationException, BadPositionCategoryException {
+	public void addPosition(String category, Position position) {
 		// defining interface method
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#removePosition(java.lang.String, org.eclipse.jface.text.Position)
 	 */
-	public void removePosition(String category, Position position)
-		throws BadPositionCategoryException {
+	public void removePosition(String category, Position position) {
 		// defining interface method
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#getPositions(java.lang.String)
 	 */
-	public Position[] getPositions(String category)
-		throws BadPositionCategoryException {
+	public Position[] getPositions(String category) {
 		// defining interface method
 		return null;
 	}
@@ -186,8 +179,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#computeIndexInCategory(java.lang.String, int)
 	 */
-	public int computeIndexInCategory(String category, int offset)
-		throws BadLocationException, BadPositionCategoryException {
+	public int computeIndexInCategory(String category, int offset) {
 		// defining interface method
 		return 0;
 	}
@@ -232,7 +224,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#getContentType(int)
 	 */
-	public String getContentType(int offset) throws BadLocationException {
+	public String getContentType(int offset) {
 		// defining interface method
 		return null;
 	}
@@ -240,7 +232,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#getPartition(int)
 	 */
-	public ITypedRegion getPartition(int offset) throws BadLocationException {
+	public ITypedRegion getPartition(int offset) {
 		// defining interface method
 		return null;
 	}
@@ -248,8 +240,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#computePartitioning(int, int)
 	 */
-	public ITypedRegion[] computePartitioning(int offset, int length)
-		throws BadLocationException {
+	public ITypedRegion[] computePartitioning(int offset, int length) {
 		// defining interface method
 		return null;
 	}
@@ -286,7 +277,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#getLineLength(int)
 	 */
-	public int getLineLength(int line) throws BadLocationException {
+	public int getLineLength(int line) {
 		// defining interface method
 		return 0;
 	}
@@ -294,7 +285,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#getLineOfOffset(int)
 	 */
-	public int getLineOfOffset(int offset) throws BadLocationException {
+	public int getLineOfOffset(int offset) {
 		// defining interface method
 		return 0;
 	}
@@ -302,7 +293,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#getLineOffset(int)
 	 */
-	public int getLineOffset(int line) throws BadLocationException {
+	public int getLineOffset(int line) {
 		// defining interface method
 		return 0;
 	}
@@ -310,7 +301,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#getLineInformation(int)
 	 */
-	public IRegion getLineInformation(int line) throws BadLocationException {
+	public IRegion getLineInformation(int line) {
 		// defining interface method
 		return null;
 	}
@@ -318,8 +309,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#getLineInformationOfOffset(int)
 	 */
-	public IRegion getLineInformationOfOffset(int offset)
-		throws BadLocationException {
+	public IRegion getLineInformationOfOffset(int offset) {
 		// defining interface method
 		return null;
 	}
@@ -335,8 +325,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#getNumberOfLines(int, int)
 	 */
-	public int getNumberOfLines(int offset, int length)
-		throws BadLocationException {
+	public int getNumberOfLines(int offset, int length) {
 		// defining interface method
 		return 0;
 	}
@@ -360,7 +349,7 @@ public class SimpleDocument implements IDocument {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.text.IDocument#getLineDelimiter(int)
 	 */
-	public String getLineDelimiter(int line) throws BadLocationException {
+	public String getLineDelimiter(int line) {
 		// defining interface method
 		return null;
 	}
@@ -374,8 +363,7 @@ public class SimpleDocument implements IDocument {
 		String findString,
 		boolean forwardSearch,
 		boolean caseSensitive,
-		boolean wholeWord)
-		throws BadLocationException {
+		boolean wholeWord) {
 		// defining interface method
 		return 0;
 	}

@@ -373,7 +373,7 @@ public class AnnotationParser {
 		return null;
 	}
 
-	private void parseParam() throws InvalidInputException {
+	private void parseParam() {
 
 		// Store current token state
 		int start = this.tagSourceStart;
@@ -552,7 +552,7 @@ public class AnnotationParser {
 		}
 	}
 
-	private void parseSee() throws InvalidInputException {
+	private void parseSee() {
 		int start = this.scanner.currentPosition;
 		try {
 			Expression msgRef = parseReference();
@@ -566,7 +566,7 @@ public class AnnotationParser {
 		}
 	}
 
-	private void parseThrows() throws InvalidInputException {
+	private void parseThrows() {
 		int start = this.scanner.currentPosition;
 		try {
 			TypeReference typeRef = parseQualifiedName(true);

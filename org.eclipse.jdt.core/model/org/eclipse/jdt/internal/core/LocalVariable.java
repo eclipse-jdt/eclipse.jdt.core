@@ -42,7 +42,7 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 		this.nameEnd = nameEnd;
 	}
 
-	protected void closing(Object info) throws JavaModelException {
+	protected void closing(Object info) {
 		// a local variable has no info
 	}
 
@@ -62,7 +62,7 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 			&& super.equals(o);
 	}
 
-	protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
+	protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) {
 		// a local variable has no info
 	}
 
@@ -100,7 +100,7 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 		return JavaElement.JEM_LOCALVARIABLE;
 	}
 
-	public IResource getCorrespondingResource() throws JavaModelException {
+	public IResource getCorrespondingResource() {
 		return null;
 	}
 
@@ -145,7 +145,7 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 	/**
 	 * @see ISourceReference
 	 */
-	public ISourceRange getSourceRange() throws JavaModelException {
+	public ISourceRange getSourceRange() {
 		return new SourceRange(this.declarationSourceStart, this.declarationSourceEnd-this.declarationSourceStart+1);
 	}
 
