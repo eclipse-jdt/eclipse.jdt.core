@@ -249,14 +249,9 @@ public static Test suite() {
 	
 	// method reference
 	suite.addTest(new JavaSearchTests("testSimpleMethodReference"));
-	suite.addTest(new JavaSearchTests("testSimpleConstructorReference1"));
-	suite.addTest(new JavaSearchTests("testSimpleConstructorReference2"));
 	suite.addTest(new JavaSearchTests("testStaticMethodReference1"));
 	suite.addTest(new JavaSearchTests("testStaticMethodReference2"));
-	suite.addTest(new JavaSearchTests("testConstructorReferenceExplicitConstructorCall1"));
-	suite.addTest(new JavaSearchTests("testConstructorReferenceExplicitConstructorCall2"));
 	suite.addTest(new JavaSearchTests("testInnerMethodReference"));
-	suite.addTest(new JavaSearchTests("testConstructorReferenceInFieldInitializer"));
 	suite.addTest(new JavaSearchTests("testMethodReferenceThroughSuper"));
 	suite.addTest(new JavaSearchTests("testMethodReferenceInInnerClass"));
 	suite.addTest(new JavaSearchTests("testMethodReferenceInAnonymousClass"));
@@ -265,6 +260,15 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testMethodReference2"));
 	suite.addTest(new JavaSearchTests("testMethodReference3"));
 	suite.addTest(new JavaSearchTests("testMethodReference4"));
+	
+	// constructor reference
+	suite.addTest(new JavaSearchTests("testSimpleConstructorReference1"));
+	suite.addTest(new JavaSearchTests("testSimpleConstructorReference2"));
+	suite.addTest(new JavaSearchTests("testConstructorReferenceExplicitConstructorCall1"));
+	suite.addTest(new JavaSearchTests("testConstructorReferenceExplicitConstructorCall2"));
+	suite.addTest(new JavaSearchTests("testConstructorReferenceImplicitConstructorCall1"));
+	suite.addTest(new JavaSearchTests("testConstructorReferenceImplicitConstructorCall2"));
+	suite.addTest(new JavaSearchTests("testConstructorReferenceInFieldInitializer"));
 
 	// field declaration
 	suite.addTest(new JavaSearchTests("testSimpleFieldDeclaration"));
@@ -391,6 +395,41 @@ public void testConstructorReferenceExplicitConstructorCall2() throws JavaModelE
 	assertEquals(
 		"src/p/Y.java p.Y(int) [super(i)]\n" +
 		"src/p/Y.java p.Y(boolean) [super(1)]", 
+		resultCollector.toString());
+}
+/**
+ * Constructor reference using an implicit constructor call.
+ * (regression test for bug 23112 search: need a way to search for references to the implicit non-arg constructor)
+ */
+public void testConstructorReferenceImplicitConstructorCall1() throws JavaModelException, CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "c7", "X.java").getType("X");
+	IMethod method = type.getMethod("X", new String[] {});
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		method, 
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals(
+		"src/c7/Y.java c7.Y() [Y]", 
+		resultCollector.toString());
+}
+/**
+ * Constructor reference using an implicit constructor call.
+ * (regression test for bug 23112 search: need a way to search for references to the implicit non-arg constructor)
+ */
+public void testConstructorReferenceImplicitConstructorCall2() throws JavaModelException, CoreException {
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"c8.X()", 
+		CONSTRUCTOR,
+		REFERENCES, 
+		getJavaSearchScope(), 
+		resultCollector);
+	assertEquals(
+		"src/c8/Y.java c8.Y [Y]", 
 		resultCollector.toString());
 }
 /**

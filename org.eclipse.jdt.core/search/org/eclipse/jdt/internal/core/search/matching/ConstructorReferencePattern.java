@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.AstNode;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
@@ -86,6 +87,16 @@ public char[] indexEntryPrefix() {
 			parameterSimpleNames == null ? -1 : parameterSimpleNames.length, 
 			matchMode, 
 			isCaseSensitive);
+}
+/**
+ * @see SearchPattern#matchContainer()
+ */
+protected int matchContainer() {
+	return 
+		COMPILATION_UNIT // implicit constructor call: case of Y extends X and Y doesn't define any constructor
+		| CLASS // implicit constructor call: case of constructor declaration with no explicit super call
+		| METHOD // reference in another constructor
+		| FIELD; // anonymous in a field initializer
 }
 /**
  * @see SearchPattern#matchIndexEntry
@@ -188,8 +199,26 @@ public int matchLevel(AstNode node, boolean resolve) {
 		return this.matchLevel((AllocationExpression)node, resolve);
 	} else if (node instanceof ExplicitConstructorCall) {
 		return this.matchLevel((ExplicitConstructorCall)node, resolve);
+	} else if (node instanceof ConstructorDeclaration) {
+		return this.matchLevel((ConstructorDeclaration)node, resolve);
+	} else if (node instanceof TypeDeclaration) {
+		return this.matchLevel((TypeDeclaration)node, resolve);
 	}
 	return IMPOSSIBLE_MATCH;
+}
+/**
+ * Returns whether the given constructor declaration has an implicit constructor reference that matches
+ * this constructor pattern.
+ * Look at resolved information only if specified.
+ */
+private int matchLevel(ConstructorDeclaration constructor, boolean resolve) {
+	ExplicitConstructorCall constructorCall = constructor.constructorCall;
+	if (constructorCall != null && constructorCall.accessMode == ExplicitConstructorCall.ImplicitSuper) {
+		return this.matchLevel(constructorCall, resolve);
+	} else {
+		// Eliminate explicit super call as it will be treated with matchLevel(ExplicitConstructorCall, boolean)
+		return IMPOSSIBLE_MATCH;
+	}
 }
 
 /**
@@ -197,8 +226,6 @@ public int matchLevel(AstNode node, boolean resolve) {
  * Look at resolved information only if specified.
  */
 private int matchLevel(ExplicitConstructorCall call, boolean resolve) {
-	// TBD: constructor name is super simple type name
-
 	if (resolve) {
 		return this.matchLevel(call.binding);
 	} else {
@@ -209,6 +236,30 @@ private int matchLevel(ExplicitConstructorCall call, boolean resolve) {
 			if (parameterCount != argumentCount)
 				return IMPOSSIBLE_MATCH;
 		}
+		return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+	}
+}
+/**
+ * Returns whether the given type declaration has an implicit constructor reference that matches
+ * this constructor pattern.
+ * Look at resolved information only if specified.
+ */
+private int matchLevel(TypeDeclaration type, boolean resolve) {
+	if (resolve) {
+		// find default constructor
+		AbstractMethodDeclaration[] methods = type.methods;
+		if (methods != null) {
+			for (int i = 0, length = methods.length; i < length; i++) {
+				AbstractMethodDeclaration method = methods[i];
+				if (method.isDefaultConstructor()
+						&& method.sourceStart < type.bodyStart) { // if synthetic
+					return this.matchLevel((ConstructorDeclaration)method, true);
+				}
+			}
+		}
+		return IMPOSSIBLE_MATCH;
+	} else {
+		// Need to wait for all the constructor bodies to have been parsed
 		return this.needsResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 	}
 }

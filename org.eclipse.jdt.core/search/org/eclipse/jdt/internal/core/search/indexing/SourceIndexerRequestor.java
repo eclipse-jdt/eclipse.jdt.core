@@ -135,6 +135,9 @@ public void enterClass(int declarationStart, int modifiers, char[] name, int nam
 	// eliminate possible qualifications, given they need to be fully resolved again
 	if (superclass != null){
 		superclass = CharOperation.lastSegment(superclass, '.');
+		
+		// add implicit constructor reference to default constructor
+		this.indexer.addConstructorReference(superclass, 0);
 	}
 	if (superinterfaces != null){
 		for (int i = 0, length = superinterfaces.length; i < length; i++){

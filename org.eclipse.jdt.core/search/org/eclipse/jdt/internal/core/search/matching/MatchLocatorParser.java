@@ -279,7 +279,9 @@ private void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit) 
 					this.parse(constructorDeclaration, unit);
 					constructorDeclaration.traverse(localDeclarationVisitor, (ClassScope)null);
 				}
-			}	
+			} else if (method.isDefaultConstructor()) {
+				method.parseStatements(this, unit);
+			}
 		}
 	}
 
