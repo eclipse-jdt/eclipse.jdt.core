@@ -139,6 +139,7 @@ public void testAnonymousType5() throws JavaModelException {
 }
 /*
  * Ensures that a hierarchy on an anonymous type that uses a non-default constructor is correct.
+ * (regression test for bug 44506 Type hierarchy is missing anonymous type)
  */
 public void testAnonymousType6() throws JavaModelException {
 	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p8", "X.java").getType("X");
