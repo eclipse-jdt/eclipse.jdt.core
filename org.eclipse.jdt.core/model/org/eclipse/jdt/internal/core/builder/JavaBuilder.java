@@ -153,7 +153,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		notifier.done();
 		cleanup();
 	}
-	IProject[] requiredProjects = getRequiredProjects();
+	IProject[] requiredProjects = getRequiredProjects(true);
 	if (DEBUG)
 		System.out.println("Finished build of " + currentProject.getName() //$NON-NLS-1$
 			+ " @ " + new Date(System.currentTimeMillis())); //$NON-NLS-1$
@@ -264,7 +264,7 @@ private State getLastState(IProject project) {
 * beyond the next build. Missing projects should be specified but will be ignored until
 * they are added to the workspace.
 */
-private IProject[] getRequiredProjects() {
+private IProject[] getRequiredProjects(boolean includeBinaryPrerequisites) {
 	if (javaProject == null || workspaceRoot == null) return new IProject[0];
 
 	ArrayList projects = new ArrayList();
@@ -278,13 +278,15 @@ private IProject[] getRequiredProjects() {
 					projects.add(p);
 			}
 		}
-		// some binary resources on the class path can come from projects that are not included in the project references
-		if (binaryResources != null) {
-			Object[] keyTable = binaryResources.keyTable;
-			for (int i = 0, l = keyTable.length; i < l; i++) {
-				IProject p = (IProject) keyTable[i];
-				if (p != null && p != currentProject && !projects.contains(p))
-					projects.add(p);
+		if (includeBinaryPrerequisites){
+			// some binary resources on the class path can come from projects that are not included in the project references
+			if (binaryResources != null) {
+				Object[] keyTable = binaryResources.keyTable;
+				for (int i = 0, l = keyTable.length; i < l; i++) {
+					IProject p = (IProject) keyTable[i];
+					if (p != null && p != currentProject && !projects.contains(p))
+						projects.add(p);
+				}
 			}
 		}
 	} catch(JavaModelException e) {
@@ -385,6 +387,7 @@ private void initializeBuilder() throws CoreException {
 }
 
 private boolean isWorthBuilding() throws CoreException {
+	
 	boolean abortBuilds = JavaCore.ABORT.equals(JavaCore.getOptions().get(OPTION_InvalidClasspathSwitch));
 	if (abortBuilds) {
 		IMarker[] markers =
@@ -402,7 +405,7 @@ private boolean isWorthBuilding() throws CoreException {
 	}
 
 	// make sure all prereq projects have valid build states
-	IProject[] requiredProjects = getRequiredProjects();
+	IProject[] requiredProjects = getRequiredProjects(false);
 	next : for (int i = 0, length = requiredProjects.length; i < length; i++) {
 		IProject p = requiredProjects[i];
 		if (getLastState(p) == null)  {
