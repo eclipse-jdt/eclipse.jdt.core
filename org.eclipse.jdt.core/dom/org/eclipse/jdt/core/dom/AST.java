@@ -232,7 +232,7 @@ public final class AST {
 				CompilationUnitDeclaration compilationUnitDeclaration = CompilationUnitResolver.resolve(
 					unit,
 					new AbstractSyntaxTreeVisitorAdapter());
-				ASTConverter converter = new ASTConverter(true);
+				ASTConverter converter = new ASTConverter(unit.getJavaProject().getOptions(true), true);
 				AST ast = new AST();
 				BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
 				ast.setBindingResolver(resolver);
@@ -333,7 +333,7 @@ public final class AST {
 					unitName,
 					project,
 					new AbstractSyntaxTreeVisitorAdapter());
-			ASTConverter converter = new ASTConverter(true);
+			ASTConverter converter = new ASTConverter(project.getOptions(true), true);
 			AST ast = new AST();
 			BindingResolver resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope);
 			ast.setBindingResolver(resolver);
@@ -384,7 +384,7 @@ public final class AST {
 		CompilationUnitDeclaration compilationUnitDeclaration = 
 			CompilationUnitResolver.parse(source, JavaCore.getOptions()); // no better custom options
 
-		ASTConverter converter = new ASTConverter(false);
+		ASTConverter converter = new ASTConverter(JavaCore.getOptions(), false);
 		AST ast = new AST();
 		ast.setBindingResolver(new BindingResolver());
 		converter.setAST(ast);

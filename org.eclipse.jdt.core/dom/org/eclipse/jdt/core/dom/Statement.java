@@ -119,7 +119,7 @@ public abstract class Statement extends ASTNode {
 	public void setLeadingComment(String comment) {
 		if (comment != null) {
 			char[] source = comment.toCharArray();
-			IScanner scanner = ToolFactory.createScanner(true, true, false, false);
+			IScanner scanner = ToolFactory.createScanner(true, true, false, false, true);
 			scanner.resetTo(0, source.length);
 			scanner.setSource(source);
 			try {

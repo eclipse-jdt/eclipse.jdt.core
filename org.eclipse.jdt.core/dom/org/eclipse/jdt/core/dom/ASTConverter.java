@@ -11,11 +11,13 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.*;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -33,9 +35,16 @@ class ASTConverter {
 	private Set pendingThisExpressionScopeResolution;
 	private Set pendingNameScopeResolution;	
 	
-	public ASTConverter(boolean resolveBindings) {
+	public ASTConverter(Map options, boolean resolveBindings) {
 		this.resolveBindings = resolveBindings;
-		scanner = new Scanner(true /*comment*/, false /*whitespace*/, false /*nls*/, false /*assert*/, false /*strict comment*/, null /*taskTags*/, null/*taskPriorities*/);
+		scanner = new Scanner(
+					true /*comment*/,
+					false /*whitespace*/,
+					false /*nls*/,
+					JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_SOURCE)) /*assert*/, 
+					JavaCore.VERSION_1_4.equals(options.get(JavaCore.COMPILER_COMPLIANCE)) /*strict comment*/, 
+					null /*taskTags*/,
+					null/*taskPriorities*/);
 	}
 	
 	public void setAST(AST ast) {
