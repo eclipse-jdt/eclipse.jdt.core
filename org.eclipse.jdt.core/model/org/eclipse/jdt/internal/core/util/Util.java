@@ -21,6 +21,11 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.util.IClassFileAttribute;
+import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.core.util.ICodeAttribute;
+import org.eclipse.jdt.core.util.IFieldInfo;
+import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -579,6 +584,45 @@ public class Util {
 		return null;
 	}
 	
+	public static IClassFileAttribute getAttribute(IClassFileReader classFileReader, char[] attributeName) {
+		IClassFileAttribute[] attributes = classFileReader.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
+				return attributes[i];
+			}
+		}
+		return null;
+	}
+	
+	public static IClassFileAttribute getAttribute(ICodeAttribute codeAttribute, char[] attributeName) {
+		IClassFileAttribute[] attributes = codeAttribute.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
+				return attributes[i];
+			}
+		}
+		return null;
+	}	
+	
+	public static IClassFileAttribute getAttribute(IFieldInfo fieldInfo, char[] attributeName) {
+		IClassFileAttribute[] attributes = fieldInfo.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
+				return attributes[i];
+			}
+		}
+		return null;
+	}
+
+	public static IClassFileAttribute getAttribute(IMethodInfo methodInfo, char[] attributeName) {
+		IClassFileAttribute[] attributes = methodInfo.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
+				return attributes[i];
+			}
+		}
+		return null;
+	}
 	/**
 	 * Get the jdk level of this root.
 	 * The value can be:

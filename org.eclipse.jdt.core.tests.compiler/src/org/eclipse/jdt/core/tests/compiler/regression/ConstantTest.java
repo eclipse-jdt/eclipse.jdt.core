@@ -345,54 +345,69 @@ public void test009() {
 	}
 	
 	String expectedOutput = 
-		"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 3, Locals: 4\n" + 
 		"  public static void main(String[] args);\n" + 
-		"    /* Stack: 3, Locals: 4 */\n" + 
-		"    Code attribute:\n" + 
-		"       0  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
-		"       3  ldc #23 <String \"1\">\n" + 
-		"       5  invokevirtual #29 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
-		"       8  aconst_null\n" + 
-		"       9  goto 13\n" + 
-		"      12  aconst_null\n" + 
-		"      13  aconst_null\n" + 
-		"      14  goto 18\n" + 
-		"      17  aconst_null\n" + 
-		"      18  if_acmpne 29\n" + 
-		"      21  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
-		"      24  ldc #31 <String \"2\">\n" + 
-		"      26  invokevirtual #29 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
-		"      29  new #33 java.lang.StringBuffer\n" + 
-		"      32  dup\n" + 
-		"      33  ldc #35 <String \"[\">\n" + 
-		"      35  invokespecial #37 <Constructor java.lang.StringBuffer(java.lang.String arg)>\n" + 
-		"      38  aconst_null\n" + 
-		"      39  invokevirtual #41 <Method java.lang.StringBuffer#append(java.lang.String arg) java.lang.StringBuffer>\n" + 
-		"      42  ldc #43 <String \"]\">\n" + 
-		"      44  invokevirtual #41 <Method java.lang.StringBuffer#append(java.lang.String arg) java.lang.StringBuffer>\n" + 
-		"      47  invokevirtual #47 <Method java.lang.StringBuffer#toString() java.lang.String>\n" + 
-		"      50  ldc #49 <String \"[null]\">\n" + 
-		"      52  if_acmpne 59\n" + 
-		"      55  iconst_1\n" + 
-		"      56  goto 60\n" + 
-		"      59  iconst_0\n" + 
-		"      60  istore_1\n" + 
-		"      61  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
-		"      64  ldc #51 <String \"3\">\n" + 
-		"      66  invokevirtual #29 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
-		"      69  aconst_null\n" + 
-		"      70  astore_2\n" + 
-		"      71  aload_2\n" + 
-		"      72  ifnonnull 83\n" + 
-		"      75  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
-		"      78  ldc #53 <String \"4\">\n" + 
-		"      80  invokevirtual #29 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
-		"      83  ldc #55 <String \"aaa\">\n" + 
-		"      85  astore_3\n" + 
-		"      86  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
-		"      89  ldc #57 <String \"5\">\n" + 
-		"      91  invokevirtual #60 <Method java.io.PrintStream#println(java.lang.String arg) void>\n" + 
-		"      94  return\n";
+		"     0  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+		"     3  ldc #23 <String \"1\">\n" + 
+		"     5  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"     8  aconst_null\n" + 
+		"     9  goto 13\n" + 
+		"    12  aconst_null\n" + 
+		"    13  aconst_null\n" + 
+		"    14  goto 18\n" + 
+		"    17  aconst_null\n" + 
+		"    18  if_acmpne 29\n" + 
+		"    21  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+		"    24  ldc #31 <String \"2\">\n" + 
+		"    26  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"    29  new #33 java/lang/StringBuffer\n" + 
+		"    32  dup\n" + 
+		"    33  ldc #35 <String \"[\">\n" + 
+		"    35  invokespecial #37 <Method java/lang/StringBuffer.<init>(Ljava/lang/String;)V>\n" + 
+		"    38  aconst_null\n" + 
+		"    39  invokevirtual #41 <Method java/lang/StringBuffer.append(Ljava/lang/String;)Ljava/lang/StringBuffer;>\n" + 
+		"    42  ldc #43 <String \"]\">\n" + 
+		"    44  invokevirtual #41 <Method java/lang/StringBuffer.append(Ljava/lang/String;)Ljava/lang/StringBuffer;>\n" + 
+		"    47  invokevirtual #47 <Method java/lang/StringBuffer.toString()Ljava/lang/String;>\n" + 
+		"    50  ldc #49 <String \"[null]\">\n" + 
+		"    52  if_acmpne 59\n" + 
+		"    55  iconst_1\n" + 
+		"    56  goto 60\n" + 
+		"    59  iconst_0\n" + 
+		"    60  istore_1\n" + 
+		"    61  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+		"    64  ldc #51 <String \"3\">\n" + 
+		"    66  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"    69  aconst_null\n" + 
+		"    70  astore_2\n" + 
+		"    71  aload_2\n" + 
+		"    72  ifnonnull 83\n" + 
+		"    75  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+		"    78  ldc #53 <String \"4\">\n" + 
+		"    80  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"    83  ldc #55 <String \"aaa\">\n" + 
+		"    85  astore_3\n" + 
+		"    86  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+		"    89  ldc #57 <String \"5\">\n" + 
+		"    91  invokevirtual #60 <Method java/io/PrintStream.println(Ljava/lang/String;)V>\n" + 
+		"    94  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 8, line: 4]\n" + 
+		"        [pc: 21, line: 5]\n" + 
+		"        [pc: 29, line: 6]\n" + 
+		"        [pc: 61, line: 7]\n" + 
+		"        [pc: 69, line: 8]\n" + 
+		"        [pc: 71, line: 9]\n" + 
+		"        [pc: 83, line: 10]\n" + 
+		"        [pc: 86, line: 11]\n" + 
+		"        [pc: 94, line: 12]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 95] local: args index: 0 type: [Ljava/lang/String;\n" + 
+		"        [pc: 61, pc: 95] local: b index: 1 type: Z\n" + 
+		"        [pc: 71, pc: 95] local: s index: 2 type: Ljava/lang/String;\n" + 
+		"        [pc: 86, pc: 95] local: s2 index: 3 type: Ljava/lang/String;\n";
 	if (actualOutput.indexOf(expectedOutput) == -1){
 		System.out.println(Util.displayString(actualOutput, 2));
 	}
@@ -435,14 +450,17 @@ public void test010() {
 	}
 	
 	String expectedOutput = 
-		"  /*  Method descriptor  #15 ([Ljava/lang/String;)V */\n" + 
+		"  // Method descriptor  #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 1\n" + 
 		"  public static void main(String[] args);\n" + 
-		"    /* Stack: 2, Locals: 1 */\n" + 
-		"    Code attribute:\n" + 
-		"       0  getstatic #21 <Field java.lang.System#out java.io.PrintStream>\n" + 
-		"       3  ldc #23 <String \"SUCCESS\">\n" + 
-		"       5  invokevirtual #29 <Method java.io.PrintStream#print(java.lang.String arg) void>\n" + 
-		"       8  return\n";
+		"     0  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+		"     3  ldc #23 <String \"SUCCESS\">\n" + 
+		"     5  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"     8  return\n" + 
+		"     9  getstatic #21 <Field java/lang/System.out Ljava/io/PrintStream;>\n" + 
+		"    12  ldc #31 <String \"SHOULDN\'T BE GENERATED\">\n" + 
+		"    14  invokevirtual #29 <Method java/io/PrintStream.print(Ljava/lang/String;)V>\n" + 
+		"    17  return\n";
 	if (actualOutput.indexOf(expectedOutput) == -1){
 		System.out.println(Util.displayString(actualOutput, 2));
 	}
