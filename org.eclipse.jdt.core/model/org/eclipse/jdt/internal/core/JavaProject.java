@@ -145,7 +145,9 @@ public class JavaProject
 	}
 	
 	/**
-	 * Returns the package fragment roots identified by the given entry.
+	 * Returns (all) the package fragment roots identified by the given project's classpath.
+	 * Note: this follows project classpath references to find required project contributions,
+	 * eliminating duplicates silently.
 	 */
 	public IPackageFragmentRoot[] computePackageFragmentRoots(boolean computeBuilderRoots) {
 
@@ -157,18 +159,20 @@ public class JavaProject
 	}
 
 	/**
-	 * Returns the package fragment roots identified by the given entry.
+	 * Returns (all) the package fragment roots identified by the given project's classpath.
+	 * Note: this follows project classpath references to find required project contributions,
+	 * eliminating duplicates silently.
 	 */
 	public void computePackageFragmentRoots(
 		ObjectVector accumulatedRoots, 
-		ObjectSet visitedProjects, 
+		ObjectSet rootIDs, 
 		boolean insideOriginalProject,
 		boolean checkExistency,
 		boolean computeBuilderRoots) {
-		
-		if (visitedProjects.contains(this)) return;
-		visitedProjects.add(this);
-		
+
+		if (insideOriginalProject){
+			rootIDs.add(rootID());
+		}	
 		try {
 			IClasspathEntry[] classpath = getResolvedClasspath(true);
 	
@@ -176,7 +180,7 @@ public class JavaProject
 				computePackageFragmentRoots(
 					classpath[i],
 					accumulatedRoots,
-					visitedProjects,
+					rootIDs,
 					insideOriginalProject,
 					checkExistency,
 					computeBuilderRoots);
@@ -186,23 +190,23 @@ public class JavaProject
 	}
 
 	/**
-	 * Returns the package fragment roots identified by the given entry.
+	 * Returns the package fragment roots identified by the given entry. In case it refers to
+	 * a project, it will follow its classpath so as to find exported roots as well.
 	 */
 	public void computePackageFragmentRoots(
 		IClasspathEntry entry,
 		ObjectVector accumulatedRoots, 
-		ObjectSet visitedProjects, 
+		ObjectSet rootIDs, 
 		boolean insideOriginalProject,
 		boolean checkExistency,
 		boolean computeBuilderRoots) {
 			
-		IWorkspaceRoot workspaceRoot = getWorkspace().getRoot();
+		String rootID = ((ClasspathEntry)entry).rootID();
+		if (rootIDs.contains(rootID)) return;
+
 		IPath projectPath = getProject().getFullPath();
 		IPath entryPath = entry.getPath();
-
-		// existency check
-		Object target = JavaModel.getTarget(workspaceRoot, entryPath, checkExistency);
-		if (target == null) return;
+		IWorkspaceRoot workspaceRoot = getWorkspace().getRoot();
 		
 		switch(entry.getEntryKind()){
 			
@@ -210,11 +214,14 @@ public class JavaProject
 			case IClasspathEntry.CPE_SOURCE :
 
 				if (computeBuilderRoots) return;
-				
 				if (projectPath.isPrefixOf(entryPath)){
+					Object target = JavaModel.getTarget(workspaceRoot, entryPath, checkExistency);
+					if (target == null) return;
+
 					if (target instanceof IFolder || target instanceof IProject){
 						accumulatedRoots.add(
 							new PackageFragmentRoot((IResource)target, this));
+						rootIDs.add(rootID);
 					}
 				}
 				break;
@@ -225,6 +232,10 @@ public class JavaProject
 				if (!insideOriginalProject && !entry.isExported()) return;
 
 				String extension = entryPath.getFileExtension();
+
+				Object target = JavaModel.getTarget(workspaceRoot, entryPath, checkExistency);
+				if (target == null) return;
+
 				if (target instanceof IResource){
 					
 					// internal target
@@ -233,6 +244,7 @@ public class JavaProject
 						case IResource.FOLDER :
 							accumulatedRoots.add(
 								new PackageFragmentRoot(resource, this));
+							rootIDs.add(rootID);
 							break;
 						case IResource.FILE :
 							if ("jar".equalsIgnoreCase(extension) //$NON-NLS-1$
@@ -240,7 +252,8 @@ public class JavaProject
 								accumulatedRoots.add(
 									new JarPackageFragmentRoot(resource, this));
 								}
-							break;
+								rootIDs.add(rootID);
+						break;
 					}
 				} else {
 					// external target - only JARs allowed
@@ -248,6 +261,7 @@ public class JavaProject
 						|| "zip".equalsIgnoreCase(extension)) { //$NON-NLS-1$
 						accumulatedRoots.add(
 							new JarPackageFragmentRoot(entryPath.toOSString(), this));
+						rootIDs.add(rootID);
 					}
 				}
 				break;
@@ -258,8 +272,8 @@ public class JavaProject
 				if (!insideOriginalProject && !entry.isExported()) return;
 
 				JavaProject requiredProject = (JavaProject)getJavaModel().getJavaProject(entryPath.segment(0));
-
-				if (requiredProject.getProject().isOpen()){ // special builder binary output
+				IProject requiredProjectRsc = requiredProject.getProject();
+				if (requiredProjectRsc.exists() && requiredProjectRsc.isOpen()){ // special builder binary output
 					if (computeBuilderRoots){
 						try {
 							IResource output = workspaceRoot.findMember(requiredProject.getOutputLocation());
@@ -275,7 +289,8 @@ public class JavaProject
 						} catch (JavaModelException e){
 						}
 					}
-					requiredProject.computePackageFragmentRoots(accumulatedRoots, visitedProjects, false, checkExistency, computeBuilderRoots);
+					rootIDs.add(rootID);
+					requiredProject.computePackageFragmentRoots(accumulatedRoots, rootIDs, false, checkExistency, computeBuilderRoots);
 				}
 				break;
 			}
@@ -1012,7 +1027,7 @@ public class JavaProject
 	 * Returns all the package fragments found in the specified
 	 * package fragment roots.
 	 */
-	protected IPackageFragment[] getPackageFragmentsInRoots(IPackageFragmentRoot[] roots) {
+	private IPackageFragment[] getPackageFragmentsInRoots(IPackageFragmentRoot[] roots) {
 
 		Vector frags = new Vector();
 		for (int i = 0; i < roots.length; i++) {
@@ -1475,23 +1490,6 @@ public class JavaProject
 	 *
 	 * fix for 1FW67PA
 	 */
-	public void open(IProgressMonitor pm) throws JavaModelException {
-
-		JavaModelManager manager =
-			(JavaModelManager) JavaModelManager.getJavaModelManager();
-		if (manager.isBeingDeleted(fProject)) {
-			throw newNotPresentException();
-		} else {
-			super.open(pm);
-		}
-	}
-
-	/**
-	 * Ensures that this project is not currently being deleted before
-	 * opening.
-	 *
-	 * fix for 1FW67PA
-	 */
 	protected void openWhenClosed(IProgressMonitor pm, IBuffer buffer) throws JavaModelException {
 
 		JavaModelManager manager =
@@ -1725,6 +1723,14 @@ public class JavaProject
 		return res;
 	}
 
+	/**
+	 * Answers an ID which is used to distinguish project/entries during package
+	 * fragment root computations
+	 */
+	public String rootID(){
+		return "[PRJ]"+this.getProject().getFullPath(); //$NON-NLS-1$
+	}
+	
 	/**
 	 * Save the classpath in a shareable format (VCM-wise) if necessary (i.e. semantically different)
 	 */
