@@ -1725,6 +1725,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportUnqualifiedFieldAccess,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+					} else if (token.equals("typeHiding")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportTypeParameterHiding,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else if (token.equals("varargsCast")) { //$NON-NLS-1$
 						this.options.put(
 							CompilerOptions.OPTION_ReportVarargsArgumentNeedCast,
