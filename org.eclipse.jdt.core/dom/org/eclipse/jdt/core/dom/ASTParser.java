@@ -272,8 +272,13 @@ public class ASTParser {
 	 * </p>
 	 * <p>
      * Binding information is obtained from the Java model.
-     * This means that the compilation unit must be located
-     * relative to the Java model via [TODO].
+     * This means that the compilation unit must be located relative to the
+     * Java model. This happens automatically when the source code comes from
+     * either {@link #setSource(ICompilationUnit) setSource(ICompilationUnit)}
+     * or {@link #setSource(IClassFile) setSource(IClassFile)}.
+     * When source is supplied by {@link #setSource(char[]) setSource(char[])},
+     * the location must be extablished explicitly by calling 
+     * {@link #setProject(IJavaProject)} and  {@link #setUnitName(String)}.
 	 * Note that the compiler options that affect doc comment checking may also
 	 * affect whether any bindings are resolved for nodes within doc comments.
 	 * </p>
