@@ -99,10 +99,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportIncompleteEnumSwitch = "org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch"; //$NON-NLS-1$
 	public static final String OPTION_ReportForbiddenReference =  "org.eclipse.jdt.core.compiler.problem.forbiddenReference"; //$NON-NLS-1$
 	public static final String OPTION_ReportDiscouragedReference =  "org.eclipse.jdt.core.compiler.problem.discouragedReference"; //$NON-NLS-1$
-	public static final String OPTION_ImportRestrictionInclude = "org.eclipse.jdt.core.compiler.accessRestriction.import.include"; //$NON-NLS-1$
-	public static final String OPTION_ImportRestrictionExclude = "org.eclipse.jdt.core.compiler.accessRestriction.import.exclude"; //$NON-NLS-1$
-	public static final String OPTION_ExportRestrictionInclude = "org.eclipse.jdt.core.compiler.accessRestriction.export.include"; //$NON-NLS-1$
-	public static final String OPTION_ExportRestrictionExclude = "org.eclipse.jdt.core.compiler.accessRestriction.export.exclude"; //$NON-NLS-1$
 	
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -241,12 +237,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	// max problems per compilation unit
 	public int maxProblemsPerUnit = 100; // no more than 100 problems per default
 	
-	// access restrictions
-	public char[][] importRestrictionInclude;
-	public char[][] importRestrictionExclude;
-	public char[][] exportRestrictionInclude;
-	public char[][] exportRestrictionExclude;
-	
 	// tags used to recognize tasks in comments
 	public char[][] taskTags = null;
 	public char[][] taskPriorites = null;
@@ -379,10 +369,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportSpecialParameterHidingField, this.reportSpecialParameterHidingField ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_MaxProblemPerUnit, String.valueOf(this.maxProblemsPerUnit));
 		optionsMap.put(OPTION_InlineJsr, this.inlineJsrBytecode ? ENABLED : DISABLED); 
-		optionsMap.put(OPTION_ImportRestrictionInclude, this.importRestrictionInclude == null ? "" : new String(CharOperation.concatWith(this.importRestrictionInclude,','))); //$NON-NLS-1$
-		optionsMap.put(OPTION_ImportRestrictionExclude, this.importRestrictionExclude == null ? "" : new String(CharOperation.concatWith(this.importRestrictionExclude,','))); //$NON-NLS-1$
-		optionsMap.put(OPTION_ImportRestrictionInclude, this.exportRestrictionInclude == null ? "" : new String(CharOperation.concatWith(this.exportRestrictionInclude,','))); //$NON-NLS-1$
-		optionsMap.put(OPTION_ExportRestrictionExclude, this.exportRestrictionExclude == null ? "" : new String(CharOperation.concatWith(this.exportRestrictionExclude,','))); //$NON-NLS-1$
 		optionsMap.put(OPTION_ReportNullReference, getSeverityString(NullReference)); 
 		return optionsMap;		
 	}
@@ -558,46 +544,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				this.isTaskCaseSensitive = false;
 			}
 		}
-		if ((optionValue = optionsMap.get(OPTION_ImportRestrictionInclude)) != null) {
-			if (optionValue instanceof String) {
-				String stringValue = (String) optionValue;
-				if (stringValue.length() == 0) {
-					this.importRestrictionInclude = null;
-				} else {
-					this.importRestrictionInclude = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
-				}
-			}
-		}	
-		if ((optionValue = optionsMap.get(OPTION_ImportRestrictionExclude)) != null) {
-			if (optionValue instanceof String) {
-				String stringValue = (String) optionValue;
-				if (stringValue.length() == 0) {
-					this.importRestrictionExclude = null;
-				} else {
-					this.importRestrictionExclude = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
-				}
-			}
-		}			
-		if ((optionValue = optionsMap.get(OPTION_ExportRestrictionInclude)) != null) {
-			if (optionValue instanceof String) {
-				String stringValue = (String) optionValue;
-				if (stringValue.length() == 0) {
-					this.exportRestrictionInclude = null;
-				} else {
-					this.exportRestrictionInclude = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
-				}
-			}
-		}			
-		if ((optionValue = optionsMap.get(OPTION_ExportRestrictionExclude)) != null) {
-			if (optionValue instanceof String) {
-				String stringValue = (String) optionValue;
-				if (stringValue.length() == 0) {
-					this.exportRestrictionExclude = null;
-				} else {
-					this.exportRestrictionExclude = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
-				}
-			}
-		}			
 		if ((optionValue = optionsMap.get(OPTION_InlineJsr)) != null) {
 			if (this.targetJDK < JDK1_5) { // only optional if target < 1.5 (inlining on from 1.5 on)
 				if (ENABLED.equals(optionValue)) {
@@ -801,10 +747,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- varargs argument need cast: ").append(getSeverityString(VarargsArgumentNeedCast)); //$NON-NLS-1$
 		buf.append("\n\t- forbidden reference to type with access restriction: ").append(getSeverityString(ForbiddenReference)); //$NON-NLS-1$
 		buf.append("\n\t- discouraged reference to type with access restriction: ").append(getSeverityString(DiscouragedReference)); //$NON-NLS-1$
-		buf.append("\n\t- import access restriction includes: ").append(this.importRestrictionInclude == null ? "" : new String(CharOperation.concatWith(this.importRestrictionInclude,',')));  //$NON-NLS-1$ //$NON-NLS-2$
-		buf.append("\n\t- import access restriction excludes: ").append(this.importRestrictionExclude == null ? "" : new String(CharOperation.concatWith(this.importRestrictionExclude,',')));  //$NON-NLS-1$ //$NON-NLS-2$
-		buf.append("\n\t- export access restriction includes: ").append(this.exportRestrictionInclude == null ? "" : new String(CharOperation.concatWith(this.exportRestrictionInclude,',')));  //$NON-NLS-1$ //$NON-NLS-2$
-		buf.append("\n\t- export access restriction excludes: ").append(this.exportRestrictionExclude == null ? "" : new String(CharOperation.concatWith(this.exportRestrictionExclude,',')));  //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n\t- null reference: ").append(getSeverityString(NullReference)); //$NON-NLS-1$
 		buf.append("\n\t- autoboxing: ").append(getSeverityString(Autoboxing)); //$NON-NLS-1$
 		buf.append("\n\t- annotation super interface: ").append(getSeverityString(AnnotationSuperInterface)); //$NON-NLS-1$
