@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -33,16 +32,7 @@ public WorkingCopySearchTests(String name) {
 }
 
 public static Test suite() {
-	TestSuite suite = new Suite(WorkingCopySearchTests.class.getName());
-	
-	suite.addTest(new WorkingCopySearchTests("testAddNewType"));
-	suite.addTest(new WorkingCopySearchTests("testAllTypeNames"));
-	suite.addTest(new WorkingCopySearchTests("testRemoveType"));
-	suite.addTest(new WorkingCopySearchTests("testMoveType"));
-	suite.addTest(new WorkingCopySearchTests("testHierarchyScopeOnWorkingCopy"));
-	suite.addTest(new WorkingCopySearchTests("testDeclarationOfReferencedTypes"));
-
-	return suite;
+	return new Suite(WorkingCopySearchTests.class);
 }
 
 /**
@@ -115,7 +105,7 @@ public void testAddNewType() throws CoreException {
  * Search all type names in working copies test.
  * (Regression test for bug 40793 Primary working copies: Type search does not find type in modified CU)
  */
-public void testAllTypeNames() throws CoreException {
+public void testAllTypeNames1() throws CoreException {
 	this.workingCopy.getBuffer().setContents(
 		"package wc;\n" +
 		"public class Y {\n" +
@@ -124,6 +114,39 @@ public void testAllTypeNames() throws CoreException {
 		"}" 
 	);
 	this.workingCopy.makeConsistent(null);
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
+	SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
+	new SearchEngine(new IWorkingCopy[] {this.workingCopy}).searchAllTypeNames(
+		ResourcesPlugin.getWorkspace(),
+		null,
+		null,
+		PATTERN_MATCH,
+		CASE_INSENSITIVE,
+		TYPE,
+		scope, 
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null		
+	);
+	assertEquals(
+		"Unexpected all type names",
+		"wc.Y\n" +
+		"wc.Y$I",
+		requestor.toString());
+}
+
+/*
+ * Search all type names in working copies test (without reconciling working copies).
+ * (Regression test for bug 40793 Primary working copies: Type search does not find type in modified CU)
+ */
+public void testAllTypeNames2() throws CoreException {
+	this.workingCopy.getBuffer().setContents(
+		"package wc;\n" +
+		"public class Y {\n" +
+		"  interface I {\n" +
+		"  }\n" +
+		"}" 
+	);
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
 	SearchTests.TypeNameRequestor requestor = new SearchTests.TypeNameRequestor();
 	new SearchEngine(new IWorkingCopy[] {this.workingCopy}).searchAllTypeNames(

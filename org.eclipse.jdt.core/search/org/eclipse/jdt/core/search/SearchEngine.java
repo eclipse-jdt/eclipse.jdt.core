@@ -15,6 +15,20 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
+import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.AnonymousLocalTypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.LocalTypeDeclaration;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.*;
 import org.eclipse.jdt.internal.core.search.HierarchyScope;
@@ -49,6 +63,12 @@ import java.util.*;
  */
 public class SearchEngine {
 
+/*
+ * A default parser to parse non-reconciled working copies
+ */
+private Parser parser;
+private CompilerOptions compilerOptions;
+	
 /*
  * A list of working copies that take precedence over their original 
  * compilation units.
@@ -227,7 +247,7 @@ public static ISearchPattern createOrSearchPattern(ISearchPattern leftPattern, I
  * <br>
  *	Examples:
  *	<ul>
- * 	<li>search for case insensitive references to <code>Object</code>:
+ * 		<li>search for case insensitive references to <code>Object</code>:
  *			<code>createSearchPattern("Object", TYPE, REFERENCES, false);</code></li>
  *  	<li>search for case sensitive references to exact <code>Object()</code> constructor:
  *			<code>createSearchPattern("java.lang.Object()", CONSTRUCTOR, REFERENCES, true);</code></li>
@@ -237,9 +257,9 @@ public static ISearchPattern createOrSearchPattern(ISearchPattern leftPattern, I
  * @param stringPattern the given pattern
  * @param searchFor determines the nature of the searched elements
  *	<ul>
- * 	<li><code>IJavaSearchConstants.CLASS</code>: only look for classes</li>
+ * 		<li><code>IJavaSearchConstants.CLASS</code>: only look for classes</li>
  *		<li><code>IJavaSearchConstants.INTERFACE</code>: only look for interfaces</li>
- * 	<li><code>IJavaSearchConstants.TYPE</code>: look for both classes and interfaces</li>
+ * 		<li><code>IJavaSearchConstants.TYPE</code>: look for both classes and interfaces</li>
  *		<li><code>IJavaSearchConstants.FIELD</code>: look for fields</li>
  *		<li><code>IJavaSearchConstants.METHOD</code>: look for methods</li>
  *		<li><code>IJavaSearchConstants.CONSTRUCTOR</code>: look for constructors</li>
@@ -302,6 +322,18 @@ public static ISearchPattern createSearchPattern(IJavaElement element, int limit
  */
 public static IJavaSearchScope createWorkspaceScope() {
 	return new JavaWorkspaceScope();
+}
+private Parser getParser() {
+	if (this.parser == null) {
+		this.compilerOptions = new CompilerOptions(JavaCore.getOptions());
+		ProblemReporter problemReporter =
+			new ProblemReporter(
+				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
+				this.compilerOptions,
+				new DefaultProblemFactory());
+		this.parser = new Parser(problemReporter, true);
+	}
+	return this.parser;
 }
 /**
  * Returns the underlying resource of the given element.
@@ -651,23 +683,83 @@ public void searchAllTypeNames(
 			for (int i = 0, length = copies.length; i < length; i++) {
 				ICompilationUnit workingCopy = copies[i];
 				IPackageDeclaration[] packageDeclarations = workingCopy.getPackageDeclarations();
-				String path = workingCopy.getPath().toString();
-				char[] packageDeclaration = packageDeclarations.length == 0 ? CharOperation.NO_CHAR : packageDeclarations[0].getElementName().toCharArray();
-				IType[] allTypes = workingCopy.getAllTypes();
-				for (int j = 0, allTypesLength = allTypes.length; j < allTypesLength; j++) {
-					IType type = allTypes[j];
-					IJavaElement parent = type.getParent();
-					char[][] enclosingTypeNames;
-					if (parent instanceof IType) {
-						char[] parentQualifiedName = ((IType)parent).getTypeQualifiedName('.').toCharArray();
-						enclosingTypeNames = CharOperation.splitOn('.', parentQualifiedName);
-					} else {
-						enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
+				final String path = workingCopy.getPath().toString();
+				final char[] packageDeclaration = packageDeclarations.length == 0 ? CharOperation.NO_CHAR : packageDeclarations[0].getElementName().toCharArray();
+				if (workingCopy.isConsistent()) {
+					IType[] allTypes = workingCopy.getAllTypes();
+					for (int j = 0, allTypesLength = allTypes.length; j < allTypesLength; j++) {
+						IType type = allTypes[j];
+						IJavaElement parent = type.getParent();
+						char[][] enclosingTypeNames;
+						if (parent instanceof IType) {
+							char[] parentQualifiedName = ((IType)parent).getTypeQualifiedName('.').toCharArray();
+							enclosingTypeNames = CharOperation.splitOn('.', parentQualifiedName);
+						} else {
+							enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
+						}
+						if (type.isClass()) {
+							nameRequestor.acceptClass(packageDeclaration, type.getElementName().toCharArray(), enclosingTypeNames, path);
+						} else {
+							nameRequestor.acceptInterface(packageDeclaration, type.getElementName().toCharArray(), enclosingTypeNames, path);
+						}
 					}
-					if (type.isClass()) {
-						nameRequestor.acceptClass(packageDeclaration, type.getElementName().toCharArray(), enclosingTypeNames, path);
-					} else {
-						nameRequestor.acceptInterface(packageDeclaration, type.getElementName().toCharArray(), enclosingTypeNames, path);
+				} else {
+					Parser basicParser = getParser();
+					final char[] contents = workingCopy.getBuffer().getCharacters();
+					org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit = new org.eclipse.jdt.internal.compiler.env.ICompilationUnit() {
+						public char[] getContents() {
+							return contents;
+						}
+						public char[] getMainTypeName() {
+							return null;
+						}
+						public char[][] getPackageName() {
+							return null;
+						}
+						public char[] getFileName() {
+							return null;
+						}
+					};
+					CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.compilerOptions.maxProblemsPerUnit);
+					CompilationUnitDeclaration parsedUnit = basicParser.dietParse(unit, compilationUnitResult);
+					if (parsedUnit != null) {
+						class AllTypeDeclarationsVisitor extends AbstractSyntaxTreeVisitorAdapter {
+							public boolean visit(LocalTypeDeclaration typeDeclaration, BlockScope blockScope) {
+								return false; // no local type
+							}
+							public boolean visit(AnonymousLocalTypeDeclaration typeDeclaration, BlockScope blockScope) {
+								return false; // no anonymous type
+							}
+							public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
+								if (!typeDeclaration.isInterface()) {
+									nameRequestor.acceptClass(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path);
+								} else {
+									nameRequestor.acceptInterface(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path);
+								}
+								return true;
+							}
+							public boolean visit(MemberTypeDeclaration memberTypeDeclaration, ClassScope classScope) {
+								// compute encloising type names
+								TypeDeclaration enclosing = memberTypeDeclaration.enclosingType;
+								char[][] enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
+								while (enclosing != null) {
+									enclosingTypeNames = CharOperation.arrayConcat(new char[][] {enclosing.name}, enclosingTypeNames);
+									if (enclosing instanceof MemberTypeDeclaration) {
+										enclosing = ((MemberTypeDeclaration)enclosing).enclosingType;
+									} else {
+										enclosing = null;
+									}
+								}
+								// report
+								if (!memberTypeDeclaration.isInterface()) {
+									nameRequestor.acceptClass(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path);
+								} else {
+									nameRequestor.acceptInterface(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path);
+								}
+								return true;
+							}
+						}
+						parsedUnit.traverse(new AllTypeDeclarationsVisitor(), parsedUnit.scope);
 					}
 				}
 			}
