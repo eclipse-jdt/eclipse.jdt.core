@@ -7785,7 +7785,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 			"SUCCESS");	
 	}	
 	// 74119
-	public void _test300() {
+	public void test300() {
 		this.runConformTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -10327,6 +10327,63 @@ class C extends B implements IDoubles {
 				"}\n"
 			},
 			""
+		);
+	}			
+	
+	// 78027
+	public void _test394() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X \n" + 
+				"{\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface ITest<C extends X>\n" + 
+				"{ \n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Test<C extends X> implements ITest<C>\n" + 
+				"{\n" + 
+				"  protected Manager<C> m_manager;\n" + 
+				"  \n" + 
+				"  public ITest<C> get()\n" + 
+				"  {\n" + 
+				"    return m_manager.getById(getClass(), new Integer(1));\n" + 
+				"  }\n" + 
+				"    \n" + 
+				"  public static class Manager<C extends X>\n" + 
+				"  {\n" + 
+				"    public <T extends ITest<C>> T getById(Class<T> cls, Integer id)\n" + 
+				"    {\n" + 
+				"      return null;\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"}\n"
+			},
+			""
+		);
+	}			
+	
+	// 74119 - variation
+	public void test395() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends Exception> {\n" + 
+				"	T element;\n" + 
+				"	\n" + 
+				"	void foo(X<? super NullPointerException> xnpe) {\n" + 
+				"		xnpe.element = new java.io.IOException();\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	xnpe.element = new java.io.IOException();\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from IOException to ? super NullPointerException\n" + 
+			"----------\n"
 		);
 	}			
 }
