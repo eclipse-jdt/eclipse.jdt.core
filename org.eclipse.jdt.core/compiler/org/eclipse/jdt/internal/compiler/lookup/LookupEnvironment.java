@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
@@ -758,7 +759,9 @@ boolean isPackage(char[][] compoundName, char[] name) {
 
 public MethodVerifier methodVerifier() {
 	if (verifier == null)
-		verifier = new MethodVerifier(this);
+		verifier = this.options.sourceLevel < ClassFileConstants.JDK1_5
+			? new MethodVerifier(this)
+			: new MethodVerifier15(this);
 	return verifier;
 }
 public void reset() {
