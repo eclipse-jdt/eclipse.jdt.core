@@ -1852,24 +1852,34 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 	this.invokespecial(constructorBinding);
 	this.return_();
 }
-// TODO (philippe) could rewrite to use System.arraycopy(...) instead of array#clone()
+//static X[] values() {
+// X[] values;
+// int length;
+// X[] result;
+// System.arraycopy(values = $VALUES, 0, result = new X[length= values.length], 0, length)
+// return result;
+//}
 public void generateSyntheticBodyForEnumValues(SyntheticMethodBinding methodBinding) {
 	ClassScope scope = ((SourceTypeBinding)methodBinding.declaringClass).scope;
 	FieldBinding enumValuesSyntheticfield = scope.referenceContext.enumValuesSyntheticfield;
 	initializeMaxLocals(methodBinding);
 	TypeBinding enumArray = methodBinding.returnType;
-	ReferenceBinding object = scope.getJavaLangObject();
+	
 	this.getstatic(enumValuesSyntheticfield);
-	this.invokevirtual(
-		new UpdatedMethodBinding(
-			enumArray,
-			AccPublic,
-			CLONE,
-			object,
-			NoParameters,
-			NoExceptions,
-			object));
-	this.checkcast(enumArray);
+	this.dup();
+	this.astore_0();
+	this.iconst_0();
+	this.aload_0();
+	this.arraylength();
+	this.dup();
+	this.istore_1();
+	this.newArray((ArrayBinding) enumArray);
+	this.dup();
+	this.astore_2();
+	this.iconst_0();
+	this.iload_1();
+	this.invokeSystemArraycopy();
+	this.aload_2();
 	this.areturn();
 }
 //static X valueOf(String name) {
@@ -3483,7 +3493,7 @@ public void invokeSystemArraycopy() {
 	// invokestatic #21 <Method java/lang/System.arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V>
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.System.arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V"); //$NON-NLS-1$
 	this.invoke(
-			OPC_invokevirtual,
+			OPC_invokestatic,
 			5, // argCount
 			0, // return type size
 			QualifiedNamesConstants.JavaLangSystemConstantPoolName,

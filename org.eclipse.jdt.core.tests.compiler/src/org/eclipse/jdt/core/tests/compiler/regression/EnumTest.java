@@ -727,6 +727,22 @@ public class EnumTest extends AbstractComparisonTest {
 			"----------\n");
 	}	
 	
+	// values is using arraycopy instead of clone 
+	public void test025() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	SUC, CESS;\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		for (X x : values()) {\n" + 
+				"			System.out.print(x.name());\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"SUCCESS");
+	}
 	// enum cannot be declared as local type
 	
 	// check abstract conditions
