@@ -119,24 +119,6 @@ public void alreadyDefinedLabel(char[] labelName, ASTNode location) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void ambiguousArgumentToVarargsMethod(MethodBinding method, InvocationSite location) {
-	TypeBinding lastParam = method.parameters[method.parameters.length-1];
-	if (method.isConstructor()) {
-		this.handle(
-			IProblem.AmbiguousArgumentToVarargsConstructor,
-			new String[] {new String(method.declaringClass.readableName()), typesAsString(method.isVarargs(), method.parameters, false), new String(lastParam.readableName())},
-			new String[] {new String(method.declaringClass.shortReadableName()), typesAsString(method.isVarargs(), method.parameters, true), new String(lastParam.shortReadableName())},
-			location.sourceStart(),
-			location.sourceEnd());
-	} else {
-		this.handle(
-			IProblem.AmbiguousArgumentToVarargsMethod,
-			new String[] {new String(method.declaringClass.readableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, false), new String(lastParam.readableName())},
-			new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, true), new String(lastParam.shortReadableName())},
-			location.sourceStart(),
-			location.sourceEnd());
-	}
-}
 public void annotationTypeMemberDeclarationWithConstructorName(AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
 	this.handle(
 		IProblem.AnnotationButConstructorName,
@@ -379,6 +361,24 @@ public void caseExpressionMustBeConstant(Expression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void castArgumentToVarargsMethod(MethodBinding method, InvocationSite location) {
+	TypeBinding lastParam = method.parameters[method.parameters.length-1];
+	if (method.isConstructor()) {
+		this.handle(
+			IProblem.CastArgumentToVarargsConstructor,
+			new String[] {new String(method.declaringClass.readableName()), typesAsString(method.isVarargs(), method.parameters, false), new String(lastParam.readableName())},
+			new String[] {new String(method.declaringClass.shortReadableName()), typesAsString(method.isVarargs(), method.parameters, true), new String(lastParam.shortReadableName())},
+			location.sourceStart(),
+			location.sourceEnd());
+	} else {
+		this.handle(
+			IProblem.CastArgumentToVarargsMethod,
+			new String[] {new String(method.declaringClass.readableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, false), new String(lastParam.readableName())},
+			new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), typesAsString(method.isVarargs(), method.parameters, true), new String(lastParam.shortReadableName())},
+			location.sourceStart(),
+			location.sourceEnd());
+	}
+}
 public void classExtendFinalClass(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());
@@ -548,9 +548,9 @@ public int computeSeverity(int problemId){
 		case IProblem.ForbiddenReference:
 			return this.options.getSeverity(CompilerOptions.ForbiddenReference);
 
-		case IProblem.AmbiguousArgumentToVarargsConstructor :
-		case IProblem.AmbiguousArgumentToVarargsMethod :
-			return this.options.getSeverity(CompilerOptions.AmbiguousVarargsArgument);
+		case IProblem.CastArgumentToVarargsConstructor :
+		case IProblem.CastArgumentToVarargsMethod :
+			return this.options.getSeverity(CompilerOptions.CastVarargsArgument);
 
 		/*
 		 * Javadoc syntax errors

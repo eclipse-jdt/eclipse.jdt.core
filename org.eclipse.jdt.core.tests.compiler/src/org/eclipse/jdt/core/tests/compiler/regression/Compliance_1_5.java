@@ -2920,7 +2920,7 @@ public void test088() {
 		"4. WARNING in p\\X.java (at line 39)\n" + 
 		"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Ambiguous argument for the varargs method getMethod(String, Class...) from the type Class. Argument should be casted to Class[] to disambiguate, since it is passed as is\n" + 
+		"Varargs argument should be cast to Class[] when passed to the method getMethod(String, Class...) from the type Class\n" + 
 		"----------\n"
 	);
 }

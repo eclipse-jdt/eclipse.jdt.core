@@ -1009,10 +1009,10 @@ public interface IProblem {
 	/** @since 3.1 */
 	int IllegalExtendedDimensionsForVarArgs = Syntax + Internal + 800;
 	/** @since 3.1 */
-	int AmbiguousArgumentToVarargsMethod = MethodRelated + 801;
+	int CastArgumentToVarargsMethod = MethodRelated + 801;
 	/** @since 3.1 */
-	int AmbiguousArgumentToVarargsConstructor = ConstructorRelated + 802;
-		
+	int CastArgumentToVarargsConstructor = ConstructorRelated + 802;
+
 	/**
 	 * Annotation
 	 */

@@ -200,7 +200,11 @@ public class EnumTest extends AbstractComparisonTest {
 				"	BLANC,\n" + 
 				"	ROUGE;\n" + 
 				"	\n" + 
+				"   void dup() {} \n" +
 				"   void values() {} \n" +
+				"   void dup() {} \n" +
+				"   void values() {} \n" +
+				"   Missing dup() {} \n" +
 				"	public static void main(String[] args) {\n" + 
 				"		for(X x: X.values()) {\n" + 
 				"			System.out.print(x);\n" + 
@@ -211,9 +215,34 @@ public class EnumTest extends AbstractComparisonTest {
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
+			"	void dup() {} \n" + 
+			"	     ^^^^^\n" + 
+			"Duplicate method dup() in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
 			"	void values() {} \n" + 
 			"	     ^^^^^^^^\n" + 
 			"The enum X already defines the method values() implicitly\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
+			"	void dup() {} \n" + 
+			"	     ^^^^^\n" + 
+			"Duplicate method dup() in type X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 10)\n" + 
+			"	void values() {} \n" + 
+			"	     ^^^^^^^^\n" + 
+			"The enum X already defines the method values() implicitly\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 11)\n" + 
+			"	Missing dup() {} \n" + 
+			"	^^^^^^^\n" + 
+			"Missing cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 11)\n" + 
+			"	Missing dup() {} \n" + 
+			"	        ^^^^^\n" + 
+			"Duplicate method dup() in type X\n" + 
 			"----------\n");
 	}		
 	// switch on enum

@@ -261,23 +261,15 @@ public class ClassScope extends Scope {
 	}
 	
 	private void buildMethods() {
-		
-		// iterate the method declarations to create the bindings
-		int bindingCount;
-		AbstractMethodDeclaration[] methods = referenceContext.methods;
-		int size = methods == null ? 0 : methods.length;
 		boolean isEnum = referenceContext.getKind() == IGenericType.ENUM;
-		if (isEnum) {
-			// reserve 2 slots for special enum methods: #values() and #valueOf(String)
-			bindingCount = 2;
-		} else {
-			if (size == 0) {
-				referenceContext.binding.methods = NoMethods;
-				return;
-			}
-			bindingCount = 0;
+		if (referenceContext.methods == null && !isEnum) {
+			referenceContext.binding.methods = NoMethods;
+			return;
 		}
 
+		// iterate the method declarations to create the bindings
+		AbstractMethodDeclaration[] methods = referenceContext.methods;
+		int size = methods == null ? 0 : methods.length;
 		// look for <clinit> method
 		int clinitIndex = -1;
 		for (int i = 0; i < size; i++) {
@@ -286,7 +278,9 @@ public class ClassScope extends Scope {
 				break;
 			}
 		}
-		MethodBinding[] methodBindings = new MethodBinding[(clinitIndex == -1 ? size : size - 1) + bindingCount/*reserve room for special enum methods*/];
+
+		int count = isEnum ? 2 : 0; // reserve 2 slots for special enum methods: #values() and #valueOf(String)
+		MethodBinding[] methodBindings = new MethodBinding[(clinitIndex == -1 ? size : size - 1) + count];
 		// create special methods for enums
 		if (isEnum) {
 		    SourceTypeBinding sourceType = referenceContext.binding;
@@ -299,11 +293,11 @@ public class ClassScope extends Scope {
 				MethodScope scope = new MethodScope(this, methods[i], false);
 				MethodBinding methodBinding = scope.createMethod(methods[i]);
 				if (methodBinding != null) // is null if binding could not be created
-					methodBindings[bindingCount++] = methodBinding;
+					methodBindings[count++] = methodBinding;
 			}
 		}
-		if (bindingCount != methodBindings.length)
-			System.arraycopy(methodBindings, 0, methodBindings = new MethodBinding[bindingCount], 0, bindingCount);
+		if (count != methodBindings.length)
+			System.arraycopy(methodBindings, 0, methodBindings = new MethodBinding[count], 0, count);
 
 		referenceContext.binding.methods = methodBindings;
 		referenceContext.binding.modifiers |= AccUnresolved; // until methods() is sent
@@ -560,7 +554,6 @@ public class ClassScope extends Scope {
 				problemReporter().illegalModifierForInterfaceField(fieldBinding.declaringClass, fieldDecl);
 			fieldBinding.modifiers = modifiers;
 			return;
-			
 		} else if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 			// check that they are not modifiers in source
 			if ((modifiers & AccJustFlag) != 0)
@@ -714,28 +707,23 @@ public class ClassScope extends Scope {
 	*/
 	private boolean connectSuperclass() {
 		SourceTypeBinding sourceType = referenceContext.binding;
-
-		// handle the case of redefining root types up front
-		switch (sourceType.id) {
+		switch (sourceType.id) { //handle the case of redefining root types up front
 			case T_JavaLangObject :
-			sourceType.superclass = null;
-			sourceType.superInterfaces = NoSuperInterfaces;
-			if (!sourceType.isClass())
-				problemReporter().objectMustBeClass(sourceType);
-			if (referenceContext.superclass != null || referenceContext.superInterfaces != null)
-				problemReporter().objectCannotHaveSuperTypes(sourceType);
-			return true; // do not propagate Object's hierarchy problems down to every subtype
-
+				sourceType.superclass = null;
+				sourceType.superInterfaces = NoSuperInterfaces;
+				if (!sourceType.isClass())
+					problemReporter().objectMustBeClass(sourceType);
+				if (referenceContext.superclass != null || referenceContext.superInterfaces != null)
+					problemReporter().objectCannotHaveSuperTypes(sourceType);
+				return true; // do not propagate Object's hierarchy problems down to every subtype
 			case T_JavaLangEnum :
 				// TODO (kent) need to check is generic class with exactly one unbound parameter, and defines constructor Enum(String,int)
 		}
 		if (referenceContext.superclass == null) {
-			if (sourceType.isEnum()) {
+			if (sourceType.isEnum())
 				return connectEnumSuperclass();
-			} else {
-				sourceType.superclass = getJavaLangObject();
-				return !detectCycle(sourceType, sourceType.superclass, null);				
-			}
+			sourceType.superclass = getJavaLangObject();
+			return !detectCycle(sourceType, sourceType.superclass, null);
 		}
 		TypeReference superclassRef = referenceContext.superclass;
 		ReferenceBinding superclass = findSupertype(superclassRef);
@@ -763,15 +751,13 @@ public class ClassScope extends Scope {
 	 *  enum X (implicitly) extends Enum<X>
 	 */
 	private boolean connectEnumSuperclass() {
-		
 		SourceTypeBinding sourceType = referenceContext.binding;
-				
 		ReferenceBinding rootEnumType = getJavaLangEnum();
 		boolean foundCycle = detectCycle(sourceType, rootEnumType, null);
 		// arity check for well-known Enum<E>
 		TypeVariableBinding[] refTypeVariables = rootEnumType.typeVariables();
 		if (refTypeVariables == NoTypeVariables) { // check generic
-			problemReporter().nonGenericTypeCannotBeParameterized(null, rootEnumType, new TypeBinding[]{ sourceType } );
+			problemReporter().nonGenericTypeCannotBeParameterized(null, rootEnumType, new TypeBinding[]{ sourceType });
 			return false; // cannot reach here as AbortCompilation is thrown
 		} else if (1 != refTypeVariables.length) { // check arity
 			problemReporter().incorrectArityForParameterizedType(null, rootEnumType, new TypeBinding[]{ sourceType });

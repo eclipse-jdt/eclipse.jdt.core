@@ -839,43 +839,29 @@ public MethodBinding[] methods() {
 					MethodBinding method2 = methods[j];
 					if (method2 != null && CharOperation.equals(method.selector, method2.selector)) {
 						if (method.areParameterErasuresEqual(method2)) {
-							if (methodDecl == null) 	methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost
-							AbstractMethodDeclaration method2Decl = method2.sourceMethod();
-							// could collide with special methods for enumerations
+							boolean isEnumSpecialMethod = isEnum()
+								&& (method.selector == TypeConstants.VALUEOF || method.selector == TypeConstants.VALUES);
 							if (methodDecl == null) {
-								if (method.selector == TypeConstants.VALUEOF
-										|| method.selector == TypeConstants.VALUES) {
-									if (method2Decl != null) {
-										scope.problemReporter().duplicateEnumSpecialMethod(this, method2Decl);
-										method2Decl.binding = null;
-									}
-									// leave enum special method to minimize secondary error (further references to it)
-									methods[j] = null;
-									failed++;
-								}
-							} else if (method2Decl == null) {
-								if (method2.selector == TypeConstants.VALUEOF
-										|| method2.selector == TypeConstants.VALUES) {
-									if (methodDecl != null) {
+								methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost & may still be null if method is special
+								if (methodDecl != null && methodDecl.binding != null) { // ensure its a valid user defined method
+									if (isEnumSpecialMethod)
 										scope.problemReporter().duplicateEnumSpecialMethod(this, methodDecl);
-										methodDecl.binding = null;
-									}
-									// leave enum special method to minimize secondary error (further references to it)
+									else
+										scope.problemReporter().duplicateMethodInType(this, methodDecl);
+									methodDecl.binding = null;
 									methods[i] = null;
 									failed++;
 								}
-							} else {
-								if (methodDecl.binding != null) {
-									scope.problemReporter().duplicateMethodInType(this, methodDecl);
-									methodDecl.binding = null;
-								}
-								if (method2Decl != null) {
+							}
+							AbstractMethodDeclaration method2Decl = method2.sourceMethod();
+							if (method2Decl != null && method2Decl.binding != null) { // ensure its a valid user defined method
+								if (isEnumSpecialMethod)
+									scope.problemReporter().duplicateEnumSpecialMethod(this, method2Decl);
+								else
 									scope.problemReporter().duplicateMethodInType(this, method2Decl);
-									method2Decl.binding = null;
-								}
-								methods[i] = null;
+								method2Decl.binding = null;
 								methods[j] = null;
-								failed+=2;
+								failed++;
 							}
 						}
 					}

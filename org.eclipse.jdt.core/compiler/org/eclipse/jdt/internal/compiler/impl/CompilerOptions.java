@@ -164,7 +164,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long MissingSerialVersion = ASTNode.Bit33L;
 	public static final long EnumUsedAsAnIdentifier = ASTNode.Bit34L;	
 	public static final long ForbiddenReference = ASTNode.Bit35L;
-	public static final long AmbiguousVarargsArgument = ASTNode.Bit36L;
+	public static final long CastVarargsArgument = ASTNode.Bit36L;
 
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -184,7 +184,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		| EnumUsedAsAnIdentifier
 		| UnsafeTypeOperation
 		| MissingSerialVersion
-		| AmbiguousVarargsArgument;
+		| CastVarargsArgument;
 
 	// Debug attributes
 	public static final int Source = 1; // SourceFileAttribute
@@ -334,7 +334,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportFinalParameterBound, getSeverityString(FinalParameterBound));
 		optionsMap.put(OPTION_ReportMissingSerialVersion, getSeverityString(MissingSerialVersion));
 		optionsMap.put(OPTION_ReportForbiddenReference, getSeverityString(ForbiddenReference));
-		optionsMap.put(OPTION_ReportAmbiguousVarargsArgument, getSeverityString(AmbiguousVarargsArgument)); 
+		optionsMap.put(OPTION_ReportAmbiguousVarargsArgument, getSeverityString(CastVarargsArgument)); 
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(this.complianceLevel)); 
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(this.sourceLevel)); 
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(this.targetJDK)); 
@@ -607,7 +607,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_ReportFinalParameterBound)) != null) updateSeverity(FinalParameterBound, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingSerialVersion)) != null) updateSeverity(MissingSerialVersion, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportForbiddenReference)) != null) updateSeverity(ForbiddenReference, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportAmbiguousVarargsArgument)) != null) updateSeverity(AmbiguousVarargsArgument, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportAmbiguousVarargsArgument)) != null) updateSeverity(CastVarargsArgument, optionValue);
 
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
@@ -758,7 +758,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- unsafe type operation: ").append(getSeverityString(UnsafeTypeOperation)); //$NON-NLS-1$
 		buf.append("\n\t- final bound for type parameter: ").append(getSeverityString(FinalParameterBound)); //$NON-NLS-1$
 		buf.append("\n\t- missing serialVersionUID: ").append(getSeverityString(MissingSerialVersion)); //$NON-NLS-1$
-		buf.append("\n\t- ambiguous varargs argument: ").append(getSeverityString(AmbiguousVarargsArgument)); //$NON-NLS-1$
+		buf.append("\n\t- ambiguous varargs argument: ").append(getSeverityString(CastVarargsArgument)); //$NON-NLS-1$
 		buf.append("\n\t- forbidden reference to type with access restriction: ").append(getSeverityString(ForbiddenReference)); //$NON-NLS-1$
 		buf.append("\n\t- import access restriction includes: ").append(this.importRestrictionInclude == null ? "" : new String(CharOperation.concatWith(this.importRestrictionInclude,',')));  //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("\n\t- import access restriction excludes: ").append(this.importRestrictionExclude == null ? "" : new String(CharOperation.concatWith(this.importRestrictionExclude,',')));  //$NON-NLS-1$ //$NON-NLS-2$
