@@ -1755,6 +1755,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testPackageDeclaration() {
 		PackageDeclaration x1 = ast.newPackageDeclaration();
 		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			x1.setJavadoc(JD1);
 			x1.annotations().add(ANO1);
 			x1.annotations().add(ANO2);
 		}
@@ -1766,7 +1767,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (ast.apiLevel() == AST.LEVEL_2_0) {
 			assertTrue(result.equals("[(PD"+N1S+"PD)]")); //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			assertTrue(result.equals("[(PD"+ANO1S+ANO2S+N1S+"PD)]")); //$NON-NLS-1$ //$NON-NLS-2$
+			assertTrue(result.equals("[(PD"+JD1S+ANO1S+ANO2S+N1S+"PD)]")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 	public void testParenthesizedExpression() {

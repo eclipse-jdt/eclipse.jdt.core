@@ -919,6 +919,9 @@ class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public boolean visit(PackageDeclaration node) {
 		if (node.getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			if (node.getJavadoc() != null) {
+				node.getJavadoc().accept(this);
+			}
 			for (Iterator it = node.annotations().iterator(); it.hasNext(); ) {
 				Annotation p = (Annotation) it.next();
 				p.accept(this);

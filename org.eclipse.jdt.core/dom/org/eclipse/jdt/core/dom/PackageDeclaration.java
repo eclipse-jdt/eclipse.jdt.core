@@ -20,16 +20,30 @@ import java.util.List;
  * PackageDeclaration:
  *    <b>package</b> Name <b>;</b>
  * </pre>
- * For 3.0 (corresponding to JLS3), annotations were added:
+ * For 3.0 (corresponding to JLS3), annotations and doc comment
+ * were added:
  * <pre>
  * PackageDeclaration:
- *    { Annotation } <b>package</b> Name <b>;</b>
+ *    [ Javadoc ] { Annotation } <b>package</b> Name <b>;</b>
  * </pre>
+ * <p>
+ * Note: Support for annotation metadata is an experimental language feature 
+ * under discussion in JSR-175 and under consideration for inclusion
+ * in the 1.5 release of J2SE. The support here is therefore tentative
+ * and subject to change.
+ * </p>
  * 
  * @since 2.0
  */
 public class PackageDeclaration extends ASTNode {
 	
+	/**
+	 * The "javadoc" structural property of this node type.
+	 * @since 3.0
+	 */
+	public static final ChildPropertyDescriptor JAVADOC_PROPERTY = 
+		new ChildPropertyDescriptor(PackageDeclaration.class, "javadoc", Javadoc.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+
 	/**
 	 * The "annotations" structural property of this node type (added in 3.0 API).
 	 * @since 3.0
@@ -66,6 +80,7 @@ public class PackageDeclaration extends ASTNode {
 		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList();
 		
 		createPropertyList(PackageDeclaration.class);
+		addProperty(JAVADOC_PROPERTY);
 		addProperty(ANNOTATIONS_PROPERTY);
 		addProperty(NAME_PROPERTY);
 		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList();
@@ -90,6 +105,13 @@ public class PackageDeclaration extends ASTNode {
 		}
 	}
 			
+	/**
+	 * The doc comment, or <code>null</code> if none.
+	 * Defaults to none.
+	 * @since 3.0
+	 */
+	Javadoc optionalDocComment = null;
+
 	/**
 	 * The annotations (element type: <code>Annotation</code>). 
 	 * Null in 2.0. Added in 3.0; defaults to an empty list
@@ -134,6 +156,14 @@ public class PackageDeclaration extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == JAVADOC_PROPERTY) {
+			if (get) {
+				return getJavadoc();
+			} else {
+				setJavadoc((Javadoc) child);
+				return null;
+			}
+		}
 		if (property == NAME_PROPERTY) {
 			if (get) {
 				return getName();
@@ -171,6 +201,7 @@ public class PackageDeclaration extends ASTNode {
 		PackageDeclaration result = new PackageDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+			result.setJavadoc((Javadoc) ASTNode.copySubtree(target, getJavadoc()));
 			result.annotations().addAll(ASTNode.copySubtrees(target, annotations()));
 		}
 		result.setName((Name) getName().clone(target));
@@ -192,6 +223,7 @@ public class PackageDeclaration extends ASTNode {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			if (this.ast.API_LEVEL >= AST.LEVEL_3_0) {
+				acceptChild(visitor, getJavadoc());
 				acceptChildren(visitor, this.annotations);
 			}
 			acceptChild(visitor, getName());
@@ -223,6 +255,41 @@ public class PackageDeclaration extends ASTNode {
 		return this.annotations;
 	}
 	
+	/**
+	 * Returns the doc comment node.
+	 * 
+	 * @return the doc comment node, or <code>null</code> if none
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
+	 * @since 3.0
+	 */
+	public Javadoc getJavadoc() {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.annotations == null) {
+			unsupportedIn2();
+		}
+		return this.optionalDocComment;
+	}
+
+	/**
+	 * Sets or clears the doc comment node.
+	 * 
+	 * @param docComment the doc comment node, or <code>null</code> if none
+	 * @exception IllegalArgumentException if the doc comment string is invalid
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
+	 * @since 3.0
+	 */
+	public void setJavadoc(Javadoc docComment) {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.annotations == null) {
+			unsupportedIn2();
+		}
+		preReplaceChild(this.optionalDocComment, docComment, JAVADOC_PROPERTY);
+		this.optionalDocComment = docComment;
+		postReplaceChild(this.optionalDocComment, docComment, JAVADOC_PROPERTY);
+	}
+
 	/**
 	 * Returns the package name of this package declaration.
 	 * 
@@ -275,7 +342,7 @@ public class PackageDeclaration extends ASTNode {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return BASE_NODE_SIZE + 2 * 4;
+		return BASE_NODE_SIZE + 3 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -284,6 +351,7 @@ public class PackageDeclaration extends ASTNode {
 	int treeSize() {
 		return
 			memSize()
+			+ (this.optionalDocComment == null ? 0 : getJavadoc().treeSize())
 			+ (this.annotations == null ? 0 : this.annotations.listSize())
 			+ (this.packageName == null ? 0 : getName().treeSize());
 	}

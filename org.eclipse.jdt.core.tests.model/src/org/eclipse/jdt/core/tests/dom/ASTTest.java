@@ -2190,6 +2190,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getAST() == ast);
 		assertTrue(x.getParent() == null);
 		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			assertTrue(x.getJavadoc() == null);
 			assertTrue(x.annotations().isEmpty());
 		}
 		assertTrue(x.getName().getParent() == x);
@@ -2199,6 +2200,22 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(ast.modificationCount() == previousCount);
 
 		if (ast.apiLevel() >= AST.LEVEL_3_0) {
+			genericPropertyTest(x, new Property("Javadoc", false, Javadoc.class) { //$NON-NLS-1$
+				public ASTNode sample(AST targetAst, boolean parented) {
+					Javadoc result = targetAst.newJavadoc();
+					if (parented) {
+						targetAst.newInitializer().setJavadoc(result);
+					}
+					return result;
+				}
+				public ASTNode get() {
+					return x.getJavadoc();
+				}
+				public void set(ASTNode value) {
+					x.setJavadoc((Javadoc) value);
+				}
+			});
+			
 			genericPropertyListTest(x, x.annotations(), new Property("Annotations", true, Annotation.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
 					MarkerAnnotation result = targetAst.newMarkerAnnotation();
