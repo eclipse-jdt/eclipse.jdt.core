@@ -71,7 +71,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		} else {
 			junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-			suite.addTest(new FormatterRegressionTests("test462"));  //$NON-NLS-1$
+			suite.addTest(new FormatterRegressionTests("test463"));  //$NON-NLS-1$
 			return suite;
 		}
 	}
@@ -5591,5 +5591,21 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test462", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50276
+	 */
+	public void test463() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(
+				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SELECTOR_IN_METHOD_INVOCATION,
+				DefaultCodeFormatterConstants.createAlignmentValue(
+					false,
+					DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE,
+					DefaultCodeFormatterConstants.INDENT_DEFAULT));
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test463", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

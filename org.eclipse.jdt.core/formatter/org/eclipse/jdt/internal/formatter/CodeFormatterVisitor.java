@@ -1060,7 +1060,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				int argumentLength = arguments.length;
 				Alignment argumentsAlignment = this.scribe.createAlignment(
 						"messageArguments", //$NON-NLS-1$
-						Alignment.M_COMPACT_SPLIT,
+						this.preferences.alignment_for_arguments_in_method_invocation,
 						Alignment.R_OUTERMOST,
 						argumentLength,
 						this.scribe.scanner.currentPosition);
@@ -1093,7 +1093,13 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 			startingPositionInCascade = 2;
 		}
-		Alignment cascadingMessageSendAlignment = this.scribe.createAlignment("cascadingMessageSendAlignment", Alignment.M_COMPACT_SPLIT, Alignment.R_INNERMOST, size, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+		Alignment cascadingMessageSendAlignment =
+			this.scribe.createAlignment(
+				"cascadingMessageSendAlignment",
+				this.preferences.alignment_for_selector_in_method_invocation,
+				Alignment.R_INNERMOST,
+				size,
+				this.scribe.scanner.currentPosition); //$NON-NLS-1$
 		this.scribe.enterAlignment(cascadingMessageSendAlignment);
 		boolean ok = false;
 		do {
@@ -1116,7 +1122,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						int argumentLength = arguments.length;
 						Alignment argumentsAlignment = this.scribe.createAlignment(
 								"messageArguments", //$NON-NLS-1$
-								Alignment.M_COMPACT_SPLIT,
+								this.preferences.alignment_for_arguments_in_method_invocation,
 								Alignment.R_OUTERMOST,
 								argumentLength,
 								this.scribe.scanner.currentPosition);
