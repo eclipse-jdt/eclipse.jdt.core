@@ -2256,6 +2256,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			int typesLength = types.length;
 			for (int i = 0; i < typesLength - 1; i++) {
 				types[i].traverse(this, scope);
+				this.scribe.printComment();
+				this.scribe.printNewLine();
 			}
 			format(types[typesLength - 1]);
 		}
