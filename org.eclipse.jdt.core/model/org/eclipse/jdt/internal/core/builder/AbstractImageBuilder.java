@@ -404,10 +404,19 @@ protected char[] writeClassFile(ClassFile classFile, IContainer outputFolder, bo
 }
 
 protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isSecondaryType) throws CoreException {
-	// Default implementation just writes out the bytes for the new class file...
-	if (JavaBuilder.DEBUG)
-		System.out.println("Writing new class file " + file.getName());//$NON-NLS-1$
-	file.create(new ByteArrayInputStream(bytes), IResource.FORCE, null);
-	file.setDerived(true);
+	if (file.exists()) {
+		// Deal with shared output folders... last one wins... no collision cases detected
+		if (JavaBuilder.DEBUG)
+			System.out.println("Writing changed class file " + file.getName());//$NON-NLS-1$
+		file.setContents(new ByteArrayInputStream(bytes), true, false, null);
+		if (!file.isDerived())
+			file.setDerived(true);
+	} else {
+		// Default implementation just writes out the bytes for the new class file...
+		if (JavaBuilder.DEBUG)
+			System.out.println("Writing new class file " + file.getName());//$NON-NLS-1$
+		file.create(new ByteArrayInputStream(bytes), IResource.FORCE, null);
+		file.setDerived(true);
+	}
 }
 }

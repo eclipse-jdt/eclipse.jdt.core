@@ -539,13 +539,18 @@ protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFil
 			if (JavaBuilder.DEBUG)
 				System.out.println("Writing changed class file " + file.getName());//$NON-NLS-1$
 			file.setContents(new ByteArrayInputStream(bytes), true, false, null);
+			if (!file.isDerived())
+				file.setDerived(true);
 		} else if (JavaBuilder.DEBUG) {
 			System.out.println("Skipped over unchanged class file " + file.getName());//$NON-NLS-1$
 		}
 	} else {
 		if (isSecondaryType)
 			addDependentsOf(new Path(qualifiedFileName), true); // new secondary type
-		super.writeClassFileBytes(bytes, file, qualifiedFileName, isSecondaryType);
+		if (JavaBuilder.DEBUG)
+			System.out.println("Writing new class file " + file.getName());//$NON-NLS-1$
+		file.create(new ByteArrayInputStream(bytes), IResource.FORCE, null);
+		file.setDerived(true);
 	}
 }
 
