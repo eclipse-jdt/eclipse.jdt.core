@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,9 @@ public class JavadocParser {
 	public static final char[] TAG_THROWS = "throws".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_EXCEPTION = "exception".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_SEE = "see".toCharArray(); //$NON-NLS-1$
+	public static final char[] TAG_LINK = "link".toCharArray(); //$NON-NLS-1$
+	public static final char[] TAG_LINKPLAIN = "linkplain".toCharArray(); //$NON-NLS-1$
+	public static final char[] TAG_INHERITDOC = "inheritDoc".toCharArray(); //$NON-NLS-1$
 	
 	// tags expected positions
 	public final static int ORDERED_TAGS_NUMBER = 3;
@@ -46,6 +49,7 @@ public class JavadocParser {
 	private Parser sourceParser;
 	private int index, tagSourceStart, tagSourceEnd, lineEnd;
 	private char[] source;
+	private boolean lineStarted = false, inlineTagStarted = false;
 	
 	// Identifier stack
 	protected int identifierPtr;
@@ -83,91 +87,183 @@ public class JavadocParser {
 		boolean foundDeprecated = false;
 		try {
 			this.source = this.sourceParser.scanner.source;
+			this.index = javadocStart +3;
+			int endComment = javadocEnd - 2;
 			if (this.checkJavadoc) {
+				// Initialization
 				this.javadoc = new Javadoc(javadocStart, javadocEnd);
 				this.astLengthPtr = -1;
 				this.astPtr = -1;
 				this.currentTokenType = -1;
-			} else if (this.sourceParser.options.getSeverity(CompilerOptions.MissingJavadocComments) != ProblemSeverities.Ignore) {
-				this.javadoc = new Javadoc(javadocStart, javadocEnd);
-			} else {
-				this.javadoc = null;
-			}
-
-			int firstLineNumber = this.sourceParser.scanner.getLineNumber(javadocStart);
-			int lastLineNumber = this.sourceParser.scanner.getLineNumber(javadocEnd);
-
-			// scan line per line, since tags must be at beginning of lines only
-			nextLine : for (int line = firstLineNumber; line <= lastLineNumber; line++) {
-				int lineStart = line == firstLineNumber
-						? javadocStart + 3 // skip leading /**
-						: this.sourceParser.scanner.getLineStart(line);
-				this.index = lineStart;
-				this.lineEnd = line == lastLineNumber
-						? javadocEnd - 2 // remove trailing */
-						: this.sourceParser.scanner.getLineEnd(line);
-				while (this.index < this.lineEnd) {
-					char nextCharacter = readChar(); // consider unicodes
+				this.scanner.startPosition = this.index;
+				this.inlineTagStarted = false;
+				this.lineStarted = false;
+				int lineNumber = this.sourceParser.scanner.getLineNumber(javadocStart);
+				int lastLineNumber = this.sourceParser.scanner.getLineNumber(javadocEnd);
+				this.lineEnd = lineNumber == lastLineNumber ? javadocEnd - 2 : javadocStart + 3;
+				char nextCharacter= 0, previousChar;
+				int charPosition = -1, inlineStartPosition = 0;
+				
+				// Loop on each comment character
+				while (this.index < endComment) {
+					int previousPosition = this.index;
+					previousChar = nextCharacter;
+					
+					// Calculate line end (cannot use this.scanner.linePtr as scanner does not parse line ends again)
+					if (this.index > this.lineEnd) {
+						if (lineNumber < lastLineNumber) {
+							this.lineEnd = this.sourceParser.scanner.getLineEnd(++lineNumber) - 1;
+						} else {
+							this.lineEnd = javadocEnd - 2;
+						}
+						this.lineStarted = false;
+					}
+					
+					// Read next char only if token was consumed
+					if (this.currentTokenType < 0) {
+						nextCharacter = readChar(); // consider unicodes
+					} else {
+						switch (this.currentTokenType) {
+							case TerminalTokens.TokenNameRBRACE:
+								nextCharacter = '}';
+								break;
+							case TerminalTokens.TokenNameMULTIPLY:
+								nextCharacter = '*';
+								break;
+						default:
+								nextCharacter = this.scanner.currentCharacter;
+						}
+						consumeToken();
+					}
+					
 					switch (nextCharacter) {
 						case '@' :
-							if (!this.checkJavadoc) {
-								if ((readChar() == 'd') &&
-									(readChar() == 'e') &&
-									(readChar() == 'p') &&
-									(readChar() == 'r') &&
-									(readChar() == 'e') &&
-									(readChar() == 'c') &&
-									(readChar() == 'a') &&
-									(readChar() == 't') &&
-									(readChar() == 'e') &&
-									(readChar() == 'd')) {
-									// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
-									nextCharacter = readChar();
-									if (Character.isWhitespace(nextCharacter) || nextCharacter == '*') {
-										foundDeprecated = true;
-										break nextLine; // done
+							boolean valid = false;
+							// Start tag parsing only if we are on line beginning or at inline tag beginning
+							if (!this.lineStarted || previousChar == '{') {
+								this.lineStarted = true;
+								if (this.inlineTagStarted) {
+									this.inlineTagStarted = false;
+									int start = this.astStack[this.astPtr].sourceStart;
+									this.sourceParser.problemReporter().javadocInvalidTag(start, charPosition);
+								} else {
+									if (previousChar == '{') {
+										this.inlineTagStarted = true;
+									}
+									this.scanner.resetTo(this.index, endComment);
+									this.currentTokenType = -1; // flush token cache at line begin
+									try {
+										int tk = readTokenAndConsume();
+										this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
+										this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+										switch (tk) {
+											case TerminalTokens.TokenNameIdentifier :
+												char[] tag = this.scanner.getCurrentIdentifierSource();
+												if (CharOperation.equals(tag, TAG_DEPRECATED)) {
+													foundDeprecated = true;
+													valid = true;
+												} else if (CharOperation.equals(tag, TAG_INHERITDOC)) {
+													this.javadoc.inherited = true;
+													valid = true;
+												} else if (CharOperation.equals(tag, TAG_PARAM)) {
+													valid = parseParam();
+												} else if (CharOperation.equals(tag, TAG_EXCEPTION)) {
+													valid = parseThrows();
+												} else if (CharOperation.equals(tag, TAG_SEE) ||
+														CharOperation.equals(tag, TAG_LINK) ||
+														CharOperation.equals(tag, TAG_LINKPLAIN)) {
+													valid = parseSee();
+												} else {
+													valid = parseTag();
+												}
+												break;
+											case TerminalTokens.TokenNamereturn :
+												valid = parseReturn();
+												break;
+											case TerminalTokens.TokenNamethrows :
+												valid = parseThrows();
+												break;
+										}
+										if (!valid && this.inlineTagStarted) {
+											this.inlineTagStarted = false;
+										}
+									} catch (InvalidInputException e) {
+										consumeToken();
 									}
 								}
-								continue nextLine;
 							}
-							this.scanner.resetTo(this.index, this.lineEnd);
-							this.currentTokenType = -1; // flush token cache at line begin
-							try {
-								int tk = readTokenAndConsume();
-								this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
-								this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-								switch (tk) {
-									case TerminalTokens.TokenNameIdentifier :
-										char[] tag = this.scanner.getCurrentIdentifierSource();
-										if (CharOperation.equals(tag, TAG_DEPRECATED)) {
-											foundDeprecated = true;
-										} else if (CharOperation.equals(tag, TAG_PARAM)) {
-											parseParam();
-										} else if (CharOperation.equals(tag, TAG_EXCEPTION)) {
-											parseThrows();
-										} else if (CharOperation.equals(tag, TAG_SEE)) {
-											parseSee();
-										}
-										break;
-									case TerminalTokens.TokenNamereturn :
-										parseReturn();
-										break;
-									case TerminalTokens.TokenNamethrows :
-										parseThrows();
-										break;
-								}
-							} catch (InvalidInputException e) {
-								consumeToken();
+							break;
+						case '\r':
+						case '\n':
+							this.lineStarted = false;
+							break;
+						case '}' :
+							if (this.inlineTagStarted) this.inlineTagStarted = false;
+							this.lineStarted = true;
+							charPosition = previousPosition;
+							break;
+						case '{' :
+							if (this.inlineTagStarted) {
+								this.inlineTagStarted = false;
+								this.sourceParser.problemReporter().javadocInvalidTag(inlineStartPosition, this.index);
+							} else {
+								inlineStartPosition = previousPosition;
 							}
-							continue nextLine;
+							break;
 						case '*' :
+							charPosition = previousPosition;
 							break;
 						default :
-							if (!CharOperation.isWhitespace(nextCharacter)) {
-								continue nextLine;
+							charPosition = previousPosition;
+							if (!this.lineStarted && !CharOperation.isWhitespace(nextCharacter)) {
+								this.lineStarted = true;
 							}
 					}
 				}
+			} else {
+				// Init javadoc if necessary
+				if (this.sourceParser.options.getSeverity(CompilerOptions.MissingJavadocComments) != ProblemSeverities.Ignore) {
+					this.javadoc = new Javadoc(javadocStart, javadocEnd);
+				} else {
+					this.javadoc = null;
+				}
+				
+				// Parse comment
+				int firstLineNumber = this.sourceParser.scanner.getLineNumber(javadocStart);
+				int lastLineNumber = this.sourceParser.scanner.getLineNumber(javadocEnd);
+	
+				// scan line per line, since tags must be at beginning of lines only
+				nextLine : for (int line = firstLineNumber; line <= lastLineNumber; line++) {
+					int lineStart = line == firstLineNumber
+							? javadocStart + 3 // skip leading /**
+							: this.sourceParser.scanner.getLineStart(line);
+					this.index = lineStart;
+					this.lineEnd = line == lastLineNumber
+							? javadocEnd - 2 // remove trailing * /
+							: this.sourceParser.scanner.getLineEnd(line);
+					while (this.index < this.lineEnd) {
+						char nextCharacter = readChar(); // consider unicodes
+						if  (nextCharacter == '@' &&
+							(readChar() == 'd') &&
+							(readChar() == 'e') &&
+							(readChar() == 'p') &&
+							(readChar() == 'r') &&
+							(readChar() == 'e') &&
+							(readChar() == 'c') &&
+							(readChar() == 'a') &&
+							(readChar() == 't') &&
+							(readChar() == 'e') &&
+							(readChar() == 'd'))
+						{
+							// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
+							nextCharacter = readChar();
+							if (Character.isWhitespace(nextCharacter) || nextCharacter == '*') {
+								return true;
+							}
+						}
+					}
+				}
+				return false;
 			}
 		} finally {
 			if (this.checkJavadoc) {
@@ -183,8 +279,8 @@ public class JavadocParser {
 	}
 
 	private int getEndPosition() {
-		if (this.scanner.getCurrentTokenEndPosition() >= this.lineEnd) {
-			return this.lineEnd - 1;
+		if (this.scanner.getCurrentTokenEndPosition() > this.lineEnd) {
+			return this.lineEnd;
 		} else {
 			return this.scanner.getCurrentTokenEndPosition();
 		}
@@ -345,40 +441,48 @@ public class JavadocParser {
 	 */
 	private boolean parseHref() throws InvalidInputException {
 		int start = this.scanner.getCurrentTokenStartPosition();
-		//int end = this.scanner.getCurrentTokenEndPosition();
-		if (readTokenAndConsume() == TerminalTokens.TokenNameIdentifier) {
-			//end = this.index-1;
+		if (readToken() == TerminalTokens.TokenNameIdentifier) {
+			consumeToken();
 			if (CharOperation.equals(this.scanner.getCurrentIdentifierSource(), new char[]{'a'}, false)
-					&& readTokenAndConsume() == TerminalTokens.TokenNameIdentifier) {
-				//end = this.index - 1;
+					&& readToken() == TerminalTokens.TokenNameIdentifier) {
+				consumeToken();
 				try {
 					if (CharOperation.equals(this.scanner.getCurrentIdentifierSource(), new char[]{'h', 'r', 'e', 'f'}, false) &&
-						readTokenAndConsume() == TerminalTokens.TokenNameEQUAL &&
-						readTokenAndConsume() == TerminalTokens.TokenNameStringLiteral &&
-						readTokenAndConsume() == TerminalTokens.TokenNameGREATER) {
-						while (readTokenAndConsume() != TerminalTokens.TokenNameLESS) {
-							if (this.scanner.currentPosition >= this.lineEnd) {
-								this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(start, this.lineEnd - 1);
-								return false;
-							}
-						}
-						if (readTokenAndConsume() == TerminalTokens.TokenNameDIVIDE	&&
-							readTokenAndConsume() == TerminalTokens.TokenNameIdentifier) {
-							//end = this.index - 1;
-							if (CharOperation.equals(this.scanner.getCurrentIdentifierSource(), new char[]{'a'}, false)	&&
-								readTokenAndConsume() == TerminalTokens.TokenNameGREATER) {
-								// Valid href
-								return true;
+						readToken() == TerminalTokens.TokenNameEQUAL) {
+						consumeToken();
+						if (readToken() == TerminalTokens.TokenNameStringLiteral) {
+							consumeToken();
+							if (readToken() == TerminalTokens.TokenNameGREATER) {
+								consumeToken();
+								while (readToken() != TerminalTokens.TokenNameLESS) {
+									if (this.source[this.index] == '\r' || this.source[this.index] == '\n' || this.scanner.getCurrentTokenStartPosition() > this.lineEnd) {
+										this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(start, this.lineEnd);
+										return false;
+									}
+									consumeToken();
+								}
+								consumeToken();
+								if (readToken() == TerminalTokens.TokenNameDIVIDE) {
+									consumeToken();
+									if (readToken() == TerminalTokens.TokenNameIdentifier) {
+										consumeToken();
+										if (CharOperation.equals(this.scanner.getCurrentIdentifierSource(), new char[]{'a'}, false)	&&
+											readToken() == TerminalTokens.TokenNameGREATER) {
+											consumeToken();
+											// Valid href
+											return true;
+										}
+									}
+								}
 							}
 						}
 					}
 				} catch (InvalidInputException ex) {
-					// Place to change end position for error report
-					//end = getEndPosition();
+					// Do nothing as we want to keep positions for error message
 				}
 			}
 		}
-		this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(start, this.lineEnd - 1);
+		this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(start, this.lineEnd);
 		return false;
 	}
 
@@ -402,9 +506,11 @@ public class JavadocParser {
 		}
 		
 		// Get member identifier
-		if (readTokenAndConsume() == TerminalTokens.TokenNameIdentifier) {
+		if (readToken() == TerminalTokens.TokenNameIdentifier) {
+			consumeToken();
 			pushIdentifier(true);
-			if (readTokenAndConsume() == TerminalTokens.TokenNameLPAREN) {
+			if (readToken() == TerminalTokens.TokenNameLPAREN) {
+				consumeToken();
 				start = this.scanner.getCurrentTokenStartPosition();
 				try {
 					return parseArguments(typeRef);
@@ -412,7 +518,7 @@ public class JavadocParser {
 					int end = this.scanner.getCurrentTokenEndPosition() < this.lineEnd ?
 							this.scanner.getCurrentTokenEndPosition() :
 							this.scanner.getCurrentTokenStartPosition();
-					end = end < this.lineEnd ? end : (this.lineEnd - 1);
+					end = end < this.lineEnd ? end : this.lineEnd;
 					this.sourceParser.problemReporter().javadocInvalidSeeReferenceArgs(start, end);
 				}
 				return null;
@@ -423,14 +529,16 @@ public class JavadocParser {
 			field.tagSourceEnd = this.tagSourceEnd;
 			return field;
 		}
-		this.sourceParser.problemReporter().javadocInvalidSeeReference(start, getEndPosition());
+		int end = getEndPosition() - 1;
+		end = start > end ? getEndPosition() : end;
+		this.sourceParser.problemReporter().javadocInvalidSeeReference(start, end);
 		return null;
 	}
 
 	/*
 	 * Parse @param tag declaration
 	 */
-	private void parseParam() {
+	private boolean parseParam() {
 
 		// Store current token state
 		int start = this.tagSourceStart;
@@ -438,22 +546,22 @@ public class JavadocParser {
 
 		try {
 			// Push identifier next
-			int token = readTokenAndConsume();
+			int token = readToken();
 			switch (token) {
 				case TerminalTokens.TokenNameIdentifier :
+					consumeToken();
 					JavadocSingleNameReference argument = new JavadocSingleNameReference(this.scanner.getCurrentIdentifierSource(),
 							this.scanner.getCurrentTokenStartPosition(),
 							this.scanner.getCurrentTokenEndPosition());
 					argument.tagSourceStart = this.tagSourceStart;
 					argument.tagSourceEnd = this.tagSourceEnd;
-					pushParamName(argument);
-					return;
+					return pushParamName(argument);
 				case TerminalTokens.TokenNameEOF :
-					//end = scanner.eofPosition-2;
 					break;
 				default :
 					start = this.scanner.getCurrentTokenStartPosition();
-					end = this.scanner.getCurrentTokenEndPosition();
+					end = getEndPosition();
+					if (end < start) start = this.tagSourceStart;
 					break;
 			}
 		} catch (InvalidInputException e) {
@@ -462,7 +570,7 @@ public class JavadocParser {
 
 		// Report problem
 		this.sourceParser.problemReporter().javadocMissingParamName(start, end);
-		consumeToken();
+		return false;
 	}
 
 	/*
@@ -515,7 +623,7 @@ public class JavadocParser {
 					if (iToken == 0) {
 						return null;
 					}
-					if ((iToken % 2) == 0) { // dots must be followed by an identifier
+					if ((iToken % 2) == 0) { // cannot leave on a dot
 						throw new InvalidInputException();
 					}
 					break nextToken;
@@ -545,7 +653,7 @@ public class JavadocParser {
 	/*
 	 * Parse a reference in @see tag
 	 */
-	private Expression parseReference() throws InvalidInputException {
+	private boolean parseReference() throws InvalidInputException {
 		TypeReference typeRef = null;
 		Expression reference = null;
 		nextToken : while (this.index < this.scanner.eofPosition) {
@@ -556,16 +664,12 @@ public class JavadocParser {
 					int start = this.scanner.getCurrentTokenStartPosition();
 					if (typeRef == null) {
 						consumeToken();
-						try {
-							if (readToken() == TerminalTokens.TokenNameEOF) {
-								return null;
-							}
-						} catch (InvalidInputException e) {
-							// Do nothing as we want to underline from the beginning of the string
+						if (this.source[this.index] == '\r' || this.source[this.index] == '\n') {
+							return true;
 						}
 					}
-					this.sourceParser.problemReporter().javadocInvalidSeeReference(start, this.lineEnd - 1);
-					return null;
+					this.sourceParser.problemReporter().javadocInvalidSeeReference(start, this.lineEnd);
+					return false;
 				case TerminalTokens.TokenNameLESS :
 					// @see "<a href="URL#Value">label</a>
 					consumeToken();
@@ -573,24 +677,21 @@ public class JavadocParser {
 					if (parseHref()) {
 						if (typeRef == null) {
 							consumeToken();
-							try {
-								if (readToken() == TerminalTokens.TokenNameEOF) {
-									return null;
-								}
-							} catch (InvalidInputException e) {
-								// Do nothing as we want to underline from the beginning of the href
+							if (this.source[this.index] == '\r' || this.source[this.index] == '\n') {
+								return true;
 							}
 						}
-						this.sourceParser.problemReporter().javadocInvalidSeeReference(start, this.lineEnd - 1);
+						this.sourceParser.problemReporter().javadocInvalidSeeReference(start, this.lineEnd);
 					}
-					return null;
+					return false;
 				case TerminalTokens.TokenNameERROR :
-					consumeToken();
 					if (this.scanner.currentCharacter == '#') { // @see ...#member
+						consumeToken();
 						reference = parseMember(typeRef);
-						if (reference == null) {
-							return null;
+						if (reference != null) {
+							pushSeeRef(reference);
 						}
+						return false;
 					}
 					break nextToken;
 				case TerminalTokens.TokenNameIdentifier :
@@ -608,72 +709,77 @@ public class JavadocParser {
 		if (reference == null) reference = typeRef;
 		if (reference == null) {
 			this.sourceParser.problemReporter().javadocMissingSeeReference(this.tagSourceStart, this.tagSourceEnd);
-			return null;
+			return false;
 		}
-		
-		// Verify that we're at line end
+
+		// Verify that line end does not start with an open parenthese (which could be a constructor reference wrongly written...)
+		// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=47215
 		int start = this.scanner.getCurrentTokenStartPosition();
 		try {
-			int token = readTokenAndConsume();
+			int token = readToken();
 			if (token != TerminalTokens.TokenNameLPAREN) {
-				return reference;
+				return pushSeeRef(reference);
 			}
 		} catch (InvalidInputException e) {
 			// Do nothing as we report an error after
 		}
-		this.sourceParser.problemReporter().javadocInvalidSeeReference(start, this.lineEnd - 1);
-		return null;
+		this.sourceParser.problemReporter().javadocInvalidSeeReference(start, this.lineEnd);
+		return false;
 	}
 	
 	/*
 	 * Parse @return tag declaration
 	 */
-	private void parseReturn() {
+	private boolean parseReturn() {
 		if (this.javadoc.returnStatement == null) {
 			this.javadoc.returnStatement = new JavadocReturnStatement(this.scanner.getCurrentTokenStartPosition(),
 					this.scanner.getCurrentTokenEndPosition(),
 					this.scanner.getRawTokenSourceEnd());
+			return true;
 		} else {
 			this.sourceParser.problemReporter().javadocDuplicatedReturnTag(
 					this.scanner.getCurrentTokenStartPosition(),
 					this.scanner.getCurrentTokenEndPosition());
+			return false;
 		}
 	}
 
 	/*
 	 * Parse @see tag declaration
 	 */
-	private void parseSee() {
+	private boolean parseSee() {
 		int start = this.scanner.currentPosition;
 		try {
-			Expression msgRef = parseReference();
-			if (msgRef != null) {
-				pushSeeRef(msgRef);
-			}
+			return parseReference();
 		} catch (InvalidInputException ex) {
-			this.sourceParser.problemReporter().javadocInvalidSeeReference(start, getEndPosition());
-		} finally {
-			consumeToken();
+				this.sourceParser.problemReporter().javadocInvalidSeeReference(start, getEndPosition());
 		}
+		return false;
+	}
+	
+	/*
+	 * Parse @return tag declaration
+	 */
+	private boolean parseTag() {
+		return true;
 	}
 
 	/*
 	 * Parse @throws tag declaration
 	 */
-	private void parseThrows() {
+	private boolean parseThrows() {
 		int start = this.scanner.currentPosition;
 		try {
 			TypeReference typeRef = parseQualifiedName(true);
 			if (typeRef == null) {
 				this.sourceParser.problemReporter().javadocMissingThrowsClassName(this.tagSourceStart, this.tagSourceEnd);
 			} else {
-				pushThrowName(typeRef);
+				return pushThrowName(typeRef);
 			}
 		} catch (InvalidInputException ex) {
 			this.sourceParser.problemReporter().javadocInvalidThrowsClass(start, getEndPosition());
-		} finally {
-			consumeToken();
 		}
+		return false;
 	}
 	
 	/*
@@ -756,7 +862,7 @@ public class JavadocParser {
 	/*
 	 * Push a param name in ast node stack.
 	 */
-	private void pushParamName(JavadocSingleNameReference arg) {
+	private boolean pushParamName(JavadocSingleNameReference arg) {
 		if (this.astLengthPtr == -1) { // First push
 			pushOnAstStack(arg, true);
 		} else {
@@ -764,7 +870,7 @@ public class JavadocParser {
 			for (int i=THROWS_TAG_EXPECTED_ORDER; i<=this.astLengthPtr; i+=ORDERED_TAGS_NUMBER) {
 				if (this.astLengthStack[i] != 0) {
 					this.sourceParser.problemReporter().javadocUnexpectedTag(arg.tagSourceStart, arg.tagSourceEnd);
-					return;
+					return false;
 				}
 			}
 			switch (this.astLengthPtr % ORDERED_TAGS_NUMBER) {
@@ -776,14 +882,17 @@ public class JavadocParser {
 					// previous push was a @see tag => push new param name
 					pushOnAstStack(arg, true);
 					break;
+				default:
+					return false;
 			}
 		}
+		return true;
 	}
 
 	/*
 	 * Push a reference statement in ast node stack.
 	 */
-	private void pushSeeRef(Statement statement) {
+	private boolean pushSeeRef(Statement statement) {
 		if (this.astLengthPtr == -1) { // First push
 			pushOnAstStack(null, true);
 			pushOnAstStack(null, true);
@@ -803,11 +912,14 @@ public class JavadocParser {
 					// previous push was a @see tag => push another @see tag
 					pushOnAstStack(statement, false);
 					break;
+				default:
+					return false;
 			}
 		}
+		return true;
 	}
 
-	private void pushThrowName(TypeReference typeRef) {
+	private boolean pushThrowName(TypeReference typeRef) {
 		if (this.astLengthPtr == -1) { // First push
 			pushOnAstStack(null, true);
 			pushOnAstStack(typeRef, true);
@@ -826,8 +938,11 @@ public class JavadocParser {
 					pushOnAstStack(null, true);
 					pushOnAstStack(typeRef, true);
 					break;
+				default:
+					return false;
 			}
 		}
+		return true;
 	}
 
 	private char readChar() {
@@ -853,6 +968,11 @@ public class JavadocParser {
 	private int readToken() throws InvalidInputException {
 		if (this.currentTokenType < 0) {
 			this.currentTokenType = this.scanner.getNextToken();
+			if (this.scanner.currentPosition > (this.lineEnd+1) && this.currentTokenType == TerminalTokens.TokenNameMULTIPLY) {
+				while (this.currentTokenType == TerminalTokens.TokenNameMULTIPLY) {
+					this.currentTokenType = this.scanner.getNextToken();
+				}
+			}
 			this.index = this.scanner.currentPosition;
 		}
 		return this.currentTokenType;
@@ -868,6 +988,54 @@ public class JavadocParser {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("check javadoc: ").append(this.checkJavadoc).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
 		buffer.append("javadoc: ").append(this.javadoc).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
+//		buffer.append("scanner: ").append(this.scanner.toString());	//$NON-NLS-1$
+		int startPos = this.scanner.currentPosition<this.index ? this.scanner.currentPosition : this.index;
+		int endPos = this.scanner.currentPosition<this.index ? this.index : this.scanner.currentPosition;
+		if (startPos == this.source.length)
+			return "EOF\n\n" + new String(this.source); //$NON-NLS-1$
+		if (endPos > this.source.length)
+			return "behind the EOF\n\n" + new String(this.source); //$NON-NLS-1$
+	
+		char front[] = new char[startPos];
+		System.arraycopy(this.source, 0, front, 0, startPos);
+	
+		int middleLength = (endPos - 1) - startPos + 1;
+		char middle[];
+		if (middleLength > -1) {
+			middle = new char[middleLength];
+			System.arraycopy(
+				this.source, 
+				startPos, 
+				middle, 
+				0, 
+				middleLength);
+		} else {
+			middle = CharOperation.NO_CHAR;
+		}
+		
+		char end[] = new char[this.source.length - (endPos - 1)];
+		System.arraycopy(
+			this.source, 
+			(endPos - 1) + 1, 
+			end, 
+			0, 
+			this.source.length - (endPos - 1) - 1);
+		
+		buffer.append(front);
+		if (this.scanner.currentPosition<this.index) {
+			buffer.append("\n===============================\nScanner current position here -->"); //$NON-NLS-1$
+		} else {
+			buffer.append("\n===============================\nParser index here -->"); //$NON-NLS-1$
+		}
+		buffer.append(middle);
+		if (this.scanner.currentPosition<this.index) {
+			buffer.append("<-- Parser index here\n===============================\n"); //$NON-NLS-1$
+		} else {
+			buffer.append("<-- Scanner current position here\n===============================\n"); //$NON-NLS-1$
+		}
+		//	+ "" //$NON-NLS-1$
+		buffer.append(end);
+
 		return buffer.toString();
 	}
 	/*
