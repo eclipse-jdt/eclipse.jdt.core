@@ -24,6 +24,8 @@ import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -65,7 +67,15 @@ class MethodBinding implements IMethodBinding {
 	 * @since 3.0
 	 */
 	public boolean isDefaultConstructor() {
-		if (this.binding.declaringClass.isBinaryBinding()) {
+		final ReferenceBinding declaringClassBinding = this.binding.declaringClass;
+		if (declaringClassBinding.isRawType()) {
+			RawTypeBinding rawTypeBinding = (RawTypeBinding) declaringClassBinding;
+			if (rawTypeBinding.type.isBinaryBinding()) {
+				return false;
+			}
+			return (this.binding.modifiers & CompilerModifiers.AccIsDefaultConstructor) != 0;
+		}
+		if (declaringClassBinding.isBinaryBinding()) {
 			return false;
 		}
 		return (this.binding.modifiers & CompilerModifiers.AccIsDefaultConstructor) != 0;

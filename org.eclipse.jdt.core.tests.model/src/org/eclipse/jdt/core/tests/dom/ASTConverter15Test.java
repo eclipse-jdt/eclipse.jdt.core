@@ -94,7 +94,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0132"));
+		suite.addTest(new ASTConverter15Test("test0133"));
 		return suite;
 	}
 	
@@ -3949,5 +3949,33 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertTrue("Not a simple type", type.isSimpleType());
     	checkSourceRange(type, "String", contents);
     	assertEquals("Wrong extra dimension", 1, singleVariableDeclaration.getExtraDimensions());
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84181
+    public void test0133() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"import java.util.Vector;\n" +
+    		"\n" +
+    		"public class X {\n" +
+    		"  void k() {\n" +
+    		"    Vector v2 = /*start*/new Vector()/*end*/;\n" +
+    		"    Vector v3 = new Vector();\n" +
+    		"\n" +
+    		"    v3.add(\"fff\");\n" +
+    		"    v2.add(v3);\n" +
+    		"   }\n" +
+    		"}";
+    	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a class instance creation unit", ASTNode.CLASS_INSTANCE_CREATION, node.getNodeType());
+    	ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) node;
+    	ITypeBinding typeBinding = classInstanceCreation.resolveTypeBinding();
+    	assertEquals("wrong qualified name", "java.util.Vector", typeBinding.getQualifiedName());
+    	assertTrue("Not a raw type", typeBinding.isRawType());
+    	assertFalse("From source", typeBinding.isFromSource());
     }
 }

@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -828,7 +829,12 @@ class TypeBinding implements ITypeBinding {
 	public boolean isFromSource() {
 		if (isClass() || isInterface() || isEnum()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
-			return !referenceBinding.isBinaryBinding();
+			if (referenceBinding.isRawType()) {
+				RawTypeBinding rawTypeBinding = (RawTypeBinding) referenceBinding;
+				return !rawTypeBinding.type.isBinaryBinding();
+			} else {
+				return !referenceBinding.isBinaryBinding();
+			}
 		}
 		return false;
 	}
