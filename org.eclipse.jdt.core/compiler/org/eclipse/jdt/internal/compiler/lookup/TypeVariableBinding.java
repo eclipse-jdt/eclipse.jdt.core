@@ -109,17 +109,17 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 */
 	public String toString() {
 		StringBuffer buffer = new StringBuffer(10);
-		buffer.append('<').append(this.sourceName).append('[').append(this.rank).append(']');
-		if (this.superclass != null) {
+		buffer.append('<').append(this.sourceName);//.append('[').append(this.rank).append(']');
+		if (this.superclass != null && this.firstBound == this.superclass) {
 		    buffer.append(" extends ").append(this.superclass.debugName()); //$NON-NLS-1$
 		}
 		if (this.superInterfaces != null && this.superInterfaces != NoSuperInterfaces) {
-		   if (this.superclass == null) {
+		   if (this.firstBound != this.superclass) {
 		        buffer.append(" extends "); //$NON-NLS-1$
 	        }
 		    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-		        if (i > 0 || this.superclass != null) {
-		            buffer.append(", "); //$NON-NLS-1$
+		        if (i > 0 || this.firstBound == this.superclass) {
+		            buffer.append(" & "); //$NON-NLS-1$
 		        }
 				buffer.append(this.superInterfaces[i].debugName());
 			}
