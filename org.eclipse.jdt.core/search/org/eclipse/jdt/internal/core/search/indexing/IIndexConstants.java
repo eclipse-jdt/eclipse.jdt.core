@@ -14,10 +14,8 @@ public interface IIndexConstants {
 
 	/* index encoding */
 	char[] REF= "ref".toCharArray(); //$NON-NLS-1$
-	char[] FIELD_REF= "fieldRef".toCharArray(); //$NON-NLS-1$
 	char[] METHOD_REF= "methodRef".toCharArray(); //$NON-NLS-1$
 	char[] CONSTRUCTOR_REF= "constructorRef".toCharArray(); //$NON-NLS-1$
-	char[] TYPE_REF= "typeRef".toCharArray(); //$NON-NLS-1$
 	char[] SUPER_REF = "superRef".toCharArray(); //$NON-NLS-1$
 	char[] TYPE_DECL = "typeDecl".toCharArray(); //$NON-NLS-1$
 	char[] METHOD_DECL= "methodDecl".toCharArray(); //$NON-NLS-1$

@@ -12,8 +12,8 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * AST node for a parameter within a method reference ({@link MethodRef MethodRef}).
- * These nodes only occur within doc comments ({@link Javadoc Javadoc}).
+ * AST node for a parameter within a method reference ({@link MethodRef}).
+ * These nodes only occur within doc comments ({@link Javadoc}).
  * <pre>
  * MethodRefParameter:
  * 		Type [ Identifier ]

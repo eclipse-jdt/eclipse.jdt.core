@@ -221,7 +221,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * The fragments cover everything following the tag name
 	 * (or everything if there is no tag name), and generally omit
 	 * embedded line breaks (and leading whitespace on new lines,
-	 * including any leading "&ast;"). {@link TagElement TagElement}
+	 * including any leading "&ast;"). {@link TagElement}
 	 * nodes are used to represent tag elements (e.g., "@link")
 	 * nested within this tag element. 
 	 * </p>
@@ -247,9 +247,9 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * <p>
 	 * Adding and removing nodes from this list affects this node
 	 * dynamically. The nodes in this list may be of various
-	 * types, including {@link TextElement TextElement}, 
-	 * {@link TagElement TagElement}, {@link Name Name}, 
-	 * {@link MemberRef MemberRef}, and {@link MethodRef MethodRef}.
+	 * types, including {@link TextElement}, 
+	 * {@link TagElement}, {@link Name}, 
+	 * {@link MemberRef}, and {@link MethodRef}.
 	 * Clients should assume that the list of types may grow in
 	 * the future, and write their code to deal with unexpected
 	 * nodes types. However, attempts to add a non-proscribed type
@@ -271,12 +271,12 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * "@see" are only meaningful as top-level tags.
 	 * <p>
 	 * This convenience methods checks to see whether the parent
-	 * of this node is of type {@link TagElement TagElement)}.
+	 * of this node is of type {@link TagElement)}.
 	 * </p>
 	 * 
 	 * @return <code>true</code> if this node is a nested tag element,
 	 * and false if this node is either parented by a doc comment node
-	 * ({@link Javadoc Javadoc}), or is unparented
+	 * ({@link Javadoc}), or is unparented
 	 */
 	public boolean isNested() {
 		return (getParent() instanceof TagElement);

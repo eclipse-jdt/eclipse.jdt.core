@@ -23,8 +23,8 @@ protected char[] declaringSimpleName;
 protected char[] typeQualification;
 protected char[] typeSimpleName;
 
-protected static char[][] REF_CATEGORIES = { FIELD_REF, REF };
-protected static char[][] REF_AND_DECL_CATEGORIES = { FIELD_REF, REF, FIELD_DECL };
+protected static char[][] REF_CATEGORIES = { REF };
+protected static char[][] REF_AND_DECL_CATEGORIES = { REF, FIELD_DECL };
 protected static char[][] DECL_CATEGORIES = { FIELD_DECL };
 
 public static char[] createIndexKey(char[] fieldName) {

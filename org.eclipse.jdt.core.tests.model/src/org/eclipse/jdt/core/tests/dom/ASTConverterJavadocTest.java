@@ -799,7 +799,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 */
-	protected void verifyComments(String sourceStr, char[] source, Comment[] unitComments) throws JavaModelException {
+	protected void verifyComments(String sourceStr, char[] source, Comment[] unitComments) {
 		// Get comments infos from test file
 		setSourceComment(source);
 		

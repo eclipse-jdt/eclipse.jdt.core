@@ -19,7 +19,7 @@ public final class HashtableOfLong {
 	public long[] keyTable;
 	public Object[] valueTable;
 
-	int elementSize; // number of elements in the table
+	public int elementSize; // number of elements in the table
 	int threshold;
 public HashtableOfLong() {
 	this(13);

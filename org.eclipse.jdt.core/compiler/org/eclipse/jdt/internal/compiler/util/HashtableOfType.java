@@ -18,7 +18,7 @@ public final class HashtableOfType {
 	public char[] keyTable[];
 	public ReferenceBinding valueTable[];
 
-	int elementSize; // number of elements in the table
+	public int elementSize; // number of elements in the table
 	int threshold;
 public HashtableOfType() {
 	this(3);

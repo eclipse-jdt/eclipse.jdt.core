@@ -44,8 +44,6 @@ public static char[] createIndexKey(
 
 	if (superTypeName == null)
 		superTypeName = OBJECT;
-	char[] simpleName = CharOperation.lastSegment(typeName, '.');
-	char[] enclosingTypeName = CharOperation.concatWith(enclosingTypeNames, '$');
 	char[] superSimpleName = CharOperation.lastSegment(superTypeName, '.');
 	char[] superQualification = null;
 	if (superSimpleName != superTypeName) {
@@ -68,8 +66,14 @@ public static char[] createIndexKey(
 		System.arraycopy(superSimpleName, 0, mangledQualification, start, prefixLength);
 		superQualification = mangledQualification;
 		superSimpleName = superTypeSourceName;
-	} 
+	}
 
+	char[] simpleName = CharOperation.lastSegment(typeName, '.');
+	char[] enclosingTypeName = CharOperation.concatWith(enclosingTypeNames, '$');
+	if (superQualification != null && CharOperation.equals(superQualification, packageName))
+		packageName = ONE_ZERO; // save some space
+
+	// superSimpleName / superQualification / simpleName / enclosingTypeName / packageName / superClassOrInterface classOrInterface modifiers
 	int superLength = superSimpleName == null ? 0 : superSimpleName.length;
 	int superQLength = superQualification == null ? 0 : superQualification.length;
 	int simpleLength = simpleName == null ? 0 : simpleName.length;
@@ -148,7 +152,12 @@ public void decodeIndexKey(char[] key) {
 	}
 
 	slash = CharOperation.indexOf(SEPARATOR, key, start = slash + 1);
-	this.pkgName = slash == start ? null : CharOperation.subarray(key, start, slash);
+	if (slash == start) {
+		this.pkgName = null;
+	} else {
+		char[] names = CharOperation.subarray(key, start, slash);
+		this.pkgName = CharOperation.equals(ONE_ZERO, names) ? this.superQualification : names;
+	}
 
 	this.superClassOrInterface = key[slash + 1];
 	this.classOrInterface = key[slash + 1];

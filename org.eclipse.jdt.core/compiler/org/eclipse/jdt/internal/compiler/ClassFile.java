@@ -2527,18 +2527,17 @@ public class ClassFile
 			}
 			attributeNumber++;
 		}
-		// Deprecated attribute
-		// Check that there is enough space to write the deprecated attribute
-		if (contentsOffset + 6 >= (contentsLength = contents.length)) {
-		    // TODO (olivier) why isn't space check inside the condition #isDeprecated ?
-			System.arraycopy(
-				contents,
-				0,
-				(contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
-		}
 		if (methodBinding.isDeprecated()) {
+			// Deprecated attribute
+			// Check that there is enough space to write the deprecated attribute
+			if (contentsOffset + 6 >= (contentsLength = contents.length)) {
+				System.arraycopy(
+					contents,
+					0,
+					(contents = new byte[contentsLength + INCREMENT_SIZE]),
+					0,
+					contentsLength);
+			}
 			int deprecatedAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.DeprecatedName);
 			contents[contentsOffset++] = (byte) (deprecatedAttributeNameIndex >> 8);
@@ -2551,18 +2550,17 @@ public class ClassFile
 
 			attributeNumber++;
 		}
-		// Synthetic attribute
-		// Check that there is enough space to write the deprecated attribute
-		if (contentsOffset + 6 >= (contentsLength = contents.length)) {
-		    // TODO (olivier) why isn't space check inside the condition #isSynthetic ?
-			System.arraycopy(
-				contents,
-				0,
-				(contents = new byte[contentsLength + INCREMENT_SIZE]),
-				0,
-				contentsLength);
-		}
 		if (this.targetJDK < ClassFileConstants.JDK1_5 && methodBinding.isSynthetic()) {
+			// Synthetic attribute
+			// Check that there is enough space to write the deprecated attribute
+			if (contentsOffset + 6 >= (contentsLength = contents.length)) {
+				System.arraycopy(
+					contents,
+					0,
+					(contents = new byte[contentsLength + INCREMENT_SIZE]),
+					0,
+					contentsLength);
+			}
 			int syntheticAttributeNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
 			contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);

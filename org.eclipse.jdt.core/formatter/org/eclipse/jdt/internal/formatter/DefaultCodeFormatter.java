@@ -40,20 +40,20 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		this(preferences, null);
 	}
 
-	public DefaultCodeFormatter(DefaultCodeFormatterOptions preferences, Map options) {
+	public DefaultCodeFormatter(DefaultCodeFormatterOptions defaultCodeFormatterOptions, Map options) {
 		if (options == null) {
 			options = JavaCore.getOptions();
 		}
 		this.options = options;
 		if (options != null) {
 			this.preferences = new DefaultCodeFormatterOptions(options);
-			if (preferences != null) {
-				this.preferences.set(preferences.getMap());
+			if (defaultCodeFormatterOptions != null) {
+				this.preferences.set(defaultCodeFormatterOptions.getMap());
 			}
 		} else {
 			this.preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
-			if (preferences != null) {
-				this.preferences.set(preferences.getMap());
+			if (defaultCodeFormatterOptions != null) {
+				this.preferences.set(defaultCodeFormatterOptions.getMap());
 			}
 		}
 	}

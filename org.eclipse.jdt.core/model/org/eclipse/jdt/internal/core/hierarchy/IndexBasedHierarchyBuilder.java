@@ -14,11 +14,13 @@ import java.util.*;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -161,6 +163,7 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 				unitsToLookInside = workingCopies;
 			}
 		}
+
 		SearchableEnvironment searchableEnvironment = (SearchableEnvironment)project.newSearchableNameEnvironment(unitsToLookInside);
 		this.nameLookup = searchableEnvironment.nameLookup;
 		this.hierarchyResolver = 
@@ -329,6 +332,29 @@ protected ICompilationUnit createCompilationUnitFromPath(Openable handle,String 
 	this.cuToHandle.put(unit, handle);
 	return unit;
 }
+protected IBinaryType createInfoFromClassFile(Openable classFile, String osPath) {
+	String documentPath = classFile.getPath().toString();
+	IBinaryType binaryType = (IBinaryType)this.binariesFromIndexMatches.get(documentPath);
+	if (binaryType != null) {
+		this.infoToHandle.put(binaryType, classFile);
+		return binaryType;
+	} else {
+		return super.createInfoFromClassFile(classFile, osPath);
+	}
+}
+protected IBinaryType createInfoFromClassFileInJar(Openable classFile) {
+	String filePath = (((ClassFile)classFile).getType().getFullyQualifiedName('$')).replace('.', '/') + SuffixConstants.SUFFIX_STRING_class;
+	IPackageFragmentRoot root = classFile.getPackageFragmentRoot();
+	String rootPath = root.isExternal() ? root.getPath().toOSString() : root.getPath().toString();
+	String documentPath = rootPath + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + filePath;
+	IBinaryType binaryType = (IBinaryType)this.binariesFromIndexMatches.get(documentPath);
+	if (binaryType != null) {
+		this.infoToHandle.put(binaryType, classFile);
+		return binaryType;
+	} else {
+		return super.createInfoFromClassFileInJar(classFile);
+	}
+}
 /**
  * Returns all of the possible subtypes of this type hierarchy.
  * Returns null if they could not be determine.
@@ -405,11 +431,16 @@ public static void searchAllPossibleSubTypes(
 					char[] enclosingTypeName = record.enclosingTypeName;
 					if (enclosingTypeName == IIndexConstants.ONE_ZERO) { // local or anonymous type
 						int lastSlash = documentPath.lastIndexOf('/');
-						if (lastSlash == -1) return true;
 						int lastDollar = documentPath.lastIndexOf('$');
-						if (lastDollar == -1) return true;
-						enclosingTypeName = documentPath.substring(lastSlash+1, lastDollar).toCharArray();
-						typeName = documentPath.substring(lastDollar+1, suffix).toCharArray();
+						if (lastDollar == -1) {
+							// malformed local or anonymous type: it doesn't contain a $ in its name
+							// treat it as a top level type
+							enclosingTypeName = null;
+							typeName = documentPath.substring(lastSlash+1, suffix).toCharArray();
+						} else {
+							enclosingTypeName = documentPath.substring(lastSlash+1, lastDollar).toCharArray();
+							typeName = documentPath.substring(lastDollar+1, suffix).toCharArray();
+						}
 					}
 					binaryType = new HierarchyBinaryType(record.modifiers, record.pkgName, typeName, enclosingTypeName, record.classOrInterface);
 					binariesFromIndexMatches.put(documentPath, binaryType);

@@ -763,8 +763,7 @@ public void test021() {
 
 		String computedReferences = findReferences(OUTPUT_DIR + "/p1/Z.class");
 		boolean check = 
-			computedReferences.indexOf("typeRef/AbstractB") >= 0
-			&& computedReferences.indexOf("ref/p1") >= 0
+			computedReferences.indexOf("ref/p1") >= 0
 			&& computedReferences.indexOf("ref/AbstractB") >= 0
 			&& computedReferences.indexOf("methodRef/init/0") >= 0;
 		if (!check){

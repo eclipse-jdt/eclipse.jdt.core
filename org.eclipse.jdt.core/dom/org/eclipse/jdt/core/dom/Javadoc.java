@@ -172,7 +172,7 @@ public class Javadoc extends Comment {
 	 * The first tag element of a typical doc comment represents
 	 * all the material before the first explicit doc tag; this
 	 * first tag element has a <code>null</code> tag name and
-	 * generally contains 1 or more {@link TextElement TextElement}s,
+	 * generally contains 1 or more {@link TextElement}s,
 	 * and possibly interspersed with tag elements for nested tags
 	 * like "{@link String String}".
 	 * Subsequent tag elements represent successive top-level doc

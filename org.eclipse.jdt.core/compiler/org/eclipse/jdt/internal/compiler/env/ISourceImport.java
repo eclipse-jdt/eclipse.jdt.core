@@ -26,7 +26,8 @@ int getDeclarationSourceStart();
 /**
  * Answer an int whose bits are set according the access constants
  * defined by the VM spec.
- */
+ * Since Java 1.5, static imports can be defined.
+ */ 
 int getModifiers();
 
 /**

@@ -100,6 +100,9 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 	}
 	for (int i = 0, methodCount = methods.length; i < methodCount; i++) {
 		IBinaryMethod methodInfo = methods[i];
+		// TODO (jerome) filter out synthetic members
+		//                        indexer should not index them as well
+		// if ((methodInfo.getModifiers() & IConstants.AccSynthetic) != 0) continue; // skip synthetic
 		String[] pNames= Signature.getParameterTypes(new String(methodInfo.getMethodDescriptor()));
 		char[][] paramNames= new char[pNames.length][];
 		for (int j= 0; j < pNames.length; j++) {

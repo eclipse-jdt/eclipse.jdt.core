@@ -13,9 +13,9 @@ package org.eclipse.jdt.core.dom;
 /**
  * Abstract base class for all AST nodes that represent comments.
  * There are exactly three kinds of comment: 
- * line comments ({@link LineComment LineComment}),
- * block comments ({@link BlockComment BlockComment}), and
- * doc comments ({@link Javadoc Javadoc}).
+ * line comments ({@link LineComment}),
+ * block comments ({@link BlockComment}), and
+ * doc comments ({@link Javadoc}).
  * <p>
  * <pre>
  * Comment:
@@ -86,7 +86,7 @@ public abstract class Comment extends ASTNode {
 	 * <p>
 	 * Typically, the comment nodes created while parsing a compilation
 	 * unit are not considered descendents of the normal AST
-	 * root, namely an {@link CompilationUnit CompilationUnit}. Instead, these
+	 * root, namely an {@link CompilationUnit}. Instead, these
 	 * comment nodes exist outside the normal AST and each is 
 	 * a root in its own right. This optional property provides
 	 * a well-known way to navigate from the comment to the
