@@ -87,7 +87,8 @@ public void checkParse(
 		}
 	}
 	String computedSyntaxErrorDiagnosis = buffer.toString();
-	if(!expectedSyntaxErrorDiagnosis.equals(computedSyntaxErrorDiagnosis)) {
+	if(!Util.convertToIndependantLineDelimiter(expectedSyntaxErrorDiagnosis)
+			.equals(Util.convertToIndependantLineDelimiter(computedSyntaxErrorDiagnosis))) {
  		System.out.println(Util.displayString(computedSyntaxErrorDiagnosis));
 	}
 	assertEquals(
