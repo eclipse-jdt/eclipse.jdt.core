@@ -18,8 +18,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
-import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathSourceDirectory extends ClasspathLocation {

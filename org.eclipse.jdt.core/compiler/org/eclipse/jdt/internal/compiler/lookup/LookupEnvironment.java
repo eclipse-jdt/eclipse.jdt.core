@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
-import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstants {
 	public CompilerOptions options;

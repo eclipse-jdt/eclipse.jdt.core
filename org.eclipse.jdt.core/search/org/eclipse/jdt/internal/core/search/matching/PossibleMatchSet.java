@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
-import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 /**
  * A set of PossibleMatches that is sorted by package fragment roots.

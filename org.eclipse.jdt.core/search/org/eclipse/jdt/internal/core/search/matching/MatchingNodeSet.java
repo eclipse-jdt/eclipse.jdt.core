@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfLong;
-import org.eclipse.jdt.internal.core.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.util.SimpleSet;
 import org.eclipse.jdt.internal.core.util.Util;
 

@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.util.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfIntValues;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class DiskIndex {
 
