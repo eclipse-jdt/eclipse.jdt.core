@@ -30,7 +30,7 @@ public class Wildcard extends SingleTypeReference {
 		this.kind = kind;
 	}
 	
-	private TypeBinding internalResolveType(Scope scope) {
+	private TypeBinding internalResolveType(Scope scope, ReferenceBinding genericType, int rank) {
 	    TypeBinding boundType = null;
 	    if (this.bound != null) {
 			boundType = scope.kind == Scope.CLASS_SCOPE
@@ -41,7 +41,13 @@ public class Wildcard extends SingleTypeReference {
 				return null;
 			}	    
 	    } else { // unbound wildcard
-	        boundType = scope.getJavaLangObject();
+	        TypeVariableBinding[] typeVariables = genericType.typeVariables();
+	        if (rank < typeVariables.length) {
+	            boundType = typeVariables[rank]; // record the type variable in bound
+	        } else {
+	            // error case, use Object, error reported when constructing parameterized type binding
+		        boundType = scope.getJavaLangObject();
+	        }
 	    }
 	    return this.resolvedType = scope.environment().createWildcard(boundType, this.kind);
 	}
@@ -62,12 +68,12 @@ public class Wildcard extends SingleTypeReference {
 		return output;
 	}	
 	
-	public TypeBinding resolveType(BlockScope blockScope) {
-	    return internalResolveType(blockScope);
+	public TypeBinding resolveTypeArgument(BlockScope blockScope, ReferenceBinding genericType, int rank) {
+	    return internalResolveType(blockScope, genericType, rank);
 	}
 	
-	public TypeBinding resolveType(ClassScope classScope) {
-	    return internalResolveType(classScope);
+	public TypeBinding resolveTypeArgument(ClassScope classScope, ReferenceBinding genericType, int rank) {
+	    return internalResolveType(classScope, genericType, rank);
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

@@ -160,6 +160,15 @@ public TypeBinding resolveType(ClassScope classScope) {
 	}
 	return this.resolvedType;
 }
+
+public TypeBinding resolveTypeArgument(BlockScope blockScope, ReferenceBinding genericType, int rank) {
+    return resolveType(blockScope);
+}
+
+public TypeBinding resolveTypeArgument(ClassScope classScope, ReferenceBinding genericType, int rank) {
+    return resolveType(classScope);
+}
+	
 protected void reportInvalidType(Scope scope) {
 	scope.problemReporter().invalidType(this, this.resolvedType);
 }

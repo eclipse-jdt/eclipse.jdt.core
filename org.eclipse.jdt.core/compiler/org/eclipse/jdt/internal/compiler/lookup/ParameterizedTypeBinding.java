@@ -309,7 +309,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
                 }
                 return true;
             } else { // wildcard
-                return this.isEquivalentTo(((WildcardBinding) otherType).bound);
+                return ((WildcardBinding) otherType).boundCheck(this);
+//                return this.isEquivalentTo(((WildcardBinding) otherType).bound);
             }
         }
         return false;

@@ -89,9 +89,10 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			TypeBinding[] argTypes = new TypeBinding[argLength];
 			boolean argHasError = false;
 			for (int j = 0; j < argLength; j++) {
+			    TypeReference arg = args[j];
 			    TypeBinding argType = isClassScope
-					? args[j].resolveType((ClassScope) scope)
-					: args[j].resolveType((BlockScope) scope);
+					? arg.resolveTypeArgument((ClassScope) scope, currentType, j)
+					: arg.resolveTypeArgument((BlockScope) scope, currentType, j);
 				if (argType == null) {
 					argHasError = true;
 				} else {

@@ -445,9 +445,11 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 		return true;
 	if (!(otherType instanceof ReferenceBinding))
 		return false;
-
 	ReferenceBinding otherReferenceType = (ReferenceBinding) otherType;
 	if (this.isEquivalentTo(otherReferenceType)) return true;
+	if (otherReferenceType.isWildcard()) {
+	    return ((WildcardBinding) otherReferenceType).boundCheck(this);
+	}
 	if (otherReferenceType.isInterface())
 		return implementsInterface(otherReferenceType, true);
 	if (isInterface())  // Explicit conversion from an interface to a class is not allowed

@@ -72,14 +72,15 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		int argLength = this.typeArguments.length;
 		TypeBinding[] argTypes = new TypeBinding[argLength];
 		boolean argHasError = false;
-		for (int j = 0; j < argLength; j++) {
+		for (int i = 0; i < argLength; i++) {
+		    TypeReference typeArgument = this.typeArguments[i];
 		    TypeBinding argType = isClassScope
-				? this.typeArguments[j].resolveType((ClassScope) scope)
-				: this.typeArguments[j].resolveType((BlockScope) scope);
+				? typeArgument.resolveTypeArgument((ClassScope) scope, currentType, i)
+				: typeArgument.resolveTypeArgument((BlockScope) scope, currentType, i);
 		     if (argType == null) {
 		         argHasError = true;
 		     } else {
-			    argTypes[j] = argType;
+			    argTypes[i] = argType;
 		     }
 		}
 		if (argHasError) return null;
@@ -91,11 +92,11 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			return null;
 		}			
 		// check argument type compatibility
-		for (int j = 0; j < argLength; j++) {
-		    TypeBinding argType = argTypes[j];
-			if (!typeVariables[j].boundCheck(argType)) {
+		for (int i = 0; i < argLength; i++) {
+		    TypeBinding argType = argTypes[i];
+			if (!typeVariables[i].boundCheck(argType)) {
 		        argHasError = true;
-				scope.problemReporter().typeMismatchError(argType, typeVariables[j], currentType, this.typeArguments[j]);
+				scope.problemReporter().typeMismatchError(argType, typeVariables[i], currentType, this.typeArguments[i]);
 		    }
 		}
 		if (argHasError) return null;
