@@ -69,18 +69,7 @@ public class SearchableEnvironment
 	 * Creates a SearchableEnvironment on the given project
 	 */
 	public SearchableEnvironment(JavaProject project, WorkingCopyOwner owner) throws JavaModelException {
-		this.project = project;
-		this.checkAccessRestrictions = !JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true));
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		this.workingCopies = owner == null ? null : manager.getWorkingCopies(owner, true/*add primary WCs*/);
-		this.nameLookup = project.newNameLookup(this.workingCopies);
-
-		// Create search scope with visible entry on the project's classpath
-		if(this.checkAccessRestrictions) {
-			this.searchScope = SearchBasicEngine.createJavaSearchScope(new IJavaElement[] {project});
-		} else {
-			this.searchScope = SearchBasicEngine.createJavaSearchScope(this.nameLookup.packageFragmentRoots);
-		}
+		this(project, owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary WCs*/));
 	}
 
 	/**
