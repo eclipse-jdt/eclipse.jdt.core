@@ -4,5 +4,6 @@
     <classpathentry kind="var" path="JCL_LIB" sourcepath="JCL_SRC" rootpath="JCL_SRCROOT"/>
 	<classpathentry kind="lib" path="lib/test81556.jar" sourcepath="/JavaSearchBugs/lib/test81556.jar" rootpath=""/>
 	<classpathentry kind="lib" path="lib/JavaSearch15.jar" sourcepath="/JavaSearchBugs/lib/JavaSearch15.jar" rootpath=""/>
+	<classpathentry sourcepath="lib" kind="lib" path="lib"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>

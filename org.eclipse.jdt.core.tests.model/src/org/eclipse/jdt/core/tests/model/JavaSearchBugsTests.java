@@ -51,7 +51,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug88300";
-//		TESTS_NAMES = new String[] { "testBug86596" };
+//		TESTS_NAMES = new String[] { "testBug89848" };
 //		TESTS_NUMBERS = new int[] { 83693 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -2019,6 +2019,20 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		search(type.getMethods()[2], REFERENCES);
 		assertSearchResults(
 			"src/b88300/not/fixed/ConditionalFlowInfo.java void b88300.not.fixed.ConditionalFlowInfo.markAsDefinitelyNull(LocalVariableBinding) [markAsDefinitelyNull(local)] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Test fix for bug 89848: [search] does not find method references in anonymous class of imported jarred plugin
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=89848"
+	 */
+	public void testBug89848() throws CoreException {
+		IType classFile = getClassFile("JavaSearchBugs", "lib", "b89848", "X.class").getType();
+		IMethod method = classFile.getMethod("foo", new String[0]);
+		search(method, ALL_OCCURRENCES);
+		assertSearchResults(
+			"lib/b89848/Test.class void b89848.Test.foo() EXACT_MATCH\n" + 
+			"lib/b89848/X.class void b89848.X.foo() EXACT_MATCH"
 		);
 	}
 }
