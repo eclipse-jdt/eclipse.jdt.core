@@ -219,6 +219,12 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * @see #getDefaultOptions
 	 * @since 2.1
 	 */
+	public static final String CORE_JAVA_BUILD_DUPLICATE_RESOURCE = PLUGIN_ID + ".builder.duplicateResourceTask"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions
+	 * @since 2.1
+	 */
 	public static final String CORE_INCOMPLETE_CLASSPATH = PLUGIN_ID + ".incompleteClasspath";	
 	/**
 	 * Possible  configurable option ID.
@@ -1526,6 +1532,9 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 		preferences.setDefault(CORE_JAVA_BUILD_INVALID_CLASSPATH, ABORT); 
 		optionNames.add(CORE_JAVA_BUILD_INVALID_CLASSPATH);
+	
+		preferences.setDefault(CORE_JAVA_BUILD_DUPLICATE_RESOURCE, WARNING); 
+		optionNames.add(CORE_JAVA_BUILD_DUPLICATE_RESOURCE);
 		
 		// JavaCore settings
 		preferences.setDefault(CORE_JAVA_BUILD_ORDER, IGNORE); 

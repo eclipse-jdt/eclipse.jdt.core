@@ -153,7 +153,7 @@ protected void cleanUp() {
 * if they are affected by the changes.
 */
 protected void compile(String[] filenames, String[] initialTypeNames) {
-	String encoding = this.javaBuilder.javaProject.getOption(JavaCore.CORE_ENCODING, true);
+	String encoding = javaBuilder.javaProject.getOption(JavaCore.CORE_ENCODING, true);
 	int toDo = filenames.length;
 	if (this.compiledAllAtOnce = toDo <= MAX_AT_ONCE) {
 		// do them all now
@@ -229,9 +229,13 @@ void compile(SourceFile[] units, String[] initialTypeNames, String[] additionalF
 protected void createErrorFor(IResource resource, String message) {
 	try {
 		IMarker marker = resource.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
+		int severity = IMarker.SEVERITY_ERROR;
+		if (message.equals(Util.bind("build.duplicateResource")))
+			if (JavaCore.WARNING.equals(javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE, true)))
+				severity = IMarker.SEVERITY_WARNING;
 		marker.setAttributes(
 			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IMarker.CHAR_START, IMarker.CHAR_END},
-			new Object[] {message, new Integer(IMarker.SEVERITY_ERROR), new Integer(0), new Integer(1)});
+			new Object[] {message, new Integer(severity), new Integer(0), new Integer(1)});
 	} catch (CoreException e) {
 		throw internalException(e);
 	}
