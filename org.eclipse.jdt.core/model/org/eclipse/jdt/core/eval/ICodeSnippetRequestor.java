@@ -12,8 +12,6 @@ package org.eclipse.jdt.core.eval;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jdt.internal.eval.EvaluationConstants;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IType;
 
 /**
  * A code snippet requestor implements a callback interface for installing 
