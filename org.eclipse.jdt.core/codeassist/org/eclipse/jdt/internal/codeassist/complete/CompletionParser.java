@@ -2009,10 +2009,6 @@ public NameReference createSingleAssistNameReference(char[] name, long position)
 				if(isInsideBreakable()) {
 					keywords[count++]= Keywords.BREAK;
 				}
-//				if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) == SWITCH) {
-//					keywords[count++]= Keywords.CASE;
-//					keywords[count++]= Keywords.DEFAULT;
-//				}
 			} else {
 				keywords[count++]= Keywords.TRUE;
 				keywords[count++]= Keywords.FALSE;
