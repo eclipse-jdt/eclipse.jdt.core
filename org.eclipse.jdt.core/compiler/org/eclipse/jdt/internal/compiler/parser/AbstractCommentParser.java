@@ -660,7 +660,12 @@ public abstract class AbstractCommentParser {
 		boolean valid = true, empty = true;
 		nextToken: while (true) {
 			this.currentTokenType = -1;
-			switch (token = readToken()) {
+			try {
+				token = readToken();
+			} catch (InvalidInputException e) {
+				valid = false;
+			}
+			switch (token) {
 				case TerminalTokens.TokenNameIdentifier :
 					if (valid) { 
 						// store param name id
@@ -716,7 +721,12 @@ public abstract class AbstractCommentParser {
 			// Get type parameter name
 			nextToken: while (true) {
 				this.currentTokenType = -1;
-				switch (token = readToken()) {
+				try {
+					token = readToken();
+				} catch (InvalidInputException e) {
+					valid = false;
+				}
+				switch (token) {
 					case TerminalTokens.TokenNameWHITESPACE:
 						if (valid && this.scanner.currentPosition <= (this.lineEnd+1)) break;
 						// if not valid fall through next case to report error
@@ -746,7 +756,12 @@ public abstract class AbstractCommentParser {
 			boolean spaces = false;
 			nextToken: while (true) {
 				this.currentTokenType = -1;
-				switch (token = readToken()) {
+				try {
+					token = readToken();
+				} catch (InvalidInputException e) {
+					valid = false;
+				}
+				switch (token) {
 					case TerminalTokens.TokenNameWHITESPACE:
 						if (this.scanner.currentPosition > (this.lineEnd+1)) {
 							// do not accept type parameter declaration on several lines
@@ -783,7 +798,12 @@ public abstract class AbstractCommentParser {
 		if (valid) {
 			this.currentTokenType = -1;
 			int restart = this.scanner.currentPosition;
-			if (readToken() == TerminalTokens.TokenNameWHITESPACE) {
+			try {
+				token = readToken();
+			} catch (InvalidInputException e) {
+				valid = false;
+			}
+			if (token == TerminalTokens.TokenNameWHITESPACE) {
 				this.scanner.currentPosition = restart;
 				this.index = restart;
 				this.scanner.tokenizeWhiteSpace = tokenWhiteSpace;

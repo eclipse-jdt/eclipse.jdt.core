@@ -35,7 +35,7 @@ public class JavadocTestMixed extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX = "testBug77602";
-//		TESTS_NAMES = new String[] { "testBug78091" };
+//		TESTS_NAMES = new String[] { "testBug80910" };
 //		TESTS_NUMBERS = new int[] { 31, 32, 33 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
@@ -4535,6 +4535,36 @@ public class JavadocTestMixed extends JavadocTest {
 				"	                                ^^^\n" + 
 				"Javadoc: Missing tag for parameter obj\n" + 
 				"----------\n"
+		);
+	}
+
+	/**
+	 * Test fix for bug 80910: [javadoc] Invalid missing reference warning on @see or @link tags
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80910">80910</a>
+	 */
+	public void testBug80910() {
+		reportMissingJavadocComments = CompilerOptions.IGNORE;
+		reportMissingJavadocTags = CompilerOptions.IGNORE;
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+				"	int field;\n" + 
+				"\n" + 
+				"	/**\n" + 
+				"	 * @param key\'s toto\n" + 
+				"	 * @see #field\n" + 
+				"	 */\n" + 
+				"	public void foo(int x) {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 5)\n" + 
+			"	* @param key\'s toto\n" + 
+			"	         ^^^^^\n" + 
+			"Javadoc: Invalid param tag name\n" + 
+			"----------\n"
 		);
 	}
 }
