@@ -25,7 +25,7 @@ public class Initializer extends FieldDeclaration {
 		this.block = block;
 		this.modifiers = modifiers;
 
-		declarationSourceStart = sourceStart = block.sourceStart;
+		declarationSourceStart = sourceStart = bodyStart = block.sourceStart;
 	}
 
 	public FlowInfo analyseCode(
