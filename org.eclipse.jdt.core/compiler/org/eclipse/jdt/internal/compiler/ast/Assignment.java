@@ -14,7 +14,8 @@ public class Assignment extends Expression {
 
 	public Reference lhs;
 	public Expression expression;
-
+	public TypeBinding lhsType;
+	
 	public Assignment(Expression lhs, Expression expression, int sourceEnd) {
 		//lhs is always a reference by construction ,
 		//but is build as an expression ==> the checkcast cannot fail
@@ -59,23 +60,23 @@ public class Assignment extends Expression {
 
 		// due to syntax lhs may be only a NameReference, a FieldReference or an ArrayReference
 		constant = NotAConstant;
-		TypeBinding lhsTb = lhs.resolveType(scope);
+		this.lhsType = lhs.resolveType(scope);
 		TypeBinding expressionTb = expression.resolveType(scope);
-		if (lhsTb == null || expressionTb == null)
+		if (this.lhsType == null || expressionTb == null)
 			return null;
 
 		// Compile-time conversion of base-types : implicit narrowing integer into byte/short/character
 		// may require to widen the rhs expression at runtime
-		if ((expression.isConstantValueOfTypeAssignableToType(expressionTb, lhsTb)
-			|| (lhsTb.isBaseType() && BaseTypeBinding.isWidening(lhsTb.id, expressionTb.id)))
-			|| (scope.areTypesCompatible(expressionTb, lhsTb))) {
-			expression.implicitWidening(lhsTb, expressionTb);
-			return lhsTb;
+		if ((expression.isConstantValueOfTypeAssignableToType(expressionTb, this.lhsType)
+			|| (this.lhsType.isBaseType() && BaseTypeBinding.isWidening(this.lhsType.id, expressionTb.id)))
+			|| (scope.areTypesCompatible(expressionTb, this.lhsType))) {
+			expression.implicitWidening(this.lhsType, expressionTb);
+			return this.lhsType;
 		}
 		scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
 			expression,
 			expressionTb,
-			lhsTb);
+			this.lhsType);
 		return null;
 	}
 
