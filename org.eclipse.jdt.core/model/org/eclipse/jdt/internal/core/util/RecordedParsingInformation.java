@@ -31,10 +31,9 @@ public class RecordedParsingInformation {
 	}
 	
 	void updateRecordedParsingInformation(CompilationResult compilationResult) {
-		IProblem[] problems = compilationResult.problems;
-		if (problems != null) {
-			this.problems = problems;
-			this.problemsCount = problems.length;
+		if (compilationResult.problems != null) {
+			this.problems = compilationResult.problems;
+			this.problemsCount = this.problems.length;
 		}
 	}
 }
