@@ -1220,7 +1220,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			public int compare(Object a, Object b) {
 				JavaElement elementA = (JavaElement)a;
 				JavaElement elementB = (JavaElement)b;
-				return elementA.toStringWithAncestors().compareTo(elementB.toStringWithAncestors());
+				char[] tempJCLPath = "<externalJCLPath>".toCharArray();
+	    		String idA = new String(CharOperation.replace(
+	    			elementA.toStringWithAncestors().toCharArray(), 
+	    			getExternalJCLPathString().toCharArray(), 
+	    			tempJCLPath));
+	    		String idB = new String(CharOperation.replace(
+	    			elementB.toStringWithAncestors().toCharArray(), 
+	    			getExternalJCLPathString().toCharArray(), 
+	    			tempJCLPath));
+				return idA.compareTo(idB);
 			}
 		};
 		Util.sort(elements, comparer);
