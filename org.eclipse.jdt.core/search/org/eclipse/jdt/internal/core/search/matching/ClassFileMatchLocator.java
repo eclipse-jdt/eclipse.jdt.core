@@ -33,8 +33,6 @@ public static char[] convertClassFileFormat(char[] name) {
 	return name;
 }
 
-public ClassFileMatchLocator() {
-}
 boolean checkDeclaringType(IBinaryType enclosingBinaryType, char[] simpleName, char[] qualification, boolean isCaseSensitive) {
 	if (simpleName == null && qualification == null) return true;
 	if (enclosingBinaryType == null) return true;
