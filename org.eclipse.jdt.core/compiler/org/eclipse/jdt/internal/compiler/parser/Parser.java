@@ -7414,6 +7414,7 @@ protected void reportSyntaxError(int act, int currentKind, int topOfStackState) 
 			problemReporter().parseError(
 				this.scanner.startPosition, 
 				this.scanner.currentPosition - 1, 
+				currentKind,
 				tokenSource, 
 				tokenName, 
 				expectings); 
@@ -7460,6 +7461,7 @@ protected void reportSyntaxError(int act, int currentKind, int topOfStackState) 
 						problemReporter().parseError(
 							this.scanner.startPosition, 
 							this.scanner.currentPosition - 1, 
+							currentKind,
 							tokenSource, 
 							tokenName, 
 							expectings); 
@@ -7475,6 +7477,7 @@ protected void reportSyntaxError(int act, int currentKind, int topOfStackState) 
 			problemReporter().parseError(
 				this.scanner.startPosition, 
 				this.scanner.currentPosition - 1, 
+				currentKind,
 				tokenSource, 
 				tokenName, 
 				expectings); 

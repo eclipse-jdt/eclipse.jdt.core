@@ -49,7 +49,7 @@ public class AssertionTest extends AbstractRegressionTest {
 			"1. ERROR in assert.java (at line 1)\n" + 
 			"	public class assert {}\n" + 
 			"	             ^^^^^^\n" + 
-			"Syntax error on token \"assert\", \"Identifier\" expected\n" + 
+			"Syntax error on keyword \"assert\", \"Identifier\" expected\n" + 
 			"----------\n");
 	}
 	

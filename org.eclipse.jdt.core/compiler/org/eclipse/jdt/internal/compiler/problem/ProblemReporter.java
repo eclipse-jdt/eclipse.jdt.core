@@ -18,7 +18,6 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -2468,12 +2467,13 @@ private String parametersAsShortString(MethodBinding method) {
 public void parseError(
 	int startPosition, 
 	int endPosition, 
+	int currentToken,
 	char[] currentTokenSource, 
 	String errorTokenName, 
 	String[] possibleTokens) {
 		
 	if (possibleTokens.length == 0) { //no suggestion available
-		if (isKeyword(currentTokenSource)) {
+		if (isKeyword(currentToken)) {
 			String[] arguments = new String[] {new String(currentTokenSource)};
 			this.handle(
 				IProblem.ParsingErrorOnKeywordNoSuggestion,
@@ -2506,7 +2506,7 @@ public void parseError(
 		list.append('"');
 	}
 
-	if (isKeyword(currentTokenSource)) {
+	if (isKeyword(currentToken)) {
 		String[] arguments = new String[] {new String(currentTokenSource), list.toString()};
 		this.handle(
 			IProblem.ParsingErrorOnKeyword,
@@ -3248,96 +3248,61 @@ public void noMoreAvailableSpaceInConstantPool(TypeDeclaration typeDeclaration) 
 		typeDeclaration.sourceEnd);
 }
 
-private boolean isKeyword(char[] tokenSource) {
-	/*
-	 * This code is heavily grammar dependant
-	 */
-
-	if (tokenSource == null) {
-		return false;
-	}
-	try {
-		Scanner scanner = new Scanner();
-		scanner.setSource(tokenSource);
-		int token = scanner.getNextToken();
-		char[] currentKeyword;
-		try {
-			currentKeyword = scanner.getCurrentIdentifierSource();
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return false;
-		}
-		int nextToken= scanner.getNextToken();
-		if (nextToken == TerminalTokens.TokenNameEOF
-			&& scanner.startPosition == scanner.source.length) { // to handle case where we had an ArrayIndexOutOfBoundsException 
-															     // while reading the last token
-			switch(token) {
-				case Scanner.TokenNameERROR:
-					if (CharOperation.equals("goto".toCharArray(), currentKeyword) ||CharOperation.equals("const".toCharArray(), currentKeyword)) { //$NON-NLS-1$ //$NON-NLS-2$
-						return true;
-					} else {
-						return false;
-					}
-				case Scanner.TokenNameabstract:
-				case Scanner.TokenNameassert:
-				case Scanner.TokenNamebyte:
-				case Scanner.TokenNamebreak:
-				case Scanner.TokenNameboolean:
-				case Scanner.TokenNamecase:
-				case Scanner.TokenNamechar:
-				case Scanner.TokenNamecatch:
-				case Scanner.TokenNameclass:
-				case Scanner.TokenNamecontinue:
-				case Scanner.TokenNamedo:
-				case Scanner.TokenNamedouble:
-				case Scanner.TokenNamedefault:
-				case Scanner.TokenNameelse:
-				case Scanner.TokenNameextends:
-				case Scanner.TokenNamefor:
-				case Scanner.TokenNamefinal:
-				case Scanner.TokenNamefloat:
-				case Scanner.TokenNamefalse:
-				case Scanner.TokenNamefinally:
-				case Scanner.TokenNameif:
-				case Scanner.TokenNameint:
-				case Scanner.TokenNameimport:
-				case Scanner.TokenNameinterface:
-				case Scanner.TokenNameimplements:
-				case Scanner.TokenNameinstanceof:
-				case Scanner.TokenNamelong:
-				case Scanner.TokenNamenew:
-				case Scanner.TokenNamenull:
-				case Scanner.TokenNamenative:
-				case Scanner.TokenNamepublic:
-				case Scanner.TokenNamepackage:
-				case Scanner.TokenNameprivate:
-				case Scanner.TokenNameprotected:
-				case Scanner.TokenNamereturn:
-				case Scanner.TokenNameshort:
-				case Scanner.TokenNamesuper:
-				case Scanner.TokenNamestatic:
-				case Scanner.TokenNameswitch:
-				case Scanner.TokenNamestrictfp:
-				case Scanner.TokenNamesynchronized:
-				case Scanner.TokenNametry:
-				case Scanner.TokenNamethis:
-				case Scanner.TokenNametrue:
-				case Scanner.TokenNamethrow:
-				case Scanner.TokenNamethrows:
-				case Scanner.TokenNametransient:
-				case Scanner.TokenNamevoid:
-				case Scanner.TokenNamevolatile:
-				case Scanner.TokenNamewhile:
-					return true;
-				default: 
-					return false;
-			}
-		} else {
-			return false;
+private boolean isKeyword(int token) {
+		switch(token) {
+			case Scanner.TokenNameabstract:
+			case Scanner.TokenNameassert:
+			case Scanner.TokenNamebyte:
+			case Scanner.TokenNamebreak:
+			case Scanner.TokenNameboolean:
+			case Scanner.TokenNamecase:
+			case Scanner.TokenNamechar:
+			case Scanner.TokenNamecatch:
+			case Scanner.TokenNameclass:
+			case Scanner.TokenNamecontinue:
+			case Scanner.TokenNamedo:
+			case Scanner.TokenNamedouble:
+			case Scanner.TokenNamedefault:
+			case Scanner.TokenNameelse:
+			case Scanner.TokenNameextends:
+			case Scanner.TokenNamefor:
+			case Scanner.TokenNamefinal:
+			case Scanner.TokenNamefloat:
+			case Scanner.TokenNamefalse:
+			case Scanner.TokenNamefinally:
+			case Scanner.TokenNameif:
+			case Scanner.TokenNameint:
+			case Scanner.TokenNameimport:
+			case Scanner.TokenNameinterface:
+			case Scanner.TokenNameimplements:
+			case Scanner.TokenNameinstanceof:
+			case Scanner.TokenNamelong:
+			case Scanner.TokenNamenew:
+			case Scanner.TokenNamenull:
+			case Scanner.TokenNamenative:
+			case Scanner.TokenNamepublic:
+			case Scanner.TokenNamepackage:
+			case Scanner.TokenNameprivate:
+			case Scanner.TokenNameprotected:
+			case Scanner.TokenNamereturn:
+			case Scanner.TokenNameshort:
+			case Scanner.TokenNamesuper:
+			case Scanner.TokenNamestatic:
+			case Scanner.TokenNameswitch:
+			case Scanner.TokenNamestrictfp:
+			case Scanner.TokenNamesynchronized:
+			case Scanner.TokenNametry:
+			case Scanner.TokenNamethis:
+			case Scanner.TokenNametrue:
+			case Scanner.TokenNamethrow:
+			case Scanner.TokenNamethrows:
+			case Scanner.TokenNametransient:
+			case Scanner.TokenNamevoid:
+			case Scanner.TokenNamevolatile:
+			case Scanner.TokenNamewhile:
+				return true;
+			default: 
+				return false;
 		}
 	}
-	catch (InvalidInputException e) {
-		return false;
-	}
-	
-}
 }
