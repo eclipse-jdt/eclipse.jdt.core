@@ -171,7 +171,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#getSuperclass()
 	 */
 	public ITypeBinding getSuperclass() {
-		if (this.binding.isArrayType() || this.binding.isBaseType() || this.binding.isInterface()) {
+		if (this.binding == null || this.binding.isArrayType() || this.binding.isBaseType() || this.binding.isInterface()) {
 			return null;
 		}
 		ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
@@ -186,7 +186,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#getInterfaces()
 	 */
 	public ITypeBinding[] getInterfaces() {
-		if (this.binding.isArrayType() || this.binding.isBaseType()) {
+		if (this.binding == null || this.binding.isArrayType() || this.binding.isBaseType()) {
 			return NO_INTERFACES;
 		}
 		ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
