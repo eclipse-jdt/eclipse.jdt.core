@@ -260,12 +260,14 @@ private void initializeBuilder() throws CoreException {
 		IResource member = workspaceRoot.findMember(entry.getPath());
 		switch (entry.getEntryKind()) {
 			case IClasspathEntry.CPE_SOURCE :
+				if (member == null) continue;
 				sourceFolders[count] = (IContainer) member;
 				classpath[i] = ClasspathLocation.forSourceFolder(
 					sourceFolders[count++].getLocation().toString(),
 					outputFolder.getLocation().toString());
 				break;
 			case IClasspathEntry.CPE_PROJECT :
+				if (member == null) continue;
 				IProject prereqProject = (IProject) member;
 				IPath prereqPath = getJavaProject(prereqProject).getOutputLocation();
 				IResource prereqOutputFolder = prereqProject.getFullPath().equals(prereqPath)
