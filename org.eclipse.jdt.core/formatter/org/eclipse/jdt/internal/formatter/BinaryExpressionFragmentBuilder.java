@@ -85,7 +85,8 @@ public class BinaryExpressionFragmentBuilder
 	public boolean visit(
 		AllocationExpression allocationExpression,
 		BlockScope scope) {
-			return buildFragments(allocationExpression);
+			this.fragmentsList.add(allocationExpression);
+			return false;
 	}
 
 	public boolean visit(
@@ -102,15 +103,18 @@ public class BinaryExpressionFragmentBuilder
 	public boolean visit(
 		ArrayAllocationExpression arrayAllocationExpression,
 		BlockScope scope) {
-			return buildFragments(arrayAllocationExpression);
+			this.fragmentsList.add(arrayAllocationExpression);
+			return false;
 	}
 
 	public boolean visit(ArrayInitializer arrayInitializer, BlockScope scope) {
-		return buildFragments(arrayInitializer);
+		this.fragmentsList.add(arrayInitializer);
+		return false;
 	}
 
 	public boolean visit(Assignment assignment, BlockScope scope) {
-		return buildFragments(assignment);
+		this.fragmentsList.add(assignment);
+		return false;
 	}
 
 	public boolean visit(BinaryExpression binaryExpression, BlockScope scope) {
@@ -168,73 +172,74 @@ public class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(CastExpression castExpression, BlockScope scope) {
-		return buildFragments(castExpression);
+		this.fragmentsList.add(castExpression);
+		return false;
 	}
 
 	public boolean visit(CharLiteral charLiteral, BlockScope scope) {
-		return buildFragments(charLiteral);
+		this.fragmentsList.add(charLiteral);
+		return false;
 	}
 
 	public boolean visit(
 		CompoundAssignment compoundAssignment,
 		BlockScope scope) {
-			return buildFragments(compoundAssignment);
+			this.fragmentsList.add(compoundAssignment);
+			return false;
 	}
 
 	public boolean visit(
 		ConditionalExpression conditionalExpression,
 		BlockScope scope) {
-			return buildFragments(conditionalExpression);
+			this.fragmentsList.add(conditionalExpression);
+			return false;
 	}
 
 	public boolean visit(DoubleLiteral doubleLiteral, BlockScope scope) {
-		return buildFragments(doubleLiteral);
+		this.fragmentsList.add(doubleLiteral);
+		return false;
 	}
 
 	public boolean visit(EqualExpression equalExpression, BlockScope scope) {
-		if (buildFragments(equalExpression)) {
-			switch((equalExpression.bits & EqualExpression.OperatorMASK) >> EqualExpression.OperatorSHIFT) {
-				case OperatorIds.EQUAL_EQUAL :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameEQUAL_EQUAL));
-					break;
-				case OperatorIds.NOT_EQUAL :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameNOT_EQUAL));
-					break;
-			}
-			return true;
-		} else {
-			return false;
-		}
+		this.fragmentsList.add(equalExpression);
+		return false;
 	}
 
 	public boolean visit(
 		ExtendedStringLiteral extendedStringLiteral,
 		BlockScope scope) {
-			return buildFragments(extendedStringLiteral);
+			this.fragmentsList.add(extendedStringLiteral);
+			return false;
 	}
 
 	public boolean visit(FalseLiteral falseLiteral, BlockScope scope) {
-		return buildFragments(falseLiteral);
+		this.fragmentsList.add(falseLiteral);
+		return false;
 	}
 
 	public boolean visit(FloatLiteral floatLiteral, BlockScope scope) {
-		return buildFragments(floatLiteral);
+		this.fragmentsList.add(floatLiteral);
+		return false;
 	}
 
 	public boolean visit(IntLiteral intLiteral, BlockScope scope) {
-		return buildFragments(intLiteral);
+		this.fragmentsList.add(intLiteral);
+		return false;
 	}
 
 	public boolean visit(LongLiteral longLiteral, BlockScope scope) {
-		return buildFragments(longLiteral);
+		this.fragmentsList.add(longLiteral);
+		return false;
 	}
 
 	public boolean visit(MessageSend messageSend, BlockScope scope) {
-		return buildFragments(messageSend);
+		this.fragmentsList.add(messageSend);
+		return false;
 	}
 
 	public boolean visit(NullLiteral nullLiteral, BlockScope scope) {
-		return buildFragments(nullLiteral);
+		this.fragmentsList.add(nullLiteral);
+		return false;
 	}
 
 	public boolean visit(OR_OR_Expression or_or_Expression, BlockScope scope) {
@@ -249,40 +254,48 @@ public class BinaryExpressionFragmentBuilder
 	public boolean visit(
 		PostfixExpression postfixExpression,
 		BlockScope scope) {
-			return buildFragments(postfixExpression);
+			this.fragmentsList.add(postfixExpression);
+			return false;
 	}
 
 	public boolean visit(PrefixExpression prefixExpression, BlockScope scope) {
-		return buildFragments(prefixExpression);
+		this.fragmentsList.add(prefixExpression);
+		return false;
 	}
 
 	public boolean visit(
 		QualifiedAllocationExpression qualifiedAllocationExpression,
 		BlockScope scope) {
-			return buildFragments(qualifiedAllocationExpression);
+			this.fragmentsList.add(qualifiedAllocationExpression);
+			return false;
 	}
 
 	public boolean visit(StringLiteral stringLiteral, BlockScope scope) {
-		return buildFragments(stringLiteral);
+		this.fragmentsList.add(stringLiteral);
+		return false;
 	}
 
 	public boolean visit(TrueLiteral trueLiteral, BlockScope scope) {
-		return buildFragments(trueLiteral);
+		this.fragmentsList.add(trueLiteral);
+		return false;
 	}
 
 	public boolean visit(UnaryExpression unaryExpression, BlockScope scope) {
-		return buildFragments(unaryExpression);
+		this.fragmentsList.add(unaryExpression);
+		return false;
 	}
 	public boolean visit(
 		QualifiedNameReference qualifiedNameReference,
 		BlockScope scope) {
-			return buildFragments(qualifiedNameReference);
+			this.fragmentsList.add(qualifiedNameReference);
+			return false;
 	}
 
 	public boolean visit(
 		SingleNameReference singleNameReference,
 		BlockScope scope) {
-			return buildFragments(singleNameReference);
+			this.fragmentsList.add(singleNameReference);
+			return false;
 	}
 
 }

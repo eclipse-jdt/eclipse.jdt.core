@@ -364,6 +364,9 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 						fragment.traverse(this, scope);
 						this.scribe.alignFragment(binaryExpressionAlignment, i);
 						this.scribe.printNextToken(operators[i], this.preferences.insert_space_before_binary_operator);
+						if (this.preferences.insert_space_after_binary_operator) {
+							this.scribe.space();
+						}						
 					}
 					fragments[fragmentsSize - 1].traverse(this, scope);
 					ok = true;
@@ -387,67 +390,18 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	private BinaryExpressionFragmentBuilder buildFragments(BinaryExpression binaryExpression, BlockScope scope) {
 		BinaryExpressionFragmentBuilder builder = new BinaryExpressionFragmentBuilder();
 		
-		binaryExpression.left.traverse(builder, scope);
 		switch((binaryExpression.bits & EqualExpression.OperatorMASK) >> EqualExpression.OperatorSHIFT) {
 			case OperatorIds.AND_AND :
+				binaryExpression.left.traverse(builder, scope);
 				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameAND_AND));
+				binaryExpression.right.traverse(builder, scope);
 				break;
 			case OperatorIds.OR_OR :
+				binaryExpression.left.traverse(builder, scope);
 				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameOR_OR));
-				break;
-			case OperatorIds.EQUAL_EQUAL :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameEQUAL_EQUAL));
-				break;
-			case OperatorIds.NOT_EQUAL :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameNOT_EQUAL));
-				break;
-			case OperatorIds.AND :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameAND));
-				break;
-			case OperatorIds.DIVIDE :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameDIVIDE));
-				break;
-			case OperatorIds.GREATER :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameGREATER));
-				break;
-			case OperatorIds.GREATER_EQUAL :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameGREATER_EQUAL));
-				break;
-			case OperatorIds.LEFT_SHIFT :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameLEFT_SHIFT));
-				break;
-			case OperatorIds.LESS :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameLESS));
-				break;
-			case OperatorIds.LESS_EQUAL :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameLESS_EQUAL));
-				break;
-			case OperatorIds.MINUS :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameMINUS));
-				break;
-			case OperatorIds.MULTIPLY :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameMULTIPLY));
-				break;
-			case OperatorIds.OR :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameOR));
-				break;
-			case OperatorIds.PLUS :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNamePLUS));
-				break;
-			case OperatorIds.REMAINDER :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameREMAINDER));
-				break;
-			case OperatorIds.RIGHT_SHIFT :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameRIGHT_SHIFT));
-				break;
-			case OperatorIds.UNSIGNED_RIGHT_SHIFT :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameUNSIGNED_RIGHT_SHIFT));
-				break;
-			case OperatorIds.XOR :
-				builder.operatorsList.add(new Integer(ITerminalSymbols.TokenNameXOR));
+				binaryExpression.right.traverse(builder, scope);
 				break;
 		}
-		binaryExpression.right.traverse(builder, scope);
 
 		return builder;
 	}
