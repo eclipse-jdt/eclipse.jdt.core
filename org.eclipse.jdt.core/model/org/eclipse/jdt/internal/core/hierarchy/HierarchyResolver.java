@@ -214,6 +214,7 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding) {
 private IGenericType findSuperClass(IGenericType type, ReferenceBinding typeBinding) {
 	ReferenceBinding superBinding = typeBinding.superclass();
 	if (superBinding != null) {
+		superBinding = (ReferenceBinding) superBinding.erasure();
 		if (superBinding.id == TypeIds.T_JavaLangObject && typeBinding.isHierarchyInconsistent()) {
 			char[] superclassName;
 			char separator;
@@ -238,8 +239,6 @@ private IGenericType findSuperClass(IGenericType type, ReferenceBinding typeBind
 					return new MissingType(new String(simpleName));
 				}
 			}
-		} else if (superBinding instanceof ParameterizedTypeBinding) {
-			superBinding = ((ParameterizedTypeBinding)superBinding).type;
 		}
 		for (int t = this.typeIndex; t >= 0; t--) {
 			if (this.typeBindings[t] == superBinding) {
@@ -295,22 +294,21 @@ private IGenericType[] findSuperInterfaces(IGenericType type, ReferenceBinding t
 	next : for (int i = 0; i < length; i++) {
 		char[] superInterfaceName = superInterfaceNames[i];
 		int lastSeparator = CharOperation.lastIndexOf(separator, superInterfaceName);
-		char[] simpleName = lastSeparator == -1 ? superInterfaceName : CharOperation.subarray(superInterfaceName, lastSeparator+1, superInterfaceName.length);
+		int start = lastSeparator + 1; 
+		int end = superInterfaceName.length;
 		
 		// case of binary inner type -> take the last part
-		int start = CharOperation.lastIndexOf('$', simpleName) + 1;
-		if (start != 0) {
-			int nameLength = simpleName.length - start;
-			System.arraycopy(simpleName, start, simpleName = new char[nameLength], 0, nameLength);
-		}
+		int lastDollar = CharOperation.lastIndexOf('$', superInterfaceName, start);
+		if (lastDollar != -1) start = lastDollar + 1;
+		
+		// case of a parameterized type -> take the first part
+		int genericStart = CharOperation.indexOf(Signature.C_GENERIC_START, superInterfaceName, start);
+		if (genericStart != -1) end = genericStart;
+		
+		char[] simpleName = CharOperation.subarray(superInterfaceName, start, end);
 		
 		if (bindingIndex < bindingLength) {
-			ReferenceBinding interfaceBinding = interfaceBindings[bindingIndex];
-			if (interfaceBinding instanceof ParameterizedTypeBinding) {
-				interfaceBinding = ((ParameterizedTypeBinding)interfaceBinding).type;
-				int genericStart = CharOperation.indexOf(Signature.C_GENERIC_START, simpleName);
-				simpleName = CharOperation.subarray(simpleName, 0, genericStart);
-			}
+			ReferenceBinding interfaceBinding = (ReferenceBinding) interfaceBindings[bindingIndex].erasure();
 
 			// ensure that the binding corresponds to the interface defined by the user
 			if (CharOperation.equals(simpleName, interfaceBinding.sourceName)) {
@@ -777,7 +775,7 @@ private boolean subTypeOfType(ReferenceBinding subType, ReferenceBinding typeBin
 	if (typeBinding == null || subType == null) return false;
 	if (subType == typeBinding) return true;
 	ReferenceBinding superclass = subType.superclass();
-	if (superclass instanceof ParameterizedTypeBinding) superclass = ((ParameterizedTypeBinding)superclass).type;
+	if (superclass != null) superclass = (ReferenceBinding) superclass.erasure();
 //	if (superclass != null && superclass.id == TypeIds.T_JavaLangObject && subType.isHierarchyInconsistent()) return false;
 	if (this.subTypeOfType(superclass, typeBinding)) return true;
 	ReferenceBinding[] superInterfaces = subType.superInterfaces();
