@@ -1355,15 +1355,15 @@ protected void assertDeltas(String message, String expected) {
     			toDisplay, 
     			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString("1.5"), 0).toCharArray(), 
     			"getExternalJCLSourcePathString(\"1.5\")".toCharArray());
-    	String displayString = org.eclipse.jdt.core.tests.util.Util.displayString(new String(toDisplay), indent);
+    	toDisplay = org.eclipse.jdt.core.tests.util.Util.displayString(new String(toDisplay), indent).toCharArray();
     	toDisplay = 
     		CharOperation.replace(
-    			displayString.toCharArray(), 
+    			toDisplay, 
     			"getExternalJCLPathString()".toCharArray(), 
     			("\"+ getExternalJCLPathString() + \"").toCharArray());
     	toDisplay = 
     		CharOperation.replace(
-    			displayString.toCharArray(), 
+    			toDisplay, 
     			"getExternalJCLPathString(\\\"1.5\\\")".toCharArray(), 
     			("\"+ getExternalJCLPathString(\"1.5\") + \"").toCharArray());
     	toDisplay = 
