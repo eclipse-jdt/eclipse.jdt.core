@@ -9,18 +9,14 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.resources.*;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.util.*;
 import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.internal.core.JavaElement;
 
 import java.io.*;
 import java.util.*;
@@ -33,6 +29,7 @@ import java.util.*;
 public abstract class AbstractImageBuilder implements ICompilerRequestor {
 
 protected JavaBuilder javaBuilder;
+protected State newState;
 
 // local copies
 protected IContainer outputFolder;
@@ -42,7 +39,6 @@ protected BuildNotifier notifier;
 protected boolean hasSeparateOutputFolder;
 protected NameEnvironment nameEnvironment;
 protected Compiler compiler;
-protected State newState;
 protected WorkQueue workQueue;
 protected ArrayList problemTypeLocations;
 
@@ -53,6 +49,7 @@ static final String ProblemMarkerTag = IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKE
 
 protected AbstractImageBuilder(JavaBuilder javaBuilder) {
 	this.javaBuilder = javaBuilder;
+	this.newState = new State(javaBuilder);
 
 	// local copies
 	this.outputFolder = javaBuilder.outputFolder;
@@ -62,7 +59,6 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder) {
 	this.hasSeparateOutputFolder = !outputFolder.getFullPath().equals(javaBuilder.currentProject.getFullPath());
 	this.nameEnvironment = new NameEnvironment(javaBuilder.classpath);
 	this.compiler = newCompiler();
-	this.newState = new State(javaBuilder);
 	this.workQueue = new WorkQueue();
 	this.problemTypeLocations = new ArrayList(3);
 }
@@ -115,6 +111,9 @@ public void acceptResult(CompilationResult result) {
 
 protected void cleanUp() {
 	this.javaBuilder = null;
+	this.outputFolder = null;
+	this.sourceFolders = null;
+	this.notifier = null;
 	this.compiler = null;
 	this.nameEnvironment = null;
 	this.workQueue = null;
@@ -129,12 +128,12 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 	int toDo = filenames.length;
 	if (toDo <= MAX_AT_ONCE) {
 		// do them all now
-		CompilationUnit[] toCompile = new CompilationUnit[toDo];
+		SourceFile[] toCompile = new SourceFile[toDo];
 		for (int i = 0; i < toDo; i++) {
 			String filename = filenames[i];
 			if (JavaBuilder.DEBUG)
 				System.out.println("About to compile " + filename);
-			toCompile[i] = new CompilationUnit(null, filename);
+			toCompile[i] = new SourceFile(filename);
 		}
 		compile(toCompile, initialTypeNames, null);
 	} else {
@@ -143,7 +142,7 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 		while (i < toDo) {
 			int doNow = Math.min(toDo, MAX_AT_ONCE);
 			int index = 0;
-			CompilationUnit[] toCompile = new CompilationUnit[doNow];
+			SourceFile[] toCompile = new SourceFile[doNow];
 			String[] initialNamesInLoop = new String[doNow];
 			while (i < toDo && index < doNow) {
 				String filename = filenames[i];
@@ -152,13 +151,13 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 				if (compilingFirstGroup || workQueue.isWaiting(filename)) {
 					if (JavaBuilder.DEBUG)
 						System.out.println("About to compile " + filename);
-					toCompile[index] = new CompilationUnit(null, filename);
+					toCompile[index] = new SourceFile(filename);
 					initialNamesInLoop[index++] = initialTypeNames[i];
 				}
 				i++;
 			}
 			if (index < doNow) {
-				System.arraycopy(toCompile, 0, toCompile = new CompilationUnit[index], 0, index);
+				System.arraycopy(toCompile, 0, toCompile = new SourceFile[index], 0, index);
 				System.arraycopy(initialNamesInLoop, 0, initialNamesInLoop = new String[index], 0, index);
 			}
 			String[] additionalFilenames = new String[toDo - i];
@@ -169,7 +168,7 @@ protected void compile(String[] filenames, String[] initialTypeNames) {
 	}
 }
 
-void compile(CompilationUnit[] units, String[] initialTypeNames, String[] additionalFilenames) {
+void compile(SourceFile[] units, String[] initialTypeNames, String[] additionalFilenames) {
 	if (units.length == 0) return;
 	notifier.aboutToCompile(units[0]); // just to change the message
 
@@ -236,7 +235,6 @@ protected void removeProblemsFor(IResource resource) {
 	} catch (CoreException e) {
 //@PM THIS CODE SHOULD PROBABLY HANDLE THE CORE EXCEPTION LOCALLY ?
 		throw internalException(e);
-
 	}
 }
 

@@ -10,14 +10,12 @@ import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 import java.io.*;
 
-public class CompilationUnit implements ICompilationUnit {
+public class SourceFile implements ICompilationUnit {
 
-public char[] contents;
 public char[] fileName;
 public char[] mainTypeName;
 
-public CompilationUnit(char[] contents, String fileName) {
-	this.contents = contents;
+public SourceFile(String fileName) {
 	this.fileName = fileName.toCharArray();
 	CharOperation.replace(this.fileName, '\\', '/');
 
@@ -30,8 +28,6 @@ public CompilationUnit(char[] contents, String fileName) {
 }
 
 public char[] getContents() {
-	if (contents != null) return contents;   // answer the cached source
-
 	// otherwise retrieve it
 	BufferedReader reader = null;
 	try {
@@ -75,7 +71,7 @@ public char[] getMainTypeName() {
 }
 
 public String toString() {
-	return "CompilationUnit[" //$NON-NLS-1$
+	return "SourceFile[" //$NON-NLS-1$
 		+ new String(fileName) + "]";  //$NON-NLS-1$
 }
 }

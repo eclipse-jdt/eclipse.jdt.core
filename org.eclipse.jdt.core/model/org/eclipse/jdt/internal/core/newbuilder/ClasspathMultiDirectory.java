@@ -20,6 +20,12 @@ ClasspathMultiDirectory(String sourcePath, String binaryPath) {
 		this.sourcePath += "/"; //$NON-NLS-1$
 }
 
+void clear() {
+	super.clear();
+
+	this.nameEnvironment = null;
+}
+
 public boolean equals(Object o) {
 	if (this == o) return true;
 	if (!(o instanceof ClasspathMultiDirectory)) return false;
@@ -41,7 +47,7 @@ NameEnvironmentAnswer findClass(char[] className, char[][] packageName) {
 			String[] additionalSourceFilenames = nameEnvironment.additionalSourceFilenames;
 			for (int i = 0, l = additionalSourceFilenames.length; i < l; i++)
 				if (fullSourceName.equals(additionalSourceFilenames[i]))
-					return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourceName));
+					return new NameEnvironmentAnswer(new SourceFile(fullSourceName));
 		}
 	}
 

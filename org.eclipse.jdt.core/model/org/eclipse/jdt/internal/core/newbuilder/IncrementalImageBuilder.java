@@ -12,9 +12,9 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.util.LookupTable;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
 import java.util.*;
 
@@ -102,15 +102,6 @@ public boolean build(LookupTable deltas) {
 	return true;
 }
 
-protected void cleanUp() {
-	super.cleanUp();
-
-	this.locations = null;
-	this.typeNames = null;
-	this.qualifiedStrings = null;
-	this.simpleStrings = null;
-}
-
 protected void addAffectedSourceFiles() {
 	if (qualifiedStrings.isEmpty() && simpleStrings.isEmpty()) return;
 
@@ -158,7 +149,9 @@ protected void addAffectedSourceFiles() {
 	}
 }
 
-protected void addDependentsOf(IPath path) {
+protected void addDependentsOf(IPath path, boolean hasStructuralChanges) {
+	if (hasStructuralChanges)
+		newState.hasStructuralChanges();
 	// the qualifiedStrings are of the form 'p1/p1' & the simpleStrings are just 'X'
 	path = path.setDevice(null);
 	String packageName = path.uptoSegment(path.segmentCount() - 1).toString();
@@ -181,6 +174,70 @@ protected boolean canRemovePackage(IPath removedPackagePath) {
 		for (int i = 0, length = sourceFolders.length; i < length; i++)
 			if (sourceFolders[i].findMember(removedPackagePath) != null) return false;
 	return true;
+}
+
+protected void cleanUp() {
+	super.cleanUp();
+
+	this.locations = null;
+	this.typeNames = null;
+	this.qualifiedStrings = null;
+	this.simpleStrings = null;
+}
+
+protected void findAffectedSourceFiles(IResourceDelta delta, IResource prereqOutputFolder) {
+	IResourceDelta binaryDelta = delta.findMember(prereqOutputFolder.getProjectRelativePath());
+	if (binaryDelta != null)
+		findAffectedSourceFiles(binaryDelta, prereqOutputFolder.getLocation().segmentCount());
+}
+
+protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int outputFolderSegmentCount) {
+	// When a package becomes a type or vice versa, expect 2 deltas,
+	// one on the folder & one on the class file
+	IPath location = binaryDelta.getResource().getLocation();
+	String extension = location.getFileExtension();
+	if (extension == null) { // no extension indicates a folder
+		switch (binaryDelta.getKind()) {
+			case IResourceDelta.ADDED :
+				IPath addedPackagePath = location.removeFirstSegments(outputFolderSegmentCount);
+				if (JavaBuilder.DEBUG)
+					System.out.println("Add dependents of added package " + addedPackagePath); //$NON-NLS-1$
+				addDependentsOf(addedPackagePath, false);
+				return;
+			case IResourceDelta.REMOVED :
+				IPath removedPackagePath = location.removeFirstSegments(outputFolderSegmentCount);
+				if (JavaBuilder.DEBUG)
+					System.out.println("Add dependents of removed package " + removedPackagePath); //$NON-NLS-1$
+				addDependentsOf(removedPackagePath, false);
+				return;
+			case IResourceDelta.CHANGED :
+				IResourceDelta[] children = binaryDelta.getAffectedChildren();
+				for (int i = 0, length = children.length; i < length; ++i)
+					findAffectedSourceFiles(children[i], outputFolderSegmentCount);
+				return;
+		}
+	} else if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) {
+		IPath typePath = location.removeFirstSegments(outputFolderSegmentCount).removeFileExtension();
+		switch (binaryDelta.getKind()) {
+			case IResourceDelta.ADDED :
+				if (JavaBuilder.DEBUG)
+					System.out.println("Add dependents of added class file " + typePath); //$NON-NLS-1$
+				addDependentsOf(typePath, false);
+				return;
+			case IResourceDelta.REMOVED :
+				if (JavaBuilder.DEBUG)
+					System.out.println("Add dependents of removed class file " + typePath); //$NON-NLS-1$
+				addDependentsOf(typePath, false);
+				return;
+			case IResourceDelta.CHANGED :
+				if ((binaryDelta.getFlags() & IResourceDelta.CONTENT) == 0)
+					return; // skip it since it really isn't changed
+				if (JavaBuilder.DEBUG)
+					System.out.println("Add dependents of changed class file " + typePath); //$NON-NLS-1$
+				addDependentsOf(typePath, false);
+				return;
+		}
+	}
 }
 
 protected void findSourceFiles(IResourceDelta delta) throws CoreException {
@@ -209,7 +266,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 				if (JavaBuilder.DEBUG)
 					System.out.println("Add dependents of added package " + addedPackagePath); //$NON-NLS-1$
 				// add dependents even when the package thinks it exists to be on the safe side
-				addDependentsOf(addedPackagePath);
+				addDependentsOf(addedPackagePath, true);
 				// fall thru & collect all the source files
 			case IResourceDelta.CHANGED :
 				IResourceDelta[] children = sourceDelta.getAffectedChildren();
@@ -227,7 +284,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 				// add dependents even when the package thinks it does not exist to be on the safe side
 				if (JavaBuilder.DEBUG)
 					System.out.println("Add dependents of removed package " + removedPackagePath); //$NON-NLS-1$
-				addDependentsOf(removedPackagePath);
+				addDependentsOf(removedPackagePath, true);
 				return;
 		}
 	} else if (JavaBuilder.JAVA_EXTENSION.equalsIgnoreCase(extension)) {
@@ -240,7 +297,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 				typeNames.add(typePath.setDevice(null).toString());
 				if (JavaBuilder.DEBUG)
 					System.out.println("Add dependents of added source file " + typePath); //$NON-NLS-1$
-				addDependentsOf(typePath);
+				addDependentsOf(typePath, true);
 				return;
 			case IResourceDelta.REMOVED :
 				IResource classFile = outputFolder.getFile(typePath.addFileExtension(JavaBuilder.CLASS_EXTENSION));
@@ -253,7 +310,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 				// add dependents even when the type thinks it does not exist to be on the safe side
 				if (JavaBuilder.DEBUG)
 					System.out.println("Add dependents of removed source file " + typePath); //$NON-NLS-1$
-				addDependentsOf(typePath);
+				addDependentsOf(typePath, true);
 				return;
 			case IResourceDelta.CHANGED :
 				if ((sourceDelta.getFlags() & IResourceDelta.CONTENT) == 0)
@@ -306,61 +363,6 @@ protected void findSourceFiles(IResourceDelta sourceDelta, int sourceFolderSegme
 	}
 }
 
-protected void findAffectedSourceFiles(IResourceDelta delta, IResource prereqOutputFolder) {
-	IResourceDelta binaryDelta = delta.findMember(prereqOutputFolder.getProjectRelativePath());
-	if (binaryDelta != null)
-		findAffectedSourceFiles(binaryDelta, prereqOutputFolder.getLocation().segmentCount());
-}
-
-protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int outputFolderSegmentCount) {
-	// When a package becomes a type or vice versa, expect 2 deltas,
-	// one on the folder & one on the class file
-	IPath location = binaryDelta.getResource().getLocation();
-	String extension = location.getFileExtension();
-	if (extension == null) { // no extension indicates a folder
-		switch (binaryDelta.getKind()) {
-			case IResourceDelta.ADDED :
-				IPath addedPackagePath = location.removeFirstSegments(outputFolderSegmentCount);
-				if (JavaBuilder.DEBUG)
-					System.out.println("Add dependents of added package " + addedPackagePath); //$NON-NLS-1$
-				addDependentsOf(addedPackagePath);
-				return;
-			case IResourceDelta.REMOVED :
-				IPath removedPackagePath = location.removeFirstSegments(outputFolderSegmentCount);
-				if (JavaBuilder.DEBUG)
-					System.out.println("Add dependents of removed package " + removedPackagePath); //$NON-NLS-1$
-				addDependentsOf(removedPackagePath);
-				return;
-			case IResourceDelta.CHANGED :
-				IResourceDelta[] children = binaryDelta.getAffectedChildren();
-				for (int i = 0, length = children.length; i < length; ++i)
-					findAffectedSourceFiles(children[i], outputFolderSegmentCount);
-				return;
-		}
-	} else if (JavaBuilder.CLASS_EXTENSION.equalsIgnoreCase(extension)) {
-		IPath typePath = location.removeFirstSegments(outputFolderSegmentCount).removeFileExtension();
-		switch (binaryDelta.getKind()) {
-			case IResourceDelta.ADDED :
-				if (JavaBuilder.DEBUG)
-					System.out.println("Add dependents of added class file " + typePath); //$NON-NLS-1$
-				addDependentsOf(typePath);
-				return;
-			case IResourceDelta.REMOVED :
-				if (JavaBuilder.DEBUG)
-					System.out.println("Add dependents of removed class file " + typePath); //$NON-NLS-1$
-				addDependentsOf(typePath);
-				return;
-			case IResourceDelta.CHANGED :
-				if ((binaryDelta.getFlags() & IResourceDelta.CONTENT) == 0)
-					return; // skip it since it really isn't changed
-				if (JavaBuilder.DEBUG)
-					System.out.println("Add dependents of changed class file " + typePath); //$NON-NLS-1$
-				addDependentsOf(typePath);
-				return;
-		}
-	}
-}
-
 protected void finishedWith(char[] fileId, CompilationResult result, char[][] additionalTypeNames) throws CoreException {
 	char[][] previousTypeNames = (char[][]) newState.getAdditionalTypeNamesFor(fileId);
 	if (previousTypeNames != null) {
@@ -394,17 +396,25 @@ protected boolean isClassFileChanged(IFile file, String fileName, byte[] newByte
 			if (reader.hasStructuralChanges(newBytes)) {
 				if (JavaBuilder.DEBUG)
 					System.out.println("Type has structural changes " + fileName); //$NON-NLS-1$
-				addDependentsOf(new Path(fileName));
+				addDependentsOf(new Path(fileName), true);
 			}
 		} catch (ClassFormatException e) {
-			addDependentsOf(new Path(fileName));
+			addDependentsOf(new Path(fileName), true);
 		}
 
 		file.delete(true, null);
 	} else if (isSecondaryType) {
-		addDependentsOf(new Path(fileName));
+		addDependentsOf(new Path(fileName), true); // new secondary type
 	}
 	return true;
+}
+
+protected void resetCollections() {
+	locations.clear();
+	typeNames.clear();
+	qualifiedStrings.clear();
+	simpleStrings.clear();
+	workQueue.clear();
 }
 
 protected void updateProblemsFor(CompilationResult result) {
@@ -419,14 +429,6 @@ protected void updateProblemsFor(CompilationResult result) {
 	notifier.updateProblemCounts(markers, problems);
 	removeProblemsFor(resource);
 	storeProblemsFor(resource, problems);
-}
-
-protected void resetCollections() {
-	locations.clear();
-	typeNames.clear();
-	qualifiedStrings.clear();
-	simpleStrings.clear();
-	workQueue.clear();
 }
 
 public String toString() {

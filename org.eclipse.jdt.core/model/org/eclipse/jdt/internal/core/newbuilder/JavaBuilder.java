@@ -9,10 +9,11 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.util.*;
 
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.Util;
+import org.eclipse.jdt.internal.core.util.LookupTable;
 
 import java.io.File;
 import java.util.*;
@@ -77,7 +78,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	} finally {
 		if (!ok)
 			// If the build failed, clear the previously built state, forcing a full build next time.
-			setLastState(null);
+			clearLastState();
 		notifier.done();
 		cleanup();
 	}
@@ -89,10 +90,10 @@ private void buildAll() throws CoreException {
 		System.out.println("\nFULL build of: " + currentProject.getName()); //$NON-NLS-1$
 
 	notifier.subTask(Util.bind("build.preparingBuild")); //$NON-NLS-1$
-	setLastState(null); // free last state since we do not need it
+	clearLastState();
 	BatchImageBuilder imageBuilder = new BatchImageBuilder(this);
 	imageBuilder.build();
-	setLastState(imageBuilder.newState);
+	recordNewState(imageBuilder.newState);
 }
 
 private void buildDeltas(LookupTable deltas) throws CoreException {
@@ -102,7 +103,7 @@ private void buildDeltas(LookupTable deltas) throws CoreException {
 	notifier.subTask(Util.bind("build.preparingBuild")); //$NON-NLS-1$
 	IncrementalImageBuilder imageBuilder = new IncrementalImageBuilder(this);
 	if (imageBuilder.build(deltas))
-		setLastState(imageBuilder.newState);
+		recordNewState(imageBuilder.newState);
 	else
 		buildAll();
 }
@@ -114,6 +115,20 @@ private void cleanup() {
 	this.prereqOutputFolders = null;
 	this.lastState = null;
 	this.notifier = null;
+}
+
+private void clearLastState() {
+	JavaModelManager.getJavaModelManager().setLastBuiltState2(currentProject, null);
+	this.lastState = null;
+}
+
+private void createFolder(IContainer folder) throws CoreException {
+	if (!folder.exists()) {
+		IContainer parent = folder.getParent();
+		if (currentProject.getFullPath() != parent.getFullPath())
+			createFolder(parent);
+		((IFolder) folder).create(true, true, null);
+	}
 }
 
 private LookupTable findDeltas() {
@@ -132,28 +147,25 @@ private LookupTable findDeltas() {
 	Enumeration enum = prereqOutputFolders.keys();
 	while (enum.hasMoreElements()) {
 		IProject prereqProject = (IProject) enum.nextElement();
-		notifier.subTask(Util.bind("build.readingDelta", prereqProject.getName())); //$NON-NLS-1$
-		delta = getDelta(prereqProject);
-		if (delta != null) {
-			deltas.put(prereqProject, delta);
-		} else {
-			if (DEBUG)
-				System.out.println("Missing delta for: " + prereqProject.getName());	 //$NON-NLS-1$
-			notifier.subTask(""); //$NON-NLS-1$
-			return null;
+		if (lastState.isStructurallyChanged(prereqProject, getLastState(prereqProject))) {
+			notifier.subTask(Util.bind("build.readingDelta", prereqProject.getName())); //$NON-NLS-1$
+			delta = getDelta(prereqProject);
+			if (delta != null) {
+				deltas.put(prereqProject, delta);
+			} else {
+				if (DEBUG)
+					System.out.println("Missing delta for: " + prereqProject.getName());	 //$NON-NLS-1$
+				notifier.subTask(""); //$NON-NLS-1$
+				return null;
+			}
 		}
 	}
 	notifier.subTask(""); //$NON-NLS-1$
 	return deltas;
 }
 
-private State getLastState() {
-	return (State) JavaModelManager.getJavaModelManager().getLastBuiltState2(currentProject, notifier.monitor);
-}
-
-private void setLastState(State state) {
-//	if (state != null) state.dump();
-	JavaModelManager.getJavaModelManager().setLastBuiltState2(currentProject, state);
+private State getLastState(IProject project) {
+	return (State) JavaModelManager.getJavaModelManager().getLastBuiltState2(project, notifier.monitor);
 }
 
 /* Return the list of projects for which it requires a resource delta. This builder's project
@@ -196,15 +208,6 @@ private boolean hasOutputLocationChanged() {
 	return !outputFolder.getLocation().toString().equals(lastState.outputLocationString);
 }
 
-private void createFolder(IContainer folder) throws CoreException {
-	if (!folder.exists()) {
-		IContainer parent = folder.getParent();
-		if (currentProject.getFullPath() != parent.getFullPath())
-			createFolder(parent);
-		((IFolder) folder).create(true, true, null);
-	}
-}
-
 private void initializeBuilder() throws CoreException {
 	this.javaProject = JavaCore.create(currentProject);
 	this.workspaceRoot = currentProject.getWorkspace().getRoot();
@@ -213,7 +216,7 @@ private void initializeBuilder() throws CoreException {
 		this.outputFolder = workspaceRoot.getFolder(javaProject.getOutputLocation());
 		createFolder(this.outputFolder);
 	}
-	this.lastState = getLastState();
+	this.lastState = getLastState(currentProject);
 
 	ArrayList sourceList = new ArrayList();
 	this.prereqOutputFolders = new LookupTable();
@@ -227,11 +230,24 @@ private void initializeBuilder() throws CoreException {
 	sourceList.toArray(this.sourceFolders);
 }
 
+private void recordNewState(State state) {
+	Enumeration enum = prereqOutputFolders.keys();
+	while (enum.hasMoreElements()) {
+		IProject prereqProject = (IProject) enum.nextElement();
+		State prereqState = getLastState(prereqProject);
+		if (prereqState != null)
+			state.recordLastStructuralChanges(prereqProject, prereqState.lastStructuralBuildNumber);
+	}
+
+//	state.dump();
+	JavaModelManager.getJavaModelManager().setLastBuiltState2(currentProject, state);
+}
+
 /**
  * String representation for debugging purposes
  */
 public String toString() {
-	State state = getLastState();
+	State state = getLastState(currentProject);
 	if (state != null)
 		return "JavaBuilder(" //$NON-NLS-1$
 			+ state + ")"; //$NON-NLS-1$

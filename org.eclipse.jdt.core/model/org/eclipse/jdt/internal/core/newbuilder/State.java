@@ -10,27 +10,30 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.util.*;
 
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.util.LookupTable;
+
 public class State {
 
 IJavaProject javaProject;
-
 ClasspathLocation[] classpathLocations;
-
 String outputLocationString;
-
 // keyed by fileId (the full filesystem path "d:/xyz/eclipse/Test/p1/p2/A.java"), value is a ReferenceCollection or an AdditionalTypeCollection
 HashtableOfObject references;
 
-private int stateNumber;
-private static int stateCounter= 0;
+int buildNumber;
+int lastStructuralBuildNumber;
+LookupTable structuralBuildNumbers;
 
 protected State(JavaBuilder javaBuilder) {
 	this.javaProject = javaBuilder.javaProject;
 	this.classpathLocations = javaBuilder.classpath;
 	this.outputLocationString = javaBuilder.outputFolder.getLocation().toString();
+	this.references = new HashtableOfObject(13);
 
-	this.stateNumber = stateCounter++;
-	this.references = new HashtableOfObject(31);
+	this.buildNumber = 0; // indicates a full build
+	this.lastStructuralBuildNumber = this.buildNumber;
+	this.structuralBuildNumbers = new LookupTable(3);
 }
 
 void cleanup() {
@@ -41,6 +44,8 @@ void cleanup() {
 void copyFrom(State lastState) {
 	try {
 		this.references = (HashtableOfObject) lastState.references.clone();
+		this.buildNumber = lastState.buildNumber + 1;
+		this.lastStructuralBuildNumber = lastState.lastStructuralBuildNumber;
 	} catch (CloneNotSupportedException e) {
 		this.references = new HashtableOfObject(31);
 
@@ -59,11 +64,28 @@ char[][] getAdditionalTypeNamesFor(char[] fileId) {
 	return null;
 }
 
+boolean isStructurallyChanged(IProject prereqProject, State prereqState) {
+	Object o = structuralBuildNumbers.get(prereqProject.getName());
+	if (prereqState != null) {
+		int previous = o == null ? 0 : ((Integer) o).intValue();
+		if (previous == prereqState.lastStructuralBuildNumber) return false;
+	}
+	return true;
+}
+
+void hasStructuralChanges() {
+	this.lastStructuralBuildNumber = this.buildNumber;
+}
+
 void record(char[] fileId, char[][][] qualifiedRefs, char[][] simpleRefs, char[][] typeNames) {
 	references.put(fileId,
 		(typeNames != null && typeNames.length > 0)
 			? new AdditionalTypeCollection(typeNames, qualifiedRefs, simpleRefs)
 			: new ReferenceCollection(qualifiedRefs, simpleRefs));
+}
+
+void recordLastStructuralChanges(IProject prereqProject, int prereqBuildNumber) {
+	structuralBuildNumbers.put(prereqProject.getName(), new Integer(prereqBuildNumber));
 }
 
 void remove(IPath filePath) {
@@ -86,13 +108,15 @@ void removePackage(IResourceDelta sourceDelta) {
  * Returns a string representation of the receiver.
  */
 public String toString() {
-	return "State(" //$NON-NLS-1$
-		+ stateNumber + ")"; //$NON-NLS-1$
+	return "State for " + javaProject.getElementName() //$NON-NLS-1$
+		+ " (" + buildNumber //$NON-NLS-1$
+			+ " : " + lastStructuralBuildNumber //$NON-NLS-1$
+				+ ")"; //$NON-NLS-1$
 }
 
 /* Debug helper
 void dump() {
-	System.out.println("State for " + javaProject.getElementName() + " (" + stateNumber + ")");
+	System.out.println("State for " + javaProject.getElementName() + " (" + buildNumber + " : " + lastStructuralBuildNumber + ")");
 	System.out.println("\tClass path locations:");
 	for (int i = 0, length = classpathLocations.length; i < length; ++i)
 		System.out.println("\t\t" + classpathLocations[i]);
