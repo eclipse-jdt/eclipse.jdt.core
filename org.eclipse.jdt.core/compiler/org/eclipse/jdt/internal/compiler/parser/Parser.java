@@ -7759,7 +7759,11 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 		TypeReference[] typeArguments = new TypeReference[currentTypeArgumentsLength];
 		this.genericsPtr -= currentTypeArgumentsLength;
 		System.arraycopy(this.genericsStack, this.genericsPtr + 1, typeArguments, 0, currentTypeArgumentsLength);
-		return new ParameterizedSingleTypeReference(this.identifierStack[this.identifierPtr], typeArguments, dim, this.identifierPositionStack[this.identifierPtr--]);
+		ParameterizedSingleTypeReference parameterizedSingleTypeReference = new ParameterizedSingleTypeReference(this.identifierStack[this.identifierPtr], typeArguments, dim, this.identifierPositionStack[this.identifierPtr--]);
+		if (dim != 0) {
+			parameterizedSingleTypeReference.sourceEnd = this.endPosition;
+		}
+		return parameterizedSingleTypeReference;
 	} else {
 		TypeReference[][] typeArguments = new TypeReference[numberOfIdentifiers][];
 		char[][] tokens = new char[numberOfIdentifiers][];

@@ -2930,6 +2930,7 @@ class ASTConverter {
 				char[][] tokens = parameterizedQualifiedTypeReference.tokens;
 				TypeReference[][] typeArguments = parameterizedQualifiedTypeReference.typeArguments;
 				long[] positions = parameterizedQualifiedTypeReference.sourcePositions;
+				sourceStart = (int)(positions[0]>>>32);
 				switch(this.ast.apiLevel) {
 					case AST.JLS2 : {
 							char[][] name = ((org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference) typeReference).getTypeName();
@@ -2977,6 +2978,7 @@ class ASTConverter {
 								end = type2.getStartPosition() + type2.getLength() - 1;
 							}
 							end = retrieveClosingAngleBracketPosition(end + 1);
+							length = end + 1;
 							parameterizedType.setSourceRange(start, end - start + 1);
 							startingIndex = endingIndex + 1;
 							Type currentType = parameterizedType;
@@ -2998,6 +3000,7 @@ class ASTConverter {
 										end = type2.getStartPosition() + type2.getLength() - 1;
 									}
 									end = retrieveClosingAngleBracketPosition(end + 1);
+									length = end + 1;
 									parameterizedType2.setSourceRange(start, end - start + 1);							
 									currentType = parameterizedType2;
 								} else {
@@ -3008,7 +3011,8 @@ class ASTConverter {
 							if (this.resolveBindings) {
 								this.recordNodes(currentType, typeReference);
 							}
-							return currentType;
+							type = currentType;
+							length -= sourceStart;
 						}
 				}
 			} else {
@@ -3905,8 +3909,8 @@ class ASTConverter {
 		return -1;
 	}
 
-	protected int retrieveProperRightBracketPosition(int bracketNumber, int start, int end) {
-		this.scanner.resetTo(start, end);
+	protected int retrieveProperRightBracketPosition(int bracketNumber, int start) {
+		this.scanner.resetTo(start, this.compilationUnitSource.length);
 		try {
 			int token, count = 0;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
@@ -4634,14 +4638,13 @@ class ASTConverter {
 					fieldDeclaration.setType(elementType);
 				} else {
 					int start = type.getStartPosition();
-					int length = type.getLength();
 					ArrayType subarrayType = arrayType;
 					int index = extraDimension;
 					while (index > 0) {
 						subarrayType = (ArrayType) subarrayType.getComponentType();
 						index--;
 					}
-					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
+					int end = retrieveProperRightBracketPosition(remainingDimensions, start);
 					subarrayType.setSourceRange(start, end - start + 1);
 					// cut the child loose from its parent (without creating garbage)
 					subarrayType.setParent(null, null);
@@ -4683,14 +4686,13 @@ class ASTConverter {
 					}
 				} else {
 					int start = type.getStartPosition();
-					int length = type.getLength();
 					ArrayType subarrayType = arrayType;
 					int index = extraDimension;
 					while (index > 0) {
 						subarrayType = (ArrayType) subarrayType.getComponentType();
 						index--;
 					}
-					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
+					int end = retrieveProperRightBracketPosition(remainingDimensions, start);
 					subarrayType.setSourceRange(start, end - start + 1);
 					// cut the child loose from its parent (without creating garbage)
 					subarrayType.setParent(null, null);
@@ -4745,14 +4747,13 @@ class ASTConverter {
 					singleVariableDeclaration.setType(elementType);
 				} else {
 					int start = type.getStartPosition();
-					int length = type.getLength();
 					ArrayType subarrayType = arrayType;
 					int index = extraDimension;
 					while (index > 0) {
 						subarrayType = (ArrayType) subarrayType.getComponentType();
 						index--;
 					}
-					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
+					int end = retrieveProperRightBracketPosition(remainingDimensions, start);
 					subarrayType.setSourceRange(start, end - start + 1);
 					// cut the child loose from its parent (without creating garbage)
 					subarrayType.setParent(null, null);
@@ -4782,14 +4783,13 @@ class ASTConverter {
 					variableDeclarationExpression.setType(elementType);
 				} else {
 					int start = type.getStartPosition();
-					int length = type.getLength();
 					ArrayType subarrayType = arrayType;
 					int index = extraDimension;
 					while (index > 0) {
 						subarrayType = (ArrayType) subarrayType.getComponentType();
 						index--;
 					}
-					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
+					int end = retrieveProperRightBracketPosition(remainingDimensions, start);
 					subarrayType.setSourceRange(start, end - start + 1);
 					// cut the child loose from its parent (without creating garbage)
 					subarrayType.setParent(null, null);
@@ -4819,14 +4819,13 @@ class ASTConverter {
 					variableDeclarationStatement.setType(elementType);
 				} else {
 					int start = type.getStartPosition();
-					int length = type.getLength();
 					ArrayType subarrayType = arrayType;
 					int index = extraDimension;
 					while (index > 0) {
 						subarrayType = (ArrayType) subarrayType.getComponentType();
 						index--;
 					}
-					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
+					int end = retrieveProperRightBracketPosition(remainingDimensions, start);
 					subarrayType.setSourceRange(start, end - start + 1);
 					// cut the child loose from its parent (without creating garbage)
 					subarrayType.setParent(null, null);
@@ -4846,12 +4845,11 @@ class ASTConverter {
 		if (dimensions > 1) {
 			// need to set positions for intermediate array type see 42839
 			int start = type.getStartPosition();
-			int length = type.getLength();
 			Type currentComponentType = ((ArrayType) type).getComponentType();
 			int searchedDimension = dimensions - 1;
 			int rightBracketEndPosition = start;
 			while (currentComponentType.isArrayType()) {
-				rightBracketEndPosition = retrieveProperRightBracketPosition(searchedDimension, start, start + length);
+				rightBracketEndPosition = retrieveProperRightBracketPosition(searchedDimension, start);
 				currentComponentType.setSourceRange(start, rightBracketEndPosition - start + 1);
 				currentComponentType = ((ArrayType) currentComponentType).getComponentType();
 				searchedDimension--;

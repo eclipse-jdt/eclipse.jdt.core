@@ -25,6 +25,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	
 	public ParameterizedSingleTypeReference(char[] name, TypeReference[] typeArguments, int dim, long pos){
 		super(name, dim, pos);
+		this.originalSourceEnd = this.sourceEnd;
 		this.typeArguments = typeArguments;
 	}
 	public void checkBounds(Scope scope) {

@@ -84,8 +84,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		if (true) {
 			return new Suite(ASTConverter15Test.class);
 		}
-		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0075"));
+		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
+		suite.addTest(new ASTConverter15Test("test0077"));
 		return suite;
 	}
 		
@@ -2190,5 +2190,59 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
-	}	
+	}
+	
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79362
+	 */
+	public void test0076() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0076", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		String expectedOutput = "The type Map is not generic; it cannot be parameterized with arguments <String, Double>";
+		assertProblemsSize(compilationUnit, 1, expectedOutput);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Wrong type", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		Type type = fieldDeclaration.getType();
+		checkSourceRange(type, "Map<String, Double>[][]", source);
+		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
+		ArrayType arrayType = (ArrayType) type;
+		type = arrayType.getComponentType();
+		checkSourceRange(type, "Map<String, Double>[]", source);
+		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
+		arrayType = (ArrayType) type;
+		type = arrayType.getComponentType();
+		checkSourceRange(type, "Map<String, Double>", source);
+	}
+	
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79362
+	 */
+	public void test0077() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0077", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		String expectedOutput = "The type Map is not generic; it cannot be parameterized with arguments <String, Double>";
+		assertProblemsSize(compilationUnit, 1, expectedOutput);
+		ASTNode node = getASTNode(compilationUnit, 0, 0);
+		assertEquals("Wrong type", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		Type type = fieldDeclaration.getType();
+		checkSourceRange(type, "java.util.Map<String, Double>[][]", source);
+		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
+		ArrayType arrayType = (ArrayType) type;
+		type = arrayType.getComponentType();
+		checkSourceRange(type, "java.util.Map<String, Double>[]", source);
+		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
+		arrayType = (ArrayType) type;
+		type = arrayType.getComponentType();
+		checkSourceRange(type, "java.util.Map<String, Double>", source);
+	}
 }
