@@ -213,6 +213,18 @@ class DefaultBindingResolver extends BindingResolver {
 						return null;
 					}
 				} else {
+					if (type.isArrayType()) {
+						ArrayType array = (ArrayType) type;
+						if (typeBinding.getDimensions() != array.getDimensions()) {
+							ArrayBinding arrayBinding = (ArrayBinding)typeReference.binding;
+							for (int i = 0, max = typeBinding.getDimensions() - array.getDimensions(); i < max; i++) {
+								arrayBinding = (ArrayBinding) arrayBinding.elementsType(this.scope);
+							}
+							return this.getTypeBinding(arrayBinding);
+						}
+					} else if (typeBinding.isArray() && type.isSimpleType()) {
+						return this.getTypeBinding(((ArrayBinding)typeReference.binding).leafComponentType());
+					}
 					return typeBinding;
 				}
 			} else if (node instanceof SingleNameReference) {
@@ -570,6 +582,17 @@ class DefaultBindingResolver extends BindingResolver {
 	void store(ASTNode node, AstNode oldASTNode) {
 		this.newAstToOldAst.put(node, oldASTNode);
 	}
+	
+	/*
+	 * Method declared on BindingResolver.
+	 */
+	void updateKey(ASTNode node, ASTNode newNode) {
+		Object astNode = this.newAstToOldAst.remove(node);
+		if (astNode != null) {
+			this.newAstToOldAst.put(newNode, astNode);
+		}
+	}
+		
 	/*
 	 * Method declared on BindingResolver.
 	 */
@@ -863,7 +886,7 @@ class DefaultBindingResolver extends BindingResolver {
 	private IBinding internalResolveNameForSimpleType(Name name) {
 		AstNode node = (AstNode) this.newAstToOldAst.get(name);
 		if (node instanceof TypeReference) {
-			return this.getTypeBinding(((TypeReference) node).binding);
+			return this.getTypeBinding(((TypeReference) node).binding.leafComponentType());
 		} else if (node instanceof NameReference) {
 			NameReference nameReference = (NameReference) node;
 			if (nameReference.isTypeReference()) {

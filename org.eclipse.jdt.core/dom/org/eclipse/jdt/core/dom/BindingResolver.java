@@ -453,4 +453,18 @@ class BindingResolver {
 	IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding) {
 		return null;
 	}
+	
+	/**
+	 * Allows the user to update information about the given old/new pair of
+	 * AST nodes.
+	 * <p>
+	 * The default implementation of this method does nothing.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param node the old AST node
+	 * @param newNode the new AST node
+	 */
+	void updateKey(ASTNode node, ASTNode newNode) {
+	}
 }

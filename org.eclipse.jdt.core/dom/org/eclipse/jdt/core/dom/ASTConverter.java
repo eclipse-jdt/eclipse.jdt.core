@@ -524,7 +524,7 @@ class ASTConverter {
 					// PR http://dev.eclipse.org/bugs/show_bug.cgi?id=10759
 					int end = retrieveStartingLeftBracketPosition(sourceStart, sourceStart + length);
 					if (end == -1) {
-						end = sourceStart + length;
+						end = sourceStart + length - 1;
 					}
 					simpleName.setSourceRange(sourceStart, end - sourceStart + 1);
 					SimpleType simpleType = this.ast.newSimpleType(simpleName);
@@ -964,8 +964,11 @@ class ASTConverter {
 		SimpleName name = this.ast.newSimpleName(argument.name());
 		name.setSourceRange(argument.sourceStart, argument.sourceEnd - argument.sourceStart + 1);
 		variableDecl.setName(name);
-		variableDecl.setType(convertType(argument.type));
-		variableDecl.setSourceRange(argument.declarationSourceStart, argument.declarationSourceEnd - argument.declarationSourceStart + 1);
+		Type type = convertType(argument.type);
+		variableDecl.setType(type);
+		int typeEnd = type.getStartPosition() + type.getLength() - 1;
+		int rightEnd = Math.max(typeEnd, argument.declarationSourceEnd);
+		variableDecl.setSourceRange(argument.declarationSourceStart, rightEnd - argument.declarationSourceStart + 1);
 		if (this.resolveBindings) {
 			recordNodes(name, argument);
 			recordNodes(variableDecl, argument);
@@ -1855,7 +1858,7 @@ class ASTConverter {
 			}
 			variableDeclarationFragment.setExtraDimensions(retrieveExtraDimension(localDeclaration.sourceEnd + 1, this.compilationUnitSource.length));
 			Type type = convertType(localDeclaration.type);
-			setTypeForVariableDeclarationExpression(localDeclaration, variableDeclarationExpression, type, variableDeclarationFragment.getExtraDimensions());
+			setTypeForVariableDeclarationExpression(variableDeclarationExpression, type, variableDeclarationFragment.getExtraDimensions());
 			return variableDeclarationExpression;
 		} else {
 			// unsupported
@@ -2314,6 +2317,24 @@ class ASTConverter {
 		return -1;
 	}
 
+	private int retrieveProperRightBracketPosition(int bracketNumber, int start, int end) {
+		scanner.resetTo(start, end);
+		try {
+			int token, count = 0;
+			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
+				switch(token) {
+					case Scanner.TokenNameRBRACKET:
+						count++;
+						if (count == bracketNumber) {
+							return scanner.currentPosition - 1;
+						}
+				}
+			}
+		} catch(InvalidInputException e) {
+		}
+		return -1;
+	}
+	
 	/**
 	 * This method is used to retrieve the start position of the block.
 	 * @return int the dimension found, -1 if none
@@ -2492,7 +2513,7 @@ class ASTConverter {
 		}
 		fieldDeclaration.setSourceRange(fieldDecl.declarationSourceStart, fieldDecl.declarationEnd - fieldDecl.declarationSourceStart + 1);
 		Type type = convertType(fieldDecl.type);
-		setTypeForField(fieldDecl, fieldDeclaration, type, variableDeclarationFragment.getExtraDimensions());
+		setTypeForField(fieldDeclaration, type, variableDeclarationFragment.getExtraDimensions());
 		/**
 		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
 		 * This handles cases where the parser built nodes with invalid modifiers.
@@ -2519,7 +2540,7 @@ class ASTConverter {
 		}
 		variableDeclarationStatement.setSourceRange(localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd - localDeclaration.declarationSourceStart + 1);
 		Type type = convertType(localDeclaration.type);
-		setTypeForVariableDeclarationStatement(localDeclaration, variableDeclarationStatement, type, variableDeclarationFragment.getExtraDimensions());
+		setTypeForVariableDeclarationStatement(variableDeclarationStatement, type, variableDeclarationFragment.getExtraDimensions());
 		/**
 		 * http://dev.eclipse.org/bugs/show_bug.cgi?id=13233
 		 * This handles cases where the parser built variables with invalid modifiers.
@@ -2536,21 +2557,31 @@ class ASTConverter {
 		return variableDeclarationStatement;
 	}
 	
-	private void setTypeForField(org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDecl, FieldDeclaration fieldDeclaration, Type type, int extraDimension) {
+	private void setTypeForField(FieldDeclaration fieldDeclaration, Type type, int extraDimension) {
 		if (extraDimension != 0) {
 			if (type.isArrayType()) {
 				ArrayType arrayType = (ArrayType) type;
 				int remainingDimensions = arrayType.getDimensions() - extraDimension;
-				Type eltType = arrayType.getElementType();
-				Type elementType = (Type) ASTNode.copySubtree(this.ast, eltType);
-				eltType.subtreeMatch(new CopyPositionsMatcher(), elementType);
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
+					Type elementType = arrayType.getElementType();
+					elementType.setParent(null);
+					this.ast.getBindingResolver().updateKey(type, elementType);
 					fieldDeclaration.setType(elementType);
 				} else {
-					ArrayType arrayType2 = this.ast.newArrayType(elementType, remainingDimensions);
-					arrayType2.setSourceRange(type.getStartPosition(), type.getLength());
-					fieldDeclaration.setType(arrayType2);
+					int start = type.getStartPosition();
+					int length = type.getLength();
+					ArrayType subarrayType = arrayType;
+					int index = extraDimension;
+					while (index > 0) {
+						subarrayType = (ArrayType) subarrayType.getComponentType();
+						index--;
+					}
+					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
+					subarrayType.setSourceRange(start, end - start + 1);
+					subarrayType.setParent(null);
+					fieldDeclaration.setType(subarrayType);
+					this.ast.getBindingResolver().updateKey(type, subarrayType);
 				}
 			} else {
 				fieldDeclaration.setType(type);
@@ -2560,21 +2591,31 @@ class ASTConverter {
 		}
 	}
 
-	private void setTypeForVariableDeclarationStatement(LocalDeclaration localDeclaration, VariableDeclarationStatement variableDeclarationStatement, Type type, int extraDimension) {
+	private void setTypeForVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement, Type type, int extraDimension) {
 		if (extraDimension != 0) {
 			if (type.isArrayType()) {
 				ArrayType arrayType = (ArrayType) type;
 				int remainingDimensions = arrayType.getDimensions() - extraDimension;
-				Type eltType = arrayType.getElementType();
-				Type elementType = (Type) ASTNode.copySubtree(this.ast, eltType);
-				eltType.subtreeMatch(new CopyPositionsMatcher(), elementType);
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
+					Type elementType = arrayType.getElementType();
+					elementType.setParent(null);
+					this.ast.getBindingResolver().updateKey(type, elementType);
 					variableDeclarationStatement.setType(elementType);
 				} else {
-					ArrayType arrayType2 = this.ast.newArrayType(elementType, remainingDimensions);
-					arrayType2.setSourceRange(type.getStartPosition(), type.getLength());
-					variableDeclarationStatement.setType(arrayType2);
+					int start = type.getStartPosition();
+					int length = type.getLength();
+					ArrayType subarrayType = arrayType;
+					int index = extraDimension;
+					while (index > 0) {
+						subarrayType = (ArrayType) subarrayType.getComponentType();
+						index--;
+					}
+					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
+					subarrayType.setSourceRange(start, end - start + 1);
+					subarrayType.setParent(null);
+					variableDeclarationStatement.setType(subarrayType);
+					this.ast.getBindingResolver().updateKey(type, subarrayType);
 				}
 			} else {
 				variableDeclarationStatement.setType(type);
@@ -2584,21 +2625,31 @@ class ASTConverter {
 		}
 	}
 
-	private void setTypeForVariableDeclarationExpression(LocalDeclaration localDeclaration, VariableDeclarationExpression variableDeclarationExpression, Type type, int extraDimension) {
+	private void setTypeForVariableDeclarationExpression(VariableDeclarationExpression variableDeclarationExpression, Type type, int extraDimension) {
 		if (extraDimension != 0) {
 			if (type.isArrayType()) {
 				ArrayType arrayType = (ArrayType) type;
 				int remainingDimensions = arrayType.getDimensions() - extraDimension;
-				Type eltType = arrayType.getElementType();
-				Type elementType = (Type) ASTNode.copySubtree(this.ast, eltType);
-				eltType.subtreeMatch(new CopyPositionsMatcher(), elementType);
 				if (remainingDimensions == 0)  {
 					// the dimensions are after the name so the type of the fieldDeclaration is a simpleType
+					Type elementType = arrayType.getElementType();
+					elementType.setParent(null);
+					this.ast.getBindingResolver().updateKey(type, elementType);
 					variableDeclarationExpression.setType(elementType);
 				} else {
-					ArrayType arrayType2 = this.ast.newArrayType(elementType, remainingDimensions);
-					arrayType2.setSourceRange(type.getStartPosition(), type.getLength());
-					variableDeclarationExpression.setType(arrayType2);
+					int start = type.getStartPosition();
+					int length = type.getLength();
+					ArrayType subarrayType = arrayType;
+					int index = extraDimension;
+					while (index > 0) {
+						subarrayType = (ArrayType) subarrayType.getComponentType();
+						index--;
+					}
+					int end = retrieveProperRightBracketPosition(remainingDimensions, start, start + length);
+					subarrayType.setSourceRange(start, end - start + 1);
+					subarrayType.setParent(null);
+					variableDeclarationExpression.setType(subarrayType);
+					this.ast.getBindingResolver().updateKey(type, subarrayType);
 				}
 			} else {
 				variableDeclarationExpression.setType(type);
