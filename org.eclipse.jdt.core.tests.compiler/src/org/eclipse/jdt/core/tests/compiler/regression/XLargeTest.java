@@ -199,8 +199,8 @@ public void test001() {
 			"    	    b++;\n" +
 			"	}\n" +
 			"	if (b == 4 && i == 0) System.out.println(\"SUCCESS\");\n" +
-			"	System.out.println(\"FAILED\");\n" +
-			"    }\n" +
+			"	else System.out.println(\"FAILED\");\n" +
+			"   }\n" +
 			"}"
 		},
 		"SUCCESS");
@@ -403,7 +403,6 @@ public void test003() {
 			"\n" +
 			"    public static void main(String args[]) {\n" +
 			"    	X3 x = new X3();\n" +
-			"    	System.out.println(x);\n" +
 			"    }\n" +
 			"    \n" +
 			"    public X3() {\n" +
@@ -765,7 +764,7 @@ public void test004() {
 			"	}\n" +
 			"	}\n" +
 			"	if (b == 4 && i == 0) System.out.println(\"SUCCESS\");\n" +
-			"	System.out.println(\"FAILED\");\n" +
+			"	else System.out.println(\"FAILED\");\n" +
 			"    }\n" +
 			"}"
 		},

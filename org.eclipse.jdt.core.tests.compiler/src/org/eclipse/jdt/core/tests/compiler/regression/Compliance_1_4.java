@@ -571,7 +571,7 @@ public void test014() {
 			"	}	\n" +
 			"}	\n"
 		},
-		"T.foo(boolean)#false#T.Member");
+		"T.foo(boolean)#false#T.Member#");
 }
 
 /*
@@ -1272,6 +1272,7 @@ public void test033() {
 			"  }	\n"+
 			"}	\n"
 		},
+		"0\n" + 
 		"SyntheticInit BEFORE SuperConstructorCall");
 }
 /*

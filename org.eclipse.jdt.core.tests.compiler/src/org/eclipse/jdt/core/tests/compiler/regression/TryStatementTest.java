@@ -223,6 +223,7 @@ public void test008() {
 			"	}\n" + 
 			"}"
 		},
+		"Caught.\n" + 
 		"SUCCESS");
 }
 public void test009() {
@@ -256,6 +257,7 @@ public void test009() {
 			"}\n" +
 			"}"
 		},
+		"null\n" + 
 		"#save -> 43");
 }
 public void test010() {
@@ -295,6 +297,7 @@ public void test010() {
 			"}\n" +
 			"}"
 		},
+		"null\n" + 
 		"#save -> 43");
 }
 
@@ -335,6 +338,7 @@ public void test011() {
 			"}\n" +
 			"}"
 		},
+		"null\n" + 
 		"#save -> 43");
 }
 /*
@@ -449,6 +453,9 @@ public void test014() {
 			"}\n" +
 			"}"
 		},
+		"null\n" + 
+		"null\n" + 
+		"#inner-finally ->334\n" + 
 		"#save -> 43");
 }
 
@@ -592,7 +599,8 @@ public void test019() {
 			"	}	\n" +
 			"}	\n"
 		},
-		"SUCCESS");
+		"SUCCESS\n" + 
+		"null");
 }
 
 /*
@@ -647,6 +655,11 @@ public void test020() {
 			"	}	\n" +
 			"}	\n"
 		},
+		"try1\n" + 
+		"try2\n" + 
+		"finally2\n" + 
+		"finally1\n" + 
+		"try3\n" + 
 		"finally3");
 }
 

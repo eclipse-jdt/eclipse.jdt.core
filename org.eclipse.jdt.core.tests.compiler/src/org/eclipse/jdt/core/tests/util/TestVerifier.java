@@ -39,9 +39,8 @@ private boolean checkBuffers(String errorString, String outputString, String sou
 				+ errorString;
 		return false;
 	}
-	String platformIndependantOutputString = Util.convertToIndependantLineDelimiter(outputString);
-	if (expectedSuccessOutputString != null && (platformIndependantOutputString.indexOf(expectedSuccessOutputString) == -1
-		|| expectedSuccessOutputString.length() == 0 && platformIndependantOutputString.length() != 0)) {
+	String platformIndependantOutputString = Util.convertToIndependantLineDelimiter(outputString.trim());
+	if (expectedSuccessOutputString != null && !Util.convertToIndependantLineDelimiter(expectedSuccessOutputString).equals(platformIndependantOutputString)) {
 		System.out.println(Util.displayString(platformIndependantOutputString, 2));
 		this.failureReason =
 			"Unexpected output running resulting class file for "
