@@ -117,7 +117,7 @@ public class CompletionParser extends AssistParser {
 	static final int NEXTTOKEN = 1;
 	static final int YES = 2;
 	
-	
+	boolean isAlreadyAttached;
 public CompletionParser(ProblemReporter problemReporter) {
 	super(problemReporter);
 	this.reportSyntaxErrorIsRequired = false;
@@ -126,7 +126,9 @@ public char[] assistIdentifier(){
 	return ((CompletionScanner)scanner).completionIdentifier;
 }
 protected void attachOrphanCompletionNode(){
-	if(assistNode == null) return;
+	if(assistNode == null || this.isAlreadyAttached) return;
+	
+	this.isAlreadyAttached = true;
 	
 	if (this.isOrphanCompletionNode) {
 		ASTNode orphan = this.assistNode;
@@ -2731,6 +2733,7 @@ public void flushAssistState() {
 
 	super.flushAssistState();
 	this.isOrphanCompletionNode = false;
+	this.isAlreadyAttached = false;
 	assistNodeParent = null;
 	CompletionScanner completionScanner = (CompletionScanner)this.scanner;
 	completionScanner.completedIdentifierStart = 0;

@@ -8342,4 +8342,44 @@ public void test0147(){
 			expectedReplacedSource,
 	"diet ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83236
+ */
+public void test0148(){
+	String str =
+		"public class Test {\n" + 
+		"  Boolean\n" + 
+		"   * some text <b>bold<i>both</i></b>\n" + 
+		"   */\n" + 
+		"  public void foo(String s) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "Boolean";
+	int cursorLocation = str.indexOf("Boolean") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:Boolean>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "Boolean";
+	String expectedReplacedSource = "Boolean";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  <CompleteOnType:Boolean>;\n" + 
+		"  some text;\n" + 
+		"  bold<i> both;\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void foo(String s) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }
