@@ -749,7 +749,6 @@ public class Scribe {
 	}
 
 	public void printModifiers() {
-		this.printComment();
 		try {
 			boolean isFirstModifier = true;
 			int currentTokenStartPosition = this.scanner.currentPosition;

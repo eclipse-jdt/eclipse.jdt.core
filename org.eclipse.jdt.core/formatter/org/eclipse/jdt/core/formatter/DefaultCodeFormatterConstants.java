@@ -231,6 +231,7 @@ public class DefaultCodeFormatterConstants {
 
 	public static final String NEXT_LINE = "next_line"; //$NON-NLS-1$
 	public static final String NEXT_LINE_SHIFTED = "next_line_shifted";	//$NON-NLS-1$
+    public static final String NEXT_LINE_ON_WRAP = "next_line_on_wrap"; //$NON-NLS-1$
 	public static final String TRUE = "true"; 											//$NON-NLS-1$
 
 	/**
