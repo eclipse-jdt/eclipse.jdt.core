@@ -81,8 +81,7 @@ public static Test suite() {
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
 		ArrayList tests_1_5 = (ArrayList)standardTests.clone();
-// (TODO) kent - enable when support is released
-//		tests_1_5.add(AutoBoxingTest.class);
+		tests_1_5.add(AutoBoxingTest.class);
 		tests_1_5.add(AssertionTest.class);
 		tests_1_5.add(Compliance_1_5.class);
 		tests_1_5.add(JavadocTest_1_5.class);
