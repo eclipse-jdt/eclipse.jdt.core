@@ -34,9 +34,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		super(name);
 	}
 
-//	static {
-//		TESTS_NUMBERS = new int[] { 145 };
-//	}
+	static {
+//		TESTS_NUMBERS = new int[] { 146 };
+	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
 	}
@@ -4372,5 +4372,41 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
     	CompilationUnit compilationUnit = (CompilationUnit) node;
     	assertProblemsSize(compilationUnit, 1, "");
+    }
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=87350
+    public void test0146() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"import java.util.Iterator;\n" + 
+    		"public class X {\n" + 
+    		"    void doit() {\n" + 
+    		"			Iterator iter= (Iterator) null;\n" + 
+    		"			System.out.println(iter);\n" + 
+    		"    }\n" + 
+    		"}";
+    	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertNotNull("No initializer", expression);
+		assertEquals("Not a cast expression", ASTNode.CAST_EXPRESSION, expression.getNodeType());
+		CastExpression castExpression = (CastExpression) expression;
+		Type type = castExpression.getType();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertEquals("Wrong type", "java.util.Iterator", typeBinding.getQualifiedName());
+		assertTrue("Not a raw type", typeBinding.isRawType());
+		assertFalse("Is a generic type", typeBinding.isGenericType());
+		assertFalse("Is a parameterized type", typeBinding.isParameterizedType());
     }
 }

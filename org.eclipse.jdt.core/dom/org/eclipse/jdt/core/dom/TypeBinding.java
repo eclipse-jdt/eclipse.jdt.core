@@ -739,6 +739,9 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public boolean isGenericType() {
 		// equivalent to return getTypeParameters().length > 0;
+		if (isRawType()) {
+			return false;
+		}
 		TypeVariableBinding[] typeVariableBindings = this.binding.typeVariables();
 		return (typeVariableBindings != null && typeVariableBindings.length > 0);
 	}

@@ -769,7 +769,7 @@ class DefaultBindingResolver extends BindingResolver {
 				}
 			} else if (index == indexOfFirstFieldBinding) {
 				if (qualifiedNameReference.isTypeReference()) {
-					return this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
+					return this.getTypeBinding(qualifiedNameReference.resolvedType);
 				} else {
 					Binding binding = qualifiedNameReference.binding;
 					if (binding != null) {
@@ -909,7 +909,7 @@ class DefaultBindingResolver extends BindingResolver {
 		} if (node instanceof SingleNameReference) {
 			SingleNameReference singleNameReference = (SingleNameReference) node;
 			if (singleNameReference.isTypeReference()) {
-				return this.getTypeBinding((ReferenceBinding)singleNameReference.binding);
+				return this.getTypeBinding(singleNameReference.resolvedType);
 			} else {
 				// this is a variable or a field
 				Binding binding = singleNameReference.binding;
@@ -1156,9 +1156,9 @@ class DefaultBindingResolver extends BindingResolver {
 				TypeReference typeReference = (TypeReference) node;
 				binding = typeReference.resolvedType;
 			} else if (node instanceof SingleNameReference && ((SingleNameReference)node).isTypeReference()) {
-				binding = (org.eclipse.jdt.internal.compiler.lookup.TypeBinding) (((SingleNameReference)node).binding);
+				binding = (((SingleNameReference)node).resolvedType);
 			} else if (node instanceof QualifiedNameReference && ((QualifiedNameReference)node).isTypeReference()) {
-				binding = (org.eclipse.jdt.internal.compiler.lookup.TypeBinding) (((QualifiedNameReference)node).binding);
+				binding = (((QualifiedNameReference)node).resolvedType);
 			} else if (node instanceof ArrayAllocationExpression) {
 				binding = ((ArrayAllocationExpression) node).resolvedType;
 			}
