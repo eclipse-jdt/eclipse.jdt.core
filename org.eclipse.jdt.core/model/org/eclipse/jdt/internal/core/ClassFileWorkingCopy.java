@@ -363,17 +363,7 @@ public IResource getResource() {
 		return new ClassFile((IPackageFragment)getParent(), getElementName());
 	}
 
-	/*
-	 * @see IWorkingCopy#getSharedWorkingCopy(IProgressMonitor, IBufferFactory)
-	 */
-	public IJavaElement getSharedWorkingCopy(
-		IProgressMonitor monitor,
-		IBufferFactory factory)
-		throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
-	}
-
-	/*
+		/*
 	 * @see IWorkingCopy#getSharedWorkingCopy(IProgressMonitor, IBufferFactory)
 	 */
 	public IJavaElement getSharedWorkingCopy(
@@ -388,16 +378,6 @@ public IResource getResource() {
 	 * @see IWorkingCopy#getWorkingCopy()
 	 */
 	public IJavaElement getWorkingCopy() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
-	}
-
-	/*
-	 * @see IWorkingCopy#getWorkingCopy(IProgressMonitor, IBufferFactory)
-	 */
-	public IJavaElement getWorkingCopy(
-		IProgressMonitor monitor,
-		IBufferFactory factory)
-		throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 	/*
@@ -432,13 +412,6 @@ public IResource getResource() {
 	 * @see IWorkingCopy#reconcile()
 	 */
 	public IMarker[] reconcile() throws JavaModelException {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
-	}
-
-	/*
-	 * @see IWorkingCopy#reconcile()
-	 */
-	 public void reconcile(IProblemRequestor problemRequestor) throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 

@@ -529,12 +529,6 @@ public IType[] getTypes() throws JavaModelException {
 /**
  * @see IWorkingCopy
  */
-public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory factory) throws JavaModelException {
-	return getSharedWorkingCopy(pm, factory, null);
-}
-/**
- * @see IWorkingCopy
- */
 public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	Map sharedWorkingCopies = manager.sharedWorkingCopies;
@@ -569,12 +563,6 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
  */
 public IJavaElement getWorkingCopy() throws JavaModelException {
 	return this.getWorkingCopy(null, null, null);
-}
-/**
- * @see IWorkingCopy
- */
-public IJavaElement getWorkingCopy(IProgressMonitor pm, IBufferFactory factory) throws JavaModelException {
-	return getWorkingCopy(pm, factory, null);
 }
 
 /**
@@ -736,13 +724,6 @@ protected boolean parentExists(){
 public IMarker[] reconcile() throws JavaModelException {
 	// Reconciling is not supported on non working copies
 	return null;
-}
-
-/**
- * @see IWorkingCopy
- */
-public void reconcile(IProblemRequestor problemRequestor) throws JavaModelException {
-	// Reconciling is not supported on non working copies
 }
 
 /**

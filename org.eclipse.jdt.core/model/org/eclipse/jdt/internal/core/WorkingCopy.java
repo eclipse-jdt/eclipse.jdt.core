@@ -220,9 +220,8 @@ public IProblemRequestor getProblemRequestor(){
 
 /**
  * @see IWorkingCopy
- * @deprecated
  */
-public IJavaElement getSharedWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException {
+public IJavaElement getSharedWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
 	return this;
 }
 /**
@@ -242,7 +241,7 @@ public IJavaElement getWorkingCopy() throws JavaModelException {
 /**
  * @see IWorkingCopy
  */
-public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException {
+public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
 	return this;
 }
 /**
@@ -329,35 +328,6 @@ public IMarker[] reconcile() throws JavaModelException {
 	if (shouldFire) manager.fire();
 
 	return null;
-}
-
-/**
- * @see IWorkingCopy
- */
-public void reconcile(IProblemRequestor problemRequestor) throws JavaModelException {
-	// create the delta builder (this remembers the current content of the cu)
-	JavaElementDeltaBuilder deltaBuilder = new JavaElementDeltaBuilder(this);
-
-	// update the element infos with the content of the working copy
-	this.problemRequestor = problemRequestor;
-	this.makeConsistent(null);
-
-	// build the deltas
-	deltaBuilder.buildDeltas(); 
-	
-	// fire the deltas
-	boolean shouldFire = false;
-	JavaModelManager manager = null;
-	if (deltaBuilder.delta != null) {
-		manager = (JavaModelManager)JavaModelManager.getJavaModelManager();
-		if (deltaBuilder.delta.getAffectedChildren().length > 0) {
-			manager.registerJavaModelDelta(deltaBuilder.delta);
-			shouldFire = true;
-		}
-	}
-	if (shouldFire)
-		manager.fire();
-
 }
 
 /**
