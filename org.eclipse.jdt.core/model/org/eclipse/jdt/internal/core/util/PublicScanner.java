@@ -191,100 +191,112 @@ public  final boolean atEnd() {
 }
 
 private void checkNonExternalizedString()  throws InvalidInputException {
-	if (currentLine == null)
+	if (currentLine == null) 
 		return;
 	parseTags(currentLine);
 }
 
 // chech presence of task: tags
 public void checkTaskTag(int commentStart, int commentEnd) {
-
+	char[] src = this.source;
+	
 	// only look for newer task: tags
-	if (this.foundTaskCount > 0 && this.foundTaskPositions[this.foundTaskCount-1][0] >= commentStart) {
+	if (this.foundTaskCount > 0
+		&& this.foundTaskPositions[this.foundTaskCount - 1][0] >= commentStart) {
 		return;
 	}
 	int foundTaskIndex = this.foundTaskCount;
-	nextChar: for (int i = commentStart; i < commentEnd && i < this.eofPosition; i++) {
-
+	char previous = '/';
+	nextChar : for (
+		int i = commentStart + 1; i < commentEnd && i < this.eofPosition; i++) {
+		if (Character.isLetterOrDigit(previous)) {
+			previous = src[i];
+			continue nextChar;
+		}
 		char[] tag = null;
 		char[] priority = null;
-		
+		previous = src[i];
 		// check for tag occurrence
-		nextTag: for (int itag = 0; itag < this.taskTags.length; itag++){
+		nextTag : for (int itag = 0; itag < this.taskTags.length; itag++) {
 			tag = this.taskTags[itag];
-			priority = 
-				this.taskPriorities != null && itag < this.taskPriorities.length ?
-				this.taskPriorities[itag] :
-				null;
+			priority = this.taskPriorities != null && itag < this.taskPriorities.length
+						? this.taskPriorities[itag]
+						: null;
 			int tagLength = tag.length;
-			for (int t = 0; t < tagLength; t++){
-				if (this.source[i+t] != tag[t]) continue nextTag;
+			for (int t = 0; t < tagLength; t++) {
+				if (src[i + t] != tag[t])
+					continue nextTag;
 			}
-
-			if (this.foundTaskTags == null){
+			// ensure tag is followed by whitespace, line separator or asterisk if tag did finish with a letter
+			if (i+tagLength < commentEnd && Character.isLetterOrDigit(src[i+tagLength-1])) {
+				if (Character.isLetterOrDigit(src[i + tagLength]))
+					continue nextTag;
+			}
+			if (this.foundTaskTags == null) {
 				this.foundTaskTags = new char[5][];
 				this.foundTaskMessages = new char[5][];
 				this.foundTaskPriorities = new char[5][];
 				this.foundTaskPositions = new int[5][];
 			} else if (this.foundTaskCount == this.foundTaskTags.length) {
-				System.arraycopy(this.foundTaskTags, 0, this.foundTaskTags = new char[this.foundTaskCount*2][], 0, this.foundTaskCount);
-				System.arraycopy(this.foundTaskMessages, 0, this.foundTaskMessages = new char[this.foundTaskCount*2][], 0, this.foundTaskCount);
-				System.arraycopy(this.foundTaskPriorities, 0, this.foundTaskPriorities = new char[this.foundTaskCount*2][], 0, this.foundTaskCount);
-				System.arraycopy(this.foundTaskPositions, 0, this.foundTaskPositions = new int[this.foundTaskCount*2][], 0, this.foundTaskCount);
+				System.arraycopy(this.foundTaskTags, 0, this.foundTaskTags = new char[this.foundTaskCount * 2][], 0, this.foundTaskCount);
+				System.arraycopy(this.foundTaskMessages, 0, this.foundTaskMessages = new char[this.foundTaskCount * 2][], 0, this.foundTaskCount);
+				System.arraycopy(this.foundTaskPriorities, 0, this.foundTaskPriorities = new char[this.foundTaskCount * 2][], 0, this.foundTaskCount);
+				System.arraycopy(this.foundTaskPositions, 0, this.foundTaskPositions = new int[this.foundTaskCount * 2][], 0, this.foundTaskCount);
 			}
 			this.foundTaskTags[this.foundTaskCount] = tag;
 			this.foundTaskPriorities[this.foundTaskCount] = priority;
-			this.foundTaskPositions[this.foundTaskCount] = new int[]{ i, i+tagLength-1 };
+			this.foundTaskPositions[this.foundTaskCount] = new int[] { i, i + tagLength - 1 };
 			this.foundTaskMessages[this.foundTaskCount] = CharOperation.NO_CHAR;
 			this.foundTaskCount++;
-			
-			i += tagLength-1; // will be incremented when looping
+			i += tagLength - 1; // will be incremented when looping
+			previous = src[i];
+			break nextTag;
 		}
 	}
-	
 	for (int i = foundTaskIndex; i < this.foundTaskCount; i++) {
 		// retrieve message start and end positions
 		int msgStart = this.foundTaskPositions[i][0] + this.foundTaskTags[i].length;
-		int max_value = i + 1 < this.foundTaskCount ? this.foundTaskPositions[i + 1][0] - 1 : commentEnd-1; // at most beginning of next task
-		if (max_value < msgStart) max_value = msgStart; // would only occur if tag is before EOF.
+		int max_value = i + 1 < this.foundTaskCount
+				? this.foundTaskPositions[i + 1][0] - 1
+				: commentEnd - 1;
+		// at most beginning of next task
+		if (max_value < msgStart) {
+			max_value = msgStart; // would only occur if tag is before EOF.
+		}
 		int end = -1;
 		char c;
-		
-		for (int j = msgStart; j < max_value; j++){
-			if ((c = this.source[j]) == '\n' || c == '\r'){
-				end = j-1;
+		for (int j = msgStart; j < max_value; j++) {
+			if ((c = src[j]) == '\n' || c == '\r') {
+				end = j - 1;
 				break;
 			}
 		}
-		
-		if (end == -1){
-			for (int j = max_value; j > msgStart; j--){
-				if ((c = this.source[j]) == '*') {
-					end = j-1;
+		if (end == -1) {
+			for (int j = max_value; j > msgStart; j--) {
+				if ((c = src[j]) == '*') {
+					end = j - 1;
 					break;
 				}
 			}
-			if (end == -1) end = max_value;
+			if (end == -1)
+				end = max_value;
 		}
-
-		if (msgStart == end) continue; // empty
-				
+		if (msgStart == end)
+			continue; // empty
 		// trim the message
-		while (CharOperation.isWhitespace(source[end]) && msgStart <= end) end--;
-		while (CharOperation.isWhitespace(source[msgStart]) && msgStart <= end) msgStart++;
-
+		while (CharOperation.isWhitespace(src[end]) && msgStart <= end)
+			end--;
+		while (CharOperation.isWhitespace(src[msgStart]) && msgStart <= end)
+			msgStart++;
 		// update the end position of the task
 		this.foundTaskPositions[i][1] = end;
-		
 		// get the message source
-		final int messageLength = end-msgStart+1;
+		final int messageLength = end - msgStart + 1;
 		char[] message = new char[messageLength];
-
-		System.arraycopy(source, msgStart, message, 0, messageLength);
+		System.arraycopy(src, msgStart, message, 0, messageLength);
 		this.foundTaskMessages[i] = message;
 	}
 }
-
 public char[] getCurrentIdentifierSource() {
 	//return the token REAL source (aka unicodes are precomputed)
 
