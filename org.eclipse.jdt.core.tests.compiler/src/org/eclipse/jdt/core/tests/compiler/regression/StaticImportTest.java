@@ -390,37 +390,36 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"2");
-// TODO (kent) must support static methods too... how? cannot hold onto a specific MethodBinding...
-//		this.runConformTest(
-//			new String[] {
-//				"X.java",
-//				"import static java.lang.Math.max;\n" +
-//				"public class X {\n" +
-//				"	public static void main(String[] s) {\n" +
-//				"		System.out.println(max(1, 3));\n" +
-//				"	}\n" +
-//				"}\n",
-//			},
-//			"3");
-//
-// another static method case
-//		this.runConformTest( // 80280
-//			new String[] {
-//				"X.java",
-//				"import static p1.C.F;\n" +
-//				"import p2.*;\n" +
-//				"public class X implements F {}\n",
-//				"p1/C.java",
-//				"package p1;\n" +
-//				"public class C {\n" +
-//				"	public static int F() { return 0; }\n" +
-//				"}\n",
-//				"p2/F.java",
-//				"package p2;\n" +
-//				"public interface F {}\n"
-//			},
-//			""
-//		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static java.lang.Math.max;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] s) {\n" +
+				"		System.out.println(max(1, 3));\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"3");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p1.C.F;\n" +
+				"import p2.*;\n" +
+				"public class X implements F {" +
+				"	int i = F();" +
+				"}\n",
+				"p1/C.java",
+				"package p1;\n" +
+				"public class C {\n" +
+				"	public static int F() { return 0; }\n" +
+				"}\n",
+				"p2/F.java",
+				"package p2;\n" +
+				"public interface F {}\n"
+			},
+			""
+		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77955
 	public void test013() { 

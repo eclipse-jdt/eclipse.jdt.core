@@ -1737,38 +1737,44 @@ public abstract class Scope
 			CompilationUnitScope unitScope = (CompilationUnitScope) scope;
 			ImportBinding[] imports = unitScope.imports;
 			if (imports != null) {
-				// check on demand imports
 				boolean foundInImport = false;
 				for (int i = 0, length = imports.length; i < length; i++) {
 					ImportBinding importBinding = imports[i];
-					if (importBinding.isStatic() && importBinding.onDemand) {
+					if (importBinding.isStatic()) {
 						Binding resolvedImport = importBinding.resolvedImport;
-						if (resolvedImport instanceof ReferenceBinding) {
+						MethodBinding possible = null;
+						if (resolvedImport instanceof MethodBinding && !importBinding.onDemand) {
+							MethodBinding staticMethod = (MethodBinding) resolvedImport;
 							// answers closest approximation, may not check argumentTypes or visibility
-							MethodBinding temp = findMethod((ReferenceBinding) resolvedImport, selector, argumentTypes, invocationSite);
-							if (temp != null) {
-								if (!temp.isValidBinding()) {
-									if (foundMethod == null)
-										foundMethod = temp;
-								} else if (temp.isStatic()) {
-									MethodBinding compatibleMethod = computeCompatibleMethod(temp, argumentTypes, invocationSite);
-									if (compatibleMethod != null) {
-										if (compatibleMethod.isValidBinding()) {
-											if (compatibleMethod.canBeSeenBy(unitScope.fPackage)) {
-												ImportReference importReference = importBinding.reference;
-												if (importReference != null) importReference.used = true;
-												if (foundInImport)
-													// Answer error binding -- import on demand conflict; name found in two import on demand types.
-													return new ProblemMethodBinding(compatibleMethod, selector, compatibleMethod.parameters, Ambiguous);
-												foundMethod = compatibleMethod;
-												foundInImport = true;
-											} else if (foundMethod == null) {
-												foundMethod = new ProblemMethodBinding(compatibleMethod, selector, compatibleMethod.parameters, NotVisible);
-											}
+							possible = findMethod(staticMethod.declaringClass, staticMethod.selector, argumentTypes, invocationSite);
+						} else if (resolvedImport instanceof ReferenceBinding && importBinding.onDemand) {
+							// answers closest approximation, may not check argumentTypes or visibility
+							possible = findMethod((ReferenceBinding) resolvedImport, selector, argumentTypes, invocationSite);
+						}
+						if (possible != null) {
+							if (!possible.isValidBinding()) {
+								if (foundMethod == null)
+									foundMethod = possible; // answer as error case match
+							} else if (possible.isStatic()) {
+								MethodBinding compatibleMethod = computeCompatibleMethod(possible, argumentTypes, invocationSite);
+								if (compatibleMethod != null) {
+									if (compatibleMethod.isValidBinding()) {
+										if (compatibleMethod.canBeSeenBy(unitScope.fPackage)) {
+											ImportReference importReference = importBinding.reference;
+											if (importReference != null) importReference.used = true;
+											if (!importBinding.onDemand) // single method selector import
+												return compatibleMethod;
+											if (foundInImport)
+												// Answer error binding -- import on demand conflict; name found in two import on demand types.
+												return new ProblemMethodBinding(compatibleMethod, selector, compatibleMethod.parameters, Ambiguous);
+											foundMethod = compatibleMethod;
+											foundInImport = true;
+										} else if (foundMethod == null) {
+											foundMethod = new ProblemMethodBinding(compatibleMethod, selector, compatibleMethod.parameters, NotVisible);
 										}
-									} else if (foundMethod == null) {
-										foundMethod = new ProblemMethodBinding(temp, selector, argumentTypes, NotFound);
 									}
+								} else if (foundMethod == null) {
+									foundMethod = new ProblemMethodBinding(possible, selector, argumentTypes, NotFound);
 								}
 							}
 						}

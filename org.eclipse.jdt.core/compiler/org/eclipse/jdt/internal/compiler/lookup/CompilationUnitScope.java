@@ -441,6 +441,16 @@ private Binding findSingleStaticImport(char[][] compoundName) {
 	if (field != null && field.isStatic() && field.canBeSeenBy(fPackage))
 		return field;
 
+	// look to see if there is a static method with the same selector
+	MethodBinding[] methods = type.getMethods(name);
+	if (methods != NoMethods) {
+		for (int i = methods.length; --i >= 0;) {
+			MethodBinding method = methods[i];
+			if (method.isStatic() && method.canBeSeenBy(fPackage))
+				return method;
+		}
+	}
+
 	type = findMemberType(name, type);
 	if (type == null || !type.isStatic())
 		return new ProblemReferenceBinding(compoundName, type, NotFound);
