@@ -457,7 +457,7 @@ public final class AST {
 	 * and {@linkplain CompilationUnit#getProblems() detailed problem reports}.
 	 * Character positions are relative to the start of 
 	 * <code>source</code>; line positions are for the subrange scanned.</li>
-	 * <li>{@linkplain CompilationUnit#getCommentTable() Comment table}
+	 * <li>{@linkplain CompilationUnit#getCommentList() Comment list}
 	 * for the subrange scanned.</li>
 	 * </ul>
 	 * The contrived nodes do not have source positions. Other aspects of the
@@ -1972,7 +1972,7 @@ public final class AST {
 	 * Note that this node type is used to recording the source
 	 * range where a comment was found in the source string.
 	 * These comment nodes are normally found (only) in 
-	 * {@linkplain CompilationUnit#getCommentTable() 
+	 * {@linkplain CompilationUnit#getCommentList() 
 	 * the comment table} for parsed compilation units.
 	 * </p>
 	 * 
@@ -1990,7 +1990,7 @@ public final class AST {
 	 * Note that this node type is used to recording the source
 	 * range where a comment was found in the source string.
 	 * These comment nodes are normally found (only) in 
-	 * {@linkplain CompilationUnit#getCommentTable() 
+	 * {@linkplain CompilationUnit#getCommentList() 
 	 * the comment table} for parsed compilation units.
 	 * </p>
 	 * 

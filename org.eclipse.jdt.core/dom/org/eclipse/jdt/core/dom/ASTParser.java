@@ -355,7 +355,7 @@ public class ASTParser {
 	 * and {@linkplain CompilationUnit#getProblems() detailed problem reports}.
 	 * Character positions are relative to the start of 
 	 * <code>source</code>; line positions are for the subrange scanned.</li>
-	 * <li>{@linkplain CompilationUnit#getCommentTable() Comment table}
+	 * <li>{@linkplain CompilationUnit#getCommentList() Comment list}
 	 * for the subrange scanned.</li>
 	 * </ul>
 	 * The contrived nodes do not have source positions. Other aspects of the
@@ -609,7 +609,7 @@ public class ASTParser {
 	 * and {@linkplain CompilationUnit#getProblems() detailed problem reports}.
 	 * Character positions are relative to the start of 
 	 * <code>source</code>; line positions are for the subrange scanned.</li>
-	 * <li>{@linkplain CompilationUnit#getCommentTable() Comment table}
+	 * <li>{@linkplain CompilationUnit#getCommentList() Comment list}
 	 * for the subrange scanned.</li>
 	 * </ul>
 	 * The contrived nodes do not have source positions. Other aspects of the
