@@ -532,7 +532,7 @@ public String toString() {
  * @return boolean Returns true is there is a structural change between the two .class files, false otherwise
  */
 public boolean hasStructuralChanges(byte[] newBytes) {
-	return hasStructuralChanges(newBytes, true, false);
+	return hasStructuralChanges(newBytes, true, true);
 }
 /**
  * Check if the receiver has structural changes compare to the byte array in argument.
@@ -598,6 +598,8 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 				return true;
 		}
 		if (compareFields) {
+			if (this.fieldsCount != otherFieldInfosLength && !excludesSynthetic)
+				return true;
 			if (orderRequired) {
 				if (this.fieldsCount != 0)
 					Arrays.sort(this.fields);
@@ -608,8 +610,6 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 				if (hasNonSyntheticFieldChanges(this.fields, otherFieldInfos))
 					return true;
 			} else {
-				if (this.fieldsCount != otherFieldInfosLength)
-					return true;
 				for (int i = 0; i < this.fieldsCount; i++)
 					if (hasStructuralFieldChanges(this.fields[i], otherFieldInfos[i]))
 						return true;
@@ -628,6 +628,8 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 				return true;
 		}
 		if (compareMethods) {
+			if (this.methodsCount != otherMethodInfosLength && !excludesSynthetic)
+				return true;
 			if (orderRequired) {
 				if (this.methodsCount != 0)
 					Arrays.sort(this.methods);
@@ -638,8 +640,6 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 				if (hasNonSyntheticMethodChanges(this.methods, otherMethodInfos))
 					return true;
 			} else {
-				if (this.methodsCount != otherMethodInfosLength)
-					return true;
 				for (int i = 0; i < this.methodsCount; i++)
 					if (hasStructuralMethodChanges(this.methods[i], otherMethodInfos[i]))
 						return true;
@@ -721,11 +721,12 @@ private boolean hasNonSyntheticMethodChanges(MethodInfo[] currentMethodInfos, Me
 	int index1 = 0;
 	int index2 = 0;
 
+	MethodInfo m;
 	end : while (index1 < length1 && index2 < length2) {
-		while (currentMethodInfos[index1].isSynthetic()) {
+		while ((m = currentMethodInfos[index1]).isSynthetic() || m.isClinit()) {
 			if (++index1 >= length1) break end;
 		}
-		while (otherMethodInfos[index2].isSynthetic()) {
+		while ((m = otherMethodInfos[index2]).isSynthetic() || m.isClinit()) {
 			if (++index2 >= length2) break end;
 		}
 		if (hasStructuralMethodChanges(currentMethodInfos[index1++], otherMethodInfos[index2++]))
@@ -733,10 +734,10 @@ private boolean hasNonSyntheticMethodChanges(MethodInfo[] currentMethodInfos, Me
 	}
 
 	while (index1 < length1) {
-		if (!currentMethodInfos[index1++].isSynthetic()) return true;
+		if (!((m = currentMethodInfos[index1++]).isSynthetic() || m.isClinit())) return true;
 	}
 	while (index2 < length2) {
-		if (!otherMethodInfos[index2++].isSynthetic()) return true;
+		if (!((m = otherMethodInfos[index2++]).isSynthetic() || m.isClinit())) return true;
 	}
 	return false;
 }
