@@ -198,6 +198,7 @@ void acceptMethod(
 	char[] selector,
 	char[][] parameterPackageNames,
 	char[][] parameterTypeNames,
+	char[][] parameterNames,
 	char[] returnTypePackageName,
 	char[] returnTypeName,
 	char[] completionName,

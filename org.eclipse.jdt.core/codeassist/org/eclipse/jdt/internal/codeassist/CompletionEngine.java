@@ -10,6 +10,7 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.internal.codeassist.impl.*;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.codeassist.complete.*;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -618,6 +619,8 @@ public final class CompletionEngine
 					parameterPackageNames[i] = type.qualifiedPackageName();
 					parameterTypeNames[i] = type.qualifiedSourceName();
 				}
+				char[][] parameterNames = findMethodParameterNames(constructor,parameterTypeNames);
+				
 				char[] completion = TypeConstants.NoChar;
 				// nothing to insert - do not want to replace the existing selector & arguments
 				if (source == null
@@ -631,6 +634,7 @@ public final class CompletionEngine
 					currentType.sourceName(),
 					parameterPackageNames,
 					parameterTypeNames,
+					parameterNames,
 					TypeConstants.NoChar,
 					TypeConstants.NoChar,
 					completion,
@@ -640,7 +644,7 @@ public final class CompletionEngine
 			}
 		}
 	}
-
+	
 	// Helper method for findFields(char[], ReferenceBinding, Scope, ObjectVector, boolean)
 	private void findFields(
 		char[] fieldName,
@@ -906,7 +910,7 @@ public final class CompletionEngine
 		nameEnvironment.findPackages(importName, this);
 		nameEnvironment.findTypes(importName, this);
 	}
-	
+
 	// what about onDemand types? Ignore them since it does not happen!
 	// import p1.p2.A.*;
 	private void findKeywords(char[] keyword, char[][] choices, Scope scope) {
@@ -1223,6 +1227,7 @@ public final class CompletionEngine
 				parameterPackageNames[i] = type.qualifiedPackageName();
 				parameterTypeNames[i] = type.qualifiedSourceName();
 			}
+			char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
 
 			char[] completion = TypeConstants.NoChar;
 			// nothing to insert - do not want to replace the existing selector & arguments
@@ -1241,6 +1246,7 @@ public final class CompletionEngine
 				method.selector,
 				parameterPackageNames,
 				parameterTypeNames,
+				parameterNames,
 				method.returnType.qualifiedPackageName(),
 				method.returnType.qualifiedSourceName(),
 				completion,
@@ -1327,13 +1333,6 @@ public final class CompletionEngine
 			}
 
 			char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
-			// default parameters name
-			if(parameterNames == null) {
-				parameterNames = new char[length][];
-				for (int i = 0; i < length; i++) {
-					parameterNames[i] = CharOperation.concat(ARG, String.valueOf(i).toCharArray());
-				}
-			}
 			
 			StringBuffer completion = new StringBuffer(10);
 			// flush uninteresting modifiers
@@ -1487,7 +1486,6 @@ public final class CompletionEngine
 					onlyStaticMethods,
 					exactMatch,
 					receiverType);
-
 			} else{
 
 				findLocalMethods(
@@ -1507,9 +1505,9 @@ public final class CompletionEngine
 	
 	private char[][] findMethodParameterNames(MethodBinding method, char[][] parameterTypeNames){
 		ReferenceBinding bindingType = method.declaringClass;
-//??	if(bindingType.isBinaryBinding()) return null;
-		
+
 		char[][] parameterNames = null;
+		
 		int length = parameterTypeNames.length;
 
 		if (length == 0){
@@ -1556,10 +1554,37 @@ public final class CompletionEngine
 							break;
 						}
 					}
+				} else if(answer.isBinaryType()) {
+					IBinaryType binaryType = answer.getBinaryType();
+					IBinaryMethod[] binaryMethods = binaryType.getMethods();
+					
+					for(int i = 0; i < binaryMethods.length ; i++){
+						IBinaryMethod binaryMethod = binaryMethods[i];
+						String[] argTypeStringNames = Signature.getParameterTypes(new String(binaryMethod.getMethodDescriptor()));
+						char[][] argTypeNames = new char[argTypeStringNames.length][];
+						for(int j = 0; j < argTypeStringNames.length; j++){
+							argTypeNames[j] = argTypeStringNames[j].toCharArray();
+						}
+						
+						if(argTypeNames != null &&
+							CharOperation.equals(method.selector,binaryMethod.getSelector()) &&
+							CharOperation.equals(argTypeNames,parameterTypeNames)){
+							parameterNames = binaryMethod.getArgumentNames();
+							break;
+						}
+					}
 				}
+				
 			}
 		}
-
+		// default parameters name
+		if(parameterNames == null) {
+			parameterNames = new char[length][];
+			for (int i = 0; i < length; i++) {
+				parameterNames[i] = CharOperation.concat(ARG, String.valueOf(i).toCharArray());
+			}
+		}
+		
 		return parameterNames;
 	}
 	

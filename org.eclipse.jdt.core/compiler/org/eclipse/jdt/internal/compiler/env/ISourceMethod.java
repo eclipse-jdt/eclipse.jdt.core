@@ -6,12 +6,7 @@ package org.eclipse.jdt.internal.compiler.env;
 import org.eclipse.jdt.internal.compiler.*;
 
 public interface ISourceMethod extends IGenericMethod {
-/**
- * Answer the names of the argument
- * or null if the array is empty.
- */
 
-char[][] getArgumentNames();
 /**
  * Answer the unresolved names of the argument types
  * or null if the array is empty.

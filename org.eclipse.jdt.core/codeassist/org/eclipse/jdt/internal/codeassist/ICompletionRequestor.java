@@ -172,6 +172,8 @@ void acceptLocalVariable(
  *    Should contain as many elements as parameterTypeNames.
  * @param parameterTypeNames char[][] - Names of the parameters types.
  *    Should contain as many elements as parameterPackageNames.
+ * @param parameterNames char[][] - Names of the parameters.
+ *    Should contain as many elements as parameterPackageNames.
  * @param returnTypePackageName char[] - Name of the package in which the return type is declared.
  * @param returnTypeName char[] - Name of the return type of this new method, should be null for a constructor.
  * @param completionName char[] - The completion for the method.
@@ -196,6 +198,7 @@ void acceptMethod(
 	char[] selector,
 	char[][] parameterPackageNames,
 	char[][] parameterTypeNames,
+	char[][] parameterNames,
 	char[] returnTypePackageName,
 	char[] returnTypeName,
 	char[] completionName,

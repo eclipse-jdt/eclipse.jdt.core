@@ -218,4 +218,11 @@ public int compareTo(Object o) {
 	otherComparisonKey.append(otherMethodInfo.getSelector()).append(otherMethodInfo.getMethodDescriptor());
 	return currentComparisonKey.toString().compareTo(otherComparisonKey.toString());
 }
+	/**
+	 * @see IGenericMethod#getArgumentNames()
+	 */
+	public char[][] getArgumentNames() {
+		return null;
+	}
+
 }
