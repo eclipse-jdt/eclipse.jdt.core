@@ -385,15 +385,15 @@ public class DeltaProcessor {
 							if (isJavaProject) {
 								this.addToParentInfo(javaProject);
 							} else {
-//								// flush classpath markers
-//								javaProject.
-//									flushClasspathProblemMarkers(
-//										true, // flush cycle markers
-//										true  //flush classpath format markers
-//									);
-//									
-//								// remove problems and tasks created  by the builder
-//								JavaBuilder.removeProblemsAndTasksFor(project);
+								// flush classpath markers
+								javaProject.
+									flushClasspathProblemMarkers(
+										true, // flush cycle markers
+										true  //flush classpath format markers
+									);
+									
+								// remove problems and tasks created  by the builder
+								JavaBuilder.removeProblemsAndTasksFor(project);
 
 								// close project
 								try {
