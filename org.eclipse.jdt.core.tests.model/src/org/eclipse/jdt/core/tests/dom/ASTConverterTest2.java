@@ -3924,4 +3924,85 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		statements = block.statements();
 		assertEquals("Wrong size", 0, statements.size());
 	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48292
+	 */
+	public void test0532() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0488", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType[] types = sourceUnit.getTypes();
+		assertNotNull(types);
+		assertEquals("wrong size", 1, types.length);
+		IType type = types[0];
+		IInitializer[] initializers = type.getInitializers();
+		assertEquals("wrong size", 2, initializers.length);
+		IInitializer init = initializers[1];
+		ISourceRange sourceRange = init.getSourceRange(); 
+		int position = sourceRange.getOffset() + sourceRange.getLength() / 2;
+
+		IClassFile classFile = getClassFile("Converter" , "bins", "test0532", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		assertNotNull(classFile);
+		assertNotNull(classFile.getSource());
+		type = classFile.getType();
+		initializers = type.getInitializers();
+		assertEquals("wrong size", 0, initializers.length);
+		ASTNode result = runConversion(classFile, position, false);
+		assertNotNull(result);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+	
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 5);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Block block = methodDeclaration.getBody();
+		List statements = block.statements();
+		assertEquals("Wrong size", 0, statements.size());
+	
+		node = getASTNode((CompilationUnit) result, 0, 4);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		methodDeclaration = (MethodDeclaration) node;
+		block = methodDeclaration.getBody();
+		statements = block.statements();
+		assertEquals("Wrong size", 0, statements.size());
+		
+		node = getASTNode((CompilationUnit) result, 0, 0);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		List fragments = fieldDeclaration.fragments();
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Wrong name", "field", fragment.getName().getIdentifier());
+		assertNotNull("No initializer", expression);
+	
+		node = getASTNode((CompilationUnit) result, 0, 1);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
+		fieldDeclaration = (FieldDeclaration) node;
+		fragments = fieldDeclaration.fragments();
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		expression = fragment.getInitializer();
+		assertEquals("Wrong name", "i", fragment.getName().getIdentifier());
+		assertNotNull("No initializer", expression);
+	
+		node = getASTNode((CompilationUnit) result, 0, 2);
+		assertTrue("Not an initializer", node.getNodeType() == ASTNode.INITIALIZER); //$NON-NLS-1$
+		Initializer initializer = (Initializer) node;
+		assertEquals("Not static", Modifier.NONE, initializer.getModifiers());
+		block = initializer.getBody();
+		statements = block.statements();
+		assertEquals("Wrong size", 0, statements.size());
+		
+		node = getASTNode((CompilationUnit) result, 0, 3);
+		assertTrue("Not an initializer", node.getNodeType() == ASTNode.INITIALIZER); //$NON-NLS-1$
+		initializer = (Initializer) node;
+		assertEquals("Not static", Modifier.STATIC, initializer.getModifiers());
+		block = initializer.getBody();
+		statements = block.statements();
+		assertEquals("Wrong size", 1, statements.size());
+		
+		node = getASTNode((CompilationUnit) result, 0, 6);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		methodDeclaration = (MethodDeclaration) node;
+		block = methodDeclaration.getBody();
+		statements = block.statements();
+		assertEquals("Wrong size", 0, statements.size());
+	}
 }
