@@ -178,7 +178,23 @@ class CompilationUnitResolver extends Compiler {
 				source, 
 				"", //$NON-NLS-1$
 				compilerOptions.defaultEncoding);
-		return parser.parse(sourceUnit, new CompilationResult(sourceUnit, 0, 0));
+		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, new CompilationResult(sourceUnit, 0, 0));
+		
+		if (compilationUnitDeclaration.ignoreMethodBodies) {
+			compilationUnitDeclaration.ignoreFurtherInvestigation = true;
+			// if initial diet parse did not work, no need to dig into method bodies.
+			return compilationUnitDeclaration; 
+		}
+		
+		//fill the methods bodies in order for the code to be generated
+		//real parse of the method....
+		parser.scanner.setSourceBuffer(source);
+		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
+		if (types != null) {
+			for (int i = types.length; --i >= 0;)
+				types[i].parseMethod(parser, compilationUnitDeclaration);
+		}
+		return compilationUnitDeclaration;
 	}
 
 	protected static IProblemFactory getProblemFactory(final IAbstractSyntaxTreeVisitor visitor) {

@@ -549,11 +549,11 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		CompilationUnitDeclaration unit = null;
 		try {
 			// build and record parsed units
-			parseThreshold = 1; // will request a full parse
+			parseThreshold = 0; // will request a full parse
 			beginToCompile(new ICompilationUnit[] { sourceUnit });
 			// process all units (some more could be injected in the loop by the lookup environment)
 			unit = unitsToProcess[0];
-			//getMethodBodies(unit,i);
+			getMethodBodies(unit, 0);
 			if (unit.scope != null) {
 				// fault in fields & methods
 				unit.scope.faultInTypes();
