@@ -41,10 +41,12 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	}
 
 	// unions of both sets of initialization - used for try/finally
-	public UnconditionalFlowInfo addInitializationsFrom(UnconditionalFlowInfo otherInits) {
-	
+	public FlowInfo addInitializationsFrom(FlowInfo inits) {
+
 		if (this == DEAD_END)
 			return this;
+
+		UnconditionalFlowInfo otherInits = inits.unconditionalInits();	
 		if (otherInits == DEAD_END)
 			return this;
 			
@@ -92,11 +94,13 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	}
 
 	// unions of both sets of initialization - used for try/finally
-	public UnconditionalFlowInfo addPotentialInitializationsFrom(UnconditionalFlowInfo otherInits) {
+	public FlowInfo addPotentialInitializationsFrom(FlowInfo inits) {
 	
 		if (this == DEAD_END){
 			return this;
 		}
+
+		UnconditionalFlowInfo otherInits = inits.unconditionalInits();
 		if (otherInits == DEAD_END){
 			return this;
 		}

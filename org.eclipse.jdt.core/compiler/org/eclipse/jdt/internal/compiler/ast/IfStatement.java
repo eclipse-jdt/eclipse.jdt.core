@@ -106,16 +106,33 @@ public class IfStatement extends Statement {
 		
 		// merge THEN & ELSE initializations
 		FlowInfo mergedInfo;
+//		if (isConditionOptimizedTrue){
+//			if (!this.thenExit) {
+//				mergedInfo = thenFlowInfo;
+//			} else {
+//				mergedInfo = elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
+//			}
+//
+//		} else if (isConditionOptimizedFalse) {
+//			if (!elseExit) {
+//				mergedInfo = elseFlowInfo;
+//			} else {
+//				mergedInfo = thenFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
+//			}
+//
+//		} else {
+//			mergedInfo = thenFlowInfo.mergedWith(elseFlowInfo.unconditionalInits());
+//		}
 		if (isConditionOptimizedTrue){
 			if (!this.thenExit) {
-				mergedInfo = thenFlowInfo;
+				mergedInfo = thenFlowInfo.addPotentialInitializationsFrom(elseFlowInfo);
 			} else {
 				mergedInfo = elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
 			}
 
 		} else if (isConditionOptimizedFalse) {
 			if (!elseExit) {
-				mergedInfo = elseFlowInfo;
+				mergedInfo = elseFlowInfo.addPotentialInitializationsFrom(thenFlowInfo);
 			} else {
 				mergedInfo = thenFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
 			}
@@ -123,6 +140,7 @@ public class IfStatement extends Statement {
 		} else {
 			mergedInfo = thenFlowInfo.mergedWith(elseFlowInfo.unconditionalInits());
 		}
+
 		mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;

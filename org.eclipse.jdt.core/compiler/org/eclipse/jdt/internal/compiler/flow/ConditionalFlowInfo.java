@@ -28,14 +28,18 @@ public class ConditionalFlowInfo extends FlowInfo {
 		this.initsWhenFalse = initsWhenFalse; 
 	}
 	
-	public UnconditionalFlowInfo addInitializationsFrom(UnconditionalFlowInfo otherInits) {
+	public FlowInfo addInitializationsFrom(FlowInfo otherInits) {
 		
-		return unconditionalInits().addInitializationsFrom(otherInits);
+		this.initsWhenTrue.addInitializationsFrom(otherInits);
+		this.initsWhenFalse.addInitializationsFrom(otherInits);
+		return this;
 	}
 	
-	public UnconditionalFlowInfo addPotentialInitializationsFrom(UnconditionalFlowInfo otherInits) {
+	public FlowInfo addPotentialInitializationsFrom(FlowInfo otherInits) {
 		
-		return unconditionalInits().addPotentialInitializationsFrom(otherInits);
+		this.initsWhenTrue.addPotentialInitializationsFrom(otherInits);
+		this.initsWhenFalse.addPotentialInitializationsFrom(otherInits);
+		return this;
 	}
 	
 	public FlowInfo asNegatedCondition() {

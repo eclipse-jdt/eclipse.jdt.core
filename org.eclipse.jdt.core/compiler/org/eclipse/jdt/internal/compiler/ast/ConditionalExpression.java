@@ -69,9 +69,9 @@ public class ConditionalExpression extends OperatorExpression {
 		// merge if-true & if-false initializations
 		FlowInfo mergedInfo;
 		if (isConditionOptimizedTrue){
-			mergedInfo = trueFlowInfo;
+			mergedInfo = trueFlowInfo.addPotentialInitializationsFrom(falseFlowInfo);
 		} else if (isConditionOptimizedFalse) {
-			mergedInfo = falseFlowInfo;
+			mergedInfo = falseFlowInfo.addPotentialInitializationsFrom(trueFlowInfo);
 		} else {
 			// merge using a conditional info -  1GK2BLM
 			// if ((t && (v = t)) ? t : t && (v = f)) r = v;  -- ok

@@ -25,9 +25,9 @@ public abstract class FlowInfo {
 		DEAD_END = new UnconditionalFlowInfo();
 		DEAD_END.reachMode = UNREACHABLE;
 	}
-	abstract public UnconditionalFlowInfo addInitializationsFrom(UnconditionalFlowInfo otherInits);
+	abstract public FlowInfo addInitializationsFrom(FlowInfo otherInits);
 
-	abstract public UnconditionalFlowInfo addPotentialInitializationsFrom(UnconditionalFlowInfo otherInits);
+	abstract public FlowInfo addPotentialInitializationsFrom(FlowInfo otherInits);
 
 	public FlowInfo asNegatedCondition() {
 

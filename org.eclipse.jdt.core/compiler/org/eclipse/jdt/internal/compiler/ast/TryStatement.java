@@ -156,8 +156,7 @@ public class TryStatement extends Statement {
 		// need to include potential inits from returns inside the try/catch parts - 1GK2AOF
 
 		// propagate inits to enclosing subroutines
-		UnconditionalFlowInfo initsBeforeReturn = insideSubContext.initsOnReturn.copy().unconditionalInits();
-		initsBeforeReturn.addInitializationsFrom(subInfo);
+		FlowInfo initsBeforeReturn = insideSubContext.initsOnReturn.copy().addInitializationsFrom(subInfo);
 		FlowContext traversedContext = insideSubContext.parent;
 		while (traversedContext != null) {
 			AstNode sub = traversedContext.subRoutine();
