@@ -263,7 +263,7 @@ public void checkTaskTag(int commentStart, int commentEnd) {
 				break;
 			}
 		}
-		end = Math.min(end, max_value);
+		end = end < max_value ? end : max_value;
 		
 		if (end < 0){
 			for (int j = commentEnd-1; j >= msgStart; j--){
