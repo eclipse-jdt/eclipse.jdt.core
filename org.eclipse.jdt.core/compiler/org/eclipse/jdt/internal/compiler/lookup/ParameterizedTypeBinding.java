@@ -30,7 +30,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments, LookupEnvironment environment){
 		this.environment = environment;
 		initialize(type, arguments);
-		// TODO determine if need to copy other tagBits from type so as to provide right behavior to all predicates
 
 		if (type instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) type).addWrapper(this);
