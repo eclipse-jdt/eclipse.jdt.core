@@ -95,7 +95,7 @@ public MethodBinding[] availableMethods() {
 		}
 	}
 	System.arraycopy(availableMethods, 0, availableMethods = new MethodBinding[count], 0, count);
-	return methods;
+	return availableMethods;
 }
 
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
