@@ -1271,7 +1271,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_int:		return Constant.fromValue(left.stringValue() + right.stringValue());
 					case T_long:	return Constant.fromValue(left.stringValue() + right.stringValue());
 					case T_String:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
-					case T_null:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
+					case T_null:	return NotAConstant; //(26138) return Constant.fromValue(left.stringValue() + right.stringValue()); 
 					case T_boolean:	return Constant.fromValue(left.stringValue() + right.stringValue());
 				}
 			break;	
@@ -1285,7 +1285,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 					case T_int:		return Constant.fromValue(left.stringValue() + right.stringValue());
 					case T_long:	return Constant.fromValue(left.stringValue() + right.stringValue());
 					case T_String:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
-					case T_null:	return Constant.fromValue(left.stringValue() + right.stringValue()); 
+					case T_null:	return NotAConstant; //(26138) return Constant.fromValue(left.stringValue() + right.stringValue()); 
 				}
 				
 			}

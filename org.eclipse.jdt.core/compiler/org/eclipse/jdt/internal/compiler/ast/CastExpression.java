@@ -55,8 +55,8 @@ public class CastExpression extends Expression {
 
 	public final void areTypesCastCompatible(
 		BlockScope scope,
-		TypeBinding castTb,
-		TypeBinding expressionTb) {
+		TypeBinding castType,
+		TypeBinding expressionType) {
 
 		// see specifications p.68
 		// handle errors and process constant when needed
@@ -66,135 +66,140 @@ public class CastExpression extends Expression {
 		// we then do not report an obvious-cascade-error.
 
 		needRuntimeCheckcast = false;
-		if (castTb == null || expressionTb == null)
-			return;
-		if (castTb.isBaseType()) {
-			if (expressionTb.isBaseType()) {
-				if (expressionTb == castTb) {
-					expression.implicitWidening(castTb, expressionTb);
+		if (castType == null || expressionType == null) return;
+		
+		if (castType.isBaseType()) {
+			if (expressionType.isBaseType()) {
+				if (expressionType == castType) {
+					expression.implicitWidening(castType, expressionType);
 					constant = expression.constant; //use the same constant
 					return;
 				}
-				if (Scope.areTypesCompatible(expressionTb, castTb)
-					|| BaseTypeBinding.isNarrowing(castTb.id, expressionTb.id)) {
-					expression.implicitConversion = (castTb.id << 4) + expressionTb.id;
+				if (Scope.areTypesCompatible(expressionType, castType)
+					|| BaseTypeBinding.isNarrowing(castType.id, expressionType.id)) {
+					expression.implicitConversion = (castType.id << 4) + expressionType.id;
 					if (expression.constant != Constant.NotAConstant)
 						constant = expression.constant.castTo(expression.implicitConversion);
 					return;
 				}
 			}
-			scope.problemReporter().typeCastError(this, castTb, expressionTb);
+			scope.problemReporter().typeCastError(this, castType, expressionType);
 			return;
 		}
 
 		//-----------cast to something which is NOT a base type--------------------------	
-		if (expressionTb == NullBinding)
+		if (expressionType == NullBinding) {
+			constant = expression.constant;
 			return; //null is compatible with every thing
-
-		if (expressionTb.isBaseType()) {
-			scope.problemReporter().typeCastError(this, castTb, expressionTb);
+		}
+		if (expressionType.isBaseType()) {
+			scope.problemReporter().typeCastError(this, castType, expressionType);
 			return;
 		}
 
-		if (expressionTb.isArrayType()) {
-			if (castTb.isArrayType()) {
-				//------- (castTb.isArray) expressionTb.isArray -----------
-				TypeBinding expressionEltTb = ((ArrayBinding) expressionTb).elementsType(scope);
+		if (expressionType.isArrayType()) {
+			if (castType.isArrayType()) {
+				//------- (castType.isArray) expressionType.isArray -----------
+				TypeBinding expressionEltTb = ((ArrayBinding) expressionType).elementsType(scope);
 				if (expressionEltTb.isBaseType()) {
 					// <---stop the recursion------- 
-					if (((ArrayBinding) castTb).elementsType(scope) == expressionEltTb)
+					if (((ArrayBinding) castType).elementsType(scope) == expressionEltTb)
 						needRuntimeCheckcast = true;
 					else
-						scope.problemReporter().typeCastError(this, castTb, expressionTb);
+						scope.problemReporter().typeCastError(this, castType, expressionType);
 					return;
 				}
 				// recursively on the elements...
 				areTypesCastCompatible(
 					scope,
-					((ArrayBinding) castTb).elementsType(scope),
+					((ArrayBinding) castType).elementsType(scope),
 					expressionEltTb);
 				return;
 			} else if (
-				castTb.isClass()) {
-				//------(castTb.isClass) expressionTb.isArray ---------------	
-				if (scope.isJavaLangObject(castTb))
+				castType.isClass()) {
+				//------(castType.isClass) expressionType.isArray ---------------	
+				if (scope.isJavaLangObject(castType))
 					return;
-			} else { //------- (castTb.isInterface) expressionTb.isArray -----------
-				if (scope.isJavaLangCloneable(castTb) || scope.isJavaIoSerializable(castTb)) {
+			} else { //------- (castType.isInterface) expressionType.isArray -----------
+				if (scope.isJavaLangCloneable(castType) || scope.isJavaIoSerializable(castType)) {
 					needRuntimeCheckcast = true;
 					return;
 				}
 			}
-			scope.problemReporter().typeCastError(this, castTb, expressionTb);
+			scope.problemReporter().typeCastError(this, castType, expressionType);
 			return;
 		}
 
-		if (expressionTb.isClass()) {
-			if (castTb.isArrayType()) {
-				// ---- (castTb.isArray) expressionTb.isClass -------
-				if (scope.isJavaLangObject(expressionTb)) { // potential runtime error
+		if (expressionType.isClass()) {
+			if (castType.isArrayType()) {
+				// ---- (castType.isArray) expressionType.isClass -------
+				if (scope.isJavaLangObject(expressionType)) { // potential runtime error
 					needRuntimeCheckcast = true;
 					return;
 				}
 			} else if (
-				castTb.isClass()) { // ----- (castTb.isClass) expressionTb.isClass ------
-				if (Scope.areTypesCompatible(expressionTb, castTb)) // no runtime error
-					return;
-				if (Scope.areTypesCompatible(castTb, expressionTb)) {
+				castType.isClass()) { // ----- (castType.isClass) expressionType.isClass ------
+				if (Scope.areTypesCompatible(expressionType, castType)){ // no runtime error
+					if (castType.id == T_String && expression.constant != Constant.NotAConstant){
+						constant = expression.constant; // (String) cst is still a constant
+						return;
+					}
+				}
+				if (Scope.areTypesCompatible(castType, expressionType)) {
 					// potential runtime  error
 					needRuntimeCheckcast = true;
 					return;
 				}
-			} else { // ----- (castTb.isInterface) expressionTb.isClass -------  
-				if (((ReferenceBinding) expressionTb).isFinal()) {
-					// no subclass for expressionTb, thus compile-time check is valid
-					if (Scope.areTypesCompatible(expressionTb, castTb))
+			} else { // ----- (castType.isInterface) expressionType.isClass -------  
+				if (((ReferenceBinding) expressionType).isFinal()) {
+					// no subclass for expressionType, thus compile-time check is valid
+					if (Scope.areTypesCompatible(expressionType, castType))
 						return;
 				} else { // a subclass may implement the interface ==> no check at compile time
 					needRuntimeCheckcast = true;
 					return;
 				}
 			}
-			scope.problemReporter().typeCastError(this, castTb, expressionTb);
+			scope.problemReporter().typeCastError(this, castType, expressionType);
 			return;
 		}
 
-		//	if (expressionTb.isInterface()) { cannot be anything else
-		if (castTb.isArrayType()) {
-			// ----- (castTb.isArray) expressionTb.isInterface ------
-			if (scope.isJavaLangCloneable(expressionTb)
-				|| scope.isJavaIoSerializable(expressionTb)) // potential runtime error
+		//	if (expressionType.isInterface()) { cannot be anything else
+		if (castType.isArrayType()) {
+			// ----- (castType.isArray) expressionType.isInterface ------
+			if (scope.isJavaLangCloneable(expressionType)
+				|| scope.isJavaIoSerializable(expressionType)) // potential runtime error
 				needRuntimeCheckcast = true;
 			else
-				scope.problemReporter().typeCastError(this, castTb, expressionTb);
+				scope.problemReporter().typeCastError(this, castType, expressionType);
 			return;
 		} else if (
-			castTb.isClass()) { // ----- (castTb.isClass) expressionTb.isInterface --------
-			if (scope.isJavaLangObject(castTb)) // no runtime error
+			castType.isClass()) { // ----- (castType.isClass) expressionType.isInterface --------
+			if (scope.isJavaLangObject(castType)) // no runtime error
 				return;
-			if (((ReferenceBinding) castTb).isFinal()) {
-				// no subclass for castTb, thus compile-time check is valid
-				if (!Scope.areTypesCompatible(castTb, expressionTb)) {
+			if (((ReferenceBinding) castType).isFinal()) {
+				// no subclass for castType, thus compile-time check is valid
+				if (!Scope.areTypesCompatible(castType, expressionType)) {
 					// potential runtime error
-					scope.problemReporter().typeCastError(this, castTb, expressionTb);
+					scope.problemReporter().typeCastError(this, castType, expressionType);
 					return;
 				}
 			}
-		} else { // ----- (castTb.isInterface) expressionTb.isInterface -------
-			if (castTb != expressionTb
-				&& (Scope.compareTypes(castTb, expressionTb) == NotRelated)) {
-				MethodBinding[] castTbMethods = ((ReferenceBinding) castTb).methods();
-				MethodBinding[] expressionTbMethods =
-					((ReferenceBinding) expressionTb).methods();
-				int exprMethodsLength = expressionTbMethods.length;
-				for (int i = 0, castMethodsLength = castTbMethods.length;
+		} else { // ----- (castType.isInterface) expressionType.isInterface -------
+			if (castType != expressionType
+				&& (Scope.compareTypes(castType, expressionType) == NotRelated)) {
+				MethodBinding[] castTypeMethods = ((ReferenceBinding) castType).methods();
+				MethodBinding[] expressionTypeMethods =
+					((ReferenceBinding) expressionType).methods();
+				int exprMethodsLength = expressionTypeMethods.length;
+				for (int i = 0, castMethodsLength = castTypeMethods.length;
 					i < castMethodsLength;
 					i++)
 					for (int j = 0; j < exprMethodsLength; j++)
-						if (castTbMethods[i].returnType != expressionTbMethods[j].returnType)
-							if (castTbMethods[i].selector == expressionTbMethods[j].selector)
-								if (castTbMethods[i].areParametersEqual(expressionTbMethods[j]))
-									scope.problemReporter().typeCastError(this, castTb, expressionTb);
+						if (castTypeMethods[i].returnType != expressionTypeMethods[j].returnType)
+							if (castTypeMethods[i].selector == expressionTypeMethods[j].selector)
+								if (castTypeMethods[i].areParametersEqual(expressionTypeMethods[j]))
+									scope.problemReporter().typeCastError(this, castType, expressionType);
 			}
 		}
 		needRuntimeCheckcast = true;
