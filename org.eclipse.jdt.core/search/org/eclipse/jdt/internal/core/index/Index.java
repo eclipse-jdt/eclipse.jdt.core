@@ -169,8 +169,8 @@ public void save() throws IOException {
 	int numberOfChanges = this.memoryIndex.docsToReferences.elementSize;
 	this.diskIndex = this.diskIndex.mergeWith(this.memoryIndex);
 	this.memoryIndex = new MemoryIndex();
-	if (numberOfChanges > 10)
-		System.gc(); // reclaim space now if the MemoryIndex had more than a couple changes
+	if (numberOfChanges > 1000)
+		System.gc(); // reclaim space if the MemoryIndex was very BIG
 }
 public void startQuery() throws IOException {
 	if (this.diskIndex != null)
