@@ -175,7 +175,7 @@ public interface IClasspathEntry {
 	int getEntryKind();
 
 	/**
-	 * Returns the set of patterns excluding resourcess associated with this entry.
+	 * Returns the set of patterns excluding resources associated with this entry.
 	 * <p>
 	 * Exclusion patterns allows to filter out some portions of the resource tree 
 	 * rooted at the entry path. By default, a classpath entry is all inclusive.
