@@ -603,6 +603,8 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			sourceFolder = sourceFolder.getFolder(new Path(subFolderName));
 			if ((sourceFolder.exists() && sourceFolder.isReadOnly()) || (i == nameLength - 1 && sourceFolderIsReadOnly)) {
 				parentFolder.setReadOnly(true);
+				// the source folder will be deleted anyway
+				sourceFolder.setReadOnly(false);
 			}
 			sideEffectPackageName.append('.');
 		}
