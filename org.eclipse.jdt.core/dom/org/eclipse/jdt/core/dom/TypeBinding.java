@@ -347,6 +347,7 @@ class TypeBinding implements ITypeBinding {
 				return declaringType.getTypeParameter(typeVariableName);
 			}
 		} else {
+			if (fileName == null) return null; // case of a WilCardBinding that doesn't have a corresponding Java element
 			// member or top level type
 			ITypeBinding declaringTypeBinding = getDeclaringClass();
 			if (declaringTypeBinding == null) {

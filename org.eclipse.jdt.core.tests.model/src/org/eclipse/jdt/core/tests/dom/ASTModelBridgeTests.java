@@ -551,5 +551,25 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertTrue("Element should exist", element.exists());
 	}
 
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a wild card is correct.
+	 * (regression test for bug 81417 [dom] getJavaElement() throws a NPE for WildcardBinding)
+	 */
+	public void testWildCard() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X<T> {\n" + 
+			"	X</*start*/? extends Exception/*end*/> field;\n" + 
+			"}"
+		);
+		IBinding binding = ((WildcardType) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"<null>",
+			element
+		);
+	}
+
 
 }
