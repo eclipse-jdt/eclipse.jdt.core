@@ -40,7 +40,6 @@ protected char[] decodedSelector;
 protected int decodedParameterCount;
 
 // extra reference info
-public char[][][] allSuperDeclaringTypeNames;
 protected IType declaringType;
 
 protected char[] currentTag;
@@ -153,20 +152,6 @@ protected char[] indexEntryPrefix() {
 		}
 	}
 	return this.currentTag; // find them all
-}
-public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor progressMonitor) {
-	try {
-		this.allSuperDeclaringTypeNames = 
-			new SuperTypeNamesCollector(
-				this, 
-				this.declaringSimpleName,
-				this.declaringQualification,
-				locator,
-				this.declaringType, 
-				progressMonitor).collect();
-	} catch (JavaModelException e) {
-		// inaccurate matches will be found
-	}
 }
 public boolean isPolymorphicSearch() {
 	return this.findReferences;

@@ -28,6 +28,10 @@ public OrLocator(OrPattern pattern) {
 	for (int i = 0; i < length; i++)
 		this.patternLocators[i] = PatternLocator.patternLocator(patterns[i]);
 }
+public void initializePolymorphicSearch(MatchLocator locator) {
+	for (int i = 0, length = this.patternLocators.length; i < length; i++)
+		this.patternLocators[i].initializePolymorphicSearch(locator);
+}
 public int match(AstNode node, MatchingNodeSet nodeSet) {
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patternLocators.length; i < length; i++) {

@@ -691,7 +691,7 @@ public void locateMatches(String[] filePaths, IWorkspace workspace, org.eclipse.
 		}
 
 		// initialize pattern for polymorphic search (ie. method reference pattern)
-		this.pattern.initializePolymorphicSearch(this, this.progressMonitor);
+		this.patternLocator.initializePolymorphicSearch(this);
 
 		JavaProject previousJavaProject = null;
 		PossibleMatchSet matchSet = new PossibleMatchSet();

@@ -25,11 +25,28 @@ public class MethodLocator extends PatternLocator {
 protected MethodPattern pattern;
 protected boolean isDeclarationOfReferencedMethodsPattern;
 
+//extra reference info
+public char[][][] allSuperDeclaringTypeNames;
+
 public MethodLocator(MethodPattern pattern) {
 	super(pattern);
 
 	this.pattern = pattern;
 	this.isDeclarationOfReferencedMethodsPattern = this.pattern instanceof DeclarationOfReferencedMethodsPattern;
+}
+public void initializePolymorphicSearch(MatchLocator locator) {
+	try {
+		this.allSuperDeclaringTypeNames =
+			new SuperTypeNamesCollector(
+				this.pattern,
+				this.pattern.declaringSimpleName,
+				this.pattern.declaringQualification,
+				locator,
+				this.pattern.declaringType,
+				locator.progressMonitor).collect();
+	} catch (JavaModelException e) {
+		// inaccurate matches will be found
+	}
 }
 /**
  * Returns whether the code gen will use an invoke virtual for 
@@ -216,12 +233,12 @@ protected int resolveLevel(MessageSend messageSend) {
 	if (isVirtualInvoke(method, messageSend) && !(messageSend.receiverType instanceof ArrayBinding)) {
 		declaringLevel = resolveLevelAsSubtype(qualifiedPattern, method.declaringClass);
 		if (declaringLevel == IMPOSSIBLE_MATCH) {
-			if (method.declaringClass == null || this.pattern.allSuperDeclaringTypeNames == null) {
+			if (method.declaringClass == null || this.allSuperDeclaringTypeNames == null) {
 				declaringLevel = INACCURATE_MATCH;
 			} else {
 				char[][] compoundName = method.declaringClass.compoundName;
-				for (int i = 0, max = this.pattern.allSuperDeclaringTypeNames.length; i < max; i++)
-					if (CharOperation.equals(this.pattern.allSuperDeclaringTypeNames[i], compoundName))
+				for (int i = 0, max = this.allSuperDeclaringTypeNames.length; i < max; i++)
+					if (CharOperation.equals(this.allSuperDeclaringTypeNames[i], compoundName))
 						return methodLevel; // since this is an ACCURATE_MATCH so return the possibly weaker match
 			}
 		}

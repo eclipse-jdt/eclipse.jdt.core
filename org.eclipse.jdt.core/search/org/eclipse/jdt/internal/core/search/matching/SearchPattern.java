@@ -1188,12 +1188,6 @@ protected char[] indexEntryPrefix(char[] tag, char[] name) {
 	}
 	return tag; // find them all
 }
-/**
- * Initializes this search pattern so that polymorphic search can be performed.
- */ 
-public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor progressMonitor) {
-	// default is to do nothing
-}
 /*
  * Returns whether this pattern is a polymorphic search pattern.
  */

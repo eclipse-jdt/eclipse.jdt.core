@@ -58,13 +58,6 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 		this.patterns[i].findIndexMatches(input, orCombiner, detailLevel, progressMonitor, scope);
 }
 /**
- * see SearchPattern.initializePolymorphicSearch
- */
-public void initializePolymorphicSearch(MatchLocator locator, IProgressMonitor progressMonitor) {
-	for (int i = 0, length = this.patterns.length; i < length; i++)
-		this.patterns[i].initializePolymorphicSearch(locator, progressMonitor);
-}
-/**
  * see SearchPattern.isPolymorphicSearch
  */
 public boolean isPolymorphicSearch() {

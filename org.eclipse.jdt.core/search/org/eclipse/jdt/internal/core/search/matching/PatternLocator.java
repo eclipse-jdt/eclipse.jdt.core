@@ -90,6 +90,12 @@ public PatternLocator(SearchPattern pattern) {
 	this.isCaseSensitive = pattern.isCaseSensitive;
 }
 /**
+ * Initializes this search pattern so that polymorphic search can be performed.
+ */ 
+public void initializePolymorphicSearch(MatchLocator locator) {
+	// default is to do nothing
+}
+/**
  * Check if the given ast node syntactically matches this pattern.
  * If it does, add it to the match set.
  * Returns the match level.
