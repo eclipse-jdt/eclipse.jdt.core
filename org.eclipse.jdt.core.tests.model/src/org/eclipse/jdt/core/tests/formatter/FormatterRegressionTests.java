@@ -108,15 +108,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		return getPluginDirectoryPath() +  java.io.File.separator + "workspace";
 	}
 	
-	private String runFormatter(DefaultCodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length) {
+	private String runFormatter(DefaultCodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator) {
 		//long time = System.currentTimeMillis();
-		TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, null);//$NON-NLS-1$
+		TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);//$NON-NLS-1$
 		if (edit == null) return null;
 		String result = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
 
 		if (length == source.length()) {
 			//time = System.currentTimeMillis();
-			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, null);//$NON-NLS-1$
+			edit = codeFormatter.format(kind, result, 0, result.length(), indentationLevel, lineSeparator);//$NON-NLS-1$
 			if (edit == null) return null;
 //			assertEquals("Shoult not have edits", 0, edit.getChildren().length);
 			final String result2 = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
@@ -248,8 +248,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private void runTest(DefaultCodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel) {
 		runTest(codeFormatter, packageName, compilationUnitName, kind, indentationLevel, false, 0, -1);
 	}
-
 	private void runTest(DefaultCodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, int offset, int length) {
+		runTest(codeFormatter, packageName, compilationUnitName, kind, indentationLevel, checkNull, offset, length, null);
+	}
+	private void runTest(DefaultCodeFormatter codeFormatter, String packageName, String compilationUnitName, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator) {
 		try {
 			ICompilationUnit sourceUnit = getCompilationUnit("Formatter" , "", packageName, getIn(compilationUnitName)); //$NON-NLS-1$ //$NON-NLS-2$
 			String s = sourceUnit.getSource();
@@ -258,9 +260,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			assertNotNull(outputUnit);
 			String result;
 			if (length == -1) {
-				result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, s.length());
+				result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, s.length(), lineSeparator);
 			} else {
-				result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, length);
+				result = runFormatter(codeFormatter, s, kind, indentationLevel, offset, length, lineSeparator);
 			}
 			assertLineEquals(result, s, outputUnit.getSource(), checkNull);
 		} catch (JavaModelException e) {
@@ -272,9 +274,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private void runTest(String source, String expectedResult, DefaultCodeFormatter codeFormatter, int kind, int indentationLevel, boolean checkNull, int offset, int length) {
 		String result;
 		if (length == -1) {
-			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length());
+			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, source.length(), null);
 		} else {
-			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length);
+			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length, null);
 		}
 		assertLineEquals(result, source, expectedResult, checkNull);
 	}
@@ -5331,12 +5333,12 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49187
 	 */
 	public void _test447() {
-		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		String resourcePath = getResource("test447", "settings.xml");
+		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "Toms");
+		assertNotNull("No preferences", options);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.use_tab = false;
-		preferences.tab_size = 2;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		runTest(codeFormatter, "test447", "A.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, 27, 33);//$NON-NLS-1$ //$NON-NLS-2$
+		runTest(codeFormatter, "test447", "Format.java", CodeFormatter.K_COMPILATION_UNIT, 0, false, 25, 32, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/**

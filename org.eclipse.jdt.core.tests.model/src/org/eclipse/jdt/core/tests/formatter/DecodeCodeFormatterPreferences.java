@@ -79,10 +79,11 @@ public class DecodeCodeFormatterPreferences extends DefaultHandler {
 		
 		int attributesLength = attributes.getLength();
 		if ("profile".equals(qName)) {
-			if (attributesLength == 1) {
-				if ("name".equals(attributes.getQName(0)) && profileName.equals(attributes.getValue(0))) {
+			for (int i = 0; i < attributesLength; i++) {
+				if ("name".equals(attributes.getQName(i)) && profileName.equals(attributes.getValue(i))) {
 					record = true;
 					entries = new HashMap();
+					break;
 				}
 			}
 		} else if ("setting".equals(qName) && record) {

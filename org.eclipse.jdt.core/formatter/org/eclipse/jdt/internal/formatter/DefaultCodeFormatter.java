@@ -185,17 +185,18 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			return internalFormatExpression(source, indentationLevel, lineSeparator, expression, offset, length);
 		}
 
+		ASTNode[] bodyDeclarations = CodeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), this.options);
+		
+		if (bodyDeclarations != null) {
+			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
+		}
+
 		ConstructorDeclaration constructorDeclaration = CodeSnippetParsingUtil.parseStatements(source.toCharArray(), this.options);
 		
 		if (constructorDeclaration.statements != null) {
 			return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, offset, length);
 		}
 		
-		ASTNode[] bodyDeclarations = CodeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), this.options);
-		
-		if (bodyDeclarations != null) {
-			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
-		}
 
 		return formatCompilationUnit(source, indentationLevel, lineSeparator, offset, length);
 	}
