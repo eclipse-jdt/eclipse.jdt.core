@@ -116,6 +116,10 @@ STREAM: 2.0
   
   PRs Closed in this Release
   ===============================================================================
+  3254      Indexer - Should nest index source retrieval in IWorkspaceRunnable (1GD7J6F)  
+  3225      IJavaProject.findPackageFragment strange semantic (1GAOLWQ)  
+  3218      No interface to polymorphically acess ICompilationUnit (1G8D2ZP)  
+  3205      Problems with IJavaModel.findPackageFragment (1G456DO)    
   3197      DCR - OpenOnSelection - Code resolve doesn't work on declarations (1G0UX9V)  
   3177      64kb method should be a configurable problem (1FJHGVF)  
 
