@@ -96,6 +96,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	}
 
 	public String individualToString() {
+		
 		StringBuffer buffer = new StringBuffer("Exception flow context"); //$NON-NLS-1$
 		int length = handledExceptions.length;
 		for (int i = 0; i < length; i++) {
@@ -117,6 +118,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	}
 
 	public UnconditionalFlowInfo initsOnException(ReferenceBinding exceptionType) {
+		
 		int index;
 		if ((index = indexes.get(exceptionType)) < 0) {
 			return FlowInfo.DeadEnd;
@@ -130,6 +132,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 		TypeBinding raisedException,
 		AstNode invocationSite,
 		boolean wasAlreadyDefinitelyCaught) {
+			
 		int index = indexes.get(exceptionType);
 		// if already flagged as being reached (unchecked exception handler)
 		int cacheIndex = index / BitCacheSize;
@@ -145,6 +148,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	}
 	
 	public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
+		
 		// record initializations which were performed at the return point
 		initsOnReturn = initsOnReturn.mergedWith(flowInfo);
 	}
