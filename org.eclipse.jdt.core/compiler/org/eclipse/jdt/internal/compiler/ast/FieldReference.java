@@ -67,6 +67,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		if (binding.isFinal()) {
 			// in a context where it can be assigned?
 			if (receiver.isThis()
+				&& !(receiver instanceof QualifiedThisReference)
 				&& currentScope.allowBlankFinalFieldAssignment(binding)) {
 				if (flowInfo.isPotentiallyAssigned(binding)) {
 					currentScope.problemReporter().duplicateInitializationOfBlankFinalField(
