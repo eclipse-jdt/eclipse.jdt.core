@@ -667,6 +667,16 @@ public class Main implements ProblemSeverities {
 						options.put(
 							CompilerOptions.OPTION_ReportDeprecation, 
 							CompilerOptions.WARNING);
+						options.put(
+							CompilerOptions.OPTION_ReportDeprecationInsideDeprecatedCode, 
+							CompilerOptions.DISABLED);
+					} else if (token.equals("allDeprecation")) { //$NON-NLS-1$
+						options.put(
+							CompilerOptions.OPTION_ReportDeprecation, 
+							CompilerOptions.WARNING);
+						options.put(
+							CompilerOptions.OPTION_ReportDeprecationInsideDeprecatedCode, 
+							CompilerOptions.ENABLED);
 					} else if (token.equals("unusedLocals")) { //$NON-NLS-1$
 						options.put(
 							CompilerOptions.OPTION_ReportUnusedLocal, 
