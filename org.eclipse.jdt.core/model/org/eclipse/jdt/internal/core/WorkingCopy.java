@@ -366,25 +366,18 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	if (buffer == null) return null;
 
 	// set the buffer source if needed
-	if (buffer.getCharacters() == null){
-		ICompilationUnit original= (ICompilationUnit)this.getOriginalElement();
-		IBuffer originalBuffer = null;
-		try {
-			originalBuffer = original.getBuffer();
-		} catch (JavaModelException e) {
-			// original element does not exist: create an empty working copy
-			if (!e.getJavaModelStatus().isDoesNotExist()) {
-				throw e;
-			}
-		}
-		if (originalBuffer != null) {
-			char[] originalContents = originalBuffer.getCharacters();
-			if (originalContents != null) {
-				buffer.setContents((char[])originalContents.clone());
-			}
+	if (buffer.getCharacters() == null) {
+		ICompilationUnit original = (ICompilationUnit)this.getOriginalElement();
+		if (original.isOpen()) {
+			buffer.setContents(original.getSource());
 		} else {
-			// initialize buffer
-			buffer.setContents(CharOperation.NO_CHAR);
+			IFile file = (IFile)original.getResource();
+			if (file == null || !file.exists()) {
+				// initialize buffer with empty contents
+				buffer.setContents(CharOperation.NO_CHAR);
+			} else {
+				buffer.setContents(Util.getResourceContentsAsCharArray(file));
+			}
 		}
 	}
 

@@ -733,7 +733,9 @@ protected IBuffer openBuffer(IProgressMonitor pm) throws JavaModelException {
 	
 	// set the buffer source
 	if (buffer.getCharacters() == null){
-		buffer.setContents(Util.getResourceContentsAsCharArray((IFile)this.getResource()));
+		IFile file = (IFile)this.getResource();
+		if (file == null || !file.exists()) throw newNotPresentException();
+		buffer.setContents(Util.getResourceContentsAsCharArray(file));
 	}
 
 	// add buffer to buffer cache

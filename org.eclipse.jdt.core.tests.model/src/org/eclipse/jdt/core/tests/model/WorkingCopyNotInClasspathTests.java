@@ -91,6 +91,27 @@ public void testCommit() throws CoreException {
 public void testExistence() throws CoreException {
 	assertTrue("Working copy should exist", this.workingCopy.exists());
 }
+public void testGetSource() throws CoreException {
+	ICompilationUnit workingCopy = null;
+	try {
+		this.createJavaProject("P1", new String[] {}, "bin");
+		this.createFolder("/P1/src/junit/test");
+		String source = 
+			"package junit.test;\n" +
+			"public class X {\n" +
+			"}";
+		IFile file = this.createFile("/P1/src/junit/test/X.java", source);
+		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
+		workingCopy = (ICompilationUnit) cu.getWorkingCopy();
+		assertEquals(
+			"Unexpected source",
+			source,
+			workingCopy.getSource());
+	} finally {
+		if (workingCopy != null) workingCopy.destroy();
+		this.deleteProject("P1");
+	}
+}
 public void testParentExistence() throws CoreException {
 	assertTrue("Working copy's parent should not exist", !this.workingCopy.getParent().exists());
 }

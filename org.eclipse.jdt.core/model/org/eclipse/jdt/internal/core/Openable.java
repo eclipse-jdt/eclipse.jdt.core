@@ -386,8 +386,7 @@ protected void openWhenClosed(IProgressMonitor pm) throws JavaModelException {
 
 		// 2) create the new element info and open a buffer if needed
 		OpenableElementInfo info = createElementInfo();
-		IResource resource = getResource();
-		if (resource != null && isSourceElement()) {
+		if (isSourceElement()) {
 			this.openBuffer(pm);
 		} 
 
