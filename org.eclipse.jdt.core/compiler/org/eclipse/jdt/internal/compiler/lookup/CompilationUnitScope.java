@@ -501,9 +501,9 @@ void recordReference(char[][] qualifiedEnclosingName, char[] simpleName) {
 	recordSimpleReference(simpleName);
 }
 void recordReference(ReferenceBinding type, char[] simpleName) {
-	if (type.isParameterizedType())
-		type = ((ParameterizedTypeBinding) type).type;
-	recordReference(type.compoundName, simpleName);
+	ReferenceBinding actualType = typeToRecord(type);
+	if (actualType != null)
+		recordReference(actualType.compoundName, simpleName);
 }
 void recordSimpleReference(char[] simpleName) {
 	if (simpleNameReferences == null) return; // not recording dependencies
