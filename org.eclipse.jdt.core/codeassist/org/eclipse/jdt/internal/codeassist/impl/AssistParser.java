@@ -656,8 +656,8 @@ public void goForCompilationUnit(){
 	super.goForCompilationUnit();
 	isFirst = true;
 }
-public void goForBlockStatementsOrMethodHeaders() {
-	super.goForBlockStatementsOrMethodHeaders();
+public void goForBlockStatementsOrCatchHeader() {
+	super.goForBlockStatementsOrCatchHeader();
 	isFirst = true;
 }
 /*
@@ -1130,7 +1130,7 @@ protected boolean resumeAfterRecovery() {
 			this.assistNode == null
 			){ 
 			this.prepareForBlockStatements();
-			goForBlockStatementsOrMethodHeaders();
+			goForBlockStatementsOrCatchHeader();
 		} else {
 			this.prepareForHeaders();
 			goForHeaders();
@@ -1146,7 +1146,7 @@ protected boolean resumeAfterRecovery() {
 			goForHeaders();
 		} else {
 			this.prepareForBlockStatements();
-			goForBlockStatementsOrMethodHeaders();
+			goForBlockStatementsOrCatchHeader();
 		}
 		return true;
 	}
