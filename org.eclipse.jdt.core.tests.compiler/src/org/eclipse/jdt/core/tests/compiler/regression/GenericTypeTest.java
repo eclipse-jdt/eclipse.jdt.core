@@ -10130,4 +10130,38 @@ class C extends B implements IDoubles {
 			"The return type is incompatible with IDoubles.getList()\n" + 
 			"----------\n");
 	}
+
+	// 77325
+	public void test386() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X <R,U,V, T> {\n" + 
+					"	private U u;\n" + 
+					"	private V v;\n" + 
+					"	public X(U u,V v) { this.u= u; this.v= v; }\n" + 
+					"	public R getU() { return (R)u; } // Warning\n" + 
+					"	public R getV() { return (R)v; } // Warning\n" + 
+					"	Object o;\n" + 
+					"	public T getT() { return (T)o; } // Warning\n" + 
+					"}"
+			},
+			"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	public R getU() { return (R)u; } // Warning\n" + 
+				"	                         ^^^^\n" + 
+				"Unnecessary cast from U to R\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 6)\n" + 
+				"	public R getV() { return (R)v; } // Warning\n" + 
+				"	                         ^^^^\n" + 
+				"Unnecessary cast from V to R\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 8)\n" + 
+				"	public T getT() { return (T)o; } // Warning\n" + 
+				"	                         ^^^^\n" + 
+				"Unnecessary cast from Object to T\n" + 
+				"----------\n"
+		);
+	}
 }
