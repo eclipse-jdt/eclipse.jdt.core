@@ -88,7 +88,7 @@ public void acceptInitializer(int declarationStart, int declarationEnd, int[] ja
 	}
 
 	int[] modifiersRange = {-1, -1};
-	if (modifiersStart > declarationStart) {
+	if (modifiersStart >= declarationStart) {
 		modifiersRange[0] = modifiersStart;
 		modifiersRange[1] = bodyStart - 1;
 	}
