@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.IJavaElement;
  * </p>
  *
  * @see SearchEngine#search
+ * TODO (jerome) deprecate - should use SearchRequestor instead
  */
 public interface IJavaSearchResultCollector {
 	/**

@@ -10,89 +10,50 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.io.IOException;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
-import org.eclipse.jdt.internal.core.index.impl.IndexInput;
-import org.eclipse.jdt.internal.core.index.impl.IndexedFile;
-import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
+import org.eclipse.jdt.core.search.*;
 
 public class TypeDeclarationPattern extends SearchPattern {
 
-protected char[] simpleName;
-protected char[] pkg;
-protected char[][] enclosingTypeNames;
+private static ThreadLocal indexRecord = new ThreadLocal() {
+	protected Object initialValue() {
+		return new TypeDeclarationPattern(null, null, null, ' ', R_EXACT_MATCH | R_CASE_SENSITIVE);
+	}
+};
+
+public char[] simpleName;
+public char[] pkg;
+public char[][] enclosingTypeNames;
 
 // set to CLASS_SUFFIX for only matching classes 
 // set to INTERFACE_SUFFIX for only matching interfaces
 // set to TYPE_SUFFIX for matching both classes and interfaces
-protected char classOrInterface; 
+public char classOrInterface; 
 
-private char[] decodedPackage;
-private char[][] decodedEnclosingTypeNames;
-protected char[] decodedSimpleName;
-protected char decodedClassOrInterface;
-
-public static char[] createClassDeclaration(char[] packageName, char[][] enclosingTypeNames, char[] typeName) {
-	return createTypeDeclaration(packageName, enclosingTypeNames, typeName, true);
+public static char[] createIndexKey(char[] packageName, char[][] enclosingTypeNames, char[] typeName, boolean isClass) {
+	TypeDeclarationPattern record = getTypeDeclarationRecord();
+	record.pkg = packageName;
+	record.enclosingTypeNames = enclosingTypeNames;
+	record.simpleName = typeName;
+	record.classOrInterface = isClass ? CLASS_SUFFIX : INTERFACE_SUFFIX;
+	return record.encodeIndexKey();
 }
-public static char[] createInterfaceDeclaration(char[] packageName, char[][] enclosingTypeNames, char[] typeName) {
-	return createTypeDeclaration(packageName, enclosingTypeNames, typeName, false);	
+public static TypeDeclarationPattern getTypeDeclarationRecord() {
+	return (TypeDeclarationPattern)indexRecord.get();
 }
-/**
- * Type entries are encoded as 'typeDecl/' ('C' | 'I') '/' PackageName '/' TypeName '/' EnclosingTypeName
- * e.g. typeDecl/C/java.lang/Object/
- * e.g. typeDecl/I/java.lang/Cloneable/
- * e.g. typeDecl/C/javax.swing/LazyValue/UIDefaults
- * 
- * Current encoding is optimized for queries: all classes/interfaces
- */
-protected static char[] createTypeDeclaration(char[] packageName, char[][] enclosingTypeNames, char[] typeName, boolean isClass) {
-	int packageLength = packageName == null ? 0 : packageName.length;
-	int enclosingTypeNamesLength = 0;
-	if (enclosingTypeNames != null)
-		for (int i = 0, length = enclosingTypeNames.length; i < length; i++)
-			enclosingTypeNamesLength += enclosingTypeNames[i].length + 1;
-	int pos = TYPE_DECL_LENGTH;
-	char[] result = new char[pos + packageLength + typeName.length + enclosingTypeNamesLength + 4];
-	System.arraycopy(TYPE_DECL, 0, result, 0, pos);
-	result[pos++] = isClass ? CLASS_SUFFIX : INTERFACE_SUFFIX;
-	result[pos++] = SEPARATOR;
-	if (packageLength > 0) {
-		System.arraycopy(packageName, 0, result, pos, packageLength);
-		pos += packageLength;
-	}
-	result[pos++] = SEPARATOR;
-	System.arraycopy(typeName, 0, result, pos, typeName.length);
-	pos += typeName.length;
-	result[pos++] = SEPARATOR;
-	if (enclosingTypeNames != null) {
-		for (int i = 0, length = enclosingTypeNames.length; i < length; i++) {
-			int enclosingTypeNameLength = enclosingTypeNames[i].length;
-			System.arraycopy(enclosingTypeNames[i], 0, result, pos, enclosingTypeNameLength);
-			pos += enclosingTypeNameLength;
-			result[pos++] = SEPARATOR;
-		}
-	}
-	return result;
-}
-
-
-public TypeDeclarationPattern(int matchMode, boolean isCaseSensitive) {
-	super(TYPE_DECL_PATTERN, matchMode, isCaseSensitive);
+public TypeDeclarationPattern(int matchRule) {
+	super(TYPE_DECL_PATTERN, matchRule);
 }
 public TypeDeclarationPattern(
 	char[] pkg,
 	char[][] enclosingTypeNames,
 	char[] simpleName,
 	char classOrInterface,
-	int matchMode, 
-	boolean isCaseSensitive) {
+	int matchRule) {
 
-	super(TYPE_DECL_PATTERN, matchMode, isCaseSensitive);
+	super(TYPE_DECL_PATTERN, matchRule);
 
+	boolean isCaseSensitive = isCaseSensitive();
 	this.pkg = isCaseSensitive ? pkg : CharOperation.toLowerCase(pkg);
 	if (isCaseSensitive || enclosingTypeNames == null) {
 		this.enclosingTypeNames = enclosingTypeNames;
@@ -107,66 +68,53 @@ public TypeDeclarationPattern(
 	
 	this.mustResolve = pkg != null && enclosingTypeNames != null;
 }
-protected void decodeIndexEntry(IEntryResult entryResult) {
-	char[] word = entryResult.getWord();
-	int size = word.length;
-
-	this.decodedClassOrInterface = word[TYPE_DECL_LENGTH];
-	int oldSlash = TYPE_DECL_LENGTH + 1;
-	int slash = CharOperation.indexOf(SEPARATOR, word, oldSlash + 1);
-	this.decodedPackage = (slash == oldSlash + 1)
-		? CharOperation.NO_CHAR
-		: CharOperation.subarray(word, oldSlash + 1, slash);
-	this.decodedSimpleName = CharOperation.subarray(word, slash + 1, slash = CharOperation.indexOf(SEPARATOR, word, slash + 1));
-
-	if (slash+1 < size) {
-		this.decodedEnclosingTypeNames = (slash + 3 == size && word[slash + 1] == ONE_ZERO[0])
-			? ONE_ZERO_CHAR
-			: CharOperation.splitOn('/', CharOperation.subarray(word, slash+1, size-1));
-	} else {
-		this.decodedEnclosingTypeNames = CharOperation.NO_CHAR_CHAR;
-	}
-}
-/**
- * see SearchPattern.feedIndexRequestor
- */
-public void feedIndexRequestor(IIndexSearchRequestor requestor, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
-	boolean isClass = decodedClassOrInterface == CLASS_SUFFIX;
-	for (int i = 0, max = references.length; i < max; i++) {
-		IndexedFile file = input.getIndexedFile(references[i]);
-		if (file != null) {
-			String path = IndexedFile.convertPath(file.getPath());
-			if (scope.encloses(path)) {
-				if (isClass)
-					requestor.acceptClassDeclaration(path, decodedSimpleName, decodedEnclosingTypeNames, decodedPackage);
-				else
-					requestor.acceptInterfaceDeclaration(path, decodedSimpleName, decodedEnclosingTypeNames, decodedPackage);
-			}
-		}
-	}
-}
-/**
- * Type entries are encoded as 'typeDecl/' ('C' | 'I') '/' PackageName '/' TypeName
- * e.g. 'typeDecl/C/java.lang/Object'
- * e.g. 'typeDecl/I/java.lang/Cloneable'
- *
+/*
+ * Type entries are encoded as 'typeDecl/' ('C' | 'I') '/' PackageName '/' TypeName '/' EnclosingTypeName
+ * e.g. typeDecl/C/java.lang/Object/
+ * e.g. typeDecl/I/java.lang/Cloneable/
+ * e.g. typeDecl/C/javax.swing/LazyValue/UIDefaults
+ * 
  * Current encoding is optimized for queries: all classes/interfaces
  */
-protected char[] indexEntryPrefix() {
-	char[] packageName = this.isCaseSensitive ? pkg : null;
+public void decodeIndexKey(char[] key) {
+	int size = key.length;
+
+	this.classOrInterface = key[0];
+	int oldSlash = 1;
+	int slash = CharOperation.indexOf(SEPARATOR, key, oldSlash + 1);
+	this.pkg = (slash == oldSlash + 1)
+		? CharOperation.NO_CHAR
+		: CharOperation.subarray(key, oldSlash + 1, slash);
+	this.simpleName = CharOperation.subarray(key, slash + 1, slash = CharOperation.indexOf(SEPARATOR, key, slash + 1));
+
+	if (slash+1 < size) {
+		this.enclosingTypeNames = (slash + 3 == size && key[slash + 1] == ONE_ZERO[0])
+			? ONE_ZERO_CHAR
+			: CharOperation.splitOn('/', CharOperation.subarray(key, slash+1, size-1));
+	} else {
+		this.enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
+	}
+}
+/*
+ * classOrInterface / package / simpleName / enclosingTypeNames
+ */
+public char[] encodeIndexKey() {
+	char[] packageName = isCaseSensitive() ? pkg : null;
 	switch(this.classOrInterface) {
 		case CLASS_SUFFIX :
-			if (packageName == null) return CLASS_DECL;
+			if (packageName == null) 
+				return new char[] {CLASS_SUFFIX, SEPARATOR};
 			break;
 		case INTERFACE_SUFFIX :
-			if (packageName == null) return INTERFACE_DECL;
+			if (packageName == null) 
+				return new char[] {INTERFACE_SUFFIX, SEPARATOR};
 			break;
 		default :
-			return TYPE_DECL; // cannot do better given encoding
+			return CharOperation.NO_CHAR; // cannot do better given encoding
 	}
 
-	char[] typeName = this.isCaseSensitive ? simpleName : null;
-	if (typeName != null && this.matchMode == PATTERN_MATCH) {
+	char[] typeName = isCaseSensitive() ? this.simpleName : null;
+	if (typeName != null && matchMode() == PATTERN_MATCH) {
 		int starPos = CharOperation.indexOf('*', typeName);
 		switch(starPos) {
 			case -1 :
@@ -180,56 +128,71 @@ protected char[] indexEntryPrefix() {
 	}
 
 	int packageLength = packageName.length;
-	int typeLength = typeName == null ? 0 : typeName.length;
-	int pos = TYPE_DECL_LENGTH;
-	char[] result = new char[pos + packageLength + typeLength + 3];
-	System.arraycopy(TYPE_DECL, 0, result, 0, pos);
-	result[pos++] = classOrInterface;
+	int enclosingTypeNamesLength = 0;
+	if (this.enclosingTypeNames != null)
+		for (int i = 0, length = this.enclosingTypeNames.length; i < length; i++)
+			enclosingTypeNamesLength += this.enclosingTypeNames[i].length + 1;
+	int pos = 0;
+	int typeNameLength = typeName == null ? 0 : typeName.length;
+	int resultLength = pos + packageLength + typeNameLength + enclosingTypeNamesLength + 4;
+	char[] result = new char[resultLength];
+	result[pos++] = this.classOrInterface;
 	result[pos++] = SEPARATOR;
-	System.arraycopy(packageName, 0, result, pos, packageLength);
-	pos += packageLength;
+	if (packageLength > 0) {
+		System.arraycopy(packageName, 0, result, pos, packageLength);
+		pos += packageLength;
+	}
 	result[pos++] = SEPARATOR;
-	if (typeLength > 0)
-		System.arraycopy(typeName, 0, result, pos, typeName.length);
+	if (typeName != null) {
+		System.arraycopy(typeName, 0, result, pos, typeNameLength);
+		pos += typeNameLength;
+
+		result[pos++] = SEPARATOR;
+		if (enclosingTypeNames != null) {
+			for (int i = 0, length = this.enclosingTypeNames.length; i < length; i++) {
+				int enclosingTypeNameLength = this.enclosingTypeNames[i].length;
+				System.arraycopy(this.enclosingTypeNames[i], 0, result, pos, enclosingTypeNameLength);
+				pos += enclosingTypeNameLength;
+				result[pos++] = SEPARATOR;
+			}
+		}
+	}
+	if (pos != resultLength) {
+		System.arraycopy(result, 0, result = new char[pos], 0, pos);
+	}
 	return result;
 }
-/**
- * see SearchPattern.matchIndexEntry
- */
-protected boolean matchIndexEntry() {
+public SearchPattern getIndexRecord() {
+	return getTypeDeclarationRecord();
+}
+public char[][] getMatchCategories() {
+	return new char[][] {TYPE_DECL};
+}
+public boolean isMatchingIndexRecord() {
+	TypeDeclarationPattern record = getTypeDeclarationRecord();
 	switch(this.classOrInterface) {
 		case CLASS_SUFFIX :
 		case INTERFACE_SUFFIX :
-			if (this.classOrInterface != this.decodedClassOrInterface) return false;
+			if (this.classOrInterface != record.classOrInterface) return false;
 		case TYPE_SUFFIX : // nothing
 	}
 
 	/* check qualification - exact match only */
-	if (this.pkg != null && !CharOperation.equals(this.pkg, this.decodedPackage, this.isCaseSensitive))
+	if (this.pkg != null && !CharOperation.equals(this.pkg, record.pkg, isCaseSensitive()))
 		return false;
 	/* check enclosingTypeName - exact match only */
 	if (this.enclosingTypeNames != null) {
 		// empty char[][] means no enclosing type (in which case, the decoded one is the empty char array)
 		if (this.enclosingTypeNames.length == 0) {
-			if (this.decodedEnclosingTypeNames != CharOperation.NO_CHAR_CHAR) return false;
+			if (record.enclosingTypeNames != CharOperation.NO_CHAR_CHAR) return false;
 		} else {
-			if (!CharOperation.equals(this.enclosingTypeNames, this.decodedEnclosingTypeNames, this.isCaseSensitive))
-				if (!CharOperation.equals(this.decodedEnclosingTypeNames, ONE_ZERO_CHAR)) // if not a local or anonymous type
+			if (!CharOperation.equals(this.enclosingTypeNames, record.enclosingTypeNames, isCaseSensitive()))
+				if (!CharOperation.equals(record.enclosingTypeNames, ONE_ZERO_CHAR)) // if not a local or anonymous type
 					return false;
 		}
 	}
 
-	if (this.simpleName != null) {
-		switch(this.matchMode) {
-			case EXACT_MATCH :
-				return CharOperation.equals(this.simpleName, this.decodedSimpleName, this.isCaseSensitive);
-			case PREFIX_MATCH :
-				return CharOperation.prefixEquals(this.simpleName, this.decodedSimpleName, this.isCaseSensitive);
-			case PATTERN_MATCH :
-				return CharOperation.match(this.simpleName, this.decodedSimpleName, this.isCaseSensitive);
-		}
-	}
-	return true;
+	return matchesName(this.simpleName, record.simpleName);
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
@@ -264,7 +227,7 @@ public String toString() {
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(matchMode){
+	switch(matchMode()){
 		case EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -275,7 +238,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	if (isCaseSensitive)
+	if (isCaseSensitive())
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

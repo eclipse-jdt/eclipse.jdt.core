@@ -10,15 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.util.Util;
 
 public class PossibleMatch implements ICompilationUnit {
 
@@ -29,12 +28,14 @@ public Openable openable;
 public MatchingNodeSet nodeSet;
 public char[][] compoundName;
 CompilationUnitDeclaration parsedUnit;
+public SearchDocument document;
 private String sourceFileName;
 private char[] source;
 
-public PossibleMatch(MatchLocator locator, IResource resource, Openable openable) {
+public PossibleMatch(MatchLocator locator, IResource resource, Openable openable, SearchDocument document) {
 	this.resource = resource;
 	this.openable = openable;
+	this.document = document;
 	this.nodeSet = new MatchingNodeSet();
 	char[] qualifiedName = getQualifiedName();
 	if (qualifiedName != null)
@@ -54,25 +55,15 @@ public boolean equals(Object obj) {
 public char[] getContents() {
 	if (this.source != null) return this.source;
 
-	try {
-		if (this.openable instanceof CompilationUnit) {
-			if (((CompilationUnit) this.openable).isWorkingCopy()) {
-				IBuffer buffer = this.openable.getBuffer();
-				if (buffer == null) return null;
-				return this.source = buffer.getCharacters();
-			}
-			return this.source = Util.getResourceContentsAsCharArray((IFile) this.resource);
-		} else if (this.openable instanceof ClassFile) {
-			String fileName = getSourceFileName();
-			if (fileName == NO_SOURCE_FILE_NAME) return null;
+	if (this.openable instanceof ClassFile) {
+		String fileName = getSourceFileName();
+		if (fileName == NO_SOURCE_FILE_NAME) return null;
 
-			SourceMapper sourceMapper = this.openable.getSourceMapper();
-			IType type = ((ClassFile) this.openable).getType();
-			return this.source = sourceMapper.findSource(type, fileName);
-		}
-	} catch (JavaModelException e) { // ignored
+		SourceMapper sourceMapper = this.openable.getSourceMapper();
+		IType type = ((ClassFile) this.openable).getType();
+		return this.source = sourceMapper.findSource(type, fileName);
 	}
-	return null;
+	return this.source = this.document.getCharContents();
 }
 /**
  * The exact openable file name. In particular, will be the originating .class file for binary openable with attached

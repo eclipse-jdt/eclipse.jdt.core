@@ -302,7 +302,13 @@ protected void reportDeclaration(ReferenceBinding typeBinding, int maxType, Matc
 				ClassScope scope = ((SourceTypeBinding) typeBinding).scope;
 				if (scope != null) {
 					TypeDeclaration typeDecl = scope.referenceContext;
-					locator.report(resource, typeDecl.sourceStart, typeDecl.sourceEnd, type, IJavaSearchResultCollector.EXACT_MATCH);
+					locator.report(
+						resource, 
+						typeDecl.sourceStart, 
+						typeDecl.sourceEnd, 
+						type, 
+						IJavaSearchResultCollector.EXACT_MATCH, 
+						locator.getParticipant());
 				}
 			}
 			knownTypes.add(type);

@@ -8,16 +8,17 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.search;
+package org.eclipse.jdt.internal.core.search;
+
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
 
 /**
- * A search pattern defines how search results are found. Use <code>SearchEngine.createSearchPattern</code>
- * to create a search pattern.
- *
- * @see SearchEngine#createSearchPattern(IJavaElement, int)
- * @see SearchEngine#createSearchPattern(String, int, int, boolean)
- * TODO (jerome) deprecate this interface - should use SearchPattern instead
+ * TODO add spec
  */
-public interface ISearchPattern {
-	// used as a marker interface: contains no methods
+public abstract class IndexQueryRequestor {
+	
+	// answer false if requesting cancel
+	public abstract boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant);
+	
 }

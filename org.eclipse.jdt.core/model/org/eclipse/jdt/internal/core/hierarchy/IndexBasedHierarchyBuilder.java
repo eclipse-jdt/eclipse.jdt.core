@@ -10,11 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.hierarchy;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -22,22 +18,20 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
-import org.eclipse.jdt.internal.core.search.IndexSearchAdapter;
+import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
+import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.SubTypeSearchJob;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.SuperTypeReferencePattern;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
-import org.eclipse.jdt.internal.core.util.Util;
 
 public class IndexBasedHierarchyBuilder extends HierarchyBuilder implements SuffixConstants {
 	public static final int MAXTICKS = 800; // heuristic so that there still progress for deep hierachies
@@ -253,7 +247,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 	 * be sorted in reverse alphabetical order so that top level types are cached
 	 * before their inner types.
 	 */
-	Util.sortReverseOrder(allPotentialSubTypes);
+	org.eclipse.jdt.internal.core.util.Util.sortReverseOrder(allPotentialSubTypes);
 	
 	ArrayList potentialSubtypes = new ArrayList();
 
@@ -421,40 +415,44 @@ public static void searchAllPossibleSubTypes(
 	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 
 	/* use a special collector to collect paths and queue new subtype names */
-	IIndexSearchRequestor searchRequestor = new IndexSearchAdapter(){
-		public void acceptSuperTypeReference(String resourcePath, char[] qualification, char[] typeName, char[] enclosingTypeName, char classOrInterface, char[] superQualification, char[] superTypeName, char superClassOrInterface, int modifiers) {
-			pathRequestor.acceptPath(resourcePath, enclosingTypeName == IIndexConstants.ONE_ZERO);
-			int suffix = resourcePath.toLowerCase().indexOf(SUFFIX_STRING_class);
+	IndexQueryRequestor searchRequestor = new IndexQueryRequestor() {
+		public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant) {
+			SuperTypeReferencePattern record = (SuperTypeReferencePattern)indexRecord;
+			pathRequestor.acceptPath(documentPath, record.enclosingTypeName == IIndexConstants.ONE_ZERO);
+			char[] typeName = record.simpleName;
+			int suffix = documentPath.toLowerCase().indexOf(SUFFIX_STRING_class);
 			if (suffix != -1){ 
-				HierarchyBinaryType binaryType = (HierarchyBinaryType)binariesFromIndexMatches.get(resourcePath);
+				HierarchyBinaryType binaryType = (HierarchyBinaryType)binariesFromIndexMatches.get(documentPath);
 				if (binaryType == null){
+					char[] enclosingTypeName = record.enclosingTypeName;
 					if (enclosingTypeName == IIndexConstants.ONE_ZERO) { // local or anonymous type
-						int lastSlash = resourcePath.lastIndexOf('/');
-						if (lastSlash == -1) return;
-						int lastDollar = resourcePath.lastIndexOf('$');
-						if (lastDollar == -1) return;
-						enclosingTypeName = resourcePath.substring(lastSlash+1, lastDollar).toCharArray();
-						typeName = resourcePath.substring(lastDollar+1, suffix).toCharArray();
+						int lastSlash = documentPath.lastIndexOf('/');
+						if (lastSlash == -1) return true;
+						int lastDollar = documentPath.lastIndexOf('$');
+						if (lastDollar == -1) return true;
+						enclosingTypeName = documentPath.substring(lastSlash+1, lastDollar).toCharArray();
+						typeName = documentPath.substring(lastDollar+1, suffix).toCharArray();
 					}
-					binaryType = new HierarchyBinaryType(modifiers, qualification, typeName, enclosingTypeName, classOrInterface);
-					binariesFromIndexMatches.put(resourcePath, binaryType);
+					binaryType = new HierarchyBinaryType(record.modifiers, record.pkgName, typeName, enclosingTypeName, record.classOrInterface);
+					binariesFromIndexMatches.put(documentPath, binaryType);
 				}
-				binaryType.recordSuperType(superTypeName, superQualification, superClassOrInterface);
+				binaryType.recordSuperType(record.superSimpleName, record.superQualification, record.superClassOrInterface);
 			}
 			if (!foundSuperNames.containsKey(typeName)){
 				foundSuperNames.put(typeName, typeName);
 				awaitings.add(typeName);
 			}
+			return true;
 		}		
 	};
 	
-	SuperTypeReferencePattern pattern = new SuperTypeReferencePattern(null, null, IJavaSearchConstants.EXACT_MATCH, IJavaSearchConstants.CASE_SENSITIVE);
+	SuperTypeReferencePattern pattern = new SuperTypeReferencePattern(null, null, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	pattern.focus = type;
 	SubTypeSearchJob job = new SubTypeSearchJob(
-				pattern, 
-				scope,
-				searchRequestor, 
-				indexManager);
+		pattern, 
+		new JavaSearchParticipant(null), // java search only
+		scope, 
+		searchRequestor);
 	
 	/* initialize entry result cache */
 	pattern.entryResults = new HashMap();

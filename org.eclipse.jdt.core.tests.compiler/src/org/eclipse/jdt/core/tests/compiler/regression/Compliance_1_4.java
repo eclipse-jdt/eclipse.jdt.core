@@ -19,10 +19,6 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.util.Util;
-import org.eclipse.jdt.internal.core.index.IDocument;
-import org.eclipse.jdt.internal.core.index.IIndexerOutput;
-import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 
 public class Compliance_1_4 extends AbstractRegressionTest {
 public Compliance_1_4(String name) {
@@ -734,36 +730,7 @@ public void test021() {
 		"AbstractB.init()"); // no special vm args			
 
 		// check that "new Z().init()" is bound to "Z.init()"
-		final StringBuffer references = new StringBuffer(10);
-		try {
-			BinaryIndexer indexer = new BinaryIndexer(true);
-			indexer.index(
-				new IDocument() {
-					public byte[] getByteContent() throws IOException {
-						return Util.getFileByteContent(new File(OUTPUT_DIR + "/p1/Z.class"));
-					}
-					public char[] getCharContent() { return null; }
-					public String getName() { return "Z.class"; }
-					public String getStringContent() { return null; }
-					public String getType() { return "class"; }
-					public String getEncoding() { return null; }
-				}, 
-				new IIndexerOutput() {
-					public void addDocument(IDocument document) { 
-						// do nothing
-					}
-					public void addRef(char[] word) { 
-						references.append(word);
-						references.append('\n');
-					}
-					public void addRef(String word) {
-						//System.out.println(word);
-					}
-				});
-		} catch(IOException e) {
-			// ignore
-		}
-		String computedReferences = references.toString();
+		String computedReferences = findReferences(OUTPUT_DIR + "/p1/Z.class");
 		boolean check = 
 			computedReferences.indexOf("constructorRef/Z/0") >= 0
 			&& computedReferences.indexOf("methodRef/init/0") >= 0;

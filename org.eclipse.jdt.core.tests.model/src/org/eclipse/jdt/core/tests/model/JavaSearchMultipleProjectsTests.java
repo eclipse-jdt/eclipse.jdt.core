@@ -93,7 +93,7 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 			scope, 
 			resultCollector);
 		assertEquals(
-			"Unexpected occurences of fiel p1.X.BAR",
+			"Unexpected occurences of field p1.X.BAR",
 			"p1/X.java [in P1] p1.X.BAR [BAR]\n" +
 			"p2/Y.java [in P2] int p2.Y.bar() [BAR]", 
 			resultCollector.toString());

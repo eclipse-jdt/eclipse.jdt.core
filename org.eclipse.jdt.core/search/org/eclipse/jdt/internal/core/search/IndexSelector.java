@@ -21,11 +21,9 @@ import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
-import org.eclipse.jdt.internal.core.search.matching.SearchPattern;
 
 /**
  * Selects the indexes that correspond to projects in a given search scope
@@ -34,15 +32,14 @@ import org.eclipse.jdt.internal.core.search.matching.SearchPattern;
 public class IndexSelector {
 	IJavaSearchScope searchScope;
 	SearchPattern pattern;
-	IndexManager indexManager;
 	IPath[] indexKeys; // cache of the keys for looking index up
+	
 public IndexSelector(
-	IJavaSearchScope searchScope,
-	SearchPattern pattern,
-	IndexManager indexManager) {
+		IJavaSearchScope searchScope,
+		SearchPattern pattern) {
+	
 	this.searchScope = searchScope;
 	this.pattern = pattern;
-	this.indexManager = indexManager;
 }
 /**
  * Returns whether elements of the given project or jar can see the given focus (an IJavaProject or
@@ -149,24 +146,13 @@ private void initializeIndexKeys() {
 	this.indexKeys = new IPath[requiredIndexKeys.size()];
 	requiredIndexKeys.toArray(this.indexKeys);
 }
-public IIndex[] getIndexes() {
+public IPath[] getIndexKeys() {
 	if (this.indexKeys == null) {
 		this.initializeIndexKeys(); 
 	}
-	// acquire the in-memory indexes on the fly
-	int length = this.indexKeys.length;
-	IIndex[] indexes = new IIndex[length];
-	int count = 0;
-	for (int i = 0; i < length; i++){
-		// may trigger some index recreation work
-		IIndex index = indexManager.getIndex(indexKeys[i], true /*reuse index file*/, false /*do not create if none*/);
-		if (index != null) indexes[count++] = index; // only consider indexes which are ready yet
-	}
-	if (count != length) {
-		System.arraycopy(indexes, 0, indexes=new IIndex[count], 0, count);
-	}
-	return indexes;
+	return this.indexKeys;
 }
+
 /**
  * Returns the java project that corresponds to the given path.
  * Returns null if the path doesn't correspond to a project.

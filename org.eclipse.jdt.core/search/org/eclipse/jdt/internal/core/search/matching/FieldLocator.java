@@ -210,8 +210,16 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 					break;
 				}
 			} 
-			if (fieldDecl != null)
-				locator.report(resource, fieldDecl.sourceStart, fieldDecl.sourceEnd, field, IJavaSearchResultCollector.EXACT_MATCH);
+			if (fieldDecl != null) {
+				locator.report(
+					resource, 
+					fieldDecl.sourceStart, 
+					fieldDecl.sourceEnd, 
+					field,
+					IJavaSearchResultCollector.EXACT_MATCH, 
+					locator.getParticipant());
+
+			}
 		}
 	}
 }

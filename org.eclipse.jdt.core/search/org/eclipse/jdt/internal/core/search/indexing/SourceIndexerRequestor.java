@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.core.search.indexing;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
-import org.eclipse.jdt.internal.core.index.IDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 /**
@@ -22,17 +21,14 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
  */
 public class SourceIndexerRequestor implements ISourceElementRequestor, IIndexConstants {
 	SourceIndexer indexer;
-	IDocument document;
 
-	char[] packageName;
+	char[] packageName = CharOperation.NO_CHAR;
 	char[][] enclosingTypeNames = new char[5][];
 	int depth = 0;
 	int methodDepth = 0;
 	
-public SourceIndexerRequestor(SourceIndexer indexer, IDocument document) {
-	super();
+public SourceIndexerRequestor(SourceIndexer indexer) {
 	this.indexer = indexer;
-	this.document= document;
 }
 /**
  * @see ISourceElementRequestor#acceptConstructorReference(char[], int, int)
@@ -153,7 +149,7 @@ public void enterClass(int declarationStart, int modifiers, char[] name, int nam
 	} else {
 		typeNames = this.enclosingTypeNames();
 	}
-	this.indexer.addClassDeclaration(modifiers, packageName, name, typeNames, superclass, superinterfaces);
+	this.indexer.addClassDeclaration(modifiers, this.packageName, name, typeNames, superclass, superinterfaces);
 	this.pushTypeName(name);
 }
 /**

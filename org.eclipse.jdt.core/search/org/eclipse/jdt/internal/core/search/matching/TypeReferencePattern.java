@@ -10,72 +10,72 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.io.IOException;
-
-import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.core.index.IEntryResult;
-import org.eclipse.jdt.internal.core.index.impl.IndexInput;
-import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
+import org.eclipse.jdt.core.search.*;
 
 public class TypeReferencePattern extends AndPattern {
+
+private static ThreadLocal indexRecord = new ThreadLocal() {
+	protected Object initialValue() {
+		return new TypeReferencePattern(null, null, R_EXACT_MATCH | R_CASE_SENSITIVE);
+	}
+};
 
 protected char[] qualification;
 protected char[] simpleName;
 
-protected char[] decodedSimpleName;
-protected char[] currentTag;
+protected char[] currentCategory;
 
 /* Optimization: case where simpleName == null */
 protected char[][] segments;
 protected int currentSegment;
-protected char[] decodedSegment;
 
-protected static char[][] TAGS = { TYPE_REF, SUPER_REF, REF, CONSTRUCTOR_REF };
-protected static char[][] REF_TAGS = { REF };
+protected static char[][] CATEGORIES = { TYPE_REF, SUPER_REF, REF, CONSTRUCTOR_REF };
+protected static char[][] REF_CATEGORIES = { REF };
 
-public static char[] createReference(char[] typeName) {
-	return CharOperation.concat(TYPE_REF, typeName);
+public static char[] createIndexKey(char[] typeName) {
+	TypeReferencePattern record = getTypeReferenceRecord();
+	record.simpleName = typeName;
+	return record.encodeIndexKey();
 }
+public static TypeReferencePattern getTypeReferenceRecord() {
+	return (TypeReferencePattern)indexRecord.get();
+}
+public TypeReferencePattern(char[] qualification, char[] simpleName, int matchRule) {
+	super(TYPE_REF_PATTERN, matchRule);
 
-
-public TypeReferencePattern(char[] qualification, char[] simpleName, int matchMode, boolean isCaseSensitive) {
-	super(TYPE_REF_PATTERN, matchMode, isCaseSensitive);
-
-	this.qualification = isCaseSensitive ? qualification : CharOperation.toLowerCase(qualification);
-	this.simpleName = isCaseSensitive ? simpleName : CharOperation.toLowerCase(simpleName);
+	this.qualification = isCaseSensitive() ? qualification : CharOperation.toLowerCase(qualification);
+	this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
 
 	if (simpleName == null)
 		this.segments = this.qualification == null ? ONE_STAR_CHAR : CharOperation.splitOn('.', this.qualification);
 	
 	this.mustResolve = true; // always resolve (in case of a simple name reference being a potential match)
 }
-protected void acceptPath(IIndexSearchRequestor requestor, String path) {
-	requestor.acceptTypeReference(path, decodedSimpleName);
+public void decodeIndexKey(char[] key) {
+	int nameLength = CharOperation.indexOf(SEPARATOR, key);
+	if (nameLength != -1)
+		key = CharOperation.subarray(key, 0, nameLength);
+	
+	this.simpleName = key;
+
+	// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
+	this.segments[0] = key;
 }
-/**
- * Either decode ref/name, typeRef/name or superRef/superName/name
- */ 
-protected void decodeIndexEntry(IEntryResult entryResult) {
-	char[] word = entryResult.getWord();
-	int tagLength = currentTag.length;
-	int nameLength = CharOperation.indexOf(SEPARATOR, word, tagLength);
-	if (this.simpleName == null)
-		// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
-		this.decodedSegment = CharOperation.subarray(word, tagLength, nameLength);
+public char[] encodeIndexKey() {
+	if (this.simpleName == null) // Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
+		if (this.currentSegment < 0) 
+			return null;
+		else
+			return encodeIndexKey(this.segments[this.currentSegment]);
 	else
-		this.decodedSimpleName = CharOperation.subarray(word, tagLength, nameLength);
+		return encodeIndexKey(this.simpleName);
 }
-public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
-
-	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
-
-	char[][] possibleTags = this.simpleName == null ? REF_TAGS : TAGS;
-	for (int i = 0, max = possibleTags.length; i < max; i++) {
-		currentTag = possibleTags[i];
-		super.findIndexMatches(input, requestor, progressMonitor, scope);
-	}
+public SearchPattern getIndexRecord() {
+	return getTypeReferenceRecord();
+}
+public char[][] getMatchCategories() {
+	return this.simpleName == null ? REF_CATEGORIES : CATEGORIES;
 }
 /**
  * @see AndPattern#hasNextQuery
@@ -88,40 +88,13 @@ protected boolean hasNextQuery() {
 	// redundant (eg. in 'org.eclipse.jdt.core.*' 'org.eclipse' is used all the time)
 	return --this.currentSegment >= (this.segments.length >= 4 ? 2 : 0);
 }
-/**
- * Type reference entries are encoded as 'ref/typeName' or 'current tag/typeName'
- */
-protected char[] indexEntryPrefix() {
-	if (this.simpleName == null) // Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
-		return indexEntryPrefix(REF, this.segments[this.currentSegment]);
-
-	return indexEntryPrefix(this.currentTag, this.simpleName);
-}
-/**
- * @see SearchPattern#matchIndexEntry
- */
-protected boolean matchIndexEntry() {
-	if (simpleName == null) {
+public boolean isMatchingIndexRecord() {
+	if (this.simpleName == null) {
 		// Optimization, eg. type reference is 'org.eclipse.jdt.core.*'
-		switch(matchMode) {
-			case EXACT_MATCH :
-				return CharOperation.equals(this.segments[this.currentSegment], this.decodedSegment, isCaseSensitive);
-			case PREFIX_MATCH :
-				return CharOperation.prefixEquals(this.segments[this.currentSegment], this.decodedSegment, isCaseSensitive);
-			case PATTERN_MATCH :
-				return CharOperation.match(this.segments[this.currentSegment], this.decodedSegment, isCaseSensitive);
-		}
+		return matchesName(this.segments[this.currentSegment], getTypeReferenceRecord().segments[0]);
 	} else {
-		switch(matchMode) {
-			case EXACT_MATCH :
-				return CharOperation.equals(simpleName, decodedSimpleName, isCaseSensitive);
-			case PREFIX_MATCH :
-				return CharOperation.prefixEquals(simpleName, decodedSimpleName, isCaseSensitive);
-			case PATTERN_MATCH :
-				return CharOperation.match(simpleName, decodedSimpleName, isCaseSensitive);
-		}
+		return matchesName(this.simpleName, getTypeReferenceRecord().simpleName);
 	}
-	return true;
 }
 /**
  * @see AndPattern#resetQuery
@@ -144,7 +117,7 @@ public String toString() {
 	else
 		buffer.append("*"); //$NON-NLS-1$
 	buffer.append(">, "); //$NON-NLS-1$
-	switch(matchMode){
+	switch(matchMode()){
 		case EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -155,7 +128,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	if (isCaseSensitive)
+	if (isCaseSensitive())
 		buffer.append("case sensitive"); //$NON-NLS-1$
 	else
 		buffer.append("case insensitive"); //$NON-NLS-1$

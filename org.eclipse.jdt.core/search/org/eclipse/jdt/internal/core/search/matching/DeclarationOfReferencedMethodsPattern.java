@@ -21,7 +21,7 @@ protected IJavaElement enclosingElement;
 protected SimpleSet knownMethods;
 
 public DeclarationOfReferencedMethodsPattern(IJavaElement enclosingElement) {
-	super(false, true, null, PATTERN_MATCH, false, null, null, null, null, null, null, null);
+	super(false, true, null, null, null, null, null, null, null, null, R_PATTERN_MATCH);
 
 	this.enclosingElement = enclosingElement;
 	this.knownMethods = new SimpleSet();

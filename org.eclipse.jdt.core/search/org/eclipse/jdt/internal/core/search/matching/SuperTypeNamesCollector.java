@@ -246,25 +246,23 @@ protected String[] getPathsOfDeclaringType() {
 		null, // do find member types
 		this.typeSimpleName,
 		IIndexConstants.TYPE_SUFFIX,
-		this.pattern.matchMode, 
-		true);
-	IIndexSearchRequestor searchRequestor = new IndexSearchAdapter() {
-		public void acceptClassDeclaration(String resourcePath, char[] simpleTypeName, char[][] enclosingTypeNames, char[] packageName) {
-			if (enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR) // filter out local and anonymous classes
-				pathCollector.acceptClassDeclaration(resourcePath, simpleTypeName, enclosingTypeNames, packageName);
-		}		
-		public void acceptInterfaceDeclaration(String resourcePath, char[] simpleTypeName, char[][] enclosingTypeNames, char[] packageName) {
-			if (enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR) // filter out local and anonymous classes
-				pathCollector.acceptInterfaceDeclaration(resourcePath, simpleTypeName, enclosingTypeNames, packageName);
+		this.pattern.matchRule);
+	IndexQueryRequestor searchRequestor = new IndexQueryRequestor(){
+		public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant) {
+			TypeDeclarationPattern record = (TypeDeclarationPattern)indexRecord;
+			if (record.enclosingTypeNames != IIndexConstants.ONE_ZERO_CHAR) {  // filter out local and anonymous classes
+				pathCollector.acceptIndexMatch(documentPath, indexRecord, participant);
+			}
+			return true;
 		}		
 	};		
 
 	indexManager.performConcurrentJob(
 		new PatternSearchJob(
 			searchPattern, 
+			new JavaSearchParticipant(this.locator.workingCopies),
 			scope, 
-			searchRequestor, 
-			indexManager),
+			searchRequestor),
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));
 	return pathCollector.getPaths();

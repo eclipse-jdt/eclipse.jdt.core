@@ -134,6 +134,9 @@ public class SimpleIndexInput extends IndexInput {
 			files[i]= getIndexedFile(fileNums[i]);
 		return files;
 	}
+	public IEntryResult[] queryEntries(char[] pattern, int matchRule) {
+		return null;
+	}
 	public IEntryResult[] queryEntriesPrefixedBy(char[] prefix) {
 		return null;
 	}

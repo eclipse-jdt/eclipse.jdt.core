@@ -10,11 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.io.IOException;
+
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.index.IIndex;
-import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
+import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 
 public class LocalVariablePattern extends VariablePattern {
 	
@@ -25,23 +31,36 @@ public LocalVariablePattern(
 	boolean readAccess,
 	boolean writeAccess,
 	LocalVariable localVariable,
-	int matchMode, 
-	boolean isCaseSensitive) {
+	int matchRule) {
 
-	super(LOCAL_VAR_PATTERN, findDeclarations, readAccess, writeAccess, localVariable.getElementName().toCharArray(), matchMode, isCaseSensitive);
+	super(LOCAL_VAR_PATTERN, findDeclarations, readAccess, writeAccess, localVariable.getElementName().toCharArray(), matchRule);
 	this.localVariable = localVariable;
 }
-
-protected void acceptPath(IIndexSearchRequestor requestor, String path) {
-	requestor.acceptFieldDeclaration(path, null); // just remember the path
+public void decodeIndexKey(char[] key) {
+	// local variables are not indexed
 }
-/*
- * @see SearchPattern#findIndexMatches
- */
-public void findIndexMatches(IIndex index, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) {
+public char[] encodeIndexKey() {
+	// local variables are not indexed
+	return null;
+}
+public void findIndexMatches(IIndex index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
 	String path = this.localVariable.getPath().toString();
-	if (scope.encloses(path))
-		acceptPath(requestor, path);
+	if (scope.encloses(path)) {
+		if (!requestor.acceptIndexMatch(path, this, participant)) 
+			throw new OperationCanceledException();
+	}
+}
+public SearchPattern getIndexRecord() {
+	// local variables are not indexed
+	return null;
+}
+public char[][] getMatchCategories() {
+	// local variables are not indexed
+	return CharOperation.NO_CHAR_CHAR;
+}
+public boolean isMatchingIndexRecord() {
+	// local variables are not indexed
+	return false;
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(20);
@@ -54,7 +73,7 @@ public String toString() {
 	}
 	buffer.append(this.localVariable.toStringWithAncestors());
 	buffer.append(", "); //$NON-NLS-1$
-	switch(this.matchMode){
+	switch(matchMode()){
 		case EXACT_MATCH : 
 			buffer.append("exact match, "); //$NON-NLS-1$
 			break;
@@ -65,7 +84,7 @@ public String toString() {
 			buffer.append("pattern match, "); //$NON-NLS-1$
 			break;
 	}
-	buffer.append(this.isCaseSensitive ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
+	buffer.append(isCaseSensitive() ? "case sensitive" : "case insensitive"); //$NON-NLS-1$ //$NON-NLS-2$
 	return buffer.toString();
 }
 }

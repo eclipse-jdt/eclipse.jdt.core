@@ -41,7 +41,7 @@ class AddFolderToIndex extends IndexRequest {
 		if (folder == null || folder.getType() == IResource.FILE) return true; // nothing to do, source folder was removed
 
 		/* ensure no concurrent write access to index */
-		IIndex index = manager.getIndex(this.indexPath, true, /*reuse index file*/ true /*create if none*/);
+		IIndex index = manager.getIndex(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
 		if (index == null) return true;
 		ReadWriteMonitor monitor = manager.getMonitorFor(index);
 		if (monitor == null) return true; // index got deleted since acquired
@@ -49,7 +49,7 @@ class AddFolderToIndex extends IndexRequest {
 		try {
 			monitor.enterRead(); // ask permission to read
 
-			final IPath container = this.indexPath;
+			final IPath container = this.containerPath;
 			final IndexManager indexManager = this.manager;
 			final char[][] pattern = exclusionPattern;
 			folder.accept(
@@ -84,6 +84,6 @@ class AddFolderToIndex extends IndexRequest {
 		return true;
 	}
 	public String toString() {
-		return "adding " + this.folderPath + " to index " + this.indexPath; //$NON-NLS-1$ //$NON-NLS-2$
+		return "adding " + this.folderPath + " to index " + this.containerPath; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

@@ -19,7 +19,7 @@ protected SimpleSet knownTypes;
 protected IJavaElement enclosingElement;
 
 public DeclarationOfReferencedTypesPattern(IJavaElement enclosingElement) {
-	super(null, null, PATTERN_MATCH, false);
+	super(null, null, R_PATTERN_MATCH);
 
 	this.enclosingElement = enclosingElement;
 	this.knownTypes = new SimpleSet();
