@@ -326,20 +326,24 @@ public final class AST {
 	 * @since 2.1
 	 */
 	public static CompilationUnit parseCompilationUnit(
-			IClassFile classFile,
-			boolean resolveBindings) {
-				try {
-					String source = classFile.getSource();
-					if (resolveBindings) {
-						return AST.parseCompilationUnit(source.toCharArray());
-					}
-					return AST.parseCompilationUnit(
-						source.toCharArray(),
-						classFile.getElementName(),
-						classFile.getJavaProject());
-				} catch (JavaModelException e) {
-					throw new IllegalArgumentException();
-				}
+		IClassFile classFile,
+		boolean resolveBindings) {
+			String source = null;
+			try {
+				source = classFile.getSource();
+			} catch (JavaModelException e) {
+				throw new IllegalArgumentException();
+			}
+			if (source == null) {
+				throw new IllegalArgumentException();
+			}
+			if (!resolveBindings) {
+				return AST.parseCompilationUnit(source.toCharArray());
+			}
+			return AST.parseCompilationUnit(
+				source.toCharArray(),
+				classFile.getElementName(),
+				classFile.getJavaProject());
 	}
 			
 	/**
