@@ -173,7 +173,7 @@ public class CompilationUnitDeclaration
 			}
 			return;
 		}
-		if (this.isPackageInfo()) {
+		if (this.isPackageInfo() && this.types != null) {
 			types[0].annotations = this.currentPackage.annotations;
 		}
 		try {
