@@ -1123,7 +1123,7 @@ class ASTConverter {
 				}
 			}
 			AnonymousClassDeclaration anonymousClassDeclaration = this.ast.newAnonymousClassDeclaration();
-			int start = retrieveStartBlockPosition(declarationSourceStart, allocation.anonymousType.bodyEnd);
+			int start = retrieveStartBlockPosition(allocation.anonymousType.sourceEnd, allocation.anonymousType.bodyEnd);
 			anonymousClassDeclaration.setSourceRange(start, allocation.anonymousType.bodyEnd - start + 1);
 			classInstanceCreation.setAnonymousClassDeclaration(anonymousClassDeclaration);
 			buildBodyDeclarations(allocation.anonymousType, anonymousClassDeclaration);
