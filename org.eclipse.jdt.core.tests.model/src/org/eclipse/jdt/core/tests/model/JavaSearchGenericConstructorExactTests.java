@@ -12,11 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchRequestor;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -30,7 +26,7 @@ public class JavaSearchGenericConstructorExactTests extends JavaSearchGenericCon
 	 * @param name
 	 */
 	public JavaSearchGenericConstructorExactTests(String name) {
-		super(name);
+		super(name, EXACT_RULE);
 	}
 
 	public static Test suite() {
@@ -49,18 +45,5 @@ public class JavaSearchGenericConstructorExactTests extends JavaSearchGenericCon
 		if (CharOperation.match(RESULT_EXACT_MATCH, line, true)) {
 			super.addResultLine(buffer, line);
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(org.eclipse.jdt.core.IJavaElement, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
-	 */
-	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(element, limitTo, EXACT_RULE, scope, requestor);
-	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(java.lang.String, int, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
-	 */
-	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(patternString, searchFor, limitTo, EXACT_RULE, scope, requestor);
 	}
 }

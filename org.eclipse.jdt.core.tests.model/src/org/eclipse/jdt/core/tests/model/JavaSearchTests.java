@@ -3192,7 +3192,7 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 		workingCopies = new ICompilationUnit[1];
 		workingCopies[0] = getWorkingCopy("/JavaSearch15/src/p/X.java",
 			"package p;\n" + 
-			"public class Test {\n" + 
+			"public class X {\n" + 
 			"	void foo(int x) {}\n" + 
 			"	void bar() {\n" + 
 			"		foo(new Integer(0));\n" + 
@@ -3200,10 +3200,10 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 			"}\n"
 			);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
-		IMethod method = workingCopies[0].getType("Test").getMethod("foo", new String[] { "I" });
+		IMethod method = workingCopies[0].getType("X").getMethod("foo", new String[] { "I" });
 		search(method, REFERENCES, scope);
 		assertSearchResults(
-			"src/p/X.java void p.Test.bar() [foo(new Integer(0))]"
+			"src/p/X.java void p.X.bar() [foo(new Integer(0))]"
 		);
 	}
 

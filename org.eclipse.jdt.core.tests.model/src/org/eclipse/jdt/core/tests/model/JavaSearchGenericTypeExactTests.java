@@ -12,14 +12,11 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.List;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchRequestor;
 
 /**
  * Test for search of generic types using R_EXACT_MATCH rule.
@@ -30,7 +27,7 @@ public class JavaSearchGenericTypeExactTests extends JavaSearchGenericTypeTests 
 	 * @param name
 	 */
 	public JavaSearchGenericTypeExactTests(String name) {
-		super(name);
+		super(name, EXACT_RULE);
 	}
 
 	// Use this static initializer to specify subset for tests
@@ -64,18 +61,5 @@ public class JavaSearchGenericTypeExactTests extends JavaSearchGenericTypeTests 
 	 */
 	int[] removeLastTypeArgument(char[] line) {
 		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(org.eclipse.jdt.core.IJavaElement, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
-	 */
-	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(element, limitTo, EXACT_RULE, scope, requestor);
-	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(java.lang.String, int, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
-	 */
-	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(patternString, searchFor, limitTo, EXACT_RULE, scope, requestor);
 	}
 }

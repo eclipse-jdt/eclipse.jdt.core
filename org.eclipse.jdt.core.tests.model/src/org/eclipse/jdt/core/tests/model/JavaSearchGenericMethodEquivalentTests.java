@@ -12,14 +12,11 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.List;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchRequestor;
 
 /**
  * Test for generic methods search using R_EQUIVALENT_MATCH rule.
@@ -30,7 +27,7 @@ public class JavaSearchGenericMethodEquivalentTests extends JavaSearchGenericMet
 	 * @param name
 	 */
 	public JavaSearchGenericMethodEquivalentTests(String name) {
-		super(name);
+		super(name, EQUIVALENT_RULE);
 	}
 
 	public static Test suite() {
@@ -49,18 +46,5 @@ public class JavaSearchGenericMethodEquivalentTests extends JavaSearchGenericMet
 		if (!CharOperation.match(RESULT_ERASURE_MATCH, line, true)) {
 			super.addResultLine(buffer, line);
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(org.eclipse.jdt.core.IJavaElement, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
-	 */
-	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(element, limitTo, EQUIVALENT_RULE, scope, requestor);
-	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(java.lang.String, int, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
-	 */
-	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(patternString, searchFor, limitTo, EQUIVALENT_RULE, scope, requestor);
 	}
 }

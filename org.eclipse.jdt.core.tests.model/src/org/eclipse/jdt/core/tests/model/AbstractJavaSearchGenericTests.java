@@ -22,9 +22,11 @@ public class AbstractJavaSearchGenericTests extends JavaSearchTests {
 
 	static char[] RESULT_EXACT_MATCH = "*] EXACT_*".toCharArray();
 	static char[] RESULT_ERASURE_MATCH = "*] ERASURE_*".toCharArray();
+	int matchRule;
 
-	public AbstractJavaSearchGenericTests(String name) {
+	public AbstractJavaSearchGenericTests(String name, int matchRule) {
 		super(name);
+		this.matchRule = matchRule;
 	}
 
 	protected void setUp () throws Exception {
@@ -75,13 +77,39 @@ public class AbstractJavaSearchGenericTests extends JavaSearchTests {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(org.eclipse.jdt.core.IJavaElement, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
 	 */
+	protected void search(IJavaElement element, int limitTo) throws CoreException {
+		search(element, limitTo, matchRule, getJavaSearchScope15(), resultCollector);
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(java.lang.String, int, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
+	 */
+	protected void search(String patternString, int searchFor, int limitTo) throws CoreException {
+		search(patternString, searchFor, limitTo, matchRule, getJavaSearchScope15(), resultCollector);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(org.eclipse.jdt.core.IJavaElement, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
+	 */
+	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope) throws CoreException {
+		search(element, limitTo, matchRule, scope, resultCollector);
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(java.lang.String, int, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
+	 */
+	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope) throws CoreException {
+		search(patternString, searchFor, limitTo, matchRule, scope, resultCollector);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(org.eclipse.jdt.core.IJavaElement, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
+	 */
 	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(element, limitTo, ERASURE_RULE, scope, requestor);
+		search(element, limitTo, matchRule, scope, requestor);
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(java.lang.String, int, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
 	 */
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		search(patternString, searchFor, limitTo, ERASURE_RULE, scope, requestor);
+		search(patternString, searchFor, limitTo, matchRule, scope, requestor);
 	}
 }

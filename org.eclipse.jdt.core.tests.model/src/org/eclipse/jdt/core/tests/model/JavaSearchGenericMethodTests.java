@@ -22,7 +22,11 @@ import org.eclipse.jdt.core.search.*;
 public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests {
 
 	public JavaSearchGenericMethodTests(String name) {
-		super(name);
+		super(name, ERASURE_RULE);
+	}
+	// defined for sub-classes
+	JavaSearchGenericMethodTests(String name, int matchRule) {
+		super(name, matchRule);
 	}
 	public static Test suite() {
 		return buildTestSuite(JavaSearchGenericMethodTests.class);

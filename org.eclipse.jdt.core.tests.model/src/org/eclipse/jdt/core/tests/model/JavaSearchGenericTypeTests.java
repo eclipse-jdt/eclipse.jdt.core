@@ -26,14 +26,18 @@ import org.eclipse.jdt.internal.core.ParameterizedSourceType;
 public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 
 	public JavaSearchGenericTypeTests(String name) {
-		super(name);
+		super(name, ERASURE_RULE);
+	}
+	// defined for sub-classes
+	JavaSearchGenericTypeTests(String name, int matchRule) {
+		super(name, matchRule);
 	}
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		org.eclipse.jdt.internal.core.search.matching.MatchLocator.PRINT_BUFFER = false;
 //		TESTS_PREFIX =  "testArray";
-//		TESTS_NAMES = new String[] { "testTypeSingleArgument02" };
+//		TESTS_NAMES = new String[] { "testParameterizedType_Bug83713" };
 //		TESTS_NUMBERS = new int[] { 8 };
 //		TESTS_RANGE = new int[] { 6, -1 };
 	}
@@ -53,7 +57,10 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 	 */
 	int[] removeLastTypeArgument(char[] line) {
 		int idx=line.length-1;
-		while (line[idx] != ']') idx--;
+		while (line[idx] != ']') {
+			idx--;
+			if (idx == 0) return null;
+		}
 		if (line[--idx] != '>') return null;
 		int n = 1;
 		int end = idx+1;
@@ -2039,5 +2046,29 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 			"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.tableOfEntryExceptionArray [g6.t.def.Table<String, Exception>.Entry<String, Exception>] ERASURE_MATCH\n" +
 			"src/g6/t/ref/QualifMultiple.java g6.t.ref.QualifMultiple.tableOfEntryExceptionArray [g6.t.def.Table<String, Exception>.Entry<String, Exception>] ERASURE_MATCH",
 			resultCollector);
+	}
+
+	/**
+	 * Bug 83713: [search] IAE while searching reference to parameterized type
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83713"
+	 */
+	public void testParameterizedType_Bug83713() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearch15/src/p/X.java",
+			"package p;\n" + 
+			"public class X<T> {}\n" +
+			"class Y<E> extends X<E> {\n" + 
+			"	X<E> y1;\n" + 
+			"	X<E> y2;\n" + 
+			"}\n"
+			);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
+		IType type = selectParameterizedType(workingCopies[0], "X<E>", 2);
+		search(type, REFERENCES, scope);
+		assertSearchResults(
+			"src/p/X.java p.Y [X<E>] EXACT_MATCH\n" + 
+			"src/p/X.java p.Y.y1 [X<E>] EXACT_MATCH\n" + 
+			"src/p/X.java p.Y.y2 [X<E>] EXACT_MATCH"
+		);
 	}
 }
