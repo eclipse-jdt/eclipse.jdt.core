@@ -41,6 +41,10 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
  */
 public class DeltaProcessor {
 	
+	final static int IGNORE = 0;
+	final static int SOURCE = 1;
+	final static int BINARY = 2;
+	
 	/**
 	 * The <code>JavaElementDelta</code> corresponding to the <code>IResourceDelta</code> being translated.
 	 */
@@ -771,7 +775,7 @@ private JavaModelException newInvalidElementType() {
 						IJavaElement.JAVA_MODEL, 
 						isPkgFragmentRoot);
 				
-				this.traverseDelta(delta, elementType, projectOfRoot, null, false); // traverse delta
+				this.traverseDelta(delta, elementType, projectOfRoot, null, IGNORE); // traverse delta
 				translatedDeltas[i] = fCurrentDelta;
 			}
 			
@@ -865,7 +869,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 		int elementType, 
 		IJavaProject currentProject,
 		IPath currentOutput,
-		boolean currentProjIsOutput) {
+		int outputTraverseMode) {
 			
 		IResource res = delta.getResource();
 		
@@ -896,7 +900,19 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 						currentProject;
 				if (proj != null) {
 					currentOutput = proj.getOutputLocation();
-					currentProjIsOutput = proj.getProject().getFullPath().equals(currentOutput);
+					if (proj.getProject().getFullPath().equals(currentOutput)){ // case of proj==bin==src
+						outputTraverseMode = SOURCE;
+					} else {
+						// check case of src==bin
+						IClasspathEntry[] classpath = proj.getResolvedClasspath(true);
+						for (int i = 0, length = classpath.length; i < length; i++) {
+							IClasspathEntry entry = classpath[i];
+							if (entry.getPath().equals(currentOutput)) {
+								outputTraverseMode = (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) ? SOURCE : BINARY;
+								break;
+							}
+						}
+					}
 				}
 			} catch (JavaModelException e) {
 			}
@@ -929,24 +945,27 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 						isPkgFragmentRoot);
 				
 				// filter out changes in output location
-				if (currentProjIsOutput) {
-					// case of proj=src
-					if (childType == IJavaElement.CLASS_FILE) {
+				if (currentOutput != null && currentOutput.isPrefixOf(childPath)) {
+					if (outputTraverseMode != IGNORE) {
+						// case of bin=src
+						if (outputTraverseMode == SOURCE && childType == IJavaElement.CLASS_FILE) {
+							continue;
+						}
+						// case of .class file under project and no source folder
+						// proj=bin
+						if (childType == IJavaElement.JAVA_PROJECT 
+							&& childRes instanceof IFile 
+							&& Util.isValidClassFileName(childRes.getName())) {
+							continue;
+						}
+					} else {
 						continue;
 					}
-					// case of .class file under project and no source folder
-					if (childType == IJavaElement.JAVA_PROJECT 
-						&& childRes instanceof IFile 
-						&& Util.isValidClassFileName(childRes.getName())) {
-						continue;
-					}
-				} else if (currentOutput != null && currentOutput.isPrefixOf(childPath)) {
-					continue;
 				}
 				
 				// traverse delta for child in the same project
 				if (childType == -1
-					|| !this.traverseDelta(child, childType, (currentProject == null && isPkgFragmentRoot) ? projectOfRoot : currentProject, currentOutput, currentProjIsOutput)) {
+					|| !this.traverseDelta(child, childType, (currentProject == null && isPkgFragmentRoot) ? projectOfRoot : currentProject, currentOutput, outputTraverseMode)) {
 					try {
 						if (currentProject != null) {
 							if (!isValidParent) continue; 
@@ -980,7 +999,7 @@ private boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType
 				
 				// if child is a package fragment root of another project, traverse delta too
 				if (projectOfRoot != null && !isPkgFragmentRoot) {
-					this.traverseDelta(child, IJavaElement.PACKAGE_FRAGMENT_ROOT, projectOfRoot, null, false);
+					this.traverseDelta(child, IJavaElement.PACKAGE_FRAGMENT_ROOT, projectOfRoot, null, IGNORE); // binary output of projectOfRoot cannot be this root
 					// NB: No need to check the return value as the child can only be on the classpath
 				}
 				
