@@ -268,6 +268,13 @@ public void indexLibrary(IPath path, IProject referingProject) {
  */
 public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, final char[][] exclusionPattern) {
 	IProject project = javaProject.getProject();
+	if (this.jobEnd >= this.jobStart) {
+		// check if a job to index the project is not already in the queue
+		IndexRequest request = new IndexAllProject(project, this);
+		for (int i = this.jobEnd; i >= this.jobStart; i--)
+			if (request.equals(this.awaitingJobs[i])) return;
+	}
+
 	final IPath container = project.getFullPath();
 	IContainer folder = container.equals(sourceFolder)
 		? (IContainer) project
