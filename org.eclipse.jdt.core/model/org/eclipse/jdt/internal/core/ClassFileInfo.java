@@ -17,7 +17,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
@@ -125,8 +124,14 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 		for (int j= 0; j < pNames.length; j++) {
 			pNames[j]= new String(parameterTypes[j]);
 		}
-		IMethod method = new BinaryMethod((JavaElement)type, selector, pNames);
+		BinaryMethod method = new BinaryMethod((JavaElement)type, selector, pNames);
 		childrenHandles.add(method);
+		
+		// ensure that 2 binary methods with the same signature but with different return types have different occurence counts.
+		// (case of bridge methods in 1.5)
+		while (newElements.containsKey(method))
+			method.occurrenceCount++;
+		
 		newElements.put(method, methodInfo);
 	}
 }
