@@ -2117,6 +2117,41 @@ public class JavaProject
 	}
 
 	/**
+	 * @see IJavaProject
+	 */
+	public IPath readOutputLocation() throws JavaModelException {
+
+		IClasspathEntry[] classpath = this.readClasspathFile(false/*don't create markers*/, false/*log problems*/);
+		// extract the output location
+		IPath outputLocation = null;
+		if (classpath != null && classpath.length > 0) {
+			IClasspathEntry entry = classpath[classpath.length - 1];
+			if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
+				outputLocation = entry.getPath();
+			}
+		}
+		return outputLocation;
+	}
+
+	/**
+	 * @see IJavaProject
+	 */
+	public IClasspathEntry[] readRawClasspath() throws JavaModelException {
+
+		IClasspathEntry[] classpath = this.readClasspathFile(false/*don't create markers*/, false/*log problems*/);
+		// discard the output location
+		if (classpath != null && classpath.length > 0) {
+			IClasspathEntry entry = classpath[classpath.length - 1];
+			if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
+				IClasspathEntry[] copy = new IClasspathEntry[classpath.length - 1];
+				System.arraycopy(classpath, 0, copy, 0, copy.length);
+				classpath = copy;
+			}
+		}
+		return classpath;
+	}
+
+	/**
 	 * Removes the given builder from the build spec for the given project.
 	 */
 	protected void removeFromBuildSpec(String builderID) throws CoreException {
@@ -2542,40 +2577,5 @@ public class JavaProject
 					}
 				}
 			}
-	}
-
-	/**
-	 * @see IJavaProject
-	 */
-	public IClasspathEntry[] readRawClasspath() throws JavaModelException {
-
-		IClasspathEntry[] classpath = this.readClasspathFile(false/*don't create markers*/, false/*log problems*/);
-		// discard the output location
-		if (classpath != null && classpath.length > 0) {
-			IClasspathEntry entry = classpath[classpath.length - 1];
-			if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
-				IClasspathEntry[] copy = new IClasspathEntry[classpath.length - 1];
-				System.arraycopy(classpath, 0, copy, 0, copy.length);
-				classpath = copy;
-			}
-		}
-		return classpath;
-	}
-
-		/**
-	 * @see IJavaProject
-	 */
-	public IPath readOutputLocation() throws JavaModelException {
-
-		IClasspathEntry[] classpath = this.readClasspathFile(false/*don't create markers*/, false/*log problems*/);
-		// extract the output location
-		IPath outputLocation = null;
-		if (classpath != null && classpath.length > 0) {
-			IClasspathEntry entry = classpath[classpath.length - 1];
-			if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
-				outputLocation = entry.getPath();
-			}
-		}
-		return outputLocation;
 	}
 }
