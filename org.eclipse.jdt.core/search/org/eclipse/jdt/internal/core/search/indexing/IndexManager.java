@@ -506,11 +506,13 @@ public void shutdown() {
 		knownPaths.put(path, path);
 	}
 
-	Object[] indexNames = indexStates.keyTable;
-	for (int i = 0, l = indexNames.length; i < l; i++) {
-		String key = (String) indexNames[i];
-		if (key != null && !knownPaths.containsKey(key))
-			updateIndexState(key, null);
+	if (indexStates != null) {
+		Object[] indexNames = indexStates.keyTable;
+		for (int i = 0, l = indexNames.length; i < l; i++) {
+			String key = (String) indexNames[i];
+			if (key != null && !knownPaths.containsKey(key))
+				updateIndexState(key, null);
+		}
 	}
 
 	File indexesDirectory = new File(getJavaPluginWorkingLocation().toOSString());
