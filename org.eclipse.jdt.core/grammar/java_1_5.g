@@ -571,9 +571,9 @@ FormalParameterList ::= FormalParameterList ',' FormalParameter
 
 --1.1 feature
 FormalParameter ::= Modifiersopt Type VariableDeclaratorId
-/.$putCase consumeFormalParameter(); $break ./
+/.$putCase consumeFormalParameter(false); $break ./
 FormalParameter ::= Modifiersopt Type '...' VariableDeclaratorId
-/.$putCase consumeFormalParameter(); $break ./
+/.$putCase consumeFormalParameter(true); $break ./
 /:$readableName FormalParameter:/
 
 ClassTypeList -> ClassTypeElt
