@@ -3303,4 +3303,39 @@ public class AnnotationTest extends AbstractComparableTest {
 				assertTrue("IOException", false);
 			}
 	}
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83939
+    public void test106() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "public @interface X {\n" +
+                "    int[] bar() default null;\n" +
+                "}",
+            },
+            "----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	int[] bar() default null;\n" + 
+			"	                    ^^^^\n" + 
+			"The value for annotation attribute X.bar must be a constant expression\n" + 
+			"----------\n");
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83939
+    public void test107() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "@interface Ann {\n" +
+                "    int[] bar();\n" +
+                "}\n" +
+                "@Ann(bar=null) class X {}",
+            },
+            "----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	@Ann(bar=null) class X {}\n" + 
+			"	         ^^^^\n" + 
+			"The value for annotation attribute Ann.bar must be a constant expression\n" + 
+			"----------\n");
+    }
 }
