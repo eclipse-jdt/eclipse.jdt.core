@@ -17,14 +17,14 @@ package org.eclipse.jdt.core.compiler;
 public class InvalidInputException extends Exception {
 
 	/**
-	 * InvalidInputException constructor comment.
+	 * Creates a new exception with no detail message
 	 */
 	public InvalidInputException() {
 		super();
 	}
 	/**
-	 * InvalidInputException constructor comment.
-	 * @param message the detailed message
+	 * Creates a new exception with the given detail message
+	 * @param message the detail message
 	 */
 	public InvalidInputException(String message) {
 		super(message);
