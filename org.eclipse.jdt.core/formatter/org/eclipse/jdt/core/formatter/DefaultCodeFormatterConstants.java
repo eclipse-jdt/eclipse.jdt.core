@@ -162,5 +162,60 @@ public interface DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INDENT_BLOCK_STATEMENTS = JavaCore.PLUGIN_ID + ".formatter.indent_block_statements"; //$NON-NLS-1$
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_ARRAY_INITIALIZER = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_opening_brace_in_array_initializer"; //$NON-NLS-1$
 
-	
+	public static final String FORMATTER_NO_ALIGNMENT = "0";//$NON-NLS-1$
+	/**
+	 * if bit set, then alignment will be non-optional (default is optional)
+	 */
+	public static final String FORMATTER_ALIGNMENT_FORCE = "1";//$NON-NLS-1$
+	/**
+	 * if bit set, broken fragments will be aligned on current location column (default is to break at current indentation level)
+	 */
+	public static final String FORMATTER_INDENT_ON_COLUMN = "2";//$NON-NLS-1$
+	/**
+	 * if bit set, broken fragments will be indented one level below current (not using continuation indentation)
+	 */
+	public static final String FORMATTER_INDENT_BY_ONE = "4";//$NON-NLS-1$
+	/** foobar(#fragment1, #fragment2, <ul>
+	 *  <li>    #fragment3, #fragment4 </li>
+	 * </ul>
+	 */
+	public static final String FORMATTER_COMPACT_SPLIT = "16";//$NON-NLS-1$
+	/** foobar(<ul>
+	 * <li>    #fragment1, #fragment2,  </li>
+	 * <li>     #fragment5, #fragment4, </li>
+	 * </ul>
+	 */
+	public static final String FORMATTER_COMPACT_FIRST_BREAK_SPLIT = "32";//$NON-NLS-1$
+	/** foobar(<ul>
+	 * <li>     #fragment1,  </li>
+	 * <li>     #fragment2,  </li>
+	 * <li>     #fragment3 </li>
+	 * <li>     #fragment4,  </li>
+	 * </ul>
+	 */
+	public static final String FORMATTER_ONE_PER_LINE_SPLIT = "48";//$NON-NLS-1$
+	/** 
+	 * foobar(<ul>
+	 * <li>     #fragment1,  </li>
+	 * <li>        #fragment2,  </li>
+	 * <li>        #fragment3 </li>
+	 * <li>        #fragment4,  </li>
+	 * </ul>
+	 */ 
+	public static final String FORMATTER_NEXT_SHIFTED_SPLIT = "64";//$NON-NLS-1$
+	/** foobar(#fragment1, <ul>
+	 * <li>      #fragment2,  </li>
+	 * <li>      #fragment3 </li>
+	 * <li>      #fragment4,  </li>
+	 * </ul>
+	 */
+	public static final String FORMATTER_NEXT_PER_LINE_SPLIT = "80"; //$NON-NLS-1$
+	/** 
+	 * <table BORDER COLS=4 WIDTH="100%" >
+	 * <tr><td>#fragment1A</td>            <td>#fragment2A</td>       <td>#fragment3A</td>  <td>#very-long-fragment4A</td></tr>
+	 * <tr><td>#fragment1B</td>            <td>#long-fragment2B</td>  <td>#fragment3B</td>  <td>#fragment4B</td></tr>
+	 * <tr><td>#very-long-fragment1C</td>  <td>#fragment2C</td>       <td>#fragment3C</td>  <td>#fragment4C</td></tr>
+	 * </table>
+	 */
+	public static final String FORMATTER_MULTICOLUMN = "256"; //$NON-NLS-1$
 }
