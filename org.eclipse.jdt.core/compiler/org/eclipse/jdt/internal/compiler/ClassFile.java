@@ -111,6 +111,9 @@ public class ClassFile
 		
 		// Modifier manipulations for classfile
 		int accessFlags = aType.getAccessFlags();
+		if (aType.isPrivate()) { // rewrite private to non-public
+			accessFlags &= ~AccPublic;
+		}
 		if (aType.isProtected()) { // rewrite protected into public
 			accessFlags |= AccPublic;
 		}
