@@ -50,8 +50,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	    if (otherType instanceof ReferenceBinding) {
 			// allow List<T> to match with LinkedList<String>
 	        ReferenceBinding otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeErasingTo((ReferenceBinding)this.type.erasure());
-		    if (otherEquivalent.isParameterizedType()) {
-		        ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) otherType;
+	        if (otherEquivalent != null && otherEquivalent.isParameterizedType()) {
+		        ParameterizedTypeBinding otherParameterizedType = (ParameterizedTypeBinding) otherEquivalent;
 	            for (int i = 0, length = this.arguments.length; i < length; i++) {
 	                this.arguments[i].collectSubstitutes(otherParameterizedType.arguments[i], substitutes);
 	            }
