@@ -49,6 +49,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	boolean canChangeResource;
 	boolean needCycleCheck;
 	boolean needValidation;
+	boolean needSave;
 	
 	IPath newOutputLocation;
 	public static final IClasspathEntry[] ReuseClasspath = new IClasspathEntry[0];
@@ -64,7 +65,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IClasspathEntry[] newRawPath,
 		IPath newOutputLocation,
 		boolean canChangeResource,
-		boolean needValidation) {
+		boolean needValidation,
+		boolean needSave) {
 
 		super(new IJavaElement[] { project });
 		this.oldResolvedPath = oldResolvedPath;
@@ -72,6 +74,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		this.newOutputLocation = newOutputLocation;
 		this.canChangeResource = canChangeResource;
 		this.needValidation = needValidation;
+		this.needSave = needSave;
 	}
 
 	/**
@@ -426,7 +429,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 	protected void saveClasspathIfNecessary() throws JavaModelException {
 		
-		if (!this.canChangeResource) return;
+		if (!this.canChangeResource || !this.needSave) return;
 				
 		IClasspathEntry[] classpathForSave;
 		JavaProject project = getProject();
@@ -528,7 +531,8 @@ public class SetClasspathOperation extends JavaModelOperation {
 								this.fMonitor, 
 								this.canChangeResource,  
 								project.getResolvedClasspath(true), 
-								false); // updating only - no validation
+								false, // updating only - no validation
+								false); // updating only - no need to save
 							break;
 						}
 					}

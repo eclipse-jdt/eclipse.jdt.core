@@ -1269,7 +1269,8 @@ private JavaModelException newInvalidElementType() {
 						null, // monitor
 						true, // canChangeResource
 						project.getResolvedClasspath(true), // ignoreUnresolvedVariable
-						true); // needValidation
+						true, // needValidation
+						false); // no need to save
 					
 					// if reach that far, the classpath file change got absorbed
 					wasSuccessful = true;

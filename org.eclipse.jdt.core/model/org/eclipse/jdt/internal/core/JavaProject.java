@@ -2204,7 +2204,8 @@ public class JavaProject
 			monitor, 
 			true, // canChangeResource (as per API contract)
 			getResolvedClasspath(true), // ignoreUnresolvedVariable
-			true); // needValidation
+			true, // needValidation
+			true); // need to save
 	}
 
 	public void setRawClasspath(
@@ -2213,7 +2214,8 @@ public class JavaProject
 		IProgressMonitor monitor,
 		boolean canChangeResource,
 		IClasspathEntry[] oldResolvedPath,
-		boolean needValidation)
+		boolean needValidation,
+		boolean needSave)
 		throws JavaModelException {
 
 		JavaModelManager manager =
@@ -2230,7 +2232,8 @@ public class JavaProject
 					newRawPath, 
 					newOutputLocation,
 					canChangeResource, 
-					needValidation);
+					needValidation,
+					needSave);
 			runOperation(op, monitor);
 			
 		} catch (JavaModelException e) {
@@ -2253,7 +2256,8 @@ public class JavaProject
 			monitor, 
 			true, // canChangeResource (as per API contract)
 			getResolvedClasspath(true), // ignoreUnresolvedVariable
-			true); // needValidation
+			true, // needValidation
+			true); // need to save
 	}
 
 	/**

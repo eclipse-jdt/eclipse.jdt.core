@@ -2266,7 +2266,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 								monitor,
 								!JavaModelManager.isResourceTreeLocked(), // can save resources
 								oldResolvedPaths[i],
-								false); // updating - no validation
+								false, // updating - no validation
+								false); // updating - no need to save
 					}
 				}
 			},
@@ -2575,7 +2576,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 										monitor,
 										!JavaModelManager.isResourceTreeLocked(), // can change resources
 										(IClasspathEntry[]) affectedProjects.get(project),
-										false); // updating - no validation
+										false, // updating - no validation
+										false); // updating - no need to save
 							}
 						}
 					},
