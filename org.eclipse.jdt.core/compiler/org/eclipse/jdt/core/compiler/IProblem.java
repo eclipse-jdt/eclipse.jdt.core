@@ -444,8 +444,8 @@ public interface IProblem {
 	int UnusedConstructorDeclaredThrownException = Internal + 186;	
 	/** @since 3.0 */
 	int InvalidCatchBlockSequence = Internal + TypeRelated + 187;
-	/** @since 3.0 */
-	int IllegalUsageOfQualifiedTypeReference = Internal + TypeRelated + 188;
+	/** @since 3.1 */
+	int IllegalUsageOfQualifiedTypeReference = Internal + Syntax + 188;
 
 	// inner emulation
 	int NeedToEmulateFieldReadAccess = FieldRelated + 190;
