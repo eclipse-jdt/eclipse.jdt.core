@@ -574,6 +574,9 @@ public class ASTMatcher {
 			}
 		}
 		if (level >= AST.LEVEL_3_0) {
+			if (!safeSubtreeListMatch(node.typeParameters(), o.typeParameters())) {
+				return false;
+			}
 			if (!safeSubtreeMatch(node.getType(), o.getType())) {
 				return false;
 			}
@@ -1558,7 +1561,8 @@ public class ASTMatcher {
 			return false;
 		}
 		ParameterizedType o = (ParameterizedType) other;
-		return safeSubtreeMatch(node.getName(), o.getName())
+		return safeSubtreeMatch(node.getType(), o.getType())
+				&& safeSubtreeMatch(node.getName(), o.getName())
 				&& safeSubtreeListMatch(node.typeArguments(), o.typeArguments());
 	}
 
