@@ -70,6 +70,7 @@ public class CaseStatement extends Statement {
 	 * No-op : should use resolveCase(...) instead.
 	 */
 	public void resolve(BlockScope scope) {
+		// no-op : should use resolveCase(...) instead.
 	}
 
 	public Constant resolveCase(

@@ -169,6 +169,7 @@ public class AnonymousLocalTypeDeclaration extends LocalTypeDeclaration {
 			}
 			visitor.endVisit(this, blockScope);
 		} catch (AbortType e) {
+			// silent abort
 		}
 	}
 }

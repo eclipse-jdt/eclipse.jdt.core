@@ -320,9 +320,9 @@ public class CastExpression extends Expression {
 			InvocationSite fakeInvocationSite = new InvocationSite(){	
 				public boolean isSuperAccess(){ return invocationSite.isSuperAccess(); }
 				public boolean isTypeAccess() { return invocationSite.isTypeAccess(); }
-				public void setActualReceiverType(ReferenceBinding actualReceiverType) {}
-				public void setDepth(int depth) {}
-				public void setFieldIndex(int depth){}
+				public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
+				public void setDepth(int depth) { /* ignore */}
+				public void setFieldIndex(int depth){ /* ignore */}
 			};	
 			MethodBinding bindingIfNoCast;
 			if (binding.isConstructor()) {

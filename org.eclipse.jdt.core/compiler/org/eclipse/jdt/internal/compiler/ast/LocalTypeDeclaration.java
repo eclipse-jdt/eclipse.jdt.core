@@ -62,6 +62,7 @@ public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope blockScope) 
 		}
 		visitor.endVisit(this, blockScope);
 	} catch (AbortType e) {
+		// silent abort
 	}
 }
 }

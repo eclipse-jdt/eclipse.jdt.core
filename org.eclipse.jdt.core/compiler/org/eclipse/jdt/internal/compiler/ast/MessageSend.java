@@ -28,9 +28,6 @@ public class MessageSend extends Expression implements InvocationSite {
 
 	public TypeBinding receiverType, qualifyingType;
 	
-public MessageSend() {
-	
-}
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
 	flowInfo = receiver.analyseCode(currentScope, flowContext, flowInfo, !binding.isStatic()).unconditionalInits();

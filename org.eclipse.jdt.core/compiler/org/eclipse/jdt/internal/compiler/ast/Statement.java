@@ -17,23 +17,17 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Statement extends AstNode {
 	
-	/**
-	 * Statement constructor comment.
-	 */
-	public Statement() {
-		super();
-	}
-	
 	public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo);
 	
 	/**
 	 * INTERNAL USE ONLY.
-	 * Do nothing by default. This is used to redirect inter-statements jumps.
+	 * This is used to redirect inter-statements jumps.
 	 */
 	public void branchChainTo(Label label) {
+		// do nothing by default
 	}
 	
-		// Report an error if necessary
+	// Report an error if necessary
 	public boolean complainIfUnreachable(FlowInfo flowInfo, BlockScope scope, boolean didAlreadyComplain) {
 	
 		if ((flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0) {
@@ -74,6 +68,7 @@ public abstract class Statement extends AstNode {
 	public abstract StringBuffer printStatement(int indent, StringBuffer output);
 
 	public void resetStateForCodeGeneration() {
+		// do nothing by default
 	}
 	
 	public abstract void resolve(BlockScope scope);

@@ -26,6 +26,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 	public ReferenceBinding superTypeBinding;
 	
 	public QualifiedAllocationExpression() {
+		// for subtypes
 	}
 
 	public QualifiedAllocationExpression(AnonymousLocalTypeDeclaration anonymousType) {

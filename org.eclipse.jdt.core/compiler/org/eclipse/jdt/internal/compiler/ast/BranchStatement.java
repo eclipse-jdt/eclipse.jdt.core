@@ -62,6 +62,7 @@ public void resetStateForCodeGeneration() {
 }
 
 public void resolve(BlockScope scope) {
+	// nothing to do during name resolution
 }
 
 }

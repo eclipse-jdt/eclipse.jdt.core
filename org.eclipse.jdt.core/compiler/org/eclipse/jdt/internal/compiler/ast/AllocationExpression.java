@@ -25,9 +25,6 @@ public class AllocationExpression
 
 	MethodBinding syntheticAccessor;
 
-	public AllocationExpression() {
-	}
-
 	public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,

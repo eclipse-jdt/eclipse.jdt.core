@@ -29,8 +29,6 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 
 	public TypeReference type;
 	
-	public AbstractVariableDeclaration() {}
-
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		return flowInfo;
 	}
@@ -61,12 +59,15 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 		return output.append(';');
 	}
 
-	public void resolve(BlockScope scope) {}
+	public void resolve(BlockScope scope) {
+		// do nothing by default (redefined for local variables)
+	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#setActualReceiverType(org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding)
 	 */
 	public void setActualReceiverType(ReferenceBinding receiverType) {
+		// do nothing by default
 	}
 
 	/* (non-Javadoc)
@@ -81,5 +82,6 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#setFieldIndex(int)
 	 */
 	public void setFieldIndex(int depth) {
+		// do nothing by default
 	}
 }

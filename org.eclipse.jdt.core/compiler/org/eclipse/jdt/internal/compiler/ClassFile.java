@@ -73,6 +73,7 @@ public class ClassFile
 	 * This methods creates a new instance of the receiver.
 	 */
 	public ClassFile() {
+		// default constructor for subclasses
 	}
 
 	/**

@@ -32,6 +32,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 	public int endPart2Position;
 
 	public FieldDeclaration() {
+		// for subtypes or conversion
 	}
 
 	public FieldDeclaration(

@@ -238,5 +238,6 @@ public abstract class AstNode implements BaseTypes, CompilerModifiers, TypeConst
 	}
 
 	public void traverse(IAbstractSyntaxTreeVisitor visitor, BlockScope scope) {
+		// do nothing by default
 	}
 }

@@ -936,6 +936,7 @@ public class TypeDeclaration
 			}
 			visitor.endVisit(this, unitScope);
 		} catch (AbortType e) {
+			// silent abort
 		}
 	}
 
