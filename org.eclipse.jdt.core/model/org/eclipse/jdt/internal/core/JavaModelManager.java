@@ -25,8 +25,6 @@ import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import java.util.*;
 import java.util.zip.ZipFile;
 import javax.xml.parsers.*;
-import org.apache.xerces.dom.*;
-import org.apache.xml.serialize.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 
