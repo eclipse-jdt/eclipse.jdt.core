@@ -377,7 +377,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				// using incr bytecode if possible
 				switch (localBinding.type.id) {
 					case T_String :
-						codeStream.generateStringAppend(currentScope, this, expression);
+						codeStream.generateStringConcatenationAppend(currentScope, this, expression);
 						if (valueRequired) {
 							codeStream.dup();
 						}
@@ -413,7 +413,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			// we enter here if the single name reference is a field of type java.lang.String or if the type of the 
 			// operation is java.lang.Object
 			// For example: o = o + ""; // where the compiled type of o is java.lang.Object.
-			codeStream.generateStringAppend(currentScope, null, expression);
+			codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 			// no need for generic cast on previous #getfield since using Object string buffer methods.			
 		} else {
 			// promote the array reference to the suitable operation type

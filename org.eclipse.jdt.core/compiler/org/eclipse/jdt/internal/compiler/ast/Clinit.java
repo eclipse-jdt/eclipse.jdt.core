@@ -155,8 +155,7 @@ public class Clinit extends AbstractMethodDeclaration {
 			// generate code related to the activation of assertion for this class
 			codeStream.generateClassLiteralAccessForType(
 				classScope.enclosingSourceType(),
-				classLiteralSyntheticField,
-				scope.environment().options.sourceLevel);
+				classLiteralSyntheticField);
 			codeStream.invokeJavaLangClassDesiredAssertionStatus();
 			Label falseLabel = new Label(codeStream);
 			codeStream.ifne(falseLabel);

@@ -91,7 +91,7 @@ public class ClassFile
 		ClassFile enclosingClassFile,
 		boolean creatingProblemType) {
 	    
-		referenceBinding = aType;
+		this.referenceBinding = aType;
 		header = new byte[INITIAL_HEADER_SIZE];
 		// generate the magic numbers inside the header
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 24);
@@ -99,7 +99,8 @@ public class ClassFile
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 		
-		this.targetJDK = referenceBinding.scope.environment().options.targetJDK;
+		final CompilerOptions options = aType.scope.environment().options;
+		this.targetJDK = options.targetJDK;
 		header[headerOffset++] = (byte) (this.targetJDK >> 8); // minor high
 		header[headerOffset++] = (byte) (this.targetJDK >> 0); // minor low
 		header[headerOffset++] = (byte) (this.targetJDK >> 24); // major high
@@ -160,10 +161,10 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) (interfaceIndex >> 8);
 			contents[contentsOffset++] = (byte) interfaceIndex;
 		}
-		produceDebugAttributes = referenceBinding.scope.environment().options.produceDebugAttributes;
+		produceDebugAttributes = options.produceDebugAttributes;
 		innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
 		this.creatingProblemType = creatingProblemType;
-		codeStream = new CodeStream(this);
+		codeStream = new CodeStream(this, options.sourceLevel);
 
 		// retrieve the enclosing one guaranteed to be the one matching the propagated flow info
 		// 1FF9ZBU: LFCOM:ALL - Local variable attributes busted (Sanity check)

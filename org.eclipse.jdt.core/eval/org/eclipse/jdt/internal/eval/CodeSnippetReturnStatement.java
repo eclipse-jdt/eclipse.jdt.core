@@ -61,7 +61,7 @@ public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 		codeStream.aconst_null();
 
 		// void.class
-		codeStream.generateClassLiteralAccessForType(VoidBinding, null, JDK1_4);
+		codeStream.generateClassLiteralAccessForType(VoidBinding, null);
 	} else {
 		// swap with expression
 		int valueTypeID = this.expressionType.id;
@@ -78,7 +78,7 @@ public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 		}
 
 		// generate the expression type
-		codeStream.generateClassLiteralAccessForType(this.expressionType, null, JDK1_4);
+		codeStream.generateClassLiteralAccessForType(this.expressionType, null);
 	}
 
 	// generate the invoke virtual to "setResult(Object,Class)"

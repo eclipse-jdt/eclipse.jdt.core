@@ -62,6 +62,7 @@ public interface TypeIds {
 	// 1.5 features
 	final int T_JavaLangIterable = 36;
 	final int T_JavaUtilIterator = 37;
+	final int T_JavaLangStringBuilder = 40;
 	
 	// array interfaces
 	final int T_JavaLangCloneable = 38;

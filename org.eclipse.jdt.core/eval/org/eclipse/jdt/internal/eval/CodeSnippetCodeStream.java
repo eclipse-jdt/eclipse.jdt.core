@@ -35,7 +35,7 @@ public class CodeSnippetCodeStream extends CodeStream {
  * @param classFile org.eclipse.jdt.internal.compiler.ClassFile
  */
 public CodeSnippetCodeStream(org.eclipse.jdt.internal.compiler.ClassFile classFile) {
-	super(classFile);
+	super(classFile, JDK1_4);
 }
 protected void checkcast(int baseId) {
 	this.countLabels = 0;

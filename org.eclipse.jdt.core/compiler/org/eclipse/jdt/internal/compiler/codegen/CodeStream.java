@@ -67,11 +67,15 @@ public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, Bas
 	public boolean wideMode = false;
 	public static final CompilationResult RESTART_IN_WIDE_MODE = new CompilationResult((char[])null, 0, 0, 0);
 	
-public CodeStream(ClassFile classFile) {
-	generateLineNumberAttributes = (classFile.produceDebugAttributes & CompilerOptions.Lines) != 0;
-	generateLocalVariableTableAttributes = (classFile.produceDebugAttributes & CompilerOptions.Vars) != 0;
-	if (generateLineNumberAttributes) {
-		lineSeparatorPositions = classFile.referenceBinding.scope.referenceCompilationUnit().compilationResult.lineSeparatorPositions;
+	// target level to manage different code generation between different source levels
+	private long targetLevel;
+	
+public CodeStream(ClassFile classFile, long sourceLevel) {
+	this.targetLevel = sourceLevel;
+	this.generateLineNumberAttributes = (classFile.produceDebugAttributes & CompilerOptions.Lines) != 0;
+	this.generateLocalVariableTableAttributes = (classFile.produceDebugAttributes & CompilerOptions.Vars) != 0;
+	if (this.generateLineNumberAttributes) {
+		this.lineSeparatorPositions = classFile.referenceBinding.scope.referenceCompilationUnit().compilationResult.lineSeparatorPositions;
 	}
 }
 final public void aaload() {
@@ -1397,13 +1401,10 @@ final public void fsub() {
 		resizeByteArray(OPC_fsub);
 	}
 }
-public void generateClassLiteralAccessForType(TypeBinding accessedType) {
-	generateClassLiteralAccessForType(accessedType, null, ClassFileConstants.JDK1_4);
-}
 /**
  * Macro for building a class descriptor object
  */
-public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBinding syntheticFieldBinding, long sourceLevel) {
+public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBinding syntheticFieldBinding) {
 	Label endLabel;
 	ExceptionLabel anyExceptionHandler;
 	int saveStackSize;
@@ -1412,7 +1413,7 @@ public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBin
 		return;
 	}
 
-	if (sourceLevel >= ClassFileConstants.JDK1_5) {
+	if (this.targetLevel >= ClassFileConstants.JDK1_5) {
 		// generation using the new ldc_w bytecode
 		this.ldc(accessedType);
 	} else {
@@ -1857,27 +1858,27 @@ public void generateOuterAccess(Object[] mappingSequence, ASTNode invocationSite
  * @param oper1 org.eclipse.jdt.internal.compiler.ast.Expression
  * @param oper2 org.eclipse.jdt.internal.compiler.ast.Expression
  */
-public void generateStringAppend(BlockScope blockScope, Expression oper1, Expression oper2) {
+public void generateStringConcatenationAppend(BlockScope blockScope, Expression oper1, Expression oper2) {
 	int pc;
 	if (oper1 == null) {
 		/* Operand is already on the stack, and maybe nil:
 		note type1 is always to  java.lang.String here.*/
-		this.newStringBuffer();
+		this.newStringContatenation();
 		this.dup_x1();
 		this.swap();
 		// If argument is reference type, need to transform it 
 		// into a string (handles null case)
 		this.invokeStringValueOf(T_Object);
-		this.invokeStringBufferStringConstructor();
+		this.invokeStringConcatenationStringConstructor();
 	} else {
 		pc = position;
-		oper1.generateOptimizedStringBufferCreation(blockScope, this, oper1.implicitConversion & 0xF);
+		oper1.generateOptimizedStringConcatenationCreation(blockScope, this, oper1.implicitConversion & 0xF);
 		this.recordPositionsFrom(pc, oper1.sourceStart);
 	}
 	pc = position;
-	oper2.generateOptimizedStringBuffer(blockScope, this, oper2.implicitConversion & 0xF);
+	oper2.generateOptimizedStringConcatenation(blockScope, this, oper2.implicitConversion & 0xF);
 	this.recordPositionsFrom(pc, oper2.sourceStart);
-	this.invokeStringBufferToString();
+	this.invokeStringConcatenationToString();
 }
 /**
  * Code responsible to generate the suitable code to supply values for the synthetic enclosing
@@ -3217,14 +3218,21 @@ final public void invokestatic(MethodBinding methodBinding) {
  * The equivalent code performs a string conversion of the TOS
  * @param typeID <CODE>int</CODE>
  */
-public void invokeStringBufferAppendForType(int typeID) {
-	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.StringBuffer.append(...)"); //$NON-NLS-1$
+public void invokeStringConcatenationAppendForType(int typeID) {
+	if (DEBUG) {
+		if (this.targetLevel >= JDK1_5) {
+			System.out.println(position + "\t\tinvokevirtual: java.lang.StringBuilder.append(...)"); //$NON-NLS-1$
+		} else {
+			System.out.println(position + "\t\tinvokevirtual: java.lang.StringBuffer.append(...)"); //$NON-NLS-1$
+		}
+	}
 	countLabels = 0;
 	int usedTypeID;
-	if (typeID == T_null)
+	if (typeID == T_null) {
 		usedTypeID = T_String;
-	else
+	} else {
 		usedTypeID = typeID;
+	}
 	// invokevirtual
 	try {
 		position++;
@@ -3232,11 +3240,16 @@ public void invokeStringBufferAppendForType(int typeID) {
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_invokevirtual);
 	}
-	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferAppend(typeID));
-	if ((usedTypeID == T_long) || (usedTypeID == T_double))
+	if (this.targetLevel >= JDK1_5) {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderAppend(typeID));
+	} else {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferAppend(typeID));
+	}
+	if ((usedTypeID == T_long) || (usedTypeID == T_double)) {
 		stackDepth -= 2;
-	else
+	} else {
 		stackDepth--;
+	}
 }
 
 public void invokeJavaLangAssertionErrorConstructor(int typeBindingID) {
@@ -3308,9 +3321,15 @@ public void invokeJavaUtilIteratorNext() {
 		resizeByteArray((byte)0);
 	}
 }
-public void invokeStringBufferDefaultConstructor() {
+public void invokeStringConcatenationDefaultConstructor() {
 	// invokespecial: java.lang.StringBuffer.<init>()V
-	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.StringBuffer.<init>()V"); //$NON-NLS-1$
+	if (DEBUG) {
+		if (this.targetLevel >= JDK1_5) {
+			System.out.println(position + "\t\tinvokespecial: java.lang.StringBuilder.<init>()V"); //$NON-NLS-1$
+		} else {
+			System.out.println(position + "\t\tinvokespecial: java.lang.StringBuffer.<init>()V"); //$NON-NLS-1$
+		}
+	}
 	countLabels = 0;
 	try {
 		position++;
@@ -3318,12 +3337,21 @@ public void invokeStringBufferDefaultConstructor() {
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_invokespecial);
 	}
-	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferDefaultConstructor());
+	if (this.targetLevel >= JDK1_5) {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderDefaultConstructor());
+	} else {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferDefaultConstructor());
+	}
 	stackDepth--;
 }
-public void invokeStringBufferStringConstructor() {
-	// invokespecial: java.lang.StringBuffer.<init>(Ljava.lang.String;)V
-	if (DEBUG) System.out.println(position + "\t\tjava.lang.StringBuffer.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
+public void invokeStringConcatenationStringConstructor() {
+	if (DEBUG) {
+		if (this.targetLevel >= JDK1_5) {
+			System.out.println(position + "\t\tjava.lang.StringBuilder.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
+		} else {
+			System.out.println(position + "\t\tjava.lang.StringBuffer.<init>(Ljava.lang.String;)V"); //$NON-NLS-1$
+		}
+	}
 	countLabels = 0;
 	try {
 		position++;
@@ -3331,13 +3359,22 @@ public void invokeStringBufferStringConstructor() {
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_invokespecial);
 	}
-	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferConstructor());
+	if (this.targetLevel >= JDK1_5) {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderConstructor());
+	} else {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferConstructor());
+	}
 	stackDepth -= 2;
 }
 
-public void invokeStringBufferToString() {
-	// invokevirtual: StringBuffer.toString()Ljava.lang.String;
-	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: StringBuffer.toString()Ljava.lang.String;"); //$NON-NLS-1$
+public void invokeStringConcatenationToString() {
+	if (DEBUG) {
+		if (this.targetLevel >= JDK1_5) {
+			System.out.println(position + "\t\tinvokevirtual: StringBuilder.toString()Ljava.lang.String;"); //$NON-NLS-1$
+		} else {
+			System.out.println(position + "\t\tinvokevirtual: StringBuffer.toString()Ljava.lang.String;"); //$NON-NLS-1$
+		}
+	}
 	countLabels = 0;
 	try {
 		position++;
@@ -3345,7 +3382,11 @@ public void invokeStringBufferToString() {
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_invokevirtual);
 	}
-	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferToString());
+	if (this.targetLevel >= JDK1_5) {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilderToString());
+	} else {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBufferToString());
+	}
 }
 public void invokeStringIntern() {
 	// invokevirtual: java.lang.String.intern()
@@ -3883,7 +3924,7 @@ final public void ldc(String constant) {
 		}
 		// check if all the string is encoded (PR 1PR2DWJ)
 		// the string is too big to be encoded in one pass
-		newStringBuffer();
+		newStringContatenation();
 		dup();
 		// write the first part
 		char[] subChars = new char[i];
@@ -3913,7 +3954,7 @@ final public void ldc(String constant) {
 			writeUnsignedByte(index);
 		}
 		// write the remaining part
-		invokeStringBufferStringConstructor();
+		invokeStringConcatenationStringConstructor();
 		while (i < constantLength) {
 			length = 0;
 			utf8encoding = new byte[Math.min(constantLength - i + 100, 65535)];
@@ -3970,9 +4011,9 @@ final public void ldc(String constant) {
 				writeUnsignedByte(index);
 			}
 			// now on the stack it should be a StringBuffer and a string.
-			invokeStringBufferAppendForType(T_String);
+			invokeStringConcatenationAppendForType(T_String);
 		}
-		invokeStringBufferToString();
+		invokeStringConcatenationToString();
 		invokeStringIntern();
 	}
 }
@@ -4807,20 +4848,32 @@ public void newNoClassDefFoundError() {
 	}
 	writeUnsignedShort(constantPool.literalIndexForJavaLangNoClassDefFoundError());
 }
-public void newStringBuffer() {
+public void newStringContatenation() {
 	// new: java.lang.StringBuffer
-	if (DEBUG) System.out.println(position + "\t\tnew: java.lang.StringBuffer"); //$NON-NLS-1$
+	// new: java.lang.StringBuilder
+	if (DEBUG) {
+		if (this.targetLevel >= JDK1_5) {
+			System.out.println(position + "\t\tnew: java.lang.StringBuilder"); //$NON-NLS-1$
+		} else {
+			System.out.println(position + "\t\tnew: java.lang.StringBuffer"); //$NON-NLS-1$
+		}
+	}
 	countLabels = 0;
 	stackDepth++;
-	if (stackDepth > stackMax)
+	if (stackDepth > stackMax) {
 		stackMax = stackDepth;
+	}
 	try {
 		position++;
 		bCodeStream[classFileOffset++] = OPC_new;
 	} catch (IndexOutOfBoundsException e) {
 		resizeByteArray(OPC_new);
 	}
-	writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuffer());
+	if (this.targetLevel >= JDK1_5) {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuilder());
+	} else {
+		writeUnsignedShort(constantPool.literalIndexForJavaLangStringBuffer());
+	}
 }
 public void newWrapperFor(int typeID) {
 	countLabels = 0;

@@ -133,7 +133,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		}
 		int operationTypeID;
 		if ((operationTypeID = this.implicitConversion >> 4) == T_String) {
-			codeStream.generateStringAppend(currentScope, null, expression);
+			codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 		} else {
 			// promote the array reference to the suitable operation type
 			codeStream.generateImplicitConversion(this.implicitConversion);
@@ -171,7 +171,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		}
 		int operationTypeID;
 		if ((operationTypeID = this.implicitConversion >> 4) == T_String) {
-			codeStream.generateStringAppend(currentScope, null, expression);
+			codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 		} else {
 			// promote the array reference to the suitable operation type
 			codeStream.generateImplicitConversion(this.implicitConversion);

@@ -355,7 +355,7 @@ public class QualifiedNameReference extends NameReference {
 		// perform the actual compound operation
 		int operationTypeID;
 		if ((operationTypeID = implicitConversion >> 4) == T_String) {
-			codeStream.generateStringAppend(currentScope, null, expression);
+			codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 		} else {
 			// promote the array reference to the suitable operation type
 			codeStream.generateImplicitConversion(implicitConversion);

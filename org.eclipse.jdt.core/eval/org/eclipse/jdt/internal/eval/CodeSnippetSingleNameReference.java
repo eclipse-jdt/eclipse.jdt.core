@@ -333,7 +333,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 			// using incr bytecode if possible
 			switch (localBinding.type.id) {
 				case T_String :
-					codeStream.generateStringAppend(currentScope, this, expression);
+					codeStream.generateStringConcatenationAppend(currentScope, this, expression);
 					if (valueRequired) {
 						codeStream.dup();
 					}
@@ -366,7 +366,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 	// perform the actual compound operation
 	int operationTypeID;
 	if ((operationTypeID = this.implicitConversion >> 4) == T_String || operationTypeID == T_Object) {
-		codeStream.generateStringAppend(currentScope, null, expression);
+		codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 	} else {
 		// promote the array reference to the suitable operation type
 		codeStream.generateImplicitConversion(this.implicitConversion);

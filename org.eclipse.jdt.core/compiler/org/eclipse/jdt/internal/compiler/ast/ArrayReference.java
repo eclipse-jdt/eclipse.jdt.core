@@ -125,7 +125,7 @@ public class ArrayReference extends Reference {
 		codeStream.arrayAt(this.resolvedType.id);
 		int operationTypeID;
 		if ((operationTypeID = implicitConversion >> 4) == T_String) {
-			codeStream.generateStringAppend(currentScope, null, expression);
+			codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 		} else {
 			// promote the array reference to the suitable operation type
 			codeStream.generateImplicitConversion(implicitConversion);

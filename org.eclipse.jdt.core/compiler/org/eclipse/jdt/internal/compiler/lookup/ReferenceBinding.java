@@ -262,6 +262,8 @@ public void computeId() {
 				id = T_JavaLangString;
 			else if (CharOperation.equals(typeName, JAVA_LANG_STRINGBUFFER[2]))
 				id = T_JavaLangStringBuffer;
+			else if (CharOperation.equals(typeName, JAVA_LANG_STRINGBUILDER[2])) 
+				id = T_JavaLangStringBuilder;
 			else if (CharOperation.equals(typeName, JAVA_LANG_SYSTEM[2]))
 				id = T_JavaLangSystem;
 			else if (CharOperation.equals(typeName, JAVA_LANG_SHORT[2]))

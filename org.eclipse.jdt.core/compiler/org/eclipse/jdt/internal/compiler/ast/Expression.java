@@ -347,23 +347,23 @@ public abstract class Expression extends Statement {
 	 * creation, further operands should rather be only appended to the current one.
 	 * By default: no optimization.
 	 */
-	public void generateOptimizedStringBuffer(
+	public void generateOptimizedStringConcatenation(
 		BlockScope blockScope,
-		org.eclipse.jdt.internal.compiler.codegen.CodeStream codeStream,
+		CodeStream codeStream,
 		int typeID) {
 
 		if (typeID == T_String && this.constant != NotAConstant && this.constant.stringValue().length() == 0) {
 			return; // optimize str + ""
 		}
 		generateCode(blockScope, codeStream, true);
-		codeStream.invokeStringBufferAppendForType(typeID);
+		codeStream.invokeStringConcatenationAppendForType(typeID);
 	}
 
 	/* Optimized (java) code generation for string concatenations that involve StringBuffer
 	 * creation: going through this path means that there is no need for a new StringBuffer
 	 * creation, further operands should rather be only appended to the current one.
 	 */
-	public void generateOptimizedStringBufferCreation(
+	public void generateOptimizedStringConcatenationCreation(
 		BlockScope blockScope,
 		CodeStream codeStream,
 		int typeID) {
@@ -372,20 +372,20 @@ public abstract class Expression extends Statement {
 		if (typeID == T_Object) {
 			// in the case the runtime value of valueOf(Object) returns null, we have to use append(Object) instead of directly valueOf(Object)
 			// append(Object) returns append(valueOf(Object)), which means that the null case is handled by append(String).
-			codeStream.newStringBuffer();
+			codeStream.newStringContatenation();
 			codeStream.dup();
-			codeStream.invokeStringBufferDefaultConstructor();
+			codeStream.invokeStringConcatenationDefaultConstructor();
 			generateCode(blockScope, codeStream, true);
-			codeStream.invokeStringBufferAppendForType(T_Object);
+			codeStream.invokeStringConcatenationAppendForType(T_Object);
 			return;
 		}
-		codeStream.newStringBuffer();
+		codeStream.newStringContatenation();
 		codeStream.dup();
 		if (typeID == T_String || typeID == T_null) {
 			if (constant != NotAConstant) {
 				String stringValue = constant.stringValue();
 				if (stringValue.length() == 0) {  // optimize ""+<str> 
-					codeStream.invokeStringBufferDefaultConstructor();
+					codeStream.invokeStringConcatenationDefaultConstructor();
 					return;
 				}
 				codeStream.ldc(stringValue);
@@ -397,7 +397,7 @@ public abstract class Expression extends Statement {
 			generateCode(blockScope, codeStream, true);
 			codeStream.invokeStringValueOf(typeID);
 		}
-		codeStream.invokeStringBufferStringConstructor();
+		codeStream.invokeStringConcatenationStringConstructor();
 	}
 
 	public boolean isCompactableOperation() {
