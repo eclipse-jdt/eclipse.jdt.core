@@ -59,7 +59,17 @@ public class CompilationUnitSorter {
 		
 		public DefaultJavaElementComparator() {
 			// initialize default categories
-			this.categories = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+			this.categories = new int[] {
+				1, // static type
+				2, // static field
+				3, // static initializer
+				7, // static method
+				6, // type
+				4, // field
+				5, // initializer
+				8, // constructor
+				9  // method
+			};
 			this.collator = Collator.getInstance();
 		}
 
@@ -213,6 +223,7 @@ public class CompilationUnitSorter {
 					FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 					return ((VariableDeclarationFragment) fieldDeclaration.fragments().get(0)).getName().getIdentifier();
 				case ASTNode.INITIALIZER :
+				// TODO: check the number of digit (1 vs 100,....)
 					return ((Integer) node.getProperty(CompilationUnitSorter.SOURCE_START)).toString();
 				case ASTNode.TYPE_DECLARATION :
 					TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -225,27 +236,7 @@ public class CompilationUnitSorter {
 			switch(type.getNodeType()) {
 				case ASTNode.PRIMITIVE_TYPE :
 					PrimitiveType.Code code = ((PrimitiveType) type).getPrimitiveTypeCode();
-					if (code == PrimitiveType.INT) {
-						return "int"; //$NON-NLS-1$
-					} else if (code == PrimitiveType.CHAR) {
-						return "char"; //$NON-NLS-1$
-					} else if (code == PrimitiveType.BOOLEAN) {
-						return "boolean"; //$NON-NLS-1$
-					} else if (code == PrimitiveType.SHORT) {
-						return "short"; //$NON-NLS-1$
-					} else if (code == PrimitiveType.LONG) {
-						return "long"; //$NON-NLS-1$
-					} else if (code == PrimitiveType.FLOAT) {
-						return "float"; //$NON-NLS-1$
-					} else if (code == PrimitiveType.DOUBLE) {
-						return "double"; //$NON-NLS-1$
-					} else if (code == PrimitiveType.BYTE) {
-						return "byte"; //$NON-NLS-1$
-					} else if (code == PrimitiveType.VOID) {
-						return "void"; //$NON-NLS-1$
-					} else {
-						return null; // should never happen
-					}
+					return code.toString();
 				case ASTNode.ARRAY_TYPE :
 					ArrayType arrayType = (ArrayType) type;
 					StringBuffer buffer = new StringBuffer();

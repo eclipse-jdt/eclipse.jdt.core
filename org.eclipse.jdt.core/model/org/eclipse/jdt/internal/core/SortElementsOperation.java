@@ -74,7 +74,7 @@ public class SortElementsOperation extends JavaModelOperation {
 					return;
 				}
 				char[] bufferContents = buffer.getCharacters();
-				processElement(unit,bufferContents);
+				processElement(unit, positions == null ? null : positions[i], bufferContents);
 				if (this.hasChanged) {
 					unit.save(null, false);
 					boolean isWorkingCopy = unit.isWorkingCopy();
@@ -99,10 +99,10 @@ public class SortElementsOperation extends JavaModelOperation {
 	 * @param unit
 	 * @param bufferContents
 	 */
-	private void processElement(ICompilationUnit unit, char[] source) throws JavaModelException {
+	private void processElement(ICompilationUnit unit, int[] positionsToMap, char[] source) throws JavaModelException {
 		subTask("Sort " + unit.getElementName()); //$NON-NLS-1$
 		this.hasChanged = false;
-		SortElementBuilder builder = new SortElementBuilder(source, comparator);
+		SortElementBuilder builder = new SortElementBuilder(source, positionsToMap, comparator);
 		SourceElementParser parser = new SourceElementParser(builder,
 			ProblemFactory.getProblemFactory(Locale.getDefault()), new CompilerOptions(JavaCore.getOptions()), true);
 		
@@ -130,6 +130,8 @@ public class SortElementsOperation extends JavaModelOperation {
 	 * <ul>
 	 *  <li>NO_ELEMENTS_TO_PROCESS - the compilation unit supplied to the operation is <code>null</code></li>.
 	 *  <li>INVALID_ELEMENT_TYPES - the supplied elements are not an instance of IWorkingCopy</li>.
+	 *  <li>INVALID_CONTENTS - the number of supplied elements is different from the number of supplied position ranges if positions
+	 * ranges is not <code>null</code>.</li>
 	 * </ul>
 	 * @see IJavaModelStatus
 	 * @see JavaConventions
@@ -137,6 +139,9 @@ public class SortElementsOperation extends JavaModelOperation {
 	public IJavaModelStatus verify() {
 		if (fElementsToProcess.length <= 0) {
 			return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
+		}
+		if (this.positions != null && this.fElementsToProcess.length != this.positions.length) {
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS);
 		}
 		for (int i = 0, max = fElementsToProcess.length; i < max; i++) {
 			if (fElementsToProcess[i] == null) {

@@ -41,10 +41,10 @@ public void setUpSuite() throws Exception {
 }
 private void sortUnit(ICompilationUnit unit, String expectedResult) throws CoreException {
 	debug(unit, "BEFORE");
-	CompilationUnitSorter.sort(new ICompilationUnit[] { unit }, null, new DefaultJavaElementComparator(), new NullProgressMonitor());
+	CompilationUnitSorter.sort(new ICompilationUnit[] { unit }, null, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), new NullProgressMonitor());
 	String sortedSource = unit.getBuffer().getContents();
 	assertEquals("Different output", sortedSource, expectedResult);
-	CompilationUnitSorter.sort(new ICompilationUnit[] { unit }, null, new DefaultJavaElementComparator(), new NullProgressMonitor());
+	CompilationUnitSorter.sort(new ICompilationUnit[] { unit }, null, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), new NullProgressMonitor());
 	String sortedSource2 = unit.getBuffer().getContents();
 	debug(unit, "AFTER");
 	assertEquals("Different output", sortedSource, sortedSource2);

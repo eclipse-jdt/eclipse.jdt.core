@@ -343,7 +343,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		ASTNode convert() {
 			VariableDeclarationFragment variableDeclarationFragment = ast.newVariableDeclarationFragment();
 			variableDeclarationFragment.setName(ast.newSimpleName(new String(this.name)));
-			variableDeclarationFragment.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
 			FieldDeclaration fieldDeclaration = ast.newFieldDeclaration(variableDeclarationFragment);
 
 			String currentFieldType = this.type;
@@ -368,6 +367,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 				fieldDeclaration.setType(newType(currentFieldType));
 			}
 			fieldDeclaration.setModifiers(this.modifiers);
+			fieldDeclaration.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
 			return fieldDeclaration;
 		}
 		/**
@@ -436,6 +436,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			this.fieldCounter = 0;
 			this.innerFields[this.fieldCounter++] = fieldDeclaration;
 			this.type = fieldDeclaration.type;
+			this.sourceStart = fieldDeclaration.sourceStart;
 		}
 		
 		void addField(SortFieldDeclaration fieldDeclaration) {
@@ -462,7 +463,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		ASTNode convert() {
 			VariableDeclarationFragment variableDeclarationFragment = ast.newVariableDeclarationFragment();
 			variableDeclarationFragment.setName(ast.newSimpleName(new String(this.innerFields[0].name)));
-			variableDeclarationFragment.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.innerFields[0].sourceStart));
 			FieldDeclaration fieldDeclaration = ast.newFieldDeclaration(variableDeclarationFragment);
 
 			for (int j = 1, max2 = this.innerFields.length; j < max2; j++) {
@@ -491,6 +491,7 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			} else {
 				fieldDeclaration.setType(newType(currentFieldType));
 			}
+			fieldDeclaration.setProperty(CompilationUnitSorter.SOURCE_START, new Integer(this.sourceStart));
 			fieldDeclaration.setModifiers(this.modifiers);
 			return fieldDeclaration;
 		}
@@ -754,10 +755,12 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	char[] source;
 	int[] lineEnds;
 	Comparator comparator;
+	int[] positionsToMap;
 	
-	public SortElementBuilder(char[] source, Comparator comparator) {
+	public SortElementBuilder(char[] source, int[] positionsToMap, Comparator comparator) {
 		this.source = source;
 		this.comparator = comparator;
+		this.positionsToMap = positionsToMap;
 		this.scanner = new Scanner(false, false, false, false, false, null, null);
 		this.ast = new AST();
 	}
