@@ -213,4 +213,24 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"[Z",
 			key);
 	}
+	
+	/*
+	 * Create a parameterized type binding key
+	 */
+	public void test018() {
+		String key = BindingKey.createParameterizedTypeBindingKey("Ljava/util/Map;", new String[] {"Ljava/lang/String;", "Ljava/lang/Object;"});
+		assertBindingKeyEquals(
+			"Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;",
+			key);
+	}
+
+	/*
+	 * Create a raw type binding key
+	 */
+	public void test019() {
+		String key = BindingKey.createParameterizedTypeBindingKey("Ljava/util/List;", new String[] {});
+		assertBindingKeyEquals(
+			"Ljava/util/List<>;",
+			key);
+	}
 }

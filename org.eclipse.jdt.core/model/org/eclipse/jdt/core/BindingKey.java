@@ -33,6 +33,36 @@ public class BindingKey {
 	}
 	
 	/**
+	 * Creates a new parameterized type binding key from the given generic type binding key and the given argument type binding keys.
+	 * If the argument type keys array is empty, then a raw type binding key is created.
+	 * <p>
+	 * For example:
+	 * <pre>
+	 * <code>
+	 * createParameterizedTypeBindingKey("Ljava/util/Map;", new String[] {"Ljava/lang/String;", "Ljava/lang/Object;"}) -> "Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;"
+	 * createParameterizedTypeBindingKey("Ljava/util/List;", new String[] {}) -> "Ljava/util/List<>;"
+	 * </code>
+	 * </pre>
+	 * </p>
+	 *
+	 * @param genericTypeKey the binding key of the generic type
+	 * @param argumentTypeKeys the possibly empty list of binding keys of argument types
+	 * @return a new parameterized type binding key
+	 */
+	public static String createParameterizedTypeBindingKey(String genericTypeKey, String[] argumentTypeKeys) {
+		// Note this implementation is heavily dependent on ParameterizedTypeBinding#computeUniqueKey()
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(genericTypeKey);
+		buffer.insert(buffer.length()-1, '<');
+		for (int i = 0, length = argumentTypeKeys.length; i < length; i++) {
+			String argumentTypeKey = argumentTypeKeys[i];
+			buffer.insert(buffer.length()-1, argumentTypeKey);
+		}
+		buffer.insert(buffer.length()-1, '>');
+		return buffer.toString();
+	}
+	
+	/**
 	 * Creates a new type binding key from the given type name. The type name must be either 
 	 * a fully qualified name, an array type name or a primitive type name. 
 	 * If the type name is fully qualified, then it is expected to be dot-based. 
@@ -49,9 +79,10 @@ public class BindingKey {
 	 * </p>
 	 *
 	 * @param typeName the possibly qualified type name
-	 * @return the encoded type signature
+	 * @return a new type binding key
 	 */
 	public static String createTypeBindingKey(String typeName) {
+		// Note this implementation is heavily dependent on TypeBinding#computeUniqueKey() and its subclasses
 		return Signature.createTypeSignature(typeName.replace('.', '/'), true/*resolved*/);
 	}
 	
