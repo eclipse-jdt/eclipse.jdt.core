@@ -731,8 +731,6 @@ public class CompletionProposal {
 	 * <code>null</code>. Clients must not modify the array
 	 * returned.
 	 * </p>
-
-	 * </p>
 	 * 
 	 * @return the signature, or <code>null</code> if none
 	 * @see Signature
