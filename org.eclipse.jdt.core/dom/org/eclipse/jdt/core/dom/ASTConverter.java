@@ -1094,13 +1094,11 @@ class ASTConverter {
 	public CharacterLiteral convert(org.eclipse.jdt.internal.compiler.ast.CharLiteral expression) {
 		int length = expression.sourceEnd - expression.sourceStart + 1;	
 		int sourceStart = expression.sourceStart;
-		char[] tokens = new char[length];
-		System.arraycopy(this.compilationUnitSource, sourceStart, tokens, 0, length);
 		CharacterLiteral literal = this.ast.newCharacterLiteral();
 		if (this.resolveBindings) {
 			this.recordNodes(literal, expression);
 		}
-		literal.setEscapedValue(new String(tokens));
+		literal.setEscapedValue(new String(this.compilationUnitSource, sourceStart, length));
 		literal.setSourceRange(sourceStart, length);
 		removeLeadingAndTrailingCommentsFromLiteral(literal);
 		return literal;
@@ -1261,9 +1259,7 @@ class ASTConverter {
 	public NumberLiteral convert(org.eclipse.jdt.internal.compiler.ast.DoubleLiteral expression) {
 		int length = expression.sourceEnd - expression.sourceStart + 1;	
 		int sourceStart = expression.sourceStart;
-		char[] tokens = new char[length];
-		System.arraycopy(this.compilationUnitSource, sourceStart, tokens, 0, length);
-		NumberLiteral literal = this.ast.newNumberLiteral(new String(tokens));
+		NumberLiteral literal = this.ast.newNumberLiteral(new String(this.compilationUnitSource, sourceStart, length));
 		if (this.resolveBindings) {
 			this.recordNodes(literal, expression);
 		}
@@ -1591,9 +1587,7 @@ class ASTConverter {
 	public NumberLiteral convert(org.eclipse.jdt.internal.compiler.ast.FloatLiteral expression) {
 		int length = expression.sourceEnd - expression.sourceStart + 1;	
 		int sourceStart = expression.sourceStart;
-		char[] tokens = new char[length];
-		System.arraycopy(this.compilationUnitSource, sourceStart, tokens, 0, length);
-		NumberLiteral literal = this.ast.newNumberLiteral(new String(tokens));
+		NumberLiteral literal = this.ast.newNumberLiteral(new String(this.compilationUnitSource, sourceStart, length));
 		if (this.resolveBindings) {
 			this.recordNodes(literal, expression);
 		}
@@ -1691,9 +1685,7 @@ class ASTConverter {
 	public NumberLiteral convert(org.eclipse.jdt.internal.compiler.ast.IntLiteral expression) {
 		int length = expression.sourceEnd - expression.sourceStart + 1;	
 		int sourceStart = expression.sourceStart;
-		char[] tokens = new char[length];
-		System.arraycopy(this.compilationUnitSource, sourceStart, tokens, 0, length);
-		NumberLiteral literal = this.ast.newNumberLiteral(new String(tokens));
+		NumberLiteral literal = this.ast.newNumberLiteral(new String(this.compilationUnitSource, sourceStart, length));
 		if (this.resolveBindings) {
 			this.recordNodes(literal, expression);
 		}
@@ -1705,9 +1697,7 @@ class ASTConverter {
 	public NumberLiteral convert(org.eclipse.jdt.internal.compiler.ast.IntLiteralMinValue expression) {
 		int length = expression.sourceEnd - expression.sourceStart + 1;	
 		int sourceStart = expression.sourceStart;
-		char[] tokens = new char[length];
-		System.arraycopy(this.compilationUnitSource, sourceStart, tokens, 0, length);
-		NumberLiteral literal = this.ast.newNumberLiteral(new String(tokens));
+		NumberLiteral literal = this.ast.newNumberLiteral(new String(this.compilationUnitSource, sourceStart, length));
 		if (this.resolveBindings) {
 			this.recordNodes(literal, expression);
 		}
@@ -1767,9 +1757,7 @@ class ASTConverter {
 	public NumberLiteral convert(org.eclipse.jdt.internal.compiler.ast.LongLiteralMinValue expression) {
 		int length = expression.sourceEnd - expression.sourceStart + 1;	
 		int sourceStart = expression.sourceStart;
-		char[] tokens = new char[length];
-		System.arraycopy(this.compilationUnitSource, sourceStart, tokens, 0, length);
-		NumberLiteral literal = this.ast.newNumberLiteral(new String(tokens));
+		NumberLiteral literal = this.ast.newNumberLiteral(new String(this.compilationUnitSource, sourceStart, length));
 		if (this.resolveBindings) {
 			this.recordNodes(literal, expression);
 		}
@@ -2276,13 +2264,11 @@ class ASTConverter {
 		}
 		int length = expression.sourceEnd - expression.sourceStart + 1;	
 		int sourceStart = expression.sourceStart;
-		char[] tokens = new char[length];
-		System.arraycopy(this.compilationUnitSource, sourceStart, tokens, 0, length);
 		StringLiteral literal = this.ast.newStringLiteral();
 		if (this.resolveBindings) {
 			this.recordNodes(literal, expression);
 		}
-		literal.setEscapedValue(new String(tokens));
+		literal.setEscapedValue(new String(this.compilationUnitSource, sourceStart, length));
 		literal.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		return literal;
 	}

@@ -681,16 +681,16 @@ public final class CompletionProposal extends InternalCompletionProposal {
 					int start = 0;
 					int end = CharOperation.indexOf('%', this.completion);
 	
-					completionBuffer.append(CharOperation.subarray(this.completion, start, end));
+					completionBuffer.append(this.completion, start, end - start);
 					
 					for(int i = 0 ; i < length ; i++){
 						completionBuffer.append(this.parameterNames[i]);
 						start = end + 1;
 						end = CharOperation.indexOf('%', this.completion, start);
 						if(end > -1){
-							completionBuffer.append(CharOperation.subarray(this.completion, start, end));
+							completionBuffer.append(this.completion, start, end - start);
 						} else {
-							completionBuffer.append(CharOperation.subarray(this.completion, start, this.completion.length));
+							completionBuffer.append(this.completion, start, this.completion.length - start);
 						}
 					}
 					int nameLength = completionBuffer.length();

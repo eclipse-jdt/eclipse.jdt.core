@@ -2222,7 +2222,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			if (lastIndex == -1) {
 				return System.getProperty("user.dir"); //$NON-NLS-1$
 			}
-			return new String(CharOperation.subarray(fileName, 0, lastIndex));
+			return new String(fileName, 0, lastIndex);
 		}
 		return System.getProperty("user.dir"); //$NON-NLS-1$
 	}
@@ -2368,24 +2368,25 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					System.arraycopy(filename, 0, relativeName, 0, length);
 					System.arraycopy(SUFFIX_class, 0, relativeName, length, 6);
 					CharOperation.replace(relativeName, '/', File.separatorChar);
+					String relativeStringName = new String(relativeName);
 					try {
 						if (this.compilerOptions.verbose)
 							System.out.println(Util.bind("compilation.write", //$NON-NLS-1$
 								new String[] {
 									String.valueOf(this.exportedClassFilesCounter+1),
-									new String(relativeName)
+									relativeStringName
 								}));
 						ClassFile.writeToDisk(
 							this.generatePackagesStructure,
 							this.destinationPath,
-							new String(relativeName),
+							relativeStringName,
 							classFile.getBytes());
 						this.logger.logClassFile(
 							this.generatePackagesStructure,
 							this.destinationPath,
-							new String(relativeName));
+							relativeStringName);
 					} catch (IOException e) {
-						String fileName = this.destinationPath + new String(relativeName);
+						String fileName = this.destinationPath + relativeStringName;
 						e.printStackTrace();
 						this.logger.logNoClassFileCreated(fileName); //$NON-NLS-1$
 					}

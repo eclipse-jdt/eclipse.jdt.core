@@ -510,7 +510,18 @@ public final char[] getCurrentTokenSourceString() {
 	}
 	return result;
 }
+public final String getCurrentStringLiteral() {
+	//return the token REAL source (aka unicodes are precomputed).
+	//REMOVE the two " that are at the beginning and the end.
 
+	if (this.withoutUnicodePtr != 0)
+		//0 is used as a fast test flag so the real first char is in position 1
+		//2 is 1 (real start) + 1 (to jump over the ")
+		return new String(this.withoutUnicodeBuffer, 2, this.withoutUnicodePtr - 2);
+	else {
+		return new String(this.source, this.startPosition + 1, this.currentPosition - this.startPosition - 2);
+	}
+}
 public final char[] getRawTokenSource() {
 	int length = this.currentPosition - this.startPosition;
 	char[] tokenSource = new char[length];

@@ -220,7 +220,7 @@ public String getComment() {
 		if (fComment != null) {
 			return fComment;
 		} else {
-			return new String(CharOperation.subarray(fDocument, fCommentRange[0], fCommentRange[1] + 1));
+			return new String(fDocument, fCommentRange[0], fCommentRange[1] + 1 - fCommentRange[0]);
 		}
 	} else {
 		return null;

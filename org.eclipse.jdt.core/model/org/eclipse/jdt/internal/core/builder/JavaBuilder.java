@@ -510,7 +510,7 @@ private void initializeBuilder() throws CoreException {
 			char[] f = filters[i];
 			if (f.length == 0) continue;
 			if (f[f.length - 1] == '/')
-				extraResourceFolderFilters[--folderCount] = new String(CharOperation.subarray(f, 0, f.length - 1));
+				extraResourceFolderFilters[--folderCount] = new String(f, 0, f.length - 1);
 			else
 				extraResourceFileFilters[--fileCount] = f;
 		}

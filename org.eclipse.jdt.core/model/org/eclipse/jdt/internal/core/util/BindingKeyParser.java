@@ -310,15 +310,15 @@ public class BindingKeyParser {
 				buffer.append("**"); //$NON-NLS-1$
 				buffer.append(this.source);
 			} else if (this.index <= this.source.length) {
-				buffer.append(CharOperation.subarray(this.source, 0, this.start));
+				buffer.append(this.source, 0, this.start);
 				buffer.append('*');
 				if (this.start <= this.index) {
-					buffer.append(CharOperation.subarray(this.source, this.start, this.index));
+					buffer.append(this.source, this.start, this.index - this.start);
 					buffer.append('*');
-					buffer.append(CharOperation.subarray(this.source, this.index, this.source.length));
+					buffer.append(this.source, this.index, this.source.length - this.index);
 				} else {
 					buffer.append('*');
-					buffer.append(CharOperation.subarray(this.source, this.start, this.source.length));
+					buffer.append(this.source, this.start, this.source.length - this.start);
 				}
 			} else {
 				buffer.append(this.source);

@@ -222,7 +222,7 @@ public class StringLiteral extends Expression {
 			int tokenType = scanner.getNextToken();
 			switch(tokenType) {
 				case TerminalTokens.TokenNameStringLiteral:
-					return new String(scanner.getCurrentTokenSourceString());
+					return scanner.getCurrentStringLiteral();
 				default:
 					throw new IllegalArgumentException();
 			}

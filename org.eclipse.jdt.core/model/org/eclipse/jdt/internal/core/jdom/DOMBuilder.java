@@ -68,7 +68,7 @@ public void acceptImport(int declarationStart, int declarationEnd, int[] javaDoc
 	int[] nameRange = {nameStart, declarationEnd - 1};
 	
 	/* See 1FVII1P */
-	String importName = new String(CharOperation.subarray(fDocument, nameRange[0], nameRange[1] + 1));
+	String importName = new String(fDocument, nameRange[0], nameRange[1] + 1 - nameRange[0]);
 
 	fNode= new DOMImport(fDocument, sourceRange, importName, nameRange, onDemand, modifiers);
 	addChild(fNode);

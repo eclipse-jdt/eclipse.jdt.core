@@ -2611,7 +2611,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		} else if ((mode & ClassFileBytesDisassembler.COMPACT) != 0) {
 			int lastIndexOfSlash = CharOperation.lastIndexOf('/', classInfoName);
 			if (lastIndexOfSlash != -1) {
-				return new String(CharOperation.subarray(classInfoName, lastIndexOfSlash + 1, classInfoName.length));
+				return new String(classInfoName, lastIndexOfSlash + 1, classInfoName.length - lastIndexOfSlash - 1);
 			}
 			return new String(classInfoName);
 		} else {
@@ -2624,7 +2624,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 			char[] className = constantRef.getClassName();
 			int lastIndexOfSlash = CharOperation.lastIndexOf('/', className);
 			if (lastIndexOfSlash != -1) {
-				return new String(CharOperation.subarray(className, lastIndexOfSlash + 1, className.length));
+				return new String(className, lastIndexOfSlash + 1, className.length - lastIndexOfSlash - 1);
 			}
 			return new String(constantRef.getClassName());
 		}

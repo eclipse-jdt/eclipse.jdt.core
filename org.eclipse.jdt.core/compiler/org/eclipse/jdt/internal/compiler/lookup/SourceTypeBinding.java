@@ -518,11 +518,11 @@ public char[] computeUniqueKey() {
 		char[] topLevelType = CharOperation.subarray(uniqueKey, start, end);
 		if (!CharOperation.equals(topLevelType, mainTypeName)) {
 			StringBuffer buffer = new StringBuffer();
-			buffer.append(CharOperation.subarray(uniqueKey, 0, start));
+			buffer.append(uniqueKey, 0, start);
 			buffer.append(mainTypeName);
 			buffer.append('~');
 			buffer.append(topLevelType);
-			buffer.append(CharOperation.subarray(uniqueKey, end, uniqueKey.length));
+			buffer.append(uniqueKey, end, uniqueKey.length - end);
 			int length = buffer.length();
 			uniqueKey = new char[length];
 			buffer.getChars(0, length, uniqueKey, 0);

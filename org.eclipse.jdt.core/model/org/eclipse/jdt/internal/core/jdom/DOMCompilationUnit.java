@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.core.jdom;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
@@ -127,7 +126,7 @@ protected void initalizeHeader() {
 	if (child != null) {
 		int childStart = child.getStartPosition();
 		if (childStart > 1) {
-			setHeader(new String(CharOperation.subarray(fDocument, 0, childStart)));
+			setHeader(new String(fDocument, 0, childStart));
 		}
 	}
 }

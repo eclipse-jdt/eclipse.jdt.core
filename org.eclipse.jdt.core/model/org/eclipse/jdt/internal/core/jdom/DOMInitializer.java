@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core.jdom;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
@@ -137,7 +136,7 @@ public String getBody() {
 		if (fBody != null) {
 			return fBody;
 		} else {
-			return new String(CharOperation.subarray(fDocument, fBodyRange[0], fBodyRange[1] + 1));
+			return new String(fDocument, fBodyRange[0], fBodyRange[1] + 1 - fBodyRange[0]);
 		}
 	} else {
 		return null;

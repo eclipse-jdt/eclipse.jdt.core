@@ -15,7 +15,6 @@ import java.util.Enumeration;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -441,7 +440,7 @@ public String getSuperclass() {
 		if (fSuperclass != null) {
 			return fSuperclass;
 		} else {
-			return new String(CharOperation.subarray(fDocument, fSuperclassRange[0], fSuperclassRange[1] + 1));
+			return new String(fDocument, fSuperclassRange[0], fSuperclassRange[1] + 1 - fSuperclassRange[0]);
 		}
 	} else {
 		return null;

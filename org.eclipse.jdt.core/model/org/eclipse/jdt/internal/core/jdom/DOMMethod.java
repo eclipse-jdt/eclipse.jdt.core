@@ -374,7 +374,7 @@ public String getBody() {
 		if (fBody != null) {
 			return fBody;
 		} else {
-			return new String(CharOperation.subarray(fDocument, fBodyRange[0], fBodyRange[1] + 1));
+			return new String(fDocument, fBodyRange[0], fBodyRange[1] + 1 - fBodyRange[0]);
 		}
 	} else {
 		return null;

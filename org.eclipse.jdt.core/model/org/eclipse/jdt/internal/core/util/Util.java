@@ -431,8 +431,8 @@ public class Util {
 	/**
 	 * Converts a type signature from the IBinaryType representation to the DC representation.
 	 */
-	public static String convertTypeSignature(char[] sig) {
-		return new String(sig).replace('/', '.');
+	public static String convertTypeSignature(char[] sig, int start, int length) {
+		return new String(sig, start, length).replace('/', '.');
 	}
 	
 	/*
@@ -684,11 +684,11 @@ public class Util {
 				if (c == 'L') {
 					i = CharOperation.indexOf(';', sig, i + 1) + 1;
 					Assert.isTrue(i != 0);
-					result[count++] = convertTypeSignature(CharOperation.subarray(sig, start, i));
+					result[count++] = convertTypeSignature(sig, start, i - start);
 					start = i;
 				} else {
 					++i;
-					result[count++] = convertTypeSignature(CharOperation.subarray(sig, start, i));
+					result[count++] = convertTypeSignature(sig, start, i - start);
 					start = i;
 				}
 		}
@@ -2045,7 +2045,7 @@ public class Util {
 				break;
 			case Signature.C_TYPE_VARIABLE :
 				int e = Util.scanTypeVariableSignature(string, start);
-				buffer.append(CharOperation.subarray(string, start + 1, e));
+				buffer.append(string, start + 1, e - start - 1);
 				break;
 			case Signature.C_BOOLEAN :
 				buffer.append(BOOLEAN);
@@ -2097,7 +2097,7 @@ public class Util {
 		// selector
 		int lastIndexOfSlash = CharOperation.lastIndexOf('/', declaringClass);
 		if (lastIndexOfSlash != -1) {
-			buffer.append(CharOperation.subarray(declaringClass, lastIndexOfSlash + 1, declaringClass.length));
+			buffer.append(declaringClass, lastIndexOfSlash + 1, declaringClass.length - lastIndexOfSlash - 1);
 		} else {
 			buffer.append(declaringClass);
 		}

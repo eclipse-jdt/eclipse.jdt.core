@@ -2157,7 +2157,7 @@ private static int appendTypeSignature(char[] string, int start, boolean fullyQu
 				return appendClassTypeSignature(string, start, fullyQualifyTypeNames, buffer);
 			case C_TYPE_VARIABLE :
 				int e = Util.scanTypeVariableSignature(string, start);
-				buffer.append(CharOperation.subarray(string, start + 1, e));
+				buffer.append(string, start + 1, e - start - 1);
 				return e;
 			case C_BOOLEAN :
 				buffer.append(BOOLEAN);

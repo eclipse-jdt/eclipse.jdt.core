@@ -108,8 +108,8 @@ class TypeBinding implements ITypeBinding {
 			return null;
 		IPackageFragment pkg = getPackageFragment(fileName, lastSlash);
 		if (pkg == null) return null;
-		char[] simpleName = CharOperation.subarray(fileName, lastSlash+1, fileName.length);
-		return pkg.getClassFile(new String(simpleName));
+		int start;
+		return pkg.getClassFile(new String(fileName, start = lastSlash+1, fileName.length - start));
 	}
 	
 	/*
@@ -122,8 +122,8 @@ class TypeBinding implements ITypeBinding {
 		if (lastSlash == -1) return null;
 		IPackageFragment pkg = getPackageFragment(slashSeparatedFileName, lastSlash);
 		if (pkg == null) return null;
-		char[] simpleName = CharOperation.subarray(slashSeparatedFileName, lastSlash+1, slashSeparatedFileName.length);
-		ICompilationUnit cu = pkg.getCompilationUnit(new String(simpleName));
+		int start;
+		ICompilationUnit cu = pkg.getCompilationUnit(new String(slashSeparatedFileName, start =  lastSlash+1, slashSeparatedFileName.length - start));
 		if (this.resolver instanceof DefaultBindingResolver) {
 			ICompilationUnit workingCopy = cu.findWorkingCopy(((DefaultBindingResolver) this.resolver).workingCopyOwner);
 			if (workingCopy != null) 
@@ -549,13 +549,13 @@ class TypeBinding implements ITypeBinding {
 	private IPackageFragment getPackageFragment(char[] fileName, int lastSlash) {
 		int jarSeparator = CharOperation.indexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
 		if (jarSeparator != -1) {
-			String jarMemento = new String(CharOperation.subarray(fileName, 0, jarSeparator));
+			String jarMemento = new String(fileName, 0, jarSeparator);
 			IPackageFragmentRoot root = (IPackageFragmentRoot) JavaCore.create(jarMemento);
 			char[] pkgName = CharOperation.subarray(fileName, jarSeparator+1, lastSlash);
 			CharOperation.replace(pkgName, '/', '.');
 			return root.getPackageFragment(new String(pkgName));
 		} else {
-			Path path = new Path(new String(CharOperation.subarray(fileName, 0, lastSlash)));
+			Path path = new Path(new String(fileName, 0, lastSlash));
 			IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 			IContainer folder = path.segmentCount() == 1 ? workspaceRoot.getProject(path.lastSegment()) : (IContainer) workspaceRoot.getFolder(path);
 			IJavaElement element = JavaCore.create(folder);

@@ -365,7 +365,7 @@ public final class JavaConventions {
 				}
 		}
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		StringTokenizer st = new StringTokenizer(name, new String(new char[] {DOT}));
+		StringTokenizer st = new StringTokenizer(name, "."); //$NON-NLS-1$
 		boolean firstToken = true;
 		IStatus warningStatus = null;
 		while (st.hasMoreTokens()) {

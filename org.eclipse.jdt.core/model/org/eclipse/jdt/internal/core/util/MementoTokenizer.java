@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.JavaElement;
 
 public class MementoTokenizer {
@@ -84,7 +83,7 @@ public class MementoTokenizer {
 			switch (this.memento[this.index]) {
 				case JavaElement.JEM_ESCAPE:
 					if (buffer == null) buffer = new StringBuffer();
-					buffer.append(CharOperation.subarray(this.memento, start, this.index));
+					buffer.append(this.memento, start, this.index - start);
 					start = ++this.index;
 					break;
 				case JavaElement.JEM_COUNT:
@@ -106,10 +105,10 @@ public class MementoTokenizer {
 			this.index++;
 		}
 		if (buffer != null) {
-			buffer.append(CharOperation.subarray(this.memento, start, this.index));
+			buffer.append(this.memento, start, this.index - start);
 			return buffer.toString();
 		} else {
-			return new String(CharOperation.subarray(this.memento, start, this.index));
+			return new String(this.memento, start, this.index - start);
 		}
 	}
 	

@@ -311,7 +311,7 @@ public String getInitializer() {
 		if (fInitializer != null) {
 			return fInitializer;
 		} else {
-			return new String(CharOperation.subarray(fDocument, fInitializerRange[0], fInitializerRange[1] + 1));
+			return new String(fDocument, fInitializerRange[0], fInitializerRange[1] + 1 - fInitializerRange[0]);
 		}
 	} else {
 		return null;
