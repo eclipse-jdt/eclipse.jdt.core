@@ -170,17 +170,7 @@ public IClassFile[] getClassFiles() throws JavaModelException {
  * @see IPackageFragment#getCompilationUnit(String)
  */
 public ICompilationUnit getCompilationUnit(String name) {
-	ICompilationUnit primaryCU =  new CompilationUnit(this, name, DefaultWorkingCopyOwner.PRIMARY);
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	Map sharedWorkingCopies = manager.sharedWorkingCopies;
-	Map perOwnerWorkingCopies = (Map) sharedWorkingCopies.get(DefaultWorkingCopyOwner.PRIMARY);
-	if (perOwnerWorkingCopies == null) return primaryCU;
-	ICompilationUnit sharedWC = (ICompilationUnit)perOwnerWorkingCopies.get(primaryCU);
-	if (sharedWC == null) {
-		return primaryCU;
-	} else {
-		return sharedWC;
-	}
+	return  new CompilationUnit(this, name, DefaultWorkingCopyOwner.PRIMARY);
 }
 /**
  * @see IPackageFragment#getCompilationUnits()
