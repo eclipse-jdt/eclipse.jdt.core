@@ -38,13 +38,13 @@ public class SortElementsOperation extends JavaModelOperation {
 	
 	Comparator comparator;
 	boolean hasChanged;
-	int[] positions;
+	int[][] positions;
 	
 	/**
 	 * Constructor for SortElementsOperation.
 	 * @param elements
 	 */
-	public SortElementsOperation(IJavaElement[] elements, int[] positions, Comparator comparator) {
+	public SortElementsOperation(IJavaElement[] elements, int[][] positions, Comparator comparator) {
 		super(elements);
 		this.comparator = comparator;
 		this.positions = positions;

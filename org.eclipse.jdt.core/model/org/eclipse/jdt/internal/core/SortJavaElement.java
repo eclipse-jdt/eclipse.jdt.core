@@ -57,7 +57,6 @@ public abstract class SortJavaElement implements Comparable {
 	
 	protected int sourceEnd;
 	protected int nameSourceStart;
-	protected int numberOfPreceedingBlankLines;
 	protected SortElement[] children;
 	protected int children_count;
 	protected SortElement firstChildBeforeSorting;

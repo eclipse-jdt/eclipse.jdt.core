@@ -20,11 +20,18 @@ import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.internal.core.SortElementsOperation;
@@ -196,7 +203,10 @@ public class CompilationUnitSorter {
 					final List parameters = methodDeclaration.parameters();
 					int length1 = parameters.size();
 					for (int i = 0; i < length1; i++) {
-						buffer.append(((SingleVariableDeclaration) parameters.get(i)).getName().getIdentifier());
+						SingleVariableDeclaration parameter = (SingleVariableDeclaration) parameters.get(i);
+						buffer.append(parameter.getName().getIdentifier());
+						Type type = parameter.getType();
+						buffer.append(buildSignature(type));
 					}
 					return buffer.toString();
 				case ASTNode.FIELD_DECLARATION :
@@ -209,6 +219,56 @@ public class CompilationUnitSorter {
 					return typeDeclaration.getName().getIdentifier();
 			}
 			return null;
+		}
+
+		private String buildSignature(Type type) {
+			switch(type.getNodeType()) {
+				case ASTNode.PRIMITIVE_TYPE :
+					PrimitiveType.Code code = ((PrimitiveType) type).getPrimitiveTypeCode();
+					if (code == PrimitiveType.INT) {
+						return "int"; //$NON-NLS-1$
+					} else if (code == PrimitiveType.CHAR) {
+						return "char"; //$NON-NLS-1$
+					} else if (code == PrimitiveType.BOOLEAN) {
+						return "boolean"; //$NON-NLS-1$
+					} else if (code == PrimitiveType.SHORT) {
+						return "short"; //$NON-NLS-1$
+					} else if (code == PrimitiveType.LONG) {
+						return "long"; //$NON-NLS-1$
+					} else if (code == PrimitiveType.FLOAT) {
+						return "float"; //$NON-NLS-1$
+					} else if (code == PrimitiveType.DOUBLE) {
+						return "double"; //$NON-NLS-1$
+					} else if (code == PrimitiveType.BYTE) {
+						return "byte"; //$NON-NLS-1$
+					} else if (code == PrimitiveType.VOID) {
+						return "void"; //$NON-NLS-1$
+					} else {
+						return null; // should never happen
+					}
+				case ASTNode.ARRAY_TYPE :
+					ArrayType arrayType = (ArrayType) type;
+					StringBuffer buffer = new StringBuffer();
+					buffer.append(buildSignature(arrayType.getElementType()));
+					int dimensions = arrayType.getDimensions();
+					for (int j = 0; j < dimensions; j++) {
+						buffer.append("[]"); //$NON-NLS-1$
+					}
+					return buffer.toString();
+				case ASTNode.SIMPLE_TYPE :
+					SimpleType simpleType = (SimpleType) type;
+					return buildSignature(simpleType.getName());
+			}
+			return null; // should never happen
+		}
+		
+		private String buildSignature(Name name) {
+			if (name.isSimpleName()) {
+				return ((SimpleName) name).getIdentifier();
+			} else {
+				QualifiedName qualifiedName = (QualifiedName) name;
+				return buildSignature(qualifiedName.getQualifier()) + "." + buildSignature(qualifiedName.getName()); //$NON-NLS-1$
+			}
 		}
 	}
 
@@ -225,6 +285,7 @@ public class CompilationUnitSorter {
 	 * This method is used to sort elements within a compilation unit.
 	 * 
 	 * @param compilationUnits compilation units to process
+	 * @param positions positions to map
 	 * @param comparator the comparator to use for the sorting
 	 * @param monitor the given progress monitor
 	 * 
@@ -234,7 +295,7 @@ public class CompilationUnitSorter {
 		if (comparator == null || compilationUnit == null) {
 			return;
 		}
-		SortElementsOperation operation = new SortElementsOperation(new ICompilationUnit[] { compilationUnit }, positions, comparator);
+		SortElementsOperation operation = new SortElementsOperation(new ICompilationUnit[] { compilationUnit }, new int[][] {positions}, comparator);
 		JavaCore.run(operation, monitor);
 	}
 
@@ -242,12 +303,13 @@ public class CompilationUnitSorter {
 	 * This method is used to sort elements within a compilation unit.
 	 * 
 	 * @param compilationUnits compilation units to process
+	 * @param positions positions to map
 	 * @param comparator the comparator to use for the sorting
 	 * @param monitor the given progress monitor
 	 * 
 	 * @since 2.1
 	 */
-	public static void sort(ICompilationUnit[] compilationUnits, int[] positions, Comparator comparator, IProgressMonitor monitor) throws CoreException {
+	public static void sort(ICompilationUnit[] compilationUnits, int[][] positions, Comparator comparator, IProgressMonitor monitor) throws CoreException {
 		if (comparator == null || compilationUnits == null) {
 			return;
 		}

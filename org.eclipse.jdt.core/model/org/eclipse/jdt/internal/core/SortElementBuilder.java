@@ -43,14 +43,8 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			modifiers &= org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers.AccJustFlag;
 			this.modifiers = modifiers;
 			this.children_count = 0;
-			this.numberOfPreceedingBlankLines = 0;
 		}
 
-		public void dumpLineBreaks(int numberOfBlankLines, StringBuffer buffer, String lineSeparator) {
-			for (int i = 0; i < numberOfBlankLines; i++) {
-				buffer.append(lineSeparator);
-			}
-		}
 		protected void setParameters(MethodDeclaration methodDeclaration, String[] parameterNames, String[] parameterTypes) {
 			for (int i = 0, max = parameterNames.length; i < max; i++) {
 				String type = parameterTypes[i];
@@ -198,9 +192,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		 * @see org.eclipse.jdt.internal.core.SortElementBuilder.SortElement#generateSource(java.lang.StringBuffer)
 		 */
 		void generateSource(StringBuffer buffer, String lineSeparator) {
-			if (this.numberOfPreceedingBlankLines != 0) {
-				dumpLineBreaks(this.numberOfPreceedingBlankLines, buffer, lineSeparator);
-			}
 			int length = this.children_count;
 			if (length != 0) {
 				int start = this.sourceStart;
@@ -383,9 +374,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		 * @see org.eclipse.jdt.internal.core.SortElementBuilder.SortElement#generateSource(java.lang.StringBuffer)
 		 */
 		void generateSource(StringBuffer buffer, String lineSeparator) {
-			if (this.numberOfPreceedingBlankLines != 0) {
-				dumpLineBreaks(this.numberOfPreceedingBlankLines, buffer, lineSeparator);
-			}
 			int length = this.children_count;
 			if (length != 0) {
 				int start = this.sourceStart;
@@ -447,7 +435,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 			this.innerFields = new SortFieldDeclaration[1];
 			this.fieldCounter = 0;
 			this.innerFields[this.fieldCounter++] = fieldDeclaration;
-			this.numberOfPreceedingBlankLines = fieldDeclaration.numberOfPreceedingBlankLines;
 			this.type = fieldDeclaration.type;
 		}
 		
@@ -511,9 +498,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		 * @see org.eclipse.jdt.internal.core.SortElementBuilder.SortElement#generateSource(java.lang.StringBuffer)
 		 */
 		void generateSource(StringBuffer buffer, String lineSeparator) {
-			if (this.numberOfPreceedingBlankLines != 0) {
-				dumpLineBreaks(this.numberOfPreceedingBlankLines, buffer, lineSeparator);
-			}
 			int length = this.fieldCounter;
 			int start = this.innerFields[0].sourceStart;
 			int end = this.innerFields[0].nameSourceStart - 1;
@@ -561,9 +545,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		 * @see org.eclipse.jdt.internal.core.SortElementBuilder.SortElement#generateSource(java.lang.StringBuffer)
 		 */
 		void generateSource(StringBuffer buffer, String lineSeparator) {
-			if (this.numberOfPreceedingBlankLines != 0) {
-				dumpLineBreaks(this.numberOfPreceedingBlankLines, buffer, lineSeparator);
-			}
 			int length = this.children_count;
 			if (length != 0) {
 				int start = this.sourceStart;
@@ -672,9 +653,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		 * @see org.eclipse.jdt.internal.core.SortElementBuilder.SortElement#generateSource(java.lang.StringBuffer)
 		 */
 		void generateSource(StringBuffer buffer, String lineSeparator) {
-			if (this.numberOfPreceedingBlankLines != 0) {
-				dumpLineBreaks(this.numberOfPreceedingBlankLines, buffer, lineSeparator);
-			}
 			int length = this.children_count;
 			if (length != 0) {
 				int start = this.sourceStart;
@@ -775,7 +753,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 
 	char[] source;
 	int[] lineEnds;
-	int lastLineNumber;
 	Comparator comparator;
 	
 	public SortElementBuilder(char[] source, Comparator comparator) {
@@ -847,27 +824,8 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		char[] superclass,
 		char[][] superinterfaces) {
 			SortType type = new SortClassDeclaration(declarationStart, modifiers, name, superclass, superinterfaces);
-			if ((this.currentElement.id & SortJavaElement.TYPE) != 0 && this.currentElement.children_count != 0) {
-				recordLineNumberDifference(type);
-			} else {
-				recordLastLineNumber(nameSourceStart);
-			}
 			this.currentElement.addChild(type);
 			push(type);
-	}
-
-	void recordLineNumberDifference(SortElement sortElement) {
-		int lineNumber = searchLineNumber(this.lineEnds, sortElement.sourceStart);
-		int diff = lineNumber - this.lastLineNumber - 1;
-		if (diff != 0) {
-			sortElement.numberOfPreceedingBlankLines = diff;
-		}
-		this.lastLineNumber = lineNumber;
-	}
-
-	void recordLastLineNumber(int sourceStart) {
-		int lineNumber = searchLineNumber(this.lineEnds, sourceStart);
-		this.lastLineNumber = lineNumber;
 	}
 
 	/**
@@ -875,7 +833,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	 */
 	public void enterCompilationUnit() {
 		this.stack = new Stack();
-		this.lastLineNumber = 0;
 		push(compilationUnit = new SortCompilationUnit(0));
 	}
 
@@ -893,7 +850,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		char[][] exceptionTypes) {
 		if ((this.currentElement.id & SortJavaElement.TYPE) != 0) {
 			SortConstructorDeclaration constructorDeclaration = new SortConstructorDeclaration(declarationStart, modifiers, name, parameterNames, parameterTypes, exceptionTypes);
-			recordLineNumberDifference(constructorDeclaration);
 			this.currentElement.addChild(constructorDeclaration);
 			push(constructorDeclaration);
 		}
@@ -922,11 +878,9 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 						((SortMultipleFielDeclaration) previousElement).addField(fieldDeclaration);
 					} else {
 						this.currentElement.addChild(fieldDeclaration);
-						recordLineNumberDifference(fieldDeclaration);
 					}
 				} else {
 					this.currentElement.addChild(fieldDeclaration);
-					recordLineNumberDifference(fieldDeclaration);
 				}
 				push(fieldDeclaration);
 			}
@@ -938,7 +892,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	public void enterInitializer(int declarationStart, int modifiers) {
 		if ((this.currentElement.id & SortJavaElement.TYPE) != 0) {
 			SortInitializer initializer = new SortInitializer(declarationStart, modifiers);
-			recordLineNumberDifference(initializer);
 			this.currentElement.addChild(initializer);
 			push(initializer);
 		}
@@ -955,11 +908,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		int nameSourceEnd,
 		char[][] superinterfaces) {
 			SortType type = new SortInterfaceDeclaration(declarationStart, modifiers, name, superinterfaces);
-			if ((this.currentElement.id & SortJavaElement.TYPE) != 0 && this.currentElement.children_count != 0) {
-				recordLineNumberDifference(type);
-			} else {
-				recordLastLineNumber(nameSourceStart);
-			}
 			this.currentElement.addChild(type);
 			push(type);
 	}
@@ -979,7 +927,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 		char[][] exceptionTypes) {
 			if ((this.currentElement.id & SortJavaElement.TYPE) != 0) {
 				SortMethodDeclaration methodDeclaration = new SortMethodDeclaration(declarationStart, modifiers, name, parameterNames, parameterTypes, exceptionTypes, returnType);
-				recordLineNumberDifference(methodDeclaration);
 				this.currentElement.addChild(methodDeclaration);
 				push(methodDeclaration);
 			}
@@ -1048,20 +995,21 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	}
 
 	final int normalizeSourceStart(int position) {
-		int lineNumber = searchLineNumber(this.lineEnds, position);
-		if (lineNumber == 1) {
+		if (position == 0) {
 			return 0;
 		}
-		int normalizeSourceStart = this.lineEnds[lineNumber - 2] + 1;
-		int index = position;
-		index--;
-		while (Character.isWhitespace(this.source[index]) && index > normalizeSourceStart) {
+		int index = position - 1;
+		while(index >= 0 && Character.isWhitespace(this.source[index])) {
 			index--;
 		}
-		if (index == normalizeSourceStart) {
-			return normalizeSourceStart;
-		} else {
+		
+		int originalLineNumber = searchLineNumber(this.lineEnds, position);
+		int newLineNumber = searchLineNumber(this.lineEnds, index);
+		
+		if (originalLineNumber == newLineNumber) {
 			return index + 1;
+		} else {
+			return this.lineEnds[newLineNumber - 1] + 1;
 		}
 	}
 
@@ -1089,7 +1037,6 @@ public class SortElementBuilder extends SourceElementRequestorAdapter {
 	
 	private void pop(int declarationEnd) {
 		this.currentElement.sourceEnd = normalizeSourceEnd(declarationEnd);
-		this.lastLineNumber = searchLineNumber(this.lineEnds, declarationEnd);
 		this.currentElement.closeCollections();
 		this.stack.pop();
 		if (!this.stack.isEmpty()) {
