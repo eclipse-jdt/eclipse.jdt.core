@@ -40,7 +40,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0502f"));
+		suite.addTest(new ASTConverterTest2("test0505"));
 		return suite;
 	}
 	/**
@@ -3096,5 +3096,40 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("Unexpected binary name", null, typeBinding.getBinaryName()); //$NON-NLS-1$
 	}	
 
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=47396
+	 */
+	public void test0504() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0504", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 1, 0);
+		assertNotNull(node);
+		assertTrue("Not a constructor declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		assertTrue("A constructor", !declaration.isConstructor());
+		checkSourceRange(declaration, "public method(final int parameter);", source);
+	}
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=47396
+	 */
+	public void test0505() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0505", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 1, 0);
+		assertNotNull(node);
+		assertTrue("Not a constructor declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		assertTrue("A constructor", !declaration.isConstructor());
+		checkSourceRange(declaration, "public method(final int parameter) {     }", source);
+	}
 }
 
