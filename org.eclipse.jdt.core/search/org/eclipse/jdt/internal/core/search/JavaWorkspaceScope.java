@@ -20,7 +20,10 @@ import java.util.*;
  */
 public class JavaWorkspaceScope extends JavaSearchScope {
 	protected boolean needsInitialize;
-
+	
+public JavaWorkspaceScope() {
+	JavaModelManager.getJavaModelManager().rememberScope(this);
+}
 public boolean encloses(IJavaElement element) {
 	if (this.needsInitialize) {
 		this.initialize();

@@ -33,7 +33,9 @@ public class JavaSearchScope extends AbstractSearchScope {
 	
 public JavaSearchScope() {
 	this.initialize();
-	JavaModelManager.getJavaModelManager().rememberScope(this);
+	
+	//disabled for now as this could be expensive
+	//JavaModelManager.getJavaModelManager().rememberScope(this);
 }
 	
 private void addEnclosingProjectOrJar(IPath path) {

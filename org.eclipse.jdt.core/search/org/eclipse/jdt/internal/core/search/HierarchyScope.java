@@ -57,7 +57,9 @@ public class HierarchyScope extends AbstractSearchScope {
 		this.initialize();
 		fHierarchy = type.newTypeHierarchy(null);
 		buildResourceVector();
-		JavaModelManager.getJavaModelManager().rememberScope(this);
+			
+		//disabled for now as this could be expensive
+		//JavaModelManager.getJavaModelManager().rememberScope(this);
 	}
 	private void buildResourceVector() throws JavaModelException {
 		HashMap resources = new HashMap();
