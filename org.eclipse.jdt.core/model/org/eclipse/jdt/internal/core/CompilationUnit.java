@@ -142,7 +142,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	try {
 		if (computeProblems){
 			perWorkingCopyInfo.beginReporting();
-			compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, parser, this.owner, perWorkingCopyInfo, problemFactory, false/*don't cleanup cu*/, pm);
+			compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, perWorkingCopyInfo, problemFactory, false/*don't cleanup cu*/, pm);
 			perWorkingCopyInfo.endReporting();
 		}
 		
