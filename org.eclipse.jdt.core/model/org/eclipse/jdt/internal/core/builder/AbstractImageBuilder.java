@@ -136,21 +136,23 @@ protected void cleanUp() {
 * if they are affected by the changes.
 */
 protected void compile(SourceFile[] units) {
-	int toDo = units.length;
-	if (this.compiledAllAtOnce = toDo <= MAX_AT_ONCE) {
+	int unitsLength = units.length;
+
+	this.compiledAllAtOnce = unitsLength <= MAX_AT_ONCE;
+	if (this.compiledAllAtOnce) {
 		// do them all now
 		if (JavaBuilder.DEBUG)
-			for (int i = 0; i < toDo; i++)
+			for (int i = 0; i < unitsLength; i++)
 				System.out.println("About to compile " + units[i].typeLocator()); //$NON-NLS-1$
 		compile(units, null);
 	} else {
 		int i = 0;
 		boolean compilingFirstGroup = true;
-		while (i < toDo) {
-			int doNow = toDo < MAX_AT_ONCE ? toDo : MAX_AT_ONCE;
+		while (i < unitsLength) {
+			int doNow = unitsLength < MAX_AT_ONCE ? unitsLength : MAX_AT_ONCE;
 			int index = 0;
 			SourceFile[] toCompile = new SourceFile[doNow];
-			while (i < toDo && index < doNow) {
+			while (i < unitsLength && index < doNow) {
 				// Although it needed compiling when this method was called, it may have
 				// already been compiled when it was referenced by another unit.
 				SourceFile unit = units[i++];
@@ -162,7 +164,7 @@ protected void compile(SourceFile[] units) {
 			}
 			if (index < doNow)
 				System.arraycopy(toCompile, 0, toCompile = new SourceFile[index], 0, index);
-			SourceFile[] additionalUnits = new SourceFile[toDo - i];
+			SourceFile[] additionalUnits = new SourceFile[unitsLength - i];
 			System.arraycopy(units, i, additionalUnits, 0, additionalUnits.length);
 			compilingFirstGroup = false;
 			compile(toCompile, additionalUnits);
