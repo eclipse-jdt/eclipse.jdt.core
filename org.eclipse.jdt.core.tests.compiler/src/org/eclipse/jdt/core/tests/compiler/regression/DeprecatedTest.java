@@ -340,7 +340,7 @@ public void test009() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=88187
-public void _test010() {
+public void test010() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 	customOptions.put(CompilerOptions.OPTION_ReportInvalidAnnotation, CompilerOptions.WARNING);
