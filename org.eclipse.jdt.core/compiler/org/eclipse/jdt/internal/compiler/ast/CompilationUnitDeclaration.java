@@ -270,9 +270,11 @@ public class CompilationUnitDeclaration
 
 	public void resolve() {
 		if (this.currentPackage != null) {
-			if (this.currentPackage.annotations != null
-					&& !CharOperation.endsWith(getFileName(), PACKAGE_INFO_FILE_NAME)) {
-				scope.problemReporter().invalidFileNameForPackageAnnotations(this.currentPackage.annotations[0]);
+			if (this.currentPackage.annotations != null) {
+				if (!CharOperation.endsWith(getFileName(), PACKAGE_INFO_FILE_NAME)) {
+					scope.problemReporter().invalidFileNameForPackageAnnotations(this.currentPackage.annotations[0]);
+				}
+				// (TODO) resolve annotations
 			}
 		}
 		try {
