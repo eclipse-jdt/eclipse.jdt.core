@@ -357,7 +357,6 @@ public class ClassScope extends Scope {
 
 		ReferenceBinding enclosingType = sourceType.enclosingType();
 		boolean isMemberType = sourceType.isMemberType();
-		
 		if (isMemberType) {
 			// checks for member types before local types to catch local members
 			if (enclosingType.isStrictfp())
@@ -372,9 +371,8 @@ public class ClassScope extends Scope {
 			if (sourceType.isAnonymousType()) {
 			    modifiers |= AccFinal;
 			    // set AccEnum flag for anonymous body of enum constants
-			    if (referenceContext.allocation.type == null) {
+			    if (referenceContext.allocation.type == null)
 			    	modifiers |= AccEnum;
-			    }
 			}
 			Scope scope = this;
 			do {
@@ -387,9 +385,8 @@ public class ClassScope extends Scope {
 							// inside field declaration ? check field modifier to see if deprecated
 							if (methodScope.initializedField != null) {
 									// currently inside this field initialization
-								if (methodScope.initializedField.isViewedAsDeprecated() && !sourceType.isDeprecated()){
+								if (methodScope.initializedField.isViewedAsDeprecated() && !sourceType.isDeprecated())
 									modifiers |= AccDeprecatedImplicitly;
-								}
 							} else {
 								if (type.isStrictfp())
 									modifiers |= AccStrictfp;
@@ -398,7 +395,7 @@ public class ClassScope extends Scope {
 							}					
 						} else {
 							MethodBinding method = ((AbstractMethodDeclaration) methodScope.referenceContext).binding;
-							if (method != null){
+							if (method != null) {
 								if (method.isStrictfp())
 									modifiers |= AccStrictfp;
 								if (method.isViewedAsDeprecated() && !sourceType.isDeprecated())
@@ -417,6 +414,7 @@ public class ClassScope extends Scope {
 				scope = scope.parent;
 			} while (scope != null);
 		}
+
 		// after this point, tests on the 16 bits reserved.
 		int realModifiers = modifiers & AccJustFlag;
 
@@ -426,11 +424,10 @@ public class ClassScope extends Scope {
 				int unexpectedModifiers =
 					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccInterface | AccStrictfp | AccAnnotation);
 				if ((realModifiers & unexpectedModifiers) != 0) {
-					if ((realModifiers & AccAnnotation) != 0) {
+					if ((realModifiers & AccAnnotation) != 0)
 						problemReporter().illegalModifierForAnnotationMemberType(sourceType);
-					} else {
+					else
 						problemReporter().illegalModifierForMemberInterface(sourceType);
-					}
 				}
 				/*
 				} else if (sourceType.isLocalType()) { //interfaces cannot be defined inside a method
@@ -441,19 +438,17 @@ public class ClassScope extends Scope {
 			} else {
 				int unexpectedModifiers = ~(AccPublic | AccAbstract | AccInterface | AccStrictfp | AccAnnotation);
 				if ((realModifiers & unexpectedModifiers) != 0) {
-					if ((realModifiers & AccAnnotation) != 0) {
+					if ((realModifiers & AccAnnotation) != 0)
 						problemReporter().illegalModifierForAnnotationType(sourceType);
-					} else {
+					else
 						problemReporter().illegalModifierForInterface(sourceType);
-					}
 				}
 			}
 			modifiers |= AccAbstract;
 		} else if ((realModifiers & AccEnum) != 0) {
 			// detect abnormal cases for enums
 			if (isMemberType) { // includes member types defined inside local types
-				int unexpectedModifiers =
-					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccStrictfp | AccEnum);
+				int unexpectedModifiers = ~(AccPublic | AccPrivate | AccProtected | AccStatic | AccStrictfp | AccEnum);
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForMemberEnum(sourceType);
 			} else if (sourceType.isLocalType()) {
@@ -465,15 +460,14 @@ public class ClassScope extends Scope {
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForEnum(sourceType);
 			}
-			if ((referenceContext.bits & ASTNode.HasAbstractMethods) != 0) {
+
+// what about inherited interface methods?
+			if ((referenceContext.bits & ASTNode.HasAbstractMethods) != 0)
 				modifiers |= AccAbstract;
-			}
-			
 		} else {
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types
-				int unexpectedModifiers =
-					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccFinal | AccStrictfp);
+				int unexpectedModifiers = ~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccFinal | AccStrictfp);
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForMemberClass(sourceType);
 			} else if (sourceType.isLocalType()) {
@@ -508,16 +502,15 @@ public class ClassScope extends Scope {
 				if ((accessorBits & (accessorBits - 1)) > 1) {
 					problemReporter().illegalVisibilityModifierCombinationForMemberType(sourceType);
 
-					// need to keep the less restrictive
+					// need to keep the less restrictive so disable Protected/Private as necessary
 					if ((accessorBits & AccPublic) != 0) {
 						if ((accessorBits & AccProtected) != 0)
 							modifiers &= ~AccProtected;
 						if ((accessorBits & AccPrivate) != 0)
 							modifiers &= ~AccPrivate;
+					} else if ((accessorBits & AccProtected) != 0 && (accessorBits & AccPrivate) != 0) {
+						modifiers &= ~AccPrivate;
 					}
-					if ((accessorBits & AccProtected) != 0)
-						if ((accessorBits & AccPrivate) != 0)
-							modifiers &= ~AccPrivate;
 				}
 			}
 
@@ -525,10 +518,9 @@ public class ClassScope extends Scope {
 			if ((realModifiers & AccStatic) == 0) {
 				if (enclosingType.isInterface())
 					modifiers |= AccStatic;
-			} else {
-				if (!enclosingType.isStatic())
-					// error the enclosing type of a static field must be static or a top-level type
-					problemReporter().illegalStaticModifierForMemberType(sourceType);
+			} else if (!enclosingType.isStatic()) {
+				// error the enclosing type of a static field must be static or a top-level type
+				problemReporter().illegalStaticModifierForMemberType(sourceType);
 			}
 		}
 
@@ -544,28 +536,28 @@ public class ClassScope extends Scope {
 	*/
 	private void checkAndSetModifiersForField(FieldBinding fieldBinding, FieldDeclaration fieldDecl) {
 		int modifiers = fieldBinding.modifiers;
+		final ReferenceBinding declaringClass = fieldBinding.declaringClass;
 		if ((modifiers & AccAlternateModifierProblem) != 0)
-			problemReporter().duplicateModifierForField(fieldBinding.declaringClass, fieldDecl);
+			problemReporter().duplicateModifierForField(declaringClass, fieldDecl);
 
-		if ((fieldBinding.declaringClass.modifiers  & AccInterface) != 0) {
+		if ((declaringClass.modifiers  & AccInterface) != 0) {
 			int expectedValue = AccPublic | AccStatic | AccFinal;
 			// set the modifiers
 			modifiers |= expectedValue;
 
 			// and then check that they are the only ones
 			if ((modifiers & AccJustFlag) != expectedValue) {
-				if ((fieldBinding.declaringClass.modifiers  & AccAnnotation) != 0) {
+				if ((declaringClass.modifiers  & AccAnnotation) != 0)
 					problemReporter().illegalModifierForAnnotationField(fieldDecl);
-				} else {
+				else
 					problemReporter().illegalModifierForInterfaceField(fieldDecl);
-				}
 			}
 			fieldBinding.modifiers = modifiers;
 			return;
 		} else if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 			// check that they are not modifiers in source
 			if ((modifiers & AccJustFlag) != 0)
-				problemReporter().illegalModifierForEnumConstant(fieldBinding.declaringClass, fieldDecl);
+				problemReporter().illegalModifierForEnumConstant(declaringClass, fieldDecl);
 		
 			// set the modifiers
 			int implicitValue = AccPublic | AccStatic | AccFinal | AccEnum;
@@ -575,37 +567,30 @@ public class ClassScope extends Scope {
 
 		// after this point, tests on the 16 bits reserved.
 		int realModifiers = modifiers & AccJustFlag;
-		int unexpectedModifiers =
-			~(AccPublic | AccPrivate | AccProtected | AccFinal | AccStatic | AccTransient | AccVolatile);
+		int unexpectedModifiers = ~(AccPublic | AccPrivate | AccProtected | AccFinal | AccStatic | AccTransient | AccVolatile);
 		if ((realModifiers & unexpectedModifiers) != 0)
-			problemReporter().illegalModifierForField(fieldBinding.declaringClass, fieldDecl);
+			problemReporter().illegalModifierForField(declaringClass, fieldDecl);
 
 		int accessorBits = realModifiers & (AccPublic | AccProtected | AccPrivate);
 		if ((accessorBits & (accessorBits - 1)) > 1) {
-			problemReporter().illegalVisibilityModifierCombinationForField(
-				fieldBinding.declaringClass,
-				fieldDecl);
+			problemReporter().illegalVisibilityModifierCombinationForField(declaringClass, fieldDecl);
 
-			// need to keep the less restrictive
+			// need to keep the less restrictive so disable Protected/Private as necessary
 			if ((accessorBits & AccPublic) != 0) {
 				if ((accessorBits & AccProtected) != 0)
 					modifiers &= ~AccProtected;
 				if ((accessorBits & AccPrivate) != 0)
 					modifiers &= ~AccPrivate;
+			} else if ((accessorBits & AccProtected) != 0 && (accessorBits & AccPrivate) != 0) {
+				modifiers &= ~AccPrivate;
 			}
-			if ((accessorBits & AccProtected) != 0)
-				if ((accessorBits & AccPrivate) != 0)
-					modifiers &= ~AccPrivate;
 		}
 
 		if ((realModifiers & (AccFinal | AccVolatile)) == (AccFinal | AccVolatile))
-			problemReporter().illegalModifierCombinationFinalVolatileForField(
-				fieldBinding.declaringClass,
-				fieldDecl);
+			problemReporter().illegalModifierCombinationFinalVolatileForField(declaringClass, fieldDecl);
 
-		if (fieldDecl.initialization == null && (modifiers & AccFinal) != 0) {
+		if (fieldDecl.initialization == null && (modifiers & AccFinal) != 0)
 			modifiers |= AccBlankFinal;
-		}
 		fieldBinding.modifiers = modifiers;
 	}
 

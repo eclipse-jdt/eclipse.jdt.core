@@ -12,9 +12,9 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 class MethodVerifier15 extends MethodVerifier {
@@ -93,24 +93,48 @@ boolean canSkipInheritedMethods(MethodBinding one, MethodBinding two) {
 	return two == null // already know one is not null
 		|| (one.declaringClass == two.declaringClass && !one.declaringClass.isParameterizedType());
 }
+void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
+	super.checkConcreteInheritedMethod(concreteMethod, abstractMethods);
+
+	for (int i = 0, l = abstractMethods.length; i < l; i++) {
+		MethodBinding abstractMethod = abstractMethods[i];
+		if (concreteMethod.isVarargs() != abstractMethod.isVarargs())
+			problemReporter().varargsConflict(concreteMethod, abstractMethod, this.type);
+
+		// so the parameters are equal and the return type is compatible b/w the currentMethod & the substituted inheritedMethod
+		MethodBinding originalInherited = abstractMethod.original();
+		if (originalInherited.returnType != concreteMethod.returnType) {
+			if (abstractMethod.returnType.leafComponentType().isParameterizedType()) {
+				if (concreteMethod.returnType.leafComponentType().isRawType())
+					problemReporter().unsafeReturnTypeOverride(concreteMethod, originalInherited, this.type);
+			} else if (abstractMethod.hasSubstitutedReturnType() && originalInherited.returnType.leafComponentType().isTypeVariable()) {
+				if (((TypeVariableBinding) originalInherited.returnType.leafComponentType()).declaringElement == originalInherited) { // see 81618 - type variable from inherited method
+					TypeBinding currentReturnType = concreteMethod.returnType.leafComponentType();
+					if (!currentReturnType.isTypeVariable() || ((TypeVariableBinding) currentReturnType).declaringElement != concreteMethod)
+						problemReporter().unsafeReturnTypeOverride(concreteMethod, originalInherited, this.type);
+				}
+			}
+		}
+
+		this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod);
+	}
+}
 void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMethod, MethodBinding[] otherInheritedMethods) {
 	if (currentMethod.isVarargs() != inheritedMethod.isVarargs())
-		problemReporter(currentMethod).varargsConflict(currentMethod, inheritedMethod);
-
-	MethodBinding originalInherited = inheritedMethod.original();
+		problemReporter(currentMethod).varargsConflict(currentMethod, inheritedMethod, this.type);
 
 	// so the parameters are equal and the return type is compatible b/w the currentMethod & the substituted inheritedMethod
+	MethodBinding originalInherited = inheritedMethod.original();
 	if (originalInherited.returnType != currentMethod.returnType) {
 		if (inheritedMethod.returnType.leafComponentType().isParameterizedType()) {
 			if (currentMethod.returnType.leafComponentType().isRawType())
-				problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, ((MethodDeclaration) currentMethod.sourceMethod()).returnType);
-//		} else if (inheritedMethod.hasSubstitutedReturnType() && originalInherited.returnType.leafComponentType().isTypeVariable()) {
-		} else if (originalInherited.returnType.leafComponentType().isTypeVariable()) { // 
-				if (((TypeVariableBinding) originalInherited.returnType.leafComponentType()).declaringElement == originalInherited) { // see 81618 - type variable from inherited method
-					TypeBinding currentReturnType = currentMethod.returnType.leafComponentType();
-					if (!currentReturnType.isTypeVariable() || ((TypeVariableBinding) currentReturnType).declaringElement != currentMethod)
-						problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, ((MethodDeclaration) currentMethod.sourceMethod()).returnType);
-				}
+				problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, this.type);
+		} else if (inheritedMethod.hasSubstitutedReturnType() && originalInherited.returnType.leafComponentType().isTypeVariable()) {
+			if (((TypeVariableBinding) originalInherited.returnType.leafComponentType()).declaringElement == originalInherited) { // see 81618 - type variable from inherited method
+				TypeBinding currentReturnType = currentMethod.returnType.leafComponentType();
+				if (!currentReturnType.isTypeVariable() || ((TypeVariableBinding) currentReturnType).declaringElement != currentMethod)
+					problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, this.type);
+			}
 		}
 	}
 
@@ -371,19 +395,28 @@ boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBindin
 	return inheritedMethod.returnType == existingMethod.returnType
 		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
 }
-boolean mustImplementAbstractMethods() {
-	if (!super.mustImplementAbstractMethods()) return false;
-	if (!this.type.isEnum() || this.type.isAnonymousType()) return true;
+boolean mustImplementAbstractMethod(ReferenceBinding declaringClass) {
+	if (!super.mustImplementAbstractMethod(declaringClass)) return false;
 
-	// enum type only needs to implement abstract methods if any of its constants does not supply a body
+	if (!this.type.isEnum() || this.type.isAnonymousType()) return true; // want to test the actual enum type only
+	if (this.type.isAbstract()) return false; // is an enum that has since been tagged as abstract by the code below
+
+	// enum type needs to implement abstract methods if one of its constants does not supply a body
 	TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
-	for (int i = 0, length = typeDeclaration.fields == null ? 0 : typeDeclaration.fields.length; i < length; i++) {
-		FieldDeclaration fieldDecl = typeDeclaration.fields[i];
+	FieldDeclaration[] fields = typeDeclaration.fields;
+	int length = typeDeclaration.fields == null ? 0 : typeDeclaration.fields.length;
+	if (length == 0) return true; // has no constants so must implement the method itself
+	for (int i = 0; i < length; i++) {
+		FieldDeclaration fieldDecl = fields[i];
 		if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT)
 			if (!(fieldDecl.initialization instanceof QualifiedAllocationExpression))
-				return true; // leave mustImplementAbstractMethods flag on 
+				return true;
 	}
-	return false; // since all enum constants define an anonymous body
+
+	// tag this enum as abstract since an abstract method must be implemented AND all enum constants define an anonymous body
+	// as a result, each of its anonymous constants will see it as abstract and must implement each inherited abstract method
+	this.type.modifiers |= IConstants.AccAbstract;
+	return false;
 }
 void verify(SourceTypeBinding someType) {
 	super.verify(someType);

@@ -5147,8 +5147,14 @@ public void unsafeRawInvocation(ASTNode location, MethodBinding rawMethod) {
 			location.sourceEnd);    
     }
 }
-public void unsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding inheritedMethod, ASTNode location) {
-	
+public void unsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding inheritedMethod, SourceTypeBinding type) {
+	int start = type.sourceStart();
+	int end = type.sourceEnd();
+	if (currentMethod.declaringClass == type) {
+		ASTNode location = ((MethodDeclaration) currentMethod.sourceMethod()).returnType;
+		start = location.sourceStart();
+		end = location.sourceEnd();
+	}
 	this.handle(
 			IProblem.UnsafeReturnTypeOverride,
 			new String[] {
@@ -5157,6 +5163,7 @@ public void unsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding 
 				typesAsString(currentMethod.original().isVarargs(), currentMethod.original().parameters, false),
 				new String(currentMethod.declaringClass.readableName()),
 				new String(inheritedMethod.returnType.readableName()),
+				new String(inheritedMethod.declaringClass.readableName()),
 				//new String(inheritedMethod.returnType.erasure().readableName()),
 			 }, 
 			new String[] {
@@ -5165,10 +5172,11 @@ public void unsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding 
 				typesAsString(currentMethod.original().isVarargs(), currentMethod.original().parameters, true),
 				new String(currentMethod.declaringClass.shortReadableName()),
 				new String(inheritedMethod.returnType.shortReadableName()),
+				new String(inheritedMethod.declaringClass.shortReadableName()),
 				//new String(inheritedMethod.returnType.erasure().shortReadableName()),
 			 }, 
-			location.sourceStart,
-			location.sourceEnd);
+			start,
+			end);
 }
 public void unusedArgument(LocalDeclaration localDecl) {
 
@@ -5389,23 +5397,25 @@ public void varargsArgumentNeedCast(MethodBinding method, TypeBinding argumentTy
 			location.sourceEnd());
 	}
 }
-public void varargsConflict(MethodBinding method, MethodBinding inheritedMethod) {
+public void varargsConflict(MethodBinding method1, MethodBinding method2, SourceTypeBinding type) {
 	this.handle(
 		IProblem.VarargsConflict,
 		new String[] { 
-		        new String(method.selector),
-		        typesAsString(method.isVarargs(), method.parameters, false),
-		        new String(inheritedMethod.declaringClass.readableName()),
-		        typesAsString(inheritedMethod.isVarargs(), inheritedMethod.parameters, false)
+		        new String(method1.selector),
+		        typesAsString(method1.isVarargs(), method1.parameters, false),
+		        new String(method1.declaringClass.readableName()),
+		        typesAsString(method2.isVarargs(), method2.parameters, false),
+		        new String(method2.declaringClass.readableName())
 		},
 		new String[] { 
-		        new String(method.selector),
-		        typesAsString(method.isVarargs(), method.parameters, true),
-		        new String(inheritedMethod.declaringClass.shortReadableName()),
-		        typesAsString(inheritedMethod.isVarargs(), inheritedMethod.parameters, true)
+		        new String(method1.selector),
+		        typesAsString(method1.isVarargs(), method1.parameters, true),
+		        new String(method1.declaringClass.shortReadableName()),
+		        typesAsString(method2.isVarargs(), method2.parameters, true),
+		        new String(method2.declaringClass.shortReadableName())
 		},
-		method.sourceStart(),
-		method.sourceEnd());
+		method1.declaringClass == type ? method1.sourceStart() : type.sourceStart(),
+		method1.declaringClass == type ? method1.sourceEnd() : type.sourceEnd());
 }
 public void variableTypeCannotBeVoid(AbstractVariableDeclaration varDecl) {
 	String[] arguments = new String[] {new String(varDecl.name)};

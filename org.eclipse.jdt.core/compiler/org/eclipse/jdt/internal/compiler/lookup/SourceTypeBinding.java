@@ -418,10 +418,11 @@ public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boo
 /* 
  * Record the fact that bridge methods need to be generated to override certain inherited methods
  */
-public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge, MethodBinding localTargetMethod) {
-	if (!isClass()) return null; // only classes get bridge methods
-	if (inheritedMethodToBridge.returnType.erasure() == localTargetMethod.returnType.erasure()
-		&& inheritedMethodToBridge.areParameterErasuresEqual(localTargetMethod)) {
+public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge, MethodBinding targetMethod) {
+	if (isInterface()) return null; // only classes & enums get bridge methods
+	// targetMethod may be inherited
+	if (inheritedMethodToBridge.returnType.erasure() == targetMethod.returnType.erasure()
+		&& inheritedMethodToBridge.areParameterErasuresEqual(targetMethod)) {
 			return null; // do not need bridge method
 	}
 	if (synthetics == null) {
@@ -448,12 +449,12 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 	SyntheticMethodBinding accessMethod = null;
 	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) synthetics[METHOD_EMUL].get(inheritedMethodToBridge);
 	if (accessors == null) {
-		accessMethod = new SyntheticMethodBinding(inheritedMethodToBridge, localTargetMethod);
+		accessMethod = new SyntheticMethodBinding(inheritedMethodToBridge, targetMethod, this);
 		synthetics[METHOD_EMUL].put(inheritedMethodToBridge, accessors = new SyntheticMethodBinding[2]);
 		accessors[1] = accessMethod;		
 	} else {
 		if ((accessMethod = accessors[1]) == null) {
-			accessMethod = new SyntheticMethodBinding(inheritedMethodToBridge, localTargetMethod);
+			accessMethod = new SyntheticMethodBinding(inheritedMethodToBridge, targetMethod, this);
 			accessors[1] = accessMethod;
 		}
 	}

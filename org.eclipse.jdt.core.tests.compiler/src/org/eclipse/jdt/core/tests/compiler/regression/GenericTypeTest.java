@@ -3956,7 +3956,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	public Object[] toArray(Object[] a) {\n" + 
 			"	       ^^^^^^^^\n" + 
-			"Type safety: The return type Object[] of the method toArray(Object[]) of type X needs unchecked conversion to conform to the return type T[] of inherited method\n" + 
+			"Type safety: The return type Object[] for toArray(Object[]) from the type X needs unchecked conversion to conform to T[] from the type Collection<E>\n" + 
 			"----------\n");
 	}			
 	public void test150() {
@@ -7190,7 +7190,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	public List useList(List l) {\n" + 
 			"	       ^^^^\n" + 
-			"Type safety: The return type List of the method useList(List) of type Y needs unchecked conversion to conform to the return type List<String> of inherited method\n" + 
+			"Type safety: The return type List for useList(List) from the type Y needs unchecked conversion to conform to List<String> from the type X\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 10)\n" + 
 			"	l.add(\"asdf\");\n" + 
@@ -7276,7 +7276,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	public Class getSomething() { return null; }\n" + 
 			"	       ^^^^^\n" + 
-			"Type safety: The return type Class of the method getSomething() of type X needs unchecked conversion to conform to the return type Class<? extends Y> of inherited method\n" + 
+			"Type safety: The return type Class for getSomething() from the type X needs unchecked conversion to conform to Class<? extends Y> from the type ISomething\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=62822

@@ -340,7 +340,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	 * NOTE: generic method invocation delegates to its declaring method (could be a parameterized one)
 	 */
 	public boolean hasSubstitutedReturnType() {
-		if (this.wasInferred) 
+		if (this.inferredReturnType) 
 			return this.originalMethod.hasSubstitutedReturnType();
 		return super.hasSubstitutedReturnType();
 	}

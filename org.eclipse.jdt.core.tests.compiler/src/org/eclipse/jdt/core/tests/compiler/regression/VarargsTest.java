@@ -680,12 +680,12 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	class Y extends X { void count(int[] values) {} }\n" + 
 			"	                         ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs methods should only override other varargs methods unlike count(int[]) and count(int...) from type X\n" + 
+			"Varargs methods should only override other varargs methods unlike Y.count(int[]) and X.count(int...)\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 3)\n" + 
 			"	class Z extends Y { void count(int... values) {} }\n" + 
 			"	                         ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Varargs methods should only override other varargs methods unlike count(int...) and count(int[]) from type Y\n" + 
+			"Varargs methods should only override other varargs methods unlike Z.count(int...) and Y.count(int[])\n" + 
 			"----------\n");
 	}
 

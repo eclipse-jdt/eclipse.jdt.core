@@ -1226,7 +1226,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. WARNING in A.java (at line 3)\n" + 
 			"	class B extends A { List getList() { return null; } }\n" + 
 			"	                    ^^^^\n" + 
-			"Type safety: The return type List of the method getList() of type B needs unchecked conversion to conform to the return type List<String> of inherited method\n" + 
+			"Type safety: The return type List for getList() from the type B needs unchecked conversion to conform to List<String> from the type A\n" + 
 			"----------\n"
 			// unchecked warning on B.getList()
 		);
@@ -1327,7 +1327,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 10)\n" + 
 			"	Integer test() { return 1; }\n" + 
 			"	^^^^^^^\n" + 
-			"Type safety: The return type Integer of the method test() of type B needs unchecked conversion to conform to the return type T of inherited method\n" + 
+			"Type safety: The return type Integer for test() from the type B needs unchecked conversion to conform to T from the type A\n" + 
 			"----------\n"
 			// warning: test() in B overrides <T>test() in A; return type requires unchecked conversion
 		);
@@ -1350,7 +1350,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 10)\n" + 
 			"	Integer[] test() { return new Integer[] {2}; }\n" + 
 			"	^^^^^^^^^\n" + 
-			"Type safety: The return type Integer[] of the method test() of type B needs unchecked conversion to conform to the return type T[] of inherited method\n" + 
+			"Type safety: The return type Integer[] for test() from the type B needs unchecked conversion to conform to T[] from the type A\n" + 
 			"----------\n"
 			// warning: test() in B overrides <T>test() in A; return type requires unchecked conversion
 		);
@@ -1492,7 +1492,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 10)\n" + 
 			"	A test() { return super.test(); }\n" + 
 			"	^\n" + 
-			"Type safety: The return type A of the method test() of type C needs unchecked conversion to conform to the return type A<T> of inherited method\n" + 
+			"Type safety: The return type A for test() from the type C needs unchecked conversion to conform to A<T> from the type A<T>\n" + 
 			"----------\n"
 			// warning: test() in C overrides test() in A; return type requires unchecked conversion
 		);
@@ -2177,7 +2177,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. WARNING in A.java (at line 2)\n" + 
 			"	class B extends A { Integer test() { return 1; } }\n" + 
 			"	                    ^^^^^^^\n" + 
-			"Type safety: The return type Integer of the method test() of type B needs unchecked conversion to conform to the return type T of inherited method\n" + 
+			"Type safety: The return type Integer for test() from the type B needs unchecked conversion to conform to T from the type A\n" + 
 			"----------\n"
 			// warning: test() in B overrides <T>test() in A; return type requires unchecked conversion
 		);
@@ -2192,7 +2192,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. WARNING in A.java (at line 3)\n" + 
 			"	class B extends A { List getList() { return null; } }\n" + 
 			"	                    ^^^^\n" + 
-			"Type safety: The return type List of the method getList() of type B needs unchecked conversion to conform to the return type List<String> of inherited method\n" + 
+			"Type safety: The return type List for getList() from the type B needs unchecked conversion to conform to List<String> from the type A\n" + 
 			"----------\n"
 			// unchecked warning on B.getList()
 		);
@@ -2208,7 +2208,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	abstract class Y<S> implements X<S> { public abstract X x(); }\n" + 
 			"	                                                      ^\n" + 
-			"Type safety: The return type X of the method x() of type Y<S> needs unchecked conversion to conform to the return type X<T> of inherited method\n" + 
+			"Type safety: The return type X for x() from the type Y<S> needs unchecked conversion to conform to X<T> from the type X<T>\n" + 
 			"----------\n"
 		);
 		this.runNegativeTest(
@@ -2222,8 +2222,93 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	abstract class Y<S> implements X<S> { public abstract X[] x(); }\n" + 
 			"	                                                      ^^^\n" + 
-			"Type safety: The return type X[] of the method x() of type Y<S> needs unchecked conversion to conform to the return type X<T>[] of inherited method\n" + 
+			"Type safety: The return type X[] for x() from the type Y<S> needs unchecked conversion to conform to X<T>[] from the type X<T>\n" + 
 			"----------\n"
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
+	public void test041() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { public void foo(String... n) {} }\n" +
+				"interface I { void foo(String[] n); }\n" +
+				"class Y extends X implements I { }\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	class Y extends X implements I { }\n" + 
+			"	      ^\n" + 
+			"Varargs methods should only override other varargs methods unlike X.foo(String...) and I.foo(String[])\n" + 
+			"----------\n"
+			// warning: foo(java.lang.String...) in X cannot implement foo(java.lang.String[]) in I; overridden method has no '...'
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { public void foo(String[] n) {} }\n" +
+				"interface I { void foo(String... n); }\n" +
+				"class Y extends X implements I { }\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	class Y extends X implements I { }\n" + 
+			"	      ^\n" + 
+			"Varargs methods should only override other varargs methods unlike X.foo(String[]) and I.foo(String...)\n" + 
+			"----------\n"
+			// warning: foo(java.lang.String[]) in X cannot implement foo(java.lang.String...) in I; overriding method is missing '...'
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public Y foo() {\n" +
+				"		System.out.println(\"SUCCESS\");\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		((I) new Y()).foo();\n" +
+				"	}\n" +
+				"}\n" +
+				"interface I { X foo(); }\n" +
+				"class Y extends X implements I { }\n"
+			},
+			"SUCCESS"
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { public A foo() { return null; } }\n" +
+				"interface I { A<String> foo(); }\n" +
+				"class Y extends X implements I { }\n" +
+				"class A<T> { }\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	class Y extends X implements I { }\n" + 
+			"	      ^\n" + 
+			"Type safety: The return type A for foo() from the type X needs unchecked conversion to conform to A<String> from the type I\n" + 
+			"----------\n"
+			// warning: foo() in X implements foo() in I; return type requires unchecked conversion
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { public Object foo() { return null; } }\n" +
+				"interface I { <T> T foo(); }\n" +
+				"class Y extends X implements I { }\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	class Y extends X implements I { }\n" + 
+			"	      ^\n" + 
+			"Type safety: The return type Object for foo() from the type X needs unchecked conversion to conform to T from the type I\n" + 
+			"----------\n"
+			// NOTE: javac issues an error & a warning which contradict each other
+			// if the method Object foo() is implemented in Y then only the warning is issued, so X should be allowed to implement the method
+			// Y is not abstract and does not override abstract method <T>foo() in I
+			// warning: foo() in X implements <T>foo() in I; return type requires unchecked conversion
 		);
 	}
 }

@@ -139,18 +139,18 @@ public class SyntheticMethodBinding extends MethodBinding {
 	/**
 	 * Construct a bridge method
 	 */
-	public SyntheticMethodBinding(MethodBinding overridenMethodToBridge, MethodBinding localTargetMethod) {
+	public SyntheticMethodBinding(MethodBinding overridenMethodToBridge, MethodBinding targetMethod, SourceTypeBinding declaringClass) {
 		
-	    this.declaringClass = localTargetMethod.declaringClass;
+	    this.declaringClass = declaringClass;
 	    this.selector = overridenMethodToBridge.selector;
 	    this.modifiers = overridenMethodToBridge.modifiers | AccBridge | AccSynthetic;
 	    this.modifiers &= ~(AccAbstract | AccNative);
 	    this.returnType = overridenMethodToBridge.returnType;
 	    this.parameters = overridenMethodToBridge.parameters;
 	    this.thrownExceptions = overridenMethodToBridge.thrownExceptions;
-	    this.targetMethod = localTargetMethod;
+	    this.targetMethod = targetMethod;
 	    this.kind = BridgeMethod;
-		SyntheticMethodBinding[] knownAccessMethods = ((SourceTypeBinding)this.declaringClass).syntheticMethods();
+		SyntheticMethodBinding[] knownAccessMethods = declaringClass.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
 		this.index = methodId;	    
 	}

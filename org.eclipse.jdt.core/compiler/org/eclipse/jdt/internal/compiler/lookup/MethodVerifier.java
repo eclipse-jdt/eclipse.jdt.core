@@ -152,6 +152,18 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 		}
 	}
 }
+void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
+	// Remember that interfaces can only define public instance methods
+	if (concreteMethod.isStatic())
+		// Cannot inherit a static method which is specified as an instance method by an interface
+		problemReporter().staticInheritedMethodConflicts(type, concreteMethod, abstractMethods);	
+	if (!concreteMethod.isPublic())
+		// Cannot reduce visibility of a public method specified by an interface
+		problemReporter().inheritedMethodReducesVisibility(type, concreteMethod, abstractMethods);
+	if (concreteMethod.thrownExceptions != NoExceptions)
+		for (int i = abstractMethods.length; --i >= 0;)
+			checkExceptions(concreteMethod, abstractMethods[i]);
+}
 /*
 "8.4.4"
 Verify that newExceptions are all included in inheritedExceptions.
@@ -220,17 +232,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 	for (int i = length; --i >= 0;)
 		if (methods[i] != concreteMethod)
 			abstractMethods[index++] = methods[i];
-
-	// Remember that interfaces can only define public instance methods
-	if (concreteMethod.isStatic())
-		// Cannot inherit a static method which is specified as an instance method by an interface
-		problemReporter().staticInheritedMethodConflicts(type, concreteMethod, abstractMethods);	
-	if (!concreteMethod.isPublic())
-		// Cannot reduce visibility of a public method specified by an interface
-		problemReporter().inheritedMethodReducesVisibility(type, concreteMethod, abstractMethods);
-	if (concreteMethod.thrownExceptions != NoExceptions)
-		for (int i = abstractMethods.length; --i >= 0;)
-			checkExceptions(concreteMethod, abstractMethods[i]);
+	checkConcreteInheritedMethod(concreteMethod, abstractMethods);
 }
 /*
 For each inherited method identifier (message pattern - vm signature minus the return type)

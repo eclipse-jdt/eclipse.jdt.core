@@ -1100,8 +1100,16 @@ public abstract class Scope
 			if (interfaceMethod != null) return interfaceMethod;
 			return new ProblemMethodBinding(candidates[0], candidates[0].selector, candidates[0].parameters, NotVisible);
 		}
-		if (isCompliant14)
-			return mostSpecificMethodBinding(candidates, visiblesCount, argumentTypes, invocationSite);
+		if (isCompliant14) {
+			matchingMethod = mostSpecificMethodBinding(candidates, visiblesCount, argumentTypes, invocationSite);
+			if (parameterCompatibilityLevel(matchingMethod, argumentTypes) > COMPATIBLE) {
+				// see if there is a better match in the interfaces
+				MethodBinding interfaceMethod =
+					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, new ObjectVector());
+				if (interfaceMethod != null) return interfaceMethod;
+			}
+			return matchingMethod;
+		}
 		return candidates[0].declaringClass.isClass()
 			? mostSpecificClassMethodBinding(candidates, visiblesCount, invocationSite)
 			: mostSpecificInterfaceMethodBinding(candidates, visiblesCount, invocationSite);
