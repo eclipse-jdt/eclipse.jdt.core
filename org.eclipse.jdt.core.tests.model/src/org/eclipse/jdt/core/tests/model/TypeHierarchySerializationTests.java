@@ -154,6 +154,9 @@ private static void testFocusHierarchy(IType type, IJavaProject project) throws 
 	ITypeHierarchy h2 = type.loadTypeHierachy(inputStream, null);
 	
 	compare(type.getFullyQualifiedName(), h1, h2);
+	
+	h2.refresh(null);
+	compare(type.getFullyQualifiedName(), h1, h2);
 }
 public void test001() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit(PROJECTNAME, "src", "p1", "X.java");
