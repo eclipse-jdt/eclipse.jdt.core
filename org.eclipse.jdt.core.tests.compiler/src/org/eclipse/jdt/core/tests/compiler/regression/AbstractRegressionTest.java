@@ -74,30 +74,27 @@ protected INameEnvironment[] getClassLibs() {
 	return classLibs;
 }
 protected Map getCompilerOptions() {
-	Hashtable options = new Hashtable();
-	options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
-	options.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.GENERATE);
-	options.put(CompilerOptions.OPTION_SourceFileAttribute, CompilerOptions.GENERATE);
-	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
-	options.put(CompilerOptions.OPTION_ReportUnreachableCode, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_ReportInvalidImport, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
-	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE);
-	options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.IGNORE);
-	options.put(CompilerOptions.OPTION_ReportAssertIdentifier, CompilerOptions.IGNORE);
-	options.put(CompilerOptions.OPTION_ReportStaticAccessReceiver, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
-	options.put(CompilerOptions.OPTION_Encoding, "");	
-	return options;
+		Map defaultOptions = Main.getDefaultOptions();
+		defaultOptions.put(
+			CompilerOptions.OPTION_LocalVariableAttribute,
+			CompilerOptions.GENERATE);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportUnusedPrivateMember, 
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportLocalVariableHiding,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportFieldHiding,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
+			CompilerOptions.WARNING);
+		defaultOptions.put(
+			CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
+			CompilerOptions.WARNING);
+
+		return defaultOptions;
 }
 protected String[] getDefaultClassPaths() {
 	return new String[] {JAVA_CLASS_LIB_PATH, OUTPUT_DIR}; 
