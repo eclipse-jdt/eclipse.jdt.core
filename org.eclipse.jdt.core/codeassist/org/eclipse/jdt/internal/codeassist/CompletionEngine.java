@@ -170,6 +170,8 @@ public final class CompletionEngine
 				DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 				this.compilerOptions,
 				new DefaultProblemFactory(Locale.getDefault()) {
+					int lastErrorStart;
+					
 					public IProblem createProblem(
 						char[] originatingFileName,
 						int problemId,
@@ -190,8 +192,13 @@ public final class CompletionEngine
 							endPosition,
 							lineNumber);
 						
-						if(CompletionEngine.this.problem == null && problem.isError() && (problem.getID() & IProblem.Syntax) == 0) {
+						if(actualCompletionPosition > startPosition
+							&& lastErrorStart < startPosition
+							&& problem.isError()
+							&& (problem.getID() & IProblem.Syntax) == 0) {
+								
 							CompletionEngine.this.problem = problem;
+							lastErrorStart = startPosition;
 						}
 						
 						return problem;
