@@ -22,8 +22,21 @@ import junit.framework.*;
 public class CompletionTests_1_5 extends AbstractJavaModelTests implements RelevanceConstants {
 	Hashtable oldOptions;
 	ICompilationUnit wc = null;
+	WorkingCopyOwner owner = null; 
 public CompletionTests_1_5(String name) {
 	super(name);
+}
+public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
+	return super.getWorkingCopy(path, source, this.owner, null);
+}
+private String complete(String path, String source, String completeBehind) throws JavaModelException {
+	this.wc = getWorkingCopy(path, source);
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	return requestor.getResults();
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
@@ -33,6 +46,11 @@ public void setUpSuite() throws Exception {
 	this.oldOptions = JavaCore.getOptions();
 	
 	waitUntilIndexesReady();
+}
+protected void setUp() throws Exception {
+	super.setUp();
+	
+	this.owner = new WorkingCopyOwner(){};
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("Completion");
@@ -1475,5 +1493,37 @@ public void test0083() throws JavaModelException {
 	assertResults(
 			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
+}
+public void test0084() throws JavaModelException {
+	ICompilationUnit imported = null;
+	try {
+		imported = getWorkingCopy(
+				"/Completion/src3/pkgstaticimport/MyClass0084.java",
+				"package pkgstaticimport;\n" +
+				"public class MyClass0084 {\n" +
+				"   public static int foo() {return 0;}\n" +
+				"   public static int foo(int i) {return 0;}\n" +
+				"}");
+		
+		String result = complete(
+				"/Completion/src3/test0084/Test.java",
+				"package test0084;\n" +
+				"import static pkgstaticimport.MyClass0084.foo;\n" +
+				"public class Test {\n" +
+				"  void bar() {\n" +
+				"    int i = foo\n" +
+				"  }\n" +
+				"}",
+				"foo");
+		
+		assertResults(
+				"foo[METHOD_REF]{foo(), Lpkgstaticimport.MyClass0084;, ()I, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"foo[METHOD_REF]{foo(), Lpkgstaticimport.MyClass0084;, (I)I, foo, (i), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result);
+	} finally {
+		if(imported != null) {
+			imported.discardWorkingCopy();
+		}
+	}
 }
 }

@@ -41,6 +41,7 @@ public class SearchableEnvironment
 	
 	public NameLookup nameLookup;
 	protected ICompilationUnit unitToSkip;
+	protected org.eclipse.jdt.core.ICompilationUnit[] workingCopies;
 
 	protected JavaProject project;
 	protected IJavaSearchScope searchScope;
@@ -53,6 +54,7 @@ public class SearchableEnvironment
 	public SearchableEnvironment(JavaProject project, org.eclipse.jdt.core.ICompilationUnit[] workingCopies) throws JavaModelException {
 		this.project = project;
 		this.checkAccessRestrictions = !JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true));
+		this.workingCopies = workingCopies;
 		this.nameLookup = project.newNameLookup(workingCopies);
 
 		// Create search scope with visible entry on the project's classpath
@@ -69,7 +71,9 @@ public class SearchableEnvironment
 	public SearchableEnvironment(JavaProject project, WorkingCopyOwner owner) throws JavaModelException {
 		this.project = project;
 		this.checkAccessRestrictions = !JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true));
-		this.nameLookup = project.newNameLookup(owner);
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		this.workingCopies = owner == null ? null : manager.getWorkingCopies(owner, true/*add primary WCs*/);
+		this.nameLookup = project.newNameLookup(this.workingCopies);
 
 		// Create search scope with visible entry on the project's classpath
 		if(this.checkAccessRestrictions) {
@@ -323,7 +327,7 @@ public class SearchableEnvironment
 				}
 			};
 			try {
-				new SearchBasicEngine().searchAllTypeNames(
+				new SearchBasicEngine(this.workingCopies).searchAllTypeNames(
 					qualification,
 					simpleName,
 					SearchPattern.R_PREFIX_MATCH, // not case sensitive

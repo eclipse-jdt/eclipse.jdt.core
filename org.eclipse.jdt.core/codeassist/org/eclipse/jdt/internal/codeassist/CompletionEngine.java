@@ -2819,6 +2819,93 @@ public final class CompletionEngine
 		methodsFound.addAll(newMethodsFound);
 	}
 	
+	// Helper method for findMethods(char[], TypeBinding[], ReferenceBinding, Scope, ObjectVector, boolean, boolean, boolean)
+	private void findLocalMethodsOfStaticImports(
+		char[] methodName,
+		MethodBinding[] methods,
+		Scope scope,
+		ReferenceBinding receiverType,
+		InvocationSite invocationSite) {
+
+		next : for (int f = methods.length; --f >= 0;) {
+			MethodBinding method = methods[f];
+
+			if (method.isSynthetic()) continue next;
+
+			if (method.isDefaultAbstract())	continue next;
+
+			if (method.isConstructor()) continue next;
+
+			if (!method.isStatic()) continue next;
+
+			if (this.options.checkVisibility
+				&& !method.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
+			
+			boolean hasRestrictedAccess = false;
+//			boolean hasRestrictedAccess = method.declaringClass.hasRestrictedAccess();
+//			if (this.options.checkRestrictions && hasRestrictedAccess) continue next;
+
+			if (!CharOperation.equals(methodName, method.selector, false /* ignore case */))
+				continue next;
+
+			int length = method.parameters.length;
+			char[][] parameterPackageNames = new char[length][];
+			char[][] parameterTypeNames = new char[length][];
+
+			for (int i = 0; i < length; i++) {
+				TypeBinding type = method.original().parameters[i];
+				parameterPackageNames[i] = type.qualifiedPackageName();
+				parameterTypeNames[i] = type.qualifiedSourceName();
+			}
+			char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
+
+			char[] completion = CharOperation.NO_CHAR;
+			
+			int previousStartPosition = this.startPosition;
+			
+			// nothing to insert - do not want to replace the existing selector & arguments
+			if (this.source != null
+				&& this.source.length > this.endPosition
+				&& this.source[this.endPosition] == '(') {
+				completion = method.selector;
+			} else {
+				completion = CharOperation.concat(method.selector, new char[] { '(', ')' });
+			}
+			
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal();
+			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
+			relevance += computeRelevanceForExpectingType(method.returnType);
+			relevance += computeRelevanceForStatic(true, method.isStatic());
+			relevance += computeRelevanceForQualification(false);
+			relevance += computeRelevanceForRestrictions(hasRestrictedAccess);
+			
+			this.noProposal = false;
+			if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
+				CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+				proposal.setDeclarationSignature(getSignature(method.declaringClass));
+				proposal.setSignature(getSignature(method));
+				proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
+				proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
+				proposal.setParameterPackageNames(parameterPackageNames);
+				proposal.setParameterTypeNames(parameterTypeNames);
+				proposal.setPackageName(method.returnType.qualifiedPackageName());
+				proposal.setTypeName(method.returnType.qualifiedSourceName());
+				proposal.setName(method.selector);
+				proposal.setCompletion(completion);
+				proposal.setFlags(method.modifiers);
+				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setRelevance(relevance);
+				if(parameterNames != null) proposal.setParameterNames(parameterNames);
+				this.requestor.accept(proposal);
+				if(DEBUG) {
+					this.printDebug(proposal);
+				}
+			}
+			this.startPosition = previousStartPosition;
+		}
+	}
+	
 	int computeRelevanceForCaseMatching(char[] token, char[] proposalName){
 		if (CharOperation.prefixEquals(token, proposalName, true /* do not ignore case */)) {
 			if(CharOperation.equals(token, proposalName, true /* do not ignore case */)) {
@@ -4016,6 +4103,16 @@ public final class CompletionEngine
 										invocationScope,
 										true,
 										false);
+						} else if ((binding.kind() & Binding.METHOD) != 0) {
+								MethodBinding methodBinding = (MethodBinding)binding;
+								if(CharOperation.prefixEquals(token, methodBinding.selector))
+									
+								findLocalMethodsOfStaticImports(
+										methodBinding.selector,
+										methodBinding.declaringClass.methods(),
+										scope,
+										methodBinding.declaringClass,
+										invocationSite);
 						}
 					}
 				}
