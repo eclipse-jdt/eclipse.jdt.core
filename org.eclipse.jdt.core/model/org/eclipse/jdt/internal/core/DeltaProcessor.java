@@ -841,7 +841,7 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 						IPackageFragment pkg = null;
 						if (element instanceof IPackageFragmentRoot) {
 							IPackageFragmentRoot root = (IPackageFragmentRoot)element;
-							pkg = root.getPackageFragment("");
+							pkg = root.getPackageFragment(""); //$NON-NLS-1$
 						} else {
 							pkg = (IPackageFragment)element;
 						}

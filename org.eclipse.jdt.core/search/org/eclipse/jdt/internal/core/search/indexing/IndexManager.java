@@ -79,7 +79,7 @@ public void add(IFile resource, IResource indexedContainer){
  */
 public void checkIndexConsistency() {
 
-	if (VERBOSE) System.out.println("STARTING ("+ Thread.currentThread()+") - ensuring consistency"); //$NON-NLS-1$
+	if (VERBOSE) System.out.println("STARTING ("+ Thread.currentThread()+") - ensuring consistency"); //$NON-NLS-1$//$NON-NLS-2$
 
 	boolean wasEnabled = isEnabled();	
 	try {
@@ -96,7 +96,7 @@ public void checkIndexConsistency() {
 		}
 	} finally {
 		if (wasEnabled) enable();
-		if (VERBOSE) System.out.println("DONE ("+ Thread.currentThread()+") - ensuring consistency"); //$NON-NLS-1$
+		if (VERBOSE) System.out.println("DONE ("+ Thread.currentThread()+") - ensuring consistency"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 }
 private String computeIndexName(String pathString) {
