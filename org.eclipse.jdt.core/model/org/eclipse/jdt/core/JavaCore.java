@@ -1503,8 +1503,8 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 
 	 * COMPILER / Reporting Boolean Method Declaring Thrown Exceptions
 	 *    When enabled, the compiler will issue an error or a warning when a boolean method declaration 
-	 *    is specifying a clause for thrown exceptions. Usually, predicates should only return a boolean value 
-	 *    and not raise exceptions.
+	 *    is specifying a clause for thrown exceptions. Some of them are predicates, and these should only 
+	 *    return a boolean value  and not raise exceptions.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.booleanMethodThrowingException"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
