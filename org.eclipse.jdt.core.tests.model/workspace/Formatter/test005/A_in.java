@@ -5,4 +5,4 @@ import java.io.Serializable;
 import java.io.IOException;		
 				
 public abstract class A implements /*                                                                                  */ Runnable  {		
-}	/*            last comment: end of class A */      
+}	/*            last comment: end of class A */

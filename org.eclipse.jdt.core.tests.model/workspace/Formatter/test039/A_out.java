@@ -4,6 +4,6 @@ class F {
 	}
 	public void foo() {
 	}
-	public void bar2() { //todo
+	public void bar2() {//todo
 	}
 }

@@ -3175,7 +3175,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test319", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	public void _test320() {
+	public void test320() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
 		preferences.use_tab = true;
 		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
@@ -3186,4 +3186,36 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test320", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
+	public void test321() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
+		preferences.use_tab = true;
+		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
+		preferences.insert_new_line_in_empty_type_declaration = false;
+		preferences.insert_new_line_in_empty_method_body = false;
+		preferences.insert_new_line_in_empty_block = false;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test321", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test322() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
+		preferences.use_tab = true;
+		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
+		preferences.insert_new_line_in_empty_type_declaration = false;
+		preferences.insert_new_line_in_empty_method_body = false;
+		preferences.insert_new_line_in_empty_block = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test322", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test323() {
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions();
+		preferences.use_tab = true;
+		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
+		preferences.insert_new_line_in_empty_type_declaration = false;
+		preferences.insert_new_line_in_empty_method_body = false;
+		preferences.insert_new_line_in_empty_block = false;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test323", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
 }

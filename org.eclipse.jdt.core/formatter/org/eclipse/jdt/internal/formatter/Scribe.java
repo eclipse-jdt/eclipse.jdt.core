@@ -549,7 +549,7 @@ public class Scribe {
 						if (count >= 1) {
 							if (count > 1) {
 								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
-							} else if (count == 1 || hasLineComment || hasComment || this.formatter.preferences.preserve_user_linebreaks) {
+							} else if (count == 1 || this.formatter.preferences.preserve_user_linebreaks) {
 								printNewLine(this.scanner.getCurrentTokenStartPosition());
 							}
 						} else if (hasWhitespace) {
@@ -564,7 +564,7 @@ public class Scribe {
 						if (count >= 1) {
 							if (count > 1) {
 								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
-							} else if (count == 1 && ((hasLineComment || hasComment || this.formatter.preferences.preserve_user_linebreaks))) {
+							} else if (count == 1 && this.formatter.preferences.preserve_user_linebreaks) {
 								printNewLine(this.scanner.getCurrentTokenStartPosition());
 							}
 						} else if (hasWhitespace) {
@@ -580,7 +580,7 @@ public class Scribe {
 						if (count >= 1) {
 							if (count > 1) {
 								preserveEmptyLines(count - 1, this.scanner.getCurrentTokenStartPosition());
-							} else if (count == 1 && ((hasLineComment || hasComment || this.formatter.preferences.preserve_user_linebreaks))) {
+							} else if (count == 1 && this.formatter.preferences.preserve_user_linebreaks) {
 								printNewLine(this.scanner.getCurrentTokenStartPosition());
 							}
 						} else if (hasWhitespace) {
@@ -931,6 +931,8 @@ public class Scribe {
 		try {
 			// if we have a space between two tokens we ensure it will be dumped in the formatted string
 			int currentTokenStartPosition = this.scanner.currentPosition;
+			boolean hasWhitespaces = false;
+			boolean hasComment = false;
 			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(this.currentToken) {
 					case TerminalTokens.TokenNameWHITESPACE :
@@ -951,28 +953,40 @@ public class Scribe {
 							}
 						}
 						if (count >= 1) {
+							if (hasComment) {
+								this.printNewLine(this.scanner.getCurrentTokenStartPosition());
+							}
 							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 							return;
 						} else {
+							hasWhitespaces = true;
 							currentTokenStartPosition = this.scanner.currentPosition;						
 							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
 						}
 						break;
 					case TerminalTokens.TokenNameCOMMENT_LINE :
-						space(this.scanner.getCurrentTokenStartPosition());
+						if (hasWhitespaces) {
+							space(this.scanner.getCurrentTokenStartPosition());
+						}
 						this.printCommentLine(this.scanner.getRawTokenSource());
 						currentTokenStartPosition = this.scanner.currentPosition;
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 						return;
 					case TerminalTokens.TokenNameCOMMENT_BLOCK :
-						space(this.scanner.getCurrentTokenStartPosition());
+						if (hasWhitespaces) {
+							space(this.scanner.getCurrentTokenStartPosition());
+						}
 						this.printBlockComment(this.scanner.getRawTokenSource(), false);
 						currentTokenStartPosition = this.scanner.currentPosition;
+						hasComment = true;
 						break;
 					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
-						space(this.scanner.getCurrentTokenStartPosition());
+						if (hasWhitespaces) {
+							space(this.scanner.getCurrentTokenStartPosition());
+						}
 						this.printBlockComment(this.scanner.getRawTokenSource(), true);
 						currentTokenStartPosition = this.scanner.currentPosition;
+						hasComment = true;
 						break;
 					default :
 						// step back one token
