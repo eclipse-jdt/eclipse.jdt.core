@@ -180,6 +180,9 @@ class BindingComparator {
 		} else {
 			// reference type
 			ReferenceBinding referenceBinding = (ReferenceBinding) typeBinding;
+			if (!(typeBinding2 instanceof ReferenceBinding)) {
+				return false;
+			}
 			ReferenceBinding referenceBinding2 = (ReferenceBinding) typeBinding2;
 			if (referenceBinding.isParameterizedType()) {
 				if (!referenceBinding2.isParameterizedType()) {
