@@ -83,7 +83,7 @@ public boolean contains(IResource resource) {
 			IClasspathEntry[] classpath = project.getResolvedClasspath(true);
 			
 			IPath output = project.getOutputLocation();
-			boolean isInOutput = output.isPrefixOf(path);
+			IPath innerMostOutput = output.isPrefixOf(path) ? output : null;
 			IClasspathEntry innerMostEntry = null;
 			for (int j = 0, cpLength = classpath.length; j < cpLength; j++) {
 				IClasspathEntry entry = classpath[j];
@@ -95,10 +95,15 @@ public boolean contains(IResource resource) {
 				}
 				IPath entryOutput = classpath[j].getOutputLocation();
 				if (entryOutput != null && entryOutput.isPrefixOf(path)) {
-					isInOutput = true;
+					innerMostOutput = entryOutput;
 				}
 			}
 			if (innerMostEntry != null) {
+				// special case prj==src and nested output location
+				if (innerMostOutput != null && innerMostOutput.segmentCount() > 1 // output isn't project
+						&& innerMostEntry.getPath().segmentCount() == 1) { // 1 segment must be project name
+					return false;
+				}
 				if  (resource instanceof IFolder) {
 					 // folders are always included in src/lib entries
 					 return true;
@@ -112,7 +117,7 @@ public boolean contains(IResource resource) {
 						return !Util.isJavaFileName(path.lastSegment());
 				}
 			}
-			if (isInOutput) {
+			if (innerMostOutput != null) {
 				return false;
 			}
 		}

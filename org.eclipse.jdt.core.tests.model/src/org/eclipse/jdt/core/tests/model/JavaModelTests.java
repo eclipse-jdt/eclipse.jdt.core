@@ -192,6 +192,11 @@ public void testContains5() throws CoreException {
 		IFile file = this.createFile("/P/src/X.java", "");
 		assertTrue("/P/src/X.java should be in model", getJavaModel().contains(file));
 
+		// resource file in src
+		this.createFolder("/P/src/image");
+		file = this.createFile("/P/src/image/ok.gif", "");
+		assertTrue("/P/src/image/ok.gif should not be in model", getJavaModel().contains(file));
+		
 		// .class file in bin
 		file = this.createFile("/P/bin/X.class", "");
 		assertTrue("/P/bin/X.class should not be in model", !getJavaModel().contains(file));
@@ -216,6 +221,48 @@ public void testContains5() throws CoreException {
 		this.deleteProject("P");
 	}
 }
+/*
+ * Ensure that a resource belonging to the Java model is known to be contained in the Java model.
+ * Case of prj==src and separate bin
+ */
+public void testContains6() throws CoreException {
+	try {
+		this.createJavaProject("P", new String[] {""}, "bin");
+
+		// .java file
+		IFile file = this.createFile("/P/X.java", "");
+		assertTrue("/P/X.java should be in model", getJavaModel().contains(file));
+
+		// resource file in src
+		this.createFolder("/P/image");
+		file = this.createFile("/P/image/ok.gif", "");
+		assertTrue("/P/image/ok.gif should not be in model", getJavaModel().contains(file));
+		
+		// .class file in bin
+		file = this.createFile("/P/bin/X.class", "");
+		assertTrue("/P/bin/X.class should not be in model", !getJavaModel().contains(file));
+
+		// resource file in bin
+		this.createFolder("/P/bin/image");
+		file = this.createFile("/P/bin/image/ok.gif", "");
+		assertTrue("/P/bin/image/ok.gif should not be in model", !getJavaModel().contains(file));
+
+		// .class file in src
+		file = this.createFile("/P/X.class", "");
+		assertTrue("/P/X.class should not be in model", !getJavaModel().contains(file));
+
+		// non-Java resource
+		file = this.createFile("/P/read.txt", "");
+		assertTrue("/P/read.txt should be in model", getJavaModel().contains(file));
+
+		// package
+		IFolder folder = this.createFolder("/P/p");
+		assertTrue("/P/p should be in model", getJavaModel().contains(folder));
+	} finally {
+		this.deleteProject("P");
+	}
+}
+
 /**
  * Test that a model has no project.
  */
