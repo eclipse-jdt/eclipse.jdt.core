@@ -2051,12 +2051,12 @@ protected void updateIndex(Openable element, IResourceDelta delta) {
 						IResourceDelta child = children[i];
 						IResource resource = child.getResource();
 						if (resource instanceof IFile) {
-							String extension = resource.getFileExtension();
-							if ("java".equalsIgnoreCase(extension)) { //$NON-NLS-1$
-								Openable cu = (Openable)pkg.getCompilationUnit(resource.getName());
+							String name = resource.getName();
+							if (Util.isJavaFileName(name)) {
+								Openable cu = (Openable)pkg.getCompilationUnit(name);
 								this.updateIndex(cu, child);
-							} else if ("class".equalsIgnoreCase(extension)) { //$NON-NLS-1$
-								Openable classFile = (Openable)pkg.getClassFile(resource.getName());
+							} else if (Util.isClassFileName(name)) {
+								Openable classFile = (Openable)pkg.getClassFile(name);
 								this.updateIndex(classFile, child);
 							}
 						}

@@ -33,10 +33,7 @@ BuildNotifier notifier;
 char[][] extraResourceFileFilters;
 String[] extraResourceFolderFilters;
 
-public static final String JAVA_EXTENSION = "java"; //$NON-NLS-1$
 public static final String CLASS_EXTENSION = "class"; //$NON-NLS-1$
-public static final String JAR_EXTENSION = "jar"; //$NON-NLS-1$
-public static final String ZIP_EXTENSION = "zip"; //$NON-NLS-1$
 
 public static boolean DEBUG = false;
 

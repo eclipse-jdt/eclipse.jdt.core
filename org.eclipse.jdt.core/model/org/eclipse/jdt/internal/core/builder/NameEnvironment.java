@@ -158,8 +158,7 @@ private void computeClasspathLocations(
 					IResource resource = (IResource) target;
 					ClasspathLocation bLocation = null;
 					if (resource instanceof IFile) {
-						String extension = path.getFileExtension();
-						if (!(JavaBuilder.JAR_EXTENSION.equalsIgnoreCase(extension) || JavaBuilder.ZIP_EXTENSION.equalsIgnoreCase(extension)))
+						if (!(Util.isArchiveFileName(path.lastSegment())))
 							continue nextEntry;
 						bLocation = ClasspathLocation.forLibrary((IFile) resource);
 					} else if (resource instanceof IContainer) {
@@ -179,8 +178,7 @@ private void computeClasspathLocations(
 						binaryLocationsPerProject.put(p, existingLocations);
 					}
 				} else if (target instanceof File) {
-					String extension = path.getFileExtension();
-					if (!(JavaBuilder.JAR_EXTENSION.equalsIgnoreCase(extension) || JavaBuilder.ZIP_EXTENSION.equalsIgnoreCase(extension)))
+					if (!(Util.isArchiveFileName(path.lastSegment())))
 						continue nextEntry;
 					bLocations.add(ClasspathLocation.forLibrary(path.toString()));
 				}

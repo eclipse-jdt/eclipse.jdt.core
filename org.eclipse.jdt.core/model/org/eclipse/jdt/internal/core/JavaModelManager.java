@@ -254,16 +254,14 @@ public class JavaModelManager implements ISaveParticipant {
 			project = JavaCore.create(file.getProject());
 		}
 	
-		String extension = file.getFileExtension();
-		if (extension != null) {
-			if (Util.isValidCompilationUnitName(file.getName())) {
+		if (file.getFileExtension() != null) {
+			String name = file.getName();
+			if (Util.isValidCompilationUnitName(name))
 				return createCompilationUnitFrom(file, project);
-			} else if (Util.isValidClassFileName(file.getName())) {
+			if (Util.isValidClassFileName(name))
 				return createClassFileFrom(file, project);
-			} else if (extension.equalsIgnoreCase("jar")  //$NON-NLS-1$
-					|| extension.equalsIgnoreCase("zip")) {  //$NON-NLS-1$
+			if (Util.isArchiveFileName(name))
 				return createJarPackageFragmentRootFrom(file, project);
-			}
 		}
 		return null;
 	}

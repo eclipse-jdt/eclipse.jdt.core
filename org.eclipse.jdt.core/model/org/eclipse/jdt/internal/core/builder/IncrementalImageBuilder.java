@@ -356,7 +356,7 @@ protected void findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDirecto
 			}
 			return;
 		case IResource.FILE :
-			String filename = resource.getName();
+			String resourceName = resource.getName();
 			if (Util.isJavaFileName(resourceName)) {
 				IPath typePath = resource.getFullPath().removeFirstSegments(segmentCount).removeFileExtension();
 				String typeLocator = resource.getProjectRelativePath().toString();
