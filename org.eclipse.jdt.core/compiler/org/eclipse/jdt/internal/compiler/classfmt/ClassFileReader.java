@@ -14,14 +14,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
+import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -314,53 +313,45 @@ private int decodeAnnotation(int offset) {
 	int readOffset = offset;
 	int utf8Offset = this.constantPoolOffsets[u2At(offset)];
 	char[] typeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-	typeName = Signature.toCharArray(typeName);
-	CharOperation.replace(typeName, '/', '.');
-	char[][] qualifiedTypeName = CharOperation.splitOn('.', typeName);
 	int numberOfPairs = u2At(offset + 2);
 	readOffset += 4;
-	switch(qualifiedTypeName.length) {
-		case 3 :
-			if (CharOperation.equals(qualifiedTypeName, TypeConstants.JAVA_LANG_DEPRECATED)) {
+	switch(typeName.length) {
+		case 21 :
+			if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_INHERITED)) {
+				this.tagBits |= TagBits.AnnotationInherited;
+				return readOffset;		
+			}
+			break;
+		case 22 :
+			if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_DEPRECATED)) {
 				this.tagBits |= TagBits.AnnotationDeprecated;
 				return readOffset;		
 			}
 			break;
-		case 4 :
-			char[] lastPart = qualifiedTypeName[3];
-			if (lastPart.length > 0) {
-				switch(lastPart[0]) {
-					case 'R' :
-						if (CharOperation.equals(qualifiedTypeName, TypeConstants.JAVA_LANG_ANNOTATION_RETENTION)) {
-							for (int i = 0; i < numberOfPairs; i++) {
-								readOffset += 2;
-								readOffset = decodeElementValueForJavaLangAnnotationRetention(readOffset);
-							}
-							return readOffset;
-						}
-						break;
-					case 'T' :
-						if (CharOperation.equals(qualifiedTypeName, TypeConstants.JAVA_LANG_ANNOTATION_TARGET)) {
-							for (int i = 0; i < numberOfPairs; i++) {
-								readOffset += 2;
-								readOffset = decodeElementValueForJavaLangAnnotationTarget(readOffset);
-							}
-							return readOffset;		
-						}
-						break;
-					case 'D' :
-						if (CharOperation.equals(qualifiedTypeName, TypeConstants.JAVA_LANG_ANNOTATION_DOCUMENTED)) {
-							this.tagBits |= TagBits.AnnotationDocumented;
-							return readOffset;		
-						}
-						break;
-					case 'I' :
-						if (CharOperation.equals(qualifiedTypeName, TypeConstants.JAVA_LANG_ANNOTATION_INHERITED)) {
-							this.tagBits |= TagBits.AnnotationInherited;
-							return readOffset;		
-						}
+		case 29 :
+			if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_TARGET)) {
+				for (int i = 0; i < numberOfPairs; i++) {
+					readOffset += 2;
+					readOffset = decodeElementValueForJavaLangAnnotationTarget(readOffset);
 				}
+				return readOffset;		
 			}
+			break;
+		case 33 :
+			if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_DOCUMENTED)) {
+				this.tagBits |= TagBits.AnnotationDocumented;
+				return readOffset;		
+			}
+			break;
+		case 32 :
+			if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_RETENTION)) {
+				for (int i = 0; i < numberOfPairs; i++) {
+					readOffset += 2;
+					readOffset = decodeElementValueForJavaLangAnnotationRetention(readOffset);
+				}
+				return readOffset;
+			}
+			break;
 	}
 	for (int i = 0; i < numberOfPairs; i++) {
 		readOffset += 2;
@@ -391,13 +382,13 @@ private int decodeElementValue(int offset) {
 			readOffset += 2;
 			break;
 		case '@' :
-			readOffset += decodeAnnotation(readOffset);
+			readOffset = decodeAnnotation(readOffset);
 			break;
 		case '[' :
 			int numberOfValues = u2At(readOffset);
 			readOffset += 2;
 			for (int i = 0; i < numberOfValues; i++) {
-				readOffset = decodeElementValueForJavaLangAnnotationTarget(readOffset);
+				readOffset = decodeElementValue(readOffset);
 			}
 			break;
 	}
@@ -420,17 +411,21 @@ private int decodeElementValueForJavaLangAnnotationTarget(int offset) {
 			readOffset += 2;
 			break;
 		case 'e' :
-			readOffset += 2;
 			int utf8Offset = this.constantPoolOffsets[u2At(readOffset)];
+			char[] typeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+			readOffset += 2;
+			utf8Offset = this.constantPoolOffsets[u2At(readOffset)];
 			char[] constName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 			readOffset += 2;
-			this.tagBits |= Annotation.getTargetElementType(constName);
+			if (typeName.length == 34 && CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_ELEMENTTYPE)) {
+				this.tagBits |= Annotation.getTargetElementType(constName);
+			}
 			break;
 		case 'c' :
 			readOffset += 2;
 			break;
 		case '@' :
-			readOffset += decodeAnnotation(readOffset);
+			readOffset = decodeAnnotation(readOffset);
 			break;
 		case '[' :
 			int numberOfValues = u2At(readOffset);
@@ -463,23 +458,28 @@ private int decodeElementValueForJavaLangAnnotationRetention(int offset) {
 			readOffset += 2;
 			break;
 		case 'e' :
-			readOffset += 2;
 			int utf8Offset = this.constantPoolOffsets[u2At(readOffset)];
+			char[] typeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+			readOffset += 2;
+			utf8Offset = this.constantPoolOffsets[u2At(readOffset)];
 			char[] constName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 			readOffset += 2;
 			this.tagBits |= Annotation.getRetentionPolicy(constName);
+			if (typeName.length == 38 && CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_RETENTIONPOLICY)) {
+				this.tagBits |= Annotation.getRetentionPolicy(constName);
+			}
 			break;
 		case 'c' :
 			readOffset += 2;
 			break;
 		case '@' :
-			readOffset += decodeAnnotation(readOffset);
+			readOffset = decodeAnnotation(readOffset);
 			break;
 		case '[' :
 			int numberOfValues = u2At(readOffset);
 			readOffset += 2;
 			for (int i = 0; i < numberOfValues; i++) {
-				readOffset = decodeElementValueForJavaLangAnnotationRetention(readOffset);
+				readOffset = decodeElementValue(readOffset); // retention policy cannot be in an array initializer
 			}
 			break;
 	}
