@@ -210,5 +210,41 @@ public void testIsOnClasspath() throws CoreException {
 	}
 }
 
+// 42281
+public void _testCommit2() throws CoreException {
+	ICompilationUnit copy = null;
+	try {
+		this.createProject("SimpleProject");
+		this.createFolder("/SimpleProject/src/native.1");
+		String source = 
+			"class X {}";
+		IFile file = this.createFile("/SimpleProject/src/native.1/X.java", source);
+		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
+		copy = (ICompilationUnit) cu.getWorkingCopy();
+		
+		IBuffer workingCopyBuffer = this.workingCopy.getBuffer();
+		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
+		String newContents = 
+			"public class X {\n" +
+			"  public void foo() {\n" +
+			"  }\n" +
+			"}";
+			
+		workingCopyBuffer.setContents(newContents);
+		this.workingCopy.commit(true, null);
+		
+		IFile originalFile = (IFile)cu.getResource();
+		assertSourceEquals(
+			"Unexpected contents", 
+			newContents, 
+			new String(Util.getResourceContentsAsCharArray(originalFile)));
+	} catch(JavaModelException e) {
+		e.printStackTrace();		
+		assertTrue("No exception should have occurred: "+ e.getMessage(), false);
+	} finally {
+		if (copy != null) copy.destroy();
+		this.deleteProject("SimpleProject");
+	}
+}
 
 }
