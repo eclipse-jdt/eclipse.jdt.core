@@ -12,10 +12,8 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -31,7 +29,6 @@ class DefaultCommentMapper {
 	private Comment[] comments;
 	private Map leadingComments;
 	private Map trailingComments;
-	Set attachedDocComments = new HashSet();
 	
 	private int commentIndex;
 
@@ -163,6 +160,21 @@ class DefaultCommentMapper {
 		return node.getStartPosition();
 	}
 
+	/*
+	 * Returns the extended end position of the given node.
+	 */
+	public int getExtendedEnd(ASTNode node) {
+		int end = node.getStartPosition() + node.getLength();
+		if (this.trailingComments != null) {
+			int[] range = (int[]) this.trailingComments.get(node);
+			if (range != null) {
+				Comment lastComment = this.comments[range[1]];
+				end = lastComment.getStartPosition() + lastComment.getLength();
+			}
+		}
+		return end;
+	}
+
 	/**
 	 * Returns the extended source length of the given node. Unlike
 	 * {@link ASTNode#getStartPosition()} and {@link ASTNode#getLength()()},
@@ -173,18 +185,11 @@ class DefaultCommentMapper {
 	 * @return a (possibly 0) length, or <code>0</code>
 	 *    if no source position information is recorded for this node
 	 * @see #getExtendedStartPosition(ASTNode)
+	 * @see #getExtendedEnd(ASTNode)
 	 * @since 3.0
 	 */
 	public int getExtendedLength(ASTNode node) {
-		int lastPosition = lastPosition = node.getStartPosition() + node.getLength();
-		if (this.trailingComments != null) {
-			int[] range = (int[]) this.trailingComments.get(node);
-			if (range != null) {
-				Comment lastComment = this.comments[range[1]];
-				lastPosition = lastComment.getStartPosition() + lastComment.getLength();
-			}
-		}
-		return lastPosition - getExtendedStartPosition(node);
+		return getExtendedEnd(node) - getExtendedStartPosition(node);
 	}
 
 	/*
@@ -230,31 +235,33 @@ class DefaultCommentMapper {
 	private void doExtraRangesForChildren(ASTNode node, Scanner scanner) {
 		// Compute node children
 		List children= getChildren(node);
-		int lastChild= children.size() ;
+		int size = children.size() ;
 		
 		// Compute last next start and previous end. Next start is the starting position
 		// of first token following node end which is neither a comment nor white spaces.
-		int lastPos = node.getStartPosition() + node.getLength();
-		scanner.resetTo(lastPos, scanner.source.length-1);
-		try {
-			int token = -1;
-			do {
-				token = scanner.getNextToken();
-			} while (token >= TerminalTokens.TokenNameWHITESPACE && token <= TerminalTokens.TokenNameCOMMENT_JAVADOC);
-			lastPos = scanner.getCurrentTokenStartPosition();
-		} catch (InvalidInputException e) {
-			// do nothing
-		}
+		int lastPos = getExtendedEnd(node);
+//		int lastPos = node.getStartPosition() + node.getLength();
+//		scanner.resetTo(lastPos, scanner.source.length-1);
+//		try {
+//			int token = -1;
+//			do {
+//				token = scanner.getNextToken();
+//			} while (token >= TerminalTokens.TokenNameWHITESPACE && token <= TerminalTokens.TokenNameCOMMENT_JAVADOC);
+//			lastPos = scanner.getCurrentTokenStartPosition();
+//		} catch (InvalidInputException e) {
+//			// do nothing
+//		}
 		int previousEnd = node.getStartPosition();
 		
 		// Compute leading and trailing comments for all children nodes at this level
 		this.commentIndex = 0;
 		try {
-			for (int i= 0; i < lastChild; i++) {
+			for (int i= 0; i < size; i++) {
 				ASTNode current = (ASTNode) children.get(i);
-				int nextStart = i==(lastChild-1) ? lastPos : ((ASTNode) children.get(i+1)).getStartPosition();
+				boolean lastChild = i==(size-1);
+				int nextStart = lastChild ? lastPos : ((ASTNode) children.get(i+1)).getStartPosition();
 				storeLeadingComments(current, previousEnd,scanner);
-				previousEnd = storeTrailingComments(current, nextStart,scanner);
+				previousEnd = storeTrailingComments(current, nextStart, scanner, lastChild);
 			}
 		}
 		catch (Exception ex) {
@@ -262,7 +269,7 @@ class DefaultCommentMapper {
 		}
 		
 		// Compute extended ranges at sub-levels
-		for (int i= 0; i < lastChild; i++) {
+		for (int i= 0; i < size; i++) {
 			doExtraRangesForChildren((ASTNode) children.get(i), scanner);
 		}
 	}
@@ -362,7 +369,7 @@ class DefaultCommentMapper {
 				}
 				int lastTokenLine = scanner.getLineNumber(lastTokenEnd);
 				int length = this.comments.length;
-				while (startIdx<length && lastTokenLine == scanner.getLineNumber(this.comments[startIdx].getStartPosition())) {
+				while (startIdx<length && lastTokenLine == scanner.getLineNumber(this.comments[startIdx].getStartPosition()) && nodeStartLine != lastTokenLine) {
 					startIdx++;
 				}
 			}
@@ -398,7 +405,7 @@ class DefaultCommentMapper {
 	 * in trailing comments table.
 	 * 
 	 */
-	int storeTrailingComments(ASTNode node, int nextStart, Scanner scanner) {
+	int storeTrailingComments(ASTNode node, int nextStart, Scanner scanner, boolean lastChild) {
 		// Init extended position
 		int nodeEnd = node.getStartPosition()+node.getLength()-1;
 		int extended = nodeEnd;
@@ -416,12 +423,12 @@ class DefaultCommentMapper {
 		int commentStart = extended+1;
 		int previousEnd = nodeEnd+1;
 		int sameLineIdx = -1;
-		while (idx<length && commentStart <= nextStart) {
+		while (idx<length && commentStart < nextStart) {
 			// get comment and leave if next starting position has been reached
 			Comment comment = this.comments[idx];
 			commentStart = comment.getStartPosition();
 			// verify that there's nothing else than white spaces between node/comments
-			if (commentStart > nextStart) {
+			if (commentStart >= nextStart) {
 				break;
 			} else if (previousEnd < commentStart) {
 				scanner.resetTo(previousEnd, commentStart);
@@ -461,21 +468,14 @@ class DefaultCommentMapper {
 		}
 		if (endIdx != -1) {
 			// Verify that following node start is separated
-			int nextLine = scanner.getLineNumber(nextStart);
-			int previousLine = scanner.getLineNumber(previousEnd);
-			if((nextLine - previousLine) <= 1) {
-				if (sameLineIdx == -1) return nodeEnd;
-				endIdx = sameLineIdx;
-			}
-			// Verify that traling comment is not an already attached doc comment
-			idx = startIdx;
-			for (; idx <= endIdx; idx++) {
-				if (this.comments[idx].isDocComment() && this.attachedDocComments.contains(this.comments[idx]))  {
-					if (idx == startIdx) return nodeEnd;
-					break;
+			if (!lastChild) {
+				int nextLine = scanner.getLineNumber(nextStart);
+				int previousLine = scanner.getLineNumber(previousEnd);
+				if((nextLine - previousLine) <= 1) {
+					if (sameLineIdx == -1) return nodeEnd;
+					endIdx = sameLineIdx;
 				}
 			}
-			endIdx = idx - 1;
 			// Store leading comments indexes
 			this.trailingComments.put(node, new int[] { startIdx, endIdx });
 			extended = this.comments[endIdx].getStartPosition()+this.comments[endIdx].getLength()-1;
@@ -509,24 +509,6 @@ class DefaultCommentMapper {
 			}
 			this.result.add(node);
 			return false;
-		}
-		public boolean visit(FieldDeclaration node) {
-			if (node.getJavadoc() != null) {
-				DefaultCommentMapper.this.attachedDocComments.add(node.getJavadoc());
-			}
-			return super.visit(node);
-		}
-		public boolean visit(MethodDeclaration node) {
-			if (node.getJavadoc() != null) {
-				DefaultCommentMapper.this.attachedDocComments.add(node.getJavadoc());
-			}
-			return super.visit(node);
-		}
-		public boolean visit(TypeDeclaration node) {
-			if (node.getJavadoc() != null) {
-				DefaultCommentMapper.this.attachedDocComments.add(node.getJavadoc());
-			}
-			return super.visit(node);
 		}
 	}
 }

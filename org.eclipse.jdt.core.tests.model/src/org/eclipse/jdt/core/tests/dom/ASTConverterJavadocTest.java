@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.Javadoc;
@@ -114,10 +115,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterJavadocTest("testBug54776"));
-		suite.addTest(new ASTConverterJavadocTest("testBug55221a"));
-		suite.addTest(new ASTConverterJavadocTest("testBug55221b"));
-		suite.addTest(new ASTConverterJavadocTest("testBug55221c"));
+		suite.addTest(new ASTConverterJavadocTest("testBug55223a"));
+		suite.addTest(new ASTConverterJavadocTest("testBug55223b"));
 		return suite;
 	}
 
@@ -1588,11 +1587,75 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		assumeNotNull("We should get a non-null ast node", node);
 		assumeTrue("Not return type", node.getNodeType() == ASTNode.PRIMITIVE_TYPE); //$NON-NLS-1$
 		PrimitiveType returnType = (PrimitiveType) node;
-		// verify that body includes following comment
+		// verify that return type includes following comment
 		int returnStart = compilUnit.getExtendedStartPosition(returnType);
 		assumeEquals("Return type "+returnType+" does not start at the right position", returnType.getStartPosition(), returnStart);
 		int returnLength = compilUnit.getExtendedLength(returnType);
 		assumeEquals("Return type "+returnType+" does not have the right length", returnType.getLength(), returnLength);
+	}
+	public void testBug55223a() throws JavaModelException {
+//		this.stopOnFailure = false;
+		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55223", "TestA.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(this.sourceUnit, false);
+		final CompilationUnit compilUnit = (CompilationUnit) result;
+		assumeEquals(this.prefix+"Wrong number of problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
+		assumeEquals(this.prefix+"Wrong number of comments", 2, compilUnit.getCommentList().size());
+		// get method
+		ASTNode node = getASTNode(compilUnit, 0, 0);
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		MethodDeclaration method = (MethodDeclaration) node;
+		// get method body
+		node = method.getBody();
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeEquals("Not a block", ASTNode.BLOCK, node.getNodeType()); //$NON-NLS-1$
+		Block block = (Block) node;
+		// verify block statements start/end positions
+		Iterator statements = block.statements().iterator();
+		int idx = 0;
+		while (statements.hasNext()) {
+			node = (ExpressionStatement) statements.next();
+			assumeEquals("Not a block", ASTNode.EXPRESSION_STATEMENT, node.getNodeType()); //$NON-NLS-1$
+			ExpressionStatement statement = (ExpressionStatement) node;
+			int statementStart = statement.getStartPosition();
+			int statementEnd = statementStart + statement.getLength() - 1;
+			if (idx < 2) {
+				// Get comment range
+				Comment comment = (Comment) compilUnit.getCommentList().get(idx);
+				int commentStart = comment.getStartPosition();
+				statementEnd = commentStart+comment.getLength()-1;
+			}
+			int extendedStart = compilUnit.getExtendedStartPosition(statement);
+			assumeEquals("Statement "+statement+" does not start at the right position", statementStart, extendedStart);
+			int extendedEnd = extendedStart + compilUnit.getExtendedLength(statement) - 1;
+			assumeEquals("Statement "+statement+" does not end at the right position", statementEnd, extendedEnd);
+			idx++;
+		}
+	}
+	public void testBug55223b() throws JavaModelException {
+		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55223", "TestB.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(this.sourceUnit, false);
+		final CompilationUnit compilUnit = (CompilationUnit) result;
+		assumeEquals(this.prefix+"Wrong number of problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
+		assumeEquals(this.prefix+"Wrong number of comments", 2, compilUnit.getCommentList().size());
+		// Get comment range
+		Comment comment = (Comment) compilUnit.getCommentList().get(1);
+		int commentStart = comment.getStartPosition();
+		// get method
+		ASTNode node = getASTNode(compilUnit, 0, 0);
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		MethodDeclaration method = (MethodDeclaration) node;
+		// get return type
+		node = method.getReturnType();
+		assumeNotNull("We should get a non-null ast node", node);
+		assumeTrue("Not return type", node.getNodeType() == ASTNode.SIMPLE_TYPE); //$NON-NLS-1$
+		SimpleType returnType = (SimpleType) node;
+		// verify that return type includes following comment
+		int returnStart = compilUnit.getExtendedStartPosition(returnType);
+		assumeEquals("Return type "+returnType+" does not start at the right position", commentStart, returnStart);
+		int returnEnd = returnStart + compilUnit.getExtendedLength(returnType) - 1;
+		assumeEquals("Return type "+returnType+" does not end at the right length", returnType.getStartPosition()+returnType.getLength()-1, returnEnd);
 	}
 	/*
 	 * End DefaultCommentMapper verifications
