@@ -64,7 +64,7 @@ public class MatchLocator implements ITypeRequestor {
 	public HierarchyResolver hierarchyResolver;
 	boolean compilationAborted;
 
-	public PotentialMatchSet potentialMatches;
+	public PotentialMatchSet matchSet;
 	
 	public int parseThreshold = -1;
 	public CompilerOptions options;
@@ -198,7 +198,7 @@ public class MatchLocator implements ITypeRequestor {
 	}	
 	void addPotentialMatch(IResource resource, Openable openable) {
 		PotentialMatch potentialMatch = new PotentialMatch(this, resource, openable);
-		this.potentialMatches.add(potentialMatch);
+		this.matchSet.add(potentialMatch);
 	}
 	/*
 	 * Caches the given binary type in the lookup environment and returns it.
@@ -621,7 +621,7 @@ public class MatchLocator implements ITypeRequestor {
 	 */
 	private void locateMatches(JavaProject javaProject) throws JavaModelException {
 		PotentialMatch[] potentialMatches = 
-			this.potentialMatches.getPotentialMatches(
+			this.matchSet.getPotentialMatches(
 				getFocusType() == null ?
 				javaProject.getPackageFragmentRoots() :
 				javaProject.getAllPackageFragmentRoots()); // all potential matches are resolved in the focus' project context
@@ -713,7 +713,7 @@ public class MatchLocator implements ITypeRequestor {
 	public void locateMatches(
 		String[] filePaths, 
 		IWorkspace workspace,
-		IWorkingCopy[] workingCopies)
+		IWorkingCopy[] copies)
 		throws JavaModelException {
 			
 		if (SearchEngine.VERBOSE) {
@@ -723,10 +723,10 @@ public class MatchLocator implements ITypeRequestor {
 				System.out.println("\t" + path); //$NON-NLS-1$
 			}
 			System.out.println("]"); //$NON-NLS-1$
-			if (workingCopies != null) {
+			if (copies != null) {
 				 System.out.println("and working copies ["); //$NON-NLS-1$
-				for (int i = 0, length = workingCopies.length; i < length; i++) {
-					IWorkingCopy wc = workingCopies[i];
+				for (int i = 0, length = copies.length; i < length; i++) {
+					IWorkingCopy wc = copies[i];
 					System.out.println("\t" + ((JavaElement)wc).toStringWithAncestors()); //$NON-NLS-1$
 				}
 				System.out.println("]"); //$NON-NLS-1$
@@ -744,15 +744,15 @@ public class MatchLocator implements ITypeRequestor {
 			}
 			
 			// initialize locator with working copies
-			this.workingCopies = workingCopies;
+			this.workingCopies = copies;
 			
 			// substitute compilation units with working copies
 			HashMap wcPaths = new HashMap(); // a map from path to working copies
 			int wcLength;
-			if (workingCopies != null && (wcLength = workingCopies.length) > 0) {
+			if (copies != null && (wcLength = copies.length) > 0) {
 				String[] newPaths = new String[wcLength];
 				for (int i = 0; i < wcLength; i++) {
-					IWorkingCopy workingCopy = workingCopies[i];
+					IWorkingCopy workingCopy = copies[i];
 					String path = workingCopy.getOriginalElement().getPath().toString();
 					wcPaths.put(path, workingCopy);
 					newPaths[i] = path;
@@ -775,7 +775,7 @@ public class MatchLocator implements ITypeRequestor {
 			Util.sort(filePaths); 
 			
 			// initialize pattern for polymorphic search (ie. method reference pattern)
-			this.potentialMatches = new PotentialMatchSet();
+			this.matchSet = new PotentialMatchSet();
 			this.pattern.initializePolymorphicSearch(this, progressMonitor);
 			
 			IType focusType = getFocusType();
@@ -825,7 +825,7 @@ public class MatchLocator implements ITypeRequestor {
 									// problem with classpath in this project -> skip it
 								}
 							}
-							this.potentialMatches = new PotentialMatchSet();
+							this.matchSet = new PotentialMatchSet();
 						}
 	
 						previousJavaProject = javaProject;
@@ -854,7 +854,7 @@ public class MatchLocator implements ITypeRequestor {
 						// problem with classpath in last project -> skip it
 					}
 				}
-				this.potentialMatches = new PotentialMatchSet();
+				this.matchSet = new PotentialMatchSet();
 			} 
 			
 			if (progressMonitor != null) {

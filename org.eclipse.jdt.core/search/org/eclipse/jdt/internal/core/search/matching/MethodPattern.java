@@ -70,18 +70,20 @@ protected boolean matchIndexEntry() {
  */
 protected boolean needsResolve() {
 
-	// TODO: (jerome) should need resolve only if declaringSimpleName, declaringQualification, returnQualification or parameterQualifications[i] is not null
-
-	// declaring type
+	// declaring type 
+	// If declaring type is specified - even with simple name - always resolves 
+	// (see MethodDeclarationPattern.matchLevel and MethodReferencePattern.matchLevel)
 	if (declaringSimpleName != null || declaringQualification != null) return true;
 
 	// return type
+	// If return type is specified - even with simple name - always resolves 
+	// (see MethodDeclarationPattern.matchLevel and MethodReferencePattern.matchLevel)
 	if (returnSimpleName != null || returnQualification != null) return true;
 
 	// parameter types
 	if (parameterSimpleNames != null){
 		for (int i = 0, max = parameterSimpleNames.length; i < max; i++){
-			if (parameterQualifications[i] != null || parameterSimpleNames[i] != null) return true;
+			if (parameterQualifications[i] != null) return true;
 		}
 	}
 	return false;

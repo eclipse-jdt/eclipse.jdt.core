@@ -70,14 +70,14 @@ private void reportDeclaration(MethodBinding methodBinding, MatchLocator locator
 	ReferenceBinding declaringClass = methodBinding.declaringClass;
 	IType type = locator.lookupType(declaringClass);
 	if (type == null) return; // case of a secondary type
-	char[] selector = methodBinding.selector;
+	char[] bindingSelector = methodBinding.selector;
 	TypeBinding[] parameters = methodBinding.parameters;
 	int parameterLength = parameters.length;
 	String[] parameterTypes = new String[parameterLength];
 	for (int i = 0; i  < parameterLength; i++) {
 		parameterTypes[i] = Signature.createTypeSignature(parameters[i].sourceName(), false);
 	}
-	IMethod method = type.getMethod(new String(selector), parameterTypes);
+	IMethod method = type.getMethod(new String(bindingSelector), parameterTypes);
 	if (this.knownMethods.contains(method)) return;
 	this.knownMethods.add(method);
 	IResource resource = type.getResource();
@@ -94,7 +94,7 @@ private void reportDeclaration(MethodBinding methodBinding, MatchLocator locator
 		AbstractMethodDeclaration methodDecl = null;
 		AbstractMethodDeclaration[] methodDecls = typeDecl.methods;
 		for (int i = 0, length = methodDecls.length; i < length; i++) {
-			if (CharOperation.equals(selector, methodDecls[i].selector)) {
+			if (CharOperation.equals(bindingSelector, methodDecls[i].selector)) {
 				methodDecl = methodDecls[i];
 				break;
 			}

@@ -146,7 +146,7 @@ public int matchLevel(AstNode node, boolean resolve) {
 		if (this.selector != null && !this.matchesName(this.selector, messageSend.selector))
 			return IMPOSSIBLE_MATCH;
 			
-		// argument types
+		// parameter types
 		int argumentCount = this.parameterSimpleNames == null ? -1 : this.parameterSimpleNames.length;
 		if (argumentCount > -1) {
 			int parameterCount = messageSend.arguments == null ? 0 : messageSend.arguments.length;
