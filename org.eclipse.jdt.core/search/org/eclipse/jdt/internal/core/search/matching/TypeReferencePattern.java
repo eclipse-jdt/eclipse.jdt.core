@@ -67,14 +67,14 @@ protected void decodeIndexEntry(IEntryResult entryResult) {
 	else
 		this.decodedSimpleName = CharOperation.subarray(word, tagLength, nameLength);
 }
-public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
+public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
 
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
 	char[][] possibleTags = this.simpleName == null ? REF_TAGS : TAGS;
 	for (int i = 0, max = possibleTags.length; i < max; i++) {
 		currentTag = possibleTags[i];
-		super.findIndexMatches(input, requestor, detailLevel, progressMonitor, scope);
+		super.findIndexMatches(input, requestor, progressMonitor, scope);
 	}
 }
 /**

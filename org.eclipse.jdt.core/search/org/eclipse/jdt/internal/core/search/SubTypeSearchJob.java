@@ -17,7 +17,6 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.impl.BlocksIndexInput;
@@ -29,16 +28,8 @@ import org.eclipse.jdt.internal.core.search.matching.SearchPattern;
 public class SubTypeSearchJob extends PatternSearchJob {
 
 	Map inputs = new HashMap(5);
-public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, int detailLevel, IIndexSearchRequestor requestor, IndexManager indexManager) {
-	super(pattern, scope, detailLevel, requestor, indexManager);
-}
-public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, IJavaElement focus, int detailLevel, IIndexSearchRequestor requestor, IndexManager indexManager) {
-	super(
-		pattern, 
-		scope, 
-		detailLevel, 
-		requestor, 
-		indexManager);
+public SubTypeSearchJob(SearchPattern pattern, IJavaSearchScope scope, IIndexSearchRequestor requestor, IndexManager indexManager) {
+	super(pattern, scope, requestor, indexManager);
 }
 public void closeAll(){
 
@@ -86,7 +77,7 @@ public boolean search(IIndex index, IProgressMonitor progressMonitor) {
 			inputs.put(index, input);
 			//System.out.println("Acquiring INPUT for "+index);
 		}
-		pattern.findIndexMatches(input, requestor, detailLevel, progressMonitor, this.scope);
+		pattern.findIndexMatches(input, requestor, progressMonitor, this.scope);
 		executionTime += System.currentTimeMillis() - start;
 		return COMPLETE;
 	} catch(IOException e){

@@ -31,7 +31,6 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
-import org.eclipse.jdt.internal.core.search.IInfoConstants;
 import org.eclipse.jdt.internal.core.search.IndexSearchAdapter;
 import org.eclipse.jdt.internal.core.search.SubTypeSearchJob;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
@@ -453,7 +452,6 @@ public static void searchAllPossibleSubTypes(
 	SubTypeSearchJob job = new SubTypeSearchJob(
 				pattern, 
 				scope,
-				IInfoConstants.PathInfo, 
 				searchRequestor, 
 				indexManager);
 	

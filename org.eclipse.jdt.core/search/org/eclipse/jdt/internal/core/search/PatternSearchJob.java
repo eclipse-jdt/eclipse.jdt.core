@@ -28,20 +28,17 @@ public class PatternSearchJob implements IJob {
 	protected IJavaSearchScope scope;
 	protected IIndexSearchRequestor requestor;
 	protected IndexManager indexManager;
-	protected int detailLevel;
 	protected IndexSelector indexSelector;
 	protected long executionTime = 0;
 	
 	public PatternSearchJob(
 		SearchPattern pattern,
 		IJavaSearchScope scope,
-		int detailLevel,
 		IIndexSearchRequestor requestor,
 		IndexManager indexManager) {
 
 		this.pattern = pattern;
 		this.scope = scope;
-		this.detailLevel = detailLevel;
 		this.requestor = requestor;
 		this.indexManager = indexManager;
 	}
@@ -128,7 +125,6 @@ public class PatternSearchJob implements IJob {
 			pattern.findIndexMatches(
 				index,
 				requestor,
-				detailLevel,
 				progressMonitor,
 				this.scope);
 			executionTime += System.currentTimeMillis() - start;

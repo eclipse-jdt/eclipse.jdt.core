@@ -247,7 +247,6 @@ protected String[] getPathsOfDeclaringType() {
 	final PathCollector pathCollector = new PathCollector();
 	IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 	IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
-	int detailLevel = IInfoConstants.PathInfo;
 	SearchPattern searchPattern = new TypeDeclarationPattern(
 		this.typeSimpleName != null ? null : this.typeQualification, // use the qualification only if no simple name
 		null, // do find member types
@@ -270,7 +269,6 @@ protected String[] getPathsOfDeclaringType() {
 		new PatternSearchJob(
 			searchPattern, 
 			scope, 
-			detailLevel, 
 			searchRequestor, 
 			indexManager),
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,

@@ -130,7 +130,7 @@ protected void decodeIndexEntry(IEntryResult entryResult) {
 /**
  * see SearchPattern.feedIndexRequestor
  */
-public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
+public void feedIndexRequestor(IIndexSearchRequestor requestor, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
 	boolean isClass = decodedClassOrInterface == CLASS_SUFFIX;
 	for (int i = 0, max = references.length; i < max; i++) {
 		IndexedFile file = input.getIndexedFile(references[i]);

@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.core.index.impl.IndexInput;
 import org.eclipse.jdt.internal.core.search.IIndexSearchRequestor;
-import org.eclipse.jdt.internal.core.search.IInfoConstants;
 
 public class OrPattern extends SearchPattern {
 
@@ -48,14 +47,10 @@ public OrPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 /**
  * see SearchPattern.findMatches
  */
-public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
-	IIndexSearchRequestor orCombiner = 
-		detailLevel == IInfoConstants.NameInfo
-			? (IIndexSearchRequestor) new OrNameCombiner(requestor)
-			: (IIndexSearchRequestor) new OrPathCombiner(requestor);
-
+public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
+	IIndexSearchRequestor orCombiner = (IIndexSearchRequestor) new OrPathCombiner(requestor);
 	for (int i = 0, length = this.patterns.length; i < length; i++)
-		this.patterns[i].findIndexMatches(input, orCombiner, detailLevel, progressMonitor, scope);
+		this.patterns[i].findIndexMatches(input, orCombiner, progressMonitor, scope);
 }
 /**
  * see SearchPattern.isPolymorphicSearch

@@ -182,10 +182,10 @@ protected void decodeIndexEntry(IEntryResult entryResult){
 /**
  * Query a given index for matching entries. 
  */
-public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
+public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
 	if (this.entryResults == null) {
 		// non-optimized case
-		super.findIndexMatches(input, requestor, detailLevel, progressMonitor, scope);	
+		super.findIndexMatches(input, requestor, progressMonitor, scope);	
 		return;
 	}
 
@@ -222,7 +222,7 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 
 		/* retrieve and decode entry */	
 		decodeIndexEntry(entry);
-		feedIndexRequestor(requestor, detailLevel, entry.getFileReferences(), input, scope);
+		feedIndexRequestor(requestor, entry.getFileReferences(), input, scope);
 	}
 }
 /**

@@ -26,7 +26,7 @@ public PackageDeclarationPattern(char[] pkgName, int matchMode, boolean isCaseSe
 /**
  * see SearchPattern#findMatches
  */
-public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) /* throws IOException */ {
+public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) /* throws IOException */ {
 	// package declarations are not indexed
 }
 public String toString() {

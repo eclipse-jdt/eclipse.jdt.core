@@ -1108,7 +1108,7 @@ protected void decodeIndexEntry(IEntryResult entryResult) {
 /**
  * Feed the requestor according to the current search pattern
  */
-public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
+public void feedIndexRequestor(IIndexSearchRequestor requestor, int[] references, IndexInput input, IJavaSearchScope scope) throws IOException {
 	for (int i = 0, max = references.length; i < max; i++) {
 		IndexedFile file = input.getIndexedFile(references[i]);
 		if (file != null) {
@@ -1121,14 +1121,14 @@ public void feedIndexRequestor(IIndexSearchRequestor requestor, int detailLevel,
 /**
  * Query a given index for matching entries. 
  */
-public void findIndexMatches(IIndex index, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
+public void findIndexMatches(IIndex index, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
 
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
 	IndexInput input = new BlocksIndexInput(index.getIndexFile());
 	try {
 		input.open();
-		findIndexMatches(input, requestor, detailLevel, progressMonitor,scope);
+		findIndexMatches(input, requestor, progressMonitor,scope);
 	} finally {
 		input.close();
 	}
@@ -1136,7 +1136,7 @@ public void findIndexMatches(IIndex index, IIndexSearchRequestor requestor, int 
 /**
  * Query a given index for matching entries. 
  */
-public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, int detailLevel, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
+public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, IProgressMonitor progressMonitor, IJavaSearchScope scope) throws IOException {
 
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 	
@@ -1152,7 +1152,7 @@ public void findIndexMatches(IndexInput input, IIndexSearchRequestor requestor, 
 		IEntryResult entry = entries[i];
 		decodeIndexEntry(entry);
 		if (matchIndexEntry())
-			feedIndexRequestor(requestor, detailLevel, entry.getFileReferences(), input, scope);
+			feedIndexRequestor(requestor, entry.getFileReferences(), input, scope);
 	}
 }
 /**
