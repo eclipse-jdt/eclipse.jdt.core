@@ -136,6 +136,7 @@ STREAM: 2.0
 
   PRs Closed in this Release
   ===============================================================================
+  1GKCJIL: ITPJCORE:WIN2000 - build exception in 135
   1GK6WP9: ITPJCORE:WIN2000 - seach: missing type reference
   1GJZSBE: ITPJCORE:WINNT - ArrayIndexOutOfBoundsException during rebuild
   1GK7E6S: ITPJCORE:WIN2000 - search: StringIndexOufOfBound
