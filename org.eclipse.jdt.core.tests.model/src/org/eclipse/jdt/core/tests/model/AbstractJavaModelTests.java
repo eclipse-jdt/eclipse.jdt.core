@@ -11,43 +11,12 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.*;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URL;
 import java.security.CodeSource;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceDescription;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.ElementChangedEvent;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IElementChangedListener;
-import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaElementDelta;
-import org.eclipse.jdt.core.IJavaModel;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IPackageDeclaration;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.core.*;
 
 public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	
@@ -686,5 +655,79 @@ public void stopDeltas() {
 	JavaCore.removeElementChangedListener(this.deltaListener);
 	clearDeltas();
 }
+
+/**
+ * Generate a display string from the given String.
+ * @param indent number of tabs are added at the begining of each line.
+ *
+ * Example of use: [org.eclipse.jdt.tests.compiler.Util.displayString("abc\ndef\tghi")]
+*/
+public static String displayString(String inputString){
+	return displayString(inputString, 0);
+}
+
+/**
+ * Generate a display string from the given String.
+ * @param indent number of tabs are added at the begining of each line.
+ *
+ * Example of use: [org.eclipse.jdt.tests.compiler.Util.displayString("abc\ndef\tghi", 3)]
+*/
+public static String displayString(String inputString, int indent) {
+	int length = inputString.length();
+	StringBuffer buffer = new StringBuffer(length);
+	java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(inputString, "\n\r");
+	int count = 0;
+	for (int i = 0; i < indent; i++) buffer.append("\t");
+	buffer.append("\"");
+	while (tokenizer.hasMoreTokens()){
+		if (count++ != 0) {
+			buffer.append("\\n\" + \n");
+			for (int i = 0; i < indent; i++) buffer.append("\t");
+			buffer.append("\"");
+		}
+		String token = tokenizer.nextToken();
+		StringBuffer tokenBuffer = new StringBuffer();
+		for (int i = 0; i < token.length(); i++){ 
+			char c = token.charAt(i);
+			switch (c) {
+				case '\b' :
+					tokenBuffer.append("\\b");
+					break;
+				case '\t' :
+					tokenBuffer.append("\t");
+					break;
+				case '\n' :
+					tokenBuffer.append("\\n");
+					break;
+				case '\f' :
+					tokenBuffer.append("\\f");
+					break;
+				case '\r' :
+					tokenBuffer.append("\\r");
+					break;
+				case '\"' :
+					tokenBuffer.append("\\\"");
+					break;
+				case '\'' :
+					tokenBuffer.append("\\'");
+					break;
+				case '\\' :
+					tokenBuffer.append("\\\\");
+					break;
+				default :
+					tokenBuffer.append(c);
+			}
+		}
+		buffer.append(tokenBuffer.toString());
+	}
+	char lastChar = length == 0 ? 0 : inputString.charAt(length-1);
+	if ((lastChar == '\n') || (lastChar == '\r')) buffer.append("\\n");
+	buffer.append("\"");
+	return buffer.toString();
+}
+
+
+
+
 
 }

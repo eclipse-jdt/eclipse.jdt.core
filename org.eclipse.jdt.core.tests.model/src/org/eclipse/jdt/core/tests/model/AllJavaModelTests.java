@@ -84,6 +84,10 @@ public static Test suite() {
 	// Options tests
 	suite.addTest(OptionTests.suite());
 	
+	// Type hierarchy tests
+	suite.addTest(TypeHierarchyTests.suite());
+	suite.addTest(TypeHierarchyNotificationTests.suite());
+	
 	return suite;
 }
 
