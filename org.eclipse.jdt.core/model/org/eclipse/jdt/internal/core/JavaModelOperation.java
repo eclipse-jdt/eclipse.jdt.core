@@ -42,7 +42,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	/*
 	 * A list of IPostActions.	 */
 	protected IPostAction[] actions;
-	protected int actionsPtr = -1;
+	protected int actionsStart = 0;
+	protected int actionsEnd = -1;
 	/*
 	 * A HashMap of attributes that can be used by operations	 */
 	protected HashMap attributes;
@@ -138,10 +139,10 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 */
 	protected void addAction(IPostAction action) {
 		int length = this.actions.length;
-		if (length == ++this.actionsPtr) {
+		if (length == ++this.actionsEnd) {
 			System.arraycopy(this.actions, 0, this.actions = new IPostAction[length*2], 0, length);
 		}
-		this.actions[this.actionsPtr] = action;
+		this.actions[this.actionsEnd] = action;
 	}
 	/*
 	 * Registers the given delta with the Java Model Manager.
@@ -484,7 +485,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Returns the index of the first registered action with the given id, starting from a given position.
 	 * Returns -1 if not found.	 */
 	protected int firstActionWithID(String id, int start) {
-		for (int i = start; i <= this.actionsPtr; i++) {
+		for (int i = start; i <= this.actionsEnd; i++) {
 			if (this.actions[i].getID().equals(id)) {
 				return i;
 			}
@@ -534,31 +535,31 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * - the action should be ignored if there is already an action with the same id (KEEP_EXISTING),
 	 * - the action should be queued at the end without looking at existing actions (APPEND)	 */
 	protected void postAction(IPostAction action, int insertionMode) {
-		JavaModelOperation outerMostOp = (JavaModelOperation)getCurrentOperationStack().get(0);
-		IPostAction[] postActions = outerMostOp.actions;
+		JavaModelOperation topLevelOp = (JavaModelOperation)getCurrentOperationStack().get(0);
+		IPostAction[] postActions = topLevelOp.actions;
 		if (postActions == null) {
-			outerMostOp.actions = postActions = new IPostAction[1];
+			topLevelOp.actions = postActions = new IPostAction[1];
 			postActions[0] = action;
-			outerMostOp.actionsPtr++;
+			topLevelOp.actionsEnd = 0;
 		} else {
 			String id = action.getID();
 			switch (insertionMode) {
 				case REMOVEALL_APPEND :
-					int index = -1;
-					while ((index = outerMostOp.firstActionWithID(id, index+1)) >= 0) {
+					int index = this.actionsStart-1;
+					while ((index = topLevelOp.firstActionWithID(id, index+1)) >= 0) {
 						// remove action[index]
-						System.arraycopy(postActions, index+1, postActions, index, outerMostOp.actionsPtr - index);
-						postActions[outerMostOp.actionsPtr--] = null;
+						System.arraycopy(postActions, index+1, postActions, index, topLevelOp.actionsEnd - index);
+						postActions[topLevelOp.actionsEnd--] = null;
 					}
-					outerMostOp.addAction(action);
+					topLevelOp.addAction(action);
 					break;
 				case KEEP_EXISTING:
-					if (outerMostOp.firstActionWithID(id, 0) < 0) {
-						outerMostOp.addAction(action);
+					if (topLevelOp.firstActionWithID(id, 0) < 0) {
+						topLevelOp.addAction(action);
 					}
 					break;
 				case APPEND:
-					outerMostOp.addAction(action);
+					topLevelOp.addAction(action);
 					break;
 			}
 		}
@@ -611,8 +612,9 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		}
 	}
 	protected void runPostActions() throws JavaModelException {
-		for (int i = 0; i <= this.actionsPtr; i++) {
-			this.actions[i].run();
+		while (this.actionsStart <= this.actionsEnd) {
+			IPostAction postAction = this.actions[this.actionsStart++];
+			postAction.run();
 		}
 	}
 	/*
