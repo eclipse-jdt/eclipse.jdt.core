@@ -33,11 +33,13 @@ public boolean checkPathMatch(char[] pattern, char[] path, boolean isCaseSensiti
 	CharOperation.replace(path, '/', File.separatorChar);
 	CharOperation.replace(path, '\\', File.separatorChar);
 	
-	//boolean antResult = SelectorUtils.matchPath(new String(pattern), new String(path), isCaseSensitive);
 	boolean result = CharOperation.pathMatch(pattern, path, isCaseSensitive, File.separatorChar);
+
+//	boolean antResult = SelectorUtils.matchPath(new String(pattern), new String(path), isCaseSensitive);
 //	if (antResult != result) {
 //		new AssertionFailedError("WARNING : Ant expectation for patchMatch(\""+new String(pattern)+"\", \""+new String(path)+"\", ...) is: "+antResult).printStackTrace();
 //	}
+
 	return result;
 }
 
@@ -420,7 +422,13 @@ public void test60() {
 	assertTrue("Path pattern matching failure-4",
 		!checkPathMatch("A.java".toCharArray(), "/P/src/A.java".toCharArray(), true));		
 }
+public void test61() {
 
+	assertTrue("Path pattern matching failure-1",
+		checkPathMatch("/P/src/**/CVS".toCharArray(), "/P/src/CVS".toCharArray(), true));
+	assertTrue("Path pattern matching failure-2",
+		checkPathMatch("/P/src/**/CVS/".toCharArray(), "/P/src/CVS".toCharArray(), true));
+}
 public static Class testClass() {
 	return UtilTest.class;
 }
