@@ -38,7 +38,7 @@ public void computeConstant() {
 	{	if (length == 1) { 	constant = Constant.fromValue(0L);	return;	}
 		final int shift,radix;
 		int j ;
-		if ( (source[1] == 'x') | (source[1] == 'X') )
+		if ( (source[1] == 'x') || (source[1] == 'X') )
 		{	shift = 4 ; j = 2; radix = 16;}
 		else
 		{	shift = 3 ; j = 1; radix = 8;}
