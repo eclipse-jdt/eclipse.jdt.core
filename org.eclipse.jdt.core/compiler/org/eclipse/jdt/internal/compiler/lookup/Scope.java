@@ -748,6 +748,11 @@ public abstract class Scope
 		return typeBinding;
 	}
 
+	public LocalVariableBinding findVariable(char[] variable) {
+
+		return null;
+	}
+	
 	public TypeBinding getBaseType(char[] name) {
 		// list should be optimized (with most often used first)
 		int length = name.length;
@@ -808,6 +813,193 @@ public abstract class Scope
 			}
 		}
 		return null;
+	}
+
+	/* API
+     *	
+	 *	Answer the binding that corresponds to the argument name.
+	 *	flag is a mask of the following values VARIABLE (= FIELD or LOCAL), TYPE, PACKAGE.
+	 *	Only bindings corresponding to the mask can be answered.
+	 *
+	 *	For example, getBinding("foo", VARIABLE, site) will answer
+	 *	the binding for the field or local named "foo" (or an error binding if none exists).
+	 *	If a type named "foo" exists, it will not be detected (and an error binding will be answered)
+	 *
+	 *	The VARIABLE mask has precedence over the TYPE mask.
+	 *
+	 *	If the VARIABLE mask is not set, neither fields nor locals will be looked for.
+	 *
+	 *	InvocationSite implements:
+	 *		isSuperAccess(); this is used to determine if the discovered field is visible.
+	 *
+	 *	Limitations: cannot request FIELD independently of LOCAL, or vice versa
+	 */
+	public Binding getBinding(char[] name, int mask, InvocationSite invocationSite) {
+			
+		Binding binding = null;
+		FieldBinding problemField = null;
+		if ((mask & VARIABLE) != 0) {
+			if (this.kind == BLOCK_SCOPE || this.kind == METHOD_SCOPE) {
+				LocalVariableBinding variableBinding = findVariable(name);
+				// looks in this scope only
+				if (variableBinding != null) return variableBinding;
+			}
+
+			boolean insideStaticContext = false;
+			boolean insideConstructorCall = false;
+			if (this.kind == METHOD_SCOPE) {
+				MethodScope methodScope = (MethodScope) this;
+				insideStaticContext |= methodScope.isStatic;
+				insideConstructorCall |= methodScope.isConstructorCall;
+			}
+
+			FieldBinding foundField = null;
+			// can be a problem field which is answered if a valid field is not found
+			ProblemFieldBinding foundInsideProblem = null;
+			// inside Constructor call or inside static context
+			Scope scope = parent;
+			if (scope == null) return new ProblemBinding(name, null, NotFound);
+			int depth = 0;
+			int foundDepth = 0;
+			ReferenceBinding foundActualReceiverType = null;
+			done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
+				switch (scope.kind) {
+					case METHOD_SCOPE :
+						MethodScope methodScope = (MethodScope) scope;
+						insideStaticContext |= methodScope.isStatic;
+						insideConstructorCall |= methodScope.isConstructorCall;
+						// Fall through... could duplicate the code below to save a cast - questionable optimization
+					case BLOCK_SCOPE :
+						LocalVariableBinding variableBinding = scope.findVariable(name);
+						// looks in this scope only
+						if (variableBinding != null) {
+							if (foundField != null && foundField.isValidBinding())
+								return new ProblemFieldBinding(
+									foundField.declaringClass,
+									name,
+									InheritedNameHidesEnclosingName);
+							if (depth > 0)
+								invocationSite.setDepth(depth);
+							return variableBinding;
+						}
+						break;
+					case CLASS_SCOPE :
+						ClassScope classScope = (ClassScope) scope;
+						SourceTypeBinding enclosingType = classScope.referenceContext.binding;
+						FieldBinding fieldBinding =
+							classScope.findField(enclosingType, name, invocationSite);
+						// Use next line instead if willing to enable protected access accross inner types
+						// FieldBinding fieldBinding = findField(enclosingType, name, invocationSite);
+						if (fieldBinding != null) { // skip it if we did not find anything
+							if (fieldBinding.problemId() == Ambiguous) {
+								if (foundField == null || foundField.problemId() == NotVisible)
+									// supercedes any potential InheritedNameHidesEnclosingName problem
+									return fieldBinding;
+								else
+									// make the user qualify the field, likely wants the first inherited field (javac generates an ambiguous error instead)
+									return new ProblemFieldBinding(
+										fieldBinding.declaringClass,
+										name,
+										InheritedNameHidesEnclosingName);
+							}
+
+							ProblemFieldBinding insideProblem = null;
+							if (fieldBinding.isValidBinding()) {
+								if (!fieldBinding.isStatic()) {
+									if (insideConstructorCall) {
+										insideProblem =
+											new ProblemFieldBinding(
+												fieldBinding.declaringClass,
+												name,
+												NonStaticReferenceInConstructorInvocation);
+									} else if (insideStaticContext) {
+										insideProblem =
+											new ProblemFieldBinding(
+												fieldBinding.declaringClass,
+												name,
+												NonStaticReferenceInStaticContext);
+									}
+								}
+								if (enclosingType == fieldBinding.declaringClass
+									|| environment().options.complianceLevel >= CompilerOptions.JDK1_4){
+									// found a valid field in the 'immediate' scope (ie. not inherited)
+									// OR in 1.4 mode (inherited shadows enclosing)
+									if (foundField == null) {
+										if (depth > 0){
+											invocationSite.setDepth(depth);
+											invocationSite.setActualReceiverType(enclosingType);
+										}
+										// return the fieldBinding if it is not declared in a superclass of the scope's binding (that is, inherited)
+										return insideProblem == null ? fieldBinding : insideProblem;
+									}
+									if (foundField.isValidBinding())
+										// if a valid field was found, complain when another is found in an 'immediate' enclosing type (that is, not inherited)
+										if (foundField.declaringClass != fieldBinding.declaringClass)
+											// ie. have we found the same field - do not trust field identity yet
+											return new ProblemFieldBinding(
+												fieldBinding.declaringClass,
+												name,
+												InheritedNameHidesEnclosingName);
+								}
+							}
+
+							if (foundField == null
+								|| (foundField.problemId() == NotVisible
+									&& fieldBinding.problemId() != NotVisible)) {
+								// only remember the fieldBinding if its the first one found or the previous one was not visible & fieldBinding is...
+								foundDepth = depth;
+								foundActualReceiverType = enclosingType;
+								foundInsideProblem = insideProblem;
+								foundField = fieldBinding;
+							}
+						}
+						depth++;
+						insideStaticContext |= enclosingType.isStatic();
+						// 1EX5I8Z - accessing outer fields within a constructor call is permitted
+						// in order to do so, we change the flag as we exit from the type, not the method
+						// itself, because the class scope is used to retrieve the fields.
+						MethodScope enclosingMethodScope = scope.methodScope();
+						insideConstructorCall =
+							enclosingMethodScope == null ? false : enclosingMethodScope.isConstructorCall;
+						break;
+					case COMPILATION_UNIT_SCOPE :
+						break done;
+				}
+				scope = scope.parent;
+			}
+
+			if (foundInsideProblem != null){
+				return foundInsideProblem;
+			}
+			if (foundField != null) {
+				if (foundField.isValidBinding()){
+					if (foundDepth > 0){
+						invocationSite.setDepth(foundDepth);
+						invocationSite.setActualReceiverType(foundActualReceiverType);
+					}
+					return foundField;
+				}
+				problemField = foundField;
+			}
+		}
+
+		// We did not find a local or instance variable.
+		if ((mask & TYPE) != 0) {
+			if ((binding = getBaseType(name)) != null)
+				return binding;
+			binding = getTypeOrPackage(name, (mask & PACKAGE) == 0 ? TYPE : TYPE | PACKAGE);
+			if (binding.isValidBinding() || mask == TYPE)
+				return binding;
+			// answer the problem type binding if we are only looking for a type
+		} else if ((mask & PACKAGE) != 0) {
+			compilationUnitScope().recordSimpleReference(name);
+			if ((binding = environment().getTopLevelPackage(name)) != null)
+				return binding;
+		}
+		if (problemField != null)
+			return problemField;
+		else
+			return new ProblemBinding(name, enclosingSourceType(), NotFound);
 	}
 
 	public final PackageBinding getCurrentPackage() {

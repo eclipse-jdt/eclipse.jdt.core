@@ -149,12 +149,12 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 
 			this.hasBeenResolved = true;
 
-			// check if field is hiding some variable
+			// check if field is hiding some variable - issue is that field binding already got inserted in scope
 			ClassScope classScope = initializationScope.enclosingClassScope();
 			if (classScope != null) {
 				SourceTypeBinding declaringType = classScope.enclosingSourceType();
 				boolean checkLocal = true;
-				if (declaringType.superclass != null) { 
+				if (declaringType.superclass != null) {
 					Binding existingVariable = classScope.findField(declaringType.superclass, name, this);
 					if (existingVariable != null && existingVariable.isValidBinding()) {
 						initializationScope.problemReporter().fieldHiding(this, existingVariable);
@@ -162,12 +162,13 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 					}
 				}
 				if (checkLocal) {
-					MethodScope outerMethodScope = classScope.enclosingMethodScope();
-					if (outerMethodScope != null) { // local type scenario
-						Binding existingVariable = outerMethodScope.getBinding(name, BindingIds.VARIABLE, this);
-						if (existingVariable != null && existingVariable.isValidBinding()){
-							initializationScope.problemReporter().fieldHiding(this, existingVariable);
-						}
+					Scope outerScope = classScope.parent;
+					if (outerScope == null){ 
+						System.out.println();
+					}
+					Binding existingVariable = outerScope.getBinding(name, BindingIds.VARIABLE, this);
+					if (existingVariable != null && existingVariable.isValidBinding()){
+						initializationScope.problemReporter().fieldHiding(this, existingVariable);
 					}
 				}
 			}
