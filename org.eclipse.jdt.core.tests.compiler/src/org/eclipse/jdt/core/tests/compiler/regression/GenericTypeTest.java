@@ -3345,4 +3345,40 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");		
 	}			
+	public void test115() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"  class MX<U> {\n" + 
+				"  }\n" + 
+				"\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" + 
+				"  }\n" + 
+				"  void foo(X<String>.MX mx) {\n" + 
+				"	System.out.println(\"SUCCESS\");\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"SUCCESS");		
+	}		
+	public void test116() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"  class MX<U> {\n" + 
+				"  }\n" + 
+				"\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" + 
+				"  }\n" + 
+				"  void foo(X.MX mx) {\n" + 
+				"	System.out.println(\"SUCCESS\");\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"SUCCESS");		
+	}			
 }
