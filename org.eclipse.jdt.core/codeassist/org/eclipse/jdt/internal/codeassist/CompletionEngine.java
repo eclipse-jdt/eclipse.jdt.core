@@ -88,6 +88,14 @@ public final class CompletionEngine
 	static final char[] lengthField = "length".toCharArray();  //$NON-NLS-1$
 	static final char[] THIS = "this".toCharArray();  //$NON-NLS-1$
 	static final char[] THROWS = "throws".toCharArray();  //$NON-NLS-1$
+	
+	static InvocationSite FakeInvocationSite = new InvocationSite(){
+		public boolean isSuperAccess(){ return false; }
+		public boolean isTypeAccess(){ return false; }
+		public void setDepth(int depth){}
+		public void setFieldIndex(int depth){}
+		
+	};
 
 	/**
 	 * The CompletionEngine is responsible for computing source completions.
@@ -1483,7 +1491,7 @@ public final class CompletionEngine
 			if (onlyStaticMethods && !method.isStatic()) continue next;
 
 			if (options.checkVisibility
-				&& !method.canBeSeenBy(receiverType, false, scope)) continue next;
+				&& !method.canBeSeenBy(receiverType, FakeInvocationSite , scope)) continue next;
 
 			if (exactMatch) {
 				if (!CharOperation.equals(methodName, method.selector, false /* ignore case */

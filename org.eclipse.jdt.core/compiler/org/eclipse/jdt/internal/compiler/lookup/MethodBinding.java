@@ -120,11 +120,7 @@ public final boolean canBeSeenBy(InvocationSite invocationSite, Scope scope) {
 *
 * NOTE: Cannot invoke this method with a compilation unit scope.
 */
-
 public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invocationSite, Scope scope) {
-	return this.canBeSeenBy(receiverType,invocationSite.isSuperAccess(),scope);
-}
-public final boolean canBeSeenBy(TypeBinding receiverType, boolean isSuperAccess, Scope scope) {
 	if (isPublic()) return true;
 
 	SourceTypeBinding invocationType = scope.enclosingSourceType();
@@ -140,17 +136,25 @@ public final boolean canBeSeenBy(TypeBinding receiverType, boolean isSuperAccess
 		if (invocationType.fPackage == declaringClass.fPackage) return true;
 		
 		ReferenceBinding currentType = invocationType;
+		int depth = 0;
 		do {
 			if (declaringClass.isSuperclassOf(currentType)) {
-				if (isSuperAccess) return true;
-				// receiverType can be an array binding in one case... see if you can change it
-				if (receiverType instanceof ArrayBinding)
-					return false;
-				if (currentType == receiverType || currentType.isSuperclassOf((ReferenceBinding) receiverType))
+				if (invocationSite.isSuperAccess()){
 					return true;
-				if (isStatic())
+				}
+				// receiverType can be an array binding in one case... see if you can change it
+				if (receiverType instanceof ArrayBinding){
+					return false;
+				}
+				if (isStatic()){
 					return true; // see 1FMEPDL - return invocationSite.isTypeAccess();
+				}
+				if (currentType == receiverType || currentType.isSuperclassOf((ReferenceBinding) receiverType)){
+					if (depth > 0) invocationSite.setDepth(depth);
+					return true;
+				}
 			}
+			depth++;
 			currentType = currentType.enclosingType();
 		} while (currentType != null);
 		return false;
