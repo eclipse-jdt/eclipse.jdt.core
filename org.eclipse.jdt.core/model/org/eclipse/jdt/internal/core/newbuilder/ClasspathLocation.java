@@ -13,8 +13,8 @@ static ClasspathLocation forSourceFolder(String sourceFolderPathname, String out
 	return new ClasspathMultiDirectory(sourceFolderPathname, outputFolderPathname);
 }
 
-static ClasspathLocation forRequiredProject(String outputFolderPathname) {
-	return new ClasspathDirectory(outputFolderPathname);
+static ClasspathLocation forBinaryFolder(String binaryFolderPathname) {
+	return new ClasspathDirectory(binaryFolderPathname);
 }
 
 static ClasspathLocation forLibrary(String libraryPathname) {

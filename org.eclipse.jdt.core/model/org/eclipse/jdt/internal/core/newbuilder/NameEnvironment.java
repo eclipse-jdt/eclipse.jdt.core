@@ -92,7 +92,7 @@ public static ClasspathLocation[] computeLocations(
 							ClasspathLocation.forSourceFolder(resource.getLocation().toString(), outputFolderLocation);
 					} else if (firstSourceFolder) { // add the output folder only once
 						firstSourceFolder = false;
-						classpathLocations[cpCount++] = ClasspathLocation.forRequiredProject(outputFolderLocation);
+						classpathLocations[cpCount++] = ClasspathLocation.forBinaryFolder(outputFolderLocation);
 					}
 					continue nextEntry;
 
@@ -110,7 +110,7 @@ public static ClasspathLocation[] computeLocations(
 					}
 					if (prereqOutputFolders != null)
 						prereqOutputFolders.put(prereqProject, prereqOutputFolder);
-					classpathLocations[cpCount++] = ClasspathLocation.forRequiredProject(prereqOutputFolder.getLocation().toString());
+					classpathLocations[cpCount++] = ClasspathLocation.forBinaryFolder(prereqOutputFolder.getLocation().toString());
 					continue nextEntry;
 
 				case IClasspathEntry.CPE_LIBRARY :
@@ -120,7 +120,7 @@ public static ClasspathLocation[] computeLocations(
 							continue nextEntry;
 						classpathLocations[cpCount++] = ClasspathLocation.forLibrary(resource.getLocation().toString());
 					} else if (resource instanceof IFolder) {
-						classpathLocations[cpCount++] = ClasspathLocation.forRequiredProject(resource.getLocation().toString());
+						classpathLocations[cpCount++] = ClasspathLocation.forBinaryFolder(resource.getLocation().toString());
 					}
 					continue nextEntry;
 			}
