@@ -25,16 +25,21 @@ public abstract class AbstractIndexer implements IIndexConstants {
 	public void addClassDeclaration(int modifiers, char[] packageName,char[] name,  char[][] enclosingTypeNames, char[] superclass, char[][] superinterfaces) {
 		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(name, packageName, enclosingTypeNames, CLASS_SUFFIX));
 
+		if (superclass != null)
+			addTypeReference(superclass);
 		addIndexEntry(
 			SUPER_REF, 
 			SuperTypeReferencePattern.createIndexKey(
 				modifiers, packageName, name, enclosingTypeNames, CLASS_SUFFIX, superclass, CLASS_SUFFIX));
-		if (superinterfaces != null)
-			for (int i = 0, max = superinterfaces.length; i < max; i++)
+		if (superinterfaces != null) {
+			for (int i = 0, max = superinterfaces.length; i < max; i++) {
+				addTypeReference(superinterfaces[i]);
 				addIndexEntry(
 					SUPER_REF,
 					SuperTypeReferencePattern.createIndexKey(
 						modifiers, packageName, name, enclosingTypeNames, CLASS_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
+			}
+		}
 	}
 	public void addConstructorDeclaration(char[] typeName, char[][] parameterTypes, char[][] exceptionTypes) {
 		int argCount = parameterTypes == null ? 0 : parameterTypes.length;
@@ -47,14 +52,16 @@ public abstract class AbstractIndexer implements IIndexConstants {
 				addTypeReference(exceptionTypes[i]);
 	}
 	public void addConstructorReference(char[] typeName, int argCount) {
-		addIndexEntry(CONSTRUCTOR_REF, ConstructorPattern.createIndexKey(CharOperation.lastSegment(typeName,'.'), argCount));
+		char[] simpleTypeName = CharOperation.lastSegment(typeName,'.');
+		addTypeReference(simpleTypeName);
+		addIndexEntry(CONSTRUCTOR_REF, ConstructorPattern.createIndexKey(simpleTypeName, argCount));
 	}
 	public void addFieldDeclaration(char[] typeName, char[] fieldName) {
 		addIndexEntry(FIELD_DECL, FieldPattern.createIndexKey(fieldName));
 		addTypeReference(typeName);
 	}
 	public void addFieldReference(char[] fieldName) {
-		addIndexEntry(FIELD_REF, FieldPattern.createIndexKey(fieldName));
+		addNameReference(fieldName);
 	}
 	protected void addIndexEntry(char[] category, char[] key) {
 		SearchParticipant.addIndexEntry(category, key, this.document);
@@ -62,12 +69,15 @@ public abstract class AbstractIndexer implements IIndexConstants {
 	public void addInterfaceDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames, char[][] superinterfaces) {
 		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(name, packageName, enclosingTypeNames, INTERFACE_SUFFIX));
 
-		if (superinterfaces != null)
-			for (int i = 0, max = superinterfaces.length; i < max; i++)
+		if (superinterfaces != null) {
+			for (int i = 0, max = superinterfaces.length; i < max; i++) {
+				addTypeReference(superinterfaces[i]);
 				addIndexEntry(
 					SUPER_REF,
 					SuperTypeReferencePattern.createIndexKey(
 						modifiers, packageName, name, enclosingTypeNames, INTERFACE_SUFFIX, superinterfaces[i], INTERFACE_SUFFIX));
+			}
+		}
 	}
 	public void addMethodDeclaration(char[] methodName, char[][] parameterTypes, char[] returnType, char[][] exceptionTypes) {
 		int argCount = parameterTypes == null ? 0 : parameterTypes.length;
@@ -88,7 +98,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addIndexEntry(REF, name);
 	}
 	public void addTypeReference(char[] typeName) {
-		addIndexEntry(TYPE_REF, TypeReferencePattern.createIndexKey(CharOperation.lastSegment(typeName, '.')));
+		addNameReference(CharOperation.lastSegment(typeName, '.'));
 	}
 	public abstract void indexDocument();
 }
