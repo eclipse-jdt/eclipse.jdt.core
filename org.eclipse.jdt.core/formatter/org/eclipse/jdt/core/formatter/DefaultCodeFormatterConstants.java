@@ -3124,17 +3124,7 @@ public class DefaultCodeFormatterConstants {
 		return DefaultCodeFormatterOptions.getDefaultSettings().getMap();
 	}
 
-    /**
-     * Returns the default Eclipse formatter settings
-     * 
-     * @return the Eclipse default settings
-     * @since 3.1
-     */
-    public static Map getEclipseDefaultSettings() {
-        return DefaultCodeFormatterOptions.getEclipseDefaultSettings().getMap();
-    }
-
-    /**
+	/**
 	 * <p>Return the force value of the given alignment value.
 	 * The given alignment value should be created using the <code>createAlignmentValue(boolean, int, int)</code>
 	 * API.
