@@ -1368,6 +1368,7 @@ protected void consumeClassBodyDeclaration() {
 	//optimize the push/pop
 	nestedMethod[nestedType]--;
 	Initializer initializer = new Initializer((Block) astStack[astPtr], 0);
+	intPtr--; // pop sourcestart left on the stack by consumeNestedMethod.
 	astStack[astPtr] = initializer;
 	initializer.sourceEnd = endStatementPosition;
 	initializer.declarationSourceEnd = flushAnnotationsDefinedPriorTo(endStatementPosition);
