@@ -53,12 +53,12 @@ public class SuperReference extends ThisReference {
 		constant = NotAConstant;
 		if (!checkAccess(scope.methodScope()))
 			return null;
-		SourceTypeBinding enclosingTb = scope.enclosingSourceType();
-		if (scope.isJavaLangObject(enclosingTb)) {
+		SourceTypeBinding enclosingType = scope.enclosingSourceType();
+		if (enclosingType.id == T_Object) {
 			scope.problemReporter().cannotUseSuperInJavaLangObject(this);
 			return null;
 		}
-		return this.resolvedType = enclosingTb.superclass;
+		return this.resolvedType = enclosingType.superclass;
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {

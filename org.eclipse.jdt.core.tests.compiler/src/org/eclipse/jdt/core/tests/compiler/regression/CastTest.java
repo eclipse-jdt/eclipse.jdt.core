@@ -1110,6 +1110,82 @@ public void test032() {
 		},
 	"SUCCESS");
 }
+
+/*
+ * unused cast diagnosis
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=54763
+ */
+public void test033() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    public static void main(String [] args) {\n" + 
+			"        List list = (List) new ArrayList();\n" + 
+			"        list = (List) new ArrayList();\n" + 
+			"        \n" + 
+			"        String s = (String) \"hello\";\n" + 
+			"        s += (List) new ArrayList();\n" + 
+			"        \n" + 
+			"        ArrayList alist = new ArrayList();\n" + 
+			"        List list2 = (List) alist;\n" + 
+			"        list2 = (List) alist;\n" + 
+			"        \n" + 
+			"        String s2 = (String) \"hello\";\n" + 
+			"        s2 += (List) alist;\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	List list = (List) new ArrayList();\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	list = (List) new ArrayList();\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	String s = (String) \"hello\";\n" + 
+		"	           ^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type String for expression of type String\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 10)\n" + 
+		"	s += (List) new ArrayList();\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 13)\n" + 
+		"	List list2 = (List) alist;\n" + 
+		"	             ^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 14)\n" + 
+		"	list2 = (List) alist;\n" + 
+		"	        ^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 16)\n" + 
+		"	String s2 = (String) \"hello\";\n" + 
+		"	            ^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type String for expression of type String\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 17)\n" + 
+		"	s2 += (List) alist;\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
 public static Class testClass() {
 	return CastTest.class;
 }

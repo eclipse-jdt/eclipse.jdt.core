@@ -130,11 +130,11 @@ public class CastExpression extends Expression {
 			} else if (
 				castType.isClass()) {
 				//------(castType.isClass) expressionType.isArray ---------------	
-				if (scope.isJavaLangObject(castType)) {
+				if (castType.id == T_Object) {
 					return false;
 				}
 			} else { //------- (castType.isInterface) expressionType.isArray -----------
-				if (scope.isJavaLangCloneable(castType) || scope.isJavaIoSerializable(castType)) {
+				if (castType.id == T_JavaLangCloneable || castType.id == T_JavaIoSerializable) {
 					this.bits |= NeedRuntimeCheckCastMASK;
 					return true;
 				}
@@ -146,7 +146,7 @@ public class CastExpression extends Expression {
 		if (expressionType.isClass()) {
 			if (castType.isArrayType()) {
 				// ---- (castType.isArray) expressionType.isClass -------
-				if (scope.isJavaLangObject(expressionType)) { // potential runtime error
+				if (expressionType.id == T_Object) { // potential runtime error
 					this.bits |= NeedRuntimeCheckCastMASK;
 					return true;
 				}
@@ -161,14 +161,14 @@ public class CastExpression extends Expression {
 					return true;
 				}
 			} else { // ----- (castType.isInterface) expressionType.isClass -------  
-				if (((ReferenceBinding) expressionType).isFinal()) {
-					// no subclass for expressionType, thus compile-time check is valid
-					if (expressionType.isCompatibleWith(castType)) 
-						return false;
-				} else { // a subclass may implement the interface ==> no check at compile time
+				if (expressionType.isCompatibleWith(castType)) 
+					return false;
+				if (!((ReferenceBinding) expressionType).isFinal()) {
+					// a subclass may implement the interface ==> no check at compile time
 					this.bits |= NeedRuntimeCheckCastMASK;
-					return true;
+					return true;				    
 				}
+				// no subclass for expressionType, thus compile-time check is valid
 			}
 			scope.problemReporter().typeCastError(this, castType, expressionType);
 			return true;
@@ -177,15 +177,15 @@ public class CastExpression extends Expression {
 		//	if (expressionType.isInterface()) { cannot be anything else
 		if (castType.isArrayType()) {
 			// ----- (castType.isArray) expressionType.isInterface ------
-			if (scope.isJavaLangCloneable(expressionType)
-					|| scope.isJavaIoSerializable(expressionType)) {// potential runtime error
+			if (expressionType.id == T_JavaLangCloneable
+					|| expressionType.id == T_JavaIoSerializable) {// potential runtime error
 				this.bits |= NeedRuntimeCheckCastMASK;
 			} else {
 				scope.problemReporter().typeCastError(this, castType, expressionType);
 			}
 			return true;
 		} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isInterface --------
-			if (scope.isJavaLangObject(castType)) { // no runtime error
+			if (castType.id == T_Object) { // no runtime error
 				return false;
 			}
 			if (((ReferenceBinding) castType).isFinal()) {
@@ -197,10 +197,10 @@ public class CastExpression extends Expression {
 				}
 			}
 		} else { // ----- (castType.isInterface) expressionType.isInterface -------
-			if (castType == expressionType) { 
-				return false; // identity conversion
+			if (expressionType.isCompatibleWith(castType)) {
+				return false; 
 			}
-			if (Scope.compareTypes(castType, expressionType) == NotRelated) {
+			if (!castType.isCompatibleWith(expressionType)) {
 				MethodBinding[] castTypeMethods = ((ReferenceBinding) castType).methods();
 				MethodBinding[] expressionTypeMethods =
 					((ReferenceBinding) expressionType).methods();

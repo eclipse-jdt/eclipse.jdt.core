@@ -91,11 +91,11 @@ public class InstanceOfExpression extends OperatorExpression {
 			} else if (
 				castType.isClass()) {
 				//------(castType.isClass) expressionType.isArray ---------------	
-				if (scope.isJavaLangObject(castType)) {
+				if (castType.id == T_Object) {
 					return false;
 				}
 			} else { //------- (castType.isInterface) expressionType.isArray -----------
-				if (scope.isJavaLangCloneable(castType) || scope.isJavaIoSerializable(castType)) {
+				if (castType.id == T_JavaLangCloneable || castType.id == T_JavaIoSerializable) {
 					return true;
 				}
 			}
@@ -106,7 +106,7 @@ public class InstanceOfExpression extends OperatorExpression {
 		if (expressionType.isClass()) {
 			if (castType.isArrayType()) {
 				// ---- (castType.isArray) expressionType.isClass -------
-				if (scope.isJavaLangObject(expressionType)) { // potential runtime error
+				if (expressionType.id == T_Object) { // potential runtime error
 					return true;
 				}
 			} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isClass ------
@@ -118,13 +118,13 @@ public class InstanceOfExpression extends OperatorExpression {
 					return true;
 				}
 			} else { // ----- (castType.isInterface) expressionType.isClass -------  
-				if (((ReferenceBinding) expressionType).isFinal()) {
-					// no subclass for expressionType, thus compile-time check is valid
-					if (expressionType.isCompatibleWith(castType)) 
-						return false;
-				} else { // a subclass may implement the interface ==> no check at compile time
+				if (expressionType.isCompatibleWith(castType)) 
+					return false;
+				if (!((ReferenceBinding) expressionType).isFinal()) {
+				    // a subclass may implement the interface ==> no check at compile time
 					return true;
 				}
+				// no subclass for expressionType, thus compile-time check is valid
 			}
 			scope.problemReporter().notCompatibleTypesError(this, expressionType, castType);
 			return true;
@@ -133,13 +133,13 @@ public class InstanceOfExpression extends OperatorExpression {
 		//	if (expressionType.isInterface()) { cannot be anything else
 		if (castType.isArrayType()) {
 			// ----- (castType.isArray) expressionType.isInterface ------
-			if (!(scope.isJavaLangCloneable(expressionType)
-					|| scope.isJavaIoSerializable(expressionType))) {// potential runtime error
+			if (!(expressionType.id == T_JavaLangCloneable
+					|| expressionType.id == T_JavaIoSerializable)) {// potential runtime error
 				scope.problemReporter().notCompatibleTypesError(this, expressionType, castType);
 			}
 			return true;
 		} else if (castType.isClass()) { // ----- (castType.isClass) expressionType.isInterface --------
-			if (scope.isJavaLangObject(castType)) { // no runtime error
+			if (castType.id == T_Object) { // no runtime error
 				return false;
 			}
 			if (((ReferenceBinding) castType).isFinal()) {
@@ -151,10 +151,10 @@ public class InstanceOfExpression extends OperatorExpression {
 				}
 			}
 		} else { // ----- (castType.isInterface) expressionType.isInterface -------
-			if (castType == expressionType) { 
-				return false; // identity conversion
+			if (expressionType.isCompatibleWith(castType)) { 
+				return false;
 			}
-			if (Scope.compareTypes(castType, expressionType) == NotRelated) {
+			if (!castType.isCompatibleWith(expressionType)) {
 				MethodBinding[] castTypeMethods = ((ReferenceBinding) castType).methods();
 				MethodBinding[] expressionTypeMethods =
 					((ReferenceBinding) expressionType).methods();
