@@ -26,7 +26,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IBufferFactory;
 import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.ICodeCompletionRequestor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IJavaElement;
@@ -534,7 +533,7 @@ public static char[] translatedName(char[] name) {
  * @see ICodeAssist#codeComplete(int, ICodeCompletionRequestor)
  * @deprecated - should use codeComplete(int, ICompletionRequestor) instead
  */
-public void codeComplete(int offset, final ICodeCompletionRequestor requestor) throws JavaModelException {
+public void codeComplete(int offset, final org.eclipse.jdt.core.ICodeCompletionRequestor requestor) throws JavaModelException {
 	
 	if (requestor == null){
 		codeComplete(offset, (ICompletionRequestor)null);

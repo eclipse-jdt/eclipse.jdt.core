@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IBufferFactory;
-import org.eclipse.jdt.core.ICodeCompletionRequestor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.ICompletionRequestor;
 import org.eclipse.jdt.core.IImportContainer;
@@ -499,7 +498,7 @@ public IResource getResource() {
 	 * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, ICodeCompletionRequestor)
 	 * @deprecated
 	 */
-	public void codeComplete(int offset, ICodeCompletionRequestor requestor)
+	public void codeComplete(int offset, org.eclipse.jdt.core.ICodeCompletionRequestor requestor)
 		throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
