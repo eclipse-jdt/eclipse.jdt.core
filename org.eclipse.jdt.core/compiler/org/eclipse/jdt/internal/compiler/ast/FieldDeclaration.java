@@ -132,7 +132,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 			return this.binding.isStatic();
 		return (this.modifiers & AccStatic) != 0;
 	}
-
+	
 	public void resolve(MethodScope initializationScope) {
 
 		// the two <constant = Constant.NotAConstant> could be regrouped into
@@ -145,21 +145,28 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 			this.hasBeenResolved = true;
 
 			// check if field is hiding some variable - issue is that field binding already got inserted in scope
+			// thus must lookup separately in super type and outer context
 			ClassScope classScope = initializationScope.enclosingClassScope();
+			
 			if (classScope != null) {
 				SourceTypeBinding declaringType = classScope.enclosingSourceType();
 				boolean checkLocal = true;
 				if (declaringType.superclass != null) {
-					Binding existingVariable = classScope.findField(declaringType.superclass, this.name, this, true /*resolve*/);
-					if (existingVariable != null && existingVariable.isValidBinding()) {
+					Binding existingVariable = classScope.findField(declaringType.superclass, this.name, this,  false /*do not resolve hidden field*/);
+					if (existingVariable != null && existingVariable.isValidBinding()){
 						initializationScope.problemReporter().fieldHiding(this, existingVariable);
 						checkLocal = false; // already found a matching field
 					}
 				}
 				if (checkLocal) {
 					Scope outerScope = classScope.parent;
+					// only corner case is: lookup of outer field through static declaringType, which isn't detected by #getBinding as lookup starts
+					// from outer scope. Subsequent static contexts are detected for free.
 					Binding existingVariable = outerScope.getBinding(this.name, BindingIds.VARIABLE, this, false /*do not resolve hidden field*/);
-					if (existingVariable != null && existingVariable.isValidBinding()){
+					if (existingVariable != null && existingVariable.isValidBinding()
+							&& (!(existingVariable instanceof FieldBinding)
+									|| ((FieldBinding) existingVariable).isStatic() 
+									|| !declaringType.isStatic())) {
 						initializationScope.problemReporter().fieldHiding(this, existingVariable);
 					}
 				}
