@@ -26,27 +26,27 @@ MemoryIndex() {
 void addDocumentNames(String substring, SimpleSet results) {
 	// assumed the disk index already skipped over documents which have been added/changed/deleted
 	Object[] paths = this.docsToReferences.keyTable;
-	Object[] categoryTables = this.docsToReferences.valueTable;
+	Object[] referenceTables = this.docsToReferences.valueTable;
 	if (substring == null) { // add all new/changed documents
-		for (int i = 0, l = categoryTables.length; i < l; i++)
-			if (categoryTables[i] != null)
+		for (int i = 0, l = referenceTables.length; i < l; i++)
+			if (referenceTables[i] != null)
 				results.add(paths[i]);
 	} else {
-		for (int i = 0, l = categoryTables.length; i < l; i++)
-			if (categoryTables[i] != null && ((String) paths[i]).startsWith(substring, 0))
+		for (int i = 0, l = referenceTables.length; i < l; i++)
+			if (referenceTables[i] != null && ((String) paths[i]).startsWith(substring, 0))
 				results.add(paths[i]);
 	}
 }
 void addIndexEntry(char[] category, char[] key, SearchDocument document) {
 	// assumed a document was removed before its reindexed
 	String documentName = document.getPath();
-	HashtableOfObject categoryTable = (HashtableOfObject) this.docsToReferences.get(documentName);
-	if (categoryTable == null)
-		this.docsToReferences.put(documentName, categoryTable = new HashtableOfObject(3));
+	HashtableOfObject referenceTable = (HashtableOfObject) this.docsToReferences.get(documentName);
+	if (referenceTable == null)
+		this.docsToReferences.put(documentName, referenceTable = new HashtableOfObject(3));
 
-	SimpleWordSet existingWords = (SimpleWordSet) categoryTable.get(category);
+	SimpleWordSet existingWords = (SimpleWordSet) referenceTable.get(category);
 	if (existingWords == null)
-		categoryTable.put(category, existingWords = new SimpleWordSet(3));
+		referenceTable.put(category, existingWords = new SimpleWordSet(3));
 
 	existingWords.add(key);
 }
@@ -54,10 +54,10 @@ void addQueryResults(char[][] categories, char[] key, int matchRule, HashtableOf
 	// assumed the disk index already skipped over documents which have been added/changed/deleted
 	// results maps a word -> EntryResult
 	Object[] paths = this.docsToReferences.keyTable;
-	Object[] categoryTables = this.docsToReferences.valueTable;
+	Object[] referenceTables = this.docsToReferences.valueTable;
 	if (matchRule == (SearchPattern.R_EXACT_MATCH + SearchPattern.R_CASE_SENSITIVE) && key != null) {
-		nextPath : for (int i = 0, l = categoryTables.length; i < l; i++) {
-			HashtableOfObject categoryToWords = (HashtableOfObject) categoryTables[i];
+		nextPath : for (int i = 0, l = referenceTables.length; i < l; i++) {
+			HashtableOfObject categoryToWords = (HashtableOfObject) referenceTables[i];
 			if (categoryToWords != null) {
 				for (int j = 0, m = categories.length; j < m; j++) {
 					SimpleWordSet wordSet = (SimpleWordSet) categoryToWords.get(categories[j]);
@@ -72,8 +72,8 @@ void addQueryResults(char[][] categories, char[] key, int matchRule, HashtableOf
 			}
 		}
 	} else {
-		for (int i = 0, l = categoryTables.length; i < l; i++) {
-			HashtableOfObject categoryToWords = (HashtableOfObject) categoryTables[i];
+		for (int i = 0, l = referenceTables.length; i < l; i++) {
+			HashtableOfObject categoryToWords = (HashtableOfObject) referenceTables[i];
 			if (categoryToWords != null) {
 				for (int j = 0, m = categories.length; j < m; j++) {
 					SimpleWordSet wordSet = (SimpleWordSet) categoryToWords.get(categories[j]);
