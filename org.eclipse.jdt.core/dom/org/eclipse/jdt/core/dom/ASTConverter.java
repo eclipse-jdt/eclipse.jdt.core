@@ -2197,17 +2197,27 @@ class ASTConverter {
 	 */
 	private void retrieveRightBraceOrSemiColonPosition(ASTNode node) {
 		int start = node.getStartPosition();
-		int length = node.getLength();
-		int end = start + length;
-		scanner.resetTo(end, this.compilationUnitSource.length);
+		scanner.resetTo(start, this.compilationUnitSource.length);
 		try {
 			int token;
+			int braceCounter = 0;
 			while ((token = scanner.getNextToken()) != Scanner.TokenNameEOF) {
 				switch(token) {
-					case Scanner.TokenNameSEMICOLON :
+					case Scanner.TokenNameLBRACE :
+						braceCounter++;
+						break;
 					case Scanner.TokenNameRBRACE :
-						node.setSourceRange(start, scanner.currentPosition - start);
-						return;
+						braceCounter--;
+						if (braceCounter == 0) {
+							node.setSourceRange(start, scanner.currentPosition - start);
+							return;
+						}
+						break;
+					case Scanner.TokenNameSEMICOLON :
+						if (braceCounter == 0) {
+							node.setSourceRange(start, scanner.currentPosition - start);
+							return;
+						}
 				}
 			}
 		} catch(InvalidInputException e) {
