@@ -2887,6 +2887,7 @@ class ASTConverter {
 						break;
 					case AST.JLS3 :
 						SimpleType simpleType = this.ast.newSimpleType(simpleName);
+						simpleType.setSourceRange(simpleName.getStartPosition(), simpleName.getLength());
 						type = this.ast.newParameterizedType(simpleType);
 						TypeReference[] typeArguments = parameterizedSingleTypeReference.typeArguments;
 						if (typeArguments != null) {

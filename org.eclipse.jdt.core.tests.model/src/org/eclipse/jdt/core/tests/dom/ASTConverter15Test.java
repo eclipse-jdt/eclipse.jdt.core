@@ -68,7 +68,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());		
-		suite.addTest(new ASTConverter15Test("test0031"));
+		suite.addTest(new ASTConverter15Test("test0032"));
 		return suite;
 	}
 		
@@ -992,6 +992,25 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+	}
+	
+	public void test0032() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0032", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runJLS3Conversion(sourceUnit, false, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertEquals("wrong size", 0, compilationUnit.getProblems().length);
+		ASTNode node = getASTNode(compilationUnit, 1);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		List superInterfaces = typeDeclaration.superInterfaceTypes();
+		assertEquals("wrong size", 1, superInterfaces.size());
+		Type type = (Type) superInterfaces.get(0);
+		assertEquals("wrong type", ASTNode.PARAMETERIZED_TYPE, type.getNodeType());
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		Type type2 = parameterizedType.getType();
+		checkSourceRange(type2, "C", source);
 	}
 }
 
