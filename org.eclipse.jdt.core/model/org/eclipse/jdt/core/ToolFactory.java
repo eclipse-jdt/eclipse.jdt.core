@@ -96,7 +96,7 @@ public class ToolFactory {
 	 * @see JavaCore#getOptions()
 	 */
 	public static ICodeFormatter createDefaultCodeFormatter(Map options){
-		final String NEW_CODE_FORMATTER_ACTIVATION = JavaCore.PLUGIN_ID + ".newformatter.activation";
+		final String NEW_CODE_FORMATTER_ACTIVATION = JavaCore.PLUGIN_ID + ".newformatter.activation"; //$NON-NLS-1$
 	
 		Object newFormatterActivation = JavaCore.getOption(NEW_CODE_FORMATTER_ACTIVATION);
 		
