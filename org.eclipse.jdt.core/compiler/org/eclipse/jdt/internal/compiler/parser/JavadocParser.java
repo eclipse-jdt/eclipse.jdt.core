@@ -403,7 +403,7 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	/*
-	 * Fill javadoc fields with information in ast nodes stack.
+	 * Fill associated comment fields with ast nodes information stored in stack.
 	 */
 	protected void updateDocComment() {
 		
