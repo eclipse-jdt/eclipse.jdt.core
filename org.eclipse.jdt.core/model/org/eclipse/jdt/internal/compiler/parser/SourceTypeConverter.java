@@ -493,7 +493,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 			/* by default, we assume that one is needed. */
 			int extraConstructor = 0;
 			int methodCount = 0;
-			int kind = type.getKind();
+			int kind = type.kind();
 			boolean isAbstract = kind == IGenericType.INTERFACE || kind == IGenericType.ANNOTATION_TYPE;
 			if (!isAbstract) {
 				extraConstructor = needConstructor ? 1 : 0;

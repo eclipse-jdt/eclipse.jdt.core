@@ -133,7 +133,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 		
 		// by grammatical construction, interface methods are always abstract
-		switch (scope.referenceType().getKind()) {
+		switch (scope.referenceType().kind()) {
 			case IGenericType.ENUM :
 				if (this.selector == TypeConstants.VALUES) break;
 				if (this.selector == TypeConstants.VALUEOF) break;

@@ -1300,7 +1300,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
                CharOperation.concatWith(superInterfaces[i].getParameterizedTypeName(), '.'); 
          }
       }
-      int kind = typeDeclaration.getKind();
+      int kind = typeDeclaration.kind();
       switch (kind) {
          case IGenericType.CLASS :
          case IGenericType.ANNOTATION_TYPE :
@@ -1447,7 +1447,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
    }
    if (notifyTypePresence){
       if (isInRange){
-         switch (typeDeclaration.getKind()) {
+         switch (typeDeclaration.kind()) {
             case IGenericType.CLASS :
             case IGenericType.ANNOTATION_TYPE :
                requestor.exitClass(typeDeclaration.declarationSourceEnd);

@@ -588,8 +588,8 @@ public class SearchBasicEngine {
 									return false; // no local/anonymous type
 								}
 								public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
-									if (match(typeSuffix, packageName, typeName, matchRule, typeDeclaration.getKind(), packageDeclaration, typeDeclaration.name)) {
-										switch(typeDeclaration.getKind()) {
+									if (match(typeSuffix, packageName, typeName, matchRule, typeDeclaration.kind(), packageDeclaration, typeDeclaration.name)) {
+										switch(typeDeclaration.kind()) {
 											case IGenericType.CLASS:
 												nameRequestor.acceptClass(packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
 												break;
@@ -607,7 +607,7 @@ public class SearchBasicEngine {
 									return true;
 								}
 								public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope classScope) {
-									if (match(typeSuffix, packageName, typeName, matchRule, memberTypeDeclaration.getKind(), packageDeclaration, memberTypeDeclaration.name)) {
+									if (match(typeSuffix, packageName, typeName, matchRule, memberTypeDeclaration.kind(), packageDeclaration, memberTypeDeclaration.name)) {
 										// compute encloising type names
 										TypeDeclaration enclosing = memberTypeDeclaration.enclosingType;
 										char[][] enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
@@ -620,7 +620,7 @@ public class SearchBasicEngine {
 											}
 										}
 										// report
-										switch(memberTypeDeclaration.getKind()) {
+										switch(memberTypeDeclaration.kind()) {
 											case IGenericType.CLASS:
 												nameRequestor.acceptClass(packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path, null);
 												break;

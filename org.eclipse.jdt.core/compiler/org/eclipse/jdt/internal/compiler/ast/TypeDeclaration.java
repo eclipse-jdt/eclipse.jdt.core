@@ -289,7 +289,7 @@ public class TypeDeclaration
 							methods[i] = m;
 						}
 					} else {
-						if (this.getKind() == IGenericType.INTERFACE) {
+						if (this.kind() == IGenericType.INTERFACE) {
 							// report the problem and continue the parsing
 							parser.problemReporter().interfaceCannotHaveConstructors(
 								(ConstructorDeclaration) am);
@@ -611,16 +611,6 @@ public class TypeDeclaration
 		generateCode((ClassFile) null);
 	}
 
-	public int getKind() {
-		if ((modifiers & AccInterface) != 0) {
-			if ((modifiers & AccAnnotation) != 0) 
-				return IGenericType.ANNOTATION_TYPE;
-			return IGenericType.INTERFACE;
-		} else if ((modifiers & AccEnum) != 0) 
-			return IGenericType.ENUM;
-		return IGenericType.CLASS;
-	}
-	
 	public boolean hasErrors() {
 		return this.ignoreFurtherInvestigation;
 	}
@@ -714,6 +704,16 @@ public class TypeDeclaration
 		}
 	}
 
+	public int kind() {
+		if ((modifiers & AccInterface) != 0) {
+			if ((modifiers & AccAnnotation) != 0) 
+				return IGenericType.ANNOTATION_TYPE;
+			return IGenericType.INTERFACE;
+		} else if ((modifiers & AccEnum) != 0) 
+			return IGenericType.ENUM;
+		return IGenericType.CLASS;
+	}
+	
 	/* 
 	 * Access emulation for a local type
 	 * force to emulation of access to direct enclosing instance.
@@ -773,7 +773,7 @@ public class TypeDeclaration
 		if (fields == null)
 			return false;
 		
-		if (getKind() == IGenericType.INTERFACE)
+		if (kind() == IGenericType.INTERFACE)
 			return true; // fields are implicitly statics
 		for (int i = fields.length; --i >= 0;) {
 			FieldDeclaration field = fields[i];
@@ -864,7 +864,7 @@ public class TypeDeclaration
 	public StringBuffer printHeader(int indent, StringBuffer output) {
 
 		printModifiers(this.modifiers, output);
-		switch (getKind()) {
+		switch (kind()) {
 			case IGenericType.CLASS :
 				output.append("class "); //$NON-NLS-1$
 				break;
@@ -892,7 +892,7 @@ public class TypeDeclaration
 			superclass.print(0, output);
 		}
 		if (superInterfaces != null && superInterfaces.length > 0) {
-			switch (getKind()) {
+			switch (kind()) {
 				case IGenericType.CLASS :
 				case IGenericType.ENUM :
 					output.append(" implements "); //$NON-NLS-1$
@@ -979,7 +979,7 @@ public class TypeDeclaration
 				this.scope.problemReporter().missingSerialVersion(this);
 			}
 			// check extends/implements for annotation type
-			if (getKind() == IGenericType.ANNOTATION_TYPE) {
+			if (kind() == IGenericType.ANNOTATION_TYPE) {
 				if (this.superclass != null) {
 					this.scope.problemReporter().annotationTypeDeclarationCannotHaveSuperclass(this);
 				}
@@ -988,7 +988,7 @@ public class TypeDeclaration
 				}
 			}
 			// check enum abstract methods
-			if (getKind() == IGenericType.ENUM && this.binding.isAbstract()) {
+			if (kind() == IGenericType.ENUM && this.binding.isAbstract()) {
 				if (!hasEnumConstants || hasEnumConstantsWithoutBody) {
 					for (int i = 0, count = this.methods.length; i < count; i++) {
 						if (this.methods[i].isAbstract()) {

@@ -46,7 +46,7 @@ public RecoveredType(TypeDeclaration typeDeclaration, RecoveredElement parent, i
 	super(typeDeclaration, parent, bracketBalance);
 	this.typeDeclaration = typeDeclaration;
 	this.foundOpeningBrace = !bodyStartsAtHeaderEnd();
-	this.insideEnumConstantPart = typeDeclaration.getKind() == IGenericType.ENUM;
+	this.insideEnumConstantPart = typeDeclaration.kind() == IGenericType.ENUM;
 	if(this.foundOpeningBrace) {
 		this.bracketBalance++;
 	}
@@ -388,7 +388,7 @@ public TypeDeclaration updatedTypeDeclaration(){
 		}
 		typeDeclaration.methods = methodDeclarations;
 	} else {
-		if (!hasConstructor && typeDeclaration.getKind() != IGenericType.INTERFACE) {// if was already reduced, then constructor
+		if (!hasConstructor && typeDeclaration.kind() != IGenericType.INTERFACE) {// if was already reduced, then constructor
 			boolean insideFieldInitializer = false;
 			RecoveredElement parentElement = this.parent; 
 			while (parentElement != null){

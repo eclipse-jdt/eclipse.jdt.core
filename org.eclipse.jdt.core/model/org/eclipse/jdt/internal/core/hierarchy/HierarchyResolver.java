@@ -370,7 +370,7 @@ private void remember(IType type, ReferenceBinding typeBinding) {
 	
 		HierarchyType hierarchyType = new HierarchyType(
 			type, 
-			typeDeclaration.getKind(),
+			typeDeclaration.kind(),
 			typeDeclaration.name,
 			typeDeclaration.binding.modifiers,
 			superclassName,

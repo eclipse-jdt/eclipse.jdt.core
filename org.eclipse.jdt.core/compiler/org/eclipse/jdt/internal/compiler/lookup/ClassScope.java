@@ -177,7 +177,7 @@ public class ClassScope extends Scope {
 			int count = 0;
 			nextMember : for (int i = 0; i < size; i++) {
 				TypeDeclaration memberContext = referenceContext.memberTypes[i];
-				if (memberContext.getKind() == IGenericType.INTERFACE) {
+				if (memberContext.kind() == IGenericType.INTERFACE) {
 					problemReporter().nestedClassCannotDeclareInterface(memberContext);
 					continue nextMember;
 				}
@@ -228,7 +228,7 @@ public class ClassScope extends Scope {
 			int count = 0;
 			nextMember : for (int i = 0; i < length; i++) {
 				TypeDeclaration memberContext = referenceContext.memberTypes[i];
-				if (memberContext.getKind() == IGenericType.INTERFACE
+				if (memberContext.kind() == IGenericType.INTERFACE
 					&& sourceType.isNestedType()
 					&& sourceType.isClass()
 					&& !sourceType.isStatic()) {
@@ -262,7 +262,7 @@ public class ClassScope extends Scope {
 	}
 	
 	private void buildMethods() {
-		boolean isEnum = referenceContext.getKind() == IGenericType.ENUM;
+		boolean isEnum = referenceContext.kind() == IGenericType.ENUM;
 		if (referenceContext.methods == null && !isEnum) {
 			referenceContext.binding.methods = NoMethods;
 			return;

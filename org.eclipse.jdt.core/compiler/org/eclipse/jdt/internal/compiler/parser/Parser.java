@@ -1866,7 +1866,7 @@ protected void consumeClassDeclaration() {
 	
 	//add the default constructor when needed (interface don't have it)
 	if (!hasConstructor) {
-		switch(typeDecl.getKind()) {
+		switch(typeDecl.kind()) {
 			case IGenericType.CLASS :
 			case IGenericType.ENUM :
 				boolean insideFieldInitializer = false;

@@ -1067,7 +1067,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
 				enclosingType = enclosingType.enclosingType;
 			}
-			switch (typeDeclaration.getKind()) {
+			switch (typeDeclaration.kind()) {
 				case IGenericType.CLASS :
 					this.requestor.acceptClass(
 						packageName,

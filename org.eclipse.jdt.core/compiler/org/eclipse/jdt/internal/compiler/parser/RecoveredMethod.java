@@ -213,7 +213,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 		}
 		return methodBody.add(typeDeclaration, bracketBalanceValue, true);	
 	}
-	if (typeDeclaration.getKind() == IGenericType.INTERFACE) {
+	if (typeDeclaration.kind() == IGenericType.INTERFACE) {
 		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(typeDeclaration.declarationSourceStart - 1));
 		if (this.parent == null) {
 			return this; // ignore

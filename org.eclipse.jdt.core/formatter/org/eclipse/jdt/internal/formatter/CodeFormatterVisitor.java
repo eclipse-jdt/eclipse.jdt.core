@@ -839,7 +839,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		/*
 		 * Type name
 		 */
-        switch(typeDeclaration.getKind()) {
+        switch(typeDeclaration.kind()) {
         	case IGenericType.CLASS :
 				this.scribe.printNextToken(TerminalTokens.TokenNameclass, true); 
         		break;
@@ -911,7 +911,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		final TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
 		if (superInterfaces != null) {
 			int alignment_for_superinterfaces;
-			switch(typeDeclaration.getKind()) {
+			switch(typeDeclaration.kind()) {
 				case IGenericType.ENUM :
 					alignment_for_superinterfaces = this.preferences.alignment_for_superinterfaces_in_enum_declaration;
 					break;
@@ -930,7 +930,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			do {
 				try {
 					this.scribe.alignFragment(interfaceAlignment, 0);
-					if (typeDeclaration.getKind() == IGenericType.INTERFACE) {
+					if (typeDeclaration.kind() == IGenericType.INTERFACE) {
 						this.scribe.printNextToken(TerminalTokens.TokenNameextends, true);
 					} else  {
 						this.scribe.printNextToken(TerminalTokens.TokenNameimplements, true);
@@ -963,7 +963,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		 */
 		String class_declaration_brace;
 		boolean space_before_opening_brace;
-		switch(typeDeclaration.getKind()) {
+		switch(typeDeclaration.kind()) {
 			case IGenericType.ENUM :
 				class_declaration_brace = this.preferences.brace_position_for_enum_declaration;
 				space_before_opening_brace = this.preferences.insert_space_before_opening_brace_in_enum_declaration;
@@ -981,7 +981,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		formatTypeOpeningBrace(class_declaration_brace, space_before_opening_brace, typeDeclaration);
 		
 		boolean indent_body_declarations_compare_to_header;
-		switch(typeDeclaration.getKind()) {
+		switch(typeDeclaration.kind()) {
 			case IGenericType.ENUM :
 				indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_enum_declaration_header;
 				break;
@@ -997,7 +997,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.indent();
 		}
 		
-		if (typeDeclaration.getKind() == IGenericType.ENUM) {
+		if (typeDeclaration.kind() == IGenericType.ENUM) {
 			FieldDeclaration[] fieldDeclarations = typeDeclaration.fields;
 			boolean hasConstants = false;
 			if (fieldDeclarations != null) {
@@ -1040,7 +1040,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.unIndent();
 		}
 		
-		switch(typeDeclaration.getKind()) {
+		switch(typeDeclaration.kind()) {
 			case IGenericType.ENUM :
 				if (this.preferences.insert_new_line_in_empty_enum_declaration) {
 					this.scribe.printNewLine();
@@ -1893,7 +1893,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		boolean insertNewLine = memberLength > 0;
 		
 		if (!insertNewLine) {
-			if (typeDeclaration.getKind() == IGenericType.ENUM) {
+			if (typeDeclaration.kind() == IGenericType.ENUM) {
 				insertNewLine = this.preferences.insert_new_line_in_empty_enum_declaration;
 			} else if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
 				insertNewLine = this.preferences.insert_new_line_in_empty_anonymous_type_declaration;
