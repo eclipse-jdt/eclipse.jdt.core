@@ -18,11 +18,16 @@ What's new in this drop</h2>
 <ul>
 <li>Added API <code>CorrectionEngine#computeCorrections(IProblem, ICompilationUnit, ICorrectionRequestor)</code>, allowing.
 to compute replacement corrections for IProblem(s) detected while reconciling.</li>
+<li>Added API <code>ISourceReference#exists()</code>, allowing.
+to check existency before invoking <code>ISourceReference</code> behavior. All implementations did already provide
+an <code>exists()</code> method since they also are implementing <code>IJavaElement</code>.</li>
 </ul>
 
 <h3>
 Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=11296">11296</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=6243">6243</a>
+an ISourceReference API issue
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=11296">11296</a>
 NPE during build
 <h3>
 Problem Reports Closed</h3>

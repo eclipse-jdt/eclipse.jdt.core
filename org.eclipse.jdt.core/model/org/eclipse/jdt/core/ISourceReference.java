@@ -29,6 +29,13 @@ import org.eclipse.jdt.internal.core.*;
  */
 public interface ISourceReference {
 /**
+ * Returns whether this element exists in the model.
+ *
+ * @return <code>true</code> if this element exists in the Java model
+ */
+boolean exists();
+	
+/**
  * Returns the source code associated with this element.
  * This extracts the substring from the source buffer containing this source
  * element. This corresponds to the source range that would be returned by
