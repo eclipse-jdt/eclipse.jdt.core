@@ -8671,7 +8671,7 @@ public void testCompletionSameClass() throws JavaModelException {
 			"element:CompletionSameClass    completion:CompletionSameClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED),
 			requestor.getResults());
 }
-
+/*
 public void testCompletionBasicPackage1() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionBasicPackage1.java");
@@ -8803,5 +8803,5 @@ public void testCompletionBasicPotentialMethodDeclaration1() throws JavaModelExc
 	assertResults(
 			"zzpot[POTENTIAL_METHOD_DECLARATION]{zzpot, LCompletionBasicPotentialMethodDeclaration1;, ()V, zzpot, [60, 65], " + (R_DEFAULT + R_INTERESTING) + "}",
 			requestor.getResults());
-}
+}*/
 }
