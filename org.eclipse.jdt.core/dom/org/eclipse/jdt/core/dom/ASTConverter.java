@@ -519,6 +519,9 @@ class ASTConverter {
 	}	
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.Expression expression) {
+		if (checkForParenthesis(expression)) {
+			return convertToParenthesizedExpression(expression);
+		}
 		// switch between all types of expression
 		if (expression instanceof ArrayAllocationExpression) {
 			return convert((ArrayAllocationExpression) expression);
@@ -619,6 +622,17 @@ class ASTConverter {
 		throw new IllegalArgumentException("Not yet implemented: convert(" + expression.getClass() + ")");//$NON-NLS-1$//$NON-NLS-2$
 	}
 
+	public ParenthesizedExpression convertToParenthesizedExpression(org.eclipse.jdt.internal.compiler.ast.Expression expression) {
+		ParenthesizedExpression parenthesizedExpression = this.ast.newParenthesizedExpression();
+		if (this.resolveBindings) {
+			recordNodes(parenthesizedExpression, expression);
+		}
+		parenthesizedExpression.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
+		adjustSourcePositionsForParent(expression);
+		parenthesizedExpression.setExpression(convert(expression));
+		return parenthesizedExpression;
+	}
+	
 	public ClassInstanceCreation convert(AllocationExpression expression) {
 		ClassInstanceCreation classInstanceCreation = this.ast.newClassInstanceCreation();
 		if (this.resolveBindings) {
@@ -2103,6 +2117,70 @@ class ASTConverter {
 	
 	private void recordNodes(ASTNode node, org.eclipse.jdt.internal.compiler.ast.AstNode oldASTNode) {
 		this.ast.getBindingResolver().store(node, oldASTNode);
+	}
+	
+	private boolean checkForParenthesis(org.eclipse.jdt.internal.compiler.ast.Expression expression) {
+		/*
+		 * We need to handle multiple parenthesis
+		 */
+		int start = expression.sourceStart;
+		int end = expression.sourceEnd;
+		int leftParentCount = 0;
+		int rightParentCount = 0;
+		scanner.resetTo(start, end);
+		try {
+			int token = scanner.getNextToken();
+			if (token != Scanner.TokenNameLPAREN) {
+				return false;
+			} else {
+				leftParentCount++;
+			}
+			boolean stop = false;
+			while (!stop && ((token  = scanner.getNextToken()) != Scanner.TokenNameEOF)) {
+				switch(token) {
+					case Scanner.TokenNameLPAREN:
+						leftParentCount++;
+						break;
+					case Scanner.TokenNameRPAREN:
+						rightParentCount++;
+						if (rightParentCount == leftParentCount) {
+							// we found the matching parenthesis
+							stop = true;
+						}
+				}
+			}
+			return (scanner.currentPosition >= end) && (rightParentCount == leftParentCount);
+		} catch(InvalidInputException e) {
+		}
+		return false;
+	}
+	
+	private void adjustSourcePositionsForParent(org.eclipse.jdt.internal.compiler.ast.Expression expression) {
+		int start = expression.sourceStart;
+		int end = expression.sourceEnd;
+		int leftParentCount = 1;
+		int rightParentCount = 0;
+		scanner.resetTo(start, end);
+		try {
+			int token = scanner.getNextToken();
+			expression.sourceStart = scanner.currentPosition;
+			boolean stop = false;
+			while (!stop && ((token  = scanner.getNextToken()) != Scanner.TokenNameEOF)) {
+				switch(token) {
+					case Scanner.TokenNameLPAREN:
+						leftParentCount++;
+						break;
+					case Scanner.TokenNameRPAREN:
+						rightParentCount++;
+						if (rightParentCount == leftParentCount) {
+							// we found the matching parenthesis
+							stop = true;
+						}
+				}
+			}
+			expression.sourceEnd = scanner.startPosition - 1;
+		} catch(InvalidInputException e) {
+		}
 	}
 }
 

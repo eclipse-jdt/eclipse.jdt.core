@@ -264,6 +264,9 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (expression instanceof MethodInvocation) {
 			MessageSend messageSend = (MessageSend)  this.newAstToOldAst.get(expression);
 			return this.getMethodBinding(messageSend.binding).getReturnType();
+		} else if (expression instanceof ParenthesizedExpression) {
+			ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression;
+			return this.resolveExpressionType(parenthesizedExpression.getExpression());
 		}
 		return super.resolveExpressionType(expression);
 	}
