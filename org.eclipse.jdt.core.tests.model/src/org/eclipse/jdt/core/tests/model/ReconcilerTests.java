@@ -1145,6 +1145,54 @@ public void testMethodWithError13() throws CoreException {
 		deleteFolder("/Reconciler15/src/test");
 	}
 }
+/*
+ * Scenario of reconciling using a working copy owner (66424)
+ */
+public void testMethodWithError14() throws CoreException {
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+	this.workingCopy = null;
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	ICompilationUnit workingCopy1 = null;
+	try {
+		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/X.java").getWorkingCopy(owner, null, null);
+		createFolder("/Reconciler15/src/test");
+		workingCopy1.getBuffer().setContents(
+			"package test;\n"+
+			"public class X <T> {\n"+
+			"	<U> void bar(U u) {}\n"+
+			"}\n"
+		);
+		workingCopy1.makeConsistent(null);
+		
+		this.problemRequestor =  new ProblemRequestor();
+		this.workingCopy = getCompilationUnit("Reconciler15/src/test/Y.java").getWorkingCopy(owner, this.problemRequestor, null);
+		setWorkingCopyContents(
+			"package test;\n"+
+			"public class Y {\n"+
+			"	void foo(){\n"+
+			"		X someX = new X();\n"+
+			"		someX.bar();\n"+
+			"	}\n"+
+			"}\n"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 5)\n" + 
+			"	someX.bar();\n" + 
+			"	      ^^^\n" + 
+			"The method bar(U) in the type X is not applicable for the arguments ()\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (workingCopy1 != null) {
+			workingCopy1.discardWorkingCopy();
+		}
+		deleteFolder("/Reconciler15/src/test");
+	}
+}
 /**
  * Ensures that the reconciler handles member move correctly.
  */
