@@ -273,7 +273,7 @@ public void commit(boolean force, IProgressMonitor monitor) throws JavaModelExce
 	commitWorkingCopy(force, monitor);
 }
 /**
- * @see IWorkingCopy#commitWorkingCopy(boolean, IProgressMonitor)
+ * @see ICompilationUnit#commitWorkingCopy(boolean, IProgressMonitor)
  */
 public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (!isWorkingCopy()) {
