@@ -15425,7 +15425,7 @@ public void test500(){
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86898
-	public void _test545() {
+	public void test545() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -15462,20 +15462,315 @@ public void test500(){
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 7)\n" + 
-			"	b.add(new Object());\n" + 
-			"	^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The method add(Object) belongs to the raw type Vector. References to generic type Vector<E> should be parameterized\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	m3((X2) m());  // A<Object>.m() --> X<? extends Object> - cannot cast to X2\n" + 
+			"	   ^^^^^^^^\n" + 
+			"Type safety: The cast from X<? extends Object> to X2 is actually checking against the erased type X2\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 8)\n" + 
-			"	a = b;\n" + 
-			"	    ^\n" + 
-			"Type safety: The expression of type Vector needs unchecked conversion to conform to Vector<Integer>\n" + 
+			"2. ERROR in X.java (at line 18)\n" + 
+			"	lhs = rhs; // cannot convert\n" + 
+			"	      ^^^\n" + 
+			"Type mismatch: cannot convert from X<? extends Object> to X<String>\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 9)\n" + 
+			"3. ERROR in X.java (at line 21)\n" + 
+			"	lhs = rhs; // cannot convert\n" + 
+			"	      ^^^\n" + 
+			"Type mismatch: cannot convert from X<? extends Object> to X2\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 29)\n" + 
+			"	void foo(X<String> xs) {}\n" + 
+			"	     ^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method foo(X<String>) of type D has the same erasure as foo(X<? extends Object>) of type C but does not override it\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 30)\n" + 
+			"	void bar(X<? extends Object> xo) {}\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method bar(X<? extends Object>) of type D has the same erasure as bar(X<String>) of type C but does not override it\n" + 
+			"----------\n");
+	}		
+	// ensure no unsafe cast warning (javac incorrectly reports one)
+	public void test546() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class StringList extends java.util.LinkedList<String> {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        java.util.List<? extends String> a = new StringList();\n" + 
+				"        java.util.List<String> b = (StringList) a;      // warned but safe.\n" + 
+				"    }\n" + 
+				"   Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	class StringList extends java.util.LinkedList<String> {\n" + 
+			"	      ^^^^^^^^^^\n" + 
+			"The serializable class StringList does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	public void test547() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"	public <K> TreeMap<K,K> essai(K type) {\n" + 
+				"		TreeMap<K,K> treeMap = new TreeMap<K,K>();\n" + 
+				"		return treeMap;\n" + 
+				"	}\n" + 
+				"	public static void main(String args[]) {\n" + 
+				"		X x = new X();\n" + 
+				"		TreeMap<?,?> treeMap = x.essai(null);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");
+	}		
+	public void test548() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface DA<T> {\n" + 
+				"}\n" + 
+				"interface DB<T> extends DA<T> {\n" + 
+				"}\n" + 
+				"interface DC<T> extends DA<Integer> {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	Object o = (DC<?>) (DA<?>) null;\n" + 
+				"  Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
+			"	Object o = (DC<?>) (DA<?>) null;\n" + 
+			"	                   ^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from null to DA<?>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	// legal, but javac rejects it
+	public void test549() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	boolean DEBUG = this instanceof Special;\n" + 
+				"\n" + 
+				"	public static class Special extends X<String> {\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");
+	}	
+	public void test550() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class A {}\n" + 
+				"class B extends A {}\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"    public <U extends B> void foo(X<? super A> param) {\n" + 
+				"        X<U> foo = (X<U>)param;\n" + 
+				"    }\n" + 
+				"   Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	X<U> foo = (X<U>)param;\n" + 
+			"	           ^^^^^^^^^^^\n" + 
+			"Type safety: The cast from X<? super A> to X<U> is actually checking against the erased type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}		
+	// ensure no unchecked warning
+	public void test551() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    <T, U extends T, V extends T> T cond1(boolean z, U x1, V x2) {\n" + 
+				"        return (z? (T) x1: x2);\n" + 
+				"    }\n" + 
+				"    Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}			
+	public void test552() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	Comparable<?> x;\n" + 
+				"\n" + 
+				"	void put(Comparable<?> c) {\n" + 
+				"		this.x = c;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	Comparable<?> get() {\n" + 
+				"		return x;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void test() {\n" + 
+				"		X ci = new X();\n" + 
+				"		ci.put(new Integer(3));\n" + 
+				"		Integer i = (Integer) ci.get();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}\n",
+			},
+			"");
+	}					
+	public void test553() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"   public static void main(String args[]) throws Exception {\n" + 
+				"      doIt();\n" + 
+				"      System.out.println(\"SUCCESS\");\n" + 
+				"   }\n" + 
+				"   public static void doIt() {\n" + 
+				"      Holder<Integer> association = new Holder<Integer>(new Integer(0));\n" + 
+				"      Integer sizeHolder = (Integer)(association.getValue()); //Cast to Integer is redundant!!!\n" + 
+				"      System.out.print(sizeHolder.intValue());\n" + 
+				"   }\n" + 
+				"   static class Holder<V> {\n" + 
+				"      V value;\n" + 
+				"      Holder(V value) {\n" + 
+				"         this.value = value;\n" + 
+				"      }\n" + 
+				"      V getValue() {\n" + 
+				"         return value;\n" + 
+				"      }\n" + 
+				"   }\n" + 
+				"}\n"	,
+			},
+			"0SUCCESS");
+	}					
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86898 - variation
+	public void test554() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				" import java.util.*;\n" + 
+				" public class X<T> {\n" + 
+				" public static void main(String[] args) {\n" + 
+				"		X<? extends Object> xo = null;\n" + 
+				"		X<String> xs = null;\n" + 
+				"		X2 x2 = null;\n" + 
+				"		\n" + 
+				"		Object o1 = (X<String>) xo;\n" + 
+				"		Object o2 = (X<? extends Object>) xs;\n" + 
+				"		Object o3 = (X2) xo;\n" + 
+				"		Object o4 = (X<? extends Object>) x2;\n" + 
+				"		Object o5 = (X3<String>) xo;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class X2 extends X<String> {\n" + 
+				"}\n" + 
+				"class X3<U> extends X<U> {\n" + 
+				"   Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	import java.util.*;\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"The import java.util is never used\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	Object o1 = (X<String>) xo;\n" + 
+			"	            ^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from X<? extends Object> to X<String> is actually checking against the erased type X\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	Object o2 = (X<? extends Object>) xs;\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from X<String> to X<? extends Object>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 10)\n" + 
+			"	Object o3 = (X2) xo;\n" + 
+			"	            ^^^^^^^\n" + 
+			"Type safety: The cast from X<? extends Object> to X2 is actually checking against the erased type X2\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 11)\n" + 
+			"	Object o4 = (X<? extends Object>) x2;\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from X2 to X<? extends Object>\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 12)\n" + 
+			"	Object o5 = (X3<String>) xo;\n" + 
+			"	            ^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from X<? extends Object> to X3<String> is actually checking against the erased type X3\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 18)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}					
+	public void test555() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				" import java.util.List;\n" + 
+				" public class X<U extends Number> {\n" + 
+				" U u;\n" + 
+				" void foo(X<? extends Number> xn, X<? extends U> xu) {\n" + 
+				"		xn = xu;\n" + 
+				"		xu = xn;\n" + 
+				"		xu.u = xn.u; // ko\n" + 
+				"		xn.u = xu.u; // ko\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	import java.util.List;\n" + 
+			"	       ^^^^^^^^^^^^^^\n" + 
+			"The import java.util.List is never used\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	xu = xn;\n" + 
+			"	     ^^\n" + 
+			"Type mismatch: cannot convert from X<? extends Number> to X<? extends U>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	xu.u = xn.u; // ko\n" + 
+			"	       ^^^^\n" + 
+			"Type mismatch: cannot convert from ? extends Number to ? extends U\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 8)\n" + 
+			"	xn.u = xu.u; // ko\n" + 
+			"	       ^^^^\n" + 
+			"Bound mismatch: Cannot assign expression of type ? extends U to wildcard type ? extends Number. The wildcard type has no lower bound, and may actually be more restrictive than expression type\n" + 
+			"----------\n");
+	}					
 }

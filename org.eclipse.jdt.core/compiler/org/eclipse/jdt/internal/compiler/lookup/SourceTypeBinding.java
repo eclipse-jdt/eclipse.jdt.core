@@ -1292,7 +1292,9 @@ public String toString() {
 	buffer.append(isInterface() ? "interface " : "class "); //$NON-NLS-1$ //$NON-NLS-2$
 	buffer.append((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED TYPE"); //$NON-NLS-1$
 
-	if (this.typeVariables != null && this.typeVariables != NoTypeVariables) {
+	if (this.typeVariables == null) {
+		buffer.append("<NULL TYPE VARIABLES>"); //$NON-NLS-1$
+	} else if (this.typeVariables != NoTypeVariables) {
 		buffer.append("\n\t<"); //$NON-NLS-1$
 		for (int i = 0, length = this.typeVariables.length; i < length; i++) {
 			if (i  > 0)
@@ -1300,8 +1302,6 @@ public String toString() {
 			buffer.append((this.typeVariables[i] != null) ? this.typeVariables[i].toString() : "NULL TYPE VARIABLE"); //$NON-NLS-1$
 		}
 		buffer.append(">"); //$NON-NLS-1$
-	} else {
-		buffer.append("<NULL TYPE VARIABLES>"); //$NON-NLS-1$
 	}
 	buffer.append("\n\textends "); //$NON-NLS-1$
 	buffer.append((superclass != null) ? superclass.debugName() : "NULL TYPE"); //$NON-NLS-1$
