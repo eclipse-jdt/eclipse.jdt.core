@@ -1094,7 +1094,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 		);
 	}
 	
-	public void _test036() { // prefix expression
+	public void test036() { // prefix expression
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1112,7 +1112,7 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 		);
 	}
 	
-	public void _test037() { // prefix expression
+	public void test037() { // prefix expression
 		this.runConformTest(
 			new String[] {
 				"X.java",
