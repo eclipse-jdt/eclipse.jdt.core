@@ -345,13 +345,15 @@ public class SetClasspathOperation extends JavaModelOperation {
 				// Note that .class files belong to binary folders which can be shared, 
 				// so leave the index for .class files.
 				if (indexManager != null && changeKind == IClasspathEntry.CPE_SOURCE) {
-					final IPath path = oldResolvedPath[i].getPath();
+					IClasspathEntry oldEntry = oldResolvedPath[i];
+					final IPath path = oldEntry.getPath();
+					final char[][] exclusionPatterns = ((ClasspathEntry)oldEntry).fullExclusionPatternChars();
 					postAction(new IPostAction() {
 						public String getID() {
 							return path.toString();
 						}
 						public void run() throws JavaModelException {
-							indexManager.removeSourceFolderFromIndex(project, path);
+							indexManager.removeSourceFolderFromIndex(project, path, exclusionPatterns);
 						}
 					}, 
 					REMOVEALL_APPEND);

@@ -15,17 +15,21 @@ import java.io.IOException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.core.index.IIndex;
 import org.eclipse.jdt.internal.core.index.IQueryResult;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 class RemoveFolderFromIndex extends IndexRequest {
 	IPath folderPath;
+	char[][] exclusionPatterns;
 	IProject project;
 
-	public RemoveFolderFromIndex(IPath folderPath, IProject project, IndexManager manager) {
+	public RemoveFolderFromIndex(IPath folderPath, char[][] exclusionPatterns, IProject project, IndexManager manager) {
 		super(project.getFullPath(), manager);
 		this.folderPath = folderPath;
+		this.exclusionPatterns = exclusionPatterns;
 		this.project = project;
 	}
 	public boolean execute(IProgressMonitor progressMonitor) {
@@ -41,9 +45,13 @@ class RemoveFolderFromIndex extends IndexRequest {
 		try {
 			monitor.enterRead(); // ask permission to read
 			IQueryResult[] results = index.queryInDocumentNames(this.folderPath.toString());
-			// all file names belonging to the folder or its subfolders
-			for (int i = 0, max = results == null ? 0 : results.length; i < max; i++)
-				manager.remove(results[i].getPath(), this.indexPath); // write lock will be acquired by the remove operation
+			// all file names belonging to the folder or its subfolders and that are not excluded (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32607)
+			for (int i = 0, max = results == null ? 0 : results.length; i < max; i++) {
+				String documentPath = results[i].getPath();
+				if (this.exclusionPatterns == null || !Util.isExcluded(new Path(documentPath), this.exclusionPatterns)) {
+					manager.remove(documentPath, this.indexPath); // write lock will be acquired by the remove operation
+				}
+			}
 		} catch (IOException e) {
 			if (JobManager.VERBOSE) {
 				JobManager.verbose("-> failed to remove " + this.folderPath + " from index because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
