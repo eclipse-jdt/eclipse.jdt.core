@@ -95,7 +95,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		this.out = outWriter;
 		this.err = errWriter;
 		this.systemExitWhenFinished = systemExitWhenFinished;
-		exportedClassFilesCounter = 0;
 		this.options = new CompilerOptions().getMap();
 	}
 
@@ -290,6 +289,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					globalErrorsCount = 0;
 					globalWarningsCount = 0;
 					lineCount = 0;
+					exportedClassFilesCounter = 0;
 
 					if (repetitions > 1) {
 						out.flush();
