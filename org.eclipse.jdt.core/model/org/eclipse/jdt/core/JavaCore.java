@@ -2006,28 +2006,56 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * </p>
 	 * A source entry is used to set up the internal source layout of a project, and cannot be used out of the
 	 * context of the containing project (a source entry "Proj1/src" cannot be used on the classpath of Proj2).
+	 * TODO: should mention mount points at this stage
 	 * <p>
 	 * A particular source entry cannot be exported to other projects. All sources/binaries inside a project are
 	 * contributed as a whole through a project entry (see <code>JavaCore.newProjectEntry</code>).
 	 * <p>
 	 * Exclusion patterns can be specified to cause portions of the resource tree to be excluded from this source folder.
 	 * If <code>null</code> is passed, then the source folder will default to exclude ".class" files (which is the minimal
-	 * exclusion pattern).
+	 * exclusion pattern). Empty patterns will automatically be discarded (after trimmed).
 	 * <p>
 	 * @param path the absolute path of a source folder
-	 * @param exclusionPatterns the resource relative path patterns to exclude
+	 * @param exclusionPatterns the resource relative path patterns to exclude (<code>null</code> if none)
 	 * @return a new source classpath entry
 	 * @since 2.1
 	 */
 	public static IClasspathEntry newSourceEntry(IPath path, String[] exclusionPatterns) {
 		
 		Assert.isTrue(path.isAbsolute(), Util.bind("classpath.needAbsolutePath" )); //$NON-NLS-1$
-		
+
+		// discard empty trimmed patterns
+			String[] trimmedPatterns = exclusionPatterns;
+		if (exclusionPatterns != null) {
+			int index = 0;
+			int patternCount = exclusionPatterns.length;
+			for (int i = 0; i < patternCount; i++){
+				String pattern;
+				if ((pattern = exclusionPatterns[i]) == null) continue;
+				String trimmedPattern = exclusionPatterns[i].trim();
+				if (trimmedPattern.length() == 0) continue;
+				
+				if (pattern.length() == trimmedPattern.length()) {
+					if (trimmedPatterns == exclusionPatterns) { // clone if necessary
+						System.arraycopy(exclusionPatterns, 0, trimmedPatterns = new String[patternCount], 0, index);
+					}
+					trimmedPatterns[index] = trimmedPattern;
+				}
+				index++;
+			}
+			if (index != patternCount) {
+				if (index == 0) {
+					trimmedPatterns = null;
+				} else {
+					System.arraycopy(trimmedPatterns, 0, trimmedPatterns = new String[index], 0, index);
+				}
+			}
+		}		
 		return new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_SOURCE,
 			path,
-			exclusionPatterns,
+			trimmedPatterns,
 			null, // source attachment
 			null, // source attachment root
 			false);

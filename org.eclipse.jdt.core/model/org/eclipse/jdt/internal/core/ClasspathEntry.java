@@ -165,6 +165,19 @@ public class ClasspathEntry implements IClasspathEntry {
 					return false;
 			}
 
+			if (this.exclusionPatterns == null){
+				if (otherEntry.getExclusionPatterns() != null)
+					return false;
+			} else {
+				int excludeLength = this.exclusionPatterns.length;
+				String[] otherExcludes = otherEntry.getExclusionPatterns();
+				if (otherExcludes == null || otherExcludes.length != excludeLength)
+					return false;
+				for (int i = 0; i < excludeLength; i++){
+					if (!this.exclusionPatterns[i].equals(otherExcludes[i]))
+						return false;
+				}
+			}
 			return true;
 		} else {
 			return false;

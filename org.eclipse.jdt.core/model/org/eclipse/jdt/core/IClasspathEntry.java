@@ -175,13 +175,14 @@ public interface IClasspathEntry {
 	int getEntryKind();
 
 	/**
-	 * Returns the set of patterns excluding resources associated with this entry.
+	 * Returns the set of patterns used to excludes resources associated to a given source
+	 * entry (<code>CPE_SOURCE</code>).
 	 * <p>
 	 * Exclusion patterns allows to filter out some portions of the resource tree 
-	 * rooted at the entry path. By default, a classpath entry is all inclusive.
+	 * rooted at the entry path. By default, a source entry is all inclusive.
 	 * File patterns are case sensitive, and the paths are relative to the entry path.
 	 * A source folder entry already filters out ".class" files implicitly from the resource 
-	 * subtree. Reciprocally a library folder will exclude ".java" files.
+	 * subtree.
 	 * <p>
 	 * Each exclusion pattern follows the Ant pattern syntax, where a pattern represents 
 	 * a resource file path pattern, for which the matching will be done on a per folder basis. 
@@ -194,7 +195,7 @@ public interface IClasspathEntry {
 	 * <br>
 	 * If a pattern ends with '/' or '\', then '**' is appended. For example, "test/" is interpreted as "test/**".
 	 * <p>
-	 * @return the resource exclusion patterns associated with this entry, or <code>null</code> if none
+	 * @return the resource exclusion patterns associated with this source entry, or <code>null</code> if none
 	 * was specified. 
 	 * @since 2.1	 */
 	String[] getExclusionPatterns();
