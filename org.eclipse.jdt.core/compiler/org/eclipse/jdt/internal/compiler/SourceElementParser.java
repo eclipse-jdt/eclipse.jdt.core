@@ -730,6 +730,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 				}
 			}
 		}
+		this.visitIfNeeded(methodDeclaration);
 		if (scanner.eofPosition >= methodDeclaration.declarationSourceEnd) {
 			requestor.exitConstructor(methodDeclaration.declarationSourceEnd);
 		}

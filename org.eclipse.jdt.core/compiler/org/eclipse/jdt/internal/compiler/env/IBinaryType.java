@@ -75,4 +75,10 @@ char[] getSuperclassName();
  */
 
 char[] sourceFileName();
+
+/**
+ * Answer true if the receiver is an anonymous class.
+ * false otherwise
+ */
+boolean isAnonymous();
 }

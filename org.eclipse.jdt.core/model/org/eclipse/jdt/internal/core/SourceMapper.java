@@ -81,19 +81,19 @@ public class SourceMapper
 	 * The position within the source of the start of the
 	 * current member element, or -1 if we are outside a member.
 	 */
-	protected int fMemberDeclarationStart = -1;
+	protected int[] fMemberDeclarationStart;
 	/**
 	 * The <code>SourceRange</code> of the name of the current member element.
 	 */
-	protected SourceRange fMemberNameRange;
+	protected SourceRange[] fMemberNameRange;
 	/**
 	 * The name of the current member element.
 	 */
-	protected String fMemberName;
+	protected String[] fMemberName;
 	/**
 	 * The parameter types for the current member method element.
 	 */
-	protected char[][] fMethodParameterTypes;
+	protected char[][][] fMethodParameterTypes;
 
 	/**
 	 * The element searched for
@@ -113,6 +113,13 @@ public class SourceMapper
 	int[] typeDeclarationStarts;
 	SourceRange[] typeNameRanges;
 	int typeDepth;
+	
+	/**
+	 *  Anonymous counter in case we want to map the source of an anonymous class.
+	 */
+	int anonymousCounter;
+	int anonymousClassName;
+	
 	/**
 	 * Creates a <code>SourceMapper</code> that locates source in the zip file
 	 * at the given location in the specified package fragment root.
@@ -253,8 +260,41 @@ public class SourceMapper
 				this.typeDeclarationStarts = new int[this.typeDepth * 2],
 				0,
 				this.typeDepth);
+			System.arraycopy(
+				this.fMemberName,
+				0,
+				this.fMemberName = new String[this.typeDepth * 2],
+				0,
+				this.typeDepth);
+			System.arraycopy(
+				this.fMemberDeclarationStart,
+				0,
+				this.fMemberDeclarationStart = new int[this.typeDepth * 2],
+				0,
+				this.typeDepth);							
+			System.arraycopy(
+				this.fMemberNameRange,
+				0,
+				this.fMemberNameRange = new SourceRange[this.typeDepth * 2],
+				0,
+				this.typeDepth);
+			System.arraycopy(
+				this.fMethodParameterTypes,
+				0,
+				this.fMethodParameterTypes = new char[this.typeDepth * 2][][],
+				0,
+				this.typeDepth);					
 		}
-		this.types[typeDepth] = this.getType(new String(name));
+		if (name.length == 0) {
+			this.anonymousCounter++;
+			if (this.anonymousCounter == this.anonymousClassName) {
+				this.types[typeDepth] = this.getType(fType.getElementName());
+			} else {
+				this.types[typeDepth] = this.getType(new String(name));				
+			}
+		} else {
+			this.types[typeDepth] = this.getType(new String(name));
+		}
 		this.typeNameRanges[typeDepth] =
 			new SourceRange(nameSourceStart, nameSourceEnd - nameSourceStart + 1);
 		this.typeDeclarationStarts[typeDepth] = declarationStart;
@@ -301,13 +341,11 @@ public class SourceMapper
 		char[] name,
 		int nameSourceStart,
 		int nameSourceEnd) {
-		if (typeDepth >= 0
-			&& fMemberDeclarationStart == -1) {
-			// don't allow nested member (can only happen with anonymous inner classes)
-			fMemberDeclarationStart = declarationStart;
-			fMemberNameRange =
+		if (typeDepth >= 0) {
+			fMemberDeclarationStart[typeDepth] = declarationStart;
+			fMemberNameRange[typeDepth] =
 				new SourceRange(nameSourceStart, nameSourceEnd - nameSourceStart + 1);
-			fMemberName = new String(name);
+			fMemberName[typeDepth] = new String(name);
 		}
 	}
 	
@@ -353,14 +391,12 @@ public class SourceMapper
 		char[][] parameterTypes,
 		char[][] parameterNames,
 		char[][] exceptionTypes) {
-		if (typeDepth >= 0
-			&& fMemberDeclarationStart == -1) {
-			// don't allow nested member (can only happen with anonymous inner classes)
-			fMemberName = new String(name);
-			fMemberNameRange =
+		if (typeDepth >= 0) {
+			fMemberName[typeDepth] = new String(name);
+			fMemberNameRange[typeDepth] =
 				new SourceRange(nameSourceStart, nameSourceEnd - nameSourceStart + 1);
-			fMemberDeclarationStart = declarationStart;
-			fMethodParameterTypes = parameterTypes;
+			fMemberDeclarationStart[typeDepth] = declarationStart;
+			fMethodParameterTypes[typeDepth] = parameterTypes;
 		}
 	}
 	
@@ -398,15 +434,14 @@ public class SourceMapper
 	 * @see ISourceElementRequestor
 	 */
 	public void exitField(int declarationEnd) {
-		if (typeDepth >= 0 && fMemberDeclarationStart != -1) {
+		if (typeDepth >= 0) {
 			IType currentType = this.types[typeDepth];
 			setSourceRange(
-				currentType.getField(fMemberName),
+				currentType.getField(fMemberName[typeDepth]),
 				new SourceRange(
-					fMemberDeclarationStart,
-					declarationEnd - fMemberDeclarationStart + 1),
-				fMemberNameRange);
-			fMemberDeclarationStart = -1;
+					fMemberDeclarationStart[typeDepth],
+					declarationEnd - fMemberDeclarationStart[typeDepth] + 1),
+				fMemberNameRange[typeDepth]);
 		}
 	}
 	
@@ -427,19 +462,18 @@ public class SourceMapper
 	 * @see ISourceElementRequestor
 	 */
 	public void exitMethod(int declarationEnd) {
-		if (typeDepth >= 0 && fMemberDeclarationStart != -1) {
+		if (typeDepth >= 0) {
 			IType currentType = this.types[typeDepth];
 			SourceRange sourceRange =
 				new SourceRange(
-					fMemberDeclarationStart,
-					declarationEnd - fMemberDeclarationStart + 1);
+					fMemberDeclarationStart[typeDepth],
+					declarationEnd - fMemberDeclarationStart[typeDepth] + 1);
 			setSourceRange(
 				currentType.getMethod(
-					fMemberName,
-					convertTypeNamesToSigs(fMethodParameterTypes)),
+					fMemberName[typeDepth],
+					convertTypeNamesToSigs(fMethodParameterTypes[typeDepth])),
 				sourceRange,
-				fMemberNameRange);
-			fMemberDeclarationStart = -1;
+				fMemberNameRange[typeDepth]);
 		}
 	}
 	
@@ -635,14 +669,33 @@ public class SourceMapper
 		this.typeDeclarationStarts = new int[1];
 		this.typeNameRanges = new SourceRange[1];
 		this.typeDepth = -1;
-
+		this.fMemberDeclarationStart = new int[1];
+		this.fMemberName = new String[1];
+		this.fMemberNameRange = new SourceRange[1];
+		this.fMethodParameterTypes = new char[1][][];
+		this.anonymousCounter = 0;
+		
 		Hashtable oldSourceRanges = (Hashtable) fSourceRanges.clone();
 		try {
 			IProblemFactory factory = new DefaultProblemFactory();
-			SourceElementParser parser = new SourceElementParser(this, factory);
+			SourceElementParser parser = null;
+			boolean isAnonymousClass = false;
+			try {
+				isAnonymousClass = ((IBinaryType) fType.getRawInfo()).isAnonymous();
+			} catch(JavaModelException e) {
+			}
+			if (isAnonymousClass) {
+				try {
+					this.anonymousClassName = Integer.parseInt(fType.getElementName());
+				} catch(NumberFormatException e) {
+				}
+				parser = new SourceElementParser(this, factory, true);
+			} else {
+				parser = new SourceElementParser(this, factory);
+			}
 			parser.parseCompilationUnit(
 				new BasicCompilationUnit(contents, type.getElementName() + ".java" ), //$NON-NLS-1$
-				false);
+				isAnonymousClass);
 			if (searchedElement != null) {
 				ISourceRange range = this.getNameRange(searchedElement);
 				return range;

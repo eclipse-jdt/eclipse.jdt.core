@@ -127,4 +127,7 @@ public boolean isInterface() {
 public char[] sourceFileName() {
 	return null;
 }
+public boolean isAnonymous() {
+	return false;
+}
 }

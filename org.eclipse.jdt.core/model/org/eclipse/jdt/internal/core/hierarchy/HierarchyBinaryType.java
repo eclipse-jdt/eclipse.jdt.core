@@ -195,4 +195,17 @@ public String toString() {
 public char[] sourceFileName() {
 	return null;
 }
+public boolean isAnonymous() {
+	int index = CharOperation.lastIndexOf('$', this.name);
+	if (index == -1) {
+		return false;
+	} else {
+		for (int i = index + 1, length = this.name.length; i < length; i++) {
+			if (!Character.isDigit(this.name[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+}
 }
