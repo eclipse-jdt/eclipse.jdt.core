@@ -296,9 +296,11 @@ public class HandleFactory {
 						// increment occurrence count if collision is detected
 						if (newElement != null) {
 							while (!existingElements.add(newElement)) ((JavaElement)newElement).occurrenceCount++;
-							knownScopes.put(scope, newElement);
 						}
 						break;						
+				}
+				if (newElement != null) {
+					knownScopes.put(scope, newElement);
 				}
 				break;
 			case Scope.METHOD_SCOPE :
@@ -307,21 +309,27 @@ public class HandleFactory {
 				if (methodScope.isInsideInitializer()) {
 					// inside field or initializer, must find proper one
 					TypeDeclaration type = methodScope.referenceType();
+					int occurenceCount = 1;
 					for (int i = 0, length = type.fields.length; i < length; i++) {
 						FieldDeclaration field = type.fields[i];
 						if (field.declarationSourceStart < elementPosition && field.declarationSourceEnd > elementPosition) {
 							if (field.isField()) {
 								newElement = parentType.getField(new String(field.name));
 							} else {
-								newElement = parentType.getInitializer(1);
+								newElement = parentType.getInitializer(occurenceCount);
 							}
 							break;
+						} else if (!field.isField()) {
+							occurenceCount++;
 						}
 					}
 				} else {
 					// method element
 					AbstractMethodDeclaration method = methodScope.referenceMethod();
 					newElement = parentType.getMethod(new String(method.selector), Util.typeParameterSignatures(method));
+					if (newElement != null) {
+						knownScopes.put(scope, newElement);
+					}
 				}
 				break;				
 			case Scope.BLOCK_SCOPE :
