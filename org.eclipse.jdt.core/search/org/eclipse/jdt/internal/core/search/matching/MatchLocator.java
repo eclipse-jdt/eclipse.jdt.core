@@ -1428,13 +1428,13 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 			if (node == null) continue;
 			if (node instanceof ImportReference) {
 				// special case for import refs: they don't know their binding
-				// import ref cannot be in the hirarchy of a type
+				// import ref cannot be in the hierarchy of a type
 				if (this.hierarchyResolver != null) continue;
 
 				ImportReference importRef = (ImportReference) node;
 				Binding binding = importRef.onDemand
-					? unit.scope.getTypeOrPackage(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length))
-					: unit.scope.getTypeOrPackage(importRef.tokens);
+					? unit.scope.compilationUnitScope().getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true)
+					: unit.scope.compilationUnitScope().getImport(importRef.tokens, false);
 				this.patternLocator.matchLevelAndReportImportRef(importRef, binding, this);
 			} else {
 				if (node instanceof JavadocSingleTypeReference) {

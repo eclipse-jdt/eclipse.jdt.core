@@ -429,6 +429,12 @@ ImportBinding[] getDefaultImports() {
 
 	return environment.defaultImports = new ImportBinding[] {new ImportBinding(JAVA_LANG, true, importBinding, null)};
 }
+// NOT Public API
+public final Binding getImport(char[][] compoundName, boolean onDemand) {
+	if (onDemand)
+		return findOnDemandImport(compoundName);
+	return findSingleTypeImport(compoundName);
+}
 /* Answer the problem reporter to use for raising new problems.
 *
 * Note that as a side-effect, this updates the current reference context

@@ -2056,6 +2056,9 @@ public abstract class Scope
 	}
 
 	// Added for code assist... NOT Public API
+	// DO NOT USE to resolve import references since this method assumes 'A.B' is relative to a single type import of 'p1.A'
+	// when it may actually mean the type B in the package A
+	// use CompilationUnitScope.getImport(char[][]) instead
 	public final Binding getTypeOrPackage(char[][] compoundName) {
 		int nameLength = compoundName.length;
 		if (nameLength == 1) {
