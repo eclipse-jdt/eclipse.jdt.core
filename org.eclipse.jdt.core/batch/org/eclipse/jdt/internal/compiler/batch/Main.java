@@ -1172,8 +1172,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 * Standalone options
 		 */
 		if (versionIDRequired) {
-			out.println(Main.bind("configure.version", Main.bind("compiler.version"))); //$NON-NLS-1$ //$NON-NLS-2$
-			out.println();
+			out.println(Main.bind("misc.version",  //$NON-NLS-1$
+				new String[]{
+					Main.bind("compiler.name"), //$NON-NLS-1$
+					Main.bind("compiler.version"), //$NON-NLS-1$
+					Main.bind("compiler.copyright") })); //$NON-NLS-1$
 			proceed = false;
 			return;
 		}
@@ -1596,7 +1599,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		environment.cleanup();
 	}
 	public void printUsage() {
-		out.println(Main.bind("misc.usage", Main.bind("compiler.version"))); //$NON-NLS-1$ //$NON-NLS-2$
+		out.println(Main.bind("misc.usage",  //$NON-NLS-1$
+			new String[]{
+				Main.bind("compiler.name"), //$NON-NLS-1$
+				Main.bind("compiler.version"), //$NON-NLS-1$
+				Main.bind("compiler.copyright") })); //$NON-NLS-1$
 		out.flush();
 		err.flush();
 	}
