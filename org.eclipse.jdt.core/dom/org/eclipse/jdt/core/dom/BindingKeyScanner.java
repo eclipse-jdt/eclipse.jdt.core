@@ -12,6 +12,10 @@ package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 
+/**
+ * Internal class.
+ * @since 3.1
+ */
 class BindingKeyScanner {
 	
 	static final int START = -1;

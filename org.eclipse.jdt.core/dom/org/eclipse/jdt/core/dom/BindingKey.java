@@ -26,6 +26,10 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
+/**
+ * Internal class.
+ * @since 3.1
+ */
 class BindingKey {
 	 BindingKeyScanner scanner;
 	 char[][] compoundName;
