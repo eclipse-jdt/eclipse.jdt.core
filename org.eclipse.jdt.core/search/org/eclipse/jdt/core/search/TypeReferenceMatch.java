@@ -19,7 +19,14 @@ import org.eclipse.jdt.core.IJavaElement;
  */
 public class TypeReferenceMatch extends JavaSearchMatch {
 
-	public TypeReferenceMatch(IJavaElement enclosingElement, int accuracy,	int sourceStart, int sourceEnd, SearchParticipant participant, IResource resource) {
+	private boolean insideDocComment;
+
+	public TypeReferenceMatch(IJavaElement enclosingElement, int accuracy,	int sourceStart, int sourceEnd, boolean insideDocComment, SearchParticipant participant, IResource resource) {
 		super(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
+		this.insideDocComment = insideDocComment;
+	}
+	
+	public boolean insideDocComment() {
+		return this.insideDocComment;
 	}
 }

@@ -226,8 +226,28 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
  * Reports the match of the given reference.
  */
 protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
-	SearchMatch match = locator.newReferenceMatch(referenceType(), element, accuracy, reference.sourceStart, reference.sourceEnd+1);
-	locator.report(match);
+	SearchMatch match = null;
+	int referenceType = referenceType();
+	switch (referenceType) {
+		case IJavaElement.PACKAGE_FRAGMENT:
+			match = locator.newPackageReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+			break;
+		case IJavaElement.TYPE:
+			match = locator.newTypeReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+			break;
+		case IJavaElement.FIELD:
+			match = locator.newFieldReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+			break;
+		case IJavaElement.METHOD:
+			match = locator.newMethodReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+			break;
+		case IJavaElement.LOCAL_VARIABLE:
+			match = locator.newLocalVariableReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
+			break;
+	}
+	if (match != null) {
+		locator.report(match);
+	}
 }
 protected int referenceType() {
 	return 0; // defaults to unknown (a generic JavaSearchMatch will be created)

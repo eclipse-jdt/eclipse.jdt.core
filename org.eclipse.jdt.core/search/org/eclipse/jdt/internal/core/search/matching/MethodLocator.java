@@ -146,10 +146,10 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 			reportDeclaration(((MessageSend) reference).binding, locator, declPattern.knownMethods);
 	} else if (this.pattern.findReferences && reference instanceof MessageSend) {
 		int sourceStart = (int) (((MessageSend) reference).nameSourcePosition >>> 32);
-		SearchMatch match = locator.newReferenceMatch(IJavaElement.METHOD, element, accuracy, sourceStart, reference.sourceEnd+1);
+		SearchMatch match = locator.newMethodReferenceMatch(element, accuracy, sourceStart, reference.sourceEnd+1, reference);
 		locator.report(match);
 	} else {
-		SearchMatch match = locator.newReferenceMatch(IJavaElement.METHOD, element, accuracy, reference.sourceStart, reference.sourceEnd+1);
+		SearchMatch match = locator.newMethodReferenceMatch(element, accuracy, reference.sourceStart, reference.sourceEnd+1, reference);
 		locator.report(match);
 	}
 }

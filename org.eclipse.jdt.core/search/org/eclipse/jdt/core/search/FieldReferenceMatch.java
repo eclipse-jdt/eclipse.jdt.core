@@ -19,14 +19,21 @@ import org.eclipse.jdt.core.IJavaElement;
  */
 public class FieldReferenceMatch extends JavaSearchMatch {
 
+	private boolean insideDocComment;
 	private boolean isReadAccess;
 	private boolean isWriteAccess;
-	public FieldReferenceMatch(IJavaElement element, int accuracy, int sourceStart, int sourceEnd, boolean isReadAccess, boolean isWriteAccess, SearchParticipant participant, IResource resource) {
+
+	public FieldReferenceMatch(IJavaElement element, int accuracy, int sourceStart, int sourceEnd, boolean isReadAccess, boolean isWriteAccess, boolean insideDocComment, SearchParticipant participant, IResource resource) {
 		super(element, accuracy, sourceStart, sourceEnd, participant, resource);
 		this.isReadAccess = isReadAccess;
 		this.isWriteAccess = isWriteAccess;
+		this.insideDocComment = insideDocComment;
 	}
 	
+	public boolean insideDocComment() {
+		return this.insideDocComment;
+	}
+
 	// important point is that a match can be read & write at once in case of compound assignments:  e.g. i += 0;
 	public boolean isReadAccess() {
 		return this.isReadAccess;
@@ -35,4 +42,5 @@ public class FieldReferenceMatch extends JavaSearchMatch {
 	public boolean isWriteAccess() {
 		return this.isWriteAccess;
 	}
+	
 }

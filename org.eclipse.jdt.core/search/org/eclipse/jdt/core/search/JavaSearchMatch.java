@@ -46,4 +46,12 @@ public class JavaSearchMatch extends SearchMatch {
 	public IJavaElement getJavaElement() {
 		return this.element;
 	}
+	
+	/**
+	 * Returns whether this Java search match is inside a doc comment.
+	 */
+	public boolean insideDocComment() {
+		// default is outside a doc comment
+		return false;
+	}
 }

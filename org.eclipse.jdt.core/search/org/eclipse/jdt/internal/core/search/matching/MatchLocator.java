@@ -900,39 +900,68 @@ public JavaSearchMatch newFieldReferenceMatch(
 		int accuracy,
 		int sourceStart,  
 		int sourceEnd,
-		Reference reference) {
+		ASTNode reference) {
 	int bits = reference.bits;
 	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssignedMASK) != 0;
 	boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) == 0;
 	boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) != 0;
+	boolean insideDocComment = reference instanceof JavadocFieldReference || reference instanceof JavadocSingleNameReference;
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
-	return new FieldReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, isReadAccess, isWriteAccess, participant, resource);
+	return new FieldReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
 }
 
-public JavaSearchMatch newReferenceMatch(
-		int referenceType,
+public JavaSearchMatch newLocalVariableReferenceMatch(
 		IJavaElement enclosingElement,
 		int accuracy,
 		int sourceStart,  
-		int sourceEnd) {
+		int sourceEnd,
+		ASTNode reference) {
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
-	switch (referenceType) {
-		case IJavaElement.PACKAGE_FRAGMENT:
-			return new PackageReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
-		case IJavaElement.TYPE:
-			return new TypeReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
-		//case IJavaElement.FIELD:
-			// handled by newFieldReferenceMatch
-		case IJavaElement.METHOD:
-			return new MethodReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
-		case IJavaElement.LOCAL_VARIABLE:
-			return new LocalVariableReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
-		default:
-			return null;
-	}
+	return new LocalVariableReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
 }
+
+public JavaSearchMatch newMethodReferenceMatch(
+		IJavaElement enclosingElement,
+		int accuracy,
+		int sourceStart,  
+		int sourceEnd,
+		ASTNode reference) {
+	SearchParticipant participant = getParticipant(); 
+	IResource resource = this.currentPossibleMatch.resource;
+	boolean insideDocComment = reference instanceof JavadocMessageSend;
+	return new MethodReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, insideDocComment, participant, resource);
+}
+
+public JavaSearchMatch newPackageReferenceMatch(
+		IJavaElement enclosingElement,
+		int accuracy,
+		int sourceStart,  
+		int sourceEnd,
+		ASTNode reference) {
+	SearchParticipant participant = getParticipant(); 
+	IResource resource = this.currentPossibleMatch.resource;
+	return new PackageReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, participant, resource);
+}
+
+public JavaSearchMatch newTypeReferenceMatch(
+		IJavaElement enclosingElement,
+		int accuracy,
+		int sourceStart,  
+		int sourceEnd,
+		ASTNode reference) {
+	SearchParticipant participant = getParticipant(); 
+	IResource resource = this.currentPossibleMatch.resource;
+	boolean insideDocComment = 
+		reference instanceof JavadocArrayQualifiedTypeReference
+		|| reference instanceof JavadocArraySingleTypeReference
+		|| reference instanceof JavadocQualifiedTypeReference
+		|| reference instanceof JavadocSingleNameReference
+		|| reference instanceof JavadocSingleTypeReference;
+	return new TypeReferenceMatch(enclosingElement, accuracy, sourceStart, sourceEnd, insideDocComment, participant, resource);
+}
+
 /*
  * Process a compilation unit already parsed and build.
  */
@@ -1061,12 +1090,12 @@ protected void reportAccurateTypeReference(ASTNode typeRef, char[] name, IJavaEl
 			// ignore
 		}
 		if (token == TerminalTokens.TokenNameIdentifier && this.pattern.matchesName(name, scanner.getCurrentTokenSource())) {
-			SearchMatch match = newReferenceMatch(IJavaElement.TYPE, element, accuracy, currentPosition, scanner.currentPosition);
+			SearchMatch match = newTypeReferenceMatch(element, accuracy, currentPosition, scanner.currentPosition, typeRef);
 			report(match);
 			return;
 		}
 	} while (token != TerminalTokens.TokenNameEOF);
-	SearchMatch match = newReferenceMatch(IJavaElement.TYPE, element, accuracy, sourceStart, sourceEnd+1);
+	SearchMatch match = newTypeReferenceMatch(element, accuracy, sourceStart, sourceEnd+1, typeRef);
 	report(match);
 }
 /**

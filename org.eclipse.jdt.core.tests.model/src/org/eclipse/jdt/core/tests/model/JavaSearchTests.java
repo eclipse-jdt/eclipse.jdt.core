@@ -35,17 +35,30 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 /**
  * Collects results as a string.
  */
-public static class JavaSearchResultCollector implements IJavaSearchResultCollector {
+public static class JavaSearchResultCollector extends SearchRequestor implements IJavaSearchResultCollector {
 	public StringBuffer results = new StringBuffer();
 	public boolean showAccuracy;
 	public boolean showProject;
 	public boolean showContext;
+	public boolean showInsideDoc;
 	public void aboutToStart() {
 	}
 	public void accept(IResource resource, int start, int end, IJavaElement element, int accuracy) {
+		JavaSearchMatch match = new FieldDeclarationMatch(element, accuracy, start, end, SearchEngine.getDefaultSearchParticipant(), resource);
+		try {
+			acceptSearchMatch(match);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
+	public boolean acceptSearchMatch(SearchMatch match) throws CoreException {
+
 		try {
 			if (results.length() > 0) results.append("\n");
+			JavaSearchMatch javaMatch = (JavaSearchMatch) match;
+			IResource resource = javaMatch.getResource();
 			IPath path = resource.getProjectRelativePath();
+			IJavaElement element = javaMatch.getJavaElement();
 			if (path.segmentCount() == 0) {
 				IJavaElement root = element;
 				while (root != null && !(root instanceof IPackageFragmentRoot)) {
@@ -62,7 +75,7 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 			} else {
 				results.append(path);
 			}
-			if (showProject) {
+			if (this.showProject) {
 				IProject project = element.getJavaProject().getProject();
 				results.append(" [in ");
 				results.append(project.getName());
@@ -121,6 +134,8 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 							null).getContents();
 					}
 				}
+				int start = javaMatch.getSourceStart();
+				int end = javaMatch.getSourceEnd();
 				if (start == -1 || contents != null) { // retrieving attached source not implemented here
 					results.append(" [");
 					if (start > -1) {
@@ -146,9 +161,9 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 					results.append("]");
 				}
 			}
-			if (showAccuracy) {
+			if (this.showAccuracy) {
 				results.append(" ");
-				switch (accuracy) {
+				switch (javaMatch.getAccuracy()) {
 					case EXACT_MATCH:
 						results.append("EXACT_MATCH");
 						break;
@@ -157,10 +172,19 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 						break;
 				}
 			}
+			if (this.showInsideDoc) {
+				results.append(" ");
+				if (javaMatch.insideDocComment()) {
+					results.append("INSIDE_JAVADOC");
+				} else {
+					results.append("OUTSIDE_JAVADOC");
+				}
+			}
 		} catch (JavaModelException e) {
 			results.append("\n");
 			results.append(e.toString());
 		}
+		return true;
 	}
 	private void append(IField field) throws JavaModelException {
 		append(field.getDeclaringType());
@@ -253,7 +277,17 @@ public static class JavaSearchResultCollector implements IJavaSearchResultCollec
 			results.append(((JavaElement)type).occurrenceCount);
 		}
 	}
+	public void beginReporting() {
+		aboutToStart();
+	}
 	public void done() {
+	}
+	public void endReporting() {
+		done();
+	}
+	public void enterParticipant(SearchParticipant participant) {
+	}
+	public void exitParticipant(SearchParticipant participant) {
 	}
 	public IProgressMonitor getProgressMonitor() {
 		return null;
@@ -351,6 +385,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testTypeReferenceWithCorruptJar"));
 	suite.addTest(new JavaSearchTests("testLocalTypeReference1"));
 	suite.addTest(new JavaSearchTests("testLocalTypeReference2"));
+	suite.addTest(new JavaSearchTests("testTypeReferenceInOutDocComment"));
 	
 	// type occurences
 	suite.addTest(new JavaSearchTests("testTypeOccurence"));
@@ -391,6 +426,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testMethodReference4"));
 	suite.addTest(new JavaSearchTests("testMethodReference5"));
 	suite.addTest(new JavaSearchTests("testMethodReference6"));
+	suite.addTest(new JavaSearchTests("testMethodReferenceInOutDocComment"));
 	
 	// constructor reference
 	suite.addTest(new JavaSearchTests("testSimpleConstructorReference1"));
@@ -427,6 +463,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testReadWriteAccessInQualifiedNameReference"));
 	suite.addTest(new JavaSearchTests("testFieldReferenceInBrackets"));
 	suite.addTest(new JavaSearchTests("testAccurateFieldReference1"));
+	suite.addTest(new JavaSearchTests("testFieldReferenceInOutDocComment"));
 	
 	// local variable declaration
 	suite.addTest(new JavaSearchTests("testLocalVariableDeclaration1"));
@@ -479,6 +516,15 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testExternalJarScope"));
 	
 	return suite;
+}
+protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
+	new SearchEngine().search(
+		SearchPattern.createPattern(element, limitTo), 
+		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+		scope,
+		requestor,
+		null
+	);
 }
 /**
  * Type reference test.
@@ -1210,6 +1256,21 @@ public void testFieldReferenceInBrackets() throws CoreException {
 		resultCollector);
 	assertSearchResults(
 		"src/s3/A.java int s3.A.bar() [field]",
+		resultCollector);
+}
+/**
+ * Field reference inside/outside doc comment.
+ */
+public void testFieldReferenceInOutDocComment() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "s4", "X.java").getType("X");
+	IField field = type.getField("x");
+	
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	resultCollector.showInsideDoc = true;
+	search(field, REFERENCES, getJavaSearchScope(), resultCollector);
+	assertSearchResults(
+		"src/s4/X.java int s4.X.foo() [x] OUTSIDE_JAVADOC\n" + 
+		"src/s4/X.java void s4.X.bar() [x] INSIDE_JAVADOC",
 		resultCollector);
 }
 /**
@@ -2052,6 +2113,21 @@ public void testMethodReferenceInInnerClass() throws CoreException {
 	assertSearchResults(
 		"src/CA.java void CA$CB.f() [m()]\n" + 
 		"src/CA.java void CA$CB$CC.f() [m()]",
+		resultCollector);
+}
+/**
+ * Method reference inside/outside doc comment.
+ */
+public void testMethodReferenceInOutDocComment() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "s4", "X.java").getType("X");
+	IMethod method = type.getMethod("foo", new String[] {});
+	
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	resultCollector.showInsideDoc = true;
+	search(method, REFERENCES, getJavaSearchScope(), resultCollector);
+	assertSearchResults(
+		"src/s4/X.java void s4.X.bar() [foo] INSIDE_JAVADOC\n" + 
+		"src/s4/X.java void s4.X.fred() [foo()] OUTSIDE_JAVADOC",
 		resultCollector);
 }
 /**
@@ -3088,6 +3164,22 @@ public void testTypeReferenceInInitializer() throws CoreException {
 		"src/Test.java Test.static {} [Test]\n" +
 		"src/Test.java Test.static {} [Test]\n" +
 		"src/Test.java Test.{} [Test]",
+		resultCollector);
+}
+/**
+ * Type reference inside/outside doc comment.
+ */
+public void testTypeReferenceInOutDocComment() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch", "src", "s4", "X.java").getType("X");
+	
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	resultCollector.showInsideDoc = true;
+	search(type, REFERENCES, getJavaSearchScope(), resultCollector);
+	assertSearchResults(
+		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
+		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
+		"src/s4/X.java void s4.X.bar() [X] INSIDE_JAVADOC\n" + 
+		"src/s4/X.java void s4.X.fred() [X] OUTSIDE_JAVADOC",
 		resultCollector);
 }
 /**
