@@ -1530,7 +1530,7 @@ public final class CompletionEngine
 		if((modifiers & CompilerModifiers.AccAbstract) == 0) {
 			// abtract
 			if((modifiers & ~(CompilerModifiers.AccVisibilityMASK | CompilerModifiers.AccStatic)) == 0) {
-				keywords[count++] = Keywords.ABSTARCT;
+				keywords[count++] = Keywords.ABSTRACT;
 			}
 			
 			// final
