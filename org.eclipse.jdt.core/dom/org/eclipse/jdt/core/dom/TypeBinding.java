@@ -303,7 +303,11 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public IJavaElement getJavaElement() {
 		if (this.binding == null || this.binding.isArrayType() || this.binding.isBaseType()) return null;
-		ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
+		ReferenceBinding referenceBinding;
+		if (this.binding.isParameterizedType() || this.binding.isRawType())
+			referenceBinding = (ReferenceBinding) this.binding.erasure();
+		else
+			referenceBinding = (ReferenceBinding) this.binding;
 		if (referenceBinding.isBinaryBinding()) {
 			ClassFile classFile = (ClassFile) getClassFile(referenceBinding.getFileName());
 			if (classFile == null) return null;

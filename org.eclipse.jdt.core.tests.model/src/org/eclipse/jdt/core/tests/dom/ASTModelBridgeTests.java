@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -48,14 +47,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
-			setupExternalJCL("jclMin");
-			JavaCore.setClasspathVariables(
-				new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-				new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-				null);
-		} 
-		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.5");
+		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
 		this.workingCopy = getCompilationUnit("/P/X.java").getWorkingCopy(
 			new WorkingCopyOwner() {}, 
 			new IProblemRequestor() {
@@ -302,7 +294,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"public class X extends /*start*/Y/*end*/ {\n" +
 				"}"
 			);
-			IBinding binding = ((SimpleType) node).resolveBinding();
+			IBinding binding = ((Type) node).resolveBinding();
 			assertNotNull("No binding", binding);
 			IJavaElement element = binding.getJavaElement();
 			assertElementEquals(
@@ -326,12 +318,12 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"  /*start*/String/*end*/ field;\n" +
 			"}"
 		);
-		IBinding binding = ((SimpleType) node).resolveBinding();
+		IBinding binding = ((Type) node).resolveBinding();
 		assertNotNull("No binding", binding);
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
-			"String [in String.class [in java.lang [in "+ getExternalJCLPathString() + " [in P]]]]",
+			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());
@@ -351,7 +343,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
-			"java.lang [in "+ getExternalJCLPathString() + " [in P]]",
+			"java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());
@@ -378,6 +370,48 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertTrue("Element should exist", element.exists());
 	}
 	
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a parameterized binary type is correct.
+	 * (regression test for bug 78087 [dom] TypeBinding#getJavaElement() throws IllegalArgumentException for parameterized or raw reference to binary type)
+	 */
+	public void testParameterizedBinaryType() throws CoreException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  /*start*/Comparable<String>/*end*/ field;\n" +
+			"}"
+		);
+		IBinding binding = ((Type) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a raw binary type is correct.
+	 * (regression test for bug 78087 [dom] TypeBinding#getJavaElement() throws IllegalArgumentException for parameterized or raw reference to binary type)
+	 */
+	public void testRawBinaryType() throws CoreException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  /*start*/Comparable/*end*/ field;\n" +
+			"}"
+		);
+		IBinding binding = ((Type) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a parameter type is correct.
 	 * (regression test for bug 78930 ITypeBinding#getJavaElement() throws NPE for type variable)
