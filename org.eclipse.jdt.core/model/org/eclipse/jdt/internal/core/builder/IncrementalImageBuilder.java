@@ -196,9 +196,16 @@ protected boolean findAffectedSourceFiles(IResourceDelta delta, IResource[] bina
 		if (binaryResource != null) { // skip unchanged output folder
 			IResourceDelta binaryDelta = delta.findMember(binaryResource.getProjectRelativePath());
 			if (binaryDelta != null) {
-				if (binaryResource instanceof IFile) return false; // do full build since jar file was added/removed/changed
-				if (binaryDelta.getKind() == IResourceDelta.ADDED || binaryDelta.getKind() == IResourceDelta.REMOVED)
+				if (binaryResource instanceof IFile) {
+					if (JavaBuilder.DEBUG)
+						System.out.println("ABORTING incremental build... found delta to jar/zip file"); //$NON-NLS-1$
+					return false; // do full build since jar file was added/removed/changed
+				}
+				if (binaryDelta.getKind() == IResourceDelta.ADDED || binaryDelta.getKind() == IResourceDelta.REMOVED) {
+					if (JavaBuilder.DEBUG)
+						System.out.println("ABORTING incremental build... found added/removed binary folder"); //$NON-NLS-1$
 					return false; // added/removed binary folder should not make it here, but handle anyways
+				}
 				int segmentCount = binaryResource.getLocation().segmentCount();
 				IResourceDelta[] children = binaryDelta.getAffectedChildren(); // .class files from class folder
 				for (int i = 0, length = children.length; i < length; ++i)
@@ -277,8 +284,11 @@ protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
 	for (int i = 0, length = sourceFolders.length; i < length; i++) {
 		IResourceDelta sourceDelta = delta.findMember(sourceFolders[i].getProjectRelativePath());
 		if (sourceDelta != null) {
-			if (sourceDelta.getKind() == IResourceDelta.REMOVED)
+			if (sourceDelta.getKind() == IResourceDelta.REMOVED) {
+				if (JavaBuilder.DEBUG)
+					System.out.println("ABORTING incremental build... found removed source folder"); //$NON-NLS-1$
 				return false; // removed source folder should not make it here, but handle anyways (ADDED is supported)
+			}
 			int segmentCount = sourceFolders[i].getLocation().segmentCount();
 			IResourceDelta[] children = sourceDelta.getAffectedChildren();
 			for (int c = 0, clength = children.length; c < clength; c++)
