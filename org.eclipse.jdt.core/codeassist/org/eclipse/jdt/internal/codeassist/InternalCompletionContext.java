@@ -19,8 +19,6 @@ public class InternalCompletionContext {
 	protected char[][] expectedTypesSignatures;
 	protected char[][] expectedTypesKeys;
 	
-	protected int[] potentialKinds;
-	
 	protected void setExpectedTypesSignatures(char[][] expectedTypesSignatures) {
 		this.expectedTypesSignatures = expectedTypesSignatures;
 	}
