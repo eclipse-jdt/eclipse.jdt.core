@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.core.Util;
 
 /**
  * The skeleton of the class 'org.eclipse.jdt.internal.eval.target.CodeSnippet'
@@ -103,7 +104,7 @@ public IBinaryField[] getFields() {
 	return null;
 }
 public char[] getFileName() {
-	return CharOperation.concat(CODE_SNIPPET_NAME, ".java".toCharArray()); //$NON-NLS-1$
+	return CharOperation.concat(CODE_SNIPPET_NAME, Util.SUFFIX_java); //$NON-NLS-1$
 }
 public char[][] getInterfaceNames() {
 	return null;

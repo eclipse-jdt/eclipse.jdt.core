@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.core.Util;
 
 /**
  * A evaluator builds a compilation unit and compiles it into class files.
@@ -129,7 +130,7 @@ ClassFile[] getClasses() {
 	compiler.compile(new ICompilationUnit[] {new ICompilationUnit() {
 		public char[] getFileName() {
 			 // Name of class is name of CU
-			return CharOperation.concat(Evaluator.this.getClassName(), ".java".toCharArray()); //$NON-NLS-1$
+			return CharOperation.concat(Evaluator.this.getClassName(), Util.SUFFIX_java); //$NON-NLS-1$
 		}
 		public char[] getContents() {
 			return source;
