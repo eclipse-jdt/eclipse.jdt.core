@@ -490,7 +490,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (newLinesBeforeField > 0) {
 			this.scribe.printEmptyLines(newLinesBeforeField);
 		}
-		Alignment fieldAlignment = this.scribe.getAlignment("typeMembers");	//$NON-NLS-1$
+		Alignment fieldAlignment = this.scribe.getMemberAlignment();	//$NON-NLS-1$
 	
 		if (fieldDeclaration.modifiers != NO_MODIFIERS) {
 			this.scribe.printModifiers();
@@ -536,7 +536,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (fieldAlignment != null) {
 			this.scribe.alignFragment(fieldAlignment, 2);
 			this.scribe.printTrailingComment();
-			this.scribe.exitAlignment(fieldAlignment, false);
 		} else {
 			this.scribe.space();
 			this.scribe.printTrailingComment();
@@ -569,7 +568,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		if (newLinesBeforeField > 0) {
 			this.scribe.printEmptyLines(newLinesBeforeField);
 		}
-		Alignment fieldAlignment = this.scribe.getAlignment("typeMembers");	//$NON-NLS-1$
+		Alignment fieldAlignment = this.scribe.getMemberAlignment();	//$NON-NLS-1$
 	
 		if (multiFieldDeclaration.declarations[0].modifiers != NO_MODIFIERS) {
 			this.scribe.printModifiers();
@@ -645,9 +644,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			}
 		} while (!ok);
 		this.scribe.exitAlignment(multiFieldDeclarationsAlignment, true);				
-		if (fieldAlignment != null) {
-			this.scribe.exitAlignment(fieldAlignment, false);
-		}
 	}
 	
 	/**
@@ -914,7 +910,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 		final int FIELD = 1, METHOD = 2, TYPE = 3;
 		
 		Alignment memberAlignment = this.scribe.createAlignment("typeMembers", this.preferences.type_member_alignment, 4, this.scribe.scanner.currentPosition); //$NON-NLS-1$
-		this.scribe.enterAlignment(memberAlignment);
+		this.scribe.enterMemberAlignment(memberAlignment);
 		boolean isChunkStart = false;
 		boolean ok = false;
 		int startIndex = 0;
@@ -952,10 +948,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				ok = true;
 			} catch(AlignmentException e){
 				startIndex = memberAlignment.chunkStartIndex;
-				this.scribe.redoAlignment(e);
+				this.scribe.redoMemberAlignment(e);
 			}
 		} while (!ok);		
-		this.scribe.exitAlignment(memberAlignment, true);
+		this.scribe.exitMemberAlignment(memberAlignment);
 		this.scribe.printLastComment();
 	}
 	
@@ -1172,9 +1168,8 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 * Merged traversal of member (types, fields, methods)
 	 */
 	private void formatTypeMembers(TypeDeclaration typeDeclaration) {
-		
 		Alignment memberAlignment = this.scribe.createAlignment("typeMembers", this.preferences.type_member_alignment, 3, this.scribe.scanner.currentPosition); //$NON-NLS-1$
-		this.scribe.enterAlignment(memberAlignment);
+		this.scribe.enterMemberAlignment(memberAlignment);
 		AstNode[] members = computeMergedMemberDeclarations(typeDeclaration);
 		boolean isChunkStart = false;
 		boolean ok = false;
@@ -1228,10 +1223,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				ok = true;
 			} catch(AlignmentException e){
 				startIndex = memberAlignment.chunkStartIndex;
-				this.scribe.redoAlignment(e);
+				this.scribe.redoMemberAlignment(e);
 			}
 		} while (!ok);		
-		this.scribe.exitAlignment(memberAlignment, true);
+		this.scribe.exitMemberAlignment(memberAlignment);
 	}
 
 	private void formatTypeOpeningBrace(String bracePosition, boolean insertSpaceBeforeBrace, TypeDeclaration typeDeclaration) {
@@ -2822,9 +2817,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 * @see org.eclipse.jdt.internal.compiler.AbstractSyntaxTreeVisitorAdapter#visit(org.eclipse.jdt.internal.compiler.ast.MemberTypeDeclaration, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
 	 */
 	public boolean visit(MemberTypeDeclaration memberTypeDeclaration, ClassScope scope) {
-		Alignment memberTypeAlignment = this.scribe.getAlignment("typeMembers");		//$NON-NLS-1$
-		format(memberTypeDeclaration);
-		this.scribe.exitAlignment(memberTypeAlignment, false);		
+		format(memberTypeDeclaration);	
 		return false;
 	}
 

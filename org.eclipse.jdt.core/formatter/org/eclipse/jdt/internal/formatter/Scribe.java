@@ -34,6 +34,7 @@ public class Scribe {
 	// Most specific alignment. 
 	public Alignment currentAlignment;
 	public int currentToken;
+	public Alignment memberAlignment;
 	
 	// TODO: to remove when the testing is done
 	private char fillingSpace;
@@ -108,6 +109,11 @@ public class Scribe {
 		this.currentAlignment = alignment;
 	}
 
+	public void enterMemberAlignment(Alignment alignment) {
+		alignment.enclosing = this.memberAlignment;
+		this.memberAlignment = alignment;
+	}
+
 	public void exitAlignment(Alignment alignment, boolean discardAlignment){
 		Alignment current = this.currentAlignment;
 		while (current != null){
@@ -126,6 +132,19 @@ public class Scribe {
 			this.currentAlignment = alignment.enclosing;
 		}
 	}
+	
+	public void exitMemberAlignment(Alignment alignment){
+		Alignment current = this.memberAlignment;
+		while (current != null){
+			if (current == alignment) break;
+			current = current.enclosing;
+		}
+		if (current == null) {
+			throw new AbortFormatting("could not find matching alignment: "+alignment); //$NON-NLS-1$
+		}
+		this.indentationLevel = current.location.outputIndentationLevel;
+	}
+	
 	
 	public String formattedSource() {
 		return this.buffer.toString();
@@ -162,6 +181,10 @@ public class Scribe {
 			return someColumn - 1;
 		}
 	}	
+
+	Alignment getMemberAlignment() {
+		return this.memberAlignment;
+	}
 
 	/** 
 	 * Answer next indentation level based on column estimated position
@@ -775,6 +798,15 @@ public class Scribe {
 		this.scanner.resetTo(this.currentAlignment.location.inputOffset, this.scanner.eofPosition);
 		// clean alignment chunkKind so it will think it is a new chunk again
 		this.currentAlignment.chunkKind = 0;
+		this.formatter.lastLocalDeclarationSourceStart = -1;
+	}
+
+	void redoMemberAlignment(AlignmentException e){
+		// reset scribe/scanner to restart at this given location
+		this.resetAt(this.memberAlignment.location);
+		this.scanner.resetTo(this.memberAlignment.location.inputOffset, this.scanner.eofPosition);
+		// clean alignment chunkKind so it will think it is a new chunk again
+		this.memberAlignment.chunkKind = 0;
 		this.formatter.lastLocalDeclarationSourceStart = -1;
 	}
 
