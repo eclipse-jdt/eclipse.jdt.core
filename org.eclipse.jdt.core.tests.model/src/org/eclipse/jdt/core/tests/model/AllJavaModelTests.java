@@ -236,8 +236,6 @@ public static Test suite() {
 
 	includeDeprecatedJDOMTests(suite);
 
-	includeDeprecatedJDOMTests(suite);
-
 	return suite;
 }
 
