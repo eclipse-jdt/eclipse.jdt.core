@@ -813,7 +813,7 @@ public interface IProblem {
 	/** @since 3.0 */
 	int DuplicateTypeVariable = Internal + 520;
 	/** @since 3.0 */
-	int IllegalTypeVariableReference = Internal + 521;
+	int IllegalTypeVariableSuperReference = Internal + 521;
 	/** @since 3.0 */
 	int TypeVariableReferenceFromStaticContext = Internal + 522;
 	/** @since 3.0 */

@@ -34,7 +34,7 @@ protected Map getCompilerOptions() {
 public static Test suite() {
 	return setupSuite(testClass());
 }
-public void test001() { // TODO reenable once parameterized supertypes are supported
+public void _test001() { // TODO reenable once parameterized supertypes are supported
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -55,7 +55,7 @@ public void test001() { // TODO reenable once parameterized supertypes are suppo
 		"SUCCESS");
 }
 
-public void test002() { // TODO reenable once parameterized supertypes are supported
+public void _test002() { // TODO reenable once parameterized supertypes are supported
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -93,7 +93,7 @@ public void test003() {
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <X> extends X {\n" + 
 		"	                           ^\n" + 
-		"Cannot refer to the type variable X\n" + 
+		"Cannot refer to the type variable X as a supertype\n" + 
 		"----------\n");
 }
 		
@@ -109,7 +109,7 @@ public void test004() {
 		"1. ERROR in X.java (at line 1)\n" + 
 		"	public class X <X> implements X {\n" + 
 		"	                              ^\n" + 
-		"Cannot refer to the type variable X\n" + 
+		"Cannot refer to the type variable X as a supertype\n" + 
 		"----------\n");
 }
 
@@ -175,12 +175,12 @@ public void test006() {
 		"4. ERROR in X.java (at line 10)\n" + 
 		"	class MX extends T {\n" + 
 		"	                 ^\n" + 
-		"Cannot refer to the type variable T\n" + 
+		"Cannot refer to the type variable T as a supertype\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 13)\n" + 
 		"	static class SMX extends T {\n" + 
 		"	                         ^\n" + 
-		"Cannot refer to the type variable T\n" + 
+		"Cannot refer to the type variable T as a supertype\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 14)\n" + 
 		"	T wrong4;\n" + 

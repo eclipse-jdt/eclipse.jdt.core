@@ -1350,7 +1350,7 @@ public abstract class Scope
 							if ((sourceType.tagBits & EndHierarchyCheck) == 0 && (sourceType.tagBits & BeginHierarchyCheck) != 0) {
 								resolvingHierarchy = true;
 								if (sourceType.getTypeVariable(name) != null)
-									return new ProblemReferenceBinding(name, IllegalTypeVariable); // cannot bind to a type variable
+									return new ProblemReferenceBinding(name, IllegalSuperTypeVariable); // cannot bind to a type variable
 								if (CharOperation.equals(name, sourceType.sourceName))
 									return sourceType;
 								break;
@@ -1359,7 +1359,7 @@ public abstract class Scope
 							TypeVariableBinding typeVariable = sourceType.getTypeVariable(name);
 							if (typeVariable != null) {
 							    if (resolvingHierarchy)
-									return new ProblemReferenceBinding(name, IllegalTypeVariable); // cannot bind to a type variable
+									return new ProblemReferenceBinding(name, IllegalSuperTypeVariable); // cannot bind to a type variable
 							    if (insideStaticContext)
 									return new ProblemReferenceBinding(name, NonStaticReferenceInStaticContext);
 							    return typeVariable;

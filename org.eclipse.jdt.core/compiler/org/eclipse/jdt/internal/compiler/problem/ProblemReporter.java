@@ -1954,8 +1954,8 @@ public void invalidType(ASTNode location, TypeBinding type) {
 		case NonStaticReferenceInStaticContext :
 			id = IProblem.TypeVariableReferenceFromStaticContext;
 		    break;
-		case IllegalTypeVariable : 
-		    id = IProblem.IllegalTypeVariableReference;
+		case IllegalSuperTypeVariable : 
+		    id = IProblem.IllegalTypeVariableSuperReference;
 		    break;
 		case NoError : // 0
 		default :
