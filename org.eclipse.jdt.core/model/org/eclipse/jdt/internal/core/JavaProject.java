@@ -301,8 +301,9 @@ public class JavaProject
 					}
 				} else {
 					// external target - only JARs allowed
-					if ("jar".equalsIgnoreCase(extension) //$NON-NLS-1$
-						|| "zip".equalsIgnoreCase(extension)) { //$NON-NLS-1$
+					if (((java.io.File)target).isFile()
+						&& ("jar".equalsIgnoreCase(extension) //$NON-NLS-1$
+							|| "zip".equalsIgnoreCase(extension))) { //$NON-NLS-1$
 						accumulatedRoots.add(
 							new JarPackageFragmentRoot(entryPath.toOSString(), this));
 						rootIDs.add(rootID);
@@ -813,8 +814,9 @@ public class JavaProject
 	public IPackageFragmentRoot getPackageFragmentRoot(IResource resource) {
 
 		String name = resource.getName();
-		if (Util.endsWithIgnoreCase(name, ".jar") //$NON-NLS-1$
-			|| Util.endsWithIgnoreCase(name, ".zip")) { //$NON-NLS-1$ 
+		if (resource.getType() == IResource.FILE
+			&& (Util.endsWithIgnoreCase(name, ".jar") //$NON-NLS-1$
+				|| Util.endsWithIgnoreCase(name, ".zip"))) { //$NON-NLS-1$ 
 			return new JarPackageFragmentRoot(resource, this);
 		} else {
 			return new PackageFragmentRoot(resource, this);
@@ -831,13 +833,8 @@ public class JavaProject
 	 * @private
 	 */
 	public IPackageFragmentRoot getPackageFragmentRoot(IPath path) {
-
-		IResource resource = null;
-		if (!path.isAbsolute()
-			|| (resource = getProject().getWorkspace().getRoot().findMember(path)) != null) {
-			if (resource != null) {
-				return getPackageFragmentRoot(resource);
-			}
+		Object target = JavaModel.getTarget(getProject().getWorkspace().getRoot(), path, false);
+		if (target == null) {
 			if (path.segmentCount() > 0) {
 				String ext = path.getFileExtension();
 				if (ext == null) {
@@ -851,14 +848,19 @@ public class JavaProject
 				return getPackageFragmentRoot(getProject());
 			}
 		} else {
-			String ext = path.getFileExtension();
-			if ("jar".equalsIgnoreCase(ext)  //$NON-NLS-1$
-				|| "zip".equalsIgnoreCase(ext)) { //$NON-NLS-1$
-				// external jar
-				return getPackageFragmentRoot0(path.toOSString());
+			if (target instanceof IResource) {
+				return this.getPackageFragmentRoot((IResource)target);
 			} else {
-				// unknown path
-				return null;
+				String ext = path.getFileExtension();
+				if (((java.io.File)target).isFile()
+					&& ("jar".equalsIgnoreCase(ext)  //$NON-NLS-1$
+						|| "zip".equalsIgnoreCase(ext))) { //$NON-NLS-1$
+					// external jar
+					return getPackageFragmentRoot0(path.toOSString());
+				} else {
+					// unknown path
+					return null;
+				}
 			}
 		}
 	}
@@ -923,16 +925,28 @@ public class JavaProject
 			if (ext.equalsIgnoreCase("zip") //$NON-NLS-1$
 				|| ext.equalsIgnoreCase("jar")) {  //$NON-NLS-1$
 				// jar
-				// removeFirstSegment removes the part relative to the project which is retrieve 
-				// through workspace.getDefaultContentLocation
-				if (path.isAbsolute() && getWorkspace().getRoot().findMember(path) == null) {
-					// file system jar
-					root = new JarPackageFragmentRoot(path.toOSString(), this);
+				Object target = JavaModel.getTarget(workspaceRoot, path, false);
+				if (target == null) {
+					return new IPackageFragmentRoot[0];
 				} else {
-					// resource jar
-					root = new JarPackageFragmentRoot(workspaceRoot.getFile(path), this);
+					if (target instanceof java.io.File) {
+						// file system jar
+						if (((java.io.File)target).isDirectory()) {
+							return new IPackageFragmentRoot[0]; // directory not supported as external library
+						} else {
+							root = new JarPackageFragmentRoot(path.toOSString(), this);
+						}
+					} else {
+						// resource jar
+						IResource resource = workspaceRoot.getFile(path);
+						if (resource.getType() == IResource.FOLDER) {
+							root = new PackageFragmentRoot(resource, this); 
+						} else {
+							root = new JarPackageFragmentRoot(resource, this);
+						}
+					}
+					return new IPackageFragmentRoot[] { root };
 				}
-				return new IPackageFragmentRoot[] { root };
 			}
 		}
 		IPath projectPath = getProject().getFullPath();
