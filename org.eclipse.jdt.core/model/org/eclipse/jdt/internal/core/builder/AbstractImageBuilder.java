@@ -356,6 +356,11 @@ protected void storeProblemsFor(SourceFile sourceFile, IProblem[] problems) thro
 					new Integer(problem.getSourceLineNumber()),
 				});
 		}
+
+/* Do NOT want to populate the Java Model just to find the matching Java element.
+ * Also cannot query compilation units located in folders with invalid package
+ * names such as 'a/b.c.d/e'.
+
 		// compute a user-friendly location
 		IJavaElement element = JavaCore.create(resource);
 		if (element instanceof org.eclipse.jdt.core.ICompilationUnit) { // try to find a finer grain element
@@ -368,7 +373,8 @@ protected void storeProblemsFor(SourceFile sourceFile, IProblem[] problems) thro
 			location = ((JavaElement) element).readableName();
 		if (location != null)
 			marker.setAttribute(IMarker.LOCATION, location);
-		
+*/
+
 		if (missingClassFile != null)
 			throw new MissingClassFileException(missingClassFile);
 	}
