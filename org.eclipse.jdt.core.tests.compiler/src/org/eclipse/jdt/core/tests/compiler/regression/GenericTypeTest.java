@@ -13121,4 +13121,154 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}		
+	public void test487() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void foo(List<String> ls) {\n" + 
+				"		List<?> l = ls;\n" + 
+				"		bar(l, \"\"); \n" + 
+				"	}\n" + 
+				"	<T> void bar(List<? super T> l, T t) {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	bar(l, \"\"); \n" + 
+			"	^^^\n" + 
+			"The method bar(List<? super T>, T) in the type X is not applicable for the arguments (List<?>, String)\n" + 
+			"----------\n");
+	}		
+	public void _test488() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Foo<?> f1 = new Foo<Integer>();\n" + 
+				"        Foo<?> f2 = new Foo<String>();\n" + 
+				"        f1.bar = f2.bar;\n" + 
+				"    }\n" + 
+				"    static class Foo<T> {\n" + 
+				"       Bar<T> bar = new Bar<T>();\n" + 
+				"    }\n" + 
+				"    static class Bar<T> {\n" + 
+				"        T t;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"should report type mismatch");
+	}		
+	public void _test489() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Foo<?> f1 = new Foo<Integer>();\n" + 
+				"        Foo<?> f2 = new Foo<String>();\n" + 
+				"        f1.bar = f1.bar;\n" + 
+				"    }\n" + 
+				"    static class Foo<T> {\n" + 
+				"       Bar<T> bar = new Bar<T>();\n" + 
+				"    }\n" + 
+				"    static class Bar<T> {\n" + 
+				"        T t;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"should report type mismatch?!");
+	}		
+	public void test490() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	T t;\n" + 
+				"	void foo(X<?> lhs, X<?> rhs) {\n" + 
+				"		lhs = rhs;\n" + 
+				"		lhs.t = rhs.t;\n" + 
+				"	}\n" + 
+				"	void bar(X<X<?>> lhs, X<X<?>> rhs) {\n" + 
+				"		lhs = rhs;\n" + 
+				"		lhs.t = rhs.t;\n" + 
+				"	}}\n" + 
+				"\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	lhs.t = rhs.t;\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from ? to ?\n" + 
+			"----------\n");
+	}		
+	
+	public void test491() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	T t;\n" + 
+				"	void foo(X<?> lhs, X<?> rhs) {\n" + 
+				"		lhs = rhs;\n" + 
+				"		lhs.t = rhs.t;\n" + 
+				"	}\n" + 
+				"	void bar(X<X<?>> lhs, X<X<?>> rhs) {\n" + 
+				"		lhs = rhs;\n" + 
+				"		lhs.t = rhs.t;\n" + 
+				"	}\n" + 
+				"	void baz(X<? super Number> lhs, X<? extends Number> rhs) {\n" + 
+				"		lhs = rhs;\n" + 
+				"		lhs.t = rhs.t;\n" + 
+				"	}\n" + 
+				"	void baz2(X<? extends Number> lhs, X<? extends Number> rhs) {\n" + 
+				"		lhs = rhs;\n" + 
+				"		lhs.t = rhs.t;\n" + 
+				"	}\n" + 
+				"	void baz3(X<? extends Number> lhs, X<? super Number> rhs) {\n" + 
+				"		lhs = rhs;\n" + 
+				"		lhs.t = rhs.t;\n" + 
+				"	}\n" + 
+				"	void baz4(X<? super Number> lhs, X<? super Number> rhs) {\n" + 
+				"		lhs = rhs;\n" + 
+				"		lhs.t = rhs.t;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	lhs.t = rhs.t;\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from ? to ?\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	lhs = rhs;\n" + 
+			"	      ^^^\n" + 
+			"Type mismatch: cannot convert from X<? extends Number> to X<? super Number>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 17)\n" + 
+			"	lhs.t = rhs.t;\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from ? extends Number to ? extends Number\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 20)\n" + 
+			"	lhs = rhs;\n" + 
+			"	      ^^^\n" + 
+			"Type mismatch: cannot convert from X<? super Number> to X<? extends Number>\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 21)\n" + 
+			"	lhs.t = rhs.t;\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from ? super Number to ? extends Number\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 25)\n" + 
+			"	lhs.t = rhs.t;\n" + 
+			"	        ^^^^^\n" + 
+			"Type mismatch: cannot convert from ? super Number to ? super Number\n" + 
+			"----------\n");
+	}		
 }

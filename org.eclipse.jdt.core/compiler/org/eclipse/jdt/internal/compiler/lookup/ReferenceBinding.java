@@ -610,8 +610,10 @@ public boolean isHierarchyBeingConnected() {
 */
 public boolean isCompatibleWith(TypeBinding otherType) {
     
-	if (otherType == this)
+	if (otherType == this) {
+		if (isWildcard()) return false;
 		return true;
+	}
 	if (otherType.id == T_JavaLangObject)
 		return true;
 	if (!(otherType instanceof ReferenceBinding))
