@@ -194,15 +194,19 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 				for (int j = 0, length2 = frags.length; j < length2; j++) {
 					PackageFragment fragment= (PackageFragment) frags[j];
 					String[] pkgName = fragment.names;
-					IPackageFragmentRoot[] entry= (IPackageFragmentRoot[]) cache.get(pkgName);
-					if (entry == null) {
-						entry= new IPackageFragmentRoot[] {root};
-						cache.put(pkgName, entry);
+					Object existing = cache.get(pkgName);
+					if (existing == null) {
+						cache.put(pkgName, root);
 					} else {
-						IPackageFragmentRoot[] copy= new IPackageFragmentRoot[entry.length + 1];
-						System.arraycopy(entry, 0, copy, 0, entry.length);
-						copy[entry.length]= root;
-						cache.put(pkgName, copy);
+						if (existing instanceof PackageFragmentRoot) {
+							cache.put(pkgName, new IPackageFragmentRoot[] {(PackageFragmentRoot) existing, root});
+						} else {
+							IPackageFragmentRoot[] entry= (IPackageFragmentRoot[]) existing;
+							IPackageFragmentRoot[] copy= new IPackageFragmentRoot[entry.length + 1];
+							System.arraycopy(entry, 0, copy, 0, entry.length);
+							copy[entry.length]= root;
+							cache.put(pkgName, copy);
+						}
 					}
 				}
 			}
