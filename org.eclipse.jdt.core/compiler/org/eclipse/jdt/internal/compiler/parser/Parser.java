@@ -1167,23 +1167,6 @@ protected void consumeAssignment() {
 	int op = intStack[intPtr--] ; //<--the encoded operator
 	
 	expressionPtr -- ; expressionLengthPtr -- ;
-	Expression expr = expressionStack[expressionPtr + 1];
-	if (expr instanceof QualifiedAllocationExpression) {
-		if (((QualifiedAllocationExpression) expr).anonymousType != null) {
-			expressionStack[expressionPtr] =
-				(op != EQUAL ) ?
-					new CompoundAssignment(
-						expressionStack[expressionPtr] ,
-						expressionStack[expressionPtr+1], 
-						op,
-						scanner.startPosition - 1)	:
-					new Assignment(
-						expressionStack[expressionPtr] ,
-						expressionStack[expressionPtr+1],
-						scanner.startPosition - 1);
-			return;
-		}
-	}
 	expressionStack[expressionPtr] =
 		(op != EQUAL ) ?
 			new CompoundAssignment(
