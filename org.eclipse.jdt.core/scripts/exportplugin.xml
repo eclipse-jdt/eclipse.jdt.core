@@ -8,6 +8,12 @@
 	<property name="export-dir" value="../../plugin-export" />
 </target>
 
+<target name="export plug-in [_2.0.1]" depends="zz_init">
+	<antcall target="zz_internal_export">
+	<param name="dest" value="${export-dir}/org.eclipse.jdt.core_2.0.1"/>
+	</antcall>
+</target>
+
 <target name="export plug-in [_2.0.0]" depends="zz_init">
 	<antcall target="zz_internal_export">
 	<param name="dest" value="${export-dir}/org.eclipse.jdt.core_2.0.0"/>
