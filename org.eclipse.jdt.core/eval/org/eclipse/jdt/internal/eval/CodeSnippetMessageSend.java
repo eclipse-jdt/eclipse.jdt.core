@@ -151,7 +151,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// Base type promotion
 
 	constant = NotAConstant;
-	receiverType = receiver.resolveType(scope); 
+	this.actualReceiverType = this.receiverType = receiver.resolveType(scope); 
 	// will check for null after args are resolved
 	TypeBinding[] argumentTypes = NoParameters;
 	if (arguments != null) {
