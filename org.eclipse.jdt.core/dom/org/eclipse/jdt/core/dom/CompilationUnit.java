@@ -282,6 +282,11 @@ public class CompilationUnit extends ASTNode {
 	 * <li>constructor - a <code>MethodDeclaration</code> </li>
 	 * </ul>
 	 * </p>
+	 * <p>
+	 * Note that as explained in {@link IBinding#getkey IBinding.getkey}
+	 * there may be no keys for finding the declaring node for local variables,
+	 * local or anonymous classes, etc.
+	 * </p>
 	 * 
 	 * @param key the binding key, or <code>null</code>
 	 * @return the corresponding node where a binding with the given
