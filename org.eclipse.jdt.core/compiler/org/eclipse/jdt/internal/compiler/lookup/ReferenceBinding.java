@@ -184,64 +184,94 @@ public void computeId() {
 	if (compoundName.length != 3) {
 		if (compoundName.length == 4 && CharOperation.equals(JAVA_LANG_REFLECT_CONSTRUCTOR, compoundName))
 			id = T_JavaLangReflectConstructor;
-		return;		// all other types are in java.*.*
+		return;
 	}
 
-	if (!CharOperation.equals(compoundName[0], JAVA))
-		return;		// assumes we only look up types in java
+	if (!CharOperation.equals(JAVA, compoundName[0]))
+		return;
 
-	if (!CharOperation.equals(compoundName[1], LANG)) {
-		if (CharOperation.equals(compoundName, JAVA_IO_PRINTSTREAM))
+	// remaining types MUST be in java.*.*
+	if (!CharOperation.equals(LANG, compoundName[1])) {
+		if (CharOperation.equals(JAVA_IO_PRINTSTREAM, compoundName))
 			id = T_JavaIoPrintStream;
 		else if (CharOperation.equals(compoundName, JAVA_UTIL_ITERATOR))
 			id = T_JavaUtilIterator;
 		return;
 	}
 
-	// all other types are in java.lang
+	// remaining types MUST be in java.lang.*
 	char[] typeName = compoundName[2];
-	if (CharOperation.equals(typeName, JAVA_LANG_OBJECT[2]))
-		id = T_JavaLangObject;
-	else if (CharOperation.equals(typeName, JAVA_LANG_STRING[2]))
-		id = T_JavaLangString;
-	else if (CharOperation.equals(typeName, JAVA_LANG_THROWABLE[2]))
-		id = T_JavaLangThrowable;
-	else if (CharOperation.equals(typeName, JAVA_LANG_ERROR[2]))
-		id = T_JavaLangError;
-	else if (CharOperation.equals(typeName, JAVA_LANG_EXCEPTION[2]))
-		id = T_JavaLangException;
-	else if (CharOperation.equals(typeName, JAVA_LANG_CLASSNOTFOUNDEXCEPTION[2]))
-		id = T_JavaLangClassNotFoundException;
-	else if (CharOperation.equals(typeName, JAVA_LANG_NOCLASSDEFERROR[2]))
-		id = T_JavaLangNoClassDefError;
-	else if (CharOperation.equals(typeName, JAVA_LANG_CLASS[2]))
-		id = T_JavaLangClass;
-	else if (CharOperation.equals(typeName, JAVA_LANG_STRINGBUFFER[2]))
-		id = T_JavaLangStringBuffer;
-	else if (CharOperation.equals(typeName, JAVA_LANG_SYSTEM[2]))
-		id = T_JavaLangSystem;
-	else if (CharOperation.equals(typeName, JAVA_LANG_INTEGER[2]))
-		id = T_JavaLangInteger;
-	else if (CharOperation.equals(typeName, JAVA_LANG_BYTE[2]))
-		id = T_JavaLangByte;
-	else if (CharOperation.equals(typeName, JAVA_LANG_CHARACTER[2]))
-		id = T_JavaLangCharacter;
-	else if (CharOperation.equals(typeName, JAVA_LANG_FLOAT[2]))
-		id = T_JavaLangFloat;
-	else if (CharOperation.equals(typeName, JAVA_LANG_DOUBLE[2]))
-		id = T_JavaLangDouble;
-	else if (CharOperation.equals(typeName, JAVA_LANG_BOOLEAN[2]))
-		id = T_JavaLangBoolean;
-	else if (CharOperation.equals(typeName, JAVA_LANG_SHORT[2]))
-		id = T_JavaLangShort;
-	else if (CharOperation.equals(typeName, JAVA_LANG_LONG[2]))
-		id = T_JavaLangLong;
-	else if (CharOperation.equals(typeName, JAVA_LANG_VOID[2]))
-		id = T_JavaLangVoid;
-	else if (CharOperation.equals(typeName, JAVA_LANG_ASSERTIONERROR[2]))
-		id = T_JavaLangAssertionError;
-	else if (CharOperation.equals(typeName, JAVA_LANG_ITERABLE[2]))
-		id = T_JavaLangIterable;
+	if (typeName.length == 0) return; // just to be safe
+	switch (typeName[0]) {
+		case 'A' :
+			if (CharOperation.equals(typeName, JAVA_LANG_ASSERTIONERROR[2]))
+				id = T_JavaLangAssertionError;
+			return;
+		case 'B' :
+			if (CharOperation.equals(typeName, JAVA_LANG_BOOLEAN[2]))
+				id = T_JavaLangBoolean;
+			else if (CharOperation.equals(typeName, JAVA_LANG_BYTE[2]))
+				id = T_JavaLangByte;
+			return;
+		case 'C' :
+			if (CharOperation.equals(typeName, JAVA_LANG_CHARACTER[2]))
+				id = T_JavaLangCharacter;
+			else if (CharOperation.equals(typeName, JAVA_LANG_CLASS[2]))
+				id = T_JavaLangClass;
+			else if (CharOperation.equals(typeName, JAVA_LANG_CLASSNOTFOUNDEXCEPTION[2]))
+				id = T_JavaLangClassNotFoundException;
+			return;
+		case 'D' :
+			if (CharOperation.equals(typeName, JAVA_LANG_DOUBLE[2]))
+				id = T_JavaLangDouble;
+			return;
+		case 'E' :
+			if (CharOperation.equals(typeName, JAVA_LANG_ERROR[2]))
+				id = T_JavaLangError;
+			else if (CharOperation.equals(typeName, JAVA_LANG_EXCEPTION[2]))
+				id = T_JavaLangException;
+			return;
+		case 'F' :
+			if (CharOperation.equals(typeName, JAVA_LANG_FLOAT[2]))
+				id = T_JavaLangFloat;
+			return;
+		case 'I' :
+			if (CharOperation.equals(typeName, JAVA_LANG_INTEGER[2]))
+				id = T_JavaLangInteger;
+			else if (CharOperation.equals(typeName, JAVA_LANG_ITERABLE[2]))
+				id = T_JavaLangIterable;
+			return;
+		case 'L' :
+			if (CharOperation.equals(typeName, JAVA_LANG_LONG[2]))
+				id = T_JavaLangLong;
+			return;
+		case 'N' :
+			if (CharOperation.equals(typeName, JAVA_LANG_NOCLASSDEFERROR[2]))
+				id = T_JavaLangNoClassDefError;
+			return;
+		case 'O' :
+			if (CharOperation.equals(typeName, JAVA_LANG_OBJECT[2]))
+				id = T_JavaLangObject;
+			return;
+		case 'S' :
+			if (CharOperation.equals(typeName, JAVA_LANG_STRING[2]))
+				id = T_JavaLangString;
+			else if (CharOperation.equals(typeName, JAVA_LANG_STRINGBUFFER[2]))
+				id = T_JavaLangStringBuffer;
+			else if (CharOperation.equals(typeName, JAVA_LANG_SYSTEM[2]))
+				id = T_JavaLangSystem;
+			else if (CharOperation.equals(typeName, JAVA_LANG_SHORT[2]))
+				id = T_JavaLangShort;
+			return;
+		case 'T' :
+			if (CharOperation.equals(typeName, JAVA_LANG_THROWABLE[2]))
+				id = T_JavaLangThrowable;
+			return;
+		case 'V' :
+			if (CharOperation.equals(typeName, JAVA_LANG_VOID[2]))
+				id = T_JavaLangVoid;
+			return;
+	}
 }
 /* Answer the receiver's constant pool name.
 *
