@@ -196,7 +196,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		StringBuffer buffer = new StringBuffer();
 		if (elements != null) {
 			for (int i = 0, length = elements.length; i < length; i++){
-				buffer.append(((JavaElement)elements[i]).toStringWithAncestors());
+				JavaElement element = (JavaElement)elements[i];
+				if (element == null) {
+					buffer.append("<null>");
+				} else {
+					buffer.append(element.toStringWithAncestors());
+				}
 				if (i != length-1) buffer.append("\n");
 			}
 		} else {

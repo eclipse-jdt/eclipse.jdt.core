@@ -27,7 +27,6 @@ import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -248,10 +247,10 @@ public class NameLookup implements SuffixConstants {
 			if (fromFactory == null) {
 				return null;
 			}
-			if (fromFactory instanceof IPackageFragment) {
-				return (IPackageFragment) fromFactory;
-			} else
-				if (fromFactory instanceof IJavaProject) {
+			switch (fromFactory.getElementType()) {
+				case IJavaElement.PACKAGE_FRAGMENT:
+					return (IPackageFragment) fromFactory;
+				case IJavaElement.JAVA_PROJECT:
 					// default package in a default root
 					JavaProject project = (JavaProject) fromFactory;
 					try {
@@ -272,7 +271,10 @@ public class NameLookup implements SuffixConstants {
 					} catch (JavaModelException e) {
 						return null;
 					}
-				}
+					return null;
+				case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+					return ((IPackageFragmentRoot)fromFactory).getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+			}
 		}
 		return null;
 	}

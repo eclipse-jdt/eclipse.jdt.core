@@ -42,8 +42,8 @@ private NameLookup getNameLookup(JavaProject project) throws JavaModelException 
 }
 public void testAddPackageFragmentRootAndPackageFrament() throws CoreException {
 	try {
-		IJavaProject p1 = this.createJavaProject("P1", new String[] {"src1"}, "bin");
-		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, "");
+		IJavaProject p1 = createJavaProject("P1", new String[] {"src1"}, "bin");
+		IJavaProject p2 = createJavaProject("P2", new String[] {}, "");
 		IClasspathEntry[] classpath = 
 			new IClasspathEntry[] {
 				JavaCore.newProjectEntry(new Path("/P1"))
@@ -59,7 +59,7 @@ public void testAddPackageFragmentRootAndPackageFrament() throws CoreException {
 				JavaCore.newSourceEntry(new Path("/P1/src2"))
 			};
 		p1.setRawClasspath(classpath2, null);
-		this.createFolder("/P1/src2/p1");
+		createFolder("/P1/src2/p1");
 		
 		res = getNameLookup((JavaProject)p2).findPackageFragments("p1", false);
 		assertTrue(
@@ -69,14 +69,14 @@ public void testAddPackageFragmentRootAndPackageFrament() throws CoreException {
 			res[0].getElementName().equals("p1"));
 
 	} finally {
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 public void testAddPackageFragment() throws CoreException {
 	try {
-		this.createJavaProject("P1", new String[] {"src1"}, "bin");
-		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, "");
+		createJavaProject("P1", new String[] {"src1"}, "bin");
+		IJavaProject p2 = createJavaProject("P2", new String[] {}, "");
 		IClasspathEntry[] classpath = 
 			new IClasspathEntry[] {
 				JavaCore.newProjectEntry(new Path("/P1"))
@@ -86,7 +86,7 @@ public void testAddPackageFragment() throws CoreException {
 		IPackageFragment[] res = getNameLookup((JavaProject)p2).findPackageFragments("p1", false);
 		assertTrue("Should get no package fragment", res == null);
 		
-		this.createFolder("/P1/src1/p1");
+		createFolder("/P1/src1/p1");
 		
 		res = getNameLookup((JavaProject)p2).findPackageFragments("p1", false);
 		assertTrue(
@@ -96,8 +96,8 @@ public void testAddPackageFragment() throws CoreException {
 			res[0].getElementName().equals("p1"));
 
 	} finally {
-		this.deleteProject("P1");
-		this.deleteProject("P2");
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 /*
@@ -106,8 +106,8 @@ public void testAddPackageFragment() throws CoreException {
  */
 public void testAddPackageFragment2() throws CoreException {
 	try {
-		JavaProject project = (JavaProject)this.createJavaProject("P", new String[] {"src"}, "bin");
-		this.createFolder("/P/src/p1");
+		JavaProject project = (JavaProject)createJavaProject("P", new String[] {"src"}, "bin");
+		createFolder("/P/src/p1");
 		
 		IPackageFragment[] pkgs = getNameLookup(project).findPackageFragments("p1", false);
 		assertElementsEqual(
@@ -115,7 +115,7 @@ public void testAddPackageFragment2() throws CoreException {
 			"p1 [in src [in P]]",
 			pkgs);
 		
-		this.createFolder("/P/src/p2");
+		createFolder("/P/src/p2");
 	
 		pkgs = getNameLookup(project).findPackageFragments("p2", false);
 		assertElementsEqual(
@@ -123,7 +123,25 @@ public void testAddPackageFragment2() throws CoreException {
 			"p2 [in src [in P]]",
 			pkgs);
 	} finally {
-		this.deleteProject("P");
+		deleteProject("P");
+	}
+}
+/*
+ * Find a default package fragment in a non-default root by its path.
+ * (regression test for bug 63245 findPackageFragment won't return default package)
+ */
+public void testFindDefaultPackageFragmentInNonDefaultRoot() throws CoreException {
+	try {
+		JavaProject project = (JavaProject)createJavaProject("P", new String[] {"src"}, "bin");
+		
+		IPackageFragment pkg = getNameLookup(project).findPackageFragment(new Path("/P/src"));
+		assertElementsEqual(
+			"Didn't find default package",
+			"<default> [in src [in P]]",
+			new IJavaElement[] {pkg});
+		
+	} finally {
+		deleteProject("P");
 	}
 }
 }
