@@ -85,7 +85,9 @@ public Index[] getIndexes(IProgressMonitor progressMonitor) {
 	for (int i = 0; i < length; i++) {
 		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 		// may trigger some index recreation work
-		Index index = indexManager.getIndex(null/*ignored since do not create*/, indexLocations[i].toOSString(), true /*reuse index file*/, false /*do not create if none*/);
+		String indexLocation = indexLocations[i].toOSString();
+		IPath containerPath = (IPath) indexManager.indexLocations.keyForValue(indexLocation);
+		Index index = indexManager.getIndex(containerPath, indexLocations[i].toOSString(), true /*reuse index file*/, false /*do not create if none*/);
 		if (index != null)
 			indexes[count++] = index; // only consider indexes which are ready
 	}
