@@ -316,8 +316,8 @@ In particular implementors of such languages should be able to:
 </ul>
 </p>
 <p>Such an implementor is called a search participant. It extends the SearchParticipant 
-class. A search participant is registered through the searchParticipant extension point 
-[to be defined].</p>
+class. Search participants are passed to search queries 
+(see SearchEngine.search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor).</p>
 <p>For either indexing or locating matches, a search participant needs to define a subclass of 
 SearchDocument that can retrieve the contents of a document by overriding either 
 getByteContents() or getCharContents(). An instance of such class is

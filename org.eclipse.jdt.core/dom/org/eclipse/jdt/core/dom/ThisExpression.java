@@ -192,7 +192,7 @@ public class ThisExpression extends Expression {
 	 * @return the block scope
 	 */
 	BlockScope lookupScope() {
-		// TBD (olivier) - this method should be moved to ASTConverter
+		// TODO (olivier) - this method should be moved to ASTConverter
 		ASTNode currentNode = this;
 		while(currentNode != null
 			&&!(currentNode instanceof MethodDeclaration)

@@ -38,10 +38,9 @@ import org.eclipse.jdt.core.IJavaElement;
  * Clients may implement this interface.
  * </p>
  *
- * @see SearchEngine#search
- * TODO (jerome) deprecate - should use SearchRequestor instead
+ * @see SearchEngine
+ * @deprecated use SearchRequestor instead
  */
-// TODO (jerome) deprecate - should use SearchRequestor instead
 public interface IJavaSearchResultCollector {
 	/**
 	 * The search result corresponds exactly to the search pattern.

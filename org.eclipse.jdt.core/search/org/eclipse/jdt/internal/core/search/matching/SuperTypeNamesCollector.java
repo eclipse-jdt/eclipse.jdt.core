@@ -261,7 +261,7 @@ protected String[] getPathsOfDeclaringType() {
 	indexManager.performConcurrentJob(
 		new PatternSearchJob(
 			searchPattern, 
-			new JavaSearchParticipant(this.locator.workingCopies),
+			new JavaSearchParticipant(),
 			scope, 
 			searchRequestor),
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,

@@ -466,7 +466,7 @@ public static void searchAllPossibleSubTypes(
 	pattern.focus = type;
 	SubTypeSearchJob job = new SubTypeSearchJob(
 		pattern, 
-		new JavaSearchParticipant(null), // java search only
+		new JavaSearchParticipant(), // java search only
 		scope, 
 		searchRequestor);
 

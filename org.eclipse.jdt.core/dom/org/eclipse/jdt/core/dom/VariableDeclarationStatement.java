@@ -335,10 +335,8 @@ public class VariableDeclarationStatement extends Statement {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
 	 * @see Modifier
-	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
-	 * <code>modifiers()</code> which contains a list of 
-	 * a <code>Modifier</code> nodes.
 	 */ 
+	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>modifiers()</code> which contains a list of a <code>Modifier</code> nodes.
 	public void setModifiers(int modifiers) {
 	    supportedOnlyIn2();
 		preValueChange(MODIFIERS_PROPERTY);
@@ -358,9 +356,14 @@ public class VariableDeclarationStatement extends Statement {
 	 */ 
 	public Type getType() {
 		if (this.baseType == null) {
-			preLazyInit();
-			this.baseType = this.ast.newPrimitiveType(PrimitiveType.INT);
-			postLazyInit(this.baseType, TYPE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.baseType == null) {
+					preLazyInit();
+					this.baseType = this.ast.newPrimitiveType(PrimitiveType.INT);
+					postLazyInit(this.baseType, TYPE_PROPERTY);
+				}
+			}
 		}
 		return this.baseType;
 	}

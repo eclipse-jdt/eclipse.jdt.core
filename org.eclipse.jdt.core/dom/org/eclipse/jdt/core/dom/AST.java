@@ -92,8 +92,8 @@ public final class AST {
      * up to and including J2SE 1.4.
      *
 	 * @since 3.0
-	 * // TBD (jeem) deprecated Clients should use the level 3 API.
 	 */
+	// TODO (jeem) deprecated Clients should use the level 3 API.
 	public static final int LEVEL_2_0 = 2;
 	
 	/**
@@ -153,7 +153,14 @@ public final class AST {
 	 * </p>
 	 * @since 3.0
 	 */
-	int disableEvents = 0;
+	private int disableEvents = 0;
+	
+	/**
+	 * Internal object unique to the AST instance. Readers must synchronize on
+	 * this object when the modifying instance fields.
+	 * @since 3.0
+	 */
+	private final Object internalASTLock = new Object();
 
 	/**
 	 * Java Scanner used to validate preconditions for the creation of specific nodes
@@ -199,10 +206,8 @@ public final class AST {
 	 * Creates a new, empty abstract syntax tree using default options.
 	 * 
 	 * @see JavaCore#getDefaultOptions()
-	 * TBD (jeem) deprecated Clients should port their code to
-     * use the new 3.0 API and call {@link #newAST(int)} instead of using
-     * this constructor.
 	 */
+	// TODO (jeem) deprecated Clients should port their code to use the new 3.0 API and call {@link #newAST(int)} instead of using this constructor.
 	public AST() {
 		this(JavaCore.getDefaultOptions());
 	}
@@ -261,10 +266,8 @@ public final class AST {
 	 * @param options the table of options (key type: <code>String</code>;
 	 *    value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions()
-	 * TBD (jeem) deprecated Clients should port their code to
-     * use the new 3.0 API and call {@link #newAST(int)} instead of using
-     * this constructor.
 	 */
+	// TODO (jeem) deprecated Clients should port their code to use the new 3.0 API and call {@link #newAST(int)} instead of using this constructor.
 	public AST(Map options) {
 		this(LEVEL_2_0);
 		// override scanner if 1.4 asked for
@@ -356,6 +359,8 @@ public final class AST {
 	 * </p> 
 	 */
 	void modifying() {
+		// when this method is called during lazy init, events are disabled
+		// and the modification count will not be increased
 		if (this.disableEvents > 0) {
 			return;
 		}
@@ -363,6 +368,35 @@ public final class AST {
 		this.modificationCount++;
 	}
 
+	/**
+     * Disable events.
+	 * This method is thread-safe for AST readers.
+	 * 
+	 * @see #reenableEvents()
+     * @since 3.0
+     */
+	final void disableEvents() {
+		synchronized (this.internalASTLock) {
+			// guard against concurrent access by another reader
+			this.disableEvents++;
+		}
+		// while disableEvents > 0 no events will be reported, and mod count will stay fixed
+	}
+	
+	/**
+     * Reenable events.
+	 * This method is thread-safe for AST readers.
+	 * 
+	 * @see #disableEvents()
+     * @since 3.0
+     */
+	final void reenableEvents() {
+		synchronized (this.internalASTLock) {
+			// guard against concurrent access by another reader
+			this.disableEvents--;
+		}
+	}
+	
 	/**
 	 * Reports that the given node is about to lose a child.
 	 * 
@@ -372,18 +406,23 @@ public final class AST {
 	 * @since 3.0
 	 */
 	void preRemoveChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
-		if (this.disableEvents > 0) {
-			// doing lazy init OR already processing an event
-			// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
-			return;
+		// IMPORTANT: this method is called by readers during lazy init
+		synchronized (this.internalASTLock) {
+			// guard against concurrent access by a reader doing lazy init
+			if (this.disableEvents > 0) {
+				// doing lazy init OR already processing an event
+				// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
+				return;
+			} else {
+				disableEvents();
+			}
 		}
 		try {
-			this.disableEvents++;
 			this.eventHandler.preRemoveChildEvent(node, child, property);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has not been changed yet
 		} finally {
-			this.disableEvents--;
+			reenableEvents();
 		}
 	}
 	
@@ -396,18 +435,23 @@ public final class AST {
 	 * @since 3.0
 	 */
 	void postRemoveChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
-		if (this.disableEvents > 0) {
-			// doing lazy init OR already processing an event
-			// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
-			return;
+		// IMPORTANT: this method is called by readers during lazy init
+		synchronized (this.internalASTLock) {
+			// guard against concurrent access by a reader doing lazy init
+			if (this.disableEvents > 0) {
+				// doing lazy init OR already processing an event
+				// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
+				return;
+			} else {
+				disableEvents();
+			}
 		}
 		try {
-			this.disableEvents++;
 			this.eventHandler.postRemoveChildEvent(node, child, property);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has not been changed yet
 		} finally {
-			this.disableEvents--;
+			reenableEvents();
 		}
 	}
 	
@@ -421,18 +465,23 @@ public final class AST {
 	 * @since 3.0
 	 */
 	void preReplaceChildEvent(ASTNode node, ASTNode child, ASTNode newChild, StructuralPropertyDescriptor property) {
-		if (this.disableEvents > 0) {
-			// doing lazy init OR already processing an event
-			// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
-			return;
+		// IMPORTANT: this method is called by readers during lazy init
+		synchronized (this.internalASTLock) {
+			// guard against concurrent access by a reader doing lazy init
+			if (this.disableEvents > 0) {
+				// doing lazy init OR already processing an event
+				// System.out.println("[BOUNCE REP]"); //$NON-NLS-1$
+				return;
+			} else {
+				disableEvents();
+			}
 		}
 		try {
-			this.disableEvents++;
 			this.eventHandler.preReplaceChildEvent(node, child, newChild, property);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has not been changed yet
 		} finally {
-			this.disableEvents--;
+			reenableEvents();
 		}
 	}
 	
@@ -446,18 +495,23 @@ public final class AST {
 	 * @since 3.0
 	 */
 	void postReplaceChildEvent(ASTNode node, ASTNode child, ASTNode newChild, StructuralPropertyDescriptor property) {
-		if (this.disableEvents > 0) {
-			// doing lazy init OR already processing an event
-			// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
-			return;
+		// IMPORTANT: this method is called by readers during lazy init
+		synchronized (this.internalASTLock) {
+			// guard against concurrent access by a reader doing lazy init
+			if (this.disableEvents > 0) {
+				// doing lazy init OR already processing an event
+				// System.out.println("[BOUNCE REP]"); //$NON-NLS-1$
+				return;
+			} else {
+				disableEvents();
+			}
 		}
 		try {
-			this.disableEvents++;
 			this.eventHandler.postReplaceChildEvent(node, child, newChild, property);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has not been changed yet
 		} finally {
-			this.disableEvents--;
+			reenableEvents();
 		}
 	}
 	
@@ -470,18 +524,23 @@ public final class AST {
 	 * @since 3.0
 	 */
 	void preAddChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
-		if (this.disableEvents > 0) {
-			// doing lazy init OR already processing an event
-			// System.out.println("[BOUNCE ADD]"); //$NON-NLS-1$
-			return;
+		// IMPORTANT: this method is called by readers during lazy init
+		synchronized (this.internalASTLock) {
+			// guard against concurrent access by a reader doing lazy init
+			if (this.disableEvents > 0) {
+				// doing lazy init OR already processing an event
+				// System.out.println("[BOUNCE ADD]"); //$NON-NLS-1$
+				return;
+			} else {
+				disableEvents();
+			}
 		}
 		try {
-			this.disableEvents++;
 			this.eventHandler.preAddChildEvent(node, child, property);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has already been changed
 		} finally {
-			this.disableEvents--;
+			reenableEvents();
 		}
 	}
 	
@@ -494,18 +553,23 @@ public final class AST {
 	 * @since 3.0
 	 */
 	void postAddChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
-		if (this.disableEvents > 0) {
-			// doing lazy init OR already processing an event
-			// System.out.println("[BOUNCE ADD]"); //$NON-NLS-1$
-			return;
+		// IMPORTANT: this method is called by readers during lazy init
+		synchronized (this.internalASTLock) {
+			// guard against concurrent access by a reader doing lazy init
+			if (this.disableEvents > 0) {
+				// doing lazy init OR already processing an event
+				// System.out.println("[BOUNCE ADD]"); //$NON-NLS-1$
+				return;
+			} else {
+				disableEvents();
+			}
 		}
 		try {
-			this.disableEvents++;
 			this.eventHandler.postAddChildEvent(node, child, property);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has already been changed
 		} finally {
-			this.disableEvents--;
+			reenableEvents();
 		}
 	}
 	
@@ -518,18 +582,23 @@ public final class AST {
 	 * @since 3.0
 	 */
 	void preValueChangeEvent(ASTNode node, SimplePropertyDescriptor property) {
-		if (this.disableEvents > 0) {
-			// doing lazy init OR already processing an event
-			// System.out.println("[BOUNCE CHANGE]"); //$NON-NLS-1$
-			return;
+		// IMPORTANT: this method is called by readers during lazy init
+		synchronized (this.internalASTLock) {
+			// guard against concurrent access by a reader doing lazy init
+			if (this.disableEvents > 0) {
+				// doing lazy init OR already processing an event
+				// System.out.println("[BOUNCE CHANGE]"); //$NON-NLS-1$
+				return;
+			} else {
+				disableEvents();
+			}
 		}
 		try {
-			this.disableEvents++;
 			this.eventHandler.preValueChangeEvent(node, property);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has already been changed
 		} finally {
-			this.disableEvents--;
+			reenableEvents();
 		}
 	}
 	
@@ -542,18 +611,23 @@ public final class AST {
 	 * @since 3.0
 	 */
 	void postValueChangeEvent(ASTNode node, SimplePropertyDescriptor property) {
-		if (this.disableEvents > 0) {
-			// doing lazy init OR already processing an event
-			// System.out.println("[BOUNCE CHANGE]"); //$NON-NLS-1$
-			return;
+		// IMPORTANT: this method is called by readers during lazy init
+		synchronized (this.internalASTLock) {
+			// guard against concurrent access by a reader doing lazy init
+			if (this.disableEvents > 0) {
+				// doing lazy init OR already processing an event
+				// System.out.println("[BOUNCE CHANGE]"); //$NON-NLS-1$
+				return;
+			} else {
+				disableEvents();
+			}
 		}
 		try {
-			this.disableEvents++;
 			this.eventHandler.postValueChangeEvent(node, property);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has already been changed
 		} finally {
-			this.disableEvents--;
+			reenableEvents();
 		}
 	}
 	
@@ -564,18 +638,22 @@ public final class AST {
 	 * @since 3.0
 	 */
 	void preCloneNodeEvent(ASTNode node) {
-		if (this.disableEvents > 0) {
-			// doing lazy init OR already processing an event
-			// System.out.println("[BOUNCE CLONE]"); //$NON-NLS-1$
-			return;
+		synchronized (this.internalASTLock) {
+			// guard against concurrent access by a reader doing lazy init
+			if (this.disableEvents > 0) {
+				// doing lazy init OR already processing an event
+				// System.out.println("[BOUNCE CLONE]"); //$NON-NLS-1$
+				return;
+			} else {
+				disableEvents();
+			}
 		}
 		try {
-			this.disableEvents++;
 			this.eventHandler.preCloneNodeEvent(node);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has already been changed
 		} finally {
-			this.disableEvents--;
+			reenableEvents();
 		}
 	}
 	
@@ -587,18 +665,22 @@ public final class AST {
 	 * @since 3.0
 	 */
 	void postCloneNodeEvent(ASTNode node, ASTNode clone) {
-		if (this.disableEvents > 0) {
-			// doing lazy init OR already processing an event
-			// System.out.println("[BOUNCE CLONE]"); //$NON-NLS-1$
-			return;
+		synchronized (this.internalASTLock) {
+			// guard against concurrent access by a reader doing lazy init
+			if (this.disableEvents > 0) {
+				// doing lazy init OR already processing an event
+				// System.out.println("[BOUNCE CLONE]"); //$NON-NLS-1$
+				return;
+			} else {
+				disableEvents();
+			}
 		}
 		try {
-			this.disableEvents++;
 			this.eventHandler.postCloneNodeEvent(node, clone);
 			// N.B. even if event handler blows up, the AST is not
 			// corrupted since node has already been changed
 		} finally {
-			this.disableEvents--;
+			reenableEvents();
 		}
 	}
 	

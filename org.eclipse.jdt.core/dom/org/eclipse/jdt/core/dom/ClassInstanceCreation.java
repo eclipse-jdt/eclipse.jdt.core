@@ -402,15 +402,19 @@ public class ClassInstanceCreation extends Expression {
 	 * @return the type name node
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
-	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getType</code>,
-	 * which returns a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
+	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getType</code>, which returns a <code>Type</code> instead of a <code>Name</code>.
 	public Name getName() {
 	    supportedOnlyIn2();
-		if (typeName == null) {
-			preLazyInit();
-			this.typeName = new SimpleName(this.ast);
-			postLazyInit(this.typeName, NAME_PROPERTY);
+		if (this.typeName == null) {
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.typeName == null) {
+					preLazyInit();
+					this.typeName = new SimpleName(this.ast);
+					postLazyInit(this.typeName, NAME_PROPERTY);
+				}
+			}
 		}
 		return typeName;
 	}
@@ -427,9 +431,8 @@ public class ClassInstanceCreation extends Expression {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
-	 * TBD (jeem ) deprecated In the 3.0 API, this method is replaced by <code>setType</code>,
-	 * which expects a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
+	// TODO (jeem ) deprecated In the 3.0 API, this method is replaced by <code>setType</code>, which expects a <code>Type</code> instead of a <code>Name</code>.
 	public void setName(Name name) {
 	    supportedOnlyIn2();
 		if (name == null) {
@@ -453,9 +456,14 @@ public class ClassInstanceCreation extends Expression {
 	public Type getType() {
 	    unsupportedIn2();
 		if (this.type == null) {
-			preLazyInit();
-			this.type = new SimpleType(this.ast);
-			postLazyInit(this.type, TYPE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.type == null) {
+					preLazyInit();
+					this.type = new SimpleType(this.ast);
+					postLazyInit(this.type, TYPE_PROPERTY);
+				}
+			}
 		}
 		return this.type;
 	}

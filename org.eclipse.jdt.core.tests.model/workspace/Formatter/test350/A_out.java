@@ -1,8 +1,6 @@
 if (JavaModelManager.CP_RESOLVE_VERBOSE) {
 	System.out
-			.println("CPContainer SET  - setting container: ["
-					+ containerPath
-					+ "] for projects: {" //$NON-NLS-1$ //$NON-NLS-2$
+			.println("CPContainer SET  - setting container: [" + containerPath + "] for projects: {" //$NON-NLS-1$ //$NON-NLS-2$
 					+ (org.eclipse.jdt.internal.compiler.util.Util
 							.toString(
 									affectedProjects,

@@ -2,23 +2,18 @@ public class A {
 	public void launch(ILaunchConfiguration configuration, String mode,
 			ILaunch launch, IProgressMonitor monitor) throws CoreException {
 		try {
-			monitor.beginTask("", 4);
 			IJavaProject javaProject = getJavaProject(configuration);
 			if ((javaProject == null) || !javaProject.exists()) {
 				abort(
 						PDEPlugin
-								.getResourceString("JUnitLaunchConfiguration.error.invalidproject"),
-						null,
-						IJavaLaunchConfigurationConstants.ERR_NOT_A_JAVA_PROJECT); //$NON-NLS-1$ //$NON-NLS-2$
+								.getResourceString("JUnitLaunchConfiguration.error.invalidproject"), null, IJavaLaunchConfigurationConstants.ERR_NOT_A_JAVA_PROJECT); //$NON-NLS-1$
 			}
 			IType[] testTypes = getTestTypes(configuration, javaProject,
 					new SubProgressMonitor(monitor, 1));
 			if (testTypes.length == 0) {
 				abort(
 						PDEPlugin
-								.getResourceString("JUnitLaunchConfiguration.error.notests"),
-						null,
-						IJavaLaunchConfigurationConstants.ERR_UNSPECIFIED_MAIN_TYPE); //$NON-NLS-1$
+								.getResourceString("JUnitLaunchConfiguration.error.notests"), null, IJavaLaunchConfigurationConstants.ERR_UNSPECIFIED_MAIN_TYPE); //$NON-NLS-1$
 			}
 			monitor.worked(1);
 

@@ -228,6 +228,9 @@ public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 			return info;
 		} catch (ClassFormatException cfe) {
 			//the structure remains unknown
+			if (JavaCore.getPlugin().isDebugging()) {
+				cfe.printStackTrace(System.err);
+			}
 			return null;
 		} catch (IOException ioe) {
 			throw new JavaModelException(ioe, IJavaModelStatusConstants.IO_EXCEPTION);

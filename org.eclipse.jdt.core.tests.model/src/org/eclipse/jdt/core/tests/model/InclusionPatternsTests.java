@@ -690,11 +690,10 @@ public void testSearchPotentialMatchInOutput() throws CoreException {
 		
 		JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {getJavaProject("P")});
-		new SearchEngine().search(
-			getWorkspace(), 
-			"X",
+		search(
+			"X", 
 			IJavaSearchConstants.TYPE,
-			IJavaSearchConstants.DECLARATIONS, 
+			IJavaSearchConstants.DECLARATIONS,
 			scope, 
 			resultCollector);
 		assertEquals("", resultCollector.toString());
@@ -716,11 +715,10 @@ public void testSearchWithExcludedCompilationUnit1() throws CoreException {
 	);
 	
 	JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
-	new SearchEngine().search(
-		getWorkspace(), 
-		"A",
+	search(
+		"A", 
 		IJavaSearchConstants.TYPE,
-		IJavaSearchConstants.DECLARATIONS, 
+		IJavaSearchConstants.DECLARATIONS,
 		SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")}), 
 		resultCollector);
 	assertEquals(
@@ -743,11 +741,10 @@ public void testSearchWithExcludedCompilationUnit2() throws CoreException {
 	
 	setClasspath(new String[] {"/P/src", "**/B.java"});
 	JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
-	new SearchEngine().search(
-		getWorkspace(), 
-		"A",
+	search(
+		"A", 
 		IJavaSearchConstants.TYPE,
-		IJavaSearchConstants.DECLARATIONS, 
+		IJavaSearchConstants.DECLARATIONS,
 		SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("P")}), 
 		resultCollector);
 	assertEquals(

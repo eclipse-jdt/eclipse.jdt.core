@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -64,9 +63,9 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 	SearchPattern pattern = locator.pattern;
 	BinaryType binaryType = (BinaryType) classFile.getType();
 	if (matchBinary(pattern, info, null))
-		locator.reportBinaryMemberDeclaration(null, binaryType, info, IJavaSearchResultCollector.EXACT_MATCH);
+		locator.reportBinaryMemberDeclaration(null, binaryType, info, SearchMatch.A_ACCURATE);
 
-	int accuracy = IJavaSearchResultCollector.EXACT_MATCH;
+	int accuracy = SearchMatch.A_ACCURATE;
 	if (pattern.mustResolve) {
 		try {
 			BinaryTypeBinding binding = locator.cacheBinaryType(binaryType);
@@ -81,7 +80,7 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 						IMethod methodHandle = binaryType.getMethod(
 							new String(method.isConstructor() ? binding.compoundName[binding.compoundName.length-1] : method.selector),
 							CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(method.signature()))));
-						locator.reportBinaryMemberDeclaration(null, methodHandle, info, IJavaSearchResultCollector.EXACT_MATCH);
+						locator.reportBinaryMemberDeclaration(null, methodHandle, info, SearchMatch.A_ACCURATE);
 					}
 				}
 
@@ -90,7 +89,7 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 					FieldBinding field = fields[i];
 					if (locator.patternLocator.resolveLevel(field) == PatternLocator.ACCURATE_MATCH) {
 						IField fieldHandle = binaryType.getField(new String(field.name));
-						locator.reportBinaryMemberDeclaration(null, fieldHandle, info, IJavaSearchResultCollector.EXACT_MATCH);
+						locator.reportBinaryMemberDeclaration(null, fieldHandle, info, SearchMatch.A_ACCURATE);
 					}
 				}
 
@@ -100,7 +99,7 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 		} catch (AbortCompilation e) { // if compilation was aborted it is a problem with the class path
 		}
 		// report as a potential match if binary info matches the pattern		
-		accuracy = IJavaSearchResultCollector.POTENTIAL_MATCH;
+		accuracy = SearchMatch.A_INACCURATE;
 	}
 
 	IBinaryMethod[] methods = info.getMethods();

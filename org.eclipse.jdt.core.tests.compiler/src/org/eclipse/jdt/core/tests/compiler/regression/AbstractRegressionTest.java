@@ -62,7 +62,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	protected String findReferences(String classFilePath) {
 		// check that "new Z().init()" is bound to "AbstractB.init()"
 		final StringBuffer references = new StringBuffer(10);
-		final SearchParticipant participant = new JavaSearchParticipant(null) {
+		final SearchParticipant participant = new JavaSearchParticipant() {
 			final SearchParticipant searchParticipant = this;
 			public SearchDocument getDocument(final String documentPath) {
 				return new SearchDocument(documentPath, this.searchParticipant) {

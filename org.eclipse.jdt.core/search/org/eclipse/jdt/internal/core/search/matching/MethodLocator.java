@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -136,7 +135,7 @@ protected int matchMethod(MethodBinding method) {
 protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfReferencedMethodsPattern) {
 		// need exact match to be able to open on type ref
-		if (accuracy != IJavaSearchResultCollector.EXACT_MATCH) return;
+		if (accuracy != SearchMatch.A_ACCURATE) return;
 
 		// element that references the method must be included in the enclosing element
 		DeclarationOfReferencedMethodsPattern declPattern = (DeclarationOfReferencedMethodsPattern) this.pattern; 
@@ -178,7 +177,7 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 		if (resource == null)
 			resource = type.getJavaProject().getProject();
 		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile)type.getClassFile(), resource);
-		locator.reportBinaryMemberDeclaration(resource, method, info, IJavaSearchResultCollector.EXACT_MATCH);
+		locator.reportBinaryMemberDeclaration(resource, method, info, SearchMatch.A_ACCURATE);
 	} else {
 		ClassScope scope = ((SourceTypeBinding) declaringClass).scope;
 		if (scope != null) {
@@ -192,7 +191,7 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 				}
 			} 
 			if (methodDecl != null) {
-				SearchMatch match = new MethodDeclarationMatch(method, IJavaSearchResultCollector.EXACT_MATCH, methodDecl.sourceStart, methodDecl.sourceEnd+1, locator.getParticipant(), resource);
+				SearchMatch match = new MethodDeclarationMatch(method, SearchMatch.A_ACCURATE, methodDecl.sourceStart, methodDecl.sourceEnd+1, locator.getParticipant(), resource);
 				locator.report(match);
 			}
 		}

@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.search.IJavaSearchResultCollector;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -99,7 +98,7 @@ protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean wr
 protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfAccessedFieldsPattern) {
 		// need exact match to be able to open on type ref
-		if (accuracy != IJavaSearchResultCollector.EXACT_MATCH) return;
+		if (accuracy != SearchMatch.A_ACCURATE) return;
 
 		// element that references the field must be included in the enclosing element
 		DeclarationOfAccessedFieldsPattern declPattern = (DeclarationOfAccessedFieldsPattern) this.pattern; 
@@ -144,10 +143,10 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 			} else {
 				switch (matchField(fieldBinding, false)) {
 					case ACCURATE_MATCH:
-						accuracies[indexOfFirstFieldBinding] = IJavaSearchResultCollector.EXACT_MATCH;
+						accuracies[indexOfFirstFieldBinding] = SearchMatch.A_ACCURATE;
 						break;
 					case INACCURATE_MATCH:
-						accuracies[indexOfFirstFieldBinding] = IJavaSearchResultCollector.POTENTIAL_MATCH;
+						accuracies[indexOfFirstFieldBinding] = SearchMatch.A_INACCURATE;
 						break;
 					default:
 						accuracies[indexOfFirstFieldBinding] = -1;
@@ -166,10 +165,10 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 				} else {
 					switch (matchField(otherBinding, false)) {
 						case ACCURATE_MATCH:
-							accuracies[i] = IJavaSearchResultCollector.EXACT_MATCH;
+							accuracies[i] = SearchMatch.A_ACCURATE;
 							break;
 						case INACCURATE_MATCH:
-							accuracies[i] = IJavaSearchResultCollector.POTENTIAL_MATCH;
+							accuracies[i] = SearchMatch.A_INACCURATE;
 							break;
 						default:
 							accuracies[i] = -1;
@@ -202,7 +201,7 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 		if (resource == null)
 			resource = type.getJavaProject().getProject();
 		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile) type.getClassFile(), resource);
-		locator.reportBinaryMemberDeclaration(resource, field, info, IJavaSearchResultCollector.EXACT_MATCH);
+		locator.reportBinaryMemberDeclaration(resource, field, info, SearchMatch.A_ACCURATE);
 	} else {
 		ClassScope scope = ((SourceTypeBinding) declaringClass).scope;
 		if (scope != null) {
@@ -216,7 +215,7 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 				}
 			} 
 			if (fieldDecl != null) {
-				SearchMatch match = new FieldDeclarationMatch(field, IJavaSearchResultCollector.EXACT_MATCH, fieldDecl.sourceStart, fieldDecl.sourceEnd+1, locator.getParticipant(), resource);
+				SearchMatch match = new FieldDeclarationMatch(field, SearchMatch.A_ACCURATE, fieldDecl.sourceStart, fieldDecl.sourceEnd+1, locator.getParticipant(), resource);
 				locator.report(match);
 
 			}

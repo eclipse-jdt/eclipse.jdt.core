@@ -568,9 +568,14 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */ 
 	public SimpleName getName() {
 		if (this.methodName == null) {
-			preLazyInit();
-			this.methodName = new SimpleName(this.ast);
-			postLazyInit(this.methodName, NAME_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.methodName == null) {
+					preLazyInit();
+					this.methodName = new SimpleName(this.ast);
+					postLazyInit(this.methodName, NAME_PROPERTY);
+				}
+			}
 		}
 		return this.methodName;
 	}
@@ -664,15 +669,19 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @return the return type, possibly the void primitive type
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
-	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by
-	 * <code>getReturnType2</code>, which may return <code>null</code>.
 	 */ 
+	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getReturnType2</code>, which may return <code>null</code>.
 	public Type getReturnType() {
 	    supportedOnlyIn2();
 		if (this.returnType == null) {
-			preLazyInit();
-			this.returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
-			postLazyInit(this.returnType, RETURN_TYPE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.returnType == null) {
+					preLazyInit();
+					this.returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
+					postLazyInit(this.returnType, RETURN_TYPE_PROPERTY);
+				}
+			}
 		}
 		return this.returnType;
 	}
@@ -694,9 +703,8 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
-	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by
-	 * <code>setReturnType2</code>, which accepts <code>null</code>.
 	 */ 
+	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>setReturnType2</code>, which accepts <code>null</code>.
 	public void setReturnType(Type type) {
 	    supportedOnlyIn2();
 		if (type == null) {
@@ -729,10 +737,15 @@ public class MethodDeclaration extends BodyDeclaration {
 	public Type getReturnType2() {
 	    unsupportedIn2();
 		if (this.returnType == null && !this.returnType2Initialized) {
-			preLazyInit();
-			this.returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
-			this.returnType2Initialized = true;
-			postLazyInit(this.returnType, RETURN_TYPE2_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.returnType == null && !this.returnType2Initialized) {
+					preLazyInit();
+					this.returnType = this.ast.newPrimitiveType(PrimitiveType.VOID);
+					this.returnType2Initialized = true;
+					postLazyInit(this.returnType, RETURN_TYPE2_PROPERTY);
+				}
+			}
 		}
 		return this.returnType;
 	}

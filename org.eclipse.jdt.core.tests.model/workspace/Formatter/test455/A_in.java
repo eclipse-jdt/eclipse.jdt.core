@@ -6,10 +6,9 @@ public class A {
 		IProgressMonitor monitor)
 		throws CoreException {
 		try {
-			monitor.beginTask("", 4);
 			IJavaProject javaProject = getJavaProject(configuration);
 			if ((javaProject == null) || !javaProject.exists()) {
-				abort(PDEPlugin.getResourceString("JUnitLaunchConfiguration.error.invalidproject"), null, IJavaLaunchConfigurationConstants.ERR_NOT_A_JAVA_PROJECT); //$NON-NLS-1$ //$NON-NLS-2$
+				abort(PDEPlugin.getResourceString("JUnitLaunchConfiguration.error.invalidproject"), null, IJavaLaunchConfigurationConstants.ERR_NOT_A_JAVA_PROJECT); //$NON-NLS-1$
 			}
 			IType[] testTypes = getTestTypes(configuration, javaProject, new SubProgressMonitor(monitor, 1));
 			if (testTypes.length == 0) {

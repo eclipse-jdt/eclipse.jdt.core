@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -1077,14 +1078,19 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			);
 			workingCopy.makeConsistent(null);
 
-			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
-			new SearchEngine(owner).search(
-				getWorkspace(), 
+			SearchPattern pattern = SearchPattern.createPattern(
 				"X", 
 				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.REFERENCES, 
+				SearchPattern.R_EXACT_MATCH,
+				true);
+			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+			new SearchEngine(owner).search(
+				pattern, 
+				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 				SearchEngine.createWorkspaceScope(), 
-				resultCollector);
+				resultCollector,
+				null);
 			assertEquals(
 				"Y.java Y.field [X]",
 				resultCollector.toString());
@@ -1109,14 +1115,19 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			workingCopy.getBuffer().setContents("");
 			workingCopy.makeConsistent(null);
 
-			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
-			new SearchEngine(owner).search(
-				getWorkspace(), 
+			SearchPattern pattern = SearchPattern.createPattern(
 				"X", 
 				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.DECLARATIONS, 
+				SearchPattern.R_EXACT_MATCH,
+				true);
+			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+			new SearchEngine(owner).search(
+				pattern, 
+				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 				SearchEngine.createWorkspaceScope(), 
-				resultCollector);
+				resultCollector,
+				null);
 			assertEquals(
 				"", // should not find any in the owner's context
 				resultCollector.toString());
@@ -1143,11 +1154,10 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			workingCopy.makeConsistent(null);
 
 			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
-			new SearchEngine().search(
-				getWorkspace(), 
+			search(
 				"Y", 
-				IJavaSearchConstants.TYPE,
-				IJavaSearchConstants.DECLARATIONS, 
+				IJavaSearchConstants.TYPE, 
+				IJavaSearchConstants.DECLARATIONS,
 				SearchEngine.createWorkspaceScope(), 
 				resultCollector);
 			assertEquals(
@@ -1157,11 +1167,10 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			//	commit new type
 			workingCopy.commitWorkingCopy(false, null);
 			resultCollector = new JavaSearchTests.JavaSearchResultCollector();
-			new SearchEngine().search(
-				getWorkspace(), 
+			search(
 				"Y", 
-				IJavaSearchConstants.TYPE,
-				IJavaSearchConstants.DECLARATIONS, 
+				IJavaSearchConstants.TYPE, 
+				IJavaSearchConstants.DECLARATIONS,
 				SearchEngine.createWorkspaceScope(), 
 				resultCollector);
 			assertEquals(
@@ -1206,13 +1215,18 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 			JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {primaryWorkingCopy.getParent()});
-			new SearchEngine(new ICompilationUnit[] {workingCopy}).search(
-				getWorkspace(), 
+			SearchPattern pattern = SearchPattern.createPattern(
 				"*", 
 				IJavaSearchConstants.TYPE,
 				IJavaSearchConstants.DECLARATIONS, 
+				SearchPattern.R_PATTERN_MATCH,
+				true);
+			new SearchEngine(new ICompilationUnit[] {workingCopy}).search(
+				pattern, 
+				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 				scope, 
-				resultCollector);
+				resultCollector,
+				null);
 			assertEquals(
 				"p/X.java p.X [X]\n" +
 				"p/Y.java p.Y [Y]",

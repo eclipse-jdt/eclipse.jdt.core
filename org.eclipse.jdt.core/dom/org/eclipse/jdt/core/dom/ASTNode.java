@@ -91,9 +91,12 @@ import java.util.Map;
  * these properties.
  * </p>
  * <p>
- * AST nodes are <b>not</b> thread-safe; this is true even for trees that
- * are read-only. If synchronization is required, consider using the common AST
- * object that owns the node; that is, use 
+ * AST nodes are thread-safe for readers provided there are no active writers.
+ * If one thread is modifying an AST, including creating new nodes or cloning
+ * existing ones, it is <b>not</b> safe for another thread to read, visit,
+ * write, create, or clone <em>any</em> of the nodes on the same AST.
+ * When synchronization is required, consider using the common AST
+ * object that owns the node; that is, use  
  * <code>synchronize (node.getAST()) {...}</code>.
  * </p>
  * <p>
@@ -1359,37 +1362,55 @@ public abstract class ASTNode {
 		/**
 		 * Allocate a cursor to use for a visit. The client must call
 		 * <code>releaseCursor</code> when done.
+		 * <p>
+		 * This method is internally synchronized on this NodeList.
+		 * It is thread-safe to create a cursor.
+		 * </p>
 		 * 
 		 * @return a new cursor positioned before the first element 
 		 *    of the list
 		 */
 		Cursor newCursor() {
-			if (this.cursors == null) {
-				// convert null to empty list
-				this.cursors = new ArrayList(1);
+			synchronized (this) {
+				// serialize cursor management on this NodeList
+				if (this.cursors == null) {
+					// convert null to empty list
+					this.cursors = new ArrayList(1);
+				}
+				Cursor result = new Cursor();
+				this.cursors.add(result);
+				return result;
 			}
-			Cursor result = new Cursor();
-			this.cursors.add(result);
-			return result;
 		}
 		
 		/**
 		 * Releases the given cursor at the end of a visit.
+		 * <p>
+		 * This method is internally synchronized on this NodeList.
+		 * It is thread-safe to release a cursor.
+		 * </p>
 		 * 
 		 * @param cursor the cursor
 		 */
 		void releaseCursor(Cursor cursor) {
-			this.cursors.remove(cursor);
-			if (this.cursors.isEmpty()) {
-				// important: convert empty list back to null
-				// otherwise the node will hang on to needless junk
-				this.cursors = null;
+			synchronized (this) {
+				// serialize cursor management on this NodeList
+				this.cursors.remove(cursor);
+				if (this.cursors.isEmpty()) {
+					// important: convert empty list back to null
+					// otherwise the node will hang on to needless junk
+					this.cursors = null;
+				}
 			}
 		}
 
 		/**
 		 * Adjusts all cursors to accomodate an add/remove at the given
 		 * index.
+		 * <p>
+		 * This method is only used when the list is being modified.
+		 * The AST is not thread-safe if any of the clients are modifying it.
+		 * </p>
 		 * 
 		 * @param index the position at which the element was added
 		 *    or removed
@@ -2090,16 +2111,24 @@ public abstract class ASTNode {
      * Here is the code pattern found in all AST
      * node subclasses:
      * <pre>
-     * preLazyInit();
-     * this.foo = ...; // code to create new node
-     * postLazyInit(this.foo, FOO_PROPERTY);
+     * if (this.foo == null) {
+	 *    // lazy init must be thread-safe for readers
+     *    synchronized (this) {
+     *       if (this.foo == null) {
+     *          preLazyInit();
+     *          this.foo = ...; // code to create new node
+     *          postLazyInit(this.foo, FOO_PROPERTY);
+     *       }
+     *    }
+     * }
      * </pre>
      * @since 3.0
      */
 	final void preLazyInit() {
-		// TBD (jeem)
-		this.ast.disableEvents++;
-		// while disableEvents > 0 no events will be reported, and mod count will stay fixed
+		// IMPORTANT: this method is called by readers
+		// ASTNode.this is locked at this point
+		this.ast.disableEvents();
+		// will turn events back on in postLasyInit
 	}
 	
 	/**
@@ -2112,8 +2141,12 @@ public abstract class ASTNode {
      * @since 3.0
      */
 	final void postLazyInit(ASTNode newChild, ChildPropertyDescriptor property) {
+		// IMPORTANT: this method is called by readers
+		// ASTNode.this is locked at this point
+		// newChild is brand new (so no chance of concurrent access)
 		newChild.setParent(this, property);
-		this.ast.disableEvents--;
+		// turn events back on (they were turned off in corresponding preLazyInit)
+		this.ast.reenableEvents();
 	}
 
 	/**

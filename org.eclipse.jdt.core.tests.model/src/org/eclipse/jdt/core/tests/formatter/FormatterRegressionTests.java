@@ -11,13 +11,10 @@
 package org.eclipse.jdt.core.tests.formatter;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -31,20 +28,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.InfixExpression;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.StringLiteral;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -71,7 +55,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			return new Suite(FormatterRegressionTests.class);
 		}
 		junit.framework.TestSuite suite = new Suite(FormatterRegressionTests.class.getName());
-		suite.addTest(new FormatterRegressionTests("test009"));  //$NON-NLS-1$
+		suite.addTest(new FormatterRegressionTests("test486"));  //$NON-NLS-1$
 		return suite;
 	}
 
@@ -269,73 +253,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		}
 	}
 
-	public void _test() {
-		try {
-			char[] contents = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(new File("D:/workspaces/eclipse/plugins/TestingOlivier/src/FormatterRegressionTests.java"), null);
-			ASTParser c = ASTParser.newParser(AST.LEVEL_2_0);
-			c.setSource(contents);
-			CompilationUnit compilationUnit = (CompilationUnit) c.createAST(null);
-			List types = compilationUnit.types();
-			TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
-			MethodDeclaration[] methodDeclarations = typeDeclaration.getMethods();
-			int testCaseCounter = 229;
-			for (int i = 0, max = methodDeclarations.length; i < max; i++) {
-				MethodDeclaration methodDeclaration = methodDeclarations[i];
-				final SimpleName methodName = methodDeclaration.getName();
-				if (methodName.getIdentifier().startsWith("test")) {
-					Block block = methodDeclaration.getBody();
-					List statements = block.statements();
-					Statement statement = (Statement) statements.get(0);
-					if (statement.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT) {
-						VariableDeclarationStatement localDeclaration = (VariableDeclarationStatement) statement;
-						List fragments = localDeclaration.fragments();
-						VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
-						if (fragment.getName().getIdentifier().equals("source")) {
-							Expression expression = fragment.getInitializer();
-							StringBuffer buffer = new StringBuffer();
-							switch(expression.getNodeType()) {
-								case ASTNode.INFIX_EXPRESSION :
-									InfixExpression expression2 = (InfixExpression) expression;
-									List extendedOperands = expression2.extendedOperands();
-									buffer.append(getSource(expression2.getLeftOperand(), contents));
-									buffer.append(getSource(expression2.getRightOperand(), contents));
-									for (int j = 0, max2 = extendedOperands.size(); j < max2; j++) {
-										buffer.append(getSource((Expression) extendedOperands.get(j), contents));
-									}
-									break;
-								case ASTNode.STRING_LITERAL :
-									StringLiteral literal = (StringLiteral) expression;
-									buffer.append(getSource(literal, contents));
-									break;
-							}
-							createTestCase(buffer.toString(), testCaseCounter++);
-						}
-					}
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	void createTestCase(String contents, int counter) {
-		System.out.println("Create test " + counter);
-		try {
-			File testDir = new File("D:/workspaces/eclipse/plugins/org.eclipse.jdt.core.tests.model/workspace/Formatter", "test" + counter);
-			testDir.mkdirs();
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(testDir, "A_in.java")));
-			writer.write(contents);
-			writer.flush();
-			writer.close();
-			writer = new BufferedWriter(new FileWriter(new File(testDir, "A_out.java")));
-			writer.write(contents);
-			writer.flush();
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		System.out.println("Done test " + counter);
-	}
 	String getSource(ASTNode astNode, char[] source) {
 		String result = new String(CharOperation.subarray(source, astNode.getStartPosition() + 1, astNode.getStartPosition() + astNode.getLength() - 1));
 		if (result.endsWith("\\n")) {
@@ -1863,7 +1780,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44653
 	 */
-	public void _test183() {
+	public void test183() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
 		preferences.use_tab = true;
 		preferences.number_of_empty_lines_to_preserve = 1;
@@ -1874,7 +1791,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44653
 	 */
-	public void _test184() {
+	public void test184() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
 		preferences.use_tab = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -1884,7 +1801,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44653
 	 */
-	public void _test185() {
+	public void test185() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getDefaultSettings());
 		preferences.use_tab = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -5460,9 +5377,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50989
-	 * @deprecated
 	 */
-	public void _test457() {
+	public void test457() {
 		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -5922,5 +5838,43 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test483", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50989
+	 */
+	public void test484() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, "1");//$NON-NLS-1$
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test484", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50989
+	 */
+	public void test485() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, "1");//$NON-NLS-1$
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test485", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=50989
+	 */
+	public void test486() {
+		Map options = DefaultCodeFormatterConstants.getDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_TYPE_DECLARATION, DefaultCodeFormatterConstants.NEXT_LINE);//$NON-NLS-1$
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_BLOCK, DefaultCodeFormatterConstants.NEXT_LINE);//$NON-NLS-1$
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_METHOD_DECLARATION, DefaultCodeFormatterConstants.NEXT_LINE);//$NON-NLS-1$
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_CONSTRUCTOR_DECLARATION, DefaultCodeFormatterConstants.NEXT_LINE);//$NON-NLS-1$
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_SWITCH, DefaultCodeFormatterConstants.NEXT_LINE);//$NON-NLS-1$
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ANONYMOUS_TYPE_DECLARATION, DefaultCodeFormatterConstants.NEXT_LINE);//$NON-NLS-1$
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test486", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

@@ -23,6 +23,7 @@ public class Location {
 	public int outputIndentationLevel;
 	public boolean needSpace;
 	public boolean pendingSpace;
+	public int nlsTagCounter;
 
 	// chunk management
 	public int lastNumberOfNewLines;	
@@ -44,6 +45,7 @@ public class Location {
 		this.needSpace = scribe.needSpace;
 		this.pendingSpace = scribe.pendingSpace;
 		this.editsIndex = scribe.editsIndex;
+		this.nlsTagCounter = scribe.nlsTagCounter;
 		textEdit = scribe.getLastEdit();
 	}
 }

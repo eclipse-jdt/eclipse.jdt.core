@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IResource;
@@ -36,7 +37,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.hierarchy.HierarchyResolver;
 import org.eclipse.jdt.internal.core.search.HierarchyScope;
-import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
+import org.eclipse.jdt.internal.core.search.pattern.InternalSearchPattern;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 import org.eclipse.jdt.internal.core.util.SimpleSet;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -166,7 +167,6 @@ public MatchLocator(
 	SearchPattern pattern,
 	SearchRequestor requestor,
 	IJavaSearchScope scope,
-	org.eclipse.jdt.core.ICompilationUnit[] workingCopies,
 	IProgressMonitor progressMonitor) {
 		
 	this.pattern = pattern;
@@ -174,7 +174,6 @@ public MatchLocator(
 	this.matchContainer = this.patternLocator.matchContainer();
 	this.requestor = requestor;
 	this.scope = scope;
-	this.workingCopies = workingCopies;
 	this.progressMonitor = progressMonitor;
 }
 /**
@@ -309,7 +308,7 @@ protected char[][][] computeSuperTypeNames(IType focusType) {
 			this.pattern, 
 			simpleName,
 			qualification,
-			new MatchLocator(this.pattern, this.requestor, this.scope, this.workingCopies, this.progressMonitor), // clone MatchLocator so that it has no side effect
+			new MatchLocator(this.pattern, this.requestor, this.scope, this.progressMonitor), // clone MatchLocator so that it has no side effect
 			focusType, 
 			this.progressMonitor);
 	try {
@@ -664,6 +663,18 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 			System.out.println("\t" + searchDocuments[i]); //$NON-NLS-1$
 		System.out.println("]"); //$NON-NLS-1$
 	}
+	
+	// extract working copies
+	ArrayList copies = new ArrayList();
+	for (int i = 0, length = searchDocuments.length; i < length; i++) {
+		SearchDocument document = searchDocuments[i];
+		if (document instanceof InternalSearchPattern.WorkingCopyDocument) {
+			copies.add(((InternalSearchPattern.WorkingCopyDocument)document).workingCopy);
+		}
+	}
+	int copiesLength = copies.size();
+	this.workingCopies = new org.eclipse.jdt.core.ICompilationUnit[copiesLength];
+	copies.toArray(this.workingCopies);
 
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	try {
@@ -700,8 +711,8 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 
 			Openable openable;
 			org.eclipse.jdt.core.ICompilationUnit workingCopy = null;
-			if (searchDocument instanceof JavaSearchParticipant.WorkingCopyDocument) {
-				workingCopy = ((JavaSearchParticipant.WorkingCopyDocument)searchDocument).workingCopy;
+			if (searchDocument instanceof InternalSearchPattern.WorkingCopyDocument) {
+				workingCopy = ((InternalSearchPattern.WorkingCopyDocument)searchDocument).workingCopy;
 				openable = (Openable) workingCopy;
 			} else {
 				openable = this.handleFactory.createOpenable(pathString, this.scope);
@@ -770,7 +781,7 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 			this.currentPossibleMatch = new PossibleMatch(this, resource, null, document);
 			IJavaElement element = searchPattern.focus;
 			if (encloses(element)) {
-				SearchMatch match = newDeclarationMatch(element, IJavaSearchResultCollector.EXACT_MATCH, -1, -1);
+				SearchMatch match = newDeclarationMatch(element, SearchMatch.A_ACCURATE, -1, -1);
 				report(match);
 			}
 			return;
@@ -793,7 +804,7 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 						this.currentPossibleMatch = new PossibleMatch(this, resource, null, document);
 						try {
 							if (encloses(pkg)) {
-								SearchMatch match = newDeclarationMatch(pkg, IJavaSearchResultCollector.EXACT_MATCH, -1, -1);
+								SearchMatch match = newDeclarationMatch(pkg, SearchMatch.A_ACCURATE, -1, -1);
 								report(match);
 							}
 						} catch (JavaModelException e) {
@@ -1032,7 +1043,7 @@ protected void report(SearchMatch match) throws CoreException {
 		System.out.println("\tResource: " + match.getResource()); //$NON-NLS-2$//$NON-NLS-1$
 		System.out.println("\tPositions: [offset=" + match.getOffset() + ", length=" + match.getLength() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		System.out.println("\tJava element: " + ((JavaElement)match.getElement()).toStringWithAncestors()); //$NON-NLS-1$
-		System.out.println(match.getAccuracy() == IJavaSearchResultCollector.EXACT_MATCH
+		System.out.println(match.getAccuracy() == SearchMatch.A_ACCURATE
 			? "\tAccuracy: EXACT_MATCH" //$NON-NLS-1$
 			: "\tAccuracy: POTENTIAL_MATCH"); //$NON-NLS-1$
 	}

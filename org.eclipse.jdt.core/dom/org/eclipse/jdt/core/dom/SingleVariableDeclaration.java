@@ -418,10 +418,8 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than 2.0
 	 * @see Modifier
-	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
-	 * <code>modifiers()</code> which contains a list of 
-	 * a <code>Modifier</code> nodes.
 	 */ 
+	// TODO (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>modifiers()</code> which contains a list of  a <code>Modifier</code> nodes.
 	public void setModifiers(int modifiers) {
 	    supportedOnlyIn2();
 		preValueChange(MODIFIERS_PROPERTY);
@@ -434,9 +432,14 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */ 
 	public SimpleName getName() {
 		if (this.variableName == null) {
-			preLazyInit();
-			this.variableName = new SimpleName(this.ast);
-			postLazyInit(this.variableName, NAME_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.variableName == null) {
+					preLazyInit();
+					this.variableName = new SimpleName(this.ast);
+					postLazyInit(this.variableName, NAME_PROPERTY);
+				}
+			}
 		}
 		return this.variableName;
 	}
@@ -462,9 +465,14 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */ 
 	public Type getType() {
 		if (this.type == null) {
-			preLazyInit();
-			this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
-			postLazyInit(this.type, TYPE_PROPERTY);
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.type == null) {
+					preLazyInit();
+					this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
+					postLazyInit(this.type, TYPE_PROPERTY);
+				}
+			}
 		}
 		return this.type;
 	}
