@@ -687,48 +687,48 @@ class DefaultBindingResolver extends BindingResolver {
 		AstNode node = (AstNode) this.newAstToOldAst.get(parent);
 		if (node instanceof QualifiedNameReference) {
 			QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
-			if (qualifiedNameReference.isTypeReference()) {
-				return this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
-			} else {
-				int qualifiedNameLength = qualifiedNameReference.tokens.length;
-				int indexInQualifiedName = qualifiedNameLength - index; // one-based
-				int indexOfFirstFieldBinding = qualifiedNameReference.indexOfFirstFieldBinding; // one-based
-				int otherBindingLength = qualifiedNameLength - indexOfFirstFieldBinding;
-				if (indexInQualifiedName < indexOfFirstFieldBinding) {
-					// a extra lookup is required
-					BlockScope internalScope = retrieveEnclosingScope(parent);
-					Binding binding = null;
-					if (internalScope == null) {
-						binding = this.scope.getTypeOrPackage(CharOperation.subarray(qualifiedNameReference.tokens, 0, indexInQualifiedName));
-					} else {
-						binding = internalScope.getTypeOrPackage(CharOperation.subarray(qualifiedNameReference.tokens, 0, indexInQualifiedName));
-					}
-					if (binding != null && binding.isValidBinding()) {
-						if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
-							return this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
-						} else {
-							// it is a type
-							return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
-						}
-					}
-					return null;
+			int qualifiedNameLength = qualifiedNameReference.tokens.length;
+			int indexInQualifiedName = qualifiedNameLength - index; // one-based
+			int indexOfFirstFieldBinding = qualifiedNameReference.indexOfFirstFieldBinding; // one-based
+			int otherBindingLength = qualifiedNameLength - indexOfFirstFieldBinding;
+			if (indexInQualifiedName < indexOfFirstFieldBinding) {
+				// a extra lookup is required
+				BlockScope internalScope = retrieveEnclosingScope(parent);
+				Binding binding = null;
+				if (internalScope == null) {
+					binding = this.scope.getTypeOrPackage(CharOperation.subarray(qualifiedNameReference.tokens, 0, indexInQualifiedName));
 				} else {
-					if (indexInQualifiedName == indexOfFirstFieldBinding) {
+					binding = internalScope.getTypeOrPackage(CharOperation.subarray(qualifiedNameReference.tokens, 0, indexInQualifiedName));
+				}
+				if (binding != null && binding.isValidBinding()) {
+					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
+						return this.getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
+					} else {
+						// it is a type
+						return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
+					}
+				}
+				return null;
+			} else {
+				if (indexInQualifiedName == indexOfFirstFieldBinding) {
+					if (qualifiedNameReference.isTypeReference()) {
+						return this.getTypeBinding((ReferenceBinding)qualifiedNameReference.binding);
+					} else {
 						Binding binding = qualifiedNameReference.binding;
 						if (binding != null && binding.isValidBinding()) {
 							return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) binding);				
 						} else {
 							return null;
 						}
+					}
+				} else {
+					/* This is the case for a name which is part of a qualified name that
+					 * cannot be resolved. See PR 13063.
+					 */
+					if (qualifiedNameReference.otherBindings == null) {
+						return null;
 					} else {
-						/* This is the case for a name which is part of a qualified name that
-						 * cannot be resolved. See PR 13063.
-						 */
-						if (qualifiedNameReference.otherBindings == null) {
-							return null;
-						} else {
-							return this.getVariableBinding(qualifiedNameReference.otherBindings[otherBindingLength - index - 1]);				
-						}
+						return this.getVariableBinding(qualifiedNameReference.otherBindings[otherBindingLength - index - 1]);				
 					}
 				}
 			}
