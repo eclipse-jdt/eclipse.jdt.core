@@ -53,14 +53,14 @@ public class LocalVariableTypeAttribute
 		}
 	}
 	/**
-	 * @see ILocalVariableTypeTableAttribute#getLocalVariableTable()
+	 * @see ILocalVariableTypeTableAttribute#getLocalVariableTypeTable()
 	 */
 	public ILocalVariableTypeTableEntry[] getLocalVariableTypeTable() {
 		return this.localVariableTypeTableEntries;
 	}
 
 	/**
-	 * @see ILocalVariableTypeTableAttribute#getLocalVariableTableLength()
+	 * @see ILocalVariableTypeTableAttribute#getLocalVariableTypeTableLength()
 	 */
 	public int getLocalVariableTypeTableLength() {
 		return this.localVariableTypeTableLength;

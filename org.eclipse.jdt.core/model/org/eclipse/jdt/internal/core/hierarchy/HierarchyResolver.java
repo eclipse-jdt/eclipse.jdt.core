@@ -739,11 +739,9 @@ private void setEnvironment(LookupEnvironment lookupEnvironment, HierarchyBuilde
 	this.typeBindings = new ReferenceBinding[5];
 }
 
-/**
+/*
  * Set the focus type (ie. the type that this resolver is computing the hierarch for.
  * Returns the binding of this focus type or null if it could not be found.
- * @param compoundName
- * @return
  */
 public ReferenceBinding setFocusType(char[][] compoundName) {
 	if (compoundName == null || this.lookupEnvironment == null) return null;

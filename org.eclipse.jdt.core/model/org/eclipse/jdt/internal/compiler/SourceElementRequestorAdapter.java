@@ -255,7 +255,7 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	}
 
 	/**
-	 * @see ISourceElementRequestor#exitField(int)
+	 * @see ISourceElementRequestor#exitField(int, int, int)
 	 */
 	public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 		// default implementation: do nothing

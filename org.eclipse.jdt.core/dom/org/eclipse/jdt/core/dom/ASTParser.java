@@ -689,12 +689,6 @@ public class ASTParser {
 		throw new IllegalStateException();
 	}
 
-	/**
-	 * @param monitor
-	 * @param compilationUnitDeclaration
-	 * @param source
-	 * @return
-	 */
 	private ASTNode convert(IProgressMonitor monitor, CompilationUnitDeclaration compilationUnitDeclaration, char[] source, boolean needToResolveBindings) {
 		BindingResolver resolver = null;
 		AST ast = AST.newAST(this.apiLevel);

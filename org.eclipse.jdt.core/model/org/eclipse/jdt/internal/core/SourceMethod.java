@@ -148,6 +148,7 @@ public ITypeParameter[] getTypeParameters() throws JavaModelException {
 /**
  * @see IMethod#getTypeParameterSignatures()
  * @since 3.0
+ * @deprecated
  */
 public String[] getTypeParameterSignatures() throws JavaModelException {
 	ITypeParameter[] typeParameters = getTypeParameters();

@@ -469,6 +469,7 @@ public ITypeParameter[] getTypeParameters() throws JavaModelException {
 /**
  * @see IType#getTypeParameterSignatures()
  * @since 3.0
+ * @deprecated
  */
 public String[] getTypeParameterSignatures() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();

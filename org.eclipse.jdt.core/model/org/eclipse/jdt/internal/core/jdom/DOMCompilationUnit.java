@@ -159,7 +159,7 @@ void normalize(ILineStartFinder finder) {
 	initalizeHeader();
 }
 /**
- * @see IDOMCompilationUnit@setHeader(String)
+ * @see IDOMCompilationUnit#setHeader(String)
  */
 public void setHeader(String comment) {
 	fHeader= comment;

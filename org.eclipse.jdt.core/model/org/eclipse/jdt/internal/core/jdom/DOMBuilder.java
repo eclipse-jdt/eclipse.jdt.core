@@ -60,7 +60,7 @@ public DOMBuilder() {
 	// Creates a new DOMBuilder
 }
 /**
- * @see IDocumentElementRequestor#acceptImport(int declarationStart, int declarationEnd, int[] javaDocPositions, char[] name, int nameStartPosition, boolean onDemand)
+ * @see IDocumentElementRequestor#acceptImport(int, int, int[], char[], int, boolean, int)
  */
 public void acceptImport(int declarationStart, int declarationEnd, int[] javaDocPositions, char[] name, 
 	int nameStart, boolean onDemand, int modifiers) {
