@@ -1129,4 +1129,20 @@ public class AutoBoxingTest extends AbstractComparisonTest {
 			"00"
 		);
 	}
+	
+	public void test038() { // boolean expression
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static boolean foo() { return false; }\n" +
+				"   public static void main(String[] s) {\n" +
+				"		boolean b = foo();\n" +
+				"      System.out.print(b || Boolean.FALSE);\n" +
+				"   }\n" +
+				"}",
+			},
+			"false"
+		);
+	}
 }
