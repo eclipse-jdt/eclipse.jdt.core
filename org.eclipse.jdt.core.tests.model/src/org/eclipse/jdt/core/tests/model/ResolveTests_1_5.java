@@ -106,17 +106,26 @@ public void test0003() throws JavaModelException {
 	);
 }
 public void test0004() throws JavaModelException {
-	ICompilationUnit cu = getCompilationUnit("Resolve", "src2", "test0004", "Test.java");
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0004/Test.java",
+			"package test0004;\n" +
+			"public class Test <T> {\n" +
+			"	test0004.Test.X<Object>.Y<Object> var;\n" +
+			"	public class X <TX> {\n" +
+			"		public class Y <TY> {\n" +
+			"		}\n" +
+			"	}\n" +
+			"}");
 	
-	String str = cu.getSource();
+	String str = wc.getSource();
 	String selection = "Test";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = cu.codeSelect(start, length);
+	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"Test [in Test.java [in test0004 [in src2 [in Resolve]]]]",
+		"Test key=Ltest0004/Test; [in [Working copy] Test.java [in test0004 [in src2 [in Resolve]]]]",
 		elements
 	);
 }
@@ -410,7 +419,7 @@ public void test0022() throws JavaModelException {
 	IJavaElement[] elements = cu.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"add(T, A<T>, A<T>.B, A<T>.C<T>, A<T>.B.D<T>) [in X [in X.java [in test0022 [in src2 [in Resolve]]]]]",
+		"add(T, A<T>, A<T>.B, A<T>.C<T>, A<T>.B.D<T>) key=Ltest0022/X;.add<T:Ltest0022/Y;>(TT;Ltest0022/A<TT;>;Ltest0022/A<TT;>.B;Ltest0022/A<TT;>.C<TT;>;Ltest0022/A<TT;>.B.D<TT;>;)V%<Ltest0022/Y;> [in X [in X.java [in test0022 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -485,7 +494,7 @@ public void test0026() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, 0);
 	assertElementsEqual(
 		"Unexpected elements",
-		"Inner [in Test [in [Working copy] Test.java [in test0026 [in src2 [in Resolve]]]]]",
+		"Inner key=Ltest0026/Test$Inner; [in Test [in [Working copy] Test.java [in test0026 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -570,7 +579,7 @@ public void test0030() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"Inner [in Test [in [Working copy] Test.java [in test0030 [in src2 [in Resolve]]]]]",
+		"Inner key=Ltest0030/Test$Inner; [in Test [in [Working copy] Test.java [in test0030 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -658,7 +667,7 @@ public void test0034() throws JavaModelException {
 	IJavaElement[] elements = wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"Inner [in Test [in [Working copy] Test.java [in test0034 [in src2 [in Resolve]]]]]",
+		"Inner key=Ltest0034/Test$Inner; [in Test [in [Working copy] Test.java [in test0034 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }
@@ -841,6 +850,526 @@ public void test0042() throws JavaModelException {
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner key=Ltest0042/Test<-Ljava/lang/String;>.Inner<+Ljava/lang/String;>; [in Test [in [Working copy] Test.java [in test0042 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0043() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0043/Test.java",
+			"package test0043;\n" +
+			"public class Test<T> {\n" +
+			"	Test<T> var;\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "Test";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"Test [in [Working copy] Test.java [in test0043 [in src2 [in Resolve]]]]",
+		elements
+	);
+}
+public void test0044() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0044/Test.java",
+			"package test0044;\n" +
+			"public class Test<T1> {\n" +
+			"}\n" +
+			"class Test2<T2> {\n" +
+			"	Test<T2> var;\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "Test";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"Test key=Ltest0044/Test<TT2;>; [in [Working copy] Test.java [in test0044 [in src2 [in Resolve]]]]",
+		elements
+	);
+}
+public void test0045() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0045/Test.java",
+			"package test0045;\n" +
+			"public class Test<T1> {\n" +
+			"	String var;\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "var";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"var [in Test [in [Working copy] Test.java [in test0045 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0046() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0046/Test.java",
+			"package test0046;\n" +
+			"public class Test<T1> {\n" +
+			"	String var;\n" +
+			"	void foo() {\n" +
+			"	  var = null;\n" +
+			"	}\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "var";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"var [in Test [in [Working copy] Test.java [in test0046 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0047() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0047/Test.java",
+			"package test0047;\n" +
+			"public class Test<T1> {\n" +
+			"	public String var;\n" +
+			"	void foo() {\n" +
+			"	  Test<String> t = null;\n" +
+			"	  t.var = null;\n" +
+			"	}\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "var";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"var key=Ltest0047/Test<Ljava/lang/String;>;.var [in Test [in [Working copy] Test.java [in test0047 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0048() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0048/Test.java",
+			"package test0048;\n" +
+			"public class Test<T1> {\n" +
+			"	public String var;\n" +
+			"	void foo() {\n" +
+			"	  Test<?> t = new Test<String>;\n" +
+			"	  t.var = null;\n" +
+			"	}\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "var";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"var key=Ltest0048/Test<*>;.var [in Test [in [Working copy] Test.java [in test0048 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0049() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0049/Test.java",
+			"package test0049;\n" +
+			"public class Test<T1> {\n" +
+			"	public String var;\n" +
+			"	void foo() {\n" +
+			"	  Test<T1> t = null;\n" +
+			"	  t.var = null;\n" +
+			"	}\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "var";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"var [in Test [in [Working copy] Test.java [in test0049 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0050() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0050/Test.java",
+			"package test0050;\n" +
+			"public class Test<T1> {\n" +
+			"	public String var;\n" +
+			"	void foo() {\n" +
+			"	  Test t = null;\n" +
+			"	  t.var = null;\n" +
+			"	}\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "var";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"var key=Ltest0050/Test;.var [in Test [in [Working copy] Test.java [in test0050 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0051() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0051/Test.java",
+			"package test0051;\n" +
+			"public class Test {\n" +
+			"	void foo() {\n" +
+			"	  class Inner<T> {\n" +
+			"	    public String var;\n" +
+			"	  }" +
+			"	  Inner<Object> i = null;\n" +
+			"	  i.var = null;\n" +
+			"	}\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "var";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"var key=Ltest0051/Test$1$Inner<Ljava/lang/Object;>;.var [in Inner [in foo() [in Test [in [Working copy] Test.java [in test0051 [in src2 [in Resolve]]]]]]]",
+		elements
+	);
+}
+public void test0052() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0052/Test.java",
+			"package test0052;\n" +
+			"public class Test {\n" +
+			"	void foo() {\n" +
+			"	  class Inner<T> {\n" +
+			"	    public T var;\n" +
+			"	  }" +
+			"	  Inner<Object> i = null;\n" +
+			"	  i.var = null;\n" +
+			"	}\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "var";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"var key=Ltest0052/Test$1$Inner<Ljava/lang/Object;>;.var [in Inner [in foo() [in Test [in [Working copy] Test.java [in test0052 [in src2 [in Resolve]]]]]]]",
+		elements
+	);
+}
+public void test0053() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0053/Test.java",
+			"package test0053;\n" +
+			"public class Test<T> {\n" +
+			"	public void foo() {\n" +
+			"   }\n" +
+			"}\n" +
+			"class Test2<T> {\n" +
+			"  void bar() {\n" +
+			"    Test<String> var = null;\n" +
+			"    var.foo();\n" +
+			"  }\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "foo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo() key=Ltest0053/Test<Ljava/lang/String;>;.foo()V [in Test [in [Working copy] Test.java [in test0053 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0054() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0054/Test.java",
+			"package test0054;\n" +
+			"public class Test<T> {\n" +
+			"	public void foo() {\n" +
+			"   }\n" +
+			"}\n" +
+			"class Test2<T> {\n" +
+			"  void bar() {\n" +
+			"    Test var = null;\n" +
+			"    var.foo();\n" +
+			"  }\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "foo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo() key=Ltest0054/Test;.foo()V [in Test [in [Working copy] Test.java [in test0054 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0055() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0055/Test.java",
+			"package test0055;\n" +
+			"public class Test<T> {\n" +
+			"	public void foo() {\n" +
+			"   }\n" +
+			"}\n" +
+			"class Test2<T> {\n" +
+			"  void bar() {\n" +
+			"    Test<T> var = null;\n" +
+			"    var.foo();\n" +
+			"  }\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "foo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo() key=Ltest0055/Test<TT;>;.foo()V [in Test [in [Working copy] Test.java [in test0055 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0056() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0056/Test.java",
+			"package test0056;\n" +
+			"public class Test<T> {\n" +
+			"  public void foo() {\n" +
+			"  }\n" +
+			"  void bar() {\n" +
+			"    Test<T> var = null;\n" +
+			"    var.foo();\n" +
+			"  }\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "foo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo() [in Test [in [Working copy] Test.java [in test0056 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0057() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0057/Test.java",
+			"package test0057;\n" +
+			"public class Test<T1> {\n" +
+			"  public <T2> void foo() {\n" +
+			"  }\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar() {\n" +
+			"    Test<String> var = null;\n" +
+			"    var.<Object>foo();\n" +
+			"  }\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "foo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo() key=Ltest0057/Test<Ljava/lang/String;>;.foo<T2:Ljava/lang/Object;>()V%<Ljava/lang/Object;> [in Test [in [Working copy] Test.java [in test0057 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0058() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0058/Test.java",
+			"package test0058;\n" +
+			"public class Test<T1> {\n" +
+			"  public <T2> void foo() {\n" +
+			"  }\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar() {\n" +
+			"    Test<String> var = null;\n" +
+			"    var.foo();\n" +
+			"  }\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "foo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo() key=Ltest0058/Test<Ljava/lang/String;>;.foo<T2:Ljava/lang/Object;>()V [in Test [in [Working copy] Test.java [in test0058 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0059() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0059/Test.java",
+			"package test0059;\n" +
+			"public class Test {\n" +
+			"  public <T2> void foo() {\n" +
+			"  }\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar() {\n" +
+			"    Test var = null;\n" +
+			"    var.<String>foo();\n" +
+			"  }\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "foo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo() key=Ltest0059/Test;.foo<T2:Ljava/lang/Object;>()V%<Ljava/lang/String;> [in Test [in [Working copy] Test.java [in test0059 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0060() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0060/Test.java",
+			"package test0060;\n" +
+			"public class Test {\n" +
+			"  public <T2> void foo() {\n" +
+			"  }\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar() {\n" +
+			"    Test var = null;\n" +
+			"    var.foo();\n" +
+			"  }\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "foo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo() [in Test [in [Working copy] Test.java [in test0060 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0061() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0061/Test.java",
+			"package test0061;\n" +
+			"public class Test {\n" +
+			"  public <T2> void foo() {\n" +
+			"    Test var;\n" +
+			"    var.<T2>foo();\n" +
+			"  }\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "foo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo() key=Ltest0061/Test;.foo<T2:Ljava/lang/Object;>()V%<Ltest0061/Test;.foo<T2:Ljava/lang/Object;>()V:TT2;> [in Test [in [Working copy] Test.java [in test0061 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0062() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0062/Test.java",
+			"package test0062;\n" +
+			"public class Test<T1> {\n" +
+			"  public <T2> void foo() {\n" +
+			"    Test var;\n" +
+			"    var.<T1>foo();\n" +
+			"  }\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "foo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo() key=Ltest0062/Test;.foo<T2:Ljava/lang/Object;>()V [in Test [in [Working copy] Test.java [in test0062 [in src2 [in Resolve]]]]]",
+		elements
+	);
+}
+public void test0063() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src2/test0063/Test.java",
+			"package test0063;\n" +
+			"public class Test<T1> {\n" +
+			"  public void foo() {\n" +
+			"  }\n" +
+			"}\n" +
+			"class Test2 {\n" +
+			"  void bar() {\n" +
+			"    Test<String> var;\n" +
+			"    var.foo();\n" +
+			"  }\n" +
+			"}");
+	
+	String str = wc.getSource();
+	String selection = "foo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo() key=Ltest0063/Test<Ljava/lang/String;>;.foo()V [in Test [in [Working copy] Test.java [in test0063 [in src2 [in Resolve]]]]]",
 		elements
 	);
 }

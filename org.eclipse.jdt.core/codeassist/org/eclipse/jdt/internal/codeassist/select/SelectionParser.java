@@ -817,6 +817,31 @@ protected MessageSend newMessageSend() {
 	this.isOrphanCompletionNode = true;
 	return messageSend;
 }
+protected MessageSend newMessageSendWithTypeArguments() {
+	char[] selector = identifierStack[identifierPtr];
+	if (selector != this.assistIdentifier()){
+		return super.newMessageSendWithTypeArguments();
+	}	
+	MessageSend messageSend = new SelectionOnMessageSend();
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		this.expressionPtr -= length;
+		System.arraycopy(
+			this.expressionStack, 
+			this.expressionPtr + 1, 
+			messageSend.arguments = new Expression[length], 
+			0, 
+			length); 
+	}
+	assistNode = messageSend;
+	if (!diet){
+		this.restartRecovery	= true;	// force to restart in recovery mode
+		this.lastIgnoredToken = -1;	
+	}
+	
+	this.isOrphanCompletionNode = true;
+	return messageSend;
+}
 public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, CompilationResult compilationResult, int start, int end) {
 
 	if (end == -1) return super.parse(sourceUnit, compilationResult, start, end);

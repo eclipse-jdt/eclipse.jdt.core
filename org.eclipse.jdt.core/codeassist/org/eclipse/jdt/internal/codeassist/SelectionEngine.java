@@ -452,7 +452,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		return false;
 	}
 
-	private void completeLocalTypes(TypeBinding binding){
+	private void completeLocalTypes(Binding binding){
 		switch(binding.bindingType()) {
 			case Binding.PARAMETERIZED_TYPE :
 			case Binding.RAW_TYPE :
@@ -473,7 +473,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						localTypeBinding.setConstantPoolName(constantPoolName);
 					}
 				}
-				ReferenceBinding enclosingType = binding.enclosingType();
+				TypeBinding typeBinding = (TypeBinding) binding;
+				ReferenceBinding enclosingType = typeBinding.enclosingType();
 				if(enclosingType != null) {
 					this.completeLocalTypes(enclosingType);
 				}
@@ -484,6 +485,19 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			case Binding.WILDCARD_TYPE :
 			case Binding.TYPE_PARAMETER :
 				break;	
+			case Binding.FIELD :
+				FieldBinding fieldBinding = (FieldBinding) binding;
+				this.completeLocalTypes(fieldBinding.declaringClass);
+				this.completeLocalTypes(fieldBinding.type);
+				break;	
+			case Binding.METHOD :
+				MethodBinding methodBinding = (MethodBinding) binding;
+				this.completeLocalTypes(methodBinding.returnType);
+				TypeBinding[] parameters = methodBinding.parameters;
+				for(int i = 0, max = parameters == null ? 0 : parameters.length; i < max; i++) {
+					this.completeLocalTypes(parameters[i]);
+				}
+				break;
 		}
 	}
 	
@@ -677,13 +691,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			if (typeBinding.isInterface()) {
 				this.noProposal = false;
 				if (isLocal(typeBinding) && this.requestor instanceof SelectionRequestor) {
-					if(typeBinding.isParameterizedType()) {
+					if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {
 						completeLocalTypes(typeBinding);
 					}
 					((SelectionRequestor)this.requestor).acceptLocalType(typeBinding);
 				} else {
 					char[] genericTypeSignature = null;
-					if(typeBinding.isParameterizedType()) {
+					if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {
 						completeLocalTypes(typeBinding);
 						genericTypeSignature = typeBinding.computeUniqueKey();
 					}
@@ -700,13 +714,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				if(original == null) return;
 				this.noProposal = false;
 				if (isLocal(original) && this.requestor instanceof SelectionRequestor) {
-					if(original.isParameterizedType()) {
+					if(original.isParameterizedType() || typeBinding.isRawType()) {
 						completeLocalTypes(original);
 					}
 					((SelectionRequestor)this.requestor).acceptLocalType(original);
 				} else {
 					char[] genericTypeSignature = null;
-					if(typeBinding.isParameterizedType()) {
+					if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {
 						completeLocalTypes(typeBinding);
 						genericTypeSignature = typeBinding.computeUniqueKey();
 					}
@@ -721,13 +735,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			} else {
 				this.noProposal = false;
 				if (isLocal(typeBinding) && this.requestor instanceof SelectionRequestor) {
-					if(typeBinding.isParameterizedType()) {
+					if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {
 						completeLocalTypes(typeBinding);
 					}
 					((SelectionRequestor)this.requestor).acceptLocalType(typeBinding);
 				} else {
 					char[] genericTypeSignature = null;
-					if(typeBinding.isParameterizedType()) {
+					if(typeBinding.isParameterizedType() || typeBinding.isRawType()) {
 						completeLocalTypes(typeBinding);
 						genericTypeSignature = typeBinding.computeUniqueKey();
 					}
@@ -757,8 +771,16 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				this.noProposal = false;
 				ReferenceBinding declaringClass = methodBinding.declaringClass;
 				if (isLocal(declaringClass) && this.requestor instanceof SelectionRequestor) {
+					if(methodBinding instanceof ParameterizedMethodBinding) {
+						completeLocalTypes(methodBinding);
+					}
 					((SelectionRequestor)this.requestor).acceptLocalMethod(methodBinding);
 				} else {
+					char[] uniqueKey = null;
+					if(methodBinding instanceof ParameterizedMethodBinding) {
+						completeLocalTypes(methodBinding);
+						uniqueKey = methodBinding.computeUniqueKey();
+					}
 					this.requestor.acceptMethod(
 						declaringClass.qualifiedPackageName(),
 						declaringClass.qualifiedSourceName(),
@@ -771,6 +793,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						parameterSignatures,
 						methodBinding.isConstructor(), 
 						isDeclaration,
+						uniqueKey,
 						this.actualSelectionStart,
 						this.actualSelectionEnd);
 				}
@@ -782,13 +805,22 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					if (declaringClass != null) { // arraylength
 						this.noProposal = false;
 						if (isLocal(declaringClass) && this.requestor instanceof SelectionRequestor) {
+							if(fieldBinding instanceof ParameterizedFieldBinding) {
+								completeLocalTypes(fieldBinding.declaringClass);
+							}
 							((SelectionRequestor)this.requestor).acceptLocalField(fieldBinding);
 						} else {
+							char[] uniqueKey = null;
+							if(fieldBinding instanceof ParameterizedFieldBinding) {
+								completeLocalTypes(fieldBinding.declaringClass);
+								uniqueKey = fieldBinding.computeUniqueKey();
+							}
 							this.requestor.acceptField(
 								declaringClass.qualifiedPackageName(),
 								declaringClass.qualifiedSourceName(),
 								fieldBinding.name,
 								false,
+								uniqueKey,
 								this.actualSelectionStart,
 								this.actualSelectionEnd);
 						}
@@ -1097,6 +1129,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					qualifiedSourceName,
 					fields[i].name,
 					true,
+					null,
 					this.actualSelectionStart,
 					this.actualSelectionEnd);
 
@@ -1127,6 +1160,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					null, // SelectionRequestor does not need of parameters type for method declaration
 					method.isConstructor(),
 					true,
+					null,
 					this.actualSelectionStart,
 					this.actualSelectionEnd);
 				

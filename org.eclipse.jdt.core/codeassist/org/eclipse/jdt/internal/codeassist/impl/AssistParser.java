@@ -307,6 +307,14 @@ protected void consumeMethodInvocationName() {
 		this.lastCheckPoint = messageSend.sourceEnd + 1;
 	}
 }
+protected void consumeMethodInvocationNameWithTypeArguments() {
+	super.consumeMethodInvocationNameWithTypeArguments();
+	popElement(K_SELECTOR);
+	MessageSend messageSend = (MessageSend)expressionStack[expressionPtr];
+	if (messageSend == assistNode){
+		this.lastCheckPoint = messageSend.sourceEnd + 1;
+	}
+}
 protected void consumeMethodInvocationPrimary() {
 	super.consumeMethodInvocationPrimary();
 	popElement(K_SELECTOR);
@@ -315,8 +323,24 @@ protected void consumeMethodInvocationPrimary() {
 		this.lastCheckPoint = messageSend.sourceEnd + 1;
 	}
 }
+protected void consumeMethodInvocationPrimaryWithTypeArguments() {
+	super.consumeMethodInvocationPrimaryWithTypeArguments();
+	popElement(K_SELECTOR);
+	MessageSend messageSend = (MessageSend)expressionStack[expressionPtr];
+	if (messageSend == assistNode){
+		this.lastCheckPoint = messageSend.sourceEnd + 1;
+	}
+}
 protected void consumeMethodInvocationSuper() {
 	super.consumeMethodInvocationSuper();
+	popElement(K_SELECTOR);
+	MessageSend messageSend = (MessageSend)expressionStack[expressionPtr];
+	if (messageSend == assistNode){
+		this.lastCheckPoint = messageSend.sourceEnd + 1;
+	}
+}
+protected void consumeMethodInvocationSuperWithTypeArguments() {
+	super.consumeMethodInvocationSuperWithTypeArguments();
 	popElement(K_SELECTOR);
 	MessageSend messageSend = (MessageSend)expressionStack[expressionPtr];
 	if (messageSend == assistNode){
@@ -788,24 +812,6 @@ protected TypeReference getTypeReference(int dim) {
 protected TypeReference getAssistTypeReferenceForGenericType(int dim, int identifierLength, int numberOfIdentifiers) {
 	/* no need to take action if not inside completed identifiers */
 	if (/*(indexOfAssistIdentifier()) < 0 ||*/ (identifierLength == 1 && numberOfIdentifiers == 1)) {
-//		int length = this.genericsLengthStack[this.genericsLengthPtr--];
-//		this.genericsPtr -= length;
-//		long[] positions = new long[identifierLength];
-//		System.arraycopy(
-//			identifierPositionStack, 
-//			identifierPtr, 
-//			positions, 
-//			0, 
-//			identifierLength); 
-//		
-//		this.identifierPtr--;
-//		TypeReference reference = this.createSingleAssistTypeReference(
-//										assistIdentifier(), 
-//										positions[0]);
-//		this.assistNode = reference;
-//		this.lastCheckPoint = reference.sourceEnd + 1;
-//		return reference;
-		
 		int currentTypeArgumentsLength = this.genericsLengthStack[this.genericsLengthPtr--];
 		TypeReference[] typeArguments = new TypeReference[currentTypeArgumentsLength];
 		this.genericsPtr -= currentTypeArgumentsLength;

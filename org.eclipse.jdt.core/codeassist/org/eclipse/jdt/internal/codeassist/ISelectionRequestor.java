@@ -27,9 +27,9 @@ public interface ISelectionRequestor {
 	 * @param isDeclaration boolean
 	 *  	Answer if the selected method is a declaration
 	 *  
-	 * @param genericTypeSignature
-	 *  	generic type signature of the selected type if it is a
-	 *  	parameterized type
+	 * @param uniqueKey
+	 *  	unique key of the selected type if it is a
+	 *  	parameterized type ({@link org.eclipse.jdt.internal.compiler.lookup.Binding#computeUniqueKey()})
 	 * 
 	 * @param start
 	 *  	Start of the selection
@@ -46,7 +46,7 @@ public interface ISelectionRequestor {
 		char[] packageName,
 		char[] className,
 		boolean isDeclaration,
-		char[] genericTypeSignature,
+		char[] uniqueKey,
 		int start,
 		int end);
 
@@ -78,6 +78,10 @@ public interface ISelectionRequestor {
 	 * @param isDeclaration boolean
 	 *  	Answer if the selected field is a declaration
 	 * 
+	 * @param uniqueKey
+	 *  	unique key of the selected field if the field's type is a
+	 *  	parameterized type ({@link org.eclipse.jdt.internal.compiler.lookup.Binding#computeUniqueKey()})
+	 *  
 	 * @param start
 	 *  	Start of the selection
 	 * 
@@ -94,6 +98,7 @@ public interface ISelectionRequestor {
 		char[] declaringTypeName,
 		char[] name,
 		boolean isDeclaration,
+		char[] uniqueKey,
 		int start,
 		int end);
 
@@ -108,9 +113,9 @@ public interface ISelectionRequestor {
 	 * @param isDeclaration boolean
 	 *  	Answer if the selected method is a declaration
 	 *  
-	 * @param genericTypeSignature
-	 *  	generic type signature of the selected type if it is a
-	 *  	parameterized type
+	 * @param uniqueKey
+	 *  	unique key of the selected type if it is a
+	 *  	parameterized type ({@link org.eclipse.jdt.internal.compiler.lookup.Binding#computeUniqueKey()})
 	 * 
 	 * @param start
 	 *  	Start of the selection
@@ -127,7 +132,7 @@ public interface ISelectionRequestor {
 		char[] packageName,
 		char[] interfaceName,
 		boolean isDeclaration,
-		char[] genericTypeSignature,
+		char[] uniqueKey,
 		int start,
 		int end);
 
@@ -164,6 +169,10 @@ public interface ISelectionRequestor {
 	 * @param isDeclaration boolean
 	 *  	Answer if the selected method is a declaration
 	 * 
+	 * @param uniqueKey
+	 *  	unique key of the selected method if it is a
+	 *  	parameterized method ({@link org.eclipse.jdt.internal.compiler.lookup.Binding#computeUniqueKey()})
+	 *  
 	 * @param start
 	 *  	Start of the selection
 	 * 
@@ -188,6 +197,7 @@ public interface ISelectionRequestor {
 		String[] parameterSignatures,
 		boolean isConstructor,
 		boolean isDeclaration,
+		char[] uniqueKey,
 		int start,
 		int end);
 	
