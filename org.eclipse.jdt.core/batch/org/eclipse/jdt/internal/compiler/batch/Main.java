@@ -835,6 +835,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportEmptyStatement,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+					} else if (token.equals("serial")) {//$NON-NLS-1$ 
+						this.options.put(
+							CompilerOptions.OPTION_ReportMissingSerialVersion,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else if (token.equals("emptyBlock")) {//$NON-NLS-1$ 
 						this.options.put(
 							CompilerOptions.OPTION_ReportUndocumentedEmptyBlock,

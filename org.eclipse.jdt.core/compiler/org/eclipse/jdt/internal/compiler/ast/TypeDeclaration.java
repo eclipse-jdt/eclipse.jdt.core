@@ -876,7 +876,8 @@ public class TypeDeclaration
 
 	public void resolve() {
 
-		if (this.binding == null) {
+		SourceTypeBinding sourceType = this.binding;
+		if (sourceType == null) {
 			this.ignoreFurtherInvestigation = true;
 			return;
 		}
@@ -885,7 +886,8 @@ public class TypeDeclaration
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd);
 			}
 			
-			boolean needSerialVersion = this.binding.isClass() && this.binding.implementsInterface(scope.getJavaIoSerializable(), true);
+			boolean needSerialVersion = sourceType.isClass() && !sourceType.isAbstract() 
+								&& sourceType.implementsInterface(scope.getJavaIoSerializable(), true);
 				
 			this.maxFieldCount = 0;
 			int lastVisibleFieldID = -1;
@@ -938,8 +940,8 @@ public class TypeDeclaration
 				if (this.scope != null) {
 					this.javadoc.resolve(this.scope);
 				}
-			} else if (this.binding != null && !this.binding.isLocalType()) {
-				this.scope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd, this.binding.modifiers);
+			} else if (sourceType != null && !sourceType.isLocalType()) {
+				this.scope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd, sourceType.modifiers);
 			}
 			
 		} catch (AbortType e) {
