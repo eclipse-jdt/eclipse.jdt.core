@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.eclipse.core.resources.IResourceStatus;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
@@ -514,33 +512,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	public String readableName() {
 		return this.getElementName();
-	}
-	/**
-	 * Runs a Java Model Operation
-	 */
-	public static void runOperation(JavaModelOperation operation, IProgressMonitor monitor) throws JavaModelException {
-		try {
-			if (operation.isReadOnly()) {
-				operation.run(monitor);
-			} else {
-				// Use IWorkspace.run(...) to ensure that a build will be done in autobuild mode.
-				// Note that if the tree is locked, this will throw a CoreException, but this is ok
-				// as this operation is modifying the tree (not read-only) and a CoreException will be thrown anyway.
-				ResourcesPlugin.getWorkspace().run(operation, monitor);
-			}
-		} catch (CoreException ce) {
-			if (ce instanceof JavaModelException) {
-				throw (JavaModelException)ce;
-			} else {
-				if (ce.getStatus().getCode() == IResourceStatus.OPERATION_FAILED) {
-					Throwable e= ce.getStatus().getException();
-					if (e instanceof JavaModelException) {
-						throw (JavaModelException) e;
-					}
-				}
-				throw new JavaModelException(ce);
-			}
-		}
 	}
 	protected String tabString(int tab) {
 		StringBuffer buffer = new StringBuffer();

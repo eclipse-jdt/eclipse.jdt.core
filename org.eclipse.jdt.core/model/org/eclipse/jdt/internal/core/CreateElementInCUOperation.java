@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -222,6 +223,10 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	 */
 	public abstract String getMainTaskName();
 
+	protected ISchedulingRule getSchedulingRule() {
+		// returns the folder corresponding to the package of the cu
+		return getParentElement().getResource();
+	}
 	/**
 	 * Sets the default position in which to create the new type
 	 * member. 

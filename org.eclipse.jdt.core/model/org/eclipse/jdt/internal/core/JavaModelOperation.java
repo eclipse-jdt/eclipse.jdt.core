@@ -16,6 +16,7 @@ import java.util.HashMap;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -348,25 +349,6 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		return false;
 	}
 	/**
-	 * Verifies the operation can proceed and executes the operation.
-	 * Subclasses should override <code>#verify</code> and
-	 * <code>executeOperation</code> to implement the specific operation behavior.
-	 *
-	 * @exception JavaModelException The operation has failed.
-	 */
-	protected void execute() throws JavaModelException {
-		IJavaModelStatus status= verify();
-		if (status.isOK()) {
-			// computes the root infos before executing the operation
-			// noop if aready initialized
-			JavaModelManager.getJavaModelManager().deltaState.initializeRoots();
-
-			executeOperation();
-		} else {
-			throw new JavaModelException(status);
-		}
-	}
-	/**
 	 * Convenience method to run an operation within this operation
 	 */
 	public void executeNestedOperation(JavaModelOperation operation, int subWorkAmount) throws JavaModelException {
@@ -495,6 +477,14 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 */
 	public IJavaElement[] getResultElements() {
 		return resultElements;
+	}
+	/*
+	 * Returns the scheduling rule for this operation (i.e. the resource that needs to be locked 
+	 * while this operation is running.
+	 * Subclasses can override.
+	 */
+	protected ISchedulingRule getSchedulingRule() {
+		return ResourcesPlugin.getWorkspace().getRoot();
 	}
 	/**
 	 * Creates and returns a subprogress monitor if appropriate.
@@ -686,8 +676,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	}
 	
 	/**
-	 * Main entry point for Java Model operations.  Executes this operation
-	 * and registers any deltas created.
+	 * Runs this operation and registers any deltas created.
 	 *
 	 * @see IWorkspaceRunnable
 	 * @exception CoreException if the operation fails
@@ -700,7 +689,16 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			progressMonitor = monitor;
 			pushOperation(this);
 			try {
-				this.execute();
+				IJavaModelStatus status= verify();
+				if (status.isOK()) {
+					// computes the root infos before executing the operation
+					// noop if aready initialized
+					JavaModelManager.getJavaModelManager().deltaState.initializeRoots();
+				
+					executeOperation();
+				} else {
+					throw new JavaModelException(status);
+				}
 			} finally {
 				if (this.isTopLevelOperation()) {
 					this.runPostActions();
@@ -725,6 +723,34 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 				}
 			} finally {
 				popOperation();
+			}
+		}
+	}
+	/**
+	 * Main entry point for Java Model operations. Runs a Java Model Operation as an IWorkspaceRunnable
+	 * if not read-only.
+	 */
+	public void runOperation(IProgressMonitor monitor) throws JavaModelException {
+		try {
+			if (isReadOnly()) {
+				run(monitor);
+			} else {
+				// Use IWorkspace.run(...) to ensure that a build will be done in autobuild mode.
+				// Note that if the tree is locked, this will throw a CoreException, but this is ok
+				// as this operation is modifying the tree (not read-only) and a CoreException will be thrown anyway.
+				ResourcesPlugin.getWorkspace().run(this, getSchedulingRule(), IWorkspace.AVOID_UPDATE, monitor);
+			}
+		} catch (CoreException ce) {
+			if (ce instanceof JavaModelException) {
+				throw (JavaModelException)ce;
+			} else {
+				if (ce.getStatus().getCode() == IResourceStatus.OPERATION_FAILED) {
+					Throwable e= ce.getStatus().getException();
+					if (e instanceof JavaModelException) {
+						throw (JavaModelException) e;
+					}
+				}
+				throw new JavaModelException(ce);
 			}
 		}
 	}

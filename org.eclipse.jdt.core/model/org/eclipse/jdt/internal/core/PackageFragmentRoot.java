@@ -190,7 +190,7 @@ public void delete(
 	throws JavaModelException {
 
 	DeletePackageFragmentRootOperation op = new DeletePackageFragmentRootOperation(this, updateResourceFlags, updateModelFlags);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 }
 
 /**
@@ -272,7 +272,7 @@ public void copy(
 		
 	CopyPackageFragmentRootOperation op = 
 		new CopyPackageFragmentRootOperation(this, destination, updateResourceFlags, updateModelFlags, sibling);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 }
 
 /**
@@ -287,7 +287,7 @@ protected Object createElementInfo() {
  */
 public IPackageFragment createPackageFragment(String pkgName, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	CreatePackageFragmentOperation op = new CreatePackageFragmentOperation(this, pkgName, force);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return getPackageFragment(pkgName);
 }
 
@@ -778,7 +778,7 @@ public void move(
 
 	MovePackageFragmentRootOperation op = 
 		new MovePackageFragmentRootOperation(this, destination, updateResourceFlags, updateModelFlags, sibling);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 }
 
 /**

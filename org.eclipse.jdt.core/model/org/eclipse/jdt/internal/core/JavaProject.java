@@ -2236,7 +2236,7 @@ public class JavaProject
 		ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 		CreateTypeHierarchyOperation op =
 			new CreateTypeHierarchyOperation(region, this, workingCopies, null, true);
-		runOperation(op, monitor);
+		op.runOperation(monitor);
 		return op.getResult();
 	}
 
@@ -2271,7 +2271,7 @@ public class JavaProject
 		ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 		CreateTypeHierarchyOperation op =
 			new CreateTypeHierarchyOperation(region, this, workingCopies, type, true);
-		runOperation(op, monitor);
+		op.runOperation(monitor);
 		return op.getResult();
 	}
 	public String[] projectPrerequisites(IClasspathEntry[] entries)
@@ -2648,7 +2648,7 @@ public class JavaProject
 					canChangeResource, 
 					needValidation,
 					needSave);
-			runOperation(op, monitor);
+			op.runOperation(monitor);
 			
 		} catch (JavaModelException e) {
 			manager.getDeltaProcessor().flush();

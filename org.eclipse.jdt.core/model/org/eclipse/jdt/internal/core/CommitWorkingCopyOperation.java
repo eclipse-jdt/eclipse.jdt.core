@@ -16,6 +16,7 @@ import java.io.UnsupportedEncodingException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -166,6 +167,10 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 	 */
 	protected CompilationUnit getCompilationUnit() {
 		return (CompilationUnit)getElementToProcess();
+	}
+	protected ISchedulingRule getSchedulingRule() {
+		// returns the folder corresponding to the package of the cu to commit
+		return getElementToProcess().getParent().getResource();
 	}
 	/**
 	 * Possible failures: <ul>

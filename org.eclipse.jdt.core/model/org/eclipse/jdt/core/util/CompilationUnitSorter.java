@@ -16,7 +16,6 @@ import java.util.Comparator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.SortElementsOperation;
 
 /**
@@ -172,6 +171,6 @@ public final class CompilationUnitSorter {
 		}
 		ICompilationUnit[] compilationUnits = new ICompilationUnit[] { compilationUnit };
 		SortElementsOperation operation = new SortElementsOperation(compilationUnits, positions, comparator);
-		JavaElement.runOperation(operation, monitor);
+		operation.runOperation(monitor);
 	}
 }

@@ -142,7 +142,7 @@ public void copy(IJavaElement container, IJavaElement sibling, String rename, bo
  */
 public ICompilationUnit createCompilationUnit(String cuName, String contents, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	CreateCompilationUnitOperation op= new CreateCompilationUnitOperation(this, cuName, contents, force);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return new CompilationUnit(this, cuName, DefaultWorkingCopyOwner.PRIMARY);
 }
 /**

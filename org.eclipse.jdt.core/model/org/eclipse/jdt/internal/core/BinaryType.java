@@ -540,7 +540,7 @@ public ITypeHierarchy newSupertypeHierarchy(
 	throws JavaModelException {
 	
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), false);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return op.getResult();
 }
 /**
@@ -577,7 +577,7 @@ public ITypeHierarchy newSupertypeHierarchy(
 
 	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), false);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return op.getResult();
 }
 /*
@@ -614,7 +614,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner ow
 		projectWCs,
 		project, 
 		true);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return op.getResult();
 }
 /**
@@ -638,7 +638,7 @@ public ITypeHierarchy newTypeHierarchy(
 	throws JavaModelException {
 
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), true);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return op.getResult();
 }
 /**
@@ -669,7 +669,7 @@ public ITypeHierarchy newTypeHierarchy(
 		
 	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 	CreateTypeHierarchyOperation op= new CreateTypeHierarchyOperation(this, workingCopies, SearchEngine.createWorkspaceScope(), true);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return op.getResult();	
 }
 /*

@@ -75,7 +75,7 @@ public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonit
 		close();
 
 		BecomeWorkingCopyOperation operation = new BecomeWorkingCopyOperation(this, path, problemRequestor);
-		runOperation(operation, null);
+		operation.runOperation(monitor);
 	}
 }
 protected boolean buildStructure(OpenableElementInfo info, final IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
@@ -279,7 +279,7 @@ public void commit(boolean force, IProgressMonitor monitor) throws JavaModelExce
  */
 public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModelException {
 	CommitWorkingCopyOperation op= new CommitWorkingCopyOperation(this, force);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 }
 /**
  * @see ISourceManipulation#copy(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
@@ -310,7 +310,7 @@ public IImportDeclaration createImport(String importName, IJavaElement sibling, 
 	if (sibling != null) {
 		op.createBefore(sibling);
 	}
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return getImport(importName);
 }
 /**
@@ -319,7 +319,7 @@ public IImportDeclaration createImport(String importName, IJavaElement sibling, 
 public IPackageDeclaration createPackageDeclaration(String pkg, IProgressMonitor monitor) throws JavaModelException {
 	
 	CreatePackageDeclarationOperation op= new CreatePackageDeclarationOperation(pkg, this);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return getPackageDeclaration(pkg);
 }
 /**
@@ -335,13 +335,13 @@ public IType createType(String content, IJavaElement sibling, boolean force, IPr
 			source = "package " + pkg.getElementName() + ";"  + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		CreateCompilationUnitOperation op = new CreateCompilationUnitOperation(pkg, this.name, source, force);
-		runOperation(op, monitor);
+		op.runOperation(monitor);
 	}
 	CreateTypeOperation op = new CreateTypeOperation(this, content, force);
 	if (sibling != null) {
 		op.createBefore(sibling);
 	}
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return (IType) op.getResultElements()[0];
 }
 /**
@@ -368,7 +368,7 @@ public void destroy() {
 public void discardWorkingCopy() throws JavaModelException {
 	// discard working copy and its children
 	DiscardWorkingCopyOperation op = new DiscardWorkingCopyOperation(this);
-	runOperation(op, null);
+	op.runOperation(null);
 }
 /**
  * Returns true if this handle represents the same Java element
@@ -830,7 +830,7 @@ public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProbl
 		return perWorkingCopyInfo.getWorkingCopy(); // return existing handle instead of the one created above
 	}
 	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, path, problemRequestor);
-	runOperation(op, monitor);
+	op.runOperation(monitor);
 	return workingCopy;
 }
 /**
@@ -1047,7 +1047,7 @@ public void reconcile(
 		}			
 		// reconcile
 		ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, forceProblemDetection);
-		runOperation(op, monitor);
+		op.runOperation(monitor);
 	} finally {
 		if (lookup != null) {
 			lookup.setUnitsToLookInside(null);
