@@ -92,9 +92,9 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	 */
 	public TypeBinding substitute(TypeBinding originalType) {
 
-	    // substitute of a raw type if the raw type itself if denoting same type
-	    if (((originalType.tagBits & TagBits.HasTypeVariable) != 0)
-		        && (originalType.isParameterizedType() && ((ParameterizedTypeBinding)originalType).type == this.type)) {
+	    // substitute of a raw type if the raw type itself if denoting same type, or in parameterized way
+	    if (originalType == this.type) return this;
+	    if (originalType.isParameterizedType() && ((ParameterizedTypeBinding)originalType).type == this.type) {
             return this;
         }
 	    // lazy init, since cannot do so during binding creation if during supertype connection
