@@ -397,6 +397,16 @@ a <code>WorkingCopyOwner</code> parameter, that defines the working copies to co
 	<li><code>SearchEngine.createHierarchyScope(IType type, WorkingCopyOwner owner)</code></li>
 	</ul>
 </li>
+<li>2003/06/30 (->M2) The API <code>JavaCore.newLibraryEntry(	IPath path, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath, boolean isExported)</code> for creating a library classpath entry
+with a source attachment is no longer accepting a relative source attachment path. It was spec'ed as such, but its implementation was too permissive. From 3.0 on, an <code>IllegalArgumentException</code>
+will be raised if a non-relative source attachment path is provided. Note that the only exception to this rule is an empty path (answering <code>true</code> to <code>IPath.isEmpty()</code>) which is now 
+automatically translated into <code>null</code> denoting no source attachment.
+In 3.0, a .classpath file will compact source attachments into project relative ones (as it does with other entry pathes already). During this process, relative pathes are known to 
+be meaning project relative (internally when reading/writing the .classpath file). Externally, only absolute pathes are allowed to avoid confusion when reading/writing the .classpath file.
+The tolerance for empty relative pathes comes from the fact that it is possible for variable classpath entries can be resolved to library entries with no classpath. Then the variable source attachment
+needs to be positionned to a value meaning no source (<code>null</code>). However, assigning a classpath variable to <code>null</code> is not allowed (nullification is used to remove variables),
+thus an empty relative source path is tolerated to work around this limitation.
+</li>
 </ul>
 </body>
 </html>
