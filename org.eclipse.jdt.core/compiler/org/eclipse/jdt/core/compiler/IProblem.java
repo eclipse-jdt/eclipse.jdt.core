@@ -21,8 +21,8 @@
  * 								   NonBlankFinalLocalAssignment
  * 								   ObjectCannotHaveSuperTypes
  * 								   MissingSemiColon
- * 								   InvalidExpressionAsName
  *								   InvalidParenthesizedExpression
+ *								   BytecodeExceeds64KLimitForConstructor
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -220,6 +220,9 @@ public interface IProblem {
 	/** @since 2.1 */
 	int TooManyArrayDimensions = Internal + 68;
 
+	/** @since 2.1 */
+	int BytecodeExceeds64KLimitForConstructor = Internal + 69;
+
 	// fields
 	int UndefinedField = FieldRelated + 70;
 	int NotVisibleField = FieldRelated + 71;
@@ -349,7 +352,9 @@ public interface IProblem {
 	int NoFieldOnBaseType = FieldRelated + 221;
 	int InvalidExpressionAsStatement = Syntax + Internal + 222;
 	int ExpressionShouldBeAVariable = Syntax + Internal + 223;
+	/** @since 2.1 */
 	int MissingSemiColon = Syntax + Internal + 224;
+	/** @since 2.1 */
 	int InvalidParenthesizedExpression = Syntax + Internal + 225;
     
 	// scanner errors

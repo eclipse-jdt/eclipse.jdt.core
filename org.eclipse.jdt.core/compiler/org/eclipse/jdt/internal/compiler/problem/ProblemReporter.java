@@ -200,14 +200,24 @@ public void attemptToReturnVoidValue(ReturnStatement returnStatement) {
 		returnStatement.sourceEnd);
 }
 public void bytecodeExceeds64KLimit(AbstractMethodDeclaration location) {
-	String[] arguments = new String[] {new String(location.selector)};
-	this.handle(
-		IProblem.BytecodeExceeds64KLimit,
-		arguments,
-		arguments,
-		Error | Abort,
-		location.sourceStart,
-		location.sourceEnd);
+	String[] arguments = new String[] {new String(location.selector), parametersAsString(location.binding)};
+	if (location.isConstructor()) {
+		this.handle(
+			IProblem.BytecodeExceeds64KLimitForConstructor,
+			arguments,
+			arguments,
+			Error | Abort,
+			location.sourceStart,
+			location.sourceEnd);
+	} else {
+		this.handle(
+			IProblem.BytecodeExceeds64KLimit,
+			arguments,
+			arguments,
+			Error | Abort,
+			location.sourceStart,
+			location.sourceEnd);
+	}
 }
 public void bytecodeExceeds64KLimit(TypeDeclaration location) {
 	this.handle(
