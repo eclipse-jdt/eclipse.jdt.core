@@ -15,12 +15,20 @@ package org.eclipse.jdt.core.dom;
  * Local type declaration statement AST node type.
  * <p>
  * This kind of node is used to convert a type declaration
- * (<code>TypeDeclaration</code>) into a statement
- * (<code>Statement</code>) by wrapping it.
+ * node into a statement node by wrapping it.
  * </p>
+ * For 2.0 (corresponding to JLS2):
  * <pre>
  * TypeDeclarationStatement:
  *    TypeDeclaration
+ * </pre>
+ * For 3.0 (corresponding to JLS3), the kinds of type declarations
+ * grew to include enum and annotation type declarations:
+ * <pre>
+ * TypeDeclarationStatement:
+ *    TypeDeclaration
+ *    EnumDeclaration
+ *    AnnotationTypeDeclaration
  * </pre>
  * 
  * @since 2.0
@@ -31,7 +39,7 @@ public class TypeDeclarationStatement extends Statement {
 	 * The type declaration; lazily initialized; defaults to a unspecified, 
 	 * but legal, type declaration.
 	 */
-	private TypeDeclaration typeDecl = null;
+	private AbstractTypeDeclaration typeDecl = null;
 
 	/**
 	 * Creates a new unparented local type declaration statement node owned 
@@ -62,8 +70,8 @@ public class TypeDeclarationStatement extends Statement {
 			new TypeDeclarationStatement(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.copyLeadingComment(this);
-		result.setTypeDeclaration(
-			(TypeDeclaration) getTypeDeclaration().clone(target));
+		result.setDeclaration(
+			(AbstractTypeDeclaration) getDeclaration().clone(target));
 		return result;
 	}
 	
@@ -81,30 +89,31 @@ public class TypeDeclarationStatement extends Statement {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			acceptChild(visitor, getTypeDeclaration());
+			acceptChild(visitor, getDeclaration());
 		}
 		visitor.endVisit(this);
 	}
 	
 	/**
-	 * Returns the type declaration of this local type declaration
-	 * statement.
+	 * Returns the abstract type declaration of this local type declaration
+	 * statement (2.0 API only).
 	 * 
 	 * @return the type declaration node
+	 * @since 3.0
 	 */ 
-	public TypeDeclaration getTypeDeclaration() {
-		if (typeDecl == null) {
+	public AbstractTypeDeclaration getDeclaration() {
+		if (this.typeDecl == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
-			setTypeDeclaration(new TypeDeclaration(getAST()));
+			setDeclaration(new TypeDeclaration(getAST()));
 			getAST().setModificationCount(count);
 		}
-		return typeDecl;
+		return this.typeDecl;
 	}
 		
 	/**
-	 * Sets the type declaration of this local type declaration
-	 * statement.
+	 * Sets the abstract type declaration of this local type declaration
+	 * statement (2.0 API only).
 	 * 
 	 * @param decl the type declaration node
 	 * @exception IllegalArgumentException if:
@@ -113,8 +122,9 @@ public class TypeDeclarationStatement extends Statement {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
+	 * @since 3.0
 	 */ 
-	public void setTypeDeclaration(TypeDeclaration decl) {
+	public void setDeclaration(AbstractTypeDeclaration decl) {
 		if (decl == null) {
 			throw new IllegalArgumentException();
 		}
@@ -123,6 +133,48 @@ public class TypeDeclarationStatement extends Statement {
 		replaceChild(this.typeDecl, decl, true);
 		this.typeDecl= decl;
 	}
+	
+	/**
+	 * Returns the type declaration of this local type declaration
+	 * statement (added in 3.0 API).
+	 * 
+	 * @return the type declaration node
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
+	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
+	 * <code>getDeclaration</code>,
+	 * which returns <code>AbstractTypeDeclaration</code> instead of 
+	 * <code>TypeDeclaration</code>.
+	 */ 
+	public TypeDeclaration getTypeDeclaration() {
+	    supportedOnlyIn2();
+		return (TypeDeclaration) getDeclaration();
+	}
+		
+	/**
+	 * Sets the type declaration of this local type declaration
+	 * statement (added in 3.0 API).
+	 * 
+	 * @param decl the type declaration node
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
+	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
+	 * <code>setDeclaration</code>,
+	 * which takes <code>AbstractTypeDeclaration</code> instead of 
+	 * <code>TypeDeclaration</code>.
+	 */ 
+	public void setTypeDeclaration(TypeDeclaration decl) {
+	    supportedOnlyIn2();
+		// forward to non-deprecated replacement method
+		setDeclaration(decl);
+	}
+	
 	/**
 	 * Resolves and returns the binding for the class or interface declared in
 	 * this type declaration statement.
@@ -136,8 +188,15 @@ public class TypeDeclarationStatement extends Statement {
 	 */	
 	public ITypeBinding resolveBinding() {
 		// forward request to the wrapped type declaration
-		TypeDeclaration d = getTypeDeclaration();
-		return d.resolveBinding();
+		AbstractTypeDeclaration d = getDeclaration();
+		if (d instanceof TypeDeclaration) {
+			return ((TypeDeclaration) d).resolveBinding();
+		} else if (d instanceof AnnotationTypeDeclaration) {
+			return ((AnnotationTypeDeclaration) d).resolveBinding();
+		} else {
+			// shouldn't happen
+			return null;
+		}
 	}
 	
 	/* (omit javadoc for this method)
@@ -153,7 +212,7 @@ public class TypeDeclarationStatement extends Statement {
 	int treeSize() {
 		return
 			memSize()
-			+ (typeDecl == null ? 0 : getTypeDeclaration().treeSize());
+			+ (this.typeDecl == null ? 0 : getDeclaration().treeSize());
 	}
 }
 

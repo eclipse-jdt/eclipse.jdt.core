@@ -47,6 +47,24 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(AnnotationTypeDeclaration)
+	 * @since 3.0
+	 */
+	public void endVisit(AnnotationTypeDeclaration node) {
+		ITypeBinding typeBinding = node.resolveBinding();
+		collectBindings(node, typeBinding);
+	}
+
+	/**
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(AnnotationTypeMemberDeclaration)
+	 * @since 3.0
+	 */
+	public void endVisit(AnnotationTypeMemberDeclaration node) {
+		IVariableBinding binding = node.resolveBinding();
+		collectBindings(node, binding);
+	}
+
+	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(AnonymousClassDeclaration)
 	 */
 	public void endVisit(AnonymousClassDeclaration node) {
@@ -87,30 +105,11 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(AssertStatement)
-	 */
-	public void endVisit(AssertStatement node) {
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(Assignment)
 	 */
 	public void endVisit(Assignment node) {
 		ITypeBinding typeBinding = node.resolveTypeBinding();
 		collectBindings(node, typeBinding);
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(Block)
-	 */
-	public void endVisit(Block node) {
-	}
-
-	/**
-	 * @see ASTVisitor#endVisit(BlockComment)
-	 * @since 3.0
-	 */
-	public void endVisit(BlockComment node) {
 	}
 
 	/**
@@ -122,23 +121,11 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(BreakStatement)
-	 */
-	public void endVisit(BreakStatement node) {
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(CastExpression)
 	 */
 	public void endVisit(CastExpression node) {
 		ITypeBinding typeBinding = node.resolveTypeBinding();
 		collectBindings(node, typeBinding);
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(CatchClause)
-	 */
-	public void endVisit(CatchClause node) {
 	}
 
 	/**
@@ -158,12 +145,6 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(CompilationUnit)
-	 */
-	public void endVisit(CompilationUnit node) {
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ConditionalExpression)
 	 */
 	public void endVisit(ConditionalExpression node) {
@@ -180,28 +161,22 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ContinueStatement)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(EnumConstantDeclaration)
+	 * @since 3.0
 	 */
-	public void endVisit(ContinueStatement node) {
+	public void endVisit(EnumConstantDeclaration node) {
+		IVariableBinding binding = node.resolveVariable();
+		collectBindings(node, binding);
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(DoStatement)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(EnumDeclaration)
+	 * @since 3.0
 	 */
-	public void endVisit(DoStatement node) {
+	public void endVisit(EnumDeclaration node) {
+		ITypeBinding typeBinding = node.resolveBinding();
+		collectBindings(node, typeBinding);
 	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(EmptyStatement)
-	 */
-	public void endVisit(EmptyStatement node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ExpressionStatement)
-	 */
-	public void endVisit(ExpressionStatement node) {}
-	
 
 	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(FieldAccess)
@@ -211,24 +186,6 @@ class BindingsCollectorVisitor extends ASTVisitor {
 		collectBindings(node, typeBinding);
 	}
 	
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(FieldDeclaration)
-	 */
-	public void endVisit(FieldDeclaration node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ForStatement)
-	 */
-	public void endVisit(ForStatement node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(IfStatement)
-	 */
-	public void endVisit(IfStatement node) {
-	}
-
 	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ImportDeclaration)
 	 */
@@ -246,36 +203,11 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(Initializer)
-	 */
-	public void endVisit(Initializer node) {
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(InstanceofExpression)
 	 */
 	public void endVisit(InstanceofExpression node) {
 		ITypeBinding typeBinding = node.resolveTypeBinding();
 		collectBindings(node, typeBinding);
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(Javadoc)
-	 */
-	public void endVisit(Javadoc node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(LabeledStatement)
-	 */
-	public void endVisit(LabeledStatement node) {
-	}
-
-	/**
-	 * @see ASTVisitor#endVisit(LineComment)
-	 * @since 3.0
-	 */
-	public void endVisit(LineComment node) {
 	}
 
 	/**
@@ -313,13 +245,6 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see ASTVisitor#endVisit(MethodRefParameter)
-	 * @since 3.0
-	 */
-	public void endVisit(MethodRefParameter node) {
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(NullLiteral)
 	 */
 	public void endVisit(NullLiteral node) {
@@ -341,6 +266,15 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	public void endVisit(PackageDeclaration node) {
 		IPackageBinding packageBinding = node.resolveBinding();
 		collectBindings(node, packageBinding);
+	}
+
+	/**
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ParameterizedType)
+	 * @since 3.0
+	 */
+	public void endVisit(ParameterizedType node) {
+		ITypeBinding typeBinding = node.resolveBinding();
+		collectBindings(node, typeBinding);
 	}
 
 	/**
@@ -381,12 +315,6 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	public void endVisit(QualifiedName node) {
 		IBinding binding = node.resolveBinding();
 		collectBindings(node, binding);
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ReturnStatement)
-	 */
-	public void endVisit(ReturnStatement node) {
 	}
 
 	/**
@@ -446,24 +374,6 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(SwitchCase)
-	 */
-	public void endVisit(SwitchCase node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(SwitchStatement)
-	 */
-	public void endVisit(SwitchStatement node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(SynchronizedStatement)
-	 */
-	public void endVisit(SynchronizedStatement node) {
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ThisExpression)
 	 */
 	public void endVisit(ThisExpression node) {
@@ -472,29 +382,11 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ThrowStatement)
-	 */
-	public void endVisit(ThrowStatement node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(TryStatement)
-	 */
-	public void endVisit(TryStatement node) {
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(TypeDeclaration)
 	 */
 	public void endVisit(TypeDeclaration node) {
 		ITypeBinding typeBinding = node.resolveBinding();
 		collectBindings(node, typeBinding);
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(TypeDeclarationStatement)
-	 */
-	public void endVisit(TypeDeclarationStatement node) {
 	}
 
 	/**
@@ -519,18 +411,6 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	public void endVisit(VariableDeclarationFragment node) {
 		IVariableBinding variableBinding = node.resolveBinding();
 		collectBindings(node, variableBinding);
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(VariableDeclarationStatement)
-	 */
-	public void endVisit(VariableDeclarationStatement node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(WhileStatement)
-	 */
-	public void endVisit(WhileStatement node) {
 	}
 
 	/**

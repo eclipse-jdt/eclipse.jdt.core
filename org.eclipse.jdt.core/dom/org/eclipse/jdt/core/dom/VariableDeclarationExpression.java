@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -22,26 +23,37 @@ import java.util.List;
  * This type of node is used (only) as the initializer of a
  * <code>ForStatement</code>.
  * </p>
+ * For 2.0 (corresponding to JLS2):
  * <pre>
  * VariableDeclarationExpression:
  *    { Modifier } Type VariableDeclarationFragment
+ *         { <b>,</b> VariableDeclarationFragment } 
+ * </pre>
+ * For 3.0 (corresponding to JLS3), the modifier flags were replaced by
+ * a list of modifier nodes (intermixed with annotations):
+ * <pre>
+ * VariableDeclarationExpression:
+ *    { ExtendedModifier } Type VariableDeclarationFragment
  *         { <b>,</b> VariableDeclarationFragment } 
  * </pre>
  * 
  * @since 2.0
  */
 public class VariableDeclarationExpression extends Expression {
-	
-	/**
-	 * Mask containing all legal modifiers for this construct.
-	 */
-	private static final int LEGAL_MODIFIERS = Modifier.FINAL;
 
 	/**
-	 * The modifiers; bit-wise or of Modifier flags.
-	 * Defaults to none.
+	 * The extended modifiers (element type: <code>ExtendedModifier</code>). 
+	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * (see constructor).
+	 * @since 3.0
 	 */
-	private int modifiers = Modifier.NONE;
+	private ASTNode.NodeList modifiers = null;
+	
+	/**
+	 * The modifier flags; bit-wise or of Modifier flags.
+	 * Defaults to none. Not used in 3.0.
+	 */
+	private int modifierFlags = Modifier.NONE;
 		
 	/**
 	 * The base type; lazily initialized; defaults to an unspecified,
@@ -69,6 +81,9 @@ public class VariableDeclarationExpression extends Expression {
 	 */
 	VariableDeclarationExpression(AST ast) {
 		super(ast);
+		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
+			this.modifiers = new ASTNode.NodeList(true, ExtendedModifier.class);
+		}
 	}
 
 	/* (omit javadoc for this method)
@@ -85,7 +100,12 @@ public class VariableDeclarationExpression extends Expression {
 		VariableDeclarationExpression result = 
 			new VariableDeclarationExpression(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setModifiers(getModifiers());
+		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+			result.setModifiers(getModifiers());
+		}
+		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
+		}
 		result.setType((Type) getType().clone(target));
 		result.fragments().addAll(
 			ASTNode.copySubtrees(target, fragments()));
@@ -108,6 +128,9 @@ public class VariableDeclarationExpression extends Expression {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
+			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+				acceptChildren(visitor, this.modifiers);
+			}
 			acceptChild(visitor, getType());
 			acceptChildren(visitor, variableDeclarationFragments);
 		}
@@ -115,36 +138,82 @@ public class VariableDeclarationExpression extends Expression {
 	}
 	
 	/**
-	 * Returns the modifiers explicitly specified on this declaration.
+	 * Returns the live ordered list of modifiers and annotations
+	 * of this declaration (added in 3.0 API).
 	 * <p>
 	 * Note that the final modifier is the only meaningful modifier for local
 	 * variable declarations.
+	 * </p>
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return the live list of modifiers and annotations
+	 *    (element type: <code>ExtendedModifier</code>)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
+	 * @since 3.0
+	 */ 
+	public List modifiers() {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.modifiers == null) {
+			unsupportedIn2();
+		}
+		return this.modifiers;
+	}
+	
+	/**
+	 * Returns the modifiers explicitly specified on this declaration.
+	 * <p>
+	 * In the 3.0 API, this method is a convenience method that
+	 * computes these flags from <code>modifiers()</code>.
 	 * </p>
 	 * 
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
 	 */ 
 	public int getModifiers() {
-		return modifiers;
+		// more efficient than checking getAST().API_LEVEL
+		if (this.modifiers == null) {
+			// 2.0 behavior - bona fide property
+			return this.modifierFlags;
+		} else {
+			// 3.0 behavior - convenient method
+			// performance could be improved by caching computed flags
+			// but this would require tracking changes to this.modifiers
+			int flags = Modifier.NONE;
+			for (Iterator it = modifiers().iterator(); it.hasNext(); ) {
+				Object x = it.next();
+				if (x instanceof Modifier) {
+					flags |= ((Modifier) x).getKeyword().toFlagValue();
+				}
+			}
+			return flags;
+		}
 	}
 
 	/**
-	 * Sets the modifiers explicitly specified on this declaration.
+	 * Sets the modifiers explicitly specified on this declaration (2.0 API only).
 	 * <p>
 	 * Note that the final modifier is the only meaningful modifier for local
 	 * variable declarations.
 	 * </p>
 	 * 
 	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
 	 * @see Modifier
-	 * @exception IllegalArgumentException if the modifiers are illegal
+	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
+	 * <code>modifiers()</code> which contains a list of 
+	 * a <code>Modifier</code> nodes.
 	 */ 
 	public void setModifiers(int modifiers) {
-		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
-			throw new IllegalArgumentException();
-		}
+	    supportedOnlyIn2();
 		modifying();
-		this.modifiers = modifiers;
+		this.modifierFlags = modifiers;
 	}
 
 	/**
@@ -158,13 +227,13 @@ public class VariableDeclarationExpression extends Expression {
 	 * @return the base type
 	 */ 
 	public Type getType() {
-		if (baseType == null) {
+		if (this.baseType == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
 			setType(getAST().newPrimitiveType(PrimitiveType.INT));
 			getAST().setModificationCount(count);
 		}
-		return baseType;
+		return this.baseType;
 	}
 
 	/**
@@ -197,7 +266,7 @@ public class VariableDeclarationExpression extends Expression {
 	 *    expression (element type: <code>VariableDeclarationFragment</code>)
 	 */ 
 	public List fragments() {
-		return variableDeclarationFragments;
+		return this.variableDeclarationFragments;
 	}
 
 	/* (omit javadoc for this method)
@@ -205,7 +274,7 @@ public class VariableDeclarationExpression extends Expression {
 	 */
 	int memSize() {
 		// treat Operator as free
-		return BASE_NODE_SIZE + 3 * 4;
+		return BASE_NODE_SIZE + 4 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -214,8 +283,9 @@ public class VariableDeclarationExpression extends Expression {
 	int treeSize() {
 		return 
 			memSize()
-			+ (baseType == null ? 0 : getType().treeSize())
-			+ variableDeclarationFragments.listSize();
+			+ (this.modifiers == null ? 0 : this.modifiers.listSize())
+			+ (this.baseType == null ? 0 : getType().treeSize())
+			+ this.variableDeclarationFragments.listSize();
 	}
 }
 

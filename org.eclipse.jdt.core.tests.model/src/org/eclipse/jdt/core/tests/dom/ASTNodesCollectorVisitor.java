@@ -36,60 +36,29 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	}
 		
 	/**
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(AnnotationTypeDeclaration)
+	 * @since 3.0
+	 */
+	public void endVisit(AnnotationTypeDeclaration node) {
+		add(node);
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
+		detachedListElement(node.bodyDeclarations());
+	}
+
+	/**
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(AnnotationTypeMemberDeclaration)
+	 * @since 3.0
+	 */
+	public void endVisit(AnnotationTypeMemberDeclaration node) {
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
+	}
+
+	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.AnonymousClassDeclaration)
 	 */
 	public void endVisit(AnonymousClassDeclaration node) {
 		add(node);
 		detachedListElement(node.bodyDeclarations());
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ArrayAccess)
-	 */
-	public void endVisit(ArrayAccess node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ArrayCreation)
-	 */
-	public void endVisit(ArrayCreation node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ArrayInitializer)
-	 */
-	public void endVisit(ArrayInitializer node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ArrayType)
-	 */
-	public void endVisit(ArrayType node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.AssertStatement)
-	 */
-	public void endVisit(AssertStatement node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.Assignment)
-	 */
-	public void endVisit(Assignment node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.Block)
-	 */
-	public void endVisit(Block node) {
-	}
-
-	/**
-	 * @see ASTVisitor#endVisit(BlockComment)
-	 * @since 3.0
-	 */
-	public void endVisit(BlockComment node) {
 	}
 
 	private void detachedListElement(List list) {
@@ -99,41 +68,12 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.BooleanLiteral)
-	 */
-	public void endVisit(BooleanLiteral node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.BreakStatement)
-	 */
-	public void endVisit(BreakStatement node) {
-		
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.CastExpression)
-	 */
-	public void endVisit(CastExpression node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.CatchClause)
-	 */
-	public void endVisit(CatchClause node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.CharacterLiteral)
-	 */
-	public void endVisit(CharacterLiteral node) {
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ClassInstanceCreation)
 	 */
 	public void endVisit(ClassInstanceCreation node) {
-		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
+		node.setType(
+			node.getAST().newSimpleType(
+				node.getAST().newSimpleName("XXX"))); //$NON-NLS-1$
 	}
 
 	/**
@@ -145,39 +85,23 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ConditionalExpression)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(EnumConstantDeclaration)
+	 * @since 3.0
 	 */
-	public void endVisit(ConditionalExpression node) {
+	public void endVisit(EnumConstantDeclaration node) {
+		add(node);
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
+		detachedListElement(node.bodyDeclarations());
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ConstructorInvocation)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(EnumDeclaration)
+	 * @since 3.0
 	 */
-	public void endVisit(ConstructorInvocation node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ContinueStatement)
-	 */
-	public void endVisit(ContinueStatement node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.DoStatement)
-	 */
-	public void endVisit(DoStatement node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.EmptyStatement)
-	 */
-	public void endVisit(EmptyStatement node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ExpressionStatement)
-	 */
-	public void endVisit(ExpressionStatement node) {
+	public void endVisit(EnumDeclaration node) {
+		add(node);
+		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
+		detachedListElement(node.bodyDeclarations());
 	}
 
 	/**
@@ -195,60 +119,11 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ForStatement)
-	 */
-	public void endVisit(ForStatement node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.IfStatement)
-	 */
-	public void endVisit(IfStatement node) {
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ImportDeclaration)
 	 */
 	public void endVisit(ImportDeclaration node) {
 		add(node);
 		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.InfixExpression)
-	 */
-	public void endVisit(InfixExpression node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.Initializer)
-	 */
-	public void endVisit(Initializer node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.InstanceofExpression)
-	 */
-	public void endVisit(InstanceofExpression node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.Javadoc)
-	 */
-	public void endVisit(Javadoc node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.LabeledStatement)
-	 */
-	public void endVisit(LabeledStatement node) {
-	}
-
-	/**
-	 * @see ASTVisitor#endVisit(LineComment)
-	 * @since 3.0
-	 */
-	public void endVisit(LineComment node) {
 	}
 
 	/**
@@ -283,54 +158,11 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see ASTVisitor#endVisit(MethodRefParameter)
-	 * @since 3.0
-	 */
-	public void endVisit(MethodRefParameter node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.NullLiteral)
-	 */
-	public void endVisit(NullLiteral node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.NumberLiteral)
-	 */
-	public void endVisit(NumberLiteral node) {
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.PackageDeclaration)
 	 */
 	public void endVisit(PackageDeclaration node) {
 		add(node);
 		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ParenthesizedExpression)
-	 */
-	public void endVisit(ParenthesizedExpression node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.PostfixExpression)
-	 */
-	public void endVisit(PostfixExpression node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.PrefixExpression)
-	 */
-	public void endVisit(PrefixExpression node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.PrimitiveType)
-	 */
-	public void endVisit(PrimitiveType node) {
 	}
 
 	/**
@@ -340,12 +172,6 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 		add(node);
 		node.setQualifier(node.getAST().newSimpleName("sss")); //$NON-NLS-1$
 		node.setName(node.getAST().newSimpleName("sss")); //$NON-NLS-1$
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ReturnStatement)
-	 */
-	public void endVisit(ReturnStatement node) {
 	}
 
 	/**
@@ -378,18 +204,6 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.StringLiteral)
-	 */
-	public void endVisit(StringLiteral node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.SuperConstructorInvocation)
-	 */
-	public void endVisit(SuperConstructorInvocation node) {
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.SuperFieldAccess)
 	 */
 	public void endVisit(SuperFieldAccess node) {
@@ -406,54 +220,10 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.SwitchCase)
-	 */
-	public void endVisit(SwitchCase node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.SwitchStatement)
-	 */
-	public void endVisit(SwitchStatement node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.SynchronizedStatement)
-	 */
-	public void endVisit(SynchronizedStatement node) {
-	}
-
-	/**
-	 * @see ASTVisitor#endVisit(TagElement)
-	 * @since 3.0
-	 */
-	public void endVisit(TagElement node) {
-	}
-
-	/**
-	 * @see ASTVisitor#endVisit(TextElement)
-	 * @since 3.0
-	 */
-	public void endVisit(TextElement node) {
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ThisExpression)
 	 */
 	public void endVisit(ThisExpression node) {
 		node.setQualifier(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.ThrowStatement)
-	 */
-	public void endVisit(ThrowStatement node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.TryStatement)
-	 */
-	public void endVisit(TryStatement node) {
 	}
 
 	/**
@@ -464,18 +234,6 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 		node.setName(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 		node.setSuperclass(node.getAST().newSimpleName("XXX")); //$NON-NLS-1$
 		detachedListElement(node.bodyDeclarations());
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.TypeDeclarationStatement)
-	 */
-	public void endVisit(TypeDeclarationStatement node) {
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.TypeLiteral)
-	 */
-	public void endVisit(TypeLiteral node) {
 	}
 
 	/**
@@ -498,12 +256,6 @@ class ASTNodesCollectorVisitor extends ASTVisitor {
 	 */
 	public void endVisit(VariableDeclarationStatement node) {
 		detachedListElement(node.fragments());
-	}
-
-	/**
-	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom.WhileStatement)
-	 */
-	public void endVisit(WhileStatement node) {
 	}
 
 	/**

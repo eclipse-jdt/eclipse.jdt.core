@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,36 +8,43 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.jdt.core.dom;
 
 /**
- * Static or instance initializer AST node type.
+ * Single member annotation node (added in 3.0 API). The single member annotation 
+ * "@foo(bar)" is equivalent to the normal annotation "@foo(value=bar)". 
+ * <p>
  * <pre>
- * Initializer:
- *     { <b>static</b> } Block
+ * SingleMemberAnnotation:
+ *   <b>@</b> TypeName <b>(</b> Expression  <b>)</b>
  * </pre>
- * 
- * @since 2.0
+ * </p>
+ * <p>
+ * Note: Support for annotation metadata is an experimental language feature 
+ * under discussion in JSR-175 and under consideration for inclusion
+ * in the 1.5 release of J2SE. The support here is therefore tentative
+ * and subject to change.
+ * </p>
+ * @since 3.0
  */
-public class Initializer extends BodyDeclaration {
-	
+public final class SingleMemberAnnotation extends Annotation {
 	/**
-	 * The initializer body; lazily initialized; defaults to an empty block.
+	 * The value; lazily initialized; defaults to a unspecified, but legal,
+	 * expression.
 	 */
-	private Block body = null;
+	private Expression value = null;
 
 	/**
-	 * Creates a new AST node for an initializer declaration owned by the given 
-	 * AST. By default, the initializer has no modifiers and an empty block.
-	 * The javadoc comment is not used for initializers.
+	 * Creates a new unparented normal annotation node owned 
+	 * by the given AST.  By default, the annotation has an
+	 * unspecified type name and an unspecified value.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
 	 * 
 	 * @param ast the AST that is to own this node
 	 */
-	Initializer(AST ast) {
+	SingleMemberAnnotation(AST ast) {
 		super(ast);
 	}
 
@@ -45,27 +52,20 @@ public class Initializer extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	public int getNodeType() {
-		return INITIALIZER;
+		return SINGLE_MEMBER_ANNOTATION;
 	}
 
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone(AST target) {
-		Initializer result = new Initializer(target);
-		result.setSourceRange(this.getStartPosition(), this.getLength());
-		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
-			result.setModifiers(getModifiers());
-		}
-		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
-			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
-		}
-		result.setJavadoc(
-			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		result.setBody((Block) getBody().clone(target));
+		SingleMemberAnnotation result = new SingleMemberAnnotation(target);
+		result.setSourceRange(getStartPosition(), getLength());
+		result.setTypeName((Name) ASTNode.copySubtree(target, getTypeName()));
+		result.setValue((Expression) ASTNode.copySubtree(target, getValue()));
 		return result;
 	}
-
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -73,41 +73,39 @@ public class Initializer extends BodyDeclaration {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}
-
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			acceptChild(visitor, getJavadoc());
-			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
-				acceptChildren(visitor, this.modifiers);
-			}
-			acceptChild(visitor, getBody());
+			// visit children in normal left to right reading order
+			acceptChild(visitor, getTypeName());
+			acceptChild(visitor, getValue());
 		}
 		visitor.endVisit(this);
 	}
 	
 	/**
-	 * Returns the body of this initializer declaration.
+	 * Returns the value of this annotation.
 	 * 
-	 * @return the initializer body
+	 * @return the value node
 	 */ 
-	public Block getBody() {
-		if (this.body == null) {
+	public Expression getValue() {
+		if (this.value == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
-			setBody(new Block(getAST()));
+			setValue(new SimpleName(getAST()));
 			getAST().setModificationCount(count);
 		}
-		return this.body;
+		return this.value;
 	}
-	
+		
 	/**
-	 * Sets the body of this initializer declaration.
+	 * Sets the value of this annotation.
 	 * 
-	 * @param body the block node
+	 * @param value the new value
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
@@ -115,14 +113,16 @@ public class Initializer extends BodyDeclaration {
 	 * <li>a cycle in would be created</li>
 	 * </ul>
 	 */ 
-	public void setBody(Block body) {
-		if (body == null) {
+	public void setValue(Expression value) {
+		if (value == null) {
 			throw new IllegalArgumentException();
 		}
-		replaceChild(this.body, body, true);
-		this.body = body;
+		// a SingleMemberAnnotation may occur inside an Expression 
+		// must check cycles
+		replaceChild(this.value, value, true);
+		this.value = value;
 	}
-	
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -136,9 +136,7 @@ public class Initializer extends BodyDeclaration {
 	int treeSize() {
 		return
 			memSize()
-			+ (this.optionalDocComment == null ? 0 : getJavadoc().treeSize())
-			+ (this.modifiers == null ? 0 : this.modifiers.listSize())
-			+ (this.body == null ? 0 : getBody().treeSize());
+			+ getTypeName().treeSize()
+			+ (this.value == null ? 0 : getValue().treeSize());
 	}
 }
-

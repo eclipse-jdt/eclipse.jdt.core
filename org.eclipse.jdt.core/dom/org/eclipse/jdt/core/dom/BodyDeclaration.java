@@ -11,27 +11,42 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * Abstract base class of all AST nodes that represent body declarations 
- * that may appear in the body of a class or interface declaration.
+ * that may appear in the body of some kind of class or interface declaration,
+ * including anonymous class declarations, enumeration declarations, and
+ * enumeration constant declarations.
  * <p>
+ * For 2.0 (corresponding to JLS2):
  * <pre>
- * ClassBodyDeclaration:
+ * BodyDeclaration:
  *		ClassDeclaration
  *		InterfaceDeclaration
  *		MethodDeclaration
  * 		ConstructorDeclaration
  * 		FieldDeclaration
  * 		Initializer
- * InterfaceBodyDeclaration:
+ * </pre>
+ * For 3.0 (corresponding to JLS3), a number of new node types were introduced:
+ * <pre>
+ * BodyDeclaration:
  *		ClassDeclaration
  *		InterfaceDeclaration
+ *		EnumDeclaration
  *		MethodDeclaration
+ * 		ConstructorDeclaration
  * 		FieldDeclaration
+ * 		Initializer
+ *		EnumConstantDeclaration
+ *		AnnotationTypeDeclaration
+ *		AnnotationTypeMemberDeclaration
  * </pre>
  * </p>
  * <p>
- * All types of body declarations carry modifiers, although they differ in
+ * All types of body declarations carry modifiers (and annotations), although they differ in
  * which modifiers are allowed. Most types of body declarations can carry a
  * doc comment; Initializer is the only ones that does not. The source range
  * for body declarations always includes the doc comment if present.
@@ -45,15 +60,23 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * The doc comment, or <code>null</code> if none.
 	 * Defaults to none.
 	 */
-	private Javadoc optionalDocComment = null;
+	Javadoc optionalDocComment = null;
 
 	/**
-	 * The modifiers; bit-wise or of Modifier flags.
-	 * Defaults to none.
+	 * The modifier flags; bit-wise or of Modifier flags.
+	 * Defaults to none. Not used in 3.0.
+	 * @since 3.0 - field was moved up from subclasses
+	 */
+	private int modifierFlags = Modifier.NONE;
+	
+	/**
+	 * The extended modifiers (element type: <code>ExtendedModifier</code>). 
+	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * (see constructor).
 	 * 
 	 * @since 3.0
 	 */
-	private int modifiers = Modifier.NONE;
+	ASTNode.NodeList modifiers = null;
 	
 	/**
 	 * Creates a new AST node for a body declaration node owned by the 
@@ -66,6 +89,9 @@ public abstract class BodyDeclaration extends ASTNode {
 	 */
 	BodyDeclaration(AST ast) {
 		super(ast);
+		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
+			this.modifiers = new ASTNode.NodeList(true, ExtendedModifier.class);
+		}
 	}
 	
 	/**
@@ -74,7 +100,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * @return the doc comment node, or <code>null</code> if none
 	 */
 	public Javadoc getJavadoc() {
-		return optionalDocComment;
+		return this.optionalDocComment;
 	}
 
 	/**
@@ -90,35 +116,83 @@ public abstract class BodyDeclaration extends ASTNode {
 
 	/**
 	 * Returns the modifiers explicitly specified on this declaration.
-	 * The allowable modifiers differ for each type of body declaration.
+	 * <p>
+	 * In the 3.0 API, this method is a convenience method that
+	 * computes these flags from <code>modifiers()</code>.
+	 * </p>
 	 * 
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
-	 * @since 3.0
 	 */ 
 	public int getModifiers() {
-		return modifiers;
+		// more efficient than checking getAST().API_LEVEL
+		if (this.modifiers == null) {
+			// 2.0 behavior - bona fide property
+			return this.modifierFlags;
+		} else {
+			// 3.0 behavior - convenient method
+			// performance could be improved by caching computed flags
+			// but this would require tracking changes to this.modifiers
+			int flags = Modifier.NONE;
+			for (Iterator it = modifiers().iterator(); it.hasNext(); ) {
+				Object x = it.next();
+				if (x instanceof Modifier) {
+					flags |= ((Modifier) x).getKeyword().toFlagValue();
+				}
+			}
+			return flags;
+		}
 	}
 
 	/**
-	 * Sets the modifiers explicitly specified on this declaration.
-	 * The allowable modifiers differ for each type of body declaration.
+	 * Sets the modifiers explicitly specified on this declaration (2.0 API only).
 	 * 
 	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
 	 * @see Modifier
-	 * @exception IllegalArgumentException if the modifiers are illegal
-	 * @since 3.0
+	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
+	 * <code>modifiers()</code> which contains a list of 
+	 * a <code>Modifier</code> nodes.
 	 */ 
 	public void setModifiers(int modifiers) {
+		// more efficient than just calling supportedOnlyIn2() to check
+		if (this.modifiers != null) {
+			supportedOnlyIn2();
+		}
 		modifying();
-		this.modifiers = modifiers;
+		this.modifierFlags = modifiers;
 	}
 
+	/**
+	 * Returns the live ordered list of modifiers and annotations
+	 * of this declaration (added in 3.0 API).
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return the live list of modifiers and annotations
+	 *    (element type: <code>ExtendedModifier</code>)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
+	 * @since 3.0
+	 */ 
+	public List modifiers() {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.modifiers == null) {
+			unsupportedIn2();
+		}
+		return this.modifiers;
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return BASE_NODE_SIZE + 2 * 4;
+		return BASE_NODE_SIZE + 3 * 4;
 	}
 }
 

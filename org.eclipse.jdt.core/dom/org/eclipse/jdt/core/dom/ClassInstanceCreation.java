@@ -15,13 +15,50 @@ import java.util.List;
 
 /**
  * Class instance creation expression AST node type.
- *
+ * For 2.0 (corresponding to JLS2):
  * <pre>
  * ClassInstanceCreation:
- *        [ Expression <b>.</b> ] <b>new</b> TypeName
+ *        [ Expression <b>.</b> ] <b>new</b> Name
  *            <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
  *            [ AnonymousClassDeclaration ]
  * </pre>
+ * For 3.0 (corresponding to JLS3), the type name is generalized to
+ * a type so that parameterized types can be instantiated:
+ * <pre>
+ * ClassInstanceCreation:
+ *        [ Expression <b>.</b> ] <b>new</b> Type
+ *            <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
+ *            [ AnonymousClassDeclaration ]
+ * </pre>
+ * <p>
+ * Not all node arragements will represent legal Java constructs. In particular,
+ * it is nonsense if the type is a primitive type or an array type (primitive
+ * types cannot be instantiated, and array creations must be represented with
+ * <code>ArrayCreation</code> nodes). The normal use is when the type is a
+ * simple, qualified, or parameterized type.
+ * </p>
+ * <p>
+ * A type like "A.B" can be represented either of two ways:
+ * <ol>
+ * <li>
+ * <code>QualifiedType(SimpleType(SimpleName("A")),SimpleName("B"))</code>
+ * </li>
+ * <li>
+ * <code>SimpleType(QualifiedName(SimpleName("A"),SimpleName("B")))</code>
+ * </li>
+ * </ol>
+ * The first form is preferred when "A" is known to be a type (as opposed
+ * to a package). However, a parser cannot always determine this. Clients
+ * should be prepared to handle either rather than make assumptions.
+ * (Note also that the first form became possible as of 3.0; only the second
+ * form existed in 2.0 and 2.1.)
+ * </p>
+ * <p>
+ * Note: Support for generic types is an experimental language feature 
+ * under discussion in JSR-014 and under consideration for inclusion
+ * in the 1.5 release of J2SE. The support here is therefore tentative
+ * and subject to change.
+ * </p>
  * 
  * @since 2.0
  */
@@ -34,9 +71,15 @@ public class ClassInstanceCreation extends Expression {
 	
 	/**
 	 * The type name; lazily initialized; defaults to a unspecified,
-	 * legal type name.
+	 * legal type name. Not used in 3.0.
 	 */
 	private Name typeName = null;
+	
+	/**
+	 * The type; lazily initialized; defaults to a unspecified type.
+	 * @since 3.0
+	 */
+	private Type type = null;
 	
 	/**
 	 * The list of argument expressions (element type: 
@@ -54,7 +97,7 @@ public class ClassInstanceCreation extends Expression {
 	/**
 	 * Creates a new AST node for a class instance creation expression owned 
 	 * by the given AST. By default, there is no qualifying expression,
-	 * an unspecified (but legal) type name, an empty list of arguments,
+	 * an unspecified type, an empty list of arguments,
 	 * and does not declare an anonymous class.
 	 * <p>
 	 * N.B. This constructor is package-private; all subclasses must be 
@@ -83,7 +126,12 @@ public class ClassInstanceCreation extends Expression {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setExpression(
 			(Expression) ASTNode.copySubtree(target, getExpression()));
-		result.setName((Name) getName().clone(target));
+		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+			result.setName((Name) getName().clone(target));
+		}
+		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			result.setType((Type) getType().clone(target));
+		}
 		result.arguments().addAll(ASTNode.copySubtrees(target, arguments()));
 		result.setAnonymousClassDeclaration(
 			(AnonymousClassDeclaration) 
@@ -107,7 +155,12 @@ public class ClassInstanceCreation extends Expression {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getExpression());
-			acceptChild(visitor, getName());
+			if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+				acceptChild(visitor, getName());
+			}
+			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+				acceptChild(visitor, getType());
+			}
 			acceptChildren(visitor, arguments);
 			acceptChild(visitor, getAnonymousClassDeclaration());
 		}
@@ -145,11 +198,16 @@ public class ClassInstanceCreation extends Expression {
 
 	/**
 	 * Returns the name of the type instantiated in this class instance 
-	 * creation expression.
+	 * creation expression (2.0 API only).
 	 * 
 	 * @return the type name node
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
+	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by <code>getType</code>,
+	 * which returns a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
 	public Name getName() {
+	    supportedOnlyIn2();
 		if (typeName == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
@@ -161,7 +219,7 @@ public class ClassInstanceCreation extends Expression {
 	
 	/**
 	 * Sets the name of the type instantiated in this class instance 
-	 * creation expression.
+	 * creation expression (2.0 API only).
 	 * 
 	 * @param name the new type name
 	 * @exception IllegalArgumentException if:
@@ -169,13 +227,61 @@ public class ClassInstanceCreation extends Expression {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>`
 	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
+	 * TBD (jeem ) deprecated In the 3.0 API, this method is replaced by <code>setType</code>,
+	 * which expects a <code>Type</code> instead of a <code>Name</code>.
 	 */ 
 	public void setName(Name name) {
+	    supportedOnlyIn2();
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
 		replaceChild(this.typeName, name, false);
 		this.typeName = name;
+	}
+
+	/**
+	 * Returns the type instantiated in this class instance creation
+	 * expression (added in 3.0 API).
+	 * 
+	 * @return the type node
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
+	 * @since 3.0
+	 */ 
+	public Type getType() {
+	    unsupportedIn2();
+		if (this.type == null) {
+			// lazy initialize - use setter to ensure parent link set too
+			long count = getAST().modificationCount();
+			setType(new SimpleType(getAST()));
+			getAST().setModificationCount(count);
+		}
+		return this.type;
+	}
+	
+	/**
+	 * Sets the type instantiated in this class instance creation
+	 * expression (added in 3.0 API).
+	 * 
+	 * @param name the new type
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>`
+	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
+	 * @since 3.0
+	 */ 
+	public void setType(Type type) {
+	    unsupportedIn2();
+		if (type == null) {
+			throw new IllegalArgumentException();
+		}
+		replaceChild(this.type, type, false);
+		this.type = type;
 	}
 
 	/**
@@ -234,16 +340,19 @@ public class ClassInstanceCreation extends Expression {
 	 */
 	int memSize() {
 		// treat Code as free
-		return BASE_NODE_SIZE + 4 * 4;
+		return BASE_NODE_SIZE + 5 * 4;
 	}
 	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
+		// n.b. type == null for ast.API_LEVEL == 2.0
+		// n.b. typeName == null for ast.API_LEVEL >= 3.0
 		return 
 			memSize()
 			+ (typeName == null ? 0 : getName().treeSize())
+			+ (type == null ? 0 : getType().treeSize())
 			+ (optionalExpression == null ? 0 : getExpression().treeSize())
 			+ arguments.listSize()
 			+ (optionalAnonymousClassDeclaration == null ? 0 : getAnonymousClassDeclaration().treeSize());

@@ -23,7 +23,7 @@ import java.util.List;
  * </p>
  * <pre>
  * FieldDeclaration:
- *    [Javadoc] { Modifier } Type VariableDeclarationFragment
+ *    [Javadoc] { ExtendedModifier } Type VariableDeclarationFragment
  *         { <b>,</b> VariableDeclarationFragment } <b>;</b>
  * </pre>
  * <p>
@@ -37,14 +37,6 @@ import java.util.List;
  */
 public class FieldDeclaration extends BodyDeclaration {
 	
-	/**
-	 * Mask containing all legal modifiers for this construct.
-	 */
-	private static final int LEGAL_MODIFIERS = 
-		Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED
-		| Modifier.STATIC | Modifier.FINAL | Modifier.VOLATILE
-		| Modifier.TRANSIENT;
-
 	/**
 	 * The base type; lazily initialized; defaults to an unspecified,
 	 * legal type.
@@ -88,7 +80,12 @@ public class FieldDeclaration extends BodyDeclaration {
 		result.setSourceRange(this.getStartPosition(), this.getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
-		result.setModifiers(getModifiers());
+		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+			result.setModifiers(getModifiers());
+		}
+		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
+		}
 		result.setType((Type) getType().clone(target));
 		result.fragments().addAll(
 			ASTNode.copySubtrees(target, fragments()));
@@ -111,44 +108,15 @@ public class FieldDeclaration extends BodyDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getJavadoc());
+			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+				acceptChildren(visitor, this.modifiers);
+			}
 			acceptChild(visitor, getType());
-			acceptChildren(visitor, variableDeclarationFragments);
+			acceptChildren(visitor, this.variableDeclarationFragments);
 		}
 		visitor.endVisit(this);
 	}
 	
-	/**
-	 * Returns the modifiers explicitly specified on this declaration.
-	 * <p>
-	 * The following modifiers are valid for fields: public, private, protected,
-	 * static, final, volatile, and transient. Note that deprecated is not included.
-	 * </p>
-	 * 
-	 * @return the modifiers explicitly specified on this declaration
-	 * @since 2.0
-	 */ 
-	public int getModifiers() {
-		// method needed only for javadoc
-		return super.getModifiers();
-	}
-
-	/**
-	 * Sets the modifiers explicitly specified on this declaration.
-	 * <p>
-	 * The following modifiers are valid for fields: public, private, protected,
-	 * static, final, volatile, and transient. Note that deprecated is not included.
-	 * </p>
-	 * 
-	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
-	 * @since 2.0
-	 */ 
-	public void setModifiers(int modifiers) {
-		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
-			throw new IllegalArgumentException();
-		}
-		super.setModifiers(modifiers);
-	}
-
 	/**
 	 * Returns the base type declared in this field declaration.
 	 * <p>
@@ -160,13 +128,13 @@ public class FieldDeclaration extends BodyDeclaration {
 	 * @return the base type
 	 */ 
 	public Type getType() {
-		if (baseType == null) {
+		if (this.baseType == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
 			setType(getAST().newPrimitiveType(PrimitiveType.INT));
 			getAST().setModificationCount(count);
 		}
-		return baseType;
+		return this.baseType;
 	}
 
 	/**
@@ -198,7 +166,7 @@ public class FieldDeclaration extends BodyDeclaration {
 	 *    statement (element type: <code>VariableDeclarationFragment</code>)
 	 */ 
 	public List fragments() {
-		return variableDeclarationFragments;
+		return this.variableDeclarationFragments;
 	}
 		
 	/* (omit javadoc for this method)
@@ -232,8 +200,9 @@ public class FieldDeclaration extends BodyDeclaration {
 	int treeSize() {
 		return
 			memSize()
-			+ (getJavadoc() == null ? 0 : getJavadoc().treeSize())
-			+ (baseType == null ? 0 : getType().treeSize())
-			+ variableDeclarationFragments.listSize();
+			+ (this.optionalDocComment == null ? 0 : getJavadoc().treeSize())
+			+ (this.modifiers == null ? 0 : this.modifiers.listSize())
+			+ (this.baseType == null ? 0 : getType().treeSize())
+			+ this.variableDeclarationFragments.listSize();
 	}
 }

@@ -73,9 +73,9 @@ import java.util.Map;
  * to connect them together.
  * </p>
  * <p>
- * The static method <code>AST.parseCompilationUnit</code> parses a string
- * containing a Java compilation unit and returns the abstract syntax tree
- * for it. The resulting nodes carry a source range relating the node back to
+ * The class {@link ASTParser} parses a string
+ * containing a Java source code and returns an abstract syntax tree
+ * for it. The resulting nodes carry source ranges relating the node back to
  * the original source characters. The source range covers the construct
  * as a whole.
  * </p>
@@ -108,11 +108,43 @@ import java.util.Map;
  * problem (support for this is planned for a future release).
  * </p>
  * 
- * @see AST All AST.parseCompilationUnit(*) methods
+ * @see ASTParser
  * @see ASTVisitor
  * @since 2.0
  */
 public abstract class ASTNode {
+	/*
+	 * INSTRUCTIONS FOR ADDING NEW CONCRETE AST NODE TYPES
+	 * 
+	 * There are several things that need to be changed when a
+	 * new concrete AST node type (call it "FooBar"):
+	 * 
+	 * 1. Create the FooBar AST node type class.
+	 * The most effective way to do this is to copy a similar
+	 * existing concrete node class to get a template that
+     * includes all the framework methods that must be implemented.
+	 * 
+	 * 2. Add node type constant ASTNode.FOO_BAR.
+	 * Node constants are numbered consecutively. Add the
+	 * constant after the existing ones.
+	 * 
+	 * 3. Add AST.newFooBar() factory method.
+	 * 
+	 * 4. Add ASTVisitor.visit(FooBar) and endVisit(FooBar) methods.
+	 * 
+	 * 5. Add ASTMatcher.match(FooBar,Object) method.
+	 * 
+	 * 6. Ensure that SimpleName.isDeclaration() covers FooBar
+	 * nodes if required.
+	 * 
+	 * 7. Add NaiveASTFlattener.visit(FooBar) method to illustrate
+	 * how these nodes should be serialized.
+	 * 
+	 * 8. Update the AST test suites.
+	 * 
+	 * The next steps are to update AST.parse* to start generating
+	 * the new type of nodes.
+	 */
 	
 	/**
 	 * Node type constant indicating a node of type 
@@ -605,6 +637,202 @@ public abstract class ASTNode {
 	public static final int METHOD_REF_PARAMETER = 69;
 
 	/**
+	 * Node type constant indicating a node of type 
+	 * <code>EnhancedForStatement</code>.
+	 * <p>
+	 * Note: Enhanced for statements are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see EnhancedForStatement
+	 * @since 3.0
+	 */
+	public static final int ENHANCED_FOR_STATEMENT = 70;
+
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>EnumDeclaration</code>.
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see EnumDeclaration
+	 * @since 3.0
+	 */
+	public static final int ENUM_DECLARATION = 71;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>EnumConstantDeclaration</code>.
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see EnumConstantDeclaration
+	 * @since 3.0
+	 */
+	public static final int ENUM_CONSTANT_DECLARATION = 72;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>TypeParameter</code>.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see TypeParameter
+	 * @since 3.0
+	 */
+	public static final int TYPE_PARAMETER = 73;
+
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>ParameterizedType</code>.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see ParameterizedType
+	 * @since 3.0
+	 */
+	public static final int PARAMETERIZED_TYPE = 74;
+
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>QualifiedType</code>.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see QualifiedType
+	 * @since 3.0
+	 */
+	public static final int QUALIFIED_TYPE = 75;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>WildcardType</code>.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see WildcardType
+	 * @since 3.0
+	 */
+	public static final int WILDCARD_TYPE = 76;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>NormalAnnotation</code>.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see NormalAnnotation
+	 * @since 3.0
+	 */
+	public static final int NORMAL_ANNOTATION = 77;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>MarkerAnnotation</code>.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see MarkerAnnotation
+	 * @since 3.0
+	 */
+	public static final int MARKER_ANNOTATION = 78;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>SingleMemberAnnotation</code>.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see SingleMemberAnnotation
+	 * @since 3.0
+	 */
+	public static final int SINGLE_MEMBER_ANNOTATION = 79;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>MemberValuePair</code>.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see MemberValuePair
+	 * @since 3.0
+	 */
+	public static final int MEMBER_VALUE_PAIR = 80;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>AnnotationTypeDeclaration</code>.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see AnnotationTypeDeclaration
+	 * @since 3.0
+	 */
+	public static final int ANNOTATION_TYPE_DECLARATION = 81;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>AnnotationTypeMemberDeclaration</code>.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see AnnotationTypeMemberDeclaration
+	 * @since 3.0
+	 */
+	public static final int ANNOTATION_TYPE_MEMBER_DECLARATION = 82;
+	
+	/**
+	 * Node type constant indicating a node of type 
+	 * <code>Modifier</code>.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * @see Modifier
+	 * @since 3.0
+	 */
+	public static final int MODIFIER = 83;
+	
+	/**
 	 * Owning AST.
 	 */
 	private final AST owner;
@@ -1009,6 +1237,32 @@ public abstract class ASTNode {
 	}
 
 	/**
+     * Checks that this AST operation is not used when
+     * building level 2.0 ASTs.
+
+     * @exception UnsupportedOperationException
+	 * @since 3.0
+     */
+	final void unsupportedIn2() {
+	  if (this.owner.API_LEVEL == AST.LEVEL_2_0) {
+	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
+	  }
+	}
+
+	/**
+     * Checks that this AST operation is only used when
+     * building level 2.0 ASTs.
+
+     * @exception UnsupportedOperationException
+	 * @since 3.0
+     */
+	final void supportedOnlyIn2() {
+	  if (this.owner.API_LEVEL != AST.LEVEL_2_0) {
+	  	throw new UnsupportedOperationException("Operation not supported in 2.0 AST"); //$NON-NLS-1$
+	  }
+	}
+
+	/**
 	 * Sets or clears this node's parent node.
 	 * <p>
 	 * Note that this method is package-private. The pointer from a node
@@ -1308,9 +1562,9 @@ public abstract class ASTNode {
 	 * method uses object identity (==). Use <code>subtreeMatch</code> to
 	 * compare two subtrees for equality.
 	 * 
+	 * @param obj {@inheritdoc}
+	 * @return {@inheritdoc}
 	 * @see #subtreeMatch(ASTMatcher matcher, Object other)
-	 * @param obj the given object
-	 * @return true if the receiver is identical to the given object, false otherwise
 	 */
 	public final boolean equals(Object obj) {
 		return this == obj; // equivalent to Object.equals
@@ -1488,14 +1742,14 @@ public abstract class ASTNode {
 	 * where the source fragment corresponding to this node begins.
 	 * <p>
 	 * The parser supplies useful well-defined source ranges to the nodes it creates.
-	 * See {@link AST AST.parseCompilationUnit(*) methods} for details
+	 * See {@link ASTParser} for details
 	 * on precisely where source ranges begin and end.
 	 * </p>
 	 * 
 	 * @return the 0-based character index, or <code>-1</code>
 	 *    if no source position information is recorded for this node
 	 * @see #getLength()
-	 * @see AST All AST.parseCompilationUnit(*) methods
+	 * @see ASTParser
 	 */
 	public int getStartPosition() {
 		return this.startPosition;
@@ -1506,14 +1760,14 @@ public abstract class ASTNode {
 	 * where the source fragment corresponding to this node ends.
 	 * <p>
 	 * The parser supplies useful well-defined source ranges to the nodes it creates.
-	 * See {@link AST AST.parseCompilationUnit(*)} methods for details
+	 * See {@link ASTParser} methods for details
 	 * on precisely where source ranges begin and end.
 	 * </p>
 	 * 
 	 * @return a (possibly 0) length, or <code>0</code>
 	 *    if no source position information is recorded for this node
 	 * @see #getStartPosition()
-	 * @see AST All AST.parseCompilationUnit(*) methods
+	 * @see ASTParser
 	 */
 	public int getLength() {
 		return this.length;
@@ -1523,7 +1777,7 @@ public abstract class ASTNode {
 	 * Sets the source range of the original source file where the source
 	 * fragment corresponding to this node was found.
 	 * <p>
-	 * See {@link AST AST.parseCompilationUnit(*) methods} for details
+	 * See {@link ASTParser} for details
 	 * on precisely where source ranges begin and end.
 	 * </p>
 	 * 
@@ -1535,7 +1789,7 @@ public abstract class ASTNode {
 	 *    for this node
 	 * @see #getStartPosition()
 	 * @see #getLength()
-	 * @see AST All AST.parseCompilationUnit(*) methods
+	 * @see ASTParser
 	 */
 	public void setSourceRange(int startPosition, int length) {
 		if (startPosition >= 0 && length < 0) {

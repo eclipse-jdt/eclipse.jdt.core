@@ -156,6 +156,34 @@ public abstract class ASTVisitor {
 		// default implementation: do nothing
 	}
 
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(AnnotationTypeDeclaration node) {
+		return true;
+	}
+
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(AnnotationTypeMemberDeclaration node) {
+		return true;
+	}
+
 	public boolean visit(AnonymousClassDeclaration node) {
 		return true;
 	}
@@ -223,6 +251,45 @@ public abstract class ASTVisitor {
 	public boolean visit(EmptyStatement node) {
 		return true;
 	}
+	/** Visits the given node.
+	 * <p>
+	 * Note: Enhanced for statements are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(EnhancedForStatement node) {
+		return true;
+	}
+	/** Visits the given node.
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(EnumConstantDeclaration node) {
+		return true;
+	}
+	/** Visits the given node.
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(EnumDeclaration node) {
+		return true;
+	}
 	public boolean visit(ExpressionStatement node) {
 		return true;
 	}
@@ -283,10 +350,38 @@ public abstract class ASTVisitor {
 		return true;
 	}
 
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(MarkerAnnotation node) {
+		return true;
+	}
+
 	/**
 	 * @since 3.0
 	 */
 	public boolean visit(MemberRef node) {
+		return true;
+	}
+
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(MemberValuePair node) {
 		return true;
 	}
 
@@ -310,6 +405,35 @@ public abstract class ASTVisitor {
 	public boolean visit(MethodInvocation node) {
 		return true;
 	}
+
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(Modifier node) {
+		return true;
+	}
+
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(NormalAnnotation node) {
+		return true;
+	}
+
 	public boolean visit(NullLiteral node) {
 		return true;
 	}
@@ -317,6 +441,20 @@ public abstract class ASTVisitor {
 		return true;
 	}
 	public boolean visit(PackageDeclaration node) {
+		return true;
+	}
+
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(ParameterizedType node) {
 		return true;
 	}
 	public boolean visit(ParenthesizedExpression node) {
@@ -334,6 +472,19 @@ public abstract class ASTVisitor {
 	public boolean visit(QualifiedName node) {
 		return true;
 	}
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(QualifiedType node) {
+		return true;
+	}
 	public boolean visit(ReturnStatement node) {
 		return true;
 	}
@@ -341,6 +492,24 @@ public abstract class ASTVisitor {
 		return true;
 	}
 	public boolean visit(SimpleType node) {
+		return true;
+	}
+
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(SingleMemberAnnotation node) {
+		return true;
+	}
+
+	public boolean visit(SingleVariableDeclaration node) {
 		return true;
 	}
 	public boolean visit(StringLiteral node) {
@@ -397,7 +566,17 @@ public abstract class ASTVisitor {
 	public boolean visit(TypeLiteral node) {
 		return true;
 	}
-	public boolean visit(SingleVariableDeclaration node) {
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(TypeParameter node) {
 		return true;
 	}
 	public boolean visit(VariableDeclarationExpression node) {
@@ -411,6 +590,47 @@ public abstract class ASTVisitor {
 	}
 	public boolean visit(WhileStatement node) {
 		return true;
+	}
+	/** Visits the given node.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public boolean visit(WildcardType node) {
+		return true;
+	}
+
+	/** End of visit of the given node.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(AnnotationTypeDeclaration node) {
+		// default implementation: do nothing
+	}
+
+	/** End of visit of the given node.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(AnnotationTypeMemberDeclaration node) {
+		// default implementation: do nothing
 	}
 
 	public void endVisit(AnonymousClassDeclaration node) {
@@ -481,6 +701,45 @@ public abstract class ASTVisitor {
 	public void endVisit(EmptyStatement node) {
 		// default implementation: do nothing
 	}
+	/** End of visit of the given node.
+	 * <p>
+	 * Note: Enhanced for statements are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(EnhancedForStatement node) {
+		// default implementation: do nothing
+	}
+	/** End of visit of the given node.
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(EnumConstantDeclaration node) {
+		// default implementation: do nothing
+	}	
+	/** End of visit of the given node.
+	 * <p>
+	 * Note: Enum declarations are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(EnumDeclaration node) {
+		// default implementation: do nothing
+	}	
 	public void endVisit(ExpressionStatement node) {
 		// default implementation: do nothing
 	}
@@ -522,6 +781,20 @@ public abstract class ASTVisitor {
 		// default implementation: do nothing
 	}
 	
+	/** End of visit of the given node.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(MarkerAnnotation node) {
+		// default implementation: do nothing
+	}
+
 	/**
 	 * @since 3.0
 	 */
@@ -529,6 +802,20 @@ public abstract class ASTVisitor {
 		// default implementation: do nothing
 	}
 	
+	/** End of visit of the given node.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(MemberValuePair node) {
+		// default implementation: do nothing
+	}
+
 	/**
 	 * @since 3.0
 	 */
@@ -549,6 +836,35 @@ public abstract class ASTVisitor {
 	public void endVisit(MethodInvocation node) {
 		// default implementation: do nothing
 	}
+	
+	/** End of visit of the given node.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(Modifier node) {
+		// default implementation: do nothing
+	}
+
+	/** End of visit of the given node.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(NormalAnnotation node) {
+		// default implementation: do nothing
+	}
+
 	public void endVisit(NullLiteral node) {
 		// default implementation: do nothing
 	}
@@ -558,6 +874,19 @@ public abstract class ASTVisitor {
 	public void endVisit(PackageDeclaration node) {
 		// default implementation: do nothing
 	}
+	/** Ends visit of the given node.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(ParameterizedType node) {
+		// default implementation: do nothing
+	}	
 	public void endVisit(ParenthesizedExpression node) {
 		// default implementation: do nothing
 	}
@@ -573,6 +902,19 @@ public abstract class ASTVisitor {
 	public void endVisit(QualifiedName node) {
 		// default implementation: do nothing
 	}
+	/** Ends visit of the given node.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(QualifiedType node) {
+		// default implementation: do nothing
+	}	
 	public void endVisit(ReturnStatement node) {
 		// default implementation: do nothing
 	}
@@ -580,6 +922,24 @@ public abstract class ASTVisitor {
 		// default implementation: do nothing
 	}
 	public void endVisit(SimpleType node) {
+		// default implementation: do nothing
+	}
+	
+	/** End of visit of the given node.
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(SingleMemberAnnotation node) {
+		// default implementation: do nothing
+	}
+
+	public void endVisit(SingleVariableDeclaration node) {
 		// default implementation: do nothing
 	}
 	public void endVisit(StringLiteral node) {
@@ -636,7 +996,17 @@ public abstract class ASTVisitor {
 	public void endVisit(TypeLiteral node) {
 		// default implementation: do nothing
 	}
-	public void endVisit(SingleVariableDeclaration node) {
+	/** Ends visit of the given node.
+	 * <p>
+	 * Note: Support for generic types is an experimental language feature 
+	 * under discussion in JSR-014 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(TypeParameter node) {
 		// default implementation: do nothing
 	}
 	public void endVisit(VariableDeclarationExpression node) {
@@ -649,6 +1019,19 @@ public abstract class ASTVisitor {
 		// default implementation: do nothing
 	}
 	public void endVisit(WhileStatement node) {
+		// default implementation: do nothing
+	}
+	/** End of visit of the given node.
+	 * <p>
+	 * Note: Enhanced for statements are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @since 3.0
+	 */
+	public void endVisit(WildcardType node) {
 		// default implementation: do nothing
 	}
 }

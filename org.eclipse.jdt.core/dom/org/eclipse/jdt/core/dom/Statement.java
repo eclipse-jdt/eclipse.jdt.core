@@ -20,11 +20,37 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * There are many kinds of statements.
  * <p>
  * The grammar combines both Statement and BlockStatement.
+ * For 2.0 (corresponding to JLS2):
  * <pre>
  * Statement:
  *    Block
  *    IfStatement
  *    ForStatement
+ *    WhileStatement
+ *    DoStatement
+ *    TryStatement
+ *    SwitchStatement
+ *    SynchronizedStatement
+ *    ReturnStatement
+ *    ThrowStatement
+ *    BreakStatement
+ *    ContinueStatement
+ *    EmptyStatement
+ *    ExpressionStatement
+ *    LabeledStatement
+ *    AssertStatement
+ *    VariableDeclarationStatement
+ *    TypeDeclarationStatement
+ *    ConstructorInvocation
+ *    SuperConstructorInvocation
+ * </pre>
+ * For 3.0 (corresponding to JLS3), an enhanced for node type was added:
+ * <pre>
+ * Statement:
+ *    Block
+ *    IfStatement
+ *    ForStatement
+ *    EnhancedForStatement
  *    WhileStatement
  *    DoStatement
  *    TryStatement

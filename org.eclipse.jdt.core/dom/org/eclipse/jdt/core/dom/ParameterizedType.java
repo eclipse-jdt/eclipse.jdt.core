@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2003 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,12 +11,14 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.List;
+
 /**
- * Type node for a named class type, a named interface type, or a type variable.
- * <p>
- * This kind of node is used to convert a name (<code>Name</code>) into a type
- * (<code>Type</code>) by wrapping it.
- * </p>
+ * Type node for a parameterized type (added in 3.0 API).
+ * <pre>
+ * ParameterizedType:
+ *    Name <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b>
+ * </pre>
  * <p>
  * Note: Support for generic types is an experimental language feature 
  * under discussion in JSR-014 and under consideration for inclusion
@@ -24,9 +26,9 @@ package org.eclipse.jdt.core.dom;
  * and subject to change.
  * </p>
  * 
- * @since 2.0
+ * @since 3.0
  */
-public class SimpleType extends Type {
+public class ParameterizedType extends Type {
 	/** 
 	 * The type name node; lazily initialized; defaults to a type with
 	 * an unspecfied, but legal, name.
@@ -34,15 +36,23 @@ public class SimpleType extends Type {
 	private Name typeName = null;
 	
 	/**
-	 * Creates a new unparented node for a simple type owned by the given AST.
-	 * By default, an unspecified, but legal, name.
+	 * The type arguments (element type: <code>Type</code>). 
+	 * Defaults to an empty list.
+	 */
+	private ASTNode.NodeList typeArguments =
+		new ASTNode.NodeList(true, Type.class);
+	
+	/**
+	 * Creates a new unparented node for a parameterized type owned by the
+	 * given AST. By default, an unspecified, but legal, name, and no type
+	 * arguments.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
 	 * 
 	 * @param ast the AST that is to own this node
 	 */
-	SimpleType(AST ast) {
+	ParameterizedType(AST ast) {
 		super(ast);
 	}
 
@@ -50,16 +60,18 @@ public class SimpleType extends Type {
 	 * Method declared on ASTNode.
 	 */
 	public int getNodeType() {
-		return SIMPLE_TYPE;
+		return PARAMETERIZED_TYPE;
 	}
 
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone(AST target) {
-		SimpleType result = new SimpleType(target);
+		ParameterizedType result = new ParameterizedType(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setName((Name) (getName()).clone(target));
+		result.setName((Name) ((ASTNode) getName()).clone(target));
+		result.typeArguments().addAll(
+			ASTNode.copySubtrees(target, typeArguments()));
 		return result;
 	}
 
@@ -77,15 +89,17 @@ public class SimpleType extends Type {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
+			// visit children in normal left to right reading order
 			acceptChild(visitor, getName());
+			acceptChildren(visitor, typeArguments);
 		}
 		visitor.endVisit(this);
 	}
 	
 	/**
-	 * Returns the name of this simple type.
+	 * Returns the name of this parameterized type.
 	 * 
-	 * @return the name of this simple type
+	 * @return the name of this parameterized type
 	 */ 
 	public Name getName() {
 		if (typeName == null) {
@@ -98,9 +112,9 @@ public class SimpleType extends Type {
 	}
 	
 	/**
-	 * Sets the name of this simple type to the given name.
+	 * Sets the name of this parameterized type to the given name.
 	 * 
-	 * @param typeName the new name of this simple type
+	 * @param typeName the new name of this parameterized type
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
@@ -115,12 +129,24 @@ public class SimpleType extends Type {
 		this.typeName = typeName;
 	}
 
+	/**
+	 * Returns the live ordered list of type arguments of this parameterized 
+	 * type. For the parameterized type to be plausible, the list should contain
+	 * at least one element and not contain primitive types.
+	 * 
+	 * @return the live list of type arguments
+	 *    (element type: <code>Type</code>)
+	 */ 
+	public List typeArguments() {
+		return typeArguments;
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
 		// treat Code as free
-		return BASE_NODE_SIZE + 1 * 4;
+		return BASE_NODE_SIZE + 2 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -129,7 +155,8 @@ public class SimpleType extends Type {
 	int treeSize() {
 		return 
 			memSize()
-			+ (typeName == null ? 0 : getName().treeSize());
+			+ (typeName == null ? 0 : getName().treeSize())
+			+ typeArguments.listSize();
 	}
 }
 

@@ -39,7 +39,7 @@ package org.eclipse.jdt.core.dom;
  *   expression (<code>FieldAccess</code>) containing simple names. Either
  *   is acceptable, and there is no way to choose between them without
  *   information about what the names resolve to
- *   (<code>AST.parseCompilationUnit</code> may return either).</li>
+ *   (<code>ASTParser</code> may return either).</li>
  *   <li>Other expressions ending in an identifier, such as "foo().bar" can
  *   only be represented as field access expressions
  *   (<code>FieldAccess</code>).</li>

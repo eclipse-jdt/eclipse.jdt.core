@@ -11,15 +11,25 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * Single variable declaration AST node type. Single variable
  * declaration nodes are used in a limited number of places, including formal
  * parameter lists and catch clauses. They are not used for field declarations
  * and regular variable declaration statements.
- *
+ * For 2.0 (corresponding to JLS2):
  * <pre>
  * SingleVariableDeclaration:
  *    { Modifier } Type Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
+ * </pre>
+ * For 3.0 (corresponding to JLS3), the modifier flags were replaced by
+ * a list of modifier nodes (intermixed with annotations), and the variable arity
+ * indicator was added:
+ * <pre>
+ * SingleVariableDeclaration:
+ *    { ExtendedModifier } Type [ <b>...</b> ] Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
  * </pre>
  * 
  * @since 2.0
@@ -27,18 +37,19 @@ package org.eclipse.jdt.core.dom;
 public class SingleVariableDeclaration extends VariableDeclaration {
 	
 	/**
-	 * Mask containing all legal modifiers for this construct.
+	 * The extended modifiers (element type: <code>ExtendedModifier</code>). 
+	 * Null in 2.0. Added in 3.0; defaults to an empty list
+	 * (see constructor).
+	 * 
+	 * @since 3.0
 	 */
-	private static final int LEGAL_MODIFIERS = 
-		Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED
-		| Modifier.STATIC | Modifier.FINAL | Modifier.VOLATILE
-		| Modifier.TRANSIENT;
-
+	private ASTNode.NodeList modifiers = null;
+	
 	/**
 	 * The modifiers; bit-wise or of Modifier flags.
-	 * Defaults to none.
+	 * Defaults to none. Not used in 3.0.
 	 */
-	private int modifiers = Modifier.NONE;
+	private int modifierFlags = Modifier.NONE;
 	
 	/**
 	 * The variable name; lazily initialized; defaults to a unspecified,
@@ -51,6 +62,14 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * legal type.
 	 */
 	private Type type = null;
+
+	/**
+	 * Indicates the last parameter of a variable arity method;
+	 * defaults to false.
+	 * 
+	 * @since 3.0
+	 */
+	private boolean variableArity = false;
 
 	/**
 	 * The number of extra array dimensions that appear after the variable;
@@ -70,7 +89,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Creates a new AST node for a variable declaration owned by the given 
 	 * AST. By default, the variable declaration has: no modifiers, an 
 	 * unspecified (but legal) type, an unspecified (but legal) variable name, 
-	 * 0 dimensions after the variable; no initializer.
+	 * 0 dimensions after the variable; no initializer; not variable arity.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
@@ -79,6 +98,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */
 	SingleVariableDeclaration(AST ast) {
 		super(ast);
+		if (ast.API_LEVEL >= AST.LEVEL_3_0) {
+			this.modifiers = new ASTNode.NodeList(true, ExtendedModifier.class);
+		}
 	}
 
 	/* (omit javadoc for this method)
@@ -94,7 +116,13 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	ASTNode clone(AST target) {
 		SingleVariableDeclaration result = new SingleVariableDeclaration(target);
 		result.setSourceRange(this.getStartPosition(), this.getLength());
-		result.setModifiers(getModifiers());
+		if (getAST().API_LEVEL == AST.LEVEL_2_0) {
+			result.setModifiers(getModifiers());
+		}
+		if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
+			result.setVariableArity(isVariableArity());
+		}
 		result.setType((Type) getType().clone(target));
 		result.setExtraDimensions(getExtraDimensions());
 		result.setName((SimpleName) getName().clone(target));
@@ -118,6 +146,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
+			if (getAST().API_LEVEL >= AST.LEVEL_3_0) {
+				acceptChildren(visitor, this.modifiers);
+			}
 			acceptChild(visitor, getType());
 			acceptChild(visitor, getName());
 			acceptChild(visitor, getInitializer());
@@ -126,50 +157,96 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	}
 	
 	/**
-	 * Returns the modifiers explicitly specified on this declaration.
+	 * Returns the live ordered list of modifiers and annotations
+	 * of this declaration (added in 3.0 API).
 	 * <p>
 	 * Note that the final modifier is the only meaningful modifier for local
 	 * variable and formal parameter declarations.
+	 * </p>
+	 * <p>
+	 * Note: Support for annotation metadata is an experimental language feature 
+	 * under discussion in JSR-175 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return the live list of modifiers and annotations
+	 *    (element type: <code>ExtendedModifier</code>)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
+	 * @since 3.0
+	 */ 
+	public List modifiers() {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.modifiers == null) {
+			unsupportedIn2();
+		}
+		return this.modifiers;
+	}
+	
+	/**
+	 * Returns the modifiers explicitly specified on this declaration.
+	 * <p>
+	 * In the 3.0 API, this method is a convenience method that
+	 * computes these flags from <code>modifiers()</code>.
 	 * </p>
 	 * 
 	 * @return the bit-wise or of <code>Modifier</code> constants
 	 * @see Modifier
 	 */ 
 	public int getModifiers() {
-		return modifiers;
+		// more efficient than checking getAST().API_LEVEL
+		if (this.modifiers == null) {
+			// 2.0 behavior - bona fide property
+			return this.modifierFlags;
+		} else {
+			// 3.0 behavior - convenient method
+			// performance could be improved by caching computed flags
+			// but this would require tracking changes to this.modifiers
+			int flags = Modifier.NONE;
+			for (Iterator it = modifiers().iterator(); it.hasNext(); ) {
+				Object x = it.next();
+				if (x instanceof Modifier) {
+					flags |= ((Modifier) x).getKeyword().toFlagValue();
+				}
+			}
+			return flags;
+		}
 	}
 
 	/**
-	 * Sets the modifiers explicitly specified on this declaration.
+	 * Sets the modifiers explicitly specified on this declaration (2.0 API only).
 	 * <p>
-	 * The following modifiers are valid for fields: public, private, protected,
+	 * The following modifiers are meaningful for fields: public, private, protected,
 	 * static, final, volatile, and transient. For local variable and formal
 	 * parameter declarations, the only meaningful modifier is final.
 	 * </p>
 	 * 
 	 * @param modifiers the given modifiers (bit-wise or of <code>Modifier</code> constants)
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST later than 2.0
 	 * @see Modifier
-	 * @exception IllegalArgumentException if the modifiers are illegal
+	 * TBD (jeem ) - deprecated In the 3.0 API, this method is replaced by 
+	 * <code>modifiers()</code> which contains a list of 
+	 * a <code>Modifier</code> nodes.
 	 */ 
 	public void setModifiers(int modifiers) {
-		if ((modifiers & ~LEGAL_MODIFIERS) != 0) {
-			throw new IllegalArgumentException();
-		}
+	    supportedOnlyIn2();
 		modifying();
-		this.modifiers = modifiers;
+		this.modifierFlags = modifiers;
 	}
 
 	/* (omit javadoc for this method)
 	 * Method declared on VariableDeclaration.
 	 */ 
 	public SimpleName getName() {
-		if (variableName == null) {
+		if (this.variableName == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
 			setName(new SimpleName(getAST()));
 			getAST().setModificationCount(count);
 		}
-		return variableName;
+		return this.variableName;
 	}
 		
 	/* (omit javadoc for this method)
@@ -190,13 +267,60 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @return the type
 	 */ 
 	public Type getType() {
-		if (type == null) {
+		if (this.type == null) {
 			// lazy initialize - use setter to ensure parent link set too
 			long count = getAST().modificationCount();
 			setType(getAST().newPrimitiveType(PrimitiveType.INT));
 			getAST().setModificationCount(count);
 		}
-		return type;
+		return this.type;
+	}
+
+	/**
+	 * Returns whether this declaration declares the last parameter of
+	 * a variable arity method (added in 3.0 API).
+	 * <p>
+	 * Note: Varible arity methods are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @return <code>true</code> if this is a variable arity parameter declaration,
+	 *    and <code>false</code> otherwise
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * a 2.0 AST
+	 * @since 3.0
+	 */ 
+	public boolean isVariableArity() {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.modifiers == null) {
+			unsupportedIn2();
+		}
+		return this.variableArity;
+	}
+	
+	/**
+	 * Sets whether this declaration declares the last parameter of
+	 * a variable arity method (added in 3.0 API).
+	 * <p>
+	 * Note: Varible arity methods are an experimental language feature 
+	 * under discussion in JSR-201 and under consideration for inclusion
+	 * in the 1.5 release of J2SE. The support here is therefore tentative
+	 * and subject to change.
+	 * </p>
+	 * 
+	 * @param variableArity <code>true</code> if this is a variable arity
+	 *    parameter declaration, and <code>false</code> otherwise
+	 * @since 3.0
+	 */ 
+	public void setVariableArity(boolean variableArity) {
+		// more efficient than just calling unsupportedIn2() to check
+		if (this.modifiers == null) {
+			unsupportedIn2();
+		}
+		modifying();
+		this.variableArity = variableArity;
 	}
 
 	/**
@@ -223,7 +347,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @since 2.1
 	 */ 
 	public int getExtraDimensions() {
-		return extraArrayDimensions;
+		return this.extraArrayDimensions;
 	}
 
 	/* (omit javadoc for this method)
@@ -242,7 +366,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Method declared on VariableDeclaration.
 	 */ 
 	public Expression getInitializer() {
-		return optionalInitializer;
+		return this.optionalInitializer;
 	}
 	
 	/* (omit javadoc for this method)
@@ -260,7 +384,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */
 	int memSize() {
 		// treat Operator as free
-		return BASE_NODE_SIZE + 5 * 4;
+		return BASE_NODE_SIZE + 7 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -269,8 +393,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	int treeSize() {
 		return 
 			memSize()
-			+ (type == null ? 0 : getType().treeSize())
-			+ (variableName == null ? 0 : getName().treeSize())
-			+ (optionalInitializer == null ? 0 : getInitializer().treeSize());
+			+ (this.modifiers == null ? 0 : this.modifiers.listSize())
+			+ (this.type == null ? 0 : getType().treeSize())
+			+ (this.variableName == null ? 0 : getName().treeSize())
+			+ (this.optionalInitializer == null ? 0 : getInitializer().treeSize());
 	}
 }
