@@ -818,7 +818,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 		return method;
 
 	AbstractMethodDeclaration methodDecl = method.sourceMethod();
-
+	if (methodDecl == null) return null; // method could not be resolved in previous iteration
+	
 	TypeParameter[] typeParameters = methodDecl.typeParameters();
 	if (typeParameters != null) methodDecl.scope.connectTypeVariables(typeParameters);
 	TypeReference[] exceptionTypes = methodDecl.thrownExceptions;
