@@ -70,25 +70,32 @@ public class Disassembler implements IClassFileDisassembler {
 		if (mode == IClassFileDisassembler.DETAILED) {
 			int minorVersion = classFileReader.getMinorVersion();
 			int majorVersion = classFileReader.getMajorVersion();
+			buffer.append(Util.bind("disassembler.commentstart")); //$NON-NLS-1$
+			writeNewLine(buffer, lineSeparator, 0);
+			buffer.append(Util.bind("disassembler.begincommentline"));			 //$NON-NLS-1$
+			if (minorVersion == 3 && majorVersion == 45) {
+				buffer.append(Util.bind("classfileformat.targetoption", " 1.1"));//$NON-NLS-1$//$NON-NLS-2$
+			} else if (minorVersion == 0 && majorVersion == 46) {
+				buffer.append(Util.bind("classfileformat.targetoption", "1.2"));//$NON-NLS-1$//$NON-NLS-2$
+			} else if (minorVersion == 0 && majorVersion == 47) {
+				buffer.append(Util.bind("classfileformat.targetoption", "1.3"));//$NON-NLS-1$//$NON-NLS-2$
+			} else if (minorVersion == 0 && majorVersion == 48) {
+				buffer.append(Util.bind("classfileformat.targetoption", "1.4"));//$NON-NLS-1$//$NON-NLS-2$
+			}
+			writeNewLine(buffer, lineSeparator, 0);
+			buffer.append(Util.bind("disassembler.begincommentline"));			 //$NON-NLS-1$
 			buffer.append(Util.bind("classfileformat.magicnumber")); //$NON-NLS-1$
 			buffer.append(Integer.toHexString(classFileReader.getMagic()).toUpperCase());
 			writeNewLine(buffer, lineSeparator, 0);
+			buffer.append(Util.bind("disassembler.begincommentline"));			 //$NON-NLS-1$
 			buffer.append(Util.bind("classfileformat.minorversion")); //$NON-NLS-1$
 			buffer.append(minorVersion);
 			writeNewLine(buffer, lineSeparator, 0);
+			buffer.append(Util.bind("disassembler.begincommentline"));			 //$NON-NLS-1$
 			buffer.append(Util.bind("classfileformat.majorversion")); //$NON-NLS-1$
 			buffer.append(majorVersion);
 			writeNewLine(buffer, lineSeparator, 0);
-			if (minorVersion == 3 && majorVersion == 45) {
-				buffer.append(Util.bind("classfileformat.targetoption") +" 1.1");//$NON-NLS-1$//$NON-NLS-2$
-			} else if (minorVersion == 0 && majorVersion == 46) {
-				buffer.append(Util.bind("classfileformat.targetoption") + "1.2");//$NON-NLS-1$//$NON-NLS-2$
-			} else if (minorVersion == 0 && majorVersion == 47) {
-				buffer.append(Util.bind("classfileformat.targetoption") + "1.3");//$NON-NLS-1$//$NON-NLS-2$
-			} else if (minorVersion == 0 && majorVersion == 48) {
-				buffer.append(Util.bind("classfileformat.targetoption") + "1.4");//$NON-NLS-1$//$NON-NLS-2$
-			}
-			writeNewLine(buffer, lineSeparator, 0);
+			buffer.append(Util.bind("disassembler.commentend")); //$NON-NLS-1$
 			writeNewLine(buffer, lineSeparator, 0);
 		}
 		ISourceAttribute sourceAttribute = classFileReader.getSourceFileAttribute();
