@@ -260,7 +260,7 @@ public class CompilationUnit extends ASTNode {
 		int hi = length - 1;
 		if (position > lineEndTable[hi]) {
 			// position beyond the end of last record line separator
-			return length;
+			return length + 1;
 		}
 		// assert lineEndTable[low]  < position <= lineEndTable[hi]
 		// && low == 0 && hi == length - 1 && low < hi
