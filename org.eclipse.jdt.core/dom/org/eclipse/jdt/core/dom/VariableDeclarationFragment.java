@@ -219,9 +219,10 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 		if (variableName == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.variableName, variableName, NAME_PROPERTY);
+		ASTNode oldChild = this.variableName;
+		preReplaceChild(oldChild, variableName, NAME_PROPERTY);
 		this.variableName = variableName;
-		postReplaceChild(this.variableName, variableName, NAME_PROPERTY);
+		postReplaceChild(oldChild, variableName, NAME_PROPERTY);
 	}
 
 	/**
@@ -275,9 +276,10 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 * Method declared on VariableDeclaration.
 	 */ 
 	public void setInitializer(Expression initializer) {
-		preReplaceChild(this.optionalInitializer, initializer, INITIALIZER_PROPERTY);
+		ASTNode oldChild = this.optionalInitializer;
+		preReplaceChild(oldChild, initializer, INITIALIZER_PROPERTY);
 		this.optionalInitializer = initializer;
-		postReplaceChild(this.optionalInitializer, initializer, INITIALIZER_PROPERTY);
+		postReplaceChild(oldChild, initializer, INITIALIZER_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

@@ -197,9 +197,10 @@ public class MemberValuePair extends ASTNode {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.name, name, NAME_PROPERTY);
+		ASTNode oldChild = this.name;
+		preReplaceChild(oldChild, name, NAME_PROPERTY);
 		this.name = name;
-		postReplaceChild(this.name, name, NAME_PROPERTY);
+		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 
 	/**
@@ -231,9 +232,10 @@ public class MemberValuePair extends ASTNode {
 		if (value == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.value, value, VALUE_PROPERTY);
+		ASTNode oldChild = this.value;
+		preReplaceChild(oldChild, value, VALUE_PROPERTY);
 		this.value = value;
-		postReplaceChild(this.value, value, VALUE_PROPERTY);
+		postReplaceChild(oldChild, value, VALUE_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

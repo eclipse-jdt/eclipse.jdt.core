@@ -424,9 +424,10 @@ public class InfixExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.leftOperand, expression, LEFT_OPERAND_PROPERTY);
+		ASTNode oldChild = this.leftOperand;
+		preReplaceChild(oldChild, expression, LEFT_OPERAND_PROPERTY);
 		this.leftOperand = expression;
-		postReplaceChild(this.leftOperand, expression, LEFT_OPERAND_PROPERTY);
+		postReplaceChild(oldChild, expression, LEFT_OPERAND_PROPERTY);
 	}
 
 	/**
@@ -458,9 +459,10 @@ public class InfixExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.rightOperand, expression, RIGHT_OPERAND_PROPERTY);
+		ASTNode oldChild = this.rightOperand;
+		preReplaceChild(oldChild, expression, RIGHT_OPERAND_PROPERTY);
 		this.rightOperand = expression;
-		postReplaceChild(this.rightOperand, expression, RIGHT_OPERAND_PROPERTY);
+		postReplaceChild(oldChild, expression, RIGHT_OPERAND_PROPERTY);
 	}
 	
 	/**

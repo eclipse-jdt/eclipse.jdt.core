@@ -223,9 +223,10 @@ public class TypeDeclarationStatement extends Statement {
 		}
 		// a TypeDeclarationStatement may occur inside an 
 		// TypeDeclaration - must check cycles
-		preReplaceChild(this.typeDecl, decl, TYPE_DECLARATION_PROPERTY);
+		ASTNode oldChild = this.typeDecl;
+		preReplaceChild(oldChild, decl, TYPE_DECLARATION_PROPERTY);
 		this.typeDecl= decl;
-		postReplaceChild(this.typeDecl, decl, TYPE_DECLARATION_PROPERTY);
+		postReplaceChild(oldChild, decl, TYPE_DECLARATION_PROPERTY);
 	}
 	
 	/**

@@ -201,9 +201,10 @@ public final class SingleMemberAnnotation extends Annotation {
 		if (value == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.value, value, VALUE_PROPERTY);
+		ASTNode oldChild = this.value;
+		preReplaceChild(oldChild, value, VALUE_PROPERTY);
 		this.value = value;
-		postReplaceChild(this.value, value, VALUE_PROPERTY);
+		postReplaceChild(oldChild, value, VALUE_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

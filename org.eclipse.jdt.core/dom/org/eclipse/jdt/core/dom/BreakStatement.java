@@ -160,9 +160,10 @@ public class BreakStatement extends Statement {
 	 * </ul>
 	 */ 
 	public void setLabel(SimpleName label) {
-		preReplaceChild(this.optionalLabel, label, LABEL_PROPERTY);
+		ASTNode oldChild = this.optionalLabel;
+		preReplaceChild(oldChild, label, LABEL_PROPERTY);
 		this.optionalLabel = label;
-		postReplaceChild(this.optionalLabel, label, LABEL_PROPERTY);
+		postReplaceChild(oldChild, label, LABEL_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

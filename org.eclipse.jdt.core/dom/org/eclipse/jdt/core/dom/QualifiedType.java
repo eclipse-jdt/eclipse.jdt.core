@@ -216,9 +216,10 @@ public class QualifiedType extends Type {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.qualifier, type, QUALIFIER_PROPERTY);
+		ASTNode oldChild = this.qualifier;
+		preReplaceChild(oldChild, type, QUALIFIER_PROPERTY);
 		this.qualifier = type;
-		postReplaceChild(this.qualifier, type, QUALIFIER_PROPERTY);
+		postReplaceChild(oldChild, type, QUALIFIER_PROPERTY);
 	}
 
 	/**
@@ -249,9 +250,10 @@ public class QualifiedType extends Type {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.name, name, NAME_PROPERTY);
+		ASTNode oldChild = this.name;
+		preReplaceChild(oldChild, name, NAME_PROPERTY);
 		this.name = name;
-		postReplaceChild(this.name, name, NAME_PROPERTY);
+		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

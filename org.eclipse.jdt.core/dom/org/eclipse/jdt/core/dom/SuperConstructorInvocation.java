@@ -190,9 +190,10 @@ public class SuperConstructorInvocation extends Statement {
 	 * </ul>
 	 */ 
 	public void setExpression(Expression expression) {
-		preReplaceChild(this.optionalExpression, expression, EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.optionalExpression;
+		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.optionalExpression = expression;
-		postReplaceChild(this.optionalExpression, expression, EXPRESSION_PROPERTY);
+		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**

@@ -165,9 +165,10 @@ public abstract class BodyDeclaration extends ASTNode {
 	 */
 	public void setJavadoc(Javadoc docComment) {
 		ChildPropertyDescriptor p = internalJavadocProperty();
-		preReplaceChild(this.optionalDocComment, docComment, p);
+		ASTNode oldChild = this.optionalDocComment;
+		preReplaceChild(oldChild, docComment, p);
 		this.optionalDocComment = docComment;
-		postReplaceChild(this.optionalDocComment, docComment, p);
+		postReplaceChild(oldChild, docComment, p);
 	}
 
 	/**

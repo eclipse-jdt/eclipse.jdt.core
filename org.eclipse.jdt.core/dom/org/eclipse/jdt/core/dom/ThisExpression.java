@@ -163,9 +163,10 @@ public class ThisExpression extends Expression {
 	 * </ul>
 	 */ 
 	public void setQualifier(Name name) {
-		preReplaceChild(this.optionalQualifier, name, QUALIFIER_PROPERTY);
+		ASTNode oldChild = this.optionalQualifier;
+		preReplaceChild(oldChild, name, QUALIFIER_PROPERTY);
 		this.optionalQualifier = name;
-		postReplaceChild(this.optionalQualifier, name, QUALIFIER_PROPERTY);
+		postReplaceChild(oldChild, name, QUALIFIER_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

@@ -1930,9 +1930,10 @@ public abstract class ASTNode {
 	 * old child of this node with another node.
      * Here is the code pattern found in all AST node subclasses:
      * <pre>
-     * preReplaceChild(this.foo, newFoo, FOO_PROPERTY);
+     * ASTNode oldChild = this.foo;
+     * preReplaceChild(oldChild, newFoo, FOO_PROPERTY);
      * this.foo = newFoo;
-     * postReplaceChild(this.foo, newFoo, FOO_PROPERTY);
+     * postReplaceChild(oldChild, newFoo, FOO_PROPERTY);
      * </pre>
      * The first part (preReplaceChild) does all the precondition checks,
      * reports pre-delete events, and changes parent links.

@@ -165,9 +165,10 @@ public class TypeLiteral extends Expression {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.type, type, TYPE_PROPERTY);
+		ASTNode oldChild = this.type;
+		preReplaceChild(oldChild, type, TYPE_PROPERTY);
 		this.type = type;
-		postReplaceChild(this.type, type, TYPE_PROPERTY);
+		postReplaceChild(oldChild, type, TYPE_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

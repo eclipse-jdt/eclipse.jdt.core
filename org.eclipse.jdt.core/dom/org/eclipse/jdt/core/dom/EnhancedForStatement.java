@@ -224,9 +224,10 @@ public class EnhancedForStatement extends Statement {
 		if (parameter == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.parameter, parameter, PARAMETER_PROPERTY);
+		ASTNode oldChild = this.parameter;
+		preReplaceChild(oldChild, parameter, PARAMETER_PROPERTY);
 		this.parameter = parameter;
-		postReplaceChild(this.parameter, parameter, PARAMETER_PROPERTY);
+		postReplaceChild(oldChild, parameter, PARAMETER_PROPERTY);
 	}
 	
 	/**
@@ -258,9 +259,10 @@ public class EnhancedForStatement extends Statement {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.expression;
+		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.expression = expression;
-		postReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
+		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -292,9 +294,10 @@ public class EnhancedForStatement extends Statement {
 		if (statement == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.body, statement, BODY_PROPERTY);
+		ASTNode oldChild = this.body;
+		preReplaceChild(oldChild, statement, BODY_PROPERTY);
 		this.body = statement;
-		postReplaceChild(this.body, statement, BODY_PROPERTY);
+		postReplaceChild(oldChild, statement, BODY_PROPERTY);
 	}
 	
 	/**

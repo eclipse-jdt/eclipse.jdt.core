@@ -193,9 +193,10 @@ public class SynchronizedStatement extends Statement {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.expression;
+		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.expression = expression;
-		postReplaceChild(this.expression, expression, EXPRESSION_PROPERTY);
+		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -227,9 +228,10 @@ public class SynchronizedStatement extends Statement {
 		if (block == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.body, block, BODY_PROPERTY);
+		ASTNode oldChild = this.body;
+		preReplaceChild(oldChild, block, BODY_PROPERTY);
 		this.body = block;
-		postReplaceChild(this.body, block, BODY_PROPERTY);
+		postReplaceChild(oldChild, block, BODY_PROPERTY);
 	}
 	
 	/* (omit javadoc for this method)

@@ -382,9 +382,10 @@ public class VariableDeclarationExpression extends Expression {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.baseType, type, TYPE_PROPERTY);
+		ASTNode oldChild = this.baseType;
+		preReplaceChild(oldChild, type, TYPE_PROPERTY);
 		this.baseType = type;
-		postReplaceChild(this.baseType, type, TYPE_PROPERTY);
+		postReplaceChild(oldChild, type, TYPE_PROPERTY);
 	}
 
 	/**

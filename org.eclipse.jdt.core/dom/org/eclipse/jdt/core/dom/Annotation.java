@@ -96,9 +96,10 @@ public abstract class Annotation extends ExtendedModifier {
 			throw new IllegalArgumentException();
 		}
 		ChildPropertyDescriptor p = internalTypeNameProperty();
-		preReplaceChild(this.typeName, typeName, p);
+		ASTNode oldChild = this.typeName;
+		preReplaceChild(oldChild, typeName, p);
 		this.typeName = typeName;
-		postReplaceChild(this.typeName, typeName, p);
+		postReplaceChild(oldChild, typeName, p);
 	}
 
 	/**

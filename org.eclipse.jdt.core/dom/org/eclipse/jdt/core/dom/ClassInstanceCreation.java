@@ -339,9 +339,10 @@ public class ClassInstanceCreation extends Expression {
 	public void setExpression(Expression expression) {
 		// a ClassInstanceCreation may occur inside an Expression
 		// must check cycles
-		preReplaceChild(this.optionalExpression, expression, EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.optionalExpression;
+		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.optionalExpression = expression;
-		postReplaceChild(this.optionalExpression, expression, EXPRESSION_PROPERTY);
+		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -384,9 +385,10 @@ public class ClassInstanceCreation extends Expression {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.typeName, name, NAME_PROPERTY);
+		ASTNode oldChild = this.typeName;
+		preReplaceChild(oldChild, name, NAME_PROPERTY);
 		this.typeName = name;
-		postReplaceChild(this.typeName, name, NAME_PROPERTY);
+		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 
 	/**
@@ -427,9 +429,10 @@ public class ClassInstanceCreation extends Expression {
 		if (type == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.type, type, TYPE_PROPERTY);
+		ASTNode oldChild = this.type;
+		preReplaceChild(oldChild, type, TYPE_PROPERTY);
 		this.type = type;
-		postReplaceChild(this.type, type, TYPE_PROPERTY);
+		postReplaceChild(oldChild, type, TYPE_PROPERTY);
 	}
 
 	/**
@@ -461,9 +464,10 @@ public class ClassInstanceCreation extends Expression {
 	 *    if none
 	 */ 
 	public void setAnonymousClassDeclaration(AnonymousClassDeclaration decl) {
-		preReplaceChild(this.optionalAnonymousClassDeclaration, decl, ANONYMOUS_CLASS_DECLARATION_PROPERTY);
+		ASTNode oldChild = this.optionalAnonymousClassDeclaration;
+		preReplaceChild(oldChild, decl, ANONYMOUS_CLASS_DECLARATION_PROPERTY);
 		this.optionalAnonymousClassDeclaration = decl;
-		postReplaceChild(this.optionalAnonymousClassDeclaration, decl, ANONYMOUS_CLASS_DECLARATION_PROPERTY);
+		postReplaceChild(oldChild, decl, ANONYMOUS_CLASS_DECLARATION_PROPERTY);
 	}
 
 	/**

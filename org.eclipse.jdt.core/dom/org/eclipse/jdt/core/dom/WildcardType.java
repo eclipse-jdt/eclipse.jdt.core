@@ -246,9 +246,10 @@ public class WildcardType extends Type {
 	 * @see #getBound()
 	 */ 
 	public void setBound(Type type) {
-		preReplaceChild(this.optionalBound, type, BOUND_PROPERTY);
+		ASTNode oldChild = this.optionalBound;
+		preReplaceChild(oldChild, type, BOUND_PROPERTY);
 		this.optionalBound = type;
-		postReplaceChild(this.optionalBound, type, BOUND_PROPERTY);
+		postReplaceChild(oldChild, type, BOUND_PROPERTY);
 	}
 
 	/**

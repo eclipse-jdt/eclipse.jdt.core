@@ -233,9 +233,10 @@ public class ArrayCreation extends Expression {
 			throw new IllegalArgumentException();
 		}
 		// an ArrayCreation cannot occur inside a ArrayType - cycles not possible
-		preReplaceChild(this.arrayType, type, TYPE_PROPERTY);
+		ASTNode oldChild = this.arrayType;
+		preReplaceChild(oldChild, type, TYPE_PROPERTY);
 		this.arrayType = type;
-		postReplaceChild(this.arrayType, type, TYPE_PROPERTY);
+		postReplaceChild(oldChild, type, TYPE_PROPERTY);
 	}
 	
 	/**
@@ -275,9 +276,10 @@ public class ArrayCreation extends Expression {
 	public void setInitializer(ArrayInitializer initializer) {
 		// an ArrayCreation may occur inside an ArrayInitializer
 		// must check cycles
-		preReplaceChild(this.optionalInitializer, initializer, INITIALIZER_PROPERTY);
+		ASTNode oldChild = this.optionalInitializer;
+		preReplaceChild(oldChild, initializer, INITIALIZER_PROPERTY);
 		this.optionalInitializer = initializer;
-		postReplaceChild(this.optionalInitializer, initializer, INITIALIZER_PROPERTY);
+		postReplaceChild(oldChild, initializer, INITIALIZER_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

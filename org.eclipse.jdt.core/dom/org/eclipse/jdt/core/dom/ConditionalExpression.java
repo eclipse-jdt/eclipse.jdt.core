@@ -219,9 +219,10 @@ public class ConditionalExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.conditionExpression, expression, EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.conditionExpression;
+		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.conditionExpression = expression;
-		postReplaceChild(this.conditionExpression, expression, EXPRESSION_PROPERTY);
+		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 	
 	/**
@@ -253,9 +254,10 @@ public class ConditionalExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.thenExpression, expression, THEN_EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.thenExpression;
+		preReplaceChild(oldChild, expression, THEN_EXPRESSION_PROPERTY);
 		this.thenExpression = expression;
-		postReplaceChild(this.thenExpression, expression, THEN_EXPRESSION_PROPERTY);
+		postReplaceChild(oldChild, expression, THEN_EXPRESSION_PROPERTY);
 	}
 
 	/**
@@ -287,9 +289,10 @@ public class ConditionalExpression extends Expression {
 		if (expression == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.elseExpression, expression, ELSE_EXPRESSION_PROPERTY);
+		ASTNode oldChild = this.elseExpression;
+		preReplaceChild(oldChild, expression, ELSE_EXPRESSION_PROPERTY);
 		this.elseExpression = expression;
-		postReplaceChild(this.elseExpression, expression, ELSE_EXPRESSION_PROPERTY);
+		postReplaceChild(oldChild, expression, ELSE_EXPRESSION_PROPERTY);
 	}
 
 	/* (omit javadoc for this method)

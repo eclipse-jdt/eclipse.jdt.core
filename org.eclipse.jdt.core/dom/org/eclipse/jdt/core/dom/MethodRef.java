@@ -220,9 +220,10 @@ public class MethodRef extends ASTNode implements IDocElement {
 	 * </ul>
 	 */ 
 	public void setQualifier(Name name) {
-		preReplaceChild(this.optionalQualifier, name, QUALIFIER_PROPERTY);
+		ASTNode oldChild = this.optionalQualifier;
+		preReplaceChild(oldChild, name, QUALIFIER_PROPERTY);
 		this.optionalQualifier = name;
-		postReplaceChild(this.optionalQualifier, name, QUALIFIER_PROPERTY);
+		postReplaceChild(oldChild, name, QUALIFIER_PROPERTY);
 	}
 
 	/**
@@ -255,9 +256,10 @@ public class MethodRef extends ASTNode implements IDocElement {
 		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		preReplaceChild(this.methodName, name, NAME_PROPERTY);
+		ASTNode oldChild = this.methodName;
+		preReplaceChild(oldChild, name, NAME_PROPERTY);
 		this.methodName = name;
-		postReplaceChild(this.methodName, name, NAME_PROPERTY);
+		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 
 	/**
