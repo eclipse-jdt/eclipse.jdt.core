@@ -33,6 +33,10 @@ public TypeBinding getTypeBinding(Scope scope) {
 	// it can be a package, type or member type
 	Binding binding = scope.getTypeOrPackage(tokens);
 	if (!binding.isValidBinding()) {
+			// tolerate some error cases
+			if (binding.problemId() == ProblemReasons.NotVisible){
+				throw new SelectionNodeFound(binding);
+			}
 		scope.problemReporter().invalidType(this, (TypeBinding) binding);
 		throw new SelectionNodeFound();
 	}

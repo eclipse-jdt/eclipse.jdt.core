@@ -33,7 +33,10 @@ public SelectionOnExplicitConstructorCall(int accessMode) {
 public void resolve(BlockScope scope) {
 	super.resolve(scope);
 
-	if (binding == null || !binding.isValidBinding())
+	// tolerate some error cases
+	if (binding == null || 
+			!(binding.isValidBinding() ||
+				binding.problemId() == ProblemReasons.NotVisible))
 		throw new SelectionNodeFound();
 	else
 		throw new SelectionNodeFound(binding);

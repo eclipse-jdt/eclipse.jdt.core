@@ -31,8 +31,13 @@ public class SelectionOnMessageSend extends MessageSend {
 	public TypeBinding resolveType(BlockScope scope) {
 		super.resolveType(scope);
 
-		// tolerate non visible match
-		if (binding == null || !(binding.isValidBinding() || binding.problemId() == ProblemReasons.NotVisible))
+		// tolerate some error cases
+		if (binding == null || 
+				!(binding.isValidBinding() || 
+					binding.problemId() == ProblemReasons.NotVisible
+					|| binding.problemId() == ProblemReasons.InheritedNameHidesEnclosingName
+					|| binding.problemId() == ProblemReasons.NonStaticReferenceInConstructorInvocation
+					|| binding.problemId() == ProblemReasons.NonStaticReferenceInStaticContext))
 			throw new SelectionNodeFound();
 		else
 			throw new SelectionNodeFound(binding);

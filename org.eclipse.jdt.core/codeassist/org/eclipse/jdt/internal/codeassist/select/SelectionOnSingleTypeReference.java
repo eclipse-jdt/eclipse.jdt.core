@@ -39,7 +39,10 @@ public TypeBinding getTypeBinding(Scope scope) {
 public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
 	super.resolveTypeEnclosing(scope, enclosingType);
 
-	if (binding == null || !binding.isValidBinding())
+		// tolerate some error cases
+		if (binding == null || 
+				!(binding.isValidBinding() || 
+					binding.problemId() == ProblemReasons.NotVisible))
 		throw new SelectionNodeFound();
 	else
 		throw new SelectionNodeFound(binding);
