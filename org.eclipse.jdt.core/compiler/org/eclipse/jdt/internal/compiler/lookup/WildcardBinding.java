@@ -182,6 +182,13 @@ public class WildcardBinding extends ReferenceBinding {
     /**
 	 * Returns true if the type is a wildcard
 	 */
+	public boolean isUnboundWildcard() {
+	    return this.kind == Wildcard.UNBOUND;
+	}
+	
+    /**
+	 * Returns true if the type is a wildcard
+	 */
 	public boolean isWildcard() {
 	    return true;
 	}
@@ -272,15 +279,15 @@ public class WildcardBinding extends ReferenceBinding {
      */
     public ReferenceBinding[] superInterfaces() {
         if (this.superInterfaces == null) {
-			TypeBinding superType = null;
 			if (this.kind == Wildcard.EXTENDS) {
-				superType = this.bound;
+				if (this.bound.isInterface()) {
+					return new ReferenceBinding[]{ (ReferenceBinding)this.bound };
+				} else {
+					return NoSuperInterfaces;
+				}
 			} else if (this.typeVariable() != null) {
-				superType = this.typeVariable.firstBound; // TODO (philippe) shouldn't it retrieve variable superinterfaces ?
+				return this.typeVariable.superInterfaces();
 			}
-			this.superInterfaces = superType != null && superType.isInterface()
-				? new ReferenceBinding[] { (ReferenceBinding) superType }
-				: NoSuperInterfaces;
         }
         return this.superInterfaces;
     }

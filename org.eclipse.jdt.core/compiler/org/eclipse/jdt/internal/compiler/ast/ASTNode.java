@@ -199,8 +199,8 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		}
 		if (unsafeWildcardInvocation) {
 		    scope.problemReporter().wildcardInvocation((ASTNode)invocationSite, receiverType, method, argumentTypes);
-		} else if (receiverType.isRawType() && method.hasSubstitutedParameters()) {
-		    scope.problemReporter().unsafeRawInvocation((ASTNode)invocationSite, receiverType, method);
+		} else if (!receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && method.hasSubstitutedParameters()) {
+		    scope.problemReporter().unsafeRawInvocation((ASTNode)invocationSite, method);
 		}
 	}
 	public ASTNode concreteStatement() {

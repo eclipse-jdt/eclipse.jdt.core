@@ -1281,12 +1281,12 @@ public void testMethodWithError13() throws CoreException {
 
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler15/src/test/Y.java (at line 5)\n" + 
-			"	someX.bar(null);\n" + 
-			"	^^^^^^^^^^^^^^^\n" + 
-			"Unsafe type operation: Should not invoke the method bar(Y1[]) of raw type X. References to generic type X<T,U> should be parameterized\n" + 
-			"----------\n"
+		"----------\n" + 
+		"1. WARNING in /Reconciler15/src/test/Y.java (at line 5)\n" + 
+		"	someX.bar(null);\n" + 
+		"	^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method bar(Object[]) belongs to the raw type X. References to generic type X<T,U> should be parameterized\n" + 
+		"----------\n"
 		);
 	} finally {
 		if (workingCopy1 != null) {

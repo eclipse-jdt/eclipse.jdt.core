@@ -4499,19 +4499,19 @@ public void unsafeRawFieldAssignment(FieldBinding rawField, TypeBinding expressi
 		location.sourceStart,
 		location.sourceEnd);    
 }
-public void unsafeRawInvocation(ASTNode location, TypeBinding receiverType, MethodBinding method) {
-    if (method.isConstructor()) {
+public void unsafeRawInvocation(ASTNode location, MethodBinding rawMethod) {
+    if (rawMethod.isConstructor()) {
 		this.handle(
 			IProblem.UnsafeRawConstructorInvocation,
 			new String[] {
-				new String(receiverType.readableName()),
-				typesAsString(method.original().isVarargs(), method.original().parameters, false),
-				new String(receiverType.erasure().readableName()),
+				new String(rawMethod.declaringClass.readableName()),
+				typesAsString(rawMethod.original().isVarargs(), rawMethod.parameters, false),
+				new String(rawMethod.declaringClass.erasure().readableName()),
 			 }, 
 			new String[] {
-				new String(receiverType.shortReadableName()),
-				typesAsString(method.original().isVarargs(), method.original().parameters, true),
-				new String(receiverType.erasure().shortReadableName()),
+				new String(rawMethod.declaringClass.shortReadableName()),
+				typesAsString(rawMethod.original().isVarargs(), rawMethod.parameters, true),
+				new String(rawMethod.declaringClass.erasure().shortReadableName()),
 			 }, 
 			location.sourceStart,
 			location.sourceEnd);    
@@ -4519,16 +4519,16 @@ public void unsafeRawInvocation(ASTNode location, TypeBinding receiverType, Meth
 		this.handle(
 			IProblem.UnsafeRawMethodInvocation,
 			new String[] {
-				new String(method.selector),
-				typesAsString(method.original().isVarargs(), method.original().parameters, false),
-				new String(receiverType.readableName()),
-				new String(receiverType.erasure().readableName()),
+				new String(rawMethod.selector),
+				typesAsString(rawMethod.original().isVarargs(), rawMethod.parameters, false),
+				new String(rawMethod.declaringClass.readableName()),
+				new String(rawMethod.declaringClass.erasure().readableName()),
 			 }, 
 			new String[] {
-				new String(method.selector),
-				typesAsString(method.original().isVarargs(), method.original().parameters, true),
-				new String(receiverType.shortReadableName()),
-				new String(receiverType.erasure().shortReadableName()),
+				new String(rawMethod.selector),
+				typesAsString(rawMethod.original().isVarargs(), rawMethod.parameters, true),
+				new String(rawMethod.declaringClass.shortReadableName()),
+				new String(rawMethod.declaringClass.erasure().shortReadableName()),
 			 }, 
 			location.sourceStart,
 			location.sourceEnd);    

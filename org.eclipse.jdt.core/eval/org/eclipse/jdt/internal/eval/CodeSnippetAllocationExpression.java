@@ -207,7 +207,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 	}
 	if (allocatedType.isRawType() && this.binding.hasSubstitutedParameters()) {
-	    scope.problemReporter().unsafeRawInvocation(this, allocatedType, this.binding);
+	    scope.problemReporter().unsafeRawInvocation(this, this.binding);
 	}
 	return allocatedType;
 }

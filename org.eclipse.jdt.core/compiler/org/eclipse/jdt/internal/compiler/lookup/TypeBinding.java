@@ -62,6 +62,12 @@ public String debugName() {
 public int dimensions(){
 	return 0;
 }
+/* Answer the receiver's enclosing type... null if the receiver is a top level type.
+*/
+
+public ReferenceBinding enclosingType() {
+	return null;
+}
 public TypeBinding erasure() {
     return this;
 }
@@ -209,7 +215,12 @@ public boolean isTypeVariable() {
 public boolean isBoundParameterizedType() {
 	return (this.tagBits & TagBits.IsBoundParameterizedType) != 0;
 }
-
+/**
+ * Returns true if wildcard type of the form '?' (no bound)
+ */
+public boolean isUnboundWildcard() {
+	return false;
+}
 /**
  * Returns true if the type is a wildcard
  */

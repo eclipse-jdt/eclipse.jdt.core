@@ -314,19 +314,12 @@ public final int depth() {
 		depth++;
 	return depth;
 }
-/* Answer the receiver's enclosing type... null if the receiver is a top level type.
-*/
-
-public ReferenceBinding enclosingType() {
-	return null;
-}
 public final ReferenceBinding enclosingTypeAt(int relativeDepth) {
 	ReferenceBinding current = this;
 	while (relativeDepth-- > 0 && current != null)
 		current = current.enclosingType();
 	return current;
 }
-
 public int fieldCount() {
 	return fields().length;
 }

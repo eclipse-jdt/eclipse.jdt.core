@@ -102,6 +102,13 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				reportInvalidType(scope);
 				return null;
 			}
+			enclosingType = this.resolvedType.enclosingType(); // if member type
+			if (enclosingType != null) {
+				ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
+				if (currentType.isStatic() && enclosingType.isGenericType()) {
+					enclosingType = scope.environment().createRawType(enclosingType, enclosingType.enclosingType());
+				}
+			}
 		} else { // resolving member type (relatively to enclosingType)
 			this.resolvedType = scope.getMemberType(token, (ReferenceBinding)enclosingType.erasure());		    
 			if (!this.resolvedType.isValidBinding()) {

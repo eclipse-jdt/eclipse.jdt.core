@@ -518,6 +518,79 @@ public class EnumTest extends AbstractComparisonTest {
 			"The type X cannot be a superinterface of XX; a superinterface must be an interface\n" + 
 			"----------\n");
 	}		
+	// 74851
+	public void test019() {
+		this.runConformTest(
+			new String[] {
+				"MonthEnum.java",
+				"public enum MonthEnum {\n" + 
+				"    JANUARY   (30),\n" + 
+				"    FEBRUARY  (28),\n" + 
+				"    MARCH     (31),\n" + 
+				"    APRIL     (30),\n" + 
+				"    MAY       (31),\n" + 
+				"    JUNE      (30),\n" + 
+				"    JULY      (31),\n" + 
+				"    AUGUST    (31),\n" + 
+				"    SEPTEMBER (31),\n" + 
+				"    OCTOBER   (31),\n" + 
+				"    NOVEMBER  (30),\n" + 
+				"    DECEMBER  (31);\n" + 
+				"    \n" + 
+				"    private final int days;\n" + 
+				"    \n" + 
+				"    MonthEnum(int days) {\n" + 
+				"        this.days = days;\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    public int getDays() {\n" + 
+				"    	boolean leapYear = true;\n" + 
+				"    	switch(this) {\n" + 
+				"    		case FEBRUARY: if(leapYear) return days+1;\n" + 
+				"    	}\n" + 
+				"    	return days;\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"    	System.out.println(JANUARY.getDays());\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"}\n",
+			},
+			"30");
+	}
+	// 74226
+	public void test020() {
+		this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"public class Foo{\n" + 
+				"    public enum Rank {FIRST,SECOND,THIRD}\n" + 
+				"    public void setRank(Rank rank){}\n" + 
+				"}\n",
+			},
+			"");
+	}	
+	// 74226 variation - check nested enum is implicitly static
+	public void test021() {
+		this.runNegativeTest(
+			new String[] {
+				"Foo.java",
+				"public class Foo {\n" + 
+				"    public static enum Rank {FIRST,SECOND,THIRD;\n" + 
+				"            void bar() { foo(); } \n" + 
+				"    }\n" + 
+				"    public void setRank(Rank rank){}\n" + 
+				"    void foo() {}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in Foo.java (at line 3)\n" + 
+			"	void bar() { foo(); } \n" + 
+			"	             ^^^\n" + 
+			"Cannot make a static reference to the non-static method foo() from the type Foo\n" + 
+			"----------\n");
+	}		
 	// enum cannot be declared as local type
 	
 	// check abstract conditions

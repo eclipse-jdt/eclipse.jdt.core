@@ -365,6 +365,8 @@ public class ClassScope extends Scope {
 				modifiers |= AccDeprecatedImplicitly;
 			if ((enclosingType.modifiers & AccInterface) != 0)
 				modifiers |= AccPublic;
+			if (sourceType.isEnum())
+				modifiers |= AccStatic;
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isAnonymousType()) {
 			    modifiers |= AccFinal;

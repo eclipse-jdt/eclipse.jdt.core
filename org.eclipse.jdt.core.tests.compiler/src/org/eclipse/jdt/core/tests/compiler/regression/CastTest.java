@@ -119,17 +119,17 @@ public void test002() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	String s = (String) null;	// UNnecessary\n" + 
 		"	           ^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type String for expression of type null\n" + 
+		"Unnecessary cast from null to String\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 5)\n" + 
 		"	String t = (String) \"hello\";	// UNnecessary\n" + 
 		"	           ^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type String for expression of type String\n" + 
+		"Unnecessary cast from String to String\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 6)\n" + 
 		"	float f = (float) 12;			// UNnecessary\n" + 
 		"	          ^^^^^^^^^^\n" + 
-		"Unnecessary cast to type float for expression of type int\n" + 
+		"Unnecessary cast from int to float\n" + 
 		"----------\n",
 		null,
 		true,
@@ -161,7 +161,7 @@ public void test003() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	foo((String) \"hello\");			// UNnecessary\n" + 
 		"	    ^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type String for expression of type String\n" + 
+		"Unnecessary cast from String to String\n" + 
 		"----------\n",
 		null,
 		true,
@@ -194,7 +194,7 @@ public void test004() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	new X((String) \"hello\");	// UNnecessary\n" + 
 		"	      ^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type String for expression of type String\n" + 
+		"Unnecessary cast from String to String\n" + 
 		"----------\n",
 		null,
 		true,
@@ -235,12 +235,12 @@ public void test005() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	new X().new XM3((String) \"hello\");	// UNnecessary\n" + 
 		"	                ^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type String for expression of type String\n" + 
+		"Unnecessary cast from String to String\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 9)\n" + 
 		"	new X().new XM3((String) \"hello\"){};	// UNnecessary\n" + 
 		"	                ^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type String for expression of type String\n" + 
+		"Unnecessary cast from String to String\n" + 
 		"----------\n",
 		null,
 		true,
@@ -325,7 +325,7 @@ public void test007() {
 		"1. ERROR in X.java (at line 22)\n" + 
 		"	super((Object) t); // UNnecessary\n" + 
 		"	      ^^^^^^^^^^\n" + 
-		"Unnecessary cast to type Object for expression of type Thread. It is already compatible with the argument type Object\n" + 
+		"Unnecessary cast from Thread to Object. It is already compatible with the argument type Object\n" + 
 		"----------\n",
 		null,
 		true,
@@ -383,12 +383,12 @@ public void test009() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	boolean b1 = ((X) new XM1()) == new X(); // UNnecessary\n" + 
 		"	             ^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type X for expression of type X.XM1\n" + 
+		"Unnecessary cast from X.XM1 to X\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 5)\n" + 
 		"	boolean b3 = ((X) null) == new X(); // UNnecessary\n" + 
 		"	             ^^^^^^^^^^\n" + 
-		"Unnecessary cast to type X for expression of type null\n" + 
+		"Unnecessary cast from null to X\n" + 
 		"----------\n",
 		null,
 		true,
@@ -414,12 +414,12 @@ public void test010() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	long l1 = ((long) 1) + 2L; // UNnecessary\n" + 
 		"	          ^^^^^^^^^^\n" + 
-		"Unnecessary cast to type long for expression of type int. It is already compatible with the argument type long\n" + 
+		"Unnecessary cast from int to long. It is already compatible with the argument type long\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 5)\n" + 
 		"	long l3 = 0;		l3 += (long)12; // UNnecessary\n" + 
 		"	            		      ^^^^^^^^\n" + 
-		"Unnecessary cast to type long for expression of type int\n" + 
+		"Unnecessary cast from int to long\n" + 
 		"----------\n",
 		null,
 		true,
@@ -445,7 +445,7 @@ public void test011() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	String s2 = ((String)\"hello\") + 2; // UNnecessary\n" + 
 		"	            ^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type String for expression of type String\n" + 
+		"Unnecessary cast from String to String\n" + 
 		"----------\n",
 		null,
 		true,
@@ -475,12 +475,12 @@ public void test012() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	foo((X) x);			// UNnecessary\n" + 
 		"	    ^^^^^\n" + 
-		"Unnecessary cast to type X for expression of type X\n" + 
+		"Unnecessary cast from X to X\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 6)\n" + 
 		"	foo((XM1) x);	// UNnecessary\n" + 
 		"	    ^^^^^^^\n" + 
-		"Unnecessary cast to type X.XM1 for expression of type X. It is already compatible with the argument type X\n" + 
+		"Unnecessary cast from X to X.XM1. It is already compatible with the argument type X\n" + 
 		"----------\n",
 		null,
 		true,
@@ -510,12 +510,12 @@ public void test013() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	d = (long)a; 				// unnecessary\n" + 
 		"	    ^^^^^^^\n" + 
-		"Unnecessary cast to type long for expression of type int\n" + 
+		"Unnecessary cast from int to long\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	d = d + a + (long)b; 	// unnecessary\n" + 
 		"	            ^^^^^^^\n" + 
-		"Unnecessary cast to type long for expression of type int. It is already compatible with the argument type long\n" + 
+		"Unnecessary cast from int to long. It is already compatible with the argument type long\n" + 
 		"----------\n",
 		null,
 		true,
@@ -562,7 +562,7 @@ public void test015() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	double linePerSeconds2 = ((double) (lineCount * 10000.0 / time)) / 10.0; // UNnecessary \n" + 
 		"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type double for expression of type double\n" + 
+		"Unnecessary cast from double to double\n" + 
 		"----------\n",
 		null,
 		true,
@@ -589,7 +589,7 @@ public void test016() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	print((double) (lineCount * 10000.0 / time)); // UNnecessary \n" + 
 		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type double for expression of type double\n" + 
+		"Unnecessary cast from double to double\n" + 
 		"----------\n",
 		null,
 		true,
@@ -615,7 +615,7 @@ public void test017() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	foo((X) this);\n" + 
 		"	    ^^^^^^^^\n" + 
-		"Unnecessary cast to type X for expression of type X\n" + 
+		"Unnecessary cast from X to X\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	foo((X) zork());\n" + 
@@ -752,12 +752,12 @@ public void test021() {
 		"1. ERROR in p1\\C.java (at line 6)\n" + 
 		"	((A)b).new Member2(); // UNnecessary\n" + 
 		"	^^^^^^\n" + 
-		"Unnecessary cast to type A for expression of type B\n" + 
+		"Unnecessary cast from B to A\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\C.java (at line 8)\n" + 
 		"	((A)b).new Member4().new M4Member(); // fault tolerance\n" + 
 		"	^^^^^^\n" + 
-		"Unnecessary cast to type A for expression of type B\n" + 
+		"Unnecessary cast from B to A\n" + 
 		"----------\n" + 
 		"3. ERROR in p1\\C.java (at line 9)\n" + 
 		"	((A)zork()).new Member1(); // fault-tolerance\n" + 
@@ -767,12 +767,12 @@ public void test021() {
 		"4. ERROR in p1\\C.java (at line 12)\n" + 
 		"	((A)b).new Member2(){}; // UNnecessary\n" + 
 		"	^^^^^^\n" + 
-		"Unnecessary cast to type A for expression of type B\n" + 
+		"Unnecessary cast from B to A\n" + 
 		"----------\n" + 
 		"5. ERROR in p1\\C.java (at line 14)\n" + 
 		"	((A)b).new Member4().new M4Member(){}; // fault tolerance\n" + 
 		"	^^^^^^\n" + 
-		"Unnecessary cast to type A for expression of type B\n" + 
+		"Unnecessary cast from B to A\n" + 
 		"----------\n" + 
 		"6. ERROR in p1\\C.java (at line 15)\n" + 
 		"	((A)zork()).new Member1(){}; // fault-tolerance\n" + 
@@ -802,7 +802,7 @@ public void test022() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (fillPattern.equals((int[])map.get(\"x\"))) { \n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type int[] for expression of type Object. It is already compatible with the argument type Object\n" + 
+		"Unnecessary cast from Object to int[]. It is already compatible with the argument type Object\n" + 
 		"----------\n",
 		null,
 		true,
@@ -832,7 +832,7 @@ public void test023() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	final long lgLow32BitMask3 = ~(~((long) 0L) << 32);	// unnecessary\n" + 
 		"	                                ^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type long for expression of type long\n" + 
+		"Unnecessary cast from long to long\n" + 
 		"----------\n",
 		null,
 		true,
@@ -856,7 +856,7 @@ public void test024() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	System.out.println(((Object) bar).toString());\n" + 
 		"	                   ^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type Object for expression of type Object\n" + 
+		"Unnecessary cast from Object to Object\n" + 
 		"----------\n",
 		null,
 		true,
@@ -882,7 +882,7 @@ public void test025() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	System.out.println(((X) bar).i);\n" + 
 		"	                   ^^^^^^^^^\n" + 
-		"Unnecessary cast to type X for expression of type X\n" + 
+		"Unnecessary cast from X to X\n" + 
 		"----------\n",
 		null,
 		true,
@@ -1150,42 +1150,42 @@ public void test033() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	List list = (List) new ArrayList();\n" + 
 		"	            ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"Unnecessary cast from ArrayList to List\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 7)\n" + 
 		"	list = (List) new ArrayList();\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"Unnecessary cast from ArrayList to List\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 9)\n" + 
 		"	String s = (String) \"hello\";\n" + 
 		"	           ^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type String for expression of type String\n" + 
+		"Unnecessary cast from String to String\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 10)\n" + 
 		"	s += (List) new ArrayList();\n" + 
 		"	     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"Unnecessary cast from ArrayList to List\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 13)\n" + 
 		"	List list2 = (List) alist;\n" + 
 		"	             ^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"Unnecessary cast from ArrayList to List\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 14)\n" + 
 		"	list2 = (List) alist;\n" + 
 		"	        ^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"Unnecessary cast from ArrayList to List\n" + 
 		"----------\n" + 
 		"7. ERROR in X.java (at line 16)\n" + 
 		"	String s2 = (String) \"hello\";\n" + 
 		"	            ^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type String for expression of type String\n" + 
+		"Unnecessary cast from String to String\n" + 
 		"----------\n" + 
 		"8. ERROR in X.java (at line 17)\n" + 
 		"	s2 += (List) alist;\n" + 
 		"	      ^^^^^^^^^^^^\n" + 
-		"Unnecessary cast to type List for expression of type ArrayList\n" + 
+		"Unnecessary cast from ArrayList to List\n" + 
 		"----------\n",
 		null,
 		true,

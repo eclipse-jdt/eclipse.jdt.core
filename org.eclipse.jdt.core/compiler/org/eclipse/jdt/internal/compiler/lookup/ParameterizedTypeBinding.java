@@ -31,11 +31,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	private ReferenceBinding enclosingType;
 	
 	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments,  ReferenceBinding enclosingType, LookupEnvironment environment){
+
 		this.environment = environment;
-		if (type.isParameterizedType() && type.isMemberType()) { // fixup instance of parameterized member type, e.g. Map<K,V>.Entry + <A,B>
-			enclosingType = type.enclosingType(); // use enclosing from previously parameterized
-			type = (ReferenceBinding)type.erasure(); // connect to erasure of member type
-		}
 		initialize(type, arguments);
 		this.enclosingType = enclosingType; // never unresolved, never lazy per construction
 
