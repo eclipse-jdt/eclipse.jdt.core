@@ -424,6 +424,7 @@ public final class CompletionEngine
 			
 			if(!field.isLocalVariable && field.modifiers == CompilerModifiers.AccDefault) {
 				findMethods(completionToken,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false, false);
+				proposeNewMethod(completionToken, scope.enclosingSourceType());
 			}
 		} else {
 			if(astNode instanceof CompletionOnMethodReturnType) {
@@ -437,6 +438,7 @@ public final class CompletionEngine
 			
 				if(method.modifiers == CompilerModifiers.AccDefault) {
 					findMethods(completionToken,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false,false);
+					proposeNewMethod(completionToken, scope.enclosingSourceType());
 				}
 			} else {
 				
@@ -3525,5 +3527,23 @@ public final class CompletionEngine
 		}
 		
 		return completion.toString().toCharArray();
+	}
+	
+	private void proposeNewMethod(char[] token, ReferenceBinding reference) {
+		
+		if(requestor instanceof IExtendedCompletionRequestor) {
+			IExtendedCompletionRequestor extendedRequestor = (IExtendedCompletionRequestor) requestor;
+			
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal();
+			
+			extendedRequestor.acceptPotentialMethodDeclaration(
+					reference.qualifiedPackageName(),
+					reference.qualifiedSourceName(),
+					token,
+					startPosition - offset,
+					endPosition - offset,
+					relevance);
+		}
 	}
 }
