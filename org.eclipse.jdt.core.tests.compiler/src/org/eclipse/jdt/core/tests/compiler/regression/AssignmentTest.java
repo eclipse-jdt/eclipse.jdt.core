@@ -424,6 +424,38 @@ public void _test012() {
 		customOptions,
 		null);
 }
+public void test013() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(X x) {\n" + 
+			"		if (x == this) {\n" + 
+			"			if (x == null) {\n" + 
+			"				x.foo(this);\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (x == null) {\n" + 
+		"	    ^\n" + 
+		"The variable x cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	x.foo(this);\n" + 
+		"	^\n" + 
+		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+
 public static Class testClass() {
 	return AssignmentTest.class;
 }
