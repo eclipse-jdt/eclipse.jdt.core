@@ -7669,6 +7669,7 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"42");
 	}
 	// 72644
+	// TODO (philippe) we need a way to test these 2 methods & find them 'equivalent'... right isEquivalentTo return false
 	public void test286() {
 		this.runConformTest(
 			new String[] {
