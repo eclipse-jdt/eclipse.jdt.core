@@ -216,16 +216,18 @@ protected void consumeEnterAnonymousClassBody() {
 	this.lastCheckPoint = alloc.sourceEnd + 1;
 	if (!diet){
 		this.restartRecovery	= true;	// force to restart in recovery mode
-		this.lastIgnoredToken = -1;	
+		this.lastIgnoredToken = -1;
+		currentToken = 0; // opening brace already taken into account
+		hasReportedError = true;
 	}
-	this.isOrphanCompletionNode = true;
-		
-	anonymousType.bodyStart = scanner.currentPosition;	
+
+	anonymousType.bodyStart = scanner.currentPosition;
 	listLength = 0; // will be updated when reading super-interfaces
 	// recovery
-	if (currentElement != null){ 
+	if (currentElement != null){
 		lastCheckPoint = anonymousType.bodyStart;
-		currentElement = currentElement.add(anonymousType, 0); // the recoveryTokenCheck will deal with the open brace
+		currentElement = currentElement.add(anonymousType, 0);
+		currentToken = 0; // opening brace already taken into account
 		lastIgnoredToken = -1;		
 	}
 }

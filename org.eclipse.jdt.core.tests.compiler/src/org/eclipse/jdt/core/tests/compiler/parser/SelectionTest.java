@@ -733,14 +733,21 @@ public void test18() {
 	String selectionEndBehind = "new Object";
 	
 	String expectedCompletionNodeToString = 
-		"<SelectOnAllocationExpression:new Object() {\n}>";
+		"<SelectOnAllocationExpression:new Object() {\n" +
+		"  () {\n" +
+		"    super();\n" +
+		"  }\n" + 
+		"}>";
 	String completionIdentifier = "Object";
 	String expectedUnitDisplayString =
 		"public class X {\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  int foo() {\n" + 
-		"    <SelectOnAllocationExpression:new Object() {\n" + 
+		"    <SelectOnAllocationExpression:new Object() {\n" +
+		"      () {\n" +
+		"        super();\n" +
+		"      }\n" + 
 		"    }>;\n" + 
 		"  }\n" + 
 		"}\n";
@@ -2096,6 +2103,51 @@ public void test48() {
 
 	int selectionStart = str.indexOf(selection);
 	int selectionEnd = str.indexOf(selection) + selection.length() - 1;
+		
+	this.checkDietParse(
+		str.toCharArray(), 
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+/*
+ * bugs 28064
+ */
+public void test49() {
+
+	String str =
+		"public class X {                \n" +
+		"  X x = new X(){}\n" +
+		"}								 \n";
+		
+	String selection = "X";
+	
+	String expectedCompletionNodeToString = "<SelectOnAllocationExpression:new X() {\n" +
+											"  () {\n" +
+											"    super();\n" +
+											"  }\n" + 
+											"}>";
+	
+	String completionIdentifier = "X";
+	String expectedUnitDisplayString =
+		"public class X {\n"+
+		"  X x = <SelectOnAllocationExpression:new X() {\n" +
+		"    () {\n" +
+		"      super();\n" +
+		"    }\n" + 
+		"  }>;\n"+
+		"  public X() {\n"+
+		"  }\n"+
+		"}\n";
+	String expectedReplacedSource = "new X()";
+	String testName = "<select anonymous type>";
+
+	int selectionStart = str.lastIndexOf(selection);
+	int selectionEnd = str.lastIndexOf(selection) + selection.length() - 1;
 		
 	this.checkDietParse(
 		str.toCharArray(), 
