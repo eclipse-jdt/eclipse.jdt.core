@@ -550,16 +550,16 @@ public final class NamingConventions {
 			prefixes = new char[1][0];
 		} else {
 			int length = prefixes.length;
-			System.arraycopy(prefixes, 0, prefixes = new char[length+1][], 0, length);
-			prefixes[length] = CharOperation.NO_CHAR;
+			System.arraycopy(prefixes, 0, prefixes = new char[length+1][], 1, length);
+			prefixes[0] = CharOperation.NO_CHAR;
 		}
 		
 		if(suffixes == null || suffixes.length == 0) {
 			suffixes = new char[1][0];
 		} else {
 			int length = suffixes.length;
-			System.arraycopy(suffixes, 0, suffixes = new char[length+1][], 0, length);
-			suffixes[length] = CharOperation.NO_CHAR;
+			System.arraycopy(suffixes, 0, suffixes = new char[length+1][], 1, length);
+			suffixes[0] = CharOperation.NO_CHAR;
 		}
 		
 		char[][] names = new char[5][];
