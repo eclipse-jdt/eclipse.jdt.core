@@ -688,11 +688,12 @@ public class JavaModelManager implements ISaveParticipant {
 				if (--info.useCount == 0) {
 					IJavaElement originalElement = workingCopy.getOriginalElement();
 
-					// remove per working copy info first so that the buffer can be closed while closing the working copy
+					// remove per working copy info
 					perWorkingCopyInfos.remove(workingCopy);
 
 					// remove infos + close buffer (since no longer working copy)
 					removeInfoAndChildren(workingCopy);
+					workingCopy.closeBuffer();
 					
 					// if original element is not on classpath flush it from the cache 
 					if (!workingCopy.getParent().exists()) {

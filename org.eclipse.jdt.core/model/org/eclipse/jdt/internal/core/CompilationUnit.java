@@ -929,17 +929,6 @@ public boolean hasChildren() throws JavaModelException {
 		return true;
 	}
 }
-
-/**
- * @see IOpenable
- */
-public boolean hasUnsavedChanges() throws JavaModelException{
-	// TODO workaround 
-	if (this.isWorkingCopy()) return true;
-	return super.hasUnsavedChanges();
-}
-
-
 /*
  * @see ICompilationUnit#isBasedOn(IResource)
  */
@@ -994,7 +983,8 @@ protected boolean isValidCompilationUnit() {
  * @see ICompilationUnit#isWorkingCopy()
  */
 public boolean isWorkingCopy() {
-	// TODO per construction, need to check cache state if owner is primary one.
+	// if owner is not primary, it cannot be in compilation unit mode
+	if (this.owner != DefaultWorkingCopyOwner.PRIMARY) return true;
 	return getPerWorkingCopyInfo() != null;
 }
 /**
