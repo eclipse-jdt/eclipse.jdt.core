@@ -386,6 +386,57 @@ public void test015() {
 		"SUCCESS");
 }
 
+public void test016() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <E extends Exception> {\n" + 
+			"    void foo(E e) throws E {\n" + 
+			"        throw e;\n" + 
+			"    }\n" + 
+			"    void bar(E e) {\n" + 
+			"        try {\n" + 
+			"            foo(e);\n" + 
+			"        } catch(E ex) {\n" + 
+			"	        System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<Exception>().bar(new Exception());\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
+public void test017() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" + 
+			"public class X <E extends Exception> {\n" + 
+			"    void foo(E e) throws E {\n" + 
+			"        throw e;\n" + 
+			"    }\n" + 
+			"    void bar(E e) {\n" + 
+			"        try {\n" + 
+			"            foo(e);\n" + 
+			"        } catch(E ex) {\n" + 
+			"	        System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new X<IOException>().bar(new Exception());\n" + 
+			"    }\n" + 
+			"}\n" ,
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	new X<IOException>().bar(new Exception());\n" + 
+		"	                     ^^^\n" + 
+		"The method bar(IOException) in the type X<IOException> is not applicable for the arguments (Exception)\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return GenericTypeTest.class;
 }
