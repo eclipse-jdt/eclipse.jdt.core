@@ -2823,7 +2823,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement)getASTNode(unit, 0, 0, 0);
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 		IVariableBinding localBinding = fragment.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A;#0/i", localBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A;#0#i", localBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2839,7 +2839,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 		IVariableBinding localBinding = fragment.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A;#0#0/j", localBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A;#0#0#j", localBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2853,7 +2853,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement)getASTNode(unit, 0, 1, 0);
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 		IVariableBinding localBinding = fragment.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A;.foo()V/i", localBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A;.foo()V#i", localBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2869,7 +2869,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 		IVariableBinding localBinding = fragment.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A;.foo()V#0/j", localBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A;.foo()V#0#j", localBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2885,7 +2885,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 		IVariableBinding localBinding = fragment.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A;.foo()V#1/j", localBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A;.foo()V#1#j", localBinding.getKey()); //$NON-NLS-1$
 	}
 	
 	/**

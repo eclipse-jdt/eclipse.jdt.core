@@ -17,15 +17,16 @@ import org.eclipse.jdt.core.compiler.CharOperation;
  * @since 3.1
  */
 class BindingKeyScanner {
-	static final int ARRAY = 4;
-	static final int END = 6;
-	static final int FIELD = 2;
-	static final int METHOD = 3;
-	static final int PACKAGE = 0;
 	
 	static final int START = -1;
+	static final int PACKAGE = 0;
 	static final int TYPE = 1;
+	static final int FIELD = 2;
+	static final int METHOD = 3;
+	static final int ARRAY = 4;
 	static final int TYPE_PARAMETER = 5;
+	static final int LOCAL_VAR = 6;
+	static final int END = 7;
 	
 	int index = -1, start;
 	char[] source;
@@ -46,6 +47,12 @@ class BindingKeyScanner {
 		return 
 			this.index+1 < this.source.length
 			&& this.source[this.index+1] == '.';
+	}
+	
+	boolean isAtLocalVariableStart() {
+		return 
+			this.index < this.source.length
+			&& this.source[this.index] == '#';
 	}
 	
 	boolean isAtMemberTypeStart() {
@@ -132,10 +139,17 @@ class BindingKeyScanner {
 				case ':':
 					this.token = TYPE_PARAMETER;
 					return this.token;
+				case '#':
+					this.token = LOCAL_VAR;
+					return this.token;
 				case Character.MIN_VALUE:
 					switch (this.token) {
 						case START:
 							this.token = PACKAGE;
+							break;
+						case METHOD:
+						case LOCAL_VAR:
+							this.token = LOCAL_VAR;
 							break;
 						case TYPE:
 							if (this.index > this.start && this.source[this.start-1] == '.')
@@ -183,6 +197,9 @@ class BindingKeyScanner {
 				break;
 			case TYPE_PARAMETER:
 				buffer.append("TYPE PARAMETER: "); //$NON-NLS-1$
+				break;
+			case LOCAL_VAR:
+				buffer.append("LOCAL VAR: "); //$NON-NLS-1$
 				break;
 			case END:
 				buffer.append("END: "); //$NON-NLS-1$

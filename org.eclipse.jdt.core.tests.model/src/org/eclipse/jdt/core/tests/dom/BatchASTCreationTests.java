@@ -47,7 +47,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test029"));
+			suite.addTest(new BatchASTCreationTests("test033"));
 			return suite;
 		}
 		return new Suite(BatchASTCreationTests.class);
@@ -777,6 +777,45 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"}",
 			},
 			"Lp1/X;.foo<T:Ljava/lang/Object;>()V");
+	}
+
+	/* 
+	 * Ensures that a local variable binding can be created using its key
+	 */
+	public void test033() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    int i;\n" +
+				"  }\n" +
+				"}",
+			},
+			"Lp1/X;.foo()V#i");
+	}
+
+	/* 
+	 * Ensures that a local variable binding can be created using its key
+	 */
+	public void test034() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    int i = 1;\n" +
+				"    if (i == 0) {\n" +
+				"      int a;\n" +
+				"    } else {\n" +
+				"      int b;\n" +
+				"    }\n" +
+				"  }\n" +
+				"}",
+			},
+			"Lp1/X;.foo()V#1#b");
 	}
 
 }

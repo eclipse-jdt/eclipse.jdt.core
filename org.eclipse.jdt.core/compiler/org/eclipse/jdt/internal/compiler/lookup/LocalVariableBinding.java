@@ -82,7 +82,7 @@ public class LocalVariableBinding extends VariableBinding {
 		getScopeKey(scope, buffer);
 
 		// variable name
-		buffer.append('/');
+		buffer.append('#');
 		buffer.append(this.name);
 		
 		int length = buffer.length();

@@ -15,10 +15,13 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -160,7 +163,12 @@ class BindingKey {
 		 				case BindingKeyScanner.FIELD:
 		 					return getFieldBinding(((SourceTypeBinding) binding).fields);
 		 				case BindingKeyScanner.METHOD:
-		 					return getMethodBinding(((SourceTypeBinding) binding).methods, resolver);
+		 					MethodBinding methodBinding = getMethodBinding(((SourceTypeBinding) binding).methods, resolver);
+		 					if (this.scanner.isAtLocalVariableStart()) {
+		 						MethodScope methodScope = methodBinding.sourceMethod().scope;
+		 						return getLocalVariableBinding(methodScope);
+		 					} else
+		 						return methodBinding;
 	 				}
 	 				return null; // malformed key
 	 			} else {
@@ -238,6 +246,27 @@ class BindingKey {
 	  */
 	 String getKey() {
 	 	return new String(this.scanner.source);
+	 }
+	 
+	 LocalVariableBinding getLocalVariableBinding(BlockScope scope) {
+	 	if (this.scanner.nextToken() != BindingKeyScanner.LOCAL_VAR)
+			return null; // malformed key
+		char[] varName = this.scanner.getTokenSource();
+		if (Character.isDigit(varName[0])) {
+			int index = Integer.parseInt(new String(varName));
+			if (index >= scope.subscopeCount)
+				return null; // malformed key
+			if (!this.scanner.isAtLocalVariableStart())
+				return null; // malformed key
+			return getLocalVariableBinding((BlockScope) scope.subscopes[index]);
+		} else {
+		 	for (int i = 0; i < scope.localIndex; i++) {
+				LocalVariableBinding local = scope.locals[i];
+				if (CharOperation.equals(varName, local.name))
+					return local;
+			}
+		}
+	 	return null;
 	 }
 	 
 	/*

@@ -602,7 +602,7 @@ public final int sourceEnd() {
 		return 0;
 	return method.sourceEnd;
 }
-AbstractMethodDeclaration sourceMethod() {
+public AbstractMethodDeclaration sourceMethod() {
 	SourceTypeBinding sourceType;
 	try {
 		sourceType = (SourceTypeBinding) declaringClass;
