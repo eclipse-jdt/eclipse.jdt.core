@@ -7,6 +7,7 @@
     <classpathentry kind="lib" path="jj.jar" sourcepath="/Resolve/jjsrc.zip"/>
     <classpathentry kind="lib" path="test25888.jar" sourcepath="/Resolve/test25888src.zip"/>
     <classpathentry kind="lib" path="test47177.jar" sourcepath="/Resolve/test47177src.zip"/>
+    <classpathentry kind="lib" path="test47214.jar" sourcepath="/Resolve/test47214.jar"/>
     <classpathentry kind="lib" path="p4.jar"/>
     <classpathentry kind="lib" path="class-folder"/>
     <classpathentry kind="output" path="bin"/>

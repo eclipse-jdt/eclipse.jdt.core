@@ -785,6 +785,19 @@ public void testMethodDeclarationInAnonymous3() throws JavaModelException {
 	);
 }
 /**
+ * Resolve method declaration in anonymous
+ * (regression test for bug 47214 Cannot open declaration on a selected method of an anonymous class)
+ */
+public void testMethodDeclarationInAnonymous4() throws JavaModelException {
+	IClassFile classFile = getClassFile("Resolve", "test47214.jar", "p", "X.class");
+	IJavaElement[] elements = codeSelect(classFile, "bar(", "bar");
+	assertElementsEqual(
+		"Unexpected elements",
+		"bar() [in X$1 [in X$1.class [in p [in test47214.jar [in Resolve]]]]]",
+		elements
+	);
+}
+/**
  * Resolve the method
  */
 public void testMethodWithIncorrectParameter() throws JavaModelException {
