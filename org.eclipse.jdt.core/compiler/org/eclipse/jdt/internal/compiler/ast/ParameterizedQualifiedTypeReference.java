@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.ArrayList;
+
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
@@ -73,6 +75,22 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					return null;
 				}
 				currentType = (ReferenceBinding) this.resolvedType;
+				if (currentType.isMemberType()) { // check raw enclosing type
+				    ArrayList enclosingTypes = new ArrayList();
+				    boolean hasGenericEnclosing = false;
+				    for (ReferenceBinding enclosing = currentType.enclosingType(); enclosing != null; enclosing = enclosing.enclosingType()) {
+				        enclosingTypes.add(enclosing);
+				        if (enclosing.isGenericType()) hasGenericEnclosing = true;
+				    }
+				    if (hasGenericEnclosing) {
+				        for (int j = enclosingTypes.size() - 1; j >= 0; j--) {
+				            ReferenceBinding enclosing = (ReferenceBinding)enclosingTypes.get(j);
+				            if (enclosing.isGenericType()) {
+					            qualifiedType = scope.environment().createRawType(enclosing, qualifiedType); // raw type
+				            }
+				        }
+				    }
+				}
 		    } else {
 			    this.resolvedType = currentType = scope.getMemberType(this.tokens[i], (ReferenceBinding)qualifiedType.erasure());
 				if (!(this.resolvedType.isValidBinding())) {

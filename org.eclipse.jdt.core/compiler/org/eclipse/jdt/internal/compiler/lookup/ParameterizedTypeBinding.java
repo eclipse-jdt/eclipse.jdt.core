@@ -318,6 +318,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 			for (int i = 0, length = someArguments.length; i < length; i++)
 			    this.tagBits |= someArguments[i].tagBits & (HasTypeVariable | HasWildcard);
 		}	    
+		this.tagBits |= someType.tagBits & (IsLocalType| IsMemberType | IsNestedType);
 	}
 
 	protected void initializeArguments() {
@@ -349,6 +350,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
         }
         return false;
 	}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isParameterizedType()
 	 */
@@ -415,8 +417,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 */
 	public char[] readableName() {
 	    StringBuffer nameBuffer = new StringBuffer(10);
-		if (this.type.isMemberType()) {
-			nameBuffer.append(CharOperation.concat(this.type.enclosingType().readableName(), sourceName, '.'));
+		if (this.isMemberType()) {
+			nameBuffer.append(CharOperation.concat(this.enclosingType().readableName(), sourceName, '.'));
 		} else {
 			nameBuffer.append(CharOperation.concatWith(this.type.compoundName, '.'));
 		}	    
@@ -462,8 +464,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding {
 	 */
 	public char[] shortReadableName() {
 	    StringBuffer nameBuffer = new StringBuffer(10);
-		if (this.type.isMemberType()) {
-			nameBuffer.append(CharOperation.concat(this.type.enclosingType().shortReadableName(), sourceName, '.'));
+		if (this.isMemberType()) {
+			nameBuffer.append(CharOperation.concat(this.enclosingType().shortReadableName(), sourceName, '.'));
 		} else {
 			nameBuffer.append(this.type.sourceName);
 		}	    
