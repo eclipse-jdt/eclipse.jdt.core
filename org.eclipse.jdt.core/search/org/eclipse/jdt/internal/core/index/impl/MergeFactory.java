@@ -67,20 +67,23 @@ public class MergeFactory {
 	 * Merges the 2 indexes into a new one on the disk.
 	 */
 	public void merge() throws IOException {
-		//init
-		addsInput.open();
-		oldInput.open();
-		mergeOutput.open();
-		init();
-		//merge
-		//findChanges();
-		mergeFiles();
-		mergeReferences();
-		mergeOutput.flush();
-		//closes everything
-		oldInput.close();
-		addsInput.close();
-		mergeOutput.close();
+		try {
+			//init
+			addsInput.open();
+			oldInput.open();
+			mergeOutput.open();
+			init();
+			//merge
+			//findChanges();
+			mergeFiles();
+			mergeReferences();
+			mergeOutput.flush();
+		} finally {
+			//closes everything
+			oldInput.close();
+			addsInput.close();
+			mergeOutput.close();
+		}
 	}
 	/**
 	 * Merges the files of the 2 indexes in the new index, removes the files

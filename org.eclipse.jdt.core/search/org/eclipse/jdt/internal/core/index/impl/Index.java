@@ -227,26 +227,28 @@ public class Index implements IIndex {
 		IndexInput mainIndexInput= new BlocksIndexInput(indexFile);
 		BlocksIndexOutput tempIndexOutput= new BlocksIndexOutput(tempFile);
 
-		//invoke a mergeFactory
-		new MergeFactory(
-			mainIndexInput, 
-			addsIndexInput, 
-			tempIndexOutput, 
-			removedInOld, 
-			removedInAdds).merge();
-		
-		//rename the file created to become the main index
-		File mainIndexFile= (File) mainIndexInput.getSource();
-		File tempIndexFile= (File) tempIndexOutput.getDestination();
-		mainIndexFile.delete();
-		tempIndexFile.renameTo(mainIndexFile);
-		
-		//initialise remove vectors and addsindex, and change the state
-		removedInAdds.clear();
-		removedInOld.clear();
-		addsIndex.init();
-		addsIndexInput= new SimpleIndexInput(addsIndex);
-		state= MERGED;
+		try {
+			//invoke a mergeFactory
+			new MergeFactory(
+				mainIndexInput, 
+				addsIndexInput, 
+				tempIndexOutput, 
+				removedInOld, 
+				removedInAdds).merge();
+			
+			//rename the file created to become the main index
+			File mainIndexFile= (File) mainIndexInput.getSource();
+			File tempIndexFile= (File) tempIndexOutput.getDestination();
+			mainIndexFile.delete();
+			tempIndexFile.renameTo(mainIndexFile);
+		} finally {		
+			//initialise remove vectors and addsindex, and change the state
+			removedInAdds.clear();
+			removedInOld.clear();
+			addsIndex.init();
+			addsIndexInput= new SimpleIndexInput(addsIndex);
+			state= MERGED;
+		}
 	}
 	/**
 	 * @see IIndex#query

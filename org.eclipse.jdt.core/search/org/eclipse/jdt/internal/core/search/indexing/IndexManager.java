@@ -270,7 +270,7 @@ protected void notifyIdle(long idlingTime){
  * Name of the background process
  */
 public String processName(){
-	return Util.bind("process.name", IndexManager.class.getName()); //$NON-NLS-1$
+	return Util.bind("process.name"); //$NON-NLS-1$
 }
 /**
  * Recreates the index for a given path, keeping the same read-write monitor.
@@ -324,20 +324,27 @@ public void reset(){
 public void saveIndexes(){
 	Enumeration indexList = indexes.elements();
 	while (indexList.hasMoreElements()){
+		IIndex index = (IIndex)indexList.nextElement();
+		if (index == null) continue; // index got deleted since acquired
+		ReadWriteMonitor monitor = getMonitorFor(index);
+		if (monitor == null) continue; // index got deleted since acquired
 		try {
-			IIndex index = (IIndex)indexList.nextElement();
-			if (index == null) continue; // index got deleted since acquired
-			ReadWriteMonitor monitor = getMonitorFor(index);
-			if (monitor == null) continue; // index got deleted since acquired
-			try {
-				monitor.enterWrite();
-				if (IndexManager.VERBOSE) System.out.println("-> merging index : "+index.getIndexFile()); //$NON-NLS-1$
-				index.save();
-			} finally {
-				monitor.exitWrite();
+			monitor.enterWrite();
+			if (IndexManager.VERBOSE){
+				if (index.hasChanged()){
+					System.out.println("-> merging index : "+index.getIndexFile()); //$NON-NLS-1$
+				}
 			}
-		} catch(IOException e){
-			// Index file has been deleted
+			try {
+				index.save();
+			} catch(IOException e){
+				if (IndexManager.VERBOSE){
+					e.printStackTrace();
+				}
+				org.eclipse.jdt.internal.core.Util.log(e);
+			}
+		} finally {
+			monitor.exitWrite();
 		}
 	}
 	needToSave = false;

@@ -7,9 +7,8 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
-import org.eclipse.jdt.core.JavaConventions;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.util.CharOperation;
 
 import java.io.*;
@@ -472,6 +471,23 @@ public static char[] getResourceContentsAsCharArray(IFile file) throws JavaModel
 		int len = sig.length();
 		return checkTypeSignature(sig, 0, len, allowVoid) == len;
 	}
+
+/**
+ * Add entry into the workspace log file
+ */
+public static void log(String message){
+	JavaCore.getPlugin().getLog().log(
+		new JavaModelStatus(IStatus.ERROR, message));
+}	
+
+/**
+ * Add entry into the workspace log file
+ */
+public static void log(Throwable e){
+	JavaCore.getPlugin().getLog().log(
+		new JavaModelStatus(IStatus.ERROR, e));
+}	
+
 /**
  * Sort the objects in the given collection using the given sort order.
  */
