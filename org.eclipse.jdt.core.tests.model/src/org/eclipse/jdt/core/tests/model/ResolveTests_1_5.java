@@ -50,6 +50,12 @@ private IJavaElement[] select(String path, String source, String selection) thro
 	int length = selection.length();
 	return wc.codeSelect(start, length, this.owner);
 }
+private IJavaElement[] selectAfter(String path, String source, String selection) throws JavaModelException {
+	this.wc = getWorkingCopy(path, source);
+	String str = wc.getSource();
+	int start = str.lastIndexOf(selection) + selection.length();
+	return wc.codeSelect(start, 0, this.owner);
+}
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
@@ -1938,5 +1944,26 @@ public void test0088() throws JavaModelException {
 			imported.discardWorkingCopy();
 		}
 	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82558
+public void test0089() throws JavaModelException {
+	IJavaElement[] elements = selectAfter(
+			"/Resolve/src2/test0089/Test.java",
+			"package test0089;\n" +
+			"public class Test<T> {\n" +
+			"  Test(String t) {}\n" +
+			"  Test(Test<String> ts) {}\n" +
+			"  void bar() {\n" +
+			"    new Test<String>(new Test<String>(\"\"));\n" +
+			"  }\n" +
+			"}",
+			"  new Te");
+	
+	assertElementsEqual(
+		"Unexpected elements",
+		"Test(Test<String>) key=Ltest0089/Test<Ljava/lang/String;>;.(Ltest0089/Test<Ljava/lang/String;>;)V [in Test [in [Working copy] Test.java [in test0089 [in src2 [in Resolve]]]]]",
+		elements
+	);
+
 }
 }
