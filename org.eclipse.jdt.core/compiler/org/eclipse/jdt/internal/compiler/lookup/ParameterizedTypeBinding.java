@@ -538,7 +538,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * parameterized type.
 	 */
 	public TypeBinding substitute(TypeBinding originalType) {
-		
+		if (originalType == null) {
+		    return null;
+		}
 		if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
 			if (originalType.isTypeVariable()) {
 				TypeVariableBinding originalVariable = (TypeVariableBinding) originalType;
@@ -592,7 +594,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public ReferenceBinding superclass() {
 	    if (this.superclass == null) {
 	        // note: Object cannot be generic
-		    this.superclass = (ReferenceBinding) substitute(this.type.superclass());
+	        ReferenceBinding genericSuperclass = this.type.superclass();
+	        if (genericSuperclass == null) return null; // e.g. interfaces
+		    this.superclass = (ReferenceBinding) substitute(genericSuperclass);
 	    }
 		return this.superclass;
 	}
