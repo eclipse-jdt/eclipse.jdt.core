@@ -368,11 +368,16 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 			}
 		}
 	} else {
-
 		identifierLengthPtr--;
 		char[] identifierName = identifierStack[identifierPtr];
 		long namePositions = identifierPositionStack[identifierPtr--];
-		TypeReference type = getTypeReference(intStack[intPtr--] + intStack[intPtr--]);
+		int extendedDimensions = this.intStack[this.intPtr--];
+		int firstDimensions = this.intStack[this.intPtr--];
+		final int typeDimensions = firstDimensions + extendedDimensions;
+		TypeReference type = getTypeReference(typeDimensions);
+		if (isVarArgs) {
+			type = type.copyDims(typeDimensions + 1);
+		}
 		int modifierPositions = intStack[intPtr--];
 		intPtr--;
 		Argument arg = 
