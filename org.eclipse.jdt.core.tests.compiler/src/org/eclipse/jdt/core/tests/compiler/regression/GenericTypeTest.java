@@ -7109,18 +7109,28 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"----------\n");		
 	}
 	// 70618 - reference to variable allowed in parameterized super type
-	//TODO (kent) reenable once addressed
-	public void _test257() {
+	public void test257() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.AbstractList;\n" + 
-				"\n" + 
 				"public class X<T> {\n" + 
-				"	\n" + 
-				"	class L extends AbstractList<T> {}\n" + 
+				"    public abstract class M extends java.util.AbstractList<T> {}\n" + 
+				"}\n" +
+				"class Y<T> extends T {}\n" + 
+				"class Z<T> {\n" + 
+				"    class M extends T {}\n" + 
 				"}\n"
 			},
-			"should only complain about missing abstract method impl.");		
-	}			
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	class Y<T> extends T {}\n" + 
+			"	                   ^\n" + 
+			"Cannot refer to the type parameter T as a supertype\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	class M extends T {}\n" + 
+			"	                ^\n" + 
+			"Cannot refer to the type parameter T as a supertype\n" + 
+			"----------\n");
+	}
 }
