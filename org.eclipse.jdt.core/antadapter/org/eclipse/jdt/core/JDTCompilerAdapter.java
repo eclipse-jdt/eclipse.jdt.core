@@ -84,24 +84,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			 */
 			cmd.createArgument().setPath(bootclasspath);        	
         } else {
-            /*
-             * No bootclasspath, we will add one throught the JRE_LIB variable
-             */
-            String javaHome = System.getProperty("java.home");//$NON-NLS-1$
-            if (javaHome == null) {
-				throw new BuildException(Util.getString("ant.jdtadapter.error.noBootclasspath"));  //$NON-NLS-1$
-            } else if (JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_4)
-            		|| JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_3)
-            		|| JavaEnvUtils.getJavaVersion().equals(JavaEnvUtils.JAVA_1_2)) {
-            	File f = new File(javaHome, "/lib/rt.jar");//$NON-NLS-1$
-	        	if (f.exists()) {
-					cmd.createArgument().setPath(new Path(null, f.getAbsolutePath()));        	
-        		} else {
-					throw new BuildException(Util.getString("ant.jdtadapter.error.cannotInfereBootclasspath", JavaEnvUtils.getJavaVersion()));  //$NON-NLS-1$
-	        	}
-           	} else {
-				throw new BuildException(Util.getString("ant.jdtadapter.error.cannotInfereBootclasspath", JavaEnvUtils.getJavaVersion()));  //$NON-NLS-1$
-           	}
+            includeJavaRuntime = true;
         }
 
         Path classpath = new Path(project);
@@ -117,7 +100,6 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 * The java runtime is already handled, so we simply want to retrieve the
 		 * ant runtime and the compile classpath.
 		 */
-		includeJavaRuntime = false;
         classpath.append(getCompileClasspath());
 
         // For -sourcepath, use the "sourcepath" value if present.
