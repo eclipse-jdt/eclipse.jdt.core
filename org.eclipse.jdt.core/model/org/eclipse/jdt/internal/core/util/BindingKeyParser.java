@@ -110,6 +110,7 @@ public class BindingKeyParser {
 					case 'F':
 					case 'I':
 					case 'J':
+					case 'N':
 					case 'S':
 					case 'V':
 					case 'Z':

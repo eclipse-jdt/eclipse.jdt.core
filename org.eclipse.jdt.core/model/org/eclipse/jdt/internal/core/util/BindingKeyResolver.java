@@ -190,10 +190,6 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	public void consumeTopLevelType() {
-		this.parsedUnit = getCompilationUnitDeclaration();
-		if (this.parsedUnit != null && this.compiler != null) {
-			this.compiler.process(this.parsedUnit, this.compiler.totalUnits+1); // noop if unit has already been resolved
-		}
 		if (this.compoundName.length == 1 && this.compoundName[0].length == 1) {
 			// case of base type
  			TypeBinding baseTypeBinding = getBaseTypeBinding(this.compoundName[0]);
@@ -202,6 +198,10 @@ public class BindingKeyResolver extends BindingKeyParser {
 				this.compilerBinding = this.typeBinding;
 				return;
  			}
+		}
+		this.parsedUnit = getCompilationUnitDeclaration();
+		if (this.parsedUnit != null && this.compiler != null) {
+			this.compiler.process(this.parsedUnit, this.compiler.totalUnits+1); // noop if unit has already been resolved
 		}
 		if (this.parsedUnit == null) {
 			this.typeBinding = getBinaryBinding();
@@ -269,6 +269,8 @@ public class BindingKeyResolver extends BindingKeyParser {
 				return BaseTypes.LongBinding;
 			case 'S' :
 				return BaseTypes.ShortBinding;
+			case 'N':
+				return BaseTypes.NullBinding;
 			default :
 				return null;
 		}

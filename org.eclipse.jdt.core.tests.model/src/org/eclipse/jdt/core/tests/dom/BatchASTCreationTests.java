@@ -44,7 +44,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test043"));
+			suite.addTest(new BatchASTCreationTests("test047"));
 			return suite;
 		}
 		return new Suite(BatchASTCreationTests.class);
@@ -1006,4 +1006,15 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			"[Ljava/lang/Class<Ljava/lang/Object;>;");
 	}
 	
+	/*
+	 * Ensures that the null type binding can be created using its key.
+	 */
+	public void test047() throws CoreException {
+		ITypeBinding[] bindings = createTypeBindings(
+			new String[] {},
+			new String[] {"N"});
+		assertBindingsEqual(
+				"N", 
+				bindings);
+	}
 }
