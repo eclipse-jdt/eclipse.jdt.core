@@ -17,8 +17,6 @@ import org.eclipse.jdt.internal.core.index.impl.*;
  */
 public class HandleFactory {
 
-	private JavaModelManager manager;
-
 	/**
 	 * Cache package fragment root information to optimize speed performance.
 	 */
@@ -30,11 +28,13 @@ public class HandleFactory {
 	 */
 	private Hashtable packageHandles;
 
-	private IWorkspaceRoot workspaceRoot;
+	private IWorkspace workspace;
+	private JavaModel javaModel;
 
-	public HandleFactory(IWorkspaceRoot workspaceRoot, JavaModelManager manager) {
-		this.workspaceRoot = workspaceRoot;
-		this.manager= manager;
+
+	public HandleFactory(IWorkspace workspace) {
+		this.workspace = workspace;
+		this.javaModel = JavaModelManager.getJavaModel(workspace);
 	}
 	/**
 	 * Creates an Openable handle from the given resource path.
@@ -112,20 +112,19 @@ public class HandleFactory {
 	private IPackageFragmentRoot getJarPkgFragmentRoot(String jarPathString) {
 
 		IPath jarPath= new Path(jarPathString);
-		JavaModel javaModel= this.manager.getJavaModel(this.workspaceRoot.getWorkspace());
-		IResource jarFile= this.workspaceRoot.findMember(jarPath);
+		IResource jarFile= this.workspace.getRoot().findMember(jarPath);
 		if (jarFile != null) {
 			// internal jar
-			return javaModel.getJavaProject(jarFile).getPackageFragmentRoot(jarFile);
+			return this.javaModel.getJavaProject(jarFile).getPackageFragmentRoot(jarFile);
 		} else {
 			// external jar: walk all projects and find the first one that has the given jar path in its classpath
-			IProject[] projects= this.workspaceRoot.getProjects();
+			IProject[] projects= this.workspace.getRoot().getProjects();
 			for (int i= 0, projectCount= projects.length; i < projectCount; i++) {
 				try {
 					IProject project = projects[i];
 					if (!project.isAccessible() 
 						|| !project.hasNature(JavaCore.NATURE_ID)) continue;
-					IJavaProject javaProject= javaModel.getJavaProject(project);
+					IJavaProject javaProject= this.javaModel.getJavaProject(project);
 					IClasspathEntry[] classpathEntries= ((JavaProject)javaProject).getExpandedClasspath(true);
 					for (int j= 0, entryCount= classpathEntries.length; j < entryCount; j++) {
 						if (classpathEntries[j].getPath().equals(jarPath)) {
@@ -146,14 +145,13 @@ public class HandleFactory {
 	private IPackageFragmentRoot getPkgFragmentRoot(String pathString) {
 
 		IPath path= new Path(pathString);
-		JavaModel javaModel= this.manager.getJavaModel(this.workspaceRoot.getWorkspace());
-		IProject[] projects= this.workspaceRoot.getProjects();
+		IProject[] projects= this.workspace.getRoot().getProjects();
 		for (int i= 0, max= projects.length; i < max; i++) {
 			try {
 				IProject project = projects[i];
 				if (!project.isAccessible() 
 					|| !project.hasNature(JavaCore.NATURE_ID)) continue;
-				IJavaProject javaProject= javaModel.getJavaProject(project);
+				IJavaProject javaProject= this.javaModel.getJavaProject(project);
 				IPackageFragmentRoot[] roots= javaProject.getPackageFragmentRoots();
 				for (int j= 0, rootCount= roots.length; j < rootCount; j++) {
 					IPackageFragmentRoot root= roots[j];

@@ -33,6 +33,7 @@ import java.util.zip.ZipFile;
  * @see ITypeHierarchy
  */
 public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
+	public static boolean DEBUG = false;
 	/**
 	 * The type the hierarchy was specifically computed for,
 	 * possibly null.
@@ -1085,6 +1086,10 @@ public void refresh(IProgressMonitor monitor) throws JavaModelException {
 			monitor.done();
 		}
 		fProgressMonitor = null;
+		if (DEBUG) {
+			System.out.println("CREATED TYPE HIERARCHY in " + Thread.currentThread());
+			System.out.println(this.toString());
+		}
 	} catch (JavaModelException e) {
 		fProgressMonitor = null;
 		throw e;
@@ -1211,7 +1216,9 @@ private void toString(StringBuffer buffer, IType type, int indent, boolean ascen
 	for (int i= 0; i < indent; i++) {
 		buffer.append("  "); //$NON-NLS-1$
 	}
-	buffer.append(type.getFullyQualifiedName());
+	JavaElement element = (JavaElement)type;
+	buffer.append(element.toDebugString());
+	element.toStringAncestors(buffer);
 	buffer.append('\n');
 
 	IType[] types= ascendant ? getSupertypes(type) : getSubtypes(type);

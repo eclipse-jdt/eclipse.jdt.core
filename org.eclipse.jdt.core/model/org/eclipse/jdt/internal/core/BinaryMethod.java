@@ -241,4 +241,38 @@ public String readableName() {
 	buffer.append(")"); //$NON-NLS-1$
 	return buffer.toString();
 }
+/**
+ * @private Debugging purposes
+ */
+protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	if (info == null) {
+		buffer.append(getElementName());
+		buffer.append(" (not open)"); //$NON-NLS-1$
+	} else {
+		try {
+			if (Flags.isStatic(this.getFlags())) {
+				buffer.append("static "); //$NON-NLS-1$
+			}
+			if (!this.isConstructor()) {
+				buffer.append(Signature.toString(this.getReturnType()));
+				buffer.append(' ');
+			}
+			buffer.append(this.getElementName());
+			buffer.append('(');
+			String[] parameterTypes = this.getParameterTypes();
+			int length;
+			if (parameterTypes != null && (length = parameterTypes.length) > 0) {
+				for (int i = 0; i < length; i++) {
+					buffer.append(Signature.toString(parameterTypes[i]));
+					if (i < length - 1) {
+						buffer.append(", "); //$NON-NLS-1$
+					}
+				}
+			}
+			buffer.append(')');
+		} catch (JavaModelException e) {
+			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
+		}
+	}
+}
 }

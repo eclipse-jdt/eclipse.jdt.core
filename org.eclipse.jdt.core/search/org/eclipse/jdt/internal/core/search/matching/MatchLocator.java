@@ -353,8 +353,7 @@ public CompilationUnitDeclaration buildBindings(org.eclipse.jdt.core.ICompilatio
 		throws JavaModelException {
 		Util.sort(filePaths); // sort by projects
 		if (this.handleFactory == null) {
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			this.handleFactory = new HandleFactory(workspace.getRoot(), manager);
+			this.handleFactory = new HandleFactory(workspace);
 		}
 		JavaProject previousJavaProject = null;
 		int length = filePaths.length;

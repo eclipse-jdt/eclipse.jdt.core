@@ -526,7 +526,7 @@ protected String tabString(int tab) {
 /**
  * @private Debugging purposes
  */
-protected String toDebugString() {
+public String toDebugString() {
 	StringBuffer buffer = new StringBuffer();
 	Object info = fgJavaModelManager.getInfo(this);
 	this.toStringInfo(0, buffer, info);
@@ -555,7 +555,7 @@ protected void toString(int tab, StringBuffer buffer) {
 /**
  * @private Debugging purposes
  */
-protected void toStringAncestors(StringBuffer buffer) {
+public void toStringAncestors(StringBuffer buffer) {
 	JavaElement parent = (JavaElement)this.getParent();
 	if (parent != null) {
 		buffer.append(" [in "); //$NON-NLS-1$

@@ -348,10 +348,12 @@ public void resolve(IGenericType suppliedType) {
 }
 /**
  * Set the focus type (ie. the type that this resolver is computing the hierarch for.
+ * Returns the binding of this focus type or null if it could not be found.
  */
-public void setFocusType(char[][] compoundName) {
-	if (compoundName == null || this.lookupEnvironment == null) return;
+public ReferenceBinding setFocusType(char[][] compoundName) {
+	if (compoundName == null || this.lookupEnvironment == null) return null;
 	this.focusType = this.lookupEnvironment.askForType(compoundName);
+	if (this.focusType == null) return null;
 	
 	/* All siblings of the focus type were added (since this.focusType == null).
 	   Remove the ones that are not part of the hierarchy
@@ -365,7 +367,7 @@ public void setFocusType(char[][] compoundName) {
 	for (int i = 0; i <= typeIndex; i++) {
 		this.remember(typeModels[i], typeBindings[i]); // will skip types not part of the hierarchy
 	}
-	
+	return this.focusType;
 }
 private boolean subOrSuperOfFocus(ReferenceBinding typeBinding) {
 	if (this.focusType == null) return true; // accept all types (case of hierarchy in a region)

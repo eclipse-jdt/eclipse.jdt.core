@@ -28,6 +28,8 @@ import org.eclipse.jdt.internal.core.Util;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
 public class IndexBasedHierarchyBuilder extends HierarchyBuilder {
@@ -172,7 +174,8 @@ private void buildForProject(JavaProject project, Vector infos, Vector units) th
 	// resolve
 	if (infosSize > 0 || unitsSize > 0) {
 		this.searchableEnvironment = (SearchableEnvironment)project.getSearchableNameEnvironment();
-		if (focusType != null && focusType.getJavaProject().equals(project)) {
+		boolean inProjectOfFocusType = focusType != null && focusType.getJavaProject().equals(project);
+		if (inProjectOfFocusType) {
 			this.searchableEnvironment.unitToLookInside = (CompilationUnit)focusType.getCompilationUnit();
 		}
 		this.nameLookup = project.getNameLookup();
@@ -180,10 +183,15 @@ private void buildForProject(JavaProject project, Vector infos, Vector units) th
 			new HierarchyResolver(this.searchableEnvironment, JavaCore.getOptions(), this, new DefaultProblemFactory());
 		if (focusType != null) {
 			char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
-			this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+			ReferenceBinding focusTypeBinding = this.hierarchyResolver.setFocusType(CharOperation.splitOn('.', fullyQualifiedName));
+			if (focusTypeBinding == null 
+				|| (!inProjectOfFocusType && (focusTypeBinding.tagBits & TagBits.HierarchyHasProblems) > 0)) {
+				// focus type is not visible in this project: no need to go further
+				return;
+			}
 		}
 		this.hierarchyResolver.resolve(genericTypes, compilationUnits);
-		if (focusType != null && focusType.getJavaProject().equals(project)) {
+		if (inProjectOfFocusType) {
 			this.searchableEnvironment.unitToLookInside = null;
 		}
 	}
@@ -207,9 +215,8 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes) {
 	IType focusType = this.getType();
 
 	// create element infos for subtypes
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	IWorkspace workspace = focusType.getJavaProject().getProject().getWorkspace();
-	HandleFactory factory = new HandleFactory(workspace.getRoot(), manager);
+	HandleFactory factory = new HandleFactory(workspace);
 	IJavaProject currentProject = null;
 	for (int i = 0, length = allPotentialSubTypes.length; i < length; i++) {
 		try {

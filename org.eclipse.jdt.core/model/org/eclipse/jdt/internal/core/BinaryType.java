@@ -345,4 +345,24 @@ public String[][] resolveType(String typeName) throws JavaModelException {
 	// not implemented for binary types
 	return null;
 }
+/**
+ * @private Debugging purposes
+ */
+protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	if (info == null) {
+		buffer.append(this.getElementName());
+		buffer.append(" (not open)"); //$NON-NLS-1$
+	} else {
+		try {
+			if (this.isInterface()) {
+				buffer.append("interface "); //$NON-NLS-1$
+			} else {
+				buffer.append("class "); //$NON-NLS-1$
+			}
+			buffer.append(this.getElementName());
+		} catch (JavaModelException e) {
+			buffer.append("<JavaModelException in toString of " + getElementName()); //$NON-NLS-1$
+		}
+	}
+}
 }
