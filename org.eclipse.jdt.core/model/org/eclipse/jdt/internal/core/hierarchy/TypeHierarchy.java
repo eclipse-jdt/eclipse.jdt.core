@@ -340,7 +340,9 @@ protected void fireChange() {
 	}
 	if (DEBUG) {
 		System.out.println("FIRING hierarchy change ["+Thread.currentThread()+"]");
-		System.out.println("    for hierarchy focused on " + ((JavaElement)this.type).toStringWithAncestors()); //$NON-NLS-1$
+		if (this.type != null) {
+			System.out.println("    for hierarchy focused on " + ((JavaElement)this.type).toStringWithAncestors()); //$NON-NLS-1$
+		}
 	}
 	ArrayList listeners= (ArrayList)this.changeListeners.clone();
 	for (int i= 0; i < listeners.size(); i++) {
