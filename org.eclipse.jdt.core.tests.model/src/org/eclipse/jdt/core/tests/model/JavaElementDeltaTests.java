@@ -1776,6 +1776,7 @@ public void testSetClasspathOnFreshProject() throws CoreException {
 		this.createProject("LibProj");
 		this.createFile("LibProj/mylib.jar", "");
 		JavaProject p1 = (JavaProject)this.createJavaProject("P1", new String[] {""}, "bin");
+		this.createFolder("P1/src2");
 
 		p1.getProject().close(null);
 		p1.getProject().open(null);
@@ -1792,8 +1793,8 @@ public void testSetClasspathOnFreshProject() throws CoreException {
 			"Should notice src2 and myLib additions to the classpath", 
 			"P1[*]: {CHILDREN}\n" + 
 			"	[project root][*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	mylib.jar[*]: {ADDED TO CLASSPATH}\n" + 
 			"	src2[*]: {ADDED TO CLASSPATH}\n" + 
+			"	mylib.jar[*]: {ADDED TO CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]");
 	} finally {
 		this.stopDeltas();
