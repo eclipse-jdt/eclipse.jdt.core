@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  */
 public class ExceptionHandlingFlowContext extends FlowContext {
 	
-	ReferenceBinding[] handledExceptions;
+	public ReferenceBinding[] handledExceptions;
 	
 	public final static int BitCacheSize = 32; // 32 bits per int
 	int[] isReached;

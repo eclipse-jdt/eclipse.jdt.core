@@ -25,7 +25,7 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 	public TypeBinding[] thrownExceptions = new TypeBinding[5];
 	public AstNode[] exceptionThrowers = new AstNode[5];
 	public FlowInfo[] exceptionThrowerFlowInfos = new FlowInfo[5];
-
+	
 	public InitializationFlowContext(
 		FlowContext parent,
 		AstNode associatedNode,
@@ -33,9 +33,9 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 		super(
 			parent,
 			associatedNode,
-			new ReferenceBinding[] { scope.getJavaLangThrowable()},
-		// tolerate any kind of exception, but record them
-		scope, FlowInfo.DeadEnd);
+			NoExceptions, // no exception allowed by default
+			scope, 
+			FlowInfo.DeadEnd);
 	}
 
 	public void checkInitializerExceptions(
