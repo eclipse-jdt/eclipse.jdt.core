@@ -563,7 +563,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			int length= getExtendedLength(node);
 			doTextRemoveAndVisit(offset, length, node, editGroup);
 			doTextInsert(offset, (ASTNode) event.getNewValue(), getIndent(offset), true, editGroup);
-			return offset + length;			
+			return offset + length;	
 		}
 		return doVisit(parent, property, 0);
 	}
@@ -1054,21 +1054,24 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	
 
 	private void rewriteModifiers(ASTNode parent, StructuralPropertyDescriptor property, int offset) {
-		
 		RewriteEvent event= getEvent(parent, property);
 		if (event == null || event.getChangeKind() != RewriteEvent.REPLACED) {
 			return;
 		}
-		
-		int oldModifiers= ((Integer) event.getOriginalValue()).intValue();
-		int newModifiers= ((Integer) event.getNewValue()).intValue();
-		TextEditGroup editGroup= getEditGroup(event);
-		
 		try {
-			int tok= getScanner().readNext(offset, true);
-			int startPos= getScanner().getCurrentStartOffset();
-			int endPos= startPos;
+			int oldModifiers= ((Integer) event.getOriginalValue()).intValue();
+			int newModifiers= ((Integer) event.getNewValue()).intValue();
+			TextEditGroup editGroup= getEditGroup(event);
+		
+			TokenScanner scanner= getScanner();
+
+			int tok= scanner.readNext(offset, false);
+			int startPos= scanner.getCurrentStartOffset();
+			int nextStart= startPos;
 			loop: while (true) {
+				if (TokenScanner.isComment(tok)) {
+					tok= scanner.readNext(true); // next non-comment token
+				}
 				boolean keep= true;
 				switch (tok) {
 					case ITerminalSymbols.TokenNamepublic: keep= Modifier.isPublic(newModifiers); break;
@@ -1085,16 +1088,16 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					default:
 						break loop;
 				}
-				tok= getScanner().readNext(true);
-				int currPos= endPos;
-				endPos= getScanner().getCurrentStartOffset();
+				tok= getScanner().readNext(false); // include comments
+				int currPos= nextStart;
+				nextStart= getScanner().getCurrentStartOffset();
 				if (!keep) {
-					doTextRemove(currPos, endPos - currPos, editGroup);
+					doTextRemove(currPos, nextStart - currPos, editGroup);
 				}
 			} 
 			int addedModifiers= newModifiers & ~oldModifiers;
 			if (addedModifiers != 0) {
-				if (startPos != endPos) {
+				if (startPos != nextStart) {
 					int visibilityModifiers= addedModifiers & (Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED);
 					if (visibilityModifiers != 0) {
 						StringBuffer buf= new StringBuffer();
@@ -1105,11 +1108,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 				StringBuffer buf= new StringBuffer();
 				ASTRewriteFlattener.printModifiers(addedModifiers, buf);
-				doTextInsert(endPos, buf.toString(), editGroup);
+				doTextInsert(nextStart, buf.toString(), editGroup);
 			}
 		} catch (CoreException e) {
-			// ignore
-		}		
+			handleException(e);
+		}
 	}
 	
 	private int rewriteModifiers2(ASTNode node, ChildListPropertyDescriptor property, int pos) {
@@ -1134,7 +1137,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			doTextInsert(endPos, " ", getEditGroup(children[children.length - 1])); //$NON-NLS-1$
 		} else if (isAllRemove) {
 			try {
-				int nextPos= getScanner().getNextStartOffset(endPos, false);
+				int nextPos= getScanner().getNextStartOffset(endPos, true); // to the next token
 				doTextRemove(endPos, nextPos - endPos, getEditGroup(children[children.length - 1]));
 				return nextPos;
 			} catch (CoreException e) {
@@ -1365,28 +1368,19 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			rewriteRequiredNode(node, property);
 			return;
 		}
+		// difficult cases: return type insert or remove
 		ASTNode newReturnType= (ASTNode) getNewValue(node, property);
 		if (isConstructorChange || !returnTypeExists && newReturnType != originalReturnType) {
-			try {
-				int startPos= node.getStartPosition();
-				
-				getScanner().setOffset(startPos);
-				int token= getScanner().readNext(true);
-				while (TokenScanner.isModifier(token)) {
-					startPos= getScanner().getCurrentEndOffset();
-					token= getScanner().readNext(true);
-				}
-				
-				TextEditGroup editGroup= getEditGroup(node, property);
-				if (isConstructor || !returnTypeExists) { // insert
-					doTextInsert(startPos, " ", editGroup); //$NON-NLS-1$
-					doTextInsert(startPos, newReturnType, getIndent(startPos), true, editGroup);
-				} else { // remove
-					int len= getExtendedEnd(originalReturnType) - startPos;
-					doTextRemoveAndVisit(startPos, len, originalReturnType, editGroup);
-				}
-			} catch (CoreException e) {
-				handleException(e);
+			// use the start offset of the method name to insert
+			ASTNode originalMethodName= (ASTNode) getOriginalValue(node, MethodDeclaration.NAME_PROPERTY);
+			int nextStart= getExtendedOffset(originalMethodName);
+			TextEditGroup editGroup= getEditGroup(node, property);
+			if (isConstructor || !returnTypeExists) { // insert
+				doTextInsert(nextStart, newReturnType, getIndent(nextStart), true, editGroup);
+				doTextInsert(nextStart, " ", editGroup); //$NON-NLS-1$
+			} else { // remove up to the method name
+				int offset= getExtendedOffset(originalReturnType);
+				doTextRemoveAndVisit(offset, nextStart - offset, originalReturnType, editGroup);
 			}
 		}
 	}

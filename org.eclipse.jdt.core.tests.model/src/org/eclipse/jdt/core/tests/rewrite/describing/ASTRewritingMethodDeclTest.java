@@ -160,8 +160,431 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");	
 			
 		assertEqualString(preview, buf.toString());
+	}
+	
+	public void testMethodReturnTypeChanges() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public E() {}\n");
+		buf.append("    E(int i) {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    /* comment */ E(int i, int j) {}\n");
+		buf.append("    public void gee1() {}\n");
+		buf.append("    void gee2() {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    /* comment */ void gee3() {}\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+		
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		List list= type.bodyDeclarations();
+		
+		{ // insert return type, add second modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(0);
+			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC | Modifier.FINAL), null);
+		
+			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
+			
+			// from constructor to method
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
+			
+		}
+		{ // insert return type, add (first) modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(1);
+			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
+			
+			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
+			
+			// from constructor to method
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
+		}
+		
+		{ // insert return type, add second modifier with comments
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(2);
+			
+			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
+			
+			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
+			
+			// from constructor to method
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
+			
+		}
+		
+		{ // remove return type, add second modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(3);
+			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC | Modifier.FINAL), null);
+		
+			// from method to constructor 
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, null, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
+			
+		}
+		{ // remove return type, add (first) modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(4);
+			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
+			
+			// from method to constructor 
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, null, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
+		}
+		
+		{ // remove return type, add second modifier with comments
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(5);
+			
+			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
+			
+			// from method to constructor 
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, null, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
+		}
+		
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public final float E() {}\n");
+		buf.append("    final float E(int i) {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    final /* comment */ float E(int i, int j) {}\n");
+		buf.append("    public final gee1() {}\n");
+		buf.append("    final gee2() {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    final gee3() {}\n");
+		buf.append("}\n");	
+			
+		assertEqualString(preview, buf.toString());
 
 	}
+	
+	public void testMethodReturnTypeChanges2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public synchronized E() {}\n");
+		buf.append("    public E(int i) {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    public /* comment */ E(int i, int j) {}\n");
+		buf.append("    public synchronized void gee1() {}\n");
+		buf.append("    public void gee2() {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    public /* comment */ void gee3() {}\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+		
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		List list= type.bodyDeclarations();
+		
+		{ // insert return type, remove second modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(0);
+			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC), null);
+		
+			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
+			
+			// from constructor to method
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
+			
+		}
+		{ // insert return type, remove (only) modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(1);
+			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(0), null);
+			
+			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
+			
+			// from constructor to method
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
+		}
+		
+		{ // insert return type, remove modifier with comments
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(2);
+			
+			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(0), null);
+			
+			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
+			
+			// from constructor to method
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
+			
+		}
+		
+		{ // remove return type, remove second modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(3);
+			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC), null);
+		
+			// from method to constructor 
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, null, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
+			
+		}
+		{ // remove return type, remove (only) modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(4);
+			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(0), null);
+			
+			// from method to constructor 
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, null, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
+		}
+		
+		{ // remove return type, remove modifier with comments
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(5);
+			
+			rewrite.set(methodDecl, MethodDeclaration.MODIFIERS_PROPERTY, new Integer(0), null);
+			
+			// from method to constructor 
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, null, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
+		}
+		
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public float E() {}\n");
+		buf.append("    float E(int i) {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    /* comment */ float E(int i, int j) {}\n");
+		buf.append("    public gee1() {}\n");
+		buf.append("    gee2() {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    gee3() {}\n");
+		buf.append("}\n");	
+			
+		assertEqualString(preview, buf.toString());
+
+	}
+
+
+	
+	public void testMethodReturnTypeChangesAST3() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public E() {}\n");
+		buf.append("    E(int i) {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    /* comment */ E(int i, int j) {}\n");
+		buf.append("    public void gee1() {}\n");
+		buf.append("    void gee2() {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    /* comment */ void gee3() {}\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+		
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		List list= type.bodyDeclarations();
+		
+		{ // insert return type, add second modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(0);
+			
+			ListRewrite modifiers= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			modifiers.insertLast(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+			
+			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
+			
+			// from constructor to method
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE2_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
+			
+		}
+		{ // insert return type, add (first) modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(1);
+			
+			ListRewrite modifiers= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			modifiers.insertLast(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+			
+			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
+			
+			// from constructor to method
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE2_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
+		}
+		
+		{ // insert return type, add second modifier with comments
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(2);
+			
+			ListRewrite modifiers= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			modifiers.insertLast(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+			
+			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
+			
+			// from constructor to method
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE2_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
+			
+		}
+		
+		{ // remove return type, add second modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(3);
+
+			ListRewrite modifiers= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			modifiers.insertLast(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+			
+			// from method to constructor 
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE2_PROPERTY, null, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
+			
+		}
+		{ // remove return type, add (first) modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(4);
+
+			ListRewrite modifiers= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			modifiers.insertLast(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);			
+			
+			// from method to constructor 
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE2_PROPERTY, null, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
+		}
+		
+		{ // remove return type, add second modifier with comments
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(5);
+			
+			ListRewrite modifiers= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			modifiers.insertLast(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+			
+			// from method to constructor 
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE2_PROPERTY, null, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
+		}
+		
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public final float E() {}\n");
+		buf.append("    final float E(int i) {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    final float /* comment */ E(int i, int j) {}\n");
+		buf.append("    public final gee1() {}\n");
+		buf.append("    final gee2() {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    final gee3() {}\n");
+		buf.append("}\n");	
+			
+		assertEqualString(preview, buf.toString());
+
+	}
+	
+	public void testMethodReturnTypeChanges2AST3() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public synchronized E() {}\n");
+		buf.append("    public E(int i) {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    public /* comment */ E(int i, int j) {}\n");
+		buf.append("    public synchronized void gee1() {}\n");
+		buf.append("    public void gee2() {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    public /* comment */ void gee3() {}\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+		
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		List list= type.bodyDeclarations();
+		
+		{ // insert return type, remove second modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(0);
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(1), null);
+		
+			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
+			
+			// from constructor to method
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE2_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
+			
+		}
+		{ // insert return type, remove (only) modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(1);
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(0), null);
+			
+			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
+			
+			// from constructor to method
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE2_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
+		}
+		
+		{ // insert return type, remove modifier with comments
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(2);
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(0), null);			
+			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
+			
+			// from constructor to method
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE2_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
+		}
+		
+		{ // remove return type, remove second modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(3);
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(1), null);
+			
+			// from method to constructor 
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE2_PROPERTY, null, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
+			
+		}
+		{ // remove return type, remove (only) modifier
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(4);
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(0), null);
+			
+			// from method to constructor 
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE2_PROPERTY, null, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
+		}
+		
+		{ // remove return type, remove modifier with comments
+			MethodDeclaration methodDecl= (MethodDeclaration) list.get(5);
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(0), null);
+			
+			// from method to constructor 
+			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE2_PROPERTY, null, null);
+			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
+		}
+		
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public float E() {}\n");
+		buf.append("    float E(int i) {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    /* comment */ float E(int i, int j) {}\n");
+		buf.append("    public gee1() {}\n");
+		buf.append("    gee2() {}\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    gee3() {}\n");
+		buf.append("}\n");	
+			
+		assertEqualString(preview, buf.toString());
+
+	}
+
+
+	
 	
 	public void testListRemoves() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -845,7 +1268,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 	
-	public void testModifiers() throws Exception {
+	public void testModifiersAST3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -964,9 +1387,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    final Object foo9() { return null; }\n");
 		buf.append("}\n");	
 		assertEqualString(preview, buf.toString());
-
 	}
-
 	
 	
 	public void testFieldDeclaration() throws Exception {
@@ -1543,10 +1964,5 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    }\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
-
 	}	
-	
-	
-	
-	
 }
