@@ -17,9 +17,9 @@ public interface IIndexConstants {
 	/**
 	 * The signature of the index file.
 	 */
-	public static final String SIGNATURE= "INDEX FILE 0.009"; //$NON-NLS-1$
+	public static final String SIGNATURE= "INDEX FILE 0.010"; //$NON-NLS-1$
 	/**
-	 * The signature of the index file.
+	 * The separator for files in the index file.
 	 */
 	public static final char FILE_SEPARATOR= '/';
 	/**

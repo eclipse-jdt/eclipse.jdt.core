@@ -113,8 +113,14 @@ public class CodeByteStream {
 		int numBits= readUnary();
 		return readBits(numBits - 1) | (1 << (numBits - 1));
 	}
-	public char[] readSmallUTF() throws UTFDataFormatException {
+	public char[] readUTF() throws UTFDataFormatException {
 		int utflen= readByte();
+		if (utflen == 255) {
+			// long UTF
+			int high = readByte();
+			int low = readByte();
+			utflen = (high << 8) + low;
+		}
 		char str[]= new char[utflen];
 		int count= 0;
 		int strlen= 0;
@@ -271,10 +277,7 @@ public class CodeByteStream {
 		writeUnary(numBits);
 		writeBits(value, numBits - 1);
 	}
-	public void writeSmallUTF(char[] str) {
-		writeSmallUTF(str, 0, str.length);
-	}
-	public void writeSmallUTF(char[] str, int start, int end) {
+	public void writeUTF(char[] str, int start, int end) {
 		int utflen= 0;
 		for (int i= start; i < end; i++) {
 			int c= str[i];
@@ -286,9 +289,15 @@ public class CodeByteStream {
 				utflen += 2;
 			}
 		}
-		if (utflen > 255)
+		if (utflen < 255) {
+			writeByte(utflen & 0xFF);
+		} else if (utflen > 65535) {
 			throw new IllegalArgumentException();
-		writeByte(utflen & 0xFF);
+		} else {
+			writeByte(255); // marker for long UTF
+			writeByte((utflen >>> 8) & 0xFF); // high byte
+			writeByte((utflen >>> 0) & 0xFF); // low byte
+		}
 		for (int i= start; i < end; i++) {
 			int c= str[i];
 			if ((c >= 0x0001) && (c <= 0x007F)) {
@@ -328,37 +337,6 @@ public class CodeByteStream {
 			bitOffset= 0;
 			if (++byteOffset >= bytes.length)
 				grow();
-		}
-	}
-	public void writeUTF(char[] str) {
-		int strlen= str.length;
-		int utflen= 0;
-		for (int i= 0; i < strlen; i++) {
-			int c= str[i];
-			if ((c >= 0x0001) && (c <= 0x007F)) {
-				utflen++;
-			} else if (c > 0x07FF) {
-				utflen += 3;
-			} else {
-				utflen += 2;
-			}
-		}
-		if (utflen > 65535)
-			throw new IllegalArgumentException();
-		writeByte((utflen >>> 8) & 0xFF);
-		writeByte((utflen >>> 0) & 0xFF);
-		for (int i= 0; i < strlen; i++) {
-			int c= str[i];
-			if ((c >= 0x0001) && (c <= 0x007F)) {
-				writeByte(c);
-			} else if (c > 0x07FF) {
-				writeByte(0xE0 | ((c >> 12) & 0x0F));
-				writeByte(0x80 | ((c >> 6) & 0x3F));
-				writeByte(0x80 | ((c >> 0) & 0x3F));
-			} else {
-				writeByte(0xC0 | ((c >> 6) & 0x1F));
-				writeByte(0x80 | ((c >> 0) & 0x3F));
-			}
 		}
 	}
 }

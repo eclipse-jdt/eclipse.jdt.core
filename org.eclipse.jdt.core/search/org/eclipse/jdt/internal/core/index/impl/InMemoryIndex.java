@@ -66,7 +66,6 @@ public class InMemoryIndex {
 	 * If the word does not exist, it adds it in the index.
 	 */
 	protected void addRef(char[] word, int fileNum) {
-		word= preprocessWord(word);
 		WordEntry entry= (WordEntry) this.words.get(word);
 		if (entry == null) {
 			entry= new WordEntry(word);
@@ -152,12 +151,6 @@ public class InMemoryIndex {
 		footprint= 0;
 		sortedWordEntries= null;
 		sortedFiles= null;
-	}
-	protected char[] preprocessWord(char[] word) {
-		if (word.length > 255) {
-			System.arraycopy(word, 0, word= new char[255], 0, 255);
-		}
-		return word;
 	}
 	/**
 	 * Saves the index in the given file.

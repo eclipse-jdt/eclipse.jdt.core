@@ -44,7 +44,7 @@ public class GammaCompressedIndexBlock extends IndexBlock {
 		char[] word= entry.getWord();
 		int prefixLen= prevWord == null ? 0 : Util.prefixLength(prevWord, word);
 		codeStream.writeByte(prefixLen);
-		codeStream.writeSmallUTF(word, prefixLen, word.length);
+		codeStream.writeUTF(word, prefixLen, word.length);
 		int n= entry.getNumRefs();
 		codeStream.writeGamma(n);
 		int prevRef= 0;
@@ -79,7 +79,7 @@ public class GammaCompressedIndexBlock extends IndexBlock {
 		try {
 			readCodeStream.reset(field.buffer(), offset);
 			int prefixLength= readCodeStream.readByte();
-			char[] word= readCodeStream.readSmallUTF();
+			char[] word= readCodeStream.readUTF();
 			if (prevWord != null && prefixLength > 0) {
 				char[] temp= new char[prefixLength + word.length];
 				System.arraycopy(prevWord, 0, temp, 0, prefixLength);

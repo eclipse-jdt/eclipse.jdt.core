@@ -202,6 +202,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testTypeDeclarationInPackageScope2"));
 	suite.addTest(new JavaSearchTests("testMemberTypeDeclaration"));
 	suite.addTest(new JavaSearchTests("testPatternMatchTypeDeclaration"));
+	suite.addTest(new JavaSearchTests("testLongDeclaration"));
 	
 	// type reference
 	suite.addTest(new JavaSearchTests("testSimpleTypeReference"));
@@ -1141,6 +1142,23 @@ public void testInterfaceImplementors2() throws JavaModelException, CoreExceptio
 		resultCollector);
 	assertEquals(
 		"src/r2/X.java r2.X.field [I]", 
+		resultCollector.toString());
+}
+/**
+ * Long declaration (>255) test.
+ * (regression test for bug 25859 Error doing Java Search)
+ */
+public void testLongDeclaration() throws JavaModelException, CoreException {
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	new SearchEngine().search(
+		getWorkspace(), 
+		"AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz", 
+		TYPE,
+		DECLARATIONS, 
+		getJavaSearchScope(),  
+		resultCollector);
+	assertEquals(
+		"src/c9/X.java c9.AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz [AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz]", 
 		resultCollector.toString());
 }
 /**
