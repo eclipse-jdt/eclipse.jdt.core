@@ -79,7 +79,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public static Test suite() {
 		if (false) {
 			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test036"));
+			suite.addTest(new BatchASTCreationTests("test056"));
 			return suite;
 		}
 		return new Suite(BatchASTCreationTests.class);
@@ -1177,5 +1177,28 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		);
 	}
 
-
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=86967
+	 */
+	public void _test056() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/X.java",
+				"import java.util.HashMap;\n" + 
+				"import java.util.Iterator;\n" + 
+				"import java.util.Map;\n" + 
+				"import java.util.Set;\n" + 
+				"class X {\n" + 
+				"	void sets() {\n" + 
+				"		Map map= new HashMap();\n" + 
+				"		map.put(\"key\", new Integer(17));\n" + 
+				"		Set entrySet= map.entrySet();\n" + 
+				"		Iterator iter= entrySet.iterator();\n" + 
+				"		Map.Entry entry= (Map.Entry) iter.next();\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"Ljava/util/Map$Entry<Ljava/util/Map<TK;TV;>;:TK;Ljava/util/Map<TK;TV;>;:TV;>;"
+		);
+	}
 }
