@@ -418,7 +418,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		
 		if (checkMode(mode, SYSTEM | DETAILED)) {
 			if (codeAttribute != null) {
-				disassemble(codeAttribute, buffer, lineSeparator, tabNumber);
+				disassemble(codeAttribute, buffer, lineSeparator, tabNumber, mode);
 			}
 		}
 		if (checkMode(mode, SYSTEM)) {
@@ -664,9 +664,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		return buffer.toString();
 	}
 	
-	private void disassemble(ICodeAttribute codeAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+	private void disassemble(ICodeAttribute codeAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber - 1);
-		DefaultBytecodeVisitor visitor = new DefaultBytecodeVisitor(codeAttribute, buffer, lineSeparator, tabNumber);
+		DefaultBytecodeVisitor visitor = new DefaultBytecodeVisitor(codeAttribute, buffer, lineSeparator, tabNumber, mode);
 		try {
 			codeAttribute.traverse(visitor);
 		} catch(ClassFormatException e) {
@@ -843,7 +843,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							Integer.toString(constantPoolEntry.getClassIndex()),
 							Integer.toString(constantPoolEntry.getNameAndTypeIndex()),
 							new String(constantPoolEntry.getClassName()),
-							getFieldRefNameAndType(constantPoolEntry)})); //$NON-NLS-1$
+							new String(constantPoolEntry.getFieldName()),
+							new String(constantPoolEntry.getFieldDescriptor())})); //$NON-NLS-1$
 					break;
 				case IConstantPoolConstant.CONSTANT_Float :
 					buffer.append(
@@ -867,7 +868,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 								Integer.toString(constantPoolEntry.getClassIndex()),
 								Integer.toString(constantPoolEntry.getNameAndTypeIndex()),
 								new String(constantPoolEntry.getClassName()),
-								getMethodRefNameAndType(constantPoolEntry)})); //$NON-NLS-1$
+								new String(constantPoolEntry.getMethodName()),
+								new String(constantPoolEntry.getMethodDescriptor())}));
 					break;
 				case IConstantPoolConstant.CONSTANT_Long :
 					buffer.append(
@@ -884,7 +886,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 								Integer.toString(constantPoolEntry.getClassIndex()),
 								Integer.toString(constantPoolEntry.getNameAndTypeIndex()),
 								new String(constantPoolEntry.getClassName()),
-								getMethodRefNameAndType(constantPoolEntry)})); //$NON-NLS-1$
+								new String(constantPoolEntry.getMethodName()),
+								new String(constantPoolEntry.getMethodDescriptor())}));
 					break;
 				case IConstantPoolConstant.CONSTANT_NameAndType :
 					int nameIndex = constantPoolEntry.getNameAndTypeInfoNameIndex();
@@ -987,7 +990,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
 		}
 		buffer.append(getSignatureForField(fieldDescriptor));
-		buffer.append(Util.bind("disassembler.space")); //$NON-NLS-1$
+		buffer.append(' ');
 		buffer.append(new String(fieldInfo.getName()));
 		IConstantValueAttribute constantValueAttribute = fieldInfo.getConstantValueAttribute();
 		if (constantValueAttribute != null) {
@@ -1371,14 +1374,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 			return null;
 	}
-	private String getFieldRefNameAndType(IConstantPoolEntry entry) {
-		StringBuffer stringBuffer = new StringBuffer();
-		stringBuffer
-			.append(entry.getFieldName())
-			.append(' ')
-			.append(entry.getFieldDescriptor());
-		return String.valueOf(stringBuffer);
-	}
 	private ILocalVariableTypeTableAttribute getLocalVariableTypeAttribute(ICodeAttribute codeAttribute) {
 		IClassFileAttribute[] attributes = codeAttribute.getAttributes();
 		for (int i = 0, max = attributes.length; i < max; i++) {
@@ -1387,15 +1382,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 		}
 		return null;
-	}
-
-	private String getMethodRefNameAndType(IConstantPoolEntry entry) {
-		StringBuffer stringBuffer = new StringBuffer();
-		stringBuffer
-			.append(entry.getMethodName())
-			.append(' ')
-			.append(entry.getMethodDescriptor());
-		return String.valueOf(stringBuffer);
 	}
 	
 	private char[][] getParameterNames(char[] methodDescriptor, ICodeAttribute codeAttribute, int accessFlags) {

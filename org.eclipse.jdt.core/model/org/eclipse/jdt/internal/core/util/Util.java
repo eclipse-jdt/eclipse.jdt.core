@@ -79,6 +79,17 @@ public class Util {
 	
 	public static char[][] JAVA_LIKE_EXTENSIONS = {SuffixConstants.SUFFIX_java, SuffixConstants.SUFFIX_JAVA};
 
+	private static final char[] BOOLEAN = "boolean".toCharArray(); //$NON-NLS-1$
+	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
+	private static final char[] CHAR = "char".toCharArray(); //$NON-NLS-1$
+	private static final char[] DOUBLE = "double".toCharArray(); //$NON-NLS-1$
+	private static final char[] FLOAT = "float".toCharArray(); //$NON-NLS-1$
+	private static final char[] INT = "int".toCharArray(); //$NON-NLS-1$
+	private static final char[] LONG = "long".toCharArray(); //$NON-NLS-1$
+	private static final char[] SHORT = "short".toCharArray(); //$NON-NLS-1$
+	private static final char[] VOID = "void".toCharArray(); //$NON-NLS-1$
+	private static final char[] INIT = "<init>".toCharArray(); //$NON-NLS-1$
+
 	static {
 		relocalize();
 	}	
@@ -1000,8 +1011,7 @@ public class Util {
 			}
 		}
 	}
-	
-	/*
+/*
 	 * Returns the signature of the given type.
 	 */
 	public static String getSignature(Type type) {
@@ -1937,6 +1947,146 @@ public class Util {
 			result[i] = new String(a[i]);
 		}
 		return result;
+	}
+	private static void appendArrayTypeSignature(char[] string, int start, StringBuffer buffer) {
+		// need a minimum 2 char
+		if (start >= string.length - 1) {
+			throw new IllegalArgumentException();
+		}
+		char c = string[start];
+		if (c != Signature.C_ARRAY) { //$NON-NLS-1$
+			throw new IllegalArgumentException();
+		}
+		appendTypeSignature(string, start + 1, buffer);
+		buffer.append('[').append(']');
+	}
+	private static void appendClassTypeSignature(char[] string, int start, StringBuffer buffer) {
+		char c = string[start];
+		if (c != Signature.C_RESOLVED) {
+			return;
+		}
+		int p = start + 1;
+		int checkpoint = buffer.length();
+		while (true) {
+			c = string[p];
+			switch(c) {
+				case Signature.C_SEMICOLON :
+					// all done
+					return;
+				case Signature.C_DOT :
+					// erase package prefix
+					buffer.setLength(checkpoint);
+					break;
+				 case '/' :
+					// erase package prefix
+					buffer.setLength(checkpoint);
+					break;
+				 case Signature.C_DOLLAR :
+					/**
+					 * Convert '$' in resolved type signatures into '.'.
+					 * NOTE: This assumes that the type signature is an inner type
+					 * signature. This is true in most cases, but someone can define a
+					 * non-inner type name containing a '$'.
+					 */
+					buffer.append('.');
+				 	break;
+				 default :
+					buffer.append(c);
+			}
+			p++;
+		}
+	}
+	static void appendTypeSignature(char[] string, int start, StringBuffer buffer) {
+		char c = string[start];
+		switch (c) {
+			case Signature.C_ARRAY :
+				appendArrayTypeSignature(string, start, buffer);
+				break;
+			case Signature.C_RESOLVED :
+				appendClassTypeSignature(string, start, buffer);
+				break;
+			case Signature.C_TYPE_VARIABLE :
+				int e = Util.scanTypeVariableSignature(string, start);
+				buffer.append(CharOperation.subarray(string, start + 1, e));
+				break;
+			case Signature.C_BOOLEAN :
+				buffer.append(BOOLEAN);
+				break;
+			case Signature.C_BYTE :
+				buffer.append(BYTE);
+				break;
+			case Signature.C_CHAR :
+				buffer.append(CHAR);
+				break;
+			case Signature.C_DOUBLE :
+				buffer.append(DOUBLE);
+				break;
+			case Signature.C_FLOAT :
+				buffer.append(FLOAT);
+				break;
+			case Signature.C_INT :
+				buffer.append(INT);
+				break;
+			case Signature.C_LONG :
+				buffer.append(LONG);
+				break;
+			case Signature.C_SHORT :
+				buffer.append(SHORT);
+				break;
+			case Signature.C_VOID :
+				buffer.append(VOID);
+				break;
+		}
+	}
+	public static String toString(char[] declaringClass, char[] methodName, char[] methodSignature, boolean includeReturnType) {
+		boolean isConstructor = CharOperation.equals(methodName, INIT);
+		int firstParen = CharOperation.indexOf(Signature.C_PARAM_START, methodSignature);
+		if (firstParen == -1) {
+			return ""; //$NON-NLS-1$
+		}
+		
+		StringBuffer buffer = new StringBuffer(methodSignature.length + 10);
+		
+		if (!isConstructor) {
+			// return type
+			if (includeReturnType) {
+				char[] rts = Signature.getReturnType(methodSignature);
+				appendTypeSignature(rts, 0 , buffer);
+				buffer.append(' ');
+			}
+		}
+		
+		// selector
+		int lastIndexOfSlash = CharOperation.lastIndexOf('/', declaringClass);
+		if (lastIndexOfSlash != -1) {
+			buffer.append(CharOperation.subarray(declaringClass, lastIndexOfSlash + 1, declaringClass.length));
+		} else {
+			buffer.append(declaringClass);
+		}
+		if (!isConstructor) {
+			buffer.append('.');
+	
+			if (methodName != null) {
+				buffer.append(methodName);
+			}
+		}
+		
+		// parameters
+		buffer.append('(');
+		char[][] pts = Signature.getParameterTypes(methodSignature);
+		for (int i = 0, max = pts.length; i < max; i++) {
+			if (i == max - 1) {
+				appendTypeSignature(pts[i], 0 , buffer);
+			} else {
+				appendTypeSignature(pts[i], 0 , buffer);
+			}
+			if (i != pts.length - 1) {
+				buffer.append(',');
+				buffer.append(' ');
+			}
+		}
+		buffer.append(')');
+		return String.valueOf(buffer);
 	}
 	/*
 	 * Returns the unresolved type parameter signatures of the given method
