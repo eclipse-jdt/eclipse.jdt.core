@@ -699,12 +699,12 @@ public class SearchEngine {
 	 * methods (from a String pattern or a Java element) and encapsulate the description of what is
 	 * being searched (for example, search method declarations in a case sensitive way).
 	 *
-	 *@param pattern the pattern to search
-	 *@param participants the particpants in the search
-	 *@param scope the search scope
-	 *@param requestor the requestor to report the matches to
-	 *@param monitor the progress monitor used to report progress
-	 *@exception CoreException if the search failed. Reasons include:
+	 * @param pattern the pattern to search
+	 * @param participants the particpants in the search
+	 * @param scope the search scope
+	 * @param requestor the requestor to report the matches to
+	 * @param monitor the progress monitor used to report progress
+	 * @exception CoreException if the search failed. Reasons include:
 	 *	<ul>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
@@ -927,7 +927,14 @@ public class SearchEngine {
 		}
 	}	
 	
-	private void searchDeclarations(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector, SearchPattern pattern) throws JavaModelException {
+	/**
+	 * @deprecated mark deprecated as it uses deprecated code
+	 */
+	private void searchDeclarations(IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector, SearchPattern pattern) throws JavaModelException {
+		searchDeclarations(enclosingElement, new ResultCollectorAdapter(resultCollector), pattern, resultCollector.getProgressMonitor());
+	}
+	
+	private void searchDeclarations(IJavaElement enclosingElement, SearchRequestor requestor, SearchPattern pattern, IProgressMonitor monitor) throws JavaModelException {
 		IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
 		IResource resource = this.getResource(enclosingElement);
 		try {
@@ -944,15 +951,15 @@ public class SearchEngine {
 					documents, 
 					pattern, 
 					scope, 
-					new ResultCollectorAdapter(resultCollector), 
-					resultCollector.getProgressMonitor());
+					requestor, 
+					monitor);
 			} else {
 				search(
 					pattern, 
 					new SearchParticipant[] {getDefaultSearchParticipant()}, 
 					scope, 
-					new ResultCollectorAdapter(resultCollector), 
-					resultCollector.getProgressMonitor());
+					requestor, 
+					monitor);
 			}
 		} catch (CoreException e) {
 			if (e instanceof JavaModelException) {
@@ -963,6 +970,48 @@ public class SearchEngine {
 		}
 	}
 
+	/**
+	 * Searches for all declarations of the fields accessed in the given element.
+	 * The element can be a compilation unit, a source type, or a source method.
+	 * Reports the field declarations using the given requestor.
+	 * <p>
+	 * Consider the following code:
+	 * <code>
+	 * <pre>
+	 *		class A {
+	 *			int field1;
+	 *		}
+	 *		class B extends A {
+	 *			String value;
+	 *		}
+	 *		class X {
+	 *			void test() {
+	 *				B b = new B();
+	 *				System.out.println(b.value + b.field1);
+	 *			};
+	 *		}
+	 * </pre>
+	 * </code>
+	 * then searching for declarations of accessed fields in method 
+	 * <code>X.test()</code> would collect the fields
+	 * <code>B.value</code> and <code>A.field1</code>.
+	 * </p>
+	 *
+	 * @param enclosingElement the method, type, or compilation unit to be searched in
+	 * @param requestor a callback object to which each match is reported
+	 * @param monitor the progress monitor used to report progress
+	 * @exception JavaModelException if the search failed. Reasons include:
+	 *	<ul>
+	 *		<li>the element doesn't exist</li>
+	 *		<li>the classpath is incorrectly set</li>
+	 *	</ul>
+	 * @since 3.0
+	 */	
+	public void searchDeclarationsOfAccessedFields(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
+		SearchPattern pattern = new DeclarationOfAccessedFieldsPattern(enclosingElement);
+		searchDeclarations(enclosingElement, requestor, pattern, monitor);
+	}
+	
 	/**
 	 * Searches for all declarations of the fields accessed in the given element.
 	 * The element can be a compilation unit, a source type, or a source method.
@@ -998,10 +1047,53 @@ public class SearchEngine {
 	 *		<li>the element doesn't exist</li>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
+	 * @deprecated use searchDeclarationsOfAccessedFields(IJavaElement, SearchRequestor, IProgressMonitor) instead
 	 */	
 	public void searchDeclarationsOfAccessedFields(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 		SearchPattern pattern = new DeclarationOfAccessedFieldsPattern(enclosingElement);
-		searchDeclarations(workspace, enclosingElement, resultCollector, pattern);
+		searchDeclarations(enclosingElement, resultCollector, pattern);
+	}
+	
+	/**
+	 * Searches for all declarations of the types referenced in the given element.
+	 * The element can be a compilation unit, a source type, or a source method.
+	 * Reports the type declarations using the given requestor.
+	 * <p>
+	 * Consider the following code:
+	 * <code>
+	 * <pre>
+	 *		class A {
+	 *		}
+	 *		class B extends A {
+	 *		}
+	 *		interface I {
+	 *		  int VALUE = 0;
+	 *		}
+	 *		class X {
+	 *			void test() {
+	 *				B b = new B();
+	 *				this.foo(b, I.VALUE);
+	 *			};
+	 *		}
+	 * </pre>
+	 * </code>
+	 * then searching for declarations of referenced types in method <code>X.test()</code>
+	 * would collect the class <code>B</code> and the interface <code>I</code>.
+	 * </p>
+	 *
+	 * @param enclosingElement the method, type, or compilation unit to be searched in
+	 * @param requestor a callback object to which each match is reported
+	 * @param monitor the progress monitor used to report progress
+	 * @exception JavaModelException if the search failed. Reasons include:
+	 *	<ul>
+	 *		<li>the element doesn't exist</li>
+	 *		<li>the classpath is incorrectly set</li>
+	 *	</ul>
+	 * @since 3.0
+	 */	
+	public void searchDeclarationsOfReferencedTypes(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
+		SearchPattern pattern = new DeclarationOfReferencedTypesPattern(enclosingElement);
+		searchDeclarations(enclosingElement, requestor, pattern, monitor);
 	}
 	
 	/**
@@ -1039,12 +1131,58 @@ public class SearchEngine {
 	 *		<li>the element doesn't exist</li>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
+	 * @deprecated use searchDeclarationsOfReferencedTypes(IJavaElement, SearchRequestor, IProgressMonitor) instead
 	 */	
 	public void searchDeclarationsOfReferencedTypes(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 		SearchPattern pattern = new DeclarationOfReferencedTypesPattern(enclosingElement);
-		searchDeclarations(workspace, enclosingElement, resultCollector, pattern);
+		searchDeclarations(enclosingElement, resultCollector, pattern);
 	}
 	
+	/**
+	 * Searches for all declarations of the methods invoked in the given element.
+	 * The element can be a compilation unit, a source type, or a source method.
+	 * Reports the method declarations using the given requestor.
+	 * <p>
+	 * Consider the following code:
+	 * <code>
+	 * <pre>
+	 *		class A {
+	 *			void foo() {};
+	 *			void bar() {};
+	 *		}
+	 *		class B extends A {
+	 *			void foo() {};
+	 *		}
+	 *		class X {
+	 *			void test() {
+	 *				A a = new B();
+	 *				a.foo();
+	 *				B b = (B)a;
+	 *				b.bar();
+	 *			};
+	 *		}
+	 * </pre>
+	 * </code>
+	 * then searching for declarations of sent messages in method 
+	 * <code>X.test()</code> would collect the methods
+	 * <code>A.foo()</code>, <code>B.foo()</code>, and <code>A.bar()</code>.
+	 * </p>
+	 *
+	 * @param enclosingElement the method, type, or compilation unit to be searched in
+	 * @param requestor a callback object to which each match is reported
+	 * @param monitor the progress monitor used to report progress
+	 * @exception JavaModelException if the search failed. Reasons include:
+	 *	<ul>
+	 *		<li>the element doesn't exist</li>
+	 *		<li>the classpath is incorrectly set</li>
+	 *	</ul>
+	 * @since 3.0
+	 */	
+	public void searchDeclarationsOfSentMessages(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
+		SearchPattern pattern = new DeclarationOfReferencedMethodsPattern(enclosingElement);
+		searchDeclarations(enclosingElement, requestor, pattern, monitor);
+	}
+
 	/**
 	 * Searches for all declarations of the methods invoked in the given element.
 	 * The element can be a compilation unit, a source type, or a source method.
@@ -1083,9 +1221,10 @@ public class SearchEngine {
 	 *		<li>the element doesn't exist</li>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
+	 * @deprecated use searchDeclarationsOfSentMessages(IJavaElement, SearchRequestor, IProgressMonitor) instead
 	 */	
 	public void searchDeclarationsOfSentMessages(IWorkspace workspace, IJavaElement enclosingElement, IJavaSearchResultCollector resultCollector) throws JavaModelException {
 		SearchPattern pattern = new DeclarationOfReferencedMethodsPattern(enclosingElement);
-		searchDeclarations(workspace, enclosingElement, resultCollector, pattern);
+		searchDeclarations(enclosingElement, resultCollector, pattern);
 	}
 }

@@ -35,22 +35,12 @@ public class JavaSearchTests extends AbstractJavaModelTests implements IJavaSear
 /**
  * Collects results as a string.
  */
-public static class JavaSearchResultCollector extends SearchRequestor implements IJavaSearchResultCollector {
+public static class JavaSearchResultCollector extends SearchRequestor {
 	public StringBuffer results = new StringBuffer();
 	public boolean showAccuracy;
 	public boolean showProject;
 	public boolean showContext;
 	public boolean showInsideDoc;
-	public void aboutToStart() {
-	}
-	public void accept(IResource resource, int start, int end, IJavaElement element, int accuracy) {
-		SearchMatch match = new FieldDeclarationMatch(element, accuracy, start, end, SearchEngine.getDefaultSearchParticipant(), resource);
-		try {
-			acceptSearchMatch(match);
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-	}
 	public boolean acceptSearchMatch(SearchMatch match) throws CoreException {
 		try {
 			if (results.length() > 0) results.append("\n");
@@ -162,10 +152,10 @@ public static class JavaSearchResultCollector extends SearchRequestor implements
 			if (this.showAccuracy) {
 				results.append(" ");
 				switch (match.getAccuracy()) {
-					case EXACT_MATCH:
+					case SearchMatch.A_ACCURATE:
 						results.append("EXACT_MATCH");
 						break;
-					case POTENTIAL_MATCH:
+					case SearchMatch.A_INACCURATE:
 						results.append("POTENTIAL_MATCH");
 						break;
 				}
@@ -276,12 +266,8 @@ public static class JavaSearchResultCollector extends SearchRequestor implements
 		}
 	}
 	public void beginReporting() {
-		aboutToStart();
-	}
-	public void done() {
 	}
 	public void endReporting() {
-		done();
 	}
 	public void enterParticipant(SearchParticipant participant) {
 	}
@@ -521,6 +507,15 @@ protected void search(SearchPattern searchPattern, IJavaSearchScope scope, Searc
 		requestor,
 		null);
 }
+protected void searchDeclarationsOfAccessedFields(IJavaElement enclosingElement, SearchRequestor requestor) throws JavaModelException {
+	new SearchEngine().searchDeclarationsOfAccessedFields(enclosingElement, requestor, null);
+}
+protected void searchDeclarationsOfReferencedTypes(IJavaElement enclosingElement, SearchRequestor requestor) throws JavaModelException {
+	new SearchEngine().searchDeclarationsOfReferencedTypes(enclosingElement, requestor, null);
+}
+protected void searchDeclarationsOfSentMessages(IJavaElement enclosingElement, SearchRequestor requestor) throws JavaModelException {
+	new SearchEngine().searchDeclarationsOfSentMessages(enclosingElement, requestor, null);
+}
 
 /**
  * Type reference test.
@@ -724,9 +719,8 @@ public void testDeclarationOfAccessedFields1() throws CoreException {
 		getCompilationUnit("JavaSearch", "src", "a5", "B.java").
 			getType("C").getMethod("i", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().searchDeclarationsOfAccessedFields(
-		getWorkspace(), 
-		method,
+	searchDeclarationsOfAccessedFields(
+		method, 
 		resultCollector
 	);
 	assertSearchResults(
@@ -742,9 +736,8 @@ public void testDeclarationOfAccessedFields2() throws CoreException {
 		getCompilationUnit("JavaSearch", "src", "a6", "A.java").
 			getType("B").getMethod("m", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().searchDeclarationsOfAccessedFields(
-		getWorkspace(), 
-		method,
+	searchDeclarationsOfAccessedFields(
+		method, 
 		resultCollector
 	);
 	assertSearchResults(
@@ -760,9 +753,8 @@ public void testDeclarationOfAccessedFields3() throws CoreException {
 		getCompilationUnit("JavaSearch", "src", "b6", "A.java").
 			getType("A").getMethod("foo", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().searchDeclarationsOfAccessedFields(
-		getWorkspace(), 
-		method,
+	searchDeclarationsOfAccessedFields(
+		method, 
 		resultCollector
 	);
 	assertSearchResults(
@@ -777,9 +769,8 @@ public void testDeclarationOfReferencedTypes1() throws CoreException {
 		getCompilationUnit("JavaSearch", "src", "a3", "References.java").
 			getType("References").getMethod("foo", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().searchDeclarationsOfReferencedTypes(
-		getWorkspace(), 
-		method,
+	searchDeclarationsOfReferencedTypes(
+		method, 
 		resultCollector
 	);
 	assertSearchResults(
@@ -802,9 +793,8 @@ public void testDeclarationOfReferencedTypes2() throws CoreException {
 		getCompilationUnit("JavaSearch", "src", "a7", "X.java").
 			getType("X").getMethod("foo", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().searchDeclarationsOfReferencedTypes(
-		getWorkspace(), 
-		method,
+	searchDeclarationsOfReferencedTypes(
+		method, 
 		resultCollector
 	);
 	assertSearchResults(
@@ -818,9 +808,8 @@ public void testDeclarationOfReferencedTypes2() throws CoreException {
 public void testDeclarationOfReferencedTypes3() throws CoreException {
 	ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "c1", "A.java");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().searchDeclarationsOfReferencedTypes(
-		getWorkspace(), 
-		unit,
+	searchDeclarationsOfReferencedTypes(
+		unit, 
 		resultCollector
 	);
 	assertSearchResults(
@@ -834,9 +823,8 @@ public void testDeclarationOfReferencedTypes3() throws CoreException {
 public void testDeclarationOfReferencedTypes4() throws CoreException {
 	ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "c1", "B.java");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().searchDeclarationsOfReferencedTypes(
-		getWorkspace(), 
-		unit,
+	searchDeclarationsOfReferencedTypes(
+		unit, 
 		resultCollector
 	);
 	assertSearchResults(
@@ -845,14 +833,13 @@ public void testDeclarationOfReferencedTypes4() throws CoreException {
 }
 /**
  * Declaration of referenced types test.
- * (Regression test for bug 18418 search: new SearchEngine().searchDeclarationsOfReferencedTypes reports import declarations)
+ * (Regression test for bug 18418 search: searchDeclarationsOfReferencedTypes reports import declarations)
  */
 public void testDeclarationOfReferencedTypes5() throws CoreException {
 	ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "c2", "A.java");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().searchDeclarationsOfReferencedTypes(
-		getWorkspace(), 
-		unit,
+	searchDeclarationsOfReferencedTypes(
+		unit, 
 		resultCollector
 	);
 	assertSearchResults(
@@ -867,9 +854,8 @@ public void testDeclarationOfReferencedTypes6() throws CoreException {
 	ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "d1", "X.java");
 	IType innerType = unit.getType("X").getType("Inner");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().searchDeclarationsOfReferencedTypes(
-		getWorkspace(), 
-		innerType,
+	searchDeclarationsOfReferencedTypes(
+		innerType, 
 		resultCollector
 	);
 	assertSearchResults(
@@ -878,15 +864,14 @@ public void testDeclarationOfReferencedTypes6() throws CoreException {
 }
 /**
  * Declaration of referenced types test.
- * (Regression test for bug 37438 searchenging NPE in new SearchEngine().searchDeclarationsOfReferencedTypes 
+ * (Regression test for bug 37438 searchenging NPE in searchDeclarationsOfReferencedTypes 
 )
  */
 public void testDeclarationOfReferencedTypes7() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "r7");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().searchDeclarationsOfReferencedTypes(
-		getWorkspace(), 
-		pkg,
+	searchDeclarationsOfReferencedTypes(
+		pkg, 
 		resultCollector
 	);
 	assertSearchResults(
@@ -901,16 +886,15 @@ public void testDeclarationOfReferencedTypes7() throws CoreException {
 public void testDeclarationOfReferencedTypes8() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "r7");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector() {
-	    public void aboutToStart() {
+	    public void beginReporting() {
 	        results.append("Starting search...\n");
         }
-	    public void done() {
+	    public void endReporting() {
 	        results.append("Done searching.");
         }
 	};
-	new SearchEngine().searchDeclarationsOfReferencedTypes(
-		getWorkspace(), 
-		pkg,
+	searchDeclarationsOfReferencedTypes(
+		pkg, 
 		resultCollector
 	);
 	assertSearchResults(
@@ -928,9 +912,8 @@ public void testDeclarationOfSentMessages() throws CoreException {
 		getCompilationUnit("JavaSearch", "src", "a5", "B.java").
 			getType("C").getMethod("i", new String[] {});
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().searchDeclarationsOfSentMessages(
-		getWorkspace(), 
-		method,
+	searchDeclarationsOfSentMessages(
+		method, 
 		resultCollector
 	);
 	assertSearchResults(
@@ -2401,8 +2384,7 @@ public void testSimpleConstructorReference2() throws CoreException {
 public void testSimpleDeclarationsOfSentMessages() throws CoreException {
 	ICompilationUnit cu = getCompilationUnit("JavaSearch", "src", "", "Test.java");
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().searchDeclarationsOfSentMessages(
-		getWorkspace(), 
+	searchDeclarationsOfSentMessages(
 		cu, 
 		resultCollector);
 	assertSearchResults(

@@ -286,9 +286,8 @@ public void testDeclarationOfReferencedTypes() throws CoreException {
 		true,
 		null);
 	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-	new SearchEngine().searchDeclarationsOfReferencedTypes(
-		getWorkspace(), 
-		method,
+	searchDeclarationsOfReferencedTypes(
+		method, 
 		resultCollector
 	);
 	assertSearchResults(

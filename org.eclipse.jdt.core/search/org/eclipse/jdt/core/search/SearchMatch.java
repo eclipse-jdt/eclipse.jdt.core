@@ -24,14 +24,14 @@ public class SearchMatch {
 	/**
 	 * The search result corresponds exactly to the search pattern.
 	 */
-	public static final int A_ACCURATE = 1;
+	public static final int A_ACCURATE = 0;
 
 	/**
 	 * The search result is potentially a match for the search pattern,
 	 * but a problem prevented the search engine from being more accurate
 	 * (typically because of the classpath was not correctly set).
 	 */
-	public static final int A_INACCURATE = 2;
+	public static final int A_INACCURATE = 1;
 	
 	private Object element;
 	private int length;
