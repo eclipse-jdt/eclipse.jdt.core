@@ -66,7 +66,7 @@ public int hashCode() {
 					monitor.exitRead(); // free read lock
 					monitor.enterWrite(); // ask permission to write
 					if (IndexManager.VERBOSE)
-						JobManager.log("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
+						JobManager.verbose("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
 					index.save();
 				} catch (IOException e) {
 					return FAILED;

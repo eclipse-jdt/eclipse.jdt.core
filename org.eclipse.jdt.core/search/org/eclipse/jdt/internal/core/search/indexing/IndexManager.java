@@ -120,7 +120,7 @@ public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder) {
  */
 public void checkIndexConsistency() {
 
-	if (VERBOSE) JobManager.log("STARTING ensuring consistency"); //$NON-NLS-1$
+	if (VERBOSE) JobManager.verbose("STARTING ensuring consistency"); //$NON-NLS-1$
 
 	boolean wasEnabled = isEnabled();	
 	try {
@@ -136,7 +136,7 @@ public void checkIndexConsistency() {
 		}
 	} finally {
 		if (wasEnabled) enable();
-		if (VERBOSE) JobManager.log("DONE ensuring consistency"); //$NON-NLS-1$
+		if (VERBOSE) JobManager.verbose("DONE ensuring consistency"); //$NON-NLS-1$
 	}
 }
 private String computeIndexName(IPath path) {
@@ -146,7 +146,7 @@ private String computeIndexName(IPath path) {
 	checksumCalculator.reset();
 	checksumCalculator.update(pathBytes);
 	String fileName = Long.toString(checksumCalculator.getValue()) + ".index"; //$NON-NLS-1$
-	if (VERBOSE) JobManager.log("-> index name for " + pathString + " is " + fileName); //$NON-NLS-1$ //$NON-NLS-2$
+	if (VERBOSE) JobManager.verbose("-> index name for " + pathString + " is " + fileName); //$NON-NLS-1$ //$NON-NLS-2$
 	IPath indexPath = getJavaPluginWorkingLocation();
 	String indexDirectory = indexPath.toOSString();
 	if (indexDirectory.endsWith(File.separator)) {
@@ -399,14 +399,14 @@ public void saveIndexes(){
 			monitor.enterWrite();
 			if (IndexManager.VERBOSE){
 				if (index.hasChanged()){ 
-					JobManager.log("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
+					JobManager.verbose("-> merging index " + index.getIndexFile()); //$NON-NLS-1$
 				}
 			}
 			try {
 				index.save();
 			} catch(IOException e){
 				if (IndexManager.VERBOSE) {
-					JobManager.log("-> got the following exception while merging:"); //$NON-NLS-1$
+					JobManager.verbose("-> got the following exception while merging:"); //$NON-NLS-1$
 					e.printStackTrace();
 				}
 				//org.eclipse.jdt.internal.core.Util.log(e);
@@ -432,7 +432,7 @@ public void shutdown() {
 		for (int i = 0, indexesFilesLength = indexesFiles.length; i < indexesFilesLength; i++) {
 			if (keepingIndexesPaths.get(indexesFiles[i].getAbsolutePath()) == null) {
 				if (VERBOSE) {
-					JobManager.log("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
+					JobManager.verbose("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
 				}
 				indexesFiles[i].delete();
 			}

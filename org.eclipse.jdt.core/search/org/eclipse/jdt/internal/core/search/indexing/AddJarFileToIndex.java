@@ -68,20 +68,20 @@ public int hashCode() {
 			IIndex index = (IIndex) manager.getIndex(indexedPath, false);
 			if (index != null) {
 				if (JobManager.VERBOSE) 
-					JobManager.log("-> no indexing required (index already exists) for " + this.path); //$NON-NLS-1$
+					JobManager.verbose("-> no indexing required (index already exists) for " + this.path); //$NON-NLS-1$
 				return COMPLETE;
 			}
 
 			index = manager.getIndex(indexedPath);
 			if (index == null) {
 				if (JobManager.VERBOSE) 
-					JobManager.log("-> index could not be created for " + this.path); //$NON-NLS-1$
+					JobManager.verbose("-> index could not be created for " + this.path); //$NON-NLS-1$
 				return COMPLETE;
 			}
 			ReadWriteMonitor monitor = manager.getMonitorFor(index);
 			if (monitor == null) {
 				if (JobManager.VERBOSE) 
-					JobManager.log("-> index for " + this.path + " just got deleted"); //$NON-NLS-1$//$NON-NLS-2$
+					JobManager.verbose("-> index for " + this.path + " just got deleted"); //$NON-NLS-1$//$NON-NLS-2$
 				return COMPLETE; // index got deleted since acquired
 			}
 			ZipFile zip = null;
@@ -105,7 +105,7 @@ public int hashCode() {
 				}
 
 				if (JobManager.VERBOSE)
-					JobManager.log("-> indexing " + zip.getName()); //$NON-NLS-1$
+					JobManager.verbose("-> indexing " + zip.getName()); //$NON-NLS-1$
 				long initialTime = System.currentTimeMillis();
 
 				final HashSet indexedFileNames = new HashSet(100);
@@ -136,7 +136,7 @@ public int hashCode() {
 					}
 					if (!needToReindex && indexedFileNames.size() == 0) {
 						if (JobManager.VERBOSE)
-							JobManager.log(
+							JobManager.verbose(
 								"-> no indexing required (index is consistent with library) for " //$NON-NLS-1$
 								+ zip.getName() + " (" //$NON-NLS-1$
 								+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
@@ -154,7 +154,7 @@ public int hashCode() {
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {
 						if (JobManager.VERBOSE) {
-							JobManager.log(
+							JobManager.verbose(
 								"-> indexing of " //$NON-NLS-1$
 								+ zip.getName() 
 								+ " has been cancelled"); //$NON-NLS-1$
@@ -174,7 +174,7 @@ public int hashCode() {
 					}
 				}
 				if (JobManager.VERBOSE)
-					JobManager.log(
+					JobManager.verbose(
 						"-> done indexing of " //$NON-NLS-1$
 						+ zip.getName() + " (" //$NON-NLS-1$
 						+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
