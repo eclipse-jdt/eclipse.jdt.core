@@ -379,6 +379,7 @@ Modifier -> 'synchronized'
 Modifier -> 'transient'
 Modifier -> 'volatile'
 Modifier -> 'strictfp'
+Modifier -> Annotation
 /:$readableName Modifier:/
 
 --18.8 Productions from 8: Class Declarations
@@ -1546,10 +1547,14 @@ EnumBodyDeclarationsopt -> EnumDeclarations
 -- 1.5 features : enhanced for statement
 -----------------------------------------------
 EnhancedForStatement ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' Statement
+EnhancedForStatement ::= 'for' '(' Modifiers Type PushModifiers Identifier ':' Expression ')' Statement
+-- EnhancedForStatement ::= 'for' '(' FormalParameter ':' Expression ')' Statement
 /.$putCase consumeEnhancedForStatement(); $break ./
 /:$readableName EnhancedForStatement:/
 
 EnhancedForStatementNoShortIf ::= 'for' '(' Type PushModifiers Identifier ':' Expression ')' StatementNoShortIf
+EnhancedForStatementNoShortIf ::= 'for' '(' Modifiers Type PushModifiers Identifier ':' Expression ')' StatementNoShortIf
+-- EnhancedForStatementNoShortIf ::= 'for' '(' FormalParameter ':' Expression ')' StatementNoShortIf
 /.$putCase consumeEnhancedForStatement(); $break ./
 /:$readableName EnhancedForStatementNoShortIf:/
 
@@ -1724,7 +1729,7 @@ TypeParameter1 ::= Identifier 'extends' ReferenceType AdditionalBoundList1
 /:$readableName TypeParameter1:/
 
 AdditionalBoundList1 -> AdditionalBound1
-AdditionalBoundList1 ::= AdditionalBoundList1 AdditionalBound1
+AdditionalBoundList1 ::= AdditionalBoundList AdditionalBound1
 /.$putCase consumeAdditionalBoundList1(); $break ./
 /:$readableName AdditionalBoundList1:/
 
@@ -1889,7 +1894,9 @@ Expression_NotName -> AssignmentExpression_NotName
 -----------------------------------------------
 -- 1.5 features : annotation - Metadata feature jsr175
 -----------------------------------------------
-AnnotationTypeDeclaration ::= Modifiersopt '@' interface Identifier AnnotationTypeBody
+AnnotationTypeDeclaration ::= Modifiers '@' interface Identifier AnnotationTypeBody
+/.$putCase consumeAnnotationTypeDeclaration() ; $break ./
+AnnotationTypeDeclaration ::= '@' interface Identifier AnnotationTypeBody
 /.$putCase consumeAnnotationTypeDeclaration() ; $break ./
 /:$readableName AnnotationTypeDeclaration:/
 
@@ -1911,6 +1918,11 @@ AnnotationTypeMemberDeclaration ::= Modifiersopt Type Identifier '(' ')' Default
 /.$putCase consumeAnnotationTypeMemberDeclaration() ; $break ./
 AnnotationTypeMemberDeclaration ::= ';'
 /.$putCase consumeEmptyAnnotationTypeMemberDeclaration() ; $break ./
+AnnotationTypeMemberDeclaration -> ConstantDeclaration
+AnnotationTypeMemberDeclaration -> ClassDeclaration
+AnnotationTypeMemberDeclaration -> InterfaceDeclaration
+AnnotationTypeMemberDeclaration -> EnumDeclaration
+AnnotationTypeMemberDeclaration -> AnnotationTypeDeclaration
 /:$readableName AnnotationTypeMemberDeclaration:/
 
 DefaultValueopt ::= $empty
@@ -1976,7 +1988,7 @@ SingleMemberAnnotation ::= '@' Name '(' MemberValue ')'
 -- 1.5 features : end of annotation
 -----------------------------------------------
 /.	}
-} ./
+}./
 
 $names
 
