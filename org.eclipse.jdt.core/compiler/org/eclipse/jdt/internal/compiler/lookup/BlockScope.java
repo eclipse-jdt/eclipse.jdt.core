@@ -442,7 +442,7 @@ public class BlockScope extends Scope {
 			char[] nextName = compoundName[currentIndex++];
 			invocationSite.setFieldIndex(currentIndex);
 			invocationSite.setActualReceiverType(typeBinding);
-			if ((binding = findField(typeBinding, nextName, invocationSite)) != null) {
+			if ((mask & FIELD) != 0 && (binding = findField(typeBinding, nextName, invocationSite)) != null) {
 				if (!binding.isValidBinding())
 					return new ProblemFieldBinding(
 						((FieldBinding) binding).declaringClass,
@@ -450,11 +450,19 @@ public class BlockScope extends Scope {
 						binding.problemId());
 				break; // binding is now a field
 			}
-			if ((binding = findMemberType(nextName, typeBinding)) == null)
-				return new ProblemBinding(
-					CharOperation.subarray(compoundName, 0, currentIndex),
-					typeBinding,
-					NotFound);
+			if ((binding = findMemberType(nextName, typeBinding)) == null) {
+				if ((mask & FIELD) != 0) {
+					return new ProblemBinding(
+						CharOperation.subarray(compoundName, 0, currentIndex),
+						typeBinding,
+						NotFound);
+				} else {
+					return new ProblemReferenceBinding(
+						CharOperation.subarray(compoundName, 0, currentIndex),
+						typeBinding,
+						NotFound);
+				}
+			}
 			if (!binding.isValidBinding())
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
