@@ -122,7 +122,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 						resFullPath = res.getFullPath();
 						
 						// ignore folders on the classpath or that correspond to an output location
-						if (this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
+						if (srcIsProject || this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
 							break;
 						}
 						// else add non java resource

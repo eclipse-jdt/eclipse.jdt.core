@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.Util;
 
-public class JavaProjectTests extends AbstractJavaModelTests {
+public class JavaProjectTests extends ModifyingResourceTests {
 public JavaProjectTests(String name) {
 	super(name);
 }
@@ -89,6 +89,7 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testGetRequiredProjectNames"));
 	suite.addTest(new JavaProjectTests("testGetNonJavaResources1"));
 	suite.addTest(new JavaProjectTests("testGetNonJavaResources2"));
+	suite.addTest(new JavaProjectTests("testGetNonJavaResources3"));
 	
 	// The following test must be at the end as it deletes a package and this would have side effects
 	// on other tests
@@ -414,6 +415,22 @@ public void testGetNonJavaResources1() throws CoreException {
 public void testGetNonJavaResources2() throws CoreException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin1", new String[] {"bin2"});
+		assertResources(
+			"Unexpected non-java resources for project",
+			"/P/.classpath\n" +
+			"/P/.project",
+			(IResource[])project.getNonJavaResources());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensures that the non-java resources for a project do not contain a folder that should be a package fragment.
+ */
+public void testGetNonJavaResources3() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
+		this.createFolder("/P/p1");
 		assertResources(
 			"Unexpected non-java resources for project",
 			"/P/.classpath\n" +
