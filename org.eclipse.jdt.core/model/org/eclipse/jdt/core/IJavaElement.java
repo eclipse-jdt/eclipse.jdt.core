@@ -191,7 +191,13 @@ IJavaElement getParent();
  */
 IResource getUnderlyingResource() throws JavaModelException;
 /**
- * Returns whether this Java element is read-only.
+ * Returns whether this Java element is read-only. An element is read-only
+ * if its structure cannot be modified by the java model. 
+ * <p>
+ * Note this is different from IResource.isReadOnly(). For example, .jar
+ * files are read-only as the java model doesn't know how to add/remove 
+ * elements in this file, but the underlying IFile can be writable.
+ * <p>
  * This is a handle-only method.
  *
  * @return <code>true</code> if this element is read-only
