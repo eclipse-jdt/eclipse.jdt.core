@@ -52,7 +52,7 @@ public abstract class Scope
 
 	/* Answer true if the left type can be assigned to right
 	*/
-	public boolean areTypesCompatible(TypeBinding left, TypeBinding right) {
+	public static boolean areTypesCompatible(TypeBinding left, TypeBinding right) {
 		return left.isCompatibleWith(right);
 	}
 
@@ -62,7 +62,7 @@ public abstract class Scope
 	* 		EqualOrMoreSpecific : left is compatible with right
 	* 		MoreGeneric : right is compatible with left
 	*/
-	public int compareTypes(TypeBinding left, TypeBinding right) {
+	public static int compareTypes(TypeBinding left, TypeBinding right) {
 		if (areTypesCompatible(left, right))
 			return EqualOrMoreSpecific;
 		if (areTypesCompatible(right, left))

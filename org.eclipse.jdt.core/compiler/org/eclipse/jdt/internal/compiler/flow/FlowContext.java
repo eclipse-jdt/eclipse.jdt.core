@@ -7,6 +7,7 @@ package org.eclipse.jdt.internal.compiler.flow;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.*;
@@ -81,7 +82,7 @@ public class FlowContext implements TypeConstants {
 						for (int raisedIndex = 0; raisedIndex < raisedCount; raisedIndex++) {
 							TypeBinding raisedException;
 							if ((raisedException = raisedExceptions[raisedIndex]) != null) {
-								switch (scope.compareTypes(raisedException, caughtException)) {
+								switch (Scope.compareTypes(raisedException, caughtException)) {
 									case EqualOrMoreSpecific :
 										exceptionContext.recordHandlingException(
 											caughtException,
@@ -128,6 +129,27 @@ public class FlowContext implements TypeConstants {
 							}
 						}
 					}
+					// anonymous constructors are allowed to throw any exceptions (their thrown exceptions
+					// clause will be fixed up later as per JLS 8.6).
+					if (exceptionContext.associatedNode instanceof AbstractMethodDeclaration){
+						AbstractMethodDeclaration method = (AbstractMethodDeclaration)exceptionContext.associatedNode;
+						if (method.isConstructor() 
+							&& method.binding.declaringClass.isAnonymousType()
+							&& scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4){
+								
+							for (int i = 0; i < raisedCount; i++) {
+								TypeBinding raisedException;
+								if ((raisedException = raisedExceptions[i]) != null) {
+									// only required for actually thrown exceptions
+									if (!flowInfo.isDeadEnd() && !flowInfo.isFakeReachable()){
+										exceptionContext.mergeUnhandledException(raisedException);
+									}
+								}
+							}
+							return; // no need to complain, will fix up constructor exceptions						
+						}
+					}
+					break; // not handled anywhere, thus jump to error handling
 				}
 			}
 			if (remainingCount == 0)
@@ -174,7 +196,7 @@ public class FlowContext implements TypeConstants {
 						caughtIndex < caughtCount;
 						caughtIndex++) {
 						ReferenceBinding caughtException = caughtExceptions[caughtIndex];
-						switch (scope.compareTypes(raisedException, caughtException)) {
+						switch (Scope.compareTypes(raisedException, caughtException)) {
 							case EqualOrMoreSpecific :
 								exceptionContext.recordHandlingException(
 									caughtException,
@@ -204,6 +226,22 @@ public class FlowContext implements TypeConstants {
 						.areTypesCompatible(raisedException, scope.getJavaLangRuntimeException())
 						|| scope.areTypesCompatible(raisedException, scope.getJavaLangError()))
 						return;
+						
+					// anonymous constructors are allowed to throw any exceptions (their thrown exceptions
+					// clause will be fixed up later as per JLS 8.6).
+					if (exceptionContext.associatedNode instanceof AbstractMethodDeclaration){
+						AbstractMethodDeclaration method = (AbstractMethodDeclaration)exceptionContext.associatedNode;
+						if (method.isConstructor() 
+							&& method.binding.declaringClass.isAnonymousType()
+							&& scope.environment().options.complianceLevel >= CompilerOptions.JDK1_4){
+									
+							// only required for actually thrown exceptions
+							if (!flowInfo.isDeadEnd() && !flowInfo.isFakeReachable()){
+								exceptionContext.mergeUnhandledException(raisedException);
+							}
+							return; // no need to complain, will fix up constructor exceptions						
+						}
+					}
 					break; // not handled anywhere, thus jump to error handling
 				}
 			}

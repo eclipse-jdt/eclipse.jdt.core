@@ -161,7 +161,7 @@ public final void areTypesCastCompatible(BlockScope scope, TypeBinding castTb, T
 			}
 		}
 	} else { // ----- (castTb.isInterface) expressionTb.isInterface -------
-		if (castTb != expressionTb && (scope.compareTypes(castTb, expressionTb) == NotRelated)) {
+		if (castTb != expressionTb && (Scope.compareTypes(castTb, expressionTb) == NotRelated)) {
 			MethodBinding[] castTbMethods = ((ReferenceBinding) castTb).methods();
 			MethodBinding[] expressionTbMethods = ((ReferenceBinding) expressionTb).methods();
 			int exprMethodsLength = expressionTbMethods.length;

@@ -21,6 +21,7 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 	public int exceptionCount;
 	public TypeBinding[] thrownExceptions = new TypeBinding[5];
 	public AstNode[] exceptionThrowers = new AstNode[5];
+	public FlowInfo[] exceptionThrowerFlowInfos = new FlowInfo[5];
 
 	public InitializationFlowContext(
 		FlowContext parent,
@@ -42,7 +43,7 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 			initializerContext.checkExceptionHandlers(
 				thrownExceptions[i],
 				exceptionThrowers[i],
-				flowInfo,
+				exceptionThrowerFlowInfos[i],
 				currentScope);
 		}
 	}
@@ -53,6 +54,7 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 		TypeBinding raisedException,
 		AstNode invocationSite,
 		boolean wasMasked) {
+			
 		int size = thrownExceptions.length;
 		if (exceptionCount == size) {
 			System.arraycopy(
@@ -67,8 +69,15 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 				(exceptionThrowers = new AstNode[size * 2]),
 				0,
 				size);
+			System.arraycopy(
+				exceptionThrowerFlowInfos,
+				0,
+				(exceptionThrowerFlowInfos = new FlowInfo[size * 2]),
+				0,
+				size);
 		}
 		thrownExceptions[exceptionCount] = raisedException;
-		exceptionThrowers[exceptionCount++] = invocationSite;
+		exceptionThrowers[exceptionCount] = invocationSite;
+		exceptionThrowerFlowInfos[exceptionCount++] = flowInfo.copy();
 	}	
 }

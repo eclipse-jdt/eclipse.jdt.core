@@ -4,6 +4,7 @@ package org.eclipse.jdt.internal.compiler.flow;
  * (c) Copyright IBM Corp. 2000, 2001.
  * All Rights Reserved.
  */
+import java.util.ArrayList;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -17,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 public class ExceptionHandlingFlowContext extends FlowContext {
 	
 	ReferenceBinding[] handledExceptions;
+	
 	public final static int BitCacheSize = 32; // 32 bits per int
 	int[] isReached;
 	int[] isNeeded;
@@ -25,6 +27,9 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	boolean isMethodContext;
 
 	public UnconditionalFlowInfo initsOnReturn;
+
+	// for dealing with anonymous constructor thrown exceptions
+	public ArrayList extendedExceptions;
 	
 	public ExceptionHandlingFlowContext(
 		FlowContext parent,
@@ -133,5 +138,37 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
 		// record initializations which were performed at the return point
 		initsOnReturn = initsOnReturn.mergedWith(flowInfo);
+	}
+	
+	/*
+	 * Compute a merged list of unhandled exception types (keeping only the most generic ones).
+	 * This is necessary to add synthetic thrown exceptions for anonymous type constructors (JLS 8.6).
+	 */
+	public void mergeUnhandledException(TypeBinding newException){
+		
+		if (this.extendedExceptions == null){
+			this.extendedExceptions = new ArrayList(5);
+			for (int i = 0; i < this.handledExceptions.length; i++){
+				this.extendedExceptions.add(this.handledExceptions[i]);
+			}
+		}
+		
+		boolean isRedundant = false;
+		
+		for(int i = this.extendedExceptions.size()-1; i >= 0; i--){
+			switch(Scope.compareTypes(newException, (TypeBinding)this.extendedExceptions.get(i))){
+				case MoreGeneric :
+					this.extendedExceptions.remove(i);
+					break;
+				case EqualOrMoreSpecific :
+					isRedundant = true;
+					break;
+				case NotRelated :
+					break;
+			}
+		}
+		if (!isRedundant){
+			this.extendedExceptions.add(newException);
+		}
 	}
 }
