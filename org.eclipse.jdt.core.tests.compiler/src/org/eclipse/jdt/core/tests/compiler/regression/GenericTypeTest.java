@@ -3285,4 +3285,27 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"The interface AX cannot be implemented simultaneously with different arguments: AX and AX<Object>\n" + 
 			"----------\n");		
 	}		
+	// test member types
+	// TODO (kent) NPE during name lookup (fooled into detecting a cycle on X through T bound)
+	public void _test112() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <T extends X.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
+				"    public static void main(String [] args) {\n" + 
+				"        \n" + 
+				"        new X<X.MX<Runnable>.MMX<Iterable<String>>>().new MX<Exception>();\n" + 
+				"        System.out.println(\"SUCCESS\");\n" + 
+				"    }\n" + 
+				"    void foo(X<Thread>.MX.MMX<X> mx) {\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    class MX <MT> {\n" + 
+				"        class MMX <MMT> {\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"SUCCESS");		
+	}			
 }
