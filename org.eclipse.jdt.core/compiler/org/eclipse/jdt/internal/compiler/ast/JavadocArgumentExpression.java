@@ -35,36 +35,23 @@ public class JavadocArgumentExpression extends Expression {
 	 */
 	private TypeBinding internalResolveType(Scope scope) {
 		this.constant = NotAConstant;
-		if (this.resolvedType != null) { // is a shared type reference which was already resolved
-			if (!this.resolvedType.isValidBinding()) {
-				return null; // already reported error
-			}
-		}
-		else {
-			if (this.argument != null) {
-				TypeReference typeRef = this.argument.type;
-				if (typeRef != null) {
-					this.resolvedType = typeRef.getTypeBinding(scope);
-					typeRef.resolvedType = this.resolvedType;
-					if (!this.resolvedType.isValidBinding()) {
-						scope.problemReporter().javadocInvalidType(typeRef, this.resolvedType, scope.getDeclarationModifiers());
-						return null;
-					}
-					if (isTypeUseDeprecated(this.resolvedType, scope)) {
-						scope.problemReporter().javadocDeprecatedType(this.resolvedType, typeRef, scope.getDeclarationModifiers());
-						return null;
-					}
-					// check raw type
-					if (this.resolvedType.isArrayType()) {
-					    TypeBinding leafComponentType = this.resolvedType.leafComponentType();
-					    if (leafComponentType.isGenericType()) { // raw type
-					        this.resolvedType = scope.createArrayType(scope.environment().createRawType((ReferenceBinding)leafComponentType, null), this.resolvedType.dimensions());
-					    }
-					} else if (this.resolvedType.isGenericType()) {
-				        this.resolvedType = scope.environment().createRawType((ReferenceBinding)this.resolvedType, null); // raw type
-					}		
-					return this.resolvedType;
+		if (this.resolvedType != null) // is a shared type reference which was already resolved
+			return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
+
+		if (this.argument != null) {
+			TypeReference typeRef = this.argument.type;
+			if (typeRef != null) {
+				this.resolvedType = typeRef.getTypeBinding(scope);
+				typeRef.resolvedType = this.resolvedType;
+				if (!this.resolvedType.isValidBinding()) {
+					scope.problemReporter().javadocInvalidType(typeRef, this.resolvedType, scope.getDeclarationModifiers());
+					return null;
 				}
+				if (isTypeUseDeprecated(this.resolvedType, scope)) {
+					scope.problemReporter().javadocDeprecatedType(this.resolvedType, typeRef, scope.getDeclarationModifiers());
+					return null;
+				}
+				return this.resolvedType = scope.convertToRawType(this.resolvedType);
 			}
 		}
 		return null;

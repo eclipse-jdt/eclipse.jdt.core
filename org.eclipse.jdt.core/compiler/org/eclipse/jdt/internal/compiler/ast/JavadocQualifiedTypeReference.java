@@ -15,7 +15,6 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -59,34 +58,22 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 	private TypeBinding internalResolveType(Scope scope) {
 		// handle the error here
 		this.constant = NotAConstant;
-		if (this.resolvedType != null) { // is a shared type reference which was already resolved
-			if (!this.resolvedType.isValidBinding())
-				return null; // already reported error
-		} else {
-			this.resolvedType = getTypeBinding(scope);
-			if (!this.resolvedType.isValidBinding()) {
-				Binding binding = scope.getTypeOrPackage(this.tokens);
-				if (binding instanceof PackageBinding) {
-					this.packageBinding = (PackageBinding) binding;
-				} else {
-					reportInvalidType(scope);
-				}
-				return null;
+		if (this.resolvedType != null) // is a shared type reference which was already resolved
+			return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
+
+		this.resolvedType = getTypeBinding(scope);
+		if (!this.resolvedType.isValidBinding()) {
+			Binding binding = scope.getTypeOrPackage(this.tokens);
+			if (binding instanceof PackageBinding) {
+				this.packageBinding = (PackageBinding) binding;
+			} else {
+				reportInvalidType(scope);
 			}
-			if (isTypeUseDeprecated(this.resolvedType, scope)) {
-				reportDeprecatedType(scope);
-			}
-			// check raw type
-			if (this.resolvedType.isArrayType()) {
-			    TypeBinding leafComponentType = this.resolvedType.leafComponentType();
-			    if (leafComponentType.isGenericType()) { // raw type
-			        return this.resolvedType = scope.createArrayType(scope.environment().createRawType((ReferenceBinding)leafComponentType, null), this.resolvedType.dimensions());
-			    }
-			} else if (this.resolvedType.isGenericType()) {
-		        return this.resolvedType = scope.environment().createRawType((ReferenceBinding)this.resolvedType, null); // raw type
-			}		
+			return null;
 		}
-		return this.resolvedType;
+		if (isTypeUseDeprecated(this.resolvedType, scope))
+			reportDeprecatedType(scope);
+		return this.resolvedType = scope.convertToRawType(this.resolvedType);
 	}
 
 	/* (non-Javadoc)
