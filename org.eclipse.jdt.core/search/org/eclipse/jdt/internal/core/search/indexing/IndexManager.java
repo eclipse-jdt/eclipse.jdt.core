@@ -218,18 +218,17 @@ public IIndex getIndex(IPath path) {
  * Warning: Does not check whether index is consistent (not being used)
  */
 public synchronized IIndex getIndex(IPath path, boolean mustCreate) {
+	// Path is already canonical per construction
 	IIndex index = (IIndex) indexes.get(path);
 	if (index == null) {
 		try {
-			// Path is already canonical per construction
-			index = (IIndex) indexes.get(path);
-			if (!mustCreate) return index;
-			if (index == null) {
-				String indexPath = computeIndexName(path.toOSString());
-				index = IndexFactory.newIndex(indexPath, "Index for " + path.toOSString()); //$NON-NLS-1$
-				indexes.put(path, index);
-				monitors.put(index, new ReadWriteMonitor());
-			}
+			if (!mustCreate) return null;
+
+			String indexPath = computeIndexName(path.toOSString());
+			index = IndexFactory.newIndex(indexPath, "Index for " + path.toOSString()); //$NON-NLS-1$
+			indexes.put(path, index);
+			monitors.put(index, new ReadWriteMonitor());
+			
 		} catch (IOException e) {
 			// The file could not be created. Possible reason: the project has been deleted.
 			return null;

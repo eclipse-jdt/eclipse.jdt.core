@@ -145,6 +145,17 @@ protected void addAffectedChild(JavaElementDelta child) {
 							JavaElementDelta childsChild = (JavaElementDelta) children[i];
 							((JavaElementDelta) existingChild).addAffectedChild(childsChild);
 						}
+						
+						// update flags if needed
+						switch (((JavaElementDelta) existingChild).fChangeFlags) {
+							case F_ADDED_TO_CLASSPATH:
+							case F_REMOVED_FROM_CLASSPATH:
+							case F_SOURCEATTACHED:
+							case F_SOURCEDETACHED:
+								((JavaElementDelta) existingChild).fChangeFlags |= ((JavaElementDelta) child).fChangeFlags;
+								break;
+						}
+						
 						// add the non-java resource deltas if needed
 						// note that the child delta always takes precedence over this existing child delta
 						// as non-java resource deltas are always created last (by the DeltaProcessor)
