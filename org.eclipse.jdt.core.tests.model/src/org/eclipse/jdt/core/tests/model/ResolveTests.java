@@ -673,6 +673,14 @@ public void testLocalName7() throws JavaModelException {
 	);
 }
 /*
+ * Resolve a local reference and ensure it returns true when asked isStructureKnown().
+ * (regression test for bug 48422 Calling isStructureKnown() on ILocalVaraible throws JavaModelExceptions)
+ */
+public void testLocalVarIsStructureKnown() throws JavaModelException {
+	ILocalVariable localVar = getLocalVariable("/Resolve/src/ResolveLocalName.java", "var1 = new Object();", "var1");
+	assertTrue(localVar.isStructureKnown());
+}
+/*
  * Resolve a local reference and ensure its type signature is correct.
  */
 public void testLocalVarTypeSignature1() throws JavaModelException {

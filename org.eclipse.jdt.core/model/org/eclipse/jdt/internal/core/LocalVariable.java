@@ -171,6 +171,10 @@ public class LocalVariable extends JavaElement implements ILocalVariable {
 		return Util.combineHashCodes(this.parent.hashCode(), this.nameStart);
 	}
 	
+	public boolean isStructureKnown() throws JavaModelException {
+        return true;
+    }
+	
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 		buffer.append(this.tabString(tab));
 		if (info != NO_INFO) {
