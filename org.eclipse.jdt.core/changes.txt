@@ -150,7 +150,7 @@ STREAM: 2.0
   
   PRs Fixed in this Release
   ================================================================================
-  1GKZ8J6: ITPJCORE:WIN2000 - search: missing field occurrecnces
+  1GL12XE: ITPJCORE:WIN2000 - search: missing field references in inner class
   1GL0X82: ITPJCORE:ALL - ClassCastException setting args on class file
   1GKAQJS: ITPJCORE:WIN2000 - search: incorrect results for nested types
   1GKZ8VZ: ITPJCORE:WINNT - Search - did not find references to member constructor
