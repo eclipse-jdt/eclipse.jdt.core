@@ -13,24 +13,27 @@ package org.eclipse.jdt.core.dom.rewrite;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.text.edits.MultiTextEdit;
+import org.eclipse.text.edits.TextEdit;
+import org.eclipse.text.edits.TextEditGroup;
+
+import org.eclipse.jface.text.IDocument;
+
 import org.eclipse.jdt.core.JavaCore;
+
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeRewriteEvent;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.TrackedNodePosition;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
-
-import org.eclipse.jface.text.IDocument;
-
-import org.eclipse.text.edits.MultiTextEdit;
-import org.eclipse.text.edits.TextEdit;
-import org.eclipse.text.edits.TextEditGroup;
 
 /**
  * Infrastucture for modifying code by describing changes to AST nodes.
@@ -418,6 +421,31 @@ public class ASTRewrite {
 		getNodeStore().markAsStringPlaceholder(placeholder, code);
 		return placeholder;
 	}
+	
+	/**
+	 * Creates and returns a node that represents a sequence of nodes. 
+	 * Users should not make any assumptions on the type of the returned node. The passed
+	 * nodes must be either be brand new (not part of the original AST) or a placeholder node (for example, one
+     * created by {@link #createCopyTarget(ASTNode)} or {@link #createStringPlaceholder(String, int)});
+     * or another group node. 
+	 * 
+	 * @param targetNodes the node to go in the group
+	 * @return the new group placeholder
+	 * @throws IllegalArgumentException if the targetNodes is null, or is empty.
+	 * @since 3.1
+	 */
+	public final ASTNode createGroupNode(ASTNode[] targetNodes) {
+		if (targetNodes == null || targetNodes.length == 0) {
+			throw new IllegalArgumentException();
+		}
+		Block res= getNodeStore().createCollapsePlaceholder();
+		ListRewrite listRewrite= getListRewrite(res, Block.STATEMENTS_PROPERTY);
+		for (int i= 0; i < targetNodes.length; i++) {
+			listRewrite.insertLast(targetNodes[i], null);
+		}
+		return res;
+	}
+	
 	
 	private ASTNode createTargetNode(ASTNode node, boolean isMove) {
 		if (node == null) {
