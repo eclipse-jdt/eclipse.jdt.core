@@ -407,22 +407,20 @@ public class Tests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new FilteredTestSuite(EXCLUDED_TESTS);
 		
-		/* basic tests */
+		/* tests */
+		suite.addTest(AbstractMethodTests.suite());
 		suite.addTest(BasicBuildTests.suite());
+		suite.addTest(ClasspathTests.suite());
+		suite.addTest(CompilationUnitLocationTests.suite());
+		suite.addTest(CopyResourceTests.suite());
 		suite.addTest(ErrorsTests.suite());
 		suite.addTest(EfficiencyTests.suite());
 		suite.addTest(ExecutionTests.suite());
-		
-		
-		/* tests */
-		suite.addTest(ClasspathTests.suite());
-		suite.addTest(AbstractMethodTests.suite());
-		suite.addTest(OutputFolderTests.suite());
-		suite.addTest(MultiProjectTests.suite());
-		suite.addTest(JCLTests.suite());
-		suite.addTest(CompilationUnitLocationTests.suite());
-		suite.addTest(PackageTests.suite());
 		suite.addTest(IncrementalTests.suite());
+		suite.addTest(JCLTests.suite());
+		suite.addTest(MultiProjectTests.suite());
+		suite.addTest(OutputFolderTests.suite());
+		suite.addTest(PackageTests.suite());
 		
 		return suite;
 	}
