@@ -722,7 +722,8 @@ protected IType[] growAndAddToArray(IType[] array, IType addition) {
  * Whether fine-grained deltas where collected and affects this hierarchy.
  */
 public boolean hasFineGrainChanges() {
-	return this.changeCollector != null && this.changeCollector.needsRefresh();
+    ChangeCollector collector = this.changeCollector;
+	return collector != null && collector.needsRefresh();
 }
 /**
  * Returns whether one of the subtypes in this hierarchy has the given simple name
@@ -963,7 +964,10 @@ private boolean isAffectedByPackageFragmentRoot(IJavaElementDelta delta, IJavaEl
 protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement element) {
 	if (element instanceof CompilationUnit) {
 		CompilationUnit cu = (CompilationUnit)element;
-		ChangeCollector collector = this.changeCollector == null ? new ChangeCollector(this) : this.changeCollector;
+		ChangeCollector collector = this.changeCollector;
+		if (collector == null) {
+		    collector = new ChangeCollector(this);
+		}
 		try {
 			collector.addChange(cu, delta);
 		} catch (JavaModelException e) {
@@ -1467,10 +1471,6 @@ public String toString() {
 			buffer.append("Sub types of root classes:\n"); //$NON-NLS-1$
 			IType[] roots= getRootClasses();
 			for (int i= 0; i < roots.length; i++) {
-				buffer.append("  "); //$NON-NLS-1$
-				JavaElement element = (JavaElement)roots[i];
-				buffer.append(element.toStringWithAncestors());
-				buffer.append('\n');
 				toString(buffer, roots[i], 1, false);
 			}
 		}
