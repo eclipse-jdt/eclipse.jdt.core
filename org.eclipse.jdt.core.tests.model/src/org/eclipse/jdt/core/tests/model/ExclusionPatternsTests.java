@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 
 import junit.framework.Test;
@@ -654,6 +655,28 @@ public void testRenameResourceExcludedPackage() throws CoreException {
 		"Unexpected non-java resources",
 		"",
 		root.getNonJavaResources());
+}
+/*
+ * Ensure that a potential match in the output folder is not indexed.
+ * (regression test for bug 32041 Multiple output folders fooling Java Model)
+ */
+public void testSearchPotentialMatchInOutput() throws JavaModelException, CoreException {
+	this.setClasspath(new String[] {"/P", "src/", "/P/src", ""});
+	this.createFile(
+		"/P/bin/X.java",
+		"public class X {\n" +
+		"}"
+	);
+	JavaSearchTests.JavaSearchResultCollector resultCollector = new JavaSearchTests.JavaSearchResultCollector();
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {getJavaProject("P")});
+	new SearchEngine().search(
+		getWorkspace(), 
+		"X",
+		IJavaSearchConstants.TYPE,
+		IJavaSearchConstants.DECLARATIONS, 
+		scope, 
+		resultCollector);
+	assertEquals("", resultCollector.toString());
 }
 /*
  * Ensure that removing the exclusion on a compilation unit

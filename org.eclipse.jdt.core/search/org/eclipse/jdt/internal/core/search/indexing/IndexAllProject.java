@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core.search.indexing;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -22,6 +23,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.Util;
@@ -71,7 +73,19 @@ public class IndexAllProject extends IndexRequest {
 				indexedFileNames.put(results[i].getPath(), DELETED);
 			final long indexLastModified = max == 0 ? 0L : index.getIndexFile().lastModified();
 
-			IClasspathEntry[] entries = JavaCore.create(this.project).getRawClasspath();
+			IJavaProject javaProject = JavaCore.create(this.project);
+			IClasspathEntry[] entries = javaProject.getRawClasspath();
+			
+			// collect output locations
+			final HashSet outputs = new HashSet();
+			outputs.add(javaProject.getOutputLocation());
+			for (int i = 0, length = entries.length; i < length; i++) {
+				IPath output = entries[i].getOutputLocation();
+				if (output != null) {
+					outputs.add(output);
+				}
+			}
+			
 			IWorkspaceRoot root = this.project.getWorkspace().getRoot();
 			for (int i = 0, length = entries.length; i < length; i++) {
 				if (this.isCancelled) return false;
@@ -99,6 +113,9 @@ public class IndexAllProject extends IndexRequest {
 											case IResource.FOLDER :
 												if (patterns != null && Util.isExcluded(proxy.requestResource(), patterns))
 													return false;
+												if (outputs.contains(proxy.requestFullPath())) {
+													return false;
+												}
 										}
 										return true;
 									}
