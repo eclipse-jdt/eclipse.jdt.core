@@ -2205,7 +2205,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		/*
 		 * Argument type 
-		 */		
+		 */
 		if (argument.type != null) {
 			argument.type.traverse(this, scope);
 		}
@@ -4130,7 +4130,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
 			}
 		}
-		int dimensions = parameterizedQualifiedTypeReference.dimensions();
+		int dimensions = getDimensions();
 		if (dimensions != 0) {
 			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
 				this.scribe.space();
@@ -4174,7 +4174,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (isClosingGenericToken()) {
 			this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_parameterized_type_reference);
 		}
-		int dimensions = parameterizedSingleTypeReference.dimensions;
+		int dimensions = getDimensions();
 		if (dimensions != 0) {
 			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
 				this.scribe.space();
