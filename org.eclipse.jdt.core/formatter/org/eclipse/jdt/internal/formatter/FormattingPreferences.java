@@ -1361,7 +1361,7 @@ public class FormattingPreferences {
 			SunSettings.blank_lines_before_field = 1;
 			SunSettings.blank_lines_before_method = 1;
 			SunSettings.blank_lines_before_member_type = 1;
-			SunSettings.insert_space_after_block_close_brace = false;
+			SunSettings.insert_space_after_block_close_brace = true;
 			SunSettings.keep_else_statement_on_same_line = false;
 			SunSettings.insert_space_before_bracket_in_array_type_reference = false;
 			SunSettings.insert_space_between_brackets_in_array_type_reference = false;

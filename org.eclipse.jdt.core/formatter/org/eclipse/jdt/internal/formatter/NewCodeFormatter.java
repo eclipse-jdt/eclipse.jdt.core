@@ -2093,7 +2093,14 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 		
 		final Statement action = forStatement.action;
 		if (action != null) {
-			action.traverse(this, scope);
+			if (action instanceof Block) {
+				action.traverse(this, scope);
+			} else {
+				this.scribe.indent();
+				this.scribe.printNewLine();
+				action.traverse(this, scope);
+				this.scribe.unIndent();
+			}
 			if (action instanceof Expression) {
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 				this.scribe.printTrailingComment();
@@ -2396,7 +2403,10 @@ public class NewCodeFormatter extends AbstractSyntaxTreeVisitorAdapter implement
 	public boolean visit(LocalDeclaration localDeclaration, BlockScope scope) {
 
 		if (!isMultipleLocalDeclaration(localDeclaration)) {
-			if (localDeclaration.modifiers != NO_MODIFIERS) this.scribe.printModifiers();
+			if (localDeclaration.modifiers != NO_MODIFIERS) {
+				this.scribe.printModifiers();
+				this.scribe.space();
+			}
 	
 			/*
 			 * Argument type 

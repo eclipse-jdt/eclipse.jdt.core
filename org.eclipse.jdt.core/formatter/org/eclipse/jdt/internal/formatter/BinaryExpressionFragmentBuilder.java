@@ -26,13 +26,14 @@ import org.eclipse.jdt.internal.compiler.ast.EqualExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral;
 import org.eclipse.jdt.internal.compiler.ast.FalseLiteral;
+import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.FloatLiteral;
+import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.ast.LongLiteral;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression;
-import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.PostfixExpression;
 import org.eclipse.jdt.internal.compiler.ast.PrefixExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
@@ -118,57 +119,8 @@ public class BinaryExpressionFragmentBuilder
 	}
 
 	public boolean visit(BinaryExpression binaryExpression, BlockScope scope) {
-		if (buildFragments(binaryExpression)) {
-			switch((binaryExpression.bits & EqualExpression.OperatorMASK) >> EqualExpression.OperatorSHIFT) {
-				case OperatorIds.AND :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameAND));
-					break;
-				case OperatorIds.DIVIDE :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameDIVIDE));
-					break;
-				case OperatorIds.GREATER :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameGREATER));
-					break;
-				case OperatorIds.GREATER_EQUAL :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameGREATER_EQUAL));
-					break;
-				case OperatorIds.LEFT_SHIFT :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameLEFT_SHIFT));
-					break;
-				case OperatorIds.LESS :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameLESS));
-					break;
-				case OperatorIds.LESS_EQUAL :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameLESS_EQUAL));
-					break;
-				case OperatorIds.MINUS :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameMINUS));
-					break;
-				case OperatorIds.MULTIPLY :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameMULTIPLY));
-					break;
-				case OperatorIds.OR :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameOR));
-					break;
-				case OperatorIds.PLUS :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNamePLUS));
-					break;
-				case OperatorIds.REMAINDER :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameREMAINDER));
-					break;
-				case OperatorIds.RIGHT_SHIFT :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameRIGHT_SHIFT));
-					break;
-				case OperatorIds.UNSIGNED_RIGHT_SHIFT :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameUNSIGNED_RIGHT_SHIFT));
-					break;
-				case OperatorIds.XOR :
-					this.operatorsList.add(new Integer(ITerminalSymbols.TokenNameXOR));
-			}
-			return true;
-		} else {
-			return false;
-		}
+		this.fragmentsList.add(binaryExpression);
+		return false;
 	}
 
 	public boolean visit(CastExpression castExpression, BlockScope scope) {
@@ -217,9 +169,21 @@ public class BinaryExpressionFragmentBuilder
 		return false;
 	}
 
+	public boolean visit(FieldReference fieldReference, BlockScope scope) {
+		this.fragmentsList.add(fieldReference);
+		return false;
+	}
+
 	public boolean visit(FloatLiteral floatLiteral, BlockScope scope) {
 		this.fragmentsList.add(floatLiteral);
 		return false;
+	}
+
+	public boolean visit(
+		InstanceOfExpression instanceOfExpression,
+		BlockScope scope) {
+			this.fragmentsList.add(instanceOfExpression);
+			return false;
 	}
 
 	public boolean visit(IntLiteral intLiteral, BlockScope scope) {
@@ -269,6 +233,19 @@ public class BinaryExpressionFragmentBuilder
 			this.fragmentsList.add(qualifiedAllocationExpression);
 			return false;
 	}
+	public boolean visit(
+		QualifiedNameReference qualifiedNameReference,
+		BlockScope scope) {
+			this.fragmentsList.add(qualifiedNameReference);
+			return false;
+	}
+
+	public boolean visit(
+		SingleNameReference singleNameReference,
+		BlockScope scope) {
+			this.fragmentsList.add(singleNameReference);
+			return false;
+	}
 
 	public boolean visit(StringLiteral stringLiteral, BlockScope scope) {
 		this.fragmentsList.add(stringLiteral);
@@ -283,19 +260,6 @@ public class BinaryExpressionFragmentBuilder
 	public boolean visit(UnaryExpression unaryExpression, BlockScope scope) {
 		this.fragmentsList.add(unaryExpression);
 		return false;
-	}
-	public boolean visit(
-		QualifiedNameReference qualifiedNameReference,
-		BlockScope scope) {
-			this.fragmentsList.add(qualifiedNameReference);
-			return false;
-	}
-
-	public boolean visit(
-		SingleNameReference singleNameReference,
-		BlockScope scope) {
-			this.fragmentsList.add(singleNameReference);
-			return false;
 	}
 
 }
