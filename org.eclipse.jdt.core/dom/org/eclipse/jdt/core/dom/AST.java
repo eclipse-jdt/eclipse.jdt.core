@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1825,7 +1825,7 @@ public final class AST {
 	/**
 	 * Creates and returns a new method reference node.
 	 * Initially the new node has an unspecified, but legal,
-	 * type, and no parameter name. 
+	 * type, not variable arity, and no parameter name. 
 	 * <p>
 	 * Note that this node type is used only inside doc comments
 	 * ({@link Javadoc}).

@@ -1298,6 +1298,12 @@ public class ASTMatcher {
 			return false;
 		}
 		MethodRefParameter o = (MethodRefParameter) other;
+		int level = node.getAST().apiLevel;
+		if (level >= AST.JLS3) {
+			if (node.isVarargs() != o.isVarargs()) {
+				return false;
+			}
+		}
 		return (
 				safeSubtreeMatch(node.getType(), o.getType())
 				&& safeSubtreeMatch(node.getName(), o.getName()));

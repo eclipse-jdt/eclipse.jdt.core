@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3962,12 +3962,27 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getNodeType() == ASTNode.METHOD_REF_PARAMETER);
 		assertTrue(x.getType().getParent() == x);
+		if (ast.apiLevel() >= AST.JLS3) {
+			assertTrue(x.isVarargs() == false);
+		}
 		assertTrue(x.getName() == null);
 		assertTrue(x.structuralPropertiesForType() == 
 			MethodRefParameter.propertyDescriptors(ast.apiLevel()));
 		// make sure that reading did not change modification count
 		assertTrue(ast.modificationCount() == previousCount);
 		
+		if (ast.apiLevel() >= AST.JLS3) {
+			previousCount = ast.modificationCount();
+			x.setVarargs(true);
+			assertTrue(ast.modificationCount() > previousCount);
+			assertTrue(x.isVarargs() == true);
+	
+			previousCount = ast.modificationCount();
+			x.setVarargs(false);
+			assertTrue(ast.modificationCount() > previousCount);
+			assertTrue(x.isVarargs() == false);
+		}
+
 		genericPropertyTest(x, new Property("Type", true, Type.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
 				SimpleType result = targetAst.newSimpleType(

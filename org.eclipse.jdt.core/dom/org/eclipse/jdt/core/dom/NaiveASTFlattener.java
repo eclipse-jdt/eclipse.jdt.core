@@ -833,6 +833,11 @@ class NaiveASTFlattener extends ASTVisitor {
 	 */
 	public boolean visit(MethodRefParameter node) {
 		node.getType().accept(this);
+		if (node.getAST().apiLevel() >= AST.JLS3) {
+			if (node.isVarargs()) {
+				this.buffer.append("...");//$NON-NLS-1$
+			}
+		}
 		if (node.getName() != null) {
 			this.buffer.append(" ");//$NON-NLS-1$
 			node.getName().accept(this);
