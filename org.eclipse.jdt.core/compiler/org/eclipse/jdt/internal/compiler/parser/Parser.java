@@ -1310,11 +1310,11 @@ protected void consumeCastExpressionWithQualifiedGenerics() {
 	TypeReference rightSide = getTypeReference(0);
 	int nameSize = this.identifierLengthStack[this.identifierLengthPtr];
 	int tokensSize = nameSize;
-	if (rightSide instanceof SingleParameterizedTypeReference) {
+	if (rightSide instanceof ParameterizedSingleTypeReference) {
 		tokensSize ++;
 	} else if (rightSide instanceof SingleTypeReference) {
 		tokensSize ++;
-	} else if (rightSide instanceof QualifiedParameterizedTypeReference) {
+	} else if (rightSide instanceof ParameterizedQualifiedTypeReference) {
 		tokensSize += ((QualifiedTypeReference) rightSide).tokens.length;
 	} else if (rightSide instanceof QualifiedTypeReference) {
 		tokensSize += ((QualifiedTypeReference) rightSide).tokens.length;
@@ -1322,8 +1322,8 @@ protected void consumeCastExpressionWithQualifiedGenerics() {
 	TypeReference[][] typeArguments = new TypeReference[tokensSize][];
 	char[][] tokens = new char[tokensSize][];
 	long[] positions = new long[tokensSize];
-	if (rightSide instanceof SingleParameterizedTypeReference) {
-		SingleParameterizedTypeReference singleParameterizedTypeReference = (SingleParameterizedTypeReference) rightSide;
+	if (rightSide instanceof ParameterizedSingleTypeReference) {
+		ParameterizedSingleTypeReference singleParameterizedTypeReference = (ParameterizedSingleTypeReference) rightSide;
 		tokens[nameSize] = singleParameterizedTypeReference.token;
 		positions[nameSize] = (((long) singleParameterizedTypeReference.sourceStart) << 32) + singleParameterizedTypeReference.sourceEnd;
 		typeArguments[nameSize] = singleParameterizedTypeReference.typeArguments;
@@ -1331,8 +1331,8 @@ protected void consumeCastExpressionWithQualifiedGenerics() {
 		SingleTypeReference singleTypeReference = (SingleTypeReference) rightSide;
 		tokens[nameSize] = singleTypeReference.token;
 		positions[nameSize] = (((long) singleTypeReference.sourceStart) << 32) + singleTypeReference.sourceEnd;
-	} else if (rightSide instanceof QualifiedParameterizedTypeReference) {
-		QualifiedParameterizedTypeReference parameterizedTypeReference = (QualifiedParameterizedTypeReference) rightSide;
+	} else if (rightSide instanceof ParameterizedQualifiedTypeReference) {
+		ParameterizedQualifiedTypeReference parameterizedTypeReference = (ParameterizedQualifiedTypeReference) rightSide;
 		TypeReference[][] rightSideTypeArguments = parameterizedTypeReference.typeArguments;
 		System.arraycopy(rightSideTypeArguments, 0, typeArguments, nameSize, rightSideTypeArguments.length);
 		char[][] rightSideTokens = parameterizedTypeReference.tokens;
@@ -1363,7 +1363,7 @@ protected void consumeCastExpressionWithQualifiedGenerics() {
 		typeArguments[nameSize - 1] = currentTypeArguments;
 	}
 	
-	QualifiedParameterizedTypeReference qualifiedParameterizedTypeReference = new QualifiedParameterizedTypeReference(tokens, typeArguments, 0, positions);
+	ParameterizedQualifiedTypeReference qualifiedParameterizedTypeReference = new ParameterizedQualifiedTypeReference(tokens, typeArguments, 0, positions);
 
 	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr], castType = qualifiedParameterizedTypeReference);
 	castType.sourceEnd = end - 1;
@@ -1379,11 +1379,11 @@ protected void consumeCastExpressionWithQualifiedGenericsArray() {
 	TypeReference rightSide = getTypeReference(0);
 	int nameSize = this.identifierLengthStack[this.identifierLengthPtr];
 	int tokensSize = nameSize;
-	if (rightSide instanceof SingleParameterizedTypeReference) {
+	if (rightSide instanceof ParameterizedSingleTypeReference) {
 		tokensSize ++;
 	} else if (rightSide instanceof SingleTypeReference) {
 		tokensSize ++;
-	} else if (rightSide instanceof QualifiedParameterizedTypeReference) {
+	} else if (rightSide instanceof ParameterizedQualifiedTypeReference) {
 		tokensSize += ((QualifiedTypeReference) rightSide).tokens.length;
 	} else if (rightSide instanceof QualifiedTypeReference) {
 		tokensSize += ((QualifiedTypeReference) rightSide).tokens.length;
@@ -1391,8 +1391,8 @@ protected void consumeCastExpressionWithQualifiedGenericsArray() {
 	TypeReference[][] typeArguments = new TypeReference[tokensSize][];
 	char[][] tokens = new char[tokensSize][];
 	long[] positions = new long[tokensSize];
-	if (rightSide instanceof SingleParameterizedTypeReference) {
-		SingleParameterizedTypeReference singleParameterizedTypeReference = (SingleParameterizedTypeReference) rightSide;
+	if (rightSide instanceof ParameterizedSingleTypeReference) {
+		ParameterizedSingleTypeReference singleParameterizedTypeReference = (ParameterizedSingleTypeReference) rightSide;
 		tokens[nameSize] = singleParameterizedTypeReference.token;
 		positions[nameSize] = (((long) singleParameterizedTypeReference.sourceStart) << 32) + singleParameterizedTypeReference.sourceEnd;
 		typeArguments[nameSize] = singleParameterizedTypeReference.typeArguments;
@@ -1400,8 +1400,8 @@ protected void consumeCastExpressionWithQualifiedGenericsArray() {
 		SingleTypeReference singleTypeReference = (SingleTypeReference) rightSide;
 		tokens[nameSize] = singleTypeReference.token;
 		positions[nameSize] = (((long) singleTypeReference.sourceStart) << 32) + singleTypeReference.sourceEnd;
-	} else if (rightSide instanceof QualifiedParameterizedTypeReference) {
-		QualifiedParameterizedTypeReference parameterizedTypeReference = (QualifiedParameterizedTypeReference) rightSide;
+	} else if (rightSide instanceof ParameterizedQualifiedTypeReference) {
+		ParameterizedQualifiedTypeReference parameterizedTypeReference = (ParameterizedQualifiedTypeReference) rightSide;
 		TypeReference[][] rightSideTypeArguments = parameterizedTypeReference.typeArguments;
 		System.arraycopy(rightSideTypeArguments, 0, typeArguments, nameSize, rightSideTypeArguments.length);
 		char[][] rightSideTokens = parameterizedTypeReference.tokens;
@@ -1426,7 +1426,7 @@ protected void consumeCastExpressionWithQualifiedGenericsArray() {
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, nameSize);
 	typeArguments[nameSize - 1] = currentTypeArguments;
 	
-	QualifiedParameterizedTypeReference qualifiedParameterizedTypeReference = new QualifiedParameterizedTypeReference(tokens, typeArguments, dim, positions);
+	ParameterizedQualifiedTypeReference qualifiedParameterizedTypeReference = new ParameterizedQualifiedTypeReference(tokens, typeArguments, dim, positions);
 
 	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr], castType = qualifiedParameterizedTypeReference);
 	castType.sourceEnd = end - 1;
@@ -7003,7 +7003,7 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 		TypeReference[] typeArguments = new TypeReference[currentTypeArgumentsLength];
 		this.genericsPtr -= currentTypeArgumentsLength;
 		System.arraycopy(this.genericsStack, this.genericsPtr + 1, typeArguments, 0, currentTypeArgumentsLength);
-		return new SingleParameterizedTypeReference(this.identifierStack[this.identifierPtr], typeArguments, dim, this.identifierPositionStack[this.identifierPtr--]);
+		return new ParameterizedSingleTypeReference(this.identifierStack[this.identifierPtr], typeArguments, dim, this.identifierPositionStack[this.identifierPtr--]);
 	} else {
 		TypeReference[][] typeArguments = new TypeReference[numberOfIdentifiers][];
 		char[][] tokens = new char[numberOfIdentifiers][];
@@ -7033,7 +7033,7 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 				currentIdentifiersLength = this.identifierLengthStack[this.identifierLengthPtr--];
 			}
 		}
-		return new QualifiedParameterizedTypeReference(tokens, typeArguments, dim, positions);
+		return new ParameterizedQualifiedTypeReference(tokens, typeArguments, dim, positions);
 	}
 }
 protected NameReference getUnspecifiedReference() {

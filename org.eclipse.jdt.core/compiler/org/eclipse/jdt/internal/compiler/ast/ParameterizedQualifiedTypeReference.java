@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
  * Syntactic representation of a reference to a generic type.
  * Note that it might also have a dimension.
  */
-public class QualifiedParameterizedTypeReference extends ArrayQualifiedTypeReference {
+public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeReference {
 
 	public TypeReference[][] typeArguments;
 	private boolean didResolve = false;
@@ -26,7 +26,7 @@ public class QualifiedParameterizedTypeReference extends ArrayQualifiedTypeRefer
 	 * @param dim
 	 * @param positions
 	 */
-	public QualifiedParameterizedTypeReference(char[][] tokens, TypeReference[][] typeArguments, int dim, long[] positions) {
+	public ParameterizedQualifiedTypeReference(char[][] tokens, TypeReference[][] typeArguments, int dim, long[] positions) {
 	    
 		super(tokens, dim, positions);
 		this.typeArguments = typeArguments;

@@ -16,12 +16,12 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
  * Syntactic representation of a reference to a generic type.
  * Note that it might also have a dimension.
  */
-public class SingleParameterizedTypeReference extends ArrayTypeReference {
+public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 
 	public TypeReference[] typeArguments;
 	private boolean didResolve = false;
 	
-	public SingleParameterizedTypeReference(char[] name, TypeReference[] typeArguments, int dim, long pos){
+	public ParameterizedSingleTypeReference(char[] name, TypeReference[] typeArguments, int dim, long pos){
 		super(name, dim, pos);
 		this.typeArguments = typeArguments;
 	}
