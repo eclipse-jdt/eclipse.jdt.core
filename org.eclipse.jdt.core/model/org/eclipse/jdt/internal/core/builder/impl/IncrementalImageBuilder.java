@@ -556,7 +556,7 @@ protected void computeAllPackages(IResourceDelta delta, IPackageFragmentRoot[] o
 				if (rootResource != null && rootResource.getFullPath().isPrefixOf(path)) {
 					found = true;
 					break;
-				}
+				} 
 			}
 			if (!found) {
 				for (int i = 0; i < oldRoots.length; i++) {
@@ -582,11 +582,13 @@ protected void computeAllPackages(IResourceDelta delta, IPackageFragmentRoot[] o
 	}
 	IResourceDelta[] children = delta.getAffectedChildren();
 	for (int i = 0; i < children.length; ++i) {
-		String extension = children[i].getFullPath().getFileExtension();
-		if (extension == null
-			|| extension.equalsIgnoreCase("zip") //$NON-NLS-1$
-			|| extension.equalsIgnoreCase("jar")) { //$NON-NLS-1$
-			// TBD: Currently rely on empty extension indicating folder
+		IResource rsc = children[i].getResource();
+		String ext = children[i].getFullPath().getFileExtension();
+		if (rsc instanceof IFolder 
+			|| (rsc instanceof IFile 
+					&& ("jar".equalsIgnoreCase(ext)  //$NON-NLS-1$
+						|| "zip".equalsIgnoreCase(ext)))){ //$NON-NLS-1$
+				
 			computeAllPackages(children[i], oldRoots, newRoots);
 		}
 	}
