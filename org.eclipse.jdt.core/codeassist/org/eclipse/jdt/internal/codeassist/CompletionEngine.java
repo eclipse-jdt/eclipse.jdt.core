@@ -2911,7 +2911,7 @@ public final class CompletionEngine
 		this.startPosition = start;
 		this.endPosition = end + 1;
 	}
-	
+	//TODO: (david) unused?
 	private char[] computeBaseNames(char firstName, char[][] excludeNames){
 		char[] name = new char[]{firstName};
 		
@@ -3239,6 +3239,7 @@ public final class CompletionEngine
 			this.uninterestingBindings[this.uninterestingBindingsPtr] = binding;
 		}
 	}
+	//TODO: (david) unused?
 	private char[][] computeNames(char[] sourceName, boolean forArray){
 		char[][] names = new char[5][];
 		int nameCount = 0;
@@ -3321,7 +3322,7 @@ public final class CompletionEngine
 		
 		return completion.toString().toCharArray();
 	}
-	
+	//TODO: (david) unused?
 	private boolean isEnclosed(ReferenceBinding possibleEnclosingType, ReferenceBinding type){
 		if(type.isNestedType()){
 			ReferenceBinding enclosing = type.enclosingType();

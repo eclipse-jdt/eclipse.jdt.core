@@ -119,7 +119,7 @@ public class SortElementsOperation extends JavaModelOperation {
 			false);
 		unit.getBuffer().setContents(builder.getSource());
 	}
-
+	//TODO: (olivier) unused?
 	private CompilationUnitDeclaration parseCompilationUnit(ICompilationUnit compilationUnit, char[] source) {
 		Map settings = compilationUnit.getJavaProject().getOptions(true);
 		CompilerOptions compilerOptions = new CompilerOptions(settings);

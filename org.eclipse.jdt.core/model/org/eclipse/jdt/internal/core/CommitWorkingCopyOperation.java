@@ -61,6 +61,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 	 * package declaration is invalid.
 	 * @see IJavaModelStatusConstants.INVALID_PACKAGE
 	 */
+	//TODO: (jerome) unused?
 	private void checkPackageDeclaration(ICompilationUnit cu)
 		throws JavaModelException {
 		IPackageFragment frag = (IPackageFragment) cu.getParent();

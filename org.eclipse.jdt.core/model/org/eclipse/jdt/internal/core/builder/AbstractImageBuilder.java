@@ -378,7 +378,7 @@ protected void storeTasksFor(SourceFile sourceFile, IProblem[] tasks) throws Cor
 					IMarker.CHAR_START, 
 					IMarker.CHAR_END, 
 					IMarker.LINE_NUMBER,
-					"readOnly"}, //$NON-NLS-1$ //TODO: improve once IMarker constant is added 
+					"readOnly"}, //$NON-NLS-1$ //TODO: (philippe) improve once IMarker constant is added 
 				new Object[] { 
 					task.getMessage(),
 					new Integer(priority),

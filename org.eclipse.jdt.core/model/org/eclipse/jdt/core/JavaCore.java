@@ -1612,28 +1612,6 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	public static JavaCore getJavaCore() {
 		return (JavaCore) getPlugin();
 	}
-	/**
-	 * Returns the <code>IJavaProject</code> associated with the
-	 * given <code>IProject</code>, or <code>null</code> if the
-	 * project does not have a Java nature.
-	 * 
-	 * @param the given <code>IProject</code>
-	 * @return the <code>IJavaProject</code> associated with the
-	 * given <code>IProject</code>, or <code>null</code> if the
-	 * project does not have a Java nature
-	 */
-	private IJavaProject getJavaProject(IProject project) {
-		try {
-			if (project.hasNature(NATURE_ID)) {
-				JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-				if (model != null) {
-					return model.getJavaProject(project);
-				}
-			}
-		} catch (CoreException e) {
-		}
-		return null;
-	}
 	
 	/**
 	 * Helper method for returning one option value only. Equivalent to <code>(String)JavaCore.getOptions().get(optionName)</code>

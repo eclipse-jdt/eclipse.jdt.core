@@ -20,8 +20,6 @@ import java.io.*;
 import java.util.*;
 
 public class TestingEnvironment {
-	private static final String testJarName = "buildertests.jar"; //$NON-NLS-1$
-	private static final String testProjectName = "org.eclipse.jdt.core.tests.builder"; //$NON-NLS-1$
 	
 	private boolean fIsOpen = false;
 	private boolean fWasBuilt = false;

@@ -716,7 +716,7 @@ public MethodBinding getImplicitMethod(ReferenceBinding receiverType, char[] sel
 					fuzzyProblem = new ProblemMethodBinding(selector, argumentTypes, methodBinding.declaringClass, NotVisible);
 				}
 			}
-			//TODO: should set closest match
+			//TODO: (philippe) should set closest match
 			if (fuzzyProblem == null && !methodBinding.isStatic()) {
 				if (insideConstructorCall) {
 					insideProblem = new ProblemMethodBinding(methodBinding.selector, methodBinding.parameters, NonStaticReferenceInConstructorInvocation);

@@ -547,7 +547,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 			// do nothing
 		}
 	}
-
+	//TODO: (jerome) unused?
 	private void cloneCurrentDelta(IJavaProject project, IPackageFragmentRoot root) {
 		JavaElementDelta delta = (JavaElementDelta)fCurrentDelta.find(root);
 		if (delta == null) return;
@@ -1416,7 +1416,7 @@ public class DeltaProcessor implements IResourceChangeListener {
 	/**
 	 * Update the JavaModel according to a .classpath file change. The file can have changed as a result of a previous
 	 * call to JavaProject#setRawClasspath or as a result of some user update (through repository)	 */
-	private void reconcileClasspathFileUpdate(IResourceDelta delta, IFile file, JavaProject project) {
+	void reconcileClasspathFileUpdate(IResourceDelta delta, IFile file, JavaProject project) {
 			
 		switch (delta.getKind()) {
 			case IResourceDelta.REMOVED : // recreate one based on in-memory classpath
@@ -1519,8 +1519,9 @@ public class DeltaProcessor implements IResourceChangeListener {
 	/**
 	 * Update the JavaModel according to a .jprefs file change. The file can have changed as a result of a previous
 	 * call to JavaProject#setOptions or as a result of some user update (through repository)
+	 * Unused until preference file get shared (.jpref)
 	 */
-	private void reconcilePreferenceFileUpdate(IResourceDelta delta, IFile file, JavaProject project) {
+	void reconcilePreferenceFileUpdate(IResourceDelta delta, IFile file, JavaProject project) {
 			
 		switch (delta.getKind()) {
 			case IResourceDelta.REMOVED : // flush project custom settings
