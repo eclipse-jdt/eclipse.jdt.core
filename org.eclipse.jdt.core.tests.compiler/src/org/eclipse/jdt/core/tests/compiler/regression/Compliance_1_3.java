@@ -48,7 +48,7 @@ static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		testsNames = new String[] { "Bug58069" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
-	testsNumbers = new int[] { 78 };
+//	testsNumbers = new int[] { 78 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //		testsRange = new int[] { 76, -1 };
 }
@@ -2748,7 +2748,48 @@ public void test078() {
 		"----------\n"
 	);
 }
-
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47227
+ */
+public void test079() {
+	this.runNegativeTest(
+		new String[] {
+			"Hello.java",
+			"void ___eval() {\n" +
+			"	new Runnable() {\n" +
+			"		int ___run() throws Throwable {\n" +
+			"			return blah;\n" +
+			"		}\n" +
+			"		private String blarg;\n" +
+			"		public void run() {\n" +
+			"		}\n" +
+			"	};\n" +
+			"}\n" +
+			"public class Hello {\n" +
+			"	private static int x;\n" +
+			"	private String blah;\n" +
+			"	public static void main(String[] args) {\n" +
+			"	}\n" +
+			"	public void hello() {\n" +
+			"	}\n" +
+			"	public boolean blah() {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public void foo() {\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Hello.java (at line 7)\n" + 
+		"	public void run() {\n" + 
+		"		}\n" + 
+		"	};\n" + 
+		"}\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error on tokens, delete these tokens\n" + 
+		"----------\n"
+	);
+}
 public static Class testClass() {
 	return Compliance_1_3.class;
 }
