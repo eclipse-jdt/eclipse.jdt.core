@@ -510,7 +510,13 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.printTag(PROBLEM_SUMMARY, parameters, true, true);
 			}
 			if (globalProblemsCount == 1) {
-				this.printErr(Main.bind("compile.oneProblem")); //$NON-NLS-1$
+				String message = null;
+				if (globalErrorsCount == 1) {
+					message = Main.bind("compile.oneError"); //$NON-NLS-1$
+				} else {
+					message = Main.bind("compile.oneWarning"); //$NON-NLS-1$
+				}
+				this.printErr(Main.bind("compile.oneProblem", message)); //$NON-NLS-1$
 			} else {
 				String errorMessage = null;
 				String warningMessage = null;
